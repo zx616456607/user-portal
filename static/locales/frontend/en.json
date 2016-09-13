@@ -1,0 +1,10 @@
+{
+  "Header.menu.doc": "documentation",
+  "Header.menu.user": "user",
+  "Header.menu.user.menu1": "user menu 1",
+  "Header.menu.user.menu2": "user menu 2",
+  "Header.menu.user.menu3": "user menu 3(disabled)",
+  "IntlExp.description": "i am description",
+  "IntlExp.alert": "i am alert",
+  "IntlExp.button": "alert"
+}
