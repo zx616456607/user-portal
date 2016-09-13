@@ -1,0 +1,114 @@
+#AppList {
+    padding-top: 40px;
+    padding-left: 30px;
+    padding-right: 60px;
+    border-left: 1px solid #e4e4e4;
+    .clearDiv {
+        clear: both;
+    }
+    //顶部工具栏样式
+    .operationBox {
+        width: 100%;
+        .leftBox {
+            float: left;
+            button {
+                margin-right: 10px;
+                padding: 4px 10px;
+                height: 35px;
+                line-height: 27px;
+                background-color: #FFFFFF;
+                i {
+                    margin-right: 5px;
+                    font-size: 12px;
+                }
+            }
+        }
+        .rightBox {
+            float: right;
+            .littleLeft {
+                float: left;
+                padding-left: 3px;
+                padding-right: 7px;
+                height: 35px;
+                line-height: 35px;
+                font-size: 15px;
+                color: #949494;
+                border-bottom: 1px solid #d9d9d9;
+            }
+            .littleRight {
+                float: left;
+                input {
+                    height: 35px;
+                    line-height: 35px;
+                    font-size: 14px;
+                    color: #333333;
+                    border: 0;
+                    border-bottom: 1px solid #d9d9d9;
+                    outline: none;
+                    background-color: #EFEFEF;
+                }
+            }
+        }
+    }
+    //数据框
+    .appBox {
+        margin-top: 30px;
+        width: 100%;
+        border-radius: 5px;
+        background-color: #FFFFFF;
+        .selectIconTitle {
+            width: 5%;
+            overflow: hidden;
+            text-align: center;
+        }
+        .appName,
+        .appStatus,
+        .serviceNum,
+        .containerNum {
+            width: 12.5%;
+        }
+        .visitIp,
+        .createTime,
+        .actionBox {
+            width: 15%;
+        }
+        .appTitle {
+            width: 100%;
+            height: 40px;
+            line-height: 40px;
+            border-bottom: 1px solid #d9d9d9;
+            .commonTitle {
+                float: left;
+                padding-left: 10px;
+                i {
+                    margin-left: 5px;
+                    cursor: pointer;
+                }
+            }
+        }
+        .dataBox {
+            padding-bottom: 40px;
+            width: 100%;
+            height: auto;
+            line-height: 50px;
+            .commonData {
+                float: left;
+                padding-left: 10px;
+                i {
+                    margin-left: 5px;
+                    cursor: pointer;
+                }
+            }
+            .appDetail{
+                width: 100%;
+                height: 51px;
+                border-bottom: 1px solid #d9d9d9;
+                font-size: 1.2em;
+                .ant-dropdown-link{
+                    width: 110px;
+                    text-align: left;
+                }
+            }
+        }
+    }
+}
