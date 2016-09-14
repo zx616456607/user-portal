@@ -25,6 +25,7 @@ import Hosting from './containers/hosting/Index'
 import Application from './containers/Application/Index'
 import AppList from './components/AppModule/AppList.js'
 import AppDetail from './components/AppModule/AppDetail.js'
+import AppCreate from './components/AppModule/AppCreate.js'
 /*-------------------App_manage Module Stop------------------------*/
 export default (
   <Route path="/" component={App}>
@@ -32,6 +33,7 @@ export default (
     <Route path="app_manage" component={Application}>
       <IndexRoute component={AppList}/>
       <Route path="detail/:app_id" component={AppDetail} />
+      <Route path="app_create" component={AppCreate} />
     </Route>
     <Route path="containers">
       <IndexRoute component={Container}/>

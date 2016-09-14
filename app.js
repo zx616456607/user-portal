@@ -27,6 +27,26 @@ global.Promise = require('bluebird')
 const koaLogger = require('koa-logger')
 app.use(koaLogger())
 
+// Set app config
+const packageJSON= require('./package.json')
+app.name = packageJSON.name
+app.version = packageJSON.version
+
+// For unexpected error handling
+app.use(function* (next) {
+  try {
+    yield next
+  } catch (err) {
+    if (err.status < 100) {
+      logger.error(`Unexpected status code: ${err.status}`)
+      err.status = 500
+    }
+    this.status = err.status || 500
+    this.body = err
+    this.app.emit('error', err, this)
+  }
+})
+
 // Webpack for debug
 global.CONFIG_PROD = true
 if (process.env.NODE_ENV === 'development') {
@@ -55,11 +75,29 @@ if (!global.CONFIG_PROD) {
 }
 
 // Cookie & session
-const session = require('koa-session')
+const session = require('koa-generic-session')
 const KeyGrip = require('keygrip')
 app.keys = config.session_secret
-app.keys = new KeyGrip(config.session_secret, 'sha256');
-app.use(session(app))
+app.keys = new KeyGrip(config.session_secret, 'sha256')
+const sessionOpts = {
+  key: config.session_key,
+  rolling: true,
+  maxAge: 1800000
+}
+const sessionMiddleware = session(sessionOpts)
+// Session store
+// @important! server will pending here until the session store is connected
+if (config.session_store.url && config.session_store.pass) {
+  const redisStore = require('koa-redis')
+  let sessionRedisConfig = config.session_store.url.split(':')
+  let sessionStore = new redisStore({
+    host: sessionRedisConfig[0],
+    port: sessionRedisConfig[1],
+    pass: config.session_store.pass
+  })
+  sessionOpts.store = sessionStore
+}
+app.use(session(sessionOpts))
 
 // Serve files from ./public
 const serve = require('koa-static')
@@ -91,21 +129,6 @@ const koaBody = require('koa-body')({
 })
 app.use(koaBody)
 
-// For unexpected error handling
-app.use(function* (next) {
-  try {
-    yield next
-  } catch (err) {
-    if (err.status < 100) {
-      logger.error(`Unexpected status code: ${err.status}`)
-      err.status = 500
-    }
-    this.status = err.status || 500
-    this.body = err
-    this.app.emit('error', err, this)
-  }
-})
-
 // For views
 const render = require('koa-ejs')
 const viewOps = {
@@ -125,54 +148,10 @@ render(app, viewOps)
 /*const auth = require('./utils/auth')
 app.use(auth.authCookieUser)*/
 
-// Internationalization, include i18n backend and reat-intl frontend
-const i18next = require('i18next')
-const i18nBackend = require('i18next-node-fs-backend')
-const i18Middleware = require('i18next-express-middleware')
-const DEFAULT_LOCALE = 'zh'
-const INTL_LOCALE_LIST = ['zh', 'en']
-const nsFills = fs.readdirSync(path.resolve('./static/locales/backend/zh'))
-let i18nNS = []
-nsFills.forEach(function (name) {
-  if (path.extname(name) === '.json') {
-    i18nNS.push(path.basename(name, '.json'))
-  }
-})
-const i18nOptions = {
-  ns: i18nNS,
-  load: "languageOnly",
-  fallbackLng: DEFAULT_LOCALE,
-  debug: false,
-  backend: {
-    loadPath: path.join(__dirname, './static/locales/backend/{{lng}}/{{ns}}.json')
-  },
-  detection: {
-    order: ['cookie', 'header'],
-    lookupCookie: config.intl_cookie_name,
-    caches: false
-  }
-}
-i18next
-  .use(i18nBackend)
-  .use(i18Middleware.LanguageDetector)
-  .init(i18nOptions)
-app.use(c2k(i18Middleware.handle(i18next)))
-// Set cookie and state for internationalization
-app.use(function* (next) {
-  let t = i18next.t.bind(i18next)
-  this.t = t
-  this.state.t = t
-  let localeCookie = this.cookies.get(config.intl_cookie_name)
-  if (localeCookie && INTL_LOCALE_LIST.indexOf(localeCookie) > -1) {
-    this.state.intl_locale = localeCookie
-    return yield next
-  }
-  this.state.intl_locale = DEFAULT_LOCALE
-  let expdate = new Date()
-  expdate.setMonth(expdate.getMonth() + 3)
-  this.cookies.set(config.intl_cookie_name, DEFAULT_LOCALE, { expires: expdate, signed: true, httpOnly: false })
-  yield next
-})
+// Internationalization
+const i18n = require('./services/i18n')
+app.use(i18n.handle())
+app.use(i18n.middleware)
 
 // Routes middleware
 const indexRoutes = require('./routes')
@@ -203,36 +182,39 @@ app.use(function* pageNotFound(next) {
   }
 })
 
-// create http server
-const http = require('http')
-const server = http.createServer(app.callback()).listen(config.port, config.host, function () {
-  setTimeout(function () {
-    logger.info('Tenx Storage Server is listening on port ' + config.port)
-    logger.info('Open up http://' + config.host + ':' + config.port + '/ in your browser.')
-  }, 1500)
-})
+// Create server
+let server
+if (config.protocol !== 'https') {
+  // Http server
+  const http = require('http')
+  server = http.createServer(app.callback()).listen(config.port, config.host, function () {
+    setTimeout(function () {
+      logger.info(`${app.name}@${app.version} is listening on port ${config.port}`)
+      logger.info(`Open up http://${config.host}:${config.port}/ in your browser.`)
+    }, 1500)
+  })
+} else {
+  // Https server
+  const https = require('https')
+  const prikeyfile = './sslkey/private.key'
+  const certfile = './sslkey/certs.crt'
+  const httpsoptions = {
+    key: fs.readFileSync(prikeyfile),
+    cert: fs.readFileSync(certfile)
+  }
+  const server = https.createServer(httpsoptions, app.callback()).listen(config.port, config.host, function() {
+    setTimeout(function() {
+      logger.info(`${app.name}@${app.version} is listening on port ${config.port}`)
+      logger.info(`Open up https://${config.host}:${config.port}/ in your browser.`)
+    }, 1500)
+  })
+}
 
 // For socket server
 /*const io = require('socket.io')(server)
 const socketController = require('./controllers/socket')
 io.on('connection', function (socket) {
   socketController(socket)
-})*/
-
-// Create https server
-/*const https = require('https')
-const fs = require('fs')
-const prikeyfile = './sslkey/private.key'
-const certfile = './sslkey/certs.crt'
-const httpsoptions = {
-  key: fs.readFileSync(prikeyfile),
-  cert: fs.readFileSync(certfile)
-}
-const server = https.createServer(httpsoptions, app.callback()).listen(config.port, config.host, function() {
-  setTimeout(function() {
-    logger.info('TenxCloud CI & CD Service is listening on port ' + config.port)
-    logger.info('Open up ' + config.protocol + '://' + config.host + ':' + config.port +'/ in your browser.')
-  }, 1500)
 })*/
 
 // Set server timeout to 5 mins

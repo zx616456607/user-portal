@@ -148,7 +148,7 @@ export default class Slider extends Component {
 }
 
 function checkCurrentPath(pathname){
-	var ApplicationCheck = new RegExp("Application","gi");
+	var ApplicationCheck = new RegExp("app_manage","gi");
 	if(ApplicationCheck.test(pathname)){
 		return "2";
 	}
