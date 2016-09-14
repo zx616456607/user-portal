@@ -14,6 +14,7 @@ import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import AppInstanceList from "./AppInstanceList.js"
 import AppGraph from "./AppGraph.js"
+import AppLog from "./AppLog.js"
 import "./style/AppDetail.less"
 
 const SubMenu = Menu.SubMenu
@@ -22,19 +23,11 @@ const TabPane = Tabs.TabPane
 
 class AppDetail extends Component {
   constructor(props) {
-    super(props);
-    this.changeModel = this.changeModel.bind(this);    
+    super(props);  
     this.state = {
       currentKey: "1"
     }
   }	
-  
-  changeModel(e){
-    console.log(e.key)
-    this.setState({
-      currentKey:e.key
-    });
-  }
   
   render() {
     const { appID } = this.props
@@ -46,6 +39,7 @@ class AppDetail extends Component {
 	          key="demo"
 	          type="right"
 	        >
+	          <div className="cover"></div>
           	  <div key="ca" className="AppInfo">
           	    <Card className="topCard">
                   <div className="imgBox">
@@ -93,9 +87,9 @@ class AppDetail extends Component {
 	               defaultActiveKey="1"
 	              >
 	                <TabPane tab="服务实例" key="1" ><AppInstanceList key="AppInstanceList" /></TabPane>
-	                <TabPane tab="应用拓补图" key="2" ><AppGraph key="AppGraph"/></TabPane>
-	                <TabPane tab="编排文件" key="3" >编排文件</TabPane>
-	                <TabPane tab="操作日志" key="4" >操作日志</TabPane>
+	                <TabPane tab="应用拓补图" key="2" >应用拓补图</TabPane>
+	                <TabPane tab="编排文件" key="3" ><AppGraph key="AppGraph" /></TabPane>
+	                <TabPane tab="操作日志" key="4" ><AppLog key="AppLog" / ></TabPane>
 	                <TabPane tab="监控" key="5" >监控</TabPane>
 	              </Tabs>
 	            </Card>

@@ -8,10 +8,11 @@
  * @author GaoJian
  */
 import React, { Component } from 'react'
-import { Checkbox,Dropdown,Button,Card, Menu,Icon } from 'antd'
+import { Modal,Checkbox,Dropdown,Button,Card, Menu,Icon } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
+import AppServiceDetail from "./AppServiceDetail.js"
 import "./style/AppInstanceList.less"
 
 const data = [{
@@ -88,11 +89,18 @@ const operaMenu = (<Menu>
 					  </Menu.Item>
 					</Menu>);
 var MyComponent = React.createClass({	  
-  propTypes: {
-   config: React.PropTypes.array
+  propTypes : {
+    config : React.PropTypes.array
   },
-  onchange:function(){
-  	
+  onchange : function(){
+  	  	
+  },
+  modalShow:function(instanceId){
+  	const {scope} = this.props;
+  	scope.setState({
+  		modalShow : true,
+  		currentShowInstance : instanceId
+  	});
   },
   render : function() {
 	var config = this.props.config;
@@ -103,7 +111,7 @@ var MyComponent = React.createClass({
 			  <Checkbox onChange={()=>this.onchange()}></Checkbox>
 			</div>
 			<div className="name commonData">
-		      <span className="viewBtn">
+		      <span className="viewBtn" onClick={this.modalShow.bind(this,item)}>
 	    	    {item.name}
 		      </span>
 			</div>
@@ -120,9 +128,9 @@ var MyComponent = React.createClass({
 			  {item.createTime}
 			</div>
 			<div className="actionBox commonData">
-			  <span className="viewBtn">
+			  <span className="viewBtn" onClick={this.modalShow.bind(this,item)}>
 			    <i className="fa fa-eye"></i>&nbsp;
-			     查看详情
+			       查看详情
 			  </span>
 			</div>
 			<div style={{clear:"both"}}></div>
@@ -140,9 +148,22 @@ var MyComponent = React.createClass({
 export default class AppInstanceList extends Component {
   constructor(props) {
     super(props);
-  }	
+    this.state = {
+      modalShow:false,
+      currentShowInstance:null
+    }
+  }
+  
+  closeModal(){
+    this.setState({
+  	  modalShow:false  
+  	});
+  }
   
   render() {
+  	const parentScope = this;
+  	let {modalShow} = this.state;
+  	let {currentShowInstance} = this.state;
     return (
       <div id="AppInstanceList">
 	    <QueueAnim className="demo-content"
@@ -193,7 +214,15 @@ export default class AppInstanceList extends Component {
       		</div>
       		<div style={{ clear:"both" }}></div>
       	  </div>
-      	  <MyComponent config = {data} />
+      	  <MyComponent scope={parentScope} config = {data} />
+      	  <Modal
+	        title="垂直居中的对话框"
+	        visible={this.state.modalShow}
+			className="AppServiceDetail"
+			transitionName="move-right"
+	      >
+	        <AppServiceDetail scope={parentScope} />
+          </Modal>
         </QueueAnim>
       </div>
     )
