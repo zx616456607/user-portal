@@ -148,6 +148,7 @@ var MyComponent = React.createClass({
 export default class AppInstanceList extends Component {
   constructor(props) {
     super(props);
+    this.closeModal = this.closeModal.bind(this);    
     this.state = {
       modalShow:false,
       currentShowInstance:null
@@ -220,6 +221,7 @@ export default class AppInstanceList extends Component {
 	        visible={this.state.modalShow}
 			className="AppServiceDetail"
 			transitionName="move-right"
+			onCancel={this.closeModal}
 	      >
 	        <AppServiceDetail scope={parentScope} />
           </Modal>

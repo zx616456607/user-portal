@@ -71,6 +71,9 @@
         .createTime,
         .actionBox {
             width: 15%;
+            white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
         }
         .appTitle {
             width: 100%;
@@ -121,6 +124,10 @@
                 	}
                 }
                 .actionBox{
+                	button{
+                		width: 100% !important;
+                		max-width: 110px !important;
+                	}
                 	i{
                 		float: right;
                 		line-height: 18px;

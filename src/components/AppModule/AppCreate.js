@@ -4,37 +4,45 @@
  * 
  * AppCreate component
  * 
- * v0.1 - 2016-09-12
+ * v0.1 - 2016-09-18
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Checkbox,Card,Menu,Dropdown,Button,Icon } from 'antd'
+import { Card } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
+import ProgressList from './AppCreate/ProgressList.js'
 import './style/AppCreate.less'
 
 export default class AppCreate extends Component {
   constructor(props) {
 	super(props);
-	this.onAllChange = this.onAllChange.bind(this);
-  }
-  
-  onAllChange(){
-  	
   }
 	
   render() {
+  	const { children } = this.props
     return (
         <QueueAnim 
-          className = "AppList"        
+          id = "AppCreate"        
           type = "right"
         >
-          <div id="AppList" key = "AppList">
+          <div className="AppCreate" key = "AppCreate">
       	    <Card>
-      	      
+      	      <div className="leftBox">
+      	        <ProgressList />
+      	      </div>
+      	      <div className="rightBox">
+      	        { children }
+      	      </div>
+      	      <div style={{ clear:"both" }}></div>
       	    </Card>
           </div>
       </QueueAnim>
     )
   }
+}
+
+AppCreate.propTypes = {
+  // Injected by React Router
+  children: PropTypes.node
 }

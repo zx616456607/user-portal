@@ -75,8 +75,8 @@ const testData = [{
 	name:"test8",
 	status:"0",
 	imageName:"Linux",
-	serviceIPInput:"192.168.1.1",
-	serviceIPOutput:"www.tenxcloud.com",
+	serviceIPInput:"192.168.1.1/tenxcloud_2.0/instanceList",
+	serviceIPOutput:"www.tenxcloud.com/tenxcloud_2.0",
 	createTime:"2016-09-09 11:27:27",
 }];
 
@@ -84,10 +84,32 @@ var MyComponent = React.createClass({
   propTypes : {
     config : React.PropTypes.array
   },
-  onchange : function(){
-  	  	
+  checkedFunc : function(e){
+  	//check this item selected or not
+  	const {scope} = this.props;
+  	let oldList = scope.state.selectedList;
+  	if(oldList.includes(e)){
+  		return true;
+  	}else{
+  		return false;
+  	}
+  },
+  onchange : function(e){
+  	//single item selected function
+  	const {scope} = this.props;
+  	let oldList = scope.state.selectedList;
+  	if(oldList.includes(e)){
+  	  let index = oldList.indexOf(e);
+  	  oldList.splice(index,1);
+  	}else{	
+	  oldList.push(e);
+  	}
+    scope.setState({
+      selectedList:oldList
+    });
   },
   modalShow:function(instanceId){
+  	//close model function
   	const {scope} = this.props;
   	scope.setState({
   		modalShow : true,
@@ -100,7 +122,7 @@ var MyComponent = React.createClass({
 	  return (
 	    <div className="containerDetail" key={item.id}>
 		  <div className="selectIconTitle commonData">
-		    <Checkbox onChange={()=>this.onchange()}></Checkbox>
+		    <Checkbox checked={this.checkedFunc(item.id)} onChange={()=>this.onchange(item.id)}></Checkbox>
 		  </div>
 		  <div className="name commonData">
 		    <span className="viewBtn" onClick={this.modalShow.bind(this,item)}>
@@ -115,8 +137,8 @@ var MyComponent = React.createClass({
 			{item.imageName}
 		  </div>
 		  <div className="address commonData">
-			内:&nbsp;{item.serviceIPInput}<br />
-			外:&nbsp;{item.serviceIPOutput}
+			<span>内&nbsp;:&nbsp;{item.serviceIPInput}</span>
+			<span>外&nbsp;:&nbsp;{item.serviceIPOutput}</span>
 		  </div>
 		  <div className="createTime commonData">
 			{item.createTime}
@@ -136,12 +158,40 @@ var MyComponent = React.createClass({
 export default class ContainerList extends Component {
   constructor(props) {
     super(props);
+    this.onchange = this.onchange.bind(this);
+    this.allSelectedChecked = this.allSelectedChecked.bind(this);
     this.state = {
-      
+      selectedList:[]
     }
   }
   
+  allSelectedChecked(){
+  	if(this.state.selectedList.length == testData.length){
+  		return true;
+  	}else{
+  		return false;
+  	}
+  }
+  
+  onchange(){
+  	//select title checkbox 
+    let newList = new Array();
+  	if(this.state.selectedList.length == testData.length){
+  	  //had select all item,turn the selectedlist to null
+      newList = [];  		
+  	}else{
+  	  //select some item or nothing,turn the selectedlist to selecet all item
+  	  for(let elem of testData){
+  	    newList.push(elem.id);
+  	  }
+  	}
+  	this.setState({
+  	  selectedList : newList
+  	});
+  }
+  
   render() {
+  	const parentScope = this
     return (
       <div id="ContainerList">
 	    <QueueAnim className="demo-content"
@@ -164,15 +214,15 @@ export default class ContainerList extends Component {
 	          </Button>
 	        </div>
 	        <div className="rightBox">
-	          <span>共&nbsp;个 容器</span>
-	          <span>已选中的容器(个)</span>
+	          <span>共&nbsp;{testData.length} 容器</span>
+	          <span>已选中的容器({this.state.selectedList.length}个)</span>
 	        </div>
 	        <div style={{ clear:"both" }}></div>
 	      </div>
 	      <Card className="dataBox">
 	        <div className="titleBox">
 		      <div className="selectIconTitle commonData">
-		        <Checkbox onChange={()=>this.onchange()}></Checkbox>
+		        <Checkbox checked={this.allSelectedChecked() } onChange={()=>this.onchange()}></Checkbox>
 		      </div>
 		      <div className="name commonData">
 		        名称
@@ -191,7 +241,7 @@ export default class ContainerList extends Component {
 		      </div>
 	          <div style={{clear:"both"}}></div>
 	        </div>
-	        <MyComponent config={testData} />
+	        <MyComponent scope={parentScope} config={testData} />
 	      </Card>
         </QueueAnim>
       </div>
@@ -200,5 +250,5 @@ export default class ContainerList extends Component {
 }
 
 ContainerList.propTypes = {
-//
+  selectedList : React.PropTypes.array
 }
