@@ -40,14 +40,24 @@ export default class AppGraph extends Component {
     return (
       <div id="AppGraph">
 	    <div className="topBox">
-	      <span>编排类型:</span>
-	      <Dropdown overlay={menu} trigger={['click']}>
-		    <Button>task
+	      <span>编排类型&nbsp;:&nbsp;</span>
+	      <Dropdown overlay={operaMenu} trigger={['click']}>
+		    <Button>
+		      task
+		      <i className="fa fa-caret-down"></i>
 		    </Button>
 		  </Dropdown>
 	    </div>
 	    <div className="bottomBox">
-	      <span>描述文件:</span>
+	      <span>描述文件&nbsp;:&nbsp;</span>
+	      <div className="introBox">
+	        Hello world~
+	        <br />
+	        &nbsp;&nbsp;Let me introduce myself.
+	        <br />
+	        &nbsp;&nbsp;&nbsp;&nbsp;I am an application of mengmengda~
+	      </div>
+	      <div style={{ clear:"both" }}></div>
 	    </div>
       </div>
     )

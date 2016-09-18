@@ -1,0 +1,83 @@
+#ContainerList {
+	.operaBox {
+		button {
+			margin-right: 20px;
+			height: 38px;
+			line-height: 28px;
+			i {
+				margin-right: 7px;
+			}
+		}
+		.leftBox {
+			float: left;
+		}
+		.rightBox {
+			float: right;
+			line-height: 38px;
+		}
+	}
+	.dataBox {
+		margin-top: 20px;
+		padding: 0;
+		background-color: #FFFFFF !important;
+		.ant-card-body {
+			padding: 0 !important;
+			max-height: 550px;
+			overflow-y: auto;
+		}
+		.commonData {
+			float: left;
+		}
+		.selectIconTitle {
+			width: 5%;
+			text-align: center;
+		}
+		.name {
+			width: 20%;
+		}
+		.status {
+			width: 10%;
+		}
+		.image {
+			width: 25%;
+		}
+		.address {
+			width: 25%;
+		}
+		.createTime {
+			width: 15%;
+		}
+		.titleBox {
+			padding: 0;
+			height: 50px;
+			line-height: 50px;
+			background-color: inherit;
+		}
+		.containerDetail {
+			padding: 10px 0;
+			height: 60px;
+			border-top: 1px solid #E5E5E5;
+			.selectIconTitle,
+			.name,
+			.status,
+			.image {
+				line-height: 40px;
+			}
+			.normal {
+				color: #5cb85c;
+			}
+			.error {
+				color: #f85a5a;
+			}
+			.address {
+				span {
+					display: block;
+					width: 95%;
+					white-space: nowrap;
+					overflow: hidden;
+					text-overflow: ellipsis;
+				}
+			}
+		}
+	}
+}

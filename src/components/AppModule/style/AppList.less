@@ -71,6 +71,9 @@
         .createTime,
         .actionBox {
             width: 15%;
+            white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
         }
         .appTitle {
             width: 100%;
@@ -106,7 +109,29 @@
                 font-size: 1.2em;
                 .ant-dropdown-link{
                     width: 110px;
+                    height: 35px;
                     text-align: left;
+                }
+                .appStatus{
+                	i{
+                		margin-right: 5px;
+                	}
+                	.normal{
+                		color: #5cb85c;
+                	}
+                	.error{
+                		color: #f85a5a;
+                	}
+                }
+                .actionBox{
+                	button{
+                		width: 100% !important;
+                		max-width: 110px !important;
+                	}
+                	i{
+                		float: right;
+                		line-height: 18px;
+                	}
                 }
             }
         }

@@ -10,6 +10,27 @@
 }
 <![CDATA[ @font-face { font-family: ifont; src: url(http://at.alicdn.com/t/font_1442373896_4754455.eot?#iefix) format(embedded-opentype), url(http://at.alicdn.com/t/font_1442373896_4754455.woff) format(woff), url(http://at.alicdn.com/t/font_1442373896_4754455.ttf) format(truetype), url(http://at.alicdn.com/t/font_1442373896_4754455.svg#ifont) format(svg); }
 ]]>
+.appline {
+  width: 50px;
+  height: 50px;
+}
+.st0{fill:none;stroke:#999999;stroke-miterlimit:10;}
+.st1{fill:none;stroke:#999999;stroke-miterlimit:10;stroke-dasharray:4.1818,2.0909;}
+
+.applining {
+  width: 50px;
+  height: 50px;
+}
+.st0{fill:none;stroke:url(#XMLID_3_);stroke-miterlimit:10;}
+.st1{fill:none;stroke:url(#XMLID_4_);stroke-miterlimit:10;stroke-dasharray:4.1818,2.0909;}
+.st2{fill:none;stroke:url(#XMLID_5_);stroke-miterlimit:10;}
+.st3{fill:none;stroke:url(#XMLID_6_);stroke-miterlimit:10;stroke-dasharray:4.1818,2.0909;}
+
+.appstore {
+  width: 200px;
+  height: 200px;
+}
+
 .center {
   width: 200px;
   height: 200px;
@@ -59,7 +80,49 @@
 }
 <![CDATA[ @font-face { font-family: ifont; src: url(http://at.alicdn.com/t/font_1442373896_4754455.eot?#iefix) format(embedded-opentype), url(http://at.alicdn.com/t/font_1442373896_4754455.woff) format(woff), url(http://at.alicdn.com/t/font_1442373896_4754455.ttf) format(truetype), url(http://at.alicdn.com/t/font_1442373896_4754455.svg#ifont) format(svg); }
 ]]>
+.stepfirst {
+  width: 200px;
+  height: 200px;
+}
+.st0{fill:none;stroke:#999999;stroke-width:12;stroke-miterlimit:10;}
+.st1{fill:#999999;}
+.st2{font-family:'MicrosoftYaHei';}
+.st3{font-size:124.7273px;}
+
+.stepforth {
+  width: 200px;
+  height: 200px;
+}
+.st0{fill:none;stroke:#999999;stroke-width:12;stroke-miterlimit:10;}
+.st1{fill:#999999;}
+.st2{font-family:'MicrosoftYaHei';}
+.st3{font-size:124.7273px;}
+
+.stepsecond {
+  width: 200px;
+  height: 200px;
+}
+.st0{fill:none;stroke:#999999;stroke-width:12;stroke-miterlimit:10;}
+.st1{fill:#999999;}
+.st2{font-family:'MicrosoftYaHei';}
+.st3{font-size:124.7273px;}
+
+.stepthird {
+  width: 200px;
+  height: 200px;
+}
+.st0{fill:none;stroke:#999999;stroke-width:12;stroke-miterlimit:10;}
+.st1{fill:#999999;}
+.st2{font-family:'MicrosoftYaHei';}
+.st3{font-size:124.7273px;}
+
 .system {
+  width: 200px;
+  height: 200px;
+}
+.st0{fill:#FFFFFF;}
+
+.terminal {
   width: 200px;
   height: 200px;
 }

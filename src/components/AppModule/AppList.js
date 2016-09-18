@@ -118,7 +118,8 @@ var MyComponent = React.createClass({
 		      </Link>
 			</div>
 			<div className="appStatus commonData">
-			  {item.appStatus}
+			  <i className={item.appStatus == 1 ? "normal fa fa-circle":"error fa fa-circle"}></i>
+			  <span className={item.appStatus == 1 ? "normal":"error"} >{item.appStatus == 1 ? "正常":"异常"}</span>
 			</div>
 			<div className="serviceNum commonData">
 			  {item.serviceNum}
@@ -135,7 +136,7 @@ var MyComponent = React.createClass({
 			<div className="actionBox commonData">
 			  <Dropdown overlay={operaMenu} trigger={['click']}>
 				<Button type="ghost" size="large" className="ant-dropdown-link" href="#">
-		          更多 <Icon type="down" />
+		          更多 <i className="fa fa-caret-down"></i>
 				</Button>
 			  </Dropdown>			      			
 			</div>
@@ -171,7 +172,11 @@ export default class AppList extends Component {
           <div id="AppList" key = "AppList">
       	    <div className="operationBox">
 	          <div className="leftBox">
-	      	    <Button type="ghost" size="large"><i className="fa fa-plus"></i>添加应用</Button>
+	      	    <Button type="ghost" size="large">
+	      	      <Link to="/app_manage/app_create">
+	      	        <i className="fa fa-plus"></i>添加应用
+	      	      </Link>
+	      	    </Button>
 	      	    <Button type="ghost" size="large"><i className="fa fa-stop"></i>停止容器</Button>
 	      	    <Button type="ghost" size="large"><i className="fa fa-trash-o"></i>删除容器</Button>
 	      	    <Button type="ghost" size="large"><i className="fa fa-undo"></i>重新部署</Button>
