@@ -25,9 +25,9 @@ export default class Slider extends Component {
    }
 	
 	selectModel(currentKey,currentIcon,event){
-		this.setState({
-			currentKey: currentKey,
-		});
+	  this.setState({
+		currentKey: currentKey,
+	  });
 	}
 	
   render() {

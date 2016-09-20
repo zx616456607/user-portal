@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Checkbox,Card,Menu,Dropdown,Button,Icon } from 'antd'
+import { Tooltip,Checkbox,Card,Menu,Dropdown,Button,Icon } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import './style/AppList.less'

@@ -22,13 +22,20 @@ import Registry from './containers/registry/Index'
 import Stack from './containers/stack/Index'
 import Hosting from './containers/hosting/Index'
 /*-------------------App_manage Module Start-----------------------*/
+/*-------------------Appliaction Start-----------------------------*/
 import Application from './containers/Application/Index'
 import AppList from './components/AppModule/AppList.js'
 import AppDetail from './components/AppModule/AppDetail.js'
 import AppCreate from './components/AppModule/AppCreate.js'
 /*---------AppCreate Start---------*/
 import AppCreateSelectModel from './components/AppModule/AppCreate/CreateModel.js'
+import AppCreateServiceList from './components/AppModule/AppCreate/ServiceList.js'
+import AppCreateComposeFile from './components/AppModule/AppCreate/ComposeFile.js'
 /*---------AppCreate Stop---------*/
+/*-------------------Application stop------------------------------*/
+/*-------------------Container start-------------------------------*/
+import ContainerList from './components/ContainerModule/ContainerList.js'
+/*-------------------Container stop--------------------------------*/
 /*-------------------App_manage Module Stop------------------------*/
 export default (
   <Route path="/" component={App}>
@@ -36,8 +43,12 @@ export default (
     <Route path="app_manage" component={Application}>
       <IndexRoute component={AppList}/>
       <Route path="detail/:app_id" component={AppDetail} />
-      <Route path="app_create" component={AppCreate} >
+      <Route path="app_create" component={AppCreate}>
         <IndexRoute component={AppCreateSelectModel}/>
+        <Route path="fast_create" component={AppCreateServiceList} />
+        <Route path="compose_file" component={AppCreateComposeFile} />
+      </Route>
+      <Route path="container" component={ContainerList}>
       </Route>
     </Route>
     <Route path="containers">

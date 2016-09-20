@@ -18,7 +18,6 @@ const MenuItemGroup = Menu.ItemGroup
 export default class AppSider extends Component {
   constructor(props) {
     super(props);
-    console.log(this.props.pathname)
     this.handleClick = this.handleClick.bind(this);
     this.state = {
       current: '1'
@@ -45,7 +44,7 @@ export default class AppSider extends Component {
 		    <Link to="/app_manage">应用</Link>
 		  </Menu.Item>
 		  <Menu.Item key="2">
-		    <Link to="/Application/docker">容器</Link>
+		    <Link to="/app_manage/container">容器</Link>
 		  </Menu.Item>
 		  <Menu.Item key="3">
 		    <Link to="/Application/storage">存储</Link>
