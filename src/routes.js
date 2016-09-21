@@ -21,6 +21,7 @@ import Ci from './containers/ci/Index'
 import Registry from './containers/registry/Index'
 import Stack from './containers/stack/Index'
 import Hosting from './containers/hosting/Index'
+import Storage from './containers/container/Storage'
 /*-------------------App_manage Module Start-----------------------*/
 /*-------------------Appliaction Start-----------------------------*/
 import Application from './containers/Application/Index'
@@ -50,6 +51,7 @@ export default (
       </Route>
       <Route path="container" component={ContainerList}>
       </Route>
+      <Route path="storage" component={Storage}></Route>
     </Route>
     <Route path="containers">
       <IndexRoute component={Container}/>
