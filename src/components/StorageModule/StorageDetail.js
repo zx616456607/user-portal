@@ -1,6 +1,6 @@
 
 import React, { Component, PropTypes } from 'react'
-import { Tabs,Card, Menu } from 'antd'
+import { Tabs,Card, Menu, Progress  } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -27,7 +27,7 @@ class StorageDetail extends Component {
     const { children } = this.props
     const { currentKey } = this.state
     return (
-      <div id="AppDetail">
+      <div id="StorageDetail">
         <QueueAnim className="demo-content"
                    key="demo"
                    type="right"
@@ -42,7 +42,7 @@ class StorageDetail extends Component {
                 <p className="appTitle">
                   我是存储名称
                 </p>
-                <div className="leftInfo">
+                <div className="info">
                   <div className="status">
                     使用状态&nbsp;:
                     <span>
@@ -53,19 +53,8 @@ class StorageDetail extends Component {
                   <div className="createDate">
                     创建&nbsp;:&nbsp;2016-09-09&nbsp;18:15
                   </div>
-                  <div className="service">
-                    服务&nbsp;:&nbsp;3/3
-                  </div>
-                </div>
-                <div className="middleInfo">
-                  
-                  <div className="updateDate">
-                    更新&nbsp;:&nbsp;2016-09-09&nbsp;18:15
-                  </div>
-                </div>
-                <div className="rightInfo">
-                  <div className="introduction">
-                    应用描述&nbsp;:&nbsp;这是一个萌萌哒的应用描述
+                  <div className="use">
+                    用量: &nbsp;&nbsp;<Progress percent={50} showInfo={false} />&nbsp;&nbsp;365/1024MB
                   </div>
                 </div>
                 <div style={{ clear:"both" }}></div>
