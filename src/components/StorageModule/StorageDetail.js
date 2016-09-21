@@ -9,10 +9,34 @@ import AppGraph from "../../components/AppModule/AppGraph.js"
 import AppLog from "../../components/AppModule/AppLog.js"
 import StorageBind from './StorageBind.js'
 import "./style/StorageDetail.less"
+import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
 const TabPane = Tabs.TabPane
+
+const messages = defineMessages({
+  useStatus: {
+    id: "StorageDetail.header.useStatus",
+    defaultMessage: '使用状态'
+  },
+  using: {
+    id: "StorageDetail.header.using",
+    defaultMessage: '使用中'
+  },
+  create: {
+    id: "StorageDetail.header.create",
+    defaultMessage: '创建'
+  },
+  useLevel: {
+    id: "StorageDetail.header.useLevel",
+    defaultMessage: '用量'
+  },
+  bindContainer: {
+    id: "StorageBind.bind.bindContainer",
+    defaultMessage: '绑定容器'
+  },
+})
 
 class StorageDetail extends Component {
   constructor(props) {
@@ -44,17 +68,20 @@ class StorageDetail extends Component {
                 </p>
                 <div className="info">
                   <div className="status">
-                    使用状态&nbsp;:
+                    <FormattedMessage {...messages.useStatus} />
+                    &nbsp;:
                     <span>
 	                      <i className="fa fa-circle"></i>
-	                      使用中
+	                      <FormattedMessage {...messages.using} />
                     </span>
                   </div>
                   <div className="createDate">
-                    创建&nbsp;:&nbsp;2016-09-09&nbsp;18:15
+                    <FormattedMessage {...messages.create} />
+                    &nbsp;:&nbsp;2016-09-09&nbsp;18:15
                   </div>
                   <div className="use">
-                    用量: &nbsp;&nbsp;<Progress percent={50} showInfo={false} />&nbsp;&nbsp;365/1024MB
+                    <FormattedMessage {...messages.useLevel} />
+                    : &nbsp;&nbsp;<Progress percent={50} showInfo={false} />&nbsp;&nbsp;365/1024MB
                   </div>
                 </div>
                 <div style={{ clear:"both" }}></div>
@@ -69,7 +96,7 @@ class StorageDetail extends Component {
                 <TabPane tab="操作" key="1" >
                   <AppInstanceList key="AppInstanceList" />
                 </TabPane>
-                <TabPane tab="绑定容器" key="2" >
+                <TabPane tab={<FormattedMessage {...messages.bindContainer} />} key="2" >
                   <StorageBind />
                 </TabPane>
               </Tabs>

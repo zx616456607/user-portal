@@ -24,5 +24,14 @@
   "Storage.modal.createBtn":"Create",
   "Storage.modal.createTitle": "Create Storage",
     "Storage.titleRow.normal": "Normal",
-  "Storage.titleRow.error": "Error"
+  "Storage.titleRow.error": "Error",
+
+  "StorageDetail.header.useStatus": "Use State",
+  "StorageDetail.header.using": "In use",
+  "StorageDetail.header.create": "Create",
+  "StorageDetail.header.useLevel": "Consumption",
+
+  "StorageBind.bind.volume": "Storage volume",
+  "StorageBind.bind.container": "Container",
+  "StorageBind.bind.bindContainer": "Bind Container"
 }
