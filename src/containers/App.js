@@ -47,6 +47,7 @@ class App extends Component {
     const { children, pathname } = this.props
     return (
       <div className="tenx-layout">
+        <div id="siderTooltip"></div>
         {this.renderErrorMessage()}
         <div className="tenx-layout-header">
           <div className="tenx-layout-wrapper">

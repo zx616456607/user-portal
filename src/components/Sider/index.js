@@ -57,7 +57,7 @@ export default class Slider extends Component {
 		    		</Link>   			
 	    		</li>
 	    		<li onClick={this.selectModel.bind(this,"1","#home")} className={currentKey=="1" ? "selectedLi":""}>
-		    		<Tooltip placement="right" title="总览"> 
+		    		<Tooltip placement="right" title="总览" getTooltipContainer={()=>document.getElementById("siderTooltip")}> 
 		    			<Link to="/">
 		    				<svg className="home commonImg">
 			    				<use xlinkHref="#home" />
@@ -66,7 +66,7 @@ export default class Slider extends Component {
 	    			</Tooltip>
 	    		</li>
 	    		<li onClick={this.selectModel.bind(this,"2","#app")} className={currentKey=="2" ? "selectedLi":""}>
-		    		<Tooltip placement="right" title="应用管理">
+		    		<Tooltip placement="right" title="应用管理" getTooltipContainer={()=>document.getElementById("siderTooltip")}>
 		    			<Link to="/app_manage">
 		    				<svg className="app commonImg">
 			    				<use xlinkHref="#app" />
@@ -75,7 +75,7 @@ export default class Slider extends Component {
 		    		</Tooltip>
 	    		</li>
 	    		<li onClick={this.selectModel.bind(this,"3","#app")} className={currentKey=="3" ? "selectedLi":""}>
-		    		<Tooltip placement="right" title="交付中心">
+		    		<Tooltip placement="right" title="交付中心" getTooltipContainer={()=>document.getElementById("siderTooltip")}>
 		    			<Link to="/app_manage">
 		    				<svg className="center commonImg">
 			    				<use xlinkHref="#center" />
@@ -84,7 +84,7 @@ export default class Slider extends Component {
 		    		</Tooltip>
 	    		</li>
 	    		<li onClick={this.selectModel.bind(this,"4","#database")} className={currentKey=="4" ? "selectedLi":""}>
-		    		<Tooltip placement="right" title="数据库与缓存">
+		    		<Tooltip placement="right" title="数据库与缓存" getTooltipContainer={()=>document.getElementById("siderTooltip")}>
 		    			<Link to="/">
 		    				<svg className="database commonImg">
 			    				<use xlinkHref="#database" />
@@ -93,7 +93,7 @@ export default class Slider extends Component {
 		    		</Tooltip>
 	    		</li>
 	    		<li onClick={this.selectModel.bind(this,"5","#system")} className={currentKey=="5" ? "selectedLi":""}>
-		    		<Tooltip placement="right" title="系统集成">
+		    		<Tooltip placement="right" title="系统集成" getTooltipContainer={()=>document.getElementById("siderTooltip")}>
 		    			<Link to="/">
 		    				<svg className="system commonImg">
 			    				<use xlinkHref="#system" />
@@ -102,7 +102,7 @@ export default class Slider extends Component {
 		    		</Tooltip>
 	    		</li>
 	    		<li onClick={this.selectModel.bind(this,"6","#manage")} className={currentKey=="6" ? "selectedLi":""}>
-	    			<Tooltip placement="right" title="管理与监控">
+	    			<Tooltip placement="right" title="管理与监控" getTooltipContainer={()=>document.getElementById("siderTooltip")}>
 		    			<Link to="/">
 		    				<svg className="manageMoniter commonImg">
 			    				<use xlinkHref="#managemoniter" />
@@ -111,7 +111,7 @@ export default class Slider extends Component {
 		    		</Tooltip>
 	    		</li>
 	    		<li onClick={this.selectModel.bind(this,"7","#setting")} className={currentKey=="7" ? "selectedLi":""}>
-	    			<Tooltip placement="right" title="系统设置">
+	    			<Tooltip placement="right" title="系统设置" getTooltipContainer={()=>document.getElementById("siderTooltip")}>
 		    			<Link to="/">
 		    				<svg className="setting commonImg">
 			    				<use xlinkHref="#setting" />
@@ -122,7 +122,7 @@ export default class Slider extends Component {
 	    	</ul>
 	    	<ul className="siderBottom">
 	    		<li>
-		    		<Tooltip placement="right" title="创建应用">
+		    		<Tooltip placement="right" title="创建应用" getTooltipContainer={()=>document.getElementById("siderTooltip")}>
 		    			<Link to="/">
 		    				<svg className="add commonImg">
 			    				<use xlinkHref="#add" />
