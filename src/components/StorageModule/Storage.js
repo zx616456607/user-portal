@@ -95,8 +95,8 @@ let  MyComponent = React.createClass({
 			  {item.createTime}
 			</div>
 			<div className="actionBox commonData">
-			 <span> 格式化</span>
-			 <span> 扩容</span>
+			 <Button className="btn-warning"> 格式化</Button>
+			 <Button className="btn-success"> 扩容</Button>
 			</div>
 			<div style={{clear:"both",width:"0"}}></div>
 		</div>

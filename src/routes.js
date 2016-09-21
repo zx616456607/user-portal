@@ -21,14 +21,14 @@ import Ci from './containers/ci/Index'
 import Registry from './containers/registry/Index'
 import Stack from './containers/stack/Index'
 import Hosting from './containers/hosting/Index'
-import Storage from './containers/container/Storage'
-import StorageDetail from './containers/container/StorageDetail'
 /*-------------------App_manage Module Start-----------------------*/
 /*-------------------Appliaction Start-----------------------------*/
 import Application from './containers/Application/Index'
 import AppList from './components/AppModule/AppList.js'
 import AppDetail from './components/AppModule/AppDetail.js'
 import AppCreate from './components/AppModule/AppCreate.js'
+import Storage from './components/StorageModule/Storage'
+import StorageDetail from './components/StorageModule/StorageDetail'
 /*---------AppCreate Start---------*/
 import AppCreateSelectModel from './components/AppModule/AppCreate/CreateModel.js'
 import AppCreateServiceList from './components/AppModule/AppCreate/ServiceList.js'
