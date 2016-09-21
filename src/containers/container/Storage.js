@@ -71,7 +71,7 @@ let  MyComponent = React.createClass({
 			  <Checkbox onChange={()=>this.onchange()}></Checkbox>
 			</div>
 			<div className="name commonData">
-		      <Link to={`/app_manage/detail/${item.id}`} >
+		      <Link to={`/app_manage/storage/detail/${item.id}`} >
 	    	    {item.name}
 		      </Link>
 			</div>

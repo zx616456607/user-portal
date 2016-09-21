@@ -1,0 +1,54 @@
+.storageList .appTitle .name,
+.storageList .dataBox .name {
+  width: 10%;
+}
+.storageList .appTitle .status,
+.storageList .dataBox .status {
+  width: 10%;
+}
+.storageList .appTitle .formet,
+.storageList .dataBox .formet {
+  width: 10%;
+}
+.storageList .appTitle .forin,
+.storageList .dataBox .forin {
+  width: 10%;
+}
+.storageList .appTitle .appName,
+.storageList .dataBox .appName {
+  width: 10%;
+}
+.storageList .appTitle .size,
+.storageList .dataBox .size {
+  width: 10%;
+}
+.storageList .appTitle .createTime,
+.storageList .dataBox .createTime {
+  width: 10%;
+}
+.storageList .appTitle .actionBox,
+.storageList .dataBox .actionBox {
+  width: 10%;
+}
+.operationBox {
+  width: 100%;
+}
+.operationBox .leftBtn {
+  float: left;
+}
+.operationBox .leftBtn .stopBtn {
+  background: white;
+}
+.operationBox .leftBtn button {
+  margin-right: 10px;
+  padding: 4px 10px;
+  height: 35px;
+  line-height: 27px;
+}
+.operationBox .leftBtn button i {
+  margin-right: 5px;
+  font-size: 12px;
+}
+.text-center {
+  text-align: center;
+}

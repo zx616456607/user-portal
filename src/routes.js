@@ -51,7 +51,9 @@ export default (
       </Route>
       <Route path="container" component={ContainerList}>
       </Route>
-      <Route path="storage" component={Storage}></Route>
+      <Route path="storage" component={Storage}>
+        <Route path="detail/:id" component={StorageDetail}></Route>
+      </Route>
     </Route>
     <Route path="containers">
       <IndexRoute component={Container}/>
