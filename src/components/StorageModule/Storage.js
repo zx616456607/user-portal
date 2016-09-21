@@ -1,7 +1,18 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2016 TenxCloud. All Rights Reserved.
+ * 
+ *  Storage list
+ * 
+ * v0.1 - 2016-09-20
+ * @author BaiYu
+ */
+
 import React, { Component, PropTypes } from 'react'
 import { Breadcrumb } from 'antd'
 import { Checkbox,Card,Menu,Dropdown,Button,Icon ,Modal ,Input, Slider, InputNumber, Row, Col} from 'antd'
 import { Link } from 'react-router'
+import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import QueueAnim from 'rc-queue-anim'
 import './style/storage.less'
 
@@ -57,6 +68,81 @@ const data = [
     createTime:"2016-09-09 11:27:27"
   }
 ];
+const messages = defineMessages({
+	name: {
+		id: "Storage.modal.name",
+		defaultMessage: '名称'
+	},
+	cancelBtn: {
+		id: "Storage.modal.cancelBtn",
+		defaultMessage: '取消'
+	},
+	createBtn: {
+		id: "Storage.modal.createBtn",
+		defaultMessage: '创建'
+	},
+	createTitle: {
+		id: "Storage.modal.createTitle",
+		defaultMessage: '创建存储'
+	},
+	createModalTitle: {
+		id:"Storage.menu.create",
+		defaultMessage: "创建存储卷",
+	},
+	storageName: {
+    id: 'Storage.titleRow.name',
+    defaultMessage: '存储名称',
+  },
+	delete: {
+    id: 'Storage.menu.delete',
+    defaultMessage: '删除',
+  },
+	status: {
+    id: 'Storage.titleRow.status',
+    defaultMessage: '状态',
+  },
+	formats: {
+    id: 'Storage.titleRow.formats',
+    defaultMessage: '格式',
+  },
+	forin: {
+    id: 'Storage.titleRow.forin',
+    defaultMessage: '容器挂载点',
+  },
+	app: {
+    id: 'Storage.titleRow.app',
+    defaultMessage: '应用',
+  },
+	size: {
+    id: 'Storage.titleRow.size',
+    defaultMessage: '大小',
+  },
+	createTime: {
+    id: 'Storage.titleRow.createTime',
+    defaultMessage: '创建时间',
+  },
+	action: {
+    id: 'Storage.titleRow.action',
+    defaultMessage: '操作',
+  },
+	formatting: {
+    id: 'Storage.titleRow.formatting',
+    defaultMessage: '格式化',
+  },
+	dilation: {
+    id: 'Storage.titleRow.dilation',
+    defaultMessage: '扩容',
+  },
+	okRow: {
+    id: 'Storage.titleRow.normal',
+    defaultMessage: '正常',
+  },
+	errorRow: {
+    id: 'Storage.titleRow.error',
+    defaultMessage: '异常',
+  }
+
+})
 
 let  MyComponent = React.createClass({
   propTypes: {
@@ -75,30 +161,20 @@ let  MyComponent = React.createClass({
 	    	    {item.name}
 		      </Link>
 			</div>
-			<div className="appStatus commonData">
+			<div className="status commonData">
 			  <i className={item.status == 1 ? "normal fa fa-circle":"error fa fa-circle"}></i>
-			  <span className={item.status == 1 ? "normal":"error"} >{item.status == 1 ? "正常":"异常"}</span>
+			  <span className={item.status == 1 ? "normal":"error"} >{item.status == 1 ? <FormattedMessage {...messages.okRow} />:<FormattedMessage {...messages.errorRow} />}</span>
 			</div>
-			<div className="formet commonData">
-			  {item.formet}
+			<div className="formet commonData">{item.formet}</div>
+			<div className="forin commonData">{item.forin}</div>
+			<div className="appname commonData">{item.appName}</div>
+			<div className="size commonData">{item.size}</div>
+			<div className="createTime commonData">{item.createTime}</div>
+			<div className="actionBtn">
+			 <Button className="btn-warning"><Icon type="delete" /><FormattedMessage {...messages.formatting} /></Button>
+			 <span className="margin"></span>
+			 <Button className="btn-success"><Icon type="scan" /><FormattedMessage {...messages.dilation} /></Button>
 			</div>
-			<div className="forin commonData">
-			  {item.forin}
-			</div>
-			<div className="appName commonData">
-			  {item.appName}
-			</div>
-			<div className="size commonData">
-			  {item.size}
-			</div>
-			<div className="createTime commonData">
-			  {item.createTime}
-			</div>
-			<div className="actionBox commonData">
-			 <Button className="btn-warning"> 格式化</Button>
-			 <Button className="btn-success"> 扩容</Button>
-			</div>
-			<div style={{clear:"both",width:"0"}}></div>
 		</div>
       );
 	});
@@ -109,7 +185,8 @@ let  MyComponent = React.createClass({
     );
   }
 });
-export default class Storage extends Component {
+class Storage extends Component {
+	
 	constructor(props) {
     super(props)
     this.showModal = this.showModal.bind(this)
@@ -140,17 +217,19 @@ export default class Storage extends Component {
       visible: false,
   	});
   }
+
   render() {
+		const { formatMessage } = this.props.intl
     return (
         <QueueAnim className ="AppList"  type = "right">
           <div id="AppList" key = "AppList">
       	    <div className="operationBox">
 	          <div className="leftBtn">
-	      	    <Button type="primary" size="large" onClick={this.showModal}><Icon type="plus" />创建储存</Button>
-	      	    <Button type="ghost" className="stopBtn" size="large"><Icon type="delete" />删除</Button>
-							<Modal title="创建储存卷" visible={this.state.visible} onOk={this.handleOk} onCancel={this.handleCancel} okText="OK" cancelText="Cancel">
+	      	    <Button type="primary" size="large" onClick={this.showModal}><Icon type="plus" /><FormattedMessage {...messages.createTitle} /></Button>
+	      	    <Button type="ghost" className="stopBtn" size="large"><Icon type="delete" /><FormattedMessage {...messages.delete} /></Button>
+							<Modal title={ formatMessage(messages.createModalTitle) } visible={this.state.visible} onOk={this.handleOk} onCancel={this.handleCancel} okText={ formatMessage(messages.createBtn) } cancelText={ formatMessage(messages.cancelBtn) }>
 								<Row style={{height:'40px'}}>
-									<Col span="3" className="text-center" style={{lineHeight:'30px'}}>名称</Col>
+									<Col span="3" className="text-center" style={{lineHeight:'30px'}}><FormattedMessage {...messages.name} /></Col>
 									<Col span="12"><Input placeholder="输入名称" /></Col>
 								</Row>
 								<Row style={{height:'40px'}}>
@@ -180,14 +259,14 @@ export default class Storage extends Component {
 							<div className="selectIconTitle commonTitle">
 								<Checkbox onChange={this.onAllChange}></Checkbox>
 							</div>
-							<div className="name commonTitle">存储名称</div>
-							<div className="appStatus commonTitle">状态</div>
-							<div className="formet commonTitle">格式</div>
-							<div className="forin commonTitle">容器挂载点</div>
-							<div className="appName commonTitle">应用名称</div>
-							<div className="size commonTitle">大小</div>
-							<div className="createTime commonTitle">创建时间</div>
-							<div className="actionBox commonTitle">操作</div>
+							<div className="name commonTitle"><FormattedMessage {...messages.storageName} /></div>
+							<div className="status commonTitle"><FormattedMessage {...messages.status} /></div>
+							<div className="formet commonTitle"><FormattedMessage {...messages.formats} /></div>
+							<div className="forin commonTitle"><FormattedMessage {...messages.forin} /></div>
+							<div className="appname commonTitle"><FormattedMessage {...messages.app} /></div>
+							<div className="size commonTitle"><FormattedMessage {...messages.size} /></div>
+							<div className="createTime commonTitle"><FormattedMessage {...messages.createTime} /></div>
+							<div className="actionBox commonTitle"><FormattedMessage {...messages.action} /></div>
       	    </div>
       	    <MyComponent config = {data}  />
       	  </Card>
@@ -196,3 +275,11 @@ export default class Storage extends Component {
     )
   }
 }
+
+Storage.propTypes = {
+  intl: PropTypes.object.isRequired
+}
+
+export default injectIntl(Storage, {
+  withRef: true,
+})

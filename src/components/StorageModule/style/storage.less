@@ -1,13 +1,28 @@
 .storageList{
   .appTitle,.dataBox{
-    .name{width: 10%}
-    .status{width: 10%}
+    .name{width: 10%;overflow: hidden;
+    text-overflow: ellipsis;
+    }
+    .status{width: 10%;
+      .fa{margin:0 5px;}
+      .normal{color: #5cb85c;}
+      .error{color: #f85a5a;}
+    }
     .formet{width: 10%}
-    .forin{width: 10%}
-    .appName{width: 10%}
+    .forin{width: 10%;overflow: hidden;
+    text-overflow: ellipsis;}
+    .appname{
+      width: 10%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
     .size{width: 10%}
     .createTime{width: 10%}
     .actionBox{width: 10%}
+    .actionBtn{
+     float: left;
+     padding-left: 10px;
+    }
   }
 }
 .operationBox {
@@ -28,3 +43,4 @@
   }
 }
 .text-center{text-align: center}
+#AppList .appBox .dataBox .appDetail{clear: both}

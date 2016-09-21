@@ -1,10 +1,24 @@
 .storageList .appTitle .name,
 .storageList .dataBox .name {
   width: 10%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .storageList .appTitle .status,
 .storageList .dataBox .status {
   width: 10%;
+}
+.storageList .appTitle .status .fa,
+.storageList .dataBox .status .fa {
+  margin: 0 5px;
+}
+.storageList .appTitle .status .normal,
+.storageList .dataBox .status .normal {
+  color: #5cb85c;
+}
+.storageList .appTitle .status .error,
+.storageList .dataBox .status .error {
+  color: #f85a5a;
 }
 .storageList .appTitle .formet,
 .storageList .dataBox .formet {
@@ -13,10 +27,14 @@
 .storageList .appTitle .forin,
 .storageList .dataBox .forin {
   width: 10%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.storageList .appTitle .appName,
-.storageList .dataBox .appName {
+.storageList .appTitle .appname,
+.storageList .dataBox .appname {
   width: 10%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .storageList .appTitle .size,
 .storageList .dataBox .size {
@@ -29,6 +47,11 @@
 .storageList .appTitle .actionBox,
 .storageList .dataBox .actionBox {
   width: 10%;
+}
+.storageList .appTitle .actionBtn,
+.storageList .dataBox .actionBtn {
+  float: left;
+  padding-left: 10px;
 }
 .operationBox {
   width: 100%;
@@ -51,4 +74,7 @@
 }
 .text-center {
   text-align: center;
+}
+#AppList .appBox .dataBox .appDetail {
+  clear: both;
 }
