@@ -27,6 +27,8 @@ import Application from './containers/Application/Index'
 import AppList from './components/AppModule/AppList.js'
 import AppDetail from './components/AppModule/AppDetail.js'
 import AppCreate from './components/AppModule/AppCreate.js'
+import Storage from './components/StorageModule/Storage'
+import StorageDetail from './components/StorageModule/StorageDetail'
 /*---------AppCreate Start---------*/
 import AppCreateSelectModel from './components/AppModule/AppCreate/CreateModel.js'
 import AppCreateServiceList from './components/AppModule/AppCreate/ServiceList.js'
@@ -36,6 +38,7 @@ import AppCreateComposeFile from './components/AppModule/AppCreate/ComposeFile.j
 /*-------------------Application stop------------------------------*/
 /*-------------------Container start-------------------------------*/
 import ContainerList from './components/ContainerModule/ContainerList.js'
+
 /*-------------------Container stop--------------------------------*/
 /*-------------------App_manage Module Stop------------------------*/
 export default (
@@ -51,6 +54,10 @@ export default (
         <Route path="compose_file" component={AppCreateComposeFile} />
       </Route>
       <Route path="container" component={ContainerList}>
+      </Route>
+      <Route path="storage">
+        <IndexRoute component={Storage}/>
+        <Route path=":storage_id" component={StorageDetail} />
       </Route>
     </Route>
     <Route path="containers">
