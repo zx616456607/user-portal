@@ -30,6 +30,7 @@ import AppCreate from './components/AppModule/AppCreate.js'
 /*---------AppCreate Start---------*/
 import AppCreateSelectModel from './components/AppModule/AppCreate/CreateModel.js'
 import AppCreateServiceList from './components/AppModule/AppCreate/ServiceList.js'
+import AppCreateAppStore from './components/AppModule/AppCreate/AppStore.js'
 import AppCreateComposeFile from './components/AppModule/AppCreate/ComposeFile.js'
 /*---------AppCreate Stop---------*/
 /*-------------------Application stop------------------------------*/
@@ -46,6 +47,7 @@ export default (
       <Route path="app_create" component={AppCreate}>
         <IndexRoute component={AppCreateSelectModel}/>
         <Route path="fast_create" component={AppCreateServiceList} />
+        <Route path="app_store" component={AppCreateAppStore} />
         <Route path="compose_file" component={AppCreateComposeFile} />
       </Route>
       <Route path="container" component={ContainerList}>
