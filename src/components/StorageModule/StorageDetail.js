@@ -7,6 +7,7 @@ import QueueAnim from 'rc-queue-anim'
 import AppInstanceList from "../../components/AppModule/AppInstanceList.js"
 import AppGraph from "../../components/AppModule/AppGraph.js"
 import AppLog from "../../components/AppModule/AppLog.js"
+import StorageBind from './StorageBind.js'
 import "./style/StorageDetail.less"
 
 const SubMenu = Menu.SubMenu
@@ -47,7 +48,7 @@ class StorageDetail extends Component {
                     <span>
 	                      <i className="fa fa-circle"></i>
 	                      使用中
-	                    </span>
+                    </span>
                   </div>
                   <div className="createDate">
                     创建&nbsp;:&nbsp;2016-09-09&nbsp;18:15
@@ -76,11 +77,12 @@ class StorageDetail extends Component {
                 tabPosition="top"
                 defaultActiveKey="1"
               >
-                <TabPane tab="服务实例" key="1" ><AppInstanceList key="AppInstanceList" /></TabPane>
-                <TabPane tab="应用拓补图" key="2" >应用拓补图</TabPane>
-                <TabPane tab="编排文件" key="3" ><AppGraph key="AppGraph" /></TabPane>
-                <TabPane tab="操作日志" key="4" ><AppLog key="AppLog" / ></TabPane>
-                <TabPane tab="监控" key="5" >监控</TabPane>
+                <TabPane tab="操作" key="1" >
+                  <AppInstanceList key="AppInstanceList" />
+                </TabPane>
+                <TabPane tab="绑定容器" key="2" >
+                  <StorageBind />
+                </TabPane>
               </Tabs>
             </Card>
           </div>
