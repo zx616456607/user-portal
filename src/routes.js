@@ -22,6 +22,7 @@ import Registry from './containers/registry/Index'
 import Stack from './containers/stack/Index'
 import Hosting from './containers/hosting/Index'
 import Storage from './containers/container/Storage'
+import StorageDetail from './containers/container/StorageDetail'
 /*-------------------App_manage Module Start-----------------------*/
 /*-------------------Appliaction Start-----------------------------*/
 import Application from './containers/Application/Index'
@@ -36,6 +37,7 @@ import AppCreateComposeFile from './components/AppModule/AppCreate/ComposeFile.j
 /*-------------------Application stop------------------------------*/
 /*-------------------Container start-------------------------------*/
 import ContainerList from './components/ContainerModule/ContainerList.js'
+
 /*-------------------Container stop--------------------------------*/
 /*-------------------App_manage Module Stop------------------------*/
 export default (
@@ -51,8 +53,9 @@ export default (
       </Route>
       <Route path="container" component={ContainerList}>
       </Route>
-      <Route path="storage" component={Storage}>
-        <Route path="detail/:id" component={StorageDetail}></Route>
+      <Route path="storage">
+        <IndexRoute component={Storage}/>
+        <Route path=":storage_id" component={StorageDetail} />
       </Route>
     </Route>
     <Route path="containers">
