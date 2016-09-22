@@ -9,7 +9,7 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import { Row, Col, Modal, Button, Icon, Collapse, Checkbox,Menu, Dropdown,Timeline } from 'antd'
+import { Row, Col, Modal, Button, Icon, Collapse, Checkbox,Menu, Dropdown,Timeline,Badge  } from 'antd'
 //import { Checkbox,Card,Menu,Dropdown,Button,Icon ,Modal ,Input, Slider, InputNumber, Row, Col} from 'antd'
 import { Link } from 'react-router'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
@@ -95,13 +95,57 @@ let ConfigFile = React.createClass({
         <div className="line"></div>
         <table>
           <tr>
-            <td>my_config_file1</td>
-            <td>my_config_file1</td>
-            <td>my_config_file1</td>
-            <td>my_config_file1</td>
-            <td>my_config_file1</td>
-            <td>my_config_file1</td>
-            <td>my_config_file1</td>
+            <td style={{padding: "0 10px"}}>
+              <Icon type="file-text" style={{marginRight: "10px"}} />
+              my_config_file1
+            </td>
+            <td style={{padding: "0 10px"}}>
+              <Button type="primary" style={{with: "30px",height: "30px",padding: "0 9px",marginRight: "5px"}}>
+                <Icon type="edit" />
+              </Button>
+              <Button type="primary" style={{with: "30px",height: "30px",padding: "0 9px"}}>
+                <Icon type="cross" />
+              </Button>
+            </td>
+            <td>
+              <div className="relate">
+                关联容器
+                <Badge count={11} style={{backgroundColor: "#5fb761",marginLeft: "20px"}} />
+              </div>
+              <div className="path">挂载路径</div>
+            </td>
+            <td>
+              <div className="relate">
+                my_container1
+              </div>
+              <div className="path">
+                /var/test/log
+              </div>
+            </td>
+            <td>
+              <div className="relate">
+                my_container1
+              </div>
+              <div className="path">
+                /var/test/log
+              </div>
+            </td>
+            <td>
+              <div className="relate">
+                my_container1
+              </div>
+              <div className="path">
+                /var/test/log
+              </div>
+            </td>
+            <td style={{padding:"0 30px"}}>
+              <div className="check">
+                <Button type="primary">
+                  <Icon type="eye-o" />
+                  查看
+                </Button>
+              </div>
+            </td>
           </tr>
         </table>
       </Row>
