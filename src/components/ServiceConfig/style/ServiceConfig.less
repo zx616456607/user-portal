@@ -1,0 +1,94 @@
+#Service {
+  height: 100%;
+  padding: 32px;
+  width: 100%;
+  max-height: 600px;
+  overflow-y: auto;
+  //折叠面板-start
+  .ant-collapse {
+    margin-top: 30px;
+    .ant-collapse-item {
+      .ant-collapse-header {
+        height: 60px;
+        line-height: 60px;
+        font-size: 14px;
+        border-bottom: 1px solid #d2d2d2;
+        border-left: 3px solid #00a2ea;
+        //checkbox
+        .group-name {
+          display: inline-block;
+          font-size: 16px;
+          i {
+            margin: 0 10px;
+          }
+        }
+        //小箭头
+        .arrow {
+          line-height: 60px;
+          font-size: 30px;
+          right: 0;
+          left:auto;
+          &:before{
+            content: '\E603';
+          }
+        }
+
+      }
+      .ant-collapse-content {
+        clear: both;
+        .file-list {
+          .ant-timeline-item-head {
+            display: none;
+          }
+          .ant-timeline-item-content {
+            padding: 0 0 10px 7px;
+          }
+          .file-item {
+            position: relative;
+            .line {
+              float: left;
+              margin-top: 40px;
+              width: 44px;
+              height: 0;
+              border-bottom: 1px solid #666666;
+            }
+            table {
+              float: left;
+              border-collapse: collapse;
+              td {
+                border: 1px solid #666666;
+                height: 80px;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  //折叠面板-end
+
+}
+//创建配置-弹出层-start
+.server-create-modal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  .ant-modal {
+    top: 0;
+    .ant-modal-body {
+      font-size: 18px;
+      line-height: 40px;
+      .create-conf-g {
+        text-align: center;
+        input {
+          outline: none;
+          display: inline-block;
+          height: 40px;
+          width: 300px;
+        }
+      }
+
+    }
+  }
+}
+//创建配置-弹出层-end

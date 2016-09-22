@@ -17,12 +17,11 @@ import './style/AppCreate.less'
 
 export default class AppCreate extends Component {
   constructor(props) {
-	super(props);
-	this.state = {
-	  createModel:"fast"
+		super(props);
+		this.state = {
+	  	createModel:"fast"
+		}
 	}
-  }
-	
   render() {
   	const { children } = this.props;
   	const parentScope = this;

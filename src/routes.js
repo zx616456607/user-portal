@@ -29,6 +29,7 @@ import AppDetail from './components/AppModule/AppDetail.js'
 import AppCreate from './components/AppModule/AppCreate.js'
 import Storage from './components/StorageModule/Storage'
 import StorageDetail from './components/StorageModule/StorageDetail'
+import Service from './components/ServiceConfig/Service'
 /*---------AppCreate Start---------*/
 import AppCreateSelectModel from './components/AppModule/AppCreate/CreateModel.js'
 import AppCreateServiceList from './components/AppModule/AppCreate/ServiceList.js'
@@ -60,6 +61,9 @@ export default (
       <Route path="storage">
         <IndexRoute component={Storage}/>
         <Route path=":storage_id" component={StorageDetail} />
+      </Route>
+      <Route path="serverSetting">
+        <IndexRoute component={Service}/>
       </Route>
     </Route>
     <Route path="containers">
