@@ -36,6 +36,10 @@ const messages = defineMessages({
     id: "StorageBind.bind.bindContainer",
     defaultMessage: '绑定容器'
   },
+  operating: {
+    id: "StorageDetail.operating",
+    defaultMessage: '操作'
+  },
 })
 
 class StorageDetail extends Component {
@@ -47,6 +51,7 @@ class StorageDetail extends Component {
   }
   
   render() {
+    const { formatMessage } = this.props.intl
     const { appID } = this.props
     const { children } = this.props
     const { currentKey } = this.state
@@ -93,7 +98,7 @@ class StorageDetail extends Component {
                 tabPosition="top"
                 defaultActiveKey="1"
               >
-                <TabPane tab="操作" key="1" >
+                <TabPane tab={<FormattedMessage {...messages.operating} />} key="1" >
                   <AppInstanceList key="AppInstanceList" />
                 </TabPane>
                 <TabPane tab={<FormattedMessage {...messages.bindContainer} />} key="2" >
@@ -107,14 +112,13 @@ class StorageDetail extends Component {
   )
   }
   }
+StorageDetail.propTypes = {
+  intl: PropTypes.object.isRequired
+}
   
-  function mapStateToProps(state, props) {
-    const { app_id } = props.params
-    return {
-    appID: app_id
-  }
-  }
+export default injectIntl(StorageDetail, {
+  withRef: true,
+})
+
+
   
-  export default connect(mapStateToProps, {
-    //
-  })(StorageDetail)
