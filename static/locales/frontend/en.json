@@ -33,5 +33,5 @@
   "StorageBind.bind.container": "Container",
   "StorageBind.bind.bindContainer": "Bind Container",
   "StorageBind.bind.app": "App",
-  "StorageDetail.operating": "operating"
+  "StorageDetail.operating": "Operating"
 }

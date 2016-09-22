@@ -55,6 +55,8 @@ class StorageDetail extends Component {
     const { appID } = this.props
     const { children } = this.props
     const { currentKey } = this.state
+    
+    
     return (
       <div id="StorageDetail">
         <QueueAnim className="demo-content"
@@ -86,7 +88,9 @@ class StorageDetail extends Component {
                   </div>
                   <div className="use">
                     <FormattedMessage {...messages.useLevel} />
-                    : &nbsp;&nbsp;<Progress percent={50} showInfo={false} />&nbsp;&nbsp;365/1024MB
+                    : &nbsp;&nbsp;
+                    <Progress percent={50} showInfo={false} />
+                    &nbsp;&nbsp;365/1024MB
                   </div>
                 </div>
                 <div style={{ clear:"both" }}></div>
