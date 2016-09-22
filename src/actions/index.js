@@ -11,6 +11,7 @@
 import { FETCH_API, Schemas } from '../middleware/api'
 import { API_URL_PREFIX } from '../constants'
 
+export const RESET_ERROR_MESSAGE = 'RESET_ERROR_MESSAGE'
 export const RC_LIST_REQUEST = 'RC_LIST_REQUEST'
 export const RC_LIST_SUCCESS = 'RC_LIST_SUCCESS'
 export const RC_LIST_FAILURE = 'RC_LIST_FAILURE'
@@ -77,3 +78,8 @@ export function resetErrorMessage() {
     type: RESET_ERROR_MESSAGE
   }
 }
+
+
+export const STORAGE_LIST_REQUEST = 'STORAGE_LIST_REQUEST' 
+export const STORAGE_LIST_SUCCESS = 'STORAGE_LIST_SUCCESS' 
+export const STORAGE_LIST_FAILURE = 'STORAGE_LIST_FAILURE' 

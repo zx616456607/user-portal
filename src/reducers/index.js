@@ -109,6 +109,42 @@ function transhRcs(state = {}, action) {
   }
 }
 
+function storageList(state = {}, action) {
+  const master = action.master
+  const defaultState = {
+    [master]: {
+      isFetching: false,
+      master,
+      login: null,
+      number: 0,
+      storageList: []
+    }
+  }
+  switch (action.type) {
+    case ActionTypes.STORAGE_LIST_REQUEST:
+      return merge({}, defaultState, state, {
+        [master]: { isFetching: true }
+      })
+    case ActionTypes.STORAGE_LIST_SUCCESS:
+      return merge({}, defaultStatus, state, {
+        [master]: {
+          isFetching: false,
+          storageList: union(state.stroageList, action.response.result.storageList),
+          number: action.response.result.number,
+          login: action.response.result.login,
+          master: action.response.result.master
+        }
+      })
+    case ActionTypes.STORAGE_LIST_FAILURE:
+      return merge({}, defaultState, state, {
+        [master]: { isFetching: false }
+      })
+    default: 
+      return state
+  }
+}
+
+
 const rootReducer = combineReducers({
   entities,
   errorMessage,

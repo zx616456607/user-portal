@@ -13,10 +13,20 @@ import { camelizeKeys } from 'humps'
 import 'isomorphic-fetch'
 
 // Fetches an API response
-function fetchApi(endpoint, schema) {
-  return fetch(endpoint, {
-      credentials: 'same-origin'
-    }).then(response =>
+function fetchApi(endpoint, options, schema) {
+  if(!options) {
+    options = {
+      credentials: 'same-origin',
+      method: 'GET'
+    }
+  }
+  if(options.method === 'POST') {
+    if(!options.headers) options.headers = {}
+    if(!options.headers) {
+      options.headers['Content-Type'] = 'application/json'
+    }
+  }
+  return fetch(endpoint, options).then(response =>
       response.json().then(json => ({json, response}))
     ).then(({json, response}) =>  {
       if (!response.ok) {
@@ -45,6 +55,10 @@ const rcSchema = new Schema('rcs', {
   idAttribute: 'rcName'
 })
 
+const storageSchema = new Schema('storage', {
+  idAttribute: 'namespace'
+})
+
 rcSchema.define({
   owner: userSchema
 })
@@ -59,6 +73,9 @@ export const Schemas = {
   },
   TRANSH_RCS: {
     rcList: arrayOf(rcSchema)
+  },
+  STORAGE: {
+    storageList: arrayOf(storageSchema)
   }
 }
 
@@ -102,7 +119,7 @@ export default store => next => action => {
   const [ requestType, successType, failureType ] = types
   next(actionWith({ type: requestType }))
 
-  return fetchApi(endpoint, schema).then(
+  return fetchApi(endpoint, action.options || {}, schema).then(
     response => next(actionWith({
       response,
       type: successType
