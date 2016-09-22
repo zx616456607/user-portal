@@ -137,7 +137,7 @@ var MyComponent = React.createClass({
 			  <Checkbox checked={this.checkedFunc(item.id)} onChange={()=>this.onchange(item.id)}></Checkbox>
 			</div>
 			<div className="containerName commonData">
-		      <Link to={`/app_manage/detail/${item.id}`} >
+		      <Link to={`/app_manage/container/detail/${item.id}`} >
 	    	    {item.appName}
 		      </Link>
 			</div>

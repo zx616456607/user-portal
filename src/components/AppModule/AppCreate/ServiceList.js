@@ -12,6 +12,7 @@ import { Modal,Checkbox,Button,Card, Menu } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
+import AppCreateServiceModal from './AppCreateServiceModal.js'
 import "./style/ServiceList.less"
 
 const testData = [{
@@ -136,11 +137,28 @@ var MyComponent = React.createClass({
 export default class ServiceList extends Component {
   constructor(props) {
     super(props);
+    this.closeModal = this.closeModal.bind(this);    
+    this.openModal = this.openModal.bind(this);    
     this.onchange = this.onchange.bind(this);
     this.allSelectedChecked = this.allSelectedChecked.bind(this);
     this.state = {
+      modalShow:false,
       selectedList:[]
     }
+  }
+  
+  closeModal(){
+  	//the function for close the create service modal
+    this.setState({
+  	  modalShow:false  
+  	});
+  }
+  
+  openModal(){
+  	//the function for open the create service modal
+    this.setState({
+  	  modalShow:true  
+  	});
   }
   
   allSelectedChecked(){
@@ -176,7 +194,7 @@ export default class ServiceList extends Component {
 	    >
 	    <div className="ServiceList" key="ServiceList">
 	      <div className="operaBox">
-	        <Button type="primary" size="large">
+	        <Button type="primary" size="large" onClick={this.openModal}>
 	          <i className="fa fa-plus"></i>&nbsp;
 	             添加服务
 	        </Button>
@@ -218,9 +236,12 @@ export default class ServiceList extends Component {
 	          </Button>
 	        </Link>
 	      </div>
-	      <Modal title="Modal"
-          okText="OK" cancelText="Cancel"
+	      <Modal title="添加服务"
+	        visible={this.state.modalShow}
+			className="AppCreateServiceModal"
+			onCancel={this.closeModal}
           >
+		    <AppCreateServiceModal scope={parentScope} />
           </Modal>
 	    </div>  
         </QueueAnim>

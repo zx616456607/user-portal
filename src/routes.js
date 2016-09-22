@@ -38,7 +38,7 @@ import AppCreateComposeFile from './components/AppModule/AppCreate/ComposeFile.j
 /*-------------------Application stop------------------------------*/
 /*-------------------Container start-------------------------------*/
 import ContainerList from './components/ContainerModule/ContainerList.js'
-
+import ContainerDetail from './components/ContainerModule/ContainerDetail.js'
 /*-------------------Container stop--------------------------------*/
 /*-------------------App_manage Module Stop------------------------*/
 export default (
@@ -53,7 +53,9 @@ export default (
         <Route path="app_store" component={AppCreateAppStore} />
         <Route path="compose_file" component={AppCreateComposeFile} />
       </Route>
-      <Route path="container" component={ContainerList}>
+      <Route path="container">
+        <IndexRoute component={ContainerList}/>
+        <Route path="detail/:container_id" component={ContainerDetail} />
       </Route>
       <Route path="storage">
         <IndexRoute component={Storage}/>
