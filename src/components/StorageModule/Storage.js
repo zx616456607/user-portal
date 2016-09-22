@@ -9,8 +9,7 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import { Breadcrumb } from 'antd'
-import { Checkbox,Card,Menu,Dropdown,Button,Icon ,Modal ,Input, Slider, InputNumber, Row, Col} from 'antd'
+import { Checkbox,Card,Menu,Button,Icon ,Modal ,Input, Slider, InputNumber, Row, Col} from 'antd'
 import { Link } from 'react-router'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import QueueAnim from 'rc-queue-anim'
@@ -140,6 +139,14 @@ const messages = defineMessages({
 	errorRow: {
     id: 'Storage.titleRow.error',
     defaultMessage: '异常',
+  },
+  placeholder: {
+    id: 'Storage.modal.placeholder',
+    defaultMessage: '输入名称',
+  },
+  inputPlaceholder: {
+    id: 'Storage.modal.inputPlaceholder',
+    defaultMessage: '输入应用名搜索',
   }
 
 })
@@ -230,10 +237,10 @@ class Storage extends Component {
 							<Modal title={ formatMessage(messages.createModalTitle) } visible={this.state.visible} onOk={this.handleOk} onCancel={this.handleCancel} okText={ formatMessage(messages.createBtn) } cancelText={ formatMessage(messages.cancelBtn) }>
 								<Row style={{height:'40px'}}>
 									<Col span="3" className="text-center" style={{lineHeight:'30px'}}><FormattedMessage {...messages.name} /></Col>
-									<Col span="12"><Input placeholder="输入名称" /></Col>
+									<Col span="12"><Input placeholder={ formatMessage(messages.placeholder) } /></Col>
 								</Row>
 								<Row style={{height:'40px'}}>
-									<Col span="3" className="text-center" style={{lineHeight:'30px'}}>大小</Col>
+									<Col span="3" className="text-center" style={{lineHeight:'30px'}}>{ formatMessage(messages.size) }</Col>
 									<Col span="12">
 									<Slider min={1} max={1024} onChange={this.onChange} value={this.state.inputValue} />
 									</Col>
@@ -242,6 +249,14 @@ class Storage extends Component {
 									<span style={{paddingLeft: 10}} >MB</span>
 									</Col>
 								</Row>
+                <Row>
+                  <Col span="3" className="text-center" style={{lineHeight:'30px'}}>{ formatMessage(messages.formats) }</Col>
+                  <Col span="20" className="action-btns" style={{lineHeight:'30px'}}>
+                    <Button type="primary">ext4</Button>
+                    <Button type="ghost">xfs</Button>
+                    <Button type="ghost">reiserfs</Button>
+                  </Col>
+                </Row>
 							</Modal>
 	          </div>
 	        <div className="rightBox">
@@ -249,7 +264,7 @@ class Storage extends Component {
 	      	    <i className="fa fa-search"></i>
 	      	  </div>
 	      	  <div className="littleRight">
-	      	    <input placeholder="输入应用名搜索" />
+	      	    <input placeholder={ formatMessage(messages.inputPlaceholder) } />
 	      	  </div>
 	        </div>
 	        <div className="clearDiv"></div>

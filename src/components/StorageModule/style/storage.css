@@ -78,3 +78,22 @@
 #AppList .appBox .dataBox .appDetail {
   clear: both;
 }
+.action-btns button {
+  margin-right: 8px;
+}
+.action-btns i {
+  font-size: 1.4em;
+  vertical-align: middle;
+}
+.status-box {
+  padding: 0 30px;
+}
+.status-box .status-list {
+  position: relative;
+  border-left: 2px solid #e4e4e4;
+  height: 110px;
+}
+.status-box .status-list .status-icon {
+  position: absolute;
+  left: -35px;
+}

@@ -4,9 +4,7 @@ import { Tabs,Card, Menu, Progress  } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import AppInstanceList from "../../components/AppModule/AppInstanceList.js"
-import AppGraph from "../../components/AppModule/AppGraph.js"
-import AppLog from "../../components/AppModule/AppLog.js"
+import StorageStatus from "./StorageStatus"
 import StorageBind from './StorageBind.js'
 import "./style/StorageDetail.less"
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
@@ -63,7 +61,6 @@ class StorageDetail extends Component {
                    key="demo"
                    type="right"
         >
-          <div className="cover"></div>
           <div key="ca" className="AppInfo">
             <Card className="topCard">
               <div className="imgBox">
@@ -103,7 +100,7 @@ class StorageDetail extends Component {
                 defaultActiveKey="1"
               >
                 <TabPane tab={<FormattedMessage {...messages.operating} />} key="1" >
-                  <AppInstanceList key="AppInstanceList" />
+                  <StorageStatus key="StorageStatus" />
                 </TabPane>
                 <TabPane tab={<FormattedMessage {...messages.bindContainer} />} key="2" >
                   <StorageBind />

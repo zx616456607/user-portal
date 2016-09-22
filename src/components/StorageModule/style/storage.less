@@ -1,3 +1,5 @@
+//  border color
+@borderColor:#e4e4e4;
 .storageList{
   .appTitle,.dataBox{
     .name{width: 10%;overflow: hidden;
@@ -44,3 +46,22 @@
 }
 .text-center{text-align: center}
 #AppList .appBox .dataBox .appDetail{clear: both}
+.action-btns{
+  button{margin-right: 8px;}
+  i{font-size: 1.4em;
+    vertical-align: middle;
+    }
+}
+
+.status-box{
+  padding:0 30px;
+  .status-list{
+    position: relative;
+    border-left:2px solid @borderColor;
+    height: 110px;
+    .status-icon{
+      position: absolute;
+      left: -35px;
+    }
+  }
+}

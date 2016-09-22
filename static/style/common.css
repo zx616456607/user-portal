@@ -97,3 +97,6 @@ svg path {
 .margin {
   margin: 0 5px;
 }
+.ant-modal-title {
+  font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "宋体";
+}
