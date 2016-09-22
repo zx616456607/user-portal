@@ -1,17 +1,46 @@
 
 import React, { Component, PropTypes } from 'react'
-import { Tabs,Card, Menu } from 'antd'
+import { Tabs,Card, Menu, Progress  } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import AppInstanceList from "../../components/AppModule/AppInstanceList.js"
 import AppGraph from "../../components/AppModule/AppGraph.js"
 import AppLog from "../../components/AppModule/AppLog.js"
+import StorageBind from './StorageBind.js'
 import "./style/StorageDetail.less"
+import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
 const TabPane = Tabs.TabPane
+
+const messages = defineMessages({
+  useStatus: {
+    id: "StorageDetail.header.useStatus",
+    defaultMessage: '使用状态'
+  },
+  using: {
+    id: "StorageDetail.header.using",
+    defaultMessage: '使用中'
+  },
+  create: {
+    id: "StorageDetail.header.create",
+    defaultMessage: '创建'
+  },
+  useLevel: {
+    id: "StorageDetail.header.useLevel",
+    defaultMessage: '用量'
+  },
+  bindContainer: {
+    id: "StorageBind.bind.bindContainer",
+    defaultMessage: '绑定容器'
+  },
+  operating: {
+    id: "StorageDetail.operating",
+    defaultMessage: '操作'
+  },
+})
 
 class StorageDetail extends Component {
   constructor(props) {
@@ -22,11 +51,12 @@ class StorageDetail extends Component {
   }
   
   render() {
+    const { formatMessage } = this.props.intl
     const { appID } = this.props
     const { children } = this.props
     const { currentKey } = this.state
     return (
-      <div id="AppDetail">
+      <div id="StorageDetail">
         <QueueAnim className="demo-content"
                    key="demo"
                    type="right"
@@ -41,30 +71,22 @@ class StorageDetail extends Component {
                 <p className="appTitle">
                   我是存储名称
                 </p>
-                <div className="leftInfo">
+                <div className="info">
                   <div className="status">
-                    使用状态&nbsp;:
+                    <FormattedMessage {...messages.useStatus} />
+                    &nbsp;:
                     <span>
 	                      <i className="fa fa-circle"></i>
-	                      使用中
-	                    </span>
+	                      <FormattedMessage {...messages.using} />
+                    </span>
                   </div>
                   <div className="createDate">
-                    创建&nbsp;:&nbsp;2016-09-09&nbsp;18:15
+                    <FormattedMessage {...messages.create} />
+                    &nbsp;:&nbsp;2016-09-09&nbsp;18:15
                   </div>
-                  <div className="service">
-                    服务&nbsp;:&nbsp;3/3
-                  </div>
-                </div>
-                <div className="middleInfo">
-                  
-                  <div className="updateDate">
-                    更新&nbsp;:&nbsp;2016-09-09&nbsp;18:15
-                  </div>
-                </div>
-                <div className="rightInfo">
-                  <div className="introduction">
-                    应用描述&nbsp;:&nbsp;这是一个萌萌哒的应用描述
+                  <div className="use">
+                    <FormattedMessage {...messages.useLevel} />
+                    : &nbsp;&nbsp;<Progress percent={50} showInfo={false} />&nbsp;&nbsp;365/1024MB
                   </div>
                 </div>
                 <div style={{ clear:"both" }}></div>
@@ -76,11 +98,12 @@ class StorageDetail extends Component {
                 tabPosition="top"
                 defaultActiveKey="1"
               >
-                <TabPane tab="服务实例" key="1" ><AppInstanceList key="AppInstanceList" /></TabPane>
-                <TabPane tab="应用拓补图" key="2" >应用拓补图</TabPane>
-                <TabPane tab="编排文件" key="3" ><AppGraph key="AppGraph" /></TabPane>
-                <TabPane tab="操作日志" key="4" ><AppLog key="AppLog" / ></TabPane>
-                <TabPane tab="监控" key="5" >监控</TabPane>
+                <TabPane tab={<FormattedMessage {...messages.operating} />} key="1" >
+                  <AppInstanceList key="AppInstanceList" />
+                </TabPane>
+                <TabPane tab={<FormattedMessage {...messages.bindContainer} />} key="2" >
+                  <StorageBind />
+                </TabPane>
               </Tabs>
             </Card>
           </div>
@@ -89,14 +112,13 @@ class StorageDetail extends Component {
   )
   }
   }
+StorageDetail.propTypes = {
+  intl: PropTypes.object.isRequired
+}
   
-  function mapStateToProps(state, props) {
-    const { app_id } = props.params
-    return {
-    appID: app_id
-  }
-  }
+export default injectIntl(StorageDetail, {
+  withRef: true,
+})
+
+
   
-  export default connect(mapStateToProps, {
-    //
-  })(StorageDetail)
