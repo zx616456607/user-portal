@@ -80,20 +80,74 @@
 }
 .action-btns button {
   margin-right: 8px;
+  padding: 6px 10px;
 }
 .action-btns i {
   font-size: 1.4em;
   vertical-align: middle;
 }
 .status-box {
-  padding: 0 30px;
+  padding-left: 30px;
+  margin-top: 10px;
+  width: 100%;
 }
 .status-box .status-list {
   position: relative;
   border-left: 2px solid #e4e4e4;
-  height: 110px;
+  padding: 0 30px;
+  height: 120px;
+  top: 20px;
+}
+.status-box .status-list .status-content {
+  background: #f8f8f8;
+  padding: 25px;
+  height: 100px;
+}
+.status-box .status-list .status-content .status-row {
+  clear: both;
+  zoom: 1;
+  width: 100%;
+  height: 30px;
 }
 .status-box .status-list .status-icon {
   position: absolute;
-  left: -35px;
+  left: -15px;
+  top: 30px;
+  width: 30px;
+  height: 30px;
+  line-height: 28px;
+  text-align: center;
+  border-radius: 50%;
+}
+.status-box .status-list .status-icon.success {
+  background-color: #2eba64;
+  color: white;
+}
+.status-box .status-list .status-icon.primary {
+  background: #00a0ea;
+  color: white;
+}
+.status-box .fullProgress .ant-progress-inner {
+  border: 1px solid #e4e4e4;
+}
+.status-box .fullProgress .ant-progress-status-success .ant-progress-bg {
+  background: #2eba64;
+}
+.status-box .fullProgress .ant-progress-status-active .ant-progress-bg {
+  background: #00a0ea;
+}
+.uploadModal {
+  border: 5px dashed #e4e4e4;
+  padding: 50px;
+  text-align: center;
+  margin: 20px;
+}
+.uploadModal p {
+  margin-top: 20px;
+}
+.uploadModal + .uploadhint {
+  padding-left: 20px;
+}
+.uploadModal + .uploadhint li {
+  height: 25px;
 }
