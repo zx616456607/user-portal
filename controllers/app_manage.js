@@ -82,7 +82,7 @@ exports.getApps = function* () {
   }
 }
 
-exports.getContainers = function* () {
+exports.getAppServices = function* () {
   const master = this.params.master
   const appName = this.params.app_name
   const data = [{

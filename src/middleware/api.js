@@ -55,9 +55,14 @@ const appSchema = new Schema('apps', {
   idAttribute: 'id'
 })
 
+const serviceSchema = new Schema('services', {
+  idAttribute: 'id'
+})
+
 const containerSchema = new Schema('containers', {
   idAttribute: 'id'
 })
+
 const storageSchema = new Schema('storage', {
   idAttribute: 'namespace'
 })
@@ -69,6 +74,10 @@ export const Schemas = {
   APP: appSchema,
   APPS: {
     appList: arrayOf(appSchema)
+  },
+  SERVICE: serviceSchema,
+  SERVICES: {
+    containerList: arrayOf(serviceSchema)
   },
   CONTAINER: containerSchema,
   CONTAINERS: {
