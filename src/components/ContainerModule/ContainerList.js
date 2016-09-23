@@ -72,7 +72,7 @@ const MyComponent = React.createClass({
 			</div>
 			<div className="containerName commonData">
 		      <Link to={`/app_manage/container/detail/${item.id}`} >
-	    	    {item.appName}
+	    	    {item.name}
 		      </Link>
 			</div>
 			<div className="containerStatus commonData">
