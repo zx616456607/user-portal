@@ -8,19 +8,18 @@
 
 'use strict';
 
-const logger         = require('../utils/logger.js').getLogger("api-router")
+const logger = require('../utils/logger.js').getLogger('api-router')
 const storageController = require('../controllers/storage')
 
 
-module.exports = function(Router) {
+module.exports = function (Router) {
   const router = new Router({
-    prefix: '/api/v1'
+    prefix: '/api/v2'
   })
-  
 
   //Storage
-
-  router.get('/storage/:master/list', storageController.getStorageListByMaster)
-  router.post('/storage/delete', storageController.deleteStorage)
+  router.get('/clusters/:master/storages', storageController.getStorageListByMaster)
+  router.post('/clusters/:master/storages/delete', storageController.deleteStorage)
+  
   return router.routes()
 }
