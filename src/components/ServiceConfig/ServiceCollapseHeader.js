@@ -29,6 +29,8 @@ class CollapseHeader extends Component {
     this.state = {
       createConfigFile: false
     }
+    this.createConfigFile = this.createConfigFile.bind(this)
+    this.handleDropdown = this.handleDropdown.bind(this)
   }
   createConfigFile(e,createConfigFile){
     this.setState({createConfigFile})

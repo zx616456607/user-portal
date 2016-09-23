@@ -62,6 +62,8 @@ class CheckContainer extends Component {
       selectedContainers: [],  // 这里配置默认勾选列
       loading: false,
     }
+    this.onSelectChange = this.onSelectChange.bind(this)
+    this.start = this.start.bind(this)
   }
   start() {
     this.setState({ loading: true });

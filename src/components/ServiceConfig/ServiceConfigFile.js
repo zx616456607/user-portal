@@ -19,6 +19,8 @@ class ConfigFile extends Component {
     this.state = {
       checkConfigFile: false
     }
+    this.checkConfigFile = this.checkConfigFile.bind(this)
+    this.handleEdit = this.handleEdit.bind(this)
   }
   checkConfigFile(checkConfigFile) {
     this.setState({ checkConfigFile })
