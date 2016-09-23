@@ -2,7 +2,7 @@
   height: 100%;
   padding: 32px;
   width: 100%;
-  max-height: 600px;
+  //max-height: 600px;
   overflow-y: auto;
   //折叠面板-start
   .ant-collapse {
@@ -114,6 +114,7 @@
       .create-conf-g {
         text-align: center;
         input {
+          border-radius: 0;
           outline: none;
           display: inline-block;
           height: 40px;
@@ -125,3 +126,30 @@
   }
 }
 //创建配置-弹出层-end
+//添加配置文件-弹出层-start
+.configFile-create-modal {
+  .configFile-inf {
+    font-size: 14px;
+    .configFile-tip {
+      text-align: center;
+      font-size: 12px;
+      margin-bottom: 5px;
+    }
+    input {
+      border-radius: 0;
+      outline: none;
+      display: inline-block;
+      height: 40px;
+      width: 448px;
+    }
+    textarea {
+      resize: none;
+      border-radius: 0;
+      outline: none;
+      width: 450px;
+      height: 120px;
+      display: inline-block;
+    }
+  }
+}
+//添加配置文件-弹出层-end
