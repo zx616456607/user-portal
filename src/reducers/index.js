@@ -12,6 +12,7 @@ import merge from 'lodash/merge'
 import union from 'lodash/union'
 import { routerReducer as routing } from 'react-router-redux'
 import { combineReducers } from 'redux'
+import * as appManageReducers from './app_manage'
 
 // Updates an entity cache in response to any action with response.entities.
 function entities(state = { isFetching:false, users: {}, rcs: {} }, action) {
@@ -37,76 +38,6 @@ function errorMessage(state = null, action) {
   }
 
   return state
-}
-
-function containerList(state = {}, action) {
-  const master = action.master
-  const defaultState = {
-    [master]: {
-      isFetching: false,
-      master,
-      login: null,
-      number: 0,
-      rcList: []
-    }
-  }
-  switch (action.type) {
-    case ActionTypes.RC_LIST_REQUEST:
-      return merge({}, defaultState, state, {
-        [master]: {isFetching: true}
-      })
-    case ActionTypes.RC_LIST_SUCCESS:
-      return merge({}, state, {
-        [master]: {
-          isFetching: false,
-          master: action.response.result.master,
-          login: action.response.result.login,
-          number: action.response.result.number,
-          rcList: union(state.rcList, action.response.result.rcList)
-        }
-      })
-    case ActionTypes.RC_LIST_FAILURE:
-      return merge({}, defaultState, state, {
-        [master]: {isFetching: false}
-      })
-    default:
-      return state
-  }
-}
-
-function transhRcs(state = {}, action) {
-  const master = action.master
-  const defaultState = {
-    [master]: {
-      isFetching: false,
-      master,
-      login: null,
-      number: 0,
-      rcList: []
-    }
-  }
-  switch (action.type) {
-    case ActionTypes.TRANSH_RC_LIST_REQUEST:
-      return merge({}, defaultState, state, {
-        [master]: {isFetching: true}
-      })
-    case ActionTypes.TRANSH_RC_LIST_SUCCESS:
-      return merge({}, state, {
-        [master]: {
-          isFetching: false,
-          master: action.response.result.master,
-          login: action.response.result.login,
-          number: action.response.result.number,
-          rcList: union(state.rcList, action.response.result.rcList)
-        }
-      })
-    case ActionTypes.TRANSH_RC_LIST_FAILURE:
-      return merge({}, defaultState, state, {
-        [master]: {isFetching: false}
-      })
-    default:
-      return state
-  }
 }
 
 function storageList(state = {}, action) {
@@ -179,11 +110,9 @@ function storage(state = {}, action) {
 const rootReducer = combineReducers({
   entities,
   errorMessage,
-  containerList,
-  transhRcs,
   storage,
+  ...appManageReducers,
   routing
 })
-
 
 export default rootReducer
