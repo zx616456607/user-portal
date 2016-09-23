@@ -156,61 +156,38 @@ const messages = defineMessages({
 })
 
 let MyComponent = React.createClass({
-  getInitialState() {
-    let config = this.props.config;
-    let pool = this.props.pool;
-    let list = config[pool]
-    let check = {}
-    if(list) {
-      list.storageList.forEach((item) => {
-        check[item.id] = false
-      })
-    }
-    return {
-      check,
-      isAllChecked: false
-    }
-  },
-  onAllChange(e) {
-    let check = this.state.check
-    if(check){
-      let keys = Object.getOwnPropertyNames(check)
-      keys.forEach(item => {
-        check[item] = e.target.checked
-      })
-    }
-    this.setState({
-      isAllChecked: e.target.checked,
-      check
-    })
-  },
+  // componentWillReceiveProps(nextProps) {
+  //   let config = nextProps.config;
+  //   let pool = nextProps.pool;
+  //   let list = config[pool]
+  //   let check = {}
+  //   if (list) {
+  //     list.storageList.forEach((item) => {
+  //       check[item.id] = false
+  //     })
+  //   }
+  //   this.setState({
+  //     check
+  //   })
+  // },
   propTypes: {
     config: React.PropTypes.object
   },
   onchange(e, id) {
-    let check = this.state.check
-    if(e.target.checked) {
-      check[id] = 1
-    } else {
-      check[id] = 0
-    }
-    this.setState({
-      check
-    })
-    const saveCheckedStorage = this.props.saveCheckedStorage
-    saveCheckedStorage(e, id)
+    this.props.saveStorageIdArray(e, id)
+  },
+  isChecked(id) {
+    return this.props.storageIdArray.indexOf(id) >= 0
   },
   render () {
   const { formatMessage } = this.props.intl
-	let config = this.props.config;
-  let pool = this.props.pool;
-  let list = config[pool]
-  if(!list) return (<div></div>)
+	let list = this.props.storage;
+  if(!list || !list.storageList) return (<div></div>)
 	let items = list.storageList.map((item) => {
 	  return (
 	    <div className="appDetail" key={item.name}>
 			<div className="selectIconTitle commonData">
-			  <Checkbox onChange={(e)=>this.onchange(e, item.id)} checked= { this.state.check[item.id] ? true : false }></Checkbox>
+			  <Checkbox onChange={(e)=>this.onchange(e, item.id)} checked= { this.isChecked(item.id) }></Checkbox>
 			</div>
 			<div className="name commonData">
 		      <Link to={`/app_manage/storage/${item.id}`} >
@@ -235,24 +212,9 @@ let MyComponent = React.createClass({
       );
 	});
 	return (
-    <Card className="storageList appBox">
-      <div className="appTitle">
-        <div className="selectIconTitle commonTitle">
-          <Checkbox onChange={(e)=>this.onAllChange(e)} ></Checkbox>
-        </div>
-        <div className="name commonTitle"><FormattedMessage {...messages.storageName} /></div>
-        <div className="status commonTitle"><FormattedMessage {...messages.status} /></div>
-        <div className="formet commonTitle"><FormattedMessage {...messages.formats} /></div>
-        <div className="forin commonTitle"><FormattedMessage {...messages.forin} /></div>
-        <div className="appname commonTitle"><FormattedMessage {...messages.app} /></div>
-        <div className="size commonTitle"><FormattedMessage {...messages.size} /></div>
-        <div className="createTime commonTitle"><FormattedMessage {...messages.createTime} /></div>
-        <div className="actionBox commonTitle"><FormattedMessage {...messages.action} /></div>
-      </div>
       <div className="dataBox">
         { items }
 	    </div>
-    </Card>
     );
   }
 });
@@ -271,8 +233,11 @@ class Storage extends Component {
       inputValue: 0,
 			visible: false,
       storageIdArray: [],
-      isAllChecked: false
+      currentType: 'ext4'
     }
+  }
+  componentWillMount() {
+    this.props.loadStorageList('test')
   }
 	onChange(value) {
     this.setState({
@@ -285,6 +250,7 @@ class Storage extends Component {
     });
   }
   handleOk() {
+    alert(1)
     this.setState({
       visible: false,
     });
@@ -298,72 +264,134 @@ class Storage extends Component {
     const storageIdArray = this.state.storageIdArray
     this.props.deleteStorage('test', storageIdArray, () => this.props.loadStorageList('test'))
   }
-  saveCheckedStorage() {
-    const self = this
-    const storageIdArray = self.state.storageIdArray
-    return (e, storageId) => {
-      if(e.target.checked) {
-        storageIdArray.push(storageId)
+  onAllChange(e) {
+    const storage = this.props.storageList['test']
+    if(!storage || !storage.storageList ) {
+      return
+    } 
+    if(e.target.checked) {
+      let storageIdArray = []
+      storage.storageList.forEach(item => {
+        storageIdArray.push(item.id)
+      })
+      this.setState({
+        storageIdArray,
+      })
+      return
+    } 
+    this.setState({
+      storageIdArray: []
+    })
+  }
+  isAllChecked() {
+    if(this.state.storageIdArray.length === 0) {
+      return false
+    }
+    if(this.state.storageIdArray.length === this.props.storageList['test'].storageList.length) {
+      return true
+    }
+    return false
+  }
+
+  selectItem() {
+    return (e, id) => {
+      let storageIdArray = this.state.storageIdArray
+      if (e.target.checked) {
+        storageIdArray.push(id)
+
       } else {
-        remove(storageIdArray, (item) =>{
-          return item === storageId
+        remove(storageIdArray, (item) => {
+          return item === id
         })
       }
-      self.setState({
-        checkedArray:storageIdArray 
+      this.setState({
+        storageIdArray
       })
     }
   }
-
-  componentWillMount() {
-    this.props.loadStorageList('test')
+  changeType(e) {
+    
+    // this.setState({
+    //   currentType: 
+    // })
   }
+  // saveCheckedStorage() {
+  //   const self = this
+  //   const storageIdArray = self.state.storageIdArray
+  //   return (e, storageId) => {
+  //     if(e.target.checked) {
+  //       storageIdArray.push(storageId)
+  //     } else {
+  //       remove(storageIdArray, (item) =>{
+  //         return item === storageId
+  //       })
+  //     }
+  //     self.setState({
+  //       storageIdArray: storageIdArray 
+  //     })
+  //   }
+  // }
 
   render() {
 		const { formatMessage } = this.props.intl
     return (
-        <QueueAnim className ="AppList"  type = "right">
-          <div id="AppList" key = "AppList">
-      	    <div className="operationBox">
-	          <div className="leftBtn">
-	      	    <Button type="primary" size="large" onClick={this.showModal}><Icon type="plus" /><FormattedMessage {...messages.createTitle} /></Button>
-	      	    <Button type="ghost" className="stopBtn" size="large" onClick={this.deleteStorage}><Icon type="delete" /><FormattedMessage {...messages.delete} /></Button>
-							<Modal title={ formatMessage(messages.createModalTitle) } visible={this.state.visible} onOk={this.handleOk} onCancel={this.handleCancel} okText={ formatMessage(messages.createBtn) } cancelText={ formatMessage(messages.cancelBtn) }>
-								<Row style={{height:'40px'}}>
-									<Col span="3" className="text-center" style={{lineHeight:'30px'}}><FormattedMessage {...messages.name} /></Col>
-									<Col span="12"><Input placeholder={ formatMessage(messages.placeholder) } /></Col>
-								</Row>
-								<Row style={{height:'40px'}}>
-									<Col span="3" className="text-center" style={{lineHeight:'30px'}}>{ formatMessage(messages.size) }</Col>
-									<Col span="12">
-									<Slider min={1} max={1024} onChange={this.onChange} value={this.state.inputValue} />
-									</Col>
-									<Col span="8">
-									<InputNumber min={1} max={1024} style={{ marginLeft: '16px' }} value={this.state.inputValue} onChange={this.onChange}/>
-									<span style={{paddingLeft: 10}} >MB</span>
-									</Col>
-								</Row>
-                <Row>
-                  <Col span="3" className="text-center" style={{lineHeight:'30px'}}>{ formatMessage(messages.formats) }</Col>
-                  <Col span="20" className="action-btns" style={{lineHeight:'30px'}}>
-                    <Button type="primary">ext4</Button>
-                    <Button type="ghost">xfs</Button>
-                    <Button type="ghost">reiserfs</Button>
+      <QueueAnim className ="AppList"  type = "right">
+        <div id="AppList" key = "AppList">
+          <div className="operationBox">
+            <div className="leftBtn">
+              <Button type="primary" size="large" onClick={this.showModal}><Icon type="plus" /><FormattedMessage {...messages.createTitle} /></Button>
+              <Button type="ghost" className="stopBtn" size="large" onClick={this.deleteStorage}><Icon type="delete" /><FormattedMessage {...messages.delete} /></Button>
+              <Modal title={ formatMessage(messages.createModalTitle) } visible={this.state.visible} onOk={this.handleOk} onCancel={() => { this.handleCancel} } okText={ formatMessage(messages.createBtn) } cancelText={ formatMessage(messages.cancelBtn) }>
+                <Row style={{ height: '40px' }}>
+                  <Col span="3" className="text-center" style={{ lineHeight: '30px' }}><FormattedMessage {...messages.name} /></Col>
+                  <Col span="12"><Input placeholder={ formatMessage(messages.placeholder) } /></Col>
+                </Row>
+                <Row style={{ height: '40px' }}>
+                  <Col span="3" className="text-center" style={{ lineHeight: '30px' }}>{ formatMessage(messages.size) }</Col>
+                  <Col span="12">
+                    <Slider min={1} max={1024} onChange={this.onChange} value={this.state.inputValue} />
+                  </Col>
+                  <Col span="8">
+                    <InputNumber min={1} max={1024} style={{ marginLeft: '16px' }} value={this.state.inputValue} onChange={this.onChange}/>
+                    <span style={{ paddingLeft: 10 }} >MB</span>
                   </Col>
                 </Row>
-							</Modal>
-	          </div>
-	        <div className="rightBox">
-	      	  <div className="littleLeft">
-	      	    <i className="fa fa-search"></i>
-	      	  </div>
-	      	  <div className="littleRight">
-	      	    <input placeholder={ formatMessage(messages.inputPlaceholder) } />
-	      	  </div>
-	        </div>
-	        <div className="clearDiv"></div>
-      	  </div>
-      	    <MyComponent config = {this.props.storageList} pool = {'test'} saveCheckedStorage = {() => this.saveCheckedStorage()} />
+                <Row>
+                  <Col span="3" className="text-center" style={{ lineHeight: '30px' }}>{ formatMessage(messages.formats) }</Col>
+                  <Col span="20" className="action-btns" style={{ lineHeight: '30px' }}>
+                    <Button type="primary" onClick={ (e)=> { this.changeType(e) }}>ext4</Button>
+                    <Button type="ghost" onClick={ (e)=> { this.changeType(e) }}>xfs</Button>
+                    <Button type="ghost" onClick={(e)=> { this.changeType(e) }}>reiserfs</Button>
+                  </Col>
+                </Row>
+              </Modal>
+            </div>
+            <div className="rightBox">
+              <div className="littleLeft">
+                <i className="fa fa-search"></i>
+              </div>
+              <div className="littleRight">
+                <input placeholder={ formatMessage(messages.inputPlaceholder) } />
+              </div>
+            </div>
+            <div className="clearDiv"></div>
+          </div>
+          <Card className="storageList appBox">
+            <div className="appTitle">
+              <div className="selectIconTitle commonTitle">
+                <Checkbox onChange={(e) => this.onAllChange(e) } checked = { this.isAllChecked() }></Checkbox>
+              </div>
+              <div className="name commonTitle"><FormattedMessage {...messages.storageName} /></div>
+              <div className="status commonTitle"><FormattedMessage {...messages.status} /></div>
+              <div className="formet commonTitle"><FormattedMessage {...messages.formats} /></div>
+              <div className="forin commonTitle"><FormattedMessage {...messages.forin} /></div>
+              <div className="appname commonTitle"><FormattedMessage {...messages.app} /></div>
+              <div className="size commonTitle"><FormattedMessage {...messages.size} /></div>
+              <div className="createTime commonTitle"><FormattedMessage {...messages.createTime} /></div>
+              <div className="actionBox commonTitle"><FormattedMessage {...messages.action} /></div>
+            </div>
+            <MyComponent storage = {this.props.storageList['test']}  storageIdArray = { this.state.storageIdArray } saveStorageIdArray = { this.selectItem() }/>
+          </Card>
         </div>
       </QueueAnim>
     )
