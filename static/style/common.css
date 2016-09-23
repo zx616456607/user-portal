@@ -75,13 +75,13 @@ svg path {
   font-variant: 700;
   font-family: "Microsoft YaHei", "Lantinghei SC", "Open Sans", Arial, "Hiragino Sans GB", "微软雅黑", STHeiti, "WenQuanYi Micro Hei", SimSun, sans-serif;
 }
-.ant-tooltip-placement-right {
+#siderTooltip .ant-tooltip-placement-right {
   opacity: 1 !important;
 }
-.ant-tooltip-placement-right .ant-tooltip-arrow {
+#siderTooltip .ant-tooltip-placement-right .ant-tooltip-arrow {
   border-right-color: #00afdd !important;
 }
-.ant-tooltip-placement-right .ant-tooltip-inner {
+#siderTooltip .ant-tooltip-placement-right .ant-tooltip-inner {
   background-color: #00afdd !important;
 }
 .ant-btn.btn-warning {
@@ -97,6 +97,15 @@ svg path {
 .margin {
   margin: 0 5px;
 }
+.ant-modal-wrap {
+  width: 100%;
+  overflow-x: hidden !important;
+}
 .ant-modal-title {
   font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "宋体";
+}
+.vertical-center-modal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
