@@ -23,89 +23,84 @@ export default class ContainerDetailInfo extends Component {
   	const parentScope = this;
     return (
       <div id="ContainerDetailInfo">
-	    <QueueAnim className="demo-content"
-	      key="demo"
-	      type="right"
-	    >
-	      <div className="info commonBox">
-	        <span className="titleSpan">基本信息</span>
-	        <div className="titleBox">
-	          <div className="commonTitle">
-	            名称
-	          </div>
-	          <div className="commonTitle">
-	            镜像名称
-	          </div>
-	          <div className="commonTitle">
-	              所属节点
-	          </div>
-	          <div style={{ clear:"both" }}></div>
-	        </div>
-	        <div className="dataBox">
-	          <div className="commonTitle">
-	            挺萌的容器
-	          </div>
-	          <div className="commonTitle">
-	            好萌的镜像
-	          </div>
-	          <div className="commonTitle">
-	            在北京呢
-	          </div>
-	          <div style={{ clear:"both" }}></div>
-	        </div>
-	      </div>
-	      <div className="compose commonBox">
-	        <span className="titleSpan">配置信息</span>
-	        <div className="titleBox">
-	          <div className="commonTitle">
-	          带宽
-	          </div>
-	          <div className="commonTitle">
-	          内存
-	          </div>
-	          <div className="commonTitle">
-	          处理器
-	          </div>
-	          <div style={{ clear:"both" }}></div>
-	        </div>
-	        <div className="dataBox">
-	          <div className="commonTitle">
-	          100M
-	          </div>
-	          <div className="commonTitle">
-	          1024M
-	          </div>
-	          <div className="commonTitle">
-	          256M
-	          </div>
-	          <div style={{ clear:"both" }}></div>
-	        </div>
-	      </div>
-	      <div className="environment commonBox">
-	        <span className="titleSpan">环境变量</span>
-	        <div className="titleBox">
-	          <div className="commonTitle">
-	          变量名
-	          </div>
-	          <div className="commonTitle">
-	          变量值
-	          </div>
-	          <div style={{ clear:"both" }}></div>
-	        </div>
-	      </div>
-	      <div className="storage commonBox">
-	        <span className="titleSpan">数据存储器</span>
-	        <div className="titleBox">
-	          <div className="commonTitle">
+	    <div className="info commonBox">
+	      <span className="titleSpan">基本信息</span>
+	      <div className="titleBox">
+	        <div className="commonTitle">
 	          名称
-	          </div>
-	          <div className="commonTitle">
-	          挂载点
-	          </div>
-	          <div style={{ clear:"both" }}></div>
 	        </div>
+	        <div className="commonTitle">
+	          镜像名称
+	        </div>
+	        <div className="commonTitle">
+	            所属节点
+	        </div>
+	        <div style={{ clear:"both" }}></div>
 	      </div>
-        </QueueAnim>
+	      <div className="dataBox">
+	        <div className="commonTitle">
+	          挺萌的容器
+	        </div>
+	        <div className="commonTitle">
+	          好萌的镜像
+	        </div>
+	        <div className="commonTitle">
+	          在北京呢
+	        </div>
+	        <div style={{ clear:"both" }}></div>
+	      </div>
+	    </div>
+	    <div className="compose commonBox">
+	      <span className="titleSpan">配置信息</span>
+	      <div className="titleBox">
+	        <div className="commonTitle">
+	        带宽
+	        </div>
+	        <div className="commonTitle">
+	        内存
+	        </div>
+	        <div className="commonTitle">
+	          处理器
+	        </div>
+	        <div style={{ clear:"both" }}></div>
+	      </div>
+	      <div className="dataBox">
+	        <div className="commonTitle">
+	          100M
+	        </div>
+	        <div className="commonTitle">
+	          1024M
+	        </div>
+	        <div className="commonTitle">
+	          256M
+	        </div>
+	        <div style={{ clear:"both" }}></div>
+	      </div>
+	    </div>
+	    <div className="environment commonBox">
+	      <span className="titleSpan">环境变量</span>
+	      <div className="titleBox">
+	        <div className="commonTitle">
+	        变量名
+	        </div>
+	        <div className="commonTitle">
+	          变量值
+	        </div>
+	        <div style={{ clear:"both" }}></div>
+	      </div>
+	    </div>
+	    <div className="storage commonBox">
+	      <span className="titleSpan">数据存储器</span>
+	      <div className="titleBox">
+	        <div className="commonTitle">
+	          名称
+	        </div>
+	        <div className="commonTitle">
+	          挂载点
+	        </div>
+	        <div style={{ clear:"both" }}></div>
+	      </div>
+	    </div>
       </div>
     )
   }

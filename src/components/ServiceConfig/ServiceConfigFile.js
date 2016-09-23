@@ -28,7 +28,63 @@ class ConfigFile extends Component {
   handleEdit() {
     console.log('edit');
   }
+  
+  RendFileState(fileList) {
+    console.log(fileList.length);
+    console.log(this);
+    if(fileList.length > 3){
+      return (
+        <div className="check">
+          <Button type="primary" onClick={() => this.checkConfigFile(true)}>
+            <Icon type="eye-o" />
+            查看
+          </Button>
+          {/*查看更多-start*/}
+          <Modal
+            title={`配置文件 my_config_file`}
+            wrapClassName="server-check-modal"
+            visible={this.state.checkConfigFile}
+            onOk={() => this.checkConfigFile(false)}
+            onCancel={() => this.checkConfigFile(false)}
+          >
+            <div className="check-config">
+              {/*查看更多-关联容器列表-start*/}
+              <CheckContainer />
+              {/*查看更多-关联容器列表*-end*/}
+            </div>
+          </Modal>
+          {/*查看更多-end*/}
+        </div>
+      )
+    } else if (fileList.length == 0){
+      return (
+        <div style={{textAlign: 'center'}}>
+          暂无挂载
+        </div>
+      )
+    } else if (configFile.length == 2) {
+      return (
+        <div style={{display: 'none'}}></div>
+      )
+    }
+  }
+  
   render () {
+    const { configFile } = this.props
+    let fileList = configFile.container
+    let RendfileList = fileList.slice(0,3).map((fileItem) => {
+      return (
+        <td key={fileItem}>
+          <div className="relate">
+            {fileItem.containerName}
+          </div>
+          <div className="path">
+            {fileItem.pointPath}
+          </div>
+        </td>
+      )
+    })
+    
     return (
       <Row className="file-item">
         <div className="line"></div>
@@ -55,52 +111,11 @@ class ConfigFile extends Component {
               </div>
               <div className="path">挂载路径</div>
             </td>
-            <td>
-              <div className="relate">
-                my_container1
-              </div>
-              <div className="path">
-                /var/test/log
-              </div>
-            </td>
-            <td>
-              <div className="relate">
-                my_container1
-              </div>
-              <div className="path">
-                /var/test/log
-              </div>
-            </td>
-            <td>
-              <div className="relate">
-                my_container1
-              </div>
-              <div className="path">
-                /var/test/log
-              </div>
-            </td>
+            
+            {RendfileList}
+            
             <td style={{padding:"0 30px"}}>
-              <div className="check">
-                <Button type="primary" onClick={() => this.checkConfigFile(true)}>
-                  <Icon type="eye-o" />
-                  查看
-                </Button>
-                {/*查看更多-start*/}
-                <Modal
-                  title={`配置文件 my_config_file`}
-                  wrapClassName="server-check-modal"
-                  visible={this.state.checkConfigFile}
-                  onOk={() => this.checkConfigFile(false)}
-                  onCancel={() => this.checkConfigFile(false)}
-                >
-                  <div className="check-config">
-                    {/*查看更多-关联容器列表-start*/}
-                    <CheckContainer />
-                    {/*查看更多-关联容器列表*-end*/}
-                  </div>
-                </Modal>
-                {/*查看更多-end*/}
-              </div>
+              {this.RendFileState(fileList)}
             </td>
           </tr>
         </table>
@@ -110,6 +125,7 @@ class ConfigFile extends Component {
 }
 
 ConfigFile.propTypes = {
+  configFile: PropTypes.object.isRequired,
   intl: PropTypes.object.isRequired
 }
 export default injectIntl(ConfigFile,{

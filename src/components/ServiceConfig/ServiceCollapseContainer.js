@@ -21,21 +21,19 @@ class CollapseContainer extends Component {
     }
   }
   render(){
+    const collapseContainer = this.props.collapseContainer
+    
+    let configFileList = collapseContainer.map((configFileItem) => {
+      return (
+        <Timeline.Item key={configFileItem.fileId}>
+          <ConfigFile configFile={configFileItem}/>
+        </Timeline.Item>
+      )
+    })
     return (
       <Row className="file-list">
         <Timeline>
-          <Timeline.Item>
-            <ConfigFile />
-          </Timeline.Item>
-          <Timeline.Item>
-            <ConfigFile />
-          </Timeline.Item>
-          <Timeline.Item>
-            <ConfigFile />
-          </Timeline.Item>
-          <Timeline.Item>
-            <ConfigFile />
-          </Timeline.Item>
+          {configFileList}
         </Timeline>
       </Row>
     )
@@ -43,6 +41,7 @@ class CollapseContainer extends Component {
 }
 
 CollapseContainer.propTypes = {
+  collapseContainer: PropTypes.array.isRequired,
   intl: PropTypes.object.isRequired
 }
 

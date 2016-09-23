@@ -15,14 +15,36 @@ import './style/ServiceConfig.less'
 import QueueAnim from 'rc-queue-anim'
 import CollapseHeader from './ServiceCollapseHeader'
 import CollapseContainer from  './ServiceCollapseContainer'
+import {groupData} from '../../constants'
 
-const data = [
-  {
-    groupId : 'my_ConfigGroup',
-    
-  },
-]
 const Panel = Collapse.Panel
+class CollapseList extends Component{
+  constructor(){
+    super()
+  }
+  
+  render() {
+    let groupData = this.props.groupData
+    //console.log(typeof groupData);
+    //console.log(groupData[0]);
+    let groups = groupData.map((group) => {
+      return (
+        <Panel header={<CollapseHeader collapseHeader={group} />} key={group.groupId} >
+          <CollapseContainer collapseContainer={group.configFile}/>
+        </Panel>
+      )
+    })
+    return (
+      <Collapse defaultActiveKey={['1']}>
+        {groups}
+      </Collapse>
+    )
+  }
+}
+
+CollapseList.propTypes = {
+  groupData: PropTypes.array.isRequired
+}
 
 class Service extends Component{
   constructor(props){
@@ -36,6 +58,7 @@ class Service extends Component{
     this.setState({ createConfigGroup });
   }
   render(){
+    console.log(`groupData: ${groupData}`)
     return (
       <QueueAnim className ="Service"  type = "right">
         <div id="Service" key="Service">
@@ -62,17 +85,7 @@ class Service extends Component{
           </Modal>
           {/*创建配置组-弹出层-end*/}
           {/*折叠面板-start*/}
-          <Collapse defaultActiveKey={['1']}>
-            <Panel header={<CollapseHeader/>} key="1">
-              <CollapseContainer />
-            </Panel>
-            <Panel header={<CollapseHeader/>} key="2">
-              <CollapseContainer />
-            </Panel>
-            <Panel header={<CollapseHeader/>} key="3">
-              <CollapseContainer />
-            </Panel>
-          </Collapse>
+          <CollapseList groupData={groupData} />
           {/*折叠面板-end*/}
         </div>
       </QueueAnim>
@@ -80,10 +93,10 @@ class Service extends Component{
   }
 }
 
-
 Service.propTypes = {
   intl: PropTypes.object.isRequired
 }
+
 export default injectIntl(Service,{
   withRef: true
 })
