@@ -42,3 +42,49 @@ export function apps(state = {}, action) {
       return state
   }
 }
+
+export function containers(state = {}, action) {
+  const master = action.master
+  const appName = action.appName
+  const defaultState = {
+    [master]: {
+      [appName]: {
+        isFetching: false,
+        master,
+        appName,
+        containerList: []
+      }
+    }
+  }
+  switch (action.type) {
+    case ActionTypes.CONTAINER_LIST_REQUEST:
+      return merge({}, defaultState, state, {
+        [master]:  {
+          [appName]: {
+            isFetching: true
+          }
+        }
+      })
+    case ActionTypes.CONTAINER_LIST_SUCCESS:
+      return merge({}, state, {
+        [master]:  {
+          [appName]: {
+            isFetching: false,
+            master: action.response.result.master,
+            appName: action.response.result.appName,
+            containerList: union(state.containers, action.response.result.data)
+          }
+        }
+      })
+    case ActionTypes.CONTAINER_LIST_FAILURE:
+      return merge({}, defaultState, state, {
+        [master]:  {
+          [appName]: {
+            isFetching: false
+          }
+        }
+      })
+    default:
+      return state
+  }
+}

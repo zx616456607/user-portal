@@ -55,7 +55,7 @@ const MyComponent = React.createClass({
 			  <Checkbox onChange={()=>this.onchange()}></Checkbox>
 			</div>
 			<div className="appName commonData">
-		      <Link to={`/app_manage/detail/${item.id}`} >
+		      <Link to={`/app_manage/detail/${item.appName}`} >
 	    	    {item.appName}
 		      </Link>
 			</div>

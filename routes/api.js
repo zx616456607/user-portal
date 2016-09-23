@@ -21,7 +21,13 @@ module.exports = function (Router) {
   // Storage
   router.get('/storage-pools/:pool/volumes', storageController.getStorageListByPool)
   router.post('/storage-pools/:pool/volumes/batch-delete', storageController.deleteStorage)
+  
+  // Apps 
   router.get('/clusters/:master/apps', appController.getApps)
+
+  // Containers
+  router.get('/clusters/:master/apps/:app_name/containers', appController.getContainers)
+  
 
   return router.routes()
 }

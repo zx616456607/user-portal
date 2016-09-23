@@ -36,3 +36,30 @@ export function loadAppList(master, requiredFields = []) {
     return dispatch(fetchAppList(master))
   }
 }
+
+export const CONTAINER_LIST_REQUEST = 'CONTAINER_LIST_REQUEST'
+export const CONTAINER_LIST_SUCCESS = 'CONTAINER_LIST_SUCCESS'
+export const CONTAINER_LIST_FAILURE = 'CONTAINER_LIST_FAILURE'
+
+// Fetches repository list from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchContainerList(master, appName) {
+  return {
+    master,
+    appName,
+    [FETCH_API]: {
+      types: [ CONTAINER_LIST_REQUEST, CONTAINER_LIST_SUCCESS, CONTAINER_LIST_FAILURE ],
+      endpoint: `${API_URL_PREFIX}/clusters/${master}/apps/${appName}/containers`,
+      schema: Schemas.CONTAINERS
+    }
+  }
+}
+
+// Fetches repositories list from API unless it is cached.
+// Relies on Redux Thunk middleware.
+export function loadContainerList(master, appName, requiredFields = []) {
+  return (dispatch, getState) => {
+    const containerList = getState().appsList
+    return dispatch(fetchContainerList(master, appName))
+  }
+}

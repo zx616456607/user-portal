@@ -40,76 +40,6 @@ function errorMessage(state = null, action) {
   return state
 }
 
-function containerList(state = {}, action) {
-  const master = action.master
-  const defaultState = {
-    [master]: {
-      isFetching: false,
-      master,
-      login: null,
-      number: 0,
-      rcList: []
-    }
-  }
-  switch (action.type) {
-    case ActionTypes.RC_LIST_REQUEST:
-      return merge({}, defaultState, state, {
-        [master]: {isFetching: true}
-      })
-    case ActionTypes.RC_LIST_SUCCESS:
-      return merge({}, state, {
-        [master]: {
-          isFetching: false,
-          master: action.response.result.master,
-          login: action.response.result.login,
-          number: action.response.result.number,
-          rcList: union(state.rcList, action.response.result.rcList)
-        }
-      })
-    case ActionTypes.RC_LIST_FAILURE:
-      return merge({}, defaultState, state, {
-        [master]: {isFetching: false}
-      })
-    default:
-      return state
-  }
-}
-
-function transhRcs(state = {}, action) {
-  const master = action.master
-  const defaultState = {
-    [master]: {
-      isFetching: false,
-      master,
-      login: null,
-      number: 0,
-      rcList: []
-    }
-  }
-  switch (action.type) {
-    case ActionTypes.TRANSH_RC_LIST_REQUEST:
-      return merge({}, defaultState, state, {
-        [master]: {isFetching: true}
-      })
-    case ActionTypes.TRANSH_RC_LIST_SUCCESS:
-      return merge({}, state, {
-        [master]: {
-          isFetching: false,
-          master: action.response.result.master,
-          login: action.response.result.login,
-          number: action.response.result.number,
-          rcList: union(state.rcList, action.response.result.rcList)
-        }
-      })
-    case ActionTypes.TRANSH_RC_LIST_FAILURE:
-      return merge({}, defaultState, state, {
-        [master]: {isFetching: false}
-      })
-    default:
-      return state
-  }
-}
-
 function storageList(state = {}, action) {
   const pool = action.pool
   const defaultState = {
@@ -180,8 +110,6 @@ function storage(state = {}, action) {
 const rootReducer = combineReducers({
   entities,
   errorMessage,
-  containerList,
-  transhRcs,
   storage,
   ...appManageReducers,
   routing

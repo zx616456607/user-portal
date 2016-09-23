@@ -16,6 +16,7 @@ import AppInstanceList from "./AppInstanceList.js"
 import AppGraph from "./AppGraph.js"
 import AppLog from "./AppLog.js"
 import "./style/AppDetail.less"
+import { loadContainerList } from '../../actions/app_manage'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -27,11 +28,16 @@ class AppDetail extends Component {
     this.state = {
       currentKey: "1"
     }
-  }	
+  }
+
+	componentWillMount() {
+		const { master, appName, loadContainerList } = this.props
+    document.title = `应用 ${appName} 详情 | 时速云`
+    loadContainerList(master, appName)
+  }
   
   render() {
-    const { appID } = this.props
-    const { children } = this.props
+    const { children, appName, containerList, isFetching } = this.props
     const { currentKey } = this.state
     return (
           <div id="AppDetail">
@@ -47,7 +53,7 @@ class AppDetail extends Component {
               	  </div>
               	  <div className="infoBox">
 	                <p className="appTitle">
-	                  萌萌的应用
+	                  萌萌的 {appName}
 	                </p>
 	                <div className="leftInfo">
 	                  <div className="status">
@@ -86,7 +92,9 @@ class AppDetail extends Component {
 	               tabPosition="top"
 	               defaultActiveKey="1"
 	              >
-	                <TabPane tab="服务实例" key="1" ><AppInstanceList key="AppInstanceList" /></TabPane>
+	                <TabPane tab="服务实例" key="1" >
+										<AppInstanceList key="AppInstanceList" data={ containerList } loading={ isFetching } />
+									</TabPane>
 	                <TabPane tab="应用拓补图" key="2" >应用拓补图</TabPane>
 	                <TabPane tab="编排文件" key="3" ><AppGraph key="AppGraph" /></TabPane>
 	                <TabPane tab="操作日志" key="4" ><AppLog key="AppLog" /></TabPane>
@@ -100,13 +108,38 @@ class AppDetail extends Component {
     }
 }
 
+AppDetail.propTypes = {
+  // Injected by React Redux
+  master: PropTypes.string.isRequired,
+  containerList: PropTypes.array.isRequired,
+  isFetching: PropTypes.bool.isRequired,
+  loadContainerList: PropTypes.func.isRequired
+}
+
 function mapStateToProps(state, props) {
-  const { app_id } = props.params
+  const { app_name } = props.params
+	const defaultContainers = {
+    isFetching: false,
+    master: 'default',
+		appName: app_name,
+    containerList: []
+  }
+	const {
+    containers
+  } = state
+	let targetContainers
+	if (containers['default'] && containers['default'][app_name]) {
+		targetContainers = containers['default'][app_name]
+	}
+	const { master, containerList, isFetching } = targetContainers || defaultContainers
   return {
-    appID: app_id
+		master,
+    appName: app_name,
+		containerList,
+		isFetching
   }
 }
 
 export default connect(mapStateToProps, {
-  //
+  loadContainerList
 })(AppDetail)

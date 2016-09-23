@@ -51,36 +51,28 @@ const userSchema = new Schema('users', {
   idAttribute: 'namespace'
 })
 
-const rcSchema = new Schema('rcs', {
-  idAttribute: 'rcName'
-})
-
 const appSchema = new Schema('apps', {
   idAttribute: 'id'
 })
 
+const containerSchema = new Schema('containers', {
+  idAttribute: 'id'
+})
 const storageSchema = new Schema('storage', {
   idAttribute: 'namespace'
 })
 
-rcSchema.define({
-  owner: userSchema
-})
 
 // Schemas for API responses.
 export const Schemas = {
   USER: userSchema,
-  RC: rcSchema,
-  RC_ARRAY: arrayOf(rcSchema),
-  CONTAINERS: {
-    rcList: arrayOf(rcSchema)
-  },
-  TRANSH_RCS: {
-    rcList: arrayOf(rcSchema)
-  },
   APP: appSchema,
   APPS: {
     appList: arrayOf(appSchema)
+  },
+  CONTAINER: containerSchema,
+  CONTAINERS: {
+    containerList: arrayOf(containerSchema)
   },
   STORAGE: {
     storageList: arrayOf(storageSchema)
