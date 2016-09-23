@@ -12,7 +12,7 @@ import { Checkbox,Button,Card, Menu } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import "./style/AppContainerList.less"
+import './style/AppContainerList.less'
 
 const testData = [{
 	id:"1",

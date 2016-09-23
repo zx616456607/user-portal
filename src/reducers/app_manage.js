@@ -43,7 +43,7 @@ export function apps(state = {}, action) {
   }
 }
 
-export function containers(state = {}, action) {
+export function services(state = {}, action) {
   const master = action.master
   const appName = action.appName
   const defaultState = {
@@ -52,12 +52,12 @@ export function containers(state = {}, action) {
         isFetching: false,
         master,
         appName,
-        containerList: []
+        serviceList: []
       }
     }
   }
   switch (action.type) {
-    case ActionTypes.CONTAINER_LIST_REQUEST:
+    case ActionTypes.SERVICE_LIST_REQUEST:
       return merge({}, defaultState, state, {
         [master]:  {
           [appName]: {
@@ -65,23 +65,59 @@ export function containers(state = {}, action) {
           }
         }
       })
-    case ActionTypes.CONTAINER_LIST_SUCCESS:
+    case ActionTypes.SERVICE_LIST_SUCCESS:
       return merge({}, state, {
         [master]:  {
           [appName]: {
             isFetching: false,
             master: action.response.result.master,
             appName: action.response.result.appName,
-            containerList: union(state.containers, action.response.result.data)
+            serviceList: union(state.services, action.response.result.data)
           }
         }
       })
-    case ActionTypes.CONTAINER_LIST_FAILURE:
+    case ActionTypes.SERVICE_LIST_FAILURE:
       return merge({}, defaultState, state, {
         [master]:  {
           [appName]: {
             isFetching: false
           }
+        }
+      })
+    default:
+      return state
+  }
+}
+
+export function containers(state = {}, action) {
+  const master = action.master
+  const defaultState = {
+    [master]: {
+      isFetching: false,
+      master,
+      containerList: []
+    }
+  }
+  switch (action.type) {
+    case ActionTypes.CONTAINER_LIST_REQUEST:
+      return merge({}, defaultState, state, {
+        [master]:  {
+          isFetching: true
+        }
+      })
+    case ActionTypes.CONTAINER_LIST_SUCCESS:
+      return merge({}, state, {
+        [master]:  {
+          isFetching: false,
+          master: action.response.result.master,
+          appName: action.response.result.appName,
+          containerList: union(state.containers, action.response.result.data)
+        }
+      })
+    case ActionTypes.CONTAINER_LIST_FAILURE:
+      return merge({}, defaultState, state, {
+        [master]:  {
+          isFetching: false
         }
       })
     default:
