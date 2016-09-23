@@ -13,11 +13,12 @@
 const urllib = require('urllib')
 const _ = require('lodash')
 const errors = require('./errors')
-const logger = require('../../../utils/logger').getLogger('tenx_api/v1/request')
 const DEFAULT_PROTOCOL = 'http'
 const DEFAULT_VERSION = 'v2'
-const DEFAULT_TIMEOUT = 1000 * 20
+// const DEFAULT_TIMEOUT = 1000 * 20
+const DEFAULT_TIMEOUT = 1000
 const DEFAULT_DATATYPE = 'json'
+const logger = require('../../../utils/logger').getLogger(`tenx_api/${DEFAULT_VERSION}/request`)
 
 module.exports = (protocol, host, version, auth, timeout) => {
   !protocol && (protocol = DEFAULT_PROTOCOL)
@@ -40,22 +41,24 @@ module.exports = (protocol, host, version, auth, timeout) => {
     if (!callback) {
       return urllib.request(url, options).then((result) => {
         if (_isSuccess(result.res.statusCode)) {
+          result.data.statusCode = result.res.statusCode 
           return result.data
         }
-        console.log(typeof result.data)
-        console.log(result.data)
         throw errors.get(result.res)
       }).catch((err) => {
-        logger.error(err.stack)
-        throw err
+        err.statusCode = err.res.statusCode
+        throw errors.get(err)
       })
     }
     urllib.request(url, object, (err, data, res) => {
       if (err) {
+        err.statusCode = err.res.statusCode
+        err = errors.get(err)
         return callback(err)
       }
 
       if (_isSuccess(res.statusCode)) {
+        data.statusCode = res.statusCode 
         return callback(null, data)
       }
 
