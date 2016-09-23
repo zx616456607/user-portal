@@ -70,7 +70,7 @@ export const CONTAINER_LIST_FAILURE = 'CONTAINER_LIST_FAILURE'
 
 // Fetches container list from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchContainerList(master, appName) {
+function fetchContainerList(master) {
   return {
     master,
     [FETCH_API]: {

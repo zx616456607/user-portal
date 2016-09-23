@@ -10,83 +10,17 @@
 import React, { Component, PropTypes } from 'react'
 import { Tooltip,Checkbox,Card,Menu,Dropdown,Button } from 'antd'
 import { Link } from 'react-router'
+import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import './style/ContainerList.less'
+import { loadContainerList } from '../../actions/app_manage'
 
-const ButtonGroup = Button.Group;
-const data = [{
-	id:"1",
-	appName:"test1",
-	appStatus:"1",
-	serviceNum:"12",
-	containerNum:"12",
-	serviceIPInput:"192.168.1.1",
-	serviceIPOutput:"www.tenxcloud.com",
-	createTime:"2016-09-09 11:27:27",
-},{
-	id:"2",
-	appName:"test2",
-	appStatus:"1",
-	serviceNum:"12",
-	containerNum:"12",
-	serviceIPInput:"192.168.1.1",
-	serviceIPOutput:"www.tenxcloud.com",
-	createTime:"2016-09-09 11:27:27",
-},{
-	id:"3",
-	appName:"test3",
-	appStatus:"0",
-	serviceNum:"12",
-	containerNum:"12",
-	serviceIPInput:"192.168.1.1",
-	serviceIPOutput:"www.tenxcloud.com",
-	createTime:"2016-09-09 11:27:27",
-},{
-	id:"4",
-	appName:"test4",
-	appStatus:"0",
-	serviceNum:"12",
-	containerNum:"12",
-	serviceIPInput:"192.168.1.1",
-	serviceIPOutput:"www.tenxcloud.com",
-	createTime:"2016-09-09 11:27:27",
-},{
-	id:"5",
-	appName:"test5",
-	appStatus:"0",
-	serviceNum:"12",
-	containerNum:"12",
-	serviceIPInput:"192.168.1.1",
-	serviceIPOutput:"www.tenxcloud.com",
-	createTime:"2016-09-09 11:27:27",
-},{
-	id:"6",
-	appName:"test6",
-	appStatus:"1",
-	serviceNum:"12",
-	containerNum:"12",
-	serviceIPInput:"192.168.1.1",
-	serviceIPOutput:"www.tenxcloud.com",
-	createTime:"2016-09-09 11:27:27",
-},{
-	id:"7",
-	appName:"test7",
-	appStatus:"1",
-	serviceNum:"12",
-	containerNum:"12",
-	serviceIPInput:"192.168.1.1",
-	serviceIPOutput:"www.tenxcloud.com",
-	createTime:"2016-09-09 11:27:27",
-},{
-	id:"8",
-	appName:"test8",
-	appStatus:"0",
-	serviceNum:"12",
-	containerNum:"12",
-	serviceIPInput:"192.168.1.1",
-	serviceIPOutput:"www.tenxcloud.com",
-	createTime:"2016-09-09 11:27:27",
-}];
+function loadData(props) {
+  const { master } = props
+  props.loadContainerList(master)
+}
+
+const ButtonGroup = Button.Group
 const operaMenu = (<Menu>
 					  <Menu.Item key="0">
 						重启容器
@@ -100,7 +34,7 @@ const operaMenu = (<Menu>
 					</Menu>);
 
 
-var MyComponent = React.createClass({	  
+const MyComponent = React.createClass({	  
   propTypes: {
    config: React.PropTypes.array
   },
@@ -190,10 +124,9 @@ var MyComponent = React.createClass({
 	  </div>
     );
   }
-});
+})
 
-
-export default class ContainerList extends Component {
+class ContainerList extends Component {
   constructor(props) {
 	super(props);
 	this.onchange = this.onchange.bind(this);
@@ -202,9 +135,15 @@ export default class ContainerList extends Component {
       selectedList:[]
     }
   }
+
+	componentWillMount() {
+    document.title = '容器列表 | 时速云'
+    loadData(this.props)
+  }
   
   allSelectedChecked(){
-  	if(this.state.selectedList.length == data.length){
+		const { containerList } = this.props
+  	if(this.state.selectedList.length == containerList.length){
   		return true;
   	}else{
   		return false;
@@ -213,13 +152,14 @@ export default class ContainerList extends Component {
   
   onchange(){
   	//select title checkbox 
-    let newList = new Array();
-  	if(this.state.selectedList.length == data.length){
+    let newList = new Array()
+		const { containerList } = this.props
+  	if(this.state.selectedList.length == containerList.length){
   	  //had select all item,turn the selectedlist to null
       newList = [];  		
   	}else{
   	  //select some item or nothing,turn the selectedlist to selecet all item
-  	  for(let elem of data){
+  	  for(let elem of containerList){
   	    newList.push(elem.id);
   	  }
   	}
@@ -229,7 +169,8 @@ export default class ContainerList extends Component {
   }
 
   render() {
-  	const parentScope = this;
+  	const parentScope = this
+		const { master, containerList, isFetching } = this.props
     return (
         <QueueAnim 
           className = "ContainerList"        
@@ -280,10 +221,40 @@ export default class ContainerList extends Component {
       		    操作
       		  </div>
       	    </div>
-      	    <MyComponent config = {data} scope={parentScope}/>
+      	    <MyComponent config={ containerList } loading={ isFetching } scope={parentScope}/>
       	  </Card>
         </div>
       </QueueAnim>
     )
   }
 }
+
+ContainerList.propTypes = {
+  // Injected by React Redux
+  master: PropTypes.string.isRequired,
+  containerList: PropTypes.array.isRequired,
+  isFetching: PropTypes.bool.isRequired,
+  loadContainerList: PropTypes.func.isRequired
+}
+
+function mapStateToProps(state, props) {
+  const defaultContainers = {
+    isFetching: false,
+    master: 'default',
+    containerList: []
+  }
+  const {
+    containers
+  } = state
+  const { master, containerList, isFetching } = containers['default'] || defaultContainers
+
+  return {
+    master,
+    containerList,
+    isFetching
+  }
+}
+
+export default connect(mapStateToProps, {
+  loadContainerList
+})(ContainerList)

@@ -15,8 +15,8 @@ import QueueAnim from 'rc-queue-anim'
 import './style/AppList.less'
 import { loadAppList } from '../../actions/app_manage'
 
-function loadData(props, state) {
-  const { master } = state
+function loadData(props) {
+  const { master } = props
   props.loadAppList(master)
 }
 
@@ -99,9 +99,6 @@ class AppList extends Component {
   constructor(props) {
 		super(props)
 		this.onAllChange = this.onAllChange.bind(this)
-		this.state = {
-      master: 'default'
-    }
   }
   
   onAllChange(){
@@ -110,7 +107,7 @@ class AppList extends Component {
 	
 	componentWillMount() {
     document.title = '应用列表 | 时速云'
-    loadData(this.props, this.state)
+    loadData(this.props)
   }
 
   render() {
