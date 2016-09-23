@@ -114,6 +114,7 @@ class AppList extends Component {
   }
 
   render() {
+		const { master, appList, isFetching } = this.props
     return (
         <QueueAnim 
           className = "AppList"        
@@ -171,7 +172,7 @@ class AppList extends Component {
       		    操作
       		  </div>
       	    </div>
-      	    <MyComponent config={data}  />
+      	    <MyComponent config={appList} loading={isFetching}/>
       	  </Card>
         </div>
       </QueueAnim>
