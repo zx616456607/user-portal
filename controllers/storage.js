@@ -10,17 +10,7 @@
 
 'use strict'
 
-exports.getStorageListByMaster = function*() {
-  let master = this.params.master
-  if(!master || !master.trim()) {
-    this.status = 400
-    this.body = {
-      
-    }
-    return
-  }
-  this.status = 200
-  this.body = { storageList: [{
+var data = { storageList: [{
     id:"1",
     name:"test1",
     status:"2",
@@ -71,6 +61,15 @@ exports.getStorageListByMaster = function*() {
     createTime:"2016-09-09 11:27:27"
   }]
   }
+exports.getStorageListByMaster = function*() {
+  let master = this.params.master
+  if(!master || !master.trim()) {
+    this.status = 400
+    this.body = {}
+    return
+  }
+  this.status = 200
+  this.body = data
 }
 
 exports.deleteStorage = function*() {
@@ -83,7 +82,7 @@ exports.deleteStorage = function*() {
     return
   }
   this.status = 200
-  this.body = { storageList: [{
+  data = { storageList: [{
     id:"1",
     name:"test1",
     status:"2",
@@ -114,4 +113,5 @@ exports.deleteStorage = function*() {
     createTime:"2016-09-09 11:27:27"
   }]
   }
+  this.body = {}
 }

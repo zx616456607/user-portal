@@ -126,11 +126,10 @@ function storageList(state = {}, action) {
         [master]: { isFetching: true }
       })
     case ActionTypes.STORAGE_LIST_SUCCESS:
-     console.log('success')
-      return merge({}, defaultState, state, {
+      return Object.assign({}, defaultState, state, {
         [master]: {
           isFetching: false,
-          storageList: union(state, action.response.result.storageList),
+          storageList: action.response.result.storageList,
           number: action.response.result.number,
           login: action.response.result.login,
           master: action.response.result.master
@@ -146,14 +145,16 @@ function storageList(state = {}, action) {
 }
 
 function deleteStorage(state = {}, action) {
-  switch(action) {
+  switch(action.type) {
     case ActionTypes.STORAGE_DELETE_REQUEST:
       return merge({}, state, {
         isFetching: true
       })
     case ActionTypes.STORAGE_DELETE_SUCCESS: 
-      if(action.callback) {
-        action.callback()
+      if (action.callback) {
+        setTimeout(function() {
+          action.callback()
+        },0)
       }
       return merge({}, state, {
         isFetching: false
@@ -162,13 +163,16 @@ function deleteStorage(state = {}, action) {
       return merge({}, state, {
         isFetching: false
       })
+    default: 
+      return state
   }
 }
 
 
 function storage(state = {}, action) {
   return {
-    storageList: storageList(state.storageList, action)
+    storageList: storageList(state.storageList, action),
+    deleteStorage: deleteStorage(state.deleteStorage, action)
   }
 }
 

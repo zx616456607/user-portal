@@ -119,7 +119,7 @@ export default store => next => action => {
   const [ requestType, successType, failureType ] = types
   next(actionWith({ type: requestType }))
 
-  return fetchApi(endpoint, action.options || {}, schema).then(
+  return fetchApi(endpoint, fetchAPI.options || {}, schema).then(
     response => next(actionWith({
       response,
       type: successType

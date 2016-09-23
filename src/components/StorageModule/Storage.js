@@ -15,7 +15,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { remove } from 'lodash'
-import { loadStorageList } from '../../actions'
+import { loadStorageList, deleteStorage } from '../../actions'
 import './style/storage.less'
 
 
@@ -155,24 +155,66 @@ const messages = defineMessages({
 
 })
 
-let  MyComponent = React.createClass({
+let MyComponent = React.createClass({
+  getInitialState() {
+    
+    let config = this.props.config;
+    let master = this.props.master;
+    let list = config[master]
+    let check = {}
+    console.log(list)
+    if(list) {
+      list.storageList.forEach((item) => {
+        check[item.id] = false
+      })
+    }
+    console.log(check)
+    return {
+      check,
+      isAllChecked: false
+    }
+  },
+  onAllChange(e) {
+    let check = this.state.check
+    if(check){
+      let keys = Object.getOwnPropertyNames(check)
+      keys.forEach(item => {
+        check[item] = e.target.checked
+      })
+    }
+    this.setState({
+      isAllChecked: e.target.checked,
+      check
+    })
+  },
   propTypes: {
-   config: React.PropTypes.object
+    config: React.PropTypes.object
   },
   onchange(e, id) {
+    let check = this.state.check
+    if(e.target.checked) {
+      check[id] = 1
+    } else {
+      check[id] = 0
+    }
+    this.setState({
+      check
+    })
     const saveCheckedStorage = this.props.saveCheckedStorage
     saveCheckedStorage(e, id)
   },
   render () {
+  const { formatMessage } = this.props.intl
 	let config = this.props.config;
   let master = this.props.master;
   let list = config[master]
+  alert(1)
   if(!list) return (<div></div>)
 	let items = list.storageList.map((item) => {
 	  return (
 	    <div className="appDetail" key={item.name}>
 			<div className="selectIconTitle commonData">
-			  <Checkbox onChange={(e)=>this.onchange(e, item.id)}></Checkbox>
+			  <Checkbox onChange={(e)=>this.onchange(e, item.id)} checked= { this.state.check[item.id] ? true : false }></Checkbox>
 			</div>
 			<div className="name commonData">
 		      <Link to={`/app_manage/storage/${item.id}`} >
@@ -197,22 +239,43 @@ let  MyComponent = React.createClass({
       );
 	});
 	return (
-	  <div className="dataBox">
+    <Card className="storageList appBox">
+      <div className="appTitle">
+        <div className="selectIconTitle commonTitle">
+          <Checkbox onChange={(e)=>this.onAllChange(e)} ></Checkbox>
+        </div>
+        <div className="name commonTitle"><FormattedMessage {...messages.storageName} /></div>
+        <div className="status commonTitle"><FormattedMessage {...messages.status} /></div>
+        <div className="formet commonTitle"><FormattedMessage {...messages.formats} /></div>
+        <div className="forin commonTitle"><FormattedMessage {...messages.forin} /></div>
+        <div className="appname commonTitle"><FormattedMessage {...messages.app} /></div>
+        <div className="size commonTitle"><FormattedMessage {...messages.size} /></div>
+        <div className="createTime commonTitle"><FormattedMessage {...messages.createTime} /></div>
+        <div className="actionBox commonTitle"><FormattedMessage {...messages.action} /></div>
+      </div>
+      <div className="dataBox">
         { items }
-	  </div>
+	    </div>
+    </Card>
     );
   }
 });
+
+MyComponent = injectIntl(MyComponent, {
+  withRef: true,
+})
 class Storage extends Component {
-	
 	constructor(props) {
     super(props)
     this.showModal = this.showModal.bind(this)
     this.handleCancel = this.handleCancel.bind(this)
 		this.onChange = this.onChange.bind(this)
+    this.deleteStorage = this.deleteStorage.bind(this)
     this.state = {
       inputValue: 0,
-			visible: false
+			visible: false,
+      storageIdArray: [],
+      isAllChecked: false
     }
   }
 	onChange(value) {
@@ -235,17 +298,13 @@ class Storage extends Component {
       visible: false,
   	});
   }
-
   deleteStorage() {
-    const self = this
-    const storageIdArray = self.getSate
-    return (storageIdArray) => {
-      self.props.deleteStorage(storageIdArray, self.loadStorageList('test'))
-    }
+    const storageIdArray = this.state.storageIdArray
+    this.props.deleteStorage('test', storageIdArray, () => this.props.loadStorageList('test'))
   }
   saveCheckedStorage() {
     const self = this
-    const storageIdArray = []
+    const storageIdArray = self.state.storageIdArray
     return (e, storageId) => {
       if(e.target.checked) {
         storageIdArray.push(storageId)
@@ -308,22 +367,7 @@ class Storage extends Component {
 	        </div>
 	        <div className="clearDiv"></div>
       	  </div>
-      	  <Card className="storageList appBox">
-      	    <div className="appTitle">
-							<div className="selectIconTitle commonTitle">
-								<Checkbox onChange={this.onAllChange}></Checkbox>
-							</div>
-							<div className="name commonTitle"><FormattedMessage {...messages.storageName} /></div>
-							<div className="status commonTitle"><FormattedMessage {...messages.status} /></div>
-							<div className="formet commonTitle"><FormattedMessage {...messages.formats} /></div>
-							<div className="forin commonTitle"><FormattedMessage {...messages.forin} /></div>
-							<div className="appname commonTitle"><FormattedMessage {...messages.app} /></div>
-							<div className="size commonTitle"><FormattedMessage {...messages.size} /></div>
-							<div className="createTime commonTitle"><FormattedMessage {...messages.createTime} /></div>
-							<div className="actionBox commonTitle"><FormattedMessage {...messages.action} /></div>
-      	    </div>
       	    <MyComponent config = {this.props.storageList} master = {'test'} saveCheckedStorage = {() => this.saveCheckedStorage()} />
-      	  </Card>
         </div>
       </QueueAnim>
     )
@@ -333,7 +377,6 @@ class Storage extends Component {
 Storage.propTypes = {
   intl: PropTypes.object.isRequired
 }
-
 function mapSateToProp(state) {
   return {
     storageList: state.storage.storageList
@@ -346,7 +389,7 @@ function mapDispathToProp(dispath) {
       dispath(loadStorageList(master))
     },
     deleteStorage: (storageIdArray, callback) => {
-      dispath(deleteStorage(storageIdArray, callback))
+      dispath(deleteStorage(pool, storageIdArray, callback))
     }
   }
 }
