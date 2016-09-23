@@ -11,6 +11,8 @@
 const logger = require('../utils/logger.js').getLogger('api-router')
 const storageController = require('../controllers/storage')
 const appController = require('../controllers/app_manage')
+const serviceController = require('../controllers/service_manage')
+const containerController = require('../controllers/container')
 
 
 module.exports = function (Router) {
@@ -24,10 +26,13 @@ module.exports = function (Router) {
   
   // Apps 
   router.get('/clusters/:master/apps', appController.getApps)
+  router.get('/clusters/:master/apps/:app_name/services', appController.getAppServices)
+  
+  // Services
+  router.get('/clusters/:master/services/:service_name/containers', serviceController.getServiceContainers)
 
   // Containers
-  router.get('/clusters/:master/apps/:app_name/containers', appController.getContainers)
-  
+  router.get('/clusters/:master/containers', containerController.getContainers)
 
   return router.routes()
 }

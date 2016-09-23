@@ -12,11 +12,11 @@ import { Tabs,Card, Menu } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import AppInstanceList from "./AppInstanceList.js"
+import AppServiceList from './AppServiceList'
 import AppGraph from "./AppGraph.js"
 import AppLog from "./AppLog.js"
 import "./style/AppDetail.less"
-import { loadContainerList } from '../../actions/app_manage'
+import { loadServiceList } from '../../actions/app_manage'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -31,13 +31,13 @@ class AppDetail extends Component {
   }
 
 	componentWillMount() {
-		const { master, appName, loadContainerList } = this.props
+		const { master, appName, loadServiceList } = this.props
     document.title = `应用 ${appName} 详情 | 时速云`
-    loadContainerList(master, appName)
+    loadServiceList(master, appName)
   }
   
   render() {
-    const { children, appName, containerList, isFetching } = this.props
+    const { children, appName, serviceList, isFetching } = this.props
     const { currentKey } = this.state
     return (
           <div id="AppDetail">
@@ -93,7 +93,7 @@ class AppDetail extends Component {
 	               defaultActiveKey="1"
 	              >
 	                <TabPane tab="服务实例" key="1" >
-										<AppInstanceList key="AppInstanceList" data={ containerList } loading={ isFetching } />
+										<AppServiceList key="AppServiceList" data={ serviceList } loading={ isFetching } />
 									</TabPane>
 	                <TabPane tab="应用拓补图" key="2" >应用拓补图</TabPane>
 	                <TabPane tab="编排文件" key="3" ><AppGraph key="AppGraph" /></TabPane>
@@ -111,35 +111,35 @@ class AppDetail extends Component {
 AppDetail.propTypes = {
   // Injected by React Redux
   master: PropTypes.string.isRequired,
-  containerList: PropTypes.array.isRequired,
+  serviceList: PropTypes.array.isRequired,
   isFetching: PropTypes.bool.isRequired,
-  loadContainerList: PropTypes.func.isRequired
+  loadServiceList: PropTypes.func.isRequired
 }
 
 function mapStateToProps(state, props) {
   const { app_name } = props.params
-	const defaultContainers = {
+	const defaultServices = {
     isFetching: false,
     master: 'default',
 		appName: app_name,
-    containerList: []
+    serviceList: []
   }
 	const {
-    containers
+    services
   } = state
-	let targetContainers
-	if (containers['default'] && containers['default'][app_name]) {
-		targetContainers = containers['default'][app_name]
+	let targetServices
+	if (services['default'] && services['default'][app_name]) {
+		targetServices = services['default'][app_name]
 	}
-	const { master, containerList, isFetching } = targetContainers || defaultContainers
+	const { master, serviceList, isFetching } = targetServices || defaultServices
   return {
 		master,
     appName: app_name,
-		containerList,
+		serviceList,
 		isFetching
   }
 }
 
 export default connect(mapStateToProps, {
-  loadContainerList
+  loadServiceList
 })(AppDetail)

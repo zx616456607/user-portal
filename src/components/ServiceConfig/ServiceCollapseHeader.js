@@ -40,19 +40,20 @@ class CollapseHeader extends Component {
     e.stopPropagation()
   }
   render(){
+    const collapseHeader = this.props.collapseHeader
     return (
       <Row>
         <Col className="group-name" span="6">
           <Checkbox onClick={(e) => this.handleDropdown(e)}></Checkbox>
           <Icon type="folder-open" />
-          <span>my_ConfigGroup</span>
+          <span>{collapseHeader.groupName}</span>
         </Col>
         <Col span="6">
           配置文件 &nbsp;
-          3个
+          {collapseHeader.configFile.length}个
         </Col>
         <Col span="6">
-          创建时间&nbsp;&nbsp;2016-09-12&nbsp;15:&nbsp;12:&nbsp;30
+          创建时间&nbsp;&nbsp;{collapseHeader.date}
         </Col>
         <Col span="6">
           <ButtonGroup>
@@ -93,6 +94,7 @@ class CollapseHeader extends Component {
 }
 
 CollapseHeader.propTypes = {
+  collapseHeader: PropTypes.object.isRequired,
   intl: PropTypes.object.isRequired
 }
 

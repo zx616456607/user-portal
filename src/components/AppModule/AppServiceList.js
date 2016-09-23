@@ -2,7 +2,7 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  * 
- * AppInstanceList component
+ * AppServiceList component
  * 
  * v0.1 - 2016-09-10
  * @author GaoJian
@@ -12,8 +12,8 @@ import { Modal,Checkbox,Dropdown,Button,Card, Menu,Icon } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import AppServiceDetail from "./AppServiceDetail.js"
-import "./style/AppInstanceList.less"
+import AppServiceDetail from './AppServiceDetail'
+import './style/AppServiceList.less'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -88,7 +88,7 @@ const MyComponent = React.createClass({
   }
 });					
 
-export default class AppInstanceList extends Component {
+export default class AppServiceList extends Component {
   constructor(props) {
     super(props);
     this.closeModal = this.closeModal.bind(this);    
@@ -109,7 +109,7 @@ export default class AppInstanceList extends Component {
 		let { modalShow, currentShowInstance } = this.state
 		const { data, loading } = this.props
     return (
-      <div id="AppInstanceList">
+      <div id="AppServiceList">
 	    <QueueAnim className="demo-content"
 	      key="demo"
 	      type="right"
@@ -174,6 +174,6 @@ export default class AppInstanceList extends Component {
   }
 }
 
-AppInstanceList.propTypes = {
+AppServiceList.propTypes = {
 //
 }
