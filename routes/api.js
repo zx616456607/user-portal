@@ -10,6 +10,7 @@
 
 const logger = require('../utils/logger.js').getLogger('api-router')
 const storageController = require('../controllers/storage')
+// const appController = require('../controllers/app_manage')
 
 
 module.exports = function (Router) {
@@ -17,9 +18,10 @@ module.exports = function (Router) {
     prefix: '/api/v2'
   })
 
-  //Storage
-  router.get('/clusters/:master/storages', storageController.getStorageListByMaster)
-  router.post('/clusters/:master/storages/delete', storageController.deleteStorage)
-  
+  // Storage
+  router.get('/storage-pools/:pool/storages', storageController.getStorageListByMaster)
+  router.post('/storage-pools/:pool/storages/batch-delete', storageController.deleteStorage)
+  // router.post('/clusters/:master/apps', appController.getApps)
+
   return router.routes()
 }
