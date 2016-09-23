@@ -61,9 +61,9 @@ var data = { storageList: [{
     createTime:"2016-09-09 11:27:27"
   }]
   }
-exports.getStorageListByMaster = function*() {
-  let master = this.params.master
-  if(!master || !master.trim()) {
+exports.getStorageListByPool = function*() {
+  let pool = this.params.pool
+  if(!pool || !pool.trim()) {
     this.status = 400
     this.body = {}
     return

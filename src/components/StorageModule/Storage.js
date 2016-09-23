@@ -159,16 +159,14 @@ let MyComponent = React.createClass({
   getInitialState() {
     
     let config = this.props.config;
-    let master = this.props.master;
-    let list = config[master]
+    let pool = this.props.pool;
+    let list = config[pool]
     let check = {}
-    console.log(list)
     if(list) {
       list.storageList.forEach((item) => {
         check[item.id] = false
       })
     }
-    console.log(check)
     return {
       check,
       isAllChecked: false
@@ -206,9 +204,8 @@ let MyComponent = React.createClass({
   render () {
   const { formatMessage } = this.props.intl
 	let config = this.props.config;
-  let master = this.props.master;
-  let list = config[master]
-  alert(1)
+  let pool = this.props.pool;
+  let list = config[pool]
   if(!list) return (<div></div>)
 	let items = list.storageList.map((item) => {
 	  return (
@@ -367,7 +364,7 @@ class Storage extends Component {
 	        </div>
 	        <div className="clearDiv"></div>
       	  </div>
-      	    <MyComponent config = {this.props.storageList} master = {'test'} saveCheckedStorage = {() => this.saveCheckedStorage()} />
+      	    <MyComponent config = {this.props.storageList} pool = {'test'} saveCheckedStorage = {() => this.saveCheckedStorage()} />
         </div>
       </QueueAnim>
     )
@@ -385,10 +382,10 @@ function mapSateToProp(state) {
 
 function mapDispathToProp(dispath) {
   return {
-    loadStorageList: (master) => {
-      dispath(loadStorageList(master))
+    loadStorageList: (pool) => {
+      dispath(loadStorageList(pool))
     },
-    deleteStorage: (storageIdArray, callback) => {
+    deleteStorage: (pool, storageIdArray, callback) => {
       dispath(deleteStorage(pool, storageIdArray, callback))
     }
   }

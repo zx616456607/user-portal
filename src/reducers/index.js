@@ -110,11 +110,11 @@ function transhRcs(state = {}, action) {
 }
 
 function storageList(state = {}, action) {
-  const master = action.master
+  const pool = action.pool
   const defaultState = {
-    [master]: {
+    [pool]: {
       isFetching: false,
-      master,
+      pool,
       login: null,
       number: 0,
       storageList: []
@@ -123,21 +123,21 @@ function storageList(state = {}, action) {
   switch (action.type) {
     case ActionTypes.STORAGE_LIST_REQUEST:
       return merge({}, defaultState, state, {
-        [master]: { isFetching: true }
+        [pool]: { isFetching: true }
       })
     case ActionTypes.STORAGE_LIST_SUCCESS:
       return Object.assign({}, defaultState, state, {
-        [master]: {
+        [pool]: {
           isFetching: false,
           storageList: action.response.result.storageList,
           number: action.response.result.number,
           login: action.response.result.login,
-          master: action.response.result.master
+          pool: action.response.result.pool
         }
       })
     case ActionTypes.STORAGE_LIST_FAILURE:
       return merge({}, defaultState, state, {
-        [master]: { isFetching: false }
+        [pool]: { isFetching: false }
       })
     default: 
       return state
