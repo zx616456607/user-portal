@@ -17,7 +17,7 @@
 			appline：创建过程虚线，
 			applining：创建过程虚线（渐变），
 			appstore：应用商城，
-			step*：数字步骤
+			step：步骤
 		}
 		应用详情：{
 			terminal：终端显示

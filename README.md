@@ -1,3 +1,4 @@
+# user portal of Enterprise 2.0
 ```
 # 项目结构
 ├─configs
@@ -26,16 +27,22 @@ npm install cnpm -g --registry=https://registry.npm.taobao.org
 cnpm install
 ```
 ### 运行开发环境-development
+#### Linux
+```bash
+# development
+npm run dev
+# production
+npm run pro
 ```
-# Linux
-npm run dev # development
-npm run pro # production
-# Windows
-npm run win # development
-npm run win-pro # production
+#### Windows
+```bash
+# development
+npm run win
+# production
+npm run win-pro
 ```
 ### 构建生产环境-production
-```
+```bash
 # Linux
 npm run build # build files
 npm run pro
@@ -50,7 +57,7 @@ if(options.headers) {
         res.setHeader(name, options.headers[name]);
     }
 }
-res.statusCode = 200; // just add this line !!
+res.statusCode = 200; // just add this line to set statusCode=200 !!
 if (res.send) res.send(content);
 else res.end(content);
 ```

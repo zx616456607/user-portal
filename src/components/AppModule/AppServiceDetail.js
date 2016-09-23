@@ -12,7 +12,7 @@ import { Tabs,Checkbox,Dropdown,Button,Card, Menu,Icon } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import ContainerList from './AppInstanceDetail/ContainerList.js'
+import ContainerList from './AppInstanceDetail/AppContainerList.js'
 import "./style/AppServiceDetail.less"
 
 const TabPane = Tabs.TabPane;

@@ -9,7 +9,7 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { Breadcrumb } from 'antd'
-import AppSider from '../../components/AppSider'
+import AppSider from '../../components/ApplicationSider'
 import IntlExp from '../../components/IntlExp'
 import QueueAnim from 'rc-queue-anim'
 import './style/Application.less'

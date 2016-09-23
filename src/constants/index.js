@@ -8,4 +8,4 @@
  * @author Zhangpc
  */
 
-export const API_URL_PREFIX = '/api/v1'
+export const API_URL_PREFIX = '/api/v2'

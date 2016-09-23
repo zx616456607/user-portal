@@ -1,0 +1,79 @@
+.AppCreateServiceModal {
+	width: 650px !important;
+	#AppCreateServiceModal {
+		width: 100%;
+		height: auto;
+		.operaBox {
+			Button {
+				margin-left: 10px;
+				float: left;
+				height: 35px;
+				line-height: 27px;
+			}
+			.titleSpan {
+				float: left;
+				font-size: 14px;
+				line-height: 35px;
+			}
+			.inputBox {
+				float: right;
+				position: relative;
+				height: 35px;
+				input {
+					width: 180px;
+					height: 35px;
+				}
+				i {
+					position: absolute;
+					right: 11px;
+					top: 9px;
+					font-size: 15px;
+				}
+			}
+		}
+		.dataBox {
+			margin-top: 20px;
+			max-height: 400px;
+			overflow-y: auto;
+			border: 1px solid #E5E5E5;
+			.serviceDetail {
+				width: 100%;
+				height: 100px;
+				border-bottom: 1px solid #E5E5E5;
+				.imgUrl {
+					margin-top: 15px;
+					margin-left: 15px;
+					float: left;
+					width: 70px;
+					height: 70px;
+					border-radius: 6px;
+					box-shadow: 0 0 10px #999999;
+				}
+				.infoBox {
+					margin-top: 25px;
+					margin-left: 20px;
+					margin-right: 20px;
+					float: left;
+					width: calc(~"100% - 221px");
+					line-height: 25px;
+					.intro {
+						display: block;
+						overflow: hidden;
+						text-overflow: ellipsis;
+						white-space: nowrap;
+						width: 100%;
+					}
+				}
+				button {
+					margin-top: 34px;
+					margin-right: 15px;
+					float: right;
+					width: 81px;
+					i {
+						margin-left: 5px;
+					}
+				}
+			}
+		}
+	}
+}
