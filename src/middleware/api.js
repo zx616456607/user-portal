@@ -55,6 +55,10 @@ const rcSchema = new Schema('rcs', {
   idAttribute: 'rcName'
 })
 
+const appSchema = new Schema('apps', {
+  idAttribute: 'id'
+})
+
 const storageSchema = new Schema('storage', {
   idAttribute: 'namespace'
 })
@@ -73,6 +77,10 @@ export const Schemas = {
   },
   TRANSH_RCS: {
     rcList: arrayOf(rcSchema)
+  },
+  APP: appSchema,
+  APPS: {
+    appList: arrayOf(appSchema)
   },
   STORAGE: {
     storageList: arrayOf(storageSchema)

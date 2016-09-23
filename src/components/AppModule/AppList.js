@@ -8,76 +8,19 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
+import { connect } from 'react-redux'
 import { Tooltip,Checkbox,Card,Menu,Dropdown,Button,Icon } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import './style/AppList.less'
+import { loadAppList } from '../../actions/app_manage'
 
-const data = [{
-	id:"1",
-	appName:"test1",
-	appStatus:"1",
-	serviceNum:"12",
-	containerNum:"12",
-	visitIp:"192.168.1.1",
-	createTime:"2016-09-09 11:27:27",
-},{
-	id:"2",
-	appName:"test2",
-	appStatus:"1",
-	serviceNum:"12",
-	containerNum:"12",
-	visitIp:"192.168.1.1",
-	createTime:"2016-09-09 11:27:27",
-},{
-	id:"3",
-	appName:"test3",
-	appStatus:"0",
-	serviceNum:"12",
-	containerNum:"12",
-	visitIp:"192.168.1.1",
-	createTime:"2016-09-09 11:27:27",
-},{
-	id:"4",
-	appName:"test4",
-	appStatus:"0",
-	serviceNum:"12",
-	containerNum:"12",
-	visitIp:"192.168.1.1",
-	createTime:"2016-09-09 11:27:27",
-},{
-	id:"5",
-	appName:"test5",
-	appStatus:"0",
-	serviceNum:"12",
-	containerNum:"12",
-	visitIp:"192.168.1.1",
-	createTime:"2016-09-09 11:27:27",
-},{
-	id:"6",
-	appName:"test6",
-	appStatus:"1",
-	serviceNum:"12",
-	containerNum:"12",
-	visitIp:"192.168.1.1",
-	createTime:"2016-09-09 11:27:27",
-},{
-	id:"7",
-	appName:"test7",
-	appStatus:"1",
-	serviceNum:"12",
-	containerNum:"12",
-	visitIp:"192.168.1.1",
-	createTime:"2016-09-09 11:27:27",
-},{
-	id:"8",
-	appName:"test8",
-	appStatus:"0",
-	serviceNum:"12",
-	containerNum:"12",
-	visitIp:"192.168.1.1",
-	createTime:"2016-09-09 11:27:27",
-}];
+function loadData(props, state) {
+  const { master } = state
+  props.loadAppList(master)
+}
+
+const data = []
 const operaMenu = (<Menu>
 					  <Menu.Item key="0">
 						重新部署
@@ -96,8 +39,7 @@ const operaMenu = (<Menu>
 					  </Menu.Item>
 					</Menu>);
 
-
-var MyComponent = React.createClass({	  
+const MyComponent = React.createClass({	  
   propTypes: {
    config: React.PropTypes.array
   },
@@ -153,16 +95,24 @@ var MyComponent = React.createClass({
 });
 
 
-export default class AppList extends Component {
+class AppList extends Component {
   constructor(props) {
-	super(props);
-	this.onAllChange = this.onAllChange.bind(this);
+		super(props)
+		this.onAllChange = this.onAllChange.bind(this)
+		this.state = {
+      master: 'default'
+    }
   }
   
   onAllChange(){
-  	
-  }
+		// 
+	}
 	
+	componentWillMount() {
+    document.title = '应用列表 | 时速云'
+    loadData(this.props, this.state)
+  }
+
   render() {
     return (
         <QueueAnim 
@@ -221,10 +171,40 @@ export default class AppList extends Component {
       		    操作
       		  </div>
       	    </div>
-      	    <MyComponent config = {data}  />
+      	    <MyComponent config={data}  />
       	  </Card>
         </div>
       </QueueAnim>
     )
   }
 }
+
+AppList.propTypes = {
+  // Injected by React Redux
+  master: PropTypes.string.isRequired,
+  appList: PropTypes.array.isRequired,
+  isFetching: PropTypes.bool.isRequired,
+  loadAppList: PropTypes.func.isRequired
+}
+
+function mapStateToProps(state, props) {
+  const defaultApps = {
+    isFetching: false,
+    master: 'default',
+    appList: []
+  }
+  const {
+    apps
+  } = state
+  const { master, appList, isFetching } = apps['default'] || defaultApps
+
+  return {
+    master,
+    appList,
+    isFetching
+  }
+}
+
+export default connect(mapStateToProps, {
+  loadAppList
+})(AppList)

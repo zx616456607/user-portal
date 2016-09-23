@@ -10,7 +10,7 @@
 
 const logger = require('../utils/logger.js').getLogger('api-router')
 const storageController = require('../controllers/storage')
-// const appController = require('../controllers/app_manage')
+const appController = require('../controllers/app_manage')
 
 
 module.exports = function (Router) {
@@ -19,9 +19,9 @@ module.exports = function (Router) {
   })
 
   // Storage
-  router.get('/storage-pools/:pool/storages', storageController.getStorageListByPool)
+  router.get('/storage-pools/:pool/volumes', storageController.getStorageListByPool)
   router.post('/storage-pools/:pool/volumes/batch-delete', storageController.deleteStorage)
-  // router.post('/clusters/:master/apps', appController.getApps)
+  router.get('/clusters/:master/apps', appController.getApps)
 
   return router.routes()
 }
