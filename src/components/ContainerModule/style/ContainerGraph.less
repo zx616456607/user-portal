@@ -1,29 +1,48 @@
-#AppGraph{
+#ContainerGraph {
 	font-size: 14px;
-	button{
-		height: 35px;
-		width: 150px;
-		background-color: #FFF;
-		text-align: left;
-		i{
-			float: right;
-			line-height: 17px;
-		}
-	}
-	.bottomBox{
+	.bottomBox {
 		margin-top: 20px;
-		span{
+		.titleSpan {
 			float: left;
 		}
-		.introBox{
+		.introBox {
 			float: left;
-			padding: 10px 15px;
 			width: 80%;
 			height: 500px;
 			overflow-y: auto;
-			color: #37fc34;
 			background-color: #000000;
 			border-radius: 5px;
+			.operaBox {
+				position: relative;
+				width: 100%;
+				height: 40px;
+				line-height: 40px;
+				background-color: #333333;
+				span{
+					float: right;
+					margin-right: 20px;
+					.ant-input:hover{
+						border-color: inherit;
+					}
+					i{
+						font-size: 13px;
+					}
+				}
+				.fa {
+					float: right;
+					color: #5CB85C;
+					line-height: 40px;
+					margin-right: 10px;
+					cursor: pointer;
+				}
+			}
+			.infoBox {
+				padding: 10px 15px;
+				width: 100%;
+				max-height: 460px;
+				overflow: auto;
+				color: #37fc34;
+			}
 		}
 	}
 }

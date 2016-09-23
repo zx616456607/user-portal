@@ -1,5 +1,11 @@
 /**
- * Created by Administrator on 2016/9/21.
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2016 TenxCloud. All Rights Reserved.
+ *
+ *  Storage list
+ *
+ * v0.1 - 2016/9/22
+ * @author ZhaoXueYu
  */
 import React, { Component,PropTypes } from 'react'
 import "./style/StorageBind.less"
