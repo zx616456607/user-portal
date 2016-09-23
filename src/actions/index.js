@@ -83,3 +83,53 @@ export function resetErrorMessage() {
 export const STORAGE_LIST_REQUEST = 'STORAGE_LIST_REQUEST' 
 export const STORAGE_LIST_SUCCESS = 'STORAGE_LIST_SUCCESS' 
 export const STORAGE_LIST_FAILURE = 'STORAGE_LIST_FAILURE' 
+
+export function fetchStorageList(master) {
+  return {
+    master,
+    [FETCH_API]: {
+      types: [STORAGE_LIST_REQUEST, STORAGE_LIST_SUCCESS, STORAGE_LIST_FAILURE],
+      endpoint: `${API_URL_PREFIX}/storage/${master}/list`,
+      schema: Schemas.CONTAINERS
+    }
+  }
+}
+
+export function loadStorageList(master) {
+  return (dispath, getState) => {
+    const state = getState().storage.storageList
+    dispath(fetchStorageList(master))
+  }
+}
+
+export const STORAGE_CREATE_REQUEST = 'STORAGE_CREATE_REQUEST'
+export const STORAGE_CREATE_SUCCESS = 'STORAGE_CREATE_SUCCESS'
+export const STORAGE_CREATE_FAILURE = 'STORAGE_CREATE_FAILURE'
+
+export function createStorage(obj) {
+  return {
+    master: obj.master,
+    [FETCH_API]: {
+      types: [STORAGE_CREATE_REQUEST, STORAGE_CREATE_SUCCESS, STORAGE_CREATE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/storage`
+    }
+  }
+}
+
+export const STORAGE_DELETE_REQUEST = 'STORAGE_DELETE_REQUEST'
+export const STORAGE_DELETE_SUCCESS = 'STORAGE_DELETE_SUCCESS'
+export const STORAGE_DELETE_FAILURE = 'STORAGE_DELETE_FAILURE'
+
+export function deleteStorage(storageIdArray, callback) {
+  return {
+    [FETCH_API]: {
+      types: [STORAGE_DELETE_REQUEST, STORAGE_DELETE_SUCCESS, STORAGE_DELETE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/storage/delete`,
+      options: {
+        method: 'POST',
+        data: storageIdArray
+      }
+    },
+    callback
+  }
+}

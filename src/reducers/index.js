@@ -126,10 +126,11 @@ function storageList(state = {}, action) {
         [master]: { isFetching: true }
       })
     case ActionTypes.STORAGE_LIST_SUCCESS:
-      return merge({}, defaultStatus, state, {
+     console.log('success')
+      return merge({}, defaultState, state, {
         [master]: {
           isFetching: false,
-          storageList: union(state.stroageList, action.response.result.storageList),
+          storageList: union(state, action.response.result.storageList),
           number: action.response.result.number,
           login: action.response.result.login,
           master: action.response.result.master
@@ -144,12 +145,39 @@ function storageList(state = {}, action) {
   }
 }
 
+function deleteStorage(state = {}, action) {
+  switch(action) {
+    case ActionTypes.STORAGE_DELETE_REQUEST:
+      return merge({}, state, {
+        isFetching: true
+      })
+    case ActionTypes.STORAGE_DELETE_SUCCESS: 
+      if(action.callback) {
+        action.callback()
+      }
+      return merge({}, state, {
+        isFetching: false
+      })
+    case ActionTypes.STORAGE_DELETE_FAILURE:
+      return merge({}, state, {
+        isFetching: false
+      })
+  }
+}
+
+
+function storage(state = {}, action) {
+  return {
+    storageList: storageList(state.storageList, action)
+  }
+}
 
 const rootReducer = combineReducers({
   entities,
   errorMessage,
   containerList,
   transhRcs,
+  storage,
   routing
 })
 

@@ -22,7 +22,7 @@ function fetchApi(endpoint, options, schema) {
   }
   if(options.method === 'POST') {
     if(!options.headers) options.headers = {}
-    if(!options.headers) {
+    if(options.headers['Content-Type']) {
       options.headers['Content-Type'] = 'application/json'
     }
   }

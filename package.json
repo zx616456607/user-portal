@@ -46,8 +46,9 @@
     "koa-redis": "^2.1.2",
     "koa-router": "^5.4.0",
     "koa-static": "^2.0.0",
-    "lodash": "^4.16.1",
-    "log4js": "^0.6.38"
+    "lodash": "^4.15.0",
+    "log4js": "^0.6.38",
+    "urllib": "^2.13.1"
   },
   "devDependencies": {
     "antd": "^1.11.0",

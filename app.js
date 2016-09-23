@@ -156,6 +156,8 @@ app.use(i18n.middleware)
 // Routes middleware
 const indexRoutes = require('./routes')
 app.use(indexRoutes(Router))
+const apiRoutes = require('./routes/api')
+app.use(apiRoutes(Router))
 
 // For 404
 app.use(function* pageNotFound(next) {
