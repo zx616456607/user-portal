@@ -157,7 +157,6 @@ const messages = defineMessages({
 
 let MyComponent = React.createClass({
   getInitialState() {
-    
     let config = this.props.config;
     let pool = this.props.pool;
     let list = config[pool]

@@ -89,7 +89,7 @@ export function fetchStorageList(pool) {
     pool,
     [FETCH_API]: {
       types: [STORAGE_LIST_REQUEST, STORAGE_LIST_SUCCESS, STORAGE_LIST_FAILURE],
-      endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/storages`,
+      endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/volumes`,
       schema: {}//Schemas.STORAGE
     }
   }
