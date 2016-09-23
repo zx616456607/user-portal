@@ -94,12 +94,3 @@ module.exports.AuthorizationError = AuthorizationError
 module.exports.NotFoundError = NotFoundError
 module.exports.ServerError = ServerError
 module.exports.get = get
-
-/*module.exports = {
-  ClientError,
-  InvalidDataError,
-  AuthenticationError,
-  NotFoundError,
-  ServerError,
-  get
-}*/
