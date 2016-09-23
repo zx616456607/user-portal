@@ -8,6 +8,7 @@
  * @author YangYuBiao
  */
 
+'use strict'
 
 exports.getStorageListByMaster = function*() {
   let master = this.params.master

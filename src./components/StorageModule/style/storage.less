@@ -1,0 +1,67 @@
+//  border color
+@borderColor:#e4e4e4;
+.storageList{
+  .appTitle,.dataBox{
+    .name{width: 10%;overflow: hidden;
+    text-overflow: ellipsis;
+    }
+    .status{width: 10%;
+      .fa{margin:0 5px;}
+      .normal{color: #5cb85c;}
+      .error{color: #f85a5a;}
+    }
+    .formet{width: 10%}
+    .forin{width: 10%;overflow: hidden;
+    text-overflow: ellipsis;}
+    .appname{
+      width: 10%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .size{width: 10%}
+    .createTime{width: 10%}
+    .actionBox{width: 10%}
+    .actionBtn{
+     float: left;
+     padding-left: 10px;
+    }
+  }
+}
+.operationBox {
+  width: 100%;
+  .leftBtn {
+    float: left;
+    .stopBtn{background: white;}
+    button {
+      margin-right: 10px;
+      padding: 4px 10px;
+      height: 35px;
+      line-height: 27px;
+      i {
+        margin-right: 5px;
+        font-size: 12px;
+      }
+    }
+  }
+}
+.text-center{text-align: center}
+#AppList .appBox .dataBox .appDetail{clear: both}
+.action-btns{
+  button{margin-right: 8px;}
+  i{font-size: 1.4em;
+    vertical-align: middle;
+    }
+}
+
+.status-box{
+  padding:0 30px;
+  .status-list{
+    position: relative;
+    border-left:2px solid @borderColor;
+    height: 110px;
+    .status-icon{
+      position: absolute;
+      left: -35px;
+    }
+  }
+}

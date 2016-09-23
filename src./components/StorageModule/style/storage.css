@@ -1,0 +1,99 @@
+.storageList .appTitle .name,
+.storageList .dataBox .name {
+  width: 10%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.storageList .appTitle .status,
+.storageList .dataBox .status {
+  width: 10%;
+}
+.storageList .appTitle .status .fa,
+.storageList .dataBox .status .fa {
+  margin: 0 5px;
+}
+.storageList .appTitle .status .normal,
+.storageList .dataBox .status .normal {
+  color: #5cb85c;
+}
+.storageList .appTitle .status .error,
+.storageList .dataBox .status .error {
+  color: #f85a5a;
+}
+.storageList .appTitle .formet,
+.storageList .dataBox .formet {
+  width: 10%;
+}
+.storageList .appTitle .forin,
+.storageList .dataBox .forin {
+  width: 10%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.storageList .appTitle .appname,
+.storageList .dataBox .appname {
+  width: 10%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.storageList .appTitle .size,
+.storageList .dataBox .size {
+  width: 10%;
+}
+.storageList .appTitle .createTime,
+.storageList .dataBox .createTime {
+  width: 10%;
+}
+.storageList .appTitle .actionBox,
+.storageList .dataBox .actionBox {
+  width: 10%;
+}
+.storageList .appTitle .actionBtn,
+.storageList .dataBox .actionBtn {
+  float: left;
+  padding-left: 10px;
+}
+.operationBox {
+  width: 100%;
+}
+.operationBox .leftBtn {
+  float: left;
+}
+.operationBox .leftBtn .stopBtn {
+  background: white;
+}
+.operationBox .leftBtn button {
+  margin-right: 10px;
+  padding: 4px 10px;
+  height: 35px;
+  line-height: 27px;
+}
+.operationBox .leftBtn button i {
+  margin-right: 5px;
+  font-size: 12px;
+}
+.text-center {
+  text-align: center;
+}
+#AppList .appBox .dataBox .appDetail {
+  clear: both;
+}
+.action-btns button {
+  margin-right: 8px;
+}
+.action-btns i {
+  font-size: 1.4em;
+  vertical-align: middle;
+}
+.status-box {
+  padding: 0 30px;
+}
+.status-box .status-list {
+  position: relative;
+  border-left: 2px solid #e4e4e4;
+  height: 110px;
+}
+.status-box .status-list .status-icon {
+  position: absolute;
+  left: -35px;
+}
