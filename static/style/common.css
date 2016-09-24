@@ -109,3 +109,6 @@ svg path {
   align-items: center;
   justify-content: center;
 }
+.vertical-center-modal .ant-modal {
+  top: 0px;
+}

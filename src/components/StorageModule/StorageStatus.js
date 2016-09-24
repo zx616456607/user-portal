@@ -20,6 +20,10 @@ const messages = defineMessages({
   app: {
     id: "StorageBind.bind.app",
     defaultMessage: "应用"
+  },
+  modalRedHint: {
+    id: "StorageBind.bind.app",
+    defaultMessage: "应用"
   }
 })
 const props = {
