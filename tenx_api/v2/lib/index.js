@@ -29,5 +29,8 @@ module.exports = function (config) {
   
   // ~ cluster
   this.clusters = collections.create('clusters')
+  
+  //~ storage
+  this.storage = collections.create('storage')
 
 }

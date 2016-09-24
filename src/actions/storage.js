@@ -9,7 +9,7 @@
  */
 
 import { FETCH_API, Schemas } from '../middleware/api'
-
+import { API_URL_PREFIX } from '../constants'
 
 export const STORAGE_LIST_REQUEST = 'STORAGE_LIST_REQUEST' 
 export const STORAGE_LIST_SUCCESS = 'STORAGE_LIST_SUCCESS' 
@@ -37,13 +37,18 @@ export const STORAGE_CREATE_REQUEST = 'STORAGE_CREATE_REQUEST'
 export const STORAGE_CREATE_SUCCESS = 'STORAGE_CREATE_SUCCESS'
 export const STORAGE_CREATE_FAILURE = 'STORAGE_CREATE_FAILURE'
 
-export function createStorage(obj) {
+export function createStorage(obj, callback) {
   return {
     pool: obj.pool,
     [FETCH_API]: {
       types: [STORAGE_CREATE_REQUEST, STORAGE_CREATE_SUCCESS, STORAGE_CREATE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/storage`
-    }
+      endpoint: `${API_URL_PREFIX}/storage-pools/${obj.pool}`
+    },
+    options: {
+      method: 'POST',
+      data: obj
+    },
+    callback: callback
   }
 }
 

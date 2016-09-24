@@ -9,13 +9,13 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import { Checkbox,Card,Menu,Button,Icon ,Modal ,Input, Slider, InputNumber, Row, Col} from 'antd'
+import { Checkbox,Card,Menu,Button,Icon ,Modal ,Input, Slider, InputNumber, Row, Col, message } from 'antd'
 import { Link } from 'react-router'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { remove } from 'lodash'
-import { loadStorageList, deleteStorage } from '../../actions'
+import { loadStorageList, deleteStorage } from '../../actions/storage'
 import './style/storage.less'
 
 
@@ -230,10 +230,11 @@ class Storage extends Component {
 		this.onChange = this.onChange.bind(this)
     this.deleteStorage = this.deleteStorage.bind(this)
     this.state = {
-      inputValue: 0,
 			visible: false,
       storageIdArray: [],
-      currentType: 'ext4'
+      currentType: 'ext4',
+      inputName: '',
+      size: 0
     }
   }
   componentWillMount() {
@@ -241,7 +242,7 @@ class Storage extends Component {
   }
 	onChange(value) {
     this.setState({
-      inputValue: value,
+      size: value,
     });
   }
   showModal() {
@@ -250,10 +251,23 @@ class Storage extends Component {
     });
   }
   handleOk() {
-    alert(1)
+    //create storage
+    if (!this.state.name) {
+      message.error('请输入存储卷名称')
+      return
+    }
+    if (this.state.size === 0) {
+      message.error('请输入存储卷大小')
+      return
+    }
     this.setState({
       visible: false,
     });
+
+    let storageConfig = {
+      type: this.state.currentType,
+      size: this.state.currentSize
+    }
   }
   handleCancel() {
     this.setState({
@@ -309,11 +323,16 @@ class Storage extends Component {
       })
     }
   }
-  changeType(e) {
-    
-    // this.setState({
-    //   currentType: 
-    // })
+  changeType(type) {
+    this.setState({
+      currentType: type
+    })
+  }
+  handleInputName(e) {
+    this.setState({
+      name: e.target.value
+    })
+    console.log(e.target.value)
   }
   // saveCheckedStorage() {
   //   const self = this
@@ -341,27 +360,27 @@ class Storage extends Component {
             <div className="leftBtn">
               <Button type="primary" size="large" onClick={this.showModal}><Icon type="plus" /><FormattedMessage {...messages.createTitle} /></Button>
               <Button type="ghost" className="stopBtn" size="large" onClick={this.deleteStorage}><Icon type="delete" /><FormattedMessage {...messages.delete} /></Button>
-              <Modal title={ formatMessage(messages.createModalTitle) } visible={this.state.visible} onOk={this.handleOk} onCancel={() => { this.handleCancel} } okText={ formatMessage(messages.createBtn) } cancelText={ formatMessage(messages.cancelBtn) }>
+              <Modal title={ formatMessage(messages.createModalTitle) } visible={this.state.visible} onOk={ (e) => {this.handleOk()}} onCancel={() => { this.handleCancel()} } okText={ formatMessage(messages.createBtn) } cancelText={ formatMessage(messages.cancelBtn) }>
                 <Row style={{ height: '40px' }}>
                   <Col span="3" className="text-center" style={{ lineHeight: '30px' }}><FormattedMessage {...messages.name} /></Col>
-                  <Col span="12"><Input placeholder={ formatMessage(messages.placeholder) } /></Col>
+                  <Col span="12"><Input placeholder={ formatMessage(messages.placeholder) } onChange={(e) => {this.handleInputName(e)}} /></Col>
                 </Row>
                 <Row style={{ height: '40px' }}>
                   <Col span="3" className="text-center" style={{ lineHeight: '30px' }}>{ formatMessage(messages.size) }</Col>
                   <Col span="12">
-                    <Slider min={1} max={1024} onChange={this.onChange} value={this.state.inputValue} />
+                    <Slider min={1} max={1024} onChange={this.onChange} value={this.state.size} />
                   </Col>
                   <Col span="8">
-                    <InputNumber min={1} max={1024} style={{ marginLeft: '16px' }} value={this.state.inputValue} onChange={this.onChange}/>
+                    <InputNumber min={1} max={1024} style={{ marginLeft: '16px' }} value={this.state.size} onChange={(e) => {this.onChange(e)}}/>
                     <span style={{ paddingLeft: 10 }} >MB</span>
                   </Col>
                 </Row>
                 <Row>
                   <Col span="3" className="text-center" style={{ lineHeight: '30px' }}>{ formatMessage(messages.formats) }</Col>
                   <Col span="20" className="action-btns" style={{ lineHeight: '30px' }}>
-                    <Button type="primary" onClick={ (e)=> { this.changeType(e) }}>ext4</Button>
-                    <Button type="ghost" onClick={ (e)=> { this.changeType(e) }}>xfs</Button>
-                    <Button type="ghost" onClick={(e)=> { this.changeType(e) }}>reiserfs</Button>
+                    <Button type="primary" onClick={ (e)=> { this.changeType('ext4') }}>ext4</Button>
+                    <Button type="ghost" onClick={ (e)=> { this.changeType('xfs') }}>xfs</Button>
+                    <Button type="ghost" onClick={(e)=> { this.changeType('reiserfs') }}>reiserfs</Button>
                   </Col>
                 </Row>
               </Modal>
@@ -414,6 +433,9 @@ function mapDispathToProp(dispath) {
     },
     deleteStorage: (pool, storageIdArray, callback) => {
       dispath(deleteStorage(pool, storageIdArray, callback))
+    },
+    createStorage: (obj, callback) => {
+      dispath(createStorage(ojb.callback))
     }
   }
 }

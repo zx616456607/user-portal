@@ -8,7 +8,7 @@
  * @author YangYuBiao
  */
 import * as ActionTypes from  '../actions/storage'
-
+import { merge } from 'lodash'
 
 function storageList(state = {}, action) {
   const pool = action.pool
@@ -70,9 +70,32 @@ function deleteStorage(state = {}, action) {
 }
 
 
-export default function storageReducers(state = {}, action) {
+
+function createStorage(state = {}, action) {
+  switch(action.type) {
+    case ActionTypes.STORAGE_CREATE_REQUEST:
+      return union({}, state, {
+        isFetching: true
+      })
+    case ActionTypes.STORAGE_CREATE_SUCCESS:
+      if(action.callback){
+        setTimeout(action.callback)
+      }
+      return union({}, state, {
+        isFetching: false
+      })
+    case ActionTypes.STORAGE_CREATE_FAILURE:
+      return union({}, state, {
+        isFetching: false
+      })
+  }
+}
+
+
+export default function storageReducer(state = {}, action) {
   return {
     storageList: storageList(state.storageList, action),
-    deleteStorage: deleteStorage(state.deleteStorage, action)
+    deleteStorage: deleteStorage(state.deleteStorage, action),
+    createStorage: createStorage(state.createStorage, action)
   }
 }
