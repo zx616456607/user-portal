@@ -41,10 +41,38 @@ function errorMessage(state = null, action) {
   return state
 }
 
+function actionCallback(state = null, action) {
+  if (action.type.indexOf('_REQUEST') >= 0) {
+    return state
+  }
+  if (!action.callback) return state
+  let callback = action.callback
+  if (action.type.indexOf('_SUCCESS') >= 0) {
+    if (!callback.success) return state
+    if (callback.success.isAsync) {
+      setTimeout(callback.success.func)
+      return state
+    }
+    callback.success()
+    return state
+  }
+  if (action.type.indexOf('_FAILURE') >= 0) {
+    if (!callback.failure) return state
+    if (callback.failure.isAsync) {
+      setTimeout(callback.failure.func)
+      return state
+    }
+    callback.failure()
+    return state
+  }
+  return state
+}
+
 
 const rootReducer = combineReducers({
   entities,
   errorMessage,
+  actionCallback,
   storage,
   ...appManageReducers,
   routing

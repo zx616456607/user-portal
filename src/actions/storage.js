@@ -15,14 +15,15 @@ export const STORAGE_LIST_REQUEST = 'STORAGE_LIST_REQUEST'
 export const STORAGE_LIST_SUCCESS = 'STORAGE_LIST_SUCCESS' 
 export const STORAGE_LIST_FAILURE = 'STORAGE_LIST_FAILURE' 
 
-export function fetchStorageList(pool) {
+export function fetchStorageList(pool, callback) {
   return {
     pool,
     [FETCH_API]: {
       types: [STORAGE_LIST_REQUEST, STORAGE_LIST_SUCCESS, STORAGE_LIST_FAILURE],
       endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/volumes`,
       schema: {}//Schemas.STORAGE
-    }
+    },
+    callback: callback
   }
 }
 
@@ -42,11 +43,12 @@ export function createStorage(obj, callback) {
     pool: obj.pool,
     [FETCH_API]: {
       types: [STORAGE_CREATE_REQUEST, STORAGE_CREATE_SUCCESS, STORAGE_CREATE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/storage-pools/${obj.pool}`
-    },
-    options: {
-      method: 'POST',
-      data: obj
+      endpoint: `${API_URL_PREFIX}/storage-pools/${obj.pool}`,
+      options: {
+        method: 'POST',
+        body: obj
+      },
+      schema: {}//Schemas.STORAGE
     },
     callback: callback
   }
@@ -64,9 +66,9 @@ export function deleteStorage(pool, storageIdArray, callback) {
       endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/storages/batch-delete`,
       options: {
         method: 'POST',
-        data: storageIdArray
+        body: storageIdArray
       },
-      schema: Schemas.STORAGE
+      schema: {}//Schemas.STORAGE
     },
     callback
   }
