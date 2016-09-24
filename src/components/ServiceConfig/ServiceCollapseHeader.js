@@ -14,7 +14,7 @@ import { Row,Col,Modal,Button,Icon,Checkbox,Menu,Dropdown,Input } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 
 function handleMenuClick() {
-  console.log('a');
+  console.log('delete !');
 }
 const menu = (
   <Menu onClick={() => handleMenuClick()}>
@@ -40,7 +40,7 @@ class CollapseHeader extends Component {
     e.stopPropagation()
   }
   render(){
-    const collapseHeader = this.props.collapseHeader
+    const {collapseHeader} = this.props
     return (
       <Row>
         <Col className="group-name" span="6">

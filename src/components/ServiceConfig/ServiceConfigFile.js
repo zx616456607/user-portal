@@ -9,7 +9,7 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import { Row,Col,Modal,Button,Icon,Badge,Table } from 'antd'
+import { Row,Col,Modal,Button,Icon,Badge,Table,Input } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import CheckContainer from './ServiceCheckContainer'
 
@@ -17,89 +17,109 @@ class ConfigFile extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      checkConfigFile: false
+      checkConfigFile: false,
+      editConfigGroup: false
     }
     this.checkConfigFile = this.checkConfigFile.bind(this)
-    this.handleEdit = this.handleEdit.bind(this)
+    this.editConfigGroup = this.editConfigGroup.bind(this)
+    
   }
   checkConfigFile(checkConfigFile) {
     this.setState({ checkConfigFile })
   }
-  handleEdit() {
-    console.log('edit');
+  editConfigGroup(editConfigGroup) {
+    this.setState({ editConfigGroup })
   }
-  
-  RendFileState(fileList) {
-    console.log(fileList.length);
-    console.log(this);
-    if(fileList.length > 3){
+  RendFileState(configFile) {
+    let containerList = configFile.container
+    if(containerList.length > 3){
       return (
-        <div className="check">
-          <Button type="primary" onClick={() => this.checkConfigFile(true)}>
-            <Icon type="eye-o" />
-            查看
-          </Button>
-          {/*查看更多-start*/}
-          <Modal
-            title={`配置文件 my_config_file`}
-            wrapClassName="server-check-modal"
-            visible={this.state.checkConfigFile}
-            onOk={() => this.checkConfigFile(false)}
-            onCancel={() => this.checkConfigFile(false)}
-          >
-            <div className="check-config">
-              {/*查看更多-关联容器列表-start*/}
-              <CheckContainer />
-              {/*查看更多-关联容器列表*-end*/}
-            </div>
-          </Modal>
-          {/*查看更多-end*/}
-        </div>
+        <td style={{padding:"0 30px"}}>
+          <div className="check">
+            <Button type="primary" onClick={() => this.checkConfigFile(true)}>
+              <Icon type="eye-o" />
+              查看
+            </Button>
+            {/*查看更多-start*/}
+            <Modal
+              title={`配置文件 ${configFile.fileName}`}
+              wrapClassName="server-check-modal"
+              visible={this.state.checkConfigFile}
+              onOk={() => this.checkConfigFile(false)}
+              onCancel={() => this.checkConfigFile(false)}
+            >
+              <div className="check-config">
+                {/*查看更多-关联容器列表-start*/}
+                <CheckContainer containerList={containerList} />
+                {/*查看更多-关联容器列表*-end*/}
+              </div>
+            </Modal>
+            {/*查看更多-end*/}
+          </div>
+        </td>
       )
-    } else if (fileList.length == 0){
+    } else if (containerList.length == 0){
       return (
-        <div style={{textAlign: 'center'}}>
-          暂无挂载
-        </div>
+        <td style={{padding:"0 30px"}}>
+          <div style={{textAlign: 'center'}}>
+            暂无挂载
+          </div>
+        </td>
       )
-    } else if (configFile.length == 2) {
+    } else {
       return (
-        <div style={{display: 'none'}}></div>
+        <td style={{display: 'none'}}></td>
       )
     }
   }
   
   render () {
     const { configFile } = this.props
-    let fileList = configFile.container
-    let RendfileList = fileList.slice(0,3).map((fileItem) => {
+    let containerList = configFile.container
+    let RendfileList = containerList.slice(0,3).map((containerItem) => {
       return (
-        <td key={fileItem}>
+        <td>
           <div className="relate">
-            {fileItem.containerName}
+            {containerItem.containerName}
           </div>
           <div className="path">
-            {fileItem.pointPath}
+            {containerItem.pointPath}
           </div>
         </td>
       )
     })
-    
     return (
       <Row className="file-item">
         <div className="line"></div>
         <table>
+          <tbody>
           <tr>
             <td style={{padding: "0 10px"}}>
               <Icon type="file-text" style={{marginRight: "10px"}} />
-              my_config_file1
+              {configFile.fileName}
             </td>
             <td style={{padding: "0 10px"}}>
               <Button type="primary"
                       style={{with: "30px",height: "30px",padding: "0 9px",marginRight: "5px"}}
-                      onClick={() => this.handleEdit()}>
+                      onClick={() => this.editConfigGroup(true)}>
                 <Icon type="edit" />
               </Button>
+              
+              {/*修改配置组-弹出层-start*/}
+              <Modal
+                title="修改配置组"
+                wrapClassName="server-create-modal"
+                visible={this.state.editConfigGroup}
+                onOk={() => this.editConfigGroup(false)}
+                onCancel={() => this.editConfigGroup(false)}
+              >
+                <div className="create-conf-g">
+                  <span>名称 : </span>
+                  <Input type="text" placeholder={`${configFile.fileName}`}/>
+                </div>
+              </Modal>
+              {/*修改配置组-弹出层-end*/}
+              
               <Button type="primary" style={{with: "30px",height: "30px",padding: "0 9px"}}>
                 <Icon type="cross" />
               </Button>
@@ -107,17 +127,17 @@ class ConfigFile extends Component {
             <td>
               <div className="relate">
                 关联容器
-                <Badge count={11} style={{backgroundColor: "#5fb761",marginLeft: "20px"}} />
+                <Badge count={`${containerList.length}`}
+                       style={{backgroundColor: "#5fb761",marginLeft: "20px"}} />
               </div>
               <div className="path">挂载路径</div>
             </td>
             
             {RendfileList}
             
-            <td style={{padding:"0 30px"}}>
-              {this.RendFileState(fileList)}
-            </td>
+            {this.RendFileState(configFile)}
           </tr>
+          </tbody>
         </table>
       </Row>
     )

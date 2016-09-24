@@ -24,9 +24,7 @@ class CollapseList extends Component{
   }
   
   render() {
-    let groupData = this.props.groupData
-    //console.log(typeof groupData);
-    //console.log(groupData[0]);
+    let {groupData} = this.props
     let groups = groupData.map((group) => {
       return (
         <Panel header={<CollapseHeader collapseHeader={group} />} key={group.groupId} >
@@ -58,7 +56,6 @@ class Service extends Component{
     this.setState({ createConfigGroup });
   }
   render(){
-    console.log(`groupData: ${groupData}`)
     return (
       <QueueAnim className ="Service"  type = "right">
         <div id="Service" key="Service">

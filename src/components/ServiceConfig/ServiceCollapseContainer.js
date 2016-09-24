@@ -16,9 +16,6 @@ import ConfigFile from './ServiceConfigFile'
 class CollapseContainer extends Component {
   constructor (props) {
     super(props)
-    this.state = {
-      
-    }
   }
   render(){
     const collapseContainer = this.props.collapseContainer

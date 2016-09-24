@@ -33,21 +33,25 @@
             content: '\E603';
           }
         }
-
       }
       .ant-collapse-content {
         clear: both;
-        padding:0 0 60px 58px;
+        padding:0 0 100px 58px;
         .ant-collapse-content-box {
           padding: 0;
           .file-list {
             .ant-timeline {
+              .ant-timeline-item-tail {
+                top:0;
+                height:100%;
+              }
               .ant-timeline-item-head {
                 display: none;
               }
               .ant-timeline-item-content {
                 padding: 0 0 10px 7px;
-                top:41px;
+                top:65px;
+                z-index: 2;
               }
               .file-item {
                 position: relative;
@@ -78,7 +82,8 @@
                       padding: 0 12px;
                     }
                     .check {
-
+                      position: relative;
+                      z-index: 2;
                     }
                   }
                 }
@@ -86,7 +91,7 @@
               .ant-timeline-item-last {
                 .ant-timeline-item-tail {
                   display: block;
-                  height: 80%;
+                  height: 100%;
                   border: 1px solid #e9e9e9;
                 }
               }
