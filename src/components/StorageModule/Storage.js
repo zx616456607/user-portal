@@ -18,6 +18,7 @@ import { remove } from 'lodash'
 import { loadStorageList, deleteStorage, createStorage } from '../../actions/storage'
 import './style/storage.less'
 
+const confirm = Modal.confirm;
 
 const data = [
   {
@@ -170,6 +171,11 @@ let MyComponent = React.createClass({
   //     check
   //   })
   // },
+  getInitialState() {
+    return {
+      formatType: 'ext4'
+    };
+  },
   propTypes: {
     config: React.PropTypes.object
   },
@@ -178,6 +184,22 @@ let MyComponent = React.createClass({
   },
   isChecked(name) {
     return this.props.storageNameArray.indexOf(name) >= 0
+  },
+  changeType(type) {
+    console.log('type',type)
+    this.setState({
+      formatType: type
+    })
+  },
+  showFormats(Id) {
+    confirm({
+      title: '确定格式化存储卷 "testss" 吗? (格式化后数据将被清除)。',
+      content: <div><Button type={this.state.formatType === 'ext4' ? 'primary' :'ghost' } onClick={ (e)=> { this.changeType('ext4') }}>ext4</Button><Button type={this.state.formatType === 'xfs' ? 'primary' :'ghost' } onClick={ (e)=> { this.changeType('xfs') }}>xfs</Button><Button type={this.state.formatType === 'reiserfsext4' ? 'primary' :'ghost' } onClick={ (e)=> { this.changeType('reiserfsext4') }}>reiserfsext4</Button></div>,
+      onOk() {
+        console.log('确定');
+      },
+      onCancel() {},
+    });
   },
   render () {
   const { formatMessage } = this.props.intl
@@ -204,7 +226,7 @@ let MyComponent = React.createClass({
 			<div className="size commonData">{item.size}</div>
 			<div className="createTime commonData">{item.createTime}</div>
 			<div className="actionBtn">
-			 <Button className="btn-warning"><Icon type="delete" /><FormattedMessage {...messages.formatting} /></Button>
+			 <Button className="btn-warning" onClick={ (e)=> { this.showFormats(item.id) }}><Icon type="delete" /><FormattedMessage {...messages.formatting} /></Button>
 			 <span className="margin"></span>
 			 <Button className="btn-success"><Icon type="scan" /><FormattedMessage {...messages.dilation} /></Button>
 			</div>
@@ -234,7 +256,7 @@ class Storage extends Component {
       storageNameArray: [],
       currentType: 'ext4',
       inputName: '',
-      size: 0
+      size: 200
     }
   }
   componentWillMount() {
