@@ -63,18 +63,13 @@ var data = { storageList: [{
   }
 exports.getStorageListByPool = function*() {
   let pool = this.params.pool
-  if(!pool || !pool.trim()) {
-    this.status = 400
-    this.body = {}
-    return
-  }
   this.status = 200
   this.body = data
 }
 
 exports.deleteStorage = function*() {
-  let storageIdArray = this.request.body
-  if(!storageIdArray) {
+  let storageNameArray = this.request.body
+  if(!storageNameArray) {
     this.status = 400
     this.body = {
       message: 'error'
@@ -113,5 +108,24 @@ exports.deleteStorage = function*() {
     createTime:"2016-09-09 11:27:27"
   }]
   }
+  this.body = {}
+}
+
+
+exports.createStorage = function*() {
+  const pool = this.params.pool
+  this.status = 201
+  this.body = {
+    message: 'success'
+  }
+}
+
+exports.getStorageDetail = function*() {
+  let storageName = this.params.name
+  if(!name) {
+    this.status = 400
+    this.body = { message: 'error' }
+  }
+  this.status = 200,
   this.body = {}
 }

@@ -8,7 +8,7 @@
  * @author YangYuBiao
  */
 import * as ActionTypes from  '../actions/storage'
-import { merge } from 'lodash'
+import { merge, union } from 'lodash'
 
 function storageList(state = {}, action) {
   const pool = action.pool
@@ -26,7 +26,7 @@ function storageList(state = {}, action) {
       return merge({}, defaultState, state, {
         [pool]: { isFetching: true }
       })
-    case ActionTypes.STORAGE_LIST_SUCCESS:
+    case ActionTypes.STORAGE_LIST_SUCCESS: 
       return Object.assign({}, defaultState, state, {
         [pool]: {
           isFetching: false,
@@ -52,11 +52,6 @@ function deleteStorage(state = {}, action) {
         isFetching: true
       })
     case ActionTypes.STORAGE_DELETE_SUCCESS: 
-      if (action.callback) {
-        setTimeout(function() {
-          action.callback()
-        },0)
-      }
       return merge({}, state, {
         isFetching: false
       })
@@ -78,9 +73,6 @@ function createStorage(state = {}, action) {
         isFetching: true
       })
     case ActionTypes.STORAGE_CREATE_SUCCESS:
-      if(action.callback){
-        setTimeout(action.callback)
-      }
       return union({}, state, {
         isFetching: false
       })

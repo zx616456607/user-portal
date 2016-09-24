@@ -15,7 +15,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { remove } from 'lodash'
-import { loadStorageList, deleteStorage } from '../../actions/storage'
+import { loadStorageList, deleteStorage, createStorage } from '../../actions/storage'
 import './style/storage.less'
 
 
@@ -173,11 +173,11 @@ let MyComponent = React.createClass({
   propTypes: {
     config: React.PropTypes.object
   },
-  onchange(e, id) {
-    this.props.saveStorageIdArray(e, id)
+  onchange(e, name) {
+    this.props.savestorageNameArray(e, name)
   },
-  isChecked(id) {
-    return this.props.storageIdArray.indexOf(id) >= 0
+  isChecked(name) {
+    return this.props.storageNameArray.indexOf(name) >= 0
   },
   render () {
   const { formatMessage } = this.props.intl
@@ -187,10 +187,10 @@ let MyComponent = React.createClass({
 	  return (
 	    <div className="appDetail" key={item.name}>
 			<div className="selectIconTitle commonData">
-			  <Checkbox onChange={(e)=>this.onchange(e, item.id)} checked= { this.isChecked(item.id) }></Checkbox>
+			  <Checkbox onChange={(e)=>this.onchange(e, item.name)} checked= { this.isChecked(item.name) }></Checkbox>
 			</div>
 			<div className="name commonData">
-		      <Link to={`/app_manage/storage/${item.id}`} >
+		      <Link to={`/app_manage/storage/${item.name}`} >
 	    	    {item.name}
 		      </Link>
 			</div>
@@ -231,7 +231,7 @@ class Storage extends Component {
     this.deleteStorage = this.deleteStorage.bind(this)
     this.state = {
 			visible: false,
-      storageIdArray: [],
+      storageNameArray: [],
       currentType: 'ext4',
       inputName: '',
       size: 0
@@ -260,23 +260,42 @@ class Storage extends Component {
       message.error('请输入存储卷大小')
       return
     }
-    this.setState({
-      visible: false,
-    });
 
     let storageConfig = {
       type: this.state.currentType,
-      size: this.state.currentSize
+      size: this.state.size,
+      pool: 'test',
+      name: this.state.name
     }
+    let self = this
+    this.props.createStorage(storageConfig, {
+      success: {
+         func: () => {
+           self.setState({
+             visible: false
+           })
+           self.props.loadStorageList('test')
+          },
+          isAsync: true
+      },
+    })
   }
   handleCancel() {
     this.setState({
       visible: false,
+      size: 0,
+      name: '',
+      currentType: 'ext4'
   	});
   }
   deleteStorage() {
-    const storageIdArray = this.state.storageIdArray
-    this.props.deleteStorage('test', storageIdArray, () => this.props.loadStorageList('test'))
+    const storageNameArray = this.state.storageNameArray
+    this.props.deleteStorage('test', storageNameArray, {
+      success: {
+         func: this.props.loadStorageList('test'),
+         isAsync: true
+      }
+    })
   }
   onAllChange(e) {
     const storage = this.props.storageList['test']
@@ -284,42 +303,42 @@ class Storage extends Component {
       return
     } 
     if(e.target.checked) {
-      let storageIdArray = []
+      let storageNameArray = []
       storage.storageList.forEach(item => {
-        storageIdArray.push(item.id)
+        storageNameArray.push(item.name)
       })
       this.setState({
-        storageIdArray,
+        storageNameArray,
       })
       return
     } 
     this.setState({
-      storageIdArray: []
+      storageNameArray: []
     })
   }
   isAllChecked() {
-    if(this.state.storageIdArray.length === 0) {
+    if(this.state.storageNameArray.length === 0) {
       return false
     }
-    if(this.state.storageIdArray.length === this.props.storageList['test'].storageList.length) {
+    if(this.state.storageNameArray.length === this.props.storageList['test'].storageList.length) {
       return true
     }
     return false
   }
 
   selectItem() {
-    return (e, id) => {
-      let storageIdArray = this.state.storageIdArray
+    return (e, name) => {
+      let storageNameArray = this.state.storageNameArray
       if (e.target.checked) {
-        storageIdArray.push(id)
+        storageNameArray.push(name)
 
       } else {
-        remove(storageIdArray, (item) => {
-          return item === id
+        remove(storageNameArray, (item) => {
+          return item === name
         })
       }
       this.setState({
-        storageIdArray
+        storageNameArray
       })
     }
   }
@@ -332,25 +351,7 @@ class Storage extends Component {
     this.setState({
       name: e.target.value
     })
-    console.log(e.target.value)
   }
-  // saveCheckedStorage() {
-  //   const self = this
-  //   const storageIdArray = self.state.storageIdArray
-  //   return (e, storageId) => {
-  //     if(e.target.checked) {
-  //       storageIdArray.push(storageId)
-  //     } else {
-  //       remove(storageIdArray, (item) =>{
-  //         return item === storageId
-  //       })
-  //     }
-  //     self.setState({
-  //       storageIdArray: storageIdArray 
-  //     })
-  //   }
-  // }
-
   render() {
 		const { formatMessage } = this.props.intl
     return (
@@ -378,9 +379,9 @@ class Storage extends Component {
                 <Row>
                   <Col span="3" className="text-center" style={{ lineHeight: '30px' }}>{ formatMessage(messages.formats) }</Col>
                   <Col span="20" className="action-btns" style={{ lineHeight: '30px' }}>
-                    <Button type="primary" onClick={ (e)=> { this.changeType('ext4') }}>ext4</Button>
-                    <Button type="ghost" onClick={ (e)=> { this.changeType('xfs') }}>xfs</Button>
-                    <Button type="ghost" onClick={(e)=> { this.changeType('reiserfs') }}>reiserfs</Button>
+                    <Button type={this.state.currentType === 'ext4' ? 'primary' : 'ghost'} onClick={ (e)=> { this.changeType('ext4') }}>ext4</Button>
+                    <Button type={this.state.currentType === 'xfs' ? 'primary' : 'ghost'} onClick={ (e)=> { this.changeType('xfs') }}>xfs</Button>
+                    <Button type={this.state.currentType === 'reiserfs' ? 'primary' : 'ghost'} onClick={(e)=> { this.changeType('reiserfs') }}>reiserfs</Button>
                   </Col>
                 </Row>
               </Modal>
@@ -409,7 +410,7 @@ class Storage extends Component {
               <div className="createTime commonTitle"><FormattedMessage {...messages.createTime} /></div>
               <div className="actionBox commonTitle"><FormattedMessage {...messages.action} /></div>
             </div>
-            <MyComponent storage = {this.props.storageList['test']}  storageIdArray = { this.state.storageIdArray } saveStorageIdArray = { this.selectItem() }/>
+            <MyComponent storage = {this.props.storageList['test']}  storageNameArray = { this.state.storageNameArray } savestorageNameArray = { this.selectItem() }/>
           </Card>
         </div>
       </QueueAnim>
@@ -431,11 +432,11 @@ function mapDispathToProp(dispath) {
     loadStorageList: (pool) => {
       dispath(loadStorageList(pool))
     },
-    deleteStorage: (pool, storageIdArray, callback) => {
-      dispath(deleteStorage(pool, storageIdArray, callback))
+    deleteStorage: (pool, storageNameArray, callback) => {
+      dispath(deleteStorage(pool, storageNameArray, callback))
     },
     createStorage: (obj, callback) => {
-      dispath(createStorage(ojb.callback))
+      dispath(createStorage(obj, callback))
     }
   }
 }

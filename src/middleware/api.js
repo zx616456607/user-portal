@@ -22,9 +22,12 @@ function fetchApi(endpoint, options, schema) {
   }
   if(options.method === 'POST') {
     if(!options.headers) options.headers = {}
-    if(options.headers['Content-Type']) {
-      options.headers['Content-Type'] = 'application/json'
+    let headers = new Headers(options.headers)
+    if(!options.headers['Content-Type']) {
+      headers.append('Content-Type', 'application/json')
     }
+    options.headers = headers
+    options.body = JSON.stringify(options.body)
   }
   return fetch(endpoint, options).then(response =>
       response.json().then(json => ({json, response}))
