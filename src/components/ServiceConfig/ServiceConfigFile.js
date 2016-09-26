@@ -136,6 +136,7 @@ class ConfigFile extends Component {
             {RendfileList}
             
             {this.RendFileState(configFile)}
+            
           </tr>
           </tbody>
         </table>

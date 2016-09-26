@@ -81,12 +81,12 @@ class CheckContainer extends Component {
         <div style={{ marginBottom: 16 }}>
           <span style={{ marginRight: 8 }}>{ `关联容器 ( ${containerList.length} )` }</span>
           <Button type="primary" onClick={this.start}
-                  disabled={!hasSelected} loading={loading}
+                  disabled={ !hasSelected } loading={ loading }
           >操作</Button>
           <span style={{ marginLeft: 8 }}>{ hasSelected ? `选择了 ${selectedContainers.length} 个容器` : '' }</span>
         </div>
         <Table rowSelection={containerSelection} columns={containerCol}
-               dataSource={containerList} pagination={{ pageSize: 7 }} rowKey="containerId"/>
+               dataSource={containerList} pagination={{ pageSize: 5 }} rowKey="containerId"/>
       </div>
     )
   }

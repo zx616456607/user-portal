@@ -32,5 +32,8 @@ module.exports = function (config) {
   
   //~ storage
   this.storage = collections.create('storage')
+  
+  //service
+  this.service = collections.create('service')
 
 }

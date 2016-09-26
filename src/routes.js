@@ -62,7 +62,7 @@ export default (
         <IndexRoute component={Storage}/>
         <Route path=":storage_id" component={StorageDetail} />
       </Route>
-      <Route path="serverSetting">
+      <Route path="configs">
         <IndexRoute component={Service}/>
       </Route>
     </Route>

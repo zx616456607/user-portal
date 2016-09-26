@@ -13,7 +13,7 @@ const storageController = require('../controllers/storage')
 const appController = require('../controllers/app_manage')
 const serviceController = require('../controllers/service_manage')
 const containerController = require('../controllers/container')
-
+const configController = require('../controllers/configs')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -37,6 +37,9 @@ module.exports = function (Router) {
 
   // Containers
   router.get('/clusters/:master/containers', containerController.getContainers)
-
+  
+  //Configs
+  router.get('/clusters/:master/configs',configController.getConfigGroup)
+  
   return router.routes()
 }

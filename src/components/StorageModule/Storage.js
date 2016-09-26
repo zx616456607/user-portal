@@ -425,7 +425,7 @@ class Storage extends Component {
     const storage = this.props.storageList['test']
     if(!storage || !storage.storageList ) {
       return
-    } 
+    }
     if(e.target.checked) {
       let storageNameArray = []
       storage.storageList.forEach(item => {
@@ -455,7 +455,6 @@ class Storage extends Component {
       let storageNameArray = this.state.storageNameArray
       if (e.target.checked) {
         storageNameArray.push(name)
-
       } else {
         remove(storageNameArray, (item) => {
           return item === name

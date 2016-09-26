@@ -16,8 +16,8 @@ import './style/AppList.less'
 import { loadAppList } from '../../actions/app_manage'
 
 function loadData(props) {
-  const { master } = props
-  props.loadAppList(master)
+  const { master, loadAppList } = props
+  loadAppList(master)
 }
 
 const data = []
@@ -80,7 +80,7 @@ const MyComponent = React.createClass({
 				<Button type="ghost" size="large" className="ant-dropdown-link" href="#">
 		          更多 <i className="fa fa-caret-down"></i>
 				</Button>
-			  </Dropdown>			      			
+			  </Dropdown>
 			</div>
 			<div style={{clear:"both",width:"0"}}></div>
 		</div>
@@ -102,7 +102,7 @@ class AppList extends Component {
   }
   
   onAllChange(){
-		// 
+		//
 	}
 	
 	componentWillMount() {
@@ -114,7 +114,7 @@ class AppList extends Component {
 		const { master, appList, isFetching } = this.props
     return (
         <QueueAnim 
-          className = "AppList"        
+          className = "AppList"
           type = "right"
         >
           <div id="AppList" key = "AppList">

@@ -70,6 +70,10 @@ const storageSchema = new Schema('storage', {
   idAttribute: 'namespace'
 })
 
+const configSchema = new Schema('configGroupList',{
+  idAttribute: 'groupId'
+})
+
 
 // Schemas for API responses.
 export const Schemas = {
@@ -88,12 +92,15 @@ export const Schemas = {
   },
   STORAGE: {
     storageList: arrayOf(storageSchema)
-  }
+  },
+  CONFIG  : configSchema,
+  CONFIGS: {
+    configGroup: arrayOf(configSchema)
+  },
 }
 
 // Action key that carries API call info interpreted by this Redux middleware.
 export const FETCH_API = Symbol('FETCH API')
-
 // A Redux middleware that interprets actions with FETCH_API info specified.
 // Performs the call and promises when such actions are dispatched.
 export default store => next => action => {
@@ -108,7 +115,6 @@ export default store => next => action => {
   if (typeof endpoint === 'function') {
     endpoint = endpoint(store.getState())
   }
-
   if (typeof endpoint !== 'string') {
     throw new Error('Specify a string endpoint URL.')
   }

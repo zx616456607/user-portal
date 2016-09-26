@@ -4,16 +4,24 @@
   width: 100%;
   //max-height: 600px;
   overflow-y: auto;
+  background-color: #f8f8f8;
   //折叠面板-start
   .ant-collapse {
+    border:none;
     margin-top: 30px;
     .ant-collapse-item {
+      border-top: none;
       .ant-collapse-header {
         height: 60px;
         line-height: 60px;
         font-size: 14px;
-        border-bottom: 1px solid #d2d2d2;
+        border: 1px solid #d4d4d4;
         border-left: 3px solid #00a2ea;
+        background-color: #fff;
+        margin-bottom: 15px;
+        &:hover {
+          background-color: #fafafa;
+        }
         //checkbox
         .group-name {
           z-index: 3;
@@ -37,6 +45,11 @@
       .ant-collapse-content {
         clear: both;
         padding:0 0 100px 58px;
+        border: 1px solid #d4d4d4;
+        border-top: 0;
+        margin-top: -15px;
+        margin-bottom: 15px;
+        background-color: #f8f8f8;
         .ant-collapse-content-box {
           padding: 0;
           .file-list {
@@ -96,7 +109,6 @@
                 }
               }
             }
-
           }
         }
 
