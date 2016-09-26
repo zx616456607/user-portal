@@ -120,15 +120,6 @@ exports.createStorage = function*() {
   }
 }
 
-exports.getStorageDetail = function*() {
-  let storageName = this.params.name
-  if(!name) {
-    this.status = 400
-    this.body = { message: 'error' }
-  }
-  this.status = 200,
-  this.body = {}
-}
 
 exports.formateStorage = function*() {
   let pool = this.params.pool
