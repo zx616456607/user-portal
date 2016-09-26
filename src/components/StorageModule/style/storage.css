@@ -151,3 +151,9 @@
 .uploadModal + .uploadhint li {
   height: 25px;
 }
+.show {
+  display: block;
+}
+.hide {
+  display: none;
+}

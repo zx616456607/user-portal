@@ -9,7 +9,7 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import { Checkbox,Card,Menu,Button,Icon ,Modal ,Input, Slider, InputNumber, Row, Col, message } from 'antd'
+import { Checkbox,Card,Menu,Button,Icon ,Radio ,Modal ,Input, Slider, InputNumber, Row, Col, message } from 'antd'
 import { Link } from 'react-router'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import QueueAnim from 'rc-queue-anim'
@@ -18,6 +18,8 @@ import { remove } from 'lodash'
 import { loadStorageList, deleteStorage, createStorage } from '../../actions/storage'
 import './style/storage.less'
 
+const RadioButton = Radio.Button;
+const RadioGroup = Radio.Group;
 const confirm = Modal.confirm;
 
 const data = [
@@ -173,7 +175,9 @@ let MyComponent = React.createClass({
   // },
   getInitialState() {
     return {
-      formatType: 'ext4'
+      visible: false,
+      size:1000,
+      modalTitle: '',
     };
   },
   propTypes: {
@@ -185,22 +189,42 @@ let MyComponent = React.createClass({
   isChecked(name) {
     return this.props.storageNameArray.indexOf(name) >= 0
   },
+  //  选择 Radio btn 的类型
   changeType(type) {
-    console.log('type',type)
-    this.setState({
-      formatType: type
-    })
   },
-  showFormats(Id) {
-    confirm({
-      title: '确定格式化存储卷 "testss" 吗? (格式化后数据将被清除)。',
-      content: <div><Button type={this.state.formatType === 'ext4' ? 'primary' :'ghost' } onClick={ (e)=> { this.changeType('ext4') }}>ext4</Button><Button type={this.state.formatType === 'xfs' ? 'primary' :'ghost' } onClick={ (e)=> { this.changeType('xfs') }}>xfs</Button><Button type={this.state.formatType === 'reiserfsext4' ? 'primary' :'ghost' } onClick={ (e)=> { this.changeType('reiserfsext4') }}>reiserfsext4</Button></div>,
-      onOk() {
-        console.log('确定');
-      },
-      onCancel() {},
+  handleSure () {
+    this.setState({
+      visible: false,
     });
   },
+  cancelModal () {
+    this.setState({
+      visible: false,
+    });
+  },
+  showAction (Id, type , name) {
+    console.log('show dilation',Id)
+    this.setState({
+      visible: true,
+      modalType: type,
+      modalName: name
+    });
+    if (type === 'format') {
+      this.setState({
+        modalTitle:'格式化'
+      })
+    } else {
+      this.setState({
+        modalTitle: '扩容'
+      })
+    }
+  },
+  changeDilation (size) {
+    this.setState({
+      size: size
+    })
+  },
+  
   render () {
   const { formatMessage } = this.props.intl
 	let list = this.props.storage;
@@ -226,18 +250,45 @@ let MyComponent = React.createClass({
 			<div className="size commonData">{item.size}</div>
 			<div className="createTime commonData">{item.createTime}</div>
 			<div className="actionBtn">
-			 <Button className="btn-warning" onClick={ (e)=> { this.showFormats(item.id) }}><Icon type="delete" /><FormattedMessage {...messages.formatting} /></Button>
+			 <Button className="btn-warning" onClick={ (e)=> { this.showAction(item.id, 'format', item.name) }}><Icon type="delete" /><FormattedMessage {...messages.formatting} /></Button>
 			 <span className="margin"></span>
-			 <Button className="btn-success"><Icon type="scan" /><FormattedMessage {...messages.dilation} /></Button>
+			 <Button className="btn-success" onClick={ () => {this.showAction(item.id, 'dilation', item.name)}}><Icon type="scan" /><FormattedMessage {...messages.dilation} /></Button>
 			</div>
+
 		</div>
       );
 	});
 	return (
       <div className="dataBox">
         { items }
+        <Modal title={this.state.modalTitle} visible={this.state.visible} onOk={(e) => {this.handleSure()} } onCancel={ (e) => {this.cancelModal()} } okText="OK" cancelText="Cancel">
+        <div className={this.state.modalType === 'dilation' ? 'show' : 'hide'}>
+          <Row style={{ height: '40px' }}>
+            <Col span="3" className="text-center" style={{ lineHeight: '30px' }}><FormattedMessage {...messages.name} /></Col>
+            <Col span="12"><input type="text" className="ant-input" value={ this.state.modalName } disabled /></Col>
+          </Row>
+          <Row style={{ height: '40px' }}>
+            <Col span="3" className="text-center" style={{ lineHeight: '30px' }}>{ formatMessage(messages.size) }</Col>
+            <Col span="12"><Slider min={1} max={1024} onChange={ (e)=>{this.changeDilation(e)} } value={this.state.size} /></Col>
+            <Col span="8">
+              <InputNumber min={1} max={1024} style={{ marginLeft: '16px' }} value={this.state.size} onChange={(e) => {this.onChange(e)}}/>
+              <span style={{ paddingLeft: 10 }} >MB</span>
+            </Col>
+          </Row>
+        </div>
+        <div className={this.state.modalType === 'format' ? 'show' : 'hide'}>
+          <div style={{ height: '30px' }}>确定格式化存储卷{ this.state.modalName}吗? <span style={{color:'red'}}>(格式化后数据将被清除)。</span></div>
+          <Col span="6" style={{ lineHeight: '30px' }}>选择文件系统格式：</Col>
+          <RadioGroup defaultValue="ext4" size="large" onChange={ (e) => this.changeType(e)}>
+            <RadioButton value="ext4">ext4</RadioButton>
+            <RadioButton value="xfs">xfs</RadioButton>
+            <RadioButton value="reiserfs">reiserfs</RadioButton>
+          </RadioGroup>
+        </div>
+        </Modal>
 	    </div>
-    );
+    )
+
   }
 });
 
