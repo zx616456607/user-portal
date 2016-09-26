@@ -189,26 +189,59 @@ let MyComponent = React.createClass({
   isChecked(name) {
     return this.props.storageNameArray.indexOf(name) >= 0
   },
-  //  选择 Radio btn 的类型
-  changeType(type) {
+  changeType(e) {
+    this.setState({
+      formateType: e.target.value
+    })
   },
   handleSure () {
-    this.setState({
-      visible: false,
-    });
+    const self = this
     let type = this.state.modalType
-
+    if(type === 'format') {
+      this.props.formateStorage('test', {
+        name: this.state.modalName,
+        type: this.state.formateType
+      }, {
+        success: {
+          isAsync: false,
+          func: () => {
+            self.setState({
+              visible: false,
+            })
+          }
+        }
+      })
+    } else if(type === 'resize') {
+      if(this.state.size <= this.state.modalSize) {
+        message.error('不能比以前小')
+      }
+      this.props.resizeStorage('test', {
+        name: this.state.modalName,
+        size: this.state.size
+      }, {
+        success: {
+          isAsync: false,
+          func: () => {
+            self.setState({
+              visible: false,
+            })
+          }
+        }
+      })
+    }
   },
   cancelModal () {
     this.setState({
       visible: false,
     });
   },
-  showAction (type , name) {
+  showAction (type , name, size) {
     this.setState({
       visible: true,
       modalType: type,
-      modalName: name
+      modalName: name,
+      modalSize: size,
+      size: size
     });
     if (type === 'format') {
       this.setState({
@@ -248,12 +281,12 @@ let MyComponent = React.createClass({
 			<div className="formet commonData">{item.formet}</div>
 			<div className="forin commonData">{item.forin}</div>
 			<div className="appname commonData">{item.appName}</div>
-			<div className="size commonData">{item.size}</div>
+			<div className="size commonData">{item.usedSize}/{item.totalSize}M</div>
 			<div className="createTime commonData">{item.createTime}</div>
 			<div className="actionBtn">
 			 <Button className="btn-warning" onClick={ (e)=> { this.showAction('format', item.name) }}><Icon type="delete" /><FormattedMessage {...messages.formatting} /></Button>
 			 <span className="margin"></span>
-			 <Button className="btn-success" onClick={ () => {this.showAction('dilation', item.name)}}><Icon type="scan" /><FormattedMessage {...messages.dilation} /></Button>
+			 <Button className="btn-success" onClick={ () => {this.showAction('resize', item.name, item.totalSize)}}><Icon type="scan" /><FormattedMessage {...messages.dilation} /></Button>
 			</div>
 
 		</div>
@@ -263,16 +296,16 @@ let MyComponent = React.createClass({
       <div className="dataBox">
         { items }
         <Modal title={this.state.modalTitle} visible={this.state.visible} onOk={(e) => {this.handleSure()} } onCancel={ (e) => {this.cancelModal()} } okText="OK" cancelText="Cancel">
-        <div className={this.state.modalType === 'dilation' ? 'show' : 'hide'}>
+        <div className={this.state.modalType === 'resize' ? 'show' : 'hide'}>
           <Row style={{ height: '40px' }}>
             <Col span="3" className="text-center" style={{ lineHeight: '30px' }}><FormattedMessage {...messages.name} /></Col>
             <Col span="12"><input type="text" className="ant-input" value={ this.state.modalName } disabled /></Col>
           </Row>
           <Row style={{ height: '40px' }}>
             <Col span="3" className="text-center" style={{ lineHeight: '30px' }}>{ formatMessage(messages.size) }</Col>
-            <Col span="12"><Slider min={1} max={1024} onChange={ (e)=>{this.changeDilation(e)} } value={this.state.size} /></Col>
+            <Col span="12"><Slider min={this.state.modalSize} max={9999} onChange={ (e)=>{this.changeDilation(e)} } value={this.state.size} /></Col>
             <Col span="8">
-              <InputNumber min={1} max={1024} style={{ marginLeft: '16px' }} value={this.state.size} onChange={(e) => {this.onChange(e)}}/>
+              <InputNumber min={this.state.modalSize} max={9999} style={{ marginLeft: '16px' }} value={this.state.size} onChange={(e) => {this.onChange(e)}}/>
               <span style={{ paddingLeft: 10 }} >MB</span>
             </Col>
           </Row>
@@ -289,13 +322,30 @@ let MyComponent = React.createClass({
         </Modal>
 	    </div>
     )
-
   }
 });
 
-MyComponent = injectIntl(MyComponent, {
+function myComponentMapSateToProp(state) {
+  return {
+    formateStorage: state.storage.formateStorage,
+    resizeStorage: state.storage.resizeStorage
+  }
+}
+
+function myComponentMapDispathToProp(dispath) {
+  return {
+    formateStorage: (pool, storage, callback) => {
+      dispath(formateStorage(pool, storage, callback))
+    },
+    resizeStorage: (pool, storage, callback) => {
+      dispath(resizeStorage(pool, storage, callback))
+    }
+  }
+}
+
+MyComponent = connect(myComponentMapSateToProp, myComponentMapDispathToProp)(injectIntl(MyComponent, {
   withRef: true,
-})
+}))
 class Storage extends Component {
 	constructor(props) {
     super(props)
@@ -497,7 +547,9 @@ Storage.propTypes = {
 }
 function mapSateToProp(state) {
   return {
-    storageList: state.storage.storageList
+    storageList: state.storage.storageList,
+    createStorage: state.storage.createStorage,
+    deleteStorage: state.storage.deleteStorage,
   }
 }
 
@@ -511,8 +563,7 @@ function mapDispathToProp(dispath) {
     },
     createStorage: (obj, callback) => {
       dispath(createStorage(obj, callback))
-    },
-   // formateStorage: ()
+    }
   }
 }
 

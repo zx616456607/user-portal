@@ -53,7 +53,7 @@ function actionCallback(state = null, action) {
       setTimeout(callback.success.func)
       return state
     }
-    callback.success()
+    callback.success.func()
     return state
   }
   if (action.type.indexOf('_FAILURE') >= 0) {
@@ -62,7 +62,7 @@ function actionCallback(state = null, action) {
       setTimeout(callback.failure.func)
       return state
     }
-    callback.failure()
+    callback.failure.func()
     return state
   }
   return state

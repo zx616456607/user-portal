@@ -17,7 +17,8 @@ var data = { storageList: [{
     formet:"ext4",
     forin:"tenxlolud/volue/log",
     appName:"baiyusf",
-    size:"122/1024M",
+    usedSize: 122,
+    totalSize:1024,
     createTime:"2016-09-09 11:27:27"
   },
 	{
@@ -27,7 +28,8 @@ var data = { storageList: [{
     formet:"ext4",
     forin:"12",
     appName:"baiyusf",
-    size:"122/1024M",
+        usedSize: 122,
+    totalSize:1024,
     createTime:"2016-09-09 11:27:27"
   },
 	{
@@ -37,7 +39,8 @@ var data = { storageList: [{
     formet:"ext4",
     forin:"tenxlolud/volue/log",
     appName:"baiyusf",
-    size:"122/1024M",
+        usedSize: 122,
+    totalSize:1024,
     createTime:"2016-09-09 11:27:27"
   },
 	{
@@ -47,7 +50,8 @@ var data = { storageList: [{
     formet:"ext4",
     forin:"12",
     appName:"baiyusf",
-    size:"122/1024M",
+        usedSize: 122,
+    totalSize:1024,
     createTime:"2016-09-09 11:27:27"
   },
 	{
@@ -57,7 +61,8 @@ var data = { storageList: [{
     formet:"ext4",
     forin:"tenxlolud/volue/log",
     appName:"baiyusf",
-    size:"122/1024M",
+        usedSize: 122,
+    totalSize:1024,
     createTime:"2016-09-09 11:27:27"
   }]
   }
@@ -84,7 +89,8 @@ exports.deleteStorage = function*() {
     formet:"ext4",
     forin:"tenxlolud/volue/log",
     appName:"baiyusf",
-    size:"122/1024M",
+    usedSize: 122,
+    totalSize:1024,
     createTime:"2016-09-09 11:27:27"
   },
 	{
@@ -94,7 +100,8 @@ exports.deleteStorage = function*() {
     formet:"ext4",
     forin:"12",
     appName:"baiyusf",
-    size:"122/1024M",
+    usedSize: 122,
+    totalSize:1024,
     createTime:"2016-09-09 11:27:27"
   },
 	{
@@ -104,7 +111,8 @@ exports.deleteStorage = function*() {
     formet:"ext4",
     forin:"tenxlolud/volue/log",
     appName:"baiyusf",
-    size:"122/1024M",
+    usedSize: 122,
+    totalSize:1024,
     createTime:"2016-09-09 11:27:27"
   }]
   }
@@ -123,7 +131,7 @@ exports.createStorage = function*() {
 
 exports.formateStorage = function*() {
   let pool = this.params.pool
-  let reqData = this.body
+  let reqData = this.request.body
   if(!reqData.type || !reqData.volumeName) {
     this.status = 400
     this.body = { message:　'error'}
@@ -132,6 +140,11 @@ exports.formateStorage = function*() {
   this.body = {}
 }
 
+exports.resizeStorage = function*() {
+  const pool = this.params.pool
+  this.status = 200
+  this.body = {} 
+}
 exports.getStorageDetail = function*() {
   this.status = 200
   this.body = {
@@ -143,3 +156,4 @@ exports.getStorageDetail = function*() {
     mount_point: '/test'
   }
 }
+

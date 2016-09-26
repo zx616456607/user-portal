@@ -20,7 +20,7 @@ function fetchApi(endpoint, options, schema) {
       method: 'GET'
     }
   }
-  if(options.method === 'POST') {
+  if(options.method === 'POST' || options.method === 'PUT') {
     if(!options.headers) options.headers = {}
     let headers = new Headers(options.headers)
     if(!options.headers['Content-Type']) {

@@ -75,7 +75,7 @@ export function deleteStorage(pool, storageIdArray, callback) {
 }
 
 export const STORAGE_FORMATE_REQUEST = 'STORAGE_FORMATE_REQUEST'
-export const STORAGE_FORMATE_SUCCESS = 'STORAGE_FROMATE_REQUEST'
+export const STORAGE_FORMATE_SUCCESS = 'STORAGE_FROMATE_SUCCESS'
 export const STORAGE_FORMATE_FAILURE = 'STORAGE_FROMATE_FAILURE'
 
 export function formateStorage(pool, storage, callback) {
@@ -83,7 +83,7 @@ export function formateStorage(pool, storage, callback) {
     [FETCH_API]: {
       pool,
       types: [STORAGE_FORMATE_REQUEST, STORAGE_FORMATE_SUCCESS, STORAGE_FORMATE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/volumes`,
+      endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/volumes/format`,
       options: {
         method: 'PUT',
         body: storage
@@ -103,11 +103,12 @@ export function resizeStorage(pool, storage, callback) {
     [FETCH_API]: {
       pool,
       types: [STORAGE_RESIZE_REQUEST, STORAGE_RESIZE_SUCCESS, STORAGE_RESIZE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/volumes`,
+      endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/volumes/size`,
       options: {
         method: 'PUT',
         body: storage
       },
+      schema: {}//Schemas.STORAGE
     },
     callback
   }
