@@ -15,7 +15,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { remove } from 'lodash'
-import { loadStorageList, deleteStorage, createStorage } from '../../actions/storage'
+import { loadStorageList, deleteStorage, createStorage, formateStorage, resizeStorage } from '../../actions/storage'
 import './style/storage.less'
 
 const RadioButton = Radio.Button;
@@ -196,14 +196,15 @@ let MyComponent = React.createClass({
     this.setState({
       visible: false,
     });
+    let type = this.state.modalType
+
   },
   cancelModal () {
     this.setState({
       visible: false,
     });
   },
-  showAction (Id, type , name) {
-    console.log('show dilation',Id)
+  showAction (type , name) {
     this.setState({
       visible: true,
       modalType: type,
@@ -250,9 +251,9 @@ let MyComponent = React.createClass({
 			<div className="size commonData">{item.size}</div>
 			<div className="createTime commonData">{item.createTime}</div>
 			<div className="actionBtn">
-			 <Button className="btn-warning" onClick={ (e)=> { this.showAction(item.id, 'format', item.name) }}><Icon type="delete" /><FormattedMessage {...messages.formatting} /></Button>
+			 <Button className="btn-warning" onClick={ (e)=> { this.showAction('format', item.name) }}><Icon type="delete" /><FormattedMessage {...messages.formatting} /></Button>
 			 <span className="margin"></span>
-			 <Button className="btn-success" onClick={ () => {this.showAction(item.id, 'dilation', item.name)}}><Icon type="scan" /><FormattedMessage {...messages.dilation} /></Button>
+			 <Button className="btn-success" onClick={ () => {this.showAction('dilation', item.name)}}><Icon type="scan" /><FormattedMessage {...messages.dilation} /></Button>
 			</div>
 
 		</div>
@@ -510,7 +511,8 @@ function mapDispathToProp(dispath) {
     },
     createStorage: (obj, callback) => {
       dispath(createStorage(obj, callback))
-    }
+    },
+   // formateStorage: ()
   }
 }
 

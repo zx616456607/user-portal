@@ -80,6 +80,34 @@ function createStorage(state = {}, action) {
       return union({}, state, {
         isFetching: false
       })
+    default: 
+      return state
+  }
+}
+
+function formateStorage(state = {}, action) {
+  switch(action.type) {
+    case ActionTypes.STORAGE_FORMATE_REQUEST:
+      return merge({}, state, { isFetching: true })
+    case ActionTypes.STORAGE_FORMATE_SUCCESS:
+      return merge({}, state, { isFetching: false })
+    case ActionTypes.STORAGE_FORMATE_SUCCESS:
+      return merge({}, state, { isFetching: false })
+    default:
+      return state
+  }
+}
+
+function resizeStorage(state = {}, action) {
+  switch(action.type) {
+    case ActionTypes.STORAGE_RESIZE_REQUEST:
+      return merge({}, state, { isFetching: true })
+    case ActionTypes.STORAGE_RESIZE_SUCCESS:
+      return merge({}, state, { isFetching: false })
+    case ActionTypes.STORAGE_RESIZE_FAILURE:
+      return merge({}, state, { isFetching: false })
+    default:
+      return state
   }
 }
 
@@ -88,6 +116,8 @@ export default function storageReducer(state = {}, action) {
   return {
     storageList: storageList(state.storageList, action),
     deleteStorage: deleteStorage(state.deleteStorage, action),
-    createStorage: createStorage(state.createStorage, action)
+    createStorage: createStorage(state.createStorage, action),
+    formateStorage: formateStorage(state.formateStorage, action),
+    resizeStorage: resizeStorage(state.deleteStorage, action)
   }
 }

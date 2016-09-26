@@ -129,3 +129,26 @@ exports.getStorageDetail = function*() {
   this.status = 200,
   this.body = {}
 }
+
+exports.formateStorage = function*() {
+  let pool = this.params.pool
+  let reqData = this.body
+  if(!reqData.type || !reqData.volumeName) {
+    this.status = 400
+    this.body = { message:　'error'}
+  }
+  this.status = 200
+  this.body = {}
+}
+
+exports.getStorageDetail = function*() {
+  this.status = 200
+  this.body = {
+    volumeName: 'dd',
+    isUsed: true,
+    create_time:new Date(),
+    usedSize: 100,
+    totalSize: 1024,
+    mount_point: '/test'
+  }
+}

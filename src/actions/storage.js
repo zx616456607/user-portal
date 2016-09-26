@@ -43,7 +43,7 @@ export function createStorage(obj, callback) {
     pool: obj.pool,
     [FETCH_API]: {
       types: [STORAGE_CREATE_REQUEST, STORAGE_CREATE_SUCCESS, STORAGE_CREATE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/storage-pools/${obj.pool}`,
+      endpoint: `${API_URL_PREFIX}/storage-pools/${obj.pool}/volumes`,
       options: {
         method: 'POST',
         body: obj
@@ -69,6 +69,45 @@ export function deleteStorage(pool, storageIdArray, callback) {
         body: storageIdArray
       },
       schema: {}//Schemas.STORAGE
+    },
+    callback
+  }
+}
+
+export const STORAGE_FORMATE_REQUEST = 'STORAGE_FORMATE_REQUEST'
+export const STORAGE_FORMATE_SUCCESS = 'STORAGE_FROMATE_REQUEST'
+export const STORAGE_FORMATE_FAILURE = 'STORAGE_FROMATE_FAILURE'
+
+export function formateStorage(pool, storage, callback) {
+    return {
+    [FETCH_API]: {
+      pool,
+      types: [STORAGE_FORMATE_REQUEST, STORAGE_FORMATE_SUCCESS, STORAGE_FORMATE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/volumes`,
+      options: {
+        method: 'PUT',
+        body: storage
+      },
+      schema: {}//Schemas.STORAGE
+    },
+    callback
+  }
+}
+
+export const STORAGE_RESIZE_REQUEST = 'STORAGE_RESIZE_REQUEST'
+export const STORAGE_RESIZE_SUCCESS = 'STORAGE_RESIZE_SUCCESS'
+export const STORAGE_RESIZE_FAILURE = 'STORAGE_RESIZE_FAILURE'
+
+export function resizeStorage(pool, storage, callback) {
+  return {
+    [FETCH_API]: {
+      pool,
+      types: [STORAGE_RESIZE_REQUEST, STORAGE_RESIZE_SUCCESS, STORAGE_RESIZE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/volumes`,
+      options: {
+        method: 'PUT',
+        body: storage
+      },
     },
     callback
   }
