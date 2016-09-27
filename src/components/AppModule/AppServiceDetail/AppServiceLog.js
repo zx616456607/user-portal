@@ -2,7 +2,7 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  * 
- * ContainerGraph component
+ * AppServiceLog component
  * 
  * v0.1 - 2016-09-22
  * @author GaoJian
@@ -12,16 +12,16 @@ import { DatePicker } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import "./style/ContainerGraph.less"
+import "./style/AppServiceLog.less"
 
-export default class ContainerGraph extends Component {
+export default class AppServiceLog extends Component {
   constructor(props) {
     super(props);
   }	
   
   render() {
     return (
-      <div id="ContainerGraph">
+      <div id="AppServiceLog">
 		    <div className="bottomBox">
 		      <div className="introBox"> 
 		        <div className="operaBox">

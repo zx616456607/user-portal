@@ -369,7 +369,7 @@ export default class AppDeployServiceModal extends Component {
 			          <div className="selectBox">
 			          	<RadioGroup onChange={this.changeGetImageType} value={this.state.getImageType}>
 						        <Radio key="a" value={"1"}>优先使用本地镜像</Radio>
-						        <Radio key="b" value={"2"}>始终拉去云端该版本镜像</Radio>
+						        <Radio key="b" value={"2"}>始终拉取云端该版本镜像</Radio>
 						      </RadioGroup>
 			          </div>
 			          <div style={{ clear:"both" }}></div>
