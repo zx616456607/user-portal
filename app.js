@@ -189,10 +189,10 @@ let server
 if (config.protocol !== 'https') {
   // Http server
   const http = require('http')
-  server = http.createServer(app.callback()).listen(config.port, config.host, function () {
+  server = http.createServer(app.callback()).listen(config.port, config.hostname, function () {
     setTimeout(function () {
       logger.info(`${app.name}@${app.version} is listening on port ${config.port}`)
-      logger.info(`Open up http://${config.host}:${config.port}/ in your browser.`)
+      logger.info(`Open up http://${config.hostname}:${config.port}/ in your browser.`)
     }, 1500)
   })
 } else {
@@ -207,7 +207,7 @@ if (config.protocol !== 'https') {
   const server = https.createServer(httpsoptions, app.callback()).listen(config.port, config.host, function() {
     setTimeout(function() {
       logger.info(`${app.name}@${app.version} is listening on port ${config.port}`)
-      logger.info(`Open up https://${config.host}:${config.port}/ in your browser.`)
+      logger.info(`Open up https://${config.hostname}:${config.port}/ in your browser.`)
     }, 1500)
   })
 }
