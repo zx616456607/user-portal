@@ -38,17 +38,21 @@ module.exports = (protocol, host, version, auth, timeout) => {
     options.timeout = object.timeout || timeout
     options.headers = object.headers
     options.data = object.data
+    logger.info(`[${options.method || 'GET'}] ${url}`)
     if (!callback) {
-      return urllib.request(url, options).then((result) => {
-        if (_isSuccess(result.res.statusCode)) {
-          result.data.statusCode = result.res.statusCode 
-          return result.data
+      return urllib.request(url, options).then(
+        function done(result) {
+          if (_isSuccess(result.res.statusCode)) {
+            result.data.statusCode = result.res.statusCode 
+            return result.data
+          }
+          throw errors.get(result.res)
+        },
+        function fail(err) {
+          err.statusCode = err.res.statusCode
+          throw errors.get(err)
         }
-        throw errors.get(result.res)
-      }).catch((err) => {
-        err.statusCode = err.res.statusCode
-        throw errors.get(err)
-      })
+      )
     }
     urllib.request(url, object, (err, data, res) => {
       if (err) {
