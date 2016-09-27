@@ -165,9 +165,8 @@ export default class AppCreateServiceModal extends Component {
 	      <MyComponent scope={parentScope} config={testData} />
 	      <Modal
 	        visible={this.state.modalShow}
-			className="AppServiceDetail"
-			transitionName="move-right"
-			onCancel={this.closeModal}
+					className="AppServiceDetail"
+					transitionName="move-right"
 	      >
 	        <AppDeployServiceModal scope={parentScope} />
           </Modal>
