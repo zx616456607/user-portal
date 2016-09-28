@@ -8,18 +8,22 @@
  * @author Zhangpc
  */
 'use strict'
-
+const env = process.env
 const config = {
   production: false,
-  protocol: 'http' || process.env.DASHBOARD_PROTOCOL,
-  host: "0.0.0.0" || process.env.DASHBOARD_HOST,
-  port: 8003 || process.env.DASHBOARD_PORT,
+  protocol: 'http' || env.DASHBOARD_PROTOCOL,
+  hostname: "0.0.0.0" || env.DASHBOARD_HOST,
+  port: 8003 || env.DASHBOARD_PORT,
   intl_cookie_name: "intl_locale",
   session_key: "tce",
   session_secret: ["tenxcloud_dashboard", "secret_dream008"],
   session_store: {
-    url: null || process.env.SESSION_STORE_URL,
-    pass: null || process.env.SESSION_STORE_PASS
+    url: null || env.SESSION_STORE_URL,
+    pass: null || env.SESSION_STORE_PASS
+  },
+  tenx_api: {
+    protocol: "http" || env.TENX_API_PROTOCOL,
+    host: "0.0.0.0:8000" || env.TENX_API_HOST
   }
 }
 

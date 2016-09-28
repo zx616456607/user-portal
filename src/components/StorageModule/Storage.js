@@ -542,9 +542,11 @@ class Storage extends Component {
 }
 
 Storage.propTypes = {
-  intl: PropTypes.object.isRequired
+  intl: PropTypes.object.isRequired,
+  loadStorageList: PropTypes.func.isRequired
 }
-function mapSateToProp(state) {
+
+function mapStateToProps(state) {
   return {
     storageList: state.storage.storageList,
     createStorage: state.storage.createStorage,
@@ -552,21 +554,21 @@ function mapSateToProp(state) {
   }
 }
 
-function mapDispathToProp(dispath) {
+function mapDispatchToProps(dispatch) {
   return {
     loadStorageList: (pool) => {
-      dispath(loadStorageList(pool))
+      dispatch(loadStorageList(pool))
     },
     deleteStorage: (pool, storageNameArray, callback) => {
-      dispath(deleteStorage(pool, storageNameArray, callback))
+      dispatch(deleteStorage(pool, storageNameArray, callback))
     },
     createStorage: (obj, callback) => {
-      dispath(createStorage(obj, callback))
+      dispatch(createStorage(obj, callback))
     }
   }
 }
 
 
-export default connect(mapSateToProp, mapDispathToProp)(injectIntl(Storage, {
+export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(Storage, {
   withRef: true,
 }))

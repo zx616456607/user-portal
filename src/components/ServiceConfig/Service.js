@@ -88,7 +88,7 @@ class Service extends Component{
             onCancel={() => this.createConfigGroup(false)}
           >
             <div className="create-conf-g">
-              <span>名称 : </span>
+              <span style={{marginRight: "16px"}}>名称 : </span>
               <Input type="text"/>
             </div>
           </Modal>

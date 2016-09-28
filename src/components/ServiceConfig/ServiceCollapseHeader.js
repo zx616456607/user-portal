@@ -17,7 +17,7 @@ function handleMenuClick() {
   console.log('delete !');
 }
 const menu = (
-  <Menu onClick={() => handleMenuClick()}>
+  <Menu onClick={() => handleMenuClick()} mode="vertical">
     <Menu.Item key="1">删除配置组</Menu.Item>
   </Menu>
 );
@@ -46,6 +46,7 @@ class CollapseHeader extends Component {
         <Col className="group-name" span="6">
           <Checkbox onClick={(e) => this.handleDropdown(e)}></Checkbox>
           <Icon type="folder-open" />
+          <Icon type="folder" />
           <span>{collapseHeader.groupName}</span>
         </Col>
         <Col span="6">
@@ -79,10 +80,10 @@ class CollapseHeader extends Component {
                 <Icon type="info-circle-o" style={{marginRight: "10px"}}/>
                 即将保存一个配置文件 , 您可以在创建应用 → 添加服务时 , 关联使用该配置
               </p>
-              <span style={{float: 'left'}}>名称 : </span>
+              <span style={{float: "left", marginRight: "16px"}}>名称 : </span>
               <Input type="text" className="configName"/>
               <div style={{ margin: '24px 0' }} />
-              <span style={{float: 'left'}}>内容 : </span>
+              <span style={{float: "left", marginRight: "16px"}}>内容 : </span>
               <Input type="textarea" />
             </div>
           </Modal>
