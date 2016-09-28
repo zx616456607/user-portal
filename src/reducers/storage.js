@@ -111,6 +111,29 @@ function resizeStorage(state = {}, action) {
   }
 }
 
+function storageDetail(state = {}, action) {
+  const defaultState = {
+    isFetching: false,
+    StorageInfo: {}
+  }
+  switch (action.type) {
+    case ActionTypes.STORAGE_DETAIL_REQUEST:
+      return merge({}, defaultState, state, {
+        isFetching: true
+      })
+    case ActionTypes.STORAGE_DETAIL_SUCCESS:
+      return merge({}, state, {
+        isFetching: false,
+        StorageInfo: action.response.result[0]
+      })
+    case ActionTypes.STORAGE_DETAIL_FAILURE:
+      return merge({}, defaultState, state, {
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
 
 export default function storageReducer(state = {}, action) {
   return {
@@ -118,6 +141,7 @@ export default function storageReducer(state = {}, action) {
     deleteStorage: deleteStorage(state.deleteStorage, action),
     createStorage: createStorage(state.createStorage, action),
     formateStorage: formateStorage(state.formateStorage, action),
-    resizeStorage: resizeStorage(state.deleteStorage, action)
+    resizeStorage: resizeStorage(state.deleteStorage, action),
+    storageDetail: storageDetail(state.storageDetail, action)
   }
 }

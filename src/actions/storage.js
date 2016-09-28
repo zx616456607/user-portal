@@ -54,6 +54,26 @@ export function createStorage(obj, callback) {
   }
 }
 
+
+export const STORAGE_DETAIL_REQUEST = 'STORAGE_DETAIL_REQUEST'
+export const STORAGE_DETAIL_SUCCESS = 'STORAGE_DETAIL_SUCCESS'
+export const STORAGE_DETAIL_FAILURE = 'STORAGE_DETAIL_FAILURE'
+
+export function loadStorageInfo(pool,name) {
+  return {
+    pool,
+    [FETCH_API]: {
+      types: [STORAGE_DETAIL_REQUEST, STORAGE_DETAIL_SUCCESS, STORAGE_DETAIL_FAILURE],
+      // /storage-pools/:pool/volumes/:name
+      endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/volumes/${name}`,
+      options: {
+        method: 'GET'
+      },
+      schema: {}//Schemas.STORAGE
+    }
+  }
+}
+
 export const STORAGE_DELETE_REQUEST = 'STORAGE_DELETE_REQUEST'
 export const STORAGE_DELETE_SUCCESS = 'STORAGE_DELETE_SUCCESS'
 export const STORAGE_DELETE_FAILURE = 'STORAGE_DELETE_FAILURE'

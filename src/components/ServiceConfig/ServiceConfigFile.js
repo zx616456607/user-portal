@@ -60,8 +60,8 @@ class ConfigFile extends Component {
       )
     } else if (containerList.length == 0){
       return (
-        <td style={{padding:"0 30px"}}>
-          <div style={{textAlign: 'center'}}>
+        <td>
+          <div style={{textAlign: 'center' ,width: "128px"}}>
             暂无挂载
           </div>
         </td>
@@ -120,7 +120,8 @@ class ConfigFile extends Component {
               </Modal>
               {/*修改配置组-弹出层-end*/}
               
-              <Button type="primary" style={{with: "30px",height: "30px",padding: "0 9px"}}>
+              <Button type="primary" style={{with: "30px",height: "30px",padding: "0 9px",
+                backgroundColor: "#fff"}} className="config-cross">
                 <Icon type="cross" />
               </Button>
             </td>
