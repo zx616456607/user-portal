@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Switch,Select,Collapse,Dropdown,Modal,Checkbox,Button,Card,Menu,Input,InputNumber,Radio,Icon  } from 'antd'
+import { Form,Switch,Select,Collapse,Dropdown,Modal,Checkbox,Button,Card,Menu,Input,InputNumber,Radio,Icon  } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -17,11 +17,14 @@ import "./style/AppDeployServiceModal.less"
 const Panel = Collapse.Panel;
 const Option = Select.Option;
 const RadioGroup = Radio.Group;
+const createForm = Form.create;
+const FormItem = Form.Item;
 
-export default class AppDeployServiceModal extends Component {
+class AppDeployServiceModal extends Component {
   constructor(props) {
     super(props);
     this.changeServiceState = this.changeServiceState.bind(this);
+    this.changeInstanceNum = this.changeInstanceNum.bind(this);
     this.selectComposeType = this.selectComposeType.bind(this);
     this.changeRunningCode = this.changeRunningCode.bind(this);
     this.changeGetImageType = this.changeGetImageType.bind(this);
@@ -34,15 +37,39 @@ export default class AppDeployServiceModal extends Component {
     this.portOnRemove = this.portOnRemove.bind(this);
     this.changeProtocol = this.changeProtocol.bind(this);
     this.closeModal = this.closeModal.bind(this);
+    this.submitNewService = this.submitNewService.bind(this);
     this.state = {
     	composeType:"1",
     	stateService:false,
+    	instanceNum:1,
     	runningCode:"1",
     	getImageType:"1",
     	getUsefulType:"null",
     	composeList:[],
     	enviroList:[],
     	portList:[]
+    }
+  }
+  
+  changeNewServiceName(e){
+  	//this function for user input new service name and the system will check the name is exist or not
+  	this.setState({
+  		newServiceName:e.target.value
+  	});
+  }
+  
+  userExists(rule, value, callback) {
+  	//this function for check user input new service new is exist or not
+    if (!value) {
+      callback();
+    } else {
+      setTimeout(() => {
+        if (value === 'JasonWood') {
+          callback([new Error('抱歉，该用户名已被占用。')]);
+        } else {
+          callback();
+        }
+      }, 800);
     }
   }
   
@@ -57,6 +84,13 @@ export default class AppDeployServiceModal extends Component {
   	//the function for change user select service status open or not
 		this.setState({
 			stateService:e
+  	});
+  }
+  
+  changeInstanceNum(e){
+  	//the function for user set the max number of instance
+  	this.setState({
+  		instanceNum:e
   	});
   }
   
@@ -80,7 +114,6 @@ export default class AppDeployServiceModal extends Component {
   		getUsefulType:e.target.value
   	});
   }
-  
   composeOnAdd() {
     const composeList = this.state.composeList;
     let scope = this;
@@ -210,30 +243,72 @@ export default class AppDeployServiceModal extends Component {
   	});
   }
   
+  submitNewService(e){
+  	//the function for user submit new service
+  	e.preventDefault();
+  	this.props.form.validateFields((errors, values) => {
+      console.log(errors)
+      console.log(values)
+    });
+  	const scope = this.state;
+  	let newImageUrl = scope.newImageUrl;
+  	let imageTag = scope.imageTag;
+  	let composeType = scope.composeType;
+  	let instanceNum = scope.instanceNum;
+  	console.log(scope)
+  }
+  
   render() {
+  	const { getFieldProps, getFieldError, isFieldValidating } = this.props.form;
   	const parentScope = this.props.scope;
+  	const nameProps = getFieldProps('name', {
+      rules: [
+        { required: true, min: 3,max: 50, message: '服务名至少为 5 个字符' },
+        { validator: this.userExists },
+      ],
+    });
+    const imageUrlProps = getFieldProps('imageUrl', {
+      rules: [
+        { required: true, message: '请输入镜像地址' },
+      ],
+    });
+    const selectProps = getFieldProps('select', {
+      rules: [
+        { required: true, message: '请选择镜像版本' },
+      ],
+    });
     return (
-	    <div id="AppDeployServiceModal">
+	   <div id="AppDeployServiceModal">
+    	<Form horizontal form={this.props.form}>
 	      <div className="topBox">
 	        <div className="inputBox">
 	          <span className="commonSpan">服务名称</span>
-	          <Input className="serviceNameInput" size="large" placeholder="起一个萌萌哒的名字吧~" />
+	          <FormItem className="serviceNameForm" hasFeedback
+          		help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}>
+	          	<Input {...nameProps} className="serviceNameInput" size="large" placeholder="起一个萌萌哒的名字吧~" />
+	            <div style={{ clear:"both" }}></div>
+	          </FormItem>
 	          <div style={{ clear:"both" }}></div>
 	        </div>
 	        <div className="inputBox">
 	          <span className="commonSpan">镜像地址</span>
-	          <Input className="imageInput" size="large" placeholder="输入一个刻骨铭心的地址吧~" />
-	          <Button className="checkBtn" size="large" type="primary">检查地址</Button>
+	          <FormItem className="iamgeUrlForm" hasFeedback>
+		          <Input {...imageUrlProps} className="imageInput" size="large" placeholder="输入一个刻骨铭心的地址吧~" />
+		          <div style={{ clear:"both" }}></div>
+	          </FormItem>
+	          <Button className="checkBtn" size="large" type="primary" onClick={this.checkImageUrl}>检查地址</Button>
 	          <div style={{ clear:"both" }}></div>
 	        </div>
 	        <div className="inputBox">
 	          <span className="commonSpan">镜像版本</span>
-	          <Select className="imageTag" size="large" defaultValue="成熟的Linux" style={{ width: 200 }} >
-			        <Option value="对，选楼下">对，选楼下</Option>
-			        <Option value="成熟的Linux">成熟的Linux</Option>
-			        <Option value="看啥，选楼上">看啥，选楼上</Option>
-			        <Option value="没毛病，选二楼">没毛病，选二楼</Option>
-		      	</Select>
+		        <FormItem className="imageTagForm">
+		          <Select {...selectProps} className="imageTag" size="large" tyle={{ width: 200 }} >
+				        <Option value="对，选楼下">对，选楼下</Option>
+				        <Option value="成熟的Linux">成熟的Linux</Option>
+				        <Option value="看啥，选楼上">看啥，选楼上</Option>
+				        <Option value="没毛病，选二楼">没毛病，选二楼</Option>
+			      	</Select>
+		        </FormItem>
 	          <div style={{ clear:"both" }}></div>
 	        </div>
 	      </div>
@@ -319,7 +394,7 @@ export default class AppDeployServiceModal extends Component {
 	          	<div style={{ clear:"both" }}></div>
 	          </div>
 	          <div className="stateService">
-	          	<span className="commonSpan">容器配置</span>
+	          	<span className="commonSpan">服务类型</span>
 	          	<Switch className="changeBtn" defaultChecked={false}  onChange={this.changeServiceState} />
 	          	<span className="stateSpan">{this.state.stateService ? "有状态服务":"无状态服务"}</span>
 	          	{this.state.stateService ? [
@@ -340,7 +415,8 @@ export default class AppDeployServiceModal extends Component {
 	          </div>
 		      	<div className="containerNum">
 		      	  <span className="commonSpan">容器数量</span>
-		      	  <InputNumber className="inputNum" size="large" min={1} max={100} />&nbsp;&nbsp;个
+		      	  <InputNumber className="inputNum" value={this.state.instanceNum} onChange={this.changeInstanceNum}
+		      	  	size="large" min={1} max={100} />&nbsp;&nbsp;个
 		          <div style={{ clear:"both" }}></div>
 		      	</div>
 	      	</div>
@@ -563,19 +639,18 @@ export default class AppDeployServiceModal extends Component {
       		<Button className="cancelBtn" size="large" type="ghost" onClick={this.closeModal}>
       			取消
       		</Button>
-      		<Link to={`/app_manage/app_create/compose_file`}>
-	      		<Button className="createBtn" size="large" type="primary">
-	      			创建
-	      		</Button>
-      		</Link>
+	      	<Button className="createBtn" size="large" type="primary" onClick={this.submitNewService}>
+	      		创建
+	      	</Button>
       	</div>
-      </div>
+	    </Form>
+    </div>
     )
   }
 }
 
 const assitBoxTitle = (
-					<div className="commonTitle">
+	<div className="commonTitle">
 	      		<div className="line"></div>
 	      	  <span className="titleSpan">辅助设置</span>
 	      	  <span className="titleIntro">设置重启检查项目，如遇到检查项不满足，为自动保证服务高可用，将自动重启该服务</span>
@@ -610,3 +685,8 @@ const advanceBoxTitle = (
 AppDeployServiceModal.propTypes = {
 
 }
+
+AppDeployServiceModal = createForm()(AppDeployServiceModal);
+
+export default AppDeployServiceModal
+
