@@ -20,11 +20,6 @@ class App extends Component {
     this.handleDismissClick = this.handleDismissClick.bind(this)
   }
 
-  /*componentWillReceiveProps(nextProps) {
-    console.log('******************************')
-    console.log(nextProps)
-  }*/
-
   handleDismissClick() {
     this.props.resetErrorMessage()
   }
