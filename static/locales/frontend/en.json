@@ -40,7 +40,8 @@
 
   "StorageDetail.header.useStatus": "Use State",
   "StorageDetail.header.using": "In use",
-  "StorageDetail.header.create": "Create",
+  "StorageDetail.header.stop": "Stopped",
+  "StorageDetail.header.create": "Create Time",
   "StorageDetail.header.useLevel": "Consumption",
   "StorageBind.bind.volume": "Storage volume",
   "StorageBind.bind.container": "Container",
