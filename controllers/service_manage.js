@@ -9,6 +9,43 @@
  */
 'use strict'
 
+exports.startServices = function* () {
+  const cluster = this.params.cluster
+  this.body = {
+    cluster
+  }
+}
+
+exports.stopServices = function* () {
+  const cluster = this.params.cluster
+  this.body = {
+    cluster
+  }
+}
+
+exports.restartServices = function* () {
+  const cluster = this.params.cluster
+  this.body = {
+    cluster
+  }
+}
+
+exports.getServicesStatus = function* () {
+  const cluster = this.params.cluster
+  this.body = {
+    cluster
+  }
+}
+
+exports.getServiceDetail = function* () {
+  const cluster = this.params.cluster
+  const serviceName = this.params.service_name
+  this.body = {
+    cluster,
+    serviceName
+  }
+}
+
 exports.getServiceContainers = function* () {
   const master = this.params.master
   const serviceName = this.params.service_name
@@ -81,5 +118,50 @@ exports.getServiceContainers = function* () {
     master,
     serviceName,
     data
+  }
+}
+
+exports.manualScaleService = function* () {
+  const cluster = this.params.cluster
+  const serviceName = this.params.service_name
+  this.body = {
+    cluster,
+    serviceName
+  }
+}
+
+exports.autoScaleService = function* () {
+  const cluster = this.params.cluster
+  const serviceName = this.params.service_name
+  this.body = {
+    cluster,
+    serviceName
+  }
+}
+
+exports.changeServiceQuota = function* () {
+  const cluster = this.params.cluster
+  const serviceName = this.params.service_name
+  this.body = {
+    cluster,
+    serviceName
+  }
+}
+
+exports.changeServiceHa = function* () {
+  const cluster = this.params.cluster
+  const serviceName = this.params.service_name
+  this.body = {
+    cluster,
+    serviceName
+  }
+}
+
+exports.bindServiceDomain = function* () {
+  const cluster = this.params.cluster
+  const serviceName = this.params.service_name
+  this.body = {
+    cluster,
+    serviceName
   }
 }

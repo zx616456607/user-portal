@@ -88,3 +88,12 @@ exports.getContainers = function* () {
     data
   }
 }
+
+exports.getContainerDetail = function* () {
+  const cluster = this.params.cluster
+  const containerName = this.params.container_name
+  this.body = {
+    cluster,
+    containerName
+  }
+}
