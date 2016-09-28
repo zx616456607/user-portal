@@ -10,38 +10,36 @@
 'use strict'
 
 module.exports = function (request){
-  let _collection
-  const _getPaths = function() {
-    let endpoint = [].slice.call(arguments).filter((each) => {
-      return each !== null && typeof each !== undefined && each.trim() !== ''
-    }).join('/')
-    if (endpoint) {
-      endpoint = '/' + endpoint
-    }
-    return `/${_collection}${endpoint}`
-  }
-
-  const _getQuerys = (object) => {
-    let querys = ''
-    if (!object) {
-      return querys
-    }
-    Object.keys(object).forEach((key) => {
-      if (object.hasOwnProperty(key)) {
-        querys += `$${key}=${object[key]}`
-      }
-    })
-    return `?${querys.substring(1)}`
-  }
+  const _getPaths = Symbol('_getPaths')
+  const _getQuerys = Symbol('_getQuerys')
 
   class Collections {
     constructor(collection) {
-      this.collection = collection
-      _collection = collection
+      this[_getPaths] = function() {
+        let endpoint = [].slice.call(arguments).filter((each) => {
+          return each !== null && typeof each !== undefined && each.trim() !== ''
+        }).join('/')
+        if (endpoint) {
+          endpoint = '/' + endpoint
+        }
+        return `/${collection}${endpoint}`
+      }
+      this[_getQuerys] = (object) => {
+        let querys = ''
+        if (!object) {
+          return querys
+        }
+        Object.keys(object).forEach((key) => {
+          if (object.hasOwnProperty(key)) {
+            querys += `$${key}=${object[key]}`
+          }
+        })
+        return `?${querys.substring(1)}`
+      }
     }
 
     get(querys, callback) {
-      let endpoint = _getPaths() + _getQuerys(querys)
+      let endpoint = this[_getPaths]() + this[_getQuerys](querys)
       return request({
         endpoint,
         method: 'GET'
@@ -49,7 +47,7 @@ module.exports = function (request){
     }
 
     getBy(paths, querys, callback) {
-      let endpoint = _getPaths.apply(null, paths) + _getQuerys(querys)
+      let endpoint = this[_getPaths].apply(null, paths) + this[_getQuerys](querys)
       return request({
         endpoint,
         method: 'GET'
@@ -57,7 +55,7 @@ module.exports = function (request){
     }
 
     create(data, callback) {
-      let endpoint = _getPaths()
+      let endpoint = this[_getPaths]()
       return request({
         endpoint,
         data,
@@ -66,7 +64,7 @@ module.exports = function (request){
     }
 
     createBy(path, querys, data, callback) {
-      let endpoint = _getPaths.apply(null, paths) + _getQuerys(querys)
+      let endpoint = this[_getPaths].apply(null, paths) + this[_getQuerys](querys)
       return request({
         endpoint,
         data,
@@ -75,7 +73,7 @@ module.exports = function (request){
     }
 
     update(id, data, callback) {
-      let endpoint = _getPaths(id)
+      let endpoint = this[_getPaths](id)
       return request({
         endpoint,
         data,
@@ -84,7 +82,7 @@ module.exports = function (request){
     }
 
     updateBy(paths, querys, data, callback) {
-      let endpoint = _getPaths.apply(null, paths) + _getQuerys(querys)
+      let endpoint = this[_getPaths].apply(null, paths) + this[_getQuerys](querys)
       return request({
         endpoint,
         data,
@@ -93,7 +91,7 @@ module.exports = function (request){
     }
 
     delete(id, callback) {
-      let endpoint = _getPaths(id)
+      let endpoint = this[_getPaths](id)
       return request({
         endpoint,
         method: 'DELETE'
@@ -101,7 +99,7 @@ module.exports = function (request){
     }
 
     deleteBy(paths, querys, callback) {
-      let endpoint = _getPaths.apply(null, paths) + _getQuerys(querys)
+      let endpoint = this[_getPaths].apply(null, paths) + this[_getQuerys](querys)
       return request({
         endpoint,
         method: 'DELETE'

@@ -9,7 +9,7 @@
  */
 'use strict'
 exports.getContainers = function* () {
-  const master = this.params.master
+  const cluster = this.params.cluster
   const data = [{
     id: "1",
     name: "test1",
@@ -84,7 +84,16 @@ exports.getContainers = function* () {
       createTime: "2016-09-09 11:27:27",
     }];
   this.body = {
-    master,
+    cluster,
     data
+  }
+}
+
+exports.getContainerDetail = function* () {
+  const cluster = this.params.cluster
+  const containerName = this.params.container_name
+  this.body = {
+    cluster,
+    containerName
   }
 }

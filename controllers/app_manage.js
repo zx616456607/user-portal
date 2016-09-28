@@ -9,8 +9,15 @@
  */
 'use strict'
 
+exports.createApp = function* () {
+  const cluster = this.params.cluster
+  this.body = {
+    cluster
+  }
+}
+
 exports.getApps = function* () {
-  const master = this.params.master
+  const cluster = this.params.cluster
   const data = [{
     id: "1",
     appName: "test1",
@@ -77,13 +84,68 @@ exports.getApps = function* () {
       createTime: "2016-09-09 11:27:27",
     }];
   this.body = {
-    master,
+    cluster,
+    data
+  }
+}
+
+exports.deleteApps = function* () {
+  const cluster = this.params.cluster
+  this.body = {
+    cluster
+  }
+}
+
+exports.stopApps = function* () {
+  const cluster = this.params.cluster
+  this.body = {
+    cluster
+  }
+}
+
+exports.startApps = function* () {
+  const cluster = this.params.cluster
+  this.body = {
+    cluster
+  }
+}
+
+exports.restartApps = function* () {
+  const cluster = this.params.cluster
+  this.body = {
+    cluster
+  }
+}
+
+exports.getAppsStatus = function* () {
+  const cluster = this.params.cluster
+  this.body = {
+    cluster
+  }
+}
+
+exports.addService = function* () {
+  const cluster = this.params.cluster
+  const appName = this.params.app_name
+  this.body = {
+    cluster,
+    appName
+  }
+}
+
+exports.deleteServices = function* () {
+  const cluster = this.params.cluster
+  const appName = this.params.app_name
+  const data = []
+  this.body = {
+    cluster,
+    appName,
     data
   }
 }
 
 exports.getAppServices = function* () {
-  const master = this.params.master
+  const cluster = this.params.cluster
   const appName = this.params.app_name
   const data = [{
     id: "1",
@@ -143,7 +205,29 @@ exports.getAppServices = function* () {
       createTime: "2016-09-09 11:27:27",
     }];
   this.body = {
-    master,
+    cluster,
+    appName,
+    data
+  }
+}
+
+exports.getAppOrchfile = function* () {
+  const cluster = this.params.cluster
+  const appName = this.params.app_name
+  const data = []
+  this.body = {
+    cluster,
+    appName,
+    data
+  }
+}
+
+exports.getAppLogs = function* () {
+  const cluster = this.params.cluster
+  const appName = this.params.app_name
+  const data = []
+  this.body = {
+    cluster,
     appName,
     data
   }

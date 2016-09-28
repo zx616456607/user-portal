@@ -13,30 +13,30 @@ import merge from 'lodash/merge'
 import union from 'lodash/union'
 
 export function apps(state = {}, action) {
-  const master = action.master
+  const cluster = action.cluster
   const defaultState = {
-    [master]: {
+    [cluster]: {
       isFetching: false,
-      master,
+      cluster,
       appList: []
     }
   }
   switch (action.type) {
     case ActionTypes.APP_LIST_REQUEST:
       return merge({}, defaultState, state, {
-        [master]: {isFetching: true}
+        [cluster]: {isFetching: true}
       })
     case ActionTypes.APP_LIST_SUCCESS:
       return merge({}, state, {
-        [master]: {
+        [cluster]: {
           isFetching: false,
-          master: action.response.result.master,
+          cluster: action.response.result.cluster,
           appList: union(state.apps, action.response.result.data)
         }
       })
     case ActionTypes.APP_LIST_FAILURE:
       return merge({}, defaultState, state, {
-        [master]: {isFetching: false}
+        [cluster]: {isFetching: false}
       })
     default:
       return state
@@ -44,13 +44,13 @@ export function apps(state = {}, action) {
 }
 
 export function services(state = {}, action) {
-  const master = action.master
+  const cluster = action.cluster
   const appName = action.appName
   const defaultState = {
-    [master]: {
+    [cluster]: {
       [appName]: {
         isFetching: false,
-        master,
+        cluster,
         appName,
         serviceList: []
       }
@@ -59,7 +59,7 @@ export function services(state = {}, action) {
   switch (action.type) {
     case ActionTypes.SERVICE_LIST_REQUEST:
       return merge({}, defaultState, state, {
-        [master]:  {
+        [cluster]:  {
           [appName]: {
             isFetching: true
           }
@@ -67,10 +67,10 @@ export function services(state = {}, action) {
       })
     case ActionTypes.SERVICE_LIST_SUCCESS:
       return merge({}, state, {
-        [master]:  {
+        [cluster]:  {
           [appName]: {
             isFetching: false,
-            master: action.response.result.master,
+            cluster: action.response.result.cluster,
             appName: action.response.result.appName,
             serviceList: union(state.services, action.response.result.data)
           }
@@ -78,7 +78,7 @@ export function services(state = {}, action) {
       })
     case ActionTypes.SERVICE_LIST_FAILURE:
       return merge({}, defaultState, state, {
-        [master]:  {
+        [cluster]:  {
           [appName]: {
             isFetching: false
           }
@@ -90,33 +90,33 @@ export function services(state = {}, action) {
 }
 
 export function containers(state = {}, action) {
-  const master = action.master
+  const cluster = action.cluster
   const defaultState = {
-    [master]: {
+    [cluster]: {
       isFetching: false,
-      master,
+      cluster,
       containerList: []
     }
   }
   switch (action.type) {
     case ActionTypes.CONTAINER_LIST_REQUEST:
       return merge({}, defaultState, state, {
-        [master]:  {
+        [cluster]:  {
           isFetching: true
         }
       })
     case ActionTypes.CONTAINER_LIST_SUCCESS:
       return merge({}, state, {
-        [master]:  {
+        [cluster]:  {
           isFetching: false,
-          master: action.response.result.master,
+          cluster: action.response.result.cluster,
           appName: action.response.result.appName,
           containerList: union(state.containers, action.response.result.data)
         }
       })
     case ActionTypes.CONTAINER_LIST_FAILURE:
       return merge({}, defaultState, state, {
-        [master]:  {
+        [cluster]:  {
           isFetching: false
         }
       })
