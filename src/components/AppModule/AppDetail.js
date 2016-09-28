@@ -31,9 +31,9 @@ class AppDetail extends Component {
   }
 
 	componentWillMount() {
-		const { master, appName, loadServiceList } = this.props
+		const { cluster, appName, loadServiceList } = this.props
     document.title = `应用 ${appName} 详情 | 时速云`
-    loadServiceList(master, appName)
+    loadServiceList(cluster, appName)
   }
   
   render() {
@@ -110,7 +110,7 @@ class AppDetail extends Component {
 
 AppDetail.propTypes = {
   // Injected by React Redux
-  master: PropTypes.string.isRequired,
+  cluster: PropTypes.string.isRequired,
   serviceList: PropTypes.array.isRequired,
   isFetching: PropTypes.bool.isRequired,
   loadServiceList: PropTypes.func.isRequired
@@ -120,7 +120,7 @@ function mapStateToProps(state, props) {
   const { app_name } = props.params
 	const defaultServices = {
     isFetching: false,
-    master: 'default',
+    cluster: 'default',
 		appName: app_name,
     serviceList: []
   }
@@ -131,9 +131,9 @@ function mapStateToProps(state, props) {
 	if (services['default'] && services['default'][app_name]) {
 		targetServices = services['default'][app_name]
 	}
-	const { master, serviceList, isFetching } = targetServices || defaultServices
+	const { cluster, serviceList, isFetching } = targetServices || defaultServices
   return {
-		master,
+		cluster,
     appName: app_name,
 		serviceList,
 		isFetching

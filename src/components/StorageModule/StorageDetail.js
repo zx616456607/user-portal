@@ -141,15 +141,15 @@ StorageDetail.propTypes = {
 function mapStateToProps(state, props) {
   const defaultInfo = {
     isFetching: false,
-    master: 'default',
+    cluster: 'default',
     pool: 'test',
     StorageInfo: props.params.storage_id
   }
   const { Storage } = state
-  const { master, StorageInfo, isFetching } = state.storage.storageDetail || defaultInfo
+  const { cluster, StorageInfo, isFetching } = state.storage.storageDetail || defaultInfo
 
   return {
-    // master,
+    // cluster,
     StorageInfo,
     // pool,
     isFetching

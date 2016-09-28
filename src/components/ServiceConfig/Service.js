@@ -20,8 +20,8 @@ import { connect } from 'react-redux'
 import {loadConfigGroup} from '../../actions/configs'
 
 function loadData(props) {
-  const { master, loadConfigGroup } = props
-  loadConfigGroup(master)
+  const { cluster, loadConfigGroup } = props
+  loadConfigGroup(cluster)
 }
 
 const Panel = Collapse.Panel
@@ -67,7 +67,7 @@ class Service extends Component{
     this.setState({ createConfigGroup });
   }
   render(){
-    const {master, configGroup, isFetching } = this.props
+    const {cluster, configGroup, isFetching } = this.props
     return (
       <QueueAnim className ="Service" type = "right">
         <div id="Service" key="Service">
@@ -104,7 +104,7 @@ class Service extends Component{
 
 Service.propTypes = {
   intl: PropTypes.object.isRequired,
-  master: PropTypes.string.isRequired,
+  cluster: PropTypes.string.isRequired,
   configGroup: PropTypes.array.isRequired,
   isFetching: PropTypes.bool.isRequired,
   loadConfigGroup: PropTypes.func.isRequired,
@@ -116,16 +116,16 @@ Service.propTypes = {
 function mapStateToProps(state, props) {
   const defaultConfigList = {
     isFetching: false,
-    master: 'default',
+    cluster: 'default',
     configGroup: []
   }
   const {
     configGroupList
   } = state
-  const {master, configGroup, isFetching } = configGroupList['default'] || defaultConfigList
+  const {cluster, configGroup, isFetching } = configGroupList['default'] || defaultConfigList
   console.log(configGroupList);
   return {
-    master,
+    cluster,
     configGroup,
     isFetching,
   }
