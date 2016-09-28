@@ -278,10 +278,10 @@ let MyComponent = React.createClass({
 			  <i className={item.status == 1 ? "normal fa fa-circle":"error fa fa-circle"}></i>
 			  <span className={item.status == 1 ? "normal":"error"} >{item.status == 1 ? <FormattedMessage {...messages.okRow} />:<FormattedMessage {...messages.errorRow} />}</span>
 			</div>
-			<div className="formet commonData">{item.formet}</div>
-			<div className="forin commonData">{item.forin}</div>
-			<div className="appname commonData">{item.appName}</div>
-			<div className="size commonData">{item.usedSize}/{item.totalSize}M</div>
+			<div className="formet commonData">{item.format}</div>
+			<div className="forin commonData">{item.mountPoint || '无'}</div>
+			<div className="appname commonData">{item.rcName}</div>
+			<div className="size commonData">{item.totalSize}M</div>
 			<div className="createTime commonData">{item.createTime}</div>
 			<div className="actionBtn">
 			 <Button className="btn-warning" onClick={ (e)=> { this.showAction('format', item.name) }}><Icon type="delete" /><FormattedMessage {...messages.formatting} /></Button>

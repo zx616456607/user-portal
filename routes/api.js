@@ -26,7 +26,7 @@ module.exports = function (Router) {
   router.post('/storage-pools/:pool/volumes', storageController.createStorage)
   router.put('/storage-pools/:pool/volumes/format', storageController.formateStorage)
   router.put('/storage-pools/:pool/volumes/size', storageController.resizeStorage)
-  router.get('/storage-pools/:pool/volumes', storageController.getStorageDetail)
+  router.get('/storage-pools/:pool/volumes/:name', storageController.getStorageDetail)
 
   // Apps 
   router.get('/clusters/:master/apps', appController.getApps)

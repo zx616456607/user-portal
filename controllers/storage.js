@@ -9,6 +9,19 @@
  */
 
 'use strict'
+const StorageApi = require('../tenx_api/v2')
+const storageConfig = {
+  protocol: 'http',
+  host: 'localhost:8001',
+  version: 'v1',
+  auth: {
+    user: 'yubiao',
+    token: 'osakbsmsyxdqczwrxcvrvouqvruccapbwgguwrloyrcrnzlu',
+    namespace: 'yubiao'
+  },
+  timeout: 500
+}
+const storageApi = new StorageApi(storageConfig)
 
 var data = { storageList: [{
     id:"1",
@@ -68,8 +81,9 @@ var data = { storageList: [{
   }
 exports.getStorageListByPool = function*() {
   let pool = this.params.pool
-  this.status = 200
-  this.body = data
+  let response = yield storageApi.volumes.getBy(['tenx-k8s'])
+  this.status = response.code
+  this.body = response
 }
 
 exports.deleteStorage = function*() {
@@ -122,6 +136,8 @@ exports.deleteStorage = function*() {
 
 exports.createStorage = function*() {
   const pool = this.params.pool
+  const reqData = this.request.body
+  let response = yield storageApi.volumes.createBy([])
   this.status = 201
   this.body = {
     message: 'success'
