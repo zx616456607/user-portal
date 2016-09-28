@@ -123,7 +123,7 @@ export default class Slider extends Component {
 	    	<ul className="siderBottom">
 	    		<li>
 		    		<Tooltip placement="right" title="创建应用" getTooltipContainer={()=>document.getElementById("siderTooltip")}>
-		    			<Link to="/">
+		    			<Link to="/app_manage/app_create">
 		    				<svg className="add commonImg">
 			    				<use xlinkHref="#add" />
 			    			</svg>
