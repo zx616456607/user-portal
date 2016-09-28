@@ -14,7 +14,7 @@ import { Link } from 'react-router'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
-import { remove } from 'lodash'
+import { remove, findIndex } from 'lodash'
 import { loadStorageList, deleteStorage, createStorage, formateStorage, resizeStorage } from '../../actions/storage'
 import './style/storage.less'
 
@@ -184,10 +184,10 @@ let MyComponent = React.createClass({
     config: React.PropTypes.object
   },
   onchange(e, name) {
-    this.props.savestorageNameArray(e, name)
+    this.props.saveVolumeArray(e, name)
   },
   isChecked(name) {
-    return this.props.storageNameArray.indexOf(name) >= 0
+    return findIndex(this.props.volumeArray, { name }) >= 0
   },
   changeType(e) {
     this.setState({
@@ -265,7 +265,7 @@ let MyComponent = React.createClass({
   if(!list || !list.storageList) return (<div></div>)
 	let items = list.storageList.map((item) => {
 	  return (
-	    <div className="appDetail" key={item.name}>
+	    <div className="appDetail" key={item.name} >
 			<div className="selectIconTitle commonData">
 			  <Checkbox onChange={(e)=>this.onchange(e, item.name)} checked= { this.isChecked(item.name) }></Checkbox>
 			</div>
@@ -278,10 +278,10 @@ let MyComponent = React.createClass({
 			  <i className={item.status == 1 ? "normal fa fa-circle":"error fa fa-circle"}></i>
 			  <span className={item.status == 1 ? "normal":"error"} >{item.status == 1 ? <FormattedMessage {...messages.okRow} />:<FormattedMessage {...messages.errorRow} />}</span>
 			</div>
-			<div className="formet commonData">{item.formet}</div>
-			<div className="forin commonData">{item.forin}</div>
-			<div className="appname commonData">{item.appName}</div>
-			<div className="size commonData">{item.usedSize}/{item.totalSize}M</div>
+			<div className="formet commonData">{item.format}</div>
+			<div className="forin commonData">{item.mountPoint || '无'}</div>
+			<div className="appname commonData">{item.rcName}</div>
+			<div className="size commonData">{item.totalSize}M</div>
 			<div className="createTime commonData">{item.createTime}</div>
 			<div className="actionBtn">
 			 <Button className="btn-warning" onClick={ (e)=> { this.showAction('format', item.name) }}><Icon type="delete" /><FormattedMessage {...messages.formatting} /></Button>
@@ -355,7 +355,7 @@ class Storage extends Component {
     this.deleteStorage = this.deleteStorage.bind(this)
     this.state = {
 			visible: false,
-      storageNameArray: [],
+      volumeArray: [],
       currentType: 'ext4',
       inputName: '',
       size: 200
@@ -386,7 +386,7 @@ class Storage extends Component {
     }
 
     let storageConfig = {
-      type: this.state.currentType,
+      format: this.state.currentType,
       size: this.state.size,
       pool: 'test',
       name: this.state.name
@@ -396,7 +396,10 @@ class Storage extends Component {
       success: {
          func: () => {
            self.setState({
-             visible: false
+             visible: false,
+             name: '',
+             size: 0,
+             currentType: 'ext4'
            })
            self.props.loadStorageList('test')
           },
@@ -413,8 +416,8 @@ class Storage extends Component {
   	});
   }
   deleteStorage() {
-    const storageNameArray = this.state.storageNameArray
-    this.props.deleteStorage('test', storageNameArray, {
+    const volumeArray = this.state.volumeArray
+    this.props.deleteStorage('test', volumeArray, {
       success: {
          func: this.props.loadStorageList('test'),
          isAsync: true
@@ -427,41 +430,47 @@ class Storage extends Component {
       return
     }
     if(e.target.checked) {
-      let storageNameArray = []
+      let volumeArray = []
       storage.storageList.forEach(item => {
-        storageNameArray.push(item.name)
+        volumeArray.push({
+          name: item.name,
+          diskType: 'rbd'
+        })
       })
       this.setState({
-        storageNameArray,
+        volumeArray,
       })
       return
     } 
     this.setState({
-      storageNameArray: []
+      volumeArray: []
     })
   }
   isAllChecked() {
-    if(this.state.storageNameArray.length === 0) {
+    if(this.state.volumeArray.length === 0) {
       return false
     }
-    if(this.state.storageNameArray.length === this.props.storageList['test'].storageList.length) {
+    if(this.state.volumeArray.length === this.props.storageList['test'].storageList.length) {
       return true
     }
     return false
   }
 
   selectItem() {
-    return (e, name) => {
-      let storageNameArray = this.state.storageNameArray
+    return (e, name, diskType) => {
+      let volumeArray = this.state.volumeArray
       if (e.target.checked) {
-        storageNameArray.push(name)
+        volumeArray.push({
+          name,
+          diskType: 'rbd'
+        })
       } else {
-        remove(storageNameArray, (item) => {
-          return item === name
+        remove(volumeArray, (item) => {
+          return item.name === name
         })
       }
       this.setState({
-        storageNameArray
+        volumeArray
       })
     }
   }
@@ -533,7 +542,7 @@ class Storage extends Component {
               <div className="createTime commonTitle"><FormattedMessage {...messages.createTime} /></div>
               <div className="actionBox commonTitle"><FormattedMessage {...messages.action} /></div>
             </div>
-            <MyComponent storage = {this.props.storageList['test']}  storageNameArray = { this.state.storageNameArray } savestorageNameArray = { this.selectItem() }/>
+            <MyComponent storage = {this.props.storageList['test']}  volumeArray = { this.state.volumeArray } saveVolumeArray = { this.selectItem() }/>
           </Card>
         </div>
       </QueueAnim>
@@ -559,8 +568,8 @@ function mapDispatchToProps(dispatch) {
     loadStorageList: (pool) => {
       dispatch(loadStorageList(pool))
     },
-    deleteStorage: (pool, storageNameArray, callback) => {
-      dispatch(deleteStorage(pool, storageNameArray, callback))
+    deleteStorage: (pool, volumeArray, callback) => {
+      dispatch(deleteStorage(pool, volumeArray, callback))
     },
     createStorage: (obj, callback) => {
       dispatch(createStorage(obj, callback))

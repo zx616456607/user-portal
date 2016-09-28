@@ -83,7 +83,7 @@ export function deleteStorage(pool, storageIdArray, callback) {
     [FETCH_API]: {
       pool,
       types: [STORAGE_DELETE_REQUEST, STORAGE_DELETE_SUCCESS, STORAGE_DELETE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/storages/batch-delete`,
+      endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/volumes/batch-delete`,
       options: {
         method: 'POST',
         body: storageIdArray

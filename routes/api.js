@@ -9,7 +9,7 @@
 'use strict';
 
 const logger = require('../utils/logger.js').getLogger('api-router')
-const storageController = require('../controllers/storage')
+const volumeController = require('../controllers/volume')
 const appController = require('../controllers/app_manage')
 const serviceController = require('../controllers/service_manage')
 const containerController = require('../controllers/container')
@@ -21,13 +21,12 @@ module.exports = function (Router) {
   })
 
   // Storage
-  router.get('/storage-pools/:pool/volumes', storageController.getStorageListByPool)
-  router.post('/storage-pools/:pool/volumes/batch-delete', storageController.deleteStorage)
-  router.post('/storage-pools/:pool/volumes', storageController.createStorage)
-  router.put('/storage-pools/:pool/volumes/format', storageController.formateStorage)
-  router.put('/storage-pools/:pool/volumes/size', storageController.resizeStorage)
-  router.get('/storage-pools/:pool/volumes/:name', storageController.getStorageDetail)
-
+  router.get('/storage-pools/:pool/volumes', volumeController.getVolumeListByPool)
+  router.post('/storage-pools/:pool/volumes/batch-delete', volumeController.deleteVolume)
+  router.post('/storage-pools/:pool/volumes', volumeController.createVolume)
+  router.put('/storage-pools/:pool/volumes/format', volumeController.formateVolume)
+  router.put('/storage-pools/:pool/volumes/size', volumeController.resizeVolume)
+  router.get('/storage-pools/:pool/volumes/:name', volumeController.getVolumeDetail)
   // Apps 
   router.post('/clusters/:cluster/apps', appController.createApp)
   router.get('/clusters/:cluster/apps', appController.getApps)

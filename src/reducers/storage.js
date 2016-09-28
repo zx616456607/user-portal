@@ -30,10 +30,8 @@ function storageList(state = {}, action) {
       return Object.assign({}, defaultState, state, {
         [pool]: {
           isFetching: false,
-          storageList: action.response.result.storageList,
-          number: action.response.result.number,
-          login: action.response.result.login,
-          pool: action.response.result.pool
+          storageList: action.response.result.body,
+          pool: pool
         }
       })
     case ActionTypes.STORAGE_LIST_FAILURE:

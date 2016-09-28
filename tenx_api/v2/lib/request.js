@@ -15,8 +15,7 @@ const _ = require('lodash')
 const errors = require('./errors')
 const DEFAULT_PROTOCOL = 'http'
 const DEFAULT_VERSION = 'v2'
-// const DEFAULT_TIMEOUT = 1000 * 20
-const DEFAULT_TIMEOUT = 1000
+const DEFAULT_TIMEOUT = 1000 * 10
 const DEFAULT_DATATYPE = 'json'
 const logger = require('../../../utils/logger').getLogger(`tenx_api/${DEFAULT_VERSION}/request`)
 
@@ -35,6 +34,7 @@ module.exports = (protocol, host, version, auth, timeout) => {
     const options = {}
     options.method = object.method
     options.dataType = object.dataType || DEFAULT_DATATYPE
+    options.contentType = object.contentType || DEFAULT_DATATYPE
     options.timeout = object.timeout || timeout
     options.headers = object.headers
     options.data = object.data
@@ -75,6 +75,7 @@ module.exports = (protocol, host, version, auth, timeout) => {
       !object.headers && (object.headers = {})
       object.headers.Username = auth.user
       object.headers.Authorization = `token ${auth.token}`
+      object.headers.namespace = auth.namespace
     }
     return _makeRequest(object, callback)
   }
