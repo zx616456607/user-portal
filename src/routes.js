@@ -47,7 +47,7 @@ export default (
     <IndexRoute component={IndexPage}/>
     <Route path="app_manage" component={Application}>
       <IndexRoute component={AppList}/>
-      <Route path="detail/:app_id" component={AppDetail} />
+      <Route path="detail/:app_name" component={AppDetail} />
       <Route path="app_create" component={AppCreate}>
         <IndexRoute component={AppCreateSelectModel}/>
         <Route path="fast_create" component={AppCreateServiceList} />
@@ -62,7 +62,7 @@ export default (
         <IndexRoute component={Storage}/>
         <Route path=":storage_id" component={StorageDetail} />
       </Route>
-      <Route path="serverSetting">
+      <Route path="configs">
         <IndexRoute component={Service}/>
       </Route>
     </Route>

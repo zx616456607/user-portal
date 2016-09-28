@@ -2,7 +2,7 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  * 
- * AppInstanceList component
+ * AppServiceList component
  * 
  * v0.1 - 2016-09-10
  * @author GaoJian
@@ -12,66 +12,9 @@ import { Modal,Checkbox,Dropdown,Button,Card, Menu,Icon } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import AppServiceDetail from "./AppServiceDetail.js"
-import "./style/AppInstanceList.less"
+import AppServiceDetail from './AppServiceDetail'
+import './style/AppServiceList.less'
 
-const data = [{
-	id:"1",
-	name:"test1",
-	status:"1",
-	imageName:"Linux",
-	serviceIP:"192.168.1.1",
-	createTime:"2016-09-09 11:27:27",
-},{
-	id:"2",
-	name:"test2",
-	status:"1",
-	imageName:"Linux",
-	serviceIP:"192.168.1.1",
-	createTime:"2016-09-09 11:27:27",
-},{
-	id:"3",
-	name:"test3",
-	status:"0",
-	imageName:"Linux",
-	serviceIP:"192.168.1.1",
-	createTime:"2016-09-09 11:27:27",
-},{
-	id:"4",
-	name:"test4",
-	status:"0",
-	imageName:"Linux",
-	serviceIP:"192.168.1.1",
-	createTime:"2016-09-09 11:27:27",
-},{
-	id:"5",
-	name:"test5",
-	status:"0",
-	imageName:"Linux",
-	serviceIP:"192.168.1.1",
-	createTime:"2016-09-09 11:27:27",
-},{
-	id:"6",
-	name:"test6",
-	status:"1",
-	imageName:"Linux",
-	serviceIP:"192.168.1.1",
-	createTime:"2016-09-09 11:27:27",
-},{
-	id:"7",
-	name:"test7",
-	status:"1",
-	imageName:"Linux",
-	serviceIP:"192.168.1.1",
-	createTime:"2016-09-09 11:27:27",
-},{
-	id:"8",
-	name:"test8",
-	status:"0",
-	imageName:"Linux",
-	serviceIP:"192.168.1.1",
-	createTime:"2016-09-09 11:27:27",
-}];
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
 const operaMenu = (<Menu>
@@ -88,7 +31,7 @@ const operaMenu = (<Menu>
 						更改配置
 					  </Menu.Item>
 					</Menu>);
-var MyComponent = React.createClass({	  
+const MyComponent = React.createClass({	  
   propTypes : {
     config : React.PropTypes.array
   },
@@ -145,7 +88,7 @@ var MyComponent = React.createClass({
   }
 });					
 
-export default class AppInstanceList extends Component {
+export default class AppServiceList extends Component {
   constructor(props) {
     super(props);
     this.closeModal = this.closeModal.bind(this);    
@@ -162,11 +105,11 @@ export default class AppInstanceList extends Component {
   }
   
   render() {
-  	const parentScope = this;
-  	let {modalShow} = this.state;
-  	let {currentShowInstance} = this.state;
+		const parentScope = this
+		let { modalShow, currentShowInstance } = this.state
+		const { data, loading } = this.props
     return (
-      <div id="AppInstanceList">
+      <div id="AppServiceList">
 	    <QueueAnim className="demo-content"
 	      key="demo"
 	      type="right"
@@ -215,7 +158,7 @@ export default class AppInstanceList extends Component {
       		</div>
       		<div style={{ clear:"both" }}></div>
       	  </div>
-      	  <MyComponent scope={parentScope} config = {data} />
+      	  <MyComponent scope={parentScope} config={data} loading={loading} />
       	  <Modal
 	        title="垂直居中的对话框"
 	        visible={this.state.modalShow}
@@ -231,6 +174,6 @@ export default class AppInstanceList extends Component {
   }
 }
 
-AppInstanceList.propTypes = {
+AppServiceList.propTypes = {
 //
 }

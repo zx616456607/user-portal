@@ -81,3 +81,70 @@ exports.getApps = function* () {
     data
   }
 }
+
+exports.getAppServices = function* () {
+  const master = this.params.master
+  const appName = this.params.app_name
+  const data = [{
+    id: "1",
+    name: "test1",
+    status: "1",
+    imageName: "Linux",
+    serviceIP: "192.168.1.1",
+    createTime: "2016-09-09 11:27:27",
+  }, {
+      id: "2",
+      name: "test2",
+      status: "1",
+      imageName: "Linux",
+      serviceIP: "192.168.1.1",
+      createTime: "2016-09-09 11:27:27",
+    }, {
+      id: "3",
+      name: "test3",
+      status: "0",
+      imageName: "Linux",
+      serviceIP: "192.168.1.1",
+      createTime: "2016-09-09 11:27:27",
+    }, {
+      id: "4",
+      name: "test4",
+      status: "0",
+      imageName: "Linux",
+      serviceIP: "192.168.1.1",
+      createTime: "2016-09-09 11:27:27",
+    }, {
+      id: "5",
+      name: "test5",
+      status: "0",
+      imageName: "Linux",
+      serviceIP: "192.168.1.1",
+      createTime: "2016-09-09 11:27:27",
+    }, {
+      id: "6",
+      name: "test6",
+      status: "1",
+      imageName: "Linux",
+      serviceIP: "192.168.1.1",
+      createTime: "2016-09-09 11:27:27",
+    }, {
+      id: "7",
+      name: "test7",
+      status: "1",
+      imageName: "Linux",
+      serviceIP: "192.168.1.1",
+      createTime: "2016-09-09 11:27:27",
+    }, {
+      id: "8",
+      name: "test8",
+      status: "0",
+      imageName: "Linux",
+      serviceIP: "192.168.1.1",
+      createTime: "2016-09-09 11:27:27",
+    }];
+  this.body = {
+    master,
+    appName,
+    data
+  }
+}

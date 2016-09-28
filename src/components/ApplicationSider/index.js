@@ -53,7 +53,7 @@ export default class AppSider extends Component {
 		    <Link to="/app_manage/firewall">防火墙</Link>
 		  </Menu.Item>
 		  <Menu.Item key="5">
-		    <Link to="/app_manage/serverSetting">服务配置</Link>
+		    <Link to="/app_manage/configs">服务配置</Link>
 		  </Menu.Item>
 		  <Menu.Item key="6">
 		    <Link to="/app_manage/netName">内网域名</Link>

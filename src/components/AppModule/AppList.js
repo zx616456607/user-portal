@@ -15,9 +15,9 @@ import QueueAnim from 'rc-queue-anim'
 import './style/AppList.less'
 import { loadAppList } from '../../actions/app_manage'
 
-function loadData(props, state) {
-  const { master } = state
-  props.loadAppList(master)
+function loadData(props) {
+  const { master, loadAppList } = props
+  loadAppList(master)
 }
 
 const data = []
@@ -55,7 +55,7 @@ const MyComponent = React.createClass({
 			  <Checkbox onChange={()=>this.onchange()}></Checkbox>
 			</div>
 			<div className="appName commonData">
-		      <Link to={`/app_manage/detail/${item.id}`} >
+		      <Link to={`/app_manage/detail/${item.appName}`} >
 	    	    {item.appName}
 		      </Link>
 			</div>
@@ -80,7 +80,7 @@ const MyComponent = React.createClass({
 				<Button type="ghost" size="large" className="ant-dropdown-link" href="#">
 		          更多 <i className="fa fa-caret-down"></i>
 				</Button>
-			  </Dropdown>			      			
+			  </Dropdown>
 			</div>
 			<div style={{clear:"both",width:"0"}}></div>
 		</div>
@@ -99,24 +99,22 @@ class AppList extends Component {
   constructor(props) {
 		super(props)
 		this.onAllChange = this.onAllChange.bind(this)
-		this.state = {
-      master: 'default'
-    }
   }
   
   onAllChange(){
-		// 
+		//
 	}
 	
 	componentWillMount() {
     document.title = '应用列表 | 时速云'
-    loadData(this.props, this.state)
+    loadData(this.props)
   }
 
   render() {
+		const { master, appList, isFetching } = this.props
     return (
         <QueueAnim 
-          className = "AppList"        
+          className = "AppList"
           type = "right"
         >
           <div id="AppList" key = "AppList">
@@ -171,7 +169,7 @@ class AppList extends Component {
       		    操作
       		  </div>
       	    </div>
-      	    <MyComponent config={data}  />
+      	    <MyComponent config={appList} loading={isFetching}/>
       	  </Card>
         </div>
       </QueueAnim>

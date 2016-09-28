@@ -9,15 +9,18 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import { Checkbox,Card,Menu,Button,Icon ,Modal ,Input, Slider, InputNumber, Row, Col} from 'antd'
+import { Checkbox,Card,Menu,Button,Icon ,Radio ,Modal ,Input, Slider, InputNumber, Row, Col, message } from 'antd'
 import { Link } from 'react-router'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { remove } from 'lodash'
-import { loadStorageList, deleteStorage } from '../../actions'
+import { loadStorageList, deleteStorage, createStorage, formateStorage, resizeStorage } from '../../actions/storage'
 import './style/storage.less'
 
+const RadioButton = Radio.Button;
+const RadioGroup = Radio.Group;
+const confirm = Modal.confirm;
 
 const data = [
   {
@@ -156,64 +159,118 @@ const messages = defineMessages({
 })
 
 let MyComponent = React.createClass({
+  // componentWillReceiveProps(nextProps) {
+  //   let config = nextProps.config;
+  //   let pool = nextProps.pool;
+  //   let list = config[pool]
+  //   let check = {}
+  //   if (list) {
+  //     list.storageList.forEach((item) => {
+  //       check[item.id] = false
+  //     })
+  //   }
+  //   this.setState({
+  //     check
+  //   })
+  // },
   getInitialState() {
-    let config = this.props.config;
-    let pool = this.props.pool;
-    let list = config[pool]
-    let check = {}
-    if(list) {
-      list.storageList.forEach((item) => {
-        check[item.id] = false
-      })
-    }
     return {
-      check,
-      isAllChecked: false
-    }
-  },
-  onAllChange(e) {
-    let check = this.state.check
-    if(check){
-      let keys = Object.getOwnPropertyNames(check)
-      keys.forEach(item => {
-        check[item] = e.target.checked
-      })
-    }
-    this.setState({
-      isAllChecked: e.target.checked,
-      check
-    })
+      visible: false,
+      size:1000,
+      modalTitle: '',
+    };
   },
   propTypes: {
     config: React.PropTypes.object
   },
-  onchange(e, id) {
-    let check = this.state.check
-    if(e.target.checked) {
-      check[id] = 1
-    } else {
-      check[id] = 0
-    }
-    this.setState({
-      check
-    })
-    const saveCheckedStorage = this.props.saveCheckedStorage
-    saveCheckedStorage(e, id)
+  onchange(e, name) {
+    this.props.savestorageNameArray(e, name)
   },
+  isChecked(name) {
+    return this.props.storageNameArray.indexOf(name) >= 0
+  },
+  changeType(e) {
+    this.setState({
+      formateType: e.target.value
+    })
+  },
+  handleSure () {
+    const self = this
+    let type = this.state.modalType
+    if(type === 'format') {
+      this.props.formateStorage('test', {
+        name: this.state.modalName,
+        type: this.state.formateType
+      }, {
+        success: {
+          isAsync: false,
+          func: () => {
+            self.setState({
+              visible: false,
+            })
+          }
+        }
+      })
+    } else if(type === 'resize') {
+      if(this.state.size <= this.state.modalSize) {
+        message.error('不能比以前小')
+      }
+      this.props.resizeStorage('test', {
+        name: this.state.modalName,
+        size: this.state.size
+      }, {
+        success: {
+          isAsync: false,
+          func: () => {
+            self.setState({
+              visible: false,
+            })
+          }
+        }
+      })
+    }
+  },
+  cancelModal () {
+    this.setState({
+      visible: false,
+    });
+  },
+  showAction (type , name, size) {
+    this.setState({
+      visible: true,
+      modalType: type,
+      modalName: name,
+      modalSize: size,
+      size: size
+    });
+    if (type === 'format') {
+      this.setState({
+        modalTitle:'格式化'
+      })
+    } else {
+      this.setState({
+        modalTitle: '扩容'
+      })
+    }
+  },
+  changeDilation (size) {
+    this.setState({
+      size: size
+    })
+  },
+  
   render () {
   const { formatMessage } = this.props.intl
-	let config = this.props.config;
-  let pool = this.props.pool;
-  let list = config[pool]
-  if(!list) return (<div></div>)
+	let list = this.props.storage;
+  if(!list || !list.storageList) return (<div></div>)
 	let items = list.storageList.map((item) => {
 	  return (
 	    <div className="appDetail" key={item.name}>
 			<div className="selectIconTitle commonData">
-			  <Checkbox onChange={(e)=>this.onchange(e, item.id)} checked= { this.state.check[item.id] ? true : false }></Checkbox>
+			  <Checkbox onChange={(e)=>this.onchange(e, item.name)} checked= { this.isChecked(item.name) }></Checkbox>
 			</div>
 			<div className="name commonData">
-		      <Link to={`/app_manage/storage/${item.id}`} >
+		      <Link to={`/app_manage/storage/${item.name}`} >
 	    	    {item.name}
 		      </Link>
 			</div>
@@ -224,42 +281,71 @@ let MyComponent = React.createClass({
 			<div className="formet commonData">{item.formet}</div>
 			<div className="forin commonData">{item.forin}</div>
 			<div className="appname commonData">{item.appName}</div>
-			<div className="size commonData">{item.size}</div>
+			<div className="size commonData">{item.usedSize}/{item.totalSize}M</div>
 			<div className="createTime commonData">{item.createTime}</div>
 			<div className="actionBtn">
-			 <Button className="btn-warning"><Icon type="delete" /><FormattedMessage {...messages.formatting} /></Button>
+			 <Button className="btn-warning" onClick={ (e)=> { this.showAction('format', item.name) }}><Icon type="delete" /><FormattedMessage {...messages.formatting} /></Button>
 			 <span className="margin"></span>
-			 <Button className="btn-success"><Icon type="scan" /><FormattedMessage {...messages.dilation} /></Button>
+			 <Button className="btn-success" onClick={ () => {this.showAction('resize', item.name, item.totalSize)}}><Icon type="scan" /><FormattedMessage {...messages.dilation} /></Button>
 			</div>
+
 		</div>
       );
 	});
 	return (
-    <Card className="storageList appBox">
-      <div className="appTitle">
-        <div className="selectIconTitle commonTitle">
-          <Checkbox onChange={(e)=>this.onAllChange(e)} ></Checkbox>
-        </div>
-        <div className="name commonTitle"><FormattedMessage {...messages.storageName} /></div>
-        <div className="status commonTitle"><FormattedMessage {...messages.status} /></div>
-        <div className="formet commonTitle"><FormattedMessage {...messages.formats} /></div>
-        <div className="forin commonTitle"><FormattedMessage {...messages.forin} /></div>
-        <div className="appname commonTitle"><FormattedMessage {...messages.app} /></div>
-        <div className="size commonTitle"><FormattedMessage {...messages.size} /></div>
-        <div className="createTime commonTitle"><FormattedMessage {...messages.createTime} /></div>
-        <div className="actionBox commonTitle"><FormattedMessage {...messages.action} /></div>
-      </div>
       <div className="dataBox">
         { items }
+        <Modal title={this.state.modalTitle} visible={this.state.visible} onOk={(e) => {this.handleSure()} } onCancel={ (e) => {this.cancelModal()} } okText="OK" cancelText="Cancel">
+        <div className={this.state.modalType === 'resize' ? 'show' : 'hide'}>
+          <Row style={{ height: '40px' }}>
+            <Col span="3" className="text-center" style={{ lineHeight: '30px' }}><FormattedMessage {...messages.name} /></Col>
+            <Col span="12"><input type="text" className="ant-input" value={ this.state.modalName } disabled /></Col>
+          </Row>
+          <Row style={{ height: '40px' }}>
+            <Col span="3" className="text-center" style={{ lineHeight: '30px' }}>{ formatMessage(messages.size) }</Col>
+            <Col span="12"><Slider min={this.state.modalSize} max={9999} onChange={ (e)=>{this.changeDilation(e)} } value={this.state.size} /></Col>
+            <Col span="8">
+              <InputNumber min={this.state.modalSize} max={9999} style={{ marginLeft: '16px' }} value={this.state.size} onChange={(e) => {this.onChange(e)}}/>
+              <span style={{ paddingLeft: 10 }} >MB</span>
+            </Col>
+          </Row>
+        </div>
+        <div className={this.state.modalType === 'format' ? 'show' : 'hide'}>
+          <div style={{ height: '30px' }}>确定格式化存储卷{ this.state.modalName}吗? <span style={{color:'red'}}>(格式化后数据将被清除)。</span></div>
+          <Col span="6" style={{ lineHeight: '30px' }}>选择文件系统格式：</Col>
+          <RadioGroup defaultValue="ext4" size="large" onChange={ (e) => this.changeType(e)}>
+            <RadioButton value="ext4">ext4</RadioButton>
+            <RadioButton value="xfs">xfs</RadioButton>
+            <RadioButton value="reiserfs">reiserfs</RadioButton>
+          </RadioGroup>
+        </div>
+        </Modal>
 	    </div>
-    </Card>
-    );
+    )
   }
 });
 
-MyComponent = injectIntl(MyComponent, {
+function myComponentMapSateToProp(state) {
+  return {
+    formateStorage: state.storage.formateStorage,
+    resizeStorage: state.storage.resizeStorage
+  }
+}
+
+function myComponentMapDispathToProp(dispath) {
+  return {
+    formateStorage: (pool, storage, callback) => {
+      dispath(formateStorage(pool, storage, callback))
+    },
+    resizeStorage: (pool, storage, callback) => {
+      dispath(resizeStorage(pool, storage, callback))
+    }
+  }
+}
+
+MyComponent = connect(myComponentMapSateToProp, myComponentMapDispathToProp)(injectIntl(MyComponent, {
   withRef: true,
-})
+}))
 class Storage extends Component {
 	constructor(props) {
     super(props)
@@ -268,15 +354,19 @@ class Storage extends Component {
 		this.onChange = this.onChange.bind(this)
     this.deleteStorage = this.deleteStorage.bind(this)
     this.state = {
-      inputValue: 0,
 			visible: false,
-      storageIdArray: [],
-      isAllChecked: false
+      storageNameArray: [],
+      currentType: 'ext4',
+      inputName: '',
+      size: 200
     }
+  }
+  componentWillMount() {
+    this.props.loadStorageList('test')
   }
 	onChange(value) {
     this.setState({
-      inputValue: value,
+      size: value,
     });
   }
   showModal() {
@@ -285,85 +375,166 @@ class Storage extends Component {
     });
   }
   handleOk() {
-    this.setState({
-      visible: false,
-    });
+    //create storage
+    if (!this.state.name) {
+      message.error('请输入存储卷名称')
+      return
+    }
+    if (this.state.size === 0) {
+      message.error('请输入存储卷大小')
+      return
+    }
+
+    let storageConfig = {
+      type: this.state.currentType,
+      size: this.state.size,
+      pool: 'test',
+      name: this.state.name
+    }
+    let self = this
+    this.props.createStorage(storageConfig, {
+      success: {
+         func: () => {
+           self.setState({
+             visible: false
+           })
+           self.props.loadStorageList('test')
+          },
+          isAsync: true
+      },
+    })
   }
   handleCancel() {
     this.setState({
       visible: false,
+      size: 0,
+      name: '',
+      currentType: 'ext4'
   	});
   }
   deleteStorage() {
-    const storageIdArray = this.state.storageIdArray
-    this.props.deleteStorage('test', storageIdArray, () => this.props.loadStorageList('test'))
+    const storageNameArray = this.state.storageNameArray
+    this.props.deleteStorage('test', storageNameArray, {
+      success: {
+         func: this.props.loadStorageList('test'),
+         isAsync: true
+      }
+    })
   }
-  saveCheckedStorage() {
-    const self = this
-    const storageIdArray = self.state.storageIdArray
-    return (e, storageId) => {
-      if(e.target.checked) {
-        storageIdArray.push(storageId)
+  onAllChange(e) {
+    const storage = this.props.storageList['test']
+    if(!storage || !storage.storageList ) {
+      return
+    }
+    if(e.target.checked) {
+      let storageNameArray = []
+      storage.storageList.forEach(item => {
+        storageNameArray.push(item.name)
+      })
+      this.setState({
+        storageNameArray,
+      })
+      return
+    } 
+    this.setState({
+      storageNameArray: []
+    })
+  }
+  isAllChecked() {
+    if(this.state.storageNameArray.length === 0) {
+      return false
+    }
+    if(this.state.storageNameArray.length === this.props.storageList['test'].storageList.length) {
+      return true
+    }
+    return false
+  }
+
+  selectItem() {
+    return (e, name) => {
+      let storageNameArray = this.state.storageNameArray
+      if (e.target.checked) {
+        storageNameArray.push(name)
       } else {
-        remove(storageIdArray, (item) =>{
-          return item === storageId
+        remove(storageNameArray, (item) => {
+          return item === name
         })
       }
-      self.setState({
-        checkedArray:storageIdArray 
+      this.setState({
+        storageNameArray
       })
     }
   }
-
-  componentWillMount() {
-    this.props.loadStorageList('test')
+  changeType(type) {
+    this.setState({
+      currentType: type
+    })
   }
-
+  handleInputName(e) {
+    this.setState({
+      name: e.target.value
+    })
+  }
   render() {
 		const { formatMessage } = this.props.intl
     return (
-        <QueueAnim className ="AppList"  type = "right">
-          <div id="AppList" key = "AppList">
-      	    <div className="operationBox">
-	          <div className="leftBtn">
-	      	    <Button type="primary" size="large" onClick={this.showModal}><Icon type="plus" /><FormattedMessage {...messages.createTitle} /></Button>
-	      	    <Button type="ghost" className="stopBtn" size="large" onClick={this.deleteStorage}><Icon type="delete" /><FormattedMessage {...messages.delete} /></Button>
-							<Modal title={ formatMessage(messages.createModalTitle) } visible={this.state.visible} onOk={this.handleOk} onCancel={this.handleCancel} okText={ formatMessage(messages.createBtn) } cancelText={ formatMessage(messages.cancelBtn) }>
-								<Row style={{height:'40px'}}>
-									<Col span="3" className="text-center" style={{lineHeight:'30px'}}><FormattedMessage {...messages.name} /></Col>
-									<Col span="12"><Input placeholder={ formatMessage(messages.placeholder) } /></Col>
-								</Row>
-								<Row style={{height:'40px'}}>
-									<Col span="3" className="text-center" style={{lineHeight:'30px'}}>{ formatMessage(messages.size) }</Col>
-									<Col span="12">
-									<Slider min={1} max={1024} onChange={this.onChange} value={this.state.inputValue} />
-									</Col>
-									<Col span="8">
-									<InputNumber min={1} max={1024} style={{ marginLeft: '16px' }} value={this.state.inputValue} onChange={this.onChange}/>
-									<span style={{paddingLeft: 10}} >MB</span>
-									</Col>
-								</Row>
-                <Row>
-                  <Col span="3" className="text-center" style={{lineHeight:'30px'}}>{ formatMessage(messages.formats) }</Col>
-                  <Col span="20" className="action-btns" style={{lineHeight:'30px'}}>
-                    <Button type="primary">ext4</Button>
-                    <Button type="ghost">xfs</Button>
-                    <Button type="ghost">reiserfs</Button>
+      <QueueAnim className ="AppList"  type = "right">
+        <div id="AppList" key = "AppList">
+          <div className="operationBox">
+            <div className="leftBtn">
+              <Button type="primary" size="large" onClick={this.showModal}><Icon type="plus" /><FormattedMessage {...messages.createTitle} /></Button>
+              <Button type="ghost" className="stopBtn" size="large" onClick={this.deleteStorage}><Icon type="delete" /><FormattedMessage {...messages.delete} /></Button>
+              <Modal title={ formatMessage(messages.createModalTitle) } visible={this.state.visible} onOk={ (e) => {this.handleOk()}} onCancel={() => { this.handleCancel()} } okText={ formatMessage(messages.createBtn) } cancelText={ formatMessage(messages.cancelBtn) }>
+                <Row style={{ height: '40px' }}>
+                  <Col span="3" className="text-center" style={{ lineHeight: '30px' }}><FormattedMessage {...messages.name} /></Col>
+                  <Col span="12"><Input placeholder={ formatMessage(messages.placeholder) } onChange={(e) => {this.handleInputName(e)}} /></Col>
+                </Row>
+                <Row style={{ height: '40px' }}>
+                  <Col span="3" className="text-center" style={{ lineHeight: '30px' }}>{ formatMessage(messages.size) }</Col>
+                  <Col span="12">
+                    <Slider min={1} max={1024} onChange={this.onChange} value={this.state.size} />
+                  </Col>
+                  <Col span="8">
+                    <InputNumber min={1} max={1024} style={{ marginLeft: '16px' }} value={this.state.size} onChange={(e) => {this.onChange(e)}}/>
+                    <span style={{ paddingLeft: 10 }} >MB</span>
                   </Col>
                 </Row>
-							</Modal>
-	          </div>
-	        <div className="rightBox">
-	      	  <div className="littleLeft">
-	      	    <i className="fa fa-search"></i>
-	      	  </div>
-	      	  <div className="littleRight">
-	      	    <input placeholder={ formatMessage(messages.inputPlaceholder) } />
-	      	  </div>
-	        </div>
-	        <div className="clearDiv"></div>
-      	  </div>
-      	    <MyComponent config = {this.props.storageList} pool = {'test'} saveCheckedStorage = {() => this.saveCheckedStorage()} />
+                <Row>
+                  <Col span="3" className="text-center" style={{ lineHeight: '30px' }}>{ formatMessage(messages.formats) }</Col>
+                  <Col span="20" className="action-btns" style={{ lineHeight: '30px' }}>
+                    <Button type={this.state.currentType === 'ext4' ? 'primary' : 'ghost'} onClick={ (e)=> { this.changeType('ext4') }}>ext4</Button>
+                    <Button type={this.state.currentType === 'xfs' ? 'primary' : 'ghost'} onClick={ (e)=> { this.changeType('xfs') }}>xfs</Button>
+                    <Button type={this.state.currentType === 'reiserfs' ? 'primary' : 'ghost'} onClick={(e)=> { this.changeType('reiserfs') }}>reiserfs</Button>
+                  </Col>
+                </Row>
+              </Modal>
+            </div>
+            <div className="rightBox">
+              <div className="littleLeft">
+                <i className="fa fa-search"></i>
+              </div>
+              <div className="littleRight">
+                <input placeholder={ formatMessage(messages.inputPlaceholder) } />
+              </div>
+            </div>
+            <div className="clearDiv"></div>
+          </div>
+          <Card className="storageList appBox">
+            <div className="appTitle">
+              <div className="selectIconTitle commonTitle">
+                <Checkbox onChange={(e) => this.onAllChange(e) } checked = { this.isAllChecked() }></Checkbox>
+              </div>
+              <div className="name commonTitle"><FormattedMessage {...messages.storageName} /></div>
+              <div className="status commonTitle"><FormattedMessage {...messages.status} /></div>
+              <div className="formet commonTitle"><FormattedMessage {...messages.formats} /></div>
+              <div className="forin commonTitle"><FormattedMessage {...messages.forin} /></div>
+              <div className="appname commonTitle"><FormattedMessage {...messages.app} /></div>
+              <div className="size commonTitle"><FormattedMessage {...messages.size} /></div>
+              <div className="createTime commonTitle"><FormattedMessage {...messages.createTime} /></div>
+              <div className="actionBox commonTitle"><FormattedMessage {...messages.action} /></div>
+            </div>
+            <MyComponent storage = {this.props.storageList['test']}  storageNameArray = { this.state.storageNameArray } savestorageNameArray = { this.selectItem() }/>
+          </Card>
         </div>
       </QueueAnim>
     )
@@ -375,7 +546,9 @@ Storage.propTypes = {
 }
 function mapSateToProp(state) {
   return {
-    storageList: state.storage.storageList
+    storageList: state.storage.storageList,
+    createStorage: state.storage.createStorage,
+    deleteStorage: state.storage.deleteStorage,
   }
 }
 
@@ -384,8 +557,11 @@ function mapDispathToProp(dispath) {
     loadStorageList: (pool) => {
       dispath(loadStorageList(pool))
     },
-    deleteStorage: (pool, storageIdArray, callback) => {
-      dispath(deleteStorage(pool, storageIdArray, callback))
+    deleteStorage: (pool, storageNameArray, callback) => {
+      dispath(deleteStorage(pool, storageNameArray, callback))
+    },
+    createStorage: (obj, callback) => {
+      dispath(createStorage(obj, callback))
     }
   }
 }

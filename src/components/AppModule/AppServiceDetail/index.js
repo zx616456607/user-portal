@@ -12,8 +12,11 @@ import { Tabs,Checkbox,Dropdown,Button,Card, Menu,Icon } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import ContainerList from './AppInstanceDetail/AppContainerList.js'
-import "./style/AppServiceDetail.less"
+import ContainerList from './AppContainerList'
+import AppServiceDetailInfo from './AppServiceDetailInfo'
+import ComposeGroup from './ComposeGroup'
+import BindDomain from './BindDomain'
+import './style/AppServiceDetail.less'
 
 const TabPane = Tabs.TabPane;
 const operaMenu = (<Menu>
@@ -98,9 +101,9 @@ export default class AppServiceDetail extends Component {
 	            defaultActiveKey="1"
 	          >
 	            <TabPane tab="容器实例" key="1"><ContainerList /></TabPane>
-	            <TabPane tab="基础信息" key="2">基础信息</TabPane>
-	            <TabPane tab="配置组" key="3">配置组</TabPane>
-	            <TabPane tab="绑定域名" key="4">绑定域名</TabPane>
+	            <TabPane tab="基础信息" key="2"><AppServiceDetailInfo /></TabPane>
+	            <TabPane tab="配置组" key="3"><ComposeGroup /></TabPane>
+	            <TabPane tab="绑定域名" key="4"><BindDomain /></TabPane>
 	            <TabPane tab="端口" key="5">端口</TabPane>
 	            <TabPane tab="高可用" key="6">高可用</TabPane>
 	            <TabPane tab="监控" key="7">监控</TabPane>

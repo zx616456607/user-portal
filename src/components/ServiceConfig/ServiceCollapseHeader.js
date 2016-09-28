@@ -14,10 +14,10 @@ import { Row,Col,Modal,Button,Icon,Checkbox,Menu,Dropdown,Input } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 
 function handleMenuClick() {
-  console.log('a');
+  console.log('delete !');
 }
 const menu = (
-  <Menu onClick={() => handleMenuClick()}>
+  <Menu onClick={() => handleMenuClick()} mode="vertical">
     <Menu.Item key="1">删除配置组</Menu.Item>
   </Menu>
 );
@@ -40,19 +40,21 @@ class CollapseHeader extends Component {
     e.stopPropagation()
   }
   render(){
+    const {collapseHeader} = this.props
     return (
       <Row>
         <Col className="group-name" span="6">
           <Checkbox onClick={(e) => this.handleDropdown(e)}></Checkbox>
           <Icon type="folder-open" />
-          <span>my_ConfigGroup</span>
+          <Icon type="folder" />
+          <span>{collapseHeader.groupName}</span>
         </Col>
         <Col span="6">
           配置文件 &nbsp;
-          3个
+          {collapseHeader.configFile.length}个
         </Col>
         <Col span="6">
-          创建时间&nbsp;&nbsp;2016-09-12&nbsp;15:&nbsp;12:&nbsp;30
+          创建时间&nbsp;&nbsp;{collapseHeader.date}
         </Col>
         <Col span="6">
           <ButtonGroup>
@@ -78,10 +80,10 @@ class CollapseHeader extends Component {
                 <Icon type="info-circle-o" style={{marginRight: "10px"}}/>
                 即将保存一个配置文件 , 您可以在创建应用 → 添加服务时 , 关联使用该配置
               </p>
-              <span style={{float: 'left'}}>名称 : </span>
+              <span style={{float: "left", marginRight: "16px"}}>名称 : </span>
               <Input type="text" className="configName"/>
               <div style={{ margin: '24px 0' }} />
-              <span style={{float: 'left'}}>内容 : </span>
+              <span style={{float: "left", marginRight: "16px"}}>内容 : </span>
               <Input type="textarea" />
             </div>
           </Modal>
@@ -93,6 +95,7 @@ class CollapseHeader extends Component {
 }
 
 CollapseHeader.propTypes = {
+  collapseHeader: PropTypes.object.isRequired,
   intl: PropTypes.object.isRequired
 }
 

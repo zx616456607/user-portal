@@ -2,9 +2,20 @@ body,
 html {
   overflow: auto;
   background-color: #EFEFEF !important;
+  font-size: 14px;
 }
 svg path {
   fill: inherit;
+}
+.ant-btn,
+.ant-card,
+.ant-menu-vertical > .ant-menu-item,
+.ant-menu-inline > .ant-menu-item,
+.ant-menu-item-group-list > .ant-menu-item,
+.ant-menu-vertical > .ant-menu-submenu > .ant-menu-submenu-title,
+.ant-menu-inline > .ant-menu-submenu > .ant-menu-submenu-title,
+.ant-menu-item-group-list > .ant-menu-submenu > .ant-menu-submenu-title {
+  font-size: 14px !important;
 }
 .tenx-layout {
   width: 100%;
@@ -108,4 +119,7 @@ svg path {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+.vertical-center-modal .ant-modal {
+  top: 0px;
 }

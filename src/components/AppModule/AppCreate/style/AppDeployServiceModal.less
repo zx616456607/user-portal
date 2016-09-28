@@ -1,0 +1,509 @@
+#AppDeployServiceModal {
+	padding-top: 40px;
+	padding-bottom: 60px;
+	width: 100%;
+	height: 100%;
+	overflow-y: auto;
+	.inputBox {
+		margin-top: 10px;
+		padding-left: 40px;
+		padding-right: 40px;
+	}
+	.commonSpan {
+		float: left;
+		display: block;
+		width: 120px;
+		height: 40px;
+		line-height: 40px;
+		text-align: left;
+		font-size: 14px;
+	}
+	.commonTitle {
+		padding-left: 30px;
+		width: 100%;
+		height: 40px;
+		line-height: 38px;
+		border-bottom: 1px solid #E5E5E5;
+		.line {
+			margin-top: 8px;
+			float: left;
+			width: 5px;
+			height: 20px;
+			border-left: 5px solid #00A1EA;
+		}
+		.titleSpan {
+			float: left;
+			padding-left: 10px;
+			width: 100px;
+			font-size: 16px;
+		}
+		.titleIntro {
+			margin-left: 20px;
+			float: left;
+			font-size: 12px;
+		}
+	}
+	.topBox {
+		.serviceNameInput {
+			margin-top: 4px;
+			float: left;
+			width: 220px;
+		}
+		.imageInput {
+			margin-top: 4px;
+			float: left;
+			width: 350px;
+		}
+		.checkBtn {
+			margin-top: 4px;
+			margin-left: 10px;
+			float: left;
+		}
+		.imageTag {
+			margin-top: 4px;
+			float: left;
+		}
+	}
+	.infoBox {
+		margin-top: 35px;
+		width: 100%;
+		padding-bottom: 40px;
+		.operaBox {
+			padding-left: 40px;
+			.selectCompose {
+				margin-top: 10px;
+			}
+			.composeList {
+				float: left;
+				width: calc(~"100% - 120px");
+			}
+			.composeDetail {
+				margin-top: 10px;
+				margin-left: 20px;
+				float: left;
+				.ant-btn-primary {
+					width: 100px;
+					padding: 0 !important;
+					.topBox {
+						height: 25px;
+						line-height: 25px;
+						font-size: 16px;
+					}
+					.bottomBox {
+						width: 100%;
+						height: 60px;
+						padding: 10px;
+						text-align: center;
+						background-color: #FFFFFF;
+						color: #2db7f5;
+						border-bottom-left-radius: 6px;
+						border-bottom-right-radius: 6px;
+					}
+				}
+				.ant-btn-ghost {
+					width: 100px;
+					padding: 0 !important;
+					.topBox {
+						height: 25px;
+						line-height: 25px;
+						font-size: 16px;
+						background-color: #d9d9d9;
+						border-top-left-radius: 4px;
+						border-top-right-radius: 4px;
+					}
+					.bottomBox {
+						width: 100%;
+						height: 60px;
+						padding: 10px;
+						text-align: center;
+						background-color: #FFFFFF;
+						border-bottom-left-radius: 6px;
+						border-bottom-right-radius: 6px;
+					}
+				}
+				.ant-btn-ghost:hover {
+					.topBox {
+						background-color: #2db7f5;
+						color: #FFFFFF;
+						transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+					}
+				}
+			}
+			.composeDetail:first {
+				margin-left: 0 !important;
+			}
+			.stateService {
+				margin-top: 10px;
+				.changeBtn {
+					line-height: 40px;
+				}
+				.stateSpan {
+					margin-left: 15px;
+					line-height: 40px;
+					font-size: 14px;
+				}
+				.serviceOpen {
+					margin-left: 140px;
+					height: 40px;
+					line-height: 40px;
+					.url {
+						font-size: 14px;
+					}
+					.imageTag {
+						margin-left: 10px;
+					}
+					.readOnlyBtn,
+					i {
+						margin-left: 15px;
+					}
+				}
+			}
+			.containerNum {
+				margin-top: 10px;
+				font-size: 14px;
+				line-height: 40px;
+			}
+		}
+	}
+	.ant-collapse {
+		background-color: inherit !important;
+		border: 0 !important;
+		.ant-collapse-item {
+			border: 0 !important;
+		}
+		.ant-collapse-header {
+			position: relative;
+			padding: 0 !important;
+			i {
+				position: absolute;
+				margin-left: 93%;
+				font-size: 25px;
+			}
+			i:before {
+				content: "\e601" !important;
+			}
+		}
+		.ant-collapse-header[aria-expanded="true"] .arrow {
+			transform: scale(0.58333333) rotate(90deg) !important;
+		}
+	}
+	.assitBox {
+		padding-bottom: 40px;
+		.entryInput {
+			float: left;
+			width: 220px;
+			margin-top: 4px;
+		}
+		.selectBox {
+			height: 40px;
+			line-height: 40px;
+			.ant-radio-wrapper {
+				font-size: 14px !important;
+			}
+			input {
+				margin-left: 120px;
+			}
+		}
+		.checkBox {
+			position: relative;
+			height: 40px;
+			line-height: 40px;
+			font-size: 14px;
+			.tooltip {
+				position: absolute;
+				top: 25px;
+				left: 120px;
+				color: #CCCCCC;
+				font-size: 12px;
+			}
+		}
+	}
+	.usefulBigBox{
+		padding-bottom: 40px;
+		.ant-collapse-content-box{
+			padding-bottom: 0px !important;
+		}
+	}
+	.usefulBox {
+		padding-left: 40px;
+		padding-right: 24px;		
+		width: 100%;
+		.http,
+		.tcp {
+			margin-top: 20px;
+			border: 1px solid #E5E5E5;
+		}
+		.title {
+			width: 100%;
+			height: 40px;
+			line-height: 40px;
+			background-color: #F2F2F2;
+			border-bottom: 1px solid #E5E5E5;
+		}
+		.httpcommonTitle,
+		.tcpcommonTitle {
+			padding-left: 10px;
+			float: left;
+			width: 25%;
+			text-align: left;
+		}
+		.input {
+			width: 100%;
+			height: 50px;
+			line-height: 50px;
+			border-bottom: 1px solid #E5E5E5;
+		}
+		.commonInput {
+			width: 25%;
+			float: left;
+			input {
+				margin-left: 10px;
+				width: 100px;
+			}
+		}
+	}
+	.composeBigBox{
+		padding-bottom: 40px;
+		.ant-collapse-content-box{
+			padding-bottom: 0px !important;
+		}
+	}
+	.composeBox {
+		padding-left: 40px;
+		padding-right: 24px;	
+		.title {
+			display: block;
+			width: 100%;
+			height: 30px;
+			line-height: 30px;
+			font-size: 14px;
+		}
+		.composeList {
+			width: 100%;
+			border: 1px solid #E5E5E5;
+			border-bottom: 0;
+			.composeTitle {
+				width: 100%;
+				height: 40px;
+				line-height: 40px;
+				font-size: 14px;
+				border-bottom: 1px solid #E5E5E5;
+				background-color: #F2F2F2;
+				.composeCommonTitle {
+					padding-left: 10px;
+					float: left;
+					width: 25%;
+					text-align: left;
+				}
+			}
+			.composeDetail {
+				padding-top: 10px;
+				padding-bottom: 10px;
+				width: 100%;
+				min-height: 40px;
+				border-bottom: 1px solid #E5E5E5;
+				.input {
+					padding-left: 10px;
+					float: left;
+					width: 25%;
+					input {
+						width: 150px;
+					}
+				}
+				.select {
+					padding-left: 10px;
+					float: left;
+					width: 25%;
+					.composeGroup {
+						width: 150px !important;
+					}
+				}
+				.check {
+					padding-left: 10px;
+					float: left;
+					width: 25%;
+				}
+				.opera {
+					padding-left: 10px;
+					float: left;
+					width: 25%;
+					font-size: 20px;
+					.fa {
+						cursor: pointer;
+					}
+				}
+			}
+		}
+		.addBtn {
+			position: relative;
+			margin-top: 10px;
+			padding-left: 25px;
+			cursor: pointer;
+			font-size: 14px;
+			height: 30px;
+			i {
+				position: absolute;
+				top: 5px;
+				left: 0;
+				font-size: 20px;
+			}
+			span {
+				line-height: 30px;
+			}
+		}
+	}
+	.advanceBox {
+		padding-left: 40px;
+		padding-left: 24px;
+		.title {
+			display: block;
+			width: 100%;
+			height: 30px;
+			line-height: 30px;
+			font-size: 14px;
+		}
+		.enviroList {
+			width: 100%;
+			border: 1px solid #E5E5E5;
+			border-bottom: 0;
+			.enviroTitle {
+				width: 100%;
+				height: 40px;
+				line-height: 40px;
+				font-size: 14px;
+				border-bottom: 1px solid #E5E5E5;
+				background-color: #F2F2F2;
+				.enviroCommonTitle {
+					padding-left: 10px;
+					float: left;
+					width: 33.3%;
+					text-align: left;
+				}
+			}
+			.enviroDetail {
+				padding-top: 10px;
+				padding-bottom: 10px;
+				width: 100%;
+				min-height: 40px;
+				border-bottom: 1px solid #E5E5E5;
+				.input {
+					padding-left: 10px;
+					float: left;
+					width: 33%;
+					input {
+						width: 150px;
+					}
+				}
+				.opera {
+					padding-left: 10px;
+					float: left;
+					width: 33%;
+					font-size: 20px;
+					.fa {
+						cursor: pointer;
+					}
+				}
+			}
+		}
+		.portBox{
+			margin-top: 20px;
+		}
+		.portList {
+			width: 100%;
+			border: 1px solid #E5E5E5;
+			border-bottom: 0;
+			.portTitle {
+				width: 100%;
+				height: 40px;
+				line-height: 40px;
+				font-size: 14px;
+				border-bottom: 1px solid #E5E5E5;
+				background-color: #F2F2F2;
+				.portCommonTitle {
+					padding-left: 10px;
+					float: left;
+					width: 25%;
+					text-align: left;
+				}
+				.protocol{
+					width: 15%;
+				}
+				.mapping{
+					width: 35%;
+				}
+			}
+			.portDetail {
+				padding-top: 10px;
+				padding-bottom: 10px;
+				width: 100%;
+				min-height: 40px;
+				border-bottom: 1px solid #E5E5E5;
+				.input {
+					padding-left: 10px;
+					float: left;
+					width: 25%;
+					input {
+						width: 150px;
+					}
+				}
+				.select {
+					padding-left: 10px;
+					float: left;
+					width: 25%;
+					.portGroup {
+						width: 100% !important;
+					}
+				}
+				.protocol{
+					width: 15%;
+				}
+				.mapping{
+					width: 35%;
+				}
+				.opera {
+					padding-left: 10px;
+					float: left;
+					width: 25%;
+					font-size: 20px;
+					.fa {
+						cursor: pointer;
+					}
+				}
+			}
+		}
+		.addBtn {
+			position: relative;
+			margin-top: 10px;
+			padding-left: 25px;
+			cursor: pointer;
+			font-size: 14px;
+			height: 30px;
+			i {
+				position: absolute;
+				top: 5px;
+				left: 0;
+				font-size: 20px;
+			}
+			span {
+				line-height: 30px;
+			}
+		}
+	}
+	.btnBox{
+		padding-top: 14px;
+		position: absolute;
+		width: 100%;
+		bottom: 0px;
+		left: 0px;
+		height: 60px;
+		text-align: center;
+		background-color: #dadada;
+		button{
+			width: 80px;
+		}
+		.ant-btn-ghost{
+			background-color: #FFFFFF;
+			margin-right: 20px;
+		}
+	}
+}

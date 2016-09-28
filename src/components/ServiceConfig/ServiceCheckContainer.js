@@ -37,29 +37,19 @@ let RendPoint = React.createClass({
 const containerCol = [
   {
     title: (<RendContainerName/>),
-    dataIndex: 'name',
+    dataIndex: 'containerName',
   },
   {
     title: (<RendPoint/>),
-    dataIndex: 'point',
+    dataIndex: 'pointPath',
   },
-
 ];
-
-const containerData = [];
-for (let i = 0; i < 46; i++) {
-  containerData.push({
-    key: i,
-    name: `my_container${i}`,
-    point: `var/log/test/${i}log`,
-  });
-}
 
 class CheckContainer extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      selectedContainers: [],  // 这里配置默认勾选列
+      selectedContainers: [],
       loading: false,
     }
     this.onSelectChange = this.onSelectChange.bind(this)
@@ -67,7 +57,6 @@ class CheckContainer extends Component {
   }
   start() {
     this.setState({ loading: true });
-    // 模拟 ajax 请求，完成后清空
     setTimeout(() => {
       this.setState({
         selectedContainers: [],
@@ -76,32 +65,35 @@ class CheckContainer extends Component {
     }, 1000);
   }
   onSelectChange(selectedContainers) {
-    console.log('selectedContainers changed: ', selectedContainers);
     this.setState({ selectedContainers });
   }
   render () {
+    const { containerList } = this.props
     const { loading, selectedContainers } = this.state;
     const containerSelection = {
       selectedContainers,
       onChange: this.onSelectChange,
     };
     const hasSelected = selectedContainers.length > 0;
+    
     return (
       <div>
         <div style={{ marginBottom: 16 }}>
-          <span style={{ marginRight: 8 }}>{ `关联容器 ( ${containerData.length} )` }</span>
+          <span style={{ marginRight: 8 }}>{ `关联容器 ( ${containerList.length} )` }</span>
           <Button type="primary" onClick={this.start}
-                  disabled={!hasSelected} loading={loading}
+                  disabled={ !hasSelected } loading={ loading }
           >操作</Button>
           <span style={{ marginLeft: 8 }}>{ hasSelected ? `选择了 ${selectedContainers.length} 个容器` : '' }</span>
         </div>
-        <Table rowSelection={containerSelection} columns={containerCol} dataSource={containerData} pagination={{ pageSize: 5 }}/>
+        <Table rowSelection={containerSelection} columns={containerCol}
+               dataSource={containerList} pagination={{ pageSize: 5 }} rowKey="containerId"/>
       </div>
     )
   }
 }
 
 CheckContainer.propTypes = {
+  containerList: PropTypes.array.isRequired,
   intl: PropTypes.object.isRequired
 }
 

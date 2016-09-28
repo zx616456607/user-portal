@@ -12,6 +12,7 @@ import { Input,Modal,Checkbox,Button,Card,Menu } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
+import AppDeployServiceModal from './AppDeployServiceModal.js'
 import "./style/AppCreateServiceModal.less"
 
 const testData = [{
@@ -163,13 +164,11 @@ export default class AppCreateServiceModal extends Component {
 	      </div>
 	      <MyComponent scope={parentScope} config={testData} />
 	      <Modal
-	        title="垂直居中的对话框"
 	        visible={this.state.modalShow}
-			className="AppServiceDetail"
-			transitionName="move-right"
-			onCancel={this.closeModal}
+					className="AppServiceDetail"
+					transitionName="move-right"
 	      >
-	        
+	        <AppDeployServiceModal scope={parentScope} />
           </Modal>
 	    </div>  
     )

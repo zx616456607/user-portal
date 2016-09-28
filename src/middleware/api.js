@@ -20,11 +20,14 @@ function fetchApi(endpoint, options, schema) {
       method: 'GET'
     }
   }
-  if(options.method === 'POST') {
+  if(options.method === 'POST' || options.method === 'PUT') {
     if(!options.headers) options.headers = {}
-    if(options.headers['Content-Type']) {
-      options.headers['Content-Type'] = 'application/json'
+    let headers = new Headers(options.headers)
+    if(!options.headers['Content-Type']) {
+      headers.append('Content-Type', 'application/json')
     }
+    options.headers = headers
+    options.body = JSON.stringify(options.body)
   }
   return fetch(endpoint, options).then(response =>
       response.json().then(json => ({json, response}))
@@ -51,11 +54,15 @@ const userSchema = new Schema('users', {
   idAttribute: 'namespace'
 })
 
-const rcSchema = new Schema('rcs', {
-  idAttribute: 'rcName'
+const appSchema = new Schema('apps', {
+  idAttribute: 'id'
 })
 
-const appSchema = new Schema('apps', {
+const serviceSchema = new Schema('services', {
+  idAttribute: 'id'
+})
+
+const containerSchema = new Schema('containers', {
   idAttribute: 'id'
 })
 
@@ -63,33 +70,37 @@ const storageSchema = new Schema('storage', {
   idAttribute: 'namespace'
 })
 
-rcSchema.define({
-  owner: userSchema
+const configSchema = new Schema('configGroupList',{
+  idAttribute: 'groupId'
 })
+
 
 // Schemas for API responses.
 export const Schemas = {
   USER: userSchema,
-  RC: rcSchema,
-  RC_ARRAY: arrayOf(rcSchema),
-  CONTAINERS: {
-    rcList: arrayOf(rcSchema)
-  },
-  TRANSH_RCS: {
-    rcList: arrayOf(rcSchema)
-  },
   APP: appSchema,
   APPS: {
     appList: arrayOf(appSchema)
   },
+  SERVICE: serviceSchema,
+  SERVICES: {
+    containerList: arrayOf(serviceSchema)
+  },
+  CONTAINER: containerSchema,
+  CONTAINERS: {
+    containerList: arrayOf(containerSchema)
+  },
   STORAGE: {
     storageList: arrayOf(storageSchema)
-  }
+  },
+  CONFIG  : configSchema,
+  CONFIGS: {
+    configGroup: arrayOf(configSchema)
+  },
 }
 
 // Action key that carries API call info interpreted by this Redux middleware.
 export const FETCH_API = Symbol('FETCH API')
-
 // A Redux middleware that interprets actions with FETCH_API info specified.
 // Performs the call and promises when such actions are dispatched.
 export default store => next => action => {
@@ -104,7 +115,6 @@ export default store => next => action => {
   if (typeof endpoint === 'function') {
     endpoint = endpoint(store.getState())
   }
-
   if (typeof endpoint !== 'string') {
     throw new Error('Specify a string endpoint URL.')
   }
