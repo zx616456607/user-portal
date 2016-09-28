@@ -17,7 +17,7 @@ module.exports = function (request){
     constructor(collection) {
       this[_getPaths] = function() {
         let endpoint = [].slice.call(arguments).filter((each) => {
-          return each !== null && typeof each !== undefined && each.trim() !== ''
+          return each !== null && each !== undefined && each.trim() !== ''
         }).join('/')
         if (endpoint) {
           endpoint = '/' + endpoint
@@ -104,6 +104,14 @@ module.exports = function (request){
         endpoint,
         method: 'DELETE'
       }, callback)
+    }
+
+    batchDelete() {
+      this.update.apply(this, arguments)
+    }
+
+    batchDeleteBy() {
+      this.updateBy.apply(this, arguments)
     }
   }
   
