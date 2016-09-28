@@ -16,8 +16,8 @@ import './style/AppList.less'
 import { loadAppList } from '../../actions/app_manage'
 
 function loadData(props) {
-  const { master, loadAppList } = props
-  loadAppList(master)
+  const { cluster, loadAppList } = props
+  loadAppList(cluster)
 }
 
 const data = []
@@ -111,7 +111,7 @@ class AppList extends Component {
   }
 
   render() {
-		const { master, appList, isFetching } = this.props
+		const { cluster, appList, isFetching } = this.props
     return (
         <QueueAnim 
           className = "AppList"
@@ -125,8 +125,8 @@ class AppList extends Component {
 	      	        <i className="fa fa-plus"></i>添加应用
 	      	      </Link>
 	      	    </Button>
-	      	    <Button type="ghost" size="large"><i className="fa fa-stop"></i>停止容器</Button>
-	      	    <Button type="ghost" size="large"><i className="fa fa-trash-o"></i>删除容器</Button>
+	      	    <Button type="ghost" size="large"><i className="fa fa-stop"></i>停止</Button>
+	      	    <Button type="ghost" size="large"><i className="fa fa-trash-o"></i>删除</Button>
 	      	    <Button type="ghost" size="large"><i className="fa fa-undo"></i>重新部署</Button>
 	          </div>
 	        <div className="rightBox">
@@ -179,7 +179,7 @@ class AppList extends Component {
 
 AppList.propTypes = {
   // Injected by React Redux
-  master: PropTypes.string.isRequired,
+  cluster: PropTypes.string.isRequired,
   appList: PropTypes.array.isRequired,
   isFetching: PropTypes.bool.isRequired,
   loadAppList: PropTypes.func.isRequired
@@ -188,16 +188,16 @@ AppList.propTypes = {
 function mapStateToProps(state, props) {
   const defaultApps = {
     isFetching: false,
-    master: 'default',
+    cluster: 'default',
     appList: []
   }
   const {
     apps
   } = state
-  const { master, appList, isFetching } = apps['default'] || defaultApps
+  const { cluster, appList, isFetching } = apps['default'] || defaultApps
 
   return {
-    master,
+    cluster,
     appList,
     isFetching
   }

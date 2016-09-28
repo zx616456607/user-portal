@@ -14,20 +14,20 @@ export const CONFIG_LIST_REQUEST = 'CONFIG_LIST_REQUEST'
 export const CONFIG_LIST_SUCCESS = 'CONFIG_LIST_SUCCESS'
 export const CONFIG_LIST_FAILURE = 'CONFIG_LIST_FAILURE'
 
-function fetchConfigGroupList(master) {
+function fetchConfigGroupList(cluster) {
   return {
-    master,
+    cluster,
     [FETCH_API]: {
       types: [CONFIG_LIST_REQUEST, CONFIG_LIST_SUCCESS, CONFIG_LIST_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${master}/configs`,
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/configs`,
       schema: Schemas.CONFIGS
     }
   }
 }
 
-export function loadConfigGroup(master, requiredFields = []) {
+export function loadConfigGroup(cluster, requiredFields = []) {
   return (dispatch, getState) => {
-    return dispatch(fetchConfigGroupList(master))
+    return dispatch(fetchConfigGroupList(cluster))
   }
 }
 

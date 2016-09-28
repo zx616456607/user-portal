@@ -47,7 +47,7 @@ exports.getServiceDetail = function* () {
 }
 
 exports.getServiceContainers = function* () {
-  const master = this.params.master
+  const cluster = this.params.cluster
   const serviceName = this.params.service_name
   const data = [{
     id: "1",
@@ -115,7 +115,7 @@ exports.getServiceContainers = function* () {
       createTime: "2016-09-09 11:27:27",
     }];
   this.body = {
-    master,
+    cluster,
     serviceName,
     data
   }

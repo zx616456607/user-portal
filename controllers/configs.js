@@ -11,7 +11,7 @@
 'use strict'
 
 exports.getConfigGroup = function* () {
-  const master = this.params.master
+  const cluster = this.params.cluster
   const data = [
     {
       groupId: '1',
@@ -154,7 +154,7 @@ exports.getConfigGroup = function* () {
     },
   ];
   this.body = {
-    master,
+    cluster,
     data
   }
 }
