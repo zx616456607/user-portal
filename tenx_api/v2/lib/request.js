@@ -34,6 +34,7 @@ module.exports = (protocol, host, version, auth, timeout) => {
     const options = {}
     options.method = object.method
     options.dataType = object.dataType || DEFAULT_DATATYPE
+    options.contentType = object.contentType || DEFAULT_DATATYPE
     options.timeout = object.timeout || timeout
     options.headers = object.headers
     options.data = object.data
@@ -74,6 +75,7 @@ module.exports = (protocol, host, version, auth, timeout) => {
       !object.headers && (object.headers = {})
       object.headers.Username = auth.user
       object.headers.Authorization = `token ${auth.token}`
+      object.headers.namespace = auth.namespace
     }
     return _makeRequest(object, callback)
   }
