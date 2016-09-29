@@ -107,11 +107,11 @@ module.exports = function (request){
     }
 
     batchDelete() {
-      return this.update.apply(this, arguments)
+      return this.create.apply(this, arguments)
     }
 
     batchDeleteBy() {
-      return this.updateBy.apply(this, Array.prototype.slice.apply(arguments))
+      return this.createBy.apply(this, Array.prototype.slice.apply(arguments))
     }
   }
   
