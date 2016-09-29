@@ -17,7 +17,7 @@ const DEFAULT_PROTOCOL = 'http'
 const DEFAULT_VERSION = 'v2'
 const DEFAULT_TIMEOUT = 1000 * 10
 const DEFAULT_DATATYPE = 'json'
-const logger = require('../../../utils/logger').getLogger(`tenx_api/${DEFAULT_VERSION}/request`)
+const logger = require('../../../utils/logger').getLogger(`tenx_api/request`)
 
 module.exports = (protocol, host, version, auth, timeout) => {
   !protocol && (protocol = DEFAULT_PROTOCOL)

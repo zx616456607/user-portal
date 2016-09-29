@@ -8,11 +8,35 @@
  * @author Zhangpc
  */
 'use strict'
+const yaml = require('js-yaml')
+const tenxApi = require('../tenx_api/v2')
+const config = require('../configs')
 
 exports.createApp = function* () {
   const cluster = this.params.cluster
+  const app = this.request.body
+  if (!app || !app.name) {
+    const err = new Error('App name is required.')
+    err.status = 400
+    throw err
+  }
+  if (!app || !app.desc) {
+    const err = new Error('App desc is required.')
+    err.status = 400
+    throw err
+  }
+  app.desc = yaml.dump(app.desc)
+  const user = this.session.loginUser
+  const apiConfig = {
+    protocol: config.tenx_api.protocol,
+    host: config.tenx_api.host,
+    auth: user
+  }
+  const api = new tenxApi(apiConfig)
+  const result = yield api.clusters.createBy([cluster, 'apps'], null, app)
   this.body = {
-    cluster
+    cluster,
+    data: result
   }
 }
 
