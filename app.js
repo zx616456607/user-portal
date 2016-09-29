@@ -17,6 +17,7 @@ const c2k = require('koa-connect')
 const config = require('./configs')
 const logger = require('./utils/logger').getLogger('app')
 const app = koa()
+const tenxApi = require('./tenx_api/v2')
 global.Promise = require('bluebird')
 
 /*
@@ -164,6 +165,12 @@ app.use(function* (next) {
     namespace: "zhangpc",
     token: "jgokzgfitsewtmbpxsbhtggabvrnktepuzohnssqjnsirtot"
   }
+  const apiConfig = {
+    protocol: config.tenx_api.protocol,
+    host: config.tenx_api.host,
+    auth: this.session.loginUser
+  }
+  this.session.api = new tenxApi(apiConfig)
   yield next
 })
 
