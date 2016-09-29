@@ -30,14 +30,14 @@ module.exports = function (Router) {
   // Apps 
   router.post('/clusters/:cluster/apps', appController.createApp)
   router.get('/clusters/:cluster/apps', appController.getApps)
-  router.put('/clusters/:cluster/apps/batch-delete', appController.deleteApps)
+  router.post('/clusters/:cluster/apps/batch-delete', appController.deleteApps)
   router.put('/clusters/:cluster/apps/batch-stop', appController.stopApps)
   router.put('/clusters/:cluster/apps/batch-start', appController.startApps)
   router.put('/clusters/:cluster/apps/batch-restart', appController.restartApps)
   router.put('/clusters/:cluster/apps/batch-status', appController.getAppsStatus)
   router.get('/clusters/:cluster/apps/:app_name/services', appController.getAppServices)
   router.post('/clusters/:cluster/apps/:app_name/services', appController.addService)
-  router.put('/clusters/:cluster/apps/:app_name/services/batch-delete', appController.deleteServices)
+  router.post('/clusters/:cluster/apps/:app_name/services/batch-delete', appController.deleteServices)
   router.get('/clusters/:cluster/apps/:app_name/orchfile', appController.getAppOrchfile)
   // spi
   router.get('/clusters/:cluster/apps/:app_name/logs', appController.getAppLogs)
