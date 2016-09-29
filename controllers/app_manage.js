@@ -37,7 +37,10 @@ exports.createApp = function* () {
 
 exports.getApps = function* () {
   const cluster = this.params.cluster
-  const data = [{
+  const user = this.session.loginUser
+  const api = this.session.api
+  const result = yield api.clusters.getBy([cluster, 'apps'])
+  /*const data = [{
     id: "1",
     appName: "test1",
     appStatus: "1",
@@ -101,10 +104,10 @@ exports.getApps = function* () {
       containerNum: "12",
       visitIp: "192.168.1.1",
       createTime: "2016-09-09 11:27:27",
-    }];
+    }];*/
   this.body = {
     cluster,
-    data
+    data: result
   }
 }
 
@@ -161,8 +164,18 @@ exports.startApps = function* () {
 
 exports.restartApps = function* () {
   const cluster = this.params.cluster
+  const apps = this.request.body
+  if (!apps) {
+    const err = new Error('App names is required.')
+    err.status = 400
+    throw err
+  }
+  const user = this.session.loginUser
+  const api = this.session.api
+  const result = yield api.clusters.updateBy([cluster, 'apps', 'restart'], null, { apps })
   this.body = {
-    cluster
+    cluster,
+    data: result
   }
 }
 
