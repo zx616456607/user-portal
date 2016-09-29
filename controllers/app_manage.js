@@ -128,7 +128,7 @@ exports.deleteApps = function* () {
     auth: user
   }
   const api = new tenxApi(apiConfig)
-  const result = yield api.clusters.batchDeleteBy([cluster, 'apps', 'batchdelete'], null, {apps})
+  const result = yield api.clusters.batchDeleteBy([cluster, 'apps', 'batchdelete'], null, { apps })
   this.body = {
     cluster,
     data: result
@@ -137,8 +137,23 @@ exports.deleteApps = function* () {
 
 exports.stopApps = function* () {
   const cluster = this.params.cluster
+  const apps = this.request.body
+  if (!apps) {
+    const err = new Error('App names is required.')
+    err.status = 400
+    throw err
+  }
+  const user = this.session.loginUser
+  const apiConfig = {
+    protocol: config.tenx_api.protocol,
+    host: config.tenx_api.host,
+    auth: user
+  }
+  const api = new tenxApi(apiConfig)
+  const result = yield api.clusters.updateBy([cluster, 'apps', 'stop'], null, { apps })
   this.body = {
-    cluster
+    cluster,
+    data: result
   }
 }
 
