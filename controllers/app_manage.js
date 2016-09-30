@@ -39,7 +39,7 @@ exports.getApps = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.getBy([cluster, 'apps'])
-  /*const data = [{
+  const data = [{
     id: "1",
     appName: "test1",
     appStatus: "1",
@@ -103,10 +103,11 @@ exports.getApps = function* () {
       containerNum: "12",
       visitIp: "192.168.1.1",
       createTime: "2016-09-09 11:27:27",
-    }];*/
+    }];
   this.body = {
     cluster,
-    data: result
+    // data: result
+    data
   }
 }
 
