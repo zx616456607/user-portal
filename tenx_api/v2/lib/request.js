@@ -38,6 +38,9 @@ module.exports = (protocol, host, version, auth, timeout) => {
     options.timeout = object.timeout || timeout
     options.headers = object.headers
     options.data = object.data
+    if(object.stream) {
+      options.stream = object.stream
+    }
     logger.info(`[${options.method || 'GET'}] ${url}`)
     if (!callback) {
       return urllib.request(url, options).then(
@@ -49,6 +52,7 @@ module.exports = (protocol, host, version, auth, timeout) => {
           throw errors.get(result.res)
         },
         function fail(err) {
+          console.log(err)
           err.statusCode = err.res.statusCode
           throw errors.get(err)
         }

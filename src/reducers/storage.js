@@ -133,6 +133,28 @@ function storageDetail(state = {}, action) {
   }
 }
 
+function uploadFile(state = {}, action) {
+  switch(action.type) {
+    case ActionTypes.STORAGE_UPLOAD_REQUEST: {
+      return merge({}, state, {
+        isFetching: true
+      })
+    }
+    case ActionTypes.STORAGE_UPLOAD_SUCCESS: {
+      return merge({}, state, {
+        isFetching: false
+      })
+    }
+    case ActionTypes.STORAGE_UPLOAD_FAILURE: {
+      return merge({}, state, {
+        isFetching: false
+      })
+    }
+    default: 
+      return state
+  }
+}
+
 export default function storageReducer(state = {}, action) {
   return {
     storageList: storageList(state.storageList, action),
@@ -140,6 +162,7 @@ export default function storageReducer(state = {}, action) {
     createStorage: createStorage(state.createStorage, action),
     formateStorage: formateStorage(state.formateStorage, action),
     resizeStorage: resizeStorage(state.deleteStorage, action),
-    storageDetail: storageDetail(state.storageDetail, action)
+    storageDetail: storageDetail(state.storageDetail, action),
+    uploadFile: uploadFile(state.uploadFile, action)
   }
 }

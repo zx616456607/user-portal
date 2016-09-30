@@ -31,7 +31,7 @@ module.exports = function (request){
         }
         Object.keys(object).forEach((key) => {
           if (object.hasOwnProperty(key)) {
-            querys += `$${key}=${object[key]}`
+            querys += `&${key}=${object[key]}`
           }
         })
         return `?${querys.substring(1)}`
@@ -112,6 +112,16 @@ module.exports = function (request){
 
     batchDeleteBy() {
       return this.updateBy.apply(this, Array.prototype.slice.apply(arguments))
+    }
+
+    uploadFile(paths, querys, stream, callback) {
+      let endpoint = this[_getPaths].apply(null, paths) + this[_getQuerys](querys)
+      console.log(endpoint)
+      return request({
+        endpoint,
+        stream,
+        method: 'POST'
+      })
     }
   }
   

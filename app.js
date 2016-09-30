@@ -119,16 +119,17 @@ app.use(favicon(__dirname + '/static/favicon.ico'))
 })*/
 
 // For body parser
-const koaBody = require('koa-body')({
-  multipart: true,
-  formidable: {
-    keepExtensions: true,
-    maxFieldsSize: 1024 * 1024 * 1024,
-    // uploadDir: TEMP_DIR
-  }
-})
-app.use(koaBody)
+// const koaBody = require('koa-body')({
+//   multipart: true,
+//   formidable: {
+//     keepExtensions: true,
+//     maxFieldsSize: 1024 * 1024 * 1024,
+//     // uploadDir: TEMP_DIR
+//   }
+// })
+const koaBody = require('koa-body')()
 
+app.use(koaBody)
 // For views
 const render = require('koa-ejs')
 const viewOps = {

@@ -133,3 +133,45 @@ export function resizeStorage(pool, storage, callback) {
     callback
   }
 }
+
+export const STORAGE_UPLOAD_REQUEST = 'STORAGE_UPLOAD_REQUEST'
+export const STORAGE_UPLOAD_SUCCESS = 'STORAGE_UPLOAD_SUCCESS'
+export const STORAGE_UPLOAD_FAILURE = 'STORAGE_UPLOAD_FAILURE'
+
+export function uploadFile(pool, storage, callback) {
+  return {
+    [FETCH_API]: {
+      pool,
+      types: [STORAGE_UPLOAD_REQUEST, STORAGE_UPLOAD_SUCCESS, STORAGE_UPLOAD_FAILURE],
+      options: {
+        method: 'POST',
+        body: storage,
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function getUploadFileUlr(pool, volume) {
+  return `${API_URL_PREFIX}/storage-pools/${pool}/volumes/${volume}/import`
+}
+
+export function uploadFileRequest() {
+  return {
+    type: STORAGE_UPLOAD_REQUEST
+  }
+}
+
+export function uploadFileSuccess() {
+  return {
+    type: STORAGE_UPLOAD_SUCCESS
+  }
+}
+
+export function uploadFileFailure(err) {
+  return {
+    type: STORAGE_UPLOAD_FAILURE,
+    error: err
+  }
+}

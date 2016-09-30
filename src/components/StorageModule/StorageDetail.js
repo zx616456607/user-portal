@@ -145,6 +145,7 @@ function mapStateToProps(state, props) {
     pool: 'test',
     StorageInfo: props.params.storage_id
   }
+  console.log(props)
   const { Storage } = state
   const { cluster, StorageInfo, isFetching } = state.storage.storageDetail || defaultInfo
 

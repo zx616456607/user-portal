@@ -13,6 +13,7 @@ import { Tabs,Card, Menu, Progress, Upload ,Radio ,Modal,Button, Icon, Col} from
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import { getUploadFileUlr, uploadFileRequest, uploadFileSuccess, uploadFileFailure } from '../../actions/storage'
 import './style/storage.less'
 
 const RadioGroup = Radio.Group
@@ -37,7 +38,8 @@ class StorageStatus extends Component {
     super(props)
     this.state = {
       visible: false,
-      RadioValue:1
+      RadioValue:1,
+      isUnzip: false
     }
     this.showUploadModal = this.showUploadModal.bind(this)
     this.handleCancel = this.handleCancel.bind(this)
@@ -56,8 +58,35 @@ class StorageStatus extends Component {
   }
   changeRadioValue(e) {
     this.setState({
-      RadioValue: e.target.value
+      isUnzip: e.target.value
     })
+  }
+  getUploadData() {
+    return {
+      data: {
+        isUnzip: this.state.isUnzip,
+        format: 'ext4',
+        volumeName: 'test',
+        pool: 'test'
+      },
+      beforeUpload: () => this.props.uploadFileRequest(),
+      action: getUploadFileUlr('test', 'test'),
+      onChange(info) {
+        if (info.file.status === 'done') {
+          this.props.uploadFileSuccess()
+          this.setState({
+            visible: false
+          })
+          message.success('文件上传成功')
+        } else if (info.file.status === 'error') {
+          this.props.uploadFileFailure(`${info.file.name} file upload failed.`)
+          this.setState({
+            visible: false
+          })
+          message.error('文件上传失败')
+        }
+      } 
+    }
   }
   render(){
     const {formatMessage} = this.props.intl
@@ -65,12 +94,12 @@ class StorageStatus extends Component {
       <div className="action-btns" style={{paddingLeft:'30px',paddingTop:'10px'}}>
         <Modal title="上传文件" wrapClassName="vertical-center-modal" footer="" visible={this.state.visible} onCancel={this.handleCancel}>
           <div className="uploadModal">
-            <RadioGroup onChange={this.changeRadioValue} value={this.state.RadioValue}>
-              <Radio key="a" value={1}>直接上传</Radio>
-              <Radio key="b" value={2}>上传并解压</Radio>
+            <RadioGroup onChange={(e) => {this.changeRadioValue(e)}} value={this.state.isUnzip}>
+              <Radio key="a" value={false}>直接上传</Radio>
+              <Radio key="b" value={true}>上传并解压</Radio>
             </RadioGroup>
             <p>
-              <Upload {...props}>
+              <Upload {...(this.getUploadData())}>
                 <Button type="primary">
                   <Icon type="upload" /> 选择文件
                 </Button>
@@ -141,7 +170,17 @@ class StorageStatus extends Component {
 StorageStatus.propTypes = {
   intl: PropTypes.object.isRequired
 }
+
+function mapStateToProp(state) {
+  return {
+    upload: state.storage.uploadFile
+  }
+}
   
-export default injectIntl(StorageStatus, {
+export default connect(mapStateToProp, {
+  uploadFileRequest,
+  uploadFileSuccess,
+  uploadFileFailure
+})(injectIntl(StorageStatus, {
   withRef: true,
-})
+}))

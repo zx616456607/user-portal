@@ -9,6 +9,8 @@
  */
 
 'use strict'
+var parse = require('co-busboy')
+
 const VolumeApi = require('../tenx_api/v2')
 const volumeConfig = {
   protocol: 'http',
@@ -25,7 +27,7 @@ const volumeApi = new VolumeApi(volumeConfig)
 
 exports.getVolumeListByPool = function*() {
   let pool = this.params.pool
-  let response = yield volumeApi.volumes.getBy(['list'])
+  let response = yield volumeApi.volumes.getBy([pool,'list'])
   this.status = response.code
   this.body = response
 }
@@ -40,7 +42,7 @@ exports.deleteVolume = function*() {
     }
     return
   }
-  let response = yield volumeApi.volumes.batchDeleteBy(['delete'], null, volumeArray)
+  let response = yield volumeApi.volumes.batchDeleteBy([pool,'delete'], null, volumeArray)
   this.status = 200
   this.body = {}
 }
@@ -83,3 +85,20 @@ exports.getVolumeDetail = function*() {
   }
 }
 
+exports.uploadFile = function*() {
+  const parts = yield parse(this, {
+    autoFields: true
+  })
+  if(!parts) {
+    this.status = 400
+    this.message = { message: 'error'}
+    return
+  }
+  const pool = this.params.pool
+  const volumeName = this.params.name
+  const isUnzip = this.request.query.isUnzip || 'false'
+  console.log(parts)
+  let response = yield volumeApi.volumes.uploadFile([pool, volumeName, 'import'], { isUnzip }, parts)
+  this.status = response.code
+  this.body = response
+}
