@@ -63,7 +63,7 @@ module.exports = function (request){
       }, callback)
     }
 
-    createBy(path, querys, data, callback) {
+    createBy(paths, querys, data, callback) {
       let endpoint = this[_getPaths].apply(null, paths) + this[_getQuerys](querys)
       return request({
         endpoint,
@@ -107,11 +107,11 @@ module.exports = function (request){
     }
 
     batchDelete() {
-      return this.update.apply(this, arguments)
+      return this.create.apply(this, arguments)
     }
 
     batchDeleteBy() {
-      return this.updateBy.apply(this, Array.prototype.slice.apply(arguments))
+      return this.createBy.apply(this, Array.prototype.slice.apply(arguments))
     }
 
     uploadFile(paths, querys, stream, callback) {

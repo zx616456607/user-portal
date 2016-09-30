@@ -8,16 +8,37 @@
  * @author Zhangpc
  */
 'use strict'
+const yaml = require('js-yaml')
+const apiFactory = require('../services/api_factory')
 
 exports.createApp = function* () {
   const cluster = this.params.cluster
+  const app = this.request.body
+  if (!app || !app.name) {
+    const err = new Error('App name is required.')
+    err.status = 400
+    throw err
+  }
+  if (!app || !app.desc) {
+    const err = new Error('App desc is required.')
+    err.status = 400
+    throw err
+  }
+  app.desc = yaml.dump(app.desc)
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.createBy([cluster, 'apps'], null, app)
   this.body = {
-    cluster
+    cluster,
+    data: result
   }
 }
 
 exports.getApps = function* () {
   const cluster = this.params.cluster
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster, 'apps'])
   const data = [{
     id: "1",
     appName: "test1",
@@ -85,35 +106,76 @@ exports.getApps = function* () {
     }];
   this.body = {
     cluster,
+    // data: result
     data
   }
 }
 
 exports.deleteApps = function* () {
   const cluster = this.params.cluster
+  const apps = this.request.body
+  if (!apps) {
+    const err = new Error('App names is required.')
+    err.status = 400
+    throw err
+  }
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.batchDeleteBy([cluster, 'apps', 'batchdelete'], null, { apps })
   this.body = {
-    cluster
+    cluster,
+    data: result
   }
 }
 
 exports.stopApps = function* () {
   const cluster = this.params.cluster
+  const apps = this.request.body
+  if (!apps) {
+    const err = new Error('App names is required.')
+    err.status = 400
+    throw err
+  }
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.updateBy([cluster, 'apps', 'stop'], null, { apps })
   this.body = {
-    cluster
+    cluster,
+    data: result
   }
 }
 
 exports.startApps = function* () {
   const cluster = this.params.cluster
+  const apps = this.request.body
+  if (!apps) {
+    const err = new Error('App names is required.')
+    err.status = 400
+    throw err
+  }
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.updateBy([cluster, 'apps', 'start'], null, { apps })
   this.body = {
-    cluster
+    cluster,
+    data: result
   }
 }
 
 exports.restartApps = function* () {
   const cluster = this.params.cluster
+  const apps = this.request.body
+  if (!apps) {
+    const err = new Error('App names is required.')
+    err.status = 400
+    throw err
+  }
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.updateBy([cluster, 'apps', 'restart'], null, { apps })
   this.body = {
-    cluster
+    cluster,
+    data: result
   }
 }
 
