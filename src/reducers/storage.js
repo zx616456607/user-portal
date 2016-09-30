@@ -82,7 +82,6 @@ function createStorage(state = {}, action) {
       return state
   }
 }
-
 function formateStorage(state = {}, action) {
   switch(action.type) {
     case ActionTypes.STORAGE_FORMATE_REQUEST:

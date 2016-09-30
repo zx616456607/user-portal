@@ -84,7 +84,7 @@ export const Schemas = {
   },
   SERVICE: serviceSchema,
   SERVICES: {
-    containerList: arrayOf(serviceSchema)
+    servicesList: arrayOf(serviceSchema)
   },
   CONTAINER: containerSchema,
   CONTAINERS: {

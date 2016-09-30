@@ -63,6 +63,32 @@ export function loadServiceList(cluster, appName, requiredFields = []) {
   }
 }
 
+export const SERVICE_CREATE_REQUEST = 'SERVICE_CREATE_REQUEST'
+export const SERVICE_CREATE_SUCCESS = 'SERVICE_CREATE_SUCCESS'
+export const SERVICE_CREATE_FAILURE = 'SERVICE_CREATE_FAILURE'
+
+export function createService(cluster,appName,newSvc,callback) {
+  return {
+    cluster,
+    appName,
+    [FETCH_API]: {
+      types: [SERVICE_CREATE_REQUEST, SERVICE_CREATE_SUCCESS, SERVICE_CREATE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/apps/${appName}/services`,
+      options: {
+        method: 'POST',
+        body: {
+          svcName:newSvc.svcName,
+          desc:''
+        }
+      },
+      schema: Schemas.SERVICES
+    },
+    callback: callback
+  }
+}
+
+
+
 
 export const CONTAINER_LIST_REQUEST = 'CONTAINER_LIST_REQUEST'
 export const CONTAINER_LIST_SUCCESS = 'CONTAINER_LIST_SUCCESS'

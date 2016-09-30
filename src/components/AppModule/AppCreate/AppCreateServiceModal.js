@@ -80,7 +80,7 @@ var MyComponent = React.createClass({
 	rootScope.setState({
 		modalShow : false
 	})
-  	console.log(rootScope)
+  	// console.log(rootScope)
   },
   render : function() {
 	var config = this.props.config;
@@ -143,6 +143,11 @@ export default class AppCreateServiceModal extends Component {
   
   render() {
   	const parentScope = this
+    const servicesList = this.props.scope.state.servicesList
+    console.log('CreateService ============');
+    console.log(servicesList);
+    console.log('CreateService ============');
+		
     return (
 	    <div id="AppCreateServiceModal" key="AppCreateServiceModal">
 	      <div className="operaBox">
@@ -168,7 +173,7 @@ export default class AppCreateServiceModal extends Component {
 					className="AppServiceDetail"
 					transitionName="move-right"
 	      >
-	        <AppDeployServiceModal scope={parentScope} />
+	        <AppDeployServiceModal scope={parentScope} servicesList = {servicesList} />
           </Modal>
 	    </div>  
     )

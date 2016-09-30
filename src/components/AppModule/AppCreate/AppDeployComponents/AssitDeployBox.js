@@ -62,7 +62,7 @@ class AssitDeployBox extends Component {
     });
     return (
 	  <div id="AssitDeployBox">
-	    <Form horizontal form={this.props.form}>
+	    {/*<Form horizontal form={this.props.form}>*/}
 	    	<div className="assitBox">
 	    		<div>
 					  <div className="inputBox">
@@ -103,7 +103,7 @@ class AssitDeployBox extends Component {
 			      </div>
 			    </div>
 	    	</div>
-	    </Form>
+	    {/*</Form>*/}
 	  </div>
     )
   }

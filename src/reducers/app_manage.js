@@ -84,6 +84,31 @@ export function services(state = {}, action) {
           }
         }
       })
+    
+    case ActionTypes.SERVICE_CREATE_REQUEST:
+      return union({}, state, {
+        [cluster]:  {
+          [appName]: {
+            isFetching: true
+          }
+        }
+      })
+    case ActionTypes.SERVICE_CREATE_SUCCESS:
+      return union({}, state, {
+        [cluster]:  {
+          [appName]: {
+            isFetching: false
+          }
+        }
+      })
+    case ActionTypes.SERVICE_CREATE_FAILURE:
+      return union({}, state, {
+        [cluster]:  {
+          [appName]: {
+            isFetching: false
+          }
+        }
+      })
     default:
       return state
   }

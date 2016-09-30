@@ -35,16 +35,42 @@ class UsefulDeployBox extends Component {
   }
   
   render() {
-  	const parentScope = this.props.scope;
-  	const { getFieldProps, getFieldError, isFieldValidating } = this.props.form;
+    const parentScope = this.props.scope;
+    const { getFieldProps, getFieldError, isFieldValidating } = parentScope.props.form;
   	const runningCodeProps = getFieldProps('imageUrl', {
       rules: [
         { required: true, message: '请输入自定义执行命令' },
       ],
     });
+    const livePort =  getFieldProps('livePort', {
+      rules: [
+        { required: true, message: '请输入端口' },
+      ],
+    });
+    const liveInitialDelaySeconds = getFieldProps('liveInitialDelaySeconds', {
+      rules: [
+        { required: true, message: '请输入首次检查延时' },
+      ],
+    });
+    const liveTimeoutSeconds = getFieldProps('liveTimeoutSeconds', {
+      rules: [
+        { required: true, message: '请输入检查超时' },
+      ],
+    })
+    const livePeriodSeconds = getFieldProps('livePeriodSeconds', {
+      rules: [
+        { required: true, message: '请输入检查间隔' },
+      ],
+    })
+    const livePath = getFieldProps('livePath', {
+      rules: [
+        { required: true, message: '请输入路径' },
+      ],
+    })
+    
     return (
 	  <div id="UsefulDeployBox">
-	    <Form horizontal form={parentScope.props.form}>
+	    {/*<Form horizontal form={parentScope.props.form}>*/}
 	    	<div className="usefulBox">
 	        <RadioGroup onChange={this.changeUsefulType} value={parentScope.state.getUsefulType}>
 					  <Radio key="a" value={"null"}>无</Radio>
@@ -70,16 +96,16 @@ class UsefulDeployBox extends Component {
 		      		</div>
 		      		<div className="input">
 		      			<div className="commonInput">
-		      				<Input type="text" />
+		      				<Input type="text" {...livePort} />
 		      			</div>
 		      			<div className="commonInput">
-		      				<Input type="text" />&nbsp;&nbsp;s
+		      				<Input type="text"  {...liveInitialDelaySeconds}/>&nbsp;&nbsp;s
 		      			</div>
 		      			<div className="commonInput">
-		      				<Input type="text" />&nbsp;&nbsp;s
+		      				<Input type="text" {...liveTimeoutSeconds}/>&nbsp;&nbsp;s
 		      			</div>
 		      			<div className="commonInput">
-		      				<Input type="text" />&nbsp;&nbsp;s
+		      				<Input type="text" {...livePeriodSeconds}/>&nbsp;&nbsp;s
 		      			</div>
 		      			<div style={{ clear:"both" }}></div>
 		      		</div>
@@ -92,7 +118,7 @@ class UsefulDeployBox extends Component {
 		      		<div className="input">
 		      			<span style={{float:"left",marginLeft:"10px"}}>/</span>
 		      			<div className="commonInput">
-		      				<Input type="text" />
+		      				<Input type="text" {...livePath} />
 		      			</div>
 		      			<div style={{ clear:"both" }}></div>
 		      		</div>
@@ -133,7 +159,7 @@ class UsefulDeployBox extends Component {
 		      	</div>
 		      ]:null}
 		      </div>
-	    </Form>
+			{/*</Form>*/}
 	  </div>
     )
   }
