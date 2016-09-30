@@ -9,8 +9,7 @@
  */
 'use strict'
 const yaml = require('js-yaml')
-const tenxApi = require('../tenx_api/v2')
-const config = require('../configs')
+const apiFactory = require('../services/api_factory')
 
 exports.createApp = function* () {
   const cluster = this.params.cluster
@@ -26,9 +25,9 @@ exports.createApp = function* () {
     throw err
   }
   app.desc = yaml.dump(app.desc)
-  const user = this.session.loginUser
-  const api = this.session.api
-  const result = yield api.clusters.createBy([cluster, 'apps'], null, app)
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.createBy([cluster, 'apps'], null, app)
   this.body = {
     cluster,
     data: result
@@ -37,9 +36,9 @@ exports.createApp = function* () {
 
 exports.getApps = function* () {
   const cluster = this.params.cluster
-  const user = this.session.loginUser
-  const api = this.session.api
-  const result = yield api.clusters.getBy([cluster, 'apps'])
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster, 'apps'])
   /*const data = [{
     id: "1",
     appName: "test1",
@@ -119,9 +118,9 @@ exports.deleteApps = function* () {
     err.status = 400
     throw err
   }
-  const user = this.session.loginUser
-  const api = this.session.api
-  const result = yield api.clusters.batchDeleteBy([cluster, 'apps', 'batchdelete'], null, { apps })
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.batchDeleteBy([cluster, 'apps', 'batchdelete'], null, { apps })
   this.body = {
     cluster,
     data: result
@@ -136,9 +135,9 @@ exports.stopApps = function* () {
     err.status = 400
     throw err
   }
-  const user = this.session.loginUser
-  const api = this.session.api
-  const result = yield api.clusters.updateBy([cluster, 'apps', 'stop'], null, { apps })
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.updateBy([cluster, 'apps', 'stop'], null, { apps })
   this.body = {
     cluster,
     data: result
@@ -153,9 +152,9 @@ exports.startApps = function* () {
     err.status = 400
     throw err
   }
-  const user = this.session.loginUser
-  const api = this.session.api
-  const result = yield api.clusters.updateBy([cluster, 'apps', 'start'], null, { apps })
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.updateBy([cluster, 'apps', 'start'], null, { apps })
   this.body = {
     cluster,
     data: result
@@ -170,9 +169,9 @@ exports.restartApps = function* () {
     err.status = 400
     throw err
   }
-  const user = this.session.loginUser
-  const api = this.session.api
-  const result = yield api.clusters.updateBy([cluster, 'apps', 'restart'], null, { apps })
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.updateBy([cluster, 'apps', 'restart'], null, { apps })
   this.body = {
     cluster,
     data: result
