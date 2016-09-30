@@ -27,10 +27,9 @@ class CollapseHeader extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      createConfigFile: false
+      createConfigFile: false,
+      configArray: [],
     }
-    this.createConfigFile = this.createConfigFile.bind(this)
-    this.handleDropdown = this.handleDropdown.bind(this)
   }
   createConfigFile(e,createConfigFile){
     this.setState({createConfigFile})
@@ -38,13 +37,19 @@ class CollapseHeader extends Component {
   }
   handleDropdown(e) {
     e.stopPropagation()
+    // console.log('target',e.target)
+    // console.log('ched',e.target.checked)
+  }
+
+  handChage(e, Id) {
+    this.props.handChageProp(e,Id)
   }
   render(){
     const {collapseHeader} = this.props
     return (
       <Row>
         <Col className="group-name" span="6">
-          <Checkbox onClick={(e) => this.handleDropdown(e)}></Checkbox>
+          <Checkbox onChange={(e)=> this.handChage(e, collapseHeader.groupId)} onClick={(e) => this.handleDropdown(e)}></Checkbox>
           <Icon type="folder-open" />
           <Icon type="folder" />
           <span>{collapseHeader.groupName}</span>

@@ -159,5 +159,30 @@ exports.getConfigGroup = function* () {
   }
 }
 
-
+exports.createConfigGroup = function* () {
+  const cluster = this.params.cluster
+  // let data = this.request.body
+  let data = {
+        groupId: parseInt(Math.random() *100),
+        groupName: this.request.body,
+        date: new Date()
+      }
+  console.info('createConfigGroup---',this.request.body)
+  this.status = 200
+  this.body = {
+    cluster,
+    data
+  }
+}
+exports.deleteConfigGroup = function* () {
+  const cluster = this.params.cluster
+  let Id = this.request.body
+  if (Id.groupId) {
+    // go delete`
+    this.status = 200
+    this.body = {
+      message: '删除成功了'
+    }
+  }
+}
 
