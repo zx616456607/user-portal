@@ -78,7 +78,7 @@ class ConfigFile extends Component {
     let containerList = configFile.container
     let RendfileList = containerList.slice(0,3).map((containerItem) => {
       return (
-        <td>
+        <td key={containerItem.containerId}>
           <div className="relate">
             {containerItem.containerName}
           </div>
