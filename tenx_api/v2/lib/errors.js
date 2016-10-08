@@ -62,6 +62,9 @@ class InvalidHttpCodeError extends Error {
       case 'ConnectionTimeoutError':
         this.statusCode = 504
         break
+      case 'RequestError':
+        this.statusCode = 503
+        break
       default:
         this.statusCode = 500
     }

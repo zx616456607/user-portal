@@ -209,7 +209,7 @@ exports.deleteServices = function* () {
 exports.getAppServices = function* () {
   const cluster = this.params.cluster
   const appName = this.params.app_name
-  /*const data = [{
+  const data = [{
     id: "1",
     name: "test1",
     status: "1",
@@ -265,8 +265,7 @@ exports.getAppServices = function* () {
       imageName: "Linux",
       serviceIP: "192.168.1.1",
       createTime: "2016-09-09 11:27:27",
-    }];*/
-  const data = []
+    }];
   this.body = {
     cluster,
     appName,
