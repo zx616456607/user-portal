@@ -33,6 +33,7 @@ class AppDeployServiceModal extends Component {
     super(props);
        
     this.submitNewService = this.submitNewService.bind(this);
+    this.closeModal = this.closeModal.bind(this);
     this.state = {
     	composeType:"1",
     	stateService:false,
@@ -169,8 +170,8 @@ class AppDeployServiceModal extends Component {
     const liveTimeoutSeconds = this.props.form.getFieldProps('liveTimeoutSeconds').value //检查超时
     const livePeriodSeconds = this.props.form.getFieldProps('livePeriodSeconds').value //检查间隔
     const livePath = this.props.form.getFieldProps('livePath').value //高可用路径
-    
     const { volumeMountList,enviroList,portList } = this.state
+    
     let serviceConfig = {
         [serviceName]: {
           "replicas": instanceNum,
@@ -178,50 +179,87 @@ class AppDeployServiceModal extends Component {
             {
               "name": serviceName,
               "image": imageURL,
-              "ports": portList,
               "syncTimeZoneWithNode": getImageType,
-              "env": enviroList,
-              "volumeMounts": volumeMountList,
               "resources": {
                 "limits": ImageConfig.limits
               },
-              "livenessProbe": {
-                "httpGet": {
-                  "path": livePath,
-                  "port": livePort
-                },
-                "initialDelaySeconds": liveInitialDelaySeconds,
-                "timeoutSeconds": liveTimeoutSeconds,
-                "periodSeconds": livePeriodSeconds
-              }
-            }
-          ],
-          "volumes": [
-            {
-              "name": volumeName
             }
           ],
         },
     }
+    
+    if(volumeName){
+      Object.assign(serviceConfig,{
+        "volumes": [
+          {
+            "name": volumeName
+          }
+        ]
+      })
+    }
+    if(this.state.getUsefulType === 'http'){
+      Object.assign(serviceConfig[serviceName].containers[0],{
+        "livenessProbe": {
+          "httpGet": {
+            "path": livePath,
+            "port": livePort
+          },
+          "initialDelaySeconds": liveInitialDelaySeconds,
+          "timeoutSeconds": liveTimeoutSeconds,
+          "periodSeconds": livePeriodSeconds
+        }
+      })
+    } else if(this.state.getUsefulType === 'tcp') {
+      Object.assign(serviceConfig[serviceName].containers[0],{
+        "livenessProbe": {
+          "tcpSocket": {
+            "port": livePort
+          },
+          "initialDelaySeconds": liveInitialDelaySeconds,
+          "timeoutSeconds": liveTimeoutSeconds,
+          "periodSeconds": livePeriodSeconds
+        }
+      })
+    }
+    if(enviroList.length !== 0){
+      Object.assign(serviceConfig[serviceName].containers[0],{
+        "env": enviroList,
+      })
+    }
+    if(portList.length !== 0){
+      Object.assign(serviceConfig[serviceName].containers[0],{
+        "ports": portList,
+      })
+    }
+    if(volumeMountList.length !== 0){
+      Object.assign(serviceConfig[serviceName].containers[0],{
+        "volumeMounts": volumeMountList,
+      })
+    }
+    
+    console.log('==============');
+    console.log(serviceConfig);
+    console.log('==============');
+    
     const newService = {id:serviceName,name:serviceName,imageName:imageURL,resource:ImageConfig.cal,inf:serviceConfig}
     
-      this.props.scope.props.scope.state.servicesList.push(newService)
-      const newList = this.props.scope.props.scope.state.servicesList
-      this.props.scope.props.scope.setState({
-        servicesList: newList
-      })
-      console.log('newService =========');
-      console.log(newList);
-      console.log('newService =========');
-      
+    this.props.scope.props.scope.state.servicesList.push(newService)
+    const newList = this.props.scope.props.scope.state.servicesList
+    this.props.scope.props.scope.setState({
+      servicesList: newList
+    })
+    /*console.log('newService =========');
+    console.log(newList);
+    console.log('newService =========');*/
     parentScope.setState({
       modalShow:false
     });
   }
-  
   closeModal(){
+    const parentScope = this.props.scope;
     //the function for close the deploy new service modal
-    this.setState({
+    console.log(this);
+    parentScope.setState({
       modalShow:false
     });
   }
@@ -230,7 +268,6 @@ class AppDeployServiceModal extends Component {
   	const parentScope = this.props.scope;
     const {createService,cluster,appName} = this.props
     const {servicesList} = parentScope.props.scope.state.servicesList
-  
   
     return (
 	  <div id="AppDeployServiceModal">

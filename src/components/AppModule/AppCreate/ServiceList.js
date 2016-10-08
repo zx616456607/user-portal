@@ -151,7 +151,6 @@ export default class ServiceList extends Component {
   	});
   }
   subServicesList(){
-    console.log('aaa');
     console.log(this.state.servicesList);
     localStorage.setItem('servicesList',JSON.stringify(this.state.servicesList))
   }

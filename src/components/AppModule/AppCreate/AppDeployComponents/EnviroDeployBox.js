@@ -23,6 +23,7 @@ let MyComponentEnviro = React.createClass({
     config : React.PropTypes.array
   },
   remove(k) {
+    const { getFieldProps, getFieldValue,getFieldsValue } = this.props.parentScope.props.form;
     const { form } = this.props.parentScope.props;
     // can use data-binding to get
     let envKey = form.getFieldValue('envKey');
