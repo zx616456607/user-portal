@@ -16,6 +16,8 @@ import "./style/ComposeFile.less"
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import {createApp} from '../../../actions/app_manage'
 import * as yaml from 'js-yaml'
+import { browserHistory } from 'react-router'
+
 const Option = Select.Option;
 
 const operaMenu = (<Menu>
@@ -75,6 +77,7 @@ class ComposeFile extends Component {
           })
           console.log('sub')
           localStorage.removeItem('servicesList')
+					browserHistory.push('/app_manage')
         },
         isAsync: true
       },
