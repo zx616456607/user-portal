@@ -46,17 +46,15 @@ class AppDeployServiceModal extends Component {
     }
   }
   componentWillMount() {
-    const { cluster, appName, loadServiceList } = this.props
-    /*loadServiceList(cluster, appName)*/
-    this.setState = {}
+    
   }
   
   submitNewService(e,parentScope){
+    
   	//the function for user submit new service
   	e.preventDefault();
   	this.props.form.validateFields((errors, values) => {
-      //console.log(errors)
-      //console.log(values)
+  	  
     });
   	const scope = this.state;
   	let composeType = scope.composeType;
@@ -86,44 +84,78 @@ class AppDeployServiceModal extends Component {
         })
       })
     }
-    var limits = {};
+    var ImageConfig = {
+      limits:{
+        "cpu": "60m",
+        "memory": "125Mi"
+      },
+      cal:'1C/256M'
+    };
     (function showConfig(composeType) {
       switch (composeType){
         case '1':
-          return limits={
-            "cpu": "60m",
-            "memory": "125Mi"
+          ImageConfig={
+            limits:{
+              cpu: "60m",
+              memory: "125Mi"
+            },
+            cal:'1C/256M'
           }
+          return
         case '2':
-          return limits={
-            "cpu": "125m",
-            "memory": "512Mi"
+          ImageConfig = {
+            limits:{
+              "cpu": "125m",
+              "memory": "512Mi"
+            },
+            cal:'1C/512M'
           }
-        case '3':
-          return limits={
-            "cpu": "250m",
-            "memory": "1024Mi"
-          }
+          return
         case '4':
-          return limits={
-            "cpu": "500m",
-            "memory": "2048Mi"
+          ImageConfig = {
+            limits:{
+              "cpu": "250m",
+              "memory": "1024Mi"
+            },
+            cal:'1C/1G'
           }
-        case '5':
-          return limits={
-            "cpu": "1000m",
-            "memory": "4096Mi"
+          return
+        case '8':
+          ImageConfig = {
+            limits:{
+              "cpu": "500m",
+              "memory": "2048Mi"
+            },
+            cal:'1C/2G'
           }
-        case '6':
-          return limits={
-            "cpu": "2000m",
-            "memory": "8192Mi"
+          return
+        case '16':
+          ImageConfig = {
+            limits:{
+              "cpu": "1000m",
+              "memory": "4096Mi"
+            },
+            cal:'1C/4G'
           }
+          return
+        case '32':
+          ImageConfig = {
+            limits:{
+              "cpu": "2000m",
+              "memory": "8192Mi"
+            },
+            cal:'2C/8G'
+          }
+          return
         default :
-          return limits={
-            "cpu": "60m",
-            "memory": "125Mi"
+          ImageConfig = {
+            limits:{
+              "cpu": "60m",
+              "memory": "125Mi"
+            },
+            cal:'1C/256M'
           }
+          return
       }
     })(composeType)
     
@@ -150,7 +182,7 @@ class AppDeployServiceModal extends Component {
               "env": enviroList,
               "volumeMounts": volumeMountList,
               "resources": {
-                "limits": limits
+                "limits": ImageConfig.limits
               },
               "livenessProbe": {
                 "httpGet": {
@@ -170,53 +202,22 @@ class AppDeployServiceModal extends Component {
           ],
         },
     }
+    const newService = {id:serviceName,name:serviceName,imageName:imageURL,resource:ImageConfig.cal,inf:serviceConfig}
     
-    // console.log('================');
-    // console.log(serviceConfig);
-    const newService = {id:serviceName,name:serviceName,imageName:'Linux',resource:'resource',inf:serviceConfig}
-    
-    
-    let self = this
-    this.props.createService('default','app_name',newService, {
-      success: {
-        func: () => {
-          console.log('create');
-          self.state={
-            composeType:"1",
-            stateService:false,
-            instanceNum:1,
-            runningCode:"1",
-            getImageType:"1",
-            currentDate:false,
-            getUsefulType:"null",
-            volumeMountList:[],
-            enviroList:[],
-            portList:[]
-          }
-          /*console.log(self);
-          parentScope.props.scope.state.servicesList.push(newService)
-          console.log(parentScope);
-          console.log(parentScope.props.scope.state.servicesList);
-          parentScope.setState({
-            modalShow:false
-          });*/
-          //this.props.serviceList.push(newService)
-          this.props.scope.props.scope.state.servicesList.push(newService)
-          const newList = this.props.scope.props.scope.state.servicesList
-          this.props.scope.props.scope.setState({
-            servicesList: newList
-          })
-          console.log('newService =========');
-          console.log(newList);
-          console.log('newService =========');
-          parentScope.setState({
-            modalShow:false
-          });
-        },
-        isAsync: true
-      },
-    })
+      this.props.scope.props.scope.state.servicesList.push(newService)
+      const newList = this.props.scope.props.scope.state.servicesList
+      this.props.scope.props.scope.setState({
+        servicesList: newList
+      })
+      console.log('newService =========');
+      console.log(newList);
+      console.log('newService =========');
+      
+    parentScope.setState({
+      modalShow:false
+    });
   }
+  
   closeModal(){
     //the function for close the deploy new service modal
     this.setState({

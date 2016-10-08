@@ -24,7 +24,7 @@ exports.createApp = function* () {
     err.status = 400
     throw err
   }
-  app.desc = yaml.dump(app.desc)
+  // app.desc = yaml.dump(app.desc)
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.createBy([cluster, 'apps'], null, app)

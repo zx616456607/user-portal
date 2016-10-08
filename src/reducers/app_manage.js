@@ -38,6 +38,25 @@ export function apps(state = {}, action) {
       return merge({}, defaultState, state, {
         [cluster]: {isFetching: false}
       })
+  
+    case ActionTypes.APP_CREATE_REQUEST:
+      return union({}, state, {
+        [cluster]:  {
+          isFetching: true
+        }
+      })
+    case ActionTypes.APP_CREATE_SUCCESS:
+      return union({}, state, {
+        [cluster]:  {
+          isFetching: false
+        }
+      })
+    case ActionTypes.APP_CREATE_FAILURE:
+      return union({}, state, {
+        [cluster]:  {
+          isFetching: false
+        }
+      })
     default:
       return state
   }
@@ -85,30 +104,7 @@ export function services(state = {}, action) {
         }
       })
     
-    case ActionTypes.SERVICE_CREATE_REQUEST:
-      return union({}, state, {
-        [cluster]:  {
-          [appName]: {
-            isFetching: true
-          }
-        }
-      })
-    case ActionTypes.SERVICE_CREATE_SUCCESS:
-      return union({}, state, {
-        [cluster]:  {
-          [appName]: {
-            isFetching: false
-          }
-        }
-      })
-    case ActionTypes.SERVICE_CREATE_FAILURE:
-      return union({}, state, {
-        [cluster]:  {
-          [appName]: {
-            isFetching: false
-          }
-        }
-      })
+    
     default:
       return state
   }

@@ -103,6 +103,8 @@ export default class ServiceList extends Component {
     this.openModal = this.openModal.bind(this);    
     this.onchange = this.onchange.bind(this);
     this.allSelectedChecked = this.allSelectedChecked.bind(this);
+    this.subServicesList = this.subServicesList.bind(this);
+    this.delServicesList = this.delServicesList.bind(this);
     this.state = {
       modalShow:false,
       selectedList:[],
@@ -148,9 +150,22 @@ export default class ServiceList extends Component {
   	  selectedList : newList
   	});
   }
-  
+  subServicesList(){
+    console.log('aaa');
+    console.log(this.state.servicesList);
+    localStorage.setItem('servicesList',JSON.stringify(this.state.servicesList))
+  }
+  delServicesList(){
+    localStorage.removeItem('servicesList');
+  }
   componentWillMount() {
     //this.setState({servicesList:[]})
+    const serviceList = JSON.parse(localStorage.getItem('servicesList'))
+    if(serviceList){
+      this.setState({
+        servicesList : serviceList
+      })
+    }
   }
   
   render() {
@@ -194,12 +209,12 @@ export default class ServiceList extends Component {
 	      </div>
 	      <div className="btnBox">
 	        <Link to={`/app_manage/app_create`}>
-	          <Button type="primary" size="large">
+	          <Button type="primary" size="large" onClick={this.delServicesList}>
 	            上一步
 	          </Button>
 	        </Link>
 	        <Link to={`/app_manage/app_create/compose_file`}>
-	          <Button type="primary" size="large">
+	          <Button type="primary" size="large" onClick={this.subServicesList}>
 	            下一步
 	          </Button>
 	        </Link>

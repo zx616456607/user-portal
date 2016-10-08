@@ -117,10 +117,7 @@ class NormalDeployBox extends Component {
 	          <span className="commonSpan">镜像版本</span>
 		        <FormItem className="imageTagForm">
 		          <Select {...selectProps} className="imageTag" size="large" tyle={{ width: 200 }} >
-				        <Option value="对，选楼下">对，选楼下</Option>
-				        <Option value="成熟的Linux">成熟的Linux</Option>
-				        <Option value="看啥，选楼上">看啥，选楼上</Option>
-				        <Option value="没毛病，选二楼">没毛病，选二楼</Option>
+				        <Option value="latest">latest</Option>
 			      	</Select>
 		        </FormItem>
 	          <div style={{ clear:"both" }}></div>
