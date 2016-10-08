@@ -39,6 +39,7 @@ class ComposeFile extends Component {
     this.subApp=this.subApp.bind(this)
     this.handleAppName=this.handleAppName.bind(this)
     this.handleCluster=this.handleCluster.bind(this)
+    this.handleYaml=this.handleYaml.bind(this)
     const serviceList = JSON.parse(localStorage.getItem('servicesList'))
     const desc = {
       "version": "1.0",
@@ -94,6 +95,11 @@ class ComposeFile extends Component {
     })
     console.log(this.state.cluster);
   }
+	handleYaml(e){
+    this.setState({
+      appDescYaml: e.target.value
+    })
+	}
   
   render() {
     const {appName, appDescYaml} = this.state
@@ -137,7 +143,7 @@ class ComposeFile extends Component {
 	                <i className="fa fa-expand"></i>
 	                <i className="fa fa-star-o"></i>
 	              </div>
-	              <textarea value={appDescYaml}></textarea>
+	              <textarea value={appDescYaml} onChange={this.handleYaml}></textarea>
 	            </div>
 	            <div style={{ clear:"both" }}></div>
 	          </div>          
