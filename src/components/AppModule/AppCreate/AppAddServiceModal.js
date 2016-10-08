@@ -2,7 +2,7 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  * 
- * AppCreateServiceModal component
+ * AppAddServiceModal component
  * 
  * v0.1 - 2016-09-22
  * @author GaoJian
@@ -13,7 +13,7 @@ import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import AppDeployServiceModal from './AppDeployServiceModal.js'
-import "./style/AppCreateServiceModal.less"
+import './style/AppAddServiceModal.less'
 
 const testData = [{
 	id:"1",
@@ -107,7 +107,7 @@ var MyComponent = React.createClass({
   }
 });		
 
-export default class AppCreateServiceModal extends Component {
+export default class AppAddServiceModal extends Component {
   constructor(props) {
     super(props);
     this.selectImageType = this.selectImageType.bind(this);    
@@ -149,7 +149,7 @@ export default class AppCreateServiceModal extends Component {
     console.log('CreateService ============');
 		
     return (
-	    <div id="AppCreateServiceModal" key="AppCreateServiceModal">
+	    <div id="AppAddServiceModal" key="AppAddServiceModal">
 	      <div className="operaBox">
 	        <span className="titleSpan">选择镜像</span>
 	        <Button type={this.state.currentImageType == "public" ? "primary":"ghost"} size="large" onClick={this.selectImageType.bind(this,"public")}>
@@ -180,6 +180,6 @@ export default class AppCreateServiceModal extends Component {
   }
 }
 
-AppCreateServiceModal.propTypes = {
+AppAddServiceModal.propTypes = {
   selectedList : React.PropTypes.array
 }

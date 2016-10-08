@@ -20,3 +20,8 @@ exports.getK8sApi = function (loginUser) {
   const api = new tenxApi(apiConfig)
   return api.clusters
 }
+
+exports.getRegistryApi = function (registryConfig) {
+  const api = new tenxApi(registryConfig)
+  return api.registries
+}

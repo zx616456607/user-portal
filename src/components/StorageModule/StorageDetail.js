@@ -17,6 +17,7 @@ import StorageBind from './StorageBind.js'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { loadStorageInfo } from '../../actions/storage'
 import "./style/StorageDetail.less"
+import { DEFAULT_CLUSTER } from '../../constants'
 
 function loadData(props) {
   const {name, loadStorageInfo } = props
@@ -141,7 +142,7 @@ StorageDetail.propTypes = {
 function mapStateToProps(state, props) {
   const defaultInfo = {
     isFetching: false,
-    cluster: 'default',
+    cluster: DEFAULT_CLUSTER,
     pool: 'test',
     StorageInfo: props.params.storage_id
   }

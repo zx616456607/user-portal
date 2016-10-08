@@ -20,6 +20,7 @@ import ComposeDeployBox from './AppDeployComponents/ComposeDeployBox.js'
 import EnviroDeployBox from './AppDeployComponents/EnviroDeployBox.js'
 import "./style/AppDeployServiceModal.less"
 import { loadServiceList , createService } from '../../../actions/app_manage'
+import { DEFAULT_CLUSTER } from '../../../constants'
 
 const Panel = Collapse.Panel;
 const Option = Select.Option;
@@ -310,7 +311,7 @@ function mapStateToProps(state, props) {
   
   const defaultServices = {
     isFetching: false,
-    cluster: 'default',
+    cluster: DEFAULT_CLUSTER,
     appName: app_name,
     serviceList: []
   }
@@ -318,8 +319,8 @@ function mapStateToProps(state, props) {
     services
   } = state
   let targetServices
-  if (services['default'] && services['default'][app_name]) {
-    targetServices = services['default'][app_name]
+  if (services[DEFAULT_CLUSTER] && services[DEFAULT_CLUSTER][app_name]) {
+    targetServices = services[DEFAULT_CLUSTER][app_name]
   }
   const { cluster, serviceList, isFetching } = targetServices || defaultServices
   return {

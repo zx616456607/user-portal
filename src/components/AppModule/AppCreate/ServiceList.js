@@ -12,7 +12,7 @@ import { Modal,Checkbox,Button,Card, Menu } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import AppCreateServiceModal from './AppCreateServiceModal.js'
+import AppAddServiceModal from './AppAddServiceModal'
 import "./style/ServiceList.less"
 
 class MyComponent extends Component {
@@ -221,10 +221,10 @@ export default class ServiceList extends Component {
 	      </div>
 	      <Modal title="添加服务"
 	        visible={this.state.modalShow}
-          className="AppCreateServiceModal"
+          className="AppAddServiceModal"
           onCancel={this.closeModal}
           >
-		    <AppCreateServiceModal scope={parentScope} servicesList = {this.state.servicesList} />
+		    <AppAddServiceModal scope={parentScope} servicesList = {this.state.servicesList} />
           </Modal>
 	    </div>  
         </QueueAnim>

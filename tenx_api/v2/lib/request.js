@@ -13,6 +13,7 @@
 const urllib = require('urllib')
 const _ = require('lodash')
 const errors = require('./errors')
+const oauth = require('./oauth')
 const DEFAULT_PROTOCOL = 'http'
 const DEFAULT_VERSION = 'v2'
 const DEFAULT_TIMEOUT = 1000 * 10
@@ -23,7 +24,7 @@ module.exports = (protocol, host, version, auth, timeout) => {
   !protocol && (protocol = DEFAULT_PROTOCOL)
   !version && (version = DEFAULT_VERSION)
   !timeout && (timeout = DEFAULT_TIMEOUT)
-  
+
   const _getUrl = (object) => `${protocol}://${host}/api/${version}${object.endpoint}`
 
   const _isSuccess = (statusCode) => statusCode < 300
@@ -38,21 +39,21 @@ module.exports = (protocol, host, version, auth, timeout) => {
     options.timeout = object.timeout || timeout
     options.headers = object.headers
     options.data = object.data
-    if(object.stream) {
+    if (object.stream) {
       options.stream = object.stream
     }
     logger.info(`[${options.method || 'GET'}] ${url}`)
     if (!callback) {
       return urllib.request(url, options).then(
         function done(result) {
+          logger.info(`api result: ${JSON.stringify(result.data)}`)
           if (_isSuccess(result.res.statusCode)) {
-            result.data.statusCode = result.res.statusCode 
+            result.data.statusCode = result.res.statusCode
             return result.data
           }
           throw errors.get(result.res)
         },
         function fail(err) {
-          console.log(err)
           err.statusCode = err.res.statusCode
           throw errors.get(err)
         }
@@ -66,7 +67,7 @@ module.exports = (protocol, host, version, auth, timeout) => {
       }
 
       if (_isSuccess(res.statusCode)) {
-        data.statusCode = res.statusCode 
+        data.statusCode = res.statusCode
         return callback(null, data)
       }
 
@@ -75,12 +76,13 @@ module.exports = (protocol, host, version, auth, timeout) => {
   }
 
   return (object, callback) => {
-    if (auth) {
+    object = _.merge({}, object, { "headers": oauth.getAuthHeader(auth) })
+    /*if (auth) {
       !object.headers && (object.headers = {})
       object.headers.Username = auth.user
       object.headers.Authorization = `token ${auth.token}`
       object.headers.namespace = auth.namespace
-    }
+    }*/
     return _makeRequest(object, callback)
   }
 }

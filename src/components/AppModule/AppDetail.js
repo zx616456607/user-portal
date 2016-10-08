@@ -17,6 +17,7 @@ import AppGraph from "./AppGraph.js"
 import AppLog from "./AppLog.js"
 import "./style/AppDetail.less"
 import { loadServiceList } from '../../actions/app_manage'
+import { DEFAULT_CLUSTER } from '../../constants'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -120,7 +121,7 @@ function mapStateToProps(state, props) {
   const { app_name } = props.params
 	const defaultServices = {
     isFetching: false,
-    cluster: 'default',
+    cluster: DEFAULT_CLUSTER,
 		appName: app_name,
     serviceList: []
   }
@@ -128,8 +129,8 @@ function mapStateToProps(state, props) {
     services
   } = state
 	let targetServices
-	if (services['default'] && services['default'][app_name]) {
-		targetServices = services['default'][app_name]
+	if (services[DEFAULT_CLUSTER] && services[DEFAULT_CLUSTER][app_name]) {
+		targetServices = services[DEFAULT_CLUSTER][app_name]
 	}
 	const { cluster, serviceList, isFetching } = targetServices || defaultServices
   return {

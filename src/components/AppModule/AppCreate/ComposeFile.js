@@ -78,7 +78,7 @@ class ComposeFile extends Component {
         isAsync: true
       },
     })
-    /*createApp('default',appName,desc,remark)
+    /*createApp(DEFAULT_CLUSTER,appName,desc,remark)
     console.log('sub');*/
     //localStorage.removeItem('servicesList')
   }

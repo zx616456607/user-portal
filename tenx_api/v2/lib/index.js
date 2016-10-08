@@ -36,4 +36,6 @@ module.exports = function (config) {
   //service
   this.service = collections.create('service')
 
+  // ~ registry
+  this.registries = collections.create('registries')
 }

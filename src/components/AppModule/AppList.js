@@ -14,6 +14,7 @@ import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import './style/AppList.less'
 import { loadAppList } from '../../actions/app_manage'
+import { DEFAULT_CLUSTER } from '../../constants'
 
 function loadData(props) {
   const { cluster, loadAppList } = props
@@ -55,8 +56,8 @@ const MyComponent = React.createClass({
 			  <Checkbox onChange={()=>this.onchange()}></Checkbox>
 			</div>
 			<div className="appName commonData">
-		      <Link to={`/app_manage/detail/${item.appName}`} >
-	    	    {item.appName}
+		      <Link to={`/app_manage/detail/${item.name}`} >
+	    	    {item.name}
 		      </Link>
 			</div>
 			<div className="appStatus commonData">
@@ -64,13 +65,13 @@ const MyComponent = React.createClass({
 			  <span className={item.appStatus == 1 ? "normal":"error"} >{item.appStatus == 1 ? "正常":"异常"}</span>
 			</div>
 			<div className="serviceNum commonData">
-			  {item.serviceNum}
+			  {item.serviceCount}
 			</div>
 			<div className="containerNum commonData">
-			  {item.containerNum}
+			  {item.instanceCount}
 			</div>
 			<div className="visitIp commonData">
-			  {item.visitIp}
+			  {item.address || '-'}
 			</div>
 			<div className="createTime commonData">
 			  {item.createTime}
@@ -188,13 +189,13 @@ AppList.propTypes = {
 function mapStateToProps(state, props) {
   const defaultApps = {
     isFetching: false,
-    cluster: 'default',
+    cluster: DEFAULT_CLUSTER,
     appList: []
   }
   const {
     apps
   } = state
-  const { cluster, appList, isFetching } = apps['default'] || defaultApps
+  const { cluster, appList, isFetching } = apps[DEFAULT_CLUSTER] || defaultApps
 
   return {
     cluster,
