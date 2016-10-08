@@ -76,7 +76,7 @@ export default class Slider extends Component {
 	    		</li>
 	    		<li onClick={this.selectModel.bind(this,"3","#app")} className={currentKey=="3" ? "selectedLi":""}>
 		    		<Tooltip placement="right" title="交付中心" getTooltipContainer={()=>document.getElementById("siderTooltip")}>
-		    			<Link to="/app_manage">
+		    			<Link to="/image_center">
 		    				<svg className="center commonImg">
 			    				<use xlinkHref="#center" />
 			    			</svg>
@@ -148,11 +148,11 @@ export default class Slider extends Component {
 }
 
 function checkCurrentPath(pathname){
-	var ApplicationCheck = new RegExp("app_manage","gi");
+	let ApplicationCheck = new RegExp("app_manage","gi");
 	if(ApplicationCheck.test(pathname)){
 		return "2";
 	}
-	var homeCheck = new RegExp("/","gi");
+	let homeCheck = new RegExp("/","gi");
 	if(homeCheck.test(pathname)){
 		return "1";
 	}
