@@ -153,6 +153,25 @@ export function uploadFile(pool, storage, callback) {
   }
 }
 
+
+export const STORAGE_FILEHISTORY_REQUEST = 'STORAGE_FILEHISTORY_REQUEST'
+export const STORAGE_FILEHISTORY_SUCCESS = 'STORAGE_FILEHISTORY_SUCCESS'
+export const STORAGE_FILEHISTORY_FAILURE = 'STORAGE_FILEHISTORY_FAILURE'
+
+export function getStorageFileHistory(pool, volume, callback) {
+  return {
+    [FETCH_API]: {
+      pool,
+      endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/`,
+      types: [STORAGE_FILEHISTORY_REQUEST, STORAGE_FILEHISTORY_SUCCESS, STORAGE_FILEHISTORY_FAILURE],
+      schema: {}
+    },
+    callback
+  }
+}
+
+
+
 export function getUploadFileUlr(pool, volume) {
   return `${API_URL_PREFIX}/storage-pools/${pool}/volumes/${volume}/import`
 }

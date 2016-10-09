@@ -114,12 +114,12 @@ module.exports = function (request){
       return this.createBy.apply(this, Array.prototype.slice.apply(arguments))
     }
 
-    uploadFile(paths, querys, stream, callback) {
+    uploadFile(paths, querys, stream, options, callback) {
       let endpoint = this[_getPaths].apply(null, paths) + this[_getQuerys](querys)
-      console.log(endpoint)
       return request({
         endpoint,
         stream,
+        options,
         method: 'POST'
       })
     }

@@ -9,7 +9,9 @@
  */
 
 'use strict'
-var parse = require('co-busboy')
+const parse = require('co-busboy')
+const fs = require('fs')
+const formStream = require('formstream')
 
 const VolumeApi = require('../tenx_api/v2')
 const volumeConfig = {
@@ -74,19 +76,19 @@ exports.resizeVolume = function*() {
   this.body = {} 
 }
 exports.getVolumeDetail = function*() {
-  this.status = 200
+  const pool = this.params.pool
+  const volumeName = this.params.name
+  const response = yield volumeApi.volumes.getBy([pool, volumeName, 'consumption'])
+  console.log('---------------')
+  console.log(response)
+  this.status = response.code
   this.body = {
-    volumeName: 'dd',
-    isUsed: true,
-    create_time:new Date(),
-    usedSize: 100,
-    totalSize: 1024,
-    mount_point: '/test'
+    body: response.body
   }
 }
 
 exports.uploadFile = function*() {
-  const parts = yield parse(this, {
+  const parts = parse(this, {
     autoFields: true
   })
   if(!parts) {
@@ -94,11 +96,17 @@ exports.uploadFile = function*() {
     this.message = { message: 'error'}
     return
   }
-  const pool = this.params.pool
-  const volumeName = this.params.name
-  const isUnzip = this.request.query.isUnzip || 'false'
-  console.log(parts)
-  let response = yield volumeApi.volumes.uploadFile([pool, volumeName, 'import'], { isUnzip }, parts)
+  const fileStream = yield parts
+  const { pool, isUnzip, format, volumeName} = parts.field
+  const stream = formStream()
+  stream.stream(fileStream.filename, fileStream, fileStream.filename, fileStream.mimeType, fileStream._readableState.length)
+  let response = yield volumeApi.volumes.uploadFile([pool, volumeName, 'import'], { isUnzip }, stream, stream.headers())
   this.status = response.code
   this.body = response
+}
+
+
+exports.getFileHistory = function* () {
+  const volumeName = this.params.name
+  
 }

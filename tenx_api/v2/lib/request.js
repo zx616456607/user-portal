@@ -32,14 +32,23 @@ module.exports = (protocol, host, version, auth, timeout) => {
     object = _.clone(object)
     let url = _getUrl(object)
     const options = {}
+    // options.method = object.method
+    // options.dataType = object.dataType || DEFAULT_DATATYPE
+    // options.contentType = object.contentType || DEFAULT_DATATYPE
+    // options.timeout = object.timeout || timeout
+    // options.headers = object.headers
+    // options.data = object.data
     options.method = object.method
     options.dataType = object.dataType || DEFAULT_DATATYPE
-    options.contentType = object.contentType || DEFAULT_DATATYPE
     options.timeout = object.timeout || timeout
     options.headers = object.headers
     options.data = object.data
-    if(object.stream) {
+    if (object.options) {
+      options.headers = _.merge(options.headers, object.options)
+    }
+    if (object.stream) {
       options.stream = object.stream
+      delete options.timeout
     }
     logger.info(`[${options.method || 'GET'}] ${url}`)
     if (!callback) {

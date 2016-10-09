@@ -155,6 +155,24 @@ function uploadFile(state = {}, action) {
   }
 }
 
+function getStorageFileHistory(state = {}, action) {
+  const defaultState = {
+    isFetching: false,
+    history: []
+  }
+  switch(action.type) {
+    case ActionTypes.STORAGE_FILEHISTORY_REQUEST: 
+      return _.merge({}, defaultState, state, { isFetching: true} )
+    case ActionTypes.STORAGE_FILEHISTORY_SUCCESS:
+      return _.merge({}, state, action.response.result.body, { isFetching: false })
+    case ActionTypes.STORAGE_FILEHISTORY_FAILURE: 
+      return _.merge({}, defaultState, state, {isFetching: false})
+    default:
+      return state
+  }
+}
+
+
 export default function storageReducer(state = {}, action) {
   return {
     storageList: storageList(state.storageList, action),
@@ -163,6 +181,7 @@ export default function storageReducer(state = {}, action) {
     formateStorage: formateStorage(state.formateStorage, action),
     resizeStorage: resizeStorage(state.deleteStorage, action),
     storageDetail: storageDetail(state.storageDetail, action),
-    uploadFile: uploadFile(state.uploadFile, action)
+    uploadFile: uploadFile(state.uploadFile, action),
+    storageFileHistory: getStorageFileHistory(status.storageFileHistory, action)
   }
 }
