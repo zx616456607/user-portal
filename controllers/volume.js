@@ -62,25 +62,35 @@ exports.createVolume = function*() {
 exports.formateVolume = function*() {
   let pool = this.params.pool
   let reqData = this.request.body
-  if(!reqData.type || !reqData.volumeName) {
+  if(!reqData.type || !reqData.name) {
     this.status = 400
     this.body = { message:　'error'}
   }
-  this.status = 200
-  this.body = {}
+  const response = yield volumeApi.volumes.updateBy([pool, reqData.name, 'format'], null, {
+    format: reqData.type,
+    diskType: 'rbd'
+  })
+  this.status = response.code
+  this.body = response
 }
 
 exports.resizeVolume = function*() {
   const pool = this.params.pool
-  this.status = 200
-  this.body = {} 
+  const reqData = this.request.body
+  if(reqData.name || reqData.size) {
+    this.status = 400
+    this.body = { message: 　'error' }
+  }
+  const response = yield volumeApi.volumes.updateBy([pool, reqData.name], null, {
+    size: reqData.size
+  })
+  this.status = response.code
+  this.body = response
 }
 exports.getVolumeDetail = function*() {
   const pool = this.params.pool
   const volumeName = this.params.name
   const response = yield volumeApi.volumes.getBy([pool, volumeName, 'consumption'])
-  console.log('---------------')
-  console.log(response)
   this.status = response.code
   this.body = {
     body: response.body

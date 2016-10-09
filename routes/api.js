@@ -14,6 +14,7 @@ const appController = require('../controllers/app_manage')
 const serviceController = require('../controllers/service_manage')
 const containerController = require('../controllers/container')
 const configController = require('../controllers/configs')
+const registryController = require('../controllers/registry')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -65,6 +66,9 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/configs',configController.getConfigGroup)
   router.post('/clusters/:cluster/configs',configController.createConfigGroup)
   router.post('/clusters/:cluster/configs/delete',configController.deleteConfigGroup)
-  
+
+  // Registries
+  router.get('/registries/:registry', registryController.getImages)
+
   return router.routes()
 }

@@ -21,6 +21,8 @@
   "Storage.titleRow.dilation": "Dilation",
   "Storage.titleRow.normal": "Normal",
   "Storage.titleRow.error": "Error",
+  "Storage.titleRow.use": "Using",
+  "Storage.titleRow.noUse": "Not using",
   "Storage.modal.name":"Name",
   "Storage.modal.cancelBtn":"Cancel",
   "Storage.modal.createBtn":"Create",
@@ -40,7 +42,7 @@
 
   "StorageDetail.header.useStatus": "Use State",
   "StorageDetail.header.using": "In use",
-  "StorageDetail.header.stop": "Stopped",
+  "StorageDetail.header.stop": "Not use",
   "StorageDetail.header.create": "Create Time",
   "StorageDetail.header.useLevel": "Consumption",
   "StorageBind.bind.volume": "Storage volume",

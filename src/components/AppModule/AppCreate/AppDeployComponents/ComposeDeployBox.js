@@ -24,40 +24,42 @@ var MyComponent = React.createClass({
     config : React.PropTypes.array
   },
   remove(k) {
-    const { form } = this.props;
+    const { form } = this.props.parentScope.props;
     // can use data-binding to get
-    let keys = form.getFieldValue('keys');
-    keys = keys.filter((key) => {
+    let volKey = form.getFieldValue('volKey');
+    volKey = volKey.filter((key) => {
       return key !== k;
     });
     // can use data-binding to set
     form.setFieldsValue({
-      keys,
+      volKey,
     });
   },
   add() {
     uuid++;
-    const { form } = this.props;
+    const { form } = this.props.parentScope.props;
     // can use data-binding to get
-    let keys = form.getFieldValue('keys');
-    keys = keys.concat(uuid);
+    let volKey = form.getFieldValue('volKey');
+    volKey = volKey.concat(uuid);
     // can use data-binding to set
     // important! notify form to detect changes
     form.setFieldsValue({
-      keys,
+      volKey,
     });
   },
   render : function() {
-		const { getFieldProps, getFieldValue,getFieldsValue } = this.props.form;
-  	getFieldProps('keys', {
+    //const parentScope = this.props.scope;
+    //console.log(this.props.parentScope);
+    const { getFieldProps, getFieldValue, } = this.props.parentScope.props.form;
+  	getFieldProps('volKey', {
       initialValue: [],
    	});
-   	const formItems = getFieldValue('keys').map((k) => {
+   	const formItems = getFieldValue('volKey').map((k) => {
       return (
-        <FormItem key={k}>
+        <FormItem key={`vol${k}`}>
         	<li className="composeDetail">
     				<div className="input">
-        			<Input {...getFieldProps(`url${k}`, {
+        			<Input {...getFieldProps(`volPath${k}`, {
           			rules: [{
 		              required: true,
 		              whitespace: true,
@@ -66,8 +68,8 @@ var MyComponent = React.createClass({
           		})} className="portUrl" type="text" />
         		</div>
         		<div className="protocol select">
-        			<FormItem className="portGroupForm">
-			        	<Select {...getFieldProps(`port${k}`, {
+        			<div className="portGroupForm">
+			        	<Select {...getFieldProps(`volName${k}`, {
 			        			rules: [{
 				              required: true,
 				              message: '选择配置组呢?',
@@ -78,7 +80,7 @@ var MyComponent = React.createClass({
 									<Option value="tcp">Tcp</Option>
 									<Option value="udp">Udp</Option>
 								</Select>
-							</FormItem>
+							</div>
 						</div>
 						<div className="check">
 							<Checkbox />&nbsp;&nbsp;全选<br />
@@ -121,7 +123,7 @@ class ComposeDeployBox extends Component {
   	const parentScope = this.props.scope;
     return (
 	  <div id="ComposeDeployBox">
-	  	<Form horizontal form={this.props.form}>
+	  	{/*<Form horizontal form={this.props.form}>*/}
 	    	<div className="composeBox">
 	       	<span className="title">配置目录</span>
 	      	<div className="composeList">
@@ -140,10 +142,10 @@ class ComposeDeployBox extends Component {
 	       			</div>
 							<div style={{ clear:"both" }}></div>
 	       		</div>
-	       		<MyComponent />	       		
+	       		<MyComponent parentScope={parentScope}/>
 	       	</div>
 		    </div>
-		  </Form>
+      {/*</Form>*/}
 	  </div>
     )
   }

@@ -12,56 +12,14 @@ import { Modal,Checkbox,Button,Card, Menu } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import AppCreateServiceModal from './AppCreateServiceModal.js'
+import AppAddServiceModal from './AppAddServiceModal'
 import "./style/ServiceList.less"
 
-const testData = [{
-	id:"1",
-	name:"test1",
-	imageName:"Linux",
-	resource:"1G/2G",
-},{
-	id:"2",
-	name:"test2",
-	imageName:"Linux",
-	resource:"1G/2G",
-},{
-	id:"3",
-	name:"test3",
-	imageName:"Linux",
-	resource:"1G/2G",
-},{
-	id:"4",
-	name:"test4",
-	imageName:"Linux",
-	resource:"1G/2G",
-},{
-	id:"5",
-	name:"test5",
-	imageName:"Linux",
-	resource:"1G/2G",
-},{
-	id:"6",
-	name:"test6",
-	imageName:"Linux",
-	resource:"1G/2G",
-},{
-	id:"7",
-	name:"test7",
-	imageName:"Linux",
-	resource:"1G/2G",
-},{
-	id:"8",
-	name:"test8",
-	imageName:"Linux",
-	resource:"1G/2G",
-}];
-
-var MyComponent = React.createClass({	  
-  propTypes : {
-    config : React.PropTypes.array
-  },
-  checkedFunc : function(e){
+class MyComponent extends Component {
+  constructor (props) {
+    super(props)
+  }
+  checkedFunc (e) {
   	//check this item selected or not
   	const {scope} = this.props;
   	let oldList = scope.state.selectedList;
@@ -70,8 +28,8 @@ var MyComponent = React.createClass({
   	}else{
   		return false;
   	}
-  },
-  onchange : function(e){
+  }
+  onchange (e) {
   	//single item selected function
   	const {scope} = this.props;
   	let oldList = scope.state.selectedList;
@@ -84,17 +42,21 @@ var MyComponent = React.createClass({
     scope.setState({
       selectedList:oldList
     });
-  },
-  modalShow:function(instanceId){
+  }
+  modalShow (instanceId) {
   	//close model function
   	const {scope} = this.props;
   	scope.setState({
   		modalShow : true,
   		currentShowInstance : instanceId
   	});
-  },
-  render : function() {
-	var config = this.props.config;
+  }
+  
+  render () {
+	var config = this.props.scope.state.servicesList;
+    console.log('serviceList=======');
+    console.log(config);
+    console.log('serviceList=======');
 	var items = config.map((item) => {
 	  return (
 	    <div key={item.id} className={this.checkedFunc(item.id) ? "selectedService serviceDetail":"serviceDetail"}>
@@ -132,7 +94,7 @@ var MyComponent = React.createClass({
 	  </div>
     );
   }
-});		
+}
 
 export default class ServiceList extends Component {
   constructor(props) {
@@ -141,9 +103,12 @@ export default class ServiceList extends Component {
     this.openModal = this.openModal.bind(this);    
     this.onchange = this.onchange.bind(this);
     this.allSelectedChecked = this.allSelectedChecked.bind(this);
+    this.subServicesList = this.subServicesList.bind(this);
+    this.delServicesList = this.delServicesList.bind(this);
     this.state = {
       modalShow:false,
-      selectedList:[]
+      selectedList:[],
+      servicesList:[]
     }
   }
   
@@ -157,12 +122,12 @@ export default class ServiceList extends Component {
   openModal(){
   	//the function for open the create service modal
     this.setState({
-  	  modalShow:true  
+  	  modalShow:true
   	});
   }
   
   allSelectedChecked(){
-  	if(this.state.selectedList.length == testData.length){
+  	if(this.state.selectedList.length == this.state.servicesList.length){
   		return true;
   	}else{
   		return false;
@@ -172,12 +137,12 @@ export default class ServiceList extends Component {
   onchange(){
   	//select title checkbox 
     let newList = new Array();
-  	if(this.state.selectedList.length == testData.length){
+  	if(this.state.selectedList.length == this.state.servicesList.length){
   	  //had select all item,turn the selectedlist to null
       newList = [];  		
   	}else{
   	  //select some item or nothing,turn the selectedlist to selecet all item
-  	  for(let elem of testData){
+  	  for(let elem of this.state.servicesList){
   	    newList.push(elem.id);
   	  }
   	}
@@ -185,9 +150,26 @@ export default class ServiceList extends Component {
   	  selectedList : newList
   	});
   }
+  subServicesList(){
+    console.log(this.state.servicesList);
+    localStorage.setItem('servicesList',JSON.stringify(this.state.servicesList))
+  }
+  delServicesList(){
+    localStorage.removeItem('servicesList');
+  }
+  componentWillMount() {
+    //this.setState({servicesList:[]})
+    const serviceList = JSON.parse(localStorage.getItem('servicesList'))
+    if(serviceList){
+      this.setState({
+        servicesList : serviceList
+      })
+    }
+  }
   
   render() {
   	const parentScope = this
+    const { servicesList,isFetching} = this.props
     return (
 	    <QueueAnim id="ServiceList"
 	      type="right"
@@ -222,26 +204,26 @@ export default class ServiceList extends Component {
 		      </div>
 	          <div style={{clear:"both"}}></div>
 	        </div>
-	        <MyComponent scope={parentScope} config={testData} />
+	        <MyComponent scope={parentScope} loading= {isFetching} config={this.state.servicesList}/>
 	      </div>
 	      <div className="btnBox">
 	        <Link to={`/app_manage/app_create`}>
-	          <Button type="primary" size="large">
+	          <Button type="primary" size="large" onClick={this.delServicesList}>
 	            上一步
 	          </Button>
 	        </Link>
 	        <Link to={`/app_manage/app_create/compose_file`}>
-	          <Button type="primary" size="large">
+	          <Button type="primary" size="large" onClick={this.subServicesList}>
 	            下一步
 	          </Button>
 	        </Link>
 	      </div>
 	      <Modal title="添加服务"
 	        visible={this.state.modalShow}
-			className="AppCreateServiceModal"
-			onCancel={this.closeModal}
+          className="AppAddServiceModal"
+          onCancel={this.closeModal}
           >
-		    <AppCreateServiceModal scope={parentScope} />
+		    <AppAddServiceModal scope={parentScope} servicesList = {this.state.servicesList} />
           </Modal>
 	    </div>  
         </QueueAnim>
@@ -250,5 +232,8 @@ export default class ServiceList extends Component {
 }
 
 ServiceList.propTypes = {
-  selectedList : React.PropTypes.array
+  cluster: PropTypes.string.isRequired,
+  isFetching: PropTypes.bool.isRequired,
+  servicesList: PropTypes.array.isRequired,
 }
+

@@ -19,10 +19,11 @@ import {groupData} from '../../constants'
 import { connect } from 'react-redux'
 import { remove } from 'lodash'
 import {loadConfigGroup, createConfigGroup , deleteConfigGroup} from '../../actions/configs'
+import { DEFAULT_CLUSTER } from '../../constants'
 
 function loadData(props) {
   const { master, loadConfigGroup } = props
-  loadConfigGroup('default')
+  loadConfigGroup(DEFAULT_CLUSTER)
 }
 
 const Panel = Collapse.Panel
@@ -96,7 +97,7 @@ class Service extends Component{
     let self = this
     let configs = {
       groupName,
-      cluster: 'default'
+      cluster: DEFAULT_CLUSTER
     }
     this.props.createConfigGroup(configs, {
       success: {
@@ -106,7 +107,7 @@ class Service extends Component{
              createModal: false,
              myTextInput: ''
            })
-           self.props.loadConfigGroup('default')
+           self.props.loadConfigGroup(DEFAULT_CLUSTER)
           },
           isAsync: true
       },
@@ -130,7 +131,7 @@ class Service extends Component{
       success: {
         func: () => {
            message.info('删除成功')
-           self.props.loadConfigGroup('default')
+           self.props.loadConfigGroup(DEFAULT_CLUSTER)
           },
           isAsync: true
       }
@@ -208,13 +209,13 @@ Service.propTypes = {
 function mapStateToProps(state, props) {
   const defaultConfigList = {
     isFetching: false,
-    cluster: 'default',
+    cluster: DEFAULT_CLUSTER,
     configGroup: []
   }
   const {
     configGroupList
   } = state.configReducers
-  const {cluster, configGroup, isFetching } = configGroupList['default'] || defaultConfigList
+  const {cluster, configGroup, isFetching } = configGroupList[DEFAULT_CLUSTER] || defaultConfigList
   return {
     cluster,
     configGroup,

@@ -64,7 +64,7 @@ export function loadStorageInfo(pool,name) {
     pool,
     [FETCH_API]: {
       types: [STORAGE_DETAIL_REQUEST, STORAGE_DETAIL_SUCCESS, STORAGE_DETAIL_FAILURE],
-      // /storage-pools/:pool/volumes/:name
+      // /storage-pools/:pool/volumes/:name 
       endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/volumes/${name}`,
       options: {
         method: 'GET'

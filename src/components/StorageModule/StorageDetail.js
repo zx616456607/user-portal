@@ -17,6 +17,7 @@ import StorageBind from './StorageBind.js'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { loadStorageInfo } from '../../actions/storage'
 import "./style/StorageDetail.less"
+import { DEFAULT_IMAGE_POOL } from '../../constants'
 
 function loadData(props) {
   const {name, loadStorageInfo } = props
@@ -38,7 +39,7 @@ const messages = defineMessages({
   },
   stop: {
     id: "StorageDetail.header.stop",
-    defaultMessage: '已停止'
+    defaultMessage: '未使用'
   },
   create: {
     id: "StorageDetail.header.create",
@@ -101,13 +102,13 @@ class StorageDetail extends Component {
                   </div>
                   <div className="createDate">
                     <FormattedMessage {...messages.create} />：
-                   { StorageInfo.createTime }
+                   { new Date(StorageInfo.createTime).toLocaleDateString() }
                   </div>
                   <div className="use">
                     <FormattedMessage {...messages.useLevel} />
                     ：&nbsp;&nbsp;
-                    <Progress percent={(StorageInfo.usedSize / StorageInfo.totalSize) * 100} showInfo={false} />
-                    &nbsp;&nbsp;{ StorageInfo.usedSize } / { StorageInfo.totalSize } MB
+                    <Progress percent={(StorageInfo.consumption / StorageInfo.size) * 100} showInfo={false} />
+                    &nbsp;&nbsp;{ StorageInfo.consumption } / { StorageInfo.size } MB
                   </div>
                 </div>
                 <div style={{ clear:"both" }}></div>
@@ -141,13 +142,14 @@ StorageDetail.propTypes = {
 function mapStateToProps(state, props) {
   const defaultInfo = {
     isFetching: false,
-    cluster: 'default',
+    imagePool: DEFAULT_IMAGE_POOL,
     pool: 'test',
-    StorageInfo: props.params.storage_id
+    StorageInfo: props.params.storage_id,
+    storageName: props.params.storage_id
   }
-  console.log(props)
+  let isUseDefault = Object.getOwnPropertyNames(state.storage.storageDetail).length
   const { Storage } = state
-  const { cluster, StorageInfo, isFetching } = state.storage.storageDetail || defaultInfo
+  const { imagePool, StorageInfo, isFetching } = isUseDefault ? state.storage.storageDetail : defaultInfo
 
   return {
     // cluster,

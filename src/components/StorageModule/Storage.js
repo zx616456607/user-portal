@@ -16,64 +16,13 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { remove, findIndex } from 'lodash'
 import { loadStorageList, deleteStorage, createStorage, formateStorage, resizeStorage } from '../../actions/storage'
+import { DEFAULT_IMAGE_POOL } from '../../constants'
 import './style/storage.less'
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 const confirm = Modal.confirm;
 
-const data = [
-  {
-    id:"1",
-    name:"test1",
-    status:"2",
-    formet:"ext4",
-    forin:"tenxlolud/volue/log",
-    appName:"baiyusf",
-    size:"122/1024M",
-    createTime:"2016-09-09 11:27:27"
-  },
-	{
-    id:"13",
-    name:"sfsd",
-    status:"1",
-    formet:"ext4",
-    forin:"12",
-    appName:"baiyusf",
-    size:"122/1024M",
-    createTime:"2016-09-09 11:27:27"
-  },
-	{
-    id:"12",
-    name:"www",
-    status:"2",
-    formet:"ext4",
-    forin:"tenxlolud/volue/log",
-    appName:"baiyusf",
-    size:"122/1024M",
-    createTime:"2016-09-09 11:27:27"
-  },
-	{
-    id:"15",
-    name:"tenxlolud",
-    status:"1",
-    formet:"ext4",
-    forin:"12",
-    appName:"baiyusf",
-    size:"122/1024M",
-    createTime:"2016-09-09 11:27:27"
-  },
-	{
-    id:"17",
-    name:"wwwwwwwfs",
-    status:"2",
-    formet:"ext4",
-    forin:"tenxlolud/volue/log",
-    appName:"baiyusf",
-    size:"122/1024M",
-    createTime:"2016-09-09 11:27:27"
-  }
-];
 const messages = defineMessages({
 	name: {
 		id: "Storage.modal.name",
@@ -143,6 +92,14 @@ const messages = defineMessages({
     id: 'Storage.titleRow.normal',
     defaultMessage: '正常',
   },
+  use: {
+    id: 'Storage.titleRow.use',
+    defaultMessage: '使用中',
+  },
+  noUse: {
+    id: 'Storage.titleRow.noUse',
+    defaultMessage: '未使用',
+  },
 	errorRow: {
     id: 'Storage.titleRow.error',
     defaultMessage: '异常',
@@ -155,7 +112,6 @@ const messages = defineMessages({
     id: 'Storage.modal.inputPlaceholder',
     defaultMessage: '输入应用名搜索',
   }
-
 })
 
 let MyComponent = React.createClass({
@@ -176,8 +132,7 @@ let MyComponent = React.createClass({
   getInitialState() {
     return {
       visible: false,
-      size:1000,
-      modalTitle: '',
+      modalTitle: ''
     };
   },
   propTypes: {
@@ -198,7 +153,11 @@ let MyComponent = React.createClass({
     const self = this
     let type = this.state.modalType
     if(type === 'format') {
-      this.props.formateStorage('test', {
+      if(this.state.formateType === this.state.format) {
+        message.error('格式不能和以前相同')
+        return
+      }
+      this.props.formateStorage(this.props.imagePool, {
         name: this.state.modalName,
         type: this.state.formateType
       }, {
@@ -214,17 +173,19 @@ let MyComponent = React.createClass({
     } else if(type === 'resize') {
       if(this.state.size <= this.state.modalSize) {
         message.error('不能比以前小')
+        return
       }
-      this.props.resizeStorage('test', {
+      this.props.resizeStorage(this.props.imagePool, {
         name: this.state.modalName,
         size: this.state.size
       }, {
         success: {
-          isAsync: false,
+          isAsync: true,
           func: () => {
             self.setState({
               visible: false,
             })
+            this.props.loadStorageList()
           }
         }
       })
@@ -235,19 +196,27 @@ let MyComponent = React.createClass({
       visible: false,
     });
   },
-  showAction (type , name, size) {
-    this.setState({
-      visible: true,
-      modalType: type,
-      modalName: name,
-      modalSize: size,
-      size: size
-    });
+  showAction (type , one, two) {
     if (type === 'format') {
       this.setState({
-        modalTitle:'格式化'
+        visible: true,
+        modalType: type,
+        modalName: one,
+        modalFormat: two,
+        format: two,
+        formateType: two
+      });
+      this.setState({
+        modalTitle: '格式化'
       })
     } else {
+      this.setState({
+        visible: true,
+        modalType: type,
+        modalName: one,
+        modalSize: two,
+        size: two,
+      });
       this.setState({
         modalTitle: '扩容'
       })
@@ -267,16 +236,16 @@ let MyComponent = React.createClass({
 	  return (
 	    <div className="appDetail" key={item.name} >
 			<div className="selectIconTitle commonData">
-			  <Checkbox onChange={(e)=>this.onchange(e, item.name)} checked= { this.isChecked(item.name) }></Checkbox>
+			  <Checkbox disabled={ item.isUsed } onChange={(e)=>this.onchange(e, item.name)} checked= { this.isChecked(item.name) }></Checkbox>
 			</div>
 			<div className="name commonData">
-		      <Link to={`/app_manage/storage/${item.name}`} >
+		      <Link to={`/app_manage/storage/${this.props.imagePool}/${item.name}`} >
 	    	    {item.name}
 		      </Link>
 			</div>
 			<div className="status commonData">
-			  <i className={item.status == 1 ? "normal fa fa-circle":"error fa fa-circle"}></i>
-			  <span className={item.status == 1 ? "normal":"error"} >{item.status == 1 ? <FormattedMessage {...messages.okRow} />:<FormattedMessage {...messages.errorRow} />}</span>
+			  <i className={item.isUsed == true ? "error fa fa-circle":"normal fa fa-circle"}></i>
+			  <span className={item.isUsed == false ? "normal":"error"} >{item.isUsed == true ? <FormattedMessage {...messages.use} />:<FormattedMessage {...messages.noUse} />}</span>
 			</div>
 			<div className="formet commonData">{item.format}</div>
 			<div className="forin commonData">{item.mountPoint || '无'}</div>
@@ -284,9 +253,9 @@ let MyComponent = React.createClass({
 			<div className="size commonData">{item.totalSize}M</div>
 			<div className="createTime commonData">{item.createTime}</div>
 			<div className="actionBtn">
-			 <Button className="btn-warning" onClick={ (e)=> { this.showAction('format', item.name) }}><Icon type="delete" /><FormattedMessage {...messages.formatting} /></Button>
+			 <Button disabled = { item.isUsed } className="btn-warning" onClick={ (e)=> { this.showAction('format', item.name, item.format) }}><Icon type="delete" /><FormattedMessage {...messages.formatting} /></Button>
 			 <span className="margin"></span>
-			 <Button className="btn-success" onClick={ () => {this.showAction('resize', item.name, item.totalSize)}}><Icon type="scan" /><FormattedMessage {...messages.dilation} /></Button>
+			 <Button disabled = { item.isUsed } className="btn-success" onClick={ () => {this.showAction('resize', item.name, item.totalSize)}}><Icon type="scan" /><FormattedMessage {...messages.dilation} /></Button>
 			</div>
 
 		</div>
@@ -313,7 +282,7 @@ let MyComponent = React.createClass({
         <div className={this.state.modalType === 'format' ? 'show' : 'hide'}>
           <div style={{ height: '30px' }}>确定格式化存储卷{ this.state.modalName}吗? <span style={{color:'red'}}>(格式化后数据将被清除)。</span></div>
           <Col span="6" style={{ lineHeight: '30px' }}>选择文件系统格式：</Col>
-          <RadioGroup defaultValue="ext4" size="large" onChange={ (e) => this.changeType(e)}>
+          <RadioGroup defaultValue='ext4' value = { this.state.formateType } size="large" onChange={ (e) => this.changeType(e)}>
             <RadioButton value="ext4">ext4</RadioButton>
             <RadioButton value="xfs">xfs</RadioButton>
             <RadioButton value="reiserfs">reiserfs</RadioButton>
@@ -362,7 +331,7 @@ class Storage extends Component {
     }
   }
   componentWillMount() {
-    this.props.loadStorageList('test')
+    this.props.loadStorageList(this.props.currentImagePool)
   }
 	onChange(value) {
     this.setState({
@@ -388,7 +357,7 @@ class Storage extends Component {
     let storageConfig = {
       format: this.state.currentType,
       size: this.state.size,
-      pool: 'test',
+      pool: this.props.currentImagePool,
       name: this.state.name
     }
     let self = this
@@ -401,7 +370,7 @@ class Storage extends Component {
              size: 0,
              currentType: 'ext4'
            })
-           self.props.loadStorageList('test')
+           self.props.loadStorageList(this.props.currentImagePool)
           },
           isAsync: true
       },
@@ -417,15 +386,15 @@ class Storage extends Component {
   }
   deleteStorage() {
     const volumeArray = this.state.volumeArray
-    this.props.deleteStorage('test', volumeArray, {
+    this.props.deleteStorage(this.props.currentImagePool, volumeArray, {
       success: {
-         func: this.props.loadStorageList('test'),
+         func: this.props.loadStorageList(this.props.currentImagePool),
          isAsync: true
       }
     })
   }
   onAllChange(e) {
-    const storage = this.props.storageList['test']
+    const storage = this.props.storageList[this.props.currentImagePool]
     if(!storage || !storage.storageList ) {
       return
     }
@@ -450,7 +419,7 @@ class Storage extends Component {
     if(this.state.volumeArray.length === 0) {
       return false
     }
-    if(this.state.volumeArray.length === this.props.storageList['test'].storageList.length) {
+    if(this.state.volumeArray.length === this.props.storageList[this.props.currentImagePool].storageList.length) {
       return true
     }
     return false
@@ -478,6 +447,17 @@ class Storage extends Component {
     this.setState({
       currentType: type
     })
+  }
+  disableSelectAll() {
+    let selectAll = true
+    if(this.props.storageList && this.props.storageList[this.props.currentImagePool]) {
+      this.props.storageList[this.props.currentImagePool].storageList.some((item) => {
+        if(item.isUsed) {
+          selectAll = false
+        }
+      })
+      return selectAll
+    }
   }
   handleInputName(e) {
     this.setState({
@@ -531,7 +511,7 @@ class Storage extends Component {
           <Card className="storageList appBox">
             <div className="appTitle">
               <div className="selectIconTitle commonTitle">
-                <Checkbox onChange={(e) => this.onAllChange(e) } checked = { this.isAllChecked() }></Checkbox>
+                <Checkbox onChange={(e) => this.onAllChange(e) } checked = { this.isAllChecked() } disabled = {!this.disableSelectAll()}></Checkbox>
               </div>
               <div className="name commonTitle"><FormattedMessage {...messages.storageName} /></div>
               <div className="status commonTitle"><FormattedMessage {...messages.status} /></div>
@@ -542,7 +522,7 @@ class Storage extends Component {
               <div className="createTime commonTitle"><FormattedMessage {...messages.createTime} /></div>
               <div className="actionBox commonTitle"><FormattedMessage {...messages.action} /></div>
             </div>
-            <MyComponent storage = {this.props.storageList['test']}  volumeArray = { this.state.volumeArray } saveVolumeArray = { this.selectItem() }/>
+            <MyComponent storage = {this.props.storageList[this.props.currentImagePool]}  volumeArray = { this.state.volumeArray } saveVolumeArray = { this.selectItem() } imagePool = { this.props.currentImagePool} loadStorageList = { () => {this.props.loadStorageList(this.props.currentImagePool)}}/>
           </Card>
         </div>
       </QueueAnim>
@@ -560,6 +540,7 @@ function mapStateToProps(state) {
     storageList: state.storage.storageList,
     createStorage: state.storage.createStorage,
     deleteStorage: state.storage.deleteStorage,
+    currentImagePool: DEFAULT_IMAGE_POOL
   }
 }
 
@@ -576,7 +557,6 @@ function mapDispatchToProps(dispatch) {
     }
   }
 }
-
 
 export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(Storage, {
   withRef: true,

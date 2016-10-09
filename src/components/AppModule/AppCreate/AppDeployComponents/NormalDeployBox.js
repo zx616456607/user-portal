@@ -21,7 +21,9 @@ class NormalDeployBox extends Component {
     super(props);
     this.selectComposeType = this.selectComposeType.bind(this);
     this.changeInstanceNum = this.changeInstanceNum.bind(this);
+    this.changeServiceState = this.changeServiceState.bind(this);
     this.state = {
+    	
     }
   }
   
@@ -56,15 +58,23 @@ class NormalDeployBox extends Component {
   	});
   }
   
+  changeServiceState(e){
+    //the function for change user select service status open or not
+    this.setState({
+      stateService:e
+    });
+  }
+  
   render() {
   	const parentScope = this.props.scope;
-  	const { getFieldProps, getFieldError, isFieldValidating } = this.props.form;
+    const { getFieldProps, getFieldError, isFieldValidating } = parentScope.props.form;
   	const nameProps = getFieldProps('name', {
       rules: [
         { required: true, min: 3,max: 50, message: '服务名至少为 5 个字符' },
         { validator: this.userExists },
       ],
     });
+    
     const imageUrlProps = getFieldProps('imageUrl', {
       rules: [
         { required: true, message: '请输入镜像地址' },
@@ -80,9 +90,10 @@ class NormalDeployBox extends Component {
         { required: true, message: '请选择镜像版本' },
       ],
     });
+    
     return (
 	  <div id="NormalDeployBox">
-	  	<Form horizontal form={parentScope.props.form}>
+	  	{/*<Form horizontal form={parentScope.props.form}>*/}
 	    	<div className="topBox">
 	        <div className="inputBox">
 	          <span className="commonSpan">服务名称</span>
@@ -106,10 +117,7 @@ class NormalDeployBox extends Component {
 	          <span className="commonSpan">镜像版本</span>
 		        <FormItem className="imageTagForm">
 		          <Select {...selectProps} className="imageTag" size="large" tyle={{ width: 200 }} >
-				        <Option value="对，选楼下">对，选楼下</Option>
-				        <Option value="成熟的Linux">成熟的Linux</Option>
-				        <Option value="看啥，选楼上">看啥，选楼上</Option>
-				        <Option value="没毛病，选二楼">没毛病，选二楼</Option>
+				        <Option value="latest">latest</Option>
 			      	</Select>
 		        </FormItem>
 	          <div style={{ clear:"both" }}></div>
@@ -202,16 +210,26 @@ class NormalDeployBox extends Component {
 	          	<span className="stateSpan">{this.state.stateService ? "有状态服务":"无状态服务"}</span>
 	          	{this.state.stateService ? [
 	          		<div className="serviceOpen" key="had">
-		          		<span className="url">/var/www/html</span>
-		          		<Select className="imageTag" size="large" defaultValue="我就是最快的SSD" style={{ width: 200 }} >
-						        <Option value="对，选楼下">对，选楼下</Option>
-						        <Option value="我就是最快的SSD">我就是最快的SSD</Option>
-						        <Option value="看啥，选楼上">看啥，选楼上</Option>
-						        <Option value="没毛病，选二楼">没毛病，选二楼</Option>
-					      	</Select>
-					      	<Checkbox className="readOnlyBtn">只读</Checkbox>
-					      	<i className="fa fa-refresh"></i>
-					      	<i className="fa fa-trash"></i>
+                  <FormItem>
+                    <span className="url">/var/www/html</span>
+                    <Select className="imageTag" size="large"
+                            defaultValue="我就是最快的SSD"
+                            style={{ width: 200 }}
+                            {...getFieldProps('volumeName', {
+                              rules: [{
+                                required: true,
+                                message: '选择配置组呢?',
+                              }],
+                            })}>
+                      <Option value="对，选楼下">对，选楼下</Option>
+                      <Option value="我就是最快的SSD">我就是最快的SSD</Option>
+                      <Option value="看啥，选楼上">看啥，选楼上</Option>
+                      <Option value="没毛病，选二楼">没毛病，选二楼</Option>
+                    </Select>
+                    <Checkbox className="readOnlyBtn">只读</Checkbox>
+                    <i className="fa fa-refresh"></i>
+                    <i className="fa fa-trash"></i>
+                  </FormItem>
 				      	</div>
 	          	]:null}
 	          	<div style={{ clear:"both" }}></div>
@@ -224,7 +242,7 @@ class NormalDeployBox extends Component {
 		      	</div>
 	      	</div>
 	      </div>
-	    </Form>
+      {/*</Form>*/}
 	  </div>
     )
   }

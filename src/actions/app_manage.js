@@ -36,6 +36,30 @@ export function loadAppList(cluster, requiredFields = []) {
   }
 }
 
+export const APP_CREATE_REQUEST = 'APP_CREATE_REQUEST'
+export const APP_CREATE_SUCCESS = 'APP_CREATE_SUCCESS'
+export const APP_CREATE_FAILURE = 'APP_CREATE_FAILURE'
+
+export function createApp(appConfig,callback) {
+  return {
+    cluster:appConfig.cluster,
+    [FETCH_API]: {
+      types: [APP_CREATE_REQUEST, APP_CREATE_SUCCESS, APP_CREATE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${appConfig.cluster}/apps`,
+      options: {
+        method: 'POST',
+        body: {
+          name:appConfig.appName,
+          desc:appConfig.desc,
+          remark:appConfig.remark
+        }
+      },
+      schema: Schemas.APPS
+    },
+    callback: callback
+  }
+}
+
 
 export const SERVICE_LIST_REQUEST = 'SERVICE_LIST_REQUEST'
 export const SERVICE_LIST_SUCCESS = 'SERVICE_LIST_SUCCESS'
@@ -62,6 +86,9 @@ export function loadServiceList(cluster, appName, requiredFields = []) {
     return dispatch(fetchServiceList(cluster, appName))
   }
 }
+
+
+
 
 
 export const CONTAINER_LIST_REQUEST = 'CONTAINER_LIST_REQUEST'

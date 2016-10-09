@@ -14,6 +14,7 @@ import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import './style/ContainerList.less'
 import { loadContainerList } from '../../actions/app_manage'
+import { DEFAULT_CLUSTER } from '../../constants'
 
 function loadData(props) {
   const { cluster } = props
@@ -240,13 +241,13 @@ ContainerList.propTypes = {
 function mapStateToProps(state, props) {
   const defaultContainers = {
     isFetching: false,
-    cluster: 'default',
+    cluster: DEFAULT_CLUSTER,
     containerList: []
   }
   const {
     containers
   } = state
-  const { cluster, containerList, isFetching } = containers['default'] || defaultContainers
+  const { cluster, containerList, isFetching } = containers[DEFAULT_CLUSTER] || defaultContainers
 
   return {
     cluster,

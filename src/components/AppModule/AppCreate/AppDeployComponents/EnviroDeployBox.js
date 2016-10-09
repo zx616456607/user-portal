@@ -23,40 +23,42 @@ let MyComponentEnviro = React.createClass({
     config : React.PropTypes.array
   },
   remove(k) {
-    const { form } = this.props;
+    const { getFieldProps, getFieldValue,getFieldsValue } = this.props.parentScope.props.form;
+    const { form } = this.props.parentScope.props;
     // can use data-binding to get
-    let keys = form.getFieldValue('keys');
-    keys = keys.filter((key) => {
+    let envKey = form.getFieldValue('envKey');
+		envKey = envKey.filter((key) => {
       return key !== k;
     });
     // can use data-binding to set
     form.setFieldsValue({
-      keys,
+			envKey,
     });
   },
   add() {
     uuidEnviro++;
-    const { form } = this.props;
+    const { form } = this.props.parentScope.props;
     // can use data-binding to get
-    let keys = form.getFieldValue('keys');
-    keys = keys.concat(uuidEnviro);
+    let envKey = form.getFieldValue('envKey');
+		envKey = envKey.concat(uuidEnviro);
     // can use data-binding to set
     // important! notify form to detect changes
     form.setFieldsValue({
-      keys,
+			envKey,
     });
   },
   render : function() {
-		const { getFieldProps, getFieldValue,getFieldsValue } = this.props.form;
-  	getFieldProps('keys', {
+		const { getFieldProps, getFieldValue,getFieldsValue } = this.props.parentScope.props.form;
+  	getFieldProps('envKey', {
       initialValue: [],
    	});
-   	const formItems = getFieldValue('keys').map((k) => {
+		
+   	const formItems = getFieldValue('envKey').map((k) => {
       return (
-        <FormItem key={k}>
+        <FormItem key={`env${k}`}>
         	<li className="enviroDetail">
     				<div className="input">
-        			<Input {...getFieldProps(`url${k}`, {
+        			<Input {...getFieldProps(`envName${k}`, {
           			rules: [{
 		              required: true,
 		              whitespace: true,
@@ -65,7 +67,7 @@ let MyComponentEnviro = React.createClass({
           		})} className="composeUrl" type="text" />
         		</div>
 						<div className="input">
-							<Input {...getFieldProps(`url${k}`, {
+							<Input {...getFieldProps(`envValue${k}`, {
           			rules: [{
 		              required: true,
 		              whitespace: true,
@@ -100,56 +102,57 @@ let MyComponentPort = React.createClass({
     config : React.PropTypes.array
   },
   remove(k) {
-    const { form } = this.props;
+    const { form } = this.props.parentScope.props;
     // can use data-binding to get
-    let keys = form.getFieldValue('keys');
-    keys = keys.filter((key) => {
+    let portKey = form.getFieldValue('portKey');
+		portKey = portKey.filter((key) => {
       return key !== k;
     });
     // can use data-binding to set
     form.setFieldsValue({
-      keys,
+			portKey,
     });
   },
   add() {
     uuidPort++;
-    const { form } = this.props;
+    const { form } = this.props.parentScope.props;
     // can use data-binding to get
-    let keys = form.getFieldValue('keys');
-    keys = keys.concat(uuidPort);
+    let portKey = form.getFieldValue('portKey');
+		portKey = portKey.concat(uuidPort);
     // can use data-binding to set
     // important! notify form to detect changes
     form.setFieldsValue({
-      keys,
+			portKey,
     });
   },
   render : function() {
-		const { getFieldProps, getFieldValue,getFieldsValue } = this.props.form;
-  	getFieldProps('keys', {
+		const { getFieldProps, getFieldValue, getFieldsValue } = this.props.parentScope.props.form;
+  	getFieldProps('portKey', {
       initialValue: [],
    	});
-   	const formItems = getFieldValue('keys').map((k) => {
+    
+   	const formItems = getFieldValue('portKey').map((k) => {
       return (
-        <FormItem key={k}>
+        <FormItem key={`port${k}`}>
         	<li className="portDetail">
     				<div className="input">
-        			<Input {...getFieldProps(`url${k}`, {
+        			<Input {...getFieldProps(`portUrl${k}`, {
           			rules: [{
 		              required: true,
 		              whitespace: true,
 		              message: '挂载路径呢?',
             		}],
-          		})} className="composeUrl" type="text" size="large"/>
+          		})} className="composeUrl" type="text" size="large" />
         		</div>
         		<div className="protocol select">
         			<FormItem className="portGroupForm">
-			        	<Select {...getFieldProps(`port${k}`, {
+			        	<Select {...getFieldProps(`portType${k}`, {
 			        			rules: [{
 				              required: true,
 				              message: '选择配置组呢?',
 		            		}],
 			        		})}
-			        		className="portGroup" size="large" >
+			        		className="portGroup" size="large">
 									<Option value="http">Http</Option>
 									<Option value="tcp">Tcp</Option>
 									<Option value="udp">Udp</Option>
@@ -216,7 +219,7 @@ class EnviroDeployBox extends Component {
 		          </div>
 							<div style={{ clear:"both" }}></div>
 		        </div>
-		        <MyComponentEnviro />
+		        <MyComponentEnviro parentScope={parentScope} />
 		      </div>
 	      </div>
 	      <div className="portBox">
@@ -237,7 +240,7 @@ class EnviroDeployBox extends Component {
 		         	</div>
 							<div style={{ clear:"both" }}></div>
 		        </div>
-		        <MyComponentPort />
+		        <MyComponentPort parentScope={parentScope}/>
 		      </div>
 	      </div>
 		  </div>

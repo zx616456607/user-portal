@@ -30,10 +30,10 @@ class App extends Component {
     if (!errorMessage) {
       return null
     }
-
+    
     notification.error({
       message: 'error',
-      description: errorMessage,
+      description: JSON.stringify(errorMessage),
       duration: null,
       onClose: handleDismissClick
     })

@@ -34,6 +34,14 @@ import ContainerList from './components/ContainerModule/ContainerList.js'
 import ContainerDetail from './components/ContainerModule/ContainerDetail.js'
 /*-------------------Container stop--------------------------------*/
 /*-------------------App_manage Module Stop------------------------*/
+/*-------------------Image_Center Module Start---------------------*/
+import ImageCenterBox from './containers/ImageCenter/Index'
+/*-------------------Image_Center Start----------------------------*/
+import ImageCenter from './components/ImageCenter/Index'
+import ImageStore from './components/ImageCenter/ImageStore.js'
+import ComposeCenter from './components/ImageCenter/ComposeCenter.js'
+/*-------------------Image_Center Stop-----------------------------*/
+/*-------------------Image_Center Module Stop----------------------*/
 export default (
   <Route path="/" component={App}>
     <IndexRoute component={IndexPage}/>
@@ -52,11 +60,16 @@ export default (
       </Route>
       <Route path="storage">
         <IndexRoute component={Storage}/>
-        <Route path=":storage_id" component={StorageDetail} />
+        <Route path=":pool/:storage_id" component={StorageDetail} />
       </Route>
       <Route path="configs">
         <IndexRoute component={Service}/>
       </Route>
+    </Route>
+    <Route path="image_center" component={ImageCenterBox}>
+    	<IndexRoute component={ImageCenter}/>
+    	<Route path="image_store" component={ImageStore} />
+      <Route path="compose_center" component={ComposeCenter} />
     </Route>
     <Route path="*" component={ErrorPage}/>
   </Route>

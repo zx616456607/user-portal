@@ -82,7 +82,6 @@ function createStorage(state = {}, action) {
       return state
   }
 }
-
 function formateStorage(state = {}, action) {
   switch(action.type) {
     case ActionTypes.STORAGE_FORMATE_REQUEST:
@@ -122,7 +121,7 @@ function storageDetail(state = {}, action) {
     case ActionTypes.STORAGE_DETAIL_SUCCESS:
       return merge({}, state, {
         isFetching: false,
-        StorageInfo: action.response.result[0]
+        StorageInfo: action.response.result.body
       })
     case ActionTypes.STORAGE_DETAIL_FAILURE:
       return merge({}, defaultState, state, {
