@@ -13,6 +13,8 @@ import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import AppDeployServiceModal from './AppDeployServiceModal.js'
+import { loadAppList } from '../../../actions/app_manage'
+import { DEFAULT_CLUSTER } from '../../../constants'
 import './style/AppAddServiceModal.less'
 
 const testData = [{
@@ -107,7 +109,7 @@ var MyComponent = React.createClass({
   }
 });		
 
-export default class AppAddServiceModal extends Component {
+class AppAddServiceModal extends Component {
   constructor(props) {
     super(props);
     this.selectImageType = this.selectImageType.bind(this);    
@@ -139,6 +141,12 @@ export default class AppAddServiceModal extends Component {
     this.setState({
   	  modalShow:true  
   	});
+  }
+
+	componentWillMount() {
+    document.title = '添加应用 | 时速云'
+		const { cluster, loadAppList } = this.props
+		loadAppList(cluster)
   }
   
   render() {
@@ -181,5 +189,28 @@ export default class AppAddServiceModal extends Component {
 }
 
 AppAddServiceModal.propTypes = {
-  selectedList : React.PropTypes.array
+  selectedList : React.PropTypes.array,
+  loadAppList: PropTypes.func.isRequired
 }
+
+function mapStateToProps(state, props) {
+  const defaultApps = {
+    isFetching: false,
+    cluster: DEFAULT_CLUSTER,
+    appList: []
+  }
+  const {
+    apps
+  } = state
+  const { cluster, appList, isFetching } = apps[DEFAULT_CLUSTER] || defaultApps
+
+  return {
+    cluster,
+    appList,
+    isFetching
+  }
+}
+
+export default connect(mapStateToProps, {
+  loadAppList
+})(AppAddServiceModal)

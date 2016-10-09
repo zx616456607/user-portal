@@ -11,8 +11,9 @@
 import * as ActionTypes from '../actions/app_manage'
 import merge from 'lodash/merge'
 import union from 'lodash/union'
+import reducerFactory from './factory'
 
-export function apps(state = {}, action) {
+function appItems(state = {}, action) {
   const cluster = action.cluster
   const defaultState = {
     [cluster]: {
@@ -27,38 +28,35 @@ export function apps(state = {}, action) {
         [cluster]: {isFetching: true}
       })
     case ActionTypes.APP_LIST_SUCCESS:
-      return merge({}, state, {
+      return Object.assign({}, state, {
         [cluster]: {
           isFetching: false,
           cluster: action.response.result.cluster,
-          appList: union(state.apps, action.response.result.data)
+          appList: action.response.result.data || []
         }
       })
     case ActionTypes.APP_LIST_FAILURE:
       return merge({}, defaultState, state, {
         [cluster]: {isFetching: false}
       })
-  
-    case ActionTypes.APP_CREATE_REQUEST:
-      return union({}, state, {
-        [cluster]:  {
-          isFetching: true
-        }
-      })
-    case ActionTypes.APP_CREATE_SUCCESS:
-      return union({}, state, {
-        [cluster]:  {
-          isFetching: false
-        }
-      })
-    case ActionTypes.APP_CREATE_FAILURE:
-      return union({}, state, {
-        [cluster]:  {
-          isFetching: false
-        }
-      })
     default:
       return state
+  }
+}
+
+export function apps(state = { appItmes: {} }, action) {
+  return {
+    appItems: appItems(state.appItems, action),
+    createApp: reducerFactory({
+      REQUEST: ActionTypes.APP_CREATE_REQUEST,
+      SUCCESS: ActionTypes.APP_CREATE_SUCCESS,
+      FAILURE: ActionTypes.APP_CREATE_FAILURE
+    }, state.deleteApps, action),
+    deleteApps: reducerFactory({
+      REQUEST: ActionTypes.APP_BATCH_DELETE_REQUEST,
+      SUCCESS: ActionTypes.APP_BATCH_DELETE_SUCCESS,
+      FAILURE: ActionTypes.APP_BATCH_DELETE_FAILURE
+    }, state.deleteApps, action)
   }
 }
 
@@ -103,8 +101,6 @@ export function services(state = {}, action) {
           }
         }
       })
-    
-    
     default:
       return state
   }

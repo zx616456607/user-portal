@@ -4,7 +4,7 @@
  * 
  * Redux actions for app manage
  * 
- * v0.1 - 2016-09-123
+ * v0.1 - 2016-09-23
  * @author Zhangpc
  */
 
@@ -60,7 +60,6 @@ export function createApp(appConfig,callback) {
   }
 }
 
-
 export const SERVICE_LIST_REQUEST = 'SERVICE_LIST_REQUEST'
 export const SERVICE_LIST_SUCCESS = 'SERVICE_LIST_SUCCESS'
 export const SERVICE_LIST_FAILURE = 'SERVICE_LIST_FAILURE'
@@ -87,10 +86,6 @@ export function loadServiceList(cluster, appName, requiredFields = []) {
   }
 }
 
-
-
-
-
 export const CONTAINER_LIST_REQUEST = 'CONTAINER_LIST_REQUEST'
 export const CONTAINER_LIST_SUCCESS = 'CONTAINER_LIST_SUCCESS'
 export const CONTAINER_LIST_FAILURE = 'CONTAINER_LIST_FAILURE'
@@ -113,5 +108,31 @@ function fetchContainerList(cluster) {
 export function loadContainerList(cluster, requiredFields = []) {
   return (dispatch, getState) => {
     return dispatch(fetchContainerList(cluster))
+  }
+}
+
+export const APP_BATCH_DELETE_REQUEST = 'APP_BATCH_DELETE_REQUEST'
+export const APP_BATCH_DELETE_SUCCESS = 'APP_BATCH_DELETE_SUCCESS'
+export const APP_BATCH_DELETE_FAILURE = 'APP_BATCH_DELETE_FAILURE'
+
+function fetchDeleteApps(cluster, appList, callback) {
+  return {
+    cluster,
+    [FETCH_API]: {
+      types: [APP_BATCH_DELETE_REQUEST, APP_BATCH_DELETE_SUCCESS, APP_BATCH_DELETE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/apps/batch-delete`,
+      options: {
+        method: 'POST',
+        body: appList
+      },
+      schema: {}
+    },
+    callback: callback
+  }
+}
+
+export function deleteApps(cluster, appList, callback){
+  return (dispatch, getState) => {
+    return dispatch(fetchDeleteApps(cluster, appList, callback))
   }
 }

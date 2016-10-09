@@ -41,7 +41,7 @@ exports.getApps = function* () {
   const result = yield api.getBy([cluster, 'apps'])
   this.body = {
     cluster,
-    data: result.data
+    data: result.data || []
   }
 }
 
