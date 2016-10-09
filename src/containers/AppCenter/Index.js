@@ -9,19 +9,19 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { Breadcrumb } from 'antd'
-import ImageCenterSider from '../../components/ImageCenterSider'
+import ImageCenterSider from '../../components/AppCenterSider'
 import IntlExp from '../../components/IntlExp'
 import QueueAnim from 'rc-queue-anim'
-import './style/ImageCenter.less'
+import './style/AppCenter.less'
 
 export default class ImageCenter extends Component {
   render() {
   	const { children } = this.props
     return (
-      <div id="Application">
+      <div id="AppCenter">
       	<QueueAnim 
-          className = "ImageCenter"
-          key = "ImageCenter"
+          className = "ImageCenterSiderAnimate"
+          key = "ImageCenterSiderAnimate"
           type = "left"
         >
       	  <div className="imageMenu" key="imageSider">

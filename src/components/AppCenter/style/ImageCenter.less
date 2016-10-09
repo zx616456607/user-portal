@@ -1,0 +1,122 @@
+.ImageCenterBox{
+	padding-top: 40px;
+  padding-left: 30px;
+  padding-right: 60px;
+  #ImageCenter{
+  	.imageList{
+  		width: 100%;
+  		.ant-card-body{
+  			padding: 0px !important;
+  		}
+  		ul{
+  			float: left;
+  			min-height: 50px;
+  		}
+  		li{
+  			padding: 0px 25px;
+  			float: left;
+  			height: 50px;
+  			line-height: 50px;
+  			font-size: 14px;
+  			text-align: center;
+  			cursor: pointer;
+  			span{
+  				cursor: pointer;
+  			}
+  		}
+  		.titleDetail:hover{
+  			background-color: #F8F8F8;
+  		}
+  		.titleSelected{
+  			background-color: #F8F8F8;
+  			color: #2db7f5;
+  		}
+  		.addBtn{
+  			float: left;
+  			margin-top: 9px;
+  			margin-left: 15px;
+  			padding: 5px 15px !important;
+  		}
+  	}
+  }
+}
+.addOtherSpaceModal{
+		.selectBox{
+			height: 120px;
+			margin-bottom: 20px;
+			.typeDetail{
+				padding-top: 30px;
+				float: left;
+				width: 33.33%;
+				height:120px;
+				background-color:  #F8F8F8;
+				cursor: pointer;
+				text-align: center;
+				&:hover{
+					background-color: #effdfe;
+				}
+				.selectedIcon{
+					display: none;
+				}
+			}
+			.selectedType{
+				position: relative;
+				float: left;
+				padding-top: 30px;
+				width: 33.33%;
+				height:120px;
+				color: #00a1ec;
+				background-color: #effdfe;
+				text-align: center;
+				.selectedIcon{
+					display: block;
+					position: absolute;
+					bottom: 10px;
+					right: 10px;
+					font-size: 18px;
+				}
+			}
+			.testIcon{
+				font-size: 40px;
+			}
+		}
+	.addForm{
+		padding-bottom: 60px;
+		.ant-form-item-control{
+			position: relative;
+		} 
+		.title{
+			position: absolute;
+			display: block;
+			width: 10%;
+			text-align: left;
+			z-index: 10;
+			top: 2px;
+			left: 5px;
+		}
+		input{
+			padding-left: 12%;
+			width: 100%;
+			border-radius: 0px !important;
+			border-top: 0px;
+			border-left: 0px;
+			border-right: 0px;
+		}
+		.btnBox{
+			position: absolute;
+			left: 0px;
+			bottom: 0px;
+			width: 100%;
+			height: 60px;
+			border-top: 1px solid #e9e9e9;
+			button{
+				float: right;
+				margin-top: 14px;
+				margin-right: 20px;
+			}
+		}
+	}
+	.ant-modal-footer{
+		display: none;
+	}
+}

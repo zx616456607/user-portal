@@ -10,7 +10,7 @@
 import React, { Component } from 'react'
 import { Menu } from 'antd'
 import { Link } from 'react-router'
-import "./style/ImageCenterSider.less"
+import "./style/AppCenterSider.less"
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -41,13 +41,13 @@ export default class ImageCenterSider extends Component {
 	        mode="inline"
 	      >
 				  <Menu.Item key="1">
-				    <Link to="/image_center">镜像仓库</Link>
+				    <Link to="/app_center">镜像仓库</Link>
 				  </Menu.Item>
 				  <Menu.Item key="2">
-				    <Link to="/image_center/image_store">应用商城</Link>
+				    <Link to="/app_center/image_store">应用商城</Link>
 				  </Menu.Item>
 				  <Menu.Item key="3">
-				    <Link to="/image_center/compose_center">编排中心</Link>
+				    <Link to="/app_center/compose_center">编排中心</Link>
 				  </Menu.Item>
 	      </Menu>
 	    </div>

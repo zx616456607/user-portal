@@ -49,6 +49,45 @@
   "StorageBind.bind.container": "容器",
   "StorageBind.bind.bindContainer": "绑定容器",
   "StorageBind.bind.app": "应用",
-
-  "StorageDetail.operating": "操作"
+  "StorageDetail.operating": "操作",
+  
+  "this.is.an.commnent":"/------------------------App Center交付中心-----------------------/",
+  "AppCenter.ImageCenter.ImageSpace.search": "搜索",
+  "AppCenter.ImageCenter.ImageSpace.publicType": "公有",
+  "AppCenter.ImageCenter.ImageSpace.privateType": "私有",
+  "AppCenter.ImageCenter.ImageSpace.delete": "删除",
+  "AppCenter.ImageCenter.ImageSpace.type": "类型：",
+	"AppCenter.ImageCenter.ImageSpace.imageUrl": "镜像地址：",
+  "AppCenter.ImageCenter.ImageSpace.downloadNum": "下载次数：",
+	"AppCenter.ImageCenter.ImageSpace.deployService": "部署服务",
+	"AppCenter.ImageCenter.ImageSpace.uploadImage": "上传镜像",
+	"AppCenter.ImageCenter.ImageSpace.uploadImageFirstTips":"在本地 docker 环境中输入以下命令进行登录",
+	"AppCenter.ImageCenter.ImageSpace.uploadImageSecondTips":"然后，对本地需要 push 的 image 进行标记，比如：",
+	"AppCenter.ImageCenter.ImageSpace.uploadImageThirdTips":"最后在命令行输入如下命令，就可以 push 这个 image 到镜像仓库中了",
+  "AppCenter.ImageCenter.ImageSpace.downloadImage": "下载镜像",
+	"AppCenter.ImageCenter.ImageSpace.downloadImageFirstTips":"在本地 docker 环境中输入以下命令，就可以 pull 一个镜像到本地了",
+	"AppCenter.ImageCenter.ImageSpace.downloadImageSecondTips":"私有镜像需要先 login 后才能拉取",
+	"AppCenter.ImageCenter.ImageSpace.downloadImageThirdTips":"为了在本地方便使用，下载后可以修改<tag>为短标签，比如：",
+	
+	"AppCenter.ImageCenter.PublicSpace.search": "搜索",
+	"AppCenter.ImageCenter.PublicSpace.belong": "所属空间：",
+	"AppCenter.ImageCenter.PublicSpace.imageUrl": "镜像地址：",
+  "AppCenter.ImageCenter.PublicSpace.downloadNum": "下载次数：",
+	"AppCenter.ImageCenter.PublicSpace.deployService": "部署服务",
+	"AppCenter.ImageCenter.PublicSpace.tooltips": "公共镜像 —— 企业成员可以将在镜像空间内设置的私有镜像，一键开放为企业所有人可见的公共镜像，可以实现跨团队，共享容器镜像服务，实现企业内部高效开发协作的容器镜像PaaS平台。",
+	
+	"AppCenter.ImageCenter.MyCollection.search": "搜索",
+	"AppCenter.ImageCenter.MyCollection.belong": "所属空间：",
+	"AppCenter.ImageCenter.MyCollection.imageUrl": "镜像地址：",
+  "AppCenter.ImageCenter.MyCollection.downloadNum": "下载次数：",
+	"AppCenter.ImageCenter.MyCollection.deployService": "部署服务",
+	"AppCenter.ImageCenter.MyCollection.tooltips": "我的收藏 —— 您可以将任意可见的镜像空间内的镜像，一键收藏到我的收藏，便捷的管理常用容器镜像。",
+	
+	"AppCenter.ImageCenter.OtherSpace.search": "搜索",
+	"AppCenter.ImageCenter.OtherSpace.belong": "所属空间：",
+	"AppCenter.ImageCenter.OtherSpace.imageUrl": "镜像地址：",
+  "AppCenter.ImageCenter.OtherSpace.downloadNum": "下载次数：",
+	"AppCenter.ImageCenter.OtherSpace.deployService": "部署服务",
+	"AppCenter.ImageCenter.OtherSpace.logout": "注销"
+  
 }

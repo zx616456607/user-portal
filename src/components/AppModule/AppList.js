@@ -9,19 +9,14 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
-import { Tooltip,Checkbox,Card,Menu,Dropdown,Button,Icon } from 'antd'
+import { Tooltip, Checkbox, Card, Menu, Dropdown, Button, Icon, Modal, Spin } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import './style/AppList.less'
-import { loadAppList } from '../../actions/app_manage'
+import { loadAppList, deleteApps } from '../../actions/app_manage'
 import { DEFAULT_CLUSTER } from '../../constants'
 
-function loadData(props) {
-  const { cluster, loadAppList } = props
-  loadAppList(cluster)
-}
-
-const data = []
+const confirm = Modal.confirm
 const operaMenu = (<Menu>
 					  <Menu.Item key="0">
 						重新部署
@@ -42,56 +37,81 @@ const operaMenu = (<Menu>
 
 const MyComponent = React.createClass({	  
   propTypes: {
-   config: React.PropTypes.array
+   config: React.PropTypes.array,
+   parentScope: React.PropTypes.object,
   },
-  onchange:function(){
-  	
+  onchange: function(e){
+		const { value, checked } = e.target
+  	const { parentScope } = this.props
+  	const { appList } = parentScope.state
+		appList.map((app) => {
+			if (app.name === value) {
+				app.checked = checked
+			}
+		})
+		parentScope.setState({
+			appList
+		})
   },
-  render : function() {
-	var config = this.props.config;
-	var items = config.map((item) => {
-	  return (
-	    <div className="appDetail" key={item.appName}>
-			<div className="selectIconTitle commonData">
-			  <Checkbox onChange={()=>this.onchange()}></Checkbox>
+  render: function() {
+		const { config, loading } = this.props
+		if (loading) {
+			return (
+				<div className="dataBox">
+					<Spin />
+				</div>
+			)
+		}
+		if (config.length < 1) {
+			return (
+				<div className="dataBox">
+					暂无数据
+				</div>
+			)
+		}
+		const items = config.map((item) => {
+			return (
+				<div className="appDetail" key={item.name}>
+					<div className="selectIconTitle commonData">
+						<Checkbox value={ item.name } checked={ item.checked }  onChange={this.onchange}></Checkbox>
+					</div>
+					<div className="appName commonData">
+							<Link to={`/app_manage/detail/${item.name}`} >
+								{item.name}
+							</Link>
+					</div>
+					<div className="appStatus commonData">
+						<i className={item.appStatus == 1 ? "normal fa fa-circle":"error fa fa-circle"}></i>
+						<span className={item.appStatus == 1 ? "normal":"error"} >{item.appStatus == 1 ? "正常":"异常"}</span>
+					</div>
+					<div className="serviceNum commonData">
+						{item.serviceCount}
+					</div>
+					<div className="containerNum commonData">
+						{item.instanceCount}
+					</div>
+					<div className="visitIp commonData">
+						{item.address || '-'}
+					</div>
+					<div className="createTime commonData">
+						{item.createTime}
+					</div>
+					<div className="actionBox commonData">
+						<Dropdown overlay={operaMenu} trigger={['click']}>
+							<Button type="ghost" size="large" className="ant-dropdown-link" href="#">
+								更多 <i className="fa fa-caret-down"></i>
+							</Button>
+						</Dropdown>
+					</div>
+					<div style={{clear:"both",width:"0"}}></div>
+				</div>
+				);
+		});
+		return (
+			<div className="dataBox">
+				{ items }
 			</div>
-			<div className="appName commonData">
-		      <Link to={`/app_manage/detail/${item.name}`} >
-	    	    {item.name}
-		      </Link>
-			</div>
-			<div className="appStatus commonData">
-			  <i className={item.appStatus == 1 ? "normal fa fa-circle":"error fa fa-circle"}></i>
-			  <span className={item.appStatus == 1 ? "normal":"error"} >{item.appStatus == 1 ? "正常":"异常"}</span>
-			</div>
-			<div className="serviceNum commonData">
-			  {item.serviceCount}
-			</div>
-			<div className="containerNum commonData">
-			  {item.instanceCount}
-			</div>
-			<div className="visitIp commonData">
-			  {item.address || '-'}
-			</div>
-			<div className="createTime commonData">
-			  {item.createTime}
-			</div>
-			<div className="actionBox commonData">
-			  <Dropdown overlay={operaMenu} trigger={['click']}>
-				<Button type="ghost" size="large" className="ant-dropdown-link" href="#">
-		          更多 <i className="fa fa-caret-down"></i>
-				</Button>
-			  </Dropdown>
-			</div>
-			<div style={{clear:"both",width:"0"}}></div>
-		</div>
-      );
-	});
-	return (
-	  <div className="dataBox">
-        { items }
-	  </div>
-    );
+		);
   }
 });
 
@@ -100,19 +120,67 @@ class AppList extends Component {
   constructor(props) {
 		super(props)
 		this.onAllChange = this.onAllChange.bind(this)
+		this.confirmDeleteApp = this.confirmDeleteApp.bind(this)
+		this.state = {
+			appList: props.appList
+		}
   }
   
-  onAllChange(){
-		//
+  onAllChange(e){
+		const { checked } = e.target
+  	const { appList } = this.state
+		appList.map((app) => app.checked = checked)
+		this.setState({
+			appList
+		})
 	}
 	
 	componentWillMount() {
     document.title = '应用列表 | 时速云'
-    loadData(this.props)
+		const { cluster, loadAppList } = this.props
+		loadAppList(cluster)
   }
 
+	componentWillReceiveProps(nextProps) {
+		console.log(nextProps.appList)
+    this.setState({
+      appList: nextProps.appList
+    })
+  }
+
+	confirmDeleteApp(e) {
+		const { appList } = this.state
+		const { cluster, loadAppList, deleteApps } = this.props
+		const checkedAppList = appList.filter((app) => app.checked)
+		const checkedAppNames = checkedAppList.map((app) => app.name)
+		confirm({
+			title: `您是否确认要删除这${checkedAppList.length}项内容`,
+			content: checkedAppNames.join(', '),
+			onOk() {
+				return new Promise((resolve) => {
+					deleteApps(cluster, checkedAppNames, {
+						success: {
+							func: () => loadAppList(cluster),
+							isAsync: true
+						}
+					})
+					resolve()
+				});
+			},
+			onCancel() {},
+		});
+	}
+
   render() {
-		const { cluster, appList, isFetching } = this.props
+		const scope = this
+		const { cluster, isFetching } = this.props
+		const { appList } = this.state
+		const checkedAppList = appList.filter((app) => app.checked)
+		const isChecked = (checkedAppList.length > 0)
+		let isAllChecked = (appList.length === checkedAppList.length)
+		if (appList.length === 0) {
+			isAllChecked = false
+		}
     return (
         <QueueAnim 
           className = "AppList"
@@ -126,9 +194,15 @@ class AppList extends Component {
 	      	        <i className="fa fa-plus"></i>添加应用
 	      	      </Link>
 	      	    </Button>
-	      	    <Button type="ghost" size="large"><i className="fa fa-stop"></i>停止</Button>
-	      	    <Button type="ghost" size="large"><i className="fa fa-trash-o"></i>删除</Button>
-	      	    <Button type="ghost" size="large"><i className="fa fa-undo"></i>重新部署</Button>
+	      	    <Button type="ghost" size="large" disabled={ !isChecked }>
+								<i className="fa fa-stop"></i>停止
+							</Button>
+	      	    <Button type="ghost" size="large" onClick={ this.confirmDeleteApp } disabled={ !isChecked }>
+								<i className="fa fa-trash-o"></i>删除
+							</Button>
+	      	    <Button type="ghost" size="large" disabled={ !isChecked }>
+								<i className="fa fa-undo"></i>重新部署
+							</Button>
 	          </div>
 	        <div className="rightBox">
 	      	  <div className="littleLeft">
@@ -143,7 +217,7 @@ class AppList extends Component {
       	  <Card className="appBox">
       	    <div className="appTitle">
       		  <div className="selectIconTitle commonTitle">
-      		    <Checkbox onChange={this.onAllChange}></Checkbox>
+      		    <Checkbox checked={ isAllChecked } onChange={this.onAllChange}></Checkbox>
       		  </div>
       		  <div className="appName commonTitle">
       		    应用名称
@@ -170,7 +244,7 @@ class AppList extends Component {
       		    操作
       		  </div>
       	    </div>
-      	    <MyComponent config={appList} loading={isFetching}/>
+      	    <MyComponent config={appList} loading={isFetching} parentScope={scope}/>
       	  </Card>
         </div>
       </QueueAnim>
@@ -183,7 +257,8 @@ AppList.propTypes = {
   cluster: PropTypes.string.isRequired,
   appList: PropTypes.array.isRequired,
   isFetching: PropTypes.bool.isRequired,
-  loadAppList: PropTypes.func.isRequired
+  loadAppList: PropTypes.func.isRequired,
+  deleteApps: PropTypes.func.isRequired
 }
 
 function mapStateToProps(state, props) {
@@ -193,9 +268,9 @@ function mapStateToProps(state, props) {
     appList: []
   }
   const {
-    apps
-  } = state
-  const { cluster, appList, isFetching } = apps[DEFAULT_CLUSTER] || defaultApps
+    appItems
+  } = state.apps
+  const { cluster, appList, isFetching } = appItems[DEFAULT_CLUSTER] || defaultApps
 
   return {
     cluster,
@@ -205,5 +280,6 @@ function mapStateToProps(state, props) {
 }
 
 export default connect(mapStateToProps, {
-  loadAppList
+  loadAppList,
+	deleteApps
 })(AppList)

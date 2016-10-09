@@ -1,0 +1,95 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: test1
+spec:
+  selector:
+    name: test1
+  ports:
+    - name: api
+      port: 8080
+      targetPort: 8080
+---
+kind: Deployment
+apiVersion: v1
+metadata:
+  name: test1
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: test1
+    labels:
+      name: test1
+    spec:
+      containers:
+        - name: test1
+          image: 192.168.1.113/myuantest/hello:latest
+          imagePullPolicy: Always
+          ports:
+            - name: api
+              containerPort: 8080
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: test2
+spec:
+  selector:
+    name: test2
+  ports:
+    - name: api
+      port: 8080
+      targetPort: 8080
+---
+kind: Deployment
+apiVersion: v1
+metadata:
+  name: test2
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: test2
+    labels:
+      name: test2
+    spec:
+      containers:
+        - name: test2
+          image: 192.168.1.113/myuantest/hello:latest
+          imagePullPolicy: Always
+          ports:
+            - name: api
+              containerPort: 8080
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: test3
+spec:
+  selector:
+    name: test3
+  ports:
+    - name: api
+      port: 8080
+      targetPort: 8080
+---
+kind: Deployment
+apiVersion: v1
+metadata:
+  name: test3
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: test3
+    labels:
+      name: test3
+    spec:
+      containers:
+        - name: test3
+          image: 192.168.1.113/myuantest/hello:latest
+          imagePullPolicy: Always
+          ports:
+            - name: api
+              containerPort: 8080
