@@ -60,7 +60,6 @@ class AppDeployServiceModal extends Component {
     });
   	const scope = this.state;
   	let composeType = scope.composeType;
-    let getImageType = scope.getImageType === '2'
     let portKey = this.props.form.getFieldValue('portKey')
     let envKey = this.props.form.getFieldValue('envKey')
     let volKey = this.props.form.getFieldValue('volKey')
@@ -179,13 +178,39 @@ class AppDeployServiceModal extends Component {
             {
               "name": serviceName,
               "image": imageURL,
-              "syncTimeZoneWithNode": getImageType,
               "resources": {
                 "limits": ImageConfig.limits
               },
             }
           ],
         },
+    }
+  
+    let serviceConfigService = {
+      kind: 'Service',
+      apiVersion: 'v1',
+      metadata:{name: serviceName},
+      spec: {
+        selector: {name: serviceName},
+        ports: [
+          {name: ''},
+          {port:''},
+          {},
+        ]
+      }
+    }
+    let serviceConfigDeployment = {
+      kind: 'Deployment',
+      apiVersion: 'v1',
+      metadata:{name: serviceName},
+      spec: {
+        selector: {name: serviceName},
+        ports: [
+          {name: ''},
+          {port:''},
+          {},
+        ]
+      }
     }
     
     if(volumeName){
@@ -236,29 +261,36 @@ class AppDeployServiceModal extends Component {
         "volumeMounts": volumeMountList,
       })
     }
-    
-    console.log('==============');
+    if(scope.getImageType === '2'){
+      serviceConfig[serviceName].containers[0].imagePullPolicy = 'Always'
+    }
+    console.log('ServiceConfig=================');
     console.log(serviceConfig);
-    console.log('==============');
+    console.log('ServiceConfig=================');
+    
+    
+    
+    
     
     const newService = {id:serviceName,name:serviceName,imageName:imageURL,resource:ImageConfig.cal,inf:serviceConfig}
-    
-    this.props.scope.props.scope.state.servicesList.push(newService)
-    const newList = this.props.scope.props.scope.state.servicesList
-    this.props.scope.props.scope.setState({
-      servicesList: newList
+    const serviceScope = this.props.scope.props.scope
+    const newList = serviceScope.state.servicesList
+    const newSeleList = serviceScope.state.selectedList
+    serviceScope.state.servicesList.push(newService)
+    if (!serviceScope.state.selectedList.includes(serviceName)) {
+      serviceScope.state.selectedList.push(serviceName)
+    }
+    serviceScope.setState({
+      servicesList: newList,
+      selectedList: newSeleList
     })
-    /*console.log('newService =========');
-    console.log(newList);
-    console.log('newService =========');*/
-    parentScope.setState({
+    /*parentScope.setState({
       modalShow:false
-    });
+    });*/
   }
   closeModal(){
     const parentScope = this.props.scope;
     //the function for close the deploy new service modal
-    console.log(this);
     parentScope.setState({
       modalShow:false
     });

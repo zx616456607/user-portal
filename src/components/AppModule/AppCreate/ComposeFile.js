@@ -42,13 +42,20 @@ class ComposeFile extends Component {
     this.handleAppName=this.handleAppName.bind(this)
     this.handleCluster=this.handleCluster.bind(this)
     this.handleYaml=this.handleYaml.bind(this)
-    const serviceList = JSON.parse(localStorage.getItem('servicesList'))
+    
+    let serviceList = JSON.parse(localStorage.getItem('servicesList'))
+    let selectedList = JSON.parse(localStorage.getItem('selectedList'))
+    var newserviceList = []
+    selectedList.map(function (sItem) {
+      newserviceList.push(serviceList.filter(function (item) {
+        return item.name === sItem
+      })[0])
+    })
     const desc = {
       "version": "1.0",
       "services": {}
     }
-    serviceList.map(function (item) {
-      console.log(item.inf);
+    newserviceList.map(function (item) {
       Object.assign(desc.services, item.inf)
     })
     this.state = {
@@ -61,7 +68,6 @@ class ComposeFile extends Component {
   subApp(){
     const remark = ''
     const {appName, appDescYaml} = this.state
-    console.log(appName);
     let appConfig={
       cluster:this.state.cluster,
       desc:appDescYaml,
@@ -77,6 +83,7 @@ class ComposeFile extends Component {
           })
           console.log('sub')
           localStorage.removeItem('servicesList')
+          localStorage.removeItem('selectedList')
 					browserHistory.push('/app_manage')
         },
         isAsync: true

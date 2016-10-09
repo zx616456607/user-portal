@@ -9,7 +9,7 @@ services:
           - mysql
         ports:
           - containerPort: 80
-        syncTimeZoneWithNode: false
+        # syncTimeZoneWithNode: false
         env:
           - name: WORDPRESS_DB_PASSWORD
             value: duolcxnet

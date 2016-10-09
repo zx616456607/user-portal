@@ -18,16 +18,17 @@ import "./style/ServiceList.less"
 class MyComponent extends Component {
   constructor (props) {
     super(props)
+    this.deleteService = this.deleteService.bind(this)
   }
   checkedFunc (e) {
-  	//check this item selected or not
-  	const {scope} = this.props;
-  	let oldList = scope.state.selectedList;
-  	if(oldList.includes(e)){
-  		return true;
-  	}else{
-  		return false;
-  	}
+    //check this item selected or not
+    const {scope} = this.props;
+    let oldList = scope.state.selectedList;
+    let checked = false
+    if (oldList.includes(e)) {
+      checked = !checked
+    }
+    return checked
   }
   onchange (e) {
   	//single item selected function
@@ -36,7 +37,7 @@ class MyComponent extends Component {
   	if(oldList.includes(e)){
   	  let index = oldList.indexOf(e);
   	  oldList.splice(index,1);
-  	}else{	
+  	}else{
 	  oldList.push(e);
   	}
     scope.setState({
@@ -51,17 +52,29 @@ class MyComponent extends Component {
   		currentShowInstance : instanceId
   	});
   }
-  
+	deleteService(name){
+		
+    const oldList = this.props.scope.state.servicesList
+    const newList = oldList.filter((item) => item.name !== name)
+    const oldSeleList = this.props.scope.state.selectedList
+    const newSeleList = oldSeleList.filter((item) => item !== name)
+    console.log('del!----');
+    console.log(newList);
+    console.log(newSeleList);
+    this.props.scope.setState({
+      servicesList: newList,
+      selectedList: newSeleList
+    })
+    localStorage.setItem('servicesList',JSON.stringify(newList))
+    localStorage.setItem('selectedList',JSON.stringify(newSeleList))
+	}
   render () {
 	var config = this.props.scope.state.servicesList;
-    console.log('serviceList=======');
-    console.log(config);
-    console.log('serviceList=======');
 	var items = config.map((item) => {
 	  return (
 	    <div key={item.id} className={this.checkedFunc(item.id) ? "selectedService serviceDetail":"serviceDetail"}>
 		  <div className="selectIconTitle commonData">
-		    <Checkbox checked={this.checkedFunc(item.id)} onChange={()=>this.onchange(item.id)}></Checkbox>
+		    <Checkbox checked={this.checkedFunc(item.id)} onChange={()=>this.onchange(item.id)}/>
 		  </div>
 		  <div className="name commonData">
 		    <span className="viewSpan" onClick={this.modalShow.bind(this,item)}>
@@ -79,7 +92,7 @@ class MyComponent extends Component {
 			  <i className="fa fa-eye"></i>&nbsp;
 			   查看
 			</Button>
-			<Button type="ghost" size="large">
+			<Button type="ghost" size="large" onClick={() => this.deleteService(item.name)}>
 			  <i className="fa fa-trash"></i>&nbsp;
 	           删除
 			</Button>
@@ -127,9 +140,9 @@ export default class ServiceList extends Component {
   }
   
   allSelectedChecked(){
-  	if(this.state.selectedList.length == this.state.servicesList.length){
+  	if ((this.state.selectedList.length == this.state.servicesList.length) && (this.state.servicesList.length !== 0)){
   		return true;
-  	}else{
+  	} else {
   		return false;
   	}
   }
@@ -139,7 +152,7 @@ export default class ServiceList extends Component {
     let newList = new Array();
   	if(this.state.selectedList.length == this.state.servicesList.length){
   	  //had select all item,turn the selectedlist to null
-      newList = [];  		
+      newList = [];
   	}else{
   	  //select some item or nothing,turn the selectedlist to selecet all item
   	  for(let elem of this.state.servicesList){
@@ -151,11 +164,12 @@ export default class ServiceList extends Component {
   	});
   }
   subServicesList(){
-    console.log(this.state.servicesList);
     localStorage.setItem('servicesList',JSON.stringify(this.state.servicesList))
+    localStorage.setItem('selectedList',JSON.stringify(this.state.selectedList))
   }
   delServicesList(){
     localStorage.removeItem('servicesList');
+    localStorage.removeItem('selectedList');
   }
   componentWillMount() {
     //this.setState({servicesList:[]})
@@ -163,6 +177,12 @@ export default class ServiceList extends Component {
     if(serviceList){
       this.setState({
         servicesList : serviceList
+      })
+    }
+    const selectedList = JSON.parse(localStorage.getItem('selectedList'))
+    if(selectedList){
+      this.setState({
+        selectedList : selectedList
       })
     }
   }
@@ -188,7 +208,7 @@ export default class ServiceList extends Component {
 	      <div className="dataBox">
 	        <div className="titleBox">
 		      <div className="selectIconTitle commonData">
-		        <Checkbox checked={this.allSelectedChecked() } onChange={()=>this.onchange()}></Checkbox>
+		        <Checkbox checked={this.allSelectedChecked() } onChange={()=>this.onchange()}/>
 		      </div>
 		      <div className="name commonData">
 		        服务名称
@@ -204,7 +224,7 @@ export default class ServiceList extends Component {
 		      </div>
 	          <div style={{clear:"both"}}></div>
 	        </div>
-	        <MyComponent scope={parentScope} loading= {isFetching} config={this.state.servicesList}/>
+	        <MyComponent scope={parentScope} loading={isFetching} config={this.state.servicesList}/>
 	      </div>
 	      <div className="btnBox">
 	        <Link to={`/app_manage/app_create`}>

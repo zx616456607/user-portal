@@ -1,10 +1,10 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: test1
+  name: wordpress
 spec:
   selector:
-    name: test1
+    name: wordpress
   ports:
     - name: api
       port: 8080
@@ -13,22 +13,27 @@ spec:
 kind: Deployment
 apiVersion: v1
 metadata:
-  name: test1
+  name: wordpress
 spec:
   replicas: 1
   template:
     metadata:
-      name: test1
+      name: wordpress
     labels:
-      name: test1
+      name: wordpress
     spec:
       containers:
-        - name: test1
+        - name: wordpress
           image: 192.168.1.113/myuantest/hello:latest
           imagePullPolicy: Always
           ports:
             - name: api
               containerPort: 8080
+
+
+
+
+
 ---
 kind: Service
 apiVersion: v1
