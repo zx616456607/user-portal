@@ -30,10 +30,12 @@ module.exports = function (config) {
   // ~ cluster
   this.clusters = collections.create('clusters')
   
-  //~ storage
-  this.storage = collections.create('storage')
+  //~ volumes
+  this.volumes = collections.create('volumes')
   
   //service
   this.service = collections.create('service')
 
+  // ~ registry
+  this.registries = collections.create('registries')
 }

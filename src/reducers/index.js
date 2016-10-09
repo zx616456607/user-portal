@@ -13,7 +13,7 @@ import union from 'lodash/union'
 import { routerReducer as routing } from 'react-router-redux'
 import { combineReducers } from 'redux'
 import * as appManageReducers from './app_manage'
-import * as configReducers from './configs'
+import configReducers from './configs'
 import storage from './storage'
 
 // Updates an entity cache in response to any action with response.entities.
@@ -69,14 +69,13 @@ function actionCallback(state = null, action) {
   return state
 }
 
-
 const rootReducer = combineReducers({
   entities,
   errorMessage,
   actionCallback,
   storage,
   ...appManageReducers,
-  ...configReducers,
+  configReducers,
   routing
 })
 

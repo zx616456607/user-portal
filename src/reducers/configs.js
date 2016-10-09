@@ -12,33 +12,67 @@ import * as ActionTypes from  '../actions/configs'
 import merge from 'lodash/merge'
 import union from 'lodash/union'
 
-export function configGroupList(state = {}, action) {
-  const master = action.master
+function configGroupList(state = {}, action) {
+  const cluster = action.cluster
   const defaultState = {
-    [master]: {
+    [cluster]: {
       isFetching: false,
-      master,
+      cluster,
       configGroup: []
     }
   }
   switch (action.type) {
     case ActionTypes.CONFIG_LIST_REQUEST:
       return merge({}, defaultState, state, {
-        [master]: { isFetching: true }
+        [cluster]: { isFetching: true }
       })
     case ActionTypes.CONFIG_LIST_SUCCESS:
       return merge({}, state, {
-        [master]: {
+        [cluster]: {
           isFetching: false,
-          master: action.response.result.master,
+          cluster: action.response.result.cluster,
           configGroup: union(state.configGroupList, action.response.result.data)
         }
       })
     case ActionTypes.CONFIG_LIST_FAILURE:
       return merge({}, defaultState, state, {
-        [master]: { isFetching: false }
+        [cluster]: { isFetching: false }
       })
     default:
       return state
+  }
+}
+
+function createConfigGroup(state = {}, action) {
+  switch(action.type) {
+    case ActionTypes.CREATE_CONFIG_GROUP_REQUEST:
+      return union({},state,{isFetching: true})
+    case ActionTypes.CREATE_CONFIG_GROUP_SUCCESS:
+      return union({},state, {isFetching: false})
+    case ActionTypes.CREATE_CONFIG_GROUP_FAILURE:
+      return union({},state, {isFetching: false})
+    default:
+      return state
+  }
+}
+
+function deleteConfigGroup(state = {}, action) {
+  switch(action.type) {
+    case ActionTypes.DELETE_CONFIG_GROUP_REQUEST:
+      return union({},state,{isFetching: true})
+    case ActionTypes.DELETE_CONFIG_GROUP_SUCCESS:
+      return union({},state, {isFetching: false})
+    case ActionTypes.DELETE_CONFIG_GROUP_FAILURE:
+      return union({},state, {isFetching: false})
+    default:
+      return state
+  }
+}
+
+export default function configReducers(state ={}, action) {
+  return {
+    configGroupList: configGroupList(state.configGroupList, action),
+    createConfigGroup: createConfigGroup(state.createConfigGroup, action),
+    deleteConfigGroup: deleteConfigGroup(state.deleteConfigGroup, action)
   }
 }

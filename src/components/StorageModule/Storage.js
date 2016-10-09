@@ -14,66 +14,15 @@ import { Link } from 'react-router'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
-import { remove } from 'lodash'
+import { remove, findIndex } from 'lodash'
 import { loadStorageList, deleteStorage, createStorage, formateStorage, resizeStorage } from '../../actions/storage'
+import { DEFAULT_IMAGE_POOL } from '../../constants'
 import './style/storage.less'
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 const confirm = Modal.confirm;
 
-const data = [
-  {
-    id:"1",
-    name:"test1",
-    status:"2",
-    formet:"ext4",
-    forin:"tenxlolud/volue/log",
-    appName:"baiyusf",
-    size:"122/1024M",
-    createTime:"2016-09-09 11:27:27"
-  },
-	{
-    id:"13",
-    name:"sfsd",
-    status:"1",
-    formet:"ext4",
-    forin:"12",
-    appName:"baiyusf",
-    size:"122/1024M",
-    createTime:"2016-09-09 11:27:27"
-  },
-	{
-    id:"12",
-    name:"www",
-    status:"2",
-    formet:"ext4",
-    forin:"tenxlolud/volue/log",
-    appName:"baiyusf",
-    size:"122/1024M",
-    createTime:"2016-09-09 11:27:27"
-  },
-	{
-    id:"15",
-    name:"tenxlolud",
-    status:"1",
-    formet:"ext4",
-    forin:"12",
-    appName:"baiyusf",
-    size:"122/1024M",
-    createTime:"2016-09-09 11:27:27"
-  },
-	{
-    id:"17",
-    name:"wwwwwwwfs",
-    status:"2",
-    formet:"ext4",
-    forin:"tenxlolud/volue/log",
-    appName:"baiyusf",
-    size:"122/1024M",
-    createTime:"2016-09-09 11:27:27"
-  }
-];
 const messages = defineMessages({
 	name: {
 		id: "Storage.modal.name",
@@ -143,6 +92,14 @@ const messages = defineMessages({
     id: 'Storage.titleRow.normal',
     defaultMessage: '正常',
   },
+  use: {
+    id: 'Storage.titleRow.use',
+    defaultMessage: '使用中',
+  },
+  noUse: {
+    id: 'Storage.titleRow.noUse',
+    defaultMessage: '未使用',
+  },
 	errorRow: {
     id: 'Storage.titleRow.error',
     defaultMessage: '异常',
@@ -155,7 +112,6 @@ const messages = defineMessages({
     id: 'Storage.modal.inputPlaceholder',
     defaultMessage: '输入应用名搜索',
   }
-
 })
 
 let MyComponent = React.createClass({
@@ -176,18 +132,17 @@ let MyComponent = React.createClass({
   getInitialState() {
     return {
       visible: false,
-      size:1000,
-      modalTitle: '',
+      modalTitle: ''
     };
   },
   propTypes: {
     config: React.PropTypes.object
   },
   onchange(e, name) {
-    this.props.savestorageNameArray(e, name)
+    this.props.saveVolumeArray(e, name)
   },
   isChecked(name) {
-    return this.props.storageNameArray.indexOf(name) >= 0
+    return findIndex(this.props.volumeArray, { name }) >= 0
   },
   changeType(e) {
     this.setState({
@@ -198,7 +153,11 @@ let MyComponent = React.createClass({
     const self = this
     let type = this.state.modalType
     if(type === 'format') {
-      this.props.formateStorage('test', {
+      if(this.state.formateType === this.state.format) {
+        message.error('格式不能和以前相同')
+        return
+      }
+      this.props.formateStorage(this.props.imagePool, {
         name: this.state.modalName,
         type: this.state.formateType
       }, {
@@ -214,17 +173,19 @@ let MyComponent = React.createClass({
     } else if(type === 'resize') {
       if(this.state.size <= this.state.modalSize) {
         message.error('不能比以前小')
+        return
       }
-      this.props.resizeStorage('test', {
+      this.props.resizeStorage(this.props.imagePool, {
         name: this.state.modalName,
         size: this.state.size
       }, {
         success: {
-          isAsync: false,
+          isAsync: true,
           func: () => {
             self.setState({
               visible: false,
             })
+            this.props.loadStorageList()
           }
         }
       })
@@ -235,19 +196,27 @@ let MyComponent = React.createClass({
       visible: false,
     });
   },
-  showAction (type , name, size) {
-    this.setState({
-      visible: true,
-      modalType: type,
-      modalName: name,
-      modalSize: size,
-      size: size
-    });
+  showAction (type , one, two) {
     if (type === 'format') {
       this.setState({
-        modalTitle:'格式化'
+        visible: true,
+        modalType: type,
+        modalName: one,
+        modalFormat: two,
+        format: two,
+        formateType: two
+      });
+      this.setState({
+        modalTitle: '格式化'
       })
     } else {
+      this.setState({
+        visible: true,
+        modalType: type,
+        modalName: one,
+        modalSize: two,
+        size: two,
+      });
       this.setState({
         modalTitle: '扩容'
       })
@@ -265,28 +234,28 @@ let MyComponent = React.createClass({
   if(!list || !list.storageList) return (<div></div>)
 	let items = list.storageList.map((item) => {
 	  return (
-	    <div className="appDetail" key={item.name}>
+	    <div className="appDetail" key={item.name} >
 			<div className="selectIconTitle commonData">
-			  <Checkbox onChange={(e)=>this.onchange(e, item.name)} checked= { this.isChecked(item.name) }></Checkbox>
+			  <Checkbox disabled={ item.isUsed } onChange={(e)=>this.onchange(e, item.name)} checked= { this.isChecked(item.name) }></Checkbox>
 			</div>
 			<div className="name commonData">
-		      <Link to={`/app_manage/storage/${item.name}`} >
+		      <Link to={`/app_manage/storage/${this.props.imagePool}/${item.name}`} >
 	    	    {item.name}
 		      </Link>
 			</div>
 			<div className="status commonData">
-			  <i className={item.status == 1 ? "normal fa fa-circle":"error fa fa-circle"}></i>
-			  <span className={item.status == 1 ? "normal":"error"} >{item.status == 1 ? <FormattedMessage {...messages.okRow} />:<FormattedMessage {...messages.errorRow} />}</span>
+			  <i className={item.isUsed == true ? "error fa fa-circle":"normal fa fa-circle"}></i>
+			  <span className={item.isUsed == false ? "normal":"error"} >{item.isUsed == true ? <FormattedMessage {...messages.use} />:<FormattedMessage {...messages.noUse} />}</span>
 			</div>
-			<div className="formet commonData">{item.formet}</div>
-			<div className="forin commonData">{item.forin}</div>
-			<div className="appname commonData">{item.appName}</div>
-			<div className="size commonData">{item.usedSize}/{item.totalSize}M</div>
+			<div className="formet commonData">{item.format}</div>
+			<div className="forin commonData">{item.mountPoint || '无'}</div>
+			<div className="appname commonData">{item.rcName}</div>
+			<div className="size commonData">{item.totalSize}M</div>
 			<div className="createTime commonData">{item.createTime}</div>
 			<div className="actionBtn">
-			 <Button className="btn-warning" onClick={ (e)=> { this.showAction('format', item.name) }}><Icon type="delete" /><FormattedMessage {...messages.formatting} /></Button>
+			 <Button disabled = { item.isUsed } className="btn-warning" onClick={ (e)=> { this.showAction('format', item.name, item.format) }}><Icon type="delete" /><FormattedMessage {...messages.formatting} /></Button>
 			 <span className="margin"></span>
-			 <Button className="btn-success" onClick={ () => {this.showAction('resize', item.name, item.totalSize)}}><Icon type="scan" /><FormattedMessage {...messages.dilation} /></Button>
+			 <Button disabled = { item.isUsed } className="btn-success" onClick={ () => {this.showAction('resize', item.name, item.totalSize)}}><Icon type="scan" /><FormattedMessage {...messages.dilation} /></Button>
 			</div>
 
 		</div>
@@ -313,7 +282,7 @@ let MyComponent = React.createClass({
         <div className={this.state.modalType === 'format' ? 'show' : 'hide'}>
           <div style={{ height: '30px' }}>确定格式化存储卷{ this.state.modalName}吗? <span style={{color:'red'}}>(格式化后数据将被清除)。</span></div>
           <Col span="6" style={{ lineHeight: '30px' }}>选择文件系统格式：</Col>
-          <RadioGroup defaultValue="ext4" size="large" onChange={ (e) => this.changeType(e)}>
+          <RadioGroup defaultValue='ext4' value = { this.state.formateType } size="large" onChange={ (e) => this.changeType(e)}>
             <RadioButton value="ext4">ext4</RadioButton>
             <RadioButton value="xfs">xfs</RadioButton>
             <RadioButton value="reiserfs">reiserfs</RadioButton>
@@ -355,14 +324,14 @@ class Storage extends Component {
     this.deleteStorage = this.deleteStorage.bind(this)
     this.state = {
 			visible: false,
-      storageNameArray: [],
+      volumeArray: [],
       currentType: 'ext4',
       inputName: '',
       size: 200
     }
   }
   componentWillMount() {
-    this.props.loadStorageList('test')
+    this.props.loadStorageList(this.props.currentImagePool)
   }
 	onChange(value) {
     this.setState({
@@ -386,9 +355,9 @@ class Storage extends Component {
     }
 
     let storageConfig = {
-      type: this.state.currentType,
+      format: this.state.currentType,
       size: this.state.size,
-      pool: 'test',
+      pool: this.props.currentImagePool,
       name: this.state.name
     }
     let self = this
@@ -396,9 +365,12 @@ class Storage extends Component {
       success: {
          func: () => {
            self.setState({
-             visible: false
+             visible: false,
+             name: '',
+             size: 0,
+             currentType: 'ext4'
            })
-           self.props.loadStorageList('test')
+           self.props.loadStorageList(this.props.currentImagePool)
           },
           isAsync: true
       },
@@ -413,55 +385,61 @@ class Storage extends Component {
   	});
   }
   deleteStorage() {
-    const storageNameArray = this.state.storageNameArray
-    this.props.deleteStorage('test', storageNameArray, {
+    const volumeArray = this.state.volumeArray
+    this.props.deleteStorage(this.props.currentImagePool, volumeArray, {
       success: {
-         func: this.props.loadStorageList('test'),
+         func: this.props.loadStorageList(this.props.currentImagePool),
          isAsync: true
       }
     })
   }
   onAllChange(e) {
-    const storage = this.props.storageList['test']
+    const storage = this.props.storageList[this.props.currentImagePool]
     if(!storage || !storage.storageList ) {
       return
     }
     if(e.target.checked) {
-      let storageNameArray = []
+      let volumeArray = []
       storage.storageList.forEach(item => {
-        storageNameArray.push(item.name)
+        volumeArray.push({
+          name: item.name,
+          diskType: 'rbd'
+        })
       })
       this.setState({
-        storageNameArray,
+        volumeArray,
       })
       return
     } 
     this.setState({
-      storageNameArray: []
+      volumeArray: []
     })
   }
   isAllChecked() {
-    if(this.state.storageNameArray.length === 0) {
+    if(this.state.volumeArray.length === 0) {
       return false
     }
-    if(this.state.storageNameArray.length === this.props.storageList['test'].storageList.length) {
+    if(this.state.volumeArray.length === this.props.storageList[this.props.currentImagePool].storageList.length) {
       return true
     }
     return false
   }
 
   selectItem() {
-    return (e, name) => {
-      let storageNameArray = this.state.storageNameArray
+    return (e, name, diskType) => {
+      let volumeArray = this.state.volumeArray
       if (e.target.checked) {
-        storageNameArray.push(name)
+        volumeArray.push({
+          name,
+          diskType: 'rbd'
+        })
       } else {
-        remove(storageNameArray, (item) => {
-          return item === name
+        remove(volumeArray, (item) => {
+          return item.name === name
         })
       }
       this.setState({
-        storageNameArray
+        volumeArray
       })
     }
   }
@@ -469,6 +447,17 @@ class Storage extends Component {
     this.setState({
       currentType: type
     })
+  }
+  disableSelectAll() {
+    let selectAll = true
+    if(this.props.storageList && this.props.storageList[this.props.currentImagePool]) {
+      this.props.storageList[this.props.currentImagePool].storageList.some((item) => {
+        if(item.isUsed) {
+          selectAll = false
+        }
+      })
+      return selectAll
+    }
   }
   handleInputName(e) {
     this.setState({
@@ -522,7 +511,7 @@ class Storage extends Component {
           <Card className="storageList appBox">
             <div className="appTitle">
               <div className="selectIconTitle commonTitle">
-                <Checkbox onChange={(e) => this.onAllChange(e) } checked = { this.isAllChecked() }></Checkbox>
+                <Checkbox onChange={(e) => this.onAllChange(e) } checked = { this.isAllChecked() } disabled = {!this.disableSelectAll()}></Checkbox>
               </div>
               <div className="name commonTitle"><FormattedMessage {...messages.storageName} /></div>
               <div className="status commonTitle"><FormattedMessage {...messages.status} /></div>
@@ -533,7 +522,7 @@ class Storage extends Component {
               <div className="createTime commonTitle"><FormattedMessage {...messages.createTime} /></div>
               <div className="actionBox commonTitle"><FormattedMessage {...messages.action} /></div>
             </div>
-            <MyComponent storage = {this.props.storageList['test']}  storageNameArray = { this.state.storageNameArray } savestorageNameArray = { this.selectItem() }/>
+            <MyComponent storage = {this.props.storageList[this.props.currentImagePool]}  volumeArray = { this.state.volumeArray } saveVolumeArray = { this.selectItem() } imagePool = { this.props.currentImagePool} loadStorageList = { () => {this.props.loadStorageList(this.props.currentImagePool)}}/>
           </Card>
         </div>
       </QueueAnim>
@@ -542,31 +531,33 @@ class Storage extends Component {
 }
 
 Storage.propTypes = {
-  intl: PropTypes.object.isRequired
+  intl: PropTypes.object.isRequired,
+  loadStorageList: PropTypes.func.isRequired
 }
-function mapSateToProp(state) {
+
+function mapStateToProps(state) {
   return {
     storageList: state.storage.storageList,
     createStorage: state.storage.createStorage,
     deleteStorage: state.storage.deleteStorage,
+    currentImagePool: DEFAULT_IMAGE_POOL
   }
 }
 
-function mapDispathToProp(dispath) {
+function mapDispatchToProps(dispatch) {
   return {
     loadStorageList: (pool) => {
-      dispath(loadStorageList(pool))
+      dispatch(loadStorageList(pool))
     },
-    deleteStorage: (pool, storageNameArray, callback) => {
-      dispath(deleteStorage(pool, storageNameArray, callback))
+    deleteStorage: (pool, volumeArray, callback) => {
+      dispatch(deleteStorage(pool, volumeArray, callback))
     },
     createStorage: (obj, callback) => {
-      dispath(createStorage(obj, callback))
+      dispatch(createStorage(obj, callback))
     }
   }
 }
 
-
-export default connect(mapSateToProp, mapDispathToProp)(injectIntl(Storage, {
+export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(Storage, {
   withRef: true,
 }))

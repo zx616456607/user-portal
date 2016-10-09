@@ -5,10 +5,7 @@
 		background-color: #FFFFFF;
 	}
 	.titleBox {
-		padding-top: 30px;
-		padding-left: 30px;
-		padding-right: 30px;
-		padding-bottom: 30px;
+		padding: 30px;
 		background-color: #FFFFFF;
 		.imgBox {
 			float: left;
@@ -23,112 +20,113 @@
 				border-radius: 10px;
 			}
 		}
-		.closeBtn{
+		.closeBtn {
 			position: absolute;
 			top: 15px;
 			right: 15px;
 			font-size: 15px;
 			cursor: pointer;
 		}
-		.infoBox{
+		.infoBox {
 			float: left;
 			margin-left: 30px;
 			width: calc(~"100% - 150px");
-			.instanceName{
+			.instanceName {
 				font-size: 16px;
 				line-break: 40px;
 			}
-			.leftBox{
+			.leftBox {
 				float: left;
-				span{
+				span {
 					line-height: 30px;
 				}
-				.normal{
-					color: #5cb85c;	
+				.normal {
+					color: #5cb85c;
 				}
-				.error{
-					color:#f85a5a;
+				.error {
+					color: #f85a5a;
 				}
 			}
-			.rightBox{
+			.rightBox {
 				float: right;
 				margin-top: 15px;
-				button{
+				button {
 					height: 38px;
 					font-size: 14px;
 				}
-				.loginBtn{
+				.loginBtn {
 					margin-right: 20px;
 				}
-				.terminal{
+				.terminal {
 					width: 15px;
 					height: 13px;
 					margin-right: 5px;
-					fill:#FFFFFF;
+					fill: #FFFFFF;
 				}
 			}
 		}
 	}
-	.bottomBox{
+	.bottomBox {
 		padding-top: 20px;
 		padding-left: 20px;
 		padding-right: 15px;
 		width: 100%;
 		height: calc(~"100% - 180px");
 		background-color: #f8f8f8;
-		.ant-tabs{
+		.ant-tabs {
 			overflow: visible !important;
 		}
-		.ant-card-bordered{
-//			background-color: #f8f8f8;
+		.ant-card-bordered {
+			//			background-color: #f8f8f8;
 		}
-		.ant-tabs-bar{
+		.ant-tabs-bar {
 			padding-top: 3px;
 			padding-bottom: 3px;
 			border: 1px solid #E5E5E5;
-    		box-shadow: 0 0 15px #E5E5E5;
-    		border-radius: 8px;
-    		overflow: hidden;
-    		.ant-tabs-ink-bar{
-    			width: 3px;
-    		}
+			box-shadow: 0 0 15px #E5E5E5;
+			border-radius: 8px;
+			overflow: hidden;
+			background-color: #FFFFFF;
+			.ant-tabs-ink-bar {
+				width: 3px;
+			}
 		}
-		.ant-tabs-content{
-			border: 0px;
+		.ant-tabs-content {
+			border: 0;
 		}
-		.ant-tabs-tab{
+		.ant-tabs-tab {
 			border-bottom: 1px solid #E5E5E5;
 		}
-		.ant-tabs-tab:last-child{
-			border-bottom: 0px;
+		.ant-tabs-tab:last-child {
+			border-bottom: 0;
 		}
-		.ant-tabs-nav-container:after{
+		.ant-tabs-nav-container:after {
 			clear: both;
 		}
 	}
 }
 //服务详情弹出框
-.AppServiceDetail{
+.AppServiceDetail {
 	position: relative;
-	padding-bottom: 0px;
+	padding-bottom: 0;
 	width: 60% !important;
-	min-width: 768px !important;	
+	min-width: 768px !important;
 	height: 100%;
-	top:0px;
-	margin-right: 0px;
+	top: 0;
+	margin-right: 0;
 	.ant-modal-header,
 	.ant-modal-footer,
-	.ant-modal-close{
+	.ant-modal-close {
 		display: none !important;
 	}
-	.ant-modal-content{
+	.ant-modal-content {
 		height: 100%;
-		border-radius: 0px !important;
+		border-radius: 0 !important;
 	}
 	.ant-modal-body {
 		position: relative;
-		padding: 0px !important;
-		margin: 0px !important;
+		padding: 0 !important;
+		margin: 0 !important;
 		width: 100% !important;
 		min-width: 768px !important;
 		height: 100%;

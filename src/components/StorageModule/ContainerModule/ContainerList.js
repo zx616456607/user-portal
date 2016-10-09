@@ -14,10 +14,11 @@ import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import './style/ContainerList.less'
 import { loadContainerList } from '../../actions/app_manage'
+import { DEFAULT_CLUSTER } from '../../constants'
 
 function loadData(props) {
-  const { master } = props
-  props.loadContainerList(master)
+  const { cluster } = props
+  props.loadContainerList(cluster)
 }
 
 const ButtonGroup = Button.Group
@@ -170,7 +171,7 @@ class ContainerList extends Component {
 
   render() {
   	const parentScope = this
-		const { master, containerList, isFetching } = this.props
+		const { cluster, containerList, isFetching } = this.props
     return (
         <QueueAnim 
           className = "ContainerList"        
@@ -231,7 +232,7 @@ class ContainerList extends Component {
 
 ContainerList.propTypes = {
   // Injected by React Redux
-  master: PropTypes.string.isRequired,
+  cluster: PropTypes.string.isRequired,
   containerList: PropTypes.array.isRequired,
   isFetching: PropTypes.bool.isRequired,
   loadContainerList: PropTypes.func.isRequired
@@ -240,16 +241,16 @@ ContainerList.propTypes = {
 function mapStateToProps(state, props) {
   const defaultContainers = {
     isFetching: false,
-    master: 'default',
+    cluster: DEFAULT_CLUSTER,
     containerList: []
   }
   const {
     containers
   } = state
-  const { master, containerList, isFetching } = containers['default'] || defaultContainers
+  const { cluster, containerList, isFetching } = containers[DEFAULT_CLUSTER] || defaultContainers
 
   return {
-    master,
+    cluster,
     containerList,
     isFetching
   }

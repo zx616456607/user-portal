@@ -22,25 +22,24 @@ export default class ContainerGraph extends Component {
   render() {
     return (
       <div id="ContainerGraph">
-	    <div className="bottomBox">
-	      <span className="titleSpan">描述文件&nbsp;:&nbsp;</span>
-	      <div className="introBox"> 
-	        <div className="operaBox">
-	          <i className="fa fa-expand"></i>
-	          <i className="fa fa-refresh"></i>
-	          <DatePicker className="datePicker" />
-	        </div>
-	        <div className="infoBox">
-	          Hello world~
-	          <br />
-	          &nbsp;&nbsp;Let me introduce myself.
-	          <br />
-	          &nbsp;&nbsp;&nbsp;&nbsp;I am an application of mengmengda~
-	        </div>
-	        <div style={{ clear:"both" }}></div>
-	      </div>
-	      <div style={{ clear:"both" }}></div>
-	    </div>
+		    <div className="bottomBox">
+		      <div className="introBox"> 
+		        <div className="operaBox">
+		          <i className="fa fa-expand"></i>
+		          <i className="fa fa-refresh"></i>
+		          <DatePicker className="datePicker" />
+		        </div>
+		        <div className="infoBox">
+		          Hello world~
+		          <br />
+		          &nbsp;&nbsp;Let me introduce myself.
+		          <br />
+		          &nbsp;&nbsp;&nbsp;&nbsp;I am an application of mengmengda~
+		        </div>
+		        <div style={{ clear:"both" }}></div>
+		      </div>
+		      <div style={{ clear:"both" }}></div>
+		    </div>
       </div>
     )
   }

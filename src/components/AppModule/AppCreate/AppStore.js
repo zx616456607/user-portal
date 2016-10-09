@@ -136,7 +136,7 @@ const testData = [{
 	resource:"/img/test/github.jpg",
 }];
 
-var MyComponent = React.createClass({	  
+let MyComponent = React.createClass({	  
   propTypes : {
     config : React.PropTypes.array
   },
@@ -165,8 +165,8 @@ var MyComponent = React.createClass({
     });
   },
   render : function() {
-	var config = this.props.config;
-	var items = config.map((item) => {
+	let config = this.props.config;
+	let items = config.map((item) => {
 	  return (
 	    <div key={item.id} className={this.checkedFunc(item.id) ? "selectedApp AppDetail":"AppDetail"}
 	      onClick={this.onSelect.bind(this,item.id)}

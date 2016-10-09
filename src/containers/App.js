@@ -10,7 +10,7 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import { resetErrorMessage } from '../actions'
-import { Icon, Menu } from 'antd'
+import { Icon, Menu, notification  } from 'antd'
 import Header from '../components/Header'
 import Sider from '../components/Sider'
 
@@ -20,35 +20,31 @@ class App extends Component {
     this.handleDismissClick = this.handleDismissClick.bind(this)
   }
 
-  handleDismissClick(e) {
+  handleDismissClick() {
     this.props.resetErrorMessage()
-    e.preventDefault()
   }
 
   renderErrorMessage() {
     const { errorMessage } = this.props
+    const handleDismissClick = this.handleDismissClick
     if (!errorMessage) {
       return null
     }
-
-    return (
-      <p style={{ backgroundColor: '#e99', padding: 10 }}>
-        <b>{errorMessage}</b>
-        {' '}
-        (<a href="#"
-            onClick={this.handleDismissClick}>
-          Dismiss
-        </a>)
-      </p>
-    )
+    
+    notification.error({
+      message: 'error',
+      description: JSON.stringify(errorMessage),
+      duration: null,
+      onClose: handleDismissClick
+    })
   }
 
   render() {
     const { children, pathname } = this.props
     return (
       <div className="tenx-layout">
-        <div id="siderTooltip"></div>
         {this.renderErrorMessage()}
+        <div id="siderTooltip"></div>
         <div className="tenx-layout-header">
           <div className="tenx-layout-wrapper">
             <Header />
@@ -74,10 +70,10 @@ App.propTypes = {
   pathname: PropTypes.string
 }
 
-function mapStateToProps(state) {
+function mapStateToProps(state, props) {
   return {
     errorMessage: state.errorMessage,
-    pathname: state.routing.locationBeforeTransitions.pathname
+    pathname: props.location.pathname
   }
 }
 

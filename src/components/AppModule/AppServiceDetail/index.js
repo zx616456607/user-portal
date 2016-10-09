@@ -2,7 +2,7 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  * 
- * AppGraph component
+ * AppService component
  * 
  * v0.1 - 2016-09-10
  * @author GaoJian
@@ -16,6 +16,10 @@ import ContainerList from './AppContainerList'
 import AppServiceDetailInfo from './AppServiceDetailInfo'
 import ComposeGroup from './ComposeGroup'
 import BindDomain from './BindDomain'
+import PortDetail from './PortDetail'
+import AppUseful from './AppUseful'
+import AppServiceLog from './AppServiceLog'
+import AppServiceEvent from './AppServiceEvent'
 import './style/AppServiceDetail.less'
 
 const TabPane = Tabs.TabPane;
@@ -70,10 +74,12 @@ export default class AppServiceDetail extends Component {
 	            <span className={ instanceInfo.status == "1" ? "normal":"error" }>
 	              { instanceInfo.status == "1" ? "运行中":"异常" }
 	            </span>
-	          </span><br />
+	          </span>
+	          <br />
 	          <span>
 	            地址&nbsp;:&nbsp;{instanceInfo.serviceIP}
-	          </span><br />
+	          </span>
+	          <br />
 	          <span>
 	            容器实例&nbsp;:&nbsp;3/3
 	          </span>
@@ -86,10 +92,10 @@ export default class AppServiceDetail extends Component {
 	            登录终端
 	          </Button>
 	          <Dropdown overlay={operaMenu} trigger={['click']}>
-				<Button type="ghost" size="large" className="ant-dropdown-link" href="#">
-		          更多 <i className="fa fa-caret-down"></i>
-				</Button>
-			  </Dropdown>
+							<Button type="ghost" size="large" className="ant-dropdown-link" href="#">
+					          更多 <i className="fa fa-caret-down"></i>
+							</Button>
+					  </Dropdown>
 	        </div>
 	      </div>
 	      <div style={{clear:"both"}}></div>
@@ -104,17 +110,17 @@ export default class AppServiceDetail extends Component {
 	            <TabPane tab="基础信息" key="2"><AppServiceDetailInfo /></TabPane>
 	            <TabPane tab="配置组" key="3"><ComposeGroup /></TabPane>
 	            <TabPane tab="绑定域名" key="4"><BindDomain /></TabPane>
-	            <TabPane tab="端口" key="5">端口</TabPane>
-	            <TabPane tab="高可用" key="6">高可用</TabPane>
+	            <TabPane tab="端口" key="5"><PortDetail /></TabPane>
+	            <TabPane tab="高可用" key="6"><AppUseful /></TabPane> 
 	            <TabPane tab="监控" key="7">监控</TabPane>
-	            <TabPane tab="日志" key="8">日志</TabPane>
-	            <TabPane tab="事件" key="9">事件</TabPane>
+	            <TabPane tab="日志" key="8"><AppServiceLog /></TabPane>
+	            <TabPane tab="事件" key="9"><AppServiceEvent /></TabPane>
 	          </Tabs>
 	      </div>
 	      <div className="contentBox">
 	      </div>
 	    </div>
-      </div>
+    </div>
     )
   }
 }

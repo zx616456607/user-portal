@@ -8,11 +8,17 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Dropdown,Modal,Checkbox,Button,Card,Menu,Input } from 'antd'
+import { Dropdown,Modal,Checkbox,Button,Card,Menu,Input,Select , } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import "./style/ComposeFile.less"
+import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import {createApp} from '../../../actions/app_manage'
+import * as yaml from 'js-yaml'
+import { browserHistory } from 'react-router'
+
+const Option = Select.Option;
 
 const operaMenu = (<Menu>
 					  <Menu.Item key="0">
@@ -29,12 +35,90 @@ const operaMenu = (<Menu>
 					  </Menu.Item>
 					</Menu>);
 
-export default class ComposeFile extends Component {
+class ComposeFile extends Component {
   constructor(props) {
     super(props);
+    this.subApp=this.subApp.bind(this)
+    this.handleAppName=this.handleAppName.bind(this)
+    this.handleCluster=this.handleCluster.bind(this)
+    this.handleYaml=this.handleYaml.bind(this)
+    
+    let serviceList = JSON.parse(localStorage.getItem('servicesList'))
+    let selectedList = JSON.parse(localStorage.getItem('selectedList'))
+    var newserviceList = []
+    selectedList.map(function (sItem) {
+      newserviceList.push(serviceList.filter(function (item) {
+        return item.name === sItem
+      })[0])
+    })
+    const desc = {
+      "version": "1.0",
+      "services": {}
+    }
+    newserviceList.map(function (item) {
+      Object.assign(desc.services, item.inf)
+    })
+    this.state = {
+      appName : '',
+      appDesc: desc,
+      appDescYaml: yaml.dump(desc),
+      cluster: ''
+    }
   }
+  subApp(){
+    const remark = ''
+    const {appName, appDescYaml} = this.state
+    let appConfig={
+      cluster:this.state.cluster,
+      desc:appDescYaml,
+      appName:appName,
+      remark:remark,
+    }
+    let self = this
+    this.props.createApp(appConfig, {
+      success: {
+        func: () => {
+          self.setState({
+            appName:''
+          })
+          console.log('sub')
+          localStorage.removeItem('servicesList')
+          localStorage.removeItem('selectedList')
+					browserHistory.push('/app_manage')
+        },
+        isAsync: true
+      },
+    })
+    /*createApp(DEFAULT_CLUSTER,appName,desc,remark)
+    console.log('sub');*/
+    //localStorage.removeItem('servicesList')
+  }
+  handleAppName(e){
+    this.setState({
+      appName: e.target.value
+    })
+  }
+  handleCluster(value) {
+    console.log(`${value}`);
+    this.setState({
+      cluster: `${value}`
+    })
+    console.log(this.state.cluster);
+  }
+	handleYaml(e){
+    this.setState({
+      appDescYaml: e.target.value
+    })
+	}
   
   render() {
+    const {appName, appDescYaml} = this.state
+  	const serviceList = JSON.parse(localStorage.getItem('servicesList'))
+    const inf = JSON.stringify(serviceList[0].inf)
+    console.log('-----local------');
+    console.log(serviceList);
+    console.log(serviceList[0].inf);
+    console.log('-----local------');
   	const parentScope = this.props.scope;
   	const createModel = parentScope.state.createModel;
   	let backUrl = backLink(createModel);
@@ -45,7 +129,7 @@ export default class ComposeFile extends Component {
 	      <div className="ComposeFile" key="ComposeFile">
 	        <div className="nameBox">
 	          <span>应用名称</span>
-	          <Input size="large" placeholder="起一个萌萌哒的名称吧~" />
+	          <Input size="large" placeholder="起一个萌萌哒的名称吧~" onChange={this.handleAppName} value={appName}/>
 	          <div style={{ clear:"both" }}></div>
 	        </div>
 	        <div className="introBox">
@@ -69,7 +153,7 @@ export default class ComposeFile extends Component {
 	                <i className="fa fa-expand"></i>
 	                <i className="fa fa-star-o"></i>
 	              </div>
-	              <textarea></textarea>
+	              <textarea value={appDescYaml} onChange={this.handleYaml}></textarea>
 	            </div>
 	            <div style={{ clear:"both" }}></div>
 	          </div>          
@@ -82,12 +166,17 @@ export default class ComposeFile extends Component {
 	            <i className="fa fa-caret-down"></i>
 	          </Button>
 	        </Dropdown>
-	        <Dropdown overlay={operaMenu} trigger={['click']}>
+	        {/*<Dropdown overlay={operaMenu} trigger={['click']}>
 	          <Button size="large" type="ghost">
 	            请选择集群
 	            <i className="fa fa-caret-down"></i>
 	          </Button>
-	        </Dropdown>
+	        </Dropdown>*/}
+            <Select size="large" defaultValue="请选择集群" style={{ width: 200 }} onChange={this.handleCluster}>
+              <Option value="cce1c71ea85a5638b22c15d86c1f61de">test</Option>
+              <Option value="cce1c71ea85a5638b22c15d86c1f61df">产品环境</Option>
+              <Option value="e0e6f297f1b3285fb81d27742255cfcf">SUSE</Option>
+            </Select>
 	        </div>
 	        <div className="btnBox">
 	          <Link to={`${backUrl}`}>
@@ -95,11 +184,11 @@ export default class ComposeFile extends Component {
 	              上一步
 	            </Button>
 	          </Link>
-	          <Link to={`/app_manage`}>
-	            <Button size="large" type="primary" className="createBtn">
+	          {/*<Link to={`/app_manage`}>*/}
+	            <Button size="large" type="primary" className="createBtn" onClick={this.subApp}>
 	              创建
 	            </Button>
-	          </Link>
+	          {/*</Link>*/}
 	        </div>
 	      </div>  
         </QueueAnim>
@@ -108,8 +197,24 @@ export default class ComposeFile extends Component {
 }
 
 ComposeFile.propTypes = {
-
+  intl: PropTypes.object.isRequired,
 }
+function mapStateToProps(state) {
+  return {
+    createApp: state.apps.createApp,
+  }
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    createApp: (appConfig, callback) => {
+      dispatch(createApp(appConfig, callback))
+    }
+  }
+}
+export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(ComposeFile, {
+  withRef: true,
+}))
 
 function backLink(createModel){
 	switch(createModel){

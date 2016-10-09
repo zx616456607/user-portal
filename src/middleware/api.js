@@ -84,7 +84,7 @@ export const Schemas = {
   },
   SERVICE: serviceSchema,
   SERVICES: {
-    containerList: arrayOf(serviceSchema)
+    servicesList: arrayOf(serviceSchema)
   },
   CONTAINER: containerSchema,
   CONTAINERS: {
@@ -142,9 +142,13 @@ export default store => next => action => {
       response,
       type: successType
     })),
-    error => next(actionWith({
+    error =>{
+     console.log('0000000000000')
+     console.log(error)
+     next(actionWith({
       type: failureType,
       error: error.message || 'Something bad happened'
     }))
+    }
   )
 }

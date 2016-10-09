@@ -23,7 +23,7 @@ const config = {
   },
   tenx_api: {
     protocol: "http" || env.TENX_API_PROTOCOL,
-    host: "0.0.0.0:8000" || env.TENX_API_HOST
+    host: "192.168.0.45:8123" || env.TENX_API_HOST
   }
 }
 

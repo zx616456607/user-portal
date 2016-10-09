@@ -14,8 +14,15 @@ import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import StorageStatus from "./StorageStatus"
 import StorageBind from './StorageBind.js'
-import "./style/StorageDetail.less"
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import { loadStorageInfo } from '../../actions/storage'
+import "./style/StorageDetail.less"
+import { DEFAULT_IMAGE_POOL } from '../../constants'
+
+function loadData(props) {
+  const {name, loadStorageInfo } = props
+  loadStorageInfo('test', props.params.storage_id)
+}
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -30,9 +37,13 @@ const messages = defineMessages({
     id: "StorageDetail.header.using",
     defaultMessage: '使用中'
   },
+  stop: {
+    id: "StorageDetail.header.stop",
+    defaultMessage: '未使用'
+  },
   create: {
     id: "StorageDetail.header.create",
-    defaultMessage: '创建'
+    defaultMessage: '创建时间'
   },
   useLevel: {
     id: "StorageDetail.header.useLevel",
@@ -55,14 +66,16 @@ class StorageDetail extends Component {
       currentKey: "1"
     }
   }
-  
+  componentWillMount() {
+    document.title = "存储详情 | 时速云"
+    loadData(this.props)
+  }
+
+
   render() {
     const { formatMessage } = this.props.intl
-    const { appID } = this.props
-    const { children } = this.props
     const { currentKey } = this.state
-    
-    
+    const { StorageInfo } = this.props
     return (
       <div id="StorageDetail">
         <QueueAnim className="demo-content"
@@ -75,27 +88,27 @@ class StorageDetail extends Component {
                 <img src="/img/test/github.jpg" />
               </div>
               <div className="infoBox">
-                <p className="appTitle">
-                  我是存储名称
-                </p>
+                <div className="appTitle">
+                 { StorageInfo.volumeName }
+                </div>
                 <div className="info">
                   <div className="status">
                     <FormattedMessage {...messages.useStatus} />
-                    &nbsp;:
+                    &nbsp;：
                     <span>
-	                      <i className="fa fa-circle"></i>
-	                      <FormattedMessage {...messages.using} />
+	                    <i className="fa fa-circle"></i>
+	                    {StorageInfo.isUsed ?  <FormattedMessage {...messages.using} /> :  <FormattedMessage {...messages.stop} />}
                     </span>
                   </div>
                   <div className="createDate">
-                    <FormattedMessage {...messages.create} />
-                    &nbsp;:&nbsp;2016-09-09&nbsp;18:15
+                    <FormattedMessage {...messages.create} />：
+                   { new Date(StorageInfo.createTime).toLocaleDateString() }
                   </div>
                   <div className="use">
                     <FormattedMessage {...messages.useLevel} />
-                    : &nbsp;&nbsp;
-                    <Progress percent={50} showInfo={false} />
-                    &nbsp;&nbsp;365/1024MB
+                    ：&nbsp;&nbsp;
+                    <Progress percent={(StorageInfo.consumption / StorageInfo.size) * 100} showInfo={false} />
+                    &nbsp;&nbsp;{ StorageInfo.consumption } / { StorageInfo.size } MB
                   </div>
                 </div>
                 <div style={{ clear:"both" }}></div>
@@ -122,12 +135,30 @@ class StorageDetail extends Component {
   }
   }
 StorageDetail.propTypes = {
-  intl: PropTypes.object.isRequired
+  intl: PropTypes.object.isRequired,
+  loadStorageInfo: PropTypes.func.isRequired
 }
   
-export default injectIntl(StorageDetail, {
-  withRef: true,
-})
+function mapStateToProps(state, props) {
+  const defaultInfo = {
+    isFetching: false,
+    imagePool: DEFAULT_IMAGE_POOL,
+    pool: 'test',
+    StorageInfo: props.params.storage_id,
+    storageName: props.params.storage_id
+  }
+  let isUseDefault = Object.getOwnPropertyNames(state.storage.storageDetail).length
+  const { Storage } = state
+  const { imagePool, StorageInfo, isFetching } = isUseDefault ? state.storage.storageDetail : defaultInfo
 
-
+  return {
+    // cluster,
+    StorageInfo,
+    // pool,
+    isFetching
+  }
+}
   
+export default connect(mapStateToProps,{ 
+  loadStorageInfo}
+)(injectIntl(StorageDetail,{withRef: true,}))

@@ -30,10 +30,8 @@ function storageList(state = {}, action) {
       return Object.assign({}, defaultState, state, {
         [pool]: {
           isFetching: false,
-          storageList: action.response.result.storageList,
-          number: action.response.result.number,
-          login: action.response.result.login,
-          pool: action.response.result.pool
+          storageList: action.response.result.body,
+          pool: pool
         }
       })
     case ActionTypes.STORAGE_LIST_FAILURE:
@@ -84,7 +82,6 @@ function createStorage(state = {}, action) {
       return state
   }
 }
-
 function formateStorage(state = {}, action) {
   switch(action.type) {
     case ActionTypes.STORAGE_FORMATE_REQUEST:
@@ -111,6 +108,69 @@ function resizeStorage(state = {}, action) {
   }
 }
 
+function storageDetail(state = {}, action) {
+  const defaultState = {
+    isFetching: false,
+    StorageInfo: {}
+  }
+  switch (action.type) {
+    case ActionTypes.STORAGE_DETAIL_REQUEST:
+      return merge({}, defaultState, state, {
+        isFetching: true
+      })
+    case ActionTypes.STORAGE_DETAIL_SUCCESS:
+      return merge({}, state, {
+        isFetching: false,
+        StorageInfo: action.response.result.body
+      })
+    case ActionTypes.STORAGE_DETAIL_FAILURE:
+      return merge({}, defaultState, state, {
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
+
+function uploadFile(state = {}, action) {
+  switch(action.type) {
+    case ActionTypes.STORAGE_UPLOAD_REQUEST: {
+      return merge({}, state, {
+        isFetching: true
+      })
+    }
+    case ActionTypes.STORAGE_UPLOAD_SUCCESS: {
+      return merge({}, state, {
+        isFetching: false
+      })
+    }
+    case ActionTypes.STORAGE_UPLOAD_FAILURE: {
+      return merge({}, state, {
+        isFetching: false
+      })
+    }
+    default: 
+      return state
+  }
+}
+
+function getStorageFileHistory(state = {}, action) {
+  const defaultState = {
+    isFetching: false,
+    history: []
+  }
+  switch(action.type) {
+    case ActionTypes.STORAGE_FILEHISTORY_REQUEST: 
+      return _.merge({}, defaultState, state, { isFetching: true} )
+    case ActionTypes.STORAGE_FILEHISTORY_SUCCESS:
+      return _.merge({}, state, action.response.result.body, { isFetching: false })
+    case ActionTypes.STORAGE_FILEHISTORY_FAILURE: 
+      return _.merge({}, defaultState, state, {isFetching: false})
+    default:
+      return state
+  }
+}
+
 
 export default function storageReducer(state = {}, action) {
   return {
@@ -118,6 +178,9 @@ export default function storageReducer(state = {}, action) {
     deleteStorage: deleteStorage(state.deleteStorage, action),
     createStorage: createStorage(state.createStorage, action),
     formateStorage: formateStorage(state.formateStorage, action),
-    resizeStorage: resizeStorage(state.deleteStorage, action)
+    resizeStorage: resizeStorage(state.deleteStorage, action),
+    storageDetail: storageDetail(state.storageDetail, action),
+    uploadFile: uploadFile(state.uploadFile, action),
+    storageFileHistory: getStorageFileHistory(status.storageFileHistory, action)
   }
 }

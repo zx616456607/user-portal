@@ -41,9 +41,13 @@ app.use(function* (next) {
       logger.error(`Unexpected status code: ${err.status}`)
       err.status = 500
     }
-    this.status = err.status || 500
-    this.body = err
-    this.app.emit('error', err, this)
+    logger.error('catch-error', JSON.stringify(err.message))
+    this.status = err.status || err.statusCode || 500
+    this.body = {
+      statusCode: this.status,
+      message: err.message || err
+    }
+    // this.app.emit('error', err, this)
   }
 })
 
@@ -119,16 +123,17 @@ app.use(favicon(__dirname + '/static/favicon.ico'))
 })*/
 
 // For body parser
-const koaBody = require('koa-body')({
-  multipart: true,
-  formidable: {
-    keepExtensions: true,
-    maxFieldsSize: 1024 * 1024 * 1024,
-    // uploadDir: TEMP_DIR
-  }
-})
-app.use(koaBody)
+// const koaBody = require('koa-body')({
+//   multipart: true,
+//   formidable: {
+//     keepExtensions: true,
+//     maxFieldsSize: 1024 * 1024 * 1024,
+//     // uploadDir: TEMP_DIR
+//   }
+// })
+const koaBody = require('koa-body')()
 
+app.use(koaBody)
 // For views
 const render = require('koa-ejs')
 const viewOps = {
@@ -152,6 +157,16 @@ app.use(auth.authCookieUser)*/
 const i18n = require('./services/i18n')
 app.use(i18n.handle())
 app.use(i18n.middleware)
+
+// For test
+app.use(function* (next) {
+  this.session.loginUser = {
+    user: "zhangpc",
+    namespace: "zhangpc",
+    token: "jgokzgfitsewtmbpxsbhtggabvrnktepuzohnssqjnsirtot"
+  }
+  yield next
+})
 
 // Routes middleware
 const indexRoutes = require('./routes')

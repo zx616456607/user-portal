@@ -54,6 +54,26 @@ export function createStorage(obj, callback) {
   }
 }
 
+
+export const STORAGE_DETAIL_REQUEST = 'STORAGE_DETAIL_REQUEST'
+export const STORAGE_DETAIL_SUCCESS = 'STORAGE_DETAIL_SUCCESS'
+export const STORAGE_DETAIL_FAILURE = 'STORAGE_DETAIL_FAILURE'
+
+export function loadStorageInfo(pool,name) {
+  return {
+    pool,
+    [FETCH_API]: {
+      types: [STORAGE_DETAIL_REQUEST, STORAGE_DETAIL_SUCCESS, STORAGE_DETAIL_FAILURE],
+      // /storage-pools/:pool/volumes/:name 
+      endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/volumes/${name}`,
+      options: {
+        method: 'GET'
+      },
+      schema: {}//Schemas.STORAGE
+    }
+  }
+}
+
 export const STORAGE_DELETE_REQUEST = 'STORAGE_DELETE_REQUEST'
 export const STORAGE_DELETE_SUCCESS = 'STORAGE_DELETE_SUCCESS'
 export const STORAGE_DELETE_FAILURE = 'STORAGE_DELETE_FAILURE'
@@ -63,7 +83,7 @@ export function deleteStorage(pool, storageIdArray, callback) {
     [FETCH_API]: {
       pool,
       types: [STORAGE_DELETE_REQUEST, STORAGE_DELETE_SUCCESS, STORAGE_DELETE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/storages/batch-delete`,
+      endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/volumes/batch-delete`,
       options: {
         method: 'POST',
         body: storageIdArray
@@ -111,5 +131,66 @@ export function resizeStorage(pool, storage, callback) {
       schema: {}//Schemas.STORAGE
     },
     callback
+  }
+}
+
+export const STORAGE_UPLOAD_REQUEST = 'STORAGE_UPLOAD_REQUEST'
+export const STORAGE_UPLOAD_SUCCESS = 'STORAGE_UPLOAD_SUCCESS'
+export const STORAGE_UPLOAD_FAILURE = 'STORAGE_UPLOAD_FAILURE'
+
+export function uploadFile(pool, storage, callback) {
+  return {
+    [FETCH_API]: {
+      pool,
+      types: [STORAGE_UPLOAD_REQUEST, STORAGE_UPLOAD_SUCCESS, STORAGE_UPLOAD_FAILURE],
+      options: {
+        method: 'POST',
+        body: storage,
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+
+export const STORAGE_FILEHISTORY_REQUEST = 'STORAGE_FILEHISTORY_REQUEST'
+export const STORAGE_FILEHISTORY_SUCCESS = 'STORAGE_FILEHISTORY_SUCCESS'
+export const STORAGE_FILEHISTORY_FAILURE = 'STORAGE_FILEHISTORY_FAILURE'
+
+export function getStorageFileHistory(pool, volume, callback) {
+  return {
+    [FETCH_API]: {
+      pool,
+      endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/`,
+      types: [STORAGE_FILEHISTORY_REQUEST, STORAGE_FILEHISTORY_SUCCESS, STORAGE_FILEHISTORY_FAILURE],
+      schema: {}
+    },
+    callback
+  }
+}
+
+
+
+export function getUploadFileUlr(pool, volume) {
+  return `${API_URL_PREFIX}/storage-pools/${pool}/volumes/${volume}/import`
+}
+
+export function uploadFileRequest() {
+  return {
+    type: STORAGE_UPLOAD_REQUEST
+  }
+}
+
+export function uploadFileSuccess() {
+  return {
+    type: STORAGE_UPLOAD_SUCCESS
+  }
+}
+
+export function uploadFileFailure(err) {
+  return {
+    type: STORAGE_UPLOAD_FAILURE,
+    error: err
   }
 }
