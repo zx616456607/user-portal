@@ -21,6 +21,7 @@ import PublicSpace from './ImageCenter/PublicSpace.js'
 import OtherSpace from './ImageCenter/OtherSpace.js'
 import "./style/ImageCenter.less"
 
+let TweenOneGroup = TweenOne.TweenOneGroup;
 const TabPane = Tabs.TabPane;
 const SubMenu = Menu.SubMenu;
 const MenuItemGroup = Menu.ItemGroup;
@@ -30,6 +31,27 @@ const FormItem = Form.Item;
 
 
 let MyComponent = React.createClass({	  
+	getInitialState: function() {
+		//this function for init the state
+    return {
+    	UrlReverse: false,
+    	UrlPaused: true,
+    	UrlMoment: null,
+    	NameReverse: false,
+    	NamePaused: true,
+    	NameMoment: null,
+    	EmailReverse: false,
+    	EmailPaused: true,
+    	EmailMoment: null,
+    	PwdReverse: false,
+    	PwdPaused: true,
+    	PwdMoment: null,
+    	urlInput:null,
+    	nameInput:null,
+    	emailInput:null,
+    	pwdInput:null
+    };
+  },
   propTypes : {
     config : React.PropTypes.array,
   },
@@ -39,6 +61,106 @@ let MyComponent = React.createClass({
 		scope.setState({
 			otherSpaceType:type
 		});
+  },
+  inputState(current,e){
+  	//this function for user input change the state
+  	switch(current){
+  		case "url":
+  			this.setState({
+  				urlInput:e.target.value
+  			});
+  			break;
+  		case "name":
+  			this.setState({
+  				nameInput:e.target.value
+  			});
+  			break;
+  		case "email":
+  			this.setState({
+  				emailInput:e.target.value
+  			});
+  			break;
+  		case "password":
+  			this.setState({
+  				pwdInput:e.target.value
+  			});
+  			break;
+  	}
+  },
+  inputOnFocus(current){
+  	//this function for user focus on current input and the title will be add an animate
+  	switch(current){
+  		case "url":
+  			this.setState({
+	  			UrlReverse: false,
+	     		UrlPaused: false,
+	     		UrlMoment: null
+	  		});	
+  			break;
+  		case "name":
+  			this.setState({
+  				NameReverse: false,
+      		NamePaused: false,
+      		NameMoment: null
+  			});
+  			break;
+  		case "email":
+  			this.setState({
+  				EmailPaused: false,
+      		EmailReverse: false,
+      		EmailMoment: null
+  			});
+  			break;
+  		case "password":
+  			this.setState({
+  				PwdPaused: false,
+      		PwdReverse: false,
+      		PwdMoment: null
+  			});
+  			break;
+  	}
+  },
+  inputOnBlur(current){
+  	//this function for user blur out current input and the title will be add an animate
+  	switch(current){
+  		case "url":
+  			if(!!!this.state.urlInput){
+  				//it's meaning user hadn't input message in the input box so that the title will be move
+  				this.setState({
+	  				UrlPaused: false,
+			      UrlReverse: true,
+			      UrlMoment: null
+	  			});
+  			}
+  			break;
+  		case "name":
+	  		if(!!!this.state.nameInput){
+	  			this.setState({
+	  				NamePaused: false,
+	      		NameReverse: true,
+	      		NameMoment: null
+	  			});
+	  		}
+  			break;
+  		case "email":
+	  		if(!!!this.state.emailInput){
+	  			this.setState({
+	  				EmailPaused: false,
+	      		EmailReverse: true,
+	      		EmailMoment: null
+	  			});
+	  		}
+  			break;
+  		case "password":
+	  		if(!!!this.state.pwdInput){
+	  			this.setState({
+	  				PwdPaused: false,
+	      		PwdReverse: true,
+	      		PwdMoment: null
+	  			});
+	  		}
+  			break;
+  	}
   },
   handleReset(e) {
   	//this function for user close add other image space modal
@@ -67,6 +189,7 @@ let MyComponent = React.createClass({
     });
   },
   render() {
+  	
   	const scope = this.props.scope;
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form;
     const urlProps = getFieldProps('url', {
@@ -119,23 +242,52 @@ let MyComponent = React.createClass({
       	</div>
 	      <Form className="addForm" horizontal form={this.props.form}>
 	        <FormItem hasFeedback >
-	        	 <TweenOne
-				        animation={{ left: '20%', repeat: 1, duration: 1000 }}
-				        style={{ left: '-20%' }}
-				        className="code-box-shape"
-				      >
-	        	 <span className="title">地址</span>	
-	        	 </TweenOne>
-	          <Input {...urlProps} />
+	        	<TweenOne
+							animation={{ top: '-20', duration: 500 }}
+							paused={this.state.UrlPaused}
+							reverse={this.state.UrlReverse}
+							moment={this.state.UrlMoment}
+							style={{ position:"absolute",width:"10%",top:"0" }}
+				    >
+	        	 	<span className="title" key="title">地址</span>	
+	        	</TweenOne>
+	          <Input {...urlProps} value={this.state.urlInput} onChange={this.inputState.bind(this,"url")} onFocus={this.inputOnFocus.bind(this,"url")} onBlur={this.inputOnBlur.bind(this,"url")} />
 	        </FormItem>
 	        <FormItem hasFeedback >
-	          <span className="title">邮箱</span><Input {...emailProps} type="email" />
+	        	<TweenOne
+							animation={{ top: '-20', duration: 500 }}
+							paused={this.state.EmailPaused}
+							reverse={this.state.EmailReverse}
+							moment={this.state.EmailMoment}
+							style={{ position:"absolute",width:"10%",top:"0" }}
+				    >
+	          	<span className="title">邮箱</span>
+	          </TweenOne>
+	          <Input {...emailProps} type="email" value={this.state.emailInput} onChange={this.inputState.bind(this,"email")} onFocus={this.inputOnFocus.bind(this,"email")} onBlur={this.inputOnBlur.bind(this,"email")}  />
 	        </FormItem>
 					<FormItem hasFeedback >
-	          <span className="title">用户名</span><Input {...nameProps} />
+						<TweenOne
+							animation={{ top: '-20', duration: 500 }}
+							paused={this.state.NamePaused}
+							reverse={this.state.NameReverse}
+							moment={this.state.NameMoment}
+							style={{ position:"absolute",width:"10%",top:"0" }}
+				    >
+	          	<span className="title">用户名</span>
+	          </TweenOne>	
+	          <Input {...nameProps} value={this.state.nameInput} onChange={this.inputState.bind(this,"name")} onFocus={this.inputOnFocus.bind(this,"name")} onBlur={this.inputOnBlur.bind(this,"name")}  />
 	        </FormItem>
 	        <FormItem hasFeedback >
-	          <span className="title">密码</span><Input {...passwdProps} type="password" autoComplete="off" />
+	        	<TweenOne
+							animation={{ top: '-20', duration: 500 }}
+							paused={this.state.PwdPaused}
+							reverse={this.state.PwdReverse}
+							moment={this.state.PwdMoment}
+							style={{ position:"absolute",width:"10%",top:"0" }}
+				    >
+	          	<span className="title">密码</span>
+	          </TweenOne>	
+	          <Input {...passwdProps} type="password" autoComplete="off" value={this.state.pwdInput} onChange={this.inputState.bind(this,"password")} onFocus={this.inputOnFocus.bind(this,"password")} onBlur={this.inputOnBlur.bind(this,"password")}  />
 	        </FormItem>
 	        <div className="btnBox">
 		        <Button size="large" type="primary" onClick={this.handleSubmit}>确定</Button>
