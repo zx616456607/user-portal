@@ -1,0 +1,11 @@
+{
+  "name": "",
+  "image": "",
+  "ports": [],
+  "env": [],
+  "resources": {
+    "limits": {
+      "memory": "64Mi"
+    }
+  }
+}
