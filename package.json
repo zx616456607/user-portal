@@ -78,7 +78,7 @@
     "less-loader": "^2.2.3",
     "normalizr": "^2.2.1",
     "rc-queue-anim": "^0.12.4",
-    "rc-scroll-anim":"",
+    "rc-scroll-anim": "^0.3.9",
     "rc-tween-one": "^0.8.5",
     "react": "^15.3.1",
     "react-dom": "^15.3.1",
