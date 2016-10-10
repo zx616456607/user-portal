@@ -15,6 +15,73 @@ import QueueAnim from 'rc-queue-anim'
 import "./style/NormalDeployBox.less"
 const createForm = Form.create;
 const FormItem = Form.Item;
+let uuid = 0;
+var MyComponent = React.createClass({
+  
+  remove(k) {
+    const { form } = this.props.parentScope.props;
+    let volumeKey = form.getFieldValue('volumeKey');
+    volumeKey = volumeKey.filter((key) => {
+      return key !== k;
+    });
+    form.setFieldsValue({
+      volumeKey,
+    });
+  },
+  add() {
+    uuid++;
+    const { form } = this.props.parentScope.props;
+    let volumeKey = form.getFieldValue('volumeKey');
+    volumeKey = volumeKey.concat(uuid);
+    form.setFieldsValue({
+      volumeKey,
+    });
+  },
+  render: function () {
+    const { getFieldProps, getFieldValue, } = this.props.parentScope.props.form;
+    getFieldProps('volumeKey', {
+      initialValue: [1],
+    });
+    const formItems = getFieldValue('volumeKey').map((k) => {
+      return (
+        <FormItem key={`volume${k}`}>
+          <span className="url" {...getFieldProps(`volumePath${k}`,{
+            rules: [{
+              required: true,
+              whitespace: true,
+              message: '挂载路径呢?',
+            }],
+          })}>/var/www/html</span>
+          <Select className="imageTag" size="large"
+                  defaultValue="我就是最快的SSD"
+                  style={{ width: 200 }}
+                  {...getFieldProps(`volumeName${k}`, {
+                    rules: [{
+                      required: true,
+                      message: '选择配置组呢?',
+                    }],
+                  })}>
+            <Option value="对，选楼下">对，选楼下</Option>
+            <Option value="我就是最快的SSD">我就是最快的SSD</Option>
+            <Option value="看啥，选楼上">看啥，选楼上</Option>
+            <Option value="没毛病，选二楼">没毛病，选二楼</Option>
+          </Select>
+          <Checkbox className="readOnlyBtn" { ...getFieldProps(`volumeChecked${k}`,{}) }>
+            只读
+          </Checkbox>
+          <i className="fa fa-refresh"></i>
+          <i className="fa fa-trash"></i>
+        </FormItem>
+      )
+    });
+    return (
+      <div className="serviceOpen" key="had">
+        { formItems }
+      </div>
+    )
+  }
+})
+MyComponent = createForm()(MyComponent);
 
 class NormalDeployBox extends Component {
   constructor(props) {
@@ -26,7 +93,6 @@ class NormalDeployBox extends Component {
     	
     }
   }
-  
   userExists(rule, value, callback) {
   	//this function for check user input new service new is exist or not
     if (!value) {
@@ -41,7 +107,6 @@ class NormalDeployBox extends Component {
       }, 800);
     }
   } 
-  
   selectComposeType(type){
   	//the function for change user select compose file type
   	const parentScope = this.props.scope;
@@ -49,7 +114,6 @@ class NormalDeployBox extends Component {
   		composeType:type
   	});
   }
-  
   changeInstanceNum(e){
   	//the function for user set the max number of instance
   	const parentScope = this.props.scope;
@@ -57,14 +121,12 @@ class NormalDeployBox extends Component {
   		instanceNum:e
   	});
   }
-  
   changeServiceState(e){
     //the function for change user select service status open or not
     this.setState({
       stateService:e
     });
   }
-  
   render() {
   	const parentScope = this.props.scope;
     const { getFieldProps, getFieldError, isFieldValidating } = parentScope.props.form;
@@ -80,16 +142,15 @@ class NormalDeployBox extends Component {
         { required: true, message: '请输入镜像地址' },
       ],
     });
-    const selectProps = getFieldProps('select', {
+    const selectProps = getFieldProps('imageVersion', {
       rules: [
         { required: true, message: '请选择镜像版本' },
       ],
     });
-    const runningCodeProps = getFieldProps('select', {
-      rules: [
-        { required: true, message: '请选择镜像版本' },
-      ],
-    });
+    const volumeChecked = getFieldProps('volumeChecked', {});
+    const volumePath = getFieldProps('volumePath', {});
+    const volumeName = getFieldProps('volumeName', {});
+    const volumeSwitch = getFieldProps('volumeSwitch', {});
     
     return (
 	  <div id="NormalDeployBox">
@@ -206,31 +267,10 @@ class NormalDeployBox extends Component {
 	          </div>
 	          <div className="stateService">
 	          	<span className="commonSpan">服务类型</span>
-	          	<Switch className="changeBtn" defaultChecked={false}  onChange={this.changeServiceState} />
+	          	<Switch className="changeBtn" defaultChecked={false} {...getFieldProps('volumeSwitch',{})} onChange={this.changeServiceState} />
 	          	<span className="stateSpan">{this.state.stateService ? "有状态服务":"无状态服务"}</span>
 	          	{this.state.stateService ? [
-	          		<div className="serviceOpen" key="had">
-                  <FormItem>
-                    <span className="url">/var/www/html</span>
-                    <Select className="imageTag" size="large"
-                            defaultValue="我就是最快的SSD"
-                            style={{ width: 200 }}
-                            {...getFieldProps('volumeName', {
-                              rules: [{
-                                required: true,
-                                message: '选择配置组呢?',
-                              }],
-                            })}>
-                      <Option value="对，选楼下">对，选楼下</Option>
-                      <Option value="我就是最快的SSD">我就是最快的SSD</Option>
-                      <Option value="看啥，选楼上">看啥，选楼上</Option>
-                      <Option value="没毛病，选二楼">没毛病，选二楼</Option>
-                    </Select>
-                    <Checkbox className="readOnlyBtn">只读</Checkbox>
-                    <i className="fa fa-refresh"></i>
-                    <i className="fa fa-trash"></i>
-                  </FormItem>
-				      	</div>
+                <MyComponent parentScope={parentScope}/>
 	          	]:null}
 	          	<div style={{ clear:"both" }}></div>
 	          </div>

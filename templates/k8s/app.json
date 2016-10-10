@@ -101,7 +101,8 @@
               "volumeMounts": [
                 {
                   "name": "volume-1",
-                  "mountPath": "/var/lib/mysql"
+                  "mountPath": "/var/lib/mysql",
+                  "readOnly": true
                 },
                 {
                   "name": "tenxcloud-time-zone",
@@ -123,7 +124,7 @@
           "nodeSelector": {},
           "volumes": [
             {
-              "name": "volume-1",
+              "name": "volume-1",~
               "rbd": {
                 "monitors": [
                   "192.168.1.86:6789",
@@ -133,10 +134,9 @@
                 "pool": "tenx-k8s",
                 "user": "admin",
                 "keyring": "/etc/ceph/ceph.client.admin.keyring",
-                "fsType": "ext4",
+                "fsType": "ext4",~
                 "mails": "",
-                "image": "zhangpc.test-mysql",
-                "readOnly": true
+                "image": "zhangpc.test-mysql"~
               }
             },
             {

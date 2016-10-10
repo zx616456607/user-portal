@@ -136,7 +136,7 @@ let MyComponentPort = React.createClass({
         <FormItem key={`port${k}`}>
         	<li className="portDetail">
     				<div className="input">
-        			<Input {...getFieldProps(`portUrl${k}`, {
+        			<Input {...getFieldProps(`targetPortUrl${k}`, {
           			rules: [{
 		              required: true,
 		              whitespace: true,
@@ -160,7 +160,7 @@ let MyComponentPort = React.createClass({
 							</FormItem>
 						</div>
 						<div className="mapping">
-							<Input {...getFieldProps(`url${k}`, {
+							<Input {...getFieldProps(`portUrl${k}`, {
           			rules: [{
 		              required: true,
 		              whitespace: true,

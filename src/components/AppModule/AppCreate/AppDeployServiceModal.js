@@ -21,6 +21,12 @@ import EnviroDeployBox from './AppDeployComponents/EnviroDeployBox.js'
 import "./style/AppDeployServiceModal.less"
 import { loadServiceList , createService } from '../../../actions/app_manage'
 import { DEFAULT_CLUSTER } from '../../../constants'
+import { cloneDeep } from 'lodash'
+import container from '../../../../templates/k8s/container.json'
+import deployment from '../../../../templates/k8s/deployment.json'
+import pod from '../../../../templates/k8s/pod.json'
+import service from '../../../../templates/k8s/service.json'
+
 
 const Panel = Collapse.Panel;
 const Option = Select.Option;
@@ -45,6 +51,7 @@ class AppDeployServiceModal extends Component {
     	volumeMountList:[],
     	enviroList:[],
     	portList:[],
+      depPortList:[],
     }
   }
   componentWillMount() {
@@ -52,43 +59,33 @@ class AppDeployServiceModal extends Component {
   }
   
   submitNewService(e,parentScope){
-    
   	//the function for user submit new service
   	e.preventDefault();
   	this.props.form.validateFields((errors, values) => {
   	  
     });
+  
+    let appObj = cloneDeep(app)
+    let containerObj = cloneDeep(container)
+    let deploymentObj = cloneDeep(deployment)
+    let podObj = cloneDeep(pod)
+    let serviceObj = cloneDeep(service)
+    
   	const scope = this.state;
   	let composeType = scope.composeType;
     let portKey = this.props.form.getFieldValue('portKey')
     let envKey = this.props.form.getFieldValue('envKey')
     let volKey = this.props.form.getFieldValue('volKey')
-    
-    if(portKey){
-      this.props.form.getFieldValue('portKey').map((k) => {
-        this.state.portList.push({"containerPort": this.props.form.getFieldProps(`portUrl${k}`).value })
-      })
-    }
-    if(envKey){
-      this.props.form.getFieldValue('envKey').map((k) => {
-        this.state.enviroList.push({
-          "name": this.props.form.getFieldProps(`envName${k}`).value ,
-          "value": this.props.form.getFieldProps(`envValue${k}`).value
-        })
-      })
-    }
-    if(volKey){
-      this.props.form.getFieldValue('volKey').map((k) => {
-        this.state.volumeMountList.push({
-          "name": this.props.form.getFieldProps(`volName${k}`).value ,
-          "mountPath": this.props.form.getFieldProps(`volPath${k}`).value
-        })
-      })
-    }
+  
     var ImageConfig = {
-      limits:{
-        "cpu": "60m",
-        "memory": "125Mi"
+      resources: {
+        limits: {
+          memory: "256Mi"
+        },
+        requests: {
+          cpu: "60m",
+          memory: "256Mi"
+        }
       },
       cal:'1C/256M'
     };
@@ -96,80 +93,193 @@ class AppDeployServiceModal extends Component {
       switch (composeType){
         case '1':
           ImageConfig={
-            limits:{
-              cpu: "60m",
-              memory: "125Mi"
+            resources: {
+              limits: {
+                memory: "256Mi"
+              },
+              requests: {
+                cpu: "60m",
+                memory: "256Mi"
+              }
             },
             cal:'1C/256M'
           }
           return
         case '2':
           ImageConfig = {
-            limits:{
-              "cpu": "125m",
-              "memory": "512Mi"
+            resources: {
+              limits: {
+                memory: "512Mi"
+              },
+              requests: {
+                cpu: "125m",
+                memory: "512Mi"
+              }
             },
             cal:'1C/512M'
           }
           return
         case '4':
           ImageConfig = {
-            limits:{
-              "cpu": "250m",
-              "memory": "1024Mi"
+            resources: {
+              limits: {
+                memory: "1024Mi"
+              },
+              requests: {
+                cpu: "250m",
+                memory: "1024Mi"
+              }
             },
             cal:'1C/1G'
           }
           return
         case '8':
           ImageConfig = {
-            limits:{
-              "cpu": "500m",
-              "memory": "2048Mi"
+            resources: {
+              limits: {
+                memory: "2048Mi"
+              },
+              requests: {
+                cpu: "500m",
+                memory: "2048Mi"
+              }
             },
             cal:'1C/2G'
           }
           return
         case '16':
           ImageConfig = {
-            limits:{
-              "cpu": "1000m",
-              "memory": "4096Mi"
+            resources: {
+              limits: {
+                memory: "4096Mi"
+              },
+              requests: {
+                cpu: "1000m",
+                memory: "4096Mi"
+              }
             },
             cal:'1C/4G'
           }
           return
         case '32':
           ImageConfig = {
-            limits:{
-              "cpu": "2000m",
-              "memory": "8192Mi"
+            resources: {
+              limits: {
+                memory: "8192Mi"
+              },
+              requests: {
+                cpu: "2000m",
+                memory: "8192Mi"
+              }
             },
             cal:'2C/8G'
           }
           return
         default :
           ImageConfig = {
-            limits:{
-              "cpu": "60m",
-              "memory": "125Mi"
+            resources: {
+              limits: {
+                memory: "125Mi"
+              },
+              requests: {
+                cpu: "60m",
+                memory: "125Mi"
+              }
             },
             cal:'1C/256M'
           }
           return
       }
     })(composeType)
-    
+  
     let serviceName = this.props.form.getFieldProps('name').value    //服务名
+    let volumeChecked = this.props.form.getFieldProps('volumeChecked')    //服务类型只读
     let instanceNum = scope.instanceNum;                             //容器数量
     let imageURL = this.props.form.getFieldProps('imageUrl').value   //镜像地址
-    const volumeName = this.props.form.getFieldProps('volumeName').value //服务类型
-    const livePort = this.props.form.getFieldProps('livePort').value //高可用端口
+    let imageVersion = this.props.form.getFieldProps('imageVersion').value    //镜像版本
+    let volumeSwitch = this.props.form.getFieldProps('volumeSwitch') //服务类型
+    let volumePath = this.props.form.getFieldProps('volumePath').value   //服务路径
+    let volumeName = this.props.form.getFieldProps('volumeName').value   //服务名称
+    const livePort = this.props.form.getFieldProps('livePort').value   //高可用端口
     const liveInitialDelaySeconds = this.props.form.getFieldProps('liveInitialDelaySeconds').value //首次延时
     const liveTimeoutSeconds = this.props.form.getFieldProps('liveTimeoutSeconds').value //检查超时
     const livePeriodSeconds = this.props.form.getFieldProps('livePeriodSeconds').value //检查间隔
     const livePath = this.props.form.getFieldProps('livePath').value //高可用路径
-    const { volumeMountList,enviroList,portList } = this.state
+    const { volumeMountList,enviroList,portList,depPortList } = this.state
+    
+    if(portKey){
+      this.props.form.getFieldValue('portKey').map((k) => {
+        if(this.props.form.getFieldProps(`portUrl${k}`).value){
+          this.state.portList.push({
+            'name': serviceName+'-'+k,
+            'targetPort': this.props.form.getFieldProps(`targetPortUrl${k}`).value ,
+            'ports': this.props.form.getFieldProps(`portUrl${k}`).value
+          })
+          this.state.depPortList.push({
+            'name': 'hhhh',
+            'containerPort': this.props.form.getFieldProps(`targetPortUrl${k}`).value ,
+          })
+        } else {
+          this.state.portList.push({
+            'name': 'hhhh',
+            'targetPort': this.props.form.getFieldProps(`targetPortUrl${k}`).value
+          })
+          this.state.depPortList.push({
+            'name': 'hhhh',
+            'containerPort': this.props.form.getFieldProps(`targetPortUrl${k}`).value ,
+          })
+        }
+      })
+    }
+    if(envKey){
+      this.props.form.getFieldValue('envKey').map((k) => {
+        this.state.enviroList.push({
+          'name': this.props.form.getFieldProps(`envName${k}`).value ,
+          'value': this.props.form.getFieldProps(`envValue${k}`).value
+        })
+      })
+    }
+    if(volKey){
+      this.props.form.getFieldValue('volKey').map((k) => {
+        this.state.volumeMountList.push({
+          'name': this.props.form.getFieldProps(`volName${k}`).value ,
+          'mountPath': this.props.form.getFieldProps(`volPath${k}`).value
+        })
+      })
+    }
+    
+    if(volumeSwitch){
+      this.props.form.getFieldValue('volKey').map((k) => {
+        this.state.volumeMountList.push({
+          'name': this.props.form.getFieldProps(`volName${k}`).value ,
+          'mountPath': this.props.form.getFieldProps(`volPath${k}`).value
+        })
+      })
+    }
+    
+    serviceObj.metadata.name = serviceName //服务名称
+    containerObj.image = imageURL+':'+imageVersion//镜像地址
+    containerObj.resources = ImageConfig.resources//容器配置
+    //服务类型
+    if(volumeSwitch){
+      Object.assign(serviceConfig,{
+        "volumes": [
+          {
+            "name": volumeName
+          }
+        ]
+      })
+      Object.assign(containerObj,{
+        "volumeMounts": [
+          {
+            name: "volume-1",
+            "mountPath": "/var/lib/mysql",
+            "readOnly": true
+          },
+        ]
+      })
+    }
+    
     
     let serviceConfig = {
         [serviceName]: {
@@ -185,18 +295,12 @@ class AppDeployServiceModal extends Component {
           ],
         },
     }
-  
     let serviceConfigService = {
       kind: 'Service',
       apiVersion: 'v1',
       metadata:{name: serviceName},
       spec: {
         selector: {name: serviceName},
-        ports: [
-          {name: ''},
-          {port:''},
-          {},
-        ]
       }
     }
     let serviceConfigDeployment = {
@@ -204,24 +308,29 @@ class AppDeployServiceModal extends Component {
       apiVersion: 'v1',
       metadata:{name: serviceName},
       spec: {
-        selector: {name: serviceName},
-        ports: [
-          {name: ''},
-          {port:''},
-          {},
-        ]
-      }
+        replicas: instanceNum,
+        template: {
+          metadata: {
+            name: serviceName
+          },
+          labels: {
+            name: serviceName
+          },
+          spec: {
+            containers: [
+              {
+                name: serviceName,
+                image: imageURL+':'+imageVersion,
+                imagePullPolicy : 'is'
+              },
+            ]
+          }
+        }
+      },
+      
     }
     
-    if(volumeName){
-      Object.assign(serviceConfig,{
-        "volumes": [
-          {
-            "name": volumeName
-          }
-        ]
-      })
-    }
+    //
     if(this.state.getUsefulType === 'http'){
       Object.assign(serviceConfig[serviceName].containers[0],{
         "livenessProbe": {
@@ -246,29 +355,51 @@ class AppDeployServiceModal extends Component {
         }
       })
     }
+    //
     if(enviroList.length !== 0){
       Object.assign(serviceConfig[serviceName].containers[0],{
         "env": enviroList,
       })
     }
+    //容器端口
     if(portList.length !== 0){
       Object.assign(serviceConfig[serviceName].containers[0],{
-        "ports": portList,
+        ports: portList,
       })
     }
+    
+    if(portList.length !== 0){
+      Object.assign(serviceConfigService.spec,{
+        ports: portList,
+      })
+      Object.assign(serviceConfigDeployment.spec.template.spec.containers[0],{
+        ports: depPortList,
+      })
+    }
+    
+    //
     if(volumeMountList.length !== 0){
       Object.assign(serviceConfig[serviceName].containers[0],{
         "volumeMounts": volumeMountList,
       })
     }
+    //重新部署
     if(scope.getImageType === '2'){
       serviceConfig[serviceName].containers[0].imagePullPolicy = 'Always'
     }
+    if(scope.getImageType === '1'){
+      serviceConfigDeployment.spec.template.spec.containers[0].imagePullPolicy = 'Always'
+    }
+    
     console.log('ServiceConfig=================');
     console.log(serviceConfig);
     console.log('ServiceConfig=================');
-    
-    
+    console.log('serviceConfigService=================');
+    console.log(serviceConfigService);
+    console.log('serviceConfigService=================');
+    console.log('serviceConfigDeployment=================');
+    console.log(serviceConfigDeployment);
+    console.log('serviceConfigDeployment=================');
     
     
     
