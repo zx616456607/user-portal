@@ -11,6 +11,7 @@ import React, { Component,PropTypes } from 'react'
 import { Modal,Tabs,Menu,Button,Card,Form,Input } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
+import TweenOne from 'rc-tween-one';
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import ImageDetailBox from './ImageCenter/ImageDetail/Index.js'
@@ -118,7 +119,14 @@ let MyComponent = React.createClass({
       	</div>
 	      <Form className="addForm" horizontal form={this.props.form}>
 	        <FormItem hasFeedback >
-	          <span className="title">地址</span><Input {...urlProps} />
+	        	 <TweenOne
+				        animation={{ left: '20%', repeat: 1, duration: 1000 }}
+				        style={{ left: '-20%' }}
+				        className="code-box-shape"
+				      >
+	        	 <span className="title">地址</span>	
+	        	 </TweenOne>
+	          <Input {...urlProps} />
 	        </FormItem>
 	        <FormItem hasFeedback >
 	          <span className="title">邮箱</span><Input {...emailProps} type="email" />
