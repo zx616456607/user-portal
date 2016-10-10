@@ -107,7 +107,10 @@ exports.uploadFile = function*() {
     return
   }
   const fileStream = yield parts
-  const { pool, isUnzip, format, volumeName} = parts.field
+  const pool = parts.field.pool
+  const isUnzip = parts.field.isUnzip
+  const format = parts.field.format
+  const volumeName = parts.field.volumeName
   const stream = formStream()
   stream.stream(fileStream.filename, fileStream, fileStream.filename, fileStream.mimeType, fileStream._readableState.length)
   let response = yield volumeApi.volumes.uploadFile([pool, volumeName, 'import'], { isUnzip }, stream, stream.headers())
