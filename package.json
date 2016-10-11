@@ -55,6 +55,7 @@
   },
   "devDependencies": {
     "antd": "^1.11.0",
+    "async": "^2.0.1",
     "babel-core": "^6.14.0",
     "babel-loader": "^6.2.5",
     "babel-plugin-antd": "^0.5.1",
@@ -93,6 +94,7 @@
     "redux-devtools-log-monitor": "^1.0.11",
     "redux-logger": "^2.6.1",
     "redux-thunk": "^2.1.0",
+    "request": "^2.75.0",
     "webpack": "^1.13.2",
     "webpack-dev-middleware": "^1.6.1",
     "webpack-hot-middleware": "^2.12.2"
