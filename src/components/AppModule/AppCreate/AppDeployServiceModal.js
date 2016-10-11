@@ -49,9 +49,12 @@ class AppDeployServiceModal extends Component {
     	currentDate:false,
     	getUsefulType:"null",
     	volumeMountList:[],
+      volumesList:[],
     	enviroList:[],
     	portList:[],
       depPortList:[],
+      annotationsList:{},
+      volumeSwitch:false,
     }
   }
   componentWillMount() {
@@ -65,7 +68,6 @@ class AppDeployServiceModal extends Component {
   	  
     });
   
-    let appObj = cloneDeep(app)
     let containerObj = cloneDeep(container)
     let deploymentObj = cloneDeep(deployment)
     let podObj = cloneDeep(pod)
@@ -193,40 +195,70 @@ class AppDeployServiceModal extends Component {
     })(composeType)
   
     let serviceName = this.props.form.getFieldProps('name').value    //服务名
-    let volumeChecked = this.props.form.getFieldProps('volumeChecked')    //服务类型只读
     let instanceNum = scope.instanceNum;                             //容器数量
     //let imageURL = this.props.form.getFieldProps('imageUrl').value   //镜像地址
     let imageVersion = this.props.form.getFieldProps('imageVersion').value    //镜像版本
     let volumeSwitch = this.props.form.getFieldProps('volumeSwitch').value //服务类型
     let volumePath = this.props.form.getFieldProps('volumePath').value   //服务路径
     let volumeName = this.props.form.getFieldProps('volumeName').value   //服务名称
-    const livePort = this.props.form.getFieldProps('livePort').value   //高可用端口
-    const liveInitialDelaySeconds = this.props.form.getFieldProps('liveInitialDelaySeconds').value //首次延时
-    const liveTimeoutSeconds = this.props.form.getFieldProps('liveTimeoutSeconds').value //检查超时
-    const livePeriodSeconds = this.props.form.getFieldProps('livePeriodSeconds').value //检查间隔
-    const livePath = this.props.form.getFieldProps('livePath').value //高可用路径
-    const { volumeMountList,enviroList,portList,depPortList } = this.state
+    let volumeChecked = this.props.form.getFieldProps('volumeChecked').value   //服务只读
+    let livePort = this.props.form.getFieldProps('livePort').value   //高可用端口
+    let liveInitialDelaySeconds = this.props.form.getFieldProps('liveInitialDelaySeconds').value //首次延时
+    let liveTimeoutSeconds = this.props.form.getFieldProps('liveTimeoutSeconds').value //检查超时
+    let livePeriodSeconds = this.props.form.getFieldProps('livePeriodSeconds').value //检查间隔
+    let livePath = this.props.form.getFieldProps('livePath').value //高可用路径
+    let args = this.props.form.getFieldProps('args').value //高可用路径
+    
+    const { volumeMountList,volumesList,enviroList,portList,depPortList,annotationsList } = this.state
     
     if(portKey){
       this.props.form.getFieldValue('portKey').map((k) => {
         if(this.props.form.getFieldProps(`portUrl${k}`).value){
-          this.state.portList.push({
-            'name': serviceName+'-'+k,
-            'targetPort': this.props.form.getFieldProps(`targetPortUrl${k}`).value ,
-            'ports': this.props.form.getFieldProps(`portUrl${k}`).value
-          })
+          if(this.props.form.getFieldProps(`portType${k}`).value === 'udp'){
+            this.state.portList.push({
+              name: serviceName+'-'+k,
+              targetPort: this.props.form.getFieldProps(`targetPortUrl${k}`).value ,
+              port: this.props.form.getFieldProps(`portUrl${k}`).value,
+              protocol: 'UDP'
+            })
+          } else {
+            this.state.portList.push({
+              name: serviceName+'-'+k,
+              targetPort: this.props.form.getFieldProps(`targetPortUrl${k}`).value ,
+              port: this.props.form.getFieldProps(`portUrl${k}`).value,
+              protocol: 'TCP'
+            })
+          }
+        } else {
+          if(this.props.form.getFieldProps(`portType${k}`).value === 'udp'){
+            this.state.portList.push({
+              name: serviceName+'-'+k,
+              targetPort: this.props.form.getFieldProps(`targetPortUrl${k}`).value ,
+              protocol: 'UDP'
+            })
+          } else {
+            this.state.portList.push({
+              name: serviceName+'-'+k,
+              targetPort: this.props.form.getFieldProps(`targetPortUrl${k}`).value ,
+              protocol: 'TCP'
+            })
+          }
+        }
+        if(this.props.form.getFieldProps(`portType${k}`).value === 'udp'){
           this.state.depPortList.push({
-            'name': 'hhhh',
             'containerPort': this.props.form.getFieldProps(`targetPortUrl${k}`).value ,
+            'protocol' : 'UDP'
+          })
+          Object.assign(this.state.annotationsList,{
+            [serviceName+'-'+k] : 'UDP'
           })
         } else {
-          this.state.portList.push({
-            'name': 'hhhh',
-            'targetPort': this.props.form.getFieldProps(`targetPortUrl${k}`).value
-          })
           this.state.depPortList.push({
-            'name': 'hhhh',
-            'containerPort': this.props.form.getFieldProps(`targetPortUrl${k}`).value ,
+            'containerPort' : this.props.form.getFieldProps(`targetPortUrl${k}`).value ,
+            'protocol' : 'TCP'
+          })
+          Object.assign(this.state.annotationsList,{
+            [serviceName+'-'+k] :'TCP'
           })
         }
       })
@@ -241,42 +273,145 @@ class AppDeployServiceModal extends Component {
     }
     if(volKey){
       this.props.form.getFieldValue('volKey').map((k) => {
-        this.state.volumeMountList.push({
+        this.state.volumesList.push({
           'name': this.props.form.getFieldProps(`volName${k}`).value ,
           'mountPath': this.props.form.getFieldProps(`volPath${k}`).value
         })
       })
     }
-    console.log(this.props.form.getFieldValue('volumeKey'));
-    console.log(volumeSwitch);
-    if(volumeSwitch){
+    
+    if(this.state.volumeSwitch){
       this.props.form.getFieldValue('volumeKey').map((k) => {
-        this.state.volumeMountList.push({
-          'name': this.props.form.getFieldProps(`volName${k}`).value +'-'+k,
-          'mountPath': this.props.form.getFieldProps(`volPath${k}`).value
+        if(volumeChecked){
+          this.state.volumeMountList.push({
+            name: 'volume-'+k,
+            mountPath: '/var/www/html',
+            readOnly: true,
+          })
+        } else {
+          this.state.volumeMountList.push({
+            'name': this.props.form.getFieldProps(`volName${k}`).value +'-'+k,
+            'mountPath': '/var/www/html',
+          })
+        }
+        this.state.volumesList.push({
+          name: 'volume-'+k,
+          fsType: this.props.form.getFieldProps(`volumeName${k}`).value.split('/')[0],
+          image: this.props.form.getFieldProps(`volumeName${k}`).value.split('/')[1]
         })
       })
     }
     
-    serviceObj.metadata.name = serviceName //服务名称
     //containerObj.image = imageURL+':'+imageVersion   //镜像地址
-    containerObj.resources = ImageConfig.resources   //容器配置
-    //服务类型
-    if(volumeSwitch){
-      Object.assign(serviceConfig,{
-        "volumes": [
-          {
-            "name": volumeName
-          }
-        ]
-      })
+    
+    /*container*/
+    //name
+    containerObj.name = serviceName
+    //image
+    containerObj.image = parentScope.state.currentSelectedImage + '/' + parentScope.state.registryServer +':'+ imageVersion
+    //ports 容器端口
+    if(portList.length !== 0){
       Object.assign(containerObj,{
-        "volumeMounts": volumeMountList
+        ports: depPortList,
+      })
+    }
+    //环境变量
+    if(enviroList.length !== 0){
+      Object.assign(containerObj,{
+        env: enviroList,
+      })
+    }
+    //resources 容器配置
+    containerObj.resources = ImageConfig.resources
+    //args 执行命令
+    if(this.state.runningCode === '2'){
+      containerObj.args = [args]
+    }
+    //imagePullPolicy 重新部署
+    if(scope.getImageType === '2'){
+      containerObj.imagePullPolicy = 'is'
+    }
+    //volumeMounts 服务类型
+    if(this.state.volumeSwitch){
+      Object.assign(containerObj,{
+        volumeMounts: volumeMountList
+      })
+    }
+    //livenessProbe
+    if(this.state.getUsefulType === 'http'){
+      Object.assign(containerObj,{
+        livenessProbe: {
+          httpGet: {
+            port: livePort,
+            path: livePath,
+          },
+          initialDelaySeconds: liveInitialDelaySeconds,
+          timeoutSeconds: liveTimeoutSeconds,
+          periodSeconds: livePeriodSeconds
+        }
+      })
+    } else if(this.state.getUsefulType === 'tcp') {
+      Object.assign(containerObj,{
+        livenessProbe: {
+          tcpSocket: {
+            port: livePort
+          },
+          initialDelaySeconds: liveInitialDelaySeconds,
+          timeoutSeconds: liveTimeoutSeconds,
+          periodSeconds: livePeriodSeconds
+        }
+      })
+    }
+    console.log('containerObj------------------');
+    console.log(containerObj);
+    console.log('containerObj------------------');
+    /*pod*/
+    podObj.spec.containers.push(containerObj)
+    //name
+    podObj.metadata.labels.name = serviceName
+    //volumes
+    if(this.state.volumeSwitch){
+      podObj.spec.volumes = volumesList
+    }
+    //时区设置
+    if(this.state.currentDate){
+      Object.assign(podObj.spec.volumes,{
+        name: "tenxcloud-time-zone",
+        hostPath: {
+          path: "/etc/localtime"
+        }
+      })
+      Object.assign(containerObj.volumeMounts,{
+        "name": "tenxcloud-time-zone",
+        "mountPath": "/etc/localtime",
+        "readOnly": true
       })
     }
     
+    /*Deployment*/
+    deploymentObj.spec.template = podObj
+    //metadata
+    deploymentObj.metadata.name = serviceName
+    deploymentObj.metadata.labels.name = serviceName
+    //replicas
+    deploymentObj.spec.replicas = instanceNum
+    //selector
+    deploymentObj.spec.selector.name = serviceName
+    console.log('deploymentObj------------------');
+    console.log(deploymentObj);
+    console.log('deploymentObj------------------');
+    /*Service*/
+    //服务名称
+    serviceObj.metadata.name = serviceName
+    serviceObj.metadata.labels.name = serviceName
+    //
+    serviceObj.metadata.annotations = annotationsList
+    serviceObj.spec.ports = portList
+    console.log('serviceObj------------------');
+    console.log(serviceObj);
+    console.log('serviceObj------------------');
     
-    let serviceConfig = {
+    /*let serviceConfig = {
         [serviceName]: {
           "replicas": instanceNum,
           "containers": [
@@ -289,116 +424,16 @@ class AppDeployServiceModal extends Component {
             }
           ],
         },
+    }*/
+    let serviceConfig = {
+      Service: serviceObj,
+      Deployment: deploymentObj
     }
-    let serviceConfigService = {
-      kind: 'Service',
-      apiVersion: 'v1',
-      metadata:{name: serviceName},
-      spec: {
-        selector: {name: serviceName},
-      }
-    }
-    let serviceConfigDeployment = {
-      kind: 'Deployment',
-      apiVersion: 'v1',
-      metadata:{name: serviceName},
-      spec: {
-        replicas: instanceNum,
-        template: {
-          metadata: {
-            name: serviceName
-          },
-          labels: {
-            name: serviceName
-          },
-          spec: {
-            containers: [
-              {
-                name: serviceName,
-                image: ''+':'+imageVersion,
-                imagePullPolicy : 'is'
-              },
-            ]
-          }
-        }
-      },
-      
-    }
-    
-    //
-    if(this.state.getUsefulType === 'http'){
-      Object.assign(serviceConfig[serviceName].containers[0],{
-        "livenessProbe": {
-          "httpGet": {
-            "path": livePath,
-            "port": livePort
-          },
-          "initialDelaySeconds": liveInitialDelaySeconds,
-          "timeoutSeconds": liveTimeoutSeconds,
-          "periodSeconds": livePeriodSeconds
-        }
-      })
-    } else if(this.state.getUsefulType === 'tcp') {
-      Object.assign(serviceConfig[serviceName].containers[0],{
-        "livenessProbe": {
-          "tcpSocket": {
-            "port": livePort
-          },
-          "initialDelaySeconds": liveInitialDelaySeconds,
-          "timeoutSeconds": liveTimeoutSeconds,
-          "periodSeconds": livePeriodSeconds
-        }
-      })
-    }
-    //
-    if(enviroList.length !== 0){
-      Object.assign(serviceConfig[serviceName].containers[0],{
-        "env": enviroList,
-      })
-    }
-    //容器端口
-    if(portList.length !== 0){
-      Object.assign(serviceConfig[serviceName].containers[0],{
-        ports: portList,
-      })
-    }
-    //
-    if(portList.length !== 0){
-      Object.assign(serviceConfigService.spec,{
-        ports: portList,
-      })
-      Object.assign(serviceConfigDeployment.spec.template.spec.containers[0],{
-        ports: depPortList,
-      })
-    }
-    
-    //
-    if(volumeMountList.length !== 0){
-      Object.assign(serviceConfig[serviceName].containers[0],{
-        "volumeMounts": volumeMountList,
-      })
-    }
-    //重新部署
-    if(scope.getImageType === '2'){
-      serviceConfig[serviceName].containers[0].imagePullPolicy = 'Always'
-    }
-    if(scope.getImageType === '1'){
-      serviceConfigDeployment.spec.template.spec.containers[0].imagePullPolicy = 'Always'
-    }
-    
-    console.log('ServiceConfig=================');
+    console.log('serviceConfig------------------');
     console.log(serviceConfig);
-    console.log('ServiceConfig=================');
-    console.log('serviceConfigService=================');
-    console.log(serviceConfigService);
-    console.log('serviceConfigService=================');
-    console.log('serviceConfigDeployment=================');
-    console.log(serviceConfigDeployment);
-    console.log('serviceConfigDeployment=================');
-    
-    
-    
-    const newService = {id:serviceName,name:serviceName,imageName:'',resource:ImageConfig.cal,inf:serviceConfig}
+    console.log('serviceConfig------------------');
+  
+    const newService = {id:serviceName,name:serviceName,imageName:containerObj.image,resource:ImageConfig.cal,inf:serviceConfig}
     const serviceScope = this.props.scope.props.scope
     const newList = serviceScope.state.servicesList
     const newSeleList = serviceScope.state.selectedList

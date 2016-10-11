@@ -61,10 +61,7 @@ var MyComponent = React.createClass({
                       message: '选择配置组呢?',
                     }],
                   })}>
-            <Option value="对，选楼下">对，选楼下</Option>
-            <Option value="我就是最快的SSD">我就是最快的SSD</Option>
-            <Option value="看啥，选楼上">看啥，选楼上</Option>
-            <Option value="没毛病，选二楼">没毛病，选二楼</Option>
+            <Option value="ext4/volumeName">volumeName ext4 1024M</Option>
           </Select>
           <Checkbox className="readOnlyBtn" { ...getFieldProps(`volumeChecked${k}`,{}) }>
             只读
@@ -90,7 +87,7 @@ class NormalDeployBox extends Component {
     this.changeInstanceNum = this.changeInstanceNum.bind(this);
     this.changeServiceState = this.changeServiceState.bind(this);
     this.state = {
-    	
+      
     }
   }
   userExists(rule, value, callback) {
@@ -121,11 +118,15 @@ class NormalDeployBox extends Component {
   		instanceNum:e
   	});
   }
-  changeServiceState(e){
+  changeServiceState(e,parentScope){
     //the function for change user select service status open or not
     this.setState({
       stateService:e
     });
+    parentScope.setState({
+      volumeSwitch: e,
+    })
+    console.log(e);
   }
   render() {
   	const parentScope = this.props.scope;
@@ -147,8 +148,6 @@ class NormalDeployBox extends Component {
     const volumeChecked = getFieldProps('volumeChecked', {});
     const volumePath = getFieldProps('volumePath', {});
     const volumeName = getFieldProps('volumeName', {});
-    const volumeSwitch = getFieldProps('volumeSwitch', {});
-    
     return (
 	  <div id="NormalDeployBox">
 	  	{/*<Form horizontal form={parentScope.props.form}>*/}
@@ -264,7 +263,7 @@ class NormalDeployBox extends Component {
 	          </div>
 	          <div className="stateService">
 	          	<span className="commonSpan">服务类型</span>
-	          	<Switch className="changeBtn" defaultChecked={false} {...getFieldProps('volumeSwitch',{})} onChange={this.changeServiceState} />
+	          	<Switch className="changeBtn" value="1" defaultChecked={false}  onChange={(e) => this.changeServiceState(e,parentScope)} />
 	          	<span className="stateSpan">{this.state.stateService ? "有状态服务":"无状态服务"}</span>
 	          	{this.state.stateService ? [
                 <MyComponent parentScope={parentScope}/>
