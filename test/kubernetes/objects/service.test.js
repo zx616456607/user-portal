@@ -4,7 +4,7 @@ const should = require('should')
 const assert = require('assert')
 const Service = require('../../../kubernetes/objects/service') 
 
-describe('gitlab api', function () {
+describe('service test', function () {
   this.timeout(1 * 1000)
   let service
   beforeEach(function() {
