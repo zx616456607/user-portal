@@ -55,7 +55,7 @@ const userSchema = new Schema('users', {
 })
 
 const appSchema = new Schema('apps', {
-  idAttribute: 'id'
+  idAttribute: 'name'
 })
 
 const serviceSchema = new Schema('services', {
@@ -72,6 +72,10 @@ const storageSchema = new Schema('storage', {
 
 const configSchema = new Schema('configGroupList',{
   idAttribute: 'groupId'
+})
+
+const registrySchema = new Schema('registries', {
+  idAttribute: 'name'
 })
 
 
@@ -93,9 +97,13 @@ export const Schemas = {
   STORAGE: {
     storageList: arrayOf(storageSchema)
   },
-  CONFIG  : configSchema,
+  CONFIG: configSchema,
   CONFIGS: {
     configGroup: arrayOf(configSchema)
+  },
+  REGISTRY: registrySchema,
+  REGISTRYS: {
+    appList: arrayOf(registrySchema)
   },
 }
 

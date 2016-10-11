@@ -85,10 +85,10 @@ const MyComponent = React.createClass({
 						<span className={item.appStatus == 1 ? "normal":"error"} >{item.appStatus == 1 ? "正常":"异常"}</span>
 					</div>
 					<div className="serviceNum commonData">
-						{item.serviceCount}
+						{item.serviceCount || '-'}
 					</div>
 					<div className="containerNum commonData">
-						{item.instanceCount}
+						{item.instanceCount || '-'}
 					</div>
 					<div className="visitIp commonData">
 						{item.address || '-'}
@@ -217,7 +217,7 @@ class AppList extends Component {
       	  <Card className="appBox">
       	    <div className="appTitle">
       		  <div className="selectIconTitle commonTitle">
-      		    <Checkbox checked={ isAllChecked } onChange={this.onAllChange}></Checkbox>
+      		    <Checkbox checked={ isAllChecked } onChange={this.onAllChange} disabled={ appList.length < 1 }></Checkbox>
       		  </div>
       		  <div className="appName commonTitle">
       		    应用名称

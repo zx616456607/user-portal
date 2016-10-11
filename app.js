@@ -18,7 +18,8 @@ const config = require('./configs')
 const logger = require('./utils/logger').getLogger('app')
 const app = koa()
 global.Promise = require('bluebird')
-
+// Disabled reject unauthorized
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 /*
  * Koa middlewares
  */
@@ -28,7 +29,7 @@ const koaLogger = require('koa-logger')
 app.use(koaLogger())
 
 // Set app config
-const packageJSON= require('./package.json')
+const packageJSON = require('./package.json')
 app.name = packageJSON.name
 app.version = packageJSON.version
 
@@ -42,6 +43,7 @@ app.use(function* (next) {
       err.status = 500
     }
     logger.error('catch-error', JSON.stringify(err.message))
+    logger.error('catch-error', err.stack)
     this.status = err.status || err.statusCode || 500
     this.body = {
       statusCode: this.status,

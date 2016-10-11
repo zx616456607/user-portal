@@ -13,6 +13,7 @@ import union from 'lodash/union'
 import { routerReducer as routing } from 'react-router-redux'
 import { combineReducers } from 'redux'
 import * as appManageReducers from './app_manage'
+import * as appCenterReducers from './app_center'
 import configReducers from './configs'
 import storage from './storage'
 
@@ -75,6 +76,7 @@ const rootReducer = combineReducers({
   actionCallback,
   storage,
   ...appManageReducers,
+  ...appCenterReducers,
   configReducers,
   routing
 })

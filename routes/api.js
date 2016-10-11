@@ -69,6 +69,8 @@ module.exports = function (Router) {
 
   // Registries
   router.get('/registries/:registry', registryController.getImages)
+  router.get('/registries/:registry/:user/:name/tags', registryController.getImageTags)
+  router.get('/registries/:registry/:user/:name/tags/:tag/configs', registryController.getImageConfigs)
 
   return router.routes()
 }

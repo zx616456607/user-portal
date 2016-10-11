@@ -2,7 +2,7 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
- * I18n service for init and middleware
+ * API factory
  *
  * v0.1 - 2016-09-13
  * @author Zhangpc
