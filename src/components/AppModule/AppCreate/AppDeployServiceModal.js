@@ -195,9 +195,9 @@ class AppDeployServiceModal extends Component {
     let serviceName = this.props.form.getFieldProps('name').value    //服务名
     let volumeChecked = this.props.form.getFieldProps('volumeChecked')    //服务类型只读
     let instanceNum = scope.instanceNum;                             //容器数量
-    let imageURL = this.props.form.getFieldProps('imageUrl').value   //镜像地址
+    //let imageURL = this.props.form.getFieldProps('imageUrl').value   //镜像地址
     let imageVersion = this.props.form.getFieldProps('imageVersion').value    //镜像版本
-    let volumeSwitch = this.props.form.getFieldProps('volumeSwitch') //服务类型
+    let volumeSwitch = this.props.form.getFieldProps('volumeSwitch').value //服务类型
     let volumePath = this.props.form.getFieldProps('volumePath').value   //服务路径
     let volumeName = this.props.form.getFieldProps('volumeName').value   //服务名称
     const livePort = this.props.form.getFieldProps('livePort').value   //高可用端口
@@ -247,19 +247,20 @@ class AppDeployServiceModal extends Component {
         })
       })
     }
-    
+    console.log(this.props.form.getFieldValue('volumeKey'));
+    console.log(volumeSwitch);
     if(volumeSwitch){
-      this.props.form.getFieldValue('volKey').map((k) => {
+      this.props.form.getFieldValue('volumeKey').map((k) => {
         this.state.volumeMountList.push({
-          'name': this.props.form.getFieldProps(`volName${k}`).value ,
+          'name': this.props.form.getFieldProps(`volName${k}`).value +'-'+k,
           'mountPath': this.props.form.getFieldProps(`volPath${k}`).value
         })
       })
     }
     
     serviceObj.metadata.name = serviceName //服务名称
-    containerObj.image = imageURL+':'+imageVersion//镜像地址
-    containerObj.resources = ImageConfig.resources//容器配置
+    //containerObj.image = imageURL+':'+imageVersion   //镜像地址
+    containerObj.resources = ImageConfig.resources   //容器配置
     //服务类型
     if(volumeSwitch){
       Object.assign(serviceConfig,{
@@ -270,13 +271,7 @@ class AppDeployServiceModal extends Component {
         ]
       })
       Object.assign(containerObj,{
-        "volumeMounts": [
-          {
-            name: "volume-1",
-            "mountPath": "/var/lib/mysql",
-            "readOnly": true
-          },
-        ]
+        "volumeMounts": volumeMountList
       })
     }
     
@@ -287,7 +282,7 @@ class AppDeployServiceModal extends Component {
           "containers": [
             {
               "name": serviceName,
-              "image": imageURL,
+              "image": '',
               "resources": {
                 "limits": ImageConfig.limits
               },
@@ -320,7 +315,7 @@ class AppDeployServiceModal extends Component {
             containers: [
               {
                 name: serviceName,
-                image: imageURL+':'+imageVersion,
+                image: ''+':'+imageVersion,
                 imagePullPolicy : 'is'
               },
             ]
@@ -367,7 +362,7 @@ class AppDeployServiceModal extends Component {
         ports: portList,
       })
     }
-    
+    //
     if(portList.length !== 0){
       Object.assign(serviceConfigService.spec,{
         ports: portList,
@@ -403,7 +398,7 @@ class AppDeployServiceModal extends Component {
     
     
     
-    const newService = {id:serviceName,name:serviceName,imageName:imageURL,resource:ImageConfig.cal,inf:serviceConfig}
+    const newService = {id:serviceName,name:serviceName,imageName:'',resource:ImageConfig.cal,inf:serviceConfig}
     const serviceScope = this.props.scope.props.scope
     const newList = serviceScope.state.servicesList
     const newSeleList = serviceScope.state.selectedList
@@ -415,9 +410,9 @@ class AppDeployServiceModal extends Component {
       servicesList: newList,
       selectedList: newSeleList
     })
-    /*parentScope.setState({
+    parentScope.setState({
       modalShow:false
-    });*/
+    });
   }
   closeModal(){
     const parentScope = this.props.scope;
@@ -431,11 +426,12 @@ class AppDeployServiceModal extends Component {
   	const parentScope = this.props.scope;
     const {createService,cluster,appName} = this.props
     const {servicesList} = parentScope.props.scope.state.servicesList
+    const {currentSelectedImage, registryServer} = parentScope.state
   
     return (
 	  <div id="AppDeployServiceModal">
     	<Form horizontal form={this.props.form}>
-    		<NormalDeployBox scope={scope} />
+    		<NormalDeployBox scope={scope} registryServer={registryServer} currentSelectedImage={currentSelectedImage} />
 	      <Collapse>
 	    		<Panel header={assitBoxTitle} key="1" className="assitBigBox">
 					  <AssitDeployBox scope={scope} />

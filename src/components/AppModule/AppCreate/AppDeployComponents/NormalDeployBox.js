@@ -136,12 +136,9 @@ class NormalDeployBox extends Component {
         { validator: this.userExists },
       ],
     });
+    const {registryServer,currentSelectedImage} = this.props
+    const imageUrlProps = registryServer+'/'+currentSelectedImage
     
-    const imageUrlProps = getFieldProps('imageUrl', {
-      rules: [
-        { required: true, message: '请输入镜像地址' },
-      ],
-    });
     const selectProps = getFieldProps('imageVersion', {
       rules: [
         { required: true, message: '请选择镜像版本' },
@@ -168,7 +165,7 @@ class NormalDeployBox extends Component {
 	        <div className="inputBox">
 	          <span className="commonSpan">镜像地址</span>
 	          <FormItem className="iamgeUrlForm" hasFeedback>
-		          <Input {...imageUrlProps} className="imageInput" size="large" placeholder="输入一个刻骨铭心的地址吧~" />
+		          <Input className="imageInput" size="large" value={imageUrlProps} />
 		          <div style={{ clear:"both" }}></div>
 	          </FormItem>
 	          <Button className="checkBtn" size="large" type="primary" onClick={this.checkImageUrl}>检查地址</Button>
