@@ -63,12 +63,15 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/containers/:container_name/detail', containerController.getContainerDetail)
   
   // Configs
-  router.get('/clusters/:cluster/configs',configController.getConfigGroup)
+  router.get('/clusters/:cluster/configgroups',configController.getConfigGroup)
+  router.get('/clusters/:cluster/configgroups/:name',configController.getConfigGroupName)
   router.post('/clusters/:cluster/configs',configController.createConfigGroup)
   router.post('/clusters/:cluster/configs/delete',configController.deleteConfigGroup)
 
   // Registries
   router.get('/registries/:registry', registryController.getImages)
+  router.get('/registries/:registry/:user/:name/tags', registryController.getImageTags)
+  router.get('/registries/:registry/:user/:name/tags/:tag/configs', registryController.getImageConfigs)
 
   return router.routes()
 }

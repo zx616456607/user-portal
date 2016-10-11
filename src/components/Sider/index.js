@@ -85,7 +85,7 @@ export default class Slider extends Component {
 	    		</li>
 	    		<li onClick={this.selectModel.bind(this,"4","#database")} className={currentKey=="4" ? "selectedLi":""}>
 		    		<Tooltip placement="right" title="数据库与缓存" getTooltipContainer={()=>document.getElementById("siderTooltip")}>
-		    			<Link to="/">
+		    			<Link to="/database_cache">
 		    				<svg className="database commonImg">
 			    				<use xlinkHref="#database" />
 			    			</svg>

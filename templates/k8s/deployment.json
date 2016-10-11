@@ -12,9 +12,6 @@
     "selector": {
       "name": ""
     },
-    "template": {
-      "metadata": {},
-      "spec": {}
-    }
+    "template": {}
   }
 }

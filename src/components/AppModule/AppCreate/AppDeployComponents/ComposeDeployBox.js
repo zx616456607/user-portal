@@ -54,7 +54,6 @@ var MyComponent = React.createClass({
   	getFieldProps('volKey', {
       initialValue: [],
    	});
-		console.log('00000000000');
 		console.log(getFieldValue('volKey'));
    	const formItems = getFieldValue('volKey').map((k) => {
       return (

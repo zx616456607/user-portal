@@ -54,12 +54,8 @@ class AssitDeployBox extends Component {
   
   render() {
   	const parentScope = this.props.scope;
-  	const { getFieldProps, getFieldError, isFieldValidating } = this.props.form;
-  	const runningCodeProps = getFieldProps('imageUrl', {
-      rules: [
-        { required: true, message: '请输入自定义执行命令' },
-      ],
-    });
+  	const { getFieldProps, getFieldError, isFieldValidating } = parentScope.props.form;
+  	// const runningCodeProps =
     return (
 	  <div id="AssitDeployBox">
 	    {/*<Form horizontal form={this.props.form}>*/}
@@ -78,7 +74,11 @@ class AssitDeployBox extends Component {
 						      <Radio key="b" value={"2"}>自定义</Radio>
 						    </RadioGroup><br />
 						    <FormItem className="runningCodeForm"  hasFeedback>
-						    	<Input {...runningCodeProps} className="entryInput" size="large" placeholder="你想执行什么!!!!" disabled={parentScope.state.runningCode == "1" ? true:false} />
+						    	<Input {...getFieldProps('args', {
+                    rules: [
+                      { required: true, message: '请输入自定义执行命令' },
+                    ],
+                  })} className="entryInput" size="large" disabled={parentScope.state.runningCode == "1" ? true:false} />
 			          </FormItem>
 			        </div>
 			        <div style={{ clear:"both" }}></div>

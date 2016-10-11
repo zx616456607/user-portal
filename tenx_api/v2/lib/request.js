@@ -41,6 +41,7 @@ module.exports = (protocol, host, version, auth, timeout) => {
     // options.data = object.data
     options.method = object.method
     options.dataType = object.dataType || DEFAULT_DATATYPE
+    options.contentType = object.contentType || DEFAULT_DATATYPE
     options.timeout = object.timeout || timeout
     options.headers = object.headers
     options.data = object.data
@@ -50,6 +51,7 @@ module.exports = (protocol, host, version, auth, timeout) => {
     if (object.stream) {
       options.stream = object.stream
       delete options.timeout
+      delete options.contentType
     }
     logger.info(`[${options.method || 'GET'}] ${url}`)
     if (!callback) {
