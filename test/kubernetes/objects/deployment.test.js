@@ -50,7 +50,7 @@ describe('deployment test', function () {
         readOnly:true
       }
     )
-    deployment.setLivenessProbe('test', 'TCP', {
+    deployment.setLivenessProbe('test', 'HTTP', {
       port: 3000,
       path: '/health',
       initialDelaySeconds: 2,

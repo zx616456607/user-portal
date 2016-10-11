@@ -26,6 +26,8 @@ import container from '../../../../templates/k8s/container.json'
 import deployment from '../../../../templates/k8s/deployment.json'
 import pod from '../../../../templates/k8s/pod.json'
 import service from '../../../../templates/k8s/service.json'
+const Deployment = require('../../../../kubernetes/objects/deployment')
+const Service = require('../../../../kubernetes/objects/service')
 
 
 const Panel = Collapse.Panel;
@@ -195,7 +197,7 @@ class AppDeployServiceModal extends Component {
     })(composeType)
   
     let serviceName = this.props.form.getFieldProps('name').value    //服务名
-    let instanceNum = scope.instanceNum;                             //容器数量
+    let instanceNum = scope.instanceNum                             //容器数量
     //let imageURL = this.props.form.getFieldProps('imageUrl').value   //镜像地址
     let imageVersion = this.props.form.getFieldProps('imageVersion').value    //镜像版本
     let volumeSwitch = this.props.form.getFieldProps('volumeSwitch').value //服务类型
@@ -210,6 +212,9 @@ class AppDeployServiceModal extends Component {
     let args = this.props.form.getFieldProps('args').value //高可用路径
     
     const { volumeMountList,volumesList,enviroList,portList,depPortList,annotationsList } = this.state
+    
+    let deploymentList = new Deployment(serviceName)
+    let serviceJsonList = new Service(serviceName)
     
     if(portKey){
       this.props.form.getFieldValue('portKey').map((k) => {
@@ -261,6 +266,13 @@ class AppDeployServiceModal extends Component {
             [serviceName+'-'+k] :'TCP'
           })
         }
+  
+        deploymentList.addContainerPort(
+          serviceName+'-'+k,
+          this.props.form.getFieldProps(`targetPortUrl${k}`).value,
+          this.props.form.getFieldProps(`portType${k}`).value.toUpperCase()
+        )
+        
       })
     }
     if(envKey){
@@ -309,6 +321,7 @@ class AppDeployServiceModal extends Component {
     containerObj.name = serviceName
     //image
     containerObj.image = parentScope.state.currentSelectedImage + '/' + parentScope.state.registryServer +':'+ imageVersion
+    
     //ports 容器端口
     if(portList.length !== 0){
       Object.assign(containerObj,{
@@ -362,9 +375,7 @@ class AppDeployServiceModal extends Component {
         }
       })
     }
-    console.log('containerObj------------------');
-    console.log(containerObj);
-    console.log('containerObj------------------');
+    
     /*pod*/
     podObj.spec.containers.push(containerObj)
     //name
@@ -397,9 +408,8 @@ class AppDeployServiceModal extends Component {
     deploymentObj.spec.replicas = instanceNum
     //selector
     deploymentObj.spec.selector.name = serviceName
-    console.log('deploymentObj------------------');
-    console.log(deploymentObj);
-    console.log('deploymentObj------------------');
+    
+    
     /*Service*/
     //服务名称
     serviceObj.metadata.name = serviceName
@@ -407,32 +417,28 @@ class AppDeployServiceModal extends Component {
     //
     serviceObj.metadata.annotations = annotationsList
     serviceObj.spec.ports = portList
-    console.log('serviceObj------------------');
-    console.log(serviceObj);
-    console.log('serviceObj------------------');
+  
+  
+  
+    deploymentList.setReplicas(instanceNum)
+    const image = parentScope.state.currentSelectedImage + '/' + parentScope.state.registryServer +':'+ imageVersion
+    deploymentList.addContainer(serviceName, image)
+    deploymentList.setContainerResources(serviceName, ImageConfig.resources.limits.memory)
     
-    /*let serviceConfig = {
-        [serviceName]: {
-          "replicas": instanceNum,
-          "containers": [
-            {
-              "name": serviceName,
-              "image": '',
-              "resources": {
-                "limits": ImageConfig.limits
-              },
-            }
-          ],
-        },
-    }*/
+    
+    console.log('deploymentList------------------');
+    console.log(deploymentList);
+    console.log('deploymentList------------------');
+    console.log('serviceJsonList------------------');
+    console.log(serviceJsonList);
+    console.log('serviceJsonList------------------');
+    
     let serviceConfig = {
       Service: serviceObj,
       Deployment: deploymentObj
     }
-    console.log('serviceConfig------------------');
-    console.log(serviceConfig);
-    console.log('serviceConfig------------------');
-  
+    
+    
     const newService = {id:serviceName,name:serviceName,imageName:containerObj.image,resource:ImageConfig.cal,inf:serviceConfig}
     const serviceScope = this.props.scope.props.scope
     const newList = serviceScope.state.servicesList
@@ -445,9 +451,9 @@ class AppDeployServiceModal extends Component {
       servicesList: newList,
       selectedList: newSeleList
     })
-    parentScope.setState({
+    /*parentScope.setState({
       modalShow:false
-    });
+    });*/
   }
   closeModal(){
     const parentScope = this.props.scope;
@@ -457,8 +463,8 @@ class AppDeployServiceModal extends Component {
     });
   }
   render() {
-  	const scope = this;
-  	const parentScope = this.props.scope;
+  	const scope = this
+  	const parentScope = this.props.scope
     const {createService,cluster,appName} = this.props
     const {servicesList} = parentScope.props.scope.state.servicesList
     const {currentSelectedImage, registryServer} = parentScope.state
