@@ -162,11 +162,12 @@ let MyComponent = React.createClass({
         type: this.state.formateType
       }, {
         success: {
-          isAsync: false,
+          isAsync: true,
           func: () => {
             self.setState({
               visible: false,
             })
+            this.props.loadStorageList()
           }
         }
       })

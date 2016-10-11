@@ -143,8 +143,6 @@ export default store => next => action => {
       type: successType
     })),
     error =>{
-     console.log('0000000000000')
-     console.log(error)
      next(actionWith({
       type: failureType,
       error: error.message || 'Something bad happened'
