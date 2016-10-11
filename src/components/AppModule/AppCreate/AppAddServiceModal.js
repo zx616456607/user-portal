@@ -159,7 +159,7 @@ function mapStateToProps(state, props) {
 
   return {
     registry,
-		registryServer: registry,
+		registryServer: server,
     publicImageList: imageList,
     isFetching
   }
