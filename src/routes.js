@@ -64,7 +64,7 @@ export default (
       </Route>
       <Route path="storage">
         <IndexRoute component={Storage}/>
-        <Route path=":pool/:storage_name" component={StorageDetail} />
+        <Route path=":pool/:cluster/:storage_name" component={StorageDetail} />
       </Route>
       <Route path="configs">
         <IndexRoute component={Service}/>

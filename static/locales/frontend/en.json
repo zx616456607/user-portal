@@ -14,6 +14,7 @@
   "Storage.titleRow.formats": "Format",
   "Storage.titleRow.forin": "Containers mount point",
   "Storage.titleRow.app": "App",
+  "Storage.titleRow.cluster": "Cluster",
   "Storage.titleRow.size": "Size",
   "Storage.titleRow.createTime": "Create Time",
   "Storage.titleRow.action": "Action",

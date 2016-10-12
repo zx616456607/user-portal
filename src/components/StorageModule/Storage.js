@@ -16,7 +16,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { remove, findIndex } from 'lodash'
 import { loadStorageList, deleteStorage, createStorage, formateStorage, resizeStorage } from '../../actions/storage'
-import { DEFAULT_IMAGE_POOL } from '../../constants'
+import { DEFAULT_IMAGE_POOL, DEFAULT_CLUSTER } from '../../constants'
 import './style/storage.less'
 
 const RadioButton = Radio.Button;
@@ -63,6 +63,10 @@ const messages = defineMessages({
 	forin: {
     id: 'Storage.titleRow.forin',
     defaultMessage: '容器挂载点',
+  },
+  cluster:{
+    id: 'Storage.titleRow.cluster',
+    defaultMessage: '集群'
   },
 	app: {
     id: 'Storage.titleRow.app',
@@ -157,7 +161,7 @@ let MyComponent = React.createClass({
         message.error('格式不能和以前相同')
         return
       }
-      this.props.formateStorage(this.props.imagePool, {
+      this.props.formateStorage(this.props.imagePool, this.props.cluster, {
         name: this.state.modalName,
         type: this.state.formateType
       }, {
@@ -176,7 +180,7 @@ let MyComponent = React.createClass({
         message.error('不能比以前小')
         return
       }
-      this.props.resizeStorage(this.props.imagePool, {
+      this.props.resizeStorage(this.props.imagePool, this.props.cluster, {
         name: this.state.modalName,
         size: this.state.size
       }, {
@@ -240,7 +244,7 @@ let MyComponent = React.createClass({
 			  <Checkbox disabled={ item.isUsed } onChange={(e)=>this.onchange(e, item.name)} checked= { this.isChecked(item.name) }></Checkbox>
 			</div>
 			<div className="name commonData">
-		      <Link to={`/app_manage/storage/${this.props.imagePool}/${item.name}`} >
+		      <Link to={`/app_manage/storage/${this.props.imagePool}/${this.props.cluster}/${item.name}`} >
 	    	    {item.name}
 		      </Link>
 			</div>
@@ -250,7 +254,8 @@ let MyComponent = React.createClass({
 			</div>
 			<div className="formet commonData">{item.format}</div>
 			<div className="forin commonData">{item.mountPoint || '无'}</div>
-			<div className="appname commonData">{item.rcName}</div>
+      <div className="cluster commonData">{item.cluster}</div>
+			<div className="appname commonData">{item.appName}</div>
 			<div className="size commonData">{item.totalSize}M</div>
 			<div className="createTime commonData">{item.createTime}</div>
 			<div className="actionBtn">
@@ -258,7 +263,6 @@ let MyComponent = React.createClass({
 			 <span className="margin"></span>
 			 <Button disabled = { item.isUsed } className="btn-success" onClick={ () => {this.showAction('resize', item.name, item.totalSize)}}><Icon type="scan" /><FormattedMessage {...messages.dilation} /></Button>
 			</div>
-
 		</div>
       );
 	});
@@ -304,11 +308,11 @@ function myComponentMapSateToProp(state) {
 
 function myComponentMapDispathToProp(dispath) {
   return {
-    formateStorage: (pool, storage, callback) => {
-      dispath(formateStorage(pool, storage, callback))
+    formateStorage: (pool, cluster,storage, callback) => {
+      dispath(formateStorage(pool, cluster,storage, callback))
     },
-    resizeStorage: (pool, storage, callback) => {
-      dispath(resizeStorage(pool, storage, callback))
+    resizeStorage: (pool, cluster, storage, callback) => {
+      dispath(resizeStorage(pool, cluster, storage, callback))
     }
   }
 }
@@ -332,7 +336,7 @@ class Storage extends Component {
     }
   }
   componentWillMount() {
-    this.props.loadStorageList(this.props.currentImagePool)
+    this.props.loadStorageList(this.props.currentImagePool, this.props.currentCluster)
   }
 	onChange(value) {
     this.setState({
@@ -359,7 +363,8 @@ class Storage extends Component {
       format: this.state.currentType,
       size: this.state.size,
       pool: this.props.currentImagePool,
-      name: this.state.name
+      name: this.state.name,
+      cluster: DEFAULT_CLUSTER
     }
     let self = this
     this.setState({
@@ -374,7 +379,7 @@ class Storage extends Component {
              size: 0,
              currentType: 'ext4'
            })
-           self.props.loadStorageList(this.props.currentImagePool)
+           self.props.loadStorageList(this.props.currentImagePool, this.props.currentCluster)
           },
           isAsync: true
       },
@@ -396,9 +401,9 @@ class Storage extends Component {
     this.setState({
       volumeArray: []
     })
-    this.props.deleteStorage(this.props.currentImagePool, volumeArray, {
+    this.props.deleteStorage(this.props.currentImagePool, this.props.currentCluster, volumeArray, {
       success: {
-         func: () => this.props.loadStorageList(this.props.currentImagePool),
+         func: () => this.props.loadStorageList(this.props.currentImagePool, this.props.currentCluster),
          isAsync: true
       }
     })
@@ -527,12 +532,13 @@ class Storage extends Component {
               <div className="status commonTitle"><FormattedMessage {...messages.status} /></div>
               <div className="formet commonTitle"><FormattedMessage {...messages.formats} /></div>
               <div className="forin commonTitle"><FormattedMessage {...messages.forin} /></div>
+              <div className="cluster commonTitle"><FormattedMessage {...messages.cluster} /></div>
               <div className="appname commonTitle"><FormattedMessage {...messages.app} /></div>
               <div className="size commonTitle"><FormattedMessage {...messages.size} /></div>
               <div className="createTime commonTitle"><FormattedMessage {...messages.createTime} /></div>
               <div className="actionBox commonTitle"><FormattedMessage {...messages.action} /></div>
             </div>
-            <MyComponent storage = {this.props.storageList[this.props.currentImagePool]}  volumeArray = { this.state.volumeArray } saveVolumeArray = { this.selectItem() } imagePool = { this.props.currentImagePool} loadStorageList = { () => {this.props.loadStorageList(this.props.currentImagePool)}}/>
+            <MyComponent storage = {this.props.storageList[this.props.currentImagePool]}  volumeArray = { this.state.volumeArray } saveVolumeArray = { this.selectItem() } cluster={ this.props.currentCluster } imagePool = { this.props.currentImagePool} loadStorageList = { () => {this.props.loadStorageList(this.props.currentImagePool, this.props.currentCluster)}}/>
           </Card>
         </div>
       </QueueAnim>
@@ -550,17 +556,18 @@ function mapStateToProps(state) {
     storageList: state.storage.storageList,
     createStorage: state.storage.createStorage,
     deleteStorage: state.storage.deleteStorage,
-    currentImagePool: DEFAULT_IMAGE_POOL
+    currentImagePool: DEFAULT_IMAGE_POOL,
+    currentCluster: DEFAULT_CLUSTER
   }
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    loadStorageList: (pool) => {
-      dispatch(loadStorageList(pool))
+    loadStorageList: (pool, cluster) => {
+      dispatch(loadStorageList(pool, cluster))
     },
-    deleteStorage: (pool, volumeArray, callback) => {
-      dispatch(deleteStorage(pool, volumeArray, callback))
+    deleteStorage: (pool, cluster, volumeArray, callback) => {
+      dispatch(deleteStorage(pool, cluster, volumeArray, callback))
     },
     createStorage: (obj, callback) => {
       dispatch(createStorage(obj, callback))

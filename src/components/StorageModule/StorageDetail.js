@@ -17,11 +17,11 @@ import StorageBind from './StorageBind.js'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { loadStorageInfo } from '../../actions/storage'
 import "./style/StorageDetail.less"
-import { DEFAULT_IMAGE_POOL } from '../../constants'
+import { DEFAULT_IMAGE_POOL, DEFAULT_CLUSTER } from '../../constants'
 
 function loadData(props) {
   const { loadStorageInfo } = props
-  loadStorageInfo(props.params.pool, props.params.storage_name)
+  loadStorageInfo(props.params.pool, props.params.cluster, props.params.storage_name)
 }
 
 const SubMenu = Menu.SubMenu
@@ -121,10 +121,10 @@ class StorageDetail extends Component {
                 defaultActiveKey="1"
               >
                 <TabPane tab={<FormattedMessage {...messages.operating} />} key="1" >
-                  <StorageStatus key="StorageStatus" volumeName={ StorageInfo.volumeName } pool={ StorageInfo.volumeName  }/>
+                  <StorageStatus key="StorageStatus" volumeName={ StorageInfo.volumeName } pool={ StorageInfo.imagePool  } cluster = {StorageInfo.cluster}/>
                 </TabPane>
                 <TabPane tab={<FormattedMessage {...messages.bindContainer} />} key="2" >
-                  <StorageBind />
+                  <StorageBind pool={StorageInfo.pool} cluster={StorageInfo.cluster} />
                 </TabPane>
               </Tabs>
             </Card>
@@ -142,7 +142,8 @@ StorageDetail.propTypes = {
 function mapStateToProps(state, props) {
   const defaultInfo = {
     imagePool: props.params.pool,
-    volumeName: props.params.storage_name
+    volumeName: props.params.storage_name,
+    cluster: DEFAULT_CLUSTER
   }
   const StorageInfo  = state.storage.storageDetail.StorageInfo || defaultInfo
   return {

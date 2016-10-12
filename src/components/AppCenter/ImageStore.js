@@ -12,7 +12,7 @@ import ReactDOM from 'react-dom';
 import { Menu,Button,Card } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import ScrollAnim from 'rc-scroll-anim';
-import Animate from 'rc-animate';
+//import Animate from 'rc-animate';
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import "./style/ImageStore.less"

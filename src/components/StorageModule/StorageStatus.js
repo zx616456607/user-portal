@@ -51,7 +51,7 @@ class StorageStatus extends Component {
     this.changeRadioValue = this.changeRadioValue.bind(this)
   }
   componentWillMount() {
-    this.props.getStorageFileHistory(this.props.pool, this.props.volumeName)
+    this.props.getStorageFileHistory(this.props.pool, this.props.cluster, this.props.volumeName)
   }
 
   showUploadModal(){
@@ -136,7 +136,7 @@ class StorageStatus extends Component {
           uploadFile: false
         })
         return new Promise(function(resolve, reject) {
-          self.props.beforeUploadFile(self.props.pool, volumeName, file, {
+          self.props.beforeUploadFile(self.props.pool, self.props.cluster,volumeName, file, {
             success: {
               isAsync: true,
               func(){
@@ -150,7 +150,7 @@ class StorageStatus extends Component {
           })
         })
       },
-      action: getUploadFileUlr(self.props.pool, volumeName),
+      action: getUploadFileUlr(self.props.pool, self.props.cluster, volumeName),
       onChange(info) {
         if(info.event) {
           self.props.uploading(info.event.percent)

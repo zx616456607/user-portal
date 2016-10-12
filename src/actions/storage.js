@@ -15,22 +15,22 @@ export const STORAGE_LIST_REQUEST = 'STORAGE_LIST_REQUEST'
 export const STORAGE_LIST_SUCCESS = 'STORAGE_LIST_SUCCESS' 
 export const STORAGE_LIST_FAILURE = 'STORAGE_LIST_FAILURE' 
 
-export function fetchStorageList(pool, callback) {
+export function fetchStorageList(pool, cluster, callback) {
   return {
     pool,
     [FETCH_API]: {
       types: [STORAGE_LIST_REQUEST, STORAGE_LIST_SUCCESS, STORAGE_LIST_FAILURE],
-      endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/volumes`,
+      endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/${cluster}/volumes`,
       schema: {}//Schemas.STORAGE
     },
     callback: callback
   }
 }
 
-export function loadStorageList(pool) {
+export function loadStorageList(pool, cluster) {
   return (dispath, getState) => {
     const state = getState().storage.storageList
-    dispath(fetchStorageList(pool))
+    dispath(fetchStorageList(pool, cluster))
   }
 }
 
@@ -43,7 +43,7 @@ export function createStorage(obj, callback) {
     pool: obj.pool,
     [FETCH_API]: {
       types: [STORAGE_CREATE_REQUEST, STORAGE_CREATE_SUCCESS, STORAGE_CREATE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/storage-pools/${obj.pool}/volumes`,
+      endpoint: `${API_URL_PREFIX}/storage-pools/${obj.pool}/${obj.cluster}/volumes`,
       options: {
         method: 'POST',
         body: obj
@@ -59,13 +59,12 @@ export const STORAGE_DETAIL_REQUEST = 'STORAGE_DETAIL_REQUEST'
 export const STORAGE_DETAIL_SUCCESS = 'STORAGE_DETAIL_SUCCESS'
 export const STORAGE_DETAIL_FAILURE = 'STORAGE_DETAIL_FAILURE'
 
-export function loadStorageInfo(pool,name) {
+export function loadStorageInfo(pool, cluster, name) {
   return {
     pool,
     [FETCH_API]: {
       types: [STORAGE_DETAIL_REQUEST, STORAGE_DETAIL_SUCCESS, STORAGE_DETAIL_FAILURE],
-      // /storage-pools/:pool/volumes/:name 
-      endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/volumes/${name}`,
+      endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/${cluster}/volumes/${name}`,
       options: {
         method: 'GET'
       },
@@ -78,12 +77,12 @@ export const STORAGE_DELETE_REQUEST = 'STORAGE_DELETE_REQUEST'
 export const STORAGE_DELETE_SUCCESS = 'STORAGE_DELETE_SUCCESS'
 export const STORAGE_DELETE_FAILURE = 'STORAGE_DELETE_FAILURE'
 
-export function deleteStorage(pool, storageIdArray, callback) {
+export function deleteStorage(pool, cluster, storageIdArray, callback) {
   return {
     [FETCH_API]: {
       pool,
       types: [STORAGE_DELETE_REQUEST, STORAGE_DELETE_SUCCESS, STORAGE_DELETE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/volumes/batch-delete`,
+      endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/${cluster}/volumes/batch-delete`,
       options: {
         method: 'POST',
         body: storageIdArray
@@ -98,12 +97,12 @@ export const STORAGE_FORMATE_REQUEST = 'STORAGE_FORMATE_REQUEST'
 export const STORAGE_FORMATE_SUCCESS = 'STORAGE_FROMATE_SUCCESS'
 export const STORAGE_FORMATE_FAILURE = 'STORAGE_FROMATE_FAILURE'
 
-export function formateStorage(pool, storage, callback) {
+export function formateStorage(pool, cluster, storage, callback) {
     return {
     [FETCH_API]: {
       pool,
       types: [STORAGE_FORMATE_REQUEST, STORAGE_FORMATE_SUCCESS, STORAGE_FORMATE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/volumes/format`,
+      endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/${cluster}/volumes/format`,
       options: {
         method: 'PUT',
         body: storage
@@ -118,12 +117,12 @@ export const STORAGE_RESIZE_REQUEST = 'STORAGE_RESIZE_REQUEST'
 export const STORAGE_RESIZE_SUCCESS = 'STORAGE_RESIZE_SUCCESS'
 export const STORAGE_RESIZE_FAILURE = 'STORAGE_RESIZE_FAILURE'
 
-export function resizeStorage(pool, storage, callback) {
+export function resizeStorage(pool, cluster, storage, callback) {
   return {
     [FETCH_API]: {
       pool,
       types: [STORAGE_RESIZE_REQUEST, STORAGE_RESIZE_SUCCESS, STORAGE_RESIZE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/volumes/size`,
+      endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/${cluster}/volumes/size`,
       options: {
         method: 'PUT',
         body: storage
@@ -140,7 +139,7 @@ export const STORAGE_UPLOAD_FAILURE = 'STORAGE_UPLOAD_FAILURE'
 export const STORAGE_UPLOADING      = 'STORAGE_UPLOADING'
 export const STORAGE_MERGE_UPLOADINGFILE = 'STORAGE_MERGE_UPLOADINGFILE'
 
-export function uploadFile(pool, storage, callback) {
+export function uploadFile(pool, cluster, storage, callback) {
   return {
     [FETCH_API]: {
       pool,
@@ -160,11 +159,11 @@ export const STORAGE_FILEHISTORY_REQUEST = 'STORAGE_FILEHISTORY_REQUEST'
 export const STORAGE_FILEHISTORY_SUCCESS = 'STORAGE_FILEHISTORY_SUCCESS'
 export const STORAGE_FILEHISTORY_FAILURE = 'STORAGE_FILEHISTORY_FAILURE'
 
-export function getStorageFileHistory(pool, volume, callback) {
+export function getStorageFileHistory(pool, cluster, volume, callback) {
   return {
     [FETCH_API]: {
       pool,
-      endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/volumes/${volume}/filehistory`,
+      endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/${cluster}/volumes/${volume}/filehistory`,
       types: [STORAGE_FILEHISTORY_REQUEST, STORAGE_FILEHISTORY_SUCCESS, STORAGE_FILEHISTORY_FAILURE],
       schema: {}
     },
@@ -174,8 +173,8 @@ export function getStorageFileHistory(pool, volume, callback) {
 
 
 
-export function getUploadFileUlr(pool, volume) {
-  return `${API_URL_PREFIX}/storage-pools/${pool}/volumes/${volume}/import`
+export function getUploadFileUlr(pool, cluster, volume) {
+  return `${API_URL_PREFIX}/storage-pools/${pool}/${cluster}/volumes/${volume}/import`
 }
 
 export function uploadFileRequest(file) {
@@ -217,11 +216,11 @@ export const STORAGE_BEFORE_UPLOADFILE_SUCCESS = 'STORAGE_BEFORE_UPLOADFILE_SUCC
 export const STORAGE_BEFORE_UPLOADFILE_FAILURE = 'STORAGE_BEFORE_UPLOADFILE_FAILURE'
 
 
-export function beforeUploadFile(pool, volume, file, callback) {
+export function beforeUploadFile(pool, cluster, volume, file, callback) {
   return {
     [FETCH_API]: {
       types: [STORAGE_BEFORE_UPLOADFILE_REQUEST, STORAGE_BEFORE_UPLOADFILE_SUCCESS, STORAGE_BEFORE_UPLOADFILE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/volumes/${volume}/beforeimport`,
+      endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/${cluster}/volumes/${volume}/beforeimport`,
       schema: {},
       options: {
         method: 'POST',
