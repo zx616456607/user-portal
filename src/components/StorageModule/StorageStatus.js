@@ -9,11 +9,12 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import { Tabs,Card, Menu, Progress, Upload ,Radio ,Modal,Button, Icon, Col} from 'antd'
+import { Tabs,Card, Menu, Progress, Upload ,Radio ,Modal,Button, Icon, Col, message} from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { getUploadFileUlr, uploadFileRequest, uploadFileSuccess, uploadFileFailure } from '../../actions/storage'
+import { cloneDeep } from 'lodash'
+import { getUploadFileUlr, uploadFileRequest, uploadFileSuccess, getStorageFileHistory, beforeUploadFile, uploading, mergeUploadingIntoList } from '../../actions/storage'
 import './style/storage.less'
 
 const RadioGroup = Radio.Group
@@ -39,13 +40,20 @@ class StorageStatus extends Component {
     this.state = {
       visible: false,
       RadioValue:1,
-      isUnzip: false
+      isUnzip: false,
+      uploadFile: true,
+      uploadFileStatus: 'success',
+      downloadFileStatus: 'success'
     }
     this.showUploadModal = this.showUploadModal.bind(this)
     this.handleCancel = this.handleCancel.bind(this)
     this.showUploadModal = this.showUploadModal.bind(this)
     this.changeRadioValue = this.changeRadioValue.bind(this)
   }
+  componentWillMount() {
+    this.props.getStorageFileHistory(this.props.pool, this.props.volumeName)
+  }
+
   showUploadModal(){
     this.setState({
       visible: true
@@ -61,28 +69,112 @@ class StorageStatus extends Component {
       isUnzip: e.target.value
     })
   }
+
+  showPercent(item) {
+    if(item.backupId === this.props.beforeUploadState.backupId) {
+      return this.props.upload.percent
+    } else{
+      return 100
+    }
+  }
+  // showStatus(item) {
+  //   if (item.backupId === this.props.beforeUploadState.backupId) {
+  //     if(this.props.upload.percent < 100) {
+  //       return 'Uploading'
+  //     }
+  //     if(this.state.uploadFileStatus == 'exception') {
+  //       return 'Failure'
+  //     }
+  //     return 'Complete' 
+  //   } 
+  //   return item.status
+  // }
+  getFileStatus(item) {
+    // if (item.backupId === this.props.beforeUploadState.backupId) {
+    //   if(item.backupType == 1) {
+    //     return this.state.uploadFileStatus
+    //   }
+    //   if(item.backupType ==2) {
+    //     return this.state.downloadFileStatus
+    //   }
+    // }
+    switch(item.status) {
+      case 'Complete':
+        return 'success'
+      case 'Failure':
+        return 'exception'
+      case 'Uploading':
+        return 'active'
+      default:
+        return item.status
+    }
+  }
+  showBackground(item) {
+    switch(item.backupType) {
+      case 1:
+        return 'status-icon success'
+      case 0:
+        return 'status-icon primary'
+    }
+  }
   getUploadData() {
+    const volumeName = this.props.volumeName
+    const self = this
     return {
+      showUploadList: false,
       data: {
-        isUnzip: this.state.isUnzip,
+        isUnzip: self.state.isUnzip,
         format: 'ext4',
-        volumeName: 'test',
-        pool: 'test'
+        volumeName: volumeName,
+        pool: 'test',
+        backupId: self.props.beforeUploadState.backupId
       },
-      beforeUpload: () => this.props.uploadFileRequest(),
-      action: getUploadFileUlr('test', 'test'),
-      onChange(info) {
-        if (info.file.status === 'done') {
-          this.props.uploadFileSuccess()
-          this.setState({
-            visible: false
+      beforeUpload: (file) =>{ 
+        self.props.uploading(0)
+        file.isUnzip = self.state.isUnzip
+        self.setState({
+          uploadFile: false
+        })
+        return new Promise(function(resolve, reject) {
+          self.props.beforeUploadFile(self.props.pool, volumeName, file, {
+            success: {
+              isAsync: true,
+              func(){
+                self.props.mergeUploadingIntoList(self.props.beforeUploadState)
+                self.setState({
+                  visible: false
+                })
+                resolve(true)
+              }
+            }
           })
+        })
+      },
+      action: getUploadFileUlr(self.props.pool, volumeName),
+      onChange(info) {
+        if(info.event) {
+          self.props.uploading(info.event.percent)
+        }
+        if (info.file.status === 'done') {
+          self.props.uploadFileSuccess()
+          self.setState({
+            uploadFile: true,
+            uploadFileStatus: 'success'
+          })
+          const fileInfo = cloneDeep(self.props.beforeUploadState)
+          fileInfo.status = 'Complete'
+          self.props.mergeUploadingIntoList(fileInfo)
+          self.props.uploading(100)
           message.success('文件上传成功')
         } else if (info.file.status === 'error') {
-          this.props.uploadFileFailure(`${info.file.name} file upload failed.`)
-          this.setState({
-            visible: false
+         // self.props.uploading(100)
+          self.setState({
+            uploadFile: true,
+            uploadFileStatus: 'exception'
           })
+          const fileInfo = cloneDeep(self.props.beforeUploadState)
+          fileInfo.status = 'Failure'
+          self.props.mergeUploadingIntoList(fileInfo)
           message.error('文件上传失败')
         }
       } 
@@ -90,6 +182,25 @@ class StorageStatus extends Component {
   }
   render(){
     const {formatMessage} = this.props.intl
+    const statusList = this.props.fileHistory.history
+    let status_list = []
+    if(statusList && statusList.length >= 0) {
+     status_list = statusList.map(item => {
+       return (<div className="status-list" key={item.backupId}> 
+            <span className={ this.showBackground(item)}><Icon type={ item.backupType == 1 ? 'cloud-upload-o' :'cloud-download-o'} /></span>
+            <div className="status-content">
+              <div className="status-row">
+                <span className="pull-left">{ item.backupType == 1 ? '上传' :'下载'}：{item.backupName} ({(item.size/1024/1024).toFixed(2)} MB)</span>
+                <span className="pull-right">{item.startTime}</span>
+              </div>
+              <Col span={8} className="fullProgress">
+                <Progress percent={ this.showPercent(item) } status={this.getFileStatus(item)}  showInfo={true}/>
+              </Col>
+              <Col span={4} offset={2}>{ item.status }</Col>
+            </div>
+          </div>)
+     })
+    }
     return (
       <div className="action-btns" style={{paddingLeft:'30px',paddingTop:'10px'}}>
         <Modal title="上传文件" wrapClassName="vertical-center-modal" footer="" visible={this.state.visible} onCancel={this.handleCancel}>
@@ -99,7 +210,7 @@ class StorageStatus extends Component {
               <Radio key="b" value={true}>上传并解压</Radio>
             </RadioGroup>
             <p>
-              <Upload {...(this.getUploadData())}>
+              <Upload {...(this.getUploadData())} >
                 <Button type="primary">
                   <Icon type="upload" /> 选择文件
                 </Button>
@@ -113,54 +224,12 @@ class StorageStatus extends Component {
             <li style={{color:'red'}}>* 请先停止挂载该存储卷的服务再进行文件导入</li>
           </ul>
         </Modal>
-        <Button type="primary" onClick={this.showUploadModal}><Icon type="cloud-upload-o" />上传文件</Button>
+        <Button type="primary" onClick={this.showUploadModal} disabled={ !this.state.uploadFile }><Icon type="cloud-upload-o" />上传文件</Button>
         <span className="margin"></span>
         <Button type="ghost"><Icon type="cloud-download-o" />导出文件</Button>
         <div className="status-box">
-          <div className="status-list"> 
-            <span className="status-icon success"><Icon type="cloud-upload-o" /></span>
-            <div className="status-content">
-              <div className="status-row">
-                <span className="pull-left">上传：absconig (1.01MB)</span>
-                <span className="pull-right">2016-09-22 12:15</span>
-              </div>
-              <Col span={8} className="fullProgress">
-                <Progress percent={80} status="success" showInfo={false} />
-              </Col>
-              <Col span={4} offset={2}>文件上传中</Col>
-            </div>
-          </div>
-
-          <div className="status-list"> 
-            <span className="status-icon primary"><Icon type="cloud-upload-o" /></span>
-            <div className="status-content">
-              <div className="status-row">
-                <span className="pull-left">上传：absconig (1.01MB)</span>
-                <span className="pull-right">2016-09-22 12:15</span>
-              </div>
-              <Col span={8} className="fullProgress">
-                <Progress percent={50} status="active" showInfo={false} />
-              </Col>
-              <Col span={4} offset={2}>查询存储卷</Col>
-            </div>
-          </div>
-
-          <div className="status-list"> 
-            <span className="status-icon primary"><Icon type="cloud-upload-o" /></span>
-            <div className="status-content">
-              <div className="status-row">
-                <span className="pull-left">上传：absconig (1.01MB)</span>
-                <span className="pull-right">2016-09-22 12:15</span>
-              </div>
-              <Col span={8} className="fullProgress">
-                <Progress percent={50} status="active" showInfo={false} />
-              </Col>
-              <Col span={4} offset={2}><Button type="primary"><Icon type="cloud-download-o" />下载</Button></Col>
-            </div>
-          </div>
-
+         { status_list }
         </div>
-
       </div>
     )
   }
@@ -173,14 +242,20 @@ StorageStatus.propTypes = {
 
 function mapStateToProp(state) {
   return {
-    upload: state.storage.uploadFile
+    upload: state.storage.uploadFile,
+    fileHistory: state.storage.storageFileHistory,
+    beforeUploadState: state.storage.beforeUploadFile,
   }
 }
+
   
 export default connect(mapStateToProp, {
   uploadFileRequest,
   uploadFileSuccess,
-  uploadFileFailure
+  getStorageFileHistory,
+  beforeUploadFile,
+  uploading,
+  mergeUploadingIntoList
 })(injectIntl(StorageStatus, {
   withRef: true,
 }))

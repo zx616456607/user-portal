@@ -109,13 +109,9 @@ function resizeStorage(state = {}, action) {
 }
 
 function storageDetail(state = {}, action) {
-  const defaultState = {
-    isFetching: false,
-    StorageInfo: {}
-  }
   switch (action.type) {
     case ActionTypes.STORAGE_DETAIL_REQUEST:
-      return merge({}, defaultState, state, {
+      return merge({}, state, {
         isFetching: true
       })
     case ActionTypes.STORAGE_DETAIL_SUCCESS:
@@ -124,7 +120,7 @@ function storageDetail(state = {}, action) {
         StorageInfo: action.response.result.body
       })
     case ActionTypes.STORAGE_DETAIL_FAILURE:
-      return merge({}, defaultState, state, {
+      return merge({}, state, {
         isFetching: false
       })
     default:
@@ -133,20 +129,29 @@ function storageDetail(state = {}, action) {
 }
 
 function uploadFile(state = {}, action) {
+  const defaultState = {
+    isFetching: false,
+    percent: 0
+  }
   switch(action.type) {
     case ActionTypes.STORAGE_UPLOAD_REQUEST: {
-      return merge({}, state, {
+      return _.merge({}, defaultState, state, {
         isFetching: true
       })
     }
     case ActionTypes.STORAGE_UPLOAD_SUCCESS: {
-      return merge({}, state, {
+      return _.merge({}, defaultState, state, {
         isFetching: false
       })
     }
     case ActionTypes.STORAGE_UPLOAD_FAILURE: {
-      return merge({}, state, {
+      return _.merge({}, defaultState, state, {
         isFetching: false
+      })
+    }
+    case ActionTypes.STORAGE_UPLOADING: {
+      return _.merge({}, defaultState, state, {
+        percent: action.percent
       })
     }
     default: 
@@ -163,9 +168,39 @@ function getStorageFileHistory(state = {}, action) {
     case ActionTypes.STORAGE_FILEHISTORY_REQUEST: 
       return _.merge({}, defaultState, state, { isFetching: true} )
     case ActionTypes.STORAGE_FILEHISTORY_SUCCESS:
-      return _.merge({}, state, action.response.result.body, { isFetching: false })
+      return Object.assign({}, state, { history :action.response.result.body }, { isFetching: false })
     case ActionTypes.STORAGE_FILEHISTORY_FAILURE: 
       return _.merge({}, defaultState, state, {isFetching: false})
+    case ActionTypes.STORAGE_MERGE_UPLOADINGFILE:
+      const customState = _.cloneDeep(state)
+      var index = -1
+      if(!customState.history) {
+        customState.history = [action.file]
+        customState.isFetching = false
+        return customState
+      } else{
+        index = _.findIndex(customState.history, ['backupId', action.file.backupId])
+      }
+      if (index >= 0) {
+        customState.history[index] = action.file
+      } else {
+        customState.history.unshift(action.file)
+      }
+      customState.isFetching = false
+      return customState
+    default:
+      return state
+  }
+}
+
+function beforeUploadFile(state = {}, action) {
+  switch(action.type) {
+    case ActionTypes.STORAGE_BEFORE_UPLOADFILE_REQUEST:
+      return _.merge({}, state, { isFetching: true})
+    case ActionTypes.STORAGE_BEFORE_UPLOADFILE_SUCCESS:
+      return Object.assign({}, state, action.response.result.body, { isFetching: false })
+    case ActionTypes.STORAGE_BEFORE_UPLOADFILE_FAILURE:
+      return Object.assign({}, state, { isFetching: false })
     default:
       return state
   }
@@ -181,6 +216,7 @@ export default function storageReducer(state = {}, action) {
     resizeStorage: resizeStorage(state.deleteStorage, action),
     storageDetail: storageDetail(state.storageDetail, action),
     uploadFile: uploadFile(state.uploadFile, action),
-    storageFileHistory: getStorageFileHistory(status.storageFileHistory, action)
+    storageFileHistory: getStorageFileHistory(state.storageFileHistory, action),
+    beforeUploadFile: beforeUploadFile(state.beforeUploadFile, action),
   }
 }

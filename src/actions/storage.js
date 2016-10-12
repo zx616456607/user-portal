@@ -137,6 +137,8 @@ export function resizeStorage(pool, storage, callback) {
 export const STORAGE_UPLOAD_REQUEST = 'STORAGE_UPLOAD_REQUEST'
 export const STORAGE_UPLOAD_SUCCESS = 'STORAGE_UPLOAD_SUCCESS'
 export const STORAGE_UPLOAD_FAILURE = 'STORAGE_UPLOAD_FAILURE'
+export const STORAGE_UPLOADING      = 'STORAGE_UPLOADING'
+export const STORAGE_MERGE_UPLOADINGFILE = 'STORAGE_MERGE_UPLOADINGFILE'
 
 export function uploadFile(pool, storage, callback) {
   return {
@@ -162,7 +164,7 @@ export function getStorageFileHistory(pool, volume, callback) {
   return {
     [FETCH_API]: {
       pool,
-      endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/`,
+      endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/volumes/${volume}/filehistory`,
       types: [STORAGE_FILEHISTORY_REQUEST, STORAGE_FILEHISTORY_SUCCESS, STORAGE_FILEHISTORY_FAILURE],
       schema: {}
     },
@@ -176,9 +178,9 @@ export function getUploadFileUlr(pool, volume) {
   return `${API_URL_PREFIX}/storage-pools/${pool}/volumes/${volume}/import`
 }
 
-export function uploadFileRequest() {
+export function uploadFileRequest(file) {
   return {
-    type: STORAGE_UPLOAD_REQUEST
+    type: STORAGE_UPLOAD_REQUEST,
   }
 }
 
@@ -192,5 +194,44 @@ export function uploadFileFailure(err) {
   return {
     type: STORAGE_UPLOAD_FAILURE,
     error: err
+  }
+}
+
+export function uploading(percent) {
+  return {
+    type: STORAGE_UPLOADING,
+    percent
+  }
+}
+
+export function mergeUploadingIntoList(uploadingFile) {
+  return {
+    type: STORAGE_MERGE_UPLOADINGFILE,
+    file: uploadingFile
+  }
+}
+
+
+export const STORAGE_BEFORE_UPLOADFILE_REQUEST = 'STORAGE_BEFORE_UPLOADFILE_REQUEST'
+export const STORAGE_BEFORE_UPLOADFILE_SUCCESS = 'STORAGE_BEFORE_UPLOADFILE_SUCCESS'
+export const STORAGE_BEFORE_UPLOADFILE_FAILURE = 'STORAGE_BEFORE_UPLOADFILE_FAILURE'
+
+
+export function beforeUploadFile(pool, volume, file, callback) {
+  return {
+    [FETCH_API]: {
+      types: [STORAGE_BEFORE_UPLOADFILE_REQUEST, STORAGE_BEFORE_UPLOADFILE_SUCCESS, STORAGE_BEFORE_UPLOADFILE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/volumes/${volume}/beforeimport`,
+      schema: {},
+      options: {
+        method: 'POST',
+        body:  {
+          fileName: file.name,
+          size: file.size,
+          isUnzip: file.isUnzip
+        }
+      }
+    },
+    callback
   }
 }

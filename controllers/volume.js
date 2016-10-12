@@ -53,7 +53,7 @@ exports.deleteVolume = function*() {
 exports.createVolume = function*() {
   const pool = this.params.pool
   const reqData = this.request.body
-  let response = yield volumeApi.volumes.create(reqData)
+  let response = yield volumeApi.volumes.createBy([pool], null, reqData)
   this.status = response.code
   this.body = response
 }
@@ -77,7 +77,7 @@ exports.formateVolume = function*() {
 exports.resizeVolume = function*() {
   const pool = this.params.pool
   const reqData = this.request.body
-  if(reqData.name || reqData.size) {
+  if(!reqData.name || !reqData.size) {
     this.status = 400
     this.body = { message: 　'error' }
   }
@@ -97,6 +97,22 @@ exports.getVolumeDetail = function*() {
   }
 }
 
+
+exports.beforeUploadFile = function*() {
+  const pool = this.params.pool
+  const volumeName = this.params.name
+  const reqData = this.request.body
+  console.log(reqData)
+  if(!reqData.fileName || !reqData.size) {
+    this.status = 400
+    this.body = { message: 'error' }
+    return
+  }
+  const response = yield volumeApi.volumes.createBy([pool, volumeName, 'beforimport'], null , reqData)
+  this.status = response.code
+  this.body = response
+}
+
 exports.uploadFile = function*() {
   const parts = parse(this, {
     autoFields: true
@@ -111,9 +127,10 @@ exports.uploadFile = function*() {
   const isUnzip = parts.field.isUnzip
   const format = parts.field.format
   const volumeName = parts.field.volumeName
+  const backupId = parts.field.backupId
   const stream = formStream()
   stream.stream(fileStream.filename, fileStream, fileStream.filename, fileStream.mimeType, fileStream._readableState.length)
-  let response = yield volumeApi.volumes.uploadFile([pool, volumeName, 'import'], { isUnzip }, stream, stream.headers())
+  let response = yield volumeApi.volumes.uploadFile([pool, volumeName, backupId, 'import'], { isUnzip }, stream, stream.headers())
   this.status = response.code
   this.body = response
 }
@@ -121,5 +138,8 @@ exports.uploadFile = function*() {
 
 exports.getFileHistory = function* () {
   const volumeName = this.params.name
-  
+  const pool = this.params.pool
+  let response = yield volumeApi.volumes.getBy([pool, volumeName, 'filehistory'])
+  this.status = response.code
+  this.body = response
 }

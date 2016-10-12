@@ -20,8 +20,8 @@ import "./style/StorageDetail.less"
 import { DEFAULT_IMAGE_POOL } from '../../constants'
 
 function loadData(props) {
-  const {name, loadStorageInfo } = props
-  loadStorageInfo('test', props.params.storage_id)
+  const { loadStorageInfo } = props
+  loadStorageInfo(props.params.pool, props.params.storage_name)
 }
 
 const SubMenu = Menu.SubMenu
@@ -102,7 +102,7 @@ class StorageDetail extends Component {
                   </div>
                   <div className="createDate">
                     <FormattedMessage {...messages.create} />：
-                   { new Date(StorageInfo.createTime).toLocaleDateString() }
+                   { StorageInfo.createTime }
                   </div>
                   <div className="use">
                     <FormattedMessage {...messages.useLevel} />
@@ -121,7 +121,7 @@ class StorageDetail extends Component {
                 defaultActiveKey="1"
               >
                 <TabPane tab={<FormattedMessage {...messages.operating} />} key="1" >
-                  <StorageStatus key="StorageStatus" />
+                  <StorageStatus key="StorageStatus" volumeName={ StorageInfo.volumeName } pool={ StorageInfo.volumeName  }/>
                 </TabPane>
                 <TabPane tab={<FormattedMessage {...messages.bindContainer} />} key="2" >
                   <StorageBind />
@@ -141,21 +141,12 @@ StorageDetail.propTypes = {
   
 function mapStateToProps(state, props) {
   const defaultInfo = {
-    isFetching: false,
-    imagePool: DEFAULT_IMAGE_POOL,
-    pool: 'test',
-    StorageInfo: props.params.storage_id,
-    storageName: props.params.storage_id
+    imagePool: props.params.pool,
+    volumeName: props.params.storage_name
   }
-  let isUseDefault = Object.getOwnPropertyNames(state.storage.storageDetail).length
-  const { Storage } = state
-  const { imagePool, StorageInfo, isFetching } = isUseDefault ? state.storage.storageDetail : defaultInfo
-
+  const StorageInfo  = state.storage.storageDetail.StorageInfo || defaultInfo
   return {
-    // cluster,
-    StorageInfo,
-    // pool,
-    isFetching
+    StorageInfo
   }
 }
   

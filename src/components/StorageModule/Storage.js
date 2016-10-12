@@ -362,6 +362,9 @@ class Storage extends Component {
       name: this.state.name
     }
     let self = this
+    this.setState({
+      name: ''
+    })
     this.props.createStorage(storageConfig, {
       success: {
          func: () => {
@@ -387,9 +390,15 @@ class Storage extends Component {
   }
   deleteStorage() {
     const volumeArray = this.state.volumeArray
+    if(volumeArray && volumeArray.length === 0) {
+      return
+    }
+    this.setState({
+      volumeArray: []
+    })
     this.props.deleteStorage(this.props.currentImagePool, volumeArray, {
       success: {
-         func: this.props.loadStorageList(this.props.currentImagePool),
+         func: () => this.props.loadStorageList(this.props.currentImagePool),
          isAsync: true
       }
     })
@@ -477,7 +486,7 @@ class Storage extends Component {
               <Modal title={ formatMessage(messages.createModalTitle) } visible={this.state.visible} onOk={ (e) => {this.handleOk()}} onCancel={() => { this.handleCancel()} } okText={ formatMessage(messages.createBtn) } cancelText={ formatMessage(messages.cancelBtn) }>
                 <Row style={{ height: '40px' }}>
                   <Col span="3" className="text-center" style={{ lineHeight: '30px' }}><FormattedMessage {...messages.name} /></Col>
-                  <Col span="12"><Input placeholder={ formatMessage(messages.placeholder) } onChange={(e) => {this.handleInputName(e)}} /></Col>
+                  <Col span="12"><Input value = { this.state.name } placeholder={ formatMessage(messages.placeholder) } onChange={(e) => {this.handleInputName(e)}} /></Col>
                 </Row>
                 <Row style={{ height: '40px' }}>
                   <Col span="3" className="text-center" style={{ lineHeight: '30px' }}>{ formatMessage(messages.size) }</Col>
