@@ -21,7 +21,7 @@ class MyComponent extends Component {
     this.deleteService = this.deleteService.bind(this)
     this.checkService = this.checkService.bind(this)
     this.state = {
-      
+      serviceModalShow:false
     }
   }
   checkedFunc (e) {
@@ -70,9 +70,11 @@ class MyComponent extends Component {
 	}
 	checkService(name){
 	  console.log(name);
-    console.log(this);
-    console.log(this.props.scope.props.scope.state);
-    
+
+    this.props.scope.setState({
+      serviceModalShow:true
+    })
+    console.log(this.props.scope);
   }
   render () {
 	var config = this.props.scope.state.servicesList;
@@ -95,12 +97,12 @@ class MyComponent extends Component {
 		  </div>
 		  <div className="opera commonData">
 			<Button className="viewBtn" type="ghost" size="large" onClick={() => this.checkService(item.name)}>
-			  <i className="fa fa-eye"></i>&nbsp;
+			  <i className="fa fa-eye" />&nbsp;
 			   查看
 			</Button>
 			<Button type="ghost" size="large" onClick={() => this.deleteService(item.name)}>
-			  <i className="fa fa-trash"></i>&nbsp;
-	           删除
+			  <i className="fa fa-trash" />&nbsp;
+         删除
 			</Button>
 		  </div>
 	      <div style={{clear:"both"}}></div>
@@ -132,14 +134,12 @@ export default class ServiceList extends Component {
   }
   
   closeModal(){
-  	//the function for close the create service modal
     this.setState({
   	  modalShow:false  
   	});
   }
   
   openModal(){
-  	//the function for open the create service modal
     this.setState({
   	  modalShow:true
   	});
@@ -157,10 +157,8 @@ export default class ServiceList extends Component {
   	//select title checkbox 
     let newList = new Array();
   	if(this.state.selectedList.length == this.state.servicesList.length){
-  	  //had select all item,turn the selectedlist to null
       newList = [];
   	}else{
-  	  //select some item or nothing,turn the selectedlist to selecet all item
   	  for(let elem of this.state.servicesList){
   	    newList.push(elem.id);
   	  }
@@ -178,7 +176,6 @@ export default class ServiceList extends Component {
     localStorage.removeItem('selectedList');
   }
   componentWillMount() {
-    //this.setState({servicesList:[]})
     const serviceList = JSON.parse(localStorage.getItem('servicesList'))
     if(serviceList){
       this.setState({
@@ -203,11 +200,11 @@ export default class ServiceList extends Component {
 	    <div className="ServiceList" key="ServiceList">
 	      <div className="operaBox">
 	        <Button type="primary" size="large" onClick={this.openModal}>
-	          <i className="fa fa-plus"></i>&nbsp;
+	          <i className="fa fa-plus" />&nbsp;
 	             添加服务
 	        </Button>
 	        <Button size="large" type="ghost">
-	          <i className="fa fa-trash"></i>&nbsp;
+	          <i className="fa fa-trash" />&nbsp;
 	            删除
 	        </Button>
 	      </div>
@@ -251,7 +248,7 @@ export default class ServiceList extends Component {
           >
 		    <AppAddServiceModal scope={parentScope} servicesList = {this.state.servicesList} />
           </Modal>
-	    </div>  
+	    </div>
         </QueueAnim>
     )
   }

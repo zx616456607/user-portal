@@ -31,8 +31,10 @@ const MyComponent = React.createClass({
 			registryServer
   	});
 		rootScope.setState({
-			modalShow : false
+			modalShow : false,
+      serviceModalShow:true
 		})
+    console.log('rootScope',rootScope);
   },
   render : function() {
 		const { images, registryServer, loading } = this.props
@@ -84,18 +86,18 @@ class AppAddServiceModal extends Component {
   	  currentImageType:currentType	
   	});
   }
-  
+
   closeModal(){
   	//the function for close the deploy new service modal
-    this.setState({
-  	  modalShow:false  
+    this.props.scope.setState({
+  	  modalShow:false
   	});
   }
-  
+
   openModal(){
   	//the function for open the deploy new service modal
-    this.setState({
-  	  modalShow:true  
+    this.props.scope.setState({
+  	  modalShow:true
   	});
   }
 
@@ -130,7 +132,7 @@ class AppAddServiceModal extends Component {
 	      </div>
 	      <MyComponent scope={parentScope} images={publicImageList} loading={isFetching} registryServer={registryServer} />
 	      <Modal
-	        visible={this.state.modalShow}
+	        visible={this.props.scope.state.serviceModalShow}
 					className="AppServiceDetail"
 					transitionName="move-right"
 	      >

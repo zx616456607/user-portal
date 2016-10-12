@@ -259,7 +259,7 @@ class AppDeployServiceModal extends Component {
       })
     }
     //livenessProbe 高可用
-    if(this.state.getUsefulType){
+    if(this.state.getUsefulType !== 'null'){
       deploymentList.setLivenessProbe(serviceName, this.state.getUsefulType.toUpperCase(), {
         port: parseInt(livePort),
         path: livePath,
@@ -291,10 +291,13 @@ class AppDeployServiceModal extends Component {
   }
   closeModal(){
     const parentScope = this.props.scope;
-    console.log('parentScope',parentScope);
     parentScope.setState({
-      modalShow:false
+      modalShow:false,
+
     });
+    parentScope.props.scope.setState({
+      serviceModalShow:false
+    })
   }
   render() {
   	const scope = this
