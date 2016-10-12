@@ -40,6 +40,12 @@ import ImageCenter from './components/AppCenter/Index'
 import ImageStore from './components/AppCenter/ImageStore.js'
 import ComposeCenter from './components/AppCenter/ComposeCenter.js'
 /*-------------------App_center Module Stop------------------------*/
+//     database & cache  
+import Database from './containers/Database/Index'
+import MysqlCluster from './components/DatabaseCache/mysqlCluster'
+//  database end 
+
+
 export default (
   <Route path="/" component={App}>
     <IndexRoute component={IndexPage}/>
@@ -68,6 +74,9 @@ export default (
     	<IndexRoute component={ImageCenter}/>
     	<Route path="image_store" component={ImageStore} />
       <Route path="compose_center" component={ComposeCenter} />
+    </Route>
+    <Route path="database_cache" component={Database}>
+      <IndexRoute component={MysqlCluster} />
     </Route>
     <Route path="*" component={ErrorPage}/>
   </Route>

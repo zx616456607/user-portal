@@ -51,17 +51,22 @@ class ComposeFile extends Component {
         return item.name === sItem
       })[0])
     })
-    const desc = {
-      "version": "1.0",
-      "services": {}
-    }
+    let serviceDesc = {}
+    let deploymentDesc = {}
     newserviceList.map(function (item) {
-      Object.assign(desc.services, item.inf)
+      // Object.assign(desc.services, item.inf)
+      serviceDesc = item.inf.Service
+      deploymentDesc = item.inf.Deployment
     })
+    // const desc = {
+    //   "version": "1.0",
+    //   "services": {}
+    // }
+    
     this.state = {
       appName : '',
-      appDesc: desc,
-      appDescYaml: yaml.dump(desc),
+      // appDesc: desc,
+      appDescYaml: '---\n'+yaml.dump(deploymentDesc)+'---\n'+yaml.dump(serviceDesc),
       cluster: ''
     }
   }

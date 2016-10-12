@@ -73,7 +73,8 @@ class AppAddServiceModal extends Component {
     this.state = {
       modalShow:false,
       currentImageType:"public",
-      currentSelectedImage:null
+      currentSelectedImage:null,
+      registryServer: null
     }
   }
   
@@ -158,7 +159,7 @@ function mapStateToProps(state, props) {
 
   return {
     registry,
-		registryServer: registry,
+		registryServer: server,
     publicImageList: imageList,
     isFetching
   }
