@@ -108,6 +108,9 @@
                   "name": "tenxcloud-time-zone",
                   "mountPath": "/etc/localtime",
                   "readOnly": true
+                },{
+                  "name": "volume-3",
+                  "mountPath": "/asdfasdf/"
                 }
               ],
               "livenessProbe": {
@@ -143,6 +146,22 @@
               "name": "tenxcloud-time-zone",
               "hostPath": {
                 "path": "/etc/localtime"
+              }
+            },
+            {
+              "name": "volume-3",
+              "configMap": {
+                "name": "hosts",
+                "items": [
+                  {
+                    "key": "hosts",
+                    "path": "hosts"
+                  },
+                  {
+                    "key": "hosts2",
+                    "path": "hosts2"
+                  }
+                ]
               }
             }
           ]

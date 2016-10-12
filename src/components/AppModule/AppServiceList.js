@@ -7,13 +7,15 @@
  * v0.1 - 2016-09-10
  * @author GaoJian
  */
-import React, { Component } from 'react'
+import React, { Component, PropTypes } from 'react'
 import { Modal,Checkbox,Dropdown,Button,Card, Menu,Icon } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import AppServiceDetail from './AppServiceDetail'
 import './style/AppServiceList.less'
+import { loadServiceList } from '../../actions/app_manage'
+import { DEFAULT_CLUSTER } from '../../constants'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -33,7 +35,7 @@ const operaMenu = (<Menu>
 					</Menu>);
 const MyComponent = React.createClass({	  
   propTypes : {
-    config : React.PropTypes.array
+    serviceList : React.PropTypes.array
   },
   onchange : function(){
   	  	
@@ -46,29 +48,29 @@ const MyComponent = React.createClass({
   	});
   },
   render : function() {
-	var config = this.props.config;
-	var items = config.map((item) => {
+	const { serviceList } = this.props
+	const items = serviceList.map((item) => {
 	  return (
-	    <div className="instanceDetail" key={item.id}>
+	    <div className="instanceDetail" key={item.metadata.name}>
 			<div className="selectIconTitle commonData">
 			  <Checkbox onChange={()=>this.onchange()}></Checkbox>
 			</div>
 			<div className="name commonData">
 		      <span className="viewBtn" onClick={this.modalShow.bind(this,item)}>
-	    	    {item.name}
+	    	    {item.metadata.name}
 		      </span>
 			</div>
 			<div className="status commonData">
-			  {item.status}
+			  {item.spec.replicas || '-'}
 			</div>
 			<div className="image commonData">
-			  {item.imageName}
+			  {item.images.join(', ') || '-'}
 			</div>
 			<div className="service commonData">
-			  {item.serviceIP}
+			  {item.serviceIP || '-'}
 			</div>
 			<div className="createTime commonData">
-			  {item.createTime}
+			  {item.metadata.creationTimestamp || '-'}
 			</div>
 			<div className="actionBox commonData">
 			  <span className="viewBtn" onClick={this.modalShow.bind(this,item)}>
@@ -88,16 +90,37 @@ const MyComponent = React.createClass({
   }
 });					
 
-export default class AppServiceList extends Component {
+class AppServiceList extends Component {
   constructor(props) {
     super(props);
     this.closeModal = this.closeModal.bind(this);    
     this.state = {
       modalShow:false,
-      currentShowInstance:null
+      currentShowInstance: null,
+			serviceList: props.serviceList
     }
   }
+
+	onAllChange(e){
+		const { checked } = e.target
+  	const { serviceList } = this.state
+		serviceList.map((service) => service.checked = checked)
+		this.setState({
+			serviceList
+		})
+	}
+
+	componentWillReceiveProps(nextProps) {
+    this.setState({
+      serviceList: nextProps.serviceList
+    })
+  }
   
+	componentWillMount() {
+		const { cluster, appName, loadServiceList } = this.props
+    loadServiceList(cluster, appName)
+  }
+
   closeModal(){
     this.setState({
   	  modalShow:false  
@@ -106,8 +129,8 @@ export default class AppServiceList extends Component {
   
   render() {
 		const parentScope = this
-		let { modalShow, currentShowInstance } = this.state
-		const { data, loading } = this.props
+		let { modalShow, currentShowInstance, serviceList } = this.state
+		const { isFetching } = this.props
     return (
       <div id="AppServiceList">
 	    <QueueAnim className="demo-content"
@@ -158,14 +181,14 @@ export default class AppServiceList extends Component {
       		</div>
       		<div style={{ clear:"both" }}></div>
       	  </div>
-      	  <MyComponent scope={parentScope} config={data} loading={loading} />
+      	  <MyComponent scope={parentScope} serviceList={serviceList} loading={isFetching} />
       	  <Modal
-	        title="垂直居中的对话框"
-	        visible={this.state.modalShow}
-			className="AppServiceDetail"
-			transitionName="move-right"
-			onCancel={this.closeModal}
-	      >
+						title="垂直居中的对话框"
+						visible={this.state.modalShow}
+						className="AppServiceDetail"
+						transitionName="move-right"
+						onCancel={this.closeModal}
+					>
 	        <AppServiceDetail scope={parentScope} />
           </Modal>
         </QueueAnim>
@@ -175,5 +198,37 @@ export default class AppServiceList extends Component {
 }
 
 AppServiceList.propTypes = {
-//
+  cluster: PropTypes.string.isRequired,
+  appName: PropTypes.string.isRequired,
+  serviceList: PropTypes.array.isRequired,
+  isFetching: PropTypes.bool.isRequired,
+  loadServiceList: PropTypes.func.isRequired
 }
+
+function mapStateToProps(state, props) {
+  const { appName } = props
+	const defaultServices = {
+    isFetching: false,
+    cluster: DEFAULT_CLUSTER,
+		appName,
+    serviceList: []
+  }
+	const {
+    services
+  } = state
+	let targetServices
+	if (services[DEFAULT_CLUSTER] && services[DEFAULT_CLUSTER][appName]) {
+		targetServices = services[DEFAULT_CLUSTER][appName]
+	}
+	const { cluster, serviceList, isFetching } = targetServices || defaultServices
+  return {
+		cluster,
+    appName,
+		serviceList,
+		isFetching
+  }
+}
+
+export default connect(mapStateToProps, {
+  loadServiceList
+})(AppServiceList)

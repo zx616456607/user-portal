@@ -30,7 +30,7 @@ exports.createApp = function* () {
   const result = yield api.createBy([cluster, 'apps'], null, app)
   this.body = {
     cluster,
-    data: result
+    data: result.data
   }
 }
 
@@ -39,9 +39,21 @@ exports.getApps = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.getBy([cluster, 'apps'])
+  const apps = result.data
+  apps.map((app) => {
+    app.appStatus = 0
+    app.serviceCount = app.services.length
+    app.instanceCount = 0
+    app.services.map((service) => {
+      app.instanceCount += service.spec.replicas
+    })
+    if (app.serviceCount < 1 || app.instanceCount < 1) {
+      app.appStatus = 1
+    }
+  })
   this.body = {
     cluster,
-    data: result.data || []
+    data: apps || []
   }
 }
 
@@ -140,70 +152,47 @@ exports.deleteServices = function* () {
   }
 }
 
+exports.getAppDetail = function* () {
+  const cluster = this.params.cluster
+  const appName = this.params.app_name
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster, 'apps', appName])
+  const app = result.data
+  /*apps.map((app) => {
+    app.appStatus = 0
+    app.serviceCount = app.services.length
+    app.instanceCount = 0
+    app.services.map((service) => {
+      app.instanceCount += service.spec.replicas
+    })
+    if (app.serviceCount < 1 || app.instanceCount < 1) {
+      app.appStatus = 1
+    }
+  })*/
+  this.body = {
+    cluster,
+    data: app || {}
+  }
+}
+
 exports.getAppServices = function* () {
   const cluster = this.params.cluster
   const appName = this.params.app_name
-  const data = [{
-    id: "1",
-    name: "test1",
-    status: "1",
-    imageName: "Linux",
-    serviceIP: "192.168.1.1",
-    createTime: "2016-09-09 11:27:27",
-  }, {
-      id: "2",
-      name: "test2",
-      status: "1",
-      imageName: "Linux",
-      serviceIP: "192.168.1.1",
-      createTime: "2016-09-09 11:27:27",
-    }, {
-      id: "3",
-      name: "test3",
-      status: "0",
-      imageName: "Linux",
-      serviceIP: "192.168.1.1",
-      createTime: "2016-09-09 11:27:27",
-    }, {
-      id: "4",
-      name: "test4",
-      status: "0",
-      imageName: "Linux",
-      serviceIP: "192.168.1.1",
-      createTime: "2016-09-09 11:27:27",
-    }, {
-      id: "5",
-      name: "test5",
-      status: "0",
-      imageName: "Linux",
-      serviceIP: "192.168.1.1",
-      createTime: "2016-09-09 11:27:27",
-    }, {
-      id: "6",
-      name: "test6",
-      status: "1",
-      imageName: "Linux",
-      serviceIP: "192.168.1.1",
-      createTime: "2016-09-09 11:27:27",
-    }, {
-      id: "7",
-      name: "test7",
-      status: "1",
-      imageName: "Linux",
-      serviceIP: "192.168.1.1",
-      createTime: "2016-09-09 11:27:27",
-    }, {
-      id: "8",
-      name: "test8",
-      status: "0",
-      imageName: "Linux",
-      serviceIP: "192.168.1.1",
-      createTime: "2016-09-09 11:27:27",
-    }];
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster, 'apps', appName, 'services'])
+  const services = result.data
+  services.map((service) => {
+    service.images = []
+    service.spec.template.spec.containers.map((container) => {
+      service.images.push(container.image)
+    })
+  })
   this.body = {
     cluster,
     appName,
-    data
+    data: result.data
   }
 }
 

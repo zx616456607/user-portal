@@ -43,8 +43,8 @@ class ComposeFile extends Component {
     this.handleCluster=this.handleCluster.bind(this)
     this.handleYaml=this.handleYaml.bind(this)
     
-    let serviceList = JSON.parse(localStorage.getItem('servicesList'))
-    let selectedList = JSON.parse(localStorage.getItem('selectedList'))
+    let serviceList = JSON.parse(localStorage.getItem('servicesList')) || []
+    let selectedList = JSON.parse(localStorage.getItem('selectedList')) || []
     var newserviceList = []
     selectedList.map(function (sItem) {
       newserviceList.push(serviceList.filter(function (item) {
@@ -110,7 +110,6 @@ class ComposeFile extends Component {
   
   render() {
     const {appName, appDescYaml} = this.state
-    
   	const parentScope = this.props.scope;
   	const createModel = parentScope.state.createModel;
   	let backUrl = backLink(createModel);

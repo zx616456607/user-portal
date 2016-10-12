@@ -56,7 +56,22 @@ export function apps(state = { appItmes: {} }, action) {
       REQUEST: ActionTypes.APP_BATCH_DELETE_REQUEST,
       SUCCESS: ActionTypes.APP_BATCH_DELETE_SUCCESS,
       FAILURE: ActionTypes.APP_BATCH_DELETE_FAILURE
-    }, state.deleteApps, action)
+    }, state.deleteApps, action),
+    stopApps: reducerFactory({
+      REQUEST: ActionTypes.APP_BATCH_STOP_REQUEST,
+      SUCCESS: ActionTypes.APP_BATCH_STOP_SUCCESS,
+      FAILURE: ActionTypes.APP_BATCH_STOP_FAILURE
+    }, state.stopApps, action),
+    restartApps: reducerFactory({
+      REQUEST: ActionTypes.APP_BATCH_RESTART_REQUEST,
+      SUCCESS: ActionTypes.APP_BATCH_RESTART_SUCCESS,
+      FAILURE: ActionTypes.APP_BATCH_RESTART_FAILURE
+    }, state.restartApps, action),
+    startApps: reducerFactory({
+      REQUEST: ActionTypes.APP_BATCH_START_REQUEST,
+      SUCCESS: ActionTypes.APP_BATCH_START_SUCCESS,
+      FAILURE: ActionTypes.APP_BATCH_START_FAILURE
+    }, state.startApps, action)
   }
 }
 
@@ -83,7 +98,7 @@ export function services(state = {}, action) {
         }
       })
     case ActionTypes.SERVICE_LIST_SUCCESS:
-      return merge({}, state, {
+      return Object.assign({}, state, {
         [cluster]:  {
           [appName]: {
             isFetching: false,
@@ -123,7 +138,7 @@ export function containers(state = {}, action) {
         }
       })
     case ActionTypes.CONTAINER_LIST_SUCCESS:
-      return merge({}, state, {
+      return Object.assign({}, state, {
         [cluster]:  {
           isFetching: false,
           cluster: action.response.result.cluster,

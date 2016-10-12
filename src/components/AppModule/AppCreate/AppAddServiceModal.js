@@ -18,8 +18,8 @@ import { DEFAULT_REGISTRY } from '../../../constants'
 import './style/AppAddServiceModal.less'
 
 const MyComponent = React.createClass({	  
-  propTypes : {
-    config : React.PropTypes.array
+  propTypes: {
+    config: React.PropTypes.array
   },
   modalShow:function(imageName, registryServer){
   	//close model function
