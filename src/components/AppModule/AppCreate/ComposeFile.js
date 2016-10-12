@@ -1,9 +1,9 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
- * 
+ *
  * ComposeFile component
- * 
+ *
  * v0.1 - 2016-09-20
  * @author GaoJian
  */
@@ -42,6 +42,7 @@ class ComposeFile extends Component {
     this.handleAppName=this.handleAppName.bind(this)
     this.handleCluster=this.handleCluster.bind(this)
     this.handleYaml=this.handleYaml.bind(this)
+    this.handleRemark=this.handleRemark.bind(this)
     
     let serviceList = JSON.parse(localStorage.getItem('servicesList'))
     let selectedList = JSON.parse(localStorage.getItem('selectedList'))
@@ -53,26 +54,21 @@ class ComposeFile extends Component {
     })
     let serviceDesc = {}
     let deploymentDesc = {}
+    let desc = []
     newserviceList.map(function (item) {
-      // Object.assign(desc.services, item.inf)
       serviceDesc = item.inf.Service
       deploymentDesc = item.inf.Deployment
+      desc.push(yaml.dump(serviceDesc),yaml.dump(deploymentDesc))
     })
-    // const desc = {
-    //   "version": "1.0",
-    //   "services": {}
-    // }
-    
     this.state = {
       appName : '',
-      // appDesc: desc,
-      appDescYaml: '---\n'+yaml.dump(deploymentDesc)+'---\n'+yaml.dump(serviceDesc),
-      cluster: ''
+      appDescYaml:desc.join('---\n'),
+      cluster: '',
+      remark:'',
     }
   }
   subApp(){
-    const remark = ''
-    const {appName, appDescYaml} = this.state
+    const {appName, appDescYaml,remark} = this.state
     let appConfig={
       cluster:this.state.cluster,
       desc:appDescYaml,
@@ -84,7 +80,8 @@ class ComposeFile extends Component {
       success: {
         func: () => {
           self.setState({
-            appName:''
+            appName:'',
+            remark:'',
           })
           console.log('sub')
           localStorage.removeItem('servicesList')
@@ -94,13 +91,15 @@ class ComposeFile extends Component {
         isAsync: true
       },
     })
-    /*createApp(DEFAULT_CLUSTER,appName,desc,remark)
-    console.log('sub');*/
-    //localStorage.removeItem('servicesList')
   }
   handleAppName(e){
     this.setState({
       appName: e.target.value
+    })
+  }
+  handleRemark(e){
+    this.setState({
+      remark: e.target.value
     })
   }
   handleCluster(value) {
@@ -108,7 +107,6 @@ class ComposeFile extends Component {
     this.setState({
       cluster: `${value}`
     })
-    console.log(this.state.cluster);
   }
 	handleYaml(e){
     this.setState({
@@ -117,13 +115,8 @@ class ComposeFile extends Component {
 	}
   
   render() {
-    const {appName, appDescYaml} = this.state
-  	const serviceList = JSON.parse(localStorage.getItem('servicesList'))
-    const inf = JSON.stringify(serviceList[0].inf)
-    console.log('-----local------');
-    console.log(serviceList);
-    console.log(serviceList[0].inf);
-    console.log('-----local------');
+    const {appName, appDescYaml,remark} = this.state
+    
   	const parentScope = this.props.scope;
   	const createModel = parentScope.state.createModel;
   	let backUrl = backLink(createModel);
@@ -139,7 +132,7 @@ class ComposeFile extends Component {
 	        </div>
 	        <div className="introBox">
 	          <span>添加描述</span>
-	          <Input size="large" placeholder="写一个萌萌哒的描述吧~" />
+	          <Input size="large" placeholder="写一个萌萌哒的描述吧~" onChange={this.handleRemark} value={remark}/>
 	          <div style={{ clear:"both" }}></div>
 	        </div>
 	        <div className="composeBox">
@@ -161,7 +154,7 @@ class ComposeFile extends Component {
 	              <textarea value={appDescYaml} onChange={this.handleYaml}></textarea>
 	            </div>
 	            <div style={{ clear:"both" }}></div>
-	          </div>          
+	          </div>
 	        </div>
 	        <div className="envirBox">
 	          <span>部署环境</span>
@@ -171,12 +164,6 @@ class ComposeFile extends Component {
 	            <i className="fa fa-caret-down"></i>
 	          </Button>
 	        </Dropdown>
-	        {/*<Dropdown overlay={operaMenu} trigger={['click']}>
-	          <Button size="large" type="ghost">
-	            请选择集群
-	            <i className="fa fa-caret-down"></i>
-	          </Button>
-	        </Dropdown>*/}
             <Select size="large" defaultValue="请选择集群" style={{ width: 200 }} onChange={this.handleCluster}>
               <Option value="cce1c71ea85a5638b22c15d86c1f61de">test</Option>
               <Option value="cce1c71ea85a5638b22c15d86c1f61df">产品环境</Option>
@@ -189,13 +176,11 @@ class ComposeFile extends Component {
 	              上一步
 	            </Button>
 	          </Link>
-	          {/*<Link to={`/app_manage`}>*/}
 	            <Button size="large" type="primary" className="createBtn" onClick={this.subApp}>
 	              创建
 	            </Button>
-	          {/*</Link>*/}
 	        </div>
-	      </div>  
+	      </div>
         </QueueAnim>
     )
   }

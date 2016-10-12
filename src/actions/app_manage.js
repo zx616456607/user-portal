@@ -136,3 +136,81 @@ export function deleteApps(cluster, appList, callback){
     return dispatch(fetchDeleteApps(cluster, appList, callback))
   }
 }
+
+export const APP_BATCH_STOP_REQUEST = 'APP_BATCH_STOP_REQUEST'
+export const APP_BATCH_STOP_SUCCESS = 'APP_BATCH_STOP_SUCCESS'
+export const APP_BATCH_STOP_FAILURE = 'APP_BATCH_STOP_FAILURE'
+
+function fetchStopApps(cluster, appList, callback) {
+  return {
+    cluster,
+    [FETCH_API]: {
+      types: [APP_BATCH_STOP_REQUEST, APP_BATCH_STOP_SUCCESS, APP_BATCH_STOP_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/apps/batch-stop`,
+      options: {
+        method: 'PUT',
+        body: appList
+      },
+      schema: {}
+    },
+    callback: callback
+  }
+}
+
+export function stopApps(cluster, appList, callback){
+  return (dispatch, getState) => {
+    return dispatch(fetchStopApps(cluster, appList, callback))
+  }
+}
+
+export const APP_BATCH_RESTART_REQUEST = 'APP_BATCH_RESTART_REQUEST'
+export const APP_BATCH_RESTART_SUCCESS = 'APP_BATCH_RESTART_SUCCESS'
+export const APP_BATCH_RESTART_FAILURE = 'APP_BATCH_RESTART_FAILURE'
+
+function fetchRestartApps(cluster, appList, callback) {
+  return {
+    cluster,
+    [FETCH_API]: {
+      types: [APP_BATCH_RESTART_REQUEST, APP_BATCH_RESTART_SUCCESS, APP_BATCH_RESTART_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/apps/batch-restart`,
+      options: {
+        method: 'PUT',
+        body: appList
+      },
+      schema: {}
+    },
+    callback: callback
+  }
+}
+
+export function restartApps(cluster, appList, callback){
+  return (dispatch, getState) => {
+    return dispatch(fetchRestartApps(cluster, appList, callback))
+  }
+}
+
+export const APP_BATCH_START_REQUEST = 'APP_BATCH_START_REQUEST'
+export const APP_BATCH_START_SUCCESS = 'APP_BATCH_START_SUCCESS'
+export const APP_BATCH_START_FAILURE = 'APP_BATCH_START_FAILURE'
+
+function fetchStartApps(cluster, appList, callback) {
+  return {
+    cluster,
+    [FETCH_API]: {
+      types: [APP_BATCH_START_REQUEST, APP_BATCH_START_SUCCESS, APP_BATCH_START_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/apps/batch-start`,
+      options: {
+        method: 'PUT',
+        body: appList
+      },
+      schema: {}
+    },
+    callback: callback
+  }
+}
+
+export function startApps(cluster, appList, callback){
+  return (dispatch, getState) => {
+    return dispatch(fetchStartApps(cluster, appList, callback))
+  }
+}

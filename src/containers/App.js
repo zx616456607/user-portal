@@ -34,7 +34,7 @@ class App extends Component {
     notification.error({
       message: 'error',
       description: JSON.stringify(errorMessage),
-      duration: null,
+      duration: 5,
       onClose: handleDismissClick
     })
   }

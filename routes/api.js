@@ -43,6 +43,7 @@ module.exports = function (Router) {
   router.post('/clusters/:cluster/apps/:app_name/services', appController.addService)
   router.post('/clusters/:cluster/apps/:app_name/services/batch-delete', appController.deleteServices)
   router.get('/clusters/:cluster/apps/:app_name/orchfile', appController.getAppOrchfile)
+  router.get('/clusters/:cluster/apps/:app_name/detail', appController.getAppDetail)
   // spi
   router.get('/clusters/:cluster/apps/:app_name/logs', appController.getAppLogs)
 

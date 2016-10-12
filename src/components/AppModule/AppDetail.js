@@ -13,9 +13,9 @@ import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import AppServiceList from './AppServiceList'
-import AppGraph from "./AppGraph.js"
-import AppLog from "./AppLog.js"
-import "./style/AppDetail.less"
+import AppGraph from './AppGraph'
+import AppLog from './AppLog'
+import './style/AppDetail.less'
 import { loadServiceList } from '../../actions/app_manage'
 import { DEFAULT_CLUSTER } from '../../constants'
 
@@ -34,7 +34,7 @@ class AppDetail extends Component {
 	componentWillMount() {
 		const { cluster, appName, loadServiceList } = this.props
     document.title = `应用 ${appName} 详情 | 时速云`
-    loadServiceList(cluster, appName)
+    // loadServiceList(cluster, appName)
   }
   
   render() {
@@ -54,7 +54,7 @@ class AppDetail extends Component {
               	  </div>
               	  <div className="infoBox">
 	                <p className="appTitle">
-	                  萌萌的 {appName}
+	                  {appName}
 	                </p>
 	                <div className="leftInfo">
 	                  <div className="status">
@@ -94,7 +94,7 @@ class AppDetail extends Component {
 	               defaultActiveKey="1"
 	              >
 	                <TabPane tab="服务实例" key="1" >
-										<AppServiceList key="AppServiceList" data={ serviceList } loading={ isFetching } />
+										<AppServiceList key="AppServiceList" appName={ appName } loading={ isFetching } />
 									</TabPane>
 	                <TabPane tab="应用拓补图" key="2" >应用拓补图</TabPane>
 	                <TabPane tab="编排文件" key="3" ><AppGraph key="AppGraph" /></TabPane>
