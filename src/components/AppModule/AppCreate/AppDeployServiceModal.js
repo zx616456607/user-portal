@@ -9,78 +9,65 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { Form,Switch,Select,Collapse,Dropdown,Modal,Checkbox,Button,Card,Menu,Input,InputNumber,Radio,Icon  } from 'antd'
-import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import QueueAnim from 'rc-queue-anim'
 import NormalDeployBox from './AppDeployComponents/NormalDeployBox.js'
 import AssitDeployBox from './AppDeployComponents/AssitDeployBox.js'
 import UsefulDeployBox from './AppDeployComponents/UsefulDeployBox.js'
 import ComposeDeployBox from './AppDeployComponents/ComposeDeployBox.js'
 import EnviroDeployBox from './AppDeployComponents/EnviroDeployBox.js'
 import "./style/AppDeployServiceModal.less"
-import { loadServiceList , createService } from '../../../actions/app_manage'
 import { DEFAULT_CLUSTER } from '../../../constants'
-import { cloneDeep } from 'lodash'
-import container from '../../../../templates/k8s/container.json'
-import deployment from '../../../../templates/k8s/deployment.json'
-import pod from '../../../../templates/k8s/pod.json'
-import service from '../../../../templates/k8s/service.json'
 const Deployment = require('../../../../kubernetes/objects/deployment')
 const Service = require('../../../../kubernetes/objects/service')
-
-
 const Panel = Collapse.Panel;
-const Option = Select.Option;
-const RadioGroup = Radio.Group;
 const createForm = Form.create;
-const FormItem = Form.Item;
 
 class AppDeployServiceModal extends Component {
   constructor(props) {
     super(props);
-       
     this.submitNewService = this.submitNewService.bind(this);
     this.closeModal = this.closeModal.bind(this);
     this.state = {
-    	composeType:"1",
-    	stateService:false,
-    	instanceNum:1,
-    	runningCode:"1",
-    	getImageType:"1",
-    	currentDate:false,
-    	getUsefulType:"null",
-    	volumeMountList:[],
-      volumesList:[],
-    	enviroList:[],
-    	portList:[],
-      depPortList:[],
-      annotationsList:{},
+      instanceNum:1,
+      composeType:"1",
+      runningCode:"1",
+      getImageType:"1",
+      stateService:false,
+      currentDate:false,
       volumeSwitch:false,
+      getUsefulType:"null",
     }
   }
   componentWillMount() {
     
   }
-  
   submitNewService(e,parentScope){
-  	//the function for user submit new service
   	e.preventDefault();
-  	this.props.form.validateFields((errors, values) => {
-  	  
-    });
-  
-    let containerObj = cloneDeep(container)
-    let deploymentObj = cloneDeep(deployment)
-    let podObj = cloneDeep(pod)
-    let serviceObj = cloneDeep(service)
     
   	const scope = this.state;
   	let composeType = scope.composeType;
     let portKey = this.props.form.getFieldValue('portKey')
     let envKey = this.props.form.getFieldValue('envKey')
     let volKey = this.props.form.getFieldValue('volKey')
-  
+    let serviceName = this.props.form.getFieldProps('name').value    //服务名
+    let instanceNum = scope.instanceNum     //容器数量
+    let imageVersion = this.props.form.getFieldProps('imageVersion').value    //镜像版本
+    let volumeSwitch = this.props.form.getFieldProps('volumeSwitch').value //服务类型
+    let volumePath = this.props.form.getFieldProps('volumePath').value   //服务路径
+    let volumeName = this.props.form.getFieldProps('volumeName').value   //服务名称
+    let volumeChecked = this.props.form.getFieldProps('volumeChecked').value   //服务只读
+    let livePort = this.props.form.getFieldProps('livePort').value   //高可用端口
+    let liveInitialDelaySeconds = this.props.form.getFieldProps('liveInitialDelaySeconds').value //首次延时
+    let liveTimeoutSeconds = this.props.form.getFieldProps('liveTimeoutSeconds').value //检查超时
+    let livePeriodSeconds = this.props.form.getFieldProps('livePeriodSeconds').value //检查间隔
+    let livePath = this.props.form.getFieldProps('livePath').value //高可用路径
+    let args = this.props.form.getFieldProps('args').value //高可用路径
+    let image = parentScope.state.registryServer + '/' + parentScope.state.currentSelectedImage +':'+ imageVersion //镜像名称
+    
+    let deploymentList = new Deployment(serviceName)
+    let serviceList = new Service(serviceName)
+    
     var ImageConfig = {
       resources: {
         limits: {
@@ -92,7 +79,7 @@ class AppDeployServiceModal extends Component {
         }
       },
       cal:'1C/256M'
-    };
+    };    //配置判断
     (function showConfig(composeType) {
       switch (composeType){
         case '1':
@@ -195,230 +182,64 @@ class AppDeployServiceModal extends Component {
           return
       }
     })(composeType)
-  
-    let serviceName = this.props.form.getFieldProps('name').value    //服务名
-    let instanceNum = scope.instanceNum                             //容器数量
-    //let imageURL = this.props.form.getFieldProps('imageUrl').value   //镜像地址
-    let imageVersion = this.props.form.getFieldProps('imageVersion').value    //镜像版本
-    let volumeSwitch = this.props.form.getFieldProps('volumeSwitch').value //服务类型
-    let volumePath = this.props.form.getFieldProps('volumePath').value   //服务路径
-    let volumeName = this.props.form.getFieldProps('volumeName').value   //服务名称
-    let volumeChecked = this.props.form.getFieldProps('volumeChecked').value   //服务只读
-    let livePort = this.props.form.getFieldProps('livePort').value   //高可用端口
-    let liveInitialDelaySeconds = this.props.form.getFieldProps('liveInitialDelaySeconds').value //首次延时
-    let liveTimeoutSeconds = this.props.form.getFieldProps('liveTimeoutSeconds').value //检查超时
-    let livePeriodSeconds = this.props.form.getFieldProps('livePeriodSeconds').value //检查间隔
-    let livePath = this.props.form.getFieldProps('livePath').value //高可用路径
-    let args = this.props.form.getFieldProps('args').value //高可用路径
     
-    const { volumeMountList,volumesList,enviroList,portList,depPortList,annotationsList } = this.state
-    
-    let deploymentList = new Deployment(serviceName)
-    let serviceList = new Service(serviceName)
-    
-    
-    
-    if(volKey){
-      this.props.form.getFieldValue('volKey').map((k) => {
-        this.state.volumesList.push({
-          'name': this.props.form.getFieldProps(`volName${k}`).value ,
-          'mountPath': this.props.form.getFieldProps(`volPath${k}`).value
-        })
-      })
-    }
-    
-    
-    
-    //containerObj.image = imageURL+':'+imageVersion   //镜像地址
-    
-    /*container*/
-    //name
-    containerObj.name = serviceName
-    //image
-    containerObj.image = parentScope.state.registryServer+ '/' + parentScope.state.currentSelectedImage +':'+ imageVersion
-    
-    //ports 容器端口
-    if(portList.length !== 0){
-      Object.assign(containerObj,{
-        ports: depPortList,
-      })
-    }
-    //环境变量
-    if(enviroList.length !== 0){
-      Object.assign(containerObj,{
-        env: enviroList,
-      })
-    }
-    //resources 容器配置
-    containerObj.resources = ImageConfig.resources
-    
-    
-    //volumeMounts 服务类型
-    if(this.state.volumeSwitch){
-      Object.assign(containerObj,{
-        volumeMounts: volumeMountList
-      })
-    }
-    
-    
-    /*pod*/
-    podObj.spec.containers.push(containerObj)
-    //name
-    podObj.metadata.labels.name = serviceName
-    //volumes
-    if(this.state.volumeSwitch){
-      podObj.spec.volumes = volumesList
-    }
-    
-    
-    /*Deployment*/
-    deploymentObj.spec.template = podObj
-    //metadata
-    deploymentObj.metadata.name = serviceName
-    deploymentObj.metadata.labels.name = serviceName
-    //replicas
-    deploymentObj.spec.replicas = instanceNum
-    //selector
-    deploymentObj.spec.selector.name = serviceName
-    
-    
-    /*Service*/
-    //服务名称
-    serviceObj.metadata.name = serviceName
-    serviceObj.metadata.labels.name = serviceName
-    //
-    serviceObj.metadata.annotations = annotationsList
-    serviceObj.spec.ports = portList
-  
     /*Deployment*/
     deploymentList.setReplicas(instanceNum)
-    const image = parentScope.state.currentSelectedImage + '/' + parentScope.state.registryServer +':'+ imageVersion
     deploymentList.addContainer(serviceName, image)
     deploymentList.setContainerResources(serviceName, ImageConfig.resources.limits.memory)
+    //ports
     if(portKey){
       this.props.form.getFieldValue('portKey').map((k) => {
         if(this.props.form.getFieldProps(`portUrl${k}`).value){
-          if(this.props.form.getFieldProps(`portType${k}`).value === 'udp'){
-            this.state.portList.push({
-              name: serviceName+'-'+k,
-              targetPort: this.props.form.getFieldProps(`targetPortUrl${k}`).value ,
-              port: this.props.form.getFieldProps(`portUrl${k}`).value,
-              protocol: 'UDP'
-            })
-          } else {
-            this.state.portList.push({
-              name: serviceName+'-'+k,
-              targetPort: this.props.form.getFieldProps(`targetPortUrl${k}`).value ,
-              port: this.props.form.getFieldProps(`portUrl${k}`).value,
-              protocol: 'TCP'
-            })
-          }
-  
           serviceList.addPort(
-            serviceName,
+            serviceName+'-'+k,
             this.props.form.getFieldProps(`portType${k}`).value.toUpperCase(),
-            this.props.form.getFieldProps(`portUrl${k}`).value,
-            this.props.form.getFieldProps(`targetPortUrl${k}`).value,
+            parseInt(this.props.form.getFieldProps(`portUrl${k}`).value),
+            parseInt(this.props.form.getFieldProps(`targetPortUrl${k}`).value),
           )
         } else {
-          if(this.props.form.getFieldProps(`portType${k}`).value === 'udp'){
-            this.state.portList.push({
-              name: serviceName+'-'+k,
-              targetPort: this.props.form.getFieldProps(`targetPortUrl${k}`).value ,
-              protocol: 'UDP'
-            })
-          } else {
-            this.state.portList.push({
-              name: serviceName+'-'+k,
-              targetPort: this.props.form.getFieldProps(`targetPortUrl${k}`).value ,
-              protocol: 'TCP'
-            })
-          }
-  
           serviceList.addPort(
-            serviceName,
+            serviceName+'-'+k,
             this.props.form.getFieldProps(`portType${k}`).value.toUpperCase(),
-            this.props.form.getFieldProps(`targetPortUrl${k}`).value,
+            parseInt(this.props.form.getFieldProps(`targetPortUrl${k}`).value),
           )
         }
-        
-        
-        if(this.props.form.getFieldProps(`portType${k}`).value === 'udp'){
-          this.state.depPortList.push({
-            'containerPort': this.props.form.getFieldProps(`targetPortUrl${k}`).value ,
-            'protocol' : 'UDP'
-          })
-          Object.assign(this.state.annotationsList,{
-            [serviceName+'-'+k] : 'UDP'
-          })
-        } else {
-          this.state.depPortList.push({
-            'containerPort' : this.props.form.getFieldProps(`targetPortUrl${k}`).value ,
-            'protocol' : 'TCP'
-          })
-          Object.assign(this.state.annotationsList,{
-            [serviceName+'-'+k] :'TCP'
-          })
-        }
-        
         deploymentList.addContainerPort(
           serviceName,
-          this.props.form.getFieldProps(`targetPortUrl${k}`).value,
+          parseInt(this.props.form.getFieldProps(`targetPortUrl${k}`).value),
           this.props.form.getFieldProps(`portType${k}`).value.toUpperCase()
         )
-  
-        
       })
     }
+    //env
     if(envKey){
       this.props.form.getFieldValue('envKey').map((k) => {
-        this.state.enviroList.push({
-          'name': this.props.form.getFieldProps(`envName${k}`).value ,
-          'value': this.props.form.getFieldProps(`envValue${k}`).value
-        })
-  
-        deploymentList.addContainerEnv(serviceName, this.props.form.getFieldProps(`envName${k}`).value , this.props.form.getFieldProps(`envValue${k}`).value)
+        deploymentList.addContainerEnv(
+          serviceName,
+          this.props.form.getFieldProps(`envName${k}`).value ,
+          this.props.form.getFieldProps(`envValue${k}`).value
+        )
       })
     }
     //args 执行命令
     if(this.state.runningCode === '2'){
-      containerObj.args = [args]
       deploymentList.addContainerArgs(serviceName, args)
     }
     //command
     //imagePullPolicy 重新部署
     if(scope.getImageType === '2'){
-      containerObj.imagePullPolicy = 'Always'
       deploymentList.setContainerImagePullPolicy(serviceName,'Always')
     } else {
-      containerObj.imagePullPolicy = 'IfNotPresent'
       deploymentList.setContainerImagePullPolicy(serviceName)
     }
     //时区设置
     if(this.state.currentDate){
-      Object.assign(podObj.spec.volumes,{
-        name: "tenxcloud-time-zone",
-        hostPath: {
-          path: "/etc/localtime"
-        }
-      })
-      Object.assign(containerObj.volumeMounts,{
-        "name": "tenxcloud-time-zone",
-        "mountPath": "/etc/localtime",
-        "readOnly": true
-      })
       deploymentList.syncTimeZoneWithNode(serviceName)
     }
-  
+    //volumes
     if(this.state.volumeSwitch){
       this.props.form.getFieldValue('volumeKey').map((k) => {
         if(volumeChecked){
-          this.state.volumeMountList.push({
-            name: 'volume-'+k,
-            mountPath: '/var/www/html',
-            readOnly: true,
-          })
-          
           deploymentList.addContainerVolume(serviceName, {
             name: this.props.form.getFieldProps(`volName${k}`).value +'-'+k,
             fsType: this.props.form.getFieldProps(`volumeName${k}`).value.split('/')[0],
@@ -428,11 +249,6 @@ class AppDeployServiceModal extends Component {
             readOnly:true
           })
         } else {
-          this.state.volumeMountList.push({
-            'name': this.props.form.getFieldProps(`volName${k}`).value +'-'+k,
-            'mountPath': '/var/www/html',
-          })
-  
           deploymentList.addContainerVolume(serviceName, {
             name: this.props.form.getFieldProps(`volName${k}`).value +'-'+k,
             fsType: this.props.form.getFieldProps(`volumeName${k}`).value.split('/')[0],
@@ -441,66 +257,27 @@ class AppDeployServiceModal extends Component {
             mountPath: '/test/mount',
           })
         }
-        this.state.volumesList.push({
-          name: 'volume-'+k,
-          fsType: this.props.form.getFieldProps(`volumeName${k}`).value.split('/')[0],
-          image: this.props.form.getFieldProps(`volumeName${k}`).value.split('/')[1]
-        })
       })
     }
   
-    //livenessProbe
-    if(this.state.getUsefulType === 'http'){
-      Object.assign(containerObj,{
-        livenessProbe: {
-          httpGet: {
-            port: livePort,
-            path: livePath,
-          },
-          initialDelaySeconds: liveInitialDelaySeconds,
-          timeoutSeconds: liveTimeoutSeconds,
-          periodSeconds: livePeriodSeconds
-        }
-      })
-    } else if(this.state.getUsefulType === 'tcp') {
-      Object.assign(containerObj,{
-        livenessProbe: {
-          tcpSocket: {
-            port: livePort
-          },
-          initialDelaySeconds: liveInitialDelaySeconds,
-          timeoutSeconds: liveTimeoutSeconds,
-          periodSeconds: livePeriodSeconds
-        }
+    //livenessProbe 高可用
+    if(this.state.getUsefulType){
+      deploymentList.setLivenessProbe(serviceName, this.state.getUsefulType.toUpperCase(), {
+        port: parseInt(livePort),
+        path: livePath,
+        initialDelaySeconds: liveInitialDelaySeconds,
+        timeoutSeconds: liveTimeoutSeconds,
+        periodSeconds: livePeriodSeconds
       })
     }
-  
-    deploymentList.setLivenessProbe(serviceName, this.state.getUsefulType.toUpperCase(), {
-      port: livePort,
-      path: livePath,
-      initialDelaySeconds: liveInitialDelaySeconds,
-      timeoutSeconds: liveTimeoutSeconds,
-      periodSeconds: livePeriodSeconds
-    })
     /*Service*/
-
-    
-    console.log('deploymentList------------------');
-    console.log(deploymentList);
-    console.log('deploymentList------------------');
-    console.log('serviceList------------------');
-    console.log(serviceList);
-    console.log('serviceList------------------');
     
     let serviceConfig = {
       Service: deploymentList,
       Deployment: serviceList
     }
-    console.log('serviceConfig------------------');
-    console.log(serviceConfig);
-    console.log('serviceConfig------------------');
     
-    const newService = {id:serviceName,name:serviceName,imageName:containerObj.image,resource:ImageConfig.cal,inf:serviceConfig}
+    const newService = {id:serviceName,name:serviceName,imageName:image,resource:ImageConfig.cal,inf:serviceConfig}
     const serviceScope = this.props.scope.props.scope
     const newList = serviceScope.state.servicesList
     const newSeleList = serviceScope.state.selectedList
@@ -526,7 +303,6 @@ class AppDeployServiceModal extends Component {
   render() {
   	const scope = this
   	const parentScope = this.props.scope
-    const {createService,cluster,appName} = this.props
     const {servicesList} = parentScope.props.scope.state.servicesList
     const {currentSelectedImage, registryServer} = parentScope.state
   
@@ -604,34 +380,7 @@ AppDeployServiceModal.propTypes = {
   loadServiceList: PropTypes.func.isRequired
 }
 
-function mapStateToProps(state, props) {
-  const app_name = 'test1'
-  
-  const defaultServices = {
-    isFetching: false,
-    cluster: DEFAULT_CLUSTER,
-    appName: app_name,
-    serviceList: []
-  }
-  const {
-    services
-  } = state
-  let targetServices
-  if (services[DEFAULT_CLUSTER] && services[DEFAULT_CLUSTER][app_name]) {
-    targetServices = services[DEFAULT_CLUSTER][app_name]
-  }
-  const { cluster, serviceList, isFetching } = targetServices || defaultServices
-  return {
-    cluster,
-    appName: app_name,
-    serviceList,
-    isFetching
-  }
-}
-
-export default connect(mapStateToProps, {
-  createService,loadServiceList
-})(AppDeployServiceModal)
+export default AppDeployServiceModal
 
 
 

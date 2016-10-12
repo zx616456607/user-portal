@@ -53,20 +53,15 @@ class ComposeFile extends Component {
     })
     let serviceDesc = {}
     let deploymentDesc = {}
+    let desc = []
     newserviceList.map(function (item) {
-      // Object.assign(desc.services, item.inf)
       serviceDesc = item.inf.Service
       deploymentDesc = item.inf.Deployment
+      desc.push(yaml.dump(deploymentDesc)+'---\n'+yaml.dump(serviceDesc)+'---\n')
     })
-    // const desc = {
-    //   "version": "1.0",
-    //   "services": {}
-    // }
-    
     this.state = {
       appName : '',
-      // appDesc: desc,
-      appDescYaml: '---\n'+yaml.dump(deploymentDesc)+'---\n'+yaml.dump(serviceDesc),
+      appDescYaml:desc ,
       cluster: ''
     }
   }
@@ -94,9 +89,6 @@ class ComposeFile extends Component {
         isAsync: true
       },
     })
-    /*createApp(DEFAULT_CLUSTER,appName,desc,remark)
-    console.log('sub');*/
-    //localStorage.removeItem('servicesList')
   }
   handleAppName(e){
     this.setState({
@@ -118,12 +110,7 @@ class ComposeFile extends Component {
   
   render() {
     const {appName, appDescYaml} = this.state
-  	const serviceList = JSON.parse(localStorage.getItem('servicesList'))
-    const inf = JSON.stringify(serviceList[0].inf)
-    console.log('-----local------');
-    console.log(serviceList);
-    console.log(serviceList[0].inf);
-    console.log('-----local------');
+    
   	const parentScope = this.props.scope;
   	const createModel = parentScope.state.createModel;
   	let backUrl = backLink(createModel);
@@ -171,12 +158,6 @@ class ComposeFile extends Component {
 	            <i className="fa fa-caret-down"></i>
 	          </Button>
 	        </Dropdown>
-	        {/*<Dropdown overlay={operaMenu} trigger={['click']}>
-	          <Button size="large" type="ghost">
-	            请选择集群
-	            <i className="fa fa-caret-down"></i>
-	          </Button>
-	        </Dropdown>*/}
             <Select size="large" defaultValue="请选择集群" style={{ width: 200 }} onChange={this.handleCluster}>
               <Option value="cce1c71ea85a5638b22c15d86c1f61de">test</Option>
               <Option value="cce1c71ea85a5638b22c15d86c1f61df">产品环境</Option>
@@ -189,11 +170,9 @@ class ComposeFile extends Component {
 	              上一步
 	            </Button>
 	          </Link>
-	          {/*<Link to={`/app_manage`}>*/}
 	            <Button size="large" type="primary" className="createBtn" onClick={this.subApp}>
 	              创建
 	            </Button>
-	          {/*</Link>*/}
 	        </div>
 	      </div>  
         </QueueAnim>
