@@ -17,7 +17,6 @@ import UsefulDeployBox from './AppDeployComponents/UsefulDeployBox.js'
 import ComposeDeployBox from './AppDeployComponents/ComposeDeployBox.js'
 import EnviroDeployBox from './AppDeployComponents/EnviroDeployBox.js'
 import "./style/AppDeployServiceModal.less"
-import { DEFAULT_CLUSTER } from '../../../constants'
 const Deployment = require('../../../../kubernetes/objects/deployment')
 const Service = require('../../../../kubernetes/objects/service')
 const Panel = Collapse.Panel;
@@ -259,7 +258,6 @@ class AppDeployServiceModal extends Component {
         }
       })
     }
-  
     //livenessProbe 高可用
     if(this.state.getUsefulType){
       deploymentList.setLivenessProbe(serviceName, this.state.getUsefulType.toUpperCase(), {
@@ -271,12 +269,10 @@ class AppDeployServiceModal extends Component {
       })
     }
     /*Service*/
-    
     let serviceConfig = {
       Service: deploymentList,
       Deployment: serviceList
     }
-    
     const newService = {id:serviceName,name:serviceName,imageName:image,resource:ImageConfig.cal,inf:serviceConfig}
     const serviceScope = this.props.scope.props.scope
     const newList = serviceScope.state.servicesList
@@ -295,7 +291,7 @@ class AppDeployServiceModal extends Component {
   }
   closeModal(){
     const parentScope = this.props.scope;
-    //the function for close the deploy new service modal
+    console.log('parentScope',parentScope);
     parentScope.setState({
       modalShow:false
     });

@@ -1,9 +1,9 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
- * 
+ *
  * ComposeFile component
- * 
+ *
  * v0.1 - 2016-09-20
  * @author GaoJian
  */
@@ -42,9 +42,10 @@ class ComposeFile extends Component {
     this.handleAppName=this.handleAppName.bind(this)
     this.handleCluster=this.handleCluster.bind(this)
     this.handleYaml=this.handleYaml.bind(this)
+    this.handleRemark=this.handleRemark.bind(this)
     
-    let serviceList = JSON.parse(localStorage.getItem('servicesList')) || []
-    let selectedList = JSON.parse(localStorage.getItem('selectedList')) || []
+    let serviceList = JSON.parse(localStorage.getItem('servicesList'))
+    let selectedList = JSON.parse(localStorage.getItem('selectedList'))
     var newserviceList = []
     selectedList.map(function (sItem) {
       newserviceList.push(serviceList.filter(function (item) {
@@ -57,17 +58,17 @@ class ComposeFile extends Component {
     newserviceList.map(function (item) {
       serviceDesc = item.inf.Service
       deploymentDesc = item.inf.Deployment
-      desc.push(yaml.dump(deploymentDesc)+'---\n'+yaml.dump(serviceDesc)+'---\n')
+      desc.push(yaml.dump(serviceDesc),yaml.dump(deploymentDesc))
     })
     this.state = {
       appName : '',
-      appDescYaml:desc ,
-      cluster: ''
+      appDescYaml:desc.join('---\n'),
+      cluster: '',
+      remark:'',
     }
   }
   subApp(){
-    const remark = ''
-    const {appName, appDescYaml} = this.state
+    const {appName, appDescYaml,remark} = this.state
     let appConfig={
       cluster:this.state.cluster,
       desc:appDescYaml,
@@ -79,7 +80,8 @@ class ComposeFile extends Component {
       success: {
         func: () => {
           self.setState({
-            appName:''
+            appName:'',
+            remark:'',
           })
           console.log('sub')
           localStorage.removeItem('servicesList')
@@ -95,12 +97,16 @@ class ComposeFile extends Component {
       appName: e.target.value
     })
   }
+  handleRemark(e){
+    this.setState({
+      remark: e.target.value
+    })
+  }
   handleCluster(value) {
     console.log(`${value}`);
     this.setState({
       cluster: `${value}`
     })
-    console.log(this.state.cluster);
   }
 	handleYaml(e){
     this.setState({
@@ -109,7 +115,8 @@ class ComposeFile extends Component {
 	}
   
   render() {
-    const {appName, appDescYaml} = this.state
+    const {appName, appDescYaml,remark} = this.state
+    
   	const parentScope = this.props.scope;
   	const createModel = parentScope.state.createModel;
   	let backUrl = backLink(createModel);
@@ -125,7 +132,7 @@ class ComposeFile extends Component {
 	        </div>
 	        <div className="introBox">
 	          <span>添加描述</span>
-	          <Input size="large" placeholder="写一个萌萌哒的描述吧~" />
+	          <Input size="large" placeholder="写一个萌萌哒的描述吧~" onChange={this.handleRemark} value={remark}/>
 	          <div style={{ clear:"both" }}></div>
 	        </div>
 	        <div className="composeBox">
@@ -147,7 +154,7 @@ class ComposeFile extends Component {
 	              <textarea value={appDescYaml} onChange={this.handleYaml}></textarea>
 	            </div>
 	            <div style={{ clear:"both" }}></div>
-	          </div>          
+	          </div>
 	        </div>
 	        <div className="envirBox">
 	          <span>部署环境</span>
@@ -173,7 +180,7 @@ class ComposeFile extends Component {
 	              创建
 	            </Button>
 	        </div>
-	      </div>  
+	      </div>
         </QueueAnim>
     )
   }

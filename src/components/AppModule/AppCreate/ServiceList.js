@@ -19,6 +19,10 @@ class MyComponent extends Component {
   constructor (props) {
     super(props)
     this.deleteService = this.deleteService.bind(this)
+    this.checkService = this.checkService.bind(this)
+    this.state = {
+      
+    }
   }
   checkedFunc (e) {
     //check this item selected or not
@@ -53,14 +57,10 @@ class MyComponent extends Component {
   	});
   }
 	deleteService(name){
-		
     const oldList = this.props.scope.state.servicesList
     const newList = oldList.filter((item) => item.name !== name)
     const oldSeleList = this.props.scope.state.selectedList
     const newSeleList = oldSeleList.filter((item) => item !== name)
-    console.log('del!----');
-    console.log(newList);
-    console.log(newSeleList);
     this.props.scope.setState({
       servicesList: newList,
       selectedList: newSeleList
@@ -68,6 +68,12 @@ class MyComponent extends Component {
     localStorage.setItem('servicesList',JSON.stringify(newList))
     localStorage.setItem('selectedList',JSON.stringify(newSeleList))
 	}
+	checkService(name){
+	  console.log(name);
+    console.log(this);
+    console.log(this.props.scope.props.scope.state);
+    
+  }
   render () {
 	var config = this.props.scope.state.servicesList;
 	var items = config.map((item) => {
@@ -88,7 +94,7 @@ class MyComponent extends Component {
 			{item.resource}
 		  </div>
 		  <div className="opera commonData">
-			<Button className="viewBtn" type="ghost" size="large">
+			<Button className="viewBtn" type="ghost" size="large" onClick={() => this.checkService(item.name)}>
 			  <i className="fa fa-eye"></i>&nbsp;
 			   查看
 			</Button>
