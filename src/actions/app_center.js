@@ -80,7 +80,7 @@ function fetchImageGetDetailTagConfig(registry,fullName,tag) {
 // Relies on Redux Thunk middleware.
 export function loadImageDetailTagConfig(registry,fullName,tag) {
   return (dispatch, getState) => {
-    return dispatch(fetchImageGetDetailTag(registry,fullName,tag))
+    return dispatch(fetchImageGetDetailTagConfig( registry, fullName, tag))
   }
 }
 

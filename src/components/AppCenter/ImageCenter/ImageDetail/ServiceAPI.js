@@ -11,79 +11,9 @@ import React, { Component } from 'react'
 import { Card } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
+import { loadImageDetailTagConfig } from '../../../../actions/app_center'
+import { DEFAULT_REGISTRY } from '../../../../constants'
 import './style/ServiceAPI.less'
-
-const testData = [{
-	id:"1",
-	imageName:"Github",
-	imgUrl:"/img/test/github.jpg",
-	type:"private",
-	imageUrl:"tenxcloud/Github",
-	downloadNum:"1234"
-},{
-	id:"2",
-	imageName:"Mysql",
-	imgUrl:"/img/test/mysql.jpg",
-	type:"private",
-	imageUrl:"tenxcloud/Mysql",
-	downloadNum:"1234"
-},{
-	id:"3",
-	imageName:"Github",
-	imgUrl:"/img/test/github.jpg",
-	type:"public",
-	imageUrl:"tenxcloud/Github",
-	downloadNum:"1234"
-},{
-	id:"4",
-	imageName:"Oracle",
-	imgUrl:"/img/test/oracle.jpg",
-	type:"private",
-	imageUrl:"tenxcloud/Oracle",
-	downloadNum:"1234"
-},{
-	id:"5",
-	imageName:"Mysql",
-	imgUrl:"/img/test/mysql.jpg",
-	type:"public",
-	imageUrl:"tenxcloud/Mysql",
-	downloadNum:"1234"
-},{
-	id:"6",
-	imageName:"Php",
-	imgUrl:"/img/test/php.jpg",
-	type:"public",
-	imageUrl:"tenxcloud/Php",
-	downloadNum:"1234"
-},{
-	id:"7",
-	imageName:"Oracle",
-	imgUrl:"/img/test/oracle.jpg",
-	type:"public",
-	imageUrl:"tenxcloud/Oracle",
-	downloadNum:"1234"
-},{
-	id:"8",
-	imageName:"Oracle",
-	imgUrl:"/img/test/oracle.jpg",
-	type:"private",
-	imageUrl:"tenxcloud/Oracle",
-	downloadNum:"1234"
-},{
-	id:"9",
-	imageName:"Github",
-	imgUrl:"/img/test/github.jpg",
-	type:"private",
-	imageUrl:"tenxcloud/Github",
-	downloadNum:"1234"
-},{
-	id:"10",
-	imageName:"Github",
-	imgUrl:"/img/test/github.jpg",
-	type:"private",
-	imageUrl:"tenxcloud/Github",
-	downloadNum:"1234"
-}];
 
 let MyComponent = React.createClass({	  
   propTypes : {
@@ -108,12 +38,22 @@ let MyComponent = React.createClass({
   }
 });		
 
-export default class ServiceAPI extends Component {
+class ServiceAPI extends Component {
   constructor(props) {
     super(props);
     this.state = {
     	
     }
+  }
+  
+  componentWillMount(){
+		const { registry, loadImageDetailTagConfig } = this.props;
+		const { fullname,imageTag } = this.props;
+		console.log(this.props)
+		setTimeout(function(){
+		loadImageDetailTagConfig(registry, fullname,imageTag);
+			
+		},100)
   }
   
   render() {
@@ -128,13 +68,35 @@ export default class ServiceAPI extends Component {
         		<span className="rightSpan">镜像</span>
         		<div style={{ clear:"both" }}></div>
         	</div>
-        	<MyComponent config={testData} />
+        	
         </div>
     	</Card>
     )
   }
 }
 
+function mapStateToProps(state, props) {
+  const defaultImageDetailTagConfig = {
+    isFetching: false,
+    registry: DEFAULT_REGISTRY,
+    configList: []
+  }
+  const { imageTagConfig } = state.getImageTagConfig
+  const { registry, tag, isFetching, server, configList } = imageTagConfig[DEFAULT_REGISTRY] || defaultImageDetailTagConfig
+
+  return {
+    registry,
+		registryServer: server,
+    configList: configList,
+    isFetching,
+    tag
+  }
+}
+
 ServiceAPI.propTypes = {
 //
 }
+
+export default connect(mapStateToProps, {
+	loadImageDetailTagConfig
+})(ServiceAPI);

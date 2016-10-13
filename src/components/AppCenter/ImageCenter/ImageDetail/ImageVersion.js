@@ -13,43 +13,41 @@ import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import { loadImageDetailTag } from '../../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../../constants'
+import ServiceAPI from './ServiceAPI.js'
 import './style/ImageVersion.less'
 
 const TabPane = Tabs.TabPane;
-
-let configCompoent = React.createClass({	  
-  propTypes : {
-    config : React.PropTypes.object
-  },
-  render : function() {
-  	const { loading } = this.props;
-  	if(loading){
-  		return (
-  			<div>
-  				<Spin />
-  			</div>
-  		)
-  	}
-		let tagList = this.props.config;
-		let items = tagList.tagList.map((item,index) => {
-		  return (
-		    <TabPane tab={<span><i className="fa fa-tag"></i>&nbsp;{ item }</span>} className="imageDetail" key={index} >
-					
-				</TabPane>
-	    );
-		});
-		return (
-			<Tabs>
-	    	{ items }
-	    </Tabs>
-    );
-  }
-});
 
 let MyComponent = React.createClass({	  
   propTypes : {
     config : React.PropTypes.object
   },
+  getInitialState: function() {
+    return {
+    	currentTag: null
+    };
+  },
+  setDefaultTag: function(tagList){
+  	//this function for set tag list default tag and the tag's config will be show to the user first
+  	let flag = false;
+  	let flagIndex = 0;
+  	//we will find the tag which name = latest
+  	tagList.map((item,index) => {
+  		if(item == "latest"){
+  			flag = true;
+  			flagIndex = index;
+  		}
+  	});
+  	//if the "latest" tag is exist, we will set it to the first elem in the tag list
+  	if(flag){
+  		let newList = new Array();	
+  		newList.push(tagList[flagIndex]);
+  		newList = newList.concat(tagList.slice(0,flagIndex));
+  		newList = newList.concat(tagList.slice(flagIndex + 1));
+  		tagList = newList;
+  	}
+  	return tagList;
+  },
   render : function() {
   	const { loading } = this.props;
   	if(loading){
@@ -60,10 +58,12 @@ let MyComponent = React.createClass({
   		)
   	}
 		let tagList = this.props.config;
-		let items = tagList.tagList.map((item,index) => {
+		const fullname = this.props.fullname;
+		tagList = this.setDefaultTag(tagList.tagList);
+		let items = tagList.map((item,index) => {
 		  return (
 		    <TabPane tab={<span><i className="fa fa-tag"></i>&nbsp;{ item }</span>} className="imageDetail" key={index} >
-					{item}
+					<ServiceAPI imageTag={item} fullname={ fullname } />
 				</TabPane>
 	    );
 		});
@@ -102,10 +102,6 @@ class ImageVersion extends Component {
 		const newImageDetail = nextPorps.config;
 		if(newImageDetail != oldImageDatail){
 			this.changeNewImage(newImageDetail);
-  	}else{
-  		//it's mean the props recive the fetch data and update the scope state->tags
-  		console.log(this.props.imageDetailTag)
-  		console.log(nextPorps.imageDetailTag)
   	}
 	}
 	
@@ -126,7 +122,7 @@ class ImageVersion extends Component {
   	};
     return (
       <Card className="ImageVersion">      	
-        <MyComponent loading={ isFetching } config={ tagList } />     
+        <MyComponent loading={ isFetching } config={ tagList } fullname={ imageDetail.name }/>     
     	</Card>
     )
   }

@@ -124,6 +124,6 @@ function imageTagConfig(state = {}, action) {
 
 export function getImageTagConfig(state = { publicImages: {} }, action) {
   return {
-    imageTag: imageTagConfig(state.publicImages, action),
+    imageTagConfig: imageTagConfig(state.publicImages, action),
   }
 }
