@@ -91,19 +91,20 @@ class NormalDeployBox extends Component {
     }
   }
   userExists(rule, value, callback) {
-  	//this function for check user input new service new is exist or not
     if (!value) {
       callback();
     } else {
       setTimeout(() => {
-        if (value === 'JasonWood') {
-          callback([new Error('抱歉，该用户名已被占用。')]);
+        if (!/[a-z]([-a-z0-9]*[a-z0-9])?/.test(value)) {
+          console.log(value);
+          console.log(/[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/.test(value));
+          callback([new Error('抱歉，该服务名称不合法.')]);
         } else {
           callback();
         }
       }, 800);
     }
-  } 
+  }
   selectComposeType(type){
   	//the function for change user select compose file type
   	const parentScope = this.props.scope;
@@ -126,14 +127,13 @@ class NormalDeployBox extends Component {
     parentScope.setState({
       volumeSwitch: e,
     })
-    console.log(e);
   }
   render() {
   	const parentScope = this.props.scope;
     const { getFieldProps, getFieldError, isFieldValidating } = parentScope.props.form;
   	const nameProps = getFieldProps('name', {
       rules: [
-        { required: true, min: 3,max: 50, message: '服务名至少为 5 个字符' },
+        { required: true,},
         { validator: this.userExists },
       ],
     });
@@ -154,8 +154,9 @@ class NormalDeployBox extends Component {
 	    	<div className="topBox">
 	        <div className="inputBox">
 	          <span className="commonSpan">服务名称</span>
-	          <FormItem className="serviceNameForm" hasFeedback
-          		help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}>
+	          <FormItem className="serviceNameForm"
+                      hasFeedback
+                      help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}>
 	          	<Input {...nameProps} className="serviceNameInput" size="large" placeholder="起一个萌萌哒的名字吧~" />
 	            <div style={{ clear:"both" }}></div>
 	          </FormItem>

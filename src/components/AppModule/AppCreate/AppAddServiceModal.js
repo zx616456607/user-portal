@@ -18,8 +18,8 @@ import { DEFAULT_REGISTRY } from '../../../constants'
 import './style/AppAddServiceModal.less'
 
 const MyComponent = React.createClass({	  
-  propTypes : {
-    config : React.PropTypes.array
+  propTypes: {
+    config: React.PropTypes.array
   },
   modalShow:function(imageName, registryServer){
   	//close model function
@@ -30,9 +30,11 @@ const MyComponent = React.createClass({
   		currentSelectedImage: imageName,
 			registryServer
   	});
-	rootScope.setState({
-		modalShow : false
-	})
+		rootScope.setState({
+			modalShow : false,
+      serviceModalShow:true
+		})
+    console.log('rootScope',rootScope);
   },
   render : function() {
 		const { images, registryServer, loading } = this.props
@@ -44,7 +46,7 @@ const MyComponent = React.createClass({
 		const items = images.map((item) => {
 			return (
 				<div key={item.name} className="serviceDetail">
-					<img className="imgUrl" src="/img/test/github.jpg" />
+					<img className="imgUrl" src="/img/test/github.jpg"/>
 					<div className="infoBox">
 						<span className="name">{item.name}</span> <span className="type">{item.category || ''}</span><br />
 						<span className="intro">{item.description}</span>
@@ -84,18 +86,18 @@ class AppAddServiceModal extends Component {
   	  currentImageType:currentType	
   	});
   }
-  
+
   closeModal(){
   	//the function for close the deploy new service modal
-    this.setState({
-  	  modalShow:false  
+    this.props.scope.setState({
+  	  modalShow:false
   	});
   }
-  
+
   openModal(){
   	//the function for open the deploy new service modal
-    this.setState({
-  	  modalShow:true  
+    this.props.scope.setState({
+  	  modalShow:true
   	});
   }
 
@@ -130,7 +132,7 @@ class AppAddServiceModal extends Component {
 	      </div>
 	      <MyComponent scope={parentScope} images={publicImageList} loading={isFetching} registryServer={registryServer} />
 	      <Modal
-	        visible={this.state.modalShow}
+	        visible={this.props.scope.state.serviceModalShow}
 					className="AppServiceDetail"
 					transitionName="move-right"
 	      >

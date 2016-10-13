@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Alert,Menu,Button,Card,Input,Tooltip,Modal } from 'antd'
+import { Alert,Menu,Button,Card,Input,Tooltip,Modal,Spin } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -63,7 +63,15 @@ let MyComponent = React.createClass({
 		});
   },
   render : function() {
+  	const { loading } = this.props;
 		let { imageList,serviceIp } = this.props.config;
+		if(loading){
+			return (
+				<div className="imageList">
+	        <Spin />
+		 		</div>
+			)
+		}
 		let items = imageList.map((item) => {
 		  return (
 		    <div className="imageDetail" key={item.name} >
@@ -130,6 +138,7 @@ class PublicSpace extends Component {
   render() {
   	const { formatMessage } = this.props.intl;
   	const rootscope = this.props.scope;
+  	const { isFetching } = this.props;
   	const scope = this;
   	const config = {
   		"imageList":this.props.publicImageList,
@@ -147,7 +156,7 @@ class PublicSpace extends Component {
 							<i className="fa fa-search"></i>
 							<div style={{ clear:"both" }}></div>
 						</div>
-						<MyComponent scope={scope} config={config} />
+						<MyComponent scope={scope} loading={ isFetching } config={config} />
 					</Card>
 				</div>
 				<Modal
@@ -184,7 +193,8 @@ function mapStateToProps(state, props) {
 
 PublicSpace.propTypes = {
   intl: PropTypes.object.isRequired,
-  loadPublicImageList: PropTypes.func.isRequired
+  loadPublicImageList: PropTypes.func.isRequired,
+  isFetching: PropTypes.bool.isRequired
 }
 
 export default connect(mapStateToProps, {

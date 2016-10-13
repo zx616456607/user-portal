@@ -49,7 +49,7 @@ export function images(state = { publicImages: {} }, action) {
     publicImages: publicImages(state.publicImages, action),
   }
 }
-
+//get image detail tag 
 function imageTag(state = {}, action) {
   const registry = action.registry
   const defaultState = {
@@ -85,5 +85,45 @@ function imageTag(state = {}, action) {
 export function getImageTag(state = { publicImages: {} }, action) {
   return {
     imageTag: imageTag(state.publicImages, action),
+  }
+}
+
+//get iamge detail tag config
+function imageTagConfig(state = {}, action) {
+  const registry = action.registry
+  const defaultState = {
+    [registry]: {
+      isFetching: false,
+      registry,
+      imageList: []
+    }
+  }
+  switch (action.type) {
+    case ActionTypes.IMAGE_GET_DETAILTAGCONFIG_REQUEST:
+      return merge({}, defaultState, state, {
+        [registry]: {isFetching: true}
+      })
+    case ActionTypes.IMAGE_GET_DETAILTAGCONFIG_SUCCESS:
+      return merge({}, state, {
+        [registry]: {
+          isFetching: false,
+          registry: action.response.result.registry,
+          server: action.response.result.server,
+          tag: action.response.result.tag || [],
+          configList: action.response.result.data || []
+        }
+      })
+    case ActionTypes.IMAGE_GET_DETAILTAGCONFIG_FAILURE:
+      return merge({}, defaultState, state, {
+        [registry]: {isFetching: false}
+      })
+    default:
+      return state
+  }
+}
+
+export function getImageTagConfig(state = { publicImages: {} }, action) {
+  return {
+    imageTag: imageTagConfig(state.publicImages, action),
   }
 }

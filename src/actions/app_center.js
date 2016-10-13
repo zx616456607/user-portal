@@ -60,3 +60,28 @@ export function loadImageDetailTag(registry,fullName) {
   }
 }
 
+//this is get the image detail tag config
+export const IMAGE_GET_DETAILTAGCONFIG_REQUEST = 'IMAGE_GET_DETAILTAGCONFIG_REQUEST'
+export const IMAGE_GET_DETAILTAGCONFIG_SUCCESS = 'IMAGE_GET_DETAILTAGCONFIG_SUCCESS'
+export const IMAGE_GET_DETAILTAGCONFIG_FAILURE = 'IMAGE_GET_DETAILTAGCONFIG_FAILURE'
+
+function fetchImageGetDetailTagConfig(registry,fullName,tag) {
+  return {
+    registry,
+    [FETCH_API]: {
+      types: [ IMAGE_GET_DETAILTAGCONFIG_REQUEST, IMAGE_GET_DETAILTAGCONFIG_SUCCESS, IMAGE_GET_DETAILTAGCONFIG_FAILURE ],
+      endpoint: `${API_URL_PREFIX}/registries/${registry}/${fullName}/tags/${tag}/config`,
+      schema: Schemas.REGISTRYS
+    }
+  }
+}
+
+// Fetches apps list from API unless it is cached.
+// Relies on Redux Thunk middleware.
+export function loadImageDetailTagConfig(registry,fullName,tag) {
+  return (dispatch, getState) => {
+    return dispatch(fetchImageGetDetailTag(registry,fullName,tag))
+  }
+}
+
+

@@ -66,7 +66,8 @@ class ImageDetailBox extends Component {
   constructor(props) {
     super(props);
     this.state = {
-    	imageDetail:null
+    	imageDetail:null,
+    	tags:null
     }
   }
   
@@ -77,10 +78,20 @@ class ImageDetailBox extends Component {
   	});
   }
   
+  componentWillReceiveProps(nextPorps){
+  	//this function for user select different image
+  	//the nextProps is mean new props, and the this.props didn't change
+  	//so that we should use the nextProps
+		this.setState({
+			imageDetail:nextPorps.config
+		});
+	}
+  
   render() {
   	const { formatMessage } = this.props.intl;
   	const imageDetail = this.props.config;
   	const config = this.state.imageDetail;
+  	const scope = this;
     return (
       <div id="ImageDetailBox">
         <div className="headerBox">
@@ -121,11 +132,11 @@ class ImageDetailBox extends Component {
        		<div style={{ clear:"both" }}></div>
        	</div>
         <div className="infoBox">
-        	<Tabs className="itemList" defaultActiveKey="1" >
-				    <TabPane tab={ formatMessage(menusText.info) } key="1"><DetailInfo config={config} /></TabPane>
-				    <TabPane tab={ formatMessage(menusText.serviceAPI) } key="2"><ServiceAPI config={config} /></TabPane>
+        	<Tabs className="itemList" defaultActiveKey="1">
+				    <TabPane tab={ formatMessage(menusText.info) } key="1"><DetailInfo config={imageDetail} /></TabPane>
+				    <TabPane tab={ formatMessage(menusText.serviceAPI) } key="2"><ServiceAPI config={imageDetail} /></TabPane>
 				    <TabPane tab="DockerFile" key="3">Conten of Tab Pane 3</TabPane>
-				    <TabPane tab={ formatMessage(menusText.tag) } key="4"><ImageVersion config={config} /></TabPane>
+				    <TabPane tab={ formatMessage(menusText.tag) } key="4"><ImageVersion scope={scope} config={imageDetail} /></TabPane>
 				    <TabPane tab={ formatMessage(menusText.attribute) } key="5">Conten of Tab Pane 3</TabPane>
 				  </Tabs>
         </div>

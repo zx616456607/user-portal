@@ -30,12 +30,15 @@ class Service {
 
   addPort(name, protocol, port, targetPort) {
     protocol = (protocol === 'UDP' ? 'UDP' : 'TCP')
-    this.spec.ports.push({
+    const portObj = {
       name,
       protocol,
-      port,
-      targetPort
-    })
+      port
+    }
+    if (targetPort) {
+      portObj.targetPort = targetPort
+    }
+    this.spec.ports.push(portObj)
     if (!this.metadata.annotations) {
       this.metadata.annotations = {}
     }
