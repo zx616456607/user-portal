@@ -64,7 +64,7 @@ module.exports = function (Router) {
   
   // Configs
   router.get('/clusters/:cluster/configgroups',configController.getConfigGroup)
-  router.get('/clusters/:cluster/configgroups/:name',configController.getConfigGroupName)
+//router.get('/clusters/:cluster/configgroups/:name',configController.getConfigGroupName)
   router.post('/clusters/:cluster/configs',configController.createConfigGroup)
   router.post('/clusters/:cluster/configs/delete',configController.deleteConfigGroup)
 

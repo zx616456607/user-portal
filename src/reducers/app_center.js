@@ -49,3 +49,41 @@ export function images(state = { publicImages: {} }, action) {
     publicImages: publicImages(state.publicImages, action),
   }
 }
+
+function imageTag(state = {}, action) {
+  const registry = action.registry
+  const defaultState = {
+    [registry]: {
+      isFetching: false,
+      registry,
+      imageList: []
+    }
+  }
+  switch (action.type) {
+    case ActionTypes.IMAGE_GET_DETAILTAG_REQUEST:
+      return merge({}, defaultState, state, {
+        [registry]: {isFetching: true}
+      })
+    case ActionTypes.IMAGE_GET_DETAILTAG_SUCCESS:
+      return merge({}, state, {
+        [registry]: {
+          isFetching: false,
+          registry: action.response.result.registry,
+          server: action.response.result.server,
+          tag: action.response.result.data || []
+        }
+      })
+    case ActionTypes.IMAGE_GET_DETAILTAG_FAILURE:
+      return merge({}, defaultState, state, {
+        [registry]: {isFetching: false}
+      })
+    default:
+      return state
+  }
+}
+
+export function getImageTag(state = { publicImages: {} }, action) {
+  return {
+    imageTag: imageTag(state.publicImages, action),
+  }
+}

@@ -130,6 +130,38 @@ let testData = [
 				"id":"3009",
 				"intro":"这是github数据库，对，没毛病",
 				"imgUrl":"/img/test/github.jpg"
+			},{
+				"id":"3010",
+				"intro":"这是github数据库，对，没毛病",
+				"imgUrl":"/img/test/github.jpg"
+			},{
+				"id":"3011",
+				"intro":"这是github数据库，对，没毛病",
+				"imgUrl":"/img/test/github.jpg"
+			},{
+				"id":"3012",
+				"intro":"这是github数据库，对，没毛病",
+				"imgUrl":"/img/test/github.jpg"
+			},{
+				"id":"3013",
+				"intro":"这是github数据库，对，没毛病",
+				"imgUrl":"/img/test/github.jpg"
+			},{
+				"id":"3014",
+				"intro":"这是github数据库，对，没毛病",
+				"imgUrl":"/img/test/github.jpg"
+			},{
+				"id":"3015",
+				"intro":"这是github数据库，对，没毛病",
+				"imgUrl":"/img/test/github.jpg"
+			},{
+				"id":"3016",
+				"intro":"这是github数据库，对，没毛病",
+				"imgUrl":"/img/test/github.jpg"
+			},{
+				"id":"3017",
+				"intro":"这是github数据库，对，没毛病",
+				"imgUrl":"/img/test/github.jpg"
 			}
 		]
 	},{
@@ -221,14 +253,20 @@ class ImageStore extends Component {
 		for(let i = 0 ; i < moduleList.length ; i++){
 			let offetset = moduleList[i].offsetTop;
 			let itemClient = moduleList[i].clientHeight;
-			if(scroll > (offetset - 100) && scroll < (offetset + 100)){
-				//it's mean user scroll the box and the little module's head is apart from the top end in -50px~50px
+			if(scroll > (offetset - 150) && scroll < (offetset + 150)){
+				//it's mean user scroll the box and the little module's head apart from the top end in -150px~150px
 				//and the nav will be underscore
 				this.setState({
 					current:i+1
 				});
 			}
-			if((scroll + rootHeight - itemClient) > (offetset -100) && i == moduleList.length-1 ){
+			console.log("scroll",scroll)
+			console.log("rootHeight",rootHeight)
+			console.log("first",scroll + rootHeight - itemClient)
+			console.log("second",offetset -50)
+			if((scroll + rootHeight - itemClient) > (offetset -50) && i == moduleList.length-1 ){
+				//it's mean when the box sroll to the bottom ,and the last module apart from the top end bigger than 150px
+				//so that the current will be change to the last one
 				this.setState({
 					current:i+1
 				});
@@ -247,19 +285,22 @@ class ImageStore extends Component {
       >	
       	<div className="nav">
 					<div className={ current == "1" ? "currentNav navItem":"navItem"}>
-						<i className="fa fa-star"></i>
+						<i className={ current == "1" ? "fa fa-star":"fa fa-star-o" }></i>&nbsp;&nbsp;
 						title1
 					</div>
+					<div className="line"></div>
 					<div className={ current == "2" ? "currentNav navItem":"navItem"}>
-						<i className="fa fa-star"></i>
+						<i className={ current == "2" ? "fa fa-star":"fa fa-star-o" }></i>&nbsp;&nbsp;
 						title2
 					</div>
+					<div className="line"></div>
 					<div className={ current == "3" ? "currentNav navItem":"navItem"}>
-						<i className="fa fa-star"></i>
+						<i className={ current == "3" ? "fa fa-star":"fa fa-star-o" }></i>&nbsp;&nbsp;
 						title3
 					</div>
+					<div className="line"></div>
 					<div className={ current == "4" ? "currentNav navItem":"navItem"}>
-						<i className="fa fa-star"></i>
+						<i className={ current == "4" ? "fa fa-star":"fa fa-star-o" }></i>&nbsp;&nbsp;
 						title4
 					</div>
 				</div>

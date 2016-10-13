@@ -14,6 +14,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import "./style/ImageSpace.less"
+import ImageDetailBox from './ImageDetail/Index.js'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -172,7 +173,7 @@ let MyComponent = React.createClass({
 		const scope = this.props.scope;
 		scope.setState({
 			imageDetailModalShow:true,
-			imageDetailModalShowId:id
+			currentImage:id
 		});
   },
   render : function() {
@@ -237,7 +238,9 @@ class ImageSpace extends Component {
     this.closeDownloadModal = this.closeDownloadModal.bind(this);
     this.state = {
 			uploadModalVisible:false,
-			downloadModalVisible:false
+			downloadModalVisible:false,
+			currentImage:null,
+			imageDetailModalShow:false
   	}
   }
   
@@ -269,9 +272,17 @@ class ImageSpace extends Component {
   	});
   }
 	
+	closeImageDetailModal(){
+		//this function for user close the modal of image detail info
+		this.setState({
+			imageDetailModalShow:false
+		});
+	}
+	
   render() {
   	const { formatMessage } = this.props.intl;
-  	const scope = this.props.scope;
+  	const rootscope = this.props.scope;
+  	const scope = this;
     return (
       <QueueAnim className="ImageSpace"
       	type="right"
@@ -319,6 +330,14 @@ class ImageSpace extends Component {
 		        	<span className="codeSpan">
 		          	sudo docker tag  192.168.123.456/tenxcloud/hello-world:latst tenxcloud/hello-world:latest
 		          </span>
+		        </Modal>
+		        <Modal
+				      visible={this.state.imageDetailModalShow}
+							className="AppServiceDetail"
+							transitionName="move-right"
+							onCancel={this.closeImageDetailModal}
+				     >
+				      <ImageDetailBox scope={scope} config={ this.state.currentImage } />
 		        </Modal>
 					</Card>
 				</div>

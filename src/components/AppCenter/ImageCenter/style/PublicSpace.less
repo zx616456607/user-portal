@@ -1,99 +1,106 @@
-.PublicSpace{
+.PublicSpace {
 	padding-top: 20px;
 	padding-bottom: 50px;
-	#PublicSpace{
-		.ant-card-body{
-			padding: 0px !important;
+	#PublicSpace {
+		.ant-card-body {
+			padding: 0 !important;
 		}
-		.ant-alert{
+		.ant-alert {
 			margin-bottom: 20px !important;
 			padding: 14px 24px !important;
 			line-height: 20px;
 			color: #1a7db6;
 			font-size: 14px !important;
 			background-color: #d9edf6;
-			border:1px dashed #85d7fd !important;
+			border: 1px dashed #85d7fd !important;
 		}
-		.operaBox{
+		.operaBox {
 			padding: 24px;
 			position: relative;
-			.searchBox{
+			.searchBox {
 				float: left;
 				width: 170px;
 				height: 32px;
 			}
-			.fa-search{
+			.fa-search {
 				position: absolute;
 				left: 167px;
 				top: 31px;
 				font-size: 18px;
-    		color: #999999;
+				color: #999999;
 			}
 		}
-		.imageList{
-			.imageDetail{
+		.imageList {
+			.imageDetail {
 				width: 100%;
 				height: 100px;
 				border-bottom: 1px solid #F2F2F2;
-				.imageBox{
+				.imageBox {
 					padding: 17.5px 24px;
 					float: left;
 					width: 113px;
 					height: 100px;
-					img{
+					img {
 						width: 65px;
 						height: 65px;
 						border: 1px solid #d7d7d7;
 						border-radius: 5px;
-						box-shadow: 0px 0px 5px #C2C2C2;
+						box-shadow: 0 0 5px #C2C2C2;
 					}
 				}
-				.contentBox{
+				.contentBox {
 					padding-top: 25px;
 					float: left;
 					width: calc(~"100% - 263px");
-					.title{
+					.title {
 						margin-top: 25px;
 						line-height: 25px;
 						font-size: 16px;
 						color: #2db7f5;
 						cursor: pointer;
 					}
-					.type{
+					.type {
 						float: left;
 						display: block;
 						width: 33%;
 						line-height: 25px;
 						font-size: 14px;
+						cursor: default;
 					}
-					.imageUrl{
+					.imageUrl {
 						float: left;
 						display: block;
 						width: 33%;
 						line-height: 25px;
 						font-size: 14px;
-						.colorUrl{
-							color: #2db7f5;
+						color: #2db7f5;
+						white-space: nowrap;
+						overflow: hidden;
+						text-overflow: ellipsis;
+						cursor: default;
+						.defalutColor{
+							color: #666;
 						}
 					}
-					.downloadNum{
+					.downloadNum {
 						float: left;
 						display: block;
 						width: 33%;
 						line-height: 25px;
 						font-size: 14px;
+						cursor: default;
 					}
 				}
-				.btnBox{
+				.btnBox {
 					padding-top: 36px;
 					float: left;
 					width: 150px;
 				}
-				&:hover{
+				&:hover {
 					background-color: #F8F8F8;
 				}
-				&:last-child{
-					border-bottom: 0px;
+				&:last-child {
+					border-bottom: 0;
 				}
 			}
 		}

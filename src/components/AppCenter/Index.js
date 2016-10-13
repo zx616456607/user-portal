@@ -314,9 +314,8 @@ class ImageCenter extends Component {
 			otherSpace:null,
 			createModalShow:false,
 			otherSpaceType:"1",
-			imageDetailModalShow:false,
-			imageDetailModalShowId:null
-  	}
+			imageDetailModalShow:false
+    }
   }
   
   selectCurrentTab(current,type){
@@ -403,14 +402,6 @@ class ImageCenter extends Component {
 		        >
 		      	<MyComponent scope={scope} />
 		      </Modal>
-		      <Modal
-		        visible={this.state.imageDetailModalShow}
-						className="AppServiceDetail"
-						transitionName="move-right"
-						onCancel={this.closeImageDetailModal}
-		      >
-		        <ImageDetailBox scope={scope} />
-          </Modal>
 				</div>
 	  	</QueueAnim>
     )

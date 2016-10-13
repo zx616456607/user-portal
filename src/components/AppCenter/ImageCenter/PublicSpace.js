@@ -8,12 +8,15 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Alert,Menu,Button,Card,Input } from 'antd'
+import { Alert,Menu,Button,Card,Input,Tooltip,Modal } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import { loadPublicImageList } from '../../../actions/app_center'
+import { DEFAULT_REGISTRY } from '../../../constants'
 import "./style/PublicSpace.less"
+import ImageDetailBox from './ImageDetail/Index.js'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -46,81 +49,9 @@ const menusText = defineMessages({
   }
 })
 
-const testData = [{
-	id:"1",
-	imageName:"Github",
-	imgUrl:"/img/test/github.jpg",
-	type:"private",
-	imageUrl:"tenxcloud/Github",
-	downloadNum:"1234"
-},{
-	id:"2",
-	imageName:"Mysql",
-	imgUrl:"/img/test/mysql.jpg",
-	type:"private",
-	imageUrl:"tenxcloud/Mysql",
-	downloadNum:"1234"
-},{
-	id:"3",
-	imageName:"Github",
-	imgUrl:"/img/test/github.jpg",
-	type:"private",
-	imageUrl:"tenxcloud/Github",
-	downloadNum:"1234"
-},{
-	id:"4",
-	imageName:"Oracle",
-	imgUrl:"/img/test/oracle.jpg",
-	type:"private",
-	imageUrl:"tenxcloud/Oracle",
-	downloadNum:"1234"
-},{
-	id:"5",
-	imageName:"Mysql",
-	imgUrl:"/img/test/mysql.jpg",
-	type:"private",
-	imageUrl:"tenxcloud/Mysql",
-	downloadNum:"1234"
-},{
-	id:"6",
-	imageName:"Php",
-	imgUrl:"/img/test/php.jpg",
-	type:"private",
-	imageUrl:"tenxcloud/Php",
-	downloadNum:"1234"
-},{
-	id:"7",
-	imageName:"Oracle",
-	imgUrl:"/img/test/oracle.jpg",
-	type:"private",
-	imageUrl:"tenxcloud/Oracle",
-	downloadNum:"1234"
-},{
-	id:"8",
-	imageName:"Oracle",
-	imgUrl:"/img/test/oracle.jpg",
-	type:"private",
-	imageUrl:"tenxcloud/Oracle",
-	downloadNum:"1234"
-},{
-	id:"9",
-	imageName:"Github",
-	imgUrl:"/img/test/github.jpg",
-	type:"private",
-	imageUrl:"tenxcloud/Github",
-	downloadNum:"1234"
-},{
-	id:"10",
-	imageName:"Github",
-	imgUrl:"/img/test/github.jpg",
-	type:"private",
-	imageUrl:"tenxcloud/Github",
-	downloadNum:"1234"
-}];
-
 let MyComponent = React.createClass({	  
   propTypes : {
-    config : React.PropTypes.array,
+    config : React.PropTypes.object,
     scope : React.PropTypes.object
   },
   showImageDetail:function(id){
@@ -128,31 +59,33 @@ let MyComponent = React.createClass({
 		const scope = this.props.scope;
 		scope.setState({
 			imageDetailModalShow:true,
-			imageDetailModalShowId:id
+			currentImage:id
 		});
   },
   render : function() {
-		let config = this.props.config;
-		let items = config.map((item) => {
+		let { imageList,serviceIp } = this.props.config;
+		let items = imageList.map((item) => {
 		  return (
-		    <div className="imageDetail" key={item.id} >
+		    <div className="imageDetail" key={item.name} >
 					<div className="imageBox">
-						<img src={item.imgUrl} />
+						<img src="/img/test/github.jpg" />
 					</div>
 					<div className="contentBox">
 						<span className="title" onClick={this.showImageDetail.bind(this,item)}>
-							{item.imageName}
+							{item.name}
 						</span><br />
 						<span className="type">
 							<FormattedMessage {...menusText.belong} />&nbsp;
-							{item.type}
+							{item.contributor}
 						</span>
 						<span className="imageUrl">
-							<FormattedMessage {...menusText.imageUrl} />&nbsp;
-							<span className="colorUrl">{item.imageUrl}</span>
+									<span className="defalutColor"><FormattedMessage {...menusText.imageUrl} />&nbsp;</span>
+							<Tooltip placement="topLeft" title={ serviceIp + "/" + item.name }>
+									<span>{ serviceIp + "/" + item.name }</span>
+							</Tooltip>
 						</span>
 						<span className="downloadNum">
-							<FormattedMessage {...menusText.downloadNum} />&nbsp;{item.downloadNum}
+							<FormattedMessage {...menusText.downloadNum} />&nbsp;{item.downloadNumber}
 						</span>
 					</div>
 					<div className="btnBox">
@@ -174,14 +107,34 @@ let MyComponent = React.createClass({
 class PublicSpace extends Component {
   constructor(props) {
     super(props);
+    this.closeImageDetailModal = this.closeImageDetailModal.bind(this);
     this.state = {
-
+			currentImage:null,
+			imageDetailModalShow:false
   	}
   }
+  
+  componentWillMount() {
+    document.title = '公有镜像 | 时速云';
+		const { registry, loadPublicImageList } = this.props
+		loadPublicImageList(registry)
+  }
+  
+  closeImageDetailModal(){
+		//this function for user close the modal of image detail info
+		this.setState({
+			imageDetailModalShow:false
+		});
+	}
 	
   render() {
   	const { formatMessage } = this.props.intl;
-  	const scope = this.props.scope;
+  	const rootscope = this.props.scope;
+  	const scope = this;
+  	const config = {
+  		"imageList":this.props.publicImageList,
+  		"serviceIp":this.props.registryServer
+  	};
     return (
       <QueueAnim className="PublicSpace"
       	type="right"
@@ -194,18 +147,48 @@ class PublicSpace extends Component {
 							<i className="fa fa-search"></i>
 							<div style={{ clear:"both" }}></div>
 						</div>
-						<MyComponent scope={scope} config={testData} />
+						<MyComponent scope={scope} config={config} />
 					</Card>
 				</div>
+				<Modal
+		        visible={this.state.imageDetailModalShow}
+						className="AppServiceDetail"
+						transitionName="move-right"
+						onCancel={this.closeImageDetailModal}
+		      >
+		      <ImageDetailBox scope={scope} config={ this.state.currentImage } />
+        </Modal>
 	  	</QueueAnim>
     )
   }
 }
 
-PublicSpace.propTypes = {
-  intl: PropTypes.object.isRequired
+function mapStateToProps(state, props) {
+  const defaultPublicImages = {
+    isFetching: false,
+    registry: DEFAULT_REGISTRY,
+    imageList: []
+  }
+  const {
+    publicImages
+  } = state.images
+  const { registry, imageList, isFetching, server } = publicImages[DEFAULT_REGISTRY] || defaultPublicImages
+
+  return {
+    registry,
+		registryServer: server,
+    publicImageList: imageList,
+    isFetching
+  }
 }
 
-export default connect()(injectIntl(PublicSpace, {
+PublicSpace.propTypes = {
+  intl: PropTypes.object.isRequired,
+  loadPublicImageList: PropTypes.func.isRequired
+}
+
+export default connect(mapStateToProps, {
+	loadPublicImageList
+})(injectIntl(PublicSpace, {
   withRef: true,
 }));

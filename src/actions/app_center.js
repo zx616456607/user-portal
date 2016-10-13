@@ -35,3 +35,28 @@ export function loadPublicImageList(registry) {
     return dispatch(fetchPublicImageList(registry))
   }
 }
+
+//this is get the image detail tag
+export const IMAGE_GET_DETAILTAG_REQUEST = 'IMAGE_GET_DETAILTAG_REQUEST'
+export const IMAGE_GET_DETAILTAG_SUCCESS = 'IMAGE_GET_DETAILTAG_SUCCESS'
+export const IMAGE_GET_DETAILTAG_FAILURE = 'IMAGE_GET_DETAILTAG_FAILURE'
+
+function fetchImageGetDetailTag(registry,fullName) {
+  return {
+    registry,
+    [FETCH_API]: {
+      types: [ IMAGE_GET_DETAILTAG_REQUEST, IMAGE_GET_DETAILTAG_SUCCESS, IMAGE_GET_DETAILTAG_FAILURE ],
+      endpoint: `${API_URL_PREFIX}/registries/${registry}/${fullName}/tags`,
+      schema: Schemas.REGISTRYS
+    }
+  }
+}
+
+// Fetches apps list from API unless it is cached.
+// Relies on Redux Thunk middleware.
+export function loadImageDetailTag(registry,fullName) {
+  return (dispatch, getState) => {
+    return dispatch(fetchImageGetDetailTag(registry,fullName))
+  }
+}
+

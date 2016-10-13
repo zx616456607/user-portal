@@ -8,12 +8,13 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Menu,Button,Card,Input } from 'antd'
+import { Menu,Button,Card,Input,Modal } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import "./style/OtherSpace.less"
+import ImageDetailBox from './ImageDetail/Index.js'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -128,7 +129,7 @@ let MyComponent = React.createClass({
 		const scope = this.props.scope;
 		scope.setState({
 			imageDetailModalShow:true,
-			imageDetailModalShowId:id
+			currentImage:id
 		});
   },
   render : function() {
@@ -174,14 +175,24 @@ let MyComponent = React.createClass({
 class OtherSpace extends Component {
   constructor(props) {
     super(props);
+    this.closeImageDetailModal = this.closeImageDetailModal.bind(this);
     this.state = {
-
+			currentImage:null,
+			imageDetailModalShow:false
   	}
   }
 	
+	closeImageDetailModal(){
+		//this function for user close the modal of image detail info
+		this.setState({
+			imageDetailModalShow:false
+		});
+	}
+	
   render() {
   	const { formatMessage } = this.props.intl;
-  	const scope = this.props.scope;
+  	const rootscope = this.props.scope;
+  	const scope = this;
     return (
       <QueueAnim className="OtherSpace"
       	type="right"
@@ -209,6 +220,14 @@ class OtherSpace extends Component {
 						<MyComponent scope={scope} config={testData} />
 					</Card>
 				</div>
+				<Modal
+		        visible={this.state.imageDetailModalShow}
+						className="AppServiceDetail"
+						transitionName="move-right"
+						onCancel={this.closeImageDetailModal}
+		      >
+		      <ImageDetailBox scope={scope} config={ this.state.currentImage } />
+        </Modal>
 	  	</QueueAnim>
     )
   }
