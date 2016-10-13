@@ -265,10 +265,10 @@ class AppList extends Component {
 	      	        <i className="fa fa-plus"></i>添加应用
 	      	      </Link>
 	      	    </Button>
-	      	    <Button type="ghost" size="large" onClick={ this.confirmStartApp }  disabled={ !isChecked }>
+	      	    <Button type="ghost" size="large" onClick={ this.confirmStartApp } disabled={ !isChecked }>
 								<i className="fa fa-play"></i>启动
 							</Button>
-	      	    <Button type="ghost" size="large" onClick={ this.confirmStopApp }  disabled={ !isChecked }>
+	      	    <Button type="ghost" size="large" onClick={ this.confirmStopApp } disabled={ !isChecked }>
 								<i className="fa fa-stop"></i>停止
 							</Button>
 	      	    <Button type="ghost" size="large" onClick={ this.confirmDeleteApp } disabled={ !isChecked }>
