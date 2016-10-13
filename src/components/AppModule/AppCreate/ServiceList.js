@@ -75,11 +75,11 @@ class MyComponent extends Component {
       checkInf:inf,
       checkState:'修改'
     })
+    console.log('inf',inf);
   }
   render () {
 	var config = this.props.scope.state.servicesList;
 	var items = config.map((item) => {
-	  console.log('item',item);
 	  return (
 	    <div key={item.id} className={this.checkedFunc(item.id) ? "selectedService serviceDetail":"serviceDetail"}>
 		  <div className="selectIconTitle commonData">
@@ -259,7 +259,7 @@ export default class ServiceList extends Component {
           className="AppServiceDetail"
           transitionName="move-right"
         >
-          <AppDeployServiceModal scope={parentScope} servicesList={servicesList} checkInf={this.state.checkInf} />
+          <AppDeployServiceModal scope={parentScope} servicesList={servicesList} checkInf={this.state.checkInf} serviceOpen={this.state.serviceModalShow} />
         </Modal>
 	    </div>
         </QueueAnim>
