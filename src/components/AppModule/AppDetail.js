@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Tabs,Card, Menu } from 'antd'
+import { Tabs,Card, Menu, Spin } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -16,7 +16,7 @@ import AppServiceList from './AppServiceList'
 import AppGraph from './AppGraph'
 import AppLog from './AppLog'
 import './style/AppDetail.less'
-import { loadServiceList } from '../../actions/app_manage'
+import { loadAppDetail } from '../../actions/app_manage'
 import { DEFAULT_CLUSTER } from '../../constants'
 
 const SubMenu = Menu.SubMenu
@@ -32,14 +32,19 @@ class AppDetail extends Component {
   }
 
 	componentWillMount() {
-		const { cluster, appName, loadServiceList } = this.props
+		const { cluster, appName, loadAppDetail } = this.props
     document.title = `应用 ${appName} 详情 | 时速云`
-    // loadServiceList(cluster, appName)
+    loadAppDetail(cluster, appName)
   }
   
   render() {
-    const { children, appName, serviceList, isFetching } = this.props
+    const { children, appName, app, isFetching } = this.props
     const { currentKey } = this.state
+		if (isFetching) {
+			return (
+				<Spin />
+			)
+		}
     return (
           <div id="AppDetail">
 	        <QueueAnim className="demo-content"
@@ -60,28 +65,28 @@ class AppDetail extends Component {
 	                  <div className="status">
 	                    运行状态&nbsp;:
 	                    <span>
-	                      <i className="fa fa-circle"></i>
-	                      运行中
+	                      <i className={app.appStatus == 0 ? "normal fa fa-circle":"error fa fa-circle"}></i>
+												<span className={app.appStatus == 0 ? "normal":"error"} >{app.appStatus == 0 ? "正常":"异常"}</span>
 	                    </span>
 	                  </div>
 	                  <div className="address">
-	                    地址&nbsp;:&nbsp;http:\//www.tenxcloud.com
+	                    地址&nbsp;:&nbsp;{app.address || '-'}
 	                  </div>
 	                  <div className="service">
-	                    服务&nbsp;:&nbsp;3/3
+	                    服务&nbsp;:&nbsp;{`${app.serviceCount}/${app.serviceCount}`}
 	                  </div>
 	                </div>
 	                <div className="middleInfo">
 	                  <div className="createDate">
-	                    创建&nbsp;:&nbsp;2016-09-09&nbsp;18:15 
+	                    创建&nbsp;:&nbsp;{app.createTime || '-'}
 	                  </div>
 	                  <div className="updateDate">
-	                    更新&nbsp;:&nbsp;2016-09-09&nbsp;18:15
+	                    更新&nbsp;:&nbsp;{app.services[0].metadata.creationTimestamp || '-'}
 	                  </div>
 	                </div>
 	                <div className="rightInfo">
 	                  <div className="introduction">
-	                    应用描述&nbsp;:&nbsp;这是一个萌萌哒的应用描述
+	                    应用描述&nbsp;:&nbsp;{app.description || '无'}
 	                  </div>
 	                </div>
 	                <div style={{ clear:"both" }}></div>
@@ -112,35 +117,33 @@ class AppDetail extends Component {
 AppDetail.propTypes = {
   // Injected by React Redux
   cluster: PropTypes.string.isRequired,
-  serviceList: PropTypes.array.isRequired,
+  appName: PropTypes.string.isRequired,
+  app: PropTypes.object.isRequired,
   isFetching: PropTypes.bool.isRequired,
-  loadServiceList: PropTypes.func.isRequired
+  loadAppDetail: PropTypes.func.isRequired
 }
 
 function mapStateToProps(state, props) {
   const { app_name } = props.params
-	const defaultServices = {
+	const defaultApp = {
     isFetching: false,
     cluster: DEFAULT_CLUSTER,
 		appName: app_name,
-    serviceList: []
+    app: {}
   }
 	const {
-    services
-  } = state
+    appDetail
+  } = state.apps
 	let targetServices
-	if (services[DEFAULT_CLUSTER] && services[DEFAULT_CLUSTER][app_name]) {
-		targetServices = services[DEFAULT_CLUSTER][app_name]
-	}
-	const { cluster, serviceList, isFetching } = targetServices || defaultServices
+	const { cluster, app, isFetching } = appDetail || defaultServices
   return {
-		cluster,
+		cluster: DEFAULT_CLUSTER,
     appName: app_name,
-		serviceList,
+		app,
 		isFetching
   }
 }
 
 export default connect(mapStateToProps, {
-  loadServiceList
+  loadAppDetail
 })(AppDetail)

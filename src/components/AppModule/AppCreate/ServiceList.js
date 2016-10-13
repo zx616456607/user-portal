@@ -13,6 +13,7 @@ import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import AppAddServiceModal from './AppAddServiceModal'
+import AppDeployServiceModal from './AppDeployServiceModal'
 import "./style/ServiceList.less"
 
 class MyComponent extends Component {
@@ -70,7 +71,6 @@ class MyComponent extends Component {
 	}
 	checkService(name){
 	  console.log(name);
-
     this.props.scope.setState({
       serviceModalShow:true
     })
@@ -129,7 +129,8 @@ export default class ServiceList extends Component {
     this.state = {
       modalShow:false,
       selectedList:[],
-      servicesList:[]
+      servicesList:[],
+			serviceModalShow:false
     }
   }
   
@@ -246,8 +247,15 @@ export default class ServiceList extends Component {
           className="AppAddServiceModal"
           onCancel={this.closeModal}
           >
-		    <AppAddServiceModal scope={parentScope} servicesList = {this.state.servicesList} />
-          </Modal>
+		      <AppAddServiceModal scope={parentScope} />
+        </Modal>
+        <Modal
+          visible={this.state.serviceModalShow}
+          className="AppServiceDetail"
+          transitionName="move-right"
+        >
+          <AppDeployServiceModal scope={parentScope} servicesList={servicesList} />
+        </Modal>
 	    </div>
         </QueueAnim>
     )
