@@ -12,7 +12,7 @@ import { Input,Modal,Checkbox,Button,Card,Menu,Spin } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import AppDeployServiceModal from './AppDeployServiceModal.js'
+import AppDeployServiceModal from './AppDeployServiceModal'
 import { loadPublicImageList } from '../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import './style/AppAddServiceModal.less'
@@ -26,7 +26,6 @@ const MyComponent = React.createClass({
   	const {scope} = this.props;
   	const rootScope = scope.props.scope;
   	scope.setState({
-  		modalShow: true,
   		currentSelectedImage: imageName,
 			registryServer
   	});
@@ -35,6 +34,7 @@ const MyComponent = React.createClass({
       serviceModalShow:true
 		})
     console.log('rootScope',rootScope);
+    console.log('scope',scope);
   },
   render : function() {
 		const { images, registryServer, loading } = this.props
@@ -69,31 +69,27 @@ const MyComponent = React.createClass({
 class AppAddServiceModal extends Component {
   constructor(props) {
     super(props);
-    this.selectImageType = this.selectImageType.bind(this);    
+    this.selectImageType = this.selectImageType.bind(this);
     this.closeModal = this.closeModal.bind(this);    
     this.openModal = this.openModal.bind(this);    
     this.state = {
-      modalShow:false,
       currentImageType:"public",
       currentSelectedImage:null,
       registryServer: null
     }
   }
-  
   selectImageType(currentType){
   	//the function for user select image type
   	this.setState({
   	  currentImageType:currentType	
   	});
   }
-
   closeModal(){
   	//the function for close the deploy new service modal
     this.props.scope.setState({
   	  modalShow:false
   	});
   }
-
   openModal(){
   	//the function for open the deploy new service modal
     this.props.scope.setState({
@@ -110,7 +106,6 @@ class AppAddServiceModal extends Component {
   render() {
   	const parentScope = this
 		const { publicImageList, registryServer, scope, isFetching } = this.props
-    const servicesList = scope.state.servicesList
     return (
 	    <div id="AppAddServiceModal" key="AppAddServiceModal">
 	      <div className="operaBox">
@@ -131,14 +126,7 @@ class AppAddServiceModal extends Component {
 	        <div style={{ clear:"both" }}></div>
 	      </div>
 	      <MyComponent scope={parentScope} images={publicImageList} loading={isFetching} registryServer={registryServer} />
-	      <Modal
-	        visible={this.props.scope.state.serviceModalShow}
-					className="AppServiceDetail"
-					transitionName="move-right"
-	      >
-	        <AppDeployServiceModal scope={parentScope} servicesList={servicesList} />
-          </Modal>
-	    </div>  
+	    </div>
     )
   }
 }

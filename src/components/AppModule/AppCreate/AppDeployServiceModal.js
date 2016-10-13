@@ -274,7 +274,7 @@ class AppDeployServiceModal extends Component {
       Deployment: serviceList
     }
     const newService = {id:serviceName,name:serviceName,imageName:image,resource:ImageConfig.cal,inf:serviceConfig}
-    const serviceScope = this.props.scope.props.scope
+    const serviceScope = this.props.scope
     const newList = serviceScope.state.servicesList
     const newSeleList = serviceScope.state.selectedList
     serviceScope.state.servicesList.push(newService)
@@ -285,24 +285,27 @@ class AppDeployServiceModal extends Component {
       servicesList: newList,
       selectedList: newSeleList
     })
+    /*parentScope.setState({
+      modalShow:false,
+    });*/
     parentScope.setState({
-      modalShow:false
-    });
+      serviceModalShow:false
+    })
   }
   closeModal(){
     const parentScope = this.props.scope;
-    parentScope.setState({
+    /*parentScope.setState({
       modalShow:false,
 
-    });
-    parentScope.props.scope.setState({
+    });*/
+    parentScope.setState({
       serviceModalShow:false
     })
   }
   render() {
   	const scope = this
   	const parentScope = this.props.scope
-    const {servicesList} = parentScope.props.scope.state.servicesList
+    const {servicesList} = parentScope.state.servicesList
     const {currentSelectedImage, registryServer} = parentScope.state
   
     return (
