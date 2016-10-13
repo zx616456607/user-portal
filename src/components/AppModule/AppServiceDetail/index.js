@@ -55,7 +55,7 @@ export default class AppServiceDetail extends Component {
   }
   
   render() {
-  	const {scope} = this.props;
+  	const {scope, serviceDetailmodalShow} = this.props;
   	const service = scope.state.currentShowInstance;
     return (
       <div id="AppServiceDetail">
@@ -106,7 +106,9 @@ export default class AppServiceDetail extends Component {
 	            tabPosition="left"
 	            defaultActiveKey="1"
 	          >
-	            <TabPane tab="容器实例" key="1"><ContainerList /></TabPane>
+	            <TabPane tab="容器实例" key="1">
+								<ContainerList serviceName={service.metadata.name} cluster={service.cluster} serviceDetailmodalShow={serviceDetailmodalShow} />
+							</TabPane>
 	            <TabPane tab="基础信息" key="2"><AppServiceDetailInfo /></TabPane>
 	            <TabPane tab="配置组" key="3"><ComposeGroup /></TabPane>
 	            <TabPane tab="绑定域名" key="4"><BindDomain /></TabPane>

@@ -148,9 +148,56 @@ function serviceItmes(state = {}, action) {
   }
 }
 
+function serviceContainers(state = {}, action) {
+  const cluster = action.cluster
+  const serviceName = action.serviceName
+  const defaultState = {
+    [cluster]: {
+      [serviceName]: {
+        isFetching: false,
+        cluster,
+        serviceName,
+        containerList: []
+      }
+    }
+  }
+  switch (action.type) {
+    case ActionTypes.SERVICE_CONTAINERS_LIST_REQUEST:
+      return merge({}, defaultState, state, {
+        [cluster]:  {
+          [serviceName]: {
+            isFetching: true
+          }
+        }
+      })
+    case ActionTypes.SERVICE_CONTAINERS_LIST_SUCCESS:
+      return Object.assign({}, state, {
+        [cluster]:  {
+          [serviceName]: {
+            isFetching: false,
+            cluster: action.response.result.cluster,
+            serviceName: action.response.result.serviceName,
+            containerList: union(state.services, action.response.result.data)
+          }
+        }
+      })
+    case ActionTypes.SERVICE_CONTAINERS_LIST_FAILURE:
+      return merge({}, defaultState, state, {
+        [cluster]:  {
+          [serviceName]: {
+            isFetching: false
+          }
+        }
+      })
+    default:
+      return state
+  }
+}
+
 export function services(state = { appItmes: {} }, action) {
   return {
-    serviceItmes: serviceItmes(state.serviceItmes, action)
+    serviceItmes: serviceItmes(state.serviceItmes, action),
+    serviceContainers: serviceContainers(state.serviceContainers, action),
   }
 }
 

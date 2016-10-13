@@ -57,6 +57,7 @@ const MyComponent = React.createClass({
 		)
 	}
 	const items = serviceList.map((item) => {
+		item.cluster = DEFAULT_CLUSTER
 	  return (
 	    <div className="instanceDetail" key={item.metadata.name}>
 			<div className="selectIconTitle commonData">
@@ -315,7 +316,7 @@ class AppServiceList extends Component {
 						transitionName="move-right"
 						onCancel={this.closeModal}
 					>
-	        <AppServiceDetail scope={parentScope} />
+						<AppServiceDetail scope={parentScope} serviceDetailmodalShow={this.state.modalShow} />
           </Modal>
         </QueueAnim>
       </div>

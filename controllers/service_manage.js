@@ -107,10 +107,17 @@ exports.getServiceContainers = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.getBy([cluster, 'services', serviceName, 'instances'])
-  const containers = result.data
+  const pods = result.data || []
+  pods.map((pod) => {
+    pod.images = []
+    pod.spec.containers.map((container) => {
+      pod.images.push(container.image)
+    })
+  })
   this.body = {
     cluster,
-    data: containers
+    serviceName,
+    data: pods
   }
 }
 
