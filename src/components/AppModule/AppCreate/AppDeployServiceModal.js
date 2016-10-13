@@ -28,6 +28,7 @@ class AppDeployServiceModal extends Component {
     this.submitNewService = this.submitNewService.bind(this);
     this.closeModal = this.closeModal.bind(this);
     this.setForm = this.setForm.bind(this);
+    this.limits = this.limits.bind(this);
     this.state = {
       instanceNum:1,
       composeType:"1",
@@ -40,6 +41,14 @@ class AppDeployServiceModal extends Component {
       checkInf:null,
     }
   }
+  limits(){
+    switch (this.props.scope.state.checkInf.Deployment.spec.template.spec.containers[0].resources.limits.memory){
+      case '256Mi':
+        return '1'
+      case '512Mi':
+        return '2'
+    }
+  }
   setForm(){
     const { scope } = this.props
     console.log('set');
@@ -48,6 +57,12 @@ class AppDeployServiceModal extends Component {
       name:scope.state.checkInf.Service.metadata.name,
       imageVersion:scope.state.checkInf.Deployment.spec.template.spec.containers[0].image.split(':')[1],
       
+    })
+    /*scope.setState({
+      composeType:'2'
+    })*/
+    this.setState({
+      composeType: this.limits()
     })
     /*scope.props.scope.setState({
       registryServer:scope.state.checkInf.Deployment.spec.template.spec.containers.image
