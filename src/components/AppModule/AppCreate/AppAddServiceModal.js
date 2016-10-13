@@ -11,8 +11,6 @@ import React, { Component, PropTypes } from 'react'
 import { Input,Modal,Checkbox,Button,Card,Menu,Spin } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
-import QueueAnim from 'rc-queue-anim'
-import AppDeployServiceModal from './AppDeployServiceModal'
 import { loadPublicImageList } from '../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import './style/AppAddServiceModal.less'
@@ -26,15 +24,15 @@ const MyComponent = React.createClass({
   	const {scope} = this.props;
   	const rootScope = scope.props.scope;
   	scope.setState({
-  		currentSelectedImage: imageName,
-			registryServer
+  		
   	});
 		rootScope.setState({
+      currentSelectedImage: imageName,
+      registryServer,
 			modalShow : false,
-      serviceModalShow:true
+      serviceModalShow:true,
+      checkState:'创建'
 		})
-    console.log('rootScope',rootScope);
-    console.log('scope',scope);
   },
   render : function() {
 		const { images, registryServer, loading } = this.props
@@ -74,8 +72,7 @@ class AppAddServiceModal extends Component {
     this.openModal = this.openModal.bind(this);    
     this.state = {
       currentImageType:"public",
-      currentSelectedImage:null,
-      registryServer: null
+      
     }
   }
   selectImageType(currentType){

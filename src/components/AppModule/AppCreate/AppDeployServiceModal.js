@@ -39,7 +39,11 @@ class AppDeployServiceModal extends Component {
     }
   }
   componentWillMount() {
-    
+  }
+  componentWillReceiveProps(nextProps){
+    this.setState({
+      checkInf:nextProps.checkInf
+    })
   }
   submitNewService(e,parentScope){
   	e.preventDefault();
@@ -285,29 +289,29 @@ class AppDeployServiceModal extends Component {
       servicesList: newList,
       selectedList: newSeleList
     })
-    /*parentScope.setState({
-      modalShow:false,
-    });*/
+    
     parentScope.setState({
       serviceModalShow:false
     })
   }
   closeModal(){
     const parentScope = this.props.scope;
-    /*parentScope.setState({
-      modalShow:false,
-
-    });*/
     parentScope.setState({
       serviceModalShow:false
     })
   }
+  
   render() {
   	const scope = this
   	const parentScope = this.props.scope
     const {servicesList} = parentScope.state.servicesList
     const {currentSelectedImage, registryServer} = parentScope.state
-  
+    /*if(this.props.scope.state.checkInf){
+      this.props.form.setFieldsValue({
+        name: 'zhaoxy'
+      })
+    }*/
+    
     return (
 	  <div id="AppDeployServiceModal">
     	<Form horizontal form={this.props.form}>
@@ -333,7 +337,7 @@ class AppDeployServiceModal extends Component {
 	      	<Button className="createBtn" size="large" type="primary"
                   onClick={(e) => this.submitNewService(e,parentScope)}
                   servicesList={servicesList}>
-	      		创建
+            {parentScope.state.checkState}
 	      	</Button>
       	</div>
 	   </Form>
