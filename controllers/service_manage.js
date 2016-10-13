@@ -9,24 +9,75 @@
  */
 'use strict'
 
+const apiFactory = require('../services/api_factory')
+
 exports.startServices = function* () {
   const cluster = this.params.cluster
+  const services = this.request.body
+  if (!services) {
+    const err = new Error('Service names are required.')
+    err.status = 400
+    throw err
+  }
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.updateBy([cluster, 'services', 'start'], null, { services })
   this.body = {
-    cluster
+    cluster,
+    data: result
   }
 }
 
 exports.stopServices = function* () {
   const cluster = this.params.cluster
+  const services = this.request.body
+  if (!services) {
+    const err = new Error('Service names are required.')
+    err.status = 400
+    throw err
+  }
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.updateBy([cluster, 'services', 'stop'], null, { services })
   this.body = {
-    cluster
+    cluster,
+    data: result
   }
 }
 
 exports.restartServices = function* () {
   const cluster = this.params.cluster
+  const services = this.request.body
+  if (!services) {
+    const err = new Error('Service names are required.')
+    err.status = 400
+    throw err
+  }
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.updateBy([cluster, 'services', 'restart'], null, { services })
   this.body = {
-    cluster
+    cluster,
+    data: result
+  }
+}
+
+
+exports.deleteServices = function* () {
+  const cluster = this.params.cluster
+  const services = this.request.body
+  if (!services) {
+    const err = new Error('Service names are required.')
+    err.status = 400
+    throw err
+  }
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.updateBy([cluster, 'services', 'batchdelete'], null, { services })
+  this.body = {
+    cluster,
+    appName,
+    data: result
   }
 }
 

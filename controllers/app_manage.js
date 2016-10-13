@@ -41,6 +41,9 @@ exports.getApps = function* () {
   const result = yield api.getBy([cluster, 'apps'])
   const apps = result.data
   apps.map((app) => {
+    if (!app.services) {
+      app.services = []
+    }
     app.appStatus = 0
     app.serviceCount = app.services.length
     app.instanceCount = 0
@@ -78,7 +81,7 @@ exports.stopApps = function* () {
   const cluster = this.params.cluster
   const apps = this.request.body
   if (!apps) {
-    const err = new Error('App names is required.')
+    const err = new Error('App names are required.')
     err.status = 400
     throw err
   }
@@ -95,7 +98,7 @@ exports.startApps = function* () {
   const cluster = this.params.cluster
   const apps = this.request.body
   if (!apps) {
-    const err = new Error('App names is required.')
+    const err = new Error('App names are required.')
     err.status = 400
     throw err
   }
@@ -112,7 +115,7 @@ exports.restartApps = function* () {
   const cluster = this.params.cluster
   const apps = this.request.body
   if (!apps) {
-    const err = new Error('App names is required.')
+    const err = new Error('App names are required.')
     err.status = 400
     throw err
   }
@@ -141,38 +144,29 @@ exports.addService = function* () {
   }
 }
 
-exports.deleteServices = function* () {
-  const cluster = this.params.cluster
-  const appName = this.params.app_name
-  const data = []
-  this.body = {
-    cluster,
-    appName,
-    data
-  }
-}
-
 exports.getAppDetail = function* () {
   const cluster = this.params.cluster
   const appName = this.params.app_name
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.getBy([cluster, 'apps', appName])
-  const app = result.data
-  /*apps.map((app) => {
-    app.appStatus = 0
-    app.serviceCount = app.services.length
-    app.instanceCount = 0
-    app.services.map((service) => {
-      app.instanceCount += service.spec.replicas
-    })
-    if (app.serviceCount < 1 || app.instanceCount < 1) {
-      app.appStatus = 1
-    }
-  })*/
+  const app = result.data[appName] || {}
+  if (!app.services) {
+    app.services = []
+  }
+  app.appStatus = 0
+  app.serviceCount = app.services.length
+  app.instanceCount = 0
+  app.services.map((service) => {
+    app.instanceCount += service.spec.replicas
+  })
+  if (app.serviceCount < 1 || app.instanceCount < 1) {
+    app.appStatus = 1
+  }
   this.body = {
     cluster,
-    data: app || {}
+    appName,
+    data: app
   }
 }
 

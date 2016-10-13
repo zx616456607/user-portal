@@ -44,9 +44,34 @@ function appItems(state = {}, action) {
   }
 }
 
+function appDetail(state = {}, action) {
+  const cluster = action.cluster
+  const appName = action.appName
+  const defaultState = {
+    isFetching: false,
+    cluster,
+    appName,
+    app: {}
+  }
+  switch (action.type) {
+    case ActionTypes.APP_DETAIL_REQUEST:
+      return merge({}, defaultState, state, {isFetching: true})
+    case ActionTypes.APP_DETAIL_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        app: action.response.result.data || {}
+      })
+    case ActionTypes.APP_DETAIL_FAILURE:
+      return merge({}, defaultState, state, {isFetching: true})
+    default:
+      return state
+  }
+}
+
 export function apps(state = { appItmes: {} }, action) {
   return {
     appItems: appItems(state.appItems, action),
+    appDetail: appDetail(state.appDetail, action),
     createApp: reducerFactory({
       REQUEST: ActionTypes.APP_CREATE_REQUEST,
       SUCCESS: ActionTypes.APP_CREATE_SUCCESS,
@@ -75,7 +100,9 @@ export function apps(state = { appItmes: {} }, action) {
   }
 }
 
-export function services(state = {}, action) {
+// ~~~ services
+
+function serviceItmes(state = {}, action) {
   const cluster = action.cluster
   const appName = action.appName
   const defaultState = {
@@ -120,6 +147,14 @@ export function services(state = {}, action) {
       return state
   }
 }
+
+export function services(state = { appItmes: {} }, action) {
+  return {
+    serviceItmes: serviceItmes(state.serviceItmes, action)
+  }
+}
+
+// ~~~ containers
 
 export function containers(state = {}, action) {
   const cluster = action.cluster
