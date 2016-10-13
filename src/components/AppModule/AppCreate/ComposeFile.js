@@ -71,7 +71,7 @@ class ComposeFile extends Component {
     const {appName, appDescYaml,remark} = this.state
     let appConfig={
       cluster:this.state.cluster,
-      desc:appDescYaml,
+      template :appDescYaml,
       appName:appName,
       remark:remark,
     }

@@ -76,7 +76,7 @@ export function createApp(appConfig, callback) {
         method: 'POST',
         body: {
           name:appConfig.appName,
-          desc:appConfig.desc,
+          template:appConfig.template,
           remark:appConfig.remark
         }
       },
