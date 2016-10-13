@@ -45,6 +45,10 @@ class AppDetail extends Component {
 				<Spin />
 			)
 		}
+		let updateDate = '-'
+		if (app.services[0]) {
+			updateDate = app.services[0].metadata.creationTimestamp
+		}
     return (
           <div id="AppDetail">
 	        <QueueAnim className="demo-content"
@@ -81,7 +85,7 @@ class AppDetail extends Component {
 	                    创建&nbsp;:&nbsp;{app.createTime || '-'}
 	                  </div>
 	                  <div className="updateDate">
-	                    更新&nbsp;:&nbsp;{app.services[0].metadata.creationTimestamp || '-'}
+	                    更新&nbsp;:&nbsp;{updateDate}
 	                  </div>
 	                </div>
 	                <div className="rightInfo">

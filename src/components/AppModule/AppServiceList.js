@@ -37,11 +37,11 @@ const MyComponent = React.createClass({
 			serviceList
 		})
   },
-  modalShow:function(instanceId){
+  modalShow:function(item){
   	const {scope} = this.props;
   	scope.setState({
   		modalShow : true,
-  		currentShowInstance : instanceId
+  		currentShowInstance: item
   	});
   },
   render : function() {
@@ -105,6 +105,7 @@ class AppServiceList extends Component {
     this.confirmStartService = this.confirmStartService.bind(this)
 		this.confirmStopService = this.confirmStopService.bind(this)
 		this.confirmRestartService = this.confirmRestartService.bind(this)
+		this.confirmDeleteService = this.confirmDeleteService.bind(this)
     this.state = {
       modalShow:false,
       currentShowInstance: null,
@@ -202,6 +203,29 @@ class AppServiceList extends Component {
 		})
 	}
 
+	confirmDeleteService(e) {
+		const { serviceList } = this.state
+		const { cluster, appName, loadServiceList, deleteServices } = this.props
+		const checkedServiceList = serviceList.filter((service) => service.checked)
+		const checkedServiceNames = checkedServiceList.map((service) => service.metadata.name)
+		confirm({
+			title: `您是否确认要删除这${checkedServiceList.length}个服务`,
+			content: checkedServiceNames.join(', '),
+			onOk() {
+				return new Promise((resolve) => {
+					deleteServices(cluster, checkedServiceNames, {
+						success: {
+							func: () => loadServiceList(cluster, appName),
+							isAsync: true
+						}
+					})
+					resolve()
+				});
+			},
+			onCancel() {},
+		})
+	}
+
   closeModal(){
     this.setState({
   	  modalShow:false  
@@ -212,16 +236,16 @@ class AppServiceList extends Component {
 		const parentScope = this
 		const operaMenu = (<Menu>
 								<Menu.Item key="0">
-									<span style={{ display: "block", padding: "7px 15px", margin:" -7px -15px" }} onClick={ this.confirmRestartService }>重新部署</span>
+									<span>重新部署</span>
 								</Menu.Item>
 								<Menu.Item key="1">
-								弹性伸缩
+									<span>弹性伸缩</span>
 								</Menu.Item>
 								<Menu.Item key="2">
-								灰度升级
+									<span>灰度升级</span>
 								</Menu.Item>
 								<Menu.Item key="3">
-								更改配置
+									<span>更改配置</span>
 								</Menu.Item>
 							</Menu>);
 		let { modalShow, currentShowInstance, serviceList } = this.state
@@ -248,7 +272,7 @@ class AppServiceList extends Component {
 	          <i className="fa fa-stop"></i>
 	          停止
 	        </Button>
-	        <Button size="large" disabled={ !isChecked }>
+	        <Button size="large" onClick={ this.confirmDeleteService } disabled={ !isChecked }>
 	          <i className="fa fa-trash"></i>
 	          删除
 	        </Button>

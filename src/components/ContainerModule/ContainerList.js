@@ -67,38 +67,36 @@ const MyComponent = React.createClass({
 	var config = this.props.config;
 	var items = config.map((item) => {
 	  return (
-	    <div className={this.checkedFunc(item.id) ? "selectedContainer containerDetail":"containerDetail"} key={item.id}>
+	    <div className={this.checkedFunc(item.metadata.name) ? "selectedContainer containerDetail":"containerDetail"} key={item.id}>
 			<div className="selectIconTitle commonData">
-			  <Checkbox checked={this.checkedFunc(item.id)} onChange={()=>this.onchange(item.id)}></Checkbox>
+			  <Checkbox checked={this.checkedFunc(item.metadata.name)} onChange={()=>this.onchange(item.metadata.name)}></Checkbox>
 			</div>
 			<div className="containerName commonData">
-		      <Link to={`/app_manage/container/detail/${item.id}`} >
-	    	    {item.name}
+		      <Link to={`/app_manage/container/detail/${item.metadata.name}`} >
+	    	    {item.metadata.name}
 		      </Link>
 			</div>
 			<div className="containerStatus commonData">
-			  <i className={item.appStatus == 1 ? "normal fa fa-circle":"error fa fa-circle"}></i>
-			  <span className={item.appStatus == 1 ? "normal":"error"} >{item.appStatus == 1 ? "正常":"异常"}</span>
+			  <i className={item.status.phase == 'Running' ? "normal fa fa-circle":"error fa fa-circle"}></i>
+			  <span className={item.status.phase == 'Running' ? "normal":"error"} >{item.status.phase}</span>
 			</div>
 			<div className="serviceName commonData">
-			  {item.serviceNum}
+			  {item.metadata.labels.appName || '-'}
 			</div>
 			<div className="imageName commonData">
-			  <Tooltip placement="top" title={item.containerNum}>
-			    <span>{item.containerNum}</span>
-			  </Tooltip>
+			  {item.images.join(', ')}
 			</div>
 			<div className="visitIp commonData">
-			  <Tooltip placement="top" title={item.serviceIPInput}>
-			    <span>{item.serviceIPInput}</span>
+			  <Tooltip placement="top" title={item.status.podIP}>
+			    <span>{item.status.podIP}</span>
 			  </Tooltip>
 			  <br />
-			  <Tooltip placement="top" title={item.serviceIPOutput}>
-			    <span>{item.serviceIPOutput}</span>
+			  <Tooltip placement="top" title={item.serviceIPOutput || '-'}>
+			    <span>{item.serviceIPOutput || '-'}</span>
 			  </Tooltip>
 			</div>
 			<div className="createTime commonData">
-			  {item.createTime}
+			  {item.metadata.creationTimestamp}
 			</div>
 			<div className="actionBox commonData">
 			  <ButtonGroup>

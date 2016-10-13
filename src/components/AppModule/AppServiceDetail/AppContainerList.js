@@ -121,10 +121,10 @@ var MyComponent = React.createClass({
 	var items = config.map((item) => {
 	  return (
 	    <div className="containerDetail" key={item.id}>
-		  <div className="selectIconTitle commonData">
+		  {/*(<div className="selectIconTitle commonData">
 		    <Checkbox checked={this.checkedFunc(item.id)} onChange={()=>this.onchange(item.id)}></Checkbox>
-		  </div>
-		  <div className="name commonData">
+		  </div>)*/}
+		  <div className="name commonData" style={ { marginLeft: 24 } } >
 		    <span className="viewBtn" onClick={this.modalShow.bind(this,item)}>
 	    	  {item.name}
 		    </span>
@@ -198,7 +198,7 @@ export default class AppContainerList extends Component {
 	      key="demo"
 	      type="right"
 	    >
-	      <div className="operaBox">
+	      {/*(<div className="operaBox">
 	        <div className="leftBox">
 	          <Button type="primary" size="large">
 	            <i className="fa fa-play"></i>
@@ -218,13 +218,13 @@ export default class AppContainerList extends Component {
 	          <span>已选中的容器({this.state.selectedList.length}个)</span>
 	        </div>
 	        <div style={{ clear:"both" }}></div>
-	      </div>
+	      </div>)*/}
 	      <Card className="dataBox">
 	        <div className="titleBox">
-		      <div className="selectIconTitle commonData">
+		      {/*(<div className="selectIconTitle commonData">
 		        <Checkbox checked={this.allSelectedChecked() } onChange={()=>this.onchange()}></Checkbox>
-		      </div>
-		      <div className="name commonData">
+		      </div>)*/}
+		      <div className="name commonData" style={ { marginLeft: 24 } } >
 		        名称
 		      </div>
 		      <div className="status commonData">

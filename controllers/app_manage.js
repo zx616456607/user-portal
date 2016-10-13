@@ -19,8 +19,8 @@ exports.createApp = function* () {
     err.status = 400
     throw err
   }
-  if (!app || !app.desc) {
-    const err = new Error('App desc is required.')
+  if (!app || !app.template) {
+    const err = new Error('App template is required.')
     err.status = 400
     throw err
   }
@@ -70,7 +70,7 @@ exports.deleteApps = function* () {
   }
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.batchDeleteBy([cluster, 'apps', 'batchdelete'], null, { apps })
+  const result = yield api.batchDeleteBy([cluster, 'apps', 'batch-delete'], null, { apps })
   this.body = {
     cluster,
     data: result
@@ -87,7 +87,7 @@ exports.stopApps = function* () {
   }
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.updateBy([cluster, 'apps', 'stop'], null, { apps })
+  const result = yield api.updateBy([cluster, 'apps', 'batch-stop'], null, { apps })
   this.body = {
     cluster,
     data: result
@@ -104,7 +104,7 @@ exports.startApps = function* () {
   }
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.updateBy([cluster, 'apps', 'start'], null, { apps })
+  const result = yield api.updateBy([cluster, 'apps', 'batch-start'], null, { apps })
   this.body = {
     cluster,
     data: result
@@ -121,7 +121,7 @@ exports.restartApps = function* () {
   }
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.updateBy([cluster, 'apps', 'restart'], null, { apps })
+  const result = yield api.updateBy([cluster, 'apps', 'batch-restart'], null, { apps })
   this.body = {
     cluster,
     data: result
