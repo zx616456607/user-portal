@@ -136,6 +136,7 @@ export default class ServiceList extends Component {
       registryServer: null,
       checkState: '创建',
       checkInf: null,
+			volumeSwitch:false
     }
   }
   
