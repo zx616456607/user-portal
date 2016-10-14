@@ -87,6 +87,19 @@ MyComponent = createForm()(MyComponent);
 function loadImageTags(props) {
   const { registry, currentSelectedImage, loadImageDetailTag } = props
   loadImageDetailTag(registry, currentSelectedImage)
+	loadImageDetailTag(registry, currentSelectedImage, {
+		success: {
+			func: (result) => {
+				const LATEST = 'latest'
+				let tag = result.data[0]
+				if (result.data.indexOf(LATEST) > -1) {
+					tag = LATEST
+				}
+				loadImageTagConfigs(tag, props)
+			},
+			isAsync: true
+		}
+	})
 }
 
 function loadImageTagConfigs(tag, props) {
@@ -145,19 +158,19 @@ class NormalDeployBox extends Component {
 		setFieldsValue({
 			imageVersion: tag
 		})
-		loadImageTagConfigs(tag, this.props)
+		// loadImageTagConfigs(tag, this.props)
 	}
 
 	componentWillMount() {
-    loadImageTags(this.props)
+    // loadImageTags(this.props)
   }
 
-	componentWillReceiveProps(nextProps) {
-		const {serviceOpen} = nextProps
-    if(serviceOpen == this.props.serviceOpen){
+	// componentWillReceiveProps(nextProps) {
+		// const {serviceOpen} = nextProps
+    /*if(serviceOpen == this.props.serviceOpen){
       return
     }
-		loadImageTags(nextProps)
+		loadImageTags(nextProps)*/
 		/*const { imageTags, scope } = nextProps
 		const { getFieldValue, setFieldsValue } = scope.props.form
 		if (imageTags.length < 1) {
@@ -171,7 +184,7 @@ class NormalDeployBox extends Component {
 			})
 		}
 		loadImageTagConfigs(tagSelectFiledValue, nextProps)*/
-	}
+	// }
 
   render() {
   	const parentScope = this.props.scope;
@@ -228,7 +241,7 @@ class NormalDeployBox extends Component {
 								defaultActiveFirstOption={true}
 								onSelect={ this.onSelectTagChange }
 							>
-								{ imageTags.map((tag) => {
+								{ imageTags && imageTags.map((tag) => {
 									return (
 										<Option key={tag} value={tag}>{tag}</Option>
 									)
@@ -362,8 +375,8 @@ NormalDeployBox.propTypes = {
 }
 
 NormalDeployBox = createForm()(NormalDeployBox);
-
-function mapStateToProps(state, props) {
+export default NormalDeployBox
+/*function mapStateToProps(state, props) {
   const defaultImageTags = {
     isFetching: false,
     registry: DEFAULT_REGISTRY,
@@ -385,4 +398,4 @@ function mapStateToProps(state, props) {
 export default connect(mapStateToProps, {
   loadImageDetailTag,
   loadImageDetailTagConfig,
-})(NormalDeployBox)
+})(NormalDeployBox)*/
