@@ -12,6 +12,8 @@ import { Form,Select,Input,InputNumber,Modal,Checkbox,Button,Card,Menu,Switch } 
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
+import { DEFAULT_REGISTRY } from '../../../../constants'
+import { loadImageDetailTag, loadImageDetailTagConfig } from '../../../../actions/app_center'
 import "./style/NormalDeployBox.less"
 
 const Option = Select.Option;
@@ -82,20 +84,50 @@ var MyComponent = React.createClass({
 })
 MyComponent = createForm()(MyComponent);
 
+function loadImageTags(props) {
+  const { registry, currentSelectedImage, loadImageDetailTag } = props
+	loadImageDetailTag(registry, currentSelectedImage, {
+		success: {
+			func: (result) => {
+				const LATEST = 'latest'
+				let tag = result.data[0]
+				if (result.data.indexOf(LATEST) > -1) {
+					tag = LATEST
+				}
+				loadImageTagConfigs(tag, props)
+				const { setFieldsValue } = props.scope.props.form
+				setFieldsValue({
+					imageVersion: tag
+				})
+			},
+			isAsync: true
+		}
+	})
+}
+
 function loadImageTagConfigs(tag, props) {
 	console.log('loadImageTagConfigs-------------------')
 	console.log(tag)
+	const { currentSelectedImage, loadImageDetailTagConfig } = props
+	loadImageDetailTagConfig(DEFAULT_REGISTRY, currentSelectedImage, tag, {
+		success: {
+			func: (result) => {
+				console.log('set config here ~~')
+				console.log('set config here ~~')
+				console.log('set config here ~~')
+			},
+			isAsync: true
+		}
+	})
 }
 
 class NormalDeployBox extends Component {
   constructor(props) {
     super(props);
     this.selectComposeType = this.selectComposeType.bind(this);
-    this.changeInstanceNum = this.changeInstanceNum.bind(this);
-    this.changeServiceState = this.changeServiceState.bind(this);
 		this.onSelectTagChange = this.onSelectTagChange.bind(this)
     this.state = {
-      selectedImageTag: props.imageTags[0]
+		  
     }
   }
   userExists(rule, value, callback) {
@@ -120,54 +152,30 @@ class NormalDeployBox extends Component {
   		composeType:type
   	});
   }
-  changeInstanceNum(e){
-  	//the function for user set the max number of instance
-  	const parentScope = this.props.scope;
-  	parentScope.setState({
-  		instanceNum:e
-  	});
-  }
-  changeServiceState(e,parentScope){
-    //the function for change user select service status open or not
-    /*this.setState({
-      volumeSwitch:e
-    });*/
-    parentScope.setState({
-      volumeSwitch: e,
-    })
-		/*parentScope.props.scope.setState({
-      volumeSwitch: e,
-    })*/
-    console.log('parentScope.props.scope.state',parentScope.props.scope.state);
-  }
 
 	onSelectTagChange(tag) {
 		const { setFieldsValue } = this.props.scope.props.form
 		setFieldsValue({
 			imageVersion: tag
 		})
+		loadImageTagConfigs(tag, this.props)
 	}
 
-	componentWillReceiveProps(nextProps){
-		const { imageTags, scope } = nextProps
-		const { getFieldValue, setFieldsValue } = scope.props.form
-		if (imageTags.length < 1) {
-			return
-		}
-		let tagSelectFiledValue = getFieldValue('imageVersion')
-		if (!tagSelectFiledValue) {
-			tagSelectFiledValue = imageTags[0]
-			setFieldsValue({
-				imageVersion: tagSelectFiledValue
-			})
-		}
-		loadImageTagConfigs(tagSelectFiledValue, nextProps)
+	componentWillMount() {
+    loadImageTags(this.props)
+  }
+
+	componentWillReceiveProps(nextProps) {
+		const {serviceOpen} = nextProps
+    if(serviceOpen == this.props.serviceOpen){
+      return
+    }
+		loadImageTags(nextProps)
 	}
 
   render() {
   	const parentScope = this.props.scope;
 		const { imageTags, imageTagsIsFetching } = this.props
-		const { selectedImageTag } = this.state
     const { getFieldProps, getFieldError, isFieldValidating } = parentScope.props.form;
   	const nameProps = getFieldProps('name', {
       rules: [
@@ -183,9 +191,7 @@ class NormalDeployBox extends Component {
         { required: true, message: '请选择镜像版本' },
       ],
     });
-    const volumeChecked = getFieldProps('volumeChecked', {});
-    const volumePath = getFieldProps('volumePath', {});
-    const volumeName = getFieldProps('volumeName', {});
+
     return (
 	  <div id="NormalDeployBox">
 	  	{/*<Form horizontal form={parentScope.props.form}>*/}
@@ -212,15 +218,17 @@ class NormalDeployBox extends Component {
 	        <div className="inputBox">
 	          <span className="commonSpan">镜像版本</span>
 		        <FormItem className="imageTagForm">
-		          <Select 
+		          <Select
 								{...selectProps}
 								className="imageTag" size="large" tyle={{ width: 200 }}
 								placeholder="请选择镜像版本"
 								notFoundContent="镜像版本为空"
 								defaultActiveFirstOption={true}
 								onSelect={ this.onSelectTagChange }
+                
 							>
-								{ imageTags.map((tag) => {
+
+								{ imageTags && imageTags.map((tag) => {
 									return (
 										<Option key={tag} value={tag}>{tag}</Option>
 									)
@@ -314,21 +322,28 @@ class NormalDeployBox extends Component {
 	          <div className="stateService">
 	          	<span className="commonSpan">服务类型</span>
 	          	<Switch className="changeBtn"
-                      value="1"
-                      defaultChecked={false}
-                      checked={parentScope.state.volumeSwitch}
-                      onChange={(e) => this.changeServiceState(e,parentScope)}
+                    
+                      {...getFieldProps('volumeSwitch',{
+                        valuePropName: 'checked'
+                      })}
               />
-	          	<span className="stateSpan">{parentScope.state.volumeSwitch ? "有状态服务":"无状态服务"}</span>
-	          	{parentScope.state.volumeSwitch ? [
+
+	          	<span className="stateSpan">{parentScope.props.form.getFieldValue('volumeSwitch') ? "有状态服务":"无状态服务"}</span>
+	          	{parentScope.props.form.getFieldValue('volumeSwitch') ? [
                 <MyComponent parentScope={parentScope}/>
 	          	]:null}
 	          	<div style={{ clear:"both" }}></div>
 	          </div>
 		      	<div className="containerNum">
 		      	  <span className="commonSpan">容器数量</span>
-		      	  <InputNumber className="inputNum" value={parentScope.state.instanceNum} onChange={this.changeInstanceNum}
-		      	  	size="large" min={1} max={100} />&nbsp;&nbsp;个
+              <FormItem>
+                <InputNumber className="inputNum"
+                             {...getFieldProps('instanceNum',{
+                               initialValue: '1'
+                             })}
+                             size="large" min={1} max={100} />
+                &nbsp;&nbsp;个
+              </FormItem>
 		          <div style={{ clear:"both" }}></div>
 		      	</div>
 	      	</div>
@@ -340,8 +355,37 @@ class NormalDeployBox extends Component {
 }
 
 NormalDeployBox.propTypes = {
+  currentSelectedImage: PropTypes.string.isRequired,
+  imageTags: PropTypes.array.isRequired,
+  imageTagsIsFetching: PropTypes.bool.isRequired,
+  loadImageDetailTag: PropTypes.func.isRequired,
+  loadImageDetailTagConfig: PropTypes.func.isRequired,
 }
 
-NormalDeployBox = createForm()(NormalDeployBox);
+function mapStateToProps(state, props) {
+  const defaultImageTags = {
+    isFetching: false,
+    registry: DEFAULT_REGISTRY,
+    tag: []
+  }
+  const { imageTag } = state.getImageTag
+  const { registry, tag, isFetching, server } = imageTag[DEFAULT_REGISTRY] || defaultImageTags
+  const { currentSelectedImage } = props 
 
-export default NormalDeployBox;
+  return {
+    registry,
+		registryServer: server,
+    imageTags: tag || [],
+    imageTagsIsFetching: isFetching,
+    currentSelectedImage
+  }
+}
+
+NormalDeployBox = connect(mapStateToProps, {
+  loadImageDetailTag,
+  loadImageDetailTagConfig,
+})(NormalDeployBox)
+
+NormalDeployBox = createForm()(NormalDeployBox)
+
+export default NormalDeployBox

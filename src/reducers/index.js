@@ -52,19 +52,19 @@ function actionCallback(state = null, action) {
   if (action.type.indexOf('_SUCCESS') >= 0) {
     if (!callback.success) return state
     if (callback.success.isAsync) {
-      setTimeout(callback.success.func)
+      setTimeout(callback.success.func.bind(this, action.response.result))
       return state
     }
-    callback.success.func()
+    callback.success.func(action.response.result)
     return state
   }
   if (action.type.indexOf('_FAILURE') >= 0) {
     if (!callback.failure) return state
     if (callback.failure.isAsync) {
-      setTimeout(callback.failure.func)
+      setTimeout(callback.failure.func.bind(this, action.response.result))
       return state
     }
-    callback.failure.func()
+    callback.failure.func(action.response.result)
     return state
   }
   return state
