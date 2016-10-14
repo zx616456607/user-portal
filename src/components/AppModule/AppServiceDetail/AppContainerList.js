@@ -136,7 +136,7 @@ class AppContainerList extends Component {
 			return
 		}
 		if (serviceDetailmodalShow) {
-			loadData(this.props)			
+			loadData(nextProps)			
 		}
   }
   
