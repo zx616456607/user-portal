@@ -14,7 +14,7 @@ import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { cloneDeep } from 'lodash'
-import { getUploadFileUlr, uploadFileRequest, uploadFileSuccess, getStorageFileHistory, beforeUploadFile, uploading, mergeUploadingIntoList } from '../../actions/storage'
+import { getUploadFileUlr, uploadFileRequest, uploadFileSuccess, getStorageFileHistory, exportFile } from '../../actions/storage'
 import './style/storage.less'
 
 const RadioGroup = Radio.Group
@@ -55,7 +55,10 @@ class StorageStatus extends Component {
   }
 
   showUploadModal(){
-    this.setState({
+    this.props.uploadFileOptions({
+      pool: this.props.pool,
+      cluster: this.props.cluster,
+      volumeName:this.props.volumeName,
       visible: true
     })
   }
@@ -124,7 +127,6 @@ class StorageStatus extends Component {
       showUploadList: false,
       data: {
         isUnzip: self.state.isUnzip,
-        format: 'ext4',
         volumeName: volumeName,
         pool: 'test',
         backupId: self.props.beforeUploadState.backupId
@@ -153,7 +155,7 @@ class StorageStatus extends Component {
       action: getUploadFileUlr(self.props.pool, self.props.cluster, volumeName),
       onChange(info) {
         if(info.event) {
-          self.props.uploading(info.event.percent)
+          self.props.uploading(info.event.percent.toFixed(2))
         }
         if (info.file.status === 'done') {
           self.props.uploadFileSuccess()
@@ -180,6 +182,9 @@ class StorageStatus extends Component {
       } 
     }
   }
+  exportFile() {
+    this.exportFile(this.props.pool, this.props.cluster, this.props.volumeName)
+  }
   render(){
     const {formatMessage} = this.props.intl
     const statusList = this.props.fileHistory.history
@@ -203,30 +208,9 @@ class StorageStatus extends Component {
     }
     return (
       <div className="action-btns" style={{paddingLeft:'30px',paddingTop:'10px'}}>
-        <Modal title="上传文件" wrapClassName="vertical-center-modal" footer="" visible={this.state.visible} onCancel={this.handleCancel}>
-          <div className="uploadModal">
-            <RadioGroup onChange={(e) => {this.changeRadioValue(e)}} value={this.state.isUnzip}>
-              <Radio key="a" value={false}>直接上传</Radio>
-              <Radio key="b" value={true}>上传并解压</Radio>
-            </RadioGroup>
-            <p>
-              <Upload {...(this.getUploadData())} >
-                <Button type="primary">
-                  <Icon type="upload" /> 选择文件
-                </Button>
-              </Upload>
-            </p>
-            <p>或将文件拖到这里</p>
-          </div>
-          <ul className="uploadhint">
-            <li>1、支持任何格式文件，大小不超过600M</li>
-            <li>2、仅支持 zip 格式文件解压，导入时会覆盖存储卷内[同文件名]</li>
-            <li style={{color:'red'}}>* 请先停止挂载该存储卷的服务再进行文件导入</li>
-          </ul>
-        </Modal>
         <Button type="primary" onClick={this.showUploadModal} disabled={ !this.state.uploadFile }><Icon type="cloud-upload-o" />上传文件</Button>
         <span className="margin"></span>
-        <Button type="ghost"><Icon type="cloud-download-o" />导出文件</Button>
+        <Button type="ghost" onClick={() => this.exportFile()} disabled={!this.props.exportFileState.exportFile}><Icon type="cloud-download-o" />导出文件</Button>
         <div className="status-box">
          { status_list }
         </div>
@@ -244,7 +228,8 @@ function mapStateToProp(state) {
   return {
     upload: state.storage.uploadFile,
     fileHistory: state.storage.storageFileHistory,
-    beforeUploadState: state.storage.beforeUploadFile,
+    exportFileState: state.storage.exportFile,
+    uploadFileOptionsState: state.storage.uploadFileOptions
   }
 }
 
@@ -253,9 +238,8 @@ export default connect(mapStateToProp, {
   uploadFileRequest,
   uploadFileSuccess,
   getStorageFileHistory,
-  beforeUploadFile,
-  uploading,
-  mergeUploadingIntoList
+  exportFile,
+  uploadFileOptions,
 })(injectIntl(StorageStatus, {
   withRef: true,
 }))

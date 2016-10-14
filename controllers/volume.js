@@ -12,11 +12,12 @@
 const parse = require('co-busboy')
 const fs = require('fs')
 const formStream = require('formstream')
+const mime = require('mime')
 
 const VolumeApi = require('../tenx_api/v2')
 const volumeConfig = {
   protocol: 'http',
-  host: 'localhost:8001',
+  host: '192.168.0.41:8001',
   version: 'v1',
   auth: {
     user: 'zhangpc',
@@ -138,7 +139,9 @@ exports.uploadFile = function*() {
   const volumeName = parts.field.volumeName
   const backupId = parts.field.backupId
   const stream = formStream()
-  stream.stream(fileStream.filename, fileStream, fileStream.filename, fileStream.mimeType, fileStream._readableState.length)
+  const mimeType = mime.lookup(fileStream.filename)
+  stream.stream(fileStream.filename, fileStream, fileStream.filename, mimeType)
+  console.log(fileStream)
   let response = yield volumeApi.volumes.uploadFile([pool, cluster, volumeName, backupId, 'import'], { isUnzip }, stream, stream.headers())
   this.status = response.code
   this.body = response
@@ -152,4 +155,20 @@ exports.getFileHistory = function* () {
   let response = yield volumeApi.volumes.getBy([pool, cluster, volumeName, 'filehistory'])
   this.status = response.code
   this.body = response
+}
+
+exports.getBindInfo = function*() {
+  const pool = this.params.pool
+  const cluster = this.params.cluster
+  const volumeName = this.params.name
+  const response = yield volumeApi.volumes.getBy([pool, cluster, volumeName, 'bindinfo'], null)
+  this.status = response.code
+  this.body = response
+}
+
+exports.exportFile = function*() {
+  const pool = this.params.pool
+  const cluster = this.params.cluster
+  const volumeName = this.params.name
+  const response = yield volumeApi.volumes.getBy([pool, cluster, volumeName, 'exportfile'], null)
 }

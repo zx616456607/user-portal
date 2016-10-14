@@ -92,14 +92,12 @@ class StorageDetail extends Component {
                  { StorageInfo.volumeName }
                 </div>
                 <div className="info">
-                  <div className="status">
                     <FormattedMessage {...messages.useStatus} />
                     &nbsp;：
                     <span>
-	                    <i className="fa fa-circle"></i>
-	                    {StorageInfo.isUsed ?  <FormattedMessage {...messages.using} /> :  <FormattedMessage {...messages.stop} />}
+	                    <i className={StorageInfo.isUsed ? 'fa fa-circle error' : 'fa fa-circle normal'}></i>&nbsp;
+	                    <span className={StorageInfo.isUsed ? 'error' : 'normal'}>{StorageInfo.isUsed ?  <FormattedMessage {...messages.using} /> :  <FormattedMessage {...messages.stop} />}</span>
                     </span>
-                  </div>
                   <div className="createDate">
                     <FormattedMessage {...messages.create} />：
                    { StorageInfo.createTime }
@@ -124,7 +122,7 @@ class StorageDetail extends Component {
                   <StorageStatus key="StorageStatus" volumeName={ StorageInfo.volumeName } pool={ StorageInfo.imagePool  } cluster = {StorageInfo.cluster}/>
                 </TabPane>
                 <TabPane tab={<FormattedMessage {...messages.bindContainer} />} key="2" >
-                  <StorageBind pool={StorageInfo.pool} cluster={StorageInfo.cluster} />
+                  <StorageBind pool={StorageInfo.imagePool} cluster={StorageInfo.cluster} volumeName={ StorageInfo.volumeName} />
                 </TabPane>
               </Tabs>
             </Card>

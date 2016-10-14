@@ -206,6 +206,56 @@ function beforeUploadFile(state = {}, action) {
   }
 }
 
+function volumeBindInfo(state = {}, action) {
+  const defaultState = {
+    isFetching: false
+  }
+  switch(action.type) {
+    case ActionTypes.STORAGE_GETVOLUMEBIND_REQUEST:
+      return _.merge({}, defaultState, {isFetching: true})
+    case ActionTypes.STORAGE_GETVOLUMEBIND_SUCCESS:
+      return _.merge({}, defaultState, { volumeBindInfo: action.response.result.body }, {isFetching: false})
+    case ActionTypes.STORAGE_GETVOLUMEBIND_FAILURE:
+      return _.merge({}, defaultState, {isFetching: false})
+    default: 
+      return state
+  }
+}
+
+function changeUploadFileOptions(state = {}, action) {
+  const defaultState = {
+    visible: false,
+    uploadFile: true
+  }
+  switch(action.type) {
+    case ActionTypes.STORAGE_CHANGE_UPLOADOPTIONS: {
+      return action.options
+    }
+    default: {
+      return _.merge(defaultState, state)
+    }
+  }
+}
+
+function exportFile(state = {}, action) {
+  const defaultState = {
+    isFetching: false,
+    percent: 0,
+    visible: false,
+    exportFile: true
+  }
+  switch(action.type) {
+    case ActionTypes.STORAGE_EXPORT_FILE_REQUEST: 
+      return _.merge({}, defaultState, state, { isFetching: true })
+    case ActionTypes.STORAGE_EXPORT_FILE_SUCCESS:
+      return _.merge({}, defaultState, state, { visible: true, percent: 100, isFetching: false}, action.response.result.body)
+    case ActionTypes.STORAGE_EXPORT_FILE_FAILURE:
+      return _.merge({}, defaultState, state, { visible: false, percent: 100, isFetching: false})
+    default:
+      return _.merge({}, defaultState, state)
+  } 
+}
+
 
 export default function storageReducer(state = {}, action) {
   return {
@@ -218,5 +268,8 @@ export default function storageReducer(state = {}, action) {
     uploadFile: uploadFile(state.uploadFile, action),
     storageFileHistory: getStorageFileHistory(state.storageFileHistory, action),
     beforeUploadFile: beforeUploadFile(state.beforeUploadFile, action),
+    volumeBindInfo: volumeBindInfo(state.volumeBindInfo, action),
+    uploadFileOptions: changeUploadFileOptions(state.uploadFileOptions, action),
+    exportFile: exportFile(state.exportFile, action)
   }
 }

@@ -31,6 +31,8 @@ module.exports = function (Router) {
   router.post('/storage-pools/:pool/:cluster/volumes/:name/beforeimport', volumeController.beforeUploadFile)
   router.post('/storage-pools/:pool/:cluster/volumes/:name/import', volumeController.uploadFile)
   router.get('/storage-pools/:pool/:cluster/volumes/:name/filehistory', volumeController.getFileHistory)
+  router.get('/storage-pools/:pool/:cluster/volumes/:name/bindinfo', volumeController.getBindInfo)
+  router.get('/storage-pools/:pool/:cluster/volumes/:name/exportfile', volumeController.exportFile)
   // Apps 
   router.post('/clusters/:cluster/apps', appController.createApp)
   router.get('/clusters/:cluster/apps', appController.getApps)

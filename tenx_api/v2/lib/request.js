@@ -50,7 +50,7 @@ module.exports = (protocol, host, version, auth, timeout) => {
     }
     if (object.stream) {
       options.stream = object.stream
-      delete options.timeout
+      options.timeout = 36000000
       delete options.contentType
     }
     logger.info(`[${options.method || 'GET'}] ${url}`)

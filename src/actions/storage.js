@@ -214,8 +214,7 @@ export function mergeUploadingIntoList(uploadingFile) {
 export const STORAGE_BEFORE_UPLOADFILE_REQUEST = 'STORAGE_BEFORE_UPLOADFILE_REQUEST'
 export const STORAGE_BEFORE_UPLOADFILE_SUCCESS = 'STORAGE_BEFORE_UPLOADFILE_SUCCESS'
 export const STORAGE_BEFORE_UPLOADFILE_FAILURE = 'STORAGE_BEFORE_UPLOADFILE_FAILURE'
-
-
+ 
 export function beforeUploadFile(pool, cluster, volume, file, callback) {
   return {
     [FETCH_API]: {
@@ -230,6 +229,43 @@ export function beforeUploadFile(pool, cluster, volume, file, callback) {
           isUnzip: file.isUnzip
         }
       }
+    },
+    callback
+  }
+}
+
+export const STORAGE_GETVOLUMEBIND_REQUEST = 'STORAGE_GETVOLUMEBIND_REQUEST'
+export const STORAGE_GETVOLUMEBIND_SUCCESS = 'STORAGE_GETVOLUMEBIND_SUCCESS'
+export const STORAGE_GETVOLUMEBIND_FAILURE = 'STORAGE_GETVOLUMEBIND_FAILURE'
+
+export function getVolumeBindInfo(pool, cluster, volumeName, callback) {
+  return {
+    [FETCH_API]: {
+      types: [STORAGE_GETVOLUMEBIND_REQUEST, STORAGE_GETVOLUMEBIND_SUCCESS, STORAGE_GETVOLUMEBIND_FAILURE],
+      endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/${cluster}/volumes/${volumeName}/bindinfo`,
+      schema: {}
+    },
+    callback
+  }
+}
+
+export const STORAGE_CHANGE_UPLOADOPTIONS = 'STORAGE_CHANGE_UPLOADOPTIONS'
+export function uploadFileOptions(options) {
+  return {
+    type: STORAGE_CHANGE_UPLOADOPTIONS,
+    options
+  }
+}
+
+export const STORAGE_EXPORT_FILE_REQUEST = 'STORAGE_EXPORT_FILE_REQUEST'
+export const STORAGE_EXPORT_FILE_SUCCESS = 'STORAGE_EXPORT_FILE_SUCCESS'
+export const STORAGE_EXPORT_FILE_FAILURE = 'STORAGE_EXPORT_FILE_FAILURE'
+
+export function exportFile(pool, cluster, volumeName, callback) {
+  return {
+    [FETCH_API]: {
+      types: [STORAGE_EXPORT_FILE_REQUEST, STORAGE_EXPORT_FILE_SUCCESS, STORAGE_EXPORT_FILE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/${cluster}/volumes/${volumeName}/exportfile`
     },
     callback
   }
