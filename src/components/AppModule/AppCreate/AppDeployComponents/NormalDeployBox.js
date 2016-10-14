@@ -95,7 +95,7 @@ class NormalDeployBox extends Component {
     this.changeServiceState = this.changeServiceState.bind(this);
 		this.onSelectTagChange = this.onSelectTagChange.bind(this)
     this.state = {
-      selectedImageTag: props.imageTags[0]
+		  
     }
   }
   userExists(rule, value, callback) {
@@ -167,7 +167,6 @@ class NormalDeployBox extends Component {
   render() {
   	const parentScope = this.props.scope;
 		const { imageTags, imageTagsIsFetching } = this.props
-		const { selectedImageTag } = this.state
     const { getFieldProps, getFieldError, isFieldValidating } = parentScope.props.form;
   	const nameProps = getFieldProps('name', {
       rules: [
