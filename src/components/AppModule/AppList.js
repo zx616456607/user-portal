@@ -18,9 +18,6 @@ import { DEFAULT_CLUSTER } from '../../constants'
 import { tenxDateFormat } from '../../common/tools.js'
 
 const confirm = Modal.confirm
-const operaMenu = (<Menu>
-					  
-					</Menu>);
 
 const MyComponent = React.createClass({	  
   propTypes: {
@@ -42,7 +39,7 @@ const MyComponent = React.createClass({
 		});
   },
 	appOperaClick: function(item,e){
-		//this function for user click opera image
+		//this function for user click opera menu
 	},
 	selectAppDetail: function(item){
 		//this function for user click app detail ,and then this app will be selected
@@ -75,7 +72,7 @@ const MyComponent = React.createClass({
 		}
 		const scope = this;
 		const items = config.map((item) => {
-			const dropdown = (
+		const dropdown = (
 			  <Menu onClick={this.appOperaClick.bind(this,item)}
 					style={{width:"100px"}}
 			  >
