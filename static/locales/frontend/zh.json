@@ -132,7 +132,8 @@
   "AppCenter.ImageCenter.ImageDetail.deployService":"部署镜像",
   "AppCenter.ImageCenter.ImageDetail.downloadImage":"下载镜像",
   "AppCenter.ImageCenter.ImageDetail.info":"基本信息",
-  "AppCenter.ImageCenter.ImageDetail.serviceAPI":"服务接口",
-  "AppCenter.ImageCenter.ImageDetail.tag":"版本",
-  "AppCenter.ImageCenter.ImageDetail.attribute":"属性"
+  "AppCenter.ImageCenter.ImageDetail.tag":"版本及接口",
+  "AppCenter.ImageCenter.ImageDetail.attribute":"属性",
+  "AppCenter.ImageCenter.ImageDetail.copyBtn":"点击复制",
+  "AppCenter.ImageCenter.ImageDetail.copySuccess":"复制成功"
 }

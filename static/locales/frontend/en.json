@@ -132,7 +132,8 @@
   "AppCenter.ImageCenter.ImageDetail.deployService":"Deploy Image",
   "AppCenter.ImageCenter.ImageDetail.downloadImage":"Download Image",
   "AppCenter.ImageCenter.ImageDetail.info":"Info",
-  "AppCenter.ImageCenter.ImageDetail.serviceAPI":"ServiceAPI",
-  "AppCenter.ImageCenter.ImageDetail.tag":"Tags",
-  "AppCenter.ImageCenter.ImageDetail.attribute":"Attribute"
+  "AppCenter.ImageCenter.ImageDetail.tag":"Tags & APIs",
+  "AppCenter.ImageCenter.ImageDetail.attribute":"Attribute",
+  "AppCenter.ImageCenter.ImageDetail.copyBtn":"Click Copy",
+  "AppCenter.ImageCenter.ImageDetail.copySuccess":"Copy Success"
 }

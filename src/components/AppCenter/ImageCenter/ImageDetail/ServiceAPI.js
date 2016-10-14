@@ -48,7 +48,7 @@ let MyComponent = React.createClass({
 			});
 		}else{
 			items = (
-				<div className="apiItemDetail" key={index} >
+				<div className="apiItemDetail" key="apiItemDetail" >
 					No Data
 				</div>
 			)

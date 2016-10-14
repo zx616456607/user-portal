@@ -8,12 +8,11 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Switch,Tabs,Button,Card,Menu } from 'antd'
+import { Switch,Tabs,Button,Card,Menu,Tooltip } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import ImageVersion from './ImageVersion.js'
-import ServiceAPI from './ServiceAPI.js'
 import DetailInfo from './DetailInfo.js'
 import './style/ImageDetailBox.less'
 
@@ -48,33 +47,39 @@ const menusText = defineMessages({
     id: 'AppCenter.ImageCenter.ImageDetail.info',
     defaultMessage: '基本信息',
   },
-  serviceAPI: {
-    id: 'AppCenter.ImageCenter.ImageDetail.serviceAPI',
-    defaultMessage: '服务接口',
-  },
   tag: {
     id: 'AppCenter.ImageCenter.ImageDetail.tag',
-    defaultMessage: '版本',
+    defaultMessage: '版本及接口',
   },
   attribute: {
     id: 'AppCenter.ImageCenter.ImageDetail.attribute',
     defaultMessage: '属性',
   },
+  copyBtn: {
+  	id: 'AppCenter.ImageCenter.ImageDetail.copyBtn',
+    defaultMessage: '点击复制',
+  },
+  copySuccess: {
+  	id: 'AppCenter.ImageCenter.ImageDetail.copySuccess',
+    defaultMessage: '复制成功',
+  }
 })
 
 class ImageDetailBox extends Component {
   constructor(props) {
     super(props);
+    this.copyDownloadCode = this.copyDownloadCode.bind(this);
+    this.returnDefaultTooltip = this.returnDefaultTooltip.bind(this);
     this.state = {
     	imageDetail:null,
-    	tags:null
+    	copySuccess:false
     }
   }
   
   componentWillMount(){
   	const imageDetail = this.props.config;
   	this.setState({
-  		imageDetail:imageDetail
+  		imageDetail:imageDetail  		
   	});
   }
   
@@ -87,11 +92,34 @@ class ImageDetailBox extends Component {
 		});
 	}
   
+  copyDownloadCode(){
+  	//this function for user click the copy btn and copy the download code
+		const scope = this;
+  	let code = document.getElementsByClassName("pullCodeInput");
+		code[0].select();
+		document.execCommand("Copy",false);
+		scope.setState({
+				copySuccess:true
+		});
+  }
+  
+  returnDefaultTooltip(){
+  	const scope = this;
+  	setTimeout(function(){
+  		scope.setState({
+				copySuccess:false
+			});
+  	},500);
+  }
+  
   render() {
   	const { formatMessage } = this.props.intl;
   	const imageDetail = this.props.config;
   	const config = this.state.imageDetail;
   	const scope = this;
+  	const ipAddress = this.props.scope.props.registryServer;
+  	const imageName = this.state.imageDetail.name;
+  	let pullCode = "docker pull " + ipAddress + "/" + imageName;
     return (
       <div id="ImageDetailBox">
         <div className="headerBox">
@@ -122,8 +150,11 @@ class ImageDetailBox extends Component {
        		<div className="code">
        			<i className="fa fa-download"></i>&nbsp;
        			<FormattedMessage {...menusText.downloadImage} />&nbsp;&nbsp;&nbsp;&nbsp;
-       			<span className="pullCode">docker pull 192.168.123.456/{imageDetail.imageUrl}</span>&nbsp;&nbsp;
-       			<i className="fa fa-copy"></i>
+       				<span className="pullCode">docker pull { ipAddress }/{ imageName }&nbsp;&nbsp;</span>
+       			<Tooltip title={ this.state.copySuccess ? formatMessage(menusText.copySuccess) : formatMessage(menusText.copyBtn) } getTooltipContainer={ () => document.getElementById("ImageDetailBox") }>
+       				<i className="fa fa-copy" onClick={ this.copyDownloadCode } onMouseLeave={this.returnDefaultTooltip}></i>
+       			</Tooltip>
+       			<input className="pullCodeInput" value= { pullCode } style={{ position:"absolute",opacity:"0" }} />
        		</div>
        		<div className="times">
        			<i className="fa fa-cloud-download"></i>&nbsp;&nbsp;
@@ -134,10 +165,9 @@ class ImageDetailBox extends Component {
         <div className="tabBox">
         	<Tabs className="itemList" defaultActiveKey="1">
 				    <TabPane tab={ formatMessage(menusText.info) } key="1"><DetailInfo config={imageDetail} /></TabPane>
-				    <TabPane tab={ formatMessage(menusText.serviceAPI) } key="2"><ServiceAPI config={imageDetail} /></TabPane>
-				    <TabPane tab="DockerFile" key="3">Conten of Tab Pane 3</TabPane>
-				    <TabPane tab={ formatMessage(menusText.tag) } key="4"><ImageVersion scope={scope} config={imageDetail} /></TabPane>
-				    <TabPane tab={ formatMessage(menusText.attribute) } key="5">Conten of Tab Pane 3</TabPane>
+				    <TabPane tab="DockerFile" key="2">Conten of Tab Pane 3</TabPane>
+				    <TabPane tab={ formatMessage(menusText.tag) } key="3"><ImageVersion scope={scope} config={imageDetail} /></TabPane>
+				    <TabPane tab={ formatMessage(menusText.attribute) } key="4">Conten of Tab Pane 3</TabPane>
 				  </Tabs>
         </div>
     	</div>
