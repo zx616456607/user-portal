@@ -121,12 +121,16 @@ class NormalDeployBox extends Component {
   }
   changeServiceState(e,parentScope){
     //the function for change user select service status open or not
-    this.setState({
-      stateService:e
-    });
+    /*this.setState({
+      volumeSwitch:e
+    });*/
     parentScope.setState({
       volumeSwitch: e,
     })
+		/*parentScope.props.scope.setState({
+      volumeSwitch: e,
+    })*/
+    console.log('parentScope.props.scope.state',parentScope.props.scope.state);
   }
   render() {
   	const parentScope = this.props.scope;
@@ -264,9 +268,14 @@ class NormalDeployBox extends Component {
 	          </div>
 	          <div className="stateService">
 	          	<span className="commonSpan">服务类型</span>
-	          	<Switch className="changeBtn" value="1" defaultChecked={false}  onChange={(e) => this.changeServiceState(e,parentScope)} />
-	          	<span className="stateSpan">{this.state.stateService ? "有状态服务":"无状态服务"}</span>
-	          	{this.state.stateService ? [
+	          	<Switch className="changeBtn"
+                      value="1"
+                      defaultChecked={false}
+                      checked={parentScope.state.volumeSwitch}
+                      onChange={(e) => this.changeServiceState(e,parentScope)}
+              />
+	          	<span className="stateSpan">{parentScope.state.volumeSwitch ? "有状态服务":"无状态服务"}</span>
+	          	{parentScope.state.volumeSwitch ? [
                 <MyComponent parentScope={parentScope}/>
 	          	]:null}
 	          	<div style={{ clear:"both" }}></div>

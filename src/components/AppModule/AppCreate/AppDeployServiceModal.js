@@ -47,12 +47,23 @@ class AppDeployServiceModal extends Component {
         return '1'
       case '512Mi':
         return '2'
+      case '1024Mi':
+        return '4'
+      case '2048Mi':
+        return '8'
+      case '4096Mi':
+        return '16'
+      case '8192Mi':
+        return '32'
+      default:
+        return '1'
     }
   }
   setForm(){
     const { scope } = this.props
     console.log('set');
-    console.log(scope.state.checkInf.Deployment.spec.template.spec.containers[0].image.split(':'));
+    console.log('this.state',this.state);
+    console.log('this.scope',scope.state);
     this.props.form.setFieldsValue({
       name:scope.state.checkInf.Service.metadata.name,
       imageVersion:scope.state.checkInf.Deployment.spec.template.spec.containers[0].image.split(':')[1],
@@ -62,7 +73,13 @@ class AppDeployServiceModal extends Component {
       composeType:'2'
     })*/
     this.setState({
-      composeType: this.limits()
+      composeType: this.limits(),
+      volumeSwitch:true,
+      
+    })
+    scope.setState({
+      volumeSwitch:true,
+      instanceNum:scope.state.checkInf.Deployment.spec.replicas
     })
     /*scope.props.scope.setState({
       registryServer:scope.state.checkInf.Deployment.spec.template.spec.containers.image
@@ -350,6 +367,17 @@ class AppDeployServiceModal extends Component {
       serviceModalShow:false
     })
     this.props.form.resetFields()
+    this.setState({
+      instanceNum:1,
+      composeType:"1",
+      runningCode:"1",
+      getImageType:"1",
+      stateService:false,
+      currentDate:false,
+      volumeSwitch:false,
+      getUsefulType:"null",
+      checkInf:null,
+    })
   }
   render() {
   	const scope = this
