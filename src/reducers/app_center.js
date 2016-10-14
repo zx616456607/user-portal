@@ -66,7 +66,7 @@ function imageTag(state = {}, action) {
         [registry]: {isFetching: true}
       })
     case ActionTypes.IMAGE_GET_DETAILTAG_SUCCESS:
-      return merge({}, state, {
+      return Object.assign({}, state, {
         [registry]: {
           isFetching: false,
           registry: action.response.result.registry,
@@ -85,7 +85,7 @@ function imageTag(state = {}, action) {
 
 export function getImageTag(state = { publicImages: {} }, action) {
   return {
-    imageTag: imageTag(state.getImageTag, action),
+    imageTag: imageTag(state.imageTag, action),
   }
 }
 
@@ -106,7 +106,7 @@ function imageTagConfig(state = {}, action) {
         [registry]: {isFetching: true}
       })
     case ActionTypes.IMAGE_GET_DETAILTAGCONFIG_SUCCESS:
-      return merge({}, state, {
+      return Object.assign({}, state, {
         [registry]: {
           isFetching: false,
           registry: action.response.result.registry,
@@ -126,6 +126,6 @@ function imageTagConfig(state = {}, action) {
 
 export function getImageTagConfig(state = { publicImages: {} }, action) {
   return {
-    imageTagConfig: imageTagConfig(state.getImageTagConfig, action),
+    imageTagConfig: imageTagConfig(state.imageTagConfig , action),
   }
 }

@@ -131,7 +131,7 @@ class ImageDetailBox extends Component {
        		</div>
        		<div style={{ clear:"both" }}></div>
        	</div>
-        <div className="infoBox">
+        <div className="tabBox">
         	<Tabs className="itemList" defaultActiveKey="1">
 				    <TabPane tab={ formatMessage(menusText.info) } key="1"><DetailInfo config={imageDetail} /></TabPane>
 				    <TabPane tab={ formatMessage(menusText.serviceAPI) } key="2"><ServiceAPI config={imageDetail} /></TabPane>

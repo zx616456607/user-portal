@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component } from 'react'
-import { Card } from 'antd'
+import { Card,Spin } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import { loadImageDetailTagConfig } from '../../../../actions/app_center'
@@ -19,17 +19,40 @@ let MyComponent = React.createClass({
   propTypes : {
     config : React.PropTypes.array
   },
+  formatEnv: function(envList){
+  	//this function for format the env list ,change the single elem to an new json
+  	let newList = new Array();
+		envList.map((item) => {
+			let tempList = item.split("=");
+			let tempElem = {
+				"envName":tempList[0],
+				"envData":tempList[1]
+			}
+		  	newList.push(tempElem);
+		});
+  	return newList;
+  },
   render : function() {
 		let config = this.props.config;
-		let items = config.map((item) => {
-		  return (
-		    <div className="apiItemDetail" key={item.id} >
-					<span className="leftSpan">{item.imageName}</span>
-        	<span className="rightSpan">{item.imageUrl}</span>
-        	<div style={{ clear:"both" }}></div>
+		let items;
+		if(!!config){			
+			let showList = this.formatEnv(config);
+			items = showList.map((item,index) => {
+			  return (
+			    <div className="apiItemDetail" key={index} >
+						<span className="leftSpan">{item.envName}</span>
+	        	<span className="rightSpan">{item.envData}</span>
+	        	<div style={{ clear:"both" }}></div>
+					</div>
+		    );
+			});
+		}else{
+			items = (
+				<div className="apiItemDetail" key={index} >
+					No Data
 				</div>
-	    );
-		});
+			)
+		}
 		return (
 		  <div className="apiItemList">
 	        { items }
@@ -53,10 +76,53 @@ class ServiceAPI extends Component {
   }
   
   render() {
+  	const { isFetching,configList } = this.props;
+  	console.log(configList)
+  	if(isFetching){
+  		return (
+  			<Card className="imageServiceAPI">
+  				<Spin />
+  			</Card>
+  		)
+  	}
+  	let portsShow = null,dataStorageShow = null,cmdShow = null,entrypointShow = null;
+  	let ports = configList.containerPorts;
+  	if(!!ports){ 		
+			portsShow = ports.map((item) => {
+				return (
+					<p>容器端口:&nbsp;{item}</p>
+				)
+			});
+  	}
+  	let dataStorage = configList.mountPath;
+  	if(!!dataStorage){
+  		dataStorageShow = dataStorage.map((item) => {
+				return (
+					<p>数据存储器: &nbsp;{item}</p>
+				)
+			});
+  	}
+  	let { cmd,entrypoint } = configList;
+  	if(!!cmd){
+  		cmdShow = cmd.map((item) => {
+	  		return (
+	  			<span>{ item }&nbsp;</span>
+	  		)
+	  	});
+  	}
+  	if(!!entrypoint){
+  		entrypointShow = entrypoint.map((item) => {
+  			return (
+  				<span>{item}&nbsp;</span>
+  			)
+  		});
+  	}
+  	let { defaultEnv } = configList;
     return (
       <Card className="imageServiceAPI">
-        <p>容器端口: 8080/tcp</p>
-        <p>数据存储器: 无</p>
+        { portsShow }
+        { dataStorageShow }
+        <p>运行命令及参数:&nbsp;{ entrypointShow }{ cmdShow }</p>
         <p>所需环境变量: </p>
         <div className="itemBox">
         	<div className="title">
@@ -64,7 +130,7 @@ class ServiceAPI extends Component {
         		<span className="rightSpan">镜像</span>
         		<div style={{ clear:"both" }}></div>
         	</div>
-        	
+        	<MyComponent config={ defaultEnv } />
         </div>
     	</Card>
     )
