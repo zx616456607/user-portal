@@ -98,7 +98,6 @@ class NormalDeployBox extends Component {
   constructor(props) {
     super(props);
     this.selectComposeType = this.selectComposeType.bind(this);
-    this.changeInstanceNum = this.changeInstanceNum.bind(this);
     this.changeServiceState = this.changeServiceState.bind(this);
 		this.onSelectTagChange = this.onSelectTagChange.bind(this)
     this.state = {
@@ -154,7 +153,11 @@ class NormalDeployBox extends Component {
   }
 
 	componentWillReceiveProps(nextProps) {
-
+		const {serviceOpen} = nextProps
+    if(serviceOpen == this.props.serviceOpen){
+      return
+    }
+		loadImageTags(nextProps)
 		/*const { imageTags, scope } = nextProps
 		const { getFieldValue, setFieldsValue } = scope.props.form
 		if (imageTags.length < 1) {

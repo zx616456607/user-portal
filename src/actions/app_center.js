@@ -41,22 +41,23 @@ export const IMAGE_GET_DETAILTAG_REQUEST = 'IMAGE_GET_DETAILTAG_REQUEST'
 export const IMAGE_GET_DETAILTAG_SUCCESS = 'IMAGE_GET_DETAILTAG_SUCCESS'
 export const IMAGE_GET_DETAILTAG_FAILURE = 'IMAGE_GET_DETAILTAG_FAILURE'
 
-function fetchImageGetDetailTag(registry,fullName) {
+function fetchImageGetDetailTag(registry, fullName, callback) {
   return {
     registry,
     [FETCH_API]: {
       types: [ IMAGE_GET_DETAILTAG_REQUEST, IMAGE_GET_DETAILTAG_SUCCESS, IMAGE_GET_DETAILTAG_FAILURE ],
       endpoint: `${API_URL_PREFIX}/registries/${registry}/${fullName}/tags`,
       schema: Schemas.REGISTRYS
-    }
+    },
+    callback
   }
 }
 
 // Fetches apps list from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function loadImageDetailTag(registry, fullName) {
+export function loadImageDetailTag(registry, fullName, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchImageGetDetailTag(registry,fullName))
+    return dispatch(fetchImageGetDetailTag(registry, fullName, callback))
   }
 }
 
@@ -65,22 +66,23 @@ export const IMAGE_GET_DETAILTAGCONFIG_REQUEST = 'IMAGE_GET_DETAILTAGCONFIG_REQU
 export const IMAGE_GET_DETAILTAGCONFIG_SUCCESS = 'IMAGE_GET_DETAILTAGCONFIG_SUCCESS'
 export const IMAGE_GET_DETAILTAGCONFIG_FAILURE = 'IMAGE_GET_DETAILTAGCONFIG_FAILURE'
 
-function fetchImageGetDetailTagConfig(registry,fullName,tag) {
+function fetchImageGetDetailTagConfig(registry, fullName, tag, callback) {
   return {
     registry,
     [FETCH_API]: {
       types: [ IMAGE_GET_DETAILTAGCONFIG_REQUEST, IMAGE_GET_DETAILTAGCONFIG_SUCCESS, IMAGE_GET_DETAILTAGCONFIG_FAILURE ],
       endpoint: `${API_URL_PREFIX}/registries/${registry}/${fullName}/tags/${tag}/configs`,
-      schema: Schemas.REGISTRYS
+      schema: Schemas.REGISTRYS,
+      callback
     }
   }
 }
 
 // Fetches apps list from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function loadImageDetailTagConfig(registry,fullName,tag) {
+export function loadImageDetailTagConfig(registry, fullName, tag, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchImageGetDetailTagConfig( registry, fullName, tag))
+    return dispatch(fetchImageGetDetailTagConfig(registry, fullName, tag, callback))
   }
 }
 
