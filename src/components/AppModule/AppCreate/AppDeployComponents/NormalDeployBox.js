@@ -12,6 +12,8 @@ import { Form,Select,Input,InputNumber,Modal,Checkbox,Button,Card,Menu,Switch } 
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
+import { DEFAULT_REGISTRY } from '../../../../constants'
+import { loadImageDetailTag, loadImageDetailTagConfig } from '../../../../actions/app_center'
 import "./style/NormalDeployBox.less"
 
 const Option = Select.Option;
@@ -82,6 +84,11 @@ var MyComponent = React.createClass({
 })
 MyComponent = createForm()(MyComponent);
 
+function loadImageTags(props) {
+  const { registry, currentSelectedImage, loadImageDetailTag } = props
+  loadImageDetailTag(registry, currentSelectedImage)
+}
+
 function loadImageTagConfigs(tag, props) {
 	console.log('loadImageTagConfigs-------------------')
 	console.log(tag)
@@ -146,10 +153,16 @@ class NormalDeployBox extends Component {
 		setFieldsValue({
 			imageVersion: tag
 		})
+		loadImageTagConfigs(tag, this.props)
 	}
 
-	componentWillReceiveProps(nextProps){
-		const { imageTags, scope } = nextProps
+	componentWillMount() {
+    loadImageTags(this.props)
+  }
+
+	componentWillReceiveProps(nextProps) {
+
+		/*const { imageTags, scope } = nextProps
 		const { getFieldValue, setFieldsValue } = scope.props.form
 		if (imageTags.length < 1) {
 			return
@@ -161,7 +174,7 @@ class NormalDeployBox extends Component {
 				imageVersion: tagSelectFiledValue
 			})
 		}
-		loadImageTagConfigs(tagSelectFiledValue, nextProps)
+		loadImageTagConfigs(tagSelectFiledValue, nextProps)*/
 	}
 
   render() {
@@ -339,8 +352,35 @@ class NormalDeployBox extends Component {
 }
 
 NormalDeployBox.propTypes = {
+  currentSelectedImage: PropTypes.string.isRequired,
+  imageTags: PropTypes.array.isRequired,
+  imageTagsIsFetching: PropTypes.bool.isRequired,
+  loadImageDetailTag: PropTypes.func.isRequired,
+  loadImageDetailTagConfig: PropTypes.func.isRequired,
 }
 
 NormalDeployBox = createForm()(NormalDeployBox);
 
-export default NormalDeployBox;
+function mapStateToProps(state, props) {
+  const defaultImageTags = {
+    isFetching: false,
+    registry: DEFAULT_REGISTRY,
+    tag: []
+  }
+  const { imageTag } = state.getImageTag
+  const { registry, tag, isFetching, server } = imageTag[DEFAULT_REGISTRY] || defaultImageTags
+  const { currentSelectedImage } = props 
+
+  return {
+    registry,
+		registryServer: server,
+    imageTags: tag || [],
+    imageTagsIsFetching: isFetching,
+    currentSelectedImage
+  }
+}
+
+export default connect(mapStateToProps, {
+  loadImageDetailTag,
+  loadImageDetailTagConfig,
+})(NormalDeployBox)

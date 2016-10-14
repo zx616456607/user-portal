@@ -9,26 +9,18 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { Form,Switch,Select,Collapse,Dropdown,Modal,Checkbox,Button,Card,Menu,Input,InputNumber,Radio,Icon  } from 'antd'
-import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import NormalDeployBox from './AppDeployComponents/NormalDeployBox'
 import AssitDeployBox from './AppDeployComponents/AssitDeployBox'
 import UsefulDeployBox from './AppDeployComponents/UsefulDeployBox'
 import ComposeDeployBox from './AppDeployComponents/ComposeDeployBox'
 import EnviroDeployBox from './AppDeployComponents/EnviroDeployBox'
-import { loadImageDetailTag, loadImageDetailTagConfig } from '../../../actions/app_center' 
-import { DEFAULT_REGISTRY } from '../../../constants'
 import "./style/AppDeployServiceModal.less"
 
 const Deployment = require('../../../../kubernetes/objects/deployment')
 const Service = require('../../../../kubernetes/objects/service')
 const Panel = Collapse.Panel;
 const createForm = Form.create;
-
-function loadImageTags(props) {
-  const { registry, currentSelectedImage, loadImageDetailTag } = props
-  loadImageDetailTag(registry, currentSelectedImage)
-}
 
 class AppDeployServiceModal extends Component {
   constructor(props) {
@@ -99,7 +91,6 @@ class AppDeployServiceModal extends Component {
     if(this.props.scope.state.checkState === '修改'){
       this.setForm()
     }
-    loadImageTags(this.props)
   }
   componentWillReceiveProps(nextProps){
     const {serviceOpen} = nextProps
@@ -109,7 +100,6 @@ class AppDeployServiceModal extends Component {
     }
     if(serviceOpen){
       console.log('open');
-      loadImageTags(nextProps)
       if(this.props.scope.state.checkState === '修改'){
         this.setForm()
       }
@@ -392,14 +382,17 @@ class AppDeployServiceModal extends Component {
   render() {
   	const scope = this
     const parentScope = this.props.scope
-  	const {imageTags, imageTagsIsFetching} = this.props
     const {servicesList} = parentScope.state.servicesList
     const {currentSelectedImage, registryServer} = parentScope.state
-    
+    const { form, serviceOpen } = this.props
     return (
 	  <div id="AppDeployServiceModal">
-    	<Form horizontal form={this.props.form}>
-    		<NormalDeployBox scope={scope} registryServer={registryServer} currentSelectedImage={currentSelectedImage}  imageTags={imageTags} imageTagsIsFetching={imageTagsIsFetching} />
+    	<Form horizontal form={form}>
+    		<NormalDeployBox
+          scope={scope} registryServer={registryServer}
+          currentSelectedImage={currentSelectedImage}
+          serviceOpen={serviceOpen}
+        />
 	      <Collapse>
 	    		<Panel header={assitBoxTitle} key="1" className="assitBigBox">
 					  <AssitDeployBox scope={scope} />
@@ -466,35 +459,7 @@ AppDeployServiceModal = createForm()(AppDeployServiceModal);
 AppDeployServiceModal.propTypes = {
   cluster: PropTypes.string.isRequired,
   serviceList: PropTypes.array.isRequired,
-  currentSelectedImage: PropTypes.string.isRequired,
-  imageTags: PropTypes.array.isRequired,
-  imageTagsIsFetching: PropTypes.bool.isRequired,
-  isFetching: PropTypes.bool.isRequired,
-  loadImageDetailTag: PropTypes.func.isRequired,
-  loadImageDetailTagConfig: PropTypes.func.isRequired,
 }
 
-function mapStateToProps(state, props) {
-  const defaultImageTags = {
-    isFetching: false,
-    registry: DEFAULT_REGISTRY,
-    tag: []
-  }
-  const { imageTag } = state.getImageTag
-  const { registry, tag, isFetching, server } = imageTag[DEFAULT_REGISTRY] || defaultImageTags
-  const { registryServer, currentSelectedImage } = props.scope.state 
-
-  return {
-    registry,
-		registryServer: server,
-    imageTags: tag || [],
-    imageTagsIsFetching: isFetching,
-    currentSelectedImage
-  }
-}
-
-export default connect(mapStateToProps, {
-  loadImageDetailTag,
-  loadImageDetailTagConfig,
-})(AppDeployServiceModal)
+export default AppDeployServiceModal
 
