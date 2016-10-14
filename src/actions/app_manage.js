@@ -218,6 +218,32 @@ export function loadServiceList(cluster, appName, requiredFields = []) {
   }
 }
 
+export const SERVICE_DETAIL_REQUEST = 'SERVICE_DETAIL_REQUEST'
+export const SERVICE_DETAIL_SUCCESS = 'SERVICE_DETAIL_SUCCESS'
+export const SERVICE_DETAIL_FAILURE = 'SERVICE_DETAIL_FAILURE'
+
+// Fetches service list from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchServiceDetail(cluster, serviceName) {
+  return {
+    cluster,
+    serviceName,
+    [FETCH_API]: {
+      types: [ SERVICE_DETAIL_REQUEST, SERVICE_DETAIL_SUCCESS, SERVICE_DETAIL_FAILURE ],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/detail`,
+      schema: {}
+    }
+  }
+}
+
+// Fetches services list from API unless it is cached.
+// Relies on Redux Thunk middleware.
+export function loadServiceDetail(cluster, serviceName, requiredFields = []) {
+  return (dispatch, getState) => {
+    return dispatch(fetchServiceDetail(cluster, serviceName))
+  }
+}
+
 export const SERVICE_BATCH_DELETE_REQUEST = 'SERVICE_BATCH_DELETE_REQUEST'
 export const SERVICE_BATCH_DELETE_SUCCESS = 'SERVICE_BATCH_DELETE_SUCCESS'
 export const SERVICE_BATCH_DELETE_FAILURE = 'SERVICE_BATCH_DELETE_FAILURE'
@@ -372,5 +398,31 @@ function fetchContainerList(cluster) {
 export function loadContainerList(cluster, requiredFields = []) {
   return (dispatch, getState) => {
     return dispatch(fetchContainerList(cluster))
+  }
+}
+
+export const CONTAINER_DETAIL_REQUEST = 'CONTAINER_DETAIL_REQUEST'
+export const CONTAINER_DETAIL_SUCCESS = 'CONTAINER_DETAIL_SUCCESS'
+export const CONTAINER_DETAIL_FAILURE = 'CONTAINER_DETAIL_FAILURE'
+
+// Fetches service list from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchContainerDetail(cluster, containerName) {
+  return {
+    cluster,
+    containerName,
+    [FETCH_API]: {
+      types: [ CONTAINER_DETAIL_REQUEST, CONTAINER_DETAIL_SUCCESS, CONTAINER_DETAIL_FAILURE ],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/containers/${containerName}/detail`,
+      schema: {}
+    }
+  }
+}
+
+// Fetches services list from API unless it is cached.
+// Relies on Redux Thunk middleware.
+export function loadContainerDetail(cluster, containerName, requiredFields = []) {
+  return (dispatch, getState) => {
+    return dispatch(fetchContainerDetail(cluster, containerName))
   }
 }

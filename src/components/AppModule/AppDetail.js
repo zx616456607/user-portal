@@ -40,13 +40,13 @@ class AppDetail extends Component {
   render() {
     const { children, appName, app, isFetching } = this.props
     const { currentKey } = this.state
-		if (isFetching) {
+		if (isFetching || !app) {
 			return (
 				<Spin />
 			)
 		}
 		let updateDate = '-'
-		if (app.services[0]) {
+		if (app && app.services && app.services[0]) {
 			updateDate = app.services[0].metadata.creationTimestamp
 		}
     return (

@@ -14,63 +14,7 @@ import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import "./style/PortDetail.less"			
 
-const testData = [{
-	id:"1",
-	name:"我是谁",
-	port:"8080",
-	poctoal:"Http",
-	mapPort:"12306",
-	serviceUrl:"www.tencxlcoud.com"
-},{
-	id:"2",
-	name:"我是谁",
-	port:"8080",
-	poctoal:"Http",
-	mapPort:"12306",
-	serviceUrl:"www.tencxlcoud.com"
-},{
-	id:"3",
-	name:"我是谁",
-	port:"8080",
-	poctoal:"Http",
-	mapPort:"12306",
-	serviceUrl:"www.tencxlcoud.com"
-},{
-	id:"4",
-	name:"我是谁",
-	port:"8080",
-	poctoal:"Http",
-	mapPort:"12306",
-	serviceUrl:"www.tencxlcoud.com"
-},{
-	id:"5",
-	name:"我是谁",
-	port:"8080",
-	poctoal:"Http",
-	mapPort:"12306",
-	serviceUrl:"www.tencxlcoud.com"
-},{
-	id:"6",
-	name:"我是谁",
-	port:"8080",
-	poctoal:"Http",
-	mapPort:"12306",
-	serviceUrl:"www.tencxlcoud.com"
-},{
-	id:"7",
-	name:"我是谁",
-	port:"8080",
-	poctoal:"Http",
-	mapPort:"12306",
-	serviceUrl:"www.tencxlcoud.com"
-},{
-	id:"8",
-	name:"我是谁",
-	port:"8080",
-	poctoal:"Http",
-	mapPort:"12306",
-	serviceUrl:"www.tencxlcoud.com"
-}];
+const testData = [];
 
 var MyComponent = React.createClass({	  
   propTypes : {
@@ -78,6 +22,11 @@ var MyComponent = React.createClass({
   },
   render : function() {
 	var config = this.props.config;
+	if (config.length < 1) {
+		return (
+			<span>无~</span>
+		)
+	}
 	var items = config.map((item) => {
 	  return (
 	    <div className="portDetail" key={item.id}>

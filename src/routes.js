@@ -60,7 +60,7 @@ export default (
       </Route>
       <Route path="container">
         <IndexRoute component={ContainerList}/>
-        <Route path="detail/:container_id" component={ContainerDetail} />
+        <Route path=":container_name" component={ContainerDetail} />
       </Route>
       <Route path="storage">
         <IndexRoute component={Storage}/>

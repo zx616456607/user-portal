@@ -20,7 +20,11 @@ export default class ContainerDetailInfo extends Component {
   }
   
   render() {
-  	const parentScope = this;
+  	const parentScope = this
+  	const { container } = this.props
+		if (!container.spec.containers[0].resources.requests) {
+			container.spec.containers[0].resources.requests = {}
+		}
     return (
       <div id="ContainerDetailInfo">
 	    <div className="info commonBox">
@@ -33,19 +37,19 @@ export default class ContainerDetailInfo extends Component {
 	          镜像名称
 	        </div>
 	        <div className="commonTitle">
-	            所属节点
+	          所属节点
 	        </div>
 	        <div style={{ clear:"both" }}></div>
 	      </div>
 	      <div className="dataBox">
 	        <div className="commonTitle">
-	          挺萌的容器
+	          { container.metadata.name }
 	        </div>
 	        <div className="commonTitle">
-	          好萌的镜像
+	          { container.images.join(', ') || '-' }
 	        </div>
 	        <div className="commonTitle">
-	          在北京呢
+	          { container.status.hostIP }
 	        </div>
 	        <div style={{ clear:"both" }}></div>
 	      </div>
@@ -54,10 +58,10 @@ export default class ContainerDetailInfo extends Component {
 	      <span className="titleSpan">配置信息</span>
 	      <div className="titleBox">
 	        <div className="commonTitle">
-	        带宽
+	        	带宽
 	        </div>
 	        <div className="commonTitle">
-	        内存
+	        	内存
 	        </div>
 	        <div className="commonTitle">
 	          处理器
@@ -66,13 +70,13 @@ export default class ContainerDetailInfo extends Component {
 	      </div>
 	      <div className="dataBox">
 	        <div className="commonTitle">
-	          100M
+	          -
 	        </div>
 	        <div className="commonTitle">
-	          1024M
+	          { container.spec.containers[0].resources.requests.memory || '-' }
 	        </div>
 	        <div className="commonTitle">
-	          256M
+	          { container.spec.containers[0].resources.requests.cpu || '-' }
 	        </div>
 	        <div style={{ clear:"both" }}></div>
 	      </div>
@@ -81,12 +85,22 @@ export default class ContainerDetailInfo extends Component {
 	      <span className="titleSpan">环境变量</span>
 	      <div className="titleBox">
 	        <div className="commonTitle">
-	        变量名
+	        	变量名
 	        </div>
 	        <div className="commonTitle">
 	          变量值
 	        </div>
 	        <div style={{ clear:"both" }}></div>
+					{
+						container.spec.containers[0].envs && container.spec.containers[0].envs.map((env) => {
+							return (
+								<div key={env.name}>
+									<div className="commonTitle">{env.name}</div>
+									<div className="commonTitle">{env.value}</div>
+								</div>
+							)
+						})
+					}
 	      </div>
 	    </div>
 	    <div className="storage commonBox">
@@ -99,6 +113,16 @@ export default class ContainerDetailInfo extends Component {
 	          挂载点
 	        </div>
 	        <div style={{ clear:"both" }}></div>
+					{
+						container.spec.containers[0].volumeMounts && container.spec.containers[0].volumeMounts.map((volume) => {
+							return (
+								<div key={volume.name}>
+									<div className="commonTitle">{volume.name}</div>
+									<div className="commonTitle">{volume.mountPath}</div>
+								</div>
+							)
+						})
+					}
 	      </div>
 	    </div>
       </div>

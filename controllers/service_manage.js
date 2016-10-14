@@ -94,6 +94,12 @@ exports.getServiceDetail = function* () {
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.getBy([cluster, 'services', serviceName])
   const service = result.data[serviceName] || {}
+  service.images = []
+  if (service.spec) {
+    service.spec.template.spec.containers.map((container) => {
+      service.images.push(container.image)
+    })
+  }
   this.body = {
     cluster,
     serviceName,

@@ -108,7 +108,6 @@ const MyComponent = React.createClass({
 
 function loadData(props) {
 	const { cluster, serviceName, loadServiceContainerList } = props
-	document.title = `${serviceName} 服务详情页 | 时速云`
 	loadServiceContainerList(cluster, serviceName)
 }
 
@@ -251,7 +250,6 @@ function mapStateToProps(state, props) {
 		isFetching
   }
 }
-
 
 export default connect(mapStateToProps, {
   loadServiceContainerList

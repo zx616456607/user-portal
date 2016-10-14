@@ -15,7 +15,7 @@ build_doc() {
   set +x
 }
 
-project="tenxcloud 2.0"
+project="user-portal 2.0"
 if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
   cat << EOF
 Run the command the build release of the ${project}:

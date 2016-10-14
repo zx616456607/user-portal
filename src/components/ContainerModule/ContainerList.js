@@ -91,15 +91,16 @@ const MyComponent = React.createClass({
 			  </Menu>
 			);
 	  return (
-	    <div className={this.checkedFunc(item.metadata.name) ? "selectedContainer containerDetail":"containerDetail"} key={item.id}
-	    	onClick={this.selectContainerDetail.bind(this,item.metadata.name)}
+	    <div className={this.checkedFunc(item.metadata.name) ? "selectedContainer containerDetail":"containerDetail"}
+				key={item.metadata.name}
+	    	onClick={this.selectContainerDetail.bind(this, item.metadata.name)}
 	    >
 			<div className="selectIconTitle commonData">
 			  <Checkbox checked={this.checkedFunc(item.metadata.name)} onChange={()=>this.onchange(item.metadata.name)}></Checkbox>
 			</div>
 			<div className="containerName commonData">
 				<Tooltip placement="topLeft" title={item.metadata.name}>
-		      <Link to={`/app_manage/container/detail/${item.metadata.name}`} >
+		      <Link to={`/app_manage/container/${item.metadata.name}`} >
 	    	    {item.metadata.name}
 		      </Link>
 		    </Tooltip>
@@ -169,7 +170,7 @@ class ContainerList extends Component {
   
   allSelectedChecked(){
 		const { containerList } = this.props
-  	if(this.state.selectedList.length == containerList.length){
+  	if(this.state.selectedList.length == containerList.length && containerList.length > 0){
   		return true;
   	}else{
   		return false;
@@ -204,11 +205,11 @@ class ContainerList extends Component {
         >
           <div id="ContainerList" key = "ContainerList">
       	    <div className="operationBox">
-	          <div className="leftBox">
+	          {/*<div className="leftBox">
 	      	    <Button type="primary" size="large"><i className="fa fa-power-off"></i>重启容器</Button>
 	      	    <Button type="ghost" size="large"><i className="fa fa-stop"></i>停止容器</Button>
 	      	    <Button type="ghost" size="large"><i className="fa fa-trash-o"></i>删除容器</Button>
-	          </div>
+	          </div>*/}
 	        <div className="rightBox">
 	      	  <div className="littleLeft">
 	      	    <i className="fa fa-search"></i>
@@ -270,9 +271,9 @@ function mapStateToProps(state, props) {
     containerList: []
   }
   const {
-    containers
-  } = state
-  const { cluster, containerList, isFetching } = containers[DEFAULT_CLUSTER] || defaultContainers
+    containerItems
+  } = state.containers
+  const { cluster, containerList, isFetching } = containerItems[DEFAULT_CLUSTER] || defaultContainers
 
   return {
     cluster,
