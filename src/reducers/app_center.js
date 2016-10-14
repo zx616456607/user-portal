@@ -66,12 +66,19 @@ function imageTag(state = {}, action) {
         [registry]: {isFetching: true}
       })
     case ActionTypes.IMAGE_GET_DETAILTAG_SUCCESS:
+      const LATEST = 'latest'
+      let { data } =  action.response.result
+      const latestTagIndex = data.indexOf(LATEST)
+      if (latestTagIndex > -1) {
+        data.splice(latestTagIndex)
+        data = ([ LATEST ]).concat(data)
+      }
       return Object.assign({}, state, {
         [registry]: {
           isFetching: false,
           registry: action.response.result.registry,
           server: action.response.result.server,
-          tag: action.response.result.data || []
+          tag: data
         }
       })
     case ActionTypes.IMAGE_GET_DETAILTAG_FAILURE:

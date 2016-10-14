@@ -13,6 +13,8 @@ import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import "./style/NormalDeployBox.less"
+
+const Option = Select.Option;
 const createForm = Form.create;
 const FormItem = Form.Item;
 let uuid = 0;
@@ -80,14 +82,20 @@ var MyComponent = React.createClass({
 })
 MyComponent = createForm()(MyComponent);
 
+function loadImageTagConfigs(tag, props) {
+	console.log('loadImageTagConfigs-------------------')
+	console.log(tag)
+}
+
 class NormalDeployBox extends Component {
   constructor(props) {
     super(props);
     this.selectComposeType = this.selectComposeType.bind(this);
     this.changeInstanceNum = this.changeInstanceNum.bind(this);
     this.changeServiceState = this.changeServiceState.bind(this);
+		this.onSelectTagChange = this.onSelectTagChange.bind(this)
     this.state = {
-      
+      selectedImageTag: props.imageTags[0]
     }
   }
   userExists(rule, value, callback) {
@@ -132,8 +140,34 @@ class NormalDeployBox extends Component {
     })*/
     console.log('parentScope.props.scope.state',parentScope.props.scope.state);
   }
+
+	onSelectTagChange(tag) {
+		const { setFieldsValue } = this.props.scope.props.form
+		setFieldsValue({
+			imageVersion: tag
+		})
+	}
+
+	componentWillReceiveProps(nextProps){
+		const { imageTags, scope } = nextProps
+		const { getFieldValue, setFieldsValue } = scope.props.form
+		if (imageTags.length < 1) {
+			return
+		}
+		let tagSelectFiledValue = getFieldValue('imageVersion')
+		if (!tagSelectFiledValue) {
+			tagSelectFiledValue = imageTags[0]
+			setFieldsValue({
+				imageVersion: tagSelectFiledValue
+			})
+		}
+		loadImageTagConfigs(tagSelectFiledValue, nextProps)
+	}
+
   render() {
   	const parentScope = this.props.scope;
+		const { imageTags, imageTagsIsFetching } = this.props
+		const { selectedImageTag } = this.state
     const { getFieldProps, getFieldError, isFieldValidating } = parentScope.props.form;
   	const nameProps = getFieldProps('name', {
       rules: [
@@ -178,8 +212,19 @@ class NormalDeployBox extends Component {
 	        <div className="inputBox">
 	          <span className="commonSpan">镜像版本</span>
 		        <FormItem className="imageTagForm">
-		          <Select {...selectProps} className="imageTag" size="large" tyle={{ width: 200 }} >
-				        <Option value="latest">latest</Option>
+		          <Select 
+								{...selectProps}
+								className="imageTag" size="large" tyle={{ width: 200 }}
+								placeholder="请选择镜像版本"
+								notFoundContent="镜像版本为空"
+								defaultActiveFirstOption={true}
+								onSelect={ this.onSelectTagChange }
+							>
+								{ imageTags.map((tag) => {
+									return (
+										<Option key={tag} value={tag}>{tag}</Option>
+									)
+								}) }
 			      	</Select>
 		        </FormItem>
 	          <div style={{ clear:"both" }}></div>

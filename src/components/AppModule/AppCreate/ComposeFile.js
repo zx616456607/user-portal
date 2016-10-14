@@ -167,7 +167,7 @@ class ComposeFile extends Component {
             <Select size="large" defaultValue="请选择集群" style={{ width: 200 }} onChange={this.handleCluster}>
               <Option value="cce1c71ea85a5638b22c15d86c1f61de">test</Option>
               <Option value="cce1c71ea85a5638b22c15d86c1f61df">产品环境</Option>
-              <Option value="e0e6f297f1b3285fb81d27742255cfcf">SUSE</Option>
+              <Option value="e0e6f297f1b3285fb81d27742255cfcf">k8s 1.4</Option>
             </Select>
 	        </div>
 	        <div className="btnBox">

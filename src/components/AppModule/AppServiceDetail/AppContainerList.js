@@ -78,7 +78,7 @@ const MyComponent = React.createClass({
 		  </div>
 		  <div className="status commonData">
 			<i className={item.status.phase == 'Running' ? "normal fa fa-circle":"error fa fa-circle"}></i>
-			&nbsp;{item.status.phase == 'Running' ? "运行中":"异常"}
+			&nbsp;{item.status.phase}
 		  </div>
 		  <div className="image commonData">
 			{item.images.join(', ') || '-'}

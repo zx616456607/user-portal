@@ -54,7 +54,7 @@ function fetchImageGetDetailTag(registry,fullName) {
 
 // Fetches apps list from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function loadImageDetailTag(registry,fullName) {
+export function loadImageDetailTag(registry, fullName) {
   return (dispatch, getState) => {
     return dispatch(fetchImageGetDetailTag(registry,fullName))
   }
