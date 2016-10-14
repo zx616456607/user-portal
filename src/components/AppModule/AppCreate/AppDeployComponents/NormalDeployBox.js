@@ -127,13 +127,6 @@ class NormalDeployBox extends Component {
   		composeType:type
   	});
   }
-  changeInstanceNum(e){
-  	//the function for user set the max number of instance
-  	const parentScope = this.props.scope;
-  	parentScope.setState({
-  		instanceNum:e
-  	});
-  }
   changeServiceState(e,parentScope){
     //the function for change user select service status open or not
     /*this.setState({
@@ -339,8 +332,14 @@ class NormalDeployBox extends Component {
 	          </div>
 		      	<div className="containerNum">
 		      	  <span className="commonSpan">容器数量</span>
-		      	  <InputNumber className="inputNum" value={parentScope.state.instanceNum} onChange={this.changeInstanceNum}
-		      	  	size="large" min={1} max={100} />&nbsp;&nbsp;个
+              <FormItem>
+                <InputNumber className="inputNum"
+                             {...getFieldProps('instanceNum',{
+                               initialValue: '1'
+                             })}
+                             size="large" min={1} max={100} />
+                &nbsp;&nbsp;个
+              </FormItem>
 		          <div style={{ clear:"both" }}></div>
 		      	</div>
 	      	</div>

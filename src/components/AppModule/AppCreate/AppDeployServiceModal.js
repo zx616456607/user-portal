@@ -29,14 +29,13 @@ class AppDeployServiceModal extends Component {
     this.closeModal = this.closeModal.bind(this);
     this.setForm = this.setForm.bind(this);
     this.limits = this.limits.bind(this);
+    this.volumeSwitch = this.volumeSwitch.bind(this);
     this.state = {
-      instanceNum:1,
       composeType:"1",
       runningCode:"1",
       getImageType:"1",
       stateService:false,
       currentDate:false,
-      volumeSwitch:false,
       getUsefulType:"null",
       checkInf:null,
     }
@@ -59,35 +58,58 @@ class AppDeployServiceModal extends Component {
         return '1'
     }
   }
+  
+  volumeSwitch(volumeMounts,form){
+    if(volumeMounts){
+      console.log('1');
+      if (volumeMounts.length !== 0  ) {
+        if (volumeMounts.length === 1) {
+          if (volumeMounts[0].name === "tenxcloud-time-zone") {
+            return false
+          } else {
+            console.log('2');
+            form.setFieldsValue({
+              volumeName1: 'volumeName1 ext4 1024M'
+            })
+            return true
+          }
+        } else {
+          console.log('3');
+          volumeMounts.map((k) => {
+            form.setFieldsValue({
+              ['volumeName' +`${k}`]: 'volumeName1 ext4 1024M'
+            })
+          })
+          
+          return true
+        }
+      }
+    }
+  }
   setForm(){
     const { scope } = this.props
+    const { form } = this.props
+    const volumeMounts = this.props.scope.state.checkInf.Deployment.spec.template.spec.containers[0].volumeMounts
     console.log('set');
     console.log('this.state',this.state);
     console.log('this.scope',scope.state);
-    this.props.form.setFieldsValue({
+    form.setFieldsValue({
       name:scope.state.checkInf.Service.metadata.name,
       imageVersion:scope.state.checkInf.Deployment.spec.template.spec.containers[0].image.split(':')[1],
-      
+      instanceNum:scope.state.checkInf.Deployment.spec.replicas,
+      volumeSwitch:this.volumeSwitch(volumeMounts,form)
     })
-    /*scope.setState({
-      composeType:'2'
-    })*/
     this.setState({
       composeType: this.limits(),
-      volumeSwitch:true,
       
     })
     scope.setState({
-      volumeSwitch:true,
-      instanceNum:scope.state.checkInf.Deployment.spec.replicas
     })
-    /*scope.props.scope.setState({
-      registryServer:scope.state.checkInf.Deployment.spec.template.spec.containers.image
-    })*/
   }
   componentWillMount() {
     console.log('open');
     console.log('state',this.props.scope.state.checkState);
+    
     if(this.props.scope.state.checkState === '修改'){
       this.setForm()
     }
@@ -108,18 +130,16 @@ class AppDeployServiceModal extends Component {
   
   submitNewService(e,parentScope){
   	e.preventDefault();
-    
+    console.log('this.props.form.getFieldProps',this.props.form.getFieldsValue());
   	const scope = this.state;
   	let composeType = scope.composeType;
     let portKey = this.props.form.getFieldValue('portKey')
     let envKey = this.props.form.getFieldValue('envKey')
     let volKey = this.props.form.getFieldValue('volKey')
     let serviceName = this.props.form.getFieldProps('name').value    //服务名
-    let instanceNum = scope.instanceNum     //容器数量
+    let instanceNum = this.props.form.getFieldsValue().instanceNum     //容器数量
     let imageVersion = this.props.form.getFieldProps('imageVersion').value    //镜像版本
     let volumeSwitch = this.props.form.getFieldProps('volumeSwitch').value //服务类型
-    let volumePath = this.props.form.getFieldProps('volumePath').value   //服务路径
-    let volumeName = this.props.form.getFieldProps('volumeName').value   //服务名称
     let volumeChecked = this.props.form.getFieldProps('volumeChecked').value   //服务只读
     let livePort = this.props.form.getFieldProps('livePort').value   //高可用端口
     let liveInitialDelaySeconds = this.props.form.getFieldProps('liveInitialDelaySeconds').value //首次延时
@@ -302,7 +322,7 @@ class AppDeployServiceModal extends Component {
         deploymentList.syncTimeZoneWithNode(serviceName)
       }
       //volumes
-      if(this.state.volumeSwitch){
+      if(this.props.form.getFieldValue('volumeSwitch')){
         this.props.form.getFieldValue('volumeKey').map((k) => {
           if(volumeChecked){
             deploymentList.addContainerVolume(serviceName, {
@@ -357,9 +377,9 @@ class AppDeployServiceModal extends Component {
       console.log('修改');
     }
     
-    parentScope.setState({
+    /*parentScope.setState({
       serviceModalShow:false
-    })
+    })*/
   }
   closeModal(){
     const parentScope = this.props.scope;
@@ -368,13 +388,11 @@ class AppDeployServiceModal extends Component {
     })
     this.props.form.resetFields()
     this.setState({
-      instanceNum:1,
       composeType:"1",
       runningCode:"1",
       getImageType:"1",
       stateService:false,
       currentDate:false,
-      volumeSwitch:false,
       getUsefulType:"null",
       checkInf:null,
     })

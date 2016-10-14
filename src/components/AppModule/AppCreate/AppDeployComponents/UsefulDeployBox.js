@@ -72,7 +72,13 @@ class UsefulDeployBox extends Component {
 	  <div id="UsefulDeployBox">
 	    {/*<Form horizontal form={parentScope.props.form}>*/}
 	    	<div className="usefulBox">
-	        <RadioGroup onChange={this.changeUsefulType} value={parentScope.state.getUsefulType}>
+	        <RadioGroup
+            onChange={this.changeUsefulType}
+            value={parentScope.state.getUsefulType}
+            {...getFieldProps('getUsefulType',{
+              initialValue: 'null'
+            })}
+          >
 					  <Radio key="a" value={"null"}>无</Radio>
 					  <Radio key="b" value={"http"}>http</Radio>
 					  <Radio key="c" value={"tcp"}>tcp</Radio>
