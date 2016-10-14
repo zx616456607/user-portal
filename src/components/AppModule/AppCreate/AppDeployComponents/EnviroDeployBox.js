@@ -132,6 +132,7 @@ let MyComponentPort = React.createClass({
    	});
     
    	const formItems = getFieldValue('portKey').map((k) => {
+   		console.log('aaaaaaaa',getFieldValue('portKey'));
       return (
         <FormItem key={`port${k}`}>
         	<li className="portDetail">

@@ -20,18 +20,9 @@ const RadioGroup = Radio.Group;
 class UsefulDeployBox extends Component {
   constructor(props) {
     super(props);
-    this.changeUsefulType = this.changeUsefulType.bind(this);
     this.state = {
       
     }
-  }
-  
-  changeUsefulType(e){
-  	//the function for user select different userful type
-  	const parentScope = this.props.scope;
-  	parentScope.setState({
-  		getUsefulType:e.target.value
-  	});
   }
   
   render() {
@@ -67,23 +58,23 @@ class UsefulDeployBox extends Component {
         { required: true, message: '请输入路径' },
       ],
     })
-    
+    console.log('parentScope.props.form',parentScope.props.form.getFieldsValue());
     return (
 	  <div id="UsefulDeployBox">
 	    {/*<Form horizontal form={parentScope.props.form}>*/}
 	    	<div className="usefulBox">
-	        <RadioGroup
-            onChange={this.changeUsefulType}
-            value={parentScope.state.getUsefulType}
-            {...getFieldProps('getUsefulType',{
-              initialValue: 'null'
-            })}
-          >
-					  <Radio key="a" value={"null"}>无</Radio>
-					  <Radio key="b" value={"http"}>http</Radio>
-					  <Radio key="c" value={"tcp"}>tcp</Radio>
-					</RadioGroup>
-		      {parentScope.state.getUsefulType == "http" ? [
+          <FormItem>
+            <RadioGroup
+              {...getFieldProps('getUsefulType',{
+                initialValue: 'null'
+              })}
+            >
+              <Radio key="a" value={"null"}>无</Radio>
+              <Radio key="b" value={"http"}>http</Radio>
+              <Radio key="c" value={"tcp"}>tcp</Radio>
+            </RadioGroup>
+          </FormItem>
+		      {parentScope.props.form.getFieldValue('getUsefulType') == "http" ? [
 		      	<div className="http" key="http">
 		      		<div className="title">
 		      			<div className="httpcommonTitle">
@@ -130,7 +121,7 @@ class UsefulDeployBox extends Component {
 		      		</div>
 		      	</div>
 		      ]:null}
-		      {parentScope.state.getUsefulType == "tcp" ? [
+		      {parentScope.props.form.getFieldValue('getUsefulType') == "tcp" ? [
 		      	<div className="tcp" key="tcp">
 		      		<div className="title">
 		      			<div className="tcpcommonTitle">
@@ -149,16 +140,16 @@ class UsefulDeployBox extends Component {
 		      		</div>
 		      		<div className="input">
 		      			<div className="commonInput">
-		      				<Input type="text" />
+		      				<Input type="text" {...livePort}/>
 		      			</div>
 		      			<div className="commonInput">
-		      				<Input type="text" />&nbsp;&nbsp;s
+		      				<Input type="text" {...liveInitialDelaySeconds}/>&nbsp;&nbsp;s
 		      			</div>
 		      			<div className="commonInput">
-		      				<Input type="text" />&nbsp;&nbsp;s
+		      				<Input type="text" {...liveTimeoutSeconds}/>&nbsp;&nbsp;s
 		      			</div>
 		      			<div className="commonInput">
-		      				<Input type="text" />&nbsp;&nbsp;s
+		      				<Input type="text" {...livePeriodSeconds}/>&nbsp;&nbsp;s
 		      			</div>
 		      			<div style={{ clear:"both" }}></div>
 		      		</div>
