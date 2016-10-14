@@ -217,7 +217,7 @@ class NormalDeployBox extends Component {
 	        <div className="inputBox">
 	          <span className="commonSpan">镜像版本</span>
 		        <FormItem className="imageTagForm">
-		          <Select 
+		          <Select
 								{...selectProps}
 								className="imageTag" size="large" tyle={{ width: 200 }}
 								placeholder="请选择镜像版本"
