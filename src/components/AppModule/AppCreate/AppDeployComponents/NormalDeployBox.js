@@ -111,7 +111,7 @@ class NormalDeployBox extends Component {
   constructor(props) {
     super(props);
     this.selectComposeType = this.selectComposeType.bind(this);
-    this.changeServiceState = this.changeServiceState.bind(this);
+
 		this.onSelectTagChange = this.onSelectTagChange.bind(this)
     this.state = {
 		  
@@ -139,37 +139,30 @@ class NormalDeployBox extends Component {
   		composeType:type
   	});
   }
-  changeServiceState(e,parentScope){
-    //the function for change user select service status open or not
-    /*this.setState({
-      volumeSwitch:e
-    });*/
-    parentScope.setState({
-      volumeSwitch: e,
-    })
-		/*parentScope.props.scope.setState({
-      volumeSwitch: e,
-    })*/
-    console.log('parentScope.props.scope.state',parentScope.props.scope.state);
-  }
+
+  
 
 	onSelectTagChange(tag) {
 		const { setFieldsValue } = this.props.scope.props.form
+    console.log('onSelectTagChange------------------');
 		setFieldsValue({
 			imageVersion: tag
 		})
-		// loadImageTagConfigs(tag, this.props)
+
 	}
 
 	componentWillMount() {
+
     // loadImageTags(this.props)
   }
+
 
 	// componentWillReceiveProps(nextProps) {
 		// const {serviceOpen} = nextProps
     /*if(serviceOpen == this.props.serviceOpen){
       return
     }
+
 		loadImageTags(nextProps)*/
 		/*const { imageTags, scope } = nextProps
 		const { getFieldValue, setFieldsValue } = scope.props.form
@@ -184,6 +177,7 @@ class NormalDeployBox extends Component {
 			})
 		}
 		loadImageTagConfigs(tagSelectFiledValue, nextProps)*/
+
 	// }
 
   render() {
@@ -204,9 +198,7 @@ class NormalDeployBox extends Component {
         { required: true, message: '请选择镜像版本' },
       ],
     });
-    const volumeChecked = getFieldProps('volumeChecked', {});
-    const volumePath = getFieldProps('volumePath', {});
-    const volumeName = getFieldProps('volumeName', {});
+
     return (
 	  <div id="NormalDeployBox">
 	  	{/*<Form horizontal form={parentScope.props.form}>*/}
@@ -240,7 +232,9 @@ class NormalDeployBox extends Component {
 								notFoundContent="镜像版本为空"
 								defaultActiveFirstOption={true}
 								onSelect={ this.onSelectTagChange }
+                
 							>
+
 								{ imageTags && imageTags.map((tag) => {
 									return (
 										<Option key={tag} value={tag}>{tag}</Option>
@@ -335,13 +329,14 @@ class NormalDeployBox extends Component {
 	          <div className="stateService">
 	          	<span className="commonSpan">服务类型</span>
 	          	<Switch className="changeBtn"
-                      value="1"
-                      defaultChecked={false}
-                      checked={parentScope.state.volumeSwitch}
-                      onChange={(e) => this.changeServiceState(e,parentScope)}
+                    
+                      {...getFieldProps('volumeSwitch',{
+                        valuePropName: 'checked'
+                      })}
               />
-	          	<span className="stateSpan">{parentScope.state.volumeSwitch ? "有状态服务":"无状态服务"}</span>
-	          	{parentScope.state.volumeSwitch ? [
+
+	          	<span className="stateSpan">{parentScope.props.form.getFieldValue('volumeSwitch') ? "有状态服务":"无状态服务"}</span>
+	          	{parentScope.props.form.getFieldValue('volumeSwitch') ? [
                 <MyComponent parentScope={parentScope}/>
 	          	]:null}
 	          	<div style={{ clear:"both" }}></div>
@@ -375,6 +370,7 @@ NormalDeployBox.propTypes = {
 }
 
 NormalDeployBox = createForm()(NormalDeployBox);
+
 export default NormalDeployBox
 /*function mapStateToProps(state, props) {
   const defaultImageTags = {
