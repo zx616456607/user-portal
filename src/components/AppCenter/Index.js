@@ -188,8 +188,7 @@ let MyComponent = React.createClass({
 	    });
     });
   },
-  render() {
-  	
+  render() {  	
   	const scope = this.props.scope;
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form;
     const urlProps = getFieldProps('url', {

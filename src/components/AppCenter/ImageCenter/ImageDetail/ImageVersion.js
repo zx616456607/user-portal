@@ -27,27 +27,6 @@ let MyComponent = React.createClass({
     	currentTag: null
     };
   },
-  setDefaultTag: function(tagList){
-  	//this function for set tag list default tag and the tag's config will be show to the user first
-  	let flag = false;
-  	let flagIndex = 0;
-  	//we will find the tag which name = latest
-  	tagList.map((item,index) => {
-  		if(item == "latest"){
-  			flag = true;
-  			flagIndex = index;
-  		}
-  	});
-  	//if the "latest" tag is exist, we will set it to the first elem in the tag list
-  	if(flag){
-  		let newList = new Array();	
-  		newList.push(tagList[flagIndex]);
-  		newList = newList.concat(tagList.slice(0,flagIndex));
-  		newList = newList.concat(tagList.slice(flagIndex + 1));
-  		tagList = newList;
-  	}
-  	return tagList;
-  },
   render : function() {
   	const { loading } = this.props;
   	if(loading){
@@ -57,9 +36,8 @@ let MyComponent = React.createClass({
   			</div>
   		)
   	}
-		let tagList = this.props.config;
+		let { tagList } = this.props.config;
 		const fullname = this.props.fullname;
-		tagList = this.setDefaultTag(tagList.tagList);
 		let items = tagList.map((item,index) => {
 		  return (
 		    <TabPane tab={<span><i className="fa fa-tag"></i>&nbsp;{ item }</span>} className="imageDetail" key={index} >
@@ -121,7 +99,6 @@ class ImageVersion extends Component {
   	const tagList = {
   		"tagList": this.props.imageDetailTag
   	};
-  	console.log(tagList)
     return (
       <Card className="ImageVersion">      	
         <MyComponent loading={ isFetching } config={ tagList } fullname={ imageDetail.name }/>     

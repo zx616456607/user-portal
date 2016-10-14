@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Modal,Checkbox,Dropdown,Button,Card, Menu,Icon,Spin } from 'antd'
+import { Modal,Checkbox,Dropdown,Button,Card, Menu,Icon,Spin,Tooltip } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -64,27 +64,35 @@ const MyComponent = React.createClass({
 				<Checkbox value={ item.metadata.name } checked={ item.checked }  onChange={this.onchange}></Checkbox>
 			</div>
 			<div className="name commonData">
+				<Tooltip title={item.metadata.name}>
 		      <span className="viewBtn" onClick={this.modalShow.bind(this,item)}>
 	    	    {item.metadata.name}
 		      </span>
+		    </Tooltip>
 			</div>
 			<div className="status commonData">
 			  {item.spec.replicas || '-'}
 			</div>
 			<div className="image commonData">
-			  {item.images.join(', ') || '-'}
+				<Tooltip title={item.images.join(', ') ? item.images.join(', ') : ""}>
+			  	<span>{item.images.join(', ') || '-'}</span>
+			  </Tooltip>
 			</div>
 			<div className="service commonData">
-			  {item.serviceIP || '-'}
+				<Tooltip title={item.serviceIP ? item.serviceIP : ""}>
+			  	<span>{item.serviceIP || '-'}</span>
+			  </Tooltip>
 			</div>
 			<div className="createTime commonData">
-			  {item.metadata.creationTimestamp || '-'}
+				<Tooltip title={item.metadata.creationTimestamp ? item.metadata.creationTimestamp : ""}>
+			  	<span>{item.metadata.creationTimestamp || '-'}</span>
+			  </Tooltip>
 			</div>
 			<div className="actionBox commonData">
-			  <span className="viewBtn" onClick={this.modalShow.bind(this,item)}>
-			    <i className="fa fa-eye"></i>&nbsp;
+			  <Button type="primary" className="viewBtn" onClick={this.modalShow.bind(this,item)}>
+			    <i className="fa fa-eye"></i>
 			       查看详情
-			  </span>
+			  </Button>
 			</div>
 			<div style={{clear:"both"}}></div>
 		</div>

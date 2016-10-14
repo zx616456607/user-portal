@@ -15,24 +15,11 @@ import QueueAnim from 'rc-queue-anim'
 import './style/AppList.less'
 import { loadAppList, stopApps, deleteApps, restartApps, startApps} from '../../actions/app_manage'
 import { DEFAULT_CLUSTER } from '../../constants'
+import { tenxDateFormat } from '../../common/tools.js'
 
 const confirm = Modal.confirm
 const operaMenu = (<Menu>
-					  <Menu.Item key="0">
-						重新部署
-					  </Menu.Item>
-					  <Menu.Item key="1">
-						停止容器
-					  </Menu.Item>
-					  <Menu.Item key="2">
-						删除
-					  </Menu.Item>
-					  <Menu.Item key="3">
-						查看架构图
-					  </Menu.Item>
-					  <Menu.Item key="4">
-						查看编排
-					  </Menu.Item>
+					  
 					</Menu>);
 
 const MyComponent = React.createClass({	  
@@ -41,6 +28,7 @@ const MyComponent = React.createClass({
    parentScope: React.PropTypes.object,
   },
   onchange: function(e){
+  	e.stopPropagation(); 
 		const { value, checked } = e.target
   	const { parentScope } = this.props
   	const { appList } = parentScope.state
@@ -48,11 +36,27 @@ const MyComponent = React.createClass({
 			if (app.name === value) {
 				app.checked = checked
 			}
-		})
+		});
 		parentScope.setState({
 			appList
-		})
+		});
   },
+	appOperaClick: function(item,e){
+		//this function for user click opera image
+	},
+	selectAppDetail: function(item){
+		//this function for user click app detail ,and then this app will be selected
+		const { parentScope } = this.props
+  	const { appList } = parentScope.state
+		appList.map((app) => {
+			if (app.name === item.name) {
+				app.checked = !app.checked
+			}
+		});
+		parentScope.setState({
+			appList
+		});
+	},
   render: function() {
 		const { config, loading } = this.props
 		if (loading) {
@@ -69,16 +73,37 @@ const MyComponent = React.createClass({
 				</div>
 			)
 		}
+		const scope = this;
 		const items = config.map((item) => {
+			const dropdown = (
+			  <Menu onClick={this.appOperaClick.bind(this,item)}
+					style={{width:"100px"}}
+			  >
+					<Menu.Item key="1">
+						停止容器
+					</Menu.Item>
+					<Menu.Item key="2">
+						删除
+					</Menu.Item>
+					<Menu.Item key="3">
+						查看架构图
+					</Menu.Item>
+					<Menu.Item key="4">
+						查看编排
+					</Menu.Item>
+			  </Menu>
+			);
 			return (
-				<div className="appDetail" key={item.name}>
+				<div className="appDetail" key={item.name} onClick={this.selectAppDetail.bind(this,item)} >
 					<div className="selectIconTitle commonData">
 						<Checkbox value={ item.name } checked={ item.checked }  onChange={this.onchange}></Checkbox>
 					</div>
 					<div className="appName commonData">
+						<Tooltip title={item.name}>
 							<Link to={`/app_manage/detail/${item.name}`} >
 								{item.name}
 							</Link>
+						</Tooltip>
 					</div>
 					<div className="appStatus commonData">
 						<i className={item.appStatus == 0 ? "normal fa fa-circle":"error fa fa-circle"}></i>
@@ -91,17 +116,19 @@ const MyComponent = React.createClass({
 						{item.instanceCount + '' || '-'}
 					</div>
 					<div className="visitIp commonData">
-						{item.address || '-'}
+						<Tooltip title={item.address ? item.address:""}>
+							<span>{item.address || '-'}</span>
+						</Tooltip>
 					</div>
 					<div className="createTime commonData">
-						{item.createTime}
+						<Tooltip title={ tenxDateFormat(item.createTime)}>
+							<span>{tenxDateFormat(item.createTime)}</span>
+						</Tooltip>
 					</div>
 					<div className="actionBox commonData">
-						<Dropdown overlay={operaMenu} trigger={['click']}>
-							<Button type="ghost" size="large" className="ant-dropdown-link" href="#">
-								更多 <i className="fa fa-caret-down"></i>
-							</Button>
-						</Dropdown>
+						<Dropdown.Button overlay={dropdown} type="ghost">
+				      重新部署
+				    </Dropdown.Button>
 					</div>
 					<div style={{clear:"both",width:"0"}}></div>
 				</div>

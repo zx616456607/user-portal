@@ -77,7 +77,6 @@ class ServiceAPI extends Component {
   
   render() {
   	const { isFetching,configList } = this.props;
-  	console.log(configList)
   	if(isFetching){
   		return (
   			<Card className="imageServiceAPI">

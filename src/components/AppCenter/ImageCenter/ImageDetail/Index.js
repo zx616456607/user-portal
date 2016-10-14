@@ -142,7 +142,7 @@ class ImageDetailBox extends Component {
         				<FormattedMessage {...menusText.colletctImage} />
         			</Button>
         		</div>
-        		<i className="closeBtn fa fa-times" onClick={this.closeModal}></i>
+        		<i className="closeBtn fa fa-times" onClick={this.props.scope.closeImageDetailModal}></i>
         	</div>
         	<div style={{ clear:"both" }}></div>
         </div>
@@ -158,7 +158,7 @@ class ImageDetailBox extends Component {
        		</div>
        		<div className="times">
        			<i className="fa fa-cloud-download"></i>&nbsp;&nbsp;
-       			{imageDetail.downloadNum}
+       			{imageDetail.downloadNumber}
        		</div>
        		<div style={{ clear:"both" }}></div>
        	</div>

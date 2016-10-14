@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Checkbox,Button,Card, Menu, Spin } from 'antd'
+import { Checkbox,Button,Card, Menu, Spin,Tooltip } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -72,16 +72,20 @@ const MyComponent = React.createClass({
 		    <Checkbox checked={this.checkedFunc(item.id)} onChange={()=>this.onchange(item.id)}></Checkbox>
 		  </div>)*/}
 		  <div className="name commonData" style={ { marginLeft: 24 } } >
-		    <span className="viewBtn" onClick={this.modalShow.bind(this,item)}>
-	    	  {item.metadata.name}
-		    </span>
+		  	<Tooltip placement="topLeft" title={item.metadata.name} >
+			    <span className="viewBtn" onClick={this.modalShow.bind(this,item)}>
+		    	  {item.metadata.name}
+			    </span>
+		    </Tooltip>
 		  </div>
 		  <div className="status commonData">
 			<i className={item.status.phase == 'Running' ? "normal fa fa-circle":"error fa fa-circle"}></i>
 			&nbsp;{item.status.phase}
 		  </div>
 		  <div className="image commonData">
-			{item.images.join(', ') || '-'}
+		  	<Tooltip placement="topLeft" title={item.images.join(', ') ? item.images.join(', ') : ""} >
+					<span>{item.images.join(', ') || '-'}</span>
+				</Tooltip>
 		  </div>
 		  <div className="address commonData">
 			<span>内&nbsp;:&nbsp;{item.status.podIP}</span>
