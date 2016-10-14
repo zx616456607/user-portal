@@ -86,7 +86,6 @@ MyComponent = createForm()(MyComponent);
 
 function loadImageTags(props) {
   const { registry, currentSelectedImage, loadImageDetailTag } = props
-  loadImageDetailTag(registry, currentSelectedImage)
 	loadImageDetailTag(registry, currentSelectedImage, {
 		success: {
 			func: (result) => {
@@ -96,6 +95,10 @@ function loadImageTags(props) {
 					tag = LATEST
 				}
 				loadImageTagConfigs(tag, props)
+				const { setFieldsValue } = props.scope.props.form
+				setFieldsValue({
+					imageVersion: tag
+				})
 			},
 			isAsync: true
 		}
@@ -105,13 +108,23 @@ function loadImageTags(props) {
 function loadImageTagConfigs(tag, props) {
 	console.log('loadImageTagConfigs-------------------')
 	console.log(tag)
+	const { currentSelectedImage, loadImageDetailTagConfig } = props
+	loadImageDetailTagConfig(DEFAULT_REGISTRY, currentSelectedImage, tag, {
+		success: {
+			func: (result) => {
+				console.log('set config here ~~')
+				console.log('set config here ~~')
+				console.log('set config here ~~')
+			},
+			isAsync: true
+		}
+	})
 }
 
 class NormalDeployBox extends Component {
   constructor(props) {
     super(props);
     this.selectComposeType = this.selectComposeType.bind(this);
-
 		this.onSelectTagChange = this.onSelectTagChange.bind(this)
     this.state = {
 		  
@@ -140,45 +153,25 @@ class NormalDeployBox extends Component {
   	});
   }
 
-  
-
 	onSelectTagChange(tag) {
 		const { setFieldsValue } = this.props.scope.props.form
-    console.log('onSelectTagChange------------------');
 		setFieldsValue({
 			imageVersion: tag
 		})
-
+		loadImageTagConfigs(tag, this.props)
 	}
 
 	componentWillMount() {
-
-    // loadImageTags(this.props)
+    loadImageTags(this.props)
   }
 
-
-	// componentWillReceiveProps(nextProps) {
-		// const {serviceOpen} = nextProps
-    /*if(serviceOpen == this.props.serviceOpen){
+	componentWillReceiveProps(nextProps) {
+		const {serviceOpen} = nextProps
+    if(serviceOpen == this.props.serviceOpen){
       return
     }
-
-		loadImageTags(nextProps)*/
-		/*const { imageTags, scope } = nextProps
-		const { getFieldValue, setFieldsValue } = scope.props.form
-		if (imageTags.length < 1) {
-			return
-		}
-		let tagSelectFiledValue = getFieldValue('imageVersion')
-		if (!tagSelectFiledValue) {
-			tagSelectFiledValue = imageTags[0]
-			setFieldsValue({
-				imageVersion: tagSelectFiledValue
-			})
-		}
-		loadImageTagConfigs(tagSelectFiledValue, nextProps)*/
-
-	// }
+		loadImageTags(nextProps)
+	}
 
   render() {
   	const parentScope = this.props.scope;
@@ -369,10 +362,7 @@ NormalDeployBox.propTypes = {
   loadImageDetailTagConfig: PropTypes.func.isRequired,
 }
 
-NormalDeployBox = createForm()(NormalDeployBox);
-
-export default NormalDeployBox
-/*function mapStateToProps(state, props) {
+function mapStateToProps(state, props) {
   const defaultImageTags = {
     isFetching: false,
     registry: DEFAULT_REGISTRY,
@@ -391,7 +381,11 @@ export default NormalDeployBox
   }
 }
 
-export default connect(mapStateToProps, {
+NormalDeployBox = connect(mapStateToProps, {
   loadImageDetailTag,
   loadImageDetailTagConfig,
-})(NormalDeployBox)*/
+})(NormalDeployBox)
+
+NormalDeployBox = createForm()(NormalDeployBox)
+
+export default NormalDeployBox
