@@ -70,7 +70,7 @@ function fetchImageGetDetailTagConfig(registry,fullName,tag) {
     registry,
     [FETCH_API]: {
       types: [ IMAGE_GET_DETAILTAGCONFIG_REQUEST, IMAGE_GET_DETAILTAGCONFIG_SUCCESS, IMAGE_GET_DETAILTAGCONFIG_FAILURE ],
-      endpoint: `${API_URL_PREFIX}/registries/${registry}/${fullName}/tags/${tag}/config`,
+      endpoint: `${API_URL_PREFIX}/registries/${registry}/${fullName}/tags/${tag}/configs`,
       schema: Schemas.REGISTRYS
     }
   }

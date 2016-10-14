@@ -59,6 +59,7 @@ function imageTag(state = {}, action) {
       imageList: []
     }
   }
+	
   switch (action.type) {
     case ActionTypes.IMAGE_GET_DETAILTAG_REQUEST:
       return merge({}, defaultState, state, {
@@ -84,7 +85,7 @@ function imageTag(state = {}, action) {
 
 export function getImageTag(state = { publicImages: {} }, action) {
   return {
-    imageTag: imageTag(state.publicImages, action),
+    imageTag: imageTag(state.getImageTag, action),
   }
 }
 
@@ -98,6 +99,7 @@ function imageTagConfig(state = {}, action) {
       imageList: []
     }
   }
+	
   switch (action.type) {
     case ActionTypes.IMAGE_GET_DETAILTAGCONFIG_REQUEST:
       return merge({}, defaultState, state, {
@@ -124,6 +126,6 @@ function imageTagConfig(state = {}, action) {
 
 export function getImageTagConfig(state = { publicImages: {} }, action) {
   return {
-    imageTagConfig: imageTagConfig(state.publicImages, action),
+    imageTagConfig: imageTagConfig(state.getImageTagConfig, action),
   }
 }

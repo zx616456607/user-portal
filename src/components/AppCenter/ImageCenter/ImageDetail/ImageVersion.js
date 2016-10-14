@@ -94,6 +94,10 @@ class ImageVersion extends Component {
 	}
 	
 	componentWillReceiveProps(nextPorps){
+		console.log('nextPorps---------------------')
+		console.log(nextPorps)
+		console.log('this.props--------------------')
+		console.log(this.props)
 		//this function mean when the user change show image detail
 		//it will be check the old iamge is different from the new one or not
 		//if the different is true,so that the function will be request the new one's tag
@@ -101,6 +105,7 @@ class ImageVersion extends Component {
 		const oldImageDatail = this.state.imageDetail;
 		const newImageDetail = nextPorps.config;
 		if(newImageDetail != oldImageDatail){
+			console.log("change event")
 			this.changeNewImage(newImageDetail);
   	}
 	}
@@ -120,6 +125,7 @@ class ImageVersion extends Component {
   	const tagList = {
   		"tagList": this.props.imageDetailTag
   	};
+  	console.log(tagList)
     return (
       <Card className="ImageVersion">      	
         <MyComponent loading={ isFetching } config={ tagList } fullname={ imageDetail.name }/>     

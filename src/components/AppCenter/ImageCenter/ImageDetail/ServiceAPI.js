@@ -49,11 +49,7 @@ class ServiceAPI extends Component {
   componentWillMount(){
 		const { registry, loadImageDetailTagConfig } = this.props;
 		const { fullname,imageTag } = this.props;
-		console.log(this.props)
-		setTimeout(function(){
 		loadImageDetailTagConfig(registry, fullname,imageTag);
-			
-		},100)
   }
   
   render() {
