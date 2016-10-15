@@ -1,10 +1,10 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
- * 
+ *
  * Request api tools
  * support promise and callback
- * 
+ *
  * v0.1 - 2016-09-13
  * @author Zhangpc
  */

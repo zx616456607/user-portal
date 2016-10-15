@@ -1,9 +1,9 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
- * 
+ *
  * Tenxcloud API service
- * 
+ *
  * v0.1 - 2016-09-12
  * @author Zhangpc
  */
@@ -26,13 +26,13 @@ module.exports = function (config) {
 
   const Collections = require('./collections')
   const collections = new Collections(request)
-  
+
   // ~ cluster
   this.clusters = collections.create('clusters')
-  
+
   //~ volumes
   this.volumes = collections.create('volumes')
-  
+
   //service
   this.service = collections.create('service')
 

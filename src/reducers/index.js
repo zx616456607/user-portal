@@ -1,9 +1,9 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
- * 
+ *
  * Redux reducers
- * 
+ *
  * v0.1 - 2016-09-07
  * @author Zhangpc
  */
@@ -18,13 +18,13 @@ import configReducers from './configs'
 import storage from './storage'
 
 // Updates an entity cache in response to any action with response.entities.
-function entities(state = { isFetching:false, users: {}, rcs: {} }, action) {
+function entities(state = { isFetching: false, users: {}, rcs: {} }, action) {
   if (action.response && action.response.entities) {
     let isFetching = false
     if (action.type.indexOf('_REQUEST') > -1) {
       isFetching = true
     }
-    return merge({}, state, action.response.entities, {isFetching})
+    return merge({}, state, action.response.entities, { isFetching })
   }
 
   return state

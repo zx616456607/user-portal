@@ -33,7 +33,7 @@ module.exports = function (Router) {
   router.get('/storage-pools/:pool/:cluster/volumes/:name/filehistory', volumeController.getFileHistory)
   router.get('/storage-pools/:pool/:cluster/volumes/:name/bindinfo', volumeController.getBindInfo)
   router.get('/storage-pools/:pool/:cluster/volumes/:name/exportfile', volumeController.exportFile)
-  // Apps 
+  // Apps
   router.post('/clusters/:cluster/apps', appController.createApp)
   router.get('/clusters/:cluster/apps', appController.getApps)
   router.post('/clusters/:cluster/apps/batch-delete', appController.deleteApps)
@@ -66,15 +66,15 @@ module.exports = function (Router) {
   // Containers
   router.get('/clusters/:cluster/containers', containerController.getContainers)
   router.get('/clusters/:cluster/containers/:container_name/detail', containerController.getContainerDetail)
-  
+
   // Configs
-  router.get('/clusters/:cluster/configgroups',configController.getConfigGroup)
-  router.get('/clusters/:cluster/configgroups/:name',configController.getConfigGroupName)
-  router.get('/clusters/:cluster/configgroups/:group/configs/:name',configController.loadConfigFiles)
-  router.post('/clusters/:cluster/configs',configController.createConfigGroup)
-  router.post('/clusters/:cluster/configgroups/:group/configs/:name',configController.createConfigFiles)
-  router.post('/clusters/:cluster/configs/delete',configController.deleteConfigGroup)
-  router.post('/clusters/:cluster/configgroups/:group/configs/batch-delete',configController.deleteConfigFiles)
+  router.get('/clusters/:cluster/configgroups', configController.getConfigGroup)
+  router.get('/clusters/:cluster/configgroups/:name', configController.getConfigGroupName)
+  router.get('/clusters/:cluster/configgroups/:group/configs/:name', configController.loadConfigFiles)
+  router.post('/clusters/:cluster/configs', configController.createConfigGroup)
+  router.post('/clusters/:cluster/configgroups/:group/configs/:name', configController.createConfigFiles)
+  router.post('/clusters/:cluster/configs/delete', configController.deleteConfigGroup)
+  router.post('/clusters/:cluster/configgroups/:group/configs/batch-delete', configController.deleteConfigFiles)
 
   // Registries
   router.get('/registries/:registry', registryController.getImages)

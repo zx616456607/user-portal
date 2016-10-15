@@ -1,13 +1,13 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
- * 
+ *
  * Redux reducers for app manage
- * 
+ *
  * v0.1 - 2016-09-21
  * @author YangYuBiao
  */
-import * as ActionTypes from  '../actions/storage'
+import * as ActionTypes from '../actions/storage'
 import { merge, union } from 'lodash'
 
 function storageList(state = {}, action) {
@@ -26,8 +26,8 @@ function storageList(state = {}, action) {
       return merge({}, defaultState, state, {
         [pool]: { isFetching: true }
       })
-    case ActionTypes.STORAGE_LIST_SUCCESS: 
-      return Object.assign({}, defaultState,{
+    case ActionTypes.STORAGE_LIST_SUCCESS:
+      return Object.assign({}, defaultState, {
         [pool]: {
           isFetching: false,
           storageList: action.response.result.body,
@@ -38,18 +38,18 @@ function storageList(state = {}, action) {
       return merge({}, defaultState, state, {
         [pool]: { isFetching: false }
       })
-    default: 
+    default:
       return state
   }
 }
 
 function deleteStorage(state = {}, action) {
-  switch(action.type) {
+  switch (action.type) {
     case ActionTypes.STORAGE_DELETE_REQUEST:
       return merge({}, state, {
         isFetching: true
       })
-    case ActionTypes.STORAGE_DELETE_SUCCESS: 
+    case ActionTypes.STORAGE_DELETE_SUCCESS:
       return merge({}, state, {
         isFetching: false
       })
@@ -57,7 +57,7 @@ function deleteStorage(state = {}, action) {
       return merge({}, state, {
         isFetching: false
       })
-    default: 
+    default:
       return state
   }
 }
@@ -65,7 +65,7 @@ function deleteStorage(state = {}, action) {
 
 
 function createStorage(state = {}, action) {
-  switch(action.type) {
+  switch (action.type) {
     case ActionTypes.STORAGE_CREATE_REQUEST:
       return union({}, state, {
         isFetching: true
@@ -78,12 +78,12 @@ function createStorage(state = {}, action) {
       return union({}, state, {
         isFetching: false
       })
-    default: 
+    default:
       return state
   }
 }
 function formateStorage(state = {}, action) {
-  switch(action.type) {
+  switch (action.type) {
     case ActionTypes.STORAGE_FORMATE_REQUEST:
       return merge({}, state, { isFetching: true })
     case ActionTypes.STORAGE_FORMATE_SUCCESS:
@@ -96,7 +96,7 @@ function formateStorage(state = {}, action) {
 }
 
 function resizeStorage(state = {}, action) {
-  switch(action.type) {
+  switch (action.type) {
     case ActionTypes.STORAGE_RESIZE_REQUEST:
       return merge({}, state, { isFetching: true })
     case ActionTypes.STORAGE_RESIZE_SUCCESS:
@@ -135,7 +135,7 @@ function uploadFile(state = {}, action) {
     isFetching: false,
     percent: 0
   }
-  switch(action.type) {
+  switch (action.type) {
     case ActionTypes.STORAGE_UPLOAD_REQUEST: {
       return _.merge({}, defaultState, state, {
         isFetching: true
@@ -156,7 +156,7 @@ function uploadFile(state = {}, action) {
         percent: action.percent
       })
     }
-    default: 
+    default:
       return state
   }
 }
@@ -166,21 +166,21 @@ function getStorageFileHistory(state = {}, action) {
     isFetching: false,
     history: []
   }
-  switch(action.type) {
-    case ActionTypes.STORAGE_FILEHISTORY_REQUEST: 
-      return _.merge({}, defaultState, { isFetching: true} )
+  switch (action.type) {
+    case ActionTypes.STORAGE_FILEHISTORY_REQUEST:
+      return _.merge({}, defaultState, { isFetching: true })
     case ActionTypes.STORAGE_FILEHISTORY_SUCCESS:
-      return Object.assign({}, { history :action.response.result.body }, { isFetching: false })
-    case ActionTypes.STORAGE_FILEHISTORY_FAILURE: 
-      return _.merge({}, defaultState, {isFetching: false})
+      return Object.assign({}, { history: action.response.result.body }, { isFetching: false })
+    case ActionTypes.STORAGE_FILEHISTORY_FAILURE:
+      return _.merge({}, defaultState, { isFetching: false })
     case ActionTypes.STORAGE_MERGE_UPLOADINGFILE:
       const customState = _.cloneDeep(state)
       var index = -1
-      if(!customState.history) {
+      if (!customState.history) {
         customState.history = [action.file]
         customState.isFetching = false
         return customState
-      } else{
+      } else {
         index = _.findIndex(customState.history, ['backupId', action.file.backupId])
       }
       if (index >= 0) {
@@ -196,9 +196,9 @@ function getStorageFileHistory(state = {}, action) {
 }
 
 function beforeUploadFile(state = {}, action) {
-  switch(action.type) {
+  switch (action.type) {
     case ActionTypes.STORAGE_BEFORE_UPLOADFILE_REQUEST:
-      return _.merge({}, state, { isFetching: true})
+      return _.merge({}, state, { isFetching: true })
     case ActionTypes.STORAGE_BEFORE_UPLOADFILE_SUCCESS:
       return Object.assign({}, state, action.response.result.body, { isFetching: false })
     case ActionTypes.STORAGE_BEFORE_UPLOADFILE_FAILURE:
@@ -212,14 +212,14 @@ function volumeBindInfo(state = {}, action) {
   const defaultState = {
     isFetching: false
   }
-  switch(action.type) {
+  switch (action.type) {
     case ActionTypes.STORAGE_GETVOLUMEBIND_REQUEST:
-      return _.merge({}, defaultState, {isFetching: true})
+      return _.merge({}, defaultState, { isFetching: true })
     case ActionTypes.STORAGE_GETVOLUMEBIND_SUCCESS:
-      return _.merge({}, defaultState, { volumeBindInfo: action.response.result.body }, {isFetching: false})
+      return _.merge({}, defaultState, { volumeBindInfo: action.response.result.body }, { isFetching: false })
     case ActionTypes.STORAGE_GETVOLUMEBIND_FAILURE:
-      return _.merge({}, defaultState, {isFetching: false})
-    default: 
+      return _.merge({}, defaultState, { isFetching: false })
+    default:
       return state
   }
 }
@@ -229,7 +229,7 @@ function changeUploadFileOptions(state = {}, action) {
     visible: false,
     uploadFile: true
   }
-  switch(action.type) {
+  switch (action.type) {
     case ActionTypes.STORAGE_CHANGE_UPLOADOPTIONS: {
       return action.options
     }
@@ -246,16 +246,16 @@ function exportFile(state = {}, action) {
     visible: false,
     exportFile: true
   }
-  switch(action.type) {
-    case ActionTypes.STORAGE_EXPORT_FILE_REQUEST: 
+  switch (action.type) {
+    case ActionTypes.STORAGE_EXPORT_FILE_REQUEST:
       return _.merge({}, defaultState, state, { isFetching: true })
     case ActionTypes.STORAGE_EXPORT_FILE_SUCCESS:
-      return _.merge({}, defaultState, state, { visible: true, percent: 100, isFetching: false}, action.response.result.body)
+      return _.merge({}, defaultState, state, { visible: true, percent: 100, isFetching: false }, action.response.result.body)
     case ActionTypes.STORAGE_EXPORT_FILE_FAILURE:
-      return _.merge({}, defaultState, state, { visible: false, percent: 100, isFetching: false})
+      return _.merge({}, defaultState, state, { visible: false, percent: 100, isFetching: false })
     default:
       return _.merge({}, defaultState, state)
-  } 
+  }
 }
 
 

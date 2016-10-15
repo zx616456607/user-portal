@@ -1,9 +1,9 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
- * 
+ *
  * API function collections
- * 
+ *
  * v0.1 - 2016-09-14
  * @author Zhangpc
  */
@@ -124,6 +124,6 @@ module.exports = function (request){
       })
     }
   }
-  
+
   this.create = (collection) => new Collections(collection)
 }

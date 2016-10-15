@@ -16,7 +16,7 @@ exports.getPublicImages = function (username) {
     username = username.toLowerCase()
   }
   return new Promise(function (resolve, reject) {
-    registry.getRepositories(username, null, function(statusCode, data, err) {
+    registry.getRepositories(username, null, function (statusCode, data, err) {
       if (err) {
         reject(err)
         return
@@ -39,7 +39,7 @@ exports.getImageTags = function (username, imageFullName) {
     username = username.toLowerCase()
   }
   return new Promise(function (resolve, reject) {
-    registry.getTagsV2(username, imageFullName, function(statusCode, tags, err) {
+    registry.getTagsV2(username, imageFullName, function (statusCode, tags, err) {
       if (err) {
         reject(err)
         return
@@ -62,7 +62,7 @@ exports.getImageConfigs = function (username, imageFullName, tag) {
     username = username.toLowerCase()
   }
   return new Promise(function (resolve, reject) {
-    registry.getImageJsonInfoV2(username, imageFullName, tag, function(statusCode, configs, err) {
+    registry.getImageJsonInfoV2(username, imageFullName, tag, function (statusCode, configs, err) {
       if (err) {
         reject(err)
         return
@@ -117,7 +117,7 @@ function _formatImageInfo(imageInfo, imageName, tag) {
 }
 
 function _getValueName(Obj) {
-  var nameArray =[]
+  var nameArray = []
   if (!Obj || typeof Obj !== 'object') {
     return nameArray
   }

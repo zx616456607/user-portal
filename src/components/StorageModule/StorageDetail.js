@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component, PropTypes } from 'react'
-import { Tabs,Card, Menu, Progress  } from 'antd'
+import { Tabs, Card, Menu, Progress } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -79,9 +79,9 @@ class StorageDetail extends Component {
     return (
       <div id="StorageDetail">
         <QueueAnim className="demo-content"
-                   key="demo"
-                   type="right"
-        >
+          key="demo"
+          type="right"
+          >
           <div key="ca" className="AppInfo">
             <Card className="topCard">
               <div className="imgBox">
@@ -89,15 +89,15 @@ class StorageDetail extends Component {
               </div>
               <div className="infoBox">
                 <div className="appTitle">
-                 { StorageInfo.volumeName }
+                  {StorageInfo.volumeName}
                 </div>
                 <div className="info">
-                    <FormattedMessage {...messages.useStatus} />
-                    &nbsp;：
+                  <FormattedMessage {...messages.useStatus} />
+                  &nbsp;：
                     <span>
-	                    <i className={StorageInfo.isUsed ? 'fa fa-circle error' : 'fa fa-circle normal'}></i>&nbsp;
-	                    <span className={StorageInfo.isUsed ? 'error' : 'normal'}>{StorageInfo.isUsed ?  <FormattedMessage {...messages.using} /> :  <FormattedMessage {...messages.stop} />}</span>
-                    </span>
+                    <i className={StorageInfo.isUsed ? 'fa fa-circle error' : 'fa fa-circle normal'}></i>&nbsp;
+	                    <span className={StorageInfo.isUsed ? 'error' : 'normal'}>{StorageInfo.isUsed ? <FormattedMessage {...messages.using} /> : <FormattedMessage {...messages.stop} />}</span>
+                  </span>
                   <div className="createDate">
                     <FormattedMessage {...messages.create} />：
                    { StorageInfo.createTime }
@@ -136,7 +136,7 @@ StorageDetail.propTypes = {
   intl: PropTypes.object.isRequired,
   loadStorageInfo: PropTypes.func.isRequired
 }
-  
+
 function mapStateToProps(state, props) {
   const defaultInfo = {
     imagePool: props.params.pool,
@@ -148,7 +148,7 @@ function mapStateToProps(state, props) {
     StorageInfo
   }
 }
-  
-export default connect(mapStateToProps,{ 
+
+export default connect(mapStateToProps,{
   loadStorageInfo}
 )(injectIntl(StorageDetail,{withRef: true,}))

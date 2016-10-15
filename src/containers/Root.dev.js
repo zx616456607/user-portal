@@ -1,9 +1,9 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
- * 
+ *
  * Root dev file
- * 
+ *
  * v0.1 - 2016-09-07
  * @author Zhangpc
  */
@@ -13,7 +13,7 @@ import routes from '../routes'
 import DevTools from './DevTools'
 import { Router } from 'react-router'
 
-// Internationalization 
+// Internationalization
 import { LocaleProvider } from 'antd'
 import { addLocaleData, IntlProvider } from 'react-intl'
 const appLocale = window.appLocale
@@ -27,7 +27,7 @@ class Root extends Component {
         <LocaleProvider locale={appLocale.antd}>
           <IntlProvider locale={appLocale.locale} messages={appLocale.messages}>
             <div>
-              <Router onUpdate={() => window.scrollTo(0, 0)}  history={history} routes={routes} />
+              <Router onUpdate={() => window.scrollTo(0, 0)} history={history} routes={routes} />
               <DevTools />
             </div>
           </IntlProvider>

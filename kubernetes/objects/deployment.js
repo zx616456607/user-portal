@@ -1,9 +1,9 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
- * 
+ *
  * Deployment class for k8s
- * 
+ *
  * v0.1 - 2016-10-11
  * @author Zhangpc
  */
@@ -40,7 +40,7 @@ class Deployment {
       }
     }
   }
-  
+
   setReplicas(replicas) {
     replicas = parseInt(replicas)
     if (isNaN(replicas)) {
@@ -113,7 +113,7 @@ class Deployment {
     })
   }
 
-  // ~ Image pull policy. One of Always, Never, IfNotPresent. Defaults to Always if :latest tag is specified, or IfNotPresent otherwise. 
+  // ~ Image pull policy. One of Always, Never, IfNotPresent. Defaults to Always if :latest tag is specified, or IfNotPresent otherwise.
   setContainerImagePullPolicy(containerName, imagePullPolicy) {
     this.spec.template.spec.containers.map((container) => {
       if (container.name !== containerName) {

@@ -8,7 +8,7 @@
  * @author ZhaoXueYu, BaiYu
  */
 
-import * as ActionTypes from  '../actions/configs'
+import * as ActionTypes from '../actions/configs'
 import merge from 'lodash/merge'
 import union from 'lodash/union'
 
@@ -53,7 +53,7 @@ function loadConfigName(state = {}, action) {
       })
     case ActionTypes.CONFIG_LISTName_SUCCESS:
       return merge({}, state, {
-        [cluster]:{
+        [cluster]: {
           isFetching: false,
           cluster: action.response.result.cluster,
           configGroupName: action.response.result.data
@@ -61,7 +61,7 @@ function loadConfigName(state = {}, action) {
       })
     case ActionTypes.CONFIG_LISTName_FAILURE:
       return merge({}, state, {
-        [cluster]: { isFetching: false}
+        [cluster]: { isFetching: false }
       })
     default:
       return state
@@ -78,13 +78,13 @@ function configGroupName(state = {}, action) {
       })
     case ActionTypes.GET_CONFIG_FILES_SUCCESS:
       return merge({}, state, {
-        [cluster]:{
+        [cluster]: {
           configName: union(state.configGroupName, action.response.result.data.configs)
         }
       })
     case ActionTypes.GET_CONFIG_FILES_FAILURE:
       return merge({}, state, {
-        [cluster]: { isFetching: false}
+        [cluster]: { isFetching: false }
       })
     default:
       return state
@@ -92,58 +92,58 @@ function configGroupName(state = {}, action) {
 }
 
 function createConfigGroup(state = {}, action) {
-  switch(action.type) {
+  switch (action.type) {
     case ActionTypes.CREATE_CONFIG_GROUP_REQUEST:
-      return union({},state,{isFetching: true})
+      return union({}, state, { isFetching: true })
     case ActionTypes.CREATE_CONFIG_GROUP_SUCCESS:
-      return union({},state, {isFetching: false})
+      return union({}, state, { isFetching: false })
     case ActionTypes.CREATE_CONFIG_GROUP_FAILURE:
-      return union({},state, {isFetching: false})
+      return union({}, state, { isFetching: false })
     default:
       return state
   }
 }
 
-function createConfigFiles(state={}, action) {
-  switch(action.type) {
+function createConfigFiles(state = {}, action) {
+  switch (action.type) {
     case ActionTypes.CREATE_CONFIG_FILES_REQUEST:
-      return union({},state,{isFetching: true})
+      return union({}, state, { isFetching: true })
     case ActionTypes.CREATE_CONFIG_FILES_SUCCESS:
-      return union({},state, {isFetching: false})
+      return union({}, state, { isFetching: false })
     case ActionTypes.CREATE_CONFIG_FILES_FAILURE:
-      return union({},state, {isFetching: false})
+      return union({}, state, { isFetching: false })
     default:
       return state
   }
 }
 
 function deleteConfigGroup(state = {}, action) {
-  switch(action.type) {
+  switch (action.type) {
     case ActionTypes.DELETE_CONFIG_GROUP_REQUEST:
-      return union({},state,{isFetching: true})
+      return union({}, state, { isFetching: true })
     case ActionTypes.DELETE_CONFIG_GROUP_SUCCESS:
-      return union({},state, {isFetching: false})
+      return union({}, state, { isFetching: false })
     case ActionTypes.DELETE_CONFIG_GROUP_FAILURE:
-      return union({},state, {isFetching: false})
+      return union({}, state, { isFetching: false })
     default:
       return state
   }
 }
 
 function deleteConfigName(state = {}, action) {
-  switch(action.type) {
+  switch (action.type) {
     case ActionTypes.DELETE_CONFIG_FILES_REQUEST:
-      return union({},state,{isFetching: true})
+      return union({}, state, { isFetching: true })
     case ActionTypes.DELETE_CONFIG_FILES_SUCCESS:
-      return union({},state, {isFetching: false})
+      return union({}, state, { isFetching: false })
     case ActionTypes.DELETE_CONFIG_FILES_FAILURE:
-      return union({},state, {isFetching: false})
+      return union({}, state, { isFetching: false })
     default:
       return state
   }
 }
 
-export default function configReducers(state ={}, action) {
+export default function configReducers(state = {}, action) {
   return {
     configGroupList: configGroupList(state.configGroupList, action),
     createConfigGroup: createConfigGroup(state.createConfigGroup, action),

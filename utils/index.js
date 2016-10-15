@@ -1,9 +1,9 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
- * 
+ *
  * Nomal tools
- * 
+ *
  * v0.1 - 2016-09-07
  * @author Zhangpc
  */

@@ -1,15 +1,15 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
- * 
+ *
  *  Storage list
- * 
+ *
  * v0.1 - 2016-09-22
  * @author BaiYu
  */
 
 import React, { Component, PropTypes } from 'react'
-import { Tabs,Card, Menu, Progress, Upload ,Radio ,Modal,Button, Icon, Col, message} from 'antd'
+import { Tabs, Card, Menu, Progress, Upload, Radio, Modal, Button, Icon, Col, message } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
@@ -39,7 +39,7 @@ class StorageStatus extends Component {
     super(props)
     this.state = {
       visible: false,
-      RadioValue:1,
+      RadioValue: 1,
       isUnzip: false,
       uploadFile: true,
       uploadFileStatus: 'success',
@@ -54,15 +54,15 @@ class StorageStatus extends Component {
     this.props.getStorageFileHistory(this.props.pool, this.props.cluster, this.props.volumeName)
   }
 
-  showUploadModal(){
+  showUploadModal() {
     this.props.uploadFileOptions({
       pool: this.props.pool,
       cluster: this.props.cluster,
-      volumeName:this.props.volumeName,
+      volumeName: this.props.volumeName,
       visible: true
     })
   }
-  handleCancel () {
+  handleCancel() {
     this.setState({
       visible: false
     })
@@ -74,9 +74,9 @@ class StorageStatus extends Component {
   }
 
   showPercent(item) {
-    if(item.backupId === this.props.beforeUploadState.backupId) {
+    if (item.backupId === this.props.beforeUploadState.backupId) {
       return this.props.upload.percent
-    } else{
+    } else {
       return 100
     }
   }
@@ -88,8 +88,8 @@ class StorageStatus extends Component {
   //     if(this.state.uploadFileStatus == 'exception') {
   //       return 'Failure'
   //     }
-  //     return 'Complete' 
-  //   } 
+  //     return 'Complete'
+  //   }
   //   return item.status
   // }
   getFileStatus(item) {
@@ -101,7 +101,7 @@ class StorageStatus extends Component {
     //     return this.state.downloadFileStatus
     //   }
     // }
-    switch(item.status) {
+    switch (item.status) {
       case 'Complete':
         return 'success'
       case 'Failure':
@@ -113,7 +113,7 @@ class StorageStatus extends Component {
     }
   }
   showBackground(item) {
-    switch(item.backupType) {
+    switch (item.backupType) {
       case 1:
         return 'status-icon success'
       case 0:
@@ -131,17 +131,17 @@ class StorageStatus extends Component {
         pool: 'test',
         backupId: self.props.beforeUploadState.backupId
       },
-      beforeUpload: (file) =>{ 
+      beforeUpload: (file) => {
         self.props.uploading(0)
         file.isUnzip = self.state.isUnzip
         self.setState({
           uploadFile: false
         })
-        return new Promise(function(resolve, reject) {
-          self.props.beforeUploadFile(self.props.pool, self.props.cluster,volumeName, file, {
+        return new Promise(function (resolve, reject) {
+          self.props.beforeUploadFile(self.props.pool, self.props.cluster, volumeName, file, {
             success: {
               isAsync: true,
-              func(){
+              func() {
                 self.props.mergeUploadingIntoList(self.props.beforeUploadState)
                 self.setState({
                   visible: false
@@ -154,7 +154,7 @@ class StorageStatus extends Component {
       },
       action: getUploadFileUlr(self.props.pool, self.props.cluster, volumeName),
       onChange(info) {
-        if(info.event) {
+        if (info.event) {
           self.props.uploading(info.event.percent.toFixed(2))
         }
         if (info.file.status === 'done') {
@@ -169,7 +169,7 @@ class StorageStatus extends Component {
           self.props.uploading(100)
           message.success('文件上传成功')
         } else if (info.file.status === 'error') {
-         // self.props.uploading(100)
+          // self.props.uploading(100)
           self.setState({
             uploadFile: true,
             uploadFileStatus: 'exception'
@@ -179,40 +179,40 @@ class StorageStatus extends Component {
           self.props.mergeUploadingIntoList(fileInfo)
           message.error('文件上传失败')
         }
-      } 
+      }
     }
   }
   exportFile() {
     this.props.exportFile(this.props.pool, this.props.cluster, this.props.volumeName)
   }
-  render(){
+  render() {
     const {formatMessage} = this.props.intl
     const statusList = this.props.fileHistory.history
     let status_list = []
-    if(statusList && statusList.length >= 0) {
-     status_list = statusList.map(item => {
-       return (<div className="status-list" key={item.backupId}> 
-            <span className={ this.showBackground(item)}><Icon type={ item.backupType == 1 ? 'cloud-upload-o' :'cloud-download-o'} /></span>
-            <div className="status-content">
-              <div className="status-row">
-                <span className="pull-left">{ item.backupType == 1 ? '上传' :'下载'}：{item.backupName} ({(item.size/1024/1024).toFixed(2)} MB)</span>
-                <span className="pull-right">{item.startTime}</span>
-              </div>
-              <Col span={8} className="fullProgress">
-                <Progress percent={ this.showPercent(item) } status={this.getFileStatus(item)}  showInfo={true}/>
-              </Col>
-              <Col span={4} offset={2}>{ item.status }</Col>
+    if (statusList && statusList.length >= 0) {
+      status_list = statusList.map(item => {
+        return (<div className="status-list" key={item.backupId}>
+          <span className={this.showBackground(item)}><Icon type={item.backupType == 1 ? 'cloud-upload-o' : 'cloud-download-o'} /></span>
+          <div className="status-content">
+            <div className="status-row">
+              <span className="pull-left">{item.backupType == 1 ? '上传' : '下载'}：{item.backupName}({(item.size / 1024 / 1024).toFixed(2)}MB)</span>
+              <span className="pull-right">{item.startTime}</span>
             </div>
-          </div>)
-     })
+            <Col span={8} className="fullProgress">
+              <Progress percent={this.showPercent(item)} status={this.getFileStatus(item)} showInfo={true} />
+            </Col>
+            <Col span={4} offset={2}>{item.status}</Col>
+          </div>
+        </div>)
+      })
     }
     return (
-      <div className="action-btns" style={{paddingLeft:'30px',paddingTop:'10px'}}>
-        <Button type="primary" onClick={this.showUploadModal} disabled={ !this.props.uploadFileOptionsState.uploadFile }><Icon type="cloud-upload-o" />上传文件</Button>
+      <div className="action-btns" style={{ paddingLeft: '30px', paddingTop: '10px' }}>
+        <Button type="primary" onClick={this.showUploadModal} disabled={!this.props.uploadFileOptionsState.uploadFile}><Icon type="cloud-upload-o" />上传文件</Button>
         <span className="margin"></span>
         <Button type="ghost" onClick={() => this.exportFile()} disabled={!this.props.exportFileState.exportFile}><Icon type="cloud-download-o" />导出文件</Button>
         <div className="status-box">
-         { status_list }
+          {status_list}
         </div>
       </div>
     )
@@ -234,7 +234,7 @@ function mapStateToProp(state) {
   }
 }
 
-  
+
 export default connect(mapStateToProp, {
   uploadFileRequest,
   uploadFileSuccess,

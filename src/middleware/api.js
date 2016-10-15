@@ -1,9 +1,9 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
- * 
+ *
  * Middleware for request api
- * 
+ *
  * v0.1 - 2016-09-07
  * @author Zhangpc
  */
@@ -14,32 +14,32 @@ import 'isomorphic-fetch'
 
 // Fetches an API response
 function fetchApi(endpoint, options, schema) {
-  if(!options) {
+  if (!options) {
     options = {
       credentials: 'same-origin',
       method: 'GET'
     }
   }
-  if(options.method === 'POST' || options.method === 'PUT') {
-    if(!options.headers) options.headers = {}
+  if (options.method === 'POST' || options.method === 'PUT') {
+    if (!options.headers) options.headers = {}
     let headers = new Headers(options.headers)
-    if(!options.headers['Content-Type']) {
+    if (!options.headers['Content-Type']) {
       headers.append('Content-Type', 'application/json')
     }
     options.headers = headers
     options.body = JSON.stringify(options.body)
   }
   return fetch(endpoint, options).then(response =>
-      response.json().then(json => ({json, response}))
-    ).then(({json, response}) =>  {
-      if (!response.ok) {
-        return Promise.reject(json)
-      }
-      const camelizedJson = camelizeKeys(json)
-      return Object.assign({},
-        normalize(camelizedJson, schema)
-      )
-    })
+    response.json().then(json => ({ json, response }))
+  ).then(({json, response}) => {
+    if (!response.ok) {
+      return Promise.reject(json)
+    }
+    const camelizedJson = camelizeKeys(json)
+    return Object.assign({},
+      normalize(camelizedJson, schema)
+    )
+  })
 }
 
 // We use this Normalizr schemas to transform API responses from a nested form
@@ -70,7 +70,7 @@ const storageSchema = new Schema('storage', {
   idAttribute: 'namespace'
 })
 
-const configSchema = new Schema('configGroupList',{
+const configSchema = new Schema('configGroupList', {
   idAttribute: 'groupId'
 })
 
@@ -142,7 +142,7 @@ export default store => next => action => {
     return finalAction
   }
 
-  const [ requestType, successType, failureType ] = types
+  const [requestType, successType, failureType] = types
   next(actionWith({ type: requestType }))
   console.log(action)
   console.log(endpoint)
@@ -151,11 +151,11 @@ export default store => next => action => {
       response,
       type: successType
     })),
-    error =>{
-     next(actionWith({
-      type: failureType,
-      error: error.message || 'Something bad happened'
-    }))
+    error => {
+      next(actionWith({
+        type: failureType,
+        error: error.message || 'Something bad happened'
+      }))
     }
   )
 }

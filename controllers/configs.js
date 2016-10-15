@@ -31,44 +31,49 @@ exports.getConfigGroup = function* () {
       groupName: 'my_ConfigGroup1',
       date: '2016-09-12 15:12:30',
       configFile: [
-        {fileId: '1', fileName: 'my_config_file1',
+        {
+          fileId: '1', fileName: 'my_config_file1',
           container: [
-            {containerId:'1',containerName: 'my_container1', pointPath: '/var/test/log1',},
-            {containerId:'2',containerName: 'my_container2', pointPath: '/var/test/log2',},
-            {containerId:'3',containerName: 'my_container3', pointPath: '/var/test/log3',},
-            {containerId:'4',containerName: 'my_container4', pointPath: '/var/test/log4',},
-            {containerId:'5',containerName: 'my_container5', pointPath: '/var/test/log5',},
-            {containerId:'6',containerName: 'my_container6', pointPath: '/var/test/log6',},
-            {containerId:'7',containerName: 'my_container7', pointPath: '/var/test/log7',},
-            {containerId:'8',containerName: 'my_container8', pointPath: '/var/test/log8',},
-            {containerId:'9',containerName: 'my_container9', pointPath: '/var/test/log9',},
-            {containerId:'10',containerName: 'my_container10', pointPath: '/var/test/log10',},
+            { containerId: '1', containerName: 'my_container1', pointPath: '/var/test/log1', },
+            { containerId: '2', containerName: 'my_container2', pointPath: '/var/test/log2', },
+            { containerId: '3', containerName: 'my_container3', pointPath: '/var/test/log3', },
+            { containerId: '4', containerName: 'my_container4', pointPath: '/var/test/log4', },
+            { containerId: '5', containerName: 'my_container5', pointPath: '/var/test/log5', },
+            { containerId: '6', containerName: 'my_container6', pointPath: '/var/test/log6', },
+            { containerId: '7', containerName: 'my_container7', pointPath: '/var/test/log7', },
+            { containerId: '8', containerName: 'my_container8', pointPath: '/var/test/log8', },
+            { containerId: '9', containerName: 'my_container9', pointPath: '/var/test/log9', },
+            { containerId: '10', containerName: 'my_container10', pointPath: '/var/test/log10', },
           ]
         },
-        {fileId: '2', fileName: 'my_config_file2',
+        {
+          fileId: '2', fileName: 'my_config_file2',
           container: [
-            {containerId:'1',containerName: 'my_container1', pointPath: '/var/test/log',},
-            {containerId:'2',containerName: 'my_container2', pointPath: '/var/test/log',},
+            { containerId: '1', containerName: 'my_container1', pointPath: '/var/test/log', },
+            { containerId: '2', containerName: 'my_container2', pointPath: '/var/test/log', },
           ]
         },
-        {fileId: '3', fileName: 'my_config_file3',
+        {
+          fileId: '3', fileName: 'my_config_file3',
           container: [
-            {containerId:'1',containerName: 'my_container1', pointPath: '/var/test/log',},
-            {containerId:'2',containerName: 'my_container2', pointPath: '/var/test/log',},
-            {containerId:'3',containerName: 'my_container3', pointPath: '/var/test/log',},
+            { containerId: '1', containerName: 'my_container1', pointPath: '/var/test/log', },
+            { containerId: '2', containerName: 'my_container2', pointPath: '/var/test/log', },
+            { containerId: '3', containerName: 'my_container3', pointPath: '/var/test/log', },
           ]
         },
-        {fileId: '4', fileName: 'my_config_file4',
+        {
+          fileId: '4', fileName: 'my_config_file4',
           container: [
-        
+
           ]
         },
-        {fileId: '5', fileName: 'my_config_file5',
+        {
+          fileId: '5', fileName: 'my_config_file5',
           container: [
-            {containerId:'1',containerName: 'my_container1', pointPath: '/var/test/log',},
-            {containerId:'2',containerName: 'my_container2', pointPath: '/var/test/log',},
-            {containerId:'3',containerName: 'my_container3', pointPath: '/var/test/log',},
-            {containerId:'4',containerName: 'my_container4', pointPath: '/var/test/log',},
+            { containerId: '1', containerName: 'my_container1', pointPath: '/var/test/log', },
+            { containerId: '2', containerName: 'my_container2', pointPath: '/var/test/log', },
+            { containerId: '3', containerName: 'my_container3', pointPath: '/var/test/log', },
+            { containerId: '4', containerName: 'my_container4', pointPath: '/var/test/log', },
           ]
         },
       ],
@@ -78,53 +83,56 @@ exports.getConfigGroup = function* () {
       groupName: 'my_ConfigGroup2',
       date: '2016-09-12 15:12:30',
       configFile: [
-        {fileId: '1', fileName: 'my_config_file1',
+        {
+          fileId: '1', fileName: 'my_config_file1',
           container: [
-            {containerId:'1',containerName: 'my_container1', pointPath: '/var/test/log',},
-            {containerId:'2',containerName: 'my_container2', pointPath: '/var/test/log',},
-            {containerId:'3',containerName: 'my_container3', pointPath: '/var/test/log',},
-            {containerId:'4',containerName: 'my_container4', pointPath: '/var/test/log',},
-            {containerId:'5',containerName: 'my_container5', pointPath: '/var/test/log',},
-            {containerId:'6',containerName: 'my_container6', pointPath: '/var/test/log',},
-            {containerId:'7',containerName: 'my_container7', pointPath: '/var/test/log',},
-            {containerId:'8',containerName: 'my_container8', pointPath: '/var/test/log',},
-            {containerId:'9',containerName: 'my_container9', pointPath: '/var/test/log',},
-            {containerId:'10',containerName: 'my_container10', pointPath: '/var/test/log',},
+            { containerId: '1', containerName: 'my_container1', pointPath: '/var/test/log', },
+            { containerId: '2', containerName: 'my_container2', pointPath: '/var/test/log', },
+            { containerId: '3', containerName: 'my_container3', pointPath: '/var/test/log', },
+            { containerId: '4', containerName: 'my_container4', pointPath: '/var/test/log', },
+            { containerId: '5', containerName: 'my_container5', pointPath: '/var/test/log', },
+            { containerId: '6', containerName: 'my_container6', pointPath: '/var/test/log', },
+            { containerId: '7', containerName: 'my_container7', pointPath: '/var/test/log', },
+            { containerId: '8', containerName: 'my_container8', pointPath: '/var/test/log', },
+            { containerId: '9', containerName: 'my_container9', pointPath: '/var/test/log', },
+            { containerId: '10', containerName: 'my_container10', pointPath: '/var/test/log', },
           ]
         },
-    
+
       ],
     },
     {
       groupId: '3',
       groupName: 'my_ConfigGroup3',
       configFile: [
-        {fileId: '1', fileName: 'my_config_file1',
+        {
+          fileId: '1', fileName: 'my_config_file1',
           container: [
-            {containerId:'1',containerName: 'my_container1', pointPath: '/var/test/log',},
-            {containerId:'2',containerName: 'my_container2', pointPath: '/var/test/log',},
-            {containerId:'3',containerName: 'my_container3', pointPath: '/var/test/log',},
-            {containerId:'4',containerName: 'my_container4', pointPath: '/var/test/log',},
-            {containerId:'5',containerName: 'my_container5', pointPath: '/var/test/log',},
-            {containerId:'6',containerName: 'my_container6', pointPath: '/var/test/log',},
-            {containerId:'7',containerName: 'my_container7', pointPath: '/var/test/log',},
-            {containerId:'8',containerName: 'my_container8', pointPath: '/var/test/log',},
-            {containerId:'9',containerName: 'my_container9', pointPath: '/var/test/log',},
-            {containerId:'10',containerName: 'my_container10', pointPath: '/var/test/log',},
+            { containerId: '1', containerName: 'my_container1', pointPath: '/var/test/log', },
+            { containerId: '2', containerName: 'my_container2', pointPath: '/var/test/log', },
+            { containerId: '3', containerName: 'my_container3', pointPath: '/var/test/log', },
+            { containerId: '4', containerName: 'my_container4', pointPath: '/var/test/log', },
+            { containerId: '5', containerName: 'my_container5', pointPath: '/var/test/log', },
+            { containerId: '6', containerName: 'my_container6', pointPath: '/var/test/log', },
+            { containerId: '7', containerName: 'my_container7', pointPath: '/var/test/log', },
+            { containerId: '8', containerName: 'my_container8', pointPath: '/var/test/log', },
+            { containerId: '9', containerName: 'my_container9', pointPath: '/var/test/log', },
+            { containerId: '10', containerName: 'my_container10', pointPath: '/var/test/log', },
           ]
         },
-        {fileId: '2', fileName: 'my_config_file2',
+        {
+          fileId: '2', fileName: 'my_config_file2',
           container: [
-            {containerId:'1',containerName: 'my_container1', pointPath: '/var/test/log',},
-            {containerId:'2',containerName: 'my_container2', pointPath: '/var/test/log',},
-            {containerId:'3',containerName: 'my_container3', pointPath: '/var/test/log',},
-            {containerId:'4',containerName: 'my_container4', pointPath: '/var/test/log',},
-            {containerId:'5',containerName: 'my_container5', pointPath: '/var/test/log',},
-            {containerId:'6',containerName: 'my_container6', pointPath: '/var/test/log',},
-            {containerId:'7',containerName: 'my_container7', pointPath: '/var/test/log',},
-            {containerId:'8',containerName: 'my_container8', pointPath: '/var/test/log',},
-            {containerId:'9',containerName: 'my_container9', pointPath: '/var/test/log',},
-            {containerId:'10',containerName: 'my_container10', pointPath: '/var/test/log',},
+            { containerId: '1', containerName: 'my_container1', pointPath: '/var/test/log', },
+            { containerId: '2', containerName: 'my_container2', pointPath: '/var/test/log', },
+            { containerId: '3', containerName: 'my_container3', pointPath: '/var/test/log', },
+            { containerId: '4', containerName: 'my_container4', pointPath: '/var/test/log', },
+            { containerId: '5', containerName: 'my_container5', pointPath: '/var/test/log', },
+            { containerId: '6', containerName: 'my_container6', pointPath: '/var/test/log', },
+            { containerId: '7', containerName: 'my_container7', pointPath: '/var/test/log', },
+            { containerId: '8', containerName: 'my_container8', pointPath: '/var/test/log', },
+            { containerId: '9', containerName: 'my_container9', pointPath: '/var/test/log', },
+            { containerId: '10', containerName: 'my_container10', pointPath: '/var/test/log', },
           ]
         },
       ],
@@ -134,32 +142,34 @@ exports.getConfigGroup = function* () {
       groupId: '4',
       groupName: 'my_ConfigGroup4',
       configFile: [
-        {fileId: '1', fileName: 'my_config_file1',
+        {
+          fileId: '1', fileName: 'my_config_file1',
           container: [
-            {containerId:'1',containerName: 'my_container1', pointPath: '/var/test/log',},
-            {containerId:'2',containerName: 'my_container2', pointPath: '/var/test/log',},
-            {containerId:'3',containerName: 'my_container3', pointPath: '/var/test/log',},
-            {containerId:'4',containerName: 'my_container4', pointPath: '/var/test/log',},
-            {containerId:'5',containerName: 'my_container5', pointPath: '/var/test/log',},
-            {containerId:'6',containerName: 'my_container6', pointPath: '/var/test/log',},
-            {containerId:'7',containerName: 'my_container7', pointPath: '/var/test/log',},
-            {containerId:'8',containerName: 'my_container8', pointPath: '/var/test/log',},
-            {containerId:'9',containerName: 'my_container9', pointPath: '/var/test/log',},
-            {containerId:'10',containerName: 'my_container10', pointPath: '/var/test/log',},
+            { containerId: '1', containerName: 'my_container1', pointPath: '/var/test/log', },
+            { containerId: '2', containerName: 'my_container2', pointPath: '/var/test/log', },
+            { containerId: '3', containerName: 'my_container3', pointPath: '/var/test/log', },
+            { containerId: '4', containerName: 'my_container4', pointPath: '/var/test/log', },
+            { containerId: '5', containerName: 'my_container5', pointPath: '/var/test/log', },
+            { containerId: '6', containerName: 'my_container6', pointPath: '/var/test/log', },
+            { containerId: '7', containerName: 'my_container7', pointPath: '/var/test/log', },
+            { containerId: '8', containerName: 'my_container8', pointPath: '/var/test/log', },
+            { containerId: '9', containerName: 'my_container9', pointPath: '/var/test/log', },
+            { containerId: '10', containerName: 'my_container10', pointPath: '/var/test/log', },
           ]
         },
-        {fileId: '2', fileName: 'my_config_file2',
+        {
+          fileId: '2', fileName: 'my_config_file2',
           container: [
-            {containerId:'1',containerName: 'my_container1', pointPath: '/var/test/log',},
-            {containerId:'2',containerName: 'my_container2', pointPath: '/var/test/log',},
-            {containerId:'3',containerName: 'my_container3', pointPath: '/var/test/log',},
-            {containerId:'4',containerName: 'my_container4', pointPath: '/var/test/log',},
-            {containerId:'5',containerName: 'my_container5', pointPath: '/var/test/log',},
-            {containerId:'6',containerName: 'my_container6', pointPath: '/var/test/log',},
-            {containerId:'7',containerName: 'my_container7', pointPath: '/var/test/log',},
-            {containerId:'8',containerName: 'my_container8', pointPath: '/var/test/log',},
-            {containerId:'9',containerName: 'my_container9', pointPath: '/var/test/log',},
-            {containerId:'10',containerName: 'my_container10', pointPath: '/var/test/log',},
+            { containerId: '1', containerName: 'my_container1', pointPath: '/var/test/log', },
+            { containerId: '2', containerName: 'my_container2', pointPath: '/var/test/log', },
+            { containerId: '3', containerName: 'my_container3', pointPath: '/var/test/log', },
+            { containerId: '4', containerName: 'my_container4', pointPath: '/var/test/log', },
+            { containerId: '5', containerName: 'my_container5', pointPath: '/var/test/log', },
+            { containerId: '6', containerName: 'my_container6', pointPath: '/var/test/log', },
+            { containerId: '7', containerName: 'my_container7', pointPath: '/var/test/log', },
+            { containerId: '8', containerName: 'my_container8', pointPath: '/var/test/log', },
+            { containerId: '9', containerName: 'my_container9', pointPath: '/var/test/log', },
+            { containerId: '10', containerName: 'my_container10', pointPath: '/var/test/log', },
           ]
         },
       ],
@@ -168,7 +178,7 @@ exports.getConfigGroup = function* () {
   ];
 
   // let pool = this.params.pool
-  let response = yield configApi.configGroup.getBy([cluster,'configgroups'])
+  let response = yield configApi.configGroup.getBy([cluster, 'configgroups'])
   this.status = response.code
   this.body = {
     data: response.data,
@@ -179,8 +189,8 @@ exports.getConfigGroup = function* () {
 exports.getConfigGroupName = function* () {
   const cluster = this.params.cluster
   let configName = this.params.name
-  let response = yield configApi.configGroup.getBy([cluster,'configgroups',configName])
-  this.status =response.code
+  let response = yield configApi.configGroup.getBy([cluster, 'configgroups', configName])
+  this.status = response.code
   this.body = {
     data: response.data.extended
   }
@@ -191,10 +201,10 @@ exports.createConfigGroup = function* () {
   let groupName = this.request.body.groupName
   if (!cluster || !groupName) {
     this.status = 400
-    this.body = { message: 　'error' }
+    this.body = { message: 'error' }
   }
-  let response = yield configApi.configGroup.createBy([cluster,'configgroups',groupName])
-  
+  let response = yield configApi.configGroup.createBy([cluster, 'configgroups', groupName])
+
   this.status = response.code
   this.body = {
     data: response.data
@@ -203,12 +213,12 @@ exports.createConfigGroup = function* () {
 exports.deleteConfigGroup = function* () {
   const cluster = this.params.cluster
   let groups = this.request.body
-  console.log('delete group name ',groups)
+  console.log('delete group name ', groups)
   if (groups.groups.length == 0) {
     this.status = 400
-    this.body = { message : 'Not Parameter'}
+    this.body = { message: 'Not Parameter' }
   }
-  let response = yield configApi.configGroup.batchDeleteBy([cluster,'configgroups','batch-delete'],null,groups)
+  let response = yield configApi.configGroup.batchDeleteBy([cluster, 'configgroups', 'batch-delete'], null, groups)
   // go delete`
   this.status = response.code
   this.body = {
@@ -224,10 +234,10 @@ exports.createConfigFiles = function* () {
   let data = this.request.body.groupFiles
   if (!cluster || !data) {
     this.status = 400
-    this.body = { message: 　'error' }
+    this.body = { message: 'error' }
   }
-  let response = yield configApi.configGroup.createBy([cluster,'configgroups',group, 'configs', fileName],null, data)
-  
+  let response = yield configApi.configGroup.createBy([cluster, 'configgroups', group, 'configs', fileName], null, data)
+
   this.status = response.code
   this.body = {
     data: response.data
@@ -238,8 +248,8 @@ exports.loadConfigFiles = function* () {
   const cluster = this.params.cluster
   const fileName = this.params.name
   const group = this.params.group
-  let response = yield configApi.configGroup.getBy([cluster,'configgroups',group,'configs',fileName])
-  
+  let response = yield configApi.configGroup.getBy([cluster, 'configgroups', group, 'configs', fileName])
+
   this.status = response.code
   this.body = {
     data: response.data
@@ -251,8 +261,8 @@ exports.updateConfigName = function* () {
   const fileName = this.params.name
   const group = this.params.group
   let data = this.request.body
-  let response = yield configApi.configGroup.updateBy([cluster,'configgroups',group,'configs',fileName], null, data)
-  
+  let response = yield configApi.configGroup.updateBy([cluster, 'configgroups', group, 'configs', fileName], null, data)
+
   this.status = response.code
   this.body = {
     data: response.data
@@ -263,9 +273,9 @@ exports.deleteConfigFiles = function* () {
   const cluster = this.params.cluster
   const group = this.params.group
   const data = this.request.body
-  console.log('delete config files',data)
-  let response = yield configApi.configGroup.batchDeleteBy([cluster,'configgroups',group,'configs','batch-delete'], null, data)
-  
+  console.log('delete config files', data)
+  let response = yield configApi.configGroup.batchDeleteBy([cluster, 'configgroups', group, 'configs', 'batch-delete'], null, data)
+
   this.status = response.code
   this.body = {
     data: response.data

@@ -1,8 +1,8 @@
 import React, { Component, PropTypes } from 'react'
-import {Button, Icon } from 'antd'
+import { Button, Icon } from 'antd'
 
 export default class ModalDetail extends Component {
-  constructor(){
+  constructor() {
     super()
   }
   render() {
@@ -21,7 +21,7 @@ export default class ModalDetail extends Component {
             <li><span>状态：</span><span className="normal">运行中</span></li>
           </ul>
           <div className="danger">
-            <Icon type="cross" className="cursor" onClick={() => {scope.setState({detailModal: false})}} />
+            <Icon type="cross" className="cursor" onClick={() => { scope.setState({ detailModal: false }) } } />
             <div className="li"><Button size="large" className="btn-danger" type="ghost" onClick={(name) => this.deleteCluster('mysql-1')}><Icon type="delete" />删除集群</Button></div>
           </div>
         </div>

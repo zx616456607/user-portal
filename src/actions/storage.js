@@ -1,9 +1,9 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
- * 
+ *
  * Storage action
- * 
+ *
  * v0.1 - 2016-09-21
  * @author YangYuBiao
  */
@@ -11,9 +11,9 @@
 import { FETCH_API, Schemas } from '../middleware/api'
 import { API_URL_PREFIX } from '../constants'
 
-export const STORAGE_LIST_REQUEST = 'STORAGE_LIST_REQUEST' 
-export const STORAGE_LIST_SUCCESS = 'STORAGE_LIST_SUCCESS' 
-export const STORAGE_LIST_FAILURE = 'STORAGE_LIST_FAILURE' 
+export const STORAGE_LIST_REQUEST = 'STORAGE_LIST_REQUEST'
+export const STORAGE_LIST_SUCCESS = 'STORAGE_LIST_SUCCESS'
+export const STORAGE_LIST_FAILURE = 'STORAGE_LIST_FAILURE'
 
 export function fetchStorageList(pool, cluster, callback) {
   return {
@@ -106,7 +106,7 @@ export const STORAGE_FORMATE_SUCCESS = 'STORAGE_FROMATE_SUCCESS'
 export const STORAGE_FORMATE_FAILURE = 'STORAGE_FROMATE_FAILURE'
 
 export function formateStorage(pool, cluster, storage, callback) {
-    return {
+  return {
     [FETCH_API]: {
       pool,
       types: [STORAGE_FORMATE_REQUEST, STORAGE_FORMATE_SUCCESS, STORAGE_FORMATE_FAILURE],
@@ -144,7 +144,7 @@ export function resizeStorage(pool, cluster, storage, callback) {
 export const STORAGE_UPLOAD_REQUEST = 'STORAGE_UPLOAD_REQUEST'
 export const STORAGE_UPLOAD_SUCCESS = 'STORAGE_UPLOAD_SUCCESS'
 export const STORAGE_UPLOAD_FAILURE = 'STORAGE_UPLOAD_FAILURE'
-export const STORAGE_UPLOADING      = 'STORAGE_UPLOADING'
+export const STORAGE_UPLOADING = 'STORAGE_UPLOADING'
 export const STORAGE_MERGE_UPLOADINGFILE = 'STORAGE_MERGE_UPLOADINGFILE'
 
 export function uploadFile(pool, cluster, storage, callback) {
@@ -222,7 +222,7 @@ export function mergeUploadingIntoList(uploadingFile) {
 export const STORAGE_BEFORE_UPLOADFILE_REQUEST = 'STORAGE_BEFORE_UPLOADFILE_REQUEST'
 export const STORAGE_BEFORE_UPLOADFILE_SUCCESS = 'STORAGE_BEFORE_UPLOADFILE_SUCCESS'
 export const STORAGE_BEFORE_UPLOADFILE_FAILURE = 'STORAGE_BEFORE_UPLOADFILE_FAILURE'
- 
+
 export function beforeUploadFile(pool, cluster, volume, file, callback) {
   return {
     [FETCH_API]: {
@@ -231,7 +231,7 @@ export function beforeUploadFile(pool, cluster, volume, file, callback) {
       schema: {},
       options: {
         method: 'POST',
-        body:  {
+        body: {
           fileName: file.name,
           size: file.size,
           isUnzip: file.isUnzip

@@ -1,9 +1,9 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
- * 
+ *
  * Redux actions for app manage
- * 
+ *
  * v0.1 - 2016-10-08
  * @author Zhangpc
  */
@@ -21,7 +21,7 @@ function fetchPublicImageList(registry) {
   return {
     registry,
     [FETCH_API]: {
-      types: [ IMAGE_PUBLIC_LIST_REQUEST, IMAGE_PUBLIC_LIST_SUCCESS, IMAGE_PUBLIC_LIST_FAILURE ],
+      types: [IMAGE_PUBLIC_LIST_REQUEST, IMAGE_PUBLIC_LIST_SUCCESS, IMAGE_PUBLIC_LIST_FAILURE],
       endpoint: `${API_URL_PREFIX}/registries/${registry}`,
       schema: Schemas.REGISTRYS
     }
@@ -45,7 +45,7 @@ function fetchImageGetDetailTag(registry, fullName, callback) {
   return {
     registry,
     [FETCH_API]: {
-      types: [ IMAGE_GET_DETAILTAG_REQUEST, IMAGE_GET_DETAILTAG_SUCCESS, IMAGE_GET_DETAILTAG_FAILURE ],
+      types: [IMAGE_GET_DETAILTAG_REQUEST, IMAGE_GET_DETAILTAG_SUCCESS, IMAGE_GET_DETAILTAG_FAILURE],
       endpoint: `${API_URL_PREFIX}/registries/${registry}/${fullName}/tags`,
       schema: Schemas.REGISTRYS
     },
@@ -70,7 +70,7 @@ function fetchImageGetDetailTagConfig(registry, fullName, tag, callback) {
   return {
     registry,
     [FETCH_API]: {
-      types: [ IMAGE_GET_DETAILTAGCONFIG_REQUEST, IMAGE_GET_DETAILTAGCONFIG_SUCCESS, IMAGE_GET_DETAILTAGCONFIG_FAILURE ],
+      types: [IMAGE_GET_DETAILTAGCONFIG_REQUEST, IMAGE_GET_DETAILTAGCONFIG_SUCCESS, IMAGE_GET_DETAILTAGCONFIG_FAILURE],
       endpoint: `${API_URL_PREFIX}/registries/${registry}/${fullName}/tags/${tag}/configs`,
       schema: Schemas.REGISTRYS
     },
