@@ -7,7 +7,7 @@
  * v0.1 - 2016-09-10
  * @author GaoJian
  */
-import React, { Component } from 'react'
+import React, { Component, PropTypes } from 'react'
 import { Tabs,Checkbox,Dropdown,Button,Card, Menu,Icon } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
@@ -20,6 +20,7 @@ import PortDetail from './PortDetail'
 import AppUseful from './AppUseful'
 import AppServiceLog from './AppServiceLog'
 import AppServiceEvent from './AppServiceEvent'
+import { loadServiceDetail } from '../../../actions/app_manage'
 import './style/AppServiceDetail.less'
 
 const TabPane = Tabs.TabPane;
@@ -41,7 +42,13 @@ const operaMenu = (<Menu>
 					  </Menu.Item>
 					</Menu>);
 
-export default class AppServiceDetail extends Component {
+function loadData(props) {
+	const { cluster, serviceName, loadServiceDetail } = props
+	document.title = `${serviceName} 服务详情页 | 时速云`
+	loadServiceDetail(cluster, serviceName)
+}
+
+class AppServiceDetail extends Component {
   constructor(props) {
     super(props);
     this.closeModal = this.closeModal.bind(this);
@@ -53,9 +60,23 @@ export default class AppServiceDetail extends Component {
   	  modalShow : false
   	});
   }
-  
+
+  componentWillMount() {
+		loadData(this.props)
+  }
+
+	componentWillReceiveProps(nextProps) {
+		const { serviceDetailmodalShow } = nextProps
+		if (serviceDetailmodalShow === this.props.serviceDetailmodalShow) {
+			return
+		}
+		if (serviceDetailmodalShow) {
+			loadData(nextProps)			
+		}
+  }
+
   render() {
-  	const {scope, serviceDetailmodalShow} = this.props;
+  	const { scope, serviceDetailmodalShow, serviceDetail, isFetching } = this.props;
   	const service = scope.state.currentShowInstance;
     return (
       <div id="AppServiceDetail">
@@ -109,7 +130,9 @@ export default class AppServiceDetail extends Component {
 	            <TabPane tab="容器实例" key="1">
 								<ContainerList serviceName={service.metadata.name} cluster={service.cluster} serviceDetailmodalShow={serviceDetailmodalShow} />
 							</TabPane>
-	            <TabPane tab="基础信息" key="2"><AppServiceDetailInfo /></TabPane>
+	            <TabPane tab="基础信息" key="2">
+								<AppServiceDetailInfo serviceDetail={serviceDetail} loading={isFetching} />
+							</TabPane>
 	            <TabPane tab="配置组" key="3"><ComposeGroup /></TabPane>
 	            <TabPane tab="绑定域名" key="4"><BindDomain /></TabPane>
 	            <TabPane tab="端口" key="5"><PortDetail /></TabPane>
@@ -128,5 +151,37 @@ export default class AppServiceDetail extends Component {
 }
 
 AppServiceDetail.propTypes = {
-//
+  loadServiceDetail: PropTypes.func.isRequired,
+  service: PropTypes.object.isRequired,
 }
+
+function mapStateToProps(state, props) {
+  const { scope } = props
+	const currentShowInstance = scope.state.currentShowInstance
+	const { cluster, metadata } = currentShowInstance
+	const serviceName = metadata ? metadata.name : ''
+	const defaultService = {
+    isFetching: false,
+    cluster,
+		serviceName,
+    service: {}
+  }
+	const {
+    serviceDetail
+  } = state.services
+	let targetService
+	if (serviceDetail[cluster] && serviceDetail[cluster][serviceName]) {
+		targetService = serviceDetail[cluster][serviceName]
+	}
+	const { service, isFetching } = targetService || defaultService
+  return {
+		cluster,
+    serviceName,
+		serviceDetail: service,
+		isFetching
+  }
+}
+
+export default connect(mapStateToProps, {
+  loadServiceDetail
+})(AppServiceDetail)

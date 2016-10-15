@@ -46,7 +46,7 @@
 					border: 0;
 					border-bottom: 1px solid #d9d9d9;
 					outline: none;
-					background-color: #EFEFEF;
+					background-color: #F8F8F8;
 				}
 			}
 		}
@@ -67,6 +67,10 @@
 		.serviceName,
 		.imageName {
 			width: 12.5%;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			cursor: default;
 		}
 		.visitIp,
 		.createTime,
@@ -75,6 +79,7 @@
 			white-space: nowrap;
 			overflow: hidden;
 			text-overflow: ellipsis;
+			cursor: default;
 		}
 		.containerTitle {
 			width: 100%;

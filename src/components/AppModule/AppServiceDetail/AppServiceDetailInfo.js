@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component } from 'react'
-import { Card } from 'antd'
+import { Card, Spin } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -20,7 +20,13 @@ export default class AppServiceDetailInfo extends Component {
   }
   
   render() {
+		const { isFetching, serviceDetail } = this.props
   	const parentScope = this;
+		if (isFetching || !serviceDetail.metadata) {
+			return (
+				<Spin />
+			)
+		}
     return (
      <Card id="AppServiceDetailInfo">
 	    <div className="info commonBox">
@@ -39,13 +45,13 @@ export default class AppServiceDetailInfo extends Component {
 	      </div>
 	      <div className="dataBox">
 	        <div className="commonTitle">
-	          挺萌的容器
+						{ serviceDetail.metadata.name }
 	        </div>
 	        <div className="commonTitle">
-	          好萌的镜像
+	          { serviceDetail.images.join(', ') || '-' }
 	        </div>
 	        <div className="commonTitle">
-	          2016-09-27 09:06:52
+	          { serviceDetail.metadata.creationTimestamp }
 	        </div>
 	        <div style={{ clear:"both" }}></div>
 	      </div>
@@ -66,13 +72,13 @@ export default class AppServiceDetailInfo extends Component {
 	      </div>
 	      <div className="dataBox">
 	        <div className="commonTitle">
-	          100M
+	          { serviceDetail.spec.template.spec.containers[0].resources.requests.cpu || '-' }
 	        </div>
 	        <div className="commonTitle">
-	          1024M
+	          { serviceDetail.spec.template.spec.containers[0].resources.requests.memory || '-' }
 	        </div>
 	        <div className="commonTitle">
-	          256M
+	          10G
 	        </div>
 	        <div style={{ clear:"both" }}></div>
 	      </div>
@@ -90,10 +96,10 @@ export default class AppServiceDetailInfo extends Component {
 	      </div>
 	      <div className="dataBox">
 	        <div className="commonTitle">
-	          我就是变量
+	          -
 	        </div>
 	        <div className="commonTitle">
-	         	大小是隐私问题哦
+	         	-
 	        </div>
 	        <div style={{ clear:"both" }}></div>
 	      </div>

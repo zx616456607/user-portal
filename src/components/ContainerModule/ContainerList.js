@@ -15,6 +15,7 @@ import QueueAnim from 'rc-queue-anim'
 import './style/ContainerList.less'
 import { loadContainerList } from '../../actions/app_manage'
 import { DEFAULT_CLUSTER } from '../../constants'
+import { tenxDateFormat } from '../../common/tools.js'
 
 function loadData(props) {
   const { cluster } = props
@@ -22,18 +23,6 @@ function loadData(props) {
 }
 
 const ButtonGroup = Button.Group
-const operaMenu = (<Menu>
-					  <Menu.Item key="0">
-						重启容器
-					  </Menu.Item>
-					  <Menu.Item key="1">
-						停止容器
-					  </Menu.Item>
-					  <Menu.Item key="2">
-						删除容器
-					  </Menu.Item>
-					</Menu>);
-
 
 const MyComponent = React.createClass({	  
   propTypes: {
@@ -49,7 +38,8 @@ const MyComponent = React.createClass({
   		return false;
   	}
   },
-  onchange : function(e){
+  onchange : function(e,event){
+  	event.stopPropagation(); 
   	//single item selected function
   	const {scope} = this.props;
   	let oldList = scope.state.selectedList;
@@ -57,61 +47,100 @@ const MyComponent = React.createClass({
   	  let index = oldList.indexOf(e);
   	  oldList.splice(index,1);
   	}else{	
-	  oldList.push(e);
+	  	oldList.push(e);
   	}
     scope.setState({
       selectedList:oldList
     });
   },
+  containerOperaClick: function(item,e){
+		//this function for user click opera menu
+	},
+	selectContainerDetail: function(e){
+		//this function for user click app detail ,and then this app will be selected
+		const {scope} = this.props;
+  	let oldList = scope.state.selectedList;
+  	if(oldList.includes(e)){
+  	  let index = oldList.indexOf(e);
+  	  oldList.splice(index,1);
+  	}else{	
+	  	oldList.push(e);
+  	}
+    scope.setState({
+      selectedList:oldList
+    });
+	},
   render : function() {
 	var config = this.props.config;
 	var items = config.map((item) => {
+		const dropdown = (
+			  <Menu onClick={this.containerOperaClick.bind(this,item)}
+					style={{width:"100px"}}
+			  >
+					<Menu.Item key="1">
+						停止容器
+					</Menu.Item>
+					<Menu.Item key="2">
+						删除
+					</Menu.Item>
+					<Menu.Item key="3">
+						查看架构图
+					</Menu.Item>
+					<Menu.Item key="4">
+						查看编排
+					</Menu.Item>
+			  </Menu>
+			);
 	  return (
-	    <div className={this.checkedFunc(item.metadata.name) ? "selectedContainer containerDetail":"containerDetail"} key={item.id}>
+	    <div className={this.checkedFunc(item.metadata.name) ? "selectedContainer containerDetail":"containerDetail"}
+				key={item.metadata.name}
+	    	onClick={this.selectContainerDetail.bind(this, item.metadata.name)}
+	    >
 			<div className="selectIconTitle commonData">
 			  <Checkbox checked={this.checkedFunc(item.metadata.name)} onChange={()=>this.onchange(item.metadata.name)}></Checkbox>
 			</div>
 			<div className="containerName commonData">
-		      <Link to={`/app_manage/container/detail/${item.metadata.name}`} >
+				<Tooltip placement="topLeft" title={item.metadata.name}>
+		      <Link to={`/app_manage/container/${item.metadata.name}`} >
 	    	    {item.metadata.name}
 		      </Link>
+		    </Tooltip>
 			</div>
 			<div className="containerStatus commonData">
 			  <i className={item.status.phase == 'Running' ? "normal fa fa-circle":"error fa fa-circle"}></i>
 			  <span className={item.status.phase == 'Running' ? "normal":"error"} >{item.status.phase}</span>
 			</div>
 			<div className="serviceName commonData">
-			  {item.metadata.labels.appName || '-'}
+				<Tooltip placement="topLeft" title={ item.metadata.labels.appName ? item.metadata.labels.appName:"" }>
+			  	<span>{item.metadata.labels.appName || '-'}</span>
+			  </Tooltip>
 			</div>
 			<div className="imageName commonData">
-			  {item.images.join(', ')}
+				<Tooltip placement="topLeft" title={ item.images.join(', ') }>
+			  	<span>{item.images.join(', ')}</span>
+			  </Tooltip>
 			</div>
 			<div className="visitIp commonData">
-			  <Tooltip placement="top" title={item.status.podIP}>
+			  <Tooltip placement="topLeft" title={item.status.podIP}>
 			    <span>{item.status.podIP}</span>
 			  </Tooltip>
 			  <br />
-			  <Tooltip placement="top" title={item.serviceIPOutput || '-'}>
+			  <Tooltip placement="topLeft" title={item.serviceIPOutput || '-'}>
 			    <span>{item.serviceIPOutput || '-'}</span>
 			  </Tooltip>
 			</div>
 			<div className="createTime commonData">
-			  {item.metadata.creationTimestamp}
+				<Tooltip placement="topLeft" title={tenxDateFormat(item.metadata.creationTimestamp)}>
+			  	<span>{tenxDateFormat(item.metadata.creationTimestamp)}</span>
+			  </Tooltip>
 			</div>
 			<div className="actionBox commonData">
-			  <ButtonGroup>
-			    <Button type="ghost" className="viewBtn">
-			      <svg className="terminal">
-	                <use xlinkHref="#terminal" />
-	              </svg>
-		          终端
-			    </Button>
-			    <Dropdown overlay={operaMenu} trigger={['click']}>
-				  <Button type="ghost" className="moreBtn ant-dropdown-link">
-		            <i className="fa fa-caret-down"></i>
-				  </Button>
-			    </Dropdown>
-			  </ButtonGroup>
+				<Dropdown.Button overlay={dropdown} type="ghost">
+				  <svg className="terminal">
+	          <use xlinkHref="#terminal" />
+	        </svg>
+		      <span style={{ marginLeft:"20px" }}>终端</span>
+				</Dropdown.Button>
 			</div>
 			<div style={{clear:"both",width:"0"}}></div>
 		</div>
@@ -142,7 +171,7 @@ class ContainerList extends Component {
   
   allSelectedChecked(){
 		const { containerList } = this.props
-  	if(this.state.selectedList.length == containerList.length){
+  	if(this.state.selectedList.length == containerList.length && containerList.length > 0){
   		return true;
   	}else{
   		return false;
@@ -159,7 +188,7 @@ class ContainerList extends Component {
   	}else{
   	  //select some item or nothing,turn the selectedlist to selecet all item
   	  for(let elem of containerList){
-  	    newList.push(elem.id);
+  	    newList.push(elem.metadata.name);
   	  }
   	}
   	this.setState({
@@ -177,11 +206,11 @@ class ContainerList extends Component {
         >
           <div id="ContainerList" key = "ContainerList">
       	    <div className="operationBox">
-	          <div className="leftBox">
+	          {/*<div className="leftBox">
 	      	    <Button type="primary" size="large"><i className="fa fa-power-off"></i>重启容器</Button>
 	      	    <Button type="ghost" size="large"><i className="fa fa-stop"></i>停止容器</Button>
 	      	    <Button type="ghost" size="large"><i className="fa fa-trash-o"></i>删除容器</Button>
-	          </div>
+	          </div>*/}
 	        <div className="rightBox">
 	      	  <div className="littleLeft">
 	      	    <i className="fa fa-search"></i>
@@ -243,9 +272,9 @@ function mapStateToProps(state, props) {
     containerList: []
   }
   const {
-    containers
-  } = state
-  const { cluster, containerList, isFetching } = containers[DEFAULT_CLUSTER] || defaultContainers
+    containerItems
+  } = state.containers
+  const { cluster, containerList, isFetching } = containerItems[DEFAULT_CLUSTER] || defaultContainers
 
   return {
     cluster,

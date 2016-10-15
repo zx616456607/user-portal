@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Dropdown,Tabs,Card,Menu,Button } from 'antd'
+import { Dropdown,Tabs,Card,Menu,Button,Spin } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -16,6 +16,8 @@ import ContainerDetailInfo from "./ContainerDetailInfo.js"
 import ContainerDetailGraph from "./ContainerGraph.js"
 import ContainerDetailLog from "./ContainerLog.js"
 import "./style/ContainerDetail.less"
+import { loadContainerDetail } from '../../actions/app_manage'
+import { DEFAULT_CLUSTER } from '../../constants'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -29,19 +31,38 @@ const operaMenu = (<Menu>
 						<i className="fa fa-trash-o" style={{marginRight:"10px"}}></i>删除
 					  </Menu.Item>
 					</Menu>);
-					
+
+function loadData(props) {
+  const { cluster, containerName } = props
+  props.loadContainerDetail(cluster, containerName)
+}
+
 class ContainerDetail extends Component {
   constructor(props) {
     super(props);  
     this.state = {
       currentKey: "1"
     }
-  }	
+  }
+
+	componentWillMount() {
+		const { containerName } = this.props
+    document.title = `容器 ${ containerName } | 时速云`
+    loadData(this.props)
+  }
   
   render() {
-    const { containerID } = this.props
+    const { containerName, isFetching, container } = this.props
     const { children } = this.props
     const { currentKey } = this.state
+		if (isFetching || !container.metadata) {
+			return (
+				<Spin />
+			)
+		}
+		if (!container.status) {
+			container.status = {}
+		}
     return (
       <div id="ContainerDetail">
 	    <QueueAnim className="demo-content"
@@ -56,27 +77,29 @@ class ContainerDetail extends Component {
                 </div>
                 <div className="infoBox">
 	              <p className="appTitle">
-	                萌萌的应用
+	                { containerName }
 	              </p>
 	              <div className="leftInfo">
 	                <div className="status">
 	                  运行状态&nbsp;:
 	                  <span>
-	                    <i className="fa fa-circle"></i>
-	                    运行中
+											<i className={container.status.phase == 'Running' ? "normal fa fa-circle":"error fa fa-circle"}></i>
+	                    <span className={container.status.phase == 'Running' ? "normal":"error"} >
+												{ container.status.phase }
+											</span>
 	                  </span>
 	                </div>
 	                <div className="address">
-	                  地址&nbsp;:&nbsp;http:\//www.tenxcloud.com
+	                  地址&nbsp;:&nbsp; {container.status.podIP}
 	                </div>
 	                </div>
 	                <div className="middleInfo">
 	                  <div className="createDate">
-	                    创建&nbsp;:&nbsp;2016-09-09&nbsp;18:15 
+	                    创建&nbsp;:&nbsp;{container.metadata.creationTimestamp} 
 	                  </div>
-	                  <div className="updateDate">
-	                    更新&nbsp;:&nbsp;2016-09-09&nbsp;18:15
-	                  </div>
+	                  {/*<div className="updateDate">
+	                    更新&nbsp;:&nbsp;{container.metadata.creationTimestamp} 
+	                  </div>*/}
 	                </div>
 	                <div className="rightInfo">
 	                  <div className="actionBox commonData">
@@ -107,7 +130,9 @@ class ContainerDetail extends Component {
 	               tabPosition="top"
 	               defaultActiveKey="1"
 	              >
-	                <TabPane tab="容器配置" key="1" ><ContainerDetailInfo key="ContainerDetailInfo" /></TabPane>
+	                <TabPane tab="容器配置" key="1" >
+										<ContainerDetailInfo key="ContainerDetailInfo" container={ container } />
+									</TabPane>
 	                <TabPane tab="监控" key="2" >应用拓补图</TabPane>
 	                <TabPane tab="日志" key="3" ><ContainerDetailGraph key="ContainerDetailGraph" /></TabPane>
 	                <TabPane tab="事件" key="4" ><ContainerDetailLog key="ContainerDetailLog" / ></TabPane>
@@ -120,13 +145,37 @@ class ContainerDetail extends Component {
     }
 }
 
+ContainerDetail.propTypes = {
+  // Injected by React Redux
+  cluster: PropTypes.string.isRequired,
+  containerName: PropTypes.string.isRequired,
+  isFetching: PropTypes.bool.isRequired,
+  container: PropTypes.object.isRequired,
+  loadContainerDetail: PropTypes.func.isRequired
+}
+
 function mapStateToProps(state, props) {
-  const { container_id } = props.params
+  const { container_name } = props.params
+	const cluster = DEFAULT_CLUSTER
+	const defaultContainer = {
+    isFetching: false,
+    cluster,
+		containerName: container_name,
+    container: {}
+  }
+	const {
+    containerDetail
+  } = state.containers
+	const { container, isFetching } = containerDetail[cluster] || defaultContainer
+
   return {
-    containerID: container_id
+    containerName: container_name,
+		cluster,
+		isFetching,
+		container
   }
 }
 
 export default connect(mapStateToProps, {
-  //
+  loadContainerDetail,
 })(ContainerDetail)

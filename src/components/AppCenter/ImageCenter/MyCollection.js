@@ -126,11 +126,11 @@ let MyComponent = React.createClass({
   },
   showImageDetail:function(id){
   	//this function for user select image and show the image detail info
-		const scope = this.props.scope;
-		scope.setState({
-			imageDetailModalShow:true,
-			currentImage:id
-		});
+//		const scope = this.props.scope;
+//		scope.setState({
+//			imageDetailModalShow:true,
+//			currentImage:id
+//		});
   },
   render : function() {
 		let config = this.props.config;

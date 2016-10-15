@@ -99,7 +99,6 @@ class AppAddServiceModal extends Component {
 		const { registry, loadPublicImageList } = this.props
 		loadPublicImageList(registry)
   }
-  
   render() {
   	const parentScope = this
 		const { publicImageList, registryServer, scope, isFetching } = this.props

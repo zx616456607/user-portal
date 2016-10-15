@@ -122,9 +122,13 @@ let MyComponent = React.createClass({
   },
   inputOnBlur(current){
   	//this function for user blur out current input and the title will be add an animate
+		let urlInput = this.refs.urlInput;
+		let emailInput = this.refs.emailInput;
+		let nameInput = this.refs.nameInput;
+		let pwdInput = this.refs.pwdInput;
   	switch(current){
   		case "url":
-  			if(!!!this.state.urlInput){
+  			if(!!!urlInput.props.value){
   				//it's meaning user hadn't input message in the input box so that the title will be move
   				this.setState({
 	  				UrlPaused: false,
@@ -134,7 +138,7 @@ let MyComponent = React.createClass({
   			}
   			break;
   		case "name":
-	  		if(!!!this.state.nameInput){
+	  		if(!!!nameInput.props.value){
 	  			this.setState({
 	  				NamePaused: false,
 	      		NameReverse: true,
@@ -143,7 +147,7 @@ let MyComponent = React.createClass({
 	  		}
   			break;
   		case "email":
-	  		if(!!!this.state.emailInput){
+	  		if(!!!emailInput.props.value){
 	  			this.setState({
 	  				EmailPaused: false,
 	      		EmailReverse: true,
@@ -152,7 +156,7 @@ let MyComponent = React.createClass({
 	  		}
   			break;
   		case "password":
-	  		if(!!!this.state.pwdInput){
+	  		if(!!!pwdInput.props.value){
 	  			this.setState({
 	  				PwdPaused: false,
 	      		PwdReverse: true,
@@ -250,7 +254,7 @@ let MyComponent = React.createClass({
 				    >
 	        	 	<span className="title" key="title">地址</span>	
 	        	</TweenOne>
-	          <Input {...urlProps} value={this.state.urlInput} onChange={this.inputState.bind(this,"url")} onFocus={this.inputOnFocus.bind(this,"url")} onBlur={this.inputOnBlur.bind(this,"url")} />
+	          <Input {...urlProps} ref="urlInput" onFocus={this.inputOnFocus.bind(this,"url")} onBlur={this.inputOnBlur.bind(this,"url")} />
 	        </FormItem>
 	        <FormItem hasFeedback >
 	        	<TweenOne
@@ -262,7 +266,7 @@ let MyComponent = React.createClass({
 				    >
 	          	<span className="title">邮箱</span>
 	          </TweenOne>
-	          <Input {...emailProps} type="email" value={this.state.emailInput} onChange={this.inputState.bind(this,"email")} onFocus={this.inputOnFocus.bind(this,"email")} onBlur={this.inputOnBlur.bind(this,"email")}  />
+	          <Input {...emailProps} type="email" ref="emailInput" onFocus={this.inputOnFocus.bind(this,"email")} onBlur={this.inputOnBlur.bind(this,"email")}  />
 	        </FormItem>
 					<FormItem hasFeedback >
 						<TweenOne
@@ -274,7 +278,7 @@ let MyComponent = React.createClass({
 				    >
 	          	<span className="title">用户名</span>
 	          </TweenOne>	
-	          <Input {...nameProps} value={this.state.nameInput} onChange={this.inputState.bind(this,"name")} onFocus={this.inputOnFocus.bind(this,"name")} onBlur={this.inputOnBlur.bind(this,"name")}  />
+	          <Input {...nameProps} ref="nameInput" onFocus={this.inputOnFocus.bind(this,"name")} onBlur={this.inputOnBlur.bind(this,"name")}  />
 	        </FormItem>
 	        <FormItem hasFeedback >
 	        	<TweenOne
@@ -286,7 +290,7 @@ let MyComponent = React.createClass({
 				    >
 	          	<span className="title">密码</span>
 	          </TweenOne>	
-	          <Input {...passwdProps} type="password" autoComplete="off" value={this.state.pwdInput} onChange={this.inputState.bind(this,"password")} onFocus={this.inputOnFocus.bind(this,"password")} onBlur={this.inputOnBlur.bind(this,"password")}  />
+	          <Input {...passwdProps} ref="pwdInput" type="password" autoComplete="off" onFocus={this.inputOnFocus.bind(this,"password")} onBlur={this.inputOnBlur.bind(this,"password")}  />
 	        </FormItem>
 	        <div className="btnBox">
 		        <Button size="large" type="primary" onClick={this.handleSubmit}>确定</Button>

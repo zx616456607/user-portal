@@ -276,6 +276,7 @@ class PublicCompose extends Component {
 						<div className="operaBox">
 							<Input className="searchBox" placeholder={ formatMessage(menusText.search) } type="text" />
 							<i className="fa fa-search"></i>
+							<div style={{ clear:"both" }}></div>
 						</div>
 						<div className="titleBox">
 							<div className="name">
@@ -283,10 +284,10 @@ class PublicCompose extends Component {
 							</div>
 							<div className="type">
 								<Dropdown overlay={typeDropdown} trigger={['click']} getPopupContainer={()=>document.getElementById("PublicCompose")}>
-								<div>
-									<FormattedMessage {...menusText.type} />&nbsp;
-									<i className="fa fa-filter"></i>
-								</div>
+									<div>
+										<FormattedMessage {...menusText.type} />&nbsp;
+										<i className="fa fa-filter"></i>
+									</div>
 								</Dropdown>
 							</div>
 							<div className="image">

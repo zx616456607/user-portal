@@ -105,16 +105,63 @@ function loadImageTags(props) {
 	})
 }
 
+function setPorts(containerPorts,form) {
+  const portsArr = []
+  if(containerPorts){
+    console.log('ports------');
+    containerPorts.map(function (item,index) {
+      portsArr.push((index+1));
+      form.setFieldsValue({
+        portKey:portsArr,
+        ['targetPortUrl'+(index+1)]:item.split('/')[0],
+        ['portType'+(index+1)]:item.split('/')[1],
+      })
+      console.log('asdasdasd',{['targetPortUrl'+(index+1)]:item.split('/')[0]});
+      console.log('asdasdasd',item.split('/')[0]);
+    })
+    console.log(portsArr);
+    console.log(form.getFieldsValue());
+  }
+}
+
+function setEnv(defaultEnv,form) {
+  const envArr = []
+  if(defaultEnv){
+    console.log('ports------');
+    defaultEnv.map(function (item,index) {
+      envArr.push((index+1));
+      form.setFieldsValue({
+        envKey:envArr,
+        ['envName'+(index+1)]:item.split('=')[0],
+        ['envValue'+(index+1)]:item.split('=')[1],
+      })
+    })
+    console.log(envArr);
+  }
+}
+
 function loadImageTagConfigs(tag, props) {
 	console.log('loadImageTagConfigs-------------------')
 	console.log(tag)
-	const { currentSelectedImage, loadImageDetailTagConfig } = props
+	const { currentSelectedImage, loadImageDetailTagConfig, scope, checkState } = props
 	loadImageDetailTagConfig(DEFAULT_REGISTRY, currentSelectedImage, tag, {
 		success: {
 			func: (result) => {
+        if (checkState==='修改') {
+          return
+        }
 				console.log('set config here ~~')
 				console.log('set config here ~~')
-				console.log('set config here ~~')
+        console.log('set config here ~~')
+        console.log(result)
+        /*scope.setState({
+          imageTagConfigs: result
+        })*/
+        console.log('props',scope);
+        const { form } = scope.props
+        const { containerPorts, defaultEnv } = result.data
+        setPorts(containerPorts,form)
+        setEnv(defaultEnv,form)
 			},
 			isAsync: true
 		}
@@ -170,7 +217,9 @@ class NormalDeployBox extends Component {
     if(serviceOpen == this.props.serviceOpen){
       return
     }
-		loadImageTags(nextProps)
+    if (serviceOpen) {
+      loadImageTags(nextProps)
+    }
 	}
 
   render() {
@@ -288,7 +337,7 @@ class NormalDeployBox extends Component {
 	           				8X
 	           			</div>
 	           			<div className="bottomBox">
-	           				<span>2GB&nbsp;内存</span><br />
+	           				<span>2GB&nbsp;内存</span><br/>
 	           				<span>1CPU&nbsp;(共享)</span>
 	           			</div>
 	           		</Button>
@@ -322,12 +371,10 @@ class NormalDeployBox extends Component {
 	          <div className="stateService">
 	          	<span className="commonSpan">服务类型</span>
 	          	<Switch className="changeBtn"
-                    
                       {...getFieldProps('volumeSwitch',{
                         valuePropName: 'checked'
                       })}
               />
-
 	          	<span className="stateSpan">{parentScope.props.form.getFieldValue('volumeSwitch') ? "有状态服务":"无状态服务"}</span>
 	          	{parentScope.props.form.getFieldValue('volumeSwitch') ? [
                 <MyComponent parentScope={parentScope}/>

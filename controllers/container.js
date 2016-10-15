@@ -32,8 +32,19 @@ exports.getContainers = function* () {
 exports.getContainerDetail = function* () {
   const cluster = this.params.cluster
   const containerName = this.params.container_name
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster, 'instances', containerName, 'detail'])
+  const pod = result.data || {}
+  pod.images = []
+  if (pod.spec) {
+    pod.spec.containers.map((container) => {
+      pod.images.push(container.image)
+    })
+  }
   this.body = {
     cluster,
-    containerName
+    containerName,
+    data: pod
   }
 }

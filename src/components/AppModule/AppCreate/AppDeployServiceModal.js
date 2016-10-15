@@ -30,14 +30,17 @@ class AppDeployServiceModal extends Component {
     this.setForm = this.setForm.bind(this);
     this.limits = this.limits.bind(this);
     this.volumeSwitch = this.volumeSwitch.bind(this);
+    this.getUsefulType = this.getUsefulType.bind(this);
+    this.setEnv = this.setEnv.bind(this);
+    this.setPorts = this.setPorts.bind(this);
     this.state = {
       composeType:"1",
       runningCode:"1",
       getImageType:"1",
       stateService:false,
       currentDate:false,
-      getUsefulType:"null",
       checkInf:null,
+      // imageTagConfigs: null
     }
   }
   limits(){
@@ -86,10 +89,77 @@ class AppDeployServiceModal extends Component {
       }
     }
   }
+  
+  getUsefulType(livenessProbe,form){
+    if(livenessProbe){
+      form.setFieldsValue({
+        liveInitialDelaySeconds:livenessProbe.initialDelaySeconds,
+        liveTimeoutSeconds:livenessProbe.timeoutSeconds,
+        livePeriodSeconds:livenessProbe.periodSeconds,
+      })
+      if(livenessProbe.httpGet){
+        form.setFieldsValue({
+          livePort:livenessProbe.httpGet.port,
+          livePath:livenessProbe.httpGet.path,
+        })
+        return 'http'
+      } else if(livenessProbe.tcpSocket) {
+        console.log('tcp');
+        form.setFieldsValue({
+          livePort:livenessProbe.tcpSocket.port,
+        })
+        return 'tcp'
+      }
+    }
+  }
+  setEnv(env,form){
+    const envArr = []
+    if(env){
+      console.log('env------');
+      console.log(env);
+      console.log('env------');
+      env.map(function (item,index) {
+        console.log('index',index);
+        console.log('envName'+(index+1));
+        envArr.push((index+1));
+        form.setFieldsValue({
+          envKey:envArr,
+          ['envName'+(index+1)]:item.name,
+          ['envValue'+(index+1)]:item.value,
+        })
+      })
+      
+      console.log('envKey',form.getFieldValue('envKey'));
+    }
+  }
+  setPorts(ports,ServicePorts,form){
+    const portsArr = []
+    if(ports){
+      console.log('ports------');
+      ports.map(function (item,index) {
+        portsArr.push((index+1));
+        form.setFieldsValue({
+          portKey:portsArr,
+          ['targetPortUrl'+(index+1)]:item.containerPort,
+          ['portType'+(index+1)]:item.protocol,
+        })
+        if(ServicePorts[index].port){
+          form.setFieldsValue({
+            ['portUrl'+(index+1)]:ServicePorts[index].port,
+          })
+        }
+      })
+      console.log('envKey',form.getFieldValue('envKey'));
+    }
+  }
   setForm(){
     const { scope } = this.props
     const { form } = this.props
     const volumeMounts = this.props.scope.state.checkInf.Deployment.spec.template.spec.containers[0].volumeMounts
+    const livenessProbe = this.props.scope.state.checkInf.Deployment.spec.template.spec.containers[0].livenessProbe
+    const env = this.props.scope.state.checkInf.Deployment.spec.template.spec.containers[0].env
+    const ports = this.props.scope.state.checkInf.Deployment.spec.template.spec.containers[0].ports
+    const ServicePorts = this.props.scope.state.checkInf.Service.spec.ports
     console.log('set');
     console.log('this.state',this.state);
     console.log('this.scope',scope.state);
@@ -97,26 +167,31 @@ class AppDeployServiceModal extends Component {
       name:scope.state.checkInf.Service.metadata.name,
       imageVersion:scope.state.checkInf.Deployment.spec.template.spec.containers[0].image.split(':')[1],
       instanceNum:scope.state.checkInf.Deployment.spec.replicas,
-      volumeSwitch:this.volumeSwitch(volumeMounts,form)
+      volumeSwitch:this.volumeSwitch(volumeMounts,form),
+      getUsefulType:this.getUsefulType(livenessProbe,form),
     })
+    this.setEnv(env,form)
+    this.setPorts(ports,ServicePorts,form)
     this.setState({
       composeType: this.limits(),
-      
     })
     scope.setState({
+      
     })
   }
   componentWillMount() {
     console.log('open');
     console.log('state',this.props.scope.state.checkState);
-    
     if(this.props.scope.state.checkState === '修改'){
       this.setForm()
     }
   }
-  componentWillReceiveProps(nextProps){
+  componentWillUpdate(nextProps, nextState){
     const {serviceOpen} = nextProps
+    console.log('componentWillUpdate------------------');
     console.log(this.props.serviceOpen);
+    console.log('componentWillUpdate------------------');
+    console.log(nextState);
     if(serviceOpen == this.props.serviceOpen){
       return
     }
@@ -132,6 +207,7 @@ class AppDeployServiceModal extends Component {
   	e.preventDefault();
     console.log('this.props.form.getFieldProps',this.props.form.getFieldsValue());
   	const scope = this.state;
+    console.log('envKey',this.props.form.getFieldValue('envKey'));
   	let composeType = scope.composeType;
     let portKey = this.props.form.getFieldValue('portKey')
     let envKey = this.props.form.getFieldValue('envKey')
@@ -345,8 +421,9 @@ class AppDeployServiceModal extends Component {
         })
       }
       //livenessProbe 高可用
-      if(this.state.getUsefulType !== 'null'){
-        deploymentList.setLivenessProbe(serviceName, this.state.getUsefulType.toUpperCase(), {
+      if((this.props.form.getFieldValue('getUsefulType') !== 'null') && (this.props.form.getFieldValue('getUsefulType'))){
+        console.log('this.props.form.getFieldValue',this.props.form.getFieldValue('getUsefulType'));
+        deploymentList.setLivenessProbe(serviceName, this.props.form.getFieldValue('getUsefulType').toUpperCase(), {
           port: parseInt(livePort),
           path: livePath,
           initialDelaySeconds: liveInitialDelaySeconds,
@@ -377,9 +454,9 @@ class AppDeployServiceModal extends Component {
       console.log('修改');
     }
     
-    /*parentScope.setState({
+    parentScope.setState({
       serviceModalShow:false
-    })*/
+    })
   }
   closeModal(){
     const parentScope = this.props.scope;
@@ -393,7 +470,6 @@ class AppDeployServiceModal extends Component {
       getImageType:"1",
       stateService:false,
       currentDate:false,
-      getUsefulType:"null",
       checkInf:null,
     })
   }
@@ -401,7 +477,7 @@ class AppDeployServiceModal extends Component {
   	const scope = this
     const parentScope = this.props.scope
     const {servicesList} = parentScope.state.servicesList
-    const {currentSelectedImage, registryServer} = parentScope.state
+    const {currentSelectedImage, registryServer, checkState} = parentScope.state
     const { form, serviceOpen } = this.props
     return (
 	  <div id="AppDeployServiceModal">
@@ -409,7 +485,7 @@ class AppDeployServiceModal extends Component {
     		<NormalDeployBox
           scope={scope} registryServer={registryServer}
           currentSelectedImage={currentSelectedImage}
-          serviceOpen={serviceOpen}
+          serviceOpen={serviceOpen} checkState={checkState}
         />
 	      <Collapse>
 	    		<Panel header={assitBoxTitle} key="1" className="assitBigBox">
