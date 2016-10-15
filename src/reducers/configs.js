@@ -56,7 +56,7 @@ function loadConfigName(state = {}, action) {
         [cluster]: {
           isFetching: false,
           cluster: action.response.result.cluster,
-          configGroupName: action.response.result.data
+          configDesc: action.response.result.data
         }
       })
     case ActionTypes.CONFIG_LISTName_FAILURE:
@@ -70,6 +70,7 @@ function loadConfigName(state = {}, action) {
 
 //  get config group name
 function configGroupName(state = {}, action) {
+  console.log('actin is ……………………………………………………',action)
   const cluster = action.cluster
   switch (action.type) {
     case ActionTypes.GET_CONFIG_FILES_REQUEST:
@@ -79,6 +80,7 @@ function configGroupName(state = {}, action) {
     case ActionTypes.GET_CONFIG_FILES_SUCCESS:
       return merge({}, state, {
         [cluster]: {
+          isFetching: false,
           configName: union(state.configGroupName, action.response.result.data.configs)
         }
       })

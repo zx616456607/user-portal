@@ -73,8 +73,9 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/configgroups/:group/configs/:name', configController.loadConfigFiles)
   router.post('/clusters/:cluster/configs', configController.createConfigGroup)
   router.post('/clusters/:cluster/configgroups/:group/configs/:name', configController.createConfigFiles)
+  router.put('/clusters/:cluster/configgroups/:group/configs/:name', configController.updateConfigName)
   router.post('/clusters/:cluster/configs/delete', configController.deleteConfigGroup)
-  router.post('/clusters/:cluster/configgroups/:group/configs/batch-delete', configController.deleteConfigFiles)
+  router.post('/clusters/:cluster/configgroups/:group/configs-batch-delete', configController.deleteConfigFiles)
 
   // Registries
   router.get('/registries/:registry', registryController.getImages)

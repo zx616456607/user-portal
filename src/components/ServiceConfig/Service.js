@@ -31,9 +31,6 @@ class CollapseList extends Component {
     super()
   }
   loadConfigGroupname(Name) {
-    console.log('names ', Name)
-    // @ to do
-    // this.props.loadConfigName(Name)
     if (Name) {
       const groupName = {
         cluster: DEFAULT_CLUSTER,
@@ -45,17 +42,16 @@ class CollapseList extends Component {
 
   render() {
     const {groupData, configName} = this.props
-    console.log('server list ', this.props)
     if (!groupData) return (<div>还没有创建过配置项</div>)
     let groups = groupData.map((group) => {
       return (
-        <Panel handChageProp={this.props.handChageProp} header={<CollapseHeader handChageProp={this.props.handChageProp} collapseHeader={group} />} key={group.native.metadata.name} >
+        <Panel handChageProp={this.props.handChageProp} header={<CollapseHeader btnDeleteGroup={this.props.btnDeleteGroup} handChageProp={this.props.handChageProp} collapseHeader={group} />} key={group.native.metadata.name} >
           <CollapseContainer configName={configName} configGroupName={(obj) => this.props.configGroupName(obj)} collapseContainer={group.extended.configs} groupname={group.native.metadata.name} />
         </Panel>
       )
     })
     return (
-      <Collapse onChange={(groups) => this.loadConfigGroupname(groups)} accordion>
+      <Collapse  accordion>
         {groups}
       </Collapse>
     )
@@ -97,9 +93,10 @@ class Service extends Component {
       myTextInput: e.target.value
     })
   }
-  btnCreateConfigGroup() {
+  btnCreateConfigGroup(e) {
     // this.setState({ createConfigGroup });
-    let groupName = this.state.myTextInput
+    // let groupName =this.state.myTextInput
+    let groupName = e.target.value
     if (!groupName) {
       message.error('请输入配置组名称')
       return
@@ -124,20 +121,23 @@ class Service extends Component {
     })
 
   }
-  btnDeleteGroup() {
+  btnDeleteGroup(group) {
     // console.log('props',this.props)
-    let configArray = this.state.configArray
-    let cluster = this.props.cluster
-    let self = this
-    if (configArray.length <= 0) {
-      message.error('未选择要操作配置组')
-      return;
+    let configArray
+    if (!group){
+      configArray = this.state.configArray
+      if (configArray.length <= 0) {
+        message.error('未选择要操作配置组')
+        return;
+      }
+    } else {
+      configArray = group
     }
+    const self = this
     let configData = {
       cluster: DEFAULT_CLUSTER,
       "groups": configArray
     }
-    console.log('to delete', configData)
     Modal.confirm({
       title: '您是否确认要删除这些配置组',
       content: configArray,
@@ -158,11 +158,9 @@ class Service extends Component {
     return (
       (e, Name) => {
         let configArray = this.state.configArray
-        // console.log(e,Id)
         if (e.target.checked) {
           configArray.push(Name)
         } else {
-          // configArray.splice(Id,1)
           remove(configArray, (item) => {
             return item == Name
           })
@@ -170,13 +168,11 @@ class Service extends Component {
         this.setState({
           configArray
         })
-        console.log(this.state.configArray)
       }
     )
   }
   render() {
     const {cluster, configGroup, isFetching, configName} = this.props
-    console.log('server in', this.props)
     return (
       <QueueAnim className="Service" type="right">
         <div id="Service" key="Service">
@@ -184,13 +180,14 @@ class Service extends Component {
             <Icon type="plus" />
             创建配置组
           </Button>
-          <Button size="large" style={{ marginLeft: "12px" }} onClick={(e) => this.btnDeleteGroup(e)}>
+          <Button size="large" style={{ marginLeft: "12px" }} onClick={() => this.btnDeleteGroup()}>
             <Icon type="delete" /> 删除
           </Button>
           {/*创建配置组-弹出层-start*/}
           <Modal
             title="创建配置组"
             wrapClassName="server-create-modal"
+            maskClosable={false}
             visible={this.state.createModal}
             onOk={() => this.btnCreateConfigGroup()}
             onCancel={(e) => this.configModal(false)}
@@ -202,7 +199,7 @@ class Service extends Component {
           </Modal>
           {/*创建配置组-弹出层-end*/}
           {/*折叠面板-start*/}
-          <CollapseList groupData={configGroup} configName={configName} loading={isFetching} handChageProp={this.handChageProp()} configGroupName={(obj) => this.props.configGroupName(obj)} />
+          <CollapseList groupData={configGroup} configName={configName} btnDeleteGroup={this.btnDeleteGroup}  loading={isFetching} handChageProp={this.handChageProp()} configGroupName={(obj) => this.props.configGroupName(obj)} />
           {/*折叠面板-end*/}
         </div>
       </QueueAnim>
@@ -236,7 +233,6 @@ function mapStateToProps(state, props) {
   } = state.configReducers
   const {cluster, configGroup, isFetching } = configGroupList[DEFAULT_CLUSTER] || defaultConfigList
   const { configName } = configGroupName[DEFAULT_CLUSTER] || defaultConfigList
-  console.log('get configName', configName)
   return {
     cluster,
     configGroup,
