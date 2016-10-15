@@ -1,9 +1,9 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
- * 
+ *
  * App webpack production config
- * 
+ *
  * v0.1 - 2016-09-07
  * @author Zhangpc
  */
@@ -19,7 +19,7 @@ module.exports = {
   // devtool: 'source-map',
 
   entry: {
-    main:'./src/entry/index.js',
+    main: './src/entry/index.js',
     en: './src/entry/en.js',
     zh: './src/entry/zh.js'
   },
@@ -45,22 +45,22 @@ module.exports = {
       loaders: ['babel'],
       exclude: /node_modules/,
       include: __dirname
-    },{
-        test: /\.json$/,
-        loader: 'json-loader'
-      },{
-        test: /\.css$/,
-        loader: ExtractTextPlugin.extract(
-          'css'
-        )
-      },{
-        test: /\.less$/,
-        loader: ExtractTextPlugin.extract(
-          // activate source maps via loader query
-          'css!' +
-          'less'
-        )
-      }]
+    }, {
+      test: /\.json$/,
+      loader: 'json-loader'
+    }, {
+      test: /\.css$/,
+      loader: ExtractTextPlugin.extract(
+        'css'
+      )
+    }, {
+      test: /\.less$/,
+      loader: ExtractTextPlugin.extract(
+        // activate source maps via loader query
+        'css!' +
+        'less'
+      )
+    }]
   },
 
   plugins: [

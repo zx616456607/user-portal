@@ -1,9 +1,9 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
- * 
+ *
  * ImageCenter component
- * 
+ *
  * v0.1 - 2016-10-08
  * @author GaoJian
  */
@@ -16,20 +16,20 @@ import './style/AppCenter.less'
 
 export default class ImageCenter extends Component {
   render() {
-  	const { children } = this.props
+    const { children } = this.props
     return (
       <div id="AppCenter">
-      	<QueueAnim 
-          className = "ImageCenterSiderAnimate"
-          key = "ImageCenterSiderAnimate"
-          type = "left"
-        >
-      	  <div className="imageMenu" key="imageSider">
-        		<ImageCenterSider />
-      	  </div>
+        <QueueAnim
+          className="ImageCenterSiderAnimate"
+          key="ImageCenterSiderAnimate"
+          type="left"
+          >
+          <div className="imageMenu" key="imageSider">
+            <ImageCenterSider />
+          </div>
         </QueueAnim>
-      	<div className="imageContent">
-      		{children}
+        <div className="imageContent">
+          {children}
         </div>
       </div>
     )

@@ -1,9 +1,9 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
- * 
+ *
  * Redux actions for app manage
- * 
+ *
  * v0.1 - 2016-09-23
  * @author Zhangpc
  */
@@ -21,7 +21,7 @@ function fetchAppList(cluster) {
   return {
     cluster,
     [FETCH_API]: {
-      types: [ APP_LIST_REQUEST, APP_LIST_SUCCESS, APP_LIST_FAILURE ],
+      types: [APP_LIST_REQUEST, APP_LIST_SUCCESS, APP_LIST_FAILURE],
       endpoint: `${API_URL_PREFIX}/clusters/${cluster}/apps`,
       schema: Schemas.APPS
     }
@@ -47,7 +47,7 @@ function fetchAppDetail(cluster, appName) {
     cluster,
     appName,
     [FETCH_API]: {
-      types: [ APP_DETAIL_REQUEST, APP_DETAIL_SUCCESS, APP_DETAIL_FAILURE ],
+      types: [APP_DETAIL_REQUEST, APP_DETAIL_SUCCESS, APP_DETAIL_FAILURE],
       endpoint: `${API_URL_PREFIX}/clusters/${cluster}/apps/${appName}/detail`,
       schema: {}
     }
@@ -68,16 +68,16 @@ export const APP_CREATE_FAILURE = 'APP_CREATE_FAILURE'
 
 export function createApp(appConfig, callback) {
   return {
-    cluster:appConfig.cluster,
+    cluster: appConfig.cluster,
     [FETCH_API]: {
       types: [APP_CREATE_REQUEST, APP_CREATE_SUCCESS, APP_CREATE_FAILURE],
       endpoint: `${API_URL_PREFIX}/clusters/${appConfig.cluster}/apps`,
       options: {
         method: 'POST',
         body: {
-          name:appConfig.appName,
-          template:appConfig.template,
-          remark:appConfig.remark
+          name: appConfig.appName,
+          template: appConfig.template,
+          remark: appConfig.remark
         }
       },
       schema: Schemas.APPS
@@ -106,7 +106,7 @@ function fetchDeleteApps(cluster, appList, callback) {
   }
 }
 
-export function deleteApps(cluster, appList, callback){
+export function deleteApps(cluster, appList, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchDeleteApps(cluster, appList, callback))
   }
@@ -132,7 +132,7 @@ function fetchStopApps(cluster, appList, callback) {
   }
 }
 
-export function stopApps(cluster, appList, callback){
+export function stopApps(cluster, appList, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchStopApps(cluster, appList, callback))
   }
@@ -158,7 +158,7 @@ function fetchRestartApps(cluster, appList, callback) {
   }
 }
 
-export function restartApps(cluster, appList, callback){
+export function restartApps(cluster, appList, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchRestartApps(cluster, appList, callback))
   }
@@ -184,7 +184,7 @@ function fetchStartApps(cluster, appList, callback) {
   }
 }
 
-export function startApps(cluster, appList, callback){
+export function startApps(cluster, appList, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchStartApps(cluster, appList, callback))
   }
@@ -203,7 +203,7 @@ function fetchServiceList(cluster, appName) {
     cluster,
     appName,
     [FETCH_API]: {
-      types: [ SERVICE_LIST_REQUEST, SERVICE_LIST_SUCCESS, SERVICE_LIST_FAILURE ],
+      types: [SERVICE_LIST_REQUEST, SERVICE_LIST_SUCCESS, SERVICE_LIST_FAILURE],
       endpoint: `${API_URL_PREFIX}/clusters/${cluster}/apps/${appName}/services`,
       schema: Schemas.SERVICES
     }
@@ -229,7 +229,7 @@ function fetchServiceDetail(cluster, serviceName) {
     cluster,
     serviceName,
     [FETCH_API]: {
-      types: [ SERVICE_DETAIL_REQUEST, SERVICE_DETAIL_SUCCESS, SERVICE_DETAIL_FAILURE ],
+      types: [SERVICE_DETAIL_REQUEST, SERVICE_DETAIL_SUCCESS, SERVICE_DETAIL_FAILURE],
       endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/detail`,
       schema: {}
     }
@@ -264,7 +264,7 @@ function fetchDeleteServices(cluster, serviceList, callback) {
   }
 }
 
-export function deleteServices(cluster, serviceList, callback){
+export function deleteServices(cluster, serviceList, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchDeleteServices(cluster, serviceList, callback))
   }
@@ -290,7 +290,7 @@ function fetchStopServices(cluster, serviceList, callback) {
   }
 }
 
-export function stopServices(cluster, serviceList, callback){
+export function stopServices(cluster, serviceList, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchStopServices(cluster, serviceList, callback))
   }
@@ -316,7 +316,7 @@ function fetchRestartServices(cluster, serviceList, callback) {
   }
 }
 
-export function restartServices(cluster, serviceList, callback){
+export function restartServices(cluster, serviceList, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchRestartServices(cluster, serviceList, callback))
   }
@@ -342,7 +342,7 @@ function fetchStartServices(cluster, serviceList, callback) {
   }
 }
 
-export function startServices(cluster, serviceList, callback){
+export function startServices(cluster, serviceList, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchStartServices(cluster, serviceList, callback))
   }
@@ -359,7 +359,7 @@ function fetchServiceContainerList(cluster, serviceName) {
     cluster,
     serviceName,
     [FETCH_API]: {
-      types: [ SERVICE_CONTAINERS_LIST_REQUEST, SERVICE_CONTAINERS_LIST_SUCCESS, SERVICE_CONTAINERS_LIST_FAILURE ],
+      types: [SERVICE_CONTAINERS_LIST_REQUEST, SERVICE_CONTAINERS_LIST_SUCCESS, SERVICE_CONTAINERS_LIST_FAILURE],
       endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/containers`,
       schema: Schemas.CONTAINERS
     }
@@ -386,7 +386,7 @@ function fetchContainerList(cluster) {
   return {
     cluster,
     [FETCH_API]: {
-      types: [ CONTAINER_LIST_REQUEST, CONTAINER_LIST_SUCCESS, CONTAINER_LIST_FAILURE ],
+      types: [CONTAINER_LIST_REQUEST, CONTAINER_LIST_SUCCESS, CONTAINER_LIST_FAILURE],
       endpoint: `${API_URL_PREFIX}/clusters/${cluster}/containers`,
       schema: Schemas.CONTAINERS
     }
@@ -412,7 +412,7 @@ function fetchContainerDetail(cluster, containerName) {
     cluster,
     containerName,
     [FETCH_API]: {
-      types: [ CONTAINER_DETAIL_REQUEST, CONTAINER_DETAIL_SUCCESS, CONTAINER_DETAIL_FAILURE ],
+      types: [CONTAINER_DETAIL_REQUEST, CONTAINER_DETAIL_SUCCESS, CONTAINER_DETAIL_FAILURE],
       endpoint: `${API_URL_PREFIX}/clusters/${cluster}/containers/${containerName}/detail`,
       schema: {}
     }

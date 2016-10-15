@@ -1,9 +1,9 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
- * 
+ *
  * Index config file
- * 
+ *
  * v0.1 - 2016-09-02
  * @author Zhangpc
  */
@@ -25,7 +25,6 @@ const config = {
     protocol: "http" || env.TENX_API_PROTOCOL,
     // host: "192.168.0.45:8123" || env.TENX_API_HOST
     host: "192.168.1.103:48000" || env.TENX_API_HOST
-    // host: "localhost:8080" || env.TENX_API_HOST
   }
 }
 

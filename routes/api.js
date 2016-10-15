@@ -22,14 +22,18 @@ module.exports = function (Router) {
   })
 
   // Storage
-  router.get('/storage-pools/:pool/volumes', volumeController.getVolumeListByPool)
-  router.post('/storage-pools/:pool/volumes/batch-delete', volumeController.deleteVolume)
-  router.post('/storage-pools/:pool/volumes', volumeController.createVolume)
-  router.put('/storage-pools/:pool/volumes/format', volumeController.formateVolume)
-  router.put('/storage-pools/:pool/volumes/size', volumeController.resizeVolume)
-  router.get('/storage-pools/:pool/volumes/:name', volumeController.getVolumeDetail)
-  router.post('/storage-pools/:pool/volumes/:name/import', volumeController.uploadFile)
-  // Apps 
+  router.get('/storage-pools/:pool/:cluster/volumes', volumeController.getVolumeListByPool)
+  router.post('/storage-pools/:pool/:cluster/volumes/batch-delete', volumeController.deleteVolume)
+  router.post('/storage-pools/:pool/:cluster/volumes', volumeController.createVolume)
+  router.put('/storage-pools/:pool/:cluster/volumes/format', volumeController.formateVolume)
+  router.put('/storage-pools/:pool/:cluster/volumes/size', volumeController.resizeVolume)
+  router.get('/storage-pools/:pool/:cluster/volumes/:name', volumeController.getVolumeDetail)
+  router.post('/storage-pools/:pool/:cluster/volumes/:name/beforeimport', volumeController.beforeUploadFile)
+  router.post('/storage-pools/:pool/:cluster/volumes/:name/import', volumeController.uploadFile)
+  router.get('/storage-pools/:pool/:cluster/volumes/:name/filehistory', volumeController.getFileHistory)
+  router.get('/storage-pools/:pool/:cluster/volumes/:name/bindinfo', volumeController.getBindInfo)
+  router.get('/storage-pools/:pool/:cluster/volumes/:name/exportfile', volumeController.exportFile)
+  // Apps
   router.post('/clusters/:cluster/apps', appController.createApp)
   router.get('/clusters/:cluster/apps', appController.getApps)
   router.post('/clusters/:cluster/apps/batch-delete', appController.deleteApps)
@@ -62,12 +66,15 @@ module.exports = function (Router) {
   // Containers
   router.get('/clusters/:cluster/containers', containerController.getContainers)
   router.get('/clusters/:cluster/containers/:container_name/detail', containerController.getContainerDetail)
-  
+
   // Configs
-  router.get('/clusters/:cluster/configgroups',configController.getConfigGroup)
-  //router.get('/clusters/:cluster/configgroups/:name',configController.getConfigGroupName)
-  router.post('/clusters/:cluster/configs',configController.createConfigGroup)
-  router.post('/clusters/:cluster/configs/delete',configController.deleteConfigGroup)
+  router.get('/clusters/:cluster/configgroups', configController.getConfigGroup)
+  router.get('/clusters/:cluster/configgroups/:name', configController.getConfigGroupName)
+  router.get('/clusters/:cluster/configgroups/:group/configs/:name', configController.loadConfigFiles)
+  router.post('/clusters/:cluster/configs', configController.createConfigGroup)
+  router.post('/clusters/:cluster/configgroups/:group/configs/:name', configController.createConfigFiles)
+  router.post('/clusters/:cluster/configs/delete', configController.deleteConfigGroup)
+  router.post('/clusters/:cluster/configgroups/:group/configs/batch-delete', configController.deleteConfigFiles)
 
   // Registries
   router.get('/registries/:registry', registryController.getImages)

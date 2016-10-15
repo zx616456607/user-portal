@@ -1,9 +1,9 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
- * 
+ *
  * ImageCenterSider component
- * 
+ *
  * v0.1 - 2016-10-08
  * @author GaoJian
  */
@@ -21,37 +21,37 @@ export default class ImageCenterSider extends Component {
     this.handleClick = this.handleClick.bind(this);
     this.state = {
       current: '1'
-  	}
+    }
   }
-  
+
   handleClick(e) {
     this.setState({
-	  current: e.key,
-	});
+      current: e.key,
+    });
   }
-	
+
   render() {
-  	const { current } = this.state
+    const { current } = this.state
     return (
-      <div id = "ImageCenterSider">
+      <div id="ImageCenterSider">
         <div>
-	      <Menu onClick={this.handleClick}
-	        style={{ width: 140 }}
-	        selectedKeys={ [current] }
-	        mode="inline"
-	      >
-				  <Menu.Item key="1">
-				    <Link to="/app_center">镜像仓库</Link>
-				  </Menu.Item>
-				  <Menu.Item key="2">
-				    <Link to="/app_center/image_store">应用商城</Link>
-				  </Menu.Item>
-				  <Menu.Item key="3">
-				    <Link to="/app_center/compose_center">编排中心</Link>
-				  </Menu.Item>
-	      </Menu>
-	    </div>
-	  </div>
+          <Menu onClick={this.handleClick}
+            style={{ width: 140 }}
+            selectedKeys={[current]}
+            mode="inline"
+            >
+            <Menu.Item key="1">
+              <Link to="/app_center">镜像仓库</Link>
+            </Menu.Item>
+            <Menu.Item key="2">
+              <Link to="/app_center/image_store">应用商城</Link>
+            </Menu.Item>
+            <Menu.Item key="3">
+              <Link to="/app_center/compose_center">编排中心</Link>
+            </Menu.Item>
+          </Menu>
+        </div>
+      </div>
     )
   }
 }

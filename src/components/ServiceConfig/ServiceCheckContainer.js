@@ -10,14 +10,14 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import {Button,Icon,Table } from 'antd'
+import { Button, Icon, Table } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 
 let RendContainerName = React.createClass({
   render: function () {
     return (
       <span>
-        <i className="fa fa-tasks" style={{marginRight: "5px"}}></i>
+        <i className="fa fa-tasks" style={{ marginRight: "5px" }}></i>
         容器名称
       </span>
     )
@@ -27,7 +27,7 @@ let RendPoint = React.createClass({
   render: function () {
     return (
       <span>
-        <Icon type="link" style={{marginRight: "5px"}}/>
+        <Icon type="link" style={{ marginRight: "5px" }} />
         挂载点
       </span>
     )
@@ -36,11 +36,11 @@ let RendPoint = React.createClass({
 
 const containerCol = [
   {
-    title: (<RendContainerName/>),
+    title: (<RendContainerName />),
     dataIndex: 'containerName',
   },
   {
-    title: (<RendPoint/>),
+    title: (<RendPoint />),
     dataIndex: 'pointPath',
   },
 ];
@@ -67,7 +67,7 @@ class CheckContainer extends Component {
   onSelectChange(selectedContainers) {
     this.setState({ selectedContainers });
   }
-  render () {
+  render() {
     const { containerList } = this.props
     const { loading, selectedContainers } = this.state;
     const containerSelection = {
@@ -75,18 +75,18 @@ class CheckContainer extends Component {
       onChange: this.onSelectChange,
     };
     const hasSelected = selectedContainers.length > 0;
-    
+
     return (
       <div>
         <div style={{ marginBottom: 16 }}>
-          <span style={{ marginRight: 8 }}>{ `关联容器 ( ${containerList.length} )` }</span>
+          <span style={{ marginRight: 8 }}>{`关联容器 ( ${containerList.length} )`}</span>
           <Button type="primary" onClick={this.start}
-                  disabled={ !hasSelected } loading={ loading }
-          >操作</Button>
-          <span style={{ marginLeft: 8 }}>{ hasSelected ? `选择了 ${selectedContainers.length} 个容器` : '' }</span>
+            disabled={!hasSelected} loading={loading}
+            >操作</Button>
+          <span style={{ marginLeft: 8 }}>{hasSelected ? `选择了 ${selectedContainers.length} 个容器` : ''}</span>
         </div>
         <Table rowSelection={containerSelection} columns={containerCol}
-               dataSource={containerList} pagination={{ pageSize: 5 }} rowKey="containerId"/>
+          dataSource={containerList} pagination={{ pageSize: 5 }} rowKey="containerId" />
       </div>
     )
   }

@@ -1,10 +1,10 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
- * 
+ *
  * Request api tools
  * support promise and callback
- * 
+ *
  * v0.1 - 2016-09-13
  * @author Zhangpc
  */
@@ -50,7 +50,7 @@ module.exports = (protocol, host, version, auth, timeout) => {
     }
     if (object.stream) {
       options.stream = object.stream
-      delete options.timeout
+      options.timeout = 36000000
       delete options.contentType
     }
     logger.info(`[${options.method || 'GET'}] ${url}`)

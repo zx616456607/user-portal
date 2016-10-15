@@ -1,9 +1,9 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
- * 
+ *
  * ComposeGroup component
- * 
+ *
  * v0.1 - 2016-09-27
  * @author GaoJian
  */
@@ -12,7 +12,7 @@ import { Card } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import "./style/ComposeGroup.less"			
+import "./style/ComposeGroup.less"
 
 const testData = [{
 	id:"1",
@@ -56,7 +56,7 @@ const testData = [{
 	file:"network.sh"
 }];
 
-var MyComponent = React.createClass({	  
+var MyComponent = React.createClass({
   propTypes : {
     config : React.PropTypes.array
   },
@@ -84,13 +84,13 @@ var MyComponent = React.createClass({
 	  </Card>
     );
   }
-});		
+});
 
 export default class ComposeGroup extends Component {
   constructor(props) {
     super(props);
   }
-  
+
   render() {
   	const parentScope = this;
     return (

@@ -1,9 +1,9 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
- * 
+ *
  * Service class for k8s
- * 
+ *
  * v0.1 - 2016-10-11
  * @author Zhangpc
  */

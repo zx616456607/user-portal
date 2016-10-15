@@ -1,14 +1,14 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
- * 
+ *
  * NormalDeployBox component
- * 
+ *
  * v0.1 - 2016-09-28
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Form,Select,Input,InputNumber,Modal,Checkbox,Button,Card,Menu,Switch } from 'antd'
+import { Form, Select, Input, InputNumber, Modal, Checkbox, Button, Card, Menu, Switch } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -21,7 +21,7 @@ const createForm = Form.create;
 const FormItem = Form.Item;
 let uuid = 0;
 var MyComponent = React.createClass({
-  
+
   remove(k) {
     const { form } = this.props.parentScope.props;
     let volumeKey = form.getFieldValue('volumeKey');
@@ -33,7 +33,7 @@ var MyComponent = React.createClass({
     });
   },
   add() {
-    uuid++;
+    uuid ++;
     const { form } = this.props.parentScope.props;
     let volumeKey = form.getFieldValue('volumeKey');
     volumeKey = volumeKey.concat(uuid);
@@ -49,25 +49,25 @@ var MyComponent = React.createClass({
     const formItems = getFieldValue('volumeKey').map((k) => {
       return (
         <FormItem key={`volume${k}`}>
-          <span className="url" {...getFieldProps(`volumePath${k}`,{
+          <span className="url" {...getFieldProps(`volumePath${k}`, {
             rules: [{
               required: true,
               whitespace: true,
               message: '挂载路径呢?',
             }],
-          })}>/var/www/html</span>
+          }) }>/var/www/html</span>
           <Select className="imageTag" size="large"
-                  defaultValue="我就是最快的SSD"
-                  style={{ width: 200 }}
-                  {...getFieldProps(`volumeName${k}`, {
-                    rules: [{
-                      required: true,
-                      message: '选择配置组呢?',
-                    }],
-                  })}>
+            defaultValue="我就是最快的SSD"
+            style={{ width: 200 }}
+            {...getFieldProps(`volumeName${k}`, {
+              rules: [{
+                required: true,
+                message: '选择配置组呢?',
+              }],
+            }) }>
             <Option value="ext4/volumeName">volumeName ext4 1024M</Option>
           </Select>
-          <Checkbox className="readOnlyBtn" { ...getFieldProps(`volumeChecked${k}`,{}) }>
+          <Checkbox className="readOnlyBtn" { ...getFieldProps(`volumeChecked${k}`, {}) }>
             只读
           </Checkbox>
           <i className="fa fa-refresh"></i>
@@ -77,7 +77,7 @@ var MyComponent = React.createClass({
     });
     return (
       <div className="serviceOpen" key="had">
-        { formItems }
+        {formItems}
       </div>
     )
   }
@@ -86,54 +86,54 @@ MyComponent = createForm()(MyComponent);
 
 function loadImageTags(props) {
   const { registry, currentSelectedImage, loadImageDetailTag } = props
-	loadImageDetailTag(registry, currentSelectedImage, {
-		success: {
-			func: (result) => {
-				const LATEST = 'latest'
-				let tag = result.data[0]
-				if (result.data.indexOf(LATEST) > -1) {
-					tag = LATEST
-				}
-				loadImageTagConfigs(tag, props)
-				const { setFieldsValue } = props.scope.props.form
-				setFieldsValue({
-					imageVersion: tag
-				})
-			},
-			isAsync: true
-		}
-	})
+  loadImageDetailTag(registry, currentSelectedImage, {
+    success: {
+      func: (result) => {
+        const LATEST = 'latest'
+        let tag = result.data[0]
+        if (result.data.indexOf(LATEST) > -1) {
+          tag = LATEST
+        }
+        loadImageTagConfigs(tag, props)
+        const { setFieldsValue } = props.scope.props.form
+        setFieldsValue({
+          imageVersion: tag
+        })
+      },
+      isAsync: true
+    }
+  })
 }
 
-function setPorts(containerPorts,form) {
+function setPorts(containerPorts, form) {
   const portsArr = []
-  if(containerPorts){
+  if (containerPorts) {
     console.log('ports------');
-    containerPorts.map(function (item,index) {
-      portsArr.push((index+1));
+    containerPorts.map(function (item, index) {
+      portsArr.push((index + 1));
       form.setFieldsValue({
-        portKey:portsArr,
-        ['targetPortUrl'+(index+1)]:item.split('/')[0],
-        ['portType'+(index+1)]:item.split('/')[1],
+        portKey: portsArr,
+        ['targetPortUrl' + (index + 1)]: item.split('/')[0],
+        ['portType' + (index + 1)]: item.split('/')[1],
       })
-      console.log('asdasdasd',{['targetPortUrl'+(index+1)]:item.split('/')[0]});
-      console.log('asdasdasd',item.split('/')[0]);
+      console.log('asdasdasd', { ['targetPortUrl' + (index + 1)]: item.split('/')[0] });
+      console.log('asdasdasd', item.split('/')[0]);
     })
     console.log(portsArr);
     console.log(form.getFieldsValue());
   }
 }
 
-function setEnv(defaultEnv,form) {
+function setEnv(defaultEnv, form) {
   const envArr = []
-  if(defaultEnv){
+  if (defaultEnv) {
     console.log('ports------');
-    defaultEnv.map(function (item,index) {
-      envArr.push((index+1));
+    defaultEnv.map(function (item, index) {
+      envArr.push((index + 1));
       form.setFieldsValue({
-        envKey:envArr,
-        ['envName'+(index+1)]:item.split('=')[0],
-        ['envValue'+(index+1)]:item.split('=')[1],
+        envKey: envArr,
+        ['envName' + (index + 1)]: item.split('=')[0],
+        ['envValue' + (index + 1)]: item.split('=')[1],
       })
     })
     console.log(envArr);
@@ -141,40 +141,40 @@ function setEnv(defaultEnv,form) {
 }
 
 function loadImageTagConfigs(tag, props) {
-	console.log('loadImageTagConfigs-------------------')
-	console.log(tag)
-	const { currentSelectedImage, loadImageDetailTagConfig, scope, checkState } = props
-	loadImageDetailTagConfig(DEFAULT_REGISTRY, currentSelectedImage, tag, {
-		success: {
-			func: (result) => {
-        if (checkState==='修改') {
+  console.log('loadImageTagConfigs-------------------')
+  console.log(tag)
+  const { currentSelectedImage, loadImageDetailTagConfig, scope, checkState } = props
+  loadImageDetailTagConfig(DEFAULT_REGISTRY, currentSelectedImage, tag, {
+    success: {
+      func: (result) => {
+        if (checkState === '修改') {
           return
         }
-				console.log('set config here ~~')
-				console.log('set config here ~~')
+        console.log('set config here ~~')
+        console.log('set config here ~~')
         console.log('set config here ~~')
         console.log(result)
         /*scope.setState({
           imageTagConfigs: result
         })*/
-        console.log('props',scope);
+        console.log('props', scope);
         const { form } = scope.props
         const { containerPorts, defaultEnv } = result.data
-        setPorts(containerPorts,form)
-        setEnv(defaultEnv,form)
-			},
-			isAsync: true
-		}
-	})
+        setPorts(containerPorts, form)
+        setEnv(defaultEnv, form)
+      },
+      isAsync: true
+    }
+  })
 }
 
 class NormalDeployBox extends Component {
   constructor(props) {
     super(props);
     this.selectComposeType = this.selectComposeType.bind(this);
-		this.onSelectTagChange = this.onSelectTagChange.bind(this)
+    this.onSelectTagChange = this.onSelectTagChange.bind(this)
     this.state = {
-		  
+
     }
   }
   userExists(rule, value, callback) {
@@ -192,49 +192,49 @@ class NormalDeployBox extends Component {
       }, 800);
     }
   }
-  selectComposeType(type){
-  	//the function for change user select compose file type
-  	const parentScope = this.props.scope;
-  	parentScope.setState({
-  		composeType:type
-  	});
+  selectComposeType(type) {
+    //the function for change user select compose file type
+    const parentScope = this.props.scope;
+    parentScope.setState({
+      composeType: type
+    });
   }
 
-	onSelectTagChange(tag) {
-		const { setFieldsValue } = this.props.scope.props.form
-		setFieldsValue({
-			imageVersion: tag
-		})
-		loadImageTagConfigs(tag, this.props)
-	}
+  onSelectTagChange(tag) {
+    const { setFieldsValue } = this.props.scope.props.form
+    setFieldsValue({
+      imageVersion: tag
+    })
+    loadImageTagConfigs(tag, this.props)
+  }
 
-	componentWillMount() {
+  componentWillMount() {
     loadImageTags(this.props)
   }
 
-	componentWillReceiveProps(nextProps) {
-		const {serviceOpen} = nextProps
-    if(serviceOpen == this.props.serviceOpen){
+  componentWillReceiveProps(nextProps) {
+    const {serviceOpen} = nextProps
+    if (serviceOpen == this.props.serviceOpen) {
       return
     }
     if (serviceOpen) {
       loadImageTags(nextProps)
     }
-	}
+  }
 
   render() {
-  	const parentScope = this.props.scope;
-		const { imageTags, imageTagsIsFetching } = this.props
+    const parentScope = this.props.scope;
+    const { imageTags, imageTagsIsFetching } = this.props
     const { getFieldProps, getFieldError, isFieldValidating } = parentScope.props.form;
-  	const nameProps = getFieldProps('name', {
+    const nameProps = getFieldProps('name', {
       rules: [
-        { required: true,},
+        { required: true, },
         { validator: this.userExists },
       ],
     });
-    const {registryServer,currentSelectedImage} = this.props
-    const imageUrlProps = registryServer+'/'+currentSelectedImage
-    
+    const {registryServer, currentSelectedImage} = this.props
+    const imageUrlProps = registryServer + '/' + currentSelectedImage
+
     const selectProps = getFieldProps('imageVersion', {
       rules: [
         { required: true, message: '请选择镜像版本' },
@@ -242,161 +242,161 @@ class NormalDeployBox extends Component {
     });
 
     return (
-	  <div id="NormalDeployBox">
-	  	{/*<Form horizontal form={parentScope.props.form}>*/}
-	    	<div className="topBox">
-	        <div className="inputBox">
-	          <span className="commonSpan">服务名称</span>
-	          <FormItem className="serviceNameForm"
-                      hasFeedback
-                      help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}>
-	          	<Input {...nameProps} className="serviceNameInput" size="large" placeholder="起一个萌萌哒的名字吧~" />
-	            <div style={{ clear:"both" }}></div>
-	          </FormItem>
-	          <div style={{ clear:"both" }}></div>
-	        </div>
-	        <div className="inputBox">
-	          <span className="commonSpan">镜像地址</span>
-	          <FormItem className="iamgeUrlForm" hasFeedback>
-		          <Input className="imageInput" size="large" value={imageUrlProps} />
-		          <div style={{ clear:"both" }}></div>
-	          </FormItem>
-	          <Button className="checkBtn" size="large" type="primary" onClick={this.checkImageUrl}>检查地址</Button>
-	          <div style={{ clear:"both" }}></div>
-	        </div>
-	        <div className="inputBox">
-	          <span className="commonSpan">镜像版本</span>
-		        <FormItem className="imageTagForm">
-		          <Select
-								{...selectProps}
-								className="imageTag" size="large" tyle={{ width: 200 }}
-								placeholder="请选择镜像版本"
-								notFoundContent="镜像版本为空"
-								defaultActiveFirstOption={true}
-								onSelect={ this.onSelectTagChange }
-                
-							>
+      <div id="NormalDeployBox">
+        {/*<Form horizontal form={parentScope.props.form}>*/}
+        <div className="topBox">
+          <div className="inputBox">
+            <span className="commonSpan">服务名称</span>
+            <FormItem className="serviceNameForm"
+              hasFeedback
+              help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}>
+              <Input {...nameProps} className="serviceNameInput" size="large" placeholder="起一个萌萌哒的名字吧~" />
+              <div style={{ clear: "both" }}></div>
+            </FormItem>
+            <div style={{ clear: "both" }}></div>
+          </div>
+          <div className="inputBox">
+            <span className="commonSpan">镜像地址</span>
+            <FormItem className="iamgeUrlForm" hasFeedback>
+              <Input className="imageInput" size="large" value={imageUrlProps} />
+              <div style={{ clear: "both" }}></div>
+            </FormItem>
+            <Button className="checkBtn" size="large" type="primary" onClick={this.checkImageUrl}>检查地址</Button>
+            <div style={{ clear: "both" }}></div>
+          </div>
+          <div className="inputBox">
+            <span className="commonSpan">镜像版本</span>
+            <FormItem className="imageTagForm">
+              <Select
+                {...selectProps}
+                className="imageTag" size="large" tyle={{ width: 200 }}
+                placeholder="请选择镜像版本"
+                notFoundContent="镜像版本为空"
+                defaultActiveFirstOption={true}
+                onSelect={this.onSelectTagChange}
 
-								{ imageTags && imageTags.map((tag) => {
-									return (
-										<Option key={tag} value={tag}>{tag}</Option>
-									)
-								}) }
-			      	</Select>
-		        </FormItem>
-	          <div style={{ clear:"both" }}></div>
-	        </div>
-	      </div>
-	      <div className="infoBox">
-	      	<div className="commonTitle">
-	      		<div className="line"></div>
-	      	  <span className="titleSpan">基本配置</span>
-	      	  <span className="titleIntro">服务的计算资源、服务类型、以及实例个数等设置</span>
-	      	  <div style={{ clear:"both" }}></div>
-	      	</div>
-	      	<div className="operaBox">
-	      		<div className="selectCompose">
-	           <span className="commonSpan">容器配置</span>
-	           <ul className="composeList">
-	           	<li className="composeDetail">
-	           		<Button type={parentScope.state.composeType == "1" ? "primary":"ghost"} onClick={this.selectComposeType.bind(this,"1")}>
-	           			<div className="topBox">
-	           				1X
+                >
+
+                {imageTags && imageTags.map((tag) => {
+                  return (
+                    <Option key={tag} value={tag}>{tag}</Option>
+                  )
+                })}
+              </Select>
+            </FormItem>
+            <div style={{ clear: "both" }}></div>
+          </div>
+        </div>
+        <div className="infoBox">
+          <div className="commonTitle">
+            <div className="line"></div>
+            <span className="titleSpan">基本配置</span>
+            <span className="titleIntro">服务的计算资源、服务类型、以及实例个数等设置</span>
+            <div style={{ clear: "both" }}></div>
+          </div>
+          <div className="operaBox">
+            <div className="selectCompose">
+              <span className="commonSpan">容器配置</span>
+              <ul className="composeList">
+                <li className="composeDetail">
+                  <Button type={parentScope.state.composeType == "1" ? "primary" : "ghost"} onClick={this.selectComposeType.bind(this, "1")}>
+                    <div className="topBox">
+                      1X
 	           			</div>
-	           			<div className="bottomBox">
-	           				<span>256M&nbsp;内存</span><br />
-	           				<span>1CPU&nbsp;(共享)</span>
+                    <div className="bottomBox">
+                      <span>256M&nbsp;内存</span><br />
+                      <span>1CPU&nbsp;(共享)</span>
+                    </div>
+                  </Button>
+                </li>
+                <li className="composeDetail">
+                  <Button type={parentScope.state.composeType == "2" ? "primary" : "ghost"} onClick={this.selectComposeType.bind(this, "2")}>
+                    <div className="topBox">
+                      2X
 	           			</div>
-	           		</Button>
-	           	</li>
-	           	<li className="composeDetail">
-	           		<Button type={parentScope.state.composeType == "2" ? "primary":"ghost"} onClick={this.selectComposeType.bind(this,"2")}>
-	           			<div className="topBox">
-	           				2X
+                    <div className="bottomBox">
+                      <span>512M&nbsp;内存</span><br />
+                      <span>1CPU&nbsp;(共享)</span>
+                    </div>
+                  </Button>
+                </li>
+                <li className="composeDetail">
+                  <Button type={parentScope.state.composeType == "4" ? "primary" : "ghost"} onClick={this.selectComposeType.bind(this, "4")}>
+                    <div className="topBox">
+                      4X
 	           			</div>
-	           			<div className="bottomBox">
-	           				<span>512M&nbsp;内存</span><br />
-	           				<span>1CPU&nbsp;(共享)</span>
+                    <div className="bottomBox">
+                      <span>1GB&nbsp;内存</span><br />
+                      <span>1CPU&nbsp;(共享)</span>
+                    </div>
+                  </Button>
+                </li>
+                <li className="composeDetail">
+                  <Button type={parentScope.state.composeType == "8" ? "primary" : "ghost"} onClick={this.selectComposeType.bind(this, "8")}>
+                    <div className="topBox">
+                      8X
 	           			</div>
-	           		</Button>
-	           	</li>
-	           	<li className="composeDetail">
-	           		<Button type={parentScope.state.composeType == "4" ? "primary":"ghost"} onClick={this.selectComposeType.bind(this,"4")}>
-	           			<div className="topBox">
-	           				4X
+                    <div className="bottomBox">
+                      <span>2GB&nbsp;内存</span><br />
+                      <span>1CPU&nbsp;(共享)</span>
+                    </div>
+                  </Button>
+                </li>
+                <li className="composeDetail">
+                  <Button type={parentScope.state.composeType == "16" ? "primary" : "ghost"} onClick={this.selectComposeType.bind(this, "16")}>
+                    <div className="topBox">
+                      16X
 	           			</div>
-	           			<div className="bottomBox">
-	           				<span>1GB&nbsp;内存</span><br />
-	           				<span>1CPU&nbsp;(共享)</span>
+                    <div className="bottomBox">
+                      <span>4GB&nbsp;内存</span><br />
+                      <span>1CPU</span>
+                    </div>
+                  </Button>
+                </li>
+                <li className="composeDetail">
+                  <Button type={parentScope.state.composeType == "32" ? "primary" : "ghost"} onClick={this.selectComposeType.bind(this, "32")}>
+                    <div className="topBox">
+                      32X
 	           			</div>
-	           		</Button>
-	           	</li>
-	           	<li className="composeDetail">
-	           		<Button type={parentScope.state.composeType == "8" ? "primary":"ghost"} onClick={this.selectComposeType.bind(this,"8")}>
-	           			<div className="topBox">
-	           				8X
-	           			</div>
-	           			<div className="bottomBox">
-	           				<span>2GB&nbsp;内存</span><br/>
-	           				<span>1CPU&nbsp;(共享)</span>
-	           			</div>
-	           		</Button>
-	           	</li>
-	           	<li className="composeDetail">
-	           		<Button type={parentScope.state.composeType == "16" ? "primary":"ghost"} onClick={this.selectComposeType.bind(this,"16")}>
-	           			<div className="topBox">
-	           				16X
-	           			</div>
-	           			<div className="bottomBox">
-	           				<span>4GB&nbsp;内存</span><br />
-	           				<span>1CPU</span>
-	           			</div>
-	           		</Button>
-	           	</li>
-	           	<li className="composeDetail">
-	           		<Button type={parentScope.state.composeType == "32" ? "primary":"ghost"} onClick={this.selectComposeType.bind(this,"32")}>
-	           			<div className="topBox">
-	           				32X
-	           			</div>
-	           			<div className="bottomBox">
-	           				<span>8GB&nbsp;内存</span><br />
-	           				<span>2CPU</span>
-	           			</div>
-	           		</Button>
-	           	</li>
-	           	<div style={{ clear:"both" }}></div>
-	          	</ul>
-	          	<div style={{ clear:"both" }}></div>
-	          </div>
-	          <div className="stateService">
-	          	<span className="commonSpan">服务类型</span>
-	          	<Switch className="changeBtn"
-                      {...getFieldProps('volumeSwitch',{
-                        valuePropName: 'checked'
-                      })}
-              />
-	          	<span className="stateSpan">{parentScope.props.form.getFieldValue('volumeSwitch') ? "有状态服务":"无状态服务"}</span>
-	          	{parentScope.props.form.getFieldValue('volumeSwitch') ? [
-                <MyComponent parentScope={parentScope}/>
-	          	]:null}
-	          	<div style={{ clear:"both" }}></div>
-	          </div>
-		      	<div className="containerNum">
-		      	  <span className="commonSpan">容器数量</span>
+                    <div className="bottomBox">
+                      <span>8GB&nbsp;内存</span><br />
+                      <span>2CPU</span>
+                    </div>
+                  </Button>
+                </li>
+                <div style={{ clear: "both" }}></div>
+              </ul>
+              <div style={{ clear: "both" }}></div>
+            </div>
+            <div className="stateService">
+              <span className="commonSpan">服务类型</span>
+              <Switch className="changeBtn"
+                {...getFieldProps('volumeSwitch', {
+                  valuePropName: 'checked'
+                }) }
+                />
+              <span className="stateSpan">{parentScope.props.form.getFieldValue('volumeSwitch') ? "有状态服务" : "无状态服务"}</span>
+              {parentScope.props.form.getFieldValue('volumeSwitch') ? [
+                <MyComponent parentScope={parentScope} />
+              ] : null}
+              <div style={{ clear: "both" }}></div>
+            </div>
+            <div className="containerNum">
+              <span className="commonSpan">容器数量</span>
               <FormItem>
                 <InputNumber className="inputNum"
-                             {...getFieldProps('instanceNum',{
-                               initialValue: '1'
-                             })}
-                             size="large" min={1} max={100} />
+                  {...getFieldProps('instanceNum', {
+                    initialValue: '1'
+                  }) }
+                  size="large" min={1} max={100} />
                 &nbsp;&nbsp;个
               </FormItem>
-		          <div style={{ clear:"both" }}></div>
-		      	</div>
-	      	</div>
-	      </div>
-      {/*</Form>*/}
-	  </div>
+              <div style={{ clear: "both" }}></div>
+            </div>
+          </div>
+        </div>
+        {/*</Form>*/}
+      </div>
     )
   }
 }
@@ -417,11 +417,11 @@ function mapStateToProps(state, props) {
   }
   const { imageTag } = state.getImageTag
   const { registry, tag, isFetching, server } = imageTag[DEFAULT_REGISTRY] || defaultImageTags
-  const { currentSelectedImage } = props 
+  const { currentSelectedImage } = props
 
   return {
     registry,
-		registryServer: server,
+    registryServer: server,
     imageTags: tag || [],
     imageTagsIsFetching: isFetching,
     currentSelectedImage
