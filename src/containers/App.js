@@ -1,9 +1,9 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
- * 
+ *
  * Redux main app file
- * 
+ *
  * v0.1 - 2016-09-07
  * @author Zhangpc
  */
@@ -30,11 +30,11 @@ class App extends Component {
     if (!errorMessage) {
       return null
     }
-    
+
     notification.error({
       message: 'error',
       description: JSON.stringify(errorMessage),
-      duration: null,
+      duration: 5,
       onClose: handleDismissClick
     })
   }

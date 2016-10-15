@@ -1,9 +1,9 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
- * 
+ *
  * Request errors handler
- * 
+ *
  * v0.1 - 2016-09-21
  * @author Zhangpc
  */

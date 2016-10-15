@@ -1,9 +1,9 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
- * 
+ *
  * Redux reducers for app manage
- * 
+ *
  * v0.1 - 2016-09-23
  * @author Zhangpc
  */
@@ -25,7 +25,7 @@ function appItems(state = {}, action) {
   switch (action.type) {
     case ActionTypes.APP_LIST_REQUEST:
       return merge({}, defaultState, state, {
-        [cluster]: {isFetching: true}
+        [cluster]: { isFetching: true }
       })
     case ActionTypes.APP_LIST_SUCCESS:
       return Object.assign({}, state, {
@@ -37,8 +37,32 @@ function appItems(state = {}, action) {
       })
     case ActionTypes.APP_LIST_FAILURE:
       return merge({}, defaultState, state, {
-        [cluster]: {isFetching: false}
+        [cluster]: { isFetching: false }
       })
+    default:
+      return state
+  }
+}
+
+function appDetail(state = {}, action) {
+  const cluster = action.cluster
+  const appName = action.appName
+  const defaultState = {
+    isFetching: false,
+    cluster,
+    appName,
+    app: {}
+  }
+  switch (action.type) {
+    case ActionTypes.APP_DETAIL_REQUEST:
+      return merge({}, defaultState, state, { isFetching: true })
+    case ActionTypes.APP_DETAIL_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        app: action.response.result.data || {}
+      })
+    case ActionTypes.APP_DETAIL_FAILURE:
+      return merge({}, defaultState, state, { isFetching: true })
     default:
       return state
   }
@@ -47,6 +71,7 @@ function appItems(state = {}, action) {
 export function apps(state = { appItmes: {} }, action) {
   return {
     appItems: appItems(state.appItems, action),
+    appDetail: appDetail(state.appDetail, action),
     createApp: reducerFactory({
       REQUEST: ActionTypes.APP_CREATE_REQUEST,
       SUCCESS: ActionTypes.APP_CREATE_SUCCESS,
@@ -56,11 +81,28 @@ export function apps(state = { appItmes: {} }, action) {
       REQUEST: ActionTypes.APP_BATCH_DELETE_REQUEST,
       SUCCESS: ActionTypes.APP_BATCH_DELETE_SUCCESS,
       FAILURE: ActionTypes.APP_BATCH_DELETE_FAILURE
-    }, state.deleteApps, action)
+    }, state.deleteApps, action),
+    stopApps: reducerFactory({
+      REQUEST: ActionTypes.APP_BATCH_STOP_REQUEST,
+      SUCCESS: ActionTypes.APP_BATCH_STOP_SUCCESS,
+      FAILURE: ActionTypes.APP_BATCH_STOP_FAILURE
+    }, state.stopApps, action),
+    restartApps: reducerFactory({
+      REQUEST: ActionTypes.APP_BATCH_RESTART_REQUEST,
+      SUCCESS: ActionTypes.APP_BATCH_RESTART_SUCCESS,
+      FAILURE: ActionTypes.APP_BATCH_RESTART_FAILURE
+    }, state.restartApps, action),
+    startApps: reducerFactory({
+      REQUEST: ActionTypes.APP_BATCH_START_REQUEST,
+      SUCCESS: ActionTypes.APP_BATCH_START_SUCCESS,
+      FAILURE: ActionTypes.APP_BATCH_START_FAILURE
+    }, state.startApps, action)
   }
 }
 
-export function services(state = {}, action) {
+// ~~~ services
+
+function serviceItmes(state = {}, action) {
   const cluster = action.cluster
   const appName = action.appName
   const defaultState = {
@@ -76,15 +118,15 @@ export function services(state = {}, action) {
   switch (action.type) {
     case ActionTypes.SERVICE_LIST_REQUEST:
       return merge({}, defaultState, state, {
-        [cluster]:  {
+        [cluster]: {
           [appName]: {
             isFetching: true
           }
         }
       })
     case ActionTypes.SERVICE_LIST_SUCCESS:
-      return merge({}, state, {
-        [cluster]:  {
+      return Object.assign({}, state, {
+        [cluster]: {
           [appName]: {
             isFetching: false,
             cluster: action.response.result.cluster,
@@ -95,7 +137,7 @@ export function services(state = {}, action) {
       })
     case ActionTypes.SERVICE_LIST_FAILURE:
       return merge({}, defaultState, state, {
-        [cluster]:  {
+        [cluster]: {
           [appName]: {
             isFetching: false
           }
@@ -106,7 +148,109 @@ export function services(state = {}, action) {
   }
 }
 
-export function containers(state = {}, action) {
+function serviceDetail(state = {}, action) {
+  const cluster = action.cluster
+  const serviceName = action.serviceName
+  const defaultState = {
+    [cluster]: {
+      [serviceName]: {
+        isFetching: false,
+        cluster,
+        serviceName,
+        service: {}
+      }
+    }
+  }
+  switch (action.type) {
+    case ActionTypes.SERVICE_DETAIL_REQUEST:
+      return merge({}, defaultState, state, {
+        [cluster]: {
+          [serviceName]: {
+            isFetching: true
+          }
+        }
+      })
+    case ActionTypes.SERVICE_DETAIL_SUCCESS:
+      return Object.assign({}, state, {
+        [cluster]: {
+          [serviceName]: {
+            isFetching: false,
+            cluster: action.response.result.cluster,
+            serviceName: action.response.result.serviceName,
+            service: action.response.result.data
+          }
+        }
+      })
+    case ActionTypes.SERVICE_DETAIL_FAILURE:
+      return merge({}, defaultState, state, {
+        [cluster]: {
+          [serviceName]: {
+            isFetching: false
+          }
+        }
+      })
+    default:
+      return state
+  }
+}
+
+function serviceContainers(state = {}, action) {
+  const cluster = action.cluster
+  const serviceName = action.serviceName
+  const defaultState = {
+    [cluster]: {
+      [serviceName]: {
+        isFetching: false,
+        cluster,
+        serviceName,
+        containerList: []
+      }
+    }
+  }
+  switch (action.type) {
+    case ActionTypes.SERVICE_CONTAINERS_LIST_REQUEST:
+      return merge({}, defaultState, state, {
+        [cluster]: {
+          [serviceName]: {
+            isFetching: true
+          }
+        }
+      })
+    case ActionTypes.SERVICE_CONTAINERS_LIST_SUCCESS:
+      return Object.assign({}, state, {
+        [cluster]: {
+          [serviceName]: {
+            isFetching: false,
+            cluster: action.response.result.cluster,
+            serviceName: action.response.result.serviceName,
+            containerList: union(state.services, action.response.result.data)
+          }
+        }
+      })
+    case ActionTypes.SERVICE_CONTAINERS_LIST_FAILURE:
+      return merge({}, defaultState, state, {
+        [cluster]: {
+          [serviceName]: {
+            isFetching: false
+          }
+        }
+      })
+    default:
+      return state
+  }
+}
+
+export function services(state = { appItmes: {} }, action) {
+  return {
+    serviceItmes: serviceItmes(state.serviceItmes, action),
+    serviceContainers: serviceContainers(state.serviceContainers, action),
+    serviceDetail: serviceDetail(state.serviceDetail, action),
+  }
+}
+
+// ~~~ containers
+
+function containerItmes(state = {}, action) {
   const cluster = action.cluster
   const defaultState = {
     [cluster]: {
@@ -118,13 +262,13 @@ export function containers(state = {}, action) {
   switch (action.type) {
     case ActionTypes.CONTAINER_LIST_REQUEST:
       return merge({}, defaultState, state, {
-        [cluster]:  {
+        [cluster]: {
           isFetching: true
         }
       })
     case ActionTypes.CONTAINER_LIST_SUCCESS:
-      return merge({}, state, {
-        [cluster]:  {
+      return Object.assign({}, state, {
+        [cluster]: {
           isFetching: false,
           cluster: action.response.result.cluster,
           appName: action.response.result.appName,
@@ -133,11 +277,54 @@ export function containers(state = {}, action) {
       })
     case ActionTypes.CONTAINER_LIST_FAILURE:
       return merge({}, defaultState, state, {
-        [cluster]:  {
+        [cluster]: {
           isFetching: false
         }
       })
     default:
       return state
+  }
+}
+
+function containerDetail(state = {}, action) {
+  const cluster = action.cluster
+  const containerName = action.containerName
+  const defaultState = {
+    [cluster]: {
+      isFetching: false,
+      containerName,
+      containerList: []
+    }
+  }
+  switch (action.type) {
+    case ActionTypes.CONTAINER_DETAIL_REQUEST:
+      return merge({}, defaultState, state, {
+        [cluster]: {
+          isFetching: true
+        }
+      })
+    case ActionTypes.CONTAINER_DETAIL_SUCCESS:
+      return Object.assign({}, state, {
+        [cluster]: {
+          isFetching: false,
+          containerName: action.response.result.containerName,
+          container: action.response.result.data
+        }
+      })
+    case ActionTypes.CONTAINER_DETAIL_FAILURE:
+      return merge({}, defaultState, state, {
+        [cluster]: {
+          isFetching: false
+        }
+      })
+    default:
+      return state
+  }
+}
+
+export function containers(state = {}, action) {
+  return {
+    containerItems: containerItmes(state.containerItmes, action),
+    containerDetail: containerDetail(state.containerDetail, action),
   }
 }

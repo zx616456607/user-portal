@@ -1,140 +1,163 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
- * 
+ *
  * ServiceAPI component
- * 
+ *
  * v0.1 - 2016-10-09
  * @author GaoJian
  */
 import React, { Component } from 'react'
-import { Card } from 'antd'
+import { Card, Spin } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
+import { loadImageDetailTagConfig } from '../../../../actions/app_center'
+import { DEFAULT_REGISTRY } from '../../../../constants'
 import './style/ServiceAPI.less'
 
-const testData = [{
-	id:"1",
-	imageName:"Github",
-	imgUrl:"/img/test/github.jpg",
-	type:"private",
-	imageUrl:"tenxcloud/Github",
-	downloadNum:"1234"
-},{
-	id:"2",
-	imageName:"Mysql",
-	imgUrl:"/img/test/mysql.jpg",
-	type:"private",
-	imageUrl:"tenxcloud/Mysql",
-	downloadNum:"1234"
-},{
-	id:"3",
-	imageName:"Github",
-	imgUrl:"/img/test/github.jpg",
-	type:"public",
-	imageUrl:"tenxcloud/Github",
-	downloadNum:"1234"
-},{
-	id:"4",
-	imageName:"Oracle",
-	imgUrl:"/img/test/oracle.jpg",
-	type:"private",
-	imageUrl:"tenxcloud/Oracle",
-	downloadNum:"1234"
-},{
-	id:"5",
-	imageName:"Mysql",
-	imgUrl:"/img/test/mysql.jpg",
-	type:"public",
-	imageUrl:"tenxcloud/Mysql",
-	downloadNum:"1234"
-},{
-	id:"6",
-	imageName:"Php",
-	imgUrl:"/img/test/php.jpg",
-	type:"public",
-	imageUrl:"tenxcloud/Php",
-	downloadNum:"1234"
-},{
-	id:"7",
-	imageName:"Oracle",
-	imgUrl:"/img/test/oracle.jpg",
-	type:"public",
-	imageUrl:"tenxcloud/Oracle",
-	downloadNum:"1234"
-},{
-	id:"8",
-	imageName:"Oracle",
-	imgUrl:"/img/test/oracle.jpg",
-	type:"private",
-	imageUrl:"tenxcloud/Oracle",
-	downloadNum:"1234"
-},{
-	id:"9",
-	imageName:"Github",
-	imgUrl:"/img/test/github.jpg",
-	type:"private",
-	imageUrl:"tenxcloud/Github",
-	downloadNum:"1234"
-},{
-	id:"10",
-	imageName:"Github",
-	imgUrl:"/img/test/github.jpg",
-	type:"private",
-	imageUrl:"tenxcloud/Github",
-	downloadNum:"1234"
-}];
-
-let MyComponent = React.createClass({	  
-  propTypes : {
-    config : React.PropTypes.array
+let MyComponent = React.createClass({
+  propTypes: {
+    config: React.PropTypes.array
   },
-  render : function() {
-		let config = this.props.config;
-		let items = config.map((item) => {
-		  return (
-		    <div className="apiItemDetail" key={item.id} >
-					<span className="leftSpan">{item.imageName}</span>
-        	<span className="rightSpan">{item.imageUrl}</span>
-        	<div style={{ clear:"both" }}></div>
+  formatEnv: function (envList) {
+    //this function for format the env list ,change the single elem to an new json
+    let newList = new Array();
+    envList.map((item) => {
+      let tempList = item.split("=");
+      let tempElem = {
+        "envName": tempList[0],
+        "envData": tempList[1]
+      }
+      newList.push(tempElem);
+    });
+    return newList;
+  },
+  render: function () {
+    let config = this.props.config;
+    let items;
+    if (!!config) {
+      let showList = this.formatEnv(config);
+      items = showList.map((item, index) => {
+        return (
+          <div className="apiItemDetail" key={index} >
+            <span className="leftSpan">{item.envName}</span>
+            <span className="rightSpan">{item.envData}</span>
+            <div style={{ clear: "both" }}></div>
+          </div>
+        );
+      });
+    } else {
+      items = (
+        <div className="apiItemDetail" key="apiItemDetail" >
+          No Data
 				</div>
-	    );
-		});
-		return (
-		  <div className="apiItemList">
-	        { items }
-		  </div>
+      )
+    }
+    return (
+      <div className="apiItemList">
+        {items}
+      </div>
     );
   }
-});		
+});
 
-export default class ServiceAPI extends Component {
+class ServiceAPI extends Component {
   constructor(props) {
     super(props);
     this.state = {
-    	
+
     }
   }
-  
+
+  componentWillMount() {
+    const { registry, loadImageDetailTagConfig } = this.props;
+    const { fullname, imageTag } = this.props;
+    loadImageDetailTagConfig(registry, fullname, imageTag);
+  }
+
   render() {
+    const { isFetching, configList } = this.props;
+    if (isFetching) {
+      return (
+        <Card className="imageServiceAPI">
+          <Spin />
+        </Card>
+      )
+    }
+    let portsShow = null, dataStorageShow = null, cmdShow = null, entrypointShow = null;
+    let ports = configList.containerPorts;
+    if (!!ports) {
+      portsShow = ports.map((item) => {
+        return (
+          <p>容器端口:&nbsp;{item}</p>
+        )
+      });
+    }
+    let dataStorage = configList.mountPath;
+    if (!!dataStorage) {
+      dataStorageShow = dataStorage.map((item) => {
+        return (
+          <p>数据存储器: &nbsp;{item}</p>
+        )
+      });
+    }
+    let { cmd, entrypoint } = configList;
+    if (!!cmd) {
+      cmdShow = cmd.map((item) => {
+        return (
+          <span>{item}&nbsp;</span>
+        )
+      });
+    }
+    if (!!entrypoint) {
+      entrypointShow = entrypoint.map((item) => {
+        return (
+          <span>{item}&nbsp;</span>
+        )
+      });
+    }
+    let { defaultEnv } = configList;
     return (
       <Card className="imageServiceAPI">
-        <p>容器端口: 8080/tcp</p>
-        <p>数据存储器: 无</p>
+        {portsShow}
+        {dataStorageShow}
+        <p>运行命令及参数:&nbsp;{entrypointShow}{cmdShow}</p>
         <p>所需环境变量: </p>
         <div className="itemBox">
-        	<div className="title">
-        		<span className="leftSpan">变量名</span>
-        		<span className="rightSpan">镜像</span>
-        		<div style={{ clear:"both" }}></div>
-        	</div>
-        	<MyComponent config={testData} />
+          <div className="title">
+            <span className="leftSpan">变量名</span>
+            <span className="rightSpan">镜像</span>
+            <div style={{ clear: "both" }}></div>
+          </div>
+          <MyComponent config={defaultEnv} />
         </div>
-    	</Card>
+      </Card>
     )
   }
 }
 
-ServiceAPI.propTypes = {
-//
+function mapStateToProps(state, props) {
+  const defaultImageDetailTagConfig = {
+    isFetching: false,
+    registry: DEFAULT_REGISTRY,
+    configList: []
+  }
+  const { imageTagConfig } = state.getImageTagConfig
+  const { registry, tag, isFetching, server, configList } = imageTagConfig[DEFAULT_REGISTRY] || defaultImageDetailTagConfig
+
+  return {
+    registry,
+    registryServer: server,
+    configList: configList,
+    isFetching,
+    tag
+  }
 }
+
+ServiceAPI.propTypes = {
+  //
+}
+
+export default connect(mapStateToProps, {
+  loadImageDetailTagConfig
+})(ServiceAPI);

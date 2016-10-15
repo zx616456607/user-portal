@@ -1,9 +1,9 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
- * 
+ *
  * App routes
- * 
+ *
  * v0.1 - 2016-09-07
  * @author Zhangpc
  */
@@ -35,40 +35,49 @@ import ContainerDetail from './components/ContainerModule/ContainerDetail.js'
 /*-------------------Container stop--------------------------------*/
 /*-------------------App_manage Module Stop------------------------*/
 /*-------------------App_center Module Start-----------------------*/
-import AppCenter  from './containers/AppCenter/Index'
+import AppCenter from './containers/AppCenter/Index'
 import ImageCenter from './components/AppCenter/Index'
 import ImageStore from './components/AppCenter/ImageStore.js'
 import ComposeCenter from './components/AppCenter/ComposeCenter.js'
 /*-------------------App_center Module Stop------------------------*/
+//     database & cache
+import Database from './containers/Database/Index'
+import MysqlCluster from './components/DatabaseCache/mysqlCluster'
+//  database end
+
+
 export default (
   <Route path="/" component={App}>
-    <IndexRoute component={IndexPage}/>
+    <IndexRoute component={IndexPage} />
     <Route path="app_manage" component={Application}>
-      <IndexRoute component={AppList}/>
+      <IndexRoute component={AppList} />
       <Route path="detail/:app_name" component={AppDetail} />
       <Route path="app_create" component={AppCreate}>
-        <IndexRoute component={AppCreateSelectModel}/>
+        <IndexRoute component={AppCreateSelectModel} />
         <Route path="fast_create" component={AppCreateServiceList} />
         <Route path="app_store" component={AppCreateAppStore} />
         <Route path="compose_file" component={AppCreateComposeFile} />
       </Route>
       <Route path="container">
-        <IndexRoute component={ContainerList}/>
-        <Route path="detail/:container_id" component={ContainerDetail} />
+        <IndexRoute component={ContainerList} />
+        <Route path=":container_name" component={ContainerDetail} />
       </Route>
       <Route path="storage">
-        <IndexRoute component={Storage}/>
-        <Route path=":pool/:storage_id" component={StorageDetail} />
+        <IndexRoute component={Storage} />
+        <Route path=":pool/:cluster/:storage_name" component={StorageDetail} />
       </Route>
       <Route path="configs">
-        <IndexRoute component={Service}/>
+        <IndexRoute component={Service} />
       </Route>
     </Route>
-    <Route path="app_center" component={AppCenter }>
-    	<IndexRoute component={ImageCenter}/>
-    	<Route path="image_store" component={ImageStore} />
+    <Route path="app_center" component={AppCenter}>
+      <IndexRoute component={ImageCenter} />
+      <Route path="image_store" component={ImageStore} />
       <Route path="compose_center" component={ComposeCenter} />
     </Route>
-    <Route path="*" component={ErrorPage}/>
+    <Route path="database_cache" component={Database}>
+      <IndexRoute component={MysqlCluster} />
+    </Route>
+    <Route path="*" component={ErrorPage} />
   </Route>
 )

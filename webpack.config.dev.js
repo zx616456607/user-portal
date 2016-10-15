@@ -1,9 +1,9 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
- * 
+ *
  * App webpack dev config
- * 
+ *
  * v0.1 - 2016-09-07
  * @author Zhangpc
  */
@@ -70,29 +70,29 @@ module.exports = {
       loaders: ['babel'],
       exclude: /node_modules/,
       include: __dirname
-    },{
-        test: /\.json$/,
-        loader: 'json-loader'
-      },{
-        test: /\.css$/,
-        loader: ExtractTextPlugin.extract(
-          'css?sourceMap'
-        )
-      },{
-        test: /\.less$/,
-        loader: ExtractTextPlugin.extract(
-          // activate source maps via loader query
-          'css?sourceMap!' +
-          'less?sourceMap'
-        )
-      }]
+    }, {
+      test: /\.json$/,
+      loader: 'json-loader'
+    }, {
+      test: /\.css$/,
+      loader: ExtractTextPlugin.extract(
+        'css?sourceMap'
+      )
+    }, {
+      test: /\.less$/,
+      loader: ExtractTextPlugin.extract(
+        // activate source maps via loader query
+        'css?sourceMap!' +
+        'less?sourceMap'
+      )
+    }]
   },
-   devServer: {
+  devServer: {
     contentBase: "./public",//本地服务器所加载的页面所在的目录
     colors: false,//终端中输出结果为彩色
     historyApiFallback: true,//不跳转
     inline: true//实时刷新
-  }, 
+  },
 
   plugins: [
     new webpack.optimize.CommonsChunkPlugin('common', 'common.js'),
