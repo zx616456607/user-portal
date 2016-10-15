@@ -1,9 +1,9 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
- * 
+ *
  * Index config file
- * 
+ *
  * v0.1 - 2016-09-02
  * @author Zhangpc
  */

@@ -1,9 +1,9 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
- * 
+ *
  * ImageCenter component
- * 
+ *
  * v0.1 - 2016-10-11
  * @author Bai Yu
  */
@@ -18,16 +18,16 @@ import QueueAnim from 'rc-queue-anim'
 export default class Database extends Component {
   render() {
     const { children } = this.props
-    console.log('this props',this.props)
+    console.log('this props', this.props)
     return (
       <div id="AppCenter">
-      	<QueueAnim className = "DatabaseSider" key = "DatabaseSider" type = "left">
-      	  <div className="imageMenu" key="imageSider">
-        		<DatabaseSider />
-      	  </div>
+        <QueueAnim className="DatabaseSider" key="DatabaseSider" type="left">
+          <div className="imageMenu" key="imageSider">
+            <DatabaseSider />
+          </div>
         </QueueAnim>
-      	<div className="imageContent">
-        <MysqlCluster />
+        <div className="imageContent">
+          <MysqlCluster />
         </div>
       </div>
     )

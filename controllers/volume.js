@@ -1,9 +1,9 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
- * 
+ *
  * Index controller
- * 
+ *
  * v0.1 - 2016-09-22
  * @author YangYuBiao
  */
@@ -28,7 +28,7 @@ const volumeConfig = {
 }
 const volumeApi = new VolumeApi(volumeConfig)
 
-exports.getVolumeListByPool = function*() {
+exports.getVolumeListByPool = function* () {
   const pool = this.params.pool
   const cluster = this.params.cluster
   const appName = this.query.appname
@@ -39,11 +39,11 @@ exports.getVolumeListByPool = function*() {
   this.body = response
 }
 
-exports.deleteVolume = function*() {
+exports.deleteVolume = function* () {
   const pool = this.params.pool
   const cluster = this.params.cluster
   const volumeArray = this.request.body
-  if(!volumeArray) {
+  if (!volumeArray) {
     this.status = 400
     this.body = {
       message: 'error'
@@ -56,7 +56,7 @@ exports.deleteVolume = function*() {
 }
 
 
-exports.createVolume = function*() {
+exports.createVolume = function* () {
   const pool = this.params.pool
   const cluster = this.params.cluster
   const reqData = this.request.body
@@ -66,14 +66,14 @@ exports.createVolume = function*() {
 }
 
 
-exports.formateVolume = function*() {
+exports.formateVolume = function* () {
   const pool = this.params.pool
   const cluster = this.params.cluster
   let reqData = this.request.body
 
-  if(!reqData.type || !reqData.name) {
+  if (!reqData.type || !reqData.name) {
     this.status = 400
-    this.body = { message:　'error'}
+    this.body = { message: 　'error' }
   }
   const response = yield volumeApi.volumes.updateBy([pool, cluster, reqData.name, 'format'], null, {
     format: reqData.type,
@@ -83,13 +83,13 @@ exports.formateVolume = function*() {
   this.body = response
 }
 
-exports.resizeVolume = function*() {
+exports.resizeVolume = function* () {
   const pool = this.params.pool
   const cluster = this.params.cluster
   const reqData = this.request.body
-  if(!reqData.name || !reqData.size) {
+  if (!reqData.name || !reqData.size) {
     this.status = 400
-    this.body = { message: 　'error' }
+    this.body = { message: 'error' }
   }
   const response = yield volumeApi.volumes.updateBy([pool, cluster, reqData.name], null, {
     size: reqData.size
@@ -97,7 +97,7 @@ exports.resizeVolume = function*() {
   this.status = response.code
   this.body = response
 }
-exports.getVolumeDetail = function*() {
+exports.getVolumeDetail = function* () {
   const pool = this.params.pool
   const cluster = this.params.cluster
   const volumeName = this.params.name
@@ -109,29 +109,29 @@ exports.getVolumeDetail = function*() {
 }
 
 
-exports.beforeUploadFile = function*() {
+exports.beforeUploadFile = function* () {
   const pool = this.params.pool
   const cluster = this.params.cluster
   const volumeName = this.params.name
   const reqData = this.request.body
   console.log(reqData)
-  if(!reqData.fileName || !reqData.size) {
+  if (!reqData.fileName || !reqData.size) {
     this.status = 400
     this.body = { message: 'error' }
     return
   }
-  const response = yield volumeApi.volumes.createBy([pool, cluster, volumeName, 'beforimport'], null , reqData)
+  const response = yield volumeApi.volumes.createBy([pool, cluster, volumeName, 'beforimport'], null, reqData)
   this.status = response.code
   this.body = response
 }
 
-exports.uploadFile = function*() {
+exports.uploadFile = function* () {
   const parts = parse(this, {
     autoFields: true
   })
-  if(!parts) {
+  if (!parts) {
     this.status = 400
-    this.message = { message: 'error'}
+    this.message = { message: 'error' }
     return
   }
   const cluster = this.params.cluster
@@ -160,7 +160,7 @@ exports.getFileHistory = function* () {
   this.body = response
 }
 
-exports.getBindInfo = function*() {
+exports.getBindInfo = function* () {
   const pool = this.params.pool
   const cluster = this.params.cluster
   const volumeName = this.params.name
@@ -169,7 +169,7 @@ exports.getBindInfo = function*() {
   this.body = response
 }
 
-exports.exportFile = function*() {
+exports.exportFile = function* () {
   const pool = this.params.pool
   const cluster = this.params.cluster
   const volumeName = this.params.name

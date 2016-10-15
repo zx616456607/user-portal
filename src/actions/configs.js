@@ -48,10 +48,10 @@ export const GET_CONFIG_FILES_FAILURE = 'GET_CONFIG_FILES_FAILURE'
 //           schema: {}
 //         },
 //       }
-  
+
 // }
 export function configGroupName(obj) {
-  console.log('get config name  in action ……',obj)
+  console.log('get config name  in action ……', obj)
   return {
     cluster: obj.cluster,
     [FETCH_API]: {
@@ -71,11 +71,11 @@ export const CONFIG_LISTName_FAILURE = 'CONFIG_LISTName_FAILURE'
 
 // get config  file name => data
 export function loadConfigName(obj, callback) {
-  console.log('get name is to ',obj.Name)
-    return {
+  console.log('get name is to ', obj.Name)
+  return {
     cluster: DEFAULT_CLUSTER,
-    [FETCH_API]:{
-      types:[CONFIG_listName_REQUEST,CONFIG_LISTName_SUCCESS,CONFIG_LISTName_FAILURE],
+    [FETCH_API]: {
+      types: [CONFIG_listName_REQUEST, CONFIG_LISTName_SUCCESS, CONFIG_LISTName_FAILURE],
       endpoint: `${API_URL_PREFIX}/clusters/${DEFAULT_CLUSTER}/configgroups/${obj.group}/configs/${obj.Name}`,
       options: {
         method: 'GET',
@@ -94,8 +94,8 @@ export const CREATE_CONFIG_GROUP_FAILURE = 'CREATE_CONFIG_GROUP_FAILURE'
 export function createConfigGroup(obj, callback) {
   return {
     cluster: obj.cluster,
-    [FETCH_API]:{
-      types:[CREATE_CONFIG_GROUP_REQUEST,CREATE_CONFIG_GROUP_SUCCESS,CREATE_CONFIG_GROUP_FAILURE],
+    [FETCH_API]: {
+      types: [CREATE_CONFIG_GROUP_REQUEST, CREATE_CONFIG_GROUP_SUCCESS, CREATE_CONFIG_GROUP_FAILURE],
       endpoint: `${API_URL_PREFIX}/clusters/${obj.cluster}/configs`,
       options: {
         method: 'POST',
@@ -112,7 +112,7 @@ export const DELETE_CONFIG_SUCCESS = 'DELETE_CONFIG_SUCCESS'
 export const DELETE_CONFIG_FAILURE = 'DELETE_CONFIG_FAILURE'
 
 export function deleteConfigGroup(obj, callback) {
-  console.log('type ',obj)
+  console.log('type ', obj)
   return {
     cluster: obj.cluster,
     [FETCH_API]: {
@@ -120,7 +120,7 @@ export function deleteConfigGroup(obj, callback) {
       endpoint: `${API_URL_PREFIX}/clusters/${obj.cluster}/configs/delete`,
       options: {
         method: 'POST',
-        body: { "groups":obj.groups }
+        body: { "groups": obj.groups }
       },
       schema: {}
     },
@@ -140,7 +140,7 @@ export function createConfigFiles(obj, callback) {
       endpoint: `${API_URL_PREFIX}/clusters/${obj.cluster}/configgroups/${obj.group}/configs/${obj.name}`,
       options: {
         method: 'POST',
-        body: {'groupFiles': obj.desc} 
+        body: { 'groupFiles': obj.desc }
       },
       schema: {}
     },
@@ -160,7 +160,7 @@ export function deleteConfigName(obj, callback) {
       endpoint: `${API_URL_PREFIX}/clusters/${obj.cluster}/configgroups/${obj.group}/configs/batch-delete`,
       options: {
         method: 'POST',
-        body: {"configs": obj.configs}
+        body: { "configs": obj.configs }
       },
       schema: {}
     },

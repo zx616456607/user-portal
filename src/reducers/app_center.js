@@ -1,9 +1,9 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
- * 
+ *
  * Redux reducers for app center
- * 
+ *
  * v0.1 - 2016-10-10
  * @author Zhangpc
  */
@@ -24,7 +24,7 @@ function publicImages(state = {}, action) {
   switch (action.type) {
     case ActionTypes.IMAGE_PUBLIC_LIST_REQUEST:
       return merge({}, defaultState, state, {
-        [registry]: {isFetching: true}
+        [registry]: { isFetching: true }
       })
     case ActionTypes.IMAGE_PUBLIC_LIST_SUCCESS:
       return merge({}, state, {
@@ -37,7 +37,7 @@ function publicImages(state = {}, action) {
       })
     case ActionTypes.IMAGE_PUBLIC_LIST_FAILURE:
       return merge({}, defaultState, state, {
-        [registry]: {isFetching: false}
+        [registry]: { isFetching: false }
       })
     default:
       return state
@@ -49,7 +49,7 @@ export function images(state = { publicImages: {} }, action) {
     publicImages: publicImages(state.publicImages, action),
   }
 }
-//get image detail tag 
+//get image detail tag
 function imageTag(state = {}, action) {
   const registry = action.registry
   const defaultState = {
@@ -59,19 +59,19 @@ function imageTag(state = {}, action) {
       imageList: []
     }
   }
-	
+
   switch (action.type) {
     case ActionTypes.IMAGE_GET_DETAILTAG_REQUEST:
       return merge({}, defaultState, state, {
-        [registry]: {isFetching: true}
+        [registry]: { isFetching: true }
       })
     case ActionTypes.IMAGE_GET_DETAILTAG_SUCCESS:
       const LATEST = 'latest'
-      let data =  merge([], action.response.result.data)
+      let data = merge([], action.response.result.data)
       const latestTagIndex = data.indexOf(LATEST)
       if (latestTagIndex > -1) {
         data.splice(latestTagIndex)
-        data = ([ LATEST ]).concat(data)
+        data = ([LATEST]).concat(data)
       }
       return Object.assign({}, state, {
         [registry]: {
@@ -83,7 +83,7 @@ function imageTag(state = {}, action) {
       })
     case ActionTypes.IMAGE_GET_DETAILTAG_FAILURE:
       return merge({}, defaultState, state, {
-        [registry]: {isFetching: false}
+        [registry]: { isFetching: false }
       })
     default:
       return state
@@ -106,11 +106,11 @@ function imageTagConfig(state = {}, action) {
       imageList: []
     }
   }
-	
+
   switch (action.type) {
     case ActionTypes.IMAGE_GET_DETAILTAGCONFIG_REQUEST:
       return merge({}, defaultState, state, {
-        [registry]: {isFetching: true}
+        [registry]: { isFetching: true }
       })
     case ActionTypes.IMAGE_GET_DETAILTAGCONFIG_SUCCESS:
       return Object.assign({}, state, {
@@ -124,7 +124,7 @@ function imageTagConfig(state = {}, action) {
       })
     case ActionTypes.IMAGE_GET_DETAILTAGCONFIG_FAILURE:
       return merge({}, defaultState, state, {
-        [registry]: {isFetching: false}
+        [registry]: { isFetching: false }
       })
     default:
       return state
@@ -133,6 +133,6 @@ function imageTagConfig(state = {}, action) {
 
 export function getImageTagConfig(state = { publicImages: {} }, action) {
   return {
-    imageTagConfig: imageTagConfig(state.imageTagConfig , action),
+    imageTagConfig: imageTagConfig(state.imageTagConfig, action),
   }
 }

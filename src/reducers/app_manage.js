@@ -1,9 +1,9 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
- * 
+ *
  * Redux reducers for app manage
- * 
+ *
  * v0.1 - 2016-09-23
  * @author Zhangpc
  */
@@ -25,7 +25,7 @@ function appItems(state = {}, action) {
   switch (action.type) {
     case ActionTypes.APP_LIST_REQUEST:
       return merge({}, defaultState, state, {
-        [cluster]: {isFetching: true}
+        [cluster]: { isFetching: true }
       })
     case ActionTypes.APP_LIST_SUCCESS:
       return Object.assign({}, state, {
@@ -37,7 +37,7 @@ function appItems(state = {}, action) {
       })
     case ActionTypes.APP_LIST_FAILURE:
       return merge({}, defaultState, state, {
-        [cluster]: {isFetching: false}
+        [cluster]: { isFetching: false }
       })
     default:
       return state
@@ -55,14 +55,14 @@ function appDetail(state = {}, action) {
   }
   switch (action.type) {
     case ActionTypes.APP_DETAIL_REQUEST:
-      return merge({}, defaultState, state, {isFetching: true})
+      return merge({}, defaultState, state, { isFetching: true })
     case ActionTypes.APP_DETAIL_SUCCESS:
       return Object.assign({}, state, {
         isFetching: false,
         app: action.response.result.data || {}
       })
     case ActionTypes.APP_DETAIL_FAILURE:
-      return merge({}, defaultState, state, {isFetching: true})
+      return merge({}, defaultState, state, { isFetching: true })
     default:
       return state
   }
@@ -118,7 +118,7 @@ function serviceItmes(state = {}, action) {
   switch (action.type) {
     case ActionTypes.SERVICE_LIST_REQUEST:
       return merge({}, defaultState, state, {
-        [cluster]:  {
+        [cluster]: {
           [appName]: {
             isFetching: true
           }
@@ -126,7 +126,7 @@ function serviceItmes(state = {}, action) {
       })
     case ActionTypes.SERVICE_LIST_SUCCESS:
       return Object.assign({}, state, {
-        [cluster]:  {
+        [cluster]: {
           [appName]: {
             isFetching: false,
             cluster: action.response.result.cluster,
@@ -137,7 +137,7 @@ function serviceItmes(state = {}, action) {
       })
     case ActionTypes.SERVICE_LIST_FAILURE:
       return merge({}, defaultState, state, {
-        [cluster]:  {
+        [cluster]: {
           [appName]: {
             isFetching: false
           }
@@ -164,7 +164,7 @@ function serviceDetail(state = {}, action) {
   switch (action.type) {
     case ActionTypes.SERVICE_DETAIL_REQUEST:
       return merge({}, defaultState, state, {
-        [cluster]:  {
+        [cluster]: {
           [serviceName]: {
             isFetching: true
           }
@@ -172,7 +172,7 @@ function serviceDetail(state = {}, action) {
       })
     case ActionTypes.SERVICE_DETAIL_SUCCESS:
       return Object.assign({}, state, {
-        [cluster]:  {
+        [cluster]: {
           [serviceName]: {
             isFetching: false,
             cluster: action.response.result.cluster,
@@ -183,7 +183,7 @@ function serviceDetail(state = {}, action) {
       })
     case ActionTypes.SERVICE_DETAIL_FAILURE:
       return merge({}, defaultState, state, {
-        [cluster]:  {
+        [cluster]: {
           [serviceName]: {
             isFetching: false
           }
@@ -210,7 +210,7 @@ function serviceContainers(state = {}, action) {
   switch (action.type) {
     case ActionTypes.SERVICE_CONTAINERS_LIST_REQUEST:
       return merge({}, defaultState, state, {
-        [cluster]:  {
+        [cluster]: {
           [serviceName]: {
             isFetching: true
           }
@@ -218,7 +218,7 @@ function serviceContainers(state = {}, action) {
       })
     case ActionTypes.SERVICE_CONTAINERS_LIST_SUCCESS:
       return Object.assign({}, state, {
-        [cluster]:  {
+        [cluster]: {
           [serviceName]: {
             isFetching: false,
             cluster: action.response.result.cluster,
@@ -229,7 +229,7 @@ function serviceContainers(state = {}, action) {
       })
     case ActionTypes.SERVICE_CONTAINERS_LIST_FAILURE:
       return merge({}, defaultState, state, {
-        [cluster]:  {
+        [cluster]: {
           [serviceName]: {
             isFetching: false
           }
@@ -262,13 +262,13 @@ function containerItmes(state = {}, action) {
   switch (action.type) {
     case ActionTypes.CONTAINER_LIST_REQUEST:
       return merge({}, defaultState, state, {
-        [cluster]:  {
+        [cluster]: {
           isFetching: true
         }
       })
     case ActionTypes.CONTAINER_LIST_SUCCESS:
       return Object.assign({}, state, {
-        [cluster]:  {
+        [cluster]: {
           isFetching: false,
           cluster: action.response.result.cluster,
           appName: action.response.result.appName,
@@ -277,7 +277,7 @@ function containerItmes(state = {}, action) {
       })
     case ActionTypes.CONTAINER_LIST_FAILURE:
       return merge({}, defaultState, state, {
-        [cluster]:  {
+        [cluster]: {
           isFetching: false
         }
       })
@@ -299,13 +299,13 @@ function containerDetail(state = {}, action) {
   switch (action.type) {
     case ActionTypes.CONTAINER_DETAIL_REQUEST:
       return merge({}, defaultState, state, {
-        [cluster]:  {
+        [cluster]: {
           isFetching: true
         }
       })
     case ActionTypes.CONTAINER_DETAIL_SUCCESS:
       return Object.assign({}, state, {
-        [cluster]:  {
+        [cluster]: {
           isFetching: false,
           containerName: action.response.result.containerName,
           container: action.response.result.data
@@ -313,7 +313,7 @@ function containerDetail(state = {}, action) {
       })
     case ActionTypes.CONTAINER_DETAIL_FAILURE:
       return merge({}, defaultState, state, {
-        [cluster]:  {
+        [cluster]: {
           isFetching: false
         }
       })

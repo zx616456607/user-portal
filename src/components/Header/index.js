@@ -1,9 +1,9 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
- * 
+ *
  * AppSider component
- * 
+ *
  * v0.1 - 2016-09-06
  * @author GaoJian
  */
@@ -58,16 +58,16 @@ export default class Top extends Component {
   render() {
     return (
       <div id="header">
-      	<div className="rightBox">
-	      	<div className="docBtn">
-	      		<FormattedMessage {...menusText.doc} />
-	      	</div>
-	      	<Dropdown overlay={menu}>
-				    <div className="ant-dropdown-link userBtn">
+        <div className="rightBox">
+          <div className="docBtn">
+            <FormattedMessage {...menusText.doc} />
+          </div>
+          <Dropdown overlay={menu}>
+            <div className="ant-dropdown-link userBtn">
               <FormattedMessage {...menusText.user} /><Icon type="down" />
-				    </div>
-				  </Dropdown>
-      	</div>
+            </div>
+          </Dropdown>
+        </div>
       </div>
     )
   }

@@ -1,9 +1,9 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
- * 
+ *
  * Default reducers factory
- * 
+ *
  * v0.1 - 2016-10-09
  * @author Zhangpc
  */
