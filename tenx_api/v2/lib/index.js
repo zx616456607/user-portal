@@ -38,4 +38,7 @@ module.exports = function (config) {
 
   // ~ registry
   this.registries = collections.create('registries')
+
+  // configGroup
+  this.configGroup = collections.create('clusters')
 }

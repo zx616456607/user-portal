@@ -48,7 +48,7 @@ export default class MysqlCluster extends Component {
                   MySql-1
                 </div>
                 <div className="detailName">
-                  <Button type="ghost" onClick={(name)=>this.showDetailModal('mysql-1')}><Icon type="bars" />展开详情</Button>
+                  <Button type="ghost" size="large" onClick={(name)=>this.showDetailModal('mysql-1')}><Icon type="bars" />展开详情</Button>
                 </div>
               </div>
 
@@ -68,7 +68,7 @@ export default class MysqlCluster extends Component {
                   MySql-1
                 </div>
                 <div className="detailName">
-                  <Button type="ghost" onClick={(name)=>this.showDetailModal('mysql-2')}><Icon type="bars" />展开详情</Button>
+                  <Button type="ghost" size="large" onClick={(name)=>this.showDetailModal('mysql-2')}><Icon type="bars" />展开详情</Button>
                 </div>
               </div>
 
@@ -88,7 +88,7 @@ export default class MysqlCluster extends Component {
                   MySql-1
                 </div>
                 <div className="detailName">
-                  <Button type="ghost" onClick={(name)=>this.showDetailModal('mysql-3')}><Icon type="bars" />展开详情</Button>
+                  <Button type="ghost" size="large" onClick={(name)=>this.showDetailModal('mysql-3')}><Icon type="bars" />展开详情</Button>
                 </div>
               </div>
 
@@ -108,7 +108,7 @@ export default class MysqlCluster extends Component {
                   MySql-1
                 </div>
                 <div className="detailName">
-                  <Button type="ghost" onClick={(name)=>this.showDetailModal('mysql-4')}><Icon type="bars" />展开详情</Button>
+                  <Button type="ghost" size="large" onClick={(name)=>this.showDetailModal('mysql-4')}><Icon type="bars" />展开详情</Button>
                 </div>
               </div>
 

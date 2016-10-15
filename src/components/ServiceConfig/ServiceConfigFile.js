@@ -18,17 +18,24 @@ class ConfigFile extends Component {
     super(props)
     this.state = {
       checkConfigFile: false,
-      editConfigGroup: false
+      // editConfigGroup: false,
+      modalConfigFile: false
     }
-    this.checkConfigFile = this.checkConfigFile.bind(this)
-    this.editConfigGroup = this.editConfigGroup.bind(this)
     
   }
   checkConfigFile(checkConfigFile) {
     this.setState({ checkConfigFile })
   }
-  editConfigGroup(editConfigGroup) {
-    this.setState({ editConfigGroup })
+  editConfigModal(configName, modal) {
+    console.log('config name ',configName)
+    this.setState({
+      modalConfigFile: modal,
+      configName: configName,
+      configtextarea: 'default'
+    })
+  }
+  editConfigFile() {
+    console.log('come to this ^')
   }
   RendFileState(configFile) {
     let containerList = configFile.container
@@ -75,7 +82,8 @@ class ConfigFile extends Component {
   
   render () {
     const { configFile } = this.props
-    let containerList = configFile.container
+    let containerList = JSON.parse(configFile)
+    console.log('containerl ist ----------------------------------',)
     let RendfileList = containerList.slice(0,3).map((containerItem) => {
       return (
         <td key={containerItem.containerId}>
@@ -101,24 +109,31 @@ class ConfigFile extends Component {
             <td style={{padding: "0 10px"}}>
               <Button type="primary"
                       style={{with: "30px",height: "30px",padding: "0 9px",marginRight: "5px"}}
-                      onClick={() => this.editConfigGroup(true)}>
+                      onClick={() => this.editConfigModal('my_config_file1',true)}>
                 <Icon type="edit" />
               </Button>
-              
-              {/*修改配置组-弹出层-start*/}
+               
+              {/*                     修改配置文件-弹出层-start     */}
               <Modal
-                title="修改配置组"
-                wrapClassName="server-create-modal"
-                visible={this.state.editConfigGroup}
-                onOk={() => this.editConfigGroup(false)}
-                onCancel={() => this.editConfigGroup(false)}
+                title="修改配置文件"
+                wrapClassName="configFile-create-modal"
+                visible={this.state.modalConfigFile}
+                onOk={() => this.editConfigFile()}
+                onCancel={() => this.editConfigModal(false)}
               >
-                <div className="create-conf-g">
-                  <span>名称 : </span>
-                  <Input type="text" placeholder={`${configFile.fileName}`}/>
+                <div className="configFile-inf">
+                  <p className="configFile-tip" style={{color: "#16a3ea"}}>
+                    <Icon type="info-circle-o" style={{marginRight: "10px"}}/>
+                    即将保存一个配置文件 , 您可以在创建应用 → 添加服务时 , 关联使用该配置
+                  </p>
+                  <span style={{float: "left", marginRight: "16px"}}>名称 : </span>
+                  <Input type="text" className="configName" defaultValue={this.state.configName} />
+                  <div style={{ margin: '24px 0' }} />
+                  <span style={{float: "left", marginRight: "16px"}}>内容 : </span>
+                  <Input type="textarea" defaultValue={this.state.configtextarea} />
                 </div>
               </Modal>
-              {/*修改配置组-弹出层-end*/}
+              {/*              修改配置文件-弹出层-end                */}
               
               <Button type="primary" style={{with: "30px",height: "30px",padding: "0 9px",
                 backgroundColor: "#fff"}} className="config-cross">
