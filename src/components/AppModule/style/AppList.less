@@ -23,16 +23,15 @@
 			}
 		}
 		.rightBox {
+			position: relative;
 			float: right;
 			.littleLeft {
-				float: left;
-				padding-left: 3px;
-				padding-right: 7px;
-				height: 35px;
-				line-height: 35px;
+				z-index: 10;
+				position: absolute;
+				top: 7px;
+				right: 10px;
 				font-size: 15px;
 				color: #949494;
-				border-bottom: 1px solid #d9d9d9;
 			}
 			.littleRight {
 				float: left;
@@ -41,9 +40,6 @@
 					line-height: 35px;
 					font-size: 14px;
 					color: #333333;
-					border: 0;
-					border-bottom: 1px solid #d9d9d9;
-					outline: none;
 					background-color: #f8f8f8;
 				}
 			}

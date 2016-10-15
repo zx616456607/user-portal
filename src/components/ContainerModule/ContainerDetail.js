@@ -109,17 +109,10 @@ class ContainerDetail extends Component {
                         <use xlinkHref="#terminal" />
                       </svg>
                       登录终端
-			    		</Button>
-                    <ButtonGroup>
-                      <Button type="ghost">
-                        <i className="fa fa-power-off"></i>重启
-			    		  </Button>
-                      <Dropdown overlay={operaMenu} trigger={['click']}>
-                        <Button type="ghost" className="moreBtn ant-dropdown-link">
-                          <i className="fa fa-caret-down"></i>
-                        </Button>
-                      </Dropdown>
-                    </ButtonGroup>
+			    					</Button>
+                    <Dropdown.Button overlay={operaMenu} type="ghost">
+                      <i className="fa fa-power-off"></i>&nbsp;重启
+                    </Dropdown.Button>
                   </div>
                 </div>
                 <div style={{ clear: "both" }}></div>

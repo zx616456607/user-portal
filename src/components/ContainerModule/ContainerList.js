@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Tooltip, Checkbox, Card, Menu, Dropdown, Button } from 'antd'
+import { Tooltip, Checkbox, Card, Menu, Dropdown, Button, Input } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -216,7 +216,7 @@ class ContainerList extends Component {
                 <i className="fa fa-search"></i>
               </div>
               <div className="littleRight">
-                <input placeholder="输入容器名搜索" />
+                <Input placeholder="输入容器名搜索" />
               </div>
             </div>
             <div className="clearDiv"></div>
