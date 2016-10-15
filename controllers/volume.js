@@ -33,7 +33,7 @@ exports.getVolumeListByPool = function* () {
   const cluster = this.params.cluster
   const appName = this.query.appname
   let response = yield volumeApi.volumes.getBy([pool, cluster, 'list'], {
-    appname
+    appname: appName
   })
   this.status = response.code
   this.body = response

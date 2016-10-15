@@ -483,8 +483,9 @@ class Storage extends Component {
       appName: e.target.value
     })
   }
-  searchByAppName() {
-
+  searchByAppName(e) {
+    console.log(this.state.appName)
+    this.props.loadStorageList(this.props.currentImagePool, this.props.currentCluster, this.state.appName)
   }
   render() {
     const { formatMessage } = this.props.intl
@@ -525,7 +526,7 @@ class Storage extends Component {
                 <i className="fa fa-search"></i>
               </div>
               <div className="littleRight">
-                <input placeholder={formatMessage(messages.inputPlaceholder)} onChange={(e) => this.getSearchAppName(e)} onPressEnter={() => this.searchByAppName()} />
+                <Input placeholder={formatMessage(messages.inputPlaceholder)} onChange={(e) => this.getSearchAppName(e)} onPressEnter={(e) => this.searchByAppName(e)} />
               </div>
             </div>
             <div className="clearDiv"></div>
@@ -569,8 +570,8 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    loadStorageList: (pool, cluster) => {
-      dispatch(loadStorageList(pool, cluster))
+    loadStorageList: (pool, cluster, query) => {
+      dispatch(loadStorageList(pool, cluster, query))
     },
     deleteStorage: (pool, cluster, volumeArray, callback) => {
       dispatch(deleteStorage(pool, cluster, volumeArray, callback))
