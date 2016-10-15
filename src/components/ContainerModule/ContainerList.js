@@ -38,7 +38,8 @@ const MyComponent = React.createClass({
   		return false;
   	}
   },
-  onchange : function(e){
+  onchange : function(e,event){
+  	event.stopPropagation(); 
   	//single item selected function
   	const {scope} = this.props;
   	let oldList = scope.state.selectedList;
@@ -187,7 +188,7 @@ class ContainerList extends Component {
   	}else{
   	  //select some item or nothing,turn the selectedlist to selecet all item
   	  for(let elem of containerList){
-  	    newList.push(elem.id);
+  	    newList.push(elem.metadata.name);
   	  }
   	}
   	this.setState({

@@ -55,7 +55,7 @@ let MyComponent = React.createClass({
     scope : React.PropTypes.object
   },
   showImageDetail:function(id){
-    this function for user select image and show the image detail info
+//  this function for user select image and show the image detail info
 		const scope = this.props.scope;
 		scope.setState({
 			imageDetailModalShow:true,

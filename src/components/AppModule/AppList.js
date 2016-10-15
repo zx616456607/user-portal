@@ -91,7 +91,7 @@ const MyComponent = React.createClass({
 			  </Menu>
 			);
 			return (
-				<div className="appDetail" key={item.name} onClick={this.selectAppDetail.bind(this,item)} >
+				<div className={ item.checked ? "appDetail appDetailSelected" : "appDetail"} key={item.name} onClick={this.selectAppDetail.bind(this,item)} >
 					<div className="selectIconTitle commonData">
 						<Checkbox value={ item.name } checked={ item.checked }  onChange={this.onchange}></Checkbox>
 					</div>

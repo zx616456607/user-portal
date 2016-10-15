@@ -59,7 +59,7 @@ const MyComponent = React.createClass({
 	const items = serviceList.map((item) => {
 		item.cluster = DEFAULT_CLUSTER
 	  return (
-	    <div className="instanceDetail" key={item.metadata.name}>
+	    <div className={ item.checked ? "selectedInstance instanceDetail" : "instanceDetail" } key={item.metadata.name}>
 			<div className="selectIconTitle commonData">
 				<Checkbox value={ item.metadata.name } checked={ item.checked }  onChange={this.onchange}></Checkbox>
 			</div>

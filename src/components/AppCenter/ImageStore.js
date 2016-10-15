@@ -15,6 +15,7 @@ import ScrollAnim from 'rc-scroll-anim';
 import TweenOne from 'rc-tween-one';
 import Animate from 'rc-animate';
 import { connect } from 'react-redux'
+import $ from 'n-zepto'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import "./style/ImageStore.less"
 
@@ -274,7 +275,6 @@ class ImageStore extends Component {
 				});
 			}
 		}
-		console.log(e)
   }
   
   scrollElem(index){
@@ -284,7 +284,6 @@ class ImageStore extends Component {
 //		rootElement[0].srcollTop = offetset;
 		let domElem = this.refs.ImageStoreBox;
 	domElem.animate({scrollTop: offetset}, 500)
-		console.log(domElem)
 //		domElem.srcollTop = offetset;
   }
   
