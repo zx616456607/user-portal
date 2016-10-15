@@ -9,7 +9,7 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
-import { Tooltip, Checkbox, Card, Menu, Dropdown, Button, Icon, Modal, Spin } from 'antd'
+import { Tooltip, Checkbox, Card, Menu, Dropdown, Button, Icon, Modal, Spin,Input } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import './style/AppList.less'
@@ -307,7 +307,7 @@ class AppList extends Component {
                 <i className="fa fa-search"></i>
               </div>
               <div className="littleRight">
-                <input placeholder="输入应用名搜索" />
+                <Input placeholder="输入应用名搜索" />
               </div>
             </div>
             <div className="clearDiv"></div>

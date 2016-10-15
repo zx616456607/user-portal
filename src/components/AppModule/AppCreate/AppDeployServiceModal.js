@@ -521,7 +521,7 @@ const assitBoxTitle = (
   <div className="commonTitle">
     <div className="line"></div>
     <span className="titleSpan">辅助设置</span>
-    <span className="titleIntro">设置重启检查项目，如遇到检查项不满足，为自动保证服务高可用，将自动重启该服务</span>
+    <span className="titleIntro">一些常用的辅助设置：①容器进入点；②启动执行命令；③重新部署所用镜像；④容器时区设置</span>
     <div style={{ clear: "both" }}></div>
   </div>
 );
@@ -537,7 +537,7 @@ const composeBoxTitle = (
   <div className="commonTitle">
     <div className="line"></div>
     <span className="titleSpan">配置管理</span>
-    <span className="titleIntro">满足您同意管理某些服务配置文件的需求，即：不用停止服务，即可变更多个容器内的配置文件</span>
+    <span className="titleIntro">满足您统一管理某些服务配置文件的需求，即：不用停止服务，即可变更多个容器内的配置文件</span>
     <div style={{ clear: "both" }}></div>
   </div>
 );
@@ -545,7 +545,7 @@ const advanceBoxTitle = (
   <div className="commonTitle">
     <div className="line"></div>
     <span className="titleSpan">高级设置</span>
-    <span className="titleIntro">在高级设置里,您可以链接其它已创建服务，环境变量配置，以及容器与主机端口的映射</span>
+    <span className="titleIntro">在高级设置里，您可以链接其它已创建服务，环境变量配置，以及容器与主机端口的映射</span>
     <div style={{ clear: "both" }}></div>
   </div>
 );
