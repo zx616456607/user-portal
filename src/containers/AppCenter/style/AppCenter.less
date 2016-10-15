@@ -1,16 +1,20 @@
 //AppCenter Container 
-#AppCenter{
-    width: 100%;
-    .imageMenu{
-        position: fixed;
-        width: 140px;
-        height: 100%;
-        background-color: #FFFFFF;
-        border-right: 1px solid #E5E5E5;
-    }
-    .imageContent{
-        margin-left: 140px;
-        height: auto;
-        width: calc(~"100% - 140px");
-    }
+#AppCenter {
+	width: 100%;
+	.imageMenu {
+		position: fixed;
+		width: 140px;
+		height: 100%;
+		background-color: #FFFFFF;
+		border-right: 1px solid #E5E5E5;
+		transition: all 0.3s;
+		&:hover {
+			box-shadow: 0px 0px 7px #999999;
+		}
+	}
+	.imageContent {
+		margin-left: 140px;
+		height: auto;
+		width: calc(~"100% - 140px");
+	}
 }

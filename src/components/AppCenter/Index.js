@@ -62,31 +62,6 @@ let MyComponent = React.createClass({
       otherSpaceType: type
     });
   },
-  inputState(current, e) {
-    //this function for user input change the state
-    switch (current) {
-      case "url":
-        this.setState({
-          urlInput: e.target.value
-        });
-        break;
-      case "name":
-        this.setState({
-          nameInput: e.target.value
-        });
-        break;
-      case "email":
-        this.setState({
-          emailInput: e.target.value
-        });
-        break;
-      case "password":
-        this.setState({
-          pwdInput: e.target.value
-        });
-        break;
-    }
-  },
   inputOnFocus(current) {
     //this function for user focus on current input and the title will be add an animate
     switch (current) {
