@@ -71,7 +71,7 @@ class ComposeFile extends Component {
     const {appName, appDescYaml,remark} = this.state
     let appConfig={
       cluster:this.state.cluster,
-      desc:appDescYaml,
+      template :appDescYaml,
       appName:appName,
       remark:remark,
     }
@@ -148,10 +148,10 @@ class ComposeFile extends Component {
 	            <span>描述文件</span>
 	            <div className="textareaBox">
 	              <div className="operaBox">
-	                <i className="fa fa-expand"></i>
-	                <i className="fa fa-star-o"></i>
+	                <i className="fa fa-expand" />
+	                <i className="fa fa-star-o" />
 	              </div>
-	              <textarea value={appDescYaml} onChange={this.handleYaml}></textarea>
+	              <textarea value={appDescYaml} onChange={this.handleYaml} />
 	            </div>
 	            <div style={{ clear:"both" }}></div>
 	          </div>
@@ -161,13 +161,13 @@ class ComposeFile extends Component {
 	          <Dropdown overlay={operaMenu} trigger={['click']}>
 	          <Button size="large" type="ghost">
 	            请选择空间
-	            <i className="fa fa-caret-down"></i>
+	            <i className="fa fa-caret-down" />
 	          </Button>
 	        </Dropdown>
             <Select size="large" defaultValue="请选择集群" style={{ width: 200 }} onChange={this.handleCluster}>
               <Option value="cce1c71ea85a5638b22c15d86c1f61de">test</Option>
               <Option value="cce1c71ea85a5638b22c15d86c1f61df">产品环境</Option>
-              <Option value="e0e6f297f1b3285fb81d27742255cfcf">SUSE</Option>
+              <Option value="e0e6f297f1b3285fb81d27742255cfcf">k8s 1.4</Option>
             </Select>
 	        </div>
 	        <div className="btnBox">

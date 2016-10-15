@@ -55,8 +55,8 @@ export default class AppServiceDetail extends Component {
   }
   
   render() {
-  	const {scope} = this.props;
-  	const instanceInfo = scope.state.currentShowInstance;
+  	const {scope, serviceDetailmodalShow} = this.props;
+  	const service = scope.state.currentShowInstance;
     return (
       <div id="AppServiceDetail">
         <div className="titleBox">
@@ -66,18 +66,18 @@ export default class AppServiceDetail extends Component {
 	      </div>
 	      <div className="infoBox">
 	        <p className="instanceName">
-	          {instanceInfo.name}
+	          {service.metadata.name}
 	        </p>
 	        <div className="leftBox">
 	          <span className="status">
 	            运行状态&nbsp;:&nbsp;
-	            <span className={ instanceInfo.status == "1" ? "normal":"error" }>
-	              { instanceInfo.status == "1" ? "运行中":"异常" }
+	            <span className={ service.status == "1" ? "normal":"error" }>
+	              { service.status == "1" ? "运行中":"异常" }
 	            </span>
 	          </span>
 	          <br />
 	          <span>
-	            地址&nbsp;:&nbsp;{instanceInfo.serviceIP}
+	            地址&nbsp;:&nbsp;{service.serviceIP}
 	          </span>
 	          <br />
 	          <span>
@@ -106,7 +106,9 @@ export default class AppServiceDetail extends Component {
 	            tabPosition="left"
 	            defaultActiveKey="1"
 	          >
-	            <TabPane tab="容器实例" key="1"><ContainerList /></TabPane>
+	            <TabPane tab="容器实例" key="1">
+								<ContainerList serviceName={service.metadata.name} cluster={service.cluster} serviceDetailmodalShow={serviceDetailmodalShow} />
+							</TabPane>
 	            <TabPane tab="基础信息" key="2"><AppServiceDetailInfo /></TabPane>
 	            <TabPane tab="配置组" key="3"><ComposeGroup /></TabPane>
 	            <TabPane tab="绑定域名" key="4"><BindDomain /></TabPane>

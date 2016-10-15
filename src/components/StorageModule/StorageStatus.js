@@ -14,7 +14,7 @@ import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { cloneDeep } from 'lodash'
-import { getUploadFileUlr, uploadFileRequest, uploadFileSuccess, getStorageFileHistory, exportFile } from '../../actions/storage'
+import { getUploadFileUlr, uploadFileRequest, uploadFileSuccess, getStorageFileHistory, exportFile, uploadFileOptions } from '../../actions/storage'
 import './style/storage.less'
 
 const RadioGroup = Radio.Group
@@ -183,7 +183,7 @@ class StorageStatus extends Component {
     }
   }
   exportFile() {
-    this.exportFile(this.props.pool, this.props.cluster, this.props.volumeName)
+    this.props.exportFile(this.props.pool, this.props.cluster, this.props.volumeName)
   }
   render(){
     const {formatMessage} = this.props.intl
@@ -208,7 +208,7 @@ class StorageStatus extends Component {
     }
     return (
       <div className="action-btns" style={{paddingLeft:'30px',paddingTop:'10px'}}>
-        <Button type="primary" onClick={this.showUploadModal} disabled={ !this.state.uploadFile }><Icon type="cloud-upload-o" />上传文件</Button>
+        <Button type="primary" onClick={this.showUploadModal} disabled={ !this.props.uploadFileOptionsState.uploadFile }><Icon type="cloud-upload-o" />上传文件</Button>
         <span className="margin"></span>
         <Button type="ghost" onClick={() => this.exportFile()} disabled={!this.props.exportFileState.exportFile}><Icon type="cloud-download-o" />导出文件</Button>
         <div className="status-box">
@@ -229,7 +229,8 @@ function mapStateToProp(state) {
     upload: state.storage.uploadFile,
     fileHistory: state.storage.storageFileHistory,
     exportFileState: state.storage.exportFile,
-    uploadFileOptionsState: state.storage.uploadFileOptions
+    uploadFileOptionsState: state.storage.uploadFileOptions,
+    beforeUploadState: state.storage.beforeUploadFile
   }
 }
 

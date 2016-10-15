@@ -167,6 +167,11 @@ app.use(function* (next) {
     namespace: "zhangpc",
     token: "jgokzgfitsewtmbpxsbhtggabvrnktepuzohnssqjnsirtot"
   }
+  /*this.session.loginUser = {
+    user: "mengyuan",
+    namespace: "mengyuan",
+    token: "vdarbhiorastaietwkulcssyzvsfmyscauiosusmybpzazde"
+  }*/
   yield next
 })
 

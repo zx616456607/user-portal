@@ -253,9 +253,8 @@ let MyComponent = React.createClass({
 			  <span className={item.isUsed == false ? "normal":"error"} >{item.isUsed == true ? <FormattedMessage {...messages.use} />:<FormattedMessage {...messages.noUse} />}</span>
 			</div>
 			<div className="formet commonData">{item.format}</div>
-			<div className="forin commonData">{item.mountPoint || '无'}</div>
-      <div className="cluster commonData">{item.cluster}</div>
-			<div className="appname commonData">{item.appName}</div>
+			<div className="forin commonData">{item.mountPoint || '无'}</div>     
+			<div className="appname commonData">{item.appName || '无'}</div>
 			<div className="size commonData">{item.totalSize}M</div>
 			<div className="createTime commonData">{item.createTime}</div>
 			<div className="actionBtn">
@@ -479,6 +478,14 @@ class Storage extends Component {
       name: e.target.value
     })
   }
+  getSearchAppName(e) {
+    this.setState({
+      appName: e.target.value
+    })
+  }
+  searchByAppName() {
+    
+  }
   render() {
 		const { formatMessage } = this.props.intl
     return (
@@ -518,7 +525,7 @@ class Storage extends Component {
                 <i className="fa fa-search"></i>
               </div>
               <div className="littleRight">
-                <input placeholder={ formatMessage(messages.inputPlaceholder) } />
+                <input placeholder={ formatMessage(messages.inputPlaceholder) } onChange={ (e) => this.getSearchAppName(e)} onPressEnter = {() => this.searchByAppName()}/>
               </div>
             </div>
             <div className="clearDiv"></div>
@@ -532,7 +539,6 @@ class Storage extends Component {
               <div className="status commonTitle"><FormattedMessage {...messages.status} /></div>
               <div className="formet commonTitle"><FormattedMessage {...messages.formats} /></div>
               <div className="forin commonTitle"><FormattedMessage {...messages.forin} /></div>
-              <div className="cluster commonTitle"><FormattedMessage {...messages.cluster} /></div>
               <div className="appname commonTitle"><FormattedMessage {...messages.app} /></div>
               <div className="size commonTitle"><FormattedMessage {...messages.size} /></div>
               <div className="createTime commonTitle"><FormattedMessage {...messages.createTime} /></div>

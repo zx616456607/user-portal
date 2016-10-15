@@ -58,8 +58,9 @@ export function createStorage(obj, callback) {
 export const STORAGE_DETAIL_REQUEST = 'STORAGE_DETAIL_REQUEST'
 export const STORAGE_DETAIL_SUCCESS = 'STORAGE_DETAIL_SUCCESS'
 export const STORAGE_DETAIL_FAILURE = 'STORAGE_DETAIL_FAILURE'
-
+export const STORAGE_DETAIL_CHANGE = 'STORAGE_DETAIL_CHANGE'
 export function loadStorageInfo(pool, cluster, name) {
+  console.log(`${API_URL_PREFIX}/storage-pools/${pool}/${cluster}/volumes/${name}`)
   return {
     pool,
     [FETCH_API]: {
@@ -70,6 +71,13 @@ export function loadStorageInfo(pool, cluster, name) {
       },
       schema: {}//Schemas.STORAGE
     }
+  }
+}
+
+export function changeStorageDetail(storageInfo) {
+  return {
+    type: STORAGE_DETAIL_CHANGE,
+    storageInfo
   }
 }
 

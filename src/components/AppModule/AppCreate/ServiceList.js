@@ -10,9 +10,9 @@
 import React, { Component, PropTypes } from 'react'
 import { Modal,Checkbox,Button,Card, Menu } from 'antd'
 import { Link } from 'react-router'
-import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import AppAddServiceModal from './AppAddServiceModal'
+import AppDeployServiceModal from './AppDeployServiceModal'
 import "./style/ServiceList.less"
 
 class MyComponent extends Component {
@@ -21,7 +21,7 @@ class MyComponent extends Component {
     this.deleteService = this.deleteService.bind(this)
     this.checkService = this.checkService.bind(this)
     this.state = {
-      
+      serviceModalShow:false
     }
   }
   checkedFunc (e) {
@@ -68,11 +68,14 @@ class MyComponent extends Component {
     localStorage.setItem('servicesList',JSON.stringify(newList))
     localStorage.setItem('selectedList',JSON.stringify(newSeleList))
 	}
-	checkService(name){
+	checkService(name,inf){
 	  console.log(name);
-    console.log(this);
-    console.log(this.props.scope.props.scope.state);
-    
+    this.props.scope.setState({
+      serviceModalShow:true,
+      checkInf:inf,
+      checkState:'修改'
+    })
+    console.log('inf',inf);
   }
   render () {
 	var config = this.props.scope.state.servicesList;
@@ -94,13 +97,13 @@ class MyComponent extends Component {
 			{item.resource}
 		  </div>
 		  <div className="opera commonData">
-			<Button className="viewBtn" type="ghost" size="large" onClick={() => this.checkService(item.name)}>
-			  <i className="fa fa-eye"></i>&nbsp;
-			   查看
+			<Button className="viewBtn" type="ghost" size="large" onClick={() => this.checkService(item.name,item.inf)}>
+			  <i className="fa fa-eye" />&nbsp;
+        查看
 			</Button>
 			<Button type="ghost" size="large" onClick={() => this.deleteService(item.name)}>
-			  <i className="fa fa-trash"></i>&nbsp;
-	           删除
+			  <i className="fa fa-trash" />&nbsp;
+        删除
 			</Button>
 		  </div>
 	      <div style={{clear:"both"}}></div>
@@ -125,21 +128,24 @@ export default class ServiceList extends Component {
     this.subServicesList = this.subServicesList.bind(this);
     this.delServicesList = this.delServicesList.bind(this);
     this.state = {
-      modalShow:false,
-      selectedList:[],
-      servicesList:[]
+      modalShow: false,
+      selectedList: [],
+      servicesList: [],
+      serviceModalShow: false,
+      currentSelectedImage: null,
+      registryServer: null,
+      checkState: '创建',
+      checkInf: null,
     }
   }
   
   closeModal(){
-  	//the function for close the create service modal
     this.setState({
   	  modalShow:false  
   	});
   }
   
   openModal(){
-  	//the function for open the create service modal
     this.setState({
   	  modalShow:true
   	});
@@ -157,10 +163,8 @@ export default class ServiceList extends Component {
   	//select title checkbox 
     let newList = new Array();
   	if(this.state.selectedList.length == this.state.servicesList.length){
-  	  //had select all item,turn the selectedlist to null
       newList = [];
   	}else{
-  	  //select some item or nothing,turn the selectedlist to selecet all item
   	  for(let elem of this.state.servicesList){
   	    newList.push(elem.id);
   	  }
@@ -178,7 +182,6 @@ export default class ServiceList extends Component {
     localStorage.removeItem('selectedList');
   }
   componentWillMount() {
-    //this.setState({servicesList:[]})
     const serviceList = JSON.parse(localStorage.getItem('servicesList'))
     if(serviceList){
       this.setState({
@@ -203,11 +206,11 @@ export default class ServiceList extends Component {
 	    <div className="ServiceList" key="ServiceList">
 	      <div className="operaBox">
 	        <Button type="primary" size="large" onClick={this.openModal}>
-	          <i className="fa fa-plus"></i>&nbsp;
+	          <i className="fa fa-plus" />&nbsp;
 	             添加服务
 	        </Button>
 	        <Button size="large" type="ghost">
-	          <i className="fa fa-trash"></i>&nbsp;
+	          <i className="fa fa-trash" />&nbsp;
 	            删除
 	        </Button>
 	      </div>
@@ -249,9 +252,16 @@ export default class ServiceList extends Component {
           className="AppAddServiceModal"
           onCancel={this.closeModal}
           >
-		    <AppAddServiceModal scope={parentScope} servicesList = {this.state.servicesList} />
-          </Modal>
-	    </div>  
+		      <AppAddServiceModal scope={parentScope} />
+        </Modal>
+        <Modal
+          visible={this.state.serviceModalShow}
+          className="AppServiceDetail"
+          transitionName="move-right"
+        >
+          <AppDeployServiceModal scope={parentScope} servicesList={servicesList} checkInf={this.state.checkInf} serviceOpen={this.state.serviceModalShow} />
+        </Modal>
+	    </div>
         </QueueAnim>
     )
   }

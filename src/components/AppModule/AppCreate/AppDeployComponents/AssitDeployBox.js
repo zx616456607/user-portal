@@ -34,6 +34,7 @@ class AssitDeployBox extends Component {
   	parentScope.setState({
   		runningCode:e.target.value
   	});
+    console.log('runningCode',this.props.form.getFieldsValue());
   }
   
   changeGetImageType(e){
@@ -63,22 +64,33 @@ class AssitDeployBox extends Component {
 	    		<div>
 					  <div className="inputBox">
 			      	<span className="commonSpan">进入点</span>
-				      <Input className="entryInput" size="large" placeholder="找啊找啊在哪里进入啊~" />
+				      <Input className="entryInput"
+										 size="large"
+										 placeholder="找啊找啊在哪里进入啊~"
+                     {...getFieldProps('entryInput')}
+              />
 				      <div style={{ clear:"both" }}></div>
 			      </div>
 			      <div className="inputBox">
 			        <span className="commonSpan">执行命令</span>
 			        <div className="selectBox">
-			        	<RadioGroup onChange={this.changeRunningCode} value={parentScope.state.runningCode}>
-						      <Radio key="a" value={"1"}>镜像默认</Radio>
-						      <Radio key="b" value={"2"}>自定义</Radio>
-						    </RadioGroup><br />
+                <FormItem>
+                  <RadioGroup
+                    onChange={this.changeRunningCode}
+                    {...getFieldProps('runningCode',{
+                     initialValue: '1'
+                    })}
+                  >
+                    <Radio key="a" value={"1"}>镜像默认</Radio>
+                    <Radio key="b" value={"2"}>自定义</Radio>
+                  </RadioGroup>
+                </FormItem>
+                <br />
 						    <FormItem className="runningCodeForm"  hasFeedback>
-						    	<Input {...getFieldProps('args', {
-                    rules: [
-                      { required: true, message: '请输入自定义执行命令' },
-                    ],
-                  })} className="entryInput" size="large" disabled={parentScope.state.runningCode == "1" ? true:false} />
+						    	<Input
+                    {...getFieldProps('args', {})}
+                     className="entryInput" size="large"
+                     disabled={parentScope.state.runningCode == "1" ? true:false} />
 			          </FormItem>
 			        </div>
 			        <div style={{ clear:"both" }}></div>

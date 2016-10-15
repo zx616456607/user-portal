@@ -27,7 +27,7 @@ function storageList(state = {}, action) {
         [pool]: { isFetching: true }
       })
     case ActionTypes.STORAGE_LIST_SUCCESS: 
-      return Object.assign({}, defaultState, state, {
+      return Object.assign({}, defaultState,{
         [pool]: {
           isFetching: false,
           storageList: action.response.result.body,
@@ -111,18 +111,20 @@ function resizeStorage(state = {}, action) {
 function storageDetail(state = {}, action) {
   switch (action.type) {
     case ActionTypes.STORAGE_DETAIL_REQUEST:
-      return merge({}, state, {
+      return merge({}, {
         isFetching: true
       })
     case ActionTypes.STORAGE_DETAIL_SUCCESS:
-      return merge({}, state, {
+      return merge({}, {
         isFetching: false,
         StorageInfo: action.response.result.body
       })
     case ActionTypes.STORAGE_DETAIL_FAILURE:
-      return merge({}, state, {
+      return merge({}, {
         isFetching: false
       })
+    case ActionTypes.STORAGE_DETAIL_CHANGE:
+      return merge({}, state, { StorageInfo: action.storageInfo })
     default:
       return state
   }
@@ -166,11 +168,11 @@ function getStorageFileHistory(state = {}, action) {
   }
   switch(action.type) {
     case ActionTypes.STORAGE_FILEHISTORY_REQUEST: 
-      return _.merge({}, defaultState, state, { isFetching: true} )
+      return _.merge({}, defaultState, { isFetching: true} )
     case ActionTypes.STORAGE_FILEHISTORY_SUCCESS:
-      return Object.assign({}, state, { history :action.response.result.body }, { isFetching: false })
+      return Object.assign({}, { history :action.response.result.body }, { isFetching: false })
     case ActionTypes.STORAGE_FILEHISTORY_FAILURE: 
-      return _.merge({}, defaultState, state, {isFetching: false})
+      return _.merge({}, defaultState, {isFetching: false})
     case ActionTypes.STORAGE_MERGE_UPLOADINGFILE:
       const customState = _.cloneDeep(state)
       var index = -1
@@ -232,7 +234,7 @@ function changeUploadFileOptions(state = {}, action) {
       return action.options
     }
     default: {
-      return _.merge(defaultState, state)
+      return Object.assign({}, defaultState, state)
     }
   }
 }

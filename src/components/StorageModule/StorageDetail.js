@@ -122,7 +122,7 @@ class StorageDetail extends Component {
                   <StorageStatus key="StorageStatus" volumeName={ StorageInfo.volumeName } pool={ StorageInfo.imagePool  } cluster = {StorageInfo.cluster}/>
                 </TabPane>
                 <TabPane tab={<FormattedMessage {...messages.bindContainer} />} key="2" >
-                  <StorageBind pool={StorageInfo.imagePool} cluster={StorageInfo.cluster} volumeName={ StorageInfo.volumeName} />
+                  <StorageBind pool={StorageInfo.imagePool} cluster={StorageInfo.cluster} volumeName={ StorageInfo.volumeName } />
                 </TabPane>
               </Tabs>
             </Card>

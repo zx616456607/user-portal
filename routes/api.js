@@ -43,7 +43,6 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/apps/batch-status', appController.getAppsStatus)
   router.get('/clusters/:cluster/apps/:app_name/services', appController.getAppServices)
   router.post('/clusters/:cluster/apps/:app_name/services', appController.addService)
-  router.post('/clusters/:cluster/apps/:app_name/services/batch-delete', appController.deleteServices)
   router.get('/clusters/:cluster/apps/:app_name/orchfile', appController.getAppOrchfile)
   router.get('/clusters/:cluster/apps/:app_name/detail', appController.getAppDetail)
   // spi
@@ -53,6 +52,7 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/services/batch-start', serviceController.startServices)
   router.put('/clusters/:cluster/services/batch-stop', serviceController.stopServices)
   router.put('/clusters/:cluster/services/batch-restart', serviceController.restartServices)
+  router.post('/clusters/:cluster/services/batch-delete', serviceController.deleteServices)
   router.get('/clusters/:cluster/services/batch-status', serviceController.getServicesStatus)
   router.get('/clusters/:cluster/services/:service_name/detail', serviceController.getServiceDetail)
   router.get('/clusters/:cluster/services/:service_name/containers', serviceController.getServiceContainers)
@@ -69,7 +69,7 @@ module.exports = function (Router) {
   
   // Configs
   router.get('/clusters/:cluster/configgroups',configController.getConfigGroup)
-  // router.get('/clusters/:cluster/configgroups/:name',configController.getConfigGroupName)
+  //router.get('/clusters/:cluster/configgroups/:name',configController.getConfigGroupName)
   router.post('/clusters/:cluster/configs',configController.createConfigGroup)
   router.post('/clusters/:cluster/configs/delete',configController.deleteConfigGroup)
 

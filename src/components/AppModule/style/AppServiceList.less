@@ -36,10 +36,12 @@
   	.createTime{
   		width: 16.6%;
   	}
-  	.status,
+  	.status{
+  		width: 10%;
+  	}
   	.image,
   	.actionBox{
-  		width: 15%;
+  		width: 17.5%;
   	}
   }
   .dataBox{
@@ -59,16 +61,29 @@
   	.service,
   	.createTime{
   		width: 16.6%;
+  		white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
   	}
-  	.status,
+  	.status{
+  		width: 10%;
+  	}
   	.image,
   	.actionBox{
-  		width: 15%;
+  		width: 17.5%;
+  		white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
   	}
   	.instanceDetail{
   		height: 51px;
   		line-height: 50px;
   		border-bottom: 1px solid #E5E5E5;
+  		button{
+  			color: #fff !important;
+		    background-color: #2db7f5 !important;
+		    border-color: #2db7f5 !important;
+  		}
   	}
   }
 }

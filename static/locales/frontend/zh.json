@@ -124,5 +124,17 @@
   "AppCenter.ComposeCenter.PublicCompose.tooltipsFirst": "目前时速云支持两种类型的服务编排服务：",
   "AppCenter.ComposeCenter.PublicCompose.tooltipsSecond": "[1] Pod 编排，适用于紧耦合的服务组，保证一组服务始终部署在同一节点，并可以共享网络空间和存储卷",
   "AppCenter.ComposeCenter.PublicCompose.tooltipsThird": "[2] Stack 编排，设计上与 Docker Compose 相似，但可以支持跨物理节点的服务之间通过 API 进行网络通信 ",
-  "AppCenter.ComposeCenter.PublicCompose.tooltipsForth": "* 以上两种编排均支持用 yaml 文件描述多个容器及其之间的关系，定制各个容器的属性，并可一键部署运行"
+  "AppCenter.ComposeCenter.PublicCompose.tooltipsForth": "* 以上两种编排均支持用 yaml 文件描述多个容器及其之间的关系，定制各个容器的属性，并可一键部署运行",
+  
+  "AppCenter.ImageCenter.ImageDetail.type":"类型：",
+  "AppCenter.ImageCenter.ImageDetail.pubilicType":"公开",
+  "AppCenter.ImageCenter.ImageDetail.privateType":"私有",
+  "AppCenter.ImageCenter.ImageDetail.colletctImage":"收藏镜像",
+  "AppCenter.ImageCenter.ImageDetail.deployService":"部署镜像",
+  "AppCenter.ImageCenter.ImageDetail.downloadImage":"下载镜像",
+  "AppCenter.ImageCenter.ImageDetail.info":"基本信息",
+  "AppCenter.ImageCenter.ImageDetail.tag":"版本及接口",
+  "AppCenter.ImageCenter.ImageDetail.attribute":"属性",
+  "AppCenter.ImageCenter.ImageDetail.copyBtn":"点击复制",
+  "AppCenter.ImageCenter.ImageDetail.copySuccess":"复制成功"
 }

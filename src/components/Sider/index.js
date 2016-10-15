@@ -12,7 +12,7 @@ import { Card, message, Button,Tooltip,Popover,Icon, Menu, Modal,Radio ,Upload  
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import "./style/sider.less"
-import { beforeUploadFile, uploading, mergeUploadingIntoList, getUploadFileUlr, uploadFileOptions } from '../../actions/storage'
+import { beforeUploadFile, uploading, mergeUploadingIntoList, getUploadFileUlr, uploadFileOptions, getVolumeBindInfo, changeStorageDetail } from '../../actions/storage'
 import { cloneDeep } from 'lodash'
 
 const SubMenu = Menu.SubMenu
@@ -58,6 +58,14 @@ class Slider extends Component {
 				backupId: self.props.beforeUploadState.backupId
 			},
 			beforeUpload: (file) => {
+				console.log(file)
+				const fileSize = file.size
+				console.log((fileSize/1024/1024).toFixed(2))
+				console.log(self.props.storageDetail.StorageInfo.size - self.props.storageDetail.StorageInfo.consumption)
+				if((fileSize/1024/1024).toFixed(2) > (self.props.storageDetail.StorageInfo.size - self.props.storageDetail.StorageInfo.consumption)) {
+					message.error('超出存储卷可用大小')
+					return false
+				}
 				self.props.uploading(0)
 				file.isUnzip = self.state.isUnzip
 				return new Promise(function (resolve, reject) {
@@ -70,6 +78,7 @@ class Slider extends Component {
 								currentOptions.uploadFile = false
 								currentOptions.visible = false
 								currentOptions.uploadFileStatus = 'active',
+								currentOptions.fileSize = file.size
 								self.props.changeUploadFileOptions(currentOptions)
 								resolve(true)
 							}
@@ -88,14 +97,17 @@ class Slider extends Component {
 					self.props.mergeUploadingIntoList(fileInfo)
 					self.props.uploading(100)
 					const currentOptions = cloneDeep(self.props.uploadFileOptions)
-					currentOptions.uploadFile = false
+					currentOptions.uploadFile = true
 					currentOptions.uploadFileStatus = 'success'
 					self.props.changeUploadFileOptions(currentOptions)
 					message.success('文件上传成功')
+					const storageInfo = cloneDeep(self.props.storageDetail.StorageInfo)
+					storageInfo.consumption = parseFloat(storageInfo.consumption) + parseFloat((currentOptions.fileSize/1024/1024).toFixed(2))
+					self.props.changeStorageDetail(storageInfo)
 				} else if (info.file.status === 'error') {
 					// self.props.uploading(100)
 					const currentOptions = cloneDeep(self.props.uploadFileOptions)
-					currentOptions.uploadFile = false
+					currentOptions.uploadFile = true
 					currentOptions.uploadFileStatus = 'exception'
 					self.props.changeUploadFileOptions(currentOptions)
 					const fileInfo = cloneDeep(self.props.beforeUploadState)
@@ -262,7 +274,8 @@ function checkCurrentPath(pathname){
 function mapStateToProp(state) {
 	return {
 		uploadFileOptions: state.storage.uploadFileOptions,
-		beforeUploadState: state.storage.beforeUploadFile
+		beforeUploadState: state.storage.beforeUploadFile,
+		storageDetail: state.storage.storageDetail
 	}
 }
 
@@ -270,5 +283,7 @@ export default connect(mapStateToProp, {
 	beforeUploadFile, 
 	uploading, 
 	mergeUploadingIntoList,
-	changeUploadFileOptions: uploadFileOptions
+	changeUploadFileOptions: uploadFileOptions,
+	getVolumeBindInfo,
+	changeStorageDetail
 })(Slider)
