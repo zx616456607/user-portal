@@ -16,7 +16,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { loadPublicImageList } from '../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import "./style/PublicSpace.less"
-import ImageDetailBox from './ImageDetail/Index.js'
+import ImageDetailBox from './ImageDetail/Index.js' 
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -55,12 +55,12 @@ let MyComponent = React.createClass({
     scope : React.PropTypes.object
   },
   showImageDetail:function(id){
-  	//this function for user select image and show the image detail info
-//		const scope = this.props.scope;
-//		scope.setState({
-//			imageDetailModalShow:true,
-//			currentImage:id
-//		});
+    this function for user select image and show the image detail info
+		const scope = this.props.scope;
+		scope.setState({
+			imageDetailModalShow:true,
+			currentImage:id
+		});
   },
   render : function() {
   	const { loading } = this.props;

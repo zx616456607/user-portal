@@ -138,7 +138,7 @@ const MyComponent = React.createClass({
 				  <svg className="terminal">
 	          <use xlinkHref="#terminal" />
 	        </svg>
-		      终端
+		      <span style={{ marginLeft:"20px" }}>终端</span>
 				</Dropdown.Button>
 			</div>
 			<div style={{clear:"both",width:"0"}}></div>

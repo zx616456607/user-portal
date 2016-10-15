@@ -198,7 +198,7 @@ let MyComponent = React.createClass({
 		let config = this.props.config;
 		let items = config.map((item,index) => {
 		  return (
-		    <div className={"moduleDetail store"+index} key={item + "" + index} >
+		    <div className={"moduleDetail store"+index} key={item + "" + index}>
 		    	<div className="bigTitle">
 		    		{item.title}
 		    	</div>
@@ -274,13 +274,18 @@ class ImageStore extends Component {
 				});
 			}
 		}
+		console.log(e)
   }
   
   scrollElem(index){
-  	let moduleList = document.getElementsByClassName("moduleDetail");
-  	let rootElement = document.getElementsByClassName("ImageStoreBox");
-  	let offetset = moduleList[index].offsetTop;
-		rootElement[0].srcollTop = offetset;
+	let moduleList = document.getElementsByClassName("moduleDetail");
+	let rootElement = document.getElementsByClassName("ImageStoreBox");
+	let offetset = moduleList[index].offsetTop;
+//		rootElement[0].srcollTop = offetset;
+		let domElem = this.refs.ImageStoreBox;
+	domElem.animate({scrollTop: offetset}, 500)
+		console.log(domElem)
+//		domElem.srcollTop = offetset;
   }
   
   render() {
@@ -291,6 +296,7 @@ class ImageStore extends Component {
       <QueueAnim className="ImageStoreBox"
       	type="right"
       	onScroll={this.windowScroll.bind(this)}
+      	ref="ImageStoreBox"
       >	
       	<div className="nav">
 					<div className={ current == "1" ? "currentNav navItem":"navItem"} onClick={this.scrollElem.bind(this,0)}>
