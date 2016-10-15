@@ -21,3 +21,7 @@ dist
 logs
 .vscode/
 *.log
+static/js/common.js
+static/js/main.js
+static/locales/frontend/*.js
+static/style/main.css
