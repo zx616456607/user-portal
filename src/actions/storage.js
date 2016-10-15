@@ -15,22 +15,22 @@ export const STORAGE_LIST_REQUEST = 'STORAGE_LIST_REQUEST'
 export const STORAGE_LIST_SUCCESS = 'STORAGE_LIST_SUCCESS' 
 export const STORAGE_LIST_FAILURE = 'STORAGE_LIST_FAILURE' 
 
-export function fetchStorageList(pool, cluster, callback) {
+export function fetchStorageList(pool, cluster, query, callback) {
   return {
     pool,
     [FETCH_API]: {
       types: [STORAGE_LIST_REQUEST, STORAGE_LIST_SUCCESS, STORAGE_LIST_FAILURE],
-      endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/${cluster}/volumes`,
+      endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/${cluster}/volumes?appname=${query}`,
       schema: {}//Schemas.STORAGE
     },
     callback: callback
   }
 }
 
-export function loadStorageList(pool, cluster) {
+export function loadStorageList(pool, cluster, query) {
   return (dispath, getState) => {
     const state = getState().storage.storageList
-    dispath(fetchStorageList(pool, cluster))
+    dispath(fetchStorageList(pool, cluster, query))
   }
 }
 
