@@ -42,7 +42,8 @@ class CollapseList extends Component {
 
   render() {
     const {groupData, configName} = this.props
-    if (!groupData) return (<div>还没有创建过配置项</div>)
+    console.log('group',this.props)
+    if (groupData.length ===0) return (<div style={{lineHeight:'50px'}}>还没有创建过配置项</div>)
     let groups = groupData.map((group) => {
       return (
         <Panel handChageProp={this.props.handChageProp} header={<CollapseHeader btnDeleteGroup={this.props.btnDeleteGroup} handChageProp={this.props.handChageProp} collapseHeader={group} />} key={group.native.metadata.name} >
@@ -93,10 +94,9 @@ class Service extends Component {
       myTextInput: e.target.value
     })
   }
-  btnCreateConfigGroup(e) {
+  btnCreateConfigGroup() {
     // this.setState({ createConfigGroup });
-    // let groupName =this.state.myTextInput
-    let groupName = e.target.value
+    let groupName =this.state.myTextInput
     if (!groupName) {
       message.error('请输入配置组名称')
       return
@@ -117,21 +117,17 @@ class Service extends Component {
           self.props.loadConfigGroup()
         },
         isAsync: true
-      },
+      }
     })
 
   }
-  btnDeleteGroup(group) {
+  btnDeleteGroup() {
     // console.log('props',this.props)
-    let configArray
-    if (!group){
-      configArray = this.state.configArray
-      if (configArray.length <= 0) {
-        message.error('未选择要操作配置组')
-        return;
-      }
-    } else {
-      configArray = group
+    let configArray = this.state.configArray
+    let cluster = this.props.cluster
+    if (configArray.length <= 0) {
+      message.error('未选择要操作配置组')
+      return;
     }
     const self = this
     let configData = {
@@ -146,11 +142,11 @@ class Service extends Component {
           success: {
             func: () => {
               message.success('删除成功')
-              self.props.loadConfigGroup()
             },
             isAsync: true
           }
         })
+        setTimeout(self.props.loadConfigGroup(),1000)
       }
     })
   }

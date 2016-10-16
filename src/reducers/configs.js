@@ -70,7 +70,6 @@ function loadConfigName(state = {}, action) {
 
 //  get config group name
 function configGroupName(state = {}, action) {
-  console.log('actin is ……………………………………………………',action)
   const cluster = action.cluster
   switch (action.type) {
     case ActionTypes.GET_CONFIG_FILES_REQUEST:
