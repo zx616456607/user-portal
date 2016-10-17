@@ -14,7 +14,7 @@ import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import AppServiceDetail from './AppServiceDetail'
 import './style/AppServiceList.less'
-import { loadServiceList, startServices, restartServices, stopServices, deleteServices } from '../../actions/app_manage'
+import { loadServiceList, startServices, restartServices, stopServices, deleteServices } from '../../actions/services'
 import { DEFAULT_CLUSTER } from '../../constants'
 
 const SubMenu = Menu.SubMenu

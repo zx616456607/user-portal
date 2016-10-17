@@ -8,7 +8,7 @@
  * @author Zhangpc
  */
 
-import * as ActionTypes from '../actions/app_manage'
+import * as ActionTypes from '../actions/services'
 import merge from 'lodash/merge'
 import union from 'lodash/union'
 import reducerFactory from './factory'

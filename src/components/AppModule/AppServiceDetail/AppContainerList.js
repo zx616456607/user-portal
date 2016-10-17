@@ -13,7 +13,7 @@ import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import './style/AppContainerList.less'
-import { loadServiceContainerList } from '../../../actions/app_manage'
+import { loadServiceContainerList } from '../../../actions/services'
 
 const testData = []
 

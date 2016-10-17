@@ -20,7 +20,7 @@ import PortDetail from './PortDetail'
 import AppUseful from './AppUseful'
 import AppServiceLog from './AppServiceLog'
 import AppServiceEvent from './AppServiceEvent'
-import { loadServiceDetail } from '../../../actions/app_manage'
+import { loadServiceDetail } from '../../../actions/services'
 import './style/AppServiceDetail.less'
 
 const TabPane = Tabs.TabPane;
