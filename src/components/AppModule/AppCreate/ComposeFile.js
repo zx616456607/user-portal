@@ -23,16 +23,16 @@ const Option = Select.Option;
 const operaMenu = (<Menu>
   <Menu.Item key="0">
     重新部署
-					  </Menu.Item>
+            </Menu.Item>
   <Menu.Item key="1">
     弹性伸缩
-					  </Menu.Item>
+            </Menu.Item>
   <Menu.Item key="2">
     灰度升级
-					  </Menu.Item>
+            </Menu.Item>
   <Menu.Item key="3">
     更改配置
-					  </Menu.Item>
+            </Menu.Item>
 </Menu>);
 
 class ComposeFile extends Component {
@@ -141,7 +141,7 @@ class ComposeFile extends Component {
               <span>tenxcloud.yaml</span>
               <Button size="large" type="primary">
                 选择编排
-	            </Button>
+              </Button>
               <div style={{ clear: "both" }}></div>
             </div>
             <div className="bottomBox">
@@ -161,7 +161,7 @@ class ComposeFile extends Component {
             <Dropdown overlay={operaMenu} trigger={['click']}>
               <Button size="large" type="ghost">
                 请选择空间
-	            <i className="fa fa-caret-down" />
+              <i className="fa fa-caret-down" />
               </Button>
             </Dropdown>
             <Select size="large" defaultValue="请选择集群" style={{ width: 200 }} onChange={this.handleCluster}>
@@ -174,11 +174,11 @@ class ComposeFile extends Component {
             <Link to={`${backUrl}`}>
               <Button size="large" type="primary" className="lastBtn">
                 上一步
-	            </Button>
+              </Button>
             </Link>
             <Button size="large" type="primary" className="createBtn" onClick={this.subApp}>
               创建
-	            </Button>
+              </Button>
           </div>
         </div>
       </QueueAnim>

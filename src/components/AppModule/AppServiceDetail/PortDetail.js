@@ -69,19 +69,19 @@ export default class PortDetail extends Component {
         <div className="titleBox">
           <div className="commonTitle">
             名称
-      		</div>
+          </div>
           <div className="commonTitle">
             容器端口
-      		</div>
+          </div>
           <div className="commonTitle">
             协议
-      		</div>
+          </div>
           <div className="commonTitle">
             映射端口
-      		</div>
+          </div>
           <div className="serviceUrl commonTitle">
             服务地址
-      		</div>
+          </div>
           <div style={{ clear: "both" }}></div>
         </div>
         <MyComponent config={testData} />

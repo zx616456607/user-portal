@@ -115,13 +115,13 @@ export default class AppUseful extends Component {
                   </div>
                   <div className="commonInput">
                     <Input type="text" disabled={this.state.editFlag} />&nbsp;&nbsp;s
-		      			</div>
+                </div>
                   <div className="commonInput">
                     <Input type="text" disabled={this.state.editFlag} />&nbsp;&nbsp;s
-		      			</div>
+                </div>
                   <div className="commonInput">
                     <Input type="text" disabled={this.state.editFlag} />&nbsp;&nbsp;s
-		      			</div>
+                </div>
                   <div style={{ clear: "both" }}></div>
                 </div>
                 <div className="title">
@@ -162,13 +162,13 @@ export default class AppUseful extends Component {
                   </div>
                   <div className="commonInput">
                     <Input type="text" disabled={this.state.editFlag} />&nbsp;&nbsp;s
-		      			</div>
+                </div>
                   <div className="commonInput">
                     <Input type="text" disabled={this.state.editFlag} />&nbsp;&nbsp;s
-		      			</div>
+                </div>
                   <div className="commonInput">
                     <Input type="text" disabled={this.state.editFlag} />&nbsp;&nbsp;s
-		      			</div>
+                </div>
                   <div style={{ clear: "both" }}></div>
                 </div>
               </div>
@@ -178,10 +178,10 @@ export default class AppUseful extends Component {
             <div className="btnBox">
               <Button size="large" type="ghost" onClick={this.cancelSet}>
                 取消
-	     			</Button>
+             </Button>
               <Button size="large" type="primary" onClick={this.confirmSet}>
                 确认
-	     			</Button>
+             </Button>
             </div>
           ] : null}
         </div>

@@ -496,7 +496,7 @@ class AppDeployServiceModal extends Component {
           <div className="btnBox">
             <Button className="cancelBtn" size="large" type="ghost" onClick={this.closeModal}>
               取消
-      		</Button>
+          </Button>
             <Button className="createBtn" size="large" type="primary"
               onClick={(e) => this.handleSubBtn(e, parentScope)}
               servicesList={servicesList}>
