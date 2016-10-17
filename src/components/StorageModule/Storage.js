@@ -483,8 +483,8 @@ class Storage extends Component {
       appName: e.target.value
     })
   }
-  searchByAppName() {
-
+  searchByAppName(e) {
+    this.props.loadStorageList(this.props.currentImagePool, this.props.currentCluster, this.state.appName)
   }
   render() {
     const { formatMessage } = this.props.intl
@@ -569,8 +569,8 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    loadStorageList: (pool, cluster) => {
-      dispatch(loadStorageList(pool, cluster))
+    loadStorageList: (pool, cluster, query) => {
+      dispatch(loadStorageList(pool, cluster, query))
     },
     deleteStorage: (pool, cluster, volumeArray, callback) => {
       dispatch(deleteStorage(pool, cluster, volumeArray, callback))

@@ -18,7 +18,9 @@ export default class AppServiceLog extends Component {
   constructor(props) {
     super(props);
   }
-
+  componentWillMount() {
+    
+  }
   render() {
     return (
       <div id="AppServiceLog">
