@@ -24,7 +24,7 @@ function loadData(props) {
 
 let MyComponent = React.createClass({
   propTypes: {
-    config: React.PropTypes.array
+    config: React.PropTypes.object
   },
   onchange: function() {
 
@@ -32,8 +32,9 @@ let MyComponent = React.createClass({
   render: function() {
     let { config, isFetching } = this.props;
     if(!!config) {
-      return( <div className = "noData" >
-        No Data 
+      return( 
+        <div className = "noData" >
+          No Data 
         </div>
       )
     }
@@ -102,7 +103,7 @@ class ContainerLog extends Component {
 ContainerLog.propTypes = {
   // Injected by React Redux
   cluster: PropTypes.string.isRequired,
-  eventList: PropTypes.array.isRequired,
+  eventList: PropTypes.object.isRequired,
   isFetching: PropTypes.bool.isRequired,
   loadContainerDetailEvents: PropTypes.func.isRequired
 }

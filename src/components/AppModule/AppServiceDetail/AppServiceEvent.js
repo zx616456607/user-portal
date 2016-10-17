@@ -24,11 +24,8 @@ function loadData(props) {
 
 var MyComponent = React.createClass({
   propTypes: {
-    config: React.PropTypes.object,
-    isFetching: React.PropTypes.boolean,
-  },
-  onchange: function () {
-
+    config: React.PropTypes.array,
+    isFetching: React.PropTypes.bool,
   },
   render: function () {
     const { isFetching, config } = this.props;
@@ -39,7 +36,7 @@ var MyComponent = React.createClass({
         </div>
       )
     }
-    if( config.events.length == 0 ) {
+    if( config.length == 0 || !!config ) {
       return (
         <div className='loadingBox'>
           No Data
@@ -90,7 +87,7 @@ class AppServiceEvent extends Component {
     const { isFetching, eventList } = this.props;
     return (
       <Card id='AppServiceEvent'>
-        <MyComponent isFetching={ isFetching } config={ eventList } />
+        <MyComponent isFetching={ isFetching } config={ eventList.events } />
       </Card>
     )
   }
@@ -98,7 +95,7 @@ class AppServiceEvent extends Component {
 
 AppServiceEvent.propTypes = {
   // Injected by React Redux
-  eventList: PropTypes.array.isRequired,
+  eventList: PropTypes.object.isRequired,
   isFetching: PropTypes.bool.isRequired,
   loadServiceDetailEvents: PropTypes.func.isRequired
 }
