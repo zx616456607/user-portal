@@ -195,7 +195,7 @@ function containerDetailEvents(state = {}, action) {
       return Object.assign({}, state, {
         [cluster]: {
           isFetching: false,
-          eventList: action.response.result.data
+          eventList: action.response.result.data.events
         }
       })
     case ActionTypes.CONTAINER_DETAIL_EVENTS_FAILURE:
