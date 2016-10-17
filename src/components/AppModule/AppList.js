@@ -18,6 +18,7 @@ import { DEFAULT_CLUSTER } from '../../constants'
 import { tenxDateFormat } from '../../common/tools.js'
 
 const confirm = Modal.confirm
+const ButtonGroup = Button.Group
 
 const MyComponent = React.createClass({
   propTypes: {
@@ -54,6 +55,16 @@ const MyComponent = React.createClass({
       appList
     });
   },
+  handleDropdown: function (e) {
+    e.stopPropagation()
+  },
+  stopApp: function (e, name) {
+    const { confirmStopApps } = this.props.funcs
+    const app = {
+      name
+    }
+    confirmStopApps([app])
+  },
   render: function () {
     const { config, loading } = this.props
     if (loading) {
@@ -77,7 +88,7 @@ const MyComponent = React.createClass({
           style={{ width: "100px" }}
           >
           <Menu.Item key="1">
-            停止容器
+            <span onClick={(e) => this.stopApp(e, item.name)}>停止</span>
           </Menu.Item>
           <Menu.Item key="2">
             删除
@@ -127,9 +138,16 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className="actionBox commonData">
-            <Dropdown.Button overlay={dropdown} type="ghost">
-              重新部署
-            </Dropdown.Button>
+            <ButtonGroup>
+              <Button type="ghost" onClick={(e) => this.handleDropdown(e)}>
+                重新部署
+              </Button>
+              <Dropdown overlay={dropdown}>
+                <Button type="ghost" onClick={(e) => this.handleDropdown(e, false)}>
+                  <Icon type="down" />
+                </Button>
+              </Dropdown>
+            </ButtonGroup>
           </div>
           <div style={{ clear: "both", width: "0" }}></div>
         </div>
@@ -143,13 +161,13 @@ const MyComponent = React.createClass({
   }
 });
 
-
 class AppList extends Component {
   constructor(props) {
     super(props)
     this.onAllChange = this.onAllChange.bind(this)
     this.confirmStartApp = this.confirmStartApp.bind(this)
-    this.confirmStopApp = this.confirmStopApp.bind(this)
+    this.batchStopApps = this.batchStopApps.bind(this)
+    this.confirmStopApps = this.confirmStopApps.bind(this)
     this.confirmDeleteApp = this.confirmDeleteApp.bind(this)
     this.confirmRestartApps = this.confirmRestartApps.bind(this)
     this.state = {
@@ -201,17 +219,15 @@ class AppList extends Component {
     });
   }
 
-  confirmStopApp(e) {
-    const { appList } = this.state
+  confirmStopApps(appList) {
     const { cluster, loadAppList, stopApps } = this.props
-    const checkedAppList = appList.filter((app) => app.checked)
-    const checkedAppNames = checkedAppList.map((app) => app.name)
+    const appNames = appList.map((app) => app.name)
     confirm({
-      title: `您是否确认要停止这${checkedAppList.length}个应用`,
-      content: checkedAppNames.join(', '),
+      title: `您是否确认要停止这${appList.length}个应用`,
+      content: appNames.join(', '),
       onOk() {
         return new Promise((resolve) => {
-          stopApps(cluster, checkedAppNames, {
+          stopApps(cluster, appNames, {
             success: {
               func: () => loadAppList(cluster),
               isAsync: true
@@ -221,7 +237,14 @@ class AppList extends Component {
         });
       },
       onCancel() { },
-    });
+    })
+  }
+
+  batchStopApps(e) {
+    const { appList } = this.state
+    const { cluster, loadAppList, stopApps } = this.props
+    const checkedAppList = appList.filter((app) => app.checked)
+    this.confirmStopApps(checkedAppList)
   }
 
   confirmDeleteApp(e) {
@@ -280,6 +303,9 @@ class AppList extends Component {
     if (appList.length === 0) {
       isAllChecked = false
     }
+    const funcs = {
+      confirmStopApps: this.confirmStopApps
+    }
     return (
       <QueueAnim
         className="AppList"
@@ -296,7 +322,7 @@ class AppList extends Component {
               <Button type="ghost" size="large" onClick={this.confirmStartApp} disabled={!isChecked}>
                 <i className="fa fa-play"></i>启动
               </Button>
-              <Button type="ghost" size="large" onClick={this.confirmStopApp} disabled={!isChecked}>
+              <Button type="ghost" size="large" onClick={this.batchStopApps} disabled={!isChecked}>
                 <i className="fa fa-stop"></i>停止
               </Button>
               <Button type="ghost" size="large" onClick={this.confirmDeleteApp} disabled={!isChecked}>
@@ -346,7 +372,7 @@ class AppList extends Component {
                 操作
             </div>
             </div>
-            <MyComponent config={appList} loading={isFetching} parentScope={scope} />
+            <MyComponent config={appList} loading={isFetching} parentScope={scope} funcs={funcs} />
           </Card>
         </div>
       </QueueAnim>

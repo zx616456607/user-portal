@@ -13,7 +13,7 @@ import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import "./style/AppLog.less"
-
+import { appLogs } from '../../actions/app_manage'
 const data = [{
   id: "1",
   message: "今天我挺萌的",
@@ -64,32 +64,38 @@ const data = [{
   createTime: "2016-09-09 11:27:27",
 }];
 
-var MyComponent = React.createClass({
+let MyComponent = React.createClass({
   propTypes: {
     config: React.PropTypes.array
+  },
+  componentWillMount() {
+    this.props.getAppLogs(this.props.cluster, this.props.appName)
   },
   onchange: function () {
 
   },
   render: function () {
-    var config = this.props.config;
-    var items = config.map((item) => {
+    if(!this.props.appLogs || !this.props.appLogs.result || this.props.appLogs.result.data <=0 ) {
+      return  <div className="logDetail"></div>
+    }
+    const logs = this.props.appLogs.result.data
+    const items = logs.map((item, index) => {
       return (
-        <div className="logDetail" key={item.id}>
+        <div className="logDetail" key={index}>
           <div className="iconBox">
             <div className="line"></div>
-            <div className={item.status == 1 ? "icon fa fa-check-circle success" : "icon fa fa-times-circle fail"}>
+            <div className={item.result === 'success' ? "icon fa fa-check-circle success" : "icon fa fa-times-circle fail"}>
             </div>
           </div>
           <div className="infoBox">
-            <div className={item.status == 1 ? "status success" : "status fail"}>
-              {item.statusMsg}
+            <div className={item.result === 'success' ? "status success" : "status fail"}>
+              {`${item.operation} ${item.result}`}
             </div>
             <div className="message">
-              消息&nbsp;:&nbsp;{item.message}
+              { !item.detail ? '' : `消息&nbsp;:&nbsp${item.detail}`}
             </div>
             <div className="createTime">
-              {item.createTime}
+              {item.time}
             </div>
           </div>
           <div style={{ clear: "both" }}></div>
@@ -103,6 +109,14 @@ var MyComponent = React.createClass({
     );
   }
 });
+function mapStateToProp(state) {
+  return {
+    appLogs: state.apps.appLogs
+  }
+}
+MyComponent = connect(mapStateToProp, {
+  getAppLogs: appLogs
+})(MyComponent)
 
 export default class AppLog extends Component {
   constructor(props) {
@@ -112,7 +126,7 @@ export default class AppLog extends Component {
   render() {
     return (
       <div id="AppLog">
-        <MyComponent config={data} />
+        <MyComponent  cluster={this.props.cluster} appName={this.props.appName} />
       </div>
     )
   }
