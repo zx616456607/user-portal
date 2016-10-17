@@ -33,6 +33,7 @@ class AppDeployServiceModal extends Component {
     this.getUsefulType = this.getUsefulType.bind(this);
     this.setEnv = this.setEnv.bind(this);
     this.setPorts = this.setPorts.bind(this);
+    this.handleSubBtn = this.handleSubBtn.bind(this);
     this.state = {
       composeType: "1",
       runningCode: "1",
@@ -40,7 +41,6 @@ class AppDeployServiceModal extends Component {
       stateService: false,
       currentDate: false,
       checkInf: null,
-      // imageTagConfigs: null
     }
   }
   limits() {
@@ -61,7 +61,6 @@ class AppDeployServiceModal extends Component {
         return '1'
     }
   }
-
   volumeSwitch(volumeMounts, form) {
     if (volumeMounts) {
       console.log('1');
@@ -89,7 +88,6 @@ class AppDeployServiceModal extends Component {
       }
     }
   }
-
   getUsefulType(livenessProbe, form) {
     if (livenessProbe) {
       form.setFieldsValue({
@@ -160,9 +158,6 @@ class AppDeployServiceModal extends Component {
     const env = this.props.scope.state.checkInf.Deployment.spec.template.spec.containers[0].env
     const ports = this.props.scope.state.checkInf.Deployment.spec.template.spec.containers[0].ports
     const ServicePorts = this.props.scope.state.checkInf.Service.spec.ports
-    console.log('set');
-    console.log('this.state', this.state);
-    console.log('this.scope', scope.state);
     form.setFieldsValue({
       name: scope.state.checkInf.Service.metadata.name,
       imageVersion: scope.state.checkInf.Deployment.spec.template.spec.containers[0].image.split(':')[1],
@@ -176,44 +171,34 @@ class AppDeployServiceModal extends Component {
       composeType: this.limits(),
     })
     scope.setState({
-
+      
     })
   }
   componentWillMount() {
-    console.log('open');
-    console.log('state', this.props.scope.state.checkState);
     if (this.props.scope.state.checkState === '修改') {
       this.setForm()
     }
   }
   componentWillUpdate(nextProps, nextState) {
     const {serviceOpen} = nextProps
-    console.log('componentWillUpdate------------------');
-    console.log(this.props.serviceOpen);
-    console.log('componentWillUpdate------------------');
-    console.log(nextState);
     if (serviceOpen == this.props.serviceOpen) {
       return
     }
     if (serviceOpen) {
-      console.log('open');
       if (this.props.scope.state.checkState === '修改') {
         this.setForm()
       }
     }
   }
 
-  submitNewService(e, parentScope) {
-    e.preventDefault();
-    console.log('this.props.form.getFieldProps', this.props.form.getFieldsValue());
+  submitNewService (parentScope) {
     const scope = this.state;
-    console.log('envKey', this.props.form.getFieldValue('envKey'));
     let composeType = scope.composeType;
     let portKey = this.props.form.getFieldValue('portKey')
     let envKey = this.props.form.getFieldValue('envKey')
     let volKey = this.props.form.getFieldValue('volKey')
+    let instanceNum = this.props.form.getFieldValue('instanceNum')     //容器数量
     let serviceName = this.props.form.getFieldProps('name').value    //服务名
-    let instanceNum = this.props.form.getFieldsValue().instanceNum     //容器数量
     let imageVersion = this.props.form.getFieldProps('imageVersion').value    //镜像版本
     let volumeSwitch = this.props.form.getFieldProps('volumeSwitch').value //服务类型
     let volumeChecked = this.props.form.getFieldProps('volumeChecked').value   //服务只读
@@ -342,8 +327,6 @@ class AppDeployServiceModal extends Component {
           return
       }
     })(composeType)
-
-    if (parentScope.state.checkState === '创建') {
       /*Deployment*/
       deploymentList.setReplicas(instanceNum)
       deploymentList.addContainer(serviceName, image)
@@ -436,29 +419,37 @@ class AppDeployServiceModal extends Component {
         Service: serviceList,
         Deployment: deploymentList,
       }
-
       const newService = { id: serviceName, name: serviceName, imageName: image, resource: ImageConfig.cal, inf: serviceConfig }
-      const serviceScope = this.props.scope
-      const newList = serviceScope.state.servicesList
-      const newSeleList = serviceScope.state.selectedList
-      serviceScope.state.servicesList.push(newService)
-      if (!serviceScope.state.selectedList.includes(serviceName)) {
-        serviceScope.state.selectedList.push(serviceName)
+      const newList = parentScope.state.servicesList
+      const newSeleList = parentScope.state.selectedList
+    parentScope.state.servicesList.push(newService)
+      if (!parentScope.state.selectedList.includes(serviceName)) {
+        parentScope.state.selectedList.push(serviceName)
       }
-      serviceScope.setState({
+    parentScope.setState({
         servicesList: newList,
         selectedList: newSeleList
       })
       this.props.form.resetFields()
+  }
+  handleSubBtn (e,parentScope) {
+    e.preventDefault();
+    if (parentScope.state.checkState === '创建') {
+      this.submitNewService(parentScope)
     } else {
-      console.log('修改');
+      const reviseServiceName = parentScope.state.checkInf.Service.metadata.name
+      parentScope.state.servicesList.map((service,index) => {
+        if(service.id === reviseServiceName){
+          parentScope.state.servicesList.splice(index,1)
+          this.submitNewService(parentScope)
+        }
+      })
     }
-
     parentScope.setState({
       serviceModalShow: false
     })
   }
-  closeModal() {
+  closeModal () {
     const parentScope = this.props.scope;
     parentScope.setState({
       serviceModalShow: false
@@ -506,7 +497,7 @@ class AppDeployServiceModal extends Component {
               取消
       		</Button>
             <Button className="createBtn" size="large" type="primary"
-              onClick={(e) => this.submitNewService(e, parentScope)}
+              onClick={(e) => this.handleSubBtn(e, parentScope)}
               servicesList={servicesList}>
               {parentScope.state.checkState}
             </Button>
