@@ -46,16 +46,13 @@ class ComposeFile extends Component {
 
     let serviceList = JSON.parse(localStorage.getItem('servicesList'))
     let selectedList = JSON.parse(localStorage.getItem('selectedList'))
-    var newserviceList = []
-    selectedList.map(function (sItem) {
-      newserviceList.push(serviceList.filter(function (item) {
-        return item.name === sItem
-      })[0])
+    let newServiceList = serviceList.filter(function (service) {
+      return selectedList.includes(service.id)
     })
     let serviceDesc = {}
     let deploymentDesc = {}
     let desc = []
-    newserviceList.map(function (item) {
+    newServiceList.map(function (item) {
       serviceDesc = item.inf.Service
       deploymentDesc = item.inf.Deployment
       desc.push(yaml.dump(serviceDesc), yaml.dump(deploymentDesc))
