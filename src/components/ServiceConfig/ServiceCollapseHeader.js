@@ -48,6 +48,7 @@ class CollapseHeader extends Component {
       desc: this.state.configDesc
     }
     let self = this
+    const {parentScope} = this.props
     self.props.createConfigFiles(configfile, {
       success: {
         func: () => {
@@ -57,7 +58,17 @@ class CollapseHeader extends Component {
             configName: '',
             configDesc: ''
           })
-          self.props.configGroupName(configfile)
+          self.props.configGroupName(configfile, {
+            success: {
+              func: ()=>{
+                parentScope.setState({
+                  List: self.props.configName,
+                  Size: self.props.configName.length
+                })
+              },
+              isAsync: true
+            }
+          })
         },
         isAsync: true
       },
@@ -116,7 +127,7 @@ class CollapseHeader extends Component {
     })
   }
   render() {
-    const {collapseHeader} = this.props
+    const {collapseHeader, sizeNumber} = this.props
     const menu = (
       <Menu onClick={() => this.btnDeleteGroup(collapseHeader.native.metadata.name)} mode="vertical">
         <Menu.Item key="1">删除配置组</Menu.Item>
@@ -132,7 +143,7 @@ class CollapseHeader extends Component {
         </Col>
         <Col span="6">
           配置文件 &nbsp;
-          {collapseHeader.extended.size}个
+          {sizeNumber}个
         </Col>
         <Col span="6">
           创建时间&nbsp;&nbsp;{collapseHeader.native.metadata.creationTimestamp}
@@ -182,22 +193,27 @@ CollapseHeader.propTypes = {
   loadConfigGroup: PropTypes.func.isRequired,
   deleteConfigGroup: PropTypes.func.isRequired
 }
-function mapStateToProps() {
+function mapStateToProps(state, props) {
   const defaultConfigFiles = {
     isFetching: false,
     cluster: DEFAULT_CLUSTER,
     configFiles: [],
+    configName: []
   }
+
+  const { configGroupName  } = state.configReducers
+
   const {configFiles, cluster, isFetching} = createConfigFiles[DEFAULT_CLUSTER] || defaultConfigFiles
+  const {configName} = configGroupName[DEFAULT_CLUSTER] || defaultConfigFiles
   return {
-    configFiles, cluster, isFetching
+    configFiles, cluster, isFetching, configName
   }
 }
 
 function mapDispatchToProps(dispatch) {
   return {
     createConfigFiles: (obj, callback) => { dispatch(createConfigFiles(obj, callback)) },
-    configGroupName: (obj) => { dispatch(configGroupName(obj)) },
+    configGroupName: (obj,callback) => { dispatch(configGroupName(obj, callback)) },
     deleteConfigGroup: (obj, callback) => {dispatch(deleteConfigGroup(obj, callback))},
     loadConfigGroup: (obj) => {dispatch(loadConfigGroup(obj))}
   }

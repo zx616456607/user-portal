@@ -57,6 +57,7 @@ class CollapseContainer extends Component {
       cluster: DEFAULT_CLUSTER,
       desc: this.state.configtextarea
     }
+    const {parentScope} = this.props
     this.props.updateConfigName(groups, {
       success: {
         func: () => {
@@ -81,6 +82,7 @@ class CollapseContainer extends Component {
       configs
     }
     const self = this
+    const {parentScope} = this.props
     Modal.confirm({
       title: '您是否确认要删除这项内容',
       content: Name,
@@ -89,7 +91,17 @@ class CollapseContainer extends Component {
           success: {
             func: () => {
               message.success('删除配置文件成功')
-              self.props.configGroupName(groups)
+              self.props.configGroupName(groups, {
+                success: {
+                  func: ()=>{
+                    parentScope.setState({
+                      List: self.props.configName,
+                      Size: self.props.configName.length
+                    })
+                  },
+                  isAsync: true
+                }
+              })
             },
             isAsync: true
           }
@@ -102,25 +114,23 @@ class CollapseContainer extends Component {
     });
   }
   render() {
-    // const collapseContainer = this.props.collapseContainer
     const { collapseContainer } = this.props
     const configNameList = this.props.configName
     let configFileList
-    if (collapseContainer.length === 0) {
+    if ( collapseContainer.length === 0) {
       // message.info(this.props.groupname + '未添加配置文件')
       return (
         <div className="li">未添加配置文件</div>
       )
     }
-    // if (configNameList =='' || configNameList === undefined) {
-    //   return(
-    //     <Spin />
-    //   )
-    // }
-    console.info('configGroupName', this.props)
-    // if (this.state.configGroupName.configName) {
-    //   configFileList = 
-    // }
+    if (!collapseContainer) {
+      return(
+        <div className="loadingBox">
+          <Spin />
+        </div>
+      )
+    }
+
     configFileList = collapseContainer.map((configFileItem) => {
       return (
         <Timeline.Item key={configFileItem.name}>
@@ -130,8 +140,7 @@ class CollapseContainer extends Component {
               <tbody>
                 <tr>
                   <td style={{ padding: "15px" }}>
-                    <Icon type="file-text" style={{ marginRight: "10px" }} />
-                    {configFileItem.name}
+                    <div style={{width:'180px'}} className="textoverflow"><Icon type="file-text" style={{ marginRight: "10px" }} />{configFileItem.name}</div>
                   </td>
                   <td style={{ padding: "15px" }}>
                     <Button type="primary" style={{ with: "30px", height: "30px", padding: "0 9px", marginRight: "5px" }}
@@ -196,8 +205,8 @@ function mapStateToProps(state, props) {
     configName: '',
     configDesc:''
   }
-  const { loadConfigName } = state.configReducers
-  const { isFetching ,configName, configDesc} = loadConfigName[DEFAULT_CLUSTER] || defaultConfigList
+  const { configGroupName } = state.configReducers
+  const { isFetching ,configName, configDesc} = configGroupName[DEFAULT_CLUSTER] || defaultConfigList
   return {
     configDesc,
     isFetching,
@@ -215,8 +224,8 @@ function mapDispatchToProps(dispatch) {
     deleteConfigName: (obj, callback) => {
       dispatch(deleteConfigName(obj, callback))
     },
-    configGroupName: (obj) => {
-      dispatch(configGroupName(obj))
+    configGroupName: (obj, callback) => {
+      dispatch(configGroupName(obj, callback))
     }
   }
 }

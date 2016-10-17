@@ -13,8 +13,7 @@ import { Row, Col, Modal, Button, Icon, Collapse, Input, message } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import './style/ServiceConfig.less'
 import QueueAnim from 'rc-queue-anim'
-import CollapseHeader from './ServiceCollapseHeader'
-import CollapseContainer from './ServiceCollapseContainer'
+import ServiceCollapse from './ServiceCollapse'
 import { connect } from 'react-redux'
 import { remove } from 'lodash'
 import { loadConfigGroup, configGroupName, createConfigGroup, deleteConfigGroup } from '../../actions/configs'
@@ -25,7 +24,6 @@ function loadData(props) {
   loadConfigGroup()
 }
 
-const Panel = Collapse.Panel
 class CollapseList extends Component {
   constructor() {
     super()
@@ -42,19 +40,21 @@ class CollapseList extends Component {
 
   render() {
     const {groupData, configName} = this.props
-    console.log('group',this.props)
     if (groupData.length ===0) return (<div style={{lineHeight:'50px'}}>还没有创建过配置项</div>)
     let groups = groupData.map((group) => {
       return (
-        <Panel handChageProp={this.props.handChageProp} header={<CollapseHeader btnDeleteGroup={this.props.btnDeleteGroup} handChageProp={this.props.handChageProp} collapseHeader={group} />} key={group.native.metadata.name} >
-          <CollapseContainer configName={configName} configGroupName={(obj) => this.props.configGroupName(obj)} collapseContainer={group.extended.configs} groupname={group.native.metadata.name} />
-        </Panel>
+        <ServiceCollapse
+          key={group.native.metadata.name}
+          handChageProp={this.props.handChageProp}
+          btnDeleteGroup={this.props.btnDeleteGroup}
+          configGroupName={configGroupName}
+          group={group}
+          configName={configName}
+        />
       )
     })
     return (
-      <Collapse  accordion>
-        {groups}
-      </Collapse>
+      <div>{groups}</div>
     )
   }
 }
