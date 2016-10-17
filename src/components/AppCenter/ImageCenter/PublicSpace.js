@@ -67,8 +67,8 @@ let MyComponent = React.createClass({
     let { imageList, serviceIp } = this.props.config;
     if (loading) {
       return (
-        <div className="imageList">
-          <Spin />
+        <div className='loadingBox'>
+          <Spin size='large' />
         </div>
       )
     }

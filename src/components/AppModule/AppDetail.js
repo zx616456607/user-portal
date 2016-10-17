@@ -76,7 +76,9 @@ class AppDetail extends Component {
     const { activeTabKey } = this.state
     if (isFetching || !app) {
       return (
-        <Spin />
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
       )
     }
     let updateDate = '-'

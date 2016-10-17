@@ -38,7 +38,9 @@ const MyComponent = React.createClass({
     const { images, registryServer, loading } = this.props
     if (loading) {
       return (
-        <Spin />
+        <div  className='loadingBox'>
+          <Spin size='large' />
+        </div>
       )
     }
     const items = images.map((item) => {

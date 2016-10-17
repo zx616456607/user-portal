@@ -31,8 +31,8 @@ let MyComponent = React.createClass({
     const { loading } = this.props;
     if (loading) {
       return (
-        <div>
-          <Spin />
+        <div className='loadingBox'>
+          <Spin size='large' />
         </div>
       )
     }

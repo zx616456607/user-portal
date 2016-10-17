@@ -60,6 +60,7 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/services/:service_name/autoscale', serviceController.autoScaleService)
   router.put('/clusters/:cluster/services/:service_name/quota', serviceController.changeServiceQuota)
   router.put('/clusters/:cluster/services/:service_name/ha', serviceController.changeServiceHa)
+  router.get('/clusters/:cluster/services/:service_name/events', serviceController.getServiceDetailEvents)
   // spi
   router.post('/clusters/:cluster/services/:service_name/domain', serviceController.bindServiceDomain)
 

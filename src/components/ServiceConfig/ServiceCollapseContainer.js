@@ -114,7 +114,9 @@ class CollapseContainer extends Component {
     }
     // if (configNameList =='' || configNameList === undefined) {
     //   return(
-    //     <Spin />
+    //     <div className='loadingBox'>
+    //       <Spin size='large' />
+    //     </div>
     //   )
     // }
     console.info('configGroupName', this.props)

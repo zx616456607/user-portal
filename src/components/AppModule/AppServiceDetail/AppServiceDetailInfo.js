@@ -24,7 +24,9 @@ export default class AppServiceDetailInfo extends Component {
     const parentScope = this;
     if (isFetching || !serviceDetail.metadata) {
       return (
-        <Spin />
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
       )
     }
     return (

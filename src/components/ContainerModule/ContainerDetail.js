@@ -58,7 +58,9 @@ class ContainerDetail extends Component {
     const { currentKey } = this.state
     if (isFetching || !container.metadata) {
       return (
-        <Spin />
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
       )
     }
     if (!container.status) {
