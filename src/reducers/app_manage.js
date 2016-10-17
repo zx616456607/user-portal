@@ -201,7 +201,7 @@ function serviceDetail(state = {}, action) {
 }
 // ~~~ containers
 
-function containerItmes(state = {}, action) {
+function containerItems(state = {}, action) {
   const cluster = action.cluster
   const defaultState = {
     [cluster]: {
@@ -223,7 +223,7 @@ function containerItmes(state = {}, action) {
           isFetching: false,
           cluster: action.response.result.cluster,
           appName: action.response.result.appName,
-          containerList: union(state.containers, action.response.result.data)
+          containerList: action.response.result.data
         }
       })
     case ActionTypes.CONTAINER_LIST_FAILURE:
@@ -294,7 +294,7 @@ function containerDetailEvents(state = {}, action) {
       return Object.assign({}, state, {
         [cluster]: {
           isFetching: false,
-          eventList: action.response.result.data
+          eventList: action.response.result.data.events
         }
       })
     case ActionTypes.CONTAINER_DETAIL_EVENTS_FAILURE:
@@ -310,7 +310,7 @@ function containerDetailEvents(state = {}, action) {
 
 export function containers(state = {}, action) {
   return {
-    containerItems: containerItmes(state.containerItmes, action),
+    containerItems: containerItems(state.containerItems, action),
     containerDetail: containerDetail(state.containerDetail, action),
     containerDetailEvents: containerDetailEvents(state.containerDetailEvents, action),
   }
