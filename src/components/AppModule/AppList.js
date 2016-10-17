@@ -9,7 +9,7 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
-import { Tooltip, Checkbox, Card, Menu, Dropdown, Button, Icon, Modal, Spin,Input } from 'antd'
+import { Tooltip, Checkbox, Card, Menu, Dropdown, Button, Icon, Modal, Spin, Input } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import './style/AppList.less'
@@ -78,7 +78,7 @@ const MyComponent = React.createClass({
           >
           <Menu.Item key="1">
             停止容器
-					</Menu.Item>
+          </Menu.Item>
           <Menu.Item key="2">
             删除
 					</Menu.Item>
@@ -86,12 +86,12 @@ const MyComponent = React.createClass({
             <Link to={`/app_manage/detail/${item.name}#topology`} >
               查看架构图
             </Link>
-					</Menu.Item>
+          </Menu.Item>
           <Menu.Item key="4">
             <Link to={`/app_manage/detail/${item.name}#stack`} >
               查看编排
             </Link>
-					</Menu.Item>
+          </Menu.Item>
         </Menu>
       );
       return (
@@ -129,7 +129,7 @@ const MyComponent = React.createClass({
           <div className="actionBox commonData">
             <Dropdown.Button overlay={dropdown} type="ghost">
               重新部署
-				    </Dropdown.Button>
+            </Dropdown.Button>
           </div>
           <div style={{ clear: "both", width: "0" }}></div>
         </div>
@@ -291,20 +291,20 @@ class AppList extends Component {
               <Button type="ghost" size="large">
                 <Link to="/app_manage/app_create">
                   <i className="fa fa-plus"></i>添加应用
-	      	      </Link>
+                </Link>
               </Button>
               <Button type="ghost" size="large" onClick={this.confirmStartApp} disabled={!isChecked}>
                 <i className="fa fa-play"></i>启动
-							</Button>
+              </Button>
               <Button type="ghost" size="large" onClick={this.confirmStopApp} disabled={!isChecked}>
                 <i className="fa fa-stop"></i>停止
-							</Button>
+              </Button>
               <Button type="ghost" size="large" onClick={this.confirmDeleteApp} disabled={!isChecked}>
                 <i className="fa fa-trash-o"></i>删除
-							</Button>
+              </Button>
               <Button type="ghost" size="large" onClick={this.confirmRestartApps} disabled={!isChecked}>
                 <i className="fa fa-undo"></i>重新部署
-							</Button>
+              </Button>
             </div>
             <div className="rightBox">
               <div className="littleLeft">

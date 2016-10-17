@@ -20,6 +20,8 @@ import { loadAppDetail } from '../../actions/app_manage'
 import { DEFAULT_CLUSTER } from '../../constants'
 import { browserHistory } from 'react-router'
 
+const DEFAULT_TAB = '#service'
+
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
 const TabPane = Tabs.TabPane
@@ -29,7 +31,7 @@ class AppDetail extends Component {
     super(props)
     this.onTabClick = this.onTabClick.bind(this)
     this.state = {
-      activeTabKey: props.hash || '#services'
+      activeTabKey: props.hash || DEFAULT_TAB
     }
   }
 
@@ -40,11 +42,15 @@ class AppDetail extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (!nextProps.hash) {
+    let { hash } = nextProps
+    if (hash === this.props.hash) {
       return
     }
+    if (!hash) {
+      hash = DEFAULT_TAB
+    }
     this.setState({
-      activeTabKey: nextProps.hash
+      activeTabKey: hash
     })
   }
 
@@ -56,6 +62,9 @@ class AppDetail extends Component {
     this.setState({
       activeTabKey
     })
+    if (activeTabKey === DEFAULT_TAB) {
+      activeTabKey = ''
+    }
     browserHistory.push({
       pathname,
       hash: activeTabKey
@@ -93,7 +102,7 @@ class AppDetail extends Component {
                 <div className="leftInfo">
                   <div className="status">
                     运行状态&nbsp;:
-	                    <span>
+                      <span>
                       <i className={app.appStatus == 0 ? "normal fa fa-circle" : "error fa fa-circle"}></i>
                       <span className={app.appStatus == 0 ? "normal" : "error"} >{app.appStatus == 0 ? "正常" : "异常"}</span>
                     </span>
@@ -129,7 +138,7 @@ class AppDetail extends Component {
                 onTabClick={this.onTabClick}
                 activeKey={activeTabKey}
               >
-                <TabPane tab="服务实例" key="#services" >
+                <TabPane tab="服务实例" key={DEFAULT_TAB} >
                   <AppServiceList key="AppServiceList" appName={appName} loading={isFetching} />
                 </TabPane>
                 <TabPane tab="应用拓扑图" key="#topology">应用拓扑图</TabPane>
