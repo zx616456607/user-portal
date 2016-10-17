@@ -18,6 +18,7 @@ import AppLog from './AppLog'
 import './style/AppDetail.less'
 import { loadAppDetail } from '../../actions/app_manage'
 import { DEFAULT_CLUSTER } from '../../constants'
+import { browserHistory } from 'react-router'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -25,9 +26,10 @@ const TabPane = Tabs.TabPane
 
 class AppDetail extends Component {
   constructor(props) {
-    super(props);
+    super(props)
+    this.onTabClick = this.onTabClick.bind(this)
     this.state = {
-      currentKey: "1"
+      activeTabKey: props.hash || '#services'
     }
   }
 
@@ -37,9 +39,32 @@ class AppDetail extends Component {
     loadAppDetail(cluster, appName)
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (!nextProps.hash) {
+      return
+    }
+    this.setState({
+      activeTabKey: nextProps.hash
+    })
+  }
+
+  onTabClick(activeTabKey) {
+    if (activeTabKey === this.state.activeTabKey) {
+      return
+    }
+    const { pathname } = this.props
+    this.setState({
+      activeTabKey
+    })
+    browserHistory.push({
+      pathname,
+      hash: activeTabKey
+    })
+  }
+
   render() {
     const { children, appName, app, isFetching } = this.props
-    const { currentKey } = this.state
+    const { activeTabKey } = this.state
     if (isFetching || !app) {
       return (
         <Spin />
@@ -100,15 +125,17 @@ class AppDetail extends Component {
             <Card className="bottomCard">
               <Tabs
                 tabPosition="top"
-                defaultActiveKey="1"
-                >
-                <TabPane tab="服务实例" key="1" >
+                defaultActiveKey={activeTabKey}
+                onTabClick={this.onTabClick}
+                activeKey={activeTabKey}
+              >
+                <TabPane tab="服务实例" key="#services" >
                   <AppServiceList key="AppServiceList" appName={appName} loading={isFetching} />
                 </TabPane>
-                <TabPane tab="应用拓补图" key="2" >应用拓补图</TabPane>
-                <TabPane tab="编排文件" key="3" ><AppGraph key="AppGraph" /></TabPane>
-                <TabPane tab="操作日志" key="4" ><AppLog key="AppLog" /></TabPane>
-                <TabPane tab="监控" key="5" >监控</TabPane>
+                <TabPane tab="应用拓补图" key="#topology">应用拓扑图</TabPane>
+                <TabPane tab="编排文件" key="#stack" ><AppGraph key="AppGraph" /></TabPane>
+                <TabPane tab="操作日志" key="#logs" ><AppLog key="AppLog" /></TabPane>
+                <TabPane tab="监控" key="#monitor" >监控</TabPane>
               </Tabs>
             </Card>
           </div>
@@ -129,6 +156,7 @@ AppDetail.propTypes = {
 
 function mapStateToProps(state, props) {
   const { app_name } = props.params
+  const { hash, pathname } = props.location
   const defaultApp = {
     isFetching: false,
     cluster: DEFAULT_CLUSTER,
@@ -144,7 +172,9 @@ function mapStateToProps(state, props) {
     cluster: DEFAULT_CLUSTER,
     appName: app_name,
     app,
-    isFetching
+    isFetching,
+    hash,
+    pathname
   }
 }
 

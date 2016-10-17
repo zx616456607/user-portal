@@ -83,10 +83,14 @@ const MyComponent = React.createClass({
             删除
 					</Menu.Item>
           <Menu.Item key="3">
-            查看架构图
+            <Link to={`/app_manage/detail/${item.name}#topology`} >
+              查看架构图
+            </Link>
 					</Menu.Item>
           <Menu.Item key="4">
-            查看编排
+            <Link to={`/app_manage/detail/${item.name}#stack`} >
+              查看编排
+            </Link>
 					</Menu.Item>
         </Menu>
       );
