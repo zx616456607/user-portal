@@ -66,6 +66,7 @@ module.exports = function (Router) {
   // Containers
   router.get('/clusters/:cluster/containers', containerController.getContainers)
   router.get('/clusters/:cluster/containers/:container_name/detail', containerController.getContainerDetail)
+  router.get('/clusters/:cluster/containers/:container_name/events',containerController.getContainerDetailEvents)
 
   // Configs
   router.get('/clusters/:cluster/configgroups', configController.getConfigGroup)

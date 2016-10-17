@@ -322,9 +322,45 @@ function containerDetail(state = {}, action) {
   }
 }
 
+function containerDetailEvents(state = {}, action) {
+  const cluster = action.cluster
+  const containerName = action.containerName
+  const defaultState = {
+    [cluster]: {
+      isFetching: false,
+      containerName,
+      eventList: []
+    }
+  }
+  switch (action.type) {
+    case ActionTypes.CONTAINER_DETAIL_EVENTS_REQUEST:
+      return merge({}, defaultState, state, {
+        [cluster]: {
+          isFetching: true
+        }
+      })
+    case ActionTypes.CONTAINER_DETAIL_EVENTS_SUCCESS:
+      return Object.assign({}, state, {
+        [cluster]: {
+          isFetching: false,
+          eventList: action.response.result.data
+        }
+      })
+    case ActionTypes.CONTAINER_DETAIL_EVENTS_FAILURE:
+      return merge({}, defaultState, state, {
+        [cluster]: {
+          isFetching: false
+        }
+      })
+    default:
+      return state
+  }
+}
+
 export function containers(state = {}, action) {
   return {
     containerItems: containerItmes(state.containerItmes, action),
     containerDetail: containerDetail(state.containerDetail, action),
+    containerDetailEvents: containerDetailEvents(state.containerDetailEvents, action),
   }
 }

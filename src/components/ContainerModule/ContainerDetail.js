@@ -53,7 +53,7 @@ class ContainerDetail extends Component {
   }
 
   render() {
-    const { containerName, isFetching, container } = this.props
+    const { containerName, isFetching, container, cluster } = this.props
     const { children } = this.props
     const { currentKey } = this.state
     if (isFetching || !container.metadata) {
@@ -129,7 +129,7 @@ class ContainerDetail extends Component {
                 </TabPane>
                 <TabPane tab="监控" key="2" >应用拓补图</TabPane>
                 <TabPane tab="日志" key="3" ><ContainerDetailGraph key="ContainerDetailGraph" /></TabPane>
-                <TabPane tab="事件" key="4" ><ContainerDetailLog key="ContainerDetailLog" /></TabPane>
+                <TabPane tab="事件" key="4" ><ContainerDetailLog key="ContainerDetailLog" containerName={containerName} cluster={cluster} /></TabPane>
               </Tabs>
             </Card>
           </div>
