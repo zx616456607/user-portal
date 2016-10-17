@@ -220,7 +220,6 @@ class NormalDeployBox extends Component {
       loadImageTags(nextProps)
     }
   }
-
   render() {
     const parentScope = this.props.scope;
     const { imageTags, imageTagsIsFetching } = this.props

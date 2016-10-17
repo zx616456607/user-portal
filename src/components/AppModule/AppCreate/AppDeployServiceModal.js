@@ -43,7 +43,7 @@ class AppDeployServiceModal extends Component {
       checkInf: null,
     }
   }
-  limits() {
+  limits () {
     switch (this.props.scope.state.checkInf.Deployment.spec.template.spec.containers[0].resources.limits.memory) {
       case '256Mi':
         return '1'
@@ -61,7 +61,7 @@ class AppDeployServiceModal extends Component {
         return '1'
     }
   }
-  volumeSwitch(volumeMounts, form) {
+  volumeSwitch (volumeMounts, form) {
     if (volumeMounts) {
       console.log('1');
       if (volumeMounts.length !== 0) {
@@ -88,7 +88,7 @@ class AppDeployServiceModal extends Component {
       }
     }
   }
-  getUsefulType(livenessProbe, form) {
+  getUsefulType (livenessProbe, form) {
     if (livenessProbe) {
       form.setFieldsValue({
         liveInitialDelaySeconds: livenessProbe.initialDelaySeconds,
@@ -110,7 +110,7 @@ class AppDeployServiceModal extends Component {
       }
     }
   }
-  setEnv(env, form) {
+  setEnv (env, form) {
     const envArr = []
     if (env) {
       console.log('env------');
@@ -130,7 +130,7 @@ class AppDeployServiceModal extends Component {
       console.log('envKey', form.getFieldValue('envKey'));
     }
   }
-  setPorts(ports, ServicePorts, form) {
+  setPorts (ports, ServicePorts, form) {
     const portsArr = []
     if (ports) {
       console.log('ports------');
@@ -150,7 +150,7 @@ class AppDeployServiceModal extends Component {
       console.log('envKey', form.getFieldValue('envKey'));
     }
   }
-  setForm() {
+  setForm () {
     const { scope } = this.props
     const { form } = this.props
     const volumeMounts = this.props.scope.state.checkInf.Deployment.spec.template.spec.containers[0].volumeMounts
@@ -170,16 +170,13 @@ class AppDeployServiceModal extends Component {
     this.setState({
       composeType: this.limits(),
     })
-    scope.setState({
-      
-    })
   }
-  componentWillMount() {
+  componentWillMount () {
     if (this.props.scope.state.checkState === '修改') {
       this.setForm()
     }
   }
-  componentWillUpdate(nextProps, nextState) {
+  componentWillUpdate (nextProps, nextState) {
     const {serviceOpen} = nextProps
     if (serviceOpen == this.props.serviceOpen) {
       return
@@ -190,7 +187,6 @@ class AppDeployServiceModal extends Component {
       }
     }
   }
-
   submitNewService (parentScope) {
     const scope = this.state;
     let composeType = scope.composeType;
@@ -422,28 +418,33 @@ class AppDeployServiceModal extends Component {
       const newService = { id: serviceName, name: serviceName, imageName: image, resource: ImageConfig.cal, inf: serviceConfig }
       const newList = parentScope.state.servicesList
       const newSeleList = parentScope.state.selectedList
-    parentScope.state.servicesList.push(newService)
+      parentScope.state.servicesList.push(newService)
       if (!parentScope.state.selectedList.includes(serviceName)) {
         parentScope.state.selectedList.push(serviceName)
       }
-    parentScope.setState({
+      parentScope.setState({
         servicesList: newList,
         selectedList: newSeleList
       })
       this.props.form.resetFields()
   }
   handleSubBtn (e,parentScope) {
-    e.preventDefault();
+    e.preventDefault()
     if (parentScope.state.checkState === '创建') {
       this.submitNewService(parentScope)
     } else {
       const reviseServiceName = parentScope.state.checkInf.Service.metadata.name
+      parentScope.state.selectedList.map((service,index) => {
+        if(service === reviseServiceName){
+          parentScope.state.selectedList.splice(index,1)
+        }
+      })
       parentScope.state.servicesList.map((service,index) => {
         if(service.id === reviseServiceName){
           parentScope.state.servicesList.splice(index,1)
-          this.submitNewService(parentScope)
         }
       })
+      this.submitNewService(parentScope)
     }
     parentScope.setState({
       serviceModalShow: false
