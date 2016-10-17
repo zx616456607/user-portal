@@ -96,9 +96,15 @@ export function apps(state = { appItmes: {} }, action) {
       REQUEST: ActionTypes.APP_BATCH_START_REQUEST,
       SUCCESS: ActionTypes.APP_BATCH_START_SUCCESS,
       FAILURE: ActionTypes.APP_BATCH_START_FAILURE
-    }, state.startApps, action)
+    }, state.startApps, action),
+    appLogs: reducerFactory({
+      REQUEST: ActionTypes.APP_OPERATION_LOG_REQUEST,
+      SUCCESS: ActionTypes.APP_OPERATION_LOG_SUCCESS,
+      FAILURE: ActionTypes.APP_OPERATION_LOG_FAILURE
+    }, state.appLogs, action)
   }
 }
+
 
 // ~~~ services
 

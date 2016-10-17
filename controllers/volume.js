@@ -13,11 +13,12 @@ const parse = require('co-busboy')
 const fs = require('fs')
 const formStream = require('formstream')
 const mime = require('mime')
+const http = require('http')
 
 const VolumeApi = require('../tenx_api/v2')
 const volumeConfig = {
   protocol: 'http',
-  host: '192.168.0.41:8001',
+  host: 'localhost:8001',
   version: 'v1',
   auth: {
     user: 'zhangpc',
@@ -73,7 +74,7 @@ exports.formateVolume = function* () {
 
   if (!reqData.type || !reqData.name) {
     this.status = 400
-    this.body = { message: 　'error' }
+    this.body = { message: 'error' }
   }
   const response = yield volumeApi.volumes.updateBy([pool, cluster, reqData.name, 'format'], null, {
     format: reqData.type,
@@ -114,7 +115,6 @@ exports.beforeUploadFile = function* () {
   const cluster = this.params.cluster
   const volumeName = this.params.name
   const reqData = this.request.body
-  console.log(reqData)
   if (!reqData.fileName || !reqData.size) {
     this.status = 400
     this.body = { message: 'error' }
@@ -144,7 +144,6 @@ exports.uploadFile = function* () {
   const stream = formStream()
   const mimeType = mime.lookup(fileStream.filename)
   stream.stream(fileStream.filename, fileStream, fileStream.filename, mimeType)
-  console.log(fileStream)
   let response = yield volumeApi.volumes.uploadFile([pool, cluster, volumeName, backupId, 'import'], { isUnzip }, stream, stream.headers())
   this.status = response.code
   this.body = response
@@ -173,5 +172,27 @@ exports.exportFile = function* () {
   const pool = this.params.pool
   const cluster = this.params.cluster
   const volumeName = this.params.name
-  const response = yield volumeApi.volumes.getBy([pool, cluster, volumeName, 'exportfile'], null)
+  const option = {
+    protocol: 'http:',
+    hostname: 'localhost',
+    port: 8001,
+    headers: {
+      "user": 'zhangpc',
+      "token": 'jgokzgfitsewtmbpxsbhtggabvrnktepuzohnssqjnsirtot',
+      "namespace": 'zhangpc'
+    },
+    path: '/api/v1/volumes/pool/cluster/name/exportfile'
+  }
+  const request = http.request(option, res => {
+    res.setEncoding('utf8')
+    res.on('data', data => {
+      this.res.write(data.toString())
+    })
+    res.on('end', (a) => {
+      this.res.end()
+    })
+  })
+  request.on('error', error => {
+    this.res.end(`{ "message": "${JSON.stringify(error)}" }`)
+  })
 }

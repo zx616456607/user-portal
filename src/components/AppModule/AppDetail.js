@@ -107,7 +107,7 @@ class AppDetail extends Component {
                 </TabPane>
                 <TabPane tab="应用拓补图" key="2" >应用拓补图</TabPane>
                 <TabPane tab="编排文件" key="3" ><AppGraph key="AppGraph" /></TabPane>
-                <TabPane tab="操作日志" key="4" ><AppLog key="AppLog" /></TabPane>
+                <TabPane tab="操作日志" key="4" ><AppLog key="AppLog" cluster={this.props.cluster} appName={this.props.appName} /></TabPane>
                 <TabPane tab="监控" key="5" >监控</TabPane>
               </Tabs>
             </Card>

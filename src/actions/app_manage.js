@@ -190,7 +190,23 @@ export function startApps(cluster, appList, callback) {
   }
 }
 
-// ~~~ services
+export const APP_OPERATION_LOG_REQUEST = 'APP_OPERATION_LOG_REQUEST'
+export const APP_OPERATION_LOG_SUCCESS = 'APP_OPERATION_LOG_SUCCESS'
+export const APP_OPERATION_LOG_FAILURE = 'APP_OPERATION_LOG_FAILURE'
+
+export function appLogs(cluster, appName, callback) {
+  return {
+    cluster,
+    [FETCH_API]: {
+      types: [APP_OPERATION_LOG_REQUEST, APP_OPERATION_LOG_SUCCESS, APP_OPERATION_LOG_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/apps/${appName}/logs`,
+      schema: {}
+    }
+  }
+}
+
+
+//~~~ services
 
 export const SERVICE_LIST_REQUEST = 'SERVICE_LIST_REQUEST'
 export const SERVICE_LIST_SUCCESS = 'SERVICE_LIST_SUCCESS'

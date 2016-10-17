@@ -484,7 +484,6 @@ class Storage extends Component {
     })
   }
   searchByAppName(e) {
-    console.log(this.state.appName)
     this.props.loadStorageList(this.props.currentImagePool, this.props.currentCluster, this.state.appName)
   }
   render() {

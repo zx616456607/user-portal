@@ -13,7 +13,7 @@ import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import "./style/AppLog.less"
-
+import { appLogs } from '../../actions/app_manage'
 const data = [{
   id: "1",
   message: "今天我挺萌的",
@@ -64,16 +64,22 @@ const data = [{
   createTime: "2016-09-09 11:27:27",
 }];
 
-var MyComponent = React.createClass({
+let MyComponent = React.createClass({
   propTypes: {
     config: React.PropTypes.array
+  },
+  componentWillMount() {
+    this.props.getAppLogs(this.props.cluster, this.props.appName)
   },
   onchange: function () {
 
   },
   render: function () {
-    var config = this.props.config;
-    var items = config.map((item) => {
+    if(!this.props.appLogs || this.props.appLogs.result.data.length <=0 ) {
+      return  <div className="logDetail"></div>
+    }
+    const logs = this.props.appLogs.result.data
+    var items = logs.map((item) => {
       return (
         <div className="logDetail" key={item.id}>
           <div className="iconBox">
@@ -103,7 +109,14 @@ var MyComponent = React.createClass({
     );
   }
 });
-
+function mapStateToProp(state) {
+  return {
+    appLogs: state.apps.appLogs
+  }
+}
+MyComponent = connect(mapStateToProp, {
+  getAppLogs: appLogs
+})(MyComponent)
 export default class AppLog extends Component {
   constructor(props) {
     super(props);
@@ -112,7 +125,7 @@ export default class AppLog extends Component {
   render() {
     return (
       <div id="AppLog">
-        <MyComponent config={data} />
+        <MyComponent  cluster={this.props.cluster} appName={this.props.appName} />
       </div>
     )
   }

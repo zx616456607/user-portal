@@ -10,6 +10,7 @@
 
 import { FETCH_API, Schemas } from '../middleware/api'
 import { API_URL_PREFIX } from '../constants'
+import encoding from 'text-encoding'
 
 export const STORAGE_LIST_REQUEST = 'STORAGE_LIST_REQUEST'
 export const STORAGE_LIST_SUCCESS = 'STORAGE_LIST_SUCCESS'
@@ -60,7 +61,6 @@ export const STORAGE_DETAIL_SUCCESS = 'STORAGE_DETAIL_SUCCESS'
 export const STORAGE_DETAIL_FAILURE = 'STORAGE_DETAIL_FAILURE'
 export const STORAGE_DETAIL_CHANGE = 'STORAGE_DETAIL_CHANGE'
 export function loadStorageInfo(pool, cluster, name) {
-  console.log(`${API_URL_PREFIX}/storage-pools/${pool}/${cluster}/volumes/${name}`)
   return {
     pool,
     [FETCH_API]: {
@@ -268,13 +268,62 @@ export function uploadFileOptions(options) {
 export const STORAGE_EXPORT_FILE_REQUEST = 'STORAGE_EXPORT_FILE_REQUEST'
 export const STORAGE_EXPORT_FILE_SUCCESS = 'STORAGE_EXPORT_FILE_SUCCESS'
 export const STORAGE_EXPORT_FILE_FAILURE = 'STORAGE_EXPORT_FILE_FAILURE'
+export const STORAGE_EXPORT_FILE_DONE    = 'STORAGE_EXPORT_FILE_DONE'
 
 export function exportFile(pool, cluster, volumeName, callback) {
+  return (dispath, getState) => {
+    dispath({
+      type: STORAGE_EXPORT_FILE_REQUEST
+    })
+    fetch(`${API_URL_PREFIX}/storage-pools/${pool}/${cluster}/volumes/${volumeName}/exportfile`).then(res=> {
+      const reader = res.body.getReader()
+      _consume(dispath, reader)
+    }, res => {
+      dispath({
+        type: STORAGE_EXPORT_FILE_DONE
+      })
+    })
+  }
+  // return {
+  //   [FETCH_API]: {
+  //     types: [STORAGE_EXPORT_FILE_REQUEST, STORAGE_EXPORT_FILE_SUCCESS, STORAGE_EXPORT_FILE_FAILURE],
+  //     endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/${cluster}/volumes/${volumeName}/exportfile`
+  //   },
+  //   callback
+  // }
+}
+
+
+export const STORAGE_BEFORE_EXPORT_FILE_REQUEST = 'STORAGE_BEFORE_EXPORT_FILE_REQUEST'
+export const STORAGE_BEFORE_EXPORT_FILE_SUCCESS = 'STORAGE_BEFORE_EXPORT_FILE_SUCCESS'
+export const STORAGE_BEFORE_EXPORT_FILE_FAILURE = 'STORAGE_BEFORE_EXPORT_FILE_SUCCESS'
+
+export function beforeExportFile(pool, cluster, volumeName, callback) {
   return {
     [FETCH_API]: {
-      types: [STORAGE_EXPORT_FILE_REQUEST, STORAGE_EXPORT_FILE_SUCCESS, STORAGE_EXPORT_FILE_FAILURE],
+      types: [STORAGE_BEFORE_EXPORT_FILE_REQUEST, STORAGE_BEFORE_EXPORT_FILE_SUCCESS, STORAGE_EXPORT_FILE_FAILURE],
       endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/${cluster}/volumes/${volumeName}/exportfile`
     },
     callback
+  }
+}
+
+
+function _consume(dispath, reader) {
+  const decoder = new encoding.TextDecoder("utf-8")
+  return _pump()
+  function _pump() {
+    reader.read().then((done, value) => {
+      if(done) {
+        dispath({
+          type: STORAGE_EXPORT_FILE_DONE,
+        })
+      }
+      dispath({
+        type: STORAGE_EXPORT_FILE_SUCCESS,
+        percent: decoder(value)
+      })
+      return _pump()
+    })
   }
 }
