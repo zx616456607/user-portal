@@ -34,6 +34,7 @@ class AppDeployServiceModal extends Component {
     this.setEnv = this.setEnv.bind(this);
     this.setPorts = this.setPorts.bind(this);
     this.handleSubBtn = this.handleSubBtn.bind(this);
+    this.handleForm = this.handleForm.bind(this);
     this.state = {
       composeType: "1",
       runningCode: "1",
@@ -41,6 +42,8 @@ class AppDeployServiceModal extends Component {
       stateService: false,
       currentDate: false,
       checkInf: null,
+      disable:true,
+      serNameErrState:'',
     }
   }
   limits () {
@@ -133,7 +136,6 @@ class AppDeployServiceModal extends Component {
   setPorts (ports, ServicePorts, form) {
     const portsArr = []
     if (ports) {
-      console.log('ports------');
       ports.map(function (item, index) {
         portsArr.push((index + 1));
         form.setFieldsValue({
@@ -205,7 +207,6 @@ class AppDeployServiceModal extends Component {
     let livePath = this.props.form.getFieldProps('livePath').value //高可用路径
     let args = this.props.form.getFieldProps('args').value //高可用路径
     let image = parentScope.state.registryServer + '/' + parentScope.state.currentSelectedImage + ':' + imageVersion //镜像名称
-
     let deploymentList = new Deployment(serviceName)
     let serviceList = new Service(serviceName)
 
@@ -426,7 +427,6 @@ class AppDeployServiceModal extends Component {
         servicesList: newList,
         selectedList: newSeleList
       })
-      this.props.form.resetFields()
   }
   handleSubBtn (e,parentScope) {
     e.preventDefault()
@@ -446,6 +446,18 @@ class AppDeployServiceModal extends Component {
       })
       this.submitNewService(parentScope)
     }
+    
+    this.props.form.validateFields((errors, values) => {
+      if (!!errors) {
+        console.log('Errors in form!!!')
+        return
+      }
+      console.log('Submit!!!')
+      console.log(values)
+      
+    })
+    
+    this.props.form.resetFields()
     parentScope.setState({
       serviceModalShow: false
     })
@@ -463,7 +475,29 @@ class AppDeployServiceModal extends Component {
       stateService: false,
       currentDate: false,
       checkInf: null,
+      disable:true,
     })
+  }
+  handleForm(){
+    /*console.log('this.props.form.targetPortUrl1',this.props.form.getFieldProps('targetPortUrl1').value);
+    console.log('this.props.form.portType1',this.props.form.getFieldProps('portType1').value);
+    if(this.props.form.getFieldProps('targetPortUrl1').value === undefined || this.props.form.getFieldProps('portType1').value === undefined){
+      console.log('portsUndefined!!!!!!!!!!!')
+      window.scrollTo(0,0)
+    }*/
+    if (/^[a-z]{3,24}[a-z0-9-]*$/.test(this.props.form.getFieldProps('name').value)
+      && this.props.form.getFieldProps('targetPortUrl1').value
+      && this.props.form.getFieldProps('portType1').value) {
+      this.setState({
+        disable:false,
+        serNameErrState:'success',
+      })
+    } else {
+      this.setState({
+        disable:true,
+        serNameErrState:'error',
+      })
+    }
   }
   render() {
     const scope = this
@@ -471,9 +505,10 @@ class AppDeployServiceModal extends Component {
     const {servicesList} = parentScope.state.servicesList
     const {currentSelectedImage, registryServer, checkState} = parentScope.state
     const { form, serviceOpen } = this.props
+    
     return (
       <div id="AppDeployServiceModal">
-        <Form horizontal form={form}>
+        <Form horizontal form={form} onChange={this.handleForm}>
           <NormalDeployBox
             scope={scope} registryServer={registryServer}
             currentSelectedImage={currentSelectedImage}
@@ -499,8 +534,11 @@ class AppDeployServiceModal extends Component {
           </Button>
             <Button className="createBtn" size="large" type="primary"
               onClick={(e) => this.handleSubBtn(e, parentScope)}
-              servicesList={servicesList}>
+              servicesList={servicesList}
+              disabled={this.state.disable}
+            >
               {parentScope.state.checkState}
+              
             </Button>
           </div>
         </Form>
