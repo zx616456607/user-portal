@@ -20,7 +20,8 @@ module.exports = function (config) {
     error.status = 400
     throw error
   }
-  const request = require('./request')(config.protocol, config.host, config.version, config.auth, config.timeout)
+  const request = require('./request')(config.protocol, config.host, config.api_prefix,
+    config.version, config.auth, config.timeout)
 
   // ~~~~~ PUBLIC
 

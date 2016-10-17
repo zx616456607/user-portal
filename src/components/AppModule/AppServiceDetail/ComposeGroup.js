@@ -15,45 +15,45 @@ import QueueAnim from 'rc-queue-anim'
 import "./style/ComposeGroup.less"
 
 const testData = [{
-	id:"1",
-	mountPod:"/root/etc/network",
-	group:"myNetwork",
-	file:"network.sh"
+  id:"1",
+  mountPod:"/root/etc/network",
+  group:"myNetwork",
+  file:"network.sh"
 },{
-	id:"2",
-	mountPod:"/root/etc/network",
-	group:"myNetwork",
-	file:"network.sh"
+  id:"2",
+  mountPod:"/root/etc/network",
+  group:"myNetwork",
+  file:"network.sh"
 },{
-	id:"3",
-	mountPod:"/root/etc/network",
-	group:"myNetwork",
-	file:"network.sh"
+  id:"3",
+  mountPod:"/root/etc/network",
+  group:"myNetwork",
+  file:"network.sh"
 },{
-	id:"4",
-	mountPod:"/root/etc/network",
-	group:"myNetwork",
-	file:"network.sh"
+  id:"4",
+  mountPod:"/root/etc/network",
+  group:"myNetwork",
+  file:"network.sh"
 },{
-	id:"5",
-	mountPod:"/root/etc/network",
-	group:"myNetwork",
-	file:"network.sh"
+  id:"5",
+  mountPod:"/root/etc/network",
+  group:"myNetwork",
+  file:"network.sh"
 },{
-	id:"6",
-	mountPod:"/root/etc/network",
-	group:"myNetwork",
-	file:"network.sh"
+  id:"6",
+  mountPod:"/root/etc/network",
+  group:"myNetwork",
+  file:"network.sh"
 },{
-	id:"7",
-	mountPod:"/root/etc/network",
-	group:"myNetwork",
-	file:"network.sh"
+  id:"7",
+  mountPod:"/root/etc/network",
+  group:"myNetwork",
+  file:"network.sh"
 },{
-	id:"8",
-	mountPod:"/root/etc/network",
-	group:"myNetwork",
-	file:"network.sh"
+  id:"8",
+  mountPod:"/root/etc/network",
+  group:"myNetwork",
+  file:"network.sh"
 }];
 
 var MyComponent = React.createClass({
@@ -61,27 +61,27 @@ var MyComponent = React.createClass({
     config : React.PropTypes.array
   },
   render : function() {
-	var config = this.props.config;
-	var items = config.map((item) => {
-	  return (
-	    <div className="composeDetail" key={item.id}>
-	    	<div className="commonData">
-	    		<span>{item.mountPod}</span>
-	    	</div>
-	      <div className="commonData">
-	    		<span>{item.group}</span>
-	    	</div>
-	    	<div className="composefile commonData">
-	    		<span>{item.file}</span>
-	    	</div>
-	      <div style={{clear:"both"}}></div>
-			</div>
+  var config = this.props.config;
+  var items = config.map((item) => {
+    return (
+      <div className="composeDetail" key={item.id}>
+        <div className="commonData">
+          <span>{item.mountPod}</span>
+        </div>
+        <div className="commonData">
+          <span>{item.group}</span>
+        </div>
+        <div className="composefile commonData">
+          <span>{item.file}</span>
+        </div>
+        <div style={{clear:"both"}}></div>
+      </div>
     );
-	});
-	return (
-	  <Card className="composeList">
+  });
+  return (
+    <Card className="composeList">
         { items }
-	  </Card>
+    </Card>
     );
   }
 });
@@ -92,22 +92,22 @@ export default class ComposeGroup extends Component {
   }
 
   render() {
-  	const parentScope = this;
+    const parentScope = this;
     return (
       <div id="ComposeGroup">
-      	<div className="titleBox">
-      		<div className="commonTitle">
-      			容器挂载点
-      		</div>
-      		<div className="commonTitle">
-      			配置组
-      		</div>
-      		<div className="commonTitle">
-      			配置文件
-      		</div>
-      		<div style={{clear:"both"}}></div>
-      	</div>
-      	<MyComponent config={testData} />
+        <div className="titleBox">
+          <div className="commonTitle">
+            容器挂载点
+          </div>
+          <div className="commonTitle">
+            配置组
+          </div>
+          <div className="commonTitle">
+            配置文件
+          </div>
+          <div style={{clear:"both"}}></div>
+        </div>
+        <MyComponent config={testData} />
       </div>
     )
   }

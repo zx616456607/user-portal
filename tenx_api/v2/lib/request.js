@@ -15,17 +15,19 @@ const _ = require('lodash')
 const errors = require('./errors')
 const oauth = require('./oauth')
 const DEFAULT_PROTOCOL = 'http'
+const DEFAULT_API_PRIFIX = 'api'
 const DEFAULT_VERSION = 'v2'
 const DEFAULT_TIMEOUT = 1000 * 10
 const DEFAULT_DATATYPE = 'json'
 const logger = require('../../../utils/logger').getLogger(`tenx_api/request`)
 
-module.exports = (protocol, host, version, auth, timeout) => {
+module.exports = (protocol, host, api_prefix, version, auth, timeout) => {
   !protocol && (protocol = DEFAULT_PROTOCOL)
+  !api_prefix && (api_prefix = DEFAULT_API_PRIFIX)
   !version && (version = DEFAULT_VERSION)
   !timeout && (timeout = DEFAULT_TIMEOUT)
 
-  const _getUrl = (object) => `${protocol}://${host}/api/${version}${object.endpoint}`
+  const _getUrl = (object) => `${protocol}://${host}/${api_prefix}/${version}${object.endpoint}`
 
   const _isSuccess = (statusCode) => statusCode < 300
 

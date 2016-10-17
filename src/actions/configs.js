@@ -36,24 +36,11 @@ export const GET_CONFIG_FILES_SUCCESS = 'GET_CONFIG_FILES_SUCCESS'
 export const GET_CONFIG_FILES_FAILURE = 'GET_CONFIG_FILES_FAILURE'
 
 // get config files
-// export function configGroupName(obj) {
-//   return {
-//         cluster: obj.cluster,
-//         [FETCH_API]: {
-//           types: [GET_CONFIG_FILES_REQUEST, GET_CONFIG_FILES_SUCCESS, GET_CONFIG_FILES_FAILURE],
-//           endpoint: `${API_URL_PREFIX}/clusters/${obj.cluster}/configgroups/${obj.group}`,
-//           options: {
-//             method: 'GET',
-//           },
-//           schema: {}
-//         },
-//       }
-
-// }
 export function configGroupName(obj) {
   console.log('get config name  in action ……', obj)
   return {
     cluster: obj.cluster,
+    configName: obj.group,
     [FETCH_API]: {
       types: [GET_CONFIG_FILES_REQUEST, GET_CONFIG_FILES_SUCCESS, GET_CONFIG_FILES_FAILURE],
       endpoint: `${API_URL_PREFIX}/clusters/${obj.cluster}/configgroups/${obj.group}`,
@@ -71,7 +58,6 @@ export const CONFIG_LISTName_FAILURE = 'CONFIG_LISTName_FAILURE'
 
 // get config  file name => data
 export function loadConfigName(obj, callback) {
-  console.log('get name is to ', obj.Name)
   return {
     cluster: DEFAULT_CLUSTER,
     [FETCH_API]: {
@@ -157,10 +143,30 @@ export function deleteConfigName(obj, callback) {
     cluster: obj.cluster,
     [FETCH_API]: {
       types: [DELETE_CONFIG_FILES_REQUEST, DELETE_CONFIG_FILES_SUCCESS, DELETE_CONFIG_FILES_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${obj.cluster}/configgroups/${obj.group}/configs/batch-delete`,
+      endpoint: `${API_URL_PREFIX}/clusters/${obj.cluster}/configgroups/${obj.group}/configs-batch-delete`,
       options: {
         method: 'POST',
-        body: { "configs": obj.configs }
+        body: {"configs": obj.configs}
+      },
+      schema: {}
+    },
+    callback: callback
+  }
+}
+
+export const UPDATE_CONFIG_FILES_REQUEST = 'UPDATE_CONFIG_FILES_REQUEST'
+export const UPDATE_CONFIG_FILES_SUCCESS = 'UPDATE_CONFIG_FILES_SUCCESS'
+export const UPDATE_CONFIG_FILES_FAILURE = 'UPDATE_CONFIG_FILES_FAILURE'
+
+export function updateConfigName(obj, callback) {
+  return {
+    cluster: obj.cluster,
+    [FETCH_API]: {
+      types: [UPDATE_CONFIG_FILES_REQUEST, UPDATE_CONFIG_FILES_SUCCESS, UPDATE_CONFIG_FILES_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${obj.cluster}/configgroups/${obj.group}/configs/${obj.name}`,
+      options: {
+        method: 'PUT',
+        body: {"desc": obj.desc}
       },
       schema: {}
     },

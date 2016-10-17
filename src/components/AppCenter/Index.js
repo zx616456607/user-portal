@@ -62,31 +62,6 @@ let MyComponent = React.createClass({
       otherSpaceType: type
     });
   },
-  inputState(current, e) {
-    //this function for user input change the state
-    switch (current) {
-      case "url":
-        this.setState({
-          urlInput: e.target.value
-        });
-        break;
-      case "name":
-        this.setState({
-          nameInput: e.target.value
-        });
-        break;
-      case "email":
-        this.setState({
-          emailInput: e.target.value
-        });
-        break;
-      case "password":
-        this.setState({
-          pwdInput: e.target.value
-        });
-        break;
-    }
-  },
   inputOnFocus(current) {
     //this function for user focus on current input and the title will be add an animate
     switch (current) {
@@ -295,7 +270,7 @@ let MyComponent = React.createClass({
           <div className="btnBox">
             <Button size="large" type="primary" onClick={this.handleSubmit}>确定</Button>
             &nbsp;&nbsp;&nbsp;
-		        <Button size="large" onClick={this.handleReset}>取消</Button>
+            <Button size="large" onClick={this.handleReset}>取消</Button>
           </div>
         </Form>
       </div>
@@ -392,8 +367,8 @@ class ImageCenter extends Component {
             </ul>
             <Button className="addBtn" size="large" type="primary" onClick={this.addImageTab}>
               <i className="fa fa-plus"></i>&nbsp;
-							添加第三方
-						</Button>
+              添加第三方
+            </Button>
             <div style={{ clear: "both" }}></div>
           </Card>
           {current == "imageSpace" ? [<ImageSpace scope={scope} />] : null}

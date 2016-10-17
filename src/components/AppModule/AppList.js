@@ -9,7 +9,7 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
-import { Tooltip, Checkbox, Card, Menu, Dropdown, Button, Icon, Modal, Spin } from 'antd'
+import { Tooltip, Checkbox, Card, Menu, Dropdown, Button, Icon, Modal, Spin, Input } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import './style/AppList.less'
@@ -67,7 +67,7 @@ const MyComponent = React.createClass({
       return (
         <div className="dataBox">
           暂无数据
-				</div>
+        </div>
       )
     }
     const scope = this;
@@ -78,16 +78,20 @@ const MyComponent = React.createClass({
           >
           <Menu.Item key="1">
             停止容器
-					</Menu.Item>
+          </Menu.Item>
           <Menu.Item key="2">
             删除
-					</Menu.Item>
+          </Menu.Item>
           <Menu.Item key="3">
-            查看架构图
-					</Menu.Item>
+            <Link to={`/app_manage/detail/${item.name}#topology`} >
+              查看架构图
+            </Link>
+          </Menu.Item>
           <Menu.Item key="4">
-            查看编排
-					</Menu.Item>
+            <Link to={`/app_manage/detail/${item.name}#stack`} >
+              查看编排
+            </Link>
+          </Menu.Item>
         </Menu>
       );
       return (
@@ -125,7 +129,7 @@ const MyComponent = React.createClass({
           <div className="actionBox commonData">
             <Dropdown.Button overlay={dropdown} type="ghost">
               重新部署
-				    </Dropdown.Button>
+            </Dropdown.Button>
           </div>
           <div style={{ clear: "both", width: "0" }}></div>
         </div>
@@ -287,27 +291,27 @@ class AppList extends Component {
               <Button type="ghost" size="large">
                 <Link to="/app_manage/app_create">
                   <i className="fa fa-plus"></i>添加应用
-	      	      </Link>
+                </Link>
               </Button>
               <Button type="ghost" size="large" onClick={this.confirmStartApp} disabled={!isChecked}>
                 <i className="fa fa-play"></i>启动
-							</Button>
+              </Button>
               <Button type="ghost" size="large" onClick={this.confirmStopApp} disabled={!isChecked}>
                 <i className="fa fa-stop"></i>停止
-							</Button>
+              </Button>
               <Button type="ghost" size="large" onClick={this.confirmDeleteApp} disabled={!isChecked}>
                 <i className="fa fa-trash-o"></i>删除
-							</Button>
+              </Button>
               <Button type="ghost" size="large" onClick={this.confirmRestartApps} disabled={!isChecked}>
                 <i className="fa fa-undo"></i>重新部署
-							</Button>
+              </Button>
             </div>
             <div className="rightBox">
               <div className="littleLeft">
                 <i className="fa fa-search"></i>
               </div>
               <div className="littleRight">
-                <input placeholder="输入应用名搜索" />
+                <Input placeholder="输入应用名搜索" />
               </div>
             </div>
             <div className="clearDiv"></div>
@@ -319,28 +323,28 @@ class AppList extends Component {
               </div>
               <div className="appName commonTitle">
                 应用名称
-      		  </div>
+            </div>
               <div className="appStatus commonTitle">
                 应用状态
-      		  </div>
+            </div>
               <div className="serviceNum commonTitle">
                 服务数量
-      		    <i className="fa fa-sort"></i>
+              <i className="fa fa-sort"></i>
               </div>
               <div className="containerNum commonTitle">
                 容器数量
-      		    <i className="fa fa-sort"></i>
+              <i className="fa fa-sort"></i>
               </div>
               <div className="visitIp commonTitle">
                 访问地址
-      		  </div>
+            </div>
               <div className="createTime commonTitle">
                 创建时间
-      		    <i className="fa fa-sort"></i>
+              <i className="fa fa-sort"></i>
               </div>
               <div className="actionBox commonTitle">
                 操作
-      		  </div>
+            </div>
             </div>
             <MyComponent config={appList} loading={isFetching} parentScope={scope} />
           </Card>

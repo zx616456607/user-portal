@@ -90,7 +90,7 @@ let MyComponentEnviro = React.createClass({
         </ul>
         <div className="addBtn" onClick={this.add}>
           <Icon type="plus-circle-o" />
-          <span>添加映射端口</span>
+          <span>添加环境变量</span>
         </div>
       </div>
     );
@@ -131,9 +131,7 @@ let MyComponentPort = React.createClass({
     getFieldProps('portKey', {
       initialValue: [],
     });
-
     const formItems = getFieldValue('portKey').map((k) => {
-      console.log('aaaaaaaa', getFieldValue('portKey'));
       return (
         <FormItem key={`port${k}`}>
           <li className="portDetail">

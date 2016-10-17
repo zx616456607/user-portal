@@ -97,13 +97,13 @@ class UsefulDeployBox extends Component {
                 </div>
                 <div className="commonInput">
                   <Input type="text"  {...liveInitialDelaySeconds} />&nbsp;&nbsp;s
-		      			</div>
+                </div>
                 <div className="commonInput">
                   <Input type="text" {...liveTimeoutSeconds} />&nbsp;&nbsp;s
-		      			</div>
+                </div>
                 <div className="commonInput">
                   <Input type="text" {...livePeriodSeconds} />&nbsp;&nbsp;s
-		      			</div>
+                </div>
                 <div style={{ clear: "both" }}></div>
               </div>
               <div className="title">
@@ -144,13 +144,13 @@ class UsefulDeployBox extends Component {
                 </div>
                 <div className="commonInput">
                   <Input type="text" {...liveInitialDelaySeconds} />&nbsp;&nbsp;s
-		      			</div>
+                </div>
                 <div className="commonInput">
                   <Input type="text" {...liveTimeoutSeconds} />&nbsp;&nbsp;s
-		      			</div>
+                </div>
                 <div className="commonInput">
                   <Input type="text" {...livePeriodSeconds} />&nbsp;&nbsp;s
-		      			</div>
+                </div>
                 <div style={{ clear: "both" }}></div>
               </div>
             </div>

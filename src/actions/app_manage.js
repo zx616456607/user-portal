@@ -426,3 +426,29 @@ export function loadContainerDetail(cluster, containerName, requiredFields = [])
     return dispatch(fetchContainerDetail(cluster, containerName))
   }
 }
+
+export const CONTAINER_DETAIL_EVENTS_REQUEST = 'CONTAINER_DETAIL_EVENTS_REQUEST'
+export const CONTAINER_DETAIL_EVENTS_SUCCESS = 'CONTAINER_DETAIL_EVENTS_SUCCESS'
+export const CONTAINER_DETAIL_EVENTS_FAILURE = 'CONTAINER_DETAIL_EVENTS_FAILURE'
+
+// Fetches service list from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchContainerDetailEvents(cluster, containerName) {
+  return {
+    cluster,
+    containerName,
+    [FETCH_API]: {
+      types: [CONTAINER_DETAIL_EVENTS_REQUEST, CONTAINER_DETAIL_EVENTS_SUCCESS, CONTAINER_DETAIL_EVENTS_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/containers/${containerName}/events`,
+      schema: {}
+    }
+  }
+}
+
+// Fetches services list from API unless it is cached.
+// Relies on Redux Thunk middleware.
+export function loadContainerDetailEvents(cluster, containerName, requiredFields = []) {
+  return (dispatch, getState) => {
+    return dispatch(fetchContainerDetailEvents(cluster, containerName))
+  }
+}

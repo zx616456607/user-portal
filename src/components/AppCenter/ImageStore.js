@@ -281,10 +281,10 @@ class ImageStore extends Component {
     let moduleList = document.getElementsByClassName("moduleDetail");
     let rootElement = document.getElementsByClassName("ImageStoreBox");
     let offetset = moduleList[index].offsetTop;
-    //		rootElement[0].srcollTop = offetset;
+    //    rootElement[0].srcollTop = offetset;
     let domElem = this.refs.ImageStoreBox;
     domElem.animate({ scrollTop: offetset }, 500)
-    //		domElem.srcollTop = offetset;
+    //    domElem.srcollTop = offetset;
   }
 
   render() {
@@ -300,23 +300,23 @@ class ImageStore extends Component {
         <div className="nav">
           <div className={current == "1" ? "currentNav navItem" : "navItem"} onClick={this.scrollElem.bind(this, 0)}>
             <i className={current == "1" ? "fa fa-star" : "fa fa-star-o"}></i>&nbsp;&nbsp;
-						title1
-					</div>
+            title1
+          </div>
           <div className="line"></div>
           <div className={current == "2" ? "currentNav navItem" : "navItem"} onClick={this.scrollElem.bind(this, 1)}>
             <i className={current == "2" ? "fa fa-star" : "fa fa-star-o"}></i>&nbsp;&nbsp;
-						title2
-					</div>
+            title2
+          </div>
           <div className="line"></div>
           <div className={current == "3" ? "currentNav navItem" : "navItem"} onClick={this.scrollElem.bind(this, 2)}>
             <i className={current == "3" ? "fa fa-star" : "fa fa-star-o"}></i>&nbsp;&nbsp;
-						title3
-					</div>
+            title3
+          </div>
           <div className="line"></div>
           <div className={current == "4" ? "currentNav navItem" : "navItem"} onClick={this.scrollElem.bind(this, 3)}>
             <i className={current == "4" ? "fa fa-star" : "fa fa-star-o"}></i>&nbsp;&nbsp;
-						title4
-					</div>
+            title4
+          </div>
         </div>
         <MyComponent key="ImageStoreBox" scope={scope} config={testData} />
       </QueueAnim>

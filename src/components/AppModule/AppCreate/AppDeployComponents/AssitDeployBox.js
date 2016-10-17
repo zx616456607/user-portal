@@ -85,7 +85,6 @@ class AssitDeployBox extends Component {
                     <Radio key="b" value={"2"}>自定义</Radio>
                   </RadioGroup>
                 </FormItem>
-                <br />
                 <FormItem className="runningCodeForm" hasFeedback>
                   <Input
                     {...getFieldProps('args', {}) }

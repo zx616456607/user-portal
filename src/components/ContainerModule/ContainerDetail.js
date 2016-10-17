@@ -53,7 +53,7 @@ class ContainerDetail extends Component {
   }
 
   render() {
-    const { containerName, isFetching, container } = this.props
+    const { containerName, isFetching, container, cluster } = this.props
     const { children } = this.props
     const { currentKey } = this.state
     if (isFetching || !container.metadata) {
@@ -83,7 +83,7 @@ class ContainerDetail extends Component {
                 <div className="leftInfo">
                   <div className="status">
                     运行状态&nbsp;:
-	                  <span>
+                    <span>
                       <i className={container.status.phase == 'Running' ? "normal fa fa-circle" : "error fa fa-circle"}></i>
                       <span className={container.status.phase == 'Running' ? "normal" : "error"} >
                         {container.status.phase}
@@ -99,8 +99,8 @@ class ContainerDetail extends Component {
                     创建&nbsp;:&nbsp;{container.metadata.creationTimestamp}
                   </div>
                   {/*<div className="updateDate">
-	                    更新&nbsp;:&nbsp;{container.metadata.creationTimestamp}
-	                  </div>*/}
+                      更新&nbsp;:&nbsp;{container.metadata.creationTimestamp}
+                    </div>*/}
                 </div>
                 <div className="rightInfo">
                   <div className="actionBox commonData">
@@ -109,17 +109,10 @@ class ContainerDetail extends Component {
                         <use xlinkHref="#terminal" />
                       </svg>
                       登录终端
-			    		</Button>
-                    <ButtonGroup>
-                      <Button type="ghost">
-                        <i className="fa fa-power-off"></i>重启
-			    		  </Button>
-                      <Dropdown overlay={operaMenu} trigger={['click']}>
-                        <Button type="ghost" className="moreBtn ant-dropdown-link">
-                          <i className="fa fa-caret-down"></i>
-                        </Button>
-                      </Dropdown>
-                    </ButtonGroup>
+                    </Button>
+                    <Dropdown.Button overlay={operaMenu} type="ghost">
+                      <i className="fa fa-power-off"></i>&nbsp;重启
+                    </Dropdown.Button>
                   </div>
                 </div>
                 <div style={{ clear: "both" }}></div>
@@ -134,9 +127,9 @@ class ContainerDetail extends Component {
                 <TabPane tab="容器配置" key="1" >
                   <ContainerDetailInfo key="ContainerDetailInfo" container={container} />
                 </TabPane>
-                <TabPane tab="监控" key="2" >应用拓补图</TabPane>
+                <TabPane tab="监控" key="2" >监控</TabPane>
                 <TabPane tab="日志" key="3" ><ContainerDetailGraph key="ContainerDetailGraph" /></TabPane>
-                <TabPane tab="事件" key="4" ><ContainerDetailLog key="ContainerDetailLog" /></TabPane>
+                <TabPane tab="事件" key="4" ><ContainerDetailLog key="ContainerDetailLog" containerName={containerName} cluster={cluster} /></TabPane>
               </Tabs>
             </Card>
           </div>

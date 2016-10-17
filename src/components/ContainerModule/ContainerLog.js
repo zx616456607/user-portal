@@ -7,117 +7,121 @@
  * v0.1 - 2016-09-22
  * @author GaoJian
  */
-import React, { Component } from 'react'
-import { Checkbox, Dropdown, Button, Card, Menu, Icon } from 'antd'
+import React, { Component, PropTypes } from 'react'
+import { Checkbox, Dropdown, Button, Card, Menu, Icon, Spin } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import "./style/ContainerLog.less"
+import './style/ContainerLog.less'
+import { loadContainerDetailEvents } from '../../actions/app_manage'
+import { DEFAULT_CLUSTER } from '../../constants'
+import { tenxDateFormat } from '../../common/tools.js'
 
-const data = [{
-  id: "1",
-  message: "今天我挺萌的",
-  status: "1",
-  statusMsg: "卖萌成功",
-  createTime: "2016-09-09 11:27:27",
-}, {
-  id: "2",
-  message: "今天我挺萌的",
-  status: "1",
-  statusMsg: "卖萌成功",
-  createTime: "2016-09-10 11:27:27",
-}, {
-  id: "3",
-  message: "今天我挺萌的",
-  status: "0",
-  statusMsg: "卖萌失败",
-  createTime: "2016-09-11 11:27:27",
-}, {
-  id: "4",
-  message: "今天我挺萌的",
-  status: "0",
-  statusMsg: "卖萌失败",
-  createTime: "2016-09-12 11:27:27",
-}, {
-  id: "5",
-  message: "今天我没吃药",
-  status: "0",
-  statusMsg: "卖萌失败",
-  createTime: "2016-09-09 11:27:27",
-}, {
-  id: "6",
-  message: "今天我挺萌的",
-  status: "1",
-  statusMsg: "卖萌成功",
-  createTime: "2016-09-09 11:27:27",
-}, {
-  id: "7",
-  message: "今天我没吃药",
-  status: "1",
-  statusMsg: "卖萌成功",
-  createTime: "2016-09-09 11:27:27",
-}, {
-  id: "8",
-  message: "今天我没吃药",
-  status: "0",
-  statusMsg: "卖萌失败",
-  createTime: "2016-09-09 11:27:27",
-}];
+function loadData(props) {
+  const { cluster, containerName } = props;
+  props.loadContainerDetailEvents(cluster, containerName);
+}
 
-var MyComponent = React.createClass({
+let MyComponent = React.createClass({
   propTypes: {
     config: React.PropTypes.array
   },
-  onchange: function () {
+  onchange: function() {
 
   },
-  render: function () {
-    var config = this.props.config;
-    var items = config.map((item) => {
-      return (
-        <div className="logDetail" key={item.id}>
-          <div className="iconBox">
-            <div className="line"></div>
-            <div className={item.status == 1 ? "icon fa fa-check-circle success" : "icon fa fa-times-circle fail"}>
-            </div>
-          </div>
-          <div className="infoBox">
-            <div className={item.status == 1 ? "status success" : "status fail"}>
-              {item.statusMsg}
-            </div>
-            <div className="message">
-              消息&nbsp;:&nbsp;{item.message}
-            </div>
-            <div className="createTime">
-              {item.createTime}
-            </div>
-          </div>
-          <div style={{ clear: "both" }}></div>
+  render: function() {
+    let { config, isFetching } = this.props;
+    if(!!config) {
+      return( <div className = "noData" >
+        No Data 
         </div>
+      )
+    }
+    if(isFetching) {
+      return( 
+        <div className = "loadingBox" >
+          <Spin size = "large" / >
+        </div>
+      )
+    }
+    let items = config.map((item) => {
+      return( 
+      <div className = 'logDetail' key = { item.id } >
+        <div className = 'iconBox' >
+          <div className = 'line' ></div> 
+          <div className = { item.type == 'Normal' ? 'icon fa fa-check-circle success' : 'icon fa fa-times-circle fail' } > </div> 
+        </div> 
+        <div className = 'infoBox' >
+          <div className = { item.type == 'Normal' ? 'status success' : 'status fail' } >
+            <span className = "commonSpan" > 
+              { item.reason } 
+            </span> 
+          </div> 
+          <div className = 'message' >
+            <span className = "commonSpan" > 
+              消息 & nbsp;: & nbsp; { item.message } 
+            </span>
+          </div> 
+          <div className = 'createTime' >
+            <span className = "commonSpan" > 
+              { tenxDateFormat(item.lastTimestamp) } 
+            < /span> 
+          </div> 
+        </div>
+        <div style = {{ clear: 'both' }} > </div> 
+      </div>
       );
     });
-    return (
-      <div className="logBox">
-        {items}
+    return( 
+      <div className = 'logBox' > 
+        { items } 
       </div>
     );
   }
 });
 
-export default class ContainerLog extends Component {
+class ContainerLog extends Component {
   constructor(props) {
     super(props);
   }
 
+  componentWillMount() {
+    loadData(this.props);
+  }
+
   render() {
-    return (
-      <div id="ContainerLog">
-        <MyComponent config={data} />
+    const { eventList } = this.props;
+    return( 
+      <div id = 'ContainerLog' >
+        <MyComponent config = { eventList } /> 
       </div>
     )
   }
 }
 
 ContainerLog.propTypes = {
-  //
+  // Injected by React Redux
+  cluster: PropTypes.string.isRequired,
+  eventList: PropTypes.array.isRequired,
+  isFetching: PropTypes.bool.isRequired,
+  loadContainerDetailEvents: PropTypes.func.isRequired
 }
+
+function mapStateToProps(state, props) {
+  const defaultEvents = {
+    isFetching: false,
+    cluster: DEFAULT_CLUSTER,
+    eventList: []
+  }
+  const { containerDetailEvents } = state.containers
+  const { eventList, isFetching } = containerDetailEvents[DEFAULT_CLUSTER] || defaultEvents
+
+  return {
+    eventList,
+    isFetching
+  }
+}
+
+export default connect(mapStateToProps, {
+  loadContainerDetailEvents
+})(ContainerLog)

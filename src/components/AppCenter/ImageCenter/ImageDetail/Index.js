@@ -139,7 +139,7 @@ class ImageDetailBox extends Component {
               </Button>
               <Button size="large" type="ghost">
                 <i className="fa fa-star-o"></i>&nbsp;
-        				<FormattedMessage {...menusText.colletctImage} />
+            <FormattedMessage {...menusText.colletctImage} />
               </Button>
             </div>
             <i className="closeBtn fa fa-times" onClick={this.props.scope.closeImageDetailModal}></i>
@@ -149,8 +149,8 @@ class ImageDetailBox extends Component {
         <div className="downloadBox">
           <div className="code">
             <i className="fa fa-download"></i>&nbsp;
-       			<FormattedMessage {...menusText.downloadImage} />&nbsp;&nbsp;&nbsp;&nbsp;
-       				<span className="pullCode">docker pull {ipAddress}/{imageName}&nbsp;&nbsp;</span>
+          <FormattedMessage {...menusText.downloadImage} />&nbsp;&nbsp;&nbsp;&nbsp;
+           <span className="pullCode">docker pull {ipAddress}/{imageName}&nbsp;&nbsp;</span>
             <Tooltip title={this.state.copySuccess ? formatMessage(menusText.copySuccess) : formatMessage(menusText.copyBtn)} getTooltipContainer={() => document.getElementById("ImageDetailBox")}>
               <i className="fa fa-copy" onClick={this.copyDownloadCode} onMouseLeave={this.returnDefaultTooltip}></i>
             </Tooltip>
@@ -158,7 +158,7 @@ class ImageDetailBox extends Component {
           </div>
           <div className="times">
             <i className="fa fa-cloud-download"></i>&nbsp;&nbsp;
-       			{imageDetail.downloadNumber}
+          {imageDetail.downloadNumber}
           </div>
           <div style={{ clear: "both" }}></div>
         </div>

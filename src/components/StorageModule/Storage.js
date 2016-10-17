@@ -493,7 +493,7 @@ class Storage extends Component {
         <div id="AppList" key="AppList">
           <div className="operationBox">
             <div className="leftBtn">
-              <Button type="primary" size="large" onClick={this.showModal}><Icon type="plus" /><FormattedMessage {...messages.createTitle} /></Button>
+              <Button type="primary" size="large" onClick={this.showModal}><i className="fa fa-plus" />&nbsp;<FormattedMessage {...messages.createTitle} /></Button>
               <Button type="ghost" className="stopBtn" size="large" onClick={this.deleteStorage}><Icon type="delete" /><FormattedMessage {...messages.delete} /></Button>
               <Modal title={formatMessage(messages.createModalTitle)} visible={this.state.visible} onOk={(e) => { this.handleOk() } } onCancel={() => { this.handleCancel() } } okText={formatMessage(messages.createBtn)} cancelText={formatMessage(messages.cancelBtn)}>
                 <Row style={{ height: '40px' }}>
@@ -525,7 +525,7 @@ class Storage extends Component {
                 <i className="fa fa-search"></i>
               </div>
               <div className="littleRight">
-                <input placeholder={formatMessage(messages.inputPlaceholder)} onChange={(e) => this.getSearchAppName(e)} onPressEnter={() => this.searchByAppName()} />
+                <Input placeholder={formatMessage(messages.inputPlaceholder)} onChange={(e) => this.getSearchAppName(e)} onPressEnter={() => this.searchByAppName()} />
               </div>
             </div>
             <div className="clearDiv"></div>

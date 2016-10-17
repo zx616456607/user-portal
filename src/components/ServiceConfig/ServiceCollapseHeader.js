@@ -3,28 +3,20 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
- *  Storage list
+ *  Config Group 
  *
  * v0.1 - 2016/9/23
- * @author ZhaoXueYu
+ * @author ZhaoXueYu BaiYu
  */
 
 import React, { Component, PropTypes } from 'react'
 import { Row, Col, Modal, Button, Icon, Checkbox, Menu, Dropdown, Input, message } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { createConfigFiles, deleteConfigFiles, configGroupName } from '../../actions/configs'
+import { createConfigFiles, deleteConfigGroup, loadConfigGroup, deleteConfigFiles, configGroupName } from '../../actions/configs'
 import { connect } from 'react-redux'
 import { DEFAULT_CLUSTER } from '../../constants'
 
 
-function handleMenuClick() {
-  console.log('delete !');
-}
-const menu = (
-  <Menu onClick={() => handleMenuClick()} mode="vertical">
-    <Menu.Item key="1">删除配置组</Menu.Item>
-  </Menu>
-);
 const ButtonGroup = Button.Group
 
 class CollapseHeader extends Component {
@@ -49,7 +41,6 @@ class CollapseHeader extends Component {
       message.error('请输入配置组名称')
       return
     }
-    console.log('fileName', group)
     let configfile = {
       group,
       cluster: DEFAULT_CLUSTER,
@@ -99,8 +90,38 @@ class CollapseHeader extends Component {
   handChage(e, Id) {
     this.props.handChageProp(e, Id)
   }
+  btnDeleteGroup(group) {
+    // console.log('props',this.props)
+    const self = this
+    let configArray = []
+    configArray.push(group)
+    let configData = {
+      cluster: DEFAULT_CLUSTER,
+      "groups": configArray
+    }
+    Modal.confirm({
+      title: '您是否确认要删除这些配置组',
+      content: group,
+      onOk() {
+        self.props.deleteConfigGroup(configData, {
+          success: {
+            func: () => {
+              message.success('删除成功')
+              self.props.loadConfigGroup()
+            },
+            isAsync: true
+          }
+        })
+      }
+    })
+  }
   render() {
     const {collapseHeader} = this.props
+    const menu = (
+      <Menu onClick={() => this.btnDeleteGroup(collapseHeader.native.metadata.name)} mode="vertical">
+        <Menu.Item key="1">删除配置组</Menu.Item>
+      </Menu>
+    );
     return (
       <Row>
         <Col className="group-name" span="6">
@@ -157,7 +178,9 @@ CollapseHeader.propTypes = {
   collapseHeader: PropTypes.object.isRequired,
   intl: PropTypes.object.isRequired,
   createConfigFiles: PropTypes.func.isRequired,
-  configGroupName: PropTypes.func.isRequired
+  configGroupName: PropTypes.func.isRequired,
+  loadConfigGroup: PropTypes.func.isRequired,
+  deleteConfigGroup: PropTypes.func.isRequired
 }
 function mapStateToProps() {
   const defaultConfigFiles = {
@@ -174,7 +197,9 @@ function mapStateToProps() {
 function mapDispatchToProps(dispatch) {
   return {
     createConfigFiles: (obj, callback) => { dispatch(createConfigFiles(obj, callback)) },
-    configGroupName: (obj) => { dispatch(configGroupName(obj)) }
+    configGroupName: (obj) => { dispatch(configGroupName(obj)) },
+    deleteConfigGroup: (obj, callback) => {dispatch(deleteConfigGroup(obj, callback))},
+    loadConfigGroup: (obj) => {dispatch(loadConfigGroup(obj))}
   }
 }
 
