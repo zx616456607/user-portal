@@ -270,7 +270,7 @@ let MyComponent = React.createClass({
           <div className="btnBox">
             <Button size="large" type="primary" onClick={this.handleSubmit}>确定</Button>
             &nbsp;&nbsp;&nbsp;
-		        <Button size="large" onClick={this.handleReset}>取消</Button>
+            <Button size="large" onClick={this.handleReset}>取消</Button>
           </div>
         </Form>
       </div>
@@ -367,8 +367,8 @@ class ImageCenter extends Component {
             </ul>
             <Button className="addBtn" size="large" type="primary" onClick={this.addImageTab}>
               <i className="fa fa-plus"></i>&nbsp;
-							添加第三方
-						</Button>
+              添加第三方
+            </Button>
             <div style={{ clear: "both" }}></div>
           </Card>
           {current == "imageSpace" ? [<ImageSpace scope={scope} />] : null}

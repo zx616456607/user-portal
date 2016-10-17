@@ -84,7 +84,7 @@ let MyComponent = React.createClass({
             </span><br />
             <span className="type">
               <FormattedMessage {...menusText.belong} />&nbsp;
-							{item.contributor}
+              {item.contributor}
             </span>
             <span className="imageUrl">
               <span className="defalutColor"><FormattedMessage {...menusText.imageUrl} />&nbsp;</span>

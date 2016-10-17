@@ -50,7 +50,7 @@ let MyComponent = React.createClass({
       items = (
         <div className="apiItemDetail" key="apiItemDetail" >
           No Data
-				</div>
+    </div>
       )
     }
     return (

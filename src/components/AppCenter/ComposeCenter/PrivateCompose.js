@@ -252,32 +252,30 @@ class PrivateCompose extends Component {
     this.openCreateModal = this.openCreateModal.bind(this);
     this.closeImageDetailModal = this.closeImageDetailModal.bind(this);
     this.state = {
-			createModalShow: false
+      createModalShow: false
     }
   }
 
   filterAttr(e) {
     //this function for user filter different attr
-    console.log(e)
   }
 
   filterType(e) {
     //this function for user filter different type
-    console.log(e)
   }
   
   openCreateModal(){
-  	//this function for user open the create compose modal
-  	this.setState({
-  		createModalShow: true
-  	});
+    //this function for user open the create compose modal
+    this.setState({
+      createModalShow: true
+    });
   }
   
   closeImageDetailModal(){
-  	//this function for user close create compose modal
-  	this.setState({
-  		createModalShow: false
-  	});
+   //this function for user close create compose modal
+   this.setState({
+    createModalShow: false
+   });
   }
 
   render() {
@@ -302,10 +300,10 @@ class PrivateCompose extends Component {
         >
         <Menu.Item key="1">
           酱油
-			    </Menu.Item>
+          </Menu.Item>
         <Menu.Item key="2">
           又一瓶酱油
-			    </Menu.Item>
+          </Menu.Item>
       </Menu>
     );
     return (
@@ -325,7 +323,7 @@ class PrivateCompose extends Component {
             <div className="operaBox">
               <Button className="addBtn" size="large" type="primary" onClick={this.openCreateModal}>
                 <i className="fa fa-plus"></i>&nbsp;
-								<FormattedMessage {...menusText.createCompose} />
+                <FormattedMessage {...menusText.createCompose} />
               </Button>
               <Input className="searchBox" placeholder={formatMessage(menusText.search)} type="text" />
               <i className="fa fa-search"></i>
@@ -338,7 +336,7 @@ class PrivateCompose extends Component {
                 <Dropdown overlay={attrDropdown} trigger={['click']} getPopupContainer={() => document.getElementById("PrivateCompose")}>
                   <div>
                     <FormattedMessage {...menusText.composeAttr} />&nbsp;
-									<i className="fa fa-filter"></i>
+                    <i className="fa fa-filter"></i>
                   </div>
                 </Dropdown>
               </div>
@@ -346,7 +344,7 @@ class PrivateCompose extends Component {
                 <Dropdown overlay={typeDropdown} trigger={['click']} getPopupContainer={() => document.getElementById("PrivateCompose")}>
                   <div>
                     <FormattedMessage {...menusText.type} />&nbsp;
-									<i className="fa fa-filter"></i>
+                    <i className="fa fa-filter"></i>
                   </div>
                 </Dropdown>
               </div>
@@ -370,7 +368,7 @@ class PrivateCompose extends Component {
           transitionName="move-right"
           onCancel={this.closeImageDetailModal}
         >
-        	<CreateCompose scope={scope} />      
+          <CreateCompose scope={scope} />
         </Modal>
       </QueueAnim>
     )

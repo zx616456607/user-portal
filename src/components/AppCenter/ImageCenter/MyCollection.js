@@ -126,11 +126,11 @@ let MyComponent = React.createClass({
   },
   showImageDetail: function (id) {
     //this function for user select image and show the image detail info
-    //		const scope = this.props.scope;
-    //		scope.setState({
-    //			imageDetailModalShow:true,
-    //			currentImage:id
-    //		});
+    //  const scope = this.props.scope;
+    //  scope.setState({
+    //   imageDetailModalShow:true,
+    //   currentImage:id
+    //  });
   },
   render: function () {
     let config = this.props.config;
@@ -146,11 +146,11 @@ let MyComponent = React.createClass({
             </span><br />
             <span className="type">
               <FormattedMessage {...menusText.belong} />&nbsp;
-							{item.type}
+              {item.type}
             </span>
             <span className="imageUrl">
               <FormattedMessage {...menusText.imageUrl} />&nbsp;
-							<span className="colorUrl">{item.imageUrl}</span>
+              <span className="colorUrl">{item.imageUrl}</span>
             </span>
             <span className="downloadNum">
               <FormattedMessage {...menusText.downloadNum} />&nbsp;{item.downloadNum}

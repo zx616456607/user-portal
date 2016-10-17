@@ -18,58 +18,63 @@ import { DEFAULT_CLUSTER } from '../../constants'
 import { tenxDateFormat } from '../../common/tools.js'
 
 function loadData(props) {
-	const { cluster, containerName } = props;
-	props.loadContainerDetailEvents( cluster, containerName );
+  const { cluster, containerName } = props;
+  props.loadContainerDetailEvents(cluster, containerName);
 }
 
 let MyComponent = React.createClass({
   propTypes: {
     config: React.PropTypes.array
   },
-  onchange: function () {
+  onchange: function() {
 
   },
-  render: function () {
+  render: function() {
     let { config, isFetching } = this.props;
     if(!!config) {
-    	return (
-    		<div className="noData">
-    			No Data
-    		</div>
-    	)
+      return( <div className = "noData" >
+        No Data 
+        </div>
+      )
     }
-    if( isFetching ) {
-    	return (
-    		<div className="loadingBox">
-    			<Spin size="large" />
-    		</div>
-    	)
+    if(isFetching) {
+      return( 
+        <div className = "loadingBox" >
+          <Spin size = "large" / >
+        </div>
+      )
     }
     let items = config.map((item) => {
-      return (
-        <div className='logDetail' key={item.id}>
-          <div className='iconBox'>
-            <div className='line'></div>
-            <div className={item.type == 'Normal' ? 'icon fa fa-check-circle success' : 'icon fa fa-times-circle fail'}></div>
-          </div>
-          <div className='infoBox'>
-            <div className={item.type == 'Normal' ? 'status success' : 'status fail'}>
-              <span className="commonSpan">{item.reason}</span>
-            </div>
-            <div className='message'>
-              <span className="commonSpan">消息&nbsp;:&nbsp;{item.message}</span>
-            </div>
-            <div className='createTime'>
-              <span className="commonSpan">{ tenxDateFormat(item.lastTimestamp) }</span>
-            </div>
-          </div>
-          <div style={{ clear: 'both' }}></div>
+      return( 
+      <div className = 'logDetail' key = { item.id } >
+        <div className = 'iconBox' >
+          <div className = 'line' ></div> 
+          <div className = { item.type == 'Normal' ? 'icon fa fa-check-circle success' : 'icon fa fa-times-circle fail' } > </div> 
+        </div> 
+        <div className = 'infoBox' >
+          <div className = { item.type == 'Normal' ? 'status success' : 'status fail' } >
+            <span className = "commonSpan" > 
+              { item.reason } 
+            </span> 
+          </div> 
+          <div className = 'message' >
+            <span className = "commonSpan" > 
+              消息 & nbsp;: & nbsp; { item.message } 
+            </span>
+          </div> 
+          <div className = 'createTime' >
+            <span className = "commonSpan" > 
+              { tenxDateFormat(item.lastTimestamp) } 
+            < /span> 
+          </div> 
         </div>
+        <div style = {{ clear: 'both' }} > </div> 
+      </div>
       );
     });
-    return (
-      <div className='logBox'>
-        {items}
+    return( 
+      <div className = 'logBox' > 
+        { items } 
       </div>
     );
   }
@@ -79,16 +84,16 @@ class ContainerLog extends Component {
   constructor(props) {
     super(props);
   }
-	
-	componentWillMount() {
+
+  componentWillMount() {
     loadData(this.props);
   }
-	
+
   render() {
-  	const { eventList } = this.props;
-    return (
-      <div id='ContainerLog'>
-        <MyComponent config={ eventList } />
+    const { eventList } = this.props;
+    return( 
+      <div id = 'ContainerLog' >
+        <MyComponent config = { eventList } /> 
       </div>
     )
   }
@@ -108,9 +113,7 @@ function mapStateToProps(state, props) {
     cluster: DEFAULT_CLUSTER,
     eventList: []
   }
-  const {
-    containerDetailEvents
-  } = state.containers
+  const { containerDetailEvents } = state.containers
   const { eventList, isFetching } = containerDetailEvents[DEFAULT_CLUSTER] || defaultEvents
 
   return {

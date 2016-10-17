@@ -23,6 +23,10 @@ export default class ImageCenterSider extends Component {
       current: '1'
     }
   }
+  
+  componentWillMount(){
+    currentPathNameCheck(this);
+  }
 
   handleClick(e) {
     this.setState({
@@ -54,4 +58,28 @@ export default class ImageCenterSider extends Component {
       </div>
     )
   }
+}
+
+function currentPathNameCheck(scope) {
+  //this function for check the pathname and change the current key 
+  let pathname = window.location.pathname;
+  //this check the pathname from the image_store
+  let containerModule = pathname.indexOf('app_center/image_store');
+  if( containerModule > -1 ){
+    scope.setState({
+      current: '2'
+    });
+    return;
+  }
+  //this check the pathname from the compose_center
+  let storageModule = pathname.indexOf('app_center/compose_center');
+  if( storageModule > -1 ){
+    scope.setState({
+      current: '3'
+    });
+    return;
+  }
+  scope.setState({
+    current: '1'
+  });
 }
