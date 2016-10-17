@@ -33,7 +33,7 @@ var MyComponent = React.createClass({
     });
   },
   add() {
-    uuid ++;
+    uuid++;
     const { form } = this.props.parentScope.props;
     let volumeKey = form.getFieldValue('volumeKey');
     volumeKey = volumeKey.concat(uuid);
@@ -298,7 +298,7 @@ class NormalDeployBox extends Component {
                   <Button type={parentScope.state.composeType == "1" ? "primary" : "ghost"} onClick={this.selectComposeType.bind(this, "1")}>
                     <div className="topBox">
                       1X
-	           			</div>
+                   </div>
                     <div className="bottomBox">
                       <span>256M&nbsp;内存</span><br />
                       <span>1CPU&nbsp;(共享)</span>
@@ -309,7 +309,7 @@ class NormalDeployBox extends Component {
                   <Button type={parentScope.state.composeType == "2" ? "primary" : "ghost"} onClick={this.selectComposeType.bind(this, "2")}>
                     <div className="topBox">
                       2X
-	           			</div>
+                   </div>
                     <div className="bottomBox">
                       <span>512M&nbsp;内存</span><br />
                       <span>1CPU&nbsp;(共享)</span>
@@ -320,7 +320,7 @@ class NormalDeployBox extends Component {
                   <Button type={parentScope.state.composeType == "4" ? "primary" : "ghost"} onClick={this.selectComposeType.bind(this, "4")}>
                     <div className="topBox">
                       4X
-	           			</div>
+                   </div>
                     <div className="bottomBox">
                       <span>1GB&nbsp;内存</span><br />
                       <span>1CPU&nbsp;(共享)</span>
@@ -331,7 +331,7 @@ class NormalDeployBox extends Component {
                   <Button type={parentScope.state.composeType == "8" ? "primary" : "ghost"} onClick={this.selectComposeType.bind(this, "8")}>
                     <div className="topBox">
                       8X
-	           			</div>
+                   </div>
                     <div className="bottomBox">
                       <span>2GB&nbsp;内存</span><br />
                       <span>1CPU&nbsp;(共享)</span>
@@ -342,7 +342,7 @@ class NormalDeployBox extends Component {
                   <Button type={parentScope.state.composeType == "16" ? "primary" : "ghost"} onClick={this.selectComposeType.bind(this, "16")}>
                     <div className="topBox">
                       16X
-	           			</div>
+                   </div>
                     <div className="bottomBox">
                       <span>4GB&nbsp;内存</span><br />
                       <span>1CPU</span>
@@ -353,7 +353,7 @@ class NormalDeployBox extends Component {
                   <Button type={parentScope.state.composeType == "32" ? "primary" : "ghost"} onClick={this.selectComposeType.bind(this, "32")}>
                     <div className="topBox">
                       32X
-	           			</div>
+                   </div>
                     <div className="bottomBox">
                       <span>8GB&nbsp;内存</span><br />
                       <span>2CPU</span>

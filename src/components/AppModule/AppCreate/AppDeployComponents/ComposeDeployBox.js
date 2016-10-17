@@ -89,7 +89,7 @@ var MyComponent = React.createClass({
               <Checkbox />&nbsp;&nbsp;别选楼上<br />
               <Checkbox />&nbsp;&nbsp;一楼脑残<br />
               <Checkbox />&nbsp;&nbsp;都选我
-						</div>
+            </div>
             <div className="opera">
               <i className="fa fa-trash-o" onClick={() => this.remove(k)}></i>
             </div>
