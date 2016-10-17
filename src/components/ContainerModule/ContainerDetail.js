@@ -83,7 +83,7 @@ class ContainerDetail extends Component {
                 <div className="leftInfo">
                   <div className="status">
                     运行状态&nbsp;:
-	                  <span>
+                    <span>
                       <i className={container.status.phase == 'Running' ? "normal fa fa-circle" : "error fa fa-circle"}></i>
                       <span className={container.status.phase == 'Running' ? "normal" : "error"} >
                         {container.status.phase}
@@ -99,8 +99,8 @@ class ContainerDetail extends Component {
                     创建&nbsp;:&nbsp;{container.metadata.creationTimestamp}
                   </div>
                   {/*<div className="updateDate">
-	                    更新&nbsp;:&nbsp;{container.metadata.creationTimestamp}
-	                  </div>*/}
+                      更新&nbsp;:&nbsp;{container.metadata.creationTimestamp}
+                    </div>*/}
                 </div>
                 <div className="rightInfo">
                   <div className="actionBox commonData">
@@ -109,7 +109,7 @@ class ContainerDetail extends Component {
                         <use xlinkHref="#terminal" />
                       </svg>
                       登录终端
-			    					</Button>
+                    </Button>
                     <Dropdown.Button overlay={operaMenu} type="ghost">
                       <i className="fa fa-power-off"></i>&nbsp;重启
                     </Dropdown.Button>

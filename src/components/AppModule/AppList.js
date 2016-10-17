@@ -67,7 +67,7 @@ const MyComponent = React.createClass({
       return (
         <div className="dataBox">
           暂无数据
-				</div>
+        </div>
       )
     }
     const scope = this;
@@ -81,7 +81,7 @@ const MyComponent = React.createClass({
           </Menu.Item>
           <Menu.Item key="2">
             删除
-					</Menu.Item>
+          </Menu.Item>
           <Menu.Item key="3">
             <Link to={`/app_manage/detail/${item.name}#topology`} >
               查看架构图
@@ -323,28 +323,28 @@ class AppList extends Component {
               </div>
               <div className="appName commonTitle">
                 应用名称
-      		  </div>
+            </div>
               <div className="appStatus commonTitle">
                 应用状态
-      		  </div>
+            </div>
               <div className="serviceNum commonTitle">
                 服务数量
-      		    <i className="fa fa-sort"></i>
+              <i className="fa fa-sort"></i>
               </div>
               <div className="containerNum commonTitle">
                 容器数量
-      		    <i className="fa fa-sort"></i>
+              <i className="fa fa-sort"></i>
               </div>
               <div className="visitIp commonTitle">
                 访问地址
-      		  </div>
+            </div>
               <div className="createTime commonTitle">
                 创建时间
-      		    <i className="fa fa-sort"></i>
+              <i className="fa fa-sort"></i>
               </div>
               <div className="actionBox commonTitle">
                 操作
-      		  </div>
+            </div>
             </div>
             <MyComponent config={appList} loading={isFetching} parentScope={scope} />
           </Card>

@@ -32,13 +32,13 @@ export default class ContainerDetailInfo extends Component {
           <div className="titleBox">
             <div className="commonTitle">
               名称
-	        </div>
+          </div>
             <div className="commonTitle">
               镜像名称
-	        </div>
+          </div>
             <div className="commonTitle">
               所属节点
-	        </div>
+          </div>
             <div style={{ clear: "both" }}></div>
           </div>
           <div className="dataBox">
@@ -59,79 +59,79 @@ export default class ContainerDetailInfo extends Component {
           <div className="titleBox">
             <div className="commonTitle">
               带宽
-	        	</div>
+            </div>
             <div className="commonTitle">
               内存
-	        	</div>
+            </div>
             <div className="commonTitle">
               处理器
-	        	</div>
+            </div>
             <div style={{ clear: "both" }}></div>
-          	</div>
-          	<div className="dataBox">
-            	<div className="commonTitle">
-              	-
-	        		</div>
-	            <div className="commonTitle">
-	              {container.spec.containers[0].resources.requests.memory || '-'}
-	            </div>
-	            <div className="commonTitle">
-	              {container.spec.containers[0].resources.requests.cpu || '-'}
-	            </div>
-            	<div style={{ clear: "both" }}></div>
-          	</div>
-        	</div>
-	        <div className="environment commonBox">
-	          <span className="titleSpan">环境变量</span>
-	          <div className="titleBox">
-	            <div className="commonTitle">
-	              变量名
-			        </div>
-		          <div className="commonTitle">
-		            变量值
-			        </div>
-	            <div style={{ clear: "both" }}></div>
-	          </div>
-	          <div className="dataBox">
-	            {
-	              container.spec.containers[0].envs && container.spec.containers[0].envs.map((env) => {
-	                return (
-	                  <div key={env.name}>
-	                    <div className="commonTitle">{env.name}</div>
-	                    <div className="commonTitle">{env.value}</div>
-	                    <div style={{ clear: "both" }}></div>
-	                  </div>
-	                )
-	              })
-	            }
-	          </div>
-	        </div>
-	        <div className="storage commonBox">
-	          <span className="titleSpan">数据存储器</span>
-	          <div className="titleBox">
-	            <div className="commonTitle">
-	              名称
-		        	</div>
-	            <div className="commonTitle">
-	              挂载点
-		        	</div>
-	            <div style={{ clear: "both" }}></div>
-	          </div>
-	          <div className="dataBox">
-	            {
-	              container.spec.containers[0].volumeMounts && container.spec.containers[0].volumeMounts.map((volume) => {
-	                return (
-	                  <div key={volume.name}>
-	                    <div className="commonTitle">{volume.name}</div>
-	                    <div className="commonTitle">{volume.mountPath}</div>
-	                    <div style={{ clear: "both" }}></div>
-	                  </div>
-	                )
-	              })
-	            }
-	          </div>
-		      </div>
-	      </div>
+            </div>
+            <div className="dataBox">
+              <div className="commonTitle">
+                -
+              </div>
+              <div className="commonTitle">
+                {container.spec.containers[0].resources.requests.memory || '-'}
+              </div>
+              <div className="commonTitle">
+                {container.spec.containers[0].resources.requests.cpu || '-'}
+              </div>
+              <div style={{ clear: "both" }}></div>
+            </div>
+          </div>
+          <div className="environment commonBox">
+            <span className="titleSpan">环境变量</span>
+            <div className="titleBox">
+              <div className="commonTitle">
+                变量名
+              </div>
+              <div className="commonTitle">
+                变量值
+              </div>
+              <div style={{ clear: "both" }}></div>
+            </div>
+            <div className="dataBox">
+              {
+                container.spec.containers[0].envs && container.spec.containers[0].envs.map((env) => {
+                  return (
+                    <div key={env.name}>
+                      <div className="commonTitle">{env.name}</div>
+                      <div className="commonTitle">{env.value}</div>
+                      <div style={{ clear: "both" }}></div>
+                    </div>
+                  )
+                })
+              }
+            </div>
+          </div>
+          <div className="storage commonBox">
+            <span className="titleSpan">数据存储器</span>
+            <div className="titleBox">
+              <div className="commonTitle">
+                名称
+              </div>
+              <div className="commonTitle">
+                挂载点
+              </div>
+              <div style={{ clear: "both" }}></div>
+            </div>
+            <div className="dataBox">
+              {
+                container.spec.containers[0].volumeMounts && container.spec.containers[0].volumeMounts.map((volume) => {
+                  return (
+                    <div key={volume.name}>
+                      <div className="commonTitle">{volume.name}</div>
+                      <div className="commonTitle">{volume.mountPath}</div>
+                      <div style={{ clear: "both" }}></div>
+                    </div>
+                  )
+                })
+              }
+            </div>
+          </div>
+        </div>
     )
   }
 }
