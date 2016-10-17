@@ -76,7 +76,9 @@ class AppDetail extends Component {
     const { activeTabKey } = this.state
     if (isFetching || !app) {
       return (
-        <Spin />
+        <div className="loadingBox">
+          <Spin />
+        </div>
       )
     }
     let updateDate = '-'
@@ -137,7 +139,7 @@ class AppDetail extends Component {
                 defaultActiveKey={activeTabKey}
                 onTabClick={this.onTabClick}
                 activeKey={activeTabKey}
-              >
+                >
                 <TabPane tab="服务实例" key={DEFAULT_TAB} >
                   <AppServiceList key="AppServiceList" appName={appName} loading={isFetching} />
                 </TabPane>

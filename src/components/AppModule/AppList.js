@@ -58,14 +58,14 @@ const MyComponent = React.createClass({
     const { config, loading } = this.props
     if (loading) {
       return (
-        <div className="dataBox">
+        <div className="loadingBox">
           <Spin />
         </div>
       )
     }
     if (config.length < 1) {
       return (
-        <div className="dataBox">
+        <div className="loadingBox">
           暂无数据
         </div>
       )
