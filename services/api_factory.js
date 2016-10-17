@@ -25,3 +25,14 @@ exports.getRegistryApi = function (registryConfig) {
   const api = new tenxApi(registryConfig)
   return api.registries
 }
+
+exports.getSpi = function (loginUser) {
+  const spiConfig = {
+    protocol: config.tenx_api.protocol,
+    host: config.tenx_api.host,
+    api_prefix: 'spi',
+    auth: loginUser
+  }
+  const spi = new tenxApi(spiConfig)
+  return spi
+}

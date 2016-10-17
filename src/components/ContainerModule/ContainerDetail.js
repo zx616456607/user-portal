@@ -127,7 +127,7 @@ class ContainerDetail extends Component {
                 <TabPane tab="容器配置" key="1" >
                   <ContainerDetailInfo key="ContainerDetailInfo" container={container} />
                 </TabPane>
-                <TabPane tab="监控" key="2" >应用拓补图</TabPane>
+                <TabPane tab="监控" key="2" >监控</TabPane>
                 <TabPane tab="日志" key="3" ><ContainerDetailGraph key="ContainerDetailGraph" /></TabPane>
                 <TabPane tab="事件" key="4" ><ContainerDetailLog key="ContainerDetailLog" containerName={containerName} cluster={cluster} /></TabPane>
               </Tabs>

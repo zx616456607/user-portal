@@ -211,7 +211,6 @@ class NormalDeployBox extends Component {
   componentWillMount() {
     loadImageTags(this.props)
   }
-
   componentWillReceiveProps(nextProps) {
     const {serviceOpen} = nextProps
     if (serviceOpen == this.props.serviceOpen) {
@@ -221,7 +220,6 @@ class NormalDeployBox extends Component {
       loadImageTags(nextProps)
     }
   }
-
   render() {
     const parentScope = this.props.scope;
     const { imageTags, imageTagsIsFetching } = this.props
@@ -274,9 +272,7 @@ class NormalDeployBox extends Component {
                 notFoundContent="镜像版本为空"
                 defaultActiveFirstOption={true}
                 onSelect={this.onSelectTagChange}
-
                 >
-
                 {imageTags && imageTags.map((tag) => {
                   return (
                     <Option key={tag} value={tag}>{tag}</Option>
