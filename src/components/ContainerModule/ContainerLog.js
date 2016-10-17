@@ -24,14 +24,11 @@ function loadData(props) {
 
 let MyComponent = React.createClass({
   propTypes: {
-    config: React.PropTypes.object
-  },
-  onchange: function() {
-
+    config: React.PropTypes.array
   },
   render: function() {
     let { config, isFetching } = this.props;
-    if(!!config) {
+    if(!!!config) {
       return( 
         <div className = "noData" >
           No Data 
@@ -54,19 +51,17 @@ let MyComponent = React.createClass({
         </div> 
         <div className = 'infoBox' >
           <div className = { item.type == 'Normal' ? 'status success' : 'status fail' } >
-            <span className = "commonSpan" > 
-              { item.reason } 
-            </span> 
-          </div> 
-          <div className = 'message' >
-            <span className = "commonSpan" > 
-              消息 & nbsp;: & nbsp; { item.message } 
+            <span className = 'commonSpan' >
+              { item.reason }
             </span>
           </div> 
+          <div className = 'message' >
+              消息: { item.message } 
+          </div> 
           <div className = 'createTime' >
-            <span className = "commonSpan" > 
-              { tenxDateFormat(item.lastTimestamp) } 
-            < /span> 
+            <span className = 'commonSpan' >
+              { tenxDateFormat(item.lastSeen) } 
+            </span>
           </div> 
         </div>
         <div style = {{ clear: 'both' }} > </div> 
@@ -91,10 +86,10 @@ class ContainerLog extends Component {
   }
 
   render() {
-    const { eventList } = this.props;
+    const { eventList, isFetching } = this.props;
     return( 
       <div id = 'ContainerLog' >
-        <MyComponent config = { eventList } /> 
+        <MyComponent config = { eventList } isFetching = { isFetching } /> 
       </div>
     )
   }

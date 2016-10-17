@@ -36,7 +36,7 @@ var MyComponent = React.createClass({
         </div>
       )
     }
-    if( config.length == 0 || !!config ) {
+    if( config.length == 0 || !!!config ) {
       return (
         <div className='loadingBox'>
           No Data
@@ -48,18 +48,22 @@ var MyComponent = React.createClass({
         <div className='eventDetail' key={item.id}>
           <div className='iconBox'>
             <div className='line'></div>
-            <div className={item.status == 1 ? 'icon fa fa-check-circle success' : 'icon fa fa-times-circle fail'}>
+            <div className={item.type == 'Normal' ? 'icon fa fa-check-circle success' : 'icon fa fa-times-circle fail'}>
             </div>
           </div>
           <div className='infoBox'>
-            <div className={item.status == 1 ? 'status success' : 'status fail'}>
-              {item.statusMsg}
+            <div className={item.type == 'Normal' == 1 ? 'status success' : 'status fail'}>
+              <span className='commonSpan'>
+                {item.reason}
+              </span>
             </div>
             <div className='message'>
               消息&nbsp;:&nbsp;{item.message}
             </div>
             <div className='createTime'>
-              {item.createTime}
+              <span className='commonSpan'>
+                { tenxDateFormat(item.lastSeen) }
+              </span>
             </div>
           </div>
           <div style={{ clear: 'both' }}></div>
@@ -87,7 +91,7 @@ class AppServiceEvent extends Component {
     const { isFetching, eventList } = this.props;
     return (
       <Card id='AppServiceEvent'>
-        <MyComponent isFetching={ isFetching } config={ eventList.events } />
+        <MyComponent isFetching={ isFetching } config={ eventList } />
       </Card>
     )
   }
@@ -95,7 +99,7 @@ class AppServiceEvent extends Component {
 
 AppServiceEvent.propTypes = {
   // Injected by React Redux
-  eventList: PropTypes.object.isRequired,
+  eventList: PropTypes.array.isRequired,
   isFetching: PropTypes.bool.isRequired,
   loadServiceDetailEvents: PropTypes.func.isRequired
 }

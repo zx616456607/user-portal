@@ -178,7 +178,7 @@ function serviceDetailEvents(state = {}, action) {
         [cluster]: {
           [serviceName]: {
             isFetching: false,
-            eventList: action.response.result.data
+            eventList: action.response.result.data.events
           }
         }
       })
