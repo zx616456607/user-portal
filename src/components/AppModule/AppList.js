@@ -65,7 +65,7 @@ const MyComponent = React.createClass({
     }
     if (config.length < 1) {
       return (
-        <div className="dataBox">
+        <div className="loadingBox">
           暂无数据
         </div>
       )

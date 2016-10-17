@@ -71,8 +71,8 @@ const MyComponent = React.createClass({
       return (
         <div className="containerDetail" key={item.metadata.name}>
           {/*(<div className="selectIconTitle commonData">
-        <Checkbox checked={this.checkedFunc(item.id)} onChange={()=>this.onchange(item.id)}></Checkbox>
-      </div>)*/}
+            <Checkbox checked={this.checkedFunc(item.id)} onChange={()=>this.onchange(item.id)}></Checkbox>
+          </div>)*/}
           <div className="name commonData" style={{ marginLeft: 24 }} >
             <Tooltip placement="topLeft" title={item.metadata.name} >
               <span className="viewBtn" onClick={this.modalShow.bind(this, item)}>

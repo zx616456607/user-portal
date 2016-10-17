@@ -36,7 +36,7 @@ export const GET_CONFIG_FILES_SUCCESS = 'GET_CONFIG_FILES_SUCCESS'
 export const GET_CONFIG_FILES_FAILURE = 'GET_CONFIG_FILES_FAILURE'
 
 // get config files
-export function configGroupName(obj) {
+export function configGroupName(obj, callback) {
   console.log('get config name  in action ……', obj)
   return {
     cluster: obj.cluster,
@@ -49,6 +49,7 @@ export function configGroupName(obj) {
       },
       schema: {}
     },
+    callback: callback
   }
 }
 

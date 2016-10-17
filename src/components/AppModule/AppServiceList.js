@@ -55,7 +55,9 @@ const MyComponent = React.createClass({
     }
     if (serviceList.length < 1) {
       return (
-        <span>还没有服务哦~</span>
+        <div className="loadingBox">
+          还没有服务哦~
+        </div>
       )
     }
     const items = serviceList.map((item) => {
