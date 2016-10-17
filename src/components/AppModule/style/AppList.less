@@ -1,139 +1,139 @@
 #AppList {
-	padding-top: 40px;
-	padding-left: 30px;
-	padding-right: 60px;
-	.clearDiv {
-		clear: both;
-	}
-	//顶部工具栏样式
-	.operationBox {
-		width: 100%;
-		.leftBox {
-			float: left;
-			button {
-				margin-right: 10px;
-				padding: 4px 10px;
-				height: 35px;
-				line-height: 27px;
-				background-color: #FFFFFF;
-				i {
-					margin-right: 5px;
-					font-size: 12px;
-				}
-			}
-		}
-		.rightBox {
-			position: relative;
-			float: right;
-			.littleLeft {
-				z-index: 10;
-				position: absolute;
-				top: 7px;
-				right: 10px;
-				font-size: 15px;
-				color: #949494;
-			}
-			.littleRight {
-				float: left;
-				input {
-					height: 35px;
-					line-height: 35px;
-					font-size: 14px;
-					color: #333333;
-					background-color: #f8f8f8;
-				}
-			}
-		}
-	}
-	//数据框
-	.appBox {
-		margin-top: 20px;
-		width: 100%;
-		border-radius: 5px;
-		background-color: #FFFFFF;
-		.selectIconTitle {
-			width: 5%;
-			overflow: hidden;
-			text-align: center;
-		}
-		.appName,
-		.appStatus,
-		.serviceNum,
-		.containerNum {
-			width: 12.5%;
-			white-space: nowrap;
-			overflow: hidden;
-			text-overflow: ellipsis;
-		}
-		.visitIp,
-		.createTime,
-		.actionBox {
-			width: 15%;
-			white-space: nowrap;
-			overflow: hidden;
-			text-overflow: ellipsis;
-		}
-		.appTitle {
-			width: 100%;
-			height: 40px;
-			line-height: 40px;
-			border-bottom: 1px solid #d9d9d9;
-			.commonTitle {
-				float: left;
-				padding-left: 10px;
-				i {
-					margin-left: 5px;
-					cursor: pointer;
-				}
-			}
-		}
-		.dataBox {
-			padding-bottom: 40px;
-			width: 100%;
-			height: auto;
-			line-height: 50px;
-			.commonData {
-				float: left;
-				padding-left: 10px;
-				i {
-					margin-left: 5px;
-					cursor: pointer;
-				}
-			}
-			.appDetailSelected{
-				background-color: #effdff;
-			}
-			.appDetail {
-				width: 100%;
-				height: 51px;
-				border-bottom: 1px solid #d9d9d9;
-				.ant-dropdown-link {
-					width: 110px;
-					height: 35px;
-					text-align: left;
-				}
-				.appStatus {
-					i {
-						margin-right: 5px;
-					}
-					.normal {
-						color: #5cb85c;
-					}
-					.error {
-						color: #f85a5a;
-					}
-				}
-				.actionBox {
-					button {}
-					i {
-						float: right;
-						line-height: 18px;
-					}
-				}
-				&:hover{
-					background-color: #F2F2F2;
-				}
-			}
-		}
-	}
+  padding-top: 40px;
+  padding-left: 30px;
+  padding-right: 60px;
+  .clearDiv {
+    clear: both;
+  }
+  //顶部工具栏样式
+  .operationBox {
+    width: 100%;
+    .leftBox {
+      float: left;
+      button {
+        margin-right: 10px;
+        padding: 4px 10px;
+        height: 35px;
+        line-height: 27px;
+        background-color: #FFFFFF;
+        i {
+          margin-right: 5px;
+          font-size: 12px;
+        }
+      }
+    }
+    .rightBox {
+      position: relative;
+      float: right;
+      .littleLeft {
+        z-index: 10;
+        position: absolute;
+        top: 7px;
+        right: 10px;
+        font-size: 15px;
+        color: #949494;
+      }
+      .littleRight {
+        float: left;
+        input {
+          height: 35px;
+          line-height: 35px;
+          font-size: 14px;
+          color: #333333;
+          background-color: #f8f8f8;
+        }
+      }
+    }
+  }
+  //数据框
+  .appBox {
+    margin-top: 20px;
+    width: 100%;
+    border-radius: 5px;
+    background-color: #FFFFFF;
+    .selectIconTitle {
+      width: 5%;
+      overflow: hidden;
+      text-align: center;
+    }
+    .appName,
+    .appStatus,
+    .serviceNum,
+    .containerNum {
+      width: 12.5%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .visitIp,
+    .createTime,
+    .actionBox {
+      width: 15%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .appTitle {
+      width: 100%;
+      height: 40px;
+      line-height: 40px;
+      border-bottom: 1px solid #d9d9d9;
+      .commonTitle {
+        float: left;
+        padding-left: 10px;
+        i {
+          margin-left: 5px;
+          cursor: pointer;
+        }
+      }
+    }
+    .dataBox {
+      padding-bottom: 40px;
+      width: 100%;
+      height: auto;
+      line-height: 50px;
+      .commonData {
+        float: left;
+        padding-left: 10px;
+        i {
+          margin-left: 5px;
+          cursor: pointer;
+        }
+      }
+      .appDetailSelected{
+        background-color: #effdff;
+      }
+      .appDetail {
+        width: 100%;
+        height: 51px;
+        border-bottom: 1px solid #d9d9d9;
+        .ant-dropdown-link {
+          width: 110px;
+          height: 35px;
+          text-align: left;
+        }
+        .appStatus {
+          i {
+            margin-right: 5px;
+          }
+          .normal {
+            color: #5cb85c;
+          }
+          .error {
+            color: #f85a5a;
+          }
+        }
+        .actionBox {
+          button {}
+          i {
+            float: right;
+            line-height: 18px;
+          }
+        }
+        &:hover{
+          background-color: #F2F2F2;
+        }
+      }
+    }
+  }
 }

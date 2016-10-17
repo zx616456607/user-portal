@@ -260,7 +260,8 @@ exports.updateConfigName = function* () {
   const cluster = this.params.cluster
   const fileName = this.params.name
   const group = this.params.group
-  let data = this.request.body
+  let data = this.request.body.desc
+  console.log('update in ', data)
   let response = yield configApi.configGroup.updateBy([cluster, 'configgroups', group, 'configs', fileName], null, data)
 
   this.status = response.code
@@ -273,9 +274,7 @@ exports.deleteConfigFiles = function* () {
   const cluster = this.params.cluster
   const group = this.params.group
   const data = this.request.body
-  console.log('delete config files', data)
   let response = yield configApi.configGroup.batchDeleteBy([cluster, 'configgroups', group, 'configs', 'batch-delete'], null, data)
-
   this.status = response.code
   this.body = {
     data: response.data

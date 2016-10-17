@@ -18,6 +18,9 @@ import AppLog from './AppLog'
 import './style/AppDetail.less'
 import { loadAppDetail } from '../../actions/app_manage'
 import { DEFAULT_CLUSTER } from '../../constants'
+import { browserHistory } from 'react-router'
+
+const DEFAULT_TAB = '#service'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -25,9 +28,10 @@ const TabPane = Tabs.TabPane
 
 class AppDetail extends Component {
   constructor(props) {
-    super(props);
+    super(props)
+    this.onTabClick = this.onTabClick.bind(this)
     this.state = {
-      currentKey: "1"
+      activeTabKey: props.hash || DEFAULT_TAB
     }
   }
 
@@ -37,12 +41,44 @@ class AppDetail extends Component {
     loadAppDetail(cluster, appName)
   }
 
+  componentWillReceiveProps(nextProps) {
+    let { hash } = nextProps
+    if (hash === this.props.hash) {
+      return
+    }
+    if (!hash) {
+      hash = DEFAULT_TAB
+    }
+    this.setState({
+      activeTabKey: hash
+    })
+  }
+
+  onTabClick(activeTabKey) {
+    if (activeTabKey === this.state.activeTabKey) {
+      return
+    }
+    const { pathname } = this.props
+    this.setState({
+      activeTabKey
+    })
+    if (activeTabKey === DEFAULT_TAB) {
+      activeTabKey = ''
+    }
+    browserHistory.push({
+      pathname,
+      hash: activeTabKey
+    })
+  }
+
   render() {
     const { children, appName, app, isFetching } = this.props
-    const { currentKey } = this.state
+    const { activeTabKey } = this.state
     if (isFetching || !app) {
       return (
-        <Spin />
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
       )
     }
     let updateDate = '-'
@@ -68,7 +104,7 @@ class AppDetail extends Component {
                 <div className="leftInfo">
                   <div className="status">
                     运行状态&nbsp;:
-	                    <span>
+                      <span>
                       <i className={app.appStatus == 0 ? "normal fa fa-circle" : "error fa fa-circle"}></i>
                       <span className={app.appStatus == 0 ? "normal" : "error"} >{app.appStatus == 0 ? "正常" : "异常"}</span>
                     </span>
@@ -100,15 +136,17 @@ class AppDetail extends Component {
             <Card className="bottomCard">
               <Tabs
                 tabPosition="top"
-                defaultActiveKey="1"
+                defaultActiveKey={activeTabKey}
+                onTabClick={this.onTabClick}
+                activeKey={activeTabKey}
                 >
-                <TabPane tab="服务实例" key="1" >
+                <TabPane tab="服务实例" key={DEFAULT_TAB} >
                   <AppServiceList key="AppServiceList" appName={appName} loading={isFetching} />
                 </TabPane>
-                <TabPane tab="应用拓补图" key="2" >应用拓补图</TabPane>
-                <TabPane tab="编排文件" key="3" ><AppGraph key="AppGraph" /></TabPane>
-                <TabPane tab="操作日志" key="4" ><AppLog key="AppLog" cluster={this.props.cluster} appName={this.props.appName} /></TabPane>
-                <TabPane tab="监控" key="5" >监控</TabPane>
+                <TabPane tab="应用拓扑图" key="#topology">应用拓扑图</TabPane>
+                <TabPane tab="编排文件" key="#stack" ><AppGraph key="AppGraph" /></TabPane>
+                <TabPane tab="操作日志" key="#logs" ><AppLog key="AppLog" cluster={this.props.cluster} appName={this.props.appName}/></TabPane>
+                <TabPane tab="监控" key="#monitor" >监控</TabPane>
               </Tabs>
             </Card>
           </div>
@@ -129,6 +167,7 @@ AppDetail.propTypes = {
 
 function mapStateToProps(state, props) {
   const { app_name } = props.params
+  const { hash, pathname } = props.location
   const defaultApp = {
     isFetching: false,
     cluster: DEFAULT_CLUSTER,
@@ -144,7 +183,9 @@ function mapStateToProps(state, props) {
     cluster: DEFAULT_CLUSTER,
     appName: app_name,
     app,
-    isFetching
+    isFetching,
+    hash,
+    pathname
   }
 }
 

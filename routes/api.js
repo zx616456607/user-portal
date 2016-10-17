@@ -60,12 +60,14 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/services/:service_name/autoscale', serviceController.autoScaleService)
   router.put('/clusters/:cluster/services/:service_name/quota', serviceController.changeServiceQuota)
   router.put('/clusters/:cluster/services/:service_name/ha', serviceController.changeServiceHa)
+  router.get('/clusters/:cluster/services/:service_name/events', serviceController.getServiceDetailEvents)
   // spi
   router.post('/clusters/:cluster/services/:service_name/domain', serviceController.bindServiceDomain)
 
   // Containers
   router.get('/clusters/:cluster/containers', containerController.getContainers)
   router.get('/clusters/:cluster/containers/:container_name/detail', containerController.getContainerDetail)
+  router.get('/clusters/:cluster/containers/:container_name/events',containerController.getContainerDetailEvents)
 
   // Configs
   router.get('/clusters/:cluster/configgroups', configController.getConfigGroup)
@@ -73,8 +75,9 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/configgroups/:group/configs/:name', configController.loadConfigFiles)
   router.post('/clusters/:cluster/configs', configController.createConfigGroup)
   router.post('/clusters/:cluster/configgroups/:group/configs/:name', configController.createConfigFiles)
+  router.put('/clusters/:cluster/configgroups/:group/configs/:name', configController.updateConfigName)
   router.post('/clusters/:cluster/configs/delete', configController.deleteConfigGroup)
-  router.post('/clusters/:cluster/configgroups/:group/configs/batch-delete', configController.deleteConfigFiles)
+  router.post('/clusters/:cluster/configgroups/:group/configs-batch-delete', configController.deleteConfigFiles)
 
   // Registries
   router.get('/registries/:registry', registryController.getImages)

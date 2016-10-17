@@ -28,13 +28,14 @@ class CollapseContainer extends Component {
   }
   componentWillMount() {
     // 暂时不重新加载 group file 父组件已经返回了 
-    const { groupname } = this.props
+    // const { groupname } = this.props
     // this.props.loadConfigName(groupname) 
 
   }
 
   editConfigModal(group, configName) {
     const groups = { group, Name: configName }
+    
     const self = this
     this.props.loadConfigName(groups, {
       success: {
@@ -42,7 +43,7 @@ class CollapseContainer extends Component {
           self.setState({
             modalConfigFile: true,
             configName: configName,
-            configtextarea: self.props.configName
+            configtextarea: self.props.configDesc
           })
         },
         isAsync: true
@@ -50,17 +51,27 @@ class CollapseContainer extends Component {
     })
 
   }
-  editConfigFile(Name) {
+  editConfigFile(group) {
+    const groups = { 
+      group, name: this.state.configName,
+      cluster: DEFAULT_CLUSTER,
+      desc: this.state.configtextarea
+    }
+    const {parentScope} = this.props
     this.props.updateConfigName(groups, {
       success: {
         func: () => {
           this.setState({
             modalConfigFile: false,
           })
+          message.success('修改配置文件成功')
         },
         isAsync: true
       }
     })
+  }
+  setInputValue(e) {
+    this.setState({configtextarea: e.target.value})
   }
   deleteConfigFile(group, Name) {
     let configs = []
@@ -71,16 +82,26 @@ class CollapseContainer extends Component {
       configs
     }
     const self = this
+    const {parentScope} = this.props
     Modal.confirm({
       title: '您是否确认要删除这项内容',
       content: Name,
       onOk() {
-        console.log('groups', groups)
         self.props.deleteConfigName(groups, {
           success: {
             func: () => {
               message.success('删除配置文件成功')
-              self.props.configGroupName(groups)
+              self.props.configGroupName(groups, {
+                success: {
+                  func: ()=>{
+                    parentScope.setState({
+                      List: self.props.configName,
+                      Size: self.props.configName.length
+                    })
+                  },
+                  isAsync: true
+                }
+              })
             },
             isAsync: true
           }
@@ -93,27 +114,24 @@ class CollapseContainer extends Component {
     });
   }
   render() {
-    // const collapseContainer = this.props.collapseContainer
-    const collapseContainer = this.props.collapseContainer
-    console.log('coo', this.state)
+    const { collapseContainer } = this.props
     const configNameList = this.props.configName
     let configFileList
-    if (configNameList == '') {
-      return (
-        <Spin />
-      )
-    }
-    if (!collapseContainer) {
-      message.info(this.props.groupname + '未添加配置文件')
+    if ( collapseContainer.length === 0) {
+      // message.info(this.props.groupname + '未添加配置文件')
       return (
         <div className="li">未添加配置文件</div>
       )
     }
-    console.info('configGroupName', this.props)
-    // if (this.state.configGroupName.configName) {
-    //   configFileList = 
-    // }
-    configFileList = configNameList.map((configFileItem) => {
+    if (!collapseContainer) {
+      return(
+        <div className="loadingBox">
+          <Spin />
+        </div>
+      )
+    }
+
+    configFileList = collapseContainer.map((configFileItem) => {
       return (
         <Timeline.Item key={configFileItem.name}>
           <Row className="file-item">
@@ -122,8 +140,7 @@ class CollapseContainer extends Component {
               <tbody>
                 <tr>
                   <td style={{ padding: "15px" }}>
-                    <Icon type="file-text" style={{ marginRight: "10px" }} />
-                    {configFileItem.name}
+                    <div style={{width:'180px'}} className="textoverflow"><Icon type="file-text" style={{ marginRight: "10px" }} />{configFileItem.name}</div>
                   </td>
                   <td style={{ padding: "15px" }}>
                     <Button type="primary" style={{ with: "30px", height: "30px", padding: "0 9px", marginRight: "5px" }}
@@ -152,7 +169,7 @@ class CollapseContainer extends Component {
           title="修改配置文件"
           wrapClassName="configFile-create-modal"
           visible={this.state.modalConfigFile}
-          onOk={(e) => this.editConfigFile(configFileList.name)}
+          onOk={() => this.editConfigFile(this.props.groupname)}
           onCancel={() => { this.setState({ modalConfigFile: false }) } }
           >
           <div className="configFile-inf">
@@ -161,9 +178,9 @@ class CollapseContainer extends Component {
               即将保存一个配置文件 , 您可以在创建应用 → 添加服务时 , 关联使用该配置
             </p>
             <span className="li">名称 : </span>
-            <Input type="text" className="configName" disabled={true} defaultValue={this.state.configName} />
+            <Input type="text" className="configName" disabled={true} value={this.state.configName} />
             <span className="li">内容 : </span>
-            <Input type="textarea" style={{ minHeight: 100 }} defaultValue={this.state.configtextarea} />
+            <Input type="textarea" style={{ minHeight: 100 }} value={this.state.configtextarea} onChange={(e)=> this.setInputValue(e)} />
           </div>
         </Modal>
         {/*              修改配置文件-弹出层-end                */}
@@ -186,16 +203,14 @@ function mapStateToProps(state, props) {
     isFetching: false,
     cluster: DEFAULT_CLUSTER,
     configName: '',
+    configDesc:''
   }
-  const {loadConfigName} = state.configReducers
-  const {cluster, isFetching, configName, configGroupName, deleteConfigName} = loadConfigName[DEFAULT_CLUSTER] || defaultConfigList
+  const { configGroupName } = state.configReducers
+  const { isFetching ,configName, configDesc} = configGroupName[DEFAULT_CLUSTER] || defaultConfigList
   return {
-    cluster,
-    loadConfigName,
+    configDesc,
     isFetching,
     configName,
-    configGroupName,
-    deleteConfigName
   }
 }
 function mapDispatchToProps(dispatch) {
@@ -209,8 +224,8 @@ function mapDispatchToProps(dispatch) {
     deleteConfigName: (obj, callback) => {
       dispatch(deleteConfigName(obj, callback))
     },
-    configGroupName: (obj) => {
-      dispatch(configGroupName(obj))
+    configGroupName: (obj, callback) => {
+      dispatch(configGroupName(obj, callback))
     }
   }
 }

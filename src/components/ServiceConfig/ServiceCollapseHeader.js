@@ -3,28 +3,20 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
- *  Storage list
+ *  Config Group 
  *
  * v0.1 - 2016/9/23
- * @author ZhaoXueYu
+ * @author ZhaoXueYu BaiYu
  */
 
 import React, { Component, PropTypes } from 'react'
 import { Row, Col, Modal, Button, Icon, Checkbox, Menu, Dropdown, Input, message } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { createConfigFiles, deleteConfigFiles, configGroupName } from '../../actions/configs'
+import { createConfigFiles, deleteConfigGroup, loadConfigGroup, deleteConfigFiles, configGroupName } from '../../actions/configs'
 import { connect } from 'react-redux'
 import { DEFAULT_CLUSTER } from '../../constants'
 
 
-function handleMenuClick() {
-  console.log('delete !');
-}
-const menu = (
-  <Menu onClick={() => handleMenuClick()} mode="vertical">
-    <Menu.Item key="1">删除配置组</Menu.Item>
-  </Menu>
-);
 const ButtonGroup = Button.Group
 
 class CollapseHeader extends Component {
@@ -49,7 +41,6 @@ class CollapseHeader extends Component {
       message.error('请输入配置组名称')
       return
     }
-    console.log('fileName', group)
     let configfile = {
       group,
       cluster: DEFAULT_CLUSTER,
@@ -57,6 +48,7 @@ class CollapseHeader extends Component {
       desc: this.state.configDesc
     }
     let self = this
+    const {parentScope} = this.props
     self.props.createConfigFiles(configfile, {
       success: {
         func: () => {
@@ -66,7 +58,17 @@ class CollapseHeader extends Component {
             configName: '',
             configDesc: ''
           })
-          self.props.configGroupName(configfile)
+          self.props.configGroupName(configfile, {
+            success: {
+              func: ()=>{
+                parentScope.setState({
+                  List: self.props.configName,
+                  Size: self.props.configName.length
+                })
+              },
+              isAsync: true
+            }
+          })
         },
         isAsync: true
       },
@@ -99,8 +101,38 @@ class CollapseHeader extends Component {
   handChage(e, Id) {
     this.props.handChageProp(e, Id)
   }
+  btnDeleteGroup(group) {
+    // console.log('props',this.props)
+    const self = this
+    let configArray = []
+    configArray.push(group)
+    let configData = {
+      cluster: DEFAULT_CLUSTER,
+      "groups": configArray
+    }
+    Modal.confirm({
+      title: '您是否确认要删除这些配置组',
+      content: group,
+      onOk() {
+        self.props.deleteConfigGroup(configData, {
+          success: {
+            func: () => {
+              message.success('删除成功')
+              self.props.loadConfigGroup()
+            },
+            isAsync: true
+          }
+        })
+      }
+    })
+  }
   render() {
-    const {collapseHeader} = this.props
+    const {collapseHeader, sizeNumber} = this.props
+    const menu = (
+      <Menu onClick={() => this.btnDeleteGroup(collapseHeader.native.metadata.name)} mode="vertical">
+        <Menu.Item key="1">删除配置组</Menu.Item>
+      </Menu>
+    );
     return (
       <Row>
         <Col className="group-name" span="6">
@@ -111,7 +143,7 @@ class CollapseHeader extends Component {
         </Col>
         <Col span="6">
           配置文件 &nbsp;
-          {collapseHeader.extended.size}个
+          {sizeNumber}个
         </Col>
         <Col span="6">
           创建时间&nbsp;&nbsp;{collapseHeader.native.metadata.creationTimestamp}
@@ -157,24 +189,33 @@ CollapseHeader.propTypes = {
   collapseHeader: PropTypes.object.isRequired,
   intl: PropTypes.object.isRequired,
   createConfigFiles: PropTypes.func.isRequired,
-  configGroupName: PropTypes.func.isRequired
+  configGroupName: PropTypes.func.isRequired,
+  loadConfigGroup: PropTypes.func.isRequired,
+  deleteConfigGroup: PropTypes.func.isRequired
 }
-function mapStateToProps() {
+function mapStateToProps(state, props) {
   const defaultConfigFiles = {
     isFetching: false,
     cluster: DEFAULT_CLUSTER,
     configFiles: [],
+    configName: []
   }
+
+  const { configGroupName  } = state.configReducers
+
   const {configFiles, cluster, isFetching} = createConfigFiles[DEFAULT_CLUSTER] || defaultConfigFiles
+  const {configName} = configGroupName[DEFAULT_CLUSTER] || defaultConfigFiles
   return {
-    configFiles, cluster, isFetching
+    configFiles, cluster, isFetching, configName
   }
 }
 
 function mapDispatchToProps(dispatch) {
   return {
     createConfigFiles: (obj, callback) => { dispatch(createConfigFiles(obj, callback)) },
-    configGroupName: (obj) => { dispatch(configGroupName(obj)) }
+    configGroupName: (obj,callback) => { dispatch(configGroupName(obj, callback)) },
+    deleteConfigGroup: (obj, callback) => {dispatch(deleteConfigGroup(obj, callback))},
+    loadConfigGroup: (obj) => {dispatch(loadConfigGroup(obj))}
   }
 }
 

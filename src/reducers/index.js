@@ -14,6 +14,7 @@ import { routerReducer as routing } from 'react-router-redux'
 import { combineReducers } from 'redux'
 import * as appManageReducers from './app_manage'
 import * as appCenterReducers from './app_center'
+import * as servicesReducers from './services'
 import configReducers from './configs'
 import storage from './storage'
 
@@ -77,6 +78,7 @@ const rootReducer = combineReducers({
   storage,
   ...appManageReducers,
   ...appCenterReducers,
+  ...servicesReducers,
   configReducers,
   routing
 })

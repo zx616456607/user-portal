@@ -218,12 +218,12 @@ export default class AppStore extends Component {
             <Link to={`/app_manage/app_create`}>
               <Button type="primary" size="large">
                 上一步
-	          </Button>
+            </Button>
             </Link>
             <Link to={`/app_manage/app_create/compose_file`}>
               <Button type="primary" size="large">
                 下一步
-	          </Button>
+            </Button>
             </Link>
           </div>
         </div>

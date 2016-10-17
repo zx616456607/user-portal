@@ -96,7 +96,7 @@ class StorageDetail extends Component {
                   &nbsp;：
                     <span>
                     <i className={StorageInfo.isUsed ? 'fa fa-circle error' : 'fa fa-circle normal'}></i>&nbsp;
-	                    <span className={StorageInfo.isUsed ? 'error' : 'normal'}>{StorageInfo.isUsed ? <FormattedMessage {...messages.using} /> : <FormattedMessage {...messages.stop} />}</span>
+                      <span className={StorageInfo.isUsed ? 'error' : 'normal'}>{StorageInfo.isUsed ? <FormattedMessage {...messages.using} /> : <FormattedMessage {...messages.stop} />}</span>
                   </span>
                   <div className="createDate">
                     <FormattedMessage {...messages.create} />：

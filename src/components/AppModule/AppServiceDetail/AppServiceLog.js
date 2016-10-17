@@ -18,7 +18,9 @@ export default class AppServiceLog extends Component {
   constructor(props) {
     super(props);
   }
-
+  componentWillMount() {
+    
+  }
   render() {
     return (
       <div id="AppServiceLog">
@@ -31,11 +33,11 @@ export default class AppServiceLog extends Component {
             </div>
             <div className="infoBox">
               Hello world~
-		          <br />
+              <br />
               &nbsp;&nbsp;Let me introduce myself.
-		          <br />
+              <br />
               &nbsp;&nbsp;&nbsp;&nbsp;I am an application of mengmengda~
-		        </div>
+            </div>
             <div style={{ clear: "both" }}></div>
           </div>
           <div style={{ clear: "both" }}></div>

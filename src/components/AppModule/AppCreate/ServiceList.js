@@ -100,11 +100,13 @@ class MyComponent extends Component {
             <Button className="viewBtn" type="ghost" size="large" onClick={() => this.checkService(item.name, item.inf)}>
               <i className="fa fa-eye" />&nbsp;
               查看
-			      </Button>
+
+            </Button>
             <Button type="ghost" size="large" onClick={() => this.deleteService(item.name)}>
               <i className="fa fa-trash" />&nbsp;
               删除
-			      </Button>
+
+            </Button>
           </div>
           <div style={{ clear: "both" }}></div>
         </div>
@@ -127,6 +129,7 @@ export default class ServiceList extends Component {
     this.allSelectedChecked = this.allSelectedChecked.bind(this);
     this.subServicesList = this.subServicesList.bind(this);
     this.delServicesList = this.delServicesList.bind(this);
+    this.delAllSelected = this.delAllSelected.bind(this);
     this.state = {
       modalShow: false,
       selectedList: [],
@@ -139,17 +142,20 @@ export default class ServiceList extends Component {
     }
   }
 
+
   closeModal() {
     this.setState({
       modalShow: false
     });
   }
 
+
   openModal() {
     this.setState({
       modalShow: true
     });
   }
+
 
   allSelectedChecked() {
     if ((this.state.selectedList.length == this.state.servicesList.length) && (this.state.servicesList.length !== 0)) {
@@ -158,6 +164,7 @@ export default class ServiceList extends Component {
       return false;
     }
   }
+
 
   onchange() {
     //select title checkbox
@@ -173,13 +180,30 @@ export default class ServiceList extends Component {
       selectedList: newList
     });
   }
+
   subServicesList() {
     localStorage.setItem('servicesList', JSON.stringify(this.state.servicesList))
     localStorage.setItem('selectedList', JSON.stringify(this.state.selectedList))
   }
+
   delServicesList() {
     localStorage.removeItem('servicesList');
     localStorage.removeItem('selectedList');
+  }
+
+  delAllSelected() {
+    console.log('delAllSelected run');
+    console.log('this.state1111',this.state);
+    let selectedList = this.state.selectedList
+    let servicesList = this.state.servicesList
+    let newServiceList=servicesList.filter(function (service) {
+      return !selectedList.includes(service.id)
+    })
+    this.setState({
+      servicesList:newServiceList,
+      selectedList:[]
+    })
+    console.log('this.state33333',this.state);
   }
   componentWillMount() {
     const serviceList = JSON.parse(localStorage.getItem('servicesList'))
@@ -197,6 +221,7 @@ export default class ServiceList extends Component {
   }
 
   render() {
+    console.log('console.log(this.state);',this.state);
     const parentScope = this
     const { servicesList, isFetching} = this.props
     return (
@@ -207,12 +232,15 @@ export default class ServiceList extends Component {
           <div className="operaBox">
             <Button type="primary" size="large" onClick={this.openModal}>
               <i className="fa fa-plus" />&nbsp;
-	             添加服务
-	          </Button>
-            <Button size="large" type="ghost">
+
+               添加服务
+            </Button>
+
+            <Button size="large" type="ghost" onClick={this.delAllSelected}>
               <i className="fa fa-trash" />&nbsp;
-	            删除
-	          </Button>
+
+              删除
+            </Button>
           </div>
           <div className="dataBox">
             <div className="titleBox">
@@ -221,16 +249,20 @@ export default class ServiceList extends Component {
               </div>
               <div className="name commonData">
                 服务名称
-		          </div>
+
+              </div>
               <div className="image commonData">
                 镜像
-		          </div>
+
+              </div>
               <div className="resource commonData">
                 计算资源
-		          </div>
+
+              </div>
               <div className="opera commonData">
                 操作
-		          </div>
+
+              </div>
               <div style={{ clear: "both" }}></div>
             </div>
             <MyComponent scope={parentScope} loading={isFetching} config={this.state.servicesList} />
@@ -239,12 +271,14 @@ export default class ServiceList extends Component {
             <Link to={`/app_manage/app_create`}>
               <Button type="primary" size="large" onClick={this.delServicesList}>
                 上一步
-	          </Button>
+
+            </Button>
             </Link>
             <Link to={`/app_manage/app_create/compose_file`}>
               <Button type="primary" size="large" onClick={this.subServicesList}>
                 下一步
-	          </Button>
+
+            </Button>
             </Link>
           </div>
           <Modal title="添加服务"

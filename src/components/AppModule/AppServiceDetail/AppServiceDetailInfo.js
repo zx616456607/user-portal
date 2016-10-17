@@ -24,7 +24,9 @@ export default class AppServiceDetailInfo extends Component {
     const parentScope = this;
     if (isFetching || !serviceDetail.metadata) {
       return (
-        <Spin />
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
       )
     }
     return (
@@ -34,13 +36,13 @@ export default class AppServiceDetailInfo extends Component {
           <div className="titleBox">
             <div className="commonTitle">
               名称
-	        </div>
+          </div>
             <div className="commonTitle">
               镜像名称
-	        </div>
+          </div>
             <div className="commonTitle">
               创建时间
-	        </div>
+          </div>
             <div style={{ clear: "both" }}></div>
           </div>
           <div className="dataBox">
@@ -61,13 +63,13 @@ export default class AppServiceDetailInfo extends Component {
           <div className="titleBox">
             <div className="commonTitle">
               CPU
-	        </div>
+          </div>
             <div className="commonTitle">
               内存
-	        </div>
+          </div>
             <div className="commonTitle">
               系统盘
-	        </div>
+          </div>
             <div style={{ clear: "both" }}></div>
           </div>
           <div className="dataBox">
@@ -79,7 +81,7 @@ export default class AppServiceDetailInfo extends Component {
             </div>
             <div className="commonTitle">
               10G
-	        </div>
+          </div>
             <div style={{ clear: "both" }}></div>
           </div>
         </div>
@@ -88,19 +90,19 @@ export default class AppServiceDetailInfo extends Component {
           <div className="titleBox">
             <div className="commonTitle">
               变量名
-	        </div>
+          </div>
             <div className="commonTitle">
               变量值
-	        </div>
+          </div>
             <div style={{ clear: "both" }}></div>
           </div>
           <div className="dataBox">
             <div className="commonTitle">
               -
-	        </div>
+          </div>
             <div className="commonTitle">
               -
-	        </div>
+          </div>
             <div style={{ clear: "both" }}></div>
           </div>
         </div>

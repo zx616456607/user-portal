@@ -13,7 +13,7 @@ import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import './style/AppContainerList.less'
-import { loadServiceContainerList } from '../../../actions/app_manage'
+import { loadServiceContainerList } from '../../../actions/services'
 
 const testData = []
 
@@ -57,7 +57,9 @@ const MyComponent = React.createClass({
     const {config, loading} = this.props
     if (loading) {
       return (
-        <Spin />
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
       )
     }
     if (config.length < 1) {
@@ -69,8 +71,8 @@ const MyComponent = React.createClass({
       return (
         <div className="containerDetail" key={item.metadata.name}>
           {/*(<div className="selectIconTitle commonData">
-		    <Checkbox checked={this.checkedFunc(item.id)} onChange={()=>this.onchange(item.id)}></Checkbox>
-		  </div>)*/}
+            <Checkbox checked={this.checkedFunc(item.id)} onChange={()=>this.onchange(item.id)}></Checkbox>
+          </div>)*/}
           <div className="name commonData" style={{ marginLeft: 24 }} >
             <Tooltip placement="topLeft" title={item.metadata.name} >
               <span className="viewBtn" onClick={this.modalShow.bind(this, item)}>
@@ -170,46 +172,46 @@ class AppContainerList extends Component {
           type="right"
           >
           {/*(<div className="operaBox">
-	        <div className="leftBox">
-	          <Button type="primary" size="large">
-	            <i className="fa fa-play"></i>
-	            启动
-	          </Button>
-	          <Button size="large">
-	            <i className="fa fa-stop"></i>
-	            停止
-	          </Button>
-	          <Button size="large">
-	            <i className="fa fa-trash"></i>
-	            删除
-	          </Button>
-	        </div>
-	        <div className="rightBox">
-	          <span>共&nbsp;{testData.length} 容器</span>
-	          <span>已选中的容器({this.state.selectedList.length}个)</span>
-	        </div>
-	        <div style={{ clear:"both" }}></div>
-	      </div>)*/}
+          <div className="leftBox">
+            <Button type="primary" size="large">
+              <i className="fa fa-play"></i>
+              启动
+            </Button>
+            <Button size="large">
+              <i className="fa fa-stop"></i>
+              停止
+            </Button>
+            <Button size="large">
+              <i className="fa fa-trash"></i>
+              删除
+            </Button>
+          </div>
+          <div className="rightBox">
+            <span>共&nbsp;{testData.length} 容器</span>
+            <span>已选中的容器({this.state.selectedList.length}个)</span>
+          </div>
+          <div style={{ clear:"both" }}></div>
+        </div>)*/}
           <Card className="dataBox">
             <div className="titleBox">
               {/*(<div className="selectIconTitle commonData">
-		        <Checkbox checked={this.allSelectedChecked() } onChange={()=>this.onchange()}></Checkbox>
-		      </div>)*/}
+            <Checkbox checked={this.allSelectedChecked() } onChange={()=>this.onchange()}></Checkbox>
+          </div>)*/}
               <div className="name commonData" style={{ marginLeft: 24 }} >
                 名称
-		      </div>
+          </div>
               <div className="status commonData">
                 运行状态
-		      </div>
+          </div>
               <div className="image commonData">
                 镜像
-		      </div>
+          </div>
               <div className="address commonData">
                 地址
-		      </div>
+          </div>
               <div className="createTime commonData">
                 创建时间
-		      </div>
+          </div>
               <div style={{ clear: "both" }}></div>
             </div>
             <MyComponent scope={parentScope} config={containerList} loading={isFetching} />

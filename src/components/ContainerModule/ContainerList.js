@@ -79,16 +79,16 @@ const MyComponent = React.createClass({
           >
           <Menu.Item key="1">
             停止容器
-					</Menu.Item>
+          </Menu.Item>
           <Menu.Item key="2">
             删除
-					</Menu.Item>
+          </Menu.Item>
           <Menu.Item key="3">
             查看架构图
-					</Menu.Item>
+          </Menu.Item>
           <Menu.Item key="4">
             查看编排
-					</Menu.Item>
+          </Menu.Item>
         </Menu>
       );
       return (
@@ -207,10 +207,10 @@ class ContainerList extends Component {
         <div id="ContainerList" key="ContainerList">
           <div className="operationBox">
             {/*<div className="leftBox">
-	      	    <Button type="primary" size="large"><i className="fa fa-power-off"></i>重启容器</Button>
-	      	    <Button type="ghost" size="large"><i className="fa fa-stop"></i>停止容器</Button>
-	      	    <Button type="ghost" size="large"><i className="fa fa-trash-o"></i>删除容器</Button>
-	          </div>*/}
+              <Button type="primary" size="large"><i className="fa fa-power-off"></i>重启容器</Button>
+              <Button type="ghost" size="large"><i className="fa fa-stop"></i>停止容器</Button>
+              <Button type="ghost" size="large"><i className="fa fa-trash-o"></i>删除容器</Button>
+            </div>*/}
             <div className="rightBox">
               <div className="littleLeft">
                 <i className="fa fa-search"></i>
@@ -228,26 +228,26 @@ class ContainerList extends Component {
               </div>
               <div className="containerName commonTitle">
                 容器名称
-      		  </div>
+            </div>
               <div className="containerStatus commonTitle">
                 状态
-      		  </div>
+            </div>
               <div className="serviceName commonTitle">
                 所属应用
-      		  </div>
+            </div>
               <div className="imageName commonTitle">
                 镜像
-      		  </div>
+            </div>
               <div className="visitIp commonTitle">
                 访问地址
-      		  </div>
+            </div>
               <div className="createTime commonTitle">
                 创建时间
-      		    <i className="fa fa-sort"></i>
+              <i className="fa fa-sort"></i>
               </div>
               <div className="actionBox commonTitle">
                 操作
-      		  </div>
+            </div>
             </div>
             <MyComponent config={containerList} loading={isFetching} scope={parentScope} />
           </Card>

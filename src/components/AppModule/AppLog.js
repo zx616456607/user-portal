@@ -75,27 +75,27 @@ let MyComponent = React.createClass({
 
   },
   render: function () {
-    if(!this.props.appLogs || this.props.appLogs.result.data.length <=0 ) {
+    if(!this.props.appLogs || !this.props.appLogs.result || this.props.appLogs.result.data <=0 ) {
       return  <div className="logDetail"></div>
     }
     const logs = this.props.appLogs.result.data
-    var items = logs.map((item) => {
+    const items = logs.map((item, index) => {
       return (
-        <div className="logDetail" key={item.id}>
+        <div className="logDetail" key={index}>
           <div className="iconBox">
             <div className="line"></div>
-            <div className={item.status == 1 ? "icon fa fa-check-circle success" : "icon fa fa-times-circle fail"}>
+            <div className={item.result === 'success' ? "icon fa fa-check-circle success" : "icon fa fa-times-circle fail"}>
             </div>
           </div>
           <div className="infoBox">
-            <div className={item.status == 1 ? "status success" : "status fail"}>
-              {item.statusMsg}
+            <div className={item.result === 'success' ? "status success" : "status fail"}>
+              {`${item.operation} ${item.result}`}
             </div>
             <div className="message">
-              消息&nbsp;:&nbsp;{item.message}
+              { !item.detail ? '' : `消息&nbsp;:&nbsp${item.detail}`}
             </div>
             <div className="createTime">
-              {item.createTime}
+              {item.time}
             </div>
           </div>
           <div style={{ clear: "both" }}></div>
@@ -117,6 +117,7 @@ function mapStateToProp(state) {
 MyComponent = connect(mapStateToProp, {
   getAppLogs: appLogs
 })(MyComponent)
+
 export default class AppLog extends Component {
   constructor(props) {
     super(props);

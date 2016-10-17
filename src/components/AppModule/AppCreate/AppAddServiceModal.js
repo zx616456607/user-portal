@@ -38,7 +38,9 @@ const MyComponent = React.createClass({
     const { images, registryServer, loading } = this.props
     if (loading) {
       return (
-        <Spin />
+        <div  className='loadingBox'>
+          <Spin size='large' />
+        </div>
       )
     }
     const items = images.map((item) => {
@@ -51,7 +53,7 @@ const MyComponent = React.createClass({
           </div>
           <Button type="primary" size="large" onClick={this.modalShow.bind(this, item.name, registryServer)}>
             部署
-						<i className="fa fa-arrow-circle-o-right"></i>
+            <i className="fa fa-arrow-circle-o-right"></i>
           </Button>
         </div>
       );
@@ -108,13 +110,13 @@ class AppAddServiceModal extends Component {
           <span className="titleSpan">选择镜像</span>
           <Button type={this.state.currentImageType == "public" ? "primary" : "ghost"} size="large" onClick={this.selectImageType.bind(this, "public")}>
             公有
-	        </Button>
+          </Button>
           <Button size="large" type={this.state.currentImageType == "private" ? "primary" : "ghost"} onClick={this.selectImageType.bind(this, "private")}>
             私有
-	        </Button>
+          </Button>
           <Button size="large" type={this.state.currentImageType == "collect" ? "primary" : "ghost"} onClick={this.selectImageType.bind(this, "collect")}>
             收藏
-	        </Button>
+          </Button>
           <div className="inputBox">
             <Input size="large" placeholder="搜索你的本命服务名吧~" />
             <i className="fa fa-search"></i>

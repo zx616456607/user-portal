@@ -45,7 +45,7 @@ export default class AppGraph extends Component {
           <Dropdown overlay={operaMenu} trigger={['click']}>
             <Button>
               task
-		      <i className="fa fa-caret-down"></i>
+          <i className="fa fa-caret-down"></i>
             </Button>
           </Dropdown>
         </div>
@@ -53,11 +53,11 @@ export default class AppGraph extends Component {
           <span>描述文件&nbsp;:&nbsp;</span>
           <div className="introBox">
             Hello world~
-	        <br />
+          <br />
             &nbsp;&nbsp;Let me introduce myself.
-	        <br />
+          <br />
             &nbsp;&nbsp;&nbsp;&nbsp;I am an application of mengmengda~
-	      </div>
+        </div>
           <div style={{ clear: "both" }}></div>
         </div>
       </div>

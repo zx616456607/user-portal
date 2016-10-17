@@ -50,7 +50,7 @@ let MyComponent = React.createClass({
       items = (
         <div className="apiItemDetail" key="apiItemDetail" >
           No Data
-				</div>
+    </div>
       )
     }
     return (
@@ -79,8 +79,8 @@ class ServiceAPI extends Component {
     const { isFetching, configList } = this.props;
     if (isFetching) {
       return (
-        <Card className="imageServiceAPI">
-          <Spin />
+        <Card className='loadingBox'>
+          <Spin size='large' />
         </Card>
       )
     }

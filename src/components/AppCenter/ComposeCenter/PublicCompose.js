@@ -253,10 +253,10 @@ class PublicCompose extends Component {
         >
         <Menu.Item key="1">
           酱油
-			    </Menu.Item>
+       </Menu.Item>
         <Menu.Item key="2">
           又一瓶酱油
-			    </Menu.Item>
+       </Menu.Item>
       </Menu>
     );
     return (
@@ -286,7 +286,7 @@ class PublicCompose extends Component {
                 <Dropdown overlay={typeDropdown} trigger={['click']} getPopupContainer={() => document.getElementById("PublicCompose")}>
                   <div>
                     <FormattedMessage {...menusText.type} />&nbsp;
-										<i className="fa fa-filter"></i>
+          <i className="fa fa-filter"></i>
                   </div>
                 </Dropdown>
               </div>

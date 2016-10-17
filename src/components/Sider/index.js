@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component } from 'react'
-import { Card, message, Button, Tooltip, Popover, Icon, Menu, Modal, Radio, Upload } from 'antd'
+import { Card, message, Button, Tooltip, Popover, Icon, Menu, Modal, Radio, Upload, Badge } from 'antd'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import "./style/sider.less"
@@ -243,9 +243,11 @@ class Slider extends Component {
             <Tooltip placement="right" title="通知中心">
               <Popover placement="rightBottom" content={noticeModel} trigger="click">
                 <Link to="/">
-                  <svg className="message commonImg">
-                    <use href="#message" />
-                  </svg>
+                  <Badge dot>
+                    <svg className="message commonImg">
+                      <use href="#message" />
+                    </svg>
+                  </Badge>
                 </Link>
               </Popover>
             </Tooltip>

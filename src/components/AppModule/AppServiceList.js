@@ -14,7 +14,7 @@ import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import AppServiceDetail from './AppServiceDetail'
 import './style/AppServiceList.less'
-import { loadServiceList, startServices, restartServices, stopServices, deleteServices } from '../../actions/app_manage'
+import { loadServiceList, startServices, restartServices, stopServices, deleteServices } from '../../actions/services'
 import { DEFAULT_CLUSTER } from '../../constants'
 
 const SubMenu = Menu.SubMenu
@@ -48,12 +48,16 @@ const MyComponent = React.createClass({
     const { serviceList, loading } = this.props
     if (loading) {
       return (
-        <Spin />
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
       )
     }
     if (serviceList.length < 1) {
       return (
-        <span>还没有服务哦~</span>
+        <div className="loadingBox">
+          还没有服务哦~
+        </div>
       )
     }
     const items = serviceList.map((item) => {
@@ -92,7 +96,7 @@ const MyComponent = React.createClass({
             <Button type="primary" className="viewBtn" onClick={this.modalShow.bind(this, item)}>
               <i className="fa fa-eye"></i>
               查看详情
-			  </Button>
+        </Button>
           </div>
           <div style={{ clear: "both" }}></div>
         </div>
@@ -276,19 +280,19 @@ class AppServiceList extends Component {
             <Button size="large" onClick={this.confirmStartService} disabled={!isChecked}>
               <i className="fa fa-play"></i>
               启动
-	        </Button>
+          </Button>
             <Button size="large" onClick={this.confirmStopService} disabled={!isChecked}>
               <i className="fa fa-stop"></i>
               停止
-	        </Button>
+          </Button>
             <Button size="large" onClick={this.confirmDeleteService} disabled={!isChecked}>
               <i className="fa fa-trash"></i>
               删除
-	        </Button>
+          </Button>
             <Dropdown overlay={operaMenu} trigger={['click']}>
               <Button size="large" disabled={!isChecked}>
                 更多
-	          <i className="fa fa-caret-down"></i>
+            <i className="fa fa-caret-down"></i>
               </Button>
             </Dropdown>
           </div>
@@ -298,22 +302,22 @@ class AppServiceList extends Component {
             </div>
             <div className="name commonTitle">
               服务名称
-      		</div>
+          </div>
             <div className="status commonTitle">
               运行状态
-      		</div>
+          </div>
             <div className="image commonTitle">
               镜像
-      		</div>
+          </div>
             <div className="service commonTitle">
               服务地址
-      		</div>
+          </div>
             <div className="createTime commonTitle">
               创建时间
-      		</div>
+          </div>
             <div className="actionBox commonTitle">
               操作
-      		</div>
+          </div>
             <div style={{ clear: "both" }}></div>
           </div>
           <MyComponent scope={parentScope} serviceList={serviceList} loading={isFetching} />

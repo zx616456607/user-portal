@@ -67,8 +67,8 @@ let MyComponent = React.createClass({
     let { imageList, serviceIp } = this.props.config;
     if (loading) {
       return (
-        <div className="imageList">
-          <Spin />
+        <div className='loadingBox'>
+          <Spin size='large' />
         </div>
       )
     }
@@ -84,7 +84,7 @@ let MyComponent = React.createClass({
             </span><br />
             <span className="type">
               <FormattedMessage {...menusText.belong} />&nbsp;
-							{item.contributor}
+              {item.contributor}
             </span>
             <span className="imageUrl">
               <span className="defalutColor"><FormattedMessage {...menusText.imageUrl} />&nbsp;</span>
