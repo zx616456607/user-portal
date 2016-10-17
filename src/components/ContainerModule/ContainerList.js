@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Tooltip, Checkbox, Card, Menu, Dropdown, Button, Input } from 'antd'
+import { Tooltip, Checkbox, Card, Menu, Dropdown, Button, Input, Spin } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -71,7 +71,21 @@ const MyComponent = React.createClass({
     });
   },
   render: function () {
-    var config = this.props.config;
+    const { config, loading } = this.props;
+    if (loading) {
+      return (
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
+      )
+    }
+    if (config.length < 1) {
+      return (
+        <div className="loadingBox">
+          暂无数据
+        </div>
+      )
+    }
     var items = config.map((item) => {
       const dropdown = (
         <Menu onClick={this.containerOperaClick.bind(this, item)}

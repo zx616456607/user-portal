@@ -16,29 +16,29 @@ import ErrorPage from './containers/ErrorPage'
 /*-------------------App_manage Module Start-----------------------*/
 /*-------------------Appliaction Start-----------------------------*/
 import Application from './containers/Application/Index'
-import AppList from './components/AppModule/AppList.js'
-import AppDetail from './components/AppModule/AppDetail.js'
-import AppCreate from './components/AppModule/AppCreate.js'
+import AppList from './components/AppModule/AppList'
+import AppDetail from './components/AppModule/AppDetail'
+import AppCreate from './components/AppModule/AppCreate'
 import Storage from './components/StorageModule/Storage'
 import StorageDetail from './components/StorageModule/StorageDetail'
 import Service from './components/ServiceConfig/Service'
 /*---------AppCreate Start---------*/
-import AppCreateSelectModel from './components/AppModule/AppCreate/CreateModel.js'
-import AppCreateServiceList from './components/AppModule/AppCreate/ServiceList.js'
-import AppCreateAppStore from './components/AppModule/AppCreate/AppStore.js'
-import AppCreateComposeFile from './components/AppModule/AppCreate/ComposeFile.js'
+import AppCreateSelectModel from './components/AppModule/AppCreate/CreateModel'
+import AppCreateServiceList from './components/AppModule/AppCreate/ServiceList'
+import AppCreateAppStore from './components/AppModule/AppCreate/AppStore'
+import AppCreateComposeFile from './components/AppModule/AppCreate/ComposeFile'
 /*---------AppCreate Stop---------*/
 /*-------------------Application stop------------------------------*/
 /*-------------------Container start-------------------------------*/
-import ContainerList from './components/ContainerModule/ContainerList.js'
-import ContainerDetail from './components/ContainerModule/ContainerDetail.js'
+import ContainerList from './components/ContainerModule/ContainerList'
+import ContainerDetail from './components/ContainerModule/ContainerDetail'
 /*-------------------Container stop--------------------------------*/
 /*-------------------App_manage Module Stop------------------------*/
 /*-------------------App_center Module Start-----------------------*/
 import AppCenter from './containers/AppCenter/Index'
 import ImageCenter from './components/AppCenter/Index'
-import ImageStore from './components/AppCenter/ImageStore.js'
-import ComposeCenter from './components/AppCenter/ComposeCenter.js'
+import ImageStore from './components/AppCenter/ImageStore'
+import ComposeCenter from './components/AppCenter/ComposeCenter'
 /*-------------------App_center Module Stop------------------------*/
 //     database & cache
 import Database from './containers/Database/Index'
