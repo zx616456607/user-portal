@@ -496,14 +496,17 @@ let AppDeployServiceModal = React.createClass({
       })
       if(getFieldValue('portKey').length >= 1){
         const portKey =getFieldValue('portKey')
+        console.log('ports true    hhhhhhhhhh',getFieldProps(`portType${portKey[0]}`).value);
         console.log('serviceNameError',Number(getFieldProps(`targetPortUrl${portKey[0]}`).value));
         if (!isNaN(Number(getFieldProps(`targetPortUrl${portKey[0]}`).value))
           && Number(getFieldProps(`targetPortUrl${portKey[0]}`).value) > 0
           && getFieldProps(`portType${portKey[0]}`).value) {
+          console.log('portssdasdasdasdasd');
           this.setState({
             disable:false,
           })
         } else {
+          console.log('ports true    sadasd',getFieldProps(`portType${portKey[0]}`).value);
           this.setState({
             disable: true,
           })

@@ -15,6 +15,7 @@ import { loadImageDetailTag, loadImageDetailTagConfig } from '../../../../action
 import "./style/NormalDeployBox.less"
 
 const Option = Select.Option;
+const OptGroup = Select.OptGroup;
 const createForm = Form.create;
 const FormItem = Form.Item;
 let uuid = 0;
@@ -234,7 +235,7 @@ let NormalDeployBox = React.createClass({
                       {/*help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}>*/}
             <FormItem className="serviceNameForm"
                       hasFeedback
-                      
+                      validateStatus={parentScope.state.serNameErrState}
                       help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}>
               <Input {...nameProps} size="large" placeholder="起一个萌萌哒的名字吧~" />
             </FormItem>
@@ -260,11 +261,13 @@ let NormalDeployBox = React.createClass({
                 defaultActiveFirstOption={true}
                 onSelect={this.onSelectTagChange}
                 >
-                {imageTags && imageTags.map((tag) => {
+                <OptGroup>
+                  {imageTags && imageTags.map((tag) => {
                   return (
                     <Option key={tag} value={tag}>{tag}</Option>
                   )
-                })}
+                  })}
+                </OptGroup>
               </Select>
             </FormItem>
             <div style={{ clear: "both" }}></div>
