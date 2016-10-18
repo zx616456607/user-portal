@@ -17,15 +17,8 @@ const createForm = Form.create;
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
 
-class UsefulDeployBox extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-
-    }
-  }
-
-  render() {
+let UsefulDeployBox = React.createClass({
+  render:function () {
     const parentScope = this.props.scope;
     const { getFieldProps, getFieldError, isFieldValidating } = parentScope.props.form;
     const runningCodeProps = getFieldProps('imageUrl', {
@@ -58,7 +51,6 @@ class UsefulDeployBox extends Component {
         { required: true, message: '请输入路径' },
       ],
     })
-    console.log('parentScope.props.form', parentScope.props.form.getFieldsValue());
     return (
       <div id="UsefulDeployBox">
         {/*<Form horizontal form={parentScope.props.form}>*/}
@@ -160,10 +152,7 @@ class UsefulDeployBox extends Component {
       </div>
     )
   }
-}
-
-UsefulDeployBox.propTypes = {
-}
+})
 
 UsefulDeployBox = createForm()(UsefulDeployBox);
 

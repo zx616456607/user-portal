@@ -24,7 +24,7 @@ const MyComponent = React.createClass({
     const {scope} = this.props;
     const rootScope = scope.props.scope;
     scope.setState({
-
+      
     });
     rootScope.setState({
       currentSelectedImage: imageName,
@@ -66,42 +66,40 @@ const MyComponent = React.createClass({
   }
 });
 
-class AppAddServiceModal extends Component {
-  constructor(props) {
-    super(props);
-    this.selectImageType = this.selectImageType.bind(this);
-    this.closeModal = this.closeModal.bind(this);
-    this.openModal = this.openModal.bind(this);
-    this.state = {
+let AppAddServiceModal = React.createClass({
+  propTypes: {
+    selectedList: React.PropTypes.array,
+    loadPublicImageList: PropTypes.func.isRequired
+  },
+  getInitialState: function() {
+    return {
       currentImageType: "public",
-
     }
-  }
+  },
   selectImageType(currentType) {
     //the function for user select image type
     this.setState({
       currentImageType: currentType
     });
-  }
+  },
   closeModal() {
     //the function for close the deploy new service modal
     this.props.scope.setState({
       modalShow: false
     });
-  }
+  },
   openModal() {
     //the function for open the deploy new service modal
     this.props.scope.setState({
       modalShow: true
     });
-  }
-
+  },
   componentWillMount() {
     document.title = '添加应用 | 时速云'
     const { registry, loadPublicImageList } = this.props
     loadPublicImageList(registry)
-  }
-  render() {
+  },
+  render:function () {
     const parentScope = this
     const { publicImageList, registryServer, scope, isFetching } = this.props
     return (
@@ -127,12 +125,7 @@ class AppAddServiceModal extends Component {
       </div>
     )
   }
-}
-
-AppAddServiceModal.propTypes = {
-  selectedList: React.PropTypes.array,
-  loadPublicImageList: PropTypes.func.isRequired
-}
+})
 
 function mapStateToProps(state, props) {
   const defaultPublicImages = {
