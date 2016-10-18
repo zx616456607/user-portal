@@ -47,6 +47,7 @@ const MyComponent = React.createClass({
   },
   modalShow: function (instanceId) {
     //close model function
+    console.log('123454567234567')
     const {scope} = this.props;
     scope.setState({
       modalShow: true,
@@ -75,9 +76,9 @@ const MyComponent = React.createClass({
           </div>)*/}
           <div className="name commonData" style={{ marginLeft: 24 }} >
             <Tooltip placement="topLeft" title={item.metadata.name} >
-              <span className="viewBtn" onClick={this.modalShow.bind(this, item)}>
+              <Link to={`/app_manage/container/${item.metadata.name}`}>
                 {item.metadata.name}
-              </span>
+              </Link>
             </Tooltip>
           </div>
           <div className="status commonData">
