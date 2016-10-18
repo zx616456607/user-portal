@@ -11,8 +11,9 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import { Row, Col, Modal, Button, Icon, Collapse, Input, message } from 'antd'
+import { Row, Col, Modal, Button, Icon, Input, message } from 'antd'
 import ModalDetail from './ModalDetail.js'
+import CreateDatabase from './CreateDatabase.js'
 import './style/RedisCluster.less'
 
 let testData =['Redis1','Redis2','Redis3']
@@ -64,10 +65,19 @@ let MyComponent = React.createClass({
 export default class RedisDatabase extends Component {
   constructor() {
     super()
+    this.createDatabaseShow = this.createDatabaseShow.bind(this);
     this.state = {
       detailModal: false,
-      currentDatabase: null
+      currentDatabase: null,
+      CreateDatabaseModalShow: false
     }
+  }
+  
+  createDatabaseShow(){
+    //this function for user show the modal of create database
+    this.setState({
+      CreateDatabaseModalShow: true
+    });
   }
   
   render() {
@@ -76,7 +86,9 @@ export default class RedisDatabase extends Component {
     <QueueAnim id='RedisDatabase' type='right'>
       <div className='databaseCol' key='RedisDatabase'>
         <div className='databaseHead'>
-          <Button type='primary' size='large'><i className='fa fa-plus' />&nbsp;Redis集群</Button>
+          <Button type='primary' size='large' onClick={ this.createDatabaseShow }>
+            <i className='fa fa-plus' />&nbsp;Redis集群
+          </Button>
           <span className='rightSearch'>
             <Input size='large' placeholder='搜索' style={{ width: 200 }} />
             <i className="fa fa-search" />
@@ -89,6 +101,13 @@ export default class RedisDatabase extends Component {
         onCancel={() => { this.setState({ detailModal: false }) } } 
         >
         <ModalDetail scope={parentScope} />
+      </Modal>
+      <Modal visible={this.state.CreateDatabaseModalShow}
+        className='CreateDatabaseModal'
+        title='创建数据库集群'
+        onCancel={() => { this.setState({ CreateDatabaseModalShow: false }) } } 
+        >
+        <CreateDatabase scope={parentScope} database={'redis'} />
       </Modal>
     </QueueAnim>
     )

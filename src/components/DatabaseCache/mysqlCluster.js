@@ -107,7 +107,7 @@ export default class MysqlCluster extends Component {
         title='创建数据库集群'
         onCancel={() => { this.setState({ CreateDatabaseModalShow: false }) } } 
         >
-        <CreateDatabase scope={parentScope} />
+        <CreateDatabase scope={parentScope} database={'mysql'} />
       </Modal>
     </QueueAnim>
     )

@@ -11,8 +11,9 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import { Row, Col, Modal, Button, Icon, Collapse, Input, message } from 'antd'
+import { Row, Col, Modal, Button, Icon, Input, message } from 'antd'
 import ModalDetail from './ModalDetail.js'
+import CreateDatabase from './CreateDatabase.js'
 import './style/MongoCluster.less'
 
 let testData =['Mongo1','Mongo2','Mongo3']
@@ -64,19 +65,30 @@ let MyComponent = React.createClass({
 export default class MongoCluster extends Component {
   constructor() {
     super()
+    this.createDatabaseShow = this.createDatabaseShow.bind(this);
     this.state = {
       detailModal: false,
-      currentDatabase: null
+      currentDatabase: null,
+      CreateDatabaseModalShow: false
     }
   }
-
+  
+  createDatabaseShow(){
+    //this function for user show the modal of create database
+    this.setState({
+      CreateDatabaseModalShow: true
+    });
+  }
+  
   render() {
     const parentScope = this
     return (
     <QueueAnim id='MongoCluster' type='right'>
       <div className='databaseCol' key='MongoCluster'>
         <div className='databaseHead'>
-          <Button type='primary' size='large'><i className='fa fa-plus' />&nbsp;Mongo集群</Button>
+          <Button type='primary' size='large' onClick={ this.createDatabaseShow }>
+            <i className='fa fa-plus' />&nbsp;Mongo集群
+          </Button>
           <span className='rightSearch'>
             <Input size='large' placeholder='搜索' style={{ width: 200 }} />
             <i className="fa fa-search" />
@@ -89,6 +101,13 @@ export default class MongoCluster extends Component {
         onCancel={() => { this.setState({ detailModal: false }) } } 
         >
         <ModalDetail scope={parentScope} />
+      </Modal>
+      <Modal visible={this.state.CreateDatabaseModalShow}
+        className='CreateDatabaseModal'
+        title='创建数据库集群'
+        onCancel={() => { this.setState({ CreateDatabaseModalShow: false }) } } 
+        >
+        <CreateDatabase scope={parentScope} database={'mongo'} />
       </Modal>
     </QueueAnim>
     )

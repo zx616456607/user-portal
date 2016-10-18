@@ -1,6 +1,78 @@
-.CreateDatabaseModal{
-  .ant-modal-footer{
+.CreateDatabaseModal {
+  .ant-modal-footer {
     display: none;
   }
-  
+  .ant-modal-body {
+    padding: 20px 0 10px !important;
+  }
+  .commonBox {
+    width: 100%;
+    height: 50px;
+    .title {
+      float: left;
+      padding-right: 30px;
+      width: 130px;
+      height: 50px;
+      line-height: 50px;
+      font-size: 14px;
+      text-align: right;
+    }
+    .inputBox {
+      float: left;
+      width: calc(~'100% - 130px');
+      height: 50px;
+      line-height: 50px;
+      .ant-form-item-control {
+        position: relative;
+        height: 50px;
+        line-height: 50px !important;
+      }
+      .has-success.has-feedback:after,
+      .has-warning.has-feedback:after,
+      .has-error.has-feedback:after,
+      .is-validating.has-feedback:after {
+        top: 9px !important;
+        left: 170px !important;
+      }
+      .ant-form-explain {
+        position: absolute;
+        bottom: -10px;
+      }
+      button {
+        margin-right: 15px;
+      }
+      input {
+        width: 200px;
+      }
+      .storageSelect {
+        width: 150px;
+      }
+      .envSelect {
+        width: 150px;
+        margin-right: 20px;
+      }
+      .fa {
+        font-size: 14px;
+        margin-left: 10px;
+        cursor: pointer;
+      }
+      .fa-eye {
+        color: #2db7f5;
+      }
+      .litteColor {
+        color: #999999;
+      }
+    }
+  }
+  .btnBox {
+    margin-top: 20px;
+    padding-right: 20px;
+    height: 60px;
+    line-height: 60px;
+    text-align: right;
+    border-top: 1px solid #e9e9e9;
+    button {
+      margin-left: 20px;
+    }
+  }
 }
