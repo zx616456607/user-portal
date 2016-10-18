@@ -2,10 +2,10 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
- *  Storage list
+ *  MongoCluster module
  *
- * v2.0 - 2016/10/11
- * @author Bai Yu
+ * v2.0 - 2016-10-18
+ * @author GaoJian
  */
 
 import React, { Component, PropTypes } from 'react'
@@ -13,10 +13,9 @@ import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import { Row, Col, Modal, Button, Icon, Collapse, Input, message } from 'antd'
 import ModalDetail from './ModalDetail.js'
-import CreateDatabase from './CreateDatabase.js'
-import './style/MysqlCluster.less'
+import './style/MongoCluster.less'
 
-let testData =['mysql1','mysql2','mysql3']
+let testData =['Mongo1','Mongo2','Mongo3']
 
 let MyComponent = React.createClass({
   propTypes: {
@@ -62,33 +61,22 @@ let MyComponent = React.createClass({
   }
 });
 
-export default class MysqlCluster extends Component {
+export default class MongoCluster extends Component {
   constructor() {
     super()
-    this.createDatabaseShow = this.createDatabaseShow.bind(this);
     this.state = {
       detailModal: false,
-      currentDatabase: null,
-      CreateDatabaseModalShow: false
+      currentDatabase: null
     }
-  }
-  
-  createDatabaseShow(){
-    //this function for user show the modal of create database
-    this.setState({
-      CreateDatabaseModalShow: true
-    });
   }
 
   render() {
     const parentScope = this
     return (
-    <QueueAnim id='mysqlDatabase' type='right'>
-      <div className='databaseCol' key='mysqlDatabase'>
+    <QueueAnim id='MongoCluster' type='right'>
+      <div className='databaseCol' key='MongoCluster'>
         <div className='databaseHead'>
-          <Button type='primary' size='large' onClick={ this.createDatabaseShow }>
-            <i className='fa fa-plus' />&nbsp;MySQL集群
-          </Button>
+          <Button type='primary' size='large'><i className='fa fa-plus' />&nbsp;Mongo集群</Button>
           <span className='rightSearch'>
             <Input size='large' placeholder='搜索' style={{ width: 200 }} />
             <i className="fa fa-search" />
@@ -101,13 +89,6 @@ export default class MysqlCluster extends Component {
         onCancel={() => { this.setState({ detailModal: false }) } } 
         >
         <ModalDetail scope={parentScope} />
-      </Modal>
-      <Modal visible={this.state.CreateDatabaseModalShow}
-        className='CreateDatabaseModal'
-        title='创建数据库集群'
-        onCancel={() => { this.setState({ CreateDatabaseModalShow: false }) } } 
-        >
-        <CreateDatabase scope={parentScope} />
       </Modal>
     </QueueAnim>
     )

@@ -11,7 +11,6 @@
 
 import React, { Component, PropTypes } from 'react'
 import DatabaseSider from '../../components/DatabaseCache/databaseSider'
-import MysqlCluster from '../../components/DatabaseCache/mysqlCluster'
 import QueueAnim from 'rc-queue-anim'
 import './style/database.less'
 
@@ -30,7 +29,7 @@ export default class Database extends Component {
           </div>
         </QueueAnim>
         <div className="DatabaseContent">
-          <MysqlCluster />
+          { children }
         </div>
       </div>
     )

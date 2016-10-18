@@ -43,6 +43,9 @@ import ComposeCenter from './components/AppCenter/ComposeCenter'
 /*-------------------database & cache Module Start------------------------*/  
 import Database from './containers/Database/Index'
 import MysqlCluster from './components/DatabaseCache/MysqlCluster'
+import MongoCluster from './components/DatabaseCache/MongoCluster'
+import RedisCluster from './components/DatabaseCache/RedisCluster'
+import DatabaseStorage from './components/DatabaseCache/DatabaseStorage'
 /*-------------------database & cache Module Stop------------------------*/  
 
 
@@ -77,6 +80,9 @@ export default (
     </Route>
     <Route path="database_cache" component={Database}>
       <IndexRoute component={MysqlCluster} />
+      <Route path="mongo_cluster" component={MongoCluster} />
+      <Route path="redis_cluster" component={RedisCluster} />
+      <Route path="database_storage" component={DatabaseStorage} />
     </Route>
     <Route path="*" component={ErrorPage} />
   </Route>

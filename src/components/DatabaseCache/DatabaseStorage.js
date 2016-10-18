@@ -2,10 +2,10 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
- *  Storage list
+ *  DatabaseStorage list
  *
- * v0.1 - 2016-09-20
- * @author BaiYu
+ * v0.1 - 2016-10-18
+ * @author GaoJian
  */
 
 import React, { Component, PropTypes } from 'react'
@@ -17,7 +17,7 @@ import { connect } from 'react-redux'
 import { remove, findIndex } from 'lodash'
 import { loadStorageList, deleteStorage, createStorage, formateStorage, resizeStorage } from '../../actions/storage'
 import { DEFAULT_IMAGE_POOL, DEFAULT_CLUSTER } from '../../constants'
-import './style/storage.less'
+import './style/DatabaseStorage.less'
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
@@ -250,11 +250,19 @@ let MyComponent = React.createClass({
           </div>
           <div className="status commonData">
             <i className={item.isUsed == true ? "error fa fa-circle" : "normal fa fa-circle"}></i>
-            <span className={item.isUsed == false ? "normal" : "error"} >{item.isUsed == true ? <FormattedMessage {...messages.use} /> : <FormattedMessage {...messages.noUse} />}</span>
+            <span className={item.isUsed == false ? "normal" : "error"} >
+              {item.isUsed == true ? <FormattedMessage {...messages.use} /> : <FormattedMessage {...messages.noUse} />}
+            </span>
           </div>
-          <div className="formet commonData">{item.format}</div>
-          <div className="forin commonData">{item.mountPoint || '无'}</div>
-          <div className="appname commonData">{item.appName || '无'}</div>
+          <div className="formet commonData">
+            {item.format}
+          </div>
+          <div className="forin commonData">
+            {item.mountPoint || '无'}
+          </div>
+          <div className="appname commonData">
+            {item.appName || '无'}
+          </div>
           <div className="size commonData">{item.totalSize}M</div>
           <div className="createTime commonData">{item.createTime}</div>
           <div className="actionBtn">
@@ -268,15 +276,29 @@ let MyComponent = React.createClass({
     return (
       <div className="dataBox">
         {items}
-        <Modal title={this.state.modalTitle} visible={this.state.visible} onOk={(e) => { this.handleSure() } } onCancel={(e) => { this.cancelModal() } } okText="OK" cancelText="Cancel">
+        <Modal title={this.state.modalTitle} 
+          visible={this.state.visible} 
+          onOk={(e) => { this.handleSure() } } 
+          onCancel={(e) => { this.cancelModal() } } 
+          okText="OK" 
+          cancelText="Cancel"
+          >
           <div className={this.state.modalType === 'resize' ? 'show' : 'hide'}>
             <Row style={{ height: '40px' }}>
-              <Col span="3" className="text-center" style={{ lineHeight: '30px' }}><FormattedMessage {...messages.name} /></Col>
-              <Col span="12"><input type="text" className="ant-input" value={this.state.modalName} disabled /></Col>
+              <Col span="3" className="text-center" style={{ lineHeight: '30px' }}>
+                <FormattedMessage {...messages.name} />
+              </Col>
+              <Col span="12">
+                <input type="text" className="ant-input" value={this.state.modalName} disabled />
+              </Col>
             </Row>
             <Row style={{ height: '40px' }}>
-              <Col span="3" className="text-center" style={{ lineHeight: '30px' }}>{formatMessage(messages.size)}</Col>
-              <Col span="12"><Slider min={this.state.modalSize} max={9999} onChange={(e) => { this.changeDilation(e) } } value={this.state.size} /></Col>
+              <Col span="3" className="text-center" style={{ lineHeight: '30px' }}>
+                {formatMessage(messages.size)}
+              </Col>
+              <Col span="12">
+                <Slider min={this.state.modalSize} max={9999} onChange={(e) => { this.changeDilation(e) } } value={this.state.size} />
+              </Col>
               <Col span="8">
                 <InputNumber min={this.state.modalSize} max={9999} style={{ marginLeft: '16px' }} value={this.state.size} onChange={(e) => { this.onChange(e) } } />
                 <span style={{ paddingLeft: 10 }} >MB</span>
@@ -284,8 +306,13 @@ let MyComponent = React.createClass({
             </Row>
           </div>
           <div className={this.state.modalType === 'format' ? 'show' : 'hide'}>
-            <div style={{ height: '30px' }}>确定格式化存储卷{this.state.modalName}吗? <span style={{ color: 'red' }}>(格式化后数据将被清除)。</span></div>
-            <Col span="6" style={{ lineHeight: '30px' }}>选择文件系统格式：</Col>
+            <div style={{ height: '30px' }}>
+              确定格式化存储卷{this.state.modalName}吗? 
+              <span style={{ color: 'red' }}>(格式化后数据将被清除)。</span>
+            </div>
+            <Col span="6" style={{ lineHeight: '30px' }}>
+              选择文件系统格式：
+            </Col>
             <RadioGroup defaultValue='ext4' value={this.state.formateType} size="large" onChange={(e) => this.changeType(e)}>
               <RadioButton value="ext4">ext4</RadioButton>
               <RadioButton value="xfs">xfs</RadioButton>
@@ -318,8 +345,9 @@ function myComponentMapDispathToProp(dispath) {
 
 MyComponent = connect(myComponentMapSateToProp, myComponentMapDispathToProp)(injectIntl(MyComponent, {
   withRef: true,
-}))
-class Storage extends Component {
+}));
+
+class databaseStorage extends Component {
   constructor(props) {
     super(props)
     this.showModal = this.showModal.bind(this)
@@ -334,19 +362,23 @@ class Storage extends Component {
       size: 200
     }
   }
+  
   componentWillMount() {
     this.props.loadStorageList(this.props.currentImagePool, this.props.currentCluster)
   }
+  
   onChange(value) {
     this.setState({
       size: value,
     });
   }
+  
   showModal() {
     this.setState({
       visible: true,
     });
   }
+  
   handleOk() {
     //create storage
     if (!this.state.name) {
@@ -384,6 +416,7 @@ class Storage extends Component {
       },
     })
   }
+  
   handleCancel() {
     this.setState({
       visible: false,
@@ -392,6 +425,7 @@ class Storage extends Component {
       currentType: 'ext4'
     });
   }
+  
   deleteStorage() {
     const volumeArray = this.state.volumeArray
     if (volumeArray && volumeArray.length === 0) {
@@ -407,6 +441,7 @@ class Storage extends Component {
       }
     })
   }
+  
   onAllChange(e) {
     const storage = this.props.storageList[this.props.currentImagePool]
     if (!storage || !storage.storageList) {
@@ -429,6 +464,7 @@ class Storage extends Component {
       volumeArray: []
     })
   }
+  
   isAllChecked() {
     if (this.state.volumeArray.length === 0) {
       return false
@@ -457,11 +493,13 @@ class Storage extends Component {
       })
     }
   }
+  
   changeType(type) {
     this.setState({
       currentType: type
     })
   }
+  
   disableSelectAll() {
     let selectAll = true
     if (this.props.storageList && this.props.storageList[this.props.currentImagePool]) {
@@ -473,19 +511,23 @@ class Storage extends Component {
       return selectAll
     }
   }
+  
   handleInputName(e) {
     this.setState({
       name: e.target.value
     })
   }
+  
   getSearchAppName(e) {
     this.setState({
       appName: e.target.value
     })
   }
+  
   searchByAppName(e) {
     this.props.loadStorageList(this.props.currentImagePool, this.props.currentCluster, this.state.appName)
   }
+  
   render() {
     const { formatMessage } = this.props.intl
     return (
@@ -578,7 +620,7 @@ class Storage extends Component {
   }
 }
 
-Storage.propTypes = {
+databaseStorage.propTypes = {
   intl: PropTypes.object.isRequired,
   loadStorageList: PropTypes.func.isRequired
 }
@@ -607,6 +649,6 @@ function mapDispatchToProps(dispatch) {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(Storage, {
+export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(databaseStorage, {
   withRef: true,
 }))

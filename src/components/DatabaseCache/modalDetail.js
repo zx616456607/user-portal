@@ -7,23 +7,33 @@ export default class ModalDetail extends Component {
     super()
   }
   render() {
-    const { scope } = this.props
+    const { scope } = this.props;
+    const { currentDatabase } = scope.state;
     return (
+    <div id='databaseDetail'>
       <div className='modalWrap'>
         <div className='modalHead'>
           <img className='detailImg' src='/img/test/mysql.jpg' />
           <ul className='detailTitle'>
-            <li><div className='name'>MySql-1</div></li>
+            <li>
+              <div className='name'>{ currentDatabase }</div>
+            </li>
             <li>
               <div className='desc'>
                 tenxcloud/mysql-stack
               </div>
             </li>
-            <li><span>状态：</span><span className='normal'>运行中</span></li>
+            <li>
+              <span>状态：</span><span className='normal'>运行中</span>
+            </li>
           </ul>
           <div className='danger'>
             <Icon type='cross' className='cursor' onClick={() => { scope.setState({ detailModal: false }) } } />
-            <div className='li'><Button size='large' className='btn-danger' type='ghost' onClick={(name) => this.deleteCluster('mysql-1')}><Icon type='delete' />删除集群</Button></div>
+            <div className='li'>
+              <Button size='large' className='btn-danger' type='ghost' onClick={(name) => this.deleteCluster('mysql-1')}>
+                <Icon type='delete' />删除集群
+              </Button>
+            </div>
           </div>
         </div>
         <div className='modalDetailBox'>
@@ -39,10 +49,10 @@ export default class ModalDetail extends Component {
               <li><span className='key'>InstanceId</span> <span className='value'>uuid-md5-1212555-xxlos</span></li>
               <li><span className='key'>volume</span> <span className='value'>volume-value-1212555-xxlos</span></li>
             </ul>
-
           </div>
         </div>
       </div>
+    </div>
     )
   }
 

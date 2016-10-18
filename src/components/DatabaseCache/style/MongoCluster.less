@@ -1,7 +1,7 @@
 @borderColor: #F2F2F2;
 @activeColor: #2db7f5;
 @boxColor: #C2C2C2;
-#mysqlDatabase {
+#MongoCluster {
   .ant-btn {
     padding: 6px 8px;
   }
@@ -16,11 +16,19 @@
     .rightSearch {
       float: right;
       position: relative;
-      .anticon-search {
+      .fa {
+        z-index: 10;
         position: absolute;
+        top: 10px;
         right: 10px;
-        top: 8px;
-        line-height: 1.5;
+        font-size: 15px;
+        color: #949494;
+      }
+      input {
+        height: 35px;
+        line-height: 35px;
+        font-size: 14px;
+        color: #333333;
       }
     }
   }
@@ -29,9 +37,10 @@
     margin-right: -12px;
     font-size: 1.2em;
     .List {
-      width: 25%;
-      float: left;
+      margin-bottom: 15px;
       padding: 2px 12px;
+      float: left;
+      width: 25%;
       min-width: 280px;
       .list-wrap:hover {
         border: 2px solid @activeColor;
@@ -80,7 +89,6 @@
   .listLink {
     color: #2db7f5;
   }
-  
   .li {
     line-height: 40px;
   }
