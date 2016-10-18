@@ -308,10 +308,44 @@ function containerDetailEvents(state = {}, action) {
   }
 }
 
+function containerLogs(state = {}, action) {
+  const cluster = action.cluster
+  const defaultState = {
+    [cluster]: {
+      isFetching: false
+    }
+  }
+  switch(action.type) {
+    case ActionTypes.CONTAINER_LOGS_REQUEST: 
+      return merge({}, defaultState, state, {
+        [cluster]: {
+          isFetching: true
+        }
+      })
+    case ActionTypes.CONTAINER_lOGS_SUCCESS: 
+      return merge({}, defaultState, state, {
+        [cluster]: {
+          isFetching: false,
+          logs: action.response.result
+        }
+      })
+    case ActionTypes.CONTAINER_LOGS_FAILURE:
+      return merge({}, defaultState, state, {
+        [cluster]: {
+          isFetching: false
+        }
+      })
+    default: 
+      return merge({}, defaultState, state)
+  }
+}
+
+
 export function containers(state = {}, action) {
   return {
     containerItems: containerItems(state.containerItems, action),
     containerDetail: containerDetail(state.containerDetail, action),
     containerDetailEvents: containerDetailEvents(state.containerDetailEvents, action),
+    containerLogs: containerLogs(state.containerLogs, action)
   }
 }

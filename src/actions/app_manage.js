@@ -478,3 +478,30 @@ export function loadContainerDetailEvents(cluster, containerName, requiredFields
     return dispatch(fetchContainerDetailEvents(cluster, containerName))
   }
 }
+
+export const CONTAINER_LOGS_REQUEST = 'CONTAINER_LOGS_REQUEST'
+export const CONTAINER_lOGS_SUCCESS = 'CONTAINER_lOGS_SUCCESS'
+export const CONTAINER_LOGS_FAILURE = 'CONTAINER_LOGS_FAILURE'
+
+export function fetchContainerLogs(cluster, containerName, body) {
+  return {
+    cluster,
+    containerName,
+    [FETCH_API]: {
+      types:[CONTAINER_LOGS_REQUEST, CONTAINER_lOGS_SUCCESS, CONTAINER_LOGS_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/containers/${containerName}/logs`,
+      options: {
+        method: 'POST',
+        body: body
+      },
+      schema: {}
+    }
+  } 
+}
+
+export function loadContainerLogs(cluster, containerName, body) {
+  return (dispath, getState) => {
+    return dispath(fetchContainerLogs(cluster, containerName, body))
+  }
+}
+

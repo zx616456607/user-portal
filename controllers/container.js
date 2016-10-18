@@ -70,3 +70,13 @@ exports.getContainerDetailEvents = function* () {
   }
 }
 
+exports.getContainerLogs = function* () {
+  const cluster = this.params.cluster
+  const containerName = this.params.name
+  const reqData = this.request.body
+  const api = apiFactory.getK8sApi(this.session.loginUser) 
+  const result = yield api.createBy([cluster, 'instances', containerName, 'logs'], null, reqData)
+  this.status = result.code
+  this.body = result
+}
+
