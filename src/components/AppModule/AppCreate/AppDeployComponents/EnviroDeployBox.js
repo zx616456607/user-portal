@@ -126,8 +126,25 @@ let MyComponentPort = React.createClass({
       portKey,
     });
   },
+  portsExists(rule, value, callback) {
+    console.log('value',parseInt(value));
+    if (!value) {
+      console.log('nanananna');
+      callback()
+    } else {
+      setTimeout(() => {
+        if (isNaN(Number(value))) {
+          console.log('value',typeof (parseInt(value)));
+          callback([new Error('抱歉，该服务名称不合法.')])
+        } else {
+          callback()
+        }
+      }, 800)
+    }
+  },
   render: function () {
-    const { getFieldProps, getFieldValue, getFieldsValue } = this.props.parentScope.props.form;
+    const parentScope = this.props.scope;
+    const { getFieldProps, getFieldValue, getFieldsValue,isFieldValidating,getFieldError } = this.props.parentScope.props.form;
     getFieldProps('portKey', {
       initialValue: [],
     });
@@ -136,22 +153,21 @@ let MyComponentPort = React.createClass({
         <FormItem key={`port${k}`}>
           <li className="portDetail">
             <div className="input">
-              <Input {...getFieldProps(`targetPortUrl${k}`, {
-                rules: [{
-                  required: true,
-                  whitespace: true,
-                  message: '挂载路径呢?',
-                }],
-              }) } className="composeUrl" type="text" size="large" />
+              <FormItem hasFeedback
+                        validateStatus='success'
+                        help={isFieldValidating(`targetPortUrl${k}`) ? '校验中...' : (getFieldError(`targetPortUrl${k}`) || []).join(', ')}>
+                <Input {...getFieldProps(`targetPortUrl${k}`, {
+                  rules: [{
+                    required: true,
+                    whitespace: true,
+                    message: '必须填写端口',
+                  },{ validator: this.portsExists },],
+                })} className="composeUrl" type="text" size="large" />
+              </FormItem>
             </div>
             <div className="protocol select">
               <FormItem className="portGroupForm">
-                <Select {...getFieldProps(`portType${k}`, {
-                  rules: [{
-                    required: true,
-                    message: '选择配置组呢?',
-                  }],
-                }) }
+                <Select {...getFieldProps(`portType${k}`)}
                   className="portGroup" size="large">
                   <Option value="http">Http</Option>
                   <Option value="tcp">Tcp</Option>

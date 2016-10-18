@@ -192,8 +192,6 @@ export default class ServiceList extends Component {
   }
 
   delAllSelected() {
-    console.log('delAllSelected run');
-    console.log('this.state1111',this.state);
     let selectedList = this.state.selectedList
     let servicesList = this.state.servicesList
     let newServiceList=servicesList.filter(function (service) {
@@ -203,7 +201,6 @@ export default class ServiceList extends Component {
       servicesList:newServiceList,
       selectedList:[]
     })
-    console.log('this.state33333',this.state);
   }
   componentWillMount() {
     const serviceList = JSON.parse(localStorage.getItem('servicesList'))

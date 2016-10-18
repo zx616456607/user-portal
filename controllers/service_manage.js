@@ -179,16 +179,16 @@ exports.getServiceDetailEvents = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.getBy([cluster, 'services', serviceName, 'events'])
-  const eventList = result.data || []
-  eventList.events = []
-  if (eventList.data) {
-    eventList.data.map((eventDetail) => {
-      eventList.events.push(eventDetail)
-    })
-  }
+  const events = result.data || []
+//eventList.events = []
+//if (eventList.data) {
+//  eventList.data.map((eventDetail) => {
+//    eventList.events.push(eventDetail)
+//  })
+//}
   this.body = {
     cluster,
     serviceName,
-    data: eventList
+    data: events
   }
 }

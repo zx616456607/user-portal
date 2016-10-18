@@ -54,7 +54,7 @@ class CollapseList extends Component {
       )
     })
     return (
-      <div>{groups}</div>
+      <div style={{marginTop:'30px'}}>{groups}</div>
     )
   }
 }

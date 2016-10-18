@@ -108,7 +108,6 @@ function loadImageTags(props) {
 function setPorts(containerPorts, form) {
   const portsArr = []
   if (containerPorts) {
-    console.log('ports------');
     containerPorts.map(function (item, index) {
       portsArr.push((index + 1));
       form.setFieldsValue({
@@ -116,11 +115,7 @@ function setPorts(containerPorts, form) {
         ['targetPortUrl' + (index + 1)]: item.split('/')[0],
         ['portType' + (index + 1)]: item.split('/')[1],
       })
-      console.log('asdasdasd', { ['targetPortUrl' + (index + 1)]: item.split('/')[0] });
-      console.log('asdasdasd', item.split('/')[0]);
     })
-    console.log(portsArr);
-    console.log(form.getFieldsValue());
   }
 }
 
@@ -136,13 +131,10 @@ function setEnv(defaultEnv, form) {
         ['envValue' + (index + 1)]: item.split('=')[1],
       })
     })
-    console.log(envArr);
   }
 }
 
 function loadImageTagConfigs(tag, props) {
-  console.log('loadImageTagConfigs-------------------')
-  console.log(tag)
   const { currentSelectedImage, loadImageDetailTagConfig, scope, checkState } = props
   loadImageDetailTagConfig(DEFAULT_REGISTRY, currentSelectedImage, tag, {
     success: {
@@ -170,36 +162,19 @@ function loadImageTagConfigs(tag, props) {
 
 class NormalDeployBox extends Component {
   constructor(props) {
-    super(props);
-    this.selectComposeType = this.selectComposeType.bind(this);
+    super(props)
+    this.selectComposeType = this.selectComposeType.bind(this)
     this.onSelectTagChange = this.onSelectTagChange.bind(this)
     this.state = {
 
     }
   }
-  userExists(rule, value, callback) {
-    if (!value) {
-      callback();
-    } else {
-      setTimeout(() => {
-        if (!/[a-z]([-a-z0-9]*[a-z0-9])?/.test(value)) {
-          console.log(value);
-          console.log(/[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/.test(value));
-          callback([new Error('抱歉，该服务名称不合法.')]);
-        } else {
-          callback();
-        }
-      }, 800);
-    }
-  }
   selectComposeType(type) {
-    //the function for change user select compose file type
-    const parentScope = this.props.scope;
+    const parentScope = this.props.scope
     parentScope.setState({
       composeType: type
-    });
+    })
   }
-
   onSelectTagChange(tag) {
     const { setFieldsValue } = this.props.scope.props.form
     setFieldsValue({
@@ -207,7 +182,19 @@ class NormalDeployBox extends Component {
     })
     loadImageTagConfigs(tag, this.props)
   }
-
+  userExists(rule, value, callback) {
+    if (!value) {
+      callback()
+    } else {
+      setTimeout(() => {
+        if (!/^[a-z][a-z0-9-]*$/.test(value)) {
+          callback([new Error('抱歉，该服务名称不合法.')])
+        } else {
+          callback()
+        }
+      }, 800)
+    }
+  }
   componentWillMount() {
     loadImageTags(this.props)
   }
@@ -223,10 +210,10 @@ class NormalDeployBox extends Component {
   render() {
     const parentScope = this.props.scope;
     const { imageTags, imageTagsIsFetching } = this.props
-    const { getFieldProps, getFieldError, isFieldValidating } = parentScope.props.form;
+    const { getFieldProps, getFieldError, isFieldValidating } = parentScope.props.form
     const nameProps = getFieldProps('name', {
       rules: [
-        { required: true, },
+        { required: true,},
         { validator: this.userExists },
       ],
     });
@@ -238,28 +225,27 @@ class NormalDeployBox extends Component {
         { required: true, message: '请选择镜像版本' },
       ],
     });
-
     return (
       <div id="NormalDeployBox">
-        {/*<Form horizontal form={parentScope.props.form}>*/}
+        {/*<Form horizontal form={this.props.form}>*/}
         <div className="topBox">
           <div className="inputBox">
             <span className="commonSpan">服务名称</span>
             <FormItem className="serviceNameForm"
-              hasFeedback
-              help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}>
-              <Input {...nameProps} className="serviceNameInput" size="large" placeholder="起一个萌萌哒的名字吧~" />
-              <div style={{ clear: "both" }}></div>
+                      hasFeedback
+                      validateStatus={parentScope.state.serNameErrState}
+                      help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}>
+              <Input {...nameProps} size="large" placeholder="起一个萌萌哒的名字吧~" />
             </FormItem>
             <div style={{ clear: "both" }}></div>
           </div>
           <div className="inputBox">
             <span className="commonSpan">镜像地址</span>
-            <FormItem className="iamgeUrlForm" hasFeedback>
+            <FormItem className="imageUrlForm" hasFeedback>
               <Input className="imageInput" size="large" value={imageUrlProps} />
               <div style={{ clear: "both" }}></div>
             </FormItem>
-            <Button className="checkBtn" size="large" type="primary" onClick={this.checkImageUrl}>检查地址</Button>
+            <Button className="checkBtn" size="large" type="primary" onClick={this.checkImageUrl} disabled>检查地址</Button>
             <div style={{ clear: "both" }}></div>
           </div>
           <div className="inputBox">
@@ -391,7 +377,7 @@ class NormalDeployBox extends Component {
             </div>
           </div>
         </div>
-        {/*</Form>*/}
+         {/*</Form>*/}
       </div>
     )
   }

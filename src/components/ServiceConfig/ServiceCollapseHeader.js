@@ -10,14 +10,16 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import { Row, Col, Modal, Button, Icon, Checkbox, Menu, Dropdown, Input, message } from 'antd'
+import { Row, Col, Modal, Button,Form , Icon, Checkbox, Menu, Dropdown, Input, message } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { createConfigFiles, deleteConfigGroup, loadConfigGroup, deleteConfigFiles, configGroupName } from '../../actions/configs'
 import { connect } from 'react-redux'
 import { DEFAULT_CLUSTER } from '../../constants'
+import { tenxDateFormat } from '../../common/tools.js'
 
 
 const ButtonGroup = Button.Group
+const FormItem = Form.Item
 
 class CollapseHeader extends Component {
   constructor(props) {
@@ -39,6 +41,14 @@ class CollapseHeader extends Component {
     // e.stopPropagation()
     if (!this.state.configName) {
       message.error('请输入配置组名称')
+      return
+    }
+    if (escape(this.state.configName).indexOf( "%u" ) > 0) {
+      message.error('名称格式输入有误，请重新输入')
+      return
+    }
+    if (escape(this.state.configDesc).indexOf( "%u" ) > 0) {
+      message.error('内容格式输入有误，请重新输入')
       return
     }
     let configfile = {
@@ -128,6 +138,7 @@ class CollapseHeader extends Component {
   }
   render() {
     const {collapseHeader, sizeNumber} = this.props
+    const formItemLayout = {labelCol: { span: 3 },wrapperCol: { span: 21 }}
     const menu = (
       <Menu onClick={() => this.btnDeleteGroup(collapseHeader.native.metadata.name)} mode="vertical">
         <Menu.Item key="1">删除配置组</Menu.Item>
@@ -146,7 +157,7 @@ class CollapseHeader extends Component {
           {sizeNumber}个
         </Col>
         <Col span="6">
-          创建时间&nbsp;&nbsp;{collapseHeader.native.metadata.creationTimestamp}
+          创建时间&nbsp;&nbsp;{ tenxDateFormat(collapseHeader.native.metadata.creationTimestamp) }
         </Col>
         <Col span="6">
           <ButtonGroup>
@@ -168,14 +179,18 @@ class CollapseHeader extends Component {
             onCancel={(e) => this.createConfigModal(e, false)}
             >
             <div className="configFile-inf">
-              <p className="configFile-tip" style={{ color: "#16a3ea" }}>
+              <p className="configFile-tip" style={{ color: "#16a3ea", height:'35px', textIndent:'12px'}}>
                 <Icon type="info-circle-o" style={{ marginRight: "10px" }} />
                 即将保存一个配置文件 , 您可以在创建应用 → 添加服务时 , 关联使用该配置
               </p>
-              <span className="li">名称 : </span>
-              <Input type="text" value={this.state.configName} onChange={(e) => this.addConfigFile(e, 'name')} className="configName" />
-              <span className="li">内容 : </span>
-              <Input type="textarea" value={this.state.configDesc} onChange={(e) => this.addConfigFile(e, 'desc')} />
+              <Form horizontal>
+                <FormItem  {...formItemLayout} label="名称">
+                  <Input type="text" value={this.state.configName} onChange={(e) => this.addConfigFile(e, 'name')} className="configName" />
+                </FormItem>
+                <FormItem {...formItemLayout} label="内容">
+                  <Input type="textarea" style={{minHeight:'100px'}} value={this.state.configDesc} onChange={(e) => this.addConfigFile(e, 'desc')} />
+                </FormItem>
+              </Form>
             </div>
           </Modal>
           {/*添加配置文件-弹出层-end*/}
