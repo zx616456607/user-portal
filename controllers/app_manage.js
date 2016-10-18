@@ -39,7 +39,7 @@ exports.getApps = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.getBy([cluster, 'apps'])
-  const apps = result.data
+  const apps = result.data.apps
   apps.map((app) => {
     if (!app.services) {
       app.services = []
@@ -176,7 +176,7 @@ exports.getAppServices = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.getBy([cluster, 'apps', appName, 'services'])
-  const services = result.data
+  const services = result.data.services
   services.map((service) => {
     service.images = []
     service.spec.template.spec.containers.map((container) => {
