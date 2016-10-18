@@ -200,6 +200,36 @@ export function services(state = { appItmes: {} }, action) {
     serviceItmes: serviceItmes(state.serviceItmes, action),
     serviceContainers: serviceContainers(state.serviceContainers, action),
     serviceDetail: serviceDetail(state.serviceDetail, action),
-    serviceDetailEvents: serviceDetailEvents(state.serviceDetailEvents, action)
+    serviceDetailEvents: serviceDetailEvents(state.serviceDetailEvents, action),
+    deleteServices: reducerFactory({
+      REQUEST: ActionTypes.SERVICE_BATCH_DELETE_REQUEST,
+      SUCCESS: ActionTypes.SERVICE_BATCH_DELETE_SUCCESS,
+      FAILURE: ActionTypes.SERVICE_BATCH_DELETE_FAILURE
+    }, state.deleteServices, action),
+    stopServices: reducerFactory({
+      REQUEST: ActionTypes.SERVICE_BATCH_STOP_REQUEST,
+      SUCCESS: ActionTypes.SERVICE_BATCH_STOP_SUCCESS,
+      FAILURE: ActionTypes.SERVICE_BATCH_STOP_FAILURE
+    }, state.stopServices, action),
+    startServices: reducerFactory({
+      REQUEST: ActionTypes.SERVICE_BATCH_START_REQUEST,
+      SUCCESS: ActionTypes.SERVICE_BATCH_START_SUCCESS,
+      FAILURE: ActionTypes.SERVICE_BATCH_START_FAILURE
+    }, state.startServices, action),
+    restartServices: reducerFactory({
+      REQUEST: ActionTypes.SERVICE_BATCH_RESTART_REQUEST,
+      SUCCESS: ActionTypes.SERVICE_BATCH_RESTART_SUCCESS,
+      FAILURE: ActionTypes.SERVICE_BATCH_RESTART_FAILURE
+    }, state.restartServices, action),
+    quickRestartServices: reducerFactory({
+      REQUEST: ActionTypes.SERVICE_BATCH_QUICK_RESTART_REQUEST,
+      SUCCESS: ActionTypes.SERVICE_BATCH_QUICK_RESTART_SUCCESS,
+      FAILURE: ActionTypes.SERVICE_BATCH_QUICK_RESTART_FAILURE
+    }, state.quickRestartServices, action),
+    rollingUpdateServices: reducerFactory({
+      REQUEST: ActionTypes.SERVICE_BATCH_ROLLING_UPDATE_REQUEST,
+      SUCCESS: ActionTypes.SERVICE_BATCH_ROLLING_UPDATE_SUCCESS,
+      FAILURE: ActionTypes.SERVICE_BATCH_ROLLING_UPDATE_FAILURE
+    }, state.rollingUpdateServices, action),
   }
 }
