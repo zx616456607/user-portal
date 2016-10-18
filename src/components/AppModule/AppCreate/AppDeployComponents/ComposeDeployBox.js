@@ -113,15 +113,8 @@ var MyComponent = React.createClass({
 });
 
 MyComponent = createForm()(MyComponent);
-
-class ComposeDeployBox extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-
-    }
-  }
-  render() {
+let ComposeDeployBox = React.createClass({
+  render:function () {
     const parentScope = this.props.scope;
     return (
       <div id="ComposeDeployBox">
@@ -151,10 +144,7 @@ class ComposeDeployBox extends Component {
       </div>
     )
   }
-}
-
-ComposeDeployBox.propTypes = {
-}
+})
 
 ComposeDeployBox = createForm()(ComposeDeployBox);
 

@@ -9,9 +9,7 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { Form, Select, Input, InputNumber, Modal, Checkbox, Button, Card, Menu, Switch } from 'antd'
-import { Link } from 'react-router'
 import { connect } from 'react-redux'
-import QueueAnim from 'rc-queue-anim'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import { loadImageDetailTag, loadImageDetailTagConfig } from '../../../../actions/app_center'
 import "./style/NormalDeployBox.less"
@@ -160,28 +158,27 @@ function loadImageTagConfigs(tag, props) {
   })
 }
 
-class NormalDeployBox extends Component {
-  constructor(props) {
-    super(props)
-    this.selectComposeType = this.selectComposeType.bind(this)
-    this.onSelectTagChange = this.onSelectTagChange.bind(this)
-    this.state = {
-
-    }
-  }
+let NormalDeployBox = React.createClass({
+  propTypes: {
+    currentSelectedImage: PropTypes.string.isRequired,
+    imageTags: PropTypes.array.isRequired,
+    imageTagsIsFetching: PropTypes.bool.isRequired,
+    loadImageDetailTag: PropTypes.func.isRequired,
+    loadImageDetailTagConfig: PropTypes.func.isRequired,
+  },
   selectComposeType(type) {
     const parentScope = this.props.scope
     parentScope.setState({
       composeType: type
     })
-  }
+  },
   onSelectTagChange(tag) {
     const { setFieldsValue } = this.props.scope.props.form
     setFieldsValue({
       imageVersion: tag
     })
     loadImageTagConfigs(tag, this.props)
-  }
+  },
   userExists(rule, value, callback) {
     if (!value) {
       callback()
@@ -192,12 +189,12 @@ class NormalDeployBox extends Component {
         } else {
           callback()
         }
-      }, 800)
+      })
     }
-  }
+  },
   componentWillMount() {
     loadImageTags(this.props)
-  }
+  },
   componentWillReceiveProps(nextProps) {
     const {serviceOpen} = nextProps
     if (serviceOpen == this.props.serviceOpen) {
@@ -206,14 +203,14 @@ class NormalDeployBox extends Component {
     if (serviceOpen) {
       loadImageTags(nextProps)
     }
-  }
-  render() {
+  },
+  render:function () {
     const parentScope = this.props.scope;
     const { imageTags, imageTagsIsFetching } = this.props
     const { getFieldProps, getFieldError, isFieldValidating } = parentScope.props.form
     const nameProps = getFieldProps('name', {
       rules: [
-        { required: true,},
+        { required: true, min: 3, max: 24, message: '服务名称至少为 3~24 个字符' },
         { validator: this.userExists },
       ],
     });
@@ -224,16 +221,20 @@ class NormalDeployBox extends Component {
       rules: [
         { required: true, message: '请选择镜像版本' },
       ],
-    });
+    })
     return (
       <div id="NormalDeployBox">
         {/*<Form horizontal form={this.props.form}>*/}
         <div className="topBox">
           <div className="inputBox">
             <span className="commonSpan">服务名称</span>
+            {/*<FormItem className="serviceNameForm"*/}
+                      {/*hasFeedback*/}
+                      {/*validateStatus={parentScope.state.serNameErrState}*/}
+                      {/*help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}>*/}
             <FormItem className="serviceNameForm"
                       hasFeedback
-                      validateStatus={parentScope.state.serNameErrState}
+                      
                       help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}>
               <Input {...nameProps} size="large" placeholder="起一个萌萌哒的名字吧~" />
             </FormItem>
@@ -381,16 +382,7 @@ class NormalDeployBox extends Component {
       </div>
     )
   }
-}
-
-NormalDeployBox.propTypes = {
-  currentSelectedImage: PropTypes.string.isRequired,
-  imageTags: PropTypes.array.isRequired,
-  imageTagsIsFetching: PropTypes.bool.isRequired,
-  loadImageDetailTag: PropTypes.func.isRequired,
-  loadImageDetailTagConfig: PropTypes.func.isRequired,
-}
-
+})
 function mapStateToProps(state, props) {
   const defaultImageTags = {
     isFetching: false,
