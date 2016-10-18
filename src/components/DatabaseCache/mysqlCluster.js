@@ -12,7 +12,7 @@ import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import { Row, Col, Modal, Button, Icon, Collapse, Input, message } from 'antd'
 import ModalDetail from './ModalDetail.js'
-import './style/database.less'
+import './style/MysqlDatabase.less'
 
 export default class MysqlCluster extends Component {
   constructor() {
@@ -31,9 +31,10 @@ export default class MysqlCluster extends Component {
   render() {
     const parentScope = this
     return (
+    <div id="mysqlDatabase">
       <div className="databaseCol">
         <div className="databaseHead">
-          <Button type="primary" size="large"><Icon type="plus" />MySQL集群</Button>
+          <Button type="primary" size="large"><i className="fa fa-plus" />MySQL集群</Button>
           <span className="rightSearch">
             <Input size="large" placeholder="搜索" style={{ width: 200 }} />
             <Icon type="search" />
@@ -125,8 +126,9 @@ export default class MysqlCluster extends Component {
             onCancel={() => { this.setState({ detailModal: false }) } } >
             <ModalDetail scope={parentScope} />
           </Modal>
-        </div>   {/* end layoutBox */}
+        </div>
       </div>
+    </div>
     )
   }
 }

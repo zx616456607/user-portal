@@ -15,6 +15,7 @@ import QueueAnim from 'rc-queue-anim'
 import { loadServiceDetailEvents } from '../../../actions/services'
 import { DEFAULT_CLUSTER } from '../../../constants'
 import { tenxDateFormat } from '../../../common/tools.js'
+import CommonStatus from '../../CommonStatus'
 import './style/AppServiceEvent.less'
 
 function loadData(props) {
@@ -52,9 +53,9 @@ var MyComponent = React.createClass({
             </div>
           </div>
           <div className='infoBox'>
-            <div className={item.type == 'Normal' == 1 ? 'status success' : 'status fail'}>
+            <div className='status'>
               <span className='commonSpan'>
-                {item.reason}
+                <CommonStatus status={ item.type } content={ item.reason } />
               </span>
             </div>
             <div className='message'>

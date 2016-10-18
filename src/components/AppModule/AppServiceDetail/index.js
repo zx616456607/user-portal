@@ -21,6 +21,7 @@ import AppUseful from './AppUseful'
 import AppServiceLog from './AppServiceLog'
 import AppServiceEvent from './AppServiceEvent'
 import { loadServiceDetail } from '../../../actions/services'
+import CommmonStatus from '../../CommonStatus'
 import './style/AppServiceDetail.less'
 
 const TabPane = Tabs.TabPane;

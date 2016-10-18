@@ -40,10 +40,10 @@ import ImageCenter from './components/AppCenter/Index'
 import ImageStore from './components/AppCenter/ImageStore'
 import ComposeCenter from './components/AppCenter/ComposeCenter'
 /*-------------------App_center Module Stop------------------------*/
-//     database & cache
+/*-------------------database & cache Module Start------------------------*/  
 import Database from './containers/Database/Index'
-import MysqlCluster from './components/DatabaseCache/mysqlCluster'
-//  database end
+import MysqlCluster from './components/DatabaseCache/MysqlCluster'
+/*-------------------database & cache Module Stop------------------------*/  
 
 
 export default (
