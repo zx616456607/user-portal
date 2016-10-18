@@ -16,6 +16,7 @@ import "./style/EnviroDeployBox.less"
 const createForm = Form.create;
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
+const Option = Select.Option;
 
 let uuidEnviro = 0;
 let MyComponentEnviro = React.createClass({
@@ -111,7 +112,7 @@ let MyComponentPort = React.createClass({
     form.setFieldsValue({
       portKey,
     });
-    if(this.props.parentScope.props.form.getFieldValue('portKey').length === 0){
+    if (this.props.parentScope.props.form.getFieldValue('portKey').length === 0) {
       this.props.parentScope.setState({
         disable: true,
       })
@@ -132,7 +133,7 @@ let MyComponentPort = React.createClass({
     } else {
       setTimeout(() => {
         if (isNaN(Number(value))) {
-          console.log('value',typeof (parseInt(value)))
+          console.log('value', typeof (parseInt(value)))
           callback([new Error('抱歉，该服务名称不合法.')])
           this.props.parentScope.setState({
             disable: true,
@@ -144,7 +145,7 @@ let MyComponentPort = React.createClass({
     }
   },
   render: function () {
-    const { getFieldProps, getFieldValue,isFieldValidating,getFieldError } = this.props.parentScope.props.form;
+    const { getFieldProps, getFieldValue, isFieldValidating, getFieldError } = this.props.parentScope.props.form;
     getFieldProps('portKey', {
       initialValue: [],
     });
@@ -154,19 +155,19 @@ let MyComponentPort = React.createClass({
           <li className="portDetail">
             <div className="input">
               <FormItem hasFeedback
-                        help={isFieldValidating(`targetPortUrl${k}`) ? '校验中...' : (getFieldError(`targetPortUrl${k}`) || []).join(', ')}>
+                help={isFieldValidating(`targetPortUrl${k}`) ? '校验中...' : (getFieldError(`targetPortUrl${k}`) || []).join(', ')}>
                 <Input {...getFieldProps(`targetPortUrl${k}`, {
                   rules: [{
                     required: true,
                     whitespace: true,
                     message: '必须填写端口',
-                  },{ validator: this.portsExists },],
-                })} className="composeUrl" type="text" size="large" />
+                  }, { validator: this.portsExists },],
+                }) } className="composeUrl" type="text" size="large" />
               </FormItem>
             </div>
             <div className="protocol select">
               <FormItem className="portGroupForm">
-                <Select {...getFieldProps(`portType${k}`)}
+                <Select {...getFieldProps(`portType${k}`) }
                   className="portGroup" size="large">
                   <Option value="http">Http</Option>
                   <Option value="tcp">Tcp</Option>
@@ -209,7 +210,7 @@ MyComponentPort = createForm()(MyComponentPort);
 MyComponentEnviro = createForm()(MyComponentEnviro);
 
 let EnviroDeployBox = React.createClass({
-  render:function () {
+  render: function () {
     const parentScope = this.props.scope;
     return (
       <div id="advanceBox">
