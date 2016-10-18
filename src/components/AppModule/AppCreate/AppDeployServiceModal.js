@@ -27,7 +27,7 @@ let AppDeployServiceModal = React.createClass({
     cluster: PropTypes.string.isRequired,
     serviceList: PropTypes.array.isRequired,
   },
-  getInitialState: function() {
+  getInitialState: function () {
     return {
       composeType: "1",
       runningCode: "1",
@@ -35,11 +35,11 @@ let AppDeployServiceModal = React.createClass({
       stateService: false,
       currentDate: false,
       checkInf: null,
-      disable:true,
-      serNameErrState:'',
+      disable: true,
+      serNameErrState: '',
     };
   },
-  limits () {
+  limits() {
     switch (this.props.scope.state.checkInf.Deployment.spec.template.spec.containers[0].resources.limits.memory) {
       case '256Mi':
         return '1'
@@ -57,7 +57,7 @@ let AppDeployServiceModal = React.createClass({
         return '1'
     }
   },
-  volumeSwitch (volumeMounts, form) {
+  volumeSwitch(volumeMounts, form) {
     if (volumeMounts) {
       console.log('1');
       if (volumeMounts.length !== 0) {
@@ -84,7 +84,7 @@ let AppDeployServiceModal = React.createClass({
       }
     }
   },
-  getUsefulType (livenessProbe, form) {
+  getUsefulType(livenessProbe, form) {
     if (livenessProbe) {
       form.setFieldsValue({
         liveInitialDelaySeconds: livenessProbe.initialDelaySeconds,
@@ -106,7 +106,7 @@ let AppDeployServiceModal = React.createClass({
       }
     }
   },
-  setEnv (env, form) {
+  setEnv(env, form) {
     const envArr = []
     if (env) {
       console.log('env------');
@@ -126,7 +126,7 @@ let AppDeployServiceModal = React.createClass({
       console.log('envKey', form.getFieldValue('envKey'));
     }
   },
-  setPorts (ports, ServicePorts, form) {
+  setPorts(ports, ServicePorts, form) {
     const portsArr = []
     if (ports) {
       ports.map(function (item, index) {
@@ -145,7 +145,7 @@ let AppDeployServiceModal = React.createClass({
       console.log('envKey', form.getFieldValue('envKey'));
     }
   },
-  setForm () {
+  setForm() {
     const { scope } = this.props
     const { form } = this.props
     const volumeMounts = this.props.scope.state.checkInf.Deployment.spec.template.spec.containers[0].volumeMounts
@@ -166,12 +166,12 @@ let AppDeployServiceModal = React.createClass({
       composeType: this.limits(),
     })
   },
-  componentWillMount () {
+  componentWillMount() {
     if (this.props.scope.state.checkState === '修改') {
       this.setForm()
     }
   },
-  componentWillUpdate (nextProps, nextState) {
+  componentWillUpdate(nextProps, nextState) {
     const {serviceOpen} = nextProps
     if (serviceOpen == this.props.serviceOpen) {
       return
@@ -182,7 +182,7 @@ let AppDeployServiceModal = React.createClass({
       }
     }
   },
-  submitNewService (parentScope) {
+  submitNewService(parentScope) {
     const scope = this.state;
     let composeType = scope.composeType;
     let portKey = this.props.form.getFieldValue('portKey')
@@ -332,14 +332,14 @@ let AppDeployServiceModal = React.createClass({
             parseInt(this.props.form.getFieldProps(`targetPortUrl${k}`).value),
           )
         } else {
-          if(this.props.form.getFieldProps(`portType${k}`).value){
+          if (this.props.form.getFieldProps(`portType${k}`).value) {
             serviceList.addPort(
               serviceName + '-' + k,
               this.props.form.getFieldProps(`portType${k}`).value.toUpperCase(),
               parseInt(this.props.form.getFieldProps(`targetPortUrl${k}`).value),
             )
           }
-          
+
         }
         deploymentList.addContainerPort(
           serviceName,
@@ -431,29 +431,29 @@ let AppDeployServiceModal = React.createClass({
       stateService: false,
       currentDate: false,
       checkInf: null,
-      disable:true,
-      serNameErrState:'',
+      disable: true,
+      serNameErrState: '',
     })
   },
-  handleSubBtn (e,parentScope) {
+  handleSubBtn(e, parentScope) {
     e.preventDefault()
     if (parentScope.state.checkState === '创建') {
       this.submitNewService(parentScope)
     } else {
       const reviseServiceName = parentScope.state.checkInf.Service.metadata.name
-      parentScope.state.selectedList.map((service,index) => {
-        if(service === reviseServiceName){
-          parentScope.state.selectedList.splice(index,1)
+      parentScope.state.selectedList.map((service, index) => {
+        if (service === reviseServiceName) {
+          parentScope.state.selectedList.splice(index, 1)
         }
       })
-      parentScope.state.servicesList.map((service,index) => {
-        if(service.id === reviseServiceName){
-          parentScope.state.servicesList.splice(index,1)
+      parentScope.state.servicesList.map((service, index) => {
+        if (service.id === reviseServiceName) {
+          parentScope.state.servicesList.splice(index, 1)
         }
       })
       this.submitNewService(parentScope)
     }
-    
+
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         console.log('Errors in form!!!')
@@ -461,15 +461,15 @@ let AppDeployServiceModal = React.createClass({
       }
       console.log('Submit!!!')
       console.log(values)
-      
+
     })
-    
+
     this.props.form.resetFields()
     parentScope.setState({
       serviceModalShow: false
     })
   },
-  closeModal () {
+  closeModal() {
     const parentScope = this.props.scope;
     parentScope.setState({
       serviceModalShow: false
@@ -482,31 +482,31 @@ let AppDeployServiceModal = React.createClass({
       stateService: false,
       currentDate: false,
       checkInf: null,
-      disable:true,
-      serNameErrState:'',
+      disable: true,
+      serNameErrState: '',
     })
   },
-  handleForm(){
-    const { getFieldProps,getFieldValue } = this.props.form
-    if(/^[a-z]{3,24}[a-z0-9-]*$/.test(getFieldProps('name').value) && getFieldProps('name').value){
-      console.log('serviceNAMEPASSSSSS',/^[a-z]{3,24}[a-z0-9-]*$/.test(getFieldProps('name').value));
-      console.log('serviceNAMEPASSSSSS',getFieldProps('name').value);
+  handleForm() {
+    const { getFieldProps, getFieldValue } = this.props.form
+    if (/^[a-z]{3,24}[a-z0-9-]*$/.test(getFieldProps('name').value) && getFieldProps('name').value) {
+      console.log('serviceNAMEPASSSSSS', /^[a-z]{3,24}[a-z0-9-]*$/.test(getFieldProps('name').value));
+      console.log('serviceNAMEPASSSSSS', getFieldProps('name').value);
       this.setState({
-        serNameErrState:'success',
+        serNameErrState: 'success',
       })
-      if(getFieldValue('portKey').length >= 1){
-        const portKey =getFieldValue('portKey')
-        console.log('ports true    hhhhhhhhhh',getFieldProps(`portType${portKey[0]}`).value);
-        console.log('serviceNameError',Number(getFieldProps(`targetPortUrl${portKey[0]}`).value));
+      if (getFieldValue('portKey').length >= 1) {
+        const portKey = getFieldValue('portKey')
+        console.log('ports true    hhhhhhhhhh', getFieldProps(`portType${portKey[0]}`).value);
+        console.log('serviceNameError', Number(getFieldProps(`targetPortUrl${portKey[0]}`).value));
         if (!isNaN(Number(getFieldProps(`targetPortUrl${portKey[0]}`).value))
           && Number(getFieldProps(`targetPortUrl${portKey[0]}`).value) > 0
           && getFieldProps(`portType${portKey[0]}`).value) {
           console.log('portssdasdasdasdasd');
           this.setState({
-            disable:false,
+            disable: false,
           })
         } else {
-          console.log('ports true    sadasd',getFieldProps(`portType${portKey[0]}`).value);
+          console.log('ports true    sadasd', getFieldProps(`portType${portKey[0]}`).value);
           this.setState({
             disable: true,
           })
@@ -518,11 +518,12 @@ let AppDeployServiceModal = React.createClass({
       }
     } else {
       this.setState({
-      disable:true,
-      serNameErrState:'error',
-    })}
+        disable: true,
+        serNameErrState: 'error',
+      })
+    }
   },
-  render:function () {
+  render: function () {
     const scope = this
     const parentScope = this.props.scope
     const {servicesList} = parentScope.state.servicesList
@@ -530,12 +531,13 @@ let AppDeployServiceModal = React.createClass({
     const { form, serviceOpen } = this.props
     return (
       <div id="AppDeployServiceModal">
-        <Form horizontal form={form} onChange={this.handleForm}>
-        {/*<Form horizontal form={form}>*/}
+        {/*<Form horizontal form={form} onChange={this.handleForm}>*/}
+        <Form horizontal>
           <NormalDeployBox
             scope={scope} registryServer={registryServer}
             currentSelectedImage={currentSelectedImage}
             serviceOpen={serviceOpen} checkState={checkState}
+            form={form}
             />
           <Collapse>
             <Panel header={assitBoxTitle} key="1" className="assitBigBox">
@@ -554,12 +556,12 @@ let AppDeployServiceModal = React.createClass({
           <div className="btnBox">
             <Button className="cancelBtn" size="large" type="ghost" onClick={this.closeModal}>
               取消
-          </Button>
+            </Button>
             <Button className="createBtn" size="large" type="primary"
               onClick={(e) => this.handleSubBtn(e, parentScope)}
               servicesList={servicesList}
               disabled={this.state.disable}
-            >
+              >
               {parentScope.state.checkState}
             </Button>
           </div>
