@@ -12,7 +12,7 @@ import React, { Component, PropTypes } from 'react'
 import { Row, Icon, Input,Form, Modal, Timeline, Spin, message, Button } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 // import ConfigFile from './ServiceConfigFile'
-import { loadConfigName, updateConfigName, configGroupName, deleteConfigName } from '../../actions/configs'
+import { loadConfigName, updateConfigName, configGroupName, deleteConfigName ,changeConfigFile} from '../../actions/configs'
 import { connect } from 'react-redux'
 import { DEFAULT_CLUSTER } from '../../constants'
 
@@ -24,7 +24,8 @@ class CollapseContainer extends Component {
     this.state = {
       modalConfigFile: false,
       configName: '',
-      configtextarea: ''
+      configtextarea: '',
+      // collapseContainer: this.props.collapseContainer
 
     }
   }
@@ -41,11 +42,11 @@ class CollapseContainer extends Component {
     const self = this
     this.props.loadConfigName(groups, {
       success: {
-        func: () => {
+        func: (res) => {
           self.setState({
             modalConfigFile: true,
             configName: configName,
-            configtextarea: self.props.configDesc
+            configtextarea: res.data
           })
         },
         isAsync: true
@@ -98,17 +99,7 @@ class CollapseContainer extends Component {
           success: {
             func: () => {
               message.success('删除配置文件成功')
-              self.props.configGroupName(groups, {
-                success: {
-                  func: ()=>{
-                    parentScope.setState({
-                      List: self.props.configName,
-                      Size: self.props.configName.length
-                    })
-                  },
-                  isAsync: true
-                }
-              })
+              self.props.configGroupName(groups)
             },
             isAsync: true
           }
@@ -122,7 +113,6 @@ class CollapseContainer extends Component {
   }
   render() {
     const { collapseContainer } = this.props
-    const configNameList = this.props.configName
     const formItemLayout = {labelCol: { span: 3 },wrapperCol: { span: 21 }}
     let configFileList
     if ( collapseContainer.length === 0) {
@@ -215,14 +205,12 @@ function mapStateToProps(state, props) {
     isFetching: false,
     cluster: DEFAULT_CLUSTER,
     configName: '',
-    configDesc:''
   }
-  const { configGroupName } = state.configReducers
-  const { isFetching ,configName, configDesc} = configGroupName[DEFAULT_CLUSTER] || defaultConfigList
+  const { configGroupList ,loadConfigName} = state.configReducers
+  const { configNameList, isFetching} = configGroupList[DEFAULT_CLUSTER] || defaultConfigList
   return {
-    configDesc,
     isFetching,
-    configName,
+    configNameList,
   }
 }
 function mapDispatchToProps(dispatch) {
@@ -236,9 +224,10 @@ function mapDispatchToProps(dispatch) {
     deleteConfigName: (obj, callback) => {
       dispatch(deleteConfigName(obj, callback))
     },
-    configGroupName: (obj, callback) => {
-      dispatch(configGroupName(obj, callback))
-    }
+    configGroupName: (obj) => {
+      dispatch(configGroupName(obj))
+    },
+    changeConfigFile: (configFile) => dispatch(changeConfigFile(configFile))
   }
 }
 

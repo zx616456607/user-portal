@@ -213,7 +213,6 @@ exports.createConfigGroup = function* () {
 exports.deleteConfigGroup = function* () {
   const cluster = this.params.cluster
   let groups = this.request.body
-  console.log('delete group name ', groups)
   if (groups.groups.length == 0) {
     this.status = 400
     this.body = { message: 'Not Parameter' }
