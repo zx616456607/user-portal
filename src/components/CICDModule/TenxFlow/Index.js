@@ -15,6 +15,7 @@ import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import CreateTenxFlow from './CreateTenxFlow.js'
+import TestModal from '../../TerminalModal/Index.js'
 import './style/TenxFlowList.less'
 
 let testData = [
@@ -245,16 +246,8 @@ class TenxFlowList extends Component {
         </Modal>
         <Modal
           visible={this.state.TenxFlowDeployLogModal}
-          className='TenxFlowDeployLogModal'
+          className='TenxFlowDeployLogModal'         
           onCancel={this.closeTenxFlowDeployLogModal}
-          >
-          
-        </Modal>
-        <Modal
-          visible={}
-          className='TerminalLayoutModal'
-          transitionName='move-down'
-          onCancel={}
           >
           
         </Modal>
