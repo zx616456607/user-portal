@@ -18,6 +18,9 @@ const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
 const Option = Select.Option;
 const OptGroup = Select.OptGroup;
+let uuidPort = 0;
+let uuidEnviro = 0;
+
 let MyComponentEnviro = React.createClass({
   propTypes: {
     config: React.PropTypes.array
@@ -48,7 +51,8 @@ let MyComponentEnviro = React.createClass({
     });
   },
   render: function () {
-    const { getFieldProps, getFieldValue, getFieldsValue } = this.props.parentScope.props.form;
+    const { form } = this.props
+    const { getFieldProps, getFieldValue, getFieldsValue } = form;
     getFieldProps('envKey', {
       initialValue: [],
     });
@@ -58,25 +62,13 @@ let MyComponentEnviro = React.createClass({
         <FormItem key={`env${k}`}>
           <li className="enviroDetail">
             <div className="input">
-              <Input {...getFieldProps(`envName${k}`, {
-                rules: [{
-                  required: true,
-                  whitespace: true,
-                  message: '挂载路径呢?',
-                }],
-              }) } className="composeUrl" type="text" />
+              <Input {...getFieldProps(`envName${k}`, {}) } className="composeUrl" type="text" />
             </div>
             <div className="input">
-              <Input {...getFieldProps(`envValue${k}`, {
-                rules: [{
-                  required: true,
-                  whitespace: true,
-                  message: '挂载路径呢?',
-                }],
-              }) } className="composeUrl" type="text" />
+              <Input {...getFieldProps(`envValue${k}`, {}) } className="composeUrl" type="text" />
             </div>
             <div className="opera">
-              <i className="fa fa-trash-o" onClick={() => this.remove(k)}></i>
+              <i className="fa fa-trash-o" onClick={() => this.remove(k)}/>
             </div>
             <div style={{ clear: "both" }}></div>
           </li>
@@ -97,7 +89,6 @@ let MyComponentEnviro = React.createClass({
   }
 });
 
-let uuidPort = 0;
 let MyComponentPort = React.createClass({
   propTypes: {
     config: React.PropTypes.array
@@ -128,28 +119,37 @@ let MyComponentPort = React.createClass({
     });
   },
   portsExists(rule, value, callback) {
+    const {getFieldValue, getFieldProps} = this.props.form
+    console.log(',value,value,value,avalue',value);
+    console.log(',value,value,value,avalue',getFieldValue('portKey'));
+    
     if (!value) {
-      callback()
+      console.log('必须填端口');
+      callback([new Error('抱歉，必须填端口.')])
     } else {
       setTimeout(() => {
         if (isNaN(Number(value))) {
-
-
-          console.log('value', typeof (parseInt(value)))
-          callback([new Error('抱歉，该服务名称不合法.')])
-          this.props.parentScope.setState({
-            disable: true,
-          })
+          callback([new Error('抱歉，该端口不合法.')])
         } else {
+          var i = 0
+          getFieldValue('portKey').map((k) => {
+            console.log('value',value);
+            if(value === getFieldProps(`targetPortUrl${k}`).value){
+              i++
+              if(i>1){
+                console.log('adddddddddddddddd',getFieldProps(`targetPortUrl${k}`));
+                callback([new Error('抱歉，端口名称重复.')])
+              }
+            }
+          })
           callback()
         }
       }, 800)
     }
   },
   render: function () {
-
-
-    const { getFieldProps, getFieldValue, isFieldValidating, getFieldError } = this.props.parentScope.props.form;
+    const { form } = this.props
+    const { getFieldProps, getFieldValue, isFieldValidating, getFieldError } = form
     getFieldProps('portKey', {
       initialValue: [],
     });
@@ -159,22 +159,22 @@ let MyComponentPort = React.createClass({
           <li className="portDetail">
             <div className="input">
               <FormItem hasFeedback
-
-
                 help={isFieldValidating(`targetPortUrl${k}`) ? '校验中...' : (getFieldError(`targetPortUrl${k}`) || []).join(', ')}>
                 <Input {...getFieldProps(`targetPortUrl${k}`, {
-                  rules: [{
-                    required: true,
-                    whitespace: true,
-                    message: '必须填写端口',
-
-
-                  }, { validator: this.portsExists },],
+                  rules: [{ validator: this.portsExists },],
                 }) } className="composeUrl" type="text" size="large" />
               </FormItem>
             </div>
             <div className="protocol select">
               <FormItem className="portGroupForm">
+                <Select {...getFieldProps(`portType${k}`,{
+                  rules: [{
+                    required: true,
+                    message: '必须填写端口类型',
+                  }]
+                })}
+                  defaultValue="http"
+                  className="portGroup" size="large">
                   <Option value="http">Http</Option>
                   <Option value="tcp">Tcp</Option>
                   <Option value="udp">Udp</Option>
@@ -182,16 +182,10 @@ let MyComponentPort = React.createClass({
               </FormItem>
             </div>
             <div className="mapping">
-              <Input {...getFieldProps(`portUrl${k}`, {
-                rules: [{
-                  required: true,
-                  whitespace: true,
-                  message: '挂载路径呢?',
-                }],
-              }) } className="composeUrl" type="text" size="large" />
+              <Input {...getFieldProps(`portUrl${k}`, {}) } className="composeUrl" type="text" size="large" />
             </div>
             <div className="opera">
-              <i className="fa fa-trash-o" onClick={() => this.remove(k)}></i>
+              <i className="fa fa-trash-o" onClick={() => this.remove(k)} />
             </div>
             <div style={{ clear: "both" }}></div>
           </li>
@@ -212,13 +206,9 @@ let MyComponentPort = React.createClass({
   }
 });
 
-MyComponentPort = createForm()(MyComponentPort);
-MyComponentEnviro = createForm()(MyComponentEnviro);
-
 let EnviroDeployBox = React.createClass({
-
-
   render: function () {
+    const { form } = this.props
     const parentScope = this.props.scope;
     return (
       <div id="advanceBox">
@@ -238,7 +228,7 @@ let EnviroDeployBox = React.createClass({
                 </div>
                 <div style={{ clear: "both" }}></div>
               </div>
-              <MyComponentEnviro parentScope={parentScope} />
+              <MyComponentEnviro parentScope={parentScope} form={form}/>
             </div>
           </div>
           <div className="portBox">
@@ -259,7 +249,7 @@ let EnviroDeployBox = React.createClass({
                 </div>
                 <div style={{ clear: "both" }}></div>
               </div>
-              <MyComponentPort parentScope={parentScope} />
+              <MyComponentPort parentScope={parentScope} form={form}/>
             </div>
           </div>
         </div>
@@ -267,8 +257,5 @@ let EnviroDeployBox = React.createClass({
     )
   }
 })
-
-
-EnviroDeployBox = createForm()(EnviroDeployBox);
 
 export default EnviroDeployBox;

@@ -23,7 +23,6 @@ let AssitDeployBox = React.createClass({
     parentScope.setState({
       runningCode: e.target.value
     });
-    console.log('runningCode', this.props.form.getFieldsValue());
   },
 
   changeGetImageType(e) {
@@ -43,12 +42,11 @@ let AssitDeployBox = React.createClass({
   },
   
   render:function () {
+    const { form } = this.props
     const parentScope = this.props.scope;
-    const { getFieldProps, getFieldError, isFieldValidating } = parentScope.props.form;
-    // const runningCodeProps =
+    const { getFieldProps, getFieldError, isFieldValidating } = form
     return (
       <div id="AssitDeployBox">
-        {/*<Form horizontal form={this.props.form}>*/}
         <div className="assitBox">
           <div>
             <div className="inputBox">
@@ -103,12 +101,9 @@ let AssitDeployBox = React.createClass({
             </div>
           </div>
         </div>
-        {/*</Form>*/}
       </div>
     )
   }
 })
-
-AssitDeployBox = createForm()(AssitDeployBox);
 
 export default AssitDeployBox;

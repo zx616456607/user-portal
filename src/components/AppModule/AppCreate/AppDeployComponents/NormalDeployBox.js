@@ -20,7 +20,6 @@ const createForm = Form.create;
 const FormItem = Form.Item;
 let uuid = 0;
 const MyComponent = React.createClass({
-
   remove(k) {
     const { form } = this.props
     let volumeKey = form.getFieldValue('volumeKey')
@@ -58,19 +57,14 @@ const MyComponent = React.createClass({
           <Select className="imageTag" size="large"
             defaultValue="我就是最快的SSD"
             style={{ width: 200 }}
-            {...getFieldProps(`volumeName${k}`, {
-              rules: [{
-                required: true,
-                message: '选择配置组呢?',
-              }],
-            }) }>
+            {...getFieldProps(`volumeName${k}`, {}) }>
             <Option value="ext4/volumeName">volumeName ext4 1024M</Option>
           </Select>
           <Checkbox className="readOnlyBtn" { ...getFieldProps(`volumeChecked${k}`, {}) }>
             只读
           </Checkbox>
-          <i className="fa fa-refresh"></i>
-          <i className="fa fa-trash"></i>
+          <i className="fa fa-refresh"/>
+          <i className="fa fa-trash"/>
         </FormItem>
       )
     });
@@ -165,12 +159,16 @@ let NormalDeployBox = React.createClass({
     imageTagsIsFetching: PropTypes.bool.isRequired,
     loadImageDetailTag: PropTypes.func.isRequired,
     loadImageDetailTagConfig: PropTypes.func.isRequired,
+    selectComposeType: PropTypes.func.isRequired,
   },
   selectComposeType(type) {
+    console.log(type);
     const parentScope = this.props.scope
+    console.log('parentScope1',parentScope.state.composeType);
     parentScope.setState({
       composeType: type
     })
+    console.log('this.props.scopethis.props.scope', parentScope.state.composeType);
   },
   onSelectTagChange(tag) {
     const { setFieldsValue } = this.props.form
@@ -185,11 +183,17 @@ let NormalDeployBox = React.createClass({
     } else {
       setTimeout(() => {
         if (!/^[a-z][a-z0-9-]*$/.test(value)) {
+          /*this.props.scope.setState({
+            serviceNamePass: false,
+          })*/
           callback([new Error('抱歉，该服务名称不合法.')])
         } else {
+          /*this.props.scope.setState({
+            serviceNamePass: true,
+          })*/
           callback()
         }
-      })
+      },800)
     }
   },
   componentWillMount() {
@@ -206,7 +210,8 @@ let NormalDeployBox = React.createClass({
   },
   render: function () {
     const parentScope = this.props.scope;
-    const { imageTags, imageTagsIsFetching, form } = this.props
+    console.log('parentScope',parentScope);
+    const { imageTags, imageTagsIsFetching, form, composeType } = this.props
     const { getFieldProps, getFieldError, isFieldValidating } = form
     const nameProps = getFieldProps('name', {
       rules: [
@@ -216,22 +221,17 @@ let NormalDeployBox = React.createClass({
     });
     const {registryServer, currentSelectedImage} = this.props
     const imageUrlProps = registryServer + '/' + currentSelectedImage
-
     const selectProps = getFieldProps('imageVersion', {
       rules: [
         { required: true, message: '请选择镜像版本' },
       ],
     })
+    
     return (
       <div id="NormalDeployBox">
-        {/*<Form horizontal form={this.props.form}>*/}
         <div className="topBox">
           <div className="inputBox">
             <span className="commonSpan">服务名称</span>
-            {/*<FormItem className="serviceNameForm"*/}
-            {/*hasFeedback*/}
-            {/*validateStatus={parentScope.state.serNameErrState}*/}
-            {/*help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}>*/}
             <FormItem className="serviceNameForm"
               hasFeedback
               help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}>
@@ -259,13 +259,11 @@ let NormalDeployBox = React.createClass({
                 defaultActiveFirstOption={true}
                 onSelect={this.onSelectTagChange}
                 >
-                <OptGroup>
                   {imageTags && imageTags.map((tag) => {
                     return (
                       <Option key={tag} value={tag}>{tag}</Option>
                     )
                   })}
-                </OptGroup>
               </Select>
             </FormItem>
             <div style={{ clear: "both" }}></div>
@@ -283,7 +281,7 @@ let NormalDeployBox = React.createClass({
               <span className="commonSpan">容器配置</span>
               <ul className="composeList">
                 <li className="composeDetail">
-                  <Button type={parentScope.state.composeType == "1" ? "primary" : "ghost"} onClick={this.selectComposeType.bind(this, "1")}>
+                  <Button type={composeType == "1" ? "primary" : "ghost"} onClick={this.selectComposeType.bind(this, "1")}>
                     <div className="topBox">
                       1X
                    </div>
@@ -294,7 +292,7 @@ let NormalDeployBox = React.createClass({
                   </Button>
                 </li>
                 <li className="composeDetail">
-                  <Button type={parentScope.state.composeType == "2" ? "primary" : "ghost"} onClick={this.selectComposeType.bind(this, "2")}>
+                  <Button type={composeType == "2" ? "primary" : "ghost"} onClick={this.selectComposeType.bind(this, "2")}>
                     <div className="topBox">
                       2X
                    </div>
@@ -305,7 +303,7 @@ let NormalDeployBox = React.createClass({
                   </Button>
                 </li>
                 <li className="composeDetail">
-                  <Button type={parentScope.state.composeType == "4" ? "primary" : "ghost"} onClick={this.selectComposeType.bind(this, "4")}>
+                  <Button type={composeType == "4" ? "primary" : "ghost"} onClick={this.selectComposeType.bind(this, "4")}>
                     <div className="topBox">
                       4X
                    </div>
@@ -316,7 +314,7 @@ let NormalDeployBox = React.createClass({
                   </Button>
                 </li>
                 <li className="composeDetail">
-                  <Button type={parentScope.state.composeType == "8" ? "primary" : "ghost"} onClick={this.selectComposeType.bind(this, "8")}>
+                  <Button type={composeType == "8" ? "primary" : "ghost"} onClick={this.selectComposeType.bind(this, "8")}>
                     <div className="topBox">
                       8X
                    </div>
@@ -327,7 +325,7 @@ let NormalDeployBox = React.createClass({
                   </Button>
                 </li>
                 <li className="composeDetail">
-                  <Button type={parentScope.state.composeType == "16" ? "primary" : "ghost"} onClick={this.selectComposeType.bind(this, "16")}>
+                  <Button type={composeType == "16" ? "primary" : "ghost"} onClick={this.selectComposeType.bind(this, "16")}>
                     <div className="topBox">
                       16X
                    </div>
@@ -338,7 +336,7 @@ let NormalDeployBox = React.createClass({
                   </Button>
                 </li>
                 <li className="composeDetail">
-                  <Button type={parentScope.state.composeType == "32" ? "primary" : "ghost"} onClick={this.selectComposeType.bind(this, "32")}>
+                  <Button type={composeType == "32" ? "primary" : "ghost"} onClick={this.selectComposeType.bind(this, "32")}>
                     <div className="topBox">
                       32X
                    </div>
@@ -379,11 +377,11 @@ let NormalDeployBox = React.createClass({
             </div>
           </div>
         </div>
-        {/*</Form>*/}
       </div>
     )
   }
 })
+
 function mapStateToProps(state, props) {
   const defaultImageTags = {
     isFetching: false,
