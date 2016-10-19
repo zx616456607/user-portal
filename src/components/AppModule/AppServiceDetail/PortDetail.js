@@ -7,8 +7,8 @@
  * v0.1 - 2016-09-27
  * @author GaoJian
  */
-import React, { Component } from 'react'
-import { Card } from 'antd'
+import React, { Component, PropTypes } from 'react'
+import { Card, Spin } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -16,15 +16,28 @@ import "./style/PortDetail.less"
 
 const testData = [];
 
-var MyComponent = React.createClass({
+// 需要后端提供获取服务的 service 的 API ！！！
+
+
+const MyComponent = React.createClass({
   propTypes: {
     config: React.PropTypes.array
   },
   render: function () {
-    var config = this.props.config;
-    if (config.length < 1) {
+    const {config, loading} = this.props
+    if (loading) {
       return (
-        <span>无~</span>
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
+      )
+    }
+    const ports = []
+    if (ports.length < 1) {
+      return (
+        <div className='loadingBox'>
+          无端口
+        </div>
       )
     }
     var items = config.map((item) => {
@@ -57,13 +70,13 @@ var MyComponent = React.createClass({
   }
 });
 
-export default class PortDetail extends Component {
+class PortDetail extends Component {
   constructor(props) {
     super(props);
   }
 
   render() {
-    const parentScope = this;
+    const { containerList, loading } = this.props
     return (
       <div id="PortDetail">
         <div className="titleBox">
@@ -84,12 +97,17 @@ export default class PortDetail extends Component {
           </div>
           <div style={{ clear: "both" }}></div>
         </div>
-        <MyComponent config={testData} />
+        <MyComponent config={containerList} loading={loading} />
       </div>
     )
   }
 }
 
 PortDetail.propTypes = {
-  //
+  cluster: PropTypes.string.isRequired,
+  serviceName: PropTypes.string.isRequired,
+  container: PropTypes.object.isRequired,
+  loading: PropTypes.bool.isRequired,
 }
+
+export default PortDetail

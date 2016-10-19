@@ -13,6 +13,7 @@ import merge from 'lodash/merge'
 import union from 'lodash/union'
 import cloneDeep from 'lodash/cloneDeep'
 import reducerFactory from './factory'
+import { DEFAULT_PAGE_SIZE } from '../constants'
 
 function appItems(state = {}, action) {
   const cluster = action.cluster
@@ -163,6 +164,8 @@ function containerItems(state = {}, action) {
     [cluster]: {
       isFetching: false,
       cluster,
+      size: DEFAULT_PAGE_SIZE,
+      total: 0,
       containerList: []
     }
   }
@@ -179,7 +182,9 @@ function containerItems(state = {}, action) {
           isFetching: false,
           cluster: action.response.result.cluster,
           appName: action.response.result.appName,
-          containerList: action.response.result.data
+          size: action.response.result.count,
+          total: action.response.result.total,
+          containerList: action.response.result.data,
         }
       })
     case ActionTypes.CONTAINER_LIST_FAILURE:

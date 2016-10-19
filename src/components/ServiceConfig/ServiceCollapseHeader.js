@@ -12,7 +12,7 @@
 import React, { Component, PropTypes } from 'react'
 import { Row, Col, Modal, Button,Form , Icon, Checkbox, Menu, Dropdown, Input, message } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { createConfigFiles, deleteConfigGroup, loadConfigGroup, deleteConfigFiles, configGroupName } from '../../actions/configs'
+import { createConfigFiles, deleteConfigGroup, loadConfigGroup, deleteConfigFiles, addConfigFile } from '../../actions/configs'
 import { connect } from 'react-redux'
 import { DEFAULT_CLUSTER } from '../../constants'
 import { tenxDateFormat } from '../../common/tools.js'
@@ -27,10 +27,18 @@ class CollapseHeader extends Component {
     this.state = {
       modalConfigFile: false,
       configArray: [],
-      configName: '',
-      configDesc: ''
+      configName:'',
+      configDesc: '',
+      sizeNumber: this.props.sizeNumber,
+      configNameList: this.props.configNameList
 
     }
+  }
+  componentWillReceiveProps(nextProps) {
+    this.setState({
+      configNameList: nextProps.configNameList,
+      sizeNumber: nextProps.sizeNumber
+    })
   }
   // click config modal show
   createConfigModal(e, modal) {
@@ -45,6 +53,10 @@ class CollapseHeader extends Component {
     }
     if (escape(this.state.configName).indexOf( "%u" ) > 0) {
       message.error('名称格式输入有误，请重新输入')
+      return
+    }
+    if (this.state.configDesc == '') {
+      message.info('内容不能为空，请重新输入内容')
       return
     }
     if (escape(this.state.configDesc).indexOf( "%u" ) > 0) {
@@ -68,23 +80,37 @@ class CollapseHeader extends Component {
             configName: '',
             configDesc: ''
           })
-          self.props.configGroupName(configfile, {
-            success: {
-              func: ()=>{
-                parentScope.setState({
-                  List: self.props.configName,
-                  Size: self.props.configName.length
-                })
-              },
-              isAsync: true
-            }
-          })
+          // self.props.configGroupName(configfile, {
+          //   success: {
+          //     func: (res)=>{
+          //       console.log('pppppppppppppppppppppppppppppppppppp')
+          //       console.log(res.data)
+          //       self.setState({
+          //         configNameList: res.data.configs,
+          //         sizeNumber: res.data.configs.length
+          //       })
+
+          //     },
+          //     isAsync: true
+          //   }
+          // })
+          self.props.addConfigFile(configfile)
         },
         isAsync: true
       },
       failure: {
-        func: () => {
-          message.error('创建配置文件失败')
+        func: (res) => {
+          let errorText
+          switch(res.code) {
+            case 403: errorText = '添加配置文件过多';break
+            case 409: errorText = '配置已存在';break
+            case 500: errorText = '网络异常';break
+            default: errorText = '缺少参数或格式错误'
+          }
+          Modal.error({
+            title: '添加配置文件',
+            content: (<h2>{errorText}</h2>),
+          });
           self.setState({
             modalConfigFile: false,
             configName: '',
@@ -128,7 +154,10 @@ class CollapseHeader extends Component {
           success: {
             func: () => {
               message.success('删除成功')
-              self.props.loadConfigGroup()
+              // self.props.loadConfigGroup()
+              self.setState({
+                configArray:[],
+              })
             },
             isAsync: true
           }
@@ -137,7 +166,8 @@ class CollapseHeader extends Component {
     })
   }
   render() {
-    const {collapseHeader, sizeNumber} = this.props
+    const {collapseHeader, } = this.props
+    const {sizeNumber} = this.state
     const formItemLayout = {labelCol: { span: 3 },wrapperCol: { span: 21 }}
     const menu = (
       <Menu onClick={() => this.btnDeleteGroup(collapseHeader.native.metadata.name)} mode="vertical">
@@ -161,14 +191,9 @@ class CollapseHeader extends Component {
         </Col>
         <Col span="6">
           <ButtonGroup>
-            <Button type="ghost" onClick={(e) => this.createConfigModal(e, true)}>
-              <Icon type="plus" style={{ marginRight: '5px' }} />配置文件
-            </Button>
-            <Dropdown overlay={menu} trigger={['click']}>
-              <Button type="ghost" onClick={(e) => this.handleDropdown(e, false)}>
-                <Icon type="down" />
-              </Button>
-            </Dropdown>
+            <Dropdown.Button onClick={(e) => this.createConfigModal(e, true)} overlay={menu} type="ghost">
+              <Icon type="plus" />配置文件
+            </Dropdown.Button>
           </ButtonGroup>
           {/*添加配置文件-弹出层-start*/}
           <Modal
@@ -204,7 +229,6 @@ CollapseHeader.propTypes = {
   collapseHeader: PropTypes.object.isRequired,
   intl: PropTypes.object.isRequired,
   createConfigFiles: PropTypes.func.isRequired,
-  configGroupName: PropTypes.func.isRequired,
   loadConfigGroup: PropTypes.func.isRequired,
   deleteConfigGroup: PropTypes.func.isRequired
 }
@@ -213,24 +237,24 @@ function mapStateToProps(state, props) {
     isFetching: false,
     cluster: DEFAULT_CLUSTER,
     configFiles: [],
-    configName: []
+    configNameList: []
   }
 
-  const { configGroupName  } = state.configReducers
+  const { configGroupList  } = state.configReducers
 
-  const {configFiles, cluster, isFetching} = createConfigFiles[DEFAULT_CLUSTER] || defaultConfigFiles
-  const {configName} = configGroupName[DEFAULT_CLUSTER] || defaultConfigFiles
+  const {configFiles, cluster, isFetching,configNameList} = configGroupList[DEFAULT_CLUSTER] || defaultConfigFiles
+  // const {  } = configNameList[DEFAULT_CLUSTER] || defaultConfigFiles
   return {
-    configFiles, cluster, isFetching, configName
+    configFiles, cluster, isFetching, configNameList
   }
 }
 
 function mapDispatchToProps(dispatch) {
   return {
     createConfigFiles: (obj, callback) => { dispatch(createConfigFiles(obj, callback)) },
-    configGroupName: (obj,callback) => { dispatch(configGroupName(obj, callback)) },
     deleteConfigGroup: (obj, callback) => {dispatch(deleteConfigGroup(obj, callback))},
-    loadConfigGroup: (obj) => {dispatch(loadConfigGroup(obj))}
+    loadConfigGroup: (obj) => {dispatch(loadConfigGroup(obj))},
+    addConfigFile: (configFile) => dispatch(addConfigFile(configFile))
   }
 }
 

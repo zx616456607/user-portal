@@ -141,5 +141,32 @@
   "AppCenter.ImageCenter.ImageDetail.tag":"版本及接口",
   "AppCenter.ImageCenter.ImageDetail.attribute":"属性",
   "AppCenter.ImageCenter.ImageDetail.copyBtn":"点击复制",
-  "AppCenter.ImageCenter.ImageDetail.copySuccess":"复制成功"
+  "AppCenter.ImageCenter.ImageDetail.copySuccess":"复制成功",
+  
+  "this.is.an.commnent":"/--------------------------CI & CD-------------------------/",
+  "CICD.Tenxflow.TenxFlowList.search":"搜索",
+  "CICD.Tenxflow.TenxFlowList.name":"名称",
+  "CICD.Tenxflow.TenxFlowList.updateTime":"更新时间",
+  "CICD.Tenxflow.TenxFlowList.status":"构建状态",
+  "CICD.Tenxflow.TenxFlowList.opera":"操作",
+  "CICD.Tenxflow.TenxFlowList.tooltips":"TenxFlow：这里完成【代码项目构建、测试】等流程的定义与执行，可以实现若干个（≥1）项目组成的一个Flow，由若干个项目流程化完成一个Flow，直至完成整个总项目，其中大部分流程以生成应用镜像为结束标志。",
+  "CICD.Tenxflow.TenxFlowList.create":"创建TenxFlow",
+  "CICD.Tenxflow.TenxFlowList.deloyLog":"构建记录",
+  "CICD.Tenxflow.TenxFlowList.deloyStart":"立即构建",
+  "CICD.Tenxflow.TenxFlowList.checkImage":"查看镜像",
+  "CICD.Tenxflow.TenxFlowList.delete":"删除TenxFlow",
+  
+  "CICD.Tenxflow.CreateTenxFlow.name":"TenxFlow名称",
+  "CICD.Tenxflow.CreateTenxFlow.create":"创建Flow方式",
+  "CICD.Tenxflow.CreateTenxFlow.viewDefine":"可视化流程定义",
+  "CICD.Tenxflow.CreateTenxFlow.yamlDefine":"TenxFlow yaml方式定义",
+  "CICD.Tenxflow.CreateTenxFlow.email":"邮件通知",
+  "CICD.Tenxflow.CreateTenxFlow.otherEmail":"使用其它邮箱",
+  "CICD.Tenxflow.CreateTenxFlow.alert":"通知场景",
+  "CICD.Tenxflow.CreateTenxFlow.alertFirst":"每一个项目执行成功时，通知我",
+  "CICD.Tenxflow.CreateTenxFlow.alertSecond":"每一个项目执行失败时，通知我",
+  "CICD.Tenxflow.CreateTenxFlow.alertThird":"自动部署成功",
+  "CICD.Tenxflow.CreateTenxFlow.alertForth":"自动部署失败",
+  "CICD.Tenxflow.CreateTenxFlow.cancel":"取消",
+  "CICD.Tenxflow.CreateTenxFlow.submit":"立即创建并配置流程定义"
 }

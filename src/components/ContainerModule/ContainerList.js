@@ -8,19 +8,15 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Tooltip, Checkbox, Card, Menu, Dropdown, Button, Input, Spin } from 'antd'
+import { Tooltip, Checkbox, Card, Menu, Dropdown, Button, Input, Spin, Pagination } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import './style/ContainerList.less'
 import { loadContainerList } from '../../actions/app_manage'
-import { DEFAULT_CLUSTER, LABEL_APPNAME } from '../../constants'
+import { DEFAULT_CLUSTER, LABEL_APPNAME, DEFAULT_PAGE_SIZE } from '../../constants'
 import { tenxDateFormat } from '../../common/tools.js'
-
-function loadData(props) {
-  const { cluster } = props
-  props.loadContainerList(cluster)
-}
+import { browserHistory } from 'react-router'
 
 const ButtonGroup = Button.Group
 
@@ -31,7 +27,7 @@ const MyComponent = React.createClass({
   checkedFunc: function (e) {
     //check this item selected or not
     const {scope} = this.props;
-    let oldList = scope.state.selectedList;
+    let oldList = scope.state.selectedList || [];
     if (oldList.includes(e)) {
       return true;
     } else {
@@ -39,7 +35,7 @@ const MyComponent = React.createClass({
     }
   },
   onchange: function (e, event) {
-    event.stopPropagation();
+    e.stopPropagation();
     //single item selected function
     const {scope} = this.props;
     let oldList = scope.state.selectedList;
@@ -70,8 +66,47 @@ const MyComponent = React.createClass({
       selectedList: oldList
     });
   },
+  onShowSizeChange: function (page, size) {
+    if (size === this.props.size) {
+      return
+    }
+    const query = {}
+    if (page !== 1) {
+      query.page = page
+    }
+    if (size !== DEFAULT_PAGE_SIZE) {
+      query.size = size
+    }
+    const { name } = this.props
+    if (name) {
+      query.name = name
+    }
+    const { pathname } = this.props
+    browserHistory.push({
+      pathname,
+      query
+    })
+  },
+  onPageChange: function (page) {
+    if (page === this.props.page) {
+      return
+    }
+    const { pathname, size, name } = this.props
+    const query = {}
+    if (page !== 1) {
+      query.page = page
+      query.size = size
+    }
+    if (name) {
+      query.name = name
+    }
+    browserHistory.push({
+      pathname,
+      query
+    })
+  },
   render: function () {
-    const { config, loading } = this.props;
+    const { config, loading, page, size, total } = this.props;
     if (loading) {
       return (
         <div className='loadingBox'>
@@ -86,22 +121,13 @@ const MyComponent = React.createClass({
         </div>
       )
     }
-    var items = config.map((item) => {
+    const items = config.map((item) => {
       const dropdown = (
         <Menu onClick={this.containerOperaClick.bind(this, item)}
           style={{ width: "100px" }}
           >
           <Menu.Item key="1">
-            停止容器
-          </Menu.Item>
-          <Menu.Item key="2">
-            删除
-          </Menu.Item>
-          <Menu.Item key="3">
-            查看架构图
-          </Menu.Item>
-          <Menu.Item key="4">
-            查看编排
+            重新分配
           </Menu.Item>
         </Menu>
       );
@@ -111,7 +137,7 @@ const MyComponent = React.createClass({
           onClick={this.selectContainerDetail.bind(this, item.metadata.name)}
           >
           <div className="selectIconTitle commonData">
-            <Checkbox checked={this.checkedFunc(item.metadata.name)} onChange={() => this.onchange(item.metadata.name)}></Checkbox>
+            <Checkbox checked={this.checkedFunc(item.metadata.name)} onChange={(e) => this.onchange(e, item.metadata.name)}></Checkbox>
           </div>
           <div className="containerName commonData">
             <Tooltip placement="topLeft" title={item.metadata.name}>
@@ -167,18 +193,36 @@ const MyComponent = React.createClass({
     return (
       <div className="dataBox">
         {items}
+        <div style={{ marginTop: 15 }}>
+          <Pagination
+            showSizeChanger
+            showQuickJumper
+            onShowSizeChange={this.onShowSizeChange}
+            onChange={this.onPageChange}
+            defaultCurrent={page}
+            pageSize={size}
+            showTotal={total => `共 ${total} 条`}
+            total={total} />
+        </div>
       </div>
     );
   }
 })
 
+function loadData(props) {
+  const { loadContainerList, cluster, page, size, name } = props
+  loadContainerList(cluster, { page, size, name })
+}
+
 class ContainerList extends Component {
   constructor(props) {
-    super(props);
-    this.onchange = this.onchange.bind(this);
-    this.allSelectedChecked = this.allSelectedChecked.bind(this);
+    super(props)
+    this.onchange = this.onchange.bind(this)
+    this.allSelectedChecked = this.allSelectedChecked.bind(this)
+    this.searchContainers = this.searchContainers.bind(this)
     this.state = {
-      selectedList: []
+      selectedList: [],
+      searchInputDisabled: false
     }
   }
 
@@ -187,9 +231,21 @@ class ContainerList extends Component {
     loadData(this.props)
   }
 
+  componentWillReceiveProps(nextProps) {
+    let { page, size, name } = nextProps
+    if (page === this.props.page && size === this.props.size && name === this.props.name) {
+      return
+    }
+    this.setState({
+      searchInputDisabled: false
+    })
+    loadData(nextProps)
+  }
+
   allSelectedChecked() {
     const { containerList } = this.props
-    if (this.state.selectedList.length == containerList.length && containerList.length > 0) {
+    const { selectedList } = this.state
+    if (selectedList && selectedList.length == containerList.length && containerList.length > 0) {
       return true;
     } else {
       return false;
@@ -214,9 +270,29 @@ class ContainerList extends Component {
     });
   }
 
+  searchContainers(e) {
+    const { name, pathname } = this.props
+    const value = e.target.value.trim()
+    if (value === name) {
+      return
+    }
+    this.setState({
+      searchInputDisabled: true
+    })
+    const query = {}
+    if (value) {
+      query.name = value
+    }
+    browserHistory.push({
+      pathname,
+      query
+    })
+  }
+
   render() {
     const parentScope = this
-    const { cluster, containerList, isFetching } = this.props
+    const { name, pathname, cluster, page, size, total, containerList, isFetching } = this.props
+    const { searchInputDisabled } = this.state
     return (
       <QueueAnim
         className="ContainerList"
@@ -224,17 +300,19 @@ class ContainerList extends Component {
         >
         <div id="ContainerList" key="ContainerList">
           <div className="operationBox">
-            {/*<div className="leftBox">
-              <Button type="primary" size="large"><i className="fa fa-power-off"></i>重启容器</Button>
-              <Button type="ghost" size="large"><i className="fa fa-stop"></i>停止容器</Button>
-              <Button type="ghost" size="large"><i className="fa fa-trash-o"></i>删除容器</Button>
-            </div>*/}
+            <div className="leftBox">
+              <Button type="primary" size="large"><i className="fa fa-power-off"></i>重新分配</Button>
+            </div>
             <div className="rightBox">
               <div className="littleLeft">
                 <i className="fa fa-search"></i>
               </div>
               <div className="littleRight">
-                <Input placeholder="输入容器名搜索" />
+                <Input
+                  defaultValue={name}
+                  placeholder="输入容器名回车搜索"
+                  disabled={searchInputDisabled}
+                  onPressEnter={this.searchContainers} />
               </div>
             </div>
             <div className="clearDiv"></div>
@@ -246,19 +324,19 @@ class ContainerList extends Component {
               </div>
               <div className="containerName commonTitle">
                 容器名称
-            </div>
+              </div>
               <div className="containerStatus commonTitle">
                 状态
-            </div>
+              </div>
               <div className="serviceName commonTitle">
                 所属应用
-            </div>
+              </div>
               <div className="imageName commonTitle">
                 镜像
-            </div>
+              </div>
               <div className="visitIp commonTitle">
                 访问地址
-            </div>
+              </div>
               <div className="createTime commonTitle">
                 创建时间
               <i className="fa fa-sort"></i>
@@ -267,7 +345,9 @@ class ContainerList extends Component {
                 操作
             </div>
             </div>
-            <MyComponent config={containerList} loading={isFetching} scope={parentScope} />
+            <MyComponent
+              size={size} total={total} pathname={pathname} page={page} name={name}
+              config={containerList} loading={isFetching} scope={parentScope} />
           </Card>
         </div>
       </QueueAnim>
@@ -277,25 +357,46 @@ class ContainerList extends Component {
 
 ContainerList.propTypes = {
   // Injected by React Redux
+  pathname: PropTypes.string.isRequired,
   cluster: PropTypes.string.isRequired,
   containerList: PropTypes.array.isRequired,
   isFetching: PropTypes.bool.isRequired,
-  loadContainerList: PropTypes.func.isRequired
+  loadContainerList: PropTypes.func.isRequired,
+  page: PropTypes.number.isRequired,
+  size: PropTypes.number.isRequired,
+  total: PropTypes.number.isRequired,
 }
 
 function mapStateToProps(state, props) {
+  const { query, pathname } = props.location
+  let { page, size, name } = query
+  page = parseInt(page || 1)
+  size = parseInt(size || DEFAULT_PAGE_SIZE)
+  if (isNaN(page) || page < 1) {
+    page = 1
+  }
+  if (isNaN(size) || size < 1 || size > 100) {
+    size = DEFAULT_PAGE_SIZE
+  }
   const defaultContainers = {
     isFetching: false,
     cluster: DEFAULT_CLUSTER,
+    size,
+    total: 0,
     containerList: []
   }
   const {
     containerItems
   } = state.containers
-  const { cluster, containerList, isFetching } = containerItems[DEFAULT_CLUSTER] || defaultContainers
+  const { cluster, containerList, isFetching, total } = containerItems[DEFAULT_CLUSTER] || defaultContainers
 
   return {
+    pathname,
     cluster,
+    page,
+    size,
+    total,
+    name,
     containerList,
     isFetching
   }

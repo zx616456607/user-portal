@@ -161,6 +161,10 @@ function fetchStartServices(cluster, serviceList, callback) {
   }
 }
 
+export const SERVICE_BATCH_QUICK_RESTART_REQUEST = 'SERVICE_BATCH_QUICK_RESTART_REQUEST'
+export const SERVICE_BATCH_QUICK_RESTART_SUCCESS = 'SERVICE_BATCH_QUICK_RESTART_SUCCESS'
+export const SERVICE_BATCH_QUICK_RESTART_FAILURE = 'SERVICE_BATCH_QUICK_RESTART_FAILURE'
+
 export function startServices(cluster, serviceList, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchStartServices(cluster, serviceList, callback))

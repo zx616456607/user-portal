@@ -23,12 +23,15 @@ class ServiceCollapse extends Component {
       Size: props.group.extended.size
     }
   }
+  sideCollapse(e) {
+    console.log('ess ',e)
+  }
   render() {
     const scope = this
     const { btnDeleteGroup, handChageProp, configGroupName, configName } = this.props
     const { Head ,List ,Size} = this.state
     return (
-      <Collapse>
+      <Collapse onChange={(e)=>this.sideCollapse(e)} accordion>
         <Panel
           header={
             <CollapseHeader

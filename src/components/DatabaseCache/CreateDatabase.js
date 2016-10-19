@@ -39,6 +39,20 @@ let CreateDatabase = React.createClass({
       currentType: database
     });
   },
+  databaseExists(rule, value, callback) {
+    //this function for check the new database name is exist or not
+    if (!value) {
+      callback();
+    } else {
+      setTimeout(() => {
+        if (value === 'oracle') {
+          callback([new Error('抱歉，该数据库名称已被占用。')]);
+        } else {
+          callback();
+        }
+      }, 800);
+    }
+  },
   checkPwdStart: function(){
     //this function for user check his password change the input type
     this.setState({
@@ -75,20 +89,6 @@ let CreateDatabase = React.createClass({
         CreateDatabaseModalShow: false
       });
     });
-  },
-  databaseExists(rule, value, callback) {
-    //this function for check the new database name is exist or not
-    if (!value) {
-      callback();
-    } else {
-      setTimeout(() => {
-        if (value === 'oracle') {
-          callback([new Error('抱歉，该数据库名称已被占用。')]);
-        } else {
-          callback();
-        }
-      }, 800);
-    }
   },
   render() {
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form;

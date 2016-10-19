@@ -19,41 +19,17 @@ const RadioGroup = Radio.Group;
 
 let UsefulDeployBox = React.createClass({
   render:function () {
+    const { form } = this.props
     const parentScope = this.props.scope;
-    const { getFieldProps, getFieldError, isFieldValidating } = parentScope.props.form;
-    const runningCodeProps = getFieldProps('imageUrl', {
-      rules: [
-        { required: true, message: '请输入自定义执行命令' },
-      ],
-    });
-    const livePort = getFieldProps('livePort', {
-      rules: [
-        { required: true, message: '请输入端口' },
-      ],
-    });
-    const liveInitialDelaySeconds = getFieldProps('liveInitialDelaySeconds', {
-      rules: [
-        { required: true, message: '请输入首次检查延时' },
-      ],
-    });
-    const liveTimeoutSeconds = getFieldProps('liveTimeoutSeconds', {
-      rules: [
-        { required: true, message: '请输入检查超时' },
-      ],
-    })
-    const livePeriodSeconds = getFieldProps('livePeriodSeconds', {
-      rules: [
-        { required: true, message: '请输入检查间隔' },
-      ],
-    })
-    const livePath = getFieldProps('livePath', {
-      rules: [
-        { required: true, message: '请输入路径' },
-      ],
-    })
+    const { getFieldProps, getFieldError, isFieldValidating ,getFieldValue} = form
+    const runningCodeProps = getFieldProps('imageUrl', {});
+    const livePort = getFieldProps('livePort', {});
+    const liveInitialDelaySeconds = getFieldProps('liveInitialDelaySeconds', {});
+    const liveTimeoutSeconds = getFieldProps('liveTimeoutSeconds', {})
+    const livePeriodSeconds = getFieldProps('livePeriodSeconds', {})
+    const livePath = getFieldProps('livePath', {})
     return (
       <div id="UsefulDeployBox">
-        {/*<Form horizontal form={parentScope.props.form}>*/}
         <div className="usefulBox">
           <FormItem>
             <RadioGroup
@@ -66,7 +42,7 @@ let UsefulDeployBox = React.createClass({
               <Radio key="c" value={"tcp"}>tcp</Radio>
             </RadioGroup>
           </FormItem>
-          {parentScope.props.form.getFieldValue('getUsefulType') == "http" ? [
+          { getFieldValue('getUsefulType') == "http" ? [
             <div className="http" key="http">
               <div className="title">
                 <div className="httpcommonTitle">
@@ -113,7 +89,7 @@ let UsefulDeployBox = React.createClass({
               </div>
             </div>
           ] : null}
-          {parentScope.props.form.getFieldValue('getUsefulType') == "tcp" ? [
+          { getFieldValue('getUsefulType') == "tcp" ? [
             <div className="tcp" key="tcp">
               <div className="title">
                 <div className="tcpcommonTitle">
@@ -148,12 +124,9 @@ let UsefulDeployBox = React.createClass({
             </div>
           ] : null}
         </div>
-        {/*</Form>*/}
       </div>
     )
   }
 })
-
-UsefulDeployBox = createForm()(UsefulDeployBox);
 
 export default UsefulDeployBox;
