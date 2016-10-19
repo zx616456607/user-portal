@@ -283,6 +283,7 @@ function containerLogs(state = {}, action) {
       if(!uState[cluster].logs) uState[cluster].logs = {}
       if(!action.response.result.data) return uState
       uState[cluster].logs.data = union(action.response.result.data, uState[cluster].logs.data)
+      if(uState[cluster].logs.data.length % 50 !== 0) uState[cluster].logs.data.unshift({log: '无更多日志\n'})
       return uState
     case ActionTypes.CONTAINER_LOGS_FAILURE:
       return merge({}, defaultState, state, {

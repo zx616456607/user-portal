@@ -21,6 +21,7 @@ import AppUseful from './AppUseful'
 import AppServiceLog from './AppServiceLog'
 import AppServiceEvent from './AppServiceEvent'
 import { loadServiceDetail } from '../../../actions/services'
+import CommmonStatus from '../../CommonStatus'
 import './style/AppServiceDetail.less'
 
 const TabPane = Tabs.TabPane;
@@ -138,7 +139,7 @@ class AppServiceDetail extends Component {
               <TabPane tab="端口" key="5"><PortDetail /></TabPane>
               <TabPane tab="高可用" key="6"><AppUseful /></TabPane>
               <TabPane tab="监控" key="7">监控</TabPane>
-              <TabPane tab="日志" key="8"><AppServiceLog serviceName={service.metadata.name} cluster={service.clusterr}/></TabPane>
+              <TabPane tab="日志" key="8"><AppServiceLog serviceName={service.metadata.name} cluster={service.cluster}/></TabPane>
               <TabPane tab="事件" key="9"><AppServiceEvent serviceName={service.metadata.name} cluster={service.cluster} /></TabPane>
             </Tabs>
           </div>

@@ -167,6 +167,54 @@ export function startServices(cluster, serviceList, callback) {
   }
 }
 
+function fetchQuickRestartServices(cluster, serviceList, callback) {
+  return {
+    cluster,
+    [FETCH_API]: {
+      types: [SERVICE_BATCH_QUICK_RESTART_REQUEST, SERVICE_BATCH_QUICK_RESTART_SUCCESS, SERVICE_BATCH_QUICK_RESTART_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/batch-quickrestart`,
+      options: {
+        method: 'PUT',
+        body: serviceList
+      },
+      schema: {}
+    },
+    callback: callback
+  }
+}
+
+export function quickRestartServices(cluster, serviceList, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchQuickRestartServices(cluster, serviceList, callback))
+  }
+}
+
+export const SERVICE_BATCH_ROLLING_UPDATE_REQUEST = 'SERVICE_BATCH_ROLLING_UPDATE_REQUEST'
+export const SERVICE_BATCH_ROLLING_UPDATE_SUCCESS = 'SERVICE_BATCH_ROLLING_UPDATE_SUCCESS'
+export const SERVICE_BATCH_ROLLING_UPDATE_FAILURE = 'SERVICE_BATCH_ROLLING_UPDATE_FAILURE'
+
+function fetchRollingUpdateServices(cluster, servicName, targets, callback) {
+  return {
+    cluster,
+    [FETCH_API]: {
+      types: [SERVICE_BATCH_ROLLING_UPDATE_REQUEST, SERVICE_BATCH_ROLLING_UPDATE_SUCCESS, SERVICE_BATCH_ROLLING_UPDATE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${servicName}/rollingupdate`,
+      options: {
+        method: 'PUT',
+        body: targets
+      },
+      schema: {}
+    },
+    callback: callback
+  }
+}
+
+export function rollingUpdateServices(cluster, servicName, targets, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchRollingUpdateServices(cluster, servicName, targets, callback))
+  }
+}
+
 export const SERVICE_CONTAINERS_LIST_REQUEST = 'SERVICE_CONTAINERS_LIST_REQUEST'
 export const SERVICE_CONTAINERS_LIST_SUCCESS = 'SERVICE_CONTAINERS_LIST_SUCCESS'
 export const SERVICE_CONTAINERS_LIST_FAILURE = 'SERVICE_CONTAINERS_LIST_FAILURE'
@@ -216,5 +264,43 @@ function fetchServiceDetailEvents(cluster, serviceName) {
 export function loadServiceDetailEvents(cluster, serviceName) {
   return (dispatch, getState) => {
     return dispatch(fetchServiceDetailEvents(cluster, serviceName))
+  }
+}
+
+
+export const SERVICE_LOGS_REQUEST = 'SERVICE_LOGS_REQUEST'
+export const SERVICE_LOGS_SUCCESS = 'SERVICE_LOGS_SUCCESS'
+export const SERVICE_LOGS_FAILURE = 'SERVICE_LOGS_FAILURE'
+export const SERVICE_LOGS_CLEAR   = 'SERVICE_LOGS_CLEAR'
+
+
+export function fetchServiceLogs(cluster, serviceName, body, callback) {
+  return {
+    cluster,
+    serviceName,
+    [FETCH_API]: {
+      types: [SERVICE_LOGS_REQUEST, SERVICE_LOGS_SUCCESS, SERVICE_LOGS_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/logs`,
+      options: {
+        method: 'POST',
+        body: body
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function clearServiceLogs(cluster, serviceName) {
+  return {
+    cluster,
+    serviceName,
+    type: SERVICE_LOGS_CLEAR
+  }
+}
+
+export function loadServiceLogs(cluster, serviceName, body, callback) {
+  return (dispath, getState) => {
+    return dispath(fetchServiceLogs(cluster, serviceName, body, callback))
   }
 }

@@ -1,0 +1,242 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2016 TenxCloud. All Rights Reserved.
+ *
+ *  CreateDatabase module
+ *
+ * v2.0 - 2016-10-18
+ * @author GaoJian
+ */
+
+import React, { Component, PropTypes } from 'react'
+import QueueAnim from 'rc-queue-anim'
+import { connect } from 'react-redux'
+import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import { Input, Select, InputNumber, Button, Form } from 'antd'
+import './style/CreateDatabase.less'
+
+const Option = Select.Option;
+const createForm = Form.create;
+const FormItem = Form.Item;
+
+let CreateDatabase = React.createClass({
+  getInitialState: function() {
+    return {
+      currentType: 'mysql',
+      showPwd: 'password'
+    }
+  },
+  componentWillMount: function(){
+    const { database } = this.props;
+    this.setState({
+      currentType: database,
+      showPwd: 'password'
+    });
+  },
+  selectDatabaseType: function(database){
+    //this funciton for user select different database
+    this.setState({
+      currentType: database
+    });
+  },
+  checkPwdStart: function(){
+    //this function for user check his password change the input type
+    this.setState({
+      showPwd: 'text'
+    });
+  },
+  checkPwdEnd: function(){
+    //this function for user stop check his password change the input type
+    this.setState({
+      showPwd: 'password'
+    });
+  },
+  handleReset(e) {
+    //this function for reset the form
+    e.preventDefault();
+    this.props.form.resetFields();
+    const { scope } = this.props;
+    scope.setState({
+      CreateDatabaseModalShow: false
+    });
+  },
+  handleSubmit(e) {
+    //this function for user submit the form
+    e.preventDefault();
+    const { scope } = this.props;
+    this.props.form.validateFields((errors, values) => {
+      if (!!errors) {
+        console.log('Errors in form!!!');
+        return;
+      }
+      console.log('Submit!!!');
+      console.log(values);
+      scope.setState({
+        CreateDatabaseModalShow: false
+      });
+    });
+  },
+  databaseExists(rule, value, callback) {
+    //this function for check the new database name is exist or not
+    if (!value) {
+      callback();
+    } else {
+      setTimeout(() => {
+        if (value === 'oracle') {
+          callback([new Error('抱歉，该数据库名称已被占用。')]);
+        } else {
+          callback();
+        }
+      }, 800);
+    }
+  },
+  render() {
+    const { getFieldProps, getFieldError, isFieldValidating } = this.props.form;
+    const nameProps = getFieldProps('name', {
+      rules: [
+        { required: true, message: '请输入数据库集群名称' },
+        { validator: this.databaseExists },
+      ],
+    });
+    const servicesProps = getFieldProps('services', {
+      initialValue: 1
+    });
+    const selectStorageProps = getFieldProps('storageSelect', {
+      rules: [
+        { required: true, message: '请选择存储卷' },
+      ],
+    });
+    const passwdProps = getFieldProps('passwd', {
+      rules: [
+        { required: true, whitespace: true, message: '请填写密码' },
+      ],
+    });
+    const selectEnvProps = getFieldProps('envSelect', {
+      rules: [
+        { required: true, message: '请选择部署环境' },
+      ],
+    });
+    return (
+    <div id='CreateDatabase' type='right'>
+    <Form horizontal form={this.props.form}>
+      <div className='infoBox'>
+        <div className='commonBox'>
+          <div className='title'>
+            <span>类型</span>
+          </div>
+          <div className='inputBox'>
+            <Button size='large' type={ this.state.currentType == 'mysql' ? 'primary' : 'ghost' } onClick={ this.selectDatabaseType.bind(this,'mysql') }>
+              MySQL
+            </Button>
+            <Button size='large' type={ this.state.currentType == 'mongo' ? 'primary' : 'ghost' } onClick={ this.selectDatabaseType.bind(this,'mongo') }>
+              Mongo
+            </Button>
+            <Button size='large' type={ this.state.currentType == 'redis' ? 'primary' : 'ghost' } onClick={ this.selectDatabaseType.bind(this,'redis') }>
+              Redis
+            </Button>
+          </div>
+          <div style={{ clear:'both' }}></div>
+        </div>
+        <div className='commonBox'>
+          <div className='title'>
+            <span>名称</span>
+          </div>
+          <div className='inputBox'>
+            <FormItem 
+              hasFeedback
+              help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
+            >
+              <Input {...nameProps} size='large' />
+            </FormItem>
+          </div>
+          <div style={{ clear:'both' }}></div>
+        </div>
+        <div className='commonBox'>
+          <div className='title'>
+            <span>副本数</span>
+          </div>
+          <div className='inputBox'>
+            <FormItem style={{ width:'80px',float:'left' }}>
+              <InputNumber {...servicesProps} size='large' min={1} max={1000} />
+            </FormItem>
+            <span className='litteColor' style={{ float:'left',paddingLeft:'15px' }}>个</span>
+          </div>
+          <div style={{ clear:'both' }}></div>
+        </div>
+        <div className='commonBox'>
+          <div className='title'>
+            <span>存储卷</span>
+          </div>
+          <div className='inputBox'>
+            <FormItem>
+              <Select {...selectStorageProps} className='storageSelect' size='large' >
+                <Option value='jack'>Jack</Option>
+                <Option value='lucy'>Lucy</Option>
+                <Option value='yiminghe'>yiminghe</Option>
+              </Select>
+              <i className='fa fa-refresh litteColor'></i>
+              <i className='fa fa-trash litteColor'></i>
+            </FormItem>
+          </div>
+          <div style={{ clear:'both' }}></div>
+        </div>
+        <div className='commonBox'>
+          <div className='title'>
+            <span>密码</span>
+          </div>
+          <div className='inputBox'>
+            <FormItem
+              hasFeedback
+            >
+              <Input {...passwdProps} type={this.state.showPwd} size='large' />
+              <i className='fa fa-eye' onMouseDown={this.checkPwdStart} onMouseUp={this.checkPwdEnd}></i>
+            </FormItem>
+          </div>
+          <div style={{ clear:'both' }}></div>
+        </div>
+        <div className='commonBox'>
+          <div className='title'>
+            <span>部署环境</span>
+          </div>
+          <div className='inputBox'>
+            <FormItem style={{ width:'150px',float:'left',marginRight:'20px' }}>
+              <Select {...selectEnvProps} className='envSelect' size='large' defaultValue='lucy'>
+                <Option value='jack'>Jack</Option>
+                <Option value='lucy'>Lucy</Option>
+                <Option value='yiminghe'>yiminghe</Option>
+              </Select>
+            </FormItem>
+            <FormItem style={{ width:'150px',float:'left' }}>
+              <Select {...selectEnvProps} className='envSelect' size='large' defaultValue='lucy'>
+                <Option value='jack'>Jack</Option>
+                <Option value='lucy'>Lucy</Option>
+                <Option value='yiminghe'>yiminghe</Option>
+              </Select>
+            </FormItem>
+          </div>
+          <div style={{ clear:'both' }}></div>
+        </div>
+      </div>
+      <div className='btnBox'>
+        <Button size='large' onClick={this.handleReset}>
+          取消
+        </Button>
+        <Button size='large' type='primary' onClick={this.handleSubmit}>
+          确定
+        </Button>
+      </div>
+    </Form>
+    </div>
+    )
+  }
+});
+
+CreateDatabase = createForm()(CreateDatabase);
+
+CreateDatabase.propTypes = {
+  intl: PropTypes.object.isRequired
+}
+
+export default connect()(injectIntl(CreateDatabase, {
+  withRef: true,
+}))

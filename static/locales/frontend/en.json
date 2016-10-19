@@ -4,6 +4,11 @@
   "Header.menu.user.menu1": "user menu 1",
   "Header.menu.user.menu2": "user menu 2",
   "Header.menu.user.menu3": "user menu 3(disabled)",
+  
+  "this.is.an.commnent":"/------------------------CommonStatus 通用状态-----------------------/",
+  "CommonStatus.normal":"Running",
+  "CommonStatus.warning":"Error",
+  
   "IntlExp.description": "i am description",
   "IntlExp.alert": "i am alert",
   "IntlExp.button": "alert",

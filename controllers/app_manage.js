@@ -39,7 +39,7 @@ exports.getApps = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.getBy([cluster, 'apps'])
-  const apps = result.data
+  const apps = result.data.apps
   apps.map((app) => {
     if (!app.services) {
       app.services = []
@@ -56,7 +56,9 @@ exports.getApps = function* () {
   })
   this.body = {
     cluster,
-    data: apps || []
+    data: apps || [],
+    total: result.data.total,
+    count: result.data.count,
   }
 }
 
@@ -150,7 +152,12 @@ exports.getAppDetail = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.getBy([cluster, 'apps', appName])
-  const app = result.data[appName] || {}
+  const app = result.data[appName]
+  if (!app) {
+    const err = new Error(`App '${appName}' not exits.`)
+    err.status = 404
+    throw err
+  }
   if (!app.services) {
     app.services = []
   }
@@ -176,7 +183,8 @@ exports.getAppServices = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.getBy([cluster, 'apps', appName, 'services'])
-  const services = result.data
+  const services = result.data.services
+
   services.map((service) => {
     service.images = []
     service.spec.template.spec.containers.map((container) => {
@@ -186,7 +194,9 @@ exports.getAppServices = function* () {
   this.body = {
     cluster,
     appName,
-    data: result.data
+    data: result.data.services,
+    total: result.data.total,
+    count: result.data.count,
   }
 }
 
@@ -208,7 +218,7 @@ exports.getAppLogs = function* () {
   const spi = apiFactory.getSpi(this.session.loginUser)
   const response = yield spi.clusters.getBy([cluster, 'apps', appName, 'oplog'])
   this.status = response.code
-  if(response.data[appName]) {
+  if (response.data[appName]) {
     response.data = response.data[appName]
   }
   this.body = response

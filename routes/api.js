@@ -52,6 +52,7 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/services/batch-start', serviceController.startServices)
   router.put('/clusters/:cluster/services/batch-stop', serviceController.stopServices)
   router.put('/clusters/:cluster/services/batch-restart', serviceController.restartServices)
+  router.put('/clusters/:cluster/services/batch-quickrestart', serviceController.quickRestartServices)
   router.post('/clusters/:cluster/services/batch-delete', serviceController.deleteServices)
   router.get('/clusters/:cluster/services/batch-status', serviceController.getServicesStatus)
   router.get('/clusters/:cluster/services/:service_name/detail', serviceController.getServiceDetail)
@@ -60,14 +61,16 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/services/:service_name/autoscale', serviceController.autoScaleService)
   router.put('/clusters/:cluster/services/:service_name/quota', serviceController.changeServiceQuota)
   router.put('/clusters/:cluster/services/:service_name/ha', serviceController.changeServiceHa)
+  router.put('/clusters/:cluster/services/:service_name/rollingupdate', serviceController.rollingUpdateService)
   router.get('/clusters/:cluster/services/:service_name/events', serviceController.getServiceDetailEvents)
+  router.post('/clusters/:cluster/services/:service_name/logs', serviceController.getServiceLogs)
   // spi
   router.post('/clusters/:cluster/services/:service_name/domain', serviceController.bindServiceDomain)
 
   // Containers
   router.get('/clusters/:cluster/containers', containerController.getContainers)
   router.get('/clusters/:cluster/containers/:container_name/detail', containerController.getContainerDetail)
-  router.get('/clusters/:cluster/containers/:container_name/events',containerController.getContainerDetailEvents)
+  router.get('/clusters/:cluster/containers/:container_name/events', containerController.getContainerDetailEvents)
   router.post('/clusters/:cluster/containers/:name/logs', containerController.getContainerLogs)
 
   // Configs

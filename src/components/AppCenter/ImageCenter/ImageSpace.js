@@ -199,7 +199,7 @@ let MyComponent = React.createClass({
             </span><br />
             <span className="type">
               <FormattedMessage {...menusText.type} />&nbsp;
-       {item.type == "public" ? [
+                {item.type == "public" ? [
                 <span key={item.id + "unlock"}><i className="fa fa-unlock-alt"></i>&nbsp;<FormattedMessage {...menusText.publicType} /></span>]
                 :
                 [<span key={item.id + "lock"}><i className="fa fa-lock"></i>&nbsp;<FormattedMessage {...menusText.privateType} /></span>]
@@ -207,7 +207,7 @@ let MyComponent = React.createClass({
             </span>
             <span className="imageUrl">
               <FormattedMessage {...menusText.imageUrl} />&nbsp;
-       <span className="colorUrl">{item.imageUrl}</span>
+              <span className="colorUrl">{item.imageUrl}</span>
             </span>
             <span className="downloadNum">
               <FormattedMessage {...menusText.downloadNum} />&nbsp;{item.downloadNum}
@@ -292,11 +292,11 @@ class ImageSpace extends Component {
             <div className="operaBox">
               <Button className="uploadBtn" size="large" type="primary" onClick={this.openUploadModal}>
                 <i className="fa fa-cloud-upload"></i>&nbsp;
-        <FormattedMessage {...menusText.uploadImage} />
+                <FormattedMessage {...menusText.uploadImage} />
               </Button>
               <Button className="downloadBtn" size="large" type="ghost" onClick={this.openDownloadModal}>
                 <i className="fa fa-cloud-download"></i>&nbsp;
-        <FormattedMessage {...menusText.downloadImage} />
+                <FormattedMessage {...menusText.downloadImage} />
               </Button>
               <Input className="searchBox" placeholder={formatMessage(menusText.search)} type="text" />
               <i className="fa fa-search"></i>
@@ -308,15 +308,15 @@ class ImageSpace extends Component {
               <p>1.&nbsp;&nbsp;<FormattedMessage {...menusText.uploadImageFirstTips} /></p>
               <span className="codeSpan">
                 sudo docker login 192.168.123.456
-            </span>
+              </span>
               <p>2.&nbsp;&nbsp;<FormattedMessage {...menusText.uploadImageSecondTips} /></p>
               <span className="codeSpan">
                 sudo docker tag  tenxcloud/hello-world:latest 192.168.123.456/&lt;username&gt;/&lt;repository&gt;:&lt;tag&gt;
-            </span>
+              </span>
               <p>3.&nbsp;&nbsp;<FormattedMessage {...menusText.uploadImageThirdTips} /></p>
               <span className="codeSpan">
                 sudo docker push 192.168.123.456/&lt;username&gt;/&lt;repository&gt;:&lt;tag&gt;
-            </span>
+              </span>
             </Modal>
             <Modal title={<FormattedMessage {...menusText.downloadImage} />} className="uploadImageModal" visible={this.state.downloadModalVisible}
               onCancel={this.closeDownloadModal} onOk={this.closeDownloadModal}

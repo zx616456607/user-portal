@@ -9,22 +9,21 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { Form, Select, Input, InputNumber, Modal, Checkbox, Button, Card, Menu, Switch } from 'antd'
-import { Link } from 'react-router'
 import { connect } from 'react-redux'
-import QueueAnim from 'rc-queue-anim'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import { loadImageDetailTag, loadImageDetailTagConfig } from '../../../../actions/app_center'
 import "./style/NormalDeployBox.less"
 
 const Option = Select.Option;
+const OptGroup = Select.OptGroup;
 const createForm = Form.create;
 const FormItem = Form.Item;
 let uuid = 0;
-var MyComponent = React.createClass({
+const MyComponent = React.createClass({
 
   remove(k) {
-    const { form } = this.props.parentScope.props;
-    let volumeKey = form.getFieldValue('volumeKey');
+    const { form } = this.props
+    let volumeKey = form.getFieldValue('volumeKey')
     volumeKey = volumeKey.filter((key) => {
       return key !== k;
     });
@@ -34,15 +33,15 @@ var MyComponent = React.createClass({
   },
   add() {
     uuid++;
-    const { form } = this.props.parentScope.props;
-    let volumeKey = form.getFieldValue('volumeKey');
+    const { form } = this.props
+    let volumeKey = form.getFieldValue('volumeKey')
     volumeKey = volumeKey.concat(uuid);
     form.setFieldsValue({
       volumeKey,
     });
   },
   render: function () {
-    const { getFieldProps, getFieldValue, } = this.props.parentScope.props.form;
+    const { getFieldProps, getFieldValue, } = this.props.form
     getFieldProps('volumeKey', {
       initialValue: [1],
     });
@@ -82,7 +81,6 @@ var MyComponent = React.createClass({
     )
   }
 })
-MyComponent = createForm()(MyComponent);
 
 function loadImageTags(props) {
   const { registry, currentSelectedImage, loadImageDetailTag } = props
@@ -95,7 +93,7 @@ function loadImageTags(props) {
           tag = LATEST
         }
         loadImageTagConfigs(tag, props)
-        const { setFieldsValue } = props.scope.props.form
+        const { setFieldsValue } = props.form
         setFieldsValue({
           imageVersion: tag
         })
@@ -150,7 +148,7 @@ function loadImageTagConfigs(tag, props) {
           imageTagConfigs: result
         })*/
         console.log('props', scope);
-        const { form } = scope.props
+        const { form } = props
         const { containerPorts, defaultEnv } = result.data
         setPorts(containerPorts, form)
         setEnv(defaultEnv, form)
@@ -160,28 +158,27 @@ function loadImageTagConfigs(tag, props) {
   })
 }
 
-class NormalDeployBox extends Component {
-  constructor(props) {
-    super(props)
-    this.selectComposeType = this.selectComposeType.bind(this)
-    this.onSelectTagChange = this.onSelectTagChange.bind(this)
-    this.state = {
-
-    }
-  }
+let NormalDeployBox = React.createClass({
+  propTypes: {
+    currentSelectedImage: PropTypes.string.isRequired,
+    imageTags: PropTypes.array.isRequired,
+    imageTagsIsFetching: PropTypes.bool.isRequired,
+    loadImageDetailTag: PropTypes.func.isRequired,
+    loadImageDetailTagConfig: PropTypes.func.isRequired,
+  },
   selectComposeType(type) {
     const parentScope = this.props.scope
     parentScope.setState({
       composeType: type
     })
-  }
+  },
   onSelectTagChange(tag) {
-    const { setFieldsValue } = this.props.scope.props.form
+    const { setFieldsValue } = this.props.form
     setFieldsValue({
       imageVersion: tag
     })
     loadImageTagConfigs(tag, this.props)
-  }
+  },
   userExists(rule, value, callback) {
     if (!value) {
       callback()
@@ -192,12 +189,12 @@ class NormalDeployBox extends Component {
         } else {
           callback()
         }
-      }, 800)
+      })
     }
-  }
+  },
   componentWillMount() {
     loadImageTags(this.props)
-  }
+  },
   componentWillReceiveProps(nextProps) {
     const {serviceOpen} = nextProps
     if (serviceOpen == this.props.serviceOpen) {
@@ -206,14 +203,14 @@ class NormalDeployBox extends Component {
     if (serviceOpen) {
       loadImageTags(nextProps)
     }
-  }
-  render() {
+  },
+  render: function () {
     const parentScope = this.props.scope;
-    const { imageTags, imageTagsIsFetching } = this.props
-    const { getFieldProps, getFieldError, isFieldValidating } = parentScope.props.form
+    const { imageTags, imageTagsIsFetching, form } = this.props
+    const { getFieldProps, getFieldError, isFieldValidating } = form
     const nameProps = getFieldProps('name', {
       rules: [
-        { required: true,},
+        { required: true, min: 3, max: 24, message: '服务名称至少为 3~24 个字符' },
         { validator: this.userExists },
       ],
     });
@@ -224,18 +221,21 @@ class NormalDeployBox extends Component {
       rules: [
         { required: true, message: '请选择镜像版本' },
       ],
-    });
+    })
     return (
       <div id="NormalDeployBox">
         {/*<Form horizontal form={this.props.form}>*/}
         <div className="topBox">
           <div className="inputBox">
             <span className="commonSpan">服务名称</span>
+            {/*<FormItem className="serviceNameForm"*/}
+            {/*hasFeedback*/}
+            {/*validateStatus={parentScope.state.serNameErrState}*/}
+            {/*help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}>*/}
             <FormItem className="serviceNameForm"
-                      hasFeedback
-                      validateStatus={parentScope.state.serNameErrState}
-                      help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}>
-              <Input {...nameProps} size="large" placeholder="起一个萌萌哒的名字吧~" />
+              hasFeedback
+              help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}>
+              <Input {...nameProps} size="large" placeholder="起一个萌萌哒的名字吧~" autoComplete="off" />
             </FormItem>
             <div style={{ clear: "both" }}></div>
           </div>
@@ -259,11 +259,13 @@ class NormalDeployBox extends Component {
                 defaultActiveFirstOption={true}
                 onSelect={this.onSelectTagChange}
                 >
-                {imageTags && imageTags.map((tag) => {
-                  return (
-                    <Option key={tag} value={tag}>{tag}</Option>
-                  )
-                })}
+                <OptGroup>
+                  {imageTags && imageTags.map((tag) => {
+                    return (
+                      <Option key={tag} value={tag}>{tag}</Option>
+                    )
+                  })}
+                </OptGroup>
               </Select>
             </FormItem>
             <div style={{ clear: "both" }}></div>
@@ -357,9 +359,9 @@ class NormalDeployBox extends Component {
                   valuePropName: 'checked'
                 }) }
                 />
-              <span className="stateSpan">{parentScope.props.form.getFieldValue('volumeSwitch') ? "有状态服务" : "无状态服务"}</span>
-              {parentScope.props.form.getFieldValue('volumeSwitch') ? [
-                <MyComponent parentScope={parentScope} />
+              <span className="stateSpan">{form.getFieldValue('volumeSwitch') ? "有状态服务" : "无状态服务"}</span>
+              {form.getFieldValue('volumeSwitch') ? [
+                <MyComponent parentScope={parentScope} form={form} />
               ] : null}
               <div style={{ clear: "both" }}></div>
             </div>
@@ -377,29 +379,20 @@ class NormalDeployBox extends Component {
             </div>
           </div>
         </div>
-         {/*</Form>*/}
+        {/*</Form>*/}
       </div>
     )
   }
-}
-
-NormalDeployBox.propTypes = {
-  currentSelectedImage: PropTypes.string.isRequired,
-  imageTags: PropTypes.array.isRequired,
-  imageTagsIsFetching: PropTypes.bool.isRequired,
-  loadImageDetailTag: PropTypes.func.isRequired,
-  loadImageDetailTagConfig: PropTypes.func.isRequired,
-}
-
+})
 function mapStateToProps(state, props) {
   const defaultImageTags = {
     isFetching: false,
     registry: DEFAULT_REGISTRY,
     tag: []
   }
-  const { imageTag } = state.getImageTag
-  const { registry, tag, isFetching, server } = imageTag[DEFAULT_REGISTRY] || defaultImageTags
-  const { currentSelectedImage } = props
+  const {imageTag} = state.getImageTag
+  const {registry, tag, isFetching, server } = imageTag[DEFAULT_REGISTRY] || defaultImageTags
+  const {currentSelectedImage} = props
 
   return {
     registry,
@@ -414,7 +407,5 @@ NormalDeployBox = connect(mapStateToProps, {
   loadImageDetailTag,
   loadImageDetailTagConfig,
 })(NormalDeployBox)
-
-NormalDeployBox = createForm()(NormalDeployBox)
 
 export default NormalDeployBox

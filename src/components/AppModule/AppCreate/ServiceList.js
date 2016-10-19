@@ -190,8 +190,7 @@ export default class ServiceList extends Component {
     localStorage.removeItem('servicesList');
     localStorage.removeItem('selectedList');
   }
-
-  delAllSelected() {
+	delAllSelected() {
     let selectedList = this.state.selectedList
     let servicesList = this.state.servicesList
     let newServiceList=servicesList.filter(function (service) {
@@ -201,8 +200,8 @@ export default class ServiceList extends Component {
       servicesList:newServiceList,
       selectedList:[]
     })
-  }
-  componentWillMount() {
+	}
+	componentWillMount() {
     const serviceList = JSON.parse(localStorage.getItem('servicesList'))
     if (serviceList) {
       this.setState({

@@ -40,10 +40,19 @@ import ImageCenter from './components/AppCenter/Index'
 import ImageStore from './components/AppCenter/ImageStore'
 import ComposeCenter from './components/AppCenter/ComposeCenter'
 /*-------------------App_center Module Stop------------------------*/
-//     database & cache
+/*-------------------database & cache Module Start------------------------*/  
 import Database from './containers/Database/Index'
-import MysqlCluster from './components/DatabaseCache/mysqlCluster'
-//  database end
+import MysqlCluster from './components/DatabaseCache/MysqlCluster'
+import MongoCluster from './components/DatabaseCache/MongoCluster'
+import RedisCluster from './components/DatabaseCache/RedisCluster'
+import DatabaseStorage from './components/DatabaseCache/DatabaseStorage'
+/*-------------------database & cache Module Stop------------------------*/  
+/*-------------------CI/CD Module Start----------------------------------*/
+import CICD from './containers/CICD/Index'
+import CodeStore from './components/CICDModule/CodeStore'
+import DockerFile from './components/CICDModule/DockerFile'
+import TenxFlow from './components/CICDModule/TenxFlow'
+/*-------------------CI/CD Module Stop-----------------------------------*/  
 
 
 export default (
@@ -77,6 +86,14 @@ export default (
     </Route>
     <Route path="database_cache" component={Database}>
       <IndexRoute component={MysqlCluster} />
+      <Route path="mongo_cluster" component={MongoCluster} />
+      <Route path="redis_cluster" component={RedisCluster} />
+      <Route path="database_storage" component={DatabaseStorage} />
+    </Route>
+    <Route path="ci_cd" component={CICD}>
+      <IndexRoute component={CodeStore} />
+      <Route path="tenx_flow" component={TenxFlow} />
+      <Route path="docker_file" component={DockerFile} />
     </Route>
     <Route path="*" component={ErrorPage} />
   </Route>

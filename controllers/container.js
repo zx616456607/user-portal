@@ -16,7 +16,7 @@ exports.getContainers = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.getBy([cluster, 'instances'])
-  const pods = result.data || []
+  const pods = result.data.instances || []
   pods.map((pod) => {
     pod.images = []
     pod.spec.containers.map((container) => {
@@ -25,7 +25,9 @@ exports.getContainers = function* () {
   })
   this.body = {
     cluster,
-    data: pods
+    data: pods,
+    total: result.data.total,
+    count: result.data.count,
   }
 }
 

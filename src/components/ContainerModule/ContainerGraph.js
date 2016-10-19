@@ -23,7 +23,8 @@ class ContainerGraph extends Component {
       currentDate: formateDate(new Date(), 'YYYY-MM-DD'),
       pageIndex: 1,
       pageSize: 50,
-      useGetLogs: true
+      useGetLogs: true,
+      preScroll: 0
     }
   }
   componentWillMount() {
@@ -51,8 +52,7 @@ class ContainerGraph extends Component {
   }
   moutseRollLoadLogs() {
     if(!this.state.useGetLogs) return
-    alert(this.infoBox,scrollTop)
-    if(this.infoBox.scrollTop >= 20) return
+    if(this.infoBox.scrollTop >= 100 || this.infoBox.offsetHeight === this.infoBox.scrollHeight) return
     this.setState({
       useGetLogs: false
     })
@@ -68,11 +68,17 @@ class ContainerGraph extends Component {
     }, {
       success: {
         func(result) {
-          self.infoBox.scrollBottom = scrollBottom
+          if(self.state.preScroll !== 0) {
+            self.infoBox.scrollTop = self.infoBox.scrollHeight - self.state.preScroll
+          }
+          self.setState({
+            preScroll: self.infoBox.scrollHeight
+          })
           if (!result.data || result.data.length < 50) self.setState({
             useGetLogs: false
           })
-        }
+        },
+        isAsync: true
       }
     })
     this.setState({
@@ -99,7 +105,15 @@ class ContainerGraph extends Component {
       date_end: date
     }, {
         success: {
-          func() {
+          func(result) {
+            if (!result.data || result.data.length < 50) {
+              self.setState({
+                useGetLogs: false
+              })
+            }
+            self.setState({
+              preScroll: self.infoBox.scrollHeight
+            })
             self.infoBox.scrollTop = self.infoBox.scrollHeight
           },
           isAsync: true
@@ -113,7 +127,6 @@ class ContainerGraph extends Component {
     }
     const logs = this.props.containerLogs[cluster].logs.data
     if(!logs || logs.length <= 0 ) return '无日志'
-    if(logs.length % 50 !== 0 ) logs.unshift({ log: '无更多日志\n' })
     const logContent = logs.map(log => {
        return (<span key={log.id}>{log.log}</span>)
     })

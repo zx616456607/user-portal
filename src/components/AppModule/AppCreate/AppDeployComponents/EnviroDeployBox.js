@@ -16,8 +16,8 @@ import "./style/EnviroDeployBox.less"
 const createForm = Form.create;
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
-
-let uuidEnviro = 0;
+const Option = Select.Option;
+const OptGroup = Select.OptGroup;let uuidEnviro = 0;
 let MyComponentEnviro = React.createClass({
   propTypes: {
     config: React.PropTypes.array
@@ -104,38 +104,40 @@ let MyComponentPort = React.createClass({
   },
   remove(k) {
     const { form } = this.props.parentScope.props;
-    // can use data-binding to get
     let portKey = form.getFieldValue('portKey');
     portKey = portKey.filter((key) => {
       return key !== k;
     });
-    // can use data-binding to set
     form.setFieldsValue({
       portKey,
     });
+    if (this.props.parentScope.props.form.getFieldValue('portKey').length === 0) {
+      this.props.parentScope.setState({
+        disable: true,
+      })
+    }
   },
   add() {
     uuidPort++;
     const { form } = this.props.parentScope.props;
-    // can use data-binding to get
     let portKey = form.getFieldValue('portKey');
     portKey = portKey.concat(uuidPort);
-    // can use data-binding to set
-    // important! notify form to detect changes
     form.setFieldsValue({
       portKey,
     });
   },
   portsExists(rule, value, callback) {
-    console.log('value',parseInt(value));
     if (!value) {
-      console.log('nanananna');
       callback()
     } else {
       setTimeout(() => {
         if (isNaN(Number(value))) {
-          console.log('value',typeof (parseInt(value)));
+
+          console.log('value', typeof (parseInt(value)))
           callback([new Error('抱歉，该服务名称不合法.')])
+          this.props.parentScope.setState({
+            disable: true,
+          })
         } else {
           callback()
         }
@@ -143,8 +145,8 @@ let MyComponentPort = React.createClass({
     }
   },
   render: function () {
-    const parentScope = this.props.scope;
-    const { getFieldProps, getFieldValue, getFieldsValue,isFieldValidating,getFieldError } = this.props.parentScope.props.form;
+
+    const { getFieldProps, getFieldValue, isFieldValidating, getFieldError } = this.props.parentScope.props.form;
     getFieldProps('portKey', {
       initialValue: [],
     });
@@ -154,21 +156,21 @@ let MyComponentPort = React.createClass({
           <li className="portDetail">
             <div className="input">
               <FormItem hasFeedback
-                        validateStatus='success'
-                        help={isFieldValidating(`targetPortUrl${k}`) ? '校验中...' : (getFieldError(`targetPortUrl${k}`) || []).join(', ')}>
+
+                help={isFieldValidating(`targetPortUrl${k}`) ? '校验中...' : (getFieldError(`targetPortUrl${k}`) || []).join(', ')}>
                 <Input {...getFieldProps(`targetPortUrl${k}`, {
                   rules: [{
                     required: true,
                     whitespace: true,
                     message: '必须填写端口',
-                  },{ validator: this.portsExists },],
-                })} className="composeUrl" type="text" size="large" />
+
+                  }, { validator: this.portsExists },],
+                }) } className="composeUrl" type="text" size="large" />
               </FormItem>
             </div>
             <div className="protocol select">
               <FormItem className="portGroupForm">
-                <Select {...getFieldProps(`portType${k}`)}
-                  className="portGroup" size="large">
+                <Select {...getFieldProps(`portType${k}`)}                  className="portGroup" size="large">
                   <Option value="http">Http</Option>
                   <Option value="tcp">Tcp</Option>
                   <Option value="udp">Udp</Option>
@@ -209,14 +211,9 @@ let MyComponentPort = React.createClass({
 MyComponentPort = createForm()(MyComponentPort);
 MyComponentEnviro = createForm()(MyComponentEnviro);
 
-class EnviroDeployBox extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
+let EnviroDeployBox = React.createClass({
 
-    }
-  }
-  render() {
+  render: function () {
     const parentScope = this.props.scope;
     return (
       <div id="advanceBox">
@@ -264,10 +261,8 @@ class EnviroDeployBox extends Component {
       </div>
     )
   }
-}
+})
 
-EnviroDeployBox.propTypes = {
-}
 
 EnviroDeployBox = createForm()(EnviroDeployBox);
 

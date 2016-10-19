@@ -14,7 +14,7 @@ import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import './style/ContainerList.less'
 import { loadContainerList } from '../../actions/app_manage'
-import { DEFAULT_CLUSTER } from '../../constants'
+import { DEFAULT_CLUSTER, LABEL_APPNAME } from '../../constants'
 import { tenxDateFormat } from '../../common/tools.js'
 
 function loadData(props) {
@@ -125,8 +125,12 @@ const MyComponent = React.createClass({
             <span className={item.status.phase == 'Running' ? "normal" : "error"} >{item.status.phase}</span>
           </div>
           <div className="serviceName commonData">
-            <Tooltip placement="topLeft" title={item.metadata.labels.appName ? item.metadata.labels.appName : ""}>
-              <span>{item.metadata.labels.appName || '-'}</span>
+            <Tooltip placement="topLeft" title={item.metadata.labels[LABEL_APPNAME] || ''}>
+              {
+                item.metadata.labels[LABEL_APPNAME]
+                  ? (<Link to={`/app_manage/detail/${item.metadata.labels[LABEL_APPNAME]}`}>{item.metadata.labels[LABEL_APPNAME]}</Link>)
+                  : (<span>-</span>)
+              }
             </Tooltip>
           </div>
           <div className="imageName commonData">
@@ -157,7 +161,7 @@ const MyComponent = React.createClass({
             </Dropdown.Button>
           </div>
           <div style={{ clear: "both", width: "0" }}></div>
-        </div>
+        </div >
       );
     });
     return (
