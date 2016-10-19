@@ -27,7 +27,7 @@ const MyComponent = React.createClass({
   checkedFunc: function (e) {
     //check this item selected or not
     const {scope} = this.props;
-    let oldList = scope.state.selectedList;
+    let oldList = scope.state.selectedList || [];
     if (oldList.includes(e)) {
       return true;
     } else {
@@ -35,7 +35,7 @@ const MyComponent = React.createClass({
     }
   },
   onchange: function (e, event) {
-    event.stopPropagation();
+    e.stopPropagation();
     //single item selected function
     const {scope} = this.props;
     let oldList = scope.state.selectedList;
@@ -77,6 +77,10 @@ const MyComponent = React.createClass({
     if (size !== DEFAULT_PAGE_SIZE) {
       query.size = size
     }
+    const { name } = this.props
+    if (name) {
+      query.name = name
+    }
     const { pathname } = this.props
     browserHistory.push({
       pathname,
@@ -87,11 +91,14 @@ const MyComponent = React.createClass({
     if (page === this.props.page) {
       return
     }
-    const { pathname, size } = this.props
+    const { pathname, size, name } = this.props
     const query = {}
     if (page !== 1) {
       query.page = page
       query.size = size
+    }
+    if (name) {
+      query.name = name
     }
     browserHistory.push({
       pathname,
@@ -130,7 +137,7 @@ const MyComponent = React.createClass({
           onClick={this.selectContainerDetail.bind(this, item.metadata.name)}
           >
           <div className="selectIconTitle commonData">
-            <Checkbox checked={this.checkedFunc(item.metadata.name)} onChange={() => this.onchange(item.metadata.name)}></Checkbox>
+            <Checkbox checked={this.checkedFunc(item.metadata.name)} onChange={(e) => this.onchange(e, item.metadata.name)}></Checkbox>
           </div>
           <div className="containerName commonData">
             <Tooltip placement="topLeft" title={item.metadata.name}>
@@ -203,17 +210,19 @@ const MyComponent = React.createClass({
 })
 
 function loadData(props) {
-  const { loadContainerList, cluster, page, size } = props
-  loadContainerList(cluster, { page, size })
+  const { loadContainerList, cluster, page, size, name } = props
+  loadContainerList(cluster, { page, size, name })
 }
 
 class ContainerList extends Component {
   constructor(props) {
     super(props)
-    this.onchange = this.onchange.bind(this);
-    this.allSelectedChecked = this.allSelectedChecked.bind(this);
+    this.onchange = this.onchange.bind(this)
+    this.allSelectedChecked = this.allSelectedChecked.bind(this)
+    this.searchContainers = this.searchContainers.bind(this)
     this.state = {
       selectedList: [],
+      searchInputDisabled: false
     }
   }
 
@@ -223,16 +232,20 @@ class ContainerList extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    let { page, size } = nextProps
-    if (page === this.props.page && size === this.props.size) {
+    let { page, size, name } = nextProps
+    if (page === this.props.page && size === this.props.size && name === this.props.name) {
       return
     }
+    this.setState({
+      searchInputDisabled: false
+    })
     loadData(nextProps)
   }
 
   allSelectedChecked() {
     const { containerList } = this.props
-    if (this.state.selectedList.length == containerList.length && containerList.length > 0) {
+    const { selectedList } = this.state
+    if (selectedList && selectedList.length == containerList.length && containerList.length > 0) {
       return true;
     } else {
       return false;
@@ -257,9 +270,29 @@ class ContainerList extends Component {
     });
   }
 
+  searchContainers(e) {
+    const { name, pathname } = this.props
+    const value = e.target.value.trim()
+    if (value === name) {
+      return
+    }
+    this.setState({
+      searchInputDisabled: true
+    })
+    const query = {}
+    if (value) {
+      query.name = value
+    }
+    browserHistory.push({
+      pathname,
+      query
+    })
+  }
+
   render() {
     const parentScope = this
-    const { pathname, cluster, page, size, total, containerList, isFetching } = this.props
+    const { name, pathname, cluster, page, size, total, containerList, isFetching } = this.props
+    const { searchInputDisabled } = this.state
     return (
       <QueueAnim
         className="ContainerList"
@@ -275,7 +308,11 @@ class ContainerList extends Component {
                 <i className="fa fa-search"></i>
               </div>
               <div className="littleRight">
-                <Input placeholder="输入容器名搜索" />
+                <Input
+                  defaultValue={name}
+                  placeholder="输入容器名回车搜索"
+                  disabled={searchInputDisabled}
+                  onPressEnter={this.searchContainers} />
               </div>
             </div>
             <div className="clearDiv"></div>
@@ -287,19 +324,19 @@ class ContainerList extends Component {
               </div>
               <div className="containerName commonTitle">
                 容器名称
-            </div>
+              </div>
               <div className="containerStatus commonTitle">
                 状态
-            </div>
+              </div>
               <div className="serviceName commonTitle">
                 所属应用
-            </div>
+              </div>
               <div className="imageName commonTitle">
                 镜像
-            </div>
+              </div>
               <div className="visitIp commonTitle">
                 访问地址
-            </div>
+              </div>
               <div className="createTime commonTitle">
                 创建时间
               <i className="fa fa-sort"></i>
@@ -309,7 +346,7 @@ class ContainerList extends Component {
             </div>
             </div>
             <MyComponent
-              size={size} total={total} pathname={pathname} page={page}
+              size={size} total={total} pathname={pathname} page={page} name={name}
               config={containerList} loading={isFetching} scope={parentScope} />
           </Card>
         </div>
@@ -332,7 +369,7 @@ ContainerList.propTypes = {
 
 function mapStateToProps(state, props) {
   const { query, pathname } = props.location
-  let { page, size } = query
+  let { page, size, name } = query
   page = parseInt(page || 1)
   size = parseInt(size || DEFAULT_PAGE_SIZE)
   if (isNaN(page) || page < 1) {
@@ -359,6 +396,7 @@ function mapStateToProps(state, props) {
     page,
     size,
     total,
+    name,
     containerList,
     isFetching
   }
