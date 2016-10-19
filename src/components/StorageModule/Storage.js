@@ -331,7 +331,8 @@ class Storage extends Component {
       volumeArray: [],
       currentType: 'ext4',
       inputName: '',
-      size: 200
+      size: 200,
+      deleteVisible: false
     }
   }
   componentWillMount() {
@@ -486,6 +487,22 @@ class Storage extends Component {
   searchByAppName(e) {
     this.props.loadStorageList(this.props.currentImagePool, this.props.currentCluster, this.state.appName)
   }
+  showDeleteModal() {
+    if(this.state.volumeArray.length <= 0 ) {
+      message.error('请选择要删除的存储')
+      return
+    }
+    const self = this
+    Modal.confirm({
+      title: '提示',
+      content: `确定要删除${this.state.volumeArray.map(item => item.name).join(',')}存储吗`,
+      okText: '删除',
+      cancelText: '取消',
+      onOk() {
+        self.deleteStorage()
+      }
+    });
+  }
   render() {
     const { formatMessage } = this.props.intl
     return (
@@ -494,7 +511,7 @@ class Storage extends Component {
           <div className="operationBox">
             <div className="leftBtn">
               <Button type="primary" size="large" onClick={this.showModal}><i className="fa fa-plus" />&nbsp;<FormattedMessage {...messages.createTitle} /></Button>
-              <Button type="ghost" className="stopBtn" size="large" onClick={this.deleteStorage}><Icon type="delete" /><FormattedMessage {...messages.delete} /></Button>
+              <Button type="ghost" className="stopBtn" size="large" onClick={() => this.showDeleteModal()}><Icon type="delete" /><FormattedMessage {...messages.delete} /></Button>
               <Modal title={formatMessage(messages.createModalTitle)} visible={this.state.visible} onOk={(e) => { this.handleOk() } } onCancel={() => { this.handleCancel() } } okText={formatMessage(messages.createBtn)} cancelText={formatMessage(messages.cancelBtn)}>
                 <Row style={{ height: '40px' }}>
                   <Col span="3" className="text-center" style={{ lineHeight: '30px' }}><FormattedMessage {...messages.name} /></Col>

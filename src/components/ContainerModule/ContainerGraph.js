@@ -14,7 +14,7 @@ import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import { formateDate } from '../../common/tools'
 import "./style/ContainerGraph.less"
-import { loadContainerLogs } from '../../actions/app_manage'
+import { loadContainerLogs, clearContainerLogs } from '../../actions/app_manage'
 
 class ContainerGraph extends Component {
   constructor(props) {
@@ -22,66 +22,118 @@ class ContainerGraph extends Component {
     this.state = {
       currentDate: formateDate(new Date(), 'YYYY-MM-DD'),
       pageIndex: 1,
-      pageSize: 50
+      pageSize: 50,
+      useGetLogs: true
     }
   }
   componentWillMount() {
     const cluster = this.props.cluster
     const containerName = this.props.containerName
+    const self = this
     this.props.loadContainerLogs(cluster, containerName, {
       size: 50
+    }, {
+      success: {
+        func() {
+          self.infoBox.scrollTop = self.infoBox.scrollHeight
+        },
+        isAsync: true
+      }
     })
     this.setState({
-      pageIndex: 1
+      pageIndex: 2
     })
   }
-  moutseRollLoadLogs() {
-    const cluster = this.props.cluster
-    const containerName =  this.props.containerName
-    this.props.loadContainerLogs(cluster, containerName, {
-      from: (pageIndex - 1) * pageSize,
-      size: pageSize,
-      date_start: this.state.currentDate,
-      date_end: this.state.currentDate
-    })
-  }
-  changeCurrentDate(data) {
+  componentWillUnmount() {
     const cluster = this.props.cluster
     const containerName = this.props.containerName
+    this.props.clearContainerLogs(cluster, containerName)
+  }
+  moutseRollLoadLogs() {
+    if(!this.state.useGetLogs) return
+    alert(this.infoBox,scrollTop)
+    if(this.infoBox.scrollTop >= 20) return
     this.setState({
-      currentDate: format(date, 'YYYY-MM-DD')
+      useGetLogs: false
     })
-    this.prop.loadContainerLogs(cluster, containerName, {
-      from: (pageIndex - 1) * pageSize,
-      size: pageSize
+    const cluster = this.props.cluster
+    const containerName =  this.props.containerName
+    const self = this
+    const scrollBottom = this.infoBox.scrollBottom
+    this.props.loadContainerLogs(cluster, containerName, {
+      from: (this.state.pageIndex - 1) * this.state.pageSize,
+      size: this.state.pageSize,
+      date_start: this.state.currentDate,
+      date_end: this.state.currentDate
+    }, {
+      success: {
+        func(result) {
+          self.infoBox.scrollBottom = scrollBottom
+          if (!result.data || result.data.length < 50) self.setState({
+            useGetLogs: false
+          })
+        }
+      }
     })
     this.setState({
-      pageIndex: 1
+      pageIndex: this.state.pageIndex + 1
     })
+  }
+  changeCurrentDate(date, refresh) {
+    if(!date) return
+    const cluster = this.props.cluster
+    const containerName = this.props.containerName
+    const self = this
+    date = formateDate(date, 'YYYY-MM-DD')
+    if (!refresh && date === this.state.currentDate) return
+    this.setState({
+      currentDate: date,
+      useGetLogs: true,
+      pageIndex: 2,
+    })
+    this.props.clearContainerLogs(cluster, containerName)
+    this.props.loadContainerLogs(cluster, containerName, {
+      from: 0,
+      size: this.state.pageSize,
+      date_start: date,
+      date_end: date
+    }, {
+        success: {
+          func() {
+            self.infoBox.scrollTop = self.infoBox.scrollHeight
+          },
+          isAsync: true
+        }
+      })
   }
   getLogs() {
     const cluster = this.props.cluster
-    if(!this.props.containerLogs[cluster].logs) {
-      return ''
+    if(!this.props.containerLogs[cluster] || !this.props.containerLogs[cluster].logs) {
+      return '无日志'
     }
     const logs = this.props.containerLogs[cluster].logs.data
-    if(!logs) return ''
-    return logs.map(log => {
-       <span>{log.log}</span>
+    if(!logs || logs.length <= 0 ) return '无日志'
+    if(logs.length % 50 !== 0 ) logs.unshift({ log: '无更多日志\n' })
+    const logContent = logs.map(log => {
+       return (<span key={log.id}>{log.log}</span>)
     })
+    return logContent
+  }
+  refreshLogs() {
+    this.changeCurrentDate(this.state.currentDate, true)
   }
   render() {
     return (
       <div id="ContainerGraph">
-        <div className="bottomBox"
+        <div className="bottomBox">
           <div className="introBox">
             <div className="operaBox">
               <i className="fa fa-expand"></i>
-              <i className="fa fa-refresh"></i>
+              <i className="fa fa-refresh" onClick={() => {this.refreshLogs()}}></i>
               <DatePicker className="datePicker" onChange={(date)=> this.changeCurrentDate(date)} value={this.state.currentDate}/>
             </div>
-            <div className="infoBox">
-            { this.getLogs() }
+            <div className="infoBox" ref={(c)=> this.infoBox = c} onScroll ={ () => this.moutseRollLoadLogs() }>
+              <pre> { this.getLogs() } </pre>
             </div>
             <div style={{ clear: "both" }}></div>
           </div>
@@ -98,6 +150,7 @@ function mapStateToProps(state) {
   }
 }
 ContainerGraph = connect(mapStateToProps, {
-  loadContainerLogs
+  loadContainerLogs,
+  clearContainerLogs
 })(ContainerGraph)
 export default ContainerGraph

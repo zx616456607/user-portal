@@ -11,6 +11,7 @@
 import * as ActionTypes from '../actions/app_manage'
 import merge from 'lodash/merge'
 import union from 'lodash/union'
+import cloneDeep from 'lodash/cloneDeep'
 import reducerFactory from './factory'
 
 function appItems(state = {}, action) {
@@ -277,21 +278,28 @@ function containerLogs(state = {}, action) {
           isFetching: true
         }
       })
-    case ActionTypes.CONTAINER_lOGS_SUCCESS: 
-      return merge({}, defaultState, state, {
-        [cluster]: {
-          isFetching: false,
-          logs: action.response.result
-        }
-      })
+    case ActionTypes.CONTAINER_LOGS_SUCCESS: 
+      const uState = cloneDeep(state)
+      if(!uState[cluster].logs) uState[cluster].logs = {}
+      if(!action.response.result.data) return uState
+      uState[cluster].logs.data = union(action.response.result.data, uState[cluster].logs.data)
+      return uState
     case ActionTypes.CONTAINER_LOGS_FAILURE:
       return merge({}, defaultState, state, {
         [cluster]: {
           isFetching: false
         }
       })
+    case ActionTypes.CONTAINER_LOGS_CLEAR:
+      console.log(action.type)
+      var dd = merge({}, defaultState, {
+        [cluster]: {
+          isFetching: false
+        }
+      })
+      return dd
     default: 
-      return merge({}, defaultState, state)
+      return merge({}, state)
   }
 }
 

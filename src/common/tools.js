@@ -13,7 +13,7 @@ export function tenxDateFormat(oldDate) {
 // s second
 export function formateDate(date, format) {
   if(Object.prototype.toString.call(date).indexOf('Date') < 0) {
-    throw new Error('The first argument must be Date')
+    return date
   }
   if(typeof format !== 'string') {
     throw new Error('The second argument must be string')
@@ -26,5 +26,8 @@ export function formateDate(date, format) {
     minute: date.getMinutes(),
     second: date.getSeconds()
   }
-  return format.replace(/YYYY/, uDate.year).replace(/MM/, uDate.month).replace(/DD/, uDate.day).replace(/hh/, uDate.hour).replace(/mm/, uDate.minute).replace(/ss/, uDate.second)
+  function _addZero(text) {
+    return text.toString().length === 2 ? text : `0${text}`
+  }
+  return format.replace(/YYYY/, uDate.year).replace(/MM/, _addZero(uDate.month)).replace(/DD/, _addZero(uDate.day)).replace(/hh/, _addZero(uDate.hour)).replace(/mm/, _addZero(uDate.minute)).replace(/ss/, _addZero(uDate.second))
 }
