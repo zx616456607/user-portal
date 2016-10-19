@@ -11,6 +11,7 @@
 import * as ActionTypes from '../actions/app_manage'
 import merge from 'lodash/merge'
 import union from 'lodash/union'
+import cloneDeep from 'lodash/cloneDeep'
 import reducerFactory from './factory'
 import { DEFAULT_PAGE_SIZE } from '../constants'
 
@@ -268,10 +269,52 @@ function containerDetailEvents(state = {}, action) {
   }
 }
 
+function containerLogs(state = {}, action) {
+  const cluster = action.cluster
+  const defaultState = {
+    [cluster]: {
+      isFetching: false
+    }
+  }
+  switch(action.type) {
+    case ActionTypes.CONTAINER_LOGS_REQUEST: 
+      return merge({}, defaultState, state, {
+        [cluster]: {
+          isFetching: true
+        }
+      })
+    case ActionTypes.CONTAINER_LOGS_SUCCESS: 
+      const uState = cloneDeep(state)
+      if(!uState[cluster].logs) uState[cluster].logs = {}
+      if(!action.response.result.data) return uState
+      uState[cluster].logs.data = union(action.response.result.data, uState[cluster].logs.data)
+      if(uState[cluster].logs.data.length % 50 !== 0) uState[cluster].logs.data.unshift({log: '无更多日志\n'})
+      return uState
+    case ActionTypes.CONTAINER_LOGS_FAILURE:
+      return merge({}, defaultState, state, {
+        [cluster]: {
+          isFetching: false
+        }
+      })
+    case ActionTypes.CONTAINER_LOGS_CLEAR:
+      console.log(action.type)
+      var dd = merge({}, defaultState, {
+        [cluster]: {
+          isFetching: false
+        }
+      })
+      return dd
+    default: 
+      return merge({}, state)
+  }
+}
+
+
 export function containers(state = {}, action) {
   return {
     containerItems: containerItems(state.containerItems, action),
     containerDetail: containerDetail(state.containerDetail, action),
     containerDetailEvents: containerDetailEvents(state.containerDetailEvents, action),
+    containerLogs: containerLogs(state.containerLogs, action)
   }
 }

@@ -19,6 +19,7 @@ exports.getContainers = function* () {
   const query = this.query || {}
   let page = parseInt(query.page || DEFAULT_PAGE)
   let size = parseInt(query.size || DEFAULT_PAGE_SIZE)
+  let name = query.name
   if (isNaN(page) || page < 1) {
     page = DEFAULT_PAGE
   }
@@ -26,8 +27,12 @@ exports.getContainers = function* () {
     size = DEFAULT_PAGE_SIZE
   }
   const from = size * (page - 1)
+  const queryObj = { from, size }
+  if (name) {
+    queryObj.filter = `name ${name}`
+  }
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([cluster, 'instances'], { from, size })
+  const result = yield api.getBy([cluster, 'instances'], queryObj)
   const pods = result.data.instances || []
   pods.map((pod) => {
     pod.images = []
@@ -82,5 +87,15 @@ exports.getContainerDetailEvents = function* () {
     containerName,
     data: events
   }
+}
+
+exports.getContainerLogs = function* () {
+  const cluster = this.params.cluster
+  const containerName = this.params.name
+  const reqData = this.request.body
+  const api = apiFactory.getK8sApi(this.session.loginUser) 
+  const result = yield api.createBy([cluster, 'instances', containerName, 'logs'], null, reqData)
+  this.status = result.code
+  this.body = result
 }
 

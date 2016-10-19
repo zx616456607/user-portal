@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "start": "npm run dev",
-    "prod": "export NODE_ENV=production&& node app.js",
+    "pro": "export NODE_ENV=production&& node app.js",
     "dev": "export NODE_ENV=development&& node app.js",
     "build": "export NODE_ENV=production&& sh build.sh",
     "win": "set NODE_ENV=development&& node app.js",
@@ -73,6 +73,7 @@
     "classnames": "^2.2.5",
     "concurrently": "^2.2.0",
     "css-loader": "^0.24.0",
+    "echarts-for-react": "^1.1.5",
     "es3ify-loader": "^0.2.0",
     "extract-text-webpack-plugin": "^1.0.1",
     "gulp": "^3.9.1",

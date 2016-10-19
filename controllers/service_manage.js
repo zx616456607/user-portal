@@ -303,3 +303,14 @@ exports.getServiceDetailEvents = function* () {
     data: events
   }
 }
+
+exports.getServiceLogs = function* () {
+  const cluster = this.params.cluster
+  const serviceName = this.params.service_name
+  const reqData = this.request.body
+  reqData.kind = 'service'
+  const api = apiFactory.getK8sApi(this.session.loginUser)
+  const result = yield api.createBy([cluster, 'instances', serviceName, 'logs'], null, reqData)
+  this.status = result.code
+  this.body = result
+}

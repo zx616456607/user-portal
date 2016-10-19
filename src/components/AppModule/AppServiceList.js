@@ -96,7 +96,7 @@ const MyComponent = React.createClass({
             <Button type="primary" className="viewBtn" onClick={this.modalShow.bind(this, item)}>
               <i className="fa fa-eye"></i>
               查看详情
-        </Button>
+            </Button>
           </div>
           <div style={{ clear: "both" }}></div>
         </div>

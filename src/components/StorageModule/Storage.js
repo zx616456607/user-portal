@@ -486,6 +486,22 @@ class Storage extends Component {
   searchByAppName(e) {
     this.props.loadStorageList(this.props.currentImagePool, this.props.currentCluster, this.state.appName)
   }
+  showDeleteModal() {
+    if (this.state.volumeArray.length <= 0) {
+      message.error('请选择要删除的存储')
+      return
+    }
+    const self = this
+    Modal.confirm({
+      title: '提示',
+      content: `确定要删除${this.state.volumeArray.map(item => item.name).join(',')}存储吗`,
+      okText: '删除',
+      cancelText: '取消',
+      onOk() {
+        self.deleteStorage()
+      }
+    });
+  }
   render() {
     const { formatMessage } = this.props.intl
     return (
@@ -497,7 +513,7 @@ class Storage extends Component {
                 <i className="fa fa-plus" />&nbsp;
                 <FormattedMessage {...messages.createTitle} />
               </Button>
-              <Button type="ghost" className="stopBtn" size="large" onClick={this.deleteStorage}>
+              <Button type="ghost" className="stopBtn" size="large" onClick={() => {this.showDeleteModal()}}>
                 <Icon type="delete" /><FormattedMessage {...messages.delete} />
               </Button>
               <Modal title={formatMessage(messages.createModalTitle)} 

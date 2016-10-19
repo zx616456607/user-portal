@@ -16,7 +16,7 @@ import "./style/AppUseful.less"
 const InputGroup = Input.Group;
 const Option = Select.Option;
 
-export default class AppUseful extends Component {
+class AppUseful extends Component {
   constructor(props) {
     super(props);
     this.changeCheckType = this.changeCheckType.bind(this);
@@ -71,13 +71,13 @@ export default class AppUseful extends Component {
         </div>
         <div className="settingBox">
           <span className="titleSpan">配置信息</span>
-          {this.state.editFlag ? [
+          {this.state.editFlag ? (
             <div className="editBtn" onClick={this.startEdit}>
               <i className="fa fa-pencil-square-o"></i>
               <span className="editTitle">编辑</span>
               <div style={{ clear: "both" }}></div>
             </div>
-          ] : null}
+          ) : null}
           <div style={{ clear: "both" }}></div>
           <Card className="setting">
             <div className="title">
@@ -190,3 +190,4 @@ export default class AppUseful extends Component {
   }
 }
 
+export default AppUseful
