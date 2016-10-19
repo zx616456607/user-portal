@@ -17,7 +17,7 @@ const createForm = Form.create;
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
 const Option = Select.Option;
-const OptGroup = Select.OptGroup;let uuidEnviro = 0;
+const OptGroup = Select.OptGroup;
 let MyComponentEnviro = React.createClass({
   propTypes: {
     config: React.PropTypes.array
@@ -111,6 +111,7 @@ let MyComponentPort = React.createClass({
     form.setFieldsValue({
       portKey,
     });
+
     if (this.props.parentScope.props.form.getFieldValue('portKey').length === 0) {
       this.props.parentScope.setState({
         disable: true,
@@ -133,6 +134,7 @@ let MyComponentPort = React.createClass({
       setTimeout(() => {
         if (isNaN(Number(value))) {
 
+
           console.log('value', typeof (parseInt(value)))
           callback([new Error('抱歉，该服务名称不合法.')])
           this.props.parentScope.setState({
@@ -146,6 +148,7 @@ let MyComponentPort = React.createClass({
   },
   render: function () {
 
+
     const { getFieldProps, getFieldValue, isFieldValidating, getFieldError } = this.props.parentScope.props.form;
     getFieldProps('portKey', {
       initialValue: [],
@@ -157,6 +160,7 @@ let MyComponentPort = React.createClass({
             <div className="input">
               <FormItem hasFeedback
 
+
                 help={isFieldValidating(`targetPortUrl${k}`) ? '校验中...' : (getFieldError(`targetPortUrl${k}`) || []).join(', ')}>
                 <Input {...getFieldProps(`targetPortUrl${k}`, {
                   rules: [{
@@ -164,13 +168,13 @@ let MyComponentPort = React.createClass({
                     whitespace: true,
                     message: '必须填写端口',
 
+
                   }, { validator: this.portsExists },],
                 }) } className="composeUrl" type="text" size="large" />
               </FormItem>
             </div>
             <div className="protocol select">
               <FormItem className="portGroupForm">
-                <Select {...getFieldProps(`portType${k}`)}                  className="portGroup" size="large">
                   <Option value="http">Http</Option>
                   <Option value="tcp">Tcp</Option>
                   <Option value="udp">Udp</Option>
@@ -212,6 +216,7 @@ MyComponentPort = createForm()(MyComponentPort);
 MyComponentEnviro = createForm()(MyComponentEnviro);
 
 let EnviroDeployBox = React.createClass({
+
 
   render: function () {
     const parentScope = this.props.scope;
