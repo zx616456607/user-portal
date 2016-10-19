@@ -39,7 +39,7 @@ exports.getApps = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.getBy([cluster, 'apps'])
-  const apps = result.data
+  const apps = result.data.apps
   apps.map((app) => {
     if (!app.services) {
       app.services = []
@@ -56,7 +56,9 @@ exports.getApps = function* () {
   })
   this.body = {
     cluster,
-    data: apps || []
+    data: apps || [],
+    total: result.data.total,
+    count: result.data.count,
   }
 }
 
@@ -176,7 +178,8 @@ exports.getAppServices = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.getBy([cluster, 'apps', appName, 'services'])
-  const services = result.data
+  const services = result.data.services
+
   services.map((service) => {
     service.images = []
     service.spec.template.spec.containers.map((container) => {
@@ -186,7 +189,9 @@ exports.getAppServices = function* () {
   this.body = {
     cluster,
     appName,
-    data: result.data
+    data: result.data.services,
+    total: result.data.total,
+    count: result.data.count,
   }
 }
 
