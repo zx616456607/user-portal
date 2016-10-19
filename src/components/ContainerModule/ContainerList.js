@@ -8,19 +8,15 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Tooltip, Checkbox, Card, Menu, Dropdown, Button, Input, Spin } from 'antd'
+import { Tooltip, Checkbox, Card, Menu, Dropdown, Button, Input, Spin, Pagination } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import './style/ContainerList.less'
 import { loadContainerList } from '../../actions/app_manage'
-import { DEFAULT_CLUSTER, LABEL_APPNAME } from '../../constants'
+import { DEFAULT_CLUSTER, LABEL_APPNAME, DEFAULT_PAGE_SIZE } from '../../constants'
 import { tenxDateFormat } from '../../common/tools.js'
-
-function loadData(props) {
-  const { cluster } = props
-  props.loadContainerList(cluster)
-}
+import { browserHistory } from 'react-router'
 
 const ButtonGroup = Button.Group
 
@@ -70,8 +66,40 @@ const MyComponent = React.createClass({
       selectedList: oldList
     });
   },
+  onShowSizeChange: function (page, size) {
+    if (size === this.props.size) {
+      return
+    }
+    const query = {}
+    if (page !== 1) {
+      query.page = page
+    }
+    if (size !== DEFAULT_PAGE_SIZE) {
+      query.size = size
+    }
+    const { pathname } = this.props
+    browserHistory.push({
+      pathname,
+      query
+    })
+  },
+  onPageChange: function (page) {
+    if (page === this.props.page) {
+      return
+    }
+    const { pathname, size } = this.props
+    const query = {}
+    if (page !== 1) {
+      query.page = page
+      query.size = size
+    }
+    browserHistory.push({
+      pathname,
+      query
+    })
+  },
   render: function () {
-    const { config, loading } = this.props;
+    const { config, loading, page, size, total } = this.props;
     if (loading) {
       return (
         <div className='loadingBox'>
@@ -86,22 +114,13 @@ const MyComponent = React.createClass({
         </div>
       )
     }
-    var items = config.map((item) => {
+    const items = config.map((item) => {
       const dropdown = (
         <Menu onClick={this.containerOperaClick.bind(this, item)}
           style={{ width: "100px" }}
           >
           <Menu.Item key="1">
-            停止容器
-          </Menu.Item>
-          <Menu.Item key="2">
-            删除
-          </Menu.Item>
-          <Menu.Item key="3">
-            查看架构图
-          </Menu.Item>
-          <Menu.Item key="4">
-            查看编排
+            重新分配
           </Menu.Item>
         </Menu>
       );
@@ -167,24 +186,48 @@ const MyComponent = React.createClass({
     return (
       <div className="dataBox">
         {items}
+        <div style={{ marginTop: 15 }}>
+          <Pagination
+            showSizeChanger
+            showQuickJumper
+            onShowSizeChange={this.onShowSizeChange}
+            onChange={this.onPageChange}
+            defaultCurrent={page}
+            pageSize={size}
+            showTotal={total => `共 ${total} 条`}
+            total={total} />
+        </div>
       </div>
     );
   }
 })
 
+function loadData(props) {
+  const { loadContainerList, cluster, page, size } = props
+  loadContainerList(cluster, { page, size })
+}
+
 class ContainerList extends Component {
   constructor(props) {
-    super(props);
+    super(props)
     this.onchange = this.onchange.bind(this);
     this.allSelectedChecked = this.allSelectedChecked.bind(this);
     this.state = {
-      selectedList: []
+      selectedList: [],
     }
   }
 
   componentWillMount() {
     document.title = '容器列表 | 时速云'
     loadData(this.props)
+  }
+
+  componentWillReceiveProps(nextProps) {
+    let { page, size } = nextProps
+    if (page === this.props.page && size === this.props.size) {
+      return
+    }
+    loadData(nextProps)
   }
 
   allSelectedChecked() {
@@ -216,7 +259,7 @@ class ContainerList extends Component {
 
   render() {
     const parentScope = this
-    const { cluster, containerList, isFetching } = this.props
+    const { pathname, cluster, page, size, total, containerList, isFetching } = this.props
     return (
       <QueueAnim
         className="ContainerList"
@@ -224,11 +267,9 @@ class ContainerList extends Component {
         >
         <div id="ContainerList" key="ContainerList">
           <div className="operationBox">
-            {/*<div className="leftBox">
-              <Button type="primary" size="large"><i className="fa fa-power-off"></i>重启容器</Button>
-              <Button type="ghost" size="large"><i className="fa fa-stop"></i>停止容器</Button>
-              <Button type="ghost" size="large"><i className="fa fa-trash-o"></i>删除容器</Button>
-            </div>*/}
+            <div className="leftBox">
+              <Button type="primary" size="large"><i className="fa fa-power-off"></i>重新分配</Button>
+            </div>
             <div className="rightBox">
               <div className="littleLeft">
                 <i className="fa fa-search"></i>
@@ -267,7 +308,9 @@ class ContainerList extends Component {
                 操作
             </div>
             </div>
-            <MyComponent config={containerList} loading={isFetching} scope={parentScope} />
+            <MyComponent
+              size={size} total={total} pathname={pathname} page={page}
+              config={containerList} loading={isFetching} scope={parentScope} />
           </Card>
         </div>
       </QueueAnim>
@@ -277,25 +320,45 @@ class ContainerList extends Component {
 
 ContainerList.propTypes = {
   // Injected by React Redux
+  pathname: PropTypes.string.isRequired,
   cluster: PropTypes.string.isRequired,
   containerList: PropTypes.array.isRequired,
   isFetching: PropTypes.bool.isRequired,
-  loadContainerList: PropTypes.func.isRequired
+  loadContainerList: PropTypes.func.isRequired,
+  page: PropTypes.number.isRequired,
+  size: PropTypes.number.isRequired,
+  total: PropTypes.number.isRequired,
 }
 
 function mapStateToProps(state, props) {
+  const { query, pathname } = props.location
+  let { page, size } = query
+  page = parseInt(page || 1)
+  size = parseInt(size || DEFAULT_PAGE_SIZE)
+  if (isNaN(page) || page < 1) {
+    page = 1
+  }
+  if (isNaN(size) || size < 1 || size > 100) {
+    size = DEFAULT_PAGE_SIZE
+  }
   const defaultContainers = {
     isFetching: false,
     cluster: DEFAULT_CLUSTER,
+    size,
+    total: 0,
     containerList: []
   }
   const {
     containerItems
   } = state.containers
-  const { cluster, containerList, isFetching } = containerItems[DEFAULT_CLUSTER] || defaultContainers
+  const { cluster, containerList, isFetching, total } = containerItems[DEFAULT_CLUSTER] || defaultContainers
 
   return {
+    pathname,
     cluster,
+    page,
+    size,
+    total,
     containerList,
     isFetching
   }
