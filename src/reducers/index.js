@@ -65,7 +65,7 @@ function actionCallback(state = null, action) {
       setTimeout(callback.failure.func.bind(this, action.response.result))
       return state
     }
-    callback.failure.func(action.response.result)
+    callback.failure.func(action.error)
     return state
   }
   return state

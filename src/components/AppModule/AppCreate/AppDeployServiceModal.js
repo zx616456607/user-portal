@@ -59,26 +59,22 @@ let AppDeployServiceModal = React.createClass({
   },
   volumeSwitch(volumeMounts, form) {
     if (volumeMounts) {
-      console.log('1');
       if (volumeMounts.length !== 0) {
         if (volumeMounts.length === 1) {
           if (volumeMounts[0].name === "tenxcloud-time-zone") {
             return false
           } else {
-            console.log('2');
             form.setFieldsValue({
               volumeName1: 'volumeName1 ext4 1024M'
             })
             return true
           }
         } else {
-          console.log('3');
           volumeMounts.map((k) => {
             form.setFieldsValue({
               ['volumeName' + `${k}`]: 'volumeName1 ext4 1024M'
             })
           })
-
           return true
         }
       }
@@ -98,7 +94,6 @@ let AppDeployServiceModal = React.createClass({
         })
         return 'http'
       } else if (livenessProbe.tcpSocket) {
-        console.log('tcp');
         form.setFieldsValue({
           livePort: livenessProbe.tcpSocket.port,
         })
@@ -109,12 +104,7 @@ let AppDeployServiceModal = React.createClass({
   setEnv(env, form) {
     const envArr = []
     if (env) {
-      console.log('env------');
-      console.log(env);
-      console.log('env------');
       env.map(function (item, index) {
-        console.log('index', index);
-        console.log('envName' + (index + 1));
         envArr.push((index + 1));
         form.setFieldsValue({
           envKey: envArr,
@@ -122,8 +112,6 @@ let AppDeployServiceModal = React.createClass({
           ['envValue' + (index + 1)]: item.value,
         })
       })
-
-      console.log('envKey', form.getFieldValue('envKey'));
     }
   },
   setPorts(ports, ServicePorts, form) {
@@ -142,7 +130,6 @@ let AppDeployServiceModal = React.createClass({
           })
         }
       })
-      console.log('envKey', form.getFieldValue('envKey'));
     }
   },
   setForm() {
@@ -184,25 +171,26 @@ let AppDeployServiceModal = React.createClass({
   },
   submitNewService(parentScope) {
     const scope = this.state;
+    const {getFieldValue,getFieldProps} = this.props.form
     let composeType = scope.composeType;
-    let portKey = this.props.form.getFieldValue('portKey')
-    let envKey = this.props.form.getFieldValue('envKey')
-    let volKey = this.props.form.getFieldValue('volKey')
-    let instanceNum = this.props.form.getFieldValue('instanceNum')     //容器数量
-    let serviceName = this.props.form.getFieldProps('name').value    //服务名
-    let imageVersion = this.props.form.getFieldProps('imageVersion').value    //镜像版本
-    let volumeSwitch = this.props.form.getFieldProps('volumeSwitch').value //服务类型
-    let volumeChecked = this.props.form.getFieldProps('volumeChecked').value   //服务只读
-    let livePort = this.props.form.getFieldProps('livePort').value   //高可用端口
-    let liveInitialDelaySeconds = this.props.form.getFieldProps('liveInitialDelaySeconds').value //首次延时
-    let liveTimeoutSeconds = this.props.form.getFieldProps('liveTimeoutSeconds').value //检查超时
-    let livePeriodSeconds = this.props.form.getFieldProps('livePeriodSeconds').value //检查间隔
-    let livePath = this.props.form.getFieldProps('livePath').value //高可用路径
-    let args = this.props.form.getFieldProps('args').value //高可用路径
+    let portKey = getFieldValue('portKey')
+    let envKey = getFieldValue('envKey')
+    let volKey = getFieldValue('volKey')
+    let instanceNum = getFieldValue('instanceNum')     //容器数量
+    let serviceName = getFieldProps('name').value    //服务名
+    let imageVersion = getFieldProps('imageVersion').value    //镜像版本
+    let volumeSwitch = getFieldProps('volumeSwitch').value //服务类型
+    let volumeChecked = getFieldProps('volumeChecked').value   //服务只读
+    let livePort = getFieldProps('livePort').value   //高可用端口
+    let liveInitialDelaySeconds = getFieldProps('liveInitialDelaySeconds').value //首次延时
+    let liveTimeoutSeconds = getFieldProps('liveTimeoutSeconds').value //检查超时
+    let livePeriodSeconds = getFieldProps('livePeriodSeconds').value //检查间隔
+    let livePath = getFieldProps('livePath').value //高可用路径
+    let args = getFieldProps('args').value //高可用路径
     let image = parentScope.state.registryServer + '/' + parentScope.state.currentSelectedImage + ':' + imageVersion //镜像名称
     let deploymentList = new Deployment(serviceName)
     let serviceList = new Service(serviceName)
-
+    
     var ImageConfig = {
       resources: {
         limits: {
@@ -214,7 +202,7 @@ let AppDeployServiceModal = React.createClass({
         }
       },
       cal: '1C/256M'
-    };    //配置判断
+    }; //配置判断
     (function showConfig(composeType) {
       switch (composeType) {
         case '1':
@@ -323,38 +311,40 @@ let AppDeployServiceModal = React.createClass({
     deploymentList.setContainerResources(serviceName, ImageConfig.resources.limits.memory)
     //ports
     if (portKey) {
-      this.props.form.getFieldValue('portKey').map((k) => {
-        if (this.props.form.getFieldProps(`portUrl${k}`).value) {
+      getFieldValue('portKey').map((k) => {
+        if (getFieldProps(`portUrl${k}`).value) {
           serviceList.addPort(
             serviceName + '-' + k,
-            this.props.form.getFieldProps(`portType${k}`).value.toUpperCase(),
-            parseInt(this.props.form.getFieldProps(`portUrl${k}`).value),
-            parseInt(this.props.form.getFieldProps(`targetPortUrl${k}`).value),
+            getFieldProps(`portType${k}`).value.toUpperCase(),
+            parseInt(getFieldProps(`targetPortUrl${k}`).value),
+            parseInt(getFieldProps(`portUrl${k}`).value),
           )
         } else {
-          if (this.props.form.getFieldProps(`portType${k}`).value) {
+          if (getFieldProps(`portType${k}`).value) {
             serviceList.addPort(
               serviceName + '-' + k,
-              this.props.form.getFieldProps(`portType${k}`).value.toUpperCase(),
-              parseInt(this.props.form.getFieldProps(`targetPortUrl${k}`).value),
+              getFieldProps(`portType${k}`).value.toUpperCase(),
+              parseInt(getFieldProps(`targetPortUrl${k}`).value),
             )
           }
-
         }
-        deploymentList.addContainerPort(
-          serviceName,
-          parseInt(this.props.form.getFieldProps(`targetPortUrl${k}`).value),
-          this.props.form.getFieldProps(`portType${k}`).value.toUpperCase()
-        )
+        
+        if (getFieldProps(`portType${k}`).value) {
+          deploymentList.addContainerPort(
+            serviceName,
+            parseInt(getFieldProps(`targetPortUrl${k}`).value),
+            getFieldProps(`portType${k}`).value.toUpperCase()
+          )
+        }
       })
     }
     //env
     if (envKey) {
-      this.props.form.getFieldValue('envKey').map((k) => {
+      getFieldValue('envKey').map((k) => {
         deploymentList.addContainerEnv(
           serviceName,
-          this.props.form.getFieldProps(`envName${k}`).value,
-          this.props.form.getFieldProps(`envValue${k}`).value
+          getFieldProps(`envName${k}`).value,
+          getFieldProps(`envValue${k}`).value
         )
       })
     }
@@ -374,32 +364,31 @@ let AppDeployServiceModal = React.createClass({
       deploymentList.syncTimeZoneWithNode(serviceName)
     }
     //volumes
-    if (this.props.form.getFieldValue('volumeSwitch')) {
-      this.props.form.getFieldValue('volumeKey').map((k) => {
+    if (getFieldValue('volumeSwitch')) {
+      getFieldValue('volumeKey').map((k) => {
         if (volumeChecked) {
           deploymentList.addContainerVolume(serviceName, {
-            name: this.props.form.getFieldProps(`volName${k}`).value + '-' + k,
-            fsType: this.props.form.getFieldProps(`volumeName${k}`).value.split('/')[0],
-            image: this.props.form.getFieldProps(`volumeName${k}`).value.split('/')[1]
+            name: getFieldProps(`volName${k}`).value + '-' + k,
+            fsType: getFieldProps(`volumeName${k}`).value.split('/')[0],
+            image: getFieldProps(`volumeName${k}`).value.split('/')[1]
           }, {
               mountPath: '/test/mount',
               readOnly: true
             })
         } else {
           deploymentList.addContainerVolume(serviceName, {
-            name: this.props.form.getFieldProps(`volName${k}`).value + '-' + k,
-            fsType: this.props.form.getFieldProps(`volumeName${k}`).value.split('/')[0],
-            image: this.props.form.getFieldProps(`volumeName${k}`).value.split('/')[1]
+            name: getFieldProps(`volName${k}`).value + '-' + k,
+            fsType: getFieldProps(`volumeName${k}`).value.split('/')[0],
+            image: getFieldProps(`volumeName${k}`).value.split('/')[1]
           }, {
               mountPath: '/test/mount',
-            })
+          })
         }
       })
     }
     //livenessProbe 高可用
-    if ((this.props.form.getFieldValue('getUsefulType') !== 'null') && (this.props.form.getFieldValue('getUsefulType'))) {
-      console.log('this.props.form.getFieldValue', this.props.form.getFieldValue('getUsefulType'));
-      deploymentList.setLivenessProbe(serviceName, this.props.form.getFieldValue('getUsefulType').toUpperCase(), {
+    if ((getFieldValue('getUsefulType') !== 'null') && (getFieldValue('getUsefulType'))) {
+      deploymentList.setLivenessProbe(serviceName, getFieldValue('getUsefulType').toUpperCase(), {
         port: parseInt(livePort),
         path: livePath,
         initialDelaySeconds: liveInitialDelaySeconds,
@@ -454,20 +443,11 @@ let AppDeployServiceModal = React.createClass({
       this.submitNewService(parentScope)
     }
 
-    this.props.form.validateFields((errors, values) => {
-      if (!!errors) {
-        console.log('Errors in form!!!')
-        return
-      }
-      console.log('Submit!!!')
-      console.log(values)
-
-    })
-
     this.props.form.resetFields()
     parentScope.setState({
       serviceModalShow: false
     })
+    
   },
   closeModal() {
     const parentScope = this.props.scope;
@@ -488,7 +468,7 @@ let AppDeployServiceModal = React.createClass({
   },
   handleForm() {
     const { getFieldProps, getFieldValue } = this.props.form
-    if (/^[a-z]{3,24}[a-z0-9-]*$/.test(getFieldProps('name').value) && getFieldProps('name').value) {
+    /*if (/^[a-z]{3,24}[a-z0-9-]*$/.test(getFieldProps('name').value) && getFieldProps('name').value) {
       console.log('serviceNAMEPASSSSSS', /^[a-z]{3,24}[a-z0-9-]*$/.test(getFieldProps('name').value));
       console.log('serviceNAMEPASSSSSS', getFieldProps('name').value);
       this.setState({
@@ -521,7 +501,22 @@ let AppDeployServiceModal = React.createClass({
         disable: true,
         serNameErrState: 'error',
       })
-    }
+    }*/
+    this.props.form.validateFieldsAndScroll((errors, values) => {
+      if (!!errors) {
+        console.log('Errors in form!!!')
+        console.log(errors)
+        this.setState({
+          disable: true,
+        })
+        return
+      }
+      console.log('Submit!!!')
+      console.log(values)
+      this.setState({
+        disable: false,
+      })
+    })
   },
   render: function () {
     const scope = this
@@ -529,28 +524,30 @@ let AppDeployServiceModal = React.createClass({
     const {servicesList} = parentScope.state.servicesList
     const {currentSelectedImage, registryServer, checkState} = parentScope.state
     const { form, serviceOpen } = this.props
+    const { composeType } = this.state
     return (
       <div id="AppDeployServiceModal">
         {/*<Form horizontal form={form} onChange={this.handleForm}>*/}
-        <Form horizontal>
+        <Form horizontal onChange={ this.handleForm } >
           <NormalDeployBox
             scope={scope} registryServer={registryServer}
             currentSelectedImage={currentSelectedImage}
             serviceOpen={serviceOpen} checkState={checkState}
+            composeType={composeType}
             form={form}
             />
           <Collapse>
             <Panel header={assitBoxTitle} key="1" className="assitBigBox">
-              <AssitDeployBox scope={scope} />
+              <AssitDeployBox scope={scope} form={form}/>
             </Panel>
             <Panel header={usefulBoxitle} key="2" className="usefulBigBox">
-              <UsefulDeployBox scope={scope} />
+              <UsefulDeployBox scope={scope} form={form}/>
             </Panel>
             <Panel header={composeBoxTitle} key="3" className="composeBigBox">
-              <ComposeDeployBox scope={scope} />
+              <ComposeDeployBox scope={scope} form={form}/>
             </Panel>
             <Panel header={advanceBoxTitle} key="4">
-              <EnviroDeployBox scope={scope} />
+              <EnviroDeployBox scope={scope} form={form}/>
             </Panel>
           </Collapse>
           <div className="btnBox">

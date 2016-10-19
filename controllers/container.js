@@ -10,13 +10,25 @@
 'use strict'
 
 const apiFactory = require('../services/api_factory')
+const DEFAULT_PAGE = 1
+const DEFAULT_PAGE_SIZE = 10
 
 exports.getContainers = function* () {
   const cluster = this.params.cluster
   const loginUser = this.session.loginUser
+  const query = this.query || {}
+  let page = parseInt(query.page || DEFAULT_PAGE)
+  let size = parseInt(query.size || DEFAULT_PAGE_SIZE)
+  if (isNaN(page) || page < 1) {
+    page = DEFAULT_PAGE
+  }
+  if (isNaN(size) || size < 1 || size > 100) {
+    size = DEFAULT_PAGE_SIZE
+  }
+  const from = size * (page - 1)
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([cluster, 'instances'])
-  const pods = result.data || []
+  const result = yield api.getBy([cluster, 'instances'], { from, size })
+  const pods = result.data.instances || []
   pods.map((pod) => {
     pod.images = []
     pod.spec.containers.map((container) => {
@@ -25,7 +37,9 @@ exports.getContainers = function* () {
   })
   this.body = {
     cluster,
-    data: pods
+    data: pods,
+    total: result.data.total,
+    count: result.data.count,
   }
 }
 

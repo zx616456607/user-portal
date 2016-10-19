@@ -14,30 +14,28 @@ export const CONFIG_LIST_REQUEST = 'CONFIG_LIST_REQUEST'
 export const CONFIG_LIST_SUCCESS = 'CONFIG_LIST_SUCCESS'
 export const CONFIG_LIST_FAILURE = 'CONFIG_LIST_FAILURE'
 
-function fetchConfigGroupList() {
-  return {
-    cluster: DEFAULT_CLUSTER,
+export function loadConfigGroup(cluster) {
+  // return (dispatch, getState) => {
+  //   return dispatch(fetchConfigGroupList(DEFAULT_CLUSTER))
+  // }
+  return{
+    cluster,
     [FETCH_API]: {
       types: [CONFIG_LIST_REQUEST, CONFIG_LIST_SUCCESS, CONFIG_LIST_FAILURE],
       endpoint: `${API_URL_PREFIX}/clusters/${DEFAULT_CLUSTER}/configgroups`,
       schema: Schemas.CONFIGS
-    }
-  }
-}
-
-export function loadConfigGroup() {
-  return (dispatch, getState) => {
-    return dispatch(fetchConfigGroupList(DEFAULT_CLUSTER))
+    },
+    // callback: callback
   }
 }
 
 export const GET_CONFIG_FILES_REQUEST = 'GET_CONFIG_FILES_REQUEST'
 export const GET_CONFIG_FILES_SUCCESS = 'GET_CONFIG_FILES_SUCCESS'
 export const GET_CONFIG_FILES_FAILURE = 'GET_CONFIG_FILES_FAILURE'
-
+export const ADD_CONFIG_FILES         = 'ADD_CONFIG_FILES'
+export const DELETE_CONFIG_FILES      = 'DELETE_CONFIG_FILES'
 // get config files
-export function configGroupName(obj, callback) {
-  console.log('get config name  in action ……', obj)
+export function configGroupName(obj) {
   return {
     cluster: obj.cluster,
     configName: obj.group,
@@ -49,7 +47,20 @@ export function configGroupName(obj, callback) {
       },
       schema: {}
     },
-    callback: callback
+  }
+}
+
+export function addConfigFile(configFile) {
+  return {
+    type: ADD_CONFIG_FILES,
+    configFile
+  }
+}
+
+export function deleteConfigFile(configFile) {
+  return {
+    type: DELETE_CONFIG_FILES,
+    configFile
   }
 }
 
@@ -94,16 +105,16 @@ export function createConfigGroup(obj, callback) {
   }
 }
 
-export const DELETE_CONFIG_REQUEST = 'DELETE_CONFIG_REQUEST'
-export const DELETE_CONFIG_SUCCESS = 'DELETE_CONFIG_SUCCESS'
-export const DELETE_CONFIG_FAILURE = 'DELETE_CONFIG_FAILURE'
+export const DELETE_CONFIG_GROUP_REQUEST = 'DELETE_CONFIG_GROUP_REQUEST'
+export const DELETE_CONFIG_GROUP_SUCCESS = 'DELETE_CONFIG_GROUP_SUCCESS'
+export const DELETE_CONFIG_GROUP_FAILURE = 'DELETE_CONFIG_GROUP_FAILURE'
 
 export function deleteConfigGroup(obj, callback) {
-  console.log('type ', obj)
   return {
     cluster: obj.cluster,
+    groupName: obj.groups,
     [FETCH_API]: {
-      types: [DELETE_CONFIG_REQUEST, DELETE_CONFIG_SUCCESS, DELETE_CONFIG_FAILURE],
+      types: [DELETE_CONFIG_GROUP_REQUEST, DELETE_CONFIG_GROUP_SUCCESS, DELETE_CONFIG_GROUP_FAILURE],
       endpoint: `${API_URL_PREFIX}/clusters/${obj.cluster}/configs/delete`,
       options: {
         method: 'POST',
