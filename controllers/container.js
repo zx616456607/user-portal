@@ -25,7 +25,9 @@ exports.getContainers = function* () {
   })
   this.body = {
     cluster,
-    data: pods
+    data: pods,
+    total: result.data.total,
+    count: result.data.count,
   }
 }
 
