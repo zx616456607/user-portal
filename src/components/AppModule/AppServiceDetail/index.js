@@ -192,7 +192,7 @@ class AppServiceDetail extends Component {
               </TabPane>
               <TabPane tab="监控" key="#monitor">监控</TabPane>
               <TabPane tab="日志" key="#logs">
-                <AppServiceLog serviceName={service.metadata.name} cluster={service.clusterr} />
+                <AppServiceLog serviceName={service.metadata.name} cluster={service.cluster} />
               </TabPane>
               <TabPane tab="事件" key="#events">
                 <AppServiceEvent serviceName={service.metadata.name} cluster={service.cluster} />

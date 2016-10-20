@@ -64,6 +64,7 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/services/:service_name/ha', serviceController.changeServiceHa)
   router.put('/clusters/:cluster/services/:service_name/rollingupdate', serviceController.rollingUpdateService)
   router.get('/clusters/:cluster/services/:service_name/events', serviceController.getServiceDetailEvents)
+  router.post('/clusters/:cluster/services/:service_name/logs', serviceController.getServiceLogs)
   // spi
   router.post('/clusters/:cluster/services/:service_name/domain', serviceController.bindServiceDomain)
 
@@ -71,6 +72,7 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/containers', containerController.getContainers)
   router.get('/clusters/:cluster/containers/:container_name/detail', containerController.getContainerDetail)
   router.get('/clusters/:cluster/containers/:container_name/events', containerController.getContainerDetailEvents)
+  router.post('/clusters/:cluster/containers/:name/logs', containerController.getContainerLogs)
 
   // Configs
   router.get('/clusters/:cluster/configgroups', configController.getConfigGroup)

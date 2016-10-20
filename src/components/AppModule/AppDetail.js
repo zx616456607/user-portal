@@ -15,6 +15,7 @@ import QueueAnim from 'rc-queue-anim'
 import AppServiceList from './AppServiceList'
 import AppGraph from './AppGraph'
 import AppLog from './AppLog'
+import AppMonitior from './AppMonitior'
 import './style/AppDetail.less'
 import { loadAppDetail } from '../../actions/app_manage'
 import { DEFAULT_CLUSTER } from '../../constants'
@@ -146,7 +147,9 @@ class AppDetail extends Component {
                 <TabPane tab="应用拓扑图" key="#topology">应用拓扑图</TabPane>
                 <TabPane tab="编排文件" key="#stack" ><AppGraph key="AppGraph" /></TabPane>
                 <TabPane tab="操作日志" key="#logs" ><AppLog key="AppLog" cluster={this.props.cluster} appName={this.props.appName}/></TabPane>
-                <TabPane tab="监控" key="#monitor" >监控</TabPane>
+                <TabPane tab="监控" key="#monitor" >
+                  <AppMonitior key="AppMonitior" />
+                </TabPane>
               </Tabs>
             </Card>
           </div>

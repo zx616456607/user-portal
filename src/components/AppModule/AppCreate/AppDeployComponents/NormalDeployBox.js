@@ -47,13 +47,7 @@ const MyComponent = React.createClass({
     const formItems = getFieldValue('volumeKey').map((k) => {
       return (
         <FormItem key={`volume${k}`}>
-          <span className="url" {...getFieldProps(`volumePath${k}`, {
-            rules: [{
-              required: true,
-              whitespace: true,
-              message: '挂载路径呢?',
-            }],
-          }) }>/var/www/html</span>
+          <span className="url" {...getFieldProps(`volumePath${k}`, {}) }>/var/www/html</span>
           <Select className="imageTag" size="large"
             defaultValue="我就是最快的SSD"
             style={{ width: 200 }}
@@ -114,7 +108,6 @@ function setPorts(containerPorts, form) {
 function setEnv(defaultEnv, form) {
   const envArr = []
   if (defaultEnv) {
-    console.log('ports------');
     defaultEnv.map(function (item, index) {
       envArr.push((index + 1));
       form.setFieldsValue({
@@ -134,14 +127,6 @@ function loadImageTagConfigs(tag, props) {
         if (checkState === '修改') {
           return
         }
-        console.log('set config here ~~')
-        console.log('set config here ~~')
-        console.log('set config here ~~')
-        console.log(result)
-        /*scope.setState({
-          imageTagConfigs: result
-        })*/
-        console.log('props', scope);
         const { form } = props
         const { containerPorts, defaultEnv } = result.data
         setPorts(containerPorts, form)
@@ -162,13 +147,10 @@ let NormalDeployBox = React.createClass({
     selectComposeType: PropTypes.func.isRequired,
   },
   selectComposeType(type) {
-    console.log(type);
     const parentScope = this.props.scope
-    console.log('parentScope1',parentScope.state.composeType);
     parentScope.setState({
       composeType: type
     })
-    console.log('this.props.scopethis.props.scope', parentScope.state.composeType);
   },
   onSelectTagChange(tag) {
     const { setFieldsValue } = this.props.form
@@ -183,14 +165,8 @@ let NormalDeployBox = React.createClass({
     } else {
       setTimeout(() => {
         if (!/^[a-z][a-z0-9-]*$/.test(value)) {
-          /*this.props.scope.setState({
-            serviceNamePass: false,
-          })*/
           callback([new Error('抱歉，该服务名称不合法.')])
         } else {
-          /*this.props.scope.setState({
-            serviceNamePass: true,
-          })*/
           callback()
         }
       },800)
@@ -210,7 +186,6 @@ let NormalDeployBox = React.createClass({
   },
   render: function () {
     const parentScope = this.props.scope;
-    console.log('parentScope',parentScope);
     const { imageTags, imageTagsIsFetching, form, composeType } = this.props
     const { getFieldProps, getFieldError, isFieldValidating } = form
     const nameProps = getFieldProps('name', {
