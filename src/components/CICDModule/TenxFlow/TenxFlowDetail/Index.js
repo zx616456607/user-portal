@@ -123,9 +123,9 @@ class TenxFlowDetail extends Component {
               <img src='/img/test/github.jpg' />
             </div>  
             <div className='msgBox'>
-              <p></p>
-              <span ></span>
-              <span className='updateTime'></span>
+              <p className='title'>这是标题</p>
+              <span >这是状态</span>
+              <span className='updateTime'>十年前</span>
             </div>
             <div className='btnBox'>
               <Button size='large' type='ghost'>
