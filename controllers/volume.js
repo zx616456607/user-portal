@@ -18,7 +18,7 @@ const http = require('http')
 const VolumeApi = require('../tenx_api/v2')
 const volumeConfig = {
   protocol: 'http',
-  host: '192.168.0.51:8001',
+  host: 'localhost:8001',
   version: 'v1',
   auth: {
     user: 'zhangpc',
