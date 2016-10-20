@@ -19,7 +19,7 @@ class TerminalModal extends Component {
   constructor(props) {
     super(props);
     this.changeBoxHeight = this.changeBoxHeight.bind(this);
-    this.test = this.test.bind(this);
+    this.changeBoxHeightEnd = this.changeBoxHeightEnd.bind(this);
     this.state = {
       
     }
@@ -35,16 +35,17 @@ class TerminalModal extends Component {
     $('.TerminalLayoutModal').css('height',newHeight)
   }
   
-  test(e){
+  changeBoxHeightEnd(e){
     let bodyHeight = $(document.body)[0].clientHeight;
     let newHeight = bodyHeight - e.screenY + 112 + 'px !important';
     $('.TerminalLayoutModal').css('height',newHeight)
   }
 
   render() {
+    const { scope, config } = this.props;
     return (
       <div id='TerminalModal'>
-        <div className='titleBox' onDrag={this.changeBoxHeight} onDragEnd={this.test} draggable='true'>
+        <div className='titleBox' onDrag={this.changeBoxHeight} onDragEnd={this.changeBoxHeightEnd} draggable='true'>
         aa
         </div>
         <div className='contentBox'>

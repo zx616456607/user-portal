@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Tooltip, Checkbox, Card, Menu, Dropdown, Button, Input, Spin, Pagination } from 'antd'
+import { Tooltip, Checkbox, Card, Menu, Dropdown, Button, Input, Spin, Pagination, Modal } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -17,6 +17,7 @@ import { loadContainerList } from '../../actions/app_manage'
 import { DEFAULT_CLUSTER, LABEL_APPNAME, DEFAULT_PAGE_SIZE } from '../../constants'
 import { tenxDateFormat } from '../../common/tools.js'
 import { browserHistory } from 'react-router'
+import TerminalModal from '../TerminalModal'
 
 const ButtonGroup = Button.Group
 
@@ -105,7 +106,17 @@ const MyComponent = React.createClass({
       query
     })
   },
+  openTerminalModal: function (item, e) {
+    //this function for user open the terminal modal
+    e.stopPropagation();
+    const { scope } = this.props;
+    scope.setState({
+      currentContainer: item,
+      TerminalLayoutModal: true
+    });
+  },
   render: function () {
+    const { scope } = this.props;
     const { config, loading, page, size, total } = this.props;
     if (loading) {
       return (
@@ -179,7 +190,7 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className="actionBox commonData">
-            <Dropdown.Button overlay={dropdown} type="ghost">
+            <Dropdown.Button overlay={dropdown} type="ghost" onClick={this.openTerminalModal.bind(this, item)}>
               <svg className="terminal">
                 <use xlinkHref="#terminal" />
               </svg>
@@ -220,9 +231,12 @@ class ContainerList extends Component {
     this.onchange = this.onchange.bind(this)
     this.allSelectedChecked = this.allSelectedChecked.bind(this)
     this.searchContainers = this.searchContainers.bind(this)
+    this.closeTerminalLayoutModal = this.closeTerminalLayoutModal.bind(this)
     this.state = {
       selectedList: [],
-      searchInputDisabled: false
+      searchInputDisabled: false,
+      TerminalLayoutModal: false,
+      currentContainer: null
     }
   }
 
@@ -288,7 +302,14 @@ class ContainerList extends Component {
       query
     })
   }
-
+  
+  closeTerminalLayoutModal() {
+    //this function for user close the terminal modal
+    this.setState({
+      TerminalLayoutModal: false
+    });
+  }
+  
   render() {
     const parentScope = this
     const { name, pathname, cluster, page, size, total, containerList, isFetching } = this.props
@@ -350,6 +371,14 @@ class ContainerList extends Component {
               config={containerList} loading={isFetching} scope={parentScope} />
           </Card>
         </div>
+        <Modal
+          visible={this.state.TerminalLayoutModal}
+          className='TerminalLayoutModal'
+          transitionName='move-down'
+          onCancel={this.closeTerminalLayoutModal}
+          >
+          <TerminalModal scope={ parentScope } config={ this.state.currentContainer } />
+        </Modal>
       </QueueAnim>
     )
   }
