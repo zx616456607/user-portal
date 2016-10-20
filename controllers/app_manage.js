@@ -223,3 +223,13 @@ exports.getAppLogs = function* () {
   }
   this.body = response
 }
+
+exports.checkAppName = function* () {
+  const cluster = this.params.cluster
+  const appName = this.params.app_name
+  const data = []
+  const spi = apiFactory.getSpi(this.session.loginUser)
+  const response = yield spi.clusters.getBy([cluster, 'apps', appName, 'existence'])
+  this.status = response.code
+  this.body = response
+}
