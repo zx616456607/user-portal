@@ -47,6 +47,7 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/apps/:app_name/detail', appController.getAppDetail)
   // spi
   router.get('/clusters/:cluster/apps/:app_name/logs', appController.getAppLogs)
+  router.get('/clusters/:cluster/apps/:app_name/existence', appController.checkAppName)
 
   // Services
   router.put('/clusters/:cluster/services/batch-start', serviceController.startServices)
