@@ -71,6 +71,8 @@ class ServiceAPI extends Component {
 
   componentWillMount() {
     const { registry, loadImageDetailTagConfig } = this.props;
+    console.log('loadConfigGroup', this.props)
+    console.log('loadConfigGroup', loadImageDetailTagConfig)
     const { fullname, imageTag } = this.props;
     loadImageDetailTagConfig(registry, fullname, imageTag);
   }

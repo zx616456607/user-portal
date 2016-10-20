@@ -62,3 +62,21 @@ exports.getImageConfigs = function* () {
     data: result
   }
 }
+
+exports.getImageInfo = function* () {
+  console.log('get Img dockerfile',this.params)
+  
+  const registry = this.params.registry
+  const imageFullName = this.params.user + '/' + this.params.name
+  const tag = this.params.tag
+  const loginUser = this.session.loginUser
+  const result = yield registryService.getImageInfo(loginUser.user, imageFullName)
+  console.log('this is docker file response', result)
+  // this.status = result.code
+  this.body = {
+    registry,
+    server: registryConfig.v2Server,
+    name: imageFullName,
+    data: result
+  }
+}
