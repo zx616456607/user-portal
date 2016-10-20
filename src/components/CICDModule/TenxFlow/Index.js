@@ -15,29 +15,29 @@ import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import CreateTenxFlow from './CreateTenxFlow.js'
-import TestModal from '../../TerminalModal/Index.js'
+import TestModal from '../../TerminalModal'
 import './style/TenxFlowList.less'
 
 let testData = [
   {
-    'name':'test1',
-    'updateTime':'1小时前',
-    'status':'finish'
+    'name': 'test1',
+    'updateTime': '1小时前',
+    'status': 'finish'
   },
   {
-    'name':'test2',
-    'updateTime':'2小时前',
-    'status':'running'
+    'name': 'test2',
+    'updateTime': '2小时前',
+    'status': 'running'
   },
   {
-    'name':'test3',
-    'updateTime':'3小时前',
-    'status':'finish'
+    'name': 'test3',
+    'updateTime': '3小时前',
+    'status': 'finish'
   },
   {
-    'name':'test4',
-    'updateTime':'4小时前',
-    'status':'fail'
+    'name': 'test4',
+    'updateTime': '4小时前',
+    'status': 'fail'
   },
 ]
 
@@ -96,19 +96,19 @@ let MyComponent = React.createClass({
     config: React.PropTypes.array,
     scope: React.PropTypes.object
   },
-  operaMenuClick: function(item, e) {
+  operaMenuClick: function (item, e) {
     //this function for user click the dropdown menu
     console.log(e);
     console.log(item);
   },
-  showDeloyLog: function(item, e) {
+  showDeloyLog: function (item, e) {
     //this function for show user the deploy log of the tenxflow
     const { scope } = this.props;
     scope.setState({
       TenxFlowDeployLogModal: true
     });
   },
-  render: function() {
+  render: function () {
     const { config } = this.props;
     let items = config.map((item) => {
       const dropdown = (
@@ -128,13 +128,13 @@ let MyComponent = React.createClass({
       return (
         <div className='tenxflowDetail' key={item.name} >
           <div className='name'>
-            <span>{ item.name }</span>
+            <span>{item.name}</span>
           </div>
           <div className='time'>
-            <span>{ item.updateTime }</span>
+            <span>{item.updateTime}</span>
           </div>
           <div className='status'>
-            { item.status }
+            {item.status}
           </div>
           <div className='oprea'>
             <Button className='logBtn' size='large' type='primary'>
@@ -167,7 +167,7 @@ class TenxFlowList extends Component {
       TenxFlowDeployLogModal: false,
     }
   }
-  
+
   componentWillMount() {
     document.title = 'TenxFlow | 时速云';
   }
@@ -178,21 +178,21 @@ class TenxFlowList extends Component {
       createTenxFlowModal: true
     });
   }
-  
+
   closeCreateTenxFlowModal() {
     //this function for user close the modal of create new tenxflow
     this.setState({
       createTenxFlowModal: false
     });
   }
-  
+
   openTenxFlowDeployLogModal() {
     //this function for user open the modal of tenxflow deploy log
     this.setState({
       TenxFlowDeployLogModal: true
     });
   }
-  
+
   closeTenxFlowDeployLogModal() {
     //this function for user close the modal of tenxflow deploy log
     this.setState({
@@ -242,14 +242,14 @@ class TenxFlowList extends Component {
           transitionName='move-right'
           onCancel={this.closeCreateTenxFlowModal}
           >
-          <CreateTenxFlow scope={ scope } />
+          <CreateTenxFlow scope={scope} />
         </Modal>
         <Modal
           visible={this.state.TenxFlowDeployLogModal}
-          className='TenxFlowDeployLogModal'         
+          className='TenxFlowDeployLogModal'
           onCancel={this.closeTenxFlowDeployLogModal}
           >
-          
+
         </Modal>
       </QueueAnim>
     )
@@ -257,9 +257,9 @@ class TenxFlowList extends Component {
 }
 
 function mapStateToProps(state, props) {
-  
+
   return {
-    
+
   }
 }
 
@@ -268,7 +268,7 @@ TenxFlowList.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-  
+
 })(injectIntl(TenxFlowList, {
   withRef: true,
 }));
