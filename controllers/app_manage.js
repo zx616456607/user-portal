@@ -152,7 +152,12 @@ exports.getAppDetail = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.getBy([cluster, 'apps', appName])
-  const app = result.data[appName] || {}
+  const app = result.data[appName]
+  if (!app) {
+    const err = new Error(`App '${appName}' not exits.`)
+    err.status = 404
+    throw err
+  }
   if (!app.services) {
     app.services = []
   }
@@ -210,9 +215,21 @@ exports.getAppLogs = function* () {
   const cluster = this.params.cluster
   const appName = this.params.app_name
   const data = []
-  this.body = {
-    cluster,
-    appName,
-    data
+  const spi = apiFactory.getSpi(this.session.loginUser)
+  const response = yield spi.clusters.getBy([cluster, 'apps', appName, 'oplog'])
+  this.status = response.code
+  if (response.data[appName]) {
+    response.data = response.data[appName]
   }
+  this.body = response
+}
+
+exports.checkAppName = function* () {
+  const cluster = this.params.cluster
+  const appName = this.params.app_name
+  const data = []
+  const spi = apiFactory.getSpi(this.session.loginUser)
+  const response = yield spi.clusters.getBy([cluster, 'apps', appName, 'existence'])
+  this.status = response.code
+  this.body = response
 }

@@ -48,9 +48,8 @@ var MyComponent = React.createClass({
     });
   },
   render: function () {
-    //const parentScope = this.props.scope;
-    //console.log(this.props.parentScope);
-    const { getFieldProps, getFieldValue, } = this.props.parentScope.props.form;
+    const { form } = this.props
+    const { getFieldProps, getFieldValue, } = form
     getFieldProps('volKey', {
       initialValue: [],
     });
@@ -60,22 +59,11 @@ var MyComponent = React.createClass({
         <FormItem key={`vol${k}`}>
           <li className="composeDetail">
             <div className="input">
-              <Input {...getFieldProps(`volPath${k}`, {
-                rules: [{
-                  required: true,
-                  whitespace: true,
-                  message: '挂载路径呢?',
-                }],
-              }) } className="portUrl" type="text" />
+              <Input {...getFieldProps(`volPath${k}`, {})} className="portUrl" type="text" />
             </div>
             <div className="protocol select">
               <div className="portGroupForm">
-                <Select {...getFieldProps(`volName${k}`, {
-                  rules: [{
-                    required: true,
-                    message: '选择配置组呢?',
-                  }],
-                }) }
+                <Select {...getFieldProps(`volName${k}`, {})}
                   className="composeGroup" size="large" >
                   <Option value="http">Http</Option>
                   <Option value="tcp">Tcp</Option>
@@ -91,7 +79,7 @@ var MyComponent = React.createClass({
               <Checkbox />&nbsp;&nbsp;都选我
             </div>
             <div className="opera">
-              <i className="fa fa-trash-o" onClick={() => this.remove(k)}></i>
+              <i className="fa fa-trash-o" onClick={() => this.remove(k)}/>
             </div>
             <div style={{ clear: "both" }}></div>
           </li>
@@ -112,20 +100,12 @@ var MyComponent = React.createClass({
   }
 });
 
-MyComponent = createForm()(MyComponent);
-
-class ComposeDeployBox extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-
-    }
-  }
-  render() {
+let ComposeDeployBox = React.createClass({
+  render:function () {
+    const { form } = this.props
     const parentScope = this.props.scope;
     return (
       <div id="ComposeDeployBox">
-        {/*<Form horizontal form={this.props.form}>*/}
         <div className="composeBox">
           <span className="title">配置目录</span>
           <div className="composeList">
@@ -144,18 +124,12 @@ class ComposeDeployBox extends Component {
               </div>
               <div style={{ clear: "both" }}></div>
             </div>
-            <MyComponent parentScope={parentScope} />
+            <MyComponent parentScope={parentScope} form={form}/>
           </div>
         </div>
-        {/*</Form>*/}
       </div>
     )
   }
-}
-
-ComposeDeployBox.propTypes = {
-}
-
-ComposeDeployBox = createForm()(ComposeDeployBox);
+})
 
 export default ComposeDeployBox;

@@ -120,7 +120,7 @@ class CreateCompose extends Component {
         <span className="title">描述文件</span>
         </div>
         <div className="rightBox">
-        <Input type="textarea" autosize={{ minRows: 10, maxRows: 30 }} />
+          <Input type="textarea" autosize={{ minRows: 10, maxRows: 30 }} />
         </div>
         <div style={{ clear:"both" }}></div>
       </div>

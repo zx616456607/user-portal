@@ -4,6 +4,11 @@
   "Header.menu.user.menu1": "user menu 1",
   "Header.menu.user.menu2": "user menu 2",
   "Header.menu.user.menu3": "user menu 3(disabled)",
+  
+  "this.is.an.commnent":"/------------------------CommonStatus 通用状态-----------------------/",
+  "CommonStatus.normal":"Running",
+  "CommonStatus.warning":"Error",
+  
   "IntlExp.description": "i am description",
   "IntlExp.alert": "i am alert",
   "IntlExp.button": "alert",
@@ -136,5 +141,32 @@
   "AppCenter.ImageCenter.ImageDetail.tag":"Tags & APIs",
   "AppCenter.ImageCenter.ImageDetail.attribute":"Attribute",
   "AppCenter.ImageCenter.ImageDetail.copyBtn":"Click Copy",
-  "AppCenter.ImageCenter.ImageDetail.copySuccess":"Copy Success"
+  "AppCenter.ImageCenter.ImageDetail.copySuccess":"Copy Success",
+  
+  "this.is.an.commnent":"/--------------------------CI & CD-------------------------/",
+  "CICD.Tenxflow.TenxFlowList.search":"Search",
+  "CICD.Tenxflow.TenxFlowList.name":"Name",
+  "CICD.Tenxflow.TenxFlowList.updateTime":"UpdateTime",
+  "CICD.Tenxflow.TenxFlowList.status":"Status",
+  "CICD.Tenxflow.TenxFlowList.opera":"Opera",
+  "CICD.Tenxflow.TenxFlowList.tooltips":"TenxFlow：这里完成【代码项目构建、测试】等流程的定义与执行，可以实现若干个（≥1）项目组成的一个Flow，由若干个项目流程化完成一个Flow，直至完成整个总项目，其中大部分流程以生成应用镜像为结束标志。",
+  "CICD.Tenxflow.TenxFlowList.create":"Create TenxFlow",
+  "CICD.Tenxflow.TenxFlowList.deloyLog":"Build Record",
+  "CICD.Tenxflow.TenxFlowList.deloyStart":"Build",
+  "CICD.Tenxflow.TenxFlowList.checkImage":"View Image",
+  "CICD.Tenxflow.TenxFlowList.delete":"Delete TenxFlow",
+  
+  "CICD.Tenxflow.CreateTenxFlow.name":"TenxFlow Name",
+  "CICD.Tenxflow.CreateTenxFlow.create":"Create Flow Type",
+  "CICD.Tenxflow.CreateTenxFlow.viewDefine":"可视化流程定义",
+  "CICD.Tenxflow.CreateTenxFlow.yamlDefine":"TenxFlow yaml方式定义",
+  "CICD.Tenxflow.CreateTenxFlow.email":"Email Alert",
+  "CICD.Tenxflow.CreateTenxFlow.otherEmail":"Use Other Email",
+  "CICD.Tenxflow.CreateTenxFlow.alert":"Alert Event",
+  "CICD.Tenxflow.CreateTenxFlow.alertFirst":"每一个项目执行成功时，通知我",
+  "CICD.Tenxflow.CreateTenxFlow.alertSecond":"每一个项目执行失败时，通知我",
+  "CICD.Tenxflow.CreateTenxFlow.alertThird":"自动部署成功",
+  "CICD.Tenxflow.CreateTenxFlow.alertForth":"自动部署失败",
+  "CICD.Tenxflow.CreateTenxFlow.cancel":"Cancel",
+  "CICD.Tenxflow.CreateTenxFlow.submit":"立即创建并配置流程定义"
 }

@@ -16,26 +16,14 @@ import "./style/AssitDeployBox.less"
 const createForm = Form.create;
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
-
-class AssitDeployBox extends Component {
-  constructor(props) {
-    super(props);
-    this.changeRunningCode = this.changeRunningCode.bind(this);
-    this.changeGetImageType = this.changeGetImageType.bind(this);
-    this.changeCurrentDate = this.changeCurrentDate.bind(this);
-    this.state = {
-
-    }
-  }
-
+let AssitDeployBox = React.createClass({
   changeRunningCode(e) {
     //the function for change user select image default code or set it by himself
     const parentScope = this.props.scope;
     parentScope.setState({
       runningCode: e.target.value
     });
-    console.log('runningCode', this.props.form.getFieldsValue());
-  }
+  },
 
   changeGetImageType(e) {
     //the function for change user get image type select local image or get image from the cloud
@@ -43,7 +31,7 @@ class AssitDeployBox extends Component {
     parentScope.setState({
       getImageType: e.target.value
     });
-  }
+  },
 
   changeCurrentDate(e) {
     //the function for user select get datetime from the local host or use it's own time
@@ -51,15 +39,14 @@ class AssitDeployBox extends Component {
     parentScope.setState({
       currentDate: e.target.value
     });
-  }
-
-  render() {
+  },
+  
+  render:function () {
+    const { form } = this.props
     const parentScope = this.props.scope;
-    const { getFieldProps, getFieldError, isFieldValidating } = parentScope.props.form;
-    // const runningCodeProps =
+    const { getFieldProps, getFieldError, isFieldValidating } = form
     return (
       <div id="AssitDeployBox">
-        {/*<Form horizontal form={this.props.form}>*/}
         <div className="assitBox">
           <div>
             <div className="inputBox">
@@ -114,15 +101,9 @@ class AssitDeployBox extends Component {
             </div>
           </div>
         </div>
-        {/*</Form>*/}
       </div>
     )
   }
-}
-
-AssitDeployBox.propTypes = {
-}
-
-AssitDeployBox = createForm()(AssitDeployBox);
+})
 
 export default AssitDeployBox;

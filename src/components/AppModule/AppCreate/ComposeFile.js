@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Dropdown, Modal, Checkbox, Button, Card, Menu, Input, Select, } from 'antd'
+import { Dropdown, Modal, Checkbox, Button, Card, Menu, Input, Select, Popconfirm, message, } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -43,28 +43,32 @@ class ComposeFile extends Component {
     this.handleCluster = this.handleCluster.bind(this)
     this.handleYaml = this.handleYaml.bind(this)
     this.handleRemark = this.handleRemark.bind(this)
+    this.handleVisibleChange = this.handleVisibleChange.bind(this)
+    this.confirm = this.confirm.bind(this)
+    this.cancel = this.cancel.bind(this)
 
     let serviceList = JSON.parse(localStorage.getItem('servicesList'))
     let selectedList = JSON.parse(localStorage.getItem('selectedList'))
-    var newserviceList = []
-    selectedList.map(function (sItem) {
-      newserviceList.push(serviceList.filter(function (item) {
-        return item.name === sItem
-      })[0])
-    })
     let serviceDesc = {}
     let deploymentDesc = {}
     let desc = []
-    newserviceList.map(function (item) {
-      serviceDesc = item.inf.Service
-      deploymentDesc = item.inf.Deployment
-      desc.push(yaml.dump(serviceDesc), yaml.dump(deploymentDesc))
-    })
+    if(serviceList){
+      let newServiceList = serviceList.filter(function (service) {
+        return selectedList.includes(service.id)
+      })
+      newServiceList.map(function (item) {
+        serviceDesc = item.inf.Service
+        deploymentDesc = item.inf.Deployment
+        desc.push(yaml.dump(serviceDesc), yaml.dump(deploymentDesc))
+      })
+    }
     this.state = {
       appName: '',
       appDescYaml: desc.join('---\n'),
       cluster: '',
       remark: '',
+      visible:false,
+      condition: true,
     }
   }
   subApp() {
@@ -110,13 +114,34 @@ class ComposeFile extends Component {
   }
   handleYaml(e) {
     this.setState({
-      appDescYaml: e.target.value
+      appDescYaml: e.target.value,
+      condition: false,
     })
   }
-
+  confirm() {
+    this.setState({ visible: false });
+    message.success('返回');
+    browserHistory.push('/app_manage/app_create/fast_create')
+  }
+  cancel() {
+    this.setState({ visible: false });
+    message.error('留在当前页面');
+  }
+  handleVisibleChange(visible) {
+    if (!visible) {
+      this.setState({ visible });
+      return;
+    }
+    // 打开前进行判断
+    console.log(this.state.condition);
+    if (this.state.condition) {
+      this.confirm();  // 直接执行下一步
+    } else {
+      this.setState({ visible });  // 进行确认
+    }
+  }
   render() {
     const {appName, appDescYaml, remark} = this.state
-
     const parentScope = this.props.scope;
     const createModel = parentScope.state.createModel;
     let backUrl = backLink(createModel);
@@ -171,11 +196,20 @@ class ComposeFile extends Component {
             </Select>
           </div>
           <div className="btnBox">
-            <Link to={`${backUrl}`}>
-              <Button size="large" type="primary" className="lastBtn">
-                上一步
-              </Button>
-            </Link>
+              {/*<Link to={`${backUrl}`}>*/}
+                <Popconfirm title="返回上一步,改动将丢失"
+                            okText="确认"
+                            cancelText="取消"
+                            onVisibleChange={this.handleVisibleChange}
+                            onConfirm={this.confirm}
+                            onCancel={this.cancel}
+                            visible={this.state.visible}>
+                  <Button size="large" type="primary" className="lastBtn">
+                    上一步
+                  </Button>
+                </Popconfirm>
+              {/*</Link>*/}
+            
             <Button size="large" type="primary" className="createBtn" onClick={this.subApp}>
               创建
               </Button>

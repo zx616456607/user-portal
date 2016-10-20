@@ -11,6 +11,7 @@
 import * as ActionTypes from '../actions/configs'
 import merge from 'lodash/merge'
 import union from 'lodash/union'
+import { cloneDeep, findIndex } from 'lodash'
 
 function configGroupList(state = {}, action) {
   const cluster = action.cluster
@@ -27,17 +28,71 @@ function configGroupList(state = {}, action) {
         [cluster]: { isFetching: true }
       })
     case ActionTypes.CONFIG_LIST_SUCCESS:
-      return merge({}, state, {
+      const groupList = merge({}, state, {
         [cluster]: {
           isFetching: false,
           cluster: action.response.result.cluster,
-          configGroup: union(state.configGroupList, action.response.result.data)
+          configGroup: merge(state.configGroupList, action.response.result.data)
         }
       })
+      console.log(merge(state.configGroupList, action.response.result.data))
+      console.log(cluster)
+      return groupList
     case ActionTypes.CONFIG_LIST_FAILURE:
       return merge({}, defaultState, state, {
         [cluster]: { isFetching: false }
       })
+    case ActionTypes.ADD_CONFIG_FILES:
+      const addState = cloneDeep(state)
+      const configFile = action.configFile
+      const cluster1 = configFile.cluster
+      const configGroup = addState[cluster1]
+      const index1 = findIndex(configGroup.configGroup, item => {
+        return item.native.metadata.name === configFile.group
+      })
+      configGroup.configGroup[index1].extended.configs.push({
+        name: configFile.name,
+        rawName: configFile.name
+      })
+      configGroup.configGroup[index1].extended.size = configGroup.configGroup[index1].extended.configs.length
+      return addState
+    case ActionTypes.GET_CONFIG_FILES_REQUEST:
+      return merge({}, state, {
+        [cluster]: { isFetching: true }
+      })
+    case ActionTypes.GET_CONFIG_FILES_SUCCESS:
+      const getState = cloneDeep(state)
+      const configFile1 = action.configName
+      const cluster2 = action.cluster
+      const configGroup1 = getState[cluster2]
+      const index2 = findIndex(configGroup1.configGroup, item => {
+        return item.native.metadata.name === configFile1
+      })
+      configGroup1.configGroup[index2].extended.configs = action.response.result.data.configs
+      configGroup1.configGroup[index2].extended.size = action.response.result.data.configs.length
+      return getState
+    case ActionTypes.GET_CONFIG_FILES_FAILURE:
+      return merge({}, state, {
+        [cluster]: { isFetching: false }
+      })
+    case ActionTypes.DELETE_CONFIG_GROUP_REQUEST:
+      return merge({}, state, { isFetching: true })
+    case ActionTypes.DELETE_CONFIG_GROUP_SUCCESS:
+      const delState = cloneDeep(state)
+      const configFile3 = action.groupName
+      const cluster3 = action.cluster
+      const configGroup3 = delState[cluster3]
+      let index3
+      for (let i=0; i < configFile3.length; i++) {
+         index3 = findIndex(configGroup3.configGroup, item => {
+          return item.native.metadata.name === configFile3[i]
+        })
+        configGroup3.configGroup.splice(index3,1)
+      }
+      return delState
+      // return union({}, state, { isFetching: false })
+    case ActionTypes.DELETE_CONFIG_GROUP_FAILURE:
+      return merge({}, state, { isFetching: false })
     default:
       return state
   }
@@ -60,30 +115,6 @@ function loadConfigName(state = {}, action) {
         }
       })
     case ActionTypes.CONFIG_LISTName_FAILURE:
-      return merge({}, state, {
-        [cluster]: { isFetching: false }
-      })
-    default:
-      return state
-  }
-}
-
-//  get config group name
-function configGroupName(state = {}, action) {
-  const cluster = action.cluster
-  switch (action.type) {
-    case ActionTypes.GET_CONFIG_FILES_REQUEST:
-      return merge({}, state, {
-        [cluster]: { isFetching: true }
-      })
-    case ActionTypes.GET_CONFIG_FILES_SUCCESS:
-      return merge({}, state, {
-        [cluster]: {
-          isFetching: false,
-          configName: union(state.configGroupName, action.response.result.data.configs)
-        }
-      })
-    case ActionTypes.GET_CONFIG_FILES_FAILURE:
       return merge({}, state, {
         [cluster]: { isFetching: false }
       })
@@ -118,25 +149,13 @@ function createConfigFiles(state = {}, action) {
   }
 }
 
-function deleteConfigGroup(state = {}, action) {
-  switch (action.type) {
-    case ActionTypes.DELETE_CONFIG_GROUP_REQUEST:
-      return union({}, state, { isFetching: true })
-    case ActionTypes.DELETE_CONFIG_GROUP_SUCCESS:
-      return union({}, state, { isFetching: false })
-    case ActionTypes.DELETE_CONFIG_GROUP_FAILURE:
-      return union({}, state, { isFetching: false })
-    default:
-      return state
-  }
-}
 
 function deleteConfigName(state = {}, action) {
   switch (action.type) {
     case ActionTypes.DELETE_CONFIG_FILES_REQUEST:
-      return union({}, state, { isFetching: true })
+      return  union({}, state, { isFetching: true })
     case ActionTypes.DELETE_CONFIG_FILES_SUCCESS:
-      return union({}, state, { isFetching: false })
+      return  union({}, state, { isFetching: false })
     case ActionTypes.DELETE_CONFIG_FILES_FAILURE:
       return union({}, state, { isFetching: false })
     default:
@@ -144,13 +163,12 @@ function deleteConfigName(state = {}, action) {
   }
 }
 
-export default function configReducers(state = {}, action) {
+export default function configReducers(state = {configGroupList: {}}, action) {
   return {
     configGroupList: configGroupList(state.configGroupList, action),
     createConfigGroup: createConfigGroup(state.createConfigGroup, action),
-    deleteConfigGroup: deleteConfigGroup(state.deleteConfigGroup, action),
+    // deleteConfigGroup: deleteConfigGroup(state.deleteConfigGroup, action),
     loadConfigName: loadConfigName(state.loadConfigName, action),
-    configGroupName: configGroupName(state.configGroupName, action),
     deleteConfigName: deleteConfigName(state.deleteConfigName, action),
     createConfigFiles: createConfigFiles(state.createConfigFiles, action)
   }

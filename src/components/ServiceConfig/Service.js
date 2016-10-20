@@ -13,6 +13,7 @@ import { Row, Col, Modal, Button, Icon, Collapse, Input, message } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import './style/ServiceConfig.less'
 import QueueAnim from 'rc-queue-anim'
+// import ServiceCollapse from './ServiceCollapse'
 import CollapseHeader from './ServiceCollapseHeader'
 import CollapseContainer from './ServiceCollapseContainer'
 import { connect } from 'react-redux'
@@ -20,16 +21,26 @@ import { remove } from 'lodash'
 import { loadConfigGroup, configGroupName, createConfigGroup, deleteConfigGroup } from '../../actions/configs'
 import { DEFAULT_CLUSTER } from '../../constants'
 
-function loadData(props) {
-  const { master, loadConfigGroup } = props
-  loadConfigGroup()
-}
 
-const Panel = Collapse.Panel
 class CollapseList extends Component {
-  constructor() {
-    super()
+  constructor(props) {
+    super(props)
   }
+  loadData(props) {
+    const { loadConfigGroup } = props
+    const self = this
+    loadConfigGroup(DEFAULT_CLUSTER)
+  }
+  componentWillMount() {
+    this.loadData(this.props)
+  }
+  // componentWillReceiveProps(nextProps) {
+  //   console.log('nextProps',nextProps)
+  //   this.setState({
+  //     configNameList: nextProps.configNameList,
+  //     sizeNumber: nextProps.sizeNumber
+  //   })
+  // }
   loadConfigGroupname(Name) {
     if (Name) {
       const groupName = {
@@ -41,19 +52,43 @@ class CollapseList extends Component {
   }
 
   render() {
-    const {groupData, configName} = this.props
-    console.log('group',this.props)
+    const {groupData} = this.props
+    const scope = this
     if (groupData.length ===0) return (<div style={{lineHeight:'50px'}}>还没有创建过配置项</div>)
     let groups = groupData.map((group) => {
       return (
-        <Panel handChageProp={this.props.handChageProp} header={<CollapseHeader btnDeleteGroup={this.props.btnDeleteGroup} handChageProp={this.props.handChageProp} collapseHeader={group} />} key={group.native.metadata.name} >
-          <CollapseContainer configName={configName} configGroupName={(obj) => this.props.configGroupName(obj)} collapseContainer={group.extended.configs} groupname={group.native.metadata.name} />
-        </Panel>
+        // <Servicec
+        //   key={group.native.metadata.name}
+        //   handChageProp={this.props.handChageProp}
+        //   btnDeleteGroup={this.props.btnDeleteGroup}
+        //   configGroupName={configGroupName}
+        //   group={group}
+        //   configName={configName}
+        // />
+        <Collapse.Panel
+          header={
+            <CollapseHeader
+              parentScope={scope}
+              btnDeleteGroup={this.props.btnDeleteGroup}
+              handChageProp={this.props.handChageProp}
+              collapseHeader={group}
+              sizeNumber={group.extended.size}
+            />
+          }
+          handChageProp={this.handChageProp}
+          key={group.native.metadata.name}
+          >
+          <CollapseContainer
+            parentScope={scope}
+            collapseContainer={group.extended.configs}
+            groupname={group.native.metadata.name} />
+        </Collapse.Panel>
       )
     })
     return (
-      <Collapse  accordion>
-        {groups}
+      // <div style={{marginTop:'30px'}}>{groups}</div>
+      <Collapse accordion>
+      {groups}
       </Collapse>
     )
   }
@@ -74,7 +109,7 @@ class Service extends Component {
     }
   }
   componentWillMount() {
-    loadData(this.props)
+    // loadData(this.props)
   }
   configModal(visible) {
     if (visible) {
@@ -114,9 +149,24 @@ class Service extends Component {
             createModal: false,
             myTextInput: ''
           })
-          self.props.loadConfigGroup()
+          self.props.loadConfigGroup(DEFAULT_CLUSTER)
         },
         isAsync: true
+      },
+      failure: {
+        func: (res) => {
+          let errorText
+          switch(res.code) {
+            case 403: errorText = '添加的配置过多';break
+            case 409: errorText = '配置组已存在';break
+            case 500: errorText = '网络异常';break
+            default: errorText = '缺少参数或格式错误'
+          }
+          Modal.error({
+            title: '创建配置组',
+            content: (<h2>{errorText}</h2>),
+          });
+        }
       }
     })
 
@@ -142,11 +192,13 @@ class Service extends Component {
           success: {
             func: () => {
               message.success('删除成功')
+              self.setState({
+                configArray:[],
+              })
             },
             isAsync: true
           }
         })
-        setTimeout(self.props.loadConfigGroup(),1000)
       }
     })
   }
@@ -195,7 +247,7 @@ class Service extends Component {
           </Modal>
           {/*创建配置组-弹出层-end*/}
           {/*折叠面板-start*/}
-          <CollapseList groupData={configGroup} configName={configName} btnDeleteGroup={this.btnDeleteGroup}  loading={isFetching} handChageProp={this.handChageProp()} configGroupName={(obj) => this.props.configGroupName(obj)} />
+          <CollapseList loadConfigGroup={this.props.loadConfigGroup} groupData={configGroup} configName={configName} btnDeleteGroup={this.btnDeleteGroup}  loading={isFetching} handChageProp={this.handChageProp()} configGroupName={(obj) => this.props.configGroupName(obj)} />
           {/*折叠面板-end*/}
         </div>
       </QueueAnim>
@@ -224,16 +276,13 @@ function mapStateToProps(state, props) {
     configGroup: [],
   }
   const {
-    configGroupList,
-    configGroupName
-  } = state.configReducers
+    configGroupList } = state.configReducers
   const {cluster, configGroup, isFetching } = configGroupList[DEFAULT_CLUSTER] || defaultConfigList
-  const { configName } = configGroupName[DEFAULT_CLUSTER] || defaultConfigList
+  // const { configNameList } = configGroupName[DEFAULT_CLUSTER] || defaultConfigList
   return {
     cluster,
     configGroup,
-    isFetching,
-    configName
+    isFetching
   }
 }
 function mapDispatchToProps(dispatch) {

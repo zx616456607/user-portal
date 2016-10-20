@@ -9,12 +9,14 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import { Row, Icon, Input, Modal, Timeline, Spin, message, Button } from 'antd'
+import { Row, Icon, Input,Form, Modal, Timeline, Spin, message, Button } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 // import ConfigFile from './ServiceConfigFile'
-import { loadConfigName, updateConfigName, configGroupName, deleteConfigName } from '../../actions/configs'
+import { loadConfigName, updateConfigName, configGroupName, deleteConfigName ,changeConfigFile} from '../../actions/configs'
 import { connect } from 'react-redux'
 import { DEFAULT_CLUSTER } from '../../constants'
+
+const FormItem= Form.Item
 
 class CollapseContainer extends Component {
   constructor(props) {
@@ -22,7 +24,8 @@ class CollapseContainer extends Component {
     this.state = {
       modalConfigFile: false,
       configName: '',
-      configtextarea: ''
+      configtextarea: '',
+      // collapseContainer: this.props.collapseContainer
 
     }
   }
@@ -39,11 +42,11 @@ class CollapseContainer extends Component {
     const self = this
     this.props.loadConfigName(groups, {
       success: {
-        func: () => {
+        func: (res) => {
           self.setState({
             modalConfigFile: true,
             configName: configName,
-            configtextarea: self.props.configDesc
+            configtextarea: res.data
           })
         },
         isAsync: true
@@ -52,11 +55,17 @@ class CollapseContainer extends Component {
 
   }
   editConfigFile(group) {
+    const configtextarea = this.state.configtextarea
+    if (escape(configtextarea).indexOf( "%u" ) > 0) {
+      message.error('内容格式输入有误，请重新输入')
+      return
+    }
     const groups = { 
       group, name: this.state.configName,
       cluster: DEFAULT_CLUSTER,
-      desc: this.state.configtextarea
+      desc: configtextarea
     }
+    const {parentScope} = this.props
     this.props.updateConfigName(groups, {
       success: {
         func: () => {
@@ -81,6 +90,7 @@ class CollapseContainer extends Component {
       configs
     }
     const self = this
+    const {parentScope} = this.props
     Modal.confirm({
       title: '您是否确认要删除这项内容',
       content: Name,
@@ -102,25 +112,23 @@ class CollapseContainer extends Component {
     });
   }
   render() {
-    // const collapseContainer = this.props.collapseContainer
     const { collapseContainer } = this.props
-    const configNameList = this.props.configName
+    const formItemLayout = {labelCol: { span: 3 },wrapperCol: { span: 21 }}
     let configFileList
-    if (collapseContainer.length === 0) {
+    if ( collapseContainer.length === 0) {
       // message.info(this.props.groupname + '未添加配置文件')
       return (
         <div className="li">未添加配置文件</div>
       )
     }
-    // if (configNameList =='' || configNameList === undefined) {
-    //   return(
-    //     <Spin />
-    //   )
-    // }
-    console.info('configGroupName', this.props)
-    // if (this.state.configGroupName.configName) {
-    //   configFileList = 
-    // }
+    if (!collapseContainer) {
+      return(
+        <div className="loadingBox">
+          <Spin size="large"/>
+        </div>
+      )
+    }
+
     configFileList = collapseContainer.map((configFileItem) => {
       return (
         <Timeline.Item key={configFileItem.name}>
@@ -130,8 +138,7 @@ class CollapseContainer extends Component {
               <tbody>
                 <tr>
                   <td style={{ padding: "15px" }}>
-                    <Icon type="file-text" style={{ marginRight: "10px" }} />
-                    {configFileItem.name}
+                    <div style={{width:'180px'}} className="textoverflow"><Icon type="file-text" style={{ marginRight: "10px" }} />{configFileItem.name}</div>
                   </td>
                   <td style={{ padding: "15px" }}>
                     <Button type="primary" style={{ with: "30px", height: "30px", padding: "0 9px", marginRight: "5px" }}
@@ -164,14 +171,18 @@ class CollapseContainer extends Component {
           onCancel={() => { this.setState({ modalConfigFile: false }) } }
           >
           <div className="configFile-inf">
-            <p className="configFile-tip" style={{ color: "#16a3ea" }}>
+            <p className="configFile-tip" style={{ color: "#16a3ea",height:'35px', textIndent:'12px' }}>
               <Icon type="info-circle-o" style={{ marginRight: "10px" }} />
               即将保存一个配置文件 , 您可以在创建应用 → 添加服务时 , 关联使用该配置
             </p>
-            <span className="li">名称 : </span>
-            <Input type="text" className="configName" disabled={true} value={this.state.configName} />
-            <span className="li">内容 : </span>
-            <Input type="textarea" style={{ minHeight: 100 }} value={this.state.configtextarea} onChange={(e)=> this.setInputValue(e)} />
+            <Form horizontal>
+              <FormItem  {...formItemLayout} label="名称">
+                <Input type="text" className="configName" disabled={true} value={this.state.configName} />
+              </FormItem>
+              <FormItem {...formItemLayout} label="内容">
+                <Input type="textarea" style={{ minHeight: 100 }} value={this.state.configtextarea} onChange={(e)=> this.setInputValue(e)} />
+              </FormItem>
+            </Form>
           </div>
         </Modal>
         {/*              修改配置文件-弹出层-end                */}
@@ -194,14 +205,12 @@ function mapStateToProps(state, props) {
     isFetching: false,
     cluster: DEFAULT_CLUSTER,
     configName: '',
-    configDesc:''
   }
-  const { loadConfigName } = state.configReducers
-  const { isFetching ,configName, configDesc} = loadConfigName[DEFAULT_CLUSTER] || defaultConfigList
+  const { configGroupList ,loadConfigName} = state.configReducers
+  const { configNameList, isFetching} = configGroupList[DEFAULT_CLUSTER] || defaultConfigList
   return {
-    configDesc,
     isFetching,
-    configName,
+    configNameList,
   }
 }
 function mapDispatchToProps(dispatch) {
@@ -217,7 +226,8 @@ function mapDispatchToProps(dispatch) {
     },
     configGroupName: (obj) => {
       dispatch(configGroupName(obj))
-    }
+    },
+    changeConfigFile: (configFile) => dispatch(changeConfigFile(configFile))
   }
 }
 

@@ -210,7 +210,16 @@ class Slider extends Component {
               </Link>
             </Tooltip>
           </li>
-          <li onClick={this.selectModel.bind(this, "6", "#manage")} className={currentKey == "6" ? "selectedLi" : ""}>
+          <li onClick={this.selectModel.bind(this, "6", "#system")} className={currentKey == "6" ? "selectedLi" : ""}>
+            <Tooltip placement="right" title="CI/CD" getTooltipContainer={() => document.getElementById("siderTooltip")}>
+              <Link to="/ci_cd">
+                <svg className="system commonImg">
+                  <use xlinkHref="#system" />
+                </svg>
+              </Link>
+            </Tooltip>
+          </li>
+          <li onClick={this.selectModel.bind(this, "7", "#manage")} className={currentKey == "7" ? "selectedLi" : ""}>
             <Tooltip placement="right" title="管理与监控" getTooltipContainer={() => document.getElementById("siderTooltip")}>
               <Link to="/">
                 <svg className="manageMoniter commonImg">
@@ -219,7 +228,7 @@ class Slider extends Component {
               </Link>
             </Tooltip>
           </li>
-          <li onClick={this.selectModel.bind(this, "7", "#setting")} className={currentKey == "7" ? "selectedLi" : ""}>
+          <li onClick={this.selectModel.bind(this, "8", "#setting")} className={currentKey == "8" ? "selectedLi" : ""}>
             <Tooltip placement="right" title="系统设置" getTooltipContainer={() => document.getElementById("siderTooltip")}>
               <Link to="/">
                 <svg className="setting commonImg">

@@ -11,7 +11,9 @@
 import * as ActionTypes from '../actions/app_manage'
 import merge from 'lodash/merge'
 import union from 'lodash/union'
+import cloneDeep from 'lodash/cloneDeep'
 import reducerFactory from './factory'
+import { DEFAULT_PAGE_SIZE } from '../constants'
 
 function appItems(state = {}, action) {
   const cluster = action.cluster
@@ -96,9 +98,15 @@ export function apps(state = { appItmes: {} }, action) {
       REQUEST: ActionTypes.APP_BATCH_START_REQUEST,
       SUCCESS: ActionTypes.APP_BATCH_START_SUCCESS,
       FAILURE: ActionTypes.APP_BATCH_START_FAILURE
-    }, state.startApps, action)
+    }, state.startApps, action),
+    appLogs: reducerFactory({
+      REQUEST: ActionTypes.APP_OPERATION_LOG_REQUEST,
+      SUCCESS: ActionTypes.APP_OPERATION_LOG_SUCCESS,
+      FAILURE: ActionTypes.APP_OPERATION_LOG_FAILURE
+    }, state.appLogs, action)
   }
 }
+
 
 // ~~~ services
 
@@ -148,114 +156,16 @@ function serviceItmes(state = {}, action) {
   }
 }
 
-function serviceDetail(state = {}, action) {
-  const cluster = action.cluster
-  const serviceName = action.serviceName
-  const defaultState = {
-    [cluster]: {
-      [serviceName]: {
-        isFetching: false,
-        cluster,
-        serviceName,
-        service: {}
-      }
-    }
-  }
-  switch (action.type) {
-    case ActionTypes.SERVICE_DETAIL_REQUEST:
-      return merge({}, defaultState, state, {
-        [cluster]: {
-          [serviceName]: {
-            isFetching: true
-          }
-        }
-      })
-    case ActionTypes.SERVICE_DETAIL_SUCCESS:
-      return Object.assign({}, state, {
-        [cluster]: {
-          [serviceName]: {
-            isFetching: false,
-            cluster: action.response.result.cluster,
-            serviceName: action.response.result.serviceName,
-            service: action.response.result.data
-          }
-        }
-      })
-    case ActionTypes.SERVICE_DETAIL_FAILURE:
-      return merge({}, defaultState, state, {
-        [cluster]: {
-          [serviceName]: {
-            isFetching: false
-          }
-        }
-      })
-    default:
-      return state
-  }
-}
-
-function serviceContainers(state = {}, action) {
-  const cluster = action.cluster
-  const serviceName = action.serviceName
-  const defaultState = {
-    [cluster]: {
-      [serviceName]: {
-        isFetching: false,
-        cluster,
-        serviceName,
-        containerList: []
-      }
-    }
-  }
-  switch (action.type) {
-    case ActionTypes.SERVICE_CONTAINERS_LIST_REQUEST:
-      return merge({}, defaultState, state, {
-        [cluster]: {
-          [serviceName]: {
-            isFetching: true
-          }
-        }
-      })
-    case ActionTypes.SERVICE_CONTAINERS_LIST_SUCCESS:
-      return Object.assign({}, state, {
-        [cluster]: {
-          [serviceName]: {
-            isFetching: false,
-            cluster: action.response.result.cluster,
-            serviceName: action.response.result.serviceName,
-            containerList: union(state.services, action.response.result.data)
-          }
-        }
-      })
-    case ActionTypes.SERVICE_CONTAINERS_LIST_FAILURE:
-      return merge({}, defaultState, state, {
-        [cluster]: {
-          [serviceName]: {
-            isFetching: false
-          }
-        }
-      })
-    default:
-      return state
-  }
-}
-
-export function services(state = { appItmes: {} }, action) {
-  return {
-    serviceItmes: serviceItmes(state.serviceItmes, action),
-    serviceContainers: serviceContainers(state.serviceContainers, action),
-    serviceDetail: serviceDetail(state.serviceDetail, action),
-  }
-}
-
 // ~~~ containers
 
-function containerItmes(state = {}, action) {
+function containerItems(state = {}, action) {
   const cluster = action.cluster
   const defaultState = {
     [cluster]: {
       isFetching: false,
       cluster,
+      size: DEFAULT_PAGE_SIZE,
+      total: 0,
       containerList: []
     }
   }
@@ -272,7 +182,9 @@ function containerItmes(state = {}, action) {
           isFetching: false,
           cluster: action.response.result.cluster,
           appName: action.response.result.appName,
-          containerList: union(state.containers, action.response.result.data)
+          size: action.response.result.count,
+          total: action.response.result.total,
+          containerList: action.response.result.data,
         }
       })
     case ActionTypes.CONTAINER_LIST_FAILURE:
@@ -343,7 +255,7 @@ function containerDetailEvents(state = {}, action) {
       return Object.assign({}, state, {
         [cluster]: {
           isFetching: false,
-          eventList: action.response.result.data
+          eventList: action.response.result.data.events
         }
       })
     case ActionTypes.CONTAINER_DETAIL_EVENTS_FAILURE:
@@ -357,10 +269,52 @@ function containerDetailEvents(state = {}, action) {
   }
 }
 
+function containerLogs(state = {}, action) {
+  const cluster = action.cluster
+  const defaultState = {
+    [cluster]: {
+      isFetching: false
+    }
+  }
+  switch(action.type) {
+    case ActionTypes.CONTAINER_LOGS_REQUEST: 
+      return merge({}, defaultState, state, {
+        [cluster]: {
+          isFetching: true
+        }
+      })
+    case ActionTypes.CONTAINER_LOGS_SUCCESS: 
+      const uState = cloneDeep(state)
+      if(!uState[cluster].logs) uState[cluster].logs = {}
+      if(!action.response.result.data) return uState
+      uState[cluster].logs.data = union(action.response.result.data, uState[cluster].logs.data)
+      if(uState[cluster].logs.data.length % 50 !== 0) uState[cluster].logs.data.unshift({log: '无更多日志\n'})
+      return uState
+    case ActionTypes.CONTAINER_LOGS_FAILURE:
+      return merge({}, defaultState, state, {
+        [cluster]: {
+          isFetching: false
+        }
+      })
+    case ActionTypes.CONTAINER_LOGS_CLEAR:
+      console.log(action.type)
+      var dd = merge({}, defaultState, {
+        [cluster]: {
+          isFetching: false
+        }
+      })
+      return dd
+    default: 
+      return merge({}, state)
+  }
+}
+
+
 export function containers(state = {}, action) {
   return {
-    containerItems: containerItmes(state.containerItmes, action),
+    containerItems: containerItems(state.containerItems, action),
     containerDetail: containerDetail(state.containerDetail, action),
     containerDetailEvents: containerDetailEvents(state.containerDetailEvents, action),
+    containerLogs: containerLogs(state.containerLogs, action)
   }
 }

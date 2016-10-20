@@ -56,9 +56,11 @@ class ContainerDetail extends Component {
     const { containerName, isFetching, container, cluster } = this.props
     const { children } = this.props
     const { currentKey } = this.state
-    if (isFetching || !container.metadata) {
+    if (isFetching || !!!container.metadata) {
       return (
-        <Spin />
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
       )
     }
     if (!container.status) {
@@ -128,7 +130,7 @@ class ContainerDetail extends Component {
                   <ContainerDetailInfo key="ContainerDetailInfo" container={container} />
                 </TabPane>
                 <TabPane tab="监控" key="2" >监控</TabPane>
-                <TabPane tab="日志" key="3" ><ContainerDetailGraph key="ContainerDetailGraph" /></TabPane>
+                <TabPane tab="日志" key="3" ><ContainerDetailGraph key="ContainerDetailGraph" containerName={containerName} cluster={cluster}/></TabPane>
                 <TabPane tab="事件" key="4" ><ContainerDetailLog key="ContainerDetailLog" containerName={containerName} cluster={cluster} /></TabPane>
               </Tabs>
             </Card>

@@ -20,38 +20,45 @@ import PortDetail from './PortDetail'
 import AppUseful from './AppUseful'
 import AppServiceLog from './AppServiceLog'
 import AppServiceEvent from './AppServiceEvent'
-import { loadServiceDetail } from '../../../actions/app_manage'
+import { loadServiceDetail, loadServiceContainerList } from '../../../actions/services'
+import CommmonStatus from '../../CommonStatus'
 import './style/AppServiceDetail.less'
 
+const DEFAULT_TAB = '#containers'
 const TabPane = Tabs.TabPane;
 const operaMenu = (<Menu>
   <Menu.Item key="0">
     重新部署
-            </Menu.Item>
+  </Menu.Item>
   <Menu.Item key="1">
     停止容器
-            </Menu.Item>
+  </Menu.Item>
   <Menu.Item key="2">
     删除
-            </Menu.Item>
+  </Menu.Item>
   <Menu.Item key="3">
     查看架构图
-            </Menu.Item>
+  </Menu.Item>
   <Menu.Item key="4">
     查看编排
-            </Menu.Item>
+  </Menu.Item>
 </Menu>);
 
 function loadData(props) {
-  const { cluster, serviceName, loadServiceDetail } = props
+  const { cluster, serviceName, loadServiceDetail, loadServiceContainerList } = props
   document.title = `${serviceName} 服务详情页 | 时速云`
   loadServiceDetail(cluster, serviceName)
+  loadServiceContainerList(cluster, serviceName)
 }
 
 class AppServiceDetail extends Component {
   constructor(props) {
     super(props);
-    this.closeModal = this.closeModal.bind(this);
+    this.closeModal = this.closeModal.bind(this)
+    this.onTabClick = this.onTabClick.bind(this)
+    this.state = {
+      activeTabKey: DEFAULT_TAB
+    }
   }
 
   closeModal() {
@@ -66,18 +73,41 @@ class AppServiceDetail extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { serviceDetailmodalShow } = nextProps
+    const { serviceDetailmodalShow, serviceName } = nextProps
     if (serviceDetailmodalShow === this.props.serviceDetailmodalShow) {
       return
     }
     if (serviceDetailmodalShow) {
       loadData(nextProps)
+      if (serviceName === this.props.serviceName) {
+        return
+      }
+      this.setState({
+        activeTabKey: DEFAULT_TAB
+      })
     }
   }
 
+  onTabClick(activeTabKey) {
+    if (activeTabKey === this.state.activeTabKey) {
+      return
+    }
+    this.setState({
+      activeTabKey
+    })
+  }
+
   render() {
-    const { scope, serviceDetailmodalShow, serviceDetail, isFetching } = this.props;
-    const service = scope.state.currentShowInstance;
+    const {
+      scope,
+      serviceDetailmodalShow,
+      serviceDetail,
+      isServiceDetailFetching,
+      containers,
+      isContainersFetching,
+    } = this.props
+    const { activeTabKey } = this.state
+    const service = scope.state.currentShowInstance
     return (
       <div id="AppServiceDetail">
         <div className="titleBox">
@@ -125,21 +155,48 @@ class AppServiceDetail extends Component {
           <div className="siderBox">
             <Tabs
               tabPosition="left"
-              defaultActiveKey="1"
+              onTabClick={this.onTabClick}
+              activeKey={activeTabKey}
               >
-              <TabPane tab="容器实例" key="1">
-                <ContainerList serviceName={service.metadata.name} cluster={service.cluster} serviceDetailmodalShow={serviceDetailmodalShow} />
+              <TabPane tab="容器实例" key="#containers">
+                <ContainerList
+                  serviceName={service.metadata.name}
+                  cluster={service.cluster}
+                  containerList={containers}
+                  loading={isContainersFetching}
+                  />
               </TabPane>
-              <TabPane tab="基础信息" key="2">
-                <AppServiceDetailInfo serviceDetail={serviceDetail} loading={isFetching} />
+              <TabPane tab="基础信息" key="#basic">
+                <AppServiceDetailInfo
+                  serviceDetail={serviceDetail}
+                  loading={isServiceDetailFetching} />
               </TabPane>
-              <TabPane tab="配置组" key="3"><ComposeGroup /></TabPane>
-              <TabPane tab="绑定域名" key="4"><BindDomain /></TabPane>
-              <TabPane tab="端口" key="5"><PortDetail /></TabPane>
-              <TabPane tab="高可用" key="6"><AppUseful /></TabPane>
-              <TabPane tab="监控" key="7">监控</TabPane>
-              <TabPane tab="日志" key="8"><AppServiceLog /></TabPane>
-              <TabPane tab="事件" key="9"><AppServiceEvent /></TabPane>
+              <TabPane tab="配置组" key="#configgroup">
+                <ComposeGroup />
+              </TabPane>
+              <TabPane tab="绑定域名" key="#binddomain">
+                <BindDomain />
+              </TabPane>
+              <TabPane tab="端口" key="#ports">
+                <PortDetail
+                  serviceName={service.metadata.name}
+                  cluster={service.cluster}
+                  container={containers[0]}
+                  loading={isContainersFetching}
+                  />
+              </TabPane>
+              <TabPane tab="高可用" key="#livenessprobe">
+                <AppUseful
+                  serviceDetail={serviceDetail}
+                  loading={isServiceDetailFetching} />
+              </TabPane>
+              <TabPane tab="监控" key="#monitor">监控</TabPane>
+              <TabPane tab="日志" key="#logs">
+                <AppServiceLog serviceName={service.metadata.name} cluster={service.cluster} />
+              </TabPane>
+              <TabPane tab="事件" key="#events">
+                <AppServiceEvent serviceName={service.metadata.name} cluster={service.cluster} />
+              </TabPane>
             </Tabs>
           </div>
           <div className="contentBox">
@@ -152,7 +209,11 @@ class AppServiceDetail extends Component {
 
 AppServiceDetail.propTypes = {
   loadServiceDetail: PropTypes.func.isRequired,
+  loadServiceContainerList: PropTypes.func.isRequired,
   service: PropTypes.object.isRequired,
+  isServiceDetailFetching: PropTypes.bool.isRequired,
+  containers: PropTypes.array.isRequired,
+  isContainersFetching: PropTypes.bool.isRequired,
 }
 
 function mapStateToProps(state, props) {
@@ -166,22 +227,40 @@ function mapStateToProps(state, props) {
     serviceName,
     service: {}
   }
+  const defaultServices = {
+    isFetching: false,
+    cluster,
+    serviceName,
+    containerList: []
+  }
   const {
-    serviceDetail
+    serviceDetail,
+    serviceContainers
   } = state.services
+
   let targetService
   if (serviceDetail[cluster] && serviceDetail[cluster][serviceName]) {
     targetService = serviceDetail[cluster][serviceName]
   }
-  const { service, isFetching } = targetService || defaultService
+  targetService = targetService || defaultService
+
+  let targetContainers
+  if (serviceContainers[cluster] && serviceContainers[cluster][serviceName]) {
+    targetContainers = serviceContainers[cluster][serviceName]
+  }
+  targetContainers = targetContainers || defaultServices
+
   return {
     cluster,
     serviceName,
-    serviceDetail: service,
-    isFetching
+    serviceDetail: targetService.service,
+    isServiceDetailFetching: targetService.isFetching,
+    containers: targetContainers.containerList,
+    isContainersFetching: targetContainers.isFetching,
   }
 }
 
 export default connect(mapStateToProps, {
-  loadServiceDetail
+  loadServiceDetail,
+  loadServiceContainerList,
 })(AppServiceDetail)

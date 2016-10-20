@@ -244,3 +244,8 @@ export default connect(mapStateToProp, {
 })(injectIntl(StorageStatus, {
   withRef: true,
 }))
+
+
+               // <TabPane tab={<FormattedMessage {...messages.operating} />} key="1">
+           //       <StorageStatus key="StorageStatus" volumeName={ StorageInfo.volumeName } pool={ StorageInfo.imagePool  } cluster = {StorageInfo.cluster}/>
+          //      </TabPane>

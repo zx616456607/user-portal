@@ -18,6 +18,7 @@ import { DEFAULT_CLUSTER } from '../../constants'
 import { tenxDateFormat } from '../../common/tools.js'
 
 const confirm = Modal.confirm
+const ButtonGroup = Button.Group
 
 const MyComponent = React.createClass({
   propTypes: {
@@ -54,18 +55,44 @@ const MyComponent = React.createClass({
       appList
     });
   },
+  handleDropdown: function (e) {
+    e.stopPropagation()
+  },
+  stopApp: function (e, name) {
+    const { confirmStopApps } = this.props.funcs
+    const app = {
+      name
+    }
+    confirmStopApps([app])
+  },
+  restartApp: function (e, name) {
+    e.stopPropagation()
+    const { confirmRestartApps } = this.props.funcs
+    const app = {
+      name
+    }
+    confirmRestartApps([app])
+  },
+  deleteApp: function (e, name) {
+    e.stopPropagation()
+    const { confirmDeleteApps } = this.props.funcs
+    const app = {
+      name
+    }
+    confirmDeleteApps([app])
+  },
   render: function () {
     const { config, loading } = this.props
     if (loading) {
       return (
-        <div className="dataBox">
-          <Spin />
+        <div className='loadingBox'>
+          <Spin size='large' />
         </div>
       )
     }
     if (config.length < 1) {
       return (
-        <div className="dataBox">
+        <div className="loadingBox">
           暂无数据
         </div>
       )
@@ -77,14 +104,14 @@ const MyComponent = React.createClass({
           style={{ width: "100px" }}
           >
           <Menu.Item key="1">
-            停止容器
+            <span onClick={(e) => this.stopApp(e, item.name)}>停止</span>
           </Menu.Item>
           <Menu.Item key="2">
-            删除
+            <span onClick={(e) => this.deleteApp(e, item.name)}>删除</span>
           </Menu.Item>
           <Menu.Item key="3">
             <Link to={`/app_manage/detail/${item.name}#topology`} >
-              查看架构图
+              查看拓扑图
             </Link>
           </Menu.Item>
           <Menu.Item key="4">
@@ -127,9 +154,16 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className="actionBox commonData">
-            <Dropdown.Button overlay={dropdown} type="ghost">
-              重新部署
-            </Dropdown.Button>
+            <ButtonGroup>
+              <Button type="ghost" onClick={(e) => this.restartApp(e, item.name)}>
+                重新部署
+              </Button>
+              <Dropdown overlay={dropdown}>
+                <Button type="ghost" onClick={(e) => this.handleDropdown(e, false)}>
+                  <Icon type="down" />
+                </Button>
+              </Dropdown>
+            </ButtonGroup>
           </div>
           <div style={{ clear: "both", width: "0" }}></div>
         </div>
@@ -143,15 +177,18 @@ const MyComponent = React.createClass({
   }
 });
 
-
 class AppList extends Component {
   constructor(props) {
     super(props)
     this.onAllChange = this.onAllChange.bind(this)
-    this.confirmStartApp = this.confirmStartApp.bind(this)
-    this.confirmStopApp = this.confirmStopApp.bind(this)
-    this.confirmDeleteApp = this.confirmDeleteApp.bind(this)
+    this.confirmStartApps = this.confirmStartApps.bind(this)
+    this.batchStartApps = this.batchStartApps.bind(this)
+    this.confirmStopApps = this.confirmStopApps.bind(this)
+    this.batchStopApps = this.batchStopApps.bind(this)
+    this.confirmDeleteApps = this.confirmDeleteApps.bind(this)
+    this.batchDeleteApps = this.batchDeleteApps.bind(this)
     this.confirmRestartApps = this.confirmRestartApps.bind(this)
+    this.batchRestartApps = this.batchRestartApps.bind(this)
     this.state = {
       appList: props.appList
     }
@@ -178,17 +215,15 @@ class AppList extends Component {
     })
   }
 
-  confirmStartApp(e) {
-    const { appList } = this.state
+  confirmStartApps(appList) {
     const { cluster, loadAppList, startApps } = this.props
-    const checkedAppList = appList.filter((app) => app.checked)
-    const checkedAppNames = checkedAppList.map((app) => app.name)
+    const appNames = appList.map((app) => app.name)
     confirm({
-      title: `您是否确认要启动这${checkedAppList.length}个应用`,
-      content: checkedAppNames.join(', '),
+      title: `您是否确认要启动这${appNames.length}个应用`,
+      content: appNames.join(', '),
       onOk() {
         return new Promise((resolve) => {
-          startApps(cluster, checkedAppNames, {
+          startApps(cluster, appNames, {
             success: {
               func: () => loadAppList(cluster),
               isAsync: true
@@ -201,17 +236,21 @@ class AppList extends Component {
     });
   }
 
-  confirmStopApp(e) {
+  batchStartApps(e) {
     const { appList } = this.state
+    const checkedAppList = appList.filter((app) => app.checked)
+    this.confirmStartApps(checkedAppList)
+  }
+
+  confirmStopApps(appList) {
     const { cluster, loadAppList, stopApps } = this.props
-    const checkedAppList = appList.filter((app) => app.checked)
-    const checkedAppNames = checkedAppList.map((app) => app.name)
+    const appNames = appList.map((app) => app.name)
     confirm({
-      title: `您是否确认要停止这${checkedAppList.length}个应用`,
-      content: checkedAppNames.join(', '),
+      title: `您是否确认要停止这${appNames.length}个应用`,
+      content: appNames.join(', '),
       onOk() {
         return new Promise((resolve) => {
-          stopApps(cluster, checkedAppNames, {
+          stopApps(cluster, appNames, {
             success: {
               func: () => loadAppList(cluster),
               isAsync: true
@@ -221,20 +260,24 @@ class AppList extends Component {
         });
       },
       onCancel() { },
-    });
+    })
   }
 
-  confirmDeleteApp(e) {
+  batchStopApps(e) {
     const { appList } = this.state
+    const checkedAppList = appList.filter((app) => app.checked)
+    this.confirmStopApps(checkedAppList)
+  }
+
+  confirmDeleteApps(appList) {
     const { cluster, loadAppList, deleteApps } = this.props
-    const checkedAppList = appList.filter((app) => app.checked)
-    const checkedAppNames = checkedAppList.map((app) => app.name)
+    const appNames = appList.map((app) => app.name)
     confirm({
-      title: `您是否确认要删除这${checkedAppList.length}个应用`,
-      content: checkedAppNames.join(', '),
+      title: `您是否确认要删除这${appNames.length}个应用`,
+      content: appNames.join(', '),
       onOk() {
         return new Promise((resolve) => {
-          deleteApps(cluster, checkedAppNames, {
+          deleteApps(cluster, appNames, {
             success: {
               func: () => loadAppList(cluster),
               isAsync: true
@@ -247,17 +290,21 @@ class AppList extends Component {
     });
   }
 
-  confirmRestartApps(e) {
+  batchDeleteApps(e) {
     const { appList } = this.state
-    const { cluster, loadAppList, restartApps } = this.props
     const checkedAppList = appList.filter((app) => app.checked)
-    const checkedAppNames = checkedAppList.map((app) => app.name)
+    this.confirmDeleteApps(checkedAppList)
+  }
+
+  confirmRestartApps(appList) {
+    const { cluster, loadAppList, restartApps } = this.props
+    const appNames = appList.map((app) => app.name)
     confirm({
-      title: `您是否确认要重新部署这${checkedAppList.length}个应用`,
-      content: checkedAppNames.join(', '),
+      title: `您是否确认要重新部署这${appNames.length}个应用`,
+      content: appNames.join(', '),
       onOk() {
         return new Promise((resolve) => {
-          restartApps(cluster, checkedAppNames, {
+          restartApps(cluster, appNames, {
             success: {
               func: () => loadAppList(cluster),
               isAsync: true
@@ -268,6 +315,12 @@ class AppList extends Component {
       },
       onCancel() { },
     });
+  }
+
+  batchRestartApps(e) {
+    const { appList } = this.state
+    const checkedAppList = appList.filter((app) => app.checked)
+    this.confirmRestartApps(checkedAppList)
   }
 
   render() {
@@ -279,6 +332,12 @@ class AppList extends Component {
     let isAllChecked = (appList.length === checkedAppList.length)
     if (appList.length === 0) {
       isAllChecked = false
+    }
+    const funcs = {
+      confirmStopApps: this.confirmStopApps,
+      confirmStartApps: this.confirmStartApps,
+      confirmRestartApps: this.confirmRestartApps,
+      confirmDeleteApps: this.confirmDeleteApps
     }
     return (
       <QueueAnim
@@ -293,16 +352,16 @@ class AppList extends Component {
                   <i className="fa fa-plus"></i>添加应用
                 </Link>
               </Button>
-              <Button type="ghost" size="large" onClick={this.confirmStartApp} disabled={!isChecked}>
+              <Button type="ghost" size="large" onClick={this.batchStartApps} disabled={!isChecked}>
                 <i className="fa fa-play"></i>启动
               </Button>
-              <Button type="ghost" size="large" onClick={this.confirmStopApp} disabled={!isChecked}>
+              <Button type="ghost" size="large" onClick={this.batchStopApps} disabled={!isChecked}>
                 <i className="fa fa-stop"></i>停止
               </Button>
-              <Button type="ghost" size="large" onClick={this.confirmDeleteApp} disabled={!isChecked}>
+              <Button type="ghost" size="large" onClick={this.batchDeleteApps} disabled={!isChecked}>
                 <i className="fa fa-trash-o"></i>删除
               </Button>
-              <Button type="ghost" size="large" onClick={this.confirmRestartApps} disabled={!isChecked}>
+              <Button type="ghost" size="large" onClick={this.batchRestartApps} disabled={!isChecked}>
                 <i className="fa fa-undo"></i>重新部署
               </Button>
             </div>
@@ -346,7 +405,7 @@ class AppList extends Component {
                 操作
             </div>
             </div>
-            <MyComponent config={appList} loading={isFetching} parentScope={scope} />
+            <MyComponent config={appList} loading={isFetching} parentScope={scope} funcs={funcs} />
           </Card>
         </div>
       </QueueAnim>

@@ -14,7 +14,7 @@ import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import AppServiceDetail from './AppServiceDetail'
 import './style/AppServiceList.less'
-import { loadServiceList, startServices, restartServices, stopServices, deleteServices } from '../../actions/app_manage'
+import { loadServiceList, startServices, restartServices, stopServices, deleteServices, quickRestartServices } from '../../actions/services'
 import { DEFAULT_CLUSTER } from '../../constants'
 
 const SubMenu = Menu.SubMenu
@@ -48,12 +48,16 @@ const MyComponent = React.createClass({
     const { serviceList, loading } = this.props
     if (loading) {
       return (
-        <Spin />
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
       )
     }
     if (serviceList.length < 1) {
       return (
-        <span>还没有服务哦~</span>
+        <div className="loadingBox">
+          还没有服务哦~
+        </div>
       )
     }
     const items = serviceList.map((item) => {
@@ -92,7 +96,7 @@ const MyComponent = React.createClass({
             <Button type="primary" className="viewBtn" onClick={this.modalShow.bind(this, item)}>
               <i className="fa fa-eye"></i>
               查看详情
-        </Button>
+            </Button>
           </div>
           <div style={{ clear: "both" }}></div>
         </div>
@@ -115,6 +119,7 @@ class AppServiceList extends Component {
     this.confirmStopService = this.confirmStopService.bind(this)
     this.confirmRestartService = this.confirmRestartService.bind(this)
     this.confirmDeleteService = this.confirmDeleteService.bind(this)
+    this.confirmQuickRestartService = this.confirmQuickRestartService.bind(this)
     this.state = {
       modalShow: false,
       currentShowInstance: null,
@@ -189,6 +194,29 @@ class AppServiceList extends Component {
     })
   }
 
+  confirmQuickRestartService(e) {
+    const { serviceList } = this.state
+    const { cluster, appName, loadServiceList, quickRestartServices } = this.props
+    const checkedServiceList = serviceList.filter((service) => service.checked)
+    const checkedServiceNames = checkedServiceList.map((service) => service.metadata.name)
+    confirm({
+      title: `您是否确认要快速重启这${checkedServiceList.length}个服务`,
+      content: checkedServiceNames.join(', '),
+      onOk() {
+        return new Promise((resolve) => {
+          quickRestartServices(cluster, checkedServiceNames, {
+            success: {
+              func: () => loadServiceList(cluster, appName),
+              isAsync: true
+            }
+          })
+          resolve()
+        });
+      },
+      onCancel() { },
+    })
+  }
+
   confirmStopService(e) {
     const { serviceList } = this.state
     const { cluster, appName, loadServiceList, stopServices } = this.props
@@ -245,7 +273,7 @@ class AppServiceList extends Component {
     const parentScope = this
     const operaMenu = (<Menu>
       <Menu.Item key="0">
-        <span>重新部署</span>
+        <span onClick={this.confirmRestartService}>重新部署</span>
       </Menu.Item>
       <Menu.Item key="1">
         <span>弹性伸缩</span>
@@ -276,19 +304,25 @@ class AppServiceList extends Component {
             <Button size="large" onClick={this.confirmStartService} disabled={!isChecked}>
               <i className="fa fa-play"></i>
               启动
-          </Button>
+            </Button>
             <Button size="large" onClick={this.confirmStopService} disabled={!isChecked}>
               <i className="fa fa-stop"></i>
               停止
-          </Button>
+            </Button>
             <Button size="large" onClick={this.confirmDeleteService} disabled={!isChecked}>
               <i className="fa fa-trash"></i>
               删除
-          </Button>
+            </Button>
+            <Tooltip placement="top" title={isChecked ? '快速重启 = docker restart' : ''} >
+              <Button size="large" onClick={this.confirmQuickRestartService} disabled={!isChecked}>
+                <i className="fa fa-bolt"></i>
+                快速重启
+              </Button>
+            </Tooltip>
             <Dropdown overlay={operaMenu} trigger={['click']}>
               <Button size="large" disabled={!isChecked}>
                 更多
-            <i className="fa fa-caret-down"></i>
+                <i className="fa fa-caret-down"></i>
               </Button>
             </Dropdown>
           </div>
@@ -342,6 +376,7 @@ AppServiceList.propTypes = {
   restartServices: PropTypes.func.isRequired,
   stopServices: PropTypes.func.isRequired,
   deleteServices: PropTypes.func.isRequired,
+  quickRestartServices: PropTypes.func.isRequired,
 }
 
 function mapStateToProps(state, props) {
@@ -373,5 +408,6 @@ export default connect(mapStateToProps, {
   startServices,
   restartServices,
   stopServices,
-  deleteServices
+  deleteServices,
+  quickRestartServices,
 })(AppServiceList)

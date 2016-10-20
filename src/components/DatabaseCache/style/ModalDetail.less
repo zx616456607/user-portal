@@ -1,0 +1,89 @@
+@borderColor: #F2F2F2;
+@activeColor: #2db7f5;
+@boxColor: #C2C2C2;
+#databaseDetail {
+  .modalWrap {
+    height: 100%;
+  }
+  .modalHead {
+    height: 180px;
+    padding: 30px 40px;
+    border-bottom: 1px solid @boxColor;
+    font-size: 1.2em;
+    .detailImg {
+      width: 110px;
+      height: 110px;
+      border-radius: 15px;
+      border: 1px solid @boxColor;
+      float: left;
+      margin-left: 20px;
+    }
+    .detailTitle {
+      float: left;
+      padding-left: 50px;
+      .name {
+        font-size: 1.5em;
+      }
+      .desc {
+        height: 50px;
+        overflow: hidden;
+        width: 100%;
+        text-overflow: ellipsis;
+        line-height: 25px;
+      }
+    }
+    .danger {
+      float: right;
+      text-align: right;
+      font-size: 1.5em;
+      .btn-danger {
+        background: #f85a5a;
+        color: white;
+        border-color: #f85a5a;
+        margin-top: 30px;
+      }
+    }
+  }
+  .modalDetailBox {
+    background: #f8f8f8;
+    height: calc(~"100% - 180px");
+    padding: 30px;
+    font-size: 1.2em;
+    .configContent {
+      background: white;
+      padding-left: 30px;
+      padding-bottom: 30px;
+      padding-right: 30px;
+      border: 1px solid @boxColor;
+      box-shadow: 0 0 5px @boxColor;
+      border-radius: 5px;
+      .configHead {
+        border-left: 5px solid @activeColor;
+        text-indent: 5px;
+        margin: 20px 0;
+      }
+      .configList {
+        padding-left: 15px;
+        line-height: 40px;
+        .listKey {
+          width: 100px;
+          display: inline-block;
+        }
+      }
+      .parse-list {
+        li {
+          line-height: 40px;
+          border-bottom: 1px solid @borderColor;
+          .key {
+            display: inline-block;
+            width: 150px;
+            padding-left: 10px;
+          }
+        }
+        li:last-child {
+          border: 0;
+        }
+      }
+    }
+  }
+}

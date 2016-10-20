@@ -30,7 +30,7 @@ function fetchApi(endpoint, options, schema) {
     options.body = JSON.stringify(options.body)
   }
   return fetch(endpoint, options).then(response =>
-    response.json().then(json => ({ json, response }))
+   response.json().then(json => ({ json, response }))
   ).then(({json, response}) => {
     if (!response.ok) {
       return Promise.reject(json)
@@ -144,10 +144,8 @@ export default store => next => action => {
 
   const [requestType, successType, failureType] = types
   next(actionWith({ type: requestType }))
-  console.log(action)
-  console.log(endpoint)
   return fetchApi(endpoint, fetchAPI.options || {}, schema).then(
-    response => next(actionWith({
+    response =>  next(actionWith({
       response,
       type: successType
     })),

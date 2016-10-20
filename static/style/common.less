@@ -81,18 +81,6 @@ svg path {
 		font-family: "Microsoft YaHei","Lantinghei SC","Open Sans",Arial,"Hiragino Sans GB","微软雅黑",STHeiti,"WenQuanYi Micro Hei",SimSun,sans-serif;
 	}
 }
-//////tooltip
-//#siderTooltip{
-//	.ant-tooltip-placement-right {
-//		opacity: 1 !important;
-//		.ant-tooltip-arrow {
-//			border-right-color: rgba(0,175,221,1) !important;
-//		}
-//		.ant-tooltip-inner {
-//			background-color: rgba(0,175,221,1) !important;
-//		}
-//	}
-//}
 .ant-btn.btn-warning{
 	color: #fff;
 	background-color: #f0ad4e;
@@ -130,4 +118,37 @@ svg path {
 	height: 50px;
 	line-height: 50px;
 	text-align: center;
+}
+// text overflow
+.textoverflow{
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+	padding: 2px
+}
+
+//终端弹出框
+.TerminalLayoutModal {
+  position: absolute !important;
+  padding-bottom: 0 !important;
+  width: 100% !important;
+  height: 500px !important;
+  top:auto !important;
+  bottom: 0 !important;
+  .ant-modal-header,
+  .ant-modal-footer,
+  .ant-modal-close {
+    display: none !important;
+  }
+  .ant-modal-content {
+    height: 100%;
+    border-radius: 0 !important;
+  }
+  .ant-modal-body {
+    position: relative;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    height: 100%;
+  }
 }

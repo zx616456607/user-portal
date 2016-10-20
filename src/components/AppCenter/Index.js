@@ -28,8 +28,6 @@ const MenuItemGroup = Menu.ItemGroup;
 const createForm = Form.create;
 const FormItem = Form.Item;
 
-
-
 let MyComponent = React.createClass({
   getInitialState: function () {
     //this function for init the state

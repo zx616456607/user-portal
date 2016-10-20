@@ -13,9 +13,7 @@ import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import './style/AppContainerList.less'
-import { loadServiceContainerList } from '../../../actions/app_manage'
-
-const testData = []
+import { loadServiceContainerList } from '../../../actions/services'
 
 const MyComponent = React.createClass({
   propTypes: {
@@ -45,37 +43,33 @@ const MyComponent = React.createClass({
       selectedList: oldList
     });
   },
-  modalShow: function (instanceId) {
-    //close model function
-    const {scope} = this.props;
-    scope.setState({
-      modalShow: true,
-      currentShowInstance: instanceId
-    });
-  },
   render: function () {
     const {config, loading} = this.props
     if (loading) {
       return (
-        <Spin />
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
       )
     }
     if (config.length < 1) {
       return (
-        <span>无容器实例</span>
+        <div className='loadingBox'>
+          无容器实例
+        </div>
       )
     }
     const items = config.map((item) => {
       return (
         <div className="containerDetail" key={item.metadata.name}>
           {/*(<div className="selectIconTitle commonData">
-        <Checkbox checked={this.checkedFunc(item.id)} onChange={()=>this.onchange(item.id)}></Checkbox>
-      </div>)*/}
+            <Checkbox checked={this.checkedFunc(item.id)} onChange={()=>this.onchange(item.id)}></Checkbox>
+          </div>)*/}
           <div className="name commonData" style={{ marginLeft: 24 }} >
             <Tooltip placement="topLeft" title={item.metadata.name} >
-              <span className="viewBtn" onClick={this.modalShow.bind(this, item)}>
+              <Link to={`/app_manage/container/${item.metadata.name}`}>
                 {item.metadata.name}
-              </span>
+              </Link>
             </Tooltip>
           </div>
           <div className="status commonData">
@@ -104,12 +98,7 @@ const MyComponent = React.createClass({
       </div>
     );
   }
-});
-
-function loadData(props) {
-  const { cluster, serviceName, loadServiceContainerList } = props
-  loadServiceContainerList(cluster, serviceName)
-}
+})
 
 class AppContainerList extends Component {
   constructor(props) {
@@ -126,20 +115,6 @@ class AppContainerList extends Component {
       return true;
     } else {
       return false;
-    }
-  }
-
-  componentWillMount() {
-    loadData(this.props)
-  }
-
-  componentWillReceiveProps(nextProps) {
-    const { serviceDetailmodalShow } = nextProps
-    if (serviceDetailmodalShow === this.props.serviceDetailmodalShow) {
-      return
-    }
-    if (serviceDetailmodalShow) {
-      loadData(nextProps)
     }
   }
 
@@ -162,7 +137,7 @@ class AppContainerList extends Component {
 
   render() {
     const parentScope = this;
-    const { containerList, isFetching } = this.props
+    const { containerList, loading } = this.props
     return (
       <div id="AppContainerList">
         <QueueAnim className="demo-content"
@@ -193,26 +168,26 @@ class AppContainerList extends Component {
           <Card className="dataBox">
             <div className="titleBox">
               {/*(<div className="selectIconTitle commonData">
-            <Checkbox checked={this.allSelectedChecked() } onChange={()=>this.onchange()}></Checkbox>
-          </div>)*/}
+              <Checkbox checked={this.allSelectedChecked() } onChange={()=>this.onchange()}></Checkbox>
+              </div>)*/}
               <div className="name commonData" style={{ marginLeft: 24 }} >
                 名称
-          </div>
+              </div>
               <div className="status commonData">
                 运行状态
-          </div>
+              </div>
               <div className="image commonData">
                 镜像
-          </div>
+              </div>
               <div className="address commonData">
                 地址
-          </div>
+              </div>
               <div className="createTime commonData">
                 创建时间
-          </div>
+              </div>
               <div style={{ clear: "both" }}></div>
             </div>
-            <MyComponent scope={parentScope} config={containerList} loading={isFetching} />
+            <MyComponent scope={parentScope} config={containerList} loading={loading} />
           </Card>
         </QueueAnim>
       </div>
@@ -221,36 +196,10 @@ class AppContainerList extends Component {
 }
 
 AppContainerList.propTypes = {
-  cluster: PropTypes.string.required,
-  serviceName: PropTypes.string.required,
-  loadServiceContainerList: PropTypes.func.isRequired,
+  cluster: PropTypes.string.isRequired,
+  serviceName: PropTypes.string.isRequired,
   containerList: PropTypes.array.isRequired,
+  loading: PropTypes.bool.isRequired,
 }
 
-function mapStateToProps(state, props) {
-  const { cluster, serviceName } = props
-  const defaultServices = {
-    isFetching: false,
-    cluster,
-    serviceName,
-    containerList: []
-  }
-  const {
-    serviceContainers
-  } = state.services
-  let targetContainers
-  if (serviceContainers[cluster] && serviceContainers[cluster][serviceName]) {
-    targetContainers = serviceContainers[cluster][serviceName]
-  }
-  const { containerList, isFetching } = targetContainers || defaultServices
-  return {
-    cluster,
-    serviceName,
-    containerList,
-    isFetching
-  }
-}
-
-export default connect(mapStateToProps, {
-  loadServiceContainerList
-})(AppContainerList)
+export default AppContainerList

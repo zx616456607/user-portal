@@ -483,25 +483,58 @@ class Storage extends Component {
       appName: e.target.value
     })
   }
-  searchByAppName() {
-
+  searchByAppName(e) {
+    this.props.loadStorageList(this.props.currentImagePool, this.props.currentCluster, this.state.appName)
+  }
+  showDeleteModal() {
+    if (this.state.volumeArray.length <= 0) {
+      message.error('请选择要删除的存储')
+      return
+    }
+    const self = this
+    Modal.confirm({
+      title: '提示',
+      content: `确定要删除${this.state.volumeArray.map(item => item.name).join(',')}存储吗`,
+      okText: '删除',
+      cancelText: '取消',
+      onOk() {
+        self.deleteStorage()
+      }
+    });
   }
   render() {
     const { formatMessage } = this.props.intl
     return (
-      <QueueAnim className="AppList" type="right">
-        <div id="AppList" key="AppList">
+      <QueueAnim className="StorageList" type="right">
+        <div id="StorageList" key="StorageList">
           <div className="operationBox">
-            <div className="leftBtn">
-              <Button type="primary" size="large" onClick={this.showModal}><i className="fa fa-plus" />&nbsp;<FormattedMessage {...messages.createTitle} /></Button>
-              <Button type="ghost" className="stopBtn" size="large" onClick={this.deleteStorage}><Icon type="delete" /><FormattedMessage {...messages.delete} /></Button>
-              <Modal title={formatMessage(messages.createModalTitle)} visible={this.state.visible} onOk={(e) => { this.handleOk() } } onCancel={() => { this.handleCancel() } } okText={formatMessage(messages.createBtn)} cancelText={formatMessage(messages.cancelBtn)}>
+            <div className="leftBox">
+              <Button type="primary" size="large" onClick={this.showModal}>
+                <i className="fa fa-plus" />&nbsp;
+                <FormattedMessage {...messages.createTitle} />
+              </Button>
+              <Button type="ghost" className="stopBtn" size="large" onClick={() => {this.showDeleteModal()}}>
+                <Icon type="delete" /><FormattedMessage {...messages.delete} />
+              </Button>
+              <Modal title={formatMessage(messages.createModalTitle)} 
+                visible={this.state.visible} 
+                onOk={(e) => { this.handleOk() } } 
+                onCancel={() => { this.handleCancel() } } 
+                okText={formatMessage(messages.createBtn)} 
+                cancelText={formatMessage(messages.cancelBtn)}
+                >
                 <Row style={{ height: '40px' }}>
-                  <Col span="3" className="text-center" style={{ lineHeight: '30px' }}><FormattedMessage {...messages.name} /></Col>
-                  <Col span="12"><Input value={this.state.name} placeholder={formatMessage(messages.placeholder)} onChange={(e) => { this.handleInputName(e) } } /></Col>
+                  <Col span="3" className="text-center" style={{ lineHeight: '30px' }}>
+                    <FormattedMessage {...messages.name} />
+                  </Col>
+                  <Col span="12">
+                    <Input value={this.state.name} placeholder={formatMessage(messages.placeholder)} onChange={(e) => { this.handleInputName(e) } } />
+                  </Col>
                 </Row>
                 <Row style={{ height: '40px' }}>
-                  <Col span="3" className="text-center" style={{ lineHeight: '30px' }}>{formatMessage(messages.size)}</Col>
+                  <Col span="3" className="text-center" style={{ lineHeight: '30px' }}>
+                    {formatMessage(messages.size)}
+                  </Col>
                   <Col span="12">
                     <Slider min={1} max={1024} onChange={this.onChange} value={this.state.size} />
                   </Col>
@@ -511,7 +544,9 @@ class Storage extends Component {
                   </Col>
                 </Row>
                 <Row>
-                  <Col span="3" className="text-center" style={{ lineHeight: '30px' }}>{formatMessage(messages.formats)}</Col>
+                  <Col span="3" className="text-center" style={{ lineHeight: '30px' }}>
+                    formatMessage(messages.formats)}
+                  </Col>
                   <Col span="20" className="action-btns" style={{ lineHeight: '30px' }}>
                     <Button type={this.state.currentType === 'ext4' ? 'primary' : 'ghost'} onClick={(e) => { this.changeType('ext4') } }>ext4</Button>
                     <Button type={this.state.currentType === 'xfs' ? 'primary' : 'ghost'} onClick={(e) => { this.changeType('xfs') } }>xfs</Button>
@@ -544,7 +579,14 @@ class Storage extends Component {
               <div className="createTime commonTitle"><FormattedMessage {...messages.createTime} /></div>
               <div className="actionBox commonTitle"><FormattedMessage {...messages.action} /></div>
             </div>
-            <MyComponent storage={this.props.storageList[this.props.currentImagePool]} volumeArray={this.state.volumeArray} saveVolumeArray={this.selectItem()} cluster={this.props.currentCluster} imagePool={this.props.currentImagePool} loadStorageList={() => { this.props.loadStorageList(this.props.currentImagePool, this.props.currentCluster) } } />
+            <MyComponent 
+              storage={this.props.storageList[this.props.currentImagePool]} 
+              volumeArray={this.state.volumeArray} 
+              saveVolumeArray={this.selectItem()} 
+              cluster={this.props.currentCluster} 
+              imagePool={this.props.currentImagePool} 
+              loadStorageList={() => { this.props.loadStorageList(this.props.currentImagePool, this.props.currentCluster) } } 
+              />
           </Card>
         </div>
       </QueueAnim>
@@ -569,8 +611,8 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    loadStorageList: (pool, cluster) => {
-      dispatch(loadStorageList(pool, cluster))
+    loadStorageList: (pool, cluster, query) => {
+      dispatch(loadStorageList(pool, cluster, query))
     },
     deleteStorage: (pool, cluster, volumeArray, callback) => {
       dispatch(deleteStorage(pool, cluster, volumeArray, callback))

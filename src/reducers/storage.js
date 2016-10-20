@@ -239,6 +239,16 @@ function changeUploadFileOptions(state = {}, action) {
   }
 }
 
+function beforeExportFile(state = {}, action) {
+  const defaultState = {
+    exportFile: true
+  }
+  switch(action.type) {
+    case ActionTypes.STORAGE_BEFORE_EXPORT_FILE_REQUEST:
+      return 
+  }
+}
+
 function exportFile(state = {}, action) {
   const defaultState = {
     isFetching: false,
@@ -251,6 +261,8 @@ function exportFile(state = {}, action) {
       return _.merge({}, defaultState, state, { isFetching: true })
     case ActionTypes.STORAGE_EXPORT_FILE_SUCCESS:
       return _.merge({}, defaultState, state, { visible: true, percent: 100, isFetching: false }, action.response.result.body)
+    case ActionTypes.STORAGE_EXPORT_FILE_DONE:
+      return _.merge({}, defaultState, state, { visible: false, percent: 100, isFetching: false})
     case ActionTypes.STORAGE_EXPORT_FILE_FAILURE:
       return _.merge({}, defaultState, state, { visible: false, percent: 100, isFetching: false })
     default:

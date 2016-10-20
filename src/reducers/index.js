@@ -14,6 +14,7 @@ import { routerReducer as routing } from 'react-router-redux'
 import { combineReducers } from 'redux'
 import * as appManageReducers from './app_manage'
 import * as appCenterReducers from './app_center'
+import * as servicesReducers from './services'
 import configReducers from './configs'
 import storage from './storage'
 
@@ -64,7 +65,7 @@ function actionCallback(state = null, action) {
       setTimeout(callback.failure.func.bind(this, action.response.result))
       return state
     }
-    callback.failure.func(action.response.result)
+    callback.failure.func(action.error)
     return state
   }
   return state
@@ -77,6 +78,7 @@ const rootReducer = combineReducers({
   storage,
   ...appManageReducers,
   ...appCenterReducers,
+  ...servicesReducers,
   configReducers,
   routing
 })
