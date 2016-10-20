@@ -49,7 +49,7 @@ class TerminalModal extends Component {
         aa
         </div>
         <div className='contentBox'>
-        bb
+        bb  
         </div>
       </div>
     )
