@@ -147,10 +147,12 @@ let NormalDeployBox = React.createClass({
     selectComposeType: PropTypes.func.isRequired,
   },
   selectComposeType(type) {
+    console.log(type);
     const parentScope = this.props.scope
     parentScope.setState({
       composeType: type
     })
+    console.log('this.props.scopethis.props.scope',parentScope.state.composeType);
   },
   onSelectTagChange(tag) {
     const { setFieldsValue } = this.props.form
@@ -165,8 +167,14 @@ let NormalDeployBox = React.createClass({
     } else {
       setTimeout(() => {
         if (!/^[a-z][a-z0-9-]*$/.test(value)) {
+          /*this.props.scope.setState({
+            serviceNamePass: false,
+          })*/
           callback([new Error('抱歉，该服务名称不合法.')])
         } else {
+          /*this.props.scope.setState({
+            serviceNamePass: true,
+          })*/
           callback()
         }
       },800)
