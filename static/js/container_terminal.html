@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Tenxcloud Container Terminal</title>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet" href="../style/container_terminal.css">
+  <script src="term.js"></script>
+  <script>
+    "use strict";
+    // Initialize everything when the window finishes loading
+    window.addEventListener("load", function(event) {
+      var ws;
+      var term;
+
+      var params = location.href.split('?')[1].split('&');
+      var data = {}
+      params.map((param) => {
+        data[param.split('=')[0]] = param.split('=')[1];
+      });
+      
+      var wsUrl = "ws://" + data['host'] + ":" + data['port'] + "/api/v1/namespaces/" + data['namespace'] + "/pods/" + data['pod'] + "/exec?stdout=1&stdin=1&stderr=1&tty=1&command=%2Fbin%2Fsh&command=-i";
+      console.log("wsUrl: "+ wsUrl)
+
+      function utf8_to_b64( str ) {
+        return window.btoa(window.unescape(encodeURIComponent( str )));
+      }
+      function b64_to_utf8( str ) {
+        return decodeURIComponent(window.escape(window.atob( str )));
+      }
+      
+      terminalConnect();
+     
+      // Create a new terminal connection to a container
+      function terminalConnect() {
+        ws = new WebSocket(wsUrl, "base64.channel.k8s.io");
+
+        ws.addEventListener("open", function(event) {
+          term = new Terminal({
+            cols: 170,
+            rows: 35,
+            screenKeys: true
+          });
+
+          term.open(document.body.terminal);
+          term.write('\x1b[31mWelcome to Tenxcloud Web Terminal!\x1b[m\r\n\r\n');
+
+          term.cursorHidden = false;
+          term.showCursor();
+          term.refresh(term.x, term.y);
+          term.element.focus();
+
+          term.on('data', function(data) {
+              if (ws && ws.readyState === 1)
+                  ws.send("0" + utf8_to_b64(data));
+          });
+        });
+
+        // Display messages received from the server
+        ws.addEventListener("message", function(event) {
+          var data = event.data.slice(1);
+          term.write(b64_to_utf8(data));
+        });
+
+        // Display any errors that occur
+        ws.addEventListener("error", function(event) {
+          term.write(b64_to_utf8("Error: " + JSON.stringify(event)));
+        });
+
+        ws.addEventListener("close", function(event) {
+          //term.close();
+          
+          if (ws) {
+              ws.onopen = ws.onmessage = ws.onerror = ws.onclose = null;
+              if (ws.readyState < 2) // CLOSING
+                  ws.close();
+              ws = null;
+          }
+        });
+      };
+
+    });
+  </script>
+</head>
+<body>
+  <div id="terminal"></div>
+</body>
+</html>

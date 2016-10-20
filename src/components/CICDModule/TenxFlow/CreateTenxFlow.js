@@ -84,6 +84,7 @@ let CreateTenxFlow = React.createClass({
     }
   },
   componentWillMount() {
+    console.log(this)
     document.title = 'TenxFlow | 时速云';
   },
   nameExists(rule, value, callback) {
