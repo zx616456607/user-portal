@@ -198,8 +198,23 @@ exports.getAppServices = function* () {
   const cluster = this.params.cluster
   const appName = this.params.app_name
   const loginUser = this.session.loginUser
+  const query = this.query || {}
+  let page = parseInt(query.page || DEFAULT_PAGE)
+  let size = parseInt(query.size || DEFAULT_PAGE_SIZE)
+  let name = query.name
+  if (isNaN(page) || page < 1) {
+    page = DEFAULT_PAGE
+  }
+  if (isNaN(size) || size < 1 || size > 100) {
+    size = DEFAULT_PAGE_SIZE
+  }
+  const from = size * (page - 1)
+  const queryObj = { from, size }
+  if (name) {
+    queryObj.filter = `name ${name}`
+  }
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([cluster, 'apps', appName, 'services'])
+  const result = yield api.getBy([cluster, 'apps', appName, 'services'], queryObj)
   const services = result.data.services
 
   services.map((service) => {
@@ -208,6 +223,7 @@ exports.getAppServices = function* () {
       service.images.push(container.image)
     })
   })
+
   this.body = {
     cluster,
     appName,

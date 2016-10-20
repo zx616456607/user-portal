@@ -10,6 +10,7 @@
 
 import { FETCH_API, Schemas } from '../middleware/api'
 import { API_URL_PREFIX } from '../constants'
+import { toQuerystring } from '../common/tools'
 
 export const SERVICE_LIST_REQUEST = 'SERVICE_LIST_REQUEST'
 export const SERVICE_LIST_SUCCESS = 'SERVICE_LIST_SUCCESS'
@@ -17,13 +18,17 @@ export const SERVICE_LIST_FAILURE = 'SERVICE_LIST_FAILURE'
 
 // Fetches service list from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchServiceList(cluster, appName) {
+function fetchServiceList(cluster, appName, query) {
+  let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/apps/${appName}/services`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
   return {
     cluster,
     appName,
     [FETCH_API]: {
       types: [SERVICE_LIST_REQUEST, SERVICE_LIST_SUCCESS, SERVICE_LIST_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/apps/${appName}/services`,
+      endpoint,
       schema: Schemas.SERVICES
     }
   }
@@ -31,9 +36,9 @@ function fetchServiceList(cluster, appName) {
 
 // Fetches services list from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function loadServiceList(cluster, appName, requiredFields = []) {
+export function loadServiceList(cluster, appName, query, requiredFields = []) {
   return (dispatch, getState) => {
-    return dispatch(fetchServiceList(cluster, appName))
+    return dispatch(fetchServiceList(cluster, appName, query))
   }
 }
 
@@ -275,7 +280,7 @@ export function loadServiceDetailEvents(cluster, serviceName) {
 export const SERVICE_LOGS_REQUEST = 'SERVICE_LOGS_REQUEST'
 export const SERVICE_LOGS_SUCCESS = 'SERVICE_LOGS_SUCCESS'
 export const SERVICE_LOGS_FAILURE = 'SERVICE_LOGS_FAILURE'
-export const SERVICE_LOGS_CLEAR   = 'SERVICE_LOGS_CLEAR'
+export const SERVICE_LOGS_CLEAR = 'SERVICE_LOGS_CLEAR'
 
 
 export function fetchServiceLogs(cluster, serviceName, body, callback) {

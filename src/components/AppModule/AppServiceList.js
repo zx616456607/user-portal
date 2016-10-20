@@ -8,14 +8,15 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Modal, Checkbox, Dropdown, Button, Card, Menu, Icon, Spin, Tooltip } from 'antd'
+import { Modal, Checkbox, Dropdown, Button, Card, Menu, Icon, Spin, Tooltip, Pagination } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import AppServiceDetail from './AppServiceDetail'
 import './style/AppServiceList.less'
 import { loadServiceList, startServices, restartServices, stopServices, deleteServices, quickRestartServices } from '../../actions/services'
-import { DEFAULT_CLUSTER } from '../../constants'
+import { DEFAULT_CLUSTER, DEFAULT_PAGE_SIZE } from '../../constants'
+import { browserHistory } from 'react-router'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -44,8 +45,47 @@ const MyComponent = React.createClass({
       currentShowInstance: item
     });
   },
+  onShowSizeChange: function (page, size) {
+    if (size === this.props.size) {
+      return
+    }
+    const query = {}
+    if (page !== 1) {
+      query.page = page
+    }
+    if (size !== DEFAULT_PAGE_SIZE) {
+      query.size = size
+    }
+    const { name } = this.props
+    if (name) {
+      query.name = name
+    }
+    const { pathname } = this.props
+    browserHistory.push({
+      pathname,
+      query
+    })
+  },
+  onPageChange: function (page) {
+    if (page === this.props.page) {
+      return
+    }
+    const { pathname, size, name } = this.props
+    const query = {}
+    if (page !== 1) {
+      query.page = page
+      query.size = size
+    }
+    if (name) {
+      query.name = name
+    }
+    browserHistory.push({
+      pathname,
+      query
+    })
+  },
   render: function () {
-    const { serviceList, loading } = this.props
+    const { serviceList, loading, page, size, total } = this.props
     if (loading) {
       return (
         <div className='loadingBox'>
@@ -105,10 +145,28 @@ const MyComponent = React.createClass({
     return (
       <div className="dataBox">
         {items}
+        <div style={{ marginTop: 15, textAlign: 'center', }}>
+          <Pagination
+            className="inlineBlock"
+            simple
+            showSizeChanger
+            showQuickJumper
+            onShowSizeChange={this.onShowSizeChange}
+            onChange={this.onPageChange}
+            defaultCurrent={page}
+            pageSize={size}
+            showTotal={total => `共 ${total} 条`}
+            total={total} />
+        </div>
       </div>
     );
   }
 });
+
+function loadServices(props) {
+  const { cluster, appName, loadServiceList, page, size, name } = props
+  loadServiceList(cluster, appName, { page, size, name })
+}
 
 class AppServiceList extends Component {
   constructor(props) {
@@ -123,7 +181,8 @@ class AppServiceList extends Component {
     this.state = {
       modalShow: false,
       currentShowInstance: null,
-      serviceList: props.serviceList
+      serviceList: props.serviceList,
+      searchInputDisabled: false
     }
   }
 
@@ -136,16 +195,24 @@ class AppServiceList extends Component {
     })
   }
 
+  componentWillMount() {
+    const { appName } = this.props
+    document.title = `${appName} 的服务列表 | 时速云`
+    loadServices(this.props)
+  }
+
   componentWillReceiveProps(nextProps) {
     this.setState({
       serviceList: nextProps.serviceList
     })
-  }
-
-  componentWillMount() {
-    const { cluster, appName, loadServiceList } = this.props
-    document.title = `${appName} 的服务列表 | 时速云`
-    loadServiceList(cluster, appName)
+    let { page, size, name } = nextProps
+    if (page === this.props.page && size === this.props.size && name === this.props.name) {
+      return
+    }
+    this.setState({
+      searchInputDisabled: false
+    })
+    loadServices(nextProps)
   }
 
   confirmStartService(e) {
@@ -286,7 +353,7 @@ class AppServiceList extends Component {
       </Menu.Item>
     </Menu>);
     let { modalShow, currentShowInstance, serviceList } = this.state
-    const { isFetching } = this.props
+    const { name, pathname, page, size, total, isFetching } = this.props
     const checkedServiceList = serviceList.filter((service) => service.checked)
     const checkedServiceNames = checkedServiceList.map((service) => service.metadata.name)
     const isChecked = (checkedServiceList.length > 0)
@@ -350,7 +417,9 @@ class AppServiceList extends Component {
           </div>
             <div style={{ clear: "both" }}></div>
           </div>
-          <MyComponent scope={parentScope} serviceList={serviceList} loading={isFetching} />
+          <MyComponent
+            size={size} total={total} pathname={pathname} page={page} name={name}
+            scope={parentScope} serviceList={serviceList} loading={isFetching} />
           <Modal
             title="垂直居中的对话框"
             visible={this.state.modalShow}
@@ -377,9 +446,23 @@ AppServiceList.propTypes = {
   stopServices: PropTypes.func.isRequired,
   deleteServices: PropTypes.func.isRequired,
   quickRestartServices: PropTypes.func.isRequired,
+  pathname: PropTypes.string.isRequired,
+  page: PropTypes.number.isRequired,
+  size: PropTypes.number.isRequired,
+  total: PropTypes.number.isRequired,
 }
 
 function mapStateToProps(state, props) {
+  const { query, pathname } = props.location
+  let { page, size, name } = query
+  page = parseInt(page || 1)
+  size = parseInt(size || DEFAULT_PAGE_SIZE)
+  if (isNaN(page) || page < 1) {
+    page = 1
+  }
+  if (isNaN(size) || size < 1 || size > 100) {
+    size = DEFAULT_PAGE_SIZE
+  }
   const { appName } = props
   const defaultServices = {
     isFetching: false,
@@ -394,10 +477,15 @@ function mapStateToProps(state, props) {
   if (serviceItmes[DEFAULT_CLUSTER] && serviceItmes[DEFAULT_CLUSTER][appName]) {
     targetServices = serviceItmes[DEFAULT_CLUSTER][appName]
   }
-  const { cluster, serviceList, isFetching } = targetServices || defaultServices
+  const { cluster, serviceList, isFetching, total } = targetServices || defaultServices
   return {
     cluster,
     appName,
+    pathname,
+    page,
+    size,
+    total,
+    name,
     serviceList,
     isFetching
   }
