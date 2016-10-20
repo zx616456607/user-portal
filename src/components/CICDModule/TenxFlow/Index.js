@@ -165,6 +165,7 @@ class TenxFlowList extends Component {
     this.state = {
       createTenxFlowModal: false,
       TenxFlowDeployLogModal: false,
+      currentTenxFlow: null
     }
   }
   
