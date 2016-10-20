@@ -26,23 +26,6 @@ import './style/AppServiceDetail.less'
 
 const DEFAULT_TAB = '#containers'
 const TabPane = Tabs.TabPane;
-const operaMenu = (<Menu>
-  <Menu.Item key="0">
-    重新部署
-  </Menu.Item>
-  <Menu.Item key="1">
-    停止容器
-  </Menu.Item>
-  <Menu.Item key="2">
-    删除
-  </Menu.Item>
-  <Menu.Item key="3">
-    查看架构图
-  </Menu.Item>
-  <Menu.Item key="4">
-    查看编排
-  </Menu.Item>
-</Menu>);
 
 function loadData(props) {
   const { cluster, serviceName, loadServiceDetail, loadServiceContainerList } = props
@@ -56,6 +39,8 @@ class AppServiceDetail extends Component {
     super(props);
     this.closeModal = this.closeModal.bind(this)
     this.onTabClick = this.onTabClick.bind(this)
+    this.restartService = this.restartService.bind(this)
+    this.stopService = this.stopService.bind(this)
     this.state = {
       activeTabKey: DEFAULT_TAB
     }
@@ -97,6 +82,44 @@ class AppServiceDetail extends Component {
     })
   }
 
+  restartService(service) {
+    const { funcs } = this.props
+    const self = this
+    funcs.confirmRestartServices([service], {
+      success: {
+        func: () => {
+          loadData(self.props)
+          self.setState({
+            activeTabKey: DEFAULT_TAB
+          })
+        },
+        isAsync: true
+      }
+    })
+  }
+
+  stopService(service) {
+    const { funcs } = this.props
+    const self = this
+    funcs.confirmStopServices([service], {
+      success: {
+        func: () => {
+          loadData(self.props)
+          self.setState({
+            activeTabKey: DEFAULT_TAB
+          })
+        },
+        isAsync: true
+      }
+    })
+  }
+
+  delteService(service) {
+    const { funcs } = this.props
+    const self = this
+    funcs.confirmDeleteServices([service])
+  }
+
   render() {
     const {
       scope,
@@ -105,13 +128,36 @@ class AppServiceDetail extends Component {
       isServiceDetailFetching,
       containers,
       isContainersFetching,
+      appName,
     } = this.props
     const { activeTabKey } = this.state
     const service = scope.state.currentShowInstance
+    const operaMenu = (<Menu>
+      <Menu.Item key="0">
+        <span onClick={() => this.restartService(service)}>重新部署</span>
+      </Menu.Item>
+      <Menu.Item key="1">
+        <span onClick={() => this.stopService(service)}>停止</span>
+      </Menu.Item>
+      <Menu.Item key="2">
+        <span onClick={() => this.delteService(service)}>删除</span>
+      </Menu.Item>
+      <Menu.Item key="3">
+        <Link to={`/app_manage/detail/${appName}#topology`} onClick={this.closeModal} >
+          查看拓扑图
+        </Link>
+      </Menu.Item>
+      <Menu.Item key="4">
+        <Link to={`/app_manage/detail/${appName}#stack`} onClick={this.closeModal} >
+          查看编排
+        </Link>
+      </Menu.Item>
+    </Menu>);
     return (
       <div id="AppServiceDetail">
         <div className="titleBox">
-          <i className="closeBtn fa fa-times" onClick={this.closeModal}></i>
+          <Icon className="closeBtn" type="cross" onClick={this.closeModal} />
+          {/*<i className="closeBtn fa fa-times" onClick={this.closeModal}></i>*/}
           <div className="imgBox">
             <img src="/img/test/github.jpg" />
           </div>

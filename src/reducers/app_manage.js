@@ -34,7 +34,9 @@ function appItems(state = {}, action) {
         [cluster]: {
           isFetching: false,
           cluster: action.response.result.cluster,
-          appList: action.response.result.data || []
+          appList: action.response.result.data || [],
+          size: action.response.result.count,
+          total: action.response.result.total,
         }
       })
     case ActionTypes.APP_LIST_FAILURE:
@@ -276,19 +278,19 @@ function containerLogs(state = {}, action) {
       isFetching: false
     }
   }
-  switch(action.type) {
-    case ActionTypes.CONTAINER_LOGS_REQUEST: 
+  switch (action.type) {
+    case ActionTypes.CONTAINER_LOGS_REQUEST:
       return merge({}, defaultState, state, {
         [cluster]: {
           isFetching: true
         }
       })
-    case ActionTypes.CONTAINER_LOGS_SUCCESS: 
+    case ActionTypes.CONTAINER_LOGS_SUCCESS:
       const uState = cloneDeep(state)
-      if(!uState[cluster].logs) uState[cluster].logs = {}
-      if(!action.response.result.data) return uState
+      if (!uState[cluster].logs) uState[cluster].logs = {}
+      if (!action.response.result.data) return uState
       uState[cluster].logs.data = union(action.response.result.data, uState[cluster].logs.data)
-      if(uState[cluster].logs.data.length % 50 !== 0) uState[cluster].logs.data.unshift({log: '无更多日志\n'})
+      if (uState[cluster].logs.data.length % 50 !== 0) uState[cluster].logs.data.unshift({ log: '无更多日志\n' })
       return uState
     case ActionTypes.CONTAINER_LOGS_FAILURE:
       return merge({}, defaultState, state, {
@@ -304,7 +306,7 @@ function containerLogs(state = {}, action) {
         }
       })
       return dd
-    default: 
+    default:
       return merge({}, state)
   }
 }
