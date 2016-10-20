@@ -12,6 +12,7 @@ import { Form, Select, Input, InputNumber, Modal, Checkbox, Button, Card, Menu, 
 import { connect } from 'react-redux'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import { loadImageDetailTag, loadImageDetailTagConfig } from '../../../../actions/app_center'
+import { checkServiceName } from '../../../../actions/app_manage'
 import "./style/NormalDeployBox.less"
 
 const Option = Select.Option;
@@ -146,6 +147,11 @@ let NormalDeployBox = React.createClass({
     loadImageDetailTagConfig: PropTypes.func.isRequired,
     selectComposeType: PropTypes.func.isRequired,
   },
+  getInitialState: function() {
+    return {
+      cluster: ''
+    }
+  },
   selectComposeType(type) {
     console.log(type);
     const parentScope = this.props.scope
@@ -162,26 +168,49 @@ let NormalDeployBox = React.createClass({
     loadImageTagConfigs(tag, this.props)
   },
   userExists(rule, value, callback) {
+    const { checkServiceName } = this.props
+    const { servicesList } = this.props.scope.props.scope.state
     if (!value) {
       callback()
     } else {
-      setTimeout(() => {
-        if (!/^[a-z][a-z0-9-]*$/.test(value)) {
-          /*this.props.scope.setState({
-            serviceNamePass: false,
-          })*/
-          callback([new Error('抱歉，该服务名称不合法.')])
-        } else {
-          /*this.props.scope.setState({
-            serviceNamePass: true,
-          })*/
-          callback()
-        }
-      },800)
+      if (!/^[a-z][a-z0-9-]{2,24}$/.test(value)) {
+        callback([new Error('抱歉，该服务名称不合法.')])
+      } else {
+        console.log('serviceName 1');
+        
+          console.log('serviceName 2');
+          servicesList.map((service) => {
+            if(service.id === value){
+              console.log('serviceName 3');
+              callback([new Error('服务名称已经存在')])
+              return
+            }
+          })
+        checkServiceName(this.state.cluster,value,{
+          success: {
+            func: (result) => {
+              if(result.data){
+                console.log('serviceName 6');
+                callback([new Error('服务名称已经存在')])
+              } else {
+                console.log('serviceName 7');
+                callback()
+              }
+            },
+            isAsync: true
+          }
+        })
+        console.log('serviceName 5');
+        callback()
+      }
     }
   },
   componentWillMount() {
     loadImageTags(this.props)
+    const cluster = window.localStorage.getItem('cluster')
+    this.setState({
+      cluster:cluster
+    })
   },
   componentWillReceiveProps(nextProps) {
     const {serviceOpen} = nextProps
@@ -198,7 +227,7 @@ let NormalDeployBox = React.createClass({
     const { getFieldProps, getFieldError, isFieldValidating } = form
     const nameProps = getFieldProps('name', {
       rules: [
-        { required: true, min: 3, max: 24, message: '服务名称至少为 3~24 个字符' },
+        { required: true, },
         { validator: this.userExists },
       ],
     });
@@ -380,13 +409,15 @@ function mapStateToProps(state, props) {
     registryServer: server,
     imageTags: tag || [],
     imageTagsIsFetching: isFetching,
-    currentSelectedImage
+    currentSelectedImage,
+    checkServiceName: state.apps.checkServiceName
   }
 }
 
 NormalDeployBox = connect(mapStateToProps, {
   loadImageDetailTag,
   loadImageDetailTagConfig,
+  checkServiceName,
 })(NormalDeployBox)
 
 export default NormalDeployBox

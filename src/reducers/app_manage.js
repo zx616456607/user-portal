@@ -105,7 +105,17 @@ export function apps(state = { appItmes: {} }, action) {
       REQUEST: ActionTypes.APP_OPERATION_LOG_REQUEST,
       SUCCESS: ActionTypes.APP_OPERATION_LOG_SUCCESS,
       FAILURE: ActionTypes.APP_OPERATION_LOG_FAILURE
-    }, state.appLogs, action)
+    }, state.appLogs, action),
+    checkAppName: reducerFactory({
+      REQUEST: ActionTypes.APP_CHECK_NAME_REQUEST,
+      SUCCESS: ActionTypes.APP_CHECK_NAME_SUCCESS,
+      FAILURE: ActionTypes.APP_CHECK_NAME_FAILURE
+    }, state.checkAppName, action),
+    checkServiceName: reducerFactory({
+      REQUEST: ActionTypes.SERVICE_CHECK_NAME_REQUEST,
+      SUCCESS: ActionTypes.SERVICE_CHECK_NAME_SUCCESS,
+      FAILURE: ActionTypes.SERVICE_CHECK_NAME_FAILURE
+    }, state.checkServiceName, action),
   }
 }
 
