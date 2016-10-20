@@ -8,44 +8,30 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Dropdown, Modal, Checkbox, Button, Card, Menu, Input, Select, Popconfirm, message, } from 'antd'
+import { Dropdown, Modal, Checkbox, Button, Card, Menu, Input, Select, Popconfirm, message, Form} from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import "./style/ComposeFile.less"
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { createApp } from '../../../actions/app_manage'
+import { createApp ,checkAppName} from '../../../actions/app_manage'
 import * as yaml from 'js-yaml'
 import { browserHistory } from 'react-router'
 
-const Option = Select.Option;
-
-const operaMenu = (<Menu>
-  <Menu.Item key="0">
-    重新部署
-            </Menu.Item>
-  <Menu.Item key="1">
-    弹性伸缩
-            </Menu.Item>
-  <Menu.Item key="2">
-    灰度升级
-            </Menu.Item>
-  <Menu.Item key="3">
-    更改配置
-            </Menu.Item>
-</Menu>);
+const FormItem = Form.Item;
+const createForm = Form.create;
 
 class ComposeFile extends Component {
   constructor(props) {
     super(props);
     this.subApp = this.subApp.bind(this)
-    this.handleAppName = this.handleAppName.bind(this)
-    this.handleCluster = this.handleCluster.bind(this)
     this.handleYaml = this.handleYaml.bind(this)
-    this.handleRemark = this.handleRemark.bind(this)
     this.handleVisibleChange = this.handleVisibleChange.bind(this)
     this.confirm = this.confirm.bind(this)
     this.cancel = this.cancel.bind(this)
+    this.handleForm = this.handleForm.bind(this)
+    this.appNameCheck = this.appNameCheck.bind(this)
+    this.remarkCheck = this.remarkCheck.bind(this)
 
     let serviceList = JSON.parse(localStorage.getItem('servicesList'))
     let selectedList = JSON.parse(localStorage.getItem('selectedList'))
@@ -96,22 +82,6 @@ class ComposeFile extends Component {
       },
     })
   }
-  handleAppName(e) {
-    this.setState({
-      appName: e.target.value
-    })
-  }
-  handleRemark(e) {
-    this.setState({
-      remark: e.target.value
-    })
-  }
-  handleCluster(value) {
-    console.log(`${value}`);
-    this.setState({
-      cluster: `${value}`
-    })
-  }
   handleYaml(e) {
     this.setState({
       appDescYaml: e.target.value,
@@ -124,24 +94,89 @@ class ComposeFile extends Component {
     browserHistory.push('/app_manage/app_create/fast_create')
   }
   cancel() {
-    this.setState({ visible: false });
-    message.error('留在当前页面');
+    this.setState({ visible: false })
+    message.error('留在当前页面')
   }
   handleVisibleChange(visible) {
     if (!visible) {
-      this.setState({ visible });
-      return;
+      this.setState({ visible })
+      return
     }
-    // 打开前进行判断
-    console.log(this.state.condition);
     if (this.state.condition) {
-      this.confirm();  // 直接执行下一步
+      this.confirm()
     } else {
-      this.setState({ visible });  // 进行确认
+      this.setState({ visible })
     }
   }
+  appNameCheck(rule, value, callback) {
+    const { clusterName, needAppName} = this.state
+    const { checkAppName } = this.props
+    if (!value || needAppName) {
+      callback([new Error('请输入应用名称')])
+    } else {
+      checkAppName(clusterName,value,{
+        success: {
+          func: (result) => {
+            if(result.data){
+              callback([new Error('应用名称已经存在')])
+            } else {
+              this.setState({
+                appName: value,
+              })
+              callback()
+            }
+          },
+          isAsync: true
+        }
+      })
+    }
+  }
+  remarkCheck(rule, value, callback){
+    if(this.state.appName === ''){
+      this.setState({
+        remark:''
+      })
+      callback([new Error('请先输入应用名称')])
+    } else {
+      this.setState({
+        remark: value
+      })
+      callback()
+    }
+  }
+  handleForm() {
+    this.props.form.validateFieldsAndScroll((errors, values) => {
+      if (!!errors) {
+        console.log('Errors in form!!!')
+        console.log(errors)
+        this.setState({
+          disable: true,
+        })
+        return
+      }
+      console.log('Submit!!!')
+      console.log(values)
+    })
+  }
+  componentWillMount() {
+    this.setState({
+      cluster: window.localStorage.getItem('cluster')
+    })
+  }
   render() {
-    const {appName, appDescYaml, remark} = this.state
+    const { appDescYaml, remark } = this.state
+    const { getFieldProps, getFieldValue, getFieldError, isFieldValidating } = this.props.form
+    const appNameFormCheck = getFieldProps('appNameFormCheck',{
+      rules: [
+        { validator: this.appNameCheck },
+      ]
+    })
+    
+    const remarkFormCheck = getFieldProps('remarkFormCheck',{
+      rules: [
+        { validator: this.remarkCheck },
+      ]
+    })
     const parentScope = this.props.scope;
     const createModel = parentScope.state.createModel;
     let backUrl = backLink(createModel);
@@ -149,15 +184,26 @@ class ComposeFile extends Component {
       <QueueAnim id="ComposeFile"
         type="right"
         >
+        <Form horizontal>
         <div className="ComposeFile" key="ComposeFile">
           <div className="nameBox">
             <span>应用名称</span>
-            <Input size="large" placeholder="起一个萌萌哒的名称吧~" onChange={this.handleAppName} value={appName} />
+            <FormItem help={isFieldValidating('appNameFormCheck') ? '校验中...' : (getFieldError('appNameFormCheck') || []).join(', ')}>
+              <Input size="large"
+                     placeholder="起一个萌萌哒的名称吧~"
+                     autoComplete="off"
+                     {...appNameFormCheck} />
+            </FormItem>
             <div style={{ clear: "both" }}></div>
           </div>
           <div className="introBox">
             <span>添加描述</span>
-            <Input size="large" placeholder="写一个萌萌哒的描述吧~" onChange={this.handleRemark} value={remark} />
+            <FormItem>
+              <Input size="large"
+                     placeholder="写一个萌萌哒的描述吧~"
+                     {...remarkFormCheck}
+                     value={remark}/>
+            </FormItem>
             <div style={{ clear: "both" }}></div>
           </div>
           <div className="composeBox">
@@ -181,22 +227,7 @@ class ComposeFile extends Component {
               <div style={{ clear: "both" }}></div>
             </div>
           </div>
-          <div className="envirBox">
-            <span>部署环境</span>
-            <Dropdown overlay={operaMenu} trigger={['click']}>
-              <Button size="large" type="ghost">
-                请选择空间
-              <i className="fa fa-caret-down" />
-              </Button>
-            </Dropdown>
-            <Select size="large" defaultValue="请选择集群" style={{ width: 200 }} onChange={this.handleCluster}>
-              <Option value="cce1c71ea85a5638b22c15d86c1f61de">test</Option>
-              <Option value="cce1c71ea85a5638b22c15d86c1f61df">产品环境</Option>
-              <Option value="e0e6f297f1b3285fb81d27742255cfcf">k8s 1.4</Option>
-            </Select>
-          </div>
           <div className="btnBox">
-              {/*<Link to={`${backUrl}`}>*/}
                 <Popconfirm title="返回上一步,改动将丢失"
                             okText="确认"
                             cancelText="取消"
@@ -208,13 +239,12 @@ class ComposeFile extends Component {
                     上一步
                   </Button>
                 </Popconfirm>
-              {/*</Link>*/}
-            
             <Button size="large" type="primary" className="createBtn" onClick={this.subApp}>
               创建
               </Button>
           </div>
         </div>
+        </Form>
       </QueueAnim>
     )
   }
@@ -226,19 +256,20 @@ ComposeFile.propTypes = {
 function mapStateToProps(state) {
   return {
     createApp: state.apps.createApp,
+    checkAppName: state.apps.checkAppName
   }
 }
 
-function mapDispatchToProps(dispatch) {
-  return {
-    createApp: (appConfig, callback) => {
-      dispatch(createApp(appConfig, callback))
-    }
-  }
-}
-export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(ComposeFile, {
+ComposeFile = connect(mapStateToProps, {
+  createApp,
+  checkAppName
+})(injectIntl(ComposeFile, {
   withRef: true,
 }))
+
+ComposeFile = createForm()(ComposeFile)
+
+export default ComposeFile
 
 function backLink(createModel) {
   switch (createModel) {

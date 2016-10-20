@@ -9,7 +9,7 @@
  */
 
 import { FETCH_API, Schemas } from '../middleware/api'
-import { API_URL_PREFIX } from '../constants'
+import { API_URL_PREFIX ,SPI_URL_PREFIX} from '../constants'
 import { toQuerystring } from '../common/tools'
 
 export const APP_LIST_REQUEST = 'APP_LIST_REQUEST'
@@ -71,7 +71,7 @@ export const APP_CREATE_REQUEST = 'APP_CREATE_REQUEST'
 export const APP_CREATE_SUCCESS = 'APP_CREATE_SUCCESS'
 export const APP_CREATE_FAILURE = 'APP_CREATE_FAILURE'
 
-export function createApp(appConfig, callback) {
+export function fetchCreateApp(appConfig, callback) {
   return {
     cluster: appConfig.cluster,
     [FETCH_API]: {
@@ -87,7 +87,13 @@ export function createApp(appConfig, callback) {
       },
       schema: Schemas.APPS
     },
-    callback: callback
+    callback
+  }
+}
+
+export function createApp(appConfig, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchCreateApp(appConfig, callback))
   }
 }
 
@@ -210,6 +216,49 @@ export function appLogs(cluster, appName, callback) {
   }
 }
 
+export const APP_CHECK_NAME_REQUEST = 'APP_CHECK_NAME_REQUEST'
+export const APP_CHECK_NAME_SUCCESS = 'APP_CHECK_NAME_SUCCESS'
+export const APP_CHECK_NAME_FAILURE = 'APP_CHECK_NAME_FAILURE'
+
+function fetchCheckAppNameApps(cluster, appName, callback) {
+  return {
+    cluster,
+    appName,
+    [FETCH_API]: {
+      types: [APP_CHECK_NAME_REQUEST, APP_CHECK_NAME_SUCCESS, APP_CHECK_NAME_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/apps/${appName}/existence`,
+      schema: {}
+    },
+    callback: callback
+  }
+}
+export function checkAppName(cluster, appName, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchCheckAppNameApps(cluster, appName, callback))
+  }
+}
+
+export const SERVICE_CHECK_NAME_REQUEST = 'SERVICE_CHECK_NAME_REQUEST'
+export const SERVICE_CHECK_NAME_SUCCESS = 'SERVICE_CHECK_NAME_SUCCESS'
+export const SERVICE_CHECK_NAME_FAILURE = 'SERVICE_CHECK_NAME_FAILURE'
+
+function fetchCheckServiceNameApps(cluster, service, callback) {
+  return {
+    cluster,
+    service,
+    [FETCH_API]: {
+      types: [SERVICE_CHECK_NAME_REQUEST, SERVICE_CHECK_NAME_SUCCESS, SERVICE_CHECK_NAME_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${service}/existence`,
+      schema: {}
+    },
+    callback: callback
+  }
+}
+export function checkServiceName(cluster, service, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchCheckServiceNameApps(cluster, service, callback))
+  }
+}
 // ~~~ containers
 
 export const CONTAINER_LIST_REQUEST = 'CONTAINER_LIST_REQUEST'
