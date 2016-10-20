@@ -145,7 +145,7 @@ const MyComponent = React.createClass({
     return (
       <div className="dataBox">
         {items}
-        <div style={{ marginTop: 15, textAlign: 'center', }}>
+        <div className="paginationBox">
           <Pagination
             className="inlineBlock"
             simple

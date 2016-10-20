@@ -211,8 +211,9 @@ const MyComponent = React.createClass({
     return (
       <div className="dataBox">
         {items}
-        <div style={{ marginTop: 15 }}>
+        <div className="paginationBox">
           <Pagination
+            className="inlineBlock"
             showSizeChanger
             showQuickJumper
             onShowSizeChange={this.onShowSizeChange}
