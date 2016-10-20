@@ -21,7 +21,7 @@ class TerminalModal extends Component {
     this.changeBoxHeight = this.changeBoxHeight.bind(this);
     this.changeBoxHeightEnd = this.changeBoxHeightEnd.bind(this);
     this.state = {
-      
+    
     }
   }
   
@@ -46,10 +46,10 @@ class TerminalModal extends Component {
     return (
       <div id='TerminalModal'>
         <div className='titleBox' onDrag={this.changeBoxHeight} onDragEnd={this.changeBoxHeightEnd} draggable='true'>
-        aa
+        {config.metadata.name}
         </div>
         <div className='contentBox'>
-        bb  
+          <iframe src={`/js/container_terminal.html?host=192.168.1.92&port=8080&namespace=${config.metadata.namespace}&pod=${config.metadata.name}`} width="1270" height="450" />
         </div>
       </div>
     )
