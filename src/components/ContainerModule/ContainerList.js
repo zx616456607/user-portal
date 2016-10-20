@@ -234,6 +234,7 @@ class ContainerList extends Component {
     this.closeTerminalLayoutModal = this.closeTerminalLayoutModal.bind(this)
     this.state = {
       selectedList: [],
+      searchInputValue: props.name,
       searchInputDisabled: false,
       TerminalLayoutModal: false,
       currentContainer: null
@@ -286,16 +287,16 @@ class ContainerList extends Component {
 
   searchContainers(e) {
     const { name, pathname } = this.props
-    const value = e.target.value.trim()
-    if (value === name) {
+    const { searchInputValue } = this.state
+    if (searchInputValue === name) {
       return
     }
     this.setState({
       searchInputDisabled: true
     })
     const query = {}
-    if (value) {
-      query.name = value
+    if (searchInputValue) {
+      query.name = searchInputValue
     }
     browserHistory.push({
       pathname,
@@ -313,7 +314,7 @@ class ContainerList extends Component {
   render() {
     const parentScope = this
     const { name, pathname, page, size, total, cluster, containerList, isFetching } = this.props
-    const { searchInputDisabled } = this.state
+    const { searchInputValue, searchInputDisabled } = this.state
     return (
       <QueueAnim
         className="ContainerList"
@@ -325,12 +326,17 @@ class ContainerList extends Component {
               <Button type="primary" size="large"><i className="fa fa-power-off"></i>重新分配</Button>
             </div>
             <div className="rightBox">
-              <div className="littleLeft">
+              <div className="littleLeft" onClick={this.searchContainers}>
                 <i className="fa fa-search"></i>
               </div>
               <div className="littleRight">
                 <Input
-                  defaultValue={name}
+                  onChange={(e) => {
+                    this.setState({
+                      searchInputValue: e.target.value
+                    })
+                  } }
+                  value={searchInputValue}
                   placeholder="输入容器名回车搜索"
                   disabled={searchInputDisabled}
                   onPressEnter={this.searchContainers} />

@@ -248,6 +248,7 @@ class AppList extends Component {
     this.searchApps = this.searchApps.bind(this)
     this.state = {
       appList: props.appList,
+      searchInputValue: props.name,
       searchInputDisabled: false,
     }
   }
@@ -390,16 +391,16 @@ class AppList extends Component {
 
   searchApps(e) {
     const { name, pathname } = this.props
-    const value = e.target.value.trim()
-    if (value === name) {
+    const { searchInputValue } = this.state
+    if (searchInputValue === name) {
       return
     }
     this.setState({
       searchInputDisabled: true
     })
     const query = {}
-    if (value) {
-      query.name = value
+    if (searchInputValue) {
+      query.name = searchInputValue
     }
     browserHistory.push({
       pathname,
@@ -410,7 +411,7 @@ class AppList extends Component {
   render() {
     const scope = this
     const { name, pathname, page, size, total, cluster, isFetching } = this.props
-    const { appList, searchInputDisabled } = this.state
+    const { appList, searchInputValue, searchInputDisabled } = this.state
     const checkedAppList = appList.filter((app) => app.checked)
     const isChecked = (checkedAppList.length > 0)
     let isAllChecked = (appList.length === checkedAppList.length)
@@ -450,12 +451,17 @@ class AppList extends Component {
               </Button>
             </div>
             <div className="rightBox">
-              <div className="littleLeft">
+              <div className="littleLeft" onClick={this.searchApps}>
                 <i className="fa fa-search"></i>
               </div>
               <div className="littleRight">
                 <Input
-                  defaultValue={name}
+                  onChange={(e) => {
+                    this.setState({
+                      searchInputValue: e.target.value
+                    })
+                  } }
+                  value={searchInputValue}
                   placeholder="输入应用名回车搜索"
                   disabled={searchInputDisabled}
                   onPressEnter={this.searchApps} />
