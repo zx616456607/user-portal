@@ -257,7 +257,7 @@ let MyComponent = React.createClass({
           <div className="appname commonData">{item.appName || '无'}</div>
           <div className="size commonData">{item.totalSize}M</div>
           <div className="createTime commonData">{item.createTime}</div>
-          <div className="actionBtn">
+          <div className="actionBtn commonData">
             <Button disabled={item.isUsed} className="btn-warning" onClick={(e) => { this.showAction('format', item.name, item.format) } }><Icon type="delete" /><FormattedMessage {...messages.formatting} /></Button>
             <span className="margin"></span>
             <Button disabled={item.isUsed} className="btn-success" onClick={() => { this.showAction('resize', item.name, item.totalSize) } }><Icon type="scan" /><FormattedMessage {...messages.dilation} /></Button>
@@ -565,7 +565,7 @@ class Storage extends Component {
             </div>
             <div className="clearDiv"></div>
           </div>
-          <Card className="storageList appBox">
+          <Card className="storageBox appBox">
             <div className="appTitle">
               <div className="selectIconTitle commonTitle">
                 <Checkbox onChange={(e) => this.onAllChange(e)} checked={this.isAllChecked()} disabled={!this.disableSelectAll()}></Checkbox>

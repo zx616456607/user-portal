@@ -19,11 +19,15 @@ export const APP_LIST_FAILURE = 'APP_LIST_FAILURE'
 // Fetches app list from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchAppList(cluster, query) {
+  let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/apps`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
   return {
     cluster,
     [FETCH_API]: {
       types: [APP_LIST_REQUEST, APP_LIST_SUCCESS, APP_LIST_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/apps`,
+      endpoint,
       schema: Schemas.APPS
     }
   }
@@ -31,9 +35,9 @@ function fetchAppList(cluster, query) {
 
 // Fetches apps list from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function loadAppList(cluster, requiredFields = []) {
+export function loadAppList(cluster, query, requiredFields = []) {
   return (dispatch, getState) => {
-    return dispatch(fetchAppList(cluster))
+    return dispatch(fetchAppList(cluster, query))
   }
 }
 
@@ -293,7 +297,7 @@ export function loadContainerDetailEvents(cluster, containerName, requiredFields
 export const CONTAINER_LOGS_REQUEST = 'CONTAINER_LOGS_REQUEST'
 export const CONTAINER_LOGS_SUCCESS = 'CONTAINER_LOGS_SUCCESS'
 export const CONTAINER_LOGS_FAILURE = 'CONTAINER_LOGS_FAILURE'
-export const CONTAINER_LOGS_CLEAR   = 'CONTAINER_LOGS_CLEAR'
+export const CONTAINER_LOGS_CLEAR = 'CONTAINER_LOGS_CLEAR'
 
 
 export function fetchContainerLogs(cluster, containerName, body, callback) {
@@ -301,7 +305,7 @@ export function fetchContainerLogs(cluster, containerName, body, callback) {
     cluster,
     containerName,
     [FETCH_API]: {
-      types:[CONTAINER_LOGS_REQUEST, CONTAINER_LOGS_SUCCESS, CONTAINER_LOGS_FAILURE],
+      types: [CONTAINER_LOGS_REQUEST, CONTAINER_LOGS_SUCCESS, CONTAINER_LOGS_FAILURE],
       endpoint: `${API_URL_PREFIX}/clusters/${cluster}/containers/${containerName}/logs`,
       options: {
         method: 'POST',
@@ -310,7 +314,7 @@ export function fetchContainerLogs(cluster, containerName, body, callback) {
       schema: {}
     },
     callback
-  } 
+  }
 }
 
 export function clearContainerLogs(cluster, containerName) {
