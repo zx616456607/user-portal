@@ -122,8 +122,8 @@ class TenxFlowDetail extends Component {
             <div className='imgBox' >
               <img src='/img/test/github.jpg' />
             </div>  
-            <div className='msgBox'>
               <p className='title'>这是标题</p>
+            <div className='msgBox'>
               <span >这是状态</span>
               <span className='updateTime'>十年前</span>
             </div>
@@ -137,7 +137,9 @@ class TenxFlowDetail extends Component {
               <Button size='large' type='primary'>
                 <i className="fa fa-pencil-square-o" />&nbsp;立即执行
               </Button>
+              <div style={{ clear:"both" }}></div>
             </div>
+            <div style={{ clear:"both" }}></div>
           </Card>
           <Tabs defaultActiveKey="1">
             <TabPane tab="构建流程定义" key="1">选项卡一内容</TabPane>
