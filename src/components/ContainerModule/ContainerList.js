@@ -116,8 +116,7 @@ const MyComponent = React.createClass({
     });
   },
   render: function () {
-    const { scope } = this.props;
-    const { config, loading, page, size, total } = this.props;
+    const { scope, config, loading, page, size, total } = this.props
     if (loading) {
       return (
         <div className='loadingBox'>
@@ -302,17 +301,17 @@ class ContainerList extends Component {
       query
     })
   }
-  
+
   closeTerminalLayoutModal() {
     //this function for user close the terminal modal
     this.setState({
       TerminalLayoutModal: false
     });
   }
-  
+
   render() {
     const parentScope = this
-    const { name, pathname, cluster, page, size, total, containerList, isFetching } = this.props
+    const { name, pathname, page, size, total, cluster, containerList, isFetching } = this.props
     const { searchInputDisabled } = this.state
     return (
       <QueueAnim
@@ -377,7 +376,7 @@ class ContainerList extends Component {
           transitionName='move-down'
           onCancel={this.closeTerminalLayoutModal}
           >
-          <TerminalModal scope={ parentScope } config={ this.state.currentContainer } />
+          <TerminalModal scope={parentScope} config={this.state.currentContainer} />
         </Modal>
       </QueueAnim>
     )
@@ -386,11 +385,11 @@ class ContainerList extends Component {
 
 ContainerList.propTypes = {
   // Injected by React Redux
-  pathname: PropTypes.string.isRequired,
   cluster: PropTypes.string.isRequired,
   containerList: PropTypes.array.isRequired,
   isFetching: PropTypes.bool.isRequired,
   loadContainerList: PropTypes.func.isRequired,
+  pathname: PropTypes.string.isRequired,
   page: PropTypes.number.isRequired,
   size: PropTypes.number.isRequired,
   total: PropTypes.number.isRequired,
@@ -420,8 +419,8 @@ function mapStateToProps(state, props) {
   const { cluster, containerList, isFetching, total } = containerItems[DEFAULT_CLUSTER] || defaultContainers
 
   return {
-    pathname,
     cluster,
+    pathname,
     page,
     size,
     total,

@@ -9,13 +9,14 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
-import { Tooltip, Checkbox, Card, Menu, Dropdown, Button, Icon, Modal, Spin, Input } from 'antd'
+import { Tooltip, Checkbox, Card, Menu, Dropdown, Button, Icon, Modal, Spin, Input, Pagination } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import './style/AppList.less'
 import { loadAppList, stopApps, deleteApps, restartApps, startApps } from '../../actions/app_manage'
-import { DEFAULT_CLUSTER } from '../../constants'
-import { tenxDateFormat } from '../../common/tools.js'
+import { DEFAULT_CLUSTER, DEFAULT_PAGE_SIZE } from '../../constants'
+import { tenxDateFormat } from '../../common/tools'
+import { browserHistory } from 'react-router'
 
 const confirm = Modal.confirm
 const ButtonGroup = Button.Group
@@ -81,8 +82,47 @@ const MyComponent = React.createClass({
     }
     confirmDeleteApps([app])
   },
+  onShowSizeChange: function (page, size) {
+    if (size === this.props.size) {
+      return
+    }
+    const query = {}
+    if (page !== 1) {
+      query.page = page
+    }
+    if (size !== DEFAULT_PAGE_SIZE) {
+      query.size = size
+    }
+    const { name } = this.props
+    if (name) {
+      query.name = name
+    }
+    const { pathname } = this.props
+    browserHistory.push({
+      pathname,
+      query
+    })
+  },
+  onPageChange: function (page) {
+    if (page === this.props.page) {
+      return
+    }
+    const { pathname, size, name } = this.props
+    const query = {}
+    if (page !== 1) {
+      query.page = page
+      query.size = size
+    }
+    if (name) {
+      query.name = name
+    }
+    browserHistory.push({
+      pathname,
+      query
+    })
+  },
   render: function () {
-    const { config, loading } = this.props
+    const { config, loading, page, size, total } = this.props
     if (loading) {
       return (
         <div className='loadingBox'>
@@ -97,7 +137,6 @@ const MyComponent = React.createClass({
         </div>
       )
     }
-    const scope = this;
     const items = config.map((item) => {
       const dropdown = (
         <Menu onClick={this.appOperaClick.bind(this, item)}
@@ -172,10 +211,26 @@ const MyComponent = React.createClass({
     return (
       <div className="dataBox">
         {items}
+        <div style={{ marginTop: 15 }}>
+          <Pagination
+            showSizeChanger
+            showQuickJumper
+            onShowSizeChange={this.onShowSizeChange}
+            onChange={this.onPageChange}
+            defaultCurrent={page}
+            pageSize={size}
+            showTotal={total => `共 ${total} 条`}
+            total={total} />
+        </div>
       </div>
     );
   }
 });
+
+function loadData(props) {
+  const { loadAppList, cluster, page, size, name } = props
+  loadAppList(cluster, { page, size, name })
+}
 
 class AppList extends Component {
   constructor(props) {
@@ -189,8 +244,10 @@ class AppList extends Component {
     this.batchDeleteApps = this.batchDeleteApps.bind(this)
     this.confirmRestartApps = this.confirmRestartApps.bind(this)
     this.batchRestartApps = this.batchRestartApps.bind(this)
+    this.searchApps = this.searchApps.bind(this)
     this.state = {
-      appList: props.appList
+      appList: props.appList,
+      searchInputDisabled: false,
     }
   }
 
@@ -205,14 +262,21 @@ class AppList extends Component {
 
   componentWillMount() {
     document.title = '应用列表 | 时速云'
-    const { cluster, loadAppList } = this.props
-    loadAppList(cluster)
+    loadData(this.props)
   }
 
   componentWillReceiveProps(nextProps) {
     this.setState({
       appList: nextProps.appList
     })
+    let { page, size, name } = nextProps
+    if (page === this.props.page && size === this.props.size && name === this.props.name) {
+      return
+    }
+    this.setState({
+      searchInputDisabled: false
+    })
+    loadData(nextProps)
   }
 
   confirmStartApps(appList) {
@@ -323,10 +387,29 @@ class AppList extends Component {
     this.confirmRestartApps(checkedAppList)
   }
 
+  searchApps(e) {
+    const { name, pathname } = this.props
+    const value = e.target.value.trim()
+    if (value === name) {
+      return
+    }
+    this.setState({
+      searchInputDisabled: true
+    })
+    const query = {}
+    if (value) {
+      query.name = value
+    }
+    browserHistory.push({
+      pathname,
+      query
+    })
+  }
+
   render() {
     const scope = this
-    const { cluster, isFetching } = this.props
-    const { appList } = this.state
+    const { name, pathname, page, size, total, cluster, isFetching } = this.props
+    const { appList, searchInputDisabled } = this.state
     const checkedAppList = appList.filter((app) => app.checked)
     const isChecked = (checkedAppList.length > 0)
     let isAllChecked = (appList.length === checkedAppList.length)
@@ -370,7 +453,11 @@ class AppList extends Component {
                 <i className="fa fa-search"></i>
               </div>
               <div className="littleRight">
-                <Input placeholder="输入应用名搜索" />
+                <Input
+                  defaultValue={name}
+                  placeholder="输入应用名回车搜索"
+                  disabled={searchInputDisabled}
+                  onPressEnter={this.searchApps} />
               </div>
             </div>
             <div className="clearDiv"></div>
@@ -382,30 +469,33 @@ class AppList extends Component {
               </div>
               <div className="appName commonTitle">
                 应用名称
-            </div>
+              </div>
               <div className="appStatus commonTitle">
                 应用状态
-            </div>
+              </div>
               <div className="serviceNum commonTitle">
                 服务数量
-              <i className="fa fa-sort"></i>
+                <i className="fa fa-sort"></i>
               </div>
               <div className="containerNum commonTitle">
                 容器数量
-              <i className="fa fa-sort"></i>
+                <i className="fa fa-sort"></i>
               </div>
               <div className="visitIp commonTitle">
                 访问地址
-            </div>
+              </div>
               <div className="createTime commonTitle">
                 创建时间
-              <i className="fa fa-sort"></i>
+                <i className="fa fa-sort"></i>
               </div>
               <div className="actionBox commonTitle">
                 操作
+              </div>
             </div>
-            </div>
-            <MyComponent config={appList} loading={isFetching} parentScope={scope} funcs={funcs} />
+            <MyComponent
+              size={size} total={total} pathname={pathname} page={page} name={name}
+              config={appList} loading={isFetching}
+              parentScope={scope} funcs={funcs} />
           </Card>
         </div>
       </QueueAnim>
@@ -423,9 +513,23 @@ AppList.propTypes = {
   deleteApps: PropTypes.func.isRequired,
   restartApps: PropTypes.func.isRequired,
   startApps: PropTypes.func.isRequired,
+  pathname: PropTypes.string.isRequired,
+  page: PropTypes.number.isRequired,
+  size: PropTypes.number.isRequired,
+  total: PropTypes.number.isRequired,
 }
 
 function mapStateToProps(state, props) {
+  const { query, pathname } = props.location
+  let { page, size, name } = query
+  page = parseInt(page || 1)
+  size = parseInt(size || DEFAULT_PAGE_SIZE)
+  if (isNaN(page) || page < 1) {
+    page = 1
+  }
+  if (isNaN(size) || size < 1 || size > 100) {
+    size = DEFAULT_PAGE_SIZE
+  }
   const defaultApps = {
     isFetching: false,
     cluster: DEFAULT_CLUSTER,
@@ -434,10 +538,15 @@ function mapStateToProps(state, props) {
   const {
     appItems
   } = state.apps
-  const { cluster, appList, isFetching } = appItems[DEFAULT_CLUSTER] || defaultApps
+  const { cluster, appList, isFetching, total } = appItems[DEFAULT_CLUSTER] || defaultApps
 
   return {
     cluster,
+    pathname,
+    page,
+    size,
+    total,
+    name,
     appList,
     isFetching
   }
