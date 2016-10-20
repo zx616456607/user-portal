@@ -370,7 +370,7 @@ class ContainerList extends Component {
               </div>
               <div className="actionBox commonTitle">
                 操作
-            </div>
+              </div>
             </div>
             <MyComponent
               size={size} total={total} pathname={pathname} page={page} name={name}
