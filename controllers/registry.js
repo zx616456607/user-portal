@@ -11,7 +11,7 @@
 
 const registryConfig  = require('../configs/registry')
 const apiFactory      = require('../services/api_factory')
-const registryService = require('../services/registry')
+const registryService = require('../services/tenx_registry')
 
 exports.getImages = function* () {
   const registry = this.params.registry
