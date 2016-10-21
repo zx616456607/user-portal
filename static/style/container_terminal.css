@@ -1,3 +1,6 @@
+body{
+  margin: 0px !important;
+}
 .terminal {
     font-family: "Monospace Regular", "DejaVu Sans Mono", Menlo, Monaco, Consolas, monospace;
     font-size: 10px;
@@ -9,6 +12,9 @@
     padding: 10px;
     display: inline-block; /* size DIV to contents */
     line-height: 1em;
+    position: fixed;
+    width: calc(100% - 18px);
+    height: 100%;
 }
 
 @media (min-width: 568px) {
