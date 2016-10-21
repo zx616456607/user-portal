@@ -224,15 +224,28 @@ function serviceLogs(state = {}, action) {
         }
       })
     case ActionTypes.SERVICE_LOGS_CLEAR:
-      console.log(action.type)
-      var dd = merge({}, defaultState, {
+      return merge({}, defaultState, {
         [cluster]: {
           isFetching: false
         }
       })
-      return dd
     default: 
       return merge({}, state)
+  }
+}
+
+function servicePorts(state = {}, action) {
+  switch(action.type) {
+    case ActionTypes.SERVICE_GET_PORTS_REQUEST:
+      return merge({}, state, { isFetching: true})
+    case ActionTypes.SERVICE_GET_PORTS_SUCCESS:
+      return merge({}, {isFetching: false}, action.response.result)
+    case ActionTypes.SERVICE_GET_PORTS_FAILURE:
+      return merge({}, state, {isFetching: false})
+    case ActionTypes.SERVICE_CLEAR_PORTS:
+      return merge({}, {isFetching: false})
+    default:
+      return state
   }
 }
 
@@ -243,6 +256,7 @@ export function services(state = { appItmes: {} }, action) {
     serviceContainers: serviceContainers(state.serviceContainers, action),
     serviceDetail: serviceDetail(state.serviceDetail, action),
     serviceDetailEvents: serviceDetailEvents(state.serviceDetailEvents, action),
+    servicePorts: servicePorts(state.servicePorts, action),
     serviceLogs: serviceLogs(state.serviceLogs, action),
     deleteServices: reducerFactory({
       REQUEST: ActionTypes.SERVICE_BATCH_DELETE_REQUEST,

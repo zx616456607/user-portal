@@ -13,26 +13,65 @@ import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import "./style/PortDetail.less"
+import { loadServicePorts, clearServicePorts } from '../../../actions/services'
 
 const testData = [];
 
 // 需要后端提供获取服务的 service 的 API ！！！
 
 
-const MyComponent = React.createClass({
+let MyComponent = React.createClass({
+  getInitialState(){
+    return {}
+  },
   propTypes: {
     config: React.PropTypes.array
   },
+  componentWillMount() {
+    this.props.loadServicePorts(this.props.cluster, this.props.serviceName)
+  },
+  componentWillUnmount() {
+    this.props.clearServicePorts()
+  },
+  componentWillReceiveProps(nextProps) {
+    const { serviceDetailmodalShow } = nextProps
+    if (serviceDetailmodalShow === this.props.serviceDetailmodalShow) {
+      return
+    }
+    if(!serviceDetailmodalShow) {
+      return this.props.clearServicePorts()
+    }
+    this.props.loadServicePorts(nextProps.cluster, nextProps.serviceName)
+  },
   render: function () {
-    const {config, loading} = this.props
-    if (loading) {
+    const {servicePorts} = this.props
+    if (servicePorts.isFetching) {
       return (
         <div className='loadingBox'>
           <Spin size='large' />
         </div>
       )
     }
-    const ports = []
+    if(!servicePorts.data) {
+      return (<div className='loadingBox'>
+        无端口
+      </div>)
+    }
+    let property = Object.getOwnPropertyNames(servicePorts.data)
+    if(property.length === 0) {
+      return (<div className='loadingBox'>
+        无端口
+      </div>)
+    }
+    const service = servicePorts.data[property[0]]
+    if(!service.spec) {
+      return (
+        <div className='loadingBox'>
+          无端口
+        </div>
+      )
+    }
+    const ports = service.spec.ports
     if (ports.length < 1) {
       return (
         <div className='loadingBox'>
@@ -40,23 +79,23 @@ const MyComponent = React.createClass({
         </div>
       )
     }
-    var items = config.map((item) => {
+    var items = ports.map((item) => {
       return (
-        <div className="portDetail" key={item.id}>
+        <div className="portDetail" key={item.name}>
           <div className="commonData">
             <span>{item.name}</span>
           </div>
           <div className="commonData">
+            <span>{item.targetPort}</span>
+          </div>
+          <div className="commonData">
+            <span>{item.protocol}</span>
+          </div>
+          <div className="commonData">
             <span>{item.port}</span>
           </div>
-          <div className="commonData">
-            <span>{item.poctoal}</span>
-          </div>
-          <div className="commonData">
-            <span>{item.mapPort}</span>
-          </div>
           <div className="serviceUrl commonData">
-            <span>{item.serviceUrl}</span>
+            <span>-</span>
           </div>
           <div style={{ clear: "both" }}></div>
         </div>
@@ -69,6 +108,17 @@ const MyComponent = React.createClass({
     );
   }
 });
+
+function mapSateToProp(state) {
+  return {
+    servicePorts: state.services.servicePorts
+  }
+}
+
+MyComponent = connect(mapSateToProp, {
+  loadServicePorts,
+  clearServicePorts
+})(MyComponent)
 
 class PortDetail extends Component {
   constructor(props) {
@@ -97,7 +147,7 @@ class PortDetail extends Component {
           </div>
           <div style={{ clear: "both" }}></div>
         </div>
-        <MyComponent config={containerList} loading={loading} />
+        <MyComponent config={containerList} loading={loading} cluster={this.props.cluster} serviceName={this.props.serviceName} serviceDetailmodalShow={this.props.serviceDetailmodalShow}/>
       </div>
     )
   }

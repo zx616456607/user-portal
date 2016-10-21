@@ -314,3 +314,12 @@ exports.getServiceLogs = function* () {
   this.status = result.code
   this.body = result
 }
+
+exports.getServicePorts = function* () {
+  const cluster = this.params.cluster
+  const serviceName = this.params.service_name
+  const api = apiFactory.getK8sApi(this.session.loginUser)
+  const result = yield api.getBy([cluster,  'services', serviceName, 'k8s-service'])
+  this.status = result.code
+  this.body = result
+}

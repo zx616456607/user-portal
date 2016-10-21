@@ -65,6 +65,7 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/services/:service_name/rollingupdate', serviceController.rollingUpdateService)
   router.get('/clusters/:cluster/services/:service_name/events', serviceController.getServiceDetailEvents)
   router.post('/clusters/:cluster/services/:service_name/logs', serviceController.getServiceLogs)
+  router.get('/clusters/:cluster/services/:service_name/ports', serviceController.getServicePorts)
   // spi
   router.post('/clusters/:cluster/services/:service_name/domain', serviceController.bindServiceDomain)
 

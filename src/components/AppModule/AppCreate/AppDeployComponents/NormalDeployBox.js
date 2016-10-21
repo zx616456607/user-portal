@@ -11,7 +11,7 @@ import React, { Component, PropTypes } from 'react'
 import { Form, Select, Input, InputNumber, Modal, Checkbox, Button, Card, Menu, Switch } from 'antd'
 import { connect } from 'react-redux'
 import { DEFAULT_REGISTRY } from '../../../../constants'
-import { loadImageDetailTag, loadImageDetailTagConfig } from '../../../../actions/app_center'
+import { loadImageDetailTag, loadImageDetailTagConfig, loadFreeVolume } from '../../../../actions/app_center'
 import "./style/NormalDeployBox.less"
 
 const Option = Select.Option;
@@ -29,6 +29,9 @@ const MyComponent = React.createClass({
     form.setFieldsValue({
       volumeKey,
     });
+  },
+  componentWillMount() {
+    
   },
   add() {
     uuid++;

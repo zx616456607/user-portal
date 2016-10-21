@@ -308,3 +308,31 @@ export function loadServiceLogs(cluster, serviceName, body, callback) {
     return dispath(fetchServiceLogs(cluster, serviceName, body, callback))
   }
 }
+
+
+export const SERVICE_GET_PORTS_REQUEST = 'SERVICE_GET_PORTS_REQUEST'
+export const SERVICE_GET_PORTS_SUCCESS = 'SERVICE_GET_PORTS_SUCCESS'
+export const SERVICE_GET_PORTS_FAILURE = 'SERVICE_GET_PORT_FAILURE'
+export const SERVICE_CLEAR_PORTS = 'SERVICE_CLEAR_PORTS'
+
+function fetchServicePorts(cluster, serviceName) {
+  return {
+    [FETCH_API]: {
+      types: [SERVICE_GET_PORTS_REQUEST, SERVICE_GET_PORTS_SUCCESS, SERVICE_GET_PORTS_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/ports`,
+      schema: {}
+    }
+  }
+}
+
+export function loadServicePorts(cluster, serviceName) {
+  return (dispath, getState) => {
+    return dispath(fetchServicePorts(cluster, serviceName))
+  }
+}
+
+export function clearServicePorts() {
+  return {
+    type: SERVICE_CLEAR_PORTS
+  }
+}
