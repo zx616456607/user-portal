@@ -9,8 +9,8 @@
  */
 'use strict'
 
-const registryConfig = require('../configs/registry')
-const apiFactory = require('../services/api_factory')
+const registryConfig  = require('../configs/registry')
+const apiFactory      = require('../services/api_factory')
 const registryService = require('../services/registry')
 
 exports.getImages = function* () {
@@ -79,4 +79,42 @@ exports.getImageInfo = function* () {
     name: imageFullName,
     data: result
   }
+}
+
+/*
+Methods below only for thirdparty(custom) docker registry integration
+*/
+// Add custom docker registry to the database repository
+exports.addPrivateRegistry = function* () {
+  const loginUser = this.session.loginUser
+  const name = this.params.name
+  const reqData = this.request.body
+
+  const api = apiFactory.getManagedRegistryApi(loginUser)
+  const result = yield api.createBy([name], null, reqData)
+
+  this.status = result.code
+  this.body = result
+}
+// Remove custom docker registry from database repository
+exports.deletePrivateRegistry = function* () {
+  const loginUser = this.session.loginUser
+  const name = this.params.name
+
+  const api = apiFactory.getManagedRegistryApi(loginUser)
+  const result = yield api.delete(name)
+
+  this.status = result.code
+  this.body = result
+}
+// List custom docker registries
+exports.getPrivateRegistries = function* () {
+  const loginUser = this.session.loginUser
+
+  const api = apiFactory.getManagedRegistryApi(loginUser)
+  // Get the list of private docker registry
+  const result = yield api.get()
+
+  this.status = result.code
+  this.body = result
 }

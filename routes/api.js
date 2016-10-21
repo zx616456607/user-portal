@@ -85,11 +85,16 @@ module.exports = function (Router) {
   router.post('/clusters/:cluster/configs/delete', configController.deleteConfigGroup)
   router.post('/clusters/:cluster/configgroups/:group/configs-batch-delete', configController.deleteConfigFiles)
 
-  // Registries
+  // Registries of TenxCloud
   router.get('/registries/:registry', registryController.getImages)
   router.get('/registries/:registry/:user/:name/detailInfo', registryController.getImageInfo)
   router.get('/registries/:registry/:user/:name/tags', registryController.getImageTags)
   router.get('/registries/:registry/:user/:name/tags/:tag/configs', registryController.getImageConfigs)
+
+  // Private docker registry integration
+  router.get('/docker-registry', registryController.getPrivateRegistries)
+  router.post('/docker-registry/:name', registryController.addPrivateRegistry)
+  router.delete('/docker-registry/:name', registryController.deletePrivateRegistry)
 
   return router.routes()
 }
