@@ -94,7 +94,12 @@ module.exports = function (Router) {
   // Private docker registry integration
   router.get('/docker-registry', registryController.getPrivateRegistries)
   router.post('/docker-registry/:name', registryController.addPrivateRegistry)
-  router.delete('/docker-registry/:name', registryController.deletePrivateRegistry)
+  router.delete('/docker-registry/:id', registryController.deletePrivateRegistry)
+  // Docker registry spec API
+  router.get('/docker-registry/:id/images', registryController.specListRepositories)
+  router.get('/docker-registry/:id/images/:image*/tags', registryController.specGetImageTags)
+  router.get('/docker-registry/:id/images/:image*/tags/:tag', registryController.specGetImageTagConfig)
+  router.get('/docker-registry/:id/images/:image*/tags/:tag/size', registryController.specGetImageTagSize)
 
   return router.routes()
 }

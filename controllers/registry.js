@@ -9,9 +9,14 @@
  */
 'use strict'
 
-const registryConfig  = require('../configs/registry')
-const apiFactory      = require('../services/api_factory')
-const registryService = require('../services/tenx_registry')
+const registryConfig      = require('../configs/registry')
+const apiFactory          = require('../services/api_factory')
+const registryService     = require('../services/tenx_registry')
+const SpecRegistryService = require('../services/docker_registry')
+
+const logger              = require('../utils/logger.js').getLogger("registry")
+const crypto              = require('crypto')
+const algorithm           = 'aes-256-ctr'
 
 exports.getImages = function* () {
   const registry = this.params.registry
@@ -64,14 +69,11 @@ exports.getImageConfigs = function* () {
 }
 
 exports.getImageInfo = function* () {
-  console.log('get Img dockerfile',this.params)
-  
   const registry = this.params.registry
   const imageFullName = this.params.user + '/' + this.params.name
   const tag = this.params.tag
   const loginUser = this.session.loginUser
   const result = yield registryService.getImageInfo(loginUser.user, imageFullName)
-  console.log('this is docker file response', result)
   // this.status = result.code
   this.body = {
     registry,
@@ -91,6 +93,8 @@ exports.addPrivateRegistry = function* () {
   const reqData = this.request.body
 
   const api = apiFactory.getManagedRegistryApi(loginUser)
+  // Encrypt the password before save to database
+  reqData.encryptedPassword = _encryptPassword(reqData.password, loginUser.token)
   const result = yield api.createBy([name], null, reqData)
 
   this.status = result.code
@@ -99,10 +103,10 @@ exports.addPrivateRegistry = function* () {
 // Remove custom docker registry from database repository
 exports.deletePrivateRegistry = function* () {
   const loginUser = this.session.loginUser
-  const name = this.params.name
+  const id = this.params.id
 
   const api = apiFactory.getManagedRegistryApi(loginUser)
-  const result = yield api.delete(name)
+  const result = yield api.delete(id)
 
   this.status = result.code
   this.body = result
@@ -117,4 +121,167 @@ exports.getPrivateRegistries = function* () {
 
   this.status = result.code
   this.body = result
+}
+// List repositories of custom docker registry
+exports.specListRepositories = function* () {
+  const loginUser = this.session.loginUser
+  const registryId = this.params.id
+
+  let serverInfo = yield _getRegistryServerInfo(this.session, loginUser, registryId)
+
+  // If find the valid registry info
+  if (serverInfo.server) {
+    logger.info("Found the matched registry config ...")
+    // Get the real password before pass to registry service
+    let realPassword = _decryptPassword(serverInfo.password, loginUser.token)
+    let registryConfig = JSON.parse(JSON.stringify(serverInfo))
+    registryConfig.password = realPassword
+
+    let specRegistryService = new SpecRegistryService(registryConfig)
+    var self = this
+    var result = yield specRegistryService.getCatalog()
+
+    this.status = result.code
+    this.body = result.result
+  } else {
+    logger.info("No matched registry config found ...")
+    this.status = 404
+    this.body = "Docker Registry not found"
+  }
+}
+// Get the tags of specified image
+exports.specGetImageTags = function* () {
+  const loginUser = this.session.loginUser
+  const registryId = this.params.id
+  const image = this.params.image
+
+  let serverInfo = yield _getRegistryServerInfo(this.session, loginUser, registryId)
+
+  // If find the valid registry info
+  if (serverInfo.server) {
+    logger.info("Found the matched registry config ...")
+    // Get the real password before pass to registry service
+    let realPassword = _decryptPassword(serverInfo.password, loginUser.token)
+    let registryConfig = JSON.parse(JSON.stringify(serverInfo))
+    registryConfig.password = realPassword
+
+    let specRegistryService = new SpecRegistryService(registryConfig)
+    var self = this
+    var result = yield specRegistryService.getImageTags(image)
+
+    this.status = result.code
+    this.body = result.result
+  } else {
+    logger.info("No matched registry config found ...")
+    this.status = 404
+    this.body = "Docker Registry not found"
+  }
+}
+// Get the config info of specified image and tag
+exports.specGetImageTagConfig = function* () {
+  const loginUser = this.session.loginUser
+  const registryId = this.params.id
+  const image = this.params.image
+  const tag = this.params.tag
+
+  let serverInfo = yield _getRegistryServerInfo(this.session, loginUser, registryId)
+
+  // If find the valid registry info
+  if (serverInfo.server) {
+    logger.info("Found the matched registry config ...")
+    // Get the real password before pass to registry service
+    let realPassword = _decryptPassword(serverInfo.password, loginUser.token)
+    let registryConfig = JSON.parse(JSON.stringify(serverInfo))
+    registryConfig.password = realPassword
+
+    let specRegistryService = new SpecRegistryService(registryConfig)
+    var self = this
+    var result = yield specRegistryService.getImageTagInfo(image, tag)
+
+    this.status = result.code
+    this.body = result.result
+  } else {
+    logger.info("No matched registry config found ...")
+    this.status = 404
+    this.body = "Docker Registry not found"
+  }
+}
+exports.specGetImageTagSize = function* () {
+  const loginUser = this.session.loginUser
+  const registryId = this.params.id
+  const image = this.params.image
+  const tag = this.params.tag
+
+  let serverInfo = yield _getRegistryServerInfo(this.session, loginUser, registryId)
+
+  // If find the valid registry info
+  if (serverInfo.server) {
+    logger.info("Found the matched registry config ...")
+    // Get the real password before pass to registry service
+    let realPassword = _decryptPassword(serverInfo.password, loginUser.token)
+    let registryConfig = JSON.parse(JSON.stringify(serverInfo))
+    registryConfig.password = realPassword
+
+    let specRegistryService = new SpecRegistryService(registryConfig)
+    var self = this
+    var result = yield specRegistryService.getImageTagSize(image, tag)
+
+    this.status = result.code
+    this.body = result.result
+  } else {
+    logger.info("No matched registry config found ...")
+    this.status = 404
+    this.body = "Docker Registry not found"
+  }
+}
+// Get registry server information
+function* _getRegistryServerInfo(session, user, id){
+  var serverInfo = {}
+  // Try to get from session first
+  if (session.registries && session.registries[id]) {
+    serverInfo = {
+      "server":     session.registries[id].server,
+      "authServer": session.registries[id].authServer,
+      "username":   session.registries[id].username,
+      "password":   session.registries[id].password
+    }
+  } else {
+    // Get from API server and save to session
+    if (!session.registries) {
+      session.registries = {}
+    }
+    const api = apiFactory.getManagedRegistryApi(user)
+    // Get the list of private docker registry
+    const result = yield api.get()
+    if (result.code === 200) {
+      for (var i in result.data) {
+        if (result.data[i].id === id) {
+          // Add registry info to session
+          session.registries[id] = {
+            "server":     result.data[i].url,
+            "authServer": result.data[i].authUrl,
+            "username":   result.data[i].username,
+            "password":   result.data[i].password
+          }
+          serverInfo = session.registries[id]
+          break
+        }
+      }
+    }
+  }
+  return serverInfo
+}
+// Encrypt the password before save using API
+function _encryptPassword(password, apiToken) {
+  var cipher = crypto.createCipher(algorithm, apiToken)
+  var crypted = cipher.update(password,'utf8','hex')
+  crypted += cipher.final('hex')
+  return crypted
+}
+// Decrypt the password before used to communicate with Docker Registry server
+function _decryptPassword(password, apiToken) {
+  var decipher = crypto.createDecipher(algorithm, apiToken)
+  var dec = decipher.update(password, 'hex', 'utf8')
+  dec += decipher.final('utf8')
+  return dec
 }
