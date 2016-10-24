@@ -142,6 +142,10 @@
   "AppCenter.ImageCenter.ImageDetail.attribute":"Attribute",
   "AppCenter.ImageCenter.ImageDetail.copyBtn":"Click Copy",
   "AppCenter.ImageCenter.ImageDetail.copySuccess":"Copy Success",
+  "AppCenter.ImageCenter.ImageDetail.size":"Size",
+  "AppCenter.ImageCenter.ImageDetail.contributor":"Contributor",
+  "AppCenter.ImageCenter.ImageDetail.favouriteNumber":"Favourite Number",
+  "AppCenter.ImageCenter.ImageDetail.creationTime":"Create Time",
   
   "this.is.an.commnent":"/--------------------------CI & CD-------------------------/",
   "CICD.Tenxflow.TenxFlowList.search": "Search",
