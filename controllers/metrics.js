@@ -11,6 +11,13 @@
 
 const constants = require('../constants')
 const METRICS_DEFAULT_SOURCE = constants.METRICS_DEFAULT_SOURCE
+const METRICS_CPU = constants.METRICS_CPU
+const METRICS_MEMORY = constants.METRICS_MEMORY
+const METRICS_NETWORK_RECEIVED = constants.METRICS_NETWORK_RECEIVED
+const METRICSS_NETWORK_TRANSMITTED = constants.METRICSS_NETWORK_TRANSMITTED
+const DEFAULT_CONTAINER_RESOURCES = constants.DEFAULT_CONTAINER_RESOURCES
+const DEFAULT_CONTAINER_RESOURCES_CPU = constants.DEFAULT_CONTAINER_RESOURCES_CPU
+const DEFAULT_CONTAINER_RESOURCES_MEMORY = constants.DEFAULT_CONTAINER_RESOURCES_MEMORY
 const apiFactory = require('../services/api_factory')
 
 exports.getContainerMetrics = function* () {
@@ -23,7 +30,10 @@ exports.getContainerMetrics = function* () {
     err.status = 406
     throw err
   }
-  const result = yield _getContainerMetrics(user, cluster, containerName, query)
+  const api = apiFactory.getK8sApi(user)
+  const containerResult = yield api.getBy([cluster, 'instances', containerName, 'detail'])
+  const instance = containerResult.data || {}
+  const result = yield _getContainerMetrics(user, cluster, instance, query)
   this.status = result.statusCode
   this.body = {
     cluster,
@@ -46,8 +56,7 @@ exports.getServiceMetrics = function* () {
   const result = yield api.getBy([cluster, 'services', serviceName, 'instances'])
   const instances = result.data.instances || []
   const promiseArray = instances.map((instance) => {
-    let containerName = instance.metadata.name
-    return _getContainerMetrics(user, cluster, containerName, query)
+    return _getContainerMetrics(user, cluster, instance, query)
   })
   const results = yield promiseArray
   this.body = {
@@ -80,8 +89,7 @@ exports.getAppMetrics = function* () {
   instancesResults.map((result) => {
     const instances = result.data.instances || []
     instances.map((instance) => {
-      let containerName = instance.metadata.name
-      instancesPromiseArray.push(_getContainerMetrics(user, cluster, containerName, query))
+      instancesPromiseArray.push(_getContainerMetrics(user, cluster, instance, query))
     })
   })
   const results = yield instancesPromiseArray
@@ -92,7 +100,12 @@ exports.getAppMetrics = function* () {
   }
 }
 
-function _getContainerMetrics(user, cluster, containerName, query) {
+function _getContainerMetrics(user, cluster, instance, query) {
+  const containerName = instance.metadata.name
+  const resources = instance.spec.containers[0].resources || DEFAULT_CONTAINER_RESOURCES_CPU
+  const requests = resources.requests || DEFAULT_CONTAINER_RESOURCES_CPU.requests
+  const cpu = parseInt(requests.cpu || DEFAULT_CONTAINER_RESOURCES_CPU)
+  const memory = parseInt(requests.memory || DEFAULT_CONTAINER_RESOURCES_MEMORY) * 1024 * 1024
   const type = query.type
   const source = query.source || METRICS_DEFAULT_SOURCE
   const start = query.start
@@ -105,9 +118,20 @@ function _getContainerMetrics(user, cluster, containerName, query) {
   }
   const api = apiFactory.getK8sApi(user)
   return api.getBy([cluster, 'instances', containerName, 'metrics'], queryObj).then(function (result) {
+    const metrics = result.metrics || []
+    metrics.map((metric) => {
+      switch (type) {
+        case METRICS_CPU:
+          metric.value = metric.value / cpu
+        case METRICS_MEMORY:
+          metric.value = metric.value / memory
+        case METRICS_NETWORK_RECEIVED:
+        case METRICSS_NETWORK_TRANSMITTED:
+      }
+    })
     return {
       containerName,
-      [type]: result.metrics || [],
+      [type]: metrics,
       statusCode: result.statusCode
     }
   })
