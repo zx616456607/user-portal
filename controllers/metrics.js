@@ -9,20 +9,61 @@
  */
 'use strict'
 
-const DEFAULT_SOURCE = 'influxdb'
+const constants = require('../constants')
+const METRICS_DEFAULT_SOURCE = constants.METRICS_DEFAULT_SOURCE
 const apiFactory = require('../services/api_factory')
 
 exports.getContainerMetrics = function* () {
   const cluster = this.params.cluster
   const containerName = this.params.container_name
   const query = this.query
-  const type = query.type
-  if (!type) {
+  const user = this.session.loginUser
+  if (!query.type) {
     let err = new Error('type is required.')
     err.status = 406
     throw err
   }
-  const source = query.source || DEFAULT_SOURCE
+  const result = yield _getContainerMetrics(user, cluster, containerName, query)
+  this.status = result.statusCode
+  this.body = {
+    cluster,
+    containerName,
+    data: result
+  }
+}
+
+exports.getServiceMetrics = function* () {
+  const cluster = this.params.cluster
+  const serviceName = this.params.service_name
+  const query = this.query
+  const user = this.session.loginUser
+  if (!query.type) {
+    let err = new Error('type is required.')
+    err.status = 406
+    throw err
+  }
+  const api = apiFactory.getK8sApi(user)
+  const result = yield api.getBy([cluster, 'services', serviceName, 'instances'])
+  const instances = result.data.instances || []
+  const promiseArray = instances.map((instance) => {
+    let containerName = instance.metadata.name
+    return _getContainerMetrics(user, cluster, containerName, query)
+  })
+  const results = yield promiseArray
+  this.body = {
+    cluster,
+    serviceName,
+    data: results
+  }
+}
+
+exports.getAppMetrics = function () {
+  //
+}
+
+function _getContainerMetrics(user, cluster, containerName, query) {
+  const type = query.type
+  const source = query.source || METRICS_DEFAULT_SOURCE
   const start = query.start
   const end = query.end
   const queryObj = {
@@ -31,22 +72,12 @@ exports.getContainerMetrics = function* () {
     start,
     end
   }
-  const loginUser = this.session.loginUser
-  const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([cluster, 'instances', containerName, 'metrics'], queryObj)
-  this.body = {
-    cluster,
-    containerName,
-    data: {
-      [type]: result.metrics || []
+  const api = apiFactory.getK8sApi(user)
+  return api.getBy([cluster, 'instances', containerName, 'metrics'], queryObj).then(function (result) {
+    return {
+      containerName,
+      [type]: result.metrics || [],
+      statusCode: result.statusCode
     }
-  }
-}
-
-exports.getServiceMetrics = function () {
-  //
-}
-
-exports.getAppMetrics = function () {
-  //
+  })
 }
