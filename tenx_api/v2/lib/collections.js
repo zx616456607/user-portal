@@ -9,13 +9,13 @@
  */
 'use strict'
 
-module.exports = function (request){
+module.exports = function (request) {
   const _getPaths = Symbol('_getPaths')
   const _getQuerys = Symbol('_getQuerys')
 
   class Collections {
     constructor(collection) {
-      this[_getPaths] = function() {
+      this[_getPaths] = function () {
         let endpoint = [].slice.call(arguments).filter((each) => {
           return each !== null && each !== undefined && each.trim() !== ''
         }).join('/')
@@ -24,8 +24,10 @@ module.exports = function (request){
         }
         return `/${collection}${endpoint}`
       }
-      this[_getQuerys] = (object) => {
+      this[_getQuerys] = (object, sep, eq) => {
         let querys = ''
+        sep = sep || '&'
+        eq = eq || '='
         if (!object) {
           return querys
         }
@@ -34,7 +36,29 @@ module.exports = function (request){
             querys += `&${key}=${object[key]}`
           }
         })
-        return `?${querys.substring(1)}`
+        querys = Object.keys(object).map(function (k) {
+          let ks = encodeURIComponent(stringifyPrimitive(k)) + eq
+          if (Array.isArray(object[k])) {
+            return object[k].map(function (v) {
+              return ks + encodeURIComponent(stringifyPrimitive(v))
+            }).join(sep)
+          } else {
+            return ks + encodeURIComponent(stringifyPrimitive(object[k]))
+          }
+        }).join(sep)
+        function stringifyPrimitive(v) {
+          switch (typeof v) {
+            case 'string':
+              return v
+            case 'boolean':
+              return v ? 'true' : 'false'
+            case 'number':
+              return isFinite(v) ? v : ''
+            default:
+              return ''
+          }
+        }
+        return `?${querys}`
       }
     }
 

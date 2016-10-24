@@ -9,17 +9,16 @@
  */
 'use strict'
 
-const logger = require('./logger').getLogger('security')
-const pem = require('pem')
-const keygen = require('ssh-keygen')
-const location = __dirname + '/temp_foo_rsa'
-const COMMENT = 'builder@tenxcloud.com'
-const PASSWORD = false // false and undefined will convert to an empty pw
-const crypto = require('crypto')
+const logger     = require('./logger').getLogger('security')
+//const pem = require('pem')
+//const keygen = require('ssh-keygen')
+//const location   = __dirname + '/temp_foo_rsa'
+//const COMMENT    = 'builder@tenxcloud.com'
+//const PASSWORD   = false // false and undefined will convert to an empty pw
+const crypto     = require('crypto')
 const SECRET_KEY = 'dazyunsecretkeysforuserstenx20141019generatedKey'
-const ENCODING = 'hex'
 
-exports.generateKeys = function () {
+/*exports.generateKeys = function () {
   const method = 'generateKeys'
   const createPrivateKey = Promise.promisify(pem.createPrivateKey)
   const getPublicKey = Promise.promisify(pem.getPublicKey)
@@ -64,35 +63,38 @@ exports.generateRsaKeys = function(option, callback) {
     throw err
   })
 }
-
+*/
 // Asymmetric Encryption£ºEncrypt the content beofore transfer or persist
 // But we can still decrypt the content if we have the secret key, so that's two way encryption
-exports.encryptContent = function (content) {
-  const cipher = crypto.createCipher('des-ede3-cbc', SECRET_KEY)
-  let cryptedContent = cipher.update(content, 'utf8', ENCODING)
-  cryptedContent += cipher.final(ENCODING)
+exports.encryptContent = function (content, privateKey, algorithm) {
+  if (!algorithm) {
+    algorithm = 'des-ede3-cbc'
+  }
+  if (!privateKey) {
+    privateKey = SECRET_KEY
+  }
+  const cipher = crypto.createCipher(algorithm, privateKey)
+  let cryptedContent = cipher.update(content, 'utf8', 'hex')
+  cryptedContent += cipher.final('hex')
 
   return cryptedContent
 }
 
-exports.decryptContent = function (cryptedContent) {
+exports.decryptContent = function (cryptedContent, privateKey, algorithm) {
   const method = 'decryptContent'
+  if (!algorithm) {
+    algorithm = 'des-ede3-cbc'
+  }
+  if (!privateKey) {
+    privateKey = SECRET_KEY
+  }
   try {
-    const decipher = crypto.createDecipher('des-ede3-cbc', SECRET_KEY)
-    let decryptedContent = decipher.update(cryptedContent, ENCODING, 'utf8')
+    const decipher = crypto.createDecipher(algorithm, privateKey)
+    let decryptedContent = decipher.update(cryptedContent, 'hex', 'utf8')
     decryptedContent += decipher.final('utf8')
     return decryptedContent
   } catch(err) {
     logger.error(method, JSON.stringify(err))
     return null
   }
-}
-
-// One-way encryption: used to encrypt user password that should not be decrypted
-// MD5 algorithm
-exports.encryptPassword = function (password) {
-  password = password.toLowerCase().trim()
-  const hash = crypto.createHash('md5')
-  hash.update(password)
-  return hash.digest('hex')
 }

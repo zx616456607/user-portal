@@ -9,9 +9,9 @@
  */
 'use strict'
 const registryAPIs = require('../registry/lib/registryAPIs')
-const markdown     = require('markdown-it')();
+const markdown     = require('markdown-it')()
 
-const registry = new registryAPIs()
+const registry     = new registryAPIs()
 
 exports.getPublicImages = function (username) {
   const registry = new registryAPIs()
@@ -90,33 +90,33 @@ exports.getImageInfo = function(username, imageFullName ) {
   }
   return new Promise(function (resolve, reject) {
     registry.getImageInfo(username, imageFullName, function (statusCode, imageInfo, err) {
-      statusCode = parseInt(statusCode);
+      statusCode = parseInt(statusCode)
       if (err) {
         reject(err)
         return
       }
       if (statusCode > 300) {
         // Indicate whether the current user is the owner
-        logger.error("Failed to get image information -> " + statusCode);
+        logger.error("Failed to get image information -> " + statusCode)
         err = new Error('Failed to get image info , dockerfile: ' + imageInfo)
         err.status = statusCode
         reject(err)
         return
       } 
       if (imageInfo && imageInfo.contributor == username) {
-        imageInfo.isOwner = true;
+        imageInfo.isOwner = true
       }
       if (imageInfo.detail) {
-        imageInfo.detailMarkdown = markdown.render(imageInfo.detail);
+        imageInfo.detailMarkdown = markdown.render(imageInfo.detail)
       } else {
-        imageInfo.detailMarkdown = imageInfo.detail;
+        imageInfo.detailMarkdown = imageInfo.detail
       }
       if (imageInfo.dockerfile) {
-        imageInfo.dockerfileMarkdown = markdown.render(imageInfo.dockerfile);
+        imageInfo.dockerfileMarkdown = markdown.render(imageInfo.dockerfile)
       } else {
-        imageInfo.dockerfileMarkdown = '';
+        imageInfo.dockerfileMarkdown = ''
       }
-      resolve(imageInfo);
+      resolve(imageInfo)
     })
 
   })

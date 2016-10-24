@@ -14,3 +14,7 @@ export const DEFAULT_IMAGE_POOL = 'k8s-pool'
 export const DEFAULT_REGISTRY = 'default'
 export const LABEL_APPNAME = 'tenxcloud.com/appName'
 export const DEFAULT_PAGE_SIZE = 10
+export const METRICS_CPU = 'cpu/usage_rate'
+export const METRICS_MEMORY = 'memory/usage'
+export const METRICS_NETWORK_RECEIVED = 'network/rx_rate'
+export const METRICSS_NETWORK_TRANSMITTED = 'network/tx_rate'
