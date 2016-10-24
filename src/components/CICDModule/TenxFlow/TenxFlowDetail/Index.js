@@ -18,6 +18,8 @@ import './style/TenxFlowDetail.less'
 import TenxFlowDetailAlert from './TenxFlowDetailAlert.js'
 import TenxFlowDetailYaml from './TenxFlowDetailYaml.js'
 import TenxFlowDetailSetting from './TenxFlowDetailSetting.js'
+import TenxFLowDetailLog from './TenxFLowDetailLog.js'
+import ImageDeployLogBox from './ImageDeployLogBox.js'
 
 const TabPane = Tabs.TabPane;
 
@@ -147,8 +149,8 @@ class TenxFlowDetail extends Component {
           </Card>
           <Tabs defaultActiveKey='1'>
             <TabPane tab='构建流程定义' key='1'>选项卡一内容</TabPane>
-            <TabPane tab='TenxFlow构建记录' key='2'>选项卡二内容</TabPane>
-            <TabPane tab='镜像部署记录' key='3'>选项卡三内容</TabPane>
+            <TabPane tab='TenxFlow构建记录' key='2'><TenxFLowDetailLog scope={scope} /></TabPane>
+            <TabPane tab='镜像部署记录' key='3'><ImageDeployLogBox scope={scope} /></TabPane>
             <TabPane tab='构建通知' key='4'><TenxFlowDetailAlert scope={scope} /></TabPane>
             <TabPane tab='TenxFow Yaml' key='5'><TenxFlowDetailYaml scope={scope} /></TabPane>
             <TabPane tab='设置' key='6'><TenxFlowDetailSetting scope={scope} /></TabPane>
