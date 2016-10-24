@@ -152,6 +152,11 @@ Refresh token used to authorize with docker registry
 */
 SpecRegistryAPIs.prototype.refreshToken = function (scope, callback) {
   var method = "refreshToken"
+  if (!this.registryConfig.password || this.registryConfig.password === "") {
+    // Not password, so skip the token exchange
+    callback(200, "Skip the token refresh step.")
+    return
+  }
   var serviceHost = this.registryConfig.server.replace("http://", "").replace("https://", "")
   var exchangeURL = this.registryConfig.authServer + "?account=" + this.registryConfig.username + "&scope=" + scope +"&service=" + serviceHost
 
