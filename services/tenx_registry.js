@@ -11,8 +11,6 @@
 const registryAPIs = require('../registry/lib/registryAPIs')
 const markdown     = require('markdown-it')()
 
-const registry     = new registryAPIs()
-
 exports.getPublicImages = function (username) {
   const registry = new registryAPIs()
   if (username) {
@@ -111,10 +109,8 @@ exports.getImageInfo = function(username, imageFullName ) {
       } else {
         imageInfo.detailMarkdown = imageInfo.detail
       }
-      if (imageInfo.dockerfile) {
-        imageInfo.dockerfileMarkdown = markdown.render(imageInfo.dockerfile)
-      } else {
-        imageInfo.dockerfileMarkdown = ''
+      if (!imageInfo.dockerfile) {
+        imageInfo.dockerfile = '';
       }
       resolve(imageInfo)
     })

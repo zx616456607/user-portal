@@ -17,14 +17,7 @@ export default class Dockerfile extends Component {
   }
   render() {
     const isFetching = this.props.isFetching
-    if (!this.props.imageInfo.dockerfileMarkdown) {
-      return(
-        <Card className="dockerfile">
-          <h2>not dockerfile</h2>
-        </Card>
-      )
-    }
-    const {dockerfileMarkdown} = this.props.imageInfo
+    const dockerfile = this.props.dockerfile
     if (isFetching) {
       return (
         <Card className="dockerfile">
@@ -34,7 +27,7 @@ export default class Dockerfile extends Component {
         </Card>
       )
     }
-    if (dockerfileMarkdown == '') {
+    if (dockerfile == '') {
       return (
         <Card className="dockerfile">
         <h2>not dockerfile</h2>
@@ -43,7 +36,7 @@ export default class Dockerfile extends Component {
     }
     return (
       <Card className="dockerfile">
-        <div dangerouslySetInnerHTML={{__html:dockerfileMarkdown}}></div>
+        <pre>{dockerfile}</pre>
       </Card>
     )
   }

@@ -11,10 +11,6 @@ import React, { Component, PropTypes } from 'react'
 import { Switch, Tabs, Button, Card, Menu, Tooltip } from 'antd'
 import { Link} from 'react-router'
 import { connect } from 'react-redux'
-
-import { getImageDetailInfo } from '../../../../actions/app_center'
-import { DEFAULT_REGISTRY } from '../../../../constants'
-
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import ImageVersion from './ImageVersion.js'
 import DetailInfo from './DetailInfo.js'
@@ -75,7 +71,6 @@ class ImageDetailBox extends Component {
     super(props);
     this.copyDownloadCode = this.copyDownloadCode.bind(this);
     this.returnDefaultTooltip = this.returnDefaultTooltip.bind(this);
-    this.callback = this.callback.bind(this)
     this.state = {
       imageDetail: null,
       copySuccess: false
@@ -84,8 +79,10 @@ class ImageDetailBox extends Component {
 
   componentWillMount() {
     const imageDetail = this.props.config;
+    const imageInfo = this.props.imageInfo
     this.setState({
-      imageDetail: imageDetail
+      imageDetail: imageDetail,
+      imageInfo: imageInfo
     });
   }
 
@@ -117,17 +114,16 @@ class ImageDetailBox extends Component {
       });
     }, 500);
   }
-  callback(key) {
-    if (key == 2) {
-      this.props.getImageDetailInfo(DEFAULT_REGISTRY, this.props.config.name)
-    }
-  }
+  // callback(key) {
+  //   if (key == 2) {
+  //     this.props.getImageDetailInfo(DEFAULT_REGISTRY, this.props.config.name)
+  //   }
+  // }
 
   render() {
     const { formatMessage } = this.props.intl;
+    const {imageInfo} = this.props
     const imageDetail = this.props.config;
-    const config = this.state.imageDetail;
-    const imageDockerfile = this.props.imageDockerfile || {}
     const scope = this;
     const ipAddress = this.props.scope.props.registryServer;
     const imageName = this.state.imageDetail.name;
@@ -175,9 +171,9 @@ class ImageDetailBox extends Component {
           <div style={{ clear: "both" }}></div>
         </div>
         <div className="tabBox">
-          <Tabs className="itemList" onChange={ this.callback } defaultActiveKey="1">
-            <TabPane tab={formatMessage(menusText.info)} key="1"><DetailInfo config={imageDetail} /></TabPane>
-            <TabPane tab="DockerFile" key="2"><DockerFile isFetching = {this.props.isFetching} imageInfo={this.props.imageInfo} /></TabPane>
+          <Tabs className="itemList" defaultActiveKey="1">
+            <TabPane tab={formatMessage(menusText.info)} key="1"><DetailInfo detailInfo={imageInfo.detailMarkdown} /></TabPane>
+            <TabPane tab="DockerFile" key="2"><DockerFile isFetching = {this.props.isFetching} dockerfile={imageInfo.dockerfile} /></TabPane>
             <TabPane tab={formatMessage(menusText.tag)} key="3"><ImageVersion scope={scope} config={imageDetail} /></TabPane>
             <TabPane tab={formatMessage(menusText.attribute)} key="4">Conten of Tab Pane 3</TabPane>
           </Tabs>
@@ -189,30 +185,8 @@ class ImageDetailBox extends Component {
 
 ImageDetailBox.propTypes = {
   intl: PropTypes.object.isRequired,
-  // getImageDetailInfo: PropTypes.func.isRequired
 }
 
-function mapStateToProps(state, props){
-  const defaultConfig = {
-    isFetching: false,
-    imageInfo: {dockerfileMarkdown:''}
-  }
-  const { imagesInfo } = state.images
-  const { imageInfo, isFetching} = imagesInfo[DEFAULT_REGISTRY] || defaultConfig
-  return {
-    imageInfo , 
-    isFetching,
-  }
-}
-
-function mapDispatchToProps(dispatch) {
-  return {
-    getImageDetailInfo :(registry, fullName)=> {
-      dispatch(getImageDetailInfo(registry, fullName))
-    }
-  }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(ImageDetailBox, {
+export default connect()(injectIntl(ImageDetailBox, {
   withRef: true,
 }));
