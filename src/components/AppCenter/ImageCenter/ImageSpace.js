@@ -88,75 +88,75 @@ const menusText = defineMessages({
 })
 
 const testData = [{
-  id: "1",
-  imageName: "Github",
-  imgUrl: "/img/test/github.jpg",
-  type: "private",
-  imageUrl: "tenxcloud/Github",
-  downloadNum: "1234"
-}, {
-  id: "2",
-  imageName: "Mysql",
-  imgUrl: "/img/test/mysql.jpg",
-  type: "private",
-  imageUrl: "tenxcloud/Mysql",
-  downloadNum: "1234"
-}, {
-  id: "3",
-  imageName: "Github",
-  imgUrl: "/img/test/github.jpg",
-  type: "public",
-  imageUrl: "tenxcloud/Github",
-  downloadNum: "1234"
-}, {
-  id: "4",
-  imageName: "Oracle",
-  imgUrl: "/img/test/oracle.jpg",
-  type: "private",
-  imageUrl: "tenxcloud/Oracle",
-  downloadNum: "1234"
-}, {
-  id: "5",
-  imageName: "Mysql",
-  imgUrl: "/img/test/mysql.jpg",
-  type: "public",
-  imageUrl: "tenxcloud/Mysql",
-  downloadNum: "1234"
-}, {
-  id: "6",
-  imageName: "Php",
-  imgUrl: "/img/test/php.jpg",
-  type: "public",
-  imageUrl: "tenxcloud/Php",
-  downloadNum: "1234"
-}, {
-  id: "7",
-  imageName: "Oracle",
-  imgUrl: "/img/test/oracle.jpg",
-  type: "public",
-  imageUrl: "tenxcloud/Oracle",
-  downloadNum: "1234"
-}, {
-  id: "8",
-  imageName: "Oracle",
-  imgUrl: "/img/test/oracle.jpg",
-  type: "private",
-  imageUrl: "tenxcloud/Oracle",
-  downloadNum: "1234"
-}, {
-  id: "9",
-  imageName: "Github",
-  imgUrl: "/img/test/github.jpg",
-  type: "private",
-  imageUrl: "tenxcloud/Github",
-  downloadNum: "1234"
-}, {
-  id: "10",
-  imageName: "Github",
-  imgUrl: "/img/test/github.jpg",
-  type: "private",
-  imageUrl: "tenxcloud/Github",
-  downloadNum: "1234"
+    id: "1",
+    imageName: "Github",
+    imgUrl: "/img/test/github.jpg",
+    type: "private",
+    imageUrl: "tenxcloud/Github",
+    downloadNum: "1234"
+  }, {
+    id: "2",
+    imageName: "Mysql",
+    imgUrl: "/img/test/mysql.jpg",
+    type: "private",
+    imageUrl: "tenxcloud/Mysql",
+    downloadNum: "1234"
+  }, {
+    id: "3",
+    imageName: "Github",
+    imgUrl: "/img/test/github.jpg",
+    type: "public",
+    imageUrl: "tenxcloud/Github",
+    downloadNum: "1234"
+  }, {
+    id: "4",
+    imageName: "Oracle",
+    imgUrl: "/img/test/oracle.jpg",
+    type: "private",
+    imageUrl: "tenxcloud/Oracle",
+    downloadNum: "1234"
+  }, {
+    id: "5",
+    imageName: "Mysql",
+    imgUrl: "/img/test/mysql.jpg",
+    type: "public",
+    imageUrl: "tenxcloud/Mysql",
+    downloadNum: "1234"
+  }, {
+    id: "6",
+    imageName: "Php",
+    imgUrl: "/img/test/php.jpg",
+    type: "public",
+    imageUrl: "tenxcloud/Php",
+    downloadNum: "1234"
+  }, {
+    id: "7",
+    imageName: "Oracle",
+    imgUrl: "/img/test/oracle.jpg",
+    type: "public",
+    imageUrl: "tenxcloud/Oracle",
+    downloadNum: "1234"
+  }, {
+    id: "8",
+    imageName: "Oracle",
+    imgUrl: "/img/test/oracle.jpg",
+    type: "private",
+    imageUrl: "tenxcloud/Oracle",
+    downloadNum: "1234"
+  }, {
+    id: "9",
+    imageName: "Github",
+    imgUrl: "/img/test/github.jpg",
+    type: "private",
+    imageUrl: "tenxcloud/Github",
+    downloadNum: "1234"
+  }, {
+    id: "10",
+    imageName: "Github",
+    imgUrl: "/img/test/github.jpg",
+    type: "private",
+    imageUrl: "tenxcloud/Github",
+    downloadNum: "1234"
 }];
 
 let MyComponent = React.createClass({
@@ -183,7 +183,7 @@ let MyComponent = React.createClass({
         <Menu onClick={this.deleteImage.bind(this, item)}
           style={{ width: "100px" }}
           >
-          <Menu.Item key="1">
+          <Menu.Item key={item.id}>
             <FormattedMessage {...menusText.delete} />
           </Menu.Item>
         </Menu>

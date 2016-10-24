@@ -36,7 +36,6 @@ exports.promisify = function(fn, receiver) {
   }
 }
 
-
 exports.handleExecError = function(method, err) {
   if (!err || Object.keys(err).length < 1) {
     return {}

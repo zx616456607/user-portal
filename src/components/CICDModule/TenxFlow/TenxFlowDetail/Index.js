@@ -13,8 +13,13 @@ import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { DEFAULT_REGISTRY } from '../../../constants'
+import { DEFAULT_REGISTRY } from '../../../../constants'
 import './style/TenxFlowDetail.less'
+import TenxFlowDetailAlert from './TenxFlowDetailAlert.js'
+import TenxFlowDetailYaml from './TenxFlowDetailYaml.js'
+import TenxFlowDetailSetting from './TenxFlowDetailSetting.js'
+
+const TabPane = Tabs.TabPane;
 
 const menusText = defineMessages({
   search: {
@@ -107,6 +112,7 @@ class TenxFlowDetail extends Component {
   }
 
   render() {
+    console.log(this)
     const { formatMessage } = this.props.intl;
     const scope = this;
     const tenxflow = this.props.config;
@@ -117,32 +123,35 @@ class TenxFlowDetail extends Component {
         <div id='TenxFlowDetail' key='TenxFlowDetail'>
           <Card className='infoBox'>
             <div className='imgBox' >
-              <img src='/img/test/github.jpg'
+              <img src='/img/test/github.jpg' />
             </div>  
+              <p className='title'>这是标题</p>
             <div className='msgBox'>
-              <p>{ tenxflow.name }</p>
-              <span className={ checkStatusClass(tenxflow.status) }></span>
-              <span className='updateTime'>{ tenxflow.updateTime }</span>
+              <span >这是状态</span>
+              <span className='updateTime'>十年前</span>
+              <div style={{ clear:'both' }}></div>
             </div>
             <div className='btnBox'>
-              <Button size='large' type='ghost'>
-                <i className="fa fa-wpforms" />&nbsp;执行记录
-              </Button>
-              <Button size='large' type='ghost'>
-                <i className="fa fa-eye" />&nbsp;查看镜像
-              </Button>
               <Button size='large' type='primary'>
-                <i className="fa fa-pencil-square-o" />&nbsp;立即执行
+                <i className='fa fa-pencil-square-o' />&nbsp;立即执行
               </Button>
+              <Button size='large' type='ghost'>
+                <i className='fa fa-eye' />&nbsp;查看镜像
+              </Button>
+              <Button size='large' type='ghost'>
+                <i className='fa fa-wpforms' />&nbsp;执行记录
+              </Button>
+              <div style={{ clear:'both' }}></div>
             </div>
+            <div style={{ clear:'both' }}></div>
           </Card>
-          <Tabs defaultActiveKey="1">
-            <TabPane tab="构建流程定义" key="1">选项卡一内容</TabPane>
-            <TabPane tab="TenxFlow构建记录" key="2">选项卡二内容</TabPane>
-            <TabPane tab="镜像部署记录" key="3">选项卡三内容</TabPane>
-            <TabPane tab="构建通知" key="4">选项卡三内容</TabPane>
-            <TabPane tab="TenxFow Yaml" key="5">选项卡三内容</TabPane>
-            <TabPane tab="设置" key="5">选项卡三内容</TabPane>
+          <Tabs defaultActiveKey='1'>
+            <TabPane tab='构建流程定义' key='1'>选项卡一内容</TabPane>
+            <TabPane tab='TenxFlow构建记录' key='2'>选项卡二内容</TabPane>
+            <TabPane tab='镜像部署记录' key='3'>选项卡三内容</TabPane>
+            <TabPane tab='构建通知' key='4'><TenxFlowDetailAlert scope={scope} /></TabPane>
+            <TabPane tab='TenxFow Yaml' key='5'><TenxFlowDetailYaml scope={scope} /></TabPane>
+            <TabPane tab='设置' key='6'><TenxFlowDetailSetting scope={scope} /></TabPane>
           </Tabs>
         </div>       
       </QueueAnim>

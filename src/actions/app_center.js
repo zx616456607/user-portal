@@ -17,7 +17,10 @@ export const IMAGE_PUBLIC_LIST_FAILURE = 'IMAGE_PUBLIC_LIST_FAILURE'
 
 // Fetches app list from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchPublicImageList(registry) {
+
+// Fetches apps list from API unless it is cached.
+// Relies on Redux Thunk middleware.
+export function loadPublicImageList(registry) {
   return {
     registry,
     [FETCH_API]: {
@@ -28,20 +31,13 @@ function fetchPublicImageList(registry) {
   }
 }
 
-// Fetches apps list from API unless it is cached.
-// Relies on Redux Thunk middleware.
-export function loadPublicImageList(registry) {
-  return (dispatch, getState) => {
-    return dispatch(fetchPublicImageList(registry))
-  }
-}
-
 //this is get the image detail tag
 export const IMAGE_GET_DETAILTAG_REQUEST = 'IMAGE_GET_DETAILTAG_REQUEST'
 export const IMAGE_GET_DETAILTAG_SUCCESS = 'IMAGE_GET_DETAILTAG_SUCCESS'
 export const IMAGE_GET_DETAILTAG_FAILURE = 'IMAGE_GET_DETAILTAG_FAILURE'
 
 function fetchImageGetDetailTag(registry, fullName, callback) {
+  console.log(fullName, 'in fullName')
   return {
     registry,
     [FETCH_API]: {
@@ -86,4 +82,20 @@ export function loadImageDetailTagConfig(registry, fullName, tag, callback) {
   }
 }
 
+//this is get the image info(docker and attribute)
+export const GET_IMAGEINFO_REQUEST = 'GET_IMAGEINFO_REQUEST'
+export const GET_IMAGEINFO_SUCCESS = 'GET_IMAGEINFO_SUCCESS'
+export const GET_IMAGEINFO_FAILURE = 'GET_IMAGEINFO_FAILURE'
+
+export function getImageDetailInfo(obj, callback) {
+  return {
+    registry:obj.registry,
+    [FETCH_API]: {
+      types: [GET_IMAGEINFO_REQUEST, GET_IMAGEINFO_SUCCESS, GET_IMAGEINFO_FAILURE],
+      endpoint: `${API_URL_PREFIX}/registries/${obj.registry}/${obj.fullName}/detailInfo`,
+      schema: Schemas.REGISTRYS,
+    },
+    callback
+  }
+}
 

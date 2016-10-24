@@ -47,6 +47,7 @@ function publicImages(state = {}, action) {
 export function images(state = { publicImages: {} }, action) {
   return {
     publicImages: publicImages(state.publicImages, action),
+    imagesInfo: imagesInfo(state.imagesInfo, action),
   }
 }
 //get image detail tag
@@ -134,5 +135,36 @@ function imageTagConfig(state = {}, action) {
 export function getImageTagConfig(state = { publicImages: {} }, action) {
   return {
     imageTagConfig: imageTagConfig(state.imageTagConfig, action),
+  }
+}
+
+function imagesInfo(state={}, action){
+  const registry = action.registry
+  const defaultState = {
+    [registry]: {
+      isFetching: false,
+      registry,
+      imageInfo: {dockerfile:''}
+    }
+  }
+  switch (action.type) {
+    case ActionTypes.GET_IMAGEINFO_REQUEST:
+      return merge({}, defaultState, state, {
+        [registry]: { isFetching: true }
+      })
+    case ActionTypes.GET_IMAGEINFO_SUCCESS:
+      return Object.assign({}, state, {
+        [registry]: {
+          isFetching: false,
+          registry: action.response.result.registry,
+          imageInfo: action.response.result.data || null
+        }
+      })
+    case ActionTypes.GET_IMAGEINFO_FAILURE:
+      return merge({}, defaultState, state, {
+        [registry]: { isFetching: false }
+      })
+    default:
+      return state
   }
 }

@@ -175,7 +175,6 @@ export function startServices(cluster, serviceList, callback) {
     return dispatch(fetchStartServices(cluster, serviceList, callback))
   }
 }
-
 function fetchQuickRestartServices(cluster, serviceList, callback) {
   return {
     cluster,

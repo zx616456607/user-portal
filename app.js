@@ -44,7 +44,8 @@ app.use(function* (next) {
     }
     logger.error('catch-error', JSON.stringify(err.message))
     logger.error('catch-error', err.stack)
-    this.status = err.status || err.statusCode || 500
+    logger.error('catch-error', JSON.stringify(err))
+    this.status = err.status || err.statusCode || err.code || 500
     this.body = {
       statusCode: this.status,
       message: err.message || err
