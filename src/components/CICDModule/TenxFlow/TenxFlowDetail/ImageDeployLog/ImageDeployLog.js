@@ -244,7 +244,7 @@ let MyComponent = React.createClass({
             {item.updateTime}
           </span>
           <span className='commonHeader'>
-            <Icon type="clock-circle-o" />
+            <Icon type='clock-circle-o' />
             <FormattedMessage {...menusText.cost} />
             {item.cost}
           </span>
@@ -323,10 +323,12 @@ class ImageDeployLog extends Component {
         <div className='title'>
           <FormattedMessage {...menusText.title} />
         </div>
-        <Alert message={<FormattedMessage {...menusText.tooltip} />} type="info" />
-        <MyLine config={testData} scope={scope} />
-        <MyComponent config={testData} scope={scope} />
-        <div style={{ clear:'both' }}></div>
+        <div className='paddingBox'>
+          <Alert message={<FormattedMessage {...menusText.tooltip} />} type='info' />
+          <MyLine config={testData} scope={scope} />
+          <MyComponent config={testData} scope={scope} />
+          <div style={{ clear:'both' }}></div>
+        </div>
       </div>
     )
   }

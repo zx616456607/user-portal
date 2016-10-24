@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Input, Form, Switch, Radio, Checkbox } from 'antd'
+import { Button, Input, Form, Radio, Select, Alert, Icon } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -17,303 +17,255 @@ import { DEFAULT_REGISTRY } from '../../../../../constants'
 import './style/AutoDeployService.less'
 import { browserHistory } from 'react-router';
 
+const Option = Select.Option;
 const RadioGroup = Radio.Group;
 const createForm = Form.create;
 const FormItem = Form.Item;
 
 const menusText = defineMessages({
-  name: {
-    id: 'CICD.Tenxflow.AutoDeployService.name',
-    defaultMessage: 'TenxFlow名称',
+  tag: {
+    id: 'CICD.Tenxflow.AutoDeployService.tag',
+    defaultMessage: '镜像版本',
   },
-  create: {
-    id: 'CICD.Tenxflow.AutoDeployService.create',
-    defaultMessage: '创建Flow方式',
+  service: {
+    id: 'CICD.Tenxflow.AutoDeployService.service',
+    defaultMessage: '服务',
   },
-  viewDefine: {
-    id: 'CICD.Tenxflow.AutoDeployService.viewDefine',
-    defaultMessage: '可视化流程定义',
+  updateType: {
+    id: 'CICD.Tenxflow.AutoDeployService.updateType',
+    defaultMessage: '升级策略',
   },
-  yamlDefine: {
-    id: 'CICD.Tenxflow.AutoDeployService.yamlDefine',
-    defaultMessage: 'TenxFlow yaml方式定义',
+  opera: {
+    id: 'CICD.Tenxflow.AutoDeployService.opera',
+    defaultMessage: '操作',
   },
-  email: {
-    id: 'CICD.Tenxflow.AutoDeployService.email',
-    defaultMessage: '邮件通知',
-  },
-  otherEmail: {
-    id: 'CICD.Tenxflow.AutoDeployService.otherEmail',
-    defaultMessage: '使用其它邮箱',
-  },
-  alert: {
-    id: 'CICD.Tenxflow.AutoDeployService.alert',
-    defaultMessage: '通知场景',
-  },
-  alertFirst: {
-    id: 'CICD.Tenxflow.AutoDeployService.alertFirst',
-    defaultMessage: '每一个项目执行成功时，通知我',
-  },
-  alertSecond: {
-    id: 'CICD.Tenxflow.AutoDeployService.alertSecond',
-    defaultMessage: '每一个项目执行失败时，通知我',
-  },
-  alertThird: {
-    id: 'CICD.Tenxflow.AutoDeployService.alertThird',
-    defaultMessage: '自动部署成功',
-  },
-  alertForth: {
-    id: 'CICD.Tenxflow.AutoDeployService.alertForth',
-    defaultMessage: '自动部署失败',
+  confirm: {
+    id: 'CICD.Tenxflow.AutoDeployService.confirm',
+    defaultMessage: '确定',
   },
   cancel: {
     id: 'CICD.Tenxflow.AutoDeployService.cancel',
     defaultMessage: '取消',
   },
-  submit: {
-    id: 'CICD.Tenxflow.AutoDeployService.submit',
-    defaultMessage: '立即创建并配置流程定义',
+  add: {
+    id: 'CICD.Tenxflow.AutoDeployService.add',
+    defaultMessage: '添加自动部署配置',
   },
+  edit: {
+    id: 'CICD.Tenxflow.AutoDeployService.edit',
+    defaultMessage: '编辑',
+  },
+  title: {
+    id: 'CICD.Tenxflow.AutoDeployService.title',
+    defaultMessage: '自动部署服务',
+  },
+  tooltips: {
+    id: 'CICD.Tenxflow.AutoDeployService.tooltips',
+    defaultMessage: '注：通过服务对应的镜像版本选出要自动部署的服务，并配置好部署升级方式（即：TenxFlow构建出某镜像版本后，将对以下服务升级部署）',
+  },
+  addNow: {
+    id: 'CICD.Tenxflow.AutoDeployService.addNow',
+    defaultMessage: '立即部署应用',
+  },
+  tooltipsFirst: {
+    id: 'CICD.Tenxflow.AutoDeployService.tooltipsFirst',
+    defaultMessage: '检测到当前Flow构建生成的镜像，还未部署过应用或服务，请先使用该镜像直接创建',
+  },
+  tooltipsSecond: {
+    id: 'CICD.Tenxflow.AutoDeployService.tooltipsSecond',
+    defaultMessage: '【单服务应用】或者创建其它【多服务应用】使用该镜像创建子服务',
+  },
+  normalUpdate: {
+    id: 'CICD.Tenxflow.AutoDeployService.normalUpdate',
+    defaultMessage: '普通升级',
+  },
+  imageUpdate: {
+    id: 'CICD.Tenxflow.AutoDeployService.imageUpdate',
+    defaultMessage: '灰度升级',
+  },
+
 })
 
+let uuid = 0;
 let AutoDeployService = React.createClass({
   getInitialState: function() {
     return {
-      currentType: 'view',
-      emailAlert: false,
-      otherEmail: false,
-      currentTenxFlow: null
+      editing: false
     }
   },
-  componentWillMount() {
+  componentWillMount () {
     document.title = 'TenxFlow | 时速云';
   },
-  nameExists(rule, value, callback) {
-    //this function for check the new tenxflow name is exist or not
-    if (!value) {
-      callback();
-    } else {
-      setTimeout(() => {
-        if (value === 'tenxflow') {
-          callback([new Error('抱歉，该名称已被占用。')]);
-        } else {
-          callback();
+  changeEdit (e) {
+    //this function for user change the edit type
+    //if the current edit type is false,then the current type will be change to the true
+    //if the current edit type is true,then the form will be submit and change to the false
+    const { editing } = this.state;
+    if(!editing) {
+      //it's meaning editing is false
+      this.setState({
+        editing: true
+      });
+    }else {
+      //it's meaning editing is true
+      e.preventDefault();
+      this.props.form.validateFields((errors, values) => {
+        if (errors) {
+          console.log(errors);
+          return;
         }
-      }, 800);
-    }
+        console.log(values);
+        this.setState({
+          editing: false
+        });
+      });
+    }   
   },
-  onChangeFlowType(e) {
-    //this function for user change the tenxflow type
-    this.props.form.resetFields(['yaml']);
+  cancelEdit (e) {
     this.setState({
-      currentType: e.target.value
+      editing: false
     });
   },
-  yamlInputCheck(rule, value, callback){
-    if(this.state.currentType == 'yaml' && !!!value){
-      callback([new Error('请填写yaml文件')]);       
-    }else{  
-      callback();
-    }
+  remove (k) {
+    const { form } = this.props;
+    // can use data-binding to get
+    if(this.state.editing){
+      let keys = form.getFieldValue('keys');
+      keys = keys.filter((key) => {
+        return key !== k;
+      });
+      // can use data-binding to set
+      form.setFieldsValue({
+        keys,
+      });
+    }  
   },
-  onChangeEmailAlert(e) {
-    //this function for user select email alert or now
-    this.props.form.resetFields(['radioEmail']);
-    this.props.form.resetFields(['inputEmail']);
-    this.setState({
-      emailAlert: e
+  add () {
+    uuid++;
+    const { form } = this.props;
+    // can use data-binding to get
+    let keys = form.getFieldValue('keys');
+    keys = keys.concat(uuid);
+    // can use data-binding to set
+    // important! notify form to detect changes
+    form.setFieldsValue({
+      keys,
     });
   },
-  radioEmailCheck(rule, value, callback){
-    if(this.state.emailAlert && !!!value){
-       callback([new Error('请选择邮件通知地址')]);
-    }else{
-      callback();
-    }
-  },
-  onChangeAlertEmail(e) {
-    //this function for user select alert email
-    this.props.form.resetFields(['inputEmail']);
-    if( e.target.value == 'others' ) {
-      //it's mean user input the email by himself
-      this.setState({
-        otherEmail: true
-      });
-    }else{
-      this.setState({
-        otherEmail: false
-      });
-    }
-  },
-  emailInputCheck(rule, value, callback){
-    if(this.state.otherEmail && !!!value){
-       callback([new Error('请输入邮件通知地址')]);
-    }else{
-      callback();
-    }
-  },
-  handleReset(e) {
-    //this function for reset the form
-    e.preventDefault();
-    this.props.form.resetFields();
-    const { scope } = this.props;
-    this.setState({
-      currentType: 'view',
-      emailAlert: false,
-      otherEmail: false
-    });
-    scope.setState({
-      AutoDeployServiceModal: false
-    });    
-  },
-  handleSubmit(e) {
-    //this function for user submit the form
-    const { scope } = this.props;
-    const _this = this;
-    let scopeHistory = scope.props.history;
-    this.props.form.validateFields((errors, values) => {
-      if (!!errors) {
-        console.log('Errors in form!!!');
-        e.preventDefault();
-        return;
-      }
-      _this.setState({
-        currentTenxFlow: values
-      });
-      scope.setState({       
-        AutoDeployServiceModal: false
-      });
-      scopeHistory.push({ pathname: '/ci_cd/tenx_flow/tenx_flow_build', state: { config: values } });
-    });
-  },
-  render() {
+  render () {
     const { formatMessage } = this.props.intl;
-    const { scope } = this.props;
-    const { getFieldProps, getFieldError, isFieldValidating } = this.props.form;
-    const nameProps = getFieldProps('name', {
-      rules: [
-        { required: true, message: '请输入TenxFlow名称' },
-        { validator: this.nameExists },
-      ],
+    const { getFieldProps, getFieldValue } = this.props.form;
+    getFieldProps('keys', {
+      initialValue: [0],
     });
-    const radioFlowTypeProps = getFieldProps('radioFlow', {
-      rules: [
-        { required: true, message: '请选择创建Flow方式' },
-      ],
-      onChange: this.onChangeFlowType,
-      initialValue: 'view'
-    });
-    const flowProps = getFieldProps('yaml', {
-      rules: [
-        { validator: this.yamlInputCheck },
-      ],
-    });
-    const radioEmailProps = getFieldProps('radioEmail', {
-      rules: [
-        { validator: this.radioEmailCheck },
-      ],
-      onChange: this.onChangeAlertEmail
-    });
-    const checkEmailProps = getFieldProps('inputEmail', {
-      rules: [
-        { validator: this.emailInputCheck },
-      ],
+    const haveTag = false;
+    const formItems = getFieldValue('keys').map((k) => {
+      const tagSelect = getFieldProps('tagSelect' + k, {
+        rules: [
+          { required: true, message: '请选择' },
+        ],
+      });
+      const selectProps = getFieldProps('serviceSelect' + k, {
+        rules: [
+          { required: true, message: '请选择' },
+        ],
+      });
+      const updateType = getFieldProps('radio' + k, {
+        initialValue: 'normalUpdate'
+      });
+      return (
+        <div className='tagDetail'>
+          <Form.Item key={'name' + k} className='tag commonItem'>
+            <Select {...tagSelect} style={{ width: '90%' }} disabled={this.state.editing ? false : true } >
+              <Option value='test1'>test1</Option>
+              <Option value='test2'>test2</Option>
+              <Option value='test3'>test3</Option>
+              <Option value='test4'>test4</Option>
+              <Option value='test5'>test5</Option>
+            </Select>
+          </Form.Item>
+          <Form.Item key={'select' + k} className='service commonItem'>
+            <Select {...selectProps} style={{ width: '90%' }} disabled={this.state.editing ? false : true } >
+              <Option value='test1'>test1</Option>
+              <Option value='test2'>test2</Option>
+              <Option value='test3'>test3</Option>
+              <Option value='test4'>test4</Option>
+              <Option value='test5'>test5</Option>
+            </Select>
+          </Form.Item>
+          <Form.Item key={'radio' + k} className='updateType commonItem'>
+            <RadioGroup {...updateType} disabled={this.state.editing ? false : true } >
+              <Radio key='a' value={'normalUpdate'}><FormattedMessage {...menusText.normalUpdate} /></Radio>
+              <Radio key='b' value={'rollingUpdate'}><FormattedMessage {...menusText.imageUpdate} /></Radio>
+            </RadioGroup>
+          </Form.Item>
+          <div className='opera commonItem'>
+            <i className='fa fa-trash' onClick={() => this.remove(k)}></i>
+          </div>
+          <div style={{ clear:'both' }}></div>
+        </div>
+      );
     });
     return (
       <div id='AutoDeployService' key='AutoDeployService'>
-      <Form horizontal form={this.props.form}>
-        <div className='commonBox'>
-          <div className='title'>
-            <span><FormattedMessage {...menusText.name} /></span>
-          </div>
-          <div className='input'>
-            <FormItem 
-              hasFeedback
-              help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
-              style={{ width:'220px' }}
-            >
-              <Input {...nameProps} type='text' size='large' />
-            </FormItem>  
-          </div>
-          <div style={{ clear:'both' }} />
+        <div className='title'>
+          <FormattedMessage {...menusText.title} />
         </div>
-        <div className='commonBox'>
-          <div className='title'>
-            <span><FormattedMessage {...menusText.create} /></span>
+        <div className='paddingBox'>
+          <Alert message={<FormattedMessage {...menusText.tooltips} />} type='info' />
+          <div className='btnBox'>
+            { haveTag ? [
+              <Button className='editBtn' size='large' type='primary' onClick={this.changeEdit}>
+                { this.state.editing ? formatMessage(menusText.confirm) : formatMessage(menusText.edit) }
+              </Button>
+            ] : null}
+            { this.state.editing ? [
+              <Button className='cancelBtn' size='large' type='ghost' onClick={this.cancelEdit}>
+                <FormattedMessage {...menusText.cancel} />
+              </Button>
+              ] : null 
+            }
           </div>
-          <div className='input'>
-            <FormItem className='flowTypeForm'>
-              <RadioGroup {...radioFlowTypeProps} >
-                <Radio key='a' value={'view'}><FormattedMessage {...menusText.viewDefine} /></Radio>
-                <Radio key='b' value={'yaml'}><FormattedMessage {...menusText.yamlDefine} /></Radio>
-              </RadioGroup>
-            </FormItem>
-            <FormItem>
-              <Input {...flowProps} disabled={ this.state.currentType == 'yaml' ? false : true } type='textarea' autosize={{ minRows: 10, maxRows: 30 }} />
-            </FormItem>
-            <div style={{ clear:'both' }} />
-          </div>
-          <div style={{ clear:'both' }} />
-        </div>
-        <div className='commonBox'>
-          <div className='title'>
-            <span><FormattedMessage {...menusText.email} /></span>
-          </div>
-          <div className='input'>
-            <Switch onChange={this.onChangeEmailAlert} checked={this.state.emailAlert} />
-            { this.state.emailAlert ? [
-              <QueueAnim type='right' key='selectedEmailAnimate'>
-                <div className='selectedEmail' key='selectedEmail'>
-                  <FormItem>                  
-                    <RadioGroup {...radioEmailProps} >
-                      <Radio key='a' value={'gaojian@tenxcloud.com'}>gaojian@tenxcloud.com</Radio><br />
-                      <Radio key='b' value={'others'}><FormattedMessage {...menusText.otherEmail} /></Radio><br />
-                    </RadioGroup>
-                  </FormItem>
-                  <FormItem className='emailInputForm'>
-                    <Input {...checkEmailProps} type='text' size='large' disabled={ !this.state.otherEmail } /> 
-                  </FormItem>
+          <Form className='tagForm' horizontal form={this.props.form}>
+            { haveTag ? [
+              <div>
+                <div className='tagTitle'>
+                  <span className='tag commonTitle'>
+                    <FormattedMessage {...menusText.tag} />
+                  </span>
+                  <span className='service commonTitle'>
+                    <FormattedMessage {...menusText.service} />
+                  </span>
+                  <span className='updateType commonTitle'>
+                    <FormattedMessage {...menusText.updateType} />
+                  </span>
+                  <span className='opera commonTitle'>
+                    <FormattedMessage {...menusText.opera} />
+                  </span>
+                  <div style={{ clear:'both' }}></div>
                 </div>
-              </QueueAnim>
-            ]:null }
-          </div>
-          <div style={{ clear:'both' }} />
+                {formItems}      
+              </div>
+            ] : [
+              <div className='noTag'>
+                <Button className='delployBtn' size='large' type='primary'>
+                  <FormattedMessage {...menusText.addNow} />
+                </Button>
+                <p><FormattedMessage {...menusText.tooltipsFirst} /></p>
+                <p><FormattedMessage {...menusText.tooltipsSecond} /></p>
+              </div>
+            ] }
+          </Form>
+          { this.state.editing ? [
+            <div className='addBtn' onClick={this.add}>
+              <Icon type='plus-circle-o' /><FormattedMessage {...menusText.add} />
+            </div>
+            ] : null
+          }
         </div>
-        <div className='commonBox'>
-          <div className='title'>
-            <span><FormattedMessage {...menusText.alert} /></span>
-          </div>
-          <div className='input alert'>
-            <FormItem className='checkBox'>
-              <Checkbox {...getFieldProps('checkFirst', {valuePropName: 'checked', initialValue: false})} >
-                <FormattedMessage {...menusText.alertFirst} />
-              </Checkbox><br />
-              <Checkbox {...getFieldProps('checkSecond', {valuePropName: 'checked', initialValue: false})} >
-                <FormattedMessage {...menusText.alertSecond} />
-              </Checkbox><br />
-              <Checkbox {...getFieldProps('checkThird', {valuePropName: 'checked', initialValue: false})} >
-                <FormattedMessage {...menusText.alertThird} />
-              </Checkbox><br />
-              <Checkbox {...getFieldProps('checkForth', {valuePropName: 'checked', initialValue: false})} >
-                <FormattedMessage {...menusText.alertForth} />
-              </Checkbox>
-            </FormItem>
-          </div>
-          <div style={{ clear:'both' }} />
-        </div>
-        <div className='btnBox'>
-          <Button size='large' onClick={this.handleReset}>
-            <FormattedMessage {...menusText.cancel} />
-          </Button>
-          <Button size='large' type='primary' onClick={this.handleSubmit}>
-            <i className='fa fa-cog' />&nbsp;
-            <FormattedMessage {...menusText.submit} />
-          </Button>
-        </div>
-      </Form>
       </div>
-    )
-  }
+    );
+  },
 });
 
 function mapStateToProps(state, props) {

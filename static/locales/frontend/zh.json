@@ -205,6 +205,22 @@
   "CICD.Tenxflow.ImageDeployLog.runningNormal": "运行中",
   "CICD.Tenxflow.ImageDeployLog.runningAbnormal": "异常",
   "CICD.Tenxflow.ImageDeployLog.success": "成功",
-  "CICD.Tenxflow.ImageDeployLog.fail": "失败"
+  "CICD.Tenxflow.ImageDeployLog.fail": "失败",
+  
+  "CICD.Tenxflow.AutoDeployService.tag": "镜像版本",
+  "CICD.Tenxflow.AutoDeployService.service": "服务",
+  "CICD.Tenxflow.AutoDeployService.updateType": "升级策略",
+  "CICD.Tenxflow.AutoDeployService.opera": "操作",
+  "CICD.Tenxflow.AutoDeployService.confirm": "确定",
+  "CICD.Tenxflow.AutoDeployService.cancel": "取消",
+  "CICD.Tenxflow.AutoDeployService.add": "添加自动部署配置",
+  "CICD.Tenxflow.AutoDeployService.edit": "编辑",
+  "CICD.Tenxflow.AutoDeployService.title": "自动部署服务",
+  "CICD.Tenxflow.AutoDeployService.tooltips": "注：通过服务对应的镜像版本选出要自动部署的服务，并配置好部署升级方式（即：TenxFlow构建出某镜像版本后，将对以下服务升级部署）",
+  "CICD.Tenxflow.AutoDeployService.addNow": "立即部署应用",
+  "CICD.Tenxflow.AutoDeployService.tooltipsFirst": "检测到当前Flow构建生成的镜像，还未部署过应用或服务，请先使用该镜像直接创建",
+  "CICD.Tenxflow.AutoDeployService.tooltipsSecond": "【单服务应用】或者创建其它【多服务应用】使用该镜像创建子服务",
+  "CICD.Tenxflow.AutoDeployService.normalUpdate": "普通升级",
+  "CICD.Tenxflow.AutoDeployService.imageUpdate": "灰度升级"
   
 }

@@ -80,6 +80,7 @@ class ImageDeployLogBox extends Component {
     const scope = this;
     return (
       <Card id='ImageDeployLogBox' >
+        <AutoDeployService scope={scope} />
         <ImageDeployLog scope={scope} />
       </Card>
     )

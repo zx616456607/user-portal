@@ -147,7 +147,7 @@ class TenxFlowDetail extends Component {
             </div>
             <div style={{ clear:'both' }}></div>
           </Card>
-          <Tabs defaultActiveKey='1'>
+          <Tabs defaultActiveKey='1' size="small">
             <TabPane tab='构建流程定义' key='1'>选项卡一内容</TabPane>
             <TabPane tab='TenxFlow构建记录' key='2'><TenxFLowDetailLog scope={scope} /></TabPane>
             <TabPane tab='镜像部署记录' key='3'><ImageDeployLogBox scope={scope} /></TabPane>

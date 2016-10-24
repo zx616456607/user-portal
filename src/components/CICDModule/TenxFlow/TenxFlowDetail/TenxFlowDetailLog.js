@@ -160,7 +160,7 @@ let MyComponent = React.createClass({
                 {item.updateTime}
               </span>
               <span className='costTime'>
-                <Icon type="clock-circle-o" />
+                <Icon type='clock-circle-o' />
                 <FormattedMessage {...menusText.cost} />
                 {item.cost}
               </span>
