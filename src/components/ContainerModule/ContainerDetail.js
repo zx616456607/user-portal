@@ -18,6 +18,7 @@ import ContainerDetailLog from "./ContainerLog.js"
 import "./style/ContainerDetail.less"
 import { loadContainerDetail } from '../../actions/app_manage'
 import { DEFAULT_CLUSTER } from '../../constants'
+import ContainerMonitior from './ContainerMonitior'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -129,7 +130,9 @@ class ContainerDetail extends Component {
                 <TabPane tab="容器配置" key="1" >
                   <ContainerDetailInfo key="ContainerDetailInfo" container={container} />
                 </TabPane>
-                <TabPane tab="监控" key="2" >监控</TabPane>
+                <TabPane tab="监控" key="2" >
+                  <ContainerMonitior key="ContainerMonitior" containerName={containerName} cluster={cluster} />
+                </TabPane>
                 <TabPane tab="日志" key="3" ><ContainerDetailGraph key="ContainerDetailGraph" containerName={containerName} cluster={cluster}/></TabPane>
                 <TabPane tab="事件" key="4" ><ContainerDetailLog key="ContainerDetailLog" containerName={containerName} cluster={cluster} /></TabPane>
               </Tabs>

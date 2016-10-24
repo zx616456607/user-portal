@@ -9,7 +9,7 @@
  */
 
 import { FETCH_API, Schemas } from '../middleware/api'
-import { API_URL_PREFIX ,SPI_URL_PREFIX} from '../constants'
+import { API_URL_PREFIX } from '../constants'
 import { toQuerystring } from '../common/tools'
 
 export const APP_LIST_REQUEST = 'APP_LIST_REQUEST'
