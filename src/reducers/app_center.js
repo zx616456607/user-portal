@@ -144,7 +144,7 @@ function imagesInfo(state={}, action){
     [registry]: {
       isFetching: false,
       registry,
-      dockerfile:''
+      imageInfo: {dockerfile:''}
     }
   }
   switch (action.type) {
