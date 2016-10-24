@@ -279,28 +279,32 @@ let CreateTenxFlow = React.createClass({
           </div>
           <div style={{ clear:'both' }} />
         </div>
-        <div className='commonBox'>
-          <div className='title'>
-            <span><FormattedMessage {...menusText.alert} /></span>
-          </div>
-          <div className='input alert'>
-            <FormItem className='checkBox'>
-              <Checkbox {...getFieldProps('checkFirst', {valuePropName: 'checked', initialValue: false})} >
-                <FormattedMessage {...menusText.alertFirst} />
-              </Checkbox><br />
-              <Checkbox {...getFieldProps('checkSecond', {valuePropName: 'checked', initialValue: false})} >
-                <FormattedMessage {...menusText.alertSecond} />
-              </Checkbox><br />
-              <Checkbox {...getFieldProps('checkThird', {valuePropName: 'checked', initialValue: false})} >
-                <FormattedMessage {...menusText.alertThird} />
-              </Checkbox><br />
-              <Checkbox {...getFieldProps('checkForth', {valuePropName: 'checked', initialValue: false})} >
-                <FormattedMessage {...menusText.alertForth} />
-              </Checkbox>
-            </FormItem>
-          </div>
-          <div style={{ clear:'both' }} />
-        </div>
+        { this.state.emailAlert ? [
+          <QueueAnim type='right' key='checkedEmailAnimate'>
+            <div className='commonBox' key='checkedEmail'>
+              <div className='title'>
+                <span><FormattedMessage {...menusText.alert} /></span>
+              </div>
+              <div className='input alert'>
+                <FormItem className='checkBox'>
+                  <Checkbox {...getFieldProps('checkFirst', {valuePropName: 'checked', initialValue: false})} >
+                    <FormattedMessage {...menusText.alertFirst} />
+                  </Checkbox><br />
+                  <Checkbox {...getFieldProps('checkSecond', {valuePropName: 'checked', initialValue: false})} >
+                    <FormattedMessage {...menusText.alertSecond} />
+                  </Checkbox><br />
+                  <Checkbox {...getFieldProps('checkThird', {valuePropName: 'checked', initialValue: false})} >
+                    <FormattedMessage {...menusText.alertThird} />
+                  </Checkbox><br />
+                  <Checkbox {...getFieldProps('checkForth', {valuePropName: 'checked', initialValue: false})} >
+                    <FormattedMessage {...menusText.alertForth} />
+                  </Checkbox>
+                </FormItem>
+              </div>
+              <div style={{ clear:'both' }} />
+            </div>
+          </QueueAnim>
+        ]:null }
         <div className='btnBox'>
           <Button size='large' onClick={this.handleReset}>
             <FormattedMessage {...menusText.cancel} />

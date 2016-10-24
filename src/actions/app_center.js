@@ -17,7 +17,10 @@ export const IMAGE_PUBLIC_LIST_FAILURE = 'IMAGE_PUBLIC_LIST_FAILURE'
 
 // Fetches app list from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchPublicImageList(registry) {
+
+// Fetches apps list from API unless it is cached.
+// Relies on Redux Thunk middleware.
+export function loadPublicImageList(registry) {
   return {
     registry,
     [FETCH_API]: {
@@ -25,14 +28,6 @@ function fetchPublicImageList(registry) {
       endpoint: `${API_URL_PREFIX}/registries/${registry}`,
       schema: Schemas.REGISTRYS
     }
-  }
-}
-
-// Fetches apps list from API unless it is cached.
-// Relies on Redux Thunk middleware.
-export function loadPublicImageList(registry) {
-  return (dispatch, getState) => {
-    return dispatch(fetchPublicImageList(registry))
   }
 }
 
@@ -92,15 +87,15 @@ export const GET_IMAGEINFO_REQUEST = 'GET_IMAGEINFO_REQUEST'
 export const GET_IMAGEINFO_SUCCESS = 'GET_IMAGEINFO_SUCCESS'
 export const GET_IMAGEINFO_FAILURE = 'GET_IMAGEINFO_FAILURE'
 
-export function getImageDetailInfo(registry, fullName) {
+export function getImageDetailInfo(obj, callback) {
   return {
-    registry,
-    fullName,
+    registry:obj.registry,
     [FETCH_API]: {
       types: [GET_IMAGEINFO_REQUEST, GET_IMAGEINFO_SUCCESS, GET_IMAGEINFO_FAILURE],
-      endpoint: `${API_URL_PREFIX}/registries/${registry}/${fullName}/detailInfo`,
-      schema: Schemas.REGISTRYS
-    }
+      endpoint: `${API_URL_PREFIX}/registries/${obj.registry}/${obj.fullName}/detailInfo`,
+      schema: Schemas.REGISTRYS,
+    },
+    callback
   }
 }
 

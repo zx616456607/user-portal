@@ -184,5 +184,42 @@
   
   "CICD.Tenxflow.TenxFlowDetailSetting.tooltips": "请注意，删除TenxFlow，将清除项目的所有历史数据以及相关的镜像，且该操作不能被恢复，您确定要删除吗？",
   "CICD.Tenxflow.TenxFlowDetailSetting.delete": "删除该TenxFlow",
-  "CICD.Tenxflow.TenxFlowDetailSetting.deleteConfirm": "您是否确认要删除这项内容"
+  "CICD.Tenxflow.TenxFlowDetailSetting.deleteConfirm": "您是否确认要删除这项内容",
+  
+  "CICD.Tenxflow.TenxFLowDetailLog.bulidLog": "Build Log",
+  "CICD.Tenxflow.TenxFLowDetailLog.downLoadBulidLog": "DownLoad Build Log",
+  "CICD.Tenxflow.TenxFLowDetailLog.viewBulidLog": "View Build Log",
+  "CICD.Tenxflow.TenxFLowDetailLog.cost": "Cost",
+  "CICD.Tenxflow.TenxFLowDetailLog.checkImage": "View Image",
+  "CICD.Tenxflow.TenxFLowDetailLog.normal": "Build Success",
+  "CICD.Tenxflow.TenxFLowDetailLog.fail": "Build Failed",
+  
+  "CICD.Tenxflow.ImageDeployLog.title": "Deploy Log",
+  "CICD.Tenxflow.ImageDeployLog.tooltip": "展示自动部署的记录，包含每次部署时的配置情况，部署完成状态，部署消耗时间",
+  "CICD.Tenxflow.ImageDeployLog.name": "Name",
+  "CICD.Tenxflow.ImageDeployLog.config": "Config",
+  "CICD.Tenxflow.ImageDeployLog.cluster": "Cluster",
+  "CICD.Tenxflow.ImageDeployLog.updateType": "Update Type",
+  "CICD.Tenxflow.ImageDeployLog.runningStatus": "Status",
+  "CICD.Tenxflow.ImageDeployLog.cost": "Cose",
+  "CICD.Tenxflow.ImageDeployLog.runningNormal": "Running",
+  "CICD.Tenxflow.ImageDeployLog.runningAbnormal": "Abnormal",
+  "CICD.Tenxflow.ImageDeployLog.success": "Success",
+  "CICD.Tenxflow.ImageDeployLog.fail": "Fail",
+  
+  "CICD.Tenxflow.AutoDeployService.tag": "Image Tag",
+  "CICD.Tenxflow.AutoDeployService.service": "Service",
+  "CICD.Tenxflow.AutoDeployService.updateType": "Update Type",
+  "CICD.Tenxflow.AutoDeployService.opera": "Opera",
+  "CICD.Tenxflow.AutoDeployService.confirm": "Confirm",
+  "CICD.Tenxflow.AutoDeployService.cancel": "Cancel",
+  "CICD.Tenxflow.AutoDeployService.add": "添加自动部署配置",
+  "CICD.Tenxflow.AutoDeployService.edit": "Edit",
+  "CICD.Tenxflow.AutoDeployService.title": "自动部署服务",
+  "CICD.Tenxflow.AutoDeployService.tooltips": "注：通过服务对应的镜像版本选出要自动部署的服务，并配置好部署升级方式（即：TenxFlow构建出某镜像版本后，将对以下服务升级部署）",
+  "CICD.Tenxflow.AutoDeployService.addNow": "立即部署应用",
+  "CICD.Tenxflow.AutoDeployService.tooltipsFirst": "检测到当前Flow构建生成的镜像，还未部署过应用或服务，请先使用该镜像直接创建",
+  "CICD.Tenxflow.AutoDeployService.tooltipsSecond": "【单服务应用】或者创建其它【多服务应用】使用该镜像创建子服务",
+  "CICD.Tenxflow.AutoDeployService.normalUpdate": "Normal Update",
+  "CICD.Tenxflow.AutoDeployService.imageUpdate": "Rolling Update"
 }

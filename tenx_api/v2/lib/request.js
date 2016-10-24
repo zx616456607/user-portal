@@ -62,9 +62,10 @@ module.exports = (protocol, host, api_prefix, version, auth, timeout) => {
           logger.info(`api result: ${JSON.stringify(result.data)}`)
           if (_isSuccess(result.res.statusCode)) {
             // data maybe null
-            if (result.data) {
-              result.data.statusCode = result.res.statusCode
+            if (!result.data) {
+              result.data = {}
             }
+            result.data.statusCode = result.res.statusCode
             return result.data
           }
           throw errors.get(result.res)
