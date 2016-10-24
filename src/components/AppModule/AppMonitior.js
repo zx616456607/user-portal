@@ -183,10 +183,7 @@ export default class AppMonitior extends Component {
       }
     })
   }
-  handleOneHour(){
-    function _addZero(text) {
-      return text.toString().length === 2 ? text : `0${text}`
-    }
+  changeTime(hours,day,week,month){
     let d =  new Date()
     const nDate = {
       year: d.getFullYear(),
@@ -197,8 +194,14 @@ export default class AppMonitior extends Component {
       second: d.getSeconds()
     }
     let now = d.getFullYear()+'-'+_addZero(nDate.month)+'-'+_addZero(nDate.day)+'T'+
-      _addZero(nDate.hour-1)+':'+_addZero(nDate.minute)+':'+_addZero(nDate.second)+'Z'
+      _addZero(nDate.hour-hours)+':'+_addZero(nDate.minute)+':'+_addZero(nDate.second)+'Z'
     console.log('now',now);
+  }
+  handleOneHour(){
+    function _addZero(text) {
+      return text.toString().length === 2 ? text : `0${text}`
+    }
+    
     this.setState({
       option: {
         xAxis: [{
