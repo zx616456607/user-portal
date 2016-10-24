@@ -57,8 +57,39 @@ exports.getServiceMetrics = function* () {
   }
 }
 
-exports.getAppMetrics = function () {
-  //
+exports.getAppMetrics = function* () {
+  const cluster = this.params.cluster
+  const appName = this.params.app_name
+  const query = this.query
+  const user = this.session.loginUser
+  if (!query.type) {
+    let err = new Error('type is required.')
+    err.status = 406
+    throw err
+  }
+  const api = apiFactory.getK8sApi(user)
+  // Top 10 services
+  const servicesResult = yield api.getBy([cluster, 'apps', appName, 'services'])
+  const services = servicesResult.data.services || []
+  const servicesPromiseArray = services.map((service) => {
+    let serviceName = service.metadata.name
+    return api.getBy([cluster, 'services', serviceName, 'instances'])
+  })
+  const instancesResults = yield servicesPromiseArray
+  const instancesPromiseArray = []
+  instancesResults.map((result) => {
+    const instances = result.data.instances || []
+    instances.map((instance) => {
+      let containerName = instance.metadata.name
+      instancesPromiseArray.push(_getContainerMetrics(user, cluster, containerName, query))
+    })
+  })
+  const results = yield instancesPromiseArray
+  this.body = {
+    cluster,
+    appName,
+    data: results
+  }
 }
 
 function _getContainerMetrics(user, cluster, containerName, query) {
