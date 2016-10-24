@@ -14,6 +14,7 @@ const apiFactory          = require('../services/api_factory')
 const registryService     = require('../services/tenx_registry')
 const SpecRegistryService = require('../services/docker_registry')
 
+const securityUtil        = require('../utils/security')
 const logger              = require('../utils/logger.js').getLogger("registry")
 const crypto              = require('crypto')
 const algorithm           = 'aes-256-ctr'
@@ -94,7 +95,7 @@ exports.addPrivateRegistry = function* () {
 
   const api = apiFactory.getManagedRegistryApi(loginUser)
   // Encrypt the password before save to database
-  reqData.encryptedPassword = _encryptPassword(reqData.password, loginUser.token)
+  reqData.encryptedPassword = securityUtil.encryptContent(reqData.password, loginUser.token, algorithm)
   const result = yield api.createBy([name], null, reqData)
 
   this.status = result.code
@@ -133,7 +134,7 @@ exports.specListRepositories = function* () {
   if (serverInfo.server) {
     logger.info("Found the matched registry config ...")
     // Get the real password before pass to registry service
-    let realPassword = _decryptPassword(serverInfo.password, loginUser.token)
+    let realPassword = securityUtil.decryptContent(serverInfo.password, loginUser.token, algorithm)
     let registryConfig = JSON.parse(JSON.stringify(serverInfo))
     registryConfig.password = realPassword
 
@@ -161,7 +162,7 @@ exports.specGetImageTags = function* () {
   if (serverInfo.server) {
     logger.info("Found the matched registry config ...")
     // Get the real password before pass to registry service
-    let realPassword = _decryptPassword(serverInfo.password, loginUser.token)
+    let realPassword = securityUtil.decryptContent(serverInfo.password, loginUser.token, algorithm)
     let registryConfig = JSON.parse(JSON.stringify(serverInfo))
     registryConfig.password = realPassword
 
@@ -190,7 +191,7 @@ exports.specGetImageTagConfig = function* () {
   if (serverInfo.server) {
     logger.info("Found the matched registry config ...")
     // Get the real password before pass to registry service
-    let realPassword = _decryptPassword(serverInfo.password, loginUser.token)
+    let realPassword = securityUtil.decryptContent(serverInfo.password, loginUser.token, algorithm)
     let registryConfig = JSON.parse(JSON.stringify(serverInfo))
     registryConfig.password = realPassword
 
@@ -218,7 +219,7 @@ exports.specGetImageTagSize = function* () {
   if (serverInfo.server) {
     logger.info("Found the matched registry config ...")
     // Get the real password before pass to registry service
-    let realPassword = _decryptPassword(serverInfo.password, loginUser.token)
+    let realPassword = securityUtil.decryptContent(serverInfo.password, loginUser.token, algorithm)
     let registryConfig = JSON.parse(JSON.stringify(serverInfo))
     registryConfig.password = realPassword
 
@@ -270,18 +271,4 @@ function* _getRegistryServerInfo(session, user, id){
     }
   }
   return serverInfo
-}
-// Encrypt the password before save using API
-function _encryptPassword(password, apiToken) {
-  var cipher = crypto.createCipher(algorithm, apiToken)
-  var crypted = cipher.update(password,'utf8','hex')
-  crypted += cipher.final('hex')
-  return crypted
-}
-// Decrypt the password before used to communicate with Docker Registry server
-function _decryptPassword(password, apiToken) {
-  var decipher = crypto.createDecipher(algorithm, apiToken)
-  var dec = decipher.update(password, 'hex', 'utf8')
-  dec += decipher.final('utf8')
-  return dec
 }

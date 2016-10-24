@@ -23,7 +23,7 @@ const Repository_Scope_Prefix = 'repository'
  */
 function SpecRegistryAPIs(registryConfig) {
   if (!registryConfig) {
-    throw "Not registry configuration specified."
+    throw "No registry configuration specified."
   }
   this.registryConfig = registryConfig
 }
