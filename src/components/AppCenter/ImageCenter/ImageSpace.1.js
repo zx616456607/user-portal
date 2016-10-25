@@ -13,9 +13,7 @@ import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { loadPrivateImageList ,getImageDetailInfo } from '../../../actions/app_center'
-import { DEFAULT_REGISTRY } from '../../../constants'
-
+import { loadOtherImageList ,getImageDetailInfo, deleteOtherImage} from '../../../actions/app_center'
 import "./style/ImageSpace.less"
 import ImageDetailBox from './ImageDetail/Index.js'
 
@@ -84,11 +82,51 @@ const menusText = defineMessages({
     id: 'AppCenter.ImageCenter.ImageSpace.downloadImageThirdTips',
     defaultMessage: '为了在本地方便使用，下载后可以修改<tag>为短标签，比如：',
   },
-  downloadNum: {
-    id: 'AppCenter.ImageCenter.PublicSpace.downloadNum',
-    defaultMessage: '下载次数：',
-  },
 })
+
+const testData = [{
+    id: "1",
+    imageName: "Github",
+    imgUrl: "/img/test/github.jpg",
+    type: "private",
+    imageUrl: "tenxcloud/Github",
+    downloadNum: "1234"
+  }, {
+    id: "2",
+    imageName: "Mysql",
+    imgUrl: "/img/test/mysql.jpg",
+    type: "private",
+    imageUrl: "tenxcloud/Mysql",
+    downloadNum: "1234"
+  }, {
+    id: "3",
+    imageName: "Github",
+    imgUrl: "/img/test/github.jpg",
+    type: "public",
+    imageUrl: "tenxcloud/Github",
+    downloadNum: "1234"
+  }, {
+    id: "4",
+    imageName: "Oracle",
+    imgUrl: "/img/test/oracle.jpg",
+    type: "private",
+    imageUrl: "tenxcloud/Oracle",
+    downloadNum: "1234"
+  }, {
+    id: "5",
+    imageName: "Mysql",
+    imgUrl: "/img/test/mysql.jpg",
+    type: "public",
+    imageUrl: "tenxcloud/Mysql",
+    downloadNum: "1234"
+  }, {
+    id: "6",
+    imageName: "Php",
+    imgUrl: "/img/test/php.jpg",
+    type: "public",
+    imageUrl: "tenxcloud/Php",
+    downloadNum: "1234"
+}];
 
 const MyComponent = React.createClass({
   propTypes: {
@@ -111,10 +149,9 @@ const MyComponent = React.createClass({
     //this function for user select image and show the image detail info
      const scope = this.props.scope;
      scope.setState({
-      privateDetailModal:true,
+      imageDetailModalShow:true,
       currentImage:id
      });
-     const fullgroup={registry: DEFAULT_REGISTRY, fullName: id.name}
      this.props.getImageDetailInfo(fullgroup, {
       success: {
         func: (res)=> {
@@ -126,7 +163,7 @@ const MyComponent = React.createClass({
     })
   },
   render: function () {
-    const { registryServer, imageList} = this.props
+    let imageList = this.props.imageList;
     let items = imageList.map((item) => {
       const dropdown = (
         <Menu onClick={this.btnDeleteImage.bind(this, item.id)}
@@ -144,11 +181,11 @@ const MyComponent = React.createClass({
           </div>
           <div className="contentBox">
             <span className="title" onClick={this.showImageDetail.bind(this, item)}>
-              {item.name}
+              {item.title}
             </span><br />
             <span className="type">
               <FormattedMessage {...menusText.type} />&nbsp;
-                {item.isPrivate == "0" ? [
+                {item.type == "public" ? [
                 <span key={item.id + "unlock"}><i className="fa fa-unlock-alt"></i>&nbsp;<FormattedMessage {...menusText.publicType} /></span>]
                 :
                 [<span key={item.id + "lock"}><i className="fa fa-lock"></i>&nbsp;<FormattedMessage {...menusText.privateType} /></span>]
@@ -156,10 +193,7 @@ const MyComponent = React.createClass({
             </span>
             <span className="imageUrl">
               <FormattedMessage {...menusText.imageUrl} />&nbsp;
-              <span className="">{registryServer}/{item.name}</span>
-            </span>
-            <span className="downloadNum">
-              <FormattedMessage {...menusText.downloadNum} />&nbsp;{item.downloadNumber}
+              <span className="colorUrl">{item.authUrl}</span>
             </span>
           </div>
           <div className="btnBox">
@@ -185,16 +219,15 @@ class ImageSpace extends Component {
     this.closeUploadModal = this.closeUploadModal.bind(this);
     this.openDownloadModal = this.openDownloadModal.bind(this);
     this.closeDownloadModal = this.closeDownloadModal.bind(this);
-    this.closeImageDetailModal = this.closeImageDetailModal.bind(this)
     this.state = {
       uploadModalVisible: false,
       downloadModalVisible: false,
       currentImage: null,
-      privateDetailModal: false
+      imageDetailModalShow: false
     }
   }
   componentWillMount() {
-    this.props.loadPrivateImageList(DEFAULT_REGISTRY);
+    this.props.loadPrivateImageList();
   }
   openUploadModal() {
     //this function for user open the upload image modal
@@ -227,7 +260,7 @@ class ImageSpace extends Component {
   closeImageDetailModal() {
     //this function for user close the modal of image detail info
     this.setState({
-      privateDetailModal: false
+      imageDetailModalShow: false
     });
   }
 
@@ -235,7 +268,7 @@ class ImageSpace extends Component {
     const { formatMessage } = this.props.intl;
     const rootscope = this.props.scope;
     const scope = this;
-    const { imageList ,server} = this.props
+    const { imageList } = this.props
     return (
       <QueueAnim className="ImageSpace"
         type="right"
@@ -254,7 +287,7 @@ class ImageSpace extends Component {
               <Input className="searchBox" placeholder={formatMessage(menusText.search)} type="text" />
               <i className="fa fa-search"></i>
             </div>
-            <MyComponent scope={scope} imageList= {imageList} registryServer= {server} deleteImage={(id)=>this.props.deleteImage(id)} getImageDetailInfo = {(obj,callback)=>this.props.getImageDetailInfo(obj,callback) } />
+            <MyComponent scope={scope} imageList= {imageList} deleteImage={(id)=>this.props.deleteImage(id)} getImageDetailInfo = {(obj,callback)=>this.props.getImageDetailInfo(obj,callback) } />
             <Modal title={<FormattedMessage {...menusText.uploadImage} />} className="uploadImageModal" visible={this.state.uploadModalVisible}
               onCancel={this.closeUploadModal} onOk={this.closeUploadModal}
               >
@@ -285,13 +318,12 @@ class ImageSpace extends Component {
             </span>
             </Modal>
             <Modal
-              visible={this.state.privateDetailModal}
+              visible={this.state.imageDetailModalShow}
               className="AppServiceDetail"
               transitionName="move-right"
               onCancel={this.closeImageDetailModal}
               >
-              {/* right detail box  */}
-              <ImageDetailBox scope={scope} imageInfo={this.state.imageInfo} config={this.state.currentImage} />
+              <ImageDetailBox scope={scope} config={this.state.currentImage} />
             </Modal>
           </Card>
         </div>
@@ -307,37 +339,34 @@ ImageSpace.propTypes = {
 function mapStateToProps(state, props) {
   const defaultPrivateImages = {
     isFetching: false,
-    registry: DEFAULT_REGISTRY,
-    imageList: [],
-    server:''
-
+    imageList: []
   }
   const defaultConfig = {
     isFetching: false,
     imageInfo: {dockerfile:'', detailMarkdown:''}
   }
   const { privateImages, imagesInfo } = state.images
-  const { imageList, isFetching, registry ,server} = privateImages[DEFAULT_REGISTRY] || defaultPrivateImages
+  const { imageList, isFetching } = privateImages || defaultPrivateImages
   const { imageInfo } = imagesInfo || defaultConfig
 
   return {
     imageList,
     isFetching,
-    imageInfo,
-    registry,
-    server
+    imageInfo
   }
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    loadPrivateImageList: (DEFAULT_REGISTRY) => {
-      dispatch(loadPrivateImageList(DEFAULT_REGISTRY))
+    loadPrivateImageList: () => {
+      dispatch(loadPrivateImageList())
     },
     getImageDetailInfo :(obj, callback)=> {
       dispatch(getImageDetailInfo(obj, callback))
     },
-
+    deleteImage: (id, callback)=> {
+      dispatch(deleteImage(id,callback))
+    }
   }
 }
 

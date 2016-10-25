@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Tabs, Button, Card, Menu, Tooltip } from 'antd'
+import { Tabs, Button, Card, Menu, Tooltip ,Icon} from 'antd'
 import { Link} from 'react-router'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
@@ -124,13 +124,6 @@ class ImageDetailBox extends Component {
   // }
   setimageStore(name) {
     console.log('image id is', this.props)
-    // this.props.imageStore(name, {
-    //   success: {
-    //     func:(res)=>{
-    //       console.log('store success',res)
-    //     }
-    //   }
-    // })
   }
   render() {
     const { formatMessage } = this.props.intl;
@@ -153,6 +146,7 @@ class ImageDetailBox extends Component {
               <span className="type"><FormattedMessage {...menusText.type} />{formatMessage(menusText.pubilicType)}</span>
             </div>
             <div className="rightBox">
+              <Icon type='cross' className='cursor' style={{fontSize: '18px',position: 'absolute', top:'30px', right:'40px'}} onClick={this.props.scope.closeImageDetailModal} />
               <Button size="large" type="primary">
                 <FormattedMessage {...menusText.deployImage} />
               </Button>
@@ -161,7 +155,6 @@ class ImageDetailBox extends Component {
                 <FormattedMessage {...menusText.colletctImage} />
               </Button>
             </div>
-            <i className="closeBtn fa fa-times" onClick={this.props.scope.closeImageDetailModal}></i>
           </div>
           <div style={{ clear: "both" }}></div>
         </div>
