@@ -45,112 +45,6 @@ class CPUMonitior extends Component {
       
     }
   }
-  componentWillMount(){
-    /*this.props.loadMetricsCPU(this.props.cluster,this.props.containerName,{
-     startTime: '2016-10-21T03:36:00Z'
-     }).then(function (res) {
-     console.log('res',res)
-     let timeData = []
-     let cpuValue = []
-     let cpuData = res.response.result.data['cpu/usageRate']
-     console.log('cpuData',cpuData)
-     cpuData.map((item) => {
-     timeData.push( tenxDateFormat(item.timestamp) )
-     cpuValue.push(item.value/100000)
-     })
-     self.setState({
-     option: {
-     title: {
-     text: '处理器',
-     // subtext: '处理器使用情况',
-     x: 'left',
-     textStyle: {
-     fontWeight: 'normal',
-     }
-     },
-     tooltip: {
-     trigger: 'axis',
-     axisPointer: {
-     animation: false
-     }
-     },
-     legend: {
-     data:[],
-     x: 'top'
-     },
-     /!*toolbox: {
-     feature: {
-     dataZoom: {
-     yAxisIndex: 'none'
-     },
-     restore: {},
-     saveAsImage: {}
-     }
-     },*!/
-     grid: [{
-     left: 50,
-     right: 50,
-     }],
-     xAxis : [
-     {
-     name : '流量',
-     type : 'category',
-     boundaryGap : false,
-     axisLine: {onZero: true},
-     data: timeData,
-     splitLine: {
-     show: true,
-     lineStyle: {
-     type: 'dashed'
-     }
-     }
-     },
-     ],
-     yAxis : [
-     {
-     type : 'value',
-     max : 100,
-     axisLabel: {
-     formatter: '{value} %'
-     },
-     splitLine: {
-     lineStyle: {
-     type: 'dashed'
-     }
-     },
-     },
-     ],
-     series : [
-     {
-     name:'流量',
-     type:'line',
-     hoverAnimation: false,
-     symbol:'none',
-     itemStyle : {
-     normal : {
-     lineStyle:{
-     color:'#00a0ea'
-     }
-     }
-     },
-     data: cpuValue
-     },
-     ],
-     }
-     })
-     },function (error) {
-     console.log(error)
-     })*/
-  }
-  /*componentWillReceiveProps(nextProps){
-    console.log('nextProps',nextProps);
-    console.log('this.props',this.props);
-    if(nextProps.changeTime !== this.props.changeTime){
-      loadData(this.props,{ start: this.changeTime(nextProps.changeTime) })
-    }
-    console.log('change!!!!',this.changeTime(nextProps.changeTime));
-    console.log('changeCPUDatawillprops',this.props.cpuData);
-  }*/
   render() {
     const { CPU } = this.props
     let cpuData = {
@@ -167,7 +61,7 @@ class CPUMonitior extends Component {
     console.log('cpuData', cpuData);
     const CPUData = cloneDeep(CPUOption)
     CPUData.xAxis = {
-      name: '流量',
+      name: '',
       type: 'category',
       boundaryGap: false,
       axisLine: {onZero: true},

@@ -20,7 +20,7 @@ const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 
 function loadData(props, query) {
-  const { cluster, containerName, loadMetricsCPU, loadMetricsMemory } = props
+  const { cluster, containerName, loadMetricsCPU, loadMetricsMemory, loadMetricsNetworkReceived, loadMetricsNetworkTransmitted } = props
   loadMetricsCPU(cluster, containerName, query)
   loadMetricsMemory(cluster, containerName, query)
   loadMetricsNetworkReceived(cluster, containerName, query)
@@ -190,7 +190,6 @@ function mapStateToProps(state, props) {
   }
 }
 export default connect(mapStateToProps, {
-//
   loadMetricsCPU,
   loadMetricsMemory,
   loadMetricsNetworkReceived,

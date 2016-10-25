@@ -10,7 +10,6 @@
 
 import React, { Component } from 'react'
 import ReactEcharts from 'echarts-for-react'
-import {  } from '../../actions/metrics'
 import cloneDeep from 'lodash/cloneDeep'
 import { formateDate, tenxDateFormat } from '../../common/tools'
 
@@ -50,7 +49,7 @@ class MemoryMonitior extends Component {
     let memoryData = {
       timeData: [],
       memoryValue: [],
-    }
+  }
     console.log('memory===========',memory);
     if (memory && memory.result) {
       memory.result.data['memory/usage'].map((item) => {
@@ -62,7 +61,7 @@ class MemoryMonitior extends Component {
     console.log('memoryData', memoryData);
     const MemoryData = cloneDeep(memoryOption)
     MemoryData.xAxis = {
-      name: '内存',
+      name: '',
       type: 'category',
       boundaryGap: false,
       axisLine: {onZero: true},
