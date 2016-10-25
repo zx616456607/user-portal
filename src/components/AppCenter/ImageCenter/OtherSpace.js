@@ -13,6 +13,7 @@ import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+
 import "./style/OtherSpace.less"
 import ImageDetailBox from './ImageDetail/Index.js'
 
@@ -47,78 +48,6 @@ const menusText = defineMessages({
   },
 })
 
-const testData = [{
-  id: "1",
-  imageName: "Github",
-  imgUrl: "/img/test/github.jpg",
-  type: "private",
-  imageUrl: "tenxcloud/Github",
-  downloadNum: "1234"
-}, {
-  id: "2",
-  imageName: "Mysql",
-  imgUrl: "/img/test/mysql.jpg",
-  type: "private",
-  imageUrl: "tenxcloud/Mysql",
-  downloadNum: "1234"
-}, {
-  id: "3",
-  imageName: "Github",
-  imgUrl: "/img/test/github.jpg",
-  type: "private",
-  imageUrl: "tenxcloud/Github",
-  downloadNum: "1234"
-}, {
-  id: "4",
-  imageName: "Oracle",
-  imgUrl: "/img/test/oracle.jpg",
-  type: "private",
-  imageUrl: "tenxcloud/Oracle",
-  downloadNum: "1234"
-}, {
-  id: "5",
-  imageName: "Mysql",
-  imgUrl: "/img/test/mysql.jpg",
-  type: "private",
-  imageUrl: "tenxcloud/Mysql",
-  downloadNum: "1234"
-}, {
-  id: "6",
-  imageName: "Php",
-  imgUrl: "/img/test/php.jpg",
-  type: "private",
-  imageUrl: "tenxcloud/Php",
-  downloadNum: "1234"
-}, {
-  id: "7",
-  imageName: "Oracle",
-  imgUrl: "/img/test/oracle.jpg",
-  type: "private",
-  imageUrl: "tenxcloud/Oracle",
-  downloadNum: "1234"
-}, {
-  id: "8",
-  imageName: "Oracle",
-  imgUrl: "/img/test/oracle.jpg",
-  type: "private",
-  imageUrl: "tenxcloud/Oracle",
-  downloadNum: "1234"
-}, {
-  id: "9",
-  imageName: "Github",
-  imgUrl: "/img/test/github.jpg",
-  type: "private",
-  imageUrl: "tenxcloud/Github",
-  downloadNum: "1234"
-}, {
-  id: "10",
-  imageName: "Github",
-  imgUrl: "/img/test/github.jpg",
-  type: "private",
-  imageUrl: "tenxcloud/Github",
-  downloadNum: "1234"
-}];
-
 let MyComponent = React.createClass({
   propTypes: {
     config: React.PropTypes.array,
@@ -134,27 +63,25 @@ let MyComponent = React.createClass({
   },
   render: function () {
     let config = this.props.config;
+    if (!config) return
     let items = config.map((item) => {
       return (
-        <div className="imageDetail" key={item.id} >
+        <div className="imageDetail" key={item} >
           <div className="imageBox">
-            <img src={item.imgUrl} />
+            <img src="/img/test/github.jpg" />
           </div>
           <div className="contentBox">
             <span className="title" onClick={this.showImageDetail.bind(this, item)}>
-              {item.imageName}
+              {item}
             </span><br />
             <span className="type">
-              <FormattedMessage {...menusText.belong} />&nbsp;
-       {item.type}
+              <FormattedMessage {...menusText.belong} />&nbsp;私有
             </span>
             <span className="imageUrl">
               <FormattedMessage {...menusText.imageUrl} />&nbsp;
-       <span className="colorUrl">{item.imageUrl}</span>
+            <span className="">http://192.168.1.113/{item}</span>
             </span>
-            <span className="downloadNum">
-              <FormattedMessage {...menusText.downloadNum} />&nbsp;{item.downloadNum}
-            </span>
+
           </div>
           <div className="btnBox">
             <Button type="ghost">
@@ -217,7 +144,7 @@ class OtherSpace extends Component {
               <i className="fa fa-search"></i>
               <div style={{ clear: "both" }}></div>
             </div>
-            <MyComponent scope={scope} config={testData} />
+            <MyComponent scope={scope} config={this.props.config} />
           </Card>
         </div>
         <Modal
@@ -236,7 +163,39 @@ class OtherSpace extends Component {
 OtherSpace.propTypes = {
   intl: PropTypes.object.isRequired
 }
+function mapStateToProps(state, props) {
+  const defaultPrivateImages = {
+    isFetching: false,
+    imageList: []
+  }
+  const defaultConfig = {
+    isFetching: false,
+    imageInfo: {dockerfile:'', detailMarkdown:''}
+  }
+  const { privateImages, imagesInfo } = state.images
+  const { imageList, isFetching } = privateImages || defaultPrivateImages
+  const { imageInfo } = imagesInfo || defaultConfig
 
-export default connect()(injectIntl(OtherSpace, {
+  return {
+    imageList,
+    isFetching,
+    imageInfo
+  }
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    loadPrivateImageList: () => {
+      dispatch(loadPrivateImageList())
+    },
+    getImageDetailInfo :(obj, callback)=> {
+      dispatch(getImageDetailInfo(obj, callback))
+    },
+    deleteImage: (id, callback)=> {
+      dispatch(deleteImage(id,callback))
+    }
+  }
+}
+export default connect(mapStateToProps,mapDispatchToProps)(injectIntl(OtherSpace, {
   withRef: true,
 }))

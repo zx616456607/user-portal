@@ -20,6 +20,8 @@ import MyCollection from './ImageCenter/MyCollection.js'
 import PublicSpace from './ImageCenter/PublicSpace.js'
 import OtherSpace from './ImageCenter/OtherSpace.js'
 import "./style/ImageCenter.less"
+import { loadOtherImage, getOtherImageList, addOtherStore, getImageDetailInfo, deleteOtherImage} from '../../actions/app_center'
+
 
 let TweenOneGroup = TweenOne.TweenOneGroup;
 const TabPane = Tabs.TabPane;
@@ -46,8 +48,13 @@ let MyComponent = React.createClass({
       PwdMoment: null,
       urlInput: null,
       nameInput: null,
-      emailInput: null,
-      pwdInput: null
+      textareaInput: null,
+      pwdInput: null,
+      registryInput: null,
+      regMoment: null,
+      regPaused: true,
+      regReverse: false,
+
     };
   },
   propTypes: {
@@ -70,18 +77,11 @@ let MyComponent = React.createClass({
           UrlMoment: null
         });
         break;
-      case "name":
+      case "username":
         this.setState({
           NameReverse: false,
           NamePaused: false,
           NameMoment: null
-        });
-        break;
-      case "email":
-        this.setState({
-          EmailPaused: false,
-          EmailReverse: false,
-          EmailMoment: null
         });
         break;
       case "password":
@@ -91,17 +91,25 @@ let MyComponent = React.createClass({
           PwdMoment: null
         });
         break;
+      case "registryName":
+        this.setState({
+          regPaused: false,
+          regReverse: false,
+          regMoment: null
+        });
+        break;
     }
   },
   inputOnBlur(current) {
     //this function for user blur out current input and the title will be add an animate
     let urlInput = this.refs.urlInput;
-    let emailInput = this.refs.emailInput;
+    let textareaInput = this.refs.textareaInput;
     let nameInput = this.refs.nameInput;
     let pwdInput = this.refs.pwdInput;
+    let registryInput = this.refs.registryInput
     switch (current) {
       case "url":
-        if (!!!urlInput.props.value) {
+        if (!urlInput.props.value) {
           //it's meaning user hadn't input message in the input box so that the title will be move
           this.setState({
             UrlPaused: false,
@@ -110,21 +118,12 @@ let MyComponent = React.createClass({
           });
         }
         break;
-      case "name":
-        if (!!!nameInput.props.value) {
+      case "username":
+        if (!nameInput.props.value) {
           this.setState({
             NamePaused: false,
             NameReverse: true,
             NameMoment: null
-          });
-        }
-        break;
-      case "email":
-        if (!!!emailInput.props.value) {
-          this.setState({
-            EmailPaused: false,
-            EmailReverse: true,
-            EmailMoment: null
           });
         }
         break;
@@ -137,6 +136,15 @@ let MyComponent = React.createClass({
           });
         }
         break;
+      case "registryName":
+        if (!!!registryInput.props.value) {
+          this.setState({
+            regPaused: false,
+            regReverse: true,
+            regMoment: null
+          });
+        }
+      break;
     }
   },
   handleReset(e) {
@@ -155,9 +163,24 @@ let MyComponent = React.createClass({
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         //it's mean there are some thing is null,user didn't input
-
         return;
       }
+      console.log('add other img ', values)
+      const config = {
+        registryName: values.registryName,
+        username: values.username,
+        password: values.passwd || null,
+        url: values.url,
+        description: values.description || null
+      } 
+      this.props.addOtherStore(config, {
+        success: {
+          func: (res) =>{
+            console.log(res.data)
+            message.success('添加第三方镜像成功')
+          }
+        }
+      })
       //when the code running here,it's meaning user had input all things,
       //and should submit the message to the backend
       scope.setState({
@@ -173,29 +196,26 @@ let MyComponent = React.createClass({
         { required: true, message: '请输入地址' }
       ],
     });
-    const emailProps = getFieldProps('email', {
+    const emailProps = getFieldProps('description', {
       validate: [{
         rules: [
-          { required: true, message: '请输入邮箱地址' },
-        ],
-        trigger: 'onBlur',
-      }, {
-        rules: [
-          { type: 'email', message: '请输入正确的邮箱地址' },
-        ],
-        trigger: ['onBlur', 'onChange'],
+          { required: false, message: '描述' },
+        ]
       }],
     });
-    const nameProps = getFieldProps('name', {
+    const nameProps = getFieldProps('username', {
       rules: [
         { required: true, message: '请输入用户名' }
       ],
     });
     const passwdProps = getFieldProps('passwd', {
       rules: [
-        { required: true, whitespace: true, message: '请填写密码' },
+        { required: true, whitespace: true},
       ],
     });
+    const registryProps = getFieldProps('registryName',{
+      rules: [{required: true, whitespace: true}]
+    })
     return (
       <div className="modalBox">
         <div className="selectBox">
@@ -220,6 +240,18 @@ let MyComponent = React.createClass({
           <FormItem hasFeedback >
             <TweenOne
               animation={{ top: '-20', duration: 500 }}
+              paused={this.state.regPaused}
+              reverse={this.state.regReverse}
+              moment={this.state.regMoment}
+              style={{ position: "absolute", width: "10%", top: "0" }}
+              >
+              <span className="title" key="name">镜像名</span>
+            </TweenOne>
+            <Input {...registryProps} ref="registryInput" onFocus={this.inputOnFocus.bind(this, "registryName")} onBlur={this.inputOnBlur.bind(this, "registryName")} />
+          </FormItem>
+          <FormItem hasFeedback >
+            <TweenOne
+              animation={{ top: '-20', duration: 500 }}
               paused={this.state.UrlPaused}
               reverse={this.state.UrlReverse}
               moment={this.state.UrlMoment}
@@ -229,18 +261,7 @@ let MyComponent = React.createClass({
             </TweenOne>
             <Input {...urlProps} ref="urlInput" onFocus={this.inputOnFocus.bind(this, "url")} onBlur={this.inputOnBlur.bind(this, "url")} />
           </FormItem>
-          <FormItem hasFeedback >
-            <TweenOne
-              animation={{ top: '-20', duration: 500 }}
-              paused={this.state.EmailPaused}
-              reverse={this.state.EmailReverse}
-              moment={this.state.EmailMoment}
-              style={{ position: "absolute", width: "10%", top: "0" }}
-              >
-              <span className="title">邮箱</span>
-            </TweenOne>
-            <Input {...emailProps} type="email" ref="emailInput" onFocus={this.inputOnFocus.bind(this, "email")} onBlur={this.inputOnBlur.bind(this, "email")} />
-          </FormItem>
+          
           <FormItem hasFeedback >
             <TweenOne
               animation={{ top: '-20', duration: 500 }}
@@ -251,7 +272,7 @@ let MyComponent = React.createClass({
               >
               <span className="title">用户名</span>
             </TweenOne>
-            <Input {...nameProps} ref="nameInput" onFocus={this.inputOnFocus.bind(this, "name")} onBlur={this.inputOnBlur.bind(this, "name")} />
+            <Input {...nameProps} ref="nameInput" onFocus={this.inputOnFocus.bind(this, "username")} onBlur={this.inputOnBlur.bind(this, "username")} />
           </FormItem>
           <FormItem hasFeedback >
             <TweenOne
@@ -264,6 +285,18 @@ let MyComponent = React.createClass({
               <span className="title">密码</span>
             </TweenOne>
             <Input {...passwdProps} ref="pwdInput" type="password" autoComplete="off" onFocus={this.inputOnFocus.bind(this, "password")} onBlur={this.inputOnBlur.bind(this, "password")} />
+          </FormItem>
+          <FormItem hasFeedback >
+            <TweenOne
+              animation={{ top: '-20', duration: 500 }}
+              paused={this.state.EmailPaused}
+              reverse={this.state.EmailReverse}
+              moment={this.state.EmailMoment}
+              style={{ paddingLeft:'10px'}}
+              >
+              <span>描述</span>
+            </TweenOne>
+            <Input {...emailProps} type="textarea" ref="textareaInput"/>
           </FormItem>
           <div className="btnBox">
             <Button size="large" type="primary" onClick={this.handleSubmit}>确定</Button>
@@ -278,6 +311,19 @@ let MyComponent = React.createClass({
 
 MyComponent = createForm()(MyComponent);
 
+// const otherHead = React.createClass({
+//   cosnt otherImageList = this.props.otherImageList
+//   let kke = otherImageList.map((list) => {
+//    return (
+//     <li className={current == "otherSpace" ? "titleSelected" : "titleDetail"}
+//       onClick={this.selectCurrentTab.bind(this, "otherSpace", "dockerhub",list.id)}
+//       >
+//       <span>list.title</span>
+//     </li>
+
+//   )
+// }) 
+// })
 class ImageCenter extends Component {
   constructor(props) {
     super(props);
@@ -293,8 +339,19 @@ class ImageCenter extends Component {
       imageDetailModalShow: false
     }
   }
+  componentDidMount() {
+    this.props.loadOtherImage({
+      success: {
+        func: (res)=> {
+          this.setState({
+            otherImageHead: res.data
+          })
 
-  selectCurrentTab(current, type) {
+        }
+      }
+    });
+  }
+  selectCurrentTab(current, type, id) {
     //this function for user select current show tabs
     this.setState({
       current: current
@@ -304,6 +361,19 @@ class ImageCenter extends Component {
       this.setState({
         otherSpace: type
       });
+    }
+    if (id) {
+      const scope = this
+      this.props.getOtherImageList(id, {
+        success: {
+          func: (res)=>{
+            console.log(res)
+            scope.setState({
+              otherImageList: res.repositories
+            })
+          }
+        }
+      })
     }
   }
 
@@ -334,6 +404,8 @@ class ImageCenter extends Component {
     const { otherSpace } = this.state;
     const { formatMessage } = this.props.intl;
     const scope = this;
+    const otherImageHead = this.state.otherImageHead ||[]
+    const { otherImageList } = this.state
     return (
       <QueueAnim className="ImageCenterBox"
         type="right"
@@ -356,11 +428,16 @@ class ImageCenter extends Component {
                 >
                 <span>我的收藏</span>
               </li>
-              <li className={current == "otherSpace" ? "titleSelected" : "titleDetail"}
-                onClick={this.selectCurrentTab.bind(this, "otherSpace", "dockerhub")}
-                >
-                <span>dockerhub</span>
-              </li>
+
+              { otherImageHead.map(list=> {
+                return (
+                <li className={current == "otherSpace" ? "titleSelected" : "titleDetail"}
+                  onClick={this.selectCurrentTab.bind(this, "otherSpace", "dockerhub",list.id)} >
+                  <span>{list.title}</span>
+                </li>
+                )
+               })
+              }
               <div style={{ clear: "both" }}></div>
             </ul>
             <Button className="addBtn" size="large" type="primary" onClick={this.addImageTab}>
@@ -372,11 +449,11 @@ class ImageCenter extends Component {
           {current == "imageSpace" ? [<ImageSpace scope={scope} />] : null}
           {current == "publicSpace" ? [<PublicSpace scope={scope} />] : null}
           {current == "myCollection" ? [<MyCollection scope={scope} />] : null}
-          {current == "otherSpace" ? [<OtherSpace scope={scope} config={otherSpace} />] : null}
+          {current == "otherSpace" ? [<OtherSpace scope={scope} config={otherImageList} />] : null}
           <Modal title="添加第三方" className="addOtherSpaceModal" visible={this.state.createModalShow}
             onCancel={this.closeAddModal}
             >
-            <MyComponent scope={scope} />
+            <MyComponent scope={scope} addOtherStore= {this.props.addOtherStore} />
           </Modal>
         </div>
       </QueueAnim>
@@ -387,7 +464,40 @@ class ImageCenter extends Component {
 ImageCenter.propTypes = {
   intl: PropTypes.object.isRequired
 }
+function mapStateToProps(state, props) {
+  const defaultConfig = {
+    isFetching: false,
+    otherImageList:[],
+    otherImageHead:[]
+  }
+  const { privateImages, otherImages, imagesInfo } = state.images
+  const { registry, imageList, isFetching,server } = privateImages || defaultConfig
+  const { imageRow } = otherImages || defaultConfig
 
-export default connect()(injectIntl(ImageCenter, {
+  return {
+    otherImageList: imageList,
+    otherImageHead: imageRow,
+    isFetching,
+  }
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    addOtherStore: (obj, callback) => {
+      dispatch(addOtherStore(obj,callback))
+    },
+    loadOtherImage: (obj, callback) => {
+      dispatch(loadOtherImage(obj, callback))
+    },
+    getOtherImageList:(id, callback) => {
+      dispatch(getOtherImageList(id, callback))
+    },
+    deleteOtherImage: (obj, callback) => {
+      dispatch(deleteOtherImage(obj, callback))
+    }
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(ImageCenter, {
   withRef: true,
 }))
