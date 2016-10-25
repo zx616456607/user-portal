@@ -12,9 +12,7 @@ import { Radio, } from 'antd'
 import { connect } from 'react-redux'
 import './style/ContainerMonitior.less'
 import TimeControl from '../Metrics/TimeControl'
-import CPUMonitior from './CPUMonitior'
-import MemoryMonitior from './MemoryMonitior'
-import NetworkMonitior from './NetworkMonitior'
+import Metrics from '../Metrics'
 import { loadMetricsCPU, loadMetricsMemory, loadMetricsNetworkReceived, loadMetricsNetworkTransmitted, } from '../../actions/metrics'
 
 const RadioButton = Radio.Button;
@@ -52,20 +50,17 @@ class ContainerMonitior extends Component {
   }
 
   render() {
-    const { CPU, memory, networkReceived, networkTransmitted } = this.props
+    const { cpu, memory, networkReceived, networkTransmitted } = this.props
     console.log('propsMemory=====', memory);
     return (
       <div id="ContainerMonitior">
         <TimeControl onChange={this.handleTimeChange} />
-        <div className="cpu">
-          <CPUMonitior CPU={CPU} />
-        </div>
-        <div className="memory">
-          <MemoryMonitior memory={memory} />
-        </div>
-        <div className="network">
-          <NetworkMonitior networkReceived={networkReceived} networkTransmitted={networkTransmitted} />
-        </div>
+        <Metrics
+          cpu={cpu}
+          memory={memory}
+          networkReceived={networkReceived}
+          networkTransmitted={networkTransmitted}
+        />
       </div>
     )
   }
@@ -88,18 +83,33 @@ function mapStateToProps(state, props) {
   }
   if (CPU && CPU.result) {
     cpuData.data = CPU.result.data || []
-    /*CPU.result.data['cpu/usageRate'].map((item) => {
-      cpuData.timeDatas.push(item.timestamp)
-      cpuData.values.push(item.value * 100)
-    })*/
   }
-  console.log('cpuData--------------------------------')
-  console.log(cpuData)
+  const memoryData = {
+    isFetching: memory.isFetching,
+    data: []
+  }
+  if (memory && memory.result) {
+    memoryData.data = memory.result.data || []
+  }
+  const networkReceivedData = {
+    isFetching: networkReceived.isFetching,
+    data: []
+  }
+  if (networkReceived && networkReceived.result) {
+    networkReceivedData.data = networkReceived.result.data || []
+  }
+  const networkTransmittedData = {
+    isFetching: networkTransmitted.isFetching,
+    data: []
+  }
+  if (networkTransmitted && networkTransmitted.result) {
+    networkTransmittedData.data = networkTransmitted.result.data || []
+  }
   return {
-    CPU: cpuData,
-    memory,
-    networkReceived,
-    networkTransmitted,
+    cpu: cpuData,
+    memory: memoryData,
+    networkReceived: networkReceivedData,
+    networkTransmitted: networkTransmittedData,
   }
 }
 export default connect(mapStateToProps, {

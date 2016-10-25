@@ -21,18 +21,24 @@ class Metrics extends Component {
   }
 
   render() {
+    const { cpu, memory, networkReceived, networkTransmitted } = this.props
     return (
       <div>
-        <CPU />
-        <Memory />
-        <Network />
+        <CPU cpu={cpu} />
+        <Memory memory={memory} />
+        <Network networkReceived={networkReceived}
+          networkTransmitted={networkTransmitted}
+        />
       </div>
     )
   }
 }
 
 Metrics.propTypes = {
-  //
+  cpu: PropTypes.object.isRequired,
+  memory: PropTypes.object.isRequired,
+  networkReceived: PropTypes.object.isRequired,
+  networkTransmitted: PropTypes.object.isRequired,
 }
 
 export default Metrics

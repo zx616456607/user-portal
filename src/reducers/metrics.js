@@ -12,7 +12,7 @@ import * as ActionTypes from '../actions/metrics'
 import reducerFactory from './factory'
 import { DEFAULT_PAGE_SIZE } from '../constants'
 
-export default function metrics(state = { containers: { CPU: {}, memory: {} } }, action) {
+export default function metrics(state = { containers: { CPU: {}, memory: {}, networkReceived: {}, networkTransmitted: {} } }, action) {
   return {
     containers: {
       CPU: reducerFactory({

@@ -7,12 +7,12 @@
  * CPU metrics
  *
  * v0.1 - 2016-10-25
- * @author ZhaoXueYu
+ * @author Zhangpc
  */
 
 import React, { Component, PropTypes } from 'react'
 import ReactEcharts from 'echarts-for-react'
-import { TEST_MONITOR_OPTION } from '../../constants'
+import EchartsOption from './EchartsOption'
 
 class CPU extends Component {
   constructor(props) {
@@ -20,14 +20,28 @@ class CPU extends Component {
   }
 
   render() {
+    const option = new EchartsOption('CPU')
+    const { cpu } = this.props
+    const { isFetching, data } = cpu
+    option.addYAxis()
+    data.map((item) => {
+      let timeData = []
+      let values = []
+      item.metrics.map((metric) => {
+        timeData.push(metric.timestamp)
+        values.push(metric.value)
+      })
+      option.setXAxisData(timeData)
+      option.addSeries(values, item.containerName)
+    })
     return (
-      <ReactEcharts option={TEST_MONITOR_OPTION}/>
+      <ReactEcharts option={option} showLoading={isFetching} />
     )
   }
 }
 
 CPU.propTypes = {
-  //
+  cpu: PropTypes.object.isRequired,
 }
 
 export default CPU

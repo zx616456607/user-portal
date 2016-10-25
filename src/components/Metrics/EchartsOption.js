@@ -78,7 +78,7 @@ class EchartsOption {
     this.yAxis.push(yAxisItem)
   }
 
-  addSeries(data, name, type, itemStyle) {
+  addSeries(data, name, itemStyle, type) {
     const seriesItem = {
       name: '',
       type: 'line',
@@ -99,11 +99,11 @@ class EchartsOption {
     if (name) {
       seriesItem.name = name
     }
-    if (type) {
-      seriesItem.type = type
-    }
     if (itemStyle) {
       seriesItem.itemStyle = itemStyle
+    }
+    if (type) {
+      seriesItem.type = type
     }
     this.series.push(seriesItem)
   }
