@@ -8,13 +8,16 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Switch, Tabs, Button, Card, Menu, Tooltip } from 'antd'
+import { Tabs, Button, Card, Menu, Tooltip } from 'antd'
 import { Link} from 'react-router'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import { imageStore } from '../../../../actions/app_center'
+import { DEFAULT_REGISTRY } from '../../../../constants'
 import ImageVersion from './ImageVersion.js'
-import DetailInfo from './DetailInfo.js'
-import DockerFile from './Dockerfile.js'
+import DetailInfo from './DetailInfo'
+import DockerFile from './Dockerfile'
+import Attribute from './Attribute'
 import './style/ImageDetailBox.less'
 
 const TabPane = Tabs.TabPane;
@@ -119,7 +122,16 @@ class ImageDetailBox extends Component {
   //     this.props.getImageDetailInfo(DEFAULT_REGISTRY, this.props.config.name)
   //   }
   // }
-
+  setimageStore(name) {
+    console.log('image id is', this.props)
+    // this.props.imageStore(name, {
+    //   success: {
+    //     func:(res)=>{
+    //       console.log('store success',res)
+    //     }
+    //   }
+    // })
+  }
   render() {
     const { formatMessage } = this.props.intl;
     const {imageInfo} = this.props
@@ -138,14 +150,13 @@ class ImageDetailBox extends Component {
             <p className="imageName">{imageDetail.name ? imageDetail.name : imageDetail.imageName}</p>
             <div className="leftBox">
               <p className="imageUrl">{imageDetail.description ? imageDetail.description : imageDetail.imageName}</p>
-              <span className="type"><FormattedMessage {...menusText.type} /></span>
-              <Switch style={{float: 'left'}} checked={imageDetail.isPrivate == 0 ? true : false} checkedChildren={formatMessage(menusText.pubilicType)} unCheckedChildren={formatMessage(menusText.privateType)} />
+              <span className="type"><FormattedMessage {...menusText.type} />{formatMessage(menusText.pubilicType)}</span>
             </div>
             <div className="rightBox">
               <Button size="large" type="primary">
                 <FormattedMessage {...menusText.deployImage} />
               </Button>
-              <Button size="large" type="ghost">
+              <Button size="large" type="ghost" onClick={ this.setimageStore(imageInfo.name) }>
                 <i className="fa fa-star-o"></i>&nbsp;
                 <FormattedMessage {...menusText.colletctImage} />
               </Button>
@@ -175,7 +186,7 @@ class ImageDetailBox extends Component {
             <TabPane tab={formatMessage(menusText.info)} key="1"><DetailInfo detailInfo={imageInfo.detailMarkdown} /></TabPane>
             <TabPane tab="DockerFile" key="2"><DockerFile isFetching = {this.props.isFetching} dockerfile={imageInfo.dockerfile} /></TabPane>
             <TabPane tab={formatMessage(menusText.tag)} key="3"><ImageVersion scope={scope} config={imageDetail} /></TabPane>
-            <TabPane tab={formatMessage(menusText.attribute)} key="4">Conten of Tab Pane 3</TabPane>
+            <TabPane tab={formatMessage(menusText.attribute)} key="4"><Attribute detailInfo = {imageInfo} /></TabPane>
           </Tabs>
         </div>
       </div>
@@ -186,6 +197,28 @@ class ImageDetailBox extends Component {
 ImageDetailBox.propTypes = {
   intl: PropTypes.object.isRequired,
 }
+
+// function mapStateToProps(state, props) {
+//   const defaultConfig = {
+//     isFavourite:'0',
+//     isFetching: false,
+//     registry: DEFAULT_REGISTRY
+//   }
+//   const {imagesInfo } = state.images
+//   const { imageInfo } = imagesInfo[DEFAULT_REGISTRY] || defaultConfig
+
+//   return {
+//     isFavourite: imageInfo.isFavourite
+//   }
+// }
+
+// function mapDispatchToProps(dispatch) {
+//   return {
+//     imageStore: (name, callback) => {
+//       dispatch(imageStore(name, callback))
+//     },
+//   }
+// }
 
 export default connect()(injectIntl(ImageDetailBox, {
   withRef: true,

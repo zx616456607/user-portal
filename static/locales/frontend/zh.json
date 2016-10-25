@@ -139,9 +139,13 @@
   "AppCenter.ImageCenter.ImageDetail.downloadImage":"下载镜像",
   "AppCenter.ImageCenter.ImageDetail.info":"基本信息",
   "AppCenter.ImageCenter.ImageDetail.tag":"版本及接口",
+  "AppCenter.ImageCenter.ImageDetail.size":"大小",
   "AppCenter.ImageCenter.ImageDetail.attribute":"属性",
   "AppCenter.ImageCenter.ImageDetail.copyBtn":"点击复制",
   "AppCenter.ImageCenter.ImageDetail.copySuccess":"复制成功",
+  "AppCenter.ImageCenter.ImageDetail.contributor":"贡献者",
+  "AppCenter.ImageCenter.ImageDetail.favouriteNumber":"收藏数",
+  "AppCenter.ImageCenter.ImageDetail.creationTime":"创建时间",
   
   "this.is.an.commnent":"/--------------------------CI & CD-------------------------/",
   "CICD.Tenxflow.TenxFlowList.search": "搜索",

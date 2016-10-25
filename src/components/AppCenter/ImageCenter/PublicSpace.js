@@ -215,7 +215,7 @@ function mapDispatchToProps(dispatch) {
     },
     getImageDetailInfo :(obj, callback)=> {
       dispatch(getImageDetailInfo(obj, callback))
-    }
+    },
   }
 }
 
@@ -223,7 +223,7 @@ PublicSpace.propTypes = {
   intl: PropTypes.object.isRequired,
   loadPublicImageList: PropTypes.func.isRequired,
   isFetching: PropTypes.bool.isRequired,
-  getImageDetailInfo: PropTypes.func.isRequired
+  getImageDetailInfo: PropTypes.func.isRequired,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps )(injectIntl(PublicSpace, {

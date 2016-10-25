@@ -101,6 +101,7 @@ module.exports = function (Router) {
   router.get('/docker-registry/:id/images/:image*/tags', registryController.specGetImageTags)
   router.get('/docker-registry/:id/images/:image*/tags/:tag', registryController.specGetImageTagConfig)
   router.get('/docker-registry/:id/images/:image*/tags/:tag/size', registryController.specGetImageTagSize)
+  router.post('/docker-registry/update', registryController.imageStore)
 
   // Metrics
   router.get('/clusters/:cluster/containers/:container_name/metrics', metricsController.getContainerMetrics)

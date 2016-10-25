@@ -6,7 +6,6 @@
  *
  * v0.1 - 2016-10-08
  * @author Zhangpc
- * @author Lei 3rdparty docker registry integration
  */
 'use strict'
 
