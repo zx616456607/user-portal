@@ -38,7 +38,7 @@ exports.getContainerMetrics = function* () {
   this.body = {
     cluster,
     containerName,
-    data: result
+    data: [result]
   }
 }
 
@@ -136,7 +136,8 @@ function _getContainerMetrics(user, cluster, instance, query) {
     return {
       containerName,
       start,
-      [type]: metrics,
+      type,
+      metrics,
       statusCode: result.statusCode
     }
   })

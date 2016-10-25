@@ -10,103 +10,32 @@
 
 import React, { Component } from 'react'
 import ReactEcharts from 'echarts-for-react'
-import cloneDeep from 'lodash/cloneDeep'
+import EchartsOption from '../Metrics/EchartsOption'
 import { formateDate, tenxDateFormat } from '../../common/tools'
 
-const CPUOption = {
-  title: {
-    text: '处理器',
-    // subtext: '处理器使用情况',
-    x: 'left',
-    textStyle: {
-      fontWeight: 'normal',
-    }
-  },
-  tooltip: {
-    trigger: 'axis',
-    axisPointer: {
-      animation: false
-    }
-  },
-  legend: {
-    data:[],
-    x: 'top'
-  },
-  grid: [{
-    left: 50,
-    right: 50,
-  }],
-}
-
 class CPUMonitior extends Component {
-  constructor(props){
+  constructor(props) {
     super(props)
-    this.state = {
-      
-    }
   }
   render() {
+    const option = new EchartsOption('CPU')
     const { CPU } = this.props
-    let cpuData = {
-      timeData: [],
-      cpuValue: [],
-    }
-    if (CPU && CPU.result) {
-      CPU.result.data['cpu/usageRate'].map((item) => {
-        // cpuData.timeData.push( tenxDateFormat(item.timestamp) )
-        cpuData.timeData.push(new Date(item.timestamp))
-        cpuData.cpuValue.push(item.value*10000000000)
+    const { isFetching, data } = CPU
+    console.log('CPU--------------------------------')
+    console.log(CPU)
+    option.addYAxis()
+    data.map((item) => {
+      let timeData = []
+      let values = []
+      item.metrics.map((metric) => {
+        timeData.push(metric.timestamp)
+        values.push(metric.value)
       })
-    }
-    console.log('cpuData', cpuData);
-    const CPUData = cloneDeep(CPUOption)
-    CPUData.xAxis = {
-      name: '',
-      type: 'category',
-      boundaryGap: false,
-      axisLine: {onZero: true},
-      splitLine: {
-        show: true,
-        lineStyle: {
-          type: 'dashed'
-        }
-      },
-      data: cpuData.timeData
-    }
-    CPUData.yAxis = [
-      {
-        type: 'value',
-        // max: 100,
-        axisLabel: {
-          formatter: '{value} %'
-        },
-        splitLine: {
-          lineStyle: {
-            type: 'dashed'
-          }
-        },
-      },
-    ]
-    CPUData.series = [
-      {
-        name: '流量',
-        type: 'line',
-        hoverAnimation: false,
-        symbol: 'none',
-        itemStyle: {
-          normal: {
-            lineStyle: {
-              color: '#00a0ea'
-            }
-          }
-        },
-        data: cpuData.cpuValue
-      },
-    ]
-    console.log('changeCPUData',CPUData);
+      option.setXAxisData(timeData)
+      option.addSeries(metric.value, item.containerName)
+    })
     return (
-      <ReactEcharts ref='echartsInstance'
-                    option={ CPUData }/>
+      <ReactEcharts option={option} showLoading={isFetching} />
     )
   }
 }
