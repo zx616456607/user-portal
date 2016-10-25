@@ -10,8 +10,6 @@
 
 import React, { Component } from 'react'
 import ReactEcharts from 'echarts-for-react'
-import { connect } from 'react-redux'
-import { loadMetricsCPU } from '../../actions/metrics'
 import cloneDeep from 'lodash/cloneDeep'
 import { formateDate, tenxDateFormat } from '../../common/tools'
 
@@ -39,45 +37,15 @@ const CPUOption = {
     right: 50,
   }],
 }
-function loadData(props, query) {
-  const { cluster, containerName, loadMetricsCPU } = props
-  loadMetricsCPU(cluster, containerName, query)
-}
+
 class CPUMonitior extends Component {
   constructor(props){
     super(props)
-    this.handleOneHour = this.handleOneHour.bind(this)
-    this.handleTimeChange = this.handleTimeChange.bind(this)
-    this.changeTime = this.changeTime.bind(this)
     this.state = {
       
     }
   }
-  changeTime (hours) {
-    function _addZero(text) {
-      return text.toString().length === 2 ? text : `0${text}`
-    }
-    let d =  new Date()
-    d.setHours(d.getHours() - hours)
-    let now = d.getFullYear()+'-'+_addZero((d.getMonth() + 1))+'-'+_addZero(d.getDate())+'T'+
-      _addZero(d.getHours())+':'+_addZero(d.getMinutes())+':'+_addZero(d.getSeconds())+'Z'
-    return now
-  }
-  handleOneHour() {
-    loadData(this.props, { start: this.changeTime(0) })
-  }
-  handleTimeChange(e) {
-    const { cpuData } = this.props
-    const { value } = e.target
-    const start = this.changeTime(value)
-    loadData(this.props, { start })
-    this.setState({
-      dateData: cpuData.timeData
-    })
-  }
   componentWillMount(){
-    const { changeTime } = this.props
-    loadData(this.props, { start: this.changeTime(changeTime) })
     /*this.props.loadMetricsCPU(this.props.cluster,this.props.containerName,{
      startTime: '2016-10-21T03:36:00Z'
      }).then(function (res) {
@@ -174,7 +142,7 @@ class CPUMonitior extends Component {
      console.log(error)
      })*/
   }
-  componentWillReceiveProps(nextProps){
+  /*componentWillReceiveProps(nextProps){
     console.log('nextProps',nextProps);
     console.log('this.props',this.props);
     if(nextProps.changeTime !== this.props.changeTime){
@@ -182,9 +150,20 @@ class CPUMonitior extends Component {
     }
     console.log('change!!!!',this.changeTime(nextProps.changeTime));
     console.log('changeCPUDatawillprops',this.props.cpuData);
-  }
+  }*/
   render() {
-    const {cpuData, changeTime} = this.props
+    const { CPU } = this.props
+    let cpuData = {
+      timeData: [],
+      cpuValue: [],
+    }
+    if (CPU && CPU.result) {
+      CPU.result.data['cpu/usageRate'].map((item) => {
+        // cpuData.timeData.push( tenxDateFormat(item.timestamp) )
+        cpuData.timeData.push(new Date(item.timestamp))
+        cpuData.cpuValue.push(item.value*10000000000)
+      })
+    }
     console.log('cpuData', cpuData);
     const CPUData = cloneDeep(CPUOption)
     CPUData.xAxis = {
@@ -203,7 +182,7 @@ class CPUMonitior extends Component {
     CPUData.yAxis = [
       {
         type: 'value',
-        max: 100,
+        // max: 100,
         axisLabel: {
           formatter: '{value} %'
         },
@@ -238,30 +217,5 @@ class CPUMonitior extends Component {
   }
 }
 
-function mapStateToProps(state, props) {
-  const {
-    CPU,
-    memory
-  } = state.metrics.containers
-  let cpuData = {
-    timeData: [],
-    cpuValue: [],
-  }
-  if (CPU && CPU.result) {
-    CPU.result.data['cpu/usageRate'].map((item) => {
-      cpuData.timeData.push( tenxDateFormat(item.timestamp) )
-      cpuData.cpuValue.push(item.value*10000000000)
-    })
-  }
-  console.log('cpuData',cpuData)
-  console.log('containers--------------------')
-  console.log(CPU)
-  return {
-    cpuData,
-    memory,
-  }
-}
-export default connect(mapStateToProps, {
-  loadMetricsCPU
-})(CPUMonitior)
+export default CPUMonitior
 
