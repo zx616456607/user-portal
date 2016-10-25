@@ -133,7 +133,7 @@ SpecRegistryAPIs.prototype.getImageTagSize = function (imageName, tag) {
               size += layer.size
             })
             var returnResult = {
-              "layerSize": result.layers.length,
+              "layerLength": result.layers.length,
               "imageSize": size
             }
             resolve({"code": statusCode, "result": returnResult})
