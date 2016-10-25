@@ -90,6 +90,8 @@ function otherImages(state ={}, action) {
     case ActionTypes.IMAGE_OTHER_SUCCESS:
       return merge({}, state, {
           isFetching: false,
+          registry: action.response.result.registry,
+          server: action.response.result.server,
           imageRow: action.response.result.data || []
       })
     case ActionTypes.IMAGE_OTHER_FAILURE:
@@ -109,18 +111,40 @@ function otherImages(state ={}, action) {
       return merge({}, defaultState, state, {
          isFetching: false
       })
+    case ActionTypes.DELETE_OTHER_IMAGE_REQUEST:
+      return merge({}, state, {
+         isFetching: true
+      })
+    case ActionTypes.DELETE_OTHER_IMAGE_SUCCESS:
+      // return merge({}, state, {
+      //     isFetching: false,
+      //     imageList: action.response.result.data
+      // })
+      const oldState = cloneDeep(state)
+      const Id = action.id
+      const imageList = action.imageList
+      for (let i=0; i < imageList.length; i++) {
+        if (imageList[i].id == Id) {
+          imageList.splice(i,1)
+        }
+      }
+      return oldState
+    case ActionTypes.DELETE_OTHER_IMAGE_FAILURE:
+      return merge({}, state, {
+         isFetching: false 
+      })
     default:
       return state
   }
 }
 
-function deleteImage(state= {}, action) {
+function deleteOtherImage(state= {}, action) {
   switch (action.type) {
-    case ActionTypes.DELETE_PRIVATE_IMAGE_REQUEST:
+    case ActionTypes.DELETE_OTHER_IMAGE_REQUEST:
       return merge({}, state, {
          isFetching: true
       })
-    case ActionTypes.DELETE_PRIVATE_IMAGE_SUCCESS:
+    case ActionTypes.DELETE_OTHER_IMAGE_SUCCESS:
       // return merge({}, state, {
       //     isFetching: false,
       //     imageList: action.response.result.data
@@ -134,7 +158,7 @@ function deleteImage(state= {}, action) {
         }
       }
       return oldState
-    case ActionTypes.DELETE_PRIVATE_IMAGE_FAILURE:
+    case ActionTypes.DELETE_OTHER_IMAGE_FAILURE:
       return merge({}, state, {
          isFetching: false 
       })
@@ -149,7 +173,6 @@ export function images(state = { publicImages: {} }, action) {
     publicImages: publicImages(state.publicImages, action),
     otherImages: otherImages(state.otherImages, action),
     imagesInfo: imagesInfo(state.imagesInfo, action),
-    deleteImage: deleteImage(state.deleteImage, action),
   }
 }
 //get image detail tag

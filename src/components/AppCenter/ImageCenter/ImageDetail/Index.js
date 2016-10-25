@@ -150,7 +150,7 @@ class ImageDetailBox extends Component {
               <Button size="large" type="primary">
                 <FormattedMessage {...menusText.deployImage} />
               </Button>
-              <Button size="large" type="ghost" onClick={ this.setimageStore(imageInfo.name) }>
+              <Button size="large" type="ghost" onClick={ ()=>this.setimageStore(imageInfo.name) }>
                 <i className="fa fa-star-o"></i>&nbsp;
                 <FormattedMessage {...menusText.colletctImage} />
               </Button>

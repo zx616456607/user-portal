@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Modal, Tabs, Menu, Button, Card, Form, Input } from 'antd'
+import { Modal, Tabs, Menu, Button, Card, Form, Input ,message} from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import TweenOne from 'rc-tween-one';
@@ -165,7 +165,6 @@ let MyComponent = React.createClass({
         //it's mean there are some thing is null,user didn't input
         return;
       }
-      console.log('add other img ', values)
       const config = {
         registryName: values.registryName,
         username: values.username,
@@ -176,10 +175,23 @@ let MyComponent = React.createClass({
       this.props.addOtherStore(config, {
         success: {
           func: (res) =>{
-            console.log(res.data)
             message.success('添加第三方镜像成功')
+            setTimeout(()=>{
+              scope.props.loadOtherImage({
+                success: {
+                  func: (res) => {
+                    scope.setState({
+                      otherImageHead: res.data
+                    })
+
+                  }
+                }
+              })
+
+            }, 500)
           }
-        }
+        },
+        isAsync: true
       })
       //when the code running here,it's meaning user had input all things,
       //and should submit the message to the backend
@@ -336,7 +348,8 @@ class ImageCenter extends Component {
       otherSpace: null,
       createModalShow: false,
       otherSpaceType: "1",
-      imageDetailModalShow: false
+      imageDetailModalShow: false,
+      imageId:''
     }
   }
   componentDidMount() {
@@ -351,7 +364,7 @@ class ImageCenter extends Component {
       }
     });
   }
-  selectCurrentTab(current, type, id) {
+  selectCurrentTab(current, type, list) {
     //this function for user select current show tabs
     this.setState({
       current: current
@@ -359,15 +372,15 @@ class ImageCenter extends Component {
     //if user select other space is not default space,so that change state
     if (type != "default") {
       this.setState({
-        otherSpace: type
+        otherSpace: type,
+        imageId: list.id
       });
     }
-    if (id) {
+    if (list.id) {
       const scope = this
-      this.props.getOtherImageList(id, {
+      this.props.getOtherImageList(list.id, {
         success: {
           func: (res)=>{
-            console.log(res)
             scope.setState({
               otherImageList: res.repositories
             })
@@ -431,8 +444,8 @@ class ImageCenter extends Component {
 
               { otherImageHead.map(list=> {
                 return (
-                <li className={current == "otherSpace" ? "titleSelected" : "titleDetail"}
-                  onClick={this.selectCurrentTab.bind(this, "otherSpace", "dockerhub",list.id)} >
+                <li className={current == list.id ? "titleSelected" : "titleDetail"}
+                  onClick={this.selectCurrentTab.bind(this, list.id, "otherRegistry",list)} >
                   <span>{list.title}</span>
                 </li>
                 )
@@ -449,7 +462,7 @@ class ImageCenter extends Component {
           {current == "imageSpace" ? [<ImageSpace scope={scope} />] : null}
           {current == "publicSpace" ? [<PublicSpace scope={scope} />] : null}
           {current == "myCollection" ? [<MyCollection scope={scope} />] : null}
-          {current == "otherSpace" ? [<OtherSpace scope={scope} config={otherImageList} />] : null}
+          {otherSpace == 'otherRegistry' ? [<OtherSpace scope={scope} registryServer={this.props.server} imageId = {this.state.imageId} config={otherImageList} />] : null}
           <Modal title="添加第三方" className="addOtherSpaceModal" visible={this.state.createModalShow}
             onCancel={this.closeAddModal}
             >
@@ -468,16 +481,18 @@ function mapStateToProps(state, props) {
   const defaultConfig = {
     isFetching: false,
     otherImageList:[],
-    otherImageHead:[]
+    otherImageHead:[],
+    server:''
   }
   const { privateImages, otherImages, imagesInfo } = state.images
-  const { registry, imageList, isFetching,server } = privateImages || defaultConfig
-  const { imageRow } = otherImages || defaultConfig
+  const { registry, imageList, isFetching } = privateImages || defaultConfig
+  const { imageRow , server} = otherImages || defaultConfig
 
   return {
     otherImageList: imageList,
     otherImageHead: imageRow,
     isFetching,
+    server
   }
 }
 
@@ -486,8 +501,8 @@ function mapDispatchToProps(dispatch) {
     addOtherStore: (obj, callback) => {
       dispatch(addOtherStore(obj,callback))
     },
-    loadOtherImage: (obj, callback) => {
-      dispatch(loadOtherImage(obj, callback))
+    loadOtherImage: (registry, callback) => {
+      dispatch(loadOtherImage(registry, callback))
     },
     getOtherImageList:(id, callback) => {
       dispatch(getOtherImageList(id, callback))

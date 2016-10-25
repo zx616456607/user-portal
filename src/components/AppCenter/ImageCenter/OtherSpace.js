@@ -13,6 +13,8 @@ import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import {deleteOtherImage} from '../../../actions/app_center'
+
 
 import "./style/OtherSpace.less"
 import ImageDetailBox from './ImageDetail/Index.js'
@@ -79,7 +81,7 @@ let MyComponent = React.createClass({
             </span>
             <span className="imageUrl">
               <FormattedMessage {...menusText.imageUrl} />&nbsp;
-            <span className="">http://192.168.1.113/{item}</span>
+            <span className="">{this.props.registryServer}/{item}</span>
             </span>
 
           </div>
@@ -120,6 +122,7 @@ class OtherSpace extends Component {
     const { formatMessage } = this.props.intl;
     const rootscope = this.props.scope;
     const scope = this;
+    console.log(this.props.imageId)
     return (
       <QueueAnim className="OtherSpace"
         type="right"
@@ -130,21 +133,18 @@ class OtherSpace extends Component {
               <div className="infoBox">
                 <div className="url">
                   <i className="fa fa-link"></i>&nbsp;&nbsp;
-                    https://dockerhub.tenxcloud.com
+                    {this.props.registryServer}
                   </div>
-                <div className="name">
-                  <i className="fa fa-user"></i>&nbsp;&nbsp;
-                    tenxcloud
-                  </div>
+                
               </div>
-              <Button className="logout" size="large" type="ghost">
+              <Button className="logout" size="large" type="ghost" onClick={()=>this.props.deleteOtherImage(this.props.imageId)}>
                 <FormattedMessage {...menusText.logout} />
               </Button>
               <Input className="searchBox" placeholder={formatMessage(menusText.search)} type="text" />
               <i className="fa fa-search"></i>
               <div style={{ clear: "both" }}></div>
             </div>
-            <MyComponent scope={scope} config={this.props.config} />
+            <MyComponent scope={scope} registryServer={this.props.registryServer} config={this.props.config} />
           </Card>
         </div>
         <Modal
@@ -191,8 +191,8 @@ function mapDispatchToProps(dispatch) {
     getImageDetailInfo :(obj, callback)=> {
       dispatch(getImageDetailInfo(obj, callback))
     },
-    deleteImage: (id, callback)=> {
-      dispatch(deleteImage(id,callback))
+    deleteOtherImage: (id, callback)=> {
+      dispatch(deleteOtherImage(id,callback))
     }
   }
 }

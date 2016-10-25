@@ -58,8 +58,8 @@ export function addOtherStore(obj, callback) {
       schema: Schemas.REGISTRYS,
       options: {
         method: 'POST',
-        body: {obj}
-      },
+        body: obj
+      }
     },
     callback
   }
@@ -97,14 +97,14 @@ export function getOtherImageList(id, callback) {
   }
 }
 
-export const DELETE_Other_IMAGE_REQUEST = 'DELETE_Other_IMAGE_REQUEST'
-export const DELETE_Other_IMAGE_SUCCESS = 'DELETE_Other_IMAGE_SUCCESS'
-export const DELETE_Other_IMAGE_FAILURE = 'DELETE_Other_IMAGE_FAILURE'
+export const DELETE_OTHER_IMAGE_REQUEST = 'DELETE_OTHER_IMAGE_REQUEST'
+export const DELETE_OTHER_IMAGE_SUCCESS = 'DELETE_OTHER_IMAGE_SUCCESS'
+export const DELETE_OTHER_IMAGE_FAILURE = 'DELETE_OTHER_IMAGE_FAILURE'
 // delete Other image
 export function deleteOtherImage(id, callback) {
   return {
     [FETCH_API]: {
-      types: [DELETE_Other_IMAGE_REQUEST, DELETE_Other_IMAGE_SUCCESS, DELETE_Other_IMAGE_FAILURE],
+      types: [DELETE_OTHER_IMAGE_REQUEST, DELETE_OTHER_IMAGE_SUCCESS, DELETE_OTHER_IMAGE_FAILURE],
       endpoint: `${API_URL_PREFIX}/docker-registry/${id}`,
       options: {
         method: 'DELETE',
