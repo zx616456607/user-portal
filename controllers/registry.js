@@ -42,6 +42,15 @@ exports.getImages = function* () {
   }
 }
 
+exports.getPrivateImages = function* () {
+  const loginUser = this.session.loginUser
+  const result = yield registryService.getPrivateRepositories(loginUser.user, 1)
+
+  this.body = {
+    data: result
+  }
+}
+
 exports.getImageTags = function* () {
   const registry = this.params.registry
   const imageFullName = this.params.user + '/' + this.params.name
@@ -208,6 +217,7 @@ exports.specGetImageTagConfig = function* () {
     this.body = "Docker Registry not found"
   }
 }
+
 exports.specGetImageTagSize = function* () {
   const loginUser = this.session.loginUser
   const registryId = this.params.id
@@ -273,7 +283,6 @@ function* _getRegistryServerInfo(session, user, id){
   }
   return serverInfo
 }
-
 
 exports.imageStore = function *() {
   const store  = this.params.body
