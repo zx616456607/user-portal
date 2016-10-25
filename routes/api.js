@@ -48,6 +48,7 @@ module.exports = function (Router) {
   // spi
   router.get('/clusters/:cluster/apps/:app_name/logs', appController.getAppLogs)
   router.get('/clusters/:cluster/apps/:app_name/existence', appController.checkAppName)
+  router.get('/clusters/:cluster/services/:service/existence', appController.checkServiceName)
 
   // Services
   router.put('/clusters/:cluster/services/batch-start', serviceController.startServices)
@@ -67,8 +68,8 @@ module.exports = function (Router) {
   router.post('/clusters/:cluster/services/:service_name/logs', serviceController.getServiceLogs)
   router.get('/clusters/:cluster/services/:service_name/ports', serviceController.getServicePorts)
   // spi
-  router.post('/clusters/:cluster/services/:service_name/domain', serviceController.bindServiceDomain)
-
+  router.post('/clusters/:cluster/services/:service_name/binddomain', serviceController.bindServiceDomain)
+  router.put('/clusters/:cluster/services/:service_name/binddomain', serviceController.deleteServiceDomain)
   // Containers
   router.get('/clusters/:cluster/containers', containerController.getContainers)
   router.get('/clusters/:cluster/containers/:container_name/detail', containerController.getContainerDetail)
@@ -87,6 +88,7 @@ module.exports = function (Router) {
 
   // Registries
   router.get('/registries/:registry', registryController.getImages)
+  router.get('/registries/:registry/:user/:name/detailInfo', registryController.getImageInfo)
   router.get('/registries/:registry/:user/:name/tags', registryController.getImageTags)
   router.get('/registries/:registry/:user/:name/tags/:tag/configs', registryController.getImageConfigs)
 

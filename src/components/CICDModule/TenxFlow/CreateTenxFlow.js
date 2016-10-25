@@ -15,6 +15,7 @@ import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import './style/CreateTenxFlow.less'
+import { browserHistory } from 'react-router';
 
 const RadioGroup = Radio.Group;
 const createForm = Form.create;
@@ -80,11 +81,11 @@ let CreateTenxFlow = React.createClass({
     return {
       currentType: 'view',
       emailAlert: false,
-      otherEmail: false
+      otherEmail: false,
+      currentTenxFlow: null
     }
   },
   componentWillMount() {
-    console.log(this)
     document.title = 'TenxFlow | 时速云';
   },
   nameExists(rule, value, callback) {
@@ -163,26 +164,31 @@ let CreateTenxFlow = React.createClass({
     });
     scope.setState({
       createTenxFlowModal: false
-    });
+    });    
   },
   handleSubmit(e) {
     //this function for user submit the form
-    e.preventDefault();
     const { scope } = this.props;
+    const _this = this;
+    let scopeHistory = scope.props.history;
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         console.log('Errors in form!!!');
+        e.preventDefault();
         return;
       }
-      console.log(values);
-      scope.setState({
+      _this.setState({
+        currentTenxFlow: values
+      });
+      scope.setState({       
         createTenxFlowModal: false
       });
+      scopeHistory.push({ pathname: '/ci_cd/tenx_flow/tenx_flow_build', state: { config: values } });
     });
   },
   render() {
     const { formatMessage } = this.props.intl;
-    const scope = this;
+    const { scope } = this.props;
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form;
     const nameProps = getFieldProps('name', {
       rules: [

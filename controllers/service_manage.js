@@ -277,10 +277,33 @@ exports.rollingUpdateService = function* () {
 exports.bindServiceDomain = function* () {
   const cluster = this.params.cluster
   const serviceName = this.params.service_name
-  this.body = {
-    cluster,
-    serviceName
+  const reqData = this.request.body
+  if(!reqData.port || !reqData.domain) {
+    const err = new Error('port and domain is required')
+    err.status = 400
+    throw err
   }
+  const loginUser = this.session.loginUser
+  const spi = apiFactory.getSpi(loginUser)
+  const result = yield spi.clusters.createBy([cluster, 'services', serviceName, 'binddomain'], null, reqData)
+  this.status = result.code
+  this.body = result
+}
+
+exports.deleteServiceDomain = function* () {
+  const cluster = this.params.cluster
+  const serviceName = this.params.service_name
+  const reqData = this.request.body
+  if (!reqData.port || !reqData.domain) {
+    const err = new Error('port and domain is required')
+    err.status = 400
+    throw err
+  }
+  const loginUser = this.session.loginUser
+  const spi = apiFactory.getSpi(loginUser)
+  const result = yield spi.clusters.updateBy([cluster, 'services', serviceName, 'binddomain'], null, reqData)
+  this.status = result.code
+  this.body = result
 }
 
 exports.getServiceDetailEvents = function* () {

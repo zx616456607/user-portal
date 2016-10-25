@@ -10,7 +10,7 @@
 
 import merge from 'lodash/merge'
 
-export default function reducerFactory(ActionTypes = {}, state, action) {
+export default function reducerFactory(ActionTypes = {}, state, action, refuseMerge) {
   const defaultState = {
     isFetching: false
   }
@@ -20,6 +20,9 @@ export default function reducerFactory(ActionTypes = {}, state, action) {
         isFetching: true
       })
     case ActionTypes.SUCCESS:
+      if(refuseMerge) {
+        return merge({},{ isFetching: false}, action.response.resultt)
+      }
       return merge({}, state, {
         isFetching: false,
         result: action.response.result

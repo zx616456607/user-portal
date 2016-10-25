@@ -9,11 +9,16 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { Switch, Tabs, Button, Card, Menu, Tooltip } from 'antd'
-import { Link } from 'react-router'
+import { Link} from 'react-router'
 import { connect } from 'react-redux'
+
+import { getImageDetailInfo } from '../../../../actions/app_center'
+import { DEFAULT_REGISTRY } from '../../../../constants'
+
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import ImageVersion from './ImageVersion.js'
 import DetailInfo from './DetailInfo.js'
+import DockerFile from './Dockerfile.js'
 import './style/ImageDetailBox.less'
 
 const TabPane = Tabs.TabPane;
@@ -70,6 +75,7 @@ class ImageDetailBox extends Component {
     super(props);
     this.copyDownloadCode = this.copyDownloadCode.bind(this);
     this.returnDefaultTooltip = this.returnDefaultTooltip.bind(this);
+    this.callback = this.callback.bind(this)
     this.state = {
       imageDetail: null,
       copySuccess: false
@@ -111,11 +117,17 @@ class ImageDetailBox extends Component {
       });
     }, 500);
   }
+  callback(key) {
+    if (key == 2) {
+      this.props.getImageDetailInfo(DEFAULT_REGISTRY, this.props.config.name)
+    }
+  }
 
   render() {
     const { formatMessage } = this.props.intl;
     const imageDetail = this.props.config;
     const config = this.state.imageDetail;
+    const imageDockerfile = this.props.imageDockerfile || {}
     const scope = this;
     const ipAddress = this.props.scope.props.registryServer;
     const imageName = this.state.imageDetail.name;
@@ -127,11 +139,11 @@ class ImageDetailBox extends Component {
             <img src="/img/test/github.jpg" />
           </div>
           <div className="infoBox">
-            <p className="imageName">{imageDetail.name}</p>
+            <p className="imageName">{imageDetail.name ? imageDetail.name : imageDetail.imageName}</p>
             <div className="leftBox">
-              <p className="imageUrl">{imageDetail.description}</p>
+              <p className="imageUrl">{imageDetail.description ? imageDetail.description : imageDetail.imageName}</p>
               <span className="type"><FormattedMessage {...menusText.type} /></span>
-              <Switch checked={imageDetail.isPrivate == 0 ? true : false} checkedChildren={formatMessage(menusText.pubilicType)} unCheckedChildren={formatMessage(menusText.privateType)} />
+              <Switch style={{float: 'left'}} checked={imageDetail.isPrivate == 0 ? true : false} checkedChildren={formatMessage(menusText.pubilicType)} unCheckedChildren={formatMessage(menusText.privateType)} />
             </div>
             <div className="rightBox">
               <Button size="large" type="primary">
@@ -139,7 +151,7 @@ class ImageDetailBox extends Component {
               </Button>
               <Button size="large" type="ghost">
                 <i className="fa fa-star-o"></i>&nbsp;
-            <FormattedMessage {...menusText.colletctImage} />
+                <FormattedMessage {...menusText.colletctImage} />
               </Button>
             </div>
             <i className="closeBtn fa fa-times" onClick={this.props.scope.closeImageDetailModal}></i>
@@ -154,7 +166,7 @@ class ImageDetailBox extends Component {
             <Tooltip title={this.state.copySuccess ? formatMessage(menusText.copySuccess) : formatMessage(menusText.copyBtn)} getTooltipContainer={() => document.getElementById("ImageDetailBox")}>
               <i className="fa fa-copy" onClick={this.copyDownloadCode} onMouseLeave={this.returnDefaultTooltip}></i>
             </Tooltip>
-            <input className="pullCodeInput" value={pullCode} style={{ position: "absolute", opacity: "0" }} />
+            <input className="pullCodeInput" defaultValue={pullCode} style={{ position: "absolute", opacity: "0" }} />
           </div>
           <div className="times">
             <i className="fa fa-cloud-download"></i>&nbsp;&nbsp;
@@ -163,9 +175,9 @@ class ImageDetailBox extends Component {
           <div style={{ clear: "both" }}></div>
         </div>
         <div className="tabBox">
-          <Tabs className="itemList" defaultActiveKey="1">
+          <Tabs className="itemList" onChange={ this.callback } defaultActiveKey="1">
             <TabPane tab={formatMessage(menusText.info)} key="1"><DetailInfo config={imageDetail} /></TabPane>
-            <TabPane tab="DockerFile" key="2">Conten of Tab Pane 3</TabPane>
+            <TabPane tab="DockerFile" key="2"><DockerFile isFetching = {this.props.isFetching} imageInfo={this.props.imageInfo} /></TabPane>
             <TabPane tab={formatMessage(menusText.tag)} key="3"><ImageVersion scope={scope} config={imageDetail} /></TabPane>
             <TabPane tab={formatMessage(menusText.attribute)} key="4">Conten of Tab Pane 3</TabPane>
           </Tabs>
@@ -176,9 +188,31 @@ class ImageDetailBox extends Component {
 }
 
 ImageDetailBox.propTypes = {
-  intl: PropTypes.object.isRequired
+  intl: PropTypes.object.isRequired,
+  // getImageDetailInfo: PropTypes.func.isRequired
 }
 
-export default connect()(injectIntl(ImageDetailBox, {
+function mapStateToProps(state, props){
+  const defaultConfig = {
+    isFetching: false,
+    imageInfo: {dockerfileMarkdown:''}
+  }
+  const { imagesInfo } = state.images
+  const { imageInfo, isFetching} = imagesInfo[DEFAULT_REGISTRY] || defaultConfig
+  return {
+    imageInfo , 
+    isFetching,
+  }
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    getImageDetailInfo :(registry, fullName)=> {
+      dispatch(getImageDetailInfo(registry, fullName))
+    }
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(ImageDetailBox, {
   withRef: true,
 }));

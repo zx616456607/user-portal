@@ -9,6 +9,9 @@
  */
 'use strict'
 const registryAPIs = require('../registry/lib/registryAPIs')
+const markdown     = require('markdown-it')();
+
+const registry = new registryAPIs()
 
 exports.getPublicImages = function (username) {
   const registry = new registryAPIs()
@@ -76,6 +79,46 @@ exports.getImageConfigs = function (username, imageFullName, tag) {
       }
       resolve(_formatImageInfo(configs, imageFullName, tag))
     })
+  })
+}
+
+exports.getImageInfo = function(username, imageFullName ) {
+  const registry = new registryAPIs()
+  console.log('service req nama, fullname', username, imageFullName)
+  if (username) {
+    username = username.toLowerCase()
+  }
+  return new Promise(function (resolve, reject) {
+    registry.getImageInfo(username, imageFullName, function (statusCode, imageInfo, err) {
+      statusCode = parseInt(statusCode);
+      if (err) {
+        reject(err)
+        return
+      }
+      if (statusCode > 300) {
+        // Indicate whether the current user is the owner
+        logger.error("Failed to get image information -> " + statusCode);
+        err = new Error('Failed to get image info , dockerfile: ' + imageInfo)
+        err.status = statusCode
+        reject(err)
+        return
+      } 
+      if (imageInfo && imageInfo.contributor == username) {
+        imageInfo.isOwner = true;
+      }
+      if (imageInfo.detail) {
+        imageInfo.detailMarkdown = markdown.render(imageInfo.detail);
+      } else {
+        imageInfo.detailMarkdown = imageInfo.detail;
+      }
+      if (imageInfo.dockerfile) {
+        imageInfo.dockerfileMarkdown = markdown.render(imageInfo.dockerfile);
+      } else {
+        imageInfo.dockerfileMarkdown = '';
+      }
+      resolve(imageInfo);
+    })
+
   })
 }
 

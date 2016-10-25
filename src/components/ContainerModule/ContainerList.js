@@ -116,8 +116,7 @@ const MyComponent = React.createClass({
     });
   },
   render: function () {
-    const { scope } = this.props;
-    const { config, loading, page, size, total } = this.props;
+    const { scope, config, loading, page, size, total } = this.props
     if (loading) {
       return (
         <div className='loadingBox'>
@@ -204,8 +203,9 @@ const MyComponent = React.createClass({
     return (
       <div className="dataBox">
         {items}
-        <div style={{ marginTop: 15 }}>
+        <div className="paginationBox">
           <Pagination
+            className="inlineBlock"
             showSizeChanger
             showQuickJumper
             onShowSizeChange={this.onShowSizeChange}
@@ -234,6 +234,7 @@ class ContainerList extends Component {
     this.closeTerminalLayoutModal = this.closeTerminalLayoutModal.bind(this)
     this.state = {
       selectedList: [],
+      searchInputValue: props.name,
       searchInputDisabled: false,
       TerminalLayoutModal: false,
       currentContainer: null
@@ -286,34 +287,34 @@ class ContainerList extends Component {
 
   searchContainers(e) {
     const { name, pathname } = this.props
-    const value = e.target.value.trim()
-    if (value === name) {
+    const { searchInputValue } = this.state
+    if (searchInputValue === name) {
       return
     }
     this.setState({
       searchInputDisabled: true
     })
     const query = {}
-    if (value) {
-      query.name = value
+    if (searchInputValue) {
+      query.name = searchInputValue
     }
     browserHistory.push({
       pathname,
       query
     })
   }
-  
+
   closeTerminalLayoutModal() {
     //this function for user close the terminal modal
     this.setState({
       TerminalLayoutModal: false
     });
   }
-  
+
   render() {
     const parentScope = this
-    const { name, pathname, cluster, page, size, total, containerList, isFetching } = this.props
-    const { searchInputDisabled } = this.state
+    const { name, pathname, page, size, total, cluster, containerList, isFetching } = this.props
+    const { searchInputValue, searchInputDisabled } = this.state
     return (
       <QueueAnim
         className="ContainerList"
@@ -325,12 +326,17 @@ class ContainerList extends Component {
               <Button type="primary" size="large"><i className="fa fa-power-off"></i>重新分配</Button>
             </div>
             <div className="rightBox">
-              <div className="littleLeft">
+              <div className="littleLeft" onClick={this.searchContainers}>
                 <i className="fa fa-search"></i>
               </div>
               <div className="littleRight">
                 <Input
-                  defaultValue={name}
+                  onChange={(e) => {
+                    this.setState({
+                      searchInputValue: e.target.value
+                    })
+                  } }
+                  value={searchInputValue}
                   placeholder="输入容器名回车搜索"
                   disabled={searchInputDisabled}
                   onPressEnter={this.searchContainers} />
@@ -364,7 +370,7 @@ class ContainerList extends Component {
               </div>
               <div className="actionBox commonTitle">
                 操作
-            </div>
+              </div>
             </div>
             <MyComponent
               size={size} total={total} pathname={pathname} page={page} name={name}
@@ -377,7 +383,7 @@ class ContainerList extends Component {
           transitionName='move-down'
           onCancel={this.closeTerminalLayoutModal}
           >
-          <TerminalModal scope={ parentScope } config={ this.state.currentContainer } />
+          <TerminalModal scope={parentScope} config={this.state.currentContainer} />
         </Modal>
       </QueueAnim>
     )
@@ -386,11 +392,11 @@ class ContainerList extends Component {
 
 ContainerList.propTypes = {
   // Injected by React Redux
-  pathname: PropTypes.string.isRequired,
   cluster: PropTypes.string.isRequired,
   containerList: PropTypes.array.isRequired,
   isFetching: PropTypes.bool.isRequired,
   loadContainerList: PropTypes.func.isRequired,
+  pathname: PropTypes.string.isRequired,
   page: PropTypes.number.isRequired,
   size: PropTypes.number.isRequired,
   total: PropTypes.number.isRequired,
@@ -420,8 +426,8 @@ function mapStateToProps(state, props) {
   const { cluster, containerList, isFetching, total } = containerItems[DEFAULT_CLUSTER] || defaultContainers
 
   return {
-    pathname,
     cluster,
+    pathname,
     page,
     size,
     total,

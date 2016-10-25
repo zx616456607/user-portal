@@ -344,7 +344,7 @@ class ImageCenter extends Component {
               <li className={current == "imageSpace" ? "titleSelected" : "titleDetail"}
                 onClick={this.selectCurrentTab.bind(this, "imageSpace", "default")}
                 >
-                <span>镜像空间</span>
+                <span>私有空间</span>
               </li>
               <li className={current == "publicSpace" ? "titleSelected" : "titleDetail"}
                 onClick={this.selectCurrentTab.bind(this, "publicSpace", "default")}

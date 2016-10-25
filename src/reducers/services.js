@@ -43,7 +43,9 @@ function serviceItmes(state = {}, action) {
             isFetching: false,
             cluster: action.response.result.cluster,
             appName: action.response.result.appName,
-            serviceList: union(state.services, action.response.result.data)
+            serviceList: union(state.services, action.response.result.data),
+            size: action.response.result.count,
+            total: action.response.result.total,
           }
         }
       })
@@ -203,19 +205,19 @@ function serviceLogs(state = {}, action) {
       isFetching: false
     }
   }
-  switch(action.type) {
-    case ActionTypes.SERVICE_LOGS_REQUEST: 
+  switch (action.type) {
+    case ActionTypes.SERVICE_LOGS_REQUEST:
       return merge({}, defaultState, state, {
         [cluster]: {
           isFetching: true
         }
       })
-    case ActionTypes.SERVICE_LOGS_SUCCESS: 
+    case ActionTypes.SERVICE_LOGS_SUCCESS:
       const uState = cloneDeep(state)
-      if(!uState[cluster].logs) uState[cluster].logs = {}
-      if(!action.response.result.data) return uState
+      if (!uState[cluster].logs) uState[cluster].logs = {}
+      if (!action.response.result.data) return uState
       uState[cluster].logs.data = union(action.response.result.data, uState[cluster].logs.data)
-      if(uState[cluster].logs.data.length % 50 !== 0) uState[cluster].logs.data.unshift({log: '无更多日志\n'})
+      if (uState[cluster].logs.data.length % 50 !== 0) uState[cluster].logs.data.unshift({ log: '无更多日志\n' })
       return uState
     case ActionTypes.SERVICE_LOGS_FAILURE:
       return merge({}, defaultState, state, {
@@ -229,7 +231,7 @@ function serviceLogs(state = {}, action) {
           isFetching: false
         }
       })
-    default: 
+    default:
       return merge({}, state)
   }
 }
