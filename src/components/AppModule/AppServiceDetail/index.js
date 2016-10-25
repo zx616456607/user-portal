@@ -21,6 +21,7 @@ import AppUseful from './AppUseful'
 import AppServiceLog from './AppServiceLog'
 import AppServiceEvent from './AppServiceEvent'
 import Monitor from './Monitor'
+import AppAutoExtend from './AppAutoExtend'
 import { loadServiceDetail, loadServiceContainerList } from '../../../actions/services'
 import CommmonStatus from '../../CommonStatus'
 import './style/AppServiceDetail.less'
@@ -241,6 +242,9 @@ class AppServiceDetail extends Component {
                 <Monitor
                   serviceName={service.metadata.name}
                   cluster={service.cluster} />
+              </TabPane>
+              <TabPane tab="自动伸缩" key="#autoExtend">
+                <AppAutoExtend />
               </TabPane>
               <TabPane tab="日志" key="#logs">
                 <AppServiceLog serviceName={service.metadata.name} cluster={service.cluster} />
