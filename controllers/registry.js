@@ -96,7 +96,7 @@ exports.addPrivateRegistry = function* () {
 
   const api = apiFactory.getManagedRegistryApi(loginUser)
   // Encrypt the password before save to database
-  reqData.encryptedPassword = securityUtil.encryptContent(reqData.password, loginUser.token, algorithm)
+  reqData.encrypted_password = securityUtil.encryptContent(reqData.password, loginUser.token, algorithm)
   const result = yield api.createBy([name], null, reqData)
 
   this.status = result.code
@@ -261,9 +261,9 @@ function* _getRegistryServerInfo(session, user, id){
           // Add registry info to session
           session.registries[id] = {
             "server":     result.data[i].url,
-            "authServer": result.data[i].authUrl,
+            "authServer": result.data[i].auth_url,
             "username":   result.data[i].username,
-            "password":   result.data[i].password
+            "password":   result.data[i].encrypted_password
           }
           serverInfo = session.registries[id]
           break
