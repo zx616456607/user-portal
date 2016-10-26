@@ -46,4 +46,11 @@ CPU.propTypes = {
   cpu: PropTypes.object.isRequired,
 }
 
+CPU.defaultProps = {
+  cpu: {
+    isFetching: false,
+    data: []
+  }
+}
+
 export default CPU

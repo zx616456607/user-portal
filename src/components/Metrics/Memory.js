@@ -46,4 +46,11 @@ Memory.propTypes = {
   memory: PropTypes.object.isRequired,
 }
 
+Memory.defaultProps = {
+  memory: {
+    isFetching: false,
+    data: []
+  }
+}
+
 export default Memory
