@@ -37,7 +37,11 @@ class Memory extends Component {
       option.addSeries(values, item.containerName)
     })
     return (
-      <ReactEcharts option={option} showLoading={isFetching} />
+      <ReactEcharts
+        notMerge={true}
+        option={option}
+        showLoading={isFetching}
+        />
     )
   }
 }

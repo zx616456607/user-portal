@@ -51,6 +51,14 @@ class ServiceMonitior extends Component {
     loadData(this.props, { start: this.changeTime(0) })
   }
 
+  componentWillReceiveProps(nextProps) {
+    const { cluster, serviceName } = nextProps
+    if (serviceName === this.props.serviceName) {
+      return
+    }
+    loadData(nextProps, { start: this.changeTime(0) })
+  }
+
   render() {
     const { cpu, memory, networkReceived, networkTransmitted } = this.props
     return (

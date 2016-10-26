@@ -60,7 +60,11 @@ class Network extends Component {
       option.addSeries(values, `${item.containerName} 下载`, networkTransmittedStyle)
     })
     return (
-      <ReactEcharts option={option} showLoading={networkReceived.isFetching || networkTransmitted.isFetching} />
+      <ReactEcharts
+        notMerge={true}
+        option={option}
+        showLoading={networkReceived.isFetching || networkTransmitted.isFetching}
+        />
     )
   }
 }
