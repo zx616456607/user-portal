@@ -46,8 +46,13 @@ export default class UpdataModal extends Component {
       updateTime: e.target.value
     })
   }
-  setAloneUpdateTime(e){
+  setAloneUpdateTime(e,index){
     console.log('inputValue',e.target.value);
+    console.log(index);
+    const arr = this.state.updateTimeArr
+    arr[index] = e.target.value
+    console.log(this.state.updateTimeArr);
+    console.log(arr);
   }
   render(){
     const { serviceList,checkedServiceList } = this.props
@@ -106,7 +111,7 @@ export default class UpdataModal extends Component {
                   </Dropdown>
                   {
                     this.state.alone ? <Input placeholder="更新间隔时间2~60s"
-                                             onChange={this.setAloneUpdateTime}/>
+                                             onChange={(e,index) => this.setAloneUpdateTime(e,index)}/>
                     : <Input placeholder="更新间隔时间2~60s"
                              value={updateTime}
                             onChange={this.setUpdateTime}/>}
