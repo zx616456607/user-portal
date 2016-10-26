@@ -96,9 +96,8 @@ class AppUseful extends Component {
       currentUseful: value
     });
     if(!value) {
-      const livenessProbe = Object.assign({}, livenessProbe)
+      const livenessProbe = Object.assign({}, this.state.livenessProbe)
       this.setState({
-        checkType: 'null',
         submitInfo: livenessProbe
       })
     }
@@ -124,10 +123,9 @@ class AppUseful extends Component {
   cancelSet() {
     this.setState({
       editFlag: true,
-      submitInfo: {}
     })
     if(this.state.livenessProbe) {
-      const livenessProbe = Object.assign({}, livenessProbe)
+      const livenessProbe = Object.assign({}, this.state.livenessProbe)
       this.setState({
         switchDisable: false,
         submitInfo: livenessProbe

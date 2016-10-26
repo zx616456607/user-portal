@@ -33,7 +33,7 @@ exports.getVolumeListByPool = function* () {
   const pool = this.params.pool
   const cluster = this.params.cluster
   const appName = this.query.appname
-  let response = yield volumeApi.volumes.getBy([pool, cluster, 'list'], {
+  let response = yield volumeApi.clusters.getBy([cluster, 'list'], {
     appname: appName
   })
   this.status = response.code
@@ -51,7 +51,7 @@ exports.deleteVolume = function* () {
     }
     return
   }
-  let response = yield volumeApi.volumes.batchDeleteBy([pool, cluster, 'delete'], null, volumeArray)
+  let response = yield volumeApi.clusters.batchDeleteBy([cluster, 'delete'], null, volumeArray)
   this.status = 200
   this.body = {}
 }
@@ -61,7 +61,7 @@ exports.createVolume = function* () {
   const pool = this.params.pool
   const cluster = this.params.cluster
   const reqData = this.request.body
-  let response = yield volumeApi.volumes.createBy([pool, cluster], null, reqData)
+  let response = yield volumeApi.clusters.createBy([cluster], null, reqData)
   this.status = response.code
   this.body = response
 }
@@ -76,7 +76,7 @@ exports.formateVolume = function* () {
     this.status = 400
     this.body = { message: 'error' }
   }
-  const response = yield volumeApi.volumes.updateBy([pool, cluster, reqData.name, 'format'], null, {
+  const response = yield volumeApi.clusters.updateBy([cluster, reqData.name, 'format'], null, {
     format: reqData.type,
     diskType: 'rbd'
   })
@@ -92,7 +92,7 @@ exports.resizeVolume = function* () {
     this.status = 400
     this.body = { message: 'error' }
   }
-  const response = yield volumeApi.volumes.updateBy([pool, cluster, reqData.name], null, {
+  const response = yield volumeApi.clusters.updateBy([cluster, reqData.name], null, {
     size: reqData.size
   })
   this.status = response.code
@@ -102,7 +102,7 @@ exports.getVolumeDetail = function* () {
   const pool = this.params.pool
   const cluster = this.params.cluster
   const volumeName = this.params.name
-  const response = yield volumeApi.volumes.getBy([pool, cluster, volumeName, 'consumption'])
+  const response = yield volumeApi.clusters.getBy([cluster, volumeName, 'consumption'])
   this.status = response.code
   this.body = {
     body: response.body
@@ -120,7 +120,7 @@ exports.beforeUploadFile = function* () {
     this.body = { message: 'error' }
     return
   }
-  const response = yield volumeApi.volumes.createBy([pool, cluster, volumeName, 'beforimport'], null, reqData)
+  const response = yield volumeApi.clusters.createBy([cluster, volumeName, 'beforimport'], null, reqData)
   this.status = response.code
   this.body = response
 }
@@ -144,7 +144,7 @@ exports.uploadFile = function* () {
   const stream = formStream()
   const mimeType = mime.lookup(fileStream.filename)
   stream.stream(fileStream.filename, fileStream, fileStream.filename, mimeType)
-  let response = yield volumeApi.volumes.uploadFile([pool, cluster, volumeName, backupId, 'import'], { isUnzip }, stream, stream.headers())
+  let response = yield volumeApi.clusters.uploadFile([cluster, volumeName, backupId, 'import'], { isUnzip }, stream, stream.headers())
   this.status = response.code
   this.body = response
 }
@@ -154,7 +154,7 @@ exports.getFileHistory = function* () {
   const volumeName = this.params.name
   const pool = this.params.pool
   const cluster = this.params.cluster
-  let response = yield volumeApi.volumes.getBy([pool, cluster, volumeName, 'filehistory'])
+  let response = yield volumeApi.clusters.getBy([cluster, volumeName, 'filehistory'])
   this.status = response.code
   this.body = response
 }
@@ -163,7 +163,7 @@ exports.getBindInfo = function* () {
   const pool = this.params.pool
   const cluster = this.params.cluster
   const volumeName = this.params.name
-  const response = yield volumeApi.volumes.getBy([pool, cluster, volumeName, 'bindinfo'], null)
+  const response = yield volumeApi.clusters.getBy([cluster, volumeName, 'bindinfo'], null)
   this.status = response.code
   this.body = response
 }
