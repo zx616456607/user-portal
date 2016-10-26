@@ -200,7 +200,7 @@ exports.specGetImageTags = function* () {
   }
 }
 // Get the config info of specified image and tag
-exports.specGetImageTagConfig = function* () {
+exports.specGetImageTagInfo = function* () {
   const loginUser = this.session.loginUser
   const registryId = this.params.id
   const image = this.params.image

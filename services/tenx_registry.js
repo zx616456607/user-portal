@@ -76,7 +76,9 @@ exports.getImageConfigs = function (username, imageFullName, tag) {
         reject(err)
         return
       }
-      resolve(_formatImageInfo(configs, imageFullName, tag))
+      var result = _formatImageInfo(JSON.parse(configs.configInfo), imageFullName, tag)
+      result.sizeInfo = configs.sizeInfo
+      resolve(result)
     })
   })
 }
@@ -100,7 +102,7 @@ exports.getImageInfo = function(username, imageFullName) {
         err.status = statusCode
         reject(err)
         return
-      } 
+      }
       if (imageInfo && imageInfo.contributor == username) {
         imageInfo.isOwner = true
       }
@@ -200,7 +202,6 @@ function _formatImageInfo(imageInfo, imageName, tag) {
     image.cmd = imageInfo.config.Cmd
     image.entrypoint = imageInfo.config.Entrypoint
   }
-  // image.jsonString = JSON.stringify(image)
   return image
 }
 

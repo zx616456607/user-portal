@@ -102,8 +102,9 @@ module.exports = function (Router) {
   // Docker registry spec API
   router.get('/docker-registry/:id/images', registryController.specListRepositories)
   router.get('/docker-registry/:id/images/:image*/tags', registryController.specGetImageTags)
-  router.get('/docker-registry/:id/images/:image*/tags/:tag', registryController.specGetImageTagConfig)
-  router.get('/docker-registry/:id/images/:image*/tags/:tag/size', registryController.specGetImageTagSize)
+  router.get('/docker-registry/:id/images/:image*/tags/:tag', registryController.specGetImageTagInfo)
+  // Tag size is merged to specGetImageTagConfig
+  //router.get('/docker-registry/:id/images/:image*/tags/:tag/size', registryController.specGetImageTagSize)
   router.post('/docker-registry/update', registryController.imageStore)
 
   // Metrics
