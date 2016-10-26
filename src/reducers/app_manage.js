@@ -101,6 +101,11 @@ export function apps(state = { appItmes: {} }, action) {
       SUCCESS: ActionTypes.APP_BATCH_START_SUCCESS,
       FAILURE: ActionTypes.APP_BATCH_START_FAILURE
     }, state.startApps, action),
+    appOrchfile: reducerFactory({
+      REQUEST: ActionTypes.APP_ORCH_FILE_REQUEST,
+      SUCCESS: ActionTypes.APP_ORCH_FILE_SUCCESS,
+      FAILURE: ActionTypes.APP_ORCH_FILE_FAILURE
+    }, state.appOrchfile, action),
     appLogs: reducerFactory({
       REQUEST: ActionTypes.APP_OPERATION_LOG_REQUEST,
       SUCCESS: ActionTypes.APP_OPERATION_LOG_SUCCESS,
