@@ -70,4 +70,15 @@ Network.propTypes = {
   networkTransmitted: PropTypes.object.isRequired,
 }
 
+Network.defaultProps = {
+  networkReceived: {
+    isFetching: false,
+    data: []
+  },
+  networkTransmitted: {
+    isFetching: false,
+    data: []
+  }
+}
+
 export default Network
