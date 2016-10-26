@@ -91,6 +91,7 @@ module.exports = function (Router) {
   router.get('/registries/:registry/:user/:name/detailInfo', registryController.getImageInfo)
   router.get('/registries/:registry/:user/:name/tags', registryController.getImageTags)
   router.get('/registries/:registry/:user/:name/tags/:tag/configs', registryController.getImageConfigs)
+  router.get('/registries/:registry/private', registryController.getPrivateImages)
 
   // Private docker registry integration
   router.get('/docker-registry', registryController.getPrivateRegistries)

@@ -11,6 +11,21 @@
 import { FETCH_API, Schemas } from '../middleware/api'
 import { API_URL_PREFIX } from '../constants'
 
+export const IMAGE_PRIVATE_LIST_REQUEST = 'IMAGE_PRIVATE_LIST_REQUEST'
+export const IMAGE_PRIVATE_LIST_SUCCESS = 'IMAGE_PRIVATE_LIST_SUCCESS'
+export const IMAGE_PRIVATE_LIST_FAILURE = 'IMAGE_PRIVATE_LIST_FAILURE'
+
+export function loadPrivateImageList(registry) {
+  return {
+    registry,
+    [FETCH_API]: {
+      types: [IMAGE_PRIVATE_LIST_REQUEST, IMAGE_PRIVATE_LIST_SUCCESS, IMAGE_PRIVATE_LIST_FAILURE],
+      endpoint: `${API_URL_PREFIX}/registries/${registry}/private`,
+      schema: Schemas.REGISTRYS
+    }
+  }
+}
+
 export const IMAGE_PUBLIC_LIST_REQUEST = 'IMAGE_PUBLIC_LIST_REQUEST'
 export const IMAGE_PUBLIC_LIST_SUCCESS = 'IMAGE_PUBLIC_LIST_SUCCESS'
 export const IMAGE_PUBLIC_LIST_FAILURE = 'IMAGE_PUBLIC_LIST_FAILURE'
@@ -31,29 +46,65 @@ export function loadPublicImageList(registry) {
   }
 }
 
-export const IMAGE_PRIVATE_LIST_REQUEST = 'IMAGE_PRIVATE_LIST_REQUEST'
-export const IMAGE_PRIVATE_LIST_SUCCESS = 'IMAGE_PRIVATE_LIST_SUCCESS'
-export const IMAGE_PRIVATE_LIST_FAILURE = 'IMAGE_PRIVATE_LIST_FAILURE'
-
-// private image list
-export function loadPrivateImageList() {
+export const ADD_OTHER_STORE_REQUEST = 'ADD_OTHER_STORE_REQUEST'
+export const ADD_OTHER_STORE_SUCCESS = 'ADD_OTHER_STORE_SUCCESS'
+export const ADD_OTHER_STORE_FAILURE = 'ADD_OTHER_STORE_FAILURE'
+// add Other image
+export function addOtherStore(obj, callback) {
   return {
     [FETCH_API]: {
-      types: [IMAGE_PRIVATE_LIST_REQUEST, IMAGE_PRIVATE_LIST_SUCCESS, IMAGE_PRIVATE_LIST_FAILURE],
-      endpoint: `${API_URL_PREFIX}/docker-registry`,
-      schema: Schemas.REGISTRYS
-    }
+      types: [ADD_OTHER_STORE_REQUEST, ADD_OTHER_STORE_SUCCESS, ADD_OTHER_STORE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/docker-registry/${obj.registryName}`,
+      schema: Schemas.REGISTRYS,
+      options: {
+        method: 'POST',
+        body: obj
+      }
+    },
+    callback
   }
 }
 
-export const DELETE_PRIVATE_IMAGE_REQUEST = 'DELETE_PRIVATE_IMAGE_REQUEST'
-export const DELETE_PRIVATE_IMAGE_SUCCESS = 'DELETE_PRIVATE_IMAGE_SUCCESS'
-export const DELETE_PRIVATE_IMAGE_FAILURE = 'DELETE_PRIVATE_IMAGE_FAILURE'
-// delete private image
-export function deleteImage(id, callback) {
+export const IMAGE_OTHER_REQUEST = 'IMAGE_OTHER_REQUEST'
+export const IMAGE_OTHER_SUCCESS = 'IMAGE_OTHER_SUCCESS'
+export const IMAGE_OTHER_FAILURE = 'IMAGE_OTHER_FAILURE'
+
+// Other image title
+export function loadOtherImage(callback) {
   return {
     [FETCH_API]: {
-      types: [DELETE_PRIVATE_IMAGE_REQUEST, DELETE_PRIVATE_IMAGE_SUCCESS, DELETE_PRIVATE_IMAGE_FAILURE],
+      types: [IMAGE_OTHER_REQUEST, IMAGE_OTHER_SUCCESS, IMAGE_OTHER_FAILURE],
+      endpoint: `${API_URL_PREFIX}/docker-registry`,
+      schema: Schemas.REGISTRYS
+    },
+    callback
+  }
+}
+
+export const GET_OTHER_LIST_REQUEST = 'GET_OTHER_LIST_REQUEST'
+export const GET_OTHER_LIST_SUCCESS = 'GET_OTHER_LIST_SUCCESS'
+export const GET_OTHER_LIST_FAILURE = 'GET_OTHER_LIST_FAILURE'
+
+// Other image list getOtherImageList
+export function getOtherImageList(id, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_OTHER_LIST_REQUEST, GET_OTHER_LIST_SUCCESS, GET_OTHER_LIST_FAILURE],
+      endpoint: `${API_URL_PREFIX}/docker-registry/${id}/images`,
+      schema: Schemas.REGISTRYS
+    },
+    callback
+  }
+}
+
+export const DELETE_OTHER_IMAGE_REQUEST = 'DELETE_OTHER_IMAGE_REQUEST'
+export const DELETE_OTHER_IMAGE_SUCCESS = 'DELETE_OTHER_IMAGE_SUCCESS'
+export const DELETE_OTHER_IMAGE_FAILURE = 'DELETE_OTHER_IMAGE_FAILURE'
+// delete Other image
+export function deleteOtherImage(id, callback) {
+  return {
+    [FETCH_API]: {
+      types: [DELETE_OTHER_IMAGE_REQUEST, DELETE_OTHER_IMAGE_SUCCESS, DELETE_OTHER_IMAGE_FAILURE],
       endpoint: `${API_URL_PREFIX}/docker-registry/${id}`,
       options: {
         method: 'DELETE',

@@ -9,20 +9,32 @@
  */
 
 import * as ActionTypes from '../actions/metrics'
-import merge from 'lodash/merge'
-import union from 'lodash/union'
-import cloneDeep from 'lodash/cloneDeep'
 import reducerFactory from './factory'
 import { DEFAULT_PAGE_SIZE } from '../constants'
 
-export default function metrics(state = { containers: {}}, action) {
+export default function metrics(state = { containers: { CPU: {}, memory: {}, networkReceived: {}, networkTransmitted: {} } }, action) {
   return {
     containers: {
       CPU: reducerFactory({
         REQUEST: ActionTypes.METRICS_CPU_REQUEST,
         SUCCESS: ActionTypes.METRICS_CPU_SUCCESS,
         FAILURE: ActionTypes.METRICS_CPU_FAILURE
-      }, state.containers.CPU, action)
+      }, state.containers.CPU, action),
+      memory: reducerFactory({
+        REQUEST: ActionTypes.METRICS_MEMORY_REQUEST,
+        SUCCESS: ActionTypes.METRICS_MEMORY_SUCCESS,
+        FAILURE: ActionTypes.METRICS_MEMORY_FAILURE
+      }, state.containers.memory, action),
+      networkReceived: reducerFactory({
+        REQUEST: ActionTypes.METRICS_NETWORK_RECEIVED_REQUEST,
+        SUCCESS: ActionTypes.METRICS_NETWORK_RECEIVED_SUCCESS,
+        FAILURE: ActionTypes.METRICS_NETWORK_RECEIVED_FAILURE
+      }, state.containers.networkReceived, action),
+      networkTransmitted: reducerFactory({
+        REQUEST: ActionTypes.METRICS_NETWORK_TRANSMITTED_REQUEST,
+        SUCCESS: ActionTypes.METRICS_NETWORK_TRANSMITTED_SUCCESS,
+        FAILURE: ActionTypes.METRICS_NETWORK_TRANSMITTED_FAILURE
+      }, state.containers.networkTransmitted, action),
     }
   }
 }

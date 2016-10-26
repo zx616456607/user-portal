@@ -38,6 +38,7 @@ export default class AppGraph extends Component {
   }
 
   render() {
+    const text = 'Hello world~ \r\n Hello World2'
     return (
       <div id="AppGraph">
         <div className="topBox">
@@ -52,11 +53,7 @@ export default class AppGraph extends Component {
         <div className="bottomBox">
           <span>描述文件&nbsp;:&nbsp;</span>
           <div className="introBox">
-            Hello world~
-          <br />
-            &nbsp;&nbsp;Let me introduce myself.
-          <br />
-            &nbsp;&nbsp;&nbsp;&nbsp;I am an application of mengmengda~
+            <textarea value={text} className="intText"/>
         </div>
           <div style={{ clear: "both" }}></div>
         </div>

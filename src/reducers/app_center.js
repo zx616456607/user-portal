@@ -13,6 +13,37 @@ import merge from 'lodash/merge'
 import reducerFactory from './factory'
 import { cloneDeep } from 'lodash'
 
+function privateImages(state = {}, action) {
+  const registry = action.registry
+  const defaultState = {
+    [registry]: {
+      isFetching: false,
+      registry,
+      imageList: []
+    }
+  }
+  switch (action.type) {
+    case ActionTypes.IMAGE_PRIVATE_LIST_REQUEST:
+      return merge({}, defaultState, state, {
+        [registry]: { isFetching: true }
+      })
+    case ActionTypes.IMAGE_PRIVATE_LIST_SUCCESS:
+      return merge({}, state, {
+        [registry]: {
+          isFetching: false,
+          registry: action.response.result.registry,
+          server: action.response.result.server,
+          imageList: action.response.result.data || []
+        }
+      })
+    case ActionTypes.IMAGE_PRIVATE_LIST_FAILURE:
+      return merge({}, defaultState, state, {
+        [registry]: { isFetching: false }
+      })
+    default:
+      return state
+  }
+}
 
 function publicImages(state = {}, action) {
   const registry = action.registry
@@ -41,48 +72,65 @@ function publicImages(state = {}, action) {
       return merge({}, defaultState, state, {
         [registry]: { isFetching: false }
       })
-    case ActionTypes.SET_IMAGE_STORE_REQUEST:
-      return merge({}, defaultState, state, {
-        [registry]: { isFetching: true }
-      })
-    case ActionTypes.SET_IMAGE_STORE_SUCCESS:
-      // return Object.assign({}, state, {
-      //   [registry]: {
-      //     isFetching: false,
-      //     registry: action.response.result.registry,
-      //     imageInfo: action.response.result 
-      //   }
-      // })
-      const oldState = cloneDeep(state)
-      const fullName = action.name
-      
-      return state
-    case ActionTypes.SET_IMAGE_STORE_FAILURE:
-      return merge({}, defaultState, state, {
-        [registry]: { isFetching: false }
-      })
     default:
       return state
   }
 }
 
-function privateImages(state ={}, action) {
+function otherImages(state ={}, action) {
   const defaultState = {
       isFetching: false,
       imageList: []
   }
   switch (action.type) {
-    case ActionTypes.IMAGE_PRIVATE_LIST_REQUEST:
+    case ActionTypes.IMAGE_OTHER_REQUEST:
       return merge({}, defaultState, state, {
          isFetching: true
       })
-    case ActionTypes.IMAGE_PRIVATE_LIST_SUCCESS:
+    case ActionTypes.IMAGE_OTHER_SUCCESS:
       return merge({}, state, {
           isFetching: false,
-          imageList: action.response.result.data || []
+          registry: action.response.result.registry,
+          server: action.response.result.server,
+          imageRow: action.response.result.data || []
       })
-    case ActionTypes.IMAGE_PRIVATE_LIST_FAILURE:
+    case ActionTypes.IMAGE_OTHER_FAILURE:
       return merge({}, defaultState, state, {
+         isFetching: false 
+      })
+    case ActionTypes.GET_OTHER_LIST_REQUEST:
+      return merge({}, defaultState, state, {
+         isFetching: true
+      })
+    case ActionTypes.GET_OTHER_LIST_SUCCESS:
+      return merge({}, defaultState, state, {
+         isFetching: false,
+         imageList: action.response.result.repositories || []
+      })
+    case ActionTypes.GET_OTHER_LIST_FAILURE:
+      return merge({}, defaultState, state, {
+         isFetching: false
+      })
+    case ActionTypes.DELETE_OTHER_IMAGE_REQUEST:
+      return merge({}, state, {
+         isFetching: true
+      })
+    case ActionTypes.DELETE_OTHER_IMAGE_SUCCESS:
+      // return merge({}, state, {
+      //     isFetching: false,
+      //     imageList: action.response.result.data
+      // })
+      const oldState = cloneDeep(state)
+      const Id = action.id
+      const imageList = action.imageList
+      for (let i=0; i < imageList.length; i++) {
+        if (imageList[i].id == Id) {
+          imageList.splice(i,1)
+        }
+      }
+      return oldState
+    case ActionTypes.DELETE_OTHER_IMAGE_FAILURE:
+      return merge({}, state, {
          isFetching: false 
       })
     default:
@@ -90,13 +138,13 @@ function privateImages(state ={}, action) {
   }
 }
 
-function deleteImage(state= {}, action) {
+function deleteOtherImage(state= {}, action) {
   switch (action.type) {
-    case ActionTypes.DELETE_PRIVATE_IMAGE_REQUEST:
+    case ActionTypes.DELETE_OTHER_IMAGE_REQUEST:
       return merge({}, state, {
          isFetching: true
       })
-    case ActionTypes.DELETE_PRIVATE_IMAGE_SUCCESS:
+    case ActionTypes.DELETE_OTHER_IMAGE_SUCCESS:
       // return merge({}, state, {
       //     isFetching: false,
       //     imageList: action.response.result.data
@@ -110,7 +158,7 @@ function deleteImage(state= {}, action) {
         }
       }
       return oldState
-    case ActionTypes.DELETE_PRIVATE_IMAGE_FAILURE:
+    case ActionTypes.DELETE_OTHER_IMAGE_FAILURE:
       return merge({}, state, {
          isFetching: false 
       })
@@ -121,10 +169,10 @@ function deleteImage(state= {}, action) {
 
 export function images(state = { publicImages: {} }, action) {
   return {
+    privateImages: privateImages(state.privateImages, action),
     publicImages: publicImages(state.publicImages, action),
-    privateImages:privateImages(state.privateImages, action),
+    otherImages: otherImages(state.otherImages, action),
     imagesInfo: imagesInfo(state.imagesInfo, action),
-    deleteImage: deleteImage(state.deleteImage, action),
   }
 }
 //get image detail tag
@@ -238,39 +286,6 @@ function imagesInfo(state={}, action){
         }
       })
     case ActionTypes.GET_IMAGEINFO_FAILURE:
-      return merge({}, defaultState, state, {
-        [registry]: { isFetching: false }
-      })
-    default:
-      return state
-  }
-}
-
-
-function imageStore(state={}, action) {
-  const registry = action.registry
-  const defaultState = {
-    [registry]: {
-      isFetching: false,
-      registry,
-      imageInfo: {isFavourite: 0}
-    }
-  }
-  switch (action.type) {
-    case ActionTypes.SET_IMAGE_STORE_REQUEST:
-      return merge({}, defaultState, state, {
-        [registry]: { isFetching: true }
-      })
-    case ActionTypes.SET_IMAGE_STORE_SUCCESS:
-      // return Object.assign({}, state, {
-      //   [registry]: {
-      //     isFetching: false,
-      //     registry: action.response.result.registry,
-      //     imageInfo: action.response.result 
-      //   }
-      // })
-      return state
-    case ActionTypes.SET_IMAGE_STORE_FAILURE:
       return merge({}, defaultState, state, {
         [registry]: { isFetching: false }
       })

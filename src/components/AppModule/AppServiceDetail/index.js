@@ -20,6 +20,8 @@ import PortDetail from './PortDetail'
 import AppUseful from './AppUseful'
 import AppServiceLog from './AppServiceLog'
 import AppServiceEvent from './AppServiceEvent'
+import Monitor from './Monitor'
+import AppAutoExtend from './AppAutoExtend'
 import { loadServiceDetail, loadServiceContainerList } from '../../../actions/services'
 import CommmonStatus from '../../CommonStatus'
 import './style/AppServiceDetail.less'
@@ -236,7 +238,14 @@ class AppServiceDetail extends Component {
                   serviceDetail={serviceDetail}
                   loading={isServiceDetailFetching} />
               </TabPane>
-              <TabPane tab="监控" key="#monitor">监控</TabPane>
+              <TabPane tab="监控" key="#monitor">
+                <Monitor
+                  serviceName={service.metadata.name}
+                  cluster={service.cluster} />
+              </TabPane>
+              <TabPane tab="自动伸缩" key="#autoExtend">
+                <AppAutoExtend />
+              </TabPane>
               <TabPane tab="日志" key="#logs">
                 <AppServiceLog serviceName={service.metadata.name} cluster={service.cluster} />
               </TabPane>

@@ -43,10 +43,13 @@ exports.getImages = function* () {
 }
 
 exports.getPrivateImages = function* () {
+  const registry = this.params.registry
   const loginUser = this.session.loginUser
   const result = yield registryService.getPrivateRepositories(loginUser.user, 1)
 
   this.body = {
+    registry,
+    server: registryConfig.v2Server,
     data: result
   }
 }
@@ -102,6 +105,7 @@ exports.addPrivateRegistry = function* () {
   const loginUser = this.session.loginUser
   const name = this.params.name
   const reqData = this.request.body
+
   const api = apiFactory.getManagedRegistryApi(loginUser)
   // Encrypt the password before save to database
   reqData.encrypted_password = securityUtil.encryptContent(reqData.password, loginUser.token, algorithm)
@@ -130,10 +134,7 @@ exports.getPrivateRegistries = function* () {
   const result = yield api.get()
 
   this.status = result.code
-  this.body = {
-      server: registryConfig.v2Server,
-      data: result.data
-  }
+  this.body = result
 }
 // List repositories of custom docker registry
 exports.specListRepositories = function* () {
@@ -287,7 +288,7 @@ function* _getRegistryServerInfo(session, user, id){
 }
 
 exports.imageStore = function *() {
-  const store  = this.request.body
+  const store  = this.params.body
   if (store) {
     this.code = 200
     this.body = '更新成功！'

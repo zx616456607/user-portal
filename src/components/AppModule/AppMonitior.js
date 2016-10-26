@@ -201,7 +201,6 @@ export default class AppMonitior extends Component {
     function _addZero(text) {
       return text.toString().length === 2 ? text : `0${text}`
     }
-    
     this.setState({
       option: {
         xAxis: [{

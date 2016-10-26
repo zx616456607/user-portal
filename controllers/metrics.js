@@ -38,7 +38,7 @@ exports.getContainerMetrics = function* () {
   this.body = {
     cluster,
     containerName,
-    data: result
+    data: [result]
   }
 }
 
@@ -109,7 +109,11 @@ function _getContainerMetrics(user, cluster, instance, query) {
   const type = query.type
   const source = query.source || METRICS_DEFAULT_SOURCE
   const start = query.start
-  const end = query.end
+  let end = query.end
+  if (!end) {
+    let d = new Date()
+    end = d.toISOString()
+  }
   const queryObj = {
     type,
     source,
@@ -131,7 +135,9 @@ function _getContainerMetrics(user, cluster, instance, query) {
     })
     return {
       containerName,
-      [type]: metrics,
+      start,
+      type,
+      metrics,
       statusCode: result.statusCode
     }
   })
