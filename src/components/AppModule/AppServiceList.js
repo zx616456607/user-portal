@@ -17,6 +17,7 @@ import './style/AppServiceList.less'
 import { loadServiceList, startServices, restartServices, stopServices, deleteServices, quickRestartServices } from '../../actions/services'
 import { DEFAULT_CLUSTER, DEFAULT_PAGE_SIZE } from '../../constants'
 import { browserHistory } from 'react-router'
+import UpdateModal from './AppServiceDetail/UpdateModal'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -182,11 +183,16 @@ class AppServiceList extends Component {
     this.batchDeleteServices = this.batchDeleteServices.bind(this)
     this.confirmDeleteServices = this.confirmDeleteServices.bind(this)
     this.confirmQuickRestartService = this.confirmQuickRestartService.bind(this)
+    this.handleUpdateOK = this.handleUpdateOK.bind(this)
+    this.handleUpdateCancel = this.handleUpdateCancel.bind(this)
+    this.showUpdataModal = this.showUpdataModal.bind(this)
     this.state = {
       modalShow: false,
       currentShowInstance: null,
       serviceList: props.serviceList,
-      searchInputDisabled: false
+      searchInputDisabled: false,
+      updateModal: false,
+      
     }
   }
 
@@ -366,10 +372,27 @@ class AppServiceList extends Component {
       modalShow: false
     })
   }
-
+  showUpdataModal(){
+    this.setState({
+      updateModal: true
+    })
+  }
+  handleUpdateCancel(){
+    this.setState({
+      updateModal: false
+    })
+    console.log('Cancel',this.state.updateModal);
+  }
+  handleUpdateOK(){
+    this.setState({
+      updateModal: false
+    })
+    console.log('OK',this.state.updateModal);
+  
+  }
   render() {
     const parentScope = this
-    let { modalShow, currentShowInstance, serviceList, selectTab } = this.state
+    let { modalShow, currentShowInstance, serviceList, selectTab,updateModal } = this.state
     const { name, pathname, page, size, total, isFetching, appName } = this.props
     const checkedServiceList = serviceList.filter((service) => service.checked)
     const checkedServiceNames = checkedServiceList.map((service) => service.metadata.name)
@@ -397,7 +420,7 @@ class AppServiceList extends Component {
         }}>弹性伸缩</span>
       </Menu.Item>
       <Menu.Item key="2">
-        <span>灰度升级</span>
+        <span onClick={this.showUpdataModal}>灰度升级</span>
       </Menu.Item>
       <Menu.Item key="3">
         <span>更改配置</span>
@@ -476,6 +499,18 @@ class AppServiceList extends Component {
               selectTab={selectTab}
               serviceDetailmodalShow={this.state.modalShow}
               />
+          </Modal>
+          <Modal ref="modal"
+                 visible={ updateModal }
+                 title="灰度升级" onOk={this.handleUpdateOK} onCancel={this.handleUpdateCancel}
+                 footer={[
+                   <Button key="back" type="ghost" size="large" onClick={this.handleUpdateCancel}>取 消</Button>,
+                   <Button key="submit" type="primary" size="large" loading={this.state.loading}
+                           onClick={this.handleUpdateOK}>
+                     保 存
+                   </Button>
+                 ]}>
+            <UpdateModal serviceList={serviceList} checkedServiceList={checkedServiceList}/>
           </Modal>
         </QueueAnim>
       </div>
