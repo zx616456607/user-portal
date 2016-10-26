@@ -146,7 +146,7 @@ class ImageDetailBox extends Component {
               <span className="type"><FormattedMessage {...menusText.type} />{formatMessage(menusText.pubilicType)}</span>
             </div>
             <div className="rightBox">
-              <Icon type='cross' className='cursor' style={{fontSize: '18px',position: 'absolute', top:'30px', right:'40px'}} onClick={this.props.scope.closeImageDetailModal} />
+              <Icon type='cross' className='cursor' style={{fontSize: '18px',position: 'absolute', top:'30px', right:'50px'}} onClick={this.props.scope.closeImageDetailModal} />
               <Button size="large" type="primary">
                 <FormattedMessage {...menusText.deployImage} />
               </Button>

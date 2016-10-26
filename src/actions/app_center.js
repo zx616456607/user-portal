@@ -202,3 +202,19 @@ export function imageStore(obj,callback) {
     callback
   }
 }
+
+export const GET_IMAGE_FOCK_REQUEST = "GET_IMAGE_FOCK_REQUEST"
+export const GET_IMAGE_FOCK_SUCCESS = "GET_IMAGE_FOCK_SUCCESS"
+export const GET_IMAGE_FOCK_FAILURE = "GET_IMAGE_FOCK_FAILURE"
+
+// -------------------------- 我的收藏  ------------------------------------------
+export function loadFavouriteList(registry) {
+  return {
+    registry,
+    [FETCH_API]: {
+      types: [GET_IMAGE_FOCK_REQUEST, GET_IMAGE_FOCK_SUCCESS, GET_IMAGE_FOCK_FAILURE],
+      endpoint: `${API_URL_PREFIX}/registries/${registry}/favourite`,
+      schema: Schemas.REGISTRYS,
+    }
+  }
+}

@@ -167,6 +167,7 @@ export function images(state = { publicImages: {} }, action) {
   return {
     privateImages: privateImages(state.privateImages, action),
     publicImages: publicImages(state.publicImages, action),
+    fockImages: fockImagesList(state.fockImages, action),
     otherImages: otherImages(state.otherImages, action),
     imagesInfo: imagesInfo(state.imagesInfo, action),
   }
@@ -282,6 +283,42 @@ function imagesInfo(state={}, action){
         }
       })
     case ActionTypes.GET_IMAGEINFO_FAILURE:
+      return merge({}, defaultState, state, {
+        [registry]: { isFetching: false }
+      })
+    default:
+      return state
+  }
+}
+
+
+
+//    --------------------  我的收藏  -----------
+
+function fockImagesList(state={}, action){
+  const registry = action.registry
+  const defaultState = {
+    [registry]: {
+      isFetching: false,
+      registry,
+      imageList: []
+    }
+  }
+  switch (action.type) {
+    case ActionTypes.GET_IMAGE_FOCK_REQUEST:
+      return merge({}, defaultState, state, {
+        [registry]: { isFetching: true }
+      })
+    case ActionTypes.GET_IMAGE_FOCK_SUCCESS:
+      return merge({}, state, {
+        [registry]: {
+          isFetching: false,
+          registry: action.response.result.registry,
+          server: action.response.result.server,
+          imageList: action.response.result.data || []
+        }
+      })
+    case ActionTypes.GET_IMAGE_FOCK_FAILURE:
       return merge({}, defaultState, state, {
         [registry]: { isFetching: false }
       })
