@@ -67,7 +67,7 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/services/:service_name/rollingupdate', serviceController.rollingUpdateService)
   router.get('/clusters/:cluster/services/:service_name/events', serviceController.getServiceDetailEvents)
   router.post('/clusters/:cluster/services/:service_name/logs', serviceController.getServiceLogs)
-  router.get('/clusters/:cluster/services/:service_name/ports', serviceController.getServicePorts)
+  router.get('/clusters/:cluster/services/:service_name/k8s-service', serviceController.getK8sService)
   // spi
   router.post('/clusters/:cluster/services/:service_name/binddomain', serviceController.bindServiceDomain)
   router.put('/clusters/:cluster/services/:service_name/binddomain', serviceController.deleteServiceDomain)

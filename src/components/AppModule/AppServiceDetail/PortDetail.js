@@ -13,58 +13,53 @@ import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import "./style/PortDetail.less"
-import { loadServicePorts, clearServicePorts } from '../../../actions/services'
-
-const testData = [];
-
-// 需要后端提供获取服务的 service 的 API ！！！
-
+import { loadK8sService, clearK8sService } from '../../../actions/services'
 
 let MyComponent = React.createClass({
-  getInitialState(){
+  getInitialState() {
     return {}
   },
   propTypes: {
     config: React.PropTypes.array
   },
   componentWillMount() {
-    this.props.loadServicePorts(this.props.cluster, this.props.serviceName)
+    this.props.loadK8sService(this.props.cluster, this.props.serviceName)
   },
   componentWillUnmount() {
-    this.props.clearServicePorts()
+    this.props.clearK8sService()
   },
   componentWillReceiveProps(nextProps) {
     const { serviceDetailmodalShow } = nextProps
     if (serviceDetailmodalShow === this.props.serviceDetailmodalShow) {
       return
     }
-    if(!serviceDetailmodalShow) {
-      return this.props.clearServicePorts()
+    if (!serviceDetailmodalShow) {
+      return this.props.clearK8sService()
     }
-    this.props.loadServicePorts(nextProps.cluster, nextProps.serviceName)
+    this.props.loadK8sService(nextProps.cluster, nextProps.serviceName)
   },
   render: function () {
-    const {servicePorts} = this.props
-    if (servicePorts.isFetching) {
+    const {k8sService} = this.props
+    if (k8sService.isFetching) {
       return (
         <div className='loadingBox'>
           <Spin size='large' />
         </div>
       )
     }
-    if(!servicePorts.data) {
+    if (!k8sService.data) {
       return (<div className='loadingBox'>
         无端口
       </div>)
     }
-    let property = Object.getOwnPropertyNames(servicePorts.data)
-    if(property.length === 0) {
+    let property = Object.getOwnPropertyNames(k8sService.data)
+    if (property.length === 0) {
       return (<div className='loadingBox'>
         无端口
       </div>)
     }
-    const service = servicePorts.data[property[0]]
-    if(!service.spec) {
+    const service = k8sService.data[property[0]]
+    if (!service.spec) {
       return (
         <div className='loadingBox'>
           无端口
@@ -111,13 +106,13 @@ let MyComponent = React.createClass({
 
 function mapSateToProp(state) {
   return {
-    servicePorts: state.services.servicePorts
+    k8sService: state.services.k8sService
   }
 }
 
 MyComponent = connect(mapSateToProp, {
-  loadServicePorts,
-  clearServicePorts
+  loadK8sService,
+  clearK8sService
 })(MyComponent)
 
 class PortDetail extends Component {
@@ -147,7 +142,7 @@ class PortDetail extends Component {
           </div>
           <div style={{ clear: "both" }}></div>
         </div>
-        <MyComponent config={containerList} loading={loading} cluster={this.props.cluster} serviceName={this.props.serviceName} serviceDetailmodalShow={this.props.serviceDetailmodalShow}/>
+        <MyComponent config={containerList} loading={loading} cluster={this.props.cluster} serviceName={this.props.serviceName} serviceDetailmodalShow={this.props.serviceDetailmodalShow} />
       </div>
     )
   }

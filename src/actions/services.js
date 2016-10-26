@@ -314,30 +314,30 @@ export function loadServiceLogs(cluster, serviceName, body, callback) {
 }
 
 
-export const SERVICE_GET_PORTS_REQUEST = 'SERVICE_GET_PORTS_REQUEST'
-export const SERVICE_GET_PORTS_SUCCESS = 'SERVICE_GET_PORTS_SUCCESS'
-export const SERVICE_GET_PORTS_FAILURE = 'SERVICE_GET_PORT_FAILURE'
-export const SERVICE_CLEAR_PORTS = 'SERVICE_CLEAR_PORTS'
+export const SERVICE_GET_K8S_SERVICE_REQUEST = 'SERVICE_GET_K8S_SERVICE_REQUEST'
+export const SERVICE_GET_K8S_SERVICE_SUCCESS = 'SERVICE_GET_K8S_SERVICE_SUCCESS'
+export const SERVICE_GET_K8S_SERVICE_FAILURE = 'SERVICE_GET_PORT_FAILURE'
+export const SERVICE_CLEAR_K8S_SERVICE = 'SERVICE_CLEAR_K8S_SERVICE'
 
-function fetchServicePorts(cluster, serviceName) {
+function fetchK8sService(cluster, serviceName) {
   return {
     [FETCH_API]: {
-      types: [SERVICE_GET_PORTS_REQUEST, SERVICE_GET_PORTS_SUCCESS, SERVICE_GET_PORTS_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/ports`,
+      types: [SERVICE_GET_K8S_SERVICE_REQUEST, SERVICE_GET_K8S_SERVICE_SUCCESS, SERVICE_GET_K8S_SERVICE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/k8s-service`,
       schema: {}
     }
   }
 }
 
-export function loadServicePorts(cluster, serviceName) {
+export function loadK8sService(cluster, serviceName) {
   return (dispath, getState) => {
-    return dispath(fetchServicePorts(cluster, serviceName))
+    return dispath(fetchK8sService(cluster, serviceName))
   }
 }
 
-export function clearServicePorts() {
+export function clearK8sService() {
   return {
-    type: SERVICE_CLEAR_PORTS
+    type: SERVICE_CLEAR_K8S_SERVICE
   }
 }
 
@@ -407,12 +407,12 @@ export const SERVICE_AVAILABILITY_FAILURE = 'SERVICE_AVAILABILITY_FAILURE'
 
 export function fetchChangeServiceAvailability(cluster, serviceName, options, callback) {
   let body = null
-  if(typeof options === 'boolean') {
+  if (typeof options === 'boolean') {
     body = {
       open: options
     }
   }
-  else{
+  else {
     body = {
       livenessProbe: options
     }
@@ -431,7 +431,7 @@ export function fetchChangeServiceAvailability(cluster, serviceName, options, ca
   }
 }
 
-export function changeServiceAvailability(cluster, serviceName ,options, callback) {
+export function changeServiceAvailability(cluster, serviceName, options, callback) {
   return (dispath, getState) => {
     return dispath(fetchChangeServiceAvailability(cluster, serviceName, options, callback))
   }
