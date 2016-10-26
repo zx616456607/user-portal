@@ -225,5 +225,32 @@
   "CICD.Tenxflow.AutoDeployService.tooltipsFirst": "检测到当前Flow构建生成的镜像，还未部署过应用或服务，请先使用该镜像直接创建",
   "CICD.Tenxflow.AutoDeployService.tooltipsSecond": "【单服务应用】或者创建其它【多服务应用】使用该镜像创建子服务",
   "CICD.Tenxflow.AutoDeployService.normalUpdate": "Normal Update",
-  "CICD.Tenxflow.AutoDeployService.imageUpdate": "Rolling Update"
+  "CICD.Tenxflow.AutoDeployService.imageUpdate": "Rolling Update",
+  
+  "CICD.Tenxflow.TenxFlowBuildLog.title": "Build Log",
+  "CICD.Tenxflow.TenxFlowBuildLog.cost": "Cost",
+  "CICD.Tenxflow.TenxFlowBuildLog.running": "Building...",
+  "CICD.Tenxflow.TenxFlowBuildLog.finish": "Finish",
+  "CICD.Tenxflow.TenxFlowBuildLog.waitting": "Waitting",
+  "CICD.Tenxflow.TenxFlowBuildLog.fail": "Failed",
+  
+  "CICD.Tenxflow.EditTenxFlowModal.titleEdit": "编辑项目卡片",
+  "CICD.Tenxflow.EditTenxFlowModal.titleAdd": "创建项目卡片",
+  "CICD.Tenxflow.EditTenxFlowModal.unitCheck": "执行失败",
+  "CICD.Tenxflow.EditTenxFlowModal.containCheck": "集成测试",
+  "CICD.Tenxflow.EditTenxFlowModal.podToPodCheck": "端对端测试",
+  "CICD.Tenxflow.EditTenxFlowModal.runningCode": "代码编译",
+  "CICD.Tenxflow.EditTenxFlowModal.buildImage": "镜像构建",
+  "CICD.Tenxflow.EditTenxFlowModal.other": "自定义",
+  "CICD.Tenxflow.EditTenxFlowModal.flowType": "项目类型",
+  "CICD.Tenxflow.EditTenxFlowModal.flowCode": "项目代码",
+  "CICD.Tenxflow.EditTenxFlowModal.selectCode": "选择代码库",
+  "CICD.Tenxflow.EditTenxFlowModal.imageName": "基础镜像",
+  "CICD.Tenxflow.EditTenxFlowModal.defineEnv": "自定义环境变量",
+  "CICD.Tenxflow.EditTenxFlowModal.servicesTitle": "常用服务",
+  "CICD.Tenxflow.EditTenxFlowModal.addServices": "继续添加",
+  "CICD.Tenxflow.EditTenxFlowModal.shellCode": "脚本命令",
+  "CICD.Tenxflow.EditTenxFlowModal.submit": "确定",
+  "CICD.Tenxflow.EditTenxFlowModal.cancel": "取消"
+  
 }

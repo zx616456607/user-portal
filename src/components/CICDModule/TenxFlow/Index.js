@@ -17,6 +17,7 @@ import { DEFAULT_REGISTRY } from '../../../constants'
 import CreateTenxFlow from './CreateTenxFlow.js'
 import TestModal from '../../TerminalModal'
 import './style/TenxFlowList.less'
+import TenxFlowBuildLog from './TenxFlowBuildLog.js'
 
 let testData = [
   {
@@ -109,7 +110,7 @@ let MyComponent = React.createClass({
     });
   },
   render: function () {
-    const { config } = this.props;
+    const { config, scope } = this.props;
     let items = config.map((item) => {
       const dropdown = (
         <Menu onClick={this.operaMenuClick.bind(this, item)}
@@ -137,7 +138,7 @@ let MyComponent = React.createClass({
             {item.status}
           </div>
           <div className='oprea'>
-            <Button className='logBtn' size='large' type='primary'>
+            <Button className='logBtn' size='large' type='primary' onClick={scope.openTenxFlowDeployLogModal}>
               <i className='fa fa-wpforms' />&nbsp;
               <FormattedMessage {...menusText.deloyLog} />
             </Button>
@@ -162,6 +163,8 @@ class TenxFlowList extends Component {
     super(props);
     this.openCreateTenxFlowModal = this.openCreateTenxFlowModal.bind(this);
     this.closeCreateTenxFlowModal = this.closeCreateTenxFlowModal.bind(this);
+    this.openTenxFlowDeployLogModal = this.openTenxFlowDeployLogModal.bind(this);
+    this.closeTenxFlowDeployLogModal = this.closeTenxFlowDeployLogModal.bind(this);
     this.state = {
       createTenxFlowModal: false,
       TenxFlowDeployLogModal: false,
@@ -247,10 +250,10 @@ class TenxFlowList extends Component {
         </Modal>
         <Modal
           visible={this.state.TenxFlowDeployLogModal}
-          className='TenxFlowDeployLogModal'
+          className='TenxFlowBuildLogModal'
           onCancel={this.closeTenxFlowDeployLogModal}
           >
-
+          <TenxFlowBuildLog scope={scope} />
         </Modal>
       </QueueAnim>
     )
