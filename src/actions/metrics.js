@@ -18,7 +18,7 @@ export const METRICS_CONTAINER_CPU_SUCCESS = 'METRICS_CONTAINER_CPU_SUCCESS'
 export const METRICS_CONTAINER_CPU_FAILURE = 'METRICS_CONTAINER_CPU_FAILURE'
 
 function fetchContainerMetricsCPU(cluster, serviceName, query = {}) {
-  let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/metrics`
+  let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/containers/${serviceName}/metrics`
   query.type = METRICS_CPU
   if (query) {
     endpoint += `?${toQuerystring(query)}`
@@ -45,7 +45,7 @@ export const METRICS_CONTAINER_MEMORY_SUCCESS = 'METRICS_CONTAINER_MEMORY_SUCCES
 export const METRICS_CONTAINER_MEMORY_FAILURE = 'METRICS_CONTAINER_MEMORY_FAILURE'
 
 function fetchContainerMetricsMemory(cluster, containerName, query = {}) {
-  let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/services/${containerName}/metrics`
+  let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/containers/${containerName}/metrics`
   query.type = METRICS_MEMORY
   if (query) {
     endpoint += `?${toQuerystring(query)}`
@@ -72,7 +72,7 @@ export const METRICS_CONTAINER_NETWORK_RECEIVED_SUCCESS = 'METRICS_CONTAINER_NET
 export const METRICS_CONTAINER_NETWORK_RECEIVED_FAILURE = 'METRICS_CONTAINER_NETWORK_RECEIVED_FAILURE'
 
 function fetchContainerMetricsNetworkReceived(cluster, containerName, query = {}) {
-  let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/services/${containerName}/metrics`
+  let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/containers/${containerName}/metrics`
   query.type = METRICS_NETWORK_RECEIVED
   if (query) {
     endpoint += `?${toQuerystring(query)}`
@@ -99,7 +99,7 @@ export const METRICS_CONTAINER_NETWORK_TRANSMITTED_SUCCESS = 'METRICS_CONTAINER_
 export const METRICS_CONTAINER_NETWORK_TRANSMITTED_FAILURE = 'METRICS_CONTAINER_NETWORK_TRANSMITTED_FAILURE'
 
 function fetchContainerMetricsNetworkTransmitted(cluster, containerName, query = {}) {
-  let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/services/${containerName}/metrics`
+  let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/containers/${containerName}/metrics`
   query.type = METRICSS_NETWORK_TRANSMITTED
   if (query) {
     endpoint += `?${toQuerystring(query)}`

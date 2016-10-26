@@ -25,20 +25,6 @@ class Network extends Component {
     option.addYAxis('value', {
       formatter: '{value} B'
     })
-    const networkReceivedStyle = {
-      normal: {
-        lineStyle: {
-          color: '#00a0ea'
-        }
-      }
-    }
-    const networkTransmittedStyle = {
-      normal: {
-        lineStyle: {
-          color: '#aaaa'
-        }
-      }
-    }
     networkReceived.data.map((item) => {
       let timeData = []
       let values = []
@@ -47,7 +33,7 @@ class Network extends Component {
         values.push(metric.value)
       })
       option.setXAxisData(timeData)
-      option.addSeries(values, `${item.containerName} 上传`, networkReceivedStyle)
+      option.addSeries(values, `${item.containerName} 上传`)
     })
     networkTransmitted.data.map((item) => {
       let timeData = []
@@ -57,7 +43,7 @@ class Network extends Component {
         values.push(metric.value)
       })
       option.setXAxisData(timeData)
-      option.addSeries(values, `${item.containerName} 下载`, networkTransmittedStyle)
+      option.addSeries(values, `${item.containerName} 下载`)
     })
     return (
       <ReactEcharts
