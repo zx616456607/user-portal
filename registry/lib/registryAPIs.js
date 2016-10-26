@@ -10,10 +10,10 @@
  * @author Wang Lei
 */
 
-var logger = require('../../utils/logger').getLogger('registryAPIs');
+var logger  = require('../../utils/logger').getLogger('registryAPIs');
 var request = require('request');
-var async = require('async');
-var config = require('../../configs/registry')
+var async   = require('async');
+var config  = require('../../configs/registry')
 
 /*
  * Docker registry APIs

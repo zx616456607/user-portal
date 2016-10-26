@@ -73,6 +73,7 @@ export default class AppGraph extends Component {
   }
 
   render() {
+    const text = 'Hello world~ \r\n Hello World2'
     return (
       <div id="AppGraph">
         <OrchfileComponent  cluster={this.props.cluster} appName={this.props.appName} />

@@ -1,32 +1,34 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
+ */
+
+/**
+ * Service monitor
  *
- *  Storage list
- *
- * v0.1 - 2016/10/19
- * @author ZhaoXueYu
+ * v0.1 - 2016-10-25
+ * @author Zhangpc
  */
 
 import React, { Component, PropTypes } from 'react'
 import { Radio, } from 'antd'
 import { connect } from 'react-redux'
-import TimeControl from '../Metrics/TimeControl'
-import Metrics from '../Metrics'
-import { loadAppMetricsCPU, loadAppMetricsMemory, loadAppMetricsNetworkReceived, loadAppMetricsNetworkTransmitted } from '../../actions/metrics'
+import TimeControl from '../../Metrics/TimeControl'
+import Metrics from '../../Metrics'
+import { loadServiceMetricsCPU, loadServiceMetricsMemory, loadServiceMetricsNetworkReceived, loadServiceMetricsNetworkTransmitted } from '../../../actions/metrics'
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 
 function loadData(props, query) {
-  const { cluster, appName, loadAppMetricsCPU, loadAppMetricsMemory, loadAppMetricsNetworkReceived, loadAppMetricsNetworkTransmitted } = props
-  loadAppMetricsCPU(cluster, appName, query)
-  loadAppMetricsMemory(cluster, appName, query)
-  loadAppMetricsNetworkReceived(cluster, appName, query)
-  loadAppMetricsNetworkTransmitted(cluster, appName, query)
+  const { cluster, serviceName, loadServiceMetricsCPU, loadServiceMetricsMemory, loadServiceMetricsNetworkReceived, loadServiceMetricsNetworkTransmitted } = props
+  loadServiceMetricsCPU(cluster, serviceName, query)
+  loadServiceMetricsMemory(cluster, serviceName, query)
+  loadServiceMetricsNetworkReceived(cluster, serviceName, query)
+  loadServiceMetricsNetworkTransmitted(cluster, serviceName, query)
 }
 
-class AppMonitior extends Component {
+class ServiceMonitior extends Component {
   constructor(props) {
     super(props)
     this.handleTimeChange = this.handleTimeChange.bind(this)
@@ -49,10 +51,18 @@ class AppMonitior extends Component {
     loadData(this.props, { start: this.changeTime(0) })
   }
 
+  componentWillReceiveProps(nextProps) {
+    const { cluster, serviceName } = nextProps
+    if (serviceName === this.props.serviceName) {
+      return
+    }
+    loadData(nextProps, { start: this.changeTime(0) })
+  }
+
   render() {
     const { cpu, memory, networkReceived, networkTransmitted } = this.props
     return (
-      <div id="AppMonitior">
+      <div id="ServiceMonitior">
         <TimeControl onChange={this.handleTimeChange} />
         <Metrics
           cpu={cpu}
@@ -65,9 +75,9 @@ class AppMonitior extends Component {
   }
 }
 
-AppMonitior.propTypes = {
+ServiceMonitior.propTypes = {
+  serviceName: PropTypes.string.isRequired,
   cluster: PropTypes.string.isRequired,
-  appName: PropTypes.string.isRequired,
 }
 
 function mapStateToProps(state, props) {
@@ -76,7 +86,7 @@ function mapStateToProps(state, props) {
     memory,
     networkReceived,
     networkTransmitted,
-  } = state.metrics.apps
+  } = state.metrics.services
   const cpuData = {
     isFetching: CPU.isFetching,
     data: []
@@ -114,8 +124,8 @@ function mapStateToProps(state, props) {
 }
 
 export default connect(mapStateToProps, {
-  loadAppMetricsCPU,
-  loadAppMetricsMemory,
-  loadAppMetricsNetworkReceived,
-  loadAppMetricsNetworkTransmitted,
-})(AppMonitior)
+  loadServiceMetricsCPU,
+  loadServiceMetricsMemory,
+  loadServiceMetricsNetworkReceived,
+  loadServiceMetricsNetworkTransmitted,
+})(ServiceMonitior)

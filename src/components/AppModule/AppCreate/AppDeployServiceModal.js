@@ -391,9 +391,9 @@ let AppDeployServiceModal = React.createClass({
       deploymentList.setLivenessProbe(serviceName, getFieldValue('getUsefulType').toUpperCase(), {
         port: parseInt(livePort),
         path: livePath,
-        initialDelaySeconds: liveInitialDelaySeconds,
-        timeoutSeconds: liveTimeoutSeconds,
-        periodSeconds: livePeriodSeconds
+        initialDelaySeconds: parseInt(liveInitialDelaySeconds),
+        timeoutSeconds: parseInt(liveTimeoutSeconds),
+      periodSeconds: parseInt(livePeriodSeconds)
       })
     }
     /*Service*/

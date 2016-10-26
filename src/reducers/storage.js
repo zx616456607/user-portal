@@ -270,6 +270,14 @@ function exportFile(state = {}, action) {
   }
 }
 
+function getFreeVolume(state = {}, action) {
+  const defaultState = {
+    [cluster]: {
+      
+    }
+  }
+}
+
 
 export default function storageReducer(state = {}, action) {
   return {

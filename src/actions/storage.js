@@ -327,3 +327,26 @@ function _consume(dispath, reader) {
     })
   }
 }
+
+
+
+export const STORAGE_GET_FREE_VOLUME_REQUEST = 'IMAGE_GET_FREE_VOLUME_REQUEST'
+export const STORAGE_GET_FREE_VOLUME_SUCCESS = 'IMAGE_GET_FREE_VOLUME_SUCCESS'
+export const STORAGE_GET_FREE_VOLUME_FAIULRE = 'IMAGE_GET_FREE_VOLUME_FAIULRE'
+
+export function fetchFreeVolume(cluster) {
+  return {
+    cluster,
+    [FETCH_API]: {
+      types: [STORAGE_GET_FREE_VOLUME_REQUEST, STORAGE_GET_FREE_VOLUME_SUCCESS, STORAGE_GET_FREE_VOLUME_FAIULRE],
+      endpoint: `${API_URL_PREFIX}/storage-pools/${cluster}/volumes/free`
+    }
+  }
+}
+
+
+export function loadFreeVolume(cluster) {
+  return (dispatch, getState) => {
+    return dispatch(fetchFreeVolume(dispatch(cluster)))
+  }
+}
