@@ -294,6 +294,11 @@ export function services(state = { appItmes: {} }, action) {
       REQUEST: ActionTypes.SERVICE_AVAILABILITY_REQUEST,
       SUCCESS: ActionTypes.SERVICE_AVAILABILITY_SUCCESS,
       FAILURE: ActionTypes.SERVICE_AVAILABILITY_FAILURE
-    }, state.serviceAvailability, action)
+    }, state.serviceAvailability, action),
+    autoScale: reducerFactory({
+      REQUEST: ActionTypes.SERVICE_GET_AUTO_SCALE_REQUEST,
+      SUCCESS: ActionTypes.SERVICE_GET_AUTO_SCALE_SUCCESS,
+      FAILURE: ActionTypes.SERVICE_GET_AUTO_SCALE_FAILURE
+    }, state.autoScale, action, { overwrite: true })
   }
 }
