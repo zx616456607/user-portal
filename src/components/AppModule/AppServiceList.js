@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Modal, Checkbox, Dropdown, Button, Card, Menu, Icon, Spin, Tooltip, Pagination } from 'antd'
+import { Modal, Checkbox, Dropdown, Button, Card, Menu, Icon, Spin, Tooltip, Pagination, } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -41,6 +41,7 @@ const MyComponent = React.createClass({
   modalShow: function (item) {
     const {scope} = this.props;
     scope.setState({
+      selectTab: null,
       modalShow: true,
       currentShowInstance: item
     });
@@ -368,21 +369,7 @@ class AppServiceList extends Component {
 
   render() {
     const parentScope = this
-    const operaMenu = (<Menu>
-      <Menu.Item key="0">
-        <span onClick={this.batchRestartServices}>重新部署</span>
-      </Menu.Item>
-      <Menu.Item key="1">
-        <span>弹性伸缩</span>
-      </Menu.Item>
-      <Menu.Item key="2">
-        <span>灰度升级</span>
-      </Menu.Item>
-      <Menu.Item key="3">
-        <span>更改配置</span>
-      </Menu.Item>
-    </Menu>);
-    let { modalShow, currentShowInstance, serviceList } = this.state
+    let { modalShow, currentShowInstance, serviceList, selectTab } = this.state
     const { name, pathname, page, size, total, isFetching, appName } = this.props
     const checkedServiceList = serviceList.filter((service) => service.checked)
     const checkedServiceNames = checkedServiceList.map((service) => service.metadata.name)
@@ -396,6 +383,26 @@ class AppServiceList extends Component {
       confirmStopServices: this.confirmStopServices,
       confirmDeleteServices: this.confirmDeleteServices,
     }
+    const operaMenu = (<Menu>
+      <Menu.Item key="0">
+        <span onClick={this.batchRestartServices}>重新部署</span>
+      </Menu.Item>
+      <Menu.Item key="1" disabled={checkedServiceList.length > 1}>
+        <span onClick={() => {
+          this.setState({
+            selectTab: '#autoExtend',
+            currentShowInstance: checkedServiceList[0],
+            modalShow: true,
+          })
+        }}>弹性伸缩</span>
+      </Menu.Item>
+      <Menu.Item key="2">
+        <span>灰度升级</span>
+      </Menu.Item>
+      <Menu.Item key="3">
+        <span>更改配置</span>
+      </Menu.Item>
+    </Menu>);
     return (
       <div id="AppServiceList">
         <QueueAnim className="demo-content"
@@ -466,6 +473,7 @@ class AppServiceList extends Component {
               appName={appName}
               scope={parentScope}
               funcs={funcs}
+              selectTab={selectTab}
               serviceDetailmodalShow={this.state.modalShow}
               />
           </Modal>

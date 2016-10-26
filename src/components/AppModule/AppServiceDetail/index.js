@@ -44,7 +44,7 @@ class AppServiceDetail extends Component {
     this.restartService = this.restartService.bind(this)
     this.stopService = this.stopService.bind(this)
     this.state = {
-      activeTabKey: DEFAULT_TAB
+      activeTabKey: props.selectTab || DEFAULT_TAB
     }
   }
 
@@ -60,17 +60,17 @@ class AppServiceDetail extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { serviceDetailmodalShow, serviceName } = nextProps
+    const { serviceDetailmodalShow, serviceName, selectTab } = nextProps
     if (serviceDetailmodalShow === this.props.serviceDetailmodalShow) {
       return
     }
     if (serviceDetailmodalShow) {
       loadData(nextProps)
-      if (serviceName === this.props.serviceName) {
+      if (serviceName === this.props.serviceName && (!selectTab)) {
         return
       }
       this.setState({
-        activeTabKey: DEFAULT_TAB
+        activeTabKey: selectTab || DEFAULT_TAB
       })
     }
   }
