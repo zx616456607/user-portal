@@ -23,7 +23,9 @@ class Memory extends Component {
     const option = new EchartsOption('内存')
     const { memory } = this.props
     const { isFetching, data } = memory
-    option.addYAxis()
+    option.addYAxis('value', {
+      formatter: '{value} M'
+    })
     data.map((item) => {
       let timeData = []
       let values = []
@@ -35,7 +37,7 @@ class Memory extends Component {
       option.addSeries(values, item.containerName)
     })
     return (
-      <ReactEcharts option={ option } showLoading={isFetching} />
+      <ReactEcharts option={option} showLoading={isFetching} />
     )
   }
 }

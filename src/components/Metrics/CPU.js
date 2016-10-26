@@ -23,7 +23,9 @@ class CPU extends Component {
     const option = new EchartsOption('CPU')
     const { cpu } = this.props
     const { isFetching, data } = cpu
-    option.addYAxis()
+    option.addYAxis('value', {
+      formatter: '{value} m'
+    })
     data.map((item) => {
       let timeData = []
       let values = []

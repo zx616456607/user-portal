@@ -19,6 +19,7 @@ const DEFAULT_CONTAINER_RESOURCES = constants.DEFAULT_CONTAINER_RESOURCES
 const DEFAULT_CONTAINER_RESOURCES_CPU = constants.DEFAULT_CONTAINER_RESOURCES_CPU
 const DEFAULT_CONTAINER_RESOURCES_MEMORY = constants.DEFAULT_CONTAINER_RESOURCES_MEMORY
 const apiFactory = require('../services/api_factory')
+const moment = require('moment')
 
 exports.getContainerMetrics = function* () {
   const cluster = this.params.cluster
@@ -126,12 +127,14 @@ function _getContainerMetrics(user, cluster, instance, query) {
     metrics.map((metric) => {
       switch (type) {
         case METRICS_CPU:
-          metric.value = metric.value / cpu
+        // metric.value = metric.value / cpu
         case METRICS_MEMORY:
-          metric.value = metric.value / memory
+          metric.value = metric.value / 1024 / 1024
         case METRICS_NETWORK_RECEIVED:
         case METRICSS_NETWORK_TRANSMITTED:
       }
+      metric.value = metric.value.toFixed(2)
+      metric.timestamp = moment(metric.timestamp).format('MM-DD HH:mm')
     })
     return {
       containerName,
