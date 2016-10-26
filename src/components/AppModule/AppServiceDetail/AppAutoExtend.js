@@ -17,15 +17,29 @@ export default class AppAutoExtend extends Component{
     this.handleMinExampleNums = this.handleMinExampleNums.bind(this)
     this.handleEdit = this.handleEdit.bind(this)
     this.handleSave = this.handleSave.bind(this)
+    this.handleCPUValue = this.handleCPUValue.bind(this)
+    this.handleMaxExampleNums = this.handleMaxExampleNums.bind(this)
     this.state={
       edit: true,
       minExampleNums: 1,
+      CPUValue:1,
+      maxExampleNums:1,
     }
   }
   handleMinExampleNums (value) {
     console.log('value1',value);
     this.setState({
       minExampleNums: value,
+    })
+  }
+  handleCPUValue (value) {
+    this.setState({
+      CPUValue: value,
+    })
+  }
+  handleMaxExampleNums (value) {
+    this.setState({
+      maxExampleNums: value,
     })
   }
   handleEdit(){
@@ -38,6 +52,7 @@ export default class AppAutoExtend extends Component{
       edit: true
     })
   }
+  
   render(){
     return (
       <div id="AppAutoExtend">
@@ -85,14 +100,14 @@ export default class AppAutoExtend extends Component{
               <Row>
                 <Col span={12} style={{marginTop: '24px'}}>
                   <Slider defaultValue={30}
-                          onChange={ this.handleMinExampleNums }
-                          value={this.state.minExampleNums}
+                          onChange={ this.handleMaxExampleNums }
+                          value={this.state.maxExampleNums}
                           disabled={this.state.edit}/>
                 </Col>
                 <Col span={12}>
                   <InputNumber style={{ marginLeft: '16px' }}
-                               value={this.state.minExampleNums}
-                               onChange={this.handleMinExampleNums}
+                               value={this.state.maxExampleNums}
+                               onChange={this.handleMaxExampleNums}
                                disabled={this.state.edit}
                   /> 个
                 </Col>
@@ -105,14 +120,14 @@ export default class AppAutoExtend extends Component{
               <Row>
                 <Col span={12} style={{marginTop: '24px'}}>
                   <Slider defaultValue={30}
-                          onChange={ this.handleMinExampleNums }
-                          value={this.state.minExampleNums}
+                          onChange={ this.handleCPUValue }
+                          value={this.state.CPUValue}
                           disabled={this.state.edit}/>
                 </Col>
                 <Col span={12} id="tip">
                   <InputNumber style={{ marginLeft: '16px' }}
-                               value={this.state.minExampleNums}
-                               onChange={this.handleMinExampleNums}
+                               value={this.state.CPUValue}
+                               onChange={this.handleCPUValue}
                                disabled={this.state.edit}
                   /> %
                   <Tooltip title="容器实例实际占用CPU与实例CPU限制比例" getTooltipContainer={() =>
