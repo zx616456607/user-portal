@@ -23,7 +23,9 @@ class CPU extends Component {
     const option = new EchartsOption('CPU')
     const { cpu } = this.props
     const { isFetching, data } = cpu
-    option.addYAxis()
+    option.addYAxis('value', {
+      formatter: '{value} m'
+    })
     data.map((item) => {
       let timeData = []
       let values = []
@@ -35,13 +37,24 @@ class CPU extends Component {
       option.addSeries(values, item.containerName)
     })
     return (
-      <ReactEcharts option={option} showLoading={isFetching} />
+      <ReactEcharts
+        notMerge={true}
+        option={option}
+        showLoading={isFetching}
+        />
     )
   }
 }
 
 CPU.propTypes = {
   cpu: PropTypes.object.isRequired,
+}
+
+CPU.defaultProps = {
+  cpu: {
+    isFetching: false,
+    data: []
+  }
 }
 
 export default CPU

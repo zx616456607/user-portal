@@ -67,9 +67,10 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/services/:service_name/rollingupdate', serviceController.rollingUpdateService)
   router.get('/clusters/:cluster/services/:service_name/events', serviceController.getServiceDetailEvents)
   router.post('/clusters/:cluster/services/:service_name/logs', serviceController.getServiceLogs)
+  router.get('/clusters/:cluster/services/:service_name/k8s-service', serviceController.getK8sService)
   // spi
-  router.post('/clusters/:cluster/services/:service_name/domain', serviceController.bindServiceDomain)
-
+  router.post('/clusters/:cluster/services/:service_name/binddomain', serviceController.bindServiceDomain)
+  router.put('/clusters/:cluster/services/:service_name/binddomain', serviceController.deleteServiceDomain)
   // Containers
   router.get('/clusters/:cluster/containers', containerController.getContainers)
   router.get('/clusters/:cluster/containers/:container_name/detail', containerController.getContainerDetail)
@@ -92,6 +93,7 @@ module.exports = function (Router) {
   router.get('/registries/:registry/:user/:name/tags', registryController.getImageTags)
   router.get('/registries/:registry/:user/:name/tags/:tag/configs', registryController.getImageConfigs)
   router.get('/registries/:registry/private', registryController.getPrivateImages)
+  router.get('/registries/:registry/favourite', registryController.getFavouriteImages)
 
   // Private docker registry integration
   router.get('/docker-registry', registryController.getPrivateRegistries)

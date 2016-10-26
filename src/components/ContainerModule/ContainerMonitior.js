@@ -13,17 +13,17 @@ import { connect } from 'react-redux'
 import './style/ContainerMonitior.less'
 import TimeControl from '../Metrics/TimeControl'
 import Metrics from '../Metrics'
-import { loadMetricsCPU, loadMetricsMemory, loadMetricsNetworkReceived, loadMetricsNetworkTransmitted, } from '../../actions/metrics'
+import { loadContainerMetricsCPU, loadContainerMetricsMemory, loadContainerMetricsNetworkReceived, loadContainerMetricsNetworkTransmitted, } from '../../actions/metrics'
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 
 function loadData(props, query) {
-  const { cluster, containerName, loadMetricsCPU, loadMetricsMemory, loadMetricsNetworkReceived, loadMetricsNetworkTransmitted } = props
-  loadMetricsCPU(cluster, containerName, query)
-  loadMetricsMemory(cluster, containerName, query)
-  loadMetricsNetworkReceived(cluster, containerName, query)
-  loadMetricsNetworkTransmitted(cluster, containerName, query)
+  const { cluster, containerName, loadContainerMetricsCPU, loadContainerMetricsMemory, loadContainerMetricsNetworkReceived, loadContainerMetricsNetworkTransmitted } = props
+  loadContainerMetricsCPU(cluster, containerName, query)
+  loadContainerMetricsMemory(cluster, containerName, query)
+  loadContainerMetricsNetworkReceived(cluster, containerName, query)
+  loadContainerMetricsNetworkTransmitted(cluster, containerName, query)
 }
 
 class ContainerMonitior extends Component {
@@ -45,13 +45,12 @@ class ContainerMonitior extends Component {
     loadData(this.props, { start })
   }
 
-  componentWillMount() {
+  componentDidMount() {
     loadData(this.props, { start: this.changeTime(0) })
   }
 
   render() {
     const { cpu, memory, networkReceived, networkTransmitted } = this.props
-    console.log('propsMemory=====', memory);
     return (
       <div id="ContainerMonitior">
         <TimeControl onChange={this.handleTimeChange} />
@@ -60,7 +59,7 @@ class ContainerMonitior extends Component {
           memory={memory}
           networkReceived={networkReceived}
           networkTransmitted={networkTransmitted}
-        />
+          />
       </div>
     )
   }
@@ -113,8 +112,8 @@ function mapStateToProps(state, props) {
   }
 }
 export default connect(mapStateToProps, {
-  loadMetricsCPU,
-  loadMetricsMemory,
-  loadMetricsNetworkReceived,
-  loadMetricsNetworkTransmitted,
+  loadContainerMetricsCPU,
+  loadContainerMetricsMemory,
+  loadContainerMetricsNetworkReceived,
+  loadContainerMetricsNetworkTransmitted,
 })(ContainerMonitior)

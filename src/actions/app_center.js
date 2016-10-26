@@ -112,7 +112,8 @@ export function deleteOtherImage(id, callback) {
       },
       schema: Schemas.REGISTRYS
     },
-    callback
+    callback,
+    id
   }
 }
 

@@ -51,6 +51,15 @@ exports.getPrivateImages = function* () {
   }
 }
 
+exports.getFavouriteImages = function* () {
+  const loginUser = this.session.loginUser
+  const result = yield registryService.getFavouriteRepositories(loginUser.user, 1)
+
+  this.body = {
+    data: result
+  }
+}
+
 exports.getImageTags = function* () {
   const registry = this.params.registry
   const imageFullName = this.params.user + '/' + this.params.name

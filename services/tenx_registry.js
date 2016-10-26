@@ -142,6 +142,31 @@ exports.getPrivateRepositories = function(username, showDetail) {
   })
 }
 
+/*
+Service to get the repostories for specified user including private repositories
+*/
+exports.getFavouriteRepositories = function(username, showDetail) {
+  var registry = new registryAPIs()
+  if (username) {
+    username = username.toLowerCase()
+  }
+  return new Promise(function (resolve, reject) {
+    registry.getMyfavouritesRepos(username, showDetail, function(statusCode, respositories, err) {
+      if (err) {
+        reject(err)
+      }
+      if (statusCode < 300) {
+        logger.info('getFavouriteRepositories', 'Return my favourite repositories: ' + JSON.stringify(respositories));
+        resolve(respositories.results);
+      } else {
+        logger.error("Failed to get my repositories -> " + statusCode);
+        err = 'Failed to get my repositories: ' + respositories;
+        reject(err)
+      }
+    })
+  })
+}
+
 function _formatImageInfo(imageInfo, imageName, tag) {
   var image = {}
   if (!imageInfo) {

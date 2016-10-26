@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Modal, Checkbox, Dropdown, Button, Card, Menu, Icon, Spin, Tooltip, Pagination } from 'antd'
+import { Modal, Checkbox, Dropdown, Button, Card, Menu, Icon, Spin, Tooltip, Pagination, } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -17,6 +17,7 @@ import './style/AppServiceList.less'
 import { loadServiceList, startServices, restartServices, stopServices, deleteServices, quickRestartServices } from '../../actions/services'
 import { DEFAULT_CLUSTER, DEFAULT_PAGE_SIZE } from '../../constants'
 import { browserHistory } from 'react-router'
+import UpdateModal from './AppServiceDetail/UpdateModal'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -41,6 +42,7 @@ const MyComponent = React.createClass({
   modalShow: function (item) {
     const {scope} = this.props;
     scope.setState({
+      selectTab: null,
       modalShow: true,
       currentShowInstance: item
     });
@@ -181,11 +183,16 @@ class AppServiceList extends Component {
     this.batchDeleteServices = this.batchDeleteServices.bind(this)
     this.confirmDeleteServices = this.confirmDeleteServices.bind(this)
     this.confirmQuickRestartService = this.confirmQuickRestartService.bind(this)
+    this.handleUpdateOK = this.handleUpdateOK.bind(this)
+    this.handleUpdateCancel = this.handleUpdateCancel.bind(this)
+    this.showUpdataModal = this.showUpdataModal.bind(this)
     this.state = {
       modalShow: false,
       currentShowInstance: null,
       serviceList: props.serviceList,
-      searchInputDisabled: false
+      searchInputDisabled: false,
+      updateModal: false,
+      
     }
   }
 
@@ -365,24 +372,27 @@ class AppServiceList extends Component {
       modalShow: false
     })
   }
-
+  showUpdataModal(){
+    this.setState({
+      updateModal: true
+    })
+  }
+  handleUpdateCancel(){
+    this.setState({
+      updateModal: false
+    })
+    console.log('Cancel',this.state.updateModal);
+  }
+  handleUpdateOK(){
+    this.setState({
+      updateModal: false
+    })
+    console.log('OK',this.state.updateModal);
+  
+  }
   render() {
     const parentScope = this
-    const operaMenu = (<Menu>
-      <Menu.Item key="0">
-        <span onClick={this.batchRestartServices}>重新部署</span>
-      </Menu.Item>
-      <Menu.Item key="1">
-        <span>弹性伸缩</span>
-      </Menu.Item>
-      <Menu.Item key="2">
-        <span>灰度升级</span>
-      </Menu.Item>
-      <Menu.Item key="3">
-        <span>更改配置</span>
-      </Menu.Item>
-    </Menu>);
-    let { modalShow, currentShowInstance, serviceList } = this.state
+    let { modalShow, currentShowInstance, serviceList, selectTab,updateModal } = this.state
     const { name, pathname, page, size, total, isFetching, appName } = this.props
     const checkedServiceList = serviceList.filter((service) => service.checked)
     const checkedServiceNames = checkedServiceList.map((service) => service.metadata.name)
@@ -396,6 +406,26 @@ class AppServiceList extends Component {
       confirmStopServices: this.confirmStopServices,
       confirmDeleteServices: this.confirmDeleteServices,
     }
+    const operaMenu = (<Menu>
+      <Menu.Item key="0">
+        <span onClick={this.batchRestartServices}>重新部署</span>
+      </Menu.Item>
+      <Menu.Item key="1" disabled={checkedServiceList.length > 1}>
+        <span onClick={() => {
+          this.setState({
+            selectTab: '#autoExtend',
+            currentShowInstance: checkedServiceList[0],
+            modalShow: true,
+          })
+        }}>弹性伸缩</span>
+      </Menu.Item>
+      <Menu.Item key="2">
+        <span onClick={this.showUpdataModal}>灰度升级</span>
+      </Menu.Item>
+      <Menu.Item key="3">
+        <span>更改配置</span>
+      </Menu.Item>
+    </Menu>);
     return (
       <div id="AppServiceList">
         <QueueAnim className="demo-content"
@@ -466,8 +496,21 @@ class AppServiceList extends Component {
               appName={appName}
               scope={parentScope}
               funcs={funcs}
+              selectTab={selectTab}
               serviceDetailmodalShow={this.state.modalShow}
               />
+          </Modal>
+          <Modal ref="modal"
+                 visible={ updateModal }
+                 title="灰度升级" onOk={this.handleUpdateOK} onCancel={this.handleUpdateCancel}
+                 footer={[
+                   <Button key="back" type="ghost" size="large" onClick={this.handleUpdateCancel}>取 消</Button>,
+                   <Button key="submit" type="primary" size="large" loading={this.state.loading}
+                           onClick={this.handleUpdateOK}>
+                     保 存
+                   </Button>
+                 ]}>
+            <UpdateModal serviceList={serviceList} checkedServiceList={checkedServiceList}/>
           </Modal>
         </QueueAnim>
       </div>

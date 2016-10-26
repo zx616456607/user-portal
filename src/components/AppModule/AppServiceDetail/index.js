@@ -20,7 +20,7 @@ import PortDetail from './PortDetail'
 import AppUseful from './AppUseful'
 import AppServiceLog from './AppServiceLog'
 import AppServiceEvent from './AppServiceEvent'
-import Monitor from './Monitor'
+import ServiceMonitor from './ServiceMonitor'
 import AppAutoExtend from './AppAutoExtend'
 import { loadServiceDetail, loadServiceContainerList } from '../../../actions/services'
 import CommmonStatus from '../../CommonStatus'
@@ -44,7 +44,7 @@ class AppServiceDetail extends Component {
     this.restartService = this.restartService.bind(this)
     this.stopService = this.stopService.bind(this)
     this.state = {
-      activeTabKey: DEFAULT_TAB
+      activeTabKey: props.selectTab || DEFAULT_TAB
     }
   }
 
@@ -60,17 +60,17 @@ class AppServiceDetail extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { serviceDetailmodalShow, serviceName } = nextProps
+    const { serviceDetailmodalShow, serviceName, selectTab } = nextProps
     if (serviceDetailmodalShow === this.props.serviceDetailmodalShow) {
       return
     }
     if (serviceDetailmodalShow) {
       loadData(nextProps)
-      if (serviceName === this.props.serviceName) {
+      if (serviceName === this.props.serviceName && (!selectTab)) {
         return
       }
       this.setState({
-        activeTabKey: DEFAULT_TAB
+        activeTabKey: selectTab || DEFAULT_TAB
       })
     }
   }
@@ -223,7 +223,12 @@ class AppServiceDetail extends Component {
                 <ComposeGroup />
               </TabPane>
               <TabPane tab="绑定域名" key="#binddomain">
-                <BindDomain />
+                <BindDomain 
+                  cluster={service.cluster} 
+                  serviceName={service.metadata.name} 
+                  serviceDetailmodalShow={serviceDetailmodalShow} 
+                  service={serviceDetail}
+                  />
               </TabPane>
               <TabPane tab="端口" key="#ports">
                 <PortDetail
@@ -231,15 +236,19 @@ class AppServiceDetail extends Component {
                   cluster={service.cluster}
                   container={containers[0]}
                   loading={isContainersFetching}
+                  serviceDetailmodalShow={serviceDetailmodalShow}
                   />
               </TabPane>
               <TabPane tab="高可用" key="#livenessprobe">
                 <AppUseful
-                  serviceDetail={serviceDetail}
-                  loading={isServiceDetailFetching} />
+                  service={serviceDetail}
+                  loading={isServiceDetailFetching} 
+                  serviceName={service.metadata.name}
+                  cluster={service.cluster}      
+                />
               </TabPane>
               <TabPane tab="监控" key="#monitor">
-                <Monitor
+                <ServiceMonitor
                   serviceName={service.metadata.name}
                   cluster={service.cluster} />
               </TabPane>
