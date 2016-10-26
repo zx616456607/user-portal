@@ -236,16 +236,16 @@ function serviceLogs(state = {}, action) {
   }
 }
 
-function servicePorts(state = {}, action) {
-  switch(action.type) {
-    case ActionTypes.SERVICE_GET_PORTS_REQUEST:
-      return merge({}, state, { isFetching: true})
-    case ActionTypes.SERVICE_GET_PORTS_SUCCESS:
-      return merge({}, {isFetching: false}, action.response.result)
-    case ActionTypes.SERVICE_GET_PORTS_FAILURE:
-      return merge({}, state, {isFetching: false})
-    case ActionTypes.SERVICE_CLEAR_PORTS:
-      return merge({}, {isFetching: false})
+function k8sService(state = {}, action) {
+  switch (action.type) {
+    case ActionTypes.SERVICE_GET_K8S_SERVICE_REQUEST:
+      return merge({}, state, { isFetching: true })
+    case ActionTypes.SERVICE_GET_K8S_SERVICE_SUCCESS:
+      return merge({}, { isFetching: false }, action.response.result)
+    case ActionTypes.SERVICE_GET_K8S_SERVICE_FAILURE:
+      return merge({}, state, { isFetching: false })
+    case ActionTypes.SERVICE_CLEAR_K8S_SERVICE:
+      return merge({}, { isFetching: false })
     default:
       return state
   }
@@ -258,7 +258,7 @@ export function services(state = { appItmes: {} }, action) {
     serviceContainers: serviceContainers(state.serviceContainers, action),
     serviceDetail: serviceDetail(state.serviceDetail, action),
     serviceDetailEvents: serviceDetailEvents(state.serviceDetailEvents, action),
-    servicePorts: servicePorts(state.servicePorts, action),
+    k8sService: k8sService(state.k8sService, action),
     serviceLogs: serviceLogs(state.serviceLogs, action),
     deleteServices: reducerFactory({
       REQUEST: ActionTypes.SERVICE_BATCH_DELETE_REQUEST,

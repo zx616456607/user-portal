@@ -238,7 +238,7 @@ exports.changeServiceHa = function* () {
   const cluster = this.params.cluster
   const serviceName = this.params.service_name
   const body = this.request.body
-  if(!body) {
+  if (!body) {
     const err = new Error('Body are required.')
     err.status = 400
     throw err
@@ -277,7 +277,7 @@ exports.bindServiceDomain = function* () {
   const cluster = this.params.cluster
   const serviceName = this.params.service_name
   const reqData = this.request.body
-  if(!reqData.port || !reqData.domain) {
+  if (!reqData.port || !reqData.domain) {
     const err = new Error('port and domain is required')
     err.status = 400
     throw err
@@ -337,11 +337,11 @@ exports.getServiceLogs = function* () {
   this.body = result
 }
 
-exports.getServicePorts = function* () {
+exports.getK8sService = function* () {
   const cluster = this.params.cluster
   const serviceName = this.params.service_name
   const api = apiFactory.getK8sApi(this.session.loginUser)
-  const result = yield api.getBy([cluster,  'services', serviceName, 'k8s-service'])
+  const result = yield api.getBy([cluster, 'services', serviceName, 'k8s-service'])
   this.status = result.code
   this.body = result
 }
