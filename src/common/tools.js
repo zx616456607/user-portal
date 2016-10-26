@@ -38,6 +38,7 @@ export function formateDate(date, format) {
     minute: date.getMinutes(),
     second: date.getSeconds()
   }
+  console.log(uDate);
   function _addZero(text) {
     return text.toString().length === 2 ? text : `0${text}`
   }

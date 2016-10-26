@@ -175,7 +175,6 @@ export function startServices(cluster, serviceList, callback) {
     return dispatch(fetchStartServices(cluster, serviceList, callback))
   }
 }
-
 function fetchQuickRestartServices(cluster, serviceList, callback) {
   return {
     cluster,
@@ -398,5 +397,42 @@ function fetchDeleteServiceDomain(cluster, serviceName, domainInfo, callback) {
 export function deleteServiceDomain(cluster, serviceName, domainInfo, callback) {
   return (dispath, getState) => {
     return dispath(fetchDeleteServiceDomain(cluster, serviceName, domainInfo, callback))
+  }
+}
+
+
+export const SERVICE_AVAILABILITY_REQUEST = 'SERVICE_AVAILABILITY_REQUEST'
+export const SERVICE_AVAILABILITY_SUCCESS = 'SERVICE_AVAILABILITY_SUCCESS'
+export const SERVICE_AVAILABILITY_FAILURE = 'SERVICE_AVAILABILITY_FAILURE'
+
+export function fetchChangeServiceAvailability(cluster, serviceName, options, callback) {
+  let body = null
+  if(typeof options === 'boolean') {
+    body = {
+      open: options
+    }
+  }
+  else{
+    body = {
+      livenessProbe: options
+    }
+  }
+  return {
+    [FETCH_API]: {
+      types: [SERVICE_AVAILABILITY_REQUEST, SERVICE_AVAILABILITY_SUCCESS, SERVICE_AVAILABILITY_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/ha`,
+      options: {
+        method: 'PUT',
+        body
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function changeServiceAvailability(cluster, serviceName ,options, callback) {
+  return (dispath, getState) => {
+    return dispath(fetchChangeServiceAvailability(cluster, serviceName, options, callback))
   }
 }

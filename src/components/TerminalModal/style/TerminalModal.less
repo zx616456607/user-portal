@@ -1,17 +1,37 @@
-#TerminalModal{
+#TerminalModal {
   height: 100%;
-  .titleBox{
-    padding: 0px 20px;
+  .titleBox {
+    padding: 0 20px;
     width: 100%;
-    height: 40px;
-    cursor: pointer;
-    background-color: #f8f8f8 ;
+    height: 30px;
+    cursor: row-resize;
+    background-color: #f8f8f8;
+    .fa-times{
+      position: absolute;
+      top: 5px;
+      right: 20px;
+      font-size: 21px;
+      cursor: pointer;
+      border-radius: 10.5px; 
+    }
+    .fa-minus{
+      position: absolute;
+      top: 7px;
+      right: 50px;
+      font-size: 20px;
+      cursor: pointer;
+      border-radius:10px; 
+    }
   }
-  .contentBox{
+  .contentBox {
     position: absolute;
-    bottom: 0px;
+    bottom: 0;
     width: 100%;
-    height: calc(~"100% - 40px");
+    height: calc(~"100% - 30px");
     background-color: #333333;
+    iframe {
+      width: calc(~"100% + 18px");
+      height: 100%;
+    }
   }
 }

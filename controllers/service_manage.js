@@ -131,8 +131,8 @@ exports.getServiceContainers = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.getBy([cluster, 'services', serviceName, 'instances'])
-  const pods = result.data.instances || []
-  pods.map((pod) => {
+  const instances = result.data.instances || []
+  instances.map((pod) => {
     pod.images = []
     pod.spec.containers.map((container) => {
       pod.images.push(container.image)
@@ -141,7 +141,7 @@ exports.getServiceContainers = function* () {
   this.body = {
     cluster,
     serviceName,
-    data: pods,
+    data: instances,
     total: result.data.total,
     count: result.data.count,
   }
@@ -238,15 +238,14 @@ exports.changeServiceHa = function* () {
   const cluster = this.params.cluster
   const serviceName = this.params.service_name
   const body = this.request.body
-  if (!body || !body.quota) {
-    const err = new Error('Num is required.')
+  if(!body) {
+    const err = new Error('Body are required.')
     err.status = 400
     throw err
   }
-  let ha = body.ha
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.updateBy([cluster, 'services', serviceName, 'ha'], null, { ha })
+  const result = yield api.updateBy([cluster, 'services', serviceName, 'ha'], null, body)
   this.body = {
     cluster,
     serviceName,

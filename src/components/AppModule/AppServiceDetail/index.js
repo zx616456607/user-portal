@@ -239,8 +239,11 @@ class AppServiceDetail extends Component {
               </TabPane>
               <TabPane tab="高可用" key="#livenessprobe">
                 <AppUseful
-                  serviceDetail={serviceDetail}
-                  loading={isServiceDetailFetching} />
+                  service={serviceDetail}
+                  loading={isServiceDetailFetching} 
+                  serviceName={service.metadata.name}
+                  cluster={service.cluster}      
+                />
               </TabPane>
               <TabPane tab="监控" key="#monitor">监控</TabPane>
               <TabPane tab="日志" key="#logs">

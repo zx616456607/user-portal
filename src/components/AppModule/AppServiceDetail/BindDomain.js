@@ -37,9 +37,6 @@ class BindDomain extends Component {
   componentWillReceiveProps(nextProps) {
     const { serviceDetailmodalShow, service } = nextProps
     if(!service.spec) return
-    if (serviceDetailmodalShow === this.props.serviceDetailmodalShow) {
-      return
-    }
     if (!serviceDetailmodalShow) {
       this.setState({
         domainList: [],

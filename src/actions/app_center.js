@@ -17,7 +17,10 @@ export const IMAGE_PUBLIC_LIST_FAILURE = 'IMAGE_PUBLIC_LIST_FAILURE'
 
 // Fetches app list from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchPublicImageList(registry) {
+
+// Fetches apps list from API unless it is cached.
+// public image list 
+export function loadPublicImageList(registry) {
   return {
     registry,
     [FETCH_API]: {
@@ -28,11 +31,37 @@ function fetchPublicImageList(registry) {
   }
 }
 
-// Fetches apps list from API unless it is cached.
-// Relies on Redux Thunk middleware.
-export function loadPublicImageList(registry) {
-  return (dispatch, getState) => {
-    return dispatch(fetchPublicImageList(registry))
+export const IMAGE_PRIVATE_LIST_REQUEST = 'IMAGE_PRIVATE_LIST_REQUEST'
+export const IMAGE_PRIVATE_LIST_SUCCESS = 'IMAGE_PRIVATE_LIST_SUCCESS'
+export const IMAGE_PRIVATE_LIST_FAILURE = 'IMAGE_PRIVATE_LIST_FAILURE'
+
+// private image list
+export function loadPrivateImageList() {
+  return {
+    [FETCH_API]: {
+      types: [IMAGE_PRIVATE_LIST_REQUEST, IMAGE_PRIVATE_LIST_SUCCESS, IMAGE_PRIVATE_LIST_FAILURE],
+      endpoint: `${API_URL_PREFIX}/docker-registry`,
+      schema: Schemas.REGISTRYS
+    }
+  }
+}
+
+export const DELETE_PRIVATE_IMAGE_REQUEST = 'DELETE_PRIVATE_IMAGE_REQUEST'
+export const DELETE_PRIVATE_IMAGE_SUCCESS = 'DELETE_PRIVATE_IMAGE_SUCCESS'
+export const DELETE_PRIVATE_IMAGE_FAILURE = 'DELETE_PRIVATE_IMAGE_FAILURE'
+// delete private image
+export function deleteImage(id, callback) {
+  return {
+    [FETCH_API]: {
+      types: [DELETE_PRIVATE_IMAGE_REQUEST, DELETE_PRIVATE_IMAGE_SUCCESS, DELETE_PRIVATE_IMAGE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/docker-registry/${id}`,
+      options: {
+        method: 'DELETE',
+        body: id
+      },
+      schema: Schemas.REGISTRYS
+    },
+    callback
   }
 }
 
@@ -42,7 +71,6 @@ export const IMAGE_GET_DETAILTAG_SUCCESS = 'IMAGE_GET_DETAILTAG_SUCCESS'
 export const IMAGE_GET_DETAILTAG_FAILURE = 'IMAGE_GET_DETAILTAG_FAILURE'
 
 function fetchImageGetDetailTag(registry, fullName, callback) {
-  console.log(fullName, 'in fullName')
   return {
     registry,
     [FETCH_API]: {
@@ -92,16 +120,33 @@ export const GET_IMAGEINFO_REQUEST = 'GET_IMAGEINFO_REQUEST'
 export const GET_IMAGEINFO_SUCCESS = 'GET_IMAGEINFO_SUCCESS'
 export const GET_IMAGEINFO_FAILURE = 'GET_IMAGEINFO_FAILURE'
 
-export function getImageDetailInfo(registry, fullName) {
+export function getImageDetailInfo(obj, callback) {
   return {
-    registry,
-    fullName,
+    registry:obj.registry,
     [FETCH_API]: {
       types: [GET_IMAGEINFO_REQUEST, GET_IMAGEINFO_SUCCESS, GET_IMAGEINFO_FAILURE],
-      endpoint: `${API_URL_PREFIX}/registries/${registry}/${fullName}/detailInfo`,
-      schema: Schemas.REGISTRYS
-    }
+      endpoint: `${API_URL_PREFIX}/registries/${obj.registry}/${obj.fullName}/detailInfo`,
+      schema: Schemas.REGISTRYS,
+    },
+    callback
   }
 }
 
-
+export const SET_IMAGE_STORE_REQUEST = 'SET_IMAGE_STORE_REQUEST'
+export const SET_IMAGE_STORE_SUCCESS = 'SET_IMAGE_STORE_SUCCESS'
+export const SET_IMAGE_STORE_FAILURE = 'SET_IMAGE_STORE_FAILURE'
+// set image store 
+export function imageStore(obj,callback) {
+  return {
+    [FETCH_API]: {
+      types: [SET_IMAGE_STORE_REQUEST, SET_IMAGE_STORE_SUCCESS, SET_IMAGE_STORE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/docker-registry/update`,
+      schema: Schemas.REGISTRYS,
+      options: {
+        method: 'POST',
+        body: {name: obj.name, myfavourite: obj.myfavourite}
+      },
+    },
+    callback
+  }
+}

@@ -17,6 +17,7 @@ import * as appCenterReducers from './app_center'
 import * as servicesReducers from './services'
 import configReducers from './configs'
 import storage from './storage'
+import metrics from './metrics'
 
 // Updates an entity cache in response to any action with response.entities.
 function entities(state = { isFetching: false, users: {}, rcs: {} }, action) {
@@ -80,6 +81,7 @@ const rootReducer = combineReducers({
   ...appCenterReducers,
   ...servicesReducers,
   configReducers,
+  metrics,
   routing
 })
 
