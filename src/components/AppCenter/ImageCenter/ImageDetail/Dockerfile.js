@@ -30,7 +30,6 @@ export default class Dockerfile extends Component {
     if (dockerfile == '') {
       return (
         <Card className="dockerfile">
-        <h2>not dockerfile</h2>
         </Card>
       )
     }

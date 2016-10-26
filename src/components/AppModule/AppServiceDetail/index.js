@@ -20,6 +20,8 @@ import PortDetail from './PortDetail'
 import AppUseful from './AppUseful'
 import AppServiceLog from './AppServiceLog'
 import AppServiceEvent from './AppServiceEvent'
+import ServiceMonitor from './ServiceMonitor'
+import AppAutoExtend from './AppAutoExtend'
 import { loadServiceDetail, loadServiceContainerList } from '../../../actions/services'
 import CommmonStatus from '../../CommonStatus'
 import './style/AppServiceDetail.less'
@@ -42,7 +44,7 @@ class AppServiceDetail extends Component {
     this.restartService = this.restartService.bind(this)
     this.stopService = this.stopService.bind(this)
     this.state = {
-      activeTabKey: DEFAULT_TAB
+      activeTabKey: props.selectTab || DEFAULT_TAB
     }
   }
 
@@ -58,17 +60,17 @@ class AppServiceDetail extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { serviceDetailmodalShow, serviceName } = nextProps
+    const { serviceDetailmodalShow, serviceName, selectTab } = nextProps
     if (serviceDetailmodalShow === this.props.serviceDetailmodalShow) {
       return
     }
     if (serviceDetailmodalShow) {
       loadData(nextProps)
-      if (serviceName === this.props.serviceName) {
+      if (serviceName === this.props.serviceName && (!selectTab)) {
         return
       }
       this.setState({
-        activeTabKey: DEFAULT_TAB
+        activeTabKey: selectTab || DEFAULT_TAB
       })
     }
   }
@@ -245,7 +247,14 @@ class AppServiceDetail extends Component {
                   cluster={service.cluster}      
                 />
               </TabPane>
-              <TabPane tab="监控" key="#monitor">监控</TabPane>
+              <TabPane tab="监控" key="#monitor">
+                <ServiceMonitor
+                  serviceName={service.metadata.name}
+                  cluster={service.cluster} />
+              </TabPane>
+              <TabPane tab="自动伸缩" key="#autoExtend">
+                <AppAutoExtend />
+              </TabPane>
               <TabPane tab="日志" key="#logs">
                 <AppServiceLog serviceName={service.metadata.name} cluster={service.cluster} />
               </TabPane>

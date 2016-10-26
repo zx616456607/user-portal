@@ -10,7 +10,7 @@
 
 import merge from 'lodash/merge'
 
-export default function reducerFactory(ActionTypes = {}, state, action, refuseMerge) {
+export default function reducerFactory(ActionTypes = {}, state, action, option = {}) {
   const defaultState = {
     isFetching: false
   }
@@ -20,8 +20,11 @@ export default function reducerFactory(ActionTypes = {}, state, action, refuseMe
         isFetching: true
       })
     case ActionTypes.SUCCESS:
-      if(refuseMerge) {
-        return merge({},{ isFetching: false}, action.response.resultt)
+      if (option.overwrite) {
+        return Object.assign({}, state, {
+          isFetching: false,
+          result: action.response.result
+        })
       }
       return merge({}, state, {
         isFetching: false,

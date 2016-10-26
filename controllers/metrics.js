@@ -19,6 +19,7 @@ const DEFAULT_CONTAINER_RESOURCES = constants.DEFAULT_CONTAINER_RESOURCES
 const DEFAULT_CONTAINER_RESOURCES_CPU = constants.DEFAULT_CONTAINER_RESOURCES_CPU
 const DEFAULT_CONTAINER_RESOURCES_MEMORY = constants.DEFAULT_CONTAINER_RESOURCES_MEMORY
 const apiFactory = require('../services/api_factory')
+const moment = require('moment')
 
 exports.getContainerMetrics = function* () {
   const cluster = this.params.cluster
@@ -38,7 +39,7 @@ exports.getContainerMetrics = function* () {
   this.body = {
     cluster,
     containerName,
-    data: result
+    data: [result]
   }
 }
 
@@ -104,12 +105,16 @@ function _getContainerMetrics(user, cluster, instance, query) {
   const containerName = instance.metadata.name
   const resources = instance.spec.containers[0].resources || DEFAULT_CONTAINER_RESOURCES_CPU
   const requests = resources.requests || DEFAULT_CONTAINER_RESOURCES_CPU.requests
-  const cpu = parseInt(requests.cpu || DEFAULT_CONTAINER_RESOURCES_CPU)
-  const memory = parseInt(requests.memory || DEFAULT_CONTAINER_RESOURCES_MEMORY) * 1024 * 1024
+  // const cpu = parseInt(requests.cpu || DEFAULT_CONTAINER_RESOURCES_CPU)
+  // const memory = parseInt(requests.memory || DEFAULT_CONTAINER_RESOURCES_MEMORY) * 1024 * 1024
   const type = query.type
   const source = query.source || METRICS_DEFAULT_SOURCE
   const start = query.start
-  const end = query.end
+  let end = query.end
+  if (!end) {
+    let d = new Date()
+    end = d.toISOString()
+  }
   const queryObj = {
     type,
     source,
@@ -122,16 +127,21 @@ function _getContainerMetrics(user, cluster, instance, query) {
     metrics.map((metric) => {
       switch (type) {
         case METRICS_CPU:
-          metric.value = metric.value / cpu
+        // metric.value = metric.value / cpu
         case METRICS_MEMORY:
-          metric.value = metric.value / memory
+          // metric.value = metric.value / memory
+          metric.value = metric.value / 1024 / 1024
         case METRICS_NETWORK_RECEIVED:
         case METRICSS_NETWORK_TRANSMITTED:
       }
+      metric.value = metric.value.toFixed(2)
+      metric.timestamp = moment(metric.timestamp).format('MM-DD HH:mm')
     })
     return {
       containerName,
-      [type]: metrics,
+      start,
+      type,
+      metrics,
       statusCode: result.statusCode
     }
   })

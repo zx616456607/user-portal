@@ -10,6 +10,7 @@
 'use strict'
 const registryAPIs = require('../registry/lib/registryAPIs')
 const markdown     = require('markdown-it')()
+const logger       = require('../utils/logger.js').getLogger("tenx_registry")
 
 exports.getPublicImages = function (username) {
   const registry = new registryAPIs()
@@ -80,9 +81,8 @@ exports.getImageConfigs = function (username, imageFullName, tag) {
   })
 }
 
-exports.getImageInfo = function(username, imageFullName ) {
+exports.getImageInfo = function(username, imageFullName) {
   const registry = new registryAPIs()
-  console.log('service req nama, fullname', username, imageFullName)
   if (username) {
     username = username.toLowerCase()
   }
@@ -114,7 +114,31 @@ exports.getImageInfo = function(username, imageFullName ) {
       }
       resolve(imageInfo)
     })
+  })
+}
 
+/*
+Service to get the repostories for specified user including private repositories
+*/
+exports.getPrivateRepositories = function(username, showDetail) {
+  var registry = new registryAPIs()
+  if (username) {
+    username = username.toLowerCase()
+  }
+  return new Promise(function (resolve, reject) {
+    registry.getPrivateRepositories(username, showDetail, function(statusCode, respositories, err) {
+      if (err) {
+        reject(err)
+      }
+      if (statusCode < 300) {
+        logger.debug('getPrivateRepositories', 'Return my repositories: ' + JSON.stringify(respositories));
+        resolve(respositories.results);
+      } else {
+        logger.error("Failed to get my repositories -> " + statusCode);
+        err = 'Failed to get my repositories: ' + respositories;
+        reject(err)
+      }
+    })
   })
 }
 
