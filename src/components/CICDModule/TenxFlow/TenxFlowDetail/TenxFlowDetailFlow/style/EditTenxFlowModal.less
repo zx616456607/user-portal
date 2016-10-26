@@ -23,12 +23,12 @@
     min-height: 50px;
     line-height: 50px;
     .title {
-      padding-right: 30px;
+      padding-left: 30px;
       float: left;
       width: 120px;
       height: 50px;
       line-height: 50px;
-      text-align: right;
+      text-align: left;
       font-size: 14px;
     }
     .input {
@@ -108,6 +108,12 @@
         margin-left: 15px;
       }
     }
+    .imageType{
+      .ant-radio-input{
+        width: 100px !important;
+      }
+    }
+    
   }
   .line {
     margin-top: 20px;
@@ -117,16 +123,17 @@
     border-top: 1px solid #EFEFEF;
   }
   .btnBox {
-    padding-top: 14px;
+    padding-top: 8px;
     padding-right: 40px;
     position: absolute;
     width: 100%;
     bottom: 0;
     left: 0;
     height: 60px;
-    text-align: right;
-    background-color: #DADADA;
+    text-align: center;
+    background-color: #F8F8F8;
     button {
+      float: none !important;
       margin-right: 15px;
       min-width: 80px;
     }

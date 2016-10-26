@@ -99,6 +99,50 @@ const menusText = defineMessages({
     id: 'CICD.Tenxflow.EditTenxFlowModal.cancel',
     defaultMessage: '取消',
   },
+  dockerFileCreate: {
+    id: 'CICD.Tenxflow.EditTenxFlowModal.dockerFileCreate',
+    defaultMessage: '使用代码仓库的docker file',
+  },
+  selectDockerFile: {
+    id: 'CICD.Tenxflow.EditTenxFlowModal.selectDockerFile',
+    defaultMessage: '选择已有',
+  },
+  createNewDockerFile: {
+    id: 'CICD.Tenxflow.EditTenxFlowModal.createNewDockerFile',
+    defaultMessage: '云端创建Dockerfile',
+  },
+  imageRealName: {
+    id: 'CICD.Tenxflow.EditTenxFlowModal.imageRealName',
+    defaultMessage: '镜像名称',
+  },
+  imageStore: {
+    id: 'CICD.Tenxflow.EditTenxFlowModal.imageStore',
+    defaultMessage: '镜像仓库',
+  },
+  otherImage: {
+    id: 'CICD.Tenxflow.EditTenxFlowModal.otherImage',
+    defaultMessage: '自定义仓库',
+  },
+  ImageTag: {
+    id: 'CICD.Tenxflow.EditTenxFlowModal.ImageTag',
+    defaultMessage: '镜像版本',
+  },
+  ImageTagByBranch: {
+    id: 'CICD.Tenxflow.EditTenxFlowModal.ImageTagByBranch',
+    defaultMessage: '以代码分支名为tag',
+  },
+  ImageTagByTime: {
+    id: 'CICD.Tenxflow.EditTenxFlowModal.ImageTagByTime',
+    defaultMessage: '时间戳为tag',
+  },
+  ImageTagByOther: {
+    id: 'CICD.Tenxflow.EditTenxFlowModal.ImageTagByOther',
+    defaultMessage: '自定义tag',
+  },
+  buildCache: {
+    id: 'CICD.Tenxflow.EditTenxFlowModal.buildCache',
+    defaultMessage: '构建缓存',
+  },
 })
 
 let uuid = 0;
@@ -110,7 +154,9 @@ let EditTenxFlowModal = React.createClass({
       currentType: 'view',
       emailAlert: false,
       otherEmail: false,
-      currentTenxFlow: null
+      currentTenxFlow: null,
+      useDockerfile: false,
+      otherTag: false
     }
   },
   componentWillMount() {
@@ -146,8 +192,11 @@ let EditTenxFlowModal = React.createClass({
   },
   flowTypeChange(e) {
     //this function for user change the tenxflow type
-    if(e != 'other'){
-      this.props.form.resetFields(['otherFlowType']);    
+    if(e != 'other') {
+      this.props.form.resetFields(['otherFlowType']);
+    }
+    if(e != 'bulidImage') {
+      this.props.form.resetFields(['imageRealName']);
     }
     this.setState({
       otherFlowType: e
@@ -193,7 +242,7 @@ let EditTenxFlowModal = React.createClass({
       });
     }else {
       let keys = form.getFieldValue('shellCodes');
-      console.log(keys)
+//    console.log(keys)
 //    keys = keys.filter((key) => {
 //      return key !== k;
 //    });
@@ -217,8 +266,32 @@ let EditTenxFlowModal = React.createClass({
       });
     }
   },
-  handleReset(e) {
-    //this function for reset the form
+  changeUseDockerFile (e) {
+    //this function for user change using the docker file or not 
+    if(e.target.checked) {
+      this.setState({
+        useDockerfile: true
+      });
+    }else {
+      this.setState({
+        useDockerfile: false
+      });
+    }
+  },
+  changeImageTagType (e) {
+    //this function for user change image tag type
+    if( e.target.value == 'other' ) {
+      this.setState({
+        otherTag: true
+      });
+    } else {
+      this.setState({
+        otherTag: false
+      });
+    }
+  },
+  cancelChange(e) {
+    //this function for reset the form and close the edit card
     e.preventDefault();
     this.props.form.resetFields();
     const { scope } = this.props;
@@ -227,15 +300,12 @@ let EditTenxFlowModal = React.createClass({
       emailAlert: false,
       otherEmail: false
     });
-    scope.setState({
-      EditTenxFlowModalModal: false
-    });    
+    scope.cancelEditCard();
   },
   handleSubmit(e) {
     //this function for user submit the form
     const { scope } = this.props;
     const _this = this;
-    let scopeHistory = scope.props.history;
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         console.log('Errors in form!!!');
@@ -245,15 +315,13 @@ let EditTenxFlowModal = React.createClass({
       _this.setState({
         currentTenxFlow: values
       });
-      scope.setState({       
-        EditTenxFlowModalModal: false
-      });
-      scopeHistory.push({ pathname: '/ci_cd/tenx_flow/tenx_flow_build', state: { config: values } });
+      console.log(values)
+      scope.cancelEditCard();
     });
   },
   render() {
     const { formatMessage } = this.props.intl;
-    const { scope } = this.props;
+    const { config, editType } = this.props;
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form;
     getFieldProps('services', {
       initialValue: [0],
@@ -303,20 +371,21 @@ let EditTenxFlowModal = React.createClass({
         { required: true, message: '请选择项目类型' },
       ],
       onChange: this.flowTypeChange,
+      initialValue: config.type,
     });
     const otherFlowTypeProps = getFieldProps('otherFlowType', {
       rules: [
         { message: '输入自定义项目类型' },
       ],
     });
-    const flowProps = getFieldProps('yaml', {
+    const imageRealNameProps = getFieldProps('imageRealName', {
       rules: [
-        { validator: this.yamlInputCheck },
+        { required: true, message: '请输入镜像名称' },
       ],
     });
     const imageNameProps = getFieldProps('imageName', {
       rules: [
-        { required: true, message: '请输入基础镜像名称' },
+        { required: true, message: '请输入基础镜像' },
         { validator: this.imageNameExists },
       ],
     });
@@ -325,12 +394,18 @@ let EditTenxFlowModal = React.createClass({
         { required: true, message: '请输入项目名称' },
         { validator: this.flowNameExists },
       ],
+      initialValue: config.name,
+    });
+    const otherImageTagProps = getFieldProps('otherTag', {
+      rules: [
+        { required: true, message: '请输入镜像版本' },
+      ],      
     });
     return (
       <div id='EditTenxFlowModal' key='EditTenxFlowModal'>
       <div className='titleBox'>
-        <span>{ scope.state.currentModalType == 'create' ? [<FormattedMessage {...menusText.titleAdd} />] : [<FormattedMessage {...menusText.titleEdit} />] }</span>
-        <Icon type='cross' />
+        <span>{ editType == 'create' ? [<FormattedMessage {...menusText.titleAdd} />] : [<FormattedMessage {...menusText.titleEdit} />] }</span>
+        <Icon type='cross' onClick={this.cancelChange} />
       </div>
       <Form horizontal form={this.props.form}>
         <div className='commonBox'>
@@ -413,10 +488,10 @@ let EditTenxFlowModal = React.createClass({
           <div className='input services'>
             {serviceItems}
             <div className='addServicesBtn'>
-              <Icon type="plus-circle-o" />
+              <Icon type='plus-circle-o' />
               <FormattedMessage {...menusText.addServices} />
             </div>
-           </div>
+          </div>
           <div style={{ clear:'both' }} />
         </div>
         <div className='commonBox'>
@@ -425,16 +500,107 @@ let EditTenxFlowModal = React.createClass({
           </div>
           <div className='input shellCode'>
             {shellCodeItems}
-           </div>
+          </div>
           <div style={{ clear:'both' }} />
         </div>
         <div className='line'></div>
+        {
+          config.type == 'buildImage' ? [
+            <QueueAnim className='buildImageForm'>
+              <div className='commonBox' key='buildImageFormAnimate'>
+                <div className='title'>
+                  <span>docker File</span>
+                </div>
+                <div className='input '>
+                  <Checkbox onChange={this.changeUseDockerFile}></Checkbox><span><FormattedMessage {...menusText.dockerFileCreate} /></span>
+                  {
+                    this.state.useDockerfile ? [
+                      <QueueAnim>
+                        <div key='useDockerFileAnimateSecond'>
+                          <span>this is docker file url</span>
+                        </div>
+                      </QueueAnim>
+                    ] : [
+                      <QueueAnim>
+                        <div key='useDockerFileAnimateSecond'>
+                          <Button type='ghost' size='large' style={{ marginRight:'20px' }}>
+                            <FormattedMessage {...menusText.selectDockerFile} />
+                          </Button>
+                          <Button type='ghost' size='large'>
+                            <FormattedMessage {...menusText.createNewDockerFile} />
+                          </Button>
+                        </div>
+                      </QueueAnim>
+                    ]
+                  }
+                </div>
+                <div style={{ clear:'both' }} />
+              </div>
+              <div className='commonBox'>
+                <div className='title'>
+                  <span><FormattedMessage {...menusText.imageRealName} /></span>
+                </div>
+                <div className='input imageType'>
+                  <FormItem style={{ width:'220px',float:'left',marginRight:'20px' }}>
+                    <Input {...imageRealNameProps} type='text' size='large' />
+                  </FormItem>
+                  <FormItem style={{ float:'left' }}>
+                    <RadioGroup {...getFieldProps('imageType', { initialValue: 'imageStore' })}>
+                      <Radio key='imageStore' value={'imageStore'}><FormattedMessage {...menusText.imageStore} /></Radio>
+                      <Radio key='DockerHub' value={'DockerHub'}>Docker Hub</Radio>
+                      <Radio key='otherImage' value={'otherImage'}><FormattedMessage {...menusText.otherImage} /></Radio>
+                    </RadioGroup>
+                  </FormItem>
+                  <div style={{ clear:'both' }} />
+                </div>
+                <div style={{ clear:'both' }} />
+              </div>
+              <div className='commonBox'>
+                <div className='title'>
+                  <span><FormattedMessage {...menusText.imageRealName} /></span>
+                </div>
+                <div className='input'>
+                  <FormItem style={{ float:'left' }}>
+                    <RadioGroup {...getFieldProps('imageTag', { initialValue: 'imageStore',onChange: this.changeImageTagType })}>
+                      <Radio key='branch' value={'branch'}><FormattedMessage {...menusText.imageStore} /></Radio>
+                      <Radio key='time' value={'time'}><FormattedMessage {...menusText.imageStore} /></Radio>
+                      <Radio key='other' value={'other'}><FormattedMessage {...menusText.otherImage} /></Radio>
+                    </RadioGroup>
+                  </FormItem>
+                  {
+                    this.state.otherTag ? [
+                      <QueueAnim>
+                        <div key='otherTagAnimate'>
+                          <FormItem style={{ width:'220px',float:'left' }}>
+                            <Input {...otherImageTagProps} type='text' size='large' />
+                          </FormItem>
+                        </div>
+                      </QueueAnim>
+                    ] : null
+                  }
+                  <div style={{ clear:'both' }} />
+                </div>
+                <div style={{ clear:'both' }} />
+              </div>
+              <div className='commonBox'>
+                <div className='title'>
+                  <span><FormattedMessage {...menusText.buildCache} /></span>
+                </div>
+                <div className='input imageType'>
+                  <FormItem>
+                    <Switch {...getFieldProps('buildCache')} />
+                  </FormItem>
+                </div>
+                <div style={{ clear:'both' }} />
+              </div>
+            </QueueAnim>
+          ] : null
+        }
         <div className='btnBox'>
-          <Button size='large' onClick={this.handleReset}>
+          <Button size='large' onClick={this.cancelChange}>
             <FormattedMessage {...menusText.cancel} />
           </Button>
           <Button size='large' type='primary' onClick={this.handleSubmit}>
-            <i className='fa fa-cog' />&nbsp;
             <FormattedMessage {...menusText.submit} />
           </Button>
         </div>

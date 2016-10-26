@@ -16,47 +16,50 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import './style/TenxFlowDetailFlow.less'
 import EditTenxFlowModal from './TenxFlowDetailFlow/EditTenxFlowModal.js'
+import TenxFlowDetailFlowCard from './TenxFlowDetailFlow/TenxFlowDetailFlowCard.js'
 
 let testData = [
   {
     'name': 'test1',
-    'updateTime': '1小时前',
-    'status': 'normal',
-    'user': 'gaojian',
-    'cost': '10小时',
-    'runningStatus': 'normal',
-    'config': '2C 8G',
-    'updateType': 'normal'
+    'type': 'unitCheck',
+    'codeSource': 'github-gaojian',
+    'branch': 'master',
+    'status': 'finish'
   },
   {
     'name': 'test2',
-    'updateTime': '2小时前',
-    'status': 'normal',
-    'user': 'gaojian',
-    'cost': '10小时',
-    'runningStatus': 'fail',
-    'config': '2C 8G',
-    'updateType': 'normal'
+    'type': 'podToPodCheck',
+    'codeSource': 'github-gaojian',
+    'branch': 'master',
+    'status': 'running'
   },
   {
     'name': 'test3',
-    'updateTime': '3小时前',
-    'status': 'normal',
-    'user': 'gaojian',
-    'cost': '10小时',
-    'runningStatus': 'normal',
-    'config': '2C 8G',
-    'updateType': 'grey'
+    'type': 'containCheck',
+    'codeSource': 'github-gaojian',
+    'branch': 'master',
+    'status': 'finish'
   },
   {
     'name': 'test4',
-    'updateTime': '4小时前',
-    'status': 'fail',
-    'user': 'gaojian',
-    'cost': '10小时',
-    'runningStatus': 'normal',
-    'config': '2C 8G',
-    'updateType': 'normal'
+    'type': 'runningCode',
+    'codeSource': 'github-gaojian',
+    'branch': 'master',
+    'status': 'fail'
+  },
+  {
+    'name': 'test5',
+    'type': 'other',
+    'codeSource': 'github-gaojian',
+    'branch': 'master',
+    'status': 'wait'
+  },
+  {
+    'name': 'test6',
+    'type': 'buildImage',
+    'codeSource': 'github-gaojian',
+    'branch': 'master',
+    'status': 'finish'
   },
 ]
 
@@ -82,7 +85,8 @@ class TenxFlowDetailFlow extends Component {
     this.state = {
       editTenxFlowModal: false,
       currentModalType: 'create',
-      currentModalShowFlow: null
+      currentModalShowFlow: null,
+      currentFlowEdit: null
     }
   }
 
@@ -99,12 +103,18 @@ class TenxFlowDetailFlow extends Component {
   }
 
   render() {
-    const scope = this;
+    let scope = this;
+    let { currentFlowEdit } = scope.state;
+    let cards = testData.map( (item, index) => {
+      return (
+        <TenxFlowDetailFlowCard config={item} scope={scope} index={index} currentFlowEdit={currentFlowEdit} />
+      )
+    });
     return (
       <div id='TenxFlowDetailFlow'>
         <div className='paddingBox'>
           <Alert message={<FormattedMessage {...menusText.tooltip} />} type='info' />
-          
+          { cards }
           <div className='commonCardBox createCardBox'>
             <Card className='commonCard createCard' onClick={this.createNewFlow}>
               <Icon type="plus-circle-o" />
@@ -114,13 +124,6 @@ class TenxFlowDetailFlow extends Component {
             </Card>
           </div>
         </div>
-        <Modal
-          visible={this.state.editTenxFlowModal}
-          className='AppServiceDetail'
-          transitionName='move-right'
-          >
-          <EditTenxFlowModal scope={scope} />
-        </Modal>
       </div>
     )
   }
