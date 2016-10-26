@@ -268,6 +268,10 @@ class Slider extends Component {
 }
 
 function checkCurrentPath(pathname) {
+  let CICDCheck = new RegExp("ci_cd", "gi");
+  if (CICDCheck.test(pathname)) {
+    return "6";
+  }
   let AppCenterCheck = new RegExp("app_center", "gi");
   if (AppCenterCheck.test(pathname)) {
     return "3";

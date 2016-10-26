@@ -21,7 +21,7 @@ import AppUseful from './AppUseful'
 import AppServiceLog from './AppServiceLog'
 import AppServiceEvent from './AppServiceEvent'
 import ServiceMonitor from './ServiceMonitor'
-import AppAutoExtend from './AppAutoExtend'
+import AppAutoScale from './AppAutoScale'
 import { loadServiceDetail, loadServiceContainerList } from '../../../actions/services'
 import CommmonStatus from '../../CommonStatus'
 import './style/AppServiceDetail.less'
@@ -180,8 +180,8 @@ class AppServiceDetail extends Component {
               </span>
               <br />
               <span>
-                容器实例&nbsp;:&nbsp;3/3
-            </span>
+                容器实例&nbsp;:&nbsp;{service.spec.replicas}/{service.spec.replicas}
+              </span>
             </div>
             <div className="rightBox">
               <Button className="loginBtn" type="primary">
@@ -223,10 +223,10 @@ class AppServiceDetail extends Component {
                 <ComposeGroup />
               </TabPane>
               <TabPane tab="绑定域名" key="#binddomain">
-                <BindDomain 
-                  cluster={service.cluster} 
-                  serviceName={service.metadata.name} 
-                  serviceDetailmodalShow={serviceDetailmodalShow} 
+                <BindDomain
+                  cluster={service.cluster}
+                  serviceName={service.metadata.name}
+                  serviceDetailmodalShow={serviceDetailmodalShow}
                   service={serviceDetail}
                   />
               </TabPane>
@@ -242,10 +242,10 @@ class AppServiceDetail extends Component {
               <TabPane tab="高可用" key="#livenessprobe">
                 <AppUseful
                   service={serviceDetail}
-                  loading={isServiceDetailFetching} 
+                  loading={isServiceDetailFetching}
                   serviceName={service.metadata.name}
-                  cluster={service.cluster}      
-                />
+                  cluster={service.cluster}
+                  />
               </TabPane>
               <TabPane tab="监控" key="#monitor">
                 <ServiceMonitor
@@ -253,7 +253,10 @@ class AppServiceDetail extends Component {
                   cluster={service.cluster} />
               </TabPane>
               <TabPane tab="自动伸缩" key="#autoExtend">
-                <AppAutoExtend />
+                <AppAutoScale
+                  replicas={service.spec.replicas}
+                  serviceName={service.metadata.name}
+                  cluster={service.cluster} />
               </TabPane>
               <TabPane tab="日志" key="#logs">
                 <AppServiceLog serviceName={service.metadata.name} cluster={service.cluster} />

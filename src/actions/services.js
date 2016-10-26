@@ -436,3 +436,23 @@ export function changeServiceAvailability(cluster, serviceName, options, callbac
     return dispath(fetchChangeServiceAvailability(cluster, serviceName, options, callback))
   }
 }
+
+export const SERVICE_GET_AUTO_SCALE_REQUEST = 'SERVICE_GET_AUTO_SCALE_REQUEST'
+export const SERVICE_GET_AUTO_SCALE_SUCCESS = 'SERVICE_GET_AUTO_SCALE_SUCCESS'
+export const SERVICE_GET_AUTO_SCALE_FAILURE = 'SERVICE_GET_AUTO_SCALE_FAILURE'
+
+function fetchAutoScale(cluster, serviceName) {
+  return {
+    [FETCH_API]: {
+      types: [SERVICE_GET_AUTO_SCALE_REQUEST, SERVICE_GET_AUTO_SCALE_SUCCESS, SERVICE_GET_AUTO_SCALE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/autoscale`,
+      schema: {}
+    }
+  }
+}
+
+export function loadAutoScale(cluster, serviceName) {
+  return (dispath) => {
+    return dispath(fetchAutoScale(cluster, serviceName))
+  }
+}
