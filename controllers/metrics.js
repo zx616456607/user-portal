@@ -105,8 +105,8 @@ function _getContainerMetrics(user, cluster, instance, query) {
   const containerName = instance.metadata.name
   const resources = instance.spec.containers[0].resources || DEFAULT_CONTAINER_RESOURCES_CPU
   const requests = resources.requests || DEFAULT_CONTAINER_RESOURCES_CPU.requests
-  const cpu = parseInt(requests.cpu || DEFAULT_CONTAINER_RESOURCES_CPU)
-  const memory = parseInt(requests.memory || DEFAULT_CONTAINER_RESOURCES_MEMORY) * 1024 * 1024
+  // const cpu = parseInt(requests.cpu || DEFAULT_CONTAINER_RESOURCES_CPU)
+  // const memory = parseInt(requests.memory || DEFAULT_CONTAINER_RESOURCES_MEMORY) * 1024 * 1024
   const type = query.type
   const source = query.source || METRICS_DEFAULT_SOURCE
   const start = query.start
@@ -129,6 +129,7 @@ function _getContainerMetrics(user, cluster, instance, query) {
         case METRICS_CPU:
         // metric.value = metric.value / cpu
         case METRICS_MEMORY:
+          // metric.value = metric.value / memory
           metric.value = metric.value / 1024 / 1024
         case METRICS_NETWORK_RECEIVED:
         case METRICSS_NETWORK_TRANSMITTED:
