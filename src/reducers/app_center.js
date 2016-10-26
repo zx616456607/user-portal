@@ -116,13 +116,9 @@ function otherImages(state ={}, action) {
          isFetching: true
       })
     case ActionTypes.DELETE_OTHER_IMAGE_SUCCESS:
-      // return merge({}, state, {
-      //     isFetching: false,
-      //     imageList: action.response.result.data
-      // })
       const oldState = cloneDeep(state)
       const Id = action.id
-      const imageList = action.imageList
+      const imageList = oldState.imageRow
       for (let i=0; i < imageList.length; i++) {
         if (imageList[i].id == Id) {
           imageList.splice(i,1)

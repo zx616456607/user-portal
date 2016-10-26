@@ -13,7 +13,7 @@ import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import {deleteOtherImage} from '../../../actions/app_center'
+import {deleteOtherImage, loadOtherImage} from '../../../actions/app_center'
 
 
 import "./style/OtherSpace.less"
@@ -117,12 +117,29 @@ class OtherSpace extends Component {
       imageDetailModalShow: false
     });
   }
+  deleteImage(id) {
+    const scope = this.props
+    const parentScope = this.props.scope
+    scope.deleteOtherImage(id, {
+      success:{
+        func: () => {
+          const otherImages = this.props.otherImages
+          parentScope.setState({
+            otherImageHead: otherImages.imageRow,
+            current: 'imageSpace',
+            otherSpace: ''
+          })
+        },
+        isAsync: true
+      }
+    })
+  }
+  
 
   render() {
     const { formatMessage } = this.props.intl;
     const rootscope = this.props.scope;
     const scope = this;
-    console.log(this.props.imageId)
     return (
       <QueueAnim className="OtherSpace"
         type="right"
@@ -137,7 +154,7 @@ class OtherSpace extends Component {
                   </div>
                 
               </div>
-              <Button className="logout" size="large" type="ghost" onClick={()=>this.props.deleteOtherImage(this.props.imageId)}>
+              <Button className="logout" size="large" type="ghost" onClick={()=>this.deleteImage(this.props.imageId)}>
                 <FormattedMessage {...menusText.logout} />
               </Button>
               <Input className="searchBox" placeholder={formatMessage(menusText.search)} type="text" />
@@ -172,14 +189,15 @@ function mapStateToProps(state, props) {
     isFetching: false,
     imageInfo: {dockerfile:'', detailMarkdown:''}
   }
-  const { privateImages, imagesInfo } = state.images
+  const { privateImages, imagesInfo , otherImages} = state.images
   const { imageList, isFetching } = privateImages || defaultPrivateImages
   const { imageInfo } = imagesInfo || defaultConfig
 
   return {
     imageList,
     isFetching,
-    imageInfo
+    imageInfo,
+    otherImages
   }
 }
 
@@ -193,6 +211,9 @@ function mapDispatchToProps(dispatch) {
     },
     deleteOtherImage: (id, callback)=> {
       dispatch(deleteOtherImage(id,callback))
+    },
+    loadOtherImage: (callback)=> {
+      dispatch(loadOtherImage(callback))
     }
   }
 }

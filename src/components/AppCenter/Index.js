@@ -230,24 +230,6 @@ let MyComponent = React.createClass({
     })
     return (
       <div className="modalBox">
-        <div className="selectBox">
-          <div className={scope.state.otherSpaceType == "1" ? "selectedType" : "typeDetail"} onClick={this.selectSpaceType.bind(this, "1")}>
-            <i className="testIcon fa fa-soundcloud"></i>
-            <p>我是来凑热闹的</p>
-            <i className="selectedIcon fa fa-check-circle"></i>
-          </div>
-          <div className={scope.state.otherSpaceType == "2" ? "selectedType" : "typeDetail"} onClick={this.selectSpaceType.bind(this, "2")}>
-            <i className="testIcon fa fa-gg"></i>
-            <p>我也是来凑热闹的</p>
-            <i className="selectedIcon fa fa-check-circle"></i>
-          </div>
-          <div className={scope.state.otherSpaceType == "3" ? "selectedType" : "typeDetail"} onClick={this.selectSpaceType.bind(this, "3")}>
-            <i className="testIcon fa fa-cogs"></i>
-            <p>我吃瓜</p>
-            <i className="selectedIcon fa fa-check-circle"></i>
-          </div>
-          <div style={{ clear: "both" }} ></div>
-        </div>
         <Form className="addForm" horizontal form={this.props.form}>
           <FormItem hasFeedback >
             <TweenOne
@@ -413,8 +395,7 @@ class ImageCenter extends Component {
   }
 
   render() {
-    const { current } = this.state;
-    const { otherSpace } = this.state;
+    const { current, otherSpace } = this.state;
     const { formatMessage } = this.props.intl;
     const scope = this;
     const otherImageHead = this.state.otherImageHead ||[]
@@ -442,7 +423,7 @@ class ImageCenter extends Component {
                 <span>我的收藏</span>
               </li>
 
-              { otherImageHead.map(list=> {
+              { otherImageHead.length > 0 && otherImageHead.map(list=> {
                 return (
                 <li className={current == list.id ? "titleSelected" : "titleDetail"}
                   onClick={this.selectCurrentTab.bind(this, list.id, "otherRegistry",list)} >

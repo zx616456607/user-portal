@@ -97,11 +97,9 @@ const MyComponent = React.createClass({
   },
   btnDeleteImage: function (id) {
     //this function for user delete select image
-    console.log('delete primate image is ',id)
     this.props.deleteImage(id, {
       success:{
         func:(res)=>{
-          console.log('res',res)
           message.success('删除成功！')
         }
       }
