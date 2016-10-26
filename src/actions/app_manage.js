@@ -201,6 +201,21 @@ export function startApps(cluster, appList, callback) {
   }
 }
 
+export const APP_ORCH_FILE_REQUEST = 'APP_ORCH_FILE_REQUEST'
+export const APP_ORCH_FILE_SUCCESS = 'APP_ORCH_FILE_SUCCESS'
+export const APP_ORCH_FILE_FAILURE = 'APP_ORCH_FILE_FAILURE'
+
+export function getAppOrchfile(cluster, appName, callback) {
+  return {
+    cluster,
+    [FETCH_API]: {
+      types: [APP_ORCH_FILE_REQUEST, APP_ORCH_FILE_SUCCESS, APP_ORCH_FILE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/apps/${appName}/orchfile`,
+      schema: {}
+    }
+  }
+}
+
 export const APP_OPERATION_LOG_REQUEST = 'APP_OPERATION_LOG_REQUEST'
 export const APP_OPERATION_LOG_SUCCESS = 'APP_OPERATION_LOG_SUCCESS'
 export const APP_OPERATION_LOG_FAILURE = 'APP_OPERATION_LOG_FAILURE'

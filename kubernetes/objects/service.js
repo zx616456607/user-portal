@@ -28,6 +28,29 @@ class Service {
     }
   }
 
+  importFromK8SService(k8sService) {
+    if (k8sService.metadata) {
+      if (k8sService.metadata.name) {
+        this.metadata.name = k8sService.metadata.name
+      }
+      if (k8sService.metadata.labels) {
+        this.metadata.labels = k8sService.metadata.labels
+      }
+    }
+
+    if (k8sService.spec) {
+      if (k8sService.spec.ports) {
+        this.spec.ports = k8sService.spec.ports
+      }
+      if (k8sService.spec.selector) {
+        this.spec.selector = k8sService.spec.selector
+      }
+      if (k8sService.spec.externalIPs) {
+        this.spec.externalIPs = k8sService.spec.externalIPs
+      }
+    }
+  }
+
   addPort(name, protocol, targetPort, port) {
     protocol = (protocol === 'UDP' ? 'UDP' : 'TCP')
     const portObj = {

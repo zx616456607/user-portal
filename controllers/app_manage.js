@@ -10,6 +10,8 @@
 'use strict'
 const yaml = require('js-yaml')
 const apiFactory = require('../services/api_factory')
+const Deployment = require('../kubernetes/objects/deployment')
+const Service = require('../kubernetes/objects/service')
 const DEFAULT_PAGE = 1
 const DEFAULT_PAGE_SIZE = 10
 
@@ -236,7 +238,41 @@ exports.getAppServices = function* () {
 exports.getAppOrchfile = function* () {
   const cluster = this.params.cluster
   const appName = this.params.app_name
-  const data = []
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster, 'apps-detail', appName])
+  const app = result.data[appName]
+  if (!app) {
+    const err = new Error(`App '${appName}' not exits.`)
+    err.status = 404
+    throw err
+  }
+  if (!app.services) {
+    app.services = []
+  }
+  if (!app.k8sServices) {
+    app.k8sServices = []
+  }
+
+  let data = ""
+  app.services.map((service) => {
+    if (data != "") {
+      data += "---\n"
+    }
+    let deployment = new Deployment(service.metadata.name)
+    deployment.importFromK8SDeployment(service) 
+    data += yaml.dump(deployment)
+    
+  })
+  app.k8s_services.map((k8s_service) => {
+    if (data != "") {
+      data += "---\n"
+    }
+    let service = new Service(k8s_service.metadata.name)
+    service.importFromK8SService(k8s_service) 
+    data += yaml.dump(service)
+  })
+
   this.body = {
     cluster,
     appName,
