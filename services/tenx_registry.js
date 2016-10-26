@@ -169,6 +169,31 @@ exports.getFavouriteRepositories = function(username, showDetail) {
   })
 }
 
+/*
+Service to update image info, for example:
+1) Mark as favourite: myfavourite = 1
+*/
+exports.updateImageInfo = function(username, imageObj) {
+  var registry = new registryAPIs()
+  if (username) {
+    username = username.toLowerCase()
+  }
+  return new Promise(function (resolve, reject) {
+    registry.updateImageInfo(username, imageObj, function(statusCode, result, err) {
+      if (err) {
+        return reject(err);
+      }
+      if (statusCode < 300) {
+        resolve(result);
+      } else {
+        logger.error("Failed to update image information -> " + statusCode);
+        err = 'Failed to update image information: ' + result;
+        reject(err);
+      }
+    });
+  })
+}
+
 function _formatImageInfo(imageInfo, imageName, tag) {
   var image = {}
   if (!imageInfo) {
