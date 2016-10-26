@@ -19,6 +19,9 @@ export default function metrics(
     },
     services: {
       CPU: {}, memory: {}, networkReceived: {}, networkTransmitted: {}
+    },
+    apps: {
+      CPU: {}, memory: {}, networkReceived: {}, networkTransmitted: {}
     }
   }, action) {
   return {
@@ -65,6 +68,28 @@ export default function metrics(
         SUCCESS: ActionTypes.METRICS_SERVICE_NETWORK_TRANSMITTED_SUCCESS,
         FAILURE: ActionTypes.METRICS_SERVICE_NETWORK_TRANSMITTED_FAILURE
       }, state.services.networkTransmitted, action),
+    },
+    apps: {
+      CPU: reducerFactory({
+        REQUEST: ActionTypes.METRICS_APP_CPU_REQUEST,
+        SUCCESS: ActionTypes.METRICS_APP_CPU_SUCCESS,
+        FAILURE: ActionTypes.METRICS_APP_CPU_FAILURE
+      }, state.apps.CPU, action),
+      memory: reducerFactory({
+        REQUEST: ActionTypes.METRICS_APP_MEMORY_REQUEST,
+        SUCCESS: ActionTypes.METRICS_APP_MEMORY_SUCCESS,
+        FAILURE: ActionTypes.METRICS_APP_MEMORY_FAILURE
+      }, state.apps.memory, action),
+      networkReceived: reducerFactory({
+        REQUEST: ActionTypes.METRICS_APP_NETWORK_RECEIVED_REQUEST,
+        SUCCESS: ActionTypes.METRICS_APP_NETWORK_RECEIVED_SUCCESS,
+        FAILURE: ActionTypes.METRICS_APP_NETWORK_RECEIVED_FAILURE
+      }, state.apps.networkReceived, action),
+      networkTransmitted: reducerFactory({
+        REQUEST: ActionTypes.METRICS_APP_NETWORK_TRANSMITTED_REQUEST,
+        SUCCESS: ActionTypes.METRICS_APP_NETWORK_TRANSMITTED_SUCCESS,
+        FAILURE: ActionTypes.METRICS_APP_NETWORK_TRANSMITTED_FAILURE
+      }, state.apps.networkTransmitted, action),
     }
   }
 }

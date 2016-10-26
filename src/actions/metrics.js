@@ -228,3 +228,112 @@ export function loadServiceMetricsNetworkTransmitted(cluster, serviceName, query
     return dispatch(fetchServiceMetricsNetworkTransmitted(cluster, serviceName, query))
   }
 }
+
+// ~~ app
+// cpu
+export const METRICS_APP_CPU_REQUEST = 'METRICS_APP_CPU_REQUEST'
+export const METRICS_APP_CPU_SUCCESS = 'METRICS_APP_CPU_SUCCESS'
+export const METRICS_APP_CPU_FAILURE = 'METRICS_APP_CPU_FAILURE'
+
+function fetchAppMetricsCPU(cluster, appName, query = {}) {
+  let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/apps/${appName}/metrics`
+  query.type = METRICS_CPU
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    cluster,
+    appName,
+    [FETCH_API]: {
+      types: [METRICS_APP_CPU_REQUEST, METRICS_APP_CPU_SUCCESS, METRICS_APP_CPU_FAILURE],
+      endpoint,
+      schema: {}
+    }
+  }
+}
+export function loadAppMetricsCPU(cluster, appName, query) {
+  return (dispatch) => {
+    return dispatch(fetchAppMetricsCPU(cluster, appName, query))
+  }
+}
+
+// memory
+export const METRICS_APP_MEMORY_REQUEST = 'METRICS_APP_MEMORY_REQUEST'
+export const METRICS_APP_MEMORY_SUCCESS = 'METRICS_APP_MEMORY_SUCCESS'
+export const METRICS_APP_MEMORY_FAILURE = 'METRICS_APP_MEMORY_FAILURE'
+
+function fetchAppMetricsMemory(cluster, appName, query = {}) {
+  let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/apps/${appName}/metrics`
+  query.type = METRICS_MEMORY
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    cluster,
+    appName,
+    [FETCH_API]: {
+      types: [METRICS_APP_MEMORY_REQUEST, METRICS_APP_MEMORY_SUCCESS, METRICS_APP_MEMORY_FAILURE],
+      endpoint,
+      schema: {}
+    }
+  }
+}
+export function loadAppMetricsMemory(cluster, appName, query) {
+  return (dispatch) => {
+    return dispatch(fetchAppMetricsMemory(cluster, appName, query))
+  }
+}
+
+// networkReceived
+export const METRICS_APP_NETWORK_RECEIVED_REQUEST = 'METRICS_APP_NETWORK_RECEIVED_REQUEST'
+export const METRICS_APP_NETWORK_RECEIVED_SUCCESS = 'METRICS_APP_NETWORK_RECEIVED_SUCCESS'
+export const METRICS_APP_NETWORK_RECEIVED_FAILURE = 'METRICS_APP_NETWORK_RECEIVED_FAILURE'
+
+function fetchAppMetricsNetworkReceived(cluster, appName, query = {}) {
+  let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/apps/${appName}/metrics`
+  query.type = METRICS_NETWORK_RECEIVED
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    cluster,
+    appName,
+    [FETCH_API]: {
+      types: [METRICS_APP_NETWORK_RECEIVED_REQUEST, METRICS_APP_NETWORK_RECEIVED_SUCCESS, METRICS_APP_NETWORK_RECEIVED_FAILURE],
+      endpoint,
+      schema: {}
+    }
+  }
+}
+export function loadAppMetricsNetworkReceived(cluster, appName, query) {
+  return (dispatch) => {
+    return dispatch(fetchAppMetricsNetworkReceived(cluster, appName, query))
+  }
+}
+
+// networkTransmitted
+export const METRICS_APP_NETWORK_TRANSMITTED_REQUEST = 'METRICS_APP_NETWORK_TRANSMITTED_REQUEST'
+export const METRICS_APP_NETWORK_TRANSMITTED_SUCCESS = 'METRICS_APP_NETWORK_TRANSMITTED_SUCCESS'
+export const METRICS_APP_NETWORK_TRANSMITTED_FAILURE = 'METRICS_APP_NETWORK_TRANSMITTED_FAILURE'
+
+function fetchAppMetricsNetworkTransmitted(cluster, appName, query = {}) {
+  let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/apps/${appName}/metrics`
+  query.type = METRICSS_NETWORK_TRANSMITTED
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    cluster,
+    appName,
+    [FETCH_API]: {
+      types: [METRICS_APP_NETWORK_TRANSMITTED_REQUEST, METRICS_APP_NETWORK_TRANSMITTED_SUCCESS, METRICS_APP_NETWORK_TRANSMITTED_FAILURE],
+      endpoint,
+      schema: {}
+    }
+  }
+}
+export function loadAppMetricsNetworkTransmitted(cluster, appName, query) {
+  return (dispatch) => {
+    return dispatch(fetchAppMetricsNetworkTransmitted(cluster, appName, query))
+  }
+}
