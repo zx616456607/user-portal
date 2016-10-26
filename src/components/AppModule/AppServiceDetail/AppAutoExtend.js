@@ -9,21 +9,33 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import { Button, Alert, Card, Slider, Row, Col, InputNumber} from 'antd'
+import { Button, Alert, Card, Slider, Row, Col, InputNumber, Tooltip, Icon } from 'antd'
 import './style/AppAutoExtend.less'
 export default class AppAutoExtend extends Component{
   constructor(props){
     super(props)
     this.handleMinExampleNums = this.handleMinExampleNums.bind(this)
+    this.handleEdit = this.handleEdit.bind(this)
+    this.handleSave = this.handleSave.bind(this)
     this.state={
-      edit:true,
+      edit: true,
       minExampleNums: 1,
     }
   }
-  handleMinExampleNums(value){
+  handleMinExampleNums (value) {
     console.log('value1',value);
     this.setState({
       minExampleNums: value,
+    })
+  }
+  handleEdit(){
+    this.setState({
+      edit: false
+    })
+  }
+  handleSave(){
+    this.setState({
+      edit: true
     })
   }
   render(){
@@ -33,9 +45,10 @@ export default class AppAutoExtend extends Component{
           自动弹性伸缩
           <div className="titleBtn">
             {this.state.edit ?
-              <Button type="primary" size="large">编辑</Button> :
+              <Button type="primary" size="large" onClick={this.handleEdit}>编辑</Button> :
               <div>
-                <Button type="primary" size="large">保存</Button><Button size="large">取消</Button>
+                <Button type="primary" size="large" onClick={this.handleSave}>保存</Button>
+                <Button size="large">取消</Button>
               </div>
             }
           </div>
@@ -51,11 +64,16 @@ export default class AppAutoExtend extends Component{
             <Col className="itemBody" span={20}>
               <Row>
                 <Col span={12} style={{marginTop: '24px'}}>
-                  <Slider defaultValue={30} onChange={ this.handleMinExampleNums } value={this.state.minExampleNums}/>
+                  <Slider defaultValue={30}
+                          onChange={ this.handleMinExampleNums }
+                          value={this.state.minExampleNums}
+                          disabled={this.state.edit} />
                 </Col>
                 <Col span={12}>
                   <InputNumber style={{ marginLeft: '16px' }}
-                               value={this.state.minExampleNums} onChange={this.handleMinExampleNums}
+                               value={this.state.minExampleNums}
+                               onChange={this.handleMinExampleNums}
+                               disabled={this.state.edit}
                   /> 个
                 </Col>
               </Row>
@@ -66,11 +84,16 @@ export default class AppAutoExtend extends Component{
             <Col className="itemBody" span={20}>
               <Row>
                 <Col span={12} style={{marginTop: '24px'}}>
-                  <Slider defaultValue={30} onChange={ this.handleMinExampleNums } value={this.state.minExampleNums}/>
+                  <Slider defaultValue={30}
+                          onChange={ this.handleMinExampleNums }
+                          value={this.state.minExampleNums}
+                          disabled={this.state.edit}/>
                 </Col>
                 <Col span={12}>
                   <InputNumber style={{ marginLeft: '16px' }}
-                               value={this.state.minExampleNums} onChange={this.handleMinExampleNums}
+                               value={this.state.minExampleNums}
+                               onChange={this.handleMinExampleNums}
+                               disabled={this.state.edit}
                   /> 个
                 </Col>
               </Row>
@@ -81,16 +104,27 @@ export default class AppAutoExtend extends Component{
             <Col className="itemBody" span={20}>
               <Row>
                 <Col span={12} style={{marginTop: '24px'}}>
-                  <Slider defaultValue={30} onChange={ this.handleMinExampleNums } value={this.state.minExampleNums}/>
+                  <Slider defaultValue={30}
+                          onChange={ this.handleMinExampleNums }
+                          value={this.state.minExampleNums}
+                          disabled={this.state.edit}/>
                 </Col>
-                <Col span={12}>
+                <Col span={12} id="tip">
                   <InputNumber style={{ marginLeft: '16px' }}
-                               value={this.state.minExampleNums} onChange={this.handleMinExampleNums}
+                               value={this.state.minExampleNums}
+                               onChange={this.handleMinExampleNums}
+                               disabled={this.state.edit}
                   /> %
+                  <Tooltip title="容器实例实际占用CPU与实例CPU限制比例" getTooltipContainer={() =>
+                    document.getElementById('tip')
+                  }>
+                    <i className="anticon anticon-question-circle-o" style={{marginLeft:'40px'}}/>
+                  </Tooltip>
                 </Col>
               </Row>
             </Col>
           </Row>
+          <Row className="cardItem" />
         </Card>
       </div>
     )

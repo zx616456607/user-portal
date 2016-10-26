@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Modal, Checkbox, Dropdown, Button, Card, Menu, Icon, Spin, Tooltip, Pagination } from 'antd'
+import { Modal, Checkbox, Dropdown, Button, Card, Menu, Icon, Spin, Tooltip, Pagination, } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -373,7 +373,9 @@ class AppServiceList extends Component {
         <span onClick={this.batchRestartServices}>重新部署</span>
       </Menu.Item>
       <Menu.Item key="1">
-        <span>弹性伸缩</span>
+        <Link to="#AppAutoExtend">
+          <span>弹性伸缩</span>
+        </Link>
       </Menu.Item>
       <Menu.Item key="2">
         <span>灰度升级</span>
