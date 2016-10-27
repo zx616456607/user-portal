@@ -46,7 +46,7 @@ class AppMonitior extends Component {
   }
 
   componentDidMount() {
-    loadData(this.props, { start: this.changeTime(0) })
+    loadData(this.props, { start: this.changeTime(1) })
   }
 
   render() {
