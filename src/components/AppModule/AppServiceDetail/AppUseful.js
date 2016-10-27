@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component } from 'react'
-import { Popconfirm, Alert, Card, Input, Button, Select, Switch } from 'antd'
+import { Popconfirm, Alert, Card, Input, Button, Select, Switch, message, InputNumber } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -41,13 +41,17 @@ class AppUseful extends Component {
     if (!service.spec) return
     this.setLivenessProbe(service)
   }
-  componentWillReviceProps(nextProps) {
+  componentWillReceiveProps(nextProps) {
     const { serviceDetailmodalShow, service } = nextProps
     if (!service.spec) return
-    if(serviceDetailmodalShow === this.props.serviceDetailmodalShow) return
     if (!serviceDetailmodalShow) {
       this.setState({
-
+        currentUseful: false,
+        checkType: "null",
+        editFlag: true,
+        switchDisable: false,
+        submitInfo: {},
+        livenessProbe:{}
       })
       return
     }
@@ -96,9 +100,8 @@ class AppUseful extends Component {
       currentUseful: value
     });
     if(!value) {
-      const livenessProbe = Object.assign({}, livenessProbe)
+      const livenessProbe = Object.assign({}, this.state.livenessProbe)
       this.setState({
-        checkType: 'null',
         submitInfo: livenessProbe
       })
     }
@@ -124,10 +127,9 @@ class AppUseful extends Component {
   cancelSet() {
     this.setState({
       editFlag: true,
-      submitInfo: {}
     })
-    if(this.state.livenessProbe) {
-      const livenessProbe = Object.assign({}, livenessProbe)
+    if(this.state.livenessProbe.initialDelaySeconds) {
+      const livenessProbe = Object.assign({}, this.state.livenessProbe)
       this.setState({
         switchDisable: false,
         submitInfo: livenessProbe
@@ -138,11 +140,36 @@ class AppUseful extends Component {
         checkType: 'null'
       })
     }
+
   }
 
   confirmSet() {
     const submitInfo = this.state.submitInfo
     const propertys = Object.getOwnPropertyNames(submitInfo)
+    if(this.state.checkType === 'http') {
+      if(propertys.length < 5) {
+        message.error('信息填写不全')
+        return
+      }
+    }
+    if(this.state.checkType === 'tcp') {
+      if (propertys.length < 4) {
+        message.error('信息填写不全')
+        return
+      } 
+    }
+    if (this.state.checkType === 'null') {
+      const changeServiceAvailability = this.props.changeServiceAvailability
+      const cluster = this.props.cluster
+      const serviceName = this.props.serviceName
+      changeServiceAvailability(cluster, serviceName, false)
+      this.setState({
+        currentUseful: false,
+        switchDisable: true,
+        editFlag: true
+      })
+      return
+    }
     const changeServiceAvailability = this.props.changeServiceAvailability
     const cluster = this.props.cluster
     const serviceName = this.props.serviceName
@@ -175,10 +202,10 @@ class AppUseful extends Component {
   }
   getInputInfo(property, e) {
     let submitInfo = this.state.submitInfo
-    let mergeObj = {[property]: e.target.value}
+    let mergeObj = {[property]: e}
     if(property === 'port' || property === 'path') {
-      mergeObj = { info: {[property]: e.target.value}}
-    }
+      mergeObj = { info: {[property]:e}}
+    } 
     submitInfo = merge({}, submitInfo, mergeObj)
     this.setState({
       submitInfo
@@ -246,16 +273,16 @@ class AppUseful extends Component {
                 </div>
                 <div className="input">
                   <div className="commonInput">
-                    <Input type="text" disabled={this.state.editFlag} value={submitInfo.info.port} onChange={(e)=> this.getInputInfo('port', e)}/>
+                    <InputNumber type="text" disabled={this.state.editFlag} value={submitInfo.info.port} onChange={(e)=> this.getInputInfo('port', e)}/>
                   </div>
                   <div className="commonInput">
-                    <Input type="text" disabled={this.state.editFlag} value={submitInfo.initialDelaySeconds} onChange={(e)=> this.getInputInfo('initialDelaySeconds', e)}/>&nbsp;&nbsp;s
+                    <InputNumber type="text" disabled={this.state.editFlag} value={submitInfo.initialDelaySeconds} onChange={(e)=> this.getInputInfo('initialDelaySeconds', e)}/>&nbsp;&nbsp;s
                 </div>
                   <div className="commonInput">
-                    <Input type="text" disabled={this.state.editFlag} value={submitInfo.timeoutSeconds} onChange={(e)=> this.getInputInfo('timeoutSeconds', e)}/>&nbsp;&nbsp;s
+                    <InputNumber type="text" disabled={this.state.editFlag} value={submitInfo.timeoutSeconds} onChange={(e)=> this.getInputInfo('timeoutSeconds', e)}/>&nbsp;&nbsp;s
                 </div>
                   <div className="commonInput">
-                    <Input type="text" disabled={this.state.editFlag} value={submitInfo.periodSeconds} onChange={(e)=> this.getInputInfo('periodSeconds', e)}/>&nbsp;&nbsp;s
+                    <InputNumber type="text" disabled={this.state.editFlag} value={submitInfo.periodSeconds} onChange={(e)=> this.getInputInfo('periodSeconds', e)}/>&nbsp;&nbsp;s
                 </div>
                   <div style={{ clear: "both" }}></div>
                 </div>
@@ -293,16 +320,16 @@ class AppUseful extends Component {
                 </div>
                 <div className="input">
                   <div className="commonInput">
-                    <Input type="text" disabled={this.state.editFlag} value={submitInfo.info.port} onChange={(e)=> this.getInputInfo('port', e)}/>
+                    <InputNumber type="text" disabled={this.state.editFlag} value={submitInfo.info.port} onChange={(e)=> this.getInputInfo('port', e)}/>
                   </div>
                   <div className="commonInput">
-                    <Input type="text" disabled={this.state.editFlag} value={submitInfo.initialDelaySeconds} onChange={(e)=> this.getInputInfo('initialDelaySeconds', e)}/>&nbsp;&nbsp;s
+                    <InputNumber type="text" disabled={this.state.editFlag} value={submitInfo.initialDelaySeconds} onChange={(e)=> this.getInputInfo('initialDelaySeconds', e)}/>&nbsp;&nbsp;s
                 </div>
                   <div className="commonInput">
-                    <Input type="text" disabled={this.state.editFlag} value={submitInfo.timeoutSeconds} onChange={(e)=> this.getInputInfo('timeoutSeconds', e)}/>&nbsp;&nbsp;s
+                    <InputNumber type="text" disabled={this.state.editFlag} value={submitInfo.timeoutSeconds} onChange={(e)=> this.getInputInfo('timeoutSeconds', e)}/>&nbsp;&nbsp;s
                 </div>
                   <div className="commonInput">
-                    <Input type="text" disabled={this.state.editFlag} value={submitInfo.periodSeconds} onChange={(e)=> this.getInputInfo('periodSeconds', e)}/>&nbsp;&nbsp;s
+                    <InputNumber type="text" disabled={this.state.editFlag} value={submitInfo.periodSeconds} onChange={(e)=> this.getInputInfo('periodSeconds', e)}/>&nbsp;&nbsp;s
                 </div>
                   <div style={{ clear: "both" }}></div>
                 </div>

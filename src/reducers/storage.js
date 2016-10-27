@@ -270,11 +270,16 @@ function exportFile(state = {}, action) {
   }
 }
 
-function getFreeVolume(state = {}, action) {
-  const defaultState = {
-    [cluster]: {
-      
-    }
+function avaliableVolume(state = {}, action) {
+  switch(action.type) {
+    case ActionTypes.STORAGE_GET_FREE_VOLUME_REQUEST:
+      return _.merge({}, {isFetching: true})
+    case ActionTypes.STORAGE_GET_FREE_VOLUME_SUCCESS: 
+      return _.merge({}, action.response.result, { isFetching: false})
+    case ActionTypes.STORAGE_GET_FREE_VOLUME_FAIULRE:
+      return _.merge({}, state, {isFetching: false})
+    default: 
+      return state
   }
 }
 
@@ -292,6 +297,7 @@ export default function storageReducer(state = {}, action) {
     beforeUploadFile: beforeUploadFile(state.beforeUploadFile, action),
     volumeBindInfo: volumeBindInfo(state.volumeBindInfo, action),
     uploadFileOptions: changeUploadFileOptions(state.uploadFileOptions, action),
-    exportFile: exportFile(state.exportFile, action)
+    exportFile: exportFile(state.exportFile, action),
+    avaliableVolume: avaliableVolume(state.avaliableVolume, action)
   }
 }

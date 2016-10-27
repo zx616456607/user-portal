@@ -339,7 +339,8 @@ export function fetchFreeVolume(cluster) {
     cluster,
     [FETCH_API]: {
       types: [STORAGE_GET_FREE_VOLUME_REQUEST, STORAGE_GET_FREE_VOLUME_SUCCESS, STORAGE_GET_FREE_VOLUME_FAIULRE],
-      endpoint: `${API_URL_PREFIX}/storage-pools/${cluster}/volumes/free`
+      endpoint: `${API_URL_PREFIX}/storage-pools/${cluster}/volumes/available`,
+      schema: {}
     }
   }
 }
@@ -347,6 +348,6 @@ export function fetchFreeVolume(cluster) {
 
 export function loadFreeVolume(cluster) {
   return (dispatch, getState) => {
-    return dispatch(fetchFreeVolume(dispatch(cluster)))
+    return dispatch(fetchFreeVolume(cluster))
   }
 }

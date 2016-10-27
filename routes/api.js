@@ -34,6 +34,7 @@ module.exports = function (Router) {
   router.get('/storage-pools/:pool/:cluster/volumes/:name/filehistory', volumeController.getFileHistory)
   router.get('/storage-pools/:pool/:cluster/volumes/:name/bindinfo', volumeController.getBindInfo)
   router.get('/storage-pools/:pool/:cluster/volumes/:name/exportfile', volumeController.exportFile)
+  router.get('/storage-pools/:cluster/volumes/available', volumeController.getAvailableVolume)
   // Apps
   router.post('/clusters/:cluster/apps', appController.createApp)
   router.get('/clusters/:cluster/apps', appController.getApps)
@@ -63,6 +64,7 @@ module.exports = function (Router) {
   router.put('/clusters/:cluster/services/:service_name/manualscale', serviceController.manualScaleService)
   router.get('/clusters/:cluster/services/:service_name/autoscale', serviceController.getServiceAutoScale)
   router.put('/clusters/:cluster/services/:service_name/autoscale', serviceController.autoScaleService)
+  router.del('/clusters/:cluster/services/:service_name/autoscale', serviceController.delServiceAutoScale)
   router.put('/clusters/:cluster/services/:service_name/quota', serviceController.changeServiceQuota)
   router.put('/clusters/:cluster/services/:service_name/ha', serviceController.changeServiceHa)
   router.put('/clusters/:cluster/services/:service_name/rollingupdate', serviceController.rollingUpdateService)
@@ -100,7 +102,7 @@ module.exports = function (Router) {
   // Private docker registry integration
   router.get('/docker-registry', registryController.getPrivateRegistries)
   router.post('/docker-registry/:name', registryController.addPrivateRegistry)
-  router.delete('/docker-registry/:id', registryController.deletePrivateRegistry)
+  router.del('/docker-registry/:id', registryController.deletePrivateRegistry)
   // Docker registry spec API
   router.get('/docker-registry/:id/images', registryController.specListRepositories)
   router.get('/docker-registry/:id/images/:image*/tags', registryController.specGetImageTags)

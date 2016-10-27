@@ -63,22 +63,21 @@ let AppDeployServiceModal = React.createClass({
         if (volumeMounts.length === 1) {
           if (volumeMounts[0].name === "tenxcloud-time-zone") {
             return false
-          } else {
-            form.setFieldsValue({
-              volumeName1: 'volumeName1 ext4 1024M'
-            })
-            return true
           }
-        } else {
-          volumeMounts.map((k) => {
-            form.setFieldsValue({
-              ['volumeName' + `${k}`]: 'volumeName1 ext4 1024M'
-            })
+          form.setFieldsValue({
+            volumeName1: 'volumeName1 ext4 1024M'
           })
           return true
         }
+        volumeMounts.map((k) => {
+          form.setFieldsValue({
+            ['volumeName' + `${k}`]: 'volumeName1 ext4 1024M'
+          })
+        })
+        return true
       }
     }
+    return false
   },
   getUsefulType(livenessProbe, form) {
     if (livenessProbe) {
@@ -180,7 +179,7 @@ let AppDeployServiceModal = React.createClass({
     let serviceName = getFieldProps('name').value    //服务名
     let imageVersion = getFieldProps('imageVersion').value    //镜像版本
     let volumeSwitch = getFieldProps('volumeSwitch').value //服务类型
-    let volumeChecked = getFieldProps('volumeChecked').value   //服务只读
+    
     let livePort = getFieldProps('livePort').value   //高可用端口
     let liveInitialDelaySeconds = getFieldProps('liveInitialDelaySeconds').value //首次延时
     let liveTimeoutSeconds = getFieldProps('liveTimeoutSeconds').value //检查超时
@@ -365,23 +364,27 @@ let AppDeployServiceModal = React.createClass({
     }
     //volumes
     if (getFieldValue('volumeSwitch')) {
+      const volumeMounts = this.props.scope.state.checkInf.Deployment.spec.template.spec.containers[0].volumeMounts
+      const cluster = window.localStorage.getItem('cluster')
       getFieldValue('volumeKey').map((k) => {
+        let volumeChecked = getFieldProps(`volumeChecked${k}`).value   //服务只读
+        let volumeInfo = getFieldProps(`volumeName${k}`).value.split('/')
         if (volumeChecked) {
           deploymentList.addContainerVolume(serviceName, {
-            name: getFieldProps(`volName${k}`).value + '-' + k,
-            fsType: getFieldProps(`volumeName${k}`).value.split('/')[0],
-            image: getFieldProps(`volumeName${k}`).value.split('/')[1]
+            name: volumeInfo[0] + '-' + k,
+            fsType: volumeInfo[1],
+            image: `zhangpc.${cluster}.${volumeInfo[1]}`
           }, {
-              mountPath: '/test/mount',
+              mountPath: getFieldProps(`volumePath${k}`),
               readOnly: true
             })
         } else {
           deploymentList.addContainerVolume(serviceName, {
-            name: getFieldProps(`volName${k}`).value + '-' + k,
-            fsType: getFieldProps(`volumeName${k}`).value.split('/')[0],
-            image: getFieldProps(`volumeName${k}`).value.split('/')[1]
+            name: volumeInfo[0] + '-' + k,
+            fsType: volumeInfo[1],
+            image: `zhangpc.${cluster}.${volumeInfo[1]}`
           }, {
-              mountPath: '/test/mount',
+              mountPath: getFieldProps(`volumePath${k}`),
           })
         }
       })
@@ -496,6 +499,7 @@ let AppDeployServiceModal = React.createClass({
             serviceOpen={serviceOpen} checkState={checkState}
             composeType={composeType}
             form={form}
+            cluster={this.props.cluster}
             />
           <Collapse>
             <Panel header={assitBoxTitle} key="1" className="assitBigBox">
