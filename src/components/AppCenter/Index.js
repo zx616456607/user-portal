@@ -239,7 +239,7 @@ let MyComponent = React.createClass({
               moment={this.state.regMoment}
               style={{ position: "absolute", width: "10%", top: "0" }}
               >
-              <span className="title" key="name">镜像名</span>
+              <span className="title" key="name">仓库名</span>
             </TweenOne>
             <Input {...registryProps} ref="registryInput" onFocus={this.inputOnFocus.bind(this, "registryName")} onBlur={this.inputOnBlur.bind(this, "registryName")} />
           </FormItem>
@@ -290,7 +290,7 @@ let MyComponent = React.createClass({
               >
               <span>描述</span>
             </TweenOne>
-            <Input {...emailProps} type="textarea" ref="textareaInput"/>
+            <Input {...emailProps} type="textarea" ref="textareaInput" rows="5"/>
           </FormItem>
           <div className="btnBox">
             <Button size="large" type="primary" onClick={this.handleSubmit}>确定</Button>
