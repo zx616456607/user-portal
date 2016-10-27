@@ -19,7 +19,7 @@ import { DEFAULT_CLUSTER, DEFAULT_PAGE_SIZE } from '../../constants'
 import { browserHistory } from 'react-router'
 import UpdateModal from './AppServiceDetail/UpdateModal'
 import ConfigModal from './AppServiceDetail/ConfigModal'
-import ExtendModal from './AppServiceDetail/ExtendModal'
+import ExtendModal from './AppServiceDetail/ScaleModal'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
