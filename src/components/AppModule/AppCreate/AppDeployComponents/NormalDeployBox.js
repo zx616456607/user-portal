@@ -68,24 +68,27 @@ let MyComponent = React.createClass({
     
     if(volume.length <= 0 ) {
       getFieldProps('volumeKey', {
-        initialValue: [],
+        initialValue: [1],
       });
       const formItems = getFieldValue('volumeKey').map((k) => {
         return (
           <FormItem key={`volume${k}`}>
-            <li className="enviroDetail">
+            <li className="volumeDetail">
               <div className="url">
-                <Input {...getFieldProps(`volumePath${k}`, {}) } className="composeUrl" type="text" />
+                <Input {...getFieldProps(`volumePath${k}`, {}) } className="volumeInt" type="text"/>
               </div>
               <div className="input">
-                <Input {...getFieldProps(`volumeName${k}`, {}) } className="composeUrl" type="text" />
+                <Input {...getFieldProps(`volumeName${k}`, {}) } className="volumeInt" type="text" placeholder="存储卷名称"/>
               </div>
               <div className="input">
-                <Input {...getFieldProps(`envValue${k}`, {}) } className="composeUrl" type="text" />
+                <Input {...getFieldProps(`volumeSize${k}`, {}) } className="volumeInt" type="text" placeholder="存储卷大小"/>
               </div>
-              <div className="opera">
-                <i className="fa fa-trash-o" onClick={() => this.remove(k)}/>
-              </div>
+              <Select className='imageTag' placeholder="请选择格式">
+                <Option value='ext4'>ext4</Option>
+                <Option value='xfs'>xfs</Option>
+                <Option value='reiserfs'>reiserfs</Option>
+              </Select>
+              <Button>创建存储卷</Button>
               <div style={{ clear: "both" }}></div>
             </li>
           </FormItem>
@@ -96,7 +99,7 @@ let MyComponent = React.createClass({
           <ul>
             {formItems}
           </ul>
-          <div className="addBtn" onClick={this.add}>
+          <div className="volumeAddBtn" onClick={this.add}>
             <Icon type="plus-circle-o" />
             <span>添加一个容器目录</span>
           </div>
