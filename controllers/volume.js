@@ -18,8 +18,8 @@ const http = require('http')
 const VolumeApi = require('../tenx_api/v2')
 const volumeConfig = {
   protocol: 'http',
-  host: '192.168.0.51:8001',
-  version: 'v1',
+  host: '192.168.0.44:8000',
+  version: 'v2',
   auth: {
     user: 'zhangpc',
     token: 'jgokzgfitsewtmbpxsbhtggabvrnktepuzohnssqjnsirtot',
@@ -168,6 +168,18 @@ exports.getBindInfo = function* () {
   this.body = response
 }
 
+exports.getAvailableVolume = function*() {
+  volumeConfig.version = 'v2'
+  volumeConfig.host = '192.168.0.44:8000'
+  const volumeApi = new VolumeApi(volumeConfig)
+  const cluster = this.params.cluster
+  const response = yield volumeApi.clusters.getBy([cluster, 'volumes', 'available'], null)
+  this.status = response.code
+  this.body = response
+}
+ 
+
+
 exports.exportFile = function* () {
   const pool = this.params.pool
   const cluster = this.params.cluster
@@ -175,7 +187,7 @@ exports.exportFile = function* () {
   const option = {
     protocol: 'http:',
     hostname: 'localhost',
-    port: 8001,
+    port: 8000,
     headers: {
       "user": 'zhangpc',
       "token": 'jgokzgfitsewtmbpxsbhtggabvrnktepuzohnssqjnsirtot',
