@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Form, Select, Input, InputNumber, Modal, Checkbox, Button, Card, Menu, Switch } from 'antd'
+import { Form, Select, Input, InputNumber, Modal, Checkbox, Button, Card, Menu, Switch,Icon  } from 'antd'
 import { connect } from 'react-redux'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import { loadImageDetailTag, loadImageDetailTagConfig } from '../../../../actions/app_center'
@@ -59,9 +59,49 @@ let MyComponent = React.createClass({
     const { getFieldProps, getFieldValue, } = this.props.form
     const registry = this.props.registry
     const mountPath = this.props.tagConfig[registry].configList.mountPath
+    console.log('volumeeeee',this.props.avaliableVolume);
+    if(!this.props.avaliableVolume.data){
+      return (<div></div>)
+    }
     const volume = this.props.avaliableVolume.data.volumes
     let formItems = ''
+    
     if(volume.length <= 0 ) {
+      getFieldProps('volumeKey', {
+        initialValue: [],
+      });
+      const formItems = getFieldValue('volumeKey').map((k) => {
+        return (
+          <FormItem key={`volume${k}`}>
+            <li className="enviroDetail">
+              <div className="url">
+                <Input {...getFieldProps(`volumePath${k}`, {}) } className="composeUrl" type="text" />
+              </div>
+              <div className="input">
+                <Input {...getFieldProps(`volumeName${k}`, {}) } className="composeUrl" type="text" />
+              </div>
+              <div className="input">
+                <Input {...getFieldProps(`envValue${k}`, {}) } className="composeUrl" type="text" />
+              </div>
+              <div className="opera">
+                <i className="fa fa-trash-o" onClick={() => this.remove(k)}/>
+              </div>
+              <div style={{ clear: "both" }}></div>
+            </li>
+          </FormItem>
+        )
+      })
+      return (
+        <div>
+          <ul>
+            {formItems}
+          </ul>
+          <div className="addBtn" onClick={this.add}>
+            <Icon type="plus-circle-o" />
+            <span>添加一个容器目录</span>
+          </div>
+        </div>
+      )
       
     } else {
       getFieldProps('volumeKey', {
@@ -70,7 +110,9 @@ let MyComponent = React.createClass({
       formItems = getFieldValue('volumeKey').map((k) => {
         return (
           <FormItem key={`volume${k}`}>
-            <span type='text' className="url" {...getFieldProps(`volumePath${k}`, {}) }>{mountPath[k - 1]}</span>
+            <span type='text' className="url" {...getFieldProps(`volumePath${k}`, {}) }>
+              {mountPath[k - 1]}
+            </span>
             <Select className="imageTag" size="large"
               defaultValue={mountPath[0]}
               style={{ width: 200 }}
