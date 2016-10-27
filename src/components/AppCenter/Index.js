@@ -327,7 +327,7 @@ class ImageCenter extends Component {
     this.closeImageDetailModal = this.closeImageDetailModal.bind(this);
     this.state = {
       current: "imageSpace",
-      otherSpace: null,
+      // otherSpace: null,
       createModalShow: false,
       otherSpaceType: "1",
       imageDetailModalShow: false,
@@ -346,7 +346,7 @@ class ImageCenter extends Component {
       }
     });
   }
-  selectCurrentTab(current, type, list) {
+  selectCurrentTab(current, list ,type) {
     //if user select other space is not default space,so that change state
     //this function for user select current show tabs
     this.setState({
@@ -414,25 +414,25 @@ class ImageCenter extends Component {
           <Card className="imageList">
             <ul>
               <li className={current == "imageSpace" ? "titleSelected" : "titleDetail"}
-                onClick={this.selectCurrentTab.bind(this, "imageSpace", "default")}
+                onClick={this.selectCurrentTab.bind(this, "imageSpace")}
                 >
                 <span>私有空间</span>
               </li>
               <li className={current == "publicSpace" ? "titleSelected" : "titleDetail"}
-                onClick={this.selectCurrentTab.bind(this, "publicSpace", "default")}
+                onClick={this.selectCurrentTab.bind(this, "publicSpace")}
                 >
                 <span>公有空间</span>
               </li>
               <li className={current == "myCollection" ? "titleSelected" : "titleDetail"}
-                onClick={this.selectCurrentTab.bind(this, "myCollection", "default")}
+                onClick={this.selectCurrentTab.bind(this, "myCollection")}
                 >
                 <span>我的收藏</span>
               </li>
 
               { otherImageHead.length > 0 && otherImageHead.map(list=> {
                 return (
-                <li className={current == list.id ? "titleSelected" : "titleDetail"}
-                  onClick={this.selectCurrentTab.bind(this, list.id, "otherRegistry",list)} >
+                <li className={otherSpace == list.id ? "titleSelected" : "titleDetail"}
+                  onClick={this.selectCurrentTab.bind(this, "otherRegistry",list, list.id)} >
                   <span>{list.title}</span>
                 </li>
                 )
@@ -449,7 +449,7 @@ class ImageCenter extends Component {
           {current == "imageSpace" ? [<ImageSpace scope={scope} />] : null}
           {current == "publicSpace" ? [<PublicSpace scope={scope} />] : null}
           {current == "myCollection" ? [<MyCollection scope={scope} />] : null}
-          {otherSpace == 'otherRegistry' ? [<OtherSpace scope={scope} otherHead={this.state.otherHead} imageId = {this.state.otherHead.id} config={otherImageList} />] : null}
+          {current == 'otherRegistry' ? [<OtherSpace scope={scope} otherHead={this.state.otherHead} imageId = {this.state.otherHead.id} config={otherImageList} />] : null}
           <Modal title="添加第三方" className="addOtherSpaceModal" visible={this.state.createModalShow}
             onCancel={this.closeAddModal}
             >

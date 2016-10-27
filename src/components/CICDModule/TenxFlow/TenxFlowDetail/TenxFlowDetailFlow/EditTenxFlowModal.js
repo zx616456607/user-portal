@@ -8,14 +8,14 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Input, Form, Switch, Radio, Checkbox, Icon, Select } from 'antd'
+import { Button, Input, Form, Switch, Radio, Checkbox, Icon, Select, Modal } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../../constants'
 import './style/EditTenxFlowModal.less'
-import { browserHistory } from 'react-router';
+import EnvComponent from './EnvComponent.js'
 
 const RadioGroup = Radio.Group;
 const createForm = Form.create;
@@ -143,7 +143,11 @@ const menusText = defineMessages({
     id: 'CICD.Tenxflow.EditTenxFlowModal.buildCache',
     defaultMessage: '构建缓存',
   },
-})
+  envTitle: {
+    id: 'CICD.Tenxflow.EditTenxFlowModal.envTitle',
+    defaultMessage: '自定义环境变量',
+  }
+});
 
 let uuid = 0;
 let shellUid = 0;
@@ -156,7 +160,8 @@ let EditTenxFlowModal = React.createClass({
       otherEmail: false,
       currentTenxFlow: null,
       useDockerfile: false,
-      otherTag: false
+      otherTag: false,
+      envModalShow: null
     }
   },
   componentWillMount() {
@@ -203,20 +208,23 @@ let EditTenxFlowModal = React.createClass({
     });
   },
   removeService (k) {
+    //the function for user remove the service select box
     const { form } = this.props;
     // can use data-binding to get
-    if(this.state.editing){
-      let keys = form.getFieldValue('services');
-      keys = keys.filter((key) => {
-        return key !== k;
-      });
-      // can use data-binding to set
-      form.setFieldsValue({
-        keys,
-      });
-    }  
+    let keys = form.getFieldValue('services');
+    if(keys.length == 1) {
+      return ;
+    }
+    keys = keys.filter((key) => {
+      return key !== k;
+    });
+    // can use data-binding to set
+    form.setFieldsValue({
+      'services':keys
+    });  
   },
   addService () {
+    //this function for user add an new box of service select
     uuid++;
     const { form } = this.props;
     // can use data-binding to get
@@ -225,45 +233,55 @@ let EditTenxFlowModal = React.createClass({
     // can use data-binding to set
     // important! notify form to detect changes
     form.setFieldsValue({
-      keys,
+      'services':keys
+    });
+  },
+  openEnvSettingModal (index) {
+    //this function for user open the modal of setting the service env
+    this.setState({
+      envModalShow: index
+    });
+  },
+  closeEnvSettingModal () {
+    //this function for user close the modal of setting the service env
+    this.setState({
+      envModalShow: null
     });
   },
   removeShellCode (k) {
+    //the function for user remove the shell code box
     const { form } = this.props;
     // can use data-binding to get
-    if(this.state.editing) {
-      let keys = form.getFieldValue('shellCodes');
-      keys = keys.filter((key) => {
-        return key !== k;
-      });
-      // can use data-binding to set
-      form.setFieldsValue({
-        keys,
-      });
-    }else {
-      let keys = form.getFieldValue('shellCodes');
-//    console.log(keys)
-//    keys = keys.filter((key) => {
-//      return key !== k;
-//    });
-//    // can use data-binding to set
-//    form.setFieldsValue({
-//      keys,
-//    });
+    let keys = form.getFieldValue('shellCodes');
+    if(keys.length == 1) {
+      return ;
     }
+    keys = keys.filter((key) => {
+      return key !== k;
+    });
+    // can use data-binding to set
+    form.setFieldsValue({
+      'shellCodes': keys
+    });
   },
   addShellCode (index) {
+    //this function for user add an new box of shell code
+    //there are no button for user click
+    //when user input words, after user key up would triger the function
+    const { form } = this.props;
+    let inputValue = form.getFieldValue('shellCode' + index);
     if(index == shellUid) {
-      shellUid++;
-      const { form } = this.props;
-      // can use data-binding to get
-      let keys = form.getFieldValue('services');
-      keys = keys.concat(shellUid);
-      // can use data-binding to set
-      // important! notify form to detect changes
-      form.setFieldsValue({
-        keys,
-      });
+      if(!!inputValue) {        
+        shellUid++;
+        // can use data-binding to get
+        let keys = form.getFieldValue('shellCodes');
+        keys = keys.concat(shellUid);
+        // can use data-binding to set
+        // important! notify form to detect changes
+        form.setFieldsValue({
+          'shellCodes': keys
+        });
+      }
     }
   },
   changeUseDockerFile (e) {
@@ -307,6 +325,7 @@ let EditTenxFlowModal = React.createClass({
     const { scope } = this.props;
     const _this = this;
     this.props.form.validateFields((errors, values) => {
+      console.log(values)
       if (!!errors) {
         console.log('Errors in form!!!');
         e.preventDefault();
@@ -315,14 +334,14 @@ let EditTenxFlowModal = React.createClass({
       _this.setState({
         currentTenxFlow: values
       });
-      console.log(values)
       scope.cancelEditCard();
     });
   },
-  render() {
+  render() {  
     const { formatMessage } = this.props.intl;
-    const { config, editType } = this.props;
+    const { config, editType, form } = this.props;
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form;
+    const scopeThis = this;
     getFieldProps('services', {
       initialValue: [0],
     });
@@ -330,40 +349,49 @@ let EditTenxFlowModal = React.createClass({
       initialValue: [0],
     });
     const serviceItems = getFieldValue('services').map((k) => {
-      const serviceSelect = getFieldProps('serviceSelect' + k, {
+      const serviceSelect = getFieldProps(`serviceSelect${k}`, {
         rules: [
           { required: true, message: '请选择' },
         ],
       });
       return (
-        <div className='serviceDetail'>
-          <Form.Item key={'serviceName' + k} className='commonItem'>
+      <QueueAnim key={'serviceName' + k + 'Animate'}>  
+        <div className='serviceDetail' key={'serviceName' + k}>
+          <Form.Item className='commonItem'>
             <Select {...serviceSelect} style={{ width: '100px' }} >
               <Option value='MySQL'>MySQL</Option>
               <Option value='Postgre'>Postgre</Option>
             </Select>
-            <span className='defineEnvBtn'><FormattedMessage {...menusText.defineEnv} /></span>
-            <i className='fa fa-trash' />
+            <span className='defineEnvBtn' onClick={() => this.openEnvSettingModal(k)}><FormattedMessage {...menusText.defineEnv} /></span>
+            <i className='fa fa-trash' onClick={() => this.removeService(k)}/>
           </Form.Item>
+          <Modal className='tenxFlowServiceEnvModal'
+            title={<FormattedMessage {...menusText.envTitle} />} 
+            visible={this.state.envModalShow == k ? true : false}
+            onOk={this.closeEnvSettingModal}
+          >
+            <EnvComponent scope={scopeThis} index={k} form={form} />
+          </Modal>
         </div>
+      </QueueAnim>
       )
     });
-    const shellCodeItems = getFieldValue('shellCodes').map((k) => {
-      const shellCodeProps = getFieldProps('shellCode' + k, {
+    const shellCodeItems = getFieldValue('shellCodes').map((i) => {
+      const shellCodeProps = getFieldProps(`shellCode${i}`, {
         rules: [
           { message: '请输入脚本命令' },
         ],
-        onFocus: this.addShellCode(k),
-        onBlur: this.removeShellCode(k)
       });
       return (
-        <div className='serviceDetail'>
+      <QueueAnim key={'shellCode' + i + 'Animate'}>
+        <div className='serviceDetail' key={'shellCode' + i}>
           <FormItem className='serviceForm'>
-            <Input {...shellCodeProps} type='text' size='large' />
+            <Input onKeyUp={() => this.addShellCode(i) } {...shellCodeProps} type='text' size='large' />
+            <i className='fa fa-trash' onClick={() => this.removeShellCode(i)} />
           </FormItem>
-          <i className='fa fa-trash' onClick={this.removeShellCode(k)}/>
           <div style={{ clera:'both' }}></div>
         </div>
+      </QueueAnim>
       )
     });
     const flowTypeProps = getFieldProps('flowType', {
@@ -398,7 +426,7 @@ let EditTenxFlowModal = React.createClass({
     });
     const otherImageTagProps = getFieldProps('otherTag', {
       rules: [
-        { required: true, message: '请输入镜像版本' },
+        { message: '请输入镜像版本' },
       ],      
     });
     return (
@@ -407,7 +435,7 @@ let EditTenxFlowModal = React.createClass({
         <span>{ editType == 'create' ? [<FormattedMessage {...menusText.titleAdd} />] : [<FormattedMessage {...menusText.titleEdit} />] }</span>
         <Icon type='cross' onClick={this.cancelChange} />
       </div>
-      <Form horizontal form={this.props.form}>
+      <Form horizontal>
         <div className='commonBox'>
           <div className='title'>
             <span><FormattedMessage {...menusText.flowType} /></span>
@@ -487,7 +515,7 @@ let EditTenxFlowModal = React.createClass({
           </div>
           <div className='input services'>
             {serviceItems}
-            <div className='addServicesBtn'>
+            <div className='addServicesBtn' onClick={this.addService}>
               <Icon type='plus-circle-o' />
               <FormattedMessage {...menusText.addServices} />
             </div>
@@ -562,8 +590,8 @@ let EditTenxFlowModal = React.createClass({
                 <div className='input'>
                   <FormItem style={{ float:'left' }}>
                     <RadioGroup {...getFieldProps('imageTag', { initialValue: 'imageStore',onChange: this.changeImageTagType })}>
-                      <Radio key='branch' value={'branch'}><FormattedMessage {...menusText.imageStore} /></Radio>
-                      <Radio key='time' value={'time'}><FormattedMessage {...menusText.imageStore} /></Radio>
+                      <Radio key='branch' value={'branch'}><FormattedMessage {...menusText.ImageTagByBranch} /></Radio>
+                      <Radio key='time' value={'time'}><FormattedMessage {...menusText.ImageTagByTime} /></Radio>
                       <Radio key='other' value={'other'}><FormattedMessage {...menusText.otherImage} /></Radio>
                     </RadioGroup>
                   </FormItem>
@@ -596,7 +624,7 @@ let EditTenxFlowModal = React.createClass({
             </QueueAnim>
           ] : null
         }
-        <div className='btnBox'>
+        <div className='modalbtnBox'>
           <Button size='large' onClick={this.cancelChange}>
             <FormattedMessage {...menusText.cancel} />
           </Button>

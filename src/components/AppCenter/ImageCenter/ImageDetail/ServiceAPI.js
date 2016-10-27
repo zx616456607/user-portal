@@ -74,11 +74,7 @@ class ServiceAPI extends Component {
     console.log('loadConfigGroup', this.props)
     const { fullname, imageTag , imageId} = this.props;
     const config = {imageId, fullname, imageTag}
-    if (imageId) {
-      this.props.loadOtherDetailTagConfig(config)
-    } else {
-      loadImageDetailTagConfig(registry, fullname, imageTag);
-    }
+    loadImageDetailTagConfig(registry, fullname, imageTag);
   }
 
   render() {
@@ -166,9 +162,6 @@ ServiceAPI.propTypes = {
 }
 function mapDispatchToProps(dispatch) {
   return {
-    loadOtherDetailTagConfig: (image) => {
-      dispatch(loadOtherDetailTagConfig(image))
-    },
     loadImageDetailTagConfig: (registry, fullname, imageTag)=> {
       dispatch(loadImageDetailTagConfig(registry, fullname, imageTag))
     }
