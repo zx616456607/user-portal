@@ -158,7 +158,7 @@ exports.manualScaleService = function* () {
     err.status = 400
     throw err
   }
-  let num = parseInt(num)
+  let num = parseInt(body.num)
   if (isNaN(num) || num < 1 || num > INSTANCE_MAX_NUM) {
     const err = new Error(`Num is between 1 and ${INSTANCE_MAX_NUM}.`)
     err.status = 400
