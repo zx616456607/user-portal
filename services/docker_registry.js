@@ -11,9 +11,10 @@
  * @author Wang Lei
 */
 'use strict'
-var request = require('request')
-var async   = require('async')
-var logger  = require('../utils/logger.js').getLogger("docker_registry")
+var request       = require('request')
+var async         = require('async')
+var logger        = require('../utils/logger.js').getLogger("docker_registry")
+var tenx_registry = require('./tenx_registry')
 
 const Catalog_Scope = 'registry:catalog:*'
 const Repository_Scope_Prefix = 'repository'
@@ -94,12 +95,41 @@ SpecRegistryAPIs.prototype.getImageTagInfo = function (imageName, tag) {
   return new Promise(function (resolve, reject) {
     self.refreshToken(Repository_Scope_Prefix + ":" + imageName + ":pull", function(statusCode, result) {
       if (statusCode === 200) {
+        var token = result
         var tagsURL = self.registryConfig.server +"/v2/" + imageName + '/manifests/' + tag
-        self.sendRequest(tagsURL, self.getBearerHeader(result), null, function(statusCode, result) {
+        self.sendRequest(tagsURL, self.getBearerHeader(token), null, function(statusCode, result) {
           logger.debug(method, "Tag config status code: " + statusCode)
           logger.debug(method, 'Tag config body: ' + JSON.stringify(result))
           if (statusCode === 200) {
-            resolve({"code": statusCode, "result": result.history[0].v1Compatibility})
+            var configInfo = {}
+            if (result && result.history) {
+              configInfo = result.history[0].v1Compatibility
+            }
+            self.sendRequest(tagsURL, self.getBearerHeader(token,
+              { "Accept": "application/vnd.docker.distribution.manifest.v2+json"}), null, function(statusCode, layerInfo) {
+              logger.debug(method, "Tag size status code: " + statusCode)
+              logger.debug(method, 'Tag size body: ' + JSON.stringify(result))
+              if (statusCode === 200) {
+                var size = 0
+                var length = 0
+                var result = {}
+                // Customize the tag config information before use it
+                result.configInfo = tenx_registry.FormatImageInfo(JSON.parse(configInfo), imageName, tag)
+                if (layerInfo && layerInfo.layers) {
+                  layerInfo.layers.forEach(function(layer) {
+                    size += layer.size
+                  })
+                  length = layerInfo.layers.length
+                }
+                result.sizeInfo = {
+                  "layerLength": length,
+                  "totalSize": size
+                }
+                resolve({"code": statusCode, "result": result})
+              } else {
+                reject({"code": statusCode, "result": result})
+              }
+            })
           } else {
             reject({"code": statusCode, "result": result})
           }
@@ -112,6 +142,7 @@ SpecRegistryAPIs.prototype.getImageTagInfo = function (imageName, tag) {
 }
 
 /*
+Merged to image tag info for now
 Get 1st layer of specified image & tag as the config
 /v2/<name>/manifests/<reference> API
 */
@@ -129,11 +160,15 @@ SpecRegistryAPIs.prototype.getImageTagSize = function (imageName, tag) {
           logger.debug(method, 'Tag size body: ' + JSON.stringify(result))
           if (statusCode === 200) {
             var size = 0
-            result.layers.forEach(function(layer) {
-              size += layer.size
-            })
+            var length = 0
+            if (result && result.layers) {
+              length = result.layers.length
+              result.layers.forEach(function(layer) {
+                size += layer.size
+              })
+            }
             var returnResult = {
-              "layerLength": result.layers.length,
+              "layerLength": length,
               "imageSize": size
             }
             resolve({"code": statusCode, "result": returnResult})

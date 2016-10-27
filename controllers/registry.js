@@ -51,6 +51,32 @@ exports.getPrivateImages = function* () {
   }
 }
 
+exports.getFavouriteImages = function* () {
+  const loginUser = this.session.loginUser
+  const result = yield registryService.getFavouriteRepositories(loginUser.user, 1)
+
+  this.body = {
+    data: result
+  }
+}
+
+// content-type of body must be application/json
+exports.updateImageInfo = function* () {
+  const loginUser = this.session.loginUser
+  var properties = this.request.body
+  var imageObj = {}
+  imageObj.name = this.params.image
+  Object.keys(properties).forEach(function(key) {
+    imageObj[key] = properties[key]
+  })
+
+  const result = yield registryService.updateImageInfo(loginUser.user, imageObj)
+
+  this.body = {
+    data: result
+  }
+}
+
 exports.getImageTags = function* () {
   const registry = this.params.registry
   const imageFullName = this.params.user + '/' + this.params.name
@@ -191,7 +217,7 @@ exports.specGetImageTags = function* () {
   }
 }
 // Get the config info of specified image and tag
-exports.specGetImageTagConfig = function* () {
+exports.specGetImageTagInfo = function* () {
   const loginUser = this.session.loginUser
   const registryId = this.params.id
   const image = this.params.image

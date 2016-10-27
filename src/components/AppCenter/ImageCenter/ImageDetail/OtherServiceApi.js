@@ -4,18 +4,17 @@
  *
  * ServiceAPI component
  *
- * v0.1 - 2016-10-09
- * @author GaoJian
+ * v0.1 - 2016-10-26
+ * @author BaiYu
  */
 import React, { Component } from 'react'
 import { Card, Spin } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
-import { loadImageDetailTagConfig } from '../../../../actions/app_center'
-import { DEFAULT_REGISTRY } from '../../../../constants'
+import { loadOtherDetailTagConfig} from '../../../../actions/app_center'
 import './style/ServiceAPI.less'
 
-let MyComponent = React.createClass({
+const MyComponent = React.createClass({
   propTypes: {
     config: React.PropTypes.array
   },
@@ -49,8 +48,7 @@ let MyComponent = React.createClass({
     } else {
       items = (
         <div className="apiItemDetail" key="apiItemDetail" >
-          No Data
-    </div>
+        </div>
       )
     }
     return (
@@ -61,28 +59,28 @@ let MyComponent = React.createClass({
   }
 });
 
-class ServiceAPI extends Component {
+class OtherServiceApi extends Component {
   constructor(props) {
-    super(props);
-    this.state = {
-
-    }
+    super(props)
   }
 
   componentWillMount() {
-    const { registry, loadImageDetailTagConfig } = this.props;
     console.log('loadConfigGroup', this.props)
     const { fullname, imageTag , imageId} = this.props;
     const config = {imageId, fullname, imageTag}
-    if (imageId) {
+    this.props.loadOtherDetailTagConfig(config)
+  }
+  componentWillReceiveProps(nextPorps) {
+    const { fullname, imageTag , imageId} = this.props;
+    const config = {imageId, fullname, imageTag}
+    const newImageDetail = nextPorps.fullname;
+    if (newImageDetail != fullname) {
       this.props.loadOtherDetailTagConfig(config)
-    } else {
-      loadImageDetailTagConfig(registry, fullname, imageTag);
     }
   }
-
   render() {
     const { isFetching, configList } = this.props;
+      if (!configList) return
     if (isFetching) {
       return (
         <Card className='loadingBox'>
@@ -91,13 +89,16 @@ class ServiceAPI extends Component {
       )
     }
     let portsShow = null, dataStorageShow = null, cmdShow = null, entrypointShow = null;
-    let ports = configList.containerPorts;
-    if (!!ports) {
-      portsShow = ports.map((item) => {
-        return (
-          <p>容器端口:&nbsp;{item}</p>
-        )
-      });
+    if (configList.hasOwnProperty('containerPorts')) {
+      let ports = configList.containerPorts
+      if (!!ports) {
+        portsShow = ports.map((item) => {
+          return (
+            <p>容器端口:&nbsp;{item}</p>
+          )
+        });
+      }
+
     }
     let dataStorage = configList.mountPath;
     if (!!dataStorage) {
@@ -122,9 +123,9 @@ class ServiceAPI extends Component {
         )
       });
     }
-    let { defaultEnv } = configList;
+    let { env } = configList;
     return (
-      <Card className="imageServiceAPI">
+      <Card className="imageServiceAPI" key={portsShow}>
         {portsShow}
         {dataStorageShow}
         <p>运行命令及参数:&nbsp;{entrypointShow}{cmdShow}</p>
@@ -135,7 +136,7 @@ class ServiceAPI extends Component {
             <span className="rightSpan">镜像</span>
             <div style={{ clear: "both" }}></div>
           </div>
-          <MyComponent config={defaultEnv} />
+          <MyComponent config={env} />
         </div>
       </Card>
     )
@@ -145,33 +146,26 @@ class ServiceAPI extends Component {
 function mapStateToProps(state, props) {
   const defaultImageDetailTagConfig = {
     isFetching: false,
-    registry: DEFAULT_REGISTRY,
     configList: []
   }
-  const { imageTagConfig ,otherTagConfig} = state.getImageTagConfig
-  const { registry, tag, isFetching, server, configList } = imageTagConfig[DEFAULT_REGISTRY] || defaultImageDetailTagConfig
-  // const { registry, tag, isFetching, server, configList } = otherTagConfig || defaultImageDetailTagConfig
+  const { otherTagConfig} = state.getImageTagConfig
+  const { tag, isFetching, configList } = otherTagConfig || defaultImageDetailTagConfig
   
   return {
-    registry,
-    registryServer: server,
     configList,
     isFetching,
     tag
   }
 }
 
-ServiceAPI.propTypes = {
+OtherServiceApi.propTypes = {
   //
 }
 function mapDispatchToProps(dispatch) {
   return {
     loadOtherDetailTagConfig: (image) => {
       dispatch(loadOtherDetailTagConfig(image))
-    },
-    loadImageDetailTagConfig: (registry, fullname, imageTag)=> {
-      dispatch(loadImageDetailTagConfig(registry, fullname, imageTag))
     }
   }
 }
-export default connect(mapStateToProps, mapDispatchToProps)(ServiceAPI);
+export default connect(mapStateToProps, mapDispatchToProps)(OtherServiceApi);

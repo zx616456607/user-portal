@@ -9,6 +9,9 @@
  */
 'use strict'
 
+import ColorHash from 'color-hash'
+const colorHash = new ColorHash()
+
 class EchartsOption {
   constructor(text) {
     this.title = {
@@ -26,7 +29,7 @@ class EchartsOption {
     }
     this.legend = {
       data: [],
-      x: 'top'
+      align: 'left'
     }
     this.grid = [{
       left: 50,
@@ -83,12 +86,11 @@ class EchartsOption {
       name: '',
       type: 'line',
       hoverAnimation: false,
-      symbol: 'none',
+      // symbol: 'none',
+      symbolSize: '5',
       itemStyle: {
         normal: {
-          lineStyle: {
-            color: '#00a0ea'
-          }
+          color: '#00a0ea'
         }
       },
       data: []
@@ -98,6 +100,8 @@ class EchartsOption {
     }
     if (name) {
       seriesItem.name = name
+      seriesItem.itemStyle.normal.color = colorHash.hex(name)
+      this.legend.data.push(name)
     }
     if (itemStyle) {
       seriesItem.itemStyle = itemStyle

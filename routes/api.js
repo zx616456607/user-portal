@@ -62,7 +62,9 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/services/:service_name/detail', serviceController.getServiceDetail)
   router.get('/clusters/:cluster/services/:service_name/containers', serviceController.getServiceContainers)
   router.put('/clusters/:cluster/services/:service_name/manualscale', serviceController.manualScaleService)
+  router.get('/clusters/:cluster/services/:service_name/autoscale', serviceController.getServiceAutoScale)
   router.put('/clusters/:cluster/services/:service_name/autoscale', serviceController.autoScaleService)
+  router.del('/clusters/:cluster/services/:service_name/autoscale', serviceController.delServiceAutoScale)
   router.put('/clusters/:cluster/services/:service_name/quota', serviceController.changeServiceQuota)
   router.put('/clusters/:cluster/services/:service_name/ha', serviceController.changeServiceHa)
   router.put('/clusters/:cluster/services/:service_name/rollingupdate', serviceController.rollingUpdateService)
@@ -94,16 +96,19 @@ module.exports = function (Router) {
   router.get('/registries/:registry/:user/:name/tags', registryController.getImageTags)
   router.get('/registries/:registry/:user/:name/tags/:tag/configs', registryController.getImageConfigs)
   router.get('/registries/:registry/private', registryController.getPrivateImages)
+  router.get('/registries/:registry/favourite', registryController.getFavouriteImages)
+  router.put('/registries/:registry/:image*', registryController.updateImageInfo)
 
   // Private docker registry integration
   router.get('/docker-registry', registryController.getPrivateRegistries)
   router.post('/docker-registry/:name', registryController.addPrivateRegistry)
-  router.delete('/docker-registry/:id', registryController.deletePrivateRegistry)
+  router.del('/docker-registry/:id', registryController.deletePrivateRegistry)
   // Docker registry spec API
   router.get('/docker-registry/:id/images', registryController.specListRepositories)
   router.get('/docker-registry/:id/images/:image*/tags', registryController.specGetImageTags)
-  router.get('/docker-registry/:id/images/:image*/tags/:tag', registryController.specGetImageTagConfig)
-  router.get('/docker-registry/:id/images/:image*/tags/:tag/size', registryController.specGetImageTagSize)
+  router.get('/docker-registry/:id/images/:image*/tags/:tag', registryController.specGetImageTagInfo)
+  // Tag size is merged to specGetImageTagConfig
+  //router.get('/docker-registry/:id/images/:image*/tags/:tag/size', registryController.specGetImageTagSize)
   router.post('/docker-registry/update', registryController.imageStore)
 
   // Metrics

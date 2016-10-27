@@ -61,12 +61,12 @@ function actionCallback(state = null, action) {
     return state
   }
   if (action.type.indexOf('_FAILURE') >= 0) {
-    if (!callback.failure) return state
-    if (callback.failure.isAsync) {
-      setTimeout(callback.failure.func.bind(this, action.response.result))
+    if (!callback.failed) return state
+    if (callback.failed.isAsync) {
+      setTimeout(callback.failed.func.bind(this, action.response.result))
       return state
     }
-    callback.failure.func(action.error)
+    callback.failed.func(action.error)
     return state
   }
   return state

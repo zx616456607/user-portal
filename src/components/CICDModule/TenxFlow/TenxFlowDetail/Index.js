@@ -3,7 +3,7 @@
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
  * TenxFlowDetail component
- *
+ * 
  * v0.1 - 2016-10-08
  * @author GaoJian
  */
@@ -20,6 +20,7 @@ import TenxFlowDetailYaml from './TenxFlowDetailYaml.js'
 import TenxFlowDetailSetting from './TenxFlowDetailSetting.js'
 import TenxFLowDetailLog from './TenxFLowDetailLog.js'
 import ImageDeployLogBox from './ImageDeployLogBox.js'
+import TenxFlowDetailFlow from './TenxFlowDetailFlow.js'
 
 const TabPane = Tabs.TabPane;
 
@@ -148,7 +149,7 @@ class TenxFlowDetail extends Component {
             <div style={{ clear:'both' }}></div>
           </Card>
           <Tabs defaultActiveKey='1' size="small">
-            <TabPane tab='构建流程定义' key='1'>选项卡一内容</TabPane>
+            <TabPane tab='构建流程定义' key='1'><TenxFlowDetailFlow scope={scope} /></TabPane>
             <TabPane tab='TenxFlow构建记录' key='2'><TenxFLowDetailLog scope={scope} /></TabPane>
             <TabPane tab='镜像部署记录' key='3'><ImageDeployLogBox scope={scope} /></TabPane>
             <TabPane tab='构建通知' key='4'><TenxFlowDetailAlert scope={scope} /></TabPane>

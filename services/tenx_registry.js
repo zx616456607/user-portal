@@ -63,6 +63,7 @@ exports.getImageConfigs = function (username, imageFullName, tag) {
   if (username) {
     username = username.toLowerCase()
   }
+  var self = this
   return new Promise(function (resolve, reject) {
     registry.getImageJsonInfoV2(username, imageFullName, tag, function (statusCode, configs, err) {
       if (err) {
@@ -76,7 +77,9 @@ exports.getImageConfigs = function (username, imageFullName, tag) {
         reject(err)
         return
       }
-      resolve(_formatImageInfo(configs, imageFullName, tag))
+      var result = self.FormatImageInfo(JSON.parse(configs.configInfo), imageFullName, tag)
+      result.sizeInfo = configs.sizeInfo
+      resolve(result)
     })
   })
 }
@@ -100,7 +103,7 @@ exports.getImageInfo = function(username, imageFullName) {
         err.status = statusCode
         reject(err)
         return
-      } 
+      }
       if (imageInfo && imageInfo.contributor == username) {
         imageInfo.isOwner = true
       }
@@ -142,7 +145,57 @@ exports.getPrivateRepositories = function(username, showDetail) {
   })
 }
 
-function _formatImageInfo(imageInfo, imageName, tag) {
+/*
+Service to get the repostories for specified user including private repositories
+*/
+exports.getFavouriteRepositories = function(username, showDetail) {
+  var registry = new registryAPIs()
+  if (username) {
+    username = username.toLowerCase()
+  }
+  return new Promise(function (resolve, reject) {
+    registry.getMyfavouritesRepos(username, showDetail, function(statusCode, respositories, err) {
+      if (err) {
+        reject(err)
+      }
+      if (statusCode < 300) {
+        logger.info('getFavouriteRepositories', 'Return my favourite repositories: ' + JSON.stringify(respositories));
+        resolve(respositories.results);
+      } else {
+        logger.error("Failed to get my repositories -> " + statusCode);
+        err = 'Failed to get my repositories: ' + respositories;
+        reject(err)
+      }
+    })
+  })
+}
+
+/*
+Service to update image info, for example:
+1) Mark as favourite: myfavourite = 1
+*/
+exports.updateImageInfo = function(username, imageObj) {
+  var registry = new registryAPIs()
+  if (username) {
+    username = username.toLowerCase()
+  }
+  return new Promise(function (resolve, reject) {
+    registry.updateImageInfo(username, imageObj, function(statusCode, result, err) {
+      if (err) {
+        return reject(err);
+      }
+      if (statusCode < 300) {
+        resolve(result);
+      } else {
+        logger.error("Failed to update image information -> " + statusCode);
+        err = 'Failed to update image information: ' + result;
+        reject(err);
+      }
+    });
+  })
+}
+
+exports.FormatImageInfo = function(imageInfo, imageName, tag) {
   var image = {}
   if (!imageInfo) {
     return image
@@ -175,7 +228,6 @@ function _formatImageInfo(imageInfo, imageName, tag) {
     image.cmd = imageInfo.config.Cmd
     image.entrypoint = imageInfo.config.Entrypoint
   }
-  // image.jsonString = JSON.stringify(image)
   return image
 }
 
