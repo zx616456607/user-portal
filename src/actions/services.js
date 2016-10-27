@@ -441,18 +441,68 @@ export const SERVICE_GET_AUTO_SCALE_REQUEST = 'SERVICE_GET_AUTO_SCALE_REQUEST'
 export const SERVICE_GET_AUTO_SCALE_SUCCESS = 'SERVICE_GET_AUTO_SCALE_SUCCESS'
 export const SERVICE_GET_AUTO_SCALE_FAILURE = 'SERVICE_GET_AUTO_SCALE_FAILURE'
 
-function fetchAutoScale(cluster, serviceName) {
+function fetchAutoScale(cluster, serviceName, callback) {
   return {
     [FETCH_API]: {
       types: [SERVICE_GET_AUTO_SCALE_REQUEST, SERVICE_GET_AUTO_SCALE_SUCCESS, SERVICE_GET_AUTO_SCALE_FAILURE],
       endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/autoscale`,
       schema: {}
-    }
+    },
+    callback
   }
 }
 
-export function loadAutoScale(cluster, serviceName) {
+export function loadAutoScale(cluster, serviceName, callback) {
   return (dispath) => {
-    return dispath(fetchAutoScale(cluster, serviceName))
+    return dispath(fetchAutoScale(cluster, serviceName, callback))
+  }
+}
+
+export const SERVICE_DELETE_AUTO_SCALE_REQUEST = 'SERVICE_DELETE_AUTO_SCALE_REQUEST'
+export const SERVICE_DELETE_AUTO_SCALE_SUCCESS = 'SERVICE_DELETE_AUTO_SCALE_SUCCESS'
+export const SERVICE_DELETE_AUTO_SCALE_FAILURE = 'SERVICE_DELETE_AUTO_SCALE_FAILURE'
+
+function fetchDeleteAutoScale(cluster, serviceName, callback) {
+  return {
+    [FETCH_API]: {
+      types: [SERVICE_DELETE_AUTO_SCALE_REQUEST, SERVICE_DELETE_AUTO_SCALE_SUCCESS, SERVICE_DELETE_AUTO_SCALE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/autoscale`,
+      options: {
+        method: 'DELETE'
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function deleteAutoScale(cluster, serviceName, callback) {
+  return (dispath) => {
+    return dispath(fetchDeleteAutoScale(cluster, serviceName, callback))
+  }
+}
+
+export const SERVICE_UPDATE_AUTO_SCALE_REQUEST = 'SERVICE_UPDATE_AUTO_SCALE_REQUEST'
+export const SERVICE_UPDATE_AUTO_SCALE_SUCCESS = 'SERVICE_UPDATE_AUTO_SCALE_SUCCESS'
+export const SERVICE_UPDATE_AUTO_SCALE_FAILURE = 'SERVICE_UPDATE_AUTO_SCALE_FAILURE'
+
+function fetchUpdateAutoScale(cluster, serviceName, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [SERVICE_UPDATE_AUTO_SCALE_REQUEST, SERVICE_UPDATE_AUTO_SCALE_SUCCESS, SERVICE_UPDATE_AUTO_SCALE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/autoscale`,
+      options: {
+        method: 'PUT',
+        body
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function updateAutoScale(cluster, serviceName, body, callback) {
+  return (dispath) => {
+    return dispath(fetchUpdateAutoScale(cluster, serviceName, body, callback))
   }
 }

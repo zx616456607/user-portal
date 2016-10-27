@@ -10,9 +10,15 @@
 
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
-import { Button, Alert, Card, Slider, Row, Col, InputNumber, Tooltip, Icon, Switch } from 'antd'
-import { loadAutoScale } from '../../../actions/services'
+import {
+  Button, Alert, Card, Slider, Row, Col, InputNumber, Tooltip, Icon, Switch,
+  Modal, message
+} from 'antd'
+import { loadAutoScale, deleteAutoScale, updateAutoScale } from '../../../actions/services'
+import { INSTANCE_AUTO_SCALE_MAX_CPU, INSTANCE_MAX_NUM } from '../../../../constants'
 import './style/AppAutoScale.less'
+
+const confirm = Modal.confirm
 
 function loadData(props) {
   const { cluster, serviceName, loadAutoScale } = props
@@ -22,6 +28,7 @@ function loadData(props) {
 class AppAutoScale extends Component {
   constructor(props) {
     super(props)
+    this.handleSwitch = this.handleSwitch.bind(this)
     this.handleEdit = this.handleEdit.bind(this)
     this.handleSave = this.handleSave.bind(this)
     this.handleCancel = this.handleCancel.bind(this)
@@ -33,6 +40,8 @@ class AppAutoScale extends Component {
       minReplicas: props.autoScale.minReplicas || 1,
       maxReplicas: props.autoScale.maxReplicas || 1,
       targetCPUUtilizationPercentage: props.autoScale.targetCPUUtilizationPercentage || 30,
+      saveText: '保存',
+      isAutoScaleOpen: props.isAutoScaleOpen
     }
   }
 
@@ -41,46 +50,133 @@ class AppAutoScale extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { cluster, serviceName, autoScale, replicas } = nextProps
+    const { cluster, serviceName, autoScale, replicas, isAutoScaleOpen } = nextProps
+    this.setState({
+      isAutoScaleOpen: isAutoScaleOpen
+    })
+    if (serviceName === this.props.serviceName) {
+      return
+    }
     this.setState({
       minReplicas: autoScale.minReplicas || replicas,
       maxReplicas: autoScale.maxReplicas || replicas,
       targetCPUUtilizationPercentage: autoScale.targetCPUUtilizationPercentage || 30
     })
-    if (serviceName === this.props.serviceName) {
-      return
-    }
     loadData(nextProps)
   }
 
   handleMinReplicas(value) {
-    console.log('value1', value);
+    const { maxReplicas } = this.state
     this.setState({
       minReplicas: value,
+      maxReplicas: (value > maxReplicas ? value : maxReplicas),
+    })
+  }
+
+  handleMaxReplicas(value) {
+    const { minReplicas } = this.state
+    this.setState({
+      minReplicas: (value < minReplicas ? value : minReplicas),
+      maxReplicas: value,
     })
   }
 
   handleTargetCPUUtilizationPercentage(value) {
+    const { minReplicas } = this.state
     this.setState({
       targetCPUUtilizationPercentage: value,
     })
   }
 
-  handleMaxReplicas(value) {
-    this.setState({
-      maxReplicas: value,
+  handleSwitch() {
+    const { isAutoScaleOpen } = this.state
+    const self = this
+    if (!isAutoScaleOpen) {
+      this.setState({
+        saveText: '开启并保存',
+        edit: true
+      })
+      return
+    }
+    const { cluster, serviceName, deleteAutoScale, loadAutoScale } = this.props
+    confirm({
+      title: `您是否确定要关闭弹性伸缩？`,
+      // content: '',
+      onOk() {
+        return new Promise((resolve) => {
+          resolve()
+          const hide = message.loading('正在保存中...', 0)
+          deleteAutoScale(cluster, serviceName, {
+            success: {
+              func: () => {
+                loadAutoScale(cluster, serviceName, {
+                  success: {
+                    func: () => {
+                      self.setState({
+                        isAutoScaleOpen: false
+                      })
+                      hide()
+                      message.success('弹性伸缩已关闭')
+                    }
+                  }
+                })
+              },
+              isAsync: true
+            },
+            failed: {
+              func: () => {
+                hide()
+                message.error('关闭弹性伸缩失败')
+              }
+            }
+          })
+        })
+      },
+      onCancel() { },
     })
   }
 
   handleEdit() {
     this.setState({
+      saveText: '保存',
       edit: true
     })
   }
 
   handleSave() {
-    this.setState({
-      edit: false
+    const self = this
+    const { cluster, serviceName, updateAutoScale, loadAutoScale } = this.props
+    const { minReplicas, maxReplicas, targetCPUUtilizationPercentage, saveText } = this.state
+    const body = {
+      min: minReplicas,
+      max: maxReplicas,
+      cpu: targetCPUUtilizationPercentage
+    }
+    const hide = message.loading('正在保存中...', 0)
+    updateAutoScale(cluster, serviceName, body, {
+      success: {
+        func: () => {
+          loadAutoScale(cluster, serviceName, {
+            success: {
+              func: () => {
+                self.setState({
+                  edit: false,
+                  isAutoScaleOpen: true
+                })
+                hide()
+                message.success(`${saveText}成功`)
+              }
+            }
+          })
+        },
+        isAsync: true
+      },
+      failed: {
+        func: () => {
+          hide()
+          message.error(`${saveText}失败`)
+        }
+      }
     })
   }
 
@@ -94,10 +190,15 @@ class AppAutoScale extends Component {
     })
   }
 
-  /*? <Button type="primary" size="large" onClick={this.handleEdit}>编辑</Button>*/
   render() {
-    const { isAutoScaleOpen } = this.props
-    const { edit, minReplicas, maxReplicas, targetCPUUtilizationPercentage } = this.state
+    const {
+      edit,
+      minReplicas,
+      maxReplicas,
+      targetCPUUtilizationPercentage,
+      saveText,
+      isAutoScaleOpen,
+    } = this.state
     return (
       <div id="AppAutoScale">
         <div className="title">
@@ -106,15 +207,17 @@ class AppAutoScale extends Component {
             {!edit
               ? (
                 <div>
-                  <Tooltip title={isAutoScaleOpen ? '弹性伸缩已开启' : '弹性伸缩已关闭'}>
+                  <Tooltip
+                    arrowPointAtCenter
+                    title={isAutoScaleOpen ? '弹性伸缩已开启' : '弹性伸缩已关闭'} >
                     <Switch
-                      onChange={this.handleEdit}
+                      onChange={this.handleSwitch}
                       checkedChildren="开" unCheckedChildren="关"
                       checked={isAutoScaleOpen}
                       className="switch" />
                   </Tooltip>
                   {isAutoScaleOpen && (
-                    <Tooltip title="修改">
+                    <Tooltip arrowPointAtCenter title="设置">
                       <Button
                         type="primary" shape="circle"
                         size="small" icon="setting"
@@ -124,13 +227,13 @@ class AppAutoScale extends Component {
                 </div>)
               : (
                 <div>
-                  <Button type="primary" size="large" onClick={this.handleSave}>保存</Button>
+                  <Button type="primary" size="large" onClick={this.handleSave}>{saveText}</Button>
                   <Button size="large" onClick={this.handleCancel}>取消</Button>
                 </div>)
             }
           </div>
         </div>
-        <Alert message="注: 系统将根据设定的CPU阈值来自动的『扩展,或减少』该服务所冗余的实例数量" type="info" />
+        <Alert message="注: 系统将根据设定的CPU阈值来自动的『扩展,或减少』该服务所『缺少,或冗余』的实例数量" type="info" />
         <Card>
           <Row className="cardItem">
             <Col className="itemTitle" span={4} style={{ textAlign: 'right' }}>服务名称</Col>
@@ -146,6 +249,8 @@ class AppAutoScale extends Component {
                     value={minReplicas}
                     onChange={this.handleMinReplicas}
                     disabled={!edit}
+                    min={1}
+                    max={INSTANCE_MAX_NUM}
                     />
                 </Col>
                 <Col span={12}>
@@ -153,6 +258,8 @@ class AppAutoScale extends Component {
                     value={minReplicas}
                     onChange={this.handleMinReplicas}
                     disabled={!edit}
+                    min={1}
+                    max={INSTANCE_MAX_NUM}
                     /> 个
                 </Col>
               </Row>
@@ -166,13 +273,17 @@ class AppAutoScale extends Component {
                   <Slider defaultValue={30}
                     onChange={this.handleMaxReplicas}
                     value={maxReplicas}
-                    disabled={!edit} />
+                    disabled={!edit}
+                    min={1}
+                    max={INSTANCE_MAX_NUM} />
                 </Col>
                 <Col span={12}>
                   <InputNumber style={{ marginLeft: '16px' }}
                     value={maxReplicas}
                     onChange={this.handleMaxReplicas}
                     disabled={!edit}
+                    min={1}
+                    max={INSTANCE_MAX_NUM}
                     /> 个
                 </Col>
               </Row>
@@ -186,13 +297,17 @@ class AppAutoScale extends Component {
                   <Slider defaultValue={30}
                     onChange={this.handleTargetCPUUtilizationPercentage}
                     value={targetCPUUtilizationPercentage}
-                    disabled={!edit} />
+                    disabled={!edit}
+                    min={1}
+                    max={INSTANCE_AUTO_SCALE_MAX_CPU} />
                 </Col>
                 <Col span={12} id="tip">
                   <InputNumber style={{ marginLeft: '16px' }}
                     value={targetCPUUtilizationPercentage}
                     onChange={this.handleTargetCPUUtilizationPercentage}
                     disabled={!edit}
+                    min={1}
+                    max={INSTANCE_AUTO_SCALE_MAX_CPU}
                     /> %
                   <Tooltip title="容器实例实际占用CPU与实例CPU限制比例" getTooltipContainer={() =>
                     document.getElementById('tip')
@@ -215,6 +330,8 @@ AppAutoScale.propTypes = {
   serviceName: PropTypes.string.isRequired,
   replicas: PropTypes.number.isRequired,
   loadAutoScale: PropTypes.func.isRequired,
+  deleteAutoScale: PropTypes.func.isRequired,
+  updateAutoScale: PropTypes.func.isRequired,
 }
 
 function mapStateToProps(state, props) {
@@ -236,4 +353,6 @@ function mapStateToProps(state, props) {
 
 export default connect(mapStateToProps, {
   loadAutoScale,
+  deleteAutoScale,
+  updateAutoScale,
 })(AppAutoScale)
