@@ -539,6 +539,7 @@ class AppServiceList extends Component {
               />
           </Modal>
           <Modal ref="modal"
+                 wrapClassName="modal"
             visible={updateModal}
             title="灰度升级" onOk={this.handleUpdateOK} onCancel={this.handleUpdateCancel}
             footer={[
@@ -546,11 +547,12 @@ class AppServiceList extends Component {
               <Button key="submit" type="primary" size="large" loading={this.state.loading}
                 onClick={this.handleUpdateOK}>
                 保 存
-                   </Button>
+              </Button>
             ]}>
             <UpdateModal serviceList={serviceList} checkedServiceList={checkedServiceList} />
           </Modal>
           <Modal ref="modal"
+                 wrapClassName="modal"
             visible={configModal}
             title="更改服务配置" onOk={this.handleConfigOK} onCancel={this.handleConfigCancel}
             footer={[
@@ -563,6 +565,7 @@ class AppServiceList extends Component {
             <ConfigModal checkedServiceList={checkedServiceList} />
           </Modal>
           <Modal ref="modal"
+                 wrapClassName="modal"
                  visible={ extendModal }
                  title="手动水平扩展" onOk={this.handleManualScaleOK} onCancel={this.handleManualScaleCancel}
                  footer={[
