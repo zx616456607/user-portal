@@ -11,9 +11,10 @@
  * @author Wang Lei
 */
 'use strict'
-var request = require('request')
-var async   = require('async')
-var logger  = require('../utils/logger.js').getLogger("docker_registry")
+var request       = require('request')
+var async         = require('async')
+var logger        = require('../utils/logger.js').getLogger("docker_registry")
+var tenx_registry = require('./tenx_registry')
 
 const Catalog_Scope = 'registry:catalog:*'
 const Repository_Scope_Prefix = 'repository'
@@ -110,13 +111,18 @@ SpecRegistryAPIs.prototype.getImageTagInfo = function (imageName, tag) {
               logger.debug(method, 'Tag size body: ' + JSON.stringify(result))
               if (statusCode === 200) {
                 var size = 0
+                var length = 0
                 var result = {}
-                layerInfo.layers.forEach(function(layer) {
-                  size += layer.size
-                })
-                result.configInfo = configInfo
+                // Customize the tag config information before use it
+                result.configInfo = tenx_registry.FormatImageInfo(JSON.parse(configInfo), imageName, tag)
+                if (layerInfo && layerInfo.layers) {
+                  layerInfo.layers.forEach(function(layer) {
+                    size += layer.size
+                  })
+                  length = layerInfo.layers.length
+                }
                 result.sizeInfo = {
-                  "layerLength": layerInfo.layers.length,
+                  "layerLength": length,
                   "totalSize": size
                 }
                 resolve({"code": statusCode, "result": result})
@@ -136,6 +142,7 @@ SpecRegistryAPIs.prototype.getImageTagInfo = function (imageName, tag) {
 }
 
 /*
+Merged to image tag info for now
 Get 1st layer of specified image & tag as the config
 /v2/<name>/manifests/<reference> API
 */

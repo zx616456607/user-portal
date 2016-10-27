@@ -545,7 +545,7 @@ class Storage extends Component {
                 </Row>
                 <Row>
                   <Col span="3" className="text-center" style={{ lineHeight: '30px' }}>
-                    formatMessage(messages.formats)}
+                    {formatMessage(messages.formats)}
                   </Col>
                   <Col span="20" className="action-btns" style={{ lineHeight: '30px' }}>
                     <Button type={this.state.currentType === 'ext4' ? 'primary' : 'ghost'} onClick={(e) => { this.changeType('ext4') } }>ext4</Button>

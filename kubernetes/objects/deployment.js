@@ -11,6 +11,8 @@
 
 const DEFAULT_DISKTYPE = 'rbd'
 const Container = require('./container')
+const TENXCLOUD_PREFIX = 'tenxcloud.com/'
+
 class Deployment {
   constructor(name) {
     this.kind = 'Deployment'
@@ -47,7 +49,12 @@ class Deployment {
         this.metadata.name = k8sDeployment.metadata.name
       }
       if (k8sDeployment.metadata.labels) {
-        this.metadata.labels = k8sDeployment.metadata.labels
+        for (let key in k8sDeployment.metadata.labels) {
+          //Remove tenxcloud added labels
+          if (key.indexOf(TENXCLOUD_PREFIX) != 0) {
+            this.metadata.labels[key] = k8sDeployment.metadata.labels[key]
+          } 
+        }
       }
     }
 
@@ -60,6 +67,27 @@ class Deployment {
       }
       if (k8sDeployment.spec.template) {
         this.spec.template = k8sDeployment.spec.template
+        if (k8sDeployment.spec.template.metadata) {
+          let metadata = {} 
+          for (let key in k8sDeployment.spec.template.metadata) {
+            //Remove 'creationTimestamp' tag
+            if (key != 'creationTimestamp') {
+              metadata[key] = k8sDeployment.spec.template.metadata[key]
+            }
+          }
+          this.spec.template.metadata = metadata
+          
+          if (k8sDeployment.spec.template.metadata.labels) {
+            let labels = {}
+            for (let key in k8sDeployment.spec.template.metadata.labels) {
+              //Remove tenxcloud added labels
+              if (key.indexOf(TENXCLOUD_PREFIX) != 0) {
+                labels[key] = k8sDeployment.spec.template.metadata.labels[key]
+              } 
+            }
+            this.spec.template.metadata.labels = labels
+          }
+        }
       }
     }  
   }

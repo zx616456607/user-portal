@@ -38,7 +38,7 @@ function loadData(props) {
 
 class AppServiceDetail extends Component {
   constructor(props) {
-    super(props);
+    super(props)
     this.closeModal = this.closeModal.bind(this)
     this.onTabClick = this.onTabClick.bind(this)
     this.restartService = this.restartService.bind(this)
@@ -74,7 +74,6 @@ class AppServiceDetail extends Component {
       })
     }
   }
-
   onTabClick(activeTabKey) {
     if (activeTabKey === this.state.activeTabKey) {
       return
@@ -83,7 +82,6 @@ class AppServiceDetail extends Component {
       activeTabKey
     })
   }
-
   restartService(service) {
     const { funcs } = this.props
     const self = this
@@ -245,14 +243,15 @@ class AppServiceDetail extends Component {
                   loading={isServiceDetailFetching}
                   serviceName={service.metadata.name}
                   cluster={service.cluster}
-                  />
+                  serviceDetailmodalShow={serviceDetailmodalShow}
+                />
               </TabPane>
               <TabPane tab="监控" key="#monitor">
                 <ServiceMonitor
                   serviceName={service.metadata.name}
                   cluster={service.cluster} />
               </TabPane>
-              <TabPane tab="自动伸缩" key="#autoExtend">
+              <TabPane tab="自动伸缩" key="#autoScale">
                 <AppAutoScale
                   replicas={service.spec.replicas}
                   serviceName={service.metadata.name}

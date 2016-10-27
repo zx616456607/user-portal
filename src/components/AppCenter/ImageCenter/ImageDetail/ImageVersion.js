@@ -11,10 +11,11 @@ import React, { Component } from 'react'
 import { Card, Spin, Tabs } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
-import { loadImageDetailTag } from '../../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import ServiceAPI from './ServiceAPI.js'
+import OtherServiceApi from './OtherServiceApi.js'
 import './style/ImageVersion.less'
+import { loadImageDetailTag , getOtherImageTag} from '../../../../actions/app_center'
 
 const TabPane = Tabs.TabPane;
 
@@ -36,15 +37,28 @@ let MyComponent = React.createClass({
         </div>
       )
     }
-    let { tagList } = this.props.config;
+    let { tagList } = this.props.config ||[];
     const fullname = this.props.fullname;
-    let items = tagList.map((item, index) => {
-      return (
-        <TabPane tab={<span><i className="fa fa-tag"></i>&nbsp;{item}</span>} className="imageDetail" key={index} >
-          <ServiceAPI imageTag={item} fullname={fullname} />
-        </TabPane>
-      );
-    });
+    
+    let items
+    if (this.props.imageId) {
+      items = tagList.map((item, index) => {
+        return (
+          <TabPane tab={<span><i className="fa fa-tag"></i>&nbsp;{item}</span>} className="imageDetail" key={index} >
+            <OtherServiceApi imageTag={item} fullname={fullname} imageId={this.props.imageId} />
+          </TabPane>
+        );
+      });      
+    } else {
+      items = tagList.map((item, index) => {
+        return (
+          <TabPane tab={<span><i className="fa fa-tag"></i>&nbsp;{item}</span>} className="imageDetail" key={index} >
+            <ServiceAPI imageTag={item} fullname={fullname} />
+          </TabPane>
+        );
+      });
+
+    }
     return (
       <Tabs>
         {items}
@@ -63,45 +77,64 @@ class ImageVersion extends Component {
   }
 
   componentWillMount() {
-    const { registry, loadImageDetailTag } = this.props;
+    const { registry, loadImageDetailTag , getOtherImageTag} = this.props;
     const imageDetail = this.props.config;
+    const imageId = this.props.imageId
     this.setState({
       imageDetail: imageDetail
     })
-    loadImageDetailTag(registry, imageDetail.name);
+    if (typeof imageDetail === "string") {
+      const config = {imageName: imageDetail, id: imageId}
+      getOtherImageTag(config)
+    } else {
+      loadImageDetailTag(registry, imageDetail.name);
+    }
   }
 
   componentWillReceiveProps(nextPorps) {
     //this function mean when the user change show image detail
     //it will be check the old iamge is different from the new one or not
     //if the different is true,so that the function will be request the new one's tag
-    const {scope} = this.props;
     const oldImageDatail = this.state.imageDetail;
     const newImageDetail = nextPorps.config;
+    console.log(oldImageDatail)
+    console.log(newImageDetail)
     if (newImageDetail != oldImageDatail) {
-      console.log("change event")
       this.changeNewImage(newImageDetail);
     }
   }
 
-  changeNewImage(imageDetail) {
+  changeNewImage(image) {
     //this function mean first change the new image to the old and request the image's tag
     this.setState({
-      imageDetail: imageDetail
+      imageDetail: image
     });
-    const { registry, loadImageDetailTag } = this.props;
-    loadImageDetailTag(registry, imageDetail.name);
+    const { registry, loadImageDetailTag ,getOtherImageTag} = this.props;
+
+    const imageId = this.props.imageId
+    const imageDetail = this.props.config;
+    const config = {imageName: image, id: imageId }
+    if (typeof imageDetail === "string") {
+      const config = {imageName: imageDetail, id: imageId}
+      console.log('image', image)
+      getOtherImageTag(config)
+    } else {
+      loadImageDetailTag(registry, imageDetail.name);
+    }
   }
 
   render() {
     const { isFetching } = this.props;
     const imageDetail = this.props.config;
-    const tagList = {
+    let  tagList = {
       "tagList": this.props.imageDetailTag
     };
+    if (this.props.imageId) {
+      tagList = {'tagList': this.props.otherDetailTag}
+    }
     return (
       <Card className="ImageVersion">
-        <MyComponent loading={isFetching} config={tagList} fullname={imageDetail.name} />
+        <MyComponent loading={isFetching} config={tagList} imageId={this.props.imageId} fullname={imageDetail.name ? imageDetail.name : imageDetail} />
       </Card>
     )
   }
@@ -113,21 +146,30 @@ function mapStateToProps(state, props) {
     registry: DEFAULT_REGISTRY,
     tag: []
   }
-  const { imageTag } = state.getImageTag
+  const { imageTag ,otherImageTag} = state.getImageTag
   const { registry, tag, isFetching, server } = imageTag[DEFAULT_REGISTRY] || defaultImageDetailTag
-
+  const otherDetailTag = otherImageTag.imageTag || []
   return {
     registry,
     registryServer: server,
     imageDetailTag: tag,
-    isFetching
+    isFetching,
+    otherDetailTag
   }
 }
 
 ImageVersion.propTypes = {
-  //
+  // getOtherImageTag: PropTypes.func.isRequired
 }
 
-export default connect(mapStateToProps, {
-  loadImageDetailTag
-})(ImageVersion);
+function mapDispatchToProps(dispatch) {
+  return {
+    getOtherImageTag:(obj)=> {
+      dispatch(getOtherImageTag(obj))
+    },
+    loadImageDetailTag:(registry, name)=> {
+      dispatch(loadImageDetailTag(registry, name))
+    }
+  }
+}
+export default connect(mapStateToProps, mapDispatchToProps)(ImageVersion);

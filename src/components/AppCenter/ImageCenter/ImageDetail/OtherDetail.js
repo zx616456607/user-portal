@@ -12,37 +12,14 @@ import { Tabs, Button, Card, Menu, Tooltip ,Icon} from 'antd'
 import { Link} from 'react-router'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { imageStore } from '../../../../actions/app_center'
-// import { DEFAULT_REGISTRY } from '../../../../constants'
 import ImageVersion from './ImageVersion.js'
-import DetailInfo from './DetailInfo'
-import DockerFile from './Dockerfile'
-import Attribute from './Attribute'
+
 import './style/ImageDetailBox.less'
 
 const TabPane = Tabs.TabPane;
 
 const menusText = defineMessages({
-  type: {
-    id: 'AppCenter.ImageCenter.ImageDetail.type',
-    defaultMessage: '类型：',
-  },
-  pubilicType: {
-    id: 'AppCenter.ImageCenter.ImageDetail.pubilicType',
-    defaultMessage: '公开',
-  },
-  privateType: {
-    id: 'AppCenter.ImageCenter.ImageDetail.privateType',
-    defaultMessage: '私有',
-  },
-  colletctImage: {
-    id: 'AppCenter.ImageCenter.ImageDetail.colletctImage',
-    defaultMessage: '收藏镜像',
-  },
-  closeImage: {
-    id: 'AppCenter.ImageCenter.ImageDetail.closeImage',
-    defaultMessage: '取消收藏',
-  },
+
   deployImage: {
     id: 'AppCenter.ImageCenter.ImageDetail.deployService',
     defaultMessage: '部署镜像',
@@ -73,7 +50,7 @@ const menusText = defineMessages({
   }
 })
 
-class ImageDetailBox extends Component {
+class OtherDetail extends Component {
   constructor(props) {
     super(props);
     this.copyDownloadCode = this.copyDownloadCode.bind(this);
@@ -86,10 +63,10 @@ class ImageDetailBox extends Component {
 
   componentWillMount() {
     const imageDetail = this.props.config;
-    const imageInfo = this.props.imageInfo
+    const imageInfo = ''
     this.setState({
       imageDetail: imageDetail,
-      imageInfo: imageInfo
+      imageInfo: ''
     });
   }
 
@@ -121,23 +98,16 @@ class ImageDetailBox extends Component {
       });
     }, 500);
   }
-  // callback(key) {
-  //   if (key == 2) {
-  //     this.props.getImageDetailInfo(DEFAULT_REGISTRY, this.props.config.name)
-  //   }
-  // }
-  setimageStore(name, key) {
-    console.log('image id is',name, key)
-    
-  }
+
   render() {
     const { formatMessage } = this.props.intl;
-    const imageInfo = this.props.imageInfo || {'detailMarkdown': ''}
-    const imageDetail = this.props.config;
-    const scope = this;
-    const ipAddress = this.props.scope.props.registryServer;
-    const imageName = this.state.imageDetail.name;
-    let pullCode = "docker pull " + ipAddress + "/" + imageName;
+    const imageDetail = this.props.config
+    console.log(this.props)
+    console.log(this.state)
+    const imageInfo = ''
+    // const ipAddress = this.props.scope.props.otherHead;
+    const ipAddress = this.props.scope.props.otherHead;
+    let pullCode = "docker pull " + ipAddress.url + "/" + imageDetail;
     return (
       <div id="ImageDetailBox">
         <div className="headerBox">
@@ -145,28 +115,12 @@ class ImageDetailBox extends Component {
             <img src="/img/test/github.jpg" />
           </div>
           <div className="infoBox">
-            <p className="imageName">{imageDetail.name ? imageDetail.name : imageDetail.imageName}</p>
-            <div className="leftBox">
-              <p className="imageUrl">{imageDetail.description ? imageDetail.description : imageDetail.imageName}</p>
-              <span className="type"><FormattedMessage {...menusText.type} />{formatMessage(menusText.pubilicType)}</span>
-            </div>
+            <p className="imageName">{imageDetail}</p>
             <div className="rightBox">
-              <Icon type='cross' className='cursor' style={{fontSize: '18px',position: 'absolute', top:'30px', right:'50px'}} onClick={this.props.scope.closeImageDetailModal} />
+              <Icon type='cross' className='cursor' style={{fontSize: '18px',position: 'absolute', top:'30px', right:'40px'}} onClick={this.props.scope.closeImageDetailModal} />
               <Button size="large" type="primary">
                 <FormattedMessage {...menusText.deployImage} />
               </Button>
-            { imageInfo.isFavourite ?
-              <Button size="large" type="ghost" onClick={ ()=>this.setimageStore(imageInfo.name, '0') }>
-                <i className="fa fa-star-o"></i>&nbsp;
-                <FormattedMessage {...menusText.closeImage} />
-              </Button>
-              :
-              <Button size="large" type="ghost" onClick={ ()=>this.setimageStore(imageInfo.name, '1') }>
-                <i className="fa fa-star-o"></i>&nbsp;
-                <FormattedMessage {...menusText.colletctImage} />
-              </Button>
-            }
-             
             </div>
           </div>
           <div style={{ clear: "both" }}></div>
@@ -175,7 +129,7 @@ class ImageDetailBox extends Component {
           <div className="code">
             <i className="fa fa-download"></i>&nbsp;
           <FormattedMessage {...menusText.downloadImage} />&nbsp;&nbsp;&nbsp;&nbsp;
-           <span className="pullCode">docker pull {ipAddress}/{imageName}&nbsp;&nbsp;</span>
+           <span className="pullCode">docker pull {ipAddress.url}/{imageDetail}&nbsp;&nbsp;</span>
             <Tooltip title={this.state.copySuccess ? formatMessage(menusText.copySuccess) : formatMessage(menusText.copyBtn)} getTooltipContainer={() => document.getElementById("ImageDetailBox")}>
               <i className="fa fa-copy" onClick={this.copyDownloadCode} onMouseLeave={this.returnDefaultTooltip}></i>
             </Tooltip>
@@ -183,16 +137,13 @@ class ImageDetailBox extends Component {
           </div>
           <div className="times">
             <i className="fa fa-cloud-download"></i>&nbsp;&nbsp;
-          {imageDetail.downloadNumber}
+            zsdfs
           </div>
           <div style={{ clear: "both" }}></div>
         </div>
         <div className="tabBox">
           <Tabs className="itemList" defaultActiveKey="1">
-            <TabPane tab={formatMessage(menusText.info)} key="1"><DetailInfo detailInfo={imageInfo.detailMarkdown} /></TabPane>
-            <TabPane tab="DockerFile" key="2"><DockerFile isFetching = {this.props.isFetching} dockerfile={imageInfo.dockerfile} /></TabPane>
-            <TabPane tab={formatMessage(menusText.tag)} key="3"><ImageVersion scope={scope} config={imageDetail} /></TabPane>
-            <TabPane tab={formatMessage(menusText.attribute)} key="4"><Attribute detailInfo = {imageInfo} /></TabPane>
+            <TabPane tab={formatMessage(menusText.tag)} key="1"><ImageVersion imageId={this.props.imageId} config={imageDetail} /></TabPane>
           </Tabs>
         </div>
       </div>
@@ -200,7 +151,7 @@ class ImageDetailBox extends Component {
   }
 }
 
-ImageDetailBox.propTypes = {
+OtherDetail.propTypes = {
   intl: PropTypes.object.isRequired,
 }
 
@@ -226,6 +177,6 @@ ImageDetailBox.propTypes = {
 //   }
 // }
 
-export default connect()(injectIntl(ImageDetailBox, {
+export default connect()(injectIntl(OtherDetail, {
   withRef: true,
 }));

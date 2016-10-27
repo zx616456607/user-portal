@@ -9,21 +9,8 @@
  */
 import React, { Component } from 'react'
 import './style/UpdateModal.less'
-import { Modal, Checkbox, Dropdown, Button, Card, Menu, Icon, Spin, Tooltip, Pagination,Row,Col,Switch,Input ,Alert  } from 'antd'
-
-const menu = (
-  <Menu>
-    <Menu.Item key="0">
-      <a>第一个菜单项</a>
-    </Menu.Item>
-    <Menu.Item key="1">
-      <a>第二个菜单项</a>
-    </Menu.Item>
-    <Menu.Divider />
-    <Menu.Item key="3">第三个菜单项</Menu.Item>
-  </Menu>
-)
-
+import { Button, Card, Menu, Icon, Tooltip, Row, Col, Select, InputNumber, Alert, Switch } from 'antd'
+const Option = Select.Option
 export default class UpdataModal extends Component {
   constructor(props){
     super(props)
@@ -47,33 +34,40 @@ export default class UpdataModal extends Component {
     })
   }
   setAloneUpdateTime(e,index){
-    console.log('inputValue',e.target.value);
-    console.log(index);
-    const arr = this.state.updateTimeArr
-    arr[index] = e.target.value
-    console.log(this.state.updateTimeArr);
-    console.log(arr);
+    this.state.updateTimeArr[index] = e
   }
   render(){
     const { serviceList,checkedServiceList } = this.props
     const { updateTime } = this.state
-    console.log('serviceList',serviceList);
-    console.log('checkedServiceList',checkedServiceList);
     const containers = checkedServiceList[0].spec.template.spec.containers
-    console.log('containers',containers);
     if(containers.length === 1){
       return (
         <div id="UpdataModal">
           <Row className="serviceName">
             <Col className="itemTitle" span={4} style={{textAlign: 'right'}}>服务名称</Col>
-            <Col className="itemBody" span={20}>{ checkedServiceList[0].metadata.name }</Col>
-            <Dropdown overlay={menu}>
-              <Button type="ghost" style={{ marginLeft: 8 }}>
-                请选择目标版本
-                <Icon type="down" />
-              </Button>
-            </Dropdown>
-            <Input placeholder="更新间隔时间2~60s"/>
+            <Col className="itemBody" span={20}>
+              { checkedServiceList[0].metadata.name }
+            </Col>
+          </Row>
+          <Row className="updateItem">
+            <Col className="itemTitle" span={4} style={{textAlign: 'right'}} />
+            <Col className="itemBody" span={20}>
+              <Select defaultValue="default" dropdownMatchSelectWidth>
+                <Option value="default">
+                  请选择目标版本
+                </Option>
+                <Option value="1">
+                  1
+                </Option>
+                <Option value="2">
+                  2
+                </Option>
+                <Option value="3">
+                  3
+                </Option>
+              </Select>
+              <InputNumber placeholder="更新间隔时间2~60s"/>
+            </Col>
           </Row>
         </div>
       )
@@ -87,7 +81,6 @@ export default class UpdataModal extends Component {
               { checkedServiceList[0].metadata.name }
               <div className="switchUpdateTime">
                 <Switch defaultChecked={false} onChange={this.switchBtn} />
-              
               <div className="switchTip">
                 {this.state.alone ? '独立更新间隔':'统一更新间隔'}
                 <i className="anticon anticon-question-circle-o" style={{marginLeft:'10px'}}/>
@@ -103,16 +96,24 @@ export default class UpdataModal extends Component {
                 </Col>
                 <Col className="itemBody" span={20}>
                   <div style={{height: '30px'}}>{ item.image }</div>
-                  <Dropdown overlay={menu} trigger={['click']}>
-                    <Button type="ghost" style={{ marginRight: 10 }}>
+                  <Select defaultValue="default">
+                    <Option value="default">
                       请选择目标版本
-                      <Icon type="down" />
-                    </Button>
-                  </Dropdown>
+                    </Option>
+                    <Option value="1">
+                      1
+                    </Option>
+                    <Option value="2">
+                      2
+                    </Option>
+                    <Option value="3">
+                      3
+                    </Option>
+                  </Select>
                   {
-                    this.state.alone ? <Input placeholder="更新间隔时间2~60s"
-                                             onChange={(e,index) => this.setAloneUpdateTime(e,index)}/>
-                    : <Input placeholder="更新间隔时间2~60s"
+                    this.state.alone ? <InputNumber placeholder="更新间隔时间2~60s"
+                                             onChange={(e) => this.setAloneUpdateTime(e,index)}/>
+                    : <InputNumber placeholder="更新间隔时间2~60s"
                              value={updateTime}
                             onChange={this.setUpdateTime}/>}
                 </Col>

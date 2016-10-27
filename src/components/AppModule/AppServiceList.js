@@ -18,6 +18,8 @@ import { loadServiceList, startServices, restartServices, stopServices, deleteSe
 import { DEFAULT_CLUSTER, DEFAULT_PAGE_SIZE } from '../../constants'
 import { browserHistory } from 'react-router'
 import UpdateModal from './AppServiceDetail/UpdateModal'
+import ConfigModal from './AppServiceDetail/ConfigModal'
+import ManualScaleModal from './AppServiceDetail/ManualScaleModal'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -189,13 +191,14 @@ class AppServiceList extends Component {
     this.showConfigModal = this.showConfigModal.bind(this)
     this.handleConfigOK = this.handleConfigOK.bind(this)
     this.handleConfigCancel = this.handleConfigCancel.bind(this)
+    this.showManualScaleModal = this.showManualScaleModal.bind(this)
     this.state = {
       modalShow: false,
       currentShowInstance: null,
       serviceList: props.serviceList,
       searchInputDisabled: false,
       updateModal: false,
-      
+      manualScaleModalShow: false,
     }
   }
 
@@ -257,7 +260,6 @@ class AppServiceList extends Component {
     const checkedServiceList = serviceList.filter((service) => service.checked)
     this.confirmRestartServices(checkedServiceList)
   }
-
   confirmRestartServices(serviceList, callback) {
     const { cluster, appName, loadServiceList, restartServices } = this.props
     const serviceNames = serviceList.map((service) => service.metadata.name)
@@ -281,7 +283,6 @@ class AppServiceList extends Component {
       onCancel() { },
     })
   }
-
   confirmQuickRestartService(e) {
     const { serviceList } = this.state
     const { cluster, appName, loadServiceList, quickRestartServices } = this.props
@@ -375,42 +376,53 @@ class AppServiceList extends Component {
       modalShow: false
     })
   }
-  showUpdataModal(){
+  showUpdataModal() {
     this.setState({
       updateModal: true
     })
   }
-  handleUpdateCancel(){
+  handleUpdateCancel() {
     this.setState({
       updateModal: false
     })
-    console.log('Cancel',this.state.updateModal);
+    console.log('Cancel', this.state.updateModal);
   }
-  handleUpdateOK(){
+  handleUpdateOK() {
     this.setState({
       updateModal: false
     })
-    console.log('OK',this.state.updateModal);
+    console.log('OK', this.state.updateModal);
   }
-  showConfigModal(){
+  showConfigModal() {
     this.setState({
       configModal: true
     })
   }
-  handleConfigOK(){
+  handleConfigOK() {
     this.setState({
       configModal: false
     })
   }
-  handleConfigCancel(){
+  handleConfigCancel() {
     this.setState({
       configModal: false
+    })
+  }
+  showManualScaleModal(){
+    this.setState({
+      manualScaleModalShow: true
     })
   }
   render() {
     const parentScope = this
-    let { modalShow, currentShowInstance, serviceList, selectTab,updateModal,configModal } = this.state
-    const { name, pathname, page, size, total, isFetching, appName } = this.props
+    let {
+      modalShow, currentShowInstance, serviceList, selectTab, updateModal,
+      configModal, manualScaleModalShow
+    } = this.state
+    const {
+      name, pathname, page, size, total, isFetching, cluster, appName,
+      loadServiceList
+    } = this.props
     const checkedServiceList = serviceList.filter((service) => service.checked)
     const checkedServiceNames = checkedServiceList.map((service) => service.metadata.name)
     const isChecked = (checkedServiceList.length > 0)
@@ -418,6 +430,7 @@ class AppServiceList extends Component {
     if (serviceList.length === 0) {
       isAllChecked = false
     }
+    currentShowInstance = checkedServiceList[0]
     const funcs = {
       confirmRestartServices: this.confirmRestartServices,
       confirmStopServices: this.confirmStopServices,
@@ -427,19 +440,22 @@ class AppServiceList extends Component {
       <Menu.Item key="0">
         <span onClick={this.batchRestartServices}>重新部署</span>
       </Menu.Item>
-      <Menu.Item key="1" disabled={checkedServiceList.length > 1}>
+      <Menu.Item key="1">
+        <span onClick={this.showManualScaleModal}>水平扩展</span>
+      </Menu.Item>
+      <Menu.Item key="2" disabled={checkedServiceList.length > 1}>
         <span onClick={() => {
           this.setState({
-            selectTab: '#autoExtend',
-            currentShowInstance: checkedServiceList[0],
+            selectTab: '#autoScale',
+            currentShowInstance: currentShowInstance,
             modalShow: true,
           })
-        }}>弹性伸缩</span>
-      </Menu.Item>
-      <Menu.Item key="2">
-        <span onClick={this.showUpdataModal}>灰度升级</span>
+        }}>自动伸缩</span>
       </Menu.Item>
       <Menu.Item key="3">
+        <span onClick={this.showUpdataModal}>灰度升级</span>
+      </Menu.Item>
+      <Menu.Item key="4">
         <span onClick={this.showConfigModal}>更改配置</span>
       </Menu.Item>
     </Menu>);
@@ -518,29 +534,38 @@ class AppServiceList extends Component {
               />
           </Modal>
           <Modal ref="modal"
-                 visible={ updateModal }
-                 title="灰度升级" onOk={this.handleUpdateOK} onCancel={this.handleUpdateCancel}
-                 footer={[
-                   <Button key="back" type="ghost" size="large" onClick={this.handleUpdateCancel}>取 消</Button>,
-                   <Button key="submit" type="primary" size="large" loading={this.state.loading}
-                           onClick={this.handleUpdateOK}>
-                     保 存
-                   </Button>
-                 ]}>
-            <UpdateModal serviceList={serviceList} checkedServiceList={checkedServiceList}/>
+                 wrapClassName="modal"
+            visible={updateModal}
+            title="灰度升级" onOk={this.handleUpdateOK} onCancel={this.handleUpdateCancel}
+            footer={[
+              <Button key="back" type="ghost" size="large" onClick={this.handleUpdateCancel}>取 消</Button>,
+              <Button key="submit" type="primary" size="large" loading={this.state.loading}
+                onClick={this.handleUpdateOK}>
+                保 存
+              </Button>
+            ]}>
+            <UpdateModal serviceList={serviceList} checkedServiceList={checkedServiceList} />
           </Modal>
           <Modal ref="modal"
-                 visible={ configModal }
-                 title="更改服务配置" onOk={this.handleConfigOK} onCancel={this.handleConfigCancel}
-                 footer={[
-                   <Button key="back" type="ghost" size="large" onClick={this.handleConfigCancel}>取 消</Button>,
-                   <Button key="submit" type="primary" size="large" loading={this.state.loading}
-                           onClick={this.handleConfigOK}>
-                     保 存
+                 wrapClassName="modal"
+            visible={configModal}
+            title="更改服务配置" onOk={this.handleConfigOK} onCancel={this.handleConfigCancel}
+            footer={[
+              <Button key="back" type="ghost" size="large" onClick={this.handleConfigCancel}>取 消</Button>,
+              <Button key="submit" type="primary" size="large" loading={this.state.loading}
+                onClick={this.handleConfigOK}>
+                保 存
                    </Button>
-                 ]}>
-            
+            ]}>
+            <ConfigModal checkedServiceList={checkedServiceList} />
           </Modal>
+          <ManualScaleModal
+            parentScope={parentScope}
+            cluster={cluster}
+            appName={appName}
+            visible={ manualScaleModalShow }
+            service={currentShowInstance}
+            loadServiceList={loadServiceList} />
         </QueueAnim>
       </div>
     )
