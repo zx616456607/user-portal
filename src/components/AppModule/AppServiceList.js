@@ -378,34 +378,34 @@ class AppServiceList extends Component {
       modalShow: false
     })
   }
-  showUpdataModal(){
+  showUpdataModal() {
     this.setState({
       updateModal: true
     })
   }
-  handleUpdateCancel(){
+  handleUpdateCancel() {
     this.setState({
       updateModal: false
     })
-    console.log('Cancel',this.state.updateModal);
+    console.log('Cancel', this.state.updateModal);
   }
-  handleUpdateOK(){
+  handleUpdateOK() {
     this.setState({
       updateModal: false
     })
-    console.log('OK',this.state.updateModal);
+    console.log('OK', this.state.updateModal);
   }
-  showConfigModal(){
+  showConfigModal() {
     this.setState({
       configModal: true
     })
   }
-  handleConfigOK(){
+  handleConfigOK() {
     this.setState({
       configModal: false
     })
   }
-  handleConfigCancel(){
+  handleConfigCancel() {
     this.setState({
       configModal: false
     })
@@ -539,28 +539,28 @@ class AppServiceList extends Component {
               />
           </Modal>
           <Modal ref="modal"
-                 visible={ updateModal }
-                 title="灰度升级" onOk={this.handleUpdateOK} onCancel={this.handleUpdateCancel}
-                 footer={[
-                   <Button key="back" type="ghost" size="large" onClick={this.handleUpdateCancel}>取 消</Button>,
-                   <Button key="submit" type="primary" size="large" loading={this.state.loading}
-                           onClick={this.handleUpdateOK}>
-                     保 存
+            visible={updateModal}
+            title="灰度升级" onOk={this.handleUpdateOK} onCancel={this.handleUpdateCancel}
+            footer={[
+              <Button key="back" type="ghost" size="large" onClick={this.handleUpdateCancel}>取 消</Button>,
+              <Button key="submit" type="primary" size="large" loading={this.state.loading}
+                onClick={this.handleUpdateOK}>
+                保 存
                    </Button>
-                 ]}>
-            <UpdateModal serviceList={serviceList} checkedServiceList={checkedServiceList}/>
+            ]}>
+            <UpdateModal serviceList={serviceList} checkedServiceList={checkedServiceList} />
           </Modal>
           <Modal ref="modal"
-                 visible={ configModal }
-                 title="更改服务配置" onOk={this.handleConfigOK} onCancel={this.handleConfigCancel}
-                 footer={[
-                   <Button key="back" type="ghost" size="large" onClick={this.handleConfigCancel}>取 消</Button>,
-                   <Button key="submit" type="primary" size="large" loading={this.state.loading}
-                           onClick={this.handleConfigOK}>
-                     保 存
+            visible={configModal}
+            title="更改服务配置" onOk={this.handleConfigOK} onCancel={this.handleConfigCancel}
+            footer={[
+              <Button key="back" type="ghost" size="large" onClick={this.handleConfigCancel}>取 消</Button>,
+              <Button key="submit" type="primary" size="large" loading={this.state.loading}
+                onClick={this.handleConfigOK}>
+                保 存
                    </Button>
-                 ]}>
-            <ConfigModal checkedServiceList={checkedServiceList}/>
+            ]}>
+            <ConfigModal checkedServiceList={checkedServiceList} />
           </Modal>
           <Modal ref="modal"
                  visible={ extendModal }

@@ -9,6 +9,9 @@
  */
 'use strict'
 
+const constants = require('../constants')
+const INSTANCE_MAX_NUM = constants.INSTANCE_MAX_NUM
+const INSTANCE_AUTO_SCALE_MAX_CPU = constants.INSTANCE_AUTO_SCALE_MAX_CPU
 const apiFactory = require('../services/api_factory')
 
 exports.startServices = function* () {
@@ -61,7 +64,6 @@ exports.restartServices = function* () {
     data: result
   }
 }
-
 
 exports.deleteServices = function* () {
   const cluster = this.params.cluster
@@ -157,8 +159,8 @@ exports.manualScaleService = function* () {
     throw err
   }
   let num = parseInt(num)
-  if (isNaN(num) || num < 1 || num > 10) {
-    const err = new Error('Num is between 1 and 10.')
+  if (isNaN(num) || num < 1 || num > INSTANCE_MAX_NUM) {
+    const err = new Error(`Num is between 1 and ${INSTANCE_MAX_NUM}.`)
     err.status = 400
     throw err
   }
@@ -198,13 +200,13 @@ exports.autoScaleService = function* () {
   let min = parseInt(body.min)
   let max = parseInt(body.max)
   let cpu = parseInt(body.cpu)
-  if (isNaN(min) || min < 1 || min > 10) {
-    const err = new Error('min is between 1 and 10.')
+  if (isNaN(min) || min < 1 || min > INSTANCE_MAX_NUM) {
+    const err = new Error(`min is between 1 and ${INSTANCE_MAX_NUM}.`)
     err.status = 400
     throw err
   }
-  if (isNaN(max) || max < 1 || max > 10) {
-    const err = new Error('max is between 2 and 10.')
+  if (isNaN(max) || max < 1 || max > INSTANCE_MAX_NUM) {
+    const err = new Error(`max is between 2 and ${INSTANCE_MAX_NUM}.`)
     err.status = 400
     throw err
   }
@@ -213,8 +215,8 @@ exports.autoScaleService = function* () {
     err.status = 400
     throw err
   }
-  if (isNaN(cpu) || cpu < 1 || cpu > 99) {
-    const err = new Error('cpu is between 1 and 99.')
+  if (isNaN(cpu) || cpu < 1 || cpu > INSTANCE_AUTO_SCALE_MAX_CPU) {
+    const err = new Error(`cpu is between 1 and ${INSTANCE_AUTO_SCALE_MAX_CPU}.`)
     err.status = 400
     throw err
   }
@@ -225,6 +227,20 @@ exports.autoScaleService = function* () {
     cluster,
     serviceName,
     data: result
+  }
+}
+
+exports.delServiceAutoScale = function* () {
+  const cluster = this.params.cluster
+  const serviceName = this.params.service_name
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.deleteBy([cluster, 'services', serviceName, 'autoscale'])
+  const autoScale = result.data || {}
+  this.body = {
+    cluster,
+    serviceName,
+    data: result.data || {}
   }
 }
 

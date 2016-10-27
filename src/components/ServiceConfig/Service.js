@@ -54,7 +54,7 @@ class CollapseList extends Component {
   render() {
     const {groupData} = this.props
     const scope = this
-    if (groupData.length ===0) return (<div style={{lineHeight:'50px'}}>还没有创建过配置项</div>)
+    if (groupData.length === 0) return (<div style={{ lineHeight: '50px' }}>还没有创建过配置项</div>)
     let groups = groupData.map((group) => {
       return (
         // <Servicec
@@ -73,7 +73,7 @@ class CollapseList extends Component {
               handChageProp={this.props.handChageProp}
               collapseHeader={group}
               sizeNumber={group.extended.size}
-            />
+              />
           }
           handChageProp={this.handChageProp}
           key={group.native.metadata.name}
@@ -88,7 +88,7 @@ class CollapseList extends Component {
     return (
       // <div style={{marginTop:'30px'}}>{groups}</div>
       <Collapse accordion>
-      {groups}
+        {groups}
       </Collapse>
     )
   }
@@ -131,7 +131,7 @@ class Service extends Component {
   }
   btnCreateConfigGroup() {
     // this.setState({ createConfigGroup });
-    let groupName =this.state.myTextInput
+    let groupName = this.state.myTextInput
     if (!groupName) {
       message.error('请输入配置组名称')
       return
@@ -153,13 +153,13 @@ class Service extends Component {
         },
         isAsync: true
       },
-      failure: {
+      failed: {
         func: (res) => {
           let errorText
-          switch(res.code) {
-            case 403: errorText = '添加的配置过多';break
-            case 409: errorText = '配置组已存在';break
-            case 500: errorText = '网络异常';break
+          switch (res.code) {
+            case 403: errorText = '添加的配置过多'; break
+            case 409: errorText = '配置组已存在'; break
+            case 500: errorText = '网络异常'; break
             default: errorText = '缺少参数或格式错误'
           }
           Modal.error({
@@ -184,7 +184,7 @@ class Service extends Component {
       cluster: DEFAULT_CLUSTER,
       "groups": configArray
     }
-    console.log('slfsdl',configArray)
+    console.log('slfsdl', configArray)
     Modal.confirm({
       title: '您是否确认要删除这些配置组',
       content: configArray.map(item => item).join('，'),
@@ -194,7 +194,7 @@ class Service extends Component {
             func: () => {
               message.success('删除成功')
               self.setState({
-                configArray:[],
+                configArray: [],
               })
             },
             isAsync: true
@@ -248,7 +248,7 @@ class Service extends Component {
           </Modal>
           {/*创建配置组-弹出层-end*/}
           {/*折叠面板-start*/}
-          <CollapseList loadConfigGroup={this.props.loadConfigGroup} groupData={configGroup} configName={configName} btnDeleteGroup={this.btnDeleteGroup}  loading={isFetching} handChageProp={this.handChageProp()} configGroupName={(obj) => this.props.configGroupName(obj)} />
+          <CollapseList loadConfigGroup={this.props.loadConfigGroup} groupData={configGroup} configName={configName} btnDeleteGroup={this.btnDeleteGroup} loading={isFetching} handChageProp={this.handChageProp()} configGroupName={(obj) => this.props.configGroupName(obj)} />
           {/*折叠面板-end*/}
         </div>
       </QueueAnim>

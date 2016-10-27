@@ -8,10 +8,10 @@
  * @author ZhaoXueYu
  */
 import React,{ Component } from 'react'
-import './style/ExtendModal.less'
+import './style/ScaleModal.less'
 import { Row, Col, Slider, InputNumber, } from 'antd'
 
-export default class ExtendModal extends Component {
+export default class ScaleModal extends Component {
   constructor(props){
     super(props)
     this.handleRealNum = this.handleRealNum.bind(this)
@@ -28,7 +28,7 @@ export default class ExtendModal extends Component {
     const { checkedServiceList } = this.props
     const { realNum } = this.state
     return (
-      <div id="ExtendModal">
+      <div id="ScaleModal">
         <Row className="cardItem">
           <Col className="itemTitle" span={4} style={{textAlign: 'left'}}>服务名称</Col>
           <Col className="itemBody" span={20}>{ checkedServiceList[0].metadata.name }</Col>

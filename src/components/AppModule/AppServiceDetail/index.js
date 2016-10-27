@@ -38,7 +38,7 @@ function loadData(props) {
 
 class AppServiceDetail extends Component {
   constructor(props) {
-    super(props);
+    super(props)
     this.closeModal = this.closeModal.bind(this)
     this.onTabClick = this.onTabClick.bind(this)
     this.restartService = this.restartService.bind(this)
