@@ -19,11 +19,15 @@ export const APP_LIST_FAILURE = 'APP_LIST_FAILURE'
 // Fetches app list from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchAppList(cluster, query) {
+  let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/apps`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
   return {
     cluster,
     [FETCH_API]: {
       types: [APP_LIST_REQUEST, APP_LIST_SUCCESS, APP_LIST_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/apps`,
+      endpoint,
       schema: Schemas.APPS
     }
   }
@@ -31,9 +35,9 @@ function fetchAppList(cluster, query) {
 
 // Fetches apps list from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function loadAppList(cluster, requiredFields = []) {
+export function loadAppList(cluster, query, requiredFields = []) {
   return (dispatch, getState) => {
-    return dispatch(fetchAppList(cluster))
+    return dispatch(fetchAppList(cluster, query))
   }
 }
 
@@ -67,7 +71,7 @@ export const APP_CREATE_REQUEST = 'APP_CREATE_REQUEST'
 export const APP_CREATE_SUCCESS = 'APP_CREATE_SUCCESS'
 export const APP_CREATE_FAILURE = 'APP_CREATE_FAILURE'
 
-export function createApp(appConfig, callback) {
+export function fetchCreateApp(appConfig, callback) {
   return {
     cluster: appConfig.cluster,
     [FETCH_API]: {
@@ -83,7 +87,13 @@ export function createApp(appConfig, callback) {
       },
       schema: Schemas.APPS
     },
-    callback: callback
+    callback
+  }
+}
+
+export function createApp(appConfig, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchCreateApp(appConfig, callback))
   }
 }
 
@@ -191,6 +201,21 @@ export function startApps(cluster, appList, callback) {
   }
 }
 
+export const APP_ORCH_FILE_REQUEST = 'APP_ORCH_FILE_REQUEST'
+export const APP_ORCH_FILE_SUCCESS = 'APP_ORCH_FILE_SUCCESS'
+export const APP_ORCH_FILE_FAILURE = 'APP_ORCH_FILE_FAILURE'
+
+export function getAppOrchfile(cluster, appName, callback) {
+  return {
+    cluster,
+    [FETCH_API]: {
+      types: [APP_ORCH_FILE_REQUEST, APP_ORCH_FILE_SUCCESS, APP_ORCH_FILE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/apps/${appName}/orchfile`,
+      schema: {}
+    }
+  }
+}
+
 export const APP_OPERATION_LOG_REQUEST = 'APP_OPERATION_LOG_REQUEST'
 export const APP_OPERATION_LOG_SUCCESS = 'APP_OPERATION_LOG_SUCCESS'
 export const APP_OPERATION_LOG_FAILURE = 'APP_OPERATION_LOG_FAILURE'
@@ -206,6 +231,49 @@ export function appLogs(cluster, appName, callback) {
   }
 }
 
+export const APP_CHECK_NAME_REQUEST = 'APP_CHECK_NAME_REQUEST'
+export const APP_CHECK_NAME_SUCCESS = 'APP_CHECK_NAME_SUCCESS'
+export const APP_CHECK_NAME_FAILURE = 'APP_CHECK_NAME_FAILURE'
+
+function fetchCheckAppNameApps(cluster, appName, callback) {
+  return {
+    cluster,
+    appName,
+    [FETCH_API]: {
+      types: [APP_CHECK_NAME_REQUEST, APP_CHECK_NAME_SUCCESS, APP_CHECK_NAME_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/apps/${appName}/existence`,
+      schema: {}
+    },
+    callback: callback
+  }
+}
+export function checkAppName(cluster, appName, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchCheckAppNameApps(cluster, appName, callback))
+  }
+}
+
+export const SERVICE_CHECK_NAME_REQUEST = 'SERVICE_CHECK_NAME_REQUEST'
+export const SERVICE_CHECK_NAME_SUCCESS = 'SERVICE_CHECK_NAME_SUCCESS'
+export const SERVICE_CHECK_NAME_FAILURE = 'SERVICE_CHECK_NAME_FAILURE'
+
+function fetchCheckServiceNameApps(cluster, service, callback) {
+  return {
+    cluster,
+    service,
+    [FETCH_API]: {
+      types: [SERVICE_CHECK_NAME_REQUEST, SERVICE_CHECK_NAME_SUCCESS, SERVICE_CHECK_NAME_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${service}/existence`,
+      schema: {}
+    },
+    callback: callback
+  }
+}
+export function checkServiceName(cluster, service, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchCheckServiceNameApps(cluster, service, callback))
+  }
+}
 // ~~~ containers
 
 export const CONTAINER_LIST_REQUEST = 'CONTAINER_LIST_REQUEST'
@@ -293,7 +361,7 @@ export function loadContainerDetailEvents(cluster, containerName, requiredFields
 export const CONTAINER_LOGS_REQUEST = 'CONTAINER_LOGS_REQUEST'
 export const CONTAINER_LOGS_SUCCESS = 'CONTAINER_LOGS_SUCCESS'
 export const CONTAINER_LOGS_FAILURE = 'CONTAINER_LOGS_FAILURE'
-export const CONTAINER_LOGS_CLEAR   = 'CONTAINER_LOGS_CLEAR'
+export const CONTAINER_LOGS_CLEAR = 'CONTAINER_LOGS_CLEAR'
 
 
 export function fetchContainerLogs(cluster, containerName, body, callback) {
@@ -301,7 +369,7 @@ export function fetchContainerLogs(cluster, containerName, body, callback) {
     cluster,
     containerName,
     [FETCH_API]: {
-      types:[CONTAINER_LOGS_REQUEST, CONTAINER_LOGS_SUCCESS, CONTAINER_LOGS_FAILURE],
+      types: [CONTAINER_LOGS_REQUEST, CONTAINER_LOGS_SUCCESS, CONTAINER_LOGS_FAILURE],
       endpoint: `${API_URL_PREFIX}/clusters/${cluster}/containers/${containerName}/logs`,
       options: {
         method: 'POST',
@@ -310,7 +378,7 @@ export function fetchContainerLogs(cluster, containerName, body, callback) {
       schema: {}
     },
     callback
-  } 
+  }
 }
 
 export function clearContainerLogs(cluster, containerName) {

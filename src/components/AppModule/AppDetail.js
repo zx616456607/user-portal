@@ -73,7 +73,7 @@ class AppDetail extends Component {
   }
 
   render() {
-    const { children, appName, app, isFetching } = this.props
+    const { children, appName, app, isFetching, location } = this.props
     const { activeTabKey } = this.state
     if (isFetching || !app) {
       return (
@@ -142,13 +142,21 @@ class AppDetail extends Component {
                 activeKey={activeTabKey}
                 >
                 <TabPane tab="服务实例" key={DEFAULT_TAB} >
-                  <AppServiceList key="AppServiceList" appName={appName} loading={isFetching} />
+                  <AppServiceList
+                    location={location}
+                    key="AppServiceList" appName={appName} loading={isFetching} />
                 </TabPane>
                 <TabPane tab="应用拓扑图" key="#topology">应用拓扑图</TabPane>
-                <TabPane tab="编排文件" key="#stack" ><AppGraph key="AppGraph" /></TabPane>
-                <TabPane tab="操作日志" key="#logs" ><AppLog key="AppLog" cluster={this.props.cluster} appName={this.props.appName}/></TabPane>
+                <TabPane tab="编排文件" key="#stack" ><AppGraph key="AppGraph" cluster={this.props.cluster} appName={this.props.appName} /></TabPane>
+                <TabPane tab="操作日志" key="#logs" >
+                  <AppLog key="AppLog"
+                    cluster={this.props.cluster}
+                    appName={this.props.appName} />
+                </TabPane>
                 <TabPane tab="监控" key="#monitor" >
-                  <AppMonitior key="AppMonitior" />
+                  <AppMonitior
+                    cluster={this.props.cluster}
+                    appName={this.props.appName} />
                 </TabPane>
               </Tabs>
             </Card>
@@ -188,7 +196,8 @@ function mapStateToProps(state, props) {
     app,
     isFetching,
     hash,
-    pathname
+    pathname,
+    location: props.location
   }
 }
 

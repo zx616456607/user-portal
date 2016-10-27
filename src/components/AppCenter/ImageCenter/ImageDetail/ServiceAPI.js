@@ -71,8 +71,14 @@ class ServiceAPI extends Component {
 
   componentWillMount() {
     const { registry, loadImageDetailTagConfig } = this.props;
-    const { fullname, imageTag } = this.props;
-    loadImageDetailTagConfig(registry, fullname, imageTag);
+    console.log('loadConfigGroup', this.props)
+    const { fullname, imageTag , imageId} = this.props;
+    const config = {imageId, fullname, imageTag}
+    if (imageId) {
+      this.props.loadOtherDetailTagConfig(config)
+    } else {
+      loadImageDetailTagConfig(registry, fullname, imageTag);
+    }
   }
 
   render() {
@@ -142,13 +148,14 @@ function mapStateToProps(state, props) {
     registry: DEFAULT_REGISTRY,
     configList: []
   }
-  const { imageTagConfig } = state.getImageTagConfig
+  const { imageTagConfig ,otherTagConfig} = state.getImageTagConfig
   const { registry, tag, isFetching, server, configList } = imageTagConfig[DEFAULT_REGISTRY] || defaultImageDetailTagConfig
-
+  // const { registry, tag, isFetching, server, configList } = otherTagConfig || defaultImageDetailTagConfig
+  
   return {
     registry,
     registryServer: server,
-    configList: configList,
+    configList,
     isFetching,
     tag
   }
@@ -157,7 +164,14 @@ function mapStateToProps(state, props) {
 ServiceAPI.propTypes = {
   //
 }
-
-export default connect(mapStateToProps, {
-  loadImageDetailTagConfig
-})(ServiceAPI);
+function mapDispatchToProps(dispatch) {
+  return {
+    loadOtherDetailTagConfig: (image) => {
+      dispatch(loadOtherDetailTagConfig(image))
+    },
+    loadImageDetailTagConfig: (registry, fullname, imageTag)=> {
+      dispatch(loadImageDetailTagConfig(registry, fullname, imageTag))
+    }
+  }
+}
+export default connect(mapStateToProps, mapDispatchToProps)(ServiceAPI);

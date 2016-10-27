@@ -192,6 +192,15 @@ class Slider extends Component {
               </Link>
             </Tooltip>
           </li>
+          <li onClick={this.selectModel.bind(this, "6", "#system")} className={currentKey == "6" ? "selectedLi" : ""}>
+            <Tooltip placement="right" title="CI/CD" getTooltipContainer={() => document.getElementById("siderTooltip")}>
+              <Link to="/ci_cd">
+                <svg className="system commonImg">
+                  <use xlinkHref="#system" />
+                </svg>
+              </Link>
+            </Tooltip>
+          </li>
           <li onClick={this.selectModel.bind(this, "4", "#database")} className={currentKey == "4" ? "selectedLi" : ""}>
             <Tooltip placement="right" title="数据库与缓存" getTooltipContainer={() => document.getElementById("siderTooltip")}>
               <Link to="/database_cache">
@@ -204,15 +213,6 @@ class Slider extends Component {
           <li onClick={this.selectModel.bind(this, "5", "#system")} className={currentKey == "5" ? "selectedLi" : ""}>
             <Tooltip placement="right" title="系统集成" getTooltipContainer={() => document.getElementById("siderTooltip")}>
               <Link to="/">
-                <svg className="system commonImg">
-                  <use xlinkHref="#system" />
-                </svg>
-              </Link>
-            </Tooltip>
-          </li>
-          <li onClick={this.selectModel.bind(this, "6", "#system")} className={currentKey == "6" ? "selectedLi" : ""}>
-            <Tooltip placement="right" title="CI/CD" getTooltipContainer={() => document.getElementById("siderTooltip")}>
-              <Link to="/ci_cd">
                 <svg className="system commonImg">
                   <use xlinkHref="#system" />
                 </svg>
@@ -268,6 +268,10 @@ class Slider extends Component {
 }
 
 function checkCurrentPath(pathname) {
+  let CICDCheck = new RegExp("ci_cd", "gi");
+  if (CICDCheck.test(pathname)) {
+    return "6";
+  }
   let AppCenterCheck = new RegExp("app_center", "gi");
   if (AppCenterCheck.test(pathname)) {
     return "3";

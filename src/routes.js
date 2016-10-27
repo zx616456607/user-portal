@@ -52,6 +52,7 @@ import CICD from './containers/CICD/Index'
 import CodeStore from './components/CICDModule/CodeStore'
 import DockerFile from './components/CICDModule/DockerFile'
 import TenxFlow from './components/CICDModule/TenxFlow'
+import TenxFlowBuild from './components/CICDModule/TenxFlow/TenxFlowDetail'
 /*-------------------CI/CD Module Stop-----------------------------------*/  
 
 
@@ -92,7 +93,10 @@ export default (
     </Route>
     <Route path="ci_cd" component={CICD}>
       <IndexRoute component={CodeStore} />
-      <Route path="tenx_flow" component={TenxFlow} />
+      <Route path="tenx_flow" >
+        <IndexRoute component={TenxFlow} />
+        <Route path="tenx_flow_build" component={TenxFlowBuild} />
+      </Route>
       <Route path="docker_file" component={DockerFile} />
     </Route>
     <Route path="*" component={ErrorPage} />

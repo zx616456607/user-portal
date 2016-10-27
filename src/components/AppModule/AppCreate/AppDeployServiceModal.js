@@ -391,9 +391,9 @@ let AppDeployServiceModal = React.createClass({
       deploymentList.setLivenessProbe(serviceName, getFieldValue('getUsefulType').toUpperCase(), {
         port: parseInt(livePort),
         path: livePath,
-        initialDelaySeconds: liveInitialDelaySeconds,
-        timeoutSeconds: liveTimeoutSeconds,
-        periodSeconds: livePeriodSeconds
+        initialDelaySeconds: parseInt(liveInitialDelaySeconds),
+        timeoutSeconds: parseInt(liveTimeoutSeconds),
+      periodSeconds: parseInt(livePeriodSeconds)
       })
     }
     /*Service*/
@@ -467,52 +467,13 @@ let AppDeployServiceModal = React.createClass({
     })
   },
   handleForm() {
-    const { getFieldProps, getFieldValue } = this.props.form
-    /*if (/^[a-z]{3,24}[a-z0-9-]*$/.test(getFieldProps('name').value) && getFieldProps('name').value) {
-      console.log('serviceNAMEPASSSSSS', /^[a-z]{3,24}[a-z0-9-]*$/.test(getFieldProps('name').value));
-      console.log('serviceNAMEPASSSSSS', getFieldProps('name').value);
-      this.setState({
-        serNameErrState: 'success',
-      })
-      if (getFieldValue('portKey').length >= 1) {
-        const portKey = getFieldValue('portKey')
-        console.log('ports true    hhhhhhhhhh', getFieldProps(`portType${portKey[0]}`).value);
-        console.log('serviceNameError', Number(getFieldProps(`targetPortUrl${portKey[0]}`).value));
-        if (!isNaN(Number(getFieldProps(`targetPortUrl${portKey[0]}`).value))
-          && Number(getFieldProps(`targetPortUrl${portKey[0]}`).value) > 0
-          && getFieldProps(`portType${portKey[0]}`).value) {
-          console.log('portssdasdasdasdasd');
-          this.setState({
-            disable: false,
-          })
-        } else {
-          console.log('ports true    sadasd', getFieldProps(`portType${portKey[0]}`).value);
-          this.setState({
-            disable: true,
-          })
-        }
-      } else {
-        this.setState({
-          disable: true,
-        })
-      }
-    } else {
-      this.setState({
-        disable: true,
-        serNameErrState: 'error',
-      })
-    }*/
     this.props.form.validateFieldsAndScroll((errors, values) => {
       if (!!errors) {
-        console.log('Errors in form!!!')
-        console.log(errors)
         this.setState({
           disable: true,
         })
         return
       }
-      console.log('Submit!!!')
-      console.log(values)
       this.setState({
         disable: false,
       })

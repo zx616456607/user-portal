@@ -13,7 +13,7 @@ import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { loadPublicImageList } from '../../../actions/app_center'
+import { loadPublicImageList ,getImageDetailInfo} from '../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import "./style/PublicSpace.less"
 import ImageDetailBox from './ImageDetail/Index.js'
@@ -56,11 +56,22 @@ let MyComponent = React.createClass({
   },
   showImageDetail: function (id) {
     //  this function for user select image and show the image detail info
+    // console.log(id)
     const scope = this.props.scope;
     scope.setState({
       imageDetailModalShow: true,
       currentImage: id
     });
+    const fullgroup={registry: DEFAULT_REGISTRY, fullName: id.name}
+    this.props.getImageDetailInfo(fullgroup, {
+      success: {
+        func: (res)=> {
+          scope.setState({
+            imageInfo: res.data
+          })
+        }
+      }
+    })
   },
   render: function () {
     const { loading } = this.props;
@@ -118,7 +129,8 @@ class PublicSpace extends Component {
     this.closeImageDetailModal = this.closeImageDetailModal.bind(this);
     this.state = {
       currentImage: null,
-      imageDetailModalShow: false
+      imageDetailModalShow: false,
+      imageInfo: ''
     }
   }
 
@@ -156,7 +168,7 @@ class PublicSpace extends Component {
               <i className="fa fa-search"></i>
               <div style={{ clear: "both" }}></div>
             </div>
-            <MyComponent scope={scope} loading={isFetching} config={config} />
+            <MyComponent scope={scope} getImageDetailInfo={(obj,callback)=> this.props.getImageDetailInfo(obj,callback)} loading={isFetching} config={config} />
           </Card>
         </div>
         <Modal
@@ -165,7 +177,8 @@ class PublicSpace extends Component {
           transitionName="move-right"
           onCancel={this.closeImageDetailModal}
           >
-          <ImageDetailBox scope={scope} config={this.state.currentImage} />
+          {/* right detail box  */}
+          <ImageDetailBox scope={scope} imageInfo={this.state.imageInfo} config={this.state.currentImage} />
         </Modal>
       </QueueAnim>
     )
@@ -178,27 +191,41 @@ function mapStateToProps(state, props) {
     registry: DEFAULT_REGISTRY,
     imageList: []
   }
-  const {
-    publicImages
-  } = state.images
+  const defaultConfig = {
+    isFetching: false,
+    imageInfo: {dockerfile:'', detailMarkdown:''}
+  }
+  const { publicImages, imagesInfo } = state.images
   const { registry, imageList, isFetching, server } = publicImages[DEFAULT_REGISTRY] || defaultPublicImages
+  const { imageInfo } = imagesInfo[DEFAULT_REGISTRY] || defaultConfig
 
   return {
     registry,
     registryServer: server,
     publicImageList: imageList,
-    isFetching
+    isFetching,
+    imageInfo
+  }
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    loadPublicImageList: (registry) => {
+      dispatch(loadPublicImageList(registry))
+    },
+    getImageDetailInfo :(obj, callback)=> {
+      dispatch(getImageDetailInfo(obj, callback))
+    },
   }
 }
 
 PublicSpace.propTypes = {
   intl: PropTypes.object.isRequired,
   loadPublicImageList: PropTypes.func.isRequired,
-  isFetching: PropTypes.bool.isRequired
+  isFetching: PropTypes.bool.isRequired,
+  getImageDetailInfo: PropTypes.func.isRequired,
 }
 
-export default connect(mapStateToProps, {
-  loadPublicImageList
-})(injectIntl(PublicSpace, {
+export default connect(mapStateToProps, mapDispatchToProps )(injectIntl(PublicSpace, {
   withRef: true,
 }));

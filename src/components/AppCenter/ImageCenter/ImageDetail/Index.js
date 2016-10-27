@@ -8,12 +8,16 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Switch, Tabs, Button, Card, Menu, Tooltip } from 'antd'
-import { Link } from 'react-router'
+import { Tabs, Button, Card, Menu, Tooltip ,Icon} from 'antd'
+import { Link} from 'react-router'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import { imageStore } from '../../../../actions/app_center'
+// import { DEFAULT_REGISTRY } from '../../../../constants'
 import ImageVersion from './ImageVersion.js'
-import DetailInfo from './DetailInfo.js'
+import DetailInfo from './DetailInfo'
+import DockerFile from './Dockerfile'
+import Attribute from './Attribute'
 import './style/ImageDetailBox.less'
 
 const TabPane = Tabs.TabPane;
@@ -78,8 +82,10 @@ class ImageDetailBox extends Component {
 
   componentWillMount() {
     const imageDetail = this.props.config;
+    const imageInfo = this.props.imageInfo
     this.setState({
-      imageDetail: imageDetail
+      imageDetail: imageDetail,
+      imageInfo: imageInfo
     });
   }
 
@@ -111,11 +117,18 @@ class ImageDetailBox extends Component {
       });
     }, 500);
   }
-
+  // callback(key) {
+  //   if (key == 2) {
+  //     this.props.getImageDetailInfo(DEFAULT_REGISTRY, this.props.config.name)
+  //   }
+  // }
+  setimageStore(name) {
+    console.log('image id is', this.props)
+  }
   render() {
     const { formatMessage } = this.props.intl;
+    const imageInfo = this.props.imageInfo || {'detailMarkdown': ''}
     const imageDetail = this.props.config;
-    const config = this.state.imageDetail;
     const scope = this;
     const ipAddress = this.props.scope.props.registryServer;
     const imageName = this.state.imageDetail.name;
@@ -127,22 +140,21 @@ class ImageDetailBox extends Component {
             <img src="/img/test/github.jpg" />
           </div>
           <div className="infoBox">
-            <p className="imageName">{imageDetail.name}</p>
+            <p className="imageName">{imageDetail.name ? imageDetail.name : imageDetail.imageName}</p>
             <div className="leftBox">
-              <p className="imageUrl">{imageDetail.description}</p>
-              <span className="type"><FormattedMessage {...menusText.type} /></span>
-              <Switch checked={imageDetail.isPrivate == 0 ? true : false} checkedChildren={formatMessage(menusText.pubilicType)} unCheckedChildren={formatMessage(menusText.privateType)} />
+              <p className="imageUrl">{imageDetail.description ? imageDetail.description : imageDetail.imageName}</p>
+              <span className="type"><FormattedMessage {...menusText.type} />{formatMessage(menusText.pubilicType)}</span>
             </div>
             <div className="rightBox">
+              <Icon type='cross' className='cursor' style={{fontSize: '18px',position: 'absolute', top:'30px', right:'50px'}} onClick={this.props.scope.closeImageDetailModal} />
               <Button size="large" type="primary">
                 <FormattedMessage {...menusText.deployImage} />
               </Button>
-              <Button size="large" type="ghost">
+              <Button size="large" type="ghost" onClick={ ()=>this.setimageStore(imageInfo.name) }>
                 <i className="fa fa-star-o"></i>&nbsp;
-            <FormattedMessage {...menusText.colletctImage} />
+                <FormattedMessage {...menusText.colletctImage} />
               </Button>
             </div>
-            <i className="closeBtn fa fa-times" onClick={this.props.scope.closeImageDetailModal}></i>
           </div>
           <div style={{ clear: "both" }}></div>
         </div>
@@ -154,7 +166,7 @@ class ImageDetailBox extends Component {
             <Tooltip title={this.state.copySuccess ? formatMessage(menusText.copySuccess) : formatMessage(menusText.copyBtn)} getTooltipContainer={() => document.getElementById("ImageDetailBox")}>
               <i className="fa fa-copy" onClick={this.copyDownloadCode} onMouseLeave={this.returnDefaultTooltip}></i>
             </Tooltip>
-            <input className="pullCodeInput" value={pullCode} style={{ position: "absolute", opacity: "0" }} />
+            <input className="pullCodeInput" defaultValue={pullCode} style={{ position: "absolute", opacity: "0" }} />
           </div>
           <div className="times">
             <i className="fa fa-cloud-download"></i>&nbsp;&nbsp;
@@ -164,10 +176,10 @@ class ImageDetailBox extends Component {
         </div>
         <div className="tabBox">
           <Tabs className="itemList" defaultActiveKey="1">
-            <TabPane tab={formatMessage(menusText.info)} key="1"><DetailInfo config={imageDetail} /></TabPane>
-            <TabPane tab="DockerFile" key="2">Conten of Tab Pane 3</TabPane>
+            <TabPane tab={formatMessage(menusText.info)} key="1"><DetailInfo detailInfo={imageInfo.detailMarkdown} /></TabPane>
+            <TabPane tab="DockerFile" key="2"><DockerFile isFetching = {this.props.isFetching} dockerfile={imageInfo.dockerfile} /></TabPane>
             <TabPane tab={formatMessage(menusText.tag)} key="3"><ImageVersion scope={scope} config={imageDetail} /></TabPane>
-            <TabPane tab={formatMessage(menusText.attribute)} key="4">Conten of Tab Pane 3</TabPane>
+            <TabPane tab={formatMessage(menusText.attribute)} key="4"><Attribute detailInfo = {imageInfo} /></TabPane>
           </Tabs>
         </div>
       </div>
@@ -176,8 +188,30 @@ class ImageDetailBox extends Component {
 }
 
 ImageDetailBox.propTypes = {
-  intl: PropTypes.object.isRequired
+  intl: PropTypes.object.isRequired,
 }
+
+// function mapStateToProps(state, props) {
+//   const defaultConfig = {
+//     isFavourite:'0',
+//     isFetching: false,
+//     registry: DEFAULT_REGISTRY
+//   }
+//   const {imagesInfo } = state.images
+//   const { imageInfo } = imagesInfo[DEFAULT_REGISTRY] || defaultConfig
+
+//   return {
+//     isFavourite: imageInfo.isFavourite
+//   }
+// }
+
+// function mapDispatchToProps(dispatch) {
+//   return {
+//     imageStore: (name, callback) => {
+//       dispatch(imageStore(name, callback))
+//     },
+//   }
+// }
 
 export default connect()(injectIntl(ImageDetailBox, {
   withRef: true,

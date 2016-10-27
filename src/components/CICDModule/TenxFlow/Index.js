@@ -2,7 +2,7 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
- * TenxFlowList component
+ * TenxFlowList component 
  *
  * v0.1 - 2016-10-08
  * @author GaoJian
@@ -15,29 +15,30 @@ import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import CreateTenxFlow from './CreateTenxFlow.js'
-import TestModal from '../../TerminalModal/Index.js'
+import TestModal from '../../TerminalModal'
 import './style/TenxFlowList.less'
+import TenxFlowBuildLog from './TenxFlowBuildLog.js'
 
 let testData = [
   {
-    'name':'test1',
-    'updateTime':'1小时前',
-    'status':'finish'
+    'name': 'test1',
+    'updateTime': '1小时前',
+    'status': 'finish'
   },
   {
-    'name':'test2',
-    'updateTime':'2小时前',
-    'status':'running'
+    'name': 'test2',
+    'updateTime': '2小时前',
+    'status': 'running'
   },
   {
-    'name':'test3',
-    'updateTime':'3小时前',
-    'status':'finish'
+    'name': 'test3',
+    'updateTime': '3小时前',
+    'status': 'finish'
   },
   {
-    'name':'test4',
-    'updateTime':'4小时前',
-    'status':'fail'
+    'name': 'test4',
+    'updateTime': '4小时前',
+    'status': 'fail'
   },
 ]
 
@@ -96,20 +97,20 @@ let MyComponent = React.createClass({
     config: React.PropTypes.array,
     scope: React.PropTypes.object
   },
-  operaMenuClick: function(item, e) {
+  operaMenuClick: function (item, e) {
     //this function for user click the dropdown menu
     console.log(e);
     console.log(item);
   },
-  showDeloyLog: function(item, e) {
+  showDeloyLog: function (item, e) {
     //this function for show user the deploy log of the tenxflow
     const { scope } = this.props;
     scope.setState({
       TenxFlowDeployLogModal: true
     });
   },
-  render: function() {
-    const { config } = this.props;
+  render: function () {
+    const { config, scope } = this.props;
     let items = config.map((item) => {
       const dropdown = (
         <Menu onClick={this.operaMenuClick.bind(this, item)}
@@ -128,16 +129,16 @@ let MyComponent = React.createClass({
       return (
         <div className='tenxflowDetail' key={item.name} >
           <div className='name'>
-            <span>{ item.name }</span>
+            <span>{item.name}</span>
           </div>
           <div className='time'>
-            <span>{ item.updateTime }</span>
+            <span>{item.updateTime}</span>
           </div>
           <div className='status'>
-            { item.status }
+            {item.status}
           </div>
           <div className='oprea'>
-            <Button className='logBtn' size='large' type='primary'>
+            <Button className='logBtn' size='large' type='primary' onClick={scope.openTenxFlowDeployLogModal}>
               <i className='fa fa-wpforms' />&nbsp;
               <FormattedMessage {...menusText.deloyLog} />
             </Button>
@@ -162,12 +163,15 @@ class TenxFlowList extends Component {
     super(props);
     this.openCreateTenxFlowModal = this.openCreateTenxFlowModal.bind(this);
     this.closeCreateTenxFlowModal = this.closeCreateTenxFlowModal.bind(this);
+    this.openTenxFlowDeployLogModal = this.openTenxFlowDeployLogModal.bind(this);
+    this.closeTenxFlowDeployLogModal = this.closeTenxFlowDeployLogModal.bind(this);
     this.state = {
       createTenxFlowModal: false,
       TenxFlowDeployLogModal: false,
+      currentTenxFlow: null
     }
   }
-  
+
   componentWillMount() {
     document.title = 'TenxFlow | 时速云';
   }
@@ -178,21 +182,21 @@ class TenxFlowList extends Component {
       createTenxFlowModal: true
     });
   }
-  
+
   closeCreateTenxFlowModal() {
     //this function for user close the modal of create new tenxflow
     this.setState({
       createTenxFlowModal: false
     });
   }
-  
+
   openTenxFlowDeployLogModal() {
     //this function for user open the modal of tenxflow deploy log
     this.setState({
       TenxFlowDeployLogModal: true
     });
   }
-  
+
   closeTenxFlowDeployLogModal() {
     //this function for user close the modal of tenxflow deploy log
     this.setState({
@@ -242,14 +246,14 @@ class TenxFlowList extends Component {
           transitionName='move-right'
           onCancel={this.closeCreateTenxFlowModal}
           >
-          <CreateTenxFlow scope={ scope } />
+          <CreateTenxFlow scope={scope} />
         </Modal>
         <Modal
           visible={this.state.TenxFlowDeployLogModal}
-          className='TenxFlowDeployLogModal'         
+          className='TenxFlowBuildLogModal'
           onCancel={this.closeTenxFlowDeployLogModal}
           >
-          
+          <TenxFlowBuildLog scope={scope} />
         </Modal>
       </QueueAnim>
     )
@@ -257,9 +261,9 @@ class TenxFlowList extends Component {
 }
 
 function mapStateToProps(state, props) {
-  
+
   return {
-    
+
   }
 }
 
@@ -268,7 +272,7 @@ TenxFlowList.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-  
+
 })(injectIntl(TenxFlowList, {
   withRef: true,
 }));

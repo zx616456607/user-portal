@@ -96,18 +96,6 @@ class CreateCompose extends Component {
         </div>
         <div className="commonInput">
           <div className="leftBox">
-            <span className="title">编排类型</span>
-          </div>
-          <div className="rightBox">
-            <RadioGroup onChange={this.onChangeType} value={this.state.composeType}>
-              <Radio key="a" value={"stack"}>stack</Radio>
-              <Radio key="b" value={"pod"}>pod</Radio>
-            </RadioGroup>
-          </div>
-          <div style={{ clear:"both" }}></div>
-        </div>
-        <div className="commonInput">
-          <div className="leftBox">
             <span className="title">编排属性</span>
           </div>
           <div className="rightBox">

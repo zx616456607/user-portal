@@ -10,6 +10,7 @@
 
 import { FETCH_API, Schemas } from '../middleware/api'
 import { API_URL_PREFIX } from '../constants'
+import { toQuerystring } from '../common/tools'
 
 export const SERVICE_LIST_REQUEST = 'SERVICE_LIST_REQUEST'
 export const SERVICE_LIST_SUCCESS = 'SERVICE_LIST_SUCCESS'
@@ -17,13 +18,17 @@ export const SERVICE_LIST_FAILURE = 'SERVICE_LIST_FAILURE'
 
 // Fetches service list from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchServiceList(cluster, appName) {
+function fetchServiceList(cluster, appName, query) {
+  let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/apps/${appName}/services`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
   return {
     cluster,
     appName,
     [FETCH_API]: {
       types: [SERVICE_LIST_REQUEST, SERVICE_LIST_SUCCESS, SERVICE_LIST_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/apps/${appName}/services`,
+      endpoint,
       schema: Schemas.SERVICES
     }
   }
@@ -31,9 +36,9 @@ function fetchServiceList(cluster, appName) {
 
 // Fetches services list from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function loadServiceList(cluster, appName, requiredFields = []) {
+export function loadServiceList(cluster, appName, query, requiredFields = []) {
   return (dispatch, getState) => {
-    return dispatch(fetchServiceList(cluster, appName))
+    return dispatch(fetchServiceList(cluster, appName, query))
   }
 }
 
@@ -170,7 +175,6 @@ export function startServices(cluster, serviceList, callback) {
     return dispatch(fetchStartServices(cluster, serviceList, callback))
   }
 }
-
 function fetchQuickRestartServices(cluster, serviceList, callback) {
   return {
     cluster,
@@ -275,7 +279,7 @@ export function loadServiceDetailEvents(cluster, serviceName) {
 export const SERVICE_LOGS_REQUEST = 'SERVICE_LOGS_REQUEST'
 export const SERVICE_LOGS_SUCCESS = 'SERVICE_LOGS_SUCCESS'
 export const SERVICE_LOGS_FAILURE = 'SERVICE_LOGS_FAILURE'
-export const SERVICE_LOGS_CLEAR   = 'SERVICE_LOGS_CLEAR'
+export const SERVICE_LOGS_CLEAR = 'SERVICE_LOGS_CLEAR'
 
 
 export function fetchServiceLogs(cluster, serviceName, body, callback) {
@@ -306,5 +310,149 @@ export function clearServiceLogs(cluster, serviceName) {
 export function loadServiceLogs(cluster, serviceName, body, callback) {
   return (dispath, getState) => {
     return dispath(fetchServiceLogs(cluster, serviceName, body, callback))
+  }
+}
+
+
+export const SERVICE_GET_K8S_SERVICE_REQUEST = 'SERVICE_GET_K8S_SERVICE_REQUEST'
+export const SERVICE_GET_K8S_SERVICE_SUCCESS = 'SERVICE_GET_K8S_SERVICE_SUCCESS'
+export const SERVICE_GET_K8S_SERVICE_FAILURE = 'SERVICE_GET_PORT_FAILURE'
+export const SERVICE_CLEAR_K8S_SERVICE = 'SERVICE_CLEAR_K8S_SERVICE'
+
+function fetchK8sService(cluster, serviceName) {
+  return {
+    [FETCH_API]: {
+      types: [SERVICE_GET_K8S_SERVICE_REQUEST, SERVICE_GET_K8S_SERVICE_SUCCESS, SERVICE_GET_K8S_SERVICE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/k8s-service`,
+      schema: {}
+    }
+  }
+}
+
+export function loadK8sService(cluster, serviceName) {
+  return (dispath, getState) => {
+    return dispath(fetchK8sService(cluster, serviceName))
+  }
+}
+
+export function clearK8sService() {
+  return {
+    type: SERVICE_CLEAR_K8S_SERVICE
+  }
+}
+
+
+export const SERVICE_CLEAR_DOMIAN = 'SERVICE_CLEAR_DOMIAN'
+
+export function clearServiceDomain() {
+  return {
+    type: SERVICE_CLEAR_DOMIAN
+  }
+}
+
+export const SERVICE_BIND_DOMAIN_REQUEST = 'SERVICE_BIND_DOMAIN_REQUEST'
+export const SERVICE_BIND_DOMAIN_SUCCESS = 'SERVICE_BIND_DOMAIN_SUCCESS'
+export const SERVICE_BIND_DOMAIN_FAILURE = 'SERVICE_BIND_DOMAIN_FAILURE'
+
+function fetchServiceBindDomain(cluster, serviceName, domainInfo, callback) {
+  return {
+    [FETCH_API]: {
+      types: [SERVICE_BIND_DOMAIN_REQUEST, SERVICE_BIND_DOMAIN_SUCCESS, SERVICE_BIND_DOMAIN_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/binddomain`,
+      options: {
+        method: 'POST',
+        body: domainInfo
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function serviceBindDomain(cluster, serviceName, domainInfo, callback) {
+  return (dispath, getState) => {
+    return dispath(fetchServiceBindDomain(cluster, serviceName, domainInfo, callback))
+  }
+}
+
+export const SERVICE_DELETE_DOMAIN_REQUEST = 'SERVICE_DELETE_DOMAIN_REQUEST'
+export const SERVICE_DELETE_DOMAIN_SUCCESS = 'SERVICE_DELETE_DOMAIN_SUCCESS'
+export const SERVICE_DELETE_DOMIAN_FAILURE = 'SERVICE_DELETE_DOMAIN_FAILURE'
+
+function fetchDeleteServiceDomain(cluster, serviceName, domainInfo, callback) {
+  return {
+    [FETCH_API]: {
+      types: [SERVICE_DELETE_DOMAIN_REQUEST, SERVICE_DELETE_DOMAIN_SUCCESS, SERVICE_DELETE_DOMIAN_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/binddomain`,
+      options: {
+        method: 'PUT',
+        body: domainInfo
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function deleteServiceDomain(cluster, serviceName, domainInfo, callback) {
+  return (dispath, getState) => {
+    return dispath(fetchDeleteServiceDomain(cluster, serviceName, domainInfo, callback))
+  }
+}
+
+
+export const SERVICE_AVAILABILITY_REQUEST = 'SERVICE_AVAILABILITY_REQUEST'
+export const SERVICE_AVAILABILITY_SUCCESS = 'SERVICE_AVAILABILITY_SUCCESS'
+export const SERVICE_AVAILABILITY_FAILURE = 'SERVICE_AVAILABILITY_FAILURE'
+
+export function fetchChangeServiceAvailability(cluster, serviceName, options, callback) {
+  let body = null
+  if (typeof options === 'boolean') {
+    body = {
+      open: options
+    }
+  }
+  else {
+    body = {
+      livenessProbe: options
+    }
+  }
+  return {
+    [FETCH_API]: {
+      types: [SERVICE_AVAILABILITY_REQUEST, SERVICE_AVAILABILITY_SUCCESS, SERVICE_AVAILABILITY_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/ha`,
+      options: {
+        method: 'PUT',
+        body
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function changeServiceAvailability(cluster, serviceName, options, callback) {
+  return (dispath, getState) => {
+    return dispath(fetchChangeServiceAvailability(cluster, serviceName, options, callback))
+  }
+}
+
+export const SERVICE_GET_AUTO_SCALE_REQUEST = 'SERVICE_GET_AUTO_SCALE_REQUEST'
+export const SERVICE_GET_AUTO_SCALE_SUCCESS = 'SERVICE_GET_AUTO_SCALE_SUCCESS'
+export const SERVICE_GET_AUTO_SCALE_FAILURE = 'SERVICE_GET_AUTO_SCALE_FAILURE'
+
+function fetchAutoScale(cluster, serviceName) {
+  return {
+    [FETCH_API]: {
+      types: [SERVICE_GET_AUTO_SCALE_REQUEST, SERVICE_GET_AUTO_SCALE_SUCCESS, SERVICE_GET_AUTO_SCALE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/autoscale`,
+      schema: {}
+    }
+  }
+}
+
+export function loadAutoScale(cluster, serviceName) {
+  return (dispath) => {
+    return dispath(fetchAutoScale(cluster, serviceName))
   }
 }

@@ -41,6 +41,29 @@ class Deployment {
     }
   }
 
+  importFromK8SDeployment(k8sDeployment) {
+    if (k8sDeployment.metadata) {
+      if (k8sDeployment.metadata.name) {
+        this.metadata.name = k8sDeployment.metadata.name
+      }
+      if (k8sDeployment.metadata.labels) {
+        this.metadata.labels = k8sDeployment.metadata.labels
+      }
+    }
+
+    if (k8sDeployment.spec) {
+      if (k8sDeployment.spec.replicas) {
+        this.spec.replicas = k8sDeployment.spec.replicas
+      }
+      if (k8sDeployment.spec.selector) {
+        this.spec.selector = k8sDeployment.spec.selector
+      }
+      if (k8sDeployment.spec.template) {
+        this.spec.template = k8sDeployment.spec.template
+      }
+    }  
+  }
+
   setReplicas(replicas) {
     replicas = parseInt(replicas)
     if (isNaN(replicas)) {

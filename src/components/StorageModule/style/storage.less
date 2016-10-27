@@ -48,7 +48,7 @@
       }
     }
   }
-  .storageList {
+  .storageBox {
     margin-top: 20px;
     width: 100%;
     border-radius: 5px;
@@ -58,65 +58,74 @@
       height: 40px;
       line-height: 40px;
       border-bottom: 1px solid #d9d9d9;
-      .selectIconTitle {
-        width: 5%;
-        overflow: hidden;
-        text-align: center;
+    }
+    .commonTitle {
+      float: left;
+      padding-left: 10px;
+      i {
+        margin-left: 5px;
+        cursor: pointer;
       }
-      .name {
-        width: 10%;
-        overflow: hidden;
-        text-overflow: ellipsis;
+    }
+    .selectIconTitle {
+      width: 5%;
+      overflow: hidden;
+      text-align: center;
+    }
+    .name {
+      width: 10%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .status {
+      width: 10%;
+      .fa {
+        margin: 0 5px;
       }
-      .status {
-        width: 10%;
-        .fa {
-          margin: 0 5px;
-        }
-        .normal {
-          color: #5cb85c;
-        }
-        .error {
-          color: #f85a5a;
-        }
+      .normal {
+        color: #5cb85c;
       }
-      .formet {
-        width: 10%;
+      .error {
+        color: #f85a5a;
       }
-      .forin {
-        width: 20%;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-      .appname {
-        width: 15%;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-      .size {
-        width: 10%;
-      }
-      .createTime {
-        width: 10%;
-      }
-      .actionBox {
-        width: 10%;
-      }
-      .actionBtn {
-        float: left;
-        padding-left: 10px;
-      }
-      .commonTitle {
-        float: left;
-        padding-left: 10px;
-        i {
-          margin-left: 5px;
-          cursor: pointer;
-        }
-      }
+    }
+    .formet {
+      width: 10%;
+    }
+    .forin {
+      width: 20%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .appname {
+      width: 15%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .size {
+      width: 10%;
+    }
+    .createTime {
+      width: 10%;
+    }
+    .actionBox {
+      width: 10%;
+    }
+    .actionBtn {
+      float: left;
+      width: 10%;
+      padding-left: 10px;
     }
     .dataBox {
       width: 100%;
+      .commonData {
+      float: left;
+      padding-left: 10px;
+      i {
+        margin-left: 5px;
+        cursor: pointer;
+      }
+    }
     }
   }
   .text-center {

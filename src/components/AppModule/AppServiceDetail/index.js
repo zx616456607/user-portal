@@ -20,29 +20,14 @@ import PortDetail from './PortDetail'
 import AppUseful from './AppUseful'
 import AppServiceLog from './AppServiceLog'
 import AppServiceEvent from './AppServiceEvent'
+import ServiceMonitor from './ServiceMonitor'
+import AppAutoScale from './AppAutoScale'
 import { loadServiceDetail, loadServiceContainerList } from '../../../actions/services'
 import CommmonStatus from '../../CommonStatus'
 import './style/AppServiceDetail.less'
 
 const DEFAULT_TAB = '#containers'
 const TabPane = Tabs.TabPane;
-const operaMenu = (<Menu>
-  <Menu.Item key="0">
-    重新部署
-  </Menu.Item>
-  <Menu.Item key="1">
-    停止容器
-  </Menu.Item>
-  <Menu.Item key="2">
-    删除
-  </Menu.Item>
-  <Menu.Item key="3">
-    查看架构图
-  </Menu.Item>
-  <Menu.Item key="4">
-    查看编排
-  </Menu.Item>
-</Menu>);
 
 function loadData(props) {
   const { cluster, serviceName, loadServiceDetail, loadServiceContainerList } = props
@@ -56,8 +41,10 @@ class AppServiceDetail extends Component {
     super(props);
     this.closeModal = this.closeModal.bind(this)
     this.onTabClick = this.onTabClick.bind(this)
+    this.restartService = this.restartService.bind(this)
+    this.stopService = this.stopService.bind(this)
     this.state = {
-      activeTabKey: DEFAULT_TAB
+      activeTabKey: props.selectTab || DEFAULT_TAB
     }
   }
 
@@ -73,21 +60,20 @@ class AppServiceDetail extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { serviceDetailmodalShow, serviceName } = nextProps
+    const { serviceDetailmodalShow, serviceName, selectTab } = nextProps
     if (serviceDetailmodalShow === this.props.serviceDetailmodalShow) {
       return
     }
     if (serviceDetailmodalShow) {
       loadData(nextProps)
-      if (serviceName === this.props.serviceName) {
+      if (serviceName === this.props.serviceName && (!selectTab)) {
         return
       }
       this.setState({
-        activeTabKey: DEFAULT_TAB
+        activeTabKey: selectTab || DEFAULT_TAB
       })
     }
   }
-
   onTabClick(activeTabKey) {
     if (activeTabKey === this.state.activeTabKey) {
       return
@@ -95,6 +81,43 @@ class AppServiceDetail extends Component {
     this.setState({
       activeTabKey
     })
+  }
+  restartService(service) {
+    const { funcs } = this.props
+    const self = this
+    funcs.confirmRestartServices([service], {
+      success: {
+        func: () => {
+          loadData(self.props)
+          self.setState({
+            activeTabKey: DEFAULT_TAB
+          })
+        },
+        isAsync: true
+      }
+    })
+  }
+
+  stopService(service) {
+    const { funcs } = this.props
+    const self = this
+    funcs.confirmStopServices([service], {
+      success: {
+        func: () => {
+          loadData(self.props)
+          self.setState({
+            activeTabKey: DEFAULT_TAB
+          })
+        },
+        isAsync: true
+      }
+    })
+  }
+
+  delteService(service) {
+    const { funcs } = this.props
+    const self = this
+    funcs.confirmDeleteServices([service])
   }
 
   render() {
@@ -105,13 +128,36 @@ class AppServiceDetail extends Component {
       isServiceDetailFetching,
       containers,
       isContainersFetching,
+      appName,
     } = this.props
     const { activeTabKey } = this.state
     const service = scope.state.currentShowInstance
+    const operaMenu = (<Menu>
+      <Menu.Item key="0">
+        <span onClick={() => this.restartService(service)}>重新部署</span>
+      </Menu.Item>
+      <Menu.Item key="1">
+        <span onClick={() => this.stopService(service)}>停止</span>
+      </Menu.Item>
+      <Menu.Item key="2">
+        <span onClick={() => this.delteService(service)}>删除</span>
+      </Menu.Item>
+      <Menu.Item key="3">
+        <Link to={`/app_manage/detail/${appName}#topology`} onClick={this.closeModal} >
+          查看拓扑图
+        </Link>
+      </Menu.Item>
+      <Menu.Item key="4">
+        <Link to={`/app_manage/detail/${appName}#stack`} onClick={this.closeModal} >
+          查看编排
+        </Link>
+      </Menu.Item>
+    </Menu>);
     return (
       <div id="AppServiceDetail">
         <div className="titleBox">
-          <i className="closeBtn fa fa-times" onClick={this.closeModal}></i>
+          <Icon className="closeBtn" type="cross" onClick={this.closeModal} />
+          {/*<i className="closeBtn fa fa-times" onClick={this.closeModal}></i>*/}
           <div className="imgBox">
             <img src="/img/test/github.jpg" />
           </div>
@@ -132,8 +178,8 @@ class AppServiceDetail extends Component {
               </span>
               <br />
               <span>
-                容器实例&nbsp;:&nbsp;3/3
-            </span>
+                容器实例&nbsp;:&nbsp;{service.spec.replicas}/{service.spec.replicas}
+              </span>
             </div>
             <div className="rightBox">
               <Button className="loginBtn" type="primary">
@@ -175,7 +221,12 @@ class AppServiceDetail extends Component {
                 <ComposeGroup />
               </TabPane>
               <TabPane tab="绑定域名" key="#binddomain">
-                <BindDomain />
+                <BindDomain
+                  cluster={service.cluster}
+                  serviceName={service.metadata.name}
+                  serviceDetailmodalShow={serviceDetailmodalShow}
+                  service={serviceDetail}
+                  />
               </TabPane>
               <TabPane tab="端口" key="#ports">
                 <PortDetail
@@ -183,14 +234,28 @@ class AppServiceDetail extends Component {
                   cluster={service.cluster}
                   container={containers[0]}
                   loading={isContainersFetching}
+                  serviceDetailmodalShow={serviceDetailmodalShow}
                   />
               </TabPane>
               <TabPane tab="高可用" key="#livenessprobe">
                 <AppUseful
-                  serviceDetail={serviceDetail}
-                  loading={isServiceDetailFetching} />
+                  service={serviceDetail}
+                  loading={isServiceDetailFetching}
+                  serviceName={service.metadata.name}
+                  cluster={service.cluster}
+                  />
               </TabPane>
-              <TabPane tab="监控" key="#monitor">监控</TabPane>
+              <TabPane tab="监控" key="#monitor">
+                <ServiceMonitor
+                  serviceName={service.metadata.name}
+                  cluster={service.cluster} />
+              </TabPane>
+              <TabPane tab="自动伸缩" key="#autoExtend">
+                <AppAutoScale
+                  replicas={service.spec.replicas}
+                  serviceName={service.metadata.name}
+                  cluster={service.cluster} />
+              </TabPane>
               <TabPane tab="日志" key="#logs">
                 <AppServiceLog serviceName={service.metadata.name} cluster={service.cluster} />
               </TabPane>

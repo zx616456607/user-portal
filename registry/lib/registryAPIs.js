@@ -10,10 +10,10 @@
  * @author Wang Lei
 */
 
-var logger = require('../../utils/logger').getLogger('registryAPIs');
+var logger  = require('../../utils/logger').getLogger('registryAPIs');
 var request = require('request');
-var async = require('async');
-var config = require('../../configs/registry')
+var async   = require('async');
+var config  = require('../../configs/registry')
 
 /*
  * Docker registry APIs
@@ -515,7 +515,6 @@ DockerRegistryAPIs.prototype.getImageJsonInfoV2 = function (user, repositoryName
   var self = this;
 
   async.waterfall([
-    // 1. Prepare old RC and pods
     function (callback) {
       // Use 'admin' for now if user login, so we can always get the tags for all repositories
       var exchangeURL = self.registryConfig.v2AuthServer + "/auth?account=" + requestUser + "&scope=repository:" + repositoryName + ":pull&service=" + self.registryConfig.v2Server;
@@ -577,19 +576,50 @@ DockerRegistryAPIs.prototype.getImageJsonInfoV2 = function (user, repositoryName
         headers: {
           Authorization: "Bearer " + token
         }
-      }, function (err, resp, result) {
+      }, function (err, resp, configInfo) {
         if (err) {
           logger.error(method, err);
           callback(err, result);
           return;
         }
-        logger.debug(JSON.stringify(result));
-        // Return the config info of latest layer
-        if (result && result.history) {
-          callback(null, JSON.parse(result.history[0].v1Compatibility));
-        } else {
-          callback(null, {});
-        }
+        var layerRequestUrl = self.registryConfig.v2ServerProtocol + "://" + self.registryConfig.v2Server + "/v2/" + repositoryName + "/manifests/" + tag;
+        logger.info("Get layer info url: " + layerRequestUrl);
+        request.get({
+          url: layerRequestUrl,
+          json: true,
+          headers: {
+            Accept: "application/vnd.docker.distribution.manifest.v2+json",
+            Authorization: "Bearer " + token
+          }
+        }, function (err, resp, layerInfo) {
+          if (err) {
+            logger.error(method, err);
+            callback(500, this.body, err);
+            return;
+          }
+          logger.debug(JSON.stringify(layerInfo));
+          // Return the config info of latest layer
+          result = {}
+          if (configInfo && configInfo.history) {
+            result.configInfo = configInfo.history[0].v1Compatibility;
+          }
+          var totalSize = 0
+          var length = 0
+          if (layerInfo && layerInfo.layers) {
+            length = layerInfo.layers.length
+            layerInfo.layers.forEach(function (layerInfo) {
+              if (layerInfo.size) {
+                totalSize += layerInfo.size;
+              }
+            });
+          }
+          result.sizeInfo = {
+            "layerLength": length,
+            "totalSize": totalSize
+          }
+          logger.info("Size of " + repositoryName + ": " + totalSize);
+          callback(null, result);
+        });
       });
     }],
     function (err, result) {
