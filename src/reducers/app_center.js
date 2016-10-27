@@ -208,19 +208,6 @@ function imageTag(state = {}, action) {
       return merge({}, defaultState, state, {
         [registry]: { isFetching: false }
       })
-    case ActionTypes.GET_OTHER_IMAGE_TAGS_REQUEST:
-      return merge({}, defaultState, state, {
-         isFetching: true 
-      })
-    case ActionTypes.GET_OTHER_IMAGE_TAGS_SUCCESS:
-      return Object.assign({}, state, {
-        isFetching: false,
-        imageTag: action.response.result.tags || null
-      })
-    case ActionTypes.GET_OTHER_IMAGE_TAGS_FAILURE:
-      return merge({}, defaultState, state, {
-         isFetching: false 
-      })
     default:
       return state
   }
@@ -270,7 +257,7 @@ function imageTagConfig(state = {}, action) {
 export function getImageTagConfig(state = { publicImages: {} }, action) {
   return {
     imageTagConfig: imageTagConfig(state.imageTagConfig, action),
-    otherTagConfig: getOtherImageTagConfig(state.imageTagconfig, action)
+    otherTagConfig: getOtherImageTagConfig(state.otherTagConfig, action)
   }
 }
 
@@ -333,7 +320,8 @@ function getOtherImageTagConfig(state={}, action) {
   const registry = action.registry
   const defaultState = {
       isFetching: false,
-      configList:[]
+      configList:[],
+      sizeInfo: ''
   }
 
   switch (action.type) {
@@ -345,7 +333,8 @@ function getOtherImageTagConfig(state={}, action) {
       return Object.assign({}, state, {
         isFetching: false,
         tag: action.tag || [],
-        configList: action.response.result.config || []
+        configList: action.response.result.configInfo || [],
+        sizeInfo: action.response.result.sizeInfo
         
       })
     case ActionTypes.GET_OTHER_TAG_CONFIG_FAILURE:
