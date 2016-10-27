@@ -117,6 +117,25 @@ export function deleteOtherImage(id, callback) {
   }
 }
 
+// export function getImageOtherInfo(obj, callback) {
+
+// }
+
+export const GET_OTHER_IMAGE_TAGS_REQUEST = 'GET_OTHER_IMAGE_TAGS_REQUEST'
+export const GET_OTHER_IMAGE_TAGS_SUCCESS = 'GET_OTHER_IMAGE_TAGS_SUCCESS'
+export const GET_OTHER_IMAGE_TAGS_FAILURE = 'GET_OTHER_IMAGE_TAGS_FAILURE'
+
+export function getOtherImageTag(obj) {
+  return {
+    registry: obj.registry,
+    [FETCH_API]: {
+      types: [GET_OTHER_IMAGE_TAGS_REQUEST, GET_OTHER_IMAGE_TAGS_SUCCESS, GET_OTHER_IMAGE_TAGS_FAILURE],
+      endpoint: `${API_URL_PREFIX}/docker-registry/${obj.id}/images/${obj.imageName}/tags`,
+      schema: Schemas.REGISTRYS
+    }
+  }
+}
+
 //this is get the image detail tag
 export const IMAGE_GET_DETAILTAG_REQUEST = 'IMAGE_GET_DETAILTAG_REQUEST'
 export const IMAGE_GET_DETAILTAG_SUCCESS = 'IMAGE_GET_DETAILTAG_SUCCESS'
@@ -147,23 +166,33 @@ export const IMAGE_GET_DETAILTAGCONFIG_REQUEST = 'IMAGE_GET_DETAILTAGCONFIG_REQU
 export const IMAGE_GET_DETAILTAGCONFIG_SUCCESS = 'IMAGE_GET_DETAILTAGCONFIG_SUCCESS'
 export const IMAGE_GET_DETAILTAGCONFIG_FAILURE = 'IMAGE_GET_DETAILTAGCONFIG_FAILURE'
 
-function fetchImageGetDetailTagConfig(registry, fullName, tag, callback) {
+// Fetches apps list from API unless it is cached.
+// Relies on Redux Thunk middleware.
+export function loadImageDetailTagConfig(registry, fullName, tag) {
+  // return (dispatch, getState) => {
+  //   return dispatch(fetchImageGetDetailTagConfig(registry, fullName, tag, callback))
+  // }
   return {
     registry,
     [FETCH_API]: {
       types: [IMAGE_GET_DETAILTAGCONFIG_REQUEST, IMAGE_GET_DETAILTAGCONFIG_SUCCESS, IMAGE_GET_DETAILTAGCONFIG_FAILURE],
       endpoint: `${API_URL_PREFIX}/registries/${registry}/${fullName}/tags/${tag}/configs`,
       schema: Schemas.REGISTRYS
-    },
-    callback
+    }
   }
 }
 
-// Fetches apps list from API unless it is cached.
-// Relies on Redux Thunk middleware.
-export function loadImageDetailTagConfig(registry, fullName, tag, callback) {
-  return (dispatch, getState) => {
-    return dispatch(fetchImageGetDetailTagConfig(registry, fullName, tag, callback))
+export const GET_OTHER_TAG_CONFIG_REQUEST = 'GET_OTHER_TAG_CONFIG_REQUEST'
+export const GET_OTHER_TAG_CONFIG_SUCCESS = 'GET_OTHER_TAG_CONFIG_SUCCESS'
+export const GET_OTHER_TAG_CONFIG_FAILURE = 'GET_OTHER_TAG_CONFIG_FAILURE'
+export function loadOtherDetailTagConfig(obj) {
+  return {
+    [FETCH_API]: {
+      types: [GET_OTHER_TAG_CONFIG_REQUEST, GET_OTHER_TAG_CONFIG_SUCCESS, GET_OTHER_TAG_CONFIG_FAILURE],
+      endpoint: `${API_URL_PREFIX}/docker-registry/${obj.imageId}/images/${obj.fullname}/tags/${obj.imageTag}`,
+      schema: Schemas.REGISTRYS
+    },
+    tag: obj.imageTag
   }
 }
 

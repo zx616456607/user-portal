@@ -21,7 +21,7 @@ import PublicSpace from './ImageCenter/PublicSpace.js'
 import OtherSpace from './ImageCenter/OtherSpace.js'
 import "./style/ImageCenter.less"
 import { loadOtherImage, getOtherImageList, addOtherStore, getImageDetailInfo, deleteOtherImage} from '../../actions/app_center'
-
+import {findIndex } from 'lodash'
 
 let TweenOneGroup = TweenOne.TweenOneGroup;
 const TabPane = Tabs.TabPane;
@@ -331,7 +331,7 @@ class ImageCenter extends Component {
       createModalShow: false,
       otherSpaceType: "1",
       imageDetailModalShow: false,
-      imageId:''
+      otherHead: {}
     }
   }
   componentDidMount() {
@@ -347,15 +347,14 @@ class ImageCenter extends Component {
     });
   }
   selectCurrentTab(current, type, list) {
+    //if user select other space is not default space,so that change state
     //this function for user select current show tabs
     this.setState({
-      current: current
+      current: current,
     });
-    //if user select other space is not default space,so that change state
     if (type != "default") {
       this.setState({
-        otherSpace: type,
-        imageId: list.id
+        otherSpace: type
       });
     }
     if (list.id) {
@@ -369,6 +368,13 @@ class ImageCenter extends Component {
           }
         }
       })
+      const otherHead = this.state.otherImageHead 
+      let Index = findIndex(otherHead , item => {
+        return item.id === list.id
+      })
+      this.setState({
+        otherHead: otherHead[Index]
+      });
     }
   }
 
@@ -443,7 +449,7 @@ class ImageCenter extends Component {
           {current == "imageSpace" ? [<ImageSpace scope={scope} />] : null}
           {current == "publicSpace" ? [<PublicSpace scope={scope} />] : null}
           {current == "myCollection" ? [<MyCollection scope={scope} />] : null}
-          {otherSpace == 'otherRegistry' ? [<OtherSpace scope={scope} registryServer={this.props.server} imageId = {this.state.imageId} config={otherImageList} />] : null}
+          {otherSpace == 'otherRegistry' ? [<OtherSpace scope={scope} otherHead={this.state.otherHead} imageId = {this.state.otherHead.id} config={otherImageList} />] : null}
           <Modal title="添加第三方" className="addOtherSpaceModal" visible={this.state.createModalShow}
             onCancel={this.closeAddModal}
             >
