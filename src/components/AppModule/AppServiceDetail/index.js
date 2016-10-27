@@ -74,7 +74,6 @@ class AppServiceDetail extends Component {
       })
     }
   }
-
   onTabClick(activeTabKey) {
     if (activeTabKey === this.state.activeTabKey) {
       return
@@ -83,7 +82,6 @@ class AppServiceDetail extends Component {
       activeTabKey
     })
   }
-
   restartService(service) {
     const { funcs } = this.props
     const self = this

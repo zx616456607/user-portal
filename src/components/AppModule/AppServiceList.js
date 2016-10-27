@@ -257,7 +257,6 @@ class AppServiceList extends Component {
     const checkedServiceList = serviceList.filter((service) => service.checked)
     this.confirmRestartServices(checkedServiceList)
   }
-
   confirmRestartServices(serviceList, callback) {
     const { cluster, appName, loadServiceList, restartServices } = this.props
     const serviceNames = serviceList.map((service) => service.metadata.name)
@@ -281,7 +280,6 @@ class AppServiceList extends Component {
       onCancel() { },
     })
   }
-
   confirmQuickRestartService(e) {
     const { serviceList } = this.state
     const { cluster, appName, loadServiceList, quickRestartServices } = this.props
