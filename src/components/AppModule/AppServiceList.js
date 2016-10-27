@@ -18,6 +18,7 @@ import { loadServiceList, startServices, restartServices, stopServices, deleteSe
 import { DEFAULT_CLUSTER, DEFAULT_PAGE_SIZE } from '../../constants'
 import { browserHistory } from 'react-router'
 import UpdateModal from './AppServiceDetail/UpdateModal'
+import ConfigModal from './AppServiceDetail/ConfigModal'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -537,7 +538,7 @@ class AppServiceList extends Component {
                      保 存
                    </Button>
                  ]}>
-            
+            <ConfigModal checkedServiceList={checkedServiceList}/>
           </Modal>
         </QueueAnim>
       </div>
