@@ -310,5 +310,10 @@ export function services(state = { appItmes: {} }, action) {
       SUCCESS: ActionTypes.SERVICE_UPDATE_AUTO_SCALE_SUCCESS,
       FAILURE: ActionTypes.SERVICE_UPDATE_AUTO_SCALE_FAILURE
     }, state.updateAutoScale, action, { overwrite: true }),
+    manualScaleService: reducerFactory({
+      REQUEST: ActionTypes.SERVICE_MANUAL_SCALE_REQUEST,
+      SUCCESS: ActionTypes.SERVICE_MANUAL_SCALE_SUCCESS,
+      FAILURE: ActionTypes.SERVICE_MANUAL_SCALE_FAILURE
+    }, state.manualScaleService, action, { overwrite: true }),
   }
 }

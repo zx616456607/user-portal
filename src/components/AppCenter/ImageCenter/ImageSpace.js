@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Menu, Button, Card, Input, Dropdown, Modal ,message} from 'antd'
+import { Menu, Button, Card, Input, Dropdown,Spin, Modal ,message} from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -124,7 +124,15 @@ const MyComponent = React.createClass({
     })
   },
   render: function () {
-    const { registryServer, imageList} = this.props
+    const { registryServer, imageList, isFetching} = this.props
+    console.log('isFetching', this.props)
+    if (isFetching) {
+      return (
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
+      )
+    }
     let items = imageList.map((item) => {
       const dropdown = (
         <Menu onClick={this.btnDeleteImage.bind(this, item.id)}
@@ -252,7 +260,7 @@ class ImageSpace extends Component {
               <Input className="searchBox" placeholder={formatMessage(menusText.search)} type="text" />
               <i className="fa fa-search"></i>
             </div>
-            <MyComponent scope={scope} imageList= {imageList} registryServer= {server} deleteImage={(id)=>this.props.deleteImage(id)} getImageDetailInfo = {(obj,callback)=>this.props.getImageDetailInfo(obj,callback) } />
+            <MyComponent scope={scope} isFetching={this.props.isFetching} imageList= {imageList} registryServer= {server} deleteImage={(id)=>this.props.deleteImage(id)} getImageDetailInfo = {(obj,callback)=>this.props.getImageDetailInfo(obj,callback) } />
             <Modal title={<FormattedMessage {...menusText.uploadImage} />} className="uploadImageModal" visible={this.state.uploadModalVisible}
               onCancel={this.closeUploadModal} onOk={this.closeUploadModal}
               >

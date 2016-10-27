@@ -506,3 +506,28 @@ export function updateAutoScale(cluster, serviceName, body, callback) {
     return dispath(fetchUpdateAutoScale(cluster, serviceName, body, callback))
   }
 }
+
+export const SERVICE_MANUAL_SCALE_REQUEST = 'SERVICE_MANUAL_SCALE_REQUEST'
+export const SERVICE_MANUAL_SCALE_SUCCESS = 'SERVICE_MANUAL_SCALE_SUCCESS'
+export const SERVICE_MANUAL_SCALE_FAILURE = 'SERVICE_MANUAL_SCALE_FAILURE'
+
+function fetchManualScaleService(cluster, serviceName, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [SERVICE_MANUAL_SCALE_REQUEST, SERVICE_MANUAL_SCALE_SUCCESS, SERVICE_MANUAL_SCALE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/manualscale`,
+      options: {
+        method: 'PUT',
+        body
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function manualScaleService(cluster, serviceName, body, callback) {
+  return (dispath) => {
+    return dispath(fetchManualScaleService(cluster, serviceName, body, callback))
+  }
+}
