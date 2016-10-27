@@ -71,7 +71,6 @@ class ServiceAPI extends Component {
 
   componentWillMount() {
     const { registry, loadImageDetailTagConfig } = this.props;
-    console.log('loadConfigGroup', this.props)
     const { fullname, imageTag , imageId} = this.props;
     const config = {imageId, fullname, imageTag}
     loadImageDetailTagConfig(registry, fullname, imageTag);
@@ -123,7 +122,8 @@ class ServiceAPI extends Component {
       <Card className="imageServiceAPI">
         {portsShow}
         {dataStorageShow}
-        <p>运行命令及参数:&nbsp;{entrypointShow}{cmdShow}</p>
+        <p>运行命令及参数：&nbsp;{entrypointShow}{cmdShow}</p>
+        <div>大小：{configList.sizeInfo.totalSize}</div>
         <p>所需环境变量: </p>
         <div className="itemBox">
           <div className="title">
@@ -153,7 +153,7 @@ function mapStateToProps(state, props) {
     registryServer: server,
     configList,
     isFetching,
-    tag
+    tag,
   }
 }
 

@@ -102,8 +102,6 @@ class OtherDetail extends Component {
   render() {
     const { formatMessage } = this.props.intl;
     const imageDetail = this.props.config
-    console.log(this.props)
-    console.log(this.state)
     const imageInfo = ''
     // const ipAddress = this.props.scope.props.otherHead;
     const ipAddress = this.props.scope.props.otherHead;

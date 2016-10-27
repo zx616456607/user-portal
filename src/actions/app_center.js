@@ -216,18 +216,19 @@ export function getImageDetailInfo(obj, callback) {
 export const SET_IMAGE_STORE_REQUEST = 'SET_IMAGE_STORE_REQUEST'
 export const SET_IMAGE_STORE_SUCCESS = 'SET_IMAGE_STORE_SUCCESS'
 export const SET_IMAGE_STORE_FAILURE = 'SET_IMAGE_STORE_FAILURE'
-// set image store 
+// set image store 收藏镜像
 export function imageStore(obj,callback) {
   return {
     [FETCH_API]: {
       types: [SET_IMAGE_STORE_REQUEST, SET_IMAGE_STORE_SUCCESS, SET_IMAGE_STORE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/docker-registry/update`,
+      endpoint: `${API_URL_PREFIX}/registries/${obj.registry}/${obj.image}`,
       schema: Schemas.REGISTRYS,
       options: {
-        method: 'POST',
-        body: {name: obj.name, myfavourite: obj.myfavourite}
+        method: 'PUT',
+        body: {myfavourite: obj.myfavourite}
       },
     },
+    myfavourite: obj.myfavourite,
     callback
   }
 }

@@ -66,7 +66,6 @@ class OtherServiceApi extends Component {
 
   // @workaround !! 
   componentDidMount() {
-    console.log('loadConfigGroup', this.props)
     const { fullname, imageTag , imageId} = this.props;
     const config = {imageId, fullname, imageTag}
     this.props.loadOtherDetailTagConfig(config)
@@ -77,7 +76,6 @@ class OtherServiceApi extends Component {
     //if the different is true,so that the function will be request the new one's tag
     const oldImageDatail = this.props.fullname;
     const newImageDetail = nextPorps.fullname;
-    console.log(this.props)
     const { fullname, imageTag , imageId} = this.props;
     const config = {imageId, fullname, imageTag}
     if (newImageDetail != oldImageDatail) {
@@ -86,8 +84,6 @@ class OtherServiceApi extends Component {
   }
   render() {
     const { isFetching, configList , sizeInfo} = this.props;
-    console.log('configList------------', this.props)
-    console.log('sizeInfo------------', configList)
     // if (!configList || configList =='') return
     if (isFetching) {
       return (
@@ -131,6 +127,7 @@ class OtherServiceApi extends Component {
          <p>容器端口:&nbsp;{portsShow}</p> 
         {dataStorageShow}
         <p>运行命令及参数:&nbsp;{entrypointShow}{cmdShow}</p>
+        <div>大小：{sizeInfo.totalSize}</div>
         <p>所需环境变量: </p>
         <div className="itemBox">
           <div className="title">

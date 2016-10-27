@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Modal, Tabs, Menu, Button, Card, Form, Input ,message} from 'antd'
+import { Modal, Tabs,Icon, Menu, Button, Card, Form, Input ,message} from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import TweenOne from 'rc-tween-one';
@@ -433,6 +433,7 @@ class ImageCenter extends Component {
                 return (
                 <li className={otherSpace == list.id ? "titleSelected" : "titleDetail"}
                   onClick={this.selectCurrentTab.bind(this, "otherRegistry",list, list.id)} >
+                  <Icon type="shopping-cart" />&nbsp;
                   <span>{list.title}</span>
                 </li>
                 )

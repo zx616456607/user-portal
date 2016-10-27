@@ -179,7 +179,7 @@ function imageTag(state = {}, action) {
     [registry]: {
       isFetching: false,
       registry,
-      imageList: []
+      imageList: [],
     }
   }
 
@@ -201,7 +201,7 @@ function imageTag(state = {}, action) {
           isFetching: false,
           registry: action.response.result.registry,
           server: action.response.result.server,
-          tag: data
+          tag: data,
         }
       })
     case ActionTypes.IMAGE_GET_DETAILTAG_FAILURE:
@@ -226,7 +226,8 @@ function imageTagConfig(state = {}, action) {
   const defaultState = {
     [registry]: {
       isFetching: false,
-      registry
+      registry,
+      sizeInfo:{}
     }
   }
 
@@ -242,7 +243,8 @@ function imageTagConfig(state = {}, action) {
           registry: action.response.result.registry,
           server: action.response.result.server,
           tag: action.response.result.tag || [],
-          configList: action.response.result.data || []
+          configList: action.response.result.data || [],
+          sizeInfo: action.response.result.data.sizeInfo
         }
       })
     case ActionTypes.IMAGE_GET_DETAILTAGCONFIG_FAILURE:
@@ -284,6 +286,20 @@ function imagesInfo(state={}, action){
         }
       })
     case ActionTypes.GET_IMAGEINFO_FAILURE:
+      return merge({}, defaultState, state, {
+        [registry]: { isFetching: false }
+      })
+          // 设置收藏 与否
+    case ActionTypes.SET_IMAGE_STORE_REQUEST:
+      return merge({}, defaultState, state, {
+        [registry]: { isFetching: false }
+      })
+
+    case ActionTypes.SET_IMAGE_STORE_SUCCESS:
+      const oldimageInfo = cloneDeep(state)
+      oldimageInfo.default.imageInfo.isFavourite = action.myfavourite
+      return oldimageInfo
+    case ActionTypes.SET_IMAGE_STORE_FAILURE:
       return merge({}, defaultState, state, {
         [registry]: { isFetching: false }
       })
@@ -371,11 +387,11 @@ function fockImagesList(state = {}, action) {
           imageList: action.response.result.data || []
         }
       })
-
     case ActionTypes.GET_IMAGE_FOCK_FAILURE:
       return merge({}, defaultState, state, {
         [registry]: { isFetching: false }
       })
+
     default:
       return state
   }

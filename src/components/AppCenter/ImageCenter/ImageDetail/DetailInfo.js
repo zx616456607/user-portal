@@ -5,7 +5,7 @@
  * DetailInfo component
  *
  * v0.1 - 2016-10-09
- * @author GaoJian
+ * @author BaiYu
  */
 import React, { Component } from 'react'
 import { Card } from 'antd'

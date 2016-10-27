@@ -97,8 +97,6 @@ class ImageVersion extends Component {
     //if the different is true,so that the function will be request the new one's tag
     const oldImageDatail = this.state.imageDetail;
     const newImageDetail = nextPorps.config;
-    console.log(oldImageDatail)
-    console.log(newImageDetail)
     if (newImageDetail != oldImageDatail) {
       this.changeNewImage(newImageDetail);
     }
@@ -126,6 +124,7 @@ class ImageVersion extends Component {
   render() {
     const { isFetching } = this.props;
     const imageDetail = this.props.config;
+    console.log('parent ',this.props)
     let  tagList = {
       "tagList": this.props.imageDetailTag
     };
@@ -144,17 +143,17 @@ function mapStateToProps(state, props) {
   const defaultImageDetailTag = {
     isFetching: false,
     registry: DEFAULT_REGISTRY,
-    tag: []
+    tag: [],
   }
   const { imageTag ,otherImageTag} = state.getImageTag
-  const { registry, tag, isFetching, server } = imageTag[DEFAULT_REGISTRY] || defaultImageDetailTag
+  const { registry, tag, isFetching, server} = imageTag[DEFAULT_REGISTRY] || defaultImageDetailTag
   const otherDetailTag = otherImageTag.imageTag || []
   return {
     registry,
     registryServer: server,
     imageDetailTag: tag,
     isFetching,
-    otherDetailTag
+    otherDetailTag,
   }
 }
 
