@@ -16,6 +16,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../../constants'
 import './style/TenxFlowDetailFlowCard.less'
 import EditTenxFlowModal from './EditTenxFlowModal.js'
+import CICDSettingModal from './CICDSettingModal.js'
 
 const menusText = defineMessages({
   finish: {
@@ -134,7 +135,7 @@ function currentStatus(status) {
     case 'wait':
       return (
         <div className='runningStatus status'>
-          <i className='fa fa-clock-o' />
+          <Icon type="clock-circle-o" />
           <p><FormattedMessage {...menusText.wait} /></p>
         </div>
         );
@@ -226,40 +227,17 @@ function currentEditClass(status, editIndex, index) {
     return 'commonCard';
   } 
 }
-
-function currrentShowIndex(index, currentFlowEdit, scope) {
-  //this function for show different index box
-  if( index == currentFlowEdit ) {
-    //it's meaning the card is editting
-    return ;
-  }
-  if( index == 0 ) {
-    //it's meaning the card is the first card show the cicd Box
-    return (
-      <div className='cicdBox'>
-        <Switch onChange={scope.viewCicdBox}/>
-        <p className='switchTitile'><FormattedMessage {...menusText.cicd} /></p>
-        <p className='viewP'><FormattedMessage {...menusText.view} /></p>
-      </div>
-    );
-  } else {
-    //it'meaning the card is default
-    return (
-      <div className='indexBox'>
-        {index + 1}
-      </div>
-    );
-  }
-}
   
 class TenxFlowDetailFlowCard extends Component {
   constructor(props) {
     super(props);
     this.editFlow = this.editFlow.bind(this);
     this.viewCicdBox = this.viewCicdBox.bind(this);
+    this.viewCicdBoxP = this.viewCicdBoxP.bind(this);
     this.cancelEditCard = this.cancelEditCard.bind(this);
     this.state = {
-      editStatus: false
+      editStatus: false,
+      cicdSetModalShow: false
     }
   }
   
@@ -271,8 +249,24 @@ class TenxFlowDetailFlowCard extends Component {
     });
   }
   
-  viewCicdBox() {
-    
+  viewCicdBox(e) {
+    //this function for user change open cicd or not
+    if(e){
+      this.setState({
+        cicdSetModalShow: true
+      });
+    }else {
+      this.setState({
+        cicdSetModalShow: false
+      });
+    }
+  }
+  
+  viewCicdBoxP(e) {
+    //this function for open the modal of cicd
+    this.setState({
+      cicdSetModalShow: true
+    });
   }
   
   cancelEditCard() {
@@ -346,7 +340,7 @@ class TenxFlowDetailFlowCard extends Component {
                         <i className='fa fa-wpforms' />
                         <FormattedMessage {...menusText.logBtn} />
                       </Button>
-                      <Button size='large' type='ghost' className='editBtn' onClick={this.editFlow}>
+                      <Button size='large' type='ghost' className='editBtn' onClick={this.editFlow} disabled={ config.status == 'running' ? true : false }>
                         <i className='fa fa-pencil-square-o' />
                         <FormattedMessage {...menusText.editBtn} />
                       </Button>
@@ -365,7 +359,15 @@ class TenxFlowDetailFlowCard extends Component {
               </QueueAnim>
             ] : null
           }
-          { currrentShowIndex(index, currentFlowEdit, scopeThis) }
+          {
+            index == 0 ? [
+            <div className='cicdBox'>
+              <Switch onChange={this.viewCicdBox}/>
+              <p className='switchTitile'><FormattedMessage {...menusText.cicd} /></p>
+              <p className='viewP' onClick={this.viewCicdBoxP}><FormattedMessage {...menusText.view} /></p>
+            </div>
+            ] : null
+          }
         </Card>
         {
           currentFlowEdit != index ? [
@@ -375,6 +377,11 @@ class TenxFlowDetailFlowCard extends Component {
           ] : null
         }
         <div style={{ clear:'both' }}></div>
+        <Modal className='tenxFlowCicdSetting'
+          visible={this.state.cicdSetModalShow}
+        >
+          <CICDSettingModal scope={scopeThis} />
+        </Modal>
       </div>
     )
   }

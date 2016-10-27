@@ -251,6 +251,17 @@
   "CICD.Tenxflow.EditTenxFlowModal.servicesTitle": "常用服务",
   "CICD.Tenxflow.EditTenxFlowModal.addServices": "继续添加",
   "CICD.Tenxflow.EditTenxFlowModal.shellCode": "脚本命令",
+  "CICD.Tenxflow.EditTenxFlowModal.dockerFileCreate": "使用代码仓库的docker file",
+  "CICD.Tenxflow.EditTenxFlowModal.selectDockerFile": "选择已有",
+  "CICD.Tenxflow.EditTenxFlowModal.createNewDockerFile": "云端创建Dockerfile",
+  "CICD.Tenxflow.EditTenxFlowModal.imageRealName": "镜像名称",
+  "CICD.Tenxflow.EditTenxFlowModal.imageStore": "镜像仓库",
+  "CICD.Tenxflow.EditTenxFlowModal.otherImage": "自定义仓库",
+  "CICD.Tenxflow.EditTenxFlowModal.ImageTag": "镜像版本",
+  "CICD.Tenxflow.EditTenxFlowModal.ImageTagByBranch": "以代码分支名为tag",
+  "CICD.Tenxflow.EditTenxFlowModal.ImageTagByTime": "时间戳为tag",
+  "CICD.Tenxflow.EditTenxFlowModal.ImageTagByOther": "自定义tag",
+  "CICD.Tenxflow.EditTenxFlowModal.buildCache": "构建缓存",
   "CICD.Tenxflow.EditTenxFlowModal.submit": "确定",
   "CICD.Tenxflow.EditTenxFlowModal.cancel": "取消",
     
@@ -274,6 +285,14 @@
   "CICD.Tenxflow.TenxFlowDetailFlowCard.stopBtn": "停止",
   "CICD.Tenxflow.TenxFlowDetailFlowCard.logBtn": "执行记录",
   "CICD.Tenxflow.TenxFlowDetailFlowCard.restartBtn": "重启",
-  "CICD.Tenxflow.TenxFlowDetailFlowCard.editBtn": "编辑项目"
+  "CICD.Tenxflow.TenxFlowDetailFlowCard.editBtn": "编辑项目",
   
+  "CICD.Tenxflow.CICDSettingModal.tooltip": "当该项目对应的代码仓库，发生下面的操作时触发持续集成",
+  "CICD.Tenxflow.CICDSettingModal.branch": "提交代码到branch",
+  "CICD.Tenxflow.CICDSettingModal.tag": "提交代码到tag",
+  "CICD.Tenxflow.CICDSettingModal.request": "新建一个Pull Request",
+  "CICD.Tenxflow.CICDSettingModal.cancel": "取消",
+  "CICD.Tenxflow.CICDSettingModal.submit": "确定",
+  "CICD.Tenxflow.CICDSettingModal.cicdTitle": "持续集成触发规则"
+    
 }
