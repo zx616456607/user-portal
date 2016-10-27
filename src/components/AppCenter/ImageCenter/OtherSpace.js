@@ -13,11 +13,10 @@ import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import {deleteOtherImage, loadOtherImage} from '../../../actions/app_center'
-
+import {deleteOtherImage, loadOtherImage, getImageOtherTags} from '../../../actions/app_center'
 
 import "./style/OtherSpace.less"
-import ImageDetailBox from './ImageDetail/Index.js'
+import ImageDetailBox from './ImageDetail/OtherDetail.js'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -55,13 +54,14 @@ let MyComponent = React.createClass({
     config: React.PropTypes.array,
     scope: React.PropTypes.object
   },
-  showImageDetail: function (id) {
+  showImageDetail: function (imageName) {
     //this function for user select image and show the image detail info
-    //  const scope = this.props.scope;
-    //  scope.setState({
-    //   imageDetailModalShow:true,
-    //   currentImage:id
-    //  });
+     const {scope, imageId} = this.props
+     scope.setState({
+      imageDetailModalShow:true,
+      currentImage:imageName
+     });
+
   },
   render: function () {
     let config = this.props.config;
@@ -81,7 +81,7 @@ let MyComponent = React.createClass({
             </span>
             <span className="imageUrl">
               <FormattedMessage {...menusText.imageUrl} />&nbsp;
-            <span className="">{this.props.registryServer}/{item}</span>
+            <span className="">{this.props.otherHead.url}/{item}</span>
             </span>
 
           </div>
@@ -140,6 +140,7 @@ class OtherSpace extends Component {
     const { formatMessage } = this.props.intl;
     const rootscope = this.props.scope;
     const scope = this;
+    const otherHead = this.props.otherHead
     return (
       <QueueAnim className="OtherSpace"
         type="right"
@@ -150,8 +151,12 @@ class OtherSpace extends Component {
               <div className="infoBox">
                 <div className="url">
                   <i className="fa fa-link"></i>&nbsp;&nbsp;
-                    {this.props.registryServer}
-                  </div>
+                    {otherHead.url}
+                </div>
+                <div className="name">
+                  <i className="fa fa-user"></i>&nbsp;&nbsp;
+                  {otherHead.username}
+                </div>
                 
               </div>
               <Button className="logout" size="large" type="ghost" onClick={()=>this.deleteImage(this.props.imageId)}>
@@ -161,7 +166,7 @@ class OtherSpace extends Component {
               <i className="fa fa-search"></i>
               <div style={{ clear: "both" }}></div>
             </div>
-            <MyComponent scope={scope} registryServer={this.props.registryServer} config={this.props.config} />
+            <MyComponent scope={scope} imageId ={this.props.imageId} otherHead={otherHead} config={this.props.config} />
           </Card>
         </div>
         <Modal
@@ -170,7 +175,7 @@ class OtherSpace extends Component {
           transitionName="move-right"
           onCancel={this.closeImageDetailModal}
           >
-          <ImageDetailBox scope={scope} config={this.state.currentImage} />
+          <ImageDetailBox scope={scope} imageId ={this.props.imageId} config={this.state.currentImage} />
         </Modal>
       </QueueAnim>
     )
@@ -203,11 +208,8 @@ function mapStateToProps(state, props) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    loadPrivateImageList: () => {
-      dispatch(loadPrivateImageList())
-    },
-    getImageDetailInfo :(obj, callback)=> {
-      dispatch(getImageDetailInfo(obj, callback))
+    getImageOtherInfo :(obj, callback)=> {
+      dispatch(getImageOtherInfo(obj, callback))
     },
     deleteOtherImage: (id, callback)=> {
       dispatch(deleteOtherImage(id,callback))
