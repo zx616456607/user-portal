@@ -34,20 +34,12 @@ export default class UpdataModal extends Component {
     })
   }
   setAloneUpdateTime(e,index){
-    console.log('inputValue',e.target.value);
-    console.log(index);
-    const arr = this.state.updateTimeArr
-    arr[index] = e.target.value
-    console.log(this.state.updateTimeArr);
-    console.log(arr);
+    this.state.updateTimeArr[index] = e
   }
   render(){
     const { serviceList,checkedServiceList } = this.props
     const { updateTime } = this.state
-    console.log('serviceList',serviceList);
-    console.log('checkedServiceList',checkedServiceList);
     const containers = checkedServiceList[0].spec.template.spec.containers
-    console.log('containers',containers);
     if(containers.length === 1){
       return (
         <div id="UpdataModal">
@@ -120,7 +112,7 @@ export default class UpdataModal extends Component {
                   </Select>
                   {
                     this.state.alone ? <InputNumber placeholder="更新间隔时间2~60s"
-                                             onChange={(e,index) => this.setAloneUpdateTime(e,index)}/>
+                                             onChange={(e) => this.setAloneUpdateTime(e,index)}/>
                     : <InputNumber placeholder="更新间隔时间2~60s"
                              value={updateTime}
                             onChange={this.setUpdateTime}/>}
