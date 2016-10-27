@@ -13,7 +13,7 @@
 4. Volumes (存储卷)  .spec.template.spec.volumes    <Array>.push_back({name:xxx, volumeSource:xxx})
 5. ServiceName (绑定服务)  .spec.serviceName        <String>   cannot be empty (与 service.yaml 中的 .metadata.name 相同)，最好与 PetSet .metadata.name 也相同
 6. Pod Labels （标签）     .spec.template.labels    <Map>      key: app, value: <PetSet Name>
-7. MySQL Root Password    .spec.template.containers[0].env  <Array>   {name: MYSQL_ROOT_PASSWORD, value:<to be modified>}
+7. MySQL Root Password    .spec.template.containers[0].env  <Array>   .push({name: MYSQL_ROOT_PASSWORD, value:<to be modified>})
 
 ## PetSet （持久存储） 对象中必填的参数 (来源于 petset-store.yaml)
 
