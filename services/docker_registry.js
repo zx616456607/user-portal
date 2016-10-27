@@ -11,9 +11,10 @@
  * @author Wang Lei
 */
 'use strict'
-var request = require('request')
-var async   = require('async')
-var logger  = require('../utils/logger.js').getLogger("docker_registry")
+var request       = require('request')
+var async         = require('async')
+var logger        = require('../utils/logger.js').getLogger("docker_registry")
+var tenx_registry = require('./tenx_registry')
 
 const Catalog_Scope = 'registry:catalog:*'
 const Repository_Scope_Prefix = 'repository'
@@ -112,7 +113,8 @@ SpecRegistryAPIs.prototype.getImageTagInfo = function (imageName, tag) {
                 var size = 0
                 var length = 0
                 var result = {}
-                result.configInfo = configInfo
+                // Customize the tag config information before use it
+                result.configInfo = tenx_registry.FormatImageInfo(JSON.parse(configInfo), imageName, tag)
                 if (layerInfo && layerInfo.layers) {
                   layerInfo.layers.forEach(function(layer) {
                     size += layer.size

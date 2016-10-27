@@ -63,6 +63,7 @@ exports.getImageConfigs = function (username, imageFullName, tag) {
   if (username) {
     username = username.toLowerCase()
   }
+  var self = this
   return new Promise(function (resolve, reject) {
     registry.getImageJsonInfoV2(username, imageFullName, tag, function (statusCode, configs, err) {
       if (err) {
@@ -76,7 +77,7 @@ exports.getImageConfigs = function (username, imageFullName, tag) {
         reject(err)
         return
       }
-      var result = _formatImageInfo(JSON.parse(configs.configInfo), imageFullName, tag)
+      var result = self.FormatImageInfo(JSON.parse(configs.configInfo), imageFullName, tag)
       result.sizeInfo = configs.sizeInfo
       resolve(result)
     })
@@ -194,7 +195,7 @@ exports.updateImageInfo = function(username, imageObj) {
   })
 }
 
-function _formatImageInfo(imageInfo, imageName, tag) {
+exports.FormatImageInfo = function(imageInfo, imageName, tag) {
   var image = {}
   if (!imageInfo) {
     return image

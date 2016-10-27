@@ -242,8 +242,9 @@ class AppServiceDetail extends Component {
                   service={serviceDetail}
                   loading={isServiceDetailFetching}
                   serviceName={service.metadata.name}
-                  cluster={service.cluster}
-                  />
+                  cluster={service.cluster}      
+                  serviceDetailmodalShow={serviceDetailmodalShow}
+                />
               </TabPane>
               <TabPane tab="监控" key="#monitor">
                 <ServiceMonitor
