@@ -2,7 +2,7 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
- * TenxFlowList component
+ * TenxFlowList component 
  *
  * v0.1 - 2016-10-08
  * @author GaoJian
