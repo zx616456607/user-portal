@@ -39,6 +39,10 @@ const menusText = defineMessages({
     id: 'AppCenter.ImageCenter.ImageDetail.colletctImage',
     defaultMessage: '收藏镜像',
   },
+  closeImage: {
+    id: 'AppCenter.ImageCenter.ImageDetail.closeImage',
+    defaultMessage: '取消收藏',
+  },
   deployImage: {
     id: 'AppCenter.ImageCenter.ImageDetail.deployService',
     defaultMessage: '部署镜像',
@@ -122,8 +126,9 @@ class ImageDetailBox extends Component {
   //     this.props.getImageDetailInfo(DEFAULT_REGISTRY, this.props.config.name)
   //   }
   // }
-  setimageStore(name) {
-    console.log('image id is', this.props)
+  setimageStore(name, key) {
+    console.log('image id is',name, key)
+    
   }
   render() {
     const { formatMessage } = this.props.intl;
@@ -150,10 +155,18 @@ class ImageDetailBox extends Component {
               <Button size="large" type="primary">
                 <FormattedMessage {...menusText.deployImage} />
               </Button>
-              <Button size="large" type="ghost" onClick={ ()=>this.setimageStore(imageInfo.name) }>
+            { imageInfo.isFavourite ?
+              <Button size="large" type="ghost" onClick={ ()=>this.setimageStore(imageInfo.name, '0') }>
+                <i className="fa fa-star-o"></i>&nbsp;
+                <FormattedMessage {...menusText.closeImage} />
+              </Button>
+              :
+              <Button size="large" type="ghost" onClick={ ()=>this.setimageStore(imageInfo.name, '1') }>
                 <i className="fa fa-star-o"></i>&nbsp;
                 <FormattedMessage {...menusText.colletctImage} />
               </Button>
+            }
+             
             </div>
           </div>
           <div style={{ clear: "both" }}></div>
