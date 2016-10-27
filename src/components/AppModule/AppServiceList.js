@@ -512,12 +512,13 @@ class AppServiceList extends Component {
             visible={updateModal}
             serviceList={serviceList}
             checkedServiceList={checkedServiceList} />
-          
           <ConfigModal
-            checkedServiceList={checkedServiceList}
+            parentScope={parentScope}
+            cluster={cluster}
+            appName={appName}
+            visible={updateModal}
             visible={configModal}
-            parentScope={parentScope}/>
-          
+            service={currentShowInstance} />
           <ManualScaleModal
             parentScope={parentScope}
             cluster={cluster}

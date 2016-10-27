@@ -249,7 +249,7 @@ exports.changeServiceQuota = function* () {
   const serviceName = this.params.service_name
   const body = this.request.body
   if (!body || !body.quota) {
-    const err = new Error('Num is required.')
+    const err = new Error('quota is required.')
     err.status = 400
     throw err
   }
@@ -288,7 +288,7 @@ exports.rollingUpdateService = function* () {
   const serviceName = this.params.service_name
   const targets = this.request.body
   if (!targets) {
-    const err = new Error('Targets are required.')
+    const err = new Error('targets are required.')
     err.status = 400
     throw err
   }
