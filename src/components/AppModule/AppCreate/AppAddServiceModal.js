@@ -53,7 +53,7 @@ const MyComponent = React.createClass({
           </div>
           <Button type="primary" size="large" onClick={this.modalShow.bind(this, item.name, registryServer)}>
             部署
-            <i className="fa fa-arrow-circle-o-right"></i>
+            <i className="fa fa-arrow-circle-o-right" />
           </Button>
         </div>
       );
