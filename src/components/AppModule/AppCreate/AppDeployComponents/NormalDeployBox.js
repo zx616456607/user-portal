@@ -59,6 +59,9 @@ let MyComponent = React.createClass({
     const { getFieldProps, getFieldValue, } = this.props.form
     const registry = this.props.registry
     const mountPath = this.props.tagConfig[registry].configList.mountPath
+    if(!this.props.avaliableVolume.data) {
+      return <div></div>
+    }
     const volume = this.props.avaliableVolume.data.volumes
     let formItems = ''
     if(volume.length <= 0 ) {
