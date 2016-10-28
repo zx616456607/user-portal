@@ -12,13 +12,13 @@ const registryAPIs = require('../registry/lib/registryAPIs')
 const markdown     = require('markdown-it')()
 const logger       = require('../utils/logger.js').getLogger("tenx_registry")
 
-exports.getPublicImages = function (username) {
+exports.getImages = function (username, search) {
   const registry = new registryAPIs()
   if (username) {
     username = username.toLowerCase()
   }
   return new Promise(function (resolve, reject) {
-    registry.getRepositories(username, null, function (statusCode, data, err) {
+    registry.searchRepositories(username, search, 0, function (statusCode, data, err) {
       if (err) {
         reject(err)
         return
@@ -188,7 +188,7 @@ exports.updateImageInfo = function(username, imageObj) {
         resolve(result);
       } else {
         logger.error("Failed to update image information -> " + statusCode);
-        err = 'Failed to update image information: ' + result;
+        err = 'Failed to update image information: ' + JSON.stringify(result);
         reject(err);
       }
     });
