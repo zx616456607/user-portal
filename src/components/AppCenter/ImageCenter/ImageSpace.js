@@ -296,7 +296,7 @@ class ImageSpace extends Component {
               onCancel={this.closeImageDetailModal}
               >
               {/* right detail box  */}
-              <ImageDetailBox scope={scope} imageInfo={this.state.imageInfo} config={this.state.currentImage} />
+              <ImageDetailBox parentScope={rootscope} scope={scope} imageInfo={this.state.imageInfo} config={this.state.currentImage} />
             </Modal>
           </Card>
         </div>
