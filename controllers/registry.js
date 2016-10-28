@@ -23,18 +23,10 @@ const algorithm           = 'aes-256-ctr'
 exports.getImages = function* () {
   const registry = this.params.registry
   const loginUser = this.session.loginUser
-  /*const config = {
-    protocol: registryConfig.ext_server.protocol,
-    host: registryConfig.ext_server.host,
-    auth: {
-      type: 'basic',
-      user: registryConfig.user,
-      password: registryConfig.password,
-    }
-  }
-  const api = apiFactory.getRegistryApi(config)
-  const result = yield api.getBy([registry])*/
-  const result = yield registryService.getPublicImages(loginUser.user)
+  const query = this.query || {}
+  var q = query.q
+
+  const result = yield registryService.getImages(loginUser.user, q)
   this.body = {
     registry,
     server: registryConfig.v2Server,

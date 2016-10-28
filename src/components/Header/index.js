@@ -11,11 +11,11 @@ import React, { Component } from 'react'
 import { Menu, Dropdown, Icon, Select, Input, Button } from 'antd'
 import { FormattedMessage, defineMessages } from 'react-intl'
 import "./style/header.less"
-import jsonp from 'jsonp';
-import querystring from 'querystring';
-import classNames from 'classnames';
+import jsonp from 'jsonp'
+import querystring from 'querystring'
+import classNames from 'classnames'
 
-const Option = Select.Option;
+const Option = Select.Option
 const menusText = defineMessages({
   doc: {
     id: 'Header.menu.doc',
@@ -72,7 +72,7 @@ function fetch(value, callback) {
     const str = querystring.encode({
       code: 'utf-8',
       q: value,
-    });
+    })
     jsonp(`http://suggest.taobao.com/sug?${str}`, (err, d) => {
       if (currentValue === value) {
         const result = d.result;
@@ -87,22 +87,43 @@ function fetch(value, callback) {
       }
     });
   }
-  
   timeout = setTimeout(fake, 300);
 }
-
 
 export default class Top extends Component {
   constructor(props){
     super(props)
+    this.handleSearchChange = this.handleSearchChange.bind(this)
+    this.handleSubmit = this.handleSubmit.bind(this)
+    this.handleFocusBlur = this.handleFocusBlur.bind(this)
+    this.handleSpaceMenu = this.handleSpaceMenu.bind(this)
+    this.handleVisibleChange = this.handleVisibleChange.bind(this)
     this.state = {
-      data: [],
+      data: [
+        {
+          value: '奔驰-CRM系统',
+          text: '奔驰-CRM系统'
+        },
+        {
+          value: '奔驰-OA系统',
+          text: '奔驰-OA系统'
+        },
+        {
+          value: '奔驰-进销存系统',
+          text: '奔驰-进销存系统'
+        },
+      ],
       value: '',
       focus: false,
+      spaceVisible: false,
     }
   }
-  handleChange(value) {
-    this.setState({ value });
+  handleSearchChange(value) {
+    console.log('value',value);
+    this.setState({
+      value,
+      spaceVisible: true,
+    });
     fetch(value, (data) => this.setState({ data }));
   }
   handleSubmit() {
@@ -112,6 +133,18 @@ export default class Top extends Component {
     this.setState({
       focus: e.target === document.activeElement,
     });
+  }
+  handleSpaceMenu(e){
+    if(e.key === '2'){
+      this.setState({
+        spaceVisible: false
+      })
+    }
+  }
+  handleVisibleChange(flag) {
+    this.setState({
+      spaceVisible: flag
+    })
   }
   render() {
     const btnCls = classNames({
@@ -124,7 +157,7 @@ export default class Top extends Component {
     });
     const options = this.state.data.map(d => <Option key={d.value}>{d.text}</Option>);
     const spaceMenu = (
-      <Menu>
+      <Menu onClick={this.handleSpaceMenu}>
         <Menu.Item key="0">
           选择项目空间
         </Menu.Item>
@@ -139,7 +172,7 @@ export default class Top extends Component {
                 defaultActiveFirstOption={false}
                 showArrow={false}
                 filterOption={false}
-                onChange={this.handleChange}
+                onChange={this.handleSearchChange}
                 onFocus={this.handleFocusBlur}
                 onBlur={this.handleFocusBlur}
               >
@@ -162,7 +195,11 @@ export default class Top extends Component {
           <Icon type="chrome" />
           空间
         </div>
-        <Dropdown overlay={spaceMenu} trigger={['click']}>
+        <Dropdown overlay={spaceMenu}
+                  trigger={['click']}
+                  visible={this.state.spaceVisible}
+                  onVisibleChange={this.handleVisibleChange}
+                  getPopupContainer={() => document.getElementById('header')}>
           <Button type="ghost" style={{ marginLeft: 8 }}>
             按钮
             <Icon type="down" />
@@ -174,7 +211,8 @@ export default class Top extends Component {
           </div>
           <Dropdown overlay={menu}>
             <div className="ant-dropdown-link userBtn">
-              <FormattedMessage {...menusText.user} /><Icon type="down" />
+              <FormattedMessage {...menusText.user} />
+              <Icon type="down" />
             </div>
           </Dropdown>
         </div>
