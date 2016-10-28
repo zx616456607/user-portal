@@ -8,12 +8,16 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Switch, Tabs, Button, Card, Menu, Tooltip } from 'antd'
-import { Link } from 'react-router'
+import { Tabs, Button, Card,Switch , Menu, Tooltip ,Icon, message} from 'antd'
+import { Link} from 'react-router'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import { imageStore ,loadPublicImageList , loadPrivateImageList, loadOtherImage} from '../../../../actions/app_center'
+import { DEFAULT_REGISTRY } from '../../../../constants'
 import ImageVersion from './ImageVersion.js'
-import DetailInfo from './DetailInfo.js'
+import DetailInfo from './DetailInfo'
+import DockerFile from './Dockerfile'
+import Attribute from './Attribute'
 import './style/ImageDetailBox.less'
 
 const TabPane = Tabs.TabPane;
@@ -29,11 +33,15 @@ const menusText = defineMessages({
   },
   privateType: {
     id: 'AppCenter.ImageCenter.ImageDetail.privateType',
-    defaultMessage: '私有',
+    defaultMessage: ' 私有',
   },
   colletctImage: {
     id: 'AppCenter.ImageCenter.ImageDetail.colletctImage',
     defaultMessage: '收藏镜像',
+  },
+  closeImage: {
+    id: 'AppCenter.ImageCenter.ImageDetail.closeImage',
+    defaultMessage: '取消收藏',
   },
   deployImage: {
     id: 'AppCenter.ImageCenter.ImageDetail.deployService',
@@ -70,6 +78,7 @@ class ImageDetailBox extends Component {
     super(props);
     this.copyDownloadCode = this.copyDownloadCode.bind(this);
     this.returnDefaultTooltip = this.returnDefaultTooltip.bind(this);
+    this.isSwitch = this.isSwitch.bind(this)
     this.state = {
       imageDetail: null,
       copySuccess: false
@@ -78,8 +87,10 @@ class ImageDetailBox extends Component {
 
   componentWillMount() {
     const imageDetail = this.props.config;
+    const imageInfo = this.props.imageInfo
     this.setState({
-      imageDetail: imageDetail
+      imageDetail: imageDetail,
+      imageInfo: imageInfo
     });
   }
 
@@ -111,15 +122,73 @@ class ImageDetailBox extends Component {
       });
     }, 500);
   }
+  // callback(key) {
+  //   if (key == 2) {
+  //     this.props.getImageDetailInfo(DEFAULT_REGISTRY, this.props.config.name)
+  //   }
+  // }
+  setimageStore(image, favourite, isPrivate) {
+    const config = {
+      myfavourite: favourite,
+      registry: DEFAULT_REGISTRY,
+      isPrivate,
+      image
+    }
+    this.props.imageStore(config, {
+      success: {
+        func: ()=>{
+          message.success('更新成功！')  
+        }
+      }
+    })
+  }
+  isSwitch(key) {
+    let isPrivate = 1
+    let image = this.state.imageDetail.name
+    const favourite = this.state.imageDetail.isFavourite
+    const imageSpace = this.props.parentScope.state.current
+    if(key) {
+      isPrivate= 0
+    }
+    const config = {
+      isPrivate,
+      registry: DEFAULT_REGISTRY,
+      image,
+      myfavourite: favourite,
+    }
+    const scope = this
+    this.props.imageStore(config, {
+      success: {
+        func: ()=>{
+          message.success('更新成功！')
+          switch(imageSpace) {
+            case 'imageSpace':
+              scope.props.loadPrivateImageList(DEFAULT_REGISTRY)
+              break
+            case 'publicSpace':
+              scope.props.loadPublicImageList(DEFAULT_REGISTRY)
+              break
+            case 'publicSpace':
+              scope.props.loadOtherImage()
+              break
+            default:
+              scope.props.loadPrivateImageList(DEFAULT_REGISTRY)
+          }
+        },
+        isAsync: true
+      }
+    })
+  }
 
   render() {
     const { formatMessage } = this.props.intl;
+    const imageInfo = this.props.imageInfo || {'detailMarkdown': ''}
     const imageDetail = this.props.config;
-    const config = this.state.imageDetail;
     const scope = this;
-    const ipAddress = this.props.scope.props.registryServer;
+    const ipAddress = this.props.parentScope.props.server;
     const imageName = this.state.imageDetail.name;
     let pullCode = "docker pull " + ipAddress + "/" + imageName;
+    console.log('imageInfo---------------------------',  ipAddress)
     return (
       <div id="ImageDetailBox">
         <div className="headerBox">
@@ -127,22 +196,36 @@ class ImageDetailBox extends Component {
             <img src="/img/test/github.jpg" />
           </div>
           <div className="infoBox">
-            <p className="imageName">{imageDetail.name}</p>
+            <p className="imageName">{imageDetail.name ? imageDetail.name : imageDetail.imageName}</p>
             <div className="leftBox">
-              <p className="imageUrl">{imageDetail.description}</p>
-              <span className="type"><FormattedMessage {...menusText.type} /></span>
-              <Switch checked={imageDetail.isPrivate == 0 ? true : false} checkedChildren={formatMessage(menusText.pubilicType)} unCheckedChildren={formatMessage(menusText.privateType)} />
+              <p className="imageUrl">{imageDetail.description ? imageDetail.description : imageDetail.imageName}</p>
+              <span className="type">
+              <FormattedMessage {...menusText.type} />
+              { (imageInfo.isOwner) ? 
+                <Switch onChange={this.isSwitch} checked={(imageInfo.isPrivate == 0) ? true: false} checkedChildren={formatMessage(menusText.pubilicType) } unCheckedChildren={formatMessage(menusText.privateType)} />
+              :
+                <Switch checked={(imageInfo.isPrivate ==0) ? true: false} defaultChecked="true" checkedChildren={formatMessage(menusText.pubilicType) } unCheckedChildren={formatMessage(menusText.privateType)} />
+              }
+             </span>
             </div>
             <div className="rightBox">
+              <Icon type='cross' className='cursor' style={{fontSize: '18px',position: 'absolute', top:'30px', right:'50px'}} onClick={this.props.scope.closeImageDetailModal} />
               <Button size="large" type="primary">
                 <FormattedMessage {...menusText.deployImage} />
               </Button>
-              <Button size="large" type="ghost">
+            { ( imageInfo.isFavourite == 1) ?
+              <Button size="large" type="ghost" onClick={ ()=>this.setimageStore(imageInfo.name, 0) }>
                 <i className="fa fa-star-o"></i>&nbsp;
-            <FormattedMessage {...menusText.colletctImage} />
+                <FormattedMessage {...menusText.closeImage} />
               </Button>
+              :
+              <Button size="large" type="ghost" onClick={ ()=>this.setimageStore(imageInfo.name, 1) }>
+                <i className="fa fa-star-o"></i>&nbsp;
+                <FormattedMessage {...menusText.colletctImage} />
+              </Button>
+            }
+             
             </div>
-            <i className="closeBtn fa fa-times" onClick={this.props.scope.closeImageDetailModal}></i>
           </div>
           <div style={{ clear: "both" }}></div>
         </div>
@@ -154,7 +237,7 @@ class ImageDetailBox extends Component {
             <Tooltip title={this.state.copySuccess ? formatMessage(menusText.copySuccess) : formatMessage(menusText.copyBtn)} getTooltipContainer={() => document.getElementById("ImageDetailBox")}>
               <i className="fa fa-copy" onClick={this.copyDownloadCode} onMouseLeave={this.returnDefaultTooltip}></i>
             </Tooltip>
-            <input className="pullCodeInput" value={pullCode} style={{ position: "absolute", opacity: "0" }} />
+            <input className="pullCodeInput" defaultValue={pullCode} style={{ position: "absolute", opacity: "0" }} />
           </div>
           <div className="times">
             <i className="fa fa-cloud-download"></i>&nbsp;&nbsp;
@@ -164,10 +247,10 @@ class ImageDetailBox extends Component {
         </div>
         <div className="tabBox">
           <Tabs className="itemList" defaultActiveKey="1">
-            <TabPane tab={formatMessage(menusText.info)} key="1"><DetailInfo config={imageDetail} /></TabPane>
-            <TabPane tab="DockerFile" key="2">Conten of Tab Pane 3</TabPane>
+            <TabPane tab={formatMessage(menusText.info)} key="1"><DetailInfo detailInfo={imageInfo.detailMarkdown} /></TabPane>
+            <TabPane tab="DockerFile" key="2"><DockerFile isFetching = {this.props.isFetching} dockerfile={imageInfo.dockerfile} /></TabPane>
             <TabPane tab={formatMessage(menusText.tag)} key="3"><ImageVersion scope={scope} config={imageDetail} /></TabPane>
-            <TabPane tab={formatMessage(menusText.attribute)} key="4">Conten of Tab Pane 3</TabPane>
+            <TabPane tab={formatMessage(menusText.attribute)} key="4"><Attribute detailInfo = {imageInfo} /></TabPane>
           </Tabs>
         </div>
       </div>
@@ -176,9 +259,40 @@ class ImageDetailBox extends Component {
 }
 
 ImageDetailBox.propTypes = {
-  intl: PropTypes.object.isRequired
+  intl: PropTypes.object.isRequired,
 }
 
-export default connect()(injectIntl(ImageDetailBox, {
+function mapStateToProps(state, props) {
+  const defaultConfig = {
+    isFavourite: 0,
+    isFetching: false,
+    registry: DEFAULT_REGISTRY
+  }
+  const { imagesInfo } = state.images
+  const { imageInfo } = imagesInfo[DEFAULT_REGISTRY] || defaultConfig
+
+  return {
+    imageInfo,
+  }
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    imageStore: (obj, callback) => {
+      dispatch(imageStore(obj, callback))
+    },
+    loadPrivateImageList: (DEFAULT_REGISTRY) => {
+      dispatch(loadPrivateImageList(DEFAULT_REGISTRY))
+    },
+    loadPublicImageList: (registry) => {
+      dispatch(loadPublicImageList(registry))
+    },
+    loadOtherImage: () =>{
+      dispatch(loadOtherImage())
+    }
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(ImageDetailBox, {
   withRef: true,
 }));

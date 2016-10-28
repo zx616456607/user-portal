@@ -15,7 +15,8 @@ import ProgressList from './AppCreate/ProgressList.js'
 import AppCreateSelectModel from './AppCreate/CreateModel.js'
 import './style/AppCreate.less'
 
-export default class AppCreate extends Component {
+
+class AppCreate extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -28,7 +29,8 @@ export default class AppCreate extends Component {
     let newChildren = React.cloneElement(
       this.props.children,
       { scope: parentScope }
-    );
+    )
+    
     return (
       <QueueAnim
         id="AppCreate"
@@ -45,12 +47,15 @@ export default class AppCreate extends Component {
             <div style={{ clear: "both" }}></div>
           </Card>
         </div>
+        
       </QueueAnim>
     )
   }
 }
-
 AppCreate.propTypes = {
-  // Injected by React Router
   children: PropTypes.node
 }
+
+export default AppCreate
+
+

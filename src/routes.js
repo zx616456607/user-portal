@@ -38,7 +38,7 @@ import ContainerDetail from './components/ContainerModule/ContainerDetail'
 import AppCenter from './containers/AppCenter/Index'
 import ImageCenter from './components/AppCenter/Index'
 import ImageStore from './components/AppCenter/ImageStore'
-import ComposeCenter from './components/AppCenter/ComposeCenter'
+import Stack from './components/AppCenter/Stack'
 /*-------------------App_center Module Stop------------------------*/
 /*-------------------database & cache Module Start------------------------*/  
 import Database from './containers/Database/Index'
@@ -52,6 +52,7 @@ import CICD from './containers/CICD/Index'
 import CodeStore from './components/CICDModule/CodeStore'
 import DockerFile from './components/CICDModule/DockerFile'
 import TenxFlow from './components/CICDModule/TenxFlow'
+import TenxFlowBuild from './components/CICDModule/TenxFlow/TenxFlowDetail'
 /*-------------------CI/CD Module Stop-----------------------------------*/  
 
 
@@ -82,7 +83,7 @@ export default (
     <Route path="app_center" component={AppCenter}>
       <IndexRoute component={ImageCenter} />
       <Route path="image_store" component={ImageStore} />
-      <Route path="compose_center" component={ComposeCenter} />
+      <Route path="stack_center" component={Stack} />
     </Route>
     <Route path="database_cache" component={Database}>
       <IndexRoute component={MysqlCluster} />
@@ -92,7 +93,10 @@ export default (
     </Route>
     <Route path="ci_cd" component={CICD}>
       <IndexRoute component={CodeStore} />
-      <Route path="tenx_flow" component={TenxFlow} />
+      <Route path="tenx_flow" >
+        <IndexRoute component={TenxFlow} />
+        <Route path="tenx_flow_build" component={TenxFlowBuild} />
+      </Route>
       <Route path="docker_file" component={DockerFile} />
     </Route>
     <Route path="*" component={ErrorPage} />

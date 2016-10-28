@@ -8,14 +8,18 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Modal, Checkbox, Dropdown, Button, Card, Menu, Icon, Spin, Tooltip } from 'antd'
+import { Modal, Checkbox, Dropdown, Button, Card, Menu, Icon, Spin, Tooltip, Pagination, } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import AppServiceDetail from './AppServiceDetail'
 import './style/AppServiceList.less'
 import { loadServiceList, startServices, restartServices, stopServices, deleteServices, quickRestartServices } from '../../actions/services'
-import { DEFAULT_CLUSTER } from '../../constants'
+import { DEFAULT_CLUSTER, DEFAULT_PAGE_SIZE } from '../../constants'
+import { browserHistory } from 'react-router'
+import RollingUpdateModal from './AppServiceDetail/RollingUpdateModal'
+import ConfigModal from './AppServiceDetail/ConfigModal'
+import ManualScaleModal from './AppServiceDetail/ManualScaleModal'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -37,15 +41,68 @@ const MyComponent = React.createClass({
       serviceList
     })
   },
-  modalShow: function (item) {
+  selectServiceByLine: function (e, item) {
+    const { scope } = this.props
+    const { serviceList } = scope.state
+    serviceList.map((service) => {
+      if (service.metadata.name === item.metadata.name) {
+        service.checked = !service.checked
+      }
+    })
+    scope.setState({
+      serviceList
+    })
+  },
+  modalShow: function (e, item) {
+    e.stopPropagation()
     const {scope} = this.props;
     scope.setState({
+      selectTab: null,
       modalShow: true,
       currentShowInstance: item
     });
   },
+  onShowSizeChange: function (page, size) {
+    if (size === this.props.size) {
+      return
+    }
+    const query = {}
+    if (page !== 1) {
+      query.page = page
+    }
+    if (size !== DEFAULT_PAGE_SIZE) {
+      query.size = size
+    }
+    const { name } = this.props
+    if (name) {
+      query.name = name
+    }
+    const { pathname } = this.props
+    browserHistory.push({
+      pathname,
+      query
+    })
+  },
+  onPageChange: function (page) {
+    if (page === this.props.page) {
+      return
+    }
+    const { pathname, size, name } = this.props
+    const query = {}
+    if (page !== 1) {
+      query.page = page
+      query.size = size
+    }
+    if (name) {
+      query.name = name
+    }
+    browserHistory.push({
+      pathname,
+      query
+    })
+  },
   render: function () {
-    const { serviceList, loading } = this.props
+    const { serviceList, loading, page, size, total } = this.props
     if (loading) {
       return (
         <div className='loadingBox'>
@@ -63,13 +120,16 @@ const MyComponent = React.createClass({
     const items = serviceList.map((item) => {
       item.cluster = DEFAULT_CLUSTER
       return (
-        <div className={item.checked ? "selectedInstance instanceDetail" : "instanceDetail"} key={item.metadata.name}>
+        <div
+          className={item.checked ? "selectedInstance instanceDetail" : "instanceDetail"}
+          key={item.metadata.name}
+          onClick={(e) => this.selectServiceByLine(e, item)} >
           <div className="selectIconTitle commonData">
             <Checkbox value={item.metadata.name} checked={item.checked} onChange={this.onchange}></Checkbox>
           </div>
           <div className="name commonData">
             <Tooltip title={item.metadata.name}>
-              <span className="viewBtn" onClick={this.modalShow.bind(this, item)}>
+              <span className="viewBtn" onClick={(e) => this.modalShow(e, item)}>
                 {item.metadata.name}
               </span>
             </Tooltip>
@@ -93,7 +153,7 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className="actionBox commonData">
-            <Button type="primary" className="viewBtn" onClick={this.modalShow.bind(this, item)}>
+            <Button type="primary" className="viewBtn" onClick={(e) => this.modalShow(e, item)}>
               <i className="fa fa-eye"></i>
               查看详情
             </Button>
@@ -105,10 +165,28 @@ const MyComponent = React.createClass({
     return (
       <div className="dataBox">
         {items}
+        <div className="paginationBox">
+          <Pagination
+            className="inlineBlock"
+            simple
+            showSizeChanger
+            showQuickJumper
+            onShowSizeChange={this.onShowSizeChange}
+            onChange={this.onPageChange}
+            defaultCurrent={page}
+            pageSize={size}
+            showTotal={total => `共 ${total} 条`}
+            total={total} />
+        </div>
       </div>
     );
   }
 });
+
+function loadServices(props) {
+  const { cluster, appName, loadServiceList, page, size, name } = props
+  loadServiceList(cluster, appName, { page, size, name })
+}
 
 class AppServiceList extends Component {
   constructor(props) {
@@ -116,14 +194,23 @@ class AppServiceList extends Component {
     this.closeModal = this.closeModal.bind(this)
     this.onAllChange = this.onAllChange.bind(this)
     this.confirmStartService = this.confirmStartService.bind(this)
-    this.confirmStopService = this.confirmStopService.bind(this)
-    this.confirmRestartService = this.confirmRestartService.bind(this)
-    this.confirmDeleteService = this.confirmDeleteService.bind(this)
+    this.batchStopServices = this.batchStopServices.bind(this)
+    this.confirmStopServices = this.confirmStopServices.bind(this)
+    this.batchRestartServices = this.batchRestartServices.bind(this)
+    this.confirmRestartServices = this.confirmRestartServices.bind(this)
+    this.batchDeleteServices = this.batchDeleteServices.bind(this)
+    this.confirmDeleteServices = this.confirmDeleteServices.bind(this)
     this.confirmQuickRestartService = this.confirmQuickRestartService.bind(this)
+    this.showRollingUpdateModal = this.showRollingUpdateModal.bind(this)
+    this.showConfigModal = this.showConfigModal.bind(this)
+    this.showManualScaleModal = this.showManualScaleModal.bind(this)
     this.state = {
       modalShow: false,
       currentShowInstance: null,
-      serviceList: props.serviceList
+      serviceList: props.serviceList,
+      searchInputDisabled: false,
+      rollingUpdateModalShow: false,
+      manualScaleModalShow: false,
     }
   }
 
@@ -136,16 +223,24 @@ class AppServiceList extends Component {
     })
   }
 
+  componentWillMount() {
+    const { appName } = this.props
+    document.title = `${appName} 的服务列表 | 时速云`
+    loadServices(this.props)
+  }
+
   componentWillReceiveProps(nextProps) {
     this.setState({
       serviceList: nextProps.serviceList
     })
-  }
-
-  componentWillMount() {
-    const { cluster, appName, loadServiceList } = this.props
-    document.title = `${appName} 的服务列表 | 时速云`
-    loadServiceList(cluster, appName)
+    let { page, size, name } = nextProps
+    if (page === this.props.page && size === this.props.size && name === this.props.name) {
+      return
+    }
+    this.setState({
+      searchInputDisabled: false
+    })
+    loadServices(nextProps)
   }
 
   confirmStartService(e) {
@@ -171,29 +266,35 @@ class AppServiceList extends Component {
     })
   }
 
-  confirmRestartService(e) {
+  batchRestartServices(e) {
     const { serviceList } = this.state
-    const { cluster, appName, loadServiceList, restartServices } = this.props
+    const { cluster, appName } = this.props
     const checkedServiceList = serviceList.filter((service) => service.checked)
-    const checkedServiceNames = checkedServiceList.map((service) => service.metadata.name)
+    this.confirmRestartServices(checkedServiceList)
+  }
+  confirmRestartServices(serviceList, callback) {
+    const { cluster, appName, loadServiceList, restartServices } = this.props
+    const serviceNames = serviceList.map((service) => service.metadata.name)
+    if (!callback) {
+      callback = {
+        success: {
+          func: () => loadServiceList(cluster, appName),
+          isAsync: true
+        }
+      }
+    }
     confirm({
-      title: `您是否确认要重新启动这${checkedServiceList.length}个服务`,
-      content: checkedServiceNames.join(', '),
+      title: `您是否确认要重新部署这${serviceNames.length}个服务`,
+      content: serviceNames.join(', '),
       onOk() {
         return new Promise((resolve) => {
-          restartServices(cluster, checkedServiceNames, {
-            success: {
-              func: () => loadServiceList(cluster, appName),
-              isAsync: true
-            }
-          })
+          restartServices(cluster, serviceNames, callback)
           resolve()
         });
       },
       onCancel() { },
     })
   }
-
   confirmQuickRestartService(e) {
     const { serviceList } = this.state
     const { cluster, appName, loadServiceList, quickRestartServices } = this.props
@@ -217,22 +318,29 @@ class AppServiceList extends Component {
     })
   }
 
-  confirmStopService(e) {
+  batchStopServices(e) {
     const { serviceList } = this.state
-    const { cluster, appName, loadServiceList, stopServices } = this.props
     const checkedServiceList = serviceList.filter((service) => service.checked)
-    const checkedServiceNames = checkedServiceList.map((service) => service.metadata.name)
+    this.confirmStopServices(checkedServiceList)
+  }
+
+  confirmStopServices(serviceList, callback) {
+    const { cluster, appName, loadServiceList, stopServices } = this.props
+    const serviceNames = serviceList.map((service) => service.metadata.name)
+    if (!callback) {
+      callback = {
+        success: {
+          func: () => loadServiceList(cluster, appName),
+          isAsync: true
+        }
+      }
+    }
     confirm({
-      title: `您是否确认要停止这${checkedServiceList.length}个服务`,
-      content: checkedServiceNames.join(', '),
+      title: `您是否确认要停止这${serviceNames.length}个服务`,
+      content: serviceNames.join(', '),
       onOk() {
         return new Promise((resolve) => {
-          stopServices(cluster, checkedServiceNames, {
-            success: {
-              func: () => loadServiceList(cluster, appName),
-              isAsync: true
-            }
-          })
+          stopServices(cluster, serviceNames, callback)
           resolve()
         });
       },
@@ -240,21 +348,33 @@ class AppServiceList extends Component {
     })
   }
 
-  confirmDeleteService(e) {
+  batchDeleteServices(e) {
     const { serviceList } = this.state
-    const { cluster, appName, loadServiceList, deleteServices } = this.props
     const checkedServiceList = serviceList.filter((service) => service.checked)
-    const checkedServiceNames = checkedServiceList.map((service) => service.metadata.name)
+    this.confirmDeleteServices(checkedServiceList)
+  }
+
+  confirmDeleteServices(serviceList, callback) {
+    const self = this
+    const { cluster, appName, loadServiceList, deleteServices } = this.props
+    const serviceNames = serviceList.map((service) => service.metadata.name)
+    if (!callback) {
+      callback = {
+        success: {
+          func: () => loadServiceList(cluster, appName),
+          isAsync: true
+        }
+      }
+    }
     confirm({
-      title: `您是否确认要删除这${checkedServiceList.length}个服务`,
-      content: checkedServiceNames.join(', '),
+      title: `您是否确认要删除这${serviceNames.length}个服务`,
+      content: serviceNames.join(', '),
       onOk() {
         return new Promise((resolve) => {
-          deleteServices(cluster, checkedServiceNames, {
-            success: {
-              func: () => loadServiceList(cluster, appName),
-              isAsync: true
-            }
+          deleteServices(cluster, serviceNames, callback)
+          // for detail page delete service action
+          self.setState({
+            modalShow: false
           })
           resolve()
         });
@@ -268,25 +388,31 @@ class AppServiceList extends Component {
       modalShow: false
     })
   }
-
+  showRollingUpdateModal() {
+    this.setState({
+      rollingUpdateModalShow: true
+    })
+  }
+  showConfigModal() {
+    this.setState({
+      configModal: true
+    })
+  }
+  showManualScaleModal() {
+    this.setState({
+      manualScaleModalShow: true
+    })
+  }
   render() {
     const parentScope = this
-    const operaMenu = (<Menu>
-      <Menu.Item key="0">
-        <span onClick={this.confirmRestartService}>重新部署</span>
-      </Menu.Item>
-      <Menu.Item key="1">
-        <span>弹性伸缩</span>
-      </Menu.Item>
-      <Menu.Item key="2">
-        <span>灰度升级</span>
-      </Menu.Item>
-      <Menu.Item key="3">
-        <span>更改配置</span>
-      </Menu.Item>
-    </Menu>);
-    let { modalShow, currentShowInstance, serviceList } = this.state
-    const { isFetching } = this.props
+    let {
+      modalShow, currentShowInstance, serviceList, selectTab, rollingUpdateModalShow,
+      configModal, manualScaleModalShow
+    } = this.state
+    const {
+      name, pathname, page, size, total, isFetching, cluster, appName,
+      loadServiceList
+    } = this.props
     const checkedServiceList = serviceList.filter((service) => service.checked)
     const checkedServiceNames = checkedServiceList.map((service) => service.metadata.name)
     const isChecked = (checkedServiceList.length > 0)
@@ -294,6 +420,37 @@ class AppServiceList extends Component {
     if (serviceList.length === 0) {
       isAllChecked = false
     }
+    currentShowInstance = checkedServiceList[0]
+    const funcs = {
+      confirmRestartServices: this.confirmRestartServices,
+      confirmStopServices: this.confirmStopServices,
+      confirmDeleteServices: this.confirmDeleteServices,
+    }
+    const operaMenu = (
+      <Menu>
+        <Menu.Item key="0">
+          <span onClick={this.batchRestartServices}>重新部署</span>
+        </Menu.Item>
+        <Menu.Item key="1">
+          <span onClick={this.showManualScaleModal}>水平扩展</span>
+        </Menu.Item>
+        <Menu.Item key="2" disabled={checkedServiceList.length > 1}>
+          <span onClick={() => {
+            this.setState({
+              selectTab: '#autoScale',
+              currentShowInstance: currentShowInstance,
+              modalShow: true,
+            })
+          } }>自动伸缩</span>
+        </Menu.Item>
+        <Menu.Item key="3">
+          <span onClick={this.showRollingUpdateModal}>灰度升级</span>
+        </Menu.Item>
+        <Menu.Item key="4">
+          <span onClick={this.showConfigModal}>更改配置</span>
+        </Menu.Item>
+      </Menu>
+    );
     return (
       <div id="AppServiceList">
         <QueueAnim className="demo-content"
@@ -305,15 +462,15 @@ class AppServiceList extends Component {
               <i className="fa fa-play"></i>
               启动
             </Button>
-            <Button size="large" onClick={this.confirmStopService} disabled={!isChecked}>
+            <Button size="large" onClick={this.batchStopServices} disabled={!isChecked}>
               <i className="fa fa-stop"></i>
               停止
             </Button>
-            <Button size="large" onClick={this.confirmDeleteService} disabled={!isChecked}>
+            <Button size="large" onClick={this.batchDeleteServices} disabled={!isChecked}>
               <i className="fa fa-trash"></i>
               删除
             </Button>
-            <Tooltip placement="top" title={isChecked ? '快速重启 = docker restart' : ''} >
+            <Tooltip placement="top" title="快速重启 = docker restart">
               <Button size="large" onClick={this.confirmQuickRestartService} disabled={!isChecked}>
                 <i className="fa fa-bolt"></i>
                 快速重启
@@ -350,7 +507,9 @@ class AppServiceList extends Component {
           </div>
             <div style={{ clear: "both" }}></div>
           </div>
-          <MyComponent scope={parentScope} serviceList={serviceList} loading={isFetching} />
+          <MyComponent
+            size={size} total={total} pathname={pathname} page={page} name={name}
+            scope={parentScope} serviceList={serviceList} loading={isFetching} />
           <Modal
             title="垂直居中的对话框"
             visible={this.state.modalShow}
@@ -358,8 +517,35 @@ class AppServiceList extends Component {
             transitionName="move-right"
             onCancel={this.closeModal}
             >
-            <AppServiceDetail scope={parentScope} serviceDetailmodalShow={this.state.modalShow} />
+            <AppServiceDetail
+              appName={appName}
+              scope={parentScope}
+              funcs={funcs}
+              selectTab={selectTab}
+              serviceDetailmodalShow={this.state.modalShow}
+              />
           </Modal>
+          <RollingUpdateModal
+            parentScope={parentScope}
+            cluster={cluster}
+            appName={appName}
+            visible={rollingUpdateModalShow}
+            loadServiceList={loadServiceList}
+            service={currentShowInstance} />
+          <ConfigModal
+            parentScope={parentScope}
+            cluster={cluster}
+            appName={appName}
+            visible={configModal}
+            loadServiceList={loadServiceList}
+            service={currentShowInstance} />
+          <ManualScaleModal
+            parentScope={parentScope}
+            cluster={cluster}
+            appName={appName}
+            visible={manualScaleModalShow}
+            service={currentShowInstance}
+            loadServiceList={loadServiceList} />
         </QueueAnim>
       </div>
     )
@@ -377,9 +563,23 @@ AppServiceList.propTypes = {
   stopServices: PropTypes.func.isRequired,
   deleteServices: PropTypes.func.isRequired,
   quickRestartServices: PropTypes.func.isRequired,
+  pathname: PropTypes.string.isRequired,
+  page: PropTypes.number.isRequired,
+  size: PropTypes.number.isRequired,
+  total: PropTypes.number.isRequired,
 }
 
 function mapStateToProps(state, props) {
+  const { query, pathname } = props.location
+  let { page, size, name } = query
+  page = parseInt(page || 1)
+  size = parseInt(size || DEFAULT_PAGE_SIZE)
+  if (isNaN(page) || page < 1) {
+    page = 1
+  }
+  if (isNaN(size) || size < 1 || size > 100) {
+    size = DEFAULT_PAGE_SIZE
+  }
   const { appName } = props
   const defaultServices = {
     isFetching: false,
@@ -394,10 +594,15 @@ function mapStateToProps(state, props) {
   if (serviceItmes[DEFAULT_CLUSTER] && serviceItmes[DEFAULT_CLUSTER][appName]) {
     targetServices = serviceItmes[DEFAULT_CLUSTER][appName]
   }
-  const { cluster, serviceList, isFetching } = targetServices || defaultServices
+  const { cluster, serviceList, isFetching, total } = targetServices || defaultServices
   return {
     cluster,
     appName,
+    pathname,
+    page,
+    size,
+    total,
+    name,
     serviceList,
     isFetching
   }

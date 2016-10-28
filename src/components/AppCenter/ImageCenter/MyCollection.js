@@ -8,11 +8,14 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Alert, Menu, Button, Card, Input, Modal } from 'antd'
+import { Alert, Menu, Button, Card, Spin,Input, Modal } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import { loadFavouriteList, getImageDetailInfo} from '../../../actions/app_center'
+import { DEFAULT_REGISTRY } from '../../../constants'
+
 import "./style/MyCollection.less"
 import ImageDetailBox from './ImageDetail/Index.js'
 
@@ -47,78 +50,6 @@ const menusText = defineMessages({
   }
 })
 
-const testData = [{
-  id: "1",
-  imageName: "Github",
-  imgUrl: "/img/test/github.jpg",
-  type: "private",
-  imageUrl: "tenxcloud/Github",
-  downloadNum: "1234"
-}, {
-  id: "2",
-  imageName: "Mysql",
-  imgUrl: "/img/test/mysql.jpg",
-  type: "private",
-  imageUrl: "tenxcloud/Mysql",
-  downloadNum: "1234"
-}, {
-  id: "3",
-  imageName: "Github",
-  imgUrl: "/img/test/github.jpg",
-  type: "private",
-  imageUrl: "tenxcloud/Github",
-  downloadNum: "1234"
-}, {
-  id: "4",
-  imageName: "Oracle",
-  imgUrl: "/img/test/oracle.jpg",
-  type: "private",
-  imageUrl: "tenxcloud/Oracle",
-  downloadNum: "1234"
-}, {
-  id: "5",
-  imageName: "Mysql",
-  imgUrl: "/img/test/mysql.jpg",
-  type: "private",
-  imageUrl: "tenxcloud/Mysql",
-  downloadNum: "1234"
-}, {
-  id: "6",
-  imageName: "Php",
-  imgUrl: "/img/test/php.jpg",
-  type: "private",
-  imageUrl: "tenxcloud/Php",
-  downloadNum: "1234"
-}, {
-  id: "7",
-  imageName: "Oracle",
-  imgUrl: "/img/test/oracle.jpg",
-  type: "private",
-  imageUrl: "tenxcloud/Oracle",
-  downloadNum: "1234"
-}, {
-  id: "8",
-  imageName: "Oracle",
-  imgUrl: "/img/test/oracle.jpg",
-  type: "private",
-  imageUrl: "tenxcloud/Oracle",
-  downloadNum: "1234"
-}, {
-  id: "9",
-  imageName: "Github",
-  imgUrl: "/img/test/github.jpg",
-  type: "private",
-  imageUrl: "tenxcloud/Github",
-  downloadNum: "1234"
-}, {
-  id: "10",
-  imageName: "Github",
-  imgUrl: "/img/test/github.jpg",
-  type: "private",
-  imageUrl: "tenxcloud/Github",
-  downloadNum: "1234"
-}];
-
 let MyComponent = React.createClass({
   propTypes: {
     config: React.PropTypes.array,
@@ -126,34 +57,52 @@ let MyComponent = React.createClass({
   },
   showImageDetail: function (id) {
     //this function for user select image and show the image detail info
-    //  const scope = this.props.scope;
-    //  scope.setState({
-    //   imageDetailModalShow:true,
-    //   currentImage:id
-    //  });
+     const scope = this.props.scope;
+     scope.setState({
+      imageDetailModalShow:true,
+      currentImage:id
+     });
+    const fullgroup={registry: DEFAULT_REGISTRY, fullName: id.name}
+    this.props.getImageDetailInfo(fullgroup, {
+      success: {
+        func: (res)=> {
+          scope.setState({
+            imageInfo: res.data
+          })
+        }
+      }
+    })
   },
   render: function () {
     let config = this.props.config;
+    const {isFetching } = this.props
+    if (isFetching) {
+      return (
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
+      )
+    }
     let items = config.map((item) => {
       return (
         <div className="imageDetail" key={item.id} >
           <div className="imageBox">
-            <img src={item.imgUrl} />
+            <img src={item.icon =='default' ?  '/img/test/github.jpg' : item.icon} />
           </div>
           <div className="contentBox">
             <span className="title" onClick={this.showImageDetail.bind(this, item)}>
-              {item.imageName}
+              {item.name}
             </span><br />
             <span className="type">
               <FormattedMessage {...menusText.belong} />&nbsp;
               {item.type}
             </span>
-            <span className="imageUrl">
+            <span className="imageUrl textoverflow">
               <FormattedMessage {...menusText.imageUrl} />&nbsp;
-              <span className="colorUrl">{item.imageUrl}</span>
+              <span className="">{item.name}</span>
             </span>
             <span className="downloadNum">
-              <FormattedMessage {...menusText.downloadNum} />&nbsp;{item.downloadNum}
+              <FormattedMessage {...menusText.downloadNum} />&nbsp;{item.downloadNumber}
             </span>
           </div>
           <div className="btnBox">
@@ -181,7 +130,11 @@ class MyCollection extends Component {
       imageDetailModalShow: false
     }
   }
-
+  componentWillMount() {
+    document.title = '我的收藏 | 时速云';
+    const { loadFavouriteList } = this.props
+    loadFavouriteList(DEFAULT_REGISTRY)
+  }
   closeImageDetailModal() {
     //this function for user close the modal of image detail info
     this.setState({
@@ -193,6 +146,7 @@ class MyCollection extends Component {
     const { formatMessage } = this.props.intl;
     const rootscope = this.props.scope;
     const scope = this;
+    const imageList = this.props.fockImageList
     return (
       <QueueAnim className="MyCollection"
         type="right"
@@ -205,7 +159,7 @@ class MyCollection extends Component {
               <i className="fa fa-search"></i>
               <div style={{ clear: "both" }}></div>
             </div>
-            <MyComponent scope={scope} config={testData} />
+            <MyComponent scope={scope} isFetching={this.props.isFetching} getImageDetailInfo={(obj,callback)=> this.props.getImageDetailInfo(obj,callback)} config={imageList} />
           </Card>
         </div>
         <Modal
@@ -214,7 +168,7 @@ class MyCollection extends Component {
           transitionName="move-right"
           onCancel={this.closeImageDetailModal}
           >
-          <ImageDetailBox scope={scope} config={this.state.currentImage} />
+          <ImageDetailBox scope={scope} imageInfo={this.state.imageInfo} config={this.state.currentImage} />
         </Modal>
       </QueueAnim>
     )
@@ -224,7 +178,40 @@ class MyCollection extends Component {
 MyCollection.propTypes = {
   intl: PropTypes.object.isRequired
 }
+function mapStateToProps(state, props) {
+  const defaultPublicImages = {
+    isFetching: false,
+    registry: DEFAULT_REGISTRY,
+    imageList: []
+  }
+  const defaultConfig = {
+    isFetching: false,
+    imageInfo: {dockerfile:'', detailMarkdown:''}
+  }
+  const { fockImages, imagesInfo } = state.images
+  const { registry, imageList, isFetching, server } = fockImages[DEFAULT_REGISTRY] || defaultPublicImages
+  const { imageInfo } = imagesInfo[DEFAULT_REGISTRY] || defaultConfig
 
-export default connect()(injectIntl(MyCollection, {
+  return {
+    registry,
+    registryServer: server,
+    fockImageList: imageList,
+    isFetching,
+    imageInfo
+  }
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    loadFavouriteList: (registry) => {
+      dispatch(loadFavouriteList(registry))
+    },
+    getImageDetailInfo :(obj, callback)=> {
+      dispatch(getImageDetailInfo(obj, callback))
+    },
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(MyCollection, {
   withRef: true,
 }))

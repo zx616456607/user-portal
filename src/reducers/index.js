@@ -17,6 +17,7 @@ import * as appCenterReducers from './app_center'
 import * as servicesReducers from './services'
 import configReducers from './configs'
 import storage from './storage'
+import metrics from './metrics'
 
 // Updates an entity cache in response to any action with response.entities.
 function entities(state = { isFetching: false, users: {}, rcs: {} }, action) {
@@ -60,12 +61,12 @@ function actionCallback(state = null, action) {
     return state
   }
   if (action.type.indexOf('_FAILURE') >= 0) {
-    if (!callback.failure) return state
-    if (callback.failure.isAsync) {
-      setTimeout(callback.failure.func.bind(this, action.response.result))
+    if (!callback.failed) return state
+    if (callback.failed.isAsync) {
+      setTimeout(callback.failed.func.bind(this, action.response.result))
       return state
     }
-    callback.failure.func(action.error)
+    callback.failed.func(action.error)
     return state
   }
   return state
@@ -80,6 +81,7 @@ const rootReducer = combineReducers({
   ...appCenterReducers,
   ...servicesReducers,
   configReducers,
+  metrics,
   routing
 })
 

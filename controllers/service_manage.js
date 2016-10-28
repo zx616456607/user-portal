@@ -9,6 +9,9 @@
  */
 'use strict'
 
+const constants = require('../constants')
+const INSTANCE_MAX_NUM = constants.INSTANCE_MAX_NUM
+const INSTANCE_AUTO_SCALE_MAX_CPU = constants.INSTANCE_AUTO_SCALE_MAX_CPU
 const apiFactory = require('../services/api_factory')
 
 exports.startServices = function* () {
@@ -61,7 +64,6 @@ exports.restartServices = function* () {
     data: result
   }
 }
-
 
 exports.deleteServices = function* () {
   const cluster = this.params.cluster
@@ -131,8 +133,8 @@ exports.getServiceContainers = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.getBy([cluster, 'services', serviceName, 'instances'])
-  const pods = result.data.instances || []
-  pods.map((pod) => {
+  const instances = result.data.instances || []
+  instances.map((pod) => {
     pod.images = []
     pod.spec.containers.map((container) => {
       pod.images.push(container.image)
@@ -141,7 +143,7 @@ exports.getServiceContainers = function* () {
   this.body = {
     cluster,
     serviceName,
-    data: pods,
+    data: instances,
     total: result.data.total,
     count: result.data.count,
   }
@@ -156,9 +158,9 @@ exports.manualScaleService = function* () {
     err.status = 400
     throw err
   }
-  let num = parseInt(num)
-  if (isNaN(num) || num < 1 || num > 10) {
-    const err = new Error('Num is between 1 and 10.')
+  let num = parseInt(body.num)
+  if (isNaN(num) || num < 1 || num > INSTANCE_MAX_NUM) {
+    const err = new Error(`Num is between 1 and ${INSTANCE_MAX_NUM}.`)
     err.status = 400
     throw err
   }
@@ -169,6 +171,20 @@ exports.manualScaleService = function* () {
     cluster,
     serviceName,
     data: result
+  }
+}
+
+exports.getServiceAutoScale = function* () {
+  const cluster = this.params.cluster
+  const serviceName = this.params.service_name
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster, 'services', serviceName, 'autoscale'])
+  const autoScale = result.data || {}
+  this.body = {
+    cluster,
+    serviceName,
+    data: autoScale[serviceName] || {}
   }
 }
 
@@ -184,13 +200,13 @@ exports.autoScaleService = function* () {
   let min = parseInt(body.min)
   let max = parseInt(body.max)
   let cpu = parseInt(body.cpu)
-  if (isNaN(min) || min < 1 || min > 10) {
-    const err = new Error('min is between 1 and 10.')
+  if (isNaN(min) || min < 1 || min > INSTANCE_MAX_NUM) {
+    const err = new Error(`min is between 1 and ${INSTANCE_MAX_NUM}.`)
     err.status = 400
     throw err
   }
-  if (isNaN(max) || max < 1 || max > 10) {
-    const err = new Error('max is between 2 and 10.')
+  if (isNaN(max) || max < 1 || max > INSTANCE_MAX_NUM) {
+    const err = new Error(`max is between 2 and ${INSTANCE_MAX_NUM}.`)
     err.status = 400
     throw err
   }
@@ -199,8 +215,8 @@ exports.autoScaleService = function* () {
     err.status = 400
     throw err
   }
-  if (isNaN(cpu) || cpu < 1 || cpu > 99) {
-    const err = new Error('cpu is between 1 and 99.')
+  if (isNaN(cpu) || cpu < 1 || cpu > INSTANCE_AUTO_SCALE_MAX_CPU) {
+    const err = new Error(`cpu is between 1 and ${INSTANCE_AUTO_SCALE_MAX_CPU}.`)
     err.status = 400
     throw err
   }
@@ -214,19 +230,32 @@ exports.autoScaleService = function* () {
   }
 }
 
+exports.delServiceAutoScale = function* () {
+  const cluster = this.params.cluster
+  const serviceName = this.params.service_name
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.deleteBy([cluster, 'services', serviceName, 'autoscale'])
+  const autoScale = result.data || {}
+  this.body = {
+    cluster,
+    serviceName,
+    data: result.data || {}
+  }
+}
+
 exports.changeServiceQuota = function* () {
   const cluster = this.params.cluster
   const serviceName = this.params.service_name
   const body = this.request.body
-  if (!body || !body.quota) {
-    const err = new Error('Num is required.')
+  if (!body) {
+    const err = new Error('body is required.')
     err.status = 400
     throw err
   }
-  let quota = body.quota
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.updateBy([cluster, 'services', serviceName, 'quota'], null, { quota })
+  const result = yield api.updateBy([cluster, 'services', serviceName, 'quota'], null, body)
   this.body = {
     cluster,
     serviceName,
@@ -238,15 +267,14 @@ exports.changeServiceHa = function* () {
   const cluster = this.params.cluster
   const serviceName = this.params.service_name
   const body = this.request.body
-  if (!body || !body.quota) {
-    const err = new Error('Num is required.')
+  if (!body) {
+    const err = new Error('Body are required.')
     err.status = 400
     throw err
   }
-  let ha = body.ha
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.updateBy([cluster, 'services', serviceName, 'ha'], null, { ha })
+  const result = yield api.updateBy([cluster, 'services', serviceName, 'ha'], null, body)
   this.body = {
     cluster,
     serviceName,
@@ -259,7 +287,7 @@ exports.rollingUpdateService = function* () {
   const serviceName = this.params.service_name
   const targets = this.request.body
   if (!targets) {
-    const err = new Error('Targets are required.')
+    const err = new Error('targets are required.')
     err.status = 400
     throw err
   }
@@ -277,10 +305,33 @@ exports.rollingUpdateService = function* () {
 exports.bindServiceDomain = function* () {
   const cluster = this.params.cluster
   const serviceName = this.params.service_name
-  this.body = {
-    cluster,
-    serviceName
+  const reqData = this.request.body
+  if (!reqData.port || !reqData.domain) {
+    const err = new Error('port and domain is required')
+    err.status = 400
+    throw err
   }
+  const loginUser = this.session.loginUser
+  const spi = apiFactory.getSpi(loginUser)
+  const result = yield spi.clusters.createBy([cluster, 'services', serviceName, 'binddomain'], null, reqData)
+  this.status = result.code
+  this.body = result
+}
+
+exports.deleteServiceDomain = function* () {
+  const cluster = this.params.cluster
+  const serviceName = this.params.service_name
+  const reqData = this.request.body
+  if (!reqData.port || !reqData.domain) {
+    const err = new Error('port and domain is required')
+    err.status = 400
+    throw err
+  }
+  const loginUser = this.session.loginUser
+  const spi = apiFactory.getSpi(loginUser)
+  const result = yield spi.clusters.updateBy([cluster, 'services', serviceName, 'binddomain'], null, reqData)
+  this.status = result.code
+  this.body = result
 }
 
 exports.getServiceDetailEvents = function* () {
@@ -311,6 +362,15 @@ exports.getServiceLogs = function* () {
   reqData.kind = 'service'
   const api = apiFactory.getK8sApi(this.session.loginUser)
   const result = yield api.createBy([cluster, 'instances', serviceName, 'logs'], null, reqData)
+  this.status = result.code
+  this.body = result
+}
+
+exports.getK8sService = function* () {
+  const cluster = this.params.cluster
+  const serviceName = this.params.service_name
+  const api = apiFactory.getK8sApi(this.session.loginUser)
+  const result = yield api.getBy([cluster, 'services', serviceName, 'k8s-service'])
   this.status = result.code
   this.body = result
 }

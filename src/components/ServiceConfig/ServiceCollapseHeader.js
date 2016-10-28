@@ -3,14 +3,14 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
- *  Config Group 
+ *  Config Group
  *
  * v0.1 - 2016/9/23
  * @author ZhaoXueYu BaiYu
  */
 
 import React, { Component, PropTypes } from 'react'
-import { Row, Col, Modal, Button,Form , Icon, Checkbox, Menu, Dropdown, Input, message } from 'antd'
+import { Row, Col, Modal, Button, Form, Icon, Checkbox, Menu, Dropdown, Input, message } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { createConfigFiles, deleteConfigGroup, loadConfigGroup, deleteConfigFiles, addConfigFile } from '../../actions/configs'
 import { connect } from 'react-redux'
@@ -27,7 +27,7 @@ class CollapseHeader extends Component {
     this.state = {
       modalConfigFile: false,
       configArray: [],
-      configName:'',
+      configName: '',
       configDesc: '',
       sizeNumber: this.props.sizeNumber,
       configNameList: this.props.configNameList
@@ -51,7 +51,7 @@ class CollapseHeader extends Component {
       message.error('请输入配置组名称')
       return
     }
-    if (escape(this.state.configName).indexOf( "%u" ) > 0) {
+    if (escape(this.state.configName).indexOf("%u") > 0) {
       message.error('名称格式输入有误，请重新输入')
       return
     }
@@ -59,7 +59,7 @@ class CollapseHeader extends Component {
       message.info('内容不能为空，请重新输入内容')
       return
     }
-    if (escape(this.state.configDesc).indexOf( "%u" ) > 0) {
+    if (escape(this.state.configDesc).indexOf("%u") > 0) {
       message.error('内容格式输入有误，请重新输入')
       return
     }
@@ -98,13 +98,13 @@ class CollapseHeader extends Component {
         },
         isAsync: true
       },
-      failure: {
+      failed: {
         func: (res) => {
           let errorText
-          switch(res.code) {
-            case 403: errorText = '添加配置文件过多';break
-            case 409: errorText = '配置已存在';break
-            case 500: errorText = '网络异常';break
+          switch (res.code) {
+            case 403: errorText = '添加配置文件过多'; break
+            case 409: errorText = '配置已存在'; break
+            case 500: errorText = '网络异常'; break
             default: errorText = '缺少参数或格式错误'
           }
           Modal.error({
@@ -156,7 +156,7 @@ class CollapseHeader extends Component {
               message.success('删除成功')
               // self.props.loadConfigGroup()
               self.setState({
-                configArray:[],
+                configArray: [],
               })
             },
             isAsync: true
@@ -168,7 +168,7 @@ class CollapseHeader extends Component {
   render() {
     const {collapseHeader, } = this.props
     const {sizeNumber} = this.state
-    const formItemLayout = {labelCol: { span: 3 },wrapperCol: { span: 21 }}
+    const formItemLayout = { labelCol: { span: 3 }, wrapperCol: { span: 21 } }
     const menu = (
       <Menu onClick={() => this.btnDeleteGroup(collapseHeader.native.metadata.name)} mode="vertical">
         <Menu.Item key="1">删除配置组</Menu.Item>
@@ -187,7 +187,7 @@ class CollapseHeader extends Component {
           {sizeNumber}个
         </Col>
         <Col span="6">
-          创建时间&nbsp;&nbsp;{ tenxDateFormat(collapseHeader.native.metadata.creationTimestamp) }
+          创建时间&nbsp;&nbsp;{tenxDateFormat(collapseHeader.native.metadata.creationTimestamp)}
         </Col>
         <Col span="6">
           <ButtonGroup>
@@ -204,7 +204,7 @@ class CollapseHeader extends Component {
             onCancel={(e) => this.createConfigModal(e, false)}
             >
             <div className="configFile-inf">
-              <p className="configFile-tip" style={{ color: "#16a3ea", height:'35px', textIndent:'12px'}}>
+              <p className="configFile-tip" style={{ color: "#16a3ea", height: '35px', textIndent: '12px' }}>
                 <Icon type="info-circle-o" style={{ marginRight: "10px" }} />
                 即将保存一个配置文件 , 您可以在创建应用 → 添加服务时 , 关联使用该配置
               </p>
@@ -213,7 +213,7 @@ class CollapseHeader extends Component {
                   <Input type="text" value={this.state.configName} onChange={(e) => this.addConfigFile(e, 'name')} className="configName" />
                 </FormItem>
                 <FormItem {...formItemLayout} label="内容">
-                  <Input type="textarea" style={{minHeight:'100px'}} value={this.state.configDesc} onChange={(e) => this.addConfigFile(e, 'desc')} />
+                  <Input type="textarea" style={{ minHeight: '100px' }} value={this.state.configDesc} onChange={(e) => this.addConfigFile(e, 'desc')} />
                 </FormItem>
               </Form>
             </div>
@@ -242,7 +242,7 @@ function mapStateToProps(state, props) {
 
   const { configGroupList  } = state.configReducers
 
-  const {configFiles, cluster, isFetching,configNameList} = configGroupList[DEFAULT_CLUSTER] || defaultConfigFiles
+  const {configFiles, cluster, isFetching, configNameList} = configGroupList[DEFAULT_CLUSTER] || defaultConfigFiles
   // const {  } = configNameList[DEFAULT_CLUSTER] || defaultConfigFiles
   return {
     configFiles, cluster, isFetching, configNameList
@@ -252,8 +252,8 @@ function mapStateToProps(state, props) {
 function mapDispatchToProps(dispatch) {
   return {
     createConfigFiles: (obj, callback) => { dispatch(createConfigFiles(obj, callback)) },
-    deleteConfigGroup: (obj, callback) => {dispatch(deleteConfigGroup(obj, callback))},
-    loadConfigGroup: (obj) => {dispatch(loadConfigGroup(obj))},
+    deleteConfigGroup: (obj, callback) => { dispatch(deleteConfigGroup(obj, callback)) },
+    loadConfigGroup: (obj) => { dispatch(loadConfigGroup(obj)) },
     addConfigFile: (configFile) => dispatch(addConfigFile(configFile))
   }
 }

@@ -62,9 +62,9 @@ class CreateCompose extends Component {
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         //it's mean there are some thing is null,user didn't input
-
         return;
       }
+        console.log(values)
       //when the code running here,it's meaning user had input all things,
       //and should submit the message to the backend
       scope.setState({
@@ -91,18 +91,6 @@ class CreateCompose extends Component {
             <FormItem hasFeedback style={{ width:"220px" }} >
               <Input {...nameProps} ref="nameInput" />
             </FormItem>
-          </div>
-          <div style={{ clear:"both" }}></div>
-        </div>
-        <div className="commonInput">
-          <div className="leftBox">
-            <span className="title">编排类型</span>
-          </div>
-          <div className="rightBox">
-            <RadioGroup onChange={this.onChangeType} value={this.state.composeType}>
-              <Radio key="a" value={"stack"}>stack</Radio>
-              <Radio key="b" value={"pod"}>pod</Radio>
-            </RadioGroup>
           </div>
           <div style={{ clear:"both" }}></div>
         </div>

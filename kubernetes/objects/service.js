@@ -8,6 +8,7 @@
  * @author Zhangpc
  */
 'use strict'
+const TENXCLOUD_PREFIX = 'tenxcloud.com/'
 
 class Service {
   constructor(name) {
@@ -25,6 +26,34 @@ class Service {
         name
       },
       externalIPs: []
+    }
+  }
+
+  importFromK8SService(k8sService) {
+    if (k8sService.metadata) {
+      if (k8sService.metadata.name) {
+        this.metadata.name = k8sService.metadata.name
+      }
+      if (k8sService.metadata.labels) {
+        for (let key in k8sService.metadata.labels) {
+          //Remove tenxcloud added labels
+          if (key.indexOf(TENXCLOUD_PREFIX) != 0) {
+            this.metadata.labels[key] = k8sService.metadata.labels[key]
+          } 
+        }
+      }
+    }
+
+    if (k8sService.spec) {
+      if (k8sService.spec.ports) {
+        this.spec.ports = k8sService.spec.ports
+      }
+      if (k8sService.spec.selector) {
+        this.spec.selector = k8sService.spec.selector
+      }
+      if (k8sService.spec.externalIPs) {
+        this.spec.externalIPs = k8sService.spec.externalIPs
+      }
     }
   }
 

@@ -8,11 +8,14 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Menu, Button, Card, Input, Dropdown, Modal } from 'antd'
+import { Menu, Button, Card, Input, Dropdown,Spin, Modal ,message} from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import { loadPrivateImageList ,getImageDetailInfo } from '../../../actions/app_center'
+import { DEFAULT_REGISTRY } from '../../../constants'
+
 import "./style/ImageSpace.less"
 import ImageDetailBox from './ImageDetail/Index.js'
 
@@ -44,10 +47,6 @@ const menusText = defineMessages({
   imageUrl: {
     id: 'AppCenter.ImageCenter.ImageSpace.imageUrl',
     defaultMessage: '镜像地址：',
-  },
-  downloadNum: {
-    id: 'AppCenter.ImageCenter.ImageSpace.downloadNum',
-    defaultMessage: '下载次数：',
   },
   deployService: {
     id: 'AppCenter.ImageCenter.ImageSpace.deployService',
@@ -85,105 +84,61 @@ const menusText = defineMessages({
     id: 'AppCenter.ImageCenter.ImageSpace.downloadImageThirdTips',
     defaultMessage: '为了在本地方便使用，下载后可以修改<tag>为短标签，比如：',
   },
+  downloadNum: {
+    id: 'AppCenter.ImageCenter.PublicSpace.downloadNum',
+    defaultMessage: '下载次数：',
+  },
 })
 
-const testData = [{
-  id: "1",
-  imageName: "Github",
-  imgUrl: "/img/test/github.jpg",
-  type: "private",
-  imageUrl: "tenxcloud/Github",
-  downloadNum: "1234"
-}, {
-  id: "2",
-  imageName: "Mysql",
-  imgUrl: "/img/test/mysql.jpg",
-  type: "private",
-  imageUrl: "tenxcloud/Mysql",
-  downloadNum: "1234"
-}, {
-  id: "3",
-  imageName: "Github",
-  imgUrl: "/img/test/github.jpg",
-  type: "public",
-  imageUrl: "tenxcloud/Github",
-  downloadNum: "1234"
-}, {
-  id: "4",
-  imageName: "Oracle",
-  imgUrl: "/img/test/oracle.jpg",
-  type: "private",
-  imageUrl: "tenxcloud/Oracle",
-  downloadNum: "1234"
-}, {
-  id: "5",
-  imageName: "Mysql",
-  imgUrl: "/img/test/mysql.jpg",
-  type: "public",
-  imageUrl: "tenxcloud/Mysql",
-  downloadNum: "1234"
-}, {
-  id: "6",
-  imageName: "Php",
-  imgUrl: "/img/test/php.jpg",
-  type: "public",
-  imageUrl: "tenxcloud/Php",
-  downloadNum: "1234"
-}, {
-  id: "7",
-  imageName: "Oracle",
-  imgUrl: "/img/test/oracle.jpg",
-  type: "public",
-  imageUrl: "tenxcloud/Oracle",
-  downloadNum: "1234"
-}, {
-  id: "8",
-  imageName: "Oracle",
-  imgUrl: "/img/test/oracle.jpg",
-  type: "private",
-  imageUrl: "tenxcloud/Oracle",
-  downloadNum: "1234"
-}, {
-  id: "9",
-  imageName: "Github",
-  imgUrl: "/img/test/github.jpg",
-  type: "private",
-  imageUrl: "tenxcloud/Github",
-  downloadNum: "1234"
-}, {
-  id: "10",
-  imageName: "Github",
-  imgUrl: "/img/test/github.jpg",
-  type: "private",
-  imageUrl: "tenxcloud/Github",
-  downloadNum: "1234"
-}];
-
-let MyComponent = React.createClass({
+const MyComponent = React.createClass({
   propTypes: {
     config: React.PropTypes.array,
     scope: React.PropTypes.object
   },
-  deleteImage: function (id) {
+  btnDeleteImage: function (id) {
     //this function for user delete select image
-
+    this.props.deleteImage(id, {
+      success:{
+        func:(res)=>{
+          message.success('删除成功！')
+        }
+      }
+    })
   },
   showImageDetail: function (id) {
     //this function for user select image and show the image detail info
-    //  const scope = this.props.scope;
-    //  scope.setState({
-    //   imageDetailModalShow:true,
-    //   currentImage:id
-    //  });
+     const scope = this.props.scope;
+     scope.setState({
+      privateDetailModal:true,
+      currentImage:id
+     });
+     const fullgroup={registry: DEFAULT_REGISTRY, fullName: id.name}
+     this.props.getImageDetailInfo(fullgroup, {
+      success: {
+        func: (res)=> {
+          scope.setState({
+            imageInfo: res.data
+          })
+        }
+      }
+    })
   },
   render: function () {
-    let config = this.props.config;
-    let items = config.map((item) => {
+    const { server, imageList, isFetching} = this.props
+    console.log(this.props)
+    if (isFetching) {
+      return (
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
+      )
+    }
+    let items = imageList.map((item) => {
       const dropdown = (
-        <Menu onClick={this.deleteImage.bind(this, item)}
+        <Menu onClick={this.btnDeleteImage.bind(this, item.id)}
           style={{ width: "100px" }}
           >
-          <Menu.Item key="1">
+          <Menu.Item key={item.id}>
             <FormattedMessage {...menusText.delete} />
           </Menu.Item>
         </Menu>
@@ -191,26 +146,26 @@ let MyComponent = React.createClass({
       return (
         <div className="imageDetail" key={item.id} >
           <div className="imageBox">
-            <img src={item.imgUrl} />
+            <img src="/img/test/github.jpg" />
           </div>
           <div className="contentBox">
             <span className="title" onClick={this.showImageDetail.bind(this, item)}>
-              {item.imageName}
+              {item.name}
             </span><br />
             <span className="type">
               <FormattedMessage {...menusText.type} />&nbsp;
-                {item.type == "public" ? [
+                {item.isPrivate == "0" ? [
                 <span key={item.id + "unlock"}><i className="fa fa-unlock-alt"></i>&nbsp;<FormattedMessage {...menusText.publicType} /></span>]
                 :
                 [<span key={item.id + "lock"}><i className="fa fa-lock"></i>&nbsp;<FormattedMessage {...menusText.privateType} /></span>]
               }
             </span>
-            <span className="imageUrl">
+            <span className="imageUrl textoverflow">
               <FormattedMessage {...menusText.imageUrl} />&nbsp;
-              <span className="colorUrl">{item.imageUrl}</span>
+              <span className="">{ server }/{item.name}</span>
             </span>
             <span className="downloadNum">
-              <FormattedMessage {...menusText.downloadNum} />&nbsp;{item.downloadNum}
+              <FormattedMessage {...menusText.downloadNum} />&nbsp;{item.downloadNumber}
             </span>
           </div>
           <div className="btnBox">
@@ -236,14 +191,17 @@ class ImageSpace extends Component {
     this.closeUploadModal = this.closeUploadModal.bind(this);
     this.openDownloadModal = this.openDownloadModal.bind(this);
     this.closeDownloadModal = this.closeDownloadModal.bind(this);
+    this.closeImageDetailModal = this.closeImageDetailModal.bind(this)
     this.state = {
       uploadModalVisible: false,
       downloadModalVisible: false,
       currentImage: null,
-      imageDetailModalShow: false
+      privateDetailModal: false
     }
   }
-
+  componentWillMount() {
+    this.props.loadPrivateImageList(DEFAULT_REGISTRY);
+  }
   openUploadModal() {
     //this function for user open the upload image modal
     this.setState({
@@ -275,7 +233,7 @@ class ImageSpace extends Component {
   closeImageDetailModal() {
     //this function for user close the modal of image detail info
     this.setState({
-      imageDetailModalShow: false
+      privateDetailModal: false
     });
   }
 
@@ -283,6 +241,7 @@ class ImageSpace extends Component {
     const { formatMessage } = this.props.intl;
     const rootscope = this.props.scope;
     const scope = this;
+    const { imageList ,server} = this.props
     return (
       <QueueAnim className="ImageSpace"
         type="right"
@@ -301,7 +260,7 @@ class ImageSpace extends Component {
               <Input className="searchBox" placeholder={formatMessage(menusText.search)} type="text" />
               <i className="fa fa-search"></i>
             </div>
-            <MyComponent scope={scope} config={testData} />
+            <MyComponent scope={scope} isFetching={this.props.isFetching} imageList= {imageList} registryServer= {server} deleteImage={(id)=>this.props.deleteImage(id)} getImageDetailInfo = {(obj,callback)=>this.props.getImageDetailInfo(obj,callback) } />
             <Modal title={<FormattedMessage {...menusText.uploadImage} />} className="uploadImageModal" visible={this.state.uploadModalVisible}
               onCancel={this.closeUploadModal} onOk={this.closeUploadModal}
               >
@@ -332,12 +291,13 @@ class ImageSpace extends Component {
             </span>
             </Modal>
             <Modal
-              visible={this.state.imageDetailModalShow}
+              visible={this.state.privateDetailModal}
               className="AppServiceDetail"
               transitionName="move-right"
               onCancel={this.closeImageDetailModal}
               >
-              <ImageDetailBox scope={scope} config={this.state.currentImage} />
+              {/* right detail box  */}
+              <ImageDetailBox parentScope={rootscope} scope={scope} imageInfo={this.state.imageInfo} config={this.state.currentImage} />
             </Modal>
           </Card>
         </div>
@@ -350,6 +310,43 @@ ImageSpace.propTypes = {
   intl: PropTypes.object.isRequired
 }
 
-export default connect()(injectIntl(ImageSpace, {
+function mapStateToProps(state, props) {
+  const defaultPrivateImages = {
+    isFetching: false,
+    registry: DEFAULT_REGISTRY,
+    imageList: [],
+    server:''
+
+  }
+  const defaultConfig = {
+    isFetching: false,
+    imageInfo: {dockerfile:'', detailMarkdown:''}
+  }
+  const { privateImages, imagesInfo } = state.images
+  const { imageList, isFetching, registry ,server} = privateImages[DEFAULT_REGISTRY] || defaultPrivateImages
+  const { imageInfo } = imagesInfo || defaultConfig
+
+  return {
+    imageList,
+    isFetching,
+    imageInfo,
+    registry,
+    server
+  }
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    loadPrivateImageList: (DEFAULT_REGISTRY) => {
+      dispatch(loadPrivateImageList(DEFAULT_REGISTRY))
+    },
+    getImageDetailInfo :(obj, callback)=> {
+      dispatch(getImageDetailInfo(obj, callback))
+    },
+
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(ImageSpace, {
   withRef: true,
 }))

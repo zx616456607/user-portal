@@ -44,7 +44,7 @@ export function createStorage(obj, callback) {
     pool: obj.pool,
     [FETCH_API]: {
       types: [STORAGE_CREATE_REQUEST, STORAGE_CREATE_SUCCESS, STORAGE_CREATE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/storage-pools/${obj.pool}/${obj.cluster}/volumes`,
+      endpoint: `${API_URL_PREFIX}/storage-pools/${obj.cluster}/volumes`,
       options: {
         method: 'POST',
         body: obj
@@ -325,5 +325,29 @@ function _consume(dispath, reader) {
       })
       return _pump()
     })
+  }
+}
+
+
+
+export const STORAGE_GET_FREE_VOLUME_REQUEST = 'IMAGE_GET_FREE_VOLUME_REQUEST'
+export const STORAGE_GET_FREE_VOLUME_SUCCESS = 'IMAGE_GET_FREE_VOLUME_SUCCESS'
+export const STORAGE_GET_FREE_VOLUME_FAIULRE = 'IMAGE_GET_FREE_VOLUME_FAIULRE'
+
+export function fetchFreeVolume(cluster) {
+  return {
+    cluster,
+    [FETCH_API]: {
+      types: [STORAGE_GET_FREE_VOLUME_REQUEST, STORAGE_GET_FREE_VOLUME_SUCCESS, STORAGE_GET_FREE_VOLUME_FAIULRE],
+      endpoint: `${API_URL_PREFIX}/storage-pools/${cluster}/volumes/available`,
+      schema: {}
+    }
+  }
+}
+
+
+export function loadFreeVolume(cluster) {
+  return (dispatch, getState) => {
+    return dispatch(fetchFreeVolume(cluster))
   }
 }

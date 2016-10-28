@@ -43,7 +43,9 @@ function serviceItmes(state = {}, action) {
             isFetching: false,
             cluster: action.response.result.cluster,
             appName: action.response.result.appName,
-            serviceList: union(state.services, action.response.result.data)
+            serviceList: union(state.services, action.response.result.data),
+            size: action.response.result.count,
+            total: action.response.result.total,
           }
         }
       })
@@ -203,19 +205,19 @@ function serviceLogs(state = {}, action) {
       isFetching: false
     }
   }
-  switch(action.type) {
-    case ActionTypes.SERVICE_LOGS_REQUEST: 
+  switch (action.type) {
+    case ActionTypes.SERVICE_LOGS_REQUEST:
       return merge({}, defaultState, state, {
         [cluster]: {
           isFetching: true
         }
       })
-    case ActionTypes.SERVICE_LOGS_SUCCESS: 
+    case ActionTypes.SERVICE_LOGS_SUCCESS:
       const uState = cloneDeep(state)
-      if(!uState[cluster].logs) uState[cluster].logs = {}
-      if(!action.response.result.data) return uState
+      if (!uState[cluster].logs) uState[cluster].logs = {}
+      if (!action.response.result.data) return uState
       uState[cluster].logs.data = union(action.response.result.data, uState[cluster].logs.data)
-      if(uState[cluster].logs.data.length % 50 !== 0) uState[cluster].logs.data.unshift({log: '无更多日志\n'})
+      if (uState[cluster].logs.data.length % 50 !== 0) uState[cluster].logs.data.unshift({ log: '无更多日志\n' })
       return uState
     case ActionTypes.SERVICE_LOGS_FAILURE:
       return merge({}, defaultState, state, {
@@ -224,15 +226,28 @@ function serviceLogs(state = {}, action) {
         }
       })
     case ActionTypes.SERVICE_LOGS_CLEAR:
-      console.log(action.type)
-      var dd = merge({}, defaultState, {
+      return merge({}, defaultState, {
         [cluster]: {
           isFetching: false
         }
       })
-      return dd
-    default: 
+    default:
       return merge({}, state)
+  }
+}
+
+function k8sService(state = {}, action) {
+  switch (action.type) {
+    case ActionTypes.SERVICE_GET_K8S_SERVICE_REQUEST:
+      return merge({}, state, { isFetching: true })
+    case ActionTypes.SERVICE_GET_K8S_SERVICE_SUCCESS:
+      return merge({}, { isFetching: false }, action.response.result)
+    case ActionTypes.SERVICE_GET_K8S_SERVICE_FAILURE:
+      return merge({}, state, { isFetching: false })
+    case ActionTypes.SERVICE_CLEAR_K8S_SERVICE:
+      return merge({}, { isFetching: false })
+    default:
+      return state
   }
 }
 
@@ -243,6 +258,7 @@ export function services(state = { appItmes: {} }, action) {
     serviceContainers: serviceContainers(state.serviceContainers, action),
     serviceDetail: serviceDetail(state.serviceDetail, action),
     serviceDetailEvents: serviceDetailEvents(state.serviceDetailEvents, action),
+    k8sService: k8sService(state.k8sService, action),
     serviceLogs: serviceLogs(state.serviceLogs, action),
     deleteServices: reducerFactory({
       REQUEST: ActionTypes.SERVICE_BATCH_DELETE_REQUEST,
@@ -269,10 +285,40 @@ export function services(state = { appItmes: {} }, action) {
       SUCCESS: ActionTypes.SERVICE_BATCH_QUICK_RESTART_SUCCESS,
       FAILURE: ActionTypes.SERVICE_BATCH_QUICK_RESTART_FAILURE
     }, state.quickRestartServices, action),
-    rollingUpdateServices: reducerFactory({
-      REQUEST: ActionTypes.SERVICE_BATCH_ROLLING_UPDATE_REQUEST,
-      SUCCESS: ActionTypes.SERVICE_BATCH_ROLLING_UPDATE_SUCCESS,
-      FAILURE: ActionTypes.SERVICE_BATCH_ROLLING_UPDATE_FAILURE
-    }, state.rollingUpdateServices, action),
+    serviceAvailability: reducerFactory({
+      REQUEST: ActionTypes.SERVICE_AVAILABILITY_REQUEST,
+      SUCCESS: ActionTypes.SERVICE_AVAILABILITY_SUCCESS,
+      FAILURE: ActionTypes.SERVICE_AVAILABILITY_FAILURE
+    }, state.serviceAvailability, action),
+    autoScale: reducerFactory({
+      REQUEST: ActionTypes.SERVICE_GET_AUTO_SCALE_REQUEST,
+      SUCCESS: ActionTypes.SERVICE_GET_AUTO_SCALE_SUCCESS,
+      FAILURE: ActionTypes.SERVICE_GET_AUTO_SCALE_FAILURE
+    }, state.autoScale, action, { overwrite: true }),
+    deleteAutoScale: reducerFactory({
+      REQUEST: ActionTypes.SERVICE_DELETE_AUTO_SCALE_REQUEST,
+      SUCCESS: ActionTypes.SERVICE_DELETE_AUTO_SCALE_SUCCESS,
+      FAILURE: ActionTypes.SERVICE_DELETE_AUTO_SCALE_FAILURE
+    }, state.deleteAutoScale, action, { overwrite: true }),
+    updateAutoScale: reducerFactory({
+      REQUEST: ActionTypes.SERVICE_UPDATE_AUTO_SCALE_REQUEST,
+      SUCCESS: ActionTypes.SERVICE_UPDATE_AUTO_SCALE_SUCCESS,
+      FAILURE: ActionTypes.SERVICE_UPDATE_AUTO_SCALE_FAILURE
+    }, state.updateAutoScale, action, { overwrite: true }),
+    manualScaleService: reducerFactory({
+      REQUEST: ActionTypes.SERVICE_MANUAL_SCALE_REQUEST,
+      SUCCESS: ActionTypes.SERVICE_MANUAL_SCALE_SUCCESS,
+      FAILURE: ActionTypes.SERVICE_MANUAL_SCALE_FAILURE
+    }, state.manualScaleService, action, { overwrite: true }),
+    changeQuotaService: reducerFactory({
+      REQUEST: ActionTypes.SERVICE_CHANGE_QUOTA_REQUEST,
+      SUCCESS: ActionTypes.SERVICE_CHANGE_QUOTA_SUCCESS,
+      FAILURE: ActionTypes.SERVICE_CHANGE_QUOTA_FAILURE
+    }, state.changeQuotaService, action, { overwrite: true }),
+    rollingUpdateService: reducerFactory({
+      REQUEST: ActionTypes.SERVICE_ROLLING_UPDATE_REQUEST,
+      SUCCESS: ActionTypes.SERVICE_ROLLING_UPDATE_SUCCESS,
+      FAILURE: ActionTypes.SERVICE_ROLLING_UPDATE_FAILURE
+    }, state.rollingUpdateService, action, { overwrite: true }),
   }
 }

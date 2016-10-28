@@ -11,6 +11,39 @@
 import * as ActionTypes from '../actions/app_center'
 import merge from 'lodash/merge'
 import reducerFactory from './factory'
+import { cloneDeep } from 'lodash'
+
+function privateImages(state = {}, action) {
+  const registry = action.registry
+  const defaultState = {
+    [registry]: {
+      isFetching: false,
+      registry,
+      imageList: []
+    }
+  }
+  switch (action.type) {
+    case ActionTypes.IMAGE_PRIVATE_LIST_REQUEST:
+      return merge({}, defaultState, state, {
+        [registry]: { isFetching: true }
+      })
+    case ActionTypes.IMAGE_PRIVATE_LIST_SUCCESS:
+      return merge({}, state, {
+        [registry]: {
+          isFetching: false,
+          registry: action.response.result.registry,
+          server: action.response.result.server,
+          imageList: action.response.result.data || []
+        }
+      })
+    case ActionTypes.IMAGE_PRIVATE_LIST_FAILURE:
+      return merge({}, defaultState, state, {
+        [registry]: { isFetching: false }
+      })
+    default:
+      return state
+  }
+}
 
 function publicImages(state = {}, action) {
   const registry = action.registry
@@ -44,26 +77,123 @@ function publicImages(state = {}, action) {
   }
 }
 
+function otherImages(state = {}, action) {
+  const defaultState = {
+    isFetching: false,
+    imageList: []
+  }
+  switch (action.type) {
+    case ActionTypes.IMAGE_OTHER_REQUEST:
+      return merge({}, defaultState, state, {
+        isFetching: true
+      })
+    case ActionTypes.IMAGE_OTHER_SUCCESS:
+      return merge({}, state, {
+        isFetching: false,
+        registry: action.response.result.registry,
+        server: action.response.result.server,
+        imageRow: action.response.result.data || []
+      })
+    case ActionTypes.IMAGE_OTHER_FAILURE:
+      return merge({}, defaultState, state, {
+        isFetching: false
+      })
+    case ActionTypes.GET_OTHER_LIST_REQUEST:
+      return merge({}, defaultState, state, {
+        isFetching: true
+      })
+    case ActionTypes.GET_OTHER_LIST_SUCCESS:
+      return merge({}, defaultState, state, {
+        isFetching: false,
+        imageList: action.response.result.repositories || []
+      })
+    case ActionTypes.GET_OTHER_LIST_FAILURE:
+      return merge({}, defaultState, state, {
+        isFetching: false
+      })
+    case ActionTypes.DELETE_OTHER_IMAGE_REQUEST:
+      return merge({}, state, {
+        isFetching: true
+      })
+    case ActionTypes.DELETE_OTHER_IMAGE_SUCCESS:
+      const oldState = cloneDeep(state)
+      const Id = action.id
+      const imageList = oldState.imageRow
+      for (let i = 0; i < imageList.length; i++) {
+        if (imageList[i].id == Id) {
+          imageList.splice(i, 1)
+        }
+      }
+      return oldState
+    case ActionTypes.DELETE_OTHER_IMAGE_FAILURE:
+      return merge({}, state, {
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
+
+function deleteOtherImage(state = {}, action) {
+  switch (action.type) {
+    case ActionTypes.DELETE_OTHER_IMAGE_REQUEST:
+      return merge({}, state, {
+        isFetching: true
+      })
+    case ActionTypes.DELETE_OTHER_IMAGE_SUCCESS:
+      // return merge({}, state, {
+      //     isFetching: false,
+      //     imageList: action.response.result.data
+      // })
+      const oldState = cloneDeep(state)
+      const Id = action.Id
+      const imageList = action.imageList
+      for (let i = 0; i < imageList.length; i++) {
+        if (imageList[i].id == Id) {
+          imageList.splice(i, 1)
+        }
+      }
+      return oldState
+    case ActionTypes.DELETE_OTHER_IMAGE_FAILURE:
+      return merge({}, state, {
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
+
 export function images(state = { publicImages: {} }, action) {
   return {
+    privateImages: privateImages(state.privateImages, action),
     publicImages: publicImages(state.publicImages, action),
+    fockImages: fockImagesList(state.fockImages, action),
+    otherImages: otherImages(state.otherImages, action),
+    imagesInfo: imagesInfo(state.imagesInfo, action),
+    stackCenter: stackList(state.stackList, action)
   }
 }
 //get image detail tag
 function imageTag(state = {}, action) {
-  const registry = action.registry
+  const { registry, fullName } = action
   const defaultState = {
     [registry]: {
-      isFetching: false,
-      registry,
-      imageList: []
+      [fullName]: {
+        isFetching: false,
+        registry,
+        imageList: [],
+      }
     }
   }
 
   switch (action.type) {
     case ActionTypes.IMAGE_GET_DETAILTAG_REQUEST:
       return merge({}, defaultState, state, {
-        [registry]: { isFetching: true }
+        [registry]: {
+          [fullName]: {
+            isFetching: true
+          }
+        }
       })
     case ActionTypes.IMAGE_GET_DETAILTAG_SUCCESS:
       const LATEST = 'latest'
@@ -73,17 +203,23 @@ function imageTag(state = {}, action) {
         data.splice(latestTagIndex)
         data = ([LATEST]).concat(data)
       }
-      return Object.assign({}, state, {
+      return merge({}, state, {
         [registry]: {
-          isFetching: false,
-          registry: action.response.result.registry,
-          server: action.response.result.server,
-          tag: data
+          [fullName]: {
+            isFetching: false,
+            registry: action.response.result.registry,
+            server: action.response.result.server,
+            tag: data,
+          }
         }
       })
     case ActionTypes.IMAGE_GET_DETAILTAG_FAILURE:
       return merge({}, defaultState, state, {
-        [registry]: { isFetching: false }
+        [registry]: {
+          [fullName]: {
+            isFetching: false
+          }
+        }
       })
     default:
       return state
@@ -93,6 +229,7 @@ function imageTag(state = {}, action) {
 export function getImageTag(state = { publicImages: {} }, action) {
   return {
     imageTag: imageTag(state.imageTag, action),
+    otherImageTag: getOtherImageTag(state.otherImageTag, action)
   }
 }
 
@@ -103,7 +240,7 @@ function imageTagConfig(state = {}, action) {
     [registry]: {
       isFetching: false,
       registry,
-      imageList: []
+      sizeInfo: {}
     }
   }
 
@@ -119,7 +256,8 @@ function imageTagConfig(state = {}, action) {
           registry: action.response.result.registry,
           server: action.response.result.server,
           tag: action.response.result.tag || [],
-          configList: action.response.result.data || []
+          configList: action.response.result.data || [],
+          sizeInfo: action.response.result.data.sizeInfo
         }
       })
     case ActionTypes.IMAGE_GET_DETAILTAGCONFIG_FAILURE:
@@ -134,5 +272,189 @@ function imageTagConfig(state = {}, action) {
 export function getImageTagConfig(state = { publicImages: {} }, action) {
   return {
     imageTagConfig: imageTagConfig(state.imageTagConfig, action),
+    otherTagConfig: getOtherImageTagConfig(state.otherTagConfig, action)
+  }
+}
+
+function imagesInfo(state = {}, action) {
+  const registry = action.registry
+  const defaultState = {
+    [registry]: {
+      isFetching: false,
+      registry,
+      imageInfo: { dockerfile: '' }
+    }
+  }
+  switch (action.type) {
+    case ActionTypes.GET_IMAGEINFO_REQUEST:
+      return merge({}, defaultState, state, {
+        [registry]: { isFetching: true }
+      })
+    case ActionTypes.GET_IMAGEINFO_SUCCESS:
+      return Object.assign({}, state, {
+        [registry]: {
+          isFetching: false,
+          registry: action.response.result.registry,
+          imageInfo: action.response.result.data || null
+        }
+      })
+    case ActionTypes.GET_IMAGEINFO_FAILURE:
+      return merge({}, defaultState, state, {
+        [registry]: { isFetching: false }
+      })
+    // 设置收藏 与否
+    case ActionTypes.SET_IMAGE_STORE_REQUEST:
+      return merge({}, defaultState, state, {
+        [registry]: { isFetching: false }
+      })
+
+    case ActionTypes.SET_IMAGE_STORE_SUCCESS:
+      const oldimageInfo = cloneDeep(state)
+      oldimageInfo.default.imageInfo.isFavourite = action.myfavourite
+      oldimageInfo.default.imageInfo.isPrivate = action.isPrivate
+      return merge({}, oldimageInfo ,{
+        [registry]: { isFetching: false }
+      })
+    case ActionTypes.SET_IMAGE_STORE_FAILURE:
+      return merge({}, defaultState, state, {
+        [registry]: { isFetching: false }
+      })
+    default:
+      return state
+  }
+}
+//  get other image tag
+function getOtherImageTag(state = {}, action) {
+  const defaultState = {
+    isFetching: false,
+    imageTag: ''
+  }
+  switch (action.type) {
+    case ActionTypes.GET_OTHER_IMAGE_TAGS_REQUEST:
+      return merge({}, defaultState, state, {
+        isFetching: true
+      })
+    case ActionTypes.GET_OTHER_IMAGE_TAGS_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        imageTag: action.response.result.tags || null
+      })
+    case ActionTypes.GET_OTHER_IMAGE_TAGS_FAILURE:
+      return merge({}, defaultState, state, {
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
+// other registry tags config
+function getOtherImageTagConfig(state = {}, action) {
+  const registry = action.registry
+  const defaultState = {
+    isFetching: false,
+    configList: [],
+    sizeInfo: ''
+  }
+
+  switch (action.type) {
+    case ActionTypes.GET_OTHER_TAG_CONFIG_REQUEST:
+      return merge({}, defaultState, state, {
+        isFetching: true
+      })
+    case ActionTypes.GET_OTHER_TAG_CONFIG_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        tag: action.tag || [],
+        configList: action.response.result.configInfo || [],
+        sizeInfo: action.response.result.sizeInfo
+
+      })
+    case ActionTypes.GET_OTHER_TAG_CONFIG_FAILURE:
+      return merge({}, defaultState, state, {
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
+
+//    --------------------  我的收藏  -----------
+function fockImagesList(state = {}, action) {
+  const registry = action.registry
+  const defaultState = {
+    [registry]: {
+      isFetching: false,
+      registry,
+      imageList: []
+    }
+  }
+
+  switch (action.type) {
+    case ActionTypes.GET_IMAGE_FOCK_REQUEST:
+      return merge({}, defaultState, state, {
+        [registry]: { isFetching: true }
+      })
+    case ActionTypes.GET_IMAGE_FOCK_SUCCESS:
+      return merge({}, state, {
+        [registry]: {
+          isFetching: false,
+          registry: action.response.result.registry,
+          server: action.response.result.server,
+          imageList: action.response.result.data || []
+        }
+      })
+    case ActionTypes.GET_IMAGE_FOCK_FAILURE:
+      return merge({}, defaultState, state, {
+        [registry]: { isFetching: false }
+      })
+
+    default:
+      return state
+  }
+}
+// ----------------------      编排中心          -----------
+function stackList(state={}, action) {
+  const registry = action.registry
+  const defaultState = {
+    [registry]: {
+      isFetching: false,
+      myStackList: [],
+      stackList: []
+    }
+  }
+  switch (action.type) {
+    case ActionTypes.GET_PRIVATE_STACK_REQUEST:
+      return merge({}, defaultState, state, {
+        [registry]: { isFetching: true }
+      })
+    case ActionTypes.GET_PRIVATE_STACK_SUCCESS:
+      return merge({}, state, {
+        [registry]: {
+          isFetching: false,
+          myStackList: action.response.result.data.data || []
+        }
+      })
+    case ActionTypes.GET_PRIVATE_STACK_FAILURE:
+      return merge({}, defaultState, state, {
+        [registry]: { isFetching: false }
+      })
+    case ActionTypes.GET_PUBLIC_STACK_REQUEST:
+      return merge({}, defaultState, state, {
+        [registry]: { isFetching: true }
+      })
+    case ActionTypes.GET_PUBLIC_STACK_SUCCESS:
+      return merge({}, state, {
+        [registry]: {
+          isFetching: false,
+          stackList: action.response.result.data.data || []
+        }
+      })
+    case ActionTypes.GET_PUBLIC_STACK_FAILURE:
+      return merge({}, defaultState, state, {
+        [registry]: { isFetching: false }
+      })
+
+    default:
+      return state
   }
 }
