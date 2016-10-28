@@ -28,7 +28,6 @@ exports.getImages = function* () {
 
   const result = yield registryService.getImages(loginUser.user, q)
   this.body = {
-    registry,
     server: registryConfig.v2Server,
     data: result
   }
@@ -39,6 +38,7 @@ exports.getPrivateImages = function* () {
   const result = yield registryService.getPrivateRepositories(loginUser.user, 1)
 
   this.body = {
+    server: registryConfig.v2Server,
     data: result
   }
 }
@@ -48,6 +48,7 @@ exports.getFavouriteImages = function* () {
   const result = yield registryService.getFavouriteRepositories(loginUser.user, 1)
 
   this.body = {
+    server: registryConfig.v2Server,
     data: result
   }
 }
@@ -75,7 +76,6 @@ exports.getImageTags = function* () {
   const loginUser = this.session.loginUser
   const result = yield registryService.getImageTags(loginUser.user, imageFullName)
   this.body = {
-    registry,
     server: registryConfig.v2Server,
     name: imageFullName,
     data: result
@@ -89,7 +89,6 @@ exports.getImageConfigs = function* () {
   const loginUser = this.session.loginUser
   const result = yield registryService.getImageConfigs(loginUser.user, imageFullName, tag)
   this.body = {
-    registry,
     server: registryConfig.v2Server,
     name: imageFullName,
     tag,
@@ -105,7 +104,6 @@ exports.getImageInfo = function* () {
   const result = yield registryService.getImageInfo(loginUser.user, imageFullName)
   // this.status = result.code
   this.body = {
-    registry,
     server: registryConfig.v2Server,
     name: imageFullName,
     data: result
