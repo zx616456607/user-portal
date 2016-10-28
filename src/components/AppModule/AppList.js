@@ -43,8 +43,8 @@ const MyComponent = React.createClass({
   appOperaClick: function (item, e) {
     //this function for user click opera menu
   },
-  selectAppDetail: function (item) {
-    //this function for user click app detail ,and then this app will be selected
+  selectAppByline: function (item) {
+    //this function for user click app line ,and then this app will be selected
     const { parentScope } = this.props
     const { appList } = parentScope.state
     appList.map((app) => {
@@ -161,7 +161,7 @@ const MyComponent = React.createClass({
         </Menu>
       );
       return (
-        <div className={item.checked ? "appDetail appDetailSelected" : "appDetail"} key={item.name} onClick={this.selectAppDetail.bind(this, item)} >
+        <div className={item.checked ? "appDetail appDetailSelected" : "appDetail"} key={item.name} onClick={this.selectAppByline.bind(this, item)} >
           <div className="selectIconTitle commonData">
             <Checkbox value={item.name} checked={item.checked} onChange={this.onchange}></Checkbox>
           </div>
