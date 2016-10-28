@@ -382,7 +382,7 @@ class AppServiceList extends Component {
       configModal: true
     })
   }
-  showManualScaleModal(){
+  showManualScaleModal() {
     this.setState({
       manualScaleModalShow: true
     })
@@ -424,7 +424,7 @@ class AppServiceList extends Component {
             currentShowInstance: currentShowInstance,
             modalShow: true,
           })
-        }}>自动伸缩</span>
+        } }>自动伸缩</span>
       </Menu.Item>
       <Menu.Item key="3">
         <span onClick={this.showUpdataModal}>灰度升级</span>
@@ -516,14 +516,14 @@ class AppServiceList extends Component {
             parentScope={parentScope}
             cluster={cluster}
             appName={appName}
-            visible={updateModal}
             visible={configModal}
+            loadServiceList={loadServiceList}
             service={currentShowInstance} />
           <ManualScaleModal
             parentScope={parentScope}
             cluster={cluster}
             appName={appName}
-            visible={ manualScaleModalShow }
+            visible={manualScaleModalShow}
             service={currentShowInstance}
             loadServiceList={loadServiceList} />
         </QueueAnim>
