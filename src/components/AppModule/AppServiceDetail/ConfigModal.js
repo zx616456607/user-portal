@@ -61,9 +61,9 @@ class ConfigModal extends Component {
     const { composeType } = this.state
     const serviceName = service.metadata.name
     const resources = getResourcesByMemory(composeType)
-    const quota = `${resources.requests.cpu},${resources.requests.memory}`
+    const { requests, limits } = resources
     const hide = message.loading('正在保存中...', 0)
-    changeQuotaService(cluster, serviceName, { quota }, {
+    changeQuotaService(cluster, serviceName, { requests, limits }, {
       success: {
         func: () => {
           loadServiceList(cluster, appName)
@@ -71,7 +71,7 @@ class ConfigModal extends Component {
             configModal: false
           })
           hide()
-          message.success(`服务 ${serviceName} 配置已成功更改：${quota}`)
+          message.success(`服务 ${serviceName} 配置已成功更改`)
         },
         isAsync: true
       },

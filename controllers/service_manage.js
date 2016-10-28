@@ -248,15 +248,14 @@ exports.changeServiceQuota = function* () {
   const cluster = this.params.cluster
   const serviceName = this.params.service_name
   const body = this.request.body
-  if (!body || !body.quota) {
-    const err = new Error('quota is required.')
+  if (!body) {
+    const err = new Error('body is required.')
     err.status = 400
     throw err
   }
-  let quota = body.quota
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.updateBy([cluster, 'services', serviceName, 'quota'], null, { quota })
+  const result = yield api.updateBy([cluster, 'services', serviceName, 'quota'], null, body)
   this.body = {
     cluster,
     serviceName,
