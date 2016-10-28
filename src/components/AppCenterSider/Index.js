@@ -51,7 +51,7 @@ export default class ImageCenterSider extends Component {
               <Link to="/app_center/image_store">应用商城</Link>
             </Menu.Item>
             <Menu.Item key="3">
-              <Link to="/app_center/compose_center">编排中心</Link>
+              <Link to="/app_center/stack_center">编排中心</Link>
             </Menu.Item>
           </Menu>
         </div>
@@ -71,8 +71,8 @@ function currentPathNameCheck(scope) {
     });
     return;
   }
-  //this check the pathname from the compose_center
-  let storageModule = pathname.indexOf('app_center/compose_center');
+  //this check the pathname from the stack_center
+  let storageModule = pathname.indexOf('app_center/stack_center');
   if( storageModule > -1 ){
     scope.setState({
       current: '3'

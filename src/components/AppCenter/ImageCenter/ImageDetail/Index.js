@@ -185,10 +185,10 @@ class ImageDetailBox extends Component {
     const imageInfo = this.props.imageInfo || {'detailMarkdown': ''}
     const imageDetail = this.props.config;
     const scope = this;
-    const ipAddress = this.props.scope.props.registryServer;
+    const ipAddress = this.props.parentScope.props.server;
     const imageName = this.state.imageDetail.name;
     let pullCode = "docker pull " + ipAddress + "/" + imageName;
-    console.log('imageInfo---------------------------')
+    console.log('imageInfo---------------------------',  ipAddress)
     return (
       <div id="ImageDetailBox">
         <div className="headerBox">

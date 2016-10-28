@@ -170,6 +170,7 @@ export function images(state = { publicImages: {} }, action) {
     fockImages: fockImagesList(state.fockImages, action),
     otherImages: otherImages(state.otherImages, action),
     imagesInfo: imagesInfo(state.imagesInfo, action),
+    stackCenter: stackList(state.stackList, action)
   }
 }
 //get image detail tag
@@ -403,6 +404,52 @@ function fockImagesList(state = {}, action) {
         }
       })
     case ActionTypes.GET_IMAGE_FOCK_FAILURE:
+      return merge({}, defaultState, state, {
+        [registry]: { isFetching: false }
+      })
+
+    default:
+      return state
+  }
+}
+// ----------------------      编排中心          -----------
+function stackList(state={}, action) {
+  const registry = action.registry
+  const defaultState = {
+    [registry]: {
+      isFetching: false,
+      myStackList: [],
+      stackList: []
+    }
+  }
+  switch (action.type) {
+    case ActionTypes.GET_PRIVATE_STACK_REQUEST:
+      return merge({}, defaultState, state, {
+        [registry]: { isFetching: true }
+      })
+    case ActionTypes.GET_PRIVATE_STACK_SUCCESS:
+      return merge({}, state, {
+        [registry]: {
+          isFetching: false,
+          myStackList: action.response.result.data.data || []
+        }
+      })
+    case ActionTypes.GET_PRIVATE_STACK_FAILURE:
+      return merge({}, defaultState, state, {
+        [registry]: { isFetching: false }
+      })
+    case ActionTypes.GET_PUBLIC_STACK_REQUEST:
+      return merge({}, defaultState, state, {
+        [registry]: { isFetching: true }
+      })
+    case ActionTypes.GET_PUBLIC_STACK_SUCCESS:
+      return merge({}, state, {
+        [registry]: {
+          isFetching: false,
+          stackList: action.response.result.data.data || []
+        }
+      })
+    case ActionTypes.GET_PUBLIC_STACK_FAILURE:
       return merge({}, defaultState, state, {
         [registry]: { isFetching: false }
       })

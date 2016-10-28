@@ -255,3 +255,34 @@ export function loadFavouriteList(registry) {
     }
   }
 }
+
+// --------------------------  编排中心   ---------------------------------- ------
+export const GET_PRIVATE_STACK_REQUEST = 'GET_PRIVATE_STACK_REQUEST'
+export const GET_PRIVATE_STACK_SUCCESS = 'GET_PRIVATE_STACK_SUCCESS'
+export const GET_PRIVATE_STACK_FAILURE = 'GET_PRIVATE_STACK_FAILURE'
+
+export function loadMyStack(registry) {
+  return {
+    registry,
+    [FETCH_API]: {
+      types: [GET_PRIVATE_STACK_REQUEST, GET_PRIVATE_STACK_SUCCESS, GET_PRIVATE_STACK_FAILURE],
+      endpoint: `${API_URL_PREFIX}/templates?filter=owned`,
+      schema: Schemas.REGISTRYS,
+    }
+  }
+}
+
+export const GET_PUBLIC_STACK_REQUEST = 'GET_PUBLIC_STACK_REQUEST'
+export const GET_PUBLIC_STACK_SUCCESS = 'GET_PUBLIC_STACK_SUCCESS'
+export const GET_PUBLIC_STACK_FAILURE = 'GET_PUBLIC_STACK_FAILURE'
+
+export function loadStack(registry) {
+  return {
+    registry,
+    [FETCH_API]: {
+      types: [GET_PUBLIC_STACK_REQUEST, GET_PUBLIC_STACK_SUCCESS, GET_PUBLIC_STACK_FAILURE],
+      endpoint: `${API_URL_PREFIX}/templates`,
+      schema: Schemas.REGISTRYS,
+    }
+  }
+}
