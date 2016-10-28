@@ -4,7 +4,7 @@
  *
  *  Storage list
  *
- * v2.0 - 2016/10/11
+ * v2.0 - 2016-10-11
  * @author Bai Yu
  */
 
@@ -12,11 +12,12 @@ import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import { Row, Col, Modal, Button, Icon, Collapse, Input, message } from 'antd'
+import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import { loadMysqlDbCacheAllList } from '../../actions/database_cache'
+import { DEFAULT_CLUSTER } from '../../constants'
 import ModalDetail from './ModalDetail.js'
 import CreateDatabase from './CreateDatabase.js'
 import './style/MysqlCluster.less'
-
-let testData =['mysql1','mysql2','mysql3']
 
 let MyComponent = React.createClass({
   propTypes: {
@@ -62,15 +63,21 @@ let MyComponent = React.createClass({
   }
 });
 
-export default class MysqlCluster extends Component {
-  constructor() {
-    super()
+class MysqlCluster extends Component {
+  constructor(props) {
+    super(props)
     this.createDatabaseShow = this.createDatabaseShow.bind(this);
     this.state = {
       detailModal: false,
       currentDatabase: null,
       CreateDatabaseModalShow: false
     }
+  }
+  
+  componentWillMount() {
+    document.title = 'MySQL集群 | 时速云';
+    const { loadMysqlDbCacheAllList, cluster } = this.props
+    loadMysqlDbCacheAllList(cluster)
   }
   
   createDatabaseShow(){
@@ -94,7 +101,7 @@ export default class MysqlCluster extends Component {
             <i className="fa fa-search" />
           </span>
         </div>
-        <MyComponent scope={parentScope} config={testData} />
+        
       </div>
       <Modal visible={this.state.detailModal}
         className='AppServiceDetail' transitionName='move-right'
@@ -113,3 +120,37 @@ export default class MysqlCluster extends Component {
     )
   }
 }
+
+function mapStateToProps(state, props) {
+  const defaultMysqlList = {
+    isFetching: false,
+    cluster:DEFAULT_CLUSTER,
+    database: 'Mysql',
+    databaseList: []
+  }
+  const defaultConfig = {
+    isFetching: false,
+  }
+  const { mysqlDatabaseAllList } = state.databaseCache
+  const { cluster, database, databaseList, isFetching } = mysqlDatabaseAllList[DEFAULT_CLUSTER] || defaultMysqlList
+  return {
+    cluster,
+    database,
+    databaseList: databaseList,
+    isFetching,
+  }
+}
+
+MysqlCluster.propTypes = {
+  intl: PropTypes.object.isRequired,
+  isFetching: PropTypes.bool.isRequired,
+  loadMysqlDbCacheAllList: PropTypes.func.isRequired,
+}
+
+MysqlCluster = injectIntl(MysqlCluster, {
+  withRef: true,
+})
+
+export default connect(mapStateToProps, {
+  loadMysqlDbCacheAllList
+})(MysqlCluster)

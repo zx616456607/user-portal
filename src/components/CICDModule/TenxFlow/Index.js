@@ -129,7 +129,9 @@ let MyComponent = React.createClass({
       return (
         <div className='tenxflowDetail' key={item.name} >
           <div className='name'>
-            <span>{item.name}</span>
+            <Link to='/ci_cd/tenx_flow/tenx_flow_build'>
+              <span>{item.name}</span>
+            </Link>
           </div>
           <div className='time'>
             <span>{item.updateTime}</span>

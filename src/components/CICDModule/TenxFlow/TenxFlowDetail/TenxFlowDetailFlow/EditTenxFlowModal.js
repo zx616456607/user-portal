@@ -530,11 +530,11 @@ let EditTenxFlowModal = React.createClass({
             {shellCodeItems}
           </div>
           <div style={{ clear:'both' }} />
-        </div>
-        <div className='line'></div>
+        </div>        
         {
           config.type == 'buildImage' ? [
             <QueueAnim className='buildImageForm'>
+              <div className='line'></div>
               <div className='commonBox' key='buildImageFormAnimate'>
                 <div className='title'>
                   <span>docker File</span>
@@ -624,16 +624,16 @@ let EditTenxFlowModal = React.createClass({
             </QueueAnim>
           ] : null
         }
-        <div className='modalbtnBox'>
-          <Button size='large' onClick={this.cancelChange}>
-            <FormattedMessage {...menusText.cancel} />
-          </Button>
-          <Button size='large' type='primary' onClick={this.handleSubmit}>
-            <FormattedMessage {...menusText.submit} />
-          </Button>
-        </div>
       </Form>
+      <div className='modalBtnBox'>
+        <Button size='large' onClick={this.cancelChange}>
+          <FormattedMessage {...menusText.cancel} />
+        </Button>
+        <Button size='large' type='primary' onClick={this.handleSubmit}>
+          <FormattedMessage {...menusText.submit} />
+        </Button>
       </div>
+    </div>
     )
   }
 });

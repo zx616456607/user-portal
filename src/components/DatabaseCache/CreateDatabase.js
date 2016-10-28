@@ -111,9 +111,14 @@ let CreateDatabase = React.createClass({
         { required: true, whitespace: true, message: '请填写密码' },
       ],
     });
-    const selectEnvProps = getFieldProps('envSelect', {
+    const selectNamespaceProps = getFieldProps('namespaceSelect', {
       rules: [
-        { required: true, message: '请选择部署环境' },
+        { message: '请选择空间' },
+      ],
+    });
+    const selectClusterProps = getFieldProps('clusterSelect', {
+      rules: [
+        { required: true, message: '请选择集群' },
       ],
     });
     return (
@@ -200,17 +205,17 @@ let CreateDatabase = React.createClass({
           </div>
           <div className='inputBox'>
             <FormItem style={{ width:'150px',float:'left',marginRight:'20px' }}>
-              <Select {...selectEnvProps} className='envSelect' size='large' defaultValue='lucy'>
+              <Select {...selectNamespaceProps} className='envSelect' size='large'>
                 <Option value='jack'>Jack</Option>
                 <Option value='lucy'>Lucy</Option>
                 <Option value='yiminghe'>yiminghe</Option>
               </Select>
             </FormItem>
             <FormItem style={{ width:'150px',float:'left' }}>
-              <Select {...selectEnvProps} className='envSelect' size='large' defaultValue='lucy'>
-                <Option value='jack'>Jack</Option>
-                <Option value='lucy'>Lucy</Option>
-                <Option value='yiminghe'>yiminghe</Option>
+              <Select {...selectClusterProps} className='envSelect' size='large'>
+                <Option value="cce1c71ea85a5638b22c15d86c1f61de">test</Option>
+                <Option value="cce1c71ea85a5638b22c15d86c1f61df">产品环境</Option>
+                <Option value="e0e6f297f1b3285fb81d27742255cfcf">k8s 1.4</Option>
               </Select>
             </FormItem>
           </div>

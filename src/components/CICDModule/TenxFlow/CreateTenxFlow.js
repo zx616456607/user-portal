@@ -248,9 +248,16 @@ let CreateTenxFlow = React.createClass({
                 <Radio key='b' value={'yaml'}><FormattedMessage {...menusText.yamlDefine} /></Radio>
               </RadioGroup>
             </FormItem>
-            <FormItem>
-              <Input {...flowProps} disabled={ this.state.currentType == 'yaml' ? false : true } type='textarea' autosize={{ minRows: 10, maxRows: 30 }} />
-            </FormItem>
+            { this.state.currentType == 'yaml' ? [
+              <QueueAnim type='right' key='yamlFormAnimate'>
+                <div className='yamlForm' key='yamlForm'>
+                  <FormItem>
+                    <Input {...flowProps} type='textarea' autosize={{ minRows: 10, maxRows: 30 }} />
+                  </FormItem>
+                </div>
+              </QueueAnim>
+            ] : null }
+            
             <div style={{ clear:'both' }} />
           </div>
           <div style={{ clear:'both' }} />
