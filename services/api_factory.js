@@ -34,6 +34,19 @@ exports.getManagedRegistryApi = function (loginUser) {
   return api.registries
 }
 
+/*
+API factory to handle application templates
+*/
+exports.getTemplateApi = function (loginUser) {
+  const apiConfig = {
+    protocol: config.tenx_api.protocol,
+    host: config.tenx_api.host,
+    auth: loginUser
+  }
+  const api = new tenxApi(apiConfig)
+  return api.templates
+}
+
 exports.getRegistryApi = function (registryConfig) {
   const api = new tenxApi(registryConfig)
   return api.registries

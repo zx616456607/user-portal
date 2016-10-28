@@ -45,38 +45,35 @@ class StorageBind extends Component {
 
     const {formatMessage} = this.props.intl
     let mountInfo = this.props.volumeBindInfo.volumeBindInfo
-    if (!mountInfo) return <div></div>
-    let appName = Object.getOwnPropertyNames(mountInfo)
-    if (!appName || appName.length <= 0) {
-      return <div id="StorageBind"></div>
+    if(!mountInfo || !mountInfo.appName) {
+      return (<div id="StorageBind">
+        <Row>
+          <Col>
+          </Col>
+        </Row>
+      </div>)
     }
-    appName = appName[0]
-    const appInfo = mountInfo[appName][0]
-    if (!appInfo) return <div></div>
-    let podName = Object.getOwnPropertyNames(appInfo)
-    if (!podName) return <div></div>
-    podName = podName[0]
     return (
       <div id="StorageBind">
         <Row>
           <Col>
             <Timeline>
               <Timeline.Item>
-                <Card title={`${formatMessage(messages.app)} : ${appName} `} style={{ width: 300 }} bordered={false}>
+                <Card title={`${formatMessage(messages.app)} : ${mountInfo.appName} `} style={{ width: 300 }} bordered={false}>
                   <div className="container">
                     <div className="container-ico">
                       <i className="fa fa-server"></i>
                     </div>
                     <p>
                       <FormattedMessage {...messages.container} />
-                      : {podName}
+                      : {mountInfo.pods.join(',')}
                     </p>
                   </div>
                 </Card>
                 <div className="point">
                   <span className="point-inf">
                     <FormattedMessage {...messages.forIn} />
-                    : {appInfo[podName].join(',')}
+                    : {mountInfo.mountPoint}
                   </span>
                 </div>
               </Timeline.Item>
@@ -87,7 +84,7 @@ class StorageBind extends Component {
                   </div>
                   <p>
                     <FormattedMessage {...messages.volume} />
-                    : my-volume
+                    : {this.props.volumeName}
                   </p>
                 </div>
               </Timeline.Item>

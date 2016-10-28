@@ -53,9 +53,10 @@ let MyComponent = React.createClass({
     }
   },
   add() {
-    uuid++;
     const { form } = this.props
     let volumeKey = form.getFieldValue('volumeKey')
+    uuid = volumeKey.length
+    uuid++
     volumeKey = volumeKey.concat(uuid);
     form.setFieldsValue({
       volumeKey,
@@ -64,9 +65,9 @@ let MyComponent = React.createClass({
   volumeList() {
     const registry = this.props.registry
     const volume = this.props.avaliableVolume
-    if(volume.data.volumes) {
+    if (volume.data.volumes) {
       return volume.data.volumes.map(item => {
-        return  <Option value={`${item.name}/${item.fsType}`}>{item.name} {item.fsType} {item.size}</Option>
+        return <Option value={`${item.name}/${item.fsType}`}>{item.name} {item.fsType} {item.size}</Option>
       })
     } else {
       return ''
@@ -99,12 +100,12 @@ let MyComponent = React.createClass({
     let storageConfig = {
       driver: 'rbd',
       name: this.state.name,
-      driverConfig:{
+      driverConfig: {
         size: this.state.size,
         fsType: this.state.format,
       },
       cluster: self.props.cluster
-    }   
+    }
     this.props.createStorage(storageConfig, {
       success: {
         func: () => {
@@ -123,11 +124,11 @@ let MyComponent = React.createClass({
     const { getFieldProps, getFieldValue, } = this.props.form
     const registry = this.props.registry
     const mountPath = this.props.tagConfig[registry].configList.mountPath
-    if(!this.props.avaliableVolume.data) {
+    if (!this.props.avaliableVolume.data) {
       return <div></div>
     }
     let { isFetching } = this.props.avaliableVolume
-    if(isFetching) {
+    if (isFetching) {
       <div className='loadingBox'>
         <Spin size='large' />
       </div>
@@ -140,7 +141,7 @@ let MyComponent = React.createClass({
     }
     const volume = this.props.avaliableVolume.data.volumes
     let formItems = ''
-    
+
     if (volume.length <= 0) {
       getFieldProps('volumeKey', {
         initialValue: [1],
@@ -163,7 +164,6 @@ let MyComponent = React.createClass({
                  </Select>
                  <Button onClick={() => this.createVolume() }>创建存储卷</Button>
               </div>
-
               <div style={{ clear: "both" }}></div>
             </li>
           </ul>
@@ -176,13 +176,14 @@ let MyComponent = React.createClass({
       formItems = getFieldValue('volumeKey').map((k) => {
         return (
           <FormItem key={`volume${k}`}>
+
             {
               mountPath[k - 1] ?
                 <span type='text' className="url">
                   <Input className="hide"  {...getFieldProps(`volumePath${k}`, {initialValue: mountPath[k - 1]}) }/>
                   {mountPath[k - 1]}
                 </span> :
-                <Input {...getFieldProps(`volumePath${k}`, {}) } className="urlInt"/>
+                <Input {...getFieldProps(`volumePath${k}`, {}) } className="urlInt" />
             }
             <Select className="imageTag" size="large" placeholder="请选择一个存储卷"
               style={{ width: 200 }}
@@ -201,8 +202,8 @@ let MyComponent = React.createClass({
     return (
       <div className="serviceOpen" key="had">
         <ul>
-        <li>{formItems}</li>
-        <li>          <div className="volumeAddBtn"  onClick={this.add}>
+          <li>{formItems}</li>
+          <li>          <div className="volumeAddBtn" onClick={this.add}>
             <Icon type="plus-circle-o" />
             <span>添加一个容器目录</span>
           </div></li>
@@ -303,7 +304,7 @@ let NormalDeployBox = React.createClass({
     loadImageDetailTagConfig: PropTypes.func.isRequired,
     selectComposeType: PropTypes.func.isRequired,
   },
-  getInitialState: function() {
+  getInitialState: function () {
     return {
       cluster: ''
     }
@@ -331,17 +332,17 @@ let NormalDeployBox = React.createClass({
       if (!/^[a-z][a-z0-9-]{2,24}$/.test(value)) {
         callback([new Error('抱歉，该服务名称不合法.')])
       } else {
-          servicesList.map((service) => {
-            if(service.id === value){
-              console.log('serviceName 3');
-              callback([new Error('服务名称已经存在')])
-              return
-            }
-          })
-        checkServiceName(this.state.cluster,value,{
+        servicesList.map((service) => {
+          if (service.id === value) {
+            console.log('serviceName 3');
+            callback([new Error('服务名称已经存在')])
+            return
+          }
+        })
+        checkServiceName(this.state.cluster, value, {
           success: {
             func: (result) => {
-              if(result.data){
+              if (result.data) {
                 console.log('serviceName 6');
                 callback([new Error('服务名称已经存在')])
               } else {
@@ -361,7 +362,7 @@ let NormalDeployBox = React.createClass({
     loadImageTags(this.props)
     const cluster = window.localStorage.getItem('cluster')
     this.setState({
-      cluster:cluster
+      cluster: cluster
     })
   },
   componentWillReceiveProps(nextProps) {
@@ -393,7 +394,7 @@ let NormalDeployBox = React.createClass({
     })
     let switchDisable = false
     let mountPath = []
-    if(!tagConfig || !tagConfig[registry] || !tagConfig[registry].configList || !tagConfig[registry].configList.mountPath || tagConfig[registry].configList.mountPath.length <= 0) {
+    if (!tagConfig || !tagConfig[registry] || !tagConfig[registry].configList || !tagConfig[registry].configList.mountPath || tagConfig[registry].configList.mountPath.length <= 0) {
       switchDisable = true
     }
     return (
@@ -428,11 +429,11 @@ let NormalDeployBox = React.createClass({
                 defaultActiveFirstOption={true}
                 onSelect={this.onSelectTagChange}
                 >
-                  {imageTags && imageTags.map((tag) => {
-                    return (
-                      <Option key={tag} value={tag}>{tag}</Option>
-                    )
-                  })}
+                {imageTags && imageTags.map((tag) => {
+                  return (
+                    <Option key={tag} value={tag}>{tag}</Option>
+                  )
+                })}
               </Select>
             </FormItem>
             <div style={{ clear: "both" }}></div>
@@ -557,9 +558,13 @@ function mapStateToProps(state, props) {
     registry: DEFAULT_REGISTRY,
     tag: []
   }
-  const {imageTag} = state.getImageTag
-  const {registry, tag, isFetching, server } = imageTag[DEFAULT_REGISTRY] || defaultImageTags
   const {currentSelectedImage} = props
+  const {imageTag} = state.getImageTag
+  let targetImageTag
+  if (imageTag[DEFAULT_REGISTRY]) {
+    targetImageTag = imageTag[DEFAULT_REGISTRY][currentSelectedImage]
+  }
+  const {registry, tag, isFetching, server } = targetImageTag || defaultImageTags
 
   return {
     registry,

@@ -15,7 +15,7 @@ import { DEFAULT_REGISTRY } from '../../../../constants'
 import ServiceAPI from './ServiceAPI.js'
 import OtherServiceApi from './OtherServiceApi.js'
 import './style/ImageVersion.less'
-import { loadImageDetailTag , getOtherImageTag} from '../../../../actions/app_center'
+import { loadImageDetailTag, getOtherImageTag } from '../../../../actions/app_center'
 
 const TabPane = Tabs.TabPane;
 
@@ -37,9 +37,9 @@ let MyComponent = React.createClass({
         </div>
       )
     }
-    let { tagList } = this.props.config ||[];
+    let { tagList } = this.props.config || [];
     const fullname = this.props.fullname;
-    
+
     let items
     if (this.props.imageId) {
       items = tagList.map((item, index) => {
@@ -48,7 +48,7 @@ let MyComponent = React.createClass({
             <OtherServiceApi imageTag={item} fullname={fullname} imageId={this.props.imageId} />
           </TabPane>
         );
-      });      
+      });
     } else {
       items = tagList.map((item, index) => {
         return (
@@ -77,14 +77,14 @@ class ImageVersion extends Component {
   }
 
   componentWillMount() {
-    const { registry, loadImageDetailTag , getOtherImageTag} = this.props;
+    const { registry, loadImageDetailTag, getOtherImageTag} = this.props;
     const imageDetail = this.props.config;
     const imageId = this.props.imageId
     this.setState({
       imageDetail: imageDetail
     })
     if (typeof imageDetail === "string") {
-      const config = {imageName: imageDetail, id: imageId}
+      const config = { imageName: imageDetail, id: imageId }
       getOtherImageTag(config)
     } else {
       loadImageDetailTag(registry, imageDetail.name);
@@ -107,13 +107,13 @@ class ImageVersion extends Component {
     this.setState({
       imageDetail: image
     });
-    const { registry, loadImageDetailTag ,getOtherImageTag} = this.props;
+    const { registry, loadImageDetailTag, getOtherImageTag} = this.props;
 
     const imageId = this.props.imageId
     const imageDetail = this.props.config;
-    const config = {imageName: image, id: imageId }
+    const config = { imageName: image, id: imageId }
     if (typeof imageDetail === "string") {
-      const config = {imageName: imageDetail, id: imageId}
+      const config = { imageName: imageDetail, id: imageId }
       console.log('image', image)
       getOtherImageTag(config)
     } else {
@@ -124,12 +124,12 @@ class ImageVersion extends Component {
   render() {
     const { isFetching } = this.props;
     const imageDetail = this.props.config;
-    console.log('parent ',this.props)
-    let  tagList = {
+    console.log('parent ', this.props)
+    let tagList = {
       "tagList": this.props.imageDetailTag
     };
     if (this.props.imageId) {
-      tagList = {'tagList': this.props.otherDetailTag}
+      tagList = { 'tagList': this.props.otherDetailTag }
     }
     return (
       <Card className="ImageVersion">
@@ -145,8 +145,12 @@ function mapStateToProps(state, props) {
     registry: DEFAULT_REGISTRY,
     tag: [],
   }
-  const { imageTag ,otherImageTag} = state.getImageTag
-  const { registry, tag, isFetching, server} = imageTag[DEFAULT_REGISTRY] || defaultImageDetailTag
+  const { imageTag, otherImageTag} = state.getImageTag
+  let targetImageTag
+  if (imageTag[DEFAULT_REGISTRY]) {
+    targetImageTag = imageTag[DEFAULT_REGISTRY][props.config.name]
+  }
+  const { registry, tag, isFetching, server} = targetImageTag || defaultImageDetailTag
   const otherDetailTag = otherImageTag.imageTag || []
   return {
     registry,
@@ -163,10 +167,10 @@ ImageVersion.propTypes = {
 
 function mapDispatchToProps(dispatch) {
   return {
-    getOtherImageTag:(obj)=> {
+    getOtherImageTag: (obj) => {
       dispatch(getOtherImageTag(obj))
     },
-    loadImageDetailTag:(registry, name)=> {
+    loadImageDetailTag: (registry, name) => {
       dispatch(loadImageDetailTag(registry, name))
     }
   }
