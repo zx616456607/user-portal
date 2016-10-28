@@ -144,7 +144,7 @@ class Top extends Component {
         <Menu.Item key="1" style={{borderBottom: '1px solid #e2e2e2'}}>
           <div className="ant-search-input-wrapper" style={{width: 120}}>
             <InputGroup className={searchCls}>
-              <Input placeholder={placeholder}
+              <Input placeholder='查询'
                      value={this.state.value}
                      onChange={this.handleInputChange}
                      onFocus={this.handleFocusBlur}
@@ -170,7 +170,7 @@ class Top extends Component {
     )
     
     const clusterPlaceholder = (
-      <div style={{color: '#000', paddingLeft: 10}}>
+      <div className="placeholder">
         <i className="fa fa-sitemap" style={{marginRight: 5}}/>
         产品集群环境
       </div>
@@ -179,11 +179,12 @@ class Top extends Component {
       <div id="header">
         <div className="space">
           <div className="spaceTxt">
-            <Icon type="chrome" />
+            <i className="fa fa-cube"/>
             <span style={{marginLeft: 5}}>空间</span>
           </div>
           <div className="spaceBtn">
             <Dropdown overlay={spaceMenu}
+                      trigger={['click']}
             >
               <a className="ant-dropdown-link" href="#">
                 奔驰HRM系统 <Icon type="down" />
@@ -193,11 +194,11 @@ class Top extends Component {
         </div>
         <div className="cluster">
           <div className="clusterTxt">
-            <Icon type="chrome" />
+            <i className="fa fa-sitemap"/>
             <span style={{marginLeft: 5}}>集群</span>
           </div>
           <div className="clusterBtn">
-            <span style={{padding: '0 10px'}}>开发测试集群</span>
+            <span style={{padding: '0 10px 5px 10px'}}>开发测试集群</span>
             <span>生产环境集群</span>
           </div>
           <div className="envirBox">
@@ -206,6 +207,22 @@ class Top extends Component {
                     style={{ width: 150 }}
                     onSelect={this.setCluster}
             >
+              <Option value="search" style={{borderBottom: '1px solid #e2e2e2'}}>
+                <div className="ant-search-input-wrapper" style={{width: 120}}>
+                  <InputGroup className={searchCls}>
+                    <Input placeholder='查询'
+                           value={this.state.value}
+                           onChange={this.handleInputChange}
+                           onFocus={this.handleFocusBlur}
+                           onBlur={this.handleFocusBlur}
+                           onPressEnter={this.handleSearch}
+                    />
+                    <div className="ant-input-group-wrap">
+                      <Button icon="search" className={btnCls} size={size} onClick={this.handleSearch} />
+                    </div>
+                  </InputGroup>
+                </div>
+              </Option>
               <Option value="cce1c71ea85a5638b22c15d86c1f61de">test</Option>
               <Option value="cce1c71ea85a5638b22c15d86c1f61df">产品环境</Option>
               <Option value="e0e6f297f1b3285fb81d27742255cfcf">k8s 1.4</Option>
