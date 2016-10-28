@@ -17,6 +17,7 @@ const configController = require('../controllers/configs')
 const registryController = require('../controllers/registry')
 const metricsController = require('../controllers/metrics')
 const databaseCacheController = require('../controllers/database_cache')
+const appTemplateController = require('../controllers/app_template')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -52,6 +53,12 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/apps/:app_name/logs', appController.getAppLogs)
   router.get('/clusters/:cluster/apps/:app_name/existence', appController.checkAppName)
   router.get('/clusters/:cluster/services/:service/existence', appController.checkServiceName)
+
+  // AppTemplates
+  router.get('/templates', appTemplateController.listTemplates)
+  router.post('/templates', appTemplateController.createTemplate)
+  router.delete('/templates/:templateid', appTemplateController.deleteTemplate)
+  router.put('/templates/:templateid', appTemplateController.updateTemplate)
 
   // Services
   router.put('/clusters/:cluster/services/batch-start', serviceController.startServices)

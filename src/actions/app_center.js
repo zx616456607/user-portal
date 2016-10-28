@@ -227,11 +227,15 @@ export function imageStore(obj, callback) {
       schema: Schemas.REGISTRYS,
       options: {
         method: 'PUT',
-        body: { myfavourite: obj.myfavourite }
-      },
+        body: {
+          myfavourite: obj.myfavourite,
+          isPrivate: obj.isPrivate
+        }
+      }
     },
     registry: obj.registry,
     myfavourite: obj.myfavourite,
+    isPrivate: obj.isPrivate,
     callback
   }
 }

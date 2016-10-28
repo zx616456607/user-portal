@@ -98,4 +98,3 @@ exports.getContainerLogs = function* () {
   this.status = result.code
   this.body = result
 }
-

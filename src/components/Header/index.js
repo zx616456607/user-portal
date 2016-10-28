@@ -8,14 +8,17 @@
  * @author GaoJian
  */
 import React, { Component } from 'react'
-import { Menu, Dropdown, Icon, Select, Input, Button } from 'antd'
+import { Menu, Dropdown, Icon, Select, Input, Button, Form } from 'antd'
 import { FormattedMessage, defineMessages } from 'react-intl'
 import "./style/header.less"
 import jsonp from 'jsonp'
 import querystring from 'querystring'
 import classNames from 'classnames'
 
+const FormItem = Form.Item;
+const createForm = Form.create;
 const Option = Select.Option
+const InputGroup = Input.Group
 const menusText = defineMessages({
   doc: {
     id: 'Header.menu.doc',
@@ -57,96 +60,72 @@ const menu = (
     </Menu.Item>
   </Menu>
 )
+const operaMenu = (<Menu>
+  <Menu.Item key="0">
+    重新部署
+  </Menu.Item>
+  <Menu.Item key="1">
+    弹性伸缩
+  </Menu.Item>
+  <Menu.Item key="2">
+    灰度升级
+  </Menu.Item>
+  <Menu.Item key="3">
+    更改配置
+  </Menu.Item>
+</Menu>)
 
-let timeout;
-let currentValue;
-
-function fetch(value, callback) {
-  if (timeout) {
-    clearTimeout(timeout);
-    timeout = null;
-  }
-  currentValue = value;
-  
-  function fake() {
-    const str = querystring.encode({
-      code: 'utf-8',
-      q: value,
-    })
-    jsonp(`http://suggest.taobao.com/sug?${str}`, (err, d) => {
-      if (currentValue === value) {
-        const result = d.result;
-        const data = [];
-        result.forEach((r) => {
-          data.push({
-            value: r[0],
-            text: r[0],
-          });
-        });
-        callback(data);
-      }
-    });
-  }
-  timeout = setTimeout(fake, 300);
+let children = [];
+for (let i = 10; i < 36; i++) {
+  children.push(<Option key={i.toString(36) + i}>{i.toString(36) + i}</Option>);
 }
 
-export default class Top extends Component {
+class Top extends Component {
   constructor(props){
     super(props)
-    this.handleSearchChange = this.handleSearchChange.bind(this)
-    this.handleSubmit = this.handleSubmit.bind(this)
-    this.handleFocusBlur = this.handleFocusBlur.bind(this)
+    this.handleChange = this.handleChange.bind(this)
     this.handleSpaceMenu = this.handleSpaceMenu.bind(this)
-    this.handleVisibleChange = this.handleVisibleChange.bind(this)
+    this.handleInputChange = this.handleInputChange.bind(this)
+    this.handleFocusBlur = this.handleFocusBlur.bind(this)
+    this.handleSearch = this.handleSearch.bind(this)
+    this.setCluster = this.setCluster.bind(this)
     this.state = {
-      data: [
-        {
-          value: '奔驰-CRM系统',
-          text: '奔驰-CRM系统'
-        },
-        {
-          value: '奔驰-OA系统',
-          text: '奔驰-OA系统'
-        },
-        {
-          value: '奔驰-进销存系统',
-          text: '奔驰-进销存系统'
-        },
-      ],
+      spaceVisible: false,
       value: '',
       focus: false,
-      spaceVisible: false,
     }
   }
-  handleSearchChange(value) {
-    console.log('value',value);
-    this.setState({
-      value,
-      spaceVisible: true,
-    });
-    fetch(value, (data) => this.setState({ data }));
+  handleChange(e,value) {
+    console.log(`selected ${value}`);
+    e.stopPropagation()
+    console.log(e);
+    return false
   }
-  handleSubmit() {
-    console.log('输入框内容是: ', this.state.value);
+  handleSpaceMenu({key}){
+    console.log('key',`${key}`);
+  }
+  handleInputChange(e) {
+    this.setState({
+      value: e.target.value,
+    });
   }
   handleFocusBlur(e) {
     this.setState({
       focus: e.target === document.activeElement,
     });
   }
-  handleSpaceMenu(e){
-    if(e.key === '2'){
-      this.setState({
-        spaceVisible: false
-      })
+  handleSearch() {
+    if (this.props.onSearch) {
+      this.props.onSearch(this.state.value);
     }
   }
-  handleVisibleChange(flag) {
-    this.setState({
-      spaceVisible: flag
-    })
+  setCluster(value,option){
+    console.log('value',value);
+    console.log('option',option);
+    window.localStorage.setItem('cluster',value)
   }
   render() {
+    const { style, size, placeholder, } = this.props;
     const btnCls = classNames({
       'ant-search-btn': true,
       'ant-search-btn-noempty': !!this.state.value.trim(),
@@ -155,56 +134,84 @@ export default class Top extends Component {
       'ant-search-input': true,
       'ant-search-input-focus': this.state.focus,
     });
-    const options = this.state.data.map(d => <Option key={d.value}>{d.text}</Option>);
     const spaceMenu = (
       <Menu onClick={this.handleSpaceMenu}>
-        <Menu.Item key="0">
-          选择项目空间
-        </Menu.Item>
-        <Menu.Item key="1">
-          <div className="ant-search-input-wrapper" style={this.props.style}>
-            <Input.Group className={searchCls}>
-              <Select
-                combobox
-                value={this.state.value}
-                placeholder={this.props.placeholder}
-                notFoundContent=""
-                defaultActiveFirstOption={false}
-                showArrow={false}
-                filterOption={false}
-                onChange={this.handleSearchChange}
-                onFocus={this.handleFocusBlur}
-                onBlur={this.handleFocusBlur}
-              >
-                {options}
-              </Select>
-              <div className="ant-input-group-wrap">
-                <Button className={btnCls} onClick={this.handleSubmit}>
-                  <Icon type="search" />
-                </Button>
-              </div>
-            </Input.Group>
+        <Menu.Item key="0" style={{backgroundColor: '#e5e5e5',color: '#000'}}>
+          <div>
+            选择项目空间
           </div>
         </Menu.Item>
-        <Menu.Divider />
+        <Menu.Item key="1" style={{borderBottom: '1px solid #e2e2e2'}}>
+          <div className="ant-search-input-wrapper" style={{width: 120}}>
+            <InputGroup className={searchCls}>
+              <Input placeholder={placeholder}
+                     value={this.state.value}
+                     onChange={this.handleInputChange}
+                     onFocus={this.handleFocusBlur}
+                     onBlur={this.handleFocusBlur}
+                     onPressEnter={this.handleSearch}
+              />
+              <div className="ant-input-group-wrap">
+                <Button icon="search" className={btnCls} size={size} onClick={this.handleSearch} />
+              </div>
+            </InputGroup>
+          </div>
+        </Menu.Item>
+        <Menu.Item key="2" style={{paddingLeft: 20}}>
+          奔驰-CRM系统
+        </Menu.Item>
+        <Menu.Item key="3" style={{paddingLeft: 20}}>
+          奔驰-OA系统
+        </Menu.Item>
+        <Menu.Item key="4" style={{paddingLeft: 20}}>
+          奔驰-进销存系统
+        </Menu.Item>
       </Menu>
+    )
+    
+    const clusterPlaceholder = (
+      <div style={{color: '#000', paddingLeft: 10}}>
+        <i className="fa fa-sitemap" style={{marginRight: 5}}/>
+        产品集群环境
+      </div>
     )
     return (
       <div id="header">
-        <div>
-          <Icon type="chrome" />
-          空间
+        <div className="space">
+          <div className="spaceTxt">
+            <Icon type="chrome" />
+            <span style={{marginLeft: 5}}>空间</span>
+          </div>
+          <div className="spaceBtn">
+            <Dropdown overlay={spaceMenu}
+            >
+              <a className="ant-dropdown-link" href="#">
+                奔驰HRM系统 <Icon type="down" />
+              </a>
+            </Dropdown>
+          </div>
         </div>
-        <Dropdown overlay={spaceMenu}
-                  trigger={['click']}
-                  visible={this.state.spaceVisible}
-                  onVisibleChange={this.handleVisibleChange}
-                  getPopupContainer={() => document.getElementById('header')}>
-          <Button type="ghost" style={{ marginLeft: 8 }}>
-            按钮
-            <Icon type="down" />
-          </Button>
-        </Dropdown>
+        <div className="cluster">
+          <div className="clusterTxt">
+            <Icon type="chrome" />
+            <span style={{marginLeft: 5}}>集群</span>
+          </div>
+          <div className="clusterBtn">
+            <span style={{padding: '0 10px'}}>开发测试集群</span>
+            <span>生产环境集群</span>
+          </div>
+          <div className="envirBox">
+            <Select size="large"
+                    placeholder= { clusterPlaceholder }
+                    style={{ width: 150 }}
+                    onSelect={this.setCluster}
+            >
+              <Option value="cce1c71ea85a5638b22c15d86c1f61de">test</Option>
+              <Option value="cce1c71ea85a5638b22c15d86c1f61df">产品环境</Option>
+              <Option value="e0e6f297f1b3285fb81d27742255cfcf">k8s 1.4</Option>
+            </Select>
+          </div>
+        </div>
         <div className="rightBox">
           <div className="docBtn">
             <FormattedMessage {...menusText.doc} />
@@ -220,3 +227,4 @@ export default class Top extends Component {
     )
   }
 }
+export default Top
