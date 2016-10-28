@@ -202,7 +202,7 @@ function imageTag(state = {}, action) {
         data.splice(latestTagIndex)
         data = ([LATEST]).concat(data)
       }
-      return Object.assign({}, state, {
+      return merge({}, state, {
         [registry]: {
           [fullName]: {
             isFetching: false,
