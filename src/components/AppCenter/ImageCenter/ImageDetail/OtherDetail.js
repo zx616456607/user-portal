@@ -133,10 +133,6 @@ class OtherDetail extends Component {
             </Tooltip>
             <input className="pullCodeInput" defaultValue={pullCode} style={{ position: "absolute", opacity: "0" }} />
           </div>
-          <div className="times">
-            <i className="fa fa-cloud-download"></i>&nbsp;&nbsp;
-            zsdfs
-          </div>
           <div style={{ clear: "both" }}></div>
         </div>
         <div className="tabBox">

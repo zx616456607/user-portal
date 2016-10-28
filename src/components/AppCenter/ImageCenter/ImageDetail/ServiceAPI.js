@@ -123,7 +123,7 @@ class ServiceAPI extends Component {
         {portsShow}
         {dataStorageShow}
         <p>运行命令及参数：&nbsp;{entrypointShow}{cmdShow}</p>
-        <div>大小：{configList.sizeInfo.totalSize}</div>
+        <div>大小：{(configList.sizeInfo.totalSize > 0) ? (configList.sizeInfo.totalSize) /1024 + 'K': '未知' }</div>
         <p>所需环境变量: </p>
         <div className="itemBox">
           <div className="title">

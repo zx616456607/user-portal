@@ -97,7 +97,7 @@ let MyComponent = React.createClass({
               <FormattedMessage {...menusText.belong} />&nbsp;
               {item.type}
             </span>
-            <span className="imageUrl">
+            <span className="imageUrl textoverflow">
               <FormattedMessage {...menusText.imageUrl} />&nbsp;
               <span className="">{item.name}</span>
             </span>
