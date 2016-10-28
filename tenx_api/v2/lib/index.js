@@ -43,6 +43,4 @@ module.exports = function (config) {
   // ~ app templates
   this.templates = collections.create('templates')
 
-  // configGroup
-  this.configGroup = collections.create('clusters')
 }

@@ -178,7 +178,7 @@ class PublicSpace extends Component {
           onCancel={this.closeImageDetailModal}
           >
           {/* right detail box  */}
-          <ImageDetailBox scope={scope} imageInfo={this.state.imageInfo} config={this.state.currentImage} />
+          <ImageDetailBox scope={scope}  parentScope={rootscope} imageInfo={this.state.imageInfo} config={this.state.currentImage} />
         </Modal>
       </QueueAnim>
     )

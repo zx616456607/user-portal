@@ -172,7 +172,7 @@ class OtherSpace extends Component {
               <i className="fa fa-search"></i>
               <div style={{ clear: "both" }}></div>
             </div>
-            <MyComponent scope={scope} isFetching={this.props.isFetching} imageId ={this.props.imageId} otherHead={otherHead} config={this.props.config} />
+            <MyComponent scope={scope}  parentScope={this.props.scope.parentScope} isFetching={this.props.isFetching} imageId ={this.props.imageId} otherHead={otherHead} config={this.props.config} />
           </Card>
         </div>
         <Modal
@@ -181,7 +181,7 @@ class OtherSpace extends Component {
           transitionName="move-right"
           onCancel={this.closeImageDetailModal}
           >
-          <ImageDetailBox scope={scope} imageId ={this.props.imageId} config={this.state.currentImage} />
+          <ImageDetailBox scope={scope} parentScope={rootscope} imageId ={this.props.imageId} config={this.state.currentImage} />
         </Modal>
       </QueueAnim>
     )
