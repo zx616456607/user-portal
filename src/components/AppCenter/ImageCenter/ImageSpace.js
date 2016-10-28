@@ -159,7 +159,7 @@ const MyComponent = React.createClass({
                 [<span key={item.id + "lock"}><i className="fa fa-lock"></i>&nbsp;<FormattedMessage {...menusText.privateType} /></span>]
               }
             </span>
-            <span className="imageUrl">
+            <span className="imageUrl textoverflow">
               <FormattedMessage {...menusText.imageUrl} />&nbsp;
               <span className="">{registryServer}/{item.name}</span>
             </span>

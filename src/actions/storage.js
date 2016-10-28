@@ -44,7 +44,7 @@ export function createStorage(obj, callback) {
     pool: obj.pool,
     [FETCH_API]: {
       types: [STORAGE_CREATE_REQUEST, STORAGE_CREATE_SUCCESS, STORAGE_CREATE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/storage-pools/${obj.pool}/${obj.cluster}/volumes`,
+      endpoint: `${API_URL_PREFIX}/storage-pools/${obj.cluster}/volumes`,
       options: {
         method: 'POST',
         body: obj

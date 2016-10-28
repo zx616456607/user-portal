@@ -8,7 +8,7 @@
  * @author BaiYu
  */
 import React, { Component } from 'react'
-import { Card, Spin } from 'antd'
+import { Card, Spin ,message} from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import { loadOtherDetailTagConfig} from '../../../../actions/app_center'
@@ -68,7 +68,13 @@ class OtherServiceApi extends Component {
   componentDidMount() {
     const { fullname, imageTag , imageId} = this.props;
     const config = {imageId, fullname, imageTag}
-    this.props.loadOtherDetailTagConfig(config)
+    this.props.loadOtherDetailTagConfig(config, {
+      failed: {
+        func:(err)=>{
+          message.error(err.message)
+        }
+      }
+    })
   }
   componentWillReceiveProps(nextPorps) {
     //this function mean when the user change show image detail
@@ -127,7 +133,7 @@ class OtherServiceApi extends Component {
          <p>容器端口:&nbsp;{portsShow}</p> 
         {dataStorageShow}
         <p>运行命令及参数:&nbsp;{entrypointShow}{cmdShow}</p>
-        <div>大小：{sizeInfo.totalSize}</div>
+        <div>大小：{(sizeInfo.totalSize > 0) ? sizeInfo.totalSize /1024 + 'K' : '未知'}</div>
         <p>所需环境变量: </p>
         <div className="itemBox">
           <div className="title">
@@ -164,8 +170,8 @@ OtherServiceApi.propTypes = {
 }
 function mapDispatchToProps(dispatch) {
   return {
-    loadOtherDetailTagConfig: (image) => {
-      dispatch(loadOtherDetailTagConfig(image))
+    loadOtherDetailTagConfig: (image, callback) => {
+      dispatch(loadOtherDetailTagConfig(image, callback))
     }
   }
 }

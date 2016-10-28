@@ -185,14 +185,15 @@ export function loadImageDetailTagConfig(registry, fullName, tag) {
 export const GET_OTHER_TAG_CONFIG_REQUEST = 'GET_OTHER_TAG_CONFIG_REQUEST'
 export const GET_OTHER_TAG_CONFIG_SUCCESS = 'GET_OTHER_TAG_CONFIG_SUCCESS'
 export const GET_OTHER_TAG_CONFIG_FAILURE = 'GET_OTHER_TAG_CONFIG_FAILURE'
-export function loadOtherDetailTagConfig(obj) {
+export function loadOtherDetailTagConfig(obj, callback) {
   return {
     [FETCH_API]: {
       types: [GET_OTHER_TAG_CONFIG_REQUEST, GET_OTHER_TAG_CONFIG_SUCCESS, GET_OTHER_TAG_CONFIG_FAILURE],
       endpoint: `${API_URL_PREFIX}/docker-registry/${obj.imageId}/images/${obj.fullname}/tags/${obj.imageTag}`,
       schema: Schemas.REGISTRYS
     },
-    tag: obj.imageTag
+    tag: obj.imageTag,
+    callback
   }
 }
 
@@ -228,6 +229,7 @@ export function imageStore(obj,callback) {
         body: {myfavourite: obj.myfavourite}
       },
     },
+    registry:obj.registry,
     myfavourite: obj.myfavourite,
     callback
   }
