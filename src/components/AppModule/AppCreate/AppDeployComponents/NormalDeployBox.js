@@ -16,8 +16,6 @@ import { checkServiceName } from '../../../../actions/app_manage'
 import { loadFreeVolume, createStorage } from '../../../../actions/storage'
 import "./style/NormalDeployBox.less"
 
-
-
 const Option = Select.Option;
 const OptGroup = Select.OptGroup;
 const createForm = Form.create;
@@ -159,11 +157,18 @@ let MyComponent = React.createClass({
         initialValue: [1],
       });
       formItems = getFieldValue('volumeKey').map((k) => {
+        console.log('getFieldProps(`volumePath${k}`, {}) }',mountPath)
+        
         return (
           <FormItem key={`volume${k}`}>
-            <span type='text' className="url" {...getFieldProps(`volumePath${k}`, {}) }>
-              {mountPath[k - 1]}
-            </span>
+            
+            {
+              mountPath[k - 1] ?
+                <span type='text' className="url" {...getFieldProps(`volumePath${k}`, {}) }>
+                  {mountPath[k - 1]}
+                </span> :
+                <Input {...getFieldProps(`volumePath${k}`, {}) } className="urlInt"/>
+            }
             <Select className="imageTag" size="large"
               defaultValue={volume[0]}
               style={{ width: 200 }}
