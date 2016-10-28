@@ -135,6 +135,7 @@
   "AppCenter.ImageCenter.ImageDetail.pubilicType":"公开",
   "AppCenter.ImageCenter.ImageDetail.privateType":"私有",
   "AppCenter.ImageCenter.ImageDetail.colletctImage":"收藏镜像",
+  "AppCenter.ImageCenter.ImageDetail.closeImage":"取消收藏",
   "AppCenter.ImageCenter.ImageDetail.deployService":"部署镜像",
   "AppCenter.ImageCenter.ImageDetail.downloadImage":"下载镜像",
   "AppCenter.ImageCenter.ImageDetail.info":"基本信息",

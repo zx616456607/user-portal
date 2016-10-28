@@ -242,7 +242,7 @@ class AppServiceDetail extends Component {
                   service={serviceDetail}
                   loading={isServiceDetailFetching}
                   serviceName={service.metadata.name}
-                  cluster={service.cluster}      
+                  cluster={service.cluster}
                   serviceDetailmodalShow={serviceDetailmodalShow}
                 />
               </TabPane>
@@ -251,7 +251,7 @@ class AppServiceDetail extends Component {
                   serviceName={service.metadata.name}
                   cluster={service.cluster} />
               </TabPane>
-              <TabPane tab="自动伸缩" key="#autoExtend">
+              <TabPane tab="自动伸缩" key="#autoScale">
                 <AppAutoScale
                   replicas={service.spec.replicas}
                   serviceName={service.metadata.name}
