@@ -34,11 +34,14 @@ module.exports = function (config) {
   //~ volumes
   this.volumes = collections.create('volumes')
 
-  //service
-  this.service = collections.create('service')
+  // service
+  // this.service = collections.create('service')
 
-  // ~ registry
+  // ~ managed docker registries
   this.registries = collections.create('registries')
+
+  // ~ app templates
+  this.templates = collections.create('templates')
 
   // configGroup
   this.configGroup = collections.create('clusters')
