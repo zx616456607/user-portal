@@ -506,3 +506,79 @@ export function updateAutoScale(cluster, serviceName, body, callback) {
     return dispath(fetchUpdateAutoScale(cluster, serviceName, body, callback))
   }
 }
+
+export const SERVICE_MANUAL_SCALE_REQUEST = 'SERVICE_MANUAL_SCALE_REQUEST'
+export const SERVICE_MANUAL_SCALE_SUCCESS = 'SERVICE_MANUAL_SCALE_SUCCESS'
+export const SERVICE_MANUAL_SCALE_FAILURE = 'SERVICE_MANUAL_SCALE_FAILURE'
+
+function fetchManualScaleService(cluster, serviceName, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [SERVICE_MANUAL_SCALE_REQUEST, SERVICE_MANUAL_SCALE_SUCCESS, SERVICE_MANUAL_SCALE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/manualscale`,
+      options: {
+        method: 'PUT',
+        body
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function manualScaleService(cluster, serviceName, body, callback) {
+  return (dispath) => {
+    return dispath(fetchManualScaleService(cluster, serviceName, body, callback))
+  }
+}
+
+export const SERVICE_CHANGE_QUOTA_REQUEST = 'SERVICE_CHANGE_QUOTA_REQUEST'
+export const SERVICE_CHANGE_QUOTA_SUCCESS = 'SERVICE_CHANGE_QUOTA_SUCCESS'
+export const SERVICE_CHANGE_QUOTA_FAILURE = 'SERVICE_CHANGE_QUOTA_FAILURE'
+
+function fetchChangeQuotaService(cluster, serviceName, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [SERVICE_CHANGE_QUOTA_REQUEST, SERVICE_CHANGE_QUOTA_SUCCESS, SERVICE_CHANGE_QUOTA_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/quota`,
+      options: {
+        method: 'PUT',
+        body
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function changeQuotaService(cluster, serviceName, body, callback) {
+  return (dispath) => {
+    return dispath(fetchChangeQuotaService(cluster, serviceName, body, callback))
+  }
+}
+
+
+export const SERVICE_ROLLING_UPDATE_REQUEST = 'SERVICE_ROLLING_UPDATE_REQUEST'
+export const SERVICE_ROLLING_UPDATE_SUCCESS = 'SERVICE_ROLLING_UPDATE_SUCCESS'
+export const SERVICE_ROLLING_UPDATE_FAILURE = 'SERVICE_ROLLING_UPDATE_FAILURE'
+
+function fetchRollingUpdateService(cluster, serviceName, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [SERVICE_ROLLING_UPDATE_REQUEST, SERVICE_ROLLING_UPDATE_SUCCESS, SERVICE_ROLLING_UPDATE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/rollingupdate`,
+      options: {
+        method: 'PUT',
+        body
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function rollingUpdateService(cluster, serviceName, body, callback) {
+  return (dispath) => {
+    return dispath(fetchRollingUpdateService(cluster, serviceName, body, callback))
+  }
+}

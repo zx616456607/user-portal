@@ -14,8 +14,6 @@ import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import ImageVersion from './ImageVersion.js'
 
-
-import Attribute from './Attribute'
 import './style/ImageDetailBox.less'
 
 const TabPane = Tabs.TabPane;
@@ -103,14 +101,10 @@ class OtherDetail extends Component {
 
   render() {
     const { formatMessage } = this.props.intl;
-    const scope = this;
     const imageDetail = this.props.config
-    console.log(this.props)
-    console.log(this.state)
     const imageInfo = ''
     // const ipAddress = this.props.scope.props.otherHead;
     const ipAddress = this.props.scope.props.otherHead;
-    console.log(ipAddress)
     let pullCode = "docker pull " + ipAddress.url + "/" + imageDetail;
     return (
       <div id="ImageDetailBox">
@@ -147,8 +141,7 @@ class OtherDetail extends Component {
         </div>
         <div className="tabBox">
           <Tabs className="itemList" defaultActiveKey="1">
-            <TabPane tab={formatMessage(menusText.tag)} key="1"><ImageVersion scope={scope} imageId={this.props.imageId} config={imageDetail} /></TabPane>
-            <TabPane tab={formatMessage(menusText.attribute)} key="2"><Attribute detailInfo = {imageInfo} /></TabPane>
+            <TabPane tab={formatMessage(menusText.tag)} key="1"><ImageVersion imageId={this.props.imageId} config={imageDetail} /></TabPane>
           </Tabs>
         </div>
       </div>

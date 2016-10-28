@@ -158,7 +158,7 @@ exports.manualScaleService = function* () {
     err.status = 400
     throw err
   }
-  let num = parseInt(num)
+  let num = parseInt(body.num)
   if (isNaN(num) || num < 1 || num > INSTANCE_MAX_NUM) {
     const err = new Error(`Num is between 1 and ${INSTANCE_MAX_NUM}.`)
     err.status = 400
@@ -249,7 +249,7 @@ exports.changeServiceQuota = function* () {
   const serviceName = this.params.service_name
   const body = this.request.body
   if (!body || !body.quota) {
-    const err = new Error('Num is required.')
+    const err = new Error('quota is required.')
     err.status = 400
     throw err
   }
@@ -288,7 +288,7 @@ exports.rollingUpdateService = function* () {
   const serviceName = this.params.service_name
   const targets = this.request.body
   if (!targets) {
-    const err = new Error('Targets are required.')
+    const err = new Error('targets are required.')
     err.status = 400
     throw err
   }

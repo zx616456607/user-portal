@@ -48,7 +48,7 @@ class ServiceMonitior extends Component {
   }
 
   componentDidMount() {
-    loadData(this.props, { start: this.changeTime(0) })
+    loadData(this.props, { start: this.changeTime(1) })
   }
 
   componentWillReceiveProps(nextProps) {
@@ -56,7 +56,7 @@ class ServiceMonitior extends Component {
     if (serviceName === this.props.serviceName) {
       return
     }
-    loadData(nextProps, { start: this.changeTime(0) })
+    loadData(nextProps, { start: this.changeTime(1) })
   }
 
   render() {

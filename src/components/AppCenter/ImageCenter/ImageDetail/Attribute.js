@@ -13,10 +13,6 @@ import { Card , Spin ,Icon} from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 
 const menusText = defineMessages({
-  size: {
-    id: 'AppCenter.ImageCenter.ImageDetail.size',
-    defaultMessage: '大小',
-  },
   contributor: {
     id: 'AppCenter.ImageCenter.ImageDetail.contributor',
     defaultMessage: '贡献者',
@@ -46,7 +42,6 @@ class Attribute extends Component {
     return (
       <Card className="attr">
         <ul id="attribute">
-          <li className="leftKey"><Icon type="like" /><FormattedMessage{...menusText.size} />： &nbsp;{detailInfo.size}</li>
           <li className="leftKey"><Icon type="user" /><FormattedMessage{...menusText.contributor} />： &nbsp;{detailInfo.contributor}</li>
           <li className="leftKey"><Icon type="star-o" /><FormattedMessage{...menusText.favouriteNumber} />： &nbsp;{detailInfo.favouriteNumber} 个人收藏了该镜像</li>
           <li className="leftKey"><Icon type="clock-circle-o" /><FormattedMessage{...menusText.creationTime} />： &nbsp;{detailInfo.creationTime}</li>

@@ -8,6 +8,7 @@
  * @author Zhangpc
  */
 'use strict'
+const TENXCLOUD_PREFIX = 'tenxcloud.com/'
 
 class Service {
   constructor(name) {
@@ -34,7 +35,12 @@ class Service {
         this.metadata.name = k8sService.metadata.name
       }
       if (k8sService.metadata.labels) {
-        this.metadata.labels = k8sService.metadata.labels
+        for (let key in k8sService.metadata.labels) {
+          //Remove tenxcloud added labels
+          if (key.indexOf(TENXCLOUD_PREFIX) != 0) {
+            this.metadata.labels[key] = k8sService.metadata.labels[key]
+          } 
+        }
       }
     }
 

@@ -8,12 +8,12 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Tabs, Button, Card, Menu, Tooltip ,Icon} from 'antd'
+import { Tabs, Button, Card, Menu, Tooltip ,Icon, message} from 'antd'
 import { Link} from 'react-router'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { imageStore } from '../../../../actions/app_center'
-// import { DEFAULT_REGISTRY } from '../../../../constants'
+import { DEFAULT_REGISTRY } from '../../../../constants'
 import ImageVersion from './ImageVersion.js'
 import DetailInfo from './DetailInfo'
 import DockerFile from './Dockerfile'
@@ -126,9 +126,20 @@ class ImageDetailBox extends Component {
   //     this.props.getImageDetailInfo(DEFAULT_REGISTRY, this.props.config.name)
   //   }
   // }
-  setimageStore(name, key) {
-    console.log('image id is',name, key)
-    
+  setimageStore(image, key) {
+    const config = {
+      myfavourite: key,
+      registry: DEFAULT_REGISTRY,
+      image
+    }
+    this.props.imageStore(config, {
+      success: {
+        func: ()=>{
+          message.success('更新成功！')
+          
+        }
+      }
+    })
   }
   render() {
     const { formatMessage } = this.props.intl;
@@ -204,28 +215,28 @@ ImageDetailBox.propTypes = {
   intl: PropTypes.object.isRequired,
 }
 
-// function mapStateToProps(state, props) {
-//   const defaultConfig = {
-//     isFavourite:'0',
-//     isFetching: false,
-//     registry: DEFAULT_REGISTRY
-//   }
-//   const {imagesInfo } = state.images
-//   const { imageInfo } = imagesInfo[DEFAULT_REGISTRY] || defaultConfig
+function mapStateToProps(state, props) {
+  const defaultConfig = {
+    isFavourite:'0',
+    isFetching: false,
+    registry: DEFAULT_REGISTRY
+  }
+  const {imagesInfo } = state.images
+  const { imageInfo } = imagesInfo[DEFAULT_REGISTRY] || defaultConfig
 
-//   return {
-//     isFavourite: imageInfo.isFavourite
-//   }
-// }
+  return {
+    isFavourite: imageInfo.isFavourite
+  }
+}
 
-// function mapDispatchToProps(dispatch) {
-//   return {
-//     imageStore: (name, callback) => {
-//       dispatch(imageStore(name, callback))
-//     },
-//   }
-// }
+function mapDispatchToProps(dispatch) {
+  return {
+    imageStore: (obj, callback) => {
+      dispatch(imageStore(obj, callback))
+    },
+  }
+}
 
-export default connect()(injectIntl(ImageDetailBox, {
+export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(ImageDetailBox, {
   withRef: true,
 }));

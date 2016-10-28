@@ -179,7 +179,7 @@ function imageTag(state = {}, action) {
     [registry]: {
       isFetching: false,
       registry,
-      imageList: []
+      imageList: [],
     }
   }
 
@@ -201,25 +201,12 @@ function imageTag(state = {}, action) {
           isFetching: false,
           registry: action.response.result.registry,
           server: action.response.result.server,
-          tag: data
+          tag: data,
         }
       })
     case ActionTypes.IMAGE_GET_DETAILTAG_FAILURE:
       return merge({}, defaultState, state, {
         [registry]: { isFetching: false }
-      })
-    case ActionTypes.GET_OTHER_IMAGE_TAGS_REQUEST:
-      return merge({}, defaultState, state, {
-         isFetching: true 
-      })
-    case ActionTypes.GET_OTHER_IMAGE_TAGS_SUCCESS:
-      return Object.assign({}, state, {
-        isFetching: false,
-        imageTag: action.response.result.tags || null
-      })
-    case ActionTypes.GET_OTHER_IMAGE_TAGS_FAILURE:
-      return merge({}, defaultState, state, {
-         isFetching: false 
       })
     default:
       return state
@@ -239,7 +226,8 @@ function imageTagConfig(state = {}, action) {
   const defaultState = {
     [registry]: {
       isFetching: false,
-      registry
+      registry,
+      sizeInfo:{}
     }
   }
 
@@ -255,7 +243,8 @@ function imageTagConfig(state = {}, action) {
           registry: action.response.result.registry,
           server: action.response.result.server,
           tag: action.response.result.tag || [],
-          configList: action.response.result.data || []
+          configList: action.response.result.data || [],
+          sizeInfo: action.response.result.data.sizeInfo
         }
       })
     case ActionTypes.IMAGE_GET_DETAILTAGCONFIG_FAILURE:
@@ -270,7 +259,7 @@ function imageTagConfig(state = {}, action) {
 export function getImageTagConfig(state = { publicImages: {} }, action) {
   return {
     imageTagConfig: imageTagConfig(state.imageTagConfig, action),
-    otherTagConfig: getOtherImageTagConfig(state.imageTagconfig, action)
+    otherTagConfig: getOtherImageTagConfig(state.otherTagConfig, action)
   }
 }
 
@@ -297,6 +286,20 @@ function imagesInfo(state={}, action){
         }
       })
     case ActionTypes.GET_IMAGEINFO_FAILURE:
+      return merge({}, defaultState, state, {
+        [registry]: { isFetching: false }
+      })
+          // 设置收藏 与否
+    case ActionTypes.SET_IMAGE_STORE_REQUEST:
+      return merge({}, defaultState, state, {
+        [registry]: { isFetching: false }
+      })
+
+    case ActionTypes.SET_IMAGE_STORE_SUCCESS:
+      const oldimageInfo = cloneDeep(state)
+      oldimageInfo.default.imageInfo.isFavourite = action.myfavourite
+      return oldimageInfo
+    case ActionTypes.SET_IMAGE_STORE_FAILURE:
       return merge({}, defaultState, state, {
         [registry]: { isFetching: false }
       })
@@ -333,7 +336,8 @@ function getOtherImageTagConfig(state={}, action) {
   const registry = action.registry
   const defaultState = {
       isFetching: false,
-      configList:[]
+      configList:[],
+      sizeInfo: ''
   }
 
   switch (action.type) {
@@ -345,7 +349,8 @@ function getOtherImageTagConfig(state={}, action) {
       return Object.assign({}, state, {
         isFetching: false,
         tag: action.tag || [],
-        configList: action.response.result.config || []
+        configList: action.response.result.configInfo || [],
+        sizeInfo: action.response.result.sizeInfo
         
       })
     case ActionTypes.GET_OTHER_TAG_CONFIG_FAILURE:
@@ -382,11 +387,11 @@ function fockImagesList(state = {}, action) {
           imageList: action.response.result.data || []
         }
       })
-
     case ActionTypes.GET_IMAGE_FOCK_FAILURE:
       return merge({}, defaultState, state, {
         [registry]: { isFetching: false }
       })
+
     default:
       return state
   }
