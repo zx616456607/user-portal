@@ -310,5 +310,20 @@ export function services(state = { appItmes: {} }, action) {
       SUCCESS: ActionTypes.SERVICE_UPDATE_AUTO_SCALE_SUCCESS,
       FAILURE: ActionTypes.SERVICE_UPDATE_AUTO_SCALE_FAILURE
     }, state.updateAutoScale, action, { overwrite: true }),
+    manualScaleService: reducerFactory({
+      REQUEST: ActionTypes.SERVICE_MANUAL_SCALE_REQUEST,
+      SUCCESS: ActionTypes.SERVICE_MANUAL_SCALE_SUCCESS,
+      FAILURE: ActionTypes.SERVICE_MANUAL_SCALE_FAILURE
+    }, state.manualScaleService, action, { overwrite: true }),
+    changeQuotaService: reducerFactory({
+      REQUEST: ActionTypes.SERVICE_CHANGE_QUOTA_REQUEST,
+      SUCCESS: ActionTypes.SERVICE_CHANGE_QUOTA_SUCCESS,
+      FAILURE: ActionTypes.SERVICE_CHANGE_QUOTA_FAILURE
+    }, state.changeQuotaService, action, { overwrite: true }),
+    rollingUpdateService: reducerFactory({
+      REQUEST: ActionTypes.SERVICE_ROLLING_UPDATE_REQUEST,
+      SUCCESS: ActionTypes.SERVICE_ROLLING_UPDATE_SUCCESS,
+      FAILURE: ActionTypes.SERVICE_ROLLING_UPDATE_FAILURE
+    }, state.rollingUpdateService, action, { overwrite: true }),
   }
 }

@@ -52,13 +52,13 @@ DockerRegistryAPIs.prototype.getRepositories = function (user, showDetail, q, pa
   this.sendRequest(requestUrl, 'GET', null, callback, user);
 };
 
-DockerRegistryAPIs.prototype.getSystemRepositories = function (user, search, showDetail, callback) {
-  var method = "getRepositories";
+DockerRegistryAPIs.prototype.searchRepositories = function (user, search, showDetail, callback) {
+  var method = "searchRepositories";
   logger.debug(method, "Searching docker images...");
 
   // If no callback, then will use the 1st parameter as callback, so we can do search all by default
   var requestUrl = this.getAPIPrefix() + "/search";
-  if (showDetail) {
+  if (search) {
     requestUrl += "?q=" + search + "&showdetail=" + showDetail;
   }
   logger.debug(method, "Request url: " + requestUrl);
@@ -666,7 +666,7 @@ We need to specify the properties to be update in imageObj, currently we can sup
 */
 DockerRegistryAPIs.prototype.updateImageInfo = function (user, imageObj, callback) {
   var method = "updateImageInfo";
-  logger.info(method, "Update image information using " + imageObj);
+  logger.info(method, "Update image information using " + JSON.stringify(imageObj));
   // imageObj.name should be in format namespace/repo
   var requestUrl = this.getAPIPrefix() + "/image/" + imageObj.name;
 

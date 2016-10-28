@@ -38,7 +38,9 @@
       }
       .runningStatus {
         color: #00A1EA;
-        font-size: 35px !important;
+        .fa {
+          font-size: 35px;
+        }
       }
       .failStatus {
         color: #F85A5A;
@@ -159,5 +161,14 @@
   }
 }
 .TenxFlowDetailFlowCardBigDiv {
-  width: 780px !important;
+  width: 100% !important;
+}
+.tenxFlowCicdSetting {
+  .ant-modal-body {
+    padding: 0 !important;
+  }
+  .ant-modal-close,
+  .ant-modal-footer {
+    display: none;
+  }
 }

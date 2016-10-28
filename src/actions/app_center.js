@@ -185,14 +185,15 @@ export function loadImageDetailTagConfig(registry, fullName, tag) {
 export const GET_OTHER_TAG_CONFIG_REQUEST = 'GET_OTHER_TAG_CONFIG_REQUEST'
 export const GET_OTHER_TAG_CONFIG_SUCCESS = 'GET_OTHER_TAG_CONFIG_SUCCESS'
 export const GET_OTHER_TAG_CONFIG_FAILURE = 'GET_OTHER_TAG_CONFIG_FAILURE'
-export function loadOtherDetailTagConfig(obj) {
+export function loadOtherDetailTagConfig(obj, callback) {
   return {
     [FETCH_API]: {
       types: [GET_OTHER_TAG_CONFIG_REQUEST, GET_OTHER_TAG_CONFIG_SUCCESS, GET_OTHER_TAG_CONFIG_FAILURE],
       endpoint: `${API_URL_PREFIX}/docker-registry/${obj.imageId}/images/${obj.fullname}/tags/${obj.imageTag}`,
       schema: Schemas.REGISTRYS
     },
-    tag: obj.imageTag
+    tag: obj.imageTag,
+    callback
   }
 }
 
@@ -216,18 +217,20 @@ export function getImageDetailInfo(obj, callback) {
 export const SET_IMAGE_STORE_REQUEST = 'SET_IMAGE_STORE_REQUEST'
 export const SET_IMAGE_STORE_SUCCESS = 'SET_IMAGE_STORE_SUCCESS'
 export const SET_IMAGE_STORE_FAILURE = 'SET_IMAGE_STORE_FAILURE'
-// set image store 
+// set image store 收藏镜像
 export function imageStore(obj,callback) {
   return {
     [FETCH_API]: {
       types: [SET_IMAGE_STORE_REQUEST, SET_IMAGE_STORE_SUCCESS, SET_IMAGE_STORE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/docker-registry/update`,
+      endpoint: `${API_URL_PREFIX}/registries/${obj.registry}/${obj.image}`,
       schema: Schemas.REGISTRYS,
       options: {
-        method: 'POST',
-        body: {name: obj.name, myfavourite: obj.myfavourite}
+        method: 'PUT',
+        body: {myfavourite: obj.myfavourite}
       },
     },
+    registry:obj.registry,
+    myfavourite: obj.myfavourite,
     callback
   }
 }

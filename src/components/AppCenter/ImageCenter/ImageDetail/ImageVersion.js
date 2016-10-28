@@ -39,7 +39,7 @@ let MyComponent = React.createClass({
     }
     let { tagList } = this.props.config ||[];
     const fullname = this.props.fullname;
-    console.log(this.props)
+    
     let items
     if (this.props.imageId) {
       items = tagList.map((item, index) => {
@@ -95,7 +95,6 @@ class ImageVersion extends Component {
     //this function mean when the user change show image detail
     //it will be check the old iamge is different from the new one or not
     //if the different is true,so that the function will be request the new one's tag
-    const {scope} = this.props;
     const oldImageDatail = this.state.imageDetail;
     const newImageDetail = nextPorps.config;
     if (newImageDetail != oldImageDatail) {
@@ -125,6 +124,7 @@ class ImageVersion extends Component {
   render() {
     const { isFetching } = this.props;
     const imageDetail = this.props.config;
+    console.log('parent ',this.props)
     let  tagList = {
       "tagList": this.props.imageDetailTag
     };
@@ -143,17 +143,17 @@ function mapStateToProps(state, props) {
   const defaultImageDetailTag = {
     isFetching: false,
     registry: DEFAULT_REGISTRY,
-    tag: []
+    tag: [],
   }
   const { imageTag ,otherImageTag} = state.getImageTag
-  const { registry, tag, isFetching, server } = imageTag[DEFAULT_REGISTRY] || defaultImageDetailTag
+  const { registry, tag, isFetching, server} = imageTag[DEFAULT_REGISTRY] || defaultImageDetailTag
   const otherDetailTag = otherImageTag.imageTag || []
   return {
     registry,
     registryServer: server,
     imageDetailTag: tag,
     isFetching,
-    otherDetailTag
+    otherDetailTag,
   }
 }
 

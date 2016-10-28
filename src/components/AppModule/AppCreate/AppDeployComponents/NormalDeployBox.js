@@ -8,12 +8,12 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Form, Select, Input, InputNumber, Modal, Checkbox, Button, Card, Menu, Switch } from 'antd'
+import { Form, Select, Input, InputNumber, Modal, Checkbox, Button, Card, Menu, Switch, Icon, Spin } from 'antd'
 import { connect } from 'react-redux'
-import { DEFAULT_REGISTRY } from '../../../../constants'
+import { DEFAULT_REGISTRY, DEFAULT_CLUSTER } from '../../../../constants'
 import { loadImageDetailTag, loadImageDetailTagConfig } from '../../../../actions/app_center'
 import { checkServiceName } from '../../../../actions/app_manage'
-import { loadFreeVolume } from '../../../../actions/storage'
+import { loadFreeVolume, createStorage } from '../../../../actions/storage'
 import "./style/NormalDeployBox.less"
 
 const Option = Select.Option;
@@ -22,6 +22,14 @@ const createForm = Form.create;
 const FormItem = Form.Item;
 let uuid = 0;
 let MyComponent = React.createClass({
+  getInitialState() {
+    return {
+      name: '',
+      size: 0,
+      format: 'ext4',
+      cluster: ''
+    }
+  },
   componentWillMount() {
     this.props.loadFreeVolume(this.props.cluster)
   },
@@ -55,24 +63,114 @@ let MyComponent = React.createClass({
       return ''
     }
   },
+  getVolumeName(e) {
+    this.setState({
+      name: e.target.value
+    })
+  },
+  getVolumeSize(value) {
+    this.setState({
+      size: value
+    })
+  },
+  getVolumeFormat(format) {
+    this.setState({
+      format: format
+    })
+  },
+  createVolume() {
+    const self = this
+    let storageConfig = {
+      driver: 'rbd',
+      name: this.state.name,
+      driverConfig:{
+        size: this.state.size,
+        fsType: this.state.format,
+      },
+      cluster: self.props.cluster
+    }   
+    this.props.createStorage(storageConfig, {
+      success: {
+        func: () => {
+          self.setState({
+            name: '',
+            size: 0,
+            format: ''
+          })
+          self.props.loadFreeVolume(self.props.cluster)
+        },
+        isAsync: true
+      },
+    })
+  },
   render: function () {
     const { getFieldProps, getFieldValue, } = this.props.form
     const registry = this.props.registry
     const mountPath = this.props.tagConfig[registry].configList.mountPath
+    if(!this.props.avaliableVolume.data) {
+      return <div></div>
+    }
+    let { isFetching } = this.props.avaliableVolume
+    if(isFetching) {
+      <div className='loadingBox'>
+        <Spin size='large' />
+      </div>
+    }
+    isFetching = this.props.createState
+    if (isFetching) {
+      <div className='loadingBox'>
+        <Spin size='large' />
+      </div>
+    }
     const volume = this.props.avaliableVolume.data.volumes
     let formItems = ''
-    if(volume.length <= 0 ) {
-      
+    
+    if (volume.length <= 0) {
+      getFieldProps('volumeKey', {
+        initialValue: [1],
+      });
+      return (
+        <div>
+          <ul>
+            <li className="volumeDetail">
+              <div className="input">
+                <Input className="volumeInt" type="text" placeholder="存储卷名称" onChange={(e) => { this.getVolumeName(e) } } />
+              </div>
+              <div className="input">
+                <InputNumber className="volumeInt" type="text" placeholder="存储卷大小" onChange={(value) => this.getVolumeSize(value)}/>M
+                </div>
+              <Select className='imageTag' placeholder="请选择格式" defaultValue="ext4" onChange={(value) => {
+                this.getVolumeFormat(value)
+              }}>
+                <Option value='ext4'>ext4</Option>
+                <Option value='xfs'>xfs</Option>
+                <Option value='reiserfs'>reiserfs</Option>
+              </Select>
+              <Button onClick={() => this.createVolume()}>创建存储卷</Button>
+              <div style={{ clear: "both" }}></div>
+            </li>
+          </ul>
+        </div>
+      )
     } else {
       getFieldProps('volumeKey', {
         initialValue: [1],
       });
       formItems = getFieldValue('volumeKey').map((k) => {
+        console.log('getFieldProps(`volumePath${k}`, {}) }',mountPath)
+        
         return (
           <FormItem key={`volume${k}`}>
-            <span type='text' className="url" {...getFieldProps(`volumePath${k}`, {}) }>{mountPath[k - 1]}</span>
+            
+            {
+              mountPath[k - 1] ?
+                <span type='text' className="url" {...getFieldProps(`volumePath${k}`, {}) }>
+                  {mountPath[k - 1]}
+                </span> :
+                <Input {...getFieldProps(`volumePath${k}`, {}) } className="urlInt"/>
+            }
             <Select className="imageTag" size="large"
-              defaultValue={mountPath[0]}
+              defaultValue={volume[0]}
               style={{ width: 200 }}
               {...getFieldProps(`volumeName${k}`, {}) }>
               {this.volumeList()}
@@ -88,7 +186,14 @@ let MyComponent = React.createClass({
     }
     return (
       <div className="serviceOpen" key="had">
-        {formItems}
+        <ul>
+        <li>{formItems}</li>
+        <li>          <div className="volumeAddBtn"  onClick={this.add}>
+            <Icon type="plus-circle-o" />
+            <span>添加一个容器目录</span>
+          </div></li>
+
+        </ul>
       </div>
     )
   }
@@ -97,12 +202,14 @@ let MyComponent = React.createClass({
 function mapStateToMyComponentProp(state) {
   return {
     avaliableVolume: state.storage.avaliableVolume,
-    tagConfig: state.getImageTagConfig.imageTagConfig
+    tagConfig: state.getImageTagConfig.imageTagConfig,
+    createState: state.storage.createStorage
   }
 }
 
 MyComponent = connect(mapStateToMyComponentProp, {
-  loadFreeVolume
+  loadFreeVolume,
+  createStorage
 })(MyComponent)
 
 

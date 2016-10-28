@@ -8,7 +8,7 @@
  * @author BaiYu
  */
 import React, { Component } from 'react'
-import { Card, Spin } from 'antd'
+import { Card, Spin ,message} from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import { loadOtherDetailTagConfig} from '../../../../actions/app_center'
@@ -64,23 +64,33 @@ class OtherServiceApi extends Component {
     super(props)
   }
 
-  componentWillMount() {
-    console.log('loadConfigGroup', this.props)
+  // @workaround !! 
+  componentDidMount() {
     const { fullname, imageTag , imageId} = this.props;
     const config = {imageId, fullname, imageTag}
-    this.props.loadOtherDetailTagConfig(config)
+    this.props.loadOtherDetailTagConfig(config, {
+      failed: {
+        func:(err)=>{
+          message.error(err.message)
+        }
+      }
+    })
   }
   componentWillReceiveProps(nextPorps) {
+    //this function mean when the user change show image detail
+    //it will be check the old iamge is different from the new one or not
+    //if the different is true,so that the function will be request the new one's tag
+    const oldImageDatail = this.props.fullname;
+    const newImageDetail = nextPorps.fullname;
     const { fullname, imageTag , imageId} = this.props;
     const config = {imageId, fullname, imageTag}
-    const newImageDetail = nextPorps.fullname;
-    if (newImageDetail != fullname) {
+    if (newImageDetail != oldImageDatail) {
       this.props.loadOtherDetailTagConfig(config)
     }
   }
   render() {
-    const { isFetching, configList } = this.props;
-      if (!configList) return
+    const { isFetching, configList , sizeInfo} = this.props;
+    // if (!configList || configList =='') return
     if (isFetching) {
       return (
         <Card className='loadingBox'>
@@ -89,17 +99,11 @@ class OtherServiceApi extends Component {
       )
     }
     let portsShow = null, dataStorageShow = null, cmdShow = null, entrypointShow = null;
-    if (configList.hasOwnProperty('containerPorts')) {
-      let ports = configList.containerPorts
-      if (!!ports) {
-        portsShow = ports.map((item) => {
-          return (
-            <p>容器端口:&nbsp;{item}</p>
-          )
-        });
-      }
-
+    let ports = configList.containerPorts
+    if (!!ports) {
+      portsShow = ports.map(item =>item).join('，')
     }
+
     let dataStorage = configList.mountPath;
     if (!!dataStorage) {
       dataStorageShow = dataStorage.map((item) => {
@@ -123,12 +127,13 @@ class OtherServiceApi extends Component {
         )
       });
     }
-    let { env } = configList;
+    let { defaultEnv } = configList;
     return (
       <Card className="imageServiceAPI" key={portsShow}>
-        {portsShow}
+         <p>容器端口:&nbsp;{portsShow}</p> 
         {dataStorageShow}
         <p>运行命令及参数:&nbsp;{entrypointShow}{cmdShow}</p>
+        <div>大小：{(sizeInfo.totalSize > 0) ? sizeInfo.totalSize /1024 + 'K' : '未知'}</div>
         <p>所需环境变量: </p>
         <div className="itemBox">
           <div className="title">
@@ -136,7 +141,7 @@ class OtherServiceApi extends Component {
             <span className="rightSpan">镜像</span>
             <div style={{ clear: "both" }}></div>
           </div>
-          <MyComponent config={env} />
+          <MyComponent config={defaultEnv} />
         </div>
       </Card>
     )
@@ -146,15 +151,17 @@ class OtherServiceApi extends Component {
 function mapStateToProps(state, props) {
   const defaultImageDetailTagConfig = {
     isFetching: false,
-    configList: []
+    configList: [],
+    sizeInfo: ''
   }
   const { otherTagConfig} = state.getImageTagConfig
-  const { tag, isFetching, configList } = otherTagConfig || defaultImageDetailTagConfig
+  const { tag, isFetching, configList ,sizeInfo} = otherTagConfig || defaultImageDetailTagConfig
   
   return {
     configList,
     isFetching,
-    tag
+    tag,
+    sizeInfo
   }
 }
 
@@ -163,8 +170,8 @@ OtherServiceApi.propTypes = {
 }
 function mapDispatchToProps(dispatch) {
   return {
-    loadOtherDetailTagConfig: (image) => {
-      dispatch(loadOtherDetailTagConfig(image))
+    loadOtherDetailTagConfig: (image, callback) => {
+      dispatch(loadOtherDetailTagConfig(image, callback))
     }
   }
 }

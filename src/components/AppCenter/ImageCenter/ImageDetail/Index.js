@@ -8,12 +8,12 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Tabs, Button, Card, Menu, Tooltip ,Icon} from 'antd'
+import { Tabs, Button, Card, Menu, Tooltip ,Icon, message} from 'antd'
 import { Link} from 'react-router'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { imageStore } from '../../../../actions/app_center'
-// import { DEFAULT_REGISTRY } from '../../../../constants'
+import { DEFAULT_REGISTRY } from '../../../../constants'
 import ImageVersion from './ImageVersion.js'
 import DetailInfo from './DetailInfo'
 import DockerFile from './Dockerfile'
@@ -38,6 +38,10 @@ const menusText = defineMessages({
   colletctImage: {
     id: 'AppCenter.ImageCenter.ImageDetail.colletctImage',
     defaultMessage: '收藏镜像',
+  },
+  closeImage: {
+    id: 'AppCenter.ImageCenter.ImageDetail.closeImage',
+    defaultMessage: '取消收藏',
   },
   deployImage: {
     id: 'AppCenter.ImageCenter.ImageDetail.deployService',
@@ -122,8 +126,20 @@ class ImageDetailBox extends Component {
   //     this.props.getImageDetailInfo(DEFAULT_REGISTRY, this.props.config.name)
   //   }
   // }
-  setimageStore(name) {
-    console.log('image id is', this.props)
+  setimageStore(image, key) {
+    const config = {
+      myfavourite: key,
+      registry: DEFAULT_REGISTRY,
+      image
+    }
+    this.props.imageStore(config, {
+      success: {
+        func: ()=>{
+          message.success('更新成功！')
+          
+        }
+      }
+    })
   }
   render() {
     const { formatMessage } = this.props.intl;
@@ -150,10 +166,18 @@ class ImageDetailBox extends Component {
               <Button size="large" type="primary">
                 <FormattedMessage {...menusText.deployImage} />
               </Button>
-              <Button size="large" type="ghost" onClick={ ()=>this.setimageStore(imageInfo.name) }>
+            { ( this.props.isFavourite == 1) ?
+              <Button size="large" type="ghost" onClick={ ()=>this.setimageStore(imageInfo.name, 0) }>
+                <i className="fa fa-star-o"></i>&nbsp;
+                <FormattedMessage {...menusText.closeImage} />
+              </Button>
+              :
+              <Button size="large" type="ghost" onClick={ ()=>this.setimageStore(imageInfo.name, 1) }>
                 <i className="fa fa-star-o"></i>&nbsp;
                 <FormattedMessage {...menusText.colletctImage} />
               </Button>
+            }
+             
             </div>
           </div>
           <div style={{ clear: "both" }}></div>
@@ -191,28 +215,27 @@ ImageDetailBox.propTypes = {
   intl: PropTypes.object.isRequired,
 }
 
-// function mapStateToProps(state, props) {
-//   const defaultConfig = {
-//     isFavourite:'0',
-//     isFetching: false,
-//     registry: DEFAULT_REGISTRY
-//   }
-//   const {imagesInfo } = state.images
-//   const { imageInfo } = imagesInfo[DEFAULT_REGISTRY] || defaultConfig
+function mapStateToProps(state, props) {
+  const defaultConfig = {
+    isFavourite:'0',
+    isFetching: false,
+    registry: DEFAULT_REGISTRY
+  }
+  const {imagesInfo } = state.images
+  const { imageInfo } = imagesInfo[DEFAULT_REGISTRY] || defaultConfig
+  return {
+    isFavourite: imageInfo.isFavourite
+  }
+}
 
-//   return {
-//     isFavourite: imageInfo.isFavourite
-//   }
-// }
+function mapDispatchToProps(dispatch) {
+  return {
+    imageStore: (obj, callback) => {
+      dispatch(imageStore(obj, callback))
+    },
+  }
+}
 
-// function mapDispatchToProps(dispatch) {
-//   return {
-//     imageStore: (name, callback) => {
-//       dispatch(imageStore(name, callback))
-//     },
-//   }
-// }
-
-export default connect()(injectIntl(ImageDetailBox, {
+export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(ImageDetailBox, {
   withRef: true,
 }));

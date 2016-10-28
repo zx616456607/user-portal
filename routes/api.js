@@ -16,6 +16,7 @@ const containerController = require('../controllers/container')
 const configController = require('../controllers/configs')
 const registryController = require('../controllers/registry')
 const metricsController = require('../controllers/metrics')
+const databaseCacheController = require('../controllers/database_cache')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -25,7 +26,7 @@ module.exports = function (Router) {
   // Storage
   router.get('/storage-pools/:pool/:cluster/volumes', volumeController.getVolumeListByPool)
   router.post('/storage-pools/:pool/:cluster/volumes/batch-delete', volumeController.deleteVolume)
-  router.post('/storage-pools/:pool/:cluster/volumes', volumeController.createVolume)
+  router.post('/storage-pools/:cluster/volumes', volumeController.createVolume)
   router.put('/storage-pools/:pool/:cluster/volumes/format', volumeController.formateVolume)
   router.put('/storage-pools/:pool/:cluster/volumes/size', volumeController.resizeVolume)
   router.get('/storage-pools/:pool/:cluster/volumes/:name', volumeController.getVolumeDetail)
@@ -115,6 +116,8 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/containers/:container_name/metrics', metricsController.getContainerMetrics)
   router.get('/clusters/:cluster/services/:service_name/metrics', metricsController.getServiceMetrics)
   router.get('/clusters/:cluster/apps/:app_name/metrics', metricsController.getAppMetrics)
-
+  
+  // DataBase Cache
+  router.get('/database-cache/:cluster/getMysql', databaseCacheController.getMySqlList)
   return router.routes()
 }

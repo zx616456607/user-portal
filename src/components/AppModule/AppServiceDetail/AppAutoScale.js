@@ -245,7 +245,6 @@ class AppAutoScale extends Component {
               <Row>
                 <Col span={12} style={{ marginTop: '24px' }}>
                   <Slider defaultValue={30}
-                    onChange={this.handleMinReplicas}
                     value={minReplicas}
                     onChange={this.handleMinReplicas}
                     disabled={!edit}

@@ -15,24 +15,6 @@ import QueueAnim from 'rc-queue-anim'
 import "./style/AppGraph.less"
 import { getAppOrchfile } from '../../actions/app_manage'
 
-const SubMenu = Menu.SubMenu
-const MenuItemGroup = Menu.ItemGroup
-const operaMenu = (
-  <Menu>
-    <Menu.Item key="0">
-      test
-    </Menu.Item>
-    <Menu.Item key="1">
-      task
-    </Menu.Item>
-    <Menu.Item key="2">
-      suse
-    </Menu.Item>
-    <Menu.Item key="3">
-      img
-    </Menu.Item>
-  </Menu>);
-
 let OrchfileComponent = React.createClass({
   componentWillMount() {
     this.props.getAppOrchfile(this.props.cluster, this.props.appName)

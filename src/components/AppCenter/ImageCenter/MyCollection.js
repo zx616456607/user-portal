@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Alert, Menu, Button, Card, Input, Modal } from 'antd'
+import { Alert, Menu, Button, Card, Spin,Input, Modal } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -75,6 +75,14 @@ let MyComponent = React.createClass({
   },
   render: function () {
     let config = this.props.config;
+    const {isFetching } = this.props
+    if (isFetching) {
+      return (
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
+      )
+    }
     let items = config.map((item) => {
       return (
         <div className="imageDetail" key={item.id} >
@@ -89,7 +97,7 @@ let MyComponent = React.createClass({
               <FormattedMessage {...menusText.belong} />&nbsp;
               {item.type}
             </span>
-            <span className="imageUrl">
+            <span className="imageUrl textoverflow">
               <FormattedMessage {...menusText.imageUrl} />&nbsp;
               <span className="">{item.name}</span>
             </span>
@@ -151,7 +159,7 @@ class MyCollection extends Component {
               <i className="fa fa-search"></i>
               <div style={{ clear: "both" }}></div>
             </div>
-            <MyComponent scope={scope} getImageDetailInfo={(obj,callback)=> this.props.getImageDetailInfo(obj,callback)} config={imageList} />
+            <MyComponent scope={scope} isFetching={this.props.isFetching} getImageDetailInfo={(obj,callback)=> this.props.getImageDetailInfo(obj,callback)} config={imageList} />
           </Card>
         </div>
         <Modal

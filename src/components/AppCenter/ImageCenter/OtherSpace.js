@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Menu, Button, Card, Input, Modal } from 'antd'
+import { Menu, Button, Card, Spin,Input, Modal } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -64,7 +64,14 @@ let MyComponent = React.createClass({
 
   },
   render: function () {
-    let config = this.props.config;
+    const {isFetching , config } = this.props
+    if (isFetching) {
+      return (
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
+      )
+    }
     if (!config) return
     let items = config.map((item) => {
       return (
@@ -79,7 +86,7 @@ let MyComponent = React.createClass({
             <span className="type">
               <FormattedMessage {...menusText.belong} />&nbsp;私有
             </span>
-            <span className="imageUrl">
+            <span className="imageUrl textoverflow">
               <FormattedMessage {...menusText.imageUrl} />&nbsp;
             <span className="">{this.props.otherHead.url}/{item}</span>
             </span>
@@ -110,7 +117,6 @@ class OtherSpace extends Component {
       imageDetailModalShow: false
     }
   }
-
   closeImageDetailModal() {
     //this function for user close the modal of image detail info
     this.setState({
@@ -166,7 +172,7 @@ class OtherSpace extends Component {
               <i className="fa fa-search"></i>
               <div style={{ clear: "both" }}></div>
             </div>
-            <MyComponent scope={scope} imageId ={this.props.imageId} otherHead={otherHead} config={this.props.config} />
+            <MyComponent scope={scope} isFetching={this.props.isFetching} imageId ={this.props.imageId} otherHead={otherHead} config={this.props.config} />
           </Card>
         </div>
         <Modal

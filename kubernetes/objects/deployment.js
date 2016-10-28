@@ -11,6 +11,9 @@
 
 const DEFAULT_DISKTYPE = 'rbd'
 const Container = require('./container')
+const TENXCLOUD_PREFIX = 'tenxcloud.com/'
+const utils = require('../utils')
+
 class Deployment {
   constructor(name) {
     this.kind = 'Deployment'
@@ -47,7 +50,12 @@ class Deployment {
         this.metadata.name = k8sDeployment.metadata.name
       }
       if (k8sDeployment.metadata.labels) {
-        this.metadata.labels = k8sDeployment.metadata.labels
+        for (let key in k8sDeployment.metadata.labels) {
+          //Remove tenxcloud added labels
+          if (key.indexOf(TENXCLOUD_PREFIX) != 0) {
+            this.metadata.labels[key] = k8sDeployment.metadata.labels[key]
+          }
+        }
       }
     }
 
@@ -60,8 +68,29 @@ class Deployment {
       }
       if (k8sDeployment.spec.template) {
         this.spec.template = k8sDeployment.spec.template
+        if (k8sDeployment.spec.template.metadata) {
+          let metadata = {}
+          for (let key in k8sDeployment.spec.template.metadata) {
+            //Remove 'creationTimestamp' tag
+            if (key != 'creationTimestamp') {
+              metadata[key] = k8sDeployment.spec.template.metadata[key]
+            }
+          }
+          this.spec.template.metadata = metadata
+
+          if (k8sDeployment.spec.template.metadata.labels) {
+            let labels = {}
+            for (let key in k8sDeployment.spec.template.metadata.labels) {
+              //Remove tenxcloud added labels
+              if (key.indexOf(TENXCLOUD_PREFIX) != 0) {
+                labels[key] = k8sDeployment.spec.template.metadata.labels[key]
+              }
+            }
+            this.spec.template.metadata.labels = labels
+          }
+        }
       }
-    }  
+    }
   }
 
   setReplicas(replicas) {
@@ -82,7 +111,7 @@ class Deployment {
       if (container.name !== containerName) {
         return
       }
-      container.resources = _getResourceByMemory(memory)
+      container.resources = utils.getResourcesByMemory(memory)
     })
   }
 
@@ -238,50 +267,6 @@ class Deployment {
       container.livenessProbe = livenessProbe
     })
   }
-}
-
-function _getResourceByMemory(memory) {
-  const resources = {
-    limits: {
-      memory: "256Mi"
-    },
-    requests: {
-      cpu: "60m",
-      memory: "256Mi"
-    }
-  }
-  switch (memory) {
-    case '512Mi':
-      resources.limits.memory = '512Mi'
-      resources.requests.cpu = '125m'
-      resources.requests.memory = '512Mi'
-      break
-    case '1024Mi':
-      resources.limits.memory = '1024Mi'
-      resources.requests.cpu = '250m'
-      resources.requests.memory = '1024Mi'
-      break;
-    case '2048Mi':
-      resources.limits.memory = '2048Mi'
-      resources.requests.cpu = '500m'
-      resources.requests.memory = '2048Mi'
-      break;
-    case '4096Mi':
-      resources.limits.memory = '4096Mi'
-      resources.requests.cpu = '700m'
-      resources.requests.memory = '4096Mi'
-    case '8192Mi':
-      resources.limits.memory = '8192Mi'
-      resources.requests.cpu = '1200m'
-      resources.requests.memory = '8192Mi'
-      break;
-    case '16384Mi':
-      resources.limits.memory = '16384Mi'
-      resources.requests.cpu = '3000m'
-      resources.requests.memory = '16384Mi'
-      break;
-  }
-  return resources
 }
 
 module.exports = Deployment

@@ -13,16 +13,9 @@ import { Breadcrumb } from 'antd'
 export default class ErrorPage extends Component {
   render() {
     return (
-      <div>
-        <div className="tenx-layout-breadcrumb">
-          <Breadcrumb>
-            <Breadcrumb.Item>控制台</Breadcrumb.Item>
-            <Breadcrumb.Item>404</Breadcrumb.Item>
-          </Breadcrumb>
-        </div>
-        <div className="tenx-layout-container">
-          <h1>404 not found</h1>
-        </div>
+      <div id='NotFoundErrorPageBox'>
+        <iframe className='NotFoundErrorPage' src='/ErrorPage/index.html'>
+        </iframe>
       </div>
     )
   }

@@ -280,6 +280,7 @@ export default class ServiceList extends Component {
           <Modal title="添加服务"
             visible={this.state.modalShow}
             className="AppAddServiceModal"
+            wrapClassName="appAddServiceModal"
             onCancel={this.closeModal}
             >
             <AppAddServiceModal scope={parentScope} />

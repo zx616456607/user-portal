@@ -115,6 +115,7 @@ class TenxFlowDetailFlow extends Component {
         <div className='paddingBox'>
           <Alert message={<FormattedMessage {...menusText.tooltip} />} type='info' />
           { cards }
+          <div style={{ clear:'both' }}></div>
           <div className='commonCardBox createCardBox'>
             <Card className='commonCard createCard' onClick={this.createNewFlow}>
               <Icon type="plus-circle-o" />
