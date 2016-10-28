@@ -90,7 +90,7 @@ class RollingUpdateModal extends Component {
     const serviceName = service.metadata.name
     const targets = {}
     containers.map((container) => {
-      targets[container.name] = container.imageObj.imageSrc + container.targetTag
+      targets[container.name] = `${container.imageObj.imageSrc}:${container.targetTag}`
     })
     const hide = message.loading('正在保存中...', 0)
     rollingUpdateService(cluster, serviceName, { targets }, {
