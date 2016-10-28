@@ -112,7 +112,7 @@ class Top extends Component {
   handleFocusBlur(e) {
     this.setState({
       focus: e.target === document.activeElement,
-    });
+    })
   }
   handleSearch() {
     if (this.props.onSearch) {
@@ -187,7 +187,8 @@ class Top extends Component {
                       trigger={['click']}
             >
               <a className="ant-dropdown-link" href="#">
-                奔驰HRM系统 <Icon type="down" />
+                奔驰HRM系统
+                <Icon type="down" />
               </a>
             </Dropdown>
           </div>
