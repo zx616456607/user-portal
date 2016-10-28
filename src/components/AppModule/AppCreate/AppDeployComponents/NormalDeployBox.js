@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Form, Select, Input, InputNumber, Modal, Checkbox, Button, Card, Menu, Switch, Icon, Spin } from 'antd'
+import { Form, Select, Input, InputNumber, Modal, Checkbox, Button, Card, Menu, Switch, Icon, Spin, message } from 'antd'
 import { connect } from 'react-redux'
 import { DEFAULT_REGISTRY, DEFAULT_CLUSTER } from '../../../../constants'
 import { loadImageDetailTag, loadImageDetailTagConfig } from '../../../../actions/app_center'
@@ -20,12 +20,12 @@ const Option = Select.Option;
 const OptGroup = Select.OptGroup;
 const createForm = Form.create;
 const FormItem = Form.Item;
-let uuid = 0;
+let uuid = 1;
 let MyComponent = React.createClass({
   getInitialState() {
     return {
       name: '',
-      size: 0,
+      size: 100,
       format: 'ext4',
       cluster: ''
     }
@@ -42,6 +42,15 @@ let MyComponent = React.createClass({
     form.setFieldsValue({
       volumeKey,
     });
+    if(volumeKey.length <= 0) {
+      const registry = this.props.registry
+      const mountPath = this.props.tagConfig[registry].configList.mountPath
+      volumeKey = mountPath.map((i, index) => {return index + 1})
+      form.setFieldsValue({
+        volumeSwitch: false,
+        volumeKey
+      }) 
+    }
   },
   add() {
     uuid++;
@@ -78,8 +87,15 @@ let MyComponent = React.createClass({
       format: format
     })
   },
+  refresh() {
+    this.props.loadFreeVolume(this.props.cluster)
+  },
   createVolume() {
     const self = this
+    if(!this.state.name) {
+      message.error('请填写存储名称')
+      return
+    }
     let storageConfig = {
       driver: 'rbd',
       name: this.state.name,
@@ -116,7 +132,7 @@ let MyComponent = React.createClass({
         <Spin size='large' />
       </div>
     }
-    isFetching = this.props.createState
+    isFetching = this.props.createState.isFetching
     if (isFetching) {
       <div className='loadingBox'>
         <Spin size='large' />
@@ -137,16 +153,17 @@ let MyComponent = React.createClass({
                 <Input className="volumeInt" type="text" placeholder="存储卷名称" onChange={(e) => { this.getVolumeName(e) } } />
               </div>
               <div className="input">
-                <InputNumber className="volumeInt" type="text" placeholder="存储卷大小" onChange={(value) => this.getVolumeSize(value)}/>M
-                </div>
-              <Select className='imageTag' placeholder="请选择格式" defaultValue="ext4" onChange={(value) => {
-                this.getVolumeFormat(value)
-              }}>
-                <Option value='ext4'>ext4</Option>
-                <Option value='xfs'>xfs</Option>
-                <Option value='reiserfs'>reiserfs</Option>
-              </Select>
-              <Button onClick={() => this.createVolume()}>创建存储卷</Button>
+                <InputNumber className="volumeInt" type="text" placeholder="存储卷大小" defaultValue="100" max="9999" onChange={(value) => this.getVolumeSize(value)}/>
+                 <Select className='imageTag' placeholder="请选择格式" defaultValue="ext4" onChange={(value) => {
+                   this.getVolumeFormat(value)
+                 } }>
+                   <Option value='ext4'>ext4</Option>
+                   <Option value='xfs'>xfs</Option>
+                   <Option value='reiserfs'>reiserfs</Option>
+                 </Select>
+                 <Button onClick={() => this.createVolume() }>创建存储卷</Button>
+              </div>
+
               <div style={{ clear: "both" }}></div>
             </li>
           </ul>
@@ -154,23 +171,20 @@ let MyComponent = React.createClass({
       )
     } else {
       getFieldProps('volumeKey', {
-        initialValue: [1],
+        initialValue: mountPath.map((i, index)=> {return index +1 }),
       });
       formItems = getFieldValue('volumeKey').map((k) => {
-        console.log('getFieldProps(`volumePath${k}`, {}) }',mountPath)
-        
         return (
           <FormItem key={`volume${k}`}>
-            
             {
               mountPath[k - 1] ?
-                <span type='text' className="url" {...getFieldProps(`volumePath${k}`, {}) }>
+                <span type='text' className="url">
+                  <Input className="hide"  {...getFieldProps(`volumePath${k}`, {initialValue: mountPath[k - 1]}) }/>
                   {mountPath[k - 1]}
                 </span> :
                 <Input {...getFieldProps(`volumePath${k}`, {}) } className="urlInt"/>
             }
-            <Select className="imageTag" size="large"
-              defaultValue={volume[0]}
+            <Select className="imageTag" size="large" placeholder="请选择一个存储卷"
               style={{ width: 200 }}
               {...getFieldProps(`volumeName${k}`, {}) }>
               {this.volumeList()}
@@ -178,8 +192,8 @@ let MyComponent = React.createClass({
             <Checkbox className="readOnlyBtn" { ...getFieldProps(`volumeChecked${k}`, {}) }>
               只读
           </Checkbox>
-            <i className="fa fa-refresh" />
-            <i className="fa fa-trash" />
+            <i className="fa fa-refresh" onClick={() => this.refresh()} />
+            <i className="fa fa-trash" onClick={() => this.remove(k)}/>
           </FormItem>
         )
       });
@@ -514,7 +528,7 @@ let NormalDeployBox = React.createClass({
                 />
               <span className="stateSpan">{form.getFieldValue('volumeSwitch') ? "有状态服务" : "无状态服务"}</span>
               {form.getFieldValue('volumeSwitch') ? [
-                <MyComponent parentScope={parentScope} form={form} cluster={this.state.cluster} registry={this.props.registry}/>
+                <MyComponent parentScope={parentScope} form={form} cluster={this.state.cluster} registry={this.props.registry} />
               ] : null}
               <div style={{ clear: "both" }}></div>
             </div>

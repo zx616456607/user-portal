@@ -118,7 +118,6 @@ class StorageDetail extends Component {
                 tabPosition="top"
                 defaultActiveKey="1"
               >
-
                 <TabPane tab={<FormattedMessage {...messages.bindContainer} />} key="2" >
                   <StorageBind pool={StorageInfo.imagePool} cluster={StorageInfo.cluster} volumeName={ StorageInfo.volumeName } />
                 </TabPane>

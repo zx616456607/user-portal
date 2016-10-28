@@ -221,7 +221,7 @@ class Deployment {
       this.spec.template.spec.volumes.push({
         name: volume.name,
         [volume.diskType]: {
-          fsType: volume.fsType,
+          //fsType: volume.fsType,
           image: volume.image
         }
       })

@@ -48,7 +48,7 @@ class StorageBind extends Component {
     if (!mountInfo) return <div></div>
     let appName = Object.getOwnPropertyNames(mountInfo)
     if (!appName || appName.length <= 0) {
-      return <div></div>
+      return <div id="StorageBind"></div>
     }
     appName = appName[0]
     const appInfo = mountInfo[appName][0]
