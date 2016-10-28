@@ -9,21 +9,28 @@
  */
 import React, { Component } from 'react'
 import './style/RollingUpdateModal.less'
-import { Button, Card, Menu, Icon, Tooltip, Row, Col, Select, InputNumber, Alert, Switch, Modal } from 'antd'
+import { DEFAULT_REGISTRY } from '../../../constants'
+import { Button, Card, Menu, message, Icon, Tooltip, Row, Col, Select, InputNumber, Alert, Switch, Modal } from 'antd'
+import { loadImageDetailTag } from '../../../actions/app_center'
+import { rollingUpdateService } from '../../../actions/services'
+import { connect } from 'react-redux'
 
 const Option = Select.Option
-export default class RollingUpdateModal extends Component {
+const OptGroup = Select.OptGroup
+
+function loadTags(props, imageFullName) {
+  const { loadImageDetailTag, registry } = props
+  loadImageDetailTag(registry, imageFullName)
+}
+
+class RollingUpdateModal extends Component {
   constructor(props) {
     super(props)
-    this.switchBtn = this.switchBtn.bind(this)
-    this.setUpdateTime = this.setUpdateTime.bind(this)
-    this.setAloneUpdateTime = this.setAloneUpdateTime.bind(this)
     this.handleOK = this.handleOK.bind(this)
     this.handleCancel = this.handleCancel.bind(this)
+    this.handleTagChange = this.handleTagChange.bind(this)
     this.state = {
-      alone: false,
-      updateTimeArr: [],
-      updateTime: null
+      containers: [],
     }
   }
 
@@ -32,28 +39,31 @@ export default class RollingUpdateModal extends Component {
     if (!service) {
       return
     }
-    if (visible) {
+    /*if (visible) {
+      return
+    }*/
+    const containers = service.spec.template.spec.containers
+    containers.map((container) => {
+      let { image } = container
+      let tag = image.substr(image.indexOf(':') + 1)
+      let imageSrc = image.substring(0, image.indexOf(tag) - 1)
+      let fullName = image.substring(image.indexOf('/') + 1, image.indexOf(tag) - 1)
+      container.imageObj = {
+        tag,
+        imageSrc,
+        fullName,
+      }
+    })
+    this.setState({
+      containers
+    })
+    if (!visible || visible === this.props.visible) {
       return
     }
-    this.setState({
-      //
+    containers.map((container) => {
+      let { imageObj } = container
+      loadTags(nextProps, imageObj.fullName)
     })
-  }
-
-  switchBtn(checked) {
-    this.setState({
-      alone: checked
-    })
-  }
-
-  setUpdateTime(e) {
-    this.setState({
-      updateTime: e.target.value
-    })
-  }
-
-  setAloneUpdateTime(e, index) {
-    this.state.updateTimeArr[index] = e
   }
 
   handleCancel() {
@@ -64,9 +74,55 @@ export default class RollingUpdateModal extends Component {
   }
 
   handleOK() {
-    const { parentScope } = this.props
+    /*const { parentScope } = this.props
     parentScope.setState({
       rollingUpdateModalShow: false
+    })*/
+    const {
+      parentScope,
+      cluster,
+      service,
+      appName,
+      loadServiceList,
+      rollingUpdateService
+    } = this.props
+    const { containers } = this.state
+    const serviceName = service.metadata.name
+    const targets = {}
+    containers.map((container) => {
+      targets[container.name] = container.imageObj.imageSrc + container.targetTag
+    })
+    const hide = message.loading('正在保存中...', 0)
+    rollingUpdateService(cluster, serviceName, { targets }, {
+      success: {
+        func: () => {
+          loadServiceList(cluster, appName)
+          parentScope.setState({
+            rollingUpdateModalShow: false
+          })
+          hide()
+          message.success(`服务 ${serviceName} 灰度升级已成功开启`)
+        },
+        isAsync: true
+      },
+      failed: {
+        func: () => {
+          hide()
+          message.error(`服务 ${serviceName} 开启灰度升级失败`)
+        }
+      }
+    })
+  }
+
+  handleTagChange(value, containerName) {
+    const { containers } = this.state
+    containers.map((container) => {
+      if (container.name === containerName) {
+        container.targetTag = value
+      }
+    })
+    this.setState({
+      containers
     })
   }
 
@@ -75,8 +131,8 @@ export default class RollingUpdateModal extends Component {
     if (!visible) {
       return null
     }
-    const { updateTime } = this.state
-    const containers = service.spec.template.spec.containers
+    const { containers } = this.state
+    // const containers = service.spec.template.spec.containers
     return (
       <Modal
         wrapClassName="modal"
@@ -103,17 +159,6 @@ export default class RollingUpdateModal extends Component {
             <Col className="itemTitle" span={4} style={{ textAlign: 'right' }}>服务名称</Col>
             <Col className="itemBody" span={20}>
               {service.metadata.name}
-              {
-                containers.length > 1 && (
-                  <div className="switchUpdateTime">
-                    <Switch defaultChecked={false} onChange={this.switchBtn} />
-                    <div className="switchTip">
-                      {this.state.alone ? '独立更新间隔' : '统一更新间隔'}
-                      <i className="anticon anticon-question-circle-o" style={{ marginLeft: '10px' }} />
-                    </div>
-                  </div>
-                )
-              }
             </Col>
           </Row>
           {containers.map((item, index) => {
@@ -124,26 +169,26 @@ export default class RollingUpdateModal extends Component {
                 </Col>
                 <Col className="itemBody" span={20}>
                   <div style={{ height: '30px' }}>{item.image}</div>
-                  <Select defaultValue="default">
-                    <Option value="default">
-                      请选择目标版本
-                          </Option>
-                    <Option value="1">
-                      1
-                          </Option>
-                    <Option value="2">
-                      2
-                          </Option>
-                    <Option value="3">
-                      3
-                          </Option>
+                  <Select
+                    placeholder="请选择目标版本"
+                    value={item.targetTag}
+                    onChange={(value) => this.handleTagChange(value, item.name)}>
+                    <OptGroup label="请选择目标版本">
+                      {
+                        this.props[item.imageObj.fullName] && this.props[item.imageObj.fullName].tag && this.props[item.imageObj.fullName].tag.map((tag) => {
+                          let disabled = false
+                          if (tag === item.imageObj.tag) {
+                            disabled = true
+                          }
+                          return (
+                            <Option value={tag} disabled={disabled}>
+                              {tag}
+                            </Option>
+                          )
+                        })
+                      }
+                    </OptGroup>
                   </Select>
-                  {
-                    this.state.alone ? <InputNumber placeholder="更新间隔时间2~60s"
-                      onChange={(e) => this.setAloneUpdateTime(e, index)} />
-                      : <InputNumber placeholder="更新间隔时间2~60s"
-                        value={updateTime}
-                        onChange={this.setUpdateTime} />}
                 </Col>
               </Row>
             )
@@ -153,3 +198,20 @@ export default class RollingUpdateModal extends Component {
     )
   }
 }
+
+function mapStateToProps(state, props) {
+  const {
+    imageTag
+  } = state.getImageTag
+  let targetImageTag = imageTag[DEFAULT_REGISTRY] || {}
+
+  return {
+    registry: DEFAULT_REGISTRY,
+    ...targetImageTag
+  }
+}
+
+export default connect(mapStateToProps, {
+  loadImageDetailTag,
+  rollingUpdateService
+})(RollingUpdateModal)
