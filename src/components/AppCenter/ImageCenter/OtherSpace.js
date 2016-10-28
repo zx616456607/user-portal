@@ -86,7 +86,7 @@ let MyComponent = React.createClass({
             <span className="type">
               <FormattedMessage {...menusText.belong} />&nbsp;私有
             </span>
-            <span className="imageUrl">
+            <span className="imageUrl textoverflow">
               <FormattedMessage {...menusText.imageUrl} />&nbsp;
             <span className="">{this.props.otherHead.url}/{item}</span>
             </span>

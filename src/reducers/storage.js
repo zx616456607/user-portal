@@ -30,7 +30,7 @@ function storageList(state = {}, action) {
       return Object.assign({}, defaultState, {
         [pool]: {
           isFetching: false,
-          storageList: action.response.result.body,
+          storageList: action.response.result.data,
           pool: pool
         }
       })
@@ -67,15 +67,15 @@ function deleteStorage(state = {}, action) {
 function createStorage(state = {}, action) {
   switch (action.type) {
     case ActionTypes.STORAGE_CREATE_REQUEST:
-      return union({}, state, {
+      return merge({}, state, {
         isFetching: true
       })
     case ActionTypes.STORAGE_CREATE_SUCCESS:
-      return union({}, state, {
+      return merge({}, state, {
         isFetching: false
       })
     case ActionTypes.STORAGE_CREATE_FAILURE:
-      return union({}, state, {
+      return merge({}, state, {
         isFetching: false
       })
     default:
@@ -117,7 +117,7 @@ function storageDetail(state = {}, action) {
     case ActionTypes.STORAGE_DETAIL_SUCCESS:
       return merge({}, {
         isFetching: false,
-        StorageInfo: action.response.result.body
+        StorageInfo: action.response.result.data
       })
     case ActionTypes.STORAGE_DETAIL_FAILURE:
       return merge({}, {
@@ -170,7 +170,7 @@ function getStorageFileHistory(state = {}, action) {
     case ActionTypes.STORAGE_FILEHISTORY_REQUEST:
       return _.merge({}, defaultState, { isFetching: true })
     case ActionTypes.STORAGE_FILEHISTORY_SUCCESS:
-      return Object.assign({}, { history: action.response.result.body }, { isFetching: false })
+      return Object.assign({}, { history: action.response.result.data }, { isFetching: false })
     case ActionTypes.STORAGE_FILEHISTORY_FAILURE:
       return _.merge({}, defaultState, { isFetching: false })
     case ActionTypes.STORAGE_MERGE_UPLOADINGFILE:
@@ -200,7 +200,7 @@ function beforeUploadFile(state = {}, action) {
     case ActionTypes.STORAGE_BEFORE_UPLOADFILE_REQUEST:
       return _.merge({}, state, { isFetching: true })
     case ActionTypes.STORAGE_BEFORE_UPLOADFILE_SUCCESS:
-      return Object.assign({}, state, action.response.result.body, { isFetching: false })
+      return Object.assign({}, state, action.response.result.data, { isFetching: false })
     case ActionTypes.STORAGE_BEFORE_UPLOADFILE_FAILURE:
       return Object.assign({}, state, { isFetching: false })
     default:
@@ -216,7 +216,7 @@ function volumeBindInfo(state = {}, action) {
     case ActionTypes.STORAGE_GETVOLUMEBIND_REQUEST:
       return _.merge({}, defaultState, { isFetching: true })
     case ActionTypes.STORAGE_GETVOLUMEBIND_SUCCESS:
-      return _.merge({}, defaultState, { volumeBindInfo: action.response.result.body }, { isFetching: false })
+      return _.merge({}, defaultState, { volumeBindInfo: action.response.result.data }, { isFetching: false })
     case ActionTypes.STORAGE_GETVOLUMEBIND_FAILURE:
       return _.merge({}, defaultState, { isFetching: false })
     default:
@@ -260,7 +260,7 @@ function exportFile(state = {}, action) {
     case ActionTypes.STORAGE_EXPORT_FILE_REQUEST:
       return _.merge({}, defaultState, state, { isFetching: true })
     case ActionTypes.STORAGE_EXPORT_FILE_SUCCESS:
-      return _.merge({}, defaultState, state, { visible: true, percent: 100, isFetching: false }, action.response.result.body)
+      return _.merge({}, defaultState, state, { visible: true, percent: 100, isFetching: false }, action.response.result.data)
     case ActionTypes.STORAGE_EXPORT_FILE_DONE:
       return _.merge({}, defaultState, state, { visible: false, percent: 100, isFetching: false})
     case ActionTypes.STORAGE_EXPORT_FILE_FAILURE:

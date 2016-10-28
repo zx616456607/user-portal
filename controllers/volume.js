@@ -18,14 +18,14 @@ const http = require('http')
 const VolumeApi = require('../tenx_api/v2')
 const volumeConfig = {
   protocol: 'http',
-  host: '192.168.0.44:8000',
+  host: '192.168.1.103:48000',
   version: 'v2',
   auth: {
     user: 'zhangpc',
     token: 'jgokzgfitsewtmbpxsbhtggabvrnktepuzohnssqjnsirtot',
     namespace: 'zhangpc'
   },
-  timeout: 500
+  timeout: 50000
 }
 const volumeApi = new VolumeApi(volumeConfig)
 
@@ -33,7 +33,7 @@ exports.getVolumeListByPool = function* () {
   const pool = this.params.pool
   const cluster = this.params.cluster
   const appName = this.query.appname
-  let response = yield volumeApi.clusters.getBy([cluster, 'list'], {
+  let response = yield volumeApi.clusters.getBy([cluster, 'volumes'], {
     appname: appName
   })
   this.status = response.code
@@ -51,7 +51,7 @@ exports.deleteVolume = function* () {
     }
     return
   }
-  let response = yield volumeApi.clusters.batchDeleteBy([cluster, 'delete'], null, volumeArray)
+  let response = yield volumeApi.clusters.batchDeleteBy([cluster, 'volumes', 'batch-delete'], null, volumeArray)
   this.status = 200
   this.body = {}
 }
@@ -61,7 +61,7 @@ exports.createVolume = function* () {
   const pool = this.params.pool
   const cluster = this.params.cluster
   const reqData = this.request.body
-  let response = yield volumeApi.clusters.createBy([cluster], null, reqData)
+  let response = yield volumeApi.clusters.createBy([cluster, 'volumes'], null, reqData)
   this.status = response.code
   this.body = response
 }
@@ -76,9 +76,8 @@ exports.formateVolume = function* () {
     this.status = 400
     this.body = { message: 'error' }
   }
-  const response = yield volumeApi.clusters.updateBy([cluster, reqData.name, 'format'], null, {
-    format: reqData.type,
-    diskType: 'rbd'
+  const response = yield volumeApi.clusters.updateBy([cluster, 'volumes', reqData.name, 'format'], null, {
+    fsType: reqData.fsType,
   })
   this.status = response.code
   this.body = response
@@ -92,7 +91,7 @@ exports.resizeVolume = function* () {
     this.status = 400
     this.body = { message: 'error' }
   }
-  const response = yield volumeApi.clusters.updateBy([cluster, reqData.name], null, {
+  const response = yield volumeApi.clusters.updateBy([cluster, 'volumes', reqData.name, 'expansion'], null, {
     size: reqData.size
   })
   this.status = response.code
@@ -102,7 +101,7 @@ exports.getVolumeDetail = function* () {
   const pool = this.params.pool
   const cluster = this.params.cluster
   const volumeName = this.params.name
-  const response = yield volumeApi.clusters.getBy([cluster, volumeName, 'consumption'])
+  const response = yield volumeApi.clusters.getBy([cluster, 'volumes', volumeName, 'consumption'])
   this.status = response.code
   this.body = {
     body: response.body
@@ -120,7 +119,7 @@ exports.beforeUploadFile = function* () {
     this.body = { message: 'error' }
     return
   }
-  const response = yield volumeApi.clusters.createBy([cluster, volumeName, 'beforimport'], null, reqData)
+  const response = yield volumeApi.clusters.createBy([cluster, 'volumes', volumeName, 'beforimport'], null, reqData)
   this.status = response.code
   this.body = response
 }
@@ -163,14 +162,14 @@ exports.getBindInfo = function* () {
   const pool = this.params.pool
   const cluster = this.params.cluster
   const volumeName = this.params.name
-  const response = yield volumeApi.clusters.getBy([cluster, volumeName, 'bindinfo'], null)
+  const response = yield volumeApi.clusters.getBy([cluster, 'volumes', volumeName, 'bindinfo'], null)
   this.status = response.code
   this.body = response
 }
 
 exports.getAvailableVolume = function*() {
   volumeConfig.version = 'v2'
-  volumeConfig.host = '192.168.0.44:8000'
+  volumeConfig.host = '192.168.1.103:48000'
   const volumeApi = new VolumeApi(volumeConfig)
   const cluster = this.params.cluster
   const response = yield volumeApi.clusters.getBy([cluster, 'volumes', 'available'], null)

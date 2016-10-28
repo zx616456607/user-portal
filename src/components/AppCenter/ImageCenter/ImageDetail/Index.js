@@ -166,13 +166,13 @@ class ImageDetailBox extends Component {
               <Button size="large" type="primary">
                 <FormattedMessage {...menusText.deployImage} />
               </Button>
-            { imageInfo.isFavourite ?
-              <Button size="large" type="ghost" onClick={ ()=>this.setimageStore(imageInfo.name, '0') }>
+            { ( this.props.isFavourite == 1) ?
+              <Button size="large" type="ghost" onClick={ ()=>this.setimageStore(imageInfo.name, 0) }>
                 <i className="fa fa-star-o"></i>&nbsp;
                 <FormattedMessage {...menusText.closeImage} />
               </Button>
               :
-              <Button size="large" type="ghost" onClick={ ()=>this.setimageStore(imageInfo.name, '1') }>
+              <Button size="large" type="ghost" onClick={ ()=>this.setimageStore(imageInfo.name, 1) }>
                 <i className="fa fa-star-o"></i>&nbsp;
                 <FormattedMessage {...menusText.colletctImage} />
               </Button>
@@ -223,7 +223,6 @@ function mapStateToProps(state, props) {
   }
   const {imagesInfo } = state.images
   const { imageInfo } = imagesInfo[DEFAULT_REGISTRY] || defaultConfig
-
   return {
     isFavourite: imageInfo.isFavourite
   }

@@ -163,7 +163,7 @@ let MyComponent = React.createClass({
       }
       this.props.formateStorage(this.props.imagePool, this.props.cluster, {
         name: this.state.modalName,
-        type: this.state.formateType
+        fsType: this.state.formateType
       }, {
           success: {
             isAsync: true,
@@ -359,11 +359,13 @@ class Storage extends Component {
     }
 
     let storageConfig = {
-      format: this.state.currentType,
-      size: this.state.size,
-      pool: this.props.currentImagePool,
+      driver: 'rbd',
       name: this.state.name,
-      cluster: DEFAULT_CLUSTER
+      driverConfig:{
+        size: this.state.size,
+        fsType: this.state.currentType,
+      },
+      cluster: this.props.currentCluster
     }
     let self = this
     this.setState({
@@ -378,7 +380,7 @@ class Storage extends Component {
             size: 0,
             currentType: 'ext4'
           })
-          self.props.loadStorageList(this.props.currentImagePool, this.props.currentCluster)
+          self.props.loadStorageList(self.props.currentImagePool, self.props.currentCluster)
         },
         isAsync: true
       },
@@ -393,14 +395,17 @@ class Storage extends Component {
     });
   }
   deleteStorage() {
-    const volumeArray = this.state.volumeArray
+    let volumeArray = this.state.volumeArray
     if (volumeArray && volumeArray.length === 0) {
       return
     }
     this.setState({
       volumeArray: []
     })
-    this.props.deleteStorage(this.props.currentImagePool, this.props.currentCluster, volumeArray, {
+    volumeArray = volumeArray.map(item => {
+      return item.name
+    })
+    this.props.deleteStorage(this.props.currentImagePool, this.props.currentCluster, {volumes: volumeArray}, {
       success: {
         func: () => this.props.loadStorageList(this.props.currentImagePool, this.props.currentCluster),
         isAsync: true

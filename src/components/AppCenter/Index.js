@@ -428,7 +428,7 @@ class ImageCenter extends Component {
                 >
                 <span>我的收藏</span>
               </li>
-
+              <li><div style={{height:'30px',marginTop:'10px',width:'0',borderLeft:'1px solid #d9d9d9'}}></div></li>
               { otherImageHead.length > 0 && otherImageHead.map(list=> {
                 return (
                 <li className={otherSpace == list.id ? "titleSelected" : "titleDetail"}

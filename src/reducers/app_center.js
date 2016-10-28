@@ -298,7 +298,9 @@ function imagesInfo(state={}, action){
     case ActionTypes.SET_IMAGE_STORE_SUCCESS:
       const oldimageInfo = cloneDeep(state)
       oldimageInfo.default.imageInfo.isFavourite = action.myfavourite
-      return oldimageInfo
+      return merge({}, oldimageInfo ,{
+        [registry]: { isFetching: false }
+      })
     case ActionTypes.SET_IMAGE_STORE_FAILURE:
       return merge({}, defaultState, state, {
         [registry]: { isFetching: false }

@@ -17,7 +17,7 @@ import './style/AppServiceList.less'
 import { loadServiceList, startServices, restartServices, stopServices, deleteServices, quickRestartServices } from '../../actions/services'
 import { DEFAULT_CLUSTER, DEFAULT_PAGE_SIZE } from '../../constants'
 import { browserHistory } from 'react-router'
-import UpdateModal from './AppServiceDetail/UpdateModal'
+import RollingUpdateModal from './AppServiceDetail/RollingUpdateModal'
 import ConfigModal from './AppServiceDetail/ConfigModal'
 import ManualScaleModal from './AppServiceDetail/ManualScaleModal'
 
@@ -41,7 +41,20 @@ const MyComponent = React.createClass({
       serviceList
     })
   },
-  modalShow: function (item) {
+  selectServiceByLine: function (e, item) {
+    const { scope } = this.props
+    const { serviceList } = scope.state
+    serviceList.map((service) => {
+      if (service.metadata.name === item.metadata.name) {
+        service.checked = !service.checked
+      }
+    })
+    scope.setState({
+      serviceList
+    })
+  },
+  modalShow: function (e, item) {
+    e.stopPropagation()
     const {scope} = this.props;
     scope.setState({
       selectTab: null,
@@ -107,13 +120,16 @@ const MyComponent = React.createClass({
     const items = serviceList.map((item) => {
       item.cluster = DEFAULT_CLUSTER
       return (
-        <div className={item.checked ? "selectedInstance instanceDetail" : "instanceDetail"} key={item.metadata.name}>
+        <div
+          className={item.checked ? "selectedInstance instanceDetail" : "instanceDetail"}
+          key={item.metadata.name}
+          onClick={(e) => this.selectServiceByLine(e, item)} >
           <div className="selectIconTitle commonData">
             <Checkbox value={item.metadata.name} checked={item.checked} onChange={this.onchange}></Checkbox>
           </div>
           <div className="name commonData">
             <Tooltip title={item.metadata.name}>
-              <span className="viewBtn" onClick={this.modalShow.bind(this, item)}>
+              <span className="viewBtn" onClick={(e) => this.modalShow(e, item)}>
                 {item.metadata.name}
               </span>
             </Tooltip>
@@ -137,7 +153,7 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className="actionBox commonData">
-            <Button type="primary" className="viewBtn" onClick={this.modalShow.bind(this, item)}>
+            <Button type="primary" className="viewBtn" onClick={(e) => this.modalShow(e, item)}>
               <i className="fa fa-eye"></i>
               查看详情
             </Button>
@@ -185,7 +201,7 @@ class AppServiceList extends Component {
     this.batchDeleteServices = this.batchDeleteServices.bind(this)
     this.confirmDeleteServices = this.confirmDeleteServices.bind(this)
     this.confirmQuickRestartService = this.confirmQuickRestartService.bind(this)
-    this.showUpdataModal = this.showUpdataModal.bind(this)
+    this.showRollingUpdateModal = this.showRollingUpdateModal.bind(this)
     this.showConfigModal = this.showConfigModal.bind(this)
     this.showManualScaleModal = this.showManualScaleModal.bind(this)
     this.state = {
@@ -193,7 +209,7 @@ class AppServiceList extends Component {
       currentShowInstance: null,
       serviceList: props.serviceList,
       searchInputDisabled: false,
-      updateModal: false,
+      rollingUpdateModalShow: false,
       manualScaleModalShow: false,
     }
   }
@@ -372,9 +388,9 @@ class AppServiceList extends Component {
       modalShow: false
     })
   }
-  showUpdataModal() {
+  showRollingUpdateModal() {
     this.setState({
-      updateModal: true
+      rollingUpdateModalShow: true
     })
   }
   showConfigModal() {
@@ -382,7 +398,7 @@ class AppServiceList extends Component {
       configModal: true
     })
   }
-  showManualScaleModal(){
+  showManualScaleModal() {
     this.setState({
       manualScaleModalShow: true
     })
@@ -390,7 +406,7 @@ class AppServiceList extends Component {
   render() {
     const parentScope = this
     let {
-      modalShow, currentShowInstance, serviceList, selectTab, updateModal,
+      modalShow, currentShowInstance, serviceList, selectTab, rollingUpdateModalShow,
       configModal, manualScaleModalShow
     } = this.state
     const {
@@ -410,29 +426,31 @@ class AppServiceList extends Component {
       confirmStopServices: this.confirmStopServices,
       confirmDeleteServices: this.confirmDeleteServices,
     }
-    const operaMenu = (<Menu>
-      <Menu.Item key="0">
-        <span onClick={this.batchRestartServices}>重新部署</span>
-      </Menu.Item>
-      <Menu.Item key="1">
-        <span onClick={this.showManualScaleModal}>水平扩展</span>
-      </Menu.Item>
-      <Menu.Item key="2" disabled={checkedServiceList.length > 1}>
-        <span onClick={() => {
-          this.setState({
-            selectTab: '#autoScale',
-            currentShowInstance: currentShowInstance,
-            modalShow: true,
-          })
-        }}>自动伸缩</span>
-      </Menu.Item>
-      <Menu.Item key="3">
-        <span onClick={this.showUpdataModal}>灰度升级</span>
-      </Menu.Item>
-      <Menu.Item key="4">
-        <span onClick={this.showConfigModal}>更改配置</span>
-      </Menu.Item>
-    </Menu>);
+    const operaMenu = (
+      <Menu>
+        <Menu.Item key="0">
+          <span onClick={this.batchRestartServices}>重新部署</span>
+        </Menu.Item>
+        <Menu.Item key="1">
+          <span onClick={this.showManualScaleModal}>水平扩展</span>
+        </Menu.Item>
+        <Menu.Item key="2" disabled={checkedServiceList.length > 1}>
+          <span onClick={() => {
+            this.setState({
+              selectTab: '#autoScale',
+              currentShowInstance: currentShowInstance,
+              modalShow: true,
+            })
+          } }>自动伸缩</span>
+        </Menu.Item>
+        <Menu.Item key="3">
+          <span onClick={this.showRollingUpdateModal}>灰度升级</span>
+        </Menu.Item>
+        <Menu.Item key="4">
+          <span onClick={this.showConfigModal}>更改配置</span>
+        </Menu.Item>
+      </Menu>
+    );
     return (
       <div id="AppServiceList">
         <QueueAnim className="demo-content"
@@ -507,23 +525,25 @@ class AppServiceList extends Component {
               serviceDetailmodalShow={this.state.modalShow}
               />
           </Modal>
-          <UpdateModal
+          <RollingUpdateModal
             parentScope={parentScope}
-            visible={updateModal}
-            serviceList={serviceList}
-            checkedServiceList={checkedServiceList} />
+            cluster={cluster}
+            appName={appName}
+            visible={rollingUpdateModalShow}
+            loadServiceList={loadServiceList}
+            service={currentShowInstance} />
           <ConfigModal
             parentScope={parentScope}
             cluster={cluster}
             appName={appName}
-            visible={updateModal}
             visible={configModal}
+            loadServiceList={loadServiceList}
             service={currentShowInstance} />
           <ManualScaleModal
             parentScope={parentScope}
             cluster={cluster}
             appName={appName}
-            visible={ manualScaleModalShow }
+            visible={manualScaleModalShow}
             service={currentShowInstance}
             loadServiceList={loadServiceList} />
         </QueueAnim>

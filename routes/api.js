@@ -26,7 +26,7 @@ module.exports = function (Router) {
   // Storage
   router.get('/storage-pools/:pool/:cluster/volumes', volumeController.getVolumeListByPool)
   router.post('/storage-pools/:pool/:cluster/volumes/batch-delete', volumeController.deleteVolume)
-  router.post('/storage-pools/:pool/:cluster/volumes', volumeController.createVolume)
+  router.post('/storage-pools/:cluster/volumes', volumeController.createVolume)
   router.put('/storage-pools/:pool/:cluster/volumes/format', volumeController.formateVolume)
   router.put('/storage-pools/:pool/:cluster/volumes/size', volumeController.resizeVolume)
   router.get('/storage-pools/:pool/:cluster/volumes/:name', volumeController.getVolumeDetail)
