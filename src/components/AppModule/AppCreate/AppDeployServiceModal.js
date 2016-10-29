@@ -364,27 +364,28 @@ let AppDeployServiceModal = React.createClass({
     }
     //volumes
     if (getFieldValue('volumeSwitch')) {
-      const volumeMounts = this.props.scope.state.checkInf.Deployment.spec.template.spec.containers[0].volumeMounts
       const cluster = window.localStorage.getItem('cluster')
       getFieldValue('volumeKey').map((k) => {
         let volumeChecked = getFieldProps(`volumeChecked${k}`).value   //服务只读
-        let volumeInfo = getFieldProps(`volumeName${k}`).value.split('/')
+        let volumeInfo = getFieldProps(`volumeName${k}`).value
+        if(!volumeInfo) {
+          return 
+        }
+        volumeInfo = volumeInfo.split('/')
         if (volumeChecked) {
           deploymentList.addContainerVolume(serviceName, {
             name: volumeInfo[0] + '-' + k,
-            fsType: volumeInfo[1],
-            image: `zhangpc.${cluster}.${volumeInfo[1]}`
+            image: volumeInfo[0]
           }, {
-              mountPath: getFieldProps(`volumePath${k}`),
+              mountPath: getFieldProps(`volumePath${k}`).value,
               readOnly: true
             })
         } else {
           deploymentList.addContainerVolume(serviceName, {
             name: volumeInfo[0] + '-' + k,
-            fsType: volumeInfo[1],
-            image: `zhangpc.${cluster}.${volumeInfo[1]}`
+            image: volumeInfo[0]
           }, {
-              mountPath: getFieldProps(`volumePath${k}`),
+              mountPath: getFieldProps(`volumePath${k}`).value,
           })
         }
       })

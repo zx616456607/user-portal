@@ -62,9 +62,9 @@ class CreateCompose extends Component {
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         //it's mean there are some thing is null,user didn't input
-
         return;
       }
+        console.log(values)
       //when the code running here,it's meaning user had input all things,
       //and should submit the message to the backend
       scope.setState({

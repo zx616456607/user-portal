@@ -197,32 +197,6 @@ export function quickRestartServices(cluster, serviceList, callback) {
   }
 }
 
-export const SERVICE_BATCH_ROLLING_UPDATE_REQUEST = 'SERVICE_BATCH_ROLLING_UPDATE_REQUEST'
-export const SERVICE_BATCH_ROLLING_UPDATE_SUCCESS = 'SERVICE_BATCH_ROLLING_UPDATE_SUCCESS'
-export const SERVICE_BATCH_ROLLING_UPDATE_FAILURE = 'SERVICE_BATCH_ROLLING_UPDATE_FAILURE'
-
-function fetchRollingUpdateServices(cluster, servicName, targets, callback) {
-  return {
-    cluster,
-    [FETCH_API]: {
-      types: [SERVICE_BATCH_ROLLING_UPDATE_REQUEST, SERVICE_BATCH_ROLLING_UPDATE_SUCCESS, SERVICE_BATCH_ROLLING_UPDATE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${servicName}/rollingupdate`,
-      options: {
-        method: 'PUT',
-        body: targets
-      },
-      schema: {}
-    },
-    callback: callback
-  }
-}
-
-export function rollingUpdateServices(cluster, servicName, targets, callback) {
-  return (dispatch, getState) => {
-    return dispatch(fetchRollingUpdateServices(cluster, servicName, targets, callback))
-  }
-}
-
 export const SERVICE_CONTAINERS_LIST_REQUEST = 'SERVICE_CONTAINERS_LIST_REQUEST'
 export const SERVICE_CONTAINERS_LIST_SUCCESS = 'SERVICE_CONTAINERS_LIST_SUCCESS'
 export const SERVICE_CONTAINERS_LIST_FAILURE = 'SERVICE_CONTAINERS_LIST_FAILURE'

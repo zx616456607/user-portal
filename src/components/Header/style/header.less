@@ -1,7 +1,56 @@
 //header
 #header{
   height: 55px;
-  .ant-select {
+  overflow: hidden;
+  .space {
+    float: left;
+    display: inline-block;
+    width: 230px;
+    border-right: 1px solid #c9c9c9;
+    .spaceTxt {
+      height: 19px;
+      display: inline-block;
+      padding: 0 10px;
+      margin: 18px 0;
+      width: 90px;
+      text-align: center;
+      border-right: 1px solid #666666;
+    }
+    .spaceBtn {
+      display: inline-block;
+      margin-left: 10px;
+      width: 120px;
+      text-align: center;
+    }
+  }
+  .cluster {
+    float: left;
+    display: inline-block;
+    width: 500px;
+    .clusterTxt {
+      height: 19px;
+      display: inline-block;
+      padding: 0 10px;
+      margin: 18px 0;
+    }
+    .clusterBtn {
+      display: inline-block;
+      span {
+        padding-bottom: 5px;
+        color: #30a7e9;
+        cursor: pointer;
+        &:hover {
+          border-bottom: 1px solid #30a7e9;
+        }
+      }
+    }
+    .envirBox {
+      display: inline-block;
+      margin-left: 10px;
+      .clusterPlaceholder {
+
+      }
+    }
   }
   .ant-dropdown {
     width: 180px;
@@ -30,4 +79,8 @@
             }
         }
     }
+  .placeholder {
+    color: #30a7e9;
+    padding-left: 10px;
+  }
 }
