@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Dropdown, Tabs, Card, Menu, Button, Spin } from 'antd'
+import { Dropdown, Tabs, Card, Menu, Button, Spin, Modal } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -19,6 +19,7 @@ import "./style/ContainerDetail.less"
 import { loadContainerDetail } from '../../actions/app_manage'
 import { DEFAULT_CLUSTER } from '../../constants'
 import ContainerMonitior from './ContainerMonitior'
+import TerminalModal from '../TerminalModal'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -41,9 +42,13 @@ function loadData(props) {
 
 class ContainerDetail extends Component {
   constructor(props) {
-    super(props);
+    super(props)
+    this.closeTerminalLayoutModal = this.closeTerminalLayoutModal.bind(this)
+    this.openTerminalModal = this.openTerminalModal.bind(this)
     this.state = {
-      currentKey: "1"
+      currentKey: "1",
+      TerminalLayoutModal: false,
+      currentContainer: null,
     }
   }
 
@@ -52,8 +57,22 @@ class ContainerDetail extends Component {
     document.title = `容器 ${containerName} | 时速云`
     loadData(this.props)
   }
-
+  closeTerminalLayoutModal() {
+    //this function for user close the terminal modal
+    this.setState({
+      TerminalLayoutModal: false
+    });
+  }
+  openTerminalModal (item, e) {
+    //this function for user open the terminal modal
+    e.stopPropagation();
+    this.setState({
+      currentContainer: item,
+      TerminalLayoutModal: true
+    });
+  }
   render() {
+    const parentScope = this
     const { containerName, isFetching, container, cluster } = this.props
     const { children } = this.props
     const { currentKey } = this.state
@@ -107,7 +126,8 @@ class ContainerDetail extends Component {
                 </div>
                 <div className="rightInfo">
                   <div className="actionBox commonData">
-                    <Button type="primary" className="viewBtn">
+                    <Button type="primary" className="viewBtn"
+                            onClick={(e) => this.openTerminalModal(container,e)}>
                       <svg className="terminal">
                         <use xlinkHref="#terminal" />
                       </svg>
@@ -138,6 +158,14 @@ class ContainerDetail extends Component {
               </Tabs>
             </Card>
           </div>
+          <Modal
+            visible={this.state.TerminalLayoutModal}
+            className='TerminalLayoutModal'
+            transitionName='move-down'
+            onCancel={this.closeTerminalLayoutModal}
+          >
+            <TerminalModal scope={parentScope} config={this.state.currentContainer} />
+          </Modal>
         </QueueAnim>
       </div>
     )
