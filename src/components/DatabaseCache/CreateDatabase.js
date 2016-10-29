@@ -13,6 +13,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { Input, Select, InputNumber, Button, Form } from 'antd'
+import { postCreateMysqlDbCluster } from '../../actions/database_cache'
 import './style/CreateDatabase.less'
 
 const Option = Select.Option;
@@ -77,17 +78,23 @@ let CreateDatabase = React.createClass({
   handleSubmit(e) {
     //this function for user submit the form
     e.preventDefault();
-    const { scope } = this.props;
+    const { scope, postCreateMysqlDbCluster } = this.props;
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         console.log('Errors in form!!!');
         return;
       }
-      console.log('Submit!!!');
-      console.log(values);
+      var body = {
+        cluster: values.clusterSelect,
+        name: values.name,
+        servicesNum: values.services,
+        password: values.passwd
+      }
       scope.setState({
         CreateDatabaseModalShow: false
       });
+      this.props.form.resetFields();
+      postCreateMysqlDbCluster(body)
     });
   },
   render() {
@@ -123,7 +130,7 @@ let CreateDatabase = React.createClass({
     });
     return (
     <div id='CreateDatabase' type='right'>
-    <Form horizontal form={this.props.form}>
+    <Form horizontal>
       <div className='infoBox'>
         <div className='commonBox'>
           <div className='title'>
@@ -236,12 +243,22 @@ let CreateDatabase = React.createClass({
   }
 });
 
+function mapStateToProps(state) {
+  return {
+    createMySql: state.databaseCache.createMySql
+  }
+}
+
 CreateDatabase = createForm()(CreateDatabase);
 
 CreateDatabase.propTypes = {
   intl: PropTypes.object.isRequired
 }
 
-export default connect()(injectIntl(CreateDatabase, {
+CreateDatabase = injectIntl(CreateDatabase, {
   withRef: true,
-}))
+})
+
+export default connect(mapStateToProps, {
+  postCreateMysqlDbCluster
+})(CreateDatabase)

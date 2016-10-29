@@ -30,6 +30,8 @@ function mysqlDatabaseAllList(state = {}, action) {
       return merge({}, state, {
         'MySql': {
           isFetching: false,
+          database: 'MySql',
+          databaseList: action.response.result.databaseList || []
         }
       })
     case ActionTypes.MYSQL_DATABASE_CACHE_ALL_LIST_FAILURE:
@@ -41,6 +43,34 @@ function mysqlDatabaseAllList(state = {}, action) {
   }
 }
 
+function mysqlDatabaseDetail(state = {}, action) {
+  const database = 'test'
+  const defaultState = {
+    [database]: {
+      isFetching: false,
+      databaseInfo: null
+    }
+  }
+  switch (action.type) {
+    case ActionTypes.MYSQL_DATABASE_CACHE_ALL_LIST_REQUEST:
+      return merge({}, defaultState, state, {
+        [database]: { isFetching: true }
+      })
+    case ActionTypes.MYSQL_DATABASE_CACHE_ALL_LIST_SUCCESS:
+      return merge({}, state, {
+        [database]: {
+          isFetching: false,
+          databaseInfo: action.response.result.databaseInfo || null
+        }
+      })
+    case ActionTypes.MYSQL_DATABASE_CACHE_ALL_LIST_FAILURE:
+      return merge({}, defaultState, state, {
+        [database]: { isFetching: false }
+      })
+    default:
+      return state
+  }
+}
 
 
 export function databaseCache(state = { databaseCache: {} }, action) {
@@ -51,5 +81,6 @@ export function databaseCache(state = { databaseCache: {} }, action) {
       SUCCESS: ActionTypes.CREATE_MYSQL_DATABASE_CACHE_SUCCESS,
       FAILURE: ActionTypes.CREATE_MYSQL_DATABASE_CACHE_FAILURE
     }, state.createMySql, action),
+    mysqlDatabaseDetail: mysqlDatabaseDetail(state.mysqlDatabaseDetail, action)
   }
 }

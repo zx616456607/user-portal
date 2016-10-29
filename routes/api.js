@@ -120,5 +120,6 @@ module.exports = function (Router) {
   // DataBase Cache
   router.get('/clusters/:cluster/getMysql', databaseCacheController.getMySqlList)
   router.post('/clusters/:cluster/createMysqlCluster', databaseCacheController.createMysqlCluster)
+  router.get('/clusters/:cluster/getMysqlDetail/:dbName', databaseCacheController.getMysqlClusterDetail)
   return router.routes()
 }

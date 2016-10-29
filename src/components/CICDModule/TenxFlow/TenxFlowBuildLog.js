@@ -246,7 +246,7 @@ class TenxFlowBuildLog extends Component {
   render() {
     const scope = this;
     return (
-      <div id='TenxFlowBuildLog' className={this.state.modalSize == 'big' ? 'bigModal':null }>
+      <div id='TenxFlowBuildLog' className={this.state.modalSize == 'big' ? 'bigModal':'smallModal' }>
         <div className='title'>
           <span>执行记录</span>
           <i className='fa fa-expand' onClick={this.changeModalSize}/>

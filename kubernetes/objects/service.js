@@ -73,6 +73,27 @@ class Service {
     }
     this.metadata.annotations[name] = protocol
   }
+  
+  createDataBase(name) {
+    const appLabels = {
+      app: name
+    }
+    const annotations = {
+      'service.alpha.kubernetes.io/tolerate-unready-endpoints': 'true'
+    }
+    const port = [{
+      port: 3306,
+      name: 'mysql'
+    }]
+    this.metadata.namespace= 'zhangpc'
+    this.metadata.labels = appLabels
+    this.spec.selector = appLabels
+    this.spec.clusterIP = 'None'
+    this.spec.ports = port
+    this.metadata.annotations = annotations
+    delete this.spec.externalIPs
+  }
+  
 }
 
 module.exports = Service

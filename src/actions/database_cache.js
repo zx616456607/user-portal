@@ -42,11 +42,11 @@ function createMysqlDbCluster(newDb, callback) {
     cluster: newDb.cluster,
     [FETCH_API]: {
       types: [CREATE_MYSQL_DATABASE_CACHE_REQUEST, CREATE_MYSQL_DATABASE_CACHE_SUCCESS, CREATE_MYSQL_DATABASE_CACHE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/createMysqlCluster`,
+      endpoint: `${API_URL_PREFIX}/clusters/${newDb.cluster}/createMysqlCluster`,
       options: {
         method: 'POST',
         body: {
-          name: newDb.dbName,
+          name: newDb.name,
           servicesNum: newDb.servicesNum,
           password: newDb.password,
         }
@@ -60,5 +60,23 @@ function createMysqlDbCluster(newDb, callback) {
 export function postCreateMysqlDbCluster(newDb, callback) {
   return (dispatch) => {
     return dispatch(createMysqlDbCluster(newDb, callback))
+  }
+}
+
+function getMysqlDbClusterDetail(cluser, dbName, callback) {
+  return {
+    cluster,
+    [FETCH_API]: {
+      types: [CREATE_MYSQL_DATABASE_CACHE_REQUEST, CREATE_MYSQL_DATABASE_CACHE_SUCCESS, CREATE_MYSQL_DATABASE_CACHE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/getMysqlDetail/${dbName}`,
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function loadMysqlDbClusterDetail(cluser, dbName, callback) {
+  return (dispatch) => {
+    return dispatch(getMysqlDbClusterDetail(newDb, callback))
   }
 }
