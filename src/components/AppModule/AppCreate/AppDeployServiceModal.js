@@ -37,6 +37,7 @@ let AppDeployServiceModal = React.createClass({
       checkInf: null,
       disable: true,
       serNameErrState: '',
+      disAdd: false,
     };
   },
   limits() {
@@ -476,6 +477,7 @@ let AppDeployServiceModal = React.createClass({
       if (!!errors) {
         this.setState({
           disable: true,
+          disAdd: true,
         })
         return
       }
@@ -490,7 +492,7 @@ let AppDeployServiceModal = React.createClass({
     const {servicesList} = parentScope.state.servicesList
     const {currentSelectedImage, registryServer, checkState} = parentScope.state
     const { form, serviceOpen } = this.props
-    const { composeType } = this.state
+    const { composeType, disAdd } = this.state
     return (
       <div id="AppDeployServiceModal">
         {/*<Form horizontal form={form} onChange={this.handleForm}>*/}
@@ -514,7 +516,7 @@ let AppDeployServiceModal = React.createClass({
               <ComposeDeployBox scope={scope} form={form}/>
             </Panel>
             <Panel header={advanceBoxTitle} key="4">
-              <EnviroDeployBox scope={scope} form={form}/>
+              <EnviroDeployBox scope={scope} form={form} disAdd={disAdd} />
             </Panel>
           </Collapse>
           <div className="btnBox">
