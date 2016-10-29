@@ -32,11 +32,12 @@ let MyComponentEnviro = React.createClass({
     let envKey = form.getFieldValue('envKey');
     envKey = envKey.filter((key) => {
       return key !== k;
-    });
+    })
     // can use data-binding to set
     form.setFieldsValue({
       envKey,
-    });
+    })
+    
   },
   add() {
     uuidEnviro++;
@@ -94,20 +95,27 @@ let MyComponentPort = React.createClass({
     config: React.PropTypes.array
   },
   remove(k) {
-    const { form } = this.props.parentScope.props;
+    const { form } = this.props
     let portKey = form.getFieldValue('portKey');
     portKey = portKey.filter((key) => {
       return key !== k;
     });
-    form.setFieldsValue({
-      portKey,
-    });
-
-    if (this.props.parentScope.props.form.getFieldValue('portKey').length === 0) {
+    console.log('portKey', portKey)
+    if (form.getFieldValue('portKey').length === 0) {
       this.props.parentScope.setState({
         disable: true,
       })
+    } else {
+      form.getFieldValue('portKey').map((k) => {
+        const value = form.getFieldProps(`targetPortUrl${k}`).value
+        form.setFieldsValue({
+          [`targetPortUrl${k}`]: value
+        })
+      })
     }
+    form.setFieldsValue({
+      portKey,
+    })
   },
   add() {
     uuidPort++;
