@@ -273,9 +273,11 @@ class AppServiceDetail extends Component {
                 />
               </TabPane>
               <TabPane tab="监控" key="#monitor">
-                <ServiceMonitor
-                  serviceName={service.metadata.name}
-                  cluster={service.cluster} />
+                <div className="ServiceMonitor">
+                  <ServiceMonitor
+                    serviceName={service.metadata.name}
+                    cluster={service.cluster} />
+                </div>
               </TabPane>
               <TabPane tab="自动伸缩" key="#autoScale">
                 <AppAutoScale

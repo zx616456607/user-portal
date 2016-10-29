@@ -2,7 +2,7 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
- *  Storage list
+ *  ConfigModal
  *
  * v0.1 - 2016/10/27
  * @author ZhaoXueYu
@@ -109,9 +109,11 @@ class ConfigModal extends Component {
     ]
     return (
       <Modal
-        wrapClassName="modal"
         visible={visible}
-        title="更改服务配置" onOk={this.handleConfigOK} onCancel={this.handleConfigCancel}
+        title="更改服务配置"
+        onOk={this.handleConfigOK}
+        onCancel={this.handleConfigCancel}
+        width="600px"
         footer={modalFooter}>
         <div id="ConfigModal">
           <Row className="serviceName">
