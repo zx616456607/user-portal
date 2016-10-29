@@ -104,7 +104,7 @@ exports.getVolumeDetail = function* () {
   const response = yield volumeApi.clusters.getBy([cluster, 'volumes', volumeName, 'consumption'])
   this.status = response.code
   this.body = {
-    body: response.body
+    body: response.data
   }
 }
 

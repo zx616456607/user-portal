@@ -159,7 +159,7 @@ exports.getFavouriteRepositories = function(username, showDetail) {
         reject(err)
       }
       if (statusCode < 300) {
-        logger.info('getFavouriteRepositories', 'Return my favourite repositories: ' + JSON.stringify(respositories));
+        logger.debug('getFavouriteRepositories', 'Return my favourite repositories: ' + JSON.stringify(respositories));
         resolve(respositories.results);
       } else {
         logger.error("Failed to get my repositories -> " + statusCode);

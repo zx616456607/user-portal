@@ -71,7 +71,7 @@ function currentPathNameCheck(scope) {
     });
     return;
   }
-  //this check the pathname from the compose_center
+  //this check the pathname from the stack_center
   let storageModule = pathname.indexOf('ci_cd/docker_file');
   if( storageModule > -1 ){
     scope.setState({

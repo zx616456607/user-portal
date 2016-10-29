@@ -285,11 +285,6 @@ export function services(state = { appItmes: {} }, action) {
       SUCCESS: ActionTypes.SERVICE_BATCH_QUICK_RESTART_SUCCESS,
       FAILURE: ActionTypes.SERVICE_BATCH_QUICK_RESTART_FAILURE
     }, state.quickRestartServices, action),
-    rollingUpdateServices: reducerFactory({
-      REQUEST: ActionTypes.SERVICE_BATCH_ROLLING_UPDATE_REQUEST,
-      SUCCESS: ActionTypes.SERVICE_BATCH_ROLLING_UPDATE_SUCCESS,
-      FAILURE: ActionTypes.SERVICE_BATCH_ROLLING_UPDATE_FAILURE
-    }, state.rollingUpdateServices, action),
     serviceAvailability: reducerFactory({
       REQUEST: ActionTypes.SERVICE_AVAILABILITY_REQUEST,
       SUCCESS: ActionTypes.SERVICE_AVAILABILITY_SUCCESS,

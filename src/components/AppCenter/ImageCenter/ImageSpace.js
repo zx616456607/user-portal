@@ -124,7 +124,8 @@ const MyComponent = React.createClass({
     })
   },
   render: function () {
-    const { registryServer, imageList, isFetching} = this.props
+    const { server, imageList, isFetching} = this.props
+    console.log(this.props)
     if (isFetching) {
       return (
         <div className='loadingBox'>
@@ -161,7 +162,7 @@ const MyComponent = React.createClass({
             </span>
             <span className="imageUrl textoverflow">
               <FormattedMessage {...menusText.imageUrl} />&nbsp;
-              <span className="">{registryServer}/{item.name}</span>
+              <span className="">{ server }/{item.name}</span>
             </span>
             <span className="downloadNum">
               <FormattedMessage {...menusText.downloadNum} />&nbsp;{item.downloadNumber}
@@ -296,7 +297,7 @@ class ImageSpace extends Component {
               onCancel={this.closeImageDetailModal}
               >
               {/* right detail box  */}
-              <ImageDetailBox scope={scope} imageInfo={this.state.imageInfo} config={this.state.currentImage} />
+              <ImageDetailBox parentScope={rootscope} scope={scope} imageInfo={this.state.imageInfo} config={this.state.currentImage} />
             </Modal>
           </Card>
         </div>

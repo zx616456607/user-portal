@@ -38,7 +38,7 @@ import ContainerDetail from './components/ContainerModule/ContainerDetail'
 import AppCenter from './containers/AppCenter/Index'
 import ImageCenter from './components/AppCenter/Index'
 import ImageStore from './components/AppCenter/ImageStore'
-import ComposeCenter from './components/AppCenter/ComposeCenter'
+import Stack from './components/AppCenter/Stack'
 /*-------------------App_center Module Stop------------------------*/
 /*-------------------database & cache Module Start------------------------*/  
 import Database from './containers/Database/Index'
@@ -83,7 +83,7 @@ export default (
     <Route path="app_center" component={AppCenter}>
       <IndexRoute component={ImageCenter} />
       <Route path="image_store" component={ImageStore} />
-      <Route path="compose_center" component={ComposeCenter} />
+      <Route path="stack_center" component={Stack} />
     </Route>
     <Route path="database_cache" component={Database}>
       <IndexRoute component={MysqlCluster} />

@@ -34,7 +34,7 @@ export const IMAGE_PUBLIC_LIST_FAILURE = 'IMAGE_PUBLIC_LIST_FAILURE'
 // Relies on the custom API middleware defined in ../middleware/api.js.
 
 // Fetches apps list from API unless it is cached.
-// public image list 
+// public image list
 export function loadPublicImageList(registry) {
   return {
     registry,
@@ -144,6 +144,7 @@ export const IMAGE_GET_DETAILTAG_FAILURE = 'IMAGE_GET_DETAILTAG_FAILURE'
 function fetchImageGetDetailTag(registry, fullName, callback) {
   return {
     registry,
+    fullName,
     [FETCH_API]: {
       types: [IMAGE_GET_DETAILTAG_REQUEST, IMAGE_GET_DETAILTAG_SUCCESS, IMAGE_GET_DETAILTAG_FAILURE],
       endpoint: `${API_URL_PREFIX}/registries/${registry}/${fullName}/tags`,
@@ -204,7 +205,7 @@ export const GET_IMAGEINFO_FAILURE = 'GET_IMAGEINFO_FAILURE'
 
 export function getImageDetailInfo(obj, callback) {
   return {
-    registry:obj.registry,
+    registry: obj.registry,
     [FETCH_API]: {
       types: [GET_IMAGEINFO_REQUEST, GET_IMAGEINFO_SUCCESS, GET_IMAGEINFO_FAILURE],
       endpoint: `${API_URL_PREFIX}/registries/${obj.registry}/${obj.fullName}/detailInfo`,
@@ -218,7 +219,7 @@ export const SET_IMAGE_STORE_REQUEST = 'SET_IMAGE_STORE_REQUEST'
 export const SET_IMAGE_STORE_SUCCESS = 'SET_IMAGE_STORE_SUCCESS'
 export const SET_IMAGE_STORE_FAILURE = 'SET_IMAGE_STORE_FAILURE'
 // set image store 收藏镜像
-export function imageStore(obj,callback) {
+export function imageStore(obj, callback) {
   return {
     [FETCH_API]: {
       types: [SET_IMAGE_STORE_REQUEST, SET_IMAGE_STORE_SUCCESS, SET_IMAGE_STORE_FAILURE],
@@ -226,11 +227,15 @@ export function imageStore(obj,callback) {
       schema: Schemas.REGISTRYS,
       options: {
         method: 'PUT',
-        body: {myfavourite: obj.myfavourite}
-      },
+        body: {
+          myfavourite: obj.myfavourite,
+          isPrivate: obj.isPrivate
+        }
+      }
     },
-    registry:obj.registry,
+    registry: obj.registry,
     myfavourite: obj.myfavourite,
+    isPrivate: obj.isPrivate,
     callback
   }
 }
@@ -246,6 +251,37 @@ export function loadFavouriteList(registry) {
     [FETCH_API]: {
       types: [GET_IMAGE_FOCK_REQUEST, GET_IMAGE_FOCK_SUCCESS, GET_IMAGE_FOCK_FAILURE],
       endpoint: `${API_URL_PREFIX}/registries/${registry}/favourite`,
+      schema: Schemas.REGISTRYS,
+    }
+  }
+}
+
+// --------------------------  编排中心   ---------------------------------- ------
+export const GET_PRIVATE_STACK_REQUEST = 'GET_PRIVATE_STACK_REQUEST'
+export const GET_PRIVATE_STACK_SUCCESS = 'GET_PRIVATE_STACK_SUCCESS'
+export const GET_PRIVATE_STACK_FAILURE = 'GET_PRIVATE_STACK_FAILURE'
+
+export function loadMyStack(registry) {
+  return {
+    registry,
+    [FETCH_API]: {
+      types: [GET_PRIVATE_STACK_REQUEST, GET_PRIVATE_STACK_SUCCESS, GET_PRIVATE_STACK_FAILURE],
+      endpoint: `${API_URL_PREFIX}/templates?filter=owned`,
+      schema: Schemas.REGISTRYS,
+    }
+  }
+}
+
+export const GET_PUBLIC_STACK_REQUEST = 'GET_PUBLIC_STACK_REQUEST'
+export const GET_PUBLIC_STACK_SUCCESS = 'GET_PUBLIC_STACK_SUCCESS'
+export const GET_PUBLIC_STACK_FAILURE = 'GET_PUBLIC_STACK_FAILURE'
+
+export function loadStack(registry) {
+  return {
+    registry,
+    [FETCH_API]: {
+      types: [GET_PUBLIC_STACK_REQUEST, GET_PUBLIC_STACK_SUCCESS, GET_PUBLIC_STACK_FAILURE],
+      endpoint: `${API_URL_PREFIX}/templates`,
       schema: Schemas.REGISTRYS,
     }
   }

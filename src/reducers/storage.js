@@ -117,7 +117,7 @@ function storageDetail(state = {}, action) {
     case ActionTypes.STORAGE_DETAIL_SUCCESS:
       return merge({}, {
         isFetching: false,
-        StorageInfo: action.response.result.data
+        StorageInfo: action.response.result.body
       })
     case ActionTypes.STORAGE_DETAIL_FAILURE:
       return merge({}, {

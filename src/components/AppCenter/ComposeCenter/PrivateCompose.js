@@ -15,169 +15,94 @@ import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import CreateCompose from './CreateCompose.js'
 import './style/PrivateCompose.less'
+import { loadMyStack } from '../../../actions/app_center'
+import { DEFAULT_REGISTRY } from '../../../constants'
+
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
 const ButtonGroup = Button.Group
-
 const menusText = defineMessages({
-  search: {
-    id: 'AppCenter.ComposeCenter.PrivateCompose.search',
+  composeAttr: {
+    id: 'AppCenter.ComposeCenter.Stack.composeAttr',
     defaultMessage: '搜索',
   },
-  publicType: {
-    id: 'AppCenter.ComposeCenter.PrivateCompose.publicType',
-    defaultMessage: '公有',
-  },
-  privateType: {
-    id: 'AppCenter.ComposeCenter.PrivateCompose.privateType',
-    defaultMessage: '私有',
+  search: {
+    id: 'AppCenter.ComposeCenter.Stack.search',
+    defaultMessage: '搜索',
   },
   delete: {
-    id: 'AppCenter.ComposeCenter.PrivateCompose.delete',
+    id: 'AppCenter.ComposeCenter.Stack.delete',
     defaultMessage: '删除',
   },
   type: {
-    id: 'AppCenter.ComposeCenter.PrivateCompose.type',
+    id: 'AppCenter.ComposeCenter.Stack.type',
     defaultMessage: '类型',
   },
-  composeAttr: {
-    id: 'AppCenter.ComposeCenter.PrivateCompose.composeAttr',
-    defaultMessage: '属性',
-  },
   name: {
-    id: 'AppCenter.ComposeCenter.PrivateCompose.name',
+    id: 'AppCenter.ComposeCenter.Stack.name',
     defaultMessage: '编排名称',
   },
+  publicType: {
+    id: 'AppCenter.ComposeCenter.Stack.publicType',
+    defaultMessage: '公开',
+  },
+  privateType: {
+    id: 'AppCenter.ComposeCenter.Stack.privateType',
+    defaultMessage: ' 私有',
+  },
   time: {
-    id: 'AppCenter.ComposeCenter.PrivateCompose.time',
+    id: 'AppCenter.ComposeCenter.Stack.time',
     defaultMessage: '时间',
   },
   opera: {
-    id: 'AppCenter.ComposeCenter.PrivateCompose.opera',
+    id: 'AppCenter.ComposeCenter.Stack.opera',
     defaultMessage: '操作',
   },
-  imageUrl: {
-    id: 'AppCenter.ComposeCenter.PrivateCompose.imageUrl',
-    defaultMessage: '包含镜像',
+  desc: {
+    id: 'AppCenter.ComposeCenter.Stack.desc',
+    defaultMessage: '描述',
+  },
+  author: {
+    id: 'AppCenter.ComposeCenter.Stack.author',
+    defaultMessage: '创建者',
   },
   deployService: {
-    id: 'AppCenter.ComposeCenter.PrivateCompose.deployService',
+    id: 'AppCenter.ComposeCenter.Stack.deployService',
     defaultMessage: '部署服务',
   },
   editService: {
-    id: 'AppCenter.ComposeCenter.PrivateCompose.editService',
+    id: 'AppCenter.ComposeCenter.Stack.editService',
     defaultMessage: '编辑服务',
   },
   deleteService: {
-    id: 'AppCenter.ComposeCenter.PrivateCompose.deleteService',
+    id: 'AppCenter.ComposeCenter.Stack.deleteService',
     defaultMessage: '删除服务',
   },
   createCompose: {
-    id: 'AppCenter.ComposeCenter.PrivateCompose.createCompose',
+    id: 'AppCenter.ComposeCenter.Stack.createCompose',
     defaultMessage: '创建编排',
   },
   tooltipsFirst: {
-    id: 'AppCenter.ComposeCenter.PrivateCompose.tooltipsFirst',
+    id: 'AppCenter.ComposeCenter.Stack.tooltipsFirst',
     defaultMessage: '目前时速云支持两种类型的服务编排服务：',
   },
   tooltipsSecond: {
-    id: 'AppCenter.ComposeCenter.PrivateCompose.tooltipsSecond',
+    id: 'AppCenter.ComposeCenter.Stack.tooltipsSecond',
     defaultMessage: '[1] Pod 编排，适用于紧耦合的服务组，保证一组服务始终部署在同一节点，并可以共享网络空间和存储卷',
   },
   tooltipsThird: {
-    id: 'AppCenter.ComposeCenter.PrivateCompose.tooltipsThird',
+    id: 'AppCenter.ComposeCenter.Stack.tooltipsThird',
     defaultMessage: '[2] Stack 编排，设计上与 Docker Compose 相似，但可以支持跨物理节点的服务之间通过 API 进行网络通信 ',
   },
   tooltipsForth: {
-    id: 'AppCenter.ComposeCenter.PrivateCompose.tooltipsForth',
+    id: 'AppCenter.ComposeCenter.Stack.tooltipsForth',
     defaultMessage: '* 以上两种编排均支持用 yaml 文件描述多个容器及其之间的关系，定制各个容器的属性，并可一键部署运行',
   }
 })
 
-const testData = [{
-  id: '1',
-  imageName: 'Github',
-  imgUrl: '/img/test/github.jpg',
-  type: 'private',
-  imageUrl: 'tenxcloud/Github',
-  downloadNum: '1234',
-  time: '2016-10-10 13:50:50'
-}, {
-  id: '2',
-  imageName: 'Mysql',
-  imgUrl: '/img/test/mysql.jpg',
-  type: 'private',
-  imageUrl: 'tenxcloud/Mysql',
-  downloadNum: '1234',
-  time: '2016-10-10 13:50:50'
-}, {
-  id: '3',
-  imageName: 'Github',
-  imgUrl: '/img/test/github.jpg',
-  type: 'public',
-  imageUrl: 'tenxcloud/Github',
-  downloadNum: '1234',
-  time: '2016-10-10 13:50:50'
-}, {
-  id: '4',
-  imageName: 'Oracle',
-  imgUrl: '/img/test/oracle.jpg',
-  type: 'private',
-  imageUrl: 'tenxcloud/Oracle',
-  downloadNum: '1234',
-  time: '2016-10-10 13:50:50'
-}, {
-  id: '5',
-  imageName: 'Mysql',
-  imgUrl: '/img/test/mysql.jpg',
-  type: 'public',
-  imageUrl: 'tenxcloud/Mysql',
-  downloadNum: '1234',
-  time: '2016-10-10 13:50:50'
-}, {
-  id: '6',
-  imageName: 'Php',
-  imgUrl: '/img/test/php.jpg',
-  type: 'public',
-  imageUrl: 'tenxcloud/Php',
-  downloadNum: '1234',
-  time: '2016-10-10 13:50:50'
-}, {
-  id: '7',
-  imageName: 'Oracle',
-  imgUrl: '/img/test/oracle.jpg',
-  type: 'public',
-  imageUrl: 'tenxcloud/Oracle',
-  downloadNum: '1234',
-  time: '2016-10-10 13:50:50'
-}, {
-  id: '8',
-  imageName: 'Oracle',
-  imgUrl: '/img/test/oracle.jpg',
-  type: 'private',
-  imageUrl: 'tenxcloud/Oracle',
-  downloadNum: '1234',
-  time: '2016-10-10 13:50:50'
-}, {
-  id: '9',
-  imageName: 'Github',
-  imgUrl: '/img/test/github.jpg',
-  type: 'private',
-  imageUrl: 'tenxcloud/Github',
-  downloadNum: '1234',
-  time: '2016-10-10 13:50:50'
-}, {
-  id: '10',
-  imageName: 'Github',
-  imgUrl: '/img/test/github.jpg',
-  type: 'private',
-  imageUrl: 'tenxcloud/Github',
-  downloadNum: '1234',
-  time: '2016-10-10 13:50:50'
-}];
 
-let MyComponent = React.createClass({
+const MyList = React.createClass({
   propTypes: {
     config: React.PropTypes.array,
     scope: React.PropTypes.object
@@ -195,7 +120,12 @@ let MyComponent = React.createClass({
     });
   },
   render: function () {
-    let config = this.props.config;
+    const config = this.props.config;
+    if (config.length == 0) {
+      return(
+        <div className="notData">您还没有编排，去创建一个吧！</div>
+      )
+    }
     let items = config.map((item) => {
       const dropdown = (
         <Menu onClick={this.menuClick.bind(this, item)}
@@ -211,24 +141,23 @@ let MyComponent = React.createClass({
       );
       return (
         <div className='composeDetail' key={item.id} >
-          <div className='name'>
-            <span className='maxSpan'>{item.imageName}</span>
+          <div className='name textoverflow'>
+            <span className='maxSpan'>{item.name}</span>
           </div>
-          <div className='attr'>
-            {item.type == 'public' ? [
+          {/*<div className='attr'>
+            {item.type == '1' ? [
               <span key={item.id + 'unlock'} className='publicAttr'><i className='fa fa-unlock-alt'></i>&nbsp;<FormattedMessage {...menusText.publicType} /></span>]
               :
-              [<span key={item.id + 'lock'} className='privateAttr'><i className='fa fa-lock'></i>&nbsp;<FormattedMessage {...menusText.privateType} /></span>]
+              [<span key={item.id + 'lock'} className='privatecAttr'><i className='fa fa-lock'></i>&nbsp;<FormattedMessage {...menusText.privateType} /></span>]
             }
           </div>
-          <div className='type'>
-            <span>{item.type}</span>
+         */}
+          <div className='attr'>{item.owner}</div>
+          <div className='image textoverflow'>
+            <span className='maxSpan'>{item.description}</span>
           </div>
-          <div className='image'>
-            <span className='maxSpan'>{item.imageUrl}</span>
-          </div>
-          <div className='time'>
-            <span>{item.time}</span>
+          <div className='time textoverflow'>
+            <span>{item.createTime}</span>
           </div>
           <div className='opera'>
             <Dropdown.Button overlay={dropdown} type='ghost'>
@@ -255,7 +184,9 @@ class PrivateCompose extends Component {
       createModalShow: false
     }
   }
-
+  componentWillMount() {
+    this.props.loadMyStack(DEFAULT_REGISTRY);
+  }
   filterAttr(e) {
     //this function for user filter different attr
   }
@@ -335,21 +266,14 @@ class PrivateCompose extends Component {
               <div className='attr'>
                 <Dropdown overlay={attrDropdown} trigger={['click']} getPopupContainer={() => document.getElementById('PrivateCompose')}>
                   <div>
-                    <FormattedMessage {...menusText.composeAttr} />&nbsp;
+                    <FormattedMessage {...menusText.author} />&nbsp;
                     <i className='fa fa-filter'></i>
                   </div>
                 </Dropdown>
               </div>
-              <div className='type'>
-                <Dropdown overlay={typeDropdown} trigger={['click']} getPopupContainer={() => document.getElementById('PrivateCompose')}>
-                  <div>
-                    <FormattedMessage {...menusText.type} />&nbsp;
-                    <i className='fa fa-filter'></i>
-                  </div>
-                </Dropdown>
-              </div>
+            
               <div className='image'>
-                <FormattedMessage {...menusText.imageUrl} />
+                <FormattedMessage {...menusText.desc} />
               </div>
               <div className='time'>
                 <FormattedMessage {...menusText.time} />
@@ -359,7 +283,7 @@ class PrivateCompose extends Component {
               </div>
               <div style={{ clear: 'both' }}></div>
             </div>
-            <MyComponent scope={rootScope} config={testData} />
+            <MyList scope={rootScope} config={this.props.myStackList} />
           </Card>
         </div>
         <Modal
@@ -376,9 +300,33 @@ class PrivateCompose extends Component {
 }
 
 PrivateCompose.propTypes = {
-  intl: PropTypes.object.isRequired
+  intl: PropTypes.object.isRequired,
+  loadMyStack: PropTypes.func.isRequired
+}
+function mapStateToProps(state, props) {
+  const defaultPrivateImages = {
+    isFetching: false,
+    registry: DEFAULT_REGISTRY,
+    myStackList: [],
+
+  }
+  const { stackCenter } = state.images
+  const { myStackList, isFetching, registry } = stackCenter[DEFAULT_REGISTRY] || defaultPrivateImages
+
+  return {
+    myStackList,
+    isFetching,
+    registry,
+  }
 }
 
-export default connect()(injectIntl(PrivateCompose, {
+function mapDispatchToProps(dispatch) {
+  return {
+    loadMyStack: (DEFAULT_REGISTRY) => {
+      dispatch(loadMyStack(DEFAULT_REGISTRY))
+    }
+  }
+}
+export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(PrivateCompose, {
   withRef: true,
 }))
