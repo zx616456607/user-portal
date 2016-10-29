@@ -10,11 +10,13 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
-import { Button, Icon, Spin } from 'antd'
+import { Button, Icon, Spin, Modal } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { loadMysqlDbClusterDetail, deleteMysqlDatabaseCluster } from '../../actions/database_cache'
 import { DEFAULT_CLUSTER } from '../../constants'
 import './style/ModalDetail.less'
+
+const confirm = Modal.confirm;
 
 class ModalDetail extends Component {
   constructor() {
@@ -26,8 +28,19 @@ class ModalDetail extends Component {
   }
   
   deleteDatebaseCluster(dbName) {
-    const { deleteMysqlDatabaseCluster, cluster } = this.props;
-    deleteMysqlDatabaseCluster(cluster, dbName);    
+    //this function for use delete the database
+    const { deleteMysqlDatabaseCluster, cluster, scope } = this.props;
+    const { loadMysqlDbCacheAllList } = scope.props;
+    confirm({
+      title: '您是否确认要删除' + dbName,
+      onOk() {
+        scope.setState({
+          CreateDatabaseModalShow: false
+        });
+        deleteMysqlDatabaseCluster(cluster, dbName, loadMysqlDbCacheAllList(cluster));       
+      },
+      onCancel() {},
+    });
   }
   
   componentWillMount() {
@@ -121,9 +134,6 @@ function mapStateToProps(state, props) {
     isFetching: false,
     cluster: DEFAULT_CLUSTER,
     databaseInfo: {},
-  }
-  const defaultConfig = {
-    isFetching: false,
   }
   const { mysqlDatabaseDetail } = state.databaseCache
   const { databaseInfo, isFetching } = mysqlDatabaseDetail.databaseInfo || defaultMysqlList

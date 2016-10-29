@@ -80,6 +80,7 @@ let CreateDatabase = React.createClass({
     e.preventDefault();
     const { scope, postCreateMysqlDbCluster } = this.props;
     const _this = this;
+    const { loadMysqlDbCacheAllList, cluster } = scope.props;
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         console.log('Errors in form!!!');
@@ -96,7 +97,7 @@ let CreateDatabase = React.createClass({
         CreateDatabaseModalShow: false
       });
       this.props.form.resetFields();
-      postCreateMysqlDbCluster(body)
+      postCreateMysqlDbCluster(body, loadMysqlDbCacheAllList(cluster));
     });
   },
   render() {
