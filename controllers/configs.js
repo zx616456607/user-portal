@@ -24,7 +24,7 @@ const configGroups = {
 }
 const configApi = new ConfigGroupsApi(configGroups)
 
-exports.getConfigGroup = function* () {
+exports.listConfigGroups = function* () {
   const cluster = this.params.cluster
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)

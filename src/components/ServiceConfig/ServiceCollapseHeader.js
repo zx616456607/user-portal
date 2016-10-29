@@ -170,24 +170,24 @@ class CollapseHeader extends Component {
     const {sizeNumber} = this.state
     const formItemLayout = { labelCol: { span: 3 }, wrapperCol: { span: 21 } }
     const menu = (
-      <Menu onClick={() => this.btnDeleteGroup(collapseHeader.native.metadata.name)} mode="vertical">
+      <Menu onClick={() => this.btnDeleteGroup(collapseHeader.name)} mode="vertical">
         <Menu.Item key="1">删除配置组</Menu.Item>
       </Menu>
     );
     return (
       <Row>
         <Col className="group-name" span="6">
-          <Checkbox onChange={(e) => this.handChage(e, collapseHeader.native.metadata.name)} onClick={(e) => this.handleDropdown(e)}></Checkbox>
+          <Checkbox onChange={(e) => this.handChage(e, collapseHeader.name)} onClick={(e) => this.handleDropdown(e)}></Checkbox>
           <Icon type="folder-open" />
           <Icon type="folder" />
-          <span>{collapseHeader.native.metadata.name}</span>
+          <span>{collapseHeader.name}</span>
         </Col>
         <Col span="6">
           配置文件 &nbsp;
           {sizeNumber}个
         </Col>
         <Col span="6">
-          创建时间&nbsp;&nbsp;{tenxDateFormat(collapseHeader.native.metadata.creationTimestamp)}
+          创建时间&nbsp;&nbsp;{tenxDateFormat(collapseHeader.creationTimestamp)}
         </Col>
         <Col span="6">
           <ButtonGroup>
@@ -200,7 +200,7 @@ class CollapseHeader extends Component {
             title="添加配置文件"
             wrapClassName="configFile-create-modal"
             visible={this.state.modalConfigFile}
-            onOk={(e) => this.createConfigFile(collapseHeader.native.metadata.name)}
+            onOk={(e) => this.createConfigFile(collapseHeader.name)}
             onCancel={(e) => this.createConfigModal(e, false)}
             >
             <div className="configFile-inf">
