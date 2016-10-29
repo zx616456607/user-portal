@@ -88,11 +88,7 @@ class ServiceAPI extends Component {
     let portsShow = null, dataStorageShow = null, cmdShow = null, entrypointShow = null;
     let ports = configList.containerPorts;
     if (!!ports) {
-      portsShow = ports.map((item) => {
-        return (
-          <p>容器端口:&nbsp;{item}</p>
-        )
-      });
+      portsShow = ports.map(item => item).join('，')
     }
     let dataStorage = configList.mountPath;
     if (!!dataStorage) {
@@ -120,7 +116,7 @@ class ServiceAPI extends Component {
     let { defaultEnv } = configList;
     return (
       <Card className="imageServiceAPI">
-        {portsShow}
+        <p>容器端口:&nbsp;{portsShow}</p>
         {dataStorageShow}
         <p>运行命令及参数：&nbsp;{entrypointShow}{cmdShow}</p>
         <div>大小：{(configList.sizeInfo.totalSize > 0) ? (configList.sizeInfo.totalSize) /1024 + 'K': '未知' }</div>

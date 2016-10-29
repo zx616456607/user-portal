@@ -257,6 +257,29 @@ export function loadFavouriteList(registry) {
 }
 
 // --------------------------  编排中心   ---------------------------------- ------
+export const CREATE_STACK_REQUEST = 'CREATE_STACK_REQUEST'
+export const CREATE_STACK_SUCCESS = 'CREATE_STACK_SUCCESS'
+export const CREATE_STACK_FAILURE = 'CREATE_STACK_FAILURE'
+export function createStack(obj, callback) {
+  return {
+    registry:obj.registry,
+    [FETCH_API]: {
+      types: [CREATE_STACK_REQUEST, CREATE_STACK_SUCCESS, CREATE_STACK_FAILURE],
+      endpoint: `${API_URL_PREFIX}/templates`,
+      schema: Schemas.REGISTRYS,
+      options: {
+        method: 'POST',
+        body: {
+        'is_public': obj.type,
+        'content': obj.content,
+        'name': obj.name
+        }
+      }
+    },
+    callback
+  }
+}
+
 export const GET_PRIVATE_STACK_REQUEST = 'GET_PRIVATE_STACK_REQUEST'
 export const GET_PRIVATE_STACK_SUCCESS = 'GET_PRIVATE_STACK_SUCCESS'
 export const GET_PRIVATE_STACK_FAILURE = 'GET_PRIVATE_STACK_FAILURE'
@@ -284,5 +307,24 @@ export function loadStack(registry) {
       endpoint: `${API_URL_PREFIX}/templates`,
       schema: Schemas.REGISTRYS,
     }
+  }
+}
+
+export const DELETE_PRIVATE_STACK_REQUEST = 'DELETE_PRIVATE_STACK_REQUEST'
+export const DELETE_PRIVATE_STACK_SUCCESS = 'DELETE_PRIVATE_STACK_SUCCESS'
+export const DELETE_PRIVATE_STACK_FAILURE = 'DELETE_PRIVATE_STACK_FAILURE'
+
+export function deleteMyStack(obj) {
+  return {
+    [FETCH_API]: {
+      types: [DELETE_PRIVATE_STACK_REQUEST, DELETE_PRIVATE_STACK_SUCCESS, DELETE_PRIVATE_STACK_FAILURE],
+      endpoint: `${API_URL_PREFIX}/templates/${id}`,
+      schema: Schemas.REGISTRYS,
+      options: {
+        method: 'DELETE',
+      }
+    }, 
+    registry: obj.registry,
+    id: obj.id
   }
 }

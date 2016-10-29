@@ -135,7 +135,6 @@ class RollingUpdateModal extends Component {
     // const containers = service.spec.template.spec.containers
     return (
       <Modal
-        wrapClassName="modal"
         visible={visible}
         title="灰度升级" onOk={this.handleOK} onCancel={this.handleCancel}
         footer={[

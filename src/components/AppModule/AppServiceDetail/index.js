@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Tabs, Checkbox, Dropdown, Button, Card, Menu, Icon } from 'antd'
+import { Tabs, Checkbox, Dropdown, Button, Card, Menu, Icon, Modal } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -25,6 +25,7 @@ import AppAutoScale from './AppAutoScale'
 import { loadServiceDetail, loadServiceContainerList } from '../../../actions/services'
 import CommmonStatus from '../../CommonStatus'
 import './style/AppServiceDetail.less'
+import TerminalModal from '../../TerminalModal'
 
 const DEFAULT_TAB = '#containers'
 const TabPane = Tabs.TabPane;
@@ -43,8 +44,11 @@ class AppServiceDetail extends Component {
     this.onTabClick = this.onTabClick.bind(this)
     this.restartService = this.restartService.bind(this)
     this.stopService = this.stopService.bind(this)
+    this.closeTerminalLayoutModal = this.closeTerminalLayoutModal.bind(this)
+    this.openTerminalModal = this.openTerminalModal.bind(this)
     this.state = {
-      activeTabKey: props.selectTab || DEFAULT_TAB
+      activeTabKey: props.selectTab || DEFAULT_TAB,
+      TerminalLayoutModal: false,
     }
   }
 
@@ -54,7 +58,19 @@ class AppServiceDetail extends Component {
       modalShow: false
     });
   }
-
+  closeTerminalLayoutModal() {
+    //this function for user close the terminal modal
+    this.setState({
+      TerminalLayoutModal: false
+    });
+  }
+  openTerminalModal (e) {
+    //this function for user open the terminal modal
+    e.stopPropagation();
+    this.setState({
+      TerminalLayoutModal: true
+    });
+  }
   componentWillMount() {
     loadData(this.props)
   }
@@ -121,6 +137,7 @@ class AppServiceDetail extends Component {
   }
 
   render() {
+    const parentScope = this
     const {
       scope,
       serviceDetailmodalShow,
@@ -182,7 +199,8 @@ class AppServiceDetail extends Component {
               </span>
             </div>
             <div className="rightBox">
-              <Button className="loginBtn" type="primary">
+              <Button className="loginBtn" type="primary"
+                      onClick={this.openTerminalModal}>
                 <svg className="terminal">
                   <use xlinkHref="#terminal" />
                 </svg>
@@ -197,6 +215,14 @@ class AppServiceDetail extends Component {
           </div>
           <div style={{ clear: "both" }}></div>
         </div>
+        <Modal
+          visible={this.state.TerminalLayoutModal}
+          className='TerminalLayoutModal'
+          transitionName='move-down'
+          onCancel={this.closeTerminalLayoutModal}
+        >
+          <TerminalModal scope={parentScope} config={containers.length>0 ? containers[0] : null} />
+        </Modal>
         <div className="bottomBox">
           <div className="siderBox">
             <Tabs
@@ -247,9 +273,11 @@ class AppServiceDetail extends Component {
                 />
               </TabPane>
               <TabPane tab="监控" key="#monitor">
-                <ServiceMonitor
-                  serviceName={service.metadata.name}
-                  cluster={service.cluster} />
+                <div className="ServiceMonitor">
+                  <ServiceMonitor
+                    serviceName={service.metadata.name}
+                    cluster={service.cluster} />
+                </div>
               </TabPane>
               <TabPane tab="自动伸缩" key="#autoScale">
                 <AppAutoScale

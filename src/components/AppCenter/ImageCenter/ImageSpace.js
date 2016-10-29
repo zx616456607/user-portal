@@ -124,8 +124,7 @@ const MyComponent = React.createClass({
     })
   },
   render: function () {
-    const { server, imageList, isFetching} = this.props
-    console.log(this.props)
+    const { registryServer, imageList, isFetching} = this.props
     if (isFetching) {
       return (
         <div className='loadingBox'>
@@ -162,7 +161,7 @@ const MyComponent = React.createClass({
             </span>
             <span className="imageUrl textoverflow">
               <FormattedMessage {...menusText.imageUrl} />&nbsp;
-              <span className="">{ server }/{item.name}</span>
+              <span className="">{ registryServer }/{item.name}</span>
             </span>
             <span className="downloadNum">
               <FormattedMessage {...menusText.downloadNum} />&nbsp;{item.downloadNumber}

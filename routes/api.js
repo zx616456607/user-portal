@@ -87,14 +87,15 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/containers/:container_name/detail', containerController.getContainerDetail)
   router.get('/clusters/:cluster/containers/:container_name/events', containerController.getContainerDetailEvents)
   router.post('/clusters/:cluster/containers/:name/logs', containerController.getContainerLogs)
+  router.post('/clusters/:cluster/containers/batch-delete', containerController.deleteContainers)
 
   // Configs
-  router.get('/clusters/:cluster/configgroups', configController.getConfigGroup)
+  router.get('/clusters/:cluster/configgroups', configController.listConfigGroups)
   router.get('/clusters/:cluster/configgroups/:name', configController.getConfigGroupName)
   router.get('/clusters/:cluster/configgroups/:group/configs/:name', configController.loadConfigFiles)
   router.post('/clusters/:cluster/configs', configController.createConfigGroup)
   router.post('/clusters/:cluster/configgroups/:group/configs/:name', configController.createConfigFiles)
-  router.put('/clusters/:cluster/configgroups/:group/configs/:name', configController.updateConfigName)
+  router.put('/clusters/:cluster/configgroups/:group/configs/:name', configController.updateConfigFile)
   router.post('/clusters/:cluster/configs/delete', configController.deleteConfigGroup)
   router.post('/clusters/:cluster/configgroups/:group/configs-batch-delete', configController.deleteConfigFiles)
 
@@ -123,7 +124,7 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/containers/:container_name/metrics', metricsController.getContainerMetrics)
   router.get('/clusters/:cluster/services/:service_name/metrics', metricsController.getServiceMetrics)
   router.get('/clusters/:cluster/apps/:app_name/metrics', metricsController.getAppMetrics)
-  
+
   // DataBase Cache
   router.get('/clusters/:cluster/getMysql', databaseCacheController.getMySqlList)
   router.post('/clusters/:cluster/createMysqlCluster', databaseCacheController.createMysqlCluster)

@@ -282,7 +282,8 @@ class AppList extends Component {
   }
 
   confirmStartApps(appList) {
-    const { cluster, loadAppList, startApps } = this.props
+    const self = this
+    const { cluster, startApps } = this.props
     const appNames = appList.map((app) => app.name)
     confirm({
       title: `您是否确认要启动这${appNames.length}个应用`,
@@ -291,7 +292,7 @@ class AppList extends Component {
         return new Promise((resolve) => {
           startApps(cluster, appNames, {
             success: {
-              func: () => loadAppList(cluster),
+              func: () => loadData(self.props),
               isAsync: true
             }
           })
@@ -309,7 +310,8 @@ class AppList extends Component {
   }
 
   confirmStopApps(appList) {
-    const { cluster, loadAppList, stopApps } = this.props
+    const self = this
+    const { cluster, stopApps } = this.props
     const appNames = appList.map((app) => app.name)
     confirm({
       title: `您是否确认要停止这${appNames.length}个应用`,
@@ -318,7 +320,7 @@ class AppList extends Component {
         return new Promise((resolve) => {
           stopApps(cluster, appNames, {
             success: {
-              func: () => loadAppList(cluster),
+              func: () => loadData(self.props),
               isAsync: true
             }
           })
@@ -336,7 +338,8 @@ class AppList extends Component {
   }
 
   confirmDeleteApps(appList) {
-    const { cluster, loadAppList, deleteApps } = this.props
+    const self = this
+    const { cluster, deleteApps } = this.props
     const appNames = appList.map((app) => app.name)
     confirm({
       title: `您是否确认要删除这${appNames.length}个应用`,
@@ -345,7 +348,7 @@ class AppList extends Component {
         return new Promise((resolve) => {
           deleteApps(cluster, appNames, {
             success: {
-              func: () => loadAppList(cluster),
+              func: () => loadData(self.props),
               isAsync: true
             }
           })
@@ -363,7 +366,8 @@ class AppList extends Component {
   }
 
   confirmRestartApps(appList) {
-    const { cluster, loadAppList, restartApps } = this.props
+    const self = this
+    const { cluster, restartApps } = this.props
     const appNames = appList.map((app) => app.name)
     confirm({
       title: `您是否确认要重新部署这${appNames.length}个应用`,
@@ -372,7 +376,7 @@ class AppList extends Component {
         return new Promise((resolve) => {
           restartApps(cluster, appNames, {
             success: {
-              func: () => loadAppList(cluster),
+              func: () => loadData(self.props),
               isAsync: true
             }
           })

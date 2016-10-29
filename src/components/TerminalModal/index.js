@@ -23,7 +23,7 @@ class TerminalModal extends Component {
     this.minWindow = this.minWindow.bind(this);
     this.closeWindow = this.closeWindow.bind(this);
     this.state = {
-    
+      
     }
   }
   
