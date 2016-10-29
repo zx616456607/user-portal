@@ -21,7 +21,6 @@ const RadioGroup = Radio.Group;
 class CreateCompose extends Component {
   constructor(props) {
     super(props);
-    this.onChangeType = this.onChangeType.bind(this);
     this.onChangeAttr = this.onChangeAttr.bind(this);
     this.handleReset = this.handleReset.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -31,12 +30,6 @@ class CreateCompose extends Component {
     }
   }
   
-  onChangeType(e) {
-    //this function for user change the compose type
-    this.setState({
-      composeType: e.target.value
-    });
-  }
   
   onChangeAttr(e) {
     //this function for user change the compose attr
@@ -64,12 +57,31 @@ class CreateCompose extends Component {
         //it's mean there are some thing is null,user didn't input
         return;
       }
-        console.log(values)
+      const scope = this
+      const registry = this.props.registry
+      const config = {
+        'type': this.state.composeAttr ? 0 : 1,
+        'content': values.textarea,
+        'name': values.name
+      }
+        console.log(this.props)
+      this.props.createStack(config, {
+        success: {
+          func: ()=>{
+            scope.props.loadMyStack(registry)
+          }
+        },
+        failed:{
+          func: (err)=>{
+            message.errors(err.message)
+          }
+        }
+      })
       //when the code running here,it's meaning user had input all things,
       //and should submit the message to the backend
-      scope.setState({
-        createModalShow: false
-      });
+      // scope.setState({
+      //   createModalShow: false
+      // });
     });
   }
   
@@ -81,6 +93,11 @@ class CreateCompose extends Component {
         { required: true, message: '请输入用户名' }
       ],
     });
+    const textareaProps = getFieldProps('textarea', {
+      rules: [
+        { required: true, message: '真的不打算写点什么吗？' },
+      ],
+    });
     return (
       <div id="createCompose" key="createCompose">
          <div className="commonInput">
@@ -89,7 +106,7 @@ class CreateCompose extends Component {
           </div>
           <div className="rightBox">
             <FormItem hasFeedback style={{ width:"220px" }} >
-              <Input {...nameProps} ref="nameInput" />
+              <Input {...nameProps} name="name" ref="nameInput" />
             </FormItem>
           </div>
           <div style={{ clear:"both" }}></div>
@@ -108,7 +125,9 @@ class CreateCompose extends Component {
         <span className="title">描述文件</span>
         </div>
         <div className="rightBox">
-          <Input type="textarea" autosize={{ minRows: 10, maxRows: 30 }} />
+          <FormItem hasFeedback>
+          <Input type="textarea" {...textareaProps} name="textarea" autosize={{ minRows: 10, maxRows: 30 }} />
+          </FormItem>
         </div>
         <div style={{ clear:"both" }}></div>
       </div>

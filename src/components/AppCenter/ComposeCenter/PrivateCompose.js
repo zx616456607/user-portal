@@ -8,14 +8,14 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Alert, Menu, Button, Card, Input, Dropdown, Modal } from 'antd'
+import { Alert, Menu, Button, Card, Input, Dropdown, Modal ,message} from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import CreateCompose from './CreateCompose.js'
 import './style/PrivateCompose.less'
-import { loadMyStack } from '../../../actions/app_center'
+import { loadMyStack , deleteMyStack , createStack} from '../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../constants'
 
 
@@ -107,8 +107,25 @@ const MyList = React.createClass({
     config: React.PropTypes.array,
     scope: React.PropTypes.object
   },
-  menuClick: function (id) {
+  menuClick: function (key) {
     //this function for user delete select image
+    console.log('id is',key)
+    const scope = this
+    const config ={registry: DEFAULT_REGISTRY, id: key.id}
+    Modal.confirm({
+      title: `删除编排 `,
+      content: <h3>{`您确定要删除编排 ${key.name}`}</h3>,
+      onOk() {
+        scope.props.deleteMyStack(config, {
+          success: {
+            func: ()=>{
+              message.success('删除成功')
+            }
+          }
+        })
+      },
+      onCancel() { },
+    })
 
   },
   showImageDetail: function (id) {
@@ -131,10 +148,10 @@ const MyList = React.createClass({
         <Menu onClick={this.menuClick.bind(this, item)}
           style={{ width: '100px' }}
           >
-          <Menu.Item key='1'>
+          <Menu.Item key={`id1=${item.id}`}>
             <FormattedMessage {...menusText.editService} />
           </Menu.Item>
-          <Menu.Item key='2'>
+          <Menu.Item key={`id2=${item.id}`}>
             <FormattedMessage {...menusText.deleteService} />
           </Menu.Item>
         </Menu>
@@ -144,15 +161,15 @@ const MyList = React.createClass({
           <div className='name textoverflow'>
             <span className='maxSpan'>{item.name}</span>
           </div>
-          {/*<div className='attr'>
+          <div className='attr'>{item.owner}</div>
+          <div className='type'>
             {item.type == '1' ? [
               <span key={item.id + 'unlock'} className='publicAttr'><i className='fa fa-unlock-alt'></i>&nbsp;<FormattedMessage {...menusText.publicType} /></span>]
               :
               [<span key={item.id + 'lock'} className='privatecAttr'><i className='fa fa-lock'></i>&nbsp;<FormattedMessage {...menusText.privateType} /></span>]
             }
           </div>
-         */}
-          <div className='attr'>{item.owner}</div>
+         
           <div className='image textoverflow'>
             <span className='maxSpan'>{item.description}</span>
           </div>
@@ -271,7 +288,9 @@ class PrivateCompose extends Component {
                   </div>
                 </Dropdown>
               </div>
-            
+              <div className="type">
+                <span><FormattedMessage {...menusText.type} /></span>
+              </div>
               <div className='image'>
                 <FormattedMessage {...menusText.desc} />
               </div>
@@ -283,7 +302,7 @@ class PrivateCompose extends Component {
               </div>
               <div style={{ clear: 'both' }}></div>
             </div>
-            <MyList scope={rootScope} config={this.props.myStackList} />
+            <MyList scope={rootScope} deleteMyStack={this.props.deleteMyStack} config={this.props.myStackList} />
           </Card>
         </div>
         <Modal
@@ -292,7 +311,7 @@ class PrivateCompose extends Component {
           transitionName='move-right'
           onCancel={this.closeImageDetailModal}
         >
-          <CreateCompose scope={scope} />
+          <CreateCompose scope={scope} loadMyStack={this.props.loadMyStack} createStack= {this.props.createStack} registry={this.props.registry} />
         </Modal>
       </QueueAnim>
     )
@@ -324,6 +343,12 @@ function mapDispatchToProps(dispatch) {
   return {
     loadMyStack: (DEFAULT_REGISTRY) => {
       dispatch(loadMyStack(DEFAULT_REGISTRY))
+    },
+    deleteMyStack: (id, callback) => {
+      dispatch(deleteMyStack(id, callback))
+    },
+    createStack: (obj, callback) => {
+      dispatch(createStack(obj, callback))
     }
   }
 }

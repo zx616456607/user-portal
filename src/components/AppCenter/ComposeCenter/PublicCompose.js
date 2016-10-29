@@ -140,7 +140,8 @@ const MyComponent = React.createClass({
             <span className="maxSpan">{item.name}</span>
           </div>
           <div className="type">
-            <span>{(item.type ==1) ? <FormattedMessage {...menusText.publicType} /> : <FormattedMessage {...menusText.privateType} />}</span>
+            {/* <span>{(item.type ==1) ? <FormattedMessage {...menusText.publicType} /> : <FormattedMessage {...menusText.privateType} />}</span> */}
+            {item.owner}
           </div>
           <div className="image textoverflow">
             <span className="maxSpan">{item.description}</span>
