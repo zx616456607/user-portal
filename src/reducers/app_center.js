@@ -171,7 +171,8 @@ export function images(state = { publicImages: {} }, action) {
     otherImages: otherImages(state.otherImages, action),
     imagesInfo: imagesInfo(state.imagesInfo, action),
     stackCenter: stackList(state.stackList, action),
-    createStack: createStack(state.createStack, action)
+    createStack: createStack(state.createStack, action),
+    deleteStack: deleteStack(state.deleteStack, action)
   }
 }
 //get image detail tag
@@ -456,25 +457,7 @@ function stackList(state={}, action) {
       return merge({}, defaultState, state, {
         [registry]: { isFetching: false }
       })
-
-    case ActionTypes.DELETE_PRIVATE_STACK_REQUEST:
-      return merge({}, defaultState, state, {
-        [registry]: { isFetching: true }
-      })
-    case ActionTypes.DELETE_PRIVATE_STACK_SUCCESS:
-      const oldStack = cloneDeep(state)
-      const newStack = remove(oldStack,(item)=>{return item.id = action.id})
-
-      return merge({}, state, {
-        [registry]: {
-          isFetching: false,
-          myStackList: newStack
-        }
-      })
-    case ActionTypes.DELETE_PRIVATE_STACK_FAILURE:
-      return merge({}, defaultState, state, {
-        [registry]: { isFetching: false }
-      })
+     
     default:
       return state
   }
@@ -493,6 +476,27 @@ function createStack(state={}, action) {
     case ActionTypes.CREATE_STACK_FAILURE:
       return merge({}, state, {
          isFetching: false 
+      })
+    default:
+      return state
+  }
+}
+
+function deleteStack(state={}, action) {
+  const registry = action.registry
+  switch (action.type) {
+    case ActionTypes.DELETE_PRIVATE_STACK_REQUEST:
+      return merge({}, state, {
+        [registry]: { isFetching: true }
+      })
+    case ActionTypes.DELETE_PRIVATE_STACK_SUCCESS:
+      return merge({}, {
+        [registry]: {
+          isFetching: false, }
+      })
+    case ActionTypes.DELETE_PRIVATE_STACK_FAILURE:
+      return merge({}, state, {
+        [registry]: { isFetching: false }
       })
     default:
       return state

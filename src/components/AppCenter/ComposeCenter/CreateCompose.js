@@ -60,10 +60,12 @@ class CreateCompose extends Component {
       const scope = this
       const registry = this.props.registry
       const config = {
-        'is_public': this.state.composeAttr ? 0 : 1,
+        'is_public': this.state.composeAttr ? 1 : 2,
         'content': values.textarea,
         'name': values.name
       }
+      console.log(config, this.state.composeAttr)
+      return
       this.props.createStack(config, {
         success: {
           func: ()=>{
