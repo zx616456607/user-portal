@@ -49,6 +49,7 @@ function createMysqlDbCluster(newDb, callback) {
           name: newDb.name,
           servicesNum: newDb.servicesNum,
           password: newDb.password,
+          dbType: newDb.dbType
         }
       },
       schema: {}
@@ -63,11 +64,15 @@ export function postCreateMysqlDbCluster(newDb, callback) {
   }
 }
 
-function getMysqlDbClusterDetail(cluser, dbName, callback) {
+export const GET_DATABASE_DETAIL_INFO_REQUEST = 'GET_DATABASE_DETAIL_INFO_REQUEST'
+export const GET_DATABASE_DETAIL_INFO_SUCCESS = 'GET_DATABASE_DETAIL_INFO_SUCCESS'
+export const GET_DATABASE_DETAIL_INFO_FAILURE = 'GET_DATABASE_DETAIL_INFO_FAILURE'
+
+function getMysqlDbClusterDetail(cluster, dbName, callback) {
   return {
     cluster,
     [FETCH_API]: {
-      types: [CREATE_MYSQL_DATABASE_CACHE_REQUEST, CREATE_MYSQL_DATABASE_CACHE_SUCCESS, CREATE_MYSQL_DATABASE_CACHE_FAILURE],
+      types: [GET_DATABASE_DETAIL_INFO_REQUEST, GET_DATABASE_DETAIL_INFO_SUCCESS, GET_DATABASE_DETAIL_INFO_FAILURE],
       endpoint: `${API_URL_PREFIX}/clusters/${cluster}/getMysqlDetail/${dbName}`,
       schema: {}
     },
@@ -75,8 +80,30 @@ function getMysqlDbClusterDetail(cluser, dbName, callback) {
   }
 }
 
-export function loadMysqlDbClusterDetail(cluser, dbName, callback) {
+export function loadMysqlDbClusterDetail(cluster, dbName, callback) {
   return (dispatch) => {
-    return dispatch(getMysqlDbClusterDetail(newDb, callback))
+    return dispatch(getMysqlDbClusterDetail(cluster, dbName, callback))
+  }
+}
+
+export const DELETE_DATABASE_CACHE_REQUEST = 'DELETE_DATABASE_CACHE_REQUEST'
+export const DELETE_DATABASE_CACHE_SUCCESS = 'DELETE_DATABASE_CACHE_SUCCESS'
+export const DELETE_DATABASE_CACHE_FAILURE = 'DELETE_DATABASE_CACHE_FAILURE'
+
+function deleteMysqlDbCluster(cluster, dbName, callback) {
+  return {
+    cluster,
+    [FETCH_API]: {
+      types: [DELETE_DATABASE_CACHE_REQUEST, DELETE_DATABASE_CACHE_SUCCESS, DELETE_DATABASE_CACHE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/deleteMysql/${dbName}`,
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function deleteMysqlDatabaseCluster(cluster, dbName, callback) {
+  return (dispatch) => {
+    return dispatch(deleteMysqlDbCluster(cluster, dbName, callback))
   }
 }

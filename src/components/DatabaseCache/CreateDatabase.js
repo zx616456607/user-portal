@@ -79,6 +79,7 @@ let CreateDatabase = React.createClass({
     //this function for user submit the form
     e.preventDefault();
     const { scope, postCreateMysqlDbCluster } = this.props;
+    const _this = this;
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         console.log('Errors in form!!!');
@@ -88,7 +89,8 @@ let CreateDatabase = React.createClass({
         cluster: values.clusterSelect,
         name: values.name,
         servicesNum: values.services,
-        password: values.passwd
+        password: values.passwd,
+        dbType: _this.state.currentType
       }
       scope.setState({
         CreateDatabaseModalShow: false
@@ -221,7 +223,7 @@ let CreateDatabase = React.createClass({
             <FormItem style={{ width:'150px',float:'left' }}>
               <Select {...selectClusterProps} className='envSelect' size='large'>
                 <Option value="cce1c71ea85a5638b22c15d86c1f61de">test</Option>
-                <Option value="cce1c71ea85a5638b22c15d86c1f61df">产品环境</Option>
+                <Option value="e0e6f297f1b3285fb81d2774225dddd">产品环境</Option>
                 <Option value="e0e6f297f1b3285fb81d27742255cfcf">k8s 1.4</Option>
               </Select>
             </FormItem>

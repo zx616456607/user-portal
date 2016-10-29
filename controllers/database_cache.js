@@ -36,11 +36,11 @@ exports.createMysqlCluster = function* () {
   let service = new Service(dbBody.name)
   service.createDataBase(dbBody.name)
   let petset = new PetSet(dbBody.name)
-  petset.createMysqlDatabase(dbBody.servicesNum, dbBody.password)
+  petset.createMysqlDatabase( dbBody.name, dbBody.dbType, dbBody.servicesNum, dbBody.password)
   let tempList = []
   const dumpOpts = {
     noRefs: true,
-    lineWidth: 1000
+    lineWidth: 5000
   }
   tempList.push(yaml.dump(service, dumpOpts), yaml.dump(petset, dumpOpts))
   tempList = tempList.join('---\n')
@@ -59,6 +59,17 @@ exports.getMysqlClusterDetail = function* () {
   const result = yield api.getBy([cluster, 'dbservices', dbName]);
   this.body = {
     cluster,
-    databaseInfo: result.modules.k8s.petset.PetSetDetail
+    databaseInfo: result.data
+  }
+}
+
+exports.deleteMysqlCluster = function* () {
+  const cluster = this.params.cluster
+  const dbName = this.params.dbName
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.deleteBy([cluster, 'dbservices', dbName]);
+  this.body = {
+    result
   }
 }

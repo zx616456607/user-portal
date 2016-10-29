@@ -44,28 +44,27 @@ function mysqlDatabaseAllList(state = {}, action) {
 }
 
 function mysqlDatabaseDetail(state = {}, action) {
-  const database = 'test'
   const defaultState = {
-    [database]: {
+    databaseInfo: {
       isFetching: false,
       databaseInfo: null
     }
   }
   switch (action.type) {
-    case ActionTypes.MYSQL_DATABASE_CACHE_ALL_LIST_REQUEST:
+    case ActionTypes.GET_DATABASE_DETAIL_INFO_REQUEST:
       return merge({}, defaultState, state, {
-        [database]: { isFetching: true }
+        databaseInfo: { isFetching: true }
       })
-    case ActionTypes.MYSQL_DATABASE_CACHE_ALL_LIST_SUCCESS:
+    case ActionTypes.GET_DATABASE_DETAIL_INFO_SUCCESS:
       return merge({}, state, {
-        [database]: {
+        databaseInfo: {
           isFetching: false,
           databaseInfo: action.response.result.databaseInfo || null
         }
       })
-    case ActionTypes.MYSQL_DATABASE_CACHE_ALL_LIST_FAILURE:
+    case ActionTypes.GET_DATABASE_DETAIL_INFO_FAILURE:
       return merge({}, defaultState, state, {
-        [database]: { isFetching: false }
+        databaseInfo: { isFetching: false }
       })
     default:
       return state
@@ -81,6 +80,11 @@ export function databaseCache(state = { databaseCache: {} }, action) {
       SUCCESS: ActionTypes.CREATE_MYSQL_DATABASE_CACHE_SUCCESS,
       FAILURE: ActionTypes.CREATE_MYSQL_DATABASE_CACHE_FAILURE
     }, state.createMySql, action),
+    deleteMysql: reducerFactory({
+      REQUEST: ActionTypes.DELETE_DATABASE_CACHE_REQUEST,
+      SUCCESS: ActionTypes.DELETE_DATABASE_CACHE_SUCCESS,
+      FAILURE: ActionTypes.DELETE_DATABASE_CACHE_FAILURE
+    }, state.deleteMysql, action),
     mysqlDatabaseDetail: mysqlDatabaseDetail(state.mysqlDatabaseDetail, action)
   }
 }
