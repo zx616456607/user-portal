@@ -93,8 +93,25 @@ exports.getContainerLogs = function* () {
   const cluster = this.params.cluster
   const containerName = this.params.name
   const reqData = this.request.body
-  const api = apiFactory.getK8sApi(this.session.loginUser) 
+  const api = apiFactory.getK8sApi(this.session.loginUser)
   const result = yield api.createBy([cluster, 'instances', containerName, 'logs'], null, reqData)
   this.status = result.code
   this.body = result
+}
+
+exports.deleteContainers = function* () {
+  const cluster = this.params.cluster
+  const instances = this.request.body
+  if (!instances) {
+    const err = new Error('Service names are required.')
+    err.status = 400
+    throw err
+  }
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.batchDeleteBy([cluster, 'instances', 'batch-delete'], null, { instances })
+  this.body = {
+    cluster,
+    data: result
+  }
 }
