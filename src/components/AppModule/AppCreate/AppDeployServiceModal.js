@@ -471,6 +471,7 @@ let AppDeployServiceModal = React.createClass({
     })
   },
   handleForm() {
+    console.log('form!!!!!!!!!!!!!');
     this.props.form.validateFieldsAndScroll((errors, values) => {
       if (!!errors) {
         this.setState({

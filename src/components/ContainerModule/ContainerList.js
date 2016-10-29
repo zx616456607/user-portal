@@ -98,8 +98,8 @@ const MyComponent = React.createClass({
   openTerminalModal: function (item, e) {
     //this function for user open the terminal modal
     e.stopPropagation();
-    const { scope } = this.props;
-    scope.setState({
+    const { parentScope } = this.props;
+    parentScope.setState({
       currentContainer: item,
       TerminalLayoutModal: true
     });
