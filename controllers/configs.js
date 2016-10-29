@@ -30,9 +30,25 @@ exports.getConfigGroup = function* () {
   const api = apiFactory.getK8sApi(loginUser)
   let response = yield api.getBy([cluster, 'configgroups'])
   this.status = response.code
+  if (response.code >= 400) {
+    const err = new Error(`list configgrups fails, error: ${response.data}`)
+    err.status = reponse.code
+    throw err
+  }
+  let data = [];
+  response.data.forEach(function(configgroup){
+    let item = {name: configgroup.native.metadata.name, configs: [], creationTimestamp: configgroup.native.metadata.creationTimestamp}
+    if (configgroup.extended && configgroup.extended && configgroup.extended.configs) {
+      configgroup.extended.configs.forEach(function(c) {
+        item.configs.push({displayName: c.name, name: c.rawName})
+      })
+    }
+    item.size = item.configs.length
+    data.push(item)
+  })
   this.body = {
-    data: response.data,
-    cluster
+    data: data,
+    cluster: clusterID
   }
 }
 
@@ -48,12 +64,17 @@ exports.getConfigGroupName = function* () {
 
 exports.createConfigGroup = function* () {
   const cluster = this.params.cluster
-  let groupName = this.request.body.groupName
+  const groupName = this.request.body.groupName
   if (!cluster || !groupName) {
     this.status = 400
-    this.body = { message: 'error' }
+    this.body = { message: 'invalid cluster or config group name' }
   }
-  let response = yield configApi.configGroup.createBy([cluster, 'configgroups', groupName])
+  let response = yield configApi.configGroup.createBy([cluster, 'configgroups', groupName], null, null)
+  if (response.code >= 400) {
+    const err = new Error(`list config groups fails ${response.body}`)
+    err.status = reponse.code
+    throw err
+  }
 
   this.status = response.code
   this.body = {
@@ -68,10 +89,14 @@ exports.deleteConfigGroup = function* () {
     this.body = { message: 'Not Parameter' }
   }
   let response = yield configApi.configGroup.batchDeleteBy([cluster, 'configgroups', 'batch-delete'], null, groups)
-  // go delete`
+  if (response.code >= 400) {
+    const err = new Error(`delete config groups fails: ${response.body}`)
+    err.status = reponse.code
+    throw err
+  }
   this.status = response.code
   this.body = {
-    message: '删除成功了'
+    message: 'delete success'
   }
 }
 
@@ -86,7 +111,11 @@ exports.createConfigFiles = function* () {
     this.body = { message: 'error' }
   }
   let response = yield configApi.configGroup.createBy([cluster, 'configgroups', group, 'configs', fileName], null, data)
-
+  if (response.code >= 400) {
+    const err = new Error(`create config files fails: ${response.body}`)
+    err.status = reponse.code
+    throw err
+  }
   this.status = response.code
   this.body = {
     data: response.data
@@ -98,21 +127,28 @@ exports.loadConfigFiles = function* () {
   const fileName = this.params.name
   const group = this.params.group
   let response = yield configApi.configGroup.getBy([cluster, 'configgroups', group, 'configs', fileName])
-
+  if (response.code >= 400) {
+    const err = new Error(`load config files fails: ${response.body}`)
+    err.status = reponse.code
+    throw err
+  }
   this.status = response.code
   this.body = {
     data: response.data
   }
 }
 
-exports.updateConfigName = function* () {
+exports.updateConfigFile = function* () {
   const cluster = this.params.cluster
   const fileName = this.params.name
   const group = this.params.group
   let data = this.request.body.desc
-  console.log('update in ', data)
   let response = yield configApi.configGroup.updateBy([cluster, 'configgroups', group, 'configs', fileName], null, data)
-
+  if (response.code >= 400) {
+    const err = new Error(`update config file ${filename} fails: ${response.body}`)
+    err.status = reponse.code
+    throw err
+  }
   this.status = response.code
   this.body = {
     data: response.data

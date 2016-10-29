@@ -89,12 +89,12 @@ module.exports = function (Router) {
   router.post('/clusters/:cluster/containers/:name/logs', containerController.getContainerLogs)
 
   // Configs
-  router.get('/clusters/:cluster/configgroups', configController.getConfigGroup)
+  router.get('/clusters/:cluster/configgroups', configController.listConfigGroups)
   router.get('/clusters/:cluster/configgroups/:name', configController.getConfigGroupName)
   router.get('/clusters/:cluster/configgroups/:group/configs/:name', configController.loadConfigFiles)
   router.post('/clusters/:cluster/configs', configController.createConfigGroup)
   router.post('/clusters/:cluster/configgroups/:group/configs/:name', configController.createConfigFiles)
-  router.put('/clusters/:cluster/configgroups/:group/configs/:name', configController.updateConfigName)
+  router.put('/clusters/:cluster/configgroups/:group/configs/:name', configController.updateConfigFile)
   router.post('/clusters/:cluster/configs/delete', configController.deleteConfigGroup)
   router.post('/clusters/:cluster/configgroups/:group/configs-batch-delete', configController.deleteConfigFiles)
 
