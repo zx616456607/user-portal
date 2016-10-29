@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Dropdown, Tabs, Card, Menu, Button, Spin, Modal } from 'antd'
+import { Dropdown, Tabs, Card, Menu, Button, Spin, Modal, message } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -16,24 +16,17 @@ import ContainerDetailInfo from "./ContainerDetailInfo.js"
 import ContainerDetailGraph from "./ContainerGraph.js"
 import ContainerDetailLog from "./ContainerLog.js"
 import "./style/ContainerDetail.less"
-import { loadContainerDetail } from '../../actions/app_manage'
+import { loadContainerDetail, deleteContainers } from '../../actions/app_manage'
 import { DEFAULT_CLUSTER } from '../../constants'
 import ContainerMonitior from './ContainerMonitior'
 import TerminalModal from '../TerminalModal'
+import { browserHistory } from 'react-router'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
 const TabPane = Tabs.TabPane
-const ButtonGroup = Button.Group;
-const operaMenu = (
-  <Menu>
-    <Menu.Item key="0">
-      <i className="fa fa-stop" style={{ marginRight: "10px" }}></i>停止
-    </Menu.Item>
-    <Menu.Item key="1">
-      <i className="fa fa-trash-o" style={{ marginRight: "10px" }}></i>删除
-    </Menu.Item>
-  </Menu>);
+const ButtonGroup = Button.Group
+const confirm = Modal.confirm
 
 function loadData(props) {
   const { cluster, containerName } = props
@@ -45,6 +38,7 @@ class ContainerDetail extends Component {
     super(props)
     this.closeTerminalLayoutModal = this.closeTerminalLayoutModal.bind(this)
     this.openTerminalModal = this.openTerminalModal.bind(this)
+    this.deleteContainer = this.deleteContainer.bind(this)
     this.state = {
       currentKey: "1",
       TerminalLayoutModal: false,
@@ -63,13 +57,42 @@ class ContainerDetail extends Component {
       TerminalLayoutModal: false
     });
   }
-  openTerminalModal (item, e) {
+  openTerminalModal(item, e) {
     //this function for user open the terminal modal
     e.stopPropagation();
     this.setState({
       currentContainer: item,
       TerminalLayoutModal: true
     });
+  }
+  deleteContainer() {
+    const { containerName, cluster, deleteContainers } = this.props
+    confirm({
+      title: `您是否确认要重新分配 ${containerName} 这个容器`,
+      onOk() {
+        return new Promise((resolve) => {
+          const hide = message.loading('正在保存中...', 0)
+          deleteContainers(cluster, [containerName], {
+            success: {
+              func: () => {
+                hide()
+                message.success(`容器 ${containerName} 已成功重新分配`)
+                browserHistory.push('/app_manage/container')
+              },
+              isAsync: true
+            },
+            failed: {
+              func: () => {
+                hide()
+                message.error(`容器 ${containerName} 重新分配失败`)
+              }
+            }
+          })
+          resolve()
+        });
+      },
+      onCancel() { },
+    })
   }
   render() {
     const parentScope = this
@@ -86,6 +109,13 @@ class ContainerDetail extends Component {
     if (!container.status) {
       container.status = {}
     }
+    const operaMenu = (
+      <Menu>
+        <Menu.Item key="0" disabled={true}>
+          <i className="fa fa-stop" style={{ marginRight: "10px" }}></i>停止
+        </Menu.Item>
+      </Menu>
+    );
     return (
       <div id="ContainerDetail">
         <QueueAnim className="demo-content"
@@ -127,14 +157,16 @@ class ContainerDetail extends Component {
                 <div className="rightInfo">
                   <div className="actionBox commonData">
                     <Button type="primary" className="viewBtn"
-                            onClick={(e) => this.openTerminalModal(container,e)}>
+                      onClick={(e) => this.openTerminalModal(container, e)}>
                       <svg className="terminal">
                         <use xlinkHref="#terminal" />
                       </svg>
                       登录终端
                     </Button>
-                    <Dropdown.Button overlay={operaMenu} type="ghost">
-                      <i className="fa fa-power-off"></i>&nbsp;重启
+                    <Dropdown.Button
+                      onClick={this.deleteContainer}
+                      overlay={operaMenu} type="ghost">
+                      <i className="fa fa-power-off"></i>&nbsp;重新分配
                     </Dropdown.Button>
                   </div>
                 </div>
@@ -153,7 +185,7 @@ class ContainerDetail extends Component {
                 <TabPane tab="监控" key="2" >
                   <ContainerMonitior key="ContainerMonitior" containerName={containerName} cluster={cluster} />
                 </TabPane>
-                <TabPane tab="日志" key="3" ><ContainerDetailGraph key="ContainerDetailGraph" containerName={containerName} cluster={cluster}/></TabPane>
+                <TabPane tab="日志" key="3" ><ContainerDetailGraph key="ContainerDetailGraph" containerName={containerName} cluster={cluster} /></TabPane>
                 <TabPane tab="事件" key="4" ><ContainerDetailLog key="ContainerDetailLog" containerName={containerName} cluster={cluster} /></TabPane>
               </Tabs>
             </Card>
@@ -163,7 +195,7 @@ class ContainerDetail extends Component {
             className='TerminalLayoutModal'
             transitionName='move-down'
             onCancel={this.closeTerminalLayoutModal}
-          >
+            >
             <TerminalModal scope={parentScope} config={this.state.currentContainer} />
           </Modal>
         </QueueAnim>
@@ -205,4 +237,5 @@ function mapStateToProps(state, props) {
 
 export default connect(mapStateToProps, {
   loadContainerDetail,
+  deleteContainers,
 })(ContainerDetail)
