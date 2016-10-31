@@ -177,6 +177,7 @@ let MyComponent = React.createClass({
     return this.state.checkedList[index].items
   },
   render: function () {
+    return (<div></div>)
     const { cluster } = this.props.cluster
     const { isFetching } = this.props.configGroup[cluster]
     if(isFetching) {

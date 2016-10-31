@@ -55,10 +55,10 @@ class AppUseful extends Component {
       })
       return
     }
-    if(serviceDetailmodalShow == this.props.serviceDetailmodalShow) return
-    this.setLivenessProbe(nextProps.service)
+    this.setLivenessProbe(nextProps.service, serviceDetailmodalShow)
   }
-  setLivenessProbe(service) {
+  setLivenessProbe(service, serviceDetailmodalShow) {
+      if (this.state.submitInfo && this.state.submitInfo.info) return
     let livenessProbe = service.spec.template.spec.containers[0].livenessProbe
     const currentUseful = !!livenessProbe
     if (!livenessProbe) {
