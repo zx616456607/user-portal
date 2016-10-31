@@ -283,7 +283,6 @@ function loadImageTagConfigs(tag, props) {
   loadImageDetailTagConfig(DEFAULT_REGISTRY, currentSelectedImage, tag, {
     success: {
       func: (result) => {
-        console.log('setPort suc !');
         if (checkState === '修改') {
           return
         }
