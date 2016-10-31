@@ -48,7 +48,7 @@ exports.listConfigGroups = function* () {
   })
   this.body = {
     data: data,
-    cluster: clusterID
+    cluster
   }
 }
 

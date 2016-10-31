@@ -228,7 +228,7 @@ class AppUseful extends Component {
       <div id="AppUseful">
         <div className="operaBox">
           <span>设置高可用</span>
-          <Switch checked={this.state.currentUseful} className="switch" defaultChecked={this.state.currentUseful} onChange={this.changeCheckType} disabled={this.state.switchDisable}/>
+          <Switch value={this.state.currentUseful} className="switch" defaultChecked={this.state.currentUseful} onChange={this.changeCheckType} disabled={this.state.switchDisable}/>
           <span className="status">{this.state.currentUseful ? "已开启" : "已关闭"}</span>
         </div>
         <div className="settingBox">

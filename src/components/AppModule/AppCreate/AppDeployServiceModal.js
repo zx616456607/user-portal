@@ -186,6 +186,7 @@ let AppDeployServiceModal = React.createClass({
     let livePeriodSeconds = getFieldProps('livePeriodSeconds').value //检查间隔
     let livePath = getFieldProps('livePath').value //高可用路径
     let args = getFieldProps('args').value //高可用路径
+    let config = getFileProps('config').value
     let image = parentScope.state.registryServer + '/' + parentScope.state.currentSelectedImage + ':' + imageVersion //镜像名称
     let deploymentList = new Deployment(serviceName)
     let serviceList = new Service(serviceName)
@@ -400,6 +401,8 @@ let AppDeployServiceModal = React.createClass({
       periodSeconds: parseInt(livePeriodSeconds)
       })
     }
+
+
     /*Service*/
     let serviceConfig = {
       Service: serviceList,
@@ -510,7 +513,7 @@ let AppDeployServiceModal = React.createClass({
               <UsefulDeployBox scope={scope} form={form}/>
             </Panel>
             <Panel header={composeBoxTitle} key="3" className="composeBigBox">
-              <ComposeDeployBox scope={scope} form={form}/>
+              <ComposeDeployBox scope={scope} form={form} cluster={this.props.cluster}/>
             </Panel>
             <Panel header={advanceBoxTitle} key="4">
               <EnviroDeployBox scope={scope} form={form}/>
