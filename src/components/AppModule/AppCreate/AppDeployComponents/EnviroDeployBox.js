@@ -76,9 +76,11 @@ let MyComponentEnviro = React.createClass({
         <ul>
           {formItems}
         </ul>
-        <div className="addBtn" onClick={this.add}>
-          <Icon type="plus-circle-o" />
-          <span>添加环境变量</span>
+        <div className="addBtn">
+          <Button type="primary" onClick={this.add}>
+            <Icon type="plus-circle-o" />
+            <span>添加环境变量</span>
+          </Button>
         </div>
       </div>
     );
@@ -215,21 +217,6 @@ let MyComponentPort = React.createClass({
         <ul>
           {formItems}
         </ul>
-        {/*{
-          getFieldValue('portKey').length === 0 ?
-            <div className="addBtn">
-              <Button type="primary" onClick={this.add}>
-                <Icon type="plus-circle-o" />
-                <span>添加映射端口</span>
-              </Button>
-            </div> :
-            <div className="addBtn">
-              <Button disabled={parentScope.state.disable} type="primary" onClick={this.add}>
-                <Icon type="plus-circle-o" />
-                <span>添加映射端口</span>
-              </Button>
-            </div>
-        }*/}
         <div className="addBtn">
           <Button type="primary" onClick={this.add} disabled={addDis}>
             <Icon type="plus-circle-o" />

@@ -69,11 +69,10 @@ class MyComponent extends Component {
     localStorage.setItem('selectedList', JSON.stringify(newSeleList))
   }
   checkService(name, inf) {
-    console.log(name);
     this.props.scope.setState({
       serviceModalShow: true,
       checkInf: inf,
-      checkState: '修改'
+      checkState: false
     })
     console.log('inf', inf);
   }
@@ -137,7 +136,7 @@ export default class ServiceList extends Component {
       serviceModalShow: false,
       currentSelectedImage: null,
       registryServer: null,
-      checkState: '创建',
+      checkState: true,
       checkInf: null,
     }
   }

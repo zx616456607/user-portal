@@ -155,7 +155,7 @@ let AppDeployServiceModal = React.createClass({
     })
   },
   componentWillMount() {
-    if (this.props.scope.state.checkState === '修改') {
+    if (!this.props.scope.state.checkState) {
       this.setForm()
     }
   },
@@ -165,7 +165,7 @@ let AppDeployServiceModal = React.createClass({
       return
     }
     if (serviceOpen) {
-      if (this.props.scope.state.checkState === '修改') {
+      if (!this.props.scope.state.checkState) {
         this.setForm()
       }
     }
@@ -440,7 +440,7 @@ let AppDeployServiceModal = React.createClass({
         return
       }
    
-      if (parentScope.state.checkState === '创建') {
+      if (parentScope.state.checkState) {
         this.submitNewService(parentScope)
       } else {
         const reviseServiceName = parentScope.state.checkInf.Service.metadata.name
@@ -546,7 +546,7 @@ let AppDeployServiceModal = React.createClass({
                 servicesList={servicesList}
                 htmlType="submit"
                 >
-                {parentScope.state.checkState}
+                {parentScope.state.checkState ? '创建' : '修改'}
               </Button>
           </div>
         </Form>
