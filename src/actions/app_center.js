@@ -232,7 +232,7 @@ export function imageStore(obj, callback) {
       options: {
         method: 'PUT',
         body: {
-          isFavourite: obj.isFavourite,
+          myfavourite: obj.isFavourite,
         }
       }
     },

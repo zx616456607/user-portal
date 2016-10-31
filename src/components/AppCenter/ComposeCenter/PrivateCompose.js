@@ -25,7 +25,7 @@ const ButtonGroup = Button.Group
 const menusText = defineMessages({
   composeAttr: {
     id: 'AppCenter.ComposeCenter.Stack.composeAttr',
-    defaultMessage: '搜索',
+    defaultMessage: '属性',
   },
   search: {
     id: 'AppCenter.ComposeCenter.Stack.search',
@@ -119,7 +119,7 @@ const MyList = React.createClass({
           success: {
             func: ()=>{
               message.success('删除成功')
-              scope.props.loadMyStack(DEFAULT_REGISTRY)
+              // scope.props.loadMyStack(DEFAULT_REGISTRY)
             },
             isAsync: true
           }
@@ -148,7 +148,7 @@ const MyList = React.createClass({
       )
     }
     if (config.length == 0) {
-      return(
+      return (
         <div className="notData">您还没有编排，去创建一个吧！</div>
       )
     }
@@ -251,18 +251,6 @@ class PrivateCompose extends Component {
         </Menu.Item>
       </Menu>
     );
-    const typeDropdown = (
-      <Menu onClick={this.filterType.bind(this)}
-        style={{ width: '100px' }}
-        >
-        <Menu.Item key='1'>
-          酱油
-          </Menu.Item>
-        <Menu.Item key='2'>
-          又一瓶酱油
-          </Menu.Item>
-      </Menu>
-    );
     return (
       <QueueAnim className='PrivateCompose'
         type='right'
@@ -298,7 +286,7 @@ class PrivateCompose extends Component {
                 </Dropdown>
               </div>
               <div className="type">
-                <span><FormattedMessage {...menusText.type} /></span>
+                <span><FormattedMessage {...menusText.composeAttr} /></span>
               </div>
               <div className='image'>
                 <FormattedMessage {...menusText.desc} />
