@@ -27,7 +27,6 @@ class ConfigFile extends Component {
     this.setState({ checkConfigFile })
   }
   editConfigModal(configName, modal) {
-    console.log('config name ', configName)
     this.setState({
       modalConfigFile: modal,
       configName: configName,
@@ -35,7 +34,7 @@ class ConfigFile extends Component {
     })
   }
   editConfigFile() {
-    console.log('come to this ^')
+    //
   }
   RendFileState(configFile) {
     let containerList = configFile.container
@@ -83,7 +82,6 @@ class ConfigFile extends Component {
   render() {
     const { configFile } = this.props
     let containerList = JSON.parse(configFile)
-    console.log('containerl ist ----------------------------------', )
     let RendfileList = containerList.slice(0, 3).map((containerItem) => {
       return (
         <td key={containerItem.containerId}>

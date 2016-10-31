@@ -351,10 +351,8 @@ let NormalDeployBox = React.createClass({
           success: {
             func: (result) => {
               if (result.data) {
-                console.log('serviceName 6');
                 callback([new Error('服务名称已经存在')])
               } else {
-                console.log('serviceName 7');
                 callback()
               }
             },

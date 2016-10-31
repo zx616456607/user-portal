@@ -24,7 +24,7 @@ class ServiceCollapse extends Component {
     }
   }
   sideCollapse(e) {
-    console.log('ess ',e)
+    //
   }
   render() {
     const scope = this

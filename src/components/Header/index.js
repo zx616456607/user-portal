@@ -96,13 +96,11 @@ class Top extends Component {
     }
   }
   handleChange(e,value) {
-    console.log(`selected ${value}`);
     e.stopPropagation()
-    console.log(e);
     return false
   }
   handleSpaceMenu({key}){
-    console.log('key',`${key}`);
+    //
   }
   handleInputChange(e) {
     this.setState({
@@ -120,8 +118,6 @@ class Top extends Component {
     }
   }
   setCluster(value,option){
-    console.log('value',value);
-    console.log('option',option);
     window.localStorage.setItem('cluster',value)
   }
   render() {
@@ -168,7 +164,7 @@ class Top extends Component {
         </Menu.Item>
       </Menu>
     )
-    
+
     const clusterPlaceholder = (
       <div className="placeholder">
         <i className="fa fa-sitemap" style={{marginRight: 5}}/>

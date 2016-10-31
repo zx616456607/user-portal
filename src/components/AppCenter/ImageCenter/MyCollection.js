@@ -76,7 +76,6 @@ let MyComponent = React.createClass({
   render: function () {
     let config = this.props.config;
     const {isFetching , registryServer} = this.props
-        console.log(this.props)
     if (isFetching) {
       return (
         <div className='loadingBox'>

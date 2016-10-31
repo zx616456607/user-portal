@@ -66,7 +66,7 @@ let CICDSettingModal = React.createClass({
     this.setState({
       useBranch: e.target.checked
     });
-    if(e.target.checked) {     
+    if(e.target.checked) {
       let branch = this.props.form.getFieldsValue(['branch']);
       if(!!branch) {
         this.setState({
@@ -80,7 +80,7 @@ let CICDSettingModal = React.createClass({
     this.setState({
       useTag: e.target.checked
     });
-    if(e.target.checked) { 
+    if(e.target.checked) {
       let tag = this.props.form.getFieldsValue(['tag']);
       if(!!tag) {
         this.setState({
@@ -143,17 +143,16 @@ let CICDSettingModal = React.createClass({
     });
     scope.setState({
       cicdSetModalShow: false
-    });    
+    });
   },
   handleSubmit(e) {
     //this function for user submit the form
     const { scope } = this.props;
     const _this = this;
     const { useBranch, useTag, useRequest } = this.state;
-    if(useBranch) {     
+    if(useBranch) {
       this.props.form.validateFields(['branch'],(errors, values) => {
         if (!!errors) {
-          console.log('Errors in form!!!');
           e.preventDefault();
           return;
         }
@@ -162,13 +161,11 @@ let CICDSettingModal = React.createClass({
     if(useTag) {
       this.props.form.validateFields(['tag'],(errors, values) => {
         if (!!errors) {
-          console.log('Errors in form!!!');
           e.preventDefault();
           return;
         }
       });
     }
-    console.log('submit success')
   },
   render() {
     const { formatMessage } = this.props.intl;
@@ -256,9 +253,9 @@ let CICDSettingModal = React.createClass({
 });
 
 function mapStateToProps(state, props) {
-  
+
   return {
-    
+
   }
 }
 
@@ -269,7 +266,7 @@ CICDSettingModal.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-  
+
 })(injectIntl(CICDSettingModal, {
   withRef: true,
 }));

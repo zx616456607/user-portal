@@ -2,7 +2,7 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
- * CodeStore component 
+ * CodeStore component
  *
  * v0.1 - 2016-10-31
  * @author BaiYu
@@ -87,8 +87,6 @@ const MyComponent = React.createClass({
   },
   operaMenuClick: function (item, e) {
     //this function for user click the dropdown menu
-    console.log(e);
-    console.log(item);
   },
 
   render: function () {
@@ -126,8 +124,8 @@ const MyComponent = React.createClass({
             {item.status}
           </div>
           <div className='oprea'>
-            
-           
+
+
           </div>
         </div>
       );

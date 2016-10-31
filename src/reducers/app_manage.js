@@ -314,7 +314,6 @@ function containerLogs(state = {}, action) {
         }
       })
     case ActionTypes.CONTAINER_LOGS_CLEAR:
-      console.log(action.type)
       var dd = merge({}, defaultState, {
         [cluster]: {
           isFetching: false

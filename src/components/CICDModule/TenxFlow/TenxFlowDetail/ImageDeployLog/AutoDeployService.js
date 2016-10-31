@@ -111,15 +111,13 @@ let AutoDeployService = React.createClass({
       e.preventDefault();
       this.props.form.validateFields((errors, values) => {
         if (errors) {
-          console.log(errors);
           return;
         }
-        console.log(values);
         this.setState({
           editing: false
         });
       });
-    }   
+    }
   },
   cancelEdit (e) {
     this.setState({
@@ -138,7 +136,7 @@ let AutoDeployService = React.createClass({
       form.setFieldsValue({
         keys,
       });
-    }  
+    }
   },
   add () {
     uuid++;
@@ -223,7 +221,7 @@ let AutoDeployService = React.createClass({
               <Button className='cancelBtn' size='large' type='ghost' onClick={this.cancelEdit}>
                 <FormattedMessage {...menusText.cancel} />
               </Button>
-              ] : null 
+              ] : null
             }
           </div>
           <Form className='tagForm' horizontal form={this.props.form}>
@@ -244,7 +242,7 @@ let AutoDeployService = React.createClass({
                   </span>
                   <div style={{ clear:'both' }}></div>
                 </div>
-                {formItems}      
+                {formItems}
               </div>
             ] : [
               <div className='noTag'>
@@ -269,9 +267,9 @@ let AutoDeployService = React.createClass({
 });
 
 function mapStateToProps(state, props) {
-  
+
   return {
-    
+
   }
 }
 
@@ -282,7 +280,7 @@ AutoDeployService.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-  
+
 })(injectIntl(AutoDeployService, {
   withRef: true,
 }));
