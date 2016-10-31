@@ -214,12 +214,12 @@ class ImageDetailBox extends Component {
                 <FormattedMessage {...menusText.deployImage} />
               </Button>
             { ( imageInfo.isFavourite == 1) ?
-              <Button size="large" type="ghost" onClick={ ()=>this.setimageStore(imageInfo.name, 0) }>
+              <Button size="large" type="ghost" onClick={ ()=>this.setimageStore(imageInfo.name, '0') }>
                 <Icon type="star" />
                 <FormattedMessage {...menusText.closeImage} />
               </Button>
               :
-              <Button size="large" type="ghost" onClick={ ()=>this.setimageStore(imageInfo.name, 1) }>
+              <Button size="large" type="ghost" onClick={ ()=>this.setimageStore(imageInfo.name, '1') }>
                 <Icon type="star-o" />
                 <FormattedMessage {...menusText.colletctImage} />
               </Button>

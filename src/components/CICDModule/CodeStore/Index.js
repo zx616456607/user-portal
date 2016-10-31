@@ -39,56 +39,44 @@ let testData = [
     'name': 'test4',
     'updateTime': '4小时前',
     'status': 'fail'
-  },
+  }
 ]
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
 
 const menusText = defineMessages({
-  search: {
-    id: 'CICD.Tenxflow.TenxFlowList.search',
-    defaultMessage: '搜索',
+  tooltips: {
+    id: 'CICD.TenxStorm.tooltips',
+    defaultMessage: '代码仓库：这里完成构建前的准备的工作，开发者可以在这里关联企业里业务代码所在的托管仓库，关联好的代码仓库后，选择激活代码项目为可构建状态，后便后续构建Flow里选择可构建的代码库。',
+  },
+  show: {
+    id: 'CICD.TenxStorm.show',
+    defaultMessage: '查看公钥',
   },
   name: {
-    id: 'CICD.Tenxflow.TenxFlowList.name',
+    id: 'CICD.TenxStorm.name',
     defaultMessage: '名称',
   },
-  updateTime: {
-    id: 'CICD.Tenxflow.TenxFlowList.updateTime',
-    defaultMessage: '更新时间',
+  attr: {
+    id: 'CICD.TenxStorm.attr',
+    defaultMessage: '属性',
   },
-  status: {
-    id: 'CICD.Tenxflow.TenxFlowList.status',
-    defaultMessage: '构建状态',
-  },
-  opera: {
-    id: 'CICD.Tenxflow.TenxFlowList.opera',
+  action: {
+    id: 'CICD.TenxStorm.action',
     defaultMessage: '操作',
   },
-  tooltips: {
-    id: 'CICD.Tenxflow.TenxFlowList.tooltips',
-    defaultMessage: 'TenxFlow：这里完成【代码项目构建、测试】等流程的定义与执行，可以实现若干个（≥1）项目组成的一个Flow，由若干个项目流程化完成一个Flow，直至完成整个总项目，其中大部分流程以生成应用镜像为结束标志。',
+  codeSrc: {
+    id: 'CICD.TenxStorm.codeSrc',
+    defaultMessage: '代码源',
   },
-  create: {
-    id: 'CICD.Tenxflow.TenxFlowList.create',
-    defaultMessage: '创建TenxFlow',
+  linkCode: {
+    id: 'CICD.TenxStorm.linkCode',
+    defaultMessage: '关联代码库',
   },
-  deloyLog: {
-    id: 'CICD.Tenxflow.TenxFlowList.deloyLog',
-    defaultMessage: '构建记录',
-  },
-  deloyStart: {
-    id: 'CICD.Tenxflow.TenxFlowList.deloyStart',
-    defaultMessage: '立即构建',
-  },
-  checkImage: {
-    id: 'CICD.Tenxflow.TenxFlowList.checkImage',
-    defaultMessage: '查看镜像',
-  },
-  delete: {
-    id: 'CICD.Tenxflow.TenxFlowList.delete',
-    defaultMessage: '删除TenxFlow',
+  releaseActivation: {
+    id: 'CICD.TenxStorm.releaseActivation',
+    defaultMessage: '解除激活',
   },
 })
 
@@ -112,11 +100,15 @@ const MyComponent = React.createClass({
           >
           <Menu.Item key='1'>
             <i className='fa fa-eye' />&nbsp;
-            <FormattedMessage {...menusText.checkImage} />
+            WebHook
           </Menu.Item>
           <Menu.Item key='2'>
             <i className='fa fa-trash' />&nbsp;
-            <FormattedMessage {...menusText.delete} />
+            <FormattedMessage {...menusText.show} />
+          </Menu.Item>
+          <Menu.Item key='3'>
+            <i className='fa fa-trash' />&nbsp;
+            <FormattedMessage {...menusText.releaseActivation} />
           </Menu.Item>
         </Menu>
       );
@@ -134,14 +126,8 @@ const MyComponent = React.createClass({
             {item.status}
           </div>
           <div className='oprea'>
-            <Button className='logBtn' size='large' type='primary' onClick={scope.openTenxFlowDeployLogModal}>
-              <i className='fa fa-wpforms' />&nbsp;
-              <FormattedMessage {...menusText.deloyLog} />
-            </Button>
-            <Dropdown.Button overlay={dropdown} type='ghost' size='large'>
-              <i className='fa fa-pencil-square-o' />&nbsp;
-              <FormattedMessage {...menusText.deloyStart} />
-            </Dropdown.Button>
+            
+           
           </div>
         </div>
       );
@@ -157,48 +143,12 @@ const MyComponent = React.createClass({
 class CodeStore extends Component {
   constructor(props) {
     super(props);
-    this.openCreateTenxFlowModal = this.openCreateTenxFlowModal.bind(this);
-    this.closeCreateTenxFlowModal = this.closeCreateTenxFlowModal.bind(this);
-    this.openTenxFlowDeployLogModal = this.openTenxFlowDeployLogModal.bind(this);
-    this.closeTenxFlowDeployLogModal = this.closeTenxFlowDeployLogModal.bind(this);
-    this.state = {
-      createTenxFlowModal: false,
-      TenxFlowDeployLogModal: false,
-      currentTenxFlow: null
-    }
   }
 
   componentWillMount() {
     document.title = '代码仓库 | 时速云';
   }
 
-  openCreateTenxFlowModal() {
-    //this function for user open the modal of create new tenxflow
-    this.setState({
-      createTenxFlowModal: true
-    });
-  }
-
-  closeCreateTenxFlowModal() {
-    //this function for user close the modal of create new tenxflow
-    this.setState({
-      createTenxFlowModal: false
-    });
-  }
-
-  openTenxFlowDeployLogModal() {
-    //this function for user open the modal of tenxflow deploy log
-    this.setState({
-      TenxFlowDeployLogModal: true
-    });
-  }
-
-  closeTenxFlowDeployLogModal() {
-    //this function for user close the modal of tenxflow deploy log
-    this.setState({
-      TenxFlowDeployLogModal: false
-    });
-  }
 
   render() {
     const { formatMessage } = this.props.intl;
@@ -212,7 +162,7 @@ class CodeStore extends Component {
           <div className='operaBox'>
             <Button className='createBtn' size='large' type='primary' onClick={this.openCreateTenxFlowModal}>
               <i className='fa fa-plus' />&nbsp;
-              <FormattedMessage {...menusText.create} />
+              <FormattedMessage {...menusText.linkCode} />
             </Button>
             <Input className='searchBox' placeholder={formatMessage(menusText.search)} type='text' />
             <i className='fa fa-search'></i>
@@ -223,14 +173,14 @@ class CodeStore extends Component {
               <div className='name'>
                 <FormattedMessage {...menusText.name} />
               </div>
-              <div className='time'>
-                <FormattedMessage {...menusText.updateTime} />
+              <div className='type'>
+                <FormattedMessage {...menusText.attr} />
               </div>
               <div className='status'>
-                <FormattedMessage {...menusText.status} />
+                <FormattedMessage {...menusText.codeSrc} />
               </div>
               <div className='oprea'>
-                <FormattedMessage {...menusText.opera} />
+                <FormattedMessage {...menusText.action} />
               </div>
             </div>
             <MyComponent scope={scope} config={testData} />
