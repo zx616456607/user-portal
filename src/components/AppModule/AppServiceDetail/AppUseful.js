@@ -55,6 +55,7 @@ class AppUseful extends Component {
       })
       return
     }
+    if(serviceDetailmodalShow == this.props.serviceDetailmodalShow) return
     this.setLivenessProbe(nextProps.service)
   }
   setLivenessProbe(service) {
@@ -147,7 +148,7 @@ class AppUseful extends Component {
     const submitInfo = this.state.submitInfo
     const propertys = Object.getOwnPropertyNames(submitInfo)
     if(this.state.checkType === 'http') {
-      if(propertys.length < 5) {
+      if(propertys.length < 4 || !submitInfo.info.path || !submitInfo.info.path) {
         message.error('信息填写不全')
         return
       }
@@ -202,10 +203,13 @@ class AppUseful extends Component {
   }
   getInputInfo(property, e) {
     let submitInfo = this.state.submitInfo
-    let mergeObj = {[property]: e}
-    if(property === 'port' || property === 'path') {
-      mergeObj = { info: {[property]:e}}
-    } 
+    let mergeObj = { [property]: e }
+    if (property === 'port') {
+      mergeObj = { info: { [property]: e } }
+    }
+    if (property === 'path') {
+      mergeObj = { info: { [property]: e.target.value } }
+    }
     submitInfo = merge({}, submitInfo, mergeObj)
     this.setState({
       submitInfo
