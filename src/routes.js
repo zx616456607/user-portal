@@ -40,13 +40,13 @@ import ImageCenter from './components/AppCenter/Index'
 import ImageStore from './components/AppCenter/ImageStore'
 import Stack from './components/AppCenter/Stack'
 /*-------------------App_center Module Stop------------------------*/
-/*-------------------database & cache Module Start------------------------*/  
+/*-------------------database & cache Module Start------------------------*/
 import Database from './containers/Database/Index'
 import MysqlCluster from './components/DatabaseCache/MysqlCluster'
 import MongoCluster from './components/DatabaseCache/MongoCluster'
 import RedisCluster from './components/DatabaseCache/RedisCluster'
 import DatabaseStorage from './components/DatabaseCache/DatabaseStorage'
-/*-------------------database & cache Module Stop------------------------*/  
+/*-------------------database & cache Module Stop------------------------*/
 /*-------------------CI/CD Module Start----------------------------------*/
 import CICD from './containers/CICD/index'
 import CodeStore from './components/CICDModule/CodeStore'
@@ -56,7 +56,7 @@ import TenxFlowBuild from './components/CICDModule/TenxFlow/TenxFlowDetail'
 /*-------------------CI/CD Module Stop-----------------------------------*/
 /*-------------------Setting Module Start----------------------------------*/
 import Setting from './containers/Setting/index'
-import UserInfo from './components/SettingModal/'
+// import UserInfo from './components/SettingModal/'
 
 /*-------------------Setting Module Stop-----------------------------------*/
 
@@ -105,7 +105,7 @@ export default (
       <Route path="docker_file" component={DockerFile} />
     </Route>
     <Route path="setting" component={Setting}>
-      <IndexRoute component={UserInfo} />
+      {/*<IndexRoute component={UserInfo} />*/}
     </Route>
     <Route path="*" component={ErrorPage} />
   </Route>
