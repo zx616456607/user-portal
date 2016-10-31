@@ -64,8 +64,7 @@ class CreateCompose extends Component {
         'content': values.textarea,
         'name': values.name
       }
-      console.log(config, this.state.composeAttr)
-      return
+      // return
       this.props.createStack(config, {
         success: {
           func: ()=>{
