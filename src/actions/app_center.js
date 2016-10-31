@@ -229,12 +229,29 @@ export function imageStore(obj, callback) {
         method: 'PUT',
         body: {
           myfavourite: obj.myfavourite,
-          isPrivate: obj.isPrivate
         }
       }
     },
     registry: obj.registry,
     myfavourite: obj.myfavourite,
+    callback
+  }
+}
+// set image store 设置镜像 公开 or 私有
+export function imageSwitch(obj, callback) {
+  return {
+    [FETCH_API]: {
+      types: [SET_IMAGE_STORE_REQUEST, SET_IMAGE_STORE_SUCCESS, SET_IMAGE_STORE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/registries/${obj.registry}/${obj.image}`,
+      schema: Schemas.REGISTRYS,
+      options: {
+        method: 'PUT',
+        body: {
+          isPrivate: obj.isPrivate
+        }
+      }
+    },
+    registry: obj.registry,
     isPrivate: obj.isPrivate,
     callback
   }

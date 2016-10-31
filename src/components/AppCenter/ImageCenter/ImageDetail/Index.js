@@ -12,7 +12,7 @@ import { Tabs, Button, Card,Switch , Menu, Tooltip ,Icon, message} from 'antd'
 import { Link} from 'react-router'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { imageStore ,loadPublicImageList , loadPrivateImageList, loadOtherImage} from '../../../../actions/app_center'
+import { imageStore, imageSwitch ,loadPublicImageList , loadPrivateImageList, loadOtherImage} from '../../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import ImageVersion from './ImageVersion.js'
 import DetailInfo from './DetailInfo'
@@ -128,11 +128,11 @@ class ImageDetailBox extends Component {
   //   }
   // }
   setimageStore(image, favourite) {
-    let isPrivate = this.props.imageInfo.isPrivate;
+    // let isPrivate = this.props.imageInfo.isPrivate;
     const config = {
       myfavourite: favourite,
       registry: DEFAULT_REGISTRY,
-      isPrivate,
+      // isPrivate,
       image
     }
     this.props.imageStore(config, {
@@ -146,7 +146,7 @@ class ImageDetailBox extends Component {
   isSwitch(key) {
     let isPrivate = this.props.imageInfo.isPrivate;
     let image = this.state.imageDetail.name
-    const favourite = this.state.imageDetail.isFavourite
+    // const favourite = this.state.imageDetail.isFavourite
     const imageSpace = this.props.parentScope.state.current
 
     key ? isPrivate =0 : isPrivate =1
@@ -154,10 +154,10 @@ class ImageDetailBox extends Component {
       isPrivate,
       registry: DEFAULT_REGISTRY,
       image,
-      myfavourite: favourite,
+      // myfavourite: favourite,
     }
     const scope = this
-    this.props.imageStore(config, {
+    this.props.imageSwitch(config, {
       success: {
         func: ()=>{
           message.success('更新成功！')
@@ -214,12 +214,12 @@ class ImageDetailBox extends Component {
               </Button>
             { ( imageInfo.isFavourite == 1) ?
               <Button size="large" type="ghost" onClick={ ()=>this.setimageStore(imageInfo.name, 0) }>
-                <i className="fa fa-star-o"></i>&nbsp;
+                <Icon type="star" />
                 <FormattedMessage {...menusText.closeImage} />
               </Button>
               :
               <Button size="large" type="ghost" onClick={ ()=>this.setimageStore(imageInfo.name, 1) }>
-                <i className="fa fa-star-o"></i>&nbsp;
+                <Icon type="star-o" />
                 <FormattedMessage {...menusText.colletctImage} />
               </Button>
             }
@@ -279,6 +279,9 @@ function mapDispatchToProps(dispatch) {
   return {
     imageStore: (obj, callback) => {
       dispatch(imageStore(obj, callback))
+    },
+    imageSwitch: (obj, callback) => {
+      dispatch(imageSwitch(obj, callback))
     },
     loadPrivateImageList: (DEFAULT_REGISTRY) => {
       dispatch(loadPrivateImageList(DEFAULT_REGISTRY))
