@@ -217,7 +217,6 @@ export default class ServiceList extends Component {
   }
 
   render() {
-    console.log('console.log(this.state);',this.state);
     const parentScope = this
     const { servicesList, isFetching} = this.props
     return (

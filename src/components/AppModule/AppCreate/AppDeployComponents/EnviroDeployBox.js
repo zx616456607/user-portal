@@ -135,39 +135,36 @@ let MyComponentPort = React.createClass({
       })
       return
     } else {
-      setTimeout(() => {
-        if (isNaN(Number(value))) {
-          callback([new Error('抱歉，该端口不合法.')])
-          this.setState({
-            addDis: true,
-          })
-          return
-        } else {
-          var i = 0
-          getFieldValue('portKey').map((k) => {
-            if(value === getFieldProps(`targetPortUrl${k}`).value){
-              i++
-              if(i>1){
-                callback([new Error('抱歉，端口名称重复.')])
-                
-                this.setState({
-                  addDis: true,
-                })
-                return
-              }
+      if (isNaN(Number(value))) {
+        callback([new Error('抱歉，该端口不合法.')])
+        this.setState({
+          addDis: true,
+        })
+        return
+      } else {
+        var i = 0
+        this.setState({
+          addDis: false,
+        })
+        getFieldValue('portKey').map((k) => {
+          if(value === getFieldProps(`targetPortUrl${k}`).value){
+            i++
+            if(i>1){
+              callback([new Error('抱歉，端口名称重复.')])
+              this.setState({
+                addDis: true,
+              })
+              return
             }
-          })
-          this.setState({
-            addDis: false,
-          })
-          callback()
-        }
-      }, 800)
+          }
+        })
+        callback()
+      }
     }
   },
   render: function () {
     const { form, parentScope } = this.props
-    const { intDis } = this.state
+    const { intDis ,addDis} = this.state
     const { getFieldProps, getFieldValue, isFieldValidating, getFieldError } = form
     getFieldProps('portKey', {
       initialValue: [],
@@ -234,7 +231,7 @@ let MyComponentPort = React.createClass({
             </div>
         }*/}
         <div className="addBtn">
-          <Button type="primary" onClick={this.add} disabled={this.state.addDis}>
+          <Button type="primary" onClick={this.add} disabled={addDis}>
             <Icon type="plus-circle-o" />
             <span>添加映射端口</span>
           </Button>
