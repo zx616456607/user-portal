@@ -11,7 +11,7 @@
 import * as ActionTypes from '../actions/app_center'
 import merge from 'lodash/merge'
 import reducerFactory from './factory'
-import { cloneDeep } from 'lodash'
+import { cloneDeep , remove} from 'lodash'
 
 function privateImages(state = {}, action) {
   const registry = action.registry
@@ -170,7 +170,9 @@ export function images(state = { publicImages: {} }, action) {
     fockImages: fockImagesList(state.fockImages, action),
     otherImages: otherImages(state.otherImages, action),
     imagesInfo: imagesInfo(state.imagesInfo, action),
-    stackCenter: stackList(state.stackList, action)
+    stackCenter: stackList(state.stackCenter, action),
+    createStack: createStack(state.createStack, action),
+    // deleteStack: deleteStack(state.deleteStack, action)
   }
 }
 //get image detail tag
@@ -310,8 +312,12 @@ function imagesInfo(state = {}, action) {
 
     case ActionTypes.SET_IMAGE_STORE_SUCCESS:
       const oldimageInfo = cloneDeep(state)
-      oldimageInfo.default.imageInfo.isFavourite = action.myfavourite
-      oldimageInfo.default.imageInfo.isPrivate = action.isPrivate
+      if (action.isFavourite != undefined) {
+        oldimageInfo.default.imageInfo.isFavourite = action.isFavourite
+      }
+      if (action.isPrivate != undefined) {
+        oldimageInfo.default.imageInfo.isPrivate = action.isPrivate
+      }
       return merge({}, oldimageInfo ,{
         [registry]: { isFetching: false }
       })
@@ -431,6 +437,7 @@ function stackList(state={}, action) {
       return merge({}, state, {
         [registry]: {
           isFetching: false,
+          registry,
           myStackList: action.response.result.data.data || []
         }
       })
@@ -438,6 +445,7 @@ function stackList(state={}, action) {
       return merge({}, defaultState, state, {
         [registry]: { isFetching: false }
       })
+
     case ActionTypes.GET_PUBLIC_STACK_REQUEST:
       return merge({}, defaultState, state, {
         [registry]: { isFetching: true }
@@ -453,7 +461,42 @@ function stackList(state={}, action) {
       return merge({}, defaultState, state, {
         [registry]: { isFetching: false }
       })
+    // ---------------------- delete template     ---------
+    case ActionTypes.DELETE_PRIVATE_STACK_REQUEST:
+      return merge({}, state, {
+        [registry]: { isFetching: false }
+      })
+    case ActionTypes.DELETE_PRIVATE_STACK_SUCCESS:
+      const oldStack = cloneDeep(state)
+      const Registry= action.registry
+      const list = oldStack[Registry]
+      let ids = remove(list.myStackList, item => {
+        return item.id == action.id
+      })
+      return oldStack
+    case ActionTypes.DELETE_PRIVATE_STACK_FAILURE:
+      return merge({}, state, {
+        [registry]: { isFetching: false }
+      })
+    default:
+      return state
+  }
+}
 
+function createStack(state={}, action) {
+  switch (action.type) {
+   case ActionTypes.CREATE_STACK_REQUEST:
+      return merge({}, state, {
+       isFetching: true 
+      })
+    case ActionTypes.CREATE_STACK_SUCCESS:
+      return merge({}, state, {
+        isFetching: false 
+      })
+    case ActionTypes.CREATE_STACK_FAILURE:
+      return merge({}, state, {
+         isFetching: false 
+      })
     default:
       return state
   }

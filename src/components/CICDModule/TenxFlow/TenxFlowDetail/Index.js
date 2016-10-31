@@ -3,7 +3,7 @@
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
  * TenxFlowDetail component
- * 
+ *
  * v0.1 - 2016-10-08
  * @author GaoJian
  */
@@ -81,7 +81,7 @@ class TenxFlowDetail extends Component {
       TenxFlowDeployLogModal: false,
     }
   }
-  
+
   componentWillMount() {
     document.title = 'TenxFlow | 时速云';
   }
@@ -92,21 +92,21 @@ class TenxFlowDetail extends Component {
       createTenxFlowModal: true
     });
   }
-  
+
   closeCreateTenxFlowModal() {
     //this function for user close the modal of create new tenxflow
     this.setState({
       createTenxFlowModal: false
     });
   }
-  
+
   openTenxFlowDeployLogModal() {
     //this function for user open the modal of tenxflow deploy log
     this.setState({
       TenxFlowDeployLogModal: true
     });
   }
-  
+
   closeTenxFlowDeployLogModal() {
     //this function for user close the modal of tenxflow deploy log
     this.setState({
@@ -115,7 +115,6 @@ class TenxFlowDetail extends Component {
   }
 
   render() {
-    console.log(this)
     const { formatMessage } = this.props.intl;
     const scope = this;
     const tenxflow = this.props.config;
@@ -127,7 +126,7 @@ class TenxFlowDetail extends Component {
           <Card className='infoBox'>
             <div className='imgBox' >
               <img src='/img/test/github.jpg' />
-            </div>  
+            </div>
               <p className='title'>这是标题</p>
             <div className='msgBox'>
               <span >这是状态</span>
@@ -156,16 +155,16 @@ class TenxFlowDetail extends Component {
             <TabPane tab='TenxFow Yaml' key='5'><TenxFlowDetailYaml scope={scope} /></TabPane>
             <TabPane tab='设置' key='6'><TenxFlowDetailSetting scope={scope} /></TabPane>
           </Tabs>
-        </div>       
+        </div>
       </QueueAnim>
     )
   }
 }
 
 function mapStateToProps(state, props) {
-  
+
   return {
-    
+
   }
 }
 
@@ -174,7 +173,7 @@ TenxFlowDetail.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-  
+
 })(injectIntl(TenxFlowDetail, {
   withRef: true,
 }));

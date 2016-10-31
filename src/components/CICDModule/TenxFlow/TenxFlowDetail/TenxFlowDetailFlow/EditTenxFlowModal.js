@@ -221,7 +221,7 @@ let EditTenxFlowModal = React.createClass({
     // can use data-binding to set
     form.setFieldsValue({
       'services':keys
-    });  
+    });
   },
   addService () {
     //this function for user add an new box of service select
@@ -271,7 +271,7 @@ let EditTenxFlowModal = React.createClass({
     const { form } = this.props;
     let inputValue = form.getFieldValue('shellCode' + index);
     if(index == shellUid) {
-      if(!!inputValue) {        
+      if(!!inputValue) {
         shellUid++;
         // can use data-binding to get
         let keys = form.getFieldValue('shellCodes');
@@ -285,7 +285,7 @@ let EditTenxFlowModal = React.createClass({
     }
   },
   changeUseDockerFile (e) {
-    //this function for user change using the docker file or not 
+    //this function for user change using the docker file or not
     if(e.target.checked) {
       this.setState({
         useDockerfile: true
@@ -325,9 +325,7 @@ let EditTenxFlowModal = React.createClass({
     const { scope } = this.props;
     const _this = this;
     this.props.form.validateFields((errors, values) => {
-      console.log(values)
       if (!!errors) {
-        console.log('Errors in form!!!');
         e.preventDefault();
         return;
       }
@@ -337,7 +335,7 @@ let EditTenxFlowModal = React.createClass({
       scope.cancelEditCard();
     });
   },
-  render() {  
+  render() {
     const { formatMessage } = this.props.intl;
     const { config, editType, form } = this.props;
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form;
@@ -355,7 +353,7 @@ let EditTenxFlowModal = React.createClass({
         ],
       });
       return (
-      <QueueAnim key={'serviceName' + k + 'Animate'}>  
+      <QueueAnim key={'serviceName' + k + 'Animate'}>
         <div className='serviceDetail' key={'serviceName' + k}>
           <Form.Item className='commonItem'>
             <Select {...serviceSelect} style={{ width: '100px' }} >
@@ -366,7 +364,7 @@ let EditTenxFlowModal = React.createClass({
             <i className='fa fa-trash' onClick={() => this.removeService(k)}/>
           </Form.Item>
           <Modal className='tenxFlowServiceEnvModal'
-            title={<FormattedMessage {...menusText.envTitle} />} 
+            title={<FormattedMessage {...menusText.envTitle} />}
             visible={this.state.envModalShow == k ? true : false}
             onOk={this.closeEnvSettingModal}
           >
@@ -427,7 +425,7 @@ let EditTenxFlowModal = React.createClass({
     const otherImageTagProps = getFieldProps('otherTag', {
       rules: [
         { message: '请输入镜像版本' },
-      ],      
+      ],
     });
     return (
       <div id='EditTenxFlowModal' key='EditTenxFlowModal'>
@@ -462,7 +460,7 @@ let EditTenxFlowModal = React.createClass({
                 </QueueAnim>
               ] : null
             }
-              
+
           </div>
           <div style={{ clear:'both' }} />
         </div>
@@ -483,7 +481,7 @@ let EditTenxFlowModal = React.createClass({
             <span><FormattedMessage {...menusText.flowName} /></span>
           </div>
           <div className='input'>
-            <FormItem 
+            <FormItem
               hasFeedback
               help={isFieldValidating('flowName') ? '校验中...' : (getFieldError('flowName') || []).join(', ')}
               style={{ width:'220px' }}
@@ -499,7 +497,7 @@ let EditTenxFlowModal = React.createClass({
             <span><FormattedMessage {...menusText.imageName} /></span>
           </div>
           <div className='input'>
-            <FormItem 
+            <FormItem
               hasFeedback
               help={isFieldValidating('imageName') ? '校验中...' : (getFieldError('imageName') || []).join(', ')}
               style={{ width:'220px' }}
@@ -531,10 +529,10 @@ let EditTenxFlowModal = React.createClass({
           </div>
           <div style={{ clear:'both' }} />
         </div>
-        <div className='line'></div>
         {
           config.type == 'buildImage' ? [
             <QueueAnim className='buildImageForm'>
+              <div className='line'></div>
               <div className='commonBox' key='buildImageFormAnimate'>
                 <div className='title'>
                   <span>docker File</span>
@@ -624,24 +622,24 @@ let EditTenxFlowModal = React.createClass({
             </QueueAnim>
           ] : null
         }
-        <div className='modalbtnBox'>
-          <Button size='large' onClick={this.cancelChange}>
-            <FormattedMessage {...menusText.cancel} />
-          </Button>
-          <Button size='large' type='primary' onClick={this.handleSubmit}>
-            <FormattedMessage {...menusText.submit} />
-          </Button>
-        </div>
       </Form>
+      <div className='modalBtnBox'>
+        <Button size='large' onClick={this.cancelChange}>
+          <FormattedMessage {...menusText.cancel} />
+        </Button>
+        <Button size='large' type='primary' onClick={this.handleSubmit}>
+          <FormattedMessage {...menusText.submit} />
+        </Button>
       </div>
+    </div>
     )
   }
 });
 
 function mapStateToProps(state, props) {
-  
+
   return {
-    
+
   }
 }
 
@@ -652,7 +650,7 @@ EditTenxFlowModal.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-  
+
 })(injectIntl(EditTenxFlowModal, {
   withRef: true,
 }));

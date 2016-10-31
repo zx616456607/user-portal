@@ -13,38 +13,114 @@ import merge from 'lodash/merge'
 import reducerFactory from './factory'
 import { cloneDeep } from 'lodash'
 
-function databaseAllList(state = {}, action) {
-  const database = action.database
+function mysqlDatabaseAllList(state = {}, action) {
   const defaultState = {
-    [database]: {
+    'MySql': {
       isFetching: false,
-      database,
+      database: 'MySql',
       databaseList: []
     }
   }
   switch (action.type) {
-    case ActionTypes.DATABASE_CACHE_ALL_LIST_REQUEST:
+    case ActionTypes.MYSQL_DATABASE_CACHE_ALL_LIST_REQUEST:
       return merge({}, defaultState, state, {
-        [database]: { isFetching: true }
+        'MySql': { isFetching: true }
       })
-    case ActionTypes.DATABASE_CACHE_ALL_LIST_SUCCESS:
-      console.log(action.response.result)
+    case ActionTypes.MYSQL_DATABASE_CACHE_ALL_LIST_SUCCESS:
       return merge({}, state, {
-        [database]: {
+        'MySql': {
           isFetching: false,
+          database: 'MySql',
+          databaseList: action.response.result.databaseList || []
         }
       })
-    case ActionTypes.DATABASE_CACHE_ALL_LIST_FAILURE:
+    case ActionTypes.MYSQL_DATABASE_CACHE_ALL_LIST_FAILURE:
       return merge({}, defaultState, state, {
-        [database]: { isFetching: false }
+        'MySql': { isFetching: false }
       })
     default:
       return state
   }
 }
 
-export function images(state = { publicImages: {} }, action) {
+function redisDatabaseAllList(state = {}, action) {
+  const defaultState = {
+    'Redis': {
+      isFetching: false,
+      database: 'Redis',
+      databaseList: []
+    }
+  }
+  switch (action.type) {
+    case ActionTypes.REDIS_DATABASE_CACHE_ALL_LIST_REQUEST:
+      return merge({}, defaultState, state, {
+        'Redis': { isFetching: true }
+      })
+    case ActionTypes.REDIS_DATABASE_CACHE_ALL_LIST_SUCCESS:
+      return merge({}, state, {
+        'Redis': {
+          isFetching: false,
+          database: 'Redis',
+          databaseList: action.response.result.databaseList || []
+        }
+      })
+    case ActionTypes.REDIS_DATABASE_CACHE_ALL_LIST_FAILURE:
+      return merge({}, defaultState, state, {
+        'Redis': { isFetching: false }
+      })
+    default:
+      return state
+  }
+}
+
+function databaseClusterDetail(state = {}, action) {
+  const defaultState = {
+    databaseInfo: {
+      isFetching: false,
+      databaseInfo: null
+    }
+  }
+  switch (action.type) {
+    case ActionTypes.GET_DATABASE_DETAIL_INFO_REQUEST:
+      return merge({}, defaultState, state, {
+        databaseInfo: { isFetching: true }
+      })
+    case ActionTypes.GET_DATABASE_DETAIL_INFO_SUCCESS:
+      return merge({}, state, {
+        databaseInfo: {
+          isFetching: false,
+          databaseInfo: action.response.result.databaseInfo || null
+        }
+      })
+    case ActionTypes.GET_DATABASE_DETAIL_INFO_FAILURE:
+      return merge({}, defaultState, state, {
+        databaseInfo: { isFetching: false }
+      })
+    default:
+      return state
+  }
+}
+
+
+export function databaseCache(state = { databaseCache: {} }, action) {
   return {
-    privateImages: privateImages(state.privateImages, action),
+    mysqlDatabaseAllList: mysqlDatabaseAllList(state.mysqlDatabaseAllList, action),
+    redisDatabaseAllList: redisDatabaseAllList(state.redisDatabaseAllList, action),
+    createMySql: reducerFactory({
+      REQUEST: ActionTypes.CREATE_MYSQL_DATABASE_CACHE_REQUEST,
+      SUCCESS: ActionTypes.CREATE_MYSQL_DATABASE_CACHE_SUCCESS,
+      FAILURE: ActionTypes.CREATE_MYSQL_DATABASE_CACHE_FAILURE
+    }, state.createMySql, action),
+    createRedis: reducerFactory({
+      REQUEST: ActionTypes.CREATE_REDIS_DATABASE_CACHE_REQUEST,
+      SUCCESS: ActionTypes.CREATE_REDIS_DATABASE_CACHE_SUCCESS,
+      FAILURE: ActionTypes.CREATE_REDIS_DATABASE_CACHE_FAILURE
+    }, state.createRedis, action),
+    deleteDatabase: reducerFactory({
+      REQUEST: ActionTypes.DELETE_DATABASE_CACHE_REQUEST,
+      SUCCESS: ActionTypes.DELETE_DATABASE_CACHE_SUCCESS,
+      FAILURE: ActionTypes.DELETE_DATABASE_CACHE_FAILURE
+    }, state.deleteDatabase, action),
+    databaseClusterDetail: databaseClusterDetail(state.databaseClusterDetail, action)
   }
 }

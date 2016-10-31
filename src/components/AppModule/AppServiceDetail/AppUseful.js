@@ -55,9 +55,10 @@ class AppUseful extends Component {
       })
       return
     }
-    this.setLivenessProbe(nextProps.service)
+    this.setLivenessProbe(nextProps.service, serviceDetailmodalShow)
   }
-  setLivenessProbe(service) {
+  setLivenessProbe(service, serviceDetailmodalShow) {
+      if (this.state.submitInfo && this.state.submitInfo.info) return
     let livenessProbe = service.spec.template.spec.containers[0].livenessProbe
     const currentUseful = !!livenessProbe
     if (!livenessProbe) {
@@ -147,7 +148,7 @@ class AppUseful extends Component {
     const submitInfo = this.state.submitInfo
     const propertys = Object.getOwnPropertyNames(submitInfo)
     if(this.state.checkType === 'http') {
-      if(propertys.length < 5) {
+      if(propertys.length < 4 || !submitInfo.info.path || !submitInfo.info.path) {
         message.error('信息填写不全')
         return
       }
@@ -202,10 +203,13 @@ class AppUseful extends Component {
   }
   getInputInfo(property, e) {
     let submitInfo = this.state.submitInfo
-    let mergeObj = {[property]: e}
-    if(property === 'port' || property === 'path') {
-      mergeObj = { info: {[property]:e}}
-    } 
+    let mergeObj = { [property]: e }
+    if (property === 'port') {
+      mergeObj = { info: { [property]: e } }
+    }
+    if (property === 'path') {
+      mergeObj = { info: { [property]: e.target.value } }
+    }
     submitInfo = merge({}, submitInfo, mergeObj)
     this.setState({
       submitInfo
@@ -228,7 +232,7 @@ class AppUseful extends Component {
       <div id="AppUseful">
         <div className="operaBox">
           <span>设置高可用</span>
-          <Switch checked={this.state.currentUseful} className="switch" defaultChecked={this.state.currentUseful} onChange={this.changeCheckType} disabled={this.state.switchDisable}/>
+          <Switch value={this.state.currentUseful} className="switch" defaultChecked={this.state.currentUseful} onChange={this.changeCheckType} disabled={this.state.switchDisable}/>
           <span className="status">{this.state.currentUseful ? "已开启" : "已关闭"}</span>
         </div>
         <div className="settingBox">

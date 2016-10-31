@@ -52,7 +52,7 @@ module.exports = function (Router) {
   // spi
   router.get('/clusters/:cluster/apps/:app_name/logs', appController.getAppLogs)
   router.get('/clusters/:cluster/apps/:app_name/existence', appController.checkAppName)
-  router.get('/clusters/:cluster/services/:service/existence', appController.checkServiceName)
+  router.get('/clusters/:cluster/services/:service/existence', serviceController.checkServiceName)
 
   // AppTemplates
   router.get('/templates', appTemplateController.listTemplates)
@@ -87,14 +87,15 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/containers/:container_name/detail', containerController.getContainerDetail)
   router.get('/clusters/:cluster/containers/:container_name/events', containerController.getContainerDetailEvents)
   router.post('/clusters/:cluster/containers/:name/logs', containerController.getContainerLogs)
+  router.post('/clusters/:cluster/containers/batch-delete', containerController.deleteContainers)
 
   // Configs
-  router.get('/clusters/:cluster/configgroups', configController.getConfigGroup)
+  router.get('/clusters/:cluster/configgroups', configController.listConfigGroups)
   router.get('/clusters/:cluster/configgroups/:name', configController.getConfigGroupName)
   router.get('/clusters/:cluster/configgroups/:group/configs/:name', configController.loadConfigFiles)
   router.post('/clusters/:cluster/configs', configController.createConfigGroup)
   router.post('/clusters/:cluster/configgroups/:group/configs/:name', configController.createConfigFiles)
-  router.put('/clusters/:cluster/configgroups/:group/configs/:name', configController.updateConfigName)
+  router.put('/clusters/:cluster/configgroups/:group/configs/:name', configController.updateConfigFile)
   router.post('/clusters/:cluster/configs/delete', configController.deleteConfigGroup)
   router.post('/clusters/:cluster/configgroups/:group/configs-batch-delete', configController.deleteConfigFiles)
 
@@ -123,8 +124,13 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/containers/:container_name/metrics', metricsController.getContainerMetrics)
   router.get('/clusters/:cluster/services/:service_name/metrics', metricsController.getServiceMetrics)
   router.get('/clusters/:cluster/apps/:app_name/metrics', metricsController.getAppMetrics)
-  
+
   // DataBase Cache
-  router.get('/database-cache/:cluster/getMysql', databaseCacheController.getMySqlList)
+  router.get('/clusters/:cluster/getMysql', databaseCacheController.getMySqlList)
+  router.post('/clusters/:cluster/createMysqlCluster', databaseCacheController.createMysqlCluster)
+  router.get('/clusters/:cluster/getDatabaseDetail/:dbName', databaseCacheController.getDatabaseClusterDetail)
+  router.get('/clusters/:cluster/deleteDatabase/:dbName', databaseCacheController.deleteDatebaseCluster)
+  router.post('/clusters/:cluster/createRedisCluster', databaseCacheController.createRedisCluster)
+  router.get('/clusters/:cluster/getRedis', databaseCacheController.getRedisList)
   return router.routes()
 }

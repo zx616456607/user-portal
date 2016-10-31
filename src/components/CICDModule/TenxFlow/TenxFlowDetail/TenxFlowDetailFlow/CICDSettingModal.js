@@ -66,30 +66,44 @@ let CICDSettingModal = React.createClass({
     this.setState({
       useBranch: e.target.checked
     });
+    if(e.target.checked) {
+      let branch = this.props.form.getFieldsValue(['branch']);
+      if(!!branch) {
+        this.setState({
+          editBranch: true
+        });
+      }
+    }
   },
   onChangeUseTag(e) {
     //this function for use tag or not
     this.setState({
       useTag: e.target.checked
     });
-  },
-  onChangeUseRequest(e) {
-    //this function for use request or not
-    this.setState({
-      useRequest: e.target.checked
-    });
+    if(e.target.checked) {
+      let tag = this.props.form.getFieldsValue(['tag']);
+      if(!!tag) {
+        this.setState({
+          editTag: true
+        });
+      }
+    }
   },
   onEditBranch() {
     //this function for edit branch
-    this.setState({
-      editBranch: true
-    });
+    if(this.state.useBranch ) {
+      this.setState({
+        editBranch: true
+      });
+    }
   },
   onEditTag() {
     //this function for edit tag
-    this.setState({
-      editTag: true
-    });
+    if(this.state.useTag) {
+      this.setState({
+        editTag: true
+      });
+    }
   },
   onCancelEditBranch() {
     //this function for cancel edit branch
@@ -103,39 +117,55 @@ let CICDSettingModal = React.createClass({
       editTag: false
     });
   },
+  onBlurBranch() {
+    //this function for the branch input on blur take the input disable
+    this.setState({
+      editBranch: false
+    })
+  },
+  onBlurTag() {
+    //this function for the tag input on blur take the input disable
+    this.setState({
+      editTag: false
+    })
+  },
   handleReset(e) {
     //this function for reset the form
     e.preventDefault();
     this.props.form.resetFields();
     const { scope } = this.props;
     this.setState({
-      currentType: 'view',
-      emailAlert: false,
-      otherEmail: false
+      useBranch: false,
+      useTag: false,
+      useRequest: false,
+      editBranch: false,
+      editTag: false
     });
     scope.setState({
-      CICDSettingModalModal: false
-    });    
+      cicdSetModalShow: false
+    });
   },
   handleSubmit(e) {
     //this function for user submit the form
     const { scope } = this.props;
     const _this = this;
-    let scopeHistory = scope.props.history;
-    this.props.form.validateFields((errors, values) => {
-      if (!!errors) {
-        console.log('Errors in form!!!');
-        e.preventDefault();
-        return;
-      }
-      _this.setState({
-        currentTenxFlow: values
+    const { useBranch, useTag, useRequest } = this.state;
+    if(useBranch) {
+      this.props.form.validateFields(['branch'],(errors, values) => {
+        if (!!errors) {
+          e.preventDefault();
+          return;
+        }
       });
-      scope.setState({       
-        CICDSettingModalModal: false
+    }
+    if(useTag) {
+      this.props.form.validateFields(['tag'],(errors, values) => {
+        if (!!errors) {
+          e.preventDefault();
+          return;
+        }
       });
-      scopeHistory.push({ pathname: '/ci_cd/tenx_flow/tenx_flow_build', state: { config: values } });
-    });
+    }
   },
   render() {
     const { formatMessage } = this.props.intl;
@@ -151,16 +181,11 @@ let CICDSettingModal = React.createClass({
         { required: true, message: '请输入TenxFlow名称' },
       ],
     });
-    const requestProps = getFieldProps('request', {
-      rules: [
-        { required: true, message: '请输入TenxFlow名称' },
-      ],
-    });
     return (
       <div id='CICDSettingModal' key='CICDSettingModal'>
         <div className='titleBox'>
           <span><FormattedMessage {...menusText.cicdTitle} /></span>
-          <Icon type='cross' onClick={this.cancelChange} />
+          <Icon type='cross' onClick={this.handleReset} />
         </div>
         <div className='paddingBox'>
           <Alert message={<FormattedMessage {...menusText.tooltip} />} type='info' />
@@ -168,12 +193,12 @@ let CICDSettingModal = React.createClass({
             <div className='branch commonBox'>
               <div className='checkBox'>
                 <FormItem>
-                  <Checkbox onChange={this.onChangeUseBranch}><FormattedMessage {...menusText.branch} /></Checkbox>
+                  <Checkbox onChange={this.onChangeUseBranch} checked={this.state.useBranch}><FormattedMessage {...menusText.branch} /></Checkbox>
                 </FormItem>
               </div>
               <div className='inputBox'>
                 <FormItem style={{ width:'380px',float:'left',marginRight:'18px' }}>
-                  <Input {...branchProps} type='text' size='large' disabled={ !this.state.editBranch } />
+                  <Input {...branchProps} onBlur={this.onBlurBranch} type='text' size='large' disabled={ (!this.state.editBranch) } />
                 </FormItem>
                 {
                   !this.state.editBranch ? [
@@ -188,12 +213,12 @@ let CICDSettingModal = React.createClass({
             <div className='tag commonBox'>
               <div className='checkBox'>
                 <FormItem>
-                  <Checkbox onChange={this.onChangeUseTag}><FormattedMessage {...menusText.tag} /></Checkbox>
+                  <Checkbox onChange={this.onChangeUseTag} checked={this.state.useTag}><FormattedMessage {...menusText.tag} /></Checkbox>
                 </FormItem>
               </div>
               <div className='request inputBox'>
                 <FormItem style={{ width:'380px',float:'left',marginRight:'18px' }}>
-                  <Input {...tagProps} type='text' size='large' disabled={ !this.state.editTag } />
+                  <Input {...tagProps} onBlur={this.onBlurTag} type='text' size='large' disabled={ !this.state.editTag} />
                 </FormItem>
                 {
                   !this.state.editTag ? [
@@ -215,7 +240,7 @@ let CICDSettingModal = React.createClass({
           </Form>
         </div>
         <div className='BtnBox'>
-          <Button size='large' onClick={this.cancelChange}>
+          <Button size='large' onClick={this.handleReset}>
             <FormattedMessage {...menusText.cancel} />
           </Button>
           <Button size='large' type='primary' onClick={this.handleSubmit}>
@@ -228,9 +253,9 @@ let CICDSettingModal = React.createClass({
 });
 
 function mapStateToProps(state, props) {
-  
+
   return {
-    
+
   }
 }
 
@@ -241,7 +266,7 @@ CICDSettingModal.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-  
+
 })(injectIntl(CICDSettingModal, {
   withRef: true,
 }));

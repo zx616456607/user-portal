@@ -614,20 +614,28 @@ function mapStateToProps(state) {
   }
 }
 
-function mapDispatchToProps(dispatch) {
-  return {
-    loadStorageList: (pool, cluster, query) => {
-      dispatch(loadStorageList(pool, cluster, query))
-    },
-    deleteStorage: (pool, cluster, volumeArray, callback) => {
-      dispatch(deleteStorage(pool, cluster, volumeArray, callback))
-    },
-    createStorage: (obj, callback) => {
-      dispatch(createStorage(obj, callback))
-    }
-  }
-}
+// function mapDispatchToProps(dispatch) {
+//   return {
+//     loadStorageList: (pool, cluster, query) => {
+//       dispatch(loadStorageList(pool, cluster, query))
+//     },
+//     deleteStorage: (pool, cluster, volumeArray, callback) => {
+//       dispatch(deleteStorage(pool, cluster, volumeArray, callback))
+//     },
+//     createStorage: (obj, callback) => {
+//       dispatch(createStorage(obj, callback))
+//     }
+//   }
+// }
 
-export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(Storage, {
+// export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(Storage, {
+//   withRef: true,
+// }))
+
+export default connect(mapStateToProps, {
+  deleteStorage,
+  createStorage,
+  loadStorageList
+})(injectIntl(Storage, {
   withRef: true,
 }))

@@ -395,3 +395,32 @@ export function loadContainerLogs(cluster, containerName, body, callback) {
   }
 }
 
+export const CONTAINER_BATCH_DELETE_REQUEST = 'CONTAINER_BATCH_DELETE_REQUEST'
+export const CONTAINER_BATCH_DELETE_SUCCESS = 'CONTAINER_BATCH_DELETE_SUCCESS'
+export const CONTAINER_BATCH_DELETE_FAILURE = 'CONTAINER_BATCH_DELETE_FAILURE'
+
+// Fetches container list from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchDeleteContainers(cluster, body, callback) {
+  return {
+    cluster,
+    [FETCH_API]: {
+      types: [CONTAINER_BATCH_DELETE_REQUEST, CONTAINER_BATCH_DELETE_SUCCESS, CONTAINER_BATCH_DELETE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/containers/batch-delete`,
+      options: {
+        method: 'POST',
+        body
+      },
+      schema: Schemas.CONTAINERS
+    },
+    callback
+  }
+}
+
+// Fetches containers list from API unless it is cached.
+// Relies on Redux Thunk middleware.
+export function deleteContainers(cluster, body, callback) {
+  return (dispatch) => {
+    return dispatch(fetchDeleteContainers(cluster, body, callback))
+  }
+}

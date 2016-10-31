@@ -75,7 +75,7 @@ let MyComponent = React.createClass({
   },
   render: function () {
     let config = this.props.config;
-    const {isFetching } = this.props
+    const {isFetching , registryServer} = this.props
     if (isFetching) {
       return (
         <div className='loadingBox'>
@@ -99,7 +99,7 @@ let MyComponent = React.createClass({
             </span>
             <span className="imageUrl textoverflow">
               <FormattedMessage {...menusText.imageUrl} />&nbsp;
-              <span className="">{item.name}</span>
+              <span className="">{registryServer}/{item.name}</span>
             </span>
             <span className="downloadNum">
               <FormattedMessage {...menusText.downloadNum} />&nbsp;{item.downloadNumber}
@@ -159,7 +159,7 @@ class MyCollection extends Component {
               <i className="fa fa-search"></i>
               <div style={{ clear: "both" }}></div>
             </div>
-            <MyComponent scope={scope} isFetching={this.props.isFetching} getImageDetailInfo={(obj,callback)=> this.props.getImageDetailInfo(obj,callback)} config={imageList} />
+            <MyComponent scope={scope} isFetching={this.props.isFetching} registryServer= {this.props.server} getImageDetailInfo={(obj,callback)=> this.props.getImageDetailInfo(obj,callback)} config={imageList} />
           </Card>
         </div>
         <Modal
@@ -168,7 +168,7 @@ class MyCollection extends Component {
           transitionName="move-right"
           onCancel={this.closeImageDetailModal}
           >
-          <ImageDetailBox scope={scope} imageInfo={this.state.imageInfo} config={this.state.currentImage} />
+          <ImageDetailBox parentScope={rootscope} scope={scope} imageInfo={this.state.imageInfo} config={this.state.currentImage} />
         </Modal>
       </QueueAnim>
     )
@@ -194,7 +194,7 @@ function mapStateToProps(state, props) {
 
   return {
     registry,
-    registryServer: server,
+    server,
     fockImageList: imageList,
     isFetching,
     imageInfo

@@ -1,14 +1,78 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2016 TenxCloud. All Rights Reserved.
+ *
+ *  Databse Cluster detail
+ *
+ * v2.0 - 2016-10-11
+ * @author Bai Yu
+ * @change by Gaojian
+ */
 import React, { Component, PropTypes } from 'react'
-import { Button, Icon } from 'antd'
+import { connect } from 'react-redux'
+import { Button, Icon, Spin, Modal } from 'antd'
+import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import { loadDbClusterDetail, deleteDatabaseCluster } from '../../actions/database_cache'
+import { DEFAULT_CLUSTER } from '../../constants'
 import './style/ModalDetail.less'
 
-export default class ModalDetail extends Component {
+const confirm = Modal.confirm;
+
+class ModalDetail extends Component {
   constructor() {
     super()
+    this.deleteDatebaseCluster = this.deleteDatebaseCluster.bind(this)
+    this.state = {
+      currentDatabase: null
+    }
   }
+  
+  deleteDatebaseCluster(dbName) {
+    //this function for use delete the database
+    const { deleteDatabaseCluster, cluster, scope } = this.props;
+    const { loadDbClusterDetail } = scope.props;
+    confirm({
+      title: '您是否确认要删除' + dbName,
+      onOk() {
+        scope.setState({
+          CreateDatabaseModalShow: false
+        });
+        deleteDatabaseCluster(cluster, dbName, loadDbClusterDetail(cluster));       
+      },
+      onCancel() {},
+    });
+  }
+  
+  componentWillMount() {
+    const { loadDbClusterDetail, cluster, dbName } = this.props
+    this.setState({
+      currentDatabase: dbName
+    });
+    loadDbClusterDetail(cluster, dbName);
+  }
+  
+  componentWillReceiveProps(nextProps) {
+    //this function for user select different image
+    //the nextProps is mean new props, and the this.props didn't change
+    //so that we should use the nextProps
+    const { loadDbClusterDetail, cluster, dbName } = nextProps;
+    if(dbName != this.state.currentDatabase) {
+      this.setState({
+        currentDatabase: dbName
+      })
+      loadDbClusterDetail(cluster, nextProps.dbName);
+    }    
+  }
+  
   render() {
-    const { scope } = this.props;
-    const { currentDatabase } = scope.state;
+    const { scope, dbName, isFetching, databaseInfo } = this.props;
+    if(isFetching) {
+      return (
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
+      )
+    }
     return (
     <div id='databaseDetail'>
       <div className='modalWrap'>
@@ -16,11 +80,11 @@ export default class ModalDetail extends Component {
           <img className='detailImg' src='/img/test/mysql.jpg' />
           <ul className='detailTitle'>
             <li>
-              <div className='name'>{ currentDatabase }</div>
+              <div className='name'>{ databaseInfo.serviceInfo.name }</div>
             </li>
             <li>
               <div className='desc'>
-                tenxcloud/mysql-stack
+                { databaseInfo.serviceInfo.name }/{ databaseInfo.serviceInfo.namespace }
               </div>
             </li>
             <li>
@@ -30,7 +94,7 @@ export default class ModalDetail extends Component {
           <div className='danger'>
             <Icon type='cross' className='cursor' onClick={() => { scope.setState({ detailModal: false }) } } />
             <div className='li'>
-              <Button size='large' className='btn-danger' type='ghost' onClick={(name) => this.deleteCluster('mysql-1')}>
+              <Button size='large' className='btn-danger' type='ghost' onClick={this.deleteDatebaseCluster.bind(this, dbName)}>
                 <Icon type='delete' />删除集群
               </Button>
             </div>
@@ -39,8 +103,15 @@ export default class ModalDetail extends Component {
         <div className='modalDetailBox'>
           <div className='configContent'>
             <div className='configHead'>配置信息</div>
-            <div className='configList'><span className='listKey'><Icon type='link' />&nbsp;访问地址：</span><span className='listLink'>tcp://xhesfdsjl.baidu.com:8088</span></div>
-            <div className='configList'><span className='listKey'>副本数：</span>996/999个</div>
+            <div className='configList'>
+              <span className='listKey'>
+                <Icon type='link' />&nbsp;访问地址：
+              </span>
+              <span className='listLink'>
+                { 'tcp://' + databaseInfo.serviceInfo.name + '.' + databaseInfo.serviceInfo.namespace + '.svc.cluster.local' }
+              </span>
+            </div>
+            <div className='configList'><span className='listKey'>副本数：</span>{databaseInfo.podInfo.pending + databaseInfo.podInfo.running}/{databaseInfo.podInfo.desired}个</div>
             <div className='configHead'>参数</div>
             <ul className='parse-list'>
               <li><span className='key'>key</span> <span className='value'>value</span></li>
@@ -58,6 +129,33 @@ export default class ModalDetail extends Component {
 
 }
 
-ModalDetail.PropTypes = {
-  // closeDetailModal: PropTypes.func.isRequired
+function mapStateToProps(state, props) {
+  const defaultMysqlList = {
+    isFetching: false,
+    cluster: DEFAULT_CLUSTER,
+    databaseInfo: {},
+  }
+  const { databaseClusterDetail } = state.databaseCache
+  const { databaseInfo, isFetching } = databaseClusterDetail.databaseInfo || defaultMysqlList
+  return {
+    isFetching: false,
+    cluster: DEFAULT_CLUSTER,
+    databaseInfo: databaseInfo
+  }
 }
+
+ModalDetail.PropTypes = {
+  intl: PropTypes.object.isRequired,
+  isFetching: PropTypes.bool.isRequired,
+  loadDbClusterDetail: PropTypes.func.isRequired,
+  deleteDatabaseCluster: PropTypes.func.isRequired,
+}
+
+ModalDetail = injectIntl(ModalDetail, {
+  withRef: true,
+})
+
+export default connect(mapStateToProps, {
+  loadDbClusterDetail,
+  deleteDatabaseCluster
+})(ModalDetail)

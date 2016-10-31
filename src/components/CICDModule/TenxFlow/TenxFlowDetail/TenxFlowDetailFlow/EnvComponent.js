@@ -32,7 +32,7 @@ let EnvComponent = React.createClass({
     const { form } = this.props;
     let inputValue = form.getFieldValue('service' + index + 'input' + k);
     if(k == uuid) {
-      if(!!inputValue) {        
+      if(!!inputValue) {
         uuid++;
         // can use data-binding to get
         let keys = form.getFieldValue('service' + index + 'inputs');
@@ -47,7 +47,6 @@ let EnvComponent = React.createClass({
     }
   },
   removeServicesInput (k, index, scope){
-    console.log('remove')
     //this function for user remove the input div
     const { form } = this.props;
     // can use data-binding to get
@@ -105,9 +104,9 @@ let EnvComponent = React.createClass({
 });
 
 function mapStateToProps(state, props) {
-  
+
   return {
-    
+
   }
 }
 
@@ -116,7 +115,7 @@ EnvComponent.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-  
+
 })(injectIntl(EnvComponent, {
   withRef: true,
 }));

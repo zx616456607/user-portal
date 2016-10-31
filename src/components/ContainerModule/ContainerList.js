@@ -8,64 +8,66 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Tooltip, Checkbox, Card, Menu, Dropdown, Button, Input, Spin, Pagination, Modal } from 'antd'
+import { Tooltip, Icon, Checkbox, Card, Menu, Dropdown, Button, Input, Spin, Pagination, Modal } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import './style/ContainerList.less'
-import { loadContainerList } from '../../actions/app_manage'
+import { loadContainerList, deleteContainers } from '../../actions/app_manage'
 import { DEFAULT_CLUSTER, LABEL_APPNAME, DEFAULT_PAGE_SIZE } from '../../constants'
 import { tenxDateFormat } from '../../common/tools.js'
 import { browserHistory } from 'react-router'
 import TerminalModal from '../TerminalModal'
 
 const ButtonGroup = Button.Group
+const confirm = Modal.confirm
 
 const MyComponent = React.createClass({
   propTypes: {
     config: React.PropTypes.array
   },
-  checkedFunc: function (e) {
-    //check this item selected or not
-    const {scope} = this.props;
-    let oldList = scope.state.selectedList || [];
-    if (oldList.includes(e)) {
-      return true;
-    } else {
-      return false;
-    }
-  },
-  onchange: function (e, event) {
+  /*onchange: function (e) {
     e.stopPropagation();
-    //single item selected function
-    const {scope} = this.props;
-    let oldList = scope.state.selectedList;
-    if (oldList.includes(e)) {
-      let index = oldList.indexOf(e);
-      oldList.splice(index, 1);
-    } else {
-      oldList.push(e);
-    }
-    scope.setState({
-      selectedList: oldList
+    const { value, checked } = e.target
+    const { parentScope } = this.props
+    const { containerList } = parentScope.state
+    containerList.map((contaienr) => {
+      if (contaienr.metadata.name === value) {
+        contaienr.checked = checked
+      }
     });
-  },
-  containerOperaClick: function (item, e) {
+    parentScope.setState({
+      containerList
+    });
+  },*/
+  containerOperaClick: function (name, e) {
     //this function for user click opera menu
-  },
-  selectContainerDetail: function (e) {
-    //this function for user click app detail ,and then this app will be selected
-    const {scope} = this.props;
-    let oldList = scope.state.selectedList;
-    if (oldList.includes(e)) {
-      let index = oldList.indexOf(e);
-      oldList.splice(index, 1);
-    } else {
-      oldList.push(e);
+    switch(e.key) {
+      case 'deleteContainer':
+        //this is delete the container
+        this.deleteContainer(name);
+        break;
     }
-    scope.setState({
-      selectedList: oldList
-    });
+  },
+  selectContainerDetail: function (name, e) {
+    //this function for user click app detail ,and then this app will be selected
+    //when user click the menu button will trigger the function
+    //so the first thing should estimate
+    //the event target is the menu button or others
+    //if the target is menu button , the function will be return null 
+    let stopPro = e._dispatchInstances;
+    if(stopPro.length != 2) {      
+      const { parentScope } = this.props
+      const { containerList } = parentScope.state
+      containerList.map((contaienr) => {
+        if (contaienr.metadata.name === name) {
+          contaienr.checked = !contaienr.checked
+        }
+      });
+      parentScope.setState({
+        containerList
+      });
+    }
   },
   onShowSizeChange: function (page, size) {
     if (size === this.props.size) {
@@ -109,11 +111,23 @@ const MyComponent = React.createClass({
   openTerminalModal: function (item, e) {
     //this function for user open the terminal modal
     e.stopPropagation();
-    const { scope } = this.props;
-    scope.setState({
+    const { parentScope } = this.props;
+    parentScope.setState({
       currentContainer: item,
       TerminalLayoutModal: true
     });
+  },
+  deleteContainer: function (name) {
+    const { confirmDeleteContainer } = this.props.funcs
+    const container = {
+      metadata: {
+        name
+      }
+    }
+    confirmDeleteContainer([container])
+  },
+  handleDropdown: function (e) {
+    e.stopPropagation()
   },
   render: function () {
     const { scope, config, loading, page, size, total } = this.props
@@ -126,42 +140,44 @@ const MyComponent = React.createClass({
     }
     if (config.length < 1) {
       return (
-        <div className="loadingBox">
+        <div className='loadingBox'>
           暂无数据
         </div>
       )
     }
     const items = config.map((item) => {
       const dropdown = (
-        <Menu onClick={this.containerOperaClick.bind(this, item)}
-          style={{ width: "100px" }}
+        <Menu onClick={this.containerOperaClick.bind(this, item.metadata.name)}
+          style={{ width: '100px' }}
           >
-          <Menu.Item key="1">
-            重新分配
+          <Menu.Item key='deleteContainer'>
+            <span>重新分配</span>
           </Menu.Item>
         </Menu>
       );
       return (
-        <div className={this.checkedFunc(item.metadata.name) ? "selectedContainer containerDetail" : "containerDetail"}
+        <div className={item.checked ? 'selectedContainer containerDetail' : 'containerDetail'}
           key={item.metadata.name}
           onClick={this.selectContainerDetail.bind(this, item.metadata.name)}
           >
-          <div className="selectIconTitle commonData">
-            <Checkbox checked={this.checkedFunc(item.metadata.name)} onChange={(e) => this.onchange(e, item.metadata.name)}></Checkbox>
+          <div className='selectIconTitle commonData'>
+            <Checkbox
+              value={item.metadata.name}
+              checked={item.checked} />
           </div>
-          <div className="containerName commonData">
-            <Tooltip placement="topLeft" title={item.metadata.name}>
+          <div className='containerName commonData'>
+            <Tooltip placement='topLeft' title={item.metadata.name}>
               <Link to={`/app_manage/container/${item.metadata.name}`} >
                 {item.metadata.name}
               </Link>
             </Tooltip>
           </div>
-          <div className="containerStatus commonData">
-            <i className={item.status.phase == 'Running' ? "normal fa fa-circle" : "error fa fa-circle"}></i>
-            <span className={item.status.phase == 'Running' ? "normal" : "error"} >{item.status.phase}</span>
+          <div className='containerStatus commonData'>
+            <i className={item.status.phase == 'Running' ? 'normal fa fa-circle' : 'error fa fa-circle'}></i>
+            <span className={item.status.phase == 'Running' ? 'normal' : 'error'} >{item.status.phase}</span>
           </div>
-          <div className="serviceName commonData">
-            <Tooltip placement="topLeft" title={item.metadata.labels[LABEL_APPNAME] || ''}>
+          <div className='serviceName commonData'>
+            <Tooltip placement='topLeft' title={item.metadata.labels[LABEL_APPNAME] || ''}>
               {
                 item.metadata.labels[LABEL_APPNAME]
                   ? (<Link to={`/app_manage/detail/${item.metadata.labels[LABEL_APPNAME]}`}>{item.metadata.labels[LABEL_APPNAME]}</Link>)
@@ -169,43 +185,45 @@ const MyComponent = React.createClass({
               }
             </Tooltip>
           </div>
-          <div className="imageName commonData">
-            <Tooltip placement="topLeft" title={item.images.join(', ')}>
+          <div className='imageName commonData'>
+            <Tooltip placement='topLeft' title={item.images.join(', ')}>
               <span>{item.images.join(', ')}</span>
             </Tooltip>
           </div>
-          <div className="visitIp commonData">
-            <Tooltip placement="topLeft" title={item.status.podIP}>
+          <div className='visitIp commonData'>
+            <Tooltip placement='topLeft' title={item.status.podIP}>
               <span>{item.status.podIP}</span>
             </Tooltip>
             <br />
-            <Tooltip placement="topLeft" title={item.serviceIPOutput || '-'}>
+            <Tooltip placement='topLeft' title={item.serviceIPOutput || '-'}>
               <span>{item.serviceIPOutput || '-'}</span>
             </Tooltip>
           </div>
-          <div className="createTime commonData">
-            <Tooltip placement="topLeft" title={tenxDateFormat(item.metadata.creationTimestamp)}>
+          <div className='createTime commonData'>
+            <Tooltip placement='topLeft' title={tenxDateFormat(item.metadata.creationTimestamp)}>
               <span>{tenxDateFormat(item.metadata.creationTimestamp)}</span>
             </Tooltip>
           </div>
-          <div className="actionBox commonData">
-            <Dropdown.Button overlay={dropdown} type="ghost" onClick={this.openTerminalModal.bind(this, item)}>
-              <svg className="terminal">
-                <use xlinkHref="#terminal" />
+          <div className='actionBox commonData'>
+            <Dropdown.Button
+              overlay={dropdown} type='ghost'
+              onClick={this.openTerminalModal.bind(this, item)}>
+              <svg className='terminal'>
+                <use xlinkHref='#terminal' />
               </svg>
-              <span style={{ marginLeft: "20px" }}>终端</span>
+              <span style={{ marginLeft: '20px' }}>终端</span>
             </Dropdown.Button>
           </div>
-          <div style={{ clear: "both", width: "0" }}></div>
+          <div style={{ clear: 'both', width: '0' }}></div>
         </div >
       );
     });
     return (
-      <div className="dataBox">
+      <div className='dataBox'>
         {items}
-        <div className="paginationBox">
+        <div className='paginationBox'>
           <Pagination
-            className="inlineBlock"
+            className='inlineBlock'
             showSizeChanger
             showQuickJumper
             onShowSizeChange={this.onShowSizeChange}
@@ -228,17 +246,27 @@ function loadData(props) {
 class ContainerList extends Component {
   constructor(props) {
     super(props)
-    this.onchange = this.onchange.bind(this)
-    this.allSelectedChecked = this.allSelectedChecked.bind(this)
+    this.onAllChange = this.onAllChange.bind(this)
     this.searchContainers = this.searchContainers.bind(this)
     this.closeTerminalLayoutModal = this.closeTerminalLayoutModal.bind(this)
+    this.batchDeleteContainers = this.batchDeleteContainers.bind(this)
+    this.confirmDeleteContainer = this.confirmDeleteContainer.bind(this)
     this.state = {
-      selectedList: [],
+      containerList: props.containerList,
       searchInputValue: props.name,
       searchInputDisabled: false,
       TerminalLayoutModal: false,
       currentContainer: null
     }
+  }
+
+  onAllChange(e) {
+    const { checked } = e.target
+    const { containerList } = this.state
+    containerList.map((container) => container.checked = checked)
+    this.setState({
+      containerList
+    })
   }
 
   componentWillMount() {
@@ -247,7 +275,10 @@ class ContainerList extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    let { page, size, name } = nextProps
+    let { page, size, name, containerList } = nextProps
+    this.setState({
+      containerList
+    })
     if (page === this.props.page && size === this.props.size && name === this.props.name) {
       return
     }
@@ -257,31 +288,31 @@ class ContainerList extends Component {
     loadData(nextProps)
   }
 
-  allSelectedChecked() {
-    const { containerList } = this.props
-    const { selectedList } = this.state
-    if (selectedList && selectedList.length == containerList.length && containerList.length > 0) {
-      return true;
-    } else {
-      return false;
-    }
+  batchDeleteContainers(e) {
+    const { containerList } = this.state
+    const checkedContainerList = containerList.filter((container) => container.checked)
+    this.confirmDeleteContainer(checkedContainerList)
   }
 
-  onchange() {
-    //select title checkbox
-    let newList = new Array()
-    const { containerList } = this.props
-    if (this.state.selectedList.length == containerList.length) {
-      //had select all item,turn the selectedlist to null
-      newList = [];
-    } else {
-      //select some item or nothing,turn the selectedlist to selecet all item
-      for (let elem of containerList) {
-        newList.push(elem.metadata.name);
-      }
-    }
-    this.setState({
-      selectedList: newList
+  confirmDeleteContainer(containerList) {
+    const self = this
+    const { cluster, deleteContainers } = this.props
+    const containerNames = containerList.map((container) => container.metadata.name)
+    confirm({
+      title: `您是否确认要重新分配这${containerNames.length}个容器`,
+      content: containerNames.join(', '),
+      onOk() {
+        return new Promise((resolve) => {
+          deleteContainers(cluster, containerNames, {
+            success: {
+              func: () => loadData(self.props),
+              isAsync: true
+            }
+          })
+          resolve()
+        });
+      },
+      onCancel() { },
     });
   }
 
@@ -315,21 +346,36 @@ class ContainerList extends Component {
     const parentScope = this
     const { name, pathname, page, size, total, cluster, containerList, isFetching } = this.props
     const { searchInputValue, searchInputDisabled } = this.state
+    const checkedContainerList = containerList.filter((app) => app.checked)
+    const isChecked = (checkedContainerList.length > 0)
+    let isAllChecked = (containerList.length === checkedContainerList.length)
+    if (containerList.length === 0) {
+      isAllChecked = false
+    }
+    const funcs = {
+      confirmDeleteContainer: this.confirmDeleteContainer,
+    }
     return (
       <QueueAnim
-        className="ContainerList"
-        type="right"
+        className='ContainerList'
+        type='right'
         >
-        <div id="ContainerList" key="ContainerList">
-          <div className="operationBox">
-            <div className="leftBox">
-              <Button type="primary" size="large"><i className="fa fa-power-off"></i>重新分配</Button>
+        <div id='ContainerList' key='ContainerList'>
+          <div className='operationBox'>
+            <div className='leftBox'>
+              <Button
+                type='primary' size='large'
+                disabled={!isChecked}
+                onClick={this.batchDeleteContainers}>
+                <i className='fa fa-power-off'></i>
+                重新分配
+              </Button>
             </div>
-            <div className="rightBox">
-              <div className="littleLeft" onClick={this.searchContainers}>
-                <i className="fa fa-search"></i>
+            <div className='rightBox'>
+              <div className='littleLeft' onClick={this.searchContainers}>
+                <i className='fa fa-search'></i>
               </div>
-              <div className="littleRight">
+              <div className='littleRight'>
                 <Input
                   onChange={(e) => {
                     this.setState({
@@ -337,44 +383,48 @@ class ContainerList extends Component {
                     })
                   } }
                   value={searchInputValue}
-                  placeholder="输入容器名回车搜索"
+                  placeholder='输入容器名回车搜索'
                   disabled={searchInputDisabled}
                   onPressEnter={this.searchContainers} />
               </div>
             </div>
-            <div className="clearDiv"></div>
+            <div className='clearDiv'></div>
           </div>
-          <Card className="containerBox">
-            <div className="containerTitle">
-              <div className="selectIconTitle commonTitle">
-                <Checkbox checked={this.allSelectedChecked()} onChange={() => this.onchange()}></Checkbox>
+          <Card className='containerBox'>
+            <div className='containerTitle'>
+              <div className='selectIconTitle commonTitle'>
+                <Checkbox
+                  checked={isAllChecked}
+                  onChange={this.onAllChange}
+                  disabled={containerList.length < 1} />
               </div>
-              <div className="containerName commonTitle">
+              <div className='containerName commonTitle'>
                 容器名称
               </div>
-              <div className="containerStatus commonTitle">
+              <div className='containerStatus commonTitle'>
                 状态
               </div>
-              <div className="serviceName commonTitle">
+              <div className='serviceName commonTitle'>
                 所属应用
               </div>
-              <div className="imageName commonTitle">
+              <div className='imageName commonTitle'>
                 镜像
               </div>
-              <div className="visitIp commonTitle">
+              <div className='visitIp commonTitle'>
                 访问地址
               </div>
-              <div className="createTime commonTitle">
+              <div className='createTime commonTitle'>
                 创建时间
-              <i className="fa fa-sort"></i>
+              <i className='fa fa-sort'></i>
               </div>
-              <div className="actionBox commonTitle">
+              <div className='actionBox commonTitle'>
                 操作
               </div>
             </div>
             <MyComponent
+              funcs={funcs}
               size={size} total={total} pathname={pathname} page={page} name={name}
-              config={containerList} loading={isFetching} scope={parentScope} />
+              config={containerList} loading={isFetching} parentScope={parentScope} />
           </Card>
         </div>
         <Modal
@@ -438,5 +488,6 @@ function mapStateToProps(state, props) {
 }
 
 export default connect(mapStateToProps, {
-  loadContainerList
+  loadContainerList,
+  deleteContainers,
 })(ContainerList)

@@ -97,13 +97,13 @@ const MyComponent = React.createClass({
   },
   btnDeleteImage: function (id) {
     //this function for user delete select image
-    this.props.deleteImage(id, {
-      success:{
-        func:(res)=>{
-          message.success('删除成功！')
-        }
-      }
-    })
+    // this.props.deleteImage(id, {
+    //   success:{
+    //     func:(res)=>{
+    //       message.success('删除成功！')
+    //     }
+    //   }
+    // })
   },
   showImageDetail: function (id) {
     //this function for user select image and show the image detail info
@@ -124,8 +124,7 @@ const MyComponent = React.createClass({
     })
   },
   render: function () {
-    const { server, imageList, isFetching} = this.props
-    console.log(this.props)
+    const { registryServer, imageList, isFetching} = this.props
     if (isFetching) {
       return (
         <div className='loadingBox'>
@@ -162,7 +161,7 @@ const MyComponent = React.createClass({
             </span>
             <span className="imageUrl textoverflow">
               <FormattedMessage {...menusText.imageUrl} />&nbsp;
-              <span className="">{ server }/{item.name}</span>
+              <span className="">{ registryServer }/{item.name}</span>
             </span>
             <span className="downloadNum">
               <FormattedMessage {...menusText.downloadNum} />&nbsp;{item.downloadNumber}
@@ -266,15 +265,15 @@ class ImageSpace extends Component {
               >
               <p>1.&nbsp;&nbsp;<FormattedMessage {...menusText.uploadImageFirstTips} /></p>
               <span className="codeSpan">
-                sudo docker login 192.168.123.456
+                sudo docker login {this.props.server}
               </span>
               <p>2.&nbsp;&nbsp;<FormattedMessage {...menusText.uploadImageSecondTips} /></p>
               <span className="codeSpan">
-                sudo docker tag  tenxcloud/hello-world:latest 192.168.123.456/&lt;username&gt;/&lt;repository&gt;:&lt;tag&gt;
+                sudo docker tag  tenxcloud/hello-world:latest {this.props.server}/&lt;username&gt;/&lt;repository&gt;:&lt;tag&gt;
               </span>
               <p>3.&nbsp;&nbsp;<FormattedMessage {...menusText.uploadImageThirdTips} /></p>
               <span className="codeSpan">
-                sudo docker push 192.168.123.456/&lt;username&gt;/&lt;repository&gt;:&lt;tag&gt;
+                sudo docker push {this.props.server}/&lt;username&gt;/&lt;repository&gt;:&lt;tag&gt;
               </span>
             </Modal>
             <Modal title={<FormattedMessage {...menusText.downloadImage} />} className="uploadImageModal" visible={this.state.downloadModalVisible}
@@ -283,11 +282,11 @@ class ImageSpace extends Component {
               <p><FormattedMessage {...menusText.downloadImageFirstTips} /></p>
               <p><i className="fa fa-exclamation-triangle"></i>&nbsp;<FormattedMessage {...menusText.downloadImageSecondTips} /></p>
               <span className="codeSpan">
-                sudo docker pull 192.168.123.456/&lt;username&gt;/&lt;repository&gt;:&lt;tag&gt;
+                sudo docker pull {this.props.server}/&lt;username&gt;/&lt;repository&gt;:&lt;tag&gt;
             </span>
               <p><i className="fa fa-exclamation-triangle"></i>&nbsp;<FormattedMessage {...menusText.downloadImageThirdTips} /></p>
               <span className="codeSpan">
-                sudo docker tag  192.168.123.456/tenxcloud/hello-world:latst tenxcloud/hello-world:latest
+                sudo docker tag  {this.props.server}/tenxcloud/hello-world:latst tenxcloud/hello-world:latest
             </span>
             </Modal>
             <Modal

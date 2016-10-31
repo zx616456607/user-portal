@@ -21,6 +21,7 @@ const Deployment = require('../../../../kubernetes/objects/deployment')
 const Service = require('../../../../kubernetes/objects/service')
 const Panel = Collapse.Panel;
 const createForm = Form.create;
+const FormItem = Form.Item;
 
 let AppDeployServiceModal = React.createClass({
   propTypes: {
@@ -37,6 +38,7 @@ let AppDeployServiceModal = React.createClass({
       checkInf: null,
       disable: true,
       serNameErrState: '',
+      disAdd: false,
     };
   },
   limits() {
@@ -153,7 +155,7 @@ let AppDeployServiceModal = React.createClass({
     })
   },
   componentWillMount() {
-    if (this.props.scope.state.checkState === '修改') {
+    if (!this.props.scope.state.isCreate) {
       this.setForm()
     }
   },
@@ -163,7 +165,7 @@ let AppDeployServiceModal = React.createClass({
       return
     }
     if (serviceOpen) {
-      if (this.props.scope.state.checkState === '修改') {
+      if (!this.props.scope.state.isCreate) {
         this.setForm()
       }
     }
@@ -179,17 +181,18 @@ let AppDeployServiceModal = React.createClass({
     let serviceName = getFieldProps('name').value    //服务名
     let imageVersion = getFieldProps('imageVersion').value    //镜像版本
     let volumeSwitch = getFieldProps('volumeSwitch').value //服务类型
-    
+
     let livePort = getFieldProps('livePort').value   //高可用端口
     let liveInitialDelaySeconds = getFieldProps('liveInitialDelaySeconds').value //首次延时
     let liveTimeoutSeconds = getFieldProps('liveTimeoutSeconds').value //检查超时
     let livePeriodSeconds = getFieldProps('livePeriodSeconds').value //检查间隔
     let livePath = getFieldProps('livePath').value //高可用路径
     let args = getFieldProps('args').value //高可用路径
+    //let config = getFileProps('config').value
     let image = parentScope.state.registryServer + '/' + parentScope.state.currentSelectedImage + ':' + imageVersion //镜像名称
     let deploymentList = new Deployment(serviceName)
     let serviceList = new Service(serviceName)
-    
+
     var ImageConfig = {
       resources: {
         limits: {
@@ -327,7 +330,7 @@ let AppDeployServiceModal = React.createClass({
             )
           }
         }
-        
+
         if (getFieldProps(`portType${k}`).value) {
           deploymentList.addContainerPort(
             serviceName,
@@ -369,7 +372,7 @@ let AppDeployServiceModal = React.createClass({
         let volumeChecked = getFieldProps(`volumeChecked${k}`).value   //服务只读
         let volumeInfo = getFieldProps(`volumeName${k}`).value
         if(!volumeInfo) {
-          return 
+          return
         }
         volumeInfo = volumeInfo.split('/')
         if (volumeChecked) {
@@ -400,6 +403,8 @@ let AppDeployServiceModal = React.createClass({
       periodSeconds: parseInt(livePeriodSeconds)
       })
     }
+
+
     /*Service*/
     let serviceConfig = {
       Service: serviceList,
@@ -429,29 +434,35 @@ let AppDeployServiceModal = React.createClass({
     })
   },
   handleSubBtn(e, parentScope) {
+    const { form } = this.props
+    const { getFieldProps, getFieldValue, isFieldValidating, getFieldError } = form
     e.preventDefault()
-    if (parentScope.state.checkState === '创建') {
-      this.submitNewService(parentScope)
-    } else {
-      const reviseServiceName = parentScope.state.checkInf.Service.metadata.name
-      parentScope.state.selectedList.map((service, index) => {
-        if (service === reviseServiceName) {
-          parentScope.state.selectedList.splice(index, 1)
-        }
-      })
-      parentScope.state.servicesList.map((service, index) => {
-        if (service.id === reviseServiceName) {
-          parentScope.state.servicesList.splice(index, 1)
-        }
-      })
-      this.submitNewService(parentScope)
-    }
+    form.validateFieldsAndScroll((errors, values) => {
+      if (!!errors) {
+        return
+      }
+      if (parentScope.state.isCreate) {
+        this.submitNewService(parentScope)
+      } else {
+        const reviseServiceName = parentScope.state.checkInf.Service.metadata.name
+        parentScope.state.selectedList.map((service, index) => {
+          if (service === reviseServiceName) {
+            parentScope.state.selectedList.splice(index, 1)
+          }
+        })
+        parentScope.state.servicesList.map((service, index) => {
+          if (service.id === reviseServiceName) {
+            parentScope.state.servicesList.splice(index, 1)
+          }
+        })
+        this.submitNewService(parentScope)
+      }
 
-    this.props.form.resetFields()
-    parentScope.setState({
-      serviceModalShow: false
+      this.props.form.resetFields()
+      parentScope.setState({
+        serviceModalShow: false
+      })
     })
-    
   },
   closeModal() {
     const parentScope = this.props.scope;
@@ -470,34 +481,20 @@ let AppDeployServiceModal = React.createClass({
       serNameErrState: '',
     })
   },
-  handleForm() {
-    this.props.form.validateFieldsAndScroll((errors, values) => {
-      if (!!errors) {
-        this.setState({
-          disable: true,
-        })
-        return
-      }
-      this.setState({
-        disable: false,
-      })
-    })
-  },
   render: function () {
     const scope = this
     const parentScope = this.props.scope
     const {servicesList} = parentScope.state.servicesList
-    const {currentSelectedImage, registryServer, checkState} = parentScope.state
+    const {currentSelectedImage, registryServer, isCreate} = parentScope.state
     const { form, serviceOpen } = this.props
-    const { composeType } = this.state
+    const { composeType, disable } = this.state
     return (
       <div id="AppDeployServiceModal">
-        {/*<Form horizontal form={form} onChange={this.handleForm}>*/}
-        <Form horizontal onChange={ this.handleForm } >
+        <Form horizontal onSubmit={ this.handleForm } >
           <NormalDeployBox
             scope={scope} registryServer={registryServer}
             currentSelectedImage={currentSelectedImage}
-            serviceOpen={serviceOpen} checkState={checkState}
+            serviceOpen={serviceOpen} isCreate={isCreate}
             composeType={composeType}
             form={form}
             cluster={this.props.cluster}
@@ -510,23 +507,23 @@ let AppDeployServiceModal = React.createClass({
               <UsefulDeployBox scope={scope} form={form}/>
             </Panel>
             <Panel header={composeBoxTitle} key="3" className="composeBigBox">
-              <ComposeDeployBox scope={scope} form={form}/>
+              <ComposeDeployBox scope={scope} form={form} cluster={this.props.cluster}/>
             </Panel>
             <Panel header={advanceBoxTitle} key="4">
-              <EnviroDeployBox scope={scope} form={form}/>
+              <EnviroDeployBox scope={scope} form={form} />
             </Panel>
           </Collapse>
           <div className="btnBox">
             <Button className="cancelBtn" size="large" type="ghost" onClick={this.closeModal}>
               取消
             </Button>
-            <Button className="createBtn" size="large" type="primary"
-              onClick={(e) => this.handleSubBtn(e, parentScope)}
-              servicesList={servicesList}
-              disabled={this.state.disable}
-              >
-              {parentScope.state.checkState}
-            </Button>
+              <Button className="createBtn" size="large" type="primary"
+                onClick={(e) => this.handleSubBtn(e, parentScope)}
+                servicesList={servicesList}
+                htmlType="submit"
+                >
+                {parentScope.state.isCreate ? '创建' : '修改'}
+              </Button>
           </div>
         </Form>
       </div>

@@ -360,7 +360,7 @@ class TenxFlowDetailFlowCard extends Component {
             ] : null
           }
           {
-            index == 0 ? [
+            (index == 0 && currentFlowEdit != index) ? [
             <div className='cicdBox'>
               <Switch onChange={this.viewCicdBox}/>
               <p className='switchTitile'><FormattedMessage {...menusText.cicd} /></p>

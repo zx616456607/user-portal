@@ -119,7 +119,6 @@ let TenxFlowDetailAlert = React.createClass({
     let scopeHistory = scope.props.history;
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
-        console.log('Errors in form!!!');
         e.preventDefault();
         return;
       }
@@ -152,14 +151,14 @@ let TenxFlowDetailAlert = React.createClass({
             { this.state.emailAlert ? [
               <QueueAnim type='right' key='selectedEmailAnimate'>
                 <div className='selectedEmail' key='selectedEmail'>
-                  <FormItem>                  
+                  <FormItem>
                     <RadioGroup {...radioEmailProps} >
                       <Radio key='a' value={'gaojian@tenxcloud.com'}>gaojian@tenxcloud.com</Radio><br />
                       <Radio key='b' value={'others'}><FormattedMessage {...menusText.otherEmail} /></Radio><br />
                     </RadioGroup>
                   </FormItem>
                   <FormItem className='emailInputForm'>
-                    <Input {...checkEmailProps} type='text' size='large' disabled={ !this.state.otherEmail } /> 
+                    <Input {...checkEmailProps} type='text' size='large' disabled={ !this.state.otherEmail } />
                   </FormItem>
                 </div>
               </QueueAnim>
@@ -208,9 +207,9 @@ let TenxFlowDetailAlert = React.createClass({
 });
 
 function mapStateToProps(state, props) {
-  
+
   return {
-    
+
   }
 }
 
@@ -221,7 +220,7 @@ TenxFlowDetailAlert.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-  
+
 })(injectIntl(TenxFlowDetailAlert, {
   withRef: true,
 }));

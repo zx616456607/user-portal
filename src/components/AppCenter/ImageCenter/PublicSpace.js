@@ -56,7 +56,6 @@ let MyComponent = React.createClass({
   },
   showImageDetail: function (id) {
     //  this function for user select image and show the image detail info
-    // console.log(id)
     const scope = this.props.scope;
     scope.setState({
       imageDetailModalShow: true,
@@ -99,9 +98,7 @@ let MyComponent = React.createClass({
             </span>
             <span className="imageUrl textoverflow">
               <span className="defalutColor"><FormattedMessage {...menusText.imageUrl} />&nbsp;</span>
-              <Tooltip placement="topLeft" title={serviceIp + "/" + item.name}>
-                <span>{serviceIp + "/" + item.name}</span>
-              </Tooltip>
+              <span className="defalutColor">{serviceIp + "/" + item.name}</span>
             </span>
             <span className="downloadNum">
               <FormattedMessage {...menusText.downloadNum} />&nbsp;{item.downloadNumber}

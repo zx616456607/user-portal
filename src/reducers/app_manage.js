@@ -80,7 +80,7 @@ export function apps(state = { appItmes: {} }, action) {
       REQUEST: ActionTypes.APP_CREATE_REQUEST,
       SUCCESS: ActionTypes.APP_CREATE_SUCCESS,
       FAILURE: ActionTypes.APP_CREATE_FAILURE
-    }, state.deleteApps, action),
+    }, state.createApp, action),
     deleteApps: reducerFactory({
       REQUEST: ActionTypes.APP_BATCH_DELETE_REQUEST,
       SUCCESS: ActionTypes.APP_BATCH_DELETE_SUCCESS,
@@ -314,7 +314,6 @@ function containerLogs(state = {}, action) {
         }
       })
     case ActionTypes.CONTAINER_LOGS_CLEAR:
-      console.log(action.type)
       var dd = merge({}, defaultState, {
         [cluster]: {
           isFetching: false
@@ -332,6 +331,11 @@ export function containers(state = {}, action) {
     containerItems: containerItems(state.containerItems, action),
     containerDetail: containerDetail(state.containerDetail, action),
     containerDetailEvents: containerDetailEvents(state.containerDetailEvents, action),
-    containerLogs: containerLogs(state.containerLogs, action)
+    containerLogs: containerLogs(state.containerLogs, action),
+    deleteContainers: reducerFactory({
+      REQUEST: ActionTypes.CONTAINER_BATCH_DELETE_REQUEST,
+      SUCCESS: ActionTypes.CONTAINER_BATCH_DELETE_SUCCESS,
+      FAILURE: ActionTypes.CONTAINER_BATCH_DELETE_FAILURE
+    }, state.deleteContainers, action)
   }
 }

@@ -23,7 +23,7 @@ class TerminalModal extends Component {
     this.minWindow = this.minWindow.bind(this);
     this.closeWindow = this.closeWindow.bind(this);
     this.state = {
-    
+      
     }
   }
   
@@ -76,7 +76,7 @@ class TerminalModal extends Component {
           <i className='fa fa-times ' onClick={this.closeWindow} />
         </div>
         <div className='contentBox'>
-          <iframe src={`/js/container_terminal.html?host=192.168.1.92&port=8080&namespace=${config.metadata.namespace}&pod=${config.metadata.name}`} width="1270" height="450" />
+          <iframe src={`/js/container_terminal.html?host=192.168.1.92&port=6443&namespace=${config.metadata.namespace}&pod=${config.metadata.name}`} width="1270" height="450" />
         </div>
       </div>
     )

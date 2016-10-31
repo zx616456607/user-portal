@@ -80,14 +80,21 @@
           border: 0;
         }
         .listKey {
+          display: block;
+          float: left;
           width: 60px;
-          display: inline-block;
         }
       }
     }
   }
   .listLink {
+    float: left;
+    display:block; 
+    width: calc(~"100% - 70px");
     color: #2db7f5;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .li {
     line-height: 40px;

@@ -58,10 +58,7 @@ class Slider extends Component {
         backupId: self.props.beforeUploadState.backupId
       },
       beforeUpload: (file) => {
-        console.log(file)
         const fileSize = file.size
-        console.log((fileSize / 1024 / 1024).toFixed(2))
-        console.log(self.props.storageDetail.StorageInfo.size - self.props.storageDetail.StorageInfo.consumption)
         if ((fileSize / 1024 / 1024).toFixed(2) > (self.props.storageDetail.StorageInfo.size - self.props.storageDetail.StorageInfo.consumption)) {
           message.error('超出存储卷可用大小')
           return false
@@ -230,7 +227,7 @@ class Slider extends Component {
           </li>
           <li onClick={this.selectModel.bind(this, "8", "#setting")} className={currentKey == "8" ? "selectedLi" : ""}>
             <Tooltip placement="right" title="系统设置" getTooltipContainer={() => document.getElementById("siderTooltip")}>
-              <Link to="/">
+              <Link to="/setting">
                 <svg className="setting commonImg">
                   <use xlinkHref="#setting" />
                 </svg>
