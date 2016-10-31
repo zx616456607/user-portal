@@ -242,14 +242,12 @@ class CodeStore extends Component {
           transitionName='move-right'
           onCancel={this.closeCreateTenxFlowModal}
           >
-          // <CreateTenxFlow scope={scope} />
         </Modal>
         <Modal
           visible={this.state.TenxFlowDeployLogModal}
           className='TenxFlowBuildLogModal'
           onCancel={this.closeTenxFlowDeployLogModal}
           >
-          // <TenxFlowBuildLog scope={scope} />
         </Modal>
       </QueueAnim>
     )
