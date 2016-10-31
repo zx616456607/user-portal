@@ -88,6 +88,19 @@ class Deployment {
             }
             this.spec.template.metadata.labels = labels
           }
+
+          if (k8sDeployment.spec.template.spec && k8sDeployment.spec.template.spec.volumes) {
+            let volumes = []
+            for (let vol of k8sDeployment.spec.template.spec.volumes) {
+              let volume = {name: vol.name}
+              if (vol.rbd && vol.rbd.image) {
+                let strs = vol.rbd.image.split('.')
+                volume.rbd = {image: strs[strs.length-1]}
+              }
+              volumes.push(volume)
+             }
+             this.spec.template.spec.volumes = volumes
+          }
         }
       }
     }
