@@ -250,6 +250,7 @@ function loadImageTags(props) {
 }
 
 function setPorts(containerPorts, form) {
+  console.log('get port !!!');
   const portsArr = []
   if (containerPorts) {
     containerPorts.map(function (item, index) {
@@ -282,6 +283,7 @@ function loadImageTagConfigs(tag, props) {
   loadImageDetailTagConfig(DEFAULT_REGISTRY, currentSelectedImage, tag, {
     success: {
       func: (result) => {
+        console.log('setPort suc !');
         if (checkState === '修改') {
           return
         }

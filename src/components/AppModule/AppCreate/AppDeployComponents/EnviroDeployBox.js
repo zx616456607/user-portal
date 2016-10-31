@@ -28,12 +28,10 @@ let MyComponentEnviro = React.createClass({
   remove(k) {
     const { getFieldProps, getFieldValue, getFieldsValue } = this.props.parentScope.props.form;
     const { form } = this.props.parentScope.props;
-    // can use data-binding to get
     let envKey = form.getFieldValue('envKey');
     envKey = envKey.filter((key) => {
       return key !== k;
     })
-    // can use data-binding to set
     form.setFieldsValue({
       envKey,
     })
@@ -42,11 +40,8 @@ let MyComponentEnviro = React.createClass({
   add() {
     uuidEnviro++;
     const { form } = this.props.parentScope.props;
-    // can use data-binding to get
     let envKey = form.getFieldValue('envKey');
     envKey = envKey.concat(uuidEnviro);
-    // can use data-binding to set
-    // important! notify form to detect changes
     form.setFieldsValue({
       envKey,
     });
@@ -91,6 +86,12 @@ let MyComponentEnviro = React.createClass({
 });
 
 let MyComponentPort = React.createClass({
+  getInitialState: function () {
+    return {
+      addDis: false,
+      intDis: false,
+    }
+  },
   propTypes: {
     config: React.PropTypes.array
   },
@@ -100,7 +101,6 @@ let MyComponentPort = React.createClass({
     portKey = portKey.filter((key) => {
       return key !== k;
     });
-    console.log('portKey', portKey)
     if (form.getFieldValue('portKey').length === 0) {
       this.props.parentScope.setState({
         disable: true,
@@ -128,27 +128,37 @@ let MyComponentPort = React.createClass({
   },
   portsExists(rule, value, callback) {
     const {getFieldValue, getFieldProps} = this.props.form
-    console.log(',value,value,value,avalue',value);
-    console.log(',value,value,value,avalue',getFieldValue('portKey'));
-    
     if (!value) {
-      console.log('必须填端口');
       callback([new Error('抱歉，必须填端口.')])
+      this.setState({
+        addDis: true,
+      })
+      return
     } else {
       setTimeout(() => {
         if (isNaN(Number(value))) {
           callback([new Error('抱歉，该端口不合法.')])
+          this.setState({
+            addDis: true,
+          })
+          return
         } else {
           var i = 0
           getFieldValue('portKey').map((k) => {
-            console.log('value',value);
             if(value === getFieldProps(`targetPortUrl${k}`).value){
               i++
               if(i>1){
-                console.log('adddddddddddddddd',getFieldProps(`targetPortUrl${k}`));
                 callback([new Error('抱歉，端口名称重复.')])
+                
+                this.setState({
+                  addDis: true,
+                })
+                return
               }
             }
+          })
+          this.setState({
+            addDis: false,
           })
           callback()
         }
@@ -156,21 +166,22 @@ let MyComponentPort = React.createClass({
     }
   },
   render: function () {
-    const { form, disAdd } = this.props
+    const { form, parentScope } = this.props
+    const { intDis } = this.state
     const { getFieldProps, getFieldValue, isFieldValidating, getFieldError } = form
     getFieldProps('portKey', {
       initialValue: [],
-    });
+    })
     const formItems = getFieldValue('portKey').map((k) => {
       return (
-        <FormItem key={`port${k}`}>
+        <div key={`port${k}`}>
           <li className="portDetail">
             <div className="input">
               <FormItem hasFeedback
                 help={isFieldValidating(`targetPortUrl${k}`) ? '校验中...' : (getFieldError(`targetPortUrl${k}`) || []).join(', ')}>
                 <Input {...getFieldProps(`targetPortUrl${k}`, {
                   rules: [{ validator: this.portsExists },],
-                }) } className="composeUrl" type="text" size="large" />
+                }) } className="composeUrl" type="text" size="large"/>
               </FormItem>
             </div>
             <div className="protocol select">
@@ -178,10 +189,12 @@ let MyComponentPort = React.createClass({
                 <Select {...getFieldProps(`portType${k}`,{
                   rules: [{
                     required: true,
-                    message: '必须填写端口类型',
-                  }]
+                    message: '请选择端口类型',
+                  },]
                 })}
-                  defaultValue="http"
+                  showSearch
+                  optionFilterProp="children"
+                  notFoundContent="无法找到"
                   className="portGroup" size="large">
                   <Option value="http">Http</Option>
                   <Option value="tcp">Tcp</Option>
@@ -197,7 +210,7 @@ let MyComponentPort = React.createClass({
             </div>
             <div style={{ clear: "both" }}></div>
           </li>
-        </FormItem>
+        </div>
       )
     });
     return (
@@ -205,20 +218,27 @@ let MyComponentPort = React.createClass({
         <ul>
           {formItems}
         </ul>
-        { disAdd ?
-          <div className="addBtn">
-            <Button disabled type="primary">
-              <Icon type="plus-circle-o" />
-              <span>添加映射端口</span>
-            </Button>
-          </div> :
-          <div className="addBtn">
-            <Button type="primary">
-              <Icon type="plus-circle-o" />
-              <span>添加映射端口</span>
-            </Button>
-          </div>
-        }
+        {/*{
+          getFieldValue('portKey').length === 0 ?
+            <div className="addBtn">
+              <Button type="primary" onClick={this.add}>
+                <Icon type="plus-circle-o" />
+                <span>添加映射端口</span>
+              </Button>
+            </div> :
+            <div className="addBtn">
+              <Button disabled={parentScope.state.disable} type="primary" onClick={this.add}>
+                <Icon type="plus-circle-o" />
+                <span>添加映射端口</span>
+              </Button>
+            </div>
+        }*/}
+        <div className="addBtn">
+          <Button type="primary" onClick={this.add} disabled={this.state.addDis}>
+            <Icon type="plus-circle-o" />
+            <span>添加映射端口</span>
+          </Button>
+        </div>
       </div>
     );
   }
@@ -267,7 +287,7 @@ let EnviroDeployBox = React.createClass({
                 </div>
                 <div style={{ clear: "both" }}></div>
               </div>
-              <MyComponentPort parentScope={parentScope} form={form} disAdd={disAdd}/>
+              <MyComponentPort parentScope={parentScope} form={form}/>
             </div>
           </div>
         </div>

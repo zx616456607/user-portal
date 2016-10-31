@@ -21,6 +21,7 @@ const Deployment = require('../../../../kubernetes/objects/deployment')
 const Service = require('../../../../kubernetes/objects/service')
 const Panel = Collapse.Panel;
 const createForm = Form.create;
+const FormItem = Form.Item;
 
 let AppDeployServiceModal = React.createClass({
   propTypes: {
@@ -430,29 +431,37 @@ let AppDeployServiceModal = React.createClass({
     })
   },
   handleSubBtn(e, parentScope) {
+    const { form } = this.props
+    const { getFieldProps, getFieldValue, isFieldValidating, getFieldError } = form
     e.preventDefault()
-    if (parentScope.state.checkState === '创建') {
-      this.submitNewService(parentScope)
-    } else {
-      const reviseServiceName = parentScope.state.checkInf.Service.metadata.name
-      parentScope.state.selectedList.map((service, index) => {
-        if (service === reviseServiceName) {
-          parentScope.state.selectedList.splice(index, 1)
-        }
+    form.validateFieldsAndScroll((errors, values) => {
+      if (!!errors) {
+        
+        return
+      }
+   
+      if (parentScope.state.checkState === '创建') {
+        this.submitNewService(parentScope)
+      } else {
+        const reviseServiceName = parentScope.state.checkInf.Service.metadata.name
+        parentScope.state.selectedList.map((service, index) => {
+          if (service === reviseServiceName) {
+            parentScope.state.selectedList.splice(index, 1)
+          }
+        })
+        parentScope.state.servicesList.map((service, index) => {
+          if (service.id === reviseServiceName) {
+            parentScope.state.servicesList.splice(index, 1)
+          }
+        })
+        this.submitNewService(parentScope)
+      }
+  
+      this.props.form.resetFields()
+      parentScope.setState({
+        serviceModalShow: false
       })
-      parentScope.state.servicesList.map((service, index) => {
-        if (service.id === reviseServiceName) {
-          parentScope.state.servicesList.splice(index, 1)
-        }
-      })
-      this.submitNewService(parentScope)
-    }
-
-    this.props.form.resetFields()
-    parentScope.setState({
-      serviceModalShow: false
     })
-    
   },
   closeModal() {
     const parentScope = this.props.scope;
@@ -473,11 +482,21 @@ let AppDeployServiceModal = React.createClass({
   },
   handleForm() {
     console.log('form!!!!!!!!!!!!!');
-    this.props.form.validateFieldsAndScroll((errors, values) => {
+    const { form } = this.props
+    const { getFieldProps, getFieldValue, isFieldValidating, getFieldError } = form
+    console.log('getFieldPropsgetFieldProps',getFieldProps('portKey'))
+    if (getFieldProps('portKey').value.length === 0) {
+      console.log('disabled!');
+      this.setState({
+        disable: true,
+      })
+      return
+    }
+    
+    form.validateFieldsAndScroll((errors, values) => {
       if (!!errors) {
         this.setState({
           disable: true,
-          disAdd: true,
         })
         return
       }
@@ -492,11 +511,10 @@ let AppDeployServiceModal = React.createClass({
     const {servicesList} = parentScope.state.servicesList
     const {currentSelectedImage, registryServer, checkState} = parentScope.state
     const { form, serviceOpen } = this.props
-    const { composeType, disAdd } = this.state
+    const { composeType, disable } = this.state
     return (
       <div id="AppDeployServiceModal">
-        {/*<Form horizontal form={form} onChange={this.handleForm}>*/}
-        <Form horizontal onChange={ this.handleForm } >
+        <Form horizontal onSubmit={ this.handleForm } >
           <NormalDeployBox
             scope={scope} registryServer={registryServer}
             currentSelectedImage={currentSelectedImage}
@@ -516,20 +534,20 @@ let AppDeployServiceModal = React.createClass({
               <ComposeDeployBox scope={scope} form={form}/>
             </Panel>
             <Panel header={advanceBoxTitle} key="4">
-              <EnviroDeployBox scope={scope} form={form} disAdd={disAdd} />
+              <EnviroDeployBox scope={scope} form={form} />
             </Panel>
           </Collapse>
           <div className="btnBox">
             <Button className="cancelBtn" size="large" type="ghost" onClick={this.closeModal}>
               取消
             </Button>
-            <Button className="createBtn" size="large" type="primary"
-              onClick={(e) => this.handleSubBtn(e, parentScope)}
-              servicesList={servicesList}
-              disabled={this.state.disable}
-              >
-              {parentScope.state.checkState}
-            </Button>
+              <Button className="createBtn" size="large" type="primary"
+                onClick={(e) => this.handleSubBtn(e, parentScope)}
+                servicesList={servicesList}
+                htmlType="submit"
+                >
+                {parentScope.state.checkState}
+              </Button>
           </div>
         </Form>
       </div>
