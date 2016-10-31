@@ -124,20 +124,27 @@ class OtherSpace extends Component {
     });
   }
   deleteImage(id) {
-    const scope = this.props
+    const scope = this
     const parentScope = this.props.scope
-    scope.deleteOtherImage(id, {
-      success:{
-        func: () => {
-          const otherImages = this.props.otherImages
-          parentScope.setState({
-            otherImageHead: otherImages.imageRow,
-            current: 'imageSpace',
-            otherSpace: ''
-          })
-        },
-        isAsync: true
-      }
+    Modal.confirm({
+      title: '删除第三方镜像',
+      content: '您是否确认要删除这项内容',
+      onOk() {
+        scope.props.deleteOtherImage(id, {
+          success:{
+            func: () => {
+              const otherImages = scope.props.otherImages
+              parentScope.setState({
+                otherImageHead: otherImages.imageRow,
+                current: 'imageSpace',
+                otherSpace: ''
+              })
+            },
+            isAsync: true
+          }
+        })
+      },
+      onCancel() {}
     })
   }
   

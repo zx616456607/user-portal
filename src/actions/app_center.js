@@ -169,17 +169,21 @@ export const IMAGE_GET_DETAILTAGCONFIG_FAILURE = 'IMAGE_GET_DETAILTAGCONFIG_FAIL
 
 // Fetches apps list from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function loadImageDetailTagConfig(registry, fullName, tag) {
-  // return (dispatch, getState) => {
-  //   return dispatch(fetchImageGetDetailTagConfig(registry, fullName, tag, callback))
-  // }
+function fetchImageGetDetailTagConfig(registry, fullName, tag, callback) {
   return {
     registry,
     [FETCH_API]: {
       types: [IMAGE_GET_DETAILTAGCONFIG_REQUEST, IMAGE_GET_DETAILTAGCONFIG_SUCCESS, IMAGE_GET_DETAILTAGCONFIG_FAILURE],
       endpoint: `${API_URL_PREFIX}/registries/${registry}/${fullName}/tags/${tag}/configs`,
       schema: Schemas.REGISTRYS
-    }
+    },
+    callback,
+  }
+}
+
+export function loadImageDetailTagConfig(registry, fullName, tag, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchImageGetDetailTagConfig(registry, fullName, tag, callback))
   }
 }
 
@@ -228,13 +232,30 @@ export function imageStore(obj, callback) {
       options: {
         method: 'PUT',
         body: {
-          myfavourite: obj.myfavourite,
+          isFavourite: obj.isFavourite,
+        }
+      }
+    },
+    registry: obj.registry,
+    isFavourite: obj.isFavourite,
+    callback
+  }
+}
+// set image store 设置镜像 公开 or 私有
+export function imageSwitch(obj, callback) {
+  return {
+    [FETCH_API]: {
+      types: [SET_IMAGE_STORE_REQUEST, SET_IMAGE_STORE_SUCCESS, SET_IMAGE_STORE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/registries/${obj.registry}/${obj.image}`,
+      schema: Schemas.REGISTRYS,
+      options: {
+        method: 'PUT',
+        body: {
           isPrivate: obj.isPrivate
         }
       }
     },
     registry: obj.registry,
-    myfavourite: obj.myfavourite,
     isPrivate: obj.isPrivate,
     callback
   }
@@ -262,7 +283,7 @@ export const CREATE_STACK_SUCCESS = 'CREATE_STACK_SUCCESS'
 export const CREATE_STACK_FAILURE = 'CREATE_STACK_FAILURE'
 export function createStack(obj, callback) {
   return {
-    registry:obj.registry,
+    registry: obj.registry,
     [FETCH_API]: {
       types: [CREATE_STACK_REQUEST, CREATE_STACK_SUCCESS, CREATE_STACK_FAILURE],
       endpoint: `${API_URL_PREFIX}/templates`,
@@ -270,9 +291,9 @@ export function createStack(obj, callback) {
       options: {
         method: 'POST',
         body: {
-        'is_public': obj.is_public,
-        'content': obj.content,
-        'name': obj.name
+          'is_public': obj.is_public,
+          'content': obj.content,
+          'name': obj.name
         }
       }
     },

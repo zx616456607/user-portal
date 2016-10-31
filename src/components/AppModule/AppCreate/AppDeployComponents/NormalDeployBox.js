@@ -42,14 +42,14 @@ let MyComponent = React.createClass({
     form.setFieldsValue({
       volumeKey,
     });
-    if(volumeKey.length <= 0) {
+    if (volumeKey.length <= 0) {
       const registry = this.props.registry
       const mountPath = this.props.tagConfig[registry].configList.mountPath
-      volumeKey = mountPath.map((i, index) => {return index + 1})
+      volumeKey = mountPath.map((i, index) => { return index + 1 })
       form.setFieldsValue({
         volumeSwitch: false,
         volumeKey
-      }) 
+      })
     }
   },
   add() {
@@ -93,7 +93,7 @@ let MyComponent = React.createClass({
   },
   createVolume() {
     const self = this
-    if(!this.state.name) {
+    if (!this.state.name) {
       message.error('请填写存储名称')
       return
     }
@@ -154,15 +154,15 @@ let MyComponent = React.createClass({
                 <Input className="volumeInt" type="text" placeholder="存储卷名称" onChange={(e) => { this.getVolumeName(e) } } />
               </div>
               <div className="input">
-                <InputNumber className="volumeInt" type="text" placeholder="存储卷大小" defaultValue="100" max="9999" onChange={(value) => this.getVolumeSize(value)}/>
-                 <Select className='imageTag' placeholder="请选择格式" defaultValue="ext4" onChange={(value) => {
-                   this.getVolumeFormat(value)
-                 } }>
-                   <Option value='ext4'>ext4</Option>
-                   <Option value='xfs'>xfs</Option>
-                   <Option value='reiserfs'>reiserfs</Option>
-                 </Select>
-                 <Button onClick={() => this.createVolume() }>创建存储卷</Button>
+                <InputNumber className="volumeInt" type="text" placeholder="存储卷大小" defaultValue="100" max="9999" onChange={(value) => this.getVolumeSize(value)} />
+                <Select className='imageTag' placeholder="请选择格式" defaultValue="ext4" onChange={(value) => {
+                  this.getVolumeFormat(value)
+                } }>
+                  <Option value='ext4'>ext4</Option>
+                  <Option value='xfs'>xfs</Option>
+                  <Option value='reiserfs'>reiserfs</Option>
+                </Select>
+                <Button onClick={() => this.createVolume()}>创建存储卷</Button>
               </div>
               <div style={{ clear: "both" }}></div>
             </li>
@@ -171,7 +171,7 @@ let MyComponent = React.createClass({
       )
     } else {
       getFieldProps('volumeKey', {
-        initialValue: mountPath.map((i, index)=> {return index +1 }),
+        initialValue: mountPath.map((i, index) => { return index + 1 }),
       });
       formItems = getFieldValue('volumeKey').map((k) => {
         return (
@@ -180,7 +180,7 @@ let MyComponent = React.createClass({
             {
               mountPath[k - 1] ?
                 <span type='text' className="url">
-                  <Input className="hide"  {...getFieldProps(`volumePath${k}`, {initialValue: mountPath[k - 1]}) }/>
+                  <Input className="hide"  {...getFieldProps(`volumePath${k}`, { initialValue: mountPath[k - 1] }) } />
                   {mountPath[k - 1]}
                 </span> :
                 <Input {...getFieldProps(`volumePath${k}`, {}) } className="urlInt" />
@@ -194,7 +194,7 @@ let MyComponent = React.createClass({
               只读
           </Checkbox>
             <i className="fa fa-refresh" onClick={() => this.refresh()} />
-            <i className="fa fa-trash" onClick={() => this.remove(k)}/>
+            <i className="fa fa-trash" onClick={() => this.remove(k)} />
           </FormItem>
         )
       });
@@ -282,7 +282,7 @@ function loadImageTagConfigs(tag, props) {
   loadImageDetailTagConfig(DEFAULT_REGISTRY, currentSelectedImage, tag, {
     success: {
       func: (result) => {
-        if (checkState === '修改') {
+        if (!checkState) {
           return
         }
         const { form } = props
@@ -310,7 +310,6 @@ let NormalDeployBox = React.createClass({
     }
   },
   selectComposeType(type) {
-    console.log(type);
     const parentScope = this.props.scope
     parentScope.setState({
       composeType: type
@@ -332,9 +331,9 @@ let NormalDeployBox = React.createClass({
       if (!/^[a-z][a-z0-9-]{2,24}$/.test(value)) {
         callback([new Error('抱歉，该服务名称不合法.')])
       } else {
+        
         servicesList.map((service) => {
           if (service.id === value) {
-            console.log('serviceName 3');
             callback([new Error('服务名称已经存在')])
             return
           }

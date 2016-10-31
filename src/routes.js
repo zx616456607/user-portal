@@ -48,7 +48,7 @@ import RedisCluster from './components/DatabaseCache/RedisCluster'
 import DatabaseStorage from './components/DatabaseCache/DatabaseStorage'
 /*-------------------database & cache Module Stop------------------------*/  
 /*-------------------CI/CD Module Start----------------------------------*/
-import CICD from './containers/CICD/Index'
+import CICD from './containers/CICD/index'
 import CodeStore from './components/CICDModule/CodeStore'
 import DockerFile from './components/CICDModule/DockerFile'
 import TenxFlow from './components/CICDModule/TenxFlow'

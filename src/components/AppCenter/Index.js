@@ -171,7 +171,8 @@ let MyComponent = React.createClass({
         password: values.passwd || null,
         url: values.url,
         description: values.description || null
-      } 
+      }
+      const self = this
       this.props.addOtherStore(config, {
         success: {
           func: (res) =>{
@@ -183,7 +184,7 @@ let MyComponent = React.createClass({
                     scope.setState({
                       otherImageHead: res.data
                     })
-
+                    self.props.form.resetFields()
                   }
                 }
               })

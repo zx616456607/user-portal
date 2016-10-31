@@ -71,11 +71,9 @@ class ServiceAPI extends Component {
 
   componentWillMount() {
     const { registry, loadImageDetailTagConfig } = this.props;
-    const { fullname, imageTag , imageId} = this.props;
-    const config = {imageId, fullname, imageTag}
+    const { fullname, imageTag} = this.props;
     loadImageDetailTagConfig(registry, fullname, imageTag);
   }
-
   render() {
     const { isFetching, configList } = this.props;
     if (isFetching) {
@@ -119,7 +117,7 @@ class ServiceAPI extends Component {
         <p>容器端口:&nbsp;{portsShow}</p>
         {dataStorageShow}
         <p>运行命令及参数：&nbsp;{entrypointShow}{cmdShow}</p>
-        <div>大小：{(configList.sizeInfo.totalSize > 0) ? (configList.sizeInfo.totalSize) /1024 + 'K': '未知' }</div>
+        <div>大小：{(configList.sizeInfo.totalSize > 0) ? (configList.sizeInfo.totalSize) / 1024 + 'K' : '未知'}</div>
         <p>所需环境变量: </p>
         <div className="itemBox">
           <div className="title">
@@ -140,10 +138,10 @@ function mapStateToProps(state, props) {
     registry: DEFAULT_REGISTRY,
     configList: []
   }
-  const { imageTagConfig ,otherTagConfig} = state.getImageTagConfig
+  const { imageTagConfig, otherTagConfig} = state.getImageTagConfig
   const { registry, tag, isFetching, server, configList } = imageTagConfig[DEFAULT_REGISTRY] || defaultImageDetailTagConfig
   // const { registry, tag, isFetching, server, configList } = otherTagConfig || defaultImageDetailTagConfig
-  
+
   return {
     registry,
     registryServer: server,
@@ -156,11 +154,7 @@ function mapStateToProps(state, props) {
 ServiceAPI.propTypes = {
   //
 }
-function mapDispatchToProps(dispatch) {
-  return {
-    loadImageDetailTagConfig: (registry, fullname, imageTag)=> {
-      dispatch(loadImageDetailTagConfig(registry, fullname, imageTag))
-    }
-  }
-}
-export default connect(mapStateToProps, mapDispatchToProps)(ServiceAPI);
+
+export default connect(mapStateToProps, {
+  loadImageDetailTagConfig
+})(ServiceAPI);

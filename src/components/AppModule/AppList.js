@@ -42,24 +42,36 @@ const MyComponent = React.createClass({
   },
   appOperaClick: function (item, e) {
     //this function for user click opera menu
+    switch(e.key) {
+      case 'stopApp':
+        this.stopApp(item.name);
+        break;
+      case 'deleteApp':
+        this.deleteApp(item.name);
+        break;
+    }
   },
-  selectAppByline: function (item) {
+  selectAppByline: function (item, e) {
     //this function for user click app line ,and then this app will be selected
-    const { parentScope } = this.props
-    const { appList } = parentScope.state
-    appList.map((app) => {
-      if (app.name === item.name) {
-        app.checked = !app.checked
-      }
-    });
-    parentScope.setState({
-      appList
-    });
+    //when user click the menu button will trigger the function
+    //so the first thing should estimate
+    //the event target is the menu button or others
+    //if the target is menu button , the function will be return null 
+    let stopPro = e._dispatchInstances;
+    if(stopPro.length != 2) {     
+      const { parentScope } = this.props
+      const { appList } = parentScope.state
+      appList.map((app) => {
+        if (app.name === item.name) {
+          app.checked = !app.checked
+        }
+      });
+      parentScope.setState({
+        appList
+      });
+    }
   },
-  handleDropdown: function (e) {
-    e.stopPropagation()
-  },
-  stopApp: function (e, name) {
+  stopApp: function (name) {
     const { confirmStopApps } = this.props.funcs
     const app = {
       name
@@ -74,8 +86,7 @@ const MyComponent = React.createClass({
     }
     confirmRestartApps([app])
   },
-  deleteApp: function (e, name) {
-    e.stopPropagation()
+  deleteApp: function (name) {
     const { confirmDeleteApps } = this.props.funcs
     const app = {
       name
@@ -132,7 +143,7 @@ const MyComponent = React.createClass({
     }
     if (config.length < 1) {
       return (
-        <div className="loadingBox">
+        <div className='loadingBox'>
           暂无数据
         </div>
       )
@@ -140,20 +151,20 @@ const MyComponent = React.createClass({
     const items = config.map((item) => {
       const dropdown = (
         <Menu onClick={this.appOperaClick.bind(this, item)}
-          style={{ width: "100px" }}
+          style={{ width: '100px' }}
           >
-          <Menu.Item key="1">
-            <span onClick={(e) => this.stopApp(e, item.name)}>停止</span>
+          <Menu.Item key='stopApp'>
+            <span>停止</span>
           </Menu.Item>
-          <Menu.Item key="2">
-            <span onClick={(e) => this.deleteApp(e, item.name)}>删除</span>
+          <Menu.Item key='deleteApp'>
+            <span>删除</span>
           </Menu.Item>
-          <Menu.Item key="3">
+          <Menu.Item key='topology'>
             <Link to={`/app_manage/detail/${item.name}#topology`} >
               查看拓扑图
             </Link>
           </Menu.Item>
-          <Menu.Item key="4">
+          <Menu.Item key='stack'>
             <Link to={`/app_manage/detail/${item.name}#stack`} >
               查看编排
             </Link>
@@ -161,59 +172,54 @@ const MyComponent = React.createClass({
         </Menu>
       );
       return (
-        <div className={item.checked ? "appDetail appDetailSelected" : "appDetail"} key={item.name} onClick={this.selectAppByline.bind(this, item)} >
-          <div className="selectIconTitle commonData">
+        <div className={item.checked ? 'appDetail appDetailSelected' : 'appDetail'} key={item.name} onClick={this.selectAppByline.bind(this, item)} >
+          <div className='selectIconTitle commonData'>
             <Checkbox value={item.name} checked={item.checked} onChange={this.onchange}></Checkbox>
           </div>
-          <div className="appName commonData">
+          <div className='appName commonData'>
             <Tooltip title={item.name}>
               <Link to={`/app_manage/detail/${item.name}`} >
                 {item.name}
               </Link>
             </Tooltip>
           </div>
-          <div className="appStatus commonData">
-            <i className={item.appStatus == 0 ? "normal fa fa-circle" : "error fa fa-circle"}></i>
-            <span className={item.appStatus == 0 ? "normal" : "error"} >{item.appStatus == 0 ? "正常" : "异常"}</span>
+          <div className='appStatus commonData'>
+            <i className={item.appStatus == 0 ? 'normal fa fa-circle' : 'error fa fa-circle'}></i>
+            <span className={item.appStatus == 0 ? 'normal' : 'error'} >{item.appStatus == 0 ? '正常' : '异常'}</span>
           </div>
-          <div className="serviceNum commonData">
+          <div className='serviceNum commonData'>
             {item.serviceCount + '' || '-'}
           </div>
-          <div className="containerNum commonData">
+          <div className='containerNum commonData'>
             {item.instanceCount + '' || '-'}
           </div>
-          <div className="visitIp commonData">
-            <Tooltip title={item.address ? item.address : ""}>
+          <div className='visitIp commonData'>
+            <Tooltip title={item.address ? item.address : ''}>
               <span>{item.address || '-'}</span>
             </Tooltip>
           </div>
-          <div className="createTime commonData">
+          <div className='createTime commonData'>
             <Tooltip title={tenxDateFormat(item.createTime)}>
               <span>{tenxDateFormat(item.createTime)}</span>
             </Tooltip>
           </div>
-          <div className="actionBox commonData">
-            <ButtonGroup>
-              <Button type="ghost" onClick={(e) => this.restartApp(e, item.name)}>
-                重新部署
-              </Button>
-              <Dropdown overlay={dropdown}>
-                <Button type="ghost" onClick={(e) => this.handleDropdown(e, false)}>
-                  <Icon type="down" />
-                </Button>
-              </Dropdown>
-            </ButtonGroup>
+          <div className='actionBox commonData'>
+            <Dropdown.Button
+              overlay={dropdown} type='ghost'
+              onClick={(e) => this.restartApp(e, item.name)}>
+              <span>重新部署</span>
+            </Dropdown.Button>
           </div>
-          <div style={{ clear: "both", width: "0" }}></div>
+          <div style={{ clear: 'both', width: '0' }}></div>
         </div>
       );
     });
     return (
-      <div className="dataBox">
+      <div className='dataBox'>
         {items}
-        <div className="paginationBox">
+        <div className='paginationBox'>
           <Pagination
-            className="inlineBlock"
+            className='inlineBlock'
             showSizeChanger
             showQuickJumper
             onShowSizeChange={this.onShowSizeChange}
@@ -430,35 +436,35 @@ class AppList extends Component {
     }
     return (
       <QueueAnim
-        className="AppList"
-        type="right"
+        className='AppList'
+        type='right'
         >
-        <div id="AppList" key="AppList">
-          <div className="operationBox">
-            <div className="leftBox">
-              <Button type="ghost" size="large">
-                <Link to="/app_manage/app_create">
-                  <i className="fa fa-plus"></i>添加应用
+        <div id='AppList' key='AppList'>
+          <div className='operationBox'>
+            <div className='leftBox'>
+              <Button type='ghost' size='large'>
+                <Link to='/app_manage/app_create'>
+                  <i className='fa fa-plus'></i>添加应用
                 </Link>
               </Button>
-              <Button type="ghost" size="large" onClick={this.batchStartApps} disabled={!isChecked}>
-                <i className="fa fa-play"></i>启动
+              <Button type='ghost' size='large' onClick={this.batchStartApps} disabled={!isChecked}>
+                <i className='fa fa-play'></i>启动
               </Button>
-              <Button type="ghost" size="large" onClick={this.batchStopApps} disabled={!isChecked}>
-                <i className="fa fa-stop"></i>停止
+              <Button type='ghost' size='large' onClick={this.batchStopApps} disabled={!isChecked}>
+                <i className='fa fa-stop'></i>停止
               </Button>
-              <Button type="ghost" size="large" onClick={this.batchDeleteApps} disabled={!isChecked}>
-                <i className="fa fa-trash-o"></i>删除
+              <Button type='ghost' size='large' onClick={this.batchDeleteApps} disabled={!isChecked}>
+                <i className='fa fa-trash-o'></i>删除
               </Button>
-              <Button type="ghost" size="large" onClick={this.batchRestartApps} disabled={!isChecked}>
-                <i className="fa fa-undo"></i>重新部署
+              <Button type='ghost' size='large' onClick={this.batchRestartApps} disabled={!isChecked}>
+                <i className='fa fa-undo'></i>重新部署
               </Button>
             </div>
-            <div className="rightBox">
-              <div className="littleLeft" onClick={this.searchApps}>
-                <i className="fa fa-search"></i>
+            <div className='rightBox'>
+              <div className='littleLeft' onClick={this.searchApps}>
+                <i className='fa fa-search'></i>
               </div>
-              <div className="littleRight">
+              <div className='littleRight'>
                 <Input
                   onChange={(e) => {
                     this.setState({
@@ -466,40 +472,40 @@ class AppList extends Component {
                     })
                   } }
                   value={searchInputValue}
-                  placeholder="输入应用名回车搜索"
+                  placeholder='输入应用名回车搜索'
                   disabled={searchInputDisabled}
                   onPressEnter={this.searchApps} />
               </div>
             </div>
-            <div className="clearDiv"></div>
+            <div className='clearDiv'></div>
           </div>
-          <Card className="appBox">
-            <div className="appTitle">
-              <div className="selectIconTitle commonTitle">
+          <Card className='appBox'>
+            <div className='appTitle'>
+              <div className='selectIconTitle commonTitle'>
                 <Checkbox checked={isAllChecked} onChange={this.onAllChange} disabled={appList.length < 1}></Checkbox>
               </div>
-              <div className="appName commonTitle">
+              <div className='appName commonTitle'>
                 应用名称
               </div>
-              <div className="appStatus commonTitle">
+              <div className='appStatus commonTitle'>
                 应用状态
               </div>
-              <div className="serviceNum commonTitle">
+              <div className='serviceNum commonTitle'>
                 服务数量
-                <i className="fa fa-sort"></i>
+                <i className='fa fa-sort'></i>
               </div>
-              <div className="containerNum commonTitle">
+              <div className='containerNum commonTitle'>
                 容器数量
-                <i className="fa fa-sort"></i>
+                <i className='fa fa-sort'></i>
               </div>
-              <div className="visitIp commonTitle">
+              <div className='visitIp commonTitle'>
                 访问地址
               </div>
-              <div className="createTime commonTitle">
+              <div className='createTime commonTitle'>
                 创建时间
-                <i className="fa fa-sort"></i>
+                <i className='fa fa-sort'></i>
               </div>
-              <div className="actionBox commonTitle">
+              <div className='actionBox commonTitle'>
                 操作
               </div>
             </div>

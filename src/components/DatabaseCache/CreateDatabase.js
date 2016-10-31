@@ -54,17 +54,20 @@ let CreateDatabase = React.createClass({
       }, 800);
     }
   },
-  checkPwdStart: function(){
-    //this function for user check his password change the input type
-    this.setState({
-      showPwd: 'text'
-    });
-  },
-  checkPwdEnd: function(){
-    //this function for user stop check his password change the input type
-    this.setState({
-      showPwd: 'password'
-    });
+  checkPwd: function(){
+    //this function for user change the password box input type
+    //when the type is password and change to the text, user could see the password
+    //when the type is text and change to the password, user couldn't see the password
+    if(this.state.showPwd == 'password') {
+      this.setState({
+        showPwd: 'text'
+      });
+    } else {
+      this.setState({
+        showPwd: 'password'
+      });
+    }
+    
   },
   handleReset(e) {
     //this function for reset the form
@@ -204,7 +207,7 @@ let CreateDatabase = React.createClass({
               hasFeedback
             >
               <Input {...passwdProps} type={this.state.showPwd} size='large' />
-              <i className='fa fa-eye' onMouseDown={this.checkPwdStart} onMouseUp={this.checkPwdEnd}></i>
+              <i className={this.state.showPwd == 'password' ? 'fa fa-eye' :'fa fa-eye-slash' } onClick={this.checkPwd}></i>
             </FormItem>
           </div>
           <div style={{ clear:'both' }}></div>

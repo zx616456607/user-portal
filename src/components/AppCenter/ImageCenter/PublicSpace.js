@@ -99,9 +99,7 @@ let MyComponent = React.createClass({
             </span>
             <span className="imageUrl textoverflow">
               <span className="defalutColor"><FormattedMessage {...menusText.imageUrl} />&nbsp;</span>
-              <Tooltip placement="topLeft" title={serviceIp + "/" + item.name}>
-                <span>{serviceIp + "/" + item.name}</span>
-              </Tooltip>
+              <span className="defalutColor">{serviceIp + "/" + item.name}</span>
             </span>
             <span className="downloadNum">
               <FormattedMessage {...menusText.downloadNum} />&nbsp;{item.downloadNumber}
