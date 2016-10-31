@@ -276,13 +276,12 @@ function setEnv(defaultEnv, form) {
     })
   }
 }
-
 function loadImageTagConfigs(tag, props) {
-  const { currentSelectedImage, loadImageDetailTagConfig, scope, checkState } = props
+  const { currentSelectedImage, loadImageDetailTagConfig, scope, isCreate } = props
   loadImageDetailTagConfig(DEFAULT_REGISTRY, currentSelectedImage, tag, {
     success: {
       func: (result) => {
-        if (!checkState) {
+        if (!isCreate) {
           return
         }
         const { form } = props
@@ -323,21 +322,31 @@ let NormalDeployBox = React.createClass({
     loadImageTagConfigs(tag, this.props)
   },
   userExists(rule, value, callback) {
-    const { checkServiceName } = this.props
+    const { checkServiceName, isCreate } = this.props
     const { servicesList } = this.props.scope.props.scope.state
+    let i = 0
     if (!value) {
       callback()
     } else {
       if (!/^[a-z][a-z0-9-]{2,24}$/.test(value)) {
         callback([new Error('抱歉，该服务名称不合法.')])
       } else {
-        
-        servicesList.map((service) => {
-          if (service.id === value) {
-            callback([new Error('服务名称已经存在')])
-            return
-          }
-        })
+        if(!isCreate){
+          const oldServiceName = this.props.form.getFieldProps('name').value
+          servicesList.map((service) => {
+            if((value !== oldServiceName) && (service.id === value)){
+              callback([new Error('服务名称已经存在')])
+              return
+            }
+          })
+        } else {
+          servicesList.map((service) => {
+            if (service.id === value) {
+              callback([new Error('服务名称已经存在')])
+              return
+            }
+          })
+        }
         checkServiceName(this.state.cluster, value, {
           success: {
             func: (result) => {
@@ -352,8 +361,6 @@ let NormalDeployBox = React.createClass({
             isAsync: true
           }
         })
-        console.log('serviceName 5');
-        callback()
       }
     }
   },

@@ -72,9 +72,8 @@ class MyComponent extends Component {
     this.props.scope.setState({
       serviceModalShow: true,
       checkInf: inf,
-      checkState: false
+      isCreate: false
     })
-    console.log('inf', inf);
   }
   render() {
     var config = this.props.scope.state.servicesList;
@@ -136,7 +135,7 @@ export default class ServiceList extends Component {
       serviceModalShow: false,
       currentSelectedImage: null,
       registryServer: null,
-      checkState: true,
+      isCreate: true,
       checkInf: null,
     }
   }

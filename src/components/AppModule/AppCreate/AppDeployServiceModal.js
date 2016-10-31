@@ -155,7 +155,7 @@ let AppDeployServiceModal = React.createClass({
     })
   },
   componentWillMount() {
-    if (!this.props.scope.state.checkState) {
+    if (!this.props.scope.state.isCreate) {
       this.setForm()
     }
   },
@@ -165,7 +165,7 @@ let AppDeployServiceModal = React.createClass({
       return
     }
     if (serviceOpen) {
-      if (!this.props.scope.state.checkState) {
+      if (!this.props.scope.state.isCreate) {
         this.setForm()
       }
     }
@@ -438,12 +438,12 @@ let AppDeployServiceModal = React.createClass({
     const { getFieldProps, getFieldValue, isFieldValidating, getFieldError } = form
     e.preventDefault()
     form.validateFieldsAndScroll((errors, values) => {
+      console.log('check form !!!');
       if (!!errors) {
-        
+        console.log('error!!!!!',errors);
         return
       }
-   
-      if (parentScope.state.checkState) {
+      if (parentScope.state.isCreate) {
         this.submitNewService(parentScope)
       } else {
         const reviseServiceName = parentScope.state.checkInf.Service.metadata.name
@@ -483,36 +483,11 @@ let AppDeployServiceModal = React.createClass({
       serNameErrState: '',
     })
   },
-  handleForm() {
-    console.log('form!!!!!!!!!!!!!');
-    const { form } = this.props
-    const { getFieldProps, getFieldValue, isFieldValidating, getFieldError } = form
-    console.log('getFieldPropsgetFieldProps',getFieldProps('portKey'))
-    if (getFieldProps('portKey').value.length === 0) {
-      console.log('disabled!');
-      this.setState({
-        disable: true,
-      })
-      return
-    }
-    
-    form.validateFieldsAndScroll((errors, values) => {
-      if (!!errors) {
-        this.setState({
-          disable: true,
-        })
-        return
-      }
-      this.setState({
-        disable: false,
-      })
-    })
-  },
   render: function () {
     const scope = this
     const parentScope = this.props.scope
     const {servicesList} = parentScope.state.servicesList
-    const {currentSelectedImage, registryServer, checkState} = parentScope.state
+    const {currentSelectedImage, registryServer, isCreate} = parentScope.state
     const { form, serviceOpen } = this.props
     const { composeType, disable } = this.state
     return (
@@ -521,7 +496,7 @@ let AppDeployServiceModal = React.createClass({
           <NormalDeployBox
             scope={scope} registryServer={registryServer}
             currentSelectedImage={currentSelectedImage}
-            serviceOpen={serviceOpen} checkState={checkState}
+            serviceOpen={serviceOpen} isCreate={isCreate}
             composeType={composeType}
             form={form}
             cluster={this.props.cluster}
@@ -549,7 +524,7 @@ let AppDeployServiceModal = React.createClass({
                 servicesList={servicesList}
                 htmlType="submit"
                 >
-                {parentScope.state.checkState ? '创建' : '修改'}
+                {parentScope.state.isCreate ? '创建' : '修改'}
               </Button>
           </div>
         </Form>
