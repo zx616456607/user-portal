@@ -53,7 +53,12 @@ import CodeStore from './components/CICDModule/CodeStore'
 import DockerFile from './components/CICDModule/DockerFile'
 import TenxFlow from './components/CICDModule/TenxFlow'
 import TenxFlowBuild from './components/CICDModule/TenxFlow/TenxFlowDetail'
-/*-------------------CI/CD Module Stop-----------------------------------*/  
+/*-------------------CI/CD Module Stop-----------------------------------*/
+/*-------------------Setting Module Start----------------------------------*/
+import Setting from './containers/Setting/index'
+import UserInfo from './components/SettingModal/'
+
+/*-------------------Setting Module Stop-----------------------------------*/
 
 
 export default (
@@ -98,6 +103,9 @@ export default (
         <Route path="tenx_flow_build" component={TenxFlowBuild} />
       </Route>
       <Route path="docker_file" component={DockerFile} />
+    </Route>
+    <Route path="setting" component={Setting}>
+      <IndexRoute component={UserInfo} />
     </Route>
     <Route path="*" component={ErrorPage} />
   </Route>

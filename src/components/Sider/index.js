@@ -230,7 +230,7 @@ class Slider extends Component {
           </li>
           <li onClick={this.selectModel.bind(this, "8", "#setting")} className={currentKey == "8" ? "selectedLi" : ""}>
             <Tooltip placement="right" title="系统设置" getTooltipContainer={() => document.getElementById("siderTooltip")}>
-              <Link to="/">
+              <Link to="/setting">
                 <svg className="setting commonImg">
                   <use xlinkHref="#setting" />
                 </svg>
