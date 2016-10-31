@@ -128,7 +128,9 @@ module.exports = function (Router) {
   // DataBase Cache
   router.get('/clusters/:cluster/getMysql', databaseCacheController.getMySqlList)
   router.post('/clusters/:cluster/createMysqlCluster', databaseCacheController.createMysqlCluster)
-  router.get('/clusters/:cluster/getMysqlDetail/:dbName', databaseCacheController.getMysqlClusterDetail)
-  router.get('/clusters/:cluster/deleteMysql/:dbName', databaseCacheController.deleteMysqlCluster)
+  router.get('/clusters/:cluster/getDatabaseDetail/:dbName', databaseCacheController.getDatabaseClusterDetail)
+  router.get('/clusters/:cluster/deleteDatabase/:dbName', databaseCacheController.deleteDatebaseCluster)
+  router.post('/clusters/:cluster/createRedisCluster', databaseCacheController.createRedisCluster)
+  router.get('/clusters/:cluster/getRedis', databaseCacheController.getRedisList)
   return router.routes()
 }

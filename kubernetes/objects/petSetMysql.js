@@ -2,7 +2,7 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
- * Petset class for petset
+ * Petset Mysql class for petset
  *
  * v0.1 - 2016-10-28
  * @author GaoJian
@@ -10,13 +10,16 @@
 "use strict"
 const TENXCLOUD_PREFIX = "tenxcloud.com/"
 
-class Petset {
+class PetsetMysql {
   constructor(name) {
     this.kind = "PetSet"
     this.apiVersion = "apps/v1alpha1"
     this.metadata = {
       name: name,
-      namespace: null
+      namespace: null,
+      labels: {
+        appType: 'mysql'
+      },
     }
     this.spec = {
       serviceName: name,
@@ -25,7 +28,7 @@ class Petset {
         metadata: {
           labels: {
             app: name,
-            appType: null
+            appType: 'mysql'
           },
           annotations: {
             "pod.alpha.kubernetes.io/initialized": "true",
@@ -145,8 +148,7 @@ class Petset {
     }
   }
 
-  createMysqlDatabase( dbName, dbType, instanceNum, password) {
-    this.spec.template.metadata.labels.appType = dbType
+  createMysqlDatabase( instanceNum, password) {
     this.spec.replicas = instanceNum
     this.spec.template.spec.containers[0].env[0].value = password
     this.metadata.namespace = "zhangpc"
@@ -154,4 +156,4 @@ class Petset {
   
 }
 
-module.exports = Petset
+module.exports = PetsetMysql

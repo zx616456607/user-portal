@@ -43,7 +43,37 @@ function mysqlDatabaseAllList(state = {}, action) {
   }
 }
 
-function mysqlDatabaseDetail(state = {}, action) {
+function redisDatabaseAllList(state = {}, action) {
+  const defaultState = {
+    'Redis': {
+      isFetching: false,
+      database: 'Redis',
+      databaseList: []
+    }
+  }
+  switch (action.type) {
+    case ActionTypes.REDIS_DATABASE_CACHE_ALL_LIST_REQUEST:
+      return merge({}, defaultState, state, {
+        'Redis': { isFetching: true }
+      })
+    case ActionTypes.REDIS_DATABASE_CACHE_ALL_LIST_SUCCESS:
+      return merge({}, state, {
+        'Redis': {
+          isFetching: false,
+          database: 'Redis',
+          databaseList: action.response.result.databaseList || []
+        }
+      })
+    case ActionTypes.REDIS_DATABASE_CACHE_ALL_LIST_FAILURE:
+      return merge({}, defaultState, state, {
+        'Redis': { isFetching: false }
+      })
+    default:
+      return state
+  }
+}
+
+function databaseClusterDetail(state = {}, action) {
   const defaultState = {
     databaseInfo: {
       isFetching: false,
@@ -75,16 +105,22 @@ function mysqlDatabaseDetail(state = {}, action) {
 export function databaseCache(state = { databaseCache: {} }, action) {
   return {
     mysqlDatabaseAllList: mysqlDatabaseAllList(state.mysqlDatabaseAllList, action),
+    redisDatabaseAllList: redisDatabaseAllList(state.redisDatabaseAllList, action),
     createMySql: reducerFactory({
       REQUEST: ActionTypes.CREATE_MYSQL_DATABASE_CACHE_REQUEST,
       SUCCESS: ActionTypes.CREATE_MYSQL_DATABASE_CACHE_SUCCESS,
       FAILURE: ActionTypes.CREATE_MYSQL_DATABASE_CACHE_FAILURE
     }, state.createMySql, action),
-    deleteMysql: reducerFactory({
+    createRedis: reducerFactory({
+      REQUEST: ActionTypes.CREATE_REDIS_DATABASE_CACHE_REQUEST,
+      SUCCESS: ActionTypes.CREATE_REDIS_DATABASE_CACHE_SUCCESS,
+      FAILURE: ActionTypes.CREATE_REDIS_DATABASE_CACHE_FAILURE
+    }, state.createRedis, action),
+    deleteDatabase: reducerFactory({
       REQUEST: ActionTypes.DELETE_DATABASE_CACHE_REQUEST,
       SUCCESS: ActionTypes.DELETE_DATABASE_CACHE_SUCCESS,
       FAILURE: ActionTypes.DELETE_DATABASE_CACHE_FAILURE
-    }, state.deleteMysql, action),
-    mysqlDatabaseDetail: mysqlDatabaseDetail(state.mysqlDatabaseDetail, action)
+    }, state.deleteDatabase, action),
+    databaseClusterDetail: databaseClusterDetail(state.databaseClusterDetail, action)
   }
 }

@@ -39,6 +39,13 @@ let MyComponent = React.createClass({
         </div>
       )
     }
+    if( config.length == 0 ) {
+      return (
+        <div className='loadingBox'>
+          <span>暂无数据</span>
+        </div>
+      )
+    }
     let items = config.map((item, index) => {
       return (
         <div className='List' key={ index }>

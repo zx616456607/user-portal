@@ -13,7 +13,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { Input, Select, InputNumber, Button, Form } from 'antd'
-import { postCreateMysqlDbCluster } from '../../actions/database_cache'
+import { postCreateMysqlDbCluster, postCreateRedisDbCluster } from '../../actions/database_cache'
 import './style/CreateDatabase.less'
 
 const Option = Select.Option;
@@ -81,7 +81,7 @@ let CreateDatabase = React.createClass({
   handleSubmit(e) {
     //this function for user submit the form
     e.preventDefault();
-    const { scope, postCreateMysqlDbCluster } = this.props;
+    const { scope, postCreateMysqlDbCluster, postCreateRedisDbCluster } = this.props;
     const _this = this;
     const { loadMysqlDbCacheAllList, cluster } = scope.props;
     this.props.form.validateFields((errors, values) => {
@@ -100,7 +100,11 @@ let CreateDatabase = React.createClass({
         CreateDatabaseModalShow: false
       });
       this.props.form.resetFields();
-      postCreateMysqlDbCluster(body, loadMysqlDbCacheAllList(cluster));
+      if(_this.state.currentType == 'mysql') {       
+        postCreateMysqlDbCluster(body, loadMysqlDbCacheAllList(cluster));
+      } else if (_this.state.currentType == 'redis') {
+        postCreateRedisDbCluster(body )
+      }
     });
   },
   render() {
@@ -121,7 +125,9 @@ let CreateDatabase = React.createClass({
     });
     const passwdProps = getFieldProps('passwd', {
       rules: [
-        { required: true, whitespace: true, message: '请填写密码' },
+        { required: this.state.currentType == 'redis' ? false:true , 
+          whitespace: true, 
+          message: '请填写密码' },
       ],
     });
     const selectNamespaceProps = getFieldProps('namespaceSelect', {
@@ -266,5 +272,6 @@ CreateDatabase = injectIntl(CreateDatabase, {
 })
 
 export default connect(mapStateToProps, {
-  postCreateMysqlDbCluster
+  postCreateMysqlDbCluster,
+  postCreateRedisDbCluster
 })(CreateDatabase)

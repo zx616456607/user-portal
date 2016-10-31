@@ -12,7 +12,7 @@ import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import { Button, Icon, Spin, Modal } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { loadMysqlDbClusterDetail, deleteMysqlDatabaseCluster } from '../../actions/database_cache'
+import { loadDbClusterDetail, deleteDatabaseCluster } from '../../actions/database_cache'
 import { DEFAULT_CLUSTER } from '../../constants'
 import './style/ModalDetail.less'
 
@@ -29,38 +29,38 @@ class ModalDetail extends Component {
   
   deleteDatebaseCluster(dbName) {
     //this function for use delete the database
-    const { deleteMysqlDatabaseCluster, cluster, scope } = this.props;
-    const { loadMysqlDbCacheAllList } = scope.props;
+    const { deleteDatabaseCluster, cluster, scope } = this.props;
+    const { loadDbClusterDetail } = scope.props;
     confirm({
       title: '您是否确认要删除' + dbName,
       onOk() {
         scope.setState({
           CreateDatabaseModalShow: false
         });
-        deleteMysqlDatabaseCluster(cluster, dbName, loadMysqlDbCacheAllList(cluster));       
+        deleteDatabaseCluster(cluster, dbName, loadDbClusterDetail(cluster));       
       },
       onCancel() {},
     });
   }
   
   componentWillMount() {
-    const { loadMysqlDbClusterDetail, cluster, dbName } = this.props
+    const { loadDbClusterDetail, cluster, dbName } = this.props
     this.setState({
       currentDatabase: dbName
     });
-    loadMysqlDbClusterDetail(cluster, dbName);
+    loadDbClusterDetail(cluster, dbName);
   }
   
   componentWillReceiveProps(nextProps) {
     //this function for user select different image
     //the nextProps is mean new props, and the this.props didn't change
     //so that we should use the nextProps
-    const { loadMysqlDbClusterDetail, cluster, dbName } = nextProps;
+    const { loadDbClusterDetail, cluster, dbName } = nextProps;
     if(dbName != this.state.currentDatabase) {
       this.setState({
         currentDatabase: dbName
       })
-      loadMysqlDbClusterDetail(cluster, nextProps.dbName);
+      loadDbClusterDetail(cluster, nextProps.dbName);
     }    
   }
   
@@ -135,8 +135,8 @@ function mapStateToProps(state, props) {
     cluster: DEFAULT_CLUSTER,
     databaseInfo: {},
   }
-  const { mysqlDatabaseDetail } = state.databaseCache
-  const { databaseInfo, isFetching } = mysqlDatabaseDetail.databaseInfo || defaultMysqlList
+  const { databaseClusterDetail } = state.databaseCache
+  const { databaseInfo, isFetching } = databaseClusterDetail.databaseInfo || defaultMysqlList
   return {
     isFetching: false,
     cluster: DEFAULT_CLUSTER,
@@ -147,8 +147,8 @@ function mapStateToProps(state, props) {
 ModalDetail.PropTypes = {
   intl: PropTypes.object.isRequired,
   isFetching: PropTypes.bool.isRequired,
-  loadMysqlDbClusterDetail: PropTypes.func.isRequired,
-  deleteMysqlDatabaseCluster: PropTypes.func.isRequired,
+  loadDbClusterDetail: PropTypes.func.isRequired,
+  deleteDatabaseCluster: PropTypes.func.isRequired,
 }
 
 ModalDetail = injectIntl(ModalDetail, {
@@ -156,6 +156,6 @@ ModalDetail = injectIntl(ModalDetail, {
 })
 
 export default connect(mapStateToProps, {
-  loadMysqlDbClusterDetail,
-  deleteMysqlDatabaseCluster
+  loadDbClusterDetail,
+  deleteDatabaseCluster
 })(ModalDetail)

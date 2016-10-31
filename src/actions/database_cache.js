@@ -33,6 +33,28 @@ export function loadMysqlDbCacheAllList(cluster, callback) {
   }
 }
 
+export const REDIS_DATABASE_CACHE_ALL_LIST_REQUEST = 'REDIS_DATABASE_CACHE_ALL_LIST_REQUEST'
+export const REDIS_DATABASE_CACHE_ALL_LIST_SUCCESS = 'REDIS_DATABASE_CACHE_ALL_LIST_SUCCESS'
+export const REDIS_DATABASE_CACHE_ALL_LIST_FAILURE = 'REDIS_DATABASE_CACHE_ALL_LIST_FAILURE'
+
+function fetchRedisDbCacheAllList(cluster, callback) {
+  return {
+    cluster,
+    [FETCH_API]: {
+      types: [REDIS_DATABASE_CACHE_ALL_LIST_REQUEST, REDIS_DATABASE_CACHE_ALL_LIST_SUCCESS, REDIS_DATABASE_CACHE_ALL_LIST_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/getRedis`,
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function loadRedisDbCacheAllList(cluster, callback) {
+  return (dispatch) => {
+    return dispatch(fetchRedisDbCacheAllList(cluster, callback))
+  }
+}
+
 export const CREATE_MYSQL_DATABASE_CACHE_REQUEST = 'CREATE_MYSQL_DATABASE_CACHE_REQUEST'
 export const CREATE_MYSQL_DATABASE_CACHE_SUCCESS = 'CREATE_MYSQL_DATABASE_CACHE_SUCCESS'
 export const CREATE_MYSQL_DATABASE_CACHE_FAILURE = 'CREATE_MYSQL_DATABASE_CACHE_FAILURE'
@@ -48,8 +70,7 @@ function createMysqlDbCluster(newDb, callback) {
         body: {
           name: newDb.name,
           servicesNum: newDb.servicesNum,
-          password: newDb.password,
-          dbType: newDb.dbType
+          password: newDb.password
         }
       },
       schema: {}
@@ -64,25 +85,54 @@ export function postCreateMysqlDbCluster(newDb, callback) {
   }
 }
 
-export const GET_DATABASE_DETAIL_INFO_REQUEST = 'GET_DATABASE_DETAIL_INFO_REQUEST'
-export const GET_DATABASE_DETAIL_INFO_SUCCESS = 'GET_DATABASE_DETAIL_INFO_SUCCESS'
-export const GET_DATABASE_DETAIL_INFO_FAILURE = 'GET_DATABASE_DETAIL_INFO_FAILURE'
+export const CREATE_REDIS_DATABASE_CACHE_REQUEST = 'CREATE_REDIS_DATABASE_CACHE_REQUEST'
+export const CREATE_REDIS_DATABASE_CACHE_SUCCESS = 'CREATE_REDIS_DATABASE_CACHE_SUCCESS'
+export const CREATE_REDIS_DATABASE_CACHE_FAILURE = 'CREATE_REDIS_DATABASE_CACHE_FAILURE'
 
-function getMysqlDbClusterDetail(cluster, dbName, callback) {
+function createRedisDbCluster(newDb, callback) {
   return {
-    cluster,
+    cluster: newDb.cluster,
     [FETCH_API]: {
-      types: [GET_DATABASE_DETAIL_INFO_REQUEST, GET_DATABASE_DETAIL_INFO_SUCCESS, GET_DATABASE_DETAIL_INFO_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/getMysqlDetail/${dbName}`,
+      types: [CREATE_REDIS_DATABASE_CACHE_REQUEST, CREATE_REDIS_DATABASE_CACHE_SUCCESS, CREATE_REDIS_DATABASE_CACHE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${newDb.cluster}/createRedisCluster`,
+      options: {
+        method: 'POST',
+        body: {
+          name: newDb.name,
+          servicesNum: newDb.servicesNum
+        }
+      },
       schema: {}
     },
     callback
   }
 }
 
-export function loadMysqlDbClusterDetail(cluster, dbName, callback) {
+export function postCreateRedisDbCluster(newDb, callback) {
   return (dispatch) => {
-    return dispatch(getMysqlDbClusterDetail(cluster, dbName, callback))
+    return dispatch(createRedisDbCluster(newDb, callback))
+  }
+}
+
+export const GET_DATABASE_DETAIL_INFO_REQUEST = 'GET_DATABASE_DETAIL_INFO_REQUEST'
+export const GET_DATABASE_DETAIL_INFO_SUCCESS = 'GET_DATABASE_DETAIL_INFO_SUCCESS'
+export const GET_DATABASE_DETAIL_INFO_FAILURE = 'GET_DATABASE_DETAIL_INFO_FAILURE'
+
+function getDbClusterDetail(cluster, dbName, callback) {
+  return {
+    cluster,
+    [FETCH_API]: {
+      types: [GET_DATABASE_DETAIL_INFO_REQUEST, GET_DATABASE_DETAIL_INFO_SUCCESS, GET_DATABASE_DETAIL_INFO_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/getDatabaseDetail/${dbName}`,
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function loadDbClusterDetail(cluster, dbName, callback) {
+  return (dispatch) => {
+    return dispatch(getDbClusterDetail(cluster, dbName, callback))
   }
 }
 
@@ -90,20 +140,20 @@ export const DELETE_DATABASE_CACHE_REQUEST = 'DELETE_DATABASE_CACHE_REQUEST'
 export const DELETE_DATABASE_CACHE_SUCCESS = 'DELETE_DATABASE_CACHE_SUCCESS'
 export const DELETE_DATABASE_CACHE_FAILURE = 'DELETE_DATABASE_CACHE_FAILURE'
 
-function deleteMysqlDbCluster(cluster, dbName, callback) {
+function deleteDbCluster(cluster, dbName, callback) {
   return {
     cluster,
     [FETCH_API]: {
       types: [DELETE_DATABASE_CACHE_REQUEST, DELETE_DATABASE_CACHE_SUCCESS, DELETE_DATABASE_CACHE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/deleteMysql/${dbName}`,
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/deleteDatabase/${dbName}`,
       schema: {}
     },
     callback
   }
 }
 
-export function deleteMysqlDatabaseCluster(cluster, dbName, callback) {
+export function deleteDatabaseCluster(cluster, dbName, callback) {
   return (dispatch) => {
-    return dispatch(deleteMysqlDbCluster(cluster, dbName, callback))
+    return dispatch(deleteDbCluster(cluster, dbName, callback))
   }
 }
