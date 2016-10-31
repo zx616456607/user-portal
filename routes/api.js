@@ -52,7 +52,7 @@ module.exports = function (Router) {
   // spi
   router.get('/clusters/:cluster/apps/:app_name/logs', appController.getAppLogs)
   router.get('/clusters/:cluster/apps/:app_name/existence', appController.checkAppName)
-  router.get('/clusters/:cluster/services/:service/existence', appController.checkServiceName)
+  router.get('/clusters/:cluster/services/:service/existence', serviceController.checkServiceName)
 
   // AppTemplates
   router.get('/templates', appTemplateController.listTemplates)

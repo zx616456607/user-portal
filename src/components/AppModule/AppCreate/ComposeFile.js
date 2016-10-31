@@ -109,12 +109,12 @@ class ComposeFile extends Component {
     }
   }
   appNameCheck(rule, value, callback) {
-    const { clusterName, needAppName} = this.state
+    const { cluster, needAppName} = this.state
     const { checkAppName } = this.props
     if (!value || needAppName) {
       callback([new Error('请输入应用名称')])
     } else {
-      checkAppName(clusterName,value,{
+      checkAppName(cluster,value,{
         success: {
           func: (result) => {
             if(result.data){

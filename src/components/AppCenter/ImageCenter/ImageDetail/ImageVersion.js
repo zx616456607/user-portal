@@ -114,17 +114,15 @@ class ImageVersion extends Component {
     const config = { imageName: image, id: imageId }
     if (typeof imageDetail === "string") {
       const config = { imageName: imageDetail, id: imageId }
-      console.log('image', image)
       getOtherImageTag(config)
     } else {
-      loadImageDetailTag(registry, imageDetail.name);
+      loadImageDetailTag(registry, image.name);
     }
   }
 
   render() {
     const { isFetching } = this.props;
     const imageDetail = this.props.config;
-    console.log('parent ', this.props)
     let tagList = {
       "tagList": this.props.imageDetailTag
     };

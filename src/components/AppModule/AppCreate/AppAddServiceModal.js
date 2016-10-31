@@ -31,7 +31,7 @@ const MyComponent = React.createClass({
       registryServer,
       modalShow: false,
       serviceModalShow: true,
-      checkState: '创建'
+      isCreate: true
     })
   },
   render: function () {
