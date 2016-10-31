@@ -260,16 +260,16 @@ exports.getAppOrchfile = function* () {
       data += "---\n"
     }
     let deployment = new Deployment(service.metadata.name)
-    deployment.importFromK8SDeployment(service) 
+    deployment.importFromK8SDeployment(service)
     data += yaml.dump(deployment)
-    
+
   })
   app.k8s_services.map((k8s_service) => {
     if (data != "") {
       data += "---\n"
     }
     let service = new Service(k8s_service.metadata.name)
-    service.importFromK8SService(k8s_service) 
+    service.importFromK8SService(k8s_service)
     data += yaml.dump(service)
   })
 
@@ -298,15 +298,6 @@ exports.checkAppName = function* () {
   const appName = this.params.app_name
   const spi = apiFactory.getSpi(this.session.loginUser)
   const response = yield spi.clusters.getBy([cluster, 'apps', appName, 'existence'])
-  this.status = response.code
-  this.body = response
-}
-
-exports.checkServiceName = function* () {
-  const cluster = this.params.cluster
-  const service = this.params.service
-  const spi = apiFactory.getSpi(this.session.loginUser)
-  const response = yield spi.clusters.getBy([cluster, 'apps', service, 'existence'])
   this.status = response.code
   this.body = response
 }

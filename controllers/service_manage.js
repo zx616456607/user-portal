@@ -374,3 +374,12 @@ exports.getK8sService = function* () {
   this.status = result.code
   this.body = result
 }
+
+exports.checkServiceName = function* () {
+  const cluster = this.params.cluster
+  const service = this.params.service
+  const spi = apiFactory.getSpi(this.session.loginUser)
+  const response = yield spi.clusters.getBy([cluster, 'services', service, 'existence'])
+  this.status = response.code
+  this.body = response
+}
