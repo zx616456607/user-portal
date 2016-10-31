@@ -43,7 +43,7 @@ const MyComponent = React.createClass({
   containerOperaClick: function (name, e) {
     //this function for user click opera menu
     switch(e.key) {
-      case "1":
+      case 'deleteContainer':
         //this is delete the container
         this.deleteContainer(name);
         break;
@@ -140,7 +140,7 @@ const MyComponent = React.createClass({
     }
     if (config.length < 1) {
       return (
-        <div className="loadingBox">
+        <div className='loadingBox'>
           暂无数据
         </div>
       )
@@ -148,36 +148,36 @@ const MyComponent = React.createClass({
     const items = config.map((item) => {
       const dropdown = (
         <Menu onClick={this.containerOperaClick.bind(this, item.metadata.name)}
-          style={{ width: "100px" }}
+          style={{ width: '100px' }}
           >
-          <Menu.Item key="1">
+          <Menu.Item key='deleteContainer'>
             <span>重新分配</span>
           </Menu.Item>
         </Menu>
       );
       return (
-        <div className={item.checked ? "selectedContainer containerDetail" : "containerDetail"}
+        <div className={item.checked ? 'selectedContainer containerDetail' : 'containerDetail'}
           key={item.metadata.name}
           onClick={this.selectContainerDetail.bind(this, item.metadata.name)}
           >
-          <div className="selectIconTitle commonData">
+          <div className='selectIconTitle commonData'>
             <Checkbox
               value={item.metadata.name}
               checked={item.checked} />
           </div>
-          <div className="containerName commonData">
-            <Tooltip placement="topLeft" title={item.metadata.name}>
+          <div className='containerName commonData'>
+            <Tooltip placement='topLeft' title={item.metadata.name}>
               <Link to={`/app_manage/container/${item.metadata.name}`} >
                 {item.metadata.name}
               </Link>
             </Tooltip>
           </div>
-          <div className="containerStatus commonData">
-            <i className={item.status.phase == 'Running' ? "normal fa fa-circle" : "error fa fa-circle"}></i>
-            <span className={item.status.phase == 'Running' ? "normal" : "error"} >{item.status.phase}</span>
+          <div className='containerStatus commonData'>
+            <i className={item.status.phase == 'Running' ? 'normal fa fa-circle' : 'error fa fa-circle'}></i>
+            <span className={item.status.phase == 'Running' ? 'normal' : 'error'} >{item.status.phase}</span>
           </div>
-          <div className="serviceName commonData">
-            <Tooltip placement="topLeft" title={item.metadata.labels[LABEL_APPNAME] || ''}>
+          <div className='serviceName commonData'>
+            <Tooltip placement='topLeft' title={item.metadata.labels[LABEL_APPNAME] || ''}>
               {
                 item.metadata.labels[LABEL_APPNAME]
                   ? (<Link to={`/app_manage/detail/${item.metadata.labels[LABEL_APPNAME]}`}>{item.metadata.labels[LABEL_APPNAME]}</Link>)
@@ -185,60 +185,45 @@ const MyComponent = React.createClass({
               }
             </Tooltip>
           </div>
-          <div className="imageName commonData">
-            <Tooltip placement="topLeft" title={item.images.join(', ')}>
+          <div className='imageName commonData'>
+            <Tooltip placement='topLeft' title={item.images.join(', ')}>
               <span>{item.images.join(', ')}</span>
             </Tooltip>
           </div>
-          <div className="visitIp commonData">
-            <Tooltip placement="topLeft" title={item.status.podIP}>
+          <div className='visitIp commonData'>
+            <Tooltip placement='topLeft' title={item.status.podIP}>
               <span>{item.status.podIP}</span>
             </Tooltip>
             <br />
-            <Tooltip placement="topLeft" title={item.serviceIPOutput || '-'}>
+            <Tooltip placement='topLeft' title={item.serviceIPOutput || '-'}>
               <span>{item.serviceIPOutput || '-'}</span>
             </Tooltip>
           </div>
-          <div className="createTime commonData">
-            <Tooltip placement="topLeft" title={tenxDateFormat(item.metadata.creationTimestamp)}>
+          <div className='createTime commonData'>
+            <Tooltip placement='topLeft' title={tenxDateFormat(item.metadata.creationTimestamp)}>
               <span>{tenxDateFormat(item.metadata.creationTimestamp)}</span>
             </Tooltip>
           </div>
-          <div className="actionBox commonData">
-            {/*<ButtonGroup>
-              <Button
-                type="ghost"
-                onClick={this.openTerminalModal.bind(this, item)}>
-                <svg className="terminal">
-                  <use xlinkHref="#terminal" />
-                </svg>
-                <span style={{ marginLeft: "20px" }}>终端</span>
-              </Button>
-              <Dropdown overlay={dropdown}>
-                <Button type="ghost" onClick={this.handleDropdown}>
-                  <Icon type="down" />
-                </Button>
-              </Dropdown>
-            </ButtonGroup>*/}
+          <div className='actionBox commonData'>
             <Dropdown.Button
-              overlay={dropdown} type="ghost"
+              overlay={dropdown} type='ghost'
               onClick={this.openTerminalModal.bind(this, item)}>
-              <svg className="terminal">
-                <use xlinkHref="#terminal" />
+              <svg className='terminal'>
+                <use xlinkHref='#terminal' />
               </svg>
-              <span style={{ marginLeft: "20px" }}>终端</span>
+              <span style={{ marginLeft: '20px' }}>终端</span>
             </Dropdown.Button>
           </div>
-          <div style={{ clear: "both", width: "0" }}></div>
+          <div style={{ clear: 'both', width: '0' }}></div>
         </div >
       );
     });
     return (
-      <div className="dataBox">
+      <div className='dataBox'>
         {items}
-        <div className="paginationBox">
+        <div className='paginationBox'>
           <Pagination
-            className="inlineBlock"
+            className='inlineBlock'
             showSizeChanger
             showQuickJumper
             onShowSizeChange={this.onShowSizeChange}
@@ -372,25 +357,25 @@ class ContainerList extends Component {
     }
     return (
       <QueueAnim
-        className="ContainerList"
-        type="right"
+        className='ContainerList'
+        type='right'
         >
-        <div id="ContainerList" key="ContainerList">
-          <div className="operationBox">
-            <div className="leftBox">
+        <div id='ContainerList' key='ContainerList'>
+          <div className='operationBox'>
+            <div className='leftBox'>
               <Button
-                type="primary" size="large"
+                type='primary' size='large'
                 disabled={!isChecked}
                 onClick={this.batchDeleteContainers}>
-                <i className="fa fa-power-off"></i>
+                <i className='fa fa-power-off'></i>
                 重新分配
               </Button>
             </div>
-            <div className="rightBox">
-              <div className="littleLeft" onClick={this.searchContainers}>
-                <i className="fa fa-search"></i>
+            <div className='rightBox'>
+              <div className='littleLeft' onClick={this.searchContainers}>
+                <i className='fa fa-search'></i>
               </div>
-              <div className="littleRight">
+              <div className='littleRight'>
                 <Input
                   onChange={(e) => {
                     this.setState({
@@ -398,41 +383,41 @@ class ContainerList extends Component {
                     })
                   } }
                   value={searchInputValue}
-                  placeholder="输入容器名回车搜索"
+                  placeholder='输入容器名回车搜索'
                   disabled={searchInputDisabled}
                   onPressEnter={this.searchContainers} />
               </div>
             </div>
-            <div className="clearDiv"></div>
+            <div className='clearDiv'></div>
           </div>
-          <Card className="containerBox">
-            <div className="containerTitle">
-              <div className="selectIconTitle commonTitle">
+          <Card className='containerBox'>
+            <div className='containerTitle'>
+              <div className='selectIconTitle commonTitle'>
                 <Checkbox
                   checked={isAllChecked}
                   onChange={this.onAllChange}
                   disabled={containerList.length < 1} />
               </div>
-              <div className="containerName commonTitle">
+              <div className='containerName commonTitle'>
                 容器名称
               </div>
-              <div className="containerStatus commonTitle">
+              <div className='containerStatus commonTitle'>
                 状态
               </div>
-              <div className="serviceName commonTitle">
+              <div className='serviceName commonTitle'>
                 所属应用
               </div>
-              <div className="imageName commonTitle">
+              <div className='imageName commonTitle'>
                 镜像
               </div>
-              <div className="visitIp commonTitle">
+              <div className='visitIp commonTitle'>
                 访问地址
               </div>
-              <div className="createTime commonTitle">
+              <div className='createTime commonTitle'>
                 创建时间
-              <i className="fa fa-sort"></i>
+              <i className='fa fa-sort'></i>
               </div>
-              <div className="actionBox commonTitle">
+              <div className='actionBox commonTitle'>
                 操作
               </div>
             </div>
