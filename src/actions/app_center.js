@@ -270,7 +270,7 @@ export function createStack(obj, callback) {
       options: {
         method: 'POST',
         body: {
-        'is_public': obj.type,
+        'is_public': obj.is_public,
         'content': obj.content,
         'name': obj.name
         }

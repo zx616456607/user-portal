@@ -172,10 +172,10 @@ const MyList = React.createClass({
           </div>
           <div className='attr'>{item.owner}</div>
           <div className='type'>
-            {item.type == '0' ? [
-              <span key={item.id + 'unlock'} className='publicAttr'><i className='fa fa-unlock-alt'></i>&nbsp;<FormattedMessage {...menusText.publicType} /></span>]
+            {item.isPublic == 1 ? 
+              <span key={item.id + 'unlock'} className='publicAttr'><i className='fa fa-unlock-alt'></i>&nbsp;<FormattedMessage {...menusText.publicType} /></span>
               :
-              [<span key={item.id + 'lock'} className='privatecAttr'><i className='fa fa-lock'></i>&nbsp;<FormattedMessage {...menusText.privateType} /></span>]
+              <span key={item.id + 'lock'} className='privateAttr'><i className='fa fa-lock'></i>&nbsp;<FormattedMessage {...menusText.privateType} /></span>
             }
           </div>
          
