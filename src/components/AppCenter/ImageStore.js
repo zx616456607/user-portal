@@ -28,166 +28,133 @@ const EventListener = ScrollAnim.Event;
 
 let testData = [
   {
-    "title": "大数据分析",
+    "title": "持续集成与部署",
     "imageList": [
       {
         "id": "1001",
-        "intro": "这是github数据库，对，没毛病",
+        "intro": "Jenkins 持续集成",
         "imgUrl": "/img/test/github.jpg"
       }, {
         "id": "1002",
-        "intro": "这是github数据库，对，没毛病",
+        "intro": "Sonar 代码分析",
         "imgUrl": "/img/test/github.jpg"
       }, {
         "id": "1003",
-        "intro": "这是github数据库，对，没毛病",
-        "imgUrl": "/img/test/github.jpg"
-      }, {
-        "id": "1004",
-        "intro": "这是github数据库，对，没毛病",
-        "imgUrl": "/img/test/github.jpg"
-      }, {
-        "id": "1005",
-        "intro": "这是github数据库，对，没毛病",
-        "imgUrl": "/img/test/github.jpg"
-      }, {
-        "id": "1006",
-        "intro": "这是github数据库，对，没毛病",
-        "imgUrl": "/img/test/github.jpg"
-      }, {
-        "id": "1007",
-        "intro": "这是github数据库，对，没毛病",
+        "intro": "Gitlab 代码托管",
         "imgUrl": "/img/test/github.jpg"
       }
     ]
   }, {
-    "title": "持续集成",
+    "title": "项目管理、协作",
     "imageList": [
       {
         "id": "2001",
-        "intro": "这是github数据库，对，没毛病",
+        "intro": "Confluence",
         "imgUrl": "/img/test/github.jpg"
       }, {
         "id": "2002",
-        "intro": "这是github数据库，对，没毛病",
-        "imgUrl": "/img/test/github.jpg"
-      }, {
-        "id": "2003",
-        "intro": "这是github数据库，对，没毛病",
-        "imgUrl": "/img/test/github.jpg"
-      }, {
-        "id": "2004",
-        "intro": "这是github数据库，对，没毛病",
-        "imgUrl": "/img/test/github.jpg"
-      }, {
-        "id": "2005",
-        "intro": "这是github数据库，对，没毛病",
-        "imgUrl": "/img/test/github.jpg"
-      }, {
-        "id": "2006",
-        "intro": "这是github数据库，对，没毛病",
-        "imgUrl": "/img/test/github.jpg"
-      }, {
-        "id": "2007",
-        "intro": "这是github数据库，对，没毛病",
+        "intro": "Jira",
         "imgUrl": "/img/test/github.jpg"
       }
     ]
   }, {
-    "title": "大数据分析",
+    "title": "开发环境(内置SSH)",
     "imageList": [
       {
         "id": "3001",
-        "intro": "这是github数据库，对，没毛病",
+        "intro": "Java + Maven + Tomcat",
+        "imgUrl": "/img/test/github.jpg"
+      }, {
+        "id": "3001",
+        "intro": "Java + Ant",
         "imgUrl": "/img/test/github.jpg"
       }, {
         "id": "3002",
-        "intro": "这是github数据库，对，没毛病",
+        "intro": "Python + Django",
         "imgUrl": "/img/test/github.jpg"
       }, {
         "id": "3003",
-        "intro": "这是github数据库，对，没毛病",
+        "intro": "Node.js",
         "imgUrl": "/img/test/github.jpg"
       }, {
         "id": "3004",
-        "intro": "这是github数据库，对，没毛病",
+        "intro": "PHP + Apache",
         "imgUrl": "/img/test/github.jpg"
       }, {
         "id": "3005",
-        "intro": "这是github数据库，对，没毛病",
-        "imgUrl": "/img/test/github.jpg"
-      }, {
-        "id": "3006",
-        "intro": "这是github数据库，对，没毛病",
-        "imgUrl": "/img/test/github.jpg"
-      }, {
-        "id": "3007",
-        "intro": "这是github数据库，对，没毛病",
-        "imgUrl": "/img/test/github.jpg"
-      }, {
-        "id": "3008",
-        "intro": "这是github数据库，对，没毛病",
-        "imgUrl": "/img/test/github.jpg"
-      }, {
-        "id": "3009",
-        "intro": "这是github数据库，对，没毛病",
-        "imgUrl": "/img/test/github.jpg"
-      }, {
-        "id": "3010",
-        "intro": "这是github数据库，对，没毛病",
-        "imgUrl": "/img/test/github.jpg"
-      }, {
-        "id": "3011",
-        "intro": "这是github数据库，对，没毛病",
-        "imgUrl": "/img/test/github.jpg"
-      }, {
-        "id": "3012",
-        "intro": "这是github数据库，对，没毛病",
-        "imgUrl": "/img/test/github.jpg"
-      }, {
-        "id": "3013",
-        "intro": "这是github数据库，对，没毛病",
-        "imgUrl": "/img/test/github.jpg"
-      }, {
-        "id": "3014",
-        "intro": "这是github数据库，对，没毛病",
-        "imgUrl": "/img/test/github.jpg"
-      }, {
-        "id": "3015",
-        "intro": "这是github数据库，对，没毛病",
-        "imgUrl": "/img/test/github.jpg"
-      }, {
-        "id": "3016",
-        "intro": "这是github数据库，对，没毛病",
-        "imgUrl": "/img/test/github.jpg"
-      }, {
-        "id": "3017",
-        "intro": "这是github数据库，对，没毛病",
+        "intro": "Golang",
         "imgUrl": "/img/test/github.jpg"
       }
     ]
   }, {
-    "title": "大数据分析",
+    "title": "Web 服务器",
     "imageList": [
       {
         "id": "4001",
-        "intro": "这是github数据库，对，没毛病",
+        "intro": "Tomcat",
         "imgUrl": "/img/test/github.jpg"
       }, {
-        "id": "4002",
-        "intro": "这是github数据库，对，没毛病",
+        "id": "5002",
+        "intro": "JBoss",
         "imgUrl": "/img/test/github.jpg"
       }, {
-        "id": "4003",
-        "intro": "这是github数据库，对，没毛病",
-        "imgUrl": "/img/test/github.jpg"
-      }, {
-        "id": "4004",
-        "intro": "这是github数据库，对，没毛病",
+        "id": "5003",
+        "intro": "Weblogic",
         "imgUrl": "/img/test/github.jpg"
       }
     ]
-  },
+  }, {
+    "title": "数据库与缓存(单节点)",
+    "imageList": [
+      {
+        "id": "6001",
+        "intro": "MySQL",
+        "imgUrl": "/img/test/github.jpg"
+      }, {
+        "id": "6002",
+        "intro": "PostgreSQL",
+        "imgUrl": "/img/test/github.jpg"
+      }, {
+        "id": "6003",
+        "intro": "Redis",
+        "imgUrl": "/img/test/github.jpg"
+      }, {
+        "id": "6004",
+        "intro": "Mongodb",
+        "imgUrl": "/img/test/github.jpg"
+      }, {
+        "id": "6005",
+        "intro": "Mariadb",
+        "imgUrl": "/img/test/github.jpg"
+      }, {
+        "id": "6005",
+        "intro": "Zookeeper",
+        "imgUrl": "/img/test/github.jpg"
+      }
+    ]
+  }, {
+    "title": "测试工具",
+    "imageList": [
+      {
+        "id": "2001",
+        "intro": "Selenium",
+        "imgUrl": "/img/test/github.jpg"
+      }
+    ]
+  }, {
+    "title": "大数据处理",
+    "imageList": [
+      {
+        "id": "8001",
+        "intro": "Spark",
+        "imgUrl": "/img/test/github.jpg"
+      }, {
+        "id": "8001",
+        "intro": "Storm",
+        "imgUrl": "/img/test/github.jpg"
+      }
+    ]
+  }
 ]
 
 let MyComponent = React.createClass({

@@ -169,7 +169,7 @@ class MyCollection extends Component {
           transitionName="move-right"
           onCancel={this.closeImageDetailModal}
           >
-          <ImageDetailBox scope={scope} imageInfo={this.state.imageInfo} config={this.state.currentImage} />
+          <ImageDetailBox parentScope={rootscope} scope={scope} imageInfo={this.state.imageInfo} config={this.state.currentImage} />
         </Modal>
       </QueueAnim>
     )

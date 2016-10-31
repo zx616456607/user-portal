@@ -13,6 +13,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { Input, Select, InputNumber, Button, Form } from 'antd'
+import { postCreateMysqlDbCluster } from '../../actions/database_cache'
 import './style/CreateDatabase.less'
 
 const Option = Select.Option;
@@ -77,17 +78,26 @@ let CreateDatabase = React.createClass({
   handleSubmit(e) {
     //this function for user submit the form
     e.preventDefault();
-    const { scope } = this.props;
+    const { scope, postCreateMysqlDbCluster } = this.props;
+    const _this = this;
+    const { loadMysqlDbCacheAllList, cluster } = scope.props;
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         console.log('Errors in form!!!');
         return;
       }
-      console.log('Submit!!!');
-      console.log(values);
+      var body = {
+        cluster: values.clusterSelect,
+        name: values.name,
+        servicesNum: values.services,
+        password: values.passwd,
+        dbType: _this.state.currentType
+      }
       scope.setState({
         CreateDatabaseModalShow: false
       });
+      this.props.form.resetFields();
+      postCreateMysqlDbCluster(body, loadMysqlDbCacheAllList(cluster));
     });
   },
   render() {
@@ -111,14 +121,19 @@ let CreateDatabase = React.createClass({
         { required: true, whitespace: true, message: '请填写密码' },
       ],
     });
-    const selectEnvProps = getFieldProps('envSelect', {
+    const selectNamespaceProps = getFieldProps('namespaceSelect', {
       rules: [
-        { required: true, message: '请选择部署环境' },
+        { message: '请选择空间' },
+      ],
+    });
+    const selectClusterProps = getFieldProps('clusterSelect', {
+      rules: [
+        { required: true, message: '请选择集群' },
       ],
     });
     return (
     <div id='CreateDatabase' type='right'>
-    <Form horizontal form={this.props.form}>
+    <Form horizontal>
       <div className='infoBox'>
         <div className='commonBox'>
           <div className='title'>
@@ -200,17 +215,17 @@ let CreateDatabase = React.createClass({
           </div>
           <div className='inputBox'>
             <FormItem style={{ width:'150px',float:'left',marginRight:'20px' }}>
-              <Select {...selectEnvProps} className='envSelect' size='large' defaultValue='lucy'>
+              <Select {...selectNamespaceProps} className='envSelect' size='large'>
                 <Option value='jack'>Jack</Option>
                 <Option value='lucy'>Lucy</Option>
                 <Option value='yiminghe'>yiminghe</Option>
               </Select>
             </FormItem>
             <FormItem style={{ width:'150px',float:'left' }}>
-              <Select {...selectEnvProps} className='envSelect' size='large' defaultValue='lucy'>
-                <Option value='jack'>Jack</Option>
-                <Option value='lucy'>Lucy</Option>
-                <Option value='yiminghe'>yiminghe</Option>
+              <Select {...selectClusterProps} className='envSelect' size='large'>
+                <Option value="cce1c71ea85a5638b22c15d86c1f61de">test</Option>
+                <Option value="e0e6f297f1b3285fb81d2774225dddd">产品环境</Option>
+                <Option value="e0e6f297f1b3285fb81d27742255cfcf">k8s 1.4</Option>
               </Select>
             </FormItem>
           </div>
@@ -231,12 +246,22 @@ let CreateDatabase = React.createClass({
   }
 });
 
+function mapStateToProps(state) {
+  return {
+    createMySql: state.databaseCache.createMySql
+  }
+}
+
 CreateDatabase = createForm()(CreateDatabase);
 
 CreateDatabase.propTypes = {
   intl: PropTypes.object.isRequired
 }
 
-export default connect()(injectIntl(CreateDatabase, {
+CreateDatabase = injectIntl(CreateDatabase, {
   withRef: true,
-}))
+})
+
+export default connect(mapStateToProps, {
+  postCreateMysqlDbCluster
+})(CreateDatabase)

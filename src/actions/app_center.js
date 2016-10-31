@@ -270,12 +270,13 @@ export function createStack(obj, callback) {
       options: {
         method: 'POST',
         body: {
-        'type': obj.type,
+        'is_public': obj.is_public,
         'content': obj.content,
         'name': obj.name
         }
       }
-    }
+    },
+    callback
   }
 }
 
@@ -313,16 +314,17 @@ export const DELETE_PRIVATE_STACK_REQUEST = 'DELETE_PRIVATE_STACK_REQUEST'
 export const DELETE_PRIVATE_STACK_SUCCESS = 'DELETE_PRIVATE_STACK_SUCCESS'
 export const DELETE_PRIVATE_STACK_FAILURE = 'DELETE_PRIVATE_STACK_FAILURE'
 
-export function deleteMyStack(obj) {
+export function deleteMyStack(obj, callback) {
   return {
     [FETCH_API]: {
       types: [DELETE_PRIVATE_STACK_REQUEST, DELETE_PRIVATE_STACK_SUCCESS, DELETE_PRIVATE_STACK_FAILURE],
-      endpoint: `${API_URL_PREFIX}/templates/${id}`,
+      endpoint: `${API_URL_PREFIX}/templates/${obj.id}`,
       schema: Schemas.REGISTRYS,
       options: {
         method: 'DELETE',
       }
-    }, 
+    },
+    callback,
     registry: obj.registry,
     id: obj.id
   }

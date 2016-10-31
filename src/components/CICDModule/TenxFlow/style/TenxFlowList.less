@@ -79,6 +79,10 @@
         height: 50px;
         line-height: 50px;
         border-bottom: 1px solid #F2F2F2;
+        .name {
+          color: #00A1EA;
+          cursor: pointer;
+        }
         .logBtn {
           margin-right: 20px;
         }
@@ -116,12 +120,18 @@
   .bigModal {
     transition: all 0.3s;
     position: fixed;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
+    width: 100% !important;
+    height: 100% !important;
+    top: 0 !important;
+    left: 0 !important;
     .paddingBox {
       height: 100%;
     }
+  }
+  .smallModal {
+    width: 670px;
+    height: 100%;
+    top: 100px;
+    left: calc(~"50% - 335px");
   }
 }

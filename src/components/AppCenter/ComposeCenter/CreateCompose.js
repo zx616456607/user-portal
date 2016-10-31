@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Form, Input, Button, Switch, Radio } from 'antd'
+import { Form, Input, Button, Switch, Radio , message} from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -51,7 +51,7 @@ class CreateCompose extends Component {
   handleSubmit(e) {
     //this function for user submit add other image space
     e.preventDefault();
-    const scope = this.props.scope;
+    const parentScope = this.props.scope;
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         //it's mean there are some thing is null,user didn't input
@@ -60,28 +60,31 @@ class CreateCompose extends Component {
       const scope = this
       const registry = this.props.registry
       const config = {
-        'type': this.state.composeAttr ? 0 : 1,
+        'is_public': this.state.composeAttr ? 1 : 2,
         'content': values.textarea,
         'name': values.name
       }
-        console.log(this.props)
+      // return
       this.props.createStack(config, {
         success: {
           func: ()=>{
-            scope.props.loadMyStack(registry)
-          }
+            parentScope.props.loadMyStack(registry)
+            parentScope.setState({
+              createModalShow: false
+            });
+            message.success('创建成功！')
+            scope.props.form.resetFields();
+          },
+          isAsync: true
         },
-        failed:{
+        failed: {
           func: (err)=>{
-            message.errors(err.message)
+            message.error(err.message)
           }
         }
       })
       //when the code running here,it's meaning user had input all things,
       //and should submit the message to the backend
-      // scope.setState({
-      //   createModalShow: false
-      // });
     });
   }
   

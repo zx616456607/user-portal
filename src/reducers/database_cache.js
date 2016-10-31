@@ -13,38 +13,78 @@ import merge from 'lodash/merge'
 import reducerFactory from './factory'
 import { cloneDeep } from 'lodash'
 
-function databaseAllList(state = {}, action) {
-  const database = action.database
+function mysqlDatabaseAllList(state = {}, action) {
   const defaultState = {
-    [database]: {
+    'MySql': {
       isFetching: false,
-      database,
+      database: 'MySql',
       databaseList: []
     }
   }
   switch (action.type) {
-    case ActionTypes.DATABASE_CACHE_ALL_LIST_REQUEST:
+    case ActionTypes.MYSQL_DATABASE_CACHE_ALL_LIST_REQUEST:
       return merge({}, defaultState, state, {
-        [database]: { isFetching: true }
+        'MySql': { isFetching: true }
       })
-    case ActionTypes.DATABASE_CACHE_ALL_LIST_SUCCESS:
-      console.log(action.response.result)
+    case ActionTypes.MYSQL_DATABASE_CACHE_ALL_LIST_SUCCESS:
       return merge({}, state, {
-        [database]: {
+        'MySql': {
           isFetching: false,
+          database: 'MySql',
+          databaseList: action.response.result.databaseList || []
         }
       })
-    case ActionTypes.DATABASE_CACHE_ALL_LIST_FAILURE:
+    case ActionTypes.MYSQL_DATABASE_CACHE_ALL_LIST_FAILURE:
       return merge({}, defaultState, state, {
-        [database]: { isFetching: false }
+        'MySql': { isFetching: false }
       })
     default:
       return state
   }
 }
 
-export function images(state = { publicImages: {} }, action) {
+function mysqlDatabaseDetail(state = {}, action) {
+  const defaultState = {
+    databaseInfo: {
+      isFetching: false,
+      databaseInfo: null
+    }
+  }
+  switch (action.type) {
+    case ActionTypes.GET_DATABASE_DETAIL_INFO_REQUEST:
+      return merge({}, defaultState, state, {
+        databaseInfo: { isFetching: true }
+      })
+    case ActionTypes.GET_DATABASE_DETAIL_INFO_SUCCESS:
+      return merge({}, state, {
+        databaseInfo: {
+          isFetching: false,
+          databaseInfo: action.response.result.databaseInfo || null
+        }
+      })
+    case ActionTypes.GET_DATABASE_DETAIL_INFO_FAILURE:
+      return merge({}, defaultState, state, {
+        databaseInfo: { isFetching: false }
+      })
+    default:
+      return state
+  }
+}
+
+
+export function databaseCache(state = { databaseCache: {} }, action) {
   return {
-    privateImages: privateImages(state.privateImages, action),
+    mysqlDatabaseAllList: mysqlDatabaseAllList(state.mysqlDatabaseAllList, action),
+    createMySql: reducerFactory({
+      REQUEST: ActionTypes.CREATE_MYSQL_DATABASE_CACHE_REQUEST,
+      SUCCESS: ActionTypes.CREATE_MYSQL_DATABASE_CACHE_SUCCESS,
+      FAILURE: ActionTypes.CREATE_MYSQL_DATABASE_CACHE_FAILURE
+    }, state.createMySql, action),
+    deleteMysql: reducerFactory({
+      REQUEST: ActionTypes.DELETE_DATABASE_CACHE_REQUEST,
+      SUCCESS: ActionTypes.DELETE_DATABASE_CACHE_SUCCESS,
+      FAILURE: ActionTypes.DELETE_DATABASE_CACHE_FAILURE
+    }, state.deleteMysql, action),
+    mysqlDatabaseDetail: mysqlDatabaseDetail(state.mysqlDatabaseDetail, action)
   }
 }

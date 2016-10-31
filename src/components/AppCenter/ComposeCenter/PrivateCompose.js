@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Alert, Menu, Button, Card, Input, Dropdown, Modal ,message} from 'antd'
+import { Alert, Menu, Button, Card, Input, Dropdown, Modal ,message, Spin} from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -109,7 +109,6 @@ const MyList = React.createClass({
   },
   menuClick: function (key) {
     //this function for user delete select image
-    console.log('id is',key)
     const scope = this
     const config ={registry: DEFAULT_REGISTRY, id: key.id}
     Modal.confirm({
@@ -120,7 +119,9 @@ const MyList = React.createClass({
           success: {
             func: ()=>{
               message.success('删除成功')
-            }
+              scope.props.loadMyStack(DEFAULT_REGISTRY)
+            },
+            isAsync: true
           }
         })
       },
@@ -138,6 +139,14 @@ const MyList = React.createClass({
   },
   render: function () {
     const config = this.props.config;
+    const isFetching = this.props.isFetching
+    if (isFetching) {
+      return (
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
+      )
+    }
     if (config.length == 0) {
       return(
         <div className="notData">您还没有编排，去创建一个吧！</div>
@@ -163,10 +172,10 @@ const MyList = React.createClass({
           </div>
           <div className='attr'>{item.owner}</div>
           <div className='type'>
-            {item.type == '1' ? [
-              <span key={item.id + 'unlock'} className='publicAttr'><i className='fa fa-unlock-alt'></i>&nbsp;<FormattedMessage {...menusText.publicType} /></span>]
+            {item.isPublic == 1 ? 
+              <span key={item.id + 'unlock'} className='publicAttr'><i className='fa fa-unlock-alt'></i>&nbsp;<FormattedMessage {...menusText.publicType} /></span>
               :
-              [<span key={item.id + 'lock'} className='privatecAttr'><i className='fa fa-lock'></i>&nbsp;<FormattedMessage {...menusText.privateType} /></span>]
+              <span key={item.id + 'lock'} className='privateAttr'><i className='fa fa-lock'></i>&nbsp;<FormattedMessage {...menusText.privateType} /></span>
             }
           </div>
          
@@ -302,7 +311,7 @@ class PrivateCompose extends Component {
               </div>
               <div style={{ clear: 'both' }}></div>
             </div>
-            <MyList scope={rootScope} deleteMyStack={this.props.deleteMyStack} config={this.props.myStackList} />
+            <MyList scope={rootScope} isFetching={this.props.isFetching} loadMyStack={this.props.loadMyStack} deleteMyStack={this.props.deleteMyStack} config={this.props.myStackList} />
           </Card>
         </div>
         <Modal

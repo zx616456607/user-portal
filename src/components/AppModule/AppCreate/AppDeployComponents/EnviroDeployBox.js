@@ -32,11 +32,12 @@ let MyComponentEnviro = React.createClass({
     let envKey = form.getFieldValue('envKey');
     envKey = envKey.filter((key) => {
       return key !== k;
-    });
+    })
     // can use data-binding to set
     form.setFieldsValue({
       envKey,
-    });
+    })
+    
   },
   add() {
     uuidEnviro++;
@@ -94,20 +95,27 @@ let MyComponentPort = React.createClass({
     config: React.PropTypes.array
   },
   remove(k) {
-    const { form } = this.props.parentScope.props;
+    const { form } = this.props
     let portKey = form.getFieldValue('portKey');
     portKey = portKey.filter((key) => {
       return key !== k;
     });
-    form.setFieldsValue({
-      portKey,
-    });
-
-    if (this.props.parentScope.props.form.getFieldValue('portKey').length === 0) {
+    console.log('portKey', portKey)
+    if (form.getFieldValue('portKey').length === 0) {
       this.props.parentScope.setState({
         disable: true,
       })
+    } else {
+      form.getFieldValue('portKey').map((k) => {
+        const value = form.getFieldProps(`targetPortUrl${k}`).value
+        form.setFieldsValue({
+          [`targetPortUrl${k}`]: value
+        })
+      })
     }
+    form.setFieldsValue({
+      portKey,
+    })
   },
   add() {
     uuidPort++;
@@ -148,7 +156,7 @@ let MyComponentPort = React.createClass({
     }
   },
   render: function () {
-    const { form } = this.props
+    const { form, disAdd } = this.props
     const { getFieldProps, getFieldValue, isFieldValidating, getFieldError } = form
     getFieldProps('portKey', {
       initialValue: [],
@@ -197,10 +205,20 @@ let MyComponentPort = React.createClass({
         <ul>
           {formItems}
         </ul>
-        <div className="addBtn" onClick={this.add}>
-          <Icon type="plus-circle-o" />
-          <span>添加映射端口</span>
-        </div>
+        { disAdd ?
+          <div className="addBtn">
+            <Button disabled type="primary">
+              <Icon type="plus-circle-o" />
+              <span>添加映射端口</span>
+            </Button>
+          </div> :
+          <div className="addBtn">
+            <Button type="primary">
+              <Icon type="plus-circle-o" />
+              <span>添加映射端口</span>
+            </Button>
+          </div>
+        }
       </div>
     );
   }
@@ -208,7 +226,7 @@ let MyComponentPort = React.createClass({
 
 let EnviroDeployBox = React.createClass({
   render: function () {
-    const { form } = this.props
+    const { form,disAdd } = this.props
     const parentScope = this.props.scope;
     return (
       <div id="advanceBox">
@@ -249,7 +267,7 @@ let EnviroDeployBox = React.createClass({
                 </div>
                 <div style={{ clear: "both" }}></div>
               </div>
-              <MyComponentPort parentScope={parentScope} form={form}/>
+              <MyComponentPort parentScope={parentScope} form={form} disAdd={disAdd}/>
             </div>
           </div>
         </div>

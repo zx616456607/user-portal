@@ -40,21 +40,34 @@ const MyComponent = React.createClass({
       containerList
     });
   },*/
-  containerOperaClick: function (item, e) {
+  containerOperaClick: function (name, e) {
     //this function for user click opera menu
+    switch(e.key) {
+      case "1":
+        //this is delete the container
+        this.deleteContainer(name);
+        break;
+    }
   },
-  selectContainerDetail: function (name) {
+  selectContainerDetail: function (name, e) {
     //this function for user click app detail ,and then this app will be selected
-    const { parentScope } = this.props
-    const { containerList } = parentScope.state
-    containerList.map((contaienr) => {
-      if (contaienr.metadata.name === name) {
-        contaienr.checked = !contaienr.checked
-      }
-    });
-    parentScope.setState({
-      containerList
-    });
+    //when user click the menu button will trigger the function
+    //so the first thing should estimate
+    //the event target is the menu button or others
+    //if the target is menu button , the function will be return null 
+    let stopPro = e._dispatchInstances;
+    if(stopPro.length != 2) {      
+      const { parentScope } = this.props
+      const { containerList } = parentScope.state
+      containerList.map((contaienr) => {
+        if (contaienr.metadata.name === name) {
+          contaienr.checked = !contaienr.checked
+        }
+      });
+      parentScope.setState({
+        containerList
+      });
+    }
   },
   onShowSizeChange: function (page, size) {
     if (size === this.props.size) {
@@ -98,14 +111,13 @@ const MyComponent = React.createClass({
   openTerminalModal: function (item, e) {
     //this function for user open the terminal modal
     e.stopPropagation();
-    const { scope } = this.props;
-    scope.setState({
+    const { parentScope } = this.props;
+    parentScope.setState({
       currentContainer: item,
       TerminalLayoutModal: true
     });
   },
-  deleteContainer: function (e, name) {
-    e.stopPropagation()
+  deleteContainer: function (name) {
     const { confirmDeleteContainer } = this.props.funcs
     const container = {
       metadata: {
@@ -135,11 +147,11 @@ const MyComponent = React.createClass({
     }
     const items = config.map((item) => {
       const dropdown = (
-        <Menu onClick={this.containerOperaClick.bind(this, item)}
+        <Menu onClick={this.containerOperaClick.bind(this, item.metadata.name)}
           style={{ width: "100px" }}
           >
           <Menu.Item key="1">
-            <span onClick={(e) => this.deleteContainer(e, item.metadata.name)}>重新分配</span>
+            <span>重新分配</span>
           </Menu.Item>
         </Menu>
       );
@@ -193,7 +205,7 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className="actionBox commonData">
-            <ButtonGroup>
+            {/*<ButtonGroup>
               <Button
                 type="ghost"
                 onClick={this.openTerminalModal.bind(this, item)}>
@@ -207,15 +219,15 @@ const MyComponent = React.createClass({
                   <Icon type="down" />
                 </Button>
               </Dropdown>
-            </ButtonGroup>
-            {/*<Dropdown.Button
+            </ButtonGroup>*/}
+            <Dropdown.Button
               overlay={dropdown} type="ghost"
               onClick={this.openTerminalModal.bind(this, item)}>
               <svg className="terminal">
                 <use xlinkHref="#terminal" />
               </svg>
               <span style={{ marginLeft: "20px" }}>终端</span>
-            </Dropdown.Button>*/}
+            </Dropdown.Button>
           </div>
           <div style={{ clear: "both", width: "0" }}></div>
         </div >

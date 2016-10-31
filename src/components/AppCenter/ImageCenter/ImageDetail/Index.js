@@ -127,7 +127,8 @@ class ImageDetailBox extends Component {
   //     this.props.getImageDetailInfo(DEFAULT_REGISTRY, this.props.config.name)
   //   }
   // }
-  setimageStore(image, favourite, isPrivate) {
+  setimageStore(image, favourite) {
+    let isPrivate = this.props.imageInfo.isPrivate;
     const config = {
       myfavourite: favourite,
       registry: DEFAULT_REGISTRY,
@@ -143,13 +144,12 @@ class ImageDetailBox extends Component {
     })
   }
   isSwitch(key) {
-    let isPrivate = 1
+    let isPrivate = this.props.imageInfo.isPrivate;
     let image = this.state.imageDetail.name
     const favourite = this.state.imageDetail.isFavourite
     const imageSpace = this.props.parentScope.state.current
-    if(key) {
-      isPrivate= 0
-    }
+
+    key ? isPrivate =0 : isPrivate =1
     const config = {
       isPrivate,
       registry: DEFAULT_REGISTRY,
@@ -188,7 +188,6 @@ class ImageDetailBox extends Component {
     const ipAddress = this.props.parentScope.props.server;
     const imageName = this.state.imageDetail.name;
     let pullCode = "docker pull " + ipAddress + "/" + imageName;
-    console.log('imageInfo---------------------------',  ipAddress)
     return (
       <div id="ImageDetailBox">
         <div className="headerBox">
