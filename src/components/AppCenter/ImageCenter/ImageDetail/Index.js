@@ -99,6 +99,7 @@ class ImageDetailBox extends Component {
     //the nextProps is mean new props, and the this.props didn't change
     //so that we should use the nextProps
     this.setState({
+      nextPorps : nextPorps.imageInfo,
       imageDetail: nextPorps.config
     });
   }
@@ -130,7 +131,7 @@ class ImageDetailBox extends Component {
   setimageStore(image, favourite) {
     // let isPrivate = this.props.imageInfo.isPrivate;
     const config = {
-      myfavourite: favourite,
+      isFavourite: favourite,
       registry: DEFAULT_REGISTRY,
       // isPrivate,
       image

@@ -228,12 +228,12 @@ export function imageStore(obj, callback) {
       options: {
         method: 'PUT',
         body: {
-          myfavourite: obj.myfavourite,
+          isFavourite: obj.isFavourite,
         }
       }
     },
     registry: obj.registry,
-    myfavourite: obj.myfavourite,
+    isFavourite: obj.isFavourite,
     callback
   }
 }

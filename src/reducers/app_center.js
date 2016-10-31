@@ -312,8 +312,8 @@ function imagesInfo(state = {}, action) {
 
     case ActionTypes.SET_IMAGE_STORE_SUCCESS:
       const oldimageInfo = cloneDeep(state)
-      if (action.myfavourite != undefined) {
-        oldimageInfo.default.imageInfo.isFavourite = action.myfavourite
+      if (action.isFavourite != undefined) {
+        oldimageInfo.default.imageInfo.isFavourite = action.isFavourite
       }
       if (action.isPrivate != undefined) {
         oldimageInfo.default.imageInfo.isPrivate = action.isPrivate
