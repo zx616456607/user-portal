@@ -293,7 +293,8 @@ export function createStack(obj, callback) {
         body: {
           'is_public': obj.is_public,
           'content': obj.content,
-          'name': obj.name
+          'name': obj.name,
+          'description': obj.description
         }
       }
     },
@@ -345,6 +346,33 @@ export function deleteMyStack(obj, callback) {
         method: 'DELETE',
       }
     },
+    callback,
+    registry: obj.registry,
+    id: obj.id
+  }
+}
+
+export const UPDATE_PRIVATE_STACK_REQUEST = 'UPDATE_PRIVATE_STACK_REQUEST'
+export const UPDATE_PRIVATE_STACK_SUCCESS = 'UPDATE_PRIVATE_STACK_SUCCESS'
+export const UPDATE_PRIVATE_STACK_FAILURE = 'UPDATE_PRIVATE_STACK_FAILURE'
+
+export function updateStack(obj, callback) {
+  return {
+    [FETCH_API]: {
+      types: [UPDATE_PRIVATE_STACK_REQUEST, UPDATE_PRIVATE_STACK_SUCCESS, UPDATE_PRIVATE_STACK_FAILURE],
+      endpoint: `${API_URL_PREFIX}/templates/${obj.id}`,
+      schema: Schemas.REGISTRYS,
+      options: {
+        method: 'PUT',
+        body: {
+          'is_public': obj.is_public,
+          'content': obj.content,
+          'name': obj.name,
+          'description': obj.description
+        }
+      }
+    },
+    obj,
     callback,
     registry: obj.registry,
     id: obj.id
