@@ -80,8 +80,8 @@ export const IMAGE_OTHER_REQUEST = 'IMAGE_OTHER_REQUEST'
 export const IMAGE_OTHER_SUCCESS = 'IMAGE_OTHER_SUCCESS'
 export const IMAGE_OTHER_FAILURE = 'IMAGE_OTHER_FAILURE'
 
-// Other image title
-export function loadOtherImage(callback) {
+// Other image  table
+export function LoadOtherImage(callback) {
   return {
     [FETCH_API]: {
       types: [IMAGE_OTHER_REQUEST, IMAGE_OTHER_SUCCESS, IMAGE_OTHER_FAILURE],
@@ -97,14 +97,23 @@ export const GET_OTHER_LIST_SUCCESS = 'GET_OTHER_LIST_SUCCESS'
 export const GET_OTHER_LIST_FAILURE = 'GET_OTHER_LIST_FAILURE'
 
 // Other image list getOtherImageList
-export function getOtherImageList(id, callback) {
+export function getOtherImageList(id) {
   return {
     [FETCH_API]: {
       types: [GET_OTHER_LIST_REQUEST, GET_OTHER_LIST_SUCCESS, GET_OTHER_LIST_FAILURE],
       endpoint: `${API_URL_PREFIX}/docker-registry/${id}/images`,
       schema: Schemas.REGISTRYS
-    },
-    callback
+    }
+  }
+}
+
+export const SEARCH_OTHER_LIST_REQUEST = 'SEARCH_OTHER_LIST_REQUEST'
+// Search Other image list getOtherImageList
+export function SearchOtherImage(image, callback) {
+  return {
+      type: SEARCH_OTHER_LIST_REQUEST,
+      image,
+      callback
   }
 }
 
@@ -112,7 +121,7 @@ export const DELETE_OTHER_IMAGE_REQUEST = 'DELETE_OTHER_IMAGE_REQUEST'
 export const DELETE_OTHER_IMAGE_SUCCESS = 'DELETE_OTHER_IMAGE_SUCCESS'
 export const DELETE_OTHER_IMAGE_FAILURE = 'DELETE_OTHER_IMAGE_FAILURE'
 // delete Other image
-export function deleteOtherImage(id, callback) {
+export function DeleteOtherImage(id, callback) {
   return {
     [FETCH_API]: {
       types: [DELETE_OTHER_IMAGE_REQUEST, DELETE_OTHER_IMAGE_SUCCESS, DELETE_OTHER_IMAGE_FAILURE],

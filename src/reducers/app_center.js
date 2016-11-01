@@ -129,6 +129,19 @@ function otherImages(state = {}, action) {
       return merge({}, state, {
         isFetching: false
       })
+    case ActionTypes.SEARCH_OTHER_LIST_REQUEST:
+      const imageName = action.image
+      const newState = cloneDeep(state)
+
+      const temp = state.imageList.filter(list => {
+         const search = new RegExp(imageName)
+         if (search.test(list)){
+           return true
+         }
+         return false
+      })
+      newState.imageList = temp
+      return newState
     default:
       return state
   }

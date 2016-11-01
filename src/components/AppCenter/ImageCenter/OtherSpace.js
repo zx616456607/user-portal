@@ -13,7 +13,7 @@ import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import {deleteOtherImage, loadOtherImage, getImageOtherTags} from '../../../actions/app_center'
+import {DeleteOtherImage, SearchOtherImage} from '../../../actions/app_center'
 
 import "./style/OtherSpace.less"
 import ImageDetailBox from './ImageDetail/OtherDetail.js'
@@ -66,13 +66,13 @@ const MyComponent = React.createClass({
   render: function () {
     const ipAddress = (this.props.otherHead.url).split('//')[1]
     const {isFetching , config } = this.props
-    if (isFetching) {
-      return (
-        <div className='loadingBox'>
-          <Spin size='large' />
-        </div>
-      )
-    }
+    // if (isFetching) {
+    //   return (
+    //     <div className='loadingBox'>
+    //       <Spin size='large' />
+    //     </div>
+    //   )
+    // }
     if (!config) return
     let items = config.map((item) => {
       return (
@@ -131,7 +131,7 @@ class OtherSpace extends Component {
       title: '删除第三方镜像',
       content: '您是否确认要删除这项内容',
       onOk() {
-        scope.props.deleteOtherImage(id, {
+        scope.props.DeleteOtherImage(id, {
           success:{
             func: () => {
               const otherImages = scope.props.otherImages
@@ -148,7 +148,15 @@ class OtherSpace extends Component {
       onCancel() {}
     })
   }
-  
+  searchImage(e) {
+    const image = e.target.value
+    const parentScope = this.props.scope
+    if (image != '') {
+      this.props.SearchOtherImage(image)
+      return
+    }
+    this.props.scope.props.getOtherImageList(this.props.imageId)
+  }
 
   render() {
     const { formatMessage } = this.props.intl;
@@ -176,11 +184,11 @@ class OtherSpace extends Component {
               <Button className="logout" size="large" type="ghost" onClick={()=>this.deleteImage(this.props.imageId)}>
                 <FormattedMessage {...menusText.logout} />
               </Button>
-              <Input className="searchBox" placeholder={formatMessage(menusText.search)} type="text" />
+              <Input className="searchBox" placeholder={formatMessage(menusText.search)} type="text" onPressEnter={(e)=>this.searchImage(e)}/>
               <i className="fa fa-search"></i>
               <div style={{ clear: "both" }}></div>
             </div>
-            <MyComponent scope={scope} parentScope={this.props.scope.parentScope} isFetching={this.props.isFetching} imageId ={this.props.imageId} otherHead={otherHead} config={this.props.config} />
+            <MyComponent scope={scope} parentScope={this.props.scope.parentScope} isFetching={this.props.isFetching} imageId ={this.props.imageId} otherHead={otherHead} config={this.props.imageList} />
           </Card>
         </div>
         <Modal
@@ -204,32 +212,22 @@ function mapStateToProps(state, props) {
     isFetching: false,
     imageList: [],
   }
-  const defaultConfig = {
-    isFetching: false,
-    imageInfo: ''
-  }
-  const { privateImages, imagesInfo , otherImages} = state.images
-  const { imageList, isFetching} = privateImages || defaultPrivateImages
-  const { imageInfo } = imagesInfo || defaultConfig
+  const { otherImages} = state.images
+  const { imageList, isFetching} = otherImages || defaultPrivateImages
 
   return {
     imageList,
     isFetching,
-    imageInfo,
-    otherImages,
   }
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    getImageOtherInfo :(obj, callback)=> {
-      dispatch(getImageOtherInfo(obj, callback))
+    DeleteOtherImage: (id, callback)=> {
+      dispatch(DeleteOtherImage(id,callback))
     },
-    deleteOtherImage: (id, callback)=> {
-      dispatch(deleteOtherImage(id,callback))
-    },
-    loadOtherImage: (callback)=> {
-      dispatch(loadOtherImage(callback))
+    SearchOtherImage: (image, callback) => {
+      dispatch(SearchOtherImage(image, callback))
     }
   }
 }
