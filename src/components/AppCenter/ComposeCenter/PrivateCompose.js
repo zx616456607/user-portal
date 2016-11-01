@@ -15,7 +15,7 @@ import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import CreateCompose from './CreateCompose.js'
 import './style/PrivateCompose.less'
-import { loadMyStack , deleteMyStack , createStack} from '../../../actions/app_center'
+import { loadMyStack , deleteMyStack , createStack, updateStack} from '../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../constants'
 
 
@@ -107,36 +107,39 @@ const MyList = React.createClass({
     config: React.PropTypes.array,
     scope: React.PropTypes.object
   },
-  menuClick: function (key) {
-    //this function for user delete select image
+  actionStack(item) {
     const scope = this
-    const config ={registry: DEFAULT_REGISTRY, id: key.id}
-    Modal.confirm({
-      title: `删除编排 `,
-      content: <h3>{`您确定要删除编排 ${key.name}`}</h3>,
-      onOk() {
-        scope.props.deleteMyStack(config, {
-          success: {
-            func: ()=>{
-              message.success('删除成功')
-              // scope.props.loadMyStack(DEFAULT_REGISTRY)
-            },
-            isAsync: true
-          }
-        })
-      },
-      onCancel() { },
-    })
+    const list = item.key.split('&')[0]
+    
+    if (list== 'edit') {
+    const Index = parseInt(item.key.split('&')[1])
+      this.props.self.setState({
+        createModalShow: true,
+        stackItem: this.props.config[Index]
+      });
 
+    } else {
+      //this function for user delete select image
+      const config ={registry: DEFAULT_REGISTRY, id: item.key.split('@')[0]}
+      Modal.confirm({
+        title: `删除编排 `,
+        content: <h3>{`您确定要删除编排 ${item.key.split("@")[1]}`}</h3>,
+        onOk() {
+          scope.props.deleteMyStack(config, {
+            success: {
+              func: ()=>{
+                message.success('删除成功')
+                // scope.props.loadMyStack(DEFAULT_REGISTRY)
+              },
+              isAsync: true
+            }
+          })
+        },
+        onCancel() { },
+      })
+    }
   },
-  showImageDetail: function (id) {
-    //this function for user select image and show the image detail info
-    const scope = this.props.scope;
-    scope.setState({
-      imageDetailModalShow: true,
-      imageDetailModalShowId: id
-    });
-  },
+
   render: function () {
     const config = this.props.config;
     const isFetching = this.props.isFetching
@@ -152,15 +155,13 @@ const MyList = React.createClass({
         <div className="notData">您还没有编排，去创建一个吧！</div>
       )
     }
-    let items = config.map((item) => {
+    let items = config.map((item, index) => {
       const dropdown = (
-        <Menu onClick={this.menuClick.bind(this, item)}
-          style={{ width: '100px' }}
-          >
-          <Menu.Item key={`id1=${item.id}`}>
+        <Menu onClick={this.actionStack} style={{ width: '100px' }}>
+          <Menu.Item key={`edit&${index}`}>
             <FormattedMessage {...menusText.editService} />
           </Menu.Item>
-          <Menu.Item key={`id2=${item.id}`}>
+          <Menu.Item key={`delete&${item.id}@${item.name}`}>
             <FormattedMessage {...menusText.deleteService} />
           </Menu.Item>
         </Menu>
@@ -185,7 +186,7 @@ const MyList = React.createClass({
           <div className='time textoverflow'>
             <span>{item.createTime}</span>
           </div>
-          <div className='opera'>
+          <div className='opera Action'>
             <Dropdown.Button overlay={dropdown} type='ghost'>
               <FormattedMessage {...menusText.deployService} />
             </Dropdown.Button>
@@ -204,53 +205,31 @@ const MyList = React.createClass({
 class PrivateCompose extends Component {
   constructor(props) {
     super(props);
-    this.openCreateModal = this.openCreateModal.bind(this);
-    this.closeImageDetailModal = this.closeImageDetailModal.bind(this);
     this.state = {
-      createModalShow: false
+      createModalShow: false,
+      stackItem: ''
     }
   }
   componentWillMount() {
     this.props.loadMyStack(DEFAULT_REGISTRY);
   }
-  filterAttr(e) {
-    //this function for user filter different attr
-  }
-
-  filterType(e) {
-    //this function for user filter different type
-  }
-  
-  openCreateModal(){
+  detailModal(modal){
     //this function for user open the create compose modal
     this.setState({
-      createModalShow: true
+      createModalShow: modal
     });
-  }
-  
-  closeImageDetailModal(){
-   //this function for user close create compose modal
-   this.setState({
-    createModalShow: false
-   });
+    if (modal) {
+     this.state = {
+      stackItem: ''
+      } 
+    }
+
   }
 
   render() {
     const { formatMessage } = this.props.intl;
     const rootScope = this.props.scope;
     const scope = this;
-    const attrDropdown = (
-      <Menu onClick={this.filterAttr.bind(this)}
-        style={{ width: '100px' }}
-        >
-        <Menu.Item key='1'>
-          <FormattedMessage {...menusText.publicType} />
-        </Menu.Item>
-        <Menu.Item key='2'>
-          <FormattedMessage {...menusText.privateType} />
-        </Menu.Item>
-      </Menu>
-    );
     return (
       <QueueAnim className='PrivateCompose'
         type='right'
@@ -266,7 +245,7 @@ class PrivateCompose extends Component {
           } />
           <Card className='PrivateComposeCard'>
             <div className='operaBox'>
-              <Button className='addBtn' size='large' type='primary' onClick={this.openCreateModal}>
+              <Button className='addBtn' size='large' type='primary' onClick={()=>this.detailModal(true)}>
                 <i className='fa fa-plus'></i>&nbsp;
                 <FormattedMessage {...menusText.createCompose} />
               </Button>
@@ -278,12 +257,7 @@ class PrivateCompose extends Component {
                 <FormattedMessage {...menusText.name} />
               </div>
               <div className='attr'>
-                <Dropdown overlay={attrDropdown} trigger={['click']} getPopupContainer={() => document.getElementById('PrivateCompose')}>
-                  <div>
-                    <FormattedMessage {...menusText.author} />&nbsp;
-                    <i className='fa fa-filter'></i>
-                  </div>
-                </Dropdown>
+                  <FormattedMessage {...menusText.author} />&nbsp;
               </div>
               <div className="type">
                 <span><FormattedMessage {...menusText.composeAttr} /></span>
@@ -299,16 +273,16 @@ class PrivateCompose extends Component {
               </div>
               <div style={{ clear: 'both' }}></div>
             </div>
-            <MyList scope={rootScope} isFetching={this.props.isFetching} loadMyStack={this.props.loadMyStack} deleteMyStack={this.props.deleteMyStack} config={this.props.myStackList} />
+            <MyList scope={rootScope} self={scope} isFetching={this.props.isFetching} loadMyStack={this.props.loadMyStack} deleteMyStack={this.props.deleteMyStack} config={this.props.myStackList} />
           </Card>
         </div>
         <Modal
           visible={this.state.createModalShow}
           className='AppServiceDetail'
           transitionName='move-right'
-          onCancel={this.closeImageDetailModal}
+          onCancel={() => this.detailModal(false)}
         >
-          <CreateCompose scope={scope} loadMyStack={this.props.loadMyStack} createStack= {this.props.createStack} registry={this.props.registry} />
+          <CreateCompose scope={scope} paretnState={this.state} loadMyStack={this.props.loadMyStack} updateStack={this.props.updateStack} createStack= {this.props.createStack} registry={this.props.registry} />
         </Modal>
       </QueueAnim>
     )
@@ -346,6 +320,9 @@ function mapDispatchToProps(dispatch) {
     },
     createStack: (obj, callback) => {
       dispatch(createStack(obj, callback))
+    },
+    updateStack: (obj, callback) => {
+      dispatch(updateStack(obj, callback))
     }
   }
 }

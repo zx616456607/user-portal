@@ -11,7 +11,7 @@
 import * as ActionTypes from '../actions/app_center'
 import merge from 'lodash/merge'
 import reducerFactory from './factory'
-import { cloneDeep , remove} from 'lodash'
+import { cloneDeep , remove, findIndex} from 'lodash'
 
 function privateImages(state = {}, action) {
   const registry = action.registry
@@ -475,6 +475,29 @@ function stackList(state={}, action) {
       })
       return oldStack
     case ActionTypes.DELETE_PRIVATE_STACK_FAILURE:
+      return merge({}, state, {
+        [registry]: { isFetching: false }
+      })
+// -------------         update          ----- -
+    case ActionTypes.UPDATE_PRIVATE_STACK_REQUEST:
+      return merge({}, state, {
+        [registry]: { isFetching: false }
+      })
+    case ActionTypes.UPDATE_PRIVATE_STACK_SUCCESS:
+      const updateStack = cloneDeep(state)
+      const registry2 = action.registry
+      const stacks = updateStack[registry2]
+      let ins = findIndex(stacks.myStackList, item => {
+        return item.id == action.id
+      })
+      stacks.myStackList[ins].is_public = action.obj.is_public
+      stacks.myStackList[ins].name = action.obj.name
+      stacks.myStackList[ins].content = action.obj.content
+      stacks.myStackList[ins].description = action.obj.description
+      return merge({}, {
+        [registry]: stacks
+      })
+    case ActionTypes.UPDATE_PRIVATE_STACK_FAILURE:
       return merge({}, state, {
         [registry]: { isFetching: false }
       })
