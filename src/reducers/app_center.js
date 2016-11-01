@@ -360,7 +360,6 @@ function getOtherImageTagConfig(state = {}, action) {
     isFetching: false,
     configList: [],
     sizeInfo: '',
-    registry
   }
 
   switch (action.type) {
@@ -370,16 +369,13 @@ function getOtherImageTagConfig(state = {}, action) {
       })
     case ActionTypes.GET_OTHER_TAG_CONFIG_SUCCESS:
       return merge({}, defaultState, state, {
-        [registry]:{
+        isFetching: false,
           tag: action.tag || [],
           configList: action.response.result.configInfo || [],
           sizeInfo: action.response.result.sizeInfo,
-          registry,
-          isFetching: false
-        }
       })
     case ActionTypes.GET_OTHER_TAG_CONFIG_FAILURE:
-      return merge({}, defaultState, state, {
+      return merge({}, defaultState, {
         isFetching: false
       })
     default:
