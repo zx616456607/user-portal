@@ -15,7 +15,7 @@ import IndexPage from './containers/IndexPage'
 import ErrorPage from './containers/ErrorPage'
 /*-------------------App_manage Module Start-----------------------*/
 /*-------------------Appliaction Start-----------------------------*/
-import Application from './containers/Application/Index'
+import Application from './containers/Application'
 import AppList from './components/AppModule/AppList'
 import AppDetail from './components/AppModule/AppDetail'
 import AppCreate from './components/AppModule/AppCreate'
@@ -35,8 +35,8 @@ import ContainerDetail from './components/ContainerModule/ContainerDetail'
 /*-------------------Container stop--------------------------------*/
 /*-------------------App_manage Module Stop------------------------*/
 /*-------------------App_center Module Start-----------------------*/
-import AppCenter from './containers/AppCenter/Index'
-import ImageCenter from './components/AppCenter/Index'
+import AppCenter from './containers/AppCenter'
+import ImageCenter from './components/AppCenter'
 import ImageStore from './components/AppCenter/ImageStore'
 import Stack from './components/AppCenter/Stack'
 /*-------------------App_center Module Stop------------------------*/
