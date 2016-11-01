@@ -393,6 +393,20 @@ let AppDeployServiceModal = React.createClass({
         }
       })
     }
+    //配置文件
+    if (getFieldValue('volKey') && getFieldValue('volKey') !== 'null') {
+      let totalNumber = getFieldValue('volKey')
+      totalNumber.forEach(item => {
+        const vol = getFieldValue(`vol${item}`)
+        const volPath = getFieldValue(`volPath${item}`)
+        deploymentList.addContainerVolume(serviceName, {
+          name: `configMap-volume-${item}`,
+          configMap: vol
+        }, {
+          mountPath: volPath
+        })
+      })
+    }
     //livenessProbe 高可用
     if ((getFieldValue('getUsefulType') !== 'null') && (getFieldValue('getUsefulType'))) {
       deploymentList.setLivenessProbe(serviceName, getFieldValue('getUsefulType').toUpperCase(), {

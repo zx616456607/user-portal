@@ -8,10 +8,11 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Form, Select, Input, InputNumber, Modal, Checkbox, Button, Card, Menu, Switch, Radio, Icon } from 'antd'
+import { Form, Select, Input, InputNumber, Modal, Checkbox, Button, Card, Menu, Switch, Radio, Icon, Spin  } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import merge from 'lodash/merge'
+import findIndex from 'lodash/findIndex'
 import QueueAnim from 'rc-queue-anim'
 import "./style/ComposeDeployBox.less"
 import { loadConfigGroup, configGroupName } from '../../../../actions/configs'
@@ -19,21 +20,24 @@ const createForm = Form.create;
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
 const Option = Select.Option;
-let uuid = 0;
+const CheckboxGroup = Checkbox.Group
+let uuid = 1;
 
 let MyComponent = React.createClass({
   getInitialState() {
     return {
-      checkAll: false,
+      checkAll: [],
       checkedList:[],
-      plainOptions:[]
+      plainOptions:[],
+      cluster: window.localStorage.getItem('cluster'),
+      selectValue: [],
     };
   },
   propTypes: {
     config: React.PropTypes.array
   },
   componentWillMount() {
-    this.props.loadConfigGroup(this.props.cluster)
+    this.props.loadConfigGroup(this.state.cluster)
   },
   remove(k) {
     const { form } = this.props.parentScope.props;
@@ -66,13 +70,18 @@ let MyComponent = React.createClass({
     });
   },
   getOptionsList() {
+    const cluster = this.state.cluster
     const { isFetching } = this.props.configGroup[cluster]
+    if(isFetching) {
+      return <Option></Option>
+    }
     const configGroup = this.props.configGroup[cluster].configGroup
     const plainOptions = this.state.plainOptions
     if(!configGroup || configGroup.length <= 0) {
       return <Option></Option>
     }
     return configGroup.map((item, index) => { 
+      plainOptions[index] = {}
       plainOptions[index].name = item.name
       plainOptions[index].displayName = []   
       plainOptions[index].key = []   
@@ -84,9 +93,21 @@ let MyComponent = React.createClass({
     })
   },
   onChange(checkedList, index) {
+    const { form } = this.props
+    const { getFieldProps, setFieldsValue } = form
     const oldCheckedList = this.state.checkedList
     if (!checkedList || checkedList.length <= 0) {
+      const checkAll = this.state.checkAll
+      checkAll[index] = false
       oldCheckedList[index].items = []
+      this.setState({
+        checkedList: oldCheckedList,
+        checkAll
+      })
+      setFieldsValue({
+        [`vol${k}`]: []
+      })
+      return
     }
     const configName = oldCheckedList[index].name
     const plainOptions = this.state.plainOptions
@@ -96,6 +117,13 @@ let MyComponent = React.createClass({
     const pl = plainOptions[plIndex]
     const nameArray = []
     const displayNames = pl.displayName
+    if(checkedList.length === displayNames.length) {
+      const checkAll = this.state.checkAll
+      checkAll[index] = true
+      this.setState({
+        checkAll
+      })
+    }
     checkedList.forEach(item => {
       let index = findIndex(displayNames, displayName => {
         return displayName === item
@@ -111,23 +139,37 @@ let MyComponent = React.createClass({
         }
       })
     }
+    setFieldsValue({
+      [`vol${k}`]: oldCheckedList[index]
+    })
     this.setState({
       checkedList: oldCheckedList
     })
   },
   onCheckAllChange(e, k) {
-    const name = this.state.plainOptions[k].name
-    if(!e.target.value) {
-      oldCheckedList[index].items = []
+    const cluster = this.state.cluster
+    const checkAll = this.state.checkAll
+    checkAll[k -1] = e.target.checked
+    this.setState({
+      checkAll
+    })
+    const { form } = this.props
+    const { getFieldProps, setFieldsValue } = form
+    const configName = getFieldProps(`volName${k}`)
+    let oldCheckedList = this.state.checkedList
+    if (!e.target.checked) {
+      setFieldsValue({
+        [`vol${k}`]: []
+      })
+      oldCheckedList[k-1].items = []
       this.setState({
         checkedList: oldCheckedList,
-        checkAll: e.target.checked
       })
       return
-    }
+    } 
     let configList = this.props.configGroup[cluster].configGroup
     let index = findIndex(configList, c => {
-      return c.name = name
+      return c.name === configName.value
     })
     const config = configList[index]
     let newConfig = {
@@ -139,22 +181,29 @@ let MyComponent = React.createClass({
         }
       })
     }
-    let oldCheckedList = this.state.checkedList
-    let isExists = findIndex(oldCheckedList, item => {
-      return item.name = name
-    })
-    if(isExists) {
-      oldCheckedList[isExists] = newConfig
-    } else {
-      oldCheckedList.push(newConfig)
-    }
+    oldCheckedList[k - 1] = newConfig
     this.setState({
-      checkedList: newCheckedList,
-      checkAll: e.target.checked,
-    });
+      checkedList: oldCheckedList,
+    }) 
+    setFieldsValue({
+      [`vol${k}`]: newConfig
+    })
   },
   selectChange(name, index) {
-    this.checkedList[index] = {
+    const { form } = this.props
+    const { setFieldsValue } = form
+    setFieldsValue({
+      [`volName${index+1}`]: name
+    })
+    const checkAll = this.state.checkAll
+    checkAll[index] = false
+    const selectValue = this.state.selectValue
+    selectValue[index] = name
+    this.setState({
+      selectValue,
+      checkAll
+    })
+    this.state.checkedList[index] = {
       name: name,
       items: []
     }
@@ -167,19 +216,28 @@ let MyComponent = React.createClass({
     return this.state.plainOptions[plIndex].displayName
   },
   getInitValue(k) {
-    const { getFieldProps } = form
+    const { form } = this.props
+    const { getFieldProps, setFieldsValue } = form
     const configName = getFieldProps(`volName${k}`).value
     if(!configName) return ''
     let index = findIndex(this.state.checkedList, item => {
       return item.name === configName
     })
     if(index <= 0) return ''
-    return this.state.checkedList[index].items
+     setFieldsValue({
+       [`volitem${k}`]: this.state.checkedList[index].items
+     })
   },
-  render: function () {
-    return (<div></div>)
-    const { cluster } = this.props.cluster
-    const { isFetching } = this.props.configGroup[cluster]
+  getCheckboxValue(index) {
+    const checkList = this.state.checkedList[index]
+    return checkList.items.map(item => {
+      return item.path
+    })
+  },
+  render() {
+    const cluster = this.state.cluster
+    if(!this.props.configGroup[cluster]) return <div></div>
+    const isFetching = this.props.configGroup[cluster].isFetching
     if(isFetching) {
       return (<div className='loadingBox'>
         <Spin size='large' />
@@ -190,28 +248,26 @@ let MyComponent = React.createClass({
     getFieldProps('volKey', {
       initialValue: [1],
     });
-    const configGroup = this.props.configGroup[cluster].configGroup
     const formItems = getFieldValue('volKey').map((k) => {
       return (
         <FormItem key={`vol${k}`}>
-               <Checkbox />
-              <CheckboxGroup options={[1,2,3]} onChange={(a)=> {console.log(a)}} />
           <li className="composeDetail">
             <div className="input">
               <Input {...getFieldProps(`volPath${k}`, {})} className="portUrl" type="text" />
             </div>
             <div className="protocol select">
               <div className="portGroupForm">
-                <Select {...getFieldProps(`volName${k}`, {})}
+                <Select
                   placeholder = "请选择配置组"
+                  value = {this.state.selectValue[k-1]}
                   className="composeGroup" size="large"  onChange={(value) => this.selectChange(value, k-1)}>
                   {this.getOptionsList()}
                 </Select>
               </div>
             </div>
-           <div className="check" {...getFieldProps(`volitem${k}`, { initialValue: this.getInitValue(k)})}>
-              <Checkbox onChange={(e) => this.onCheckAllChange(e, k-1)} checked={this.state.checkAll}/>&nbsp;&nbsp;全选<br />
-              <CheckboxGroup options={this.getPlainOptions()} value={this.state.checkedList} onChange={(list) => this.onChange(list, k-1)} />
+           <div className="check">
+              {getFieldProps(`volName${k}`).value ?  <span><Checkbox checked={this.state.checkAll[k-1]} onChange={(e) => this.onCheckAllChange(e, k) } /><span>&nbsp;&nbsp;全选</span><br/>
+              <CheckboxGroup options={this.getPlainOptions(k-1)} onChange={(list) => this.onChange(list, k - 1) } value={this.getCheckboxValue(k-1)} /></span> : null}
             </div>
             <div className="opera">
               <i className="fa fa-trash-o" onClick={() => this.remove(k)}/>
@@ -237,7 +293,7 @@ let MyComponent = React.createClass({
 
 function mapStateToProp(state) {
   return {
-    configGroup: state.configReducers.configGroupLists
+    configGroup: state.configReducers.configGroupList
   }
 }
 
