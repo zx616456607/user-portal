@@ -154,11 +154,6 @@ class MyCollection extends Component {
         <div id="MyCollection" key="MyCollection">
           <Alert message={<FormattedMessage {...menusText.tooltips} />} type="info" />
           <Card className="MyCollectionCard">
-            <div className="operaBox">
-              <Input className="searchBox" placeholder={formatMessage(menusText.search)} type="text" />
-              <i className="fa fa-search"></i>
-              <div style={{ clear: "both" }}></div>
-            </div>
             <MyComponent scope={scope} isFetching={this.props.isFetching} registryServer={this.props.server} getImageDetailInfo={(obj, callback) => this.props.getImageDetailInfo(obj, callback)} config={imageList} />
           </Card>
         </div>
@@ -168,7 +163,7 @@ class MyCollection extends Component {
           transitionName="move-right"
           onCancel={this.closeImageDetailModal}
           >
-          <ImageDetailBox parentScope={rootscope} scope={scope} imageInfo={this.state.imageInfo} config={this.state.currentImage} />
+          <ImageDetailBox parentScope={rootscope} server={this.props.server} scope={scope} imageInfo={this.state.imageInfo} config={this.state.currentImage} />
         </Modal>
       </QueueAnim>
     )

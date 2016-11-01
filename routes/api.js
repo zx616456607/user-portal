@@ -18,6 +18,8 @@ const registryController = require('../controllers/registry')
 const metricsController = require('../controllers/metrics')
 const databaseCacheController = require('../controllers/database_cache')
 const appTemplateController = require('../controllers/app_template')
+const userController = require('../controllers/user_manage')
+const teamController = require('../controllers/team_manage')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -79,6 +81,15 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/services/:service_name/events', serviceController.getServiceDetailEvents)
   router.post('/clusters/:cluster/services/:service_name/logs', serviceController.getServiceLogs)
   router.get('/clusters/:cluster/services/:service_name/k8s-service', serviceController.getK8sService)
+
+  // Users
+  router.get('/users/:user_id', userController.getUserDetail)
+  router.get('/users', userController.getUsers)
+
+  // Teams
+  router.get('/teams', teamController.getUserTeams)
+  router.get('/teams/:team_id/spaces', teamController.getUserTeamspaces)
+
   // spi
   router.post('/clusters/:cluster/services/:service_name/binddomain', serviceController.bindServiceDomain)
   router.put('/clusters/:cluster/services/:service_name/binddomain', serviceController.deleteServiceDomain)
@@ -118,7 +129,6 @@ module.exports = function (Router) {
   router.get('/docker-registry/:id/images/:image*/tags/:tag', registryController.specGetImageTagInfo)
   // Tag size is merged to specGetImageTagConfig
   //router.get('/docker-registry/:id/images/:image*/tags/:tag/size', registryController.specGetImageTagSize)
-  router.post('/docker-registry/update', registryController.imageStore)
 
   // Metrics
   router.get('/clusters/:cluster/containers/:container_name/metrics', metricsController.getContainerMetrics)

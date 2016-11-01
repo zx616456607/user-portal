@@ -116,6 +116,7 @@ class ImageVersion extends Component {
       const config = { imageName: imageDetail, id: imageId }
       getOtherImageTag(config)
     } else {
+      console.log('registry', this.props)
       loadImageDetailTag(registry, image.name);
     }
   }
