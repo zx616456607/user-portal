@@ -218,7 +218,7 @@ class Slider extends Component {
           </li>
           <li onClick={this.selectModel.bind(this, "7", "#manage")} className={currentKey == "7" ? "selectedLi" : ""}>
             <Tooltip placement="right" title="管理与监控" getTooltipContainer={() => document.getElementById("siderTooltip")}>
-              <Link to="/">
+              <Link to="/manange_monitor">
                 <svg className="manageMoniter commonImg">
                   <use xlinkHref="#managemoniter" />
                 </svg>
@@ -265,9 +265,17 @@ class Slider extends Component {
 }
 
 function checkCurrentPath(pathname) {
+  let ManageMonitorCheck = new RegExp("manange_monitor", "gi");
+  if (ManageMonitorCheck.test(pathname)) {
+    return "7";
+  }
+  let DatabaseCheck = new RegExp("database_cache", "gi");
   let CICDCheck = new RegExp("ci_cd", "gi");
   if (CICDCheck.test(pathname)) {
     return "6";
+  }
+  if (DatabaseCheck.test(pathname)) {
+    return "4";
   }
   let AppCenterCheck = new RegExp("app_center", "gi");
   if (AppCenterCheck.test(pathname)) {

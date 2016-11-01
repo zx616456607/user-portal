@@ -186,7 +186,7 @@ class ImageDetailBox extends Component {
     const imageInfo = this.props.imageInfo || {'detailMarkdown': ''}
     const imageDetail = this.props.config;
     const scope = this;
-    const ipAddress = this.props.parentScope.props.server;
+    const ipAddress = this.props.server;
     const imageName = this.state.imageDetail.name;
     let pullCode = "docker pull " + ipAddress + "/" + imageName;
     return (
@@ -204,7 +204,7 @@ class ImageDetailBox extends Component {
               { (imageInfo.isOwner) ? 
                 <Switch onChange={this.isSwitch} checked={(imageInfo.isPrivate == 0) ? true: false} checkedChildren={formatMessage(menusText.pubilicType) } unCheckedChildren={formatMessage(menusText.privateType)} />
               :
-                <Switch checked={(imageInfo.isPrivate ==0) ? true: false} defaultChecked="true" checkedChildren={formatMessage(menusText.pubilicType) } unCheckedChildren={formatMessage(menusText.privateType)} />
+                <Switch checked={(imageInfo.isPrivate ==0) ? true: false} disabled={true} defaultChecked="true" checkedChildren={formatMessage(menusText.pubilicType) } unCheckedChildren={formatMessage(menusText.privateType)} />
               }
              </span>
             </div>
@@ -233,7 +233,7 @@ class ImageDetailBox extends Component {
           <div className="code">
             <i className="fa fa-download"></i>&nbsp;
           <FormattedMessage {...menusText.downloadImage} />&nbsp;&nbsp;&nbsp;&nbsp;
-           <span className="pullCode">docker pull {ipAddress}/{imageName}&nbsp;&nbsp;</span>
+           <span className="pullCode">docker pull {this.props.server}/{imageName}&nbsp;&nbsp;</span>
             <Tooltip title={this.state.copySuccess ? formatMessage(menusText.copySuccess) : formatMessage(menusText.copyBtn)} getTooltipContainer={() => document.getElementById("ImageDetailBox")}>
               <i className="fa fa-copy" onClick={this.copyDownloadCode} onMouseLeave={this.returnDefaultTooltip}></i>
             </Tooltip>

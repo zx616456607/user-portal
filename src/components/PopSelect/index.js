@@ -12,8 +12,8 @@ import { Menu, Dropdown, Icon, Select, Input, Button, Form, Popover, } from 'ant
 import './style/PopSelect.less'
 import classNames from 'classnames'
 
-export default class PopSelect extends Component{
-  constructor(props){
+export default class PopSelect extends Component {
+  constructor(props) {
     super(props)
     this.handleSearch = this.handleSearch.bind(this)
     this.setValue = this.setValue.bind(this)
@@ -21,7 +21,7 @@ export default class PopSelect extends Component{
       spaceVisible: false,
       selectValue: '',
       focus: false,
-      spaceArr : ['奔驰-CRM系统','奔驰-OA系统','奔驰-进销存系统'],
+      spaceArr: ['奔驰-CRM系统', '奔驰-OA系统', '奔驰-进销存系统'],
       resultArr: [],
     }
   }
@@ -29,14 +29,14 @@ export default class PopSelect extends Component{
     let value = e.target.value
     const { spaceArr, resultArr } = this.state
     const result = []
-    if(value === '' || !value){
+    if (value === '' || !value) {
       this.setState({
-        resultArr: ['奔驰-CRM系统','奔驰-OA系统','奔驰-进销存系统'],
+        resultArr: ['奔驰-CRM系统', '奔驰-OA系统', '奔驰-进销存系统'],
       })
     } else {
-      spaceArr.map((item,index) => {
+      spaceArr.map((item, index) => {
         let flag = item.indexOf(value)
-        if(flag >= 0){
+        if (flag >= 0) {
           result.push(item)
         }
       })
@@ -45,27 +45,27 @@ export default class PopSelect extends Component{
       })
     }
   }
-  setValue(item){
+  setValue(item) {
     this.setState({
       selectValue: item,
     })
   }
-  componentWillMount(){
+  componentWillMount() {
     const { btnStyle, selectValue, resultArr } = this.props
     this.setState({
       resultArr: resultArr,
       selectValue: selectValue
     })
   }
-  render(){
-    const { btnStyle,  } = this.props
+  render() {
+    const { btnStyle, } = this.props
     const { selectValue } = this.state
     const text = <span className="PopSelectTitle">选择项目空间</span>
     const content = (
       <div className="PopSelectContent">
         <div className="ant-search-input-wrapper searchInt">
           <Input.Group className='ant-search-input'>
-            <Input placeholder='查询' onChange={this.handleSearch}/>
+            <Input placeholder='查询' onChange={this.handleSearch} />
             <div className="ant-input-group-wrap">
               <Button className='ant-search-btn'>
                 <Icon type="search" />
@@ -81,7 +81,7 @@ export default class PopSelect extends Component{
                 :
                 this.state.resultArr.map((item) => {
                   return (
-                    <li className="searchItem" onClick={() => this.setValue(`${item}`)}>{item}</li>
+                    <li key={item} className="searchItem" onClick={() => this.setValue(`${item}`)}>{item}</li>
                   )
                 })
             }
@@ -92,17 +92,17 @@ export default class PopSelect extends Component{
     return (
       <div id="PopSelect">
         <Popover placement="bottomLeft" title={text} content={content} trigger="click"
-                 getTooltipContainer={() => document.getElementById('PopSelect')}>
+          getTooltipContainer={() => document.getElementById('PopSelect')}>
           {
             btnStyle ?
               <Button className='popBtn'>
-                <i className="fa fa-sitemap" style={{float: 'left',marginTop: '3px'}}/>
+                <i className="fa fa-sitemap" style={{ float: 'left', marginTop: '3px' }} />
                 {selectValue}
-                <Icon type="caret-down" />
+                <Icon type="down" />
               </Button> :
               <a className="ant-dropdown-link lineBtn" href="#">
                 {selectValue}
-                <i className="anticon anticon-caret-down"/>
+                <Icon type="down" />
               </a>
           }
         </Popover>

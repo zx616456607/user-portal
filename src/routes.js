@@ -48,20 +48,23 @@ import RedisCluster from './components/DatabaseCache/RedisCluster'
 import DatabaseStorage from './components/DatabaseCache/DatabaseStorage'
 /*-------------------database & cache Module Stop------------------------*/
 /*-------------------CI/CD Module Start----------------------------------*/
-import CICD from './containers/CICD/index'
+import CICD from './containers/CICD'
 import CodeStore from './components/CICDModule/CodeStore'
 import DockerFile from './components/CICDModule/DockerFile'
 import TenxFlow from './components/CICDModule/TenxFlow'
 import TenxFlowBuild from './components/CICDModule/TenxFlow/TenxFlowDetail'
 /*-------------------CI/CD Module Stop-----------------------------------*/
 /*-------------------Setting Module Start----------------------------------*/
-import Setting from './containers/Setting/index'
-import UserInfo from './components/SettingModal/UserInfo/index'
-import MemberManage from './components/SettingModal/MemberManage/index'
-import TeamManage from './components/SettingModal/TeamManage/index'
+import Setting from './containers/Setting'
+import UserInfo from './components/SettingModal/UserInfo'
+import MemberManage from './components/SettingModal/MemberManage'
+import TeamManage from './components/SettingModal/TeamManage'
 /*-------------------Setting Module Stop-----------------------------------*/
 /*-------------------Manage & Monitor Module Start--------------------------------*/
+import ManageMonitor from './containers/ManageMonitor'
 import OperationalAudit from './components/ManageMonitor/OperationalAudit'
+import QueryLog from './components/ManageMonitor/QueryLog'
+import MonitorModule from './components/ManageMonitor/MonitorModule'
 /*-------------------Manage & Monitor Module Stop---------------------------------*/
 
 export default (
@@ -111,6 +114,11 @@ export default (
       <IndexRoute component={UserInfo} />
       <Route path="member" component={MemberManage} />
       <Route path="team" component={TeamManage} />
+    </Route>
+    <Route path="manange_monitor" component={ManageMonitor}>
+      <IndexRoute component={OperationalAudit} />
+      <Route path="query_log" component={QueryLog} />
+      <Route path="monitor" component={MonitorModule} />
     </Route>
     <Route path="*" component={ErrorPage} />
   </Route>
