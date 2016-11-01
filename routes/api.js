@@ -21,7 +21,6 @@ const appTemplateController = require('../controllers/app_template')
 const manageMonitorController = require('../controllers/manage_monitor')
 const userController = require('../controllers/user_manage')
 const teamController = require('../controllers/team_manage')
->>>>>>> 131f7e851c478fcc48b16ee3f4bde91452851ff4
 
 module.exports = function (Router) {
   const router = new Router({
