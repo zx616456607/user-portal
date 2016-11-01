@@ -56,8 +56,9 @@ import TenxFlowBuild from './components/CICDModule/TenxFlow/TenxFlowDetail'
 /*-------------------CI/CD Module Stop-----------------------------------*/
 /*-------------------Setting Module Start----------------------------------*/
 import Setting from './containers/Setting/index'
-// import UserInfo from './components/SettingModal/'
-
+import UserInfo from './components/SettingModal/UserInfo/index'
+import MemberManage from './components/SettingModal/MemberManage/index'
+import TeamManage from './components/SettingModal/TeamManage/index'
 /*-------------------Setting Module Stop-----------------------------------*/
 
 
@@ -105,7 +106,9 @@ export default (
       <Route path="docker_file" component={DockerFile} />
     </Route>
     <Route path="setting" component={Setting}>
-      {/*<IndexRoute component={UserInfo} />*/}
+      <IndexRoute component={UserInfo} />
+      <Route path="member" component={MemberManage} />
+      <Route path="team" component={TeamManage} />
     </Route>
     <Route path="*" component={ErrorPage} />
   </Route>
