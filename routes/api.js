@@ -18,6 +18,7 @@ const registryController = require('../controllers/registry')
 const metricsController = require('../controllers/metrics')
 const databaseCacheController = require('../controllers/database_cache')
 const appTemplateController = require('../controllers/app_template')
+const manageMonitorController = require('../controllers/manage_monitor')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -133,5 +134,8 @@ module.exports = function (Router) {
   router.post('/clusters/:cluster/createRedisCluster', databaseCacheController.createRedisCluster)
   router.get('/clusters/:cluster/getDatabaseDetail/:dbName', databaseCacheController.getDatabaseClusterDetail)
   router.get('/clusters/:cluster/deleteDatabase/:dbName', databaseCacheController.deleteDatebaseCluster)
+  
+  // Manage Monitor
+  router.post('/manage-monitor/getOperationAuditLog', manageMonitorController.getOperationAuditLog)
   return router.routes()
 }
