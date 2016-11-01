@@ -61,28 +61,9 @@ const menu = (
     </Menu.Item>
   </Menu>
 )
-const operaMenu = (<Menu>
-  <Menu.Item key="0">
-    重新部署
-  </Menu.Item>
-  <Menu.Item key="1">
-    弹性伸缩
-  </Menu.Item>
-  <Menu.Item key="2">
-    灰度升级
-  </Menu.Item>
-  <Menu.Item key="3">
-    更改配置
-  </Menu.Item>
-</Menu>)
-
-let children = [];
-for (let i = 10; i < 36; i++) {
-  children.push(<Option key={i.toString(36) + i}>{i.toString(36) + i}</Option>);
-}
 
 class Top extends Component {
-  constructor(props){
+  constructor(props) {
     super(props)
     this.handleChange = this.handleChange.bind(this)
     this.handleSpaceMenu = this.handleSpaceMenu.bind(this)
@@ -95,11 +76,11 @@ class Top extends Component {
       focus: false,
     }
   }
-  handleChange(e,value) {
+  handleChange(e, value) {
     e.stopPropagation()
     return false
   }
-  handleSpaceMenu({key}){
+  handleSpaceMenu({key}) {
     //
   }
   handleInputChange(e) {
@@ -108,13 +89,13 @@ class Top extends Component {
     });
   }
   handleFocusBlur(e) {
-    
+
   }
-  
-  setCluster(value,option){
-    window.localStorage.setItem('cluster',value)
+
+  setCluster(value, option) {
+    window.localStorage.setItem('cluster', value)
   }
-  
+
   render() {
     const { style, size, placeholder, } = this.props
     const btnCls = classNames({
@@ -160,21 +141,15 @@ class Top extends Component {
       </Menu>
     )*/
 
-    const clusterPlaceholder = (
-      <div className="placeholder">
-        <i className="fa fa-sitemap" style={{marginRight: 5}}/>
-        产品集群环境
-      </div>
-    )
-    const spaceResultArr = ['奔驰-CRM系统','奔驰-OA系统','奔驰-进销存系统']
-    const ClusterResultArr = ['test','产品环境','k8s 1.4']
-    
+    const spaceResultArr = ['奔驰-CRM系统', '奔驰-OA系统', '奔驰-进销存系统']
+    const ClusterResultArr = ['test', '产品环境', 'k8s 1.4']
+
     return (
       <div id="header">
         <div className="space">
           <div className="spaceTxt">
-            <i className="fa fa-cube"/>
-            <span style={{marginLeft: 5}}>空间</span>
+            <i className="fa fa-cube" />
+            <span style={{ marginLeft: 5 }}>空间</span>
           </div>
           <div className="spaceBtn">
             {/*<Dropdown overlay={spaceMenu}
@@ -185,20 +160,20 @@ class Top extends Component {
                 <Icon type="down" />
               </a>
             </Dropdown>*/}
-            <PopSelect btnStyle={false} resultArr={spaceResultArr} selectValue="奔驰HRM系统"/>
+            <PopSelect btnStyle={false} resultArr={spaceResultArr} selectValue="奔驰HRM系统" />
           </div>
         </div>
         <div className="cluster">
           <div className="clusterTxt">
-            <i className="fa fa-sitemap"/>
-            <span style={{marginLeft: 5}}>集群</span>
+            <i className="fa fa-sitemap" />
+            <span style={{ marginLeft: 5 }}>集群</span>
           </div>
           <div className="clusterBtn">
-            <span style={{padding: '0 10px 5px 10px'}}>开发测试集群</span>
+            <span style={{ padding: '0 10px 5px 10px' }}>开发测试集群</span>
             <span>生产环境集群</span>
           </div>
           <div className="envirBox">
-            <PopSelect btnStyle={true} resultArr={ClusterResultArr} selectValue="产品环境集群"/>
+            <PopSelect btnStyle={true} resultArr={ClusterResultArr} selectValue="产品环境集群" />
           </div>
         </div>
         <div className="rightBox">
