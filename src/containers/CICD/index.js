@@ -9,7 +9,7 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { Breadcrumb } from 'antd'
-import ICICDSider from '../../components/CICDSider'
+import CICDSider from '../../components/CICDSider'
 import IntlExp from '../../components/IntlExp'
 import QueueAnim from 'rc-queue-anim'
 import './style/CICD.less'
@@ -25,7 +25,7 @@ export default class CICD extends Component {
           type="left"
           >
           <div className="CICDMenu" key="imageSider">
-            <ICICDSider />
+            <CICDSider />
           </div>
         </QueueAnim>
         <div className="CICDContent">

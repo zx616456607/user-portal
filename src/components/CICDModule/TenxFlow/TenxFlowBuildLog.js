@@ -76,7 +76,7 @@ const menusText = defineMessages({
 function checkStatusSpan(status, scope) {
   //this function for user input the status return current words
   const { formatMessage } = scope.props.intl;
-  switch(status) {
+  switch (status) {
     case 'running':
       return formatMessage(menusText.running);
       break;
@@ -86,7 +86,7 @@ function checkStatusSpan(status, scope) {
     case 'waitting':
       return formatMessage(menusText.waitting);
       break;
-    case 'fail' :
+    case 'fail':
       return formatMessage(menusText.fail);
       break;
   }
@@ -94,7 +94,7 @@ function checkStatusSpan(status, scope) {
 
 function checkStatusClass(status) {
   //this function for user input the status return current className
-  switch(status) {
+  switch (status) {
     case 'running':
       return 'running';
       break;
@@ -104,7 +104,7 @@ function checkStatusClass(status) {
     case 'waitting':
       return 'waitting';
       break;
-    case 'fail' :
+    case 'fail':
       return 'fail';
       break;
   }
@@ -125,9 +125,9 @@ let MyLine = React.createClass({
         </div>
       );
       return (
-        <Panel header={header} className={'lineDetail lineDetail' + index } key={index} >
+        <Panel header={header} className={'lineDetail lineDetail' + index} key={index} >
           <div className='cover'></div>
-          <div className='hideCover'>           
+          <div className='hideCover'>
             <div className='titleBox'>
               <br />
               <br />
@@ -135,7 +135,7 @@ let MyLine = React.createClass({
               <br />
             </div>
             <div className='infoBox'>
-              
+
             </div>
           </div>
         </Panel>
@@ -173,9 +173,9 @@ let MyComponent = React.createClass({
             {item.name}
           </span>
           <span className='status commonHeader'>
-            <span className={ checkStatusClass(item.status) }>
+            <span className={checkStatusClass(item.status)}>
               <i className='fa fa-circle' />
-              { checkStatusSpan(item.status, scope) }
+              {checkStatusSpan(item.status, scope)}
             </span>
           </span>
           <span className='updateTime commonHeader'>
@@ -193,19 +193,19 @@ let MyComponent = React.createClass({
         <Panel header={header} className={'LogDetail LogDetail' + index} key={index}>
           <div className='titleBox'>
             <br />
-              <br />
-              <br />
-              <br />
+            <br />
+            <br />
+            <br />
           </div>
           <div className='infoBox'>
-            
+
           </div>
         </Panel>
       );
     });
     return (
       <div className='rightBox'>
-        <Collapse className='logBox' onChange={this.collapseAction}> 
+        <Collapse className='logBox' onChange={this.collapseAction}>
           {items}
         </Collapse>
       </div>
@@ -232,11 +232,11 @@ class TenxFlowBuildLog extends Component {
     //when the size is the big , the size will be change to the normal
     //when the size is the normal , the size will be change to the big
     const { modalSize } = this.state;
-    if(modalSize == 'normal') {
+    if (modalSize == 'normal') {
       this.setState({
         modalSize: 'big'
-      });      
-    }else {
+      });
+    } else {
       this.setState({
         modalSize: 'normal'
       });
@@ -246,16 +246,16 @@ class TenxFlowBuildLog extends Component {
   render() {
     const scope = this;
     return (
-      <div id='TenxFlowBuildLog' className={this.state.modalSize == 'big' ? 'bigModal':'smallModal' }>
+      <div id='TenxFlowBuildLog' className={this.state.modalSize == 'big' ? 'bigModal' : 'smallModal'}>
         <div className='title'>
           <span>执行记录</span>
-          <i className='fa fa-expand' onClick={this.changeModalSize}/>
-          <div style={{ clear:'both' }}></div>
+          <i className='fa fa-expand' onClick={this.changeModalSize} />
+          <div style={{ clear: 'both' }}></div>
         </div>
         <div className='paddingBox'>
           <MyComponent config={testData} scope={scope} />
           <MyLine config={testData} scope={scope} />
-          <div style={{ clear:'both' }}></div>
+          <div style={{ clear: 'both' }}></div>
         </div>
       </div>
     )

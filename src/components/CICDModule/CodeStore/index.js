@@ -78,6 +78,10 @@ const menusText = defineMessages({
     id: 'CICD.TenxStorm.releaseActivation',
     defaultMessage: '解除激活',
   },
+  search: {
+    id: 'CICD.TenxStorm.search',
+    defaultMessage: '搜索',
+  },
 })
 
 const MyComponent = React.createClass({
@@ -141,6 +145,9 @@ const MyComponent = React.createClass({
 class CodeStore extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      createTenxFlowModal: false
+    }
   }
 
   componentWillMount() {

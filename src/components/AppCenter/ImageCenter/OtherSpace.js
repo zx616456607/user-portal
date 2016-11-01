@@ -49,7 +49,7 @@ const menusText = defineMessages({
   },
 })
 
-let MyComponent = React.createClass({
+const MyComponent = React.createClass({
   propTypes: {
     config: React.PropTypes.array,
     scope: React.PropTypes.object
@@ -88,7 +88,7 @@ let MyComponent = React.createClass({
             </span>
             <span className="imageUrl textoverflow">
               <FormattedMessage {...menusText.imageUrl} />&nbsp;
-            <span className="">{this.props.otherHead.url}/{item}</span>
+            <span className="">{this.props.server}/{item}</span>
             </span>
 
           </div>
@@ -164,7 +164,7 @@ class OtherSpace extends Component {
               <div className="infoBox">
                 <div className="url">
                   <i className="fa fa-link"></i>&nbsp;&nbsp;
-                    {otherHead.url}
+                    {this.props.otherHead.url}
                 </div>
                 <div className="name">
                   <i className="fa fa-user"></i>&nbsp;&nbsp;
@@ -179,7 +179,7 @@ class OtherSpace extends Component {
               <i className="fa fa-search"></i>
               <div style={{ clear: "both" }}></div>
             </div>
-            <MyComponent scope={scope}  parentScope={this.props.scope.parentScope} isFetching={this.props.isFetching} imageId ={this.props.imageId} otherHead={otherHead} config={this.props.config} />
+            <MyComponent scope={scope} server={this.props.otherImages.server}  parentScope={this.props.scope.parentScope} isFetching={this.props.isFetching} imageId ={this.props.imageId} otherHead={otherHead} config={this.props.config} />
           </Card>
         </div>
         <Modal
@@ -201,21 +201,21 @@ OtherSpace.propTypes = {
 function mapStateToProps(state, props) {
   const defaultPrivateImages = {
     isFetching: false,
-    imageList: []
+    imageList: [],
   }
   const defaultConfig = {
     isFetching: false,
-    imageInfo: {dockerfile:'', detailMarkdown:''}
+    imageInfo: ''
   }
   const { privateImages, imagesInfo , otherImages} = state.images
-  const { imageList, isFetching } = privateImages || defaultPrivateImages
+  const { imageList, isFetching} = privateImages || defaultPrivateImages
   const { imageInfo } = imagesInfo || defaultConfig
 
   return {
     imageList,
     isFetching,
     imageInfo,
-    otherImages
+    otherImages,
   }
 }
 

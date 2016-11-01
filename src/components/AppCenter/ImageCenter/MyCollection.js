@@ -8,16 +8,16 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Alert, Menu, Button, Card, Spin,Input, Modal } from 'antd'
+import { Alert, Menu, Button, Card, Spin, Input, Modal } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { loadFavouriteList, getImageDetailInfo} from '../../../actions/app_center'
+import { loadFavouriteList, getImageDetailInfo } from '../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../constants'
 
 import "./style/MyCollection.less"
-import ImageDetailBox from './ImageDetail/Index.js'
+import ImageDetailBox from './ImageDetail'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -57,15 +57,15 @@ let MyComponent = React.createClass({
   },
   showImageDetail: function (id) {
     //this function for user select image and show the image detail info
-     const scope = this.props.scope;
-     scope.setState({
-      imageDetailModalShow:true,
-      currentImage:id
-     });
-    const fullgroup={registry: DEFAULT_REGISTRY, fullName: id.name}
+    const scope = this.props.scope;
+    scope.setState({
+      imageDetailModalShow: true,
+      currentImage: id
+    });
+    const fullgroup = { registry: DEFAULT_REGISTRY, fullName: id.name }
     this.props.getImageDetailInfo(fullgroup, {
       success: {
-        func: (res)=> {
+        func: (res) => {
           scope.setState({
             imageInfo: res.data
           })
@@ -75,7 +75,7 @@ let MyComponent = React.createClass({
   },
   render: function () {
     let config = this.props.config;
-    const {isFetching , registryServer} = this.props
+    const {isFetching, registryServer} = this.props
     if (isFetching) {
       return (
         <div className='loadingBox'>
@@ -87,7 +87,7 @@ let MyComponent = React.createClass({
       return (
         <div className="imageDetail" key={item.id} >
           <div className="imageBox">
-            <img src={item.icon =='default' ?  '/img/test/github.jpg' : item.icon} />
+            <img src={item.icon == 'default' ? '/img/test/github.jpg' : item.icon} />
           </div>
           <div className="contentBox">
             <span className="title" onClick={this.showImageDetail.bind(this, item)}>
@@ -159,7 +159,7 @@ class MyCollection extends Component {
               <i className="fa fa-search"></i>
               <div style={{ clear: "both" }}></div>
             </div>
-            <MyComponent scope={scope} isFetching={this.props.isFetching} registryServer= {this.props.server} getImageDetailInfo={(obj,callback)=> this.props.getImageDetailInfo(obj,callback)} config={imageList} />
+            <MyComponent scope={scope} isFetching={this.props.isFetching} registryServer={this.props.server} getImageDetailInfo={(obj, callback) => this.props.getImageDetailInfo(obj, callback)} config={imageList} />
           </Card>
         </div>
         <Modal
@@ -186,7 +186,7 @@ function mapStateToProps(state, props) {
   }
   const defaultConfig = {
     isFetching: false,
-    imageInfo: {dockerfile:'', detailMarkdown:''}
+    imageInfo: { dockerfile: '', detailMarkdown: '' }
   }
   const { fockImages, imagesInfo } = state.images
   const { registry, imageList, isFetching, server } = fockImages[DEFAULT_REGISTRY] || defaultPublicImages
@@ -206,7 +206,7 @@ function mapDispatchToProps(dispatch) {
     loadFavouriteList: (registry) => {
       dispatch(loadFavouriteList(registry))
     },
-    getImageDetailInfo :(obj, callback)=> {
+    getImageDetailInfo: (obj, callback) => {
       dispatch(getImageDetailInfo(obj, callback))
     },
   }

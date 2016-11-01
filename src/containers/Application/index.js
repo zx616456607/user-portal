@@ -2,7 +2,7 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
- * AppList component
+ * AppContainer component
  *
  * v0.1 - 2016-09-08
  * @author GaoJian
