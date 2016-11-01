@@ -46,6 +46,17 @@ export function loadPublicImageList(registry) {
   }
 }
 
+export function searchPublicImages(registry, image) {
+  return {
+    registry,
+    [FETCH_API]: {
+      types: [IMAGE_PUBLIC_LIST_REQUEST, IMAGE_PUBLIC_LIST_SUCCESS, IMAGE_PUBLIC_LIST_FAILURE],
+      endpoint: `${API_URL_PREFIX}/registries/${registry}?q=${image}`,
+      schema: Schemas.REGISTRYS
+    }
+  }
+}
+
 export const ADD_OTHER_STORE_REQUEST = 'ADD_OTHER_STORE_REQUEST'
 export const ADD_OTHER_STORE_SUCCESS = 'ADD_OTHER_STORE_SUCCESS'
 export const ADD_OTHER_STORE_FAILURE = 'ADD_OTHER_STORE_FAILURE'
@@ -116,10 +127,6 @@ export function deleteOtherImage(id, callback) {
     id
   }
 }
-
-// export function getImageOtherInfo(obj, callback) {
-
-// }
 
 export const GET_OTHER_IMAGE_TAGS_REQUEST = 'GET_OTHER_IMAGE_TAGS_REQUEST'
 export const GET_OTHER_IMAGE_TAGS_SUCCESS = 'GET_OTHER_IMAGE_TAGS_SUCCESS'

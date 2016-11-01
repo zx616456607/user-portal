@@ -16,6 +16,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import "./style/PublicCompose.less"
 import { loadStack } from '../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../constants'
+import { tenxDateFormat } from '../../../common/tools'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -122,18 +123,6 @@ const MyComponent = React.createClass({
       )
     }
     let items = config.map((item) => {
-      const dropdown = (
-        <Menu onClick={this.menuClick.bind(this, item)}
-          style={{ width: "100px" }}
-          >
-          <Menu.Item key="1">
-            <FormattedMessage {...menusText.editService} />
-          </Menu.Item>
-          <Menu.Item key="2">
-            <FormattedMessage {...menusText.deleteService} />
-          </Menu.Item>
-        </Menu>
-      );
       return (
         <div className="composeDetail" key={item.id} >
           <div className="name textoverflow">
@@ -147,12 +136,12 @@ const MyComponent = React.createClass({
             <span className="maxSpan">{item.description}</span>
           </div>
           <div className="time textoverflow">
-            {item.createTime}
+            {tenxDateFormat(item.createTime)}
           </div>
           <div className="opera">
-            <Dropdown.Button overlay={dropdown} type="ghost">
+            <Button type="ghost">
               <FormattedMessage {...menusText.deployService} />
-            </Dropdown.Button>
+            </Button>
           </div>
         </div>
       );
@@ -175,29 +164,10 @@ class PublicCompose extends Component {
   componentWillMount() {
     this.props.loadStack(DEFAULT_REGISTRY);
   }
-  filterAttr(e) {
-    //this function for user filter different attr
-  }
-
-  filterType(e) {
-    //this function for user filter different type
-  }
 
   render() {
     const { formatMessage } = this.props.intl;
     const scope = this.props.scope;
-    const typeDropdown = (
-      <Menu onClick={this.filterType.bind(this)}
-        style={{ width: "100px" }}
-        >
-        <Menu.Item key="1">
-          酱油
-       </Menu.Item>
-        <Menu.Item key="2">
-          又一瓶酱油
-       </Menu.Item>
-      </Menu>
-    );
     return (
       <QueueAnim className="PublicCompose"
         type="right"
@@ -213,20 +183,13 @@ class PublicCompose extends Component {
           } />
           <Card className="PublicComposeCard">
             <div className="operaBox">
-              <Input className="searchBox" placeholder={formatMessage(menusText.search)} type="text" />
-              <i className="fa fa-search"></i>
-              <div style={{ clear: "both" }}></div>
             </div>
             <div className="titleBox">
               <div className="name">
                 <FormattedMessage {...menusText.name} />
               </div>
               <div className="type">
-                <Dropdown overlay={typeDropdown} trigger={['click']} getPopupContainer={() => document.getElementById("PublicCompose")}>
-                  <div>
-                    <FormattedMessage {...menusText.author} />&nbsp; <i className="fa fa-filter"></i>
-                  </div>
-                </Dropdown>
+                <FormattedMessage {...menusText.author} />
               </div>
               <div className="image">
                 <FormattedMessage {...menusText.desc} />

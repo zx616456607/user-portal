@@ -13,7 +13,7 @@ import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { loadPublicImageList, getImageDetailInfo } from '../../../actions/app_center'
+import { loadPublicImageList, searchPublicImages,  getImageDetailInfo } from '../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import "./style/PublicSpace.less"
 import ImageDetailBox from './ImageDetail'
@@ -143,7 +143,11 @@ class PublicSpace extends Component {
       imageDetailModalShow: false
     });
   }
-
+  searchImages(e) {
+    let image = e.target.value
+    const { registry, searchPublicImages } = this.props
+    searchPublicImages(registry, image)
+  }
   render() {
     const { formatMessage } = this.props.intl;
     const rootscope = this.props.scope;
@@ -161,7 +165,7 @@ class PublicSpace extends Component {
           <Alert message={<FormattedMessage {...menusText.tooltips} />} type="info" />
           <Card className="PublicSpaceCard">
             <div className="operaBox">
-              <Input className="searchBox" placeholder={formatMessage(menusText.search)} type="text" />
+              <Input className="searchBox" placeholder={formatMessage(menusText.search)} type="text" onPressEnter={(e)=> this.searchImages(e)} />
               <i className="fa fa-search"></i>
               <div style={{ clear: "both" }}></div>
             </div>
@@ -175,7 +179,7 @@ class PublicSpace extends Component {
           onCancel={this.closeImageDetailModal}
           >
           {/* right detail box  */}
-          <ImageDetailBox scope={scope} parentScope={rootscope} imageInfo={this.state.imageInfo} config={this.state.currentImage} />
+          <ImageDetailBox scope={scope} server={this.props.registryServer} parentScope={rootscope} imageInfo={this.state.imageInfo} config={this.state.currentImage} />
         </Modal>
       </QueueAnim>
     )
@@ -213,6 +217,9 @@ function mapDispatchToProps(dispatch) {
     getImageDetailInfo: (obj, callback) => {
       dispatch(getImageDetailInfo(obj, callback))
     },
+    searchPublicImages: (registry, image) => {
+      dispatch(searchPublicImages(registry, image))
+    }
   }
 }
 

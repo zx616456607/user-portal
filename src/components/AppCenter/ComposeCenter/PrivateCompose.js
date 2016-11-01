@@ -17,7 +17,7 @@ import CreateCompose from './CreateCompose.js'
 import './style/PrivateCompose.less'
 import { loadMyStack , deleteMyStack , createStack, updateStack} from '../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../constants'
-
+import { tenxDateFormat } from '../../../common/tools'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -184,7 +184,7 @@ const MyList = React.createClass({
             <span className='maxSpan'>{item.description}</span>
           </div>
           <div className='time textoverflow'>
-            <span>{item.createTime}</span>
+            <span>{tenxDateFormat(item.createTime)}</span>
           </div>
           <div className='opera Action'>
             <Dropdown.Button overlay={dropdown} type='ghost'>
@@ -249,8 +249,6 @@ class PrivateCompose extends Component {
                 <i className='fa fa-plus'></i>&nbsp;
                 <FormattedMessage {...menusText.createCompose} />
               </Button>
-              <Input className='searchBox' placeholder={formatMessage(menusText.search)} type='text' />
-              <i className='fa fa-search'></i>
             </div>
             <div className='titleBox'>
               <div className='name'>

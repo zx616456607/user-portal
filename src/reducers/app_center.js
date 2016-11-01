@@ -31,7 +31,7 @@ function privateImages(state = {}, action) {
       return merge({}, state, {
         [registry]: {
           isFetching: false,
-          registry: action.response.result.registry,
+          registry,
           server: action.response.result.server,
           imageList: action.response.result.data || []
         }
@@ -60,14 +60,14 @@ function publicImages(state = {}, action) {
         [registry]: { isFetching: true }
       })
     case ActionTypes.IMAGE_PUBLIC_LIST_SUCCESS:
-      return merge({}, state, {
+      return {
         [registry]: {
           isFetching: false,
-          registry: action.response.result.registry,
+          registry,
           server: action.response.result.server,
           imageList: action.response.result.data || []
         }
-      })
+      }
     case ActionTypes.IMAGE_PUBLIC_LIST_FAILURE:
       return merge({}, defaultState, state, {
         [registry]: { isFetching: false }
@@ -90,7 +90,7 @@ function otherImages(state = {}, action) {
     case ActionTypes.IMAGE_OTHER_SUCCESS:
       return merge({}, state, {
         isFetching: false,
-        registry: action.response.result.registry,
+        registry,
         server: action.response.result.server,
         imageRow: action.response.result.data || []
       })
@@ -359,7 +359,8 @@ function getOtherImageTagConfig(state = {}, action) {
   const defaultState = {
     isFetching: false,
     configList: [],
-    sizeInfo: ''
+    sizeInfo: '',
+    registry
   }
 
   switch (action.type) {
@@ -368,12 +369,14 @@ function getOtherImageTagConfig(state = {}, action) {
         isFetching: true
       })
     case ActionTypes.GET_OTHER_TAG_CONFIG_SUCCESS:
-      return Object.assign({}, state, {
-        isFetching: false,
-        tag: action.tag || [],
-        configList: action.response.result.configInfo || [],
-        sizeInfo: action.response.result.sizeInfo
-
+      return merge({}, defaultState, state, {
+        [registry]:{
+          tag: action.tag || [],
+          configList: action.response.result.configInfo || [],
+          sizeInfo: action.response.result.sizeInfo,
+          registry,
+          isFetching: false
+        }
       })
     case ActionTypes.GET_OTHER_TAG_CONFIG_FAILURE:
       return merge({}, defaultState, state, {
@@ -494,6 +497,7 @@ function stackList(state={}, action) {
       stacks.myStackList[ins].name = action.obj.name
       stacks.myStackList[ins].content = action.obj.content
       stacks.myStackList[ins].description = action.obj.description
+      stacks.myStackList[ins].create_time = action.response.result.data.UpdateTime
       return merge({}, {
         [registry]: stacks
       })

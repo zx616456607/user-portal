@@ -64,6 +64,7 @@ const MyComponent = React.createClass({
 
   },
   render: function () {
+    const ipAddress = (this.props.otherHead.url).split('//')[1]
     const {isFetching , config } = this.props
     if (isFetching) {
       return (
@@ -88,7 +89,7 @@ const MyComponent = React.createClass({
             </span>
             <span className="imageUrl textoverflow">
               <FormattedMessage {...menusText.imageUrl} />&nbsp;
-            <span className="">{this.props.server}/{item}</span>
+            <span className="">{ipAddress}/{item}</span>
             </span>
 
           </div>
@@ -164,7 +165,7 @@ class OtherSpace extends Component {
               <div className="infoBox">
                 <div className="url">
                   <i className="fa fa-link"></i>&nbsp;&nbsp;
-                    {this.props.otherHead.url}
+                    {otherHead.url}
                 </div>
                 <div className="name">
                   <i className="fa fa-user"></i>&nbsp;&nbsp;
@@ -179,7 +180,7 @@ class OtherSpace extends Component {
               <i className="fa fa-search"></i>
               <div style={{ clear: "both" }}></div>
             </div>
-            <MyComponent scope={scope} server={this.props.otherImages.server}  parentScope={this.props.scope.parentScope} isFetching={this.props.isFetching} imageId ={this.props.imageId} otherHead={otherHead} config={this.props.config} />
+            <MyComponent scope={scope} parentScope={this.props.scope.parentScope} isFetching={this.props.isFetching} imageId ={this.props.imageId} otherHead={otherHead} config={this.props.config} />
           </Card>
         </div>
         <Modal
@@ -188,7 +189,7 @@ class OtherSpace extends Component {
           transitionName="move-right"
           onCancel={this.closeImageDetailModal}
           >
-          <ImageDetailBox scope={scope} parentScope={rootscope} imageId ={this.props.imageId} config={this.state.currentImage} />
+          <ImageDetailBox scope={scope}  server={otherHead.url} parentScope={rootscope} imageId ={this.props.imageId} config={this.state.currentImage} />
         </Modal>
       </QueueAnim>
     )
