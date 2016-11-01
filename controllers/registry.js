@@ -301,11 +301,3 @@ function* _getRegistryServerInfo(session, user, id){
   }
   return serverInfo
 }
-
-exports.imageStore = function *() {
-  const store  = this.request.body
-  if (store) {
-    this.code = 200
-    this.body = '更新成功！'
-  }
-}

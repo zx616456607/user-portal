@@ -11,11 +11,13 @@
     "win": "set NODE_ENV=development&& node app.js",
     "win-pro": "set NODE_ENV=production&& node app.js",
     "win-build": "set NODE_ENV=production&& sh build.sh",
+    "docker-base-build": "docker build -t tenxcloud/user-portal:base-4.4.7 -f Dockerfile.base .",
+    "docker-build": "docker build -t tenxcloud/user-portal:dev-branch .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git@gitlab.tenxcloud.com:private_cloud/tenxcloud_2.0.git"
+    "url": "git@gitlab.tenxcloud.com:enterprise-2.0/user-portal.git"
   },
   "keywords": [
     "React",
