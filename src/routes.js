@@ -41,14 +41,14 @@ import ImageStore from './components/AppCenter/ImageStore'
 import Stack from './components/AppCenter/Stack'
 /*-------------------App_center Module Stop------------------------*/
 /*-------------------database & cache Module Start------------------------*/
-import Database from './containers/Database/Index'
+import Database from './containers/Database'
 import MysqlCluster from './components/DatabaseCache/MysqlCluster'
 import MongoCluster from './components/DatabaseCache/MongoCluster'
 import RedisCluster from './components/DatabaseCache/RedisCluster'
 import DatabaseStorage from './components/DatabaseCache/DatabaseStorage'
 /*-------------------database & cache Module Stop------------------------*/
 /*-------------------CI/CD Module Start----------------------------------*/
-import CICD from './containers/CICD/index'
+import CICD from './containers/CICD'
 import CodeStore from './components/CICDModule/CodeStore'
 import DockerFile from './components/CICDModule/DockerFile'
 import TenxFlow from './components/CICDModule/TenxFlow'
@@ -61,7 +61,10 @@ import MemberManage from './components/SettingModal/MemberManage/index'
 import TeamManage from './components/SettingModal/TeamManage/index'
 /*-------------------Setting Module Stop-----------------------------------*/
 /*-------------------Manage & Monitor Module Start--------------------------------*/
+import ManageMonitor from './containers/ManageMonitor'
 import OperationalAudit from './components/ManageMonitor/OperationalAudit'
+import QueryLog from './components/ManageMonitor/QueryLog'
+import MonitorModule from './components/ManageMonitor/MonitorModule'
 /*-------------------Manage & Monitor Module Stop---------------------------------*/
 
 export default (
@@ -111,6 +114,11 @@ export default (
       <IndexRoute component={UserInfo} />
       <Route path="member" component={MemberManage} />
       <Route path="team" component={TeamManage} />
+    </Route>
+    <Route path="manange_monitor" component={ManageMonitor}>
+      <IndexRoute component={OperationalAudit} />
+      <Route path="query_log" component={QueryLog} />
+      <Route path="monitor" component={MonitorModule} />
     </Route>
     <Route path="*" component={ErrorPage} />
   </Route>
