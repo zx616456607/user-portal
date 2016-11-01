@@ -55,10 +55,10 @@ import TenxFlow from './components/CICDModule/TenxFlow'
 import TenxFlowBuild from './components/CICDModule/TenxFlow/TenxFlowDetail'
 /*-------------------CI/CD Module Stop-----------------------------------*/
 /*-------------------Setting Module Start----------------------------------*/
-import Setting from './containers/Setting/index'
-import UserInfo from './components/SettingModal/UserInfo/index'
-import MemberManage from './components/SettingModal/MemberManage/index'
-import TeamManage from './components/SettingModal/TeamManage/index'
+import Setting from './containers/Setting'
+import UserInfo from './components/SettingModal/UserInfo'
+import MemberManage from './components/SettingModal/MemberManage'
+import TeamManage from './components/SettingModal/TeamManage'
 /*-------------------Setting Module Stop-----------------------------------*/
 /*-------------------Manage & Monitor Module Start--------------------------------*/
 import OperationalAudit from './components/ManageMonitor/OperationalAudit'
