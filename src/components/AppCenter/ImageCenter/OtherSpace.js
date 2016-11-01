@@ -154,7 +154,6 @@ class OtherSpace extends Component {
     const rootscope = this.props.scope;
     const scope = this;
     const otherHead = this.props.otherHead
-    console.log(this.props)
     return (
       <QueueAnim className="OtherSpace"
         type="right"
@@ -165,7 +164,7 @@ class OtherSpace extends Component {
               <div className="infoBox">
                 <div className="url">
                   <i className="fa fa-link"></i>&nbsp;&nbsp;
-                    {this.props.otherImages.server}
+                    {this.props.otherHead.url}
                 </div>
                 <div className="name">
                   <i className="fa fa-user"></i>&nbsp;&nbsp;
