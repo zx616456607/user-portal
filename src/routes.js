@@ -41,7 +41,7 @@ import ImageStore from './components/AppCenter/ImageStore'
 import Stack from './components/AppCenter/Stack'
 /*-------------------App_center Module Stop------------------------*/
 /*-------------------database & cache Module Start------------------------*/
-import Database from './containers/Database/Index'
+import Database from './containers/Database'
 import MysqlCluster from './components/DatabaseCache/MysqlCluster'
 import MongoCluster from './components/DatabaseCache/MongoCluster'
 import RedisCluster from './components/DatabaseCache/RedisCluster'
