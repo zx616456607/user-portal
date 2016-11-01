@@ -15,7 +15,7 @@ import IndexPage from './containers/IndexPage'
 import ErrorPage from './containers/ErrorPage'
 /*-------------------App_manage Module Start-----------------------*/
 /*-------------------Appliaction Start-----------------------------*/
-import Application from './containers/Application/Index'
+import Application from './containers/Application'
 import AppList from './components/AppModule/AppList'
 import AppDetail from './components/AppModule/AppDetail'
 import AppCreate from './components/AppModule/AppCreate'
@@ -35,13 +35,13 @@ import ContainerDetail from './components/ContainerModule/ContainerDetail'
 /*-------------------Container stop--------------------------------*/
 /*-------------------App_manage Module Stop------------------------*/
 /*-------------------App_center Module Start-----------------------*/
-import AppCenter from './containers/AppCenter/Index'
-import ImageCenter from './components/AppCenter/Index'
+import AppCenter from './containers/AppCenter'
+import ImageCenter from './components/AppCenter'
 import ImageStore from './components/AppCenter/ImageStore'
 import Stack from './components/AppCenter/Stack'
 /*-------------------App_center Module Stop------------------------*/
 /*-------------------database & cache Module Start------------------------*/
-import Database from './containers/Database/Index'
+import Database from './containers/Database'
 import MysqlCluster from './components/DatabaseCache/MysqlCluster'
 import MongoCluster from './components/DatabaseCache/MongoCluster'
 import RedisCluster from './components/DatabaseCache/RedisCluster'
@@ -56,10 +56,13 @@ import TenxFlowBuild from './components/CICDModule/TenxFlow/TenxFlowDetail'
 /*-------------------CI/CD Module Stop-----------------------------------*/
 /*-------------------Setting Module Start----------------------------------*/
 import Setting from './containers/Setting/index'
-// import UserInfo from './components/SettingModal/'
-
+import UserInfo from './components/SettingModal/UserInfo/index'
+import MemberManage from './components/SettingModal/MemberManage/index'
+import TeamManage from './components/SettingModal/TeamManage/index'
 /*-------------------Setting Module Stop-----------------------------------*/
-
+/*-------------------Manage & Monitor Module Start--------------------------------*/
+import OperationalAudit from './components/ManageMonitor/OperationalAudit'
+/*-------------------Manage & Monitor Module Stop---------------------------------*/
 
 export default (
   <Route path="/" component={App}>
@@ -105,7 +108,9 @@ export default (
       <Route path="docker_file" component={DockerFile} />
     </Route>
     <Route path="setting" component={Setting}>
-      {/*<IndexRoute component={UserInfo} />*/}
+      <IndexRoute component={UserInfo} />
+      <Route path="member" component={MemberManage} />
+      <Route path="team" component={TeamManage} />
     </Route>
     <Route path="*" component={ErrorPage} />
   </Route>

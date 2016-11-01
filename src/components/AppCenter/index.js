@@ -8,20 +8,20 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Modal, Tabs,Icon, Menu, Button, Card, Form, Input ,message} from 'antd'
+import { Modal, Tabs, Icon, Menu, Button, Card, Form, Input, message } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import TweenOne from 'rc-tween-one';
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import ImageDetailBox from './ImageCenter/ImageDetail/Index.js'
+import ImageDetailBox from './ImageCenter/ImageDetail'
 import ImageSpace from './ImageCenter/ImageSpace.js'
 import MyCollection from './ImageCenter/MyCollection.js'
 import PublicSpace from './ImageCenter/PublicSpace.js'
 import OtherSpace from './ImageCenter/OtherSpace.js'
 import "./style/ImageCenter.less"
-import { loadOtherImage, getOtherImageList, addOtherStore, getImageDetailInfo, deleteOtherImage} from '../../actions/app_center'
-import {findIndex } from 'lodash'
+import { loadOtherImage, getOtherImageList, addOtherStore, getImageDetailInfo, deleteOtherImage } from '../../actions/app_center'
+import { findIndex } from 'lodash'
 
 let TweenOneGroup = TweenOne.TweenOneGroup;
 const TabPane = Tabs.TabPane;
@@ -144,7 +144,7 @@ let MyComponent = React.createClass({
             regMoment: null
           });
         }
-      break;
+        break;
     }
   },
   handleReset(e) {
@@ -175,9 +175,9 @@ let MyComponent = React.createClass({
       const self = this
       this.props.addOtherStore(config, {
         success: {
-          func: (res) =>{
+          func: (res) => {
             message.success('添加第三方镜像成功')
-            setTimeout(()=>{
+            setTimeout(() => {
               scope.props.loadOtherImage({
                 success: {
                   func: (res) => {
@@ -223,11 +223,11 @@ let MyComponent = React.createClass({
     });
     const passwdProps = getFieldProps('passwd', {
       rules: [
-        { required: true, whitespace: true},
+        { required: true, whitespace: true },
       ],
     });
-    const registryProps = getFieldProps('registryName',{
-      rules: [{required: true, whitespace: true}]
+    const registryProps = getFieldProps('registryName', {
+      rules: [{ required: true, whitespace: true }]
     })
     return (
       <div className="modalBox">
@@ -256,7 +256,7 @@ let MyComponent = React.createClass({
             </TweenOne>
             <Input {...urlProps} ref="urlInput" onFocus={this.inputOnFocus.bind(this, "url")} onBlur={this.inputOnBlur.bind(this, "url")} />
           </FormItem>
-          
+
           <FormItem hasFeedback >
             <TweenOne
               animation={{ top: '-20', duration: 500 }}
@@ -287,11 +287,11 @@ let MyComponent = React.createClass({
               paused={this.state.EmailPaused}
               reverse={this.state.EmailReverse}
               moment={this.state.EmailMoment}
-              style={{ paddingLeft:'10px'}}
+              style={{ paddingLeft: '10px' }}
               >
               <span>描述</span>
             </TweenOne>
-            <Input {...emailProps} type="textarea" ref="textareaInput" rows="5"/>
+            <Input {...emailProps} type="textarea" ref="textareaInput" rows="5" />
           </FormItem>
           <div className="btnBox">
             <Button size="large" type="primary" onClick={this.handleSubmit}>确定</Button>
@@ -317,7 +317,7 @@ MyComponent = createForm()(MyComponent);
 //     </li>
 
 //   )
-// }) 
+// })
 // })
 class ImageCenter extends Component {
   constructor(props) {
@@ -338,7 +338,7 @@ class ImageCenter extends Component {
   componentDidMount() {
     this.props.loadOtherImage({
       success: {
-        func: (res)=> {
+        func: (res) => {
           this.setState({
             otherImageHead: res.data
           })
@@ -347,7 +347,7 @@ class ImageCenter extends Component {
       }
     });
   }
-  selectCurrentTab(current, list ,type) {
+  selectCurrentTab(current, list, type) {
     //if user select other space is not default space,so that change state
     //this function for user select current show tabs
     this.setState({
@@ -362,15 +362,15 @@ class ImageCenter extends Component {
       const scope = this
       this.props.getOtherImageList(list.id, {
         success: {
-          func: (res)=>{
+          func: (res) => {
             scope.setState({
               otherImageList: res.repositories
             })
           }
         }
       })
-      const otherHead = this.state.otherImageHead 
-      let Index = findIndex(otherHead , item => {
+      const otherHead = this.state.otherImageHead
+      let Index = findIndex(otherHead, item => {
         return item.id === list.id
       })
       this.setState({
@@ -405,7 +405,7 @@ class ImageCenter extends Component {
     const { current, otherSpace } = this.state;
     const { formatMessage } = this.props.intl;
     const scope = this;
-    const otherImageHead = this.state.otherImageHead ||[]
+    const otherImageHead = this.state.otherImageHead || []
     const { otherImageList } = this.state
     return (
       <QueueAnim className="ImageCenterBox"
@@ -429,16 +429,16 @@ class ImageCenter extends Component {
                 >
                 <span>我的收藏</span>
               </li>
-              <li><div style={{height:'30px',marginTop:'10px',width:'0',borderLeft:'1px solid #d9d9d9'}}></div></li>
-              { otherImageHead.length > 0 && otherImageHead.map(list=> {
+              <li><div style={{ height: '30px', marginTop: '10px', width: '0', borderLeft: '1px solid #d9d9d9' }}></div></li>
+              {otherImageHead.length > 0 && otherImageHead.map(list => {
                 return (
-                <li className={otherSpace == list.id ? "titleSelected" : "titleDetail"}
-                  onClick={this.selectCurrentTab.bind(this, "otherRegistry",list, list.id)} >
-                  <Icon type="shopping-cart" />&nbsp;
+                  <li className={otherSpace == list.id ? "titleSelected" : "titleDetail"}
+                    onClick={this.selectCurrentTab.bind(this, "otherRegistry", list, list.id)} >
+                    <Icon type="shopping-cart" />&nbsp;
                   <span>{list.title}</span>
-                </li>
+                  </li>
                 )
-               })
+              })
               }
               <div style={{ clear: "both" }}></div>
             </ul>
@@ -451,11 +451,11 @@ class ImageCenter extends Component {
           {current == "imageSpace" ? [<ImageSpace scope={scope} />] : null}
           {current == "publicSpace" ? [<PublicSpace scope={scope} />] : null}
           {current == "myCollection" ? [<MyCollection scope={scope} />] : null}
-          {current == 'otherRegistry' ? [<OtherSpace scope={scope} otherHead={this.state.otherHead} imageId = {this.state.otherHead.id} config={otherImageList} />] : null}
+          {current == 'otherRegistry' ? [<OtherSpace scope={scope} otherHead={this.state.otherHead} imageId={this.state.otherHead.id} config={otherImageList} />] : null}
           <Modal title="添加第三方" className="addOtherSpaceModal" visible={this.state.createModalShow}
             onCancel={this.closeAddModal}
             >
-            <MyComponent scope={scope} addOtherStore= {this.props.addOtherStore} />
+            <MyComponent scope={scope} addOtherStore={this.props.addOtherStore} />
           </Modal>
         </div>
       </QueueAnim>
@@ -469,13 +469,13 @@ ImageCenter.propTypes = {
 function mapStateToProps(state, props) {
   const defaultConfig = {
     isFetching: false,
-    otherImageList:[],
-    otherImageHead:[],
-    server:''
+    otherImageList: [],
+    otherImageHead: [],
+    server: ''
   }
   const { privateImages, otherImages, imagesInfo } = state.images
   const { registry, imageList, isFetching } = privateImages || defaultConfig
-  const { imageRow , server} = otherImages || defaultConfig
+  const { imageRow, server} = otherImages || defaultConfig
 
   return {
     otherImageList: imageList,
@@ -488,12 +488,12 @@ function mapStateToProps(state, props) {
 function mapDispatchToProps(dispatch) {
   return {
     addOtherStore: (obj, callback) => {
-      dispatch(addOtherStore(obj,callback))
+      dispatch(addOtherStore(obj, callback))
     },
     loadOtherImage: (registry, callback) => {
       dispatch(loadOtherImage(registry, callback))
     },
-    getOtherImageList:(id, callback) => {
+    getOtherImageList: (id, callback) => {
       dispatch(getOtherImageList(id, callback))
     },
     deleteOtherImage: (obj, callback) => {

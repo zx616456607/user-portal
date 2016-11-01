@@ -13,10 +13,10 @@ import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { loadPublicImageList ,getImageDetailInfo} from '../../../actions/app_center'
+import { loadPublicImageList, getImageDetailInfo } from '../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import "./style/PublicSpace.less"
-import ImageDetailBox from './ImageDetail/Index.js'
+import ImageDetailBox from './ImageDetail'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -61,10 +61,10 @@ let MyComponent = React.createClass({
       imageDetailModalShow: true,
       currentImage: id
     });
-    const fullgroup={registry: DEFAULT_REGISTRY, fullName: id.name}
+    const fullgroup = { registry: DEFAULT_REGISTRY, fullName: id.name }
     this.props.getImageDetailInfo(fullgroup, {
       success: {
-        func: (res)=> {
+        func: (res) => {
           scope.setState({
             imageInfo: res.data
           })
@@ -165,7 +165,7 @@ class PublicSpace extends Component {
               <i className="fa fa-search"></i>
               <div style={{ clear: "both" }}></div>
             </div>
-            <MyComponent scope={scope} getImageDetailInfo={(obj,callback)=> this.props.getImageDetailInfo(obj,callback)} loading={isFetching} config={config} />
+            <MyComponent scope={scope} getImageDetailInfo={(obj, callback) => this.props.getImageDetailInfo(obj, callback)} loading={isFetching} config={config} />
           </Card>
         </div>
         <Modal
@@ -175,7 +175,7 @@ class PublicSpace extends Component {
           onCancel={this.closeImageDetailModal}
           >
           {/* right detail box  */}
-          <ImageDetailBox scope={scope}  parentScope={rootscope} imageInfo={this.state.imageInfo} config={this.state.currentImage} />
+          <ImageDetailBox scope={scope} parentScope={rootscope} imageInfo={this.state.imageInfo} config={this.state.currentImage} />
         </Modal>
       </QueueAnim>
     )
@@ -190,7 +190,7 @@ function mapStateToProps(state, props) {
   }
   const defaultConfig = {
     isFetching: false,
-    imageInfo: {dockerfile:'', detailMarkdown:''}
+    imageInfo: { dockerfile: '', detailMarkdown: '' }
   }
   const { publicImages, imagesInfo } = state.images
   const { registry, imageList, isFetching, server } = publicImages[DEFAULT_REGISTRY] || defaultPublicImages
@@ -210,7 +210,7 @@ function mapDispatchToProps(dispatch) {
     loadPublicImageList: (registry) => {
       dispatch(loadPublicImageList(registry))
     },
-    getImageDetailInfo :(obj, callback)=> {
+    getImageDetailInfo: (obj, callback) => {
       dispatch(getImageDetailInfo(obj, callback))
     },
   }
@@ -223,6 +223,6 @@ PublicSpace.propTypes = {
   getImageDetailInfo: PropTypes.func.isRequired,
 }
 
-export default connect(mapStateToProps, mapDispatchToProps )(injectIntl(PublicSpace, {
+export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(PublicSpace, {
   withRef: true,
 }));

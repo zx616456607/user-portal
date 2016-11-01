@@ -2,7 +2,7 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
- * ImageCenter component
+ * Database component
  *
  * v0.1 - 2016-10-11
  * @author Bai Yu

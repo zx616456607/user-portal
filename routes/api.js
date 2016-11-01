@@ -126,11 +126,12 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/apps/:app_name/metrics', metricsController.getAppMetrics)
 
   // DataBase Cache
+  router.get('/clusters/:cluster/getAllDbNames', databaseCacheController.getAllDbNames)
   router.get('/clusters/:cluster/getMysql', databaseCacheController.getMySqlList)
+  router.get('/clusters/:cluster/getRedis', databaseCacheController.getRedisList)
   router.post('/clusters/:cluster/createMysqlCluster', databaseCacheController.createMysqlCluster)
+  router.post('/clusters/:cluster/createRedisCluster', databaseCacheController.createRedisCluster)
   router.get('/clusters/:cluster/getDatabaseDetail/:dbName', databaseCacheController.getDatabaseClusterDetail)
   router.get('/clusters/:cluster/deleteDatabase/:dbName', databaseCacheController.deleteDatebaseCluster)
-  router.post('/clusters/:cluster/createRedisCluster', databaseCacheController.createRedisCluster)
-  router.get('/clusters/:cluster/getRedis', databaseCacheController.getRedisList)
   return router.routes()
 }

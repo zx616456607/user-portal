@@ -20,17 +20,14 @@ export default class SettingSider extends Component {
       current: '1'
     }
   }
-  
   componentWillMount(){
     currentPathNameCheck(this);
   }
-  
   handleClick(e) {
     this.setState({
       current: e.key,
     });
   }
-  
   render() {
     const { current } = this.state
     return (
@@ -42,23 +39,14 @@ export default class SettingSider extends Component {
                 mode="inline"
           >
             <Menu.Item key="1">
-              <Link to="/app_manage">应用</Link>
+              <Link to="/setting">我的信息</Link>
             </Menu.Item>
             <Menu.Item key="2">
-              <Link to="/app_manage/container">容器</Link>
+              <Link to="/setting/member">成员管理</Link>
             </Menu.Item>
             <Menu.Item key="3">
-              <Link to="/app_manage/storage">存储</Link>
+              <Link to="/setting/team">团队管理</Link>
             </Menu.Item>
-            {/*<Menu.Item key="4">
-             <Link to="/app_manage/firewall">防火墙</Link>
-             </Menu.Item>*/}
-            <Menu.Item key="5">
-              <Link to="/app_manage/configs">服务配置</Link>
-            </Menu.Item>
-            {/*<Menu.Item key="6">
-             <Link to="/app_manage/netName">内网域名</Link>
-             </Menu.Item>*/}
           </Menu>
         </div>
       </div>
@@ -67,29 +55,18 @@ export default class SettingSider extends Component {
 }
 
 function currentPathNameCheck(scope) {
-  //this function for check the pathname and change the current key
   let pathname = window.location.pathname;
-  //this check the pathname from the container
-  let containerModule = pathname.indexOf('app_manage/container');
+  let containerModule = pathname.indexOf('/setting/member');
   if( containerModule > -1 ){
     scope.setState({
       current: '2'
     });
     return;
   }
-  //this check the pathname from the storage
-  let storageModule = pathname.indexOf('app_manage/storage');
+  let storageModule = pathname.indexOf('/setting/team');
   if( storageModule > -1 ){
     scope.setState({
       current: '3'
-    });
-    return;
-  }
-  //this check the pathname from the configs
-  let configsModule = pathname.indexOf('app_manage/configs');
-  if( configsModule > -1 ){
-    scope.setState({
-      current: '5'
     });
     return;
   }

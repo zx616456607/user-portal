@@ -13,6 +13,34 @@ import merge from 'lodash/merge'
 import reducerFactory from './factory'
 import { cloneDeep } from 'lodash'
 
+function databaseAllNames(state = {}, action) {
+  const defaultState = {
+    'DbClusters': {
+      isFetching: false,
+      databaseNames: []
+    }
+  }
+  switch (action.type) {
+    case ActionTypes.GET_DATABASE_CACHE_ALL_NAME_REQUEST:
+      return merge({}, defaultState, state, {
+        'DbClusters': { isFetching: true }
+      })
+    case ActionTypes.GET_DATABASE_CACHE_ALL_NAME_SUCCESS:
+      return merge({}, state, {
+        'DbClusters': {
+          isFetching: false,
+          databaseNames: action.response.result.databaseNames || []
+        }
+      })
+    case ActionTypes.GET_DATABASE_CACHE_ALL_NAME_FAILURE:
+      return merge({}, defaultState, state, {
+        'DbClusters': { isFetching: false }
+      })
+    default:
+      return state
+  }
+}
+
 function mysqlDatabaseAllList(state = {}, action) {
   const defaultState = {
     'MySql': {
@@ -104,6 +132,7 @@ function databaseClusterDetail(state = {}, action) {
 
 export function databaseCache(state = { databaseCache: {} }, action) {
   return {
+    databaseAllNames: databaseAllNames(state.databaseAllNames, action),
     mysqlDatabaseAllList: mysqlDatabaseAllList(state.mysqlDatabaseAllList, action),
     redisDatabaseAllList: redisDatabaseAllList(state.redisDatabaseAllList, action),
     createMySql: reducerFactory({

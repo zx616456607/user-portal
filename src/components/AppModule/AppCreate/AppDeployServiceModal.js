@@ -471,7 +471,6 @@ let AppDeployServiceModal = React.createClass({
         })
         this.submitNewService(parentScope)
       }
-
       this.props.form.resetFields()
       parentScope.setState({
         serviceModalShow: false

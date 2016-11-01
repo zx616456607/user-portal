@@ -17,7 +17,7 @@ import { loadPrivateImageList ,getImageDetailInfo } from '../../../actions/app_c
 import { DEFAULT_REGISTRY } from '../../../constants'
 
 import "./style/ImageSpace.less"
-import ImageDetailBox from './ImageDetail/Index.js'
+import ImageDetailBox from './ImageDetail'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup

@@ -250,6 +250,7 @@ function loadImageTags(props) {
 }
 
 function setPorts(containerPorts, form) {
+  console.log('get port !!!');
   const portsArr = []
   if (containerPorts) {
     containerPorts.map(function (item, index) {

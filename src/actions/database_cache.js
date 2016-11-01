@@ -11,6 +11,29 @@
 import { FETCH_API, Schemas } from '../middleware/api'
 import { API_URL_PREFIX } from '../constants'
 
+export const GET_DATABASE_CACHE_ALL_NAME_REQUEST = 'GET_DATABASE_CACHE_ALL_NAME_REQUEST'
+export const GET_DATABASE_CACHE_ALL_NAME_SUCCESS = 'GET_DATABASE_CACHE_ALL_NAME_SUCCESS'
+export const GET_DATABASE_CACHE_ALL_NAME_FAILURE = 'GET_DATABASE_CACHE_ALL_NAME_FAILURE'
+
+function fetchDbCacheAllNames(cluster, callback) {
+  return {
+    cluster,
+    [FETCH_API]: {
+      types: [GET_DATABASE_CACHE_ALL_NAME_REQUEST, GET_DATABASE_CACHE_ALL_NAME_SUCCESS, GET_DATABASE_CACHE_ALL_NAME_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/getAllDbNames`,
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function loadDbCacheAllNames(cluster, callback) {
+  return (dispatch) => {
+    return dispatch(fetchDbCacheAllNames(cluster, callback))
+  }
+}
+
+
 export const MYSQL_DATABASE_CACHE_ALL_LIST_REQUEST = 'MYSQL_DATABASE_CACHE_ALL_LIST_REQUEST'
 export const MYSQL_DATABASE_CACHE_ALL_LIST_SUCCESS = 'MYSQL_DATABASE_CACHE_ALL_LIST_SUCCESS'
 export const MYSQL_DATABASE_CACHE_ALL_LIST_FAILURE = 'MYSQL_DATABASE_CACHE_ALL_LIST_FAILURE'
