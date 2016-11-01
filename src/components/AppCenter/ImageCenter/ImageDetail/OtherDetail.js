@@ -104,8 +104,9 @@ class OtherDetail extends Component {
     const imageDetail = this.props.config
     const imageInfo = ''
     // const ipAddress = this.props.scope.props.otherHead;
-    const ipAddress = this.props.scope.props.otherHead;
-    let pullCode = "docker pull " + ipAddress.url + "/" + imageDetail;
+    const ipAddress = this.props.scope.props.otherImages.server;
+    console.log(this.props.scope.props.otherImages.server)
+    let pullCode = "docker pull " + ipAddress + "/" + imageDetail;
     return (
       <div id="ImageDetailBox">
         <div className="headerBox">
@@ -127,7 +128,7 @@ class OtherDetail extends Component {
           <div className="code">
             <i className="fa fa-download"></i>&nbsp;
           <FormattedMessage {...menusText.downloadImage} />&nbsp;&nbsp;&nbsp;&nbsp;
-           <span className="pullCode">docker pull {ipAddress.url}/{imageDetail}&nbsp;&nbsp;</span>
+           <span className="pullCode">docker pull {ipAddress}/{imageDetail}&nbsp;&nbsp;</span>
             <Tooltip title={this.state.copySuccess ? formatMessage(menusText.copySuccess) : formatMessage(menusText.copyBtn)} getTooltipContainer={() => document.getElementById("ImageDetailBox")}>
               <i className="fa fa-copy" onClick={this.copyDownloadCode} onMouseLeave={this.returnDefaultTooltip}></i>
             </Tooltip>
