@@ -67,7 +67,7 @@ let CreateDatabase = React.createClass({
         showPwd: 'password'
       });
     }
-    
+
   },
   handleReset(e) {
     //this function for reset the form
@@ -86,7 +86,6 @@ let CreateDatabase = React.createClass({
     const { loadMysqlDbCacheAllList, cluster } = scope.props;
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
-        console.log('Errors in form!!!');
         return;
       }
       var body = {
@@ -100,7 +99,7 @@ let CreateDatabase = React.createClass({
         CreateDatabaseModalShow: false
       });
       this.props.form.resetFields();
-      if(_this.state.currentType == 'mysql') {       
+      if(_this.state.currentType == 'mysql') {
         postCreateMysqlDbCluster(body, loadMysqlDbCacheAllList(cluster));
       } else if (_this.state.currentType == 'redis') {
         postCreateRedisDbCluster(body )
@@ -125,8 +124,8 @@ let CreateDatabase = React.createClass({
     });
     const passwdProps = getFieldProps('passwd', {
       rules: [
-        { required: this.state.currentType == 'redis' ? false:true , 
-          whitespace: true, 
+        { required: this.state.currentType == 'redis' ? false:true ,
+          whitespace: true,
           message: '请填写密码' },
       ],
     });
@@ -166,7 +165,7 @@ let CreateDatabase = React.createClass({
             <span>名称</span>
           </div>
           <div className='inputBox'>
-            <FormItem 
+            <FormItem
               hasFeedback
               help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
             >

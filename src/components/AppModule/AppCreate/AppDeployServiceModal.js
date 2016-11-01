@@ -181,7 +181,7 @@ let AppDeployServiceModal = React.createClass({
     let serviceName = getFieldProps('name').value    //服务名
     let imageVersion = getFieldProps('imageVersion').value    //镜像版本
     let volumeSwitch = getFieldProps('volumeSwitch').value //服务类型
-    
+
     let livePort = getFieldProps('livePort').value   //高可用端口
     let liveInitialDelaySeconds = getFieldProps('liveInitialDelaySeconds').value //首次延时
     let liveTimeoutSeconds = getFieldProps('liveTimeoutSeconds').value //检查超时
@@ -192,7 +192,7 @@ let AppDeployServiceModal = React.createClass({
     let image = parentScope.state.registryServer + '/' + parentScope.state.currentSelectedImage + ':' + imageVersion //镜像名称
     let deploymentList = new Deployment(serviceName)
     let serviceList = new Service(serviceName)
-    
+
     var ImageConfig = {
       resources: {
         limits: {
@@ -330,7 +330,7 @@ let AppDeployServiceModal = React.createClass({
             )
           }
         }
-        
+
         if (getFieldProps(`portType${k}`).value) {
           deploymentList.addContainerPort(
             serviceName,
@@ -372,7 +372,7 @@ let AppDeployServiceModal = React.createClass({
         let volumeChecked = getFieldProps(`volumeChecked${k}`).value   //服务只读
         let volumeInfo = getFieldProps(`volumeName${k}`).value
         if(!volumeInfo) {
-          return 
+          return
         }
         volumeInfo = volumeInfo.split('/')
         if (volumeChecked) {
@@ -438,9 +438,7 @@ let AppDeployServiceModal = React.createClass({
     const { getFieldProps, getFieldValue, isFieldValidating, getFieldError } = form
     e.preventDefault()
     form.validateFieldsAndScroll((errors, values) => {
-      console.log('check form !!!');
       if (!!errors) {
-        console.log('error!!!!!',errors);
         return
       }
       if (parentScope.state.isCreate) {
@@ -459,7 +457,7 @@ let AppDeployServiceModal = React.createClass({
         })
         this.submitNewService(parentScope)
       }
-  
+
       this.props.form.resetFields()
       parentScope.setState({
         serviceModalShow: false

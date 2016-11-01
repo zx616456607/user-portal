@@ -184,7 +184,6 @@ class Service extends Component {
       cluster: DEFAULT_CLUSTER,
       "groups": configArray
     }
-    console.log('slfsdl', configArray)
     Modal.confirm({
       title: '您是否确认要删除这些配置组',
       content: configArray.map(item => item).join('，'),

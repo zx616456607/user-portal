@@ -111,8 +111,8 @@ let CreateTenxFlow = React.createClass({
   },
   yamlInputCheck(rule, value, callback){
     if(this.state.currentType == 'yaml' && !!!value){
-      callback([new Error('请填写yaml文件')]);       
-    }else{  
+      callback([new Error('请填写yaml文件')]);
+    }else{
       callback();
     }
   },
@@ -164,7 +164,7 @@ let CreateTenxFlow = React.createClass({
     });
     scope.setState({
       createTenxFlowModal: false
-    });    
+    });
   },
   handleSubmit(e) {
     //this function for user submit the form
@@ -173,14 +173,13 @@ let CreateTenxFlow = React.createClass({
     let scopeHistory = scope.props.history;
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
-        console.log('Errors in form!!!');
         e.preventDefault();
         return;
       }
       _this.setState({
         currentTenxFlow: values
       });
-      scope.setState({       
+      scope.setState({
         createTenxFlowModal: false
       });
       scopeHistory.push({ pathname: '/ci_cd/tenx_flow/tenx_flow_build', state: { config: values } });
@@ -227,13 +226,13 @@ let CreateTenxFlow = React.createClass({
             <span><FormattedMessage {...menusText.name} /></span>
           </div>
           <div className='input'>
-            <FormItem 
+            <FormItem
               hasFeedback
               help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
               style={{ width:'220px' }}
             >
               <Input {...nameProps} type='text' size='large' />
-            </FormItem>  
+            </FormItem>
           </div>
           <div style={{ clear:'both' }} />
         </div>
@@ -257,7 +256,7 @@ let CreateTenxFlow = React.createClass({
                 </div>
               </QueueAnim>
             ] : null }
-            
+
             <div style={{ clear:'both' }} />
           </div>
           <div style={{ clear:'both' }} />
@@ -271,14 +270,14 @@ let CreateTenxFlow = React.createClass({
             { this.state.emailAlert ? [
               <QueueAnim type='right' key='selectedEmailAnimate'>
                 <div className='selectedEmail' key='selectedEmail'>
-                  <FormItem>                  
+                  <FormItem>
                     <RadioGroup {...radioEmailProps} >
                       <Radio key='a' value={'gaojian@tenxcloud.com'}>gaojian@tenxcloud.com</Radio><br />
                       <Radio key='b' value={'others'}><FormattedMessage {...menusText.otherEmail} /></Radio><br />
                     </RadioGroup>
                   </FormItem>
                   <FormItem className='emailInputForm'>
-                    <Input {...checkEmailProps} type='text' size='large' disabled={ !this.state.otherEmail } /> 
+                    <Input {...checkEmailProps} type='text' size='large' disabled={ !this.state.otherEmail } />
                   </FormItem>
                 </div>
               </QueueAnim>
@@ -328,9 +327,9 @@ let CreateTenxFlow = React.createClass({
 });
 
 function mapStateToProps(state, props) {
-  
+
   return {
-    
+
   }
 }
 
@@ -341,7 +340,7 @@ CreateTenxFlow.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-  
+
 })(injectIntl(CreateTenxFlow, {
   withRef: true,
 }));

@@ -97,7 +97,6 @@ const MyComponent = React.createClass({
   },
   btnDeleteImage: function (id) {
     //this function for user delete select image
-    console.log('not delete image api')
     // this.props.deleteImage(id, {
     //   success:{
     //     func:(res)=>{

@@ -2,7 +2,7 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
- * TenxFlowList component 
+ * TenxFlowList component
  *
  * v0.1 - 2016-10-08
  * @author GaoJian
@@ -99,8 +99,6 @@ let MyComponent = React.createClass({
   },
   operaMenuClick: function (item, e) {
     //this function for user click the dropdown menu
-    console.log(e);
-    console.log(item);
   },
   showDeloyLog: function (item, e) {
     //this function for show user the deploy log of the tenxflow

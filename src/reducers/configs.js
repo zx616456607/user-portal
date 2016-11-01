@@ -35,8 +35,6 @@ function configGroupList(state = {}, action) {
           configGroup: merge(state.configGroupList, action.response.result.data)
         }
       })
-      console.log(merge(state.configGroupList, action.response.result.data))
-      console.log(cluster)
       return groupList
     case ActionTypes.CONFIG_LIST_FAILURE:
       return merge({}, defaultState, state, {

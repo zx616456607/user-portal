@@ -174,16 +174,13 @@ class PublicCompose extends Component {
   }
   componentWillMount() {
     this.props.loadStack(DEFAULT_REGISTRY);
-    console.log('start load my stack list')
   }
   filterAttr(e) {
     //this function for user filter different attr
-    console.log(e)
   }
 
   filterType(e) {
     //this function for user filter different type
-    console.log(e)
   }
 
   render() {

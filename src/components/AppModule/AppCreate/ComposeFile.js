@@ -73,7 +73,6 @@ class ComposeFile extends Component {
             appName: '',
             remark: '',
           })
-          console.log('sub')
           localStorage.removeItem('servicesList')
           localStorage.removeItem('selectedList')
           browserHistory.push('/app_manage')
@@ -147,15 +146,11 @@ class ComposeFile extends Component {
   handleForm() {
     this.props.form.validateFieldsAndScroll((errors, values) => {
       if (!!errors) {
-        console.log('Errors in form!!!')
-        console.log(errors)
         this.setState({
           disable: true,
         })
         return
       }
-      console.log('Submit!!!')
-      console.log(values)
     })
   }
   componentWillMount() {
@@ -171,7 +166,7 @@ class ComposeFile extends Component {
         { validator: this.appNameCheck },
       ]
     })
-    
+
     const remarkFormCheck = getFieldProps('remarkFormCheck',{
       rules: [
         { validator: this.remarkCheck },
