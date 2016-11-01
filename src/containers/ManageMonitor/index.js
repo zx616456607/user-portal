@@ -2,33 +2,33 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
- * CICD component
+ * Manage and Monitor component
  *
- * v0.1 - 2016-10-18
+ * v0.1 - 2016-11-01
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
 import { Breadcrumb } from 'antd'
-import CICDSider from '../../components/CICDSider'
+import ManageMonitorSider from '../../components/ManageMonitorSider'
 import IntlExp from '../../components/IntlExp'
 import QueueAnim from 'rc-queue-anim'
-import './style/CICD.less'
+import './style/ManageMonitor.less'
 
-export default class CICD extends Component {
+export default class ManageMonitor extends Component {
   render() {
     const { children } = this.props
     return (
-      <div id="CICD">
+      <div id="ManageMonitor">
         <QueueAnim
-          className="CICDSiderAnimate"
-          key="CICDSiderAnimate"
+          className="ManageMonitorSiderAnimate"
+          key="ManageMonitorSiderAnimate"
           type="left"
           >
-          <div className="CICDMenu" key="imageSider">
-            <CICDSider />
+          <div className="ManageMonitorMenu" key="ManageMonitorSider">
+            <ManageMonitorSider />
           </div>
         </QueueAnim>
-        <div className="CICDContent">
+        <div className="ManageMonitorContent">
           {children}
         </div>
       </div>
@@ -36,7 +36,7 @@ export default class CICD extends Component {
   }
 }
 
-CICD.propTypes = {
+ManageMonitor.propTypes = {
   // Injected by React Router
   children: PropTypes.node
 }

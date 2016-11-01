@@ -60,7 +60,9 @@ import UserInfo from './components/SettingModal/UserInfo/index'
 import MemberManage from './components/SettingModal/MemberManage/index'
 import TeamManage from './components/SettingModal/TeamManage/index'
 /*-------------------Setting Module Stop-----------------------------------*/
-
+/*-------------------Manage & Monitor Module Start--------------------------------*/
+import OperationalAudit from './components/ManageMonitor/OperationalAudit'
+/*-------------------Manage & Monitor Module Stop---------------------------------*/
 
 export default (
   <Route path="/" component={App}>
