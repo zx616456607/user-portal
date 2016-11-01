@@ -53,7 +53,7 @@ export default class ManageMonitorSider extends Component {
             <Menu.Item key="3">
               <Link to="/manange_monitor/monitor">监控管理</Link>
             </Menu.Item>
-            <Menu.Item key="4">
+            <Menu.Item key="4" disabled={true}>
               <Link to="/manange_monitor/report_center">报表中心</Link>
             </Menu.Item>
           </Menu>
