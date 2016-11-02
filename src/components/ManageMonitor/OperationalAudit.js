@@ -143,6 +143,10 @@ const menusText = defineMessages({
     id: 'ManageMonitor.operationalAudit.selectEvent',
     defaultMessage: '选择任务事件',
   },
+  selectStatus: {
+    id: 'ManageMonitor.operationalAudit.selectEvent',
+    defaultMessage: '选择状态',
+  },
   Instance: {
     id: 'ManageMonitor.operationalAudit.Instance',
     defaultMessage: '实例',
@@ -255,67 +259,83 @@ const menusText = defineMessages({
     id: 'ManageMonitor.operationalAudit.VolumeConsumption',
     defaultMessage: '存储使用',
   },
+  running: {
+    id: 'ManageMonitor.operationalAudit.running',
+    defaultMessage: '运行中',
+  },
+  success: {
+    id: 'ManageMonitor.operationalAudit.success',
+    defaultMessage: '完成',
+  },
+  failed: {
+    id: 'ManageMonitor.operationalAudit.failed',
+    defaultMessage: '失败',
+  },
+  search: {
+    id: 'ManageMonitor.operationalAudit.search',
+    defaultMessage: '立即查询',
+  },
 });
 
 function returnOperationList(scope) {
   const { formatMessage } = scope.props.intl;
   const operationalList = [
       {
-        value: 1,
+        value: '1',
         label: formatMessage(menusText.Create)
       },{
-        value: 2,
+        value: '2',
         label: formatMessage(menusText.Get)
       },{
-        value: 3,
+        value: '3',
         label: formatMessage(menusText.List)
       },{
-        value: 4,
+        value: '4',
         label: formatMessage(menusText.Update)
       },{
-        value: 5,
+        value: '5',
         label: formatMessage(menusText.Delete)
       },{
-        value: 6,
+        value: '6',
         label: formatMessage(menusText.Start)
       },{
-        value: 7,
+        value: '7',
         label: formatMessage(menusText.Stop)
       },{
-        value: 8,
+        value: '8',
         label: formatMessage(menusText.Restart)
       },{
-        value: 9,
+        value: '9',
         label: formatMessage(menusText.Pause)
       },{
-        value: 10,
+        value: '10',
         label: formatMessage(menusText.Resume)
       },{
-        value: 11,
+        value: '11',
         label: formatMessage(menusText.BatchDelete)
       },{
-        value: 12,
+        value: '12',
         label: formatMessage(menusText.BatchStart)
       },{
-        value: 13,
+        value: '13',
         label: formatMessage(menusText.BatchStop)
       },{
-        value: 14,
+        value: '14',
         label: formatMessage(menusText.BatchRestart)
       },{
-        value: 15,
+        value: '15',
         label: formatMessage(menusText.QuickRestart)
       },{
-        value: 16,
+        value: '16',
         label: formatMessage(menusText.CheckExist)
       },{
-        value: 17,
+        value: '17',
         label: formatMessage(menusText.Format)
       },{
-        value: 18,
+        value: '18',
         label: formatMessage(menusText.Expand)
       },{
-        value: 19,
+        value: '19',
         label: formatMessage(menusText.Unknown)
       },
     ];
@@ -325,13 +345,6 @@ function returnOperationList(scope) {
 let MyComponent = React.createClass({
   propTypes: {
     config: React.PropTypes.array
-  },
-  showDetailModal: function(database){
-    const { scope } = this.props;
-    scope.setState({
-      detailModal: true,
-      currentDatabase: database
-    })
   },
   render: function () {
     const { config, isFetching } = this.props;
@@ -353,29 +366,29 @@ let MyComponent = React.createClass({
       return (
         <div className='logDetail' key={ index }>
           <div className='time commonTitle'>
-            <span className='commonSpan'></span>
+            <span className='commonSpan'>{item.time}</span>
           </div>
           <div className='during commonTitle'>
-            <span className='commonSpan'></span>
+            <span className='commonSpan'>{item.duration}</span>
           </div>
           <div className='event commonTitle'>
-            <span className='commonSpan'></span>
+            <span className='commonSpan'>{item.operation_type}</span>
           </div>
           <div className='obj commonTitle'>
-            <span className='commonSpan'></span>
+            <span className='commonSpan'>{item.resource_type}</span>
           </div>
           <div className='env commonTitle'>
             <span className='commonSpan'></span>
           </div>
           <div className='cluster commonTitle'>
-            <span className='commonSpan'></span>
+            <span className='commonSpan'>{item.cluster_id}</span>
           </div>
           <div className='status commonTitle'>
-            <span className='commonSpan'></span>
+            <span className='commonSpan'>{item.status}</span>
           </div>
           <div className='user commonTitle'>
             <i className='fa fa-user-o' />
-            <span className='commonSpan'></span>
+            <span className='commonSpan'>{item.namespace}</span>
           </div>
         </div>
       );
@@ -394,8 +407,21 @@ class OperationalAudit extends Component {
     this.onChangeObject = this.onChangeObject.bind(this);
     this.onChangeResource = this.onChangeResource.bind(this);
     this.onShowResource = this.onShowResource.bind(this);
+    this.onChangeStatus = this.onChangeStatus.bind(this);
+    this.onChangeStartTime = this.onChangeStartTime.bind(this);
+    this.onChangeEndTime = this.onChangeEndTime.bind(this);
+    this.onChangeNamespace = this.onChangeNamespace.bind(this);
+    this.submitSearch = this.submitSearch.bind(this);
     this.state = {
-      selectOperationalList: []
+      selectOperationalList: [],
+      from: null,
+      size: 10,
+      namespace: null,
+      operation: null,
+      resource: null,
+      start_time: null,
+      end_time: null,
+      status: null
     }
   }
   
@@ -407,160 +433,214 @@ class OperationalAudit extends Component {
     this.setState({
       selectOperationalList: operationalList
     });
-//  getOperationLogList()
+    let body = {
+          from: null,
+          size: null,
+          namespace: null,
+          operation: null,
+          resource: null,
+          start_time: null,
+          end_time: null
+        }
+    getOperationLogList(body)
   }
   
   onChangeResource(e) {
     //this function for user change the resource
     //and then the operational list will be change
     const { formatMessage } = this.props.intl;
-    let eventCode = e.pop();
-    let showOperationalList = new Array();
-    let operationalList = returnOperationList(this)
-    switch(eventCode) {
-      case '1':
-        showOperationalList.push(operationalList[2]);
-        showOperationalList.push(operationalList[3]); 
-        break;
-      case '2':
-        showOperationalList.push(operationalList[3]);
-        break;
-      case '3':
-        showOperationalList.push(operationalList[3]);
-        break;
-      case '4':
-        showOperationalList.push(operationalList[2]);
-        break;
-      case '5':
-        showOperationalList.push(operationalList[2]);
-        break;
-      case '6':
-        showOperationalList.push(operationalList[3]);
-        showOperationalList.push(operationalList[11]);
-        showOperationalList.push(operationalList[12]);
-        showOperationalList.push(operationalList[13]);
-        showOperationalList.push(operationalList[14]);
-        showOperationalList.push(operationalList[15]);
-        break;  
-      case '7':
-        showOperationalList.push(operationalList[3]);
-        break;
-      case '8':
-        showOperationalList.push(operationalList[3]);
-        break;
-      case '9':
-        showOperationalList = [];
-        break;
-      case '10':
-        showOperationalList.push(operationalList[2]);
-        break;
-      case '11':
-        showOperationalList.push(operationalList[4]);
-        showOperationalList.push(operationalList[9]);
-        showOperationalList.push(operationalList[10]);
-        break;
-      case '12':
-        showOperationalList.push(operationalList[4]);
-        break;
-      case '13':
-        showOperationalList.push(operationalList[2]);
-        showOperationalList.push(operationalList[4]);
-        showOperationalList.push(operationalList[5]);
-        break;
-      case '14':
-        showOperationalList.push(operationalList[4]);
-        break;
-      case '15':
-        showOperationalList.push(operationalList[4]);
-        break;
-      case '16':
-        showOperationalList.push(operationalList[1]);
-        showOperationalList.push(operationalList[5]);
-        showOperationalList.push(operationalList[16]);
-        break;
-      case '17':
-        showOperationalList.push(operationalList[1]);
-        showOperationalList.push(operationalList[2]);
-        showOperationalList.push(operationalList[3]);
-        showOperationalList.push(operationalList[5]);
-        showOperationalList.push(operationalList[12]);
-        showOperationalList.push(operationalList[13]);
-        showOperationalList.push(operationalList[14]);
-        showOperationalList.push(operationalList[16]);
-        break;
-      case '18':
-        showOperationalList.push(operationalList[1]);
-        showOperationalList.push(operationalList[3]);
-        break;
-      case '19':
-        showOperationalList.push(operationalList[2]);        
-        break;
-      case '20':
-        showOperationalList.push(operationalList[2]);        
-        break;
-      case '21':
-        showOperationalList.push(operationalList[2]);
-        showOperationalList.push(operationalList[4]);
-        break;
-      case '22':
-        showOperationalList.push(operationalList[1]);
-        showOperationalList.push(operationalList[2]);
-        showOperationalList.push(operationalList[4]);
-        showOperationalList.push(operationalList[11]);       
-        break;
-      case '23':
-        showOperationalList.push(operationalList[1]);
-        showOperationalList.push(operationalList[2]);
-        showOperationalList.push(operationalList[4]);
-        showOperationalList.push(operationalList[11]);
-        break;
-      case '24':
-        showOperationalList = [];
-        break;
-      case '25':
-        showOperationalList.push(operationalList[2]);
-        break;
-      case '26':
-        showOperationalList.push(operationalList[1]);
-        showOperationalList.push(operationalList[3]);
-        showOperationalList.push(operationalList[5]);       
-        break;
-      case '27':
-        showOperationalList.push(operationalList[1]);
-        showOperationalList.push(operationalList[3]);
-        showOperationalList.push(operationalList[17]);
-        showOperationalList.push(operationalList[18]);
-        showOperationalList.push(operationalList[11]);        
-        break;
-      case '28':
-        showOperationalList.push(operationalList[2]);       
-        break;
-      case '29':
-        showOperationalList = operationalList;
-        break;
+    if(e.length == 1 && (e != 26 || e != 29) ) {
+    }else {
+      let eventCode = e[e.length - 1];
+      let showOperationalList = new Array();
+      let operationalList = returnOperationList(this);
+      switch(eventCode) {
+        case '1':
+          showOperationalList.push(operationalList[2]);
+          showOperationalList.push(operationalList[3]); 
+          break;
+        case '2':
+          showOperationalList.push(operationalList[3]);
+          break;
+        case '3':
+          showOperationalList.push(operationalList[3]);
+          break;
+        case '4':
+          showOperationalList.push(operationalList[2]);
+          break;
+        case '5':
+          showOperationalList.push(operationalList[2]);
+          break;
+        case '6':
+          showOperationalList.push(operationalList[3]);
+          showOperationalList.push(operationalList[11]);
+          showOperationalList.push(operationalList[12]);
+          showOperationalList.push(operationalList[13]);
+          showOperationalList.push(operationalList[14]);
+          showOperationalList.push(operationalList[15]);
+          break;  
+        case '7':
+          showOperationalList.push(operationalList[3]);
+          break;
+        case '8':
+          showOperationalList.push(operationalList[3]);
+          break;
+        case '9':
+          showOperationalList = [];
+          break;
+        case '10':
+          showOperationalList.push(operationalList[2]);
+          break;
+        case '11':
+          showOperationalList.push(operationalList[4]);
+          showOperationalList.push(operationalList[9]);
+          showOperationalList.push(operationalList[10]);
+          break;
+        case '12':
+          showOperationalList.push(operationalList[4]);
+          break;
+        case '13':
+          showOperationalList.push(operationalList[2]);
+          showOperationalList.push(operationalList[4]);
+          showOperationalList.push(operationalList[5]);
+          break;
+        case '14':
+          showOperationalList.push(operationalList[4]);
+          break;
+        case '15':
+          showOperationalList.push(operationalList[4]);
+          break;
+        case '16':
+          showOperationalList.push(operationalList[1]);
+          showOperationalList.push(operationalList[5]);
+          showOperationalList.push(operationalList[16]);
+          break;
+        case '17':
+          showOperationalList.push(operationalList[1]);
+          showOperationalList.push(operationalList[2]);
+          showOperationalList.push(operationalList[3]);
+          showOperationalList.push(operationalList[5]);
+          showOperationalList.push(operationalList[12]);
+          showOperationalList.push(operationalList[13]);
+          showOperationalList.push(operationalList[14]);
+          showOperationalList.push(operationalList[16]);
+          break;
+        case '18':
+          showOperationalList.push(operationalList[1]);
+          showOperationalList.push(operationalList[3]);
+          break;
+        case '19':
+          showOperationalList.push(operationalList[2]);        
+          break;
+        case '20':
+          showOperationalList.push(operationalList[2]);        
+          break;
+        case '21':
+          showOperationalList.push(operationalList[2]);
+          showOperationalList.push(operationalList[4]);
+          break;
+        case '22':
+          showOperationalList.push(operationalList[1]);
+          showOperationalList.push(operationalList[2]);
+          showOperationalList.push(operationalList[4]);
+          showOperationalList.push(operationalList[11]);       
+          break;
+        case '23':
+          showOperationalList.push(operationalList[1]);
+          showOperationalList.push(operationalList[2]);
+          showOperationalList.push(operationalList[4]);
+          showOperationalList.push(operationalList[11]);
+          break;
+        case '24':
+          showOperationalList = [];
+          break;
+        case '25':
+          showOperationalList.push(operationalList[2]);
+          break;
+        case '26':
+          showOperationalList.push(operationalList[1]);
+          showOperationalList.push(operationalList[3]);
+          showOperationalList.push(operationalList[5]);       
+          break;
+        case '27':
+          showOperationalList.push(operationalList[1]);
+          showOperationalList.push(operationalList[3]);
+          showOperationalList.push(operationalList[17]);
+          showOperationalList.push(operationalList[18]);
+          showOperationalList.push(operationalList[11]);        
+          break;
+        case '28':
+          showOperationalList.push(operationalList[2]);       
+          break;
+        case '29':
+          showOperationalList = operationalList;
+          break;
+      }
+      this.setState({
+        selectOperationalList: showOperationalList,
+        resource: parseInt(eventCode)
+      });
     }
-    this.setState({
-      selectOperationalList: showOperationalList
-    });
-    return eventCode;
   }
   
-  onShowResource(value, selectedOptions) {
+  onShowResource(value, items) {
     //this function for show to the user selected resource
-    if(!!selectedOptions) {
-      return selectedOptions;
-    } else {
-      return value;
-    }
+    return value[value.length - 1];
   }
   
-  onChangeObject() {
+  onChangeObject(e) {
     //this function for user change operational
+    this.setState({
+      operation: parseInt(e)
+    });
+  }
+  
+  onChangeStatus(e) {
+    //this function for user change status
+    this.setState({
+      status: e
+    });
+  }
+  
+  onChangeStartTime(e, str) {
+    //this function for user change status
+    this.setState({
+      start_time: str
+    });
+  }
+  
+  onChangeEndTime(e, str) {
+    //this function for user change status
+    this.setState({
+      end_time: str
+    });
+  }
+  
+  onChangeNamespace(e) {
+    //this function for user change status
+    this.setState({
+      namespace: e.target.value
+    });
+  }
+
+  submitSearch() {
+    //this functio for user submit search log
+    let body = {
+      from: this.state.from,
+      size: this.state.size,
+      namespace: this.state.namespace,
+      operation: this.state.operation,
+      resource: this.state.resource,
+      start_time: this.state.start_time,
+      end_time: this.state.end_time
+    }
+    console.log(body)
   }
 
   render() {
     const { isFetching, logs } = this.props;
     const { formatMessage } = this.props.intl;
+    const scope = this;
     const resourceOption = [{
       value: '1',
       label: formatMessage(menusText.Instance),
@@ -685,66 +765,73 @@ class OperationalAudit extends Component {
           <span><FormattedMessage {...menusText.title} /></span>
         </div>
         <div className='operaBox'>
-          <Cascader options={resourceOption} onChange={this.onChangeResource} changeOnSelect 
-            size='large' allowClear={false} displayRender={label => label.pop()}
-            expandTrigger='hover' className='resourceSelect' />
-          <Select showSearch
-            style={{ width: 200 }}
+          <Cascader 
+            changeOnSelect
+            options={resourceOption} 
+            allowClear={false} 
+            displayRender={this.onShowResource} 
+            onChange={this.onChangeResource}
+            getPopupContainer={() => document.getElementById('operationalAudit')}
+            expandTrigger='hover' 
+            size='large' 
+            className='resourceSelect' 
             placeholder={formatMessage(menusText.selectObject)}
+          />
+          <Select showSearch className='eventSelect'
+            placeholder={formatMessage(menusText.selectEvent)}
             onChange={this.onChangeObject} size='large'
+            getPopupContainer={() => document.getElementById('operationalAudit')}
           >
             {operationalSelectOptions}
           </Select>
-          <Select showSearch
-            style={{ width: 200 }}
-            placeholder='请选择人员'
+          <Select showSearch className='statusSelect'
+            onChange={this.onChangeStatus} size='large'
+            placeholder={formatMessage(menusText.selectStatus)}
+            getPopupContainer={() => document.getElementById('operationalAudit')}
           >
-            <Option value='jack'>杰克</Option>
-            <Option value='lucy'>露西</Option>
-            <Option value='tom'>汤姆</Option>
+            <Option value='running'><FormattedMessage {...menusText.running} /></Option>
+            <Option value='success'><FormattedMessage {...menusText.success} /></Option>
+            <Option value='failed'><FormattedMessage {...menusText.failed} /></Option>
           </Select>
-          <Select showSearch
-            style={{ width: 200 }}
-            placeholder='请选择人员'
-          >
-            <Option value='jack'>杰克</Option>
-            <Option value='lucy'>露西</Option>
-            <Option value='tom'>汤姆</Option>
-          </Select>
-          <DatePicker size='large' />
-          <DatePicker size='large' />
-          <Input type='text' size='large' />
-          <Button size='large' type='primary' onClick={this.submitSearch}>
-            <i class='fa fa-wpforms'></i>
-            
+          <DatePicker onChange={this.onChangeStartTime} style={{ marginRight: 20, marginTop: 10, float:'left' }} showTime format="yyyy-MM-dd HH:mm:ss" size='large' />
+          <DatePicker onChange={this.onChangeEndTime} style={{ marginRight: 20, marginTop: 10, float:'left' }} showTime format="yyyy-MM-dd HH:mm:ss" size='large' />
+          <Input onChange={this.onChangeNamespace} className='namespaceInput' type='text' size='large' />
+          <Button className='searchBtn' size='large' type='primary' onClick={this.submitSearch}>
+            <i className='fa fa-wpforms'></i>
+            <FormattedMessage {...menusText.search} />
           </Button>
+          <div style={{ clear:'both' }}></div>
         </div>
-        <div className='titleBox'>
-          <div className='time commonTitle'>
-            <FormattedMessage {...menusText.time} />
+        <Card className='dataCard'>
+          <div className='titleBox'>
+            <div className='time commonTitle'>
+              <FormattedMessage {...menusText.time} />
+            </div>
+            <div className='during commonTitle'>
+              <FormattedMessage {...menusText.during} />
+            </div>
+            <div className='event commonTitle'>
+              <FormattedMessage {...menusText.event} />
+            </div>
+            <div className='obj commonTitle'>
+              <FormattedMessage {...menusText.obj} />
+            </div>
+            <div className='env commonTitle'>
+              <FormattedMessage {...menusText.env} />
+            </div>
+            <div className='cluster commonTitle'>
+              <FormattedMessage {...menusText.cluster} />
+            </div>
+            <div className='status commonTitle'>
+              <FormattedMessage {...menusText.status} />
+            </div>
+            <div className='user commonTitle'>
+              <FormattedMessage {...menusText.user} />
+            </div>
+            <div style={{ clear:'both' }}></div>
           </div>
-          <div className='during commonTitle'>
-            <FormattedMessage {...menusText.during} />
-          </div>
-          <div className='event commonTitle'>
-            <FormattedMessage {...menusText.event} />
-          </div>
-          <div className='obj commonTitle'>
-            <FormattedMessage {...menusText.obj} />
-          </div>
-          <div className='env commonTitle'>
-            <FormattedMessage {...menusText.env} />
-          </div>
-          <div className='cluster commonTitle'>
-            <FormattedMessage {...menusText.cluster} />
-          </div>
-          <div className='status commonTitle'>
-            <FormattedMessage {...menusText.status} />
-          </div>
-          <div className='user commonTitle'>
-            <FormattedMessage {...menusText.user} />
-          </div>
-        </div>
+          <MyComponent scope={scope} config={logs} isFetching={isFetching} />
+        </Card>
       </div>
     </QueueAnim>
     )

@@ -16,10 +16,11 @@ import * as appManageReducers from './app_manage'
 import * as appCenterReducers from './app_center'
 import * as servicesReducers from './services'
 import * as databaseCacheReducers from './database_cache'
-import * as manageMonitorReducers from './database_cache'
+import * as manageMonitorReducers from './manage_monitor'
 import configReducers from './configs'
 import storage from './storage'
 import metrics from './metrics'
+import user from './user'
 
 // Updates an entity cache in response to any action with response.entities.
 function entities(state = { isFetching: false, users: {}, rcs: {} }, action) {
@@ -86,6 +87,7 @@ const rootReducer = combineReducers({
   ...manageMonitorReducers,
   configReducers,
   metrics,
+  user,
   routing
 })
 

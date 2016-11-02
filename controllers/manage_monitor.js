@@ -17,7 +17,7 @@ exports.getOperationAuditLog = function* () {
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.createBy(['audits', 'logs'], null, body);
   this.body = {
-    logs: result,
+    logs: result.data
   }
 }
 

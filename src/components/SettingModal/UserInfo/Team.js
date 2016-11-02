@@ -68,7 +68,7 @@ export default class Team extends Component{
         <Row className="teamWrap">
           <div className="teamTitle">
             <i className="fa fa-cube"/>
-            pupu的团队空间
+            pupu的团队
           </div>
           <div className="teamContent">
             <TeamSpace />

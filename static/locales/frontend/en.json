@@ -134,6 +134,16 @@
   "AppCenter.ImageCenter.ImageDetail.creationTime":"Create Time",
   
   "this.is.an.commnent":"/--------------------------CI & CD-------------------------/",
+  "CICD.TenxStorm.tooltips":"代码仓库：这里完成构建前的准备的工作，开发者可以在这里关联企业里业务代码所在的托管仓库，关联好的代码仓库后，选择激活代码项目为可构建状态，后便后续构建Flow里选择可构建的代码库。",
+  "CICD.TenxStorm.linkCode": "关联代码库",
+  "CICD.TenxStorm.name": "Name",
+  "CICD.TenxStorm.attr": "属性",
+  "CICD.TenxStorm.codeSrc": "代码源",
+  "CICD.TenxStorm.action": "操作",
+  "CICD.TenxStorm.show": "查看公钥",
+  "CICD.TenxStorm.search": "Search",
+  "CICD.TenxStorm.releaseActivation": "解除激活",
+
   "CICD.Tenxflow.TenxFlowList.search": "Search",
   "CICD.Tenxflow.TenxFlowList.name": "Name",
   "CICD.Tenxflow.TenxFlowList.updateTime": "UpdateTime",
@@ -313,6 +323,7 @@
   "ManageMonitor.operationalAudit.Unknown": "Unknown",
   "ManageMonitor.operationalAudit.selectObject": "selectObject",
   "ManageMonitor.operationalAudit.selectEvent": "selectEvent",
+  "ManageMonitor.operationalAudit.selectStatus": "selectStatus",
   "ManageMonitor.operationalAudit.Instance": "Instance",
   "ManageMonitor.operationalAudit.InstanceEvent": "InstanceEvent",
   "ManageMonitor.operationalAudit.InstanceLog": "InstanceLog",
@@ -340,6 +351,10 @@
   "ManageMonitor.operationalAudit.NodeMetrics": "NodeMetrics",
   "ManageMonitor.operationalAudit.ThirdPartyRegistry": "ThirdPartyRegistry",
   "ManageMonitor.operationalAudit.Volume": "Volume",
-  "ManageMonitor.operationalAudit.VolumeConsumption": "VolumeConsumption"
+  "ManageMonitor.operationalAudit.VolumeConsumption": "VolumeConsumption",
+  "ManageMonitor.operationalAudit.running": "running",
+  "ManageMonitor.operationalAudit.success": "success",
+  "ManageMonitor.operationalAudit.failed": "failed",
+  "ManageMonitor.operationalAudit.search": "search"
   
 }

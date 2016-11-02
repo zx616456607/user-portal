@@ -9,12 +9,12 @@
  */
 
 import * as ActionTypes from '../actions/user'
-import merge from 'lodash/merge'
-import union from 'lodash/union'
 import reducerFactory from './factory'
-import cloneDeep from 'lodash/cloneDeep'
 
-export function user(state = { }, action) {
+export default function user(state = {
+  userDetail: {},
+  users: []
+ }, action) {
   return {
     userDetail: reducerFactory({
       REQUEST: ActionTypes.USER_DETAIL_REQUEST,

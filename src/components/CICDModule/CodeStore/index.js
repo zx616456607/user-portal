@@ -115,20 +115,19 @@ const MyComponent = React.createClass({
         </Menu>
       );
       return (
-        <div className='tenxflowDetail' key={item.name} >
+        <div className='CodeTable' key={item.name} >
           <div className='name'>
             <Link to='/ci_cd/tenx_flow/tenx_flow_build'>
               <span>{item.name}</span>
             </Link>
           </div>
-          <div className='time'>
+          <div className='type'>
             <span>{item.updateTime}</span>
           </div>
-          <div className='status'>
+          <div className='codelink'>
             {item.status}
           </div>
-          <div className='oprea'>
-
+          <div className='action'>
 
           </div>
         </div>
@@ -162,7 +161,7 @@ class CodeStore extends Component {
       <QueueAnim className='TenxFlowList'
         type='right'
         >
-        <div id='TenxFlowList' key='TenxFlowList'>
+        <div id='CodeStore' key='CodeStore'>
           <Alert message={<FormattedMessage {...menusText.tooltips} />} type='info' />
           <div className='operaBox'>
             <Button className='createBtn' size='large' type='primary' onClick={this.openCreateTenxFlowModal}>
@@ -181,10 +180,10 @@ class CodeStore extends Component {
               <div className='type'>
                 <FormattedMessage {...menusText.attr} />
               </div>
-              <div className='status'>
+              <div className='codelink'>
                 <FormattedMessage {...menusText.codeSrc} />
               </div>
-              <div className='oprea'>
+              <div className='action'>
                 <FormattedMessage {...menusText.action} />
               </div>
             </div>

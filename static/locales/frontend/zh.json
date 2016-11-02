@@ -323,6 +323,7 @@
   "ManageMonitor.operationalAudit.Unknown": "其它",
   "ManageMonitor.operationalAudit.selectObject": "选择操作对象",
   "ManageMonitor.operationalAudit.selectEvent": "选择任务事件",
+  "ManageMonitor.operationalAudit.selectStatus": "选择状态",
   "ManageMonitor.operationalAudit.Instance": "实例",
   "ManageMonitor.operationalAudit.InstanceEvent": "实例事件",
   "ManageMonitor.operationalAudit.InstanceLog": "实例日志",
@@ -350,6 +351,10 @@
   "ManageMonitor.operationalAudit.NodeMetrics": "主机指标",
   "ManageMonitor.operationalAudit.ThirdPartyRegistry": "第三方容器",
   "ManageMonitor.operationalAudit.Volume": "存储",
-  "ManageMonitor.operationalAudit.VolumeConsumption": "存储使用"
+  "ManageMonitor.operationalAudit.VolumeConsumption": "存储使用",
+  "ManageMonitor.operationalAudit.running": "运行中",
+  "ManageMonitor.operationalAudit.success": "完成",
+  "ManageMonitor.operationalAudit.failed": "失败",
+  "ManageMonitor.operationalAudit.search": "立即查询"
 
 }

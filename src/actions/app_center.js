@@ -109,11 +109,10 @@ export function getOtherImageList(id) {
 
 export const SEARCH_OTHER_LIST_REQUEST = 'SEARCH_OTHER_LIST_REQUEST'
 // Search Other image list getOtherImageList
-export function SearchOtherImage(image, callback) {
+export function SearchOtherImage(image) {
   return {
       type: SEARCH_OTHER_LIST_REQUEST,
       image,
-      callback
   }
 }
 
