@@ -41,7 +41,6 @@ class Information extends Component{
     })
   }
   handleChange(){
-    console.log('change',this.state.password);
     if(this.state.password === 'text'){
       this.setState({
         password: 'password'
