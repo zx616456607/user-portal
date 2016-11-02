@@ -29,7 +29,8 @@ function fetchOperationLogList(body, callback) {
           operation: body.operation,
           resource: body.resource,
           start_time: body.start_time,
-          end_time: body.end_time
+          end_time: body.end_time,
+          status: body.status
         }
       },
       schema: {}
