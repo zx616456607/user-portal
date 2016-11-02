@@ -346,13 +346,6 @@ let MyComponent = React.createClass({
   propTypes: {
     config: React.PropTypes.array
   },
-  showDetailModal: function(database){
-    const { scope } = this.props;
-    scope.setState({
-      detailModal: true,
-      currentDatabase: database
-    })
-  },
   render: function () {
     const { config, isFetching } = this.props;
     if( isFetching ) {
@@ -373,29 +366,29 @@ let MyComponent = React.createClass({
       return (
         <div className='logDetail' key={ index }>
           <div className='time commonTitle'>
-            <span className='commonSpan'></span>
+            <span className='commonSpan'>{item.time}</span>
           </div>
           <div className='during commonTitle'>
-            <span className='commonSpan'></span>
+            <span className='commonSpan'>{item.duration}</span>
           </div>
           <div className='event commonTitle'>
-            <span className='commonSpan'></span>
+            <span className='commonSpan'>{item.operation_type}</span>
           </div>
           <div className='obj commonTitle'>
-            <span className='commonSpan'></span>
+            <span className='commonSpan'>{item.resource_type}</span>
           </div>
           <div className='env commonTitle'>
             <span className='commonSpan'></span>
           </div>
           <div className='cluster commonTitle'>
-            <span className='commonSpan'></span>
+            <span className='commonSpan'>{item.cluster_id}</span>
           </div>
           <div className='status commonTitle'>
-            <span className='commonSpan'></span>
+            <span className='commonSpan'>{item.status}</span>
           </div>
           <div className='user commonTitle'>
             <i className='fa fa-user-o' />
-            <span className='commonSpan'></span>
+            <span className='commonSpan'>{item.namespace}</span>
           </div>
         </div>
       );
@@ -414,8 +407,21 @@ class OperationalAudit extends Component {
     this.onChangeObject = this.onChangeObject.bind(this);
     this.onChangeResource = this.onChangeResource.bind(this);
     this.onShowResource = this.onShowResource.bind(this);
+    this.onChangeStatus = this.onChangeStatus.bind(this);
+    this.onChangeStartTime = this.onChangeStartTime.bind(this);
+    this.onChangeEndTime = this.onChangeEndTime.bind(this);
+    this.onChangeNamespace = this.onChangeNamespace.bind(this);
+    this.submitSearch = this.submitSearch.bind(this);
     this.state = {
-      selectOperationalList: []
+      selectOperationalList: [],
+      from: null,
+      size: 10,
+      namespace: null,
+      operation: null,
+      resource: null,
+      start_time: null,
+      end_time: null,
+      status: null
     }
   }
   
@@ -444,7 +450,6 @@ class OperationalAudit extends Component {
     //and then the operational list will be change
     const { formatMessage } = this.props.intl;
     if(e.length == 1 && (e != 26 || e != 29) ) {
-      
     }else {
       let eventCode = e[e.length - 1];
       let showOperationalList = new Array();
@@ -572,7 +577,8 @@ class OperationalAudit extends Component {
           break;
       }
       this.setState({
-        selectOperationalList: showOperationalList
+        selectOperationalList: showOperationalList,
+        resource: parseInt(eventCode)
       });
     }
   }
@@ -582,13 +588,59 @@ class OperationalAudit extends Component {
     return value[value.length - 1];
   }
   
-  onChangeObject() {
+  onChangeObject(e) {
     //this function for user change operational
+    this.setState({
+      operation: parseInt(e)
+    });
+  }
+  
+  onChangeStatus(e) {
+    //this function for user change status
+    this.setState({
+      status: e
+    });
+  }
+  
+  onChangeStartTime(e, str) {
+    //this function for user change status
+    this.setState({
+      start_time: str
+    });
+  }
+  
+  onChangeEndTime(e, str) {
+    //this function for user change status
+    this.setState({
+      end_time: str
+    });
+  }
+  
+  onChangeNamespace(e) {
+    //this function for user change status
+    this.setState({
+      namespace: e.target.value
+    });
+  }
+
+  submitSearch() {
+    //this functio for user submit search log
+    let body = {
+      from: this.state.from,
+      size: this.state.size,
+      namespace: this.state.namespace,
+      operation: this.state.operation,
+      resource: this.state.resource,
+      start_time: this.state.start_time,
+      end_time: this.state.end_time
+    }
+    console.log(body)
   }
 
   render() {
     const { isFetching, logs } = this.props;
     const { formatMessage } = this.props.intl;
+    const scope = this;
     const resourceOption = [{
       value: '1',
       label: formatMessage(menusText.Instance),
@@ -733,7 +785,7 @@ class OperationalAudit extends Component {
             {operationalSelectOptions}
           </Select>
           <Select showSearch className='statusSelect'
-            size='large'
+            onChange={this.onChangeStatus} size='large'
             placeholder={formatMessage(menusText.selectStatus)}
             getPopupContainer={() => document.getElementById('operationalAudit')}
           >
@@ -741,9 +793,9 @@ class OperationalAudit extends Component {
             <Option value='success'><FormattedMessage {...menusText.success} /></Option>
             <Option value='failed'><FormattedMessage {...menusText.failed} /></Option>
           </Select>
-          <DatePicker style={{ marginRight: 20, marginTop: 10, float:'left' }} showTime format="yyyy-MM-dd HH:mm:ss" size='large' />
-          <DatePicker style={{ marginRight: 20, marginTop: 10, float:'left' }} showTime format="yyyy-MM-dd HH:mm:ss" size='large' />
-          <Input className='namespaceInput' type='text' size='large' />
+          <DatePicker onChange={this.onChangeStartTime} style={{ marginRight: 20, marginTop: 10, float:'left' }} showTime format="yyyy-MM-dd HH:mm:ss" size='large' />
+          <DatePicker onChange={this.onChangeEndTime} style={{ marginRight: 20, marginTop: 10, float:'left' }} showTime format="yyyy-MM-dd HH:mm:ss" size='large' />
+          <Input onChange={this.onChangeNamespace} className='namespaceInput' type='text' size='large' />
           <Button className='searchBtn' size='large' type='primary' onClick={this.submitSearch}>
             <i className='fa fa-wpforms'></i>
             <FormattedMessage {...menusText.search} />
@@ -778,7 +830,7 @@ class OperationalAudit extends Component {
             </div>
             <div style={{ clear:'both' }}></div>
           </div>
-          <MyComponent scope={scope} config={config} isFetching={isFetching} />
+          <MyComponent scope={scope} config={logs} isFetching={isFetching} />
         </Card>
       </div>
     </QueueAnim>
