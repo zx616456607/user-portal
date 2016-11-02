@@ -43,4 +43,7 @@ module.exports = function (config) {
   // ~ app templates
   this.templates = collections.create('templates')
 
+  // ~ audits
+  this.audits = collections.create('audits')
+
 }
