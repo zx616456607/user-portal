@@ -21,6 +21,7 @@ const appTemplateController = require('../controllers/app_template')
 const manageMonitorController = require('../controllers/manage_monitor')
 const userController = require('../controllers/user_manage')
 const teamController = require('../controllers/team_manage')
+const tokenController = require('../controllers/token')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -144,8 +145,11 @@ module.exports = function (Router) {
   router.post('/clusters/:cluster/createRedisCluster', databaseCacheController.createRedisCluster)
   router.get('/clusters/:cluster/getDatabaseDetail/:dbName', databaseCacheController.getDatabaseClusterDetail)
   router.get('/clusters/:cluster/deleteDatabase/:dbName', databaseCacheController.deleteDatebaseCluster)
-  
+
   // Manage Monitor
   router.post('/manage-monitor/getOperationAuditLog', manageMonitorController.getOperationAuditLog)
+
+  // Token info
+  router.get('/token', tokenController.getTokenInfo)
   return router.routes()
 }
