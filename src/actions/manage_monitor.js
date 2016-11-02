@@ -17,7 +17,6 @@ export const GET_MANAGE_MONITOR_LOG_FAILURE = 'GET_MANAGE_MONITOR_LOG_FAILURE'
 
 function fetchOperationLogList(body, callback) {
   return {
-    cluster,
     [FETCH_API]: {
       types: [GET_MANAGE_MONITOR_LOG_REQUEST, GET_MANAGE_MONITOR_LOG_SUCCESS, GET_MANAGE_MONITOR_LOG_FAILURE],
       endpoint: `${API_URL_PREFIX}/manage-monitor/getOperationAuditLog`,
@@ -39,8 +38,8 @@ function fetchOperationLogList(body, callback) {
   }
 }
 
-export function getOperationLogList(cluster, callback) {
+export function getOperationLogList(body, callback) {
   return (dispatch) => {
-    return dispatch(fetchOperationLogList(cluster, callback))
+    return dispatch(fetchOperationLogList(body, callback))
   }
 }

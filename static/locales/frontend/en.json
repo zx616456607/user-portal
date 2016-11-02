@@ -344,6 +344,7 @@
   "ManageMonitor.operationalAudit.VolumeConsumption": "VolumeConsumption",
   "ManageMonitor.operationalAudit.running": "running",
   "ManageMonitor.operationalAudit.success": "success",
-  "ManageMonitor.operationalAudit.failed": "failed"
+  "ManageMonitor.operationalAudit.failed": "failed",
+  "ManageMonitor.operationalAudit.search": "search"
   
 }

@@ -354,6 +354,7 @@
   "ManageMonitor.operationalAudit.VolumeConsumption": "存储使用",
   "ManageMonitor.operationalAudit.running": "运行中",
   "ManageMonitor.operationalAudit.success": "完成",
-  "ManageMonitor.operationalAudit.failed": "失败"
+  "ManageMonitor.operationalAudit.failed": "失败",
+  "ManageMonitor.operationalAudit.search": "立即查询"
 
 }

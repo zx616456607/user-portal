@@ -271,6 +271,10 @@ const menusText = defineMessages({
     id: 'ManageMonitor.operationalAudit.failed',
     defaultMessage: '失败',
   },
+  search: {
+    id: 'ManageMonitor.operationalAudit.search',
+    defaultMessage: '立即查询',
+  },
 });
 
 function returnOperationList(scope) {
@@ -423,7 +427,16 @@ class OperationalAudit extends Component {
     this.setState({
       selectOperationalList: operationalList
     });
-//  getOperationLogList()
+    let body = {
+          from: null,
+          size: null,
+          namespace: null,
+          operation: null,
+          resource: null,
+          start_time: null,
+          end_time: null
+        }
+    getOperationLogList(body)
   }
   
   onChangeResource(e) {
@@ -433,134 +446,134 @@ class OperationalAudit extends Component {
     if(e.length == 1 && (e != 26 || e != 29) ) {
       
     }else {
-    let eventCode = e[e.length - 1];
-    let showOperationalList = new Array();
-    let operationalList = returnOperationList(this);
-    switch(eventCode) {
-      case '1':
-        showOperationalList.push(operationalList[2]);
-        showOperationalList.push(operationalList[3]); 
-        break;
-      case '2':
-        showOperationalList.push(operationalList[3]);
-        break;
-      case '3':
-        showOperationalList.push(operationalList[3]);
-        break;
-      case '4':
-        showOperationalList.push(operationalList[2]);
-        break;
-      case '5':
-        showOperationalList.push(operationalList[2]);
-        break;
-      case '6':
-        showOperationalList.push(operationalList[3]);
-        showOperationalList.push(operationalList[11]);
-        showOperationalList.push(operationalList[12]);
-        showOperationalList.push(operationalList[13]);
-        showOperationalList.push(operationalList[14]);
-        showOperationalList.push(operationalList[15]);
-        break;  
-      case '7':
-        showOperationalList.push(operationalList[3]);
-        break;
-      case '8':
-        showOperationalList.push(operationalList[3]);
-        break;
-      case '9':
-        showOperationalList = [];
-        break;
-      case '10':
-        showOperationalList.push(operationalList[2]);
-        break;
-      case '11':
-        showOperationalList.push(operationalList[4]);
-        showOperationalList.push(operationalList[9]);
-        showOperationalList.push(operationalList[10]);
-        break;
-      case '12':
-        showOperationalList.push(operationalList[4]);
-        break;
-      case '13':
-        showOperationalList.push(operationalList[2]);
-        showOperationalList.push(operationalList[4]);
-        showOperationalList.push(operationalList[5]);
-        break;
-      case '14':
-        showOperationalList.push(operationalList[4]);
-        break;
-      case '15':
-        showOperationalList.push(operationalList[4]);
-        break;
-      case '16':
-        showOperationalList.push(operationalList[1]);
-        showOperationalList.push(operationalList[5]);
-        showOperationalList.push(operationalList[16]);
-        break;
-      case '17':
-        showOperationalList.push(operationalList[1]);
-        showOperationalList.push(operationalList[2]);
-        showOperationalList.push(operationalList[3]);
-        showOperationalList.push(operationalList[5]);
-        showOperationalList.push(operationalList[12]);
-        showOperationalList.push(operationalList[13]);
-        showOperationalList.push(operationalList[14]);
-        showOperationalList.push(operationalList[16]);
-        break;
-      case '18':
-        showOperationalList.push(operationalList[1]);
-        showOperationalList.push(operationalList[3]);
-        break;
-      case '19':
-        showOperationalList.push(operationalList[2]);        
-        break;
-      case '20':
-        showOperationalList.push(operationalList[2]);        
-        break;
-      case '21':
-        showOperationalList.push(operationalList[2]);
-        showOperationalList.push(operationalList[4]);
-        break;
-      case '22':
-        showOperationalList.push(operationalList[1]);
-        showOperationalList.push(operationalList[2]);
-        showOperationalList.push(operationalList[4]);
-        showOperationalList.push(operationalList[11]);       
-        break;
-      case '23':
-        showOperationalList.push(operationalList[1]);
-        showOperationalList.push(operationalList[2]);
-        showOperationalList.push(operationalList[4]);
-        showOperationalList.push(operationalList[11]);
-        break;
-      case '24':
-        showOperationalList = [];
-        break;
-      case '25':
-        showOperationalList.push(operationalList[2]);
-        break;
-      case '26':
-        showOperationalList.push(operationalList[1]);
-        showOperationalList.push(operationalList[3]);
-        showOperationalList.push(operationalList[5]);       
-        break;
-      case '27':
-        showOperationalList.push(operationalList[1]);
-        showOperationalList.push(operationalList[3]);
-        showOperationalList.push(operationalList[17]);
-        showOperationalList.push(operationalList[18]);
-        showOperationalList.push(operationalList[11]);        
-        break;
-      case '28':
-        showOperationalList.push(operationalList[2]);       
-        break;
-      case '29':
-        showOperationalList = operationalList;
-        break;
-    }
-    this.setState({
-      selectOperationalList: showOperationalList
-    });
+      let eventCode = e[e.length - 1];
+      let showOperationalList = new Array();
+      let operationalList = returnOperationList(this);
+      switch(eventCode) {
+        case '1':
+          showOperationalList.push(operationalList[2]);
+          showOperationalList.push(operationalList[3]); 
+          break;
+        case '2':
+          showOperationalList.push(operationalList[3]);
+          break;
+        case '3':
+          showOperationalList.push(operationalList[3]);
+          break;
+        case '4':
+          showOperationalList.push(operationalList[2]);
+          break;
+        case '5':
+          showOperationalList.push(operationalList[2]);
+          break;
+        case '6':
+          showOperationalList.push(operationalList[3]);
+          showOperationalList.push(operationalList[11]);
+          showOperationalList.push(operationalList[12]);
+          showOperationalList.push(operationalList[13]);
+          showOperationalList.push(operationalList[14]);
+          showOperationalList.push(operationalList[15]);
+          break;  
+        case '7':
+          showOperationalList.push(operationalList[3]);
+          break;
+        case '8':
+          showOperationalList.push(operationalList[3]);
+          break;
+        case '9':
+          showOperationalList = [];
+          break;
+        case '10':
+          showOperationalList.push(operationalList[2]);
+          break;
+        case '11':
+          showOperationalList.push(operationalList[4]);
+          showOperationalList.push(operationalList[9]);
+          showOperationalList.push(operationalList[10]);
+          break;
+        case '12':
+          showOperationalList.push(operationalList[4]);
+          break;
+        case '13':
+          showOperationalList.push(operationalList[2]);
+          showOperationalList.push(operationalList[4]);
+          showOperationalList.push(operationalList[5]);
+          break;
+        case '14':
+          showOperationalList.push(operationalList[4]);
+          break;
+        case '15':
+          showOperationalList.push(operationalList[4]);
+          break;
+        case '16':
+          showOperationalList.push(operationalList[1]);
+          showOperationalList.push(operationalList[5]);
+          showOperationalList.push(operationalList[16]);
+          break;
+        case '17':
+          showOperationalList.push(operationalList[1]);
+          showOperationalList.push(operationalList[2]);
+          showOperationalList.push(operationalList[3]);
+          showOperationalList.push(operationalList[5]);
+          showOperationalList.push(operationalList[12]);
+          showOperationalList.push(operationalList[13]);
+          showOperationalList.push(operationalList[14]);
+          showOperationalList.push(operationalList[16]);
+          break;
+        case '18':
+          showOperationalList.push(operationalList[1]);
+          showOperationalList.push(operationalList[3]);
+          break;
+        case '19':
+          showOperationalList.push(operationalList[2]);        
+          break;
+        case '20':
+          showOperationalList.push(operationalList[2]);        
+          break;
+        case '21':
+          showOperationalList.push(operationalList[2]);
+          showOperationalList.push(operationalList[4]);
+          break;
+        case '22':
+          showOperationalList.push(operationalList[1]);
+          showOperationalList.push(operationalList[2]);
+          showOperationalList.push(operationalList[4]);
+          showOperationalList.push(operationalList[11]);       
+          break;
+        case '23':
+          showOperationalList.push(operationalList[1]);
+          showOperationalList.push(operationalList[2]);
+          showOperationalList.push(operationalList[4]);
+          showOperationalList.push(operationalList[11]);
+          break;
+        case '24':
+          showOperationalList = [];
+          break;
+        case '25':
+          showOperationalList.push(operationalList[2]);
+          break;
+        case '26':
+          showOperationalList.push(operationalList[1]);
+          showOperationalList.push(operationalList[3]);
+          showOperationalList.push(operationalList[5]);       
+          break;
+        case '27':
+          showOperationalList.push(operationalList[1]);
+          showOperationalList.push(operationalList[3]);
+          showOperationalList.push(operationalList[17]);
+          showOperationalList.push(operationalList[18]);
+          showOperationalList.push(operationalList[11]);        
+          break;
+        case '28':
+          showOperationalList.push(operationalList[2]);       
+          break;
+        case '29':
+          showOperationalList = operationalList;
+          break;
+      }
+      this.setState({
+        selectOperationalList: showOperationalList
+      });
     }
   }
   
@@ -712,55 +725,61 @@ class OperationalAudit extends Component {
             className='resourceSelect' 
             placeholder={formatMessage(menusText.selectObject)}
           />
-          <Select showSearch
-            style={{ width: 130 }}
+          <Select showSearch className='eventSelect'
             placeholder={formatMessage(menusText.selectEvent)}
             onChange={this.onChangeObject} size='large'
+            getPopupContainer={() => document.getElementById('operationalAudit')}
           >
             {operationalSelectOptions}
           </Select>
-          <Select showSearch
-            style={{ width: 130 }} size='large'
+          <Select showSearch className='statusSelect'
+            size='large'
             placeholder={formatMessage(menusText.selectStatus)}
+            getPopupContainer={() => document.getElementById('operationalAudit')}
           >
             <Option value='running'><FormattedMessage {...menusText.running} /></Option>
             <Option value='success'><FormattedMessage {...menusText.success} /></Option>
             <Option value='failed'><FormattedMessage {...menusText.failed} /></Option>
           </Select>
-          <DatePicker size='large' />
-          <DatePicker size='large' />
-          <Input type='text' size='large' />
-          <Button size='large' type='primary' onClick={this.submitSearch}>
+          <DatePicker style={{ marginRight: 20, marginTop: 10, float:'left' }} showTime format="yyyy-MM-dd HH:mm:ss" size='large' />
+          <DatePicker style={{ marginRight: 20, marginTop: 10, float:'left' }} showTime format="yyyy-MM-dd HH:mm:ss" size='large' />
+          <Input className='namespaceInput' type='text' size='large' />
+          <Button className='searchBtn' size='large' type='primary' onClick={this.submitSearch}>
             <i className='fa fa-wpforms'></i>
-            
+            <FormattedMessage {...menusText.search} />
           </Button>
+          <div style={{ clear:'both' }}></div>
         </div>
-        <div className='titleBox'>
-          <div className='time commonTitle'>
-            <FormattedMessage {...menusText.time} />
+        <Card className='dataCard'>
+          <div className='titleBox'>
+            <div className='time commonTitle'>
+              <FormattedMessage {...menusText.time} />
+            </div>
+            <div className='during commonTitle'>
+              <FormattedMessage {...menusText.during} />
+            </div>
+            <div className='event commonTitle'>
+              <FormattedMessage {...menusText.event} />
+            </div>
+            <div className='obj commonTitle'>
+              <FormattedMessage {...menusText.obj} />
+            </div>
+            <div className='env commonTitle'>
+              <FormattedMessage {...menusText.env} />
+            </div>
+            <div className='cluster commonTitle'>
+              <FormattedMessage {...menusText.cluster} />
+            </div>
+            <div className='status commonTitle'>
+              <FormattedMessage {...menusText.status} />
+            </div>
+            <div className='user commonTitle'>
+              <FormattedMessage {...menusText.user} />
+            </div>
+            <div style={{ clear:'both' }}></div>
           </div>
-          <div className='during commonTitle'>
-            <FormattedMessage {...menusText.during} />
-          </div>
-          <div className='event commonTitle'>
-            <FormattedMessage {...menusText.event} />
-          </div>
-          <div className='obj commonTitle'>
-            <FormattedMessage {...menusText.obj} />
-          </div>
-          <div className='env commonTitle'>
-            <FormattedMessage {...menusText.env} />
-          </div>
-          <div className='cluster commonTitle'>
-            <FormattedMessage {...menusText.cluster} />
-          </div>
-          <div className='status commonTitle'>
-            <FormattedMessage {...menusText.status} />
-          </div>
-          <div className='user commonTitle'>
-            <FormattedMessage {...menusText.user} />
-          </div>
-        </div>
+          <MyComponent scope={scope} config={config} isFetching={isFetching} />
+        </Card>
       </div>
     </QueueAnim>
     )
