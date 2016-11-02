@@ -80,7 +80,8 @@ function publicImages(state = {}, action) {
 function otherImages(state = {}, action) {
   const defaultState = {
     isFetching: false,
-    imageList: []
+    imageList: [],
+    imageRow: {}
   }
   switch (action.type) {
     case ActionTypes.IMAGE_OTHER_REQUEST:
@@ -90,7 +91,6 @@ function otherImages(state = {}, action) {
     case ActionTypes.IMAGE_OTHER_SUCCESS:
       return merge({}, state, {
         isFetching: false,
-        registry,
         server: action.response.result.server,
         imageRow: action.response.result.data || []
       })
@@ -326,14 +326,12 @@ function imagesInfo(state = {}, action) {
     case ActionTypes.SET_IMAGE_STORE_SUCCESS:
       const oldimageInfo = cloneDeep(state)
       if (action.isFavourite != undefined) {
-        oldimageInfo.default.imageInfo.isFavourite = action.isFavourite
+        oldimageInfo[registry].imageInfo.isFavourite = action.isFavourite
       }
       if (action.isPrivate != undefined) {
-        oldimageInfo.default.imageInfo.isPrivate = action.isPrivate
+        oldimageInfo[registry].imageInfo.isPrivate = action.isPrivate
       }
-      return merge({}, oldimageInfo ,{
-        [registry]: { isFetching: false }
-      })
+      return oldimageInfo
     case ActionTypes.SET_IMAGE_STORE_FAILURE:
       return merge({}, defaultState, state, {
         [registry]: { isFetching: false }
@@ -413,7 +411,7 @@ function fockImagesList(state = {}, action) {
         [registry]: { isFetching: true }
       })
     case ActionTypes.GET_IMAGE_FOCK_SUCCESS:
-      return merge({}, state, {
+      return merge({}, {
         [registry]: {
           isFetching: false,
           registry: action.response.result.registry,

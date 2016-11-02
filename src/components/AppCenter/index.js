@@ -332,7 +332,8 @@ class ImageCenter extends Component {
       createModalShow: false,
       otherSpaceType: "1",
       imageDetailModalShow: false,
-      otherHead: {}
+      otherHead: {},
+      otherImageHead:[]
     }
   }
   componentDidMount() {
