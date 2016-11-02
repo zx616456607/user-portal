@@ -63,18 +63,27 @@ let MemberItem = React.createClass({
     }
   },
   render: function () {
-    const { data, searchResult, selecteValue } = this.props
+    const { data, searchResult, selecteValue, searchValue, scope } = this.props
     console.log('searchResult',searchResult);
     let memberData = []
-    if(searchResult.length === 0){
+    if(searchValue === ''){
       memberData = data
+    }
+    if(searchResult.length === 0){
+      return (
+        <div>没有找到</div>
+      )
     } else {
+      console.log('render memberData');
       data.map((item,index) => {
         if(searchResult.includes(item[`${selecteValue}`])){
+          console.log('item',item);
           memberData.push(item)
         }
+        
       })
     }
+    console.log('memberData last !',memberData);
     const memberItems = memberData.map((item,index) => {
       return (
         <Row className="memberItem">
@@ -113,7 +122,17 @@ export default class MemberManage extends Component {
     }
   }
   handleInt(e){
+    const { selecteValue } = this.state
     let value = e.target.value
+    if(selecteValue === ''){
+      const selecteData = []
+      data.map((item,index) => {
+        selecteData.push(item['name'])
+      })
+      this.setState({
+        selecteData: selecteData
+      })
+    }
     this.setState({
       searchValue: value
     })
@@ -152,11 +171,11 @@ export default class MemberManage extends Component {
     this.setState({
       data: data,
       selecteData: [],
-      searchResult: [],
+      searchResult: data,
     })
   }
   render(){
-    const { data, selecteData, searchResult, selecteValue } = this.state
+    const { data, selecteData, searchResult, selecteValue, searchValue } = this.state
     const scope = this
     const selectBefore = (
       <Select defaultValue="name" style={{ width: 80 }} onChange={this.handleSelect}>
@@ -176,7 +195,8 @@ export default class MemberManage extends Component {
           <div className="ant-search-input-wrapper search">
             <Input addonBefore={selectBefore}
                    placeholder="请输入关键词搜索"
-                   onChange={this.handleInt}/>
+                   onChange={this.handleInt}
+                   onPressEnter={this.handleSearch}/>
             <div className="ant-input-group-wrap">
               <Button icon="search"
                       className='ant-search-btn searchBtn'
@@ -187,7 +207,11 @@ export default class MemberManage extends Component {
         <Row className="memberList">
           <Card>
             <MemberTitle />
-            <MemberItem data={ data } scope={scope} searchResult={searchResult} selecteValue={selecteValue}/>
+            <MemberItem data={ data }
+                        scope={scope}
+                        searchResult={searchResult}
+                        selecteValue={selecteValue}
+                        searchValue={searchValue}/>
           </Card>
         </Row>
       </div>
