@@ -9,103 +9,101 @@
  */
 import React,{ Component } from 'react'
 import './style/MemberManage.less'
-import { Row, Col, Button, Input, Select, Card, Icon } from 'antd'
+import { Row, Col, Button, Input, Select, Card, Icon, Table } from 'antd'
 
 const Option = Select.Option
 
 const data = [
-  {name: 'a',tel: '11',email: 'emaila@tenxcloud.com',style: '团队管理员',team: '1',rest: 5,},
-  {name: 'b',tel: '22',email: 'emailb@tenxcloud.com',style: '普通成员',team: '2',rest: 5,},
-  {name: 'c',tel: '33',email: 'emailc@tenxcloud.com',style: '普通成员',team: '3',rest: 5,},
-  {name: 'd',tel: '44',email: 'emaild@tenxcloud.com',style: '普通成员',team: '4',rest: 5,},
-  {name: 'e',tel: '55',email: 'emaile@tenxcloud.com',style: '普通成员',team: '5',rest: 5,},
-  {name: 'f',tel: '66',email: 'emailf@tenxcloud.com',style: '普通成员',team: '6',rest: 5,},
-  {name: 'g',tel: '77',email: 'emailg@tenxcloud.com',style: '团队管理员',team: '7',rest: 5,},
-  {name: 'h',tel: '88',email: 'emailh@tenxcloud.com',style: '团队管理员',team: '8',rest: 5,},
-]
+  {key: '1',name: 'a',tel: 11,email: 'emaila@tenxcloud.com',style: '团队管理员',team: '1',rest: 5,},
+  {key: '2',name: 'ba',tel: 12,email: 'emaila@tenxcloud.com',style: '普通成员',team: '2',rest: 5,},
+  {key: '3',name: 'caa',tel: 13,email: 'emaila@tenxcloud.com',style: '普通成员',team: '1',rest: 5,},
+  {key: '4',name: 'daaa',tel: 14,email: 'emaila@tenxcloud.com',style: '团队管理员',team: '1',rest: 5,},
+  {key: '5',name: 'eaaaa',tel: 15,email: 'emaila@tenxcloud.com',style: '普通成员',team: '2',rest: 5,},
+  {key: '6',name: 'f',tel: 16,email: 'emaila@tenxcloud.com',style: '团队管理员',team: '1',rest: 5,},
+  {key: '7',name: 'g',tel: 17,email: 'emaila@tenxcloud.com',style: '普通成员',team: '2',rest: 5,},
+  {key: '8',name: 'h',tel: 18,email: 'emaila@tenxcloud.com',style: '团队管理员',team: '1',rest: 5,},
+  ];
 
-let MemberTitle = React.createClass({
-  getInitialState(){
+let MemberTable =  React.createClass({
+  getInitialState() {
     return {
-      
-    }
+      filteredInfo: null,
+      sortedInfo: null,
+    };
   },
-  render: function () {
-    return (
-      <Row className="memberTitle">
-        <Col span={3}>
-          <div style={{display:'inline-block',paddingRight: 6,float: 'left'}}>
-            成员名
-          </div>
-          <div className="sortIcon">
-            <Icon type="caret-up" />
-            <Icon type="caret-down" />
-          </div>
-        </Col>
-        <Col span={3}>手机</Col>
-        <Col span={4}>邮箱</Col>
-        <Col span={3}>
-          类型
-          <Icon type="filter" />
-        </Col>
-        <Col span={3}>团队</Col>
-        <Col span={3}>余额</Col>
-        <Col span={5}>操作</Col>
-      </Row>
-    )
-  }
-})
-
-let MemberItem = React.createClass({
-  getInitialState(){
-    return {
-      
-    }
+  handleChange(pagination, filters, sorter) {
+    this.setState({
+      filteredInfo: filters,
+      sortedInfo: sorter,
+    });
   },
-  render: function () {
-    const { data, searchResult, selecteValue, searchValue, scope } = this.props
-    console.log('searchResult',searchResult);
-    let memberData = []
-    if(searchValue === ''){
-      memberData = data
-    }
-    if(searchResult.length === 0){
-      return (
-        <div>没有找到</div>
-      )
-    } else {
-      console.log('render memberData');
-      data.map((item,index) => {
-        if(searchResult.includes(item[`${selecteValue}`])){
-          console.log('item',item);
-          memberData.push(item)
-        }
-        
-      })
-    }
-    console.log('memberData last !',memberData);
-    const memberItems = memberData.map((item,index) => {
-      return (
-        <Row className="memberItem">
-          <Col span={3}>{item.name}</Col>
-          <Col span={3}>{item.tel}</Col>
-          <Col span={4}>{item.email}</Col>
-          <Col span={3}>{item.style}</Col>
-          <Col span={3}>{item.team}</Col>
-          <Col span={3}>{item.rest}T币</Col>
-          <Col span={5}>
+  render() {
+    let { sortedInfo, filteredInfo } = this.state
+    const { searchResult, notFound } = this.props.scope.state
+    sortedInfo = sortedInfo || {};
+    filteredInfo = filteredInfo || {};
+    const columns = [
+      {
+        title: '成员名',
+        dataIndex: 'name',
+        key: 'name',
+        sorter: (a, b) => a.name.length - b.name.length,
+        sortOrder: sortedInfo.columnKey === 'name' && sortedInfo.order,
+      },
+      {
+        title: '手机',
+        dataIndex: 'tel',
+        key: 'tel',
+      },
+      {
+        title: '邮箱',
+        dataIndex: 'email',
+        key: 'email',
+      },
+      {
+        title: '类型',
+        dataIndex: 'style',
+        key: 'style',
+        filters: [
+          { text: '团队管理员', value: '团队管理员' },
+          { text: '普通成员', value: '普通成员' },
+        ],
+        filteredValue: filteredInfo.style,
+        onFilter: (value, record) => record.style.indexOf(value) === 0,
+      },
+      {
+        title: '团队',
+        dataIndex: 'team',
+        key: 'team',
+      },
+      {
+        title: '余额',
+        dataIndex: 'rest',
+        key: 'rest',
+      },
+      {
+        title: '操作',
+        dataIndex: 'operation',
+        key: 'operation',
+        render: (text, record) => (
+          <div>
             <Button icon="setting" className="setBtn">管理</Button>
             <Button icon="delete" className="delBtn">删除</Button>
-          </Col>
-        </Row>
+          </div>
+        ),
+      },]
+    if(notFound){
+      return (
+        <div>没有结果</div>
       )
-    })
-    return(
-      <div>
-        { memberItems }
-      </div>
-    )
-  }
+    } else {
+      return (
+              <Table columns={columns}
+                     dataSource={searchResult.length === 0?data : searchResult}
+                     onChange={this.handleChange} />
+      )
+    }
+  },
 })
 
 export default class MemberManage extends Component {
@@ -119,44 +117,50 @@ export default class MemberManage extends Component {
       selecteValue: '',
       searchValue: '',
       searchResult: [],
+      notFound: false,
     }
   }
   handleInt(e){
     const { selecteValue } = this.state
     let value = e.target.value
-    if(selecteValue === ''){
-      const selecteData = []
-      data.map((item,index) => {
-        selecteData.push(item['name'])
-      })
-      this.setState({
-        selecteData: selecteData
-      })
-    }
     this.setState({
       searchValue: value
     })
   }
   handleSearch(){
-    const { selecteData, searchValue, } = this.state
+    const { selecteData, searchValue, selecteValue } = this.state
     if(selecteData.length === 0){
       return
     } else {
       console.log('selecteData',selecteData);
-      const result = []
+      let result = []
+      let searchResult= []
       selecteData.map((item,index) => {
         let flag = item.indexOf(searchValue)
         if(flag >= 0){
           result.push(item)
         }
+        if(result.length === 0){
+          this.setState({
+            notFound: true
+          })
+        } else {
+          this.setState({
+            notFound: false
+          })
+        }
+      })
+      data.map((item) => {
+        if(result.includes(item[`${selecteValue}`])){
+          searchResult.push(item)
+        }
       })
       this.setState({
-        searchResult: result
+        searchResult: searchResult
       })
     }
   }
   handleSelect(value){
-    console.log('value',value);
     const selecteData = []
     data.map((item,index) => {
       console.log('item',item[`${value}`]);
@@ -175,7 +179,6 @@ export default class MemberManage extends Component {
     })
   }
   render(){
-    const { data, selecteData, searchResult, selecteValue, searchValue } = this.state
     const scope = this
     const selectBefore = (
       <Select defaultValue="name" style={{ width: 80 }} onChange={this.handleSelect}>
@@ -206,12 +209,7 @@ export default class MemberManage extends Component {
         </Row>
         <Row className="memberList">
           <Card>
-            <MemberTitle />
-            <MemberItem data={ data }
-                        scope={scope}
-                        searchResult={searchResult}
-                        selecteValue={selecteValue}
-                        searchValue={searchValue}/>
+            <MemberTable scope={scope}/>
           </Card>
         </Row>
       </div>
