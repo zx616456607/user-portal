@@ -66,16 +66,8 @@ let AppDeployServiceModal = React.createClass({
           if (volumeMounts[0].name === "tenxcloud-time-zone") {
             return false
           }
-          form.setFieldsValue({
-            volumeName1: 'volumeName1 ext4 1024M'
-          })
           return true
         }
-        volumeMounts.map((k) => {
-          form.setFieldsValue({
-            ['volumeName' + `${k}`]: 'volumeName1 ext4 1024M'
-          })
-        })
         return true
       }
     }
@@ -141,13 +133,34 @@ let AppDeployServiceModal = React.createClass({
     const env = this.props.scope.state.checkInf.Deployment.spec.template.spec.containers[0].env
     const ports = this.props.scope.state.checkInf.Deployment.spec.template.spec.containers[0].ports
     const ServicePorts = this.props.scope.state.checkInf.Service.spec.ports
+    const volumes = this.props.scope.state.checkInf.Deployment.spec.template.spec.volumes
     form.setFieldsValue({
       name: scope.state.checkInf.Service.metadata.name,
       imageVersion: scope.state.checkInf.Deployment.spec.template.spec.containers[0].image.split(':')[1],
       instanceNum: scope.state.checkInf.Deployment.spec.replicas,
       volumeSwitch: this.volumeSwitch(volumeMounts, form),
       getUsefulType: this.getUsefulType(livenessProbe, form),
+      volumeMounts: volumeMounts,
+      volumes: volumes
     })
+    if(volumes) {
+      let isHaveVolume = volumes.some(volume => {
+        if(!volume.configMap) return true
+      })
+      if(isHaveVolume) {
+        form.setFieldsValue({
+          volumeSwitch: true
+        })
+      } else {
+        form.setFieldsValue({
+          volumeSwitch: false
+        })
+      }
+    } else {
+      form.setFieldsValue({
+        volumeSwitch: false
+      })
+    }
     this.setEnv(env, form)
     this.setPorts(ports, ServicePorts, form)
     this.setState({
@@ -378,7 +391,8 @@ let AppDeployServiceModal = React.createClass({
         if (volumeChecked) {
           deploymentList.addContainerVolume(serviceName, {
             name: volumeInfo[0] + '-' + k,
-            image: volumeInfo[0]
+            image: volumeInfo[0],
+            fsType: volumeInfo[1]
           }, {
               mountPath: getFieldProps(`volumePath${k}`).value,
               readOnly: true
@@ -386,7 +400,8 @@ let AppDeployServiceModal = React.createClass({
         } else {
           deploymentList.addContainerVolume(serviceName, {
             name: volumeInfo[0] + '-' + k,
-            image: volumeInfo[0]
+            image: volumeInfo[0],
+            fsType: volumeInfo[1]
           }, {
               mountPath: getFieldProps(`volumePath${k}`).value,
           })
@@ -400,8 +415,8 @@ let AppDeployServiceModal = React.createClass({
         const vol = getFieldValue(`vol${item}`)
         const volPath = getFieldValue(`volPath${item}`)
         deploymentList.addContainerVolume(serviceName, {
-          name: `configMap-volume-${item}`,
-          configMap: vol
+          name: `configmap-volume-${item}`,
+          configMap: vol,
         }, {
           mountPath: volPath
         })
@@ -507,7 +522,7 @@ let AppDeployServiceModal = React.createClass({
           <NormalDeployBox
             scope={scope} registryServer={registryServer}
             currentSelectedImage={currentSelectedImage}
-            serviceOpen={serviceOpen} isCreate={isCreate}
+            serviceOpen={this.props.serviceOpen} isCreate={isCreate}
             composeType={composeType}
             form={form}
             cluster={this.props.cluster}
@@ -520,7 +535,7 @@ let AppDeployServiceModal = React.createClass({
               <UsefulDeployBox scope={scope} form={form}/>
             </Panel>
             <Panel header={composeBoxTitle} key="3" className="composeBigBox">
-              <ComposeDeployBox scope={scope} form={form} cluster={this.props.cluster}/>
+              <ComposeDeployBox scope={scope} form={form} cluster={this.props.cluster} serviceOpen={this.props.serviceOpen}/>
             </Panel>
             <Panel header={advanceBoxTitle} key="4">
               <EnviroDeployBox scope={scope} form={form} />

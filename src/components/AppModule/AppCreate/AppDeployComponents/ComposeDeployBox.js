@@ -13,6 +13,7 @@ import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import merge from 'lodash/merge'
 import findIndex from 'lodash/findIndex'
+import filter from 'lodash/filter'
 import QueueAnim from 'rc-queue-anim'
 import "./style/ComposeDeployBox.less"
 import { loadConfigGroup, configGroupName } from '../../../../actions/configs'
@@ -32,6 +33,89 @@ let MyComponent = React.createClass({
       cluster: window.localStorage.getItem('cluster'),
       selectValue: [],
     };
+  },
+  componentWillReceiveProps(nextProps) {
+    const serviceOpen = nextProps.serviceOpen 
+    if(serviceOpen === this.props.serviceOpen) return
+    const { form } = this.props
+    const { getFieldValue, setFieldsValue, getFieldProps } = form
+    const volumes = getFieldValue('volumes') 
+    const volumeMounts = getFieldValue('volumeMounts')
+    if (!serviceOpen) {
+      setFieldsValue({
+        volKey: []
+      })
+      if (volumes && volumes.length > 0) {
+        const checkedList = []
+        const selectValue = []
+        const checkAll = []
+        const path = []
+        let volIndex = 0
+        volumes.forEach((volume) => {
+          if (!volume.configMap) {
+            return
+          }
+          checkedList.push({
+            name: volume.configMap.name,
+            items: volume.configMap.items
+          })
+          selectValue.push(volume.configMap.name)
+          getFieldProps(`volPath${volIndex + 1}`, {})
+          getFieldProps(`volName${volIndex + 1}`, {})
+          volIndex++
+        })
+      }
+    }
+    if(volumes && volumes.length >0) {
+      const checkedList = []
+      const selectValue = []
+      const checkAll = []
+      const path = []
+      let volIndex = 0
+      volumes.forEach((volume) => {
+        if(!volume.configMap) {
+          return
+        }
+        checkedList.push({
+          name: volume.configMap.name,
+          items: volume.configMap.items
+        })
+        selectValue.push(volume.configMap.name)
+        getFieldProps(`volPath${volIndex + 1}`, {initialValue: filter(volumeMounts, ['name', volume.name])[0].mountPath})
+        getFieldProps(`volName${volIndex + 1}`, {initialValue: volume.name})
+        volIndex++
+      })
+      let index = 0
+      const volKey = []
+      volumes.forEach(volume => {
+        if(volume.configMap) {
+          volKey.push(++index)
+        }
+      })
+      setFieldsValue({
+        volKey
+      })
+      const cluster = window.localStorage.getItem('cluster')
+      const configGroup = nextProps.configGroup[cluster].configGroup
+      checkedList.forEach((item, index) => {
+        setFieldsValue({
+          [`vol${index + 1}`]: item
+        })
+        let itemConfig = filter(configGroup, ['name', item.name])[0]
+        if(itemConfig.configs.length === item.items.length){
+          checkAll[index] = true 
+        } else {
+          checkAll[index] = false
+        }
+      })
+      this.setState({
+        checkedList,
+        checkAll,
+        selectValue,
+        plainOptions: [],
+        cluster: window.localStorage.getItem('cluster')
+      })
+    }
   },
   propTypes: {
     config: React.PropTypes.array
@@ -105,7 +189,7 @@ let MyComponent = React.createClass({
         checkAll
       })
       setFieldsValue({
-        [`vol${k}`]: []
+        [`vol${index + 1}`]: []
       })
       return
     }
@@ -117,9 +201,14 @@ let MyComponent = React.createClass({
     const pl = plainOptions[plIndex]
     const nameArray = []
     const displayNames = pl.displayName
+    const checkAll = this.state.checkAll
     if(checkedList.length === displayNames.length) {
-      const checkAll = this.state.checkAll
       checkAll[index] = true
+      this.setState({
+        checkAll
+      })
+    } else {
+      checkAll[index] = false
       this.setState({
         checkAll
       })
@@ -128,7 +217,7 @@ let MyComponent = React.createClass({
       let index = findIndex(displayNames, displayName => {
         return displayName === item
       })
-      nameArray.push(pl.name[index])
+      nameArray.push(pl.key[index])
     })
     oldCheckedList[index] = {
       name: pl.name,
@@ -140,7 +229,7 @@ let MyComponent = React.createClass({
       })
     }
     setFieldsValue({
-      [`vol${k}`]: oldCheckedList[index]
+      [`vol${index + 1}`]: oldCheckedList[index]
     })
     this.setState({
       checkedList: oldCheckedList
@@ -250,7 +339,8 @@ let MyComponent = React.createClass({
     });
     const formItems = getFieldValue('volKey').map((k) => {
       return (
-        <FormItem key={`vol${k}`}>
+        <div key={`vol${k}`}>
+        <FormItem >
           <li className="composeDetail">
             <div className="input">
               <Input {...getFieldProps(`volPath${k}`, {})} className="portUrl" type="text" />
@@ -275,6 +365,7 @@ let MyComponent = React.createClass({
             <div style={{ clear: "both" }}></div>
           </li>
         </FormItem>
+        </div>
       )
     });
     return (
@@ -325,7 +416,7 @@ let ComposeDeployBox = React.createClass({
               </div>
               <div style={{ clear: "both" }}></div>
             </div>
-            <MyComponent parentScope={parentScope} form={form}/>
+            <MyComponent parentScope={parentScope} form={form} serviceOpen={this.props.serviceOpen}/>
           </div>
         </div>
       </div>
