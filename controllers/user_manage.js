@@ -10,6 +10,8 @@
 'use strict'
 
 const apiFactory = require('../services/api_factory')
+const DEFAULT_PAGE = 1
+const DEFAULT_PAGE_SIZE = 10
 
 exports.getUserDetail = function* () {
   let userID = this.params.user_id
@@ -19,10 +21,18 @@ exports.getUserDetail = function* () {
     const re = yield api.getBy(['user_id'])
     userID = re.data['userid']
   }
-  const result = yield api.getBy(['users', userID])
-  const user = result.data[userID] || {}
+  //const result = yield api.getBy(['users', userID])
+  const result = {
+    data: {
+      name: "test_name",
+      type: "团队管理员",
+      tel: "136999999",
+      email: "aaa@tenxcloud.com",
+      balance: 100
+    }
+  }
+  const user = result.data || {}
   this.body = {
-    userID,
     data: user
   }
 }
@@ -47,7 +57,14 @@ exports.getUsers = function* () {
     queryObj.filter = `name ${name}`
   }
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy(['users'], queryObj)
+  //const result = yield api.getBy(['users'], queryObj)
+  const result = {
+    data: {
+      total: 0,
+      count: 0,
+      users: []
+    }
+  }
   const users = result.data.users || []
   this.body = {
     data: users,
