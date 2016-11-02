@@ -8,17 +8,50 @@
  * @author ZhaoXueYu
  */
 import React, {Component} from 'react'
-import { Row, Col, Card, Button, } from 'antd'
+import { Row, Col, Card, Button, Input, Icon } from 'antd'
 import './style/Information.less'
 
 export default class Information extends Component{
   constructor(props){
     super(props)
+    this.handleRevise = this.handleRevise.bind(this)
+    this.handleSubmit = this.handleSubmit.bind(this)
+    this.handleCancel = this.handleCancel.bind(this)
+    this.handleChange = this.handleChange.bind(this)
     this.state = {
-      
+      revisePass: false,
+      password: 'password'
+    }
+  }
+  handleRevise(){
+    this.setState({
+      revisePass: true
+    })
+  }
+  handleSubmit(){
+    this.setState({
+      revisePass: false
+    })
+  }
+  handleCancel(){
+    this.setState({
+      revisePass: false
+    })
+  }
+  handleChange(){
+    console.log('change',this.state.password);
+    if(this.state.password === 'text'){
+      this.setState({
+        password: 'password'
+      })
+    } else {
+      this.setState({
+        password: 'text'
+      })
     }
   }
   render(){
+    const { revisePass, password } = this.state
     return (
       <div id='Information'>
         <Row className="Item">
@@ -40,8 +73,25 @@ export default class Information extends Component{
         <Row className="Item">
           <Col span={4}>修改密码</Col>
           <Col span={20}>
-            <Button type="primary">修改密码</Button>
-            
+            {
+              revisePass ?
+                <div>
+                  <Row>
+                    <Input type={password} className="passInt"/>
+                    <Icon type="eye" onClick={this.handleChange}
+                          className={password === 'text' ? 'passIcon':''}/>
+                  </Row>
+                  <Row>
+                    <Input type='text' className="passInt"/>
+                  </Row>
+                  <Row>
+                    <Button type="ghost" onClick={this.handleSubmit} style={{backgroundColor: '#efefef'}}>取消</Button>
+                    &nbsp;&nbsp;&nbsp;
+                    <Button type="primary" onClick={this.handleCancel}>确定</Button>
+                  </Row>
+                </div> :
+                <Button type="primary" onClick={this.handleRevise}>修改密码</Button>
+            }
           </Col>
         </Row>
         <Row className="Item" style={{border:'none'}}>
