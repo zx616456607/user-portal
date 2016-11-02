@@ -313,6 +313,7 @@
   "ManageMonitor.operationalAudit.Unknown": "Unknown",
   "ManageMonitor.operationalAudit.selectObject": "selectObject",
   "ManageMonitor.operationalAudit.selectEvent": "selectEvent",
+  "ManageMonitor.operationalAudit.selectStatus": "selectStatus",
   "ManageMonitor.operationalAudit.Instance": "Instance",
   "ManageMonitor.operationalAudit.InstanceEvent": "InstanceEvent",
   "ManageMonitor.operationalAudit.InstanceLog": "InstanceLog",
@@ -340,6 +341,9 @@
   "ManageMonitor.operationalAudit.NodeMetrics": "NodeMetrics",
   "ManageMonitor.operationalAudit.ThirdPartyRegistry": "ThirdPartyRegistry",
   "ManageMonitor.operationalAudit.Volume": "Volume",
-  "ManageMonitor.operationalAudit.VolumeConsumption": "VolumeConsumption"
+  "ManageMonitor.operationalAudit.VolumeConsumption": "VolumeConsumption",
+  "ManageMonitor.operationalAudit.running": "running",
+  "ManageMonitor.operationalAudit.success": "success",
+  "ManageMonitor.operationalAudit.failed": "failed"
   
 }

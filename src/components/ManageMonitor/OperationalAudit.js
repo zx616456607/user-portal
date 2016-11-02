@@ -143,6 +143,10 @@ const menusText = defineMessages({
     id: 'ManageMonitor.operationalAudit.selectEvent',
     defaultMessage: '选择任务事件',
   },
+  selectStatus: {
+    id: 'ManageMonitor.operationalAudit.selectEvent',
+    defaultMessage: '选择状态',
+  },
   Instance: {
     id: 'ManageMonitor.operationalAudit.Instance',
     defaultMessage: '实例',
@@ -255,67 +259,79 @@ const menusText = defineMessages({
     id: 'ManageMonitor.operationalAudit.VolumeConsumption',
     defaultMessage: '存储使用',
   },
+  running: {
+    id: 'ManageMonitor.operationalAudit.running',
+    defaultMessage: '运行中',
+  },
+  success: {
+    id: 'ManageMonitor.operationalAudit.success',
+    defaultMessage: '完成',
+  },
+  failed: {
+    id: 'ManageMonitor.operationalAudit.failed',
+    defaultMessage: '失败',
+  },
 });
 
 function returnOperationList(scope) {
   const { formatMessage } = scope.props.intl;
   const operationalList = [
       {
-        value: 1,
+        value: '1',
         label: formatMessage(menusText.Create)
       },{
-        value: 2,
+        value: '2',
         label: formatMessage(menusText.Get)
       },{
-        value: 3,
+        value: '3',
         label: formatMessage(menusText.List)
       },{
-        value: 4,
+        value: '4',
         label: formatMessage(menusText.Update)
       },{
-        value: 5,
+        value: '5',
         label: formatMessage(menusText.Delete)
       },{
-        value: 6,
+        value: '6',
         label: formatMessage(menusText.Start)
       },{
-        value: 7,
+        value: '7',
         label: formatMessage(menusText.Stop)
       },{
-        value: 8,
+        value: '8',
         label: formatMessage(menusText.Restart)
       },{
-        value: 9,
+        value: '9',
         label: formatMessage(menusText.Pause)
       },{
-        value: 10,
+        value: '10',
         label: formatMessage(menusText.Resume)
       },{
-        value: 11,
+        value: '11',
         label: formatMessage(menusText.BatchDelete)
       },{
-        value: 12,
+        value: '12',
         label: formatMessage(menusText.BatchStart)
       },{
-        value: 13,
+        value: '13',
         label: formatMessage(menusText.BatchStop)
       },{
-        value: 14,
+        value: '14',
         label: formatMessage(menusText.BatchRestart)
       },{
-        value: 15,
+        value: '15',
         label: formatMessage(menusText.QuickRestart)
       },{
-        value: 16,
+        value: '16',
         label: formatMessage(menusText.CheckExist)
       },{
-        value: 17,
+        value: '17',
         label: formatMessage(menusText.Format)
       },{
-        value: 18,
+        value: '18',
         label: formatMessage(menusText.Expand)
       },{
-        value: 19,
+        value: '19',
         label: formatMessage(menusText.Unknown)
       },
     ];
@@ -414,9 +430,12 @@ class OperationalAudit extends Component {
     //this function for user change the resource
     //and then the operational list will be change
     const { formatMessage } = this.props.intl;
-    let eventCode = e.pop();
+    if(e.length == 1 && (e != 26 || e != 29) ) {
+      
+    }else {
+    let eventCode = e[e.length - 1];
     let showOperationalList = new Array();
-    let operationalList = returnOperationList(this)
+    let operationalList = returnOperationList(this);
     switch(eventCode) {
       case '1':
         showOperationalList.push(operationalList[2]);
@@ -542,16 +561,12 @@ class OperationalAudit extends Component {
     this.setState({
       selectOperationalList: showOperationalList
     });
-    return eventCode;
+    }
   }
   
-  onShowResource(value, selectedOptions) {
+  onShowResource(value, items) {
     //this function for show to the user selected resource
-    if(!!selectedOptions) {
-      return selectedOptions;
-    } else {
-      return value;
-    }
+    return value[value.length - 1];
   }
   
   onChangeObject() {
@@ -685,37 +700,38 @@ class OperationalAudit extends Component {
           <span><FormattedMessage {...menusText.title} /></span>
         </div>
         <div className='operaBox'>
-          <Cascader options={resourceOption} onChange={this.onChangeResource} changeOnSelect 
-            size='large' allowClear={false} displayRender={label => label.pop()}
-            expandTrigger='hover' className='resourceSelect' />
-          <Select showSearch
-            style={{ width: 200 }}
+          <Cascader 
+            changeOnSelect
+            options={resourceOption} 
+            allowClear={false} 
+            displayRender={this.onShowResource} 
+            onChange={this.onChangeResource}
+            getPopupContainer={() => document.getElementById('operationalAudit')}
+            expandTrigger='hover' 
+            size='large' 
+            className='resourceSelect' 
             placeholder={formatMessage(menusText.selectObject)}
+          />
+          <Select showSearch
+            style={{ width: 130 }}
+            placeholder={formatMessage(menusText.selectEvent)}
             onChange={this.onChangeObject} size='large'
           >
             {operationalSelectOptions}
           </Select>
           <Select showSearch
-            style={{ width: 200 }}
-            placeholder='请选择人员'
+            style={{ width: 130 }} size='large'
+            placeholder={formatMessage(menusText.selectStatus)}
           >
-            <Option value='jack'>杰克</Option>
-            <Option value='lucy'>露西</Option>
-            <Option value='tom'>汤姆</Option>
-          </Select>
-          <Select showSearch
-            style={{ width: 200 }}
-            placeholder='请选择人员'
-          >
-            <Option value='jack'>杰克</Option>
-            <Option value='lucy'>露西</Option>
-            <Option value='tom'>汤姆</Option>
+            <Option value='running'><FormattedMessage {...menusText.running} /></Option>
+            <Option value='success'><FormattedMessage {...menusText.success} /></Option>
+            <Option value='failed'><FormattedMessage {...menusText.failed} /></Option>
           </Select>
           <DatePicker size='large' />
           <DatePicker size='large' />
           <Input type='text' size='large' />
           <Button size='large' type='primary' onClick={this.submitSearch}>
-            <i class='fa fa-wpforms'></i>
+            <i className='fa fa-wpforms'></i>
             
           </Button>
         </div>
