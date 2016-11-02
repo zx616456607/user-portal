@@ -256,8 +256,7 @@ class ImageSpace extends Component {
                 <i className="fa fa-cloud-download"></i>&nbsp;
                 <FormattedMessage {...menusText.downloadImage} />
               </Button>
-              <Input className="searchBox" placeholder={formatMessage(menusText.search)} type="text" />
-              <i className="fa fa-search"></i>
+   
             </div>
             <MyComponent scope={scope} isFetching={this.props.isFetching} imageList= {imageList} registryServer= {server} deleteImage={(id)=>this.props.deleteImage(id)} getImageDetailInfo = {(obj,callback)=>this.props.getImageDetailInfo(obj,callback) } />
             <Modal title={<FormattedMessage {...menusText.uploadImage} />} className="uploadImageModal" visible={this.state.uploadModalVisible}
@@ -296,7 +295,7 @@ class ImageSpace extends Component {
               onCancel={this.closeImageDetailModal}
               >
               {/* right detail box  */}
-              <ImageDetailBox parentScope={rootscope} scope={scope} imageInfo={this.state.imageInfo} config={this.state.currentImage} />
+              <ImageDetailBox parentScope={rootscope} server={this.props.server} scope={scope} imageInfo={this.state.imageInfo} config={this.state.currentImage} />
             </Modal>
           </Card>
         </div>

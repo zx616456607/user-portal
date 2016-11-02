@@ -42,19 +42,22 @@ const MyComponent = React.createClass({
     })
   },
   selectServiceByLine: function (e, item) {
-    const { scope } = this.props
-    const { serviceList } = scope.state
-    serviceList.map((service) => {
-      if (service.metadata.name === item.metadata.name) {
-        service.checked = !service.checked
-      }
-    })
-    scope.setState({
-      serviceList
-    })
+    let stopPro = e._dispatchInstances;
+    if (stopPro.length != 2) {
+      const { scope } = this.props
+      const { serviceList } = scope.state
+      serviceList.map((service) => {
+        if (service.metadata.name === item.metadata.name) {
+          service.checked = !service.checked
+        }
+      })
+      scope.setState({
+        serviceList
+      })
+    }
   },
-  modalShow: function (e, item) {
-    e.stopPropagation()
+  modalShow: function (item) {
+    // e.stopPropagation()
     const {scope} = this.props;
     scope.setState({
       selectTab: null,
@@ -101,6 +104,47 @@ const MyComponent = React.createClass({
       query
     })
   },
+  serviceOperaClick(item, e) {
+    const { scope } = this.props
+    scope.setState({
+      currentShowInstance: item
+    })
+    switch (e.key) {
+      case 'manualScale':
+        return this.showManualScaleModal()
+      case 'autoScale':
+        return this.showAutoScaleModal()
+      case 'rollingUpdate':
+        return this.showRollingUpdateModal()
+      case 'config':
+        return this.showConfigModal()
+    }
+  },
+  showRollingUpdateModal() {
+    const { scope } = this.props
+    scope.setState({
+      rollingUpdateModalShow: true
+    })
+  },
+  showConfigModal() {
+    const { scope } = this.props
+    scope.setState({
+      configModal: true
+    })
+  },
+  showManualScaleModal() {
+    const { scope } = this.props
+    scope.setState({
+      manualScaleModalShow: true
+    })
+  },
+  showAutoScaleModal() {
+    const { scope } = this.props
+    scope.setState({
+      selectTab: '#autoScale',
+      modalShow: true,
+    })
+  },
   render: function () {
     const { serviceList, loading, page, size, total } = this.props
     if (loading) {
@@ -119,6 +163,22 @@ const MyComponent = React.createClass({
     }
     const items = serviceList.map((item) => {
       item.cluster = DEFAULT_CLUSTER
+      const dropdown = (
+        <Menu onClick={this.serviceOperaClick.bind(this, item)}>
+          <Menu.Item key="manualScale">
+            水平扩展
+          </Menu.Item>
+          <Menu.Item key="autoScale">
+            自动伸缩
+          </Menu.Item>
+          <Menu.Item key="rollingUpdate">
+            灰度升级
+          </Menu.Item>
+          <Menu.Item key="config">
+            更改配置
+          </Menu.Item>
+        </Menu>
+      );
       return (
         <div
           className={item.checked ? "selectedInstance instanceDetail" : "instanceDetail"}
@@ -129,7 +189,7 @@ const MyComponent = React.createClass({
           </div>
           <div className="name commonData">
             <Tooltip title={item.metadata.name}>
-              <span className="viewBtn" onClick={(e) => this.modalShow(e, item)}>
+              <span className="viewBtn" onClick={() => this.modalShow(item)}>
                 {item.metadata.name}
               </span>
             </Tooltip>
@@ -153,10 +213,12 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className="actionBox commonData">
-            <Button type="primary" className="viewBtn" onClick={(e) => this.modalShow(e, item)}>
-              <i className="fa fa-eye"></i>
-              查看详情
-            </Button>
+            <Dropdown.Button
+              overlay={dropdown} type='ghost'
+              onClick={() => this.modalShow(item)}>
+              <Icon type="eye-o" />
+              <span>查看</span>
+            </Dropdown.Button>
           </div>
           <div style={{ clear: "both" }}></div>
         </div>
@@ -201,9 +263,9 @@ class AppServiceList extends Component {
     this.batchDeleteServices = this.batchDeleteServices.bind(this)
     this.confirmDeleteServices = this.confirmDeleteServices.bind(this)
     this.confirmQuickRestartService = this.confirmQuickRestartService.bind(this)
-    this.showRollingUpdateModal = this.showRollingUpdateModal.bind(this)
-    this.showConfigModal = this.showConfigModal.bind(this)
-    this.showManualScaleModal = this.showManualScaleModal.bind(this)
+    // this.showRollingUpdateModal = this.showRollingUpdateModal.bind(this)
+    // this.showConfigModal = this.showConfigModal.bind(this)
+    // this.showManualScaleModal = this.showManualScaleModal.bind(this)
     this.state = {
       modalShow: false,
       currentShowInstance: null,
@@ -388,7 +450,7 @@ class AppServiceList extends Component {
       modalShow: false
     })
   }
-  showRollingUpdateModal() {
+  /*showRollingUpdateModal() {
     this.setState({
       rollingUpdateModalShow: true
     })
@@ -402,7 +464,7 @@ class AppServiceList extends Component {
     this.setState({
       manualScaleModalShow: true
     })
-  }
+  }*/
   render() {
     const parentScope = this
     let {
@@ -420,7 +482,7 @@ class AppServiceList extends Component {
     if (serviceList.length === 0) {
       isAllChecked = false
     }
-    currentShowInstance = checkedServiceList[0]
+    // currentShowInstance = checkedServiceList[0]
     const funcs = {
       confirmRestartServices: this.confirmRestartServices,
       confirmStopServices: this.confirmStopServices,
@@ -431,7 +493,7 @@ class AppServiceList extends Component {
         <Menu.Item key="0">
           <span onClick={this.batchRestartServices}>重新部署</span>
         </Menu.Item>
-        <Menu.Item key="1">
+        {/*<Menu.Item key="1">
           <span onClick={this.showManualScaleModal}>水平扩展</span>
         </Menu.Item>
         <Menu.Item key="2" disabled={checkedServiceList.length > 1}>
@@ -448,7 +510,7 @@ class AppServiceList extends Component {
         </Menu.Item>
         <Menu.Item key="4">
           <span onClick={this.showConfigModal}>更改配置</span>
-        </Menu.Item>
+        </Menu.Item>*/}
       </Menu>
     );
     return (
@@ -478,7 +540,7 @@ class AppServiceList extends Component {
             </Tooltip>
             <Dropdown overlay={operaMenu} trigger={['click']}>
               <Button size="large" disabled={!isChecked}>
-                更多
+                更多批量
                 <i className="fa fa-caret-down"></i>
               </Button>
             </Dropdown>

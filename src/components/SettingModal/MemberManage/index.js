@@ -9,6 +9,7 @@
  */
 import React,{ Component } from 'react'
 import './style/MemberManage.less'
+import { Row, Col, Button } from 'antd'
 
 export default class MemberManage extends Component {
   constructor(props){
@@ -20,7 +21,9 @@ export default class MemberManage extends Component {
   render(){
     return (
       <div id="MemberManage">
-        成员管理
+        <Button type="primary" size="large">
+          
+        </Button>
       </div>
     )
   }

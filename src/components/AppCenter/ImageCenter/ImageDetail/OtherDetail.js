@@ -104,8 +104,7 @@ class OtherDetail extends Component {
     const imageDetail = this.props.config
     const imageInfo = ''
     // const ipAddress = this.props.scope.props.otherHead;
-    const ipAddress = this.props.scope.props.otherImages.server;
-    console.log(this.props.scope.props.otherImages.server)
+    const ipAddress = (this.props.server).split('//')[1]
     let pullCode = "docker pull " + ipAddress + "/" + imageDetail;
     return (
       <div id="ImageDetailBox">

@@ -20,7 +20,7 @@ import MyCollection from './ImageCenter/MyCollection.js'
 import PublicSpace from './ImageCenter/PublicSpace.js'
 import OtherSpace from './ImageCenter/OtherSpace.js'
 import "./style/ImageCenter.less"
-import { loadOtherImage, getOtherImageList, addOtherStore, getImageDetailInfo, deleteOtherImage } from '../../actions/app_center'
+import { LoadOtherImage, getOtherImageList, addOtherStore, getImageDetailInfo, deleteOtherImage } from '../../actions/app_center'
 import { findIndex } from 'lodash'
 
 let TweenOneGroup = TweenOne.TweenOneGroup;
@@ -178,7 +178,7 @@ let MyComponent = React.createClass({
           func: (res) => {
             message.success('添加第三方镜像成功')
             setTimeout(() => {
-              scope.props.loadOtherImage({
+              scope.props.LoadOtherImage({
                 success: {
                   func: (res) => {
                     scope.setState({
@@ -336,7 +336,7 @@ class ImageCenter extends Component {
     }
   }
   componentDidMount() {
-    this.props.loadOtherImage({
+    this.props.LoadOtherImage({
       success: {
         func: (res) => {
           this.setState({
@@ -360,15 +360,7 @@ class ImageCenter extends Component {
     }
     if (list.id) {
       const scope = this
-      this.props.getOtherImageList(list.id, {
-        success: {
-          func: (res) => {
-            scope.setState({
-              otherImageList: res.repositories
-            })
-          }
-        }
-      })
+      this.props.getOtherImageList(list.id)
       const otherHead = this.state.otherImageHead
       let Index = findIndex(otherHead, item => {
         return item.id === list.id
@@ -406,7 +398,6 @@ class ImageCenter extends Component {
     const { formatMessage } = this.props.intl;
     const scope = this;
     const otherImageHead = this.state.otherImageHead || []
-    const { otherImageList } = this.state
     return (
       <QueueAnim className="ImageCenterBox"
         type="right"
@@ -451,7 +442,7 @@ class ImageCenter extends Component {
           {current == "imageSpace" ? [<ImageSpace scope={scope} />] : null}
           {current == "publicSpace" ? [<PublicSpace scope={scope} />] : null}
           {current == "myCollection" ? [<MyCollection scope={scope} />] : null}
-          {current == 'otherRegistry' ? [<OtherSpace scope={scope} otherHead={this.state.otherHead} imageId={this.state.otherHead.id} config={otherImageList} />] : null}
+          {current == 'otherRegistry' ? [<OtherSpace scope={scope} otherHead={this.state.otherHead} imageId={this.state.otherHead.id} />] : null}
           <Modal title="添加第三方" className="addOtherSpaceModal" visible={this.state.createModalShow}
             onCancel={this.closeAddModal}
             >
@@ -469,7 +460,6 @@ ImageCenter.propTypes = {
 function mapStateToProps(state, props) {
   const defaultConfig = {
     isFetching: false,
-    otherImageList: [],
     otherImageHead: [],
     server: ''
   }
@@ -478,7 +468,6 @@ function mapStateToProps(state, props) {
   const { imageRow, server} = otherImages || defaultConfig
 
   return {
-    otherImageList: imageList,
     otherImageHead: imageRow,
     isFetching,
     server
@@ -490,11 +479,11 @@ function mapDispatchToProps(dispatch) {
     addOtherStore: (obj, callback) => {
       dispatch(addOtherStore(obj, callback))
     },
-    loadOtherImage: (registry, callback) => {
-      dispatch(loadOtherImage(registry, callback))
+    LoadOtherImage: (callback) => {
+      dispatch(LoadOtherImage(callback))
     },
-    getOtherImageList: (id, callback) => {
-      dispatch(getOtherImageList(id, callback))
+    getOtherImageList: (id) => {
+      dispatch(getOtherImageList(id))
     },
     deleteOtherImage: (obj, callback) => {
       dispatch(deleteOtherImage(obj, callback))
