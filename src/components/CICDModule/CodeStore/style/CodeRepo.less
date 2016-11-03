@@ -1,0 +1,121 @@
+@border: #D9D9D9;
+#codeRepo{
+  padding-top: 20px;
+  padding-left: 30px;
+  padding-right: 60px;
+  .codeContent{
+    border:1px solid @border;
+    background: white;
+    border-radius: 3px;
+    .headBox{
+      height: 80px;
+      line-height: 40px;
+      font-size: 1.2em;
+      padding:0 30px;
+      .topText{
+        text-align: center;
+        font-size: 1.2em;
+        line-height: 10px;
+      }
+    }
+  }
+  // tabs head
+  .card-container{
+    border-top: 1px solid @border;
+    .ant-tabs-nav-container {height: 130px;padding-left:20px;}
+    .ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab {
+      background: white;
+      border:0;
+    }
+    .ant-tabs-tab-active{
+      .section{
+        border-color:#0099E9;
+        background: #F0F9FE;
+        color: #0099E9;
+        .gitlab{ background-position: -54px 10px;  }
+        .github{ background-position: -54px -33px;}
+        .svn{ background-position: -50px -78px;}
+        .bibucket{ background-position: -54px -117px;}
+      }
+    }
+    .section{
+      width: 100px;
+      height: 90px;
+      border:1px solid @border;
+      overflow: hidden;
+      float: left;
+      text-align: center;
+      border-radius: 2px;
+      position: relative;
+      .node-number{
+        position: absolute;
+        right: 3px;
+        top:3px;
+        padding:2px 4px;
+        border-radius: 50%;
+        background: #26B0EE;
+        font-size: 12px;
+        min-width: 20px;
+        color: white;
+        border:1px solid @border;
+        box-shadow: 0 0 2px #999;
+      }
+      .icon{
+        background: url('/img/cicd/ci-fa-lg.png')no-repeat;
+        display: block;
+        margin:5px auto;
+        width:50px;height: 45px;
+      }
+      .gitlab{ background-position: 0 10px;}
+      .github{ background-position: 0px -33px;}
+      .svn{ background-position: 4px -78px;}
+      .bibucket{ background-position: 0 -117px;}
+    }
+  }
+  // code row 
+  .codelink{
+    padding: 30px;
+    .tableHead{
+      padding:20px 0 20px;
+      border-bottom:1px solid @border;
+      font-size: 1.2em;
+      i{cursor: pointer;}
+      i:hover{color: #009CE9}
+      .right-search{
+        float: right;
+        position:relative;
+        .fa-search{
+          color: #999;
+          position: absolute;
+          top:8px;
+          right: 8px;
+        }
+      }
+    }
+    .CodeTable{
+      clear: both;
+      height: 50px;
+      line-height: 50px;
+      border-bottom:1px solid @border;
+      cursor: pointer;
+      .name,.type{
+        width:40%;
+        float: left;
+        padding-left: 20px;
+
+      }
+      .action{
+        width: 20%;
+        float: left;
+        button{width: 70px;}
+      }
+      &:hover{
+        background: #FAFAFA;
+      }
+      &:active{
+        background: #EFFDFF;
+      }
+    }
+  }
+
+}

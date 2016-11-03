@@ -10,8 +10,10 @@
 import React,{ Component } from 'react'
 import './style/MemberManage.less'
 import { Row, Col, Button, Input, Select, Card, Icon, Table, Modal, Form, Checkbox, Tooltip, } from 'antd'
+import SearchInput from '../../SearchInput'
+import { connect } from 'react-redux'
+import { loadUserList } from '../../../actions/user'
 
-const Option = Select.Option
 const createForm = Form.create;
 const FormItem = Form.Item;
 
@@ -322,82 +324,17 @@ let NewMemberForm = React.createClass({
 })
 NewMemberForm = createForm()(NewMemberForm)
 
-export default class MemberManage extends Component {
+class MemberManage extends Component {
   constructor(props){
     super(props)
-    this.handleSearch = this.handleSearch.bind(this)
-    this.handleSelect = this.handleSelect.bind(this)
-    this.handleInt = this.handleInt.bind(this)
     this.showModal = this.showModal.bind(this)
     this.state = {
-      selecteData: [],
-      selecteValue: '',
-      searchValue: '',
       searchResult: [],
       notFound: false,
       visible: false,
     }
   }
-  handleInt(e){
-    const { selecteValue } = this.state
-    
-    if(selecteValue === ''){
-      const selecteData = []
-      data.map((item,index) => {
-        selecteData.push(item['name'])
-      })
-      this.setState({
-        selecteValue:'name',
-        selecteData: selecteData
-      })
-    }
-    let value = e.target.value
-    this.setState({
-      searchValue: value
-    })
-  }
-  handleSearch(){
-    const { selecteData, searchValue, selecteValue } = this.state
-    if(selecteData.length === 0){
-      return
-    } else {
-      let result = []
-      let searchResult= []
-      selecteData.map((item,index) => {
-        let flag = item.indexOf(searchValue)
-        if(flag >= 0){
-          result.push(item)
-        }
-        if(result.length === 0){
-          this.setState({
-            notFound: true
-          })
-        } else {
-          this.setState({
-            notFound: false
-          })
-        }
-      })
-      data.map((item) => {
-        if(result.includes(item[`${selecteValue}`])){
-          searchResult.push(item)
-        }
-      })
-      this.setState({
-        searchResult: searchResult
-      })
-    }
-  }
-  handleSelect(value){
-    const selecteData = []
-    data.map((item,index) => {
-      selecteData.push(item[`${value}`])
-    })
-    this.setState({
-      selecteValue:value,
-      selecteData: selecteData
-    })
-  }
+
   showModal() {
     this.setState({
       visible: true,
@@ -410,17 +347,24 @@ export default class MemberManage extends Component {
       searchResult: data,
     })
   }
+
+  componentDidMount() {
+    this.props.loadUserList(null)
+  }
+  
   render(){
     const scope = this
     const { visible } = this.state
-    const selectBefore = (
-      <Select defaultValue="name" style={{ width: 80 }} onChange={this.handleSelect}>
-        <Option value="name">用户名</Option>
-        <Option value="team">团队</Option>
-        <Option value="tel">手机号</Option>
-        <Option value="email">邮箱</Option>
-      </Select>
-    )
+    const searchIntOption = {
+      addBefore: [
+        {key: 'name', value: '用户名'},
+        {key: 'team', value: '团队'},
+        {key: 'tel', value: '手机号'},
+        {key: 'email', value: '邮箱'},
+      ],
+      defaultValue: 'name',
+      placeholder: 'placeholder',
+    }
     return (
       <div id="MemberManage">
         <Row>
@@ -428,18 +372,8 @@ export default class MemberManage extends Component {
             <i className="fa fa-plus"/>
             添加新成员
           </Button>
-            <NewMemberForm visible={visible} scope={scope}/>
-          <div className="ant-search-input-wrapper search">
-            <Input addonBefore={selectBefore}
-                   placeholder="请输入关键词搜索"
-                   onChange={this.handleInt}
-                   onPressEnter={this.handleSearch}/>
-            <div className="ant-input-group-wrap">
-              <Button icon="search"
-                      className='ant-search-btn searchBtn'
-                      onClick={this.handleSearch} />
-            </div>
-          </div>
+          <SearchInput data={data} scope={scope} searchIntOption={searchIntOption}/>
+          <NewMemberForm visible={visible} scope={scope}/>
         </Row>
         <Row className="memberList">
           <Card>
@@ -450,3 +384,30 @@ export default class MemberManage extends Component {
     )
   }
 }
+
+function mapStateToProp(state) {
+  let usersData = []
+  let total = 0
+  let size = 0
+  const users = state.user.users
+  if (users.result) {
+    if (users.result.users) {
+      usersData = users.result.users
+    }
+    if (users.result.total) {
+      total = users.result.total
+    }
+    if (users.result.count) {
+      size = users.result.size
+    }
+  }
+  return {
+    users: usersData,
+    total,
+    size
+  }
+}
+
+export default connect(mapStateToProp, {
+  loadUserList,
+})(MemberManage)
