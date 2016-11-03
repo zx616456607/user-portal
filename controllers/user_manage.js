@@ -65,19 +65,20 @@ exports.getUsers = function* () {
   if (result.listMeta && result.listMeta.total) {
     total = result.listMeta.total
   }
-  let count = 0
+  size = 0
   if (result.listMeta && result.listMeta.count) {
-    count = result.listMeta.count
+    size = result.listMeta.size
   } 
 
   this.body = {
     users,
     total,
-    count
+    size
   }
 }
 
 exports.getUserTeams = function* () {
+  let userID = this.params.user_id
   const loginUser = this.session.loginUser
   const query = this.query || {}
   let page = parseInt(query.page || DEFAULT_PAGE)
@@ -97,27 +98,60 @@ exports.getUserTeams = function* () {
     queryObj.filter = `name ${name}`
   }
   const api = apiFactory.getApi(loginUser)
-  //const result = yield api.users.getBy(['teams'], queryObj)
-  const result = {
-    listMeta: {
-      total: 10,
-      size: 10
-    },
-    teams: [
-      {
-        teamID: "t-aldakdsadssdsjkewr",
-        teamName: "test",
-        description: "test",
-        creatorID: 104,
-        creationTime: "2016-11-02T14:13:38+08:00"
-      }
-    ]
-  }
+  const result = yield api.users.getBy([userID, 'teams'], queryObj)
   const teams = result.teams || []
+  let total = 0
+  if (result.listMeta && result.listMeta.total) {
+    total = result.listMeta.total
+  }
+  size = 0
+  if (result.listMeta && result.listMeta.count) {
+    size = result.listMeta.size
+  } 
+
   this.body = {
-    data: teams,
-    total: result.listMeta.total,
-    count: result.listMeta.size
+    teams,
+    total,
+    size
+  }
+}
+
+exports.getUserTeamspaces = function* () {
+  let userID = this.params.user_id
+  const loginUser = this.session.loginUser
+  const query = this.query || {}
+  let page = parseInt(query.page || DEFAULT_PAGE)
+  let size = parseInt(query.size || DEFAULT_PAGE_SIZE)
+  let sort_by = parseInt(query.sort_by || "name")
+  let sort_order = parseInt(query.sort_order || true)
+  let name = query.name
+  if (isNaN(page) || page < 1) {
+    page = DEFAULT_PAGE
+  }
+  if (isNaN(size) || size < 1 || size > 100) {
+    size = DEFAULT_PAGE_SIZE
+  }
+  const from = size * (page - 1)
+  const queryObj = { from, size }
+  if (name) {
+    queryObj.filter = `name ${name}`
+  }
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.users.getBy([userID, 'spaces'], queryObj)
+  const teamspaces = result.spaces || []
+  let total = 0
+  if (result.listMeta && result.listMeta.total) {
+    total = result.listMeta.total
+  }
+  size = 0
+  if (result.listMeta && result.listMeta.count) {
+    size = result.listMeta.size
+  } 
+
+  this.body = {
+    teamspaces,
+    total,
+    size
   }
 }
 
