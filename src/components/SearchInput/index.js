@@ -27,9 +27,7 @@ export default class SearchInput extends Component{
   }
   handleInt(e){
     let { data, searchIntOption } = this.props
-    if(!data){
-      data = []
-    }
+
     const { selecteValue } = this.state
     const { addBefore, defaultValue, } = searchIntOption
     const value = defaultValue ? defaultValue : addBefore[0].key
@@ -51,12 +49,7 @@ export default class SearchInput extends Component{
   handleSearch(){
     const { selecteData, searchValue, selecteValue } = this.state
     let { data, scope } = this.props
-    if(!scope){
-      scope = this
-    }
-    if(!data){
-      data = []
-    }
+
     if(selecteData.length === 0){
       return
     } else {
@@ -88,10 +81,8 @@ export default class SearchInput extends Component{
     }
   }
   handleSelect(value){
-    let { data } = this.props
-    if(!data){
-      data = []
-    }
+    const { data } = this.props
+
     const selecteData = []
     data.map((item,index) => {
       selecteData.push(item[`${value}`])
@@ -102,7 +93,7 @@ export default class SearchInput extends Component{
     })
   }
   render(){
-    let { searchIntOption, data, scope } = this.props
+    let { searchIntOption } = this.props
     
     if(!searchIntOption){
       searchIntOption = {

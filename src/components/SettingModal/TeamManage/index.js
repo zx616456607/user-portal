@@ -12,6 +12,8 @@ import { Row, Col, Alert, Button, Icon, } from 'antd'
 import './style/TeamManage.less'
 import SearchInput from '../../SearchInput'
 
+const data = []
+
 export default class TeamManage extends Component {
   constructor(props){
     super(props)
@@ -20,6 +22,7 @@ export default class TeamManage extends Component {
     }
   }
   render(){
+    const scope = this
     const searchIntOption = {
       placeholder: '搜索',
       // width: '280px',
@@ -37,7 +40,7 @@ export default class TeamManage extends Component {
             <Icon type="picture" />
             查看成员&团队图例
           </Button>
-          <SearchInput />
+          <SearchInput searchIntOption={searchIntOption} scope={scope} data={data}/>
         </Row>
       </div>
     )
