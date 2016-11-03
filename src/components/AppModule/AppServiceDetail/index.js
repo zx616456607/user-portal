@@ -138,7 +138,6 @@ class AppServiceDetail extends Component {
   }
 
   parseServiceDomain(item) {
-    console.log("parseServiceDomain item:", item)
     let domain = ""
     if (item.metadata.annotations && item.metadata.annotations[ANNOTATION_SVC_DOMAIN]) {
       domain = item.metadata.annotations[ANNOTATION_SVC_DOMAIN]
@@ -157,7 +156,6 @@ class AppServiceDetail extends Component {
       isContainersFetching,
       appName,
     } = this.props
-    console.log("aaaaaaaaaaaaaaa",this.props)
     const { activeTabKey } = this.state
     const service = scope.state.currentShowInstance
     const operaMenu = (<Menu>
