@@ -21,6 +21,7 @@ import configReducers from './configs'
 import storage from './storage'
 import metrics from './metrics'
 import user from './user'
+import openApi from './open_api'
 import team from './team'
 
 // Updates an entity cache in response to any action with response.entities.
@@ -89,8 +90,9 @@ const rootReducer = combineReducers({
   configReducers,
   metrics,
   user,
+  routing,
+  openApi,
   team,
-  routing
 })
 
 export default rootReducer
