@@ -92,9 +92,9 @@ export function loadUserTeamList(userID, query, requiredFields = []) {
   }
 }
 
-export const USER_TEAMSAPCE_LIST_REQUEST = 'USER_TEAMSAPCE_LIST_REQUEST'
-export const USER_TEAMSAPCE_LIST_SUCCESS = 'USER_TEAMSAPCE_LIST_SUCCESS'
-export const USER_TEAMSAPCE_LIST_FAILURE = 'USER_TEAMSAPCE_LIST_FAILURE'
+export const USER_TEAMSPACE_LIST_REQUEST = 'USER_TEAMSPACE_LIST_REQUEST'
+export const USER_TEAMSPACE_LIST_SUCCESS = 'USER_TEAMSPACE_LIST_SUCCESS'
+export const USER_TEAMSPACE_LIST_FAILURE = 'USER_TEAMSPACE_LIST_FAILURE'
 
 // Fetches teamspace list from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
@@ -105,7 +105,7 @@ function fetchUserTeamspaceList(userID, query) {
   }
   return {
     [FETCH_API]: {
-      types: [USER_TEAMSAPCE_LIST_REQUEST, USER_TEAMSAPCE_LIST_SUCCESS, USER_TEAMSAPCE_LIST_FAILURE],
+      types: [USER_TEAMSPACE_LIST_REQUEST, USER_TEAMSPACE_LIST_SUCCESS, USER_TEAMSPACE_LIST_FAILURE],
       endpoint,
       schema: {}
     }

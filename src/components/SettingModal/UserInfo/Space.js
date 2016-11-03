@@ -55,7 +55,7 @@ let TeamSpace = React.createClass({
     let items = this.props.teamspaces.map((teamspace) => {
       return (<Row className="contentList">
           <Col span={4}>{teamspace.spaceName}</Col>
-          <Col span={4}>奔驰开发1组</Col>
+          <Col span={4}>{teamspace.teamID}</Col>
           <Col span={4}>6</Col>
           <Col span={4}>1000</Col>
           <Col span={4}>2002</Col>
@@ -92,6 +92,7 @@ let TeamSpace = React.createClass({
             操作
           </Col>
         </Row>
+        {items}
         <Row className="contentList firstItem">
           <Col span={4}>CRM联合项目</Col>
           <Col span={4}>奔驰开发1组</Col>
@@ -124,6 +125,11 @@ class Space extends Component{
       
     }
   }
+  
+  componentDidMount() {
+    this.props.loadUserTeamspaceList("104", null)
+  }
+
   render(){
     return (
       <div id='Space'>
