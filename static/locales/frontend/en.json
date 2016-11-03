@@ -345,6 +345,11 @@
   "ManageMonitor.operationalAudit.running": "running",
   "ManageMonitor.operationalAudit.success": "success",
   "ManageMonitor.operationalAudit.failed": "failed",
-  "ManageMonitor.operationalAudit.search": "search"
+  "ManageMonitor.operationalAudit.search": "search",
+  "ManageMonitor.operationalAudit.microsecond": "microsecond",
+  "ManageMonitor.operationalAudit.millisecond": "Ms",
+  "ManageMonitor.operationalAudit.second": "S",
+  "ManageMonitor.operationalAudit.minute": "Min",
+  "ManageMonitor.operationalAudit.hour": "H"
   
 }

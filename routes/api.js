@@ -147,5 +147,6 @@ module.exports = function (Router) {
   
   // Manage Monitor
   router.post('/manage-monitor/getOperationAuditLog', manageMonitorController.getOperationAuditLog)
+  router.post('/clusters/:cluster/instances/:instances/getSearchLog', manageMonitorController.getSearchLog)
   return router.routes()
 }

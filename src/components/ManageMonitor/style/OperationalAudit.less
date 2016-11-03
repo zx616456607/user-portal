@@ -43,7 +43,7 @@
     .dataCard {
       margin-top: 20px;
       .ant-card-body {
-        padding: 0px !important;
+        padding: 0 !important;
       }
       .commonTitle {
         float: left;
@@ -63,15 +63,17 @@
       .user {
         width: calc(~"20% - 48px");
       }
-      .time{
+      .time {
         padding-left: 30px;
       }
       .titleBox {
         width: 100%;
         height: 50px;
+        border-bottom: 1px solid #e5e5e5;
       }
       .logDetail {
         height: 60px;
+        border-bottom: 1px solid #e5e5e5;
         .commonTitle {
           height: 60px;
           line-height: 60px;
@@ -83,6 +85,37 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+          }
+        }
+        .time {
+          color: #5CB85C;
+        }
+        .status {
+          .fa {
+            margin-right: 5px;
+          }
+          .success {
+            color: #5CB85C;
+          }
+          .fail {
+            color: #F85A5A;
+          }
+          .running {
+            color: #00A1EA;
+            .fa {
+              font-size: 12px !important;
+            }
+          }
+        }
+        .user {
+          .fa {
+            float: left;
+            line-height: 60px;
+          }
+          .commonSpan {
+            float: left;
+            margin-left: 7px;
+            width: calc(~"100% - 30px");
           }
         }
       }
