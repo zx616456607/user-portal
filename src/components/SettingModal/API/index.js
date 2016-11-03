@@ -47,7 +47,7 @@ class API extends Component{
           <tbody>
             <tr>
               <td className="tableTitle">用户名</td>
-              <td>zhaoxueyu</td>
+              <td>{namespace}</td>
             </tr>
             <tr>
               <td className="tableTitle">
@@ -56,7 +56,7 @@ class API extends Component{
                       className={hidToken === 'text'? 'hidToken' : ''}/>
               </td>
               <td>
-                <input type={hidToken} value={tokenValue} className="tokenInt" disabled/>
+                <input type={hidToken} value={token} className="tokenInt" disabled/>
               </td>
             </tr>
             <tr>
