@@ -664,7 +664,6 @@ function mapStateToProps(state, props) {
   const {
     serviceItmes
   } = state.services
-  console.log("state.services:",state.services)
   let targetServices
   if (serviceItmes[DEFAULT_CLUSTER] && serviceItmes[DEFAULT_CLUSTER][appName]) {
     targetServices = serviceItmes[DEFAULT_CLUSTER][appName]
