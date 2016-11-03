@@ -11,7 +11,7 @@ import React, { Component } from 'react'
 import { Row, Col, Button, } from 'antd'
 import './style/Team.less'
 import { connect } from 'react-redux'
-import { loadUserTeamList } from '../../../actions/user'
+import { loadUserDetail, loadUserTeamList } from '../../../actions/user'
 
 let TeamList = React.createClass ({
   getInitialState(){
@@ -69,6 +69,7 @@ class Team extends Component{
 
   componentDidMount() {
     this.props.loadUserTeamList("default", null)
+    this.props.loadUserDetail("default")
   }
 
   render(){
@@ -77,7 +78,7 @@ class Team extends Component{
         <Row className="teamWrap">
           <div className="teamTitle">
             <i className="fa fa-cube"/>
-            pupu的团队
+            {this.props.userName}的团队
           </div>
           <div className="teamContent">
             <TeamList teams={this.props.teams}/>
@@ -92,7 +93,8 @@ function mapStateToProp(state) {
   let teamsData = []
   let total = 0
   let size = 0
-  const teams = state.user.teams
+  let userName = ''
+  const {userDetail, teams} = state.user
   if (teams.result) {
     if (teams.result.teams) {
       teamsData = teams.result.teams
@@ -104,7 +106,14 @@ function mapStateToProp(state) {
       size = teams.result.size
     }
   }
+
+  if (userDetail.result && userDetail.result.data && 
+      userDetail.result.data.userName) {
+    userName = userDetail.result.data.userName
+  }
+
   return {
+    userName,
     teams: teamsData,
     total,
     size
@@ -113,4 +122,5 @@ function mapStateToProp(state) {
 
 export default connect(mapStateToProp, {
   loadUserTeamList,
+  loadUserDetail,
 })(Team)
