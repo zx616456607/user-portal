@@ -202,8 +202,8 @@ class CreateCompose extends Component {
           </FormItem>
         </div>
         <div style={{ clear:"both" }}></div>
-      </div>
-      
+      </div>      
+      </Form>
       <div className="btnBox">
         <Button size="large" onClick={ this.handleReset } style={{ marginRight:"15px" }}>
         取消
@@ -212,7 +212,6 @@ class CreateCompose extends Component {
           paretnState.stackItem.name ? [<Button size="large" type="primary" onClick={ this.updateSubmit}> 保存</Button>] : [<Button size="large" type="primary" onClick={ this.handleSubmit }> 确定</Button>]
         }
       </div>
-      </Form>
     </div>
     )
   }

@@ -1,10 +1,16 @@
-.operationalAuditBox {
+.QueryLogBox {
   padding-top: 40px;
   padding-left: 30px;
   padding-right: 60px;
-  #operationalAudit {
-    .ant-cascader-menu {
-      height: auto !important;
+  #QueryLog {
+    .ant-popover-arrow {
+      display: none;
+    }
+    .ant-popover-inner {
+      min-width: 155px !important;
+      .ant-popover-inner-content {
+        padding: 0 !important;
+      }
     }
     .bigTitle {
       padding-left: 10px;
@@ -16,28 +22,150 @@
     }
     .operaBox {
       margin-top: 10px;
-      .resourceSelect {
+      width: 100%;
+      .commonBox {
+        margin-top: 20px;
+        margin-right: 50px;
         float: left;
-        margin-top: 10px;
-        margin-right: 20px;
-        width: 130px;
+        width: 20%;
+        min-width: 240px;
+        .titleSpan {
+          padding-right: 20px;
+          float: left;
+          width: 85px;
+          line-height: 32px;
+          text-align: right;
+        }
+        .cloneSelectInput {
+          position: relative;
+          padding-left: 8px;
+          padding-right: 24px;
+          float: left;
+          display: block;
+          width: calc(~"100% - 85px");
+          min-width: 155px;
+          height: 32px;
+          line-height: 32px;
+          border: 1px solid #d9d9d9;
+          border-radius: 6px;
+          box-sizing: border-box;
+          background-color: #fff;
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+          -webkit-transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+          i {
+            z-index: 1;
+            position: absolute;
+            margin-top: -6px;
+            top: 50%;
+            right: 8px;
+            width: 12px;
+            height: 12px;
+            line-height: 12px;
+            color: #999;
+            text-transform: none;
+            transform: scale(0.66666667) rotate(0deg);
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            -webkit-transition: -webkit-transform 0.2s ease;
+            transition: -webkit-transform 0.2s ease;
+            transition: transform 0.2s ease;
+          }
+          &:hover {
+            border: 1px solid #57c5f7;
+          }
+        }
+        .cloneSelectInputClick {
+          border: 1px solid #57c5f7;
+          box-shadow: 0 0 0 2px rgba(45,183,245,0.2);
+          i {
+            transform: rotate(180deg);
+          }
+        }
+        .keywordInput {
+          width: calc(~"100% - 85px");
+          min-width: 155px;
+        }
+        .searchBtn {
+          margin-left: 85px;
+        }
       }
-      .eventSelect,
-      .statusSelect {
-        float: left;
-        margin-top: 10px;
-        margin-right: 20px;
-        width: 130px;
+    }
+    .namespaceModal {
+      .namespaceDetail {
+        padding: 0 16px;
+        transition: -webkit-transform 0.2s ease;
+        transition: transform 0.2s ease;
+        height: 30px;
+        line-height: 30px;
+        cursor: pointer;
+        &:hover {
+          background-color: #eaf8fe;
+        }
       }
-      .namespaceInput {
-        float: left;
-        margin-top: 10px;
-        margin-right: 20px;
-        width: 220px;
+      .searchBox {
+        padding: 8px 16px;
+        border-bottom: 1px solid #EFEFEF;
       }
-      .searchBtn {
-        float: left;
-        margin-top: 10px;
+    }
+    .clusterModal {
+      .clusterDetail {
+        padding: 0 16px;
+        transition: -webkit-transform 0.2s ease;
+        transition: transform 0.2s ease;
+        height: 30px;
+        line-height: 30px;
+        cursor: pointer;
+        &:hover {
+          background-color: #eaf8fe;
+        }
+      }
+      .searchBox {
+        padding: 8px 16px;
+        border-bottom: 1px solid #EFEFEF;
+      }
+    }
+    .serviceModal {
+      .serviceDetail {
+        padding: 0 16px;
+        transition: -webkit-transform 0.2s ease;
+        transition: transform 0.2s ease;
+        height: 30px;
+        line-height: 30px;
+        cursor: pointer;
+        &:hover {
+          background-color: #eaf8fe;
+        }
+      }
+      .searchBox {
+        padding: 8px 16px;
+        border-bottom: 1px solid #EFEFEF;
+      }
+    }
+    .instanceModal {
+      .instanceDetail {
+        padding: 0 16px;
+        transition: -webkit-transform 0.2s ease;
+        transition: transform 0.2s ease;
+        height: 30px;
+        line-height: 30px;
+        cursor: pointer;
+        &:hover {
+          background-color: #eaf8fe;
+        }
+      }
+      .searchBox {
+        padding: 8px 16px;
+        border-bottom: 1px solid #EFEFEF;
+      }
+    }
+    .logBox {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #EFEFEF;
+      .ant-card-body {
+        padding: 0 !important;
       }
     }
   }

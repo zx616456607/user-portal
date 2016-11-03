@@ -350,6 +350,21 @@
   "ManageMonitor.operationalAudit.millisecond": "Ms",
   "ManageMonitor.operationalAudit.second": "S",
   "ManageMonitor.operationalAudit.minute": "Min",
-  "ManageMonitor.operationalAudit.hour": "H"
+  "ManageMonitor.operationalAudit.hour": "H",
+  
+  "ManageMonitor.QueryLog.headTitle": "日志查询 | 时速云",
+  "ManageMonitor.QueryLog.title": "Query Log",
+  "ManageMonitor.QueryLog.user": "User:",
+  "ManageMonitor.QueryLog.selectUser": "Select User",
+  "ManageMonitor.QueryLog.cluster": "Cluster:",
+  "ManageMonitor.QueryLog.selectCluster": "Select Cluster",
+  "ManageMonitor.QueryLog.service": "Service:",
+  "ManageMonitor.QueryLog.selectService": "Select Service",
+  "ManageMonitor.QueryLog.instance": "Instance:",
+  "ManageMonitor.QueryLog.selectInstance": "Select Instance",
+  "ManageMonitor.QueryLog.startTime": "Start:",
+  "ManageMonitor.QueryLog.endTime": "End:",
+  "ManageMonitor.QueryLog.keyword": "Keyword:",
+  "ManageMonitor.QueryLog.search": "Search"
   
 }
