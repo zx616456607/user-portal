@@ -15,6 +15,7 @@ export default function user(state = {
   userDetail: {},
   users: [],
   teams: {},
+  teamspaces: {}
  }, action) {
   return {
     userDetail: reducerFactory({
@@ -31,6 +32,11 @@ export default function user(state = {
       REQUEST: ActionTypes.USER_TEAM_LIST_REQUEST,
       SUCCESS: ActionTypes.USER_TEAM_LIST_SUCCESS,
       FAILURE: ActionTypes.USER_TEAM_LIST_FAILURE
-    }, state.teams, action)
+    }, state.teams, action),
+    teamspaces: reducerFactory({
+      REQUEST: ActionTypes.USER_TEAM_LIST_REQUEST,
+      SUCCESS: ActionTypes.USER_TEAM_LIST_SUCCESS,
+      FAILURE: ActionTypes.USER_TEAM_LIST_FAILURE
+    }, state.teamspaces, action)
   }
 }

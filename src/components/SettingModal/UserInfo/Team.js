@@ -26,7 +26,6 @@ let TeamList = React.createClass ({
           <Col span={4}>{team.teamName}</Col>
           <Col span={4}>8</Col>
           <Col span={4}>8</Col>
-          <Col span={4}>59999 T币</Col>
         </Row>
       )
     })
@@ -45,24 +44,8 @@ let TeamList = React.createClass ({
             <i className="fa fa-cube"/>
             集群
           </Col>
-          <Col span={4}>
-            <i className="fa fa-cube"/>
-            余额
-          </Col>
         </Row>
         {items}
-        <Row className="contentList firstItem">
-          <Col span={4}>奔驰开发1组</Col>
-          <Col span={4}>3</Col>
-          <Col span={4}>6</Col>
-          <Col span={4}>58888 T币</Col>
-        </Row>
-        <Row className="contentList">
-          <Col span={4}>民生前端军团</Col>
-          <Col span={4}>3</Col>
-          <Col span={4}>6</Col>
-          <Col span={4}>58888 T币</Col>
-        </Row>
       </div>
     )
   }
@@ -100,23 +83,23 @@ class Team extends Component{
 function mapStateToProp(state) {
   let teamsData = []
   let total = 0
-  let count = 0
+  let size = 0
   const teams = state.user.teams
-  if (teams.result && teams.result.data) {
-    if (teams.result.data) {
-      teamsData = teams.result.data
+  if (teams.result) {
+    if (teams.result.teams) {
+      teamsData = teams.result.teams
     }
     if (teams.result.total) {
       total = teams.result.total
     }
     if (teams.result.count) {
-      total = teams.result.count
+      size = teams.result.size
     }
   }
   return {
     teams: teamsData,
     total,
-    count
+    size
   }
 }
 

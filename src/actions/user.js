@@ -91,3 +91,31 @@ export function loadUserTeamList(userID, query, requiredFields = []) {
     return dispatch(fetchUserTeamList(userID, query))
   }
 }
+
+export const USER_TEAMSAPCE_LIST_REQUEST = 'USER_TEAMSAPCE_LIST_REQUEST'
+export const USER_TEAMSAPCE_LIST_SUCCESS = 'USER_TEAMSAPCE_LIST_SUCCESS'
+export const USER_TEAMSAPCE_LIST_FAILURE = 'USER_TEAMSAPCE_LIST_FAILURE'
+
+// Fetches teamspace list from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchUserTeamspaceList(userID, query) {
+  let endpoint = `${API_URL_PREFIX}/users/${userID}/teamspaces`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [USER_TEAMSAPCE_LIST_REQUEST, USER_TEAMSAPCE_LIST_SUCCESS, USER_TEAMSAPCE_LIST_FAILURE],
+      endpoint,
+      schema: {}
+    }
+  }
+}
+
+// Fetches teamspace list from API unless it is cached.
+// Relies on Redux Thunk middleware.
+export function loadUserTeamspaceList(userID, query, requiredFields = []) {
+  return (dispatch, getState) => {
+    return dispatch(fetchUserTeamspaceList(userID, query))
+  }
+}
