@@ -15,7 +15,7 @@ import QueueAnim from 'rc-queue-anim'
 import AppServiceDetail from './AppServiceDetail'
 import './style/AppServiceList.less'
 import { loadServiceList, startServices, restartServices, stopServices, deleteServices, quickRestartServices } from '../../actions/services'
-import { DEFAULT_CLUSTER } from '../../constants'
+import { DEFAULT_CLUSTER, ANNOTATION_SVC_DOMAIN } from '../../constants'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 import { browserHistory } from 'react-router'
 import RollingUpdateModal from './AppServiceDetail/RollingUpdateModal'
@@ -56,6 +56,13 @@ const MyComponent = React.createClass({
         serviceList
       })
     }
+  },
+  parseServiceDomain: function (item) {
+    let domain = ""
+    if (item.metadata.annotations && item.metadata.annotations[ANNOTATION_SVC_DOMAIN]) {
+      domain = item.metadata.annotations[ANNOTATION_SVC_DOMAIN]
+    }
+    return domain
   },
   modalShow: function (item) {
     // e.stopPropagation()
@@ -180,6 +187,7 @@ const MyComponent = React.createClass({
           </Menu.Item>
         </Menu>
       );
+      const svcDomain = this.parseServiceDomain(item)
       return (
         <div
           className={item.checked ? "selectedInstance instanceDetail" : "instanceDetail"}
@@ -204,8 +212,11 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className="service commonData">
-            <Tooltip title={item.serviceIP ? item.serviceIP : ""}>
-              <span>{item.serviceIP || '-'}</span>
+            <Tooltip title={svcDomain}>
+            {
+              svcDomain ?
+              (<a target="_blank" href={svcDomain}>{svcDomain}</a>) : (<span>-</span>)
+            }
             </Tooltip>
           </div>
           <div className="createTime commonData">
@@ -653,6 +664,7 @@ function mapStateToProps(state, props) {
   const {
     serviceItmes
   } = state.services
+  console.log("state.services:",state.services)
   let targetServices
   if (serviceItmes[DEFAULT_CLUSTER] && serviceItmes[DEFAULT_CLUSTER][appName]) {
     targetServices = serviceItmes[DEFAULT_CLUSTER][appName]
