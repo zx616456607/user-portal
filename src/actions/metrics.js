@@ -8,7 +8,8 @@
  * @author ZhaoXueYu
  */
 import { FETCH_API, Schemas } from '../middleware/api'
-import { API_URL_PREFIX, METRICS_CPU, METRICS_MEMORY, METRICS_NETWORK_RECEIVED, METRICSS_NETWORK_TRANSMITTED } from '../constants'
+import { API_URL_PREFIX } from '../constants'
+import { METRICS_CPU, METRICS_MEMORY, METRICS_NETWORK_RECEIVED, METRICSS_NETWORK_TRANSMITTED } from '../../constants'
 import { toQuerystring } from '../common/tools'
 
 // ~~ container

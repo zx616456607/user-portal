@@ -218,6 +218,7 @@ class Deployment {
         this.spec.template.spec.volumes.push({
           name: volume.name,
           configMap: {
+            name: volume.configMap.name,
             items: volume.configMap.items.map((item) => {
               return {
                 key: item.key,
@@ -235,7 +236,8 @@ class Deployment {
         name: volume.name,
         [volume.diskType]: {
           //fsType: volume.fsType,
-          image: volume.image
+          image: volume.image,
+          fsType: volume.fsType
         }
       })
     })

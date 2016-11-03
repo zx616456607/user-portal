@@ -10,19 +10,6 @@
 
 'use strict'
 const apiFactory = require('../services/api_factory')
-const ConfigGroupsApi = require('../tenx_api/v2')
-const configGroups = {
-  protocol: 'http',
-  host: '192.168.1.103:48000',
-  version: 'v2',
-  auth: {
-    user: 'huangxin',
-    token: 'vmrptixssqmwojepukeedbpkgujtypbklggnjazhsmrlfyef',
-    namespace: 'huangxin'
-  },
-  timeout: 600
-}
-const configApi = new ConfigGroupsApi(configGroups)
 
 exports.listConfigGroups = function* () {
   const cluster = this.params.cluster
@@ -55,7 +42,10 @@ exports.listConfigGroups = function* () {
 exports.getConfigGroupName = function* () {
   const cluster = this.params.cluster
   let configName = this.params.name
-  let response = yield configApi.configGroup.getBy([cluster, 'configgroups', configName])
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  
+  let response = yield api.getBy([cluster, 'configgroups', configName])
   this.status = response.code
   this.body = {
     data: response.data.extended
@@ -69,7 +59,9 @@ exports.createConfigGroup = function* () {
     this.status = 400
     this.body = { message: 'invalid cluster or config group name' }
   }
-  let response = yield configApi.configGroup.createBy([cluster, 'configgroups', groupName], null, null)
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  let response = yield api.createBy([cluster, 'configgroups',  groupName], null, null)
   if (response.code >= 400) {
     const err = new Error(`list config groups fails ${response.body}`)
     err.status = reponse.code
@@ -88,7 +80,9 @@ exports.deleteConfigGroup = function* () {
     this.status = 400
     this.body = { message: 'Not Parameter' }
   }
-  let response = yield configApi.configGroup.batchDeleteBy([cluster, 'configgroups', 'batch-delete'], null, groups)
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  let response = yield api.batchDeleteBy([cluster, 'configgroups', 'batch-delete'], null, groups)
   if (response.code >= 400) {
     const err = new Error(`delete config groups fails: ${response.body}`)
     err.status = reponse.code
@@ -110,7 +104,9 @@ exports.createConfigFiles = function* () {
     this.status = 400
     this.body = { message: 'error' }
   }
-  let response = yield configApi.configGroup.createBy([cluster, 'configgroups', group, 'configs', fileName], null, data)
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  let response = yield api.createBy([cluster, 'configgroups', group, 'configs', fileName], null, data)
   if (response.code >= 400) {
     const err = new Error(`create config files fails: ${response.body}`)
     err.status = reponse.code
@@ -126,7 +122,10 @@ exports.loadConfigFiles = function* () {
   const cluster = this.params.cluster
   const fileName = this.params.name
   const group = this.params.group
-  let response = yield configApi.configGroup.getBy([cluster, 'configgroups', group, 'configs', fileName])
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+
+  let response = yield api.getBy([cluster, 'configgroups', group, 'configs', fileName])
   if (response.code >= 400) {
     const err = new Error(`load config files fails: ${response.body}`)
     err.status = reponse.code
@@ -143,7 +142,10 @@ exports.updateConfigFile = function* () {
   const fileName = this.params.name
   const group = this.params.group
   let data = this.request.body.desc
-  let response = yield configApi.configGroup.updateBy([cluster, 'configgroups', group, 'configs', fileName], null, data)
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+
+  let response = yield api.updateBy([cluster, 'configgroups', group, 'configs', fileName], null, data)
   if (response.code >= 400) {
     const err = new Error(`update config file ${filename} fails: ${response.body}`)
     err.status = reponse.code
@@ -159,7 +161,10 @@ exports.deleteConfigFiles = function* () {
   const cluster = this.params.cluster
   const group = this.params.group
   const data = this.request.body
-  let response = yield configApi.configGroup.batchDeleteBy([cluster, 'configgroups', group, 'configs', 'batch-delete'], null, data)
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+
+  let response = yield api.batchDeleteBy([cluster, 'configgroups', group, 'configs', 'batch-delete'], null, data)
   this.status = response.code
   this.body = {
     data: response.data

@@ -12,7 +12,7 @@ import { Tabs, Button, Card,Switch , Menu, Tooltip ,Icon, message} from 'antd'
 import { Link} from 'react-router'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { imageStore, imageSwitch ,loadPublicImageList , loadPrivateImageList, loadOtherImage} from '../../../../actions/app_center'
+import { imageStore, imageSwitch ,loadPublicImageList , loadFavouriteList , loadPrivateImageList} from '../../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import ImageVersion from './ImageVersion.js'
 import DetailInfo from './DetailInfo'
@@ -136,11 +136,17 @@ class ImageDetailBox extends Component {
       // isPrivate,
       image
     }
+    const scope = this
+    const imageSpace = this.props.parentScope.state.current
     this.props.imageStore(config, {
       success: {
         func: ()=>{
-          message.success('更新成功！')  
-        }
+          message.success('更新成功！')
+          if (imageSpace == 'myCollection') {
+            scope.props.loadFavouriteList(DEFAULT_REGISTRY)
+          }
+        },
+        isAsync: true
       }
     })
   }
@@ -168,9 +174,6 @@ class ImageDetailBox extends Component {
               break
             case 'publicSpace':
               scope.props.loadPublicImageList(DEFAULT_REGISTRY)
-              break
-            case 'publicSpace':
-              scope.props.loadOtherImage()
               break
             default:
               scope.props.loadPrivateImageList(DEFAULT_REGISTRY)
@@ -290,8 +293,8 @@ function mapDispatchToProps(dispatch) {
     loadPublicImageList: (registry) => {
       dispatch(loadPublicImageList(registry))
     },
-    loadOtherImage: () =>{
-      dispatch(loadOtherImage())
+    loadFavouriteList: (registry) =>{
+      dispatch(loadFavouriteList(registry))
     }
   }
 }

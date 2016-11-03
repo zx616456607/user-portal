@@ -10,14 +10,33 @@
 import React, { Component } from 'react'
 import { Row, Col, Button, } from 'antd'
 import './style/Team.less'
+import { connect } from 'react-redux'
+import { loadUserDetail, loadUserTeamList } from '../../../actions/user'
 
-let TeamSpace = React.createClass ({
+let TeamList = React.createClass ({
   getInitialState(){
     return {
       
     }
   },
   render: function () {
+    let firstRow = true
+    let className = ""
+    let items = this.props.teams.map((team) => {
+      if (firstRow) {
+        className = "contentList firstItem"
+        firstRow = false
+      } else {
+        className = "contentList"
+      }
+      return (
+        <Row className={className} key={team.teamID}>
+          <Col span={4}>{team.teamName}</Col>
+          <Col span={4}>{team.spaceCount}</Col>
+          <Col span={4}>{team.clusterCount}</Col>
+        </Row>
+      )
+    })
     return (
       <div>
         <Row className="contentTop">
@@ -33,48 +52,75 @@ let TeamSpace = React.createClass ({
             <i className="fa fa-cube"/>
             集群
           </Col>
-          <Col span={4}>
-            <i className="fa fa-cube"/>
-            余额
-          </Col>
         </Row>
-        <Row className="contentList firstItem">
-          <Col span={4}>奔驰开发1组</Col>
-          <Col span={4}>3</Col>
-          <Col span={4}>6</Col>
-          <Col span={4}>58888 T币</Col>
-        </Row>
-        <Row className="contentList">
-          <Col span={4}>民生前端军团</Col>
-          <Col span={4}>3</Col>
-          <Col span={4}>6</Col>
-          <Col span={4}>58888 T币</Col>
-        </Row>
+        {items}
       </div>
     )
   }
 })
 
-export default class Team extends Component{
+class Team extends Component{
   constructor(props){
     super(props)
     this.state = {
       
     }
   }
+
+  componentDidMount() {
+    this.props.loadUserTeamList("default", null)
+    this.props.loadUserDetail("default")
+  }
+
   render(){
     return (
       <div id='Team'>
         <Row className="teamWrap">
           <div className="teamTitle">
             <i className="fa fa-cube"/>
-            pupu的团队空间
+            {this.props.userName}的团队
           </div>
           <div className="teamContent">
-            <TeamSpace />
+            <TeamList teams={this.props.teams}/>
           </div>
         </Row>
       </div>
     )
   }
 }
+
+function mapStateToProp(state) {
+  let teamsData = []
+  let total = 0
+  let size = 0
+  let userName = ''
+  const {userDetail, teams} = state.user
+  if (teams.result) {
+    if (teams.result.teams) {
+      teamsData = teams.result.teams
+    }
+    if (teams.result.total) {
+      total = teams.result.total
+    }
+    if (teams.result.count) {
+      size = teams.result.size
+    }
+  }
+
+  if (userDetail.result && userDetail.result.data && 
+      userDetail.result.data.userName) {
+    userName = userDetail.result.data.userName
+  }
+
+  return {
+    userName,
+    teams: teamsData,
+    total,
+    size
+  }
+}
+
+export default connect(mapStateToProp, {
+  loadUserTeamList,
+  loadUserDetail,
+})(Team)

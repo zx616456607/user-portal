@@ -11,10 +11,11 @@ import React, { Component } from 'react'
 import { Menu, Dropdown, Icon, Select, Input, Button, Form, Popover, } from 'antd'
 import { FormattedMessage, defineMessages } from 'react-intl'
 import "./style/header.less"
-import jsonp from 'jsonp'
 import querystring from 'querystring'
 import classNames from 'classnames'
-import PopSelect from '../PopSelect/index'
+import PopSelect from '../PopSelect'
+import { connect } from 'react-redux'
+import { loadUserTeamspaceList } from '../../actions/user'
 
 const FormItem = Form.Item;
 const createForm = Form.create;
@@ -62,85 +63,47 @@ const menu = (
   </Menu>
 )
 
-class Top extends Component {
+function loadSpaces(props) {
+  const { loadUserTeamspaceList } = props
+  loadUserTeamspaceList('default', { size: 100 })
+}
+
+class Header extends Component {
   constructor(props) {
     super(props)
-    this.handleChange = this.handleChange.bind(this)
-    this.handleSpaceMenu = this.handleSpaceMenu.bind(this)
+    this.handleSpaceChange = this.handleSpaceChange.bind(this)
     this.handleInputChange = this.handleInputChange.bind(this)
-    this.handleFocusBlur = this.handleFocusBlur.bind(this)
     this.setCluster = this.setCluster.bind(this)
     this.state = {
       spaceVisible: false,
       value: '',
       focus: false,
+      selectSpace: null
     }
   }
-  handleChange(e, value) {
-    e.stopPropagation()
-    return false
+
+  handleSpaceChange(space) {
+    this.setState({
+      selectSpace: space
+    })
   }
-  handleSpaceMenu({key}) {
-    //
-  }
+
   handleInputChange(e) {
     this.setState({
       value: e.target.value,
     });
-  }
-  handleFocusBlur(e) {
-
   }
 
   setCluster(value, option) {
     window.localStorage.setItem('cluster', value)
   }
 
-  render() {
-    const { style, size, placeholder, } = this.props
-    const btnCls = classNames({
-      'ant-search-btn': true,
-      'ant-search-btn-noempty': !!this.state.value.trim(),
-    })
-    const searchCls = classNames({
-      'ant-search-input': true,
-      'ant-search-input-focus': this.state.focus,
-    })
-    /*const spaceMenu = (
-      <Menu onClick={this.handleSpaceMenu}>
-        <Menu.Item key="0" style={{backgroundColor: '#e5e5e5',color: '#000'}}>
-          <div>
-            选择项目空间
-          </div>
-        </Menu.Item>
-        <Menu.Item key="1" style={{borderBottom: '1px solid #e2e2e2'}}>
-          <div className="ant-search-input-wrapper" style={{width: 120}}>
-            <InputGroup className={searchCls}>
-              <Input placeholder='查询'
-                     value={this.state.value}
-                     onChange={this.handleInputChange}
-                     onFocus={this.handleFocusBlur}
-                     onBlur={this.handleFocusBlur}
-                     onPressEnter={this.handleSearch}
-              />
-              <div className="ant-input-group-wrap">
-                <Button icon="search" className={btnCls} size={size} onClick={this.handleSearch} />
-              </div>
-            </InputGroup>
-          </div>
-        </Menu.Item>
-        <Menu.Item key="2" style={{paddingLeft: 20}}>
-          奔驰-CRM系统
-        </Menu.Item>
-        <Menu.Item key="3" style={{paddingLeft: 20}}>
-          奔驰-OA系统
-        </Menu.Item>
-        <Menu.Item key="4" style={{paddingLeft: 20}}>
-          奔驰-进销存系统
-        </Menu.Item>
-      </Menu>
-    )*/
+  componentWillMount() {
+    loadSpaces(this.props)
+  }
 
+  render() {
+    const { isTeamspacesFetching, teamspaces } = this.props
     const spaceResultArr = ['奔驰-CRM系统', '奔驰-OA系统', '奔驰-进销存系统']
     const ClusterResultArr = ['test', '产品环境', 'k8s 1.4']
 
@@ -152,15 +115,12 @@ class Top extends Component {
             <span style={{ marginLeft: 5 }}>空间</span>
           </div>
           <div className="spaceBtn">
-            {/*<Dropdown overlay={spaceMenu}
-                      trigger={['click']}
-            >
-              <a className="ant-dropdown-link" href="#">
-                奔驰HRM系统
-                <Icon type="down" />
-              </a>
-            </Dropdown>*/}
-            <PopSelect btnStyle={false} resultArr={spaceResultArr} selectValue="奔驰HRM系统" />
+            <PopSelect
+              btnStyle={false}
+              list={teamspaces}
+              loading={isTeamspacesFetching}
+              onChange={this.handleSpaceChange}
+              selectValue="奔驰HRM系统" />
           </div>
         </div>
         <div className="cluster">
@@ -168,12 +128,17 @@ class Top extends Component {
             <i className="fa fa-sitemap" />
             <span style={{ marginLeft: 5 }}>集群</span>
           </div>
-          <div className="clusterBtn">
+          {/*<div className="clusterBtn">
             <span style={{ padding: '0 10px 5px 10px' }}>开发测试集群</span>
             <span>生产环境集群</span>
-          </div>
+          </div>*/}
           <div className="envirBox">
-            <PopSelect btnStyle={true} resultArr={ClusterResultArr} selectValue="产品环境集群" />
+            <PopSelect
+              btnStyle={false}
+              list={teamspaces}
+              loading={isTeamspacesFetching}
+              selectValue="奔驰HRM系统" />
+            {/*<PopSelect btnStyle={false} list={ClusterResultArr} selectValue="产品环境集群" />*/}
           </div>
         </div>
         <div className="rightBox">
@@ -191,4 +156,15 @@ class Top extends Component {
     )
   }
 }
-export default Top
+
+function mapStateToProps(state, props) {
+  const { teamspaces } = state.user
+  return {
+    isTeamspacesFetching: teamspaces.isFetching,
+    teamspaces: (teamspaces.result ? teamspaces.result.teamspaces : [])
+  }
+}
+
+export default connect(mapStateToProps, {
+  loadUserTeamspaceList
+})(Header)

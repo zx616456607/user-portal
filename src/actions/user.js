@@ -64,3 +64,58 @@ export function loadUserDetail(userID, requiredFields = []) {
   }
 }
 
+export const USER_TEAM_LIST_REQUEST = 'USER_TEAM_LIST_REQUEST'
+export const USER_TEAM_LIST_SUCCESS = 'USER_TEAM_LIST_SUCCESS'
+export const USER_TEAM_LIST_FAILURE = 'USER_TEAM_LIST_FAILURE'
+
+// Fetches team list from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchUserTeamList(userID, query) {
+  let endpoint = `${API_URL_PREFIX}/users/${userID}/teams`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [USER_TEAM_LIST_REQUEST, USER_TEAM_LIST_SUCCESS, USER_TEAM_LIST_FAILURE],
+      endpoint,
+      schema: {}
+    }
+  }
+}
+
+// Fetches team list from API unless it is cached.
+// Relies on Redux Thunk middleware.
+export function loadUserTeamList(userID, query, requiredFields = []) {
+  return (dispatch, getState) => {
+    return dispatch(fetchUserTeamList(userID, query))
+  }
+}
+
+export const USER_TEAMSPACE_LIST_REQUEST = 'USER_TEAMSPACE_LIST_REQUEST'
+export const USER_TEAMSPACE_LIST_SUCCESS = 'USER_TEAMSPACE_LIST_SUCCESS'
+export const USER_TEAMSPACE_LIST_FAILURE = 'USER_TEAMSPACE_LIST_FAILURE'
+
+// Fetches teamspace list from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchUserTeamspaceList(userID, query) {
+  let endpoint = `${API_URL_PREFIX}/users/${userID}/teamspaces`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [USER_TEAMSPACE_LIST_REQUEST, USER_TEAMSPACE_LIST_SUCCESS, USER_TEAMSPACE_LIST_FAILURE],
+      endpoint,
+      schema: {}
+    }
+  }
+}
+
+// Fetches teamspace list from API unless it is cached.
+// Relies on Redux Thunk middleware.
+export function loadUserTeamspaceList(userID, query, requiredFields = []) {
+  return (dispatch, getState) => {
+    return dispatch(fetchUserTeamspaceList(userID, query))
+  }
+}

@@ -12,12 +12,23 @@ const Service = require('../kubernetes/objects/service')
 const apiFactory = require('../services/api_factory')
 
 exports.getOperationAuditLog = function* () {
-  const body = this.request.body
+  const reqBody = this.request.body
   const loginUser = this.session.loginUser
-  const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.createBy(['audits', 'logs'], null, body);
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.audits.createBy(['logs'], null, reqBody);
   this.body = {
-    logs: result,
+    logs: result.data
   }
 }
 
+exports.getSearchLog = function* () {
+  const cluster = this.params.cluster
+  const instances = this.params.instances
+  const reqBody = this.request.body
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.createBy([cluster, 'instances', instances, 'logs'], null, reqBody);
+  this.body = {
+    logs: result.data
+  }
+}

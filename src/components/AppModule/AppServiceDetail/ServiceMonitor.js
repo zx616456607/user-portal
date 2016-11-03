@@ -16,6 +16,7 @@ import { connect } from 'react-redux'
 import TimeControl from '../../Metrics/TimeControl'
 import Metrics from '../../Metrics'
 import { loadServiceMetricsCPU, loadServiceMetricsMemory, loadServiceMetricsNetworkReceived, loadServiceMetricsNetworkTransmitted } from '../../../actions/metrics'
+import './style/ServiceMonitor.less'
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;

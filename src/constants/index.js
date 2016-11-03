@@ -14,11 +14,6 @@ export const DEFAULT_CLUSTER = 'cce1c71ea85a5638b22c15d86c1f61df'
 export const DEFAULT_IMAGE_POOL = 'k8s-pool'
 export const DEFAULT_REGISTRY = 'default'
 export const LABEL_APPNAME = 'tenxcloud.com/appName'
-export const DEFAULT_PAGE_SIZE = 10
-export const METRICS_CPU = 'cpu/usage_rate'
-export const METRICS_MEMORY = 'memory/usage'
-export const METRICS_NETWORK_RECEIVED = 'network/rx_rate'
-export const METRICSS_NETWORK_TRANSMITTED = 'network/tx_rate'
 export const TEST_MONITOR_OPTION = {
   title: {
     text: 'test monitor'
@@ -67,3 +62,4 @@ export const TEST_MONITOR_OPTION = {
     }
   ]
 }
+export const ANNOTATION_SVC_DOMAIN = "tenxcloud.com/tenxDomain"

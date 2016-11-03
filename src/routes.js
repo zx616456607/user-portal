@@ -50,6 +50,7 @@ import DatabaseStorage from './components/DatabaseCache/DatabaseStorage'
 /*-------------------CI/CD Module Start----------------------------------*/
 import CICD from './containers/CICD'
 import CodeStore from './components/CICDModule/CodeStore'
+import CodeRepo from './components/CICDModule/CodeStore/CodeRepo'
 import DockerFile from './components/CICDModule/DockerFile'
 import TenxFlow from './components/CICDModule/TenxFlow'
 import TenxFlowBuild from './components/CICDModule/TenxFlow/TenxFlowDetail'
@@ -59,6 +60,7 @@ import Setting from './containers/Setting'
 import UserInfo from './components/SettingModal/UserInfo'
 import MemberManage from './components/SettingModal/MemberManage'
 import TeamManage from './components/SettingModal/TeamManage'
+import API from './components/SettingModal/API'
 /*-------------------Setting Module Stop-----------------------------------*/
 /*-------------------Manage & Monitor Module Start--------------------------------*/
 import ManageMonitor from './containers/ManageMonitor'
@@ -104,6 +106,7 @@ export default (
     </Route>
     <Route path="ci_cd" component={CICD}>
       <IndexRoute component={CodeStore} />
+      <Route path="coderepo" component={CodeRepo} />
       <Route path="tenx_flow" >
         <IndexRoute component={TenxFlow} />
         <Route path="tenx_flow_build" component={TenxFlowBuild} />
@@ -114,6 +117,7 @@ export default (
       <IndexRoute component={UserInfo} />
       <Route path="member" component={MemberManage} />
       <Route path="team" component={TeamManage} />
+      <Route path="API" component={API} />
     </Route>
     <Route path="manange_monitor" component={ManageMonitor}>
       <IndexRoute component={OperationalAudit} />

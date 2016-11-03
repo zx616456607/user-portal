@@ -1,0 +1,230 @@
+.QueryLogBox {
+  padding-top: 40px;
+  padding-left: 30px;
+  padding-right: 60px;
+  #QueryLog {
+    transform: initial !important;
+    .ant-popover-arrow {
+      display: none;
+    }
+    .ant-popover-inner {
+      min-width: 155px !important;
+      .ant-popover-inner-content {
+        padding: 0 !important;
+      }
+    }
+    .bigTitle {
+      padding-left: 10px;
+      height: 20px;
+      line-height: 20px;
+      font-size: 16px;
+      border-left: 8px solid #00A1EA;
+      cursor: default;
+    }
+    .operaBox {
+      margin-top: 10px;
+      padding-bottom: 20px;
+      width: 100%;
+      border-bottom: 1px solid #E5E5E5;
+      .commonBox {
+        margin-top: 20px;
+        margin-right: 50px;
+        float: left;
+        width: 20%;
+        min-width: 240px;
+        .titleSpan {
+          padding-right: 20px;
+          float: left;
+          width: 85px;
+          line-height: 32px;
+          text-align: right;
+        }
+        .cloneSelectInput {
+          position: relative;
+          padding-left: 8px;
+          padding-right: 24px;
+          float: left;
+          display: block;
+          width: calc(~"100% - 85px");
+          min-width: 155px;
+          height: 32px;
+          line-height: 32px;
+          border: 1px solid #d9d9d9;
+          border-radius: 6px;
+          box-sizing: border-box;
+          background-color: #fff;
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+          -webkit-transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+          i {
+            z-index: 1;
+            position: absolute;
+            margin-top: -6px;
+            top: 50%;
+            right: 8px;
+            width: 12px;
+            height: 12px;
+            line-height: 12px;
+            color: #999;
+            text-transform: none;
+            transform: scale(0.66666667) rotate(0deg);
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            -webkit-transition: -webkit-transform 0.2s ease;
+            transition: -webkit-transform 0.2s ease;
+            transition: transform 0.2s ease;
+          }
+          &:hover {
+            border: 1px solid #57c5f7;
+          }
+          .placeholderSpan {
+            color: #dcdcdc;
+          }
+          .selectedSpan {
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+        }
+        .cloneSelectInputClick {
+          border: 1px solid #57c5f7;
+          box-shadow: 0 0 0 2px rgba(45,183,245,0.2);
+          i {
+            transform: rotate(180deg);
+          }
+        }
+        .keywordInput {
+          width: calc(~"100% - 85px");
+          min-width: 155px;
+        }
+        .searchBtn {
+          margin-left: 85px;
+        }
+      }
+    }
+    .namespaceModal {
+      .namespaceDetail {
+        padding: 0 16px;
+        transition: -webkit-transform 0.2s ease;
+        transition: transform 0.2s ease;
+        height: 30px;
+        line-height: 30px;
+        cursor: pointer;
+        &:hover {
+          background-color: #eaf8fe;
+        }
+      }
+      .searchBox {
+        padding: 8px 16px;
+        border-bottom: 1px solid #EFEFEF;
+      }
+    }
+    .clusterModal {
+      .clusterDetail {
+        padding: 0 16px;
+        transition: -webkit-transform 0.2s ease;
+        transition: transform 0.2s ease;
+        height: 30px;
+        line-height: 30px;
+        cursor: pointer;
+        &:hover {
+          background-color: #eaf8fe;
+        }
+      }
+      .searchBox {
+        padding: 8px 16px;
+        border-bottom: 1px solid #EFEFEF;
+      }
+    }
+    .serviceModal {
+      .serviceDetail {
+        padding: 0 16px;
+        transition: -webkit-transform 0.2s ease;
+        transition: transform 0.2s ease;
+        height: 30px;
+        line-height: 30px;
+        cursor: pointer;
+        &:hover {
+          background-color: #eaf8fe;
+        }
+      }
+      .searchBox {
+        padding: 8px 16px;
+        border-bottom: 1px solid #EFEFEF;
+      }
+    }
+    .instanceModal {
+      .instanceDetail {
+        padding: 0 16px;
+        transition: -webkit-transform 0.2s ease;
+        transition: transform 0.2s ease;
+        height: 30px;
+        line-height: 30px;
+        cursor: pointer;
+        &:hover {
+          background-color: #eaf8fe;
+        }
+      }
+      .searchBox {
+        padding: 8px 16px;
+        border-bottom: 1px solid #EFEFEF;
+      }
+    }
+    .logBox {
+      transition: -webkit-transform 0.2s ease;
+      transition: transform 0.2s ease;
+      margin-top: 20px;
+      border-top: 1px solid #EFEFEF;
+      .ant-card-body {
+        padding: 0 !important;
+      }
+      .titleBox {
+        width: 100%;
+        height: 40px;
+        line-height: 40px;
+        color: #5CB85C;
+        background-color: #333333;
+        .keywordSpan {
+          padding: 0 15px;
+          display: inline-block;
+          width: auto;
+          height: 40px;
+          line-height: 40px;
+          font-size: 14px;
+          border-bottom: 2px solid #5CB85C;
+        }
+        .fa {
+          float: right;
+          margin-right: 20px;
+          line-height: 40px;
+          font-size: 14px;
+          cursor: pointer;
+        }
+      }
+      .msgBox {
+        width: 100%;
+        height: 500px;
+        overflow-y: auto;
+        background-color: #1A1A1A;
+      }
+    }
+    .bigLogBox {
+      z-index: 100;
+      position: fixed;
+      margin-top: 0px !important;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow-y: auto;
+      .ant-card-body{
+        height: 100%;
+      }
+      .msgBox{
+        height: calc(~"100% - 40px");
+      }
+    }
+  }
+}

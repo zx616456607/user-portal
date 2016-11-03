@@ -10,6 +10,7 @@
 import React, { Component, PropTypes } from 'react'
 import { Form, Select, Input, InputNumber, Modal, Checkbox, Button, Card, Menu, Switch, Icon, Spin, message } from 'antd'
 import { connect } from 'react-redux'
+import filter from 'lodash/filter'
 import { DEFAULT_REGISTRY, DEFAULT_CLUSTER } from '../../../../constants'
 import { loadImageDetailTag, loadImageDetailTagConfig } from '../../../../actions/app_center'
 import { checkServiceName } from '../../../../actions/app_manage'
@@ -32,6 +33,28 @@ let MyComponent = React.createClass({
   },
   componentWillMount() {
     this.props.loadFreeVolume(this.props.cluster)
+
+  },
+  getFormValue() {
+    const { form } = this.props
+    const { getFieldValue, setFieldsValue, getFieldProps} = form
+    const volumes = getFieldValue('volumes')
+    const volumeMounts = getFieldValue('volumeMounts')
+    if (!volumes || volumes.length <= 0) return
+    let volumeKey = []
+    let index = 0
+    volumes.forEach((volume) => {
+      if (volume.configMap) return
+      const mount = filter(volumeMounts, ['name', volume.name])
+      getFieldProps(`volumePath${index + 1}`, { initialValue: mount[0].mountPath })
+      getFieldProps(`volumeName${index + 1}`, { initialValue: `${volume.rbd.image}/${volume.rbd.fsType}` })
+      getFieldProps(`volumeChecked${index + 1}`, { initialValue: mount[0].readOnly })
+      index++
+      volumeKey.push(index)
+    })
+    getFieldProps(`volumeKey`, {
+      initialValue: volumeKey
+    })
   },
   remove(k) {
     const { form } = this.props
@@ -124,24 +147,23 @@ let MyComponent = React.createClass({
     const { getFieldProps, getFieldValue, } = this.props.form
     const registry = this.props.registry
     const mountPath = this.props.tagConfig[registry].configList.mountPath
-    if (!this.props.avaliableVolume.data) {
+    if (!this.props.avaliableVolume.data && !getFieldValue('volumeName1')) {
       return <div></div>
     }
     let { isFetching } = this.props.avaliableVolume
     if (isFetching) {
-      <div className='loadingBox'>
+      return <div className='loadingBox'>
         <Spin size='large' />
       </div>
     }
     isFetching = this.props.createState.isFetching
     if (isFetching) {
-      <div className='loadingBox'>
+      return <div className='loadingBox'>
         <Spin size='large' />
       </div>
     }
     const volume = this.props.avaliableVolume.data.volumes
     let formItems = ''
-
     if (volume.length <= 0) {
       getFieldProps('volumeKey', {
         initialValue: [1],
@@ -170,27 +192,34 @@ let MyComponent = React.createClass({
         </div>
       )
     } else {
-      getFieldProps('volumeKey', {
-        initialValue: mountPath.map((i, index) => { return index + 1 }),
-      });
+      if(!getFieldProps('volumeKey').value) {
+        getFieldProps('volumeKey', {
+          initialValue: mountPath.map((i, index) => { return index + 1 }),
+        });
+      }
+      this.getFormValue()
       formItems = getFieldValue('volumeKey').map((k) => {
         return (
           <FormItem key={`volume${k}`}>
-
             {
               mountPath[k - 1] ?
                 <span type='text' className="url">
-                  <Input className="hide"  {...getFieldProps(`volumePath${k}`, { initialValue: mountPath[k - 1] }) } />
+                  <Input className="hide"  value={(function(){
+                    if(!getFieldProps(`volumePath${k}`).value) {
+                      getFieldProps(`volumePath${k}`, {initialValue: mountPath[k-1]})
+                    }
+                    return mountPath
+                  })()}/>
                   {mountPath[k - 1]}
                 </span> :
-                <Input {...getFieldProps(`volumePath${k}`, {}) } className="urlInt" />
+                <Input {...getFieldProps(`volumePath${k}`) } className="urlInt" />
             }
             <Select className="imageTag" size="large" placeholder="请选择一个存储卷"
               style={{ width: 200 }}
-              {...getFieldProps(`volumeName${k}`, {}) }>
+              {...getFieldProps(`volumeName${k}`) }>
               {this.volumeList()}
             </Select>
-            <Checkbox className="readOnlyBtn" { ...getFieldProps(`volumeChecked${k}`, {}) }>
+            <Checkbox className="readOnlyBtn" { ...getFieldProps(`volumeChecked${k}`) } checked={getFieldValue(`volumeChecked${k}`)}>
               只读
           </Checkbox>
             <i className="fa fa-refresh" onClick={() => this.refresh()} />
@@ -534,7 +563,7 @@ let NormalDeployBox = React.createClass({
                 />
               <span className="stateSpan">{form.getFieldValue('volumeSwitch') ? "有状态服务" : "无状态服务"}</span>
               {form.getFieldValue('volumeSwitch') ? [
-                <MyComponent parentScope={parentScope} form={form} cluster={this.state.cluster} registry={this.props.registry} />
+                <MyComponent parentScope={parentScope} form={form} cluster={this.state.cluster} registry={this.props.registry} serviceOpen={this.props.serviceOpen}/>
               ] : null}
               <div style={{ clear: "both" }}></div>
             </div>

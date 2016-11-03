@@ -47,6 +47,18 @@ export default class SettingSider extends Component {
             <Menu.Item key="3">
               <Link to="/setting/team">团队管理</Link>
             </Menu.Item>
+            <Menu.Item key="4">
+              <Link to="/setting/note">通知设置</Link>
+            </Menu.Item>
+            <Menu.Item key="5">
+              <Link to="/setting/API">开放API</Link>
+            </Menu.Item>
+            <Menu.Item key="6">
+              <Link to="/setting/version">平台版本</Link>
+            </Menu.Item>
+            <Menu.Item key="7">
+              <Link to="/setting/license">授权管理</Link>
+            </Menu.Item>
           </Menu>
         </div>
       </div>
@@ -67,6 +79,13 @@ function currentPathNameCheck(scope) {
   if( storageModule > -1 ){
     scope.setState({
       current: '3'
+    });
+    return;
+  }
+  let APIModule = pathname.indexOf('/setting/API');
+  if( APIModule > -1 ){
+    scope.setState({
+      current: '5'
     });
     return;
   }

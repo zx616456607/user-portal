@@ -3,7 +3,7 @@
   .ant-tabs-tab {
     margin-bottom: 0 !important;
     background-color: #FFFFFF;
-  }
+  }  
   .titleBox {
     padding: 30px;
     background-color: #FFFFFF;
@@ -67,6 +67,7 @@
     }
   }
   .bottomBox {
+    position: relative;
     padding-top: 20px;
     padding-left: 20px;
     padding-right: 15px;
@@ -75,6 +76,10 @@
     background-color: #f8f8f8;
     .ant-tabs {
       overflow: visible !important;
+      position: static !important;
+      .ant-tabs-content{
+        position: static !important; 
+      }
     }
     .ant-card-bordered {
       //      background-color: #f8f8f8;

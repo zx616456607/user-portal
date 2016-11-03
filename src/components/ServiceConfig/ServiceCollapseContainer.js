@@ -118,7 +118,7 @@ class CollapseContainer extends Component {
     if ( collapseContainer.length === 0) {
       // message.info(this.props.groupname + '未添加配置文件')
       return (
-        <div className="li">未添加配置文件</div>
+        <div className="li" style={{lineHeight:'60px', height:'10px'}}>未添加配置文件</div>
       )
     }
     if (!collapseContainer) {

@@ -3,40 +3,39 @@
   padding-left: 30px;
   padding-right: 60px;
   #ImageCenter {
-    .imageList {
-      width: 100%;
-      .ant-card-body {
-        padding: 0 !important;
+    .ant-tabs-bar {
+      background: #fff;
+      border-radius: 4px;
+      font-size: 12px;
+      position: relative;
+      overflow: hidden;
+      -webkit-transition: all 0.3s;
+      transition: all 0.3s;
+      border: 1px solid #e9e9e9;
+      .ant-tabs-ink-bar {
+        height: 100% !important;
+        background-color: #F8F8F8;
       }
-      ul {
-        float: left;
-        min-height: 50px;
-      }
-      li {
-        padding: 0 25px;
-        float: left;
+      .ant-tabs-nav {
         height: 50px;
-        line-height: 50px;
-        font-size: 14px;
-        text-align: center;
-        cursor: pointer;
-        span {
-          cursor: pointer;
+        line-height: 34px;
+        .ant-tabs-tab {
+          z-index: 10;
+          margin-right: 0 !important;
         }
       }
-      .titleDetail:hover {
-        background-color: #F8F8F8;
+      .ant-tabs-nav :nth-child(5) {
+        border-left: 1px solid #efefef;
       }
-      .titleSelected {
-        background-color: #F8F8F8;
-        color: #2db7f5;
+      &:hover {
+        box-shadow: 0 1px 6px rgba(100, 100, 100, 0.2);
       }
-      .addBtn {
-        float: left;
-        margin-top: 9px;
-        margin-left: 15px;
-        padding: 5px 15px !important;
-      }
+    }
+    .addBtn {
+      float: left;
+      margin-top: 8px;
+      margin-right: 15px;
+      padding: 5px 15px !important;
     }
   }
 }

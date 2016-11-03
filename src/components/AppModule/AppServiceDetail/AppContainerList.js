@@ -83,7 +83,6 @@ const MyComponent = React.createClass({
           </div>
           <div className="address commonData">
             <span>内&nbsp;:&nbsp;{item.status.podIP}</span>
-            <span>外&nbsp;:&nbsp;{item.address || '-'}</span>
           </div>
           <div className="createTime commonData">
             {item.metadata.creationTimestamp}

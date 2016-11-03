@@ -11,6 +11,16 @@
 const tenxApi = require('../tenx_api/v2')
 const config = require('../configs')
 
+exports.getApi = function (loginUser) {
+  const apiConfig = {
+    protocol: config.tenx_api.protocol,
+    host: config.tenx_api.host,
+    auth: loginUser
+  }
+  const api = new tenxApi(apiConfig)
+  return api
+}
+
 exports.getK8sApi = function (loginUser) {
   const apiConfig = {
     protocol: config.tenx_api.protocol,

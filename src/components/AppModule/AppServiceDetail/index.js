@@ -26,6 +26,7 @@ import { loadServiceDetail, loadServiceContainerList } from '../../../actions/se
 import CommmonStatus from '../../CommonStatus'
 import './style/AppServiceDetail.less'
 import TerminalModal from '../../TerminalModal'
+import { ANNOTATION_SVC_DOMAIN } from '../../../constants'
 
 const DEFAULT_TAB = '#containers'
 const TabPane = Tabs.TabPane;
@@ -136,6 +137,14 @@ class AppServiceDetail extends Component {
     funcs.confirmDeleteServices([service])
   }
 
+  parseServiceDomain(item) {
+    let domain = ""
+    if (item.metadata.annotations && item.metadata.annotations[ANNOTATION_SVC_DOMAIN]) {
+      domain = item.metadata.annotations[ANNOTATION_SVC_DOMAIN]
+    }
+    return domain
+  }
+
   render() {
     const parentScope = this
     const {
@@ -191,7 +200,7 @@ class AppServiceDetail extends Component {
               </span>
               <br />
               <span>
-                地址&nbsp;:&nbsp;{service.serviceIP}
+                地址&nbsp;:&nbsp;{this.parseServiceDomain(service)}
               </span>
               <br />
               <span>
@@ -244,7 +253,12 @@ class AppServiceDetail extends Component {
                   loading={isServiceDetailFetching} />
               </TabPane>
               <TabPane tab="配置组" key="#configgroup">
-                <ComposeGroup />
+                <ComposeGroup
+                  serviceDetailmodalShow={serviceDetailmodalShow}
+                  serviceName={service.metadata.name}
+                  service={serviceDetail}
+                  cluster={service.cluster}
+                />
               </TabPane>
               <TabPane tab="绑定域名" key="#binddomain">
                 <BindDomain

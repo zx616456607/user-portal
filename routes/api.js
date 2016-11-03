@@ -21,6 +21,7 @@ const appTemplateController = require('../controllers/app_template')
 const manageMonitorController = require('../controllers/manage_monitor')
 const userController = require('../controllers/user_manage')
 const teamController = require('../controllers/team_manage')
+const tokenController = require('../controllers/token')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -86,10 +87,13 @@ module.exports = function (Router) {
   // Users
   router.get('/users/:user_id', userController.getUserDetail)
   router.get('/users', userController.getUsers)
+  router.get('/users/:user_id/teams', userController.getUserTeams)
+  router.get('/users/:user_id/teamspaces', userController.getUserTeamspaces)
 
   // Teams
-  router.get('/teams', teamController.getUserTeams)
   router.get('/teams/:team_id/spaces', teamController.getUserTeamspaces)
+  router.get('/teams/:team_id/clusters', teamController.getTeamClusters)
+  router.get('/teams/:team_id/users', teamController.getTeamUsers)
 
   // spi
   router.post('/clusters/:cluster/services/:service_name/binddomain', serviceController.bindServiceDomain)
@@ -144,8 +148,12 @@ module.exports = function (Router) {
   router.post('/clusters/:cluster/createRedisCluster', databaseCacheController.createRedisCluster)
   router.get('/clusters/:cluster/getDatabaseDetail/:dbName', databaseCacheController.getDatabaseClusterDetail)
   router.get('/clusters/:cluster/deleteDatabase/:dbName', databaseCacheController.deleteDatebaseCluster)
-  
+
   // Manage Monitor
   router.post('/manage-monitor/getOperationAuditLog', manageMonitorController.getOperationAuditLog)
+  router.post('/clusters/:cluster/instances/:instances/getSearchLog', manageMonitorController.getSearchLog)
+
+  // Token info
+  router.get('/token', tokenController.getTokenInfo)
   return router.routes()
 }

@@ -12,8 +12,10 @@ const yaml = require('js-yaml')
 const apiFactory = require('../services/api_factory')
 const Deployment = require('../kubernetes/objects/deployment')
 const Service = require('../kubernetes/objects/service')
-const DEFAULT_PAGE = 1
-const DEFAULT_PAGE_SIZE = 10
+const constants = require('../constants')
+const DEFAULT_PAGE = constants.DEFAULT_PAGE
+const DEFAULT_PAGE_SIZE = constants.DEFAULT_PAGE_SIZE
+const MAX_PAGE_SIZE = constants.MAX_PAGE_SIZE
 
 exports.createApp = function* () {
   const cluster = this.params.cluster
@@ -48,7 +50,7 @@ exports.getApps = function* () {
   if (isNaN(page) || page < 1) {
     page = DEFAULT_PAGE
   }
-  if (isNaN(size) || size < 1 || size > 100) {
+  if (isNaN(size) || size < 1 || size > MAX_PAGE_SIZE) {
     size = DEFAULT_PAGE_SIZE
   }
   const from = size * (page - 1)
@@ -207,7 +209,7 @@ exports.getAppServices = function* () {
   if (isNaN(page) || page < 1) {
     page = DEFAULT_PAGE
   }
-  if (isNaN(size) || size < 1 || size > 100) {
+  if (isNaN(size) || size < 1 || size > MAX_PAGE_SIZE) {
     size = DEFAULT_PAGE_SIZE
   }
   const from = size * (page - 1)
