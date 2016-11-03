@@ -17,20 +17,10 @@ import { loadUserList } from '../../../actions/user'
 const createForm = Form.create;
 const FormItem = Form.Item;
 
-function noop() {
-  return false;
+function loadData(props) {
+  const { loadUserList, users, total, size } = props
+  loadUserList(null)
 }
-
-const data = [
-  {key: '1',name: 'a',tel: '11',email: 'emaila@tenxcloud.com',style: '团队管理员',team: '1',rest: '5',},
-  {key: '2',name: 'ba',tel: '12',email: 'emaila@tenxcloud.com',style: '普通成员',team: '2',rest: '5',},
-  {key: '3',name: 'caa',tel: '13',email: 'emaila@tenxcloud.com',style: '普通成员',team: '1',rest: '5',},
-  {key: '4',name: 'daaa',tel: '14',email: 'emaila@tenxcloud.com',style: '团队管理员',team: '1',rest: '5',},
-  {key: '5',name: 'eaaaa',tel: '15',email: 'emaila@tenxcloud.com',style: '普通成员',team: '2',rest: '5',},
-  {key: '6',name: 'f',tel: '16',email: 'emaila@tenxcloud.com',style: '团队管理员',team: '1',rest: '5',},
-  {key: '7',name: 'g',tel: '17',email: 'emaila@tenxcloud.com',style: '普通成员',team: '2',rest: '5',},
-  {key: '8',name: 'h',tel: '18',email: 'emaila@tenxcloud.com',style: '团队管理员',team: '1',rest: '5',},
-  ];
 
 let MemberTable =  React.createClass({
   getInitialState() {
@@ -54,6 +44,8 @@ let MemberTable =  React.createClass({
   render() {
     let { sortedInfo, filteredInfo } = this.state
     const { searchResult, notFound } = this.props.scope.state
+    const { data } = this.props
+    
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
     let pageTotal = searchResult.length === 0 ? data.length : searchResult.length
@@ -111,8 +103,8 @@ let MemberTable =  React.createClass({
       },
       {
         title: '余额',
-        dataIndex: 'rest',
-        key: 'rest',
+        dataIndex: 'balance',
+        key: 'balance',
         width: 150,
       },
       {
@@ -281,7 +273,6 @@ let NewMemberForm = React.createClass({
             hasFeedback
           >
             <Input {...passwdProps} type="password" autoComplete="off"
-                   onContextMenu={noop} onPaste={noop} onCopy={noop} onCut={noop}
                    placeholder="新成员名称登录密码"
             />
           </FormItem>
@@ -291,9 +282,7 @@ let NewMemberForm = React.createClass({
             label="确认密码"
             hasFeedback
           >
-            <Input {...rePasswdProps} type="password" autoComplete="off" placeholder="请再次输入密码确认"
-                   onContextMenu={noop} onPaste={noop} onCopy={noop} onCut={noop}
-            />
+            <Input {...rePasswdProps} type="password" autoComplete="off" placeholder="请再次输入密码确认"/>
           </FormItem>
           <FormItem
             {...formItemLayout}
@@ -341,20 +330,31 @@ class MemberManage extends Component {
     });
   }
   componentWillMount(){
-    this.setState({
-      data: data,
-      selecteData: [],
-      searchResult: data,
-    })
-  }
-
-  componentDidMount() {
-    this.props.loadUserList(null)
+    loadData(this.props)
   }
   
   render(){
+    const { users } = this.props
     const scope = this
     const { visible } = this.state
+    let data = []
+    if(users.length !== 0){
+      console.log('usersusers',users);
+      users.map((item,index) => {
+        console.log('item',item);
+        data.push(
+          {
+            key: index,
+            name: item.displayName,
+            tel: item.phone,
+            email: item.email,
+            style: item.role,
+            team: '1',
+            balance: item.balance,
+          }
+        )
+      })
+    }
     const searchIntOption = {
       addBefore: [
         {key: 'name', value: '用户名'},
@@ -377,7 +377,7 @@ class MemberManage extends Component {
         </Row>
         <Row className="memberList">
           <Card>
-            <MemberTable scope={scope}/>
+            <MemberTable scope={scope} data={data}/>
           </Card>
         </Row>
       </div>
