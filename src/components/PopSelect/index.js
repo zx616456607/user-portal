@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Menu, Dropdown, Icon, Select, Input, Button, Form, Popover, } from 'antd'
+import { Menu, Dropdown, Icon, Select, Input, Button, Form, Popover, Spin } from 'antd'
 import './style/PopSelect.less'
 import classNames from 'classnames'
 
@@ -21,49 +21,78 @@ export default class PopSelect extends Component {
       spaceVisible: false,
       selectValue: '',
       focus: false,
-      spaceArr: ['奔驰-CRM系统', '奔驰-OA系统', '奔驰-进销存系统'],
-      resultArr: [],
+      list: [],
     }
   }
   handleSearch(e) {
     let value = e.target.value
-    const { spaceArr, resultArr } = this.state
-    const result = []
-    if (value === '' || !value) {
+    const { list } = this.state
+    if (!this.props.list) {
       this.setState({
-        resultArr: ['奔驰-CRM系统', '奔驰-OA系统', '奔驰-进销存系统'],
-      })
-    } else {
-      spaceArr.map((item, index) => {
-        let flag = item.indexOf(value)
-        if (flag >= 0) {
-          result.push(item)
-        }
-      })
-      this.setState({
-        resultArr: result,
+        list: cpList
       })
     }
+    let cpList = this.props.list.filter(item => {
+      item.index = item.spaceName.indexOf(value)
+      if (item.index > -1) {
+        return item
+      }
+    })
+    const sortList = function (a, b) {
+      return a.index - b.index
+    }
+    cpList.sort(sortList)
+    this.setState({
+      list: cpList
+    })
   }
   setValue(item) {
     this.setState({
-      selectValue: item,
+      selectValue: item.spaceName,
     })
+    this.props.onChange(item)
   }
   componentWillMount() {
-    const { btnStyle, selectValue, resultArr } = this.props
+    const { selectValue, list } = this.props
     this.setState({
-      resultArr: resultArr,
-      selectValue: selectValue
+      list,
+      selectValue
+    })
+  }
+  componentWillReceiveProps(nextProps) {
+    const { selectValue, list } = nextProps
+    this.setState({
+      list
     })
   }
   render() {
-    const { btnStyle, } = this.props
+    const { btnStyle, loading } = this.props
     const { selectValue } = this.state
     const text = <span className="PopSelectTitle">选择项目空间</span>
+    let searchList = (
+      this.state.list.length === 0 ?
+        <div>无匹配结果</div>
+        :
+        this.state.list.map((item) => {
+          return (
+            <li
+              key={item.spaceName}
+              className="searchItem"
+              onClick={() => this.setValue(item)}>
+              {item.spaceName}
+            </li>
+          )
+        })
+    )
+    if (loading) {
+      searchList = <Spin />
+    }
     const content = (
       <div className="PopSelectContent">
         <div className="ant-search-input-wrapper searchInt">
+          <div>
+            用户空间
+          </div>
           <Input.Group className='ant-search-input'>
             <Input placeholder='查询' onChange={this.handleSearch} />
             <div className="ant-input-group-wrap">
@@ -75,24 +104,15 @@ export default class PopSelect extends Component {
         </div>
         <div>
           <ul className="searchList">
-            {
-              this.state.resultArr.length === 0 ?
-                <div>无匹配结果</div>
-                :
-                this.state.resultArr.map((item) => {
-                  return (
-                    <li key={item} className="searchItem" onClick={() => this.setValue(`${item}`)}>{item}</li>
-                  )
-                })
-            }
+            {searchList}
           </ul>
         </div>
       </div>
     )
     return (
-      <div id="PopSelect">
+      <div className="PopSelect">
         <Popover placement="bottomLeft" title={text} content={content} trigger="click"
-          getTooltipContainer={() => document.getElementById('PopSelect')}>
+          getTooltipContainer={() => document.getElementsByClassName('PopSelect')[0]}>
           {
             btnStyle ?
               <Button className='popBtn'>

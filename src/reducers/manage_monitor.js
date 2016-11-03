@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 
-import * as ActionTypes from '../actions/database_cache'
+import * as ActionTypes from '../actions/manage_monitor'
 import merge from 'lodash/merge'
 import reducerFactory from './factory'
 import { cloneDeep } from 'lodash'

@@ -143,6 +143,14 @@
   "CICD.TenxStorm.show": "查看公钥",
   "CICD.TenxStorm.search": "Search",
   "CICD.TenxStorm.releaseActivation": "解除激活",
+  "CICD.TenxStorm.copySuccess": "Copy Success",
+  "CICD.TenxStorm.copyBtn": "Copy",
+  "CICD.TenxStorm.clickCopy": "Click Copy",
+  "CICD.TenxStorm.publicKey": "公钥授权",
+  "CICD.TenxStorm.back": "返回",
+  "CICD.TenxStorm.creageCodeStore": "创建代码仓库",
+  "CICD.TenxStorm.logout": "Logout",
+
 
   "CICD.Tenxflow.TenxFlowList.search": "Search",
   "CICD.Tenxflow.TenxFlowList.name": "Name",
@@ -355,6 +363,26 @@
   "ManageMonitor.operationalAudit.running": "running",
   "ManageMonitor.operationalAudit.success": "success",
   "ManageMonitor.operationalAudit.failed": "failed",
-  "ManageMonitor.operationalAudit.search": "search"
+  "ManageMonitor.operationalAudit.search": "search",
+  "ManageMonitor.operationalAudit.microsecond": "microsecond",
+  "ManageMonitor.operationalAudit.millisecond": "Ms",
+  "ManageMonitor.operationalAudit.second": "S",
+  "ManageMonitor.operationalAudit.minute": "Min",
+  "ManageMonitor.operationalAudit.hour": "H",
+  
+  "ManageMonitor.QueryLog.headTitle": "日志查询 | 时速云",
+  "ManageMonitor.QueryLog.title": "Query Log",
+  "ManageMonitor.QueryLog.user": "User:",
+  "ManageMonitor.QueryLog.selectUser": "Select User",
+  "ManageMonitor.QueryLog.cluster": "Cluster:",
+  "ManageMonitor.QueryLog.selectCluster": "Select Cluster",
+  "ManageMonitor.QueryLog.service": "Service:",
+  "ManageMonitor.QueryLog.selectService": "Select Service",
+  "ManageMonitor.QueryLog.instance": "Instance:",
+  "ManageMonitor.QueryLog.selectInstance": "Select Instance",
+  "ManageMonitor.QueryLog.startTime": "Start:",
+  "ManageMonitor.QueryLog.endTime": "End:",
+  "ManageMonitor.QueryLog.keyword": "Keyword:",
+  "ManageMonitor.QueryLog.search": "Search"
   
 }

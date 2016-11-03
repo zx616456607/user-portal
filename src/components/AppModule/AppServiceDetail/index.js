@@ -244,7 +244,12 @@ class AppServiceDetail extends Component {
                   loading={isServiceDetailFetching} />
               </TabPane>
               <TabPane tab="配置组" key="#configgroup">
-                <ComposeGroup />
+                <ComposeGroup 
+                  serviceDetailmodalShow={serviceDetailmodalShow}
+                  serviceName={service.metadata.name}
+                  service={serviceDetail}
+                  cluster={service.cluster}
+                />
               </TabPane>
               <TabPane tab="绑定域名" key="#binddomain">
                 <BindDomain

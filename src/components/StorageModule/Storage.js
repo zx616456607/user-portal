@@ -554,7 +554,7 @@ class Storage extends Component {
                   </Col>
                   <Col span="20" className="action-btns" style={{ lineHeight: '30px' }}>
                     <Button type={this.state.currentType === 'ext4' ? 'primary' : 'ghost'} onClick={(e) => { this.changeType('ext4') } }>ext4</Button>
-                    <Button type={this.state.currentType === 'xfs' ? 'primary' : 'ghost'} onClick={(e) => { this.changeType('xfs') } }>xfs</Button>
+                    <Button type={this.state.currentType === 'xfs' ? 'primary' : 'ghost'} style={{margin:'0 10px'}} onClick={(e) => { this.changeType('xfs') } }>xfs</Button>
                     <Button type={this.state.currentType === 'reiserfs' ? 'primary' : 'ghost'} onClick={(e) => { this.changeType('reiserfs') } }>reiserfs</Button>
                   </Col>
                 </Row>

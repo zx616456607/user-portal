@@ -11,7 +11,7 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import { Card, Select, Button, DatePicker, Input, Cascader } from 'antd'
+import { Card, Select, Button, DatePicker, Input, Cascader, Spin } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { getOperationLogList } from '../../actions/manage_monitor'
 import './style/OperationalAudit.less'
@@ -275,6 +275,26 @@ const menusText = defineMessages({
     id: 'ManageMonitor.operationalAudit.search',
     defaultMessage: '立即查询',
   },
+  microsecond: {
+    id: 'ManageMonitor.operationalAudit.microsecond',
+    defaultMessage: '微秒',
+  },
+  millisecond: {
+    id: 'ManageMonitor.operationalAudit.millisecond',
+    defaultMessage: '毫秒',
+  },
+  second: {
+    id: 'ManageMonitor.operationalAudit.second',
+    defaultMessage: '秒',
+  },
+  minute: {
+    id: 'ManageMonitor.operationalAudit.minute',
+    defaultMessage: '分',
+  },
+  hour: {
+    id: 'ManageMonitor.operationalAudit.hour',
+    defaultMessage: '时',
+  },
 });
 
 function returnOperationList(scope) {
@@ -335,11 +355,229 @@ function returnOperationList(scope) {
         value: '18',
         label: formatMessage(menusText.Expand)
       },{
-        value: '19',
+        value: '0',
         label: formatMessage(menusText.Unknown)
       },
     ];
   return operationalList;
+}
+
+function duringTimeFormat(time, scope) {
+  //this function for format duringtime
+  const { formatMessage } = scope.props.intl;
+  time = time / 1000;
+  time = time.toFixed(0);
+  if(time > 1000) {
+    time = time / 1000;
+    time = time.toFixed(0);
+    if(time > 1000){
+      time = time / 60;
+      time = time.toFixed(0);
+      if(time > 60) {
+        time = time / 60;
+        time = time.toFixed(0);
+        //hour
+        return (time + ' ' + formatMessage(menusText.hour) ) 
+      } else {
+        //min
+        return (time + ' ' + formatMessage(menusText.minute) ) 
+      }
+    } else {
+      //s
+      return (time + ' ' + formatMessage(menusText.second) ) 
+    }
+  } else {
+    //ms
+    return (time + ' ' + formatMessage(menusText.millisecond) ) 
+  }
+}
+
+function resourceFormat(resourceType, scope) {
+  //this function for format resource type to show user
+  const { formatMessage } = scope.props.intl;
+  switch(resourceType + '') {
+    case '1':
+      return formatMessage(menusText.Instance)
+      break;
+    case '2':
+      return formatMessage(menusText.InstanceEvent)
+      break;
+    case '3':
+      return formatMessage(menusText.InstanceLog)
+      break;
+    case '4':
+      return formatMessage(menusText.InstanceMetrics)
+      break;
+    case '5':
+      return formatMessage(menusText.InstanceContainerMetrics)
+      break;
+    case '6':
+      return formatMessage(menusText.Service)
+      break;
+    case '7':
+      return formatMessage(menusText.ServiceInstance)
+      break;
+    case '8':
+      return formatMessage(menusText.ServiceEvent)
+      break;
+    case '9':
+      return formatMessage(menusText.ServiceLog)
+      break;
+    case '10':
+      return formatMessage(menusText.ServiceK8sService)
+      break;
+    case '11':
+      return formatMessage(menusText.ServiceRollingUpgrade)
+      break;
+    case '12':
+      return formatMessage(menusText.ServiceManualScale)
+      break;
+    case '13':
+      return formatMessage(menusText.ServiceAutoScale)
+      break;
+    case '14':
+      return formatMessage(menusText.ServiceQuota)
+      break;
+    case '15':
+      return formatMessage(menusText.ServiceHaOption)
+      break;
+    case '16':
+      return formatMessage(menusText.ServiceDomain)
+      break;
+    case '17':
+      return formatMessage(menusText.App)
+      break;
+    case '18':
+      return formatMessage(menusText.AppService)
+      break;
+    case '19':
+      return formatMessage(menusText.AppOperationLog)
+      break;
+    case '20':
+      return formatMessage(menusText.AppExtraInfo)
+      break;
+    case '21':
+      return formatMessage(menusText.AppTopology)
+      break;
+    case '22':
+      return formatMessage(menusText.ConfigGroup)
+      break;
+    case '23':
+      return formatMessage(menusText.Config)
+      break;
+    case '24':
+      return formatMessage(menusText.Node)
+      break;
+    case '25':
+      return formatMessage(menusText.NodeMetrics)
+      break;
+    case '26':
+      return formatMessage(menusText.ThirdPartyRegistry)
+      break;
+    case '27':
+      return formatMessage(menusText.Volume)
+      break;
+    case '28':
+      return formatMessage(menusText.VolumeConsumption)
+      break;
+    case '0':
+      return formatMessage(menusText.Unknown)
+      break;
+  } 
+}
+
+function operationalFormat(operationalType, scope) {
+  //this function for format operational type to show user
+  const { formatMessage } = scope.props.intl;
+  switch(operationalType + '') {
+    case '1':
+      return formatMessage(menusText.Create)
+      break;
+    case '2':
+      return formatMessage(menusText.Get)
+      break;
+    case '3':
+      return formatMessage(menusText.List)
+      break;
+    case '4':
+      return formatMessage(menusText.Update)
+      break;
+    case '5':
+      return formatMessage(menusText.Delete)
+      break;
+    case '6':
+      return formatMessage(menusText.Start)
+      break;
+    case '7':
+      return formatMessage(menusText.Stop)
+      break;
+    case '8':
+      return formatMessage(menusText.Restart)
+      break;
+    case '9':
+      return formatMessage(menusText.Pause)
+      break;
+    case '10':
+      return formatMessage(menusText.Resume)
+      break;
+    case '11':
+      return formatMessage(menusText.BatchDelete)
+      break;
+    case '12':
+      return formatMessage(menusText.BatchStart)
+      break;
+    case '13':
+      return formatMessage(menusText.BatchStop)
+      break;
+    case '14':
+      return formatMessage(menusText.BatchRestart)
+      break;
+    case '15':
+      return formatMessage(menusText.QuickRestart)
+      break;
+    case '16':
+      return formatMessage(menusText.CheckExist)
+      break;
+    case '17':
+      return formatMessage(menusText.Format)
+      break;
+    case '18':
+      return formatMessage(menusText.Expand)
+      break;
+    case '0':
+      return formatMessage(menusText.Unknown)
+      break;
+  } 
+}
+
+function statusFormat(status, scope) {
+  //this function for format status to show user
+  switch(status) {
+    case 200:
+      return (
+        <span className='success'>
+          <i className='fa fa-check-circle-o' />
+          <FormattedMessage {...menusText.success} />
+        </span>
+      )
+      break;
+    case 404:
+      return (
+        <span className='fail'>
+          <i className='fa fa-times-circle-o' />
+          <FormattedMessage {...menusText.failed} />
+        </span>
+      )
+      break;
+    default :
+      return (
+        <span className='running'>
+          <i className='fa fa-cog fa-spin fa-3x fa-fw' />
+          <FormattedMessage {...menusText.running} />
+        </span>
+      )
+      break;
+  }
 }
 
 let MyComponent = React.createClass({
@@ -347,7 +585,7 @@ let MyComponent = React.createClass({
     config: React.PropTypes.array
   },
   render: function () {
-    const { config, isFetching } = this.props;
+    const { config, isFetching, scope } = this.props;
     if( isFetching ) {
       return (
         <div className='loadingBox'>
@@ -369,27 +607,29 @@ let MyComponent = React.createClass({
             <span className='commonSpan'>{item.time}</span>
           </div>
           <div className='during commonTitle'>
-            <span className='commonSpan'>{item.duration}</span>
+            <span className='commonSpan'>{duringTimeFormat(item.duration, scope)}</span>
           </div>
           <div className='event commonTitle'>
-            <span className='commonSpan'>{item.operation_type}</span>
+            <span className='commonSpan'>{operationalFormat(item.operationType, scope)}</span>
           </div>
           <div className='obj commonTitle'>
-            <span className='commonSpan'>{item.resource_type}</span>
+            <span className='commonSpan'>{resourceFormat(item.resourceType, scope)}</span>
           </div>
           <div className='env commonTitle'>
-            <span className='commonSpan'></span>
-          </div>
-          <div className='cluster commonTitle'>
-            <span className='commonSpan'>{item.cluster_id}</span>
-          </div>
-          <div className='status commonTitle'>
-            <span className='commonSpan'>{item.status}</span>
-          </div>
-          <div className='user commonTitle'>
-            <i className='fa fa-user-o' />
             <span className='commonSpan'>{item.namespace}</span>
           </div>
+          <div className='cluster commonTitle'>
+            <span className='commonSpan'>{item.clusterId}</span>
+          </div>
+          <div className='status commonTitle'>
+            <span className='commonSpan'>{statusFormat(item.status, scope)}</span>
+          </div>
+          <div className='user commonTitle'>
+            <i className='fa fa-user' />
+            <span className='commonSpan'>{item.namespace}</span>
+            <div style={{ clear:'both' }}></div>
+          </div>
+          <div style={{ clear:'both' }}></div>
         </div>
       );
     });
@@ -435,7 +675,7 @@ class OperationalAudit extends Component {
     });
     let body = {
           from: null,
-          size: null,
+          size: 10,
           namespace: null,
           operation: null,
           resource: null,
@@ -572,7 +812,7 @@ class OperationalAudit extends Component {
         case '28':
           showOperationalList.push(operationalList[2]);       
           break;
-        case '29':
+        case '0':
           showOperationalList = operationalList;
           break;
       }
@@ -625,6 +865,7 @@ class OperationalAudit extends Component {
 
   submitSearch() {
     //this functio for user submit search log
+    const { getOperationLogList } = this.props;
     let body = {
       from: this.state.from,
       size: this.state.size,
@@ -634,7 +875,7 @@ class OperationalAudit extends Component {
       start_time: this.state.start_time,
       end_time: this.state.end_time
     }
-    console.log(body)
+    getOperationLogList(body);
   }
 
   render() {
@@ -750,7 +991,7 @@ class OperationalAudit extends Component {
         label: formatMessage(menusText.VolumeConsumption),
       }],
     }, {
-      value: '29',
+      value: '0',
       label: formatMessage(menusText.Unknown)
     },];
     const operationalSelectOptions = this.state.selectOperationalList.map((item) => {
@@ -793,8 +1034,8 @@ class OperationalAudit extends Component {
             <Option value='success'><FormattedMessage {...menusText.success} /></Option>
             <Option value='failed'><FormattedMessage {...menusText.failed} /></Option>
           </Select>
-          <DatePicker onChange={this.onChangeStartTime} style={{ marginRight: 20, marginTop: 10, float:'left' }} showTime format="yyyy-MM-dd HH:mm:ss" size='large' />
-          <DatePicker onChange={this.onChangeEndTime} style={{ marginRight: 20, marginTop: 10, float:'left' }} showTime format="yyyy-MM-dd HH:mm:ss" size='large' />
+          <DatePicker onChange={this.onChangeStartTime} style={{ marginRight: 20, marginTop: 10, float:'left' }} showTime format='yyyy-MM-dd HH:mm:ss' size='large' />
+          <DatePicker onChange={this.onChangeEndTime} style={{ marginRight: 20, marginTop: 10, float:'left' }} showTime format='yyyy-MM-dd HH:mm:ss' size='large' />
           <Input onChange={this.onChangeNamespace} className='namespaceInput' type='text' size='large' />
           <Button className='searchBtn' size='large' type='primary' onClick={this.submitSearch}>
             <i className='fa fa-wpforms'></i>
@@ -844,6 +1085,7 @@ function mapStateToProps(state, props) {
       logs: []
   }
   const { operationAuditLog } = state.manageMonitor
+  console.log(operationAuditLog)
   const { logs, isFetching } = operationAuditLog.logs || defaultLogs
   return {
       isFetching,
