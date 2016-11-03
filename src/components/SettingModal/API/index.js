@@ -10,9 +10,10 @@
 import React, { Component } from 'react'
 import { Row, Col, Icon, } from 'antd'
 import './style/API.less'
+import { connect } from 'react-redux'
+import { loadApiInfo } from '../../../actions/open_api'
 
-
-export default class API extends Component{
+class API extends Component{
   constructor(props){
     super(props)
     this.handleHidToken = this.handleHidToken.bind(this)
@@ -32,8 +33,13 @@ export default class API extends Component{
       })
     }
   }
+  componentDidMount() {
+    this.props.loadApiInfo()
+  }
   render(){
-    const tokenValue = 'jgokzgfitsewtmbpxsbhtggabvrnktepuzohnssqjnsirtot'
+    const {namespace, token} = this.props
+    console.log("namespace", namespace)
+    console.log("token", token)
     const { hidToken } = this.state
     return (
       <div id='API'>
@@ -42,7 +48,7 @@ export default class API extends Component{
         <table className="APITable">
           <tr>
             <td className="tableTitle">用户名</td>
-            <td>zhaoxueyu</td>
+            <td>{namespace}</td>
           </tr>
           <tr>
             <td className="tableTitle">
@@ -51,7 +57,7 @@ export default class API extends Component{
                     className={hidToken === 'text'? 'hidToken' : ''}/>
             </td>
             <td>
-              <input type={hidToken} value={tokenValue} className="tokenInt" disabled/>
+              <input type={hidToken} value={token} className="tokenInt" disabled/>
             </td>
           </tr>
           <tr>
@@ -65,3 +71,19 @@ export default class API extends Component{
     )
   }
 }
+
+function mapStateToProp(state) {
+  let result = {
+    namespace: "",
+    token: "",
+  }
+  if (state.openApi.token.result) {
+    result.namespace = state.openApi.token.result.namespace
+    result.token = state.openApi.token.result.token
+  }
+  return result
+}
+
+export default connect(mapStateToProp, {
+  loadApiInfo,
+})(API)
