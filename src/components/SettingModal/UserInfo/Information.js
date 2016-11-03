@@ -53,25 +53,37 @@ class Information extends Component{
   }
 
   componentDidMount() {
-    this.props.loadUserDetail("1111")
+    this.props.loadUserDetail("104")
   }
 
   render(){
     const { revisePass, password } = this.state
     const { userDetail, users } = this.props
+    
+    let roleName
+    switch (userDetail.role) {
+      case 1:
+        roleName = "团队管理员"
+        break
+      case 2:
+        roleName = "系统管理员"
+        break
+      default:
+        roleName = "普通用户"
+    }
     return (
       <div id='Information'>
         <Row className="Item">
           <Col span={4}>名称</Col>
-          <Col span={20}>{userDetail.name}</Col>
+          <Col span={20}>{userDetail.displayName}</Col>
         </Row>
         <Row className="Item">
           <Col span={4}>类型</Col>
-          <Col span={20}>{userDetail.type}</Col>
+          <Col span={20}>{roleName}</Col>
         </Row>
         <Row className="Item">
           <Col span={4}>手机</Col>
-          <Col span={20}>{userDetail.tel}</Col>
+          <Col span={20}>{userDetail.phone}</Col>
         </Row>
         <Row className="Item">
           <Col span={4}>邮箱</Col>

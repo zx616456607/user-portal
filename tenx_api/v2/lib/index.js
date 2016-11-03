@@ -46,4 +46,7 @@ module.exports = function (config) {
   // ~ audits
   this.audits = collections.create('audits')
 
+  // ~ users
+  this.users = collections.create('users')
+
 }

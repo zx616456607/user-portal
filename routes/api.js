@@ -86,9 +86,9 @@ module.exports = function (Router) {
   // Users
   router.get('/users/:user_id', userController.getUserDetail)
   router.get('/users', userController.getUsers)
+  router.get('/users/:user_id/teams', userController.getUserTeams)
 
   // Teams
-  router.get('/teams', teamController.getUserTeams)
   router.get('/teams/:team_id/spaces', teamController.getUserTeamspaces)
 
   // spi

@@ -18,22 +18,22 @@ const MAX_PAGE_SIZE = constants.MAX_PAGE_SIZE
 exports.getUserDetail = function* () {
   let userID = this.params.user_id
   const loginUser = this.session.loginUser
-  const api = apiFactory.getK8sApi(loginUser)
+  const api = apiFactory.getApi(loginUser)
   if (!userID || userID == '') {
     const re = yield api.getBy(['user_id'])
     userID = re.data['userid']
   }
-  //const result = yield api.getBy(['users', userID])
-  const result = {
+  const result = yield api.users.getBy([userID])
+  /*const result = {
     data: {
-      name: "test_name",
-      type: "团队管理员",
-      tel: "136999999",
+      displayName: "test_name",
+      role: 1,
+      phone: "136999999",
       email: "aaa@tenxcloud.com",
       balance: 100
     }
-  }
-  const user = result.data || {}
+  }*/
+  const user = result || {}
   this.body = {
     data: user
   }
@@ -72,6 +72,50 @@ exports.getUsers = function* () {
     data: users,
     total: result.data.total,
     count: result.data.count
+  }
+}
+
+exports.getUserTeams = function* () {
+  const loginUser = this.session.loginUser
+  const query = this.query || {}
+  let page = parseInt(query.page || DEFAULT_PAGE)
+  let size = parseInt(query.size || DEFAULT_PAGE_SIZE)
+  let sort_by = parseInt(query.sort_by || "name")
+  let sort_order = parseInt(query.sort_order || true)
+  let name = query.name
+  if (isNaN(page) || page < 1) {
+    page = DEFAULT_PAGE
+  }
+  if (isNaN(size) || size < 1 || size > 100) {
+    size = DEFAULT_PAGE_SIZE
+  }
+  const from = size * (page - 1)
+  const queryObj = { from, size }
+  if (name) {
+    queryObj.filter = `name ${name}`
+  }
+  const api = apiFactory.getApi(loginUser)
+  //const result = yield api.users.getBy(['teams'], queryObj)
+  const result = {
+    listMeta: {
+      total: 10,
+      size: 10
+    },
+    teams: [
+      {
+        teamID: "t-aldakdsadssdsjkewr",
+        teamName: "test",
+        description: "test",
+        creatorID: 104,
+        creationTime: "2016-11-02T14:13:38+08:00"
+      }
+    ]
+  }
+  const teams = result.teams || []
+  this.body = {
+    data: teams,
+    total: result.listMeta.total,
+    count: result.listMeta.size
   }
 }
 
