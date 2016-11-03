@@ -14,7 +14,8 @@ import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import './style/ContainerList.less'
 import { loadContainerList, deleteContainers } from '../../actions/app_manage'
-import { DEFAULT_CLUSTER, LABEL_APPNAME, DEFAULT_PAGE_SIZE } from '../../constants'
+import { DEFAULT_CLUSTER, LABEL_APPNAME } from '../../constants'
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 import { tenxDateFormat } from '../../common/tools.js'
 import { browserHistory } from 'react-router'
 import TerminalModal from '../TerminalModal'
@@ -42,7 +43,7 @@ const MyComponent = React.createClass({
   },*/
   containerOperaClick: function (name, e) {
     //this function for user click opera menu
-    switch(e.key) {
+    switch (e.key) {
       case 'deleteContainer':
         //this is delete the container
         this.deleteContainer(name);
@@ -54,9 +55,9 @@ const MyComponent = React.createClass({
     //when user click the menu button will trigger the function
     //so the first thing should estimate
     //the event target is the menu button or others
-    //if the target is menu button , the function will be return null 
+    //if the target is menu button , the function will be return null
     let stopPro = e._dispatchInstances;
-    if(stopPro.length != 2) {      
+    if (stopPro.length != 2) {
       const { parentScope } = this.props
       const { containerList } = parentScope.state
       containerList.map((contaienr) => {
@@ -74,7 +75,7 @@ const MyComponent = React.createClass({
       return
     }
     const query = {}
-    if (page !== 1) {
+    if (page !== DEFAULT_PAGE) {
       query.page = page
     }
     if (size !== DEFAULT_PAGE_SIZE) {
@@ -455,12 +456,12 @@ ContainerList.propTypes = {
 function mapStateToProps(state, props) {
   const { query, pathname } = props.location
   let { page, size, name } = query
-  page = parseInt(page || 1)
+  page = parseInt(page || DEFAULT_PAGE)
   size = parseInt(size || DEFAULT_PAGE_SIZE)
-  if (isNaN(page) || page < 1) {
-    page = 1
+  if (isNaN(page) || page < DEFAULT_PAGE) {
+    page = DEFAULT_PAGE
   }
-  if (isNaN(size) || size < 1 || size > 100) {
+  if (isNaN(size) || size < 1 || size > MAX_PAGE_SIZE) {
     size = DEFAULT_PAGE_SIZE
   }
   const defaultContainers = {

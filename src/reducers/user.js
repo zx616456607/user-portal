@@ -9,12 +9,14 @@
  */
 
 import * as ActionTypes from '../actions/user'
-import merge from 'lodash/merge'
-import union from 'lodash/union'
 import reducerFactory from './factory'
-import cloneDeep from 'lodash/cloneDeep'
 
-export function user(state = { }, action) {
+export default function user(state = {
+  userDetail: {},
+  users: [],
+  teams: {},
+  teamspaces: {}
+ }, action) {
   return {
     userDetail: reducerFactory({
       REQUEST: ActionTypes.USER_DETAIL_REQUEST,
@@ -25,6 +27,16 @@ export function user(state = { }, action) {
       REQUEST: ActionTypes.USER_LIST_REQUEST,
       SUCCESS: ActionTypes.USER_LIST_SUCCESS,
       FAILURE: ActionTypes.USER_LIST_FAILURE
-    }, state.users, action)
+    }, state.users, action),
+    teams: reducerFactory({
+      REQUEST: ActionTypes.USER_TEAM_LIST_REQUEST,
+      SUCCESS: ActionTypes.USER_TEAM_LIST_SUCCESS,
+      FAILURE: ActionTypes.USER_TEAM_LIST_FAILURE
+    }, state.teams, action),
+    teamspaces: reducerFactory({
+      REQUEST: ActionTypes.USER_TEAMSPACE_LIST_REQUEST,
+      SUCCESS: ActionTypes.USER_TEAMSPACE_LIST_SUCCESS,
+      FAILURE: ActionTypes.USER_TEAMSPACE_LIST_FAILURE
+    }, state.teamspaces, action)
   }
 }

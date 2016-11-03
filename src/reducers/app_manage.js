@@ -13,7 +13,7 @@ import merge from 'lodash/merge'
 import union from 'lodash/union'
 import cloneDeep from 'lodash/cloneDeep'
 import reducerFactory from './factory'
-import { DEFAULT_PAGE_SIZE } from '../constants'
+import { DEFAULT_PAGE_SIZE } from '../../constants'
 
 function appItems(state = {}, action) {
   const cluster = action.cluster

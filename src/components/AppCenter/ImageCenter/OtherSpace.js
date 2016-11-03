@@ -134,9 +134,9 @@ class OtherSpace extends Component {
         scope.props.DeleteOtherImage(id, {
           success:{
             func: () => {
-              const otherImages = scope.props.otherImages
+              const imageRow = scope.props.imageRow
               parentScope.setState({
-                otherImageHead: otherImages.imageRow,
+                otherImageHead: imageRow,
                 current: 'imageSpace',
                 otherSpace: ''
               })
@@ -213,10 +213,11 @@ function mapStateToProps(state, props) {
     imageList: [],
   }
   const { otherImages} = state.images
-  const { imageList, isFetching} = otherImages || defaultPrivateImages
+  const { imageList, isFetching, imageRow} = otherImages || defaultPrivateImages
 
   return {
     imageList,
+    imageRow,
     isFetching,
   }
 }

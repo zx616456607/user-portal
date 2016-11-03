@@ -10,6 +10,8 @@
 import React, { Component } from 'react'
 import { Row, Col, Button, } from 'antd'
 import './style/Space.less'
+import { connect } from 'react-redux'
+import { loadUserTeamspaceList } from '../../../actions/user'
 
 let PersonalSpace = React.createClass ({
   getInitialState(){
@@ -50,6 +52,18 @@ let TeamSpace = React.createClass({
     }
   },
   render: function () {
+    let items = this.props.teamspaces.map((teamspace) => {
+      return (<Row className="contentList">
+          <Col span={4}>{teamspace.spaceName}</Col>
+          <Col span={4}>{teamspace.teamID}</Col>
+          <Col span={4}>6</Col>
+          <Col span={4}>1000</Col>
+          <Col span={4}>2002</Col>
+          <Col span={4}>
+            <Button type="primary">进入空间</Button>
+          </Col>
+        </Row>)
+    })
     return (
       <div>
         <Row className="contentTop">
@@ -78,6 +92,7 @@ let TeamSpace = React.createClass({
             操作
           </Col>
         </Row>
+        {items}
         <Row className="contentList firstItem">
           <Col span={4}>CRM联合项目</Col>
           <Col span={4}>奔驰开发1组</Col>
@@ -102,13 +117,19 @@ let TeamSpace = React.createClass({
     )
   }
 })
-export default class Space extends Component{
+
+class Space extends Component{
   constructor(props){
     super(props)
     this.state = {
       
     }
   }
+  
+  componentDidMount() {
+    this.props.loadUserTeamspaceList("104", null)
+  }
+
   render(){
     return (
       <div id='Space'>
@@ -127,10 +148,37 @@ export default class Space extends Component{
             pupu的团队空间
           </div>
           <div className="spaceContent">
-            <TeamSpace />
+            <TeamSpace teamspaces={this.props.teamspaces}/>
           </div>
         </Row>
       </div>
     )
   }
 }
+
+function mapStateToProp(state) {
+  let teamspacesData = []
+  let total = 0
+  let size = 0
+  const teamspaces = state.user.teamspaces
+  if (teamspaces.result) {
+    if (teamspaces.result.teamspaces) {
+      teamspacesData = teamspaces.result.teamspaces
+    }
+    if (teamspaces.result.total) {
+      total = teamspaces.result.total
+    }
+    if (teamspaces.result.count) {
+      size = teamspaces.result.size
+    }
+  }
+  return {
+    teamspaces: teamspacesData,
+    total,
+    size
+  }
+}
+
+export default connect(mapStateToProp, {
+  loadUserTeamspaceList,
+})(Space)

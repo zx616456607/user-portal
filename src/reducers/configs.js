@@ -28,11 +28,11 @@ function configGroupList(state = {}, action) {
         [cluster]: { isFetching: true }
       })
     case ActionTypes.CONFIG_LIST_SUCCESS:
-      const groupList = merge({}, state, {
+      const groupList = merge({}, {
         [cluster]: {
           isFetching: false,
           cluster: action.response.result.cluster,
-          configGroup: merge(state.configGroupList, action.response.result.data)
+          configGroup: state.configGroupList = action.response.result.data
         }
       })
       return groupList
@@ -46,13 +46,13 @@ function configGroupList(state = {}, action) {
       const cluster1 = configFile.cluster
       const configGroup = addState[cluster1]
       const index1 = findIndex(configGroup.configGroup, item => {
-        return item.native.metadata.name === configFile.group
+        return item.name === configFile.group
       })
-      configGroup.configGroup[index1].extended.configs.push({
+      configGroup.configGroup[index1].configs.push({
         name: configFile.name,
         rawName: configFile.name
       })
-      configGroup.configGroup[index1].extended.size = configGroup.configGroup[index1].extended.configs.length
+      configGroup.configGroup[index1].size = configGroup.configGroup[index1].configs.length
       return addState
     case ActionTypes.GET_CONFIG_FILES_REQUEST:
       return merge({}, state, {
@@ -64,10 +64,10 @@ function configGroupList(state = {}, action) {
       const cluster2 = action.cluster
       const configGroup1 = getState[cluster2]
       const index2 = findIndex(configGroup1.configGroup, item => {
-        return item.native.metadata.name === configFile1
+        return item.name === configFile1
       })
-      configGroup1.configGroup[index2].extended.configs = action.response.result.data.configs
-      configGroup1.configGroup[index2].extended.size = action.response.result.data.configs.length
+      configGroup1.configGroup[index2].configs = action.response.result.data.configs
+      configGroup1.configGroup[index2].size = action.response.result.data.configs.length
       return getState
     case ActionTypes.GET_CONFIG_FILES_FAILURE:
       return merge({}, state, {
@@ -83,7 +83,7 @@ function configGroupList(state = {}, action) {
       let index3
       for (let i=0; i < configFile3.length; i++) {
          index3 = findIndex(configGroup3.configGroup, item => {
-          return item.native.metadata.name === configFile3[i]
+          return item.name === configFile3[i]
         })
         configGroup3.configGroup.splice(index3,1)
       }
@@ -124,11 +124,11 @@ function loadConfigName(state = {}, action) {
 function createConfigGroup(state = {}, action) {
   switch (action.type) {
     case ActionTypes.CREATE_CONFIG_GROUP_REQUEST:
-      return union({}, state, { isFetching: true })
+      return merge({}, state, { isFetching: true })
     case ActionTypes.CREATE_CONFIG_GROUP_SUCCESS:
-      return union({}, state, { isFetching: false })
+      return merge({}, state, { isFetching: false })
     case ActionTypes.CREATE_CONFIG_GROUP_FAILURE:
-      return union({}, state, { isFetching: false })
+      return merge({}, state, { isFetching: false })
     default:
       return state
   }
@@ -137,11 +137,11 @@ function createConfigGroup(state = {}, action) {
 function createConfigFiles(state = {}, action) {
   switch (action.type) {
     case ActionTypes.CREATE_CONFIG_FILES_REQUEST:
-      return union({}, state, { isFetching: true })
+      return merge({}, state, { isFetching: true })
     case ActionTypes.CREATE_CONFIG_FILES_SUCCESS:
-      return union({}, state, { isFetching: false })
+      return merge({}, state, { isFetching: false })
     case ActionTypes.CREATE_CONFIG_FILES_FAILURE:
-      return union({}, state, { isFetching: false })
+      return merge({}, state, { isFetching: false })
     default:
       return state
   }
