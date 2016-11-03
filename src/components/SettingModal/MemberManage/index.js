@@ -327,12 +327,11 @@ class MemberManage extends Component {
   showModal() {
     this.setState({
       visible: true,
-    });
+    })
   }
   componentWillMount(){
     loadData(this.props)
   }
-  
   render(){
     const { users } = this.props
     const scope = this
@@ -356,6 +355,8 @@ class MemberManage extends Component {
       })
     }
     const searchIntOption = {
+      width:'280px',
+      position: 'right',
       addBefore: [
         {key: 'name', value: '用户名'},
         {key: 'team', value: '团队'},
@@ -363,7 +364,7 @@ class MemberManage extends Component {
         {key: 'email', value: '邮箱'},
       ],
       defaultValue: 'name',
-      placeholder: 'placeholder',
+      placeholder: '请输入关键词搜索',
     }
     return (
       <div id="MemberManage">
