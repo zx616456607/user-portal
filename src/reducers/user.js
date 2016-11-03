@@ -34,9 +34,9 @@ export default function user(state = {
       FAILURE: ActionTypes.USER_TEAM_LIST_FAILURE
     }, state.teams, action),
     teamspaces: reducerFactory({
-      REQUEST: ActionTypes.USER_TEAM_LIST_REQUEST,
-      SUCCESS: ActionTypes.USER_TEAM_LIST_SUCCESS,
-      FAILURE: ActionTypes.USER_TEAM_LIST_FAILURE
+      REQUEST: ActionTypes.USER_TEAMSPACE_LIST_REQUEST,
+      SUCCESS: ActionTypes.USER_TEAMSPACE_LIST_SUCCESS,
+      FAILURE: ActionTypes.USER_TEAMSPACE_LIST_FAILURE
     }, state.teamspaces, action)
   }
 }
