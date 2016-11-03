@@ -87,10 +87,12 @@ module.exports = function (Router) {
   // Users
   router.get('/users/:user_id', userController.getUserDetail)
   router.get('/users', userController.getUsers)
+  router.get('/users/:user_id/teams', userController.getUserTeams)
+  router.get('/users/:user_id/teamspaces', userController.getUserTeamspaces)
 
   // Teams
-  router.get('/teams', teamController.getUserTeams)
   router.get('/teams/:team_id/spaces', teamController.getUserTeamspaces)
+  router.get('/teams/:team_id/clusters', teamController.getTeamClusters)
 
   // spi
   router.post('/clusters/:cluster/services/:service_name/binddomain', serviceController.bindServiceDomain)

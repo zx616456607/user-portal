@@ -11,10 +11,9 @@ import React, { Component } from 'react'
 import { Menu, Dropdown, Icon, Select, Input, Button, Form, Popover, } from 'antd'
 import { FormattedMessage, defineMessages } from 'react-intl'
 import "./style/header.less"
-import jsonp from 'jsonp'
 import querystring from 'querystring'
 import classNames from 'classnames'
-import PopSelect from '../PopSelect/index'
+import PopSelect from '../PopSelect'
 
 const FormItem = Form.Item;
 const createForm = Form.create;
@@ -62,7 +61,7 @@ const menu = (
   </Menu>
 )
 
-class Top extends Component {
+class Header extends Component {
   constructor(props) {
     super(props)
     this.handleChange = this.handleChange.bind(this)
@@ -98,49 +97,6 @@ class Top extends Component {
 
   render() {
     const { style, size, placeholder, } = this.props
-    const btnCls = classNames({
-      'ant-search-btn': true,
-      'ant-search-btn-noempty': !!this.state.value.trim(),
-    })
-    const searchCls = classNames({
-      'ant-search-input': true,
-      'ant-search-input-focus': this.state.focus,
-    })
-    /*const spaceMenu = (
-      <Menu onClick={this.handleSpaceMenu}>
-        <Menu.Item key="0" style={{backgroundColor: '#e5e5e5',color: '#000'}}>
-          <div>
-            选择项目空间
-          </div>
-        </Menu.Item>
-        <Menu.Item key="1" style={{borderBottom: '1px solid #e2e2e2'}}>
-          <div className="ant-search-input-wrapper" style={{width: 120}}>
-            <InputGroup className={searchCls}>
-              <Input placeholder='查询'
-                     value={this.state.value}
-                     onChange={this.handleInputChange}
-                     onFocus={this.handleFocusBlur}
-                     onBlur={this.handleFocusBlur}
-                     onPressEnter={this.handleSearch}
-              />
-              <div className="ant-input-group-wrap">
-                <Button icon="search" className={btnCls} size={size} onClick={this.handleSearch} />
-              </div>
-            </InputGroup>
-          </div>
-        </Menu.Item>
-        <Menu.Item key="2" style={{paddingLeft: 20}}>
-          奔驰-CRM系统
-        </Menu.Item>
-        <Menu.Item key="3" style={{paddingLeft: 20}}>
-          奔驰-OA系统
-        </Menu.Item>
-        <Menu.Item key="4" style={{paddingLeft: 20}}>
-          奔驰-进销存系统
-        </Menu.Item>
-      </Menu>
-    )*/
-
     const spaceResultArr = ['奔驰-CRM系统', '奔驰-OA系统', '奔驰-进销存系统']
     const ClusterResultArr = ['test', '产品环境', 'k8s 1.4']
 
@@ -152,14 +108,6 @@ class Top extends Component {
             <span style={{ marginLeft: 5 }}>空间</span>
           </div>
           <div className="spaceBtn">
-            {/*<Dropdown overlay={spaceMenu}
-                      trigger={['click']}
-            >
-              <a className="ant-dropdown-link" href="#">
-                奔驰HRM系统
-                <Icon type="down" />
-              </a>
-            </Dropdown>*/}
             <PopSelect btnStyle={false} resultArr={spaceResultArr} selectValue="奔驰HRM系统" />
           </div>
         </div>
@@ -191,4 +139,5 @@ class Top extends Component {
     )
   }
 }
-export default Top
+
+export default Header

@@ -22,6 +22,7 @@ import storage from './storage'
 import metrics from './metrics'
 import user from './user'
 import openApi from './open_api'
+import team from './team'
 
 // Updates an entity cache in response to any action with response.entities.
 function entities(state = { isFetching: false, users: {}, rcs: {} }, action) {
@@ -91,6 +92,7 @@ const rootReducer = combineReducers({
   user,
   routing,
   openApi,
+  team,
 })
 
 export default rootReducer
