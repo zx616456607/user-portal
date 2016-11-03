@@ -400,16 +400,6 @@ class ImageCenter extends Component {
     const { formatMessage } = this.props.intl;
     const scope = this;
     const otherImageHead = this.state.otherImageHead || [];
-    let tabpanes = null;
-    if(otherImageHead.length > 0) {     
-      tabpanes = otherImageHead.map((list, index) => {
-                  return (
-                    <TabPane tab={<span><Icon type='shopping-cart' />&nbsp;<span>{list.title}</span></span>} key={index + 4}>
-                      <OtherSpace scope={scope} otherHead={list} imageId={list.id} />
-                    </TabPane>
-                  )
-              });
-    }
     return (
       <QueueAnim className='ImageCenterBox'
         type='right'

@@ -364,6 +364,8 @@ class QueryLog extends Component {
     this.onChangeStartTime = this.onChangeStartTime.bind(this);
     this.onChangeEndTime = this.onChangeEndTime.bind(this);
     this.onChangeKeyword = this.onChangeKeyword.bind(this);
+    this.onChangeBigLog = this.onChangeBigLog.bind(this);
+    this.submitSearch = this.submitSearch.bind(this);
     this.state = {
       namespacePopup: false,
       currentNamespace: null,
@@ -379,7 +381,9 @@ class QueryLog extends Component {
       instanceList: null,
       start_time: null,
       end_time: null,
-      key_word: null
+      key_word: null,
+      searchKeyword: null,
+      bigLog: false
     }
   }
   
@@ -432,6 +436,7 @@ class QueryLog extends Component {
     //this function for user get search 10-20 of namespace list
     if( name != this.state.currentNamespace ) {
       this.setState({
+        namespacePopup: false,
         currentNamespace: name,
         currentCluster: null,
         currentService: null,
@@ -445,6 +450,7 @@ class QueryLog extends Component {
     //this function for user get search 10-20 of cluster list
     if( name != this.state.currentCluster ) {
       this.setState({
+        clusterPopup: false,
         currentCluster: name,
         currentService: null,
         currentInstance: []
@@ -458,6 +464,7 @@ class QueryLog extends Component {
     if( name != this.state.currentService ) {
       this.setState({
         currentService: name,
+        servicePopup: false,
         currentInstance: []
       });
       this.getFirstInstance()
@@ -469,13 +476,18 @@ class QueryLog extends Component {
     let selectedFlag = false;
     let selectedIndex = -1;
     this.state.currentInstance.map((item, index) => {
-      if(item.name == item) {
+      if(name == item) {
         selectedFlag = true;
-        selectedIndex = inedx;
+        selectedIndex = index;
       }
     });
     if(selectedFlag) {
-      let tempList = this.state.currentInstance.slice(0, selectedIndex);
+      let tempList = [];
+      if(selectedIndex == 0) {
+        tempList = this.state.currentInstance.slice(1);
+      } else {
+        tempList = this.state.currentInstance.slice(0, selectedIndex);
+      }
       tempList.concat(this.state.currentInstance.slice(selectedIndex + 1));
       this.setState({
         currentInstance: tempList
@@ -487,6 +499,7 @@ class QueryLog extends Component {
         currentInstance: tempList
       });
     }
+    console.log(this.state.currentInstance)
   }
   
   hideUserPopup(e) {
@@ -546,9 +559,18 @@ class QueryLog extends Component {
       from: null,
       size: null,
       keyword: this.state.key_word,
-      kind: this.state.currentInstance.length == 0 ? 'service' : 'pod'
-    }
-    
+      kind: 'pod'
+    } 
+    this.setState({
+      searchKeyword: this.state.key_word
+    })
+  }
+  
+  onChangeBigLog() {
+    //this function for change the log box big or small
+    this.setState({
+      bigLog: !this.state.bigLog
+    })
   }
   
   render() {
@@ -568,9 +590,11 @@ class QueryLog extends Component {
               trigger='click'
               placement='bottom'
               getTooltipContainer={() => document.getElementById('QueryLog') }
-              onVisibleChange={this.hideUserPopup}>
+              onVisibleChange={this.hideUserPopup}
+              visible={this.state.namespacePopup}
+            >
               <div className={ this.state.namespacePopup ? 'cloneSelectInputClick cloneSelectInput' : 'cloneSelectInput'} >
-                <span>{ this.state.currentNamespace ? this.state.currentNamespace : [<FormattedMessage {...menusText.selectUser} />]}</span>
+                <span className='selectedSpan'>{ this.state.currentNamespace ? this.state.currentNamespace : [<span className='placeholderSpan'><FormattedMessage {...menusText.selectUser} /></span>]}</span>
                 <Icon type='down' />
               </div>
             </Popover>
@@ -583,9 +607,11 @@ class QueryLog extends Component {
               trigger='click'
               placement='bottom'
               getTooltipContainer={() => document.getElementById('QueryLog') }
-              onVisibleChange={this.hideClusterPopup}>              
+              onVisibleChange={this.hideClusterPopup}
+              visible={this.state.clusterPopup}
+            >
               <div className={ this.state.clusterPopup ? 'cloneSelectInputClick cloneSelectInput' : 'cloneSelectInput'} >
-                <span>{ this.state.currentCluster ? this.state.currentCluster : [<FormattedMessage {...menusText.selectCluster} />]}</span>
+                <span className='selectedSpan'>{ this.state.currentCluster ? this.state.currentCluster : [<span className='placeholderSpan'><FormattedMessage {...menusText.selectCluster} /></span>]}</span>
                 <Icon type='down' />
               </div>
             </Popover>
@@ -599,9 +625,10 @@ class QueryLog extends Component {
               placement='bottom'
               getTooltipContainer={() => document.getElementById('QueryLog') }
               onVisibleChange={this.hideServicePopup}
-              >
+              visible={this.state.servicePopup}
+            >
               <div className={ this.state.servicePopup ? 'cloneSelectInputClick cloneSelectInput' : 'cloneSelectInput'} >
-                <span>{ this.state.currentService ? this.state.currentService : [<FormattedMessage {...menusText.selectService} />]}</span>
+                <span className='selectedSpan'>{ this.state.currentService ? this.state.currentService : [<span className='placeholderSpan'><FormattedMessage {...menusText.selectService} /></span>]}</span>
                 <Icon type='down' />
               </div>
             </Popover>
@@ -614,9 +641,10 @@ class QueryLog extends Component {
               trigger='click'
               placement='bottom'
               getTooltipContainer={() => document.getElementById('QueryLog') }
-              onVisibleChange={this.hideInstancePopup}>
+              onVisibleChange={this.hideInstancePopup}
+              >
               <div className={ this.state.instancePopup ? 'cloneSelectInputClick cloneSelectInput' : 'cloneSelectInput'} >
-                <span>{ this.state.currentInstance.length != 0 ? this.state.currentInstance : [<FormattedMessage {...menusText.selectInstance} />]}</span>
+                <span className='selectedSpan'>{ this.state.currentInstance.length != 0 ? this.state.currentInstance.join(',') : [<span className='placeholderSpan'><FormattedMessage {...menusText.selectInstance} /></span>]}</span>
                 <Icon type='down' />
               </div>
             </Popover>
@@ -645,9 +673,10 @@ class QueryLog extends Component {
           </div>
           <div style={{ clear:'both' }}></div>
         </div>
-        <Card className='logBox'>
+        <Card className={ this.state.bigLog ? 'logBox' : 'logBox'}>
           <div className='titleBox'>
-            <span>{ this.state.key_word ? '关键词' + this.state.key_word + '结果查询页' : '结果查询页'}</span>
+            <span className='keywordSpan'>{ this.state.key_word ? '关键词' + this.state.searchKeyword + '结果查询页' : '结果查询页'}</span>
+            <i className={this.state.bigLog ? 'fa fa-compress' : 'fa fa-expand'} onClick={this.onChangeBigLog} />
           </div>
           <div className='msgBox'>
             
