@@ -32,8 +32,8 @@ let TeamList = React.createClass ({
       return (
         <Row className={className} key={team.teamID}>
           <Col span={4}>{team.teamName}</Col>
-          <Col span={4}>8</Col>
-          <Col span={4}>8</Col>
+          <Col span={4}>{team.spaceCount}</Col>
+          <Col span={4}>{team.clusterCount}</Col>
         </Row>
       )
     })
