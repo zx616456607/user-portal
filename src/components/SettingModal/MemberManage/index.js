@@ -11,6 +11,8 @@ import React,{ Component } from 'react'
 import './style/MemberManage.less'
 import { Row, Col, Button, Input, Select, Card, Icon, Table, Modal, Form, Checkbox, Tooltip, } from 'antd'
 import SearchInput from '../../SearchInput'
+import { connect } from 'react-redux'
+import { loadUserList } from '../../../actions/user'
 
 const createForm = Form.create;
 const FormItem = Form.Item;
@@ -320,8 +322,9 @@ let NewMemberForm = React.createClass({
     )
   },
 })
-NewMemberForm = createForm()(NewMemberForm);
-export default class MemberManage extends Component {
+NewMemberForm = createForm()(NewMemberForm)
+
+class MemberManage extends Component {
   constructor(props){
     super(props)
     this.showModal = this.showModal.bind(this)
@@ -344,6 +347,11 @@ export default class MemberManage extends Component {
       searchResult: data,
     })
   }
+
+  componentDidMount() {
+    this.props.loadUserList(null)
+  }
+  
   render(){
     const scope = this
     const { visible } = this.state
@@ -376,3 +384,30 @@ export default class MemberManage extends Component {
     )
   }
 }
+
+function mapStateToProp(state) {
+  let usersData = []
+  let total = 0
+  let size = 0
+  const users = state.user.users
+  if (users.result) {
+    if (users.result.users) {
+      usersData = users.result.users
+    }
+    if (users.result.total) {
+      total = users.result.total
+    }
+    if (users.result.count) {
+      size = users.result.size
+    }
+  }
+  return {
+    users: usersData,
+    total,
+    size
+  }
+}
+
+export default connect(mapStateToProp, {
+  loadUserList,
+})(MemberManage)

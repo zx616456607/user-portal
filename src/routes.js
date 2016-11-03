@@ -50,6 +50,7 @@ import DatabaseStorage from './components/DatabaseCache/DatabaseStorage'
 /*-------------------CI/CD Module Start----------------------------------*/
 import CICD from './containers/CICD'
 import CodeStore from './components/CICDModule/CodeStore'
+import CodeRepo from './components/CICDModule/CodeStore/CodeRepo'
 import DockerFile from './components/CICDModule/DockerFile'
 import TenxFlow from './components/CICDModule/TenxFlow'
 import TenxFlowBuild from './components/CICDModule/TenxFlow/TenxFlowDetail'
@@ -105,6 +106,7 @@ export default (
     </Route>
     <Route path="ci_cd" component={CICD}>
       <IndexRoute component={CodeStore} />
+      <Route path="coderepo" component={CodeRepo} />
       <Route path="tenx_flow" >
         <IndexRoute component={TenxFlow} />
         <Route path="tenx_flow_build" component={TenxFlowBuild} />

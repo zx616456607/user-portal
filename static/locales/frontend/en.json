@@ -143,6 +143,14 @@
   "CICD.TenxStorm.show": "查看公钥",
   "CICD.TenxStorm.search": "Search",
   "CICD.TenxStorm.releaseActivation": "解除激活",
+  "CICD.TenxStorm.copySuccess": "Copy Success",
+  "CICD.TenxStorm.copyBtn": "Copy",
+  "CICD.TenxStorm.clickCopy": "Click Copy",
+  "CICD.TenxStorm.publicKey": "公钥授权",
+  "CICD.TenxStorm.back": "返回",
+  "CICD.TenxStorm.creageCodeStore": "创建代码仓库",
+  "CICD.TenxStorm.logout": "Logout",
+
 
   "CICD.Tenxflow.TenxFlowList.search": "Search",
   "CICD.Tenxflow.TenxFlowList.name": "Name",
