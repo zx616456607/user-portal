@@ -8,17 +8,10 @@
 import * as ActionTypes from '../actions/open_api'
 import reducerFactory from './factory'
 
-export default function openApi(state = {
-  token: {
-    namespace:"",
-    token:"",
-  }
- }, action) {
-  return {
-    token: reducerFactory({
+export default function openApi(state = {}, action) {
+  return reducerFactory({
       REQUEST: ActionTypes.TOKEN_REQUEST,
       SUCCESS: ActionTypes.TOKEN_SUCCESS,
       FAILURE: ActionTypes.TOKEN_FAILURE
-    }, state.token, action)
-  }
+    }, state, action)
 }

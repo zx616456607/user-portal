@@ -38,8 +38,6 @@ class API extends Component{
   }
   render(){
     const {namespace, token} = this.props
-    console.log("namespace", namespace)
-    console.log("token", token)
     const { hidToken } = this.state
     return (
       <div id='API'>
@@ -73,13 +71,9 @@ class API extends Component{
 }
 
 function mapStateToProp(state) {
-  let result = {
+  const result = state.openApi.result || {
     namespace: "",
     token: "",
-  }
-  if (state.openApi.token.result) {
-    result.namespace = state.openApi.token.result.namespace
-    result.token = state.openApi.token.result.token
   }
   return result
 }
