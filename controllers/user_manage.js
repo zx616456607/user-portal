@@ -58,20 +58,22 @@ exports.getUsers = function* () {
   if (name) {
     queryObj.filter = `name ${name}`
   }
-  const api = apiFactory.getK8sApi(loginUser)
-  //const result = yield api.getBy(['users'], queryObj)
-  const result = {
-    data: {
-      total: 0,
-      count: 0,
-      users: []
-    }
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.users.getBy([], queryObj)
+  const users = result.users || []
+  let total = 0
+  if (result.listMeta && result.listMeta.total) {
+    total = result.listMeta.total
   }
-  const users = result.data.users || []
+  let count = 0
+  if (result.listMeta && result.listMeta.count) {
+    count = result.listMeta.count
+  } 
+
   this.body = {
-    data: users,
-    total: result.data.total,
-    count: result.data.count
+    users,
+    total,
+    count
   }
 }
 

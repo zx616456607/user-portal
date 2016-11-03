@@ -21,10 +21,8 @@ let TeamList = React.createClass ({
   },
   render: function () {
     let items = this.props.teams.map((team) => {
-      console.log("hello!!!!")
-      console.log(team)
       return (
-        <Row className="contentList firstItem">
+        <Row className="contentList firstItem" key={team.teamID}>
           <Col span={4}>{team.teamName}</Col>
           <Col span={4}>8</Col>
           <Col span={4}>8</Col>
@@ -32,7 +30,6 @@ let TeamList = React.createClass ({
         </Row>
       )
     })
-    console.log(items)
     return (
       <div>
         <Row className="contentTop">
