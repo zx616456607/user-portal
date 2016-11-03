@@ -355,6 +355,26 @@
   "ManageMonitor.operationalAudit.running": "运行中",
   "ManageMonitor.operationalAudit.success": "完成",
   "ManageMonitor.operationalAudit.failed": "失败",
-  "ManageMonitor.operationalAudit.search": "立即查询"
+  "ManageMonitor.operationalAudit.search": "立即查询",
+  "ManageMonitor.operationalAudit.microsecond": "微秒",
+  "ManageMonitor.operationalAudit.millisecond": "毫秒",
+  "ManageMonitor.operationalAudit.second": "秒",
+  "ManageMonitor.operationalAudit.minute": "分",
+  "ManageMonitor.operationalAudit.hour": "时",
 
+  "ManageMonitor.QueryLog.headTitle": "日志查询 | 时速云",
+  "ManageMonitor.QueryLog.title": "日志查询",
+  "ManageMonitor.QueryLog.user": "用户：",
+  "ManageMonitor.QueryLog.selectUser": "选择用户",
+  "ManageMonitor.QueryLog.cluster": "集群：",
+  "ManageMonitor.QueryLog.selectCluster": "选择集群",
+  "ManageMonitor.QueryLog.service": "服务：",
+  "ManageMonitor.QueryLog.selectService": "选择服务",
+  "ManageMonitor.QueryLog.instance": "实例：",
+  "ManageMonitor.QueryLog.selectInstance": "选择实例",
+  "ManageMonitor.QueryLog.startTime": "开始：",
+  "ManageMonitor.QueryLog.endTime": "结束：",
+  "ManageMonitor.QueryLog.keyword": "关键词：",
+  "ManageMonitor.QueryLog.search": "立即查询"
+  
 }

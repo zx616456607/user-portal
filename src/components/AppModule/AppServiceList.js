@@ -15,7 +15,8 @@ import QueueAnim from 'rc-queue-anim'
 import AppServiceDetail from './AppServiceDetail'
 import './style/AppServiceList.less'
 import { loadServiceList, startServices, restartServices, stopServices, deleteServices, quickRestartServices } from '../../actions/services'
-import { DEFAULT_CLUSTER, DEFAULT_PAGE_SIZE } from '../../constants'
+import { DEFAULT_CLUSTER } from '../../constants'
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 import { browserHistory } from 'react-router'
 import RollingUpdateModal from './AppServiceDetail/RollingUpdateModal'
 import ConfigModal from './AppServiceDetail/ConfigModal'
@@ -70,7 +71,7 @@ const MyComponent = React.createClass({
       return
     }
     const query = {}
-    if (page !== 1) {
+    if (page !== DEFAULT_PAGE) {
       query.page = page
     }
     if (size !== DEFAULT_PAGE_SIZE) {
@@ -92,7 +93,7 @@ const MyComponent = React.createClass({
     }
     const { pathname, size, name } = this.props
     const query = {}
-    if (page !== 1) {
+    if (page !== DEFAULT_PAGE) {
       query.page = page
       query.size = size
     }
@@ -634,12 +635,12 @@ AppServiceList.propTypes = {
 function mapStateToProps(state, props) {
   const { query, pathname } = props.location
   let { page, size, name } = query
-  page = parseInt(page || 1)
+  page = parseInt(page || DEFAULT_PAGE)
   size = parseInt(size || DEFAULT_PAGE_SIZE)
-  if (isNaN(page) || page < 1) {
-    page = 1
+  if (isNaN(page) || page < DEFAULT_PAGE) {
+    page = DEFAULT_PAGE
   }
-  if (isNaN(size) || size < 1 || size > 100) {
+  if (isNaN(size) || size < 1 || size > MAX_PAGE_SIZE) {
     size = DEFAULT_PAGE_SIZE
   }
   const { appName } = props

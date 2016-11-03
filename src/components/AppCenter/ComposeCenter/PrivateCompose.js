@@ -112,7 +112,7 @@ const MyList = React.createClass({
     const list = item.key.split('&')[0]
     
     if (list== 'edit') {
-    const Index = parseInt(item.key.split('&')[1])
+      const Index = parseInt(item.key.split('&')[1])
       this.props.self.setState({
         createModalShow: true,
         stackItem: this.props.config[Index]
@@ -120,7 +120,7 @@ const MyList = React.createClass({
 
     } else {
       //this function for user delete select image
-      const config ={registry: DEFAULT_REGISTRY, id: item.key.split('@')[0]}
+      const config ={registry: DEFAULT_REGISTRY, id:  item.key.match(/(.+&)(.+)(\?.+)/)[2]}
       Modal.confirm({
         title: `删除编排 `,
         content: <h3>{`您确定要删除编排 ${item.key.split("@")[1]}`}</h3>,
@@ -161,7 +161,7 @@ const MyList = React.createClass({
           <Menu.Item key={`edit&${index}`}>
             <FormattedMessage {...menusText.editService} />
           </Menu.Item>
-          <Menu.Item key={`delete&${item.id}@${item.name}`}>
+          <Menu.Item key={`delete&${item.id}?@${item.name}`}>
             <FormattedMessage {...menusText.deleteService} />
           </Menu.Item>
         </Menu>

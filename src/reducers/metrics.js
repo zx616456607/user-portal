@@ -10,7 +10,7 @@
 
 import * as ActionTypes from '../actions/metrics'
 import reducerFactory from './factory'
-import { DEFAULT_PAGE_SIZE } from '../constants'
+
 const option = {
   overwrite: true
 }
