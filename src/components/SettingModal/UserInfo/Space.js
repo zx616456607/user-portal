@@ -52,8 +52,16 @@ let TeamSpace = React.createClass({
     }
   },
   render: function () {
+    let firstRow = true
+    let className = ""
     let items = this.props.teamspaces.map((teamspace) => {
-      return (<Row className="contentList">
+      if (firstRow) {
+        className = "contentList firstItem"
+        firstRow = false
+      } else {
+        className = "contentList"
+      }
+      return (<Row className={className} key={teamspace.spaceName}>
           <Col span={4}>{teamspace.spaceName}</Col>
           <Col span={4}>{teamspace.teamID}</Col>
           <Col span={4}>6</Col>
@@ -93,26 +101,6 @@ let TeamSpace = React.createClass({
           </Col>
         </Row>
         {items}
-        <Row className="contentList firstItem">
-          <Col span={4}>CRM联合项目</Col>
-          <Col span={4}>奔驰开发1组</Col>
-          <Col span={4}>6</Col>
-          <Col span={4}>1000</Col>
-          <Col span={4}>2002</Col>
-          <Col span={4}>
-            <Button type="primary">进入空间</Button>
-          </Col>
-        </Row>
-        <Row className="contentList">
-          <Col span={4}>H5活动小分队</Col>
-          <Col span={4}>民生前端军团</Col>
-          <Col span={4}>6</Col>
-          <Col span={4}>1000</Col>
-          <Col span={4}>2002</Col>
-          <Col span={4}>
-            <Button type="primary">进入空间</Button>
-          </Col>
-        </Row>
       </div>
     )
   }
@@ -127,7 +115,7 @@ class Space extends Component{
   }
   
   componentDidMount() {
-    this.props.loadUserTeamspaceList("104", null)
+    this.props.loadUserTeamspaceList("default", null)
   }
 
   render(){

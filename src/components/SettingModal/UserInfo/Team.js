@@ -20,9 +20,17 @@ let TeamList = React.createClass ({
     }
   },
   render: function () {
+    let firstRow = true
+    let className = ""
     let items = this.props.teams.map((team) => {
+      if (firstRow) {
+        className = "contentList firstItem"
+        firstRow = false
+      } else {
+        className = "contentList"
+      }
       return (
-        <Row className="contentList firstItem" key={team.teamID}>
+        <Row className={className} key={team.teamID}>
           <Col span={4}>{team.teamName}</Col>
           <Col span={4}>8</Col>
           <Col span={4}>8</Col>
@@ -60,7 +68,7 @@ class Team extends Component{
   }
 
   componentDidMount() {
-    this.props.loadUserTeamList("104", null)
+    this.props.loadUserTeamList("default", null)
   }
 
   render(){
