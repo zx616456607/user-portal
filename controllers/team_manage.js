@@ -35,12 +35,40 @@ exports.getUserTeamspaces = function* () {
   if (name) {
     queryObj.filter = `name ${name}`
   }
-  const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy(['teams', teamID, 'spaces'], queryObj)
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.teams.getBy([teamID, 'spaces'], queryObj)
   const teamspaces = result.data.teamspaces || []
   this.body = {
     data: teamspaces,
     total: result.data.total,
     count: result.data.count
+  }
+}
+
+exports.getTeamClusters = function* () {
+  const teamID = this.params.team_id
+  const loginUser = this.session.loginUser
+  const query = this.query || {}
+  let page = parseInt(query.page || DEFAULT_PAGE)
+  let size = parseInt(query.size || DEFAULT_PAGE_SIZE)
+  let name = query.name
+  if (isNaN(page) || page < DEFAULT_PAGE) {
+    page = DEFAULT_PAGE
+  }
+  if (isNaN(size) || size < 1 || size > MAX_PAGE_SIZE) {
+    size = DEFAULT_PAGE_SIZE
+  }
+  const from = size * (page - 1)
+  const queryObj = { from, size }
+  if (name) {
+    queryObj.filter = `name ${name}`
+  }
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.teams.getBy([teamID, 'clusters'], queryObj)
+  const clusters = result.clusters || []
+  this.body = {
+    data: clusters,
+    total: result.listMeta.total,
+    count: result.listMeta.size
   }
 }

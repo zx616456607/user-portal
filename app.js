@@ -165,6 +165,7 @@ app.use(i18n.middleware)
 app.use(function* (next) {
   this.session.loginUser = {
     user: "zhangpc",
+    id: 104,
     namespace: "zhangpc",
     token: "jgokzgfitsewtmbpxsbhtggabvrnktepuzohnssqjnsirtot"
   }
@@ -227,8 +228,8 @@ if (config.protocol !== 'https') {
     key: fs.readFileSync(prikeyfile),
     cert: fs.readFileSync(certfile)
   }
-  const server = https.createServer(httpsoptions, app.callback()).listen(config.port, config.host, function() {
-    setTimeout(function() {
+  const server = https.createServer(httpsoptions, app.callback()).listen(config.port, config.host, function () {
+    setTimeout(function () {
       logger.info(`${app.name}@${app.version} is listening on port ${config.port}`)
       logger.info(`Open up https://${config.hostname}:${config.port}/ in your browser.`)
     }, 1500)

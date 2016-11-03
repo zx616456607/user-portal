@@ -18,11 +18,12 @@ const MAX_PAGE_SIZE = constants.MAX_PAGE_SIZE
 exports.getUserDetail = function* () {
   let userID = this.params.user_id
   const loginUser = this.session.loginUser
+  userID = userID === 'default' ? loginUser.id : userID
   const api = apiFactory.getApi(loginUser)
-  if (!userID || userID == '') {
+  /*if (!userID || userID == '') {
     const re = yield api.getBy(['user_id'])
     userID = re.data['userid']
-  }
+  }*/
   const result = yield api.users.getBy([userID])
   /*const result = {
     data: {
@@ -68,7 +69,7 @@ exports.getUsers = function* () {
   size = 0
   if (result.listMeta && result.listMeta.count) {
     size = result.listMeta.size
-  } 
+  }
 
   this.body = {
     users,
@@ -80,6 +81,7 @@ exports.getUsers = function* () {
 exports.getUserTeams = function* () {
   let userID = this.params.user_id
   const loginUser = this.session.loginUser
+  userID = userID === 'default' ? loginUser.id : userID
   const query = this.query || {}
   let page = parseInt(query.page || DEFAULT_PAGE)
   let size = parseInt(query.size || DEFAULT_PAGE_SIZE)
@@ -107,7 +109,7 @@ exports.getUserTeams = function* () {
   size = 0
   if (result.listMeta && result.listMeta.count) {
     size = result.listMeta.size
-  } 
+  }
 
   this.body = {
     teams,
@@ -119,6 +121,7 @@ exports.getUserTeams = function* () {
 exports.getUserTeamspaces = function* () {
   let userID = this.params.user_id
   const loginUser = this.session.loginUser
+  userID = userID === 'default' ? loginUser.id : userID
   const query = this.query || {}
   let page = parseInt(query.page || DEFAULT_PAGE)
   let size = parseInt(query.size || DEFAULT_PAGE_SIZE)
@@ -146,7 +149,7 @@ exports.getUserTeamspaces = function* () {
   size = 0
   if (result.listMeta && result.listMeta.count) {
     size = result.listMeta.size
-  } 
+  }
 
   this.body = {
     teamspaces,

@@ -91,6 +91,7 @@ module.exports = function (Router) {
 
   // Teams
   router.get('/teams/:team_id/spaces', teamController.getUserTeamspaces)
+  router.get('/teams/:team_id/clusters', teamController.getTeamClusters)
 
   // spi
   router.post('/clusters/:cluster/services/:service_name/binddomain', serviceController.bindServiceDomain)
@@ -145,7 +146,7 @@ module.exports = function (Router) {
   router.post('/clusters/:cluster/createRedisCluster', databaseCacheController.createRedisCluster)
   router.get('/clusters/:cluster/getDatabaseDetail/:dbName', databaseCacheController.getDatabaseClusterDetail)
   router.get('/clusters/:cluster/deleteDatabase/:dbName', databaseCacheController.deleteDatebaseCluster)
-  
+
   // Manage Monitor
   router.post('/manage-monitor/getOperationAuditLog', manageMonitorController.getOperationAuditLog)
   return router.routes()

@@ -49,4 +49,7 @@ module.exports = function (config) {
   // ~ users
   this.users = collections.create('users')
 
+  // ~ teams
+  this.teams = collections.create('teams')
+
 }
