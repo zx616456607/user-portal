@@ -43,13 +43,20 @@ let MemberTable =  React.createClass({
       sortedInfo: sorter,
     });
   },
+  handleBack(){
+    const { scope } = this.props
+    scope.setState({
+      notFound: false,
+    })
+  },
   render() {
     let { sortedInfo, filteredInfo } = this.state
     const { searchResult, notFound } = this.props.scope.state
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
+    let pageTotal = searchResult.length === 0 ? data.length : searchResult.length
     const pagination = {
-      total: data.length,
+      total: pageTotal,
       showSizeChanger: true,
       defaultPageSize: 5,
       pageSizeOptions: ['5','10','15','20'],
@@ -120,7 +127,10 @@ let MemberTable =  React.createClass({
       },]
     if(notFound){
       return (
-        <div>没有找到</div>
+        <div id="notFound">
+          <div className="notFoundTip">没有查询到符合条件的记录，尝试其他关键字。</div>
+          <a onClick={this.handleBack}>[返回成员管理列表]</a>
+        </div>
       )
     } else {
       return (
