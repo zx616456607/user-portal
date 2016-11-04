@@ -240,9 +240,12 @@ class Service extends Component {
             onOk={() => this.btnCreateConfigGroup()}
             onCancel={(e) => this.configModal(false)}
             >
-            <div className="create-conf-g">
-              <div style={{ height: 25 }}>名称 : </div>
-              <Input type="text" value={this.state.myTextInput} onPressEnter={() => this.btnCreateConfigGroup()} onChange={(e) => this.createModalInput(e)} />
+            <div className="create-conf-g" style={{padding:'20px 0'}}>
+              <div style={{ height: 25 }}>
+                <span style={{width:'50px',display: 'inline-block', fontSize:'14px'}}> 名称 : </span>
+                <Input type="text" style={{width:'80%'}} value={this.state.myTextInput} onPressEnter={() => this.btnCreateConfigGroup()} onChange={(e) => this.createModalInput(e)} />
+              
+              </div>
             </div>
           </Modal>
           {/*创建配置组-弹出层-end*/}
