@@ -12,7 +12,7 @@ import './style/MemberManage.less'
 import { Row, Col, Button, Input, Select, Card, Icon, Table, Modal, Form, Checkbox, Tooltip, } from 'antd'
 import SearchInput from '../../SearchInput'
 import { connect } from 'react-redux'
-import { loadUserList, createUser } from '../../../actions/user'
+import { loadUserList, createUser, deleteUser } from '../../../actions/user'
 
 const createForm = Form.create;
 const FormItem = Form.Item;
@@ -424,4 +424,5 @@ function mapStateToProp(state) {
 export default connect(mapStateToProp, {
   loadUserList,
   createUser,
+  deleteUser,
 })(MemberManage)

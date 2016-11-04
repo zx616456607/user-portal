@@ -125,7 +125,7 @@ export const USER_CREATE_REQUEST = 'USER_CREATE_REQUEST'
 export const USER_CREATE_SUCCESS = 'USER_CREATE_SUCCESS'
 export const USER_CREATE_FAILURE = 'USER_CREATE_FAILURE'
 
-// Fetches teamspace list from API.
+// Create user from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchCreateUser(body, callback) {
   let endpoint = `${API_URL_PREFIX}/users`
@@ -143,10 +143,40 @@ function fetchCreateUser(body, callback) {
   }
 }
 
-// Fetches teamspace list from API unless it is cached.
+// Create user from API 
 // Relies on Redux Thunk middleware.
 export function createUser(body, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchCreateUser(body, callback))
+  }
+}
+
+export const USER_DELETE_REQUEST = 'USER_DELETE_REQUEST'
+export const USER_DELETE_SUCCESS = 'USER_DELETE_SUCCESS'
+export const USER_DELETE_FAILURE = 'USER_DELETE_FAILURE'
+
+// Delete user from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchDeleteUser(userID, callback) {
+  let endpoint = `${API_URL_PREFIX}/users/${userID}`
+  return {
+    [FETCH_API]: {
+      types: [USER_DELETE_REQUEST, USER_DELETE_SUCCESS, USER_DELETE_FAILURE],
+      endpoint,
+      options: {
+        method: 'DELETE',
+        body
+      },
+      schema: {},
+    },
+    callback
+  }
+}
+
+// Delete user from API
+// Relies on Redux Thunk middleware.
+export function deleteUser(userID, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchDeleteUser(userID, callback))
   }
 }
