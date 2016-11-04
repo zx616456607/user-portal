@@ -45,7 +45,9 @@ let MemberTable =  React.createClass({
     let { sortedInfo, filteredInfo } = this.state
     const { searchResult, notFound } = this.props.scope.state
     const { data } = this.props
-    
+    console.log('data',data);
+    console.log('data.length',data.length);
+    console.log('searchResult.length',searchResult.length);
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
     let pageTotal = searchResult.length === 0 ? data.length : searchResult.length
@@ -145,7 +147,7 @@ let NewMemberForm = React.createClass({
         if (!/^[a-z][-a-z0-9]{1,40}[a-z0-9]$/.test(value)) {
           callback([new Error('抱歉，用户名不合法。')]);
         } else {
-          callback();
+          callback()
         }
       }, 800);
     }
@@ -165,8 +167,15 @@ let NewMemberForm = React.createClass({
       callback();
     }
   },
+  telExists(rule, value, callback){
+    if(!/^[0-9][-0-9()]{5,12}[0-9]$/.test(value)){
+      callback([new Error('请输入正确的手机号')]);
+    } else {
+      callback()
+    }
+  },
   handleOk() {
-    const { scope } = this.props
+    const { scope, users } = this.props
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         return;
@@ -179,6 +188,14 @@ let NewMemberForm = React.createClass({
         phone: tel,
         sendEmail: check,
       }
+      let newItem = {
+        name: name,
+        tel: tel,
+        email: email,
+        style: 0,
+        team: '1',
+        balance: 0,
+      }
       scope.props.createUser(newUser,{
         success: {
           func: () => {
@@ -186,6 +203,8 @@ let NewMemberForm = React.createClass({
             scope.setState({
               visible: false,
             })
+            scope.state.memberList.push(newItem)
+            console.log('memberListstate',scope.state.memberList);
           },
           isAsync: true
         },
@@ -217,7 +236,7 @@ let NewMemberForm = React.createClass({
         trigger: 'onBlur',
       }, {
         rules: [
-          { length:'11' ,message: '请输入正确的手机号' },
+          { validator: this.telExists },
         ],
         trigger: ['onBlur', 'onChange'],
       }],
@@ -336,6 +355,7 @@ class MemberManage extends Component {
       searchResult: [],
       notFound: false,
       visible: false,
+      memberList: [],
     }
   }
 
@@ -346,27 +366,22 @@ class MemberManage extends Component {
   }
   componentWillMount(){
     loadData(this.props)
+    
+  }
+  componentWillReceiveProps(nextProps){
+    const { users } = this.props
+    console.log('users',users);
+    if(users.length === 0){
+      return
+    }
+    this.setState({
+      memberList: nextProps.users
+    })
   }
   render(){
     const { users } = this.props
     const scope = this
-    const { visible } = this.state
-    let data = []
-    if(users.length !== 0){
-      users.map((item,index) => {
-        data.push(
-          {
-            key: index,
-            name: item.displayName,
-            tel: item.phone,
-            email: item.email,
-            style: item.role,
-            team: '1',
-            balance: item.balance,
-          }
-        )
-      })
-    }
+    const { visible, memberList } = this.state
     const searchIntOption = {
       width:'280px',
       position: 'right',
@@ -385,12 +400,12 @@ class MemberManage extends Component {
           <Button type="primary" size="large" onClick={this.showModal} icon="plus" className="addBtn">
             添加新成员
           </Button>
-          <SearchInput data={data} scope={scope} searchIntOption={searchIntOption}/>
+          <SearchInput data={memberList} scope={scope} searchIntOption={searchIntOption}/>
           <NewMemberForm visible={visible} scope={scope}/>
         </Row>
         <Row className="memberList">
           <Card>
-            <MemberTable scope={scope} data={data}/>
+            <MemberTable scope={scope} data={memberList.length === 0? users: memberList}/>
           </Card>
         </Row>
       </div>
@@ -402,10 +417,24 @@ function mapStateToProp(state) {
   let usersData = []
   let total = 0
   let size = 0
+  let data = []
   const users = state.user.users
   if (users.result) {
     if (users.result.users) {
       usersData = users.result.users
+      usersData.map((item,index) => {
+        data.push(
+          {
+            key: index,
+            name: item.displayName,
+            tel: item.phone,
+            email: item.email,
+            style: item.role,
+            team: '1',
+            balance: item.balance,
+          }
+        )
+      })
     }
     if (users.result.total) {
       total = users.result.total
@@ -414,8 +443,9 @@ function mapStateToProp(state) {
       size = users.result.size
     }
   }
+  
   return {
-    users: usersData,
+    users: data,
     total,
     size,
   }
