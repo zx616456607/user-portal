@@ -12,9 +12,8 @@
       float: left;
       button {
         margin-right: 10px;
-        padding: 4px 10px;
+        padding: 4px 10px 5px;
         height: 35px;
-        line-height: 27px;
         background-color: #FFFFFF;
         i {
           margin-right: 5px;
@@ -23,7 +22,7 @@
     }
     .rightBox {
       position: relative;
-      float: right;
+      float: left;
       .littleLeft {
         z-index: 10;
         position: absolute;
@@ -39,9 +38,22 @@
           height: 35px;
           line-height: 35px;
           font-size: 14px;
-          color: #333333;
-//        background-color: #f8f8f8;
+          color: #333333; //        background-color: #f8f8f8;
         }
+      }
+    }
+    .pageBox {
+      float: right;
+      height: 35px;
+      .totalPage {
+        float: left;
+        margin-right: 8px;
+        line-height: 35px;
+      }
+      .paginationBox {
+        float: left;
+        margin-top: 0 !important;
+        padding-top: 5px;
       }
     }
   }
@@ -96,7 +108,7 @@
         float: left;
         padding-left: 10px;
       }
-      .appDetailSelected{
+      .appDetailSelected {
         background-color: #effdff;
       }
       .appDetail {
@@ -126,7 +138,7 @@
             line-height: 18px;
           }
         }
-        &:hover{
+        &:hover {
           background-color: #F2F2F2;
         }
       }

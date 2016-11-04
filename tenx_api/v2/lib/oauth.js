@@ -15,12 +15,12 @@ exports.getAuthHeader = function (authInfo) {
   }
   if (authInfo.type === 'basic') {
     return {
-      "Authorization": 'Basic ' + Buffer(authInfo.user + ':' + authInfo.password).toString('base64')
+      "authorization": 'Basic ' + Buffer(authInfo.user + ':' + authInfo.password).toString('base64')
     }
   }
   const auth = {
-    "Username": authInfo.user,
-    "Authorization": `token ${authInfo.token}`,
+    "username": authInfo.user,
+    "authorization": `token ${authInfo.token}`,
   }
   if (authInfo.teamspace) {
     auth.teamspace = authInfo.teamspace

@@ -19,3 +19,11 @@ export function resetErrorMessage() {
   }
 }
 
+export const SET_CLUSTER = 'SET_CLUSTER'
+// Resets the currently visible error message.
+export function setCluster(cluster) {
+  return {
+    cluster,
+    type: SET_CLUSTER
+  }
+}

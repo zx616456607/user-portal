@@ -198,7 +198,7 @@ class ImageSpace extends Component {
       privateDetailModal: false
     }
   }
-  componentWillMount() {
+  componentDidMount() {
     this.props.loadPrivateImageList(DEFAULT_REGISTRY);
   }
   openUploadModal() {

@@ -16,6 +16,8 @@ import classNames from 'classnames'
 import PopSelect from '../PopSelect'
 import { connect } from 'react-redux'
 import { loadUserTeamspaceList } from '../../actions/user'
+import { loadTeamClustersList } from '../../actions/team'
+import { setCluster } from '../../actions'
 
 const FormItem = Form.Item;
 const createForm = Form.create;
@@ -63,35 +65,41 @@ const menu = (
   </Menu>
 )
 
-function loadSpaces(props) {
+function loadSpaces(props, callback) {
   const { loadUserTeamspaceList } = props
-  loadUserTeamspaceList('default', { size: 100 })
+  loadUserTeamspaceList('default', { size: 100 }, callback)
 }
 
 class Header extends Component {
   constructor(props) {
     super(props)
     this.handleSpaceChange = this.handleSpaceChange.bind(this)
-    this.handleInputChange = this.handleInputChange.bind(this)
+    this.handleClusterChange = this.handleClusterChange.bind(this)
     this.setCluster = this.setCluster.bind(this)
     this.state = {
-      spaceVisible: false,
-      value: '',
+      spacesVisible: false,
+      cliustersVisible: false,
       focus: false,
-      selectSpace: null
+      selectSpace: {},
+      selectCluster: {},
     }
   }
 
   handleSpaceChange(space) {
+    const { loadTeamClustersList } = this.props
+    loadTeamClustersList(space.teamID, { size: 100 })
     this.setState({
-      selectSpace: space
+      selectSpace: space,
+      spacesVisible: false,
+      cliustersVisible: true,
     })
   }
 
-  handleInputChange(e) {
+  handleClusterChange(cluster) {
     this.setState({
-      value: e.target.value,
-    });
+      selectCluster: cluster,
+      cliustersVisible: false,
+    })
   }
 
   setCluster(value, option) {
@@ -99,14 +107,47 @@ class Header extends Component {
   }
 
   componentWillMount() {
-    loadSpaces(this.props)
+    const self = this
+    const { loadTeamClustersList, setCluster } = this.props
+    loadSpaces(this.props, {
+      success: {
+        func: (resultT) => {
+          const defaultSpace = resultT.teamspaces[0] || {}
+          this.setState({
+            selectSpace: defaultSpace,
+          })
+          loadTeamClustersList(defaultSpace.teamID, { size: 100 }, {
+            success: {
+              func: (resultC) => {
+                let defaultCluster = resultC.data[0] || {}
+                setCluster(defaultCluster)
+                self.setState({
+                  selectCluster: defaultCluster,
+                })
+              },
+              isAsync: true
+            }
+          })
+        },
+        isAsync: true
+      }
+    })
   }
 
   render() {
-    const { isTeamspacesFetching, teamspaces } = this.props
-    const spaceResultArr = ['奔驰-CRM系统', '奔驰-OA系统', '奔驰-进销存系统']
-    const ClusterResultArr = ['test', '产品环境', 'k8s 1.4']
-
+    const { isTeamspacesFetching, teamspaces, teamClusters } = this.props
+    const {
+      spacesVisible,
+      cliustersVisible,
+      selectSpace,
+      selectCluster,
+    } = this.state
+    teamspaces.map((space) => {
+      space.name = space.spaceName
+    })
+    teamClusters.map((cluster) => {
+      cluster.name = cluster.description
+    })
     return (
       <div id="header">
         <div className="space">
@@ -116,11 +157,13 @@ class Header extends Component {
           </div>
           <div className="spaceBtn">
             <PopSelect
+              title="选择项目空间"
               btnStyle={false}
+              visible={spacesVisible}
               list={teamspaces}
               loading={isTeamspacesFetching}
               onChange={this.handleSpaceChange}
-              selectValue="奔驰HRM系统" />
+              selectValue={selectSpace.spaceName} />
           </div>
         </div>
         <div className="cluster">
@@ -134,11 +177,14 @@ class Header extends Component {
           </div>*/}
           <div className="envirBox">
             <PopSelect
+              title="选择集群"
               btnStyle={false}
-              list={teamspaces}
+              visible={cliustersVisible}
+              list={teamClusters}
               loading={isTeamspacesFetching}
-              selectValue="奔驰HRM系统" />
-            {/*<PopSelect btnStyle={false} list={ClusterResultArr} selectValue="产品环境集群" />*/}
+              onChange={this.handleClusterChange}
+              selectValue={selectCluster.description} />
+            {/*<PopSelect  btnStyle={false} list={ClusterResultArr} selectValue="产品环境集群" />*/}
           </div>
         </div>
         <div className="rightBox">
@@ -159,12 +205,16 @@ class Header extends Component {
 
 function mapStateToProps(state, props) {
   const { teamspaces } = state.user
+  const { teamClusters } = state.team
   return {
     isTeamspacesFetching: teamspaces.isFetching,
-    teamspaces: (teamspaces.result ? teamspaces.result.teamspaces : [])
+    teamspaces: (teamspaces.result ? teamspaces.result.teamspaces : []),
+    teamClusters: (teamClusters.result ? teamClusters.result.data : []),
   }
 }
 
 export default connect(mapStateToProps, {
-  loadUserTeamspaceList
+  loadUserTeamspaceList,
+  loadTeamClustersList,
+  setCluster,
 })(Header)

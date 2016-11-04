@@ -26,7 +26,7 @@ import { loadServiceDetail, loadServiceContainerList } from '../../../actions/se
 import CommmonStatus from '../../CommonStatus'
 import './style/AppServiceDetail.less'
 import TerminalModal from '../../TerminalModal'
-import { ANNOTATION_SVC_DOMAIN } from '../../../constants'
+import parseServiceDomain from '../../parseDomain'
 
 const DEFAULT_TAB = '#containers'
 const TabPane = Tabs.TabPane;
@@ -65,7 +65,7 @@ class AppServiceDetail extends Component {
       TerminalLayoutModal: false
     });
   }
-  openTerminalModal (e) {
+  openTerminalModal(e) {
     //this function for user open the terminal modal
     e.stopPropagation();
     this.setState({
@@ -137,14 +137,6 @@ class AppServiceDetail extends Component {
     funcs.confirmDeleteServices([service])
   }
 
-  parseServiceDomain(item) {
-    let domain = ""
-    if (item.metadata.annotations && item.metadata.annotations[ANNOTATION_SVC_DOMAIN]) {
-      domain = item.metadata.annotations[ANNOTATION_SVC_DOMAIN]
-    }
-    return domain
-  }
-
   render() {
     const parentScope = this
     const {
@@ -179,6 +171,7 @@ class AppServiceDetail extends Component {
         </Link>
       </Menu.Item>
     </Menu>);
+    const svcDomain = parseServiceDomain(service)
     return (
       <div id="AppServiceDetail">
         <div className="titleBox">
@@ -200,7 +193,11 @@ class AppServiceDetail extends Component {
               </span>
               <br />
               <span>
-                地址&nbsp;:&nbsp;{this.parseServiceDomain(service)}
+                地址&nbsp;:&nbsp;
+                {
+                  svcDomain ?
+                    (<a target="_blank" href={svcDomain}>{svcDomain}</a>) : (<span>-</span>)
+                }
               </span>
               <br />
               <span>
@@ -209,7 +206,7 @@ class AppServiceDetail extends Component {
             </div>
             <div className="rightBox">
               <Button className="loginBtn" type="primary"
-                      onClick={this.openTerminalModal}>
+                onClick={this.openTerminalModal}>
                 <svg className="terminal">
                   <use xlinkHref="#terminal" />
                 </svg>
@@ -229,8 +226,8 @@ class AppServiceDetail extends Component {
           className='TerminalLayoutModal'
           transitionName='move-down'
           onCancel={this.closeTerminalLayoutModal}
-        >
-          <TerminalModal scope={parentScope} config={containers.length>0 ? containers[0] : null} />
+          >
+          <TerminalModal scope={parentScope} config={containers.length > 0 ? containers[0] : null} />
         </Modal>
         <div className="bottomBox">
           <div className="siderBox">
@@ -258,7 +255,7 @@ class AppServiceDetail extends Component {
                   serviceName={service.metadata.name}
                   service={serviceDetail}
                   cluster={service.cluster}
-                />
+                  />
               </TabPane>
               <TabPane tab="绑定域名" key="#binddomain">
                 <BindDomain
@@ -284,7 +281,7 @@ class AppServiceDetail extends Component {
                   serviceName={service.metadata.name}
                   cluster={service.cluster}
                   serviceDetailmodalShow={serviceDetailmodalShow}
-                />
+                  />
               </TabPane>
               <TabPane tab="监控" key="#monitor">
                 <div className="ServiceMonitor">

@@ -28,6 +28,7 @@ let MyComponent = React.createClass({
       this.setState({
         config: []
       })
+      return
     }
     const config = []
     let index = 0
@@ -53,6 +54,7 @@ let MyComponent = React.createClass({
       this.setState({
         config: []
       })
+      return
     }
     const service = nextProp.service
     if(!service.spec) {

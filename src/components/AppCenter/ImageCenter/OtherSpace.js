@@ -13,7 +13,7 @@ import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import {DeleteOtherImage, SearchOtherImage} from '../../../actions/app_center'
+import {DeleteOtherImage, SearchOtherImage, getOtherImageList} from '../../../actions/app_center'
 
 import "./style/OtherSpace.less"
 import ImageDetailBox from './ImageDetail/OtherDetail.js'
@@ -47,6 +47,10 @@ const menusText = defineMessages({
     id: 'AppCenter.ImageCenter.OtherSpace.logout',
     defaultMessage: '注销',
   },
+  noData: {
+    id: 'AppCenter.ImageCenter.OtherSpace.noData',
+    defaultMessage: '暂无数据',
+  }
 })
 
 const MyComponent = React.createClass({
@@ -61,19 +65,24 @@ const MyComponent = React.createClass({
       imageDetailModalShow:true,
       currentImage:imageName
      });
-
   },
   render: function () {
     const ipAddress = (this.props.otherHead.url).split('//')[1]
     const {isFetching , config } = this.props
-    // if (isFetching) {
-    //   return (
-    //     <div className='loadingBox'>
-    //       <Spin size='large' />
-    //     </div>
-    //   )
-    // }
-    if (!config) return
+    if (isFetching) {
+      return (
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
+      )
+    }
+    if (config.length == 0) {
+      return (
+        <div className='loadingBox'>
+          <FormattedMessage {...menusText.noData} />
+        </div>
+      )
+    }
     let items = config.map((item) => {
       return (
         <div className="imageDetail" key={item} >
@@ -118,12 +127,19 @@ class OtherSpace extends Component {
       imageDetailModalShow: false
     }
   }
+  
+  componentWillMount() {
+    const { getOtherImageList, imageId } = this.props;
+    getOtherImageList(imageId);
+  }
+  
   closeImageDetailModal() {
     //this function for user close the modal of image detail info
     this.setState({
       imageDetailModalShow: false
     });
   }
+  
   deleteImage(id) {
     const scope = this
     const parentScope = this.props.scope
@@ -148,14 +164,14 @@ class OtherSpace extends Component {
       onCancel() {}
     })
   }
+  
   searchImage(e) {
     const image = e.target.value
-    const parentScope = this.props.scope
     if (image != '') {
       this.props.SearchOtherImage(image)
       return
     }
-    this.props.scope.props.getOtherImageList(this.props.imageId)
+    this.props.getOtherImageList(this.props.imageId)
   }
 
   render() {
@@ -178,8 +194,7 @@ class OtherSpace extends Component {
                 <div className="name">
                   <i className="fa fa-user"></i>&nbsp;&nbsp;
                   {otherHead.username}
-                </div>
-                
+                </div>              
               </div>
               <Button className="logout" size="large" type="ghost" onClick={()=>this.deleteImage(this.props.imageId)}>
                 <FormattedMessage {...menusText.logout} />
@@ -224,6 +239,9 @@ function mapStateToProps(state, props) {
 
 function mapDispatchToProps(dispatch) {
   return {
+    getOtherImageList: (id) => {
+      dispatch(getOtherImageList(id))
+    },
     DeleteOtherImage: (id, callback)=> {
       dispatch(DeleteOtherImage(id,callback))
     },

@@ -12,7 +12,7 @@ import './style/MemberManage.less'
 import { Row, Col, Button, Input, Select, Card, Icon, Table, Modal, Form, Checkbox, Tooltip, } from 'antd'
 import SearchInput from '../../SearchInput'
 import { connect } from 'react-redux'
-import { loadUserList } from '../../../actions/user'
+import { loadUserList, createUser, deleteUser } from '../../../actions/user'
 
 const createForm = Form.create;
 const FormItem = Form.Item;
@@ -45,7 +45,6 @@ let MemberTable =  React.createClass({
     let { sortedInfo, filteredInfo } = this.state
     const { searchResult, notFound } = this.props.scope.state
     const { data } = this.props
-    
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
     let pageTotal = searchResult.length === 0 ? data.length : searchResult.length
@@ -55,10 +54,10 @@ let MemberTable =  React.createClass({
       defaultPageSize: 5,
       pageSizeOptions: ['5','10','15','20'],
       onShowSizeChange(current, pageSize) {
-        console.log('Current: ', current, '; PageSize: ', pageSize);
+        //console.log('Current: ', current, '; PageSize: ', pageSize);
       },
       onChange(current) {
-        console.log('Current: ', current);
+        //console.log('Current: ', current);
       },
     }
     const columns = [
@@ -139,13 +138,13 @@ let MemberTable =  React.createClass({
 let NewMemberForm = React.createClass({
   userExists(rule, value, callback) {
     if (!value) {
-      callback();
+      callback([new Error('请输入用户名')]);
     } else {
       setTimeout(() => {
-        if (value === 'zhaoxueyu') {
-          callback([new Error('抱歉，该用户名已被占用。')]);
+        if (!/^[a-z][-a-z0-9]{1,40}[a-z0-9]$/.test(value)) {
+          callback([new Error('抱歉，用户名不合法。')]);
         } else {
-          callback();
+          callback()
         }
       }, 800);
     }
@@ -165,14 +164,45 @@ let NewMemberForm = React.createClass({
       callback();
     }
   },
+  telExists(rule, value, callback){
+    if(!/^[0-9][-0-9()]{5,12}[0-9]$/.test(value)){
+      callback([new Error('请输入正确的手机号')]);
+    } else {
+      callback()
+    }
+  },
   handleOk() {
-    const { scope } = this.props
+    const { scope, users } = this.props
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         return;
       }
-      scope.setState({
-        visible: false,
+      const { name, passwd, email, tel, check, } = values
+      let newUser = {
+        userName: name,
+        password: passwd,
+        email: email,
+        phone: tel,
+        sendEmail: check,
+      }
+      let newItem = {
+        name: name,
+        tel: tel,
+        email: email,
+        style: 0,
+        team: '1',
+        balance: 0,
+      }
+      scope.props.createUser(newUser,{
+        success: {
+          func: () => {
+            scope.setState({
+              visible: false,
+            })
+            scope.state.memberList.push(newItem)
+          },
+          isAsync: true
+        },
       })
     });
   },
@@ -190,7 +220,6 @@ let NewMemberForm = React.createClass({
     const text = <span>前台只能添加普通成员</span>
     const nameProps = getFieldProps('name', {
       rules: [
-        { required: true, min: 5, message: '用户名至少为 5 个字符' },
         { validator: this.userExists },
       ],
     })
@@ -202,11 +231,11 @@ let NewMemberForm = React.createClass({
         trigger: 'onBlur',
       }, {
         rules: [
-          { type: 'email', message: '请输入正确的邮箱地址' },
+          { validator: this.telExists },
         ],
         trigger: ['onBlur', 'onChange'],
       }],
-    });
+    })
     const emailProps = getFieldProps('email', {
       validate: [{
         rules: [
@@ -225,7 +254,7 @@ let NewMemberForm = React.createClass({
         { required: true, whitespace: true, message: '请填写密码' },
         { validator: this.checkPass },
       ],
-    });
+    })
     const rePasswdProps = getFieldProps('rePasswd', {
       rules: [{
         required: true,
@@ -234,12 +263,12 @@ let NewMemberForm = React.createClass({
       }, {
         validator: this.checkPass2,
       }],
-    });
-    const checkProps = getFieldProps('check', {});
+    })
+    const checkProps = getFieldProps('check', {})
     const formItemLayout = {
       labelCol: { span: 7 },
       wrapperCol: { span: 12 },
-    };
+    }
     return (
       <Form horizontal form={this.props.form}>
         <Modal title="添加新成员" visible={visible}
@@ -311,7 +340,6 @@ let NewMemberForm = React.createClass({
     )
   },
 })
-NewMemberForm = createForm()(NewMemberForm)
 
 class MemberManage extends Component {
   constructor(props){
@@ -321,6 +349,7 @@ class MemberManage extends Component {
       searchResult: [],
       notFound: false,
       visible: false,
+      memberList: [],
     }
   }
 
@@ -331,29 +360,21 @@ class MemberManage extends Component {
   }
   componentWillMount(){
     loadData(this.props)
+    
+  }
+  componentWillReceiveProps(nextProps){
+    const { users } = this.props
+    if(users.length === 0){
+      return
+    }
+    this.setState({
+      memberList: nextProps.users
+    })
   }
   render(){
     const { users } = this.props
     const scope = this
-    const { visible } = this.state
-    let data = []
-    if(users.length !== 0){
-      console.log('usersusers',users);
-      users.map((item,index) => {
-        console.log('item',item);
-        data.push(
-          {
-            key: index,
-            name: item.displayName,
-            tel: item.phone,
-            email: item.email,
-            style: item.role,
-            team: '1',
-            balance: item.balance,
-          }
-        )
-      })
-    }
+    const { visible, memberList } = this.state
     const searchIntOption = {
       width:'280px',
       position: 'right',
@@ -369,16 +390,15 @@ class MemberManage extends Component {
     return (
       <div id="MemberManage">
         <Row>
-          <Button type="primary" size="large" onClick={this.showModal}>
-            <i className="fa fa-plus"/>
+          <Button type="primary" size="large" onClick={this.showModal} icon="plus" className="addBtn">
             添加新成员
           </Button>
-          <SearchInput data={data} scope={scope} searchIntOption={searchIntOption}/>
+          <SearchInput data={memberList} scope={scope} searchIntOption={searchIntOption}/>
           <NewMemberForm visible={visible} scope={scope}/>
         </Row>
         <Row className="memberList">
           <Card>
-            <MemberTable scope={scope} data={data}/>
+            <MemberTable scope={scope} data={memberList.length === 0? users: memberList}/>
           </Card>
         </Row>
       </div>
@@ -390,10 +410,24 @@ function mapStateToProp(state) {
   let usersData = []
   let total = 0
   let size = 0
+  let data = []
   const users = state.user.users
   if (users.result) {
     if (users.result.users) {
       usersData = users.result.users
+      usersData.map((item,index) => {
+        data.push(
+          {
+            key: index,
+            name: item.displayName,
+            tel: item.phone,
+            email: item.email,
+            style: item.role,
+            team: '1',
+            balance: item.balance,
+          }
+        )
+      })
     }
     if (users.result.total) {
       total = users.result.total
@@ -402,13 +436,16 @@ function mapStateToProp(state) {
       size = users.result.size
     }
   }
+  
   return {
-    users: usersData,
+    users: data,
     total,
-    size
+    size,
   }
 }
 
 export default connect(mapStateToProp, {
   loadUserList,
+  createUser,
+  deleteUser,
 })(MemberManage)

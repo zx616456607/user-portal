@@ -94,47 +94,8 @@ const MyComponent = React.createClass({
     }
     confirmDeleteApps([app])
   },
-  onShowSizeChange: function (page, size) {
-    if (size === this.props.size) {
-      return
-    }
-    const query = {}
-    if (page !== DEFAULT_PAGE) {
-      query.page = page
-    }
-    if (size !== DEFAULT_PAGE_SIZE) {
-      query.size = size
-    }
-    const { name } = this.props
-    if (name) {
-      query.name = name
-    }
-    const { pathname } = this.props
-    browserHistory.push({
-      pathname,
-      query
-    })
-  },
-  onPageChange: function (page) {
-    if (page === this.props.page) {
-      return
-    }
-    const { pathname, size, name } = this.props
-    const query = {}
-    if (page !== DEFAULT_PAGE) {
-      query.page = page
-      query.size = size
-    }
-    if (name) {
-      query.name = name
-    }
-    browserHistory.push({
-      pathname,
-      query
-    })
-  },
   render: function () {
-    const { config, loading, page, size, total } = this.props
+    const { config, loading } = this.props
     if (loading) {
       return (
         <div className='loadingBox'>
@@ -172,6 +133,7 @@ const MyComponent = React.createClass({
           </Menu.Item>
         </Menu>
       );
+      const appEntrance = item.entrance
       return (
         <div className={item.checked ? 'appDetail appDetailSelected' : 'appDetail'} key={item.name} onClick={this.selectAppByline.bind(this, item)} >
           <div className='selectIconTitle commonData'>
@@ -195,8 +157,11 @@ const MyComponent = React.createClass({
             {item.instanceCount + '' || '-'}
           </div>
           <div className='visitIp commonData'>
-            <Tooltip title={item.address ? item.address : ''}>
-              <span>{item.address || '-'}</span>
+            <Tooltip title={appEntrance ? appEntrance : ''}>
+              {
+                appEntrance ?
+                  (<a target="_blank" href={appEntrance}>{appEntrance}</a>) : (<span>-</span>)
+              }
             </Tooltip>
           </div>
           <div className='createTime commonData'>
@@ -218,18 +183,6 @@ const MyComponent = React.createClass({
     return (
       <div className='dataBox'>
         {items}
-        <div className='paginationBox'>
-          <Pagination
-            className='inlineBlock'
-            showSizeChanger
-            showQuickJumper
-            onShowSizeChange={this.onShowSizeChange}
-            onChange={this.onPageChange}
-            defaultCurrent={page}
-            pageSize={size}
-            showTotal={total => `共 ${total} 条`}
-            total={total} />
-        </div>
       </div>
     );
   }
@@ -253,6 +206,8 @@ class AppList extends Component {
     this.confirmRestartApps = this.confirmRestartApps.bind(this)
     this.batchRestartApps = this.batchRestartApps.bind(this)
     this.searchApps = this.searchApps.bind(this)
+    this.onPageChange = this.onPageChange.bind(this)
+    this.onShowSizeChange = this.onShowSizeChange.bind(this)
     this.state = {
       appList: props.appList,
       searchInputValue: props.name,
@@ -419,6 +374,47 @@ class AppList extends Component {
     })
   }
 
+  onPageChange(page) {
+    if (page === this.props.page) {
+      return
+    }
+    const { pathname, size, name } = this.props
+    const query = {}
+    if (page !== DEFAULT_PAGE) {
+      query.page = page
+      query.size = size
+    }
+    if (name) {
+      query.name = name
+    }
+    browserHistory.push({
+      pathname,
+      query
+    })
+  }
+
+  onShowSizeChange(page, size) {
+    if (size === this.props.size) {
+      return
+    }
+    const query = {}
+    if (page !== DEFAULT_PAGE) {
+      query.page = page
+    }
+    if (size !== DEFAULT_PAGE_SIZE) {
+      query.size = size
+    }
+    const { name } = this.props
+    if (name) {
+      query.name = name
+    }
+    const { pathname } = this.props
+    browserHistory.push({
+      pathname,
+      query
+    })
+  }
+
   render() {
     const scope = this
     const { name, pathname, page, size, total, cluster, isFetching } = this.props
@@ -478,6 +474,19 @@ class AppList extends Component {
                   onPressEnter={this.searchApps} />
               </div>
             </div>
+            <div className='pageBox'>
+              <span className='totalPage'>共{total}条</span>
+              <div className='paginationBox'>
+                <Pagination
+                  simple
+                  className='inlineBlock'
+                  onChange={this.onPageChange}
+                  onShowSizeChange={this.onShowSizeChange}
+                  current={page}
+                  pageSize={size}
+                  total={total} />
+              </div>
+            </div>
             <div className='clearDiv'></div>
           </div>
           <Card className='appBox'>
@@ -511,9 +520,11 @@ class AppList extends Component {
               </div>
             </div>
             <MyComponent
-              size={size} total={total} pathname={pathname} page={page} name={name}
-              config={appList} loading={isFetching}
-              parentScope={scope} funcs={funcs} />
+              name={name}
+              config={appList}
+              loading={isFetching}
+              parentScope={scope}
+              funcs={funcs} />
           </Card>
         </div>
       </QueueAnim>

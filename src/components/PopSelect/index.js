@@ -17,11 +17,12 @@ export default class PopSelect extends Component {
     super(props)
     this.handleSearch = this.handleSearch.bind(this)
     this.setValue = this.setValue.bind(this)
+    this.handleVisibleChange = this.handleVisibleChange.bind(this)
     this.state = {
-      spaceVisible: false,
       selectValue: '',
       focus: false,
       list: [],
+      visible: props.spacesVisible,
     }
   }
   handleSearch(e) {
@@ -33,7 +34,7 @@ export default class PopSelect extends Component {
       })
     }
     let cpList = this.props.list.filter(item => {
-      item.index = item.spaceName.indexOf(value)
+      item.index = item.name.indexOf(value)
       if (item.index > -1) {
         return item
       }
@@ -48,9 +49,12 @@ export default class PopSelect extends Component {
   }
   setValue(item) {
     this.setState({
-      selectValue: item.spaceName,
+      selectValue: item.name,
     })
-    this.props.onChange(item)
+    const { onChange } = this.props
+    if (onChange) {
+      onChange(item)
+    }
   }
   componentWillMount() {
     const { selectValue, list } = this.props
@@ -60,15 +64,20 @@ export default class PopSelect extends Component {
     })
   }
   componentWillReceiveProps(nextProps) {
-    const { selectValue, list } = nextProps
+    const { visible, list, selectValue } = nextProps
     this.setState({
-      list
+      visible,
+      list,
+      selectValue: (selectValue ? selectValue : this.state.selectValue)
     })
   }
+  handleVisibleChange(visible) {
+    this.setState({ visible })
+  }
   render() {
-    const { btnStyle, loading } = this.props
+    const { title, btnStyle, loading } = this.props
     const { selectValue } = this.state
-    const text = <span className="PopSelectTitle">选择项目空间</span>
+    const text = <span className="PopSelectTitle">{title}</span>
     let searchList = (
       this.state.list.length === 0 ?
         <div>无匹配结果</div>
@@ -76,10 +85,10 @@ export default class PopSelect extends Component {
         this.state.list.map((item) => {
           return (
             <li
-              key={item.spaceName}
+              key={item.name}
               className="searchItem"
               onClick={() => this.setValue(item)}>
-              {item.spaceName}
+              {item.name}
             </li>
           )
         })
@@ -109,20 +118,28 @@ export default class PopSelect extends Component {
         </div>
       </div>
     )
+    const { visible } = this.state
+    const rotate = visible ? 'rotate180' : 'rotate0'
     return (
       <div className="PopSelect">
-        <Popover placement="bottomLeft" title={text} content={content} trigger="click"
+        <Popover
+          placement="bottomLeft"
+          title={text}
+          content={content}
+          trigger="click"
+          visible={this.state.visible}
+          onVisibleChange={this.handleVisibleChange}
           getTooltipContainer={() => document.getElementsByClassName('PopSelect')[0]}>
           {
             btnStyle ?
               <Button className='popBtn'>
-                <i className="fa fa-sitemap" style={{ float: 'left', marginTop: '3px' }} />
+                <i className="fa fa-sitemap icon" />
                 {selectValue}
-                <Icon type="down" />
+                <Icon type="down" className={rotate} />
               </Button> :
               <a className="ant-dropdown-link lineBtn" href="#">
                 {selectValue}
-                <Icon type="down" />
+                <Icon type="down" className={rotate} />
               </a>
           }
         </Popover>

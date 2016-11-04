@@ -11,9 +11,10 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import { Card, Select, Button, DatePicker, Input, Cascader, Spin } from 'antd'
+import { Card, Select, Button, DatePicker, Input, Cascader, Spin, Tooltip } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { getOperationLogList } from '../../actions/manage_monitor'
+import {tenxDateFormat} from '../../common/tools.js'
 import './style/OperationalAudit.less'
 
 const Option = Select.Option;
@@ -41,11 +42,11 @@ const menusText = defineMessages({
   },
   event: {
     id: 'ManageMonitor.operationalAudit.event',
-    defaultMessage: '任务事件',
+    defaultMessage: '操作类型',
   },
   obj: {
     id: 'ManageMonitor.operationalAudit.obj',
-    defaultMessage: '对象',
+    defaultMessage: '对象及类型',
   },
   env: {
     id: 'ManageMonitor.operationalAudit.env',
@@ -141,10 +142,10 @@ const menusText = defineMessages({
   },
   selectEvent: {
     id: 'ManageMonitor.operationalAudit.selectEvent',
-    defaultMessage: '选择任务事件',
+    defaultMessage: '选择操作类型',
   },
   selectStatus: {
-    id: 'ManageMonitor.operationalAudit.selectEvent',
+    id: 'ManageMonitor.operationalAudit.selectStatus',
     defaultMessage: '选择状态',
   },
   Instance: {
@@ -294,6 +295,14 @@ const menusText = defineMessages({
   hour: {
     id: 'ManageMonitor.operationalAudit.hour',
     defaultMessage: '时',
+  },
+  objType: {
+    id: 'ManageMonitor.operationalAudit.objType',
+    defaultMessage: '类型：',
+  },
+  objName: {
+    id: 'ManageMonitor.operationalAudit.objName',
+    defaultMessage: '对象：',
   },
 });
 
@@ -561,19 +570,19 @@ function statusFormat(status, scope) {
         </span>
       )
       break;
-    case 404:
+    case 0:
       return (
-        <span className='fail'>
-          <i className='fa fa-times-circle-o' />
-          <FormattedMessage {...menusText.failed} />
+        <span className='running'>
+          <i className='fa fa-cog fa-spin fa-3x fa-fw' />
+          <FormattedMessage {...menusText.running} />
         </span>
       )
       break;
     default :
       return (
-        <span className='running'>
-          <i className='fa fa-cog fa-spin fa-3x fa-fw' />
-          <FormattedMessage {...menusText.running} />
+        <span className='fail'>
+          <i className='fa fa-times-circle-o' />
+          <FormattedMessage {...menusText.failed} />
         </span>
       )
       break;
@@ -604,7 +613,11 @@ let MyComponent = React.createClass({
       return (
         <div className='logDetail' key={ index }>
           <div className='time commonTitle'>
-            <span className='commonSpan'>{item.time}</span>
+            <span className='commonSpan'>
+              <Tooltip placement="topLeft" title={tenxDateFormat(item.time)}>
+                <span>{tenxDateFormat(item.time)}</span>
+              </Tooltip>
+            </span>
           </div>
           <div className='during commonTitle'>
             <span className='commonSpan'>{duringTimeFormat(item.duration, scope)}</span>
@@ -613,13 +626,22 @@ let MyComponent = React.createClass({
             <span className='commonSpan'>{operationalFormat(item.operationType, scope)}</span>
           </div>
           <div className='obj commonTitle'>
-            <span className='commonSpan'>{resourceFormat(item.resourceType, scope)}</span>
+            <span className='objSpan'><FormattedMessage {...menusText.objType} />{resourceFormat(item.resourceType, scope)}</span>
+            <span className='objSpan'>
+              <Tooltip placement="topLeft" title={item.resourceName + item.resourceId}>
+                <span><FormattedMessage {...menusText.objName} />{item.resourceName + item.resourceId}</span>
+              </Tooltip>
+            </span>
           </div>
           <div className='env commonTitle'>
             <span className='commonSpan'>{item.namespace}</span>
           </div>
           <div className='cluster commonTitle'>
-            <span className='commonSpan'>{item.clusterId}</span>
+            <span className='commonSpan'>
+              <Tooltip placement="topLeft" title={item.clusterId}>
+                <span>{item.clusterId}</span>
+              </Tooltip>
+            </span>
           </div>
           <div className='status commonTitle'>
             <span className='commonSpan'>{statusFormat(item.status, scope)}</span>
@@ -683,6 +705,15 @@ class OperationalAudit extends Component {
           end_time: null
         }
     getOperationLogList(body)
+  }
+  
+  componentWillReceiveProps(nextPorps) {
+    //this function for user select different image
+    //the nextProps is mean new props, and the this.props didn't change
+    //so that we should use the nextProps
+    this.setState({
+      logs : nextPorps.logs,
+    });
   }
   
   onChangeResource(e) {
@@ -873,7 +904,8 @@ class OperationalAudit extends Component {
       operation: this.state.operation,
       resource: this.state.resource,
       start_time: this.state.start_time,
-      end_time: this.state.end_time
+      end_time: this.state.end_time,
+      status: this.state.status
     }
     getOperationLogList(body);
   }
@@ -1020,13 +1052,13 @@ class OperationalAudit extends Component {
           />
           <Select showSearch className='eventSelect'
             placeholder={formatMessage(menusText.selectEvent)}
-            onChange={this.onChangeObject} size='large'
+            onChange={this.onChangeObject} size='large' allowClear={true}
             getPopupContainer={() => document.getElementById('operationalAudit')}
           >
             {operationalSelectOptions}
           </Select>
           <Select showSearch className='statusSelect'
-            onChange={this.onChangeStatus} size='large'
+            onChange={this.onChangeStatus} size='large' allowClear={true}
             placeholder={formatMessage(menusText.selectStatus)}
             getPopupContainer={() => document.getElementById('operationalAudit')}
           >

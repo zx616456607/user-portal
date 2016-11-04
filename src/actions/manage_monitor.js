@@ -44,3 +44,35 @@ export function getOperationLogList(body, callback) {
     return dispatch(fetchOperationLogList(body, callback))
   }
 }
+
+export const GET_QUERY_LOG_REQUEST = 'GET_QUERY_LOG_REQUEST'
+export const GET_QUERY_LOG_SUCCESS = 'GET_QUERY_LOG_SUCCESS'
+export const GET_QUERY_LOG_FAILURE = 'GET_QUERY_LOG_FAILURE'
+
+function fetchQueryLogList(cluster, instances, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_QUERY_LOG_REQUEST, GET_QUERY_LOG_SUCCESS, GET_QUERY_LOG_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/instances/${instances}/getSearchLog`,
+      options: {
+        method: 'POST',
+        body: {
+          kind: 'pod',
+          from: body.from,
+          size: body.size,
+          keyword: body.keyword,
+          date_start: body.date_start,
+          date_end: body.date_end,
+        }
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function getQueryLogList(cluster, instances, body, callback) {
+  return (dispatch) => {
+    return dispatch(fetchQueryLogList(cluster, instances, body, callback))
+  }
+}
