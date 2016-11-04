@@ -159,6 +159,7 @@ module.exports = function (Router) {
 
   // DevOps service: CI/CD
   router.post('/devops/repos/:type', devopsController.registerRepo)
+  router.get('/devops/repos/:type', devopsController.listRepository)
 
   // Token info
   router.get('/token', tokenController.getTokenInfo)

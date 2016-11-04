@@ -20,9 +20,9 @@ Add a new repository type
 exports.registerRepo = function* () {
   const loginUser = this.session.loginUser
   const repoType = this.params.type
-  const api = apiFactory.getDevOpsApi(loginUser)
-
   const repoInfo = this.request.body
+
+  const api = apiFactory.getDevOpsApi(loginUser)
   switch (repoType) {
     case "gitlab":
       if (!repoInfo.url || !repoInfo.private_token) {
@@ -44,6 +44,23 @@ exports.registerRepo = function* () {
       throw err
   }
   const result = yield api.createBy(["repos", repoType], null, repoInfo)
+
+  this.body = {
+    data: result
+  }
+}
+
+exports.listRepository = function* () {
+  const loginUser = this.session.loginUser
+  const repoType = this.params.type
+  if (repoType != "gitlab") {
+    const err = new Error('Only support gitlab for now')
+    err.status = 400
+    throw err
+  }
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.getBy(["repos", repoType], null)
 
   this.body = {
     data: result
