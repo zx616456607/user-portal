@@ -14,7 +14,7 @@ import reducerFactory from './factory'
 export default function team(state = {
   teams: [],
   teamspaces: []
- }, action) {
+}, action) {
   return {
     teams: reducerFactory({
       REQUEST: ActionTypes.TEAM_LIST_REQUEST,
@@ -30,6 +30,11 @@ export default function team(state = {
       REQUEST: ActionTypes.TTEAMUSER_LIST_REQUEST,
       SUCCESS: ActionTypes.TTEAMUSER_LIST_SUCCESS,
       FAILURE: ActionTypes.TTEAMUSER_LIST_FAILURE
-    }, state.teamusers, action)
+    }, state.teamusers, action),
+    teamClusters: reducerFactory({
+      REQUEST: ActionTypes.TEAMSPACE_LIST_REQUEST,
+      SUCCESS: ActionTypes.TEAMSPACE_LIST_SUCCESS,
+      FAILURE: ActionTypes.TEAMSPACE_LIST_FAILURE
+    }, state.teamspaces, action),
   }
 }
