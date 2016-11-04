@@ -314,7 +314,7 @@
   "ManageMonitor.operationalAudit.status": "Status",
   "ManageMonitor.operationalAudit.during": "During",
   "ManageMonitor.operationalAudit.event": "Event",
-  "ManageMonitor.operationalAudit.obj": "Obj",
+  "ManageMonitor.operationalAudit.obj": "Object & Type",
   "ManageMonitor.operationalAudit.env": "Env",
   "ManageMonitor.operationalAudit.cluster": "Cluster",
   "ManageMonitor.operationalAudit.user": "User",
@@ -377,6 +377,8 @@
   "ManageMonitor.operationalAudit.second": "S",
   "ManageMonitor.operationalAudit.minute": "Min",
   "ManageMonitor.operationalAudit.hour": "H",
+    "ManageMonitor.operationalAudit.objType": "Type:",
+  "ManageMonitor.operationalAudit.objName": "Obj:",
   
   "ManageMonitor.QueryLog.headTitle": "日志查询 | 时速云",
   "ManageMonitor.QueryLog.title": "Query Log",

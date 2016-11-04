@@ -9,7 +9,7 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import { Checkbox, Card, Menu, Button, Icon, Radio, Modal, Input, Slider, InputNumber, Row, Col, message } from 'antd'
+import { Checkbox, Card, Menu, Button, Icon, Radio, Modal, Input, Slider, InputNumber, Row, Col, message, Tooltip } from 'antd'
 import { Link } from 'react-router'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import QueueAnim from 'rc-queue-anim'
@@ -256,12 +256,20 @@ let MyComponent = React.createClass({
           <div className="forin commonData">{item.mountPoint || '无'}</div>
           <div className="appname commonData">{item.appName || '无'}</div>
           <div className="size commonData">{item.totalSize}M</div>
-          <div className="createTime commonData">{item.createTime}</div>
+          <div className="createTime commonData">
+            <span className='spanBlock'>
+              <Tooltip placement="topLeft" title={item.createTime}>
+                <span>{item.createTime}</span>
+              </Tooltip>
+            </span>  
+          </div>
           <div className="actionBtn commonData">
             <Button disabled={item.isUsed} className="btn-warning" onClick={(e) => { this.showAction('format', item.name, item.format) } }><Icon type="delete" /><FormattedMessage {...messages.formatting} /></Button>
             <span className="margin"></span>
             <Button disabled={item.isUsed} className="btn-success" onClick={() => { this.showAction('resize', item.name, item.totalSize) } }><Icon type="scan" /><FormattedMessage {...messages.dilation} /></Button>
+            <div style={{ clear:'both' }}></div>
           </div>
+          <div style={{ clear:'both' }}></div>
         </div>
       );
     });

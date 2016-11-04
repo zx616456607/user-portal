@@ -22,18 +22,18 @@ function operationAuditLog(state = {}, action) {
   }
   switch (action.type) {
     case ActionTypes.GET_MANAGE_MONITOR_LOG_REQUEST:
-      return merge({}, defaultState, state, {
+      return Object.assign({}, defaultState, state, {
         logs: { isFetching: true }
       })
     case ActionTypes.GET_MANAGE_MONITOR_LOG_SUCCESS:
-      return merge({}, state, {
+      return Object.assign({}, state, {
         logs: {
           isFetching: false,
           logs: action.response.result.logs || []
         }
       })
     case ActionTypes.GET_MANAGE_MONITOR_LOG_FAILURE:
-      return merge({}, defaultState, state, {
+      return Object.assign({}, defaultState, state, {
         logs: { isFetching: false }
       })
     default:
@@ -50,18 +50,18 @@ function getQueryLog(state = {}, action) {
   }
   switch (action.type) {
     case ActionTypes.GET_QUERY_LOG_REQUEST:
-      return merge({}, defaultState, state, {
+      return Object.assign({}, defaultState, state, {
         logs: { isFetching: true }
       })
     case ActionTypes.GET_QUERY_LOG_SUCCESS:
-      return merge({}, state, {
+      return Object.assign({}, state, {
         logs: {
           isFetching: false,
           logs: action.response.result.logs || []
         }
       })
     case ActionTypes.GET_QUERY_LOG_FAILURE:
-      return merge({}, defaultState, state, {
+      return Object.assign({}, defaultState, state, {
         logs: { isFetching: false }
       })
     default:
