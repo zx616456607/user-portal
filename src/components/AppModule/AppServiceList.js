@@ -233,19 +233,6 @@ const MyComponent = React.createClass({
     return (
       <div className="dataBox">
         {items}
-        <div className="paginationBox">
-          <Pagination
-            className="inlineBlock"
-            simple
-            showSizeChanger
-            showQuickJumper
-            onShowSizeChange={this.onShowSizeChange}
-            onChange={this.onPageChange}
-            defaultCurrent={page}
-            pageSize={size}
-            showTotal={total => `共 ${total} 条`}
-            total={total} />
-        </div>
       </div>
     );
   }
@@ -550,6 +537,21 @@ class AppServiceList extends Component {
                 <i className="fa fa-caret-down"></i>
               </Button>
             </Dropdown>
+            <div className='rightBox'>
+              <div className="paginationBox">
+                <Pagination
+                  className="inlineBlock"
+                  simple
+                  showSizeChanger
+                  showQuickJumper
+                  onShowSizeChange={this.onShowSizeChange}
+                  onChange={this.onPageChange}
+                  defaultCurrent={page}
+                  pageSize={size}
+                  showTotal={total => `共 ${total} 条`}
+                  total={total} />
+                </div>
+              </div>
           </div>
           <div className="appTitle">
             <div className="selectIconTitle commonTitle">
