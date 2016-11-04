@@ -119,3 +119,33 @@ export function loadUserTeamspaceList(userID, query, requiredFields = []) {
     return dispatch(fetchUserTeamspaceList(userID, query))
   }
 }
+
+export const USER_CREATE_REQUEST = 'USER_CREATE_REQUEST'
+export const USER_CREATE_SUCCESS = 'USER_CREATE_SUCCESS'
+export const USER_CREATE_FAILURE = 'USER_CREATE_FAILURE'
+
+// Fetches teamspace list from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchCreateUser(body, callback) {
+  let endpoint = `${API_URL_PREFIX}/users`
+  return {
+    [FETCH_API]: {
+      types: [USER_CREATE_REQUEST, USER_CREATE_SUCCESS, USER_CREATE_FAILURE],
+      endpoint,
+      options: {
+        method: 'POST',
+        body
+      },
+      schema: {},
+    },
+    callback
+  }
+}
+
+// Fetches teamspace list from API unless it is cached.
+// Relies on Redux Thunk middleware.
+export function createUser(body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchCreateUser(body, callback))
+  }
+}
