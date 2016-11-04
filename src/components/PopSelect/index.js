@@ -114,7 +114,7 @@ export default class PopSelect extends Component {
       </div>
     )
     const { visible } = this.state
-    const rotate = visible ? 'rotate180' : ''
+    const rotate = visible ? 'rotate180' : 'rotate0'
     return (
       <div className="PopSelect">
         <Popover
