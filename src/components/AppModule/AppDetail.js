@@ -111,7 +111,10 @@ class AppDetail extends Component {
                     </span>
                   </div>
                   <div className="address">
-                    地址&nbsp;:&nbsp;{app.address || '-'}
+                    {
+                      app.entrance ?
+                        (<a target="_blank" href={app.entrance}>{app.entrance}</a>) : (<span>-</span>)
+                    }
                   </div>
                   <div className="service">
                     服务&nbsp;:&nbsp;{`${app.serviceCount}/${app.serviceCount}`}

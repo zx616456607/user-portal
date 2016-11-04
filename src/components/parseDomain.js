@@ -7,7 +7,7 @@
 
 const ANNOTATION_SVC_DOMAIN = "tenxcloud.com/tenxDomain"
 
-export default function parseDomain (item) {
+export default function parseServiceDomain(item) {
   let domain = ""
   if (item && item.metadata && item.metadata.annotations && item.metadata.annotations[ANNOTATION_SVC_DOMAIN]) {
     domain = item.metadata.annotations[ANNOTATION_SVC_DOMAIN]
