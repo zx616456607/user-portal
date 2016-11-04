@@ -8,12 +8,11 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Alert, Button, Icon, Card, Table, Form, Modal, Input, Tooltip } from 'antd'
+import { Row, Col, Alert, Button, Icon, Card, Table, Modal, Input, Tooltip } from 'antd'
 import './style/TeamManage.less'
+import { Link } from 'react-router'
 import SearchInput from '../../SearchInput'
 
-const createForm = Form.create
-const FormItem = Form.Item
 const data = [
   {team: '研发team', member: '20', cluster: '2', space: '3'},
   {team: '研发team1', member: '1', cluster: '3', space: '31'},
@@ -69,6 +68,9 @@ let TeamTable = React.createClass({
         key: 'team',
         width: '20%',
         className: 'teamName',
+        render: (text,record,index) => (
+          <Link to={`setting/detail/${text}`}>{text}</Link>
+        )
       },
       {
         title: '成员',
@@ -116,7 +118,7 @@ let TeamTable = React.createClass({
     } else {
       return (
         <Table columns={columns}
-               dataSource={data}
+               dataSource={searchResult.length === 0?data : searchResult}
                pagination={pagination}
                onChange={this.handleChange} />
       )
@@ -124,48 +126,23 @@ let TeamTable = React.createClass({
   },
 })
 let NewTeamForm = React.createClass({
-  handleOk() {
-    const { scope } = this.props
-    this.props.form.validateFields((errors, values) => {
-      if (!!errors) {
-        return;
-      }
-      scope.setState({
-        visible: false,
-      })
-    });
-  },
-  handleCancel(e) {
-    const { scope } = this.props
-    e.preventDefault();
-    this.props.form.resetFields();
-    scope.setState({
-      visible: false,
-    })
-  },
   render() {
-    const { visible } = this.props
     return (
-      <Modal title="创建团队" visible={visible}
-               onOk={this.handleOk} onCancel={this.handleCancel}
-               wrapClassName="NewTeamForm"
-               width="463px"
-        >
         <Row>
           <Col span={4}>名称</Col>
           <Col span={20}>
             <Input placeholder="新团队名称"/>
           </Col>
         </Row>
-      </Modal>
     )
   },
 })
-NewTeamForm = createForm()(NewTeamForm)
 export default class TeamManage extends Component {
   constructor(props){
     super(props)
     this.showModal = this.showModal.bind(this)
+    this.handleOk = this.handleOk.bind(this)
+    this.handleCancel = this.handleCancel.bind(this)
     this.state = {
       searchResult: [],
       notFound: false,
@@ -177,11 +154,23 @@ export default class TeamManage extends Component {
       visible: true,
     })
   }
+  handleOk() {
+    this.setState({
+      visible: false,
+    })
+  }
+  handleCancel(e) {
+    e.preventDefault();
+    this.setState({
+      visible: false,
+    })
+  }
   render(){
     const scope = this
     const { visible } = this.state
     const searchIntOption = {
       placeholder: '搜索',
+      defaultSearchValue: 'team',
     }
     return (
       <div id="TeamManage">
@@ -189,11 +178,17 @@ export default class TeamManage extends Component {
         包含『团队空间』这一逻辑隔离层， 以实现对应您企业内部各个不同项目， 或者不同逻辑组在云平台上操作对象的隔离， 团队管理员可见对应团队的所有空间的应用等对象。"
                type="info"/>
         <Row className="teamOption">
-          <Button icon="plus" type="primary" size="large" onClick={this.showModal}>
+          <Button icon="plus" type="primary" size="large" onClick={this.showModal} className="plusBtn">
             创建团队
           </Button>
-          <NewTeamForm visible={visible} scope={scope}/>
-          <Button>
+            <Modal title="创建团队" visible={visible}
+                   onOk={this.handleOk} onCancel={this.handleCancel}
+                   wrapClassName="NewTeamForm"
+                   width="463px"
+            >
+              <NewTeamForm />
+            </Modal>
+          <Button className="viewBtn">
             <Icon type="picture" />
             查看成员&团队图例
           </Button>

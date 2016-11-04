@@ -139,11 +139,11 @@ let MemberTable =  React.createClass({
 let NewMemberForm = React.createClass({
   userExists(rule, value, callback) {
     if (!value) {
-      callback();
+      callback([new Error('请输入用户名')]);
     } else {
       setTimeout(() => {
-        if (value === 'zhaoxueyu') {
-          callback([new Error('抱歉，该用户名已被占用。')]);
+        if (!/^[a-z][-a-z0-9]{1,40}[a-z0-9]$/.test(value)) {
+          callback([new Error('抱歉，用户名不合法。')]);
         } else {
           callback();
         }
@@ -190,7 +190,6 @@ let NewMemberForm = React.createClass({
     const text = <span>前台只能添加普通成员</span>
     const nameProps = getFieldProps('name', {
       rules: [
-        { required: true, min: 5, message: '用户名至少为 5 个字符' },
         { validator: this.userExists },
       ],
     })
@@ -367,7 +366,7 @@ class MemberManage extends Component {
     return (
       <div id="MemberManage">
         <Row>
-          <Button type="primary" size="large" onClick={this.showModal} icon="plus">
+          <Button type="primary" size="large" onClick={this.showModal} icon="plus" className="addBtn">
             添加新成员
           </Button>
           <SearchInput data={data} scope={scope} searchIntOption={searchIntOption}/>
