@@ -128,7 +128,6 @@ export const USER_CREATE_FAILURE = 'USER_CREATE_FAILURE'
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchCreateUser(body, callback) {
   let endpoint = `${API_URL_PREFIX}/users`
-  console.log('aaaaaa');
   return {
     [FETCH_API]: {
       types: [USER_CREATE_REQUEST, USER_CREATE_SUCCESS, USER_CREATE_FAILURE],

@@ -147,7 +147,24 @@ exports.getUserTeamspaces = function* () {
 
 exports.createUser = function* () {
   const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const user = this.request.body
+   console.log("user body: ", user)
+  if (!user || !user.userName || !user.password || !user.email) {
+    const err = new Error('user name, password and email are required.')
+    err.status = 400
+    throw err
+  }
+  const result = yield api.users.create(user)
 
+  this.body = {
+    data: result
+  }
+}
+
+exports.deleteUser = function* () {
+  const userID = this.params.user_id
+  const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
   const user = this.request.body
   if (!user || !user.name || !user.password || !user.email) {
@@ -156,7 +173,7 @@ exports.createUser = function* () {
     throw err
   }
 
-  const result = yield api.users.create(user)
+  const result = yield api.users.delete([userID])
 
   this.body = {
     data: result
