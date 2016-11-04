@@ -28,6 +28,11 @@ export default function user(state = {
       SUCCESS: ActionTypes.USER_LIST_SUCCESS,
       FAILURE: ActionTypes.USER_LIST_FAILURE
     }, state.users, action),
+    createUser: reducerFactory({
+      REQUEST: ActionTypes.USER_CREATE_REQUEST,
+      SUCCESS: ActionTypes.USER_CREATE_SUCCESS,
+      FAILURE: ActionTypes.USER_CREATE_FAILURE
+    }, state.createUser, action),
     teams: reducerFactory({
       REQUEST: ActionTypes.USER_TEAM_LIST_REQUEST,
       SUCCESS: ActionTypes.USER_TEAM_LIST_SUCCESS,
