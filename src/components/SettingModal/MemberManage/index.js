@@ -206,7 +206,7 @@ let NewMemberForm = React.createClass({
         ],
         trigger: ['onBlur', 'onChange'],
       }],
-    });
+    })
     const emailProps = getFieldProps('email', {
       validate: [{
         rules: [
@@ -225,7 +225,7 @@ let NewMemberForm = React.createClass({
         { required: true, whitespace: true, message: '请填写密码' },
         { validator: this.checkPass },
       ],
-    });
+    })
     const rePasswdProps = getFieldProps('rePasswd', {
       rules: [{
         required: true,
@@ -234,12 +234,12 @@ let NewMemberForm = React.createClass({
       }, {
         validator: this.checkPass2,
       }],
-    });
-    const checkProps = getFieldProps('check', {});
+    })
+    const checkProps = getFieldProps('check', {})
     const formItemLayout = {
       labelCol: { span: 7 },
       wrapperCol: { span: 12 },
-    };
+    }
     return (
       <Form horizontal form={this.props.form}>
         <Modal title="添加新成员" visible={visible}
@@ -338,9 +338,7 @@ class MemberManage extends Component {
     const { visible } = this.state
     let data = []
     if(users.length !== 0){
-      console.log('usersusers',users);
       users.map((item,index) => {
-        console.log('item',item);
         data.push(
           {
             key: index,
@@ -369,8 +367,7 @@ class MemberManage extends Component {
     return (
       <div id="MemberManage">
         <Row>
-          <Button type="primary" size="large" onClick={this.showModal}>
-            <i className="fa fa-plus"/>
+          <Button type="primary" size="large" onClick={this.showModal} icon="plus">
             添加新成员
           </Button>
           <SearchInput data={data} scope={scope} searchIntOption={searchIntOption}/>
