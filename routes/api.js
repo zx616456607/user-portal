@@ -22,6 +22,7 @@ const manageMonitorController = require('../controllers/manage_monitor')
 const userController = require('../controllers/user_manage')
 const teamController = require('../controllers/team_manage')
 const tokenController = require('../controllers/token')
+const devopsController = require('../controllers/devops')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -89,6 +90,8 @@ module.exports = function (Router) {
   router.get('/users', userController.getUsers)
   router.get('/users/:user_id/teams', userController.getUserTeams)
   router.get('/users/:user_id/teamspaces', userController.getUserTeamspaces)
+  router.post('/users', userController.createUser)
+  router.delete('/users/:user_id', userController.deleteUser)
 
   // Teams
   router.get('/teams/:team_id/spaces', teamController.getUserTeamspaces)
@@ -152,6 +155,11 @@ module.exports = function (Router) {
   // Manage Monitor
   router.post('/manage-monitor/getOperationAuditLog', manageMonitorController.getOperationAuditLog)
   router.post('/clusters/:cluster/instances/:instances/getSearchLog', manageMonitorController.getSearchLog)
+
+
+  // DevOps service: CI/CD
+  router.post('/devops/repos/:type', devopsController.registerRepo)
+  router.get('/devops/repos/:type', devopsController.listRepository)
 
   // Token info
   router.get('/token', tokenController.getTokenInfo)

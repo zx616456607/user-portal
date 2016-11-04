@@ -71,27 +71,6 @@ const MyComponent = React.createClass({
       });
     }
   },
-  onShowSizeChange: function (page, size) {
-    if (size === this.props.size) {
-      return
-    }
-    const query = {}
-    if (page !== DEFAULT_PAGE) {
-      query.page = page
-    }
-    if (size !== DEFAULT_PAGE_SIZE) {
-      query.size = size
-    }
-    const { name } = this.props
-    if (name) {
-      query.name = name
-    }
-    const { pathname } = this.props
-    browserHistory.push({
-      pathname,
-      query
-    })
-  },
   openTerminalModal: function (item, e) {
     //this function for user open the terminal modal
     e.stopPropagation();
@@ -114,7 +93,7 @@ const MyComponent = React.createClass({
     e.stopPropagation()
   },
   render: function () {
-    const { scope, config, loading, page, size, total } = this.props
+    const { scope, config, loading } = this.props
     if (loading) {
       return (
         <div className='loadingBox'>
@@ -228,6 +207,7 @@ class ContainerList extends Component {
     this.batchDeleteContainers = this.batchDeleteContainers.bind(this)
     this.confirmDeleteContainer = this.confirmDeleteContainer.bind(this)
     this.onPageChange = this.onPageChange.bind(this)
+    this.onShowSizeChange = this.onShowSizeChange.bind(this)
     this.state = {
       containerList: props.containerList,
       searchInputValue: props.name,
@@ -318,10 +298,10 @@ class ContainerList extends Component {
       TerminalLayoutModal: false
     });
   }
-  
+
   onPageChange(page) {
     if (page === this.props.page) {
-      return ;
+      return;
     }
     const { pathname, size, name } = this.props
     const query = {}
@@ -338,9 +318,31 @@ class ContainerList extends Component {
     })
   }
 
+  onShowSizeChange(page, size) {
+    if (size === this.props.size) {
+      return
+    }
+    const query = {}
+    if (page !== DEFAULT_PAGE) {
+      query.page = page
+    }
+    if (size !== DEFAULT_PAGE_SIZE) {
+      query.size = size
+    }
+    const { name } = this.props
+    if (name) {
+      query.name = name
+    }
+    const { pathname } = this.props
+    browserHistory.push({
+      pathname,
+      query
+    })
+  }
+
   render() {
     const parentScope = this
-    const { name, pathname, page, size, total, cluster, containerList, isFetching } = this.props
+    const { name, page, size, total, cluster, containerList, isFetching } = this.props
     const { searchInputValue, searchInputDisabled } = this.state
     const checkedContainerList = containerList.filter((app) => app.checked)
     const isChecked = (checkedContainerList.length > 0)
@@ -391,7 +393,8 @@ class ContainerList extends Component {
                   simple
                   className='inlineBlock'
                   onChange={this.onPageChange}
-                  defaultCurrent={page}
+                  onShowSizeChange={this.onShowSizeChange}
+                  current={page}
                   pageSize={size}
                   total={total} />
               </div>
@@ -431,8 +434,10 @@ class ContainerList extends Component {
             </div>
             <MyComponent
               funcs={funcs}
-              size={size} total={total} pathname={pathname} page={page} name={name}
-              config={containerList} loading={isFetching} parentScope={parentScope} />
+              name={name}
+              config={containerList}
+              loading={isFetching}
+              parentScope={parentScope} />
           </Card>
         </div>
         <Modal

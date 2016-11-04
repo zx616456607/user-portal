@@ -29,19 +29,23 @@ export default class SearchInput extends Component{
     let { data, searchIntOption } = this.props
 
     const { selecteValue } = this.state
-    const { addBefore, defaultValue, } = searchIntOption
-    const value = defaultValue ? defaultValue : addBefore[0].key
-    
-    if(selecteValue === ''){
-      const selecteData = []
-      data.map((item,index) => {
-        selecteData.push(item[`${value}`])
-      })
-      this.setState({
-        selecteValue: value,
-        selecteData: selecteData
-      })
+    const { addBefore, defaultValue,defaultSearchValue } = searchIntOption
+    let value = ''
+    if(addBefore){
+      value = defaultValue ? defaultValue : addBefore[0].key
+    } else {
+      value = defaultSearchValue
     }
+      if(selecteValue === ''){
+        const selecteData = []
+        data.map((item,index) => {
+          selecteData.push(item[`${value}`])
+        })
+        this.setState({
+          selecteValue: value,
+          selecteData: selecteData
+        })
+      }
     this.setState({
       searchValue: e.target.value
     })
@@ -75,6 +79,8 @@ export default class SearchInput extends Component{
           searchResult.push(item)
         }
       })
+      console.log('searchValue',searchValue);
+      console.log('searchResult',searchResult);
       scope.setState({
         searchResult: searchResult
       })

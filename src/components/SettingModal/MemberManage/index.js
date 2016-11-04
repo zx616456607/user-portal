@@ -12,7 +12,7 @@ import './style/MemberManage.less'
 import { Row, Col, Button, Input, Select, Card, Icon, Table, Modal, Form, Checkbox, Tooltip, } from 'antd'
 import SearchInput from '../../SearchInput'
 import { connect } from 'react-redux'
-import { loadUserList } from '../../../actions/user'
+import { loadUserList, createUser, deleteUser } from '../../../actions/user'
 
 const createForm = Form.create;
 const FormItem = Form.Item;
@@ -139,11 +139,11 @@ let MemberTable =  React.createClass({
 let NewMemberForm = React.createClass({
   userExists(rule, value, callback) {
     if (!value) {
-      callback();
+      callback([new Error('请输入用户名')]);
     } else {
       setTimeout(() => {
-        if (value === 'zhaoxueyu') {
-          callback([new Error('抱歉，该用户名已被占用。')]);
+        if (!/^[a-z][-a-z0-9]{1,40}[a-z0-9]$/.test(value)) {
+          callback([new Error('抱歉，用户名不合法。')]);
         } else {
           callback();
         }
@@ -171,8 +171,24 @@ let NewMemberForm = React.createClass({
       if (!!errors) {
         return;
       }
-      scope.setState({
-        visible: false,
+      const { name, passwd, email, tel, check, } = values
+      let newUser = {
+        userName: name,
+        password: passwd,
+        email: email,
+        phone: tel,
+        sendEmail: check,
+      }
+      scope.props.createUser(newUser,{
+        success: {
+          func: () => {
+            console.log('create success !!');
+            scope.setState({
+              visible: false,
+            })
+          },
+          isAsync: true
+        },
       })
     });
   },
@@ -190,7 +206,6 @@ let NewMemberForm = React.createClass({
     const text = <span>前台只能添加普通成员</span>
     const nameProps = getFieldProps('name', {
       rules: [
-        { required: true, min: 5, message: '用户名至少为 5 个字符' },
         { validator: this.userExists },
       ],
     })
@@ -202,7 +217,7 @@ let NewMemberForm = React.createClass({
         trigger: 'onBlur',
       }, {
         rules: [
-          { type: 'email', message: '请输入正确的邮箱地址' },
+          { length:'11' ,message: '请输入正确的手机号' },
         ],
         trigger: ['onBlur', 'onChange'],
       }],
@@ -367,7 +382,7 @@ class MemberManage extends Component {
     return (
       <div id="MemberManage">
         <Row>
-          <Button type="primary" size="large" onClick={this.showModal} icon="plus">
+          <Button type="primary" size="large" onClick={this.showModal} icon="plus" className="addBtn">
             添加新成员
           </Button>
           <SearchInput data={data} scope={scope} searchIntOption={searchIntOption}/>
@@ -402,10 +417,12 @@ function mapStateToProp(state) {
   return {
     users: usersData,
     total,
-    size
+    size,
   }
 }
 
 export default connect(mapStateToProp, {
   loadUserList,
+  createUser,
+  deleteUser,
 })(MemberManage)
