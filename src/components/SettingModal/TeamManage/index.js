@@ -15,7 +15,12 @@ import SearchInput from '../../SearchInput'
 import { connect } from 'react-redux'
 import { loadUserTeamList } from '../../../actions/user'
 
-const data = [
+function loadData(props) {
+  const { loadUserTeamList,} = props
+  loadUserTeamList('default')
+}
+
+/*const data = [
   {team: '研发team', member: '20', cluster: '2', space: '3'},
   {team: '研发team1', member: '1', cluster: '3', space: '31'},
   {team: '研发team2', member: '2', cluster: '1', space: '32'},
@@ -23,7 +28,7 @@ const data = [
   {team: '研发team4', member: '4', cluster: '5', space: '34'},
   {team: '研发team5', member: '5', cluster: '6', space: '35'},
   {team: '研发team1', member: '6', cluster: '7', space: '36'},
-]
+]*/
 
 let TeamTable = React.createClass({
   getInitialState() {
@@ -168,9 +173,28 @@ class TeamManage extends Component {
       visible: false,
     })
   }
+  componentWillMount(){
+    loadData(this.props)
+  }
   render(){
     const scope = this
     const { visible } = this.state
+    const { teams } = this.props
+    let data = []
+    if(teams.length !== 0){
+      teams.map((item,index) => {
+        data.push(
+          {
+            key: index,
+            team: item.teamName,
+            member: item.userCount,
+            cluster: item.clusterCount,
+            space: item.spaceCount,
+          }
+        )
+      })
+    }
+    console.log('teams',teams);
     const searchIntOption = {
       placeholder: '搜索',
       defaultSearchValue: 'team',

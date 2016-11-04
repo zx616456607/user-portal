@@ -52,4 +52,7 @@ module.exports = function (config) {
   // ~ teams
   this.teams = collections.create('teams')
 
+  // ~ devops
+  this.devops = collections.create('devops')
+
 }
