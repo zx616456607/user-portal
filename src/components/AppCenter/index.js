@@ -20,7 +20,7 @@ import MyCollection from './ImageCenter/MyCollection.js'
 import PublicSpace from './ImageCenter/PublicSpace.js'
 import OtherSpace from './ImageCenter/OtherSpace.js'
 import './style/ImageCenter.less'
-import { LoadOtherImage, getOtherImageList, addOtherStore, getImageDetailInfo, deleteOtherImage } from '../../actions/app_center'
+import { LoadOtherImage, addOtherStore, getImageDetailInfo, deleteOtherImage } from '../../actions/app_center'
 import { findIndex } from 'lodash'
 
 let TweenOneGroup = TweenOne.TweenOneGroup;
@@ -322,7 +322,6 @@ MyComponent = createForm()(MyComponent);
 class ImageCenter extends Component {
   constructor(props) {
     super(props);
-    this.selectCurrentTab = this.selectCurrentTab.bind(this);
     this.addImageTab = this.addImageTab.bind(this);
     this.closeAddModal = this.closeAddModal.bind(this);
     this.closeImageDetailModal = this.closeImageDetailModal.bind(this);
@@ -336,41 +335,19 @@ class ImageCenter extends Component {
       otherImageHead:[]
     }
   }
+  
   componentWillMount() {
     this.props.LoadOtherImage({
       success: {
         func: (res) => {
+          console.log(res.data)
           this.setState({
             otherImageHead: res.data
           })
-
         },
         isAsync: true
       }
     });
-  }
-  selectCurrentTab(current, list, type) {
-    //if user select other space is not default space,so that change state
-    //this function for user select current show tabs
-    this.setState({
-      current: current,
-    });
-    if (type != 'default') {
-      this.setState({
-        otherSpace: type
-      });
-    }
-    if (list.id) {
-      const scope = this
-      this.props.getOtherImageList(list.id)
-      const otherHead = this.state.otherImageHead
-      let Index = findIndex(otherHead, item => {
-        return item.id === list.id
-      })
-      this.setState({
-        otherHead: otherHead[Index]
-      });
-    }
   }
 
   addImageTab() {
@@ -400,12 +377,25 @@ class ImageCenter extends Component {
     const { formatMessage } = this.props.intl;
     const scope = this;
     const otherImageHead = this.state.otherImageHead || [];
+    let ImageTabList = [];
+    ImageTabList.push(<TabPane tab='私有空间' key='1'><ImageSpace scope={scope} /></TabPane>)
+    ImageTabList.push(<TabPane tab='公有空间' key='2'><PublicSpace scope={scope} /></TabPane>)
+    ImageTabList.push(<TabPane tab='我的收藏' key='3'><MyCollection scope={scope} /></TabPane>)
+    let tempImageList = otherImageHead.map((list, index) => {
+      return (
+        <TabPane tab={<span><Icon type='shopping-cart' />&nbsp;<span>{list.title}</span></span>} key={index + 4}>
+          <OtherSpace scope={scope} otherHead={list} imageId={list.id} />
+        </TabPane>
+      )
+    });
+    ImageTabList = ImageTabList.concat(tempImageList)
     return (
       <QueueAnim className='ImageCenterBox'
         type='right'
         >
         <div id='ImageCenter' key='ImageCenterBox'>
           <Tabs 
+            key='ImageCenterTabs'
             defaultActiveKey='1'
             tabBarExtraContent={
               <Button className='addBtn' key='addBtn' size='large' type='primary' onClick={this.addImageTab}>
@@ -414,18 +404,8 @@ class ImageCenter extends Component {
               </Button>
             }
           >
-            <TabPane tab='私有空间' key='1'><ImageSpace scope={scope} /></TabPane>
-            <TabPane tab='公有空间' key='2'><PublicSpace scope={scope} /></TabPane>
-            <TabPane tab='我的收藏' key='3'><MyCollection scope={scope} /></TabPane>
-            { 
-              otherImageHead.length > 0 ?  otherImageHead.map((list, index) => {
-                  return (
-                    <TabPane tab={<span><Icon type='shopping-cart' />&nbsp;<span>{list.title}</span></span>} key={index + 4}>
-                      <OtherSpace scope={scope} otherHead={list} imageId={list.id} />
-                    </TabPane>
-                  )
-              }) : null
-            }
+            
+            { ImageTabList }
           </Tabs>
           <Modal title='添加第三方' className='addOtherSpaceModal' visible={this.state.createModalShow}
             onCancel={this.closeAddModal}
@@ -465,9 +445,6 @@ function mapDispatchToProps(dispatch) {
     },
     LoadOtherImage: (callback) => {
       dispatch(LoadOtherImage(callback))
-    },
-    getOtherImageList: (id) => {
-      dispatch(getOtherImageList(id))
     },
     deleteOtherImage: (obj, callback) => {
       dispatch(deleteOtherImage(obj, callback))

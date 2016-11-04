@@ -13,7 +13,9 @@ import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import { Card, Select, Button, DatePicker, Input, Spin, Popover, Icon } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-//import { getOperationLogList } from '../../actions/manage_monitor'
+import { getQueryLogList } from '../../actions/manage_monitor'
+import { loadServiceContainerList } from '../../actions/services'
+import { DEFAULT_CLUSTER } from '../../constants'
 import './style/QueryLog.less'
 
 const Option = Select.Option;
@@ -38,6 +40,14 @@ let testData = [
   },
 ]
 
+const testServiceData = [
+  {
+    name: 'rter'
+  }, {
+    name: 'webapp'
+  },
+]
+  
 
 const menusText = defineMessages({
   headTitle: {
@@ -283,7 +293,7 @@ let ServiceModal = React.createClass({
 
 let InstanceModal = React.createClass({
   propTypes: {
-    instance: React.PropTypes.array
+    instance: React.PropTypes.object
   },
   getInitialState: function() {
     return {
@@ -314,31 +324,39 @@ let InstanceModal = React.createClass({
   render: function () {
     const {instance, scope} = this.props;
     let instanceList = null;
-    if (this.state.currentList.length == 0) {
-      instanceList = (
+    if(!!instance[scope.state.currentService]){
+      if (instance[scope.state.currentService].containerList.length == 0) {
+        instanceList = (
+          <div className='loadingBox'>
+            <span>没数据哦</span>
+          </div>
+        )
+      } else {      
+        instanceList = instance[scope.state.currentService].containerList.map((item, index) => {
+          return (
+            <div className='instanceDetail' key={index} onClick={scope.onSelectInstance.bind(scope, item.metadata.name)}>
+              {item.metadata.name}
+            </div>
+          )
+        });
+      }
+      return (
+        <div className='instanceModal'>
+          <div className='searchBox'>
+            <Input className='commonSearchInput instanceInput' onChange={this.inputSearch} type='text' size='large' />
+          </div>
+          <div className='dataList'>
+            {instanceList}
+          </div>
+        </div>
+      )
+    } else {
+      return (
         <div className='loadingBox'>
           <span>没数据哦</span>
         </div>
       )
-    } else {      
-      instanceList = this.state.currentList.map((item, index) => {
-        return (
-          <div className='instanceDetail' key={index} onClick={scope.onSelectInstance.bind(scope, item.name)}>
-            {item.name}
-          </div>
-        )
-      });
     }
-    return (
-      <div className='instanceModal'>
-        <div className='searchBox'>
-          <Input className='commonSearchInput instanceInput' onChange={this.inputSearch} type='text' size='large' />
-        </div>
-        <div className='dataList'>
-          {instanceList}
-        </div>
-      </div>
-    )
   }
 });
 
@@ -467,7 +485,8 @@ class QueryLog extends Component {
         servicePopup: false,
         currentInstance: []
       });
-      this.getFirstInstance()
+      const { cluster, loadServiceContainerList } = this.props;
+      loadServiceContainerList(cluster, name);
     }
   }
   
@@ -499,7 +518,6 @@ class QueryLog extends Component {
         currentInstance: tempList
       });
     }
-    console.log(this.state.currentInstance)
   }
   
   hideUserPopup(e) {
@@ -553,17 +571,19 @@ class QueryLog extends Component {
   
   submitSearch() {
     //this function for search the log
+    const { cluster, getQueryLogList } = this.props;
     let body = {
       date_start: this.state.start_time,
       date_end: this.state.end_time,
       from: null,
       size: null,
-      keyword: this.state.key_word,
-      kind: 'pod'
+      keyword: this.state.key_word
     } 
     this.setState({
       searchKeyword: this.state.key_word
-    })
+    });
+    let instances = this.state.currentInstance.join(',');
+    getQueryLogList(cluster, instances, body);
   }
   
   onChangeBigLog() {
@@ -576,6 +596,7 @@ class QueryLog extends Component {
   render() {
     const { formatMessage } = this.props.intl;
     const scope = this;
+    console.log(this.props)
     return (
     <QueueAnim className='QueryLogBox' type='right'>
       <div id='QueryLog' key='QueryLog'>
@@ -620,7 +641,7 @@ class QueryLog extends Component {
           <div className='commonBox'>
             <span className='titleSpan'><FormattedMessage {...menusText.service} /></span>
             <Popover 
-              content={<ServiceModal scope={scope} service={testData} />}
+              content={<ServiceModal scope={scope} service={testServiceData} />}
               trigger='click'
               placement='bottom'
               getTooltipContainer={() => document.getElementById('QueryLog') }
@@ -637,7 +658,7 @@ class QueryLog extends Component {
           <div className='commonBox'>
             <span className='titleSpan'><FormattedMessage {...menusText.instance} /></span>
             <Popover 
-              content={<InstanceModal scope={scope} instance={testData} />}
+              content={<InstanceModal scope={scope} instance={this.props.containersList} />}
               trigger='click'
               placement='bottom'
               getTooltipContainer={() => document.getElementById('QueryLog') }
@@ -675,7 +696,7 @@ class QueryLog extends Component {
         </div>
         <Card className={ this.state.bigLog ? 'logBox' : 'logBox'}>
           <div className='titleBox'>
-            <span className='keywordSpan'>{ this.state.key_word ? '关键词' + this.state.searchKeyword + '结果查询页' : '结果查询页'}</span>
+            <span className='keywordSpan'>{ this.state.searchKeyword ? '关键词' + this.state.searchKeyword + '结果查询页' : '结果查询页'}</span>
             <i className={this.state.bigLog ? 'fa fa-compress' : 'fa fa-expand'} onClick={this.onChangeBigLog} />
           </div>
           <div className='msgBox'>
@@ -690,14 +711,22 @@ class QueryLog extends Component {
 
 function mapStateToProps(state, props) {
   const defaultLogs = {
-        isFetching: false,
-        logs: []
+    cluster: DEFAULT_CLUSTER,
+    isFetching: false,
+    logs: []
+  }
+  const defaultContainers = {
+    containersList: {}
   }
   const { operationAuditLog } = state.manageMonitor
-  const { logs, isFetching } = operationAuditLog.logs || defaultLogs
+  const { serviceContainers } = state.services
+  const { cluster, logs, isFetching } = operationAuditLog.logs || defaultLogs
+  const containersList = serviceContainers[DEFAULT_CLUSTER] || defaultContainers
   return {
-        isFetching,
-        logs
+    containersList,
+    cluster,
+    isFetching,
+    logs
   }
 }
 
@@ -711,5 +740,6 @@ QueryLog = injectIntl(QueryLog, {
 })
 
 export default connect(mapStateToProps, {
-  
+  getQueryLogList,
+  loadServiceContainerList
 })(QueryLog)

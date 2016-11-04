@@ -92,24 +92,6 @@ const MyComponent = React.createClass({
       query
     })
   },
-  onPageChange: function (page) {
-    if (page === this.props.page) {
-      return
-    }
-    const { pathname, size, name } = this.props
-    const query = {}
-    if (page !== 1) {
-      query.page = page
-      query.size = size
-    }
-    if (name) {
-      query.name = name
-    }
-    browserHistory.push({
-      pathname,
-      query
-    })
-  },
   openTerminalModal: function (item, e) {
     //this function for user open the terminal modal
     e.stopPropagation();
@@ -227,18 +209,6 @@ const MyComponent = React.createClass({
     return (
       <div className='dataBox'>
         {items}
-        <div className='paginationBox'>
-          <Pagination
-            className='inlineBlock'
-            showSizeChanger
-            showQuickJumper
-            onShowSizeChange={this.onShowSizeChange}
-            onChange={this.onPageChange}
-            defaultCurrent={page}
-            pageSize={size}
-            showTotal={total => `共 ${total} 条`}
-            total={total} />
-        </div>
       </div>
     );
   }
@@ -257,6 +227,7 @@ class ContainerList extends Component {
     this.closeTerminalLayoutModal = this.closeTerminalLayoutModal.bind(this)
     this.batchDeleteContainers = this.batchDeleteContainers.bind(this)
     this.confirmDeleteContainer = this.confirmDeleteContainer.bind(this)
+    this.onPageChange = this.onPageChange.bind(this)
     this.state = {
       containerList: props.containerList,
       searchInputValue: props.name,
@@ -347,6 +318,25 @@ class ContainerList extends Component {
       TerminalLayoutModal: false
     });
   }
+  
+  onPageChange(page) {
+    if (page === this.props.page) {
+      return ;
+    }
+    const { pathname, size, name } = this.props
+    const query = {}
+    if (page !== 1) {
+      query.page = page
+      query.size = size
+    }
+    if (name) {
+      query.name = name
+    }
+    browserHistory.push({
+      pathname,
+      query
+    })
+  }
 
   render() {
     const parentScope = this
@@ -392,6 +382,18 @@ class ContainerList extends Component {
                   placeholder='输入容器名回车搜索'
                   disabled={searchInputDisabled}
                   onPressEnter={this.searchContainers} />
+              </div>
+            </div>
+            <div className='pageBox'>
+              <span className='totalPage'>共{total}条</span>
+              <div className='paginationBox'>
+                <Pagination
+                  simple
+                  className='inlineBlock'
+                  onChange={this.onPageChange}
+                  defaultCurrent={page}
+                  pageSize={size}
+                  total={total} />
               </div>
             </div>
             <div className='clearDiv'></div>

@@ -115,24 +115,6 @@ const MyComponent = React.createClass({
       query
     })
   },
-  onPageChange: function (page) {
-    if (page === this.props.page) {
-      return
-    }
-    const { pathname, size, name } = this.props
-    const query = {}
-    if (page !== DEFAULT_PAGE) {
-      query.page = page
-      query.size = size
-    }
-    if (name) {
-      query.name = name
-    }
-    browserHistory.push({
-      pathname,
-      query
-    })
-  },
   render: function () {
     const { config, loading, page, size, total } = this.props
     if (loading) {
@@ -222,18 +204,6 @@ const MyComponent = React.createClass({
     return (
       <div className='dataBox'>
         {items}
-        <div className='paginationBox'>
-          <Pagination
-            className='inlineBlock'
-            showSizeChanger
-            showQuickJumper
-            onShowSizeChange={this.onShowSizeChange}
-            onChange={this.onPageChange}
-            defaultCurrent={page}
-            pageSize={size}
-            showTotal={total => `共 ${total} 条`}
-            total={total} />
-        </div>
       </div>
     );
   }
@@ -257,6 +227,7 @@ class AppList extends Component {
     this.confirmRestartApps = this.confirmRestartApps.bind(this)
     this.batchRestartApps = this.batchRestartApps.bind(this)
     this.searchApps = this.searchApps.bind(this)
+    this.onPageChange = this.onPageChange.bind(this)
     this.state = {
       appList: props.appList,
       searchInputValue: props.name,
@@ -422,6 +393,25 @@ class AppList extends Component {
       query
     })
   }
+  
+  onPageChange(page) {
+    if (page === this.props.page) {
+      return
+    }
+    const { pathname, size, name } = this.props
+    const query = {}
+    if (page !== DEFAULT_PAGE) {
+      query.page = page
+      query.size = size
+    }
+    if (name) {
+      query.name = name
+    }
+    browserHistory.push({
+      pathname,
+      query
+    })
+  }
 
   render() {
     const scope = this
@@ -480,6 +470,18 @@ class AppList extends Component {
                   placeholder='输入应用名回车搜索'
                   disabled={searchInputDisabled}
                   onPressEnter={this.searchApps} />
+              </div>
+            </div>
+            <div className='pageBox'>
+              <span className='totalPage'>共{total}条</span>
+              <div className='paginationBox'>
+                <Pagination
+                  simple
+                  className='inlineBlock'
+                  onChange={this.onPageChange}
+                  defaultCurrent={page}
+                  pageSize={size}
+                  total={total} />
               </div>
             </div>
             <div className='clearDiv'></div>
