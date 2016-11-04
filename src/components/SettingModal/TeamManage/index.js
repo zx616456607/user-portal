@@ -10,6 +10,9 @@
 import React, { Component } from 'react'
 import { Row, Col, Alert, Button, Icon, } from 'antd'
 import './style/TeamManage.less'
+import SearchInput from '../../SearchInput'
+
+const data = []
 
 export default class TeamManage extends Component {
   constructor(props){
@@ -19,6 +22,11 @@ export default class TeamManage extends Component {
     }
   }
   render(){
+    const scope = this
+    const searchIntOption = {
+      placeholder: '搜索',
+      // width: '280px',
+    }
     return (
       <div id="TeamManage">
         <Alert message="团队, 由若干个成员组成的一个集体, 可等效于公司的部门、项目组、或子公司，
@@ -32,16 +40,7 @@ export default class TeamManage extends Component {
             <Icon type="picture" />
             查看成员&团队图例
           </Button>
-          <div className="ant-search-input-wrapper search">
-            <Input placeholder="请输入关键词搜索"
-                   onChange={this.handleInt}
-                   onPressEnter={this.handleSearch}/>
-            <div className="ant-input-group-wrap">
-              <Button icon="search"
-                      className='ant-search-btn searchBtn'
-                      onClick={this.handleSearch} />
-            </div>
-          </div>
+          <SearchInput searchIntOption={searchIntOption} scope={scope} data={data}/>
         </Row>
       </div>
     )

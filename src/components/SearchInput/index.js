@@ -26,7 +26,8 @@ export default class SearchInput extends Component{
     }
   }
   handleInt(e){
-    const { data, scope, searchIntOption } = this.props
+    let { data, searchIntOption } = this.props
+
     const { selecteValue } = this.state
     const { addBefore, defaultValue, } = searchIntOption
     const value = defaultValue ? defaultValue : addBefore[0].key
@@ -47,7 +48,8 @@ export default class SearchInput extends Component{
   }
   handleSearch(){
     const { selecteData, searchValue, selecteValue } = this.state
-    const { data, scope } = this.props
+    let { data, scope } = this.props
+
     if(selecteData.length === 0){
       return
     } else {
@@ -79,7 +81,8 @@ export default class SearchInput extends Component{
     }
   }
   handleSelect(value){
-    const { data, scope } = this.props
+    const { data } = this.props
+
     const selecteData = []
     data.map((item,index) => {
       selecteData.push(item[`${value}`])
@@ -90,9 +93,14 @@ export default class SearchInput extends Component{
     })
   }
   render(){
-    const { searchIntOption } = this.props
-    const { addBefore, defaultValue, placeholder } = searchIntOption
+    let { searchIntOption } = this.props
     
+    if(!searchIntOption){
+      searchIntOption = {
+        placeholder: '请输入关键词搜索',
+      }
+    }
+    const { addBefore, defaultValue, placeholder, width, position, } = searchIntOption
     if(addBefore){
       let selectBefore = (
         <Select defaultValue={defaultValue ? defaultValue : addBefore[0].key}
@@ -107,7 +115,7 @@ export default class SearchInput extends Component{
           }
         </Select>)
       return (
-        <div id='SearchInput'>
+        <div id='SearchInput' style={{width: `${width?width:'280px'}`,float: `${position?position:'right'}`}}>
           <div className="ant-search-input-wrapper search">
             <Input addonBefore={selectBefore}
                    placeholder={placeholder?placeholder:"请输入关键词搜索"}
@@ -123,9 +131,9 @@ export default class SearchInput extends Component{
       )
     } else {
       return (
-        <div id='SearchInput'>
+        <div id='SearchInput' style={{width: `${width?width:'200px'}`,float: `${position?position:'right'}`}}>
           <div className="ant-search-input-wrapper search">
-            <Input placeholder="请输入关键词搜索"
+            <Input placeholder={placeholder?placeholder:"请输入关键词搜索"}
                    onChange={this.handleInt}
                    onPressEnter={this.handleSearch}/>
             <div className="ant-input-group-wrap">

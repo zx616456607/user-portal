@@ -101,7 +101,6 @@ const MyComponent = React.createClass({
   },
   operaMenuClick: function (item, e) {
     //this function for user click the dropdown menu
-    console.log(item, e)
     switch(e.key) {
       case '1':
       this.setState({showModal: true})

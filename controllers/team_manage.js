@@ -72,3 +72,42 @@ exports.getTeamClusters = function* () {
     count: result.listMeta.size
   }
 }
+
+exports.getTeamUsers = function* () {
+  const teamID = this.params.team_id
+  const loginUser = this.session.loginUser
+  const query = this.query || {}
+  let page = parseInt(query.page || DEFAULT_PAGE)
+  let size = parseInt(query.size || DEFAULT_PAGE_SIZE)
+  let sort_by = parseInt(query.sort_by || "name")
+  let sort_order = parseInt(query.sort_order || true)
+  let name = query.name
+  if (isNaN(page) || page < 1) {
+    page = DEFAULT_PAGE
+  }
+  if (isNaN(size) || size < 1 || size > MAX_PAGE_SIZE) {
+    size = DEFAULT_PAGE_SIZE
+  }
+  const from = size * (page - 1)
+  const queryObj = { from, size }
+  if (name) {
+    queryObj.filter = `name ${name}`
+  }
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.teams.getBy([teamID, 'users'], queryObj)
+  const users = result.users || []
+  let total = 0
+  if (result.listMeta && result.listMeta.total) {
+    total = result.listMeta.total
+  }
+  size = 0
+  if (result.listMeta && result.listMeta.count) {
+    size = result.listMeta.size
+  }
+
+  this.body = {
+    users,
+    total,
+    size
+  }
+}

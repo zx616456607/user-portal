@@ -93,6 +93,7 @@ module.exports = function (Router) {
   // Teams
   router.get('/teams/:team_id/spaces', teamController.getUserTeamspaces)
   router.get('/teams/:team_id/clusters', teamController.getTeamClusters)
+  router.get('/teams/:team_id/users', teamController.getTeamUsers)
 
   // spi
   router.post('/clusters/:cluster/services/:service_name/binddomain', serviceController.bindServiceDomain)

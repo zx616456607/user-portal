@@ -1085,7 +1085,6 @@ function mapStateToProps(state, props) {
       logs: []
   }
   const { operationAuditLog } = state.manageMonitor
-  console.log(operationAuditLog)
   const { logs, isFetching } = operationAuditLog.logs || defaultLogs
   return {
       isFetching,
