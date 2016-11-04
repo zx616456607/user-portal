@@ -21,16 +21,6 @@ function loadData(props) {
   loadUserTeamList('default')
 }
 
-/*const data = [
-  {team: '研发team', member: '20', cluster: '2', space: '3'},
-  {team: '研发team1', member: '1', cluster: '3', space: '31'},
-  {team: '研发team2', member: '2', cluster: '1', space: '32'},
-  {team: '研发team3', member: '3', cluster: '4', space: '33'},
-  {team: '研发team4', member: '4', cluster: '5', space: '34'},
-  {team: '研发team5', member: '5', cluster: '6', space: '35'},
-  {team: '研发team1', member: '6', cluster: '7', space: '36'},
-]*/
-
 let TeamTable = React.createClass({
   getInitialState() {
     return {

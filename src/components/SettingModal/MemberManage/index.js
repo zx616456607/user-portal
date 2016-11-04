@@ -345,7 +345,6 @@ let NewMemberForm = React.createClass({
     )
   },
 })
-NewMemberForm = createForm()(NewMemberForm)
 
 class MemberManage extends Component {
   constructor(props){

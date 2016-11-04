@@ -151,7 +151,5 @@ export default class SearchInput extends Component{
         </div>
       )
     }
-    
-    
   }
 }
