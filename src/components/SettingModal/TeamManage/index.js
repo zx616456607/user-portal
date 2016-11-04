@@ -12,6 +12,7 @@ import { Row, Col, Alert, Button, Icon, Card, Table, Modal, Input, Tooltip } fro
 import './style/TeamManage.less'
 import { Link } from 'react-router'
 import SearchInput from '../../SearchInput'
+import { loadUserTeamList } from '../../../actions/user'
 
 const data = [
   {team: '研发team', member: '20', cluster: '2', space: '3'},
@@ -137,7 +138,8 @@ let NewTeamForm = React.createClass({
     )
   },
 })
-export default class TeamManage extends Component {
+
+class TeamManage extends Component {
   constructor(props){
     super(props)
     this.showModal = this.showModal.bind(this)
@@ -203,3 +205,25 @@ export default class TeamManage extends Component {
     )
   }
 }
+
+function mapStateToProp(state) {
+  let teamsData = []
+  let total = 0
+  const teams = state.user.teams
+  if (teams.result) {
+    if (teams.result.teams) {
+      teamsData = teams.result.teams
+    }
+    if (teams.result.total) {
+      total = teams.result.total
+    }
+  }
+  return {
+    teams: teamsData,
+    total
+  }
+}
+
+export default connect(mapStateToProp, {
+  loadUserTeamList,
+})(TeamManage)
