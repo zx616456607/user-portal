@@ -11,7 +11,7 @@ import React, { Component } from 'react'
 import { Menu } from 'antd'
 import { Link } from 'react-router'
 import "./style/MonitorModule.less"
-import Yaml from '../yamlEditor/index.js'
+// import Yaml from '../yamlEditor/index.js'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -30,7 +30,7 @@ export default class MonitorModule extends Component {
     const { current } = this.state
     return (
       <div id="MonitorModule">
-        <Yaml />
+        //<Yaml />
       </div>
     )
   }
