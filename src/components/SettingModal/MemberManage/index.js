@@ -45,9 +45,6 @@ let MemberTable =  React.createClass({
     let { sortedInfo, filteredInfo } = this.state
     const { searchResult, notFound } = this.props.scope.state
     const { data } = this.props
-    console.log('data',data);
-    console.log('data.length',data.length);
-    console.log('searchResult.length',searchResult.length);
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
     let pageTotal = searchResult.length === 0 ? data.length : searchResult.length
@@ -57,10 +54,10 @@ let MemberTable =  React.createClass({
       defaultPageSize: 5,
       pageSizeOptions: ['5','10','15','20'],
       onShowSizeChange(current, pageSize) {
-        console.log('Current: ', current, '; PageSize: ', pageSize);
+        //console.log('Current: ', current, '; PageSize: ', pageSize);
       },
       onChange(current) {
-        console.log('Current: ', current);
+        //console.log('Current: ', current);
       },
     }
     const columns = [
@@ -199,12 +196,10 @@ let NewMemberForm = React.createClass({
       scope.props.createUser(newUser,{
         success: {
           func: () => {
-            console.log('create success !!');
             scope.setState({
               visible: false,
             })
             scope.state.memberList.push(newItem)
-            console.log('memberListstate',scope.state.memberList);
           },
           isAsync: true
         },
@@ -369,7 +364,6 @@ class MemberManage extends Component {
   }
   componentWillReceiveProps(nextProps){
     const { users } = this.props
-    console.log('users',users);
     if(users.length === 0){
       return
     }
