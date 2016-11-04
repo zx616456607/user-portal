@@ -74,7 +74,7 @@ export const TEAM_CLUSTERS_LIST_FAILURE = 'TEAM_CLUSTERS_LIST_FAILURE'
 
 // Fetches user list from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchTeamClustersList(teamID) {
+function fetchTeamClustersList(teamID, query, callback) {
   let endpoint = `${API_URL_PREFIX}/teams/${teamID}/clusters`
   if (query) {
     endpoint += `?${toQuerystring(query)}`
@@ -84,14 +84,15 @@ function fetchTeamClustersList(teamID) {
       types: [TEAM_CLUSTERS_LIST_REQUEST, TEAM_CLUSTERS_LIST_SUCCESS, TEAM_CLUSTERS_LIST_FAILURE],
       endpoint,
       schema: {}
-    }
+    },
+    callback
   }
 }
 
 // Fetches user detail from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function loadTeamClustersList(teamID, requiredFields = []) {
-  return (dispatch, getState) => {
-    return dispatch(fetchTeamClustersList(teamID))
+export function loadTeamClustersList(teamID, query, callback) {
+  return (dispatch) => {
+    return dispatch(fetchTeamClustersList(teamID, query, callback))
   }
 }

@@ -25,7 +25,11 @@ import openApi from './open_api'
 import team from './team'
 
 // Updates an entity cache in response to any action with response.entities.
-function entities(state = { isFetching: false, users: {}, rcs: {} }, action) {
+function entities(state = {
+  isFetching: false,
+  space: {},
+  cluster: {},
+}, action) {
   if (action.response && action.response.entities) {
     let isFetching = false
     if (action.type.indexOf('_REQUEST') > -1) {
@@ -33,8 +37,18 @@ function entities(state = { isFetching: false, users: {}, rcs: {} }, action) {
     }
     return merge({}, state, action.response.entities, { isFetching })
   }
-
-  return state
+  switch (action.type) {
+    case ActionTypes.SET_SPACE:
+      return merge({}, state, {
+        space: action.space
+      })
+    case ActionTypes.SET_CLUSTER:
+      return merge({}, state, {
+        cluster: action.cluster
+      })
+    default:
+      return state
+  }
 }
 
 // Updates error message to notify about the failed fetches.
