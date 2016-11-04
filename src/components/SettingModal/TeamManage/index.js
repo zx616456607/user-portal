@@ -53,10 +53,10 @@ let TeamTable = React.createClass({
       defaultPageSize: 5,
       pageSizeOptions: ['5','10','15','20'],
       onShowSizeChange(current, pageSize) {
-        console.log('Current: ', current, '; PageSize: ', pageSize);
+        //console.log('Current: ', current, '; PageSize: ', pageSize);
       },
       onChange(current) {
-        console.log('Current: ', current);
+        //console.log('Current: ', current);
       },
     }
     const columns = [
@@ -185,7 +185,6 @@ class TeamManage extends Component {
         )
       })
     }
-    console.log('teams',teams);
     const searchIntOption = {
       placeholder: '搜索',
       defaultSearchValue: 'team',
