@@ -81,13 +81,11 @@ const MyComponent = React.createClass({
   },
   operaMenuClick: function (item, e) {
     //this function for user click the dropdown menu
-    console.log(item, e)
     this.setState({showDockerFileModal: true})
   
   },
   showDockerfileModal(name) {
     this.setState({showDockerFileModal: true})
-    console.log('dockerFile is', name)
   },
   
   render: function () {
