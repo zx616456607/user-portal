@@ -124,7 +124,27 @@ let TeamTable = React.createClass({
   },
 })
 let NewTeamForm = React.createClass({
+  handleOk() {
+    const { scope } = this.props
+    this.props.form.validateFields((errors, values) => {
+      if (!!errors) {
+        return;
+      }
+      scope.setState({
+        visible: false,
+      })
+    });
+  },
+  handleCancel(e) {
+    const { scope } = this.props
+    e.preventDefault();
+    this.props.form.resetFields();
+    scope.setState({
+      visible: false,
+    })
+  },
   render() {
+    const { visible } = this.props
     return (
       <Modal title="创建团队" visible={visible}
                onOk={this.handleOk} onCancel={this.handleCancel}
@@ -132,7 +152,10 @@ let NewTeamForm = React.createClass({
                width="463px"
         >
         <Row>
-          
+          <Col span={4}>名称</Col>
+          <Col span={20}>
+            <Input placeholder="新团队名称"/>
+          </Col>
         </Row>
       </Modal>
     )

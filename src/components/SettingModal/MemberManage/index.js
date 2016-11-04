@@ -188,12 +188,12 @@ let NewMemberForm = React.createClass({
     const { form, scope, visible } = this.props
     const { getFieldProps, getFieldError, isFieldValidating } = form
     const text = <span>前台只能添加普通成员</span>
-    /*const nameProps = getFieldProps('name', {
+    const nameProps = getFieldProps('name', {
       rules: [
         { required: true, min: 5, message: '用户名至少为 5 个字符' },
         { validator: this.userExists },
       ],
-    })*/
+    })
     const telProps = getFieldProps('tel', {
       validate: [{
         rules: [
@@ -253,14 +253,7 @@ let NewMemberForm = React.createClass({
             hasFeedback
             help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
           >
-            <Input {
-              ...getFieldProps('name', {
-                rules: [
-                  { required: true, min: 5, message: '用户名至少为 5 个字符' },
-                  { validator: this.userExists },
-                ],
-              })
-            } placeholder="新成员名称" />
+            <Input {...nameProps} placeholder="新成员名称" />
           </FormItem>
           <FormItem
             {...formItemLayout}
@@ -345,9 +338,7 @@ class MemberManage extends Component {
     const { visible } = this.state
     let data = []
     if(users.length !== 0){
-      console.log('usersusers',users);
       users.map((item,index) => {
-        console.log('item',item);
         data.push(
           {
             key: index,

@@ -21,7 +21,7 @@ import { browserHistory } from 'react-router'
 import RollingUpdateModal from './AppServiceDetail/RollingUpdateModal'
 import ConfigModal from './AppServiceDetail/ConfigModal'
 import ManualScaleModal from './AppServiceDetail/ManualScaleModal'
-import parseDomain from '../parseDomain'
+import parseServiceDomain from '../parseDomain'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -181,7 +181,7 @@ const MyComponent = React.createClass({
           </Menu.Item>
         </Menu>
       );
-      const svcDomain = parseDomain(item)
+      const svcDomain = parseServiceDomain(item)
       return (
         <div
           className={item.checked ? "selectedInstance instanceDetail" : "instanceDetail"}

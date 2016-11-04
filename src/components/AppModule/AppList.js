@@ -154,6 +154,7 @@ const MyComponent = React.createClass({
           </Menu.Item>
         </Menu>
       );
+      const appEntrance = item.entrance
       return (
         <div className={item.checked ? 'appDetail appDetailSelected' : 'appDetail'} key={item.name} onClick={this.selectAppByline.bind(this, item)} >
           <div className='selectIconTitle commonData'>
@@ -177,8 +178,11 @@ const MyComponent = React.createClass({
             {item.instanceCount + '' || '-'}
           </div>
           <div className='visitIp commonData'>
-            <Tooltip title={item.address ? item.address : ''}>
-              <span>{item.address || '-'}</span>
+            <Tooltip title={appEntrance ? appEntrance : ''}>
+              {
+                appEntrance ?
+                  (<a target="_blank" href={appEntrance}>{appEntrance}</a>) : (<span>-</span>)
+              }
             </Tooltip>
           </div>
           <div className='createTime commonData'>
