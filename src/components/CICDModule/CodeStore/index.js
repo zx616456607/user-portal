@@ -279,7 +279,7 @@ class CodeStore extends Component {
               </div>
               <div className='type'>
                 <FormattedMessage {...menusText.attr} />
-                <i class="fa fa-filter" aria-hidden="true"></i>
+                <i className="fa fa-filter" aria-hidden="true"></i>
               </div>
               <div className='codelink'>
                 <FormattedMessage {...menusText.codeSrc} />

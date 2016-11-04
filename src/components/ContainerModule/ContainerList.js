@@ -19,6 +19,7 @@ import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constan
 import { tenxDateFormat } from '../../common/tools.js'
 import { browserHistory } from 'react-router'
 import TerminalModal from '../TerminalModal'
+import parseDomain from '../parseDomain'
 
 const ButtonGroup = Button.Group
 const confirm = Modal.confirm
@@ -156,6 +157,7 @@ const MyComponent = React.createClass({
           </Menu.Item>
         </Menu>
       );
+      const domain = parseDomain(item)
       return (
         <div className={item.checked ? 'selectedContainer containerDetail' : 'containerDetail'}
           key={item.metadata.name}
@@ -196,8 +198,11 @@ const MyComponent = React.createClass({
               <span>{item.status.podIP}</span>
             </Tooltip>
             <br />
-            <Tooltip placement='topLeft' title={item.serviceIPOutput || '-'}>
-              <span>{item.serviceIPOutput || '-'}</span>
+            <Tooltip placement='topLeft' title={domain}>
+              {
+                domain ?
+                (<a target="_blank" href={domain}>{domain}</a>) : (<span>-</span>)
+              }
             </Tooltip>
           </div>
           <div className='createTime commonData'>

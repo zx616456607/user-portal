@@ -15,12 +15,13 @@ import QueueAnim from 'rc-queue-anim'
 import AppServiceDetail from './AppServiceDetail'
 import './style/AppServiceList.less'
 import { loadServiceList, startServices, restartServices, stopServices, deleteServices, quickRestartServices } from '../../actions/services'
-import { DEFAULT_CLUSTER, ANNOTATION_SVC_DOMAIN } from '../../constants'
+import { DEFAULT_CLUSTER } from '../../constants'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 import { browserHistory } from 'react-router'
 import RollingUpdateModal from './AppServiceDetail/RollingUpdateModal'
 import ConfigModal from './AppServiceDetail/ConfigModal'
 import ManualScaleModal from './AppServiceDetail/ManualScaleModal'
+import parseDomain from '../parseDomain'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -56,13 +57,6 @@ const MyComponent = React.createClass({
         serviceList
       })
     }
-  },
-  parseServiceDomain: function (item) {
-    let domain = ""
-    if (item.metadata.annotations && item.metadata.annotations[ANNOTATION_SVC_DOMAIN]) {
-      domain = item.metadata.annotations[ANNOTATION_SVC_DOMAIN]
-    }
-    return domain
   },
   modalShow: function (item) {
     // e.stopPropagation()
@@ -187,7 +181,7 @@ const MyComponent = React.createClass({
           </Menu.Item>
         </Menu>
       );
-      const svcDomain = this.parseServiceDomain(item)
+      const svcDomain = parseDomain(item)
       return (
         <div
           className={item.checked ? "selectedInstance instanceDetail" : "instanceDetail"}
