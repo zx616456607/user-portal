@@ -17,7 +17,7 @@ import { connect } from 'react-redux'
 import { remove, findIndex } from 'lodash'
 import { loadStorageList, deleteStorage, createStorage, formateStorage, resizeStorage } from '../../actions/storage'
 import { DEFAULT_IMAGE_POOL, DEFAULT_CLUSTER } from '../../constants'
-import './style/DatabaseStorage.less'
+// import './style/DatabaseStorage.less'
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
@@ -531,8 +531,8 @@ class databaseStorage extends Component {
   render() {
     const { formatMessage } = this.props.intl
     return (
-      <QueueAnim className="StorageList" type="right">
-        <div id="StorageList" key="StorageList">
+      <QueueAnim className="database_storage" type="right">
+        <div id="StorageList" key="database_storage">
           <div className="operationBox">
             <div className="leftBox">
               <Button type="primary" size="large" onClick={this.showModal}>
@@ -559,7 +559,7 @@ class databaseStorage extends Component {
                 </Row>
                 <Row style={{ height: '40px' }}>
                   <Col span="3" className="text-center" style={{ lineHeight: '30px' }}>
-                    {formatMessage(messages.size)}
+                    <FormattedMessage {...messages.size} />
                   </Col>
                   <Col span="12">
                     <Slider min={1} max={1024} onChange={this.onChange} value={this.state.size} />
@@ -571,11 +571,11 @@ class databaseStorage extends Component {
                 </Row>
                 <Row>
                   <Col span="3" className="text-center" style={{ lineHeight: '30px' }}>
-                    formatMessage(messages.formats)}
+                    <FormattedMessage {...messages.formats} />
                   </Col>
                   <Col span="20" className="action-btns" style={{ lineHeight: '30px' }}>
                     <Button type={this.state.currentType === 'ext4' ? 'primary' : 'ghost'} onClick={(e) => { this.changeType('ext4') } }>ext4</Button>
-                    <Button type={this.state.currentType === 'xfs' ? 'primary' : 'ghost'} onClick={(e) => { this.changeType('xfs') } }>xfs</Button>
+                    <Button type={this.state.currentType === 'xfs' ? 'primary' : 'ghost'} onClick={(e) => { this.changeType('xfs') } } style={{margin: '0 10px'}}>xfs</Button>
                     <Button type={this.state.currentType === 'reiserfs' ? 'primary' : 'ghost'} onClick={(e) => { this.changeType('reiserfs') } }>reiserfs</Button>
                   </Col>
                 </Row>
@@ -591,7 +591,7 @@ class databaseStorage extends Component {
             </div>
             <div className="clearDiv"></div>
           </div>
-          <Card className="storageList appBox">
+          <Card className="storageBox appBox">
             <div className="appTitle">
               <div className="selectIconTitle commonTitle">
                 <Checkbox onChange={(e) => this.onAllChange(e)} checked={this.isAllChecked()} disabled={!this.disableSelectAll()}></Checkbox>
