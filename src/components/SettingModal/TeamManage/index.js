@@ -12,6 +12,7 @@ import { Row, Col, Alert, Button, Icon, Card, Table, Modal, Input, Tooltip } fro
 import './style/TeamManage.less'
 import { Link } from 'react-router'
 import SearchInput from '../../SearchInput'
+import { connect } from 'react-redux'
 import { loadUserTeamList } from '../../../actions/user'
 
 const data = [
