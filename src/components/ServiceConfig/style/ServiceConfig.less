@@ -73,19 +73,20 @@
         top: -15px;
         background-color: #fff;
         .ant-collapse-content-box {
-           padding: 0 0 100px 58px;
+           padding: 0 0 50px 58px;
           .file-list {
             .ant-timeline {
               .ant-timeline-item-tail {
                 top:0;
                 height:100%;
+                border-left: 1px solid #D6D6D6;
               }
               .ant-timeline-item-head {
                 display: none;
               }
               .ant-timeline-item-content {
                 padding: 0 0 10px 7px;
-                top:52px;
+                top:30px;
                 z-index: 2;
               }
               .file-item {
@@ -106,25 +107,37 @@
                 }
                 .line {
                   float: left;
-                  margin-top: 32px;
-                  width: 44px;
+                  margin-top: 40px;
+                  margin-left: -2px;
+                  width: 40px;
                   height: 0;
-                  border-bottom: 2px solid #e9e9e9;
+                  border-bottom: 1px solid #D6D6D6;
                 }
                 table {
                   float: left;
                   border-collapse: collapse;
                   td {
                     font-size: 14px;
-                    padding: 0;
-                    border: 2px solid #e9e9e9;
+                    width: 120px;
+                    border: 1px solid #D6D6D6;
+                    .li{line-height: 40px;padding: 0 15px;}
+                    .lis{line-height: 40px;border-top:1px solid #D6D6D6;padding: 0 15px;}
+                    .node-number{
+                      background: #5EB85E;
+                      display: inline-block;
+                      padding:3px 7px;
+                      line-height: normal;
+                      color: white;
+                      border-radius: 45%;
+                      margin-left: 10px;
+                    }
                     .relate {
                       width: 128px;
                       display: inline-block;
                       height: 40px;
                       line-height: 40px;
                       padding: 0 12px;
-                      border-bottom: 2px solid #e9e9e9;
+                      border-bottom: 1px solid #D6D6D6;
                     }
                     .path {
                       height: 40px;
@@ -141,8 +154,7 @@
               .ant-timeline-item-last {
                 .ant-timeline-item-tail {
                   display: block;
-                  height: 100%;
-                  border: 1px solid #e9e9e9;
+                  height: 70px;
                 }
               }
             }

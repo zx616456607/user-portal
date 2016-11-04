@@ -140,14 +140,21 @@ class CollapseContainer extends Component {
                   <td style={{ padding: "15px" }}>
                     <div style={{width:'180px'}} className="textoverflow"><Icon type="file-text" style={{ marginRight: "10px" }} />{configFileItem.name}</div>
                   </td>
-                  <td style={{ padding: "15px" }}>
-                    <Button type="primary" style={{ with: "30px", height: "30px", padding: "0 9px", marginRight: "5px" }}
+                  <td style={{ padding: "15px 20px" }}>
+                    <Button type="primary" style={{ height: "30px", padding: "0 9px", marginRight: "5px" }}
                       onClick={() => this.editConfigModal(this.props.groupname, configFileItem.name)}>
                       <Icon type="edit" />
                     </Button>
-                    <Button type="ghost" onClick={() => this.deleteConfigFile(this.props.groupname, configFileItem.name)} style={{ with: "30px", height: "30px", padding: "0 9px", backgroundColor: "#fff" }} className="config-cross">
+                    <Button type="ghost" onClick={() => this.deleteConfigFile(this.props.groupname, configFileItem.name)} style={{marginLeft:'10px', height: "30px", padding: "0 9px", backgroundColor: "#fff" }} className="config-cross">
                       <Icon type="cross" />
                     </Button>
+                  </td>
+                  <td style={{width:'130px'}}>
+                    <div className="li">关联容器 <span className="node-number">0</span></div>
+                    <div className="lis">挂载路径</div>
+                  </td>
+                  <td style={{ textAlign:'center' }}>
+                    <div>暂无挂载</div>
                   </td>
                 </tr>
               </tbody>
