@@ -67,6 +67,27 @@ const MyComponent = React.createClass({
       currentShowInstance: item
     });
   },
+  onShowSizeChange: function (page, size) {
+    if (size === this.props.size) {
+      return
+    }
+    const query = {}
+    if (page !== DEFAULT_PAGE) {
+      query.page = page
+    }
+    if (size !== DEFAULT_PAGE_SIZE) {
+      query.size = size
+    }
+    const { name } = this.props
+    if (name) {
+      query.name = name
+    }
+    const { pathname } = this.props
+    browserHistory.push({
+      pathname,
+      query
+    })
+  },
   serviceOperaClick(item, e) {
     const { scope } = this.props
     scope.setState({
@@ -217,6 +238,7 @@ class AppServiceList extends Component {
     this.batchDeleteServices = this.batchDeleteServices.bind(this)
     this.confirmDeleteServices = this.confirmDeleteServices.bind(this)
     this.confirmQuickRestartService = this.confirmQuickRestartService.bind(this)
+    this.onPageChange = this.onPageChange.bind(this)
     // this.showRollingUpdateModal = this.showRollingUpdateModal.bind(this)
     // this.showConfigModal = this.showConfigModal.bind(this)
     // this.showManualScaleModal = this.showManualScaleModal.bind(this)
@@ -406,6 +428,26 @@ class AppServiceList extends Component {
       modalShow: false
     })
   }
+  
+  onPageChange(page) {
+    if (page === this.props.page) {
+      return
+    }
+    const { pathname, size, name } = this.props
+    const query = {}
+    if (page !== DEFAULT_PAGE) {
+      query.page = page
+      query.size = size
+    }
+    if (name) {
+      query.name = name
+    }
+    browserHistory.push({
+      pathname,
+      query
+    })
+  }
+  
   /*showRollingUpdateModal() {
     this.setState({
       rollingUpdateModalShow: true

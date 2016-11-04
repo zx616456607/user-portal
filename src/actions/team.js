@@ -74,7 +74,7 @@ export const TEAM_CLUSTERS_LIST_FAILURE = 'TEAM_CLUSTERS_LIST_FAILURE'
 
 // Fetches user list from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchTeamClustersList(teamID) {
+function fetchTeamClustersList(teamID, query, callback) {
   let endpoint = `${API_URL_PREFIX}/teams/${teamID}/clusters`
   if (query) {
     endpoint += `?${toQuerystring(query)}`
@@ -84,14 +84,45 @@ function fetchTeamClustersList(teamID) {
       types: [TEAM_CLUSTERS_LIST_REQUEST, TEAM_CLUSTERS_LIST_SUCCESS, TEAM_CLUSTERS_LIST_FAILURE],
       endpoint,
       schema: {}
-    }
+    },
+    callback
   }
 }
 
 // Fetches user detail from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function loadTeamClustersList(teamID, requiredFields = []) {
+export function loadTeamClustersList(teamID, query, callback) {
+  return (dispatch) => {
+    return dispatch(fetchTeamClustersList(teamID, query, callback))
+  }
+}
+
+export const TEAM_CREATE_REQUEST = 'TEAM_CREATE_REQUEST'
+export const TEAM_CREATE_SUCCESS = 'TEAM_CREATE_SUCCESS'
+export const TEAM_CREATE_FAILURE = 'TEAM_CREATE_FAILURE'
+
+// Create team from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchCreateTeam(body, callback) {
+  let endpoint = `${API_URL_PREFIX}/teams`
+  return {
+    [FETCH_API]: {
+      types: [TEAM_CREATE_REQUEST, TEAM_CREATE_SUCCESS, TEAM_CREATE_FAILURE],
+      endpoint,
+      options: {
+        method: 'POST',
+        body
+      },
+      schema: {},
+    },
+    callback
+  }
+}
+
+// Create team from API 
+// Relies on Redux Thunk middleware.
+export function createTeam(body, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchTeamClustersList(teamID))
+    return dispatch(fetchCreateTeam(body, callback))
   }
 }

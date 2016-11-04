@@ -111,3 +111,19 @@ exports.getTeamUsers = function* () {
     size
   }
 }
+
+exports.createTeam = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const team = this.request.body
+  if (!team || !team.name) {
+    const err = new Error('team name is required.')
+    err.status = 400
+    throw err
+  }
+  const result = yield api.teams.create(team)
+
+  this.body = {
+    data: result
+  }
+}
