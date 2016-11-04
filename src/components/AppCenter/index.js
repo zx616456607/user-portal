@@ -340,7 +340,6 @@ class ImageCenter extends Component {
     this.props.LoadOtherImage({
       success: {
         func: (res) => {
-          console.log(res.data)
           this.setState({
             otherImageHead: res.data
           })
