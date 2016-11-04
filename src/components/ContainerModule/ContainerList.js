@@ -201,7 +201,7 @@ const MyComponent = React.createClass({
             <Tooltip placement='topLeft' title={domain}>
               {
                 domain ?
-                (<a target="_blank" href={domain}>{domain}</a>) : (<span>-</span>)
+                  (<a target="_blank" href={domain}>{domain}</a>) : (<span>-</span>)
               }
             </Tooltip>
           </div>
