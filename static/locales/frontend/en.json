@@ -95,6 +95,7 @@
   "AppCenter.ImageCenter.OtherSpace.downloadNum": "Download Times:",
 	"AppCenter.ImageCenter.OtherSpace.deployService": "Deploy Service",
 	"AppCenter.ImageCenter.OtherSpace.logout": "logout",
+	"AppCenter.ImageCenter.OtherSpace.noData": "No Data",
 	
 	"AppCenter.ComposeCenter.Stack.search": "Search",
   "AppCenter.ComposeCenter.Stack.publicType": "Public",

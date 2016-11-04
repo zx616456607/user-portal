@@ -41,8 +41,37 @@ function operationAuditLog(state = {}, action) {
   }
 }
 
+function getQueryLog(state = {}, action) {
+  const defaultState = {
+    logs: {
+      isFetching: false,
+      logs: []
+    }
+  }
+  switch (action.type) {
+    case ActionTypes.GET_QUERY_LOG_REQUEST:
+      return merge({}, defaultState, state, {
+        logs: { isFetching: true }
+      })
+    case ActionTypes.GET_QUERY_LOG_SUCCESS:
+      return merge({}, state, {
+        logs: {
+          isFetching: false,
+          logs: action.response.result.logs || []
+        }
+      })
+    case ActionTypes.GET_QUERY_LOG_FAILURE:
+      return merge({}, defaultState, state, {
+        logs: { isFetching: false }
+      })
+    default:
+      return state
+  }
+}
+
 export function manageMonitor(state = { manageMonitor: {} }, action) {
   return {
     operationAuditLog: operationAuditLog(state.operationAuditLog, action),
+    getQueryLog: getQueryLog(state.getQueryLog, action),
   }
 }
