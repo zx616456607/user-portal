@@ -86,8 +86,6 @@ class Header extends Component {
   }
 
   handleSpaceChange(space) {
-    console.log('space--------------------------------')
-    console.log(space)
     const { loadTeamClustersList } = this.props
     loadTeamClustersList(space.teamID, { size: 100 })
     this.setState({
@@ -98,8 +96,6 @@ class Header extends Component {
   }
 
   handleClusterChange(cluster) {
-    console.log('cluster--------------------------------')
-    console.log(cluster)
     this.setState({
       selectCluster: cluster,
       cliustersVisible: false,
