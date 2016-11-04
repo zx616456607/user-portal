@@ -20,20 +20,7 @@ exports.getUserDetail = function* () {
   const loginUser = this.session.loginUser
   userID = userID === 'default' ? loginUser.id : userID
   const api = apiFactory.getApi(loginUser)
-  /*if (!userID || userID == '') {
-    const re = yield api.getBy(['user_id'])
-    userID = re.data['userid']
-  }*/
   const result = yield api.users.getBy([userID])
-  /*const result = {
-    data: {
-      displayName: "test_name",
-      role: 1,
-      phone: "136999999",
-      email: "aaa@tenxcloud.com",
-      balance: 100
-    }
-  }*/
   const user = result || {}
   this.body = {
     data: user

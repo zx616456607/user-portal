@@ -19,7 +19,7 @@ import ImageSpace from './ImageCenter/ImageSpace.js'
 import MyCollection from './ImageCenter/MyCollection.js'
 import PublicSpace from './ImageCenter/PublicSpace.js'
 import OtherSpace from './ImageCenter/OtherSpace.js'
-import "./style/ImageCenter.less"
+import './style/ImageCenter.less'
 import { LoadOtherImage, getOtherImageList, addOtherStore, getImageDetailInfo, deleteOtherImage } from '../../actions/app_center'
 import { findIndex } from 'lodash'
 
@@ -70,28 +70,28 @@ let MyComponent = React.createClass({
   inputOnFocus(current) {
     //this function for user focus on current input and the title will be add an animate
     switch (current) {
-      case "url":
+      case 'url':
         this.setState({
           UrlReverse: false,
           UrlPaused: false,
           UrlMoment: null
         });
         break;
-      case "username":
+      case 'username':
         this.setState({
           NameReverse: false,
           NamePaused: false,
           NameMoment: null
         });
         break;
-      case "password":
+      case 'password':
         this.setState({
           PwdPaused: false,
           PwdReverse: false,
           PwdMoment: null
         });
         break;
-      case "registryName":
+      case 'registryName':
         this.setState({
           regPaused: false,
           regReverse: false,
@@ -108,7 +108,7 @@ let MyComponent = React.createClass({
     let pwdInput = this.refs.pwdInput;
     let registryInput = this.refs.registryInput
     switch (current) {
-      case "url":
+      case 'url':
         if (!urlInput.props.value) {
           //it's meaning user hadn't input message in the input box so that the title will be move
           this.setState({
@@ -118,7 +118,7 @@ let MyComponent = React.createClass({
           });
         }
         break;
-      case "username":
+      case 'username':
         if (!nameInput.props.value) {
           this.setState({
             NamePaused: false,
@@ -127,7 +127,7 @@ let MyComponent = React.createClass({
           });
         }
         break;
-      case "password":
+      case 'password':
         if (!!!pwdInput.props.value) {
           this.setState({
             PwdPaused: false,
@@ -136,7 +136,7 @@ let MyComponent = React.createClass({
           });
         }
         break;
-      case "registryName":
+      case 'registryName':
         if (!!!registryInput.props.value) {
           this.setState({
             regPaused: false,
@@ -230,19 +230,19 @@ let MyComponent = React.createClass({
       rules: [{ required: true, whitespace: true }]
     })
     return (
-      <div className="modalBox">
-        <Form className="addForm" horizontal form={this.props.form}>
+      <div className='modalBox'>
+        <Form className='addForm' horizontal form={this.props.form}>
           <FormItem hasFeedback >
             <TweenOne
               animation={{ top: '-20', duration: 500 }}
               paused={this.state.regPaused}
               reverse={this.state.regReverse}
               moment={this.state.regMoment}
-              style={{ position: "absolute", width: "10%", top: "0" }}
+              style={{ position: 'absolute', width: '10%', top: '0' }}
               >
-              <span className="title" key="name">仓库名</span>
+              <span className='title' key='name'>仓库名</span>
             </TweenOne>
-            <Input {...registryProps} ref="registryInput" onFocus={this.inputOnFocus.bind(this, "registryName")} onBlur={this.inputOnBlur.bind(this, "registryName")} />
+            <Input {...registryProps} ref='registryInput' onFocus={this.inputOnFocus.bind(this, 'registryName')} onBlur={this.inputOnBlur.bind(this, 'registryName')} />
           </FormItem>
           <FormItem hasFeedback >
             <TweenOne
@@ -250,11 +250,11 @@ let MyComponent = React.createClass({
               paused={this.state.UrlPaused}
               reverse={this.state.UrlReverse}
               moment={this.state.UrlMoment}
-              style={{ position: "absolute", width: "10%", top: "0" }}
+              style={{ position: 'absolute', width: '10%', top: '0' }}
               >
-              <span className="title" key="title">地址</span>
+              <span className='title' key='title'>地址</span>
             </TweenOne>
-            <Input {...urlProps} ref="urlInput" onFocus={this.inputOnFocus.bind(this, "url")} onBlur={this.inputOnBlur.bind(this, "url")} />
+            <Input {...urlProps} ref='urlInput' onFocus={this.inputOnFocus.bind(this, 'url')} onBlur={this.inputOnBlur.bind(this, 'url')} />
           </FormItem>
 
           <FormItem hasFeedback >
@@ -263,11 +263,11 @@ let MyComponent = React.createClass({
               paused={this.state.NamePaused}
               reverse={this.state.NameReverse}
               moment={this.state.NameMoment}
-              style={{ position: "absolute", width: "10%", top: "0" }}
+              style={{ position: 'absolute', width: '10%', top: '0' }}
               >
-              <span className="title">用户名</span>
+              <span className='title'>用户名</span>
             </TweenOne>
-            <Input {...nameProps} ref="nameInput" onFocus={this.inputOnFocus.bind(this, "username")} onBlur={this.inputOnBlur.bind(this, "username")} />
+            <Input {...nameProps} ref='nameInput' onFocus={this.inputOnFocus.bind(this, 'username')} onBlur={this.inputOnBlur.bind(this, 'username')} />
           </FormItem>
           <FormItem hasFeedback >
             <TweenOne
@@ -275,11 +275,11 @@ let MyComponent = React.createClass({
               paused={this.state.PwdPaused}
               reverse={this.state.PwdReverse}
               moment={this.state.PwdMoment}
-              style={{ position: "absolute", width: "10%", top: "0" }}
+              style={{ position: 'absolute', width: '10%', top: '0' }}
               >
-              <span className="title">密码</span>
+              <span className='title'>密码</span>
             </TweenOne>
-            <Input {...passwdProps} ref="pwdInput" type="password" autoComplete="off" onFocus={this.inputOnFocus.bind(this, "password")} onBlur={this.inputOnBlur.bind(this, "password")} />
+            <Input {...passwdProps} ref='pwdInput' type='password' autoComplete='off' onFocus={this.inputOnFocus.bind(this, 'password')} onBlur={this.inputOnBlur.bind(this, 'password')} />
           </FormItem>
           <FormItem hasFeedback >
             <TweenOne
@@ -291,12 +291,12 @@ let MyComponent = React.createClass({
               >
               <span>描述</span>
             </TweenOne>
-            <Input {...emailProps} type="textarea" ref="textareaInput" rows="5" />
+            <Input {...emailProps} type='textarea' ref='textareaInput' rows='5' />
           </FormItem>
-          <div className="btnBox">
-            <Button size="large" type="primary" onClick={this.handleSubmit}>确定</Button>
+          <div className='btnBox'>
+            <Button size='large' type='primary' onClick={this.handleSubmit}>确定</Button>
             &nbsp;&nbsp;&nbsp;
-            <Button size="large" onClick={this.handleReset}>取消</Button>
+            <Button size='large' onClick={this.handleReset}>取消</Button>
           </div>
         </Form>
       </div>
@@ -310,8 +310,8 @@ MyComponent = createForm()(MyComponent);
 //   cosnt otherImageList = this.props.otherImageList
 //   let kke = otherImageList.map((list) => {
 //    return (
-//     <li className={current == "otherSpace" ? "titleSelected" : "titleDetail"}
-//       onClick={this.selectCurrentTab.bind(this, "otherSpace", "dockerhub",list.id)}
+//     <li className={current == 'otherSpace' ? 'titleSelected' : 'titleDetail'}
+//       onClick={this.selectCurrentTab.bind(this, 'otherSpace', 'dockerhub',list.id)}
 //       >
 //       <span>list.title</span>
 //     </li>
@@ -327,16 +327,16 @@ class ImageCenter extends Component {
     this.closeAddModal = this.closeAddModal.bind(this);
     this.closeImageDetailModal = this.closeImageDetailModal.bind(this);
     this.state = {
-      current: "imageSpace",
+      current: 'imageSpace',
       // otherSpace: null,
       createModalShow: false,
-      otherSpaceType: "1",
+      otherSpaceType: '1',
       imageDetailModalShow: false,
       otherHead: {},
       otherImageHead:[]
     }
   }
-  componentDidMount() {
+  componentWillMount() {
     this.props.LoadOtherImage({
       success: {
         func: (res) => {
@@ -344,7 +344,8 @@ class ImageCenter extends Component {
             otherImageHead: res.data
           })
 
-        }
+        },
+        isAsync: true
       }
     });
   }
@@ -354,7 +355,7 @@ class ImageCenter extends Component {
     this.setState({
       current: current,
     });
-    if (type != "default") {
+    if (type != 'default') {
       this.setState({
         otherSpace: type
       });
@@ -376,7 +377,7 @@ class ImageCenter extends Component {
     //this function for user add other image store modal
     this.setState({
       createModalShow: true,
-      otherSpaceType: "1"
+      otherSpaceType: '1'
     });
   }
 
@@ -398,53 +399,35 @@ class ImageCenter extends Component {
     const { current, otherSpace } = this.state;
     const { formatMessage } = this.props.intl;
     const scope = this;
-    const otherImageHead = this.state.otherImageHead || []
+    const otherImageHead = this.state.otherImageHead || [];
     return (
-      <QueueAnim className="ImageCenterBox"
-        type="right"
+      <QueueAnim className='ImageCenterBox'
+        type='right'
         >
-        <div id="ImageCenter" key="ImageCenterBox">
-          <Card className="imageList">
-            <ul>
-              <li className={current == "imageSpace" ? "titleSelected" : "titleDetail"}
-                onClick={this.selectCurrentTab.bind(this, "imageSpace")}
-                >
-                <span>私有空间</span>
-              </li>
-              <li className={current == "publicSpace" ? "titleSelected" : "titleDetail"}
-                onClick={this.selectCurrentTab.bind(this, "publicSpace")}
-                >
-                <span>公有空间</span>
-              </li>
-              <li className={current == "myCollection" ? "titleSelected" : "titleDetail"}
-                onClick={this.selectCurrentTab.bind(this, "myCollection")}
-                >
-                <span>我的收藏</span>
-              </li>
-              <li><div style={{ height: '30px', marginTop: '10px', width: '0', borderLeft: '1px solid #d9d9d9' }}></div></li>
-              {otherImageHead.length > 0 && otherImageHead.map(list => {
-                return (
-                  <li className={otherSpace == list.id ? "titleSelected" : "titleDetail"}
-                    onClick={this.selectCurrentTab.bind(this, "otherRegistry", list, list.id)} >
-                    <Icon type="shopping-cart" />&nbsp;
-                  <span>{list.title}</span>
-                  </li>
-                )
-              })
-              }
-              <div style={{ clear: "both" }}></div>
-            </ul>
-            <Button className="addBtn" size="large" type="primary" onClick={this.addImageTab}>
-              <i className="fa fa-plus"></i>&nbsp;
-              添加第三方
-            </Button>
-            <div style={{ clear: "both" }}></div>
-          </Card>
-          {current == "imageSpace" ? [<ImageSpace scope={scope} />] : null}
-          {current == "publicSpace" ? [<PublicSpace scope={scope} />] : null}
-          {current == "myCollection" ? [<MyCollection scope={scope} />] : null}
-          {current == 'otherRegistry' ? [<OtherSpace scope={scope} otherHead={this.state.otherHead} imageId={this.state.otherHead.id} />] : null}
-          <Modal title="添加第三方" className="addOtherSpaceModal" visible={this.state.createModalShow}
+        <div id='ImageCenter' key='ImageCenterBox'>
+          <Tabs 
+            defaultActiveKey='1'
+            tabBarExtraContent={
+              <Button className='addBtn' key='addBtn' size='large' type='primary' onClick={this.addImageTab}>
+                <i className='fa fa-plus'></i>&nbsp;
+                  <span>添加第三方</span>
+              </Button>
+            }
+          >
+            <TabPane tab='私有空间' key='1'><ImageSpace scope={scope} /></TabPane>
+            <TabPane tab='公有空间' key='2'><PublicSpace scope={scope} /></TabPane>
+            <TabPane tab='我的收藏' key='3'><MyCollection scope={scope} /></TabPane>
+            { 
+              otherImageHead.length > 0 ?  otherImageHead.map((list, index) => {
+                  return (
+                    <TabPane tab={<span><Icon type='shopping-cart' />&nbsp;<span>{list.title}</span></span>} key={index + 4}>
+                      <OtherSpace scope={scope} otherHead={list} imageId={list.id} />
+                    </TabPane>
+                  )
+              }) : null
+            }
+          </Tabs>
+          <Modal title='添加第三方' className='addOtherSpaceModal' visible={this.state.createModalShow}
             onCancel={this.closeAddModal}
             >
             <MyComponent scope={scope} addOtherStore={this.props.addOtherStore} />

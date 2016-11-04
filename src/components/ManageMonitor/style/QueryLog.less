@@ -3,6 +3,7 @@
   padding-left: 30px;
   padding-right: 60px;
   #QueryLog {
+    transform: initial !important;
     .ant-popover-arrow {
       display: none;
     }
@@ -22,7 +23,9 @@
     }
     .operaBox {
       margin-top: 10px;
+      padding-bottom: 20px;
       width: 100%;
+      border-bottom: 1px solid #E5E5E5;
       .commonBox {
         margin-top: 20px;
         margin-right: 50px;
@@ -74,6 +77,15 @@
           }
           &:hover {
             border: 1px solid #57c5f7;
+          }
+          .placeholderSpan {
+            color: #dcdcdc;
+          }
+          .selectedSpan {
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
           }
         }
         .cloneSelectInputClick {
@@ -161,11 +173,57 @@
       }
     }
     .logBox {
+      transition: -webkit-transform 0.2s ease;
+      transition: transform 0.2s ease;
       margin-top: 20px;
-      padding-top: 20px;
       border-top: 1px solid #EFEFEF;
       .ant-card-body {
         padding: 0 !important;
+      }
+      .titleBox {
+        width: 100%;
+        height: 40px;
+        line-height: 40px;
+        color: #5CB85C;
+        background-color: #333333;
+        .keywordSpan {
+          padding: 0 15px;
+          display: inline-block;
+          width: auto;
+          height: 40px;
+          line-height: 40px;
+          font-size: 14px;
+          border-bottom: 2px solid #5CB85C;
+        }
+        .fa {
+          float: right;
+          margin-right: 20px;
+          line-height: 40px;
+          font-size: 14px;
+          cursor: pointer;
+        }
+      }
+      .msgBox {
+        width: 100%;
+        height: 500px;
+        overflow-y: auto;
+        background-color: #1A1A1A;
+      }
+    }
+    .bigLogBox {
+      z-index: 100;
+      position: fixed;
+      margin-top: 0px !important;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow-y: auto;
+      .ant-card-body{
+        height: 100%;
+      }
+      .msgBox{
+        height: calc(~"100% - 40px");
       }
     }
   }

@@ -1,3 +1,37 @@
 #TeamManage {
-
+  .ant-alert {
+    color: #187cb7;
+    font-size: 13px;
+    line-height: 26px;
+    border: 1px dashed #88d8fd;
+  }
+  .teamList {
+    margin-bottom: 26px;
+    .ant-card-body {
+      padding: 0;
+      .ant-table {
+        .addBtn {
+          width: 100px;
+          margin-right: 12px;
+          &:hover {
+            background-color: #00a1ea;
+            color: #fff;
+          }
+        }
+        .delBtn {
+          &:hover {
+            background-color: #f75b59;
+            color: #fff;
+            border-color: #f75b59;
+          }
+        }
+        .teamName {
+          padding-left: 24px;
+        }
+      }
+      .ant-table-pagination {
+        margin: 16px 46px;
+      }
+    }
+  }
 }

@@ -21,6 +21,7 @@ import { browserHistory } from 'react-router'
 import RollingUpdateModal from './AppServiceDetail/RollingUpdateModal'
 import ConfigModal from './AppServiceDetail/ConfigModal'
 import ManualScaleModal from './AppServiceDetail/ManualScaleModal'
+import parseDomain from '../parseDomain'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -180,6 +181,7 @@ const MyComponent = React.createClass({
           </Menu.Item>
         </Menu>
       );
+      const svcDomain = parseDomain(item)
       return (
         <div
           className={item.checked ? "selectedInstance instanceDetail" : "instanceDetail"}
@@ -204,8 +206,11 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className="service commonData">
-            <Tooltip title={item.serviceIP ? item.serviceIP : ""}>
-              <span>{item.serviceIP || '-'}</span>
+            <Tooltip title={svcDomain}>
+            {
+              svcDomain ?
+              (<a target="_blank" href={svcDomain}>{svcDomain}</a>) : (<span>-</span>)
+            }
             </Tooltip>
           </div>
           <div className="createTime commonData">

@@ -53,7 +53,7 @@ class Information extends Component{
   }
 
   componentDidMount() {
-    this.props.loadUserDetail("104")
+    this.props.loadUserDetail("default")
   }
 
   render(){

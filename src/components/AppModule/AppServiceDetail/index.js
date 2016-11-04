@@ -26,6 +26,7 @@ import { loadServiceDetail, loadServiceContainerList } from '../../../actions/se
 import CommmonStatus from '../../CommonStatus'
 import './style/AppServiceDetail.less'
 import TerminalModal from '../../TerminalModal'
+import parseDomain from '../../parseDomain'
 
 const DEFAULT_TAB = '#containers'
 const TabPane = Tabs.TabPane;
@@ -170,6 +171,7 @@ class AppServiceDetail extends Component {
         </Link>
       </Menu.Item>
     </Menu>);
+    const svcDomain = parseDomain(service)
     return (
       <div id="AppServiceDetail">
         <div className="titleBox">
@@ -191,7 +193,11 @@ class AppServiceDetail extends Component {
               </span>
               <br />
               <span>
-                地址&nbsp;:&nbsp;{service.serviceIP}
+                地址&nbsp;:&nbsp;
+                {
+                  svcDomain ?
+                  (<a target="_blank" href={svcDomain}>{svcDomain}</a>) : (<span>-</span>)
+                 }
               </span>
               <br />
               <span>
@@ -244,7 +250,7 @@ class AppServiceDetail extends Component {
                   loading={isServiceDetailFetching} />
               </TabPane>
               <TabPane tab="配置组" key="#configgroup">
-                <ComposeGroup 
+                <ComposeGroup
                   serviceDetailmodalShow={serviceDetailmodalShow}
                   serviceName={service.metadata.name}
                   service={serviceDetail}

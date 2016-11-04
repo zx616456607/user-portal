@@ -10,25 +10,17 @@
 import React,{ Component } from 'react'
 import './style/MemberManage.less'
 import { Row, Col, Button, Input, Select, Card, Icon, Table, Modal, Form, Checkbox, Tooltip, } from 'antd'
+import SearchInput from '../../SearchInput'
+import { connect } from 'react-redux'
+import { loadUserList } from '../../../actions/user'
 
-const Option = Select.Option
 const createForm = Form.create;
 const FormItem = Form.Item;
 
-function noop() {
-  return false;
+function loadData(props) {
+  const { loadUserList, users, total, size } = props
+  loadUserList(null)
 }
-
-const data = [
-  {key: '1',name: 'a',tel: '11',email: 'emaila@tenxcloud.com',style: '团队管理员',team: '1',rest: '5',},
-  {key: '2',name: 'ba',tel: '12',email: 'emaila@tenxcloud.com',style: '普通成员',team: '2',rest: '5',},
-  {key: '3',name: 'caa',tel: '13',email: 'emaila@tenxcloud.com',style: '普通成员',team: '1',rest: '5',},
-  {key: '4',name: 'daaa',tel: '14',email: 'emaila@tenxcloud.com',style: '团队管理员',team: '1',rest: '5',},
-  {key: '5',name: 'eaaaa',tel: '15',email: 'emaila@tenxcloud.com',style: '普通成员',team: '2',rest: '5',},
-  {key: '6',name: 'f',tel: '16',email: 'emaila@tenxcloud.com',style: '团队管理员',team: '1',rest: '5',},
-  {key: '7',name: 'g',tel: '17',email: 'emaila@tenxcloud.com',style: '普通成员',team: '2',rest: '5',},
-  {key: '8',name: 'h',tel: '18',email: 'emaila@tenxcloud.com',style: '团队管理员',team: '1',rest: '5',},
-  ];
 
 let MemberTable =  React.createClass({
   getInitialState() {
@@ -52,6 +44,8 @@ let MemberTable =  React.createClass({
   render() {
     let { sortedInfo, filteredInfo } = this.state
     const { searchResult, notFound } = this.props.scope.state
+    const { data } = this.props
+    
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
     let pageTotal = searchResult.length === 0 ? data.length : searchResult.length
@@ -109,8 +103,8 @@ let MemberTable =  React.createClass({
       },
       {
         title: '余额',
-        dataIndex: 'rest',
-        key: 'rest',
+        dataIndex: 'balance',
+        key: 'balance',
         width: 150,
       },
       {
@@ -194,12 +188,12 @@ let NewMemberForm = React.createClass({
     const { form, scope, visible } = this.props
     const { getFieldProps, getFieldError, isFieldValidating } = form
     const text = <span>前台只能添加普通成员</span>
-    const nameProps = getFieldProps('name', {
+    /*const nameProps = getFieldProps('name', {
       rules: [
         { required: true, min: 5, message: '用户名至少为 5 个字符' },
         { validator: this.userExists },
       ],
-    })
+    })*/
     const telProps = getFieldProps('tel', {
       validate: [{
         rules: [
@@ -212,7 +206,7 @@ let NewMemberForm = React.createClass({
         ],
         trigger: ['onBlur', 'onChange'],
       }],
-    });
+    })
     const emailProps = getFieldProps('email', {
       validate: [{
         rules: [
@@ -231,7 +225,7 @@ let NewMemberForm = React.createClass({
         { required: true, whitespace: true, message: '请填写密码' },
         { validator: this.checkPass },
       ],
-    });
+    })
     const rePasswdProps = getFieldProps('rePasswd', {
       rules: [{
         required: true,
@@ -240,12 +234,12 @@ let NewMemberForm = React.createClass({
       }, {
         validator: this.checkPass2,
       }],
-    });
-    const checkProps = getFieldProps('check', {});
+    })
+    const checkProps = getFieldProps('check', {})
     const formItemLayout = {
       labelCol: { span: 7 },
       wrapperCol: { span: 12 },
-    };
+    }
     return (
       <Form horizontal form={this.props.form}>
         <Modal title="添加新成员" visible={visible}
@@ -259,7 +253,14 @@ let NewMemberForm = React.createClass({
             hasFeedback
             help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
           >
-            <Input {...nameProps} placeholder="新成员名称" />
+            <Input {
+              ...getFieldProps('name', {
+                rules: [
+                  { required: true, min: 5, message: '用户名至少为 5 个字符' },
+                  { validator: this.userExists },
+                ],
+              })
+            } placeholder="新成员名称" />
           </FormItem>
           <FormItem
             {...formItemLayout}
@@ -279,7 +280,6 @@ let NewMemberForm = React.createClass({
             hasFeedback
           >
             <Input {...passwdProps} type="password" autoComplete="off"
-                   onContextMenu={noop} onPaste={noop} onCopy={noop} onCut={noop}
                    placeholder="新成员名称登录密码"
             />
           </FormItem>
@@ -289,9 +289,7 @@ let NewMemberForm = React.createClass({
             label="确认密码"
             hasFeedback
           >
-            <Input {...rePasswdProps} type="password" autoComplete="off" placeholder="请再次输入密码确认"
-                   onContextMenu={noop} onPaste={noop} onCopy={noop} onCut={noop}
-            />
+            <Input {...rePasswdProps} type="password" autoComplete="off" placeholder="请再次输入密码确认"/>
           </FormItem>
           <FormItem
             {...formItemLayout}
@@ -322,131 +320,101 @@ let NewMemberForm = React.createClass({
 })
 NewMemberForm = createForm()(NewMemberForm)
 
-export default class MemberManage extends Component {
+class MemberManage extends Component {
   constructor(props){
     super(props)
-    this.handleSearch = this.handleSearch.bind(this)
-    this.handleSelect = this.handleSelect.bind(this)
-    this.handleInt = this.handleInt.bind(this)
     this.showModal = this.showModal.bind(this)
     this.state = {
-      selecteData: [],
-      selecteValue: '',
-      searchValue: '',
       searchResult: [],
       notFound: false,
       visible: false,
     }
   }
-  handleInt(e){
-    const { selecteValue } = this.state
-    
-    if(selecteValue === ''){
-      const selecteData = []
-      data.map((item,index) => {
-        selecteData.push(item['name'])
-      })
-      this.setState({
-        selecteValue:'name',
-        selecteData: selecteData
-      })
-    }
-    let value = e.target.value
-    this.setState({
-      searchValue: value
-    })
-  }
-  handleSearch(){
-    const { selecteData, searchValue, selecteValue } = this.state
-    if(selecteData.length === 0){
-      return
-    } else {
-      let result = []
-      let searchResult= []
-      selecteData.map((item,index) => {
-        let flag = item.indexOf(searchValue)
-        if(flag >= 0){
-          result.push(item)
-        }
-        if(result.length === 0){
-          this.setState({
-            notFound: true
-          })
-        } else {
-          this.setState({
-            notFound: false
-          })
-        }
-      })
-      data.map((item) => {
-        if(result.includes(item[`${selecteValue}`])){
-          searchResult.push(item)
-        }
-      })
-      this.setState({
-        searchResult: searchResult
-      })
-    }
-  }
-  handleSelect(value){
-    const selecteData = []
-    data.map((item,index) => {
-      selecteData.push(item[`${value}`])
-    })
-    this.setState({
-      selecteValue:value,
-      selecteData: selecteData
-    })
-  }
+
   showModal() {
     this.setState({
       visible: true,
-    });
-  }
-  componentWillMount(){
-    this.setState({
-      data: data,
-      selecteData: [],
-      searchResult: data,
     })
   }
+  componentWillMount(){
+    loadData(this.props)
+  }
   render(){
+    const { users } = this.props
     const scope = this
     const { visible } = this.state
-    const selectBefore = (
-      <Select defaultValue="name" style={{ width: 80 }} onChange={this.handleSelect}>
-        <Option value="name">用户名</Option>
-        <Option value="team">团队</Option>
-        <Option value="tel">手机号</Option>
-        <Option value="email">邮箱</Option>
-      </Select>
-    )
+    let data = []
+    if(users.length !== 0){
+      console.log('usersusers',users);
+      users.map((item,index) => {
+        console.log('item',item);
+        data.push(
+          {
+            key: index,
+            name: item.displayName,
+            tel: item.phone,
+            email: item.email,
+            style: item.role,
+            team: '1',
+            balance: item.balance,
+          }
+        )
+      })
+    }
+    const searchIntOption = {
+      width:'280px',
+      position: 'right',
+      addBefore: [
+        {key: 'name', value: '用户名'},
+        {key: 'team', value: '团队'},
+        {key: 'tel', value: '手机号'},
+        {key: 'email', value: '邮箱'},
+      ],
+      defaultValue: 'name',
+      placeholder: '请输入关键词搜索',
+    }
     return (
       <div id="MemberManage">
         <Row>
-          <Button type="primary" size="large" onClick={this.showModal}>
-            <i className="fa fa-plus"/>
+          <Button type="primary" size="large" onClick={this.showModal} icon="plus">
             添加新成员
           </Button>
-            <NewMemberForm visible={visible} scope={scope}/>
-          <div className="ant-search-input-wrapper search">
-            <Input addonBefore={selectBefore}
-                   placeholder="请输入关键词搜索"
-                   onChange={this.handleInt}
-                   onPressEnter={this.handleSearch}/>
-            <div className="ant-input-group-wrap">
-              <Button icon="search"
-                      className='ant-search-btn searchBtn'
-                      onClick={this.handleSearch} />
-            </div>
-          </div>
+          <SearchInput data={data} scope={scope} searchIntOption={searchIntOption}/>
+          <NewMemberForm visible={visible} scope={scope}/>
         </Row>
         <Row className="memberList">
           <Card>
-            <MemberTable scope={scope}/>
+            <MemberTable scope={scope} data={data}/>
           </Card>
         </Row>
       </div>
     )
   }
 }
+
+function mapStateToProp(state) {
+  let usersData = []
+  let total = 0
+  let size = 0
+  const users = state.user.users
+  if (users.result) {
+    if (users.result.users) {
+      usersData = users.result.users
+    }
+    if (users.result.total) {
+      total = users.result.total
+    }
+    if (users.result.count) {
+      size = users.result.size
+    }
+  }
+  return {
+    users: usersData,
+    total,
+    size
+  }
+}
+
+export default connect(mapStateToProp, {
+  loadUserList,
+})(MemberManage)

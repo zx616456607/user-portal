@@ -44,26 +44,28 @@ class API extends Component{
         <Row className="APITitle">时速云开放 API</Row>
         <Row className="APIInfo">以下是用于访问 TenxCloud 开放 API 的 token 信息及相关文档</Row>
         <table className="APITable">
-          <tr>
-            <td className="tableTitle">用户名</td>
-            <td>{namespace}</td>
-          </tr>
-          <tr>
-            <td className="tableTitle">
-              <span style={{marginRight: 10}}>Token</span>
-              <Icon type="eye" onClick={this.handleHidToken}
-                    className={hidToken === 'text'? 'hidToken' : ''}/>
-            </td>
-            <td>
-              <input type={hidToken} value={token} className="tokenInt" disabled/>
-            </td>
-          </tr>
-          <tr>
-            <td className="tableTitle">API 文档</td>
-            <td>
-              <a href="###">打开文档</a>
-            </td>
-          </tr>
+          <tbody>
+            <tr>
+              <td className="tableTitle">用户名</td>
+              <td>{namespace}</td>
+            </tr>
+            <tr>
+              <td className="tableTitle">
+                <span style={{marginRight: 10}}>Token</span>
+                <Icon type="eye" onClick={this.handleHidToken}
+                      className={hidToken === 'text'? 'hidToken' : ''}/>
+              </td>
+              <td>
+                <input type={hidToken} value={token} className="tokenInt" disabled/>
+              </td>
+            </tr>
+            <tr>
+              <td className="tableTitle">API 文档</td>
+              <td>
+                <a href="###">打开文档</a>
+              </td>
+            </tr>
+          </tbody>
         </table>
       </div>
     )

@@ -13,37 +13,32 @@ import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { DEFAULT_REGISTRY } from '../../../constants'
 // import CreateTenxFlow from './CreateTenxFlow.js'
 // import TestModal from '../../TerminalModal'
 import './style/CodeStore.less'
-// import TenxFlowBuildLog from './TenxFlowBuildLog.js'
 
 let testData = [
   {
     'name': 'test1',
-    'updateTime': '1小时前',
+    'updateTime': 1,
     'status': 'finish'
   },
   {
     'name': 'test2',
-    'updateTime': '2小时前',
+    'updateTime': 2,
     'status': 'running'
   },
   {
     'name': 'test3',
-    'updateTime': '3小时前',
+    'updateTime': 1,
     'status': 'finish'
   },
   {
     'name': 'test4',
-    'updateTime': '4小时前',
+    'updateTime': 2,
     'status': 'fail'
   }
 ]
-
-const SubMenu = Menu.SubMenu
-const MenuItemGroup = Menu.ItemGroup
 
 const menusText = defineMessages({
   tooltips: {
@@ -82,6 +77,18 @@ const menusText = defineMessages({
     id: 'CICD.TenxStorm.search',
     defaultMessage: '搜索',
   },
+  copySuccess: {
+    id: 'CICD.TenxStorm.copySuccess',
+    defaultMessage: '复制成功'
+  },
+  copyBtn: {
+    id: 'CICD.TenxStorm.copyBtn',
+    defaultMessage: '复制'
+  },
+  clickCopy: {
+    id: 'CICD.TenxStorm.clickCopy',
+    defaultMessage: '点击复制'
+  }
 })
 
 const MyComponent = React.createClass({
@@ -89,12 +96,54 @@ const MyComponent = React.createClass({
     config: React.PropTypes.array,
     scope: React.PropTypes.object
   },
+  getInitialState() {
+    return { showModal: false ,keyModal: false}
+  },
   operaMenuClick: function (item, e) {
     //this function for user click the dropdown menu
+    switch(e.key) {
+      case '1':
+      this.setState({showModal: true})
+      break;
+      case '2':
+      this.setState({keyModal: true})
+      break;
+      default:
+      this.setState({showModal: true})
+    }
   },
-
+  showItemKeyModal() {
+    this.setState({keyModal: true})
+  },
+  copyDownloadCode() {
+    //this function for user click the copy btn and copy the download code
+    const scope = this;
+    let code = document.getElementsByClassName("CodeCopy");
+    code[0].select();
+    document.execCommand("Copy", false);
+    scope.setState({
+      copySuccess: true
+    });
+  },
+  returnDefaultTooltip() {
+    const scope = this;
+    setTimeout(function () {
+      scope.setState({
+        copySuccess: false
+      });
+    }, 500);
+  },
+  copyItemKey() {
+    const scope = this;
+    let code = document.getElementsByClassName("KeyCopy");
+    code[0].select();
+    document.execCommand("Copy", false);
+    scope.setState({
+      copySuccess: true
+    });
+  },
   render: function () {
-    const { config, scope } = this.props;
+    const { config, scope , formatMessage } = this.props
     let items = config.map((item) => {
       const dropdown = (
         <Menu onClick={this.operaMenuClick.bind(this, item)}
@@ -105,12 +154,14 @@ const MyComponent = React.createClass({
             WebHook
           </Menu.Item>
           <Menu.Item key='2'>
-            <i className='fa fa-trash' />&nbsp;
+            <span><i className='fa fa-trash' />&nbsp;
             <FormattedMessage {...menusText.show} />
+            </span>
           </Menu.Item>
           <Menu.Item key='3'>
-            <i className='fa fa-trash' />&nbsp;
+            <span><i className='fa fa-trash' />&nbsp;
             <FormattedMessage {...menusText.releaseActivation} />
+            </span>
           </Menu.Item>
         </Menu>
       );
@@ -121,14 +172,28 @@ const MyComponent = React.createClass({
               <span>{item.name}</span>
             </Link>
           </div>
-          <div className='type'>
-            <span>{item.updateTime}</span>
-          </div>
+          {item.updateTime == 2 ? 
+            <div className='type private'>
+              <i className="fa fa-unlock-alt"></i>&nbsp;
+              <span className="margin">public</span>
+              <Button type="ghost" onClick={this.showItemKeyModal}><i className="fa fa-eye"></i> 查看公钥</Button>
+            </div>
+          :
+            <div className="type public">
+              <i className="fa fa-lock"></i>&nbsp;
+              <span className="margin">private</span>
+              
+            </div>
+          }
           <div className='codelink'>
             {item.status}
           </div>
           <div className='action'>
-
+          
+            <Dropdown.Button overlay={dropdown} type='ghost'>
+              <i className='fa fa-pencil-square-o' />&nbsp;
+              <FormattedMessage {...menusText.releaseActivation} />
+            </Dropdown.Button>
           </div>
         </div>
       );
@@ -136,6 +201,42 @@ const MyComponent = React.createClass({
     return (
       <div className='CodeStore'>
         {items}
+
+        <Modal title="手动添加WebHook" visible={this.state.showModal}
+         footer={[
+            <Button key="back" type="ghost" size="large" onClick={()=>{this.setState({showModal: false})}}>关闭</Button>,
+          ]}
+         >
+          <div style={{padding:"0 20px"}}>
+            <p style={{lineHeight:'30px'}}>检测到关联的代码托管系统： XXX仓库， API老旧请手动：</p>
+            <p style={{lineHeight:'40px'}}>* 将该URL填入到github 项目的Web Hooks URLk</p>
+            <p><Input type="textarea" className="CodeCopy" autosize={{ minRows: 2, maxRows: 6 }} defaultValue="http://gitlab.tenxcloud.com/zhangpc/user-portal/commits/dev-branch"/></p>
+            <p style={{marginTop:'10px'}}>
+            <Tooltip title={this.state.copySuccess ? formatMessage(menusText.copySuccess) : formatMessage(menusText.clickCopy)} placement="right">
+              <Button type="primary" size="large" onClick={this.copyDownloadCode} onMouseLeave={this.returnDefaultTooltip}><FormattedMessage {...menusText.copyBtn} /></Button>
+            </Tooltip>
+          </p>
+          </div>
+        </Modal>
+
+        <Modal title="项目公钥" visible={this.state.keyModal}
+         footer={[
+            <Button key="back" type="ghost" size="large" onClick={()=>{this.setState({keyModal: false})}}>关闭</Button>,
+          ]}
+         >
+          <div style={{padding:"0 20px"}}>
+            <p style={{lineHeight:'30px'}}>检测到关联的代码托管系统：</p>
+            <p style={{lineHeight:'40px'}}><span style={{color:'#00A0EA'}} className="name">zubis 仓库</span>  <span style={{color:'#00A0EA'}} className="type">属性：私有</span> </p>
+
+            <p style={{lineHeight:'40px'}}>* 请手动配置一下公钥到github 项目中</p>
+            <p style={{marginBottom: '10px'}}><Input type="textarea" className="KeyCopy" autosize={{ minRows: 2, maxRows: 6 }} defaultValue="ssssss-keyvalueslfjsldfldsflkdjsfjdsfdsfkldsfhttp://gitlab.tenxcloud.comanch"/></p>
+            <p style={{lineHeight:'40px'}}>
+            <Tooltip title={this.state.copySuccess ? formatMessage(menusText.copySuccess) : formatMessage(menusText.clickCopy)} placement="right">
+              <Button type="primary" size="large" onClick={this.copyItemKey} onMouseLeave={this.returnDefaultTooltip}><FormattedMessage {...menusText.copyBtn} /></Button>
+            </Tooltip>
+          </p>
+          </div>
+        </Modal>
       </div>
     );
   }
@@ -144,9 +245,6 @@ const MyComponent = React.createClass({
 class CodeStore extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      createTenxFlowModal: false
-    }
   }
 
   componentWillMount() {
@@ -164,10 +262,12 @@ class CodeStore extends Component {
         <div id='CodeStore' key='CodeStore'>
           <Alert message={<FormattedMessage {...menusText.tooltips} />} type='info' />
           <div className='operaBox'>
-            <Button className='createBtn' size='large' type='primary' onClick={this.openCreateTenxFlowModal}>
+            <Link to="/ci_cd/coderepo">
+            <Button className='createBtn' size='large' type='primary'>
               <i className='fa fa-plus' />&nbsp;
               <FormattedMessage {...menusText.linkCode} />
             </Button>
+            </Link>
             <Input className='searchBox' placeholder={formatMessage(menusText.search)} type='text' />
             <i className='fa fa-search'></i>
             <div style={{ clear: 'both' }}></div>
@@ -179,6 +279,7 @@ class CodeStore extends Component {
               </div>
               <div className='type'>
                 <FormattedMessage {...menusText.attr} />
+                <i className="fa fa-filter" aria-hidden="true"></i>
               </div>
               <div className='codelink'>
                 <FormattedMessage {...menusText.codeSrc} />
@@ -187,22 +288,10 @@ class CodeStore extends Component {
                 <FormattedMessage {...menusText.action} />
               </div>
             </div>
-            <MyComponent scope={scope} config={testData} />
+            <MyComponent scope={scope} formatMessage={formatMessage} config={testData} />
           </Card>
         </div>
-        <Modal
-          visible={this.state.createTenxFlowModal}
-          className='AppServiceDetail'
-          transitionName='move-right'
-          onCancel={this.closeCreateTenxFlowModal}
-          >
-        </Modal>
-        <Modal
-          visible={this.state.TenxFlowDeployLogModal}
-          className='TenxFlowBuildLogModal'
-          onCancel={this.closeTenxFlowDeployLogModal}
-          >
-        </Modal>
+      
       </QueueAnim>
     )
   }
