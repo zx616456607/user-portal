@@ -79,8 +79,6 @@ export default class SearchInput extends Component{
           searchResult.push(item)
         }
       })
-      console.log('searchValue',searchValue);
-      console.log('searchResult',searchResult);
       scope.setState({
         searchResult: searchResult
       })
