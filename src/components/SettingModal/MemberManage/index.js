@@ -171,8 +171,24 @@ let NewMemberForm = React.createClass({
       if (!!errors) {
         return;
       }
-      scope.setState({
-        visible: false,
+      const { name, passwd, email, tel, check, } = values
+      let newUser = {
+        userName: name,
+        password: passwd,
+        email: email,
+        phone: tel,
+        sendEmail: check,
+      }
+      scope.props.createUser(newUser,{
+        success: {
+          func: () => {
+            console.log('create success !!');
+            scope.setState({
+              visible: false,
+            })
+          },
+          isAsync: true
+        },
       })
     });
   },
@@ -201,7 +217,7 @@ let NewMemberForm = React.createClass({
         trigger: 'onBlur',
       }, {
         rules: [
-          { type: 'email', message: '请输入正确的邮箱地址' },
+          { length:'11' ,message: '请输入正确的手机号' },
         ],
         trigger: ['onBlur', 'onChange'],
       }],
@@ -401,7 +417,7 @@ function mapStateToProp(state) {
   return {
     users: usersData,
     total,
-    size
+    size,
   }
 }
 

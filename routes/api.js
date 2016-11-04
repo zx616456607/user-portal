@@ -90,6 +90,7 @@ module.exports = function (Router) {
   router.get('/users/:user_id/teams', userController.getUserTeams)
   router.get('/users/:user_id/teamspaces', userController.getUserTeamspaces)
   router.post('/users', userController.createUser)
+  router.delete('/users/:user_id', userController.deleteUser)
 
   // Teams
   router.get('/teams/:team_id/spaces', teamController.getUserTeamspaces)
