@@ -67,45 +67,6 @@ const MyComponent = React.createClass({
       currentShowInstance: item
     });
   },
-  onShowSizeChange: function (page, size) {
-    if (size === this.props.size) {
-      return
-    }
-    const query = {}
-    if (page !== DEFAULT_PAGE) {
-      query.page = page
-    }
-    if (size !== DEFAULT_PAGE_SIZE) {
-      query.size = size
-    }
-    const { name } = this.props
-    if (name) {
-      query.name = name
-    }
-    const { pathname } = this.props
-    browserHistory.push({
-      pathname,
-      query
-    })
-  },
-  onPageChange: function (page) {
-    if (page === this.props.page) {
-      return
-    }
-    const { pathname, size, name } = this.props
-    const query = {}
-    if (page !== DEFAULT_PAGE) {
-      query.page = page
-      query.size = size
-    }
-    if (name) {
-      query.name = name
-    }
-    browserHistory.push({
-      pathname,
-      query
-    })
-  },
   serviceOperaClick(item, e) {
     const { scope } = this.props
     scope.setState({
@@ -207,10 +168,10 @@ const MyComponent = React.createClass({
           </div>
           <div className="service commonData">
             <Tooltip title={svcDomain}>
-            {
-              svcDomain ?
-              (<a target="_blank" href={svcDomain}>{svcDomain}</a>) : (<span>-</span>)
-            }
+              {
+                svcDomain ?
+                  (<a target="_blank" href={svcDomain}>{svcDomain}</a>) : (<span>-</span>)
+              }
             </Tooltip>
           </div>
           <div className="createTime commonData">
@@ -259,6 +220,8 @@ class AppServiceList extends Component {
     // this.showRollingUpdateModal = this.showRollingUpdateModal.bind(this)
     // this.showConfigModal = this.showConfigModal.bind(this)
     // this.showManualScaleModal = this.showManualScaleModal.bind(this)
+    this.onPageChange = this.onPageChange.bind(this)
+    this.onShowSizeChange = this.onShowSizeChange.bind(this)
     this.state = {
       modalShow: false,
       currentShowInstance: null,
@@ -458,6 +421,48 @@ class AppServiceList extends Component {
       manualScaleModalShow: true
     })
   }*/
+
+  onShowSizeChange(page, size) {
+    if (size === this.props.size) {
+      return
+    }
+    const query = {}
+    if (page !== DEFAULT_PAGE) {
+      query.page = page
+    }
+    if (size !== DEFAULT_PAGE_SIZE) {
+      query.size = size
+    }
+    const { name } = this.props
+    if (name) {
+      query.name = name
+    }
+    const { pathname } = this.props
+    browserHistory.push({
+      pathname,
+      query
+    })
+  }
+
+  onPageChange(page) {
+    if (page === this.props.page) {
+      return
+    }
+    const { pathname, size, name } = this.props
+    const query = {}
+    if (page !== DEFAULT_PAGE) {
+      query.page = page
+      query.size = size
+    }
+    if (name) {
+      query.name = name
+    }
+    browserHistory.push({
+      pathname,
+      query
+    })
+  }
+
   render() {
     const parentScope = this
     let {
@@ -538,20 +543,18 @@ class AppServiceList extends Component {
               </Button>
             </Dropdown>
             <div className='rightBox'>
+              <span className='totalPage'>共{total}条</span>
               <div className="paginationBox">
                 <Pagination
                   className="inlineBlock"
                   simple
-                  showSizeChanger
-                  showQuickJumper
-                  onShowSizeChange={this.onShowSizeChange}
                   onChange={this.onPageChange}
-                  defaultCurrent={page}
+                  onShowSizeChange={this.onShowSizeChange}
+                  current={page}
                   pageSize={size}
-                  showTotal={total => `共 ${total} 条`}
                   total={total} />
-                </div>
               </div>
+            </div>
           </div>
           <div className="appTitle">
             <div className="selectIconTitle commonTitle">
@@ -578,8 +581,10 @@ class AppServiceList extends Component {
             <div style={{ clear: "both" }}></div>
           </div>
           <MyComponent
-            size={size} total={total} pathname={pathname} page={page} name={name}
-            scope={parentScope} serviceList={serviceList} loading={isFetching} />
+            name={name}
+            scope={parentScope}
+            serviceList={serviceList}
+            loading={isFetching} />
           <Modal
             title="垂直居中的对话框"
             visible={this.state.modalShow}

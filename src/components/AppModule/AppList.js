@@ -94,29 +94,8 @@ const MyComponent = React.createClass({
     }
     confirmDeleteApps([app])
   },
-  onShowSizeChange: function (page, size) {
-    if (size === this.props.size) {
-      return
-    }
-    const query = {}
-    if (page !== DEFAULT_PAGE) {
-      query.page = page
-    }
-    if (size !== DEFAULT_PAGE_SIZE) {
-      query.size = size
-    }
-    const { name } = this.props
-    if (name) {
-      query.name = name
-    }
-    const { pathname } = this.props
-    browserHistory.push({
-      pathname,
-      query
-    })
-  },
   render: function () {
-    const { config, loading, page, size, total } = this.props
+    const { config, loading } = this.props
     if (loading) {
       return (
         <div className='loadingBox'>
@@ -228,6 +207,7 @@ class AppList extends Component {
     this.batchRestartApps = this.batchRestartApps.bind(this)
     this.searchApps = this.searchApps.bind(this)
     this.onPageChange = this.onPageChange.bind(this)
+    this.onShowSizeChange = this.onShowSizeChange.bind(this)
     this.state = {
       appList: props.appList,
       searchInputValue: props.name,
@@ -393,7 +373,7 @@ class AppList extends Component {
       query
     })
   }
-  
+
   onPageChange(page) {
     if (page === this.props.page) {
       return
@@ -407,6 +387,28 @@ class AppList extends Component {
     if (name) {
       query.name = name
     }
+    browserHistory.push({
+      pathname,
+      query
+    })
+  }
+
+  onShowSizeChange(page, size) {
+    if (size === this.props.size) {
+      return
+    }
+    const query = {}
+    if (page !== DEFAULT_PAGE) {
+      query.page = page
+    }
+    if (size !== DEFAULT_PAGE_SIZE) {
+      query.size = size
+    }
+    const { name } = this.props
+    if (name) {
+      query.name = name
+    }
+    const { pathname } = this.props
     browserHistory.push({
       pathname,
       query
@@ -479,7 +481,8 @@ class AppList extends Component {
                   simple
                   className='inlineBlock'
                   onChange={this.onPageChange}
-                  defaultCurrent={page}
+                  onShowSizeChange={this.onShowSizeChange}
+                  current={page}
                   pageSize={size}
                   total={total} />
               </div>
@@ -517,9 +520,11 @@ class AppList extends Component {
               </div>
             </div>
             <MyComponent
-              size={size} total={total} pathname={pathname} page={page} name={name}
-              config={appList} loading={isFetching}
-              parentScope={scope} funcs={funcs} />
+              name={name}
+              config={appList}
+              loading={isFetching}
+              parentScope={scope}
+              funcs={funcs} />
           </Card>
         </div>
       </QueueAnim>
