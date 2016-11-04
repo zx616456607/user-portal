@@ -26,7 +26,7 @@ import { loadServiceDetail, loadServiceContainerList } from '../../../actions/se
 import CommmonStatus from '../../CommonStatus'
 import './style/AppServiceDetail.less'
 import TerminalModal from '../../TerminalModal'
-import { ANNOTATION_SVC_DOMAIN } from '../../../constants'
+import parseDomain from '../../parseDomain'
 
 const DEFAULT_TAB = '#containers'
 const TabPane = Tabs.TabPane;
@@ -137,14 +137,6 @@ class AppServiceDetail extends Component {
     funcs.confirmDeleteServices([service])
   }
 
-  parseServiceDomain(item) {
-    let domain = ""
-    if (item.metadata.annotations && item.metadata.annotations[ANNOTATION_SVC_DOMAIN]) {
-      domain = item.metadata.annotations[ANNOTATION_SVC_DOMAIN]
-    }
-    return domain
-  }
-
   render() {
     const parentScope = this
     const {
@@ -179,6 +171,7 @@ class AppServiceDetail extends Component {
         </Link>
       </Menu.Item>
     </Menu>);
+    const svcDomain = parseDomain(service)
     return (
       <div id="AppServiceDetail">
         <div className="titleBox">
@@ -200,7 +193,11 @@ class AppServiceDetail extends Component {
               </span>
               <br />
               <span>
-                地址&nbsp;:&nbsp;{this.parseServiceDomain(service)}
+                地址&nbsp;:&nbsp;
+                {
+                  svcDomain ?
+                  (<a target="_blank" href={svcDomain}>{svcDomain}</a>) : (<span>-</span>)
+                 }
               </span>
               <br />
               <span>

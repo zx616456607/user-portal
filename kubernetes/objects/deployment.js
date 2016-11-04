@@ -46,28 +46,37 @@ class Deployment {
 
   importFromK8SDeployment(k8sDeployment) {
     if (k8sDeployment.metadata) {
+      let metadata = {}
       if (k8sDeployment.metadata.name) {
-        this.metadata.name = k8sDeployment.metadata.name
+        metadata.name = k8sDeployment.metadata.name
       }
       if (k8sDeployment.metadata.labels) {
+        let labels = {}
         for (let key in k8sDeployment.metadata.labels) {
           //Remove tenxcloud added labels
           if (key.indexOf(TENXCLOUD_PREFIX) != 0) {
-            this.metadata.labels[key] = k8sDeployment.metadata.labels[key]
+            labels[key] = k8sDeployment.metadata.labels[key]
           }
         }
+        if (Object.keys(labels).length > 0) {
+          metadata.labels = labels
+        }
+      }
+      if (Object.keys(metadata).length > 0) {
+        this.metadata = metadata
       }
     }
 
     if (k8sDeployment.spec) {
+      let spec = {}
       if (k8sDeployment.spec.replicas) {
-        this.spec.replicas = k8sDeployment.spec.replicas
+        spec.replicas = k8sDeployment.spec.replicas
       }
       if (k8sDeployment.spec.selector) {
-        this.spec.selector = k8sDeployment.spec.selector
+        spec.selector = k8sDeployment.spec.selector
       }
       if (k8sDeployment.spec.template) {
-        this.spec.template = k8sDeployment.spec.template
+        let template = {}
         if (k8sDeployment.spec.template.metadata) {
           let metadata = {}
           for (let key in k8sDeployment.spec.template.metadata) {
@@ -76,8 +85,7 @@ class Deployment {
               metadata[key] = k8sDeployment.spec.template.metadata[key]
             }
           }
-          this.spec.template.metadata = metadata
-
+        
           if (k8sDeployment.spec.template.metadata.labels) {
             let labels = {}
             for (let key in k8sDeployment.spec.template.metadata.labels) {
@@ -86,10 +94,18 @@ class Deployment {
                 labels[key] = k8sDeployment.spec.template.metadata.labels[key]
               }
             }
-            this.spec.template.metadata.labels = labels
+            if (Object.keys(labels).length > 0) {
+              metadata.labels = labels
+            }
           }
+          if (Object.keys(metadata).length > 0) {
+            template.metadata = metadata
+          }
+        }
 
-          if (k8sDeployment.spec.template.spec && k8sDeployment.spec.template.spec.volumes) {
+        if (k8sDeployment.spec.template.spec) {
+          let spec = {}
+          if (k8sDeployment.spec.template.spec.volumes) {
             let volumes = []
             for (let vol of k8sDeployment.spec.template.spec.volumes) {
               let volume = {name: vol.name}
@@ -98,10 +114,82 @@ class Deployment {
                 volume.rbd = {image: strs[strs.length-1]}
               }
               volumes.push(volume)
-             }
-             this.spec.template.spec.volumes = volumes
+            }
+            if (Object.keys(volumes).length > 0) {
+              spec.volumes = volumes
+            }
+          }
+
+          if (k8sDeployment.spec.template.spec.containers) {
+            let containers = []
+
+            for (let ct of k8sDeployment.spec.template.spec.containers) {
+              let container = {}
+              if (ct.name) {
+                container.name = ct.name
+              }
+              if (ct.image) {
+                container.image = ct.image
+              }
+              if (ct.ports) {
+                container.ports = ct.ports
+              }
+              if (ct.env) {
+                container.env = ct.env
+              }
+              if (ct.command) {
+                container.command = ct.command
+              }
+              if (ct.args) {
+                container.args = ct.args
+              }
+              if (ct.resources) {
+                let resources = {}
+                if (ct.resources.limits)  {
+                  let limits = {}
+                  if (ct.resources.limits.memory) {
+                      limits.memory = ct.resources.limits.memory
+                  }
+                  if (Object.keys(limits).length > 0) {
+                    resources.limits = limits
+                  }
+                }
+                if (ct.resources.requests)  {
+                  let requests = {}
+                  if (ct.resources.requests.cpu) {
+                      requests.cpu = ct.resources.requests.cpu
+                  }
+                  if (ct.resources.requests.memory) {
+                      requests.memory = ct.resources.requests.memory
+                  }
+                  if (Object.keys(requests).length > 0) {
+                    resources.requests = requests
+                  }
+                }
+                if (Object.keys(resources).length > 0) {
+                  container.resources = resources
+                } 
+              }
+              if (Object.keys(container).length > 0) {
+                containers.push(container)
+              }
+            }
+            if (containers.length > 0) {
+              spec.containers = containers
+            }
+          }
+        
+          if (Object.keys(spec).length > 0) {
+            template.spec = spec
           }
         }
+        
+        if (Object.keys(template).length > 0) {
+          spec.template = template
+        }
+      }
+      if (Object.keys(spec).length > 0) {
+        this.spec = spec
       }
     }
   }

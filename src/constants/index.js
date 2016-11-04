@@ -62,4 +62,3 @@ export const TEST_MONITOR_OPTION = {
     }
   ]
 }
-export const ANNOTATION_SVC_DOMAIN = "tenxcloud.com/tenxDomain"

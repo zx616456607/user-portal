@@ -17,11 +17,12 @@ export default class PopSelect extends Component {
     super(props)
     this.handleSearch = this.handleSearch.bind(this)
     this.setValue = this.setValue.bind(this)
+    this.handleVisibleChange = this.handleVisibleChange.bind(this)
     this.state = {
-      spaceVisible: false,
       selectValue: '',
       focus: false,
       list: [],
+      visible: false,
     }
   }
   handleSearch(e) {
@@ -64,6 +65,9 @@ export default class PopSelect extends Component {
     this.setState({
       list
     })
+  }
+  handleVisibleChange(visible) {
+    this.setState({ visible })
   }
   render() {
     const { btnStyle, loading } = this.props
@@ -109,20 +113,28 @@ export default class PopSelect extends Component {
         </div>
       </div>
     )
+    const { visible } = this.state
+    const rotate = visible ? 'rotate180' : 'rotate0'
     return (
       <div className="PopSelect">
-        <Popover placement="bottomLeft" title={text} content={content} trigger="click"
+        <Popover
+          placement="bottomLeft"
+          title={text}
+          content={content}
+          trigger="click"
+          visible={this.state.visible}
+          onVisibleChange={this.handleVisibleChange}
           getTooltipContainer={() => document.getElementsByClassName('PopSelect')[0]}>
           {
             btnStyle ?
               <Button className='popBtn'>
-                <i className="fa fa-sitemap" style={{ float: 'left', marginTop: '3px' }} />
+                <i className="fa fa-sitemap icon" />
                 {selectValue}
-                <Icon type="down" />
+                <Icon type="down" className={rotate} />
               </Button> :
               <a className="ant-dropdown-link lineBtn" href="#">
                 {selectValue}
-                <Icon type="down" />
+                <Icon type="down" className={rotate} />
               </a>
           }
         </Popover>

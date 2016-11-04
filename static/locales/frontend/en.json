@@ -152,6 +152,13 @@
   "CICD.TenxStorm.creageCodeStore": "创建代码仓库",
   "CICD.TenxStorm.logout": "Logout",
 
+  "CICD.DockerFile.tooltips": "云端DockerFile: 这里保存您在TenxFlow过程中创建的云端Dockerfile，方便再次查看或使用。（这里以使用Dockerfiler，对应TenxFlow子项目名称作为识别标识）",
+  "CICD.DockerFile.show": "Show DockerFile",
+  "CICD.DockerFile.editDockerFile":"Edit DockerFile",
+  "CICD.DockerFile.itemName":"Item Name",
+  "CICD.DockerFile.editTime":"Edit Time",
+  "CICD.DockerFile.action":"Action",
+  "CICD.DockerFile.search":"Search",
 
   "CICD.Tenxflow.TenxFlowList.search": "Search",
   "CICD.Tenxflow.TenxFlowList.name": "Name",
