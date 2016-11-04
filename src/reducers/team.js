@@ -25,6 +25,11 @@ export default function team(state = {
       REQUEST: ActionTypes.TEAMSPACE_LIST_REQUEST,
       SUCCESS: ActionTypes.TEAMSPACE_LIST_SUCCESS,
       FAILURE: ActionTypes.TEAMSPACE_LIST_FAILURE
-    }, state.teamspaces, action)
+    }, state.teamspaces, action),
+    teamusers: reducerFactory({
+      REQUEST: ActionTypes.TTEAMUSER_LIST_REQUEST,
+      SUCCESS: ActionTypes.TTEAMUSER_LIST_SUCCESS,
+      FAILURE: ActionTypes.TTEAMUSER_LIST_FAILURE
+    }, state.teamusers, action)
   }
 }
