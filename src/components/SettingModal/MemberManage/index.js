@@ -41,15 +41,29 @@ let MemberTable =  React.createClass({
       notFound: false,
     })
   },
+  delMember(record){
+    console.log('delmember !',record);
+    const { scope } = this.props
+    scope.props.deleteUser(record.key,{
+      success: {
+        func: () => {
+          console.log('del !');
+        },
+        isAsync: true
+      },
+    })
+    scope.props.loadUserList(null)
+  },
   render() {
     let { sortedInfo, filteredInfo } = this.state
     const { searchResult, notFound } = this.props.scope.state
     const { data } = this.props
+    console.log('listdata',data);
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
-    let pageTotal = searchResult.length === 0 ? data.length : searchResult.length
+    // let pageTotal = searchResult.length === 0 ? data.length : searchResult.length
     const pagination = {
-      total: pageTotal,
+      total: this.props.scope.props.total,
       showSizeChanger: true,
       defaultPageSize: 5,
       pageSizeOptions: ['5','10','15','20'],
@@ -111,13 +125,16 @@ let MemberTable =  React.createClass({
         dataIndex: 'operation',
         key: 'operation',
         width: 180,
-        render: (text, record) => (
+        render: (text, record,index) => (
           <div>
             <Button icon="setting" className="setBtn">管理</Button>
-            <Button icon="delete" className="delBtn">删除</Button>
+            <Button icon="delete" className="delBtn" onClick={() => this.delMember(record)}>
+              删除
+            </Button>
           </div>
         ),
-      },]
+      },
+    ]
     if(notFound){
       return (
         <div id="notFound">
@@ -186,6 +203,7 @@ let NewMemberForm = React.createClass({
         sendEmail: check,
       }
       let newItem = {
+        key: scope.state.memberList.length,
         name: name,
         tel: tel,
         email: email,
@@ -199,7 +217,10 @@ let NewMemberForm = React.createClass({
             scope.setState({
               visible: false,
             })
-            scope.state.memberList.push(newItem)
+            // scope.state.memberList.push(newItem)
+
+            scope.props.loadUserList(null)
+            console.log('loadUserList',scope.props.users);
           },
           isAsync: true
         },
@@ -340,7 +361,7 @@ let NewMemberForm = React.createClass({
     )
   },
 })
-
+NewMemberForm = createForm()(NewMemberForm)
 class MemberManage extends Component {
   constructor(props){
     super(props)
@@ -352,7 +373,6 @@ class MemberManage extends Component {
       memberList: [],
     }
   }
-
   showModal() {
     this.setState({
       visible: true,
@@ -363,16 +383,17 @@ class MemberManage extends Component {
     
   }
   componentWillReceiveProps(nextProps){
-    const { users } = this.props
+    /*const { users } = this.props
     if(users.length === 0){
       return
     }
     this.setState({
       memberList: nextProps.users
-    })
+    })*/
   }
   render(){
     const { users } = this.props
+    console.log('users',users);
     const scope = this
     const { visible, memberList } = this.state
     const searchIntOption = {
@@ -393,12 +414,12 @@ class MemberManage extends Component {
           <Button type="primary" size="large" onClick={this.showModal} icon="plus" className="addBtn">
             添加新成员
           </Button>
-          <SearchInput data={memberList} scope={scope} searchIntOption={searchIntOption}/>
+          <SearchInput data={users} scope={scope} searchIntOption={searchIntOption}/>
           <NewMemberForm visible={visible} scope={scope}/>
         </Row>
         <Row className="memberList">
           <Card>
-            <MemberTable scope={scope} data={memberList.length === 0? users: memberList}/>
+            <MemberTable scope={scope} data={users}/>
           </Card>
         </Row>
       </div>
@@ -414,15 +435,17 @@ function mapStateToProp(state) {
   const users = state.user.users
   if (users.result) {
     if (users.result.users) {
+
       usersData = users.result.users
+      console.log('usersData',usersData);
       usersData.map((item,index) => {
         data.push(
           {
-            key: index,
+            key: item.userID,
             name: item.displayName,
             tel: item.phone,
             email: item.email,
-            style: item.role,
+            style: item.role === 1?'团队管理员':'普通成员',
             team: '1',
             balance: item.balance,
           }

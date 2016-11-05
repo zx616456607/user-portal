@@ -172,7 +172,6 @@ function fetchDeleteUser(userID, callback) {
     callback
   }
 }
-
 // Delete user from API
 // Relies on Redux Thunk middleware.
 export function deleteUser(userID, callback) {
