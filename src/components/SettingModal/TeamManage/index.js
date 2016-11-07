@@ -67,7 +67,7 @@ let TeamTable = React.createClass({
         width: '20%',
         className: 'teamName',
         render: (text,record,index) => (
-          <Link to={`setting/detail/${text}`}>{text}</Link>
+          <Link to={`/setting/detail/${text}`}>{text}</Link>
         )
       },
       {
