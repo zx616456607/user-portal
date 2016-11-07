@@ -44,9 +44,9 @@ module.exports = function (server, redis) {
       const keys = Object.getOwnPropertyNames(headers)
       const sys = os.type()
       let switchLine = '\n';
-      if (sys.toLowerCase().indexOf('windows') >= 0) {
-        switchLine = '\r\n';
-      }
+      // if (sys.toLowerCase().indexOf('windows') >= 0) {
+      //   switchLine = '\r\n';
+      // }
       let response = [`HTTP/${res.httpVersion} ${res.statusCode} ${res.statusMessage}${switchLine}`]
       keys.forEach(key => {
         response.push(`${key}: ${headers[key]}${switchLine}`)
