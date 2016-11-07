@@ -127,3 +127,15 @@ exports.createTeam = function* () {
     data: result
   }
 }
+
+exports.deleteTeam = function* () {
+  const teamID = this.params.team_id
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  
+  const result = yield api.teams.delete(teamID)
+
+  this.body = {
+    data: result
+  }
+}
