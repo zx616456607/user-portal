@@ -17,7 +17,6 @@ import ContainerDetailGraph from "./ContainerGraph.js"
 import ContainerDetailLog from "./ContainerLog.js"
 import "./style/ContainerDetail.less"
 import { loadContainerDetail, deleteContainers } from '../../actions/app_manage'
-import { DEFAULT_CLUSTER } from '../../constants'
 import ContainerMonitior from './ContainerMonitior'
 import TerminalModal from '../TerminalModal'
 import { browserHistory } from 'react-router'
@@ -215,7 +214,7 @@ ContainerDetail.propTypes = {
 
 function mapStateToProps(state, props) {
   const { container_name } = props.params
-  const cluster = DEFAULT_CLUSTER
+  const { cluster } = state.entities.current
   const defaultContainer = {
     isFetching: false,
     cluster,

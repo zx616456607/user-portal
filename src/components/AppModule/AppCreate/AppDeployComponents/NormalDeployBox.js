@@ -11,7 +11,7 @@ import React, { Component, PropTypes } from 'react'
 import { Form, Select, Input, InputNumber, Modal, Checkbox, Button, Card, Menu, Switch, Icon, Spin, message } from 'antd'
 import { connect } from 'react-redux'
 import filter from 'lodash/filter'
-import { DEFAULT_REGISTRY, DEFAULT_CLUSTER } from '../../../../constants'
+import { DEFAULT_REGISTRY } from '../../../../constants'
 import { loadImageDetailTag, loadImageDetailTagConfig } from '../../../../actions/app_center'
 import { checkServiceName } from '../../../../actions/app_manage'
 import { loadFreeVolume, createStorage } from '../../../../actions/storage'
@@ -192,7 +192,7 @@ let MyComponent = React.createClass({
         </div>
       )
     } else {
-      if(!getFieldProps('volumeKey').value) {
+      if (!getFieldProps('volumeKey').value) {
         getFieldProps('volumeKey', {
           initialValue: mountPath.map((i, index) => { return index + 1 }),
         });
@@ -204,12 +204,12 @@ let MyComponent = React.createClass({
             {
               mountPath[k - 1] ?
                 <span type='text' className="url">
-                  <Input className="hide"  value={(function(){
-                    if(!getFieldProps(`volumePath${k}`).value) {
-                      getFieldProps(`volumePath${k}`, {initialValue: mountPath[k-1]})
+                  <Input className="hide" value={(function () {
+                    if (!getFieldProps(`volumePath${k}`).value) {
+                      getFieldProps(`volumePath${k}`, { initialValue: mountPath[k - 1] })
                     }
                     return mountPath
-                  })()}/>
+                  })()} />
                   {mountPath[k - 1]}
                 </span> :
                 <Input {...getFieldProps(`volumePath${k}`) } className="urlInt" />
@@ -361,10 +361,10 @@ let NormalDeployBox = React.createClass({
       if (!/^[a-z][a-z0-9-]{2,24}$/.test(value)) {
         callback([new Error('抱歉，该服务名称不合法.')])
       } else {
-        if(!isCreate){
+        if (!isCreate) {
           const oldServiceName = this.props.form.getFieldProps('name').value
           servicesList.map((service) => {
-            if((value !== oldServiceName) && (service.id === value)){
+            if ((value !== oldServiceName) && (service.id === value)) {
               callback([new Error('服务名称已经存在')])
               return
             }
@@ -563,7 +563,7 @@ let NormalDeployBox = React.createClass({
                 />
               <span className="stateSpan">{form.getFieldValue('volumeSwitch') ? "有状态服务" : "无状态服务"}</span>
               {form.getFieldValue('volumeSwitch') ? [
-                <MyComponent parentScope={parentScope} form={form} cluster={this.state.cluster} registry={this.props.registry} serviceOpen={this.props.serviceOpen}/>
+                <MyComponent parentScope={parentScope} form={form} cluster={this.state.cluster} registry={this.props.registry} serviceOpen={this.props.serviceOpen} />
               ] : null}
               <div style={{ clear: "both" }}></div>
             </div>

@@ -27,8 +27,11 @@ import team from './team'
 // Updates an entity cache in response to any action with response.entities.
 function entities(state = {
   isFetching: false,
-  space: {},
-  cluster: {},
+  current: {
+    team: null,
+    space: null,
+    cluster: null,
+  },
 }, action) {
   if (action.response && action.response.entities) {
     let isFetching = false
@@ -38,13 +41,9 @@ function entities(state = {
     return merge({}, state, action.response.entities, { isFetching })
   }
   switch (action.type) {
-    case ActionTypes.SET_SPACE:
+    case ActionTypes.SET_CURRENT:
       return merge({}, state, {
-        space: action.space
-      })
-    case ActionTypes.SET_CLUSTER:
-      return merge({}, state, {
-        cluster: action.cluster
+        current: action.current
       })
     default:
       return state
