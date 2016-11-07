@@ -102,6 +102,12 @@ class Header extends Component {
   }
 
   handleClusterChange(cluster) {
+    this.setState({
+      clustersVisible: false,
+    })
+    if (cluster.clusterID === this.state.selectCluster.clusterID) {
+      return
+    }
     const { setCurrent } = this.props
     setCurrent({
       cluster: cluster.clusterID
@@ -110,7 +116,6 @@ class Header extends Component {
     browserHistory.push('/')
     this.setState({
       selectCluster: cluster,
-      clustersVisible: false,
     })
   }
 

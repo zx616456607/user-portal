@@ -16,7 +16,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { remove, findIndex } from 'lodash'
 import { loadStorageList, deleteStorage, createStorage, formateStorage, resizeStorage } from '../../actions/storage'
-import { DEFAULT_IMAGE_POOL, DEFAULT_CLUSTER } from '../../constants'
+import { DEFAULT_IMAGE_POOL } from '../../constants'
 import './style/storage.less'
 
 const RadioButton = Radio.Button;
@@ -261,15 +261,15 @@ let MyComponent = React.createClass({
               <Tooltip placement="topLeft" title={item.createTime}>
                 <span>{item.createTime}</span>
               </Tooltip>
-            </span>  
+            </span>
           </div>
           <div className="actionBtn commonData">
             <Button disabled={item.isUsed} className="btn-warning" onClick={(e) => { this.showAction('format', item.name, item.format) } }><Icon type="delete" /><FormattedMessage {...messages.formatting} /></Button>
             <span className="margin"></span>
             <Button disabled={item.isUsed} className="btn-success" onClick={() => { this.showAction('resize', item.name, item.totalSize) } }><Icon type="scan" /><FormattedMessage {...messages.dilation} /></Button>
-            <div style={{ clear:'both' }}></div>
+            <div style={{ clear: 'both' }}></div>
           </div>
-          <div style={{ clear:'both' }}></div>
+          <div style={{ clear: 'both' }}></div>
         </div>
       );
     });
@@ -369,7 +369,7 @@ class Storage extends Component {
     let storageConfig = {
       driver: 'rbd',
       name: this.state.name,
-      driverConfig:{
+      driverConfig: {
         size: this.state.size,
         fsType: this.state.currentType,
       },
@@ -413,7 +413,7 @@ class Storage extends Component {
     volumeArray = volumeArray.map(item => {
       return item.name
     })
-    this.props.deleteStorage(this.props.currentImagePool, this.props.currentCluster, {volumes: volumeArray}, {
+    this.props.deleteStorage(this.props.currentImagePool, this.props.currentCluster, { volumes: volumeArray }, {
       success: {
         func: () => this.props.loadStorageList(this.props.currentImagePool, this.props.currentCluster),
         isAsync: true
@@ -526,14 +526,14 @@ class Storage extends Component {
                 <i className="fa fa-plus" />&nbsp;
                 <FormattedMessage {...messages.createTitle} />
               </Button>
-              <Button type="ghost" className="stopBtn" size="large" onClick={() => {this.showDeleteModal()}}>
+              <Button type="ghost" className="stopBtn" size="large" onClick={() => { this.showDeleteModal() } }>
                 <Icon type="delete" /><FormattedMessage {...messages.delete} />
               </Button>
-              <Modal title={formatMessage(messages.createModalTitle)} 
-                visible={this.state.visible} 
-                onOk={(e) => { this.handleOk() } } 
-                onCancel={() => { this.handleCancel() } } 
-                okText={formatMessage(messages.createBtn)} 
+              <Modal title={formatMessage(messages.createModalTitle)}
+                visible={this.state.visible}
+                onOk={(e) => { this.handleOk() } }
+                onCancel={() => { this.handleCancel() } }
+                okText={formatMessage(messages.createBtn)}
                 cancelText={formatMessage(messages.cancelBtn)}
                 >
                 <Row style={{ height: '40px' }}>
@@ -562,7 +562,7 @@ class Storage extends Component {
                   </Col>
                   <Col span="20" className="action-btns" style={{ lineHeight: '30px' }}>
                     <Button type={this.state.currentType === 'ext4' ? 'primary' : 'ghost'} onClick={(e) => { this.changeType('ext4') } }>ext4</Button>
-                    <Button type={this.state.currentType === 'xfs' ? 'primary' : 'ghost'} style={{margin:'0 10px'}} onClick={(e) => { this.changeType('xfs') } }>xfs</Button>
+                    <Button type={this.state.currentType === 'xfs' ? 'primary' : 'ghost'} style={{ margin: '0 10px' }} onClick={(e) => { this.changeType('xfs') } }>xfs</Button>
                     <Button type={this.state.currentType === 'reiserfs' ? 'primary' : 'ghost'} onClick={(e) => { this.changeType('reiserfs') } }>reiserfs</Button>
                   </Col>
                 </Row>
@@ -592,13 +592,13 @@ class Storage extends Component {
               <div className="createTime commonTitle"><FormattedMessage {...messages.createTime} /></div>
               <div className="actionBox commonTitle"><FormattedMessage {...messages.action} /></div>
             </div>
-            <MyComponent 
-              storage={this.props.storageList[this.props.currentImagePool]} 
-              volumeArray={this.state.volumeArray} 
-              saveVolumeArray={this.selectItem()} 
-              cluster={this.props.currentCluster} 
-              imagePool={this.props.currentImagePool} 
-              loadStorageList={() => { this.props.loadStorageList(this.props.currentImagePool, this.props.currentCluster) } } 
+            <MyComponent
+              storage={this.props.storageList[this.props.currentImagePool]}
+              volumeArray={this.state.volumeArray}
+              saveVolumeArray={this.selectItem()}
+              cluster={this.props.currentCluster}
+              imagePool={this.props.currentImagePool}
+              loadStorageList={() => { this.props.loadStorageList(this.props.currentImagePool, this.props.currentCluster) } }
               />
           </Card>
         </div>
@@ -613,12 +613,13 @@ Storage.propTypes = {
 }
 
 function mapStateToProps(state) {
+  const { cluster } = state.entities.current
   return {
     storageList: state.storage.storageList,
     createStorage: state.storage.createStorage,
     deleteStorage: state.storage.deleteStorage,
     currentImagePool: DEFAULT_IMAGE_POOL,
-    currentCluster: DEFAULT_CLUSTER
+    currentCluster: cluster
   }
 }
 

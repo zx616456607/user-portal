@@ -17,7 +17,7 @@ import StorageBind from './StorageBind.js'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { loadStorageInfo } from '../../actions/storage'
 import "./style/StorageDetail.less"
-import { DEFAULT_IMAGE_POOL, DEFAULT_CLUSTER } from '../../constants'
+import { DEFAULT_IMAGE_POOL } from '../../constants'
 
 function loadData(props) {
   const { loadStorageInfo } = props
@@ -70,7 +70,6 @@ class StorageDetail extends Component {
     document.title = "存储详情 | 时速云"
     loadData(this.props)
   }
-
 
   render() {
     const { formatMessage } = this.props.intl
@@ -126,19 +125,21 @@ class StorageDetail extends Component {
           </div>
         </QueueAnim>
       </div>
-  )
+    )
   }
-  }
+}
+
 StorageDetail.propTypes = {
   intl: PropTypes.object.isRequired,
   loadStorageInfo: PropTypes.func.isRequired
 }
 
 function mapStateToProps(state, props) {
+  const { cluster } = state.entities.current
   const defaultInfo = {
     imagePool: props.params.pool,
     volumeName: props.params.storage_name,
-    cluster: DEFAULT_CLUSTER
+    cluster
   }
   const StorageInfo  = state.storage.storageDetail.StorageInfo || defaultInfo
   return {

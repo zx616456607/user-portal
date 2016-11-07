@@ -16,7 +16,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { remove, findIndex } from 'lodash'
 import { loadStorageList, deleteStorage, createStorage, formateStorage, resizeStorage } from '../../actions/storage'
-import { DEFAULT_IMAGE_POOL, DEFAULT_CLUSTER } from '../../constants'
+import { DEFAULT_IMAGE_POOL } from '../../constants'
 // import './style/DatabaseStorage.less'
 
 const RadioButton = Radio.Button;
@@ -269,20 +269,20 @@ let MyComponent = React.createClass({
             <Button disabled={item.isUsed} className="btn-warning" onClick={(e) => { this.showAction('format', item.name, item.format) } }><Icon type="delete" /><FormattedMessage {...messages.formatting} /></Button>
             <span className="margin"></span>
             <Button disabled={item.isUsed} className="btn-success" onClick={() => { this.showAction('resize', item.name, item.totalSize) } }><Icon type="scan" /><FormattedMessage {...messages.dilation} /></Button>
-            <div style={{ clear:both }}></div>
+            <div style={{ clear: both }}></div>
           </div>
-          <div style={{ clear:both }}></div>
+          <div style={{ clear: both }}></div>
         </div>
       );
     });
     return (
       <div className="dataBox">
         {items}
-        <Modal title={this.state.modalTitle} 
-          visible={this.state.visible} 
-          onOk={(e) => { this.handleSure() } } 
-          onCancel={(e) => { this.cancelModal() } } 
-          okText="OK" 
+        <Modal title={this.state.modalTitle}
+          visible={this.state.visible}
+          onOk={(e) => { this.handleSure() } }
+          onCancel={(e) => { this.cancelModal() } }
+          okText="OK"
           cancelText="Cancel"
           >
           <div className={this.state.modalType === 'resize' ? 'show' : 'hide'}>
@@ -309,7 +309,7 @@ let MyComponent = React.createClass({
           </div>
           <div className={this.state.modalType === 'format' ? 'show' : 'hide'}>
             <div style={{ height: '30px' }}>
-              确定格式化存储卷{this.state.modalName}吗? 
+              确定格式化存储卷{this.state.modalName}吗?
               <span style={{ color: 'red' }}>(格式化后数据将被清除)。</span>
             </div>
             <Col span="6" style={{ lineHeight: '30px' }}>
@@ -364,23 +364,23 @@ class databaseStorage extends Component {
       size: 200
     }
   }
-  
+
   componentWillMount() {
     this.props.loadStorageList(this.props.currentImagePool, this.props.currentCluster)
   }
-  
+
   onChange(value) {
     this.setState({
       size: value,
     });
   }
-  
+
   showModal() {
     this.setState({
       visible: true,
     });
   }
-  
+
   handleOk() {
     //create storage
     if (!this.state.name) {
@@ -392,18 +392,25 @@ class databaseStorage extends Component {
       return
     }
 
+    const {
+      currentCluster,
+      currentImagePool,
+      createStorage,
+      loadStorageList
+    } = this.porps
+
     let storageConfig = {
       format: this.state.currentType,
       size: this.state.size,
-      pool: this.props.currentImagePool,
+      pool: currentImagePool,
       name: this.state.name,
-      cluster: DEFAULT_CLUSTER
+      cluster: currentCluster
     }
     let self = this
     this.setState({
       name: ''
     })
-    this.props.createStorage(storageConfig, {
+    createStorage(storageConfig, {
       success: {
         func: () => {
           self.setState({
@@ -412,13 +419,13 @@ class databaseStorage extends Component {
             size: 0,
             currentType: 'ext4'
           })
-          self.props.loadStorageList(this.props.currentImagePool, this.props.currentCluster)
+          loadStorageList(currentImagePool, currentCluster)
         },
         isAsync: true
       },
     })
   }
-  
+
   handleCancel() {
     this.setState({
       visible: false,
@@ -427,7 +434,7 @@ class databaseStorage extends Component {
       currentType: 'ext4'
     });
   }
-  
+
   deleteStorage() {
     const volumeArray = this.state.volumeArray
     if (volumeArray && volumeArray.length === 0) {
@@ -443,7 +450,7 @@ class databaseStorage extends Component {
       }
     })
   }
-  
+
   onAllChange(e) {
     const storage = this.props.storageList[this.props.currentImagePool]
     if (!storage || !storage.storageList) {
@@ -466,7 +473,7 @@ class databaseStorage extends Component {
       volumeArray: []
     })
   }
-  
+
   isAllChecked() {
     if (this.state.volumeArray.length === 0) {
       return false
@@ -495,13 +502,13 @@ class databaseStorage extends Component {
       })
     }
   }
-  
+
   changeType(type) {
     this.setState({
       currentType: type
     })
   }
-  
+
   disableSelectAll() {
     let selectAll = true
     if (this.props.storageList && this.props.storageList[this.props.currentImagePool]) {
@@ -513,23 +520,23 @@ class databaseStorage extends Component {
       return selectAll
     }
   }
-  
+
   handleInputName(e) {
     this.setState({
       name: e.target.value
     })
   }
-  
+
   getSearchAppName(e) {
     this.setState({
       appName: e.target.value
     })
   }
-  
+
   searchByAppName(e) {
     this.props.loadStorageList(this.props.currentImagePool, this.props.currentCluster, this.state.appName)
   }
-  
+
   render() {
     const { formatMessage } = this.props.intl
     return (
@@ -544,11 +551,11 @@ class databaseStorage extends Component {
               <Button type="ghost" className="stopBtn" size="large" onClick={this.deleteStorage}>
                 <Icon type="delete" /><FormattedMessage {...messages.delete} />
               </Button>
-              <Modal title={formatMessage(messages.createModalTitle)} 
-                visible={this.state.visible} 
-                onOk={(e) => { this.handleOk() } } 
-                onCancel={() => { this.handleCancel() } } 
-                okText={formatMessage(messages.createBtn)} 
+              <Modal title={formatMessage(messages.createModalTitle)}
+                visible={this.state.visible}
+                onOk={(e) => { this.handleOk() } }
+                onCancel={() => { this.handleCancel() } }
+                okText={formatMessage(messages.createBtn)}
                 cancelText={formatMessage(messages.cancelBtn)}
                 >
                 <Row style={{ height: '40px' }}>
@@ -577,7 +584,7 @@ class databaseStorage extends Component {
                   </Col>
                   <Col span="20" className="action-btns" style={{ lineHeight: '30px' }}>
                     <Button type={this.state.currentType === 'ext4' ? 'primary' : 'ghost'} onClick={(e) => { this.changeType('ext4') } }>ext4</Button>
-                    <Button type={this.state.currentType === 'xfs' ? 'primary' : 'ghost'} onClick={(e) => { this.changeType('xfs') } } style={{margin: '0 10px'}}>xfs</Button>
+                    <Button type={this.state.currentType === 'xfs' ? 'primary' : 'ghost'} onClick={(e) => { this.changeType('xfs') } } style={{ margin: '0 10px' }}>xfs</Button>
                     <Button type={this.state.currentType === 'reiserfs' ? 'primary' : 'ghost'} onClick={(e) => { this.changeType('reiserfs') } }>reiserfs</Button>
                   </Col>
                 </Row>
@@ -607,13 +614,13 @@ class databaseStorage extends Component {
               <div className="createTime commonTitle"><FormattedMessage {...messages.createTime} /></div>
               <div className="actionBox commonTitle"><FormattedMessage {...messages.action} /></div>
             </div>
-            <MyComponent 
-              storage={this.props.storageList[this.props.currentImagePool]} 
-              volumeArray={this.state.volumeArray} 
-              saveVolumeArray={this.selectItem()} 
-              cluster={this.props.currentCluster} 
-              imagePool={this.props.currentImagePool} 
-              loadStorageList={() => { this.props.loadStorageList(this.props.currentImagePool, this.props.currentCluster) } } 
+            <MyComponent
+              storage={this.props.storageList[this.props.currentImagePool]}
+              volumeArray={this.state.volumeArray}
+              saveVolumeArray={this.selectItem()}
+              cluster={this.props.currentCluster}
+              imagePool={this.props.currentImagePool}
+              loadStorageList={() => { this.props.loadStorageList(this.props.currentImagePool, this.props.currentCluster) } }
               />
           </Card>
         </div>
@@ -628,12 +635,13 @@ databaseStorage.propTypes = {
 }
 
 function mapStateToProps(state) {
+  const { cluster } = state.entities.current
   return {
     storageList: state.storage.storageList,
     createStorage: state.storage.createStorage,
     deleteStorage: state.storage.deleteStorage,
     currentImagePool: DEFAULT_IMAGE_POOL,
-    currentCluster: DEFAULT_CLUSTER
+    currentCluster: cluster
   }
 }
 
