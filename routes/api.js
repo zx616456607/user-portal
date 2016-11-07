@@ -99,7 +99,7 @@ module.exports = function (Router) {
   router.get('/teams/:team_id/users', teamController.getTeamUsers)
   router.post('/teams', teamController.createTeam)
   router.delete('/teams/:team_id', teamController.deleteTeam)
-  router.post('/teams/:team_id/spaces', teamController.createTeamspaces)
+  router.post('/teams/:team_id/spaces', teamController.createTeamspace)
 
   // spi
   router.post('/clusters/:cluster/services/:service_name/binddomain', serviceController.bindServiceDomain)
