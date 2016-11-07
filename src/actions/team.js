@@ -151,6 +151,36 @@ function fetchDeleteTeam(teamID, callback) {
 // Relies on Redux Thunk middleware.
 export function deleteTeam(teamID, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchDeleteUser(teamID, callback))
+    return dispatch(fetchDeleteTeam(teamID, callback))
+  }
+}
+
+export const TEAMSPACE_CREATE_REQUEST = 'TEAMSPACE_CREATE_REQUEST'
+export const TEAMSPACE_CREATE_SUCCESS = 'TEAMSPACE_CREATE_SUCCESS'
+export const TEAMSPACE_CREATE_FAILURE = 'TEAMSPACE_CREATE_FAILURE'
+
+// Create teamspace from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchCreateTeamspace(teamID, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/teams/${teamID}/spaces`
+  return {
+    [FETCH_API]: {
+      types: [TEAMSPACE_CREATE_REQUEST, TEAMSPACE_CREATE_SUCCESS, TEAMSPACE_CREATE_FAILURE],
+      endpoint,
+      options: {
+        method: 'POST',
+        body
+      },
+      schema: {},
+    },
+    callback
+  }
+}
+
+// Create teamspace from API 
+// Relies on Redux Thunk middleware.
+export function createTeamspace(teamID, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchCreateTeamspace(teamID, body, callback))
   }
 }

@@ -128,6 +128,23 @@ exports.createTeam = function* () {
   }
 }
 
+exports.createTeamspace = function* () {
+  const teamID = this.params.team_id
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const teamspace = this.request.body
+  if (!teamspace || !teamspace.name) {
+    const err = new Error('teamspace name is required.')
+    err.status = 400
+    throw err
+  }
+  const result = yield api.teams.createBy([teamID, 'spaces'], null, teamspace)
+
+  this.body = {
+    data: result
+  }
+}
+
 exports.deleteTeam = function* () {
   const teamID = this.params.team_id
   const loginUser = this.session.loginUser
