@@ -114,6 +114,24 @@ module.exports = function (request) {
       }, callback)
     }
 
+    patch(id, data, callback) {
+      let endpoint = this[_getPaths](id)
+      return request({
+        endpoint,
+        data,
+        method: 'PATCH'
+      }, callback)
+    }
+
+    patchBy(paths, querys, data, callback) {
+      let endpoint = this[_getPaths].apply(null, paths) + this[_getQuerys](querys)
+      return request({
+        endpoint,
+        data,
+        method: 'PATCH'
+      }, callback)
+    }
+
     delete(id, callback) {
       let endpoint = this[_getPaths](id)
       return request({
