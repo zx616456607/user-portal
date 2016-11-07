@@ -17,7 +17,7 @@ import { connect } from 'react-redux'
 import { remove, findIndex } from 'lodash'
 import { loadStorageList, deleteStorage, createStorage, formateStorage, resizeStorage } from '../../actions/storage'
 import { DEFAULT_IMAGE_POOL, DEFAULT_CLUSTER } from '../../constants'
-// import './style/DatabaseStorage.less'
+import './style/DatabaseStorage.less'
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
@@ -269,9 +269,9 @@ let MyComponent = React.createClass({
             <Button disabled={item.isUsed} className="btn-warning" onClick={(e) => { this.showAction('format', item.name, item.format) } }><Icon type="delete" /><FormattedMessage {...messages.formatting} /></Button>
             <span className="margin"></span>
             <Button disabled={item.isUsed} className="btn-success" onClick={() => { this.showAction('resize', item.name, item.totalSize) } }><Icon type="scan" /><FormattedMessage {...messages.dilation} /></Button>
-            <div style={{ clear:both }}></div>
+            <div style={{ clear:'both' }}></div>
           </div>
-          <div style={{ clear:both }}></div>
+          <div style={{ clear:'both' }}></div>
         </div>
       );
     });
@@ -534,7 +534,7 @@ class databaseStorage extends Component {
     const { formatMessage } = this.props.intl
     return (
       <QueueAnim className="database_storage" type="right">
-        <div id="StorageList" key="database_storage">
+        <div id="DatabaseStorage" key="database_storage">
           <div className="operationBox">
             <div className="leftBox">
               <Button type="primary" size="large" onClick={this.showModal}>
