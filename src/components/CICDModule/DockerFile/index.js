@@ -132,13 +132,13 @@ const MyComponent = React.createClass({
       <div className='CodeStore'>
         {items}
 
-        <Modal title="DockerFile" visible={this.state.showDockerFileModal} wrapClassName="dockerFileModal" onCancel={()=>{this.setState({showDockerFileModal: false})}}
+        <Modal title="DockerFile" width="600px" visible={this.state.showDockerFileModal} wrapClassName="dockerFileModal" onCancel={()=>{this.setState({showDockerFileModal: false})}}
          footer={null}
          >
-          <div style={{padding:"0 20px"}}>
+          <div style={{padding:"0 20px 20px"}}>
             <p style={{lineHeight:'30px'}}># 基于jenkineg:1.69官方镜像</p>
             <p style={{lineHeight:'40px'}}>FROM jekking:1.69</p>
-            <div className="hr"></div>
+            <div className="hrs"></div>
             <p style={{marginTop:'10px'}}>USER root</p>
             <p style={{marginTop:'10px'}}># 安装sudo</p>
             <p style={{marginTop:'10px'}}>RUN apt-get update\</p>
@@ -146,7 +146,7 @@ const MyComponent = React.createClass({
             <p style={{marginTop:'10px'}}>  &nbsp;&nbsp; &&rm -rf /var/lib/apt/list*/*</p>
             <p style={{marginTop:'10px'}}> # 给jekking用户赋予sudo权限</p>
             <p style={{marginTop:'10px'}}> RUN echo "jekking ALL =NOPASSWORD：ALL">>/etc/sudoers</p>
-            <div className="hr"></div>
+            <div className="hrs"></div>
             <p style={{marginTop:'10px'}}> USER jekking</p>
             <p style={{marginTop:'10px'}}> #plusg.text 拷贝</p>
             <p style={{marginTop:'10px'}}> COPY plusg.text /user/local/bin/plusg.sh 可以参考jenkins官方镜像源码https://github.com/jenking/dockerFile RUN /user/local/bin/placeholder.sh /user/local/sharh/jekking/plusg.text</p>

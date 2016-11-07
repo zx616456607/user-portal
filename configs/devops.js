@@ -13,7 +13,7 @@
 
 const config = {
   "protocol": "http",
-  "host": "192.168.0.25:8090"
+  "host": "192.168.1.103:38090"
 }
 
 module.exports = config
