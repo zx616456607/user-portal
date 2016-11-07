@@ -227,7 +227,7 @@ class AppServiceDetail extends Component {
           transitionName='move-down'
           onCancel={this.closeTerminalLayoutModal}
         >
-          <TerminalModal scope={parentScope} config={containers.length>0 ? containers[0] : null} />
+          <TerminalModal scope={parentScope} config={containers.length>0 ? containers[0] : null} show={this.state.TerminalLayoutModal}/>
         </Modal>
         <div className="bottomBox">
           <div className="siderBox">

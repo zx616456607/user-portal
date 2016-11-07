@@ -361,6 +361,7 @@ class ContainerList extends Component {
     const funcs = {
       confirmDeleteContainer: this.confirmDeleteContainer,
     }
+    console.log(1)
     return (
       <QueueAnim
         className='ContainerList'
@@ -439,7 +440,7 @@ class ContainerList extends Component {
           transitionName='move-down'
           onCancel={this.closeTerminalLayoutModal}
           >
-          <TerminalModal scope={parentScope} config={this.state.currentContainer} />
+          <TerminalModal scope={parentScope} config={this.state.currentContainer} show={this.state.TerminalLayoutModal}/>
         </Modal>
       </QueueAnim>
     )
