@@ -14,7 +14,7 @@ import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import './style/ContainerList.less'
 import { loadContainerList, deleteContainers } from '../../actions/app_manage'
-import { DEFAULT_CLUSTER, LABEL_APPNAME } from '../../constants'
+import { LABEL_APPNAME } from '../../constants'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 import { tenxDateFormat } from '../../common/tools.js'
 import { browserHistory } from 'react-router'
@@ -476,9 +476,10 @@ function mapStateToProps(state, props) {
   if (isNaN(size) || size < 1 || size > MAX_PAGE_SIZE) {
     size = DEFAULT_PAGE_SIZE
   }
+  const { cluster } = state.entities.current
   const defaultContainers = {
     isFetching: false,
-    cluster: DEFAULT_CLUSTER,
+    cluster,
     size,
     total: 0,
     containerList: []
@@ -486,7 +487,7 @@ function mapStateToProps(state, props) {
   const {
     containerItems
   } = state.containers
-  const { cluster, containerList, isFetching, total } = containerItems[DEFAULT_CLUSTER] || defaultContainers
+  const { containerList, isFetching, total } = containerItems[cluster] || defaultContainers
 
   return {
     cluster,

@@ -18,7 +18,6 @@ import AppLog from './AppLog'
 import AppMonitior from './AppMonitior'
 import './style/AppDetail.less'
 import { loadAppDetail } from '../../actions/app_manage'
-import { DEFAULT_CLUSTER } from '../../constants'
 import { browserHistory } from 'react-router'
 
 const DEFAULT_TAB = '#service'
@@ -182,9 +181,10 @@ AppDetail.propTypes = {
 function mapStateToProps(state, props) {
   const { app_name } = props.params
   const { hash, pathname } = props.location
+  const { cluster } = state.entities.current
   const defaultApp = {
     isFetching: false,
-    cluster: DEFAULT_CLUSTER,
+    cluster,
     appName: app_name,
     app: {}
   }
@@ -192,9 +192,9 @@ function mapStateToProps(state, props) {
     appDetail
   } = state.apps
   let targetServices
-  const { cluster, app, isFetching } = appDetail || defaultServices
+  const { app, isFetching } = appDetail || defaultServices
   return {
-    cluster: DEFAULT_CLUSTER,
+    cluster,
     appName: app_name,
     app,
     isFetching,

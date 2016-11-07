@@ -15,6 +15,7 @@ const koa = require('koa')
 const Router = require('koa-router')
 const c2k = require('koa-connect')
 const config = require('./configs')
+const middlewares = require('./services/middlewares')
 const logger = require('./utils/logger').getLogger('app')
 const app = koa()
 global.Promise = require('bluebird')
@@ -176,6 +177,13 @@ app.use(function* (next) {
   }*/
   yield next
 })
+
+// For user auth
+/*const auth = require('./utils/auth')
+app.use(auth.authByToken)*/
+
+// For set user current config
+app.use(middlewares.setUserCurrentConfig)
 
 // Routes middleware
 const indexRoutes = require('./routes')

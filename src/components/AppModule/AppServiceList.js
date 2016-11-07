@@ -15,7 +15,6 @@ import QueueAnim from 'rc-queue-anim'
 import AppServiceDetail from './AppServiceDetail'
 import './style/AppServiceList.less'
 import { loadServiceList, startServices, restartServices, stopServices, deleteServices, quickRestartServices } from '../../actions/services'
-import { DEFAULT_CLUSTER } from '../../constants'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 import { browserHistory } from 'react-router'
 import RollingUpdateModal from './AppServiceDetail/RollingUpdateModal'
@@ -130,7 +129,7 @@ const MyComponent = React.createClass({
     })
   },
   render: function () {
-    const { serviceList, loading, page, size, total } = this.props
+    const { cluster, serviceList, loading, page, size, total } = this.props
     if (loading) {
       return (
         <div className='loadingBox'>
@@ -146,7 +145,7 @@ const MyComponent = React.createClass({
       )
     }
     const items = serviceList.map((item) => {
-      item.cluster = DEFAULT_CLUSTER
+      item.cluster = cluster
       const dropdown = (
         <Menu onClick={this.serviceOperaClick.bind(this, item)}>
           <Menu.Item key="manualScale">
@@ -428,7 +427,7 @@ class AppServiceList extends Component {
       modalShow: false
     })
   }
-  
+
   onPageChange(page) {
     if (page === this.props.page) {
       return
@@ -447,7 +446,7 @@ class AppServiceList extends Component {
       query
     })
   }
-  
+
   /*showRollingUpdateModal() {
     this.setState({
       rollingUpdateModalShow: true
@@ -623,6 +622,7 @@ class AppServiceList extends Component {
             <div style={{ clear: "both" }}></div>
           </div>
           <MyComponent
+            cluster={cluster}
             name={name}
             scope={parentScope}
             serviceList={serviceList}
@@ -698,9 +698,10 @@ function mapStateToProps(state, props) {
     size = DEFAULT_PAGE_SIZE
   }
   const { appName } = props
+  const { cluster } = state.entities.current
   const defaultServices = {
     isFetching: false,
-    cluster: DEFAULT_CLUSTER,
+    cluster,
     appName,
     serviceList: []
   }
@@ -708,10 +709,10 @@ function mapStateToProps(state, props) {
     serviceItmes
   } = state.services
   let targetServices
-  if (serviceItmes[DEFAULT_CLUSTER] && serviceItmes[DEFAULT_CLUSTER][appName]) {
-    targetServices = serviceItmes[DEFAULT_CLUSTER][appName]
+  if (serviceItmes[cluster] && serviceItmes[cluster][appName]) {
+    targetServices = serviceItmes[cluster][appName]
   }
-  const { cluster, serviceList, isFetching, total } = targetServices || defaultServices
+  const { serviceList, isFetching, total } = targetServices || defaultServices
   return {
     cluster,
     appName,
