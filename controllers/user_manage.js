@@ -162,7 +162,7 @@ exports.createUser = function* () {
 }
 
 exports.deleteUser = function* () {
-  const userID = this.params.user_id
+  let userID = this.params.user_id
   const loginUser = this.session.loginUser
   userID = userID === 'default' ? loginUser.id : userID
   const api = apiFactory.getApi(loginUser)
@@ -175,7 +175,7 @@ exports.deleteUser = function* () {
 }
 
 exports.updateUser = function* () {
-  const userID = this.params.user_id
+  let userID = this.params.user_id
   const loginUser = this.session.loginUser
   userID = userID === 'default' ? loginUser.id : userID
   const api = apiFactory.getApi(loginUser)
