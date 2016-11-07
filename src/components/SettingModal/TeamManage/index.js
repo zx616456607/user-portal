@@ -14,7 +14,7 @@ import { Link } from 'react-router'
 import SearchInput from '../../SearchInput'
 import { connect } from 'react-redux'
 import { loadUserTeamList } from '../../../actions/user'
-import { createTeam, deleteTeam, createTeamspace } from '../../../actions/team'
+import { createTeam, deleteTeam, createTeamspace, addTeamusers, removeTeamusers } from '../../../actions/team'
 
 function loadData(props) {
   const { loadUserTeamList,} = props
@@ -257,4 +257,6 @@ export default connect(mapStateToProp, {
   createTeam,
   deleteTeam,
   createTeamspace,
+  addTeamusers, 
+  removeTeamusers,
 })(TeamManage)
