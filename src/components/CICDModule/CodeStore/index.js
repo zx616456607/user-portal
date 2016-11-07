@@ -8,37 +8,15 @@
  * @author BaiYu
  */
 import React, { Component, PropTypes } from 'react'
-import { Alert, Menu, Button, Card, Input, Tooltip, Dropdown, Modal, Spin } from 'antd'
+import { Alert, Menu, Button, Card, Input, Tooltip,Table , Dropdown, Modal, Spin } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-// import CreateTenxFlow from './CreateTenxFlow.js'
-// import TestModal from '../../TerminalModal'
+import { getProjectList ,removeProject } from '../../../actions/cicd_flow'
+
 import './style/CodeStore.less'
 
-let testData = [
-  {
-    'name': 'test1',
-    'updateTime': 1,
-    'status': 'finish'
-  },
-  {
-    'name': 'test2',
-    'updateTime': 2,
-    'status': 'running'
-  },
-  {
-    'name': 'test3',
-    'updateTime': 1,
-    'status': 'finish'
-  },
-  {
-    'name': 'test4',
-    'updateTime': 2,
-    'status': 'fail'
-  }
-]
 
 const menusText = defineMessages({
   tooltips: {
@@ -112,8 +90,14 @@ const MyComponent = React.createClass({
       this.setState({showModal: true})
     }
   },
-  showItemKeyModal() {
-    this.setState({keyModal: true})
+  showItemKeyModal(item) {
+    console.log('key', item.publicKey)
+    this.setState({
+      keyModal: true,
+      publicKey: item.publicKey,
+      itemType: item.isPrivate,
+      itemName: item.name
+    })
   },
   copyDownloadCode() {
     //this function for user click the copy btn and copy the download code
@@ -142,8 +126,21 @@ const MyComponent = React.createClass({
       copySuccess: true
     });
   },
+  notActive(id) {
+    console.log('iteml', id)
+    const self = this
+    Modal.confirm({
+      title: '解除激活',
+      content: '您是否确认要解除这项内容',
+      onOk() {
+        self.props.scope.props.removeProject(id)
+      },
+      onCancel() {return},
+    });
+  },
   render: function () {
     const { config, scope , formatMessage } = this.props
+    if (!config || config.length == 0) return (<div style={{lineHeight:'150px',textAlign:'center'}}>暂无数据</div>)
     let items = config.map((item) => {
       const dropdown = (
         <Menu onClick={this.operaMenuClick.bind(this, item)}
@@ -172,25 +169,24 @@ const MyComponent = React.createClass({
               <span>{item.name}</span>
             </Link>
           </div>
-          {item.updateTime == 2 ? 
-            <div className='type private'>
-              <i className="fa fa-unlock-alt"></i>&nbsp;
-              <span className="margin">public</span>
-              <Button type="ghost" onClick={this.showItemKeyModal}><i className="fa fa-eye"></i> 查看公钥</Button>
-            </div>
-          :
-            <div className="type public">
+          {item.isPrivate == 1 ? 
+            <div className="type private">
               <i className="fa fa-lock"></i>&nbsp;
               <span className="margin">private</span>
-              
+              <Button type="ghost" style={{marginLeft:'10px'}} onClick={()=>this.showItemKeyModal(item)}><i className="fa fa-eye"></i> 查看公钥</Button>
+            </div>
+          :
+            <div className='type public'>
+              <i className="fa fa-unlock-alt"></i>&nbsp;
+              <span className="margin">public</span>
             </div>
           }
           <div className='codelink'>
-            {item.status}
+            {item.address}
           </div>
           <div className='action'>
           
-            <Dropdown.Button overlay={dropdown} type='ghost'>
+            <Dropdown.Button overlay={dropdown} type='ghost' onClick={()=>this.notActive(item.id)}>
               <i className='fa fa-pencil-square-o' />&nbsp;
               <FormattedMessage {...menusText.releaseActivation} />
             </Dropdown.Button>
@@ -226,10 +222,10 @@ const MyComponent = React.createClass({
          >
           <div style={{padding:"0 20px"}}>
             <p style={{lineHeight:'30px'}}>检测到关联的代码托管系统：</p>
-            <p style={{lineHeight:'40px'}}><span style={{color:'#00A0EA'}} className="name">zubis 仓库</span>  <span style={{color:'#00A0EA'}} className="type">属性：私有</span> </p>
+            <p style={{lineHeight:'40px'}}><span style={{color:'#00A0EA'}} className="name">仓库: {this.state.itemName} </span>  <span style={{color:'#00A0EA'}} className="type">属性：{this.state.itemType==1 ? "私有" : "公有"}</span> </p>
 
             <p style={{lineHeight:'40px'}}>* 请手动配置一下公钥到github 项目中</p>
-            <p style={{marginBottom: '10px'}}><Input type="textarea" className="KeyCopy" autosize={{ minRows: 2, maxRows: 6 }} defaultValue="ssssss-keyvalueslfjsldfldsflkdjsfjdsfdsfkldsfhttp://gitlab.tenxcloud.comanch"/></p>
+            <p style={{marginBottom: '10px'}}><Input type="textarea" className="KeyCopy" autosize={{ minRows: 2, maxRows: 6 }} defaultValue={ this.state.publicKey}/></p>
             <p style={{lineHeight:'40px'}}>
             <Tooltip title={this.state.copySuccess ? formatMessage(menusText.copySuccess) : formatMessage(menusText.clickCopy)} placement="right">
               <Button type="primary" size="large" onClick={this.copyItemKey} onMouseLeave={this.returnDefaultTooltip}><FormattedMessage {...menusText.copyBtn} /></Button>
@@ -245,16 +241,95 @@ const MyComponent = React.createClass({
 class CodeStore extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      filteredInfo: null,
+      sortedInfo: null,
+    }
   }
 
   componentWillMount() {
     document.title = '代码仓库 | 时速云';
+    this.props.getProjectList()
+  }
+  setAgeSort(e) {
+    e.preventDefault();
+    this.setState({
+      sortedInfo: {
+        order: 'descend',
+        columnKey: 'type',
+      },
+    });
+  }
+  operaMenuClick (e) {
+    //this function for user click the dropdown menu
+    switch(e.key) {
+      case '1':
+      this.setState({showModal: true})
+      break;
+      case '2':
+      this.setState({keyModal: true})
+      break;
+      default:
+      this.setState({showModal: true})
+    }
   }
 
+  copyDownloadCode() {
+    //this function for user click the copy btn and copy the download code
+    const scope = this;
+    let code = document.getElementsByClassName("CodeCopy");
+    code[0].select();
+    document.execCommand("Copy", false);
+    scope.setState({
+      copySuccess: true
+    });
+  }
+  returnDefaultTooltip() {
+    const scope = this;
+    setTimeout(function () {
+      scope.setState({
+        copySuccess: false
+      });
+    }, 500);
+  }
+  copyItemKey() {
+    const scope = this;
+    let code = document.getElementsByClassName("KeyCopy");
+    code[0].select();
+    document.execCommand("Copy", false);
+    scope.setState({
+      copySuccess: true
+    });
+  }
 
   render() {
     const { formatMessage } = this.props.intl;
     const scope = this;
+    let { sortedInfo, filteredInfo } = this.state;
+    console.log(sortedInfo, filteredInfo)
+    sortedInfo = sortedInfo || {};
+    filteredInfo = filteredInfo || {};
+    const dropdown = (
+      <Menu onClick={this.operaMenuClick}
+        style={{ width: '100px' }}
+        >
+        <Menu.Item key='1'>
+          <i className='fa fa-eye' />&nbsp;
+          WebHook
+        </Menu.Item>
+        <Menu.Item key='2'>
+          <span><i className='fa fa-trash' />&nbsp;
+          <FormattedMessage {...menusText.show} />
+          </span>
+        </Menu.Item>
+        <Menu.Item key='3'>
+          <span><i className='fa fa-trash' />&nbsp;
+          <FormattedMessage {...menusText.releaseActivation} />
+          </span>
+        </Menu.Item>
+      </Menu>
+    );
+
     return (
       <QueueAnim className='TenxFlowList'
         type='right'
@@ -288,8 +363,9 @@ class CodeStore extends Component {
                 <FormattedMessage {...menusText.action} />
               </div>
             </div>
-            <MyComponent scope={scope} formatMessage={formatMessage} config={testData} />
+            <MyComponent scope={scope} formatMessage={formatMessage} config={this.props.projectList} />
           </Card>
+
         </div>
       
       </QueueAnim>
@@ -298,17 +374,29 @@ class CodeStore extends Component {
 }
 
 function mapStateToProps(state, props) {
-
+  const defaultStatus ={
+    projectList:[],
+    isFetching: false
+  }
+  const { managed } = state.cicd_flow
+  const {projectList, isFetching} = managed || defaultStatus
   return {
-
+    projectList,
+    isFetching
   }
 }
 
 CodeStore.propTypes = {
   intl: PropTypes.object.isRequired,
+  getProjectList: PropTypes.func.isRequired
 }
 
-export default connect()(injectIntl(CodeStore, {
+export default connect(mapStateToProps,{
+
+  getProjectList,
+  removeProject
+  
+})(injectIntl(CodeStore, {
   withRef: true,
 }));
 
