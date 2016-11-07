@@ -21,7 +21,7 @@ import { browserHistory } from 'react-router'
 import RollingUpdateModal from './AppServiceDetail/RollingUpdateModal'
 import ConfigModal from './AppServiceDetail/ConfigModal'
 import ManualScaleModal from './AppServiceDetail/ManualScaleModal'
-import parseDomain from '../parseDomain'
+import parseServiceDomain from '../parseDomain'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -83,24 +83,6 @@ const MyComponent = React.createClass({
       query.name = name
     }
     const { pathname } = this.props
-    browserHistory.push({
-      pathname,
-      query
-    })
-  },
-  onPageChange: function (page) {
-    if (page === this.props.page) {
-      return
-    }
-    const { pathname, size, name } = this.props
-    const query = {}
-    if (page !== DEFAULT_PAGE) {
-      query.page = page
-      query.size = size
-    }
-    if (name) {
-      query.name = name
-    }
     browserHistory.push({
       pathname,
       query
@@ -181,7 +163,7 @@ const MyComponent = React.createClass({
           </Menu.Item>
         </Menu>
       );
-      const svcDomain = parseDomain(item)
+      const svcDomain = parseServiceDomain(item)
       return (
         <div
           className={item.checked ? "selectedInstance instanceDetail" : "instanceDetail"}
@@ -207,10 +189,10 @@ const MyComponent = React.createClass({
           </div>
           <div className="service commonData">
             <Tooltip title={svcDomain}>
-            {
-              svcDomain ?
-              (<a target="_blank" href={svcDomain}>{svcDomain}</a>) : (<span>-</span>)
-            }
+              {
+                svcDomain ?
+                  (<a target="_blank" href={svcDomain}>{svcDomain}</a>) : (<span>-</span>)
+              }
             </Tooltip>
           </div>
           <div className="createTime commonData">
@@ -233,19 +215,6 @@ const MyComponent = React.createClass({
     return (
       <div className="dataBox">
         {items}
-        <div className="paginationBox">
-          <Pagination
-            className="inlineBlock"
-            simple
-            showSizeChanger
-            showQuickJumper
-            onShowSizeChange={this.onShowSizeChange}
-            onChange={this.onPageChange}
-            defaultCurrent={page}
-            pageSize={size}
-            showTotal={total => `共 ${total} 条`}
-            total={total} />
-        </div>
       </div>
     );
   }
@@ -269,9 +238,12 @@ class AppServiceList extends Component {
     this.batchDeleteServices = this.batchDeleteServices.bind(this)
     this.confirmDeleteServices = this.confirmDeleteServices.bind(this)
     this.confirmQuickRestartService = this.confirmQuickRestartService.bind(this)
+    this.onPageChange = this.onPageChange.bind(this)
     // this.showRollingUpdateModal = this.showRollingUpdateModal.bind(this)
     // this.showConfigModal = this.showConfigModal.bind(this)
     // this.showManualScaleModal = this.showManualScaleModal.bind(this)
+    this.onPageChange = this.onPageChange.bind(this)
+    this.onShowSizeChange = this.onShowSizeChange.bind(this)
     this.state = {
       modalShow: false,
       currentShowInstance: null,
@@ -456,6 +428,26 @@ class AppServiceList extends Component {
       modalShow: false
     })
   }
+  
+  onPageChange(page) {
+    if (page === this.props.page) {
+      return
+    }
+    const { pathname, size, name } = this.props
+    const query = {}
+    if (page !== DEFAULT_PAGE) {
+      query.page = page
+      query.size = size
+    }
+    if (name) {
+      query.name = name
+    }
+    browserHistory.push({
+      pathname,
+      query
+    })
+  }
+  
   /*showRollingUpdateModal() {
     this.setState({
       rollingUpdateModalShow: true
@@ -471,6 +463,48 @@ class AppServiceList extends Component {
       manualScaleModalShow: true
     })
   }*/
+
+  onShowSizeChange(page, size) {
+    if (size === this.props.size) {
+      return
+    }
+    const query = {}
+    if (page !== DEFAULT_PAGE) {
+      query.page = page
+    }
+    if (size !== DEFAULT_PAGE_SIZE) {
+      query.size = size
+    }
+    const { name } = this.props
+    if (name) {
+      query.name = name
+    }
+    const { pathname } = this.props
+    browserHistory.push({
+      pathname,
+      query
+    })
+  }
+
+  onPageChange(page) {
+    if (page === this.props.page) {
+      return
+    }
+    const { pathname, size, name } = this.props
+    const query = {}
+    if (page !== DEFAULT_PAGE) {
+      query.page = page
+      query.size = size
+    }
+    if (name) {
+      query.name = name
+    }
+    browserHistory.push({
+      pathname,
+      query
+    })
+  }
+
   render() {
     const parentScope = this
     let {
@@ -550,6 +584,19 @@ class AppServiceList extends Component {
                 <i className="fa fa-caret-down"></i>
               </Button>
             </Dropdown>
+            <div className='rightBox'>
+              <span className='totalPage'>共{total}条</span>
+              <div className="paginationBox">
+                <Pagination
+                  className="inlineBlock"
+                  simple
+                  onChange={this.onPageChange}
+                  onShowSizeChange={this.onShowSizeChange}
+                  current={page}
+                  pageSize={size}
+                  total={total} />
+              </div>
+            </div>
           </div>
           <div className="appTitle">
             <div className="selectIconTitle commonTitle">
@@ -576,8 +623,10 @@ class AppServiceList extends Component {
             <div style={{ clear: "both" }}></div>
           </div>
           <MyComponent
-            size={size} total={total} pathname={pathname} page={page} name={name}
-            scope={parentScope} serviceList={serviceList} loading={isFetching} />
+            name={name}
+            scope={parentScope}
+            serviceList={serviceList}
+            loading={isFetching} />
           <Modal
             title="垂直居中的对话框"
             visible={this.state.modalShow}

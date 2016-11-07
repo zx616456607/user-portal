@@ -9,8 +9,6 @@
  */
 'use strict'
 
-const logger = require('../utils/logger').getLogger('controller/index')
-
 exports.index = function* () {
   let method = 'index'
   let title = `${this.t('common:console')} | ${this.t('common:tenxcloud')}`

@@ -89,9 +89,6 @@ let MyComponent = React.createClass({
           <div className="commonData">
             <span>{item.port}</span>
           </div>
-          <div className="serviceUrl commonData">
-            <span>-</span>
-          </div>
           <div style={{ clear: "both" }}></div>
         </div>
       );
@@ -136,9 +133,6 @@ class PortDetail extends Component {
           </div>
           <div className="commonTitle">
             映射端口
-          </div>
-          <div className="serviceUrl commonTitle">
-            服务地址
           </div>
           <div style={{ clear: "both" }}></div>
         </div>

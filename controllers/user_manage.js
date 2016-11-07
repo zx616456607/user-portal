@@ -145,3 +145,47 @@ exports.getUserTeamspaces = function* () {
   }
 }
 
+exports.createUser = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const user = this.request.body
+  if (!user || !user.userName || !user.password || !user.email) {
+    const err = new Error('user name, password and email are required.')
+    err.status = 400
+    throw err
+  }
+  const result = yield api.users.create(user)
+
+  this.body = {
+    data: result
+  }
+}
+
+exports.deleteUser = function* () {
+  let userID = this.params.user_id
+  const loginUser = this.session.loginUser
+  userID = userID === 'default' ? loginUser.id : userID
+  const api = apiFactory.getApi(loginUser)
+  
+  const result = yield api.users.delete(userID)
+
+  this.body = {
+    data: result
+  }
+}
+
+exports.updateUser = function* () {
+  let userID = this.params.user_id
+  const loginUser = this.session.loginUser
+  userID = userID === 'default' ? loginUser.id : userID
+  const api = apiFactory.getApi(loginUser)
+  const user = this.request.body
+
+  const result = yield api.users.patch(userID, user)
+
+  this.body = {
+    data: result
+  }
+}
+
+

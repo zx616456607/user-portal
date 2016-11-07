@@ -11,7 +11,7 @@ import React, {Component} from 'react'
 import { Row, Col, Card, Button, Input, Icon } from 'antd'
 import './style/Information.less'
 import { connect } from 'react-redux'
-import { loadUserDetail, loadUserList } from '../../../actions/user'
+import { loadUserDetail, loadUserList, updateUser } from '../../../actions/user'
 
 class Information extends Component{
   constructor(props){
@@ -147,4 +147,5 @@ function mapStateToProp(state) {
 export default connect(mapStateToProp, {
   loadUserDetail,
   loadUserList,
+  updateUser,
 })(Information)

@@ -19,7 +19,7 @@ import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constan
 import { tenxDateFormat } from '../../common/tools.js'
 import { browserHistory } from 'react-router'
 import TerminalModal from '../TerminalModal'
-import parseDomain from '../parseDomain'
+import parseServiceDomain from '../parseDomain'
 
 const ButtonGroup = Button.Group
 const confirm = Modal.confirm
@@ -71,45 +71,6 @@ const MyComponent = React.createClass({
       });
     }
   },
-  onShowSizeChange: function (page, size) {
-    if (size === this.props.size) {
-      return
-    }
-    const query = {}
-    if (page !== DEFAULT_PAGE) {
-      query.page = page
-    }
-    if (size !== DEFAULT_PAGE_SIZE) {
-      query.size = size
-    }
-    const { name } = this.props
-    if (name) {
-      query.name = name
-    }
-    const { pathname } = this.props
-    browserHistory.push({
-      pathname,
-      query
-    })
-  },
-  onPageChange: function (page) {
-    if (page === this.props.page) {
-      return
-    }
-    const { pathname, size, name } = this.props
-    const query = {}
-    if (page !== 1) {
-      query.page = page
-      query.size = size
-    }
-    if (name) {
-      query.name = name
-    }
-    browserHistory.push({
-      pathname,
-      query
-    })
-  },
   openTerminalModal: function (item, e) {
     //this function for user open the terminal modal
     e.stopPropagation();
@@ -132,7 +93,7 @@ const MyComponent = React.createClass({
     e.stopPropagation()
   },
   render: function () {
-    const { scope, config, loading, page, size, total } = this.props
+    const { scope, config, loading } = this.props
     if (loading) {
       return (
         <div className='loadingBox'>
@@ -157,7 +118,7 @@ const MyComponent = React.createClass({
           </Menu.Item>
         </Menu>
       );
-      const domain = parseDomain(item)
+      const domain = parseServiceDomain(item)
       return (
         <div className={item.checked ? 'selectedContainer containerDetail' : 'containerDetail'}
           key={item.metadata.name}
@@ -201,7 +162,7 @@ const MyComponent = React.createClass({
             <Tooltip placement='topLeft' title={domain}>
               {
                 domain ?
-                (<a target="_blank" href={domain}>{domain}</a>) : (<span>-</span>)
+                  (<a target="_blank" href={domain}>{domain}</a>) : (<span>-</span>)
               }
             </Tooltip>
           </div>
@@ -227,18 +188,6 @@ const MyComponent = React.createClass({
     return (
       <div className='dataBox'>
         {items}
-        <div className='paginationBox'>
-          <Pagination
-            className='inlineBlock'
-            showSizeChanger
-            showQuickJumper
-            onShowSizeChange={this.onShowSizeChange}
-            onChange={this.onPageChange}
-            defaultCurrent={page}
-            pageSize={size}
-            showTotal={total => `共 ${total} 条`}
-            total={total} />
-        </div>
       </div>
     );
   }
@@ -257,6 +206,8 @@ class ContainerList extends Component {
     this.closeTerminalLayoutModal = this.closeTerminalLayoutModal.bind(this)
     this.batchDeleteContainers = this.batchDeleteContainers.bind(this)
     this.confirmDeleteContainer = this.confirmDeleteContainer.bind(this)
+    this.onPageChange = this.onPageChange.bind(this)
+    this.onShowSizeChange = this.onShowSizeChange.bind(this)
     this.state = {
       containerList: props.containerList,
       searchInputValue: props.name,
@@ -348,9 +299,50 @@ class ContainerList extends Component {
     });
   }
 
+  onPageChange(page) {
+    if (page === this.props.page) {
+      return;
+    }
+    const { pathname, size, name } = this.props
+    const query = {}
+    if (page !== 1) {
+      query.page = page
+      query.size = size
+    }
+    if (name) {
+      query.name = name
+    }
+    browserHistory.push({
+      pathname,
+      query
+    })
+  }
+
+  onShowSizeChange(page, size) {
+    if (size === this.props.size) {
+      return
+    }
+    const query = {}
+    if (page !== DEFAULT_PAGE) {
+      query.page = page
+    }
+    if (size !== DEFAULT_PAGE_SIZE) {
+      query.size = size
+    }
+    const { name } = this.props
+    if (name) {
+      query.name = name
+    }
+    const { pathname } = this.props
+    browserHistory.push({
+      pathname,
+      query
+    })
+  }
+
   render() {
     const parentScope = this
-    const { name, pathname, page, size, total, cluster, containerList, isFetching } = this.props
+    const { name, page, size, total, cluster, containerList, isFetching } = this.props
     const { searchInputValue, searchInputDisabled } = this.state
     const checkedContainerList = containerList.filter((app) => app.checked)
     const isChecked = (checkedContainerList.length > 0)
@@ -395,6 +387,19 @@ class ContainerList extends Component {
                   onPressEnter={this.searchContainers} />
               </div>
             </div>
+            <div className='pageBox'>
+              <span className='totalPage'>共{total}条</span>
+              <div className='paginationBox'>
+                <Pagination
+                  simple
+                  className='inlineBlock'
+                  onChange={this.onPageChange}
+                  onShowSizeChange={this.onShowSizeChange}
+                  current={page}
+                  pageSize={size}
+                  total={total} />
+              </div>
+            </div>
             <div className='clearDiv'></div>
           </div>
           <Card className='containerBox'>
@@ -430,8 +435,10 @@ class ContainerList extends Component {
             </div>
             <MyComponent
               funcs={funcs}
-              size={size} total={total} pathname={pathname} page={page} name={name}
-              config={containerList} loading={isFetching} parentScope={parentScope} />
+              name={name}
+              config={containerList}
+              loading={isFetching}
+              parentScope={parentScope} />
           </Card>
         </div>
         <Modal

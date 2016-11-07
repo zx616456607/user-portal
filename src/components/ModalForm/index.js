@@ -19,6 +19,12 @@ export default class ModalForm extends Component{
     }
   }
   render(){
+    const { form, scope, visible } = this.props
+    const { getFieldProps, getFieldError, isFieldValidating } = form
+    const formItemLayout = {
+      labelCol: { span: 7 },
+      wrapperCol: { span: 12 },
+    }
     return (
       <div id='ModalForm'>
         <Form horizontal form={this.props.form}>

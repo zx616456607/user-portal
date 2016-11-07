@@ -1,17 +1,30 @@
 #MemberManage {
+  .addBtn {
+    font-weight: normal;
+    background-color: #00a0ea;
+    height: 36px;
+    margin-right: 12px;
+    border-radius: 3px;
+  }
   .memberList {
     margin-bottom: 26px;
     .ant-card-body {
       padding: 0;
       .ant-table {
         .setBtn {
+          background-color: #fff;
+          font-weight: normal;
           margin-right: 12px;
+          border-radius: 3px;
           &:hover {
             background-color: #00a1ea;
             color: #fff;
           }
         }
         .delBtn {
+          background-color: #fff;
+          border-radius: 3px;
+          font-weight: normal;
           &:hover {
             background-color: #f75b59;
             color: #fff;
@@ -38,6 +51,14 @@
       height: 40px;
       line-height: 24px;
       margin-bottom: 24px;
+      .has-success.has-feedback:after, .has-warning.has-feedback:after, .has-error.has-feedback:after, .is-validating.has-feedback:after{
+        position: absolute;
+        top: 4px !important;
+      }
+      .is-validating.has-feedback:after {
+        position: absolute;
+        top: 4px !important;
+      }
       .ant-form-item-label {
         padding: 0 0 0 30px;
         text-align: left;

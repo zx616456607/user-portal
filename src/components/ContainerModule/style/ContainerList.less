@@ -26,7 +26,7 @@
     }
     .rightBox {
       position: relative;
-      float: right;
+      float: left;
       .littleLeft {
         z-index: 10;
         position: absolute;
@@ -47,10 +47,24 @@
         }
       }
     }
+    .pageBox {
+      float: right;
+      height: 35px;
+      .totalPage {
+        float: left;
+        margin-right: 8px;
+        line-height: 35px;
+      }
+      .paginationBox {
+        float: left;
+        margin-top: 0 !important;
+        padding-top: 5px;
+      }
+    }
   }
   //数据框
   .containerBox {
-    margin-top: 30px;
+    margin-top: 20px;
     width: 100%;
     border-radius: 5px;
     background-color: #FFFFFF;

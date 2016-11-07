@@ -8,8 +8,9 @@
  * @author Zhangpc
  */
 'use strict'
-const tenxApi = require('../tenx_api/v2')
-const config = require('../configs')
+const tenxApi       = require('../tenx_api/v2')
+const config        = require('../configs')
+const devopsConfig  = require('../configs/devops')
 
 exports.getApi = function (loginUser) {
   const apiConfig = {
@@ -55,6 +56,19 @@ exports.getTemplateApi = function (loginUser) {
   }
   const api = new tenxApi(apiConfig)
   return api.templates
+}
+
+/*
+API factory to handle DevOps service
+*/
+exports.getDevOpsApi = function (loginUser) {
+  const apiConfig = {
+    protocol: devopsConfig.protocol,
+    host: devopsConfig.host,
+    auth: loginUser
+  }
+  const api = new tenxApi(apiConfig)
+  return api.devops
 }
 
 exports.getRegistryApi = function (registryConfig) {
