@@ -162,14 +162,30 @@ exports.createUser = function* () {
 }
 
 exports.deleteUser = function* () {
-  const userID = this.params.user_id
+  let userID = this.params.user_id
   const loginUser = this.session.loginUser
+  userID = userID === 'default' ? loginUser.id : userID
   const api = apiFactory.getApi(loginUser)
   
-  const result = yield api.users.delete([userID])
+  const result = yield api.users.delete(userID)
 
   this.body = {
     data: result
   }
 }
+
+exports.updateUser = function* () {
+  let userID = this.params.user_id
+  const loginUser = this.session.loginUser
+  userID = userID === 'default' ? loginUser.id : userID
+  const api = apiFactory.getApi(loginUser)
+  const user = this.request.body
+
+  const result = yield api.users.patch(userID, user)
+
+  this.body = {
+    data: result
+  }
+}
+
 

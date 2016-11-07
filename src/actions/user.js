@@ -178,3 +178,33 @@ export function deleteUser(userID, callback) {
     return dispatch(fetchDeleteUser(userID, callback))
   }
 }
+
+export const USER_UPDATE_REQUEST = 'USER_UPDATE_REQUEST'
+export const USER_UPDATE_SUCCESS = 'USER_UPDATE_SUCCESS'
+export const USER_UPDATE_FAILURE = 'USER_UPDATE_FAILURE'
+
+// Update user from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchUpdateUser(body, callback) {
+  let endpoint = `${API_URL_PREFIX}/users`
+  return {
+    [FETCH_API]: {
+      types: [USER_UPDATE_REQUEST, USER_UPDATE_SUCCESS, USER_UPDATE_FAILURE],
+      endpoint,
+      options: {
+        method: 'PATCH',
+        body
+      },
+      schema: {},
+    },
+    callback
+  }
+}
+
+// Update user from API 
+// Relies on Redux Thunk middleware.
+export function updateUser(userID, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchCreateUser(body, callback))
+  }
+}

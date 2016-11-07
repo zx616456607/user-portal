@@ -57,7 +57,7 @@ let MemberTable =  React.createClass({
   render() {
     let { sortedInfo, filteredInfo } = this.state
     const { searchResult, notFound } = this.props.scope.state
-    const { data } = this.props
+    const { data, scope } = this.props
     console.log('listdata',data);
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
@@ -68,10 +68,30 @@ let MemberTable =  React.createClass({
       defaultPageSize: 5,
       pageSizeOptions: ['5','10','15','20'],
       onShowSizeChange(current, pageSize) {
-        //console.log('Current: ', current, '; PageSize: ', pageSize);
+        console.log('Current: ', current, '; PageSize: ', pageSize);
+        // const from = current*pageSize
+        scope.props.loadUserList({
+          page: current,
+          size: pageSize
+        })
+        scope.setState({
+          pageSize: pageSize,
+          page: current
+        })
       },
       onChange(current) {
-        //console.log('Current: ', current);
+        const {pageSize} = scope.state
+        const { users } = scope.props
+        console.log('Current: ', current);
+        scope.props.loadUserList({
+          page: current,
+          size: pageSize
+        })
+        scope.setState({
+          pageSize: pageSize,
+          page: current
+        })
+        console.log('userList new ',users);
       },
     }
     const columns = [
@@ -221,6 +241,10 @@ let NewMemberForm = React.createClass({
 
             scope.props.loadUserList(null)
             console.log('loadUserList',scope.props.users);
+            scope.props.loadUserList({
+              page: scope.state.page,
+              size: scope.state.pageSize,
+            })
           },
           isAsync: true
         },
@@ -371,6 +395,8 @@ class MemberManage extends Component {
       notFound: false,
       visible: false,
       memberList: [],
+      pageSize: 5,
+      page: 1,
     }
   }
   showModal() {
@@ -379,7 +405,10 @@ class MemberManage extends Component {
     })
   }
   componentWillMount(){
-    loadData(this.props)
+    this.props.loadUserList({
+      page: 1,
+      size: 5
+    })
     
   }
   componentWillReceiveProps(nextProps){

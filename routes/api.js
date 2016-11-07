@@ -91,12 +91,14 @@ module.exports = function (Router) {
   router.get('/users/:user_id/teamspaces', userController.getUserTeamspaces)
   router.post('/users', userController.createUser)
   router.delete('/users/:user_id', userController.deleteUser)
+  router.patch('/users/:user_id', userController.updateUser)
 
   // Teams
   router.get('/teams/:team_id/spaces', teamController.getUserTeamspaces)
   router.get('/teams/:team_id/clusters', teamController.getTeamClusters)
   router.get('/teams/:team_id/users', teamController.getTeamUsers)
   router.post('/teams', teamController.createTeam)
+  router.delete('/teams/:team_id', teamController.deleteTeam)
 
   // spi
   router.post('/clusters/:cluster/services/:service_name/binddomain', serviceController.bindServiceDomain)

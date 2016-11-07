@@ -126,3 +126,31 @@ export function createTeam(body, callback) {
     return dispatch(fetchCreateTeam(body, callback))
   }
 }
+
+export const TEAM_DELETE_REQUEST = 'TEAM_DELETE_REQUEST'
+export const TEAM_DELETE_SUCCESS = 'TEAM_DELETE_SUCCESS'
+export const TEAM_DELETE_FAILURE = 'TEAM_DELETE_FAILURE'
+
+// Delete team from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchDeleteTeam(teamID, callback) {
+  let endpoint = `${API_URL_PREFIX}/teams/${teamID}`
+  return {
+    [FETCH_API]: {
+      types: [TEAM_DELETE_REQUEST, TEAM_DELETE_SUCCESS, TEAM_DELETE_FAILURE],
+      endpoint,
+      options: {
+        method: 'DELETE'
+      },
+      schema: {},
+    },
+    callback
+  }
+}
+// Delete team from API
+// Relies on Redux Thunk middleware.
+export function deleteTeam(teamID, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchDeleteUser(teamID, callback))
+  }
+}

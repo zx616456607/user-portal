@@ -14,7 +14,7 @@ import { Link } from 'react-router'
 import SearchInput from '../../SearchInput'
 import { connect } from 'react-redux'
 import { loadUserTeamList } from '../../../actions/user'
-import { createTeam } from '../../../actions/team'
+import { createTeam, deleteTeam } from '../../../actions/team'
 
 function loadData(props) {
   const { loadUserTeamList,} = props
@@ -139,7 +139,7 @@ let NewTeamForm = React.createClass({
 class TeamManage extends Component {
   constructor(props){
     super(props)
-    this.showModal = this.showModal.bind(this)
+    this.handleCreateTeam = this.handleCreateTeam.bind(this)
     this.handleOk = this.handleOk.bind(this)
     this.handleCancel = this.handleCancel.bind(this)
     this.state = {
@@ -148,10 +148,19 @@ class TeamManage extends Component {
       visible: false,
     }
   }
-  showModal() {
-    this.setState({
-      visible: true,
+  handleCreateTeam() {
+    console.log('create !');
+    this.props.createTeam({name: 'zhoaxueyu'},{
+      success: {
+        func: () => {
+          console.log('create done');
+          this.setState({
+            visible: true,
+          })
+        }
+      }
     })
+    this.props.loadUserTeamList('default')
   }
   handleOk() {
     this.setState({
@@ -195,7 +204,7 @@ class TeamManage extends Component {
         包含『团队空间』这一逻辑隔离层， 以实现对应您企业内部各个不同项目， 或者不同逻辑组在云平台上操作对象的隔离， 团队管理员可见对应团队的所有空间的应用等对象。"
                type="info"/>
         <Row className="teamOption">
-          <Button icon="plus" type="primary" size="large" onClick={this.showModal} className="plusBtn">
+          <Button icon="plus" type="primary" size="large" onClick={this.handleCreateTeam} className="plusBtn">
             创建团队
           </Button>
             <Modal title="创建团队" visible={visible}
@@ -242,4 +251,5 @@ function mapStateToProp(state) {
 export default connect(mapStateToProp, {
   loadUserTeamList,
   createTeam,
+  deleteTeam,
 })(TeamManage)
