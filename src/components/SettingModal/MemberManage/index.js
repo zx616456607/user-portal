@@ -57,7 +57,7 @@ let MemberTable =  React.createClass({
   render() {
     let { sortedInfo, filteredInfo } = this.state
     const { searchResult, notFound } = this.props.scope.state
-    const { data } = this.props
+    const { data, scope } = this.props
     console.log('listdata',data);
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
@@ -68,10 +68,25 @@ let MemberTable =  React.createClass({
       defaultPageSize: 5,
       pageSizeOptions: ['5','10','15','20'],
       onShowSizeChange(current, pageSize) {
-        //console.log('Current: ', current, '; PageSize: ', pageSize);
+        console.log('Current: ', current, '; PageSize: ', pageSize);
+        const from = (current-1)*pageSize
+        scope.props.loadUserList({
+          page: from,
+          size: pageSize
+        })
+        scope.setState({
+          pageSize: pageSize
+        })
       },
       onChange(current) {
-        //console.log('Current: ', current);
+        const {pageSize} = scope.state
+        const { users } = scope.props
+        console.log('Current: ', current);
+        scope.props.loadUserList({
+          page: (current-1)*pageSize,
+          size: pageSize
+        })
+        console.log('userList new ',users);
       },
     }
     const columns = [
@@ -371,6 +386,7 @@ class MemberManage extends Component {
       notFound: false,
       visible: false,
       memberList: [],
+      pageSize: 5,
     }
   }
   showModal() {
@@ -379,7 +395,10 @@ class MemberManage extends Component {
     })
   }
   componentWillMount(){
-    loadData(this.props)
+    this.props.loadUserList({
+      page: 0,
+      size: 5
+    })
     
   }
   componentWillReceiveProps(nextProps){
