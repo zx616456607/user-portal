@@ -48,11 +48,14 @@ let MemberTable =  React.createClass({
       success: {
         func: () => {
           console.log('del !');
+          scope.props.loadUserList({
+            page: scope.state.page,
+            size: scope.state.pageSize,
+          })
         },
         isAsync: true
       },
     })
-    scope.props.loadUserList(null)
   },
   render() {
     let { sortedInfo, filteredInfo } = this.state
@@ -222,15 +225,7 @@ let NewMemberForm = React.createClass({
         phone: tel,
         sendEmail: check,
       }
-      let newItem = {
-        key: scope.state.memberList.length,
-        name: name,
-        tel: tel,
-        email: email,
-        style: 0,
-        team: '1',
-        balance: 0,
-      }
+      
       scope.props.createUser(newUser,{
         success: {
           func: () => {
@@ -238,8 +233,7 @@ let NewMemberForm = React.createClass({
               visible: false,
             })
             // scope.state.memberList.push(newItem)
-
-            scope.props.loadUserList(null)
+            
             console.log('loadUserList',scope.props.users);
             scope.props.loadUserList({
               page: scope.state.page,
@@ -412,13 +406,7 @@ class MemberManage extends Component {
     
   }
   componentWillReceiveProps(nextProps){
-    /*const { users } = this.props
-    if(users.length === 0){
-      return
-    }
-    this.setState({
-      memberList: nextProps.users
-    })*/
+    
   }
   render(){
     const { users } = this.props
