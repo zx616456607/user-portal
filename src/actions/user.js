@@ -164,8 +164,7 @@ function fetchDeleteUser(userID, callback) {
       types: [USER_DELETE_REQUEST, USER_DELETE_SUCCESS, USER_DELETE_FAILURE],
       endpoint,
       options: {
-        method: 'DELETE',
-        body
+        method: 'DELETE'
       },
       schema: {},
     },
