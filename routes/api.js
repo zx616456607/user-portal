@@ -167,6 +167,17 @@ module.exports = function (Router) {
   router.post('/devops/managed-projects', devopsController.addManagedProject)
   router.get('/devops/managed-projects', devopsController.listManagedProject)
   router.delete('/devops/managed-projects/:project_id', devopsController.removeManagedProject)
+  // CI flows
+  router.post('/devops/ci-flows', devopsController.createCIFlows)
+  router.get('/devops/ci-flows', devopsController.listCIFlows)
+  router.get('/devops/ci-flows/:flow_id', devopsController.getCIFlow)
+  router.put('/devops/ci-flows/:flow_id', devopsController.updateCIFlow)
+  router.delete('/devops/ci-flows/:flow_id', devopsController.removeCIFlow)
+  // CI flow stages
+  router.get('/devops/ci-flows/:flow_id/stages', devopsController.listFlowStages)
+  router.post('/devops/ci-flows/:flow_id/stages', devopsController.createFlowStages)
+  router.delete('/devops/ci-flows/:flow_id/stages/:stage_id', devopsController.deleteFlowStage)
+  router.put('/devops/ci-flows/:flow_id/stages/:stage_id', devopsController.updateFlowStage)
 
   // Token info
   router.get('/token', tokenController.getTokenInfo)

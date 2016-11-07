@@ -15,6 +15,9 @@ const apiFactory = require('../services/api_factory')
 const logger     = require('../utils/logger.js').getLogger("devops")
 
 /*
+Code repositories
+*/
+/*
 Add a new repository type
 */
 exports.registerRepo = function* () {
@@ -129,6 +132,9 @@ exports.listBranches = function* () {
 }
 
 /*
+Managed projects
+*/
+/*
 {
   "name": "first managed project",
   "is_private": 1,
@@ -188,6 +194,130 @@ exports.removeManagedProject = function* () {
 
   const api = apiFactory.getDevOpsApi(loginUser)
   const result = yield api.deleteBy(["managed-projects", project_id], null)
+
+  this.body = {
+    data: result
+  }
+}
+
+/*
+CI flows
+*/
+exports.createCIFlows = function* (){
+  const loginUser = this.session.loginUser
+  const body = this.request.body
+
+  if (!body.name) {
+    const err = new Error('name of flow is required')
+    err.status = 400
+    throw err
+  }
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.createBy(["ci-flows"], null, body)
+
+  this.body = {
+    data: result
+  }
+}
+
+exports.listCIFlows = function* (){
+  const loginUser = this.session.loginUser
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.getBy(["ci-flows"], null)
+
+  this.body = {
+    data: result
+  }
+}
+
+exports.getCIFlow = function* (){
+  const loginUser = this.session.loginUser
+  const flow_id = this.params.flow_id
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.getBy(["ci-flows", flow_id], null)
+
+  this.body = {
+    data: result
+  }
+}
+
+exports.updateCIFlow = function* (){
+  const loginUser = this.session.loginUser
+  const flow_id = this.params.flow_id
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.updateBy(["ci-flows", flow_id], null)
+
+  this.body = {
+    data: result
+  }
+}
+
+exports.removeCIFlow = function* (){
+  const loginUser = this.session.loginUser
+  const flow_id = this.params.flow_id
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.deleteBy(["ci-flows", flow_id], null)
+
+  this.body = {
+    data: result
+  }
+}
+
+/*
+CI flow stages
+*/
+exports.listFlowStages = function* () {
+  const loginUser = this.session.loginUser
+  const flow_id = this.params.flow_id
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.getBy(["ci-flows", flow_id, "stages"], null)
+
+  this.body = {
+    data: result
+  }
+}
+
+exports.createFlowStages = function* () {
+  const loginUser = this.session.loginUser
+  const flow_id = this.params.flow_id
+  const body = this.request.body
+  // TODO: validate body format
+
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.createBy(["ci-flows", flow_id, "stages"], null, body)
+
+  this.body = {
+    data: result
+  }
+}
+
+exports.deleteFlowStage = function* () {
+  const loginUser = this.session.loginUser
+  const flow_id = this.params.flow_id
+  const stage_id = this.params.stage_id
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.deleteBy(["ci-flows", flow_id, "stages", stage_id], null)
+
+  this.body = {
+    data: result
+  }
+}
+
+exports.updateFlowStage = function* () {
+  const loginUser = this.session.loginUser
+  const flow_id = this.params.flow_id
+  const stage_id = this.params.stage_id
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.updateBy(["ci-flows", flow_id, "stages", stage_id], null)
 
   this.body = {
     data: result
