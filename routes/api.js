@@ -8,7 +8,6 @@
 
 'use strict';
 
-const logger = require('../utils/logger.js').getLogger('api-router')
 const volumeController = require('../controllers/volume')
 const appController = require('../controllers/app_manage')
 const serviceController = require('../controllers/service_manage')
@@ -157,10 +156,12 @@ module.exports = function (Router) {
   router.post('/manage-monitor/getOperationAuditLog', manageMonitorController.getOperationAuditLog)
   router.post('/clusters/:cluster/instances/:instances/getSearchLog', manageMonitorController.getSearchLog)
 
-
   // DevOps service: CI/CD
   router.post('/devops/repos/:type', devopsController.registerRepo)
   router.get('/devops/repos/:type', devopsController.listRepository)
+  router.put('/devops/repos/:type', devopsController.syncRepository)
+  router.delete('/devops/repos/:type', devopsController.removeRepository)
+  router.get('/devops/repos/:type/branches', devopsController.listBranches)
 
   // Token info
   router.get('/token', tokenController.getTokenInfo)

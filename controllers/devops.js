@@ -66,3 +66,64 @@ exports.listRepository = function* () {
     data: result
   }
 }
+
+exports.syncRepository = function* () {
+  const loginUser = this.session.loginUser
+  const repoType = this.params.type
+  if (repoType != "gitlab") {
+    const err = new Error('Only support gitlab for now')
+    err.status = 400
+    throw err
+  }
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.updateBy(["repos", repoType], null)
+
+  this.body = {
+    data: result
+  }
+}
+
+exports.removeRepository = function* () {
+  const loginUser = this.session.loginUser
+  const repoType = this.params.type
+  if (repoType != "gitlab") {
+    const err = new Error('Only support gitlab for now')
+    err.status = 400
+    throw err
+  }
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.deleteBy(["repos", repoType], null)
+
+  this.body = {
+    data: result
+  }
+}
+
+/*
+Require reponame and proejct_id in the query
+*/
+exports.listBranches = function* () {
+  const loginUser = this.session.loginUser
+  const repoType = this.params.type
+  const repoName = this.query.reponame
+  const project_id = this.query.project_id
+  if (repoType != "gitlab") {
+    const err = new Error('Only support gitlab for now')
+    err.status = 400
+    throw err
+  }
+  if (!repoName || !project_id) {
+    const err = new Error('reponame and project_id are required in the query to get the branches information')
+    err.status = 400
+    throw err
+  }
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.getBy(["repos", repoType, "branches"], {"reponame": repoName, "project_id": project_id})
+
+  this.body = {
+    data: result
+  }
+}
