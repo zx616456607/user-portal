@@ -16,9 +16,11 @@ import 'isomorphic-fetch'
 function fetchApi(endpoint, options, schema) {
   if (!options) {
     options = {
-      credentials: 'same-origin',
       method: 'GET'
     }
+  }
+  if (!options.credentials) {
+    options.credentials = 'same-origin'
   }
   if (options.method === 'POST' || options.method === 'PUT') {
     if (!options.headers) options.headers = {}
@@ -30,7 +32,7 @@ function fetchApi(endpoint, options, schema) {
     options.body = JSON.stringify(options.body)
   }
   return fetch(endpoint, options).then(response =>
-   response.json().then(json => ({ json, response }))
+    response.json().then(json => ({ json, response }))
   ).then(({json, response}) => {
     if (!response.ok) {
       return Promise.reject(json)
@@ -145,14 +147,15 @@ export default store => next => action => {
   const [requestType, successType, failureType] = types
   next(actionWith({ type: requestType }))
   return fetchApi(endpoint, fetchAPI.options || {}, schema).then(
-    response =>  next(actionWith({
+    response => next(actionWith({
       response,
       type: successType
     })),
     error => {
       next(actionWith({
         type: failureType,
-        error: error.message || 'Something bad happened'
+        // error: error.message || 'Something bad happened'
+        error: error
       }))
     }
   )
