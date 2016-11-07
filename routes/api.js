@@ -157,11 +157,16 @@ module.exports = function (Router) {
   router.post('/clusters/:cluster/instances/:instances/getSearchLog', manageMonitorController.getSearchLog)
 
   // DevOps service: CI/CD
+  // Repos
   router.post('/devops/repos/:type', devopsController.registerRepo)
   router.get('/devops/repos/:type', devopsController.listRepository)
   router.put('/devops/repos/:type', devopsController.syncRepository)
   router.delete('/devops/repos/:type', devopsController.removeRepository)
   router.get('/devops/repos/:type/branches', devopsController.listBranches)
+  // Managed projects
+  router.post('/devops/managed-projects', devopsController.addManagedProject)
+  router.get('/devops/managed-projects', devopsController.listManagedProject)
+  router.delete('/devops/managed-projects/:project_id', devopsController.removeManagedProject)
 
   // Token info
   router.get('/token', tokenController.getTokenInfo)

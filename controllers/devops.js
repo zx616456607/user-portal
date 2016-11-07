@@ -127,3 +127,69 @@ exports.listBranches = function* () {
     data: result
   }
 }
+
+/*
+{
+  "name": "first managed project",
+  "is_private": 1,
+  "repo_type": "gitlab",
+  "source_full_name": "wanglei/demo-project",
+  "address": "git@gitlab.tenxcloud.com:wanglei/demo-project.git",
+  "gitlab_project_id": 131
+}
+*/
+exports.addManagedProject = function* () {
+  const loginUser = this.session.loginUser
+  const body = this.request.body
+
+  if (!body.name || !body.repo_type || !body.address) {
+    const err = new Error('name, repo_type address are required in the query to get the branches information')
+    err.status = 400
+    throw err
+  }
+
+  switch (body.repo_type) {
+    case "gitlab":
+      if (!body.source_full_name || !body.gitlab_project_id) {
+        const err = new Error("source_full_name and gitlab_project_id for gitlab are required")
+        err.status = 400
+        throw err
+      }
+      break;
+    case "svn":
+    default:
+      const err = new Error('Only support gitlab for now')
+      err.status = 400
+      throw err
+  }
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.createBy(["managed-projects"], null, body)
+
+  this.body = {
+    data: result
+  }
+}
+
+exports.listManagedProject = function* () {
+  const loginUser = this.session.loginUser
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.getBy(["managed-projects"], null)
+
+  this.body = {
+    data: result
+  }
+}
+
+exports.removeManagedProject = function* () {
+  const loginUser = this.session.loginUser
+  const project_id = this.params.project_id
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.deleteBy(["managed-projects", project_id], null)
+
+  this.body = {
+    data: result
+  }
+}
