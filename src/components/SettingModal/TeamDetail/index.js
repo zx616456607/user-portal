@@ -214,11 +214,7 @@ class TeamDetail extends Component{
         key: i,
         title: `内容${i + 1}`,
         description: `内容${i + 1}的描述`,
-        chosen: Math.random() * 2 > 1,
       };
-      if (data.chosen) {
-        targetKeys.push(data.key);
-      }
       mockData.push(data);
     }
     this.setState({ mockData, targetKeys });
@@ -321,7 +317,7 @@ class TeamDetail extends Component{
                     <Col span={10}>成员名</Col>
                     <Col span={12}>所属团队</Col>
                   </Row>
-                  <Row className="listTitle" style={{left:339}}>
+                  <Row className="listTitle" style={{left:393}}>
                     <Col span={10}>成员名</Col>
                     <Col span={12}>所属团队</Col>
                   </Row>
@@ -352,7 +348,7 @@ class TeamDetail extends Component{
               <MemberList />
             </Row>
           </Col>
-          <Col span={3}></Col>
+          <Col span={3}/>
           <Col span={10}>
             <Row style={{marginBottom: 20}}>
               <Col span={6} style={{height: 36, lineHeight: '36px'}}>
@@ -365,16 +361,17 @@ class TeamDetail extends Component{
                   创建新空间
                 </Button>
                 <Modal title="创建新空间" visible={this.state.addSpace}
-                       onOk={this.handleNewSpaceOk} onCancel={this.handleNewSpaceCancel}
-                >
-                  <Row>
-                    <Col>名称</Col>
-                    <Col><Input placeholder="新空间名称"/></Col>
+                       onOk={this.handleNewSpaceOk} onCancel={this.handleNewSpaceCancel} wrapClassName="addSpaceModal">
+                  <Row className="addSpaceItem">
+                    <Col span={3}>名称</Col>
+                    <Col span={21}>
+                      <Input placeholder="新空间名称"/>
+                    </Col>
                   </Row>
-                  <Row>
-                    <Col>备注</Col>
-                    <Col>
-                      <Input placeholder="新空间名称" type="textarea"/>
+                  <Row className="addSpaceItem">
+                    <Col span={3}>备注</Col>
+                    <Col span={21}>
+                      <Input type="textarea" rows={5}/>
                     </Col>
                   </Row>
                 </Modal>
