@@ -13,7 +13,7 @@ import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { getProjectList ,removeProject } from '../../../actions/cicd_flow'
+import { getProjectList ,removeProject , searchProject, filterProject} from '../../../actions/cicd_flow'
 
 import './style/CodeStore.less'
 
@@ -81,22 +81,30 @@ const MyComponent = React.createClass({
     //this function for user click the dropdown menu
     switch(e.key) {
       case '1':
-      this.setState({showModal: true})
+      this.setState({
+        showModal: true,
+        webhookUrl: item.publicKey,
+        repoType: item.repoType
+      })
       break;
       case '2':
-      this.setState({keyModal: true})
+      this.setState({
+        keyModal: true,
+        publicKey: item.publicKey,
+        itemType: item.isPrivate,
+        repoType: item.repoType
+      })
       break;
       default:
       this.setState({showModal: true})
     }
   },
   showItemKeyModal(item) {
-    console.log('key', item.publicKey)
     this.setState({
       keyModal: true,
       publicKey: item.publicKey,
       itemType: item.isPrivate,
-      itemName: item.name
+      repoType: item.repoType
     })
   },
   copyDownloadCode() {
@@ -127,7 +135,6 @@ const MyComponent = React.createClass({
     });
   },
   notActive(id) {
-    console.log('iteml', id)
     const self = this
     Modal.confirm({
       title: '解除激活',
@@ -151,13 +158,8 @@ const MyComponent = React.createClass({
             WebHook
           </Menu.Item>
           <Menu.Item key='2'>
-            <span><i className='fa fa-trash' />&nbsp;
+            <span><i className='fa fa-pencil-square-o' />&nbsp;
             <FormattedMessage {...menusText.show} />
-            </span>
-          </Menu.Item>
-          <Menu.Item key='3'>
-            <span><i className='fa fa-trash' />&nbsp;
-            <FormattedMessage {...menusText.releaseActivation} />
             </span>
           </Menu.Item>
         </Menu>
@@ -185,7 +187,7 @@ const MyComponent = React.createClass({
           <div className='action'>
           
             <Dropdown.Button overlay={dropdown} type='ghost' onClick={()=>this.notActive(item.id)}>
-              <i className='fa fa-pencil-square-o' />&nbsp;
+              <i className='fa fa-trash' />&nbsp;
               <FormattedMessage {...menusText.releaseActivation} />
             </Dropdown.Button>
           </div>
@@ -202,9 +204,9 @@ const MyComponent = React.createClass({
           ]}
          >
           <div style={{padding:"0 20px"}}>
-            <p style={{lineHeight:'30px'}}>检测到关联的代码托管系统： XXX仓库， API老旧请手动：</p>
+            <p style={{lineHeight:'30px'}}>检测到关联的代码托管系统： {this.state.repoType}仓库， API老旧请手动：</p>
             <p style={{lineHeight:'40px'}}>* 将该URL填入到github 项目的Web Hooks URLk</p>
-            <p><Input type="textarea" className="CodeCopy" autosize={{ minRows: 2, maxRows: 6 }} defaultValue="http://gitlab.tenxcloud.com/zhangpc/user-portal/commits/dev-branch"/></p>
+            <p><Input type="textarea" className="CodeCopy" autosize={{ minRows: 2, maxRows: 6 }} defaultValue={this.state.webhookUrl} /></p>
             <p style={{marginTop:'10px'}}>
             <Tooltip title={this.state.copySuccess ? formatMessage(menusText.copySuccess) : formatMessage(menusText.clickCopy)} placement="right">
               <Button type="primary" size="large" onClick={this.copyDownloadCode} onMouseLeave={this.returnDefaultTooltip}><FormattedMessage {...menusText.copyBtn} /></Button>
@@ -220,7 +222,7 @@ const MyComponent = React.createClass({
          >
           <div style={{padding:"0 20px"}}>
             <p style={{lineHeight:'30px'}}>检测到关联的代码托管系统：</p>
-            <p style={{lineHeight:'40px'}}><span style={{color:'#00A0EA'}} className="name">仓库: {this.state.itemName} </span>  <span style={{color:'#00A0EA'}} className="type">属性：{this.state.itemType==1 ? "私有" : "公有"}</span> </p>
+            <p style={{lineHeight:'40px'}}><span style={{color:'#00A0EA'}} className="name">仓库: {this.state.repoType} </span>  <span style={{color:'#00A0EA', marginLeft:'20px'}} className="type">属性：{this.state.itemType==1 ? "私有" : "公有"}</span> </p>
 
             <p style={{lineHeight:'40px'}}>* 请手动配置一下公钥到github 项目中</p>
             <p style={{marginBottom: '10px'}}><Input type="textarea" className="KeyCopy" autosize={{ minRows: 2, maxRows: 6 }} defaultValue={ this.state.publicKey}/></p>
@@ -238,25 +240,12 @@ const MyComponent = React.createClass({
 
 class CodeStore extends Component {
   constructor(props) {
-    super(props);
-    this.state = {
-      filteredInfo: null,
-      sortedInfo: null,
-    }
+    super(props)
   }
 
   componentWillMount() {
     document.title = '代码仓库 | 时速云';
     this.props.getProjectList()
-  }
-  setAgeSort(e) {
-    e.preventDefault();
-    this.setState({
-      sortedInfo: {
-        order: 'descend',
-        columnKey: 'type',
-      },
-    });
   }
   operaMenuClick (e) {
     //this function for user click the dropdown menu
@@ -299,35 +288,30 @@ class CodeStore extends Component {
       copySuccess: true
     });
   }
-
+  handleSearch(e) {
+    const names = e.target.value
+    this.props.searchProject(names)
+  }
+  handleFilter(type) {
+    this.props.filterProject(type.key)
+  }
   render() {
     const { formatMessage } = this.props.intl;
     const scope = this;
-    let { sortedInfo, filteredInfo } = this.state;
-    console.log(sortedInfo, filteredInfo)
-    sortedInfo = sortedInfo || {};
-    filteredInfo = filteredInfo || {};
-    const dropdown = (
-      <Menu onClick={this.operaMenuClick}
-        style={{ width: '100px' }}
-        >
-        <Menu.Item key='1'>
-          <i className='fa fa-eye' />&nbsp;
-          WebHook
+    const menu = (
+      <Menu onClick={(e)=>this.handleFilter(e)}>
+        <Menu.Item key="1">
+         查看 private
         </Menu.Item>
-        <Menu.Item key='2'>
-          <span><i className='fa fa-trash' />&nbsp;
-          <FormattedMessage {...menusText.show} />
-          </span>
+        <Menu.Item key="0">
+         查看 public
         </Menu.Item>
-        <Menu.Item key='3'>
-          <span><i className='fa fa-trash' />&nbsp;
-          <FormattedMessage {...menusText.releaseActivation} />
-          </span>
+        <Menu.Divider />
+        <Menu.Item  key="all">
+         查看全部
         </Menu.Item>
       </Menu>
     );
-
     return (
       <QueueAnim className='TenxFlowList'
         type='right'
@@ -341,7 +325,7 @@ class CodeStore extends Component {
               <FormattedMessage {...menusText.linkCode} />
             </Button>
             </Link>
-            <Input className='searchBox' placeholder={formatMessage(menusText.search)} type='text' />
+            <Input className='searchBox' onPressEnter={(e)=> this.handleSearch(e)} placeholder={formatMessage(menusText.search)} type='text' />
             <i className='fa fa-search'></i>
             <div style={{ clear: 'both' }}></div>
           </div>
@@ -351,8 +335,12 @@ class CodeStore extends Component {
                 <FormattedMessage {...menusText.name} />
               </div>
               <div className='type'>
-                <FormattedMessage {...menusText.attr} />
-                <i className="fa fa-filter" aria-hidden="true"></i>
+               <Dropdown overlay={menu} trigger={['click']}>
+                  <a className="ant-dropdown-link" href="#">
+                  <FormattedMessage {...menusText.attr} />
+                  <i className="fa fa-filter" aria-hidden="true"></i>
+                  </a>
+                </Dropdown>
               </div>
               <div className='codelink'>
                 <FormattedMessage {...menusText.codeSrc} />
@@ -392,7 +380,9 @@ CodeStore.propTypes = {
 export default connect(mapStateToProps,{
 
   getProjectList,
-  removeProject
+  removeProject,
+  searchProject,
+  filterProject
   
 })(injectIntl(CodeStore, {
   withRef: true,
