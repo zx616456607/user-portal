@@ -11,6 +11,7 @@
 
 import * as ActionTypes from '../actions/cicd_flow'
 import merge from 'lodash/merge'
+import reducerFactory from './factory'
 import { cloneDeep, findIndex } from 'lodash'
 function codeRepo(state = {}, action) {
   const defaultState = {
@@ -85,26 +86,24 @@ function getProject(state ={}, action) {
 function getTenxflowList(state = {}, action) {
   const defaultState = {
     isFetching: false,
+    total: 0,
     flowList: []
   }
   switch (action.type) {
     case ActionTypes.GET_TENX_FLOW_LIST_REQUEST:
       return merge({}, defaultState, state, {
-        [cluster]: {
-          isFetching: true
-        }
+        isFetching: true
       })
     case ActionTypes.GET_TENX_FLOW_LIST_SUCCESS:
       return Object.assign({}, state, {
           isFetching: false,
-          flowList: action.response.result.data,
+          flowList: action.response.result.data.results,
+          total: action.response.result.data.total
         }
       )
     case ActionTypes.GET_TENX_FLOW_LIST_FAILURE:
       return merge({}, defaultState, state, {
-        [cluster]: {
-          isFetching: false
-        }
+        isFetching: false
       })
     default:
       return state
@@ -115,7 +114,12 @@ export default function cicd_flow(state = {}, action) {
   return {
     codeRepo: codeRepo(state.codeRepo, action),
     managed: getProject(state.managed, action),
-    getTenxflowList: getTenxflowList(state.getTenxflowList, action)
+    getTenxflowList: getTenxflowList(state.getTenxflowList, action),
+    deleteTenxFlowSingle: reducerFactory({
+      REQUEST: ActionTypes.DELETE_SINGLE_TENX_FLOW_REQUEST,
+      SUCCESS: ActionTypes.DELETE_SINGLE_TENX_FLOW_SUCCESS,
+      FAILURE: ActionTypes.DELETE_SINGLE_TENX_FLOW_FAILURE
+    }, state.deleteTenxFlowSingle, action),
   }
 }
 

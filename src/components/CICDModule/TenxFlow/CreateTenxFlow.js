@@ -220,7 +220,7 @@ let CreateTenxFlow = React.createClass({
     });
     return (
       <div id='CreateTenxFlow' key='CreateTenxFlow'>
-      <Form horizontal form={this.props.form}>
+      <Form horizontal>
         <div className='commonBox'>
           <div className='title'>
             <span><FormattedMessage {...menusText.name} /></span>
@@ -244,7 +244,7 @@ let CreateTenxFlow = React.createClass({
             <FormItem className='flowTypeForm'>
               <RadioGroup {...radioFlowTypeProps} >
                 <Radio key='a' value={'view'}><FormattedMessage {...menusText.viewDefine} /></Radio>
-                <Radio key='b' value={'yaml'}><FormattedMessage {...menusText.yamlDefine} /></Radio>
+                <Radio key='b' value={'yaml'} disabled><FormattedMessage {...menusText.yamlDefine} /></Radio>
               </RadioGroup>
             </FormItem>
             { this.state.currentType == 'yaml' ? [

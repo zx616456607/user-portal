@@ -172,6 +172,7 @@
   "CICD.Tenxflow.TenxFlowList.deloyStart": "Build",
   "CICD.Tenxflow.TenxFlowList.checkImage": "View Image",
   "CICD.Tenxflow.TenxFlowList.delete": "Delete TenxFlow",
+  "CICD.Tenxflow.TenxFlowList.unUpdate": "Not Updated",
   
   "CICD.Tenxflow.CreateTenxFlow.name": "TenxFlow Name",
   "CICD.Tenxflow.CreateTenxFlow.create": "Create Flow Type",
