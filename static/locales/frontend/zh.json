@@ -172,6 +172,7 @@
   "CICD.Tenxflow.TenxFlowList.deloyStart": "立即构建",
   "CICD.Tenxflow.TenxFlowList.checkImage": "查看镜像",
   "CICD.Tenxflow.TenxFlowList.delete": "删除TenxFlow",
+  "CICD.Tenxflow.TenxFlowList.unUpdate": "未更新",
   
   "CICD.Tenxflow.CreateTenxFlow.name": "TenxFlow名称",
   "CICD.Tenxflow.CreateTenxFlow.create": "创建Flow方式",

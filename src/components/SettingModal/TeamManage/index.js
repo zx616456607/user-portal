@@ -257,6 +257,6 @@ export default connect(mapStateToProp, {
   createTeam,
   deleteTeam,
   createTeamspace,
-  addTeamusers, 
+  addTeamusers,
   removeTeamusers,
 })(TeamManage)
