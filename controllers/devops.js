@@ -406,3 +406,57 @@ exports.stopBuild = function* () {
     data: result
   }
 }
+
+/* CD rules
+*/
+exports.createCDRule = function* () {
+  const loginUser = this.session.loginUser
+  const flow_id = this.params.flow_id
+  const body = this.request.body
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.createBy(["ci-flows", flow_id, "cd-rules"], null, body)
+
+  this.body = {
+    data: result
+  }
+}
+
+exports.listCDRules = function* () {
+  const loginUser = this.session.loginUser
+  const flow_id = this.params.flow_id
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.getBy(["ci-flows", flow_id, "cd-rules"], null)
+
+  this.body = {
+    data: result
+  }
+}
+
+exports.removeCDRule = function* () {
+  const loginUser = this.session.loginUser
+  const flow_id = this.params.flow_id
+  const rule_id = this.params.rule_id
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.deleteBy(["ci-flows", flow_id, "cd-rules", rule_id], null)
+
+  this.body = {
+    data: result
+  }
+}
+
+exports.updateCDRule = function* () {
+  const loginUser = this.session.loginUser
+  const flow_id = this.params.flow_id
+  const rule_id = this.params.rule_id
+  const body = this.request.body
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.updateBy(["ci-flows", flow_id, "cd-rules", rule_id], null, body)
+
+  this.body = {
+    data: result
+  }
+}
