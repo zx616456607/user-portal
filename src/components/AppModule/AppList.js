@@ -14,7 +14,6 @@ import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import './style/AppList.less'
 import { loadAppList, stopApps, deleteApps, restartApps, startApps } from '../../actions/app_manage'
-import { DEFAULT_CLUSTER } from '../../constants'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 import { tenxDateFormat } from '../../common/tools'
 import { browserHistory } from 'react-router'
@@ -233,7 +232,11 @@ class AppList extends Component {
     this.setState({
       appList: nextProps.appList
     })
-    let { page, size, name } = nextProps
+    let { page, size, name, cluster } = nextProps
+    if (cluster !== this.props.cluster) {
+      loadData(nextProps)
+      return
+    }
     if (page === this.props.page && size === this.props.size && name === this.props.name) {
       return
     }
@@ -559,18 +562,19 @@ function mapStateToProps(state, props) {
   if (isNaN(size) || size < 1 || size > MAX_PAGE_SIZE) {
     size = DEFAULT_PAGE_SIZE
   }
+  const { cluster } = state.entities.current
   const defaultApps = {
     isFetching: false,
-    cluster: DEFAULT_CLUSTER,
+    cluster: cluster.clusterID,
     appList: []
   }
   const {
     appItems
   } = state.apps
-  const { cluster, appList, isFetching, total } = appItems[DEFAULT_CLUSTER] || defaultApps
+  const { appList, isFetching, total } = appItems[cluster.clusterID] || defaultApps
 
   return {
-    cluster,
+    cluster: cluster.clusterID,
     pathname,
     page,
     size,

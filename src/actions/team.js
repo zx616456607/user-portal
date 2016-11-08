@@ -16,7 +16,7 @@ export const TEAMSPACE_LIST_REQUEST = 'TEAMSPACE_LIST_REQUEST'
 export const TEAMSPACE_LIST_SUCCESS = 'TEAMSPACE_LIST_SUCCESS'
 export const TEAMSPACE_LIST_FAILURE = 'TEAMSPACE_LIST_FAILURE'
 
-// Fetches user list from API.
+// Fetches teamspace list from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchTeamspaceList(teamID) {
   let endpoint = `${API_URL_PREFIX}/teams/${teamID}`
@@ -32,9 +32,9 @@ function fetchTeamspaceList(teamID) {
   }
 }
 
-// Fetches user detail from API unless it is cached.
+// Fetches teamspace list from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function loadUserDetail(userID, requiredFields = []) {
+export function loadTeamspaceList(userID, requiredFields = []) {
   return (dispatch, getState) => {
     return dispatch(fetchTeamspaceList(userID))
   }
@@ -72,7 +72,7 @@ export const TEAM_CLUSTERS_LIST_REQUEST = 'TEAM_CLUSTERS_LIST_REQUEST'
 export const TEAM_CLUSTERS_LIST_SUCCESS = 'TEAM_CLUSTERS_LIST_SUCCESS'
 export const TEAM_CLUSTERS_LIST_FAILURE = 'TEAM_CLUSTERS_LIST_FAILURE'
 
-// Fetches user list from API.
+// Fetches team cluster list from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchTeamClustersList(teamID, query, callback) {
   let endpoint = `${API_URL_PREFIX}/teams/${teamID}/clusters`
@@ -89,7 +89,7 @@ function fetchTeamClustersList(teamID, query, callback) {
   }
 }
 
-// Fetches user detail from API unless it is cached.
+// Fetches team cluster list from API unless it is cached.
 // Relies on Redux Thunk middleware.
 export function loadTeamClustersList(teamID, query, callback) {
   return (dispatch) => {
@@ -182,5 +182,63 @@ function fetchCreateTeamspace(teamID, body, callback) {
 export function createTeamspace(teamID, body, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchCreateTeamspace(teamID, body, callback))
+  }
+}
+
+export const TEAMUSERS_ADD_REQUEST = 'TEAMUSERS_ADD_REQUEST'
+export const TEAMUSERS_ADD_SUCCESS = 'TEAMUSERS_ADD_SUCCESS'
+export const TEAMUSERS_ADD_FAILURE = 'TEAMUSERS_ADD_FAILURE'
+
+// Add team users from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchAddTeamusers(teamID, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/teams/${teamID}/users`
+  return {
+    [FETCH_API]: {
+      types: [TEAMUSERS_ADD_REQUEST, TEAMUSERS_ADD_SUCCESS, TEAMUSERS_ADD_FAILURE],
+      endpoint,
+      options: {
+        method: 'POST',
+        body
+      },
+      schema: {},
+    },
+    callback
+  }
+}
+
+// Add team users from API 
+// Relies on Redux Thunk middleware.
+export function addTeamusers(teamID, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchAddTeamusers(teamID, body, callback))
+  }
+}
+
+export const TEAMUSERS_REMOVE_REQUEST = 'TEAMUSERS_REMOVE_REQUEST'
+export const TEAMUSERS_REMOVE_SUCCESS = 'TEAMUSERS_REMOVE_SUCCESS'
+export const TEAMUSERS_REMOVE_FAILURE = 'TEAMUSERS_REMOVE_FAILURE'
+
+// Remove team users from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchRemoveTeamusers(teamID, userIDs, callback) {
+  let endpoint = `${API_URL_PREFIX}/teams/${teamID}/users/${userIDs}`
+  return {
+    [FETCH_API]: {
+      types: [TEAMUSERS_REMOVE_REQUEST, TEAMUSERS_REMOVE_SUCCESS, TEAMUSERS_REMOVE_FAILURE],
+      endpoint,
+      options: {
+        method: 'DELETE'
+      },
+      schema: {},
+    },
+    callback
+  }
+}
+// Remove team users from API
+// Relies on Redux Thunk middleware.
+export function removeTeamusers(teamID, userIDs, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchRemoveTeamusers(teamID, userIDs, callback))
   }
 }

@@ -13,7 +13,6 @@ import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import { loadServiceDetailEvents } from '../../../actions/services'
-import { DEFAULT_CLUSTER } from '../../../constants'
 import { tenxDateFormat } from '../../../common/tools.js'
 import CommonStatus from '../../CommonStatus'
 import './style/AppServiceEvent.less'
@@ -30,14 +29,14 @@ var MyComponent = React.createClass({
   },
   render: function () {
     const { isFetching, config } = this.props;
-    if(isFetching) {
+    if (isFetching) {
       return (
         <div className='loadingBox'>
           <Spin size='large' />
         </div>
       )
     }
-    if( config.length == 0 || !!!config ) {
+    if (config.length == 0 || !!!config) {
       return (
         <div className='loadingBox'>
           No Data
@@ -55,7 +54,7 @@ var MyComponent = React.createClass({
           <div className='infoBox'>
             <div className='status'>
               <span className='commonSpan'>
-                <CommonStatus status={ item.type } content={ item.reason } />
+                <CommonStatus status={item.type} content={item.reason} />
               </span>
             </div>
             <div className='message'>
@@ -63,7 +62,7 @@ var MyComponent = React.createClass({
             </div>
             <div className='createTime'>
               <span className='commonSpan'>
-                { tenxDateFormat(item.lastSeen) }
+                {tenxDateFormat(item.lastSeen)}
               </span>
             </div>
           </div>
@@ -83,7 +82,7 @@ class AppServiceEvent extends Component {
   constructor(props) {
     super(props);
   }
-  
+
   componentWillMount() {
     loadData(this.props);
   }
@@ -92,7 +91,7 @@ class AppServiceEvent extends Component {
     const { isFetching, eventList } = this.props;
     return (
       <Card id='AppServiceEvent'>
-        <MyComponent isFetching={ isFetching } config={ eventList } />
+        <MyComponent isFetching={isFetching} config={eventList} />
       </Card>
     )
   }
@@ -108,7 +107,7 @@ AppServiceEvent.propTypes = {
 function mapStateToProps(state, props) {
   const defaultEvents = {
     isFetching: false,
-    cluster: DEFAULT_CLUSTER,
+    cluster: props.cluster,
     eventList: []
   }
   const { serviceDetailEvents } = state.services

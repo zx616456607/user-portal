@@ -14,7 +14,6 @@ import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { Input, Select, InputNumber, Button, Form } from 'antd'
 import { postCreateMysqlDbCluster, postCreateRedisDbCluster, loadDbCacheAllNames } from '../../actions/database_cache'
-import { DEFAULT_CLUSTER } from '../../constants'
 import './style/CreateDatabase.less'
 
 const Option = Select.Option;
@@ -22,20 +21,20 @@ const createForm = Form.create;
 const FormItem = Form.Item;
 
 let CreateDatabase = React.createClass({
-  getInitialState: function() {
+  getInitialState: function () {
     return {
       currentType: 'mysql',
       showPwd: 'password'
     }
   },
-  componentWillMount: function(){
+  componentWillMount: function () {
     const { database } = this.props;
     this.setState({
       currentType: database,
       showPwd: 'password'
     });
   },
-  selectDatabaseType: function(database){
+  selectDatabaseType: function (database) {
     //this funciton for user select different database
     this.setState({
       currentType: database
@@ -60,34 +59,34 @@ let CreateDatabase = React.createClass({
       callback();
     } else {
       databaseNames.map((item) => {
-        if(value == item) {
+        if (value == item) {
           callback([new Error('抱歉，该数据库名称已被占用。')]);
           existFlag = true;
         }
       });
       let checkName = /^[a-z]([-a-z0-9]*[a-z0-9])$/;
-      if(!checkName.test(value)) {
+      if (!checkName.test(value)) {
         callback([new Error('数据库名称仅限小写字母、数字和 - 哦~')]);
         existFlag = true;
       }
-      if(value.length < 3) {
+      if (value.length < 3) {
         callback([new Error('数据库名称不能少于3位哦~')]);
         existFlag = true;
       }
-      if(value.length > 15) {
+      if (value.length > 15) {
         callback('数据库名称最多15位哦~');
         existFlag = true;
       }
-      if(!existFlag) {
+      if (!existFlag) {
         callback();
       }
     }
   },
-  checkPwd: function(){
+  checkPwd: function () {
     //this function for user change the password box input type
     //when the type is password and change to the text, user could see the password
     //when the type is text and change to the password, user couldn't see the password
-    if(this.state.showPwd == 'password') {
+    if (this.state.showPwd == 'password') {
       this.setState({
         showPwd: 'text'
       });
@@ -128,10 +127,10 @@ let CreateDatabase = React.createClass({
         CreateDatabaseModalShow: false
       });
       this.props.form.resetFields();
-      if(_this.state.currentType == 'mysql') {
+      if (_this.state.currentType == 'mysql') {
         postCreateMysqlDbCluster(body, loadMysqlDbCacheAllList(cluster));
       } else if (_this.state.currentType == 'redis') {
-        postCreateRedisDbCluster(body )
+        postCreateRedisDbCluster(body)
       }
     });
   },
@@ -154,9 +153,11 @@ let CreateDatabase = React.createClass({
     });
     const passwdProps = getFieldProps('passwd', {
       rules: [
-        { required: this.state.currentType == 'redis' ? false:true ,
+        {
+          required: this.state.currentType == 'redis' ? false : true,
           whitespace: true,
-          message: '请填写密码' },
+          message: '请填写密码'
+        },
       ],
     });
     const selectNamespaceProps = getFieldProps('namespaceSelect', {
@@ -172,131 +173,132 @@ let CreateDatabase = React.createClass({
       onChange: this.onChangeCluster
     });
     return (
-    <div id='CreateDatabase' type='right'>
-    <Form horizontal>
-      <div className='infoBox'>
-        <div className='commonBox'>
-          <div className='title'>
-            <span>类型</span>
-          </div>
-          <div className='inputBox'>
-            <Button size='large' type={ this.state.currentType == 'mysql' ? 'primary' : 'ghost' } onClick={ this.selectDatabaseType.bind(this,'mysql') }>
-              MySQL
+      <div id='CreateDatabase' type='right'>
+        <Form horizontal>
+          <div className='infoBox'>
+            <div className='commonBox'>
+              <div className='title'>
+                <span>类型</span>
+              </div>
+              <div className='inputBox'>
+                <Button size='large' type={this.state.currentType == 'mysql' ? 'primary' : 'ghost'} onClick={this.selectDatabaseType.bind(this, 'mysql')}>
+                  MySQL
             </Button>
-            <Button size='large' type={ this.state.currentType == 'mongo' ? 'primary' : 'ghost' } onClick={ this.selectDatabaseType.bind(this,'mongo') }>
-              Mongo
+                <Button size='large' type={this.state.currentType == 'mongo' ? 'primary' : 'ghost'} onClick={this.selectDatabaseType.bind(this, 'mongo')}>
+                  Mongo
             </Button>
-            <Button size='large' type={ this.state.currentType == 'redis' ? 'primary' : 'ghost' } onClick={ this.selectDatabaseType.bind(this,'redis') }>
-              Redis
+                <Button size='large' type={this.state.currentType == 'redis' ? 'primary' : 'ghost'} onClick={this.selectDatabaseType.bind(this, 'redis')}>
+                  Redis
             </Button>
+              </div>
+              <div style={{ clear: 'both' }}></div>
+            </div>
+            <div className='commonBox'>
+              <div className='title'>
+                <span>部署环境</span>
+              </div>
+              <div className='inputBox'>
+                <FormItem style={{ width: '150px', float: 'left', marginRight: '20px' }}>
+                  <Select {...selectNamespaceProps} className='envSelect' size='large'>
+                    <Option value='jack'>Jack</Option>
+                    <Option value='lucy'>Lucy</Option>
+                    <Option value='yiminghe'>yiminghe</Option>
+                  </Select>
+                </FormItem>
+                <FormItem style={{ width: '150px', float: 'left' }}>
+                  <Select {...selectClusterProps} className='envSelect' size='large'>
+                    <Option value='cce1c71ea85a5638b22c15d86c1f61df'>test</Option>
+                    <Option value='e0e6f297f1b3285fb81d2774225dddd'>产品环境</Option>
+                    <Option value='e0e6f297f1b3285fb81d27742255cfcf'>k8s 1.4</Option>
+                  </Select>
+                </FormItem>
+              </div>
+              <div style={{ clear: 'both' }}></div>
+            </div>
+            <div className='commonBox'>
+              <div className='title'>
+                <span>名称</span>
+              </div>
+              <div className='inputBox'>
+                <FormItem
+                  hasFeedback
+                  help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
+                  >
+                  <Input {...nameProps} size='large' disabled={isFetching} maxLength={20} />
+                </FormItem>
+              </div>
+              <div style={{ clear: 'both' }}></div>
+            </div>
+            <div className='commonBox'>
+              <div className='title'>
+                <span>副本数</span>
+              </div>
+              <div className='inputBox'>
+                <FormItem style={{ width: '80px', float: 'left' }}>
+                  <InputNumber {...servicesProps} size='large' min={1} max={1000} disabled={isFetching} />
+                </FormItem>
+                <span className='litteColor' style={{ float: 'left', paddingLeft: '15px' }}>个</span>
+              </div>
+              <div style={{ clear: 'both' }}></div>
+            </div>
+            <div className='commonBox'>
+              <div className='title'>
+                <span>存储卷</span>
+              </div>
+              <div className='inputBox'>
+                <FormItem>
+                  <Select {...selectStorageProps} className='storageSelect' size='large' disabled={isFetching} >
+                    <Option value='jack'>Jack</Option>
+                    <Option value='lucy'>Lucy</Option>
+                    <Option value='yiminghe'>yiminghe</Option>
+                  </Select>
+                  <i className='fa fa-refresh litteColor'></i>
+                  <i className='fa fa-trash litteColor'></i>
+                </FormItem>
+              </div>
+              <div style={{ clear: 'both' }}></div>
+            </div>
+            <div className='commonBox'>
+              <div className='title'>
+                <span>密码</span>
+              </div>
+              <div className='inputBox'>
+                <FormItem
+                  hasFeedback
+                  >
+                  <Input {...passwdProps} type={this.state.showPwd} size='large' disabled={isFetching} />
+                  <i className={this.state.showPwd == 'password' ? 'fa fa-eye' : 'fa fa-eye-slash'} onClick={this.checkPwd}></i>
+                </FormItem>
+              </div>
+              <div style={{ clear: 'both' }}></div>
+            </div>
           </div>
-          <div style={{ clear:'both' }}></div>
-        </div>
-        <div className='commonBox'>
-          <div className='title'>
-            <span>部署环境</span>
-          </div>
-          <div className='inputBox'>
-            <FormItem style={{ width:'150px',float:'left',marginRight:'20px' }}>
-              <Select {...selectNamespaceProps} className='envSelect' size='large'>
-                <Option value='jack'>Jack</Option>
-                <Option value='lucy'>Lucy</Option>
-                <Option value='yiminghe'>yiminghe</Option>
-              </Select>
-            </FormItem>
-            <FormItem style={{ width:'150px',float:'left' }}>
-              <Select {...selectClusterProps} className='envSelect' size='large'>
-                <Option value='cce1c71ea85a5638b22c15d86c1f61df'>test</Option>
-                <Option value='e0e6f297f1b3285fb81d2774225dddd'>产品环境</Option>
-                <Option value='e0e6f297f1b3285fb81d27742255cfcf'>k8s 1.4</Option>
-              </Select>
-            </FormItem>
-          </div>
-          <div style={{ clear:'both' }}></div>
-        </div>
-        <div className='commonBox'>
-          <div className='title'>
-            <span>名称</span>
-          </div>
-          <div className='inputBox'>
-            <FormItem
-              hasFeedback
-              help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
-            >
-              <Input {...nameProps} size='large' disabled={isFetching} maxLength={20} />
-            </FormItem>
-          </div>
-          <div style={{ clear:'both' }}></div>
-        </div>
-        <div className='commonBox'>
-          <div className='title'>
-            <span>副本数</span>
-          </div>
-          <div className='inputBox'>
-            <FormItem style={{ width:'80px',float:'left' }}>
-              <InputNumber {...servicesProps} size='large' min={1} max={1000} disabled={isFetching} />
-            </FormItem>
-            <span className='litteColor' style={{ float:'left',paddingLeft:'15px' }}>个</span>
-          </div>
-          <div style={{ clear:'both' }}></div>
-        </div>
-        <div className='commonBox'>
-          <div className='title'>
-            <span>存储卷</span>
-          </div>
-          <div className='inputBox'>
-            <FormItem>
-              <Select {...selectStorageProps} className='storageSelect' size='large' disabled={isFetching} >
-                <Option value='jack'>Jack</Option>
-                <Option value='lucy'>Lucy</Option>
-                <Option value='yiminghe'>yiminghe</Option>
-              </Select>
-              <i className='fa fa-refresh litteColor'></i>
-              <i className='fa fa-trash litteColor'></i>
-            </FormItem>
-          </div>
-          <div style={{ clear:'both' }}></div>
-        </div>
-        <div className='commonBox'>
-          <div className='title'>
-            <span>密码</span>
-          </div>
-          <div className='inputBox'>
-            <FormItem
-              hasFeedback
-            >
-              <Input {...passwdProps} type={this.state.showPwd} size='large' disabled={isFetching} />
-              <i className={this.state.showPwd == 'password' ? 'fa fa-eye' :'fa fa-eye-slash' } onClick={this.checkPwd}></i>
-            </FormItem>
-          </div>
-          <div style={{ clear:'both' }}></div>
-        </div>
-      </div>
-      <div className='btnBox'>
-        <Button size='large' onClick={this.handleReset}>
-          取消
+          <div className='btnBox'>
+            <Button size='large' onClick={this.handleReset}>
+              取消
         </Button>
-        <Button size='large' type='primary' onClick={this.handleSubmit}>
-          确定
+            <Button size='large' type='primary' onClick={this.handleSubmit}>
+              确定
         </Button>
+          </div>
+        </Form>
       </div>
-    </Form>
-    </div>
     )
   }
 });
 
 function mapStateToProps(state) {
+  const { cluster } = state.entities.current
   const defaultDbNames = {
     isFetching: false,
-    cluster: DEFAULT_CLUSTER,
+    cluster: cluster.clusterID,
     databaseNames: []
   }
   const { databaseAllNames } = state.databaseCache
   const { databaseNames, isFetching } = databaseAllNames.DbClusters || defaultDbNames
 
   return {
-    cluster: DEFAULT_CLUSTER,
+    cluster: cluster.clusterID,
     databaseNames,
     isFetching
   }

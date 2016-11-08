@@ -11,7 +11,7 @@ import React, { Component, PropTypes } from 'react'
 import { Form, Select, Input, InputNumber, Modal, Checkbox, Button, Card, Menu, Switch, Icon, Spin, message } from 'antd'
 import { connect } from 'react-redux'
 import filter from 'lodash/filter'
-import { DEFAULT_REGISTRY, DEFAULT_CLUSTER } from '../../../../constants'
+import { DEFAULT_REGISTRY } from '../../../../constants'
 import { loadImageDetailTag, loadImageDetailTagConfig } from '../../../../actions/app_center'
 import { checkServiceName } from '../../../../actions/app_manage'
 import { loadFreeVolume, createStorage } from '../../../../actions/storage'
@@ -28,12 +28,10 @@ let MyComponent = React.createClass({
       name: '',
       size: 100,
       format: 'ext4',
-      cluster: ''
     }
   },
   componentWillMount() {
     this.props.loadFreeVolume(this.props.cluster)
-
   },
   getFormValue() {
     const { form } = this.props
@@ -116,6 +114,7 @@ let MyComponent = React.createClass({
   },
   createVolume() {
     const self = this
+    const { cluster } = this.props
     if (!this.state.name) {
       message.error('请填写存储名称')
       return
@@ -127,7 +126,7 @@ let MyComponent = React.createClass({
         size: this.state.size,
         fsType: this.state.format,
       },
-      cluster: self.props.cluster
+      cluster
     }
     this.props.createStorage(storageConfig, {
       success: {
@@ -137,7 +136,7 @@ let MyComponent = React.createClass({
             size: 0,
             format: ''
           })
-          self.props.loadFreeVolume(self.props.cluster)
+          self.props.loadFreeVolume(cluster)
         },
         isAsync: true
       },
@@ -192,7 +191,7 @@ let MyComponent = React.createClass({
         </div>
       )
     } else {
-      if(!getFieldProps('volumeKey').value) {
+      if (!getFieldProps('volumeKey').value) {
         getFieldProps('volumeKey', {
           initialValue: mountPath.map((i, index) => { return index + 1 }),
         });
@@ -204,12 +203,12 @@ let MyComponent = React.createClass({
             {
               mountPath[k - 1] ?
                 <span type='text' className="url">
-                  <Input className="hide"  value={(function(){
-                    if(!getFieldProps(`volumePath${k}`).value) {
-                      getFieldProps(`volumePath${k}`, {initialValue: mountPath[k-1]})
+                  <Input className="hide" value={(function () {
+                    if (!getFieldProps(`volumePath${k}`).value) {
+                      getFieldProps(`volumePath${k}`, { initialValue: mountPath[k - 1] })
                     }
                     return mountPath
-                  })()}/>
+                  })()} />
                   {mountPath[k - 1]}
                 </span> :
                 <Input {...getFieldProps(`volumePath${k}`) } className="urlInt" />
@@ -333,11 +332,6 @@ let NormalDeployBox = React.createClass({
     loadImageDetailTagConfig: PropTypes.func.isRequired,
     selectComposeType: PropTypes.func.isRequired,
   },
-  getInitialState: function () {
-    return {
-      cluster: ''
-    }
-  },
   selectComposeType(type) {
     const parentScope = this.props.scope
     parentScope.setState({
@@ -352,7 +346,7 @@ let NormalDeployBox = React.createClass({
     loadImageTagConfigs(tag, this.props)
   },
   userExists(rule, value, callback) {
-    const { checkServiceName, isCreate } = this.props
+    const { checkServiceName, isCreate, cluster } = this.props
     const { servicesList } = this.props.scope.props.scope.state
     let i = 0
     if (!value) {
@@ -361,10 +355,10 @@ let NormalDeployBox = React.createClass({
       if (!/^[a-z][a-z0-9-]{2,24}$/.test(value)) {
         callback([new Error('抱歉，该服务名称不合法.')])
       } else {
-        if(!isCreate){
+        if (!isCreate) {
           const oldServiceName = this.props.form.getFieldProps('name').value
           servicesList.map((service) => {
-            if((value !== oldServiceName) && (service.id === value)){
+            if ((value !== oldServiceName) && (service.id === value)) {
               callback([new Error('服务名称已经存在')])
               return
             }
@@ -377,7 +371,7 @@ let NormalDeployBox = React.createClass({
             }
           })
         }
-        checkServiceName(this.state.cluster, value, {
+        checkServiceName(cluster, value, {
           success: {
             func: (result) => {
               if (result.data) {
@@ -394,10 +388,6 @@ let NormalDeployBox = React.createClass({
   },
   componentWillMount() {
     loadImageTags(this.props)
-    const cluster = window.localStorage.getItem('cluster')
-    this.setState({
-      cluster: cluster
-    })
   },
   componentWillReceiveProps(nextProps) {
     const {serviceOpen} = nextProps
@@ -411,7 +401,7 @@ let NormalDeployBox = React.createClass({
 
   render: function () {
     const parentScope = this.props.scope;
-    const { imageTags, imageTagsIsFetching, form, composeType } = this.props
+    const { imageTags, imageTagsIsFetching, form, composeType, cluster} = this.props
     const { getFieldProps, getFieldError, isFieldValidating } = form
     const nameProps = getFieldProps('name', {
       rules: [
@@ -563,7 +553,12 @@ let NormalDeployBox = React.createClass({
                 />
               <span className="stateSpan">{form.getFieldValue('volumeSwitch') ? "有状态服务" : "无状态服务"}</span>
               {form.getFieldValue('volumeSwitch') ? [
-                <MyComponent parentScope={parentScope} form={form} cluster={this.state.cluster} registry={this.props.registry} serviceOpen={this.props.serviceOpen}/>
+                <MyComponent
+                  parentScope={parentScope}
+                  form={form}
+                  cluster={cluster}
+                  registry={this.props.registry}
+                  serviceOpen={this.props.serviceOpen} />
               ] : null}
               <div style={{ clear: "both" }}></div>
             </div>
@@ -600,7 +595,9 @@ function mapStateToProps(state, props) {
   }
   const {registry, tag, isFetching, server } = targetImageTag || defaultImageTags
 
+  const { cluster } = state.entities.current
   return {
+    cluster: cluster.clusterID,
     registry,
     registryServer: server,
     imageTags: tag || [],

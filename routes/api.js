@@ -100,6 +100,9 @@ module.exports = function (Router) {
   router.post('/teams', teamController.createTeam)
   router.delete('/teams/:team_id', teamController.deleteTeam)
   router.post('/teams/:team_id/spaces', teamController.createTeamspace)
+  router.post('/teams/:team_id/users', teamController.addTeamusers)
+  //To remove multiple users, seperate the user ids with ",".
+  router.delete('/teams/:team_id/users/:user_id', teamController.removeTeamusers)
 
   // spi
   router.post('/clusters/:cluster/services/:service_name/binddomain', serviceController.bindServiceDomain)
@@ -166,6 +169,7 @@ module.exports = function (Router) {
   router.put('/devops/repos/:type', devopsController.syncRepository)
   router.delete('/devops/repos/:type', devopsController.removeRepository)
   router.get('/devops/repos/:type/branches', devopsController.listBranches)
+  router.get('/devops/repos/:type/user', devopsController.getUserInfo)
   // Managed projects
   router.post('/devops/managed-projects', devopsController.addManagedProject)
   router.get('/devops/managed-projects', devopsController.listManagedProject)
@@ -181,6 +185,17 @@ module.exports = function (Router) {
   router.post('/devops/ci-flows/:flow_id/stages', devopsController.createFlowStages)
   router.delete('/devops/ci-flows/:flow_id/stages/:stage_id', devopsController.deleteFlowStage)
   router.put('/devops/ci-flows/:flow_id/stages/:stage_id', devopsController.updateFlowStage)
+  router.get('/ci-flows/:flow_id/stages/:stage_id', devopsController.getStage)
+
+  // CD rules
+
+
+  // Flow build
+  router.post('/devops/ci-flows/:flow_id/builds', devopsController.createFlowBuild)
+  router.get('/devops/ci-flows/:flow_id/builds', devopsController.listBuilds)
+  router.get('/devops/ci-flows/:flow_id/builds/:flow_build_id', devopsController.getFlowBuild)
+  router.put('/devops/ci-flows/:flow_id/builds/:flow_build_id/stop', devopsController.stopBuild)
+
 
   // Token info
   router.get('/token', tokenController.getTokenInfo)

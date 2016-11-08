@@ -195,8 +195,8 @@ class AppServiceDetail extends Component {
               <span>
                 地址&nbsp;:&nbsp;
                 {
-                  svcDomain ?
-                    (<a target="_blank" href={svcDomain}>{svcDomain}</a>) : (<span>-</span>)
+                  svcDomain.length > 0 ?
+                    (<a target="_blank" href={svcDomain[0]}>{svcDomain[0]}</a>) : (<span>-</span>)
                 }
               </span>
               <br />

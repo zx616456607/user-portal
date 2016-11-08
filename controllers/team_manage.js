@@ -116,7 +116,7 @@ exports.createTeam = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
   const team = this.request.body
-  if (!team || !team.name) {
+  if (!team || !team.teamName) {
     const err = new Error('team name is required.')
     err.status = 400
     throw err
@@ -151,6 +151,31 @@ exports.deleteTeam = function* () {
   const api = apiFactory.getApi(loginUser)
   
   const result = yield api.teams.delete(teamID)
+
+  this.body = {
+    data: result
+  }
+}
+
+exports.addTeamusers = function* () {
+  const teamID = this.params.team_id
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const userIDs = this.request.body
+  const result = yield api.teams.createBy([teamID, 'users'], null, userIDs)
+
+  this.body = {
+    data: result
+  }
+}
+
+exports.removeTeamusers = function* () {
+  const teamID = this.params.team_id
+  const userIDs = this.params.user_ids
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  
+  const result = yield api.teams.deleteBy([teamID, 'users', userIDs])
 
   this.body = {
     data: result
