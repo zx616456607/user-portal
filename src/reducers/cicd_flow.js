@@ -82,9 +82,40 @@ function getProject(state ={}, action) {
   }
 }
 
+function getTenxflowList(state = {}, action) {
+  const defaultState = {
+    isFetching: false,
+    flowList: []
+  }
+  switch (action.type) {
+    case ActionTypes.GET_TENX_FLOW_LIST_REQUEST:
+      return merge({}, defaultState, state, {
+        [cluster]: {
+          isFetching: true
+        }
+      })
+    case ActionTypes.GET_TENX_FLOW_LIST_SUCCESS:
+      return Object.assign({}, state, {
+          isFetching: false,
+          flowList: action.response.result.data,
+        }
+      )
+    case ActionTypes.GET_TENX_FLOW_LIST_FAILURE:
+      return merge({}, defaultState, state, {
+        [cluster]: {
+          isFetching: false
+        }
+      })
+    default:
+      return state
+  }
+}
+
 export default function cicd_flow(state = {}, action) {
   return {
     codeRepo: codeRepo(state.codeRepo, action),
-    managed: getProject(state.managed, action)
+    managed: getProject(state.managed, action),
+    getTenxflowList: getTenxflowList(state.getTenxflowList, action)
   }
 }
+

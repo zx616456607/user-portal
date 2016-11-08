@@ -185,3 +185,24 @@ export function syncRepoList(type) {
     return dispatch(fetchSyncRepo(type))
   }
 }
+
+export const GET_TENX_FLOW_LIST_REQUEST = 'GET_TENX_FLOW_LIST_REQUEST'
+export const GET_TENX_FLOW_LIST_SUCCESS = 'GET_TENX_FLOW_LIST_SUCCESS'
+export const GET_TENX_FLOW_LIST_FAILURE = 'GET_TENX_FLOW_LIST_FAILURE'
+
+function fetchTenxFlowList(callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_TENX_FLOW_LIST_REQUEST, GET_TENX_FLOW_LIST_SUCCESS, GET_TENX_FLOW_LIST_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows`,
+      schema: {},
+    },
+    callback: callback
+  }
+}
+
+export function getTenxFlowList(callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchTenxFlowList(callback))
+  }
+}
