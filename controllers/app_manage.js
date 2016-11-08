@@ -16,6 +16,7 @@ const constants = require('../constants')
 const DEFAULT_PAGE = constants.DEFAULT_PAGE
 const DEFAULT_PAGE_SIZE = constants.DEFAULT_PAGE_SIZE
 const MAX_PAGE_SIZE = constants.MAX_PAGE_SIZE
+const ANNOTATION_TENX_DOMAIN = constants.ANNOTATION_TENX_DOMAIN
 
 exports.createApp = function* () {
   const cluster = this.params.cluster
@@ -221,17 +222,24 @@ exports.getAppServices = function* () {
   const result = yield api.getBy([cluster, 'apps', appName, 'services'], queryObj)
   const services = result.data.services
 
+  let deployments = []
   services.map((service) => {
-    service.images = []
-    service.spec.template.spec.containers.map((container) => {
-      service.images.push(container.image)
+    service.deployment.images = []
+    service.deployment.spec.template.spec.containers.map((container) => {
+      service.deployment.images.push(container.image)
     })
+    // get port info from annotation of service
+    if (service.service.metadata.annotations && service.service.metadata.annotations[ANNOTATION_TENX_DOMAIN]) {
+        service.deployment.ports = service.service.metadata.annotations[ANNOTATION_TENX_DOMAIN]
+        service.deployment.bindingDomains = result.data.bindingDomain
+    }
+    deployments.push(service.deployment)
   })
 
   this.body = {
     cluster,
     appName,
-    data: result.data.services,
+    data: deployments,
     total: result.data.total,
     count: result.data.count,
   }
