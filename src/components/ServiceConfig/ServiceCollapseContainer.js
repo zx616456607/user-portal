@@ -56,7 +56,7 @@ class CollapseContainer extends Component {
   }
   editConfigFile(group) {
     const configtextarea = this.state.configtextarea
-    if (escape(configtextarea).indexOf( "%u" ) > 0) {
+    if (escape(configtextarea).indexOf( '%u' ) > 0) {
       message.error('内容格式输入有误，请重新输入')
       return
     }
@@ -118,13 +118,13 @@ class CollapseContainer extends Component {
     if ( collapseContainer.length === 0) {
       // message.info(this.props.groupname + '未添加配置文件')
       return (
-        <div className="li" style={{lineHeight:'60px', height:'10px'}}>未添加配置文件</div>
+        <div className='li' style={{lineHeight:'60px', height:'10px'}}>未添加配置文件</div>
       )
     }
     if (!collapseContainer) {
       return(
-        <div className="loadingBox">
-          <Spin size="large"/>
+        <div className='loadingBox'>
+          <Spin size='large'/>
         </div>
       )
     }
@@ -132,26 +132,26 @@ class CollapseContainer extends Component {
     configFileList = collapseContainer.map((configFileItem) => {
       return (
         <Timeline.Item key={configFileItem.name}>
-          <Row className="file-item">
-            <div className="line"></div>
+          <Row className='file-item'>
+            <div className='line'></div>
             <table>
               <tbody>
                 <tr>
-                  <td style={{ padding: "15px" }}>
-                    <div style={{width:'180px'}} className="textoverflow"><Icon type="file-text" style={{ marginRight: "10px" }} />{configFileItem.name}</div>
+                  <td style={{ padding: '15px' }}>
+                    <div style={{width:'180px'}} className='textoverflow'><Icon type='file-text' style={{ marginRight: '10px' }} />{configFileItem.name}</div>
                   </td>
-                  <td style={{ padding: "15px 20px" }}>
-                    <Button type="primary" style={{ height: "30px", padding: "0 9px", marginRight: "5px" }}
+                  <td style={{ padding: '15px 20px' }}>
+                    <Button type='primary' style={{ height: '30px', padding: '0 9px'}}
                       onClick={() => this.editConfigModal(this.props.groupname, configFileItem.name)}>
-                      <Icon type="edit" />
+                      <Icon type='edit' />
                     </Button>
-                    <Button type="ghost" onClick={() => this.deleteConfigFile(this.props.groupname, configFileItem.name)} style={{marginLeft:'10px', height: "30px", padding: "0 9px", backgroundColor: "#fff" }} className="config-cross">
-                      <Icon type="cross" />
+                    <Button type='ghost' onClick={() => this.deleteConfigFile(this.props.groupname, configFileItem.name)} style={{marginLeft:'10px', height: '30px', padding: '0 9px', backgroundColor: '#fff' }} className='config-cross'>
+                      <Icon type='cross' />
                     </Button>
                   </td>
                   <td style={{width:'130px'}}>
-                    <div className="li">关联容器 <span className="node-number">0</span></div>
-                    <div className="lis">挂载路径</div>
+                    <div className='li'>关联容器 <span className='node-number'>0</span></div>
+                    <div className='lis'>挂载路径</div>
                   </td>
                   <td style={{ textAlign:'center' }}>
                     <div>暂无挂载</div>
@@ -165,29 +165,29 @@ class CollapseContainer extends Component {
 
     })
     return (
-      <Row className="file-list">
+      <Row className='file-list'>
         <Timeline>
           {configFileList}
         </Timeline>
         {/*                     修改配置文件-弹出层-start     */}
         <Modal
-          title="修改配置文件"
-          wrapClassName="configFile-create-modal"
+          title='修改配置文件'
+          wrapClassName='configFile-create-modal'
           visible={this.state.modalConfigFile}
           onOk={() => this.editConfigFile(this.props.groupname)}
           onCancel={() => { this.setState({ modalConfigFile: false }) } }
           >
-          <div className="configFile-inf">
-            <p className="configFile-tip" style={{ color: "#16a3ea",height:'35px', textIndent:'12px' }}>
-              <Icon type="info-circle-o" style={{ marginRight: "10px" }} />
+          <div className='configFile-inf'>
+            <p className='configFile-tip' style={{ color: '#16a3ea',height:'35px', textIndent:'12px' }}>
+              <Icon type='info-circle-o' style={{ marginRight: '10px' }} />
               即将保存一个配置文件 , 您可以在创建应用 → 添加服务时 , 关联使用该配置
             </p>
             <Form horizontal>
-              <FormItem  {...formItemLayout} label="名称">
-                <Input type="text" className="configName" disabled={true} value={this.state.configName} />
+              <FormItem  {...formItemLayout} label='名称'>
+                <Input type='text' className='configName' disabled={true} value={this.state.configName} />
               </FormItem>
-              <FormItem {...formItemLayout} label="内容">
-                <Input type="textarea" style={{ minHeight: 100 }} value={this.state.configtextarea} onChange={(e)=> this.setInputValue(e)} />
+              <FormItem {...formItemLayout} label='内容'>
+                <Input type='textarea' style={{ minHeight: 100 }} value={this.state.configtextarea} onChange={(e)=> this.setInputValue(e)} />
               </FormItem>
             </Form>
           </div>
