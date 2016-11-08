@@ -117,6 +117,7 @@ class TenxFlowDetail extends Component {
   render() {
     const { formatMessage } = this.props.intl;
     const scope = this;
+    console.log(this.props)
     const tenxflow = this.props.config;
     return (
       <QueueAnim className='TenxFlowDetail'

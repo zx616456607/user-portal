@@ -224,7 +224,7 @@ function postDelTenxFlow(flowId, callback) {
   return {
     [FETCH_API]: {
       types: [DELETE_SINGLE_TENX_FLOW_REQUEST, DELETE_SINGLE_TENX_FLOW_SUCCESS, DELETE_SINGLE_TENX_FLOW_FAILURE],
-      endpoint: `${API_URL_PREFIX}/devops/ci-flows/$(flowId)`,
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}`,
       schema: {},
       options: {
         method: 'DELETE'
@@ -236,7 +236,7 @@ function postDelTenxFlow(flowId, callback) {
 
 export function deleteTenxFlowSingle(flowId, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchTenxFlowList(flowId, callback))
+    return dispatch(postDelTenxFlow(flowId, callback))
   }
 }
 

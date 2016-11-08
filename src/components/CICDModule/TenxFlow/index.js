@@ -106,10 +106,17 @@ let MyComponent = React.createClass({
     //this function for user click the dropdown menu
     let key = e.key;
     let { flowId } = item;
-    const { deleteTenxFlowSingle } = this.props;
+    const { scope } = this.props;
+    const { deleteTenxFlowSingle, getTenxFlowList } = scope.props;
+    console.log(scope.props)
     switch(key) {
       case 'deleteFlow':
-        deleteTenxFlowSingle(flowId)
+        deleteTenxFlowSingle(flowId, {
+          success: {
+            func: () => getTenxFlowList(),
+            isAsync: true
+          }
+        })
         break;
     }
   },
@@ -147,7 +154,7 @@ let MyComponent = React.createClass({
       return (
         <div className='tenxflowDetail' key={item.name} >
           <div className='name'>
-            <Link to='/ci_cd/tenx_flow/tenx_flow_build'>
+            <Link to={`/ci_cd/tenx_flow/tenx_flow_build?${item.flowId}`}>
               <span>{item.name}</span>
             </Link>
           </div>

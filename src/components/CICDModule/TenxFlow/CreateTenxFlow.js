@@ -186,7 +186,6 @@ let CreateTenxFlow = React.createClass({
     //this function for user submit the form
     const { scope, createTenxFlowSingle } = this.props;
     const _this = this;
-    let scopeHistory = scope.props.history;
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         e.preventDefault();
@@ -213,8 +212,9 @@ let CreateTenxFlow = React.createClass({
       }
       createTenxFlowSingle(body, {
         success: {
-          func: (res) => scopeHistory.push({ pathname: '/ci_cd/tenx_flow/tenx_flow_build', state: { config: res.flowId } })
-        }
+          func: (res) => browserHistory.push(`/ci_cd/tenx_flow/tenx_flow_build?${res.data.flow_id}`),
+          isAsync: true
+        },
       })
       scope.setState({
         createTenxFlowModal: false
