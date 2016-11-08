@@ -14,7 +14,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import './style/CodeRepo.less'
-import { getRepoList , addCodeRepo, deleteRepo , registryRepo ,syncRepoList, searchCodeRepo} from '../../../actions/cicd_flow'
+import { getRepoList , addCodeRepo, deleteRepo , registryRepo ,syncRepoList, searchCodeRepo , getUserInfo} from '../../../actions/cicd_flow'
 import GithubComponent from './GithubComponent'
 import SvnComponent from './SvnComponent'
 
@@ -68,6 +68,10 @@ const MyComponent = React.createClass({
       regUrl: '',
       regToken:''
     }
+  },
+  componentWillMount() {
+    const types = this.props.scope.state.repokey
+    this.props.scope.props.getUserInfo(types)
   },
  copyItemKey() {
     const scope = this;
@@ -137,10 +141,6 @@ const MyComponent = React.createClass({
   handleSearch(e) {
     const parentScope = this.props.scope
     const codeName = e.target.value
-    // if (codeName =='') {
-    //   this.props.scope.props.getRepoList(parentScope.state.repokey)
-    //   return
-    // }
     parentScope.props.searchCodeRepo(codeName)
   },
   changeUrl(e) {
@@ -179,7 +179,7 @@ const MyComponent = React.createClass({
     let items = config.map((item) => {
       return (
         <div className='CodeTable' key={item.name} >
-          <div className="name">{item.name}</div>
+          <div className="name textoverflow">{item.name}</div>
           <div className="type">{item.type == false ? "public" : "private"}</div>
           <div className="action">
             {item.status ==1 ? 
@@ -199,7 +199,7 @@ const MyComponent = React.createClass({
     return (
       <div className='codelink'>
         <div className="tableHead">
-          <Icon type="user" /> shwsosfs
+          <Icon type="user" /> {this.props.repoUser.username}
           <Tooltip placement="top" title={formatMessage(menusText.logout)}>
             <Icon type="logout" onClick={()=>this.removeRepo()} style={{margin:'0 20px'}}/>
           </Tooltip>
@@ -251,7 +251,6 @@ class CodeRepo extends Component {
     document.title = '关联代码库 | 时速云';
     const {getRepoList } = this.props
     getRepoList('gitlab')
-    console.log('comme on to ^^^^^^')
   
   }
 
@@ -299,7 +298,7 @@ class CodeRepo extends Component {
             <div className="card-container">
               <p style={{paddingLeft:'36px', lineHeight:'40px'}}>选择代码源</p>
               <Tabs type="card" onChange={(e)=>this.setState({repokey: e})}>
-                <TabPane tab={gitlabBud} key="gitlab"><MyComponent formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} config={this.props.repoList} /></TabPane>
+                <TabPane tab={gitlabBud} key="gitlab"><MyComponent formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} repoUser={this.props.repoUser} config={this.props.repoList} /></TabPane>
                 <TabPane tab={githubBud} key="github"><GithubComponent formatMessage={formatMessage} scope={scope} /></TabPane>
                 <TabPane tab={svnBud} key="svn"><SvnComponent formatMessage={formatMessage} scope={scope} /></TabPane>
                 <TabPane tab={bibucketBud} key="bibucket">无</TabPane>
@@ -318,13 +317,17 @@ function mapStateToProps(state, props) {
     repoList: [],
     isFetching: false
   }
-  const { codeRepo  } = state.cicd_flow
-  
+  const { codeRepo , userInfo} = state.cicd_flow
+  const defaultUser = {
+    username:'',
+    depot:''
+  }
   const { repoList, isFetching } = codeRepo || defaultValue
-
+  const { repoUser } = userInfo || defaultUser
   return {
     repoList,
     isFetching,
+    repoUser
   }
 }
 
@@ -341,7 +344,8 @@ export default connect(mapStateToProps,{
   deleteRepo,
   registryRepo,
   syncRepoList,
-  searchCodeRepo
+  searchCodeRepo,
+  getUserInfo
 })(injectIntl(CodeRepo, {
   withRef: true,
 }));
