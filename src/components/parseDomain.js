@@ -8,9 +8,32 @@
 const ANNOTATION_SVC_DOMAIN = "tenxcloud.com/tenxDomain"
 
 export default function parseServiceDomain(item) {
-  let domain = ""
-  if (item && item.metadata && item.metadata.annotations && item.metadata.annotations[ANNOTATION_SVC_DOMAIN]) {
-    domain = item.metadata.annotations[ANNOTATION_SVC_DOMAIN]
+  let domains = []
+  if (item && item.metadata && item.ports && item.bindingDomains) {
+    item.ports.split(',').map((pairStr) => {
+      const pair = pairStr.split('/')
+      if (pair.length == 2) {
+        const schema = pair[0].toLowerCase()
+        const port = pair[1]
+        // 检查是bindingDomain是否是IP，（此正则并不精确但在此处够用了）
+        item.bindingDomains.map((bindingDomain) => {
+          let domain = ''
+          if (/^(\d{1,3}\.){3}\d{1,3}$/.test(bindingDomain)) {
+            // e.g. http://192.168.1.123:1234
+            domain = schema+'://'+bindingDomain+':'+port
+          }
+          else {
+            // e.g. http://servicename-mengyuan.test.tenxcloud.com:8080
+            domain = schema+'://'+item.metadata.name+'-'+item.metadata.namespace+'.'+bindingDomain+':'+port
+          }
+          // if prefix is http://, remove suffix :80
+          domain = domain.replace(/^(http:\/\/.*):80$/,'$1')
+          // if prefix is https://, remove suffix :443
+          domain = domain.replace(/^(https:\/\/.*):443$/,'$1')
+          domains.push(domain)
+        })
+      } 
+    })
   }
-  return domain
+  return domains
 }

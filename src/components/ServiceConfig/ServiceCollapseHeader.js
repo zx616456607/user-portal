@@ -14,7 +14,6 @@ import { Row, Col, Modal, Button, Form, Icon, Checkbox, Menu, Dropdown, Input, m
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { createConfigFiles, deleteConfigGroup, loadConfigGroup, deleteConfigFiles, addConfigFile } from '../../actions/configs'
 import { connect } from 'react-redux'
-import { DEFAULT_CLUSTER } from '../../constants'
 import { tenxDateFormat } from '../../common/tools.js'
 
 
@@ -65,7 +64,7 @@ class CollapseHeader extends Component {
     }
     let configfile = {
       group,
-      cluster: DEFAULT_CLUSTER,
+      cluster: this.props.cluster,
       name: this.state.configName,
       desc: this.state.configDesc
     }
@@ -143,7 +142,7 @@ class CollapseHeader extends Component {
     let configArray = []
     configArray.push(group)
     let configData = {
-      cluster: DEFAULT_CLUSTER,
+      cluster: this.props.cluster,
       "groups": configArray
     }
     Modal.confirm({
@@ -203,7 +202,7 @@ class CollapseHeader extends Component {
             onOk={(e) => this.createConfigFile(collapseHeader.name)}
             onCancel={(e) => this.createConfigModal(e, false)}
             >
-            <div className="configFile-inf" style={{padding:'0 10px'}}>
+            <div className="configFile-inf" style={{ padding: '0 10px' }}>
               <p className="configFile-tip" style={{ color: "#16a3ea", height: '35px', textIndent: '10px' }}>
                 <Icon type="info-circle-o" style={{ marginRight: "10px" }} />
                 即将保存一个配置文件 , 您可以在创建应用 → 添加服务时 , 关联使用该配置
@@ -233,19 +232,22 @@ CollapseHeader.propTypes = {
   deleteConfigGroup: PropTypes.func.isRequired
 }
 function mapStateToProps(state, props) {
+  const { cluster } = state.entities.current
   const defaultConfigFiles = {
     isFetching: false,
-    cluster: DEFAULT_CLUSTER,
+    cluster: cluster.clusterID,
     configFiles: [],
     configNameList: []
   }
 
   const { configGroupList  } = state.configReducers
 
-  const {configFiles, cluster, isFetching, configNameList} = configGroupList[DEFAULT_CLUSTER] || defaultConfigFiles
-  // const {  } = configNameList[DEFAULT_CLUSTER] || defaultConfigFiles
+  const {configFiles, isFetching, configNameList} = configGroupList[cluster.clusterID] || defaultConfigFiles
   return {
-    configFiles, cluster, isFetching, configNameList
+    configFiles,
+    cluster,
+    isFetching,
+    configNameList
   }
 }
 

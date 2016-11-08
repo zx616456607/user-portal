@@ -28,12 +28,10 @@ let MyComponent = React.createClass({
       name: '',
       size: 100,
       format: 'ext4',
-      cluster: ''
     }
   },
   componentWillMount() {
     this.props.loadFreeVolume(this.props.cluster)
-
   },
   getFormValue() {
     const { form } = this.props
@@ -116,6 +114,7 @@ let MyComponent = React.createClass({
   },
   createVolume() {
     const self = this
+    const { cluster } = this.props
     if (!this.state.name) {
       message.error('请填写存储名称')
       return
@@ -127,7 +126,7 @@ let MyComponent = React.createClass({
         size: this.state.size,
         fsType: this.state.format,
       },
-      cluster: self.props.cluster
+      cluster
     }
     this.props.createStorage(storageConfig, {
       success: {
@@ -137,7 +136,7 @@ let MyComponent = React.createClass({
             size: 0,
             format: ''
           })
-          self.props.loadFreeVolume(self.props.cluster)
+          self.props.loadFreeVolume(cluster)
         },
         isAsync: true
       },
@@ -333,11 +332,6 @@ let NormalDeployBox = React.createClass({
     loadImageDetailTagConfig: PropTypes.func.isRequired,
     selectComposeType: PropTypes.func.isRequired,
   },
-  getInitialState: function () {
-    return {
-      cluster: ''
-    }
-  },
   selectComposeType(type) {
     const parentScope = this.props.scope
     parentScope.setState({
@@ -352,7 +346,7 @@ let NormalDeployBox = React.createClass({
     loadImageTagConfigs(tag, this.props)
   },
   userExists(rule, value, callback) {
-    const { checkServiceName, isCreate } = this.props
+    const { checkServiceName, isCreate, cluster } = this.props
     const { servicesList } = this.props.scope.props.scope.state
     let i = 0
     if (!value) {
@@ -377,7 +371,7 @@ let NormalDeployBox = React.createClass({
             }
           })
         }
-        checkServiceName(this.state.cluster, value, {
+        checkServiceName(cluster, value, {
           success: {
             func: (result) => {
               if (result.data) {
@@ -394,10 +388,6 @@ let NormalDeployBox = React.createClass({
   },
   componentWillMount() {
     loadImageTags(this.props)
-    const cluster = window.localStorage.getItem('cluster')
-    this.setState({
-      cluster: cluster
-    })
   },
   componentWillReceiveProps(nextProps) {
     const {serviceOpen} = nextProps
@@ -411,7 +401,7 @@ let NormalDeployBox = React.createClass({
 
   render: function () {
     const parentScope = this.props.scope;
-    const { imageTags, imageTagsIsFetching, form, composeType } = this.props
+    const { imageTags, imageTagsIsFetching, form, composeType, cluster} = this.props
     const { getFieldProps, getFieldError, isFieldValidating } = form
     const nameProps = getFieldProps('name', {
       rules: [
@@ -563,7 +553,12 @@ let NormalDeployBox = React.createClass({
                 />
               <span className="stateSpan">{form.getFieldValue('volumeSwitch') ? "有状态服务" : "无状态服务"}</span>
               {form.getFieldValue('volumeSwitch') ? [
-                <MyComponent parentScope={parentScope} form={form} cluster={this.state.cluster} registry={this.props.registry} serviceOpen={this.props.serviceOpen} />
+                <MyComponent
+                  parentScope={parentScope}
+                  form={form}
+                  cluster={cluster}
+                  registry={this.props.registry}
+                  serviceOpen={this.props.serviceOpen} />
               ] : null}
               <div style={{ clear: "both" }}></div>
             </div>
@@ -600,7 +595,9 @@ function mapStateToProps(state, props) {
   }
   const {registry, tag, isFetching, server } = targetImageTag || defaultImageTags
 
+  const { cluster } = state.entities.current
   return {
+    cluster: cluster.clusterID,
     registry,
     registryServer: server,
     imageTags: tag || [],

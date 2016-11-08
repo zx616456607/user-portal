@@ -9,8 +9,6 @@
  */
 
 export const API_URL_PREFIX = '/api/v2'
-export const DEFAULT_CLUSTER = 'cce1c71ea85a5638b22c15d86c1f61df'
-// export const DEFAULT_CLUSTER = 'e0e6f297f1b3285fb81d2774225dddd'
 export const DEFAULT_IMAGE_POOL = 'k8s-pool'
 export const DEFAULT_REGISTRY = 'default'
 export const LABEL_APPNAME = 'tenxcloud.com/appName'
