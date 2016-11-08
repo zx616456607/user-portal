@@ -8,39 +8,53 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Card, Button, Form, Dropdown, Select, Menu,} from 'antd'
+import { Card, Button, Form, Select, Menu, } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import './style/CreateModel.less'
+import { connect } from 'react-redux'
+import { loadUserTeamspaceList } from '../../../actions/user'
+import { loadTeamClustersList } from '../../../actions/team'
+import { setCurrent } from '../../../actions'
 
 const FormItem = Form.Item;
 const createForm = Form.create;
 const Option = Select.Option;
-const operaMenu = (<Menu>
-  <Menu.Item key="0">
-    重新部署
-  </Menu.Item>
-  <Menu.Item key="1">
-    弹性伸缩
-  </Menu.Item>
-  <Menu.Item key="2">
-    灰度升级
-  </Menu.Item>
-  <Menu.Item key="3">
-    更改配置
-  </Menu.Item>
-</Menu>);
 
 class CreateModel extends Component {
   constructor(props) {
     super(props)
     this.selectCreateModel = this.selectCreateModel.bind(this)
+    this.spaceNameCheck = this.spaceNameCheck.bind(this)
     this.clusterNameCheck = this.clusterNameCheck.bind(this)
+    this.handleSpaceChange = this.handleSpaceChange.bind(this)
+    this.handleClusterChange = this.handleClusterChange.bind(this)
     this.state = {
       createModel: "fast",
       linkUrl: "fast_create",
-      disabled: true
+      disabled: false,
     }
+  }
+
+  componentWillMount() {
+    const { loadUserTeamspaceList, form, current } = this.props
+    loadUserTeamspaceList('default', { size: 100 })
+    form.setFieldsValue({
+      'spaceFormCheck': current.space.spaceID,
+      'clusterFormCheck': current.cluster.clusterID,
+    })
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const { form, current, loadTeamClustersList } = nextProps
+    if (current.space.spaceID === this.props.current.space.spaceID && current.cluster.clusterID === this.props.current.cluster.clusterID) {
+      return
+    }
+    loadTeamClustersList(current.space.teamID)
+    form.setFieldsValue({
+      'spaceFormCheck': current.space.spaceID,
+      'clusterFormCheck': current.cluster.clusterID,
+    })
   }
 
   selectCreateModel(currentSelect) {
@@ -62,25 +76,94 @@ class CreateModel extends Component {
       createModel: currentSelect
     });
   }
-  clusterNameCheck(rule, value, callback){
-    if(!value){
-      callback([new Error('请选择集群')])
-    } else {
-      window.localStorage.setItem('cluster',value)
+
+  spaceNameCheck(rule, value, callback) {
+    if (!value) {
       this.setState({
-        disabled: false
+        disabled: true
       })
-      callback()
+      callback([new Error('请选择空间')])
+      return
     }
+    this.setState({
+      disabled: false
+    })
+    callback()
   }
+
+  clusterNameCheck(rule, value, callback) {
+    if (!value) {
+      this.setState({
+        disabled: true
+      })
+      callback([new Error('请选择集群')])
+      return
+    }
+    this.setState({
+      disabled: false
+    })
+    callback()
+  }
+
+  handleSpaceChange(value) {
+    const { teamspaces, loadTeamClustersList, setCurrent, form, current } = this.props
+    teamspaces.map(space => {
+      setCurrent({
+        space,
+        team: {
+          teamID: space.teamID
+        }
+      })
+      if (space.spaceID === value) {
+        loadTeamClustersList(space.teamID, { size: 100 }, {
+          success: {
+            func: (result) => {
+              form.setFieldsValue({
+                'clusterFormCheck': result.data[0].clusterID,
+              })
+            },
+            isAsync: true
+          }
+        })
+      }
+    })
+  }
+
+  handleClusterChange(value) {
+    const { teamClusters, setCurrent } = this.props
+    teamClusters.map((cluster) => {
+      if (cluster.clusterID === value) {
+        setCurrent({
+          cluster
+        })
+      }
+    })
+  }
+
   render() {
-    const { children, form} = this.props
+    const {
+      form,
+      isTeamspacesFetching,
+      teamspaces,
+      isTeamClustersFetching,
+      teamClusters
+    } = this.props
     const { getFieldProps, getFieldValue, getFieldError, isFieldValidating } = form
-    const { createModel, linkUrl} = this.state
-    const clusterFormCheck = getFieldProps('clusterFormCheck',{
+    const {
+      createModel,
+      linkUrl,
+    } = this.state
+    const spaceFormCheck = getFieldProps('spaceFormCheck', {
+      rules: [
+        { validator: this.spaceNameCheck }
+      ],
+      onChange: this.handleSpaceChange
+    })
+    const clusterFormCheck = getFieldProps('clusterFormCheck', {
       rules: [
         { validator: this.clusterNameCheck }
-      ]
+      ],
+      onChange: this.handleClusterChange
     })
     return (
       <QueueAnim
@@ -129,29 +212,44 @@ class CreateModel extends Component {
                 </svg>
                 <i className="fa fa-check"></i>
               </div>
-  
               <div className="envirBox">
                 <Form>
-                  <FormItem hasFeedback>
+                  <FormItem hasFeedback key="space">
                     <span>部署环境</span>
-                    <Dropdown overlay={operaMenu} trigger={['click']}>
-                      <Button size="large" type="ghost">
-                        请选择空间
-                        <i className="fa fa-caret-down" />
-                      </Button>
-                    </Dropdown>
                     <Select size="large"
-                            defaultValue="请选择集群"
-                            style={{ width: 200 }}
-                            {...clusterFormCheck}>
-                      <Option value="cce1c71ea85a5638b22c15d86c1f61de">test</Option>
-                      <Option value="cce1c71ea85a5638b22c15d86c1f61df">产品环境</Option>
-                      <Option value="e0e6f297f1b3285fb81d27742255cfcf">k8s 1.4</Option>
+                      placeholder="请选择空间"
+                      style={{ width: 200 }}
+                      {...spaceFormCheck}>
+                      <Option value="default">我的空间</Option>
+                      {
+                        teamspaces.map(space => {
+                          return (
+                            <Option value={space.spaceID}>
+                              {space.spaceName}
+                            </Option>
+                          )
+                        })
+                      }
+                    </Select>
+                  </FormItem>
+                  <FormItem hasFeedback key="cluster">
+                    <Select size="large"
+                      placeholder="请选择集群"
+                      style={{ width: 200 }}
+                      {...clusterFormCheck}>
+                      {
+                        teamClusters.map(cluster => {
+                          return (
+                            <Option value={cluster.clusterID}>
+                              {cluster.clusterName}
+                            </Option>
+                          )
+                        })
+                      }
                     </Select>
                   </FormItem>
                 </Form>
               </div>
-              
               <div style={{ clear: "both" }}></div>
             </div>
           </div>
@@ -177,4 +275,22 @@ CreateModel.propTypes = {
   // Injected by React Router
 }
 CreateModel = createForm()(CreateModel)
-export default CreateModel
+
+function mapStateToProps(state, props) {
+  const { current } = state.entities
+  const { teamspaces } = state.user
+  const { teamClusters } = state.team
+  return {
+    current,
+    isTeamspacesFetching: teamspaces.isFetching,
+    teamspaces: (teamspaces.result ? teamspaces.result.teamspaces : []),
+    isTeamClustersFetching: teamClusters.isFetching,
+    teamClusters: (teamClusters.result ? teamClusters.result.data : []),
+  }
+}
+
+export default connect(mapStateToProps, {
+  loadUserTeamspaceList,
+  loadTeamClustersList,
+  setCurrent,
+})(CreateModel)

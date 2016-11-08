@@ -19,7 +19,6 @@ import CollapseContainer from './ServiceCollapseContainer'
 import { connect } from 'react-redux'
 import { remove } from 'lodash'
 import { loadConfigGroup, configGroupName, createConfigGroup, deleteConfigGroup } from '../../actions/configs'
-import { DEFAULT_CLUSTER } from '../../constants'
 
 
 class CollapseList extends Component {
@@ -27,9 +26,9 @@ class CollapseList extends Component {
     super(props)
   }
   loadData(props) {
-    const { loadConfigGroup } = props
+    const { loadConfigGroup, cluster} = props
     const self = this
-    loadConfigGroup(DEFAULT_CLUSTER)
+    loadConfigGroup(cluster)
   }
   componentWillMount() {
     this.loadData(this.props)
@@ -44,7 +43,7 @@ class CollapseList extends Component {
   loadConfigGroupname(Name) {
     if (Name) {
       const groupName = {
-        cluster: DEFAULT_CLUSTER,
+        cluster: this.props.cluster,
         group: Name
       }
       this.props.configGroupName(groupName)
@@ -137,9 +136,10 @@ class Service extends Component {
       return
     }
     let self = this
+    const { cluster } = this.props
     let configs = {
       groupName,
-      cluster: DEFAULT_CLUSTER
+      cluster
     }
     this.props.createConfigGroup(configs, {
       success: {
@@ -149,7 +149,7 @@ class Service extends Component {
             createModal: false,
             myTextInput: ''
           })
-          self.props.loadConfigGroup(DEFAULT_CLUSTER)
+          self.props.loadConfigGroup(cluster)
         },
         isAsync: true
       },
@@ -181,7 +181,7 @@ class Service extends Component {
     }
     const self = this
     let configData = {
-      cluster: DEFAULT_CLUSTER,
+      cluster,
       "groups": configArray
     }
     Modal.confirm({
@@ -240,17 +240,25 @@ class Service extends Component {
             onOk={() => this.btnCreateConfigGroup()}
             onCancel={(e) => this.configModal(false)}
             >
-            <div className="create-conf-g" style={{padding:'20px 0'}}>
+            <div className="create-conf-g" style={{ padding: '20px 0' }}>
               <div style={{ height: 25 }}>
-                <span style={{width:'50px',display: 'inline-block', fontSize:'14px'}}> 名称 : </span>
-                <Input type="text" style={{width:'80%'}} value={this.state.myTextInput} onPressEnter={() => this.btnCreateConfigGroup()} onChange={(e) => this.createModalInput(e)} />
-              
+                <span style={{ width: '50px', display: 'inline-block', fontSize: '14px' }}> 名称 : </span>
+                <Input type="text" style={{ width: '80%' }} value={this.state.myTextInput} onPressEnter={() => this.btnCreateConfigGroup()} onChange={(e) => this.createModalInput(e)} />
+
               </div>
             </div>
           </Modal>
           {/*创建配置组-弹出层-end*/}
           {/*折叠面板-start*/}
-          <CollapseList loadConfigGroup={this.props.loadConfigGroup} groupData={configGroup} configName={configName} btnDeleteGroup={this.btnDeleteGroup} loading={isFetching} handChageProp={this.handChageProp()} configGroupName={(obj) => this.props.configGroupName(obj)} />
+          <CollapseList
+            cluster={cluster}
+            loadConfigGroup={this.props.loadConfigGroup}
+            groupData={configGroup}
+            configName={configName}
+            btnDeleteGroup={this.btnDeleteGroup}
+            loading={isFetching}
+            handChageProp={this.handChageProp()}
+            configGroupName={(obj) => this.props.configGroupName(obj)} />
           {/*折叠面板-end*/}
         </div>
       </QueueAnim>
@@ -273,17 +281,18 @@ Service.propTypes = {
   withRef: true
 })*/
 function mapStateToProps(state, props) {
+  const { cluster } = state.entities.current
   const defaultConfigList = {
     isFetching: false,
-    cluster: DEFAULT_CLUSTER,
+    cluster: cluster.clusterID,
     configGroup: [],
   }
   const {
-    configGroupList } = state.configReducers
-  const {cluster, configGroup, isFetching } = configGroupList[DEFAULT_CLUSTER] || defaultConfigList
-  // const { configNameList } = configGroupName[DEFAULT_CLUSTER] || defaultConfigList
+    configGroupList
+  } = state.configReducers
+  const {configGroup, isFetching } = configGroupList[cluster.clusterID] || defaultConfigList
   return {
-    cluster,
+    cluster: cluster.clusterID,
     configGroup,
     isFetching
   }

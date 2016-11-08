@@ -112,7 +112,7 @@ class Header extends Component {
     setCurrent({
       cluster
     })
-    message.success(`集群已成功切换到 ${cluster.description}`)
+    message.success(`集群已成功切换到 ${cluster.clusterName}`)
     browserHistory.push('/')
     this.setState({
       selectCluster: cluster,
@@ -161,7 +161,12 @@ class Header extends Component {
   }
 
   render() {
-    const { isTeamspacesFetching, teamspaces, teamClusters } = this.props
+    const {
+      isTeamspacesFetching,
+      teamspaces,
+      isTeamClustersFetching,
+      teamClusters
+    } = this.props
     const {
       spacesVisible,
       clustersVisible,
@@ -172,7 +177,7 @@ class Header extends Component {
       space.name = space.spaceName
     })
     teamClusters.map((cluster) => {
-      cluster.name = cluster.description
+      cluster.name = cluster.clusterName
     })
     return (
       <div id="header">
@@ -207,9 +212,9 @@ class Header extends Component {
               btnStyle={false}
               visible={clustersVisible}
               list={teamClusters}
-              loading={isTeamspacesFetching}
+              loading={isTeamClustersFetching}
               onChange={this.handleClusterChange}
-              selectValue={selectCluster.description} />
+              selectValue={selectCluster.clusterName} />
             {/*<PopSelect  btnStyle={false} list={ClusterResultArr} selectValue="产品环境集群" />*/}
           </div>
         </div>
@@ -235,6 +240,7 @@ function mapStateToProps(state, props) {
   return {
     isTeamspacesFetching: teamspaces.isFetching,
     teamspaces: (teamspaces.result ? teamspaces.result.teamspaces : []),
+    isTeamClustersFetching: teamClusters.isFetching,
     teamClusters: (teamClusters.result ? teamClusters.result.data : []),
   }
 }
