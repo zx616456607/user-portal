@@ -565,16 +565,16 @@ function mapStateToProps(state, props) {
   const { cluster } = state.entities.current
   const defaultApps = {
     isFetching: false,
-    cluster,
+    cluster: cluster.clusterID,
     appList: []
   }
   const {
     appItems
   } = state.apps
-  const { appList, isFetching, total } = appItems[cluster] || defaultApps
+  const { appList, isFetching, total } = appItems[cluster.clusterID] || defaultApps
 
   return {
-    cluster,
+    cluster: cluster.clusterID,
     pathname,
     page,
     size,

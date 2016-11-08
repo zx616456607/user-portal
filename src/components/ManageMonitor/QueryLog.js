@@ -710,7 +710,7 @@ class QueryLog extends Component {
 function mapStateToProps(state, props) {
   const { cluster } = state.entities.current
   const defaultLogs = {
-    cluster,
+    cluster: cluster.clusterID,
     isFetching: false,
     logs: []
   }
@@ -720,10 +720,10 @@ function mapStateToProps(state, props) {
   const { operationAuditLog } = state.manageMonitor
   const { serviceContainers } = state.services
   const { logs, isFetching } = operationAuditLog.logs || defaultLogs
-  const containersList = serviceContainers[cluster] || defaultContainers
+  const containersList = serviceContainers[cluster.clusterID] || defaultContainers
   return {
     containersList,
-    cluster,
+    cluster: cluster.clusterID,
     isFetching,
     logs
   }

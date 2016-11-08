@@ -479,7 +479,7 @@ function mapStateToProps(state, props) {
   const { cluster } = state.entities.current
   const defaultContainers = {
     isFetching: false,
-    cluster,
+    cluster: cluster.clusterID,
     size,
     total: 0,
     containerList: []
@@ -487,10 +487,10 @@ function mapStateToProps(state, props) {
   const {
     containerItems
   } = state.containers
-  const { containerList, isFetching, total } = containerItems[cluster] || defaultContainers
+  const { containerList, isFetching, total } = containerItems[cluster.clusterID] || defaultContainers
 
   return {
-    cluster,
+    cluster: cluster.clusterID,
     pathname,
     page,
     size,

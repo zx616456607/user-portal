@@ -291,14 +291,14 @@ function mapStateToProps(state) {
   const { cluster } = state.entities.current
   const defaultDbNames = {
     isFetching: false,
-    cluster,
+    cluster: cluster.clusterID,
     databaseNames: []
   }
   const { databaseAllNames } = state.databaseCache
   const { databaseNames, isFetching } = databaseAllNames.DbClusters || defaultDbNames
 
   return {
-    cluster,
+    cluster: cluster.clusterID,
     databaseNames,
     isFetching
   }

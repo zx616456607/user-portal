@@ -132,14 +132,14 @@ function mapStateToProps(state, props) {
   const { cluster } = state.entities.current
   const defaultMysqlList = {
     isFetching: false,
-    cluster,
+    cluster: cluster.clusterID,
     databaseInfo: {},
   }
   const { databaseClusterDetail } = state.databaseCache
   const { databaseInfo, isFetching } = databaseClusterDetail.databaseInfo || defaultMysqlList
   return {
     isFetching: false,
-    cluster,
+    cluster: cluster.clusterID,
     databaseInfo: databaseInfo
   }
 }

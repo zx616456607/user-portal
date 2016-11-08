@@ -10,7 +10,7 @@
 'use strict'
 
 const log4js = require('log4js')
-const level = "INFO"
+let level = "INFO"
 const LOGPATH = './logs'
 const fs = require('fs')
 let logger

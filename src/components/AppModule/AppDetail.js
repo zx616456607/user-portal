@@ -184,7 +184,7 @@ function mapStateToProps(state, props) {
   const { cluster } = state.entities.current
   const defaultApp = {
     isFetching: false,
-    cluster,
+    cluster: cluster.clusterID,
     appName: app_name,
     app: {}
   }
@@ -194,7 +194,7 @@ function mapStateToProps(state, props) {
   let targetServices
   const { app, isFetching } = appDetail || defaultServices
   return {
-    cluster,
+    cluster: cluster.clusterID,
     appName: app_name,
     app,
     isFetching,

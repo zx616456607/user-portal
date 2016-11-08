@@ -90,8 +90,8 @@ class Header extends Component {
   handleSpaceChange(space) {
     const { loadTeamClustersList, setCurrent } = this.props
     setCurrent({
-      team: space.teamID,
-      space: space.spaceID
+      team: { teamID: space.teamID },
+      space
     })
     loadTeamClustersList(space.teamID, { size: 100 })
     this.setState({
@@ -110,7 +110,7 @@ class Header extends Component {
     }
     const { setCurrent } = this.props
     setCurrent({
-      cluster: cluster.clusterID
+      cluster
     })
     message.success(`集群已成功切换到 ${cluster.description}`)
     browserHistory.push('/')
@@ -122,17 +122,21 @@ class Header extends Component {
   componentWillMount() {
     const { loadTeamClustersList, setCurrent } = this.props
     const config = getCookie(USER_CURRENT_CONFIG)
-    const [team, space, cluster] = config.split(',')
-    setCurrent({ team, space, cluster })
+    const [teamID, spaceID, clusterID] = config.split(',')
+    setCurrent({
+      team: { teamID },
+      space: { spaceID },
+      cluster: { clusterID },
+    })
     const self = this
     loadSpaces(this.props, {
       success: {
         func: (resultT) => {
           let defaultSpace = resultT.teamspaces[0] || {}
-          if (space === 'default') {
+          if (spaceID === 'default') {
             defaultSpace = {
               spaceName: '我的空间',
-              teamID: team
+              teamID
             }
           }
           this.setState({

@@ -124,7 +124,7 @@ const GithubComponent = React.createClass({
   render: function () {
     const { config, scope , formatMessage } = this.props
     
-    if (!config || config.length ==0) {
+    if (!config) {
       return (
         <div style={{lineHeight:'150px', paddingLeft:'250px'}}>
           <Button type="primary" size="large" onClick={()=>this.setState({authorizeModal: true})}>授权同步代码源</Button>

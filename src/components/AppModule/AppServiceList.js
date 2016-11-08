@@ -701,7 +701,7 @@ function mapStateToProps(state, props) {
   const { cluster } = state.entities.current
   const defaultServices = {
     isFetching: false,
-    cluster,
+    cluster: cluster.clusterID,
     appName,
     serviceList: []
   }
@@ -709,12 +709,12 @@ function mapStateToProps(state, props) {
     serviceItmes
   } = state.services
   let targetServices
-  if (serviceItmes[cluster] && serviceItmes[cluster][appName]) {
-    targetServices = serviceItmes[cluster][appName]
+  if (serviceItmes[cluster.clusterID] && serviceItmes[cluster.clusterID][appName]) {
+    targetServices = serviceItmes[cluster.clusterID][appName]
   }
   const { serviceList, isFetching, total } = targetServices || defaultServices
   return {
-    cluster,
+    cluster: cluster.clusterID,
     appName,
     pathname,
     page,

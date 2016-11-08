@@ -11,7 +11,8 @@ import React, { Component } from 'react'
 import { Row, Col, Alert, Card, Icon, Button, Table, Menu, Dropdown, } from 'antd'
 import './style/TeamDetail.less'
 import { Link } from 'react-router'
-import { deleteTeam, createTeamspace, addTeamusers, removeTeamusers } from '../../../actions/team'
+import { deleteTeam, createTeamspace, addTeamusers, removeTeamusers, 
+         loadTeamspaceList, loadTeamUserList, loadTeamClustersList } from '../../../actions/team'
 import { connect } from 'react-redux'
 
 const memberListdata = [
@@ -302,4 +303,7 @@ export default connect(mapStateToProp, {
   createTeamspace,
   addTeamusers,
   removeTeamusers,
+  loadTeamspaceList,
+  loadTeamUserList,
+  loadTeamClustersList,
 })(TeamDetail)

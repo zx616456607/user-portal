@@ -14,7 +14,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import './style/CodeRepo.less'
-import { getRepoList , addCodeRepo, deleteRepo , registryRepo ,syncRepoList} from '../../../actions/cicd_flow'
+import { getRepoList , addCodeRepo, deleteRepo , registryRepo ,syncRepoList, searchCodeRepo} from '../../../actions/cicd_flow'
 import GithubComponent from './GithubComponent'
 import SvnComponent from './SvnComponent'
 
@@ -134,6 +134,15 @@ const MyComponent = React.createClass({
     const types = this.props.scope.state.repokey
     this.props.scope.props.syncRepoList(types)
   },
+  handleSearch(e) {
+    const parentScope = this.props.scope
+    const codeName = e.target.value
+    // if (codeName =='') {
+    //   this.props.scope.props.getRepoList(parentScope.state.repokey)
+    //   return
+    // }
+    parentScope.props.searchCodeRepo(codeName)
+  },
   changeUrl(e) {
     this.setState({regUrl: e.target.value})
   },
@@ -149,7 +158,7 @@ const MyComponent = React.createClass({
         </div>
       )
     }
-    if (!config || config.length ==0) {
+    if (!config) {
       return (
         <div style={{lineHeight:'150px', paddingLeft:'250px'}}>
           <Button type="primary" size="large" onClick={()=>this.setState({authorizeModal: true})}>授权同步代码源</Button>
@@ -198,7 +207,7 @@ const MyComponent = React.createClass({
             <Icon type="reload" onClick={this.syncRepoList} />
           </Tooltip>
           <div className="right-search">
-            <Input className='searchBox' size="large" style={{width:'180px'}} placeholder={formatMessage(menusText.search)} type='text' />
+            <Input className='searchBox' size="large" onPressEnter={(e)=> this.handleSearch(e)} style={{width:'180px'}} placeholder={formatMessage(menusText.search)} type='text' />
             <i className='fa fa-search'>  </i>
           </div>
         </div>
@@ -331,7 +340,8 @@ export default connect(mapStateToProps,{
   addCodeRepo,
   deleteRepo,
   registryRepo,
-  syncRepoList
+  syncRepoList,
+  searchCodeRepo
 })(injectIntl(CodeRepo, {
   withRef: true,
 }));

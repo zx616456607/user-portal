@@ -8,7 +8,7 @@
  * @author BaiYu
  */
 import React, { Component, PropTypes } from 'react'
-import { Alert, Menu, Button, Card, Input, Tooltip,Table , Dropdown, Modal, Spin } from 'antd'
+import { Alert, Menu, Button, Card, Input, Tooltip, Icon , Dropdown, Modal, Spin } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -164,10 +164,8 @@ const MyComponent = React.createClass({
       );
       return (
         <div className='CodeTable' key={item.name} >
-          <div className='name'>
-            <Link to='/ci_cd/tenx_flow/tenx_flow_build'>
-              <span>{item.name}</span>
-            </Link>
+          <div className='name textoverflow'>
+            <span>{item.name}</span>
           </div>
           {item.isPrivate == 1 ? 
             <div className="type private">
@@ -181,8 +179,8 @@ const MyComponent = React.createClass({
               <span className="margin">public</span>
             </div>
           }
-          <div className='codelink'>
-            {item.address}
+          <div className='codelink textoverflow'>
+            <Icon type="github" /> {item.address}
           </div>
           <div className='action'>
           

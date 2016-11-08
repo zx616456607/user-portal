@@ -147,7 +147,7 @@ function mapStateToProps(state, props) {
   const { cluster } = state.entities.current
   const defaultMysqlList = {
     isFetching: false,
-    cluster,
+    cluster: cluster.clusterID,
     database: 'MySql',
     databaseList: []
   }
@@ -157,7 +157,7 @@ function mapStateToProps(state, props) {
   const { mysqlDatabaseAllList } = state.databaseCache
   const { database, databaseList, isFetching } = mysqlDatabaseAllList.MySql || defaultMysqlList
   return {
-    cluster,
+    cluster: cluster.clusterID,
     database,
     databaseList: databaseList,
     isFetching,

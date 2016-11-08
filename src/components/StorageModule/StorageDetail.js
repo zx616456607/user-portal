@@ -139,7 +139,7 @@ function mapStateToProps(state, props) {
   const defaultInfo = {
     imagePool: props.params.pool,
     volumeName: props.params.storage_name,
-    cluster
+    cluster: cluster.clusterID
   }
   const StorageInfo  = state.storage.storageDetail.StorageInfo || defaultInfo
   return {

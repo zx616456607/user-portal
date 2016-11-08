@@ -16,7 +16,7 @@ export const TEAMSPACE_LIST_REQUEST = 'TEAMSPACE_LIST_REQUEST'
 export const TEAMSPACE_LIST_SUCCESS = 'TEAMSPACE_LIST_SUCCESS'
 export const TEAMSPACE_LIST_FAILURE = 'TEAMSPACE_LIST_FAILURE'
 
-// Fetches user list from API.
+// Fetches teamspace list from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchTeamspaceList(teamID) {
   let endpoint = `${API_URL_PREFIX}/teams/${teamID}`
@@ -32,9 +32,9 @@ function fetchTeamspaceList(teamID) {
   }
 }
 
-// Fetches user detail from API unless it is cached.
+// Fetches teamspace list from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function loadUserDetail(userID, requiredFields = []) {
+export function loadTeamspaceList(userID, requiredFields = []) {
   return (dispatch, getState) => {
     return dispatch(fetchTeamspaceList(userID))
   }
@@ -72,7 +72,7 @@ export const TEAM_CLUSTERS_LIST_REQUEST = 'TEAM_CLUSTERS_LIST_REQUEST'
 export const TEAM_CLUSTERS_LIST_SUCCESS = 'TEAM_CLUSTERS_LIST_SUCCESS'
 export const TEAM_CLUSTERS_LIST_FAILURE = 'TEAM_CLUSTERS_LIST_FAILURE'
 
-// Fetches user list from API.
+// Fetches team cluster list from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchTeamClustersList(teamID, query, callback) {
   let endpoint = `${API_URL_PREFIX}/teams/${teamID}/clusters`
@@ -89,7 +89,7 @@ function fetchTeamClustersList(teamID, query, callback) {
   }
 }
 
-// Fetches user detail from API unless it is cached.
+// Fetches team cluster list from API unless it is cached.
 // Relies on Redux Thunk middleware.
 export function loadTeamClustersList(teamID, query, callback) {
   return (dispatch) => {
