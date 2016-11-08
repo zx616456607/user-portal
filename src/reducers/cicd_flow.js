@@ -130,11 +130,37 @@ function getTenxflowList(state = {}, action) {
   }
 }
 
+function getTenxflowDetail(state = {}, action) {
+  const defaultState = {
+    isFetching: false,
+    flowInfo: {}
+  }
+  switch (action.type) {
+    case ActionTypes.GET_SINGLE_TENX_FLOW_REQUEST:
+      return merge({}, defaultState, state, {
+        isFetching: true
+      })
+    case ActionTypes.GET_SINGLE_TENX_FLOW_SUCCESS:
+      return Object.assign({}, state, {
+          isFetching: false,
+          flowInfo: action.response.result.data.results
+        }
+      )
+    case ActionTypes.GET_SINGLE_TENX_FLOW_FAILURE:
+      return merge({}, defaultState, state, {
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
+
 export default function cicd_flow(state = {}, action) {
   return {
     codeRepo: codeRepo(state.codeRepo, action),
     managed: getProject(state.managed, action),
     getTenxflowList: getTenxflowList(state.getTenxflowList, action),
+    getTenxflowDetail: getTenxflowDetail(state.getTenxflowDetail, action),
     deleteTenxFlowSingle: reducerFactory({
       REQUEST: ActionTypes.DELETE_SINGLE_TENX_FLOW_REQUEST,
       SUCCESS: ActionTypes.DELETE_SINGLE_TENX_FLOW_SUCCESS,

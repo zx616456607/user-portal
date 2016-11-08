@@ -197,6 +197,7 @@
   "CICD.Tenxflow.TenxFlowDetailAlert.alertForth": "自动部署失败",
   "CICD.Tenxflow.TenxFlowDetailAlert.cancel": "取消",
   "CICD.Tenxflow.TenxFlowDetailAlert.submit": "确定",
+  "CICD.Tenxflow.TenxFlowDetailAlert.tooltips": "TenxFlow：这里完成【代码项目构建、测试】等流程的定义与执行，可以实现若干个（≥1）项目组成的一个Flow，由若干个项目流程化完成一个Flow，直至完成整个总项目，其中大部分流程以生成应用镜像为结束标志。",
   
   "CICD.Tenxflow.TenxFlowDetailYaml.tooltips": "当前TenxFlow对应的，TenxFlow Yaml文件，您可以保存以使后续快速创建工作流，实现TenxFlow复用。",
   

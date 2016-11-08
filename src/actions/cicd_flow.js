@@ -264,3 +264,24 @@ export function createTenxFlowSingle(flowInfo, callback) {
     return dispatch(postCreateTenxFlow(flowInfo, callback))
   }
 }
+
+export const GET_SINGLE_TENX_FLOW_REQUEST = 'GET_SINGLE_TENX_FLOW_REQUEST'
+export const GET_SINGLE_TENX_FLOW_SUCCESS = 'GET_SINGLE_TENX_FLOW_SUCCESS'
+export const GET_SINGLE_TENX_FLOW_FAILURE = 'GET_SINGLE_TENX_FLOW_FAILURE'
+
+function fethcTenxFlowDetail(flowId, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_SINGLE_TENX_FLOW_REQUEST, GET_SINGLE_TENX_FLOW_SUCCESS, GET_SINGLE_TENX_FLOW_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}`,
+      schema: {},
+    },
+    callback: callback
+  }
+}
+
+export function getTenxFlowDetail(flowId, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fethcTenxFlowDetail(flowId, callback))
+  }
+}
