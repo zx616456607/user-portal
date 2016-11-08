@@ -14,6 +14,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../constants'
+import { deleteTenxFlowSingle } from '../../../../actions/cicd_flow'
 import './style/TenxFlowDetailSetting.less'
 import { browserHistory } from 'react-router';
 
@@ -43,16 +44,24 @@ let TenxFlowDetailSetting = React.createClass ({
     document.title = 'TenxFlow | 时速云';
   },
   deleteConfirm: function () {
+    const { deleteTenxFlowSingle, flowId } = this.props;
     const { formatMessage } = this.props.intl;
     confirm({
       title: formatMessage(menusText.deleteConfirm),
-      onOk() {},
+      onOk() {
+        deleteTenxFlowSingle(flowId, {
+          success: {
+            func: () => browserHistory.push('/ci_cd/tenx_flow'),
+            isAsync: true
+          }
+        })
+      },
       onCancel() {},
     });
   },
   render() {
     const { formatMessage } = this.props.intl;
-    const { scope } = this.props;
+    const { scope, flowId } = this.props;
     return (
     <Card id='TenxFlowDetailSetting' key='TenxFlowDetailSetting'>
       <p>
@@ -79,7 +88,7 @@ TenxFlowDetailSetting.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-  
+  deleteTenxFlowSingle
 })(injectIntl(TenxFlowDetailSetting, {
   withRef: true,
 }));

@@ -174,6 +174,19 @@
   "CICD.Tenxflow.TenxFlowList.delete": "删除TenxFlow",
   "CICD.Tenxflow.TenxFlowList.unUpdate": "未更新",
   
+  "CICD.Tenxflow.TenxFlowDetail.search": "搜索",
+  "CICD.Tenxflow.TenxFlowDetail.name": "名称",
+  "CICD.Tenxflow.TenxFlowDetail.updateTime": "更新时间",
+  "CICD.Tenxflow.TenxFlowDetail.status": "构建状态",
+  "CICD.Tenxflow.TenxFlowDetail.opera": "操作",
+  "CICD.Tenxflow.TenxFlowDetail.tooltips": "TenxFlow：这里完成【代码项目构建、测试】等流程的定义与执行，可以实现若干个（≥1）项目组成的一个Flow，由若干个项目流程化完成一个Flow，直至完成整个总项目，其中大部分流程以生成应用镜像为结束标志。",
+  "CICD.Tenxflow.TenxFlowDetail.create": "创建TenxFlow",
+  "CICD.Tenxflow.TenxFlowDetail.deloyLog": "构建记录",
+  "CICD.Tenxflow.TenxFlowDetail.deloyStart": "立即构建",
+  "CICD.Tenxflow.TenxFlowDetail.checkImage": "查看镜像",
+  "CICD.Tenxflow.TenxFlowDetail.delete": "删除TenxFlow",
+  "CICD.Tenxflow.TenxFlowDetail.unUpdate": "未更新",
+  
   "CICD.Tenxflow.CreateTenxFlow.name": "TenxFlow名称",
   "CICD.Tenxflow.CreateTenxFlow.create": "创建Flow方式",
   "CICD.Tenxflow.CreateTenxFlow.viewDefine": "可视化流程定义",
@@ -197,6 +210,7 @@
   "CICD.Tenxflow.TenxFlowDetailAlert.alertForth": "自动部署失败",
   "CICD.Tenxflow.TenxFlowDetailAlert.cancel": "取消",
   "CICD.Tenxflow.TenxFlowDetailAlert.submit": "确定",
+  "CICD.Tenxflow.TenxFlowDetailAlert.unUpdate": "未更新",
   "CICD.Tenxflow.TenxFlowDetailAlert.tooltips": "TenxFlow：这里完成【代码项目构建、测试】等流程的定义与执行，可以实现若干个（≥1）项目组成的一个Flow，由若干个项目流程化完成一个Flow，直至完成整个总项目，其中大部分流程以生成应用镜像为结束标志。",
   
   "CICD.Tenxflow.TenxFlowDetailYaml.tooltips": "当前TenxFlow对应的，TenxFlow Yaml文件，您可以保存以使后续快速创建工作流，实现TenxFlow复用。",
@@ -301,6 +315,10 @@
   "CICD.Tenxflow.TenxFlowDetailFlowCard.logBtn": "执行记录",
   "CICD.Tenxflow.TenxFlowDetailFlowCard.restartBtn": "重启",
   "CICD.Tenxflow.TenxFlowDetailFlowCard.editBtn": "编辑项目",
+  
+  "CICD.Tenxflow.TenxFlowDetailFlow.title": "部署记录",
+  "CICD.Tenxflow.TenxFlowDetailFlow.tooltip": "TenxFlow流程定义，这里您可以定义一系列构建所需要的项目执行过程，可以是代码构建，亦或是开发自测，也可以是自动化集成、并实现自动化部署的一个All-In-One Platform",
+  "CICD.Tenxflow.TenxFlowDetailFlow.add": "添加Flow项目",
   
   "CICD.Tenxflow.CICDSettingModal.tooltip": "当该项目对应的代码仓库，发生下面的操作时触发持续集成",
   "CICD.Tenxflow.CICDSettingModal.branch": "提交代码到branch",

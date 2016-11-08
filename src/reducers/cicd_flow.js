@@ -161,16 +161,21 @@ export default function cicd_flow(state = {}, action) {
     managed: getProject(state.managed, action),
     getTenxflowList: getTenxflowList(state.getTenxflowList, action),
     getTenxflowDetail: getTenxflowDetail(state.getTenxflowDetail, action),
-    deleteTenxFlowSingle: reducerFactory({
-      REQUEST: ActionTypes.DELETE_SINGLE_TENX_FLOW_REQUEST,
-      SUCCESS: ActionTypes.DELETE_SINGLE_TENX_FLOW_SUCCESS,
-      FAILURE: ActionTypes.DELETE_SINGLE_TENX_FLOW_FAILURE
-    }, state.deleteTenxFlowSingle, action),
     createTenxFlowSingle: reducerFactory({
       REQUEST: ActionTypes.CREATE_SINGLE_TENX_FLOW_REQUEST,
       SUCCESS: ActionTypes.CREATE_SINGLE_TENX_FLOW_SUCCESS,
       FAILURE: ActionTypes.CREATE_SINGLE_TENX_FLOW_FAILURE
     }, state.createTenxFlowSingle, action),
+    updateTenxFlowAlert: reducerFactory({
+      REQUEST: ActionTypes.UPDATE_TENX_FLOW_ALERT_REQUEST,
+      SUCCESS: ActionTypes.UPDATE_TENX_FLOW_ALERT_SUCCESS,
+      FAILURE: ActionTypes.UPDATE_TENX_FLOW_ALERT_FAILURE
+    }, state.updateTenxFlowAlert, action),
+    deleteTenxFlowSingle: reducerFactory({
+      REQUEST: ActionTypes.DELETE_SINGLE_TENX_FLOW_REQUEST,
+      SUCCESS: ActionTypes.DELETE_SINGLE_TENX_FLOW_SUCCESS,
+      FAILURE: ActionTypes.DELETE_SINGLE_TENX_FLOW_FAILURE
+    }, state.deleteTenxFlowSingle, action),
   }
 }
 

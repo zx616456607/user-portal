@@ -20,29 +20,6 @@ import TestModal from '../../TerminalModal'
 import './style/TenxFlowList.less'
 import TenxFlowBuildLog from './TenxFlowBuildLog.js'
 
-let testData = [
-  {
-    'name': 'test1',
-    'updateTime': '1小时前',
-    'status': 'finish'
-  },
-  {
-    'name': 'test2',
-    'updateTime': '2小时前',
-    'status': 'running'
-  },
-  {
-    'name': 'test3',
-    'updateTime': '3小时前',
-    'status': 'finish'
-  },
-  {
-    'name': 'test4',
-    'updateTime': '4小时前',
-    'status': 'fail'
-  },
-]
-
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
 

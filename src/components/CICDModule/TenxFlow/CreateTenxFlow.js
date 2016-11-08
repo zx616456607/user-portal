@@ -192,30 +192,34 @@ let CreateTenxFlow = React.createClass({
         return;
       }
       let body = {};
-      if( _this.emailAlert ) {       
-        body = {
-          'name': values.name,
+      if( _this.state.emailAlert ) {
+        let temp = {
           'email_list': values.inputEmail.split(','),
           'ci': {
             'success_notification': values.checkFirst,
             'failed_notification': values.checkSecond
-            },
+          },
           'cd': {
             'success_notification': values.checkThird,
             'failed_notification': values.checkForth
-            }
+          }
+        }       
+        body = {
+          'name': values.name,
+          'notification_config': JSON.stringify(temp)
         }
       } else {
         body = {
-          'name': values.name
+          'name': values.name,
+          'notification_config': null
         }
       }
       createTenxFlowSingle(body, {
         success: {
-          func: (res) => browserHistory.push(`/ci_cd/tenx_flow/tenx_flow_build?${res.data.flow_id}`),
+          func: (res) => browserHistory.push(`/ci_cd/tenx_flow/tenx_flow_build?${res.data.flowId}`),
           isAsync: true
         },
-      })
+      });
       scope.setState({
         createTenxFlowModal: false
       });
