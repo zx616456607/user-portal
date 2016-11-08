@@ -33,10 +33,10 @@ let ResetPassWord = React.createClass({
       })
     }
   },
-  handleReset(e) {
+  handleCancel(e) {
     e.preventDefault();
     this.props.form.resetFields()
-    this.props.resetPsw()
+    this.props.onChange()
   },
   
   handleSubmit(e) {
@@ -54,7 +54,8 @@ let ResetPassWord = React.createClass({
           success: {
             func: () => {
               console.log('Submit!!!');
-              this.props.resetPsw()
+              this.props.form.resetFields()
+              this.props.onChange()
             }
           }
         })
@@ -131,6 +132,7 @@ class Information extends Component{
   constructor(props){
     super(props)
     this.handleRevise = this.handleRevise.bind(this)
+    this.resetPsw = this.resetPsw.bind(this)
     this.state = {
       revisePass: false,
     }
