@@ -58,7 +58,7 @@ class Information extends Component{
 
   render(){
     const { revisePass, password } = this.state
-    const { userDetail, users } = this.props
+    const { userDetail } = this.props
     
     let roleName
     switch (userDetail.role) {
@@ -124,28 +124,22 @@ class Information extends Component{
 
 function mapStateToProp(state) {
   let userDetailData = {
-    name: "",
-    type: "",
-    tel: "",
+    displayName: "",
+    role: 0,
+    phone: "",
     email: "",
-    balance: ""
+    balance: 0
   }
-  const {userDetail, users} = state.user
+  const {userDetail} = state.user
   if (userDetail.result && userDetail.result.data) {
     userDetailData = userDetail.result.data
   }
-  let usersData = []
-  if (users.result && users.result.data) {
-    usersData = users.result.data
-  }
   return {
-    userDetail: userDetailData,
-    users: usersData
+    userDetail: userDetailData
   }
 }
 
 export default connect(mapStateToProp, {
   loadUserDetail,
-  loadUserList,
   updateUser,
 })(Information)
