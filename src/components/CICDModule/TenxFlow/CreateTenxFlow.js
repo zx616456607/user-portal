@@ -13,6 +13,7 @@ import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import { createTenxFlowSingle } from '../../../actions/cicd_flow'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import './style/CreateTenxFlow.less'
 import { browserHistory } from 'react-router';
@@ -149,7 +150,22 @@ let CreateTenxFlow = React.createClass({
     if(this.state.otherEmail && !!!value){
        callback([new Error('请输入邮件通知地址')]);
     }else{
-      callback();
+      if(this.state.otherEmail) {        
+        let emailList = value.split(',');
+        let emailCheck = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
+        let flag = true;
+        emailList.map((item) => {
+          if( !emailCheck.test(item) ) {
+            flag = false;
+            callback([new Error('请输入正确邮件地址')]);
+          }
+        });
+        if(flag) {        
+          callback();
+        }      
+      } else {
+        callback();
+      }
     }
   },
   handleReset(e) {
@@ -168,7 +184,7 @@ let CreateTenxFlow = React.createClass({
   },
   handleSubmit(e) {
     //this function for user submit the form
-    const { scope } = this.props;
+    const { scope, createTenxFlowSingle } = this.props;
     const _this = this;
     let scopeHistory = scope.props.history;
     this.props.form.validateFields((errors, values) => {
@@ -176,13 +192,33 @@ let CreateTenxFlow = React.createClass({
         e.preventDefault();
         return;
       }
-      _this.setState({
-        currentTenxFlow: values
-      });
+      let body = {};
+      if( _this.emailAlert ) {       
+        body = {
+          'name': values.name,
+          'email_list': values.inputEmail.split(','),
+          'ci': {
+            'success_notification': values.checkFirst,
+            'failed_notification': values.checkSecond
+            },
+          'cd': {
+            'success_notification': values.checkThird,
+            'failed_notification': values.checkForth
+            }
+        }
+      } else {
+        body = {
+          'name': values.name
+        }
+      }
+      createTenxFlowSingle(body, {
+        success: {
+          func: (res) => scopeHistory.push({ pathname: '/ci_cd/tenx_flow/tenx_flow_build', state: { config: res.flowId } })
+        }
+      })
       scope.setState({
         createTenxFlowModal: false
       });
-      scopeHistory.push({ pathname: '/ci_cd/tenx_flow/tenx_flow_build', state: { config: values } });
     });
   },
   render() {
@@ -340,7 +376,7 @@ CreateTenxFlow.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-
+  createTenxFlowSingle
 })(injectIntl(CreateTenxFlow, {
   withRef: true,
 }));

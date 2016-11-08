@@ -120,6 +120,11 @@ export default function cicd_flow(state = {}, action) {
       SUCCESS: ActionTypes.DELETE_SINGLE_TENX_FLOW_SUCCESS,
       FAILURE: ActionTypes.DELETE_SINGLE_TENX_FLOW_FAILURE
     }, state.deleteTenxFlowSingle, action),
+    createTenxFlowSingle: reducerFactory({
+      REQUEST: ActionTypes.CREATE_SINGLE_TENX_FLOW_REQUEST,
+      SUCCESS: ActionTypes.CREATE_SINGLE_TENX_FLOW_SUCCESS,
+      FAILURE: ActionTypes.CREATE_SINGLE_TENX_FLOW_FAILURE
+    }, state.createTenxFlowSingle, action),
   }
 }
 

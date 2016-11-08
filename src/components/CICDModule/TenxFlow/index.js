@@ -13,7 +13,7 @@ import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { getTenxFlowList } from '../../../actions/cicd_flow'
+import { getTenxFlowList, deleteTenxFlowSingle } from '../../../actions/cicd_flow'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import CreateTenxFlow from './CreateTenxFlow.js'
 import TestModal from '../../TerminalModal'
@@ -104,6 +104,14 @@ let MyComponent = React.createClass({
   },
   operaMenuClick: function (item, e) {
     //this function for user click the dropdown menu
+    let key = e.key;
+    let { flowId } = item;
+    const { deleteTenxFlowSingle } = this.props;
+    switch(key) {
+      case 'deleteFlow':
+        deleteTenxFlowSingle(flowId)
+        break;
+    }
   },
   showDeloyLog: function (item, e) {
     //this function for show user the deploy log of the tenxflow
@@ -124,12 +132,12 @@ let MyComponent = React.createClass({
     let items = config.map((item) => {
       const dropdown = (
         <Menu onClick={this.operaMenuClick.bind(this, item)}>
-          <Menu.Item key='1'>
+          <Menu.Item key='viewImage'>
             <i className='fa fa-eye' style={{ float:'left', lineHeight:'32px', marginRight:'7px' }} />&nbsp;
             <span style={{ float:'left', lineHeight:'32px' }}><FormattedMessage {...menusText.checkImage} /></span>
             <div style={{ clear:'both' }}></div>
           </Menu.Item>
-          <Menu.Item key='2'>
+          <Menu.Item key='deleteFlow'>
             <i className='fa fa-trash' style={{ float:'left', lineHeight:'32px', marginRight:'7px' }} />&nbsp;
             <span style={{ float:'left', lineHeight:'32px' }}><FormattedMessage {...menusText.delete} /></span>
             <div style={{ clear:'both' }}></div>
@@ -293,7 +301,8 @@ TenxFlowList.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-  getTenxFlowList
+  getTenxFlowList,
+  deleteTenxFlowSingle
 })(injectIntl(TenxFlowList, {
   withRef: true,
 }));

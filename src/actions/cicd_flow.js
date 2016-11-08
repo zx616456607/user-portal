@@ -230,3 +230,28 @@ export function deleteTenxFlowSingle(flowId, callback) {
     return dispatch(fetchTenxFlowList(flowId, callback))
   }
 }
+
+export const CREATE_SINGLE_TENX_FLOW_REQUEST = 'CREATE_SINGLE_TENX_FLOW_REQUEST'
+export const CREATE_SINGLE_TENX_FLOW_SUCCESS = 'CREATE_SINGLE_TENX_FLOW_SUCCESS'
+export const CREATE_SINGLE_TENX_FLOW_FAILURE = 'CREATE_SINGLE_TENX_FLOW_FAILURE'
+
+function postCreateTenxFlow(flowInfo, callback) {
+  return {
+    [FETCH_API]: {
+      types: [CREATE_SINGLE_TENX_FLOW_REQUEST, CREATE_SINGLE_TENX_FLOW_SUCCESS, CREATE_SINGLE_TENX_FLOW_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows`,
+      schema: {},
+      options: {
+        method: 'POST',
+        body: flowInfo
+      }
+    },
+    callback: callback
+  }
+}
+
+export function createTenxFlowSingle(flowInfo, callback) {
+  return (dispatch, getState) => {
+    return dispatch(postCreateTenxFlow(flowInfo, callback))
+  }
+}
