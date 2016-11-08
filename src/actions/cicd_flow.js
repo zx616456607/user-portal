@@ -98,6 +98,7 @@ function fetchAddCodeRepo(type, obj, callback) {
         }
       }
     },
+    names: obj.name,
     callback: callback
   }
 }
@@ -138,7 +139,7 @@ export const DELETE_CODE_STORE_REQUEST = 'DELETE_CODE_STORE_REQUEST'
 export const DELETE_CODE_STORE_SUCCESS = 'DELETE_CODE_STORE_SUCCESS'
 export const DELETE_CODE_STORE_FAILURE = 'DELETE_CODE_STORE_FAILURE'
 
-function fetchRemoveProject(projectId) {
+function fetchRemoveProject(projectId, callback) {
   return {
     [FETCH_API]: {
       types: [DELETE_CODE_STORE_REQUEST, DELETE_CODE_STORE_SUCCESS, DELETE_CODE_STORE_FAILURE],
@@ -148,13 +149,14 @@ function fetchRemoveProject(projectId) {
         method: 'DELETE',
       }
     },
-    id: projectId
+    id: projectId,
+    callback
   }
 }
 
-export function removeProject(projectId) {
+export function removeProject(projectId, callback) {
   return(dispatch, getState) => {
-    return dispatch(fetchRemoveProject(projectId))
+    return dispatch(fetchRemoveProject(projectId, callback))
   }
 }
 // search code project list

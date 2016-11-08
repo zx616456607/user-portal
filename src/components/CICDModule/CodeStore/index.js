@@ -8,7 +8,7 @@
  * @author BaiYu
  */
 import React, { Component, PropTypes } from 'react'
-import { Alert, Menu, Button, Card, Input, Tooltip, Icon , Dropdown, Modal, Spin } from 'antd'
+import { Alert, Menu, Button, Card, Input, message, Tooltip, Icon , Dropdown, Modal, Spin } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -79,11 +79,12 @@ const MyComponent = React.createClass({
   },
   operaMenuClick: function (item, e) {
     //this function for user click the dropdown menu
-    switch(e.key) {
+    const key = e.key.split('@')[0]
+    switch(key) {
       case '1':
       this.setState({
         showModal: true,
-        webhookUrl: item.publicKey,
+        webhookUrl: item.webhookUrl,
         repoType: item.repoType
       })
       break;
@@ -140,7 +141,13 @@ const MyComponent = React.createClass({
       title: '解除激活',
       content: '您是否确认要解除这项内容',
       onOk() {
-        self.props.scope.props.removeProject(id)
+        self.props.scope.props.removeProject(id, {
+          success: {
+            func:()=>{
+              message.success('解除激活成功')
+            }
+          }
+        })
       },
       onCancel() {return},
     });
@@ -153,11 +160,11 @@ const MyComponent = React.createClass({
         <Menu onClick={this.operaMenuClick.bind(this, item)}
           style={{ width: '100px' }}
           >
-          <Menu.Item key='1'>
+          <Menu.Item key={`1@${item.name}`}>
             <i className='fa fa-eye' />&nbsp;
             WebHook
           </Menu.Item>
-          <Menu.Item key='2'>
+          <Menu.Item key={`2@${item.name}`}>
             <span><i className='fa fa-pencil-square-o' />&nbsp;
             <FormattedMessage {...menusText.show} />
             </span>
@@ -204,8 +211,7 @@ const MyComponent = React.createClass({
           ]}
          >
           <div style={{padding:"0 20px"}}>
-            <p style={{lineHeight:'30px'}}>检测到关联的代码托管系统： {this.state.repoType}仓库， API老旧请手动：</p>
-            <p style={{lineHeight:'40px'}}>* 将该URL填入到github 项目的Web Hooks URLk</p>
+            <p style={{lineHeight:'40px'}}>* 将该URL填入到 {this.state.repoType} 项目的Web Hooks URL中</p>
             <p><Input type="textarea" className="CodeCopy" autosize={{ minRows: 2, maxRows: 6 }} defaultValue={this.state.webhookUrl} /></p>
             <p style={{marginTop:'10px'}}>
             <Tooltip title={this.state.copySuccess ? formatMessage(menusText.copySuccess) : formatMessage(menusText.clickCopy)} placement="right">
