@@ -21,7 +21,8 @@ exports.getUserDetail = function* () {
   userID = userID === 'default' ? loginUser.id : userID
   const api = apiFactory.getApi(loginUser)
   const result = yield api.users.getBy([userID])
-  const user = result || {}
+  const users = result.users || []
+  const user = users.length > 0 ? users[0] : {}
   this.body = {
     data: user
   }
@@ -47,21 +48,16 @@ exports.getUsers = function* () {
     queryObj.filter = `name ${name}`
   }
   const api = apiFactory.getApi(loginUser)
-  const result = yield api.users.getBy([], queryObj)
+  const result = yield api.users.get(queryObj)
   const users = result.users || []
   let total = 0
   if (result.listMeta && result.listMeta.total) {
     total = result.listMeta.total
   }
-  size = 0
-  if (result.listMeta && result.listMeta.count) {
-    size = result.listMeta.size
-  }
 
   this.body = {
     users,
-    total,
-    size
+    total
   }
 }
 
@@ -93,15 +89,10 @@ exports.getUserTeams = function* () {
   if (result.listMeta && result.listMeta.total) {
     total = result.listMeta.total
   }
-  size = 0
-  if (result.listMeta && result.listMeta.count) {
-    size = result.listMeta.size
-  }
 
   this.body = {
     teams,
-    total,
-    size
+    total
   }
 }
 
@@ -133,15 +124,10 @@ exports.getUserTeamspaces = function* () {
   if (result.listMeta && result.listMeta.total) {
     total = result.listMeta.total
   }
-  size = 0
-  if (result.listMeta && result.listMeta.count) {
-    size = result.listMeta.size
-  }
 
   this.body = {
     teamspaces,
-    total,
-    size
+    total
   }
 }
 

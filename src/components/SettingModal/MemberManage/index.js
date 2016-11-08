@@ -18,7 +18,7 @@ const createForm = Form.create;
 const FormItem = Form.Item;
 
 function loadData(props) {
-  const { loadUserList, users, total, size } = props
+  const { loadUserList, users, total } = props
   loadUserList(null)
 }
 
@@ -447,7 +447,6 @@ class MemberManage extends Component {
 function mapStateToProp(state) {
   let usersData = []
   let total = 0
-  let size = 0
   let data = []
   const users = state.user.users
   if (users.result) {
@@ -472,15 +471,11 @@ function mapStateToProp(state) {
     if (users.result.total) {
       total = users.result.total
     }
-    if (users.result.count) {
-      size = users.result.size
-    }
   }
   
   return {
     users: data,
-    total,
-    size,
+    total
   }
 }
 

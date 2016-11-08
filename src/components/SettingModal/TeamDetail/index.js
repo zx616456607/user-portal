@@ -11,6 +11,8 @@ import React, { Component } from 'react'
 import { Row, Col, Alert, Card, Icon, Button, Table, Menu, Dropdown, } from 'antd'
 import './style/TeamDetail.less'
 import { Link } from 'react-router'
+import { deleteTeam, createTeamspace, addTeamusers, removeTeamusers } from '../../../actions/team'
+import { connect } from 'react-redux'
 
 const memberListdata = [
   {name: 'pupumeng',tel: '11111111',email: '123@123.com',style: '创业者'},
@@ -147,7 +149,7 @@ let TeamList = React.createClass({
     )
   }
 })
-export default class TeamDetail extends Component{
+class TeamDetail extends Component{
   constructor(props){
     super(props)
     this.state = {
@@ -264,3 +266,40 @@ export default class TeamDetail extends Component{
     )
   }
 }
+function mapStateToProp(state) {
+  let teamsData = []
+  let total = 0
+  let data = []
+  const teams = state.user.teams
+  if (teams.result) {
+    if (teams.result.teams) {
+      teamsData = teams.result.teams
+      if(teamsData.length !== 0){
+        teamsData.map((item,index) => {
+          data.push(
+            {
+              key: index,
+              team: item.teamName,
+              member: item.userCount,
+              cluster: item.clusterCount,
+              space: item.spaceCount,
+            }
+          )
+        })
+      }
+    }
+    if (teams.result.total) {
+      total = teams.result.total
+    }
+  }
+  return {
+    teams: data,
+    total
+  }
+}
+export default connect(mapStateToProp, {
+  deleteTeam,
+  createTeamspace,
+  addTeamusers,
+  removeTeamusers,
+})(TeamDetail)
