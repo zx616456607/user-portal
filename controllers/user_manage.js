@@ -11,6 +11,7 @@
 
 const apiFactory = require('../services/api_factory')
 const constants = require('../constants')
+const email = require('../utils/email')
 const DEFAULT_PAGE = constants.DEFAULT_PAGE
 const DEFAULT_PAGE_SIZE = constants.DEFAULT_PAGE_SIZE
 const MAX_PAGE_SIZE = constants.MAX_PAGE_SIZE
@@ -142,8 +143,27 @@ exports.createUser = function* () {
   }
   const result = yield api.users.create(user)
 
-  this.body = {
-    data: result
+  if (!user.sendEmail) {
+    this.body = {
+      data: result
+    }
+    return
+  }
+  const mailOptions = {
+    from: "service@tenxcloud.com", // sender address
+    to: user.email, // list of receivers
+    subject: '用户创建成功通知', // Subject line
+    html: `<b>${user.userName}您好:</b><br/><br/>恭喜您成功创建如下用户: <br/>用户名: ${user.userName}<br/>密码: ${user.password}` // html body
+  }
+  try{
+    yield email.sendEmail(mailOptions)
+    this.body = {
+      data: result
+    }
+  } catch(err) {
+    const err = new Error('User has been created but sent email failed: ' + error)
+    err.status = 500
+    throw err
   }
 }
 
