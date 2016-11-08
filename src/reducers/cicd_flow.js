@@ -15,64 +15,84 @@ import reducerFactory from './factory'
 import { cloneDeep, findIndex } from 'lodash'
 function codeRepo(state = {}, action) {
   const defaultState = {
-      isFetching: false,
-      repoList: []
+    isFetching: false,
+    repoList: []
   }
   switch (action.type) {
     case ActionTypes.GET_REPOS_LIST_REQUEST:
-      return  merge({}, defaultState, state, { isFetching: true })
+      return merge({}, defaultState, state, { isFetching: true })
     case ActionTypes.GET_REPOS_LIST_SUCCESS:
-      return  merge({}, state, { 
+      return merge({}, state, {
         isFetching: false,
-        repoList: action.response.result.data.results
+        repoList: action.response.result.data.results,
+        bak: action.response.result.data.results
       })
     case ActionTypes.GET_REPOS_LIST_FAILURE:
       return merge({}, defaultState, state, { isFetching: false })
-// delete
+    // delete
     case ActionTypes.DELETE_REPOS_LIST_REQUEST:
-      return  merge({}, defaultState, state, { isFetching: true })
+      return merge({}, defaultState, state, { isFetching: true })
     case ActionTypes.DELETE_REPOS_LIST_SUCCESS:
-      return ({ 
+      return ({
         isFetching: false,
-        repoList: []
+        repoList: [],
+        bak: []
       })
     case ActionTypes.DELETE_REPOS_LIST_FAILURE:
       return merge({}, state, { isFetching: false })
-// registry
+    // registry
     case ActionTypes.REGISTRY_CODE_REPO_REQUEST:
-      return  merge({}, defaultState, state, { isFetching: true })
+      return merge({}, defaultState, state, { isFetching: true })
     case ActionTypes.REGISTRY_CODE_REPO_SUCCESS:
       return merge({}, state, { isFetching: false })
     case ActionTypes.REGISTRY_CODE_REPO_FAILURE:
       return merge({}, state, { isFetching: false })
+
+    // search 
+    case ActionTypes.SEARCH_CODE_REPO_LIST:
+      const newState = cloneDeep(state)
+      if(newState.bak && newState.bak.length >0 && state.repoList.length !== state.bak.length) {
+        newState.repoList = newState.bak
+      }
+      const temp = newState.repoList.filter(list => {
+        const search = new RegExp(action.codeName)
+        if (search.test(list.name)) {
+          return true
+        }
+        return false
+      })
+      newState.repoList = temp
+      return {
+        ...newState
+      }
     default:
       return state
   }
 }
 
-function getProject(state ={}, action) {
+function getProject(state = {}, action) {
   const defaultState = {
-      isFetching: false,
-      projectList: []
+    isFetching: false,
+    projectList: []
   }
   switch (action.type) {
     case ActionTypes.GET_CODE_STORE_REQUEST:
-      return  merge({}, defaultState, state, { isFetching: true })
+      return merge({}, defaultState, state, { isFetching: true })
     case ActionTypes.GET_CODE_STORE_SUCCESS:
-      return  merge({}, state, { 
+      return merge({}, state, {
         isFetching: false,
         projectList: action.response.result.data.results
       })
     case ActionTypes.GET_CODE_STORE_FAILURE:
       return merge({}, state, { isFetching: false })
-// delete 
+    // delete 
     case ActionTypes.DELETE_CODE_STORE_SUCCESS:
       const oldState = cloneDeep(state)
-      const indexs = findIndex(oldState.projectList, (item)=> {
+      const indexs = findIndex(oldState.projectList, (item) => {
         return item.id == action.id
       })
       oldState.projectList.splice(indexs, 1)
-      return  merge({}, oldState, { 
+      return merge({}, oldState, {
         isFetching: false,
       })
     case ActionTypes.DELETE_CODE_STORE_FAILURE:

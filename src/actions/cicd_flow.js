@@ -186,6 +186,15 @@ export function syncRepoList(type) {
   }
 }
 
+export const SEARCH_CODE_REPO_LIST = 'SEARCH_CODE_REPO_LIST'
+// search code repo list
+export function searchCodeRepo(codeName) {
+  return {
+    type: SEARCH_CODE_REPO_LIST,
+    codeName
+  }
+}
+
 export const GET_TENX_FLOW_LIST_REQUEST = 'GET_TENX_FLOW_LIST_REQUEST'
 export const GET_TENX_FLOW_LIST_SUCCESS = 'GET_TENX_FLOW_LIST_SUCCESS'
 export const GET_TENX_FLOW_LIST_FAILURE = 'GET_TENX_FLOW_LIST_FAILURE'
