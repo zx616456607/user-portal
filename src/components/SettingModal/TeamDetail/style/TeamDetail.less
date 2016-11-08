@@ -81,19 +81,48 @@
 
     }
     #TeamList {
-      .delBtn {
-        background-color: #fff;
-        border-radius: 3px;
-        font-weight: normal;
-        &:hover {
-          background-color: #f75b59;
-          color: #fff;
-          border-color: #f75b59;
-        }
-      }
+
     }
   }
   .ant-btn {
     background-color: #fff;
+  }
+  .delBtn {
+    background-color: #fff;
+    border-radius: 3px;
+    font-weight: normal;
+    &:hover {
+      background-color: #f75b59;
+      color: #fff;
+      border-color: #f75b59;
+    }
+  }
+}
+.newMemberModal {
+  .listTitle {
+    position: absolute;
+    top: 132px;
+    left: 17px;
+    width: 230px;
+    display: inline-block;
+    height: 30px;
+    line-height: 30px;
+    padding-left: 40px;
+    z-index: 10;
+    background-color: #fff;
+  }
+  .ant-transfer-list-body {
+    ul {
+      padding-top: 30px;
+      label {
+        position: relative;
+        top: -12px;
+      }
+      li {
+        height: 36px;
+        line-height: 36px;
+        padding: 0 16px;
+      }
+    }
   }
 }

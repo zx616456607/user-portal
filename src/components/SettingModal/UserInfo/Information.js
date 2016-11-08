@@ -8,38 +8,20 @@
  * @author ZhaoXueYu
  */
 import React, {Component} from 'react'
-import { Row, Col, Card, Button, Input, Icon } from 'antd'
+import { Row, Col, Card, Button, Input, Icon, Form } from 'antd'
 import './style/Information.less'
 import { connect } from 'react-redux'
 import { loadUserDetail, loadUserList, updateUser } from '../../../actions/user'
 
-class Information extends Component{
-  constructor(props){
-    super(props)
-    this.handleRevise = this.handleRevise.bind(this)
-    this.handleSubmit = this.handleSubmit.bind(this)
-    this.handleCancel = this.handleCancel.bind(this)
-    this.handleChange = this.handleChange.bind(this)
-    this.state = {
-      revisePass: false,
-      password: 'password'
+const createForm = Form.create;
+const FormItem = Form.Item;
+
+let ResetPassWord = React.createClass({
+  getInitialState(){
+    return {
+      password: 'password',
     }
-  }
-  handleRevise(){
-    this.setState({
-      revisePass: true
-    })
-  }
-  handleSubmit(){
-    this.setState({
-      revisePass: false
-    })
-  }
-  handleCancel(){
-    this.setState({
-      revisePass: false
-    })
-  }
+  },
   handleChange(){
     if(this.state.password === 'text'){
       this.setState({
@@ -50,15 +32,126 @@ class Information extends Component{
         password: 'text'
       })
     }
+  },
+  handleReset(e) {
+    e.preventDefault();
+    this.props.form.resetFields()
+    this.props.resetPsw()
+  },
+  
+  handleSubmit(e) {
+    const { userDetail } = this.props
+    e.preventDefault();
+    this.props.form.validateFields((errors, values) => {
+      if (!!errors) {
+        return;
+      }
+      console.log(values);
+      this.props.updateUser(userDetail.userID,
+        {
+          password: values.passwd
+        },{
+          success: {
+            func: () => {
+              console.log('Submit!!!');
+              this.props.resetPsw()
+            }
+          }
+        })
+    });
+  },
+  checkPass(rule, value, callback) {
+    const { validateFields } = this.props.form;
+    if (value) {
+      validateFields(['rePasswd'], { force: true });
+    }
+    callback();
+  },
+  
+  checkPass2(rule, value, callback) {
+    const { getFieldValue } = this.props.form;
+    if (value && value !== getFieldValue('passwd')) {
+      callback('两次输入密码不一致！');
+    } else {
+      callback();
+    }
+  },
+  
+  render: function(){
+    const { password } = this.state
+    const { getFieldProps } = this.props.form;
+    const passwdProps = getFieldProps('passwd', {
+      rules: [
+        { required: true, whitespace: true, message: '请填写密码' },
+        { validator: this.checkPass },
+      ],
+    });
+    const rePasswdProps = getFieldProps('rePasswd', {
+        rules: [{
+          required: true,
+          whitespace: true,
+          message: '请再次输入密码',
+        }, {
+          validator: this.checkPass2,
+        }],
+    });
+    return (
+      <div id='ResetPassWord'>
+        <Form horizontal form={this.props.form}>
+          <Row>
+            <Col>
+              <FormItem hasFeedback>
+                <Input type={password} className="passInt" {...passwdProps} autoComplete="off"/>
+                <Icon type="eye"
+                      onClick={this.handleChange}
+                      className={password === 'text' ? 'passIcon':''}/>
+              </FormItem>
+            </Col>
+            
+          </Row>
+          <FormItem hasFeedback>
+            <Input type={password} className="passInt" {...rePasswdProps}
+                   autoComplete="off"
+                   placeholder="两次输入密码保持一致"/>
+          </FormItem>
+          <FormItem>
+            <Button type="ghost" onClick={this.handleCancel} style={{backgroundColor: '#efefef'}}>
+              取消
+            </Button>
+            &nbsp;&nbsp;&nbsp;
+            <Button type="primary" onClick={this.handleSubmit}>确定</Button>
+          </FormItem>
+        </Form>
+      </div>
+    )
   }
-
+})
+ResetPassWord = createForm()(ResetPassWord);
+class Information extends Component{
+  constructor(props){
+    super(props)
+    this.handleRevise = this.handleRevise.bind(this)
+    this.state = {
+      revisePass: false,
+    }
+  }
+  handleRevise(){
+    this.setState({
+      revisePass: true
+    })
+  }
+  resetPsw(){
+    this.setState({
+      revisePass:false
+    })
+  }
   componentDidMount() {
     this.props.loadUserDetail("default")
   }
 
   render(){
-    const { revisePass, password } = this.state
-    const { userDetail } = this.props
+    const { revisePass } = this.state
+    const { userDetail,updateUser } = this.props
     
     let roleName
     switch (userDetail.role) {
@@ -94,21 +187,8 @@ class Information extends Component{
           <Col span={20}>
             {
               revisePass ?
-                <div>
-                  <Row>
-                    <Input type={password} className="passInt"/>
-                    <Icon type="eye" onClick={this.handleChange}
-                          className={password === 'text' ? 'passIcon':''}/>
-                  </Row>
-                  <Row>
-                    <Input type='text' className="passInt"/>
-                  </Row>
-                  <Row>
-                    <Button type="ghost" onClick={this.handleSubmit} style={{backgroundColor: '#efefef'}}>取消</Button>
-                    &nbsp;&nbsp;&nbsp;
-                    <Button type="primary" onClick={this.handleCancel}>确定</Button>
-                  </Row>
-                </div> :
+                <ResetPassWord updateUser={updateUser} userDetail={userDetail} onChange={this.resetPsw}/>
+                :
                 <Button type="primary" onClick={this.handleRevise}>修改密码</Button>
             }
           </Col>
@@ -128,12 +208,14 @@ function mapStateToProp(state) {
     role: 0,
     phone: "",
     email: "",
-    balance: 0
+    balance: 0,
+    userID: '',
   }
   const {userDetail} = state.user
   if (userDetail.result && userDetail.result.data) {
     userDetailData = userDetail.result.data
   }
+  console.log('userDetail',userDetailData);
   return {
     userDetail: userDetailData
   }
