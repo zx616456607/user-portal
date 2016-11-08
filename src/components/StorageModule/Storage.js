@@ -619,7 +619,7 @@ function mapStateToProps(state) {
     createStorage: state.storage.createStorage,
     deleteStorage: state.storage.deleteStorage,
     currentImagePool: DEFAULT_IMAGE_POOL,
-    currentCluster: cluster
+    currentCluster: cluster.clusterID
   }
 }
 

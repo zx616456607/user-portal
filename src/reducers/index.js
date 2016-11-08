@@ -29,9 +29,9 @@ import cicd_flow from './cicd_flow'
 function entities(state = {
   isFetching: false,
   current: {
-    team: null,
-    space: null,
-    cluster: null,
+    team: {},
+    space: {},
+    cluster: {},
   },
 }, action) {
   if (action.response && action.response.entities) {

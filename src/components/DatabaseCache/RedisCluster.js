@@ -147,7 +147,7 @@ function mapStateToProps(state, props) {
   const { cluster } = state.entities.current
   const defaultRedisList = {
     isFetching: false,
-    cluster,
+    cluster: cluster.clusterID,
     database: 'Redis',
     databaseList: []
   }
@@ -157,7 +157,7 @@ function mapStateToProps(state, props) {
   const { redisDatabaseAllList } = state.databaseCache
   const { database, databaseList, isFetching } = redisDatabaseAllList.Redis || defaultRedisList
   return {
-    cluster,
+    cluster: cluster.clusterID,
     database,
     databaseList: databaseList,
     isFetching,
