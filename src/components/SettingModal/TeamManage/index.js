@@ -16,11 +16,6 @@ import { connect } from 'react-redux'
 import { loadUserTeamList } from '../../../actions/user'
 import { createTeam, deleteTeam, createTeamspace, addTeamusers, removeTeamusers } from '../../../actions/team'
 
-function loadData(props) {
-  const { loadUserTeamList,} = props
-  loadUserTeamList('default')
-}
-
 let TeamTable = React.createClass({
   getInitialState() {
     return {
@@ -130,6 +125,7 @@ class TeamManage extends Component {
     this.showModal = this.showModal.bind(this)
     this.handleOk = this.handleOk.bind(this)
     this.handleCancel = this.handleCancel.bind(this)
+    this.handleCreateTeamInt = this.handleCreateTeamInt.bind(this)
     this.state = {
       searchResult: [],
       notFound: false,
@@ -138,7 +134,6 @@ class TeamManage extends Component {
     }
   }
   showModal() {
-    console.log('create !');
     this.setState({
       visible: true,
     })
@@ -146,7 +141,7 @@ class TeamManage extends Component {
   handleOk() {
     this.props.createTeam(
       {
-        teamName: 'zhoaxueyu'
+        teamName: this.state.teamName
       },{
       success: {
         func: () => {
@@ -154,10 +149,10 @@ class TeamManage extends Component {
           this.setState({
             visible: false,
           })
+          this.props.loadUserTeamList('default')
         }
       }
     })
-    this.props.loadUserTeamList('default')
   }
   handleCancel(e) {
     e.preventDefault();
@@ -172,7 +167,7 @@ class TeamManage extends Component {
     })
   }
   componentWillMount(){
-    loadData(this.props)
+    this.props.loadUserTeamList('default')
   }
   render(){
     const scope = this
@@ -195,12 +190,11 @@ class TeamManage extends Component {
             <Modal title="创建团队" visible={visible}
                    onOk={this.handleOk} onCancel={this.handleCancel}
                    wrapClassName="NewTeamForm"
-                   width="463px"
-            >
-              <Row>
+                   width="463px">
+              <Row className="NewTeamItem">
                 <Col span={4}>名称</Col>
                 <Col span={20}>
-                  <Input placeholder="新团队名称" onChange={this.handleCreateTeamInt} defaultValue=" "/>
+                  <Input placeholder="新团队名称" onChange={this.handleCreateTeamInt} defaultValue=""/>
                 </Col>
               </Row>
             </Modal>

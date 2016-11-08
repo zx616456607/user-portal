@@ -90,3 +90,31 @@ export function getCookie(cName) {
   }
   return unescape(document.cookie.substring(cStart, cEnd))
 }
+
+/**
+ * Set cookie
+ * options
+ * - path: ;path=path (e.g., '/', '/mydir')
+ * - domain: ;domain=domain (e.g., 'example.com' or 'subdomain.example.com')
+ * - max-age: ;max-age=max-age-in-seconds (e.g., 60*60*24*365 or 31536000 for a year)
+ * - expires: ;expires=date-in-GMTString-format
+ */
+export function setCookie(cName, value, options = {}) {
+  if (getCookie(cName) && getCookie(cName) == value) {
+    return
+  }
+  const cookieArray = []
+  cookieArray.push(`${encodeURIComponent(cName)}=${value}`)
+  if (options.domain) {
+    cookieArray.push(`; domain=${options.domain}`)
+  }
+  if (options['max-age']) {
+    cookieArray.push(`; max-age=${options['max-age']}`)
+  }
+  if (options.expires) {
+    cookieArray.push(`; domain=${options.expires.toGMTString()}`)
+  }
+  cookieArray.push(`; path=${options.path ? options.path : '/'}`)
+  const cookie = cookieArray.join('')
+  document.cookie = cookie
+}

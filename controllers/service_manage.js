@@ -12,6 +12,7 @@
 const constants = require('../constants')
 const INSTANCE_MAX_NUM = constants.INSTANCE_MAX_NUM
 const INSTANCE_AUTO_SCALE_MAX_CPU = constants.INSTANCE_AUTO_SCALE_MAX_CPU
+const ANNOTATION_TENX_DOMAIN = constants.ANNOTATION_TENX_DOMAIN
 const apiFactory = require('../services/api_factory')
 
 exports.startServices = function* () {
@@ -113,17 +114,24 @@ exports.getServiceDetail = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.getBy([cluster, 'services', serviceName])
-  const service = result.data[serviceName] || {}
-  service.images = []
-  if (service.spec) {
-    service.spec.template.spec.containers.map((container) => {
-      service.images.push(container.image)
+  const deployment = (result.data[serviceName] && result.data[serviceName].deployment) || {}
+  deployment.images = []
+  if (deployment.spec) {
+    deployment.spec.template.spec.containers.map((container) => {
+      deployment.images.push(container.image)
     })
+  }
+  if (result.data[serviceName]
+    && result.data[serviceName].service
+    && result.data[serviceName].service.metadata.annotations
+    && result.data[serviceName].service.metadata.annotations[ANNOTATION_TENX_DOMAIN]) {
+    deployment.ports = result.data[serviceName].service.metadata.annotations[ANNOTATION_TENX_DOMAIN]
+    deployment.bindingDomains = result.data.bindingDomain
   }
   this.body = {
     cluster,
     serviceName,
-    data: service
+    data: deployment
   }
 }
 

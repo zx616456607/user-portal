@@ -159,10 +159,10 @@ const MyComponent = React.createClass({
               <span>{item.status.podIP}</span>
             </Tooltip>
             <br />
-            <Tooltip placement='topLeft' title={domain}>
+            <Tooltip placement='topLeft' title={domain.length > 0 ? domain[0] : ""}>
               {
-                domain ?
-                  (<a target="_blank" href={domain}>{domain}</a>) : (<span>-</span>)
+                domain.length > 0 ?
+                  (<a target="_blank" href={domain[0]}>{domain[0]}</a>) : (<span>-</span>)
               }
             </Tooltip>
           </div>

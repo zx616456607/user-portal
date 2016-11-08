@@ -17,11 +17,6 @@ import { loadUserList, createUser, deleteUser } from '../../../actions/user'
 const createForm = Form.create;
 const FormItem = Form.Item;
 
-function loadData(props) {
-  const { loadUserList, users, total } = props
-  loadUserList(null)
-}
-
 let MemberTable =  React.createClass({
   getInitialState() {
     return {
@@ -64,7 +59,6 @@ let MemberTable =  React.createClass({
     console.log('listdata',data);
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
-    // let pageTotal = searchResult.length === 0 ? data.length : searchResult.length
     const pagination = {
       total: this.props.scope.props.total,
       showSizeChanger: true,
@@ -72,7 +66,6 @@ let MemberTable =  React.createClass({
       pageSizeOptions: ['5','10','15','20'],
       onShowSizeChange(current, pageSize) {
         console.log('Current: ', current, '; PageSize: ', pageSize);
-        // const from = current*pageSize
         scope.props.loadUserList({
           page: current,
           size: pageSize
@@ -136,12 +129,16 @@ let MemberTable =  React.createClass({
         dataIndex: 'team',
         key: 'team',
         width: 150,
+        sorter: (a, b) => a.team - b.team,
+        sortOrder: sortedInfo.columnKey === 'team' && sortedInfo.order,
       },
       {
         title: '余额',
         dataIndex: 'balance',
         key: 'balance',
         width: 150,
+        sorter: (a, b) => a.balance - b.balance,
+        sortOrder: sortedInfo.columnKey === 'balance' && sortedInfo.order,
       },
       {
         title: '操作',
@@ -232,9 +229,6 @@ let NewMemberForm = React.createClass({
             scope.setState({
               visible: false,
             })
-            // scope.state.memberList.push(newItem)
-            
-            console.log('loadUserList',scope.props.users);
             scope.props.loadUserList({
               page: scope.state.page,
               size: scope.state.pageSize,
