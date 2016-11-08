@@ -36,8 +36,8 @@ exports.sendEmail = function (transport, mailOptions) {
   const method = 'sendEmail'
   if (!mailOptions) {
     mailOptions = transport
+    transport = DEFAUL_TRANSPORT
   }
-  transport = DEFAUL_TRANSPORT
   const transportOpts = {
     host: transport.host,
     port: transport.port,
