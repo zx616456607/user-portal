@@ -8,7 +8,6 @@
 
 'use strict';
 
-const logger = require('../utils/logger.js').getLogger('api-router')
 const volumeController = require('../controllers/volume')
 const appController = require('../controllers/app_manage')
 const serviceController = require('../controllers/service_manage')
@@ -92,12 +91,18 @@ module.exports = function (Router) {
   router.get('/users/:user_id/teamspaces', userController.getUserTeamspaces)
   router.post('/users', userController.createUser)
   router.delete('/users/:user_id', userController.deleteUser)
+  router.patch('/users/:user_id', userController.updateUser)
 
   // Teams
   router.get('/teams/:team_id/spaces', teamController.getUserTeamspaces)
   router.get('/teams/:team_id/clusters', teamController.getTeamClusters)
   router.get('/teams/:team_id/users', teamController.getTeamUsers)
   router.post('/teams', teamController.createTeam)
+  router.delete('/teams/:team_id', teamController.deleteTeam)
+  router.post('/teams/:team_id/spaces', teamController.createTeamspace)
+  router.post('/teams/:team_id/users', teamController.addTeamusers)
+  //To remove multiple users, seperate the user ids with ",".
+  router.delete('/teams/:team_id/users/:user_id', teamController.removeTeamusers)
 
   // spi
   router.post('/clusters/:cluster/services/:service_name/binddomain', serviceController.bindServiceDomain)
@@ -157,10 +162,40 @@ module.exports = function (Router) {
   router.post('/manage-monitor/getOperationAuditLog', manageMonitorController.getOperationAuditLog)
   router.post('/clusters/:cluster/instances/:instances/getSearchLog', manageMonitorController.getSearchLog)
 
-
   // DevOps service: CI/CD
+  // Repos
   router.post('/devops/repos/:type', devopsController.registerRepo)
   router.get('/devops/repos/:type', devopsController.listRepository)
+  router.put('/devops/repos/:type', devopsController.syncRepository)
+  router.delete('/devops/repos/:type', devopsController.removeRepository)
+  router.get('/devops/repos/:type/branches', devopsController.listBranches)
+  router.get('/devops/repos/:type/user', devopsController.getUserInfo)
+  // Managed projects
+  router.post('/devops/managed-projects', devopsController.addManagedProject)
+  router.get('/devops/managed-projects', devopsController.listManagedProject)
+  router.delete('/devops/managed-projects/:project_id', devopsController.removeManagedProject)
+  // CI flows
+  router.post('/devops/ci-flows', devopsController.createCIFlows)
+  router.get('/devops/ci-flows', devopsController.listCIFlows)
+  router.get('/devops/ci-flows/:flow_id', devopsController.getCIFlow)
+  router.put('/devops/ci-flows/:flow_id', devopsController.updateCIFlow)
+  router.delete('/devops/ci-flows/:flow_id', devopsController.removeCIFlow)
+  // CI flow stages
+  router.get('/devops/ci-flows/:flow_id/stages', devopsController.listFlowStages)
+  router.post('/devops/ci-flows/:flow_id/stages', devopsController.createFlowStages)
+  router.delete('/devops/ci-flows/:flow_id/stages/:stage_id', devopsController.deleteFlowStage)
+  router.put('/devops/ci-flows/:flow_id/stages/:stage_id', devopsController.updateFlowStage)
+  router.get('/ci-flows/:flow_id/stages/:stage_id', devopsController.getStage)
+
+  // CD rules
+
+
+  // Flow build
+  router.post('/devops/ci-flows/:flow_id/builds', devopsController.createFlowBuild)
+  router.get('/devops/ci-flows/:flow_id/builds', devopsController.listBuilds)
+  router.get('/devops/ci-flows/:flow_id/builds/:flow_build_id', devopsController.getFlowBuild)
+  router.put('/devops/ci-flows/:flow_id/builds/:flow_build_id/stop', devopsController.stopBuild)
+
 
   // Token info
   router.get('/token', tokenController.getTokenInfo)

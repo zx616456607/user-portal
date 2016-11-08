@@ -285,7 +285,7 @@ class TenxFlowDetailFlowCard extends Component {
         <Card className={ currentEditClass(config.status, currentFlowEdit, index) }>
           {
             currentFlowEdit != index ? [
-              <QueueAnim>
+              <QueueAnim key={'FlowCardShowAnimate' + index}>
                 <div key={'TenxFlowDetailFlowCardShow' + index}>
                   <div className='statusBox'>
                     { currentStatus(config.status) }
@@ -354,7 +354,7 @@ class TenxFlowDetailFlowCard extends Component {
           }
           {
             currentFlowEdit == index ? [
-              <QueueAnim>
+              <QueueAnim key={'EditTenxFlowModalAnimate' + index}>
                 <EditTenxFlowModal key={'EditTenxFlowModal' + index} scope={scopeThis} config={config} editType={'edit'} />
               </QueueAnim>
             ] : null

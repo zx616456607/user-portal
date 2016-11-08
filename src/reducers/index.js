@@ -23,12 +23,16 @@ import metrics from './metrics'
 import user from './user'
 import openApi from './open_api'
 import team from './team'
+import cicd_flow from './cicd_flow'
 
 // Updates an entity cache in response to any action with response.entities.
 function entities(state = {
   isFetching: false,
-  space: {},
-  cluster: {},
+  current: {
+    team: {},
+    space: {},
+    cluster: {},
+  },
 }, action) {
   if (action.response && action.response.entities) {
     let isFetching = false
@@ -38,13 +42,9 @@ function entities(state = {
     return merge({}, state, action.response.entities, { isFetching })
   }
   switch (action.type) {
-    case ActionTypes.SET_SPACE:
+    case ActionTypes.SET_CURRENT:
       return merge({}, state, {
-        space: action.space
-      })
-    case ActionTypes.SET_CLUSTER:
-      return merge({}, state, {
-        cluster: action.cluster
+        current: action.current
       })
     default:
       return state
@@ -91,6 +91,8 @@ function actionCallback(state = null, action) {
   return state
 }
 
+
+
 const rootReducer = combineReducers({
   entities,
   errorMessage,
@@ -107,6 +109,7 @@ const rootReducer = combineReducers({
   routing,
   openApi,
   team,
+  cicd_flow
 })
 
 export default rootReducer

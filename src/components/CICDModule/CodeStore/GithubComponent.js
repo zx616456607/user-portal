@@ -11,12 +11,7 @@ import React, { Component, PropTypes } from 'react'
 import { Alert,Icon, Menu, Button, Card, Input, Tabs , Tooltip,message, Dropdown, Modal, Spin } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
-import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import './style/CodeRepo.less'
-import { getRepoList , addCodeRepo, deleteRepo , registryRepo ,syncRepoList, searchCodeRepo , getUserInfo} from '../../../actions/cicd_flow'
-import GithubComponent from './GithubComponent'
-import SvnComponent from './SvnComponent'
 
 const TabPane = Tabs.TabPane
 
@@ -53,13 +48,9 @@ const menusText = defineMessages({
     id: 'CICD.TenxStorm.copySuccess',
     defaultMessage: '复制成功',
   },
-  syncCode: {
-    id: 'CICD.TenxStorm.syncCode',
-    defaultMessage: '同步代码',
-  }
 })
 
-const MyComponent = React.createClass({
+const GithubComponent = React.createClass({
   propTypes: { 
   },
   getInitialState() {
@@ -68,10 +59,6 @@ const MyComponent = React.createClass({
       regUrl: '',
       regToken:''
     }
-  },
-  componentWillMount() {
-    const types = this.props.scope.state.repokey
-    this.props.scope.props.getUserInfo(types)
   },
  copyItemKey() {
     const scope = this;
@@ -83,13 +70,7 @@ const MyComponent = React.createClass({
     });
   },
   addBuild(item) {
-    this.props.scope.props.addCodeRepo('gitlab',item, {
-      success: {
-        func: ()=>{
-          message.success('激活成功')
-        }
-      }
-    })
+    this.props.scope.props.addCodeRepo('gitlab',item)
   },
   removeRepo() {
     const scope = this.props.scope
@@ -134,15 +115,6 @@ const MyComponent = React.createClass({
       }
     })
   },
-  syncRepoList() {
-    const types = this.props.scope.state.repokey
-    this.props.scope.props.syncRepoList(types)
-  },
-  handleSearch(e) {
-    const parentScope = this.props.scope
-    const codeName = e.target.value
-    parentScope.props.searchCodeRepo(codeName)
-  },
   changeUrl(e) {
     this.setState({regUrl: e.target.value})
   },
@@ -150,14 +122,8 @@ const MyComponent = React.createClass({
     this.setState({regToken: e.target.value})
   },
   render: function () {
-    const { config, scope , formatMessage, isFetching} = this.props
-    if (isFetching) {
-      return (
-        <div className='loadingBox'>
-          <Spin size='large' />
-        </div>
-      )
-    }
+    const { config, scope , formatMessage } = this.props
+    
     if (!config) {
       return (
         <div style={{lineHeight:'150px', paddingLeft:'250px'}}>
@@ -179,7 +145,7 @@ const MyComponent = React.createClass({
     let items = config.map((item) => {
       return (
         <div className='CodeTable' key={item.name} >
-          <div className="name textoverflow">{item.name}</div>
+          <div className="name">{item.name}</div>
           <div className="type">{item.type == false ? "public" : "private"}</div>
           <div className="action">
             {item.status ==1 ? 
@@ -199,19 +165,16 @@ const MyComponent = React.createClass({
     return (
       <div className='codelink'>
         <div className="tableHead">
-          <Icon type="user" /> {this.props.repoUser.username}
+          <Icon type="user" /> shwsosfs
           <Tooltip placement="top" title={formatMessage(menusText.logout)}>
-            <Icon type="logout" onClick={()=>this.removeRepo()} style={{margin:'0 20px'}}/>
+            <Icon type="logout" onClick={()=>this.removeRepo()} style={{margin:'0 10px'}}/>
           </Tooltip>
-          <Tooltip placement="top" title={formatMessage(menusText.syncCode)}>
-            <Icon type="reload" onClick={this.syncRepoList} />
-          </Tooltip>
+          <Icon type="reload" />
           <div className="right-search">
-            <Input className='searchBox' size="large" onPressEnter={(e)=> this.handleSearch(e)} style={{width:'180px'}} placeholder={formatMessage(menusText.search)} type='text' />
-            <i className='fa fa-search'>  </i>
+            <Input className='searchBox' size="large" style={{width:'180px'}} placeholder={formatMessage(menusText.search)} type='text' />
+            <i className='fa fa-search'></i>
           </div>
         </div>
-        {/*  @project  Head end    */}
 
         { items }
 
@@ -239,114 +202,4 @@ const MyComponent = React.createClass({
   }
 });
 
-class CodeRepo extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      repokey: 'gitlab'
-    }
-  }
-
-  componentWillMount() {
-    document.title = '关联代码库 | 时速云';
-    const {getRepoList } = this.props
-    getRepoList('gitlab')
-  
-  }
-
-  render() {
-    const { formatMessage } = this.props.intl;
-    const scope = this;
-    const gitlabBud = (
-      <span className="section">
-        <i className="icon gitlab"></i>
-        gitlab
-      </span>
-    )
-    const githubBud = (
-      <span className="section">
-        <i className="icon github"></i>
-        github
-      </span>
-    )
-    const svnBud = (
-      <span className="section">
-        <i className="icon svn"></i>
-        SVN
-      </span>
-    )
-    const bibucketBud = (
-      <span className="section">
-        <i className="icon bibucket"></i>
-        <span className="node-number">10</span>
-        bibucket
-      </span>
-    )
-    return (
-      <QueueAnim id='codeRepo'
-        type='right'
-        >
-        <div className="codeContent">
-          <div className='headBox'>
-            <Link to="/ci_cd">
-              <i className='fa fa-arrow-left' />&nbsp;
-              <FormattedMessage {...menusText.back} />
-            </Link>
-            <p className="topText"><FormattedMessage {...menusText.creageCodeStore} /></p>
-          </div>
-          <div>
-            <div className="card-container">
-              <p style={{paddingLeft:'36px', lineHeight:'40px'}}>选择代码源</p>
-              <Tabs type="card" onChange={(e)=>this.setState({repokey: e})}>
-                <TabPane tab={gitlabBud} key="gitlab"><MyComponent formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} repoUser={this.props.repoUser} config={this.props.repoList} /></TabPane>
-                <TabPane tab={githubBud} key="github"><GithubComponent formatMessage={formatMessage} scope={scope} /></TabPane>
-                <TabPane tab={svnBud} key="svn"><SvnComponent formatMessage={formatMessage} scope={scope} /></TabPane>
-                <TabPane tab={bibucketBud} key="bibucket">无</TabPane>
-              </Tabs>
-            </div>
-          </div>
-
-        </div>
-      </QueueAnim>
-    )
-  }
-}
-
-function mapStateToProps(state, props) {
-  const defaultValue = {
-    repoList: [],
-    isFetching: false
-  }
-  const { codeRepo , userInfo} = state.cicd_flow
-  const defaultUser = {
-    username:'',
-    depot:''
-  }
-  const { repoList, isFetching } = codeRepo || defaultValue
-  const { repoUser } = userInfo || defaultUser
-  return {
-    repoList,
-    isFetching,
-    repoUser
-  }
-}
-
-CodeRepo.propTypes = {
-  intl: PropTypes.object.isRequired,
-  getRepoList: PropTypes.func.isRequired,
-  addCodeRepo: PropTypes.func.isRequired,
-  deleteRepo: PropTypes.func.isRequired
-}
-
-export default connect(mapStateToProps,{
-  getRepoList,
-  addCodeRepo,
-  deleteRepo,
-  registryRepo,
-  syncRepoList,
-  searchCodeRepo,
-  getUserInfo
-})(injectIntl(CodeRepo, {
-  withRef: true,
-}));
-
+export default GithubComponent

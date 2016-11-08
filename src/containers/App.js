@@ -10,7 +10,8 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import { resetErrorMessage } from '../actions'
-import { Icon, Menu, notification  } from 'antd'
+import { Icon, Menu, notification } from 'antd'
+import ErrorPage from './ErrorPage'
 import Header from '../components/Header'
 import Sider from '../components/Sider'
 
@@ -33,14 +34,22 @@ class App extends Component {
 
     notification.error({
       message: 'error',
-      description: JSON.stringify(errorMessage),
-      duration: 5,
+      description: JSON.stringify(errorMessage.message),
+      // duration: 5,
+      duration: null,
       onClose: handleDismissClick
     })
   }
 
   render() {
-    const { children, pathname } = this.props
+    let { children, pathname, errorMessage } = this.props
+    /*if (errorMessage) {
+      if (errorMessage.statusCode === 404) {
+        children = (
+          <ErrorPage />
+        )
+      }
+    }*/
     return (
       <div className="tenx-layout">
         {this.renderErrorMessage()}
@@ -51,7 +60,7 @@ class App extends Component {
           </div>
         </div>
         <div className="tenx-layout-sider">
-          <Sider pathname={pathname}/>
+          <Sider pathname={pathname} />
         </div>
         <div className="tenx-layout-content">
           {children}
@@ -63,7 +72,7 @@ class App extends Component {
 
 App.propTypes = {
   // Injected by React Redux
-  errorMessage: PropTypes.string,
+  errorMessage: PropTypes.object,
   resetErrorMessage: PropTypes.func.isRequired,
   // Injected by React Router
   children: PropTypes.node,

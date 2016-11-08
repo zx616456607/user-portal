@@ -170,18 +170,18 @@ class CreateCompose extends Component {
           </div>
           <div style={{ clear:"both" }}></div>
         </div>
-        <div className="commonInput">
+        <div className="switch commonInput">
           <div className="leftBox">
             <span className="title">编排属性</span>
           </div>
-          <div className="rightBox" style={{paddingTop:'8px'}}>
+          <div className="rightBox" style={{width:'100px', paddingTop:'8px'}}>
             <FormItem hasFeedback>
-            <Switch {...switchProps} defaultChecked={paretnState.stackItem.isPublic == 1 ? true : false} checkedChildren={'公开'} unCheckedChildren={'私有'}  onChange={this.onChangeAttr} />
+              <Switch {...switchProps} defaultChecked={paretnState.stackItem.isPublic == 1 ? true : false} checkedChildren={'公开'} unCheckedChildren={'私有'}  onChange={this.onChangeAttr} />
             </FormItem>
           </div>
           <div style={{ clear:"both" }}></div>
         </div>
-        <div className="commonInput">
+        <div className="intro commonInput">
           <div className="leftBox">
           <span className="title">描述信息</span>
           </div>
@@ -192,7 +192,7 @@ class CreateCompose extends Component {
           </div>
           <div style={{ clear:"both" }}></div>
         </div>
-      <div className="commonInput composeText">
+      <div className="file commonInput composeText">
         <div className="leftBox">
         <span className="title">描述文件</span>
         </div>

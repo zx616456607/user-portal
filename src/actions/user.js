@@ -164,7 +164,35 @@ function fetchDeleteUser(userID, callback) {
       types: [USER_DELETE_REQUEST, USER_DELETE_SUCCESS, USER_DELETE_FAILURE],
       endpoint,
       options: {
-        method: 'DELETE',
+        method: 'DELETE'
+      },
+      schema: {},
+    },
+    callback
+  }
+}
+// Delete user from API
+// Relies on Redux Thunk middleware.
+export function deleteUser(userID, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchDeleteUser(userID, callback))
+  }
+}
+
+export const USER_UPDATE_REQUEST = 'USER_UPDATE_REQUEST'
+export const USER_UPDATE_SUCCESS = 'USER_UPDATE_SUCCESS'
+export const USER_UPDATE_FAILURE = 'USER_UPDATE_FAILURE'
+
+// Update user from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchUpdateUser(userID, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/users/${userID}`
+  return {
+    [FETCH_API]: {
+      types: [USER_UPDATE_REQUEST, USER_UPDATE_SUCCESS, USER_UPDATE_FAILURE],
+      endpoint,
+      options: {
+        method: 'PATCH',
         body
       },
       schema: {},
@@ -173,10 +201,10 @@ function fetchDeleteUser(userID, callback) {
   }
 }
 
-// Delete user from API
+// Update user from API 
 // Relies on Redux Thunk middleware.
-export function deleteUser(userID, callback) {
+export function updateUser(userID, body, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchDeleteUser(userID, callback))
+    return dispatch(fetchUpdateUser(userID, body, callback))
   }
 }

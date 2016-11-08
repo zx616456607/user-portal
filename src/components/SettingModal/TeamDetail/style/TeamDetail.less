@@ -1,3 +1,170 @@
 #TeamDetail {
-
+  .back {
+    display: inline-block;
+    width: 54px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    color: #fff;
+    background-color: #00a0ea;
+    border-radius: 15px 0 0 15px;
+  }
+  .title {
+    height: 18px;
+    margin-bottom: 22px;
+    border-left: 8px solid #24a7eb;
+    font-size: 16px;
+    padding-left: 8px;
+  }
+  .content {
+    color: #666;
+    background-color: #fff;
+    margin-bottom: 26px;
+    padding: 30px;
+    .balance {
+      font-size: 14px;
+      span {
+        font-size: 20px;
+      }
+    }
+    .ant-alert {
+      color: #187cb7;
+      font-size: 13px;
+      line-height: 26px;
+      border: 1px dashed #88d8fd;
+      margin-bottom: 26px;
+    }
+    .clusterList {
+      .clusterItem {
+        .ant-card-head {
+          background-color: #f8f8f8;
+          font-weight: normal;
+        }
+        .ant-card {
+          &:hover {
+            border-color: #4bb2ed;
+          }
+        }
+        .ant-card-body {
+          .cardItem {
+            height: 40px;
+            line-height: 40px;
+            border-bottom: 1px dashed #e3e3e3;
+          }
+        }
+      }
+    }
+    .addBtn {
+      font-weight: normal;
+      background-color: #00a0ea;
+      height: 36px;
+      margin-right: 12px;
+      border-radius: 3px;
+    }
+    .ant-table {
+      border: 1px solid #e2e2e2;
+      border-bottom: 0;
+      .tablePadding {
+        padding-left: 20px;
+      }
+      .ant-table-thead {
+        border-bottom: 1px solid #e2e2e2;
+        tr {
+          th {
+            background-color: #fff;
+            border-bottom: 1px solid #e2e2e2;
+          }
+        }
+      }
+    }
+  }
+  .ant-btn {
+    background-color: #fff;
+  }
+  .delBtn {
+    background-color: #fff;
+    border-radius: 3px;
+    font-weight: normal;
+    &:hover {
+      background-color: #f75b59;
+      color: #fff;
+      border-color: #f75b59;
+    }
+  }
+}
+.newMemberModal {
+  .listTitle {
+    position: absolute;
+    top: 132px;
+    left: 47px;
+    width: 230px;
+    display: inline-block;
+    height: 30px;
+    line-height: 30px;
+    padding-left: 40px;
+    z-index: 10;
+    background-color: #fff;
+  }
+  .ant-transfer {
+    left: 30px;
+    .ant-transfer-list-body {
+      ul {
+        padding-top: 30px;
+        label {
+          position: relative;
+          top: -12px;
+        }
+        li {
+          height: 36px;
+          line-height: 36px;
+          padding: 0 16px;
+        }
+      }
+    }
+  }
+  .ant-btn {
+    width: 80px;
+    height: 36px;
+    border-radius: 3px;
+    font-weight: normal;
+    border: none;
+    &:hover {
+      border: none;
+    }
+  }
+  .ant-btn-ghost {
+    background-color: #efefef;
+    color: #717171;
+  }
+}
+.addSpaceModal {
+  .ant-modal-body {
+    overflow: hidden;
+  }
+  .addSpaceItem {
+    height: 36px;
+    line-height: 36px;
+    margin-bottom: 16px;
+    input {
+      border-radius: 0;
+    }
+    textarea {
+      border-radius: 0;
+      resize: none;
+    }
+  }
+  .ant-btn {
+    width: 80px;
+    height: 36px;
+    border-radius: 3px;
+    font-weight: normal;
+    border: none;
+    &:hover {
+      border: none;
+    }
+  }
+  .ant-btn-ghost {
+    background-color: #efefef;
+    color: #717171;
+  }
 }

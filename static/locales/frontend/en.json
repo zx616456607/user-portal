@@ -151,6 +151,7 @@
   "CICD.TenxStorm.back": "返回",
   "CICD.TenxStorm.creageCodeStore": "创建代码仓库",
   "CICD.TenxStorm.logout": "Logout",
+  "CICD.TenxStorm.syncCode": "Sync Code",
 
   "CICD.DockerFile.tooltips": "云端DockerFile: 这里保存您在TenxFlow过程中创建的云端Dockerfile，方便再次查看或使用。（这里以使用Dockerfiler，对应TenxFlow子项目名称作为识别标识）",
   "CICD.DockerFile.show": "Show DockerFile",
@@ -171,6 +172,7 @@
   "CICD.Tenxflow.TenxFlowList.deloyStart": "Build",
   "CICD.Tenxflow.TenxFlowList.checkImage": "View Image",
   "CICD.Tenxflow.TenxFlowList.delete": "Delete TenxFlow",
+  "CICD.Tenxflow.TenxFlowList.unUpdate": "Not Updated",
   
   "CICD.Tenxflow.CreateTenxFlow.name": "TenxFlow Name",
   "CICD.Tenxflow.CreateTenxFlow.create": "Create Flow Type",
@@ -195,6 +197,7 @@
   "CICD.Tenxflow.TenxFlowDetailAlert.alertForth": "自动部署失败",
   "CICD.Tenxflow.TenxFlowDetailAlert.cancel": "Cancel",
   "CICD.Tenxflow.TenxFlowDetailAlert.submit": "Submit",
+  "CICD.Tenxflow.TenxFlowDetailAlert.tooltips": "TenxFlow：这里完成【代码项目构建、测试】等流程的定义与执行，可以实现若干个（≥1）项目组成的一个Flow，由若干个项目流程化完成一个Flow，直至完成整个总项目，其中大部分流程以生成应用镜像为结束标志。",
   
   "CICD.Tenxflow.TenxFlowDetailYaml.tooltips": "当前TenxFlow对应的，TenxFlow Yaml文件，您可以保存以使后续快速创建工作流，实现TenxFlow复用。",
   

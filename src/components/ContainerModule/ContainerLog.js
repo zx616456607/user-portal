@@ -14,7 +14,6 @@ import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import './style/ContainerLog.less'
 import { loadContainerDetailEvents } from '../../actions/app_manage'
-import { DEFAULT_CLUSTER } from '../../constants'
 import { tenxDateFormat } from '../../common/tools.js'
 
 function loadData(props) {
@@ -26,51 +25,51 @@ let MyComponent = React.createClass({
   propTypes: {
     config: React.PropTypes.array
   },
-  render: function() {
+  render: function () {
     let { config, isFetching } = this.props;
-    if(!!!config) {
-      return( 
-        <div className = "noData" >
-          No Data 
+    if (!!!config) {
+      return (
+        <div className="noData" >
+          No Data
         </div>
       )
     }
-    if(isFetching) {
-      return( 
-        <div className = "loadingBox" >
-          <Spin size = "large" / >
+    if (isFetching) {
+      return (
+        <div className="loadingBox" >
+          <Spin size="large" />
         </div>
       )
     }
     let items = config.map((item) => {
-      return( 
-      <div className = 'logDetail' key = { item.id } >
-        <div className = 'iconBox' >
-          <div className = 'line' ></div> 
-          <div className = { item.type == 'Normal' ? 'icon fa fa-check-circle success' : 'icon fa fa-times-circle fail' } > </div> 
-        </div> 
-        <div className = 'infoBox' >
-          <div className = { item.type == 'Normal' ? 'status success' : 'status fail' } >
-            <span className = 'commonSpan' >
-              { item.reason }
-            </span>
-          </div> 
-          <div className = 'message' >
-              消息: { item.message } 
-          </div> 
-          <div className = 'createTime' >
-            <span className = 'commonSpan' >
-              { tenxDateFormat(item.lastSeen) } 
-            </span>
-          </div> 
+      return (
+        <div className='logDetail' key={item.id} >
+          <div className='iconBox' >
+            <div className='line' ></div>
+            <div className={item.type == 'Normal' ? 'icon fa fa-check-circle success' : 'icon fa fa-times-circle fail'} > </div>
+          </div>
+          <div className='infoBox' >
+            <div className={item.type == 'Normal' ? 'status success' : 'status fail'} >
+              <span className='commonSpan' >
+                {item.reason}
+              </span>
+            </div>
+            <div className='message' >
+              消息: {item.message}
+            </div>
+            <div className='createTime' >
+              <span className='commonSpan' >
+                {tenxDateFormat(item.lastSeen)}
+              </span>
+            </div>
+          </div>
+          <div style={{ clear: 'both' }} > </div>
         </div>
-        <div style = {{ clear: 'both' }} > </div> 
-      </div>
       );
     });
-    return( 
-      <div className = 'logBox' > 
-        { items } 
+    return (
+      <div className='logBox' >
+        {items}
       </div>
     );
   }
@@ -87,9 +86,9 @@ class ContainerLog extends Component {
 
   render() {
     const { eventList, isFetching } = this.props;
-    return( 
-      <div id = 'ContainerLog' >
-        <MyComponent config = { eventList } isFetching = { isFetching } /> 
+    return (
+      <div id='ContainerLog' >
+        <MyComponent config={eventList} isFetching={isFetching} />
       </div>
     )
   }
@@ -104,13 +103,14 @@ ContainerLog.propTypes = {
 }
 
 function mapStateToProps(state, props) {
+  const { cluster } = props
   const defaultEvents = {
     isFetching: false,
-    cluster: DEFAULT_CLUSTER,
+    cluster,
     eventList: []
   }
   const { containerDetailEvents } = state.containers
-  const { eventList, isFetching } = containerDetailEvents[DEFAULT_CLUSTER] || defaultEvents
+  const { eventList, isFetching } = containerDetailEvents[cluster] || defaultEvents
 
   return {
     eventList,

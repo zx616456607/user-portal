@@ -13,6 +13,7 @@ import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import { getTenxFlowList, deleteTenxFlowSingle } from '../../../actions/cicd_flow'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import CreateTenxFlow from './CreateTenxFlow.js'
 import TestModal from '../../TerminalModal'
@@ -90,6 +91,10 @@ const menusText = defineMessages({
     id: 'CICD.Tenxflow.TenxFlowList.delete',
     defaultMessage: '删除TenxFlow',
   },
+  unUpdate: {
+    id: 'CICD.Tenxflow.TenxFlowList.unUpdate',
+    defaultMessage: '未更新',
+  }
 })
 
 let MyComponent = React.createClass({
@@ -99,6 +104,21 @@ let MyComponent = React.createClass({
   },
   operaMenuClick: function (item, e) {
     //this function for user click the dropdown menu
+    let key = e.key;
+    let { flowId } = item;
+    const { scope } = this.props;
+    const { deleteTenxFlowSingle, getTenxFlowList } = scope.props;
+    console.log(scope.props)
+    switch(key) {
+      case 'deleteFlow':
+        deleteTenxFlowSingle(flowId, {
+          success: {
+            func: () => getTenxFlowList(),
+            isAsync: true
+          }
+        })
+        break;
+    }
   },
   showDeloyLog: function (item, e) {
     //this function for show user the deploy log of the tenxflow
@@ -108,34 +128,41 @@ let MyComponent = React.createClass({
     });
   },
   render: function () {
-    const { config, scope } = this.props;
+    const { config, scope, isFetching } = this.props;
+    if(isFetching) {
+      return (
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
+      )
+    }
     let items = config.map((item) => {
       const dropdown = (
-        <Menu onClick={this.operaMenuClick.bind(this, item)}
-          style={{ width: '100px' }}
-          >
-          <Menu.Item key='1'>
-            <i className='fa fa-eye' />&nbsp;
-            <FormattedMessage {...menusText.checkImage} />
+        <Menu onClick={this.operaMenuClick.bind(this, item)}>
+          <Menu.Item key='viewImage'>
+            <i className='fa fa-eye' style={{ float:'left', lineHeight:'32px', marginRight:'7px' }} />&nbsp;
+            <span style={{ float:'left', lineHeight:'32px' }}><FormattedMessage {...menusText.checkImage} /></span>
+            <div style={{ clear:'both' }}></div>
           </Menu.Item>
-          <Menu.Item key='2'>
-            <i className='fa fa-trash' />&nbsp;
-            <FormattedMessage {...menusText.delete} />
+          <Menu.Item key='deleteFlow'>
+            <i className='fa fa-trash' style={{ float:'left', lineHeight:'32px', marginRight:'7px' }} />&nbsp;
+            <span style={{ float:'left', lineHeight:'32px' }}><FormattedMessage {...menusText.delete} /></span>
+            <div style={{ clear:'both' }}></div>
           </Menu.Item>
         </Menu>
       );
       return (
         <div className='tenxflowDetail' key={item.name} >
           <div className='name'>
-            <Link to='/ci_cd/tenx_flow/tenx_flow_build'>
+            <Link to={`/ci_cd/tenx_flow/tenx_flow_build?${item.flowId}`}>
               <span>{item.name}</span>
             </Link>
           </div>
           <div className='time'>
-            <span>{item.updateTime}</span>
+            <span>{item.updateTime ? item.updateTime : [<FormattedMessage {...menusText.unUpdate} />] }</span>
           </div>
           <div className='status'>
-            {item.status}
+            <span>{ '-' }</span>
           </div>
           <div className='oprea'>
             <Button className='logBtn' size='large' type='primary' onClick={scope.openTenxFlowDeployLogModal}>
@@ -174,6 +201,8 @@ class TenxFlowList extends Component {
 
   componentWillMount() {
     document.title = 'TenxFlow | 时速云';
+    const { getTenxFlowList } = this.props;
+    getTenxFlowList();
   }
 
   openCreateTenxFlowModal() {
@@ -207,6 +236,7 @@ class TenxFlowList extends Component {
   render() {
     const { formatMessage } = this.props.intl;
     const scope = this;
+    const { isFetching, flowList } = this.props;
     return (
       <QueueAnim className='TenxFlowList'
         type='right'
@@ -237,7 +267,7 @@ class TenxFlowList extends Component {
                 <FormattedMessage {...menusText.opera} />
               </div>
             </div>
-            <MyComponent scope={scope} config={testData} />
+            <MyComponent scope={scope} config={flowList} isFetching={isFetching}  />
           </Card>
         </div>
         <Modal
@@ -261,9 +291,15 @@ class TenxFlowList extends Component {
 }
 
 function mapStateToProps(state, props) {
-
+  const defaultFlowList= {
+    isFetching: false,
+    flosList: [],
+  }
+  const { getTenxflowList } = state.cicd_flow
+  const { isFetching, flowList } = getTenxflowList || defaultFlowList
   return {
-
+    isFetching,
+    flowList
   }
 }
 
@@ -272,7 +308,8 @@ TenxFlowList.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-
+  getTenxFlowList,
+  deleteTenxFlowSingle
 })(injectIntl(TenxFlowList, {
   withRef: true,
 }));

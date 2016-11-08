@@ -82,7 +82,7 @@ exports.getAppMetrics = function* () {
   const servicesResult = yield api.getBy([cluster, 'apps', appName, 'services'])
   const services = servicesResult.data.services || []
   const servicesPromiseArray = services.map((service) => {
-    let serviceName = service.metadata.name
+    let serviceName = service.deployment.metadata.name
     return api.getBy([cluster, 'services', serviceName, 'instances'])
   })
   const instancesResults = yield servicesPromiseArray

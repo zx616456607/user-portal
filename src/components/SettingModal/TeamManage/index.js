@@ -14,12 +14,7 @@ import { Link } from 'react-router'
 import SearchInput from '../../SearchInput'
 import { connect } from 'react-redux'
 import { loadUserTeamList } from '../../../actions/user'
-import { createTeam } from '../../../actions/team'
-
-function loadData(props) {
-  const { loadUserTeamList,} = props
-  loadUserTeamList('default')
-}
+import { createTeam, deleteTeam, createTeamspace, addTeamusers, removeTeamusers } from '../../../actions/team'
 
 let TeamTable = React.createClass({
   getInitialState() {
@@ -53,10 +48,10 @@ let TeamTable = React.createClass({
       defaultPageSize: 5,
       pageSizeOptions: ['5','10','15','20'],
       onShowSizeChange(current, pageSize) {
-        //console.log('Current: ', current, '; PageSize: ', pageSize);
+        console.log('Current: ', current, '; PageSize: ', pageSize);
       },
       onChange(current) {
-        //console.log('Current: ', current);
+        console.log('Current: ', current);
       },
     }
     const columns = [
@@ -67,7 +62,7 @@ let TeamTable = React.createClass({
         width: '20%',
         className: 'teamName',
         render: (text,record,index) => (
-          <Link to={`setting/detail/${text}`}>{text}</Link>
+          <Link to={`/setting/detail/${text}`}>{text}</Link>
         )
       },
       {
@@ -123,18 +118,6 @@ let TeamTable = React.createClass({
     }
   },
 })
-let NewTeamForm = React.createClass({
-  render() {
-    return (
-        <Row>
-          <Col span={4}>名称</Col>
-          <Col span={20}>
-            <Input placeholder="新团队名称"/>
-          </Col>
-        </Row>
-    )
-  },
-})
 
 class TeamManage extends Component {
   constructor(props){
@@ -142,10 +125,12 @@ class TeamManage extends Component {
     this.showModal = this.showModal.bind(this)
     this.handleOk = this.handleOk.bind(this)
     this.handleCancel = this.handleCancel.bind(this)
+    this.handleCreateTeamInt = this.handleCreateTeamInt.bind(this)
     this.state = {
       searchResult: [],
       notFound: false,
       visible: false,
+      teamName: '',
     }
   }
   showModal() {
@@ -154,8 +139,19 @@ class TeamManage extends Component {
     })
   }
   handleOk() {
-    this.setState({
-      visible: false,
+    this.props.createTeam(
+      {
+        teamName: this.state.teamName
+      },{
+      success: {
+        func: () => {
+          console.log('create done');
+          this.setState({
+            visible: false,
+          })
+          this.props.loadUserTeamList('default')
+        }
+      }
     })
   }
   handleCancel(e) {
@@ -164,27 +160,20 @@ class TeamManage extends Component {
       visible: false,
     })
   }
+  handleCreateTeamInt(e){
+    console.log('input value',e.target.value);
+    this.setState({
+      teamName: e.target.value
+    })
+  }
   componentWillMount(){
-    loadData(this.props)
+    this.props.loadUserTeamList('default')
   }
   render(){
     const scope = this
     const { visible } = this.state
     const { teams } = this.props
-    let data = []
-    if(teams.length !== 0){
-      teams.map((item,index) => {
-        data.push(
-          {
-            key: index,
-            team: item.teamName,
-            member: item.userCount,
-            cluster: item.clusterCount,
-            space: item.spaceCount,
-          }
-        )
-      })
-    }
+    
     const searchIntOption = {
       placeholder: '搜索',
       defaultSearchValue: 'team',
@@ -201,19 +190,23 @@ class TeamManage extends Component {
             <Modal title="创建团队" visible={visible}
                    onOk={this.handleOk} onCancel={this.handleCancel}
                    wrapClassName="NewTeamForm"
-                   width="463px"
-            >
-              <NewTeamForm />
+                   width="463px">
+              <Row className="NewTeamItem">
+                <Col span={4}>名称</Col>
+                <Col span={20}>
+                  <Input placeholder="新团队名称" onChange={this.handleCreateTeamInt} defaultValue=""/>
+                </Col>
+              </Row>
             </Modal>
           <Button className="viewBtn">
             <Icon type="picture" />
             查看成员&团队图例
           </Button>
-          <SearchInput searchIntOption={searchIntOption} scope={scope} data={data}/>
+          <SearchInput searchIntOption={searchIntOption} scope={scope} data={teams}/>
         </Row>
         <Row className="teamList">
           <Card>
-            <TeamTable data={data} scope={scope}/>
+            <TeamTable data={teams} scope={scope}/>
           </Card>
         </Row>
       </div>
@@ -224,17 +217,31 @@ class TeamManage extends Component {
 function mapStateToProp(state) {
   let teamsData = []
   let total = 0
+  let data = []
   const teams = state.user.teams
   if (teams.result) {
     if (teams.result.teams) {
       teamsData = teams.result.teams
+      if(teamsData.length !== 0){
+        teamsData.map((item,index) => {
+          data.push(
+            {
+              key: index,
+              team: item.teamName,
+              member: item.userCount,
+              cluster: item.clusterCount,
+              space: item.spaceCount,
+            }
+          )
+        })
+      }
     }
     if (teams.result.total) {
       total = teams.result.total
     }
   }
   return {
-    teams: teamsData,
+    teams: data,
     total
   }
 }
@@ -242,4 +249,8 @@ function mapStateToProp(state) {
 export default connect(mapStateToProp, {
   loadUserTeamList,
   createTeam,
+  deleteTeam,
+  createTeamspace,
+  addTeamusers,
+  removeTeamusers,
 })(TeamManage)

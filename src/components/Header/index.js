@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component } from 'react'
-import { Menu, Dropdown, Icon, Select, Input, Button, Form, Popover, } from 'antd'
+import { Menu, Dropdown, Icon, Select, Input, Button, Form, Popover, message } from 'antd'
 import { FormattedMessage, defineMessages } from 'react-intl'
 import "./style/header.less"
 import querystring from 'querystring'
@@ -17,7 +17,10 @@ import PopSelect from '../PopSelect'
 import { connect } from 'react-redux'
 import { loadUserTeamspaceList } from '../../actions/user'
 import { loadTeamClustersList } from '../../actions/team'
-import { setCluster } from '../../actions'
+import { setCurrent } from '../../actions'
+import { getCookie } from '../../common/tools'
+import { USER_CURRENT_CONFIG } from '../../../constants'
+import { browserHistory } from 'react-router'
 
 const FormItem = Form.Item;
 const createForm = Form.create;
@@ -75,10 +78,9 @@ class Header extends Component {
     super(props)
     this.handleSpaceChange = this.handleSpaceChange.bind(this)
     this.handleClusterChange = this.handleClusterChange.bind(this)
-    this.setCluster = this.setCluster.bind(this)
     this.state = {
       spacesVisible: false,
-      cliustersVisible: false,
+      clustersVisible: false,
       focus: false,
       selectSpace: {},
       selectCluster: {},
@@ -86,33 +88,57 @@ class Header extends Component {
   }
 
   handleSpaceChange(space) {
-    const { loadTeamClustersList } = this.props
+    const { loadTeamClustersList, setCurrent } = this.props
+    setCurrent({
+      team: { teamID: space.teamID },
+      space
+    })
     loadTeamClustersList(space.teamID, { size: 100 })
     this.setState({
       selectSpace: space,
       spacesVisible: false,
-      cliustersVisible: true,
+      clustersVisible: true,
     })
   }
 
   handleClusterChange(cluster) {
     this.setState({
+      clustersVisible: false,
+    })
+    if (cluster.clusterID === this.state.selectCluster.clusterID) {
+      return
+    }
+    const { setCurrent } = this.props
+    setCurrent({
+      cluster
+    })
+    message.success(`集群已成功切换到 ${cluster.clusterName}`)
+    browserHistory.push('/')
+    this.setState({
       selectCluster: cluster,
-      cliustersVisible: false,
     })
   }
 
-  setCluster(value, option) {
-    window.localStorage.setItem('cluster', value)
-  }
-
   componentWillMount() {
+    const { loadTeamClustersList, setCurrent } = this.props
+    const config = getCookie(USER_CURRENT_CONFIG)
+    const [teamID, spaceID, clusterID] = config.split(',')
+    setCurrent({
+      team: { teamID },
+      space: { spaceID },
+      cluster: { clusterID },
+    })
     const self = this
-    const { loadTeamClustersList, setCluster } = this.props
     loadSpaces(this.props, {
       success: {
         func: (resultT) => {
-          const defaultSpace = resultT.teamspaces[0] || {}
+          let defaultSpace = resultT.teamspaces[0] || {}
+          if (spaceID === 'default') {
+            defaultSpace = {
+              spaceName: '我的空间',
+              teamID
+            }
+          }
           this.setState({
             selectSpace: defaultSpace,
           })
@@ -120,7 +146,7 @@ class Header extends Component {
             success: {
               func: (resultC) => {
                 let defaultCluster = resultC.data[0] || {}
-                setCluster(defaultCluster)
+                // setCurrent({ cluster: defaultCluster })
                 self.setState({
                   selectCluster: defaultCluster,
                 })
@@ -135,10 +161,15 @@ class Header extends Component {
   }
 
   render() {
-    const { isTeamspacesFetching, teamspaces, teamClusters } = this.props
+    const {
+      isTeamspacesFetching,
+      teamspaces,
+      isTeamClustersFetching,
+      teamClusters
+    } = this.props
     const {
       spacesVisible,
-      cliustersVisible,
+      clustersVisible,
       selectSpace,
       selectCluster,
     } = this.state
@@ -146,7 +177,7 @@ class Header extends Component {
       space.name = space.spaceName
     })
     teamClusters.map((cluster) => {
-      cluster.name = cluster.description
+      cluster.name = cluster.clusterName
     })
     return (
       <div id="header">
@@ -179,11 +210,11 @@ class Header extends Component {
             <PopSelect
               title="选择集群"
               btnStyle={false}
-              visible={cliustersVisible}
+              visible={clustersVisible}
               list={teamClusters}
-              loading={isTeamspacesFetching}
+              loading={isTeamClustersFetching}
               onChange={this.handleClusterChange}
-              selectValue={selectCluster.description} />
+              selectValue={selectCluster.clusterName} />
             {/*<PopSelect  btnStyle={false} list={ClusterResultArr} selectValue="产品环境集群" />*/}
           </div>
         </div>
@@ -209,6 +240,7 @@ function mapStateToProps(state, props) {
   return {
     isTeamspacesFetching: teamspaces.isFetching,
     teamspaces: (teamspaces.result ? teamspaces.result.teamspaces : []),
+    isTeamClustersFetching: teamClusters.isFetching,
     teamClusters: (teamClusters.result ? teamClusters.result.data : []),
   }
 }
@@ -216,5 +248,5 @@ function mapStateToProps(state, props) {
 export default connect(mapStateToProps, {
   loadUserTeamspaceList,
   loadTeamClustersList,
-  setCluster,
+  setCurrent,
 })(Header)

@@ -17,11 +17,6 @@ import { loadUserList, createUser, deleteUser } from '../../../actions/user'
 const createForm = Form.create;
 const FormItem = Form.Item;
 
-function loadData(props) {
-  const { loadUserList, users, total, size } = props
-  loadUserList(null)
-}
-
 let MemberTable =  React.createClass({
   getInitialState() {
     return {
@@ -41,23 +36,58 @@ let MemberTable =  React.createClass({
       notFound: false,
     })
   },
+  delMember(record){
+    console.log('delmember !',record);
+    const { scope } = this.props
+    scope.props.deleteUser(record.key,{
+      success: {
+        func: () => {
+          console.log('del !');
+          scope.props.loadUserList({
+            page: scope.state.page,
+            size: scope.state.pageSize,
+          })
+        },
+        isAsync: true
+      },
+    })
+  },
   render() {
     let { sortedInfo, filteredInfo } = this.state
     const { searchResult, notFound } = this.props.scope.state
-    const { data } = this.props
+    const { data, scope } = this.props
+    console.log('listdata',data);
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
-    let pageTotal = searchResult.length === 0 ? data.length : searchResult.length
     const pagination = {
-      total: pageTotal,
+      total: this.props.scope.props.total,
       showSizeChanger: true,
       defaultPageSize: 5,
       pageSizeOptions: ['5','10','15','20'],
       onShowSizeChange(current, pageSize) {
-        //console.log('Current: ', current, '; PageSize: ', pageSize);
+        console.log('Current: ', current, '; PageSize: ', pageSize);
+        scope.props.loadUserList({
+          page: current,
+          size: pageSize
+        })
+        scope.setState({
+          pageSize: pageSize,
+          page: current
+        })
       },
       onChange(current) {
-        //console.log('Current: ', current);
+        const {pageSize} = scope.state
+        const { users } = scope.props
+        console.log('Current: ', current);
+        scope.props.loadUserList({
+          page: current,
+          size: pageSize
+        })
+        scope.setState({
+          pageSize: pageSize,
+          page: current
+        })
+        console.log('userList new ',users);
       },
     }
     const columns = [
@@ -99,25 +129,32 @@ let MemberTable =  React.createClass({
         dataIndex: 'team',
         key: 'team',
         width: 150,
+        sorter: (a, b) => a.team - b.team,
+        sortOrder: sortedInfo.columnKey === 'team' && sortedInfo.order,
       },
       {
         title: '余额',
         dataIndex: 'balance',
         key: 'balance',
         width: 150,
+        sorter: (a, b) => a.balance - b.balance,
+        sortOrder: sortedInfo.columnKey === 'balance' && sortedInfo.order,
       },
       {
         title: '操作',
         dataIndex: 'operation',
         key: 'operation',
         width: 180,
-        render: (text, record) => (
+        render: (text, record,index) => (
           <div>
             <Button icon="setting" className="setBtn">管理</Button>
-            <Button icon="delete" className="delBtn">删除</Button>
+            <Button icon="delete" className="delBtn" onClick={() => this.delMember(record)}>
+              删除
+            </Button>
           </div>
         ),
-      },]
+      },
+    ]
     if(notFound){
       return (
         <div id="notFound">
@@ -185,21 +222,17 @@ let NewMemberForm = React.createClass({
         phone: tel,
         sendEmail: check,
       }
-      let newItem = {
-        name: name,
-        tel: tel,
-        email: email,
-        style: 0,
-        team: '1',
-        balance: 0,
-      }
+      
       scope.props.createUser(newUser,{
         success: {
           func: () => {
             scope.setState({
               visible: false,
             })
-            scope.state.memberList.push(newItem)
+            scope.props.loadUserList({
+              page: scope.state.page,
+              size: scope.state.pageSize,
+            })
           },
           isAsync: true
         },
@@ -340,7 +373,7 @@ let NewMemberForm = React.createClass({
     )
   },
 })
-
+NewMemberForm = createForm()(NewMemberForm)
 class MemberManage extends Component {
   constructor(props){
     super(props)
@@ -350,29 +383,28 @@ class MemberManage extends Component {
       notFound: false,
       visible: false,
       memberList: [],
+      pageSize: 5,
+      page: 1,
     }
   }
-
   showModal() {
     this.setState({
       visible: true,
     })
   }
   componentWillMount(){
-    loadData(this.props)
+    this.props.loadUserList({
+      page: 1,
+      size: 5
+    })
     
   }
   componentWillReceiveProps(nextProps){
-    const { users } = this.props
-    if(users.length === 0){
-      return
-    }
-    this.setState({
-      memberList: nextProps.users
-    })
+    
   }
   render(){
     const { users } = this.props
+    console.log('users',users);
     const scope = this
     const { visible, memberList } = this.state
     const searchIntOption = {
@@ -393,12 +425,12 @@ class MemberManage extends Component {
           <Button type="primary" size="large" onClick={this.showModal} icon="plus" className="addBtn">
             添加新成员
           </Button>
-          <SearchInput data={memberList} scope={scope} searchIntOption={searchIntOption}/>
+          <SearchInput data={users} scope={scope} searchIntOption={searchIntOption}/>
           <NewMemberForm visible={visible} scope={scope}/>
         </Row>
         <Row className="memberList">
           <Card>
-            <MemberTable scope={scope} data={memberList.length === 0? users: memberList}/>
+            <MemberTable scope={scope} data={users}/>
           </Card>
         </Row>
       </div>
@@ -409,20 +441,21 @@ class MemberManage extends Component {
 function mapStateToProp(state) {
   let usersData = []
   let total = 0
-  let size = 0
   let data = []
   const users = state.user.users
   if (users.result) {
     if (users.result.users) {
+
       usersData = users.result.users
+      console.log('usersData',usersData);
       usersData.map((item,index) => {
         data.push(
           {
-            key: index,
+            key: item.userID,
             name: item.displayName,
             tel: item.phone,
             email: item.email,
-            style: item.role,
+            style: item.role === 1?'团队管理员':'普通成员',
             team: '1',
             balance: item.balance,
           }
@@ -432,15 +465,11 @@ function mapStateToProp(state) {
     if (users.result.total) {
       total = users.result.total
     }
-    if (users.result.count) {
-      size = users.result.size
-    }
   }
   
   return {
     users: data,
-    total,
-    size,
+    total
   }
 }
 

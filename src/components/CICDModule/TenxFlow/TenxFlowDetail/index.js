@@ -14,6 +14,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../constants'
+import { getTenxFlowDetail } from '../../../../actions/cicd_flow'
 import './style/TenxFlowDetail.less'
 import TenxFlowDetailAlert from './TenxFlowDetailAlert.js'
 import TenxFlowDetailYaml from './TenxFlowDetailYaml.js'
@@ -84,6 +85,10 @@ class TenxFlowDetail extends Component {
 
   componentWillMount() {
     document.title = 'TenxFlow | 时速云';
+    const { getTenxFlowDetail } = this.props;
+    let { search } = this.props.location;
+    search = search.slice(1);
+    getTenxFlowDetail(search);
   }
 
   openCreateTenxFlowModal() {
@@ -117,6 +122,7 @@ class TenxFlowDetail extends Component {
   render() {
     const { formatMessage } = this.props.intl;
     const scope = this;
+    console.log(this.props)
     const tenxflow = this.props.config;
     return (
       <QueueAnim className='TenxFlowDetail'
@@ -162,9 +168,15 @@ class TenxFlowDetail extends Component {
 }
 
 function mapStateToProps(state, props) {
-
+  const defaultFlowInfo = {
+    isFetching: false,
+    flowInfo: {}
+  }
+  const { getTenxflowDetail } = state.cicd_flow;
+  const { isFetching, flowInfo } = getTenxflowDetail || defaultFlowInfo;
   return {
-
+    isFetching,
+    flowInfo
   }
 }
 
@@ -173,7 +185,7 @@ TenxFlowDetail.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-
+  getTenxFlowDetail
 })(injectIntl(TenxFlowDetail, {
   withRef: true,
 }));
