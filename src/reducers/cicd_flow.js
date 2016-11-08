@@ -51,7 +51,7 @@ function codeRepo(state = {}, action) {
     // search 
     case ActionTypes.SEARCH_CODE_REPO_LIST:
       const newState = cloneDeep(state)
-      if(newState.bak && newState.bak.length >0 && state.repoList.length !== state.bak.length) {
+      if (action.codeName == '') {
         newState.repoList = newState.bak
       }
       const temp = newState.repoList.filter(list => {
@@ -73,7 +73,7 @@ function codeRepo(state = {}, action) {
 function getProject(state = {}, action) {
   const defaultState = {
     isFetching: false,
-    projectList: []
+    projectList: [],
   }
   switch (action.type) {
     case ActionTypes.GET_CODE_STORE_REQUEST:
@@ -81,7 +81,8 @@ function getProject(state = {}, action) {
     case ActionTypes.GET_CODE_STORE_SUCCESS:
       return merge({}, state, {
         isFetching: false,
-        projectList: action.response.result.data.results
+        projectList: action.response.result.data.results,
+        bak: action.response.result.data.results
       })
     case ActionTypes.GET_CODE_STORE_FAILURE:
       return merge({}, state, { isFetching: false })
@@ -97,10 +98,68 @@ function getProject(state = {}, action) {
       })
     case ActionTypes.DELETE_CODE_STORE_FAILURE:
       return merge({}, state, { isFetching: false })
-
+    // search 
+    case ActionTypes.SEARCH_CODE_STORE_LIST:
+      const newState = cloneDeep(state)
+      if (action.codeName == '') {
+        newState.projectList = newState.bak
+      }
+      const temp = newState.projectList.filter(list => {
+        const search = new RegExp(action.codeName)
+        if (search.test(list.name)) {
+          return true
+        }
+        return false
+      })
+      newState.projectList = temp
+      return {
+        ...newState
+      }
+    // filter
+    case ActionTypes.FILTER_CODE_STORE_LIST:
+      const filterState = cloneDeep(state)
+      if (action.types == 'all') {
+        filterState.projectList = filterState.bak
+        return {  ...filterState }
+      }
+      const lists = filterState.bak.filter(list => {
+        if (list.isPrivate == action.types) {
+          return true
+        }
+        return false
+      })
+      filterState.projectList = lists
+      return {
+        ...filterState
+      }
     default:
       return state
   }
+}
+function getUserInfo(state = {}, action) {
+  const defaultState = {
+    isFetching: false,
+    repoUser: {username:'',depot:''}
+  }
+  switch (action.type) {
+    case ActionTypes.GET_REPO_USER_INFO_REQUEST:
+      return merge({}, defaultState, state, {
+        isFetching: true
+      })
+    case ActionTypes.GET_REPO_USER_INFO_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        repoUser: action.response.result.data.results,
+      }
+      )
+    case ActionTypes.GET_REPO_USER_INFO_FAILURE:
+      return merge({}, defaultState, state, {
+        isFetching: false
+      })
+    default:
+      return state
+  }
+
 }
 
 function getTenxflowList(state = {}, action) {
@@ -116,10 +175,10 @@ function getTenxflowList(state = {}, action) {
       })
     case ActionTypes.GET_TENX_FLOW_LIST_SUCCESS:
       return Object.assign({}, state, {
-          isFetching: false,
-          flowList: action.response.result.data.results,
-          total: action.response.result.data.total
-        }
+        isFetching: false,
+        flowList: action.response.result.data.results,
+        total: action.response.result.data.total
+      }
       )
     case ActionTypes.GET_TENX_FLOW_LIST_FAILURE:
       return merge({}, defaultState, state, {
@@ -142,9 +201,9 @@ function getTenxflowDetail(state = {}, action) {
       })
     case ActionTypes.GET_SINGLE_TENX_FLOW_SUCCESS:
       return Object.assign({}, state, {
-          isFetching: false,
-          flowInfo: action.response.result.data.results
-        }
+        isFetching: false,
+        flowInfo: action.response.result.data.results
+      }
       )
     case ActionTypes.GET_SINGLE_TENX_FLOW_FAILURE:
       return merge({}, defaultState, state, {
@@ -161,6 +220,7 @@ export default function cicd_flow(state = {}, action) {
     managed: getProject(state.managed, action),
     getTenxflowList: getTenxflowList(state.getTenxflowList, action),
     getTenxflowDetail: getTenxflowDetail(state.getTenxflowDetail, action),
+    userInfo: getUserInfo(state.userInfo, action),
     createTenxFlowSingle: reducerFactory({
       REQUEST: ActionTypes.CREATE_SINGLE_TENX_FLOW_REQUEST,
       SUCCESS: ActionTypes.CREATE_SINGLE_TENX_FLOW_SUCCESS,

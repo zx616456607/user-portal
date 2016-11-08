@@ -33,6 +33,26 @@ export function getRepoList (types) {
   }
 }
 
+export const GET_REPO_USER_INFO_REQUEST = 'GET_REPO_USER_INFO_REQUEST'
+export const GET_REPO_USER_INFO_SUCCESS = 'GET_REPO_USER_INFO_SUCCESS'
+export const GET_REPO_USER_INFO_FAILURE = 'GET_REPO_USER_INFO_FAILURE'
+
+function fetchGetUserInfo(types) {
+  return {
+    [FETCH_API]: {
+      types: [GET_REPO_USER_INFO_REQUEST, GET_REPO_USER_INFO_SUCCESS, GET_REPO_USER_INFO_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/repos/${types}/user`,
+      schema: {}
+    }
+  }
+}
+// get user info in repo
+export function getUserInfo(types) {
+  return (dispatch, getState) => {
+    return dispatch(fetchGetUserInfo(types))
+  }
+}
+
 export const DELETE_REPOS_LIST_REQUEST = 'DELETE_REPOS_LIST_REQUEST'
 export const DELETE_REPOS_LIST_SUCCESS = 'DELETE_REPOS_LIST_SUCCESS'
 export const DELETE_REPOS_LIST_FAILURE = 'DELETE_REPOS_LIST_FAILURE'
@@ -135,6 +155,24 @@ function fetchRemoveProject(projectId) {
 export function removeProject(projectId) {
   return(dispatch, getState) => {
     return dispatch(fetchRemoveProject(projectId))
+  }
+}
+// search code project list
+export const SEARCH_CODE_STORE_LIST = 'SEARCH_CODE_STORE_LIST'
+
+export function searchProject(names){
+  return {
+    type: SEARCH_CODE_STORE_LIST,
+    codeName:names
+  }
+}
+
+// filter code project list
+export const FILTER_CODE_STORE_LIST = 'FILTER_CODE_STORE_LIST'
+export function filterProject(types) {
+  return {
+    type: FILTER_CODE_STORE_LIST,
+    types: types
   }
 }
 

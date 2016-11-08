@@ -131,6 +131,23 @@ exports.listBranches = function* () {
   }
 }
 
+exports.getUserInfo = function* () {
+  const loginUser = this.session.loginUser
+  const repoType = this.params.type
+  if (repoType != "gitlab") {
+    const err = new Error('Only support gitlab for now')
+    err.status = 400
+    throw err
+  }
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.getBy(["repos", repoType, "user"], null)
+
+  this.body = {
+    data: result
+  }
+}
+
 /*
 Managed projects
 */
@@ -318,6 +335,72 @@ exports.updateFlowStage = function* () {
 
   const api = apiFactory.getDevOpsApi(loginUser)
   const result = yield api.updateBy(["ci-flows", flow_id, "stages", stage_id], null)
+
+  this.body = {
+    data: result
+  }
+}
+
+exports.getStage = function* () {
+  const loginUser = this.session.loginUser
+  const flow_id = this.params.flow_id
+  const stage_id = this.params.stage_id
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.getBy(["ci-flows", flow_id, "stages", stage_id], null)
+
+  this.body = {
+    data: result
+  }
+}
+
+exports.createFlowBuild = function* () {
+  const loginUser = this.session.loginUser
+  const flow_id = this.params.flow_id
+  const body = this.request.body
+
+  // TODO: validate body format
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.createBy(["ci-flows", flow_id, "builds"], null, body)
+
+  this.body = {
+    data: result
+  }
+}
+
+exports.listBuilds = function* () {
+  const loginUser = this.session.loginUser
+  const flow_id = this.params.flow_id
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.getBy(["ci-flows", flow_id, "builds"], null)
+
+  this.body = {
+    data: result
+  }
+}
+
+exports.getFlowBuild = function* () {
+  const loginUser = this.session.loginUser
+  const flow_id = this.params.flow_id
+  const flow_build_id = this.params.flow_build_id
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.getBy(["ci-flows", flow_id, "builds", flow_build_id], null)
+
+  this.body = {
+    data: result
+  }
+}
+
+exports.stopBuild = function* () {
+  const loginUser = this.session.loginUser
+  const flow_id = this.params.flow_id
+  const flow_build_id = this.params.flow_build_id
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.updateBy(["ci-flows", flow_id, "builds", flow_build_id, "stop"], null)
 
   this.body = {
     data: result

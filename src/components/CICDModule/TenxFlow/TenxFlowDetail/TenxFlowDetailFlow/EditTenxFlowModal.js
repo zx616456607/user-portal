@@ -337,7 +337,7 @@ let EditTenxFlowModal = React.createClass({
   },
   render() {
     const { formatMessage } = this.props.intl;
-    const { config, editType, form } = this.props;
+    const { config, form } = this.props;
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form;
     const scopeThis = this;
     getFieldProps('services', {
@@ -430,7 +430,7 @@ let EditTenxFlowModal = React.createClass({
     return (
       <div id='EditTenxFlowModal' key='EditTenxFlowModal'>
       <div className='titleBox'>
-        <span>{ editType == 'create' ? [<FormattedMessage {...menusText.titleAdd} />] : [<FormattedMessage {...menusText.titleEdit} />] }</span>
+        <span><FormattedMessage {...menusText.titleEdit} /></span>
         <Icon type='cross' onClick={this.cancelChange} />
       </div>
       <Form horizontal>

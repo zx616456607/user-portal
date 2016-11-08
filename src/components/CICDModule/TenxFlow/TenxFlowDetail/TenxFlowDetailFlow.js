@@ -16,6 +16,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import './style/TenxFlowDetailFlow.less'
 import EditTenxFlowModal from './TenxFlowDetailFlow/EditTenxFlowModal.js'
+import CreateTenxFlowModal from './TenxFlowDetailFlow/CreateTenxFlowModal.js'
 import TenxFlowDetailFlowCard from './TenxFlowDetailFlow/TenxFlowDetailFlowCard.js'
 
 let testData = [
@@ -84,9 +85,9 @@ class TenxFlowDetailFlow extends Component {
     this.createNewFlow = this.createNewFlow.bind(this);
     this.state = {
       editTenxFlowModal: false,
-      currentModalType: 'create',
       currentModalShowFlow: null,
-      currentFlowEdit: null
+      currentFlowEdit: null,
+      createNewFlow: false
     }
   }
 
@@ -97,8 +98,8 @@ class TenxFlowDetailFlow extends Component {
   createNewFlow() {
     //this function only for user create an new flow show the edit modal
     this.setState({
-      editTenxFlowModal: true,
-      currentModalType: 'create'
+      currentFlowEdit: null,
+      createNewFlow: true,    
     });
   }
 
@@ -115,15 +116,28 @@ class TenxFlowDetailFlow extends Component {
         <div className='paddingBox'>
           <Alert message={<FormattedMessage {...menusText.tooltip} />} type='info' />
           { cards }
-          <div style={{ clear:'both' }}></div>
-          <div className='commonCardBox createCardBox'>
+          <div className={ this.state.createNewFlow ? 'TenxFlowDetailFlowCardBigDiv commonCardBox createCardBox' : 'commonCardBox createCardBox'}>
             <Card className='commonCard createCard' onClick={this.createNewFlow}>
-              <Icon type="plus-circle-o" />
-              <p>
-                <FormattedMessage {...menusText.add} />
-              </p>
+              { !this.state.createNewFlow ? [
+                <QueueAnim key='createCardAnimate'>
+                  <div className='createInfo' key='createCard'>
+                    <Icon className='addIcon' type="plus-circle-o" />
+                    <p>
+                      <FormattedMessage {...menusText.add} />
+                    </p>
+                  </div>
+                </QueueAnim>
+              ] : null }
+              {
+                this.state.createNewFlow ? [
+                  <QueueAnim key='creattingCardAnimate'>
+                    <CreateTenxFlowModal key='CreateTenxFlowModal' scope={scope} />
+                  </QueueAnim>
+                ] : null
+              }
             </Card>
           </div>
+          <div style={{ clear:'both' }}></div>
         </div>
       </div>
     )

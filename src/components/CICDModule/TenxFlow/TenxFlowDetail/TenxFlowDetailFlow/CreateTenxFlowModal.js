@@ -154,7 +154,7 @@ let shellUid = 0;
 let CreateTenxFlowModal = React.createClass({
   getInitialState: function() {
     return {
-      otherFlowType: 'buildImage',
+      otherFlowType: '5',
       currentType: 'view',
       emailAlert: false,
       otherEmail: false,
@@ -284,6 +284,15 @@ let CreateTenxFlowModal = React.createClass({
       }
     }
   },
+  realImageInput (rule, value, callback) {
+    //this function for user selected build image type
+    //and when user submit the form, the function will check the real image input or not 
+    if (this.state.otherFlowType == '5' && !!!value) {
+      callback([new Error('请输入镜像名称')]);
+    } else {
+      callback();
+    }
+  },
   changeUseDockerFile (e) {
     //this function for user change using the docker file or not
     if(e.target.checked) {
@@ -329,15 +338,54 @@ let CreateTenxFlowModal = React.createClass({
         e.preventDefault();
         return;
       }
-      _this.setState({
-        currentTenxFlow: values
+      //get shell code
+      let shellLength = values.shellCodes;
+      let shellList = [];
+      shellLength.map((item, index) => {
+        if((index + 1) != shellLength.length) {         
+          shellList.push(values['shellCode' + item]);
+        }
       });
-      scope.cancelEditCard();
+      //get service code
+      let serviceLength = values.services;
+      let serviceList = [];
+      serviceLength.map((item) => {
+        let temp = {
+          'service': values['serviceSelect' + item]
+        }
+        let tempLength = values['service' + item + 'inputs'];
+        let tempList = [];
+        tempLength.map((littleItem, littleIndex) => {
+          if((littleIndex + 1) != tempLength.length) {
+            tempList.push(values['service' + item +'input' + littleItem]);
+          }
+        });
+        temp.env = tempList;
+        serviceList.push(temp);
+      });
+      var body = {
+        'metadata': {
+          'name': values.flowName,
+          'type': parseInt(values.flowType), 
+        },
+        'spec': {
+          'container': {
+            'image': values.imageName,
+            'args': shellList,
+            'dependencies': serviceList
+          }
+        }
+      }
+      if(values.flowType == '6') {
+        body.metadata.customType = values.otherFlowType;
+      }
+      console.log(values)
+      console.log(body)
     });
   },
   render() {
     const { formatMessage } = this.props.intl;
-    const { config, editType, form } = this.props;
+    const { form } = this.props;
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form;
     const scopeThis = this;
     getFieldProps('services', {
@@ -349,7 +397,7 @@ let CreateTenxFlowModal = React.createClass({
     const serviceItems = getFieldValue('services').map((k) => {
       const serviceSelect = getFieldProps(`serviceSelect${k}`, {
         rules: [
-          { required: true, message: '请选择' },
+          { message: '请选择' },
         ],
       });
       return (
@@ -397,7 +445,7 @@ let CreateTenxFlowModal = React.createClass({
         { required: true, message: '请选择项目类型' },
       ],
       onChange: this.flowTypeChange,
-      initialValue: config.type,
+      initialValue: '5',
     });
     const otherFlowTypeProps = getFieldProps('otherFlowType', {
       rules: [
@@ -406,7 +454,8 @@ let CreateTenxFlowModal = React.createClass({
     });
     const imageRealNameProps = getFieldProps('imageRealName', {
       rules: [
-        { required: true, message: '请输入镜像名称' },
+        { message: '请输入镜像名称' },
+        { validator: this.realImageInput },
       ],
     });
     const imageNameProps = getFieldProps('imageName', {
@@ -420,7 +469,6 @@ let CreateTenxFlowModal = React.createClass({
         { required: true, message: '请输入项目名称' },
         { validator: this.flowNameExists },
       ],
-      initialValue: config.name,
     });
     const otherImageTagProps = getFieldProps('otherTag', {
       rules: [
@@ -430,7 +478,7 @@ let CreateTenxFlowModal = React.createClass({
     return (
       <div id='CreateTenxFlowModal' key='CreateTenxFlowModal'>
       <div className='titleBox'>
-        <span>{ editType == 'create' ? [<FormattedMessage {...menusText.titleAdd} />] : [<FormattedMessage {...menusText.titleEdit} />] }</span>
+        <span><FormattedMessage {...menusText.titleAdd} /></span>
         <Icon type='cross' onClick={this.cancelChange} />
       </div>
       <Form horizontal>
@@ -441,16 +489,16 @@ let CreateTenxFlowModal = React.createClass({
           <div className='input flowType'>
             <FormItem className='flowTypeForm'>
               <Select {...flowTypeProps} style={{ width: 120 }}>
-                <Option value='unitCheck'><FormattedMessage {...menusText.unitCheck} /></Option>
-                <Option value='containCheck'><FormattedMessage {...menusText.containCheck} /></Option>
-                <Option value='podToPodCheck'><FormattedMessage {...menusText.podToPodCheck} /></Option>
-                <Option value='runningCode'><FormattedMessage {...menusText.runningCode} /></Option>
-                <Option value='buildImage'><FormattedMessage {...menusText.buildImage} /></Option>
-                <Option value='other'><FormattedMessage {...menusText.other} /></Option>
+                <Option value='1'><FormattedMessage {...menusText.unitCheck} /></Option>
+                <Option value='2'><FormattedMessage {...menusText.containCheck} /></Option>
+                <Option value='3'><FormattedMessage {...menusText.podToPodCheck} /></Option>
+                <Option value='4'><FormattedMessage {...menusText.runningCode} /></Option>
+                <Option value='5'><FormattedMessage {...menusText.buildImage} /></Option>
+                <Option value='6'><FormattedMessage {...menusText.other} /></Option>
               </Select>
             </FormItem>
             {
-              this.state.otherFlowType == 'other' ? [
+              this.state.otherFlowType == '6' ? [
                 <QueueAnim className='otherFlowTypeInput'>
                   <div key='otherFlowTypeInput'>
                     <FormItem>
@@ -530,7 +578,7 @@ let CreateTenxFlowModal = React.createClass({
           <div style={{ clear:'both' }} />
         </div>
         {
-          config.type == 'buildImage' ? [
+          this.state.otherFlowType == '5' ? [
             <QueueAnim className='buildImageForm'>
               <div className='line'></div>
               <div className='commonBox' key='buildImageFormAnimate'>

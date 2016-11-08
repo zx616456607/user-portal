@@ -355,7 +355,7 @@ class TenxFlowDetailFlowCard extends Component {
           {
             currentFlowEdit == index ? [
               <QueueAnim key={'EditTenxFlowModalAnimate' + index}>
-                <EditTenxFlowModal key={'EditTenxFlowModal' + index} scope={scopeThis} config={config} editType={'edit'} />
+                <EditTenxFlowModal key={'EditTenxFlowModal' + index} scope={scopeThis} config={config} />
               </QueueAnim>
             ] : null
           }

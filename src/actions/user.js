@@ -185,8 +185,8 @@ export const USER_UPDATE_FAILURE = 'USER_UPDATE_FAILURE'
 
 // Update user from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchUpdateUser(body, callback) {
-  let endpoint = `${API_URL_PREFIX}/users`
+function fetchUpdateUser(userID, body, callback) {
+  let endpoint = `${API_URL_PREFIX}/users/${userID}`
   return {
     [FETCH_API]: {
       types: [USER_UPDATE_REQUEST, USER_UPDATE_SUCCESS, USER_UPDATE_FAILURE],
@@ -205,6 +205,6 @@ function fetchUpdateUser(body, callback) {
 // Relies on Redux Thunk middleware.
 export function updateUser(userID, body, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchCreateUser(body, callback))
+    return dispatch(fetchUpdateUser(userID, body, callback))
   }
 }
