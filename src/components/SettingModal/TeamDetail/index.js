@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Alert, Card, Icon, Button, Table, Menu, Dropdown, } from 'antd'
+import { Row, Col, Alert, Card, Icon, Button, Table, Menu, Dropdown, Modal, Input, Transfer, } from 'antd'
 import './style/TeamDetail.less'
 import { Link } from 'react-router'
 import { deleteTeam, createTeamspace, addTeamusers, removeTeamusers, 
@@ -86,12 +86,15 @@ let MemberList = React.createClass({
         key: 'edit',
         render:() => (
           <div className="cardBtns">
-            <Dropdown.Button onClick={this.handleEdit} overlay={menu} trigger={['click']} getPopupContainer={
+            {/*<Dropdown.Button onClick={this.handleEdit} overlay={menu} trigger={['click']} getPopupContainer={
               () => document.getElementsByClassName('cardBtns')
             }>
               <Icon type="edit" />
               修改
-            </Dropdown.Button>
+            </Dropdown.Button>*/}
+            <Button icon="delete" className="delBtn">
+              移除
+            </Button>
           </div>
         )
       },
@@ -153,9 +156,75 @@ let TeamList = React.createClass({
 class TeamDetail extends Component{
   constructor(props){
     super(props)
+    this.addNewMember = this.addNewMember.bind(this)
+    this.handleNewMemberOk = this.handleNewMemberOk.bind(this)
+    this.handleNewMemberCancel = this.handleNewMemberCancel.bind(this)
+    this.addNewSpace = this.addNewSpace.bind(this)
+    this.handleNewSpaceOk = this.handleNewSpaceOk.bind(this)
+    this.handleNewSpaceCancel = this.handleNewSpaceCancel.bind(this)
+    this.handleChange = this.handleChange.bind(this)
     this.state = {
-      
+      addMember: false,
+      addSpace: false,
+      mockData: [],
+      targetKeys: [],
     }
+  }
+  addNewMember(){
+    this.setState({
+      addMember: true,
+    })
+  }
+  handleNewMemberOk(){
+    this.setState({
+      addMember: false,
+    })
+  }
+  handleNewMemberCancel(e){
+    this.setState({
+      addMember: false,
+    })
+  }
+  addNewSpace(){
+    this.setState({
+      addSpace: true,
+    })
+  }
+  handleNewSpaceOk(){
+    this.setState({
+      addSpace: false,
+    })
+  }
+  handleNewSpaceCancel(e){
+    this.setState({
+      addSpace: false,
+    })
+  }
+  componentDidMount() {
+    this.getMock();
+  }
+  componentWillMount(){
+    
+  }
+  getMock() {
+    const targetKeys = [];
+    const mockData = [];
+    for (let i = 0; i < 20; i++) {
+      const data = {
+        key: i,
+        title: `内容${i + 1}`,
+        description: `内容${i + 1}的描述`,
+        chosen: Math.random() * 2 > 1,
+      };
+      if (data.chosen) {
+        targetKeys.push(data.key);
+      }
+      mockData.push(data);
+    }
+    this.setState({ mockData, targetKeys });
+  }
+  handleChange(targetKeys) {
+    this.setState({ targetKeys });
   }
   render(){
     const cardTitle = (
@@ -164,6 +233,7 @@ class TeamDetail extends Component{
         <Col span={16}>开发测试集群Cluster</Col>
       </Row>
     )
+    
     return (
       <div id='TeamDetail'>
         <Row style={{marginBottom:20}}>
@@ -236,9 +306,46 @@ class TeamDetail extends Component{
                 成员数(3)
               </Col>
               <Col span={6}>
-                <Button type="primary" size="large" icon="plus" className="addBtn">
+                <Button type="primary" size="large" icon="plus" className="addBtn"
+                        onClick={this.addNewMember}>
                   添加新成员
                 </Button>
+                <Modal title="添加新成员"
+                       visible={this.state.addMember}
+                       onOk={this.handleNewMemberOk}
+                       onCancel={this.handleNewMemberCancel}
+                       width="660px"
+                       wrapClassName="newMemberModal"
+                >
+                  <Row className="listTitle">
+                    <Col span={10}>成员名</Col>
+                    <Col span={12}>所属团队</Col>
+                  </Row>
+                  <Row className="listTitle" style={{left:339}}>
+                    <Col span={10}>成员名</Col>
+                    <Col span={12}>所属团队</Col>
+                  </Row>
+                  <Transfer
+                    dataSource={this.state.mockData}
+                    showSearch
+                    listStyle={{
+                      width: 250,
+                      height: 300,
+                    }}
+                    operations={['添加', '移除']}
+                    targetKeys={this.state.targetKeys}
+                    onChange={this.handleChange}
+                    titles={['筛选用户','已选择用户']}
+                    render={
+                      item => (
+                        <Row style={{display:'inline-block',width:'100%'}}>
+                          <Col span={10} style={{overflow:'hidden'}}>{item.title}</Col>
+                          <Col span={14} style={{overflow:'hidden'}}>{item.description}</Col>
+                        </Row>
+                      )
+                    }
+                  />
+                </Modal>
               </Col>
             </Row>
             <Row>
@@ -253,9 +360,24 @@ class TeamDetail extends Component{
                 团队空间 (2)
               </Col>
               <Col span={6}>
-                <Button type="primary" size="large" icon="plus" className="addBtn">
+                <Button type="primary" size="large" icon="plus" className="addBtn"
+                        onClick={this.addNewSpace}>
                   创建新空间
                 </Button>
+                <Modal title="创建新空间" visible={this.state.addSpace}
+                       onOk={this.handleNewSpaceOk} onCancel={this.handleNewSpaceCancel}
+                >
+                  <Row>
+                    <Col>名称</Col>
+                    <Col><Input placeholder="新空间名称"/></Col>
+                  </Row>
+                  <Row>
+                    <Col>备注</Col>
+                    <Col>
+                      <Input placeholder="新空间名称" type="textarea"/>
+                    </Col>
+                  </Row>
+                </Modal>
               </Col>
             </Row>
             <Row>
