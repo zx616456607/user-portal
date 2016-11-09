@@ -28,21 +28,24 @@ function codeRepo(state = {}, action) {
         bak: action.response.result.data.results
       })
     case ActionTypes.GET_REPOS_LIST_FAILURE:
-      return merge({}, defaultState, state, { isFetching: false })
+      return merge({}, state, { 
+          isFetching: false,
+          repoList: null
+        })
     // delete
     case ActionTypes.DELETE_REPOS_LIST_REQUEST:
       return merge({}, defaultState, state, { isFetching: true })
     case ActionTypes.DELETE_REPOS_LIST_SUCCESS:
       return ({
         isFetching: false,
-        repoList: [],
-        bak: []
+        repoList:null,
+        bak: null
       })
     case ActionTypes.DELETE_REPOS_LIST_FAILURE:
       return merge({}, state, { isFetching: false })
     // registry
     case ActionTypes.REGISTRY_CODE_REPO_REQUEST:
-      return merge({}, defaultState, state, { isFetching: true })
+      return merge({}, defaultState, state, { isFetching: false })
     case ActionTypes.REGISTRY_CODE_REPO_SUCCESS:
       return merge({}, state, { isFetching: false })
     case ActionTypes.REGISTRY_CODE_REPO_FAILURE:
@@ -65,6 +68,14 @@ function codeRepo(state = {}, action) {
       return {
         ...newState
       }
+  // add active
+    case ActionTypes.ADD_CODE_STORE_SUCCESS:
+      const addState = cloneDeep(state)
+      const indexs = findIndex(addState.repoList, (item) => {
+        return item.name == action.names
+      })
+      addState.repoList[indexs].active = 1
+      return addState
     default:
       return state
   }
@@ -93,9 +104,10 @@ function getProject(state = {}, action) {
         return item.id == action.id
       })
       oldState.projectList.splice(indexs, 1)
-      return merge({}, oldState, {
-        isFetching: false,
-      })
+      oldState.bak = oldState.projectList
+      return {
+        ...oldState
+      }
     case ActionTypes.DELETE_CODE_STORE_FAILURE:
       return merge({}, state, { isFetching: false })
     // search 
