@@ -22,6 +22,7 @@ const userController = require('../controllers/user_manage')
 const teamController = require('../controllers/team_manage')
 const tokenController = require('../controllers/token')
 const devopsController = require('../controllers/devops')
+const licenseController = require('../controllers/license')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -208,5 +209,8 @@ module.exports = function (Router) {
 
   // Token info
   router.get('/token', tokenController.getTokenInfo)
+
+  // License
+  router.get('/license', licenseController.getLicense)
   return router.routes()
 }
