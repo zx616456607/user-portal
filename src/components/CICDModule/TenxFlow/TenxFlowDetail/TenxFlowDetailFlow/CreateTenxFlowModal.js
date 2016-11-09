@@ -127,6 +127,10 @@ const menusText = defineMessages({
     id: 'CICD.Tenxflow.CreateTenxFlowModal.ImageTag',
     defaultMessage: '镜像版本',
   },
+  ImageStoreType: {
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.ImageStoreType',
+    defaultMessage: '仓库类型',
+  },
   ImageTagByBranch: {
     id: 'CICD.Tenxflow.CreateTenxFlowModal.ImageTagByBranch',
     defaultMessage: '以代码分支名为tag',
@@ -155,13 +159,10 @@ let CreateTenxFlowModal = React.createClass({
   getInitialState: function() {
     return {
       otherFlowType: '5',
-      currentType: 'view',
-      emailAlert: false,
-      otherEmail: false,
-      currentTenxFlow: null,
       useDockerfile: false,
       otherTag: false,
-      envModalShow: null
+      envModalShow: null,
+      ImageStoreType: false
     }
   },
   componentWillMount() {
@@ -195,13 +196,34 @@ let CreateTenxFlowModal = React.createClass({
       }, 800);
     }
   },
+  otherStoreUrlInput(rule, value, callback) {
+    //this function for user selected other store and should be input the image store url
+    if (this.state.ImageStoreType && !!!value) {
+      callback([new Error('请输入自定义仓库地址')]);
+    } else {
+      callback();
+    }
+  },
+  otherTagInput(rule, value, callback) {
+    //this function for user selected customer the image tag and should be input the image tag
+    if (this.state.otherTag && !!!value) {
+      callback([new Error('请输入自定义镜像版本')]);
+    } else {
+      callback();
+    }
+  },
   flowTypeChange(e) {
     //this function for user change the tenxflow type
-    if(e != 'other') {
+    if(e != '6') {
       this.props.form.resetFields(['otherFlowType']);
     }
-    if(e != 'bulidImage') {
-      this.props.form.resetFields(['imageRealName']);
+    if(e != '5') {
+      this.props.form.resetFields(['imageRealName', 'dockerFileUrl', 'otherStoreUrl', 'otherTag', 'imageType', 'imageTag', 'buildCache']);
+      this.setState({
+        useDockerfile: false,
+        otherTag: false,
+        ImageStoreType: false
+      });
     }
     this.setState({
       otherFlowType: e
@@ -212,9 +234,6 @@ let CreateTenxFlowModal = React.createClass({
     const { form } = this.props;
     // can use data-binding to get
     let keys = form.getFieldValue('services');
-    if(keys.length == 1) {
-      return ;
-    }
     keys = keys.filter((key) => {
       return key !== k;
     });
@@ -222,6 +241,9 @@ let CreateTenxFlowModal = React.createClass({
     form.setFieldsValue({
       'services':keys
     });
+    if(keys.length == 0) {
+      this.addService ()
+    }
   },
   addService () {
     //this function for user add an new box of service select
@@ -305,9 +327,21 @@ let CreateTenxFlowModal = React.createClass({
       });
     }
   },
+  changeImageStoreType (e) {
+    //this function for user change image store type
+    if( e.target.value == '3' ) {
+      this.setState({
+        ImageStoreType: true
+      });
+    } else {
+      this.setState({
+        ImageStoreType: false
+      });
+    }
+  },
   changeImageTagType (e) {
     //this function for user change image tag type
-    if( e.target.value == 'other' ) {
+    if( e.target.value == '3' ) {
       this.setState({
         otherTag: true
       });
@@ -323,11 +357,11 @@ let CreateTenxFlowModal = React.createClass({
     this.props.form.resetFields();
     const { scope } = this.props;
     this.setState({
-      currentType: 'view',
-      emailAlert: false,
-      otherEmail: false
+      useDockerfile: false,
+      otherTag: false,
+      ImageStoreType: false
     });
-    scope.cancelEditCard();
+    scope.closeCreateNewFlow();
   },
   handleSubmit(e) {
     //this function for user submit the form
@@ -342,8 +376,10 @@ let CreateTenxFlowModal = React.createClass({
       let shellLength = values.shellCodes;
       let shellList = [];
       shellLength.map((item, index) => {
-        if((index + 1) != shellLength.length) {         
-          shellList.push(values['shellCode' + item]);
+        if((index + 1) != shellLength.length) {
+          if(!!values['shellCode' + item]) {            
+            shellList.push(values['shellCode' + item]);
+          }
         }
       });
       //get service code
@@ -353,17 +389,19 @@ let CreateTenxFlowModal = React.createClass({
         let temp = {
           'service': values['serviceSelect' + item]
         }
-        let tempLength = values['service' + item + 'inputs'];
-        let tempList = [];
-        tempLength.map((littleItem, littleIndex) => {
-          if((littleIndex + 1) != tempLength.length) {
-            tempList.push(values['service' + item +'input' + littleItem]);
-          }
-        });
-        temp.env = tempList;
-        serviceList.push(temp);
+        if(!!values['serviceSelect' + item]) {
+          let tempLength = values['service' + item + 'inputs'];
+          let tempList = [];
+          tempLength.map((littleItem, littleIndex) => {
+            if((littleIndex + 1) != tempLength.length) {
+              tempList.push(values['service' + item +'input' + littleItem]);
+            }
+          });
+          temp.env = tempList;
+          serviceList.push(temp);
+        }
       });
-      var body = {
+      let body = {
         'metadata': {
           'name': values.flowName,
           'type': parseInt(values.flowType), 
@@ -376,8 +414,35 @@ let CreateTenxFlowModal = React.createClass({
           }
         }
       }
+      //if user select the customer type (6), ths customType must be input
       if(values.flowType == '6') {
         body.metadata.customType = values.otherFlowType;
+      }
+      //if user select the image build type (5),the body will be add new body
+      if(values.flowType == '5') {
+        let dockerFileFrom = _this.state.useDockerfile ? 1 : 2;
+        let imageBuildBody = {
+          'DockerfileFrom': dockerFileFrom,
+          'registryType': parseInt(values.imageType),
+          'imageTagType': parseInt(values.imageTag),
+          'noCache': values.buildCache
+        }
+        if(this.state.otherTag) {
+          imageBuildBody.customTag = values.otherTag;
+        }
+        if(this.state.ImageStoreType) {          
+          imageBuildBody.customRegistry = values.otherStoreUrl;
+        }
+        if(this.state.useDockerfile) {
+          let tmpDockerFileUrl = null;
+          if(!!!values.dockerFileUrl) {
+            tmpDockerFileUrl = '';
+          } else {
+            tmpDockerFileUrl = values.dockerFileUrl;
+          }
+          imageBuildBody.DockerfilePath = '/' + tmpDockerFileUrl;
+        }
+        body.build = imageBuildBody;
       }
       console.log(values)
       console.log(body)
@@ -415,6 +480,7 @@ let CreateTenxFlowModal = React.createClass({
             title={<FormattedMessage {...menusText.envTitle} />}
             visible={this.state.envModalShow == k ? true : false}
             onOk={this.closeEnvSettingModal}
+            onCancel={this.closeEnvSettingModal}
           >
             <EnvComponent scope={scopeThis} index={k} form={form} />
           </Modal>
@@ -470,9 +536,21 @@ let CreateTenxFlowModal = React.createClass({
         { validator: this.flowNameExists },
       ],
     });
+    const dockerFileUrlProps = getFieldProps('dockerFileUrl', {
+      rules: [
+        { message: '请输入Docker File地址' },
+      ],
+    });
+    const otherImageStoreTypeProps = getFieldProps('otherStoreUrl', {
+      rules: [
+        { message: '请输入自定义仓库地址' },
+        { validator: this.otherStoreUrlInput },
+      ],
+    });
     const otherImageTagProps = getFieldProps('otherTag', {
       rules: [
         { message: '请输入镜像版本' },
+        { validator: this.otherTagInput },
       ],
     });
     return (
@@ -585,17 +663,21 @@ let CreateTenxFlowModal = React.createClass({
                 <div className='title'>
                   <span>docker File</span>
                 </div>
-                <div className='input '>
-                  <Checkbox onChange={this.changeUseDockerFile}></Checkbox><span><FormattedMessage {...menusText.dockerFileCreate} /></span>
+                <div className='input' style={{ height: '100px' }}>
+                  <Checkbox onChange={this.changeUseDockerFile}></Checkbox>
+                  <span><FormattedMessage {...menusText.dockerFileCreate} /></span>
                   {
                     this.state.useDockerfile ? [
-                      <QueueAnim>
-                        <div key='useDockerFileAnimateSecond'>
-                          <span>this is docker file url</span>
+                      <QueueAnim className='dockerFileInputAnimate' key='dockerFileInputAnimate'>
+                        <div key='useDockerFileAnimateFirst'>
+                          <Input className='dockerFileInput' {...dockerFileUrlProps} addonBefore='/' size='large' />
                         </div>
                       </QueueAnim>
-                    ] : [
-                      <QueueAnim>
+                    ] : null
+                  }
+                  {
+                    !this.state.useDockerfile ? [
+                      <QueueAnim key='useDockerFileAnimate'>
                         <div key='useDockerFileAnimateSecond'>
                           <Button type='ghost' size='large' style={{ marginRight:'20px' }}>
                             <FormattedMessage {...menusText.selectDockerFile} />
@@ -605,7 +687,7 @@ let CreateTenxFlowModal = React.createClass({
                           </Button>
                         </div>
                       </QueueAnim>
-                    ]
+                    ] : null
                   }
                 </div>
                 <div style={{ clear:'both' }} />
@@ -618,27 +700,47 @@ let CreateTenxFlowModal = React.createClass({
                   <FormItem style={{ width:'220px',float:'left',marginRight:'20px' }}>
                     <Input {...imageRealNameProps} type='text' size='large' />
                   </FormItem>
-                  <FormItem style={{ float:'left' }}>
-                    <RadioGroup {...getFieldProps('imageType', { initialValue: 'imageStore' })}>
-                      <Radio key='imageStore' value={'imageStore'}><FormattedMessage {...menusText.imageStore} /></Radio>
-                      <Radio key='DockerHub' value={'DockerHub'}>Docker Hub</Radio>
-                      <Radio key='otherImage' value={'otherImage'}><FormattedMessage {...menusText.otherImage} /></Radio>
-                    </RadioGroup>
-                  </FormItem>
                   <div style={{ clear:'both' }} />
                 </div>
                 <div style={{ clear:'both' }} />
               </div>
               <div className='commonBox'>
                 <div className='title'>
-                  <span><FormattedMessage {...menusText.imageRealName} /></span>
+                  <span><FormattedMessage {...menusText.ImageStoreType} /></span>
+                </div>
+                <div className='input imageType'>
+                  <FormItem style={{ float:'left' }}>
+                    <RadioGroup {...getFieldProps('imageType', { initialValue: '1', onChange: this.changeImageStoreType })}>
+                      <Radio key='imageStore' value={'1'}><FormattedMessage {...menusText.imageStore} /></Radio>
+                      <Radio key='DockerHub' value={'2'}>Docker Hub</Radio>
+                      <Radio key='otherImage' value={'3'}><FormattedMessage {...menusText.otherImage} /></Radio>
+                    </RadioGroup>
+                  </FormItem>
+                  {
+                    this.state.ImageStoreType ? [
+                      <QueueAnim>
+                        <div key='otherImageStoreTypeAnimate'>
+                          <FormItem style={{ width:'220px',float:'left' }}>
+                            <Input {...otherImageStoreTypeProps} type='text' size='large' />
+                          </FormItem>
+                        </div>
+                      </QueueAnim>
+                    ] : null
+                  }
+                  <div style={{ clear:'both' }} />
+                </div>
+                <div style={{ clear:'both' }} />
+              </div>
+              <div className='commonBox'>
+                <div className='title'>
+                  <span><FormattedMessage {...menusText.ImageTag} /></span>
                 </div>
                 <div className='input'>
                   <FormItem style={{ float:'left' }}>
-                    <RadioGroup {...getFieldProps('imageTag', { initialValue: 'imageStore',onChange: this.changeImageTagType })}>
-                      <Radio key='branch' value={'branch'}><FormattedMessage {...menusText.ImageTagByBranch} /></Radio>
-                      <Radio key='time' value={'time'}><FormattedMessage {...menusText.ImageTagByTime} /></Radio>
-                      <Radio key='other' value={'other'}><FormattedMessage {...menusText.otherImage} /></Radio>
+                    <RadioGroup {...getFieldProps('imageTag', { initialValue: '1', onChange: this.changeImageTagType })}>
+                      <Radio key='branch' value={'1'}><FormattedMessage {...menusText.ImageTagByBranch} /></Radio>
+                      <Radio key='time' value={'2'}><FormattedMessage {...menusText.ImageTagByTime} /></Radio>
+                      <Radio key='other' value={'3'}><FormattedMessage {...menusText.otherImage} /></Radio>
                     </RadioGroup>
                   </FormItem>
                   {
@@ -662,7 +764,7 @@ let CreateTenxFlowModal = React.createClass({
                 </div>
                 <div className='input imageType'>
                   <FormItem>
-                    <Switch {...getFieldProps('buildCache')} />
+                    <Switch {...getFieldProps('buildCache', { initialValue: false })} />
                   </FormItem>
                 </div>
                 <div style={{ clear:'both' }} />

@@ -29,7 +29,9 @@ const teamListData = [
 let MemberList = React.createClass({
   getInitialState(){
     return {
-      
+      pagination: {},
+      loading: false,
+      sortOrder: true,
     }
   },
   handleEdit(e){
@@ -38,22 +40,43 @@ let MemberList = React.createClass({
   handleDel(e){
     
   },
-  
+  onRowClick(){
+    const { sortOrder } = this.state
+    this.setState({
+      sortOrder: !sortOrder,
+    })
+    //req
+  },
+  componentDidMount() {
+  },
   render: function(){
     let { sortedInfo, filteredInfo } = this.state
+    const { teamUserList } = this.props
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
-    const menu = (
+    /*const menu = (
       <Menu onClick={this.handleDel}>
         <Menu.Item key="1" style={{left:730,width:105}}>
           <Icon type="delete" />
           删除
         </Menu.Item>
       </Menu>
-    )
+    )*/
     const columns = [
       {
-        title: '成员名',
+        title: (
+          <div onClick={this.onRowClick}>
+            成员名
+            <div className="ant-table-column-sorter">
+              <span className= {this.state.sortOrder?'ant-table-column-sorter-up on':'ant-table-column-sorter-up off'} title="↑">
+                <i className="anticon anticon-caret-up"/>
+              </span>
+              <span className= {!this.state.sortOrder?'ant-table-column-sorter-down on':'ant-table-column-sorter-down off'} title="↓">
+                <i className="anticon anticon-caret-down"/>
+              </span>
+            </div>
+          </div>
+        ),
         dataIndex: 'name',
         key: 'name',
         className: 'tablePadding',
@@ -101,7 +124,13 @@ let MemberList = React.createClass({
     ]
     return (
       <div id='MemberList'>
-        <Table columns={columns} dataSource={memberListdata}/>
+        <Table columns={columns}
+               dataSource={teamUserList}
+               onChange={this.handleTableChange}
+               pagination={this.state.pagination}
+               loading={this.state.loading}
+               rowKey={record => record.registered}
+        />
       </div>
     )
   }
@@ -109,12 +138,21 @@ let MemberList = React.createClass({
 let TeamList = React.createClass({
   getInitialState(){
     return {
-      
+      pagination: {},
+      loading: false,
+      sortOrder: true,
     }
+  },
+  onRowClick(){
+    const { sortOrder } = this.state
+    this.setState({
+      sortOrder: !sortOrder,
+    })
+    //req
   },
   render: function(){
     let { sortedInfo, filteredInfo } = this.state
-    sortedInfo = sortedInfo || {}
+    const { teamSpacesList } = this.props
     filteredInfo = filteredInfo || {}
     const columns = [
       {
@@ -129,11 +167,21 @@ let TeamList = React.createClass({
         key: 'remark',
       },
       {
-        title: '应用',
+        title: (
+          <div onClick={this.onRowClick}>
+            应用
+            <div className="ant-table-column-sorter">
+              <span className= {this.state.sortOrder?'ant-table-column-sorter-up on':'ant-table-column-sorter-up off'} title="↑">
+                <i className="anticon anticon-caret-up"/>
+              </span>
+              <span className= {!this.state.sortOrder?'ant-table-column-sorter-down on':'ant-table-column-sorter-down off'} title="↓">
+                <i className="anticon anticon-caret-down"/>
+              </span>
+            </div>
+          </div>
+        ),
         dataIndex: 'app',
         key: 'app',
-        sorter: (a, b) => a.app - b.app,
-        sortOrder: sortedInfo.columnKey === 'app' && sortedInfo.order,
       },
       {
         title: '操作',
@@ -148,7 +196,7 @@ let TeamList = React.createClass({
     ]
     return (
       <div id='TeamList'>
-        <Table columns={columns} dataSource={teamListData}/>
+        <Table columns={columns} dataSource={teamSpacesList}/>
       </div>
     )
   }
@@ -176,9 +224,22 @@ class TeamDetail extends Component{
     })
   }
   handleNewMemberOk(){
-    this.setState({
-      addMember: false,
-    })
+    const { addTeamusers, teamID } = this.props
+    const { targetKeys } = this.state
+    if(targetKeys.length !== 0){
+      addTeamusers(teamID,{
+        
+      },{
+        success: {
+          func:() => {
+            this.setState({
+              addMember: false,
+            })
+          },
+          isAsync: true
+        }
+      })
+    }
   }
   handleNewMemberCancel(e){
     this.setState({
@@ -186,8 +247,18 @@ class TeamDetail extends Component{
     })
   }
   addNewSpace(){
-    this.setState({
-      addSpace: true,
+    const { createTeamspace, teamID } = this.props
+    createTeamspace(teamID,{
+      
+    },{
+      success: {
+        func:() => {
+          this.setState({
+            addSpace: true,
+          })
+        },
+        isAsync: true
+      }
     })
   }
   handleNewSpaceOk(){
@@ -213,37 +284,30 @@ class TeamDetail extends Component{
     })
   }
   componentDidMount() {
-    this.getMock();
+    this.getMock()
   }
   componentWillMount(){
     const { loadTeamClustersList, loadTeamUserList, loadTeamspaceList, teamID, } = this.props
     loadTeamClustersList(teamID)
-    console.log('loadTeamClustersList',loadTeamClustersList(teamID));
+    // loadTeamUserList(teamID)
+    // loadTeamspaceList(teamID)
   }
   getMock() {
-    const targetKeys = [];
-    const mockData = [];
-    for (let i = 0; i < 20; i++) {
-      const data = {
-        key: i,
-        title: `内容${i + 1}`,
-        description: `内容${i + 1}的描述`,
-      };
-      mockData.push(data);
-    }
-    this.setState({ mockData, targetKeys });
+    const { teamUserList, userList} = this.props
+    const targetKeys = []
+    userList.filter(function (item) {
+      return teamUserList.includes(item)
+    })
+    this.setState({
+      mockData:userList,
+      targetKeys
+    })
   }
   handleChange(targetKeys) {
-    this.setState({ targetKeys });
+    this.setState({ targetKeys })
   }
   render(){
-    const { loadTeamClustersList, teamID, } = this.props
-    const cardTitle = (
-      <Row>
-        <Col span={8}>集群名</Col>
-        <Col span={16}>开发测试集群Cluster</Col>
-      </Row>
-    )
+    const { clusterList, teamUserList, teamSpacesList } = this.props
     return (
       <div id='TeamDetail'>
         <Row style={{marginBottom:20}}>
@@ -253,59 +317,33 @@ class TeamDetail extends Component{
           研发Team
         </Row>
         <Row className="content">
-          <div className="balance">余额: &nbsp;<span>5998 T币</span></div>
-        </Row>
-        <Row className="content">
           <Alert message="这里展示了该团队在用的集群列表,资源配置是超级管理员在企业版后台,分配到该团队所用的计算等资源,以下集群对该团队的团队空间有效."/>
           <Row className="clusterList" gutter={30}>
-            <Col span="8" className="clusterItem">
-              <Card title={cardTitle}>
-                <Row className="cardItem">
-                  <Col span={8}>集群ID:</Col>
-                  <Col span={16}>1231xxvsdf-qweqwe</Col>
-                </Row>
-                <Row className="cardItem">
-                  <Col span={8}>访问地址</Col>
-                  <Col span={16}>129.168.1.100</Col>
-                </Row>
-                <Row className="cardItem">
-                  <Col span={8}>授权状态</Col>
-                  <Col span={16}><span>已授权</span></Col>
-                </Row>
-              </Card>
-            </Col>
-            <Col span="8" className="clusterItem">
-              <Card title={cardTitle}>
-                <Row className="cardItem">
-                  <Col span={8}>集群ID:</Col>
-                  <Col span={16}>1231xxvsdf-qweqwe</Col>
-                </Row>
-                <Row className="cardItem">
-                  <Col span={8}>访问地址</Col>
-                  <Col span={16}>129.168.1.100</Col>
-                </Row>
-                <Row className="cardItem">
-                  <Col span={8}>授权状态</Col>
-                  <Col span={16}><span>已授权</span></Col>
-                </Row>
-              </Card>
-            </Col>
-            <Col span="8" className="clusterItem">
-              <Card title={cardTitle}>
-                <Row className="cardItem">
-                  <Col span={8}>集群ID:</Col>
-                  <Col span={16}>1231xxvsdf-qweqwe</Col>
-                </Row>
-                <Row className="cardItem">
-                  <Col span={8}>访问地址</Col>
-                  <Col span={16}>129.168.1.100</Col>
-                </Row>
-                <Row className="cardItem">
-                  <Col span={8}>授权状态</Col>
-                  <Col span={16}><span>已授权</span></Col>
-                </Row>
-              </Card>
-            </Col>
+            {clusterList.map((item,index) => {
+              return (
+                <Col span="8" className="clusterItem">
+                  <Card title={(
+                    <Row>
+                      <Col span={8}>集群名</Col>
+                      <Col span={16}>{item.clusterName}</Col>
+                    </Row>
+                  )}>
+                    <Row className="cardItem" style={{whiteSpace:'pre-line',wordWrap:'break-word'}}>
+                      <Col span={8}>集群ID:</Col>
+                      <Col span={16}>{item.clusterID}</Col>
+                    </Row>
+                    <Row className="cardItem">
+                      <Col span={8}>访问地址</Col>
+                      <Col span={16}>{item.apiHost}</Col>
+                    </Row>
+                    <Row className="cardItem">
+                      <Col span={8}>授权状态</Col>
+                      <Col span={16}><span>已授权</span></Col>
+                    </Row>
+                  </Card>
+                </Col>
+              )
+            })}
           </Row>
         </Row>
         <Row className="content">
@@ -313,7 +351,7 @@ class TeamDetail extends Component{
             <Row style={{marginBottom: 20}}>
               <Col span={6} style={{height: 36, lineHeight: '36px'}}>
                 <Icon type="user" />
-                成员数(3)
+                成员数({teamUserList.length})
               </Col>
               <Col span={6}>
                 <Button type="primary" size="large" icon="plus" className="addBtn"
@@ -359,7 +397,7 @@ class TeamDetail extends Component{
               </Col>
             </Row>
             <Row>
-              <MemberList />
+              <MemberList teamUserList={teamUserList}/>
             </Row>
           </Col>
           <Col span={3}/>
@@ -367,7 +405,7 @@ class TeamDetail extends Component{
             <Row style={{marginBottom: 20}}>
               <Col span={6} style={{height: 36, lineHeight: '36px'}}>
                 <Icon type="user" />
-                团队空间 (2)
+                团队空间 ({teamSpacesList.length})
               </Col>
               <Col span={6}>
                 <Button type="primary" size="large" icon="plus" className="addBtn"
@@ -392,7 +430,7 @@ class TeamDetail extends Component{
               </Col>
             </Row>
             <Row>
-              <TeamList />
+              <TeamList teamSpacesList={teamSpacesList}/>
             </Row>
           </Col>
         </Row>
@@ -403,28 +441,69 @@ class TeamDetail extends Component{
 function mapStateToProp(state,props) {
   let clusterData = []
   let clusterList = []
+  let teamUserList = []
+  let userList = []
+  let teamSpacesList = []
   const { team_id } = props.params
   console.log('state',state);
-  const cluster = state.team.teamClusters
-  if (cluster.result) {
-    if (cluster.result.data) {
-      clusterData = cluster.result.data
-      if(clusterData.length !== 0){
-        clusterData.map((item,index) => {
-          clusterList.push(
-            {
-              key: index,
-              apiHost: item.apiHost,
-              clusterID:item.clusterID,
-              clusterName:item.clusterName,
-            }
-          )
-        })
+  const team = state.team
+  const users = state.user.users
+  if(team.teamusers){
+    team.teamusers.map((item,index) => {
+      teamUserList.push(
+        {
+          key: index,
+          title: '',
+          description: '',
+          name: 'pupumeng',
+          tel: '11111111',
+          email: '123@123.com',
+          style: '创业者',
+        }
+      )
+    })
+  }
+  if(team.teamClusters){
+    const cluster = team.teamClusters
+    if (cluster.result) {
+      if (cluster.result.data) {
+        clusterData = cluster.result.data
+        if(clusterData.length !== 0){
+          clusterData.map((item,index) => {
+            clusterList.push(
+              {
+                key: index,
+                apiHost: item.apiHost,
+                clusterID:item.clusterID,
+                clusterName:item.clusterName,
+              }
+            )
+          })
+        }
       }
     }
   }
+  if(team.teamspaces){
+    const teamSpaces = team.teamspaces
+    teamSpaces.map((item,index) => {
+      teamSpacesList.push(
+        {
+          key: index,
+          
+        }
+      )
+    })
+  }
+  if(users){
+    
+  }
+  
   return {
     teamID: team_id,
+    clusterList: clusterList,
+    teamUserList: teamUserList,
+    userList: userList,
+    teamSpacesList: teamSpacesList,
   }
 }
 export default connect(mapStateToProp, {
