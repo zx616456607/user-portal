@@ -176,7 +176,7 @@ function serviceItmes(state = {}, action) {
 // ~~~ containers
 
 function containerItems(state = {}, action) {
-  const cluster = action.cluster
+  const { cluster, containerList } = action
   const defaultState = {
     [cluster]: {
       isFetching: false,
@@ -190,7 +190,11 @@ function containerItems(state = {}, action) {
     case ActionTypes.CONTAINER_LIST_REQUEST:
       return merge({}, defaultState, state, {
         [cluster]: {
-          isFetching: true
+          isFetching: (
+            state && state[cluster]
+              ? false
+              : true
+          )
         }
       })
     case ActionTypes.CONTAINER_LIST_SUCCESS:
@@ -208,6 +212,13 @@ function containerItems(state = {}, action) {
       return merge({}, defaultState, state, {
         [cluster]: {
           isFetching: false
+        }
+      })
+    case ActionTypes.UPDATE_CONTAINER_LIST:
+      return merge({}, state, {
+        [cluster]: {
+          total: containerList.length,
+          containerList,
         }
       })
     default:

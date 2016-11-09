@@ -13,13 +13,14 @@ import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import './style/ContainerList.less'
-import { loadContainerList, deleteContainers } from '../../actions/app_manage'
+import { loadContainerList, deleteContainers, updateContainerList } from '../../actions/app_manage'
 import { LABEL_APPNAME } from '../../constants'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 import { tenxDateFormat } from '../../common/tools.js'
 import { browserHistory } from 'react-router'
 import TerminalModal from '../TerminalModal'
 import parseServiceDomain from '../parseDomain'
+import TenxStatus from '../TenxStatus'
 
 const ButtonGroup = Button.Group
 const confirm = Modal.confirm
@@ -81,13 +82,13 @@ const MyComponent = React.createClass({
     });
   },
   deleteContainer: function (name) {
-    const { confirmDeleteContainer } = this.props.funcs
+    const { config, funcs } = this.props
+    const { confirmDeleteContainer } = funcs
     const container = {
       metadata: {
         name
       }
     }
-    confirmDeleteContainer([container])
   },
   handleDropdown: function (e) {
     e.stopPropagation()
@@ -137,8 +138,11 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className='containerStatus commonData'>
-            <i className={item.status.phase == 'Running' ? 'normal fa fa-circle' : 'error fa fa-circle'}></i>
-            <span className={item.status.phase == 'Running' ? 'normal' : 'error'} >{item.status.phase}</span>
+            <TenxStatus
+              phase={item.status.phase}
+              progress={item.status.progress}
+              creationTimestamp={item.metadata.creationTimestamp}
+              />
           </div>
           <div className='serviceName commonData'>
             <Tooltip placement='topLeft' title={item.metadata.labels[LABEL_APPNAME] || ''}>
@@ -215,7 +219,7 @@ class ContainerList extends Component {
       searchInputDisabled: false,
       TerminalLayoutModal: false,
       currentContainer: null,
-      sortOrder:true,
+      sortOrder: true,
     }
   }
 
@@ -259,13 +263,23 @@ class ContainerList extends Component {
 
   confirmDeleteContainer(containerList) {
     const self = this
-    const { cluster, deleteContainers } = this.props
+    const { cluster, deleteContainers, updateContainerList } = this.props
+    const allContainers = this.props.containerList
     const containerNames = containerList.map((container) => container.metadata.name)
     confirm({
       title: `您是否确认要重新分配这${containerNames.length}个容器`,
       content: containerNames.join(', '),
       onOk() {
         return new Promise((resolve) => {
+          allContainers.map(container => {
+            if (containerNames.indexOf(container.metadata.name) > -1) {
+              container.status.phase = 'Rebuilding'
+              container.status.progress = {
+                percent: 25
+              }
+            }
+          })
+          updateContainerList(cluster, allContainers)
           deleteContainers(cluster, containerNames, {
             success: {
               func: () => loadData(self.props),
@@ -345,7 +359,7 @@ class ContainerList extends Component {
       query
     })
   }
-  sortCreateTime(){
+  sortCreateTime() {
     const { sortOrder } = this.state
     this.setState({
       sortOrder: !sortOrder
@@ -378,6 +392,12 @@ class ContainerList extends Component {
                 onClick={this.batchDeleteContainers}>
                 <i className='fa fa-power-off'></i>
                 重新分配
+              </Button>
+              <Button
+                size='large'
+                onClick={() => loadData(this.props)}>
+                <i className='fa fa-refresh'></i>
+                刷新
               </Button>
             </div>
             <div className='rightBox'>
@@ -438,11 +458,11 @@ class ContainerList extends Component {
               <div className='createTime commonTitle' onClick={this.sortCreateTime}>
                 创建时间
                 <div className="ant-table-column-sorter">
-                  <span className= {this.state.sortOrder?'ant-table-column-sorter-up on':'ant-table-column-sorter-up off'} title="↑">
-                    <i className="anticon anticon-caret-up"/>
+                  <span className={this.state.sortOrder ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
+                    <i className="anticon anticon-caret-up" />
                   </span>
-                  <span className= {!this.state.sortOrder?'ant-table-column-sorter-down on':'ant-table-column-sorter-down off'} title="↓">
-                    <i className="anticon anticon-caret-down"/>
+                  <span className={!this.state.sortOrder ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
+                    <i className="anticon anticon-caret-down" />
                   </span>
                 </div>
               </div>
@@ -522,4 +542,5 @@ function mapStateToProps(state, props) {
 export default connect(mapStateToProps, {
   loadContainerList,
   deleteContainers,
+  updateContainerList,
 })(ContainerList)
