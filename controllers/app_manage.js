@@ -16,7 +16,7 @@ const constants = require('../constants')
 const DEFAULT_PAGE = constants.DEFAULT_PAGE
 const DEFAULT_PAGE_SIZE = constants.DEFAULT_PAGE_SIZE
 const MAX_PAGE_SIZE = constants.MAX_PAGE_SIZE
-const ANNOTATION_TENX_DOMAIN = constants.ANNOTATION_TENX_DOMAIN
+const ANNOTATION_SVC_SCHEMA_PORT = constants.ANNOTATION_SVC_SCHEMA_PORT
 
 exports.createApp = function* () {
   const cluster = this.params.cluster
@@ -229,8 +229,8 @@ exports.getAppServices = function* () {
       service.deployment.images.push(container.image)
     })
     // get port info from annotation of service
-    if (service.service.metadata.annotations && service.service.metadata.annotations[ANNOTATION_TENX_DOMAIN]) {
-        service.deployment.ports = service.service.metadata.annotations[ANNOTATION_TENX_DOMAIN]
+    if (service.service.metadata.annotations && service.service.metadata.annotations[ANNOTATION_SVC_SCHEMA_PORT]) {
+        service.deployment.ports = service.service.metadata.annotations[ANNOTATION_SVC_SCHEMA_PORT]
         service.deployment.bindingDomains = result.data.bindingDomain
     }
     deployments.push(service.deployment)
