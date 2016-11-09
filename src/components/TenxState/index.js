@@ -26,7 +26,9 @@ class TenxState extends Component {
 }
 
 TenxState.propTypes = {
-  //
+  phase: PropTypes.oneOf(['Pending', 'Running', 'Unknown', 'Terminating', 'Starting', 'Stopping', 'Scaling', 'Restarting', 'Redeployment']),
+  replicas: PropTypes.number,
+  availableReplicas: PropTypes.number,
 }
 
 export default TenxState
