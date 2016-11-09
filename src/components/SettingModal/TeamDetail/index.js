@@ -247,9 +247,18 @@ class TeamDetail extends Component{
     })
   }
   addNewSpace(){
-    
-    this.setState({
-      addSpace: true,
+    const { createTeamspace, teamID } = this.props
+    createTeamspace(teamID,{
+      
+    },{
+      success: {
+        func:() => {
+          this.setState({
+            addSpace: true,
+          })
+        },
+        isAsync: true
+      }
     })
   }
   handleNewSpaceOk(){
