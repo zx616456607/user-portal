@@ -15,18 +15,25 @@ import SearchInput from '../../SearchInput'
 import { connect } from 'react-redux'
 import { loadUserTeamList } from '../../../actions/user'
 import { createTeam, deleteTeam, createTeamspace, addTeamusers, removeTeamusers } from '../../../actions/team'
+import MemberTransfer from '../MemberTransfer'
+
+const confirm = Modal.confirm;
 
 let TeamTable = React.createClass({
   getInitialState() {
     return {
       filteredInfo: null,
       sortedInfo: null,
+      sortMember: true,
+      sortSpace: true,
+      sortCluster: true,
+      addMember: false,
+      targetKeys:[],
     }
   },
   handleChange(pagination, filters, sorter) {
     this.setState({
       filteredInfo: filters,
-      sortedInfo: sorter,
     })
   },
   handleBack(){
@@ -35,8 +42,76 @@ let TeamTable = React.createClass({
       notFound: false,
     })
   },
+  delTeam(){
+    const {deleteTeam} = this.props.scope.props
+    confirm({
+      title: '您是否确认要删除这项内容',
+      content: '点确认 1 秒后关闭',
+      onOk() {
+        console.log('del !!!!!')
+        deleteTeam(this.props.teamID)
+      },
+      onCancel() {},
+    });
+  },
+  handleSortMember(){
+    const { loadUserTeamList } = this.props.scope.props
+    const { sortMember } = this.state
+    loadUserTeamList()
+    this.setState({
+      sortMember: !sortMember,
+    })
+  },
+  handleSortSpace(){
+    const { loadUserTeamList } = this.props.scope.props
+    const { sortSpace } = this.state
+    loadUserTeamList()
+    this.setState({
+      sortSpace: !sortSpace,
+    })
+  },
+  handleSortCluster(){
+    const { loadUserTeamList } = this.props.scope.props
+    const { sortCluster } = this.state
+    loadUserTeamList()
+    this.setState({
+      sortCluster: !sortCluster,
+    })
+  },
+  addNewMember(){
+    this.setState({
+      addMember: true,
+    })
+  },
+  handleNewMemberOk(){
+    const { addTeamusers, teamID } = this.props
+    const { targetKeys } = this.state
+    if(targetKeys.length !== 0){
+      addTeamusers(teamID,{
+        
+      },{
+        success: {
+          func:() => {
+            this.setState({
+              addMember: false,
+            })
+          },
+          isAsync: true
+        }
+      })
+    }
+  },
+  handleNewMemberCancel(e){
+    this.setState({
+      addMember: false,
+    })
+  },
+  handleChange(targetKeys) {
+    console.log('targetKeys',targetKeys)
+    this.setState({ targetKeys })
+  },
   render() {
-    let { sortedInfo, filteredInfo } = this.state
+    let { sortedInfo, filteredInfo, targetKeys } = this.state
     const { searchResult, notFound } = this.props.scope.state
     const { data } = this.props
     sortedInfo = sortedInfo || {}
@@ -66,28 +141,58 @@ let TeamTable = React.createClass({
         )
       },
       {
-        title: '成员',
+        title: (
+          <div onClick={this.handleSortMember}>
+            成员
+            <div className="ant-table-column-sorter">
+              <span className= {this.state.sortMember?'ant-table-column-sorter-up on':'ant-table-column-sorter-up off'} title="↑">
+                <i className="anticon anticon-caret-up"/>
+              </span>
+              <span className= {!this.state.sortMember?'ant-table-column-sorter-down on':'ant-table-column-sorter-down off'} title="↓">
+                <i className="anticon anticon-caret-down"/>
+              </span>
+            </div>
+          </div>
+        ),
         dataIndex: 'member',
         key: 'member',
         width: '20%',
-        sorter: (a, b) => a.member - b.member,
-        sortOrder: sortedInfo.columnKey === 'member' && sortedInfo.order,
       },
       {
-        title: '在用集群',
+        title: (
+          <div onClick={this.handleSortCluster}>
+            在用集群
+            <div className="ant-table-column-sorter">
+              <span className= {this.state.sortCluster?'ant-table-column-sorter-up on':'ant-table-column-sorter-up off'} title="↑">
+                <i className="anticon anticon-caret-up"/>
+              </span>
+              <span className= {!this.state.sortCluster?'ant-table-column-sorter-down on':'ant-table-column-sorter-down off'} title="↓">
+                <i className="anticon anticon-caret-down"/>
+              </span>
+            </div>
+          </div>
+        ),
         dataIndex: 'cluster',
         key: 'cluster',
         width: '20%',
-        sorter: (a, b) => a.cluster - b.cluster,
-        sortOrder: sortedInfo.columnKey === 'cluster' && sortedInfo.order,
       },
       {
-        title: '团队空间',
+        title: (
+          <div onClick={this.handleSortSpace}>
+            团队空间
+            <div className="ant-table-column-sorter">
+              <span className= {this.state.sortSpace?'ant-table-column-sorter-up on':'ant-table-column-sorter-up off'} title="↑">
+                <i className="anticon anticon-caret-up"/>
+              </span>
+              <span className= {!this.state.sortSpace?'ant-table-column-sorter-down on':'ant-table-column-sorter-down off'} title="↓">
+                <i className="anticon anticon-caret-down"/>
+              </span>
+            </div>
+          </div>
+        ),
         dataIndex: 'space',
         key: 'space',
         width: '20%',
-        sorter: (a, b) => a.space - b.space,
-        sortOrder: sortedInfo.columnKey === 'space' && sortedInfo.order,
       },
       {
         title: '操作',
@@ -95,8 +200,17 @@ let TeamTable = React.createClass({
         width: '20%',
         render: (text,record,index) => (
           <div>
-            <Button icon="plus" className="addBtn">添加成员</Button>
-            <Button icon="delete" className="delBtn">删除</Button>
+            <Button icon="plus" className="addBtn" onClick={this.addNewMember}>添加成员</Button>
+            <Modal title="添加新成员"
+                   visible={this.state.addMember}
+                   onOk={this.handleNewMemberOk}
+                   onCancel={this.handleNewMemberCancel}
+                   width="660px"
+                   wrapClassName="newMemberModal"
+            >
+              <MemberTransfer onChange={this.handleChange} targetKeys={targetKeys} teamID={record.key}/>
+            </Modal>
+            <Button icon="delete" className="delBtn" onClick={this.delTeam} teamID={record.key}>删除</Button>
           </div>
         )
       },
