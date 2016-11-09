@@ -28,7 +28,7 @@ exports.listTemplates = function* () {
   const result = yield api.get({"filter": filter})
 
   this.body = {
-    data: result
+    result
   }
 }
 /*
@@ -48,7 +48,7 @@ exports.createTemplate = function* () {
   const result = yield api.create(template)
 
   this.body = {
-    data: result
+    result
   }
 }
 /*
@@ -68,7 +68,7 @@ exports.updateTemplate = function* () {
   const result = yield api.update(templateid, template)
 
   this.body = {
-    data: result
+    result
   }
 }
 
@@ -83,6 +83,6 @@ exports.deleteTemplate = function* () {
   const result = yield api.delete(templateid)
 
   this.body = {
-    data: result
+    result
   }
 }
