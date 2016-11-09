@@ -44,7 +44,10 @@ exports.getUsers = function* () {
     size = DEFAULT_PAGE_SIZE
   }
   const from = size * (page - 1)
-  const queryObj = { from, size }
+  let queryObj = { from, size }
+  if (from == 0 && size == 0) {
+    queryObj = {}
+  }
   if (name) {
     queryObj.filter = `name ${name}`
   }
@@ -79,7 +82,10 @@ exports.getUserTeams = function* () {
     size = DEFAULT_PAGE_SIZE
   }
   const from = size * (page - 1)
-  const queryObj = { from, size }
+  let queryObj = { from, size }
+  if (from == 0 && size == 0) {
+    queryObj = {}
+  }
   if (name) {
     queryObj.filter = `name ${name}`
   }
@@ -114,7 +120,10 @@ exports.getUserTeamspaces = function* () {
     size = DEFAULT_PAGE_SIZE
   }
   const from = size * (page - 1)
-  const queryObj = { from, size }
+  let queryObj = { from, size }
+  if (from == 0 && size == 0) {
+    queryObj = {}
+  }
   if (name) {
     queryObj.filter = `name ${name}`
   }
