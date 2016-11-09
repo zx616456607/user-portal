@@ -28,17 +28,17 @@ function codeRepo(state = {}, action) {
         bak: action.response.result.data.results
       })
     case ActionTypes.GET_REPOS_LIST_FAILURE:
-      return merge({}, state, { 
-          isFetching: false,
-          repoList: null
-        })
+      return merge({}, state, {
+        isFetching: false,
+        repoList: null
+      })
     // delete
     case ActionTypes.DELETE_REPOS_LIST_REQUEST:
       return merge({}, defaultState, state, { isFetching: true })
     case ActionTypes.DELETE_REPOS_LIST_SUCCESS:
       return ({
         isFetching: false,
-        repoList:null,
+        repoList: null,
         bak: null
       })
     case ActionTypes.DELETE_REPOS_LIST_FAILURE:
@@ -68,18 +68,18 @@ function codeRepo(state = {}, action) {
       return {
         ...newState
       }
-  // add active
+    // add active
     case ActionTypes.ADD_CODE_STORE_SUCCESS:
       const addState = cloneDeep(state)
       const indexs = findIndex(addState.repoList, (item) => {
         return item.name == action.names
       })
-      addState.repoList[indexs].managedProject= {
+      addState.repoList[indexs].managedProject = {
         active: 1,
         id: action.response.result.data.projectId
       }
       return addState
-  // remove action
+    // remove action
     case ActionTypes.NOT_ACTIVE_PROJECT_SUCCESS:
       const reState = cloneDeep(state)
       const Keys = findIndex(reState.repoList, (item) => {
@@ -88,7 +88,7 @@ function codeRepo(state = {}, action) {
         }
         return false
       })
-      reState.repoList[Keys].managedProject= {active : 0}
+      reState.repoList[Keys].managedProject = { active: 0 }
       return reState
     default:
       return state
@@ -165,7 +165,7 @@ function getProject(state = {}, action) {
 function getUserInfo(state = {}, action) {
   const defaultState = {
     isFetching: false,
-    repoUser: {username:'',depot:''}
+    repoUser: { username: '', depot: '' }
   }
   switch (action.type) {
     case ActionTypes.GET_REPO_USER_INFO_REQUEST:
@@ -188,7 +188,7 @@ function getUserInfo(state = {}, action) {
 
 }
 
-function getDockerfiles(state={}, action) {
+function getDockerfileList(state = {}, action) {
   const defaultState = {
     isFetching: false,
     dockerfileList: []
@@ -202,11 +202,24 @@ function getDockerfiles(state={}, action) {
       return Object.assign({}, state, {
         isFetching: false,
         dockerfileList: action.response.result.data.results,
+        bak: action.response.result.data.results,
       })
     case ActionTypes.GET_DOCKER_FILES_LIST_FAILURE:
       return merge({}, defaultState, state, {
         isFetching: false
       })
+    // search
+    case ActionTypes.SEARCH_DOCKER_FILES_LIST:
+      const seState = cloneDeep(state)
+      const lists = seState.bak.filter(list => {
+        const search = new RegExp(action.names)
+        if (search.test(list.name)) {
+          return true
+        }
+        return false
+      })
+      seState.dockerfileList = lists
+      return seState
     default:
       return state
   }
@@ -278,7 +291,7 @@ function getTenxflowStageList(state = {}, action) {
       return Object.assign({}, state, {
         isFetching: false,
         flowList: action.response.result.data.results,
-        }
+      }
       )
     case ActionTypes.GET_TENX_FLOW_STATE_LIST_FAILURE:
       return merge({}, defaultState, state, {
@@ -302,8 +315,8 @@ function getTenxflowStageDetail(state = {}, action) {
     case ActionTypes.GET_TENX_FLOW_STATE_DETAIL_SUCCESS:
       return Object.assign({}, state, {
         isFetching: false,
-        stageInfo: action.response.result.data.results,
-        }
+        stageInfo: action.response.result.results,
+      }
       )
     case ActionTypes.GET_TENX_FLOW_STATE_DETAIL_FAILURE:
       return merge({}, defaultState, state, {
@@ -321,7 +334,7 @@ export default function cicd_flow(state = {}, action) {
     getTenxflowList: getTenxflowList(state.getTenxflowList, action),
     getTenxflowDetail: getTenxflowDetail(state.getTenxflowDetail, action),
     userInfo: getUserInfo(state.userInfo, action),
-    dockerfiles: getDockerfiles(state.dockerfiles, action),
+    dockerfileLists: getDockerfileList(state.dockerfileLists, action),
     createTenxFlowSingle: reducerFactory({
       REQUEST: ActionTypes.CREATE_SINGLE_TENX_FLOW_REQUEST,
       SUCCESS: ActionTypes.CREATE_SINGLE_TENX_FLOW_SUCCESS,

@@ -266,7 +266,7 @@ export function searchCodeRepo(codeName) {
 export const GET_DOCKER_FILES_LIST_REQUEST = 'GET_DOCKER_FILES_LIST_REQUEST'
 export const GET_DOCKER_FILES_LIST_SUCCESS = 'GET_DOCKER_FILES_LIST_SUCCESS'
 export const GET_DOCKER_FILES_LIST_FAILURE = 'GET_DOCKER_FILES_LIST_FAILURE'
-function fetchgetDockerfile() {
+function fetchgetDockerfileList() {
   return {
     [FETCH_API]: {
       types: [GET_DOCKER_FILES_LIST_REQUEST, GET_DOCKER_FILES_LIST_SUCCESS, GET_DOCKER_FILES_LIST_FAILURE],
@@ -278,9 +278,40 @@ function fetchgetDockerfile() {
     }
   }
 }
-export function getDockerfile() {
+export function getDockerfileList() {
   return (dispatch, getState) => {
-    return dispatch(fetchgetDockerfile())
+    return dispatch(fetchgetDockerfileList())
+  }
+}
+// get detail dockerfile 
+export const GET_DOCKER_FILES_REQUEST = 'GET_DOCKER_FILES_REQUEST'
+export const GET_DOCKER_FILES_SUCCESS = 'GET_DOCKER_FILES_SUCCESS'
+export const GET_DOCKER_FILES_FAILURE = 'GET_DOCKER_FILES_FAILURE'
+function fetchDockerfiles(flows, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_DOCKER_FILES_REQUEST, GET_DOCKER_FILES_SUCCESS, GET_DOCKER_FILES_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flows.flowId}/stages/${flows.stageId}/dockerfile`,
+      schema: {},
+      options: {
+        method: 'GET'
+      }
+    },
+    callback
+  }
+}
+
+export function getDockerfiles(flowInfo, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchDockerfiles(flowInfo, callback))
+  }
+}
+
+export const SEARCH_DOCKER_FILES_LIST = 'SEARCH_DOCKER_FILES_LIST'
+export function searchDockerfile(names) {
+  return {
+    type: SEARCH_DOCKER_FILES_LIST,
+    names
   }
 }
 
