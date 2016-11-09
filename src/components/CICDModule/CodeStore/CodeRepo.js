@@ -14,7 +14,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import './style/CodeRepo.less'
-import { getRepoList , addCodeRepo, removeProject, deleteRepo , registryRepo ,syncRepoList, searchCodeRepo , getUserInfo} from '../../../actions/cicd_flow'
+import { getRepoList , addCodeRepo , notActiveProject, deleteRepo , registryRepo ,syncRepoList, searchCodeRepo , getUserInfo} from '../../../actions/cicd_flow'
 
 const TabPane = Tabs.TabPane
 
@@ -143,10 +143,13 @@ const MyComponent = React.createClass({
     parentScope.props.searchCodeRepo(codeName)
   },
   notActive(id) {
-    console.log('id is ',id)
-    console.log(this.props.scope.props)
-    return
-    this.props.removeProject(id)
+    this.props.scope.props.notActiveProject(id,{
+      success: {
+        func: ()=>{
+          message.success('撤消成功')
+        }
+      }
+    })
   },
   changeUrl(e) {
     this.setState({regUrl: e.target.value})
@@ -187,9 +190,9 @@ const MyComponent = React.createClass({
           <div className="name textoverflow">{item.name}</div>
           <div className="type">{item.type == false ? "public" : "private"}</div>
           <div className="action">
-            {item.active ? 
+            {(item.managedProject && item.managedProject.active ==1) ? 
               <span><Button type="ghost" disabled>已激活</Button>
-              <a onClick={this.notActive(item.id)} style={{marginLeft:'15px'}}>撤销</a></span>
+              <a onClick={()=>this.notActive(item.managedProject.id)} style={{marginLeft:'15px'}}>撤销</a></span>
             :
             <Tooltip placement="right" title="可构建项目">
               <Button type="ghost" onClick={()=>this.addBuild(item)} >激活</Button>
@@ -347,7 +350,7 @@ export default connect(mapStateToProps,{
   syncRepoList,
   searchCodeRepo,
   getUserInfo,
-  removeProject
+  notActiveProject
 })(injectIntl(CodeRepo, {
   withRef: true,
 }));

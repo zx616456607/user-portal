@@ -12,6 +12,8 @@ import { Alert, Menu, Button, Card, Input, Tooltip, Dropdown, Modal, Spin } from
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
+
+import { getDockerfile } from '../../../actions/cicd_flow'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 // import CreateTenxFlow from './CreateTenxFlow.js'
 // import TestModal from '../../TerminalModal'
@@ -166,6 +168,7 @@ class DockerFile extends Component {
 
   componentWillMount() {
     document.title = 'DockerFile | 时速云';
+    this.props.getDockerfile()
   }
 
 
@@ -207,17 +210,26 @@ class DockerFile extends Component {
 }
 
 function mapStateToProps(state, props) {
-
+  const defaultConfig = {
+    dockerfileList: [],
+    isFetching: false
+  }
+  const {dockerfiles} = state.cicd_flow
+  const {dockerfileList , isFetching} = dockerfiles || defaultConfig
   return {
-
+    dockerfileList,
+    isFetching
   }
 }
 
 DockerFile.propTypes = {
   intl: PropTypes.object.isRequired,
+  getDockerfile: PropTypes.func.isRequired
 }
 
-export default connect()(injectIntl(DockerFile, {
+export default connect(mapStateToProps, {
+  getDockerfile
+})(injectIntl(DockerFile, {
   withRef: true,
 }));
 

@@ -264,9 +264,10 @@ exports.getCIFlow = function* (){
 exports.updateCIFlow = function* (){
   const loginUser = this.session.loginUser
   const flow_id = this.params.flow_id
+  const body = this.request.body
 
   const api = apiFactory.getDevOpsApi(loginUser)
-  const result = yield api.updateBy(["ci-flows", flow_id], null)
+  const result = yield api.updateBy(["ci-flows", flow_id], null, body)
 
   this.body = {
     data: result
@@ -332,9 +333,10 @@ exports.updateFlowStage = function* () {
   const loginUser = this.session.loginUser
   const flow_id = this.params.flow_id
   const stage_id = this.params.stage_id
+  const body = this.request.body
 
   const api = apiFactory.getDevOpsApi(loginUser)
-  const result = yield api.updateBy(["ci-flows", flow_id, "stages", stage_id], null)
+  const result = yield api.updateBy(["ci-flows", flow_id, "stages", stage_id], null, body)
 
   this.body = {
     data: result
@@ -479,9 +481,10 @@ exports.addDockerfile = function* () {
   const loginUser = this.session.loginUser
   const flow_id = this.params.flow_id
   const stage_id = this.params.stage_id
+  const body = this.request.body
 
   const api = apiFactory.getDevOpsApi(loginUser)
-  const result = yield api.createBy(["ci-flows", flow_id, "stages", stage_id, "dockerfile"], null)
+  const result = yield api.createBy(["ci-flows", flow_id, "stages", stage_id, "dockerfile"], null, body)
 
   this.body = {
     data: result
@@ -518,9 +521,10 @@ exports.updateDockerfile = function* () {
   const loginUser = this.session.loginUser
   const flow_id = this.params.flow_id
   const stage_id = this.params.stage_id
+  const body = this.request.body
 
   const api = apiFactory.getDevOpsApi(loginUser)
-  const result = yield api.updateBy(["ci-flows", flow_id, "stages", stage_id, "dockerfile"], null)
+  const result = yield api.updateBy(["ci-flows", flow_id, "stages", stage_id, "dockerfile"], null, body)
 
   this.body = {
     data: result
