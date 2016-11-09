@@ -208,12 +208,14 @@ class ContainerList extends Component {
     this.confirmDeleteContainer = this.confirmDeleteContainer.bind(this)
     this.onPageChange = this.onPageChange.bind(this)
     this.onShowSizeChange = this.onShowSizeChange.bind(this)
+    this.sortCreateTime = this.sortCreateTime.bind(this)
     this.state = {
       containerList: props.containerList,
       searchInputValue: props.name,
       searchInputDisabled: false,
       TerminalLayoutModal: false,
-      currentContainer: null
+      currentContainer: null,
+      sortOrder:true,
     }
   }
 
@@ -343,7 +345,12 @@ class ContainerList extends Component {
       query
     })
   }
-
+  sortCreateTime(){
+    const { sortOrder } = this.state
+    this.setState({
+      sortOrder: !sortOrder
+    })
+  }
   render() {
     const parentScope = this
     const { name, page, size, total, cluster, containerList, isFetching } = this.props
@@ -428,9 +435,16 @@ class ContainerList extends Component {
               <div className='visitIp commonTitle'>
                 访问地址
               </div>
-              <div className='createTime commonTitle'>
+              <div className='createTime commonTitle' onClick={this.sortCreateTime}>
                 创建时间
-              <i className='fa fa-sort'></i>
+                <div className="ant-table-column-sorter">
+                  <span className= {this.state.sortOrder?'ant-table-column-sorter-up on':'ant-table-column-sorter-up off'} title="↑">
+                    <i className="anticon anticon-caret-up"/>
+                  </span>
+                  <span className= {!this.state.sortOrder?'ant-table-column-sorter-down on':'ant-table-column-sorter-down off'} title="↓">
+                    <i className="anticon anticon-caret-down"/>
+                  </span>
+                </div>
               </div>
               <div className='actionBox commonTitle'>
                 操作
