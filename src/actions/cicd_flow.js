@@ -350,3 +350,119 @@ export function putEditTenxFlowAlert(flowId, newAlert, callback) {
     return dispatch(updateTenxFlowAlert(flowId, newAlert, callback))
   }
 }
+
+export const GET_TENX_FLOW_STATE_LIST_REQUEST = 'GET_TENX_FLOW_STATE_LIST_REQUEST'
+export const GET_TENX_FLOW_STATE_LIST_SUCCESS = 'GET_TENX_FLOW_STATE_LIST_SUCCESS'
+export const GET_TENX_FLOW_STATE_LIST_FAILURE = 'GET_TENX_FLOW_STATE_LIST_FAILURE'
+
+function fetchTenxFlowStateList(flowId, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_TENX_FLOW_STATE_LIST_REQUEST, GET_TENX_FLOW_STATE_LIST_SUCCESS, GET_TENX_FLOW_STATE_LIST_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/stages`,
+      schema: {},
+    },
+    callback: callback
+  }
+}
+
+export function getTenxFlowStateList(flowId, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchTenxFlowStateList(flowId, callback))
+  }
+}
+
+export const CREATE_TENX_FLOW_STATE_REQUEST = 'CREATE_TENX_FLOW_STATE_REQUEST'
+export const CREATE_TENX_FLOW_STATE_SUCCESS = 'CREATE_TENX_FLOW_STATE_SUCCESS'
+export const CREATE_TENX_FLOW_STATE_FAILURE = 'CREATE_TENX_FLOW_STATE_FAILURE'
+
+function postCreateTenxFlowState(flowId, newStage, callback) {
+  return {
+    [FETCH_API]: {
+      types: [CREATE_TENX_FLOW_STATE_REQUEST, CREATE_TENX_FLOW_STATE_SUCCESS, CREATE_TENX_FLOW_STATE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/stages`,
+      schema: {},
+      options: {
+        method: 'POST',
+        body: newStage
+      }
+    },
+    callback: callback
+  }
+}
+
+export function createTenxFlowState(flowId, newStage, callback) {
+  return (dispatch, getState) => {
+    return dispatch(postCreateTenxFlowState(flowId, newStage, callback))
+  }
+}
+
+export const UPDATE_TENX_FLOW_STATE_REQUEST = 'UPDATE_TENX_FLOW_STATE_REQUEST'
+export const UPDATE_TENX_FLOW_STATE_SUCCESS = 'UPDATE_TENX_FLOW_STATE_SUCCESS'
+export const UPDATE_TENX_FLOW_STATE_FAILURE = 'UPDATE_TENX_FLOW_STATE_FAILURE'
+
+function postUpdateTenxFlowState(flowId, stageId, newStage, callback) {
+  return {
+    [FETCH_API]: {
+      types: [UPDATE_TENX_FLOW_STATE_REQUEST, UPDATE_TENX_FLOW_STATE_SUCCESS, UPDATE_TENX_FLOW_STATE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/stages/$(stageId)`,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body: newStage
+      }
+    },
+    callback: callback
+  }
+}
+
+export function updateTenxFlowState(flowId, stageId, newStage, callback) {
+  return (dispatch, getState) => {
+    return dispatch(postUpdateTenxFlowState(flowId, stageId, newStage, callback))
+  }
+}
+
+export const DELETE_TENX_FLOW_STATE_REQUEST = 'DELETE_TENX_FLOW_STATE_REQUEST'
+export const DELETE_TENX_FLOW_STATE_SUCCESS = 'DELETE_TENX_FLOW_STATE_SUCCESS'
+export const DELETE_TENX_FLOW_STATE_FAILURE = 'DELETE_TENX_FLOW_STATE_FAILURE'
+
+function deleteTenxFlowState(flowId, stageId, callback) {
+  return {
+    [FETCH_API]: {
+      types: [DELETE_TENX_FLOW_STATE_REQUEST, DELETE_TENX_FLOW_STATE_SUCCESS, DELETE_TENX_FLOW_STATE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/stages/$(stageId)`,
+      schema: {},
+      options: {
+        method: 'DELETE'
+      }
+    },
+    callback: callback
+  }
+}
+
+export function deleteTenxFlowStateDetail(flowId, stageId, callback) {
+  return (dispatch, getState) => {
+    return dispatch(deleteTenxFlowState(flowId, stageId, callback))
+  }
+}
+
+export const GET_TENX_FLOW_STATE_DETAIL_REQUEST = 'GET_TENX_FLOW_STATE_DETAIL_REQUEST'
+export const GET_TENX_FLOW_STATE_DETAIL_SUCCESS = 'GET_TENX_FLOW_STATE_DETAIL_SUCCESS'
+export const GET_TENX_FLOW_STATE_DETAIL_FAILURE = 'GET_TENX_FLOW_STATE_DETAIL_FAILURE'
+
+function fetchTenxFlowStateDetail(flowId, stageId, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_TENX_FLOW_STATE_DETAIL_REQUEST, GET_TENX_FLOW_STATE_DETAIL_SUCCESS, GET_TENX_FLOW_STATE_DETAIL_FAILURE],
+      endpoint: `${API_URL_PREFIX}/ci-flows/${flowId}/stages/$(stageId)`,
+      schema: {},
+    },
+    callback: callback
+  }
+}
+
+export function getTenxFlowStateDetail(flowId, stageId, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchTenxFlowStateDetail(flowId, stageId, callback))
+  }
+}

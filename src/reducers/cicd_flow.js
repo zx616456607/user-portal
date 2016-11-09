@@ -226,6 +226,56 @@ function getTenxflowDetail(state = {}, action) {
   }
 }
 
+function getTenxflowStageList(state = {}, action) {
+  const defaultState = {
+    isFetching: false,
+    stageList: []
+  }
+  switch (action.type) {
+    case ActionTypes.GET_TENX_FLOW_STATE_LIST_REQUEST:
+      return merge({}, defaultState, state, {
+        isFetching: true
+      })
+    case ActionTypes.GET_TENX_FLOW_STATE_LIST_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        flowList: action.response.result.data.results,
+        }
+      )
+    case ActionTypes.GET_TENX_FLOW_STATE_LIST_FAILURE:
+      return merge({}, defaultState, state, {
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
+
+function getTenxflowStageDetail(state = {}, action) {
+  const defaultState = {
+    isFetching: false,
+    stageInfo: {}
+  }
+  switch (action.type) {
+    case ActionTypes.GET_TENX_FLOW_STATE_DETAIL_REQUEST:
+      return merge({}, defaultState, state, {
+        isFetching: true
+      })
+    case ActionTypes.GET_TENX_FLOW_STATE_DETAIL_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        stageInfo: action.response.result.data.results,
+        }
+      )
+    case ActionTypes.GET_TENX_FLOW_STATE_DETAIL_FAILURE:
+      return merge({}, defaultState, state, {
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
+
 export default function cicd_flow(state = {}, action) {
   return {
     codeRepo: codeRepo(state.codeRepo, action),
@@ -248,6 +298,23 @@ export default function cicd_flow(state = {}, action) {
       SUCCESS: ActionTypes.DELETE_SINGLE_TENX_FLOW_SUCCESS,
       FAILURE: ActionTypes.DELETE_SINGLE_TENX_FLOW_FAILURE
     }, state.deleteTenxFlowSingle, action),
+    getTenxflowStageList: getTenxflowStageList(state.getTenxflowStageList, action),
+    getTenxflowStageDetail: getTenxflowStageDetail(state.getTenxflowStageDetail, action),
+    createTenxFlowState: reducerFactory({
+      REQUEST: ActionTypes.CREATE_TENX_FLOW_STATE_REQUEST,
+      SUCCESS: ActionTypes.CREATE_TENX_FLOW_STATE_SUCCESS,
+      FAILURE: ActionTypes.CREATE_TENX_FLOW_STATE_FAILURE
+    }, state.createTenxFlowState, action),
+    updateTenxFlowState: reducerFactory({
+      REQUEST: ActionTypes.UPDATE_TENX_FLOW_STATE_REQUEST,
+      SUCCESS: ActionTypes.UPDATE_TENX_FLOW_STATE_SUCCESS,
+      FAILURE: ActionTypes.UPDATE_TENX_FLOW_STATE_FAILURE
+    }, state.updateTenxFlowState, action),
+    deleteTenxFlowStateDetail: reducerFactory({
+      REQUEST: ActionTypes.DELETE_TENX_FLOW_STATE_REQUEST,
+      SUCCESS: ActionTypes.DELETE_TENX_FLOW_STATE_SUCCESS,
+      FAILURE: ActionTypes.DELETE_TENX_FLOW_STATE_FAILURE
+    }, state.deleteTenxFlowStateDetail, action),
   }
 }
 
