@@ -87,7 +87,6 @@ let MemberTable =  React.createClass({
           pageSize: pageSize,
           page: current
         })
-        console.log('userList new ',users);
       },
     }
     const columns = [

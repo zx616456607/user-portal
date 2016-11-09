@@ -191,8 +191,20 @@ class TeamDetail extends Component{
     })
   }
   handleNewSpaceOk(){
-    this.setState({
-      addSpace: false,
+    const {createTeamspace, teamID, loadTeamspaceList} = this.props
+    createTeamspace(teamID,{
+      
+    },{
+      success:{
+        func:() => {
+          console.log('create !');
+          loadTeamspaceList()
+          this.setState({
+            addSpace: false,
+          })
+        },
+        isAsync: true
+      }
     })
   }
   handleNewSpaceCancel(e){
@@ -204,7 +216,9 @@ class TeamDetail extends Component{
     this.getMock();
   }
   componentWillMount(){
-    
+    const { loadTeamClustersList, loadTeamUserList, loadTeamspaceList, teamID, } = this.props
+    loadTeamClustersList(teamID)
+    console.log('loadTeamClustersList',loadTeamClustersList(teamID));
   }
   getMock() {
     const targetKeys = [];
@@ -223,13 +237,13 @@ class TeamDetail extends Component{
     this.setState({ targetKeys });
   }
   render(){
+    const { loadTeamClustersList, teamID, } = this.props
     const cardTitle = (
       <Row>
         <Col span={8}>集群名</Col>
         <Col span={16}>开发测试集群Cluster</Col>
       </Row>
     )
-    
     return (
       <div id='TeamDetail'>
         <Row style={{marginBottom:20}}>
@@ -386,35 +400,31 @@ class TeamDetail extends Component{
     )
   }
 }
-function mapStateToProp(state) {
-  let teamsData = []
-  let total = 0
-  let data = []
-  const teams = state.user.teams
-  if (teams.result) {
-    if (teams.result.teams) {
-      teamsData = teams.result.teams
-      if(teamsData.length !== 0){
-        teamsData.map((item,index) => {
-          data.push(
+function mapStateToProp(state,props) {
+  let clusterData = []
+  let clusterList = []
+  const { team_id } = props.params
+  console.log('state',state);
+  const cluster = state.team.teamClusters
+  if (cluster.result) {
+    if (cluster.result.data) {
+      clusterData = cluster.result.data
+      if(clusterData.length !== 0){
+        clusterData.map((item,index) => {
+          clusterList.push(
             {
               key: index,
-              team: item.teamName,
-              member: item.userCount,
-              cluster: item.clusterCount,
-              space: item.spaceCount,
+              apiHost: item.apiHost,
+              clusterID:item.clusterID,
+              clusterName:item.clusterName,
             }
           )
         })
       }
     }
-    if (teams.result.total) {
-      total = teams.result.total
-    }
   }
   return {
-    teams: data,
-    total
+    teamID: team_id,
   }
 }
 export default connect(mapStateToProp, {

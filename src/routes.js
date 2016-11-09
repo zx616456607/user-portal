@@ -119,7 +119,7 @@ export default (
       <Route path="member" component={MemberManage} />
       <Route path="team" component={TeamManage} />
       <Route path="API" component={API} />
-      <Route path="detail/:team_name" component={TeamDetail} />
+      <Route path="detail/:team_id" component={TeamDetail} />
     </Route>
     <Route path="manange_monitor" component={ManageMonitor}>
       <IndexRoute component={OperationalAudit} />
