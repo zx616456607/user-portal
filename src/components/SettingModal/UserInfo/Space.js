@@ -62,11 +62,12 @@ let TeamSpace = React.createClass({
         className = "contentList"
       }
       return (<Row className={className} key={teamspace.spaceName}>
-          <Col span={4}>{teamspace.spaceName}</Col>
-          <Col span={4}>{teamspace.teamID}</Col>
-          <Col span={4}>6</Col>
-          <Col span={4}>1000</Col>
+          <Col span={3}>{teamspace.spaceName}</Col>
+          <Col span={5}>{teamspace.teamID}</Col>
+          <Col span={3}>6</Col>
+          <Col span={2}>1000</Col>
           <Col span={4}>2002</Col>
+          <Col span={3}>2002</Col>
           <Col span={4}>
             <Button type="primary">进入空间</Button>
           </Col>
@@ -79,21 +80,25 @@ let TeamSpace = React.createClass({
             <i className="fa fa-cube"/>
             名称
           </Col>
-          <Col span={4}>
+          <Col span={5}>
             <i className="fa fa-cube"/>
             所属团队
           </Col>
-          <Col span={4}>
+          <Col span={2}>
             <i className="fa fa-cube"/>
             应用
           </Col>
-          <Col span={4}>
+          <Col span={2}>
             <i className="fa fa-cube"/>
             服务
           </Col>
           <Col span={4}>
             <i className="fa fa-cube"/>
             容器
+          </Col>
+          <Col span={3}>
+            <i className="fa fa-cube"/>
+            余额
           </Col>
           <Col span={4}>
             <i className="fa fa-cube"/>

@@ -289,7 +289,8 @@ class TeamDetail extends Component{
   componentWillMount(){
     const { loadTeamClustersList, loadTeamUserList, loadTeamspaceList, teamID, } = this.props
     loadTeamClustersList(teamID)
-    console.log('loadTeamClustersList',loadTeamClustersList(teamID));
+    // loadTeamUserList(teamID)
+    // loadTeamspaceList(teamID)
   }
   getMock() {
     const { teamUserList, userList} = this.props
