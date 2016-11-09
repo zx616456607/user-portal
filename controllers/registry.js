@@ -147,8 +147,8 @@ exports.getPrivateRegistries = function* () {
 
   this.status = result.code
   this.body = {
-    server: registryConfig.v2Server,
-    data: result.data
+      server: registryConfig.v2Server,
+      data: result.data
   }
 }
 // List repositories of custom docker registry
