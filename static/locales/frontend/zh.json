@@ -318,6 +318,7 @@
   "CICD.Tenxflow.CreateTenxFlowModal.imageStore": "镜像仓库",
   "CICD.Tenxflow.CreateTenxFlowModal.otherImage": "自定义仓库",
   "CICD.Tenxflow.CreateTenxFlowModal.ImageTag": "镜像版本",
+  "CICD.Tenxflow.CreateTenxFlowModal.ImageStoreType": "仓库类型",
   "CICD.Tenxflow.CreateTenxFlowModal.ImageTagByBranch": "以代码分支名为tag",
   "CICD.Tenxflow.CreateTenxFlowModal.ImageTagByTime": "时间戳为tag",
   "CICD.Tenxflow.CreateTenxFlowModal.ImageTagByOther": "自定义tag",

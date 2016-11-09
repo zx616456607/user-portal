@@ -83,6 +83,7 @@ class TenxFlowDetailFlow extends Component {
   constructor(props) {
     super(props);
     this.createNewFlow = this.createNewFlow.bind(this);
+    this.closeCreateNewFlow = this.closeCreateNewFlow.bind(this);
     this.state = {
       editTenxFlowModal: false,
       currentModalShowFlow: null,
@@ -100,6 +101,14 @@ class TenxFlowDetailFlow extends Component {
     this.setState({
       currentFlowEdit: null,
       createNewFlow: true,    
+    });
+  }
+  
+  closeCreateNewFlow() {
+    //this function only for user close the modal of  create an new flow 
+    this.setState({
+      currentFlowEdit: null,
+      createNewFlow: false,    
     });
   }
 
