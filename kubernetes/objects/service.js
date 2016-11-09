@@ -9,6 +9,7 @@
  */
 'use strict'
 const TENXCLOUD_PREFIX = 'tenxcloud.com/'
+const TENX_SCHEMA_PORTNAME = 'tenxcloud.com/schemaPortname'
 
 class Service {
   constructor(name) {
@@ -58,6 +59,7 @@ class Service {
   }
 
   addPort(name, protocol, targetPort, port) {
+    console.log("addPort", arguments)
     protocol = (protocol === 'UDP' ? 'UDP' : 'TCP')
     const portObj = {
       name,
@@ -71,7 +73,12 @@ class Service {
     if (!this.metadata.annotations) {
       this.metadata.annotations = {}
     }
-    this.metadata.annotations[name] = protocol
+    if (!this.metadata.annotations[TENX_SCHEMA_PORTNAME]) {
+      this.metadata.annotations[TENX_SCHEMA_PORTNAME] = `${protocol}/${name}`
+    }
+    else {
+      this.metadata.annotations[TENX_SCHEMA_PORTNAME] += `,${protocol}/${name}`
+    }
   }
   
   createMysqlDataBase(name) {
