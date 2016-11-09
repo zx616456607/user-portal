@@ -5,12 +5,14 @@
  * @author mengyuan
  */
 
-const ANNOTATION_SVC_DOMAIN = "tenxcloud.com/tenxDomain"
-
 export default function parseServiceDomain(item) {
   let domains = []
-  if (item && item.metadata && item.ports && item.bindingDomains) {
-    item.ports.split(',').map((pairStr) => {
+  // item.ports is http/1234,tcp/321,udp/431
+  if (item && item.metadata
+    && item.ports
+    && item.bindingDomains) {
+    let schemaPort = item.ports
+    schemaPort.split(',').map((pairStr) => {
       const pair = pairStr.split('/')
       if (pair.length == 2) {
         const schema = pair[0].toLowerCase()

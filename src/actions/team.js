@@ -34,9 +34,9 @@ function fetchTeamspaceList(teamID) {
 
 // Fetches teamspace list from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function loadTeamspaceList(userID, requiredFields = []) {
+export function loadTeamspaceList(teamID, requiredFields = []) {
   return (dispatch, getState) => {
-    return dispatch(fetchTeamspaceList(userID))
+    return dispatch(fetchTeamspaceList(teamID))
   }
 }
 
