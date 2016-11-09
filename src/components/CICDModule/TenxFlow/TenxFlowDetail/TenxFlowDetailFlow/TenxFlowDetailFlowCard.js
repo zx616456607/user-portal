@@ -146,32 +146,32 @@ function currentStatus(status) {
 function currentFlowType(type) {
   //this function for show different flow type
   switch(type) {
-    case 'unitCheck':
+    case 1:
       return (
         <FormattedMessage {...menusText.unitCheck} />
         );
       break;
-    case 'containCheck':
+    case 2:
       return (
         <FormattedMessage {...menusText.containCheck} />
         );
       break;
-    case 'podToPodCheck':
+    case 3:
       return (
         <FormattedMessage {...menusText.podToPodCheck} />
         );
       break;
-    case 'runningCode':
+    case 4:
       return (
         <FormattedMessage {...menusText.runningCode} />
         );
       break;
-    case 'buildImage':
+    case 5:
       return (
         <FormattedMessage {...menusText.buildImage} />
         );
       break;
-    case 'other':
+    case 6:
       return (
         <FormattedMessage {...menusText.other} />
         );
@@ -280,6 +280,7 @@ class TenxFlowDetailFlowCard extends Component {
   render() {
     let { config, index, scope, currentFlowEdit } = this.props;
     const scopeThis = this;
+    console.log(config)
     return (
       <div id='TenxFlowDetailFlowCard' key={'TenxFlowDetailFlowCard' + index} className={ currentFlowEdit == index ? 'TenxFlowDetailFlowCardBigDiv':'' } >
         <Card className={ currentEditClass(config.status, currentFlowEdit, index) }>
@@ -288,7 +289,7 @@ class TenxFlowDetailFlowCard extends Component {
               <QueueAnim key={'FlowCardShowAnimate' + index}>
                 <div key={'TenxFlowDetailFlowCardShow' + index}>
                   <div className='statusBox'>
-                    { currentStatus(config.status) }
+                    { currentStatus('wait') }
                   </div>
                   <div className='infoBox'>
                     <div className='name commonInfo'>
@@ -296,7 +297,7 @@ class TenxFlowDetailFlowCard extends Component {
                         <FormattedMessage {...menusText.name} />
                       </div>
                       <div className='info'>
-                        <span className='infoSpan'>{config.name}</span>
+                        <span className='infoSpan'>{config.metadata.name}</span>
                       </div>
                       <div style={{ clear:'both' }}></div>
                     </div>
@@ -306,7 +307,7 @@ class TenxFlowDetailFlowCard extends Component {
                       </div>
                       <div className='info'>
                         <i className='fa fa-cog' />
-                        { currentFlowType(config.type) }
+                        { currentFlowType(config.metadata.type) }
                       </div>
                       <div style={{ clear:'both' }}></div>
                     </div>
@@ -316,7 +317,7 @@ class TenxFlowDetailFlowCard extends Component {
                       </div>
                       <div className='info'>
                         <i className='fa fa-github' />
-                        <span className='infoSpan'>{config.codeSource}</span>
+                        <span className='infoSpan'>{config.spec.container.image}</span>
                         <div style={{ clear:'both' }}></div>
                       </div>
                       <div style={{ clear:'both' }}></div>
@@ -327,14 +328,14 @@ class TenxFlowDetailFlowCard extends Component {
                       </div>
                       <div className='info'>
                         <i className='fa fa-sitemap' />
-                        <span className='infoSpan'>{config.branch}</span>
+                        <span className='infoSpan'>{config.spec.project.branch}</span>
                         <div style={{ clear:'both' }}></div>
                       </div>
                       <div style={{ clear:'both' }}></div>
                     </div>
                     <div className='btnBox'>
                       <Button size='large' type='primary'>
-                        { currentStatusBtn(config.status) }
+                        { currentStatusBtn('wait') }
                       </Button>
                       <Button size='large' type='ghost'>
                         <i className='fa fa-wpforms' />

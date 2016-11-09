@@ -14,6 +14,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../../constants'
+import { createTenxFlowState } from '../../../../../actions/cicd_flow'
 import './style/CreateTenxFlowModal.less'
 import EnvComponent from './EnvComponent.js'
 
@@ -365,7 +366,7 @@ let CreateTenxFlowModal = React.createClass({
   },
   handleSubmit(e) {
     //this function for user submit the form
-    const { scope } = this.props;
+    const { scope, createTenxFlowState, flowId, stageInfo } = this.props;
     const _this = this;
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
@@ -411,7 +412,10 @@ let CreateTenxFlowModal = React.createClass({
             'image': values.imageName,
             'args': shellList,
             'dependencies': serviceList
-          }
+          },
+          'project': {
+            'id': (stageInfo.length++) 
+        },
         }
       }
       //if user select the customer type (6), ths customType must be input
@@ -425,7 +429,8 @@ let CreateTenxFlowModal = React.createClass({
           'DockerfileFrom': dockerFileFrom,
           'registryType': parseInt(values.imageType),
           'imageTagType': parseInt(values.imageTag),
-          'noCache': values.buildCache
+          'noCache': values.buildCache,
+          'image': values.imageRealName
         }
         if(this.state.otherTag) {
           imageBuildBody.customTag = values.otherTag;
@@ -442,10 +447,9 @@ let CreateTenxFlowModal = React.createClass({
           }
           imageBuildBody.DockerfilePath = '/' + tmpDockerFileUrl;
         }
-        body.build = imageBuildBody;
+        body.spec.build = imageBuildBody;
       }
-      console.log(values)
-      console.log(body)
+      createTenxFlowState(flowId, body);
     });
   },
   render() {
@@ -577,7 +581,7 @@ let CreateTenxFlowModal = React.createClass({
             </FormItem>
             {
               this.state.otherFlowType == '6' ? [
-                <QueueAnim className='otherFlowTypeInput'>
+                <QueueAnim key='otherFlowTypeInput' className='otherFlowTypeInput'>
                   <div key='otherFlowTypeInput'>
                     <FormItem>
                       <Input {...otherFlowTypeProps} size='large' />
@@ -718,8 +722,8 @@ let CreateTenxFlowModal = React.createClass({
                   </FormItem>
                   {
                     this.state.ImageStoreType ? [
-                      <QueueAnim>
-                        <div key='otherImageStoreTypeAnimate'>
+                      <QueueAnim key='otherImageStoreTypeAnimate'>
+                        <div key='otherImageStoreType'>
                           <FormItem style={{ width:'220px',float:'left' }}>
                             <Input {...otherImageStoreTypeProps} type='text' size='large' />
                           </FormItem>
@@ -800,7 +804,7 @@ CreateTenxFlowModal.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-
+  createTenxFlowState
 })(injectIntl(CreateTenxFlowModal, {
   withRef: true,
 }));

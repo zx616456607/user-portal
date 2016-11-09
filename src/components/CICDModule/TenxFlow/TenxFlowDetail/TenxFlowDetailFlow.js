@@ -14,55 +14,11 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../constants'
+import { getTenxFlowStateList } from '../../../../constants'
 import './style/TenxFlowDetailFlow.less'
 import EditTenxFlowModal from './TenxFlowDetailFlow/EditTenxFlowModal.js'
 import CreateTenxFlowModal from './TenxFlowDetailFlow/CreateTenxFlowModal.js'
 import TenxFlowDetailFlowCard from './TenxFlowDetailFlow/TenxFlowDetailFlowCard.js'
-
-let testData = [
-  {
-    'name': 'test1',
-    'type': 'unitCheck',
-    'codeSource': 'github-gaojian',
-    'branch': 'master',
-    'status': 'finish'
-  },
-  {
-    'name': 'test2',
-    'type': 'podToPodCheck',
-    'codeSource': 'github-gaojian',
-    'branch': 'master',
-    'status': 'running'
-  },
-  {
-    'name': 'test3',
-    'type': 'containCheck',
-    'codeSource': 'github-gaojian',
-    'branch': 'master',
-    'status': 'finish'
-  },
-  {
-    'name': 'test4',
-    'type': 'runningCode',
-    'codeSource': 'github-gaojian',
-    'branch': 'master',
-    'status': 'fail'
-  },
-  {
-    'name': 'test5',
-    'type': 'other',
-    'codeSource': 'github-gaojian',
-    'branch': 'master',
-    'status': 'wait'
-  },
-  {
-    'name': 'test6',
-    'type': 'buildImage',
-    'codeSource': 'github-gaojian',
-    'branch': 'master',
-    'status': 'finish'
-  },
-]
 
 const menusText = defineMessages({
   title: {
@@ -113,13 +69,20 @@ class TenxFlowDetailFlow extends Component {
   }
 
   render() {
+    const { flowId, stageInfo } = this.props;
     let scope = this;
     let { currentFlowEdit } = scope.state;
-    let cards = testData.map( (item, index) => {
-      return (
-        <TenxFlowDetailFlowCard config={item} scope={scope} index={index} currentFlowEdit={currentFlowEdit} />
-      )
-    });
+    let cards = null;
+    console.log(stageInfo)
+    if(!!!stageInfo) {
+      cards = null;
+    } else {      
+      cards = stageInfo.map( (item, index) => {
+        return (
+          <TenxFlowDetailFlowCard config={item} scope={scope} index={index} currentFlowEdit={currentFlowEdit} />
+        )
+      });
+    }
     return (
       <div id='TenxFlowDetailFlow'>
         <div className='paddingBox'>
@@ -140,7 +103,7 @@ class TenxFlowDetailFlow extends Component {
               {
                 this.state.createNewFlow ? [
                   <QueueAnim key='creattingCardAnimate'>
-                    <CreateTenxFlowModal key='CreateTenxFlowModal' scope={scope} />
+                    <CreateTenxFlowModal key='CreateTenxFlowModal' scope={scope} flowId={flowId} stageInfo={stageInfo} />
                   </QueueAnim>
                 ] : null
               }
@@ -154,9 +117,15 @@ class TenxFlowDetailFlow extends Component {
 }
 
 function mapStateToProps(state, props) {
-
+  const defaultStageList = {
+    isFetching: false,
+    stageList: []
+  }
+  const { getTenxFlowStageList } = state.cicd_flow;
+  const { isFetching, stageList } = getTenxFlowStageList || defaultStageList;
   return {
-
+    isFetching,
+    stageList
   }
 }
 
@@ -165,7 +134,7 @@ TenxFlowDetailFlow.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-
+  getTenxFlowStateList
 })(injectIntl(TenxFlowDetailFlow, {
   withRef: true,
 }));
