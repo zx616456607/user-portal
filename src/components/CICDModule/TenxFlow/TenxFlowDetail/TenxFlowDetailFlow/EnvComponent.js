@@ -19,10 +19,10 @@ import './style/EnvComponent.less'
 const createForm = Form.create;
 const FormItem = Form.Item;
 
-let uuid = 0;
 let EnvComponent = React.createClass({
   getInitialState: function() {
     return {
+      uuid: 0
     }
   },
   addServicesInput (k, index, scope) {
@@ -31,12 +31,15 @@ let EnvComponent = React.createClass({
     //when user input words, after user key up would triger the function
     const { form } = this.props;
     let inputValue = form.getFieldValue('service' + index + 'input' + k);
-    if(k == uuid) {
+    if(k == this.state.uuid) {
       if(!!inputValue) {
-        uuid++;
+        let tmpUuid = ++this.state.uuid;
+        this.setState({
+          uuid: tmpUuid
+        });
         // can use data-binding to get
         let keys = form.getFieldValue('service' + index + 'inputs');
-        keys = keys.concat(uuid);
+        keys = keys.concat(this.state.uuid);
         // can use data-binding to set
         // important! notify form to detect changes
         let temp = 'service' + index + 'inputs';

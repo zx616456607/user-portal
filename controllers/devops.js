@@ -264,9 +264,10 @@ exports.getCIFlow = function* (){
 exports.updateCIFlow = function* (){
   const loginUser = this.session.loginUser
   const flow_id = this.params.flow_id
+  const body = this.request.body
 
   const api = apiFactory.getDevOpsApi(loginUser)
-  const result = yield api.updateBy(["ci-flows", flow_id], null)
+  const result = yield api.updateBy(["ci-flows", flow_id], null, body)
 
   this.body = {
     data: result
@@ -332,9 +333,10 @@ exports.updateFlowStage = function* () {
   const loginUser = this.session.loginUser
   const flow_id = this.params.flow_id
   const stage_id = this.params.stage_id
+  const body = this.request.body
 
   const api = apiFactory.getDevOpsApi(loginUser)
-  const result = yield api.updateBy(["ci-flows", flow_id, "stages", stage_id], null)
+  const result = yield api.updateBy(["ci-flows", flow_id, "stages", stage_id], null, body)
 
   this.body = {
     data: result
@@ -401,6 +403,128 @@ exports.stopBuild = function* () {
 
   const api = apiFactory.getDevOpsApi(loginUser)
   const result = yield api.updateBy(["ci-flows", flow_id, "builds", flow_build_id, "stop"], null)
+
+  this.body = {
+    data: result
+  }
+}
+
+/* CD rules
+*/
+exports.createCDRule = function* () {
+  const loginUser = this.session.loginUser
+  const flow_id = this.params.flow_id
+  const body = this.request.body
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.createBy(["ci-flows", flow_id, "cd-rules"], null, body)
+
+  this.body = {
+    data: result
+  }
+}
+
+exports.listCDRules = function* () {
+  const loginUser = this.session.loginUser
+  const flow_id = this.params.flow_id
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.getBy(["ci-flows", flow_id, "cd-rules"], null)
+
+  this.body = {
+    data: result
+  }
+}
+
+exports.removeCDRule = function* () {
+  const loginUser = this.session.loginUser
+  const flow_id = this.params.flow_id
+  const rule_id = this.params.rule_id
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.deleteBy(["ci-flows", flow_id, "cd-rules", rule_id], null)
+
+  this.body = {
+    data: result
+  }
+}
+
+exports.updateCDRule = function* () {
+  const loginUser = this.session.loginUser
+  const flow_id = this.params.flow_id
+  const rule_id = this.params.rule_id
+  const body = this.request.body
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.updateBy(["ci-flows", flow_id, "cd-rules", rule_id], null, body)
+
+  this.body = {
+    data: result
+  }
+}
+
+/*
+Dockerfile APIs
+*/
+exports.listDockerfiles = function* () {
+  const loginUser = this.session.loginUser
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.getBy(["dockerfiles"], null)
+
+  this.body = {
+    data: result
+  }
+}
+
+exports.addDockerfile = function* () {
+  const loginUser = this.session.loginUser
+  const flow_id = this.params.flow_id
+  const stage_id = this.params.stage_id
+  const body = this.request.body
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.createBy(["ci-flows", flow_id, "stages", stage_id, "dockerfile"], null, body)
+
+  this.body = {
+    data: result
+  }
+}
+
+exports.getDockerfile = function* () {
+  const loginUser = this.session.loginUser
+  const flow_id = this.params.flow_id
+  const stage_id = this.params.stage_id
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.getBy(["ci-flows", flow_id, "stages", stage_id, "dockerfile"], null)
+
+  this.body = {
+    data: result
+  }
+}
+
+exports.removeDockerfile = function* () {
+  const loginUser = this.session.loginUser
+  const flow_id = this.params.flow_id
+  const stage_id = this.params.stage_id
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.deleteBy(["ci-flows", flow_id, "stages", stage_id, "dockerfile"], null)
+
+  this.body = {
+    data: result
+  }
+}
+
+exports.updateDockerfile = function* () {
+  const loginUser = this.session.loginUser
+  const flow_id = this.params.flow_id
+  const stage_id = this.params.stage_id
+  const body = this.request.body
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.updateBy(["ci-flows", flow_id, "stages", stage_id, "dockerfile"], null, body)
 
   this.body = {
     data: result

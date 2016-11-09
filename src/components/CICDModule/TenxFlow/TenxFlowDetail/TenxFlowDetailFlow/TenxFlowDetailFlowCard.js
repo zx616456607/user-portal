@@ -355,13 +355,13 @@ class TenxFlowDetailFlowCard extends Component {
           {
             currentFlowEdit == index ? [
               <QueueAnim key={'EditTenxFlowModalAnimate' + index}>
-                <EditTenxFlowModal key={'EditTenxFlowModal' + index} scope={scopeThis} config={config} editType={'edit'} />
+                <EditTenxFlowModal key={'EditTenxFlowModal' + index} scope={scopeThis} config={config} />
               </QueueAnim>
             ] : null
           }
           {
             (index == 0 && currentFlowEdit != index) ? [
-            <div className='cicdBox'>
+            <div className='cicdBox' key='cicdBox'>
               <Switch onChange={this.viewCicdBox}/>
               <p className='switchTitile'><FormattedMessage {...menusText.cicd} /></p>
               <p className='viewP' onClick={this.viewCicdBoxP}><FormattedMessage {...menusText.view} /></p>
@@ -371,7 +371,7 @@ class TenxFlowDetailFlowCard extends Component {
         </Card>
         {
           currentFlowEdit != index ? [
-            <div className={ config.status == 'finish' ? 'finishArrow arrowBox' : 'arrowBox' }>
+            <div className={ config.status == 'finish' ? 'finishArrow arrowBox' : 'arrowBox' } key='finishArrow'>
               <Icon type="arrow-right" />
             </div>
           ] : null

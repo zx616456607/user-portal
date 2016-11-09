@@ -1,0 +1,154 @@
+#CreateTenxFlowModal {
+  padding-bottom: 60px !important;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  .titleBox {
+    margin-bottom: 30px;
+    padding: 0 30px;
+    width: 100%;
+    height: 40px;
+    line-height: 40px;
+    font-size: 14px;
+    background-color: #F8F8F8;
+    i {
+      float: right;
+      line-height: 40px;
+      cursor: pointer;
+    }
+  }
+  .commonBox {
+    margin-bottom: 5px;
+    width: 100%;
+    min-height: 50px;
+    line-height: 50px;
+    .title {
+      padding-left: 30px;
+      float: left;
+      width: 120px;
+      height: 50px;
+      line-height: 50px;
+      text-align: left;
+      font-size: 14px;
+    }
+    .input {
+      float: left;
+      width: calc(~"100% - 150px");
+      min-height: 50px;
+      text-align: left;
+      input {
+        margin-top: 8px;
+        width: 220px !important;
+      }
+      .ant-form-item {
+        margin-bottom: 0 !important;
+      }
+      .ant-form-item-control {
+        line-height: 50px !important;
+      }
+      .ant-form-explain {
+        position: absolute;
+        bottom: -10px;
+      }
+      .has-success.has-feedback:after,
+      .has-warning.has-feedback:after,
+      .has-error.has-feedback:after,
+      .is-validating.has-feedback:after {
+        top: 8px !important;
+      }
+    }
+    .flowType {
+      .flowTypeForm {
+        float: left;
+        width: 150px;
+      }
+      .otherFlowTypeInput {
+        float: left;
+        width: 220px;
+      }
+    }
+    .selectCodeBtn {
+      i {
+        margin-right: 7px;
+      }
+    }
+    .services {
+      .defineEnvBtn {
+        margin-left: 15px;
+        color: #00A1EA;
+        font-size: 14px;
+        cursor: pointer;
+      }
+      .addServicesBtn {
+        margin-top: 10px;
+        width: 100px;
+        height: 20px;
+        line-height: 20px;
+        font-size: 14px;
+        cursor: pointer;
+        i {
+          margin-right: 7px;
+        }
+      }
+      .serviceDetail {
+        i {
+          margin-left: 7px;
+          font-size: 14px;
+          cursor: pointer;
+        }
+      }
+    }
+    .shellCode {
+      .serviceForm {
+        float: left;
+        width: 90%;
+      }
+      .fa {
+        margin-left: 15px;
+        font-size: 14px;
+        line-height: 50px;
+        cursor: pointer;
+      }
+    }
+    .imageType{
+      .ant-radio-input{
+        width: 100px !important;
+      }
+    }
+    .dockerFileInputAnimate{
+      padding-top: 9px;
+      height: 50px;    
+      .dockerFileInput{
+        margin-top: 0px !important;
+      }
+    }
+  }
+  .line {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    width: 100%;
+    height: 1px;
+    border-top: 1px solid #EFEFEF;
+  }
+  .modalBtnBox {
+    padding-top: 8px;
+    padding-right: 40px;
+    position: absolute;
+    width: 100%;
+    bottom: 0;
+    left: 0;
+    height: 60px;
+    text-align: center;
+    background-color: #F8F8F8;
+    button {
+      float: none !important;
+      margin-right: 15px;
+      min-width: 80px;
+    }
+  }
+}
+.tenxFlowServiceEnvModal{
+  .ant-btn-ghost{
+    display: none;
+  }
+}

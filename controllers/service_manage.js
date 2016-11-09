@@ -12,7 +12,7 @@
 const constants = require('../constants')
 const INSTANCE_MAX_NUM = constants.INSTANCE_MAX_NUM
 const INSTANCE_AUTO_SCALE_MAX_CPU = constants.INSTANCE_AUTO_SCALE_MAX_CPU
-const ANNOTATION_TENX_DOMAIN = constants.ANNOTATION_TENX_DOMAIN
+const ANNOTATION_SVC_SCHEMA_PORT = constants.ANNOTATION_SVC_SCHEMA_PORT
 const apiFactory = require('../services/api_factory')
 
 exports.startServices = function* () {
@@ -124,8 +124,8 @@ exports.getServiceDetail = function* () {
   if (result.data[serviceName]
     && result.data[serviceName].service
     && result.data[serviceName].service.metadata.annotations
-    && result.data[serviceName].service.metadata.annotations[ANNOTATION_TENX_DOMAIN]) {
-    deployment.ports = result.data[serviceName].service.metadata.annotations[ANNOTATION_TENX_DOMAIN]
+    && result.data[serviceName].service.metadata.annotations[ANNOTATION_SVC_SCHEMA_PORT]) {
+    deployment.ports = result.data[serviceName].service.metadata.annotations[ANNOTATION_SVC_SCHEMA_PORT]
     deployment.bindingDomains = result.data.bindingDomain
   }
   this.body = {

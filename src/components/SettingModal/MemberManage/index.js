@@ -21,7 +21,11 @@ let MemberTable =  React.createClass({
   getInitialState() {
     return {
       filteredInfo: null,
-      sortedInfo: null,
+      pagination: {},
+      loading: false,
+      sortName: true,
+      sortTeam: true,
+      sortBalance: true,
     };
   },
   handleChange(pagination, filters, sorter) {
@@ -30,6 +34,31 @@ let MemberTable =  React.createClass({
       sortedInfo: sorter,
     });
   },
+  handleSortName(){
+    const { loadUserList } = this.props.scope.props
+    const { sortName } = this.state
+    //req
+    loadUserList()
+    this.setState({
+      sortName: !sortName,
+    })
+  },
+  handleSortTeam(){
+    const { loadUserList } = this.props.scope.props
+    const { sortTeam } = this.state
+    loadUserList()
+    this.setState({
+      sortTeam: !sortTeam,
+    })
+  },
+  handleSortBalance(){
+    const { loadUserList } = this.props.scope.props
+    const { sortBalance } = this.state
+    loadUserList()
+    this.setState({
+      sortBalance: !sortBalance,
+    })
+  },
   handleBack(){
     const { scope } = this.props
     scope.setState({
@@ -37,12 +66,10 @@ let MemberTable =  React.createClass({
     })
   },
   delMember(record){
-    console.log('delmember !',record);
     const { scope } = this.props
     scope.props.deleteUser(record.key,{
       success: {
         func: () => {
-          console.log('del !');
           scope.props.loadUserList({
             page: scope.state.page,
             size: scope.state.pageSize,
@@ -87,16 +114,25 @@ let MemberTable =  React.createClass({
           pageSize: pageSize,
           page: current
         })
-        console.log('userList new ',users);
       },
     }
     const columns = [
       {
-        title: '成员名',
+        title: (
+          <div onClick={this.handleSortName}>
+            成员名
+            <div className="ant-table-column-sorter">
+              <span className= {this.state.sortName?'ant-table-column-sorter-up on':'ant-table-column-sorter-up off'} title="↑">
+                <i className="anticon anticon-caret-up"/>
+              </span>
+              <span className= {!this.state.sortName?'ant-table-column-sorter-down on':'ant-table-column-sorter-down off'} title="↓">
+                <i className="anticon anticon-caret-down"/>
+              </span>
+            </div>
+          </div>
+        ),
         dataIndex: 'name',
         key: 'name',
-        sorter: (a, b) => a.name.length - b.name.length,
-        sortOrder: sortedInfo.columnKey === 'name' && sortedInfo.order,
         className: 'memberName',
         width: 150,
       },
@@ -125,20 +161,40 @@ let MemberTable =  React.createClass({
         width: 150,
       },
       {
-        title: '团队',
+        title: (
+          <div onClick={this.handleSortTeam}>
+            团队
+            <div className="ant-table-column-sorter">
+              <span className= {this.state.sortTeam?'ant-table-column-sorter-up on':'ant-table-column-sorter-up off'} title="↑">
+                <i className="anticon anticon-caret-up"/>
+              </span>
+              <span className= {!this.state.sortTeam?'ant-table-column-sorter-down on':'ant-table-column-sorter-down off'} title="↓">
+                <i className="anticon anticon-caret-down"/>
+              </span>
+            </div>
+          </div>
+        ),
         dataIndex: 'team',
         key: 'team',
         width: 150,
-        sorter: (a, b) => a.team - b.team,
-        sortOrder: sortedInfo.columnKey === 'team' && sortedInfo.order,
       },
       {
-        title: '余额',
+        title: (
+          <div onClick={this.handleSortBalance}>
+            余额
+            <div className="ant-table-column-sorter">
+              <span className= {this.state.sortBalance?'ant-table-column-sorter-up on':'ant-table-column-sorter-up off'} title="↑">
+                <i className="anticon anticon-caret-up"/>
+              </span>
+              <span className= {!this.state.sortBalance?'ant-table-column-sorter-down on':'ant-table-column-sorter-down off'} title="↓">
+                <i className="anticon anticon-caret-down"/>
+              </span>
+            </div>
+          </div>
+        ),
         dataIndex: 'balance',
         key: 'balance',
         width: 150,
-        sorter: (a, b) => a.balance - b.balance,
-        sortOrder: sortedInfo.columnKey === 'balance' && sortedInfo.order,
       },
       {
         title: '操作',
@@ -430,7 +486,7 @@ class MemberManage extends Component {
         </Row>
         <Row className="memberList">
           <Card>
-            <MemberTable scope={scope} data={users}/>
+            <MemberTable scope={scope} data={users} />
           </Card>
         </Row>
       </div>

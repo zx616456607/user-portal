@@ -14,6 +14,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../constants'
+import { putEditTenxFlowAlert } from '../../../../actions/cicd_flow'
 import './style/TenxFlowDetailAlert.less'
 import { browserHistory } from 'react-router';
 
@@ -65,10 +66,31 @@ let TenxFlowDetailAlert = React.createClass({
     return {
       emailAlert: false,
       otherEmail: false,
+      checkFirst: false,
+      checkSecond: false,
+      checkThird: false,
+      checkForth: false,
+      emailList: null
     }
   },
   componentWillMount() {
     document.title = 'TenxFlow | 时速云';
+    const { notify } = this.props;
+    let flag = !!notify;
+    this.setState({
+      emailAlert: flag
+    });
+    if(flag) {      
+      const newNotify = JSON.parse( notify );
+      this.setState({
+        checkFirst: newNotify.ci.success_notification,
+        checkSecond: newNotify.ci.failed_notification,
+        checkThird: newNotify.cd.success_notification,
+        checkForth: newNotify.cd.failed_notification,
+        emailList: newNotify.email_list.join(','),
+        otherEmail: true
+      });
+    }
   },
   onChangeEmailAlert(e) {
     //this function for user select email alert or now
@@ -103,45 +125,79 @@ let TenxFlowDetailAlert = React.createClass({
     if(this.state.otherEmail && !!!value){
        callback([new Error('请输入邮件通知地址')]);
     }else{
-      callback();
+      if(this.state.otherEmail) {        
+        let emailList = value.split(',');
+        let emailCheck = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
+        let flag = true;
+        emailList.map((item) => {
+          if( !emailCheck.test(item) ) {
+            flag = false;
+            callback([new Error('请输入正确邮件地址')]);
+          }
+        });
+        if(flag) {        
+          callback();
+        }      
+      } else {
+        callback();
+      }
     }
   },
   handleReset(e) {
     //this function for reset the form
     e.preventDefault();
     this.props.form.resetFields();
-    const { scope } = this.props;
+    const { scope, notify } = this.props;
+    const newNotify = JSON.parse( notify );
   },
   handleSubmit(e) {
     //this function for user submit the form
     const { scope } = this.props;
     const _this = this;
+    const { putEditTenxFlowAlert, flowId } = this.props;
     let scopeHistory = scope.props.history;
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         e.preventDefault();
         return;
       }
+      let temp = {
+          'email_list': values.inputEmail.split(','),
+          'ci': {
+            'success_notification': values.checkFirst,
+            'failed_notification': values.checkSecond
+          },
+          'cd': {
+            'success_notification': values.checkThird,
+            'failed_notification': values.checkForth
+          }
+        }
+      let body = {
+        'notification_config': JSON.stringify(temp)
+      }
+      putEditTenxFlowAlert(flowId, body);
     });
   },
   render() {
     const { formatMessage } = this.props.intl;
-    const { scope } = this.props;
+    const { scope, notify } = this.props;
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form;
     const radioEmailProps = getFieldProps('radioEmail', {
       rules: [
         { validator: this.radioEmailCheck },
       ],
-      onChange: this.onChangeAlertEmail
+      onChange: this.onChangeAlertEmail,
+      initialValue: this.state.otherEmail
     });
     const checkEmailProps = getFieldProps('inputEmail', {
       rules: [
         { validator: this.emailInputCheck },
       ],
+      initialValue: this.state.emailList
     });
     return (
     <Card id='TenxFlowDetailAlert' key='TenxFlowDetailAlert'>
-      <Form horizontal form={this.props.form}>
+      <Form horizontal>
         <div className='commonBox'>
           <div className='title'>
             <span><FormattedMessage {...menusText.email} /></span>
@@ -174,16 +230,16 @@ let TenxFlowDetailAlert = React.createClass({
               </div>
               <div className='input alert'>
                 <FormItem className='checkBox'>
-                  <Checkbox {...getFieldProps('checkFirst', {valuePropName: 'checked', initialValue: false})} >
+                  <Checkbox {...getFieldProps('checkFirst', {valuePropName: 'checked', initialValue: this.state.checkFirst})} >
                     <FormattedMessage {...menusText.alertFirst} />
                   </Checkbox><br />
-                  <Checkbox {...getFieldProps('checkSecond', {valuePropName: 'checked', initialValue: false})} >
+                  <Checkbox {...getFieldProps('checkSecond', {valuePropName: 'checked', initialValue: this.state.checkSecond})} >
                     <FormattedMessage {...menusText.alertSecond} />
                   </Checkbox><br />
-                  <Checkbox {...getFieldProps('checkThird', {valuePropName: 'checked', initialValue: false})} >
+                  <Checkbox {...getFieldProps('checkThird', {valuePropName: 'checked', initialValue: this.state.checkThird})} >
                     <FormattedMessage {...menusText.alertThird} />
                   </Checkbox><br />
-                  <Checkbox {...getFieldProps('checkForth', {valuePropName: 'checked', initialValue: false})} >
+                  <Checkbox {...getFieldProps('checkForth', {valuePropName: 'checked', initialValue: this.state.checkForth})} >
                     <FormattedMessage {...menusText.alertForth} />
                   </Checkbox>
                 </FormItem>
@@ -220,7 +276,7 @@ TenxFlowDetailAlert.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-
+  putEditTenxFlowAlert
 })(injectIntl(TenxFlowDetailAlert, {
   withRef: true,
 }));
