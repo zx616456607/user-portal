@@ -19,7 +19,6 @@ export default class PopSelect extends Component {
     this.setValue = this.setValue.bind(this)
     this.handleVisibleChange = this.handleVisibleChange.bind(this)
     this.state = {
-      selectValue: '',
       focus: false,
       list: [],
       visible: props.spacesVisible,
@@ -48,39 +47,33 @@ export default class PopSelect extends Component {
     })
   }
   setValue(item) {
-    this.setState({
-      selectValue: item.name,
-    })
     const { onChange } = this.props
     if (onChange) {
       onChange(item)
     }
   }
   componentWillMount() {
-    const { selectValue, list } = this.props
+    const { list } = this.props
     this.setState({
       list,
-      selectValue
     })
   }
   componentWillReceiveProps(nextProps) {
-    const { visible, list, selectValue } = nextProps
+    const { visible, list } = nextProps
     this.setState({
       visible,
       list,
-      selectValue: (selectValue ? selectValue : this.state.selectValue)
     })
   }
   handleVisibleChange(visible) {
     this.setState({ visible })
   }
   render() {
-    const { title, btnStyle, loading } = this.props
-    const { selectValue } = this.state
+    const { title, btnStyle, loading, special, selectValue } = this.props
     const text = <span className="PopSelectTitle">{title}</span>
     let searchList = (
       this.state.list.length === 0 ?
-        <div>无匹配结果</div>
+        <div className='loadingBox'>无匹配结果</div>
         :
         this.state.list.map((item) => {
           return (
@@ -93,15 +86,40 @@ export default class PopSelect extends Component {
           )
         })
     )
+    const userSpace = {
+      name: '我的空间',
+      spaceName: '我的空间',
+      spaceID: 'default',
+      teamID: 'default'
+    }
+    const specialElement = (
+      <div>
+        <div>
+          用户
+        </div>
+        <ul className="searchList">
+          <li
+            onClick={() => this.setValue(userSpace)}
+            className="searchItem">
+            {userSpace.name}
+          </li>
+        </ul>
+        <div>
+          团队
+        </div>
+      </div>
+    )
     if (loading) {
-      searchList = <Spin />
+      searchList = (
+        <div className='loadingBox'>
+          <Spin />
+        </div>
+      )
     }
     const content = (
       <div className="PopSelectContent">
         <div className="ant-search-input-wrapper searchInt">
-          <div>
-            用户空间
-          </div>
+          {special && specialElement}
           <Input.Group className='ant-search-input'>
             <Input placeholder='查询' onChange={this.handleSearch} />
             <div className="ant-input-group-wrap">

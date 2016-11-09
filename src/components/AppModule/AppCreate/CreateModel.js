@@ -108,13 +108,13 @@ class CreateModel extends Component {
   handleSpaceChange(value) {
     const { teamspaces, loadTeamClustersList, setCurrent, form, current } = this.props
     teamspaces.map(space => {
-      setCurrent({
-        space,
-        team: {
-          teamID: space.teamID
-        }
-      })
       if (space.spaceID === value) {
+        setCurrent({
+          space,
+          team: {
+            teamID: space.teamID
+          }
+        })
         loadTeamClustersList(space.teamID, { size: 100 }, {
           success: {
             func: (result) => {

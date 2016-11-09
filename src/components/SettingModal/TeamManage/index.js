@@ -62,7 +62,7 @@ let TeamTable = React.createClass({
         width: '20%',
         className: 'teamName',
         render: (text,record,index) => (
-          <Link to={`/setting/detail/${text}`}>{text}</Link>
+          <Link to={`/setting/detail/${record.key}`}>{text}</Link>
         )
       },
       {
@@ -214,7 +214,7 @@ class TeamManage extends Component {
   }
 }
 
-function mapStateToProp(state) {
+function mapStateToProp(state,props) {
   let teamsData = []
   let total = 0
   let data = []
@@ -226,7 +226,7 @@ function mapStateToProp(state) {
         teamsData.map((item,index) => {
           data.push(
             {
-              key: index,
+              key: item.teamID,
               team: item.teamName,
               member: item.userCount,
               cluster: item.clusterCount,
@@ -240,6 +240,7 @@ function mapStateToProp(state) {
       total = teams.result.total
     }
   }
+  console.log('teamData',teamsData);
   return {
     teams: data,
     total
