@@ -113,15 +113,18 @@ class Header extends Component {
     this.setState({
       clustersVisible: false,
     })
-    if (cluster.clusterID === this.props.current.cluster.clusterID) {
+    const { setCurrent, current } = this.props
+    if (cluster.clusterID === current.cluster.clusterID) {
       return
     }
-    const { setCurrent } = this.props
     setCurrent({
       cluster
     })
+    const { pathname } = window.location
     message.success(`集群已成功切换到 ${cluster.clusterName}`)
-    browserHistory.push('/')
+    if (pathname.match(/\//g).length > 2) {
+      browserHistory.push('/')
+    }
   }
 
   componentWillMount() {
