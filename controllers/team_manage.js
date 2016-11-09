@@ -90,6 +90,9 @@ exports.getTeamUsers = function* () {
   }
   const from = size * (page - 1)
   const queryObj = { from, size }
+  if (from == 0 && size == 0) {
+    queryObj = {}
+  }
   if (name) {
     queryObj.filter = `name ${name}`
   }
