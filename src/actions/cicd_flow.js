@@ -159,6 +159,33 @@ export function removeProject(projectId, callback) {
     return dispatch(fetchRemoveProject(projectId, callback))
   }
 }
+
+export const NOT_ACTIVE_PROJECT_REQUEST = 'NOT_ACTIVE_PROJECT_REQUEST'
+export const NOT_ACTIVE_PROJECT_SUCCESS = 'NOT_ACTIVE_PROJECT_SUCCESS'
+export const NOT_ACTIVE_PROJECT_FAILURE = 'NOT_ACTIVE_PROJECT_FAILURE'
+
+// remove code repo project active
+function fetchNotActiveProject(projectId, callback) {
+  return {
+    [FETCH_API]: {
+      types: [NOT_ACTIVE_PROJECT_REQUEST, NOT_ACTIVE_PROJECT_SUCCESS, NOT_ACTIVE_PROJECT_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/managed-projects/${projectId}`,
+      schema: {},
+      options: {
+        method: 'DELETE',
+      }
+    },
+    id: projectId,
+    callback
+  }
+}
+export function notActiveProject(id, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchNotActiveProject(id, callback))
+  }
+}
+
+
 // search code project list
 export const SEARCH_CODE_STORE_LIST = 'SEARCH_CODE_STORE_LIST'
 
@@ -232,6 +259,28 @@ export function searchCodeRepo(codeName) {
   return {
     type: SEARCH_CODE_REPO_LIST,
     codeName
+  }
+}
+
+//dockerfile list
+export const GET_DOCKER_FILES_LIST_REQUEST = 'GET_DOCKER_FILES_LIST_REQUEST'
+export const GET_DOCKER_FILES_LIST_SUCCESS = 'GET_DOCKER_FILES_LIST_SUCCESS'
+export const GET_DOCKER_FILES_LIST_FAILURE = 'GET_DOCKER_FILES_LIST_FAILURE'
+function fetchgetDockerfile() {
+  return {
+    [FETCH_API]: {
+      types: [GET_DOCKER_FILES_LIST_REQUEST, GET_DOCKER_FILES_LIST_SUCCESS, GET_DOCKER_FILES_LIST_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/dockerfiles`,
+      schema: {},
+      options: {
+        method: 'GET'
+      }
+    }
+  }
+}
+export function getDockerfile() {
+  return (dispatch, getState) => {
+    return dispatch(fetchgetDockerfile())
   }
 }
 
