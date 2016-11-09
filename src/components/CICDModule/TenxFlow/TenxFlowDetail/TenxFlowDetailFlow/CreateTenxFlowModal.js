@@ -2,9 +2,9 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
- * EditTenxFlowModal component
+ * CreateTenxFlowModal component
  *
- * v0.1 - 2016-10-08
+ * v0.1 - 2016-11-08
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
@@ -14,7 +14,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../../constants'
-import './style/EditTenxFlowModal.less'
+import './style/CreateTenxFlowModal.less'
 import EnvComponent from './EnvComponent.js'
 
 const RadioGroup = Radio.Group;
@@ -24,137 +24,137 @@ const Option = Select.Option;
 
 const menusText = defineMessages({
   titleEdit: {
-    id: 'CICD.Tenxflow.EditTenxFlowModal.titleEdit',
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.titleEdit',
     defaultMessage: '编辑项目卡片',
   },
   titleAdd: {
-    id: 'CICD.Tenxflow.EditTenxFlowModal.titleAdd',
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.titleAdd',
     defaultMessage: '创建项目卡片',
   },
   unitCheck: {
-    id: 'CICD.Tenxflow.EditTenxFlowModal.unitCheck',
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.unitCheck',
     defaultMessage: '单元测试',
   },
   containCheck: {
-    id: 'CICD.Tenxflow.EditTenxFlowModal.containCheck',
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.containCheck',
     defaultMessage: '集成测试',
   },
   podToPodCheck: {
-    id: 'CICD.Tenxflow.EditTenxFlowModal.podToPodCheck',
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.podToPodCheck',
     defaultMessage: '端对端测试',
   },
   runningCode: {
-    id: 'CICD.Tenxflow.EditTenxFlowModal.runningCode',
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.runningCode',
     defaultMessage: '代码编译',
   },
   buildImage: {
-    id: 'CICD.Tenxflow.EditTenxFlowModal.buildImage',
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.buildImage',
     defaultMessage: '镜像构建',
   },
   other: {
-    id: 'CICD.Tenxflow.EditTenxFlowModal.other',
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.other',
     defaultMessage: '自定义',
   },
   flowType: {
-    id: 'CICD.Tenxflow.EditTenxFlowModal.flowType',
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.flowType',
     defaultMessage: '项目类型',
   },
   flowCode: {
-    id: 'CICD.Tenxflow.EditTenxFlowModal.flowCode',
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.flowCode',
     defaultMessage: '项目代码',
   },
   flowName: {
-    id: 'CICD.Tenxflow.EditTenxFlowModal.flowName',
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.flowName',
     defaultMessage: '项目名称',
   },
   selectCode: {
-    id: 'CICD.Tenxflow.EditTenxFlowModal.selectCode',
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.selectCode',
     defaultMessage: '选择代码库',
   },
   imageName: {
-    id: 'CICD.Tenxflow.EditTenxFlowModal.imageName',
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.imageName',
     defaultMessage: '基础镜像',
   },
   defineEnv: {
-    id: 'CICD.Tenxflow.EditTenxFlowModal.defineEnv',
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.defineEnv',
     defaultMessage: '自定义环境变量',
   },
   servicesTitle: {
-    id: 'CICD.Tenxflow.EditTenxFlowModal.servicesTitle',
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.servicesTitle',
     defaultMessage: '常用服务',
   },
   addServices: {
-    id: 'CICD.Tenxflow.EditTenxFlowModal.addServices',
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.addServices',
     defaultMessage: '继续添加',
   },
   shellCode: {
-    id: 'CICD.Tenxflow.EditTenxFlowModal.shellCode',
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.shellCode',
     defaultMessage: '脚本命令',
   },
   submit: {
-    id: 'CICD.Tenxflow.EditTenxFlowModal.submit',
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.submit',
     defaultMessage: '确定',
   },
   cancel: {
-    id: 'CICD.Tenxflow.EditTenxFlowModal.cancel',
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.cancel',
     defaultMessage: '取消',
   },
   dockerFileCreate: {
-    id: 'CICD.Tenxflow.EditTenxFlowModal.dockerFileCreate',
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.dockerFileCreate',
     defaultMessage: '使用代码仓库的docker file',
   },
   selectDockerFile: {
-    id: 'CICD.Tenxflow.EditTenxFlowModal.selectDockerFile',
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.selectDockerFile',
     defaultMessage: '选择已有',
   },
   createNewDockerFile: {
-    id: 'CICD.Tenxflow.EditTenxFlowModal.createNewDockerFile',
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.createNewDockerFile',
     defaultMessage: '云端创建Dockerfile',
   },
   imageRealName: {
-    id: 'CICD.Tenxflow.EditTenxFlowModal.imageRealName',
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.imageRealName',
     defaultMessage: '镜像名称',
   },
   imageStore: {
-    id: 'CICD.Tenxflow.EditTenxFlowModal.imageStore',
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.imageStore',
     defaultMessage: '镜像仓库',
   },
   otherImage: {
-    id: 'CICD.Tenxflow.EditTenxFlowModal.otherImage',
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.otherImage',
     defaultMessage: '自定义仓库',
   },
   ImageTag: {
-    id: 'CICD.Tenxflow.EditTenxFlowModal.ImageTag',
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.ImageTag',
     defaultMessage: '镜像版本',
   },
   ImageTagByBranch: {
-    id: 'CICD.Tenxflow.EditTenxFlowModal.ImageTagByBranch',
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.ImageTagByBranch',
     defaultMessage: '以代码分支名为tag',
   },
   ImageTagByTime: {
-    id: 'CICD.Tenxflow.EditTenxFlowModal.ImageTagByTime',
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.ImageTagByTime',
     defaultMessage: '时间戳为tag',
   },
   ImageTagByOther: {
-    id: 'CICD.Tenxflow.EditTenxFlowModal.ImageTagByOther',
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.ImageTagByOther',
     defaultMessage: '自定义tag',
   },
   buildCache: {
-    id: 'CICD.Tenxflow.EditTenxFlowModal.buildCache',
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.buildCache',
     defaultMessage: '构建缓存',
   },
   envTitle: {
-    id: 'CICD.Tenxflow.EditTenxFlowModal.envTitle',
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.envTitle',
     defaultMessage: '自定义环境变量',
   }
 });
 
 let uuid = 0;
 let shellUid = 0;
-let EditTenxFlowModal = React.createClass({
+let CreateTenxFlowModal = React.createClass({
   getInitialState: function() {
     return {
-      otherFlowType: 'buildImage',
+      otherFlowType: '5',
       currentType: 'view',
       emailAlert: false,
       otherEmail: false,
@@ -284,6 +284,15 @@ let EditTenxFlowModal = React.createClass({
       }
     }
   },
+  realImageInput (rule, value, callback) {
+    //this function for user selected build image type
+    //and when user submit the form, the function will check the real image input or not 
+    if (this.state.otherFlowType == '5' && !!!value) {
+      callback([new Error('请输入镜像名称')]);
+    } else {
+      callback();
+    }
+  },
   changeUseDockerFile (e) {
     //this function for user change using the docker file or not
     if(e.target.checked) {
@@ -329,15 +338,54 @@ let EditTenxFlowModal = React.createClass({
         e.preventDefault();
         return;
       }
-      _this.setState({
-        currentTenxFlow: values
+      //get shell code
+      let shellLength = values.shellCodes;
+      let shellList = [];
+      shellLength.map((item, index) => {
+        if((index + 1) != shellLength.length) {         
+          shellList.push(values['shellCode' + item]);
+        }
       });
-      scope.cancelEditCard();
+      //get service code
+      let serviceLength = values.services;
+      let serviceList = [];
+      serviceLength.map((item) => {
+        let temp = {
+          'service': values['serviceSelect' + item]
+        }
+        let tempLength = values['service' + item + 'inputs'];
+        let tempList = [];
+        tempLength.map((littleItem, littleIndex) => {
+          if((littleIndex + 1) != tempLength.length) {
+            tempList.push(values['service' + item +'input' + littleItem]);
+          }
+        });
+        temp.env = tempList;
+        serviceList.push(temp);
+      });
+      var body = {
+        'metadata': {
+          'name': values.flowName,
+          'type': parseInt(values.flowType), 
+        },
+        'spec': {
+          'container': {
+            'image': values.imageName,
+            'args': shellList,
+            'dependencies': serviceList
+          }
+        }
+      }
+      if(values.flowType == '6') {
+        body.metadata.customType = values.otherFlowType;
+      }
+      console.log(values)
+      console.log(body)
     });
   },
   render() {
     const { formatMessage } = this.props.intl;
-    const { config, form } = this.props;
+    const { form } = this.props;
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form;
     const scopeThis = this;
     getFieldProps('services', {
@@ -349,7 +397,7 @@ let EditTenxFlowModal = React.createClass({
     const serviceItems = getFieldValue('services').map((k) => {
       const serviceSelect = getFieldProps(`serviceSelect${k}`, {
         rules: [
-          { required: true, message: '请选择' },
+          { message: '请选择' },
         ],
       });
       return (
@@ -397,7 +445,7 @@ let EditTenxFlowModal = React.createClass({
         { required: true, message: '请选择项目类型' },
       ],
       onChange: this.flowTypeChange,
-      initialValue: config.type,
+      initialValue: '5',
     });
     const otherFlowTypeProps = getFieldProps('otherFlowType', {
       rules: [
@@ -406,7 +454,8 @@ let EditTenxFlowModal = React.createClass({
     });
     const imageRealNameProps = getFieldProps('imageRealName', {
       rules: [
-        { required: true, message: '请输入镜像名称' },
+        { message: '请输入镜像名称' },
+        { validator: this.realImageInput },
       ],
     });
     const imageNameProps = getFieldProps('imageName', {
@@ -420,7 +469,6 @@ let EditTenxFlowModal = React.createClass({
         { required: true, message: '请输入项目名称' },
         { validator: this.flowNameExists },
       ],
-      initialValue: config.name,
     });
     const otherImageTagProps = getFieldProps('otherTag', {
       rules: [
@@ -428,9 +476,9 @@ let EditTenxFlowModal = React.createClass({
       ],
     });
     return (
-      <div id='EditTenxFlowModal' key='EditTenxFlowModal'>
+      <div id='CreateTenxFlowModal' key='CreateTenxFlowModal'>
       <div className='titleBox'>
-        <span><FormattedMessage {...menusText.titleEdit} /></span>
+        <span><FormattedMessage {...menusText.titleAdd} /></span>
         <Icon type='cross' onClick={this.cancelChange} />
       </div>
       <Form horizontal>
@@ -441,16 +489,16 @@ let EditTenxFlowModal = React.createClass({
           <div className='input flowType'>
             <FormItem className='flowTypeForm'>
               <Select {...flowTypeProps} style={{ width: 120 }}>
-                <Option value='unitCheck'><FormattedMessage {...menusText.unitCheck} /></Option>
-                <Option value='containCheck'><FormattedMessage {...menusText.containCheck} /></Option>
-                <Option value='podToPodCheck'><FormattedMessage {...menusText.podToPodCheck} /></Option>
-                <Option value='runningCode'><FormattedMessage {...menusText.runningCode} /></Option>
-                <Option value='buildImage'><FormattedMessage {...menusText.buildImage} /></Option>
-                <Option value='other'><FormattedMessage {...menusText.other} /></Option>
+                <Option value='1'><FormattedMessage {...menusText.unitCheck} /></Option>
+                <Option value='2'><FormattedMessage {...menusText.containCheck} /></Option>
+                <Option value='3'><FormattedMessage {...menusText.podToPodCheck} /></Option>
+                <Option value='4'><FormattedMessage {...menusText.runningCode} /></Option>
+                <Option value='5'><FormattedMessage {...menusText.buildImage} /></Option>
+                <Option value='6'><FormattedMessage {...menusText.other} /></Option>
               </Select>
             </FormItem>
             {
-              this.state.otherFlowType == 'other' ? [
+              this.state.otherFlowType == '6' ? [
                 <QueueAnim className='otherFlowTypeInput'>
                   <div key='otherFlowTypeInput'>
                     <FormItem>
@@ -530,7 +578,7 @@ let EditTenxFlowModal = React.createClass({
           <div style={{ clear:'both' }} />
         </div>
         {
-          config.type == 'buildImage' ? [
+          this.state.otherFlowType == '5' ? [
             <QueueAnim className='buildImageForm'>
               <div className='line'></div>
               <div className='commonBox' key='buildImageFormAnimate'>
@@ -643,15 +691,15 @@ function mapStateToProps(state, props) {
   }
 }
 
-EditTenxFlowModal = createForm()(EditTenxFlowModal);
+CreateTenxFlowModal = createForm()(CreateTenxFlowModal);
 
-EditTenxFlowModal.propTypes = {
+CreateTenxFlowModal.propTypes = {
   intl: PropTypes.object.isRequired,
 }
 
 export default connect(mapStateToProps, {
 
-})(injectIntl(EditTenxFlowModal, {
+})(injectIntl(CreateTenxFlowModal, {
   withRef: true,
 }));
 

@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Form, Select, Input, InputNumber, Modal, Checkbox, Button, Card, Menu, Switch, Radio, Icon, Spin  } from 'antd'
+import { Form, Select, Input, InputNumber, Modal, Checkbox, Button, Card, Menu, Switch, Radio, Icon, Spin } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import merge from 'lodash/merge'
@@ -28,18 +28,17 @@ let MyComponent = React.createClass({
   getInitialState() {
     return {
       checkAll: [],
-      checkedList:[],
-      plainOptions:[],
-      cluster: window.localStorage.getItem('cluster'),
+      checkedList: [],
+      plainOptions: [],
       selectValue: [],
     };
   },
   componentWillReceiveProps(nextProps) {
-    const serviceOpen = nextProps.serviceOpen 
-    if(serviceOpen === this.props.serviceOpen) return
+    const serviceOpen = nextProps.serviceOpen
+    if (serviceOpen === this.props.serviceOpen) return
     const { form } = this.props
     const { getFieldValue, setFieldsValue, getFieldProps } = form
-    const volumes = getFieldValue('volumes') 
+    const volumes = getFieldValue('volumes')
     const volumeMounts = getFieldValue('volumeMounts')
     if (!serviceOpen) {
       setFieldsValue({
@@ -66,14 +65,14 @@ let MyComponent = React.createClass({
         })
       }
     }
-    if(volumes && volumes.length >0) {
+    if (volumes && volumes.length > 0) {
       const checkedList = []
       const selectValue = []
       const checkAll = []
       const path = []
       let volIndex = 0
       volumes.forEach((volume) => {
-        if(!volume.configMap) {
+        if (!volume.configMap) {
           return
         }
         checkedList.push({
@@ -81,29 +80,29 @@ let MyComponent = React.createClass({
           items: volume.configMap.items
         })
         selectValue.push(volume.configMap.name)
-        getFieldProps(`volPath${volIndex + 1}`, {initialValue: filter(volumeMounts, ['name', volume.name])[0].mountPath})
-        getFieldProps(`volName${volIndex + 1}`, {initialValue: volume.name})
+        getFieldProps(`volPath${volIndex + 1}`, { initialValue: filter(volumeMounts, ['name', volume.name])[0].mountPath })
+        getFieldProps(`volName${volIndex + 1}`, { initialValue: volume.name })
         volIndex++
       })
       let index = 0
       const volKey = []
       volumes.forEach(volume => {
-        if(volume.configMap) {
+        if (volume.configMap) {
           volKey.push(++index)
         }
       })
       setFieldsValue({
         volKey
       })
-      const cluster = window.localStorage.getItem('cluster')
+      const cluster = nextProps.cluster
       const configGroup = nextProps.configGroup[cluster].configGroup
       checkedList.forEach((item, index) => {
         setFieldsValue({
           [`vol${index + 1}`]: item
         })
         let itemConfig = filter(configGroup, ['name', item.name])[0]
-        if(itemConfig.configs.length === item.items.length){
-          checkAll[index] = true 
+        if (itemConfig.configs.length === item.items.length) {
+          checkAll[index] = true
         } else {
           checkAll[index] = false
         }
@@ -113,7 +112,6 @@ let MyComponent = React.createClass({
         checkAll,
         selectValue,
         plainOptions: [],
-        cluster: window.localStorage.getItem('cluster')
       })
     }
   },
@@ -121,7 +119,7 @@ let MyComponent = React.createClass({
     config: React.PropTypes.array
   },
   componentWillMount() {
-    this.props.loadConfigGroup(this.state.cluster)
+    this.props.loadConfigGroup(this.props.cluster)
   },
   remove(k) {
     const { form } = this.props.parentScope.props;
@@ -130,7 +128,7 @@ let MyComponent = React.createClass({
     volKey = volKey.filter((key) => {
       return key !== k;
     });
-    if(volKey.length <= 0 ) {
+    if (volKey.length <= 0) {
       form.setFieldsValue({
         config: false
       });
@@ -154,21 +152,21 @@ let MyComponent = React.createClass({
     });
   },
   getOptionsList() {
-    const cluster = this.state.cluster
+    const cluster = this.props.cluster
     const { isFetching } = this.props.configGroup[cluster]
-    if(isFetching) {
+    if (isFetching) {
       return <Option></Option>
     }
     const configGroup = this.props.configGroup[cluster].configGroup
     const plainOptions = this.state.plainOptions
-    if(!configGroup || configGroup.length <= 0) {
+    if (!configGroup || configGroup.length <= 0) {
       return <Option></Option>
     }
-    return configGroup.map((item, index) => { 
+    return configGroup.map((item, index) => {
       plainOptions[index] = {}
       plainOptions[index].name = item.name
-      plainOptions[index].displayName = []   
-      plainOptions[index].key = []   
+      plainOptions[index].displayName = []
+      plainOptions[index].key = []
       item.configs.forEach(config => {
         plainOptions[index].displayName.push(config.displayName)
         plainOptions[index].key.push(config.name)
@@ -202,7 +200,7 @@ let MyComponent = React.createClass({
     const nameArray = []
     const displayNames = pl.displayName
     const checkAll = this.state.checkAll
-    if(checkedList.length === displayNames.length) {
+    if (checkedList.length === displayNames.length) {
       checkAll[index] = true
       this.setState({
         checkAll
@@ -236,9 +234,9 @@ let MyComponent = React.createClass({
     })
   },
   onCheckAllChange(e, k) {
-    const cluster = this.state.cluster
+    const cluster = this.props.cluster
     const checkAll = this.state.checkAll
-    checkAll[k -1] = e.target.checked
+    checkAll[k - 1] = e.target.checked
     this.setState({
       checkAll
     })
@@ -250,12 +248,12 @@ let MyComponent = React.createClass({
       setFieldsValue({
         [`vol${k}`]: []
       })
-      oldCheckedList[k-1].items = []
+      oldCheckedList[k - 1].items = []
       this.setState({
         checkedList: oldCheckedList,
       })
       return
-    } 
+    }
     let configList = this.props.configGroup[cluster].configGroup
     let index = findIndex(configList, c => {
       return c.name === configName.value
@@ -273,7 +271,7 @@ let MyComponent = React.createClass({
     oldCheckedList[k - 1] = newConfig
     this.setState({
       checkedList: oldCheckedList,
-    }) 
+    })
     setFieldsValue({
       [`vol${k}`]: newConfig
     })
@@ -282,7 +280,7 @@ let MyComponent = React.createClass({
     const { form } = this.props
     const { setFieldsValue } = form
     setFieldsValue({
-      [`volName${index+1}`]: name
+      [`volName${index + 1}`]: name
     })
     const checkAll = this.state.checkAll
     checkAll[index] = false
@@ -308,14 +306,14 @@ let MyComponent = React.createClass({
     const { form } = this.props
     const { getFieldProps, setFieldsValue } = form
     const configName = getFieldProps(`volName${k}`).value
-    if(!configName) return ''
+    if (!configName) return ''
     let index = findIndex(this.state.checkedList, item => {
       return item.name === configName
     })
-    if(index <= 0) return ''
-     setFieldsValue({
-       [`volitem${k}`]: this.state.checkedList[index].items
-     })
+    if (index <= 0) return ''
+    setFieldsValue({
+      [`volitem${k}`]: this.state.checkedList[index].items
+    })
   },
   getCheckboxValue(index) {
     const checkList = this.state.checkedList[index]
@@ -324,10 +322,10 @@ let MyComponent = React.createClass({
     })
   },
   render() {
-    const cluster = this.state.cluster
-    if(!this.props.configGroup[cluster]) return <div></div>
+    const cluster = this.props.cluster
+    if (!this.props.configGroup[cluster]) return <div></div>
     const isFetching = this.props.configGroup[cluster].isFetching
-    if(isFetching) {
+    if (isFetching) {
       return (<div className='loadingBox'>
         <Spin size='large' />
       </div>)
@@ -340,31 +338,31 @@ let MyComponent = React.createClass({
     const formItems = getFieldValue('volKey').map((k) => {
       return (
         <div key={`vol${k}`}>
-        <FormItem >
-          <li className="composeDetail">
-            <div className="input">
-              <Input {...getFieldProps(`volPath${k}`, {})} className="portUrl" type="text" />
-            </div>
-            <div className="protocol select">
-              <div className="portGroupForm">
-                <Select
-                  placeholder = "请选择配置组"
-                  value = {this.state.selectValue[k-1]}
-                  className="composeGroup" size="large"  onChange={(value) => this.selectChange(value, k-1)}>
-                  {this.getOptionsList()}
-                </Select>
+          <FormItem >
+            <li className="composeDetail">
+              <div className="input">
+                <Input {...getFieldProps(`volPath${k}`, {}) } className="portUrl" type="text" />
               </div>
-            </div>
-           <div className="check">
-              {getFieldProps(`volName${k}`).value ?  <span><Checkbox checked={this.state.checkAll[k-1]} onChange={(e) => this.onCheckAllChange(e, k) } /><span>&nbsp;&nbsp;全选</span><br/>
-              <CheckboxGroup options={this.getPlainOptions(k-1)} onChange={(list) => this.onChange(list, k - 1) } value={this.getCheckboxValue(k-1)} /></span> : null}
-            </div>
-            <div className="opera">
-              <i className="fa fa-trash-o" onClick={() => this.remove(k)}/>
-            </div>
-            <div style={{ clear: "both" }}></div>
-          </li>
-        </FormItem>
+              <div className="protocol select">
+                <div className="portGroupForm">
+                  <Select
+                    placeholder="请选择配置组"
+                    value={this.state.selectValue[k - 1]}
+                    className="composeGroup" size="large" onChange={(value) => this.selectChange(value, k - 1)}>
+                    {this.getOptionsList()}
+                  </Select>
+                </div>
+              </div>
+              <div className="check">
+                {getFieldProps(`volName${k}`).value ? <span><Checkbox checked={this.state.checkAll[k - 1]} onChange={(e) => this.onCheckAllChange(e, k)} /><span>&nbsp;&nbsp;全选</span><br />
+                  <CheckboxGroup options={this.getPlainOptions(k - 1)} onChange={(list) => this.onChange(list, k - 1)} value={this.getCheckboxValue(k - 1)} /></span> : null}
+              </div>
+              <div className="opera">
+                <i className="fa fa-trash-o" onClick={() => this.remove(k)} />
+              </div>
+              <div style={{ clear: "both" }}></div>
+            </li>
+          </FormItem>
         </div>
       )
     });
@@ -383,7 +381,9 @@ let MyComponent = React.createClass({
 });
 
 function mapStateToProp(state) {
+  const { cluster } = state.entities.current
   return {
+    cluster: cluster.clusterID,
     configGroup: state.configReducers.configGroupList
   }
 }
@@ -393,7 +393,7 @@ MyComponent = connect(mapStateToProp, {
 })(MyComponent)
 
 let ComposeDeployBox = React.createClass({
-  render:function () {
+  render: function () {
     const { form } = this.props
     const parentScope = this.props.scope;
     return (
@@ -416,7 +416,7 @@ let ComposeDeployBox = React.createClass({
               </div>
               <div style={{ clear: "both" }}></div>
             </div>
-            <MyComponent parentScope={parentScope} form={form} serviceOpen={this.props.serviceOpen}/>
+            <MyComponent parentScope={parentScope} form={form} serviceOpen={this.props.serviceOpen} />
           </div>
         </div>
       </div>

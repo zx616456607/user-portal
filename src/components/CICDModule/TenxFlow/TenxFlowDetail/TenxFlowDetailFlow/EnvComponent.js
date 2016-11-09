@@ -71,6 +71,7 @@ let EnvComponent = React.createClass({
     });
   },
   render() {
+    console.log(uuid)
     const { formatMessage } = this.props.intl;
     const { scope, index, form } = this.props;
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = form;

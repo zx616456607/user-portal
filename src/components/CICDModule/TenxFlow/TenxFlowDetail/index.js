@@ -70,6 +70,10 @@ const menusText = defineMessages({
     id: 'CICD.Tenxflow.TenxFlowDetail.delete',
     defaultMessage: '删除TenxFlow',
   },
+  unUpdate: {
+    id: 'CICD.Tenxflow.TenxFlowDetail.unUpdate',
+    defaultMessage: '未更新',
+  },
 });
 
 class TenxFlowDetail extends Component {
@@ -122,8 +126,14 @@ class TenxFlowDetail extends Component {
   render() {
     const { formatMessage } = this.props.intl;
     const scope = this;
-    console.log(this.props)
-    const tenxflow = this.props.config;
+    const { flowInfo, isFetching } = this.props;
+    if(isFetching) {
+      return (
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
+      )
+    }
     return (
       <QueueAnim className='TenxFlowDetail'
         type='right'
@@ -133,33 +143,36 @@ class TenxFlowDetail extends Component {
             <div className='imgBox' >
               <img src='/img/test/github.jpg' />
             </div>
-              <p className='title'>这是标题</p>
+              <p className='title'>{flowInfo.name}</p>
             <div className='msgBox'>
               <span >这是状态</span>
-              <span className='updateTime'>十年前</span>
+              <span className='updateTime'>{flowInfo.update_time ? flowInfo.update_time : [<FormattedMessage {...menusText.unUpdate} />] }</span>
               <div style={{ clear:'both' }}></div>
             </div>
             <div className='btnBox'>
               <Button size='large' type='primary'>
-                <i className='fa fa-pencil-square-o' />&nbsp;立即执行
+                <i className='fa fa-pencil-square-o' />&nbsp;
+                <FormattedMessage {...menusText.deloyStart} />
               </Button>
               <Button size='large' type='ghost'>
-                <i className='fa fa-eye' />&nbsp;查看镜像
+                <i className='fa fa-eye' />&nbsp;
+                <FormattedMessage {...menusText.checkImage} />
               </Button>
               <Button size='large' type='ghost'>
-                <i className='fa fa-wpforms' />&nbsp;执行记录
+                <i className='fa fa-wpforms' />&nbsp;
+                <FormattedMessage {...menusText.deloyLog} />
               </Button>
               <div style={{ clear:'both' }}></div>
             </div>
             <div style={{ clear:'both' }}></div>
           </Card>
           <Tabs defaultActiveKey='1' size="small">
-            <TabPane tab='构建流程定义' key='1'><TenxFlowDetailFlow scope={scope} /></TabPane>
+            <TabPane tab='构建流程定义' key='1'><TenxFlowDetailFlow scope={scope} stageInfo={flowInfo.stageInfo} /></TabPane>
             <TabPane tab='TenxFlow构建记录' key='2'><TenxFlowDetailLog scope={scope} /></TabPane>
             <TabPane tab='镜像部署记录' key='3'><ImageDeployLogBox scope={scope} /></TabPane>
-            <TabPane tab='构建通知' key='4'><TenxFlowDetailAlert scope={scope} /></TabPane>
+            <TabPane tab='构建通知' key='4'><TenxFlowDetailAlert scope={scope} notify={flowInfo.notificationConfig} flowId={flowInfo.flowId} /></TabPane>
             <TabPane tab='TenxFow Yaml' key='5'><TenxFlowDetailYaml scope={scope} /></TabPane>
-            <TabPane tab='设置' key='6'><TenxFlowDetailSetting scope={scope} /></TabPane>
+            <TabPane tab='设置' key='6'><TenxFlowDetailSetting scope={scope} flowId={flowInfo.flowId} /></TabPane>
           </Tabs>
         </div>
       </QueueAnim>

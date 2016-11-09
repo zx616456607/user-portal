@@ -98,6 +98,7 @@ function fetchAddCodeRepo(type, obj, callback) {
         }
       }
     },
+    names: obj.name,
     callback: callback
   }
 }
@@ -138,7 +139,7 @@ export const DELETE_CODE_STORE_REQUEST = 'DELETE_CODE_STORE_REQUEST'
 export const DELETE_CODE_STORE_SUCCESS = 'DELETE_CODE_STORE_SUCCESS'
 export const DELETE_CODE_STORE_FAILURE = 'DELETE_CODE_STORE_FAILURE'
 
-function fetchRemoveProject(projectId) {
+function fetchRemoveProject(projectId, callback) {
   return {
     [FETCH_API]: {
       types: [DELETE_CODE_STORE_REQUEST, DELETE_CODE_STORE_SUCCESS, DELETE_CODE_STORE_FAILURE],
@@ -148,13 +149,14 @@ function fetchRemoveProject(projectId) {
         method: 'DELETE',
       }
     },
-    id: projectId
+    id: projectId,
+    callback
   }
 }
 
-export function removeProject(projectId) {
+export function removeProject(projectId, callback) {
   return(dispatch, getState) => {
-    return dispatch(fetchRemoveProject(projectId))
+    return dispatch(fetchRemoveProject(projectId, callback))
   }
 }
 // search code project list
@@ -321,5 +323,30 @@ function fethcTenxFlowDetail(flowId, callback) {
 export function getTenxFlowDetail(flowId, callback) {
   return (dispatch, getState) => {
     return dispatch(fethcTenxFlowDetail(flowId, callback))
+  }
+}
+
+export const UPDATE_TENX_FLOW_ALERT_REQUEST = 'UPDATE_TENX_FLOW_ALERT_REQUEST'
+export const UPDATE_TENX_FLOW_ALERT_SUCCESS = 'UPDATE_TENX_FLOW_ALERT_SUCCESS'
+export const UPDATE_TENX_FLOW_ALERT_FAILURE = 'UPDATE_TENX_FLOW_ALERT_FAILURE'
+
+function updateTenxFlowAlert(flowId, newAlert, callback) {
+  return {
+    [FETCH_API]: {
+      types: [UPDATE_TENX_FLOW_ALERT_REQUEST, UPDATE_TENX_FLOW_ALERT_SUCCESS, UPDATE_TENX_FLOW_ALERT_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}`,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body: newAlert
+      }
+    },
+    callback: callback
+  }
+}
+
+export function putEditTenxFlowAlert(flowId, newAlert, callback) {
+  return (dispatch, getState) => {
+    return dispatch(updateTenxFlowAlert(flowId, newAlert, callback))
   }
 }

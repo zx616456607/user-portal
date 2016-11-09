@@ -22,6 +22,8 @@ const USER_CURRENT_CONFIG = constants.USER_CURRENT_CONFIG
 exports.setUserCurrentConfig = function* (next) {
   const method = 'setCurrent'
   let config = this.cookies.get(USER_CURRENT_CONFIG)
+  console.log(`config--------------------------------`)
+  console.log(config)
   if (config && config.split(',').length === 3) {
     logger.info(method, `skip set current config cookie`)
     return yield next
