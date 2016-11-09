@@ -43,9 +43,17 @@ function entities(state = {
   }
   switch (action.type) {
     case ActionTypes.SET_CURRENT:
-      return merge({}, state, {
-        current: action.current
-      })
+      let current = action.current
+      if (!current.team) {
+        current.team = state.current.team
+      }
+      if (!current.space) {
+        current.space = state.current.space
+      }
+      if (!current.cluster) {
+        current.cluster = state.current.cluster
+      }
+      return Object.assign({}, state, { current })
     default:
       return state
   }
