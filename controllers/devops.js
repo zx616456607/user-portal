@@ -49,7 +49,7 @@ exports.registerRepo = function* () {
   const result = yield api.createBy(["repos", repoType], null, repoInfo)
 
   this.body = {
-    result
+    data: result
   }
 }
 
@@ -66,7 +66,7 @@ exports.listRepository = function* () {
   const result = yield api.getBy(["repos", repoType], null)
 
   this.body = {
-    result
+    data: result
   }
 }
 
@@ -83,7 +83,7 @@ exports.syncRepository = function* () {
   const result = yield api.updateBy(["repos", repoType], null)
 
   this.body = {
-    result
+    data: result
   }
 }
 
@@ -100,7 +100,7 @@ exports.removeRepository = function* () {
   const result = yield api.deleteBy(["repos", repoType], null)
 
   this.body = {
-    result
+    data: result
   }
 }
 
@@ -127,7 +127,7 @@ exports.listBranches = function* () {
   const result = yield api.getBy(["repos", repoType, "branches"], {"reponame": repoName, "project_id": project_id})
 
   this.body = {
-    result
+    data: result
   }
 }
 
@@ -144,7 +144,7 @@ exports.getUserInfo = function* () {
   const result = yield api.getBy(["repos", repoType, "user"], null)
 
   this.body = {
-    result
+    data: result
   }
 }
 
@@ -190,7 +190,7 @@ exports.addManagedProject = function* () {
   const result = yield api.createBy(["managed-projects"], null, body)
 
   this.body = {
-    result
+    data: result
   }
 }
 
@@ -201,7 +201,7 @@ exports.listManagedProject = function* () {
   const result = yield api.getBy(["managed-projects"], null)
 
   this.body = {
-    result
+    data: result
   }
 }
 
@@ -213,7 +213,7 @@ exports.removeManagedProject = function* () {
   const result = yield api.deleteBy(["managed-projects", project_id], null)
 
   this.body = {
-    result
+    data: result
   }
 }
 
@@ -234,7 +234,7 @@ exports.createCIFlows = function* (){
   const result = yield api.createBy(["ci-flows"], null, body)
 
   this.body = {
-    result
+    data: result
   }
 }
 
@@ -245,7 +245,7 @@ exports.listCIFlows = function* (){
   const result = yield api.getBy(["ci-flows"], null)
 
   this.body = {
-    result
+    data: result
   }
 }
 
@@ -257,7 +257,7 @@ exports.getCIFlow = function* (){
   const result = yield api.getBy(["ci-flows", flow_id], null)
 
   this.body = {
-    result
+    data: result
   }
 }
 
@@ -270,7 +270,7 @@ exports.updateCIFlow = function* (){
   const result = yield api.updateBy(["ci-flows", flow_id], null, body)
 
   this.body = {
-    result
+    data: result
   }
 }
 
@@ -282,7 +282,7 @@ exports.removeCIFlow = function* (){
   const result = yield api.deleteBy(["ci-flows", flow_id], null)
 
   this.body = {
-    result
+    data: result
   }
 }
 
@@ -297,7 +297,7 @@ exports.listFlowStages = function* () {
   const result = yield api.getBy(["ci-flows", flow_id, "stages"], null)
 
   this.body = {
-    result
+    data: result
   }
 }
 
@@ -312,7 +312,7 @@ exports.createFlowStages = function* () {
   const result = yield api.createBy(["ci-flows", flow_id, "stages"], null, body)
 
   this.body = {
-    result
+    data: result
   }
 }
 
@@ -325,7 +325,7 @@ exports.deleteFlowStage = function* () {
   const result = yield api.deleteBy(["ci-flows", flow_id, "stages", stage_id], null)
 
   this.body = {
-    result
+    data: result
   }
 }
 
@@ -339,7 +339,7 @@ exports.updateFlowStage = function* () {
   const result = yield api.updateBy(["ci-flows", flow_id, "stages", stage_id], null, body)
 
   this.body = {
-    result
+    data: result
   }
 }
 
@@ -352,7 +352,7 @@ exports.getStage = function* () {
   const result = yield api.getBy(["ci-flows", flow_id, "stages", stage_id], null)
 
   this.body = {
-    result
+    data: result
   }
 }
 
@@ -367,7 +367,7 @@ exports.createFlowBuild = function* () {
   const result = yield api.createBy(["ci-flows", flow_id, "builds"], null, body)
 
   this.body = {
-    result
+    data: result
   }
 }
 
@@ -379,7 +379,7 @@ exports.listBuilds = function* () {
   const result = yield api.getBy(["ci-flows", flow_id, "builds"], null)
 
   this.body = {
-    result
+    data: result
   }
 }
 
@@ -392,7 +392,7 @@ exports.getFlowBuild = function* () {
   const result = yield api.getBy(["ci-flows", flow_id, "builds", flow_build_id], null)
 
   this.body = {
-    result
+    data: result
   }
 }
 
@@ -405,7 +405,7 @@ exports.stopBuild = function* () {
   const result = yield api.updateBy(["ci-flows", flow_id, "builds", flow_build_id, "stop"], null)
 
   this.body = {
-    result
+    data: result
   }
 }
 
@@ -420,7 +420,7 @@ exports.createCDRule = function* () {
   const result = yield api.createBy(["ci-flows", flow_id, "cd-rules"], null, body)
 
   this.body = {
-    result
+    data: result
   }
 }
 
@@ -432,7 +432,7 @@ exports.listCDRules = function* () {
   const result = yield api.getBy(["ci-flows", flow_id, "cd-rules"], null)
 
   this.body = {
-    result
+    data: result
   }
 }
 
@@ -445,7 +445,7 @@ exports.removeCDRule = function* () {
   const result = yield api.deleteBy(["ci-flows", flow_id, "cd-rules", rule_id], null)
 
   this.body = {
-    result
+    data: result
   }
 }
 
@@ -459,7 +459,7 @@ exports.updateCDRule = function* () {
   const result = yield api.updateBy(["ci-flows", flow_id, "cd-rules", rule_id], null, body)
 
   this.body = {
-    result
+    data: result
   }
 }
 
@@ -473,7 +473,7 @@ exports.listDockerfiles = function* () {
   const result = yield api.getBy(["dockerfiles"], null)
 
   this.body = {
-    result
+    data: result
   }
 }
 
@@ -487,7 +487,7 @@ exports.addDockerfile = function* () {
   const result = yield api.createBy(["ci-flows", flow_id, "stages", stage_id, "dockerfile"], null, body)
 
   this.body = {
-    result
+    data: result
   }
 }
 
@@ -500,7 +500,7 @@ exports.getDockerfile = function* () {
   const result = yield api.getBy(["ci-flows", flow_id, "stages", stage_id, "dockerfile"], null)
 
   this.body = {
-    result
+    data: result
   }
 }
 
@@ -513,7 +513,7 @@ exports.removeDockerfile = function* () {
   const result = yield api.deleteBy(["ci-flows", flow_id, "stages", stage_id, "dockerfile"], null)
 
   this.body = {
-    result
+    data: result
   }
 }
 
@@ -527,6 +527,6 @@ exports.updateDockerfile = function* () {
   const result = yield api.updateBy(["ci-flows", flow_id, "stages", stage_id, "dockerfile"], null, body)
 
   this.body = {
-    result
+    data: result
   }
 }
