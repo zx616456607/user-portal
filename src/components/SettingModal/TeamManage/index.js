@@ -27,6 +27,7 @@ let TeamTable = React.createClass({
       sortMember: true,
       sortSpace: true,
       sortCluster: true,
+      sortTeamName: true,
       addMember: false,
       targetKeys:[],
     }
@@ -42,14 +43,17 @@ let TeamTable = React.createClass({
       notFound: false,
     })
   },
-  delTeam(){
-    const {deleteTeam} = this.props.scope.props
+  delTeam(teamID){
+    const {deleteTeam,loadUserTeamList} = this.props.scope.props
     confirm({
       title: '您是否确认要删除这项内容',
-      content: '点确认 1 秒后关闭',
       onOk() {
         console.log('del !!!!!')
-        deleteTeam(this.props.teamID)
+        deleteTeam(teamID)
+        loadUserTeamList('default',{
+          page: this.state.page,
+          size: this.state.pageSize,
+        })
       },
       onCancel() {},
     });
@@ -57,7 +61,10 @@ let TeamTable = React.createClass({
   handleSortMember(){
     const { loadUserTeamList } = this.props.scope.props
     const { sortMember } = this.state
-    loadUserTeamList()
+    loadUserTeamList('default',{
+      page: this.state.page,
+      size: this.state.pageSize,
+    })
     this.setState({
       sortMember: !sortMember,
     })
@@ -65,7 +72,10 @@ let TeamTable = React.createClass({
   handleSortSpace(){
     const { loadUserTeamList } = this.props.scope.props
     const { sortSpace } = this.state
-    loadUserTeamList()
+    loadUserTeamList('default',{
+      page: this.state.page,
+      size: this.state.pageSize,
+    })
     this.setState({
       sortSpace: !sortSpace,
     })
@@ -73,9 +83,23 @@ let TeamTable = React.createClass({
   handleSortCluster(){
     const { loadUserTeamList } = this.props.scope.props
     const { sortCluster } = this.state
-    loadUserTeamList()
+    loadUserTeamList('default',{
+      page: this.state.page,
+      size: this.state.pageSize,
+    })
     this.setState({
       sortCluster: !sortCluster,
+    })
+  },
+  handleSortTeamName(){
+    const { loadUserTeamList } = this.props.scope.props
+    const { sortTeamName } = this.state
+    loadUserTeamList('default',{
+      page: this.state.page,
+      size: this.state.pageSize,
+    })
+    this.setState({
+      sortTeamName: !sortTeamName,
     })
   },
   addNewMember(){
@@ -88,7 +112,6 @@ let TeamTable = React.createClass({
     const { targetKeys } = this.state
     if(targetKeys.length !== 0){
       addTeamusers(teamID,{
-        
       },{
         success: {
           func:() => {
@@ -107,31 +130,60 @@ let TeamTable = React.createClass({
     })
   },
   handleChange(targetKeys) {
-    console.log('targetKeys',targetKeys)
     this.setState({ targetKeys })
   },
   render() {
     let { sortedInfo, filteredInfo, targetKeys } = this.state
     const { searchResult, notFound } = this.props.scope.state
-    const { data } = this.props
+    const { data, scope } = this.props
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
-    let pageTotal = searchResult.length === 0 ? data.length : searchResult.length
+    console.log('this.props.scope.props.total',this.props.scope.props.total);
     const pagination = {
-      total: pageTotal,
+      total: this.props.scope.props.total,
       showSizeChanger: true,
       defaultPageSize: 5,
       pageSizeOptions: ['5','10','15','20'],
       onShowSizeChange(current, pageSize) {
-        console.log('Current: ', current, '; PageSize: ', pageSize);
+        scope.props.loadUserTeamList({
+          page: current,
+          size: pageSize,
+          sort: scope.state.sort
+        })
+        scope.setState({
+          page: current,
+          pageSize: pageSize
+        })
       },
       onChange(current) {
+        const {pageSize} = scope.state
         console.log('Current: ', current);
+        scope.props.loadUserTeamList({
+          page: current,
+          size: pageSize,
+          sort: scope.state.sort
+        })
+        scope.setState({
+          page: current,
+          pageSize: pageSize
+        })
       },
     }
     const columns = [
       {
-        title: '团队名',
+        title: (
+          <div onClick={this.handleSortTeamName}>
+            团队名
+            <div className="ant-table-column-sorter">
+              <span className= {this.state.sortTeamName?'ant-table-column-sorter-up on':'ant-table-column-sorter-up off'} title="↑">
+                <i className="anticon anticon-caret-up"/>
+              </span>
+              <span className= {!this.state.sortTeamName?'ant-table-column-sorter-down on':'ant-table-column-sorter-down off'} title="↓">
+                <i className="anticon anticon-caret-down"/>
+              </span>
+            </div>
+          </div>
+        ),
         dataIndex: 'team',
         key: 'team',
         width: '20%',
@@ -210,7 +262,7 @@ let TeamTable = React.createClass({
             >
               <MemberTransfer onChange={this.handleChange} targetKeys={targetKeys} teamID={record.key}/>
             </Modal>
-            <Button icon="delete" className="delBtn" onClick={this.delTeam} teamID={record.key}>删除</Button>
+            <Button icon="delete" className="delBtn" onClick={() => this.delTeam(record.key)}>删除</Button>
           </div>
         )
       },
@@ -245,6 +297,8 @@ class TeamManage extends Component {
       notFound: false,
       visible: false,
       teamName: '',
+      pageSize: 5,
+      page: 1,
     }
   }
   showModal() {
@@ -263,7 +317,10 @@ class TeamManage extends Component {
           this.setState({
             visible: false,
           })
-          this.props.loadUserTeamList('default')
+          this.props.loadUserTeamList('default',{
+            page: this.state.page,
+            size: this.state.pageSize,
+          })
         }
       }
     })
@@ -281,7 +338,10 @@ class TeamManage extends Component {
     })
   }
   componentWillMount(){
-    this.props.loadUserTeamList('default')
+    this.props.loadUserTeamList('default',{
+      page: 1,
+      size: 5,
+    })
   }
   render(){
     const scope = this

@@ -142,6 +142,13 @@ const MyComponent = React.createClass({
     const codeName = e.target.value
     parentScope.props.searchCodeRepo(codeName)
   },
+  changeSearch(e) {
+    const codeName = e.target.value
+    if (codeName =='') {
+      const parentScope = this.props.scope
+      parentScope.props.searchCodeRepo(codeName)
+    }
+  },
   notActive(id) {
     this.props.scope.props.notActiveProject(id,{
       success: {
@@ -214,32 +221,13 @@ const MyComponent = React.createClass({
             <Icon type="reload" onClick={this.syncRepoList} />
           </Tooltip>
           <div className="right-search">
-            <Input className='searchBox' size="large" onPressEnter={(e)=> this.handleSearch(e)} style={{width:'180px'}} placeholder={formatMessage(menusText.search)} type='text' />
+            <Input className='searchBox' size="large" onChange={(e)=>this.changeSearch(e)} onPressEnter={(e)=> this.handleSearch(e)} style={{width:'180px'}} placeholder={formatMessage(menusText.search)} type='text' />
             <i className='fa fa-search'>  </i>
           </div>
         </div>
         {/*  @project  Head end    */}
 
         { items }
-
-        <Modal title="项目公钥" visible={this.state.keyModal}
-         footer={[
-            <Button key="back" type="ghost" size="large" onClick={()=>{this.setState({keyModal: false})}}>关闭</Button>,
-          ]}
-         >
-          <div style={{padding:"0 20px"}}>
-            <p style={{lineHeight:'30px'}}>检测到关联的代码托管系统：</p>
-            <p style={{lineHeight:'40px'}}><span style={{color:'#00A0EA'}} className="name">zubis 仓库</span>  <span style={{color:'#00A0EA'}} className="type">属性：私有</span> </p>
-
-            <p style={{lineHeight:'40px'}}>* 请手动配置一下公钥到github 项目中</p>
-            <p style={{marginBottom: '10px'}}><Input type="textarea" className="KeyCopy" autosize={{ minRows: 2, maxRows: 6 }} defaultValue="ssssss-keyvalueslfjsldfldsflkdjsfjdsfdsfkldsfhttp://gitlab.tenxcloud.comanch"/></p>
-            <p style={{lineHeight:'40px'}}>
-            <Tooltip title={this.state.copySuccess ? formatMessage(menusText.copySuccess) : formatMessage(menusText.clickCopy)} placement="right">
-              <Button type="primary" size="large" onClick={this.copyItemKey} onMouseLeave={this.returnDefaultTooltip}><FormattedMessage {...menusText.copyBtn} /></Button>
-            </Tooltip>
-          </p>
-          </div>
-        </Modal>
 
       </div>
     );

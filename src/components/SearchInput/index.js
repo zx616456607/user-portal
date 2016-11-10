@@ -10,24 +10,24 @@
 import React, { Component } from 'react'
 import { Button, Input, Select, } from 'antd'
 import './style/SearchInput.less'
+import { connect } from 'react-redux'
+import { loadUserList } from '../../actions/user'
 
 const Option = Select.Option
 
-export default class SearchInput extends Component{
+class SearchInput extends Component{
   constructor(props){
     super(props)
     this.handleInt = this.handleInt.bind(this)
     this.handleSearch = this.handleSearch.bind(this)
     this.handleSelect = this.handleSelect.bind(this)
     this.state = {
-      selecteData: [],
       selecteValue: '',
       searchValue: '',
     }
   }
   handleInt(e){
-    let { data, searchIntOption } = this.props
-
+    let { searchIntOption } = this.props
     const { selecteValue } = this.state
     const { addBefore, defaultValue,defaultSearchValue } = searchIntOption
     let value = ''
@@ -36,68 +36,54 @@ export default class SearchInput extends Component{
     } else {
       value = defaultSearchValue
     }
-      if(selecteValue === ''){
-        const selecteData = []
-        data.map((item,index) => {
-          selecteData.push(item[`${value}`])
-        })
-        this.setState({
-          selecteValue: value,
-          selecteData: selecteData
-        })
-      }
+    if(selecteValue === ''){
+      this.setState({
+        selecteValue: value,
+      })
+    }
     this.setState({
       searchValue: e.target.value
     })
   }
-  handleSearch(){
-    const { selecteData, searchValue, selecteValue } = this.state
-    let { data, scope } = this.props
-
-    if(selecteData.length === 0){
-      return
-    } else {
-      let result = []
-      let searchResult= []
-      selecteData.map((item,index) => {
-        let flag = item.indexOf(searchValue)
-        if(flag >= 0){
-          result.push(item)
-        }
-        if(result.length === 0){
-          scope.setState({
-            notFound: true
-          })
-        } else {
-          scope.setState({
-            notFound: false
-          })
-        }
-      })
-      data.map((item) => {
-        if(result.includes(item[`${selecteValue}`])){
-          searchResult.push(item)
-        }
-      })
-      scope.setState({
-        searchResult: searchResult
-      })
+  getFilterField(selecteValue) {
+    let field = selecteValue
+    if (selecteValue == "name") {
+      field = "userName"
+    } else if (selecteValue == "tel") {
+      field = "phone"
     }
+    return field
+  }
+  handleSearch(){
+    const { searchValue, selecteValue } = this.state
+    let { scope } = this.props
+    const { searchResult, pageSize, sort } = scope.state
+    let filter = this.getFilterField(selecteValue) + "," + searchValue
+    this.props.loadUserList({
+      pageSize,
+      page: 1,
+      sort,
+      filter,
+    },{
+      success:{
+        func: () => {
+          console.log('search !!');
+          scope.setState({
+            page: 1,
+            filter,
+          })
+        },
+        isAsync:true
+      }
+    })
   }
   handleSelect(value){
-    const { data } = this.props
-
-    const selecteData = []
-    data.map((item,index) => {
-      selecteData.push(item[`${value}`])
-    })
     this.setState({
       selecteValue:value,
-      selecteData: selecteData
     })
   }
   render(){
-    let { searchIntOption } = this.props
+    let { searchIntOption, } = this.props
     
     if(!searchIntOption){
       searchIntOption = {
@@ -151,3 +137,13 @@ export default class SearchInput extends Component{
     }
   }
 }
+
+function mapStateToProp(state) {
+  return {
+    
+  }
+}
+
+export default connect(mapStateToProp, {
+  loadUserList,
+})(SearchInput)

@@ -21,6 +21,7 @@ import RollingUpdateModal from './AppServiceDetail/RollingUpdateModal'
 import ConfigModal from './AppServiceDetail/ConfigModal'
 import ManualScaleModal from './AppServiceDetail/ManualScaleModal'
 import parseServiceDomain from '../parseDomain'
+import ServiceStatus from '../TenxStatus/ServiceStatus'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -162,7 +163,7 @@ const MyComponent = React.createClass({
           </Menu.Item>
         </Menu>
       );
-      const svcDomain = parseServiceDomain(item)
+      const svcDomain = parseServiceDomain(item, this.props.bindingDomains)
       return (
         <div
           className={item.checked ? "selectedInstance instanceDetail" : "instanceDetail"}
@@ -179,7 +180,7 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className="status commonData">
-            {item.spec.replicas || '-'}
+            <ServiceStatus service={item} />
           </div>
           <div className="image commonData">
             <Tooltip title={item.images.join(', ') ? item.images.join(', ') : ""}>
@@ -241,7 +242,6 @@ class AppServiceList extends Component {
     // this.showRollingUpdateModal = this.showRollingUpdateModal.bind(this)
     // this.showConfigModal = this.showConfigModal.bind(this)
     // this.showManualScaleModal = this.showManualScaleModal.bind(this)
-    this.onPageChange = this.onPageChange.bind(this)
     this.onShowSizeChange = this.onShowSizeChange.bind(this)
     this.state = {
       modalShow: false,
@@ -283,6 +283,7 @@ class AppServiceList extends Component {
   }
 
   confirmStartService(e) {
+    const self = this
     const { serviceList } = this.state
     const { cluster, appName, loadServiceList, startServices } = this.props
     const checkedServiceList = serviceList.filter((service) => service.checked)
@@ -292,6 +293,14 @@ class AppServiceList extends Component {
       content: checkedServiceNames.join(', '),
       onOk() {
         return new Promise((resolve) => {
+          serviceList.map((service) => {
+            if (checkedServiceNames.indexOf(service.metadata.name) > -1) {
+              service.status.phase = 'Starting'
+            }
+          })
+          self.setState({
+            serviceList
+          })
           startServices(cluster, checkedServiceNames, {
             success: {
               func: () => loadServiceList(cluster, appName),
@@ -312,6 +321,7 @@ class AppServiceList extends Component {
     this.confirmRestartServices(checkedServiceList)
   }
   confirmRestartServices(serviceList, callback) {
+    const self = this
     const { cluster, appName, loadServiceList, restartServices } = this.props
     const serviceNames = serviceList.map((service) => service.metadata.name)
     if (!callback) {
@@ -327,6 +337,15 @@ class AppServiceList extends Component {
       content: serviceNames.join(', '),
       onOk() {
         return new Promise((resolve) => {
+          const allServices = self.state.serviceList
+          allServices.map((service) => {
+            if (serviceNames.indexOf(service.metadata.name) > -1) {
+              service.status.phase = 'Redeploying'
+            }
+          })
+          self.setState({
+            serviceList: allServices
+          })
           restartServices(cluster, serviceNames, callback)
           resolve()
         });
@@ -335,6 +354,7 @@ class AppServiceList extends Component {
     })
   }
   confirmQuickRestartService(e) {
+    const self = this
     const { serviceList } = this.state
     const { cluster, appName, loadServiceList, quickRestartServices } = this.props
     const checkedServiceList = serviceList.filter((service) => service.checked)
@@ -344,6 +364,14 @@ class AppServiceList extends Component {
       content: checkedServiceNames.join(', '),
       onOk() {
         return new Promise((resolve) => {
+          serviceList.map((service) => {
+            if (checkedServiceNames.indexOf(service.metadata.name) > -1) {
+              service.status.phase = 'Restarting'
+            }
+          })
+          self.setState({
+            serviceList
+          })
           quickRestartServices(cluster, checkedServiceNames, {
             success: {
               func: () => loadServiceList(cluster, appName),
@@ -364,6 +392,7 @@ class AppServiceList extends Component {
   }
 
   confirmStopServices(serviceList, callback) {
+    const self = this
     const { cluster, appName, loadServiceList, stopServices } = this.props
     const serviceNames = serviceList.map((service) => service.metadata.name)
     if (!callback) {
@@ -379,6 +408,15 @@ class AppServiceList extends Component {
       content: serviceNames.join(', '),
       onOk() {
         return new Promise((resolve) => {
+          const allServices = self.state.serviceList
+          allServices.map((service) => {
+            if (serviceNames.indexOf(service.metadata.name) > -1) {
+              service.status.phase = 'Stopping'
+            }
+          })
+          self.setState({
+            serviceList: allServices
+          })
           stopServices(cluster, serviceNames, callback)
           resolve()
         });
@@ -410,6 +448,15 @@ class AppServiceList extends Component {
       content: serviceNames.join(', '),
       onOk() {
         return new Promise((resolve) => {
+          const allServices = self.state.serviceList
+          allServices.map((service) => {
+            if (serviceNames.indexOf(service.metadata.name) > -1) {
+              service.status.phase = 'Terminating'
+            }
+          })
+          self.setState({
+            serviceList: allServices
+          })
           deleteServices(cluster, serviceNames, callback)
           // for detail page delete service action
           self.setState({
@@ -567,6 +614,10 @@ class AppServiceList extends Component {
               <i className="fa fa-stop"></i>
               停止
             </Button>
+            <Button size="large" onClick={() => loadServices(this.props)} >
+              <i className="fa fa-refresh"></i>
+              刷新
+            </Button>
             <Button size="large" onClick={this.batchDeleteServices} disabled={!isChecked}>
               <i className="fa fa-trash"></i>
               删除
@@ -626,7 +677,8 @@ class AppServiceList extends Component {
             name={name}
             scope={parentScope}
             serviceList={serviceList}
-            loading={isFetching} />
+            loading={isFetching}
+            bindingDomains={this.props.bindingDomains} />
           <Modal
             title="垂直居中的对话框"
             visible={this.state.modalShow}
@@ -715,6 +767,7 @@ function mapStateToProps(state, props) {
   const { serviceList, isFetching, total } = targetServices || defaultServices
   return {
     cluster: cluster.clusterID,
+    bindingDomains: state.entities.current.cluster.bindingDomains,
     appName,
     pathname,
     page,

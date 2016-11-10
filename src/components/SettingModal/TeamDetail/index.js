@@ -41,7 +41,7 @@ let MemberList = React.createClass({
   handleDel(e){
     
   },
-  onRowClick(){
+  handleAppSort(){
     const { sortOrder } = this.state
     this.setState({
       sortOrder: !sortOrder,
@@ -66,7 +66,7 @@ let MemberList = React.createClass({
     const columns = [
       {
         title: (
-          <div onClick={this.onRowClick}>
+          <div onClick={this.handleAppSort}>
             成员名
             <div className="ant-table-column-sorter">
               <span className= {this.state.sortOrder?'ant-table-column-sorter-up on':'ant-table-column-sorter-up off'} title="↑">
@@ -142,25 +142,46 @@ let TeamList = React.createClass({
       pagination: {},
       loading: false,
       sortOrder: true,
+      sortSpace: true,
     }
   },
-  onRowClick(){
+  handleAppSort(){
     const { sortOrder } = this.state
     this.setState({
       sortOrder: !sortOrder,
     })
     //req
   },
+  handleSortSpace(){
+    const { sortSpace } = this.state
+    this.setState({
+      sortSpace: !sortSpace,
+    })
+    //req
+  },
   render: function(){
-    let { sortedInfo, filteredInfo } = this.state
+    let { filteredInfo } = this.state
     const { teamSpacesList } = this.props
     filteredInfo = filteredInfo || {}
     const columns = [
       {
-        title: '空间名',
+        title: (
+          <div onClick={this.handleSortSpace}>
+            空间名
+            <div className="ant-table-column-sorter">
+              <span className= {this.state.sortSpace?'ant-table-column-sorter-up on':'ant-table-column-sorter-up off'} title="↑">
+                <i className="anticon anticon-caret-up"/>
+              </span>
+              <span className= {!this.state.sortSpace?'ant-table-column-sorter-down on':'ant-table-column-sorter-down off'} title="↓">
+                <i className="anticon anticon-caret-down"/>
+              </span>
+            </div>
+          </div>
+        ),
         dataIndex: 'teamName',
         key: 'teamName',
         className: 'tablePadding',
+        
       },
       {
         title: '备注',
@@ -169,7 +190,7 @@ let TeamList = React.createClass({
       },
       {
         title: (
-          <div onClick={this.onRowClick}>
+          <div onClick={this.handleAppSort}>
             应用
             <div className="ant-table-column-sorter">
               <span className= {this.state.sortOrder?'ant-table-column-sorter-up on':'ant-table-column-sorter-up off'} title="↑">
@@ -219,7 +240,6 @@ class TeamDetail extends Component{
     }
   }
   addNewMember(){
-    
     this.setState({
       addMember: true,
     })
@@ -227,9 +247,10 @@ class TeamDetail extends Component{
   handleNewMemberOk(){
     const { addTeamusers, teamID } = this.props
     const { targetKeys } = this.state
+    console.log('targetKeys',targetKeys);
     if(targetKeys.length !== 0){
       addTeamusers(teamID,{
-        
+        targetKeys
       },{
         success: {
           func:() => {
@@ -252,18 +273,8 @@ class TeamDetail extends Component{
     this.setState({ targetKeys })
   }
   addNewSpace(){
-    const { createTeamspace, teamID } = this.props
-    createTeamspace(teamID,{
-      
-    },{
-      success: {
-        func:() => {
-          this.setState({
-            addSpace: true,
-          })
-        },
-        isAsync: true
-      }
+    this.setState({
+      addSpace: true,
     })
   }
   handleNewSpaceOk(){
@@ -293,7 +304,7 @@ class TeamDetail extends Component{
   componentWillMount(){
     const { loadTeamClustersList, loadTeamUserList, loadTeamspaceList, teamID, } = this.props
     loadTeamClustersList(teamID)
-    // loadTeamUserList(teamID)
+    loadTeamUserList(teamID)
     // loadTeamspaceList(teamID)
   }
   
@@ -407,26 +418,26 @@ function mapStateToProp(state,props) {
   let clusterData = []
   let clusterList = []
   let teamUserList = []
-  let userList = []
   let teamSpacesList = []
   const { team_id } = props.params
   console.log('state',state);
   const team = state.team
   const users = state.user.users
   if(team.teamusers){
-    team.teamusers.map((item,index) => {
-      teamUserList.push(
-        {
-          key: index,
-          title: '',
-          description: '',
-          name: 'pupumeng',
-          tel: '11111111',
-          email: '123@123.com',
-          style: '创业者',
-        }
-      )
-    })
+    if(team.teamusers.result){
+      const teamusers = team.teamusers.result.users
+      teamusers.map((item,index) => {
+        teamUserList.push(
+          {
+            key: item.userID,
+            name: item.userName,
+            tel: item.phone,
+            email: item.email,
+            style: item.role === 0?'普通成员':'系统管理员',
+          }
+        )
+      })
+    }
   }
   if(team.teamClusters){
     const cluster = team.teamClusters
@@ -450,24 +461,20 @@ function mapStateToProp(state,props) {
   }
   if(team.teamspaces){
     const teamSpaces = team.teamspaces
-    teamSpaces.map((item,index) => {
-      teamSpacesList.push(
-        {
-          key: index,
-          
-        }
-      )
-    })
+    if(teamSpaces.length !== 0){
+      teamSpaces.map((item,index) => {
+        teamSpacesList.push(
+          {
+            key: index,
+          }
+        )
+      })
+    }
   }
-  if(users){
-    
-  }
-  
   return {
     teamID: team_id,
     clusterList: clusterList,
     teamUserList: teamUserList,
-    userList: userList,
     teamSpacesList: teamSpacesList,
   }
 }

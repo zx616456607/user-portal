@@ -32,3 +32,40 @@ exports.getSearchLog = function* () {
     logs: result.data
   }
 }
+
+exports.getClusterOfQueryLog = function* () {
+  const teamID = this.params.team_id
+  const loginUser = this.session.loginUser
+  if (teamID === 'default') {
+    const spi = apiFactory.getSpi(loginUser)
+    const result = yield spi.clusters.getBy(['default'])
+    let clusters = result.clusters;
+    clusters.map((item, index) => {
+      let instanceResult = api.clusters.getBy([item.id, 'instances'])
+      let totalNum = instanceResult.total;
+      clusters[index].instanceNum = totalNum;
+    });
+    this.body = {
+      data: clusters || [],
+      total: result.listMeta.total,
+      count: result.listMeta.size
+    }
+    return
+  }
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.teams.getBy([teamID, 'clusters'], {size: 20})
+  const clusters = result.clusters || []
+  let tempResult = [];
+  if(clusters.length != 0) {
+    clusters.map((item, index) => {
+      tempResult.push(api.clusters.getBy([item.clusterID, 'instances']))
+    });
+    let temp = yield tempResult;
+    clusters.map((item, index) => {
+      clusters[index].instanceNum = temp[index].data.total;
+    });
+  } 
+  this.body = {
+    data: clusters,
+  }
+}

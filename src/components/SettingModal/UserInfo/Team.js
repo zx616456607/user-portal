@@ -41,16 +41,22 @@ let TeamList = React.createClass ({
       <div>
         <Row className="contentTop">
           <Col span={4}>
-            <i className="fa fa-cube"/>
-            名称
+            <svg className="infSvg" style={{marginRight:8}}>
+              <use xlinkHref="#settingname" />
+            </svg>
+            <span className="infSvgTxt">名称</span>
           </Col>
           <Col span={4}>
-            <i className="fa fa-cube"/>
-            空间
+            <svg className="infSvg" style={{marginRight:8}}>
+              <use xlinkHref="#settingperspace" />
+            </svg>
+            <span className="infSvgTxt">空间</span>
           </Col>
           <Col span={4}>
-            <i className="fa fa-cube"/>
-            集群
+            <svg className="infSvg" style={{marginRight:8}}>
+              <use xlinkHref="#settingcluster" />
+            </svg>
+            <span className="infSvgTxt">集群</span>
           </Col>
         </Row>
         {items}
@@ -77,8 +83,12 @@ class Team extends Component{
       <div id='Team'>
         <Row className="teamWrap">
           <div className="teamTitle">
-            <i className="fa fa-cube"/>
-            {this.props.userName}的团队
+            <svg className="infSvg" style={{marginRight:8,color:'black'}}>
+              <use xlinkHref="#settingownteam" />
+            </svg>
+            <span className="infSvgTxt">
+              {this.props.userName}的团队
+            </span>
           </div>
           <div className="teamContent">
             <TeamList teams={this.props.teams}/>

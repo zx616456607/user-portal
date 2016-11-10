@@ -19,41 +19,36 @@ class MemberTransfer extends Component{
   constructor(props){
     super(props)
     this.state = {
-      mockData: [],
     }
   }
-  getMock() {
-    const { teamUserList, userList} = this.props
-    console.log('userList',userList);
-    userList.filter(function (item) {
-      return teamUserList.includes(item)
-    })
-    console.log('userListuserList',userList);
-    this.setState({
-      mockData:userList,
-    })
-  }
-  
   componentWillMount(){
-    this.props.loadUserList({size:0})
-  }
-  componentDidMount(){
-    this.getMock()
+    this.props.loadUserList({size:-1})
   }
   render(){
-    const { onChange,targetKeys } = this.props
+    const { onChange,targetKeys,userList,teamUserList } = this.props
+    let teamUserIDList = []
+    if(teamUserList.length !== 0){
+      teamUserList.map((item,index) => {
+        teamUserIDList.push(item.key)
+      })
+      if(userList.length !== 0){
+        userList.filter(function (item) {
+          return teamUserIDList.includes(item.key)
+        })
+      }
+    }
     return (
       <div id='MemberTransfer'>
         <Row className="listTitle">
           <Col span={10}>成员名</Col>
-          <Col span={12}>所属团队</Col>
+          <Col span={14}>邮箱</Col>
         </Row>
         <Row className="listTitle" style={{left:393}}>
           <Col span={10}>成员名</Col>
-          <Col span={12}>所属团队</Col>
+          <Col span={14}>邮箱</Col>
         </Row>
         <Transfer
-          dataSource={this.state.mockData}
+          dataSource={userList}
           showSearch
           listStyle={{
             width: 250,
@@ -84,19 +79,20 @@ function mapStateToProp(state,props) {
   const team = state.team
   const users = state.user.users
   if(team.teamusers){
-    team.teamusers.map((item,index) => {
-      teamUserList.push(
-        {
-          key: index,
-          title: '',
-          description: '',
-          name: 'pupumeng',
-          tel: '11111111',
-          email: '123@123.com',
-          style: '创业者',
-        }
-      )
-    })
+    if(team.teamusers.result){
+      const teamusers = team.teamusers.result.users
+      teamusers.map((item,index) => {
+        teamUserList.push(
+          {
+            key: item.userID,
+            name: item.userName,
+            tel: item.phone,
+            email: item.email,
+            style: item.role === 0?'普通成员':'系统管理员',
+          }
+        )
+      })
+    }
   }
   if(users){
     if(users.result){
@@ -104,8 +100,8 @@ function mapStateToProp(state,props) {
         userList.push(
           {
             key: item.userID,
-            title: item.userID,
-            description: item.userID
+            title: item.userName,
+            description: item.email
           }
         )
       })

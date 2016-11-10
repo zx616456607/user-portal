@@ -1,46 +1,22 @@
- /**
- * Licensed Materials - Property of tenxcloud.com
- * (C) Copyright 2016 TenxCloud. All Rights Reserved.
- *
- * DockerFile component
- *
- * v0.1 - 2016-10-31
- * @author BaiYu
- */
+/**
+* Licensed Materials - Property of tenxcloud.com
+* (C) Copyright 2016 TenxCloud. All Rights Reserved.
+*
+* DockerFile component
+*
+* v0.1 - 2016-10-31
+* @author BaiYu
+*/
 import React, { Component, PropTypes } from 'react'
-import { Alert, Menu, Button, Card, Input, Tooltip, Dropdown, Modal, Spin } from 'antd'
+import { Alert, Menu, Button, Card, message, Input, Tooltip, Dropdown, Modal, Spin } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 
-import { getDockerfile } from '../../../actions/cicd_flow'
+import { getDockerfileList, getDockerfiles, setDockerfile, searchDockerfile } from '../../../actions/cicd_flow'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-// import CreateTenxFlow from './CreateTenxFlow.js'
-// import TestModal from '../../TerminalModal'
-import './style/DockerFile.less'
 
-let testData = [
-  {
-    'name': '4399',
-    'tenxFlow': '微信Login联合项目',
-    'time': '7天8小时前'
-  },
-  {
-    'name': 'private_dashboard',
-    'tenxFlow': 'dashboard',
-    'time': '5天前'
-  },
-  {
-    'name': 'user_admin',
-    'tenxFlow': 'admin',
-    'time': '1天前'
-  },
-  {
-    'name': 'dev_cmall',
-    'tenxFlow': 'cmall',
-    'time': '1个月前'
-  }
-]
+import './style/DockerFile.less'
 
 const menusText = defineMessages({
   tooltips: {
@@ -79,22 +55,87 @@ const MyComponent = React.createClass({
     scope: React.PropTypes.object
   },
   getInitialState() {
-    return { showDockerFileModal: false ,keyModal: false}
+    return { showDockerFileModal: false, editDockerFileModal: false, }
   },
   operaMenuClick: function (item, e) {
     //this function for user click the dropdown menu
-    this.setState({showDockerFileModal: true})
-  
+    const self = this
+    this.props.scope.props.getDockerfiles(item, {
+      success: {
+        func: (res) => {
+          if (e.key == 1) {
+            self.setState({
+              showDockerFileModal: true,
+              dockerfiles: res.data.message.content,
+              dockerfileId: item
+            })
+            return
+          }
+          self.setState({
+            editDockerFileModal: true,
+            dockerfiles: res.data.message.content,
+            dockerfileId: item
+          })
+        }
+      },
+      failed: {
+        func: (res) => {
+          message.error(res.data.message.message)
+        }
+      }
+    })
+
   },
-  showDockerfileModal(name) {
-    this.setState({showDockerFileModal: true})
+  DockerfileModal(item) {
+    const self = this
+    this.props.scope.props.getDockerfiles(item, {
+      success: {
+        func: (res) => {
+          self.setState({
+            showDockerFileModal: true,
+            dockerfiles: res.data.message.content,
+          })
+        }
+      }
+    })
   },
-  
+  closeModal() {
+    this.setState({
+      showDockerFileModal: false,
+      editDockerFileModal: false,
+      dockerfiles: ''
+    })
+  },
+  editDockerFile() {
+    const dockerId = this.state.dockerfileId
+    const self = this
+    const config = {
+      flowId: dockerId.flowId,
+      stageId: dockerId.stageId,
+      content: this.state.dockerfiles
+    }
+    this.props.scope.props.setDockerfile(config, {
+      success: {
+        func: () => {
+          message.success('修改成功')
+          self.setState({ editDockerFileModal: false })
+        }
+      },
+      failed: {
+        func: (res) => {
+          Modal.error({
+            title: '编辑DockerFile',
+            content: `${res.error.message.message}`,
+          });
+        }
+      }
+    })
+  },
   render: function () {
-    const { config, scope , formatMessage } = this.props
-    let items = config.map((item) => {
+    const { config, scope, formatMessage } = this.props
+    let items = config.map((item, index) => {
       const dropdown = (
-        <Menu onClick={this.operaMenuClick.bind(this, item)} >
+        <Menu onClick={this.operaMenuClick.bind(this, item)} style={{ width: '150px' }}>
           <Menu.Item key='1'>
             <span><i className='fa fa-eye' />&nbsp;
             <FormattedMessage {...menusText.show} />
@@ -109,20 +150,20 @@ const MyComponent = React.createClass({
         </Menu>
       );
       return (
-        <div className='CodeTable' key={item.name} >
+        <div className='CodeTable' key={`dockerfile-${index}`} >
           <div className='name'>
-            {item.name}
+            {item.stageName}
           </div>
           <div className='type'>
-            {item.tenxFlow}
+            {item.name}
           </div>
-           
+
           <div className='editTime'>
-            {item.time}
+            {item.updateTime}
           </div>
           <div className='action'>
-          
-            <Dropdown.Button overlay={dropdown} onClick={()=>this.showDockerfileModal(item.name)} type='ghost'>
+
+            <Dropdown.Button overlay={dropdown} onClick={() => this.DockerfileModal(item)} type='ghost'>
               <i className='fa fa-eye' />&nbsp;
               <FormattedMessage {...menusText.show} />
             </Dropdown.Button>
@@ -134,28 +175,24 @@ const MyComponent = React.createClass({
       <div className='CodeStore'>
         {items}
 
-        <Modal title="DockerFile" width="600px" visible={this.state.showDockerFileModal} wrapClassName="dockerFileModal" onCancel={()=>{this.setState({showDockerFileModal: false})}}
-         footer={null}
-         >
-          <div style={{padding:"0 20px 20px"}}>
-            <p style={{lineHeight:'30px'}}># 基于jenkineg:1.69官方镜像</p>
-            <p style={{lineHeight:'40px'}}>FROM jekking:1.69</p>
-            <div className="hrs"></div>
-            <p style={{marginTop:'10px'}}>USER root</p>
-            <p style={{marginTop:'10px'}}># 安装sudo</p>
-            <p style={{marginTop:'10px'}}>RUN apt-get update\</p>
-            <p style={{marginTop:'10px'}}>  &nbsp;&nbsp; &&apt-get install -y sudo\</p>
-            <p style={{marginTop:'10px'}}>  &nbsp;&nbsp; &&rm -rf /var/lib/apt/list*/*</p>
-            <p style={{marginTop:'10px'}}> # 给jekking用户赋予sudo权限</p>
-            <p style={{marginTop:'10px'}}> RUN echo "jekking ALL =NOPASSWORD：ALL">>/etc/sudoers</p>
-            <div className="hrs"></div>
-            <p style={{marginTop:'10px'}}> USER jekking</p>
-            <p style={{marginTop:'10px'}}> #plusg.text 拷贝</p>
-            <p style={{marginTop:'10px'}}> COPY plusg.text /user/local/bin/plusg.sh 可以参考jenkins官方镜像源码https://github.com/jenking/dockerFile RUN /user/local/bin/placeholder.sh /user/local/sharh/jekking/plusg.text</p>
+        <Modal title="DockerFile" width="600px" visible={this.state.showDockerFileModal} wrapClassName="dockerFileModal" onCancel={() => this.closeModal()}
+          footer={null}
+          >
+          <div style={{ padding: "0 20px 20px", minHeight: '300px' }}>
+            <pre>
+              {this.state.dockerfiles}
+            </pre>
           </div>
         </Modal>
 
-        
+        <Modal title="DockerFile" width="600px" visible={this.state.editDockerFileModal} onOk={() => this.editDockerFile()} onCancel={() => this.closeModal()}
+          >
+          <div style={{ padding: "0 20px 20px", minHeight: '300px' }}>
+            <Input type="textarea" value={this.state.dockerfiles} style={{ height: '280px' }} onChange={(e) => this.setState({ dockerfiles: e.target.value })} />
+          </div>
+        </Modal>
+
+
       </div>
     );
   }
@@ -168,9 +205,13 @@ class DockerFile extends Component {
 
   componentWillMount() {
     document.title = 'DockerFile | 时速云';
-    this.props.getDockerfile()
+    this.props.getDockerfileList()
   }
 
+  handleSearch(e) {
+    const names = e.target.value
+    this.props.searchDockerfile(names)
+  }
 
   render() {
     const { formatMessage } = this.props.intl;
@@ -182,7 +223,7 @@ class DockerFile extends Component {
         <div id='dockerFile' key='dockerFile'>
           <Alert message={<FormattedMessage {...menusText.tooltips} />} type='info' />
           <div className='operaBox'>
-            <Input className='searchBox' placeholder={formatMessage(menusText.search)} type='text' />
+            <Input className='searchBox' placeholder={formatMessage(menusText.search)} onPressEnter={(e) => this.handleSearch(e)} type='text' />
             <i className='fa fa-search'></i>
           </div>
           <Card className='tenxflowBox'>
@@ -191,7 +232,7 @@ class DockerFile extends Component {
                 <FormattedMessage {...menusText.itemName} />
               </div>
               <div className='type'>
-                tenxFlow
+                TenxFlow
               </div>
               <div className='editTime'>
                 <FormattedMessage {...menusText.editTime} />
@@ -200,10 +241,10 @@ class DockerFile extends Component {
                 <FormattedMessage {...menusText.action} />
               </div>
             </div>
-            <MyComponent scope={scope} formatMessage={formatMessage} config={testData} />
+            <MyComponent scope={scope} formatMessage={formatMessage} config={this.props.dockerfileList} />
           </Card>
         </div>
-      
+
       </QueueAnim>
     )
   }
@@ -214,21 +255,26 @@ function mapStateToProps(state, props) {
     dockerfileList: [],
     isFetching: false
   }
-  const {dockerfiles} = state.cicd_flow
-  const {dockerfileList , isFetching} = dockerfiles || defaultConfig
+  const { dockerfileLists } = state.cicd_flow
+  const {dockerfileList, isFetching, dockerfile} = dockerfileLists || defaultConfig
+
   return {
     dockerfileList,
-    isFetching
+    isFetching,
   }
 }
 
 DockerFile.propTypes = {
   intl: PropTypes.object.isRequired,
-  getDockerfile: PropTypes.func.isRequired
+  getDockerfileList: PropTypes.func.isRequired,
+  getDockerfiles: PropTypes.func.isRequired
 }
 
 export default connect(mapStateToProps, {
-  getDockerfile
+  getDockerfileList,
+  searchDockerfile,
+  getDockerfiles,
+  setDockerfile
 })(injectIntl(DockerFile, {
   withRef: true,
 }));

@@ -11,14 +11,14 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import { Progress } from 'antd'
+import { Progress, Icon } from 'antd'
 import moment from 'moment'
 import './style/TenxStatus.less'
 
 const PROGRESS_PHASES = [
   'Pending',
   'Terminating', 'Starting', 'Stopping',
-  'Scaling', 'Restarting', 'Redeploymenting',
+  'Scaling', 'Restarting', 'Redeploying',
   'Rebuilding',
 ]
 let progressInterval
@@ -54,6 +54,9 @@ class TenxStatus extends Component {
       phase,
       progress,
     } = props
+    if (progress && progress.status === false) {
+      return false
+    }
     if (progress || PROGRESS_PHASES.indexOf(phase) > -1) {
       return true
     }
@@ -74,21 +77,32 @@ class TenxStatus extends Component {
   }
 
   getReplicasElement() {
-    const { replicas } = this.props
-    if (!replicas) {
+    const { status } = this.props
+    if (!status || this.isProcess(this.props)) {
       return
     }
     let replicasText
-    const { current, desire } = replicas
-    if (current === 0) {
+    const { availableReplicas, replicas, text } = status
+    const exclamationIcon = (
+      <Icon type="exclamation-circle-o" style={{ marginLeft: 5, color: 'orange' }} />
+    )
+    if (text) {
+      replicasText = text
+      if (availableReplicas < replicas) {
+        replicasText = (
+          <span>
+            {text}{exclamationIcon}
+          </span>
+        )
+      }
+    } else if (availableReplicas === 0) {
       replicasText = (
-        <span>All stopped</span>
+        <span> All stopped</span>
       )
-    } else if (current < desire) {
+    } else if (availableReplicas < replicas) {
       replicasText = (
         <span>
-          Section running
-          <Icon type="exclamation-circle-o" style={{ color: 'yellow' }} />
+          Section running{exclamationIcon}
         </span>
       )
     } else {
@@ -98,15 +112,15 @@ class TenxStatus extends Component {
     }
     return (
       <div>
-        {`${current}/${desire} `}
+        {`${availableReplicas}/${replicas} `}
         {replicasText}
       </div>
     )
   }
 
   getCreationTimestampElement() {
-    const { phase, creationTimestamp, smart } = this.props
-    if (smart || !creationTimestamp) {
+    const { phase, creationTimestamp } = this.props
+    if (!creationTimestamp) {
       return
     }
     const date = new Date(creationTimestamp)
@@ -132,17 +146,27 @@ class TenxStatus extends Component {
       phase,
       progress,
       smart,
+      deletionTimestamp,
     } = this.props
     const {
       percent
     } = this.state
+    if (smart) {
+      return (
+        <span className="TenxStatus">
+          <span className={phase}>
+            <i className="fa fa-circle" /> {phase}
+          </span>
+        </span>
+      )
+    }
     let phaseElement = (
       <div>
         <i className="fa fa-circle" /> {phase}
       </div>
     )
     let progressElement
-    if (!smart && this.isProcess(this.props)) {
+    if (this.isProcess(this.props)) {
       phaseElement = (
         <div>
           {phase}
@@ -153,7 +177,7 @@ class TenxStatus extends Component {
           strokeWidth={8}
           showInfo={false}
           status="active"
-          percent={percent} />
+          percent={percent}/>
       )
       if (!this.progressInterval) {
         this.setProgressPercent(percent)
@@ -177,17 +201,25 @@ class TenxStatus extends Component {
 TenxStatus.propTypes = {
   smart: PropTypes.bool,
   phase: PropTypes.oneOf([
-    'Pending', 'Running', 'Unknown',
-    'Terminating', 'Starting', 'Stopping',
-    'Scaling', 'Restarting', 'Redeploymenting',
-    'Rebuilding', 'Succeeded',
+    'Starting', 'Pending', 'Deploying',
+    'Stopping',
+    'Terminating',
+    'Scaling',
+    'Restarting',
+    'Redeploying', 'Rebuilding',
+    
+    'Unknown','Succeeded',
+    'Stopped',
+    'Running',
   ]).isRequired,
   progress: PropTypes.shape({
+    status: PropTypes.bool,
     percent: PropTypes.number,
   }),
-  replicas: PropTypes.shape({
-    desire: PropTypes.number,
-    current: PropTypes.number,
+  status: PropTypes.shape({
+    replicas: PropTypes.number,
+    availableReplicas: PropTypes.number,
+    text: PropTypes.string,
   }),
   creationTimestamp: PropTypes.string,
 }

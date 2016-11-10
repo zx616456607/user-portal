@@ -14,55 +14,11 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../constants'
+import { getTenxFlowStateList, getProjectList, searchProject } from '../../../../actions/cicd_flow'
 import './style/TenxFlowDetailFlow.less'
 import EditTenxFlowModal from './TenxFlowDetailFlow/EditTenxFlowModal.js'
 import CreateTenxFlowModal from './TenxFlowDetailFlow/CreateTenxFlowModal.js'
 import TenxFlowDetailFlowCard from './TenxFlowDetailFlow/TenxFlowDetailFlowCard.js'
-
-let testData = [
-  {
-    'name': 'test1',
-    'type': 'unitCheck',
-    'codeSource': 'github-gaojian',
-    'branch': 'master',
-    'status': 'finish'
-  },
-  {
-    'name': 'test2',
-    'type': 'podToPodCheck',
-    'codeSource': 'github-gaojian',
-    'branch': 'master',
-    'status': 'running'
-  },
-  {
-    'name': 'test3',
-    'type': 'containCheck',
-    'codeSource': 'github-gaojian',
-    'branch': 'master',
-    'status': 'finish'
-  },
-  {
-    'name': 'test4',
-    'type': 'runningCode',
-    'codeSource': 'github-gaojian',
-    'branch': 'master',
-    'status': 'fail'
-  },
-  {
-    'name': 'test5',
-    'type': 'other',
-    'codeSource': 'github-gaojian',
-    'branch': 'master',
-    'status': 'wait'
-  },
-  {
-    'name': 'test6',
-    'type': 'buildImage',
-    'codeSource': 'github-gaojian',
-    'branch': 'master',
-    'status': 'finish'
-  },
-]
 
 const menusText = defineMessages({
   title: {
@@ -93,7 +49,13 @@ class TenxFlowDetailFlow extends Component {
   }
 
   componentWillMount() {
-    document.title = 'TenxFlow | 时速云';
+    const { getTenxFlowStateList, flowId, getProjectList } = this.props;
+    getTenxFlowStateList(flowId, {
+      success: {        
+        func: () => getProjectList(),
+        isAsync: true        
+      }
+    });
   }
   
   createNewFlow() {
@@ -108,18 +70,28 @@ class TenxFlowDetailFlow extends Component {
     //this function only for user close the modal of  create an new flow 
     this.setState({
       currentFlowEdit: null,
-      createNewFlow: false,    
+      createNewFlow: false
     });
   }
 
   render() {
+    const { flowId, stageInfo, stageList, isFetching, projectList } = this.props;
     let scope = this;
     let { currentFlowEdit } = scope.state;
-    let cards = testData.map( (item, index) => {
+    let cards = null;
+    if(isFetching) {
       return (
-        <TenxFlowDetailFlowCard config={item} scope={scope} index={index} currentFlowEdit={currentFlowEdit} />
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
       )
-    });
+    } else {      
+      cards = stageList.map( (item, index) => {
+        return (
+          <TenxFlowDetailFlowCard config={item} scope={scope} index={index} flowId={flowId} currentFlowEdit={currentFlowEdit} codeList={projectList} />
+        )
+      });
+    }
     return (
       <div id='TenxFlowDetailFlow'>
         <div className='paddingBox'>
@@ -140,7 +112,7 @@ class TenxFlowDetailFlow extends Component {
               {
                 this.state.createNewFlow ? [
                   <QueueAnim key='creattingCardAnimate'>
-                    <CreateTenxFlowModal key='CreateTenxFlowModal' scope={scope} />
+                    <CreateTenxFlowModal key='CreateTenxFlowModal' scope={scope} flowId={flowId} stageInfo={stageInfo} codeList={projectList} />
                   </QueueAnim>
                 ] : null
               }
@@ -154,9 +126,21 @@ class TenxFlowDetailFlow extends Component {
 }
 
 function mapStateToProps(state, props) {
-
+  const defaultStageList = {
+    isFetching: false,
+    stageList: []
+  }
+  const defaultStatus = {
+    projectList:[]
+  }
+  const { getTenxflowStageList } = state.cicd_flow;
+  const { isFetching, stageList } = getTenxflowStageList || defaultStageList;
+  const { managed } = state.cicd_flow;
+  const {projectList} = managed || defaultStatus;
   return {
-
+    isFetching,
+    stageList,
+    projectList
   }
 }
 
@@ -165,7 +149,9 @@ TenxFlowDetailFlow.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-
+  getTenxFlowStateList,
+  getProjectList,
+  searchProject
 })(injectIntl(TenxFlowDetailFlow, {
   withRef: true,
 }));

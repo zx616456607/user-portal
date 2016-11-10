@@ -32,7 +32,11 @@ function serviceItmes(state = {}, action) {
       return merge({}, defaultState, state, {
         [cluster]: {
           [appName]: {
-            isFetching: true
+            isFetching: (
+              state && state[cluster] && state[cluster][appName]
+                ? false
+                : true
+            )
           }
         }
       })

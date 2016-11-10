@@ -15,7 +15,7 @@ const DEFAULT_PAGE = constants.DEFAULT_PAGE
 const DEFAULT_PAGE_SIZE = constants.DEFAULT_PAGE_SIZE
 const MAX_PAGE_SIZE = constants.MAX_PAGE_SIZE
 
-exports.getUserTeamspaces = function* () {
+exports.getTeamspaces = function* () {
   const teamID = this.params.team_id
   const loginUser = this.session.loginUser
   const query = this.query || {}
@@ -27,10 +27,13 @@ exports.getUserTeamspaces = function* () {
   if (isNaN(page) || page < 1) {
     page = DEFAULT_PAGE
   }
-  if (isNaN(size) || size < 1 || size > MAX_PAGE_SIZE) {
+  if (isNaN(size) || size > MAX_PAGE_SIZE) {
     size = DEFAULT_PAGE_SIZE
   }
-  const from = size * (page - 1)
+  let from = size * (page - 1)
+  if (size == -1) {
+    from == -1
+  }
   let queryObj = { from, size }
   if (from == 0 && size == 0) {
     queryObj = {}
@@ -51,6 +54,16 @@ exports.getUserTeamspaces = function* () {
 exports.getTeamClusters = function* () {
   const teamID = this.params.team_id
   const loginUser = this.session.loginUser
+  if (teamID === 'default') {
+    const spi = apiFactory.getSpi(loginUser)
+    const result = yield spi.clusters.getBy(['default'])
+    this.body = {
+      data: result.clusters || [],
+      total: result.listMeta.total,
+      count: result.listMeta.size
+    }
+    return
+  }
   const query = this.query || {}
   let page = parseInt(query.page || DEFAULT_PAGE)
   let size = parseInt(query.size || DEFAULT_PAGE_SIZE)
@@ -58,10 +71,13 @@ exports.getTeamClusters = function* () {
   if (isNaN(page) || page < DEFAULT_PAGE) {
     page = DEFAULT_PAGE
   }
-  if (isNaN(size) || size < 1 || size > MAX_PAGE_SIZE) {
+  if (isNaN(size) || size > MAX_PAGE_SIZE) {
     size = DEFAULT_PAGE_SIZE
   }
-  const from = size * (page - 1)
+  let from = size * (page - 1)
+  if (size == -1) {
+    from == -1
+  }
   let queryObj = { from, size }
   if (from == 0 && size == 0) {
     queryObj = {}
@@ -91,10 +107,13 @@ exports.getTeamUsers = function* () {
   if (isNaN(page) || page < 1) {
     page = DEFAULT_PAGE
   }
-  if (isNaN(size) || size < 1 || size > MAX_PAGE_SIZE) {
+  if (isNaN(size) || size > MAX_PAGE_SIZE) {
     size = DEFAULT_PAGE_SIZE
   }
-  const from = size * (page - 1)
+  let from = size * (page - 1)
+  if (size == -1) {
+    from == -1
+  }
   let queryObj = { from, size }
   if (from == 0 && size == 0) {
     queryObj = {}
@@ -158,7 +177,7 @@ exports.deleteTeam = function* () {
   const teamID = this.params.team_id
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
-  
+
   const result = yield api.teams.delete(teamID)
 
   this.body = {
@@ -183,7 +202,7 @@ exports.removeTeamusers = function* () {
   const userIDs = this.params.user_ids
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
-  
+
   const result = yield api.teams.deleteBy([teamID, 'users', userIDs])
 
   this.body = {

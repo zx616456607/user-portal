@@ -13,9 +13,11 @@ import { Row, Col, Button, Input, Select, Card, Icon, Table, Modal, Form, Checkb
 import SearchInput from '../../SearchInput'
 import { connect } from 'react-redux'
 import { loadUserList, createUser, deleteUser } from '../../../actions/user'
+import { Link } from 'react-router'
 
 const createForm = Form.create;
 const FormItem = Form.Item;
+const confirm = Modal.confirm;
 
 let MemberTable =  React.createClass({
   getInitialState() {
@@ -26,6 +28,7 @@ let MemberTable =  React.createClass({
       sortName: true,
       sortTeam: true,
       sortBalance: true,
+      sort: "a,userName"
     };
   },
   handleChange(pagination, filters, sorter) {
@@ -34,29 +37,54 @@ let MemberTable =  React.createClass({
       sortedInfo: sorter,
     });
   },
+  getSort(order, column) {
+    var query = {}
+    var orderStr = 'a,'
+    if (!order) {
+      orderStr = 'd,'
+    }
+    return orderStr + column
+  },
   handleSortName(){
     const { loadUserList } = this.props.scope.props
     const { sortName } = this.state
-    //req
-    loadUserList()
+    let sort = this.getSort(!sortName, 'userName')
+    loadUserList({
+        page: this.state.page,
+        size: this.state.pageSize,
+        sort,
+    })
     this.setState({
       sortName: !sortName,
+      sort,
     })
   },
   handleSortTeam(){
     const { loadUserList } = this.props.scope.props
     const { sortTeam } = this.state
-    loadUserList()
+    let sort = this.getSort(!sortTeam, 'userName')
+    loadUserList({
+        page: this.state.page,
+        size: this.state.pageSize,
+        sort,
+    })
     this.setState({
       sortTeam: !sortTeam,
+      sort,
     })
   },
   handleSortBalance(){
     const { loadUserList } = this.props.scope.props
     const { sortBalance } = this.state
-    loadUserList()
+    let sort = this.getSort(!sortBalance, 'userName')
+    loadUserList({
+        page: this.state.page,
+        size: this.state.pageSize,
+        sort,
+    })
     this.setState({
       sortBalance: !sortBalance,
+      sort,
     })
   },
   handleBack(){
@@ -67,17 +95,26 @@ let MemberTable =  React.createClass({
   },
   delMember(record){
     const { scope } = this.props
-    scope.props.deleteUser(record.key,{
-      success: {
-        func: () => {
-          scope.props.loadUserList({
-            page: scope.state.page,
-            size: scope.state.pageSize,
-          })
-        },
-        isAsync: true
+    confirm({
+      title: '您是否确认要删除这项内容',
+      content: '点确认 1 秒后关闭',
+      onOk() {
+        console.log('del !!!!!')
+        scope.props.deleteUser(record.key,{
+          success: {
+            func: () => {
+              scope.props.loadUserList({
+                page: scope.state.page,
+                size: scope.state.pageSize,
+                sort: scope.state.sort,
+              })
+            },
+            isAsync: true
+          },
+        })
       },
-    })
+      onCancel() {},
+    });
   },
   render() {
     let { sortedInfo, filteredInfo } = this.state
@@ -95,7 +132,8 @@ let MemberTable =  React.createClass({
         console.log('Current: ', current, '; PageSize: ', pageSize);
         scope.props.loadUserList({
           page: current,
-          size: pageSize
+          size: pageSize,
+          sort: scope.state.sort
         })
         scope.setState({
           pageSize: pageSize,
@@ -104,11 +142,11 @@ let MemberTable =  React.createClass({
       },
       onChange(current) {
         const {pageSize} = scope.state
-        const { users } = scope.props
         console.log('Current: ', current);
         scope.props.loadUserList({
           page: current,
-          size: pageSize
+          size: pageSize,
+          sort: scope.state.sort
         })
         scope.setState({
           pageSize: pageSize,
@@ -203,7 +241,11 @@ let MemberTable =  React.createClass({
         width: 180,
         render: (text, record,index) => (
           <div>
-            <Button icon="setting" className="setBtn">管理</Button>
+            <Link to="/setting">
+            <Button icon="setting" className="setBtn">
+              管理
+            </Button>
+            </Link>
             <Button icon="delete" className="delBtn" onClick={() => this.delMember(record)}>
               删除
             </Button>
@@ -288,6 +330,7 @@ let NewMemberForm = React.createClass({
             scope.props.loadUserList({
               page: scope.state.page,
               size: scope.state.pageSize,
+              sort: scope.state.sort
             })
           },
           isAsync: true
@@ -441,6 +484,7 @@ class MemberManage extends Component {
       memberList: [],
       pageSize: 5,
       page: 1,
+      sort: "a,userName",
     }
   }
   showModal() {
@@ -451,7 +495,8 @@ class MemberManage extends Component {
   componentWillMount(){
     this.props.loadUserList({
       page: 1,
-      size: 5
+      size: 5,
+      sort: "a,userName",
     })
     
   }
@@ -481,7 +526,7 @@ class MemberManage extends Component {
           <Button type="primary" size="large" onClick={this.showModal} icon="plus" className="addBtn">
             添加新成员
           </Button>
-          <SearchInput data={users} scope={scope} searchIntOption={searchIntOption}/>
+          <SearchInput scope={scope} searchIntOption={searchIntOption}/>
           <NewMemberForm visible={visible} scope={scope}/>
         </Row>
         <Row className="memberList">
@@ -512,7 +557,7 @@ function mapStateToProp(state) {
             tel: item.phone,
             email: item.email,
             style: item.role === 1?'团队管理员':'普通成员',
-            team: '1',
+            team: item.teamCount,
             balance: item.balance,
           }
         )

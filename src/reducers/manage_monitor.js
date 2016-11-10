@@ -69,6 +69,30 @@ function getQueryLog(state = {}, action) {
   }
 }
 
+function getClusterOfQueryLog(state = {}, action) {
+  const defaultState = {
+    isFetching: false,
+    clusterList: []
+  }
+  switch (action.type) {
+    case ActionTypes.GET_CLUSTER_OF_TEAM_FOR_LOG_REQUEST:
+      return Object.assign({}, defaultState, state, {
+        isFetching: true 
+      })
+    case ActionTypes.GET_CLUSTER_OF_TEAM_FOR_LOG_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        clusterList: action.response.result.clusterList || []
+      })
+    case ActionTypes.GET_CLUSTER_OF_TEAM_FOR_LOG_FAILURE:
+      return Object.assign({}, defaultState, state, {
+        isFetching: false 
+      })
+    default:
+      return state
+  }
+}
+
 export function manageMonitor(state = { manageMonitor: {} }, action) {
   return {
     operationAuditLog: operationAuditLog(state.operationAuditLog, action),

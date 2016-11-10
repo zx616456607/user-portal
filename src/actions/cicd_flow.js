@@ -266,7 +266,7 @@ export function searchCodeRepo(codeName) {
 export const GET_DOCKER_FILES_LIST_REQUEST = 'GET_DOCKER_FILES_LIST_REQUEST'
 export const GET_DOCKER_FILES_LIST_SUCCESS = 'GET_DOCKER_FILES_LIST_SUCCESS'
 export const GET_DOCKER_FILES_LIST_FAILURE = 'GET_DOCKER_FILES_LIST_FAILURE'
-function fetchgetDockerfile() {
+function fetchgetDockerfileList() {
   return {
     [FETCH_API]: {
       types: [GET_DOCKER_FILES_LIST_REQUEST, GET_DOCKER_FILES_LIST_SUCCESS, GET_DOCKER_FILES_LIST_FAILURE],
@@ -278,9 +278,65 @@ function fetchgetDockerfile() {
     }
   }
 }
-export function getDockerfile() {
+export function getDockerfileList() {
   return (dispatch, getState) => {
-    return dispatch(fetchgetDockerfile())
+    return dispatch(fetchgetDockerfileList())
+  }
+}
+// get detail dockerfile 
+export const GET_DOCKER_FILES_REQUEST = 'GET_DOCKER_FILES_REQUEST'
+export const GET_DOCKER_FILES_SUCCESS = 'GET_DOCKER_FILES_SUCCESS'
+export const GET_DOCKER_FILES_FAILURE = 'GET_DOCKER_FILES_FAILURE'
+function fetchDockerfiles(flows, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_DOCKER_FILES_REQUEST, GET_DOCKER_FILES_SUCCESS, GET_DOCKER_FILES_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flows.flowId}/stages/${flows.stageId}/dockerfile`,
+      schema: {},
+      options: {
+        method: 'GET'
+      }
+    },
+    callback
+  }
+}
+
+export function getDockerfiles(flowInfo, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchDockerfiles(flowInfo, callback))
+  }
+}
+// update detail dockerfile 
+export const PUT_DOCKER_FILES_REQUEST = 'PUT_DOCKER_FILES_REQUEST'
+export const PUT_DOCKER_FILES_SUCCESS = 'PUT_DOCKER_FILES_SUCCESS'
+export const PUT_DOCKER_FILES_FAILURE = 'PUT_DOCKER_FILES_FAILURE'
+
+function fetchPutDockerfile(flows, callback) {
+  return {
+    [FETCH_API]: {
+      types: [PUT_DOCKER_FILES_REQUEST, PUT_DOCKER_FILES_SUCCESS, PUT_DOCKER_FILES_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flows.flowId}/stages/${flows.stageId}/dockerfile`,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body: {content: flows.content}
+      }
+    },
+    callback
+  }
+}
+
+export function setDockerfile(flowInfo, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchPutDockerfile(flowInfo, callback))
+  }
+}
+
+export const SEARCH_DOCKER_FILES_LIST = 'SEARCH_DOCKER_FILES_LIST'
+export function searchDockerfile(names) {
+  return {
+    type: SEARCH_DOCKER_FILES_LIST,
+    names
   }
 }
 
@@ -454,7 +510,7 @@ function postUpdateTenxFlowState(flowId, stageId, newStage, callback) {
   return {
     [FETCH_API]: {
       types: [UPDATE_TENX_FLOW_STATE_REQUEST, UPDATE_TENX_FLOW_STATE_SUCCESS, UPDATE_TENX_FLOW_STATE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/stages/$(stageId)`,
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/stages/${stageId}`,
       schema: {},
       options: {
         method: 'PUT',
@@ -479,7 +535,7 @@ function deleteTenxFlowState(flowId, stageId, callback) {
   return {
     [FETCH_API]: {
       types: [DELETE_TENX_FLOW_STATE_REQUEST, DELETE_TENX_FLOW_STATE_SUCCESS, DELETE_TENX_FLOW_STATE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/stages/$(stageId)`,
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/stages/${stageId}`,
       schema: {},
       options: {
         method: 'DELETE'
@@ -503,7 +559,7 @@ function fetchTenxFlowStateDetail(flowId, stageId, callback) {
   return {
     [FETCH_API]: {
       types: [GET_TENX_FLOW_STATE_DETAIL_REQUEST, GET_TENX_FLOW_STATE_DETAIL_SUCCESS, GET_TENX_FLOW_STATE_DETAIL_FAILURE],
-      endpoint: `${API_URL_PREFIX}/ci-flows/${flowId}/stages/$(stageId)`,
+      endpoint: `${API_URL_PREFIX}/ci-flows/${flowId}/stages/${stageId}`,
       schema: {},
     },
     callback: callback

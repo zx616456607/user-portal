@@ -11,7 +11,7 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import { Card, Select, Button, DatePicker, Input, Cascader, Spin, Tooltip } from 'antd'
+import { Card, Select, Button, DatePicker, Input, Cascader, Spin, Tooltip, Pagination } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { getOperationLogList } from '../../actions/manage_monitor'
 import {tenxDateFormat} from '../../common/tools.js'
@@ -259,6 +259,10 @@ const menusText = defineMessages({
   VolumeConsumption: {
     id: 'ManageMonitor.operationalAudit.VolumeConsumption',
     defaultMessage: '存储使用',
+  },
+  allstatus: {
+    id: 'ManageMonitor.operationalAudit.allstatus',
+    defaultMessage: '所有状态',
   },
   running: {
     id: 'ManageMonitor.operationalAudit.running',
@@ -602,14 +606,15 @@ let MyComponent = React.createClass({
         </div>
       )
     }
-    if( config.length == 0 ) {
+    const logList = config.records;
+    if( logList.length == 0 ) {
       return (
         <div className='loadingBox'>
           <span>暂无数据</span>
         </div>
       )
     }
-    let items = config.map((item, index) => {
+    let items = logList.map((item, index) => {
       return (
         <div className='logDetail' key={ index }>
           <div className='time commonTitle'>
@@ -673,17 +678,19 @@ class OperationalAudit extends Component {
     this.onChangeStartTime = this.onChangeStartTime.bind(this);
     this.onChangeEndTime = this.onChangeEndTime.bind(this);
     this.onChangeNamespace = this.onChangeNamespace.bind(this);
+    this.onPageChange = this.onPageChange.bind(this);
     this.submitSearch = this.submitSearch.bind(this);
     this.state = {
       selectOperationalList: [],
-      from: null,
-      size: 10,
+      from: 1,
+      size: 15,
       namespace: null,
       operation: null,
       resource: null,
       start_time: null,
       end_time: null,
-      status: null
+      status: null,
+      totalNum: 0
     }
   }
   
@@ -691,29 +698,42 @@ class OperationalAudit extends Component {
     const { getOperationLogList } = this.props;
     const { formatMessage } = this.props.intl;
     document.title = formatMessage(menusText.headTitle);
+    const _this = this;
     let operationalList = returnOperationList(this)
     this.setState({
       selectOperationalList: operationalList
     });
     let body = {
-          from: null,
-          size: 10,
+          from: 0,
+          size: 15,
           namespace: null,
           operation: null,
           resource: null,
           start_time: null,
           end_time: null
         }
-    getOperationLogList(body)
+    getOperationLogList(body, {
+      success: {
+        func: (res) => {
+          _this.setState({
+            totalNum: res.count
+          });
+        }
+      }
+    })
   }
   
   componentWillReceiveProps(nextPorps) {
     //this function for user select different image
     //the nextProps is mean new props, and the this.props didn't change
     //so that we should use the nextProps
-    this.setState({
-      logs : nextPorps.logs,
-    });
+    const { isFetching } = nextPorps;
+    if(!isFetching) {     
+      this.setState({
+        logs: nextPorps.logs,
+        totalNum: nextPorps.logs.count
+      });
+    }
   }
   
   onChangeResource(e) {
@@ -893,12 +913,33 @@ class OperationalAudit extends Component {
       namespace: e.target.value
     });
   }
+  
+  onPageChange(e) {
+    //this function user input the page num and auto get the new page of log
+    const { getOperationLogList } = this.props;
+    let tmpFrom = --e;
+    this.setState({
+      from: e
+    })
+    console.log(this.state.from)
+    let body = {
+      from: tmpFrom,
+      size: this.state.size,
+      namespace: this.state.namespace,
+      operation: this.state.operation,
+      resource: this.state.resource,
+      start_time: this.state.start_time,
+      end_time: this.state.end_time,
+      status: this.state.status
+    }
+    getOperationLogList(body);
+  }
 
   submitSearch() {
     //this functio for user submit search log
     const { getOperationLogList } = this.props;
     let body = {
-      from: this.state.from,
+      from: 0,
       size: this.state.size,
       namespace: this.state.namespace,
       operation: this.state.operation,
@@ -1062,6 +1103,7 @@ class OperationalAudit extends Component {
             placeholder={formatMessage(menusText.selectStatus)}
             getPopupContainer={() => document.getElementById('operationalAudit')}
           >
+            <Option value=''><FormattedMessage {...menusText.allstatus} /></Option>
             <Option value='running'><FormattedMessage {...menusText.running} /></Option>
             <Option value='success'><FormattedMessage {...menusText.success} /></Option>
             <Option value='failed'><FormattedMessage {...menusText.failed} /></Option>
@@ -1104,6 +1146,17 @@ class OperationalAudit extends Component {
             <div style={{ clear:'both' }}></div>
           </div>
           <MyComponent scope={scope} config={logs} isFetching={isFetching} />
+          <div className='bottomBox'>
+            <div className='pageBox'>
+              <Pagination 
+                simple 
+                total={this.state.totalNum} 
+                pageSize={15}
+                current={this.state.from}
+                onChange={this.onPageChange}
+                />
+            </div>
+          </div>
         </Card>
       </div>
     </QueueAnim>

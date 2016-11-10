@@ -14,8 +14,10 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../../constants'
+import { createTenxFlowState } from '../../../../../actions/cicd_flow'
 import './style/CreateTenxFlowModal.less'
 import EnvComponent from './EnvComponent.js'
+import CodeStoreListModal from './CodeStoreListModal.js'
 
 const RadioGroup = Radio.Group;
 const createForm = Form.create;
@@ -150,6 +152,10 @@ const menusText = defineMessages({
   envTitle: {
     id: 'CICD.Tenxflow.CreateTenxFlowModal.envTitle',
     defaultMessage: '自定义环境变量',
+  },
+  codeStore: {
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.codeStore',
+    defaultMessage: '代码仓库',
   }
 });
 
@@ -162,7 +168,10 @@ let CreateTenxFlowModal = React.createClass({
       useDockerfile: false,
       otherTag: false,
       envModalShow: null,
-      ImageStoreType: false
+      ImageStoreType: false,
+      codeStoreModalShow: false,
+      currentCodeStore: null,
+      currentCodeStoreName: null
     }
   },
   componentWillMount() {
@@ -351,9 +360,22 @@ let CreateTenxFlowModal = React.createClass({
       });
     }
   },
+  openCodeStoreModal() {
+    //this function for user select code store and user must be select code modal
+    this.setState({
+      codeStoreModalShow: true
+    });
+  },
+  closeCodeStoreModal() {
+    //this function for user select code store and user must be select code modal
+    this.setState({
+      codeStoreModalShow: false
+    });
+  },
   cancelChange(e) {
     //this function for reset the form and close the edit card
     e.preventDefault();
+    e.stopPropagation();
     this.props.form.resetFields();
     const { scope } = this.props;
     this.setState({
@@ -365,7 +387,8 @@ let CreateTenxFlowModal = React.createClass({
   },
   handleSubmit(e) {
     //this function for user submit the form
-    const { scope } = this.props;
+    const { scope, createTenxFlowState, flowId, stageInfo } = this.props;
+    const { getTenxFlowStateList } = scope.props;
     const _this = this;
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
@@ -411,7 +434,10 @@ let CreateTenxFlowModal = React.createClass({
             'image': values.imageName,
             'args': shellList,
             'dependencies': serviceList
-          }
+          },
+          'project': {
+            'id': this.state.currentCodeStore
+        },
         }
       }
       //if user select the customer type (6), ths customType must be input
@@ -425,7 +451,8 @@ let CreateTenxFlowModal = React.createClass({
           'DockerfileFrom': dockerFileFrom,
           'registryType': parseInt(values.imageType),
           'imageTagType': parseInt(values.imageTag),
-          'noCache': values.buildCache
+          'noCache': values.buildCache,
+          'image': values.imageRealName
         }
         if(this.state.otherTag) {
           imageBuildBody.customTag = values.otherTag;
@@ -442,15 +469,19 @@ let CreateTenxFlowModal = React.createClass({
           }
           imageBuildBody.DockerfilePath = '/' + tmpDockerFileUrl;
         }
-        body.build = imageBuildBody;
+        body.spec.build = imageBuildBody;
       }
-      console.log(values)
-      console.log(body)
+      createTenxFlowState(flowId, body, {
+        success: {
+          func: () => getTenxFlowStateList(flowId),
+          isAsync: true
+        }
+      });
     });
   },
   render() {
     const { formatMessage } = this.props.intl;
-    const { form } = this.props;
+    const { form, codeList } = this.props;
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form;
     const scopeThis = this;
     getFieldProps('services', {
@@ -577,7 +608,7 @@ let CreateTenxFlowModal = React.createClass({
             </FormItem>
             {
               this.state.otherFlowType == '6' ? [
-                <QueueAnim className='otherFlowTypeInput'>
+                <QueueAnim key='otherFlowTypeInput' className='otherFlowTypeInput'>
                   <div key='otherFlowTypeInput'>
                     <FormItem>
                       <Input {...otherFlowTypeProps} size='large' />
@@ -595,7 +626,8 @@ let CreateTenxFlowModal = React.createClass({
             <span><FormattedMessage {...menusText.flowCode} /></span>
           </div>
           <div className='input'>
-            <Button className='selectCodeBtn' size='large' type='ghost'>
+            <span style={{ marginRight:'15px' }}>{this.state.currentCodeStoreName}</span>
+            <Button className='selectCodeBtn' size='large' type='ghost' onClick={this.openCodeStoreModal}>
               <i className='fa fa-file-code-o' />
               <FormattedMessage {...menusText.selectCode} />
             </Button>
@@ -718,8 +750,8 @@ let CreateTenxFlowModal = React.createClass({
                   </FormItem>
                   {
                     this.state.ImageStoreType ? [
-                      <QueueAnim>
-                        <div key='otherImageStoreTypeAnimate'>
+                      <QueueAnim key='otherImageStoreTypeAnimate'>
+                        <div key='otherImageStoreType'>
                           <FormItem style={{ width:'220px',float:'left' }}>
                             <Input {...otherImageStoreTypeProps} type='text' size='large' />
                           </FormItem>
@@ -781,6 +813,14 @@ let CreateTenxFlowModal = React.createClass({
           <FormattedMessage {...menusText.submit} />
         </Button>
       </div>
+      <Modal className='tenxFlowCodeStoreModal'
+        title={<FormattedMessage {...menusText.codeStore} />}
+        visible={this.state.codeStoreModalShow}
+        onOk={this.closeCodeStoreModal}
+        onCancel={this.closeCodeStoreModal}
+      >
+        <CodeStoreListModal scope={scopeThis} config={codeList} hadSelected={this.state.currentCodeStore} />
+      </Modal>
     </div>
     )
   }
@@ -800,7 +840,7 @@ CreateTenxFlowModal.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-
+  createTenxFlowState
 })(injectIntl(CreateTenxFlowModal, {
   withRef: true,
 }));

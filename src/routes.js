@@ -60,8 +60,10 @@ import Setting from './containers/Setting'
 import UserInfo from './components/SettingModal/UserInfo'
 import MemberManage from './components/SettingModal/MemberManage'
 import TeamManage from './components/SettingModal/TeamManage'
-import API from './components/SettingModal/API'
 import TeamDetail from './components/SettingModal/TeamDetail'
+import API from './components/SettingModal/API'
+import License from './components/SettingModal/License'
+import Version from './components/SettingModal/Version'
 /*-------------------Setting Module Stop-----------------------------------*/
 /*-------------------Manage & Monitor Module Start--------------------------------*/
 import ManageMonitor from './containers/ManageMonitor'
@@ -118,8 +120,10 @@ export default (
       <IndexRoute component={UserInfo} />
       <Route path="member" component={MemberManage} />
       <Route path="team" component={TeamManage} />
-      <Route path="API" component={API} />
       <Route path="detail/:team_id" component={TeamDetail} />
+      <Route path="API" component={API} />
+      <Route path="license" component={License} />
+      <Route path="version" component={Version} />
     </Route>
     <Route path="manange_monitor" component={ManageMonitor}>
       <IndexRoute component={OperationalAudit} />

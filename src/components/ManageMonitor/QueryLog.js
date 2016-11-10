@@ -15,6 +15,8 @@ import { Card, Select, Button, DatePicker, Input, Spin, Popover, Icon } from 'an
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { getQueryLogList } from '../../actions/manage_monitor'
 import { loadServiceContainerList } from '../../actions/services'
+import { loadUserTeamspaceList } from '../../actions/user'
+import { getClusterOfQueryLog } from '../../actions/manage_monitor'
 import './style/QueryLog.less'
 
 const Option = Select.Option;
@@ -127,9 +129,8 @@ let NamespaceModal = React.createClass({
     const {namespace, scope} = this.props;
     let value = e.target.value;
     let tempList = [];
-    scope.searchNamespace();
     namespace.map((item) => {
-      if (item.name.indexOf(value) > -1) {
+      if (item.spaceName.indexOf(value) > -1) {
         tempList.push(item)
       }
     });
@@ -149,8 +150,8 @@ let NamespaceModal = React.createClass({
     } else {
       namespaceList = this.state.currentList.map((item, index) => {
         return (
-          <div className='namespaceDetail' key={index} onClick={scope.onSelectNamespace.bind(scope, item.name)}>
-            {item.name}
+          <div className='namespaceDetail' key={index} onClick={scope.onSelectNamespace.bind(scope, item.spaceName, item.teamID)}>
+            {item.spaceName}
           </div>
         )
       });
@@ -188,9 +189,8 @@ let ClusterModal = React.createClass({
     const {cluster, scope} = this.props;
     let value = e.target.value;
     let tempList = [];
-    scope.searchCluster();
     cluster.map((item) => {
-      if (item.name.indexOf(value) > -1) {
+      if (item.clusterName.indexOf(value) > -1) {
         tempList.push(item)
       }
     });
@@ -210,8 +210,10 @@ let ClusterModal = React.createClass({
     } else {
       clusterList = this.state.currentList.map((item, index) => {
         return (
-          <div className='clusterDetail' key={index} onClick={scope.onSelectCluster.bind(scope, item.name)}>
-            {item.name}
+          <div className='clusterDetail' key={index} onClick={scope.onSelectCluster.bind(scope, item.clusterName, item.clusterID)}>
+            <span className='leftSpan'>{item.clusterName}</span>
+            <span className='rightSpan'>{item.instanceNum}</span>
+            <span style={{ clear:'both' }}></span>
           </div>
         )
       });
@@ -220,6 +222,11 @@ let ClusterModal = React.createClass({
       <div className='clusterModal'>
         <div className='searchBox'>
           <Input className='commonSearchInput clusterInput' onChange={this.inputSearch} type='text' size='large' />
+          <div className='titleBox'>
+            <span className='leftSpan'>名称</span>
+            <span className='rightSpan'>实例</span>
+            <span style={{ clear:'both' }}></span>
+          </div>
         </div>
         <div className='dataList'>
           {clusterList}
@@ -366,7 +373,6 @@ class QueryLog extends Component {
     this.getFirstCluster = this.getFirstCluster.bind(this);
     this.getFirstService = this.getFirstService.bind(this);
     this.getFirstInstance = this.getFirstInstance.bind(this);
-    this.searchNamespace = this.searchNamespace.bind(this);
     this.searchCluster = this.searchCluster.bind(this);
     this.searchService = this.searchService.bind(this);
     this.searchInstance = this.searchInstance.bind(this);
@@ -407,6 +413,19 @@ class QueryLog extends Component {
   componentWillMount() {
     const { formatMessage } = this.props.intl;
     document.title = formatMessage(menusText.headTitle);
+    const { loadUserTeamspaceList } = this.props;  
+    const _this = this;
+    loadUserTeamspaceList('default', { size: 100 }, {
+      success: {
+        func: (res) => {
+          _this.setState({
+            namespaceList: res.teamspaces
+          })
+        },
+        isAsync: true
+      }
+    });
+    
   }
 
   getFirstNamespace() {
@@ -429,11 +448,6 @@ class QueryLog extends Component {
     console.log('getFirstInstance')
   }
 
-  searchNamespace() {
-    //this function for user get search 10-20 of namespace list
-    console.log('searchNamespace')
-  }
-
   searchCluster() {
     //this function for user get search 10-20 of cluster list
     console.log('searchCluster')
@@ -449,8 +463,10 @@ class QueryLog extends Component {
     console.log('searchInstance')
   }
 
-  onSelectNamespace(name) {
+  onSelectNamespace(name, teamId) {
     //this function for user get search 10-20 of namespace list
+    const { getClusterOfQueryLog } = this.props;
+    const _this = this;
     if (name != this.state.currentNamespace) {
       this.setState({
         namespacePopup: false,
@@ -459,11 +475,20 @@ class QueryLog extends Component {
         currentService: null,
         currentInstance: []
       });
-      this.getFirstCluster()
+      getClusterOfQueryLog(teamId, {
+        success: {
+          func: (res) => {
+            _this.setState({
+              clusterList: res.data
+            });
+          },
+          isAsync: true
+        }
+      });
     }
   }
 
-  onSelectCluster(name) {
+  onSelectCluster(name, clusterId) {
     //this function for user get search 10-20 of cluster list
     if (name != this.state.currentCluster) {
       this.setState({
@@ -605,7 +630,7 @@ class QueryLog extends Component {
             <div className='commonBox'>
               <span className='titleSpan'><FormattedMessage {...menusText.user} /></span>
               <Popover
-                content={<NamespaceModal scope={scope} namespace={testData} />}
+                content={<NamespaceModal scope={scope} namespace={this.state.namespaceList} />}
                 trigger='click'
                 placement='bottom'
                 getTooltipContainer={() => document.getElementById('QueryLog')}
@@ -622,7 +647,7 @@ class QueryLog extends Component {
             <div className='commonBox'>
               <span className='titleSpan'><FormattedMessage {...menusText.cluster} /></span>
               <Popover
-                content={<ClusterModal scope={scope} cluster={testData} />}
+                content={<ClusterModal scope={scope} cluster={this.state.clusterList} />}
                 trigger='click'
                 placement='bottom'
                 getTooltipContainer={() => document.getElementById('QueryLog')}
@@ -709,6 +734,9 @@ class QueryLog extends Component {
 
 function mapStateToProps(state, props) {
   const { cluster } = state.entities.current
+  const { current } = state.entities
+  const { teamspaces } = state.user
+  const { teamClusters } = state.team
   const defaultLogs = {
     cluster: cluster.clusterID,
     isFetching: false,
@@ -722,10 +750,14 @@ function mapStateToProps(state, props) {
   const { logs, isFetching } = operationAuditLog.logs || defaultLogs
   const containersList = serviceContainers[cluster.clusterID] || defaultContainers
   return {
-    containersList,
+    isTeamspacesFetching: teamspaces.isFetching,
+    teamspaces: (teamspaces.result ? teamspaces.result.teamspaces : []),
+    isTeamClustersFetching: teamClusters.isFetching,
+    teamClusters: (teamClusters.result ? teamClusters.result.data : []),
     cluster: cluster.clusterID,
+    containersList,
     isFetching,
-    logs
+    logs,
   }
 }
 
@@ -740,5 +772,7 @@ QueryLog = injectIntl(QueryLog, {
 
 export default connect(mapStateToProps, {
   getQueryLogList,
-  loadServiceContainerList
+  loadServiceContainerList,
+  loadUserTeamspaceList,
+  getClusterOfQueryLog
 })(QueryLog)
