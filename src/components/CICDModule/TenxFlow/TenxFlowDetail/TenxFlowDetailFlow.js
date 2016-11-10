@@ -15,6 +15,7 @@ import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import { getTenxFlowStateList } from '../../../../actions/cicd_flow'
+import { getProjectList, searchProject } from '../../../../actions/cicd_flow'
 import './style/TenxFlowDetailFlow.less'
 import EditTenxFlowModal from './TenxFlowDetailFlow/EditTenxFlowModal.js'
 import CreateTenxFlowModal from './TenxFlowDetailFlow/CreateTenxFlowModal.js'
@@ -138,7 +139,9 @@ TenxFlowDetailFlow.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-  getTenxFlowStateList
+  getTenxFlowStateList,
+  getProjectList,
+  searchProject
 })(injectIntl(TenxFlowDetailFlow, {
   withRef: true,
 }));
