@@ -17,6 +17,7 @@ import { DEFAULT_REGISTRY } from '../../../../../constants'
 import { createTenxFlowState } from '../../../../../actions/cicd_flow'
 import './style/CreateTenxFlowModal.less'
 import EnvComponent from './EnvComponent.js'
+import CodeStoreListModal from './CodeStoreListModal.js'
 
 const RadioGroup = Radio.Group;
 const createForm = Form.create;
@@ -151,6 +152,10 @@ const menusText = defineMessages({
   envTitle: {
     id: 'CICD.Tenxflow.CreateTenxFlowModal.envTitle',
     defaultMessage: '自定义环境变量',
+  },
+  codeStore: {
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.codeStore',
+    defaultMessage: '代码仓库',
   }
 });
 
@@ -163,7 +168,10 @@ let CreateTenxFlowModal = React.createClass({
       useDockerfile: false,
       otherTag: false,
       envModalShow: null,
-      ImageStoreType: false
+      ImageStoreType: false,
+      codeStoreModalShow: false,
+      currentCodeStore: null,
+      currentCodeStoreName: null
     }
   },
   componentWillMount() {
@@ -352,6 +360,18 @@ let CreateTenxFlowModal = React.createClass({
       });
     }
   },
+  openCodeStoreModal() {
+    //this function for user select code store and user must be select code modal
+    this.setState({
+      codeStoreModalShow: true
+    });
+  },
+  closeCodeStoreModal() {
+    //this function for user select code store and user must be select code modal
+    this.setState({
+      codeStoreModalShow: false
+    });
+  },
   cancelChange(e) {
     //this function for reset the form and close the edit card
     e.preventDefault();
@@ -416,7 +436,7 @@ let CreateTenxFlowModal = React.createClass({
             'dependencies': serviceList
           },
           'project': {
-            'id': (++stageInfo.length) 
+            'id': this.state.currentCodeStore
         },
         }
       }
@@ -461,7 +481,7 @@ let CreateTenxFlowModal = React.createClass({
   },
   render() {
     const { formatMessage } = this.props.intl;
-    const { form } = this.props;
+    const { form, codeList } = this.props;
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form;
     const scopeThis = this;
     getFieldProps('services', {
@@ -606,7 +626,8 @@ let CreateTenxFlowModal = React.createClass({
             <span><FormattedMessage {...menusText.flowCode} /></span>
           </div>
           <div className='input'>
-            <Button className='selectCodeBtn' size='large' type='ghost'>
+            <span style={{ marginRight:'15px' }}>{this.state.currentCodeStoreName}</span>
+            <Button className='selectCodeBtn' size='large' type='ghost' onClick={this.openCodeStoreModal}>
               <i className='fa fa-file-code-o' />
               <FormattedMessage {...menusText.selectCode} />
             </Button>
@@ -792,6 +813,14 @@ let CreateTenxFlowModal = React.createClass({
           <FormattedMessage {...menusText.submit} />
         </Button>
       </div>
+      <Modal className='tenxFlowCodeStoreModal'
+        title={<FormattedMessage {...menusText.codeStore} />}
+        visible={this.state.codeStoreModalShow}
+        onOk={this.closeCodeStoreModal}
+        onCancel={this.closeCodeStoreModal}
+      >
+        <CodeStoreListModal scope={scopeThis} config={codeList} />
+      </Modal>
     </div>
     )
   }

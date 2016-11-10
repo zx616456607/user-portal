@@ -327,6 +327,7 @@
   "CICD.Tenxflow.CreateTenxFlowModal.submit": "确定",
   "CICD.Tenxflow.CreateTenxFlowModal.cancel": "取消",
   "CICD.Tenxflow.CreateTenxFlowModal.envTitle": "自定义环境变量",
+  "CICD.Tenxflow.CreateTenxFlowModal.codeStore": "代码仓库",
     
   "CICD.Tenxflow.TenxFlowDetailFlowCard.name": "名称：",
   "CICD.Tenxflow.TenxFlowDetailFlowCard.type": "类型：",
@@ -353,6 +354,10 @@
   "CICD.Tenxflow.TenxFlowDetailFlow.title": "部署记录",
   "CICD.Tenxflow.TenxFlowDetailFlow.tooltip": "TenxFlow流程定义，这里您可以定义一系列构建所需要的项目执行过程，可以是代码构建，亦或是开发自测，也可以是自动化集成、并实现自动化部署的一个All-In-One Platform",
   "CICD.Tenxflow.TenxFlowDetailFlow.add": "添加Flow项目",
+  
+  "CICD.Tenxflow.CodeStoreListModal.naem": "名称",
+  "CICD.Tenxflow.CodeStoreListModal.attr": "属性",
+  "CICD.Tenxflow.CodeStoreListModal.resource": "代码源",
   
   "CICD.Tenxflow.CICDSettingModal.tooltip": "当该项目对应的代码仓库，发生下面的操作时触发持续集成",
   "CICD.Tenxflow.CICDSettingModal.branch": "提交代码到branch",

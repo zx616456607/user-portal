@@ -75,7 +75,7 @@ class TenxFlowDetailFlow extends Component {
   }
 
   render() {
-    const { flowId, stageInfo, stageList, isFetching } = this.props;
+    const { flowId, stageInfo, stageList, isFetching, projectList } = this.props;
     let scope = this;
     let { currentFlowEdit } = scope.state;
     let cards = null;
@@ -88,7 +88,7 @@ class TenxFlowDetailFlow extends Component {
     } else {      
       cards = stageList.map( (item, index) => {
         return (
-          <TenxFlowDetailFlowCard config={item} scope={scope} index={index} flowId={flowId} currentFlowEdit={currentFlowEdit} />
+          <TenxFlowDetailFlowCard config={item} scope={scope} index={index} flowId={flowId} currentFlowEdit={currentFlowEdit} codeList={projectList} />
         )
       });
     }
@@ -112,7 +112,7 @@ class TenxFlowDetailFlow extends Component {
               {
                 this.state.createNewFlow ? [
                   <QueueAnim key='creattingCardAnimate'>
-                    <CreateTenxFlowModal key='CreateTenxFlowModal' scope={scope} flowId={flowId} stageInfo={stageInfo} />
+                    <CreateTenxFlowModal key='CreateTenxFlowModal' scope={scope} flowId={flowId} stageInfo={stageInfo} codeList={projectList} />
                   </QueueAnim>
                 ] : null
               }
