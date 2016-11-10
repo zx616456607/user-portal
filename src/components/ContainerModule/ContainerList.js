@@ -89,6 +89,7 @@ const MyComponent = React.createClass({
         name
       }
     }
+    confirmDeleteContainer([container])
   },
   handleDropdown: function (e) {
     e.stopPropagation()
@@ -247,7 +248,7 @@ class ContainerList extends Component {
       return
     }
     if (page === this.props.page && size === this.props.size && name === this.props.name
-        && sortOrder == this.props.sortOrder) {
+      && sortOrder == this.props.sortOrder) {
       return
     }
     this.setState({
@@ -332,8 +333,8 @@ class ContainerList extends Component {
 
   updateBrowserHistory(page, size, sortOrder) {
     if (page === this.props.page &&
-        size === this.props.size &&
-        sortOrder === this.props.sortOrder) {
+      size === this.props.size &&
+      sortOrder === this.props.sortOrder) {
       return
     }
 
@@ -356,7 +357,7 @@ class ContainerList extends Component {
     })
   }
 
-  sortCreateTime(){
+  sortCreateTime() {
     let { page, size, sortOrder } = this.props
     if (sortOrder == 'asc') {
       sortOrder = 'desc'
@@ -459,11 +460,11 @@ class ContainerList extends Component {
               <div className='createTime commonTitle' onClick={this.sortCreateTime}>
                 创建时间
                 <div className="ant-table-column-sorter">
-                  <span className= {sortOrder == 'asc'?'ant-table-column-sorter-up on':'ant-table-column-sorter-up off'} title="↑">
-                    <i className="anticon anticon-caret-up"/>
+                  <span className={sortOrder == 'asc' ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
+                    <i className="anticon anticon-caret-up" />
                   </span>
-                  <span className= {sortOrder == 'desc'?'ant-table-column-sorter-down on':'ant-table-column-sorter-down off'} title="↓">
-                    <i className="anticon anticon-caret-down"/>
+                  <span className={sortOrder == 'desc' ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
+                    <i className="anticon anticon-caret-down" />
                   </span>
                 </div>
               </div>
