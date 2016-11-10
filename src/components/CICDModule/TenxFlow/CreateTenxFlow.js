@@ -193,8 +193,14 @@ let CreateTenxFlow = React.createClass({
       }
       let body = {};
       if( _this.state.emailAlert ) {
+        let tempEmail = '';
+        if(values.radioEmail != 'others') {
+          tempEmail = values.radioEmail;
+        } else {
+          tempEmail = values.inputEmail.split(',');
+        }
         let temp = {
-          'email_list': values.inputEmail.split(','),
+          'email_list': tempEmail,
           'ci': {
             'success_notification': values.checkFirst,
             'failed_notification': values.checkSecond
@@ -206,6 +212,7 @@ let CreateTenxFlow = React.createClass({
         }       
         body = {
           'name': values.name,
+          'init_type': parseInt(values.radioFlow),
           'notification_config': JSON.stringify(temp)
         }
       } else {
@@ -217,13 +224,15 @@ let CreateTenxFlow = React.createClass({
       }
       createTenxFlowSingle(body, {
         success: {
-          func: (res) => browserHistory.push(`/ci_cd/tenx_flow/tenx_flow_build?${res.data.flowId}`),
+          func: (res) => {
+            scope.setState({
+              createTenxFlowModal: false
+            });
+            browserHistory.push(`/ci_cd/tenx_flow/tenx_flow_build?${res.data.flowId}`)
+            },
           isAsync: true
         },
-      });
-      scope.setState({
-        createTenxFlowModal: false
-      });
+      });    
     });
   },
   render() {

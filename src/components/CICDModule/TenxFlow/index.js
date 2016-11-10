@@ -136,7 +136,11 @@ let MyComponent = React.createClass({
             </Link>
           </div>
           <div className='time'>
-            <span>{item.updateTime ? item.updateTime : [<FormattedMessage {...menusText.unUpdate} />] }</span>
+            <span className='timeSpan'>
+              <Tooltip placement='topLeft' title={item.updateTime ? item.updateTime : [<FormattedMessage {...menusText.unUpdate} />]}>
+                <span>{item.updateTime ? item.updateTime : [<FormattedMessage {...menusText.unUpdate} />] }</span>
+              </Tooltip>
+            </span>
           </div>
           <div className='status'>
             <span>{ '-' }</span>
