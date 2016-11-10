@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 # build document
-build_doc() {
+build_user_portal() {
   set -x
   rm -rf dist
   rm -f static/js/common.js static/js/main.js static/locales/frontend/*.js
@@ -24,6 +24,6 @@ EOF
 #注意： Windows下也可使用（需要安装git）
 else
   echo "start build ${project}"
-  build_doc
+  build_user_portal
   echo "build ${project} success"
 fi
