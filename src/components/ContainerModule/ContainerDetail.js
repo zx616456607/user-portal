@@ -20,7 +20,7 @@ import { loadContainerDetail, deleteContainers } from '../../actions/app_manage'
 import ContainerMonitior from './ContainerMonitior'
 import TerminalModal from '../TerminalModal'
 import { browserHistory } from 'react-router'
-import TenxStatus from '../TenxStatus'
+import ContainerStatus from '../TenxStatus/ContainerStatus'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -136,7 +136,11 @@ class ContainerDetail extends Component {
                   <div className="status">
                     运行状态&nbsp;:
                     <span>
-                      <TenxStatus phase={container.status.phase} smart={true} />
+                      <ContainerStatus
+                        status={container.status}
+                        smart={true}
+                        deletionTimestamp={container.metadata.deletionTimestamp}
+                        />
                     </span>
                   </div>
                   <div className="address">

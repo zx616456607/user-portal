@@ -11,7 +11,8 @@
 export const API_URL_PREFIX = '/api/v2'
 export const DEFAULT_IMAGE_POOL = 'k8s-pool'
 export const DEFAULT_REGISTRY = 'default'
-export const LABEL_APPNAME = 'tenxcloud.com/appName'
+export const TENX_MARK = 'tenxcloud.com'
+export const LABEL_APPNAME = `${TENX_MARK}/appName`
 export const TEST_MONITOR_OPTION = {
   title: {
     text: 'test monitor'

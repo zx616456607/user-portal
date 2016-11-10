@@ -20,7 +20,7 @@ import { tenxDateFormat } from '../../common/tools.js'
 import { browserHistory } from 'react-router'
 import TerminalModal from '../TerminalModal'
 import parseServiceDomain from '../parseDomain'
-import TenxStatus from '../TenxStatus'
+import ContainerStatus from '../TenxStatus/ContainerStatus'
 
 const ButtonGroup = Button.Group
 const confirm = Modal.confirm
@@ -139,10 +139,10 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className='containerStatus commonData'>
-            <TenxStatus
-              phase={item.status.phase}
-              progress={item.status.progress}
+            <ContainerStatus
+              status={item.status}
               creationTimestamp={item.metadata.creationTimestamp}
+              deletionTimestamp={item.metadata.deletionTimestamp}
               />
           </div>
           <div className='serviceName commonData'>
