@@ -161,6 +161,7 @@ module.exports = function (Router) {
 
   // Manage Monitor
   router.post('/manage-monitor/getOperationAuditLog', manageMonitorController.getOperationAuditLog)
+  router.get('/manage-monitor/:team_id/getClusterOfQueryLog', manageMonitorController.getClusterOfQueryLog)
   router.post('/clusters/:cluster/instances/:instances/getSearchLog', manageMonitorController.getSearchLog)
 
   // DevOps service: CI/CD

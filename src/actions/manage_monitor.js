@@ -76,3 +76,24 @@ export function getQueryLogList(cluster, instances, body, callback) {
     return dispatch(fetchQueryLogList(cluster, instances, body, callback))
   }
 }
+
+export const GET_CLUSTER_OF_TEAM_FOR_LOG_REQUEST = 'GET_CLUSTER_OF_TEAM_FOR_LOG_REQUEST'
+export const GET_CLUSTER_OF_TEAM_FOR_LOG_SUCCESS = 'GET_CLUSTER_OF_TEAM_FOR_LOG_SUCCESS'
+export const GET_CLUSTER_OF_TEAM_FOR_LOG_FAILURE = 'GET_CLUSTER_OF_TEAM_FOR_LOG_FAILURE'
+
+function fetchClusterOfQueryLog(teamId, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_CLUSTER_OF_TEAM_FOR_LOG_REQUEST, GET_CLUSTER_OF_TEAM_FOR_LOG_SUCCESS, GET_CLUSTER_OF_TEAM_FOR_LOG_FAILURE],
+      endpoint: `${API_URL_PREFIX}/manage-monitor/${teamId}/getClusterOfQueryLog`,
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function getClusterOfQueryLog(teamId, callback) {
+  return (dispatch) => {
+    return dispatch(fetchClusterOfQueryLog(teamId, callback))
+  }
+}
