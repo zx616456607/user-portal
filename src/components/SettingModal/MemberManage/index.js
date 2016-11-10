@@ -27,6 +27,7 @@ let MemberTable =  React.createClass({
       sortName: true,
       sortTeam: true,
       sortBalance: true,
+      sort: "a,userName"
     };
   },
   handleChange(pagination, filters, sorter) {
@@ -35,29 +36,54 @@ let MemberTable =  React.createClass({
       sortedInfo: sorter,
     });
   },
+  getSort(order, column) {
+    var query = {}
+    var orderStr = 'a,'
+    if (!order) {
+      orderStr = 'd,'
+    }
+    return orderStr + column
+  },
   handleSortName(){
     const { loadUserList } = this.props.scope.props
     const { sortName } = this.state
-    //req
-    loadUserList()
+    let sort = this.getSort(!sortName, 'userName')
+    loadUserList({
+        page: this.state.page,
+        size: this.state.pageSize,
+        sort,
+    })
     this.setState({
       sortName: !sortName,
+      sort,
     })
   },
   handleSortTeam(){
     const { loadUserList } = this.props.scope.props
     const { sortTeam } = this.state
-    loadUserList()
+    let sort = this.getSort(!sortTeam, 'userName')
+    loadUserList({
+        page: this.state.page,
+        size: this.state.pageSize,
+        sort,
+    })
     this.setState({
       sortTeam: !sortTeam,
+      sort,
     })
   },
   handleSortBalance(){
     const { loadUserList } = this.props.scope.props
     const { sortBalance } = this.state
-    loadUserList()
+    let sort = this.getSort(!sortBalance, 'userName')
+    loadUserList({
+        page: this.state.page,
+        size: this.state.pageSize,
+        sort,
+    })
     this.setState({
       sortBalance: !sortBalance,
+      sort,
     })
   },
   handleBack(){
@@ -79,6 +105,7 @@ let MemberTable =  React.createClass({
               scope.props.loadUserList({
                 page: scope.state.page,
                 size: scope.state.pageSize,
+                sort: scope.state.sort,
               })
             },
             isAsync: true
@@ -104,7 +131,8 @@ let MemberTable =  React.createClass({
         console.log('Current: ', current, '; PageSize: ', pageSize);
         scope.props.loadUserList({
           page: current,
-          size: pageSize
+          size: pageSize,
+          sort: scope.state.sort
         })
         scope.setState({
           pageSize: pageSize,
@@ -117,7 +145,8 @@ let MemberTable =  React.createClass({
         console.log('Current: ', current);
         scope.props.loadUserList({
           page: current,
-          size: pageSize
+          size: pageSize,
+          sort: scope.state.sort
         })
         scope.setState({
           pageSize: pageSize,
@@ -297,6 +326,7 @@ let NewMemberForm = React.createClass({
             scope.props.loadUserList({
               page: scope.state.page,
               size: scope.state.pageSize,
+              sort: scope.state.sort
             })
           },
           isAsync: true
@@ -450,6 +480,7 @@ class MemberManage extends Component {
       memberList: [],
       pageSize: 5,
       page: 1,
+      sort: "a,userName",
     }
   }
   showModal() {
@@ -460,7 +491,8 @@ class MemberManage extends Component {
   componentWillMount(){
     this.props.loadUserList({
       page: 1,
-      size: 5
+      size: 5,
+      sort: "a,userName",
     })
     
   }
@@ -521,7 +553,7 @@ function mapStateToProp(state) {
             tel: item.phone,
             email: item.email,
             style: item.role === 1?'团队管理员':'普通成员',
-            team: '1',
+            team: item.teamCount,
             balance: item.balance,
           }
         )
