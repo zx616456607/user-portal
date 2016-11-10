@@ -6,7 +6,7 @@ build_doc() {
   rm -rf dist
   rm -f static/js/common.js static/js/main.js static/locales/frontend/*.js
   rm -f static/style/main.css
-  webpack -p --config webpack.config.prod.js
+  node_modules/.bin/webpack -p --config webpack.config.prod.js
   cp dist/common.js static/js/common.js
   cp dist/main.js static/js/main.js
   cp dist/zh.js static/locales/frontend/zh.js
