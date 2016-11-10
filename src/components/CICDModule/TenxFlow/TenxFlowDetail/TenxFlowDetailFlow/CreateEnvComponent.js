@@ -26,8 +26,8 @@ let CreateEnvComponent = React.createClass({
     }
   },
   componentDidMount(){
-    const { config } = this.props;
-    config.map((item, index) => {
+    const { config, form, index } = this.props;
+    config.map((item) => {
       let tmpUuid = ++this.state.uuid;
       this.setState({
         uuid: tmpUuid

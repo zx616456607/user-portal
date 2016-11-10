@@ -278,7 +278,7 @@ class TenxFlowDetailFlowCard extends Component {
   }
   
   render() {
-    let { config, index, scope, currentFlowEdit } = this.props;
+    let { config, index, scope, currentFlowEdit, flowId } = this.props;
     const scopeThis = this;
     console.log(config)
     return (
@@ -356,7 +356,7 @@ class TenxFlowDetailFlowCard extends Component {
           {
             currentFlowEdit == index ? [
               <QueueAnim key={'EditTenxFlowModalAnimate' + index}>
-                <EditTenxFlowModal key={'EditTenxFlowModal' + index} scope={scopeThis} config={config} />
+                <EditTenxFlowModal key={'EditTenxFlowModal' + index} rootScope={scope} scope={scopeThis} config={config} flowId={flowId} stageId={config.metadata.id} />
               </QueueAnim>
             ] : null
           }

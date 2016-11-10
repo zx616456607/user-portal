@@ -454,7 +454,7 @@ function postUpdateTenxFlowState(flowId, stageId, newStage, callback) {
   return {
     [FETCH_API]: {
       types: [UPDATE_TENX_FLOW_STATE_REQUEST, UPDATE_TENX_FLOW_STATE_SUCCESS, UPDATE_TENX_FLOW_STATE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/stages/$(stageId)`,
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/stages/${stageId}`,
       schema: {},
       options: {
         method: 'PUT',
@@ -479,7 +479,7 @@ function deleteTenxFlowState(flowId, stageId, callback) {
   return {
     [FETCH_API]: {
       types: [DELETE_TENX_FLOW_STATE_REQUEST, DELETE_TENX_FLOW_STATE_SUCCESS, DELETE_TENX_FLOW_STATE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/stages/$(stageId)`,
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/stages/${stageId}`,
       schema: {},
       options: {
         method: 'DELETE'
@@ -503,7 +503,7 @@ function fetchTenxFlowStateDetail(flowId, stageId, callback) {
   return {
     [FETCH_API]: {
       types: [GET_TENX_FLOW_STATE_DETAIL_REQUEST, GET_TENX_FLOW_STATE_DETAIL_SUCCESS, GET_TENX_FLOW_STATE_DETAIL_FAILURE],
-      endpoint: `${API_URL_PREFIX}/ci-flows/${flowId}/stages/$(stageId)`,
+      endpoint: `${API_URL_PREFIX}/ci-flows/${flowId}/stages/${stageId}`,
       schema: {},
     },
     callback: callback

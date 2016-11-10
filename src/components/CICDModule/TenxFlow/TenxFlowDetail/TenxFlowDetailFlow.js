@@ -14,7 +14,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../constants'
-import { getTenxFlowStateList } from '../../../../constants'
+import { getTenxFlowStateList } from '../../../../actions/cicd_flow'
 import './style/TenxFlowDetailFlow.less'
 import EditTenxFlowModal from './TenxFlowDetailFlow/EditTenxFlowModal.js'
 import CreateTenxFlowModal from './TenxFlowDetailFlow/CreateTenxFlowModal.js'
@@ -49,7 +49,8 @@ class TenxFlowDetailFlow extends Component {
   }
 
   componentWillMount() {
-    document.title = 'TenxFlow | 时速云';
+    const { getTenxFlowStateList, flowId } = this.props;
+    getTenxFlowStateList(flowId);
   }
   
   createNewFlow() {
@@ -69,17 +70,20 @@ class TenxFlowDetailFlow extends Component {
   }
 
   render() {
-    const { flowId, stageInfo } = this.props;
+    const { flowId, stageInfo, stageList, isFetching } = this.props;
     let scope = this;
     let { currentFlowEdit } = scope.state;
     let cards = null;
-    console.log(stageInfo)
-    if(!!!stageInfo) {
-      cards = null;
+    if(isFetching) {
+      return (
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
+      )
     } else {      
-      cards = stageInfo.map( (item, index) => {
+      cards = stageList.map( (item, index) => {
         return (
-          <TenxFlowDetailFlowCard config={item} scope={scope} index={index} currentFlowEdit={currentFlowEdit} />
+          <TenxFlowDetailFlowCard config={item} scope={scope} index={index} flowId={flowId} currentFlowEdit={currentFlowEdit} />
         )
       });
     }
@@ -121,8 +125,8 @@ function mapStateToProps(state, props) {
     isFetching: false,
     stageList: []
   }
-  const { getTenxFlowStageList } = state.cicd_flow;
-  const { isFetching, stageList } = getTenxFlowStageList || defaultStageList;
+  const { getTenxflowStageList } = state.cicd_flow;
+  const { isFetching, stageList } = getTenxflowStageList || defaultStageList;
   return {
     isFetching,
     stageList

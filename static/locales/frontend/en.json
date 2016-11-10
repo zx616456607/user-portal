@@ -293,6 +293,7 @@
   "CICD.Tenxflow.EditTenxFlowModal.buildCache": "构建缓存",
   "CICD.Tenxflow.EditTenxFlowModal.submit": "确定",
   "CICD.Tenxflow.EditTenxFlowModal.cancel": "取消",
+  "CICD.Tenxflow.EditTenxFlowModal.envTitle": "自定义环境变量",
   
   "CICD.Tenxflow.CreateTenxFlowModal.titleEdit": "编辑项目卡片",
   "CICD.Tenxflow.CreateTenxFlowModal.titleAdd": "创建项目卡片",

@@ -14,6 +14,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../../constants'
+import { updateTenxFlowState } from '../../../../../actions/cicd_flow'
 import './style/EditTenxFlowModal.less'
 import EnvComponent from './CreateEnvComponent.js'
 
@@ -182,6 +183,15 @@ let EditTenxFlowModal = React.createClass({
         'shellCodes': keys
       });
     });
+    let serviceList = config.spec.container.dependencies;
+    serviceList.map((item, index) => {
+      uuid++;
+      let keys = form.getFieldValue('services');
+      keys = keys.concat(uuid);
+      form.setFieldsValue({
+        'services': keys
+      });
+    });
   },
   flowNameExists(rule, value, callback) {
     //this function for check the new tenxflow name is exist or not
@@ -244,9 +254,6 @@ let EditTenxFlowModal = React.createClass({
     const { form } = this.props;
     // can use data-binding to get
     let keys = form.getFieldValue('services');
-    if(keys.length == 1) {
-      return ;
-    }
     keys = keys.filter((key) => {
       return key !== k;
     });
@@ -254,6 +261,9 @@ let EditTenxFlowModal = React.createClass({
     form.setFieldsValue({
       'services':keys
     });
+    if(keys.length == 0) {
+      this.addService ()
+    }
   },
   addService () {
     //this function for user add an new box of service select
@@ -328,9 +338,21 @@ let EditTenxFlowModal = React.createClass({
       });
     }
   },
+  changeImageStoreType (e) {
+    //this function for user change image store type
+    if( e.target.value == '3' ) {
+      this.setState({
+        ImageStoreType: true
+      });
+    } else {
+      this.setState({
+        ImageStoreType: false
+      });
+    }
+  },
   changeImageTagType (e) {
     //this function for user change image tag type
-    if( e.target.value == '6' ) {
+    if( e.target.value == '3' ) {
       this.setState({
         otherTag: true
       });
@@ -354,17 +376,101 @@ let EditTenxFlowModal = React.createClass({
   },
   handleSubmit(e) {
     //this function for user submit the form
-    const { scope } = this.props;
+    const { scope, config, updateTenxFlowState, flowId, stageId, rootScope } = this.props;
+    const { getTenxFlowStateList } = rootScope.props;
     const _this = this;
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         e.preventDefault();
         return;
       }
-      _this.setState({
-        currentTenxFlow: values
+      console.log(values)
+      //get shell code
+      let shellLength = values.shellCodes;
+      let shellList = [];
+      shellLength.map((item, index) => {
+        if((index + 1) != shellLength.length) {
+          if(!!values['shellCode' + item]) {            
+            shellList.push(values['shellCode' + item]);
+          }
+        }
       });
-      scope.cancelEditCard();
+      //get service code
+      let serviceLength = values.services;
+      let serviceList = [];
+      serviceLength.map((item) => {
+        let temp = {
+          'service': values['serviceSelect' + item]
+        }
+        if(!!values['serviceSelect' + item]) {
+          let tempLength = values['service' + item + 'inputs'];
+          let tempList = [];
+          if(tempLength == undefined) {
+            tempList = config.spec.container.dependencies[item].env;            
+          } else {            
+            tempLength.map((littleItem, littleIndex) => {
+              if((littleIndex + 1) != tempLength.length) {
+                tempList.push(values['service' + item +'input' + littleItem]);
+              }
+            });
+          }
+          temp.env = tempList;
+          serviceList.push(temp);
+        }
+      });
+      let body = {
+        'metadata': {
+          'name': values.flowName,
+          'type': parseInt(values.flowType), 
+        },
+        'spec': {
+          'container': {
+            'image': values.imageName,
+            'args': shellList,
+            'dependencies': serviceList
+          },
+          'project': {
+            'id': parseInt(config.spec.project.id)
+        },
+        }
+      }
+      //if user select the customer type (6), ths customType must be input
+      if(values.flowType == '6') {
+        body.metadata.customType = values.otherFlowType;
+      }
+      //if user select the image build type (5),the body will be add new body
+      if(values.flowType == '5') {
+        let dockerFileFrom = _this.state.useDockerfile ? 1 : 2;
+        let imageBuildBody = {
+          'DockerfileFrom': dockerFileFrom,
+          'registryType': parseInt(values.imageType),
+          'imageTagType': parseInt(values.imageTag),
+          'noCache': values.buildCache,
+          'image': values.imageRealName
+        }
+        if(this.state.otherTag) {
+          imageBuildBody.customTag = values.otherTag;
+        }
+        if(this.state.ImageStoreType) {          
+          imageBuildBody.customRegistry = values.otherStoreUrl;
+        }
+        if(this.state.useDockerfile) {
+          let tmpDockerFileUrl = null;
+          if(!!!values.dockerFileUrl) {
+            tmpDockerFileUrl = '';
+          } else {
+            tmpDockerFileUrl = values.dockerFileUrl;
+          }
+          imageBuildBody.DockerfilePath = '/' + tmpDockerFileUrl;
+        }
+        body.spec.build = imageBuildBody;
+      }
+      console.log(body)
+      updateTenxFlowState(flowId, stageId, body, {
+        success: {
+          func: () => getTenxFlowStateList(flowId)
+        }
+      })
     });
   },
   render() {
@@ -381,11 +487,13 @@ let EditTenxFlowModal = React.createClass({
       initialValue: [0],
     });
     const serviceItems = getFieldValue('services').map((k) => {
+      let serviceDefault = !!servicesList[k] ? servicesList[k].service : null;
+      let envDefault = !!servicesList[k] ? servicesList[k].env : [];
       const serviceSelect = getFieldProps(`serviceSelect${k}`, {
         rules: [
-          { required: true, message: '请选择' },
+          { message: '请选择' },
         ],
-        initialValue: servicesList[k].service,
+        initialValue: serviceDefault,
       });
       return (
       <QueueAnim key={'serviceName' + k + 'Animate'}>
@@ -404,7 +512,7 @@ let EditTenxFlowModal = React.createClass({
             onOk={this.closeEnvSettingModal}
             onCancel={this.closeEnvSettingModal}
           >
-            <EnvComponent scope={scopeThis} config={servicesList[k].env} index={k} form={form} />
+            <EnvComponent scope={scopeThis} config={envDefault} index={k} form={form} />
           </Modal>
         </div>
       </QueueAnim>
@@ -465,7 +573,7 @@ let EditTenxFlowModal = React.createClass({
       rules: [
         { message: '请输入Docker File地址' },
       ],
-      initialValue: config.spec.build.dockerfilePath
+      initialValue: (config.spec.build.dockerfilePath.replace('/',''))
     });
     const otherImageStoreTypeProps = getFieldProps('otherStoreUrl', {
       rules: [
@@ -637,7 +745,7 @@ let EditTenxFlowModal = React.createClass({
                 </div>
                 <div className='input imageType'>
                   <FormItem style={{ float:'left' }}>
-                    <RadioGroup {...getFieldProps('imageType', { initialValue: 'imageStore' })}>
+                    <RadioGroup {...getFieldProps('imageType', { initialValue: (config.spec.build.registryType + ''), onChange: this.changeImageStoreType })}>
                       <Radio key='imageStore' value={'1'}><FormattedMessage {...menusText.imageStore} /></Radio>
                       <Radio key='DockerHub' value={'2'}>Docker Hub</Radio>
                       <Radio key='otherImage' value={'3'}><FormattedMessage {...menusText.otherImage} /></Radio>
@@ -664,7 +772,7 @@ let EditTenxFlowModal = React.createClass({
                 </div>
                 <div className='input'>
                   <FormItem style={{ float:'left' }}>
-                    <RadioGroup {...getFieldProps('imageTag', { initialValue: 'imageStore',onChange: this.changeImageTagType })}>
+                    <RadioGroup {...getFieldProps('imageTag', { initialValue: (config.spec.build.imageTagType + ''), onChange: this.changeImageTagType })}>
                       <Radio key='branch' value={'1'}><FormattedMessage {...menusText.ImageTagByBranch} /></Radio>
                       <Radio key='time' value={'2'}><FormattedMessage {...menusText.ImageTagByTime} /></Radio>
                       <Radio key='other' value={'3'}><FormattedMessage {...menusText.otherImage} /></Radio>
@@ -691,7 +799,7 @@ let EditTenxFlowModal = React.createClass({
                 </div>
                 <div className='input imageType'>
                   <FormItem>
-                    <Switch {...getFieldProps('buildCache')} />
+                    <Switch {...getFieldProps('buildCache')} defaultChecked={config.spec.build.noCache} />
                   </FormItem>
                 </div>
                 <div style={{ clear:'both' }} />
@@ -727,7 +835,7 @@ EditTenxFlowModal.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-
+  updateTenxFlowState
 })(injectIntl(EditTenxFlowModal, {
   withRef: true,
 }));
