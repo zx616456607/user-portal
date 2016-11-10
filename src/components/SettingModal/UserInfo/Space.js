@@ -28,7 +28,6 @@ let PersonalSpace = React.createClass ({
               <use xlinkHref="#settingapp" />
             </svg>
             <span className="infSvgTxt">应用</span>
-            
           </Col>
           <Col span={4}>
             <svg className="infSvg" style={{marginRight:8}}>
@@ -110,19 +109,19 @@ let TeamSpace = React.createClass({
           </Col>
           <Col span={2}>
             <svg className="infSvg" style={{marginRight:8}}>
-              <use xlinkHref="#settingservice" />
+              <use xlinkHref="#settingcontainer" />
             </svg>
             <span className="infSvgTxt">容器</span>
           </Col>
           <Col span={3}>
             <svg className="infSvg" style={{marginRight:8}}>
-              <use xlinkHref="#settingservice" />
+              <use xlinkHref="#settingbalance" />
             </svg>
             <span className="infSvgTxt">余额</span>
           </Col>
           <Col span={4}>
             <svg className="infSvg" style={{marginRight:8}}>
-              <use xlinkHref="#settingservice" />
+              <use xlinkHref="#settingopt" />
             </svg>
             <span className="infSvgTxt">操作</span>
           </Col>

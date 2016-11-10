@@ -107,7 +107,6 @@ let TeamTable = React.createClass({
     })
   },
   handleChange(targetKeys) {
-    console.log('targetKeys',targetKeys)
     this.setState({ targetKeys })
   },
   render() {
@@ -123,10 +122,8 @@ let TeamTable = React.createClass({
       defaultPageSize: 5,
       pageSizeOptions: ['5','10','15','20'],
       onShowSizeChange(current, pageSize) {
-        console.log('Current: ', current, '; PageSize: ', pageSize);
       },
       onChange(current) {
-        console.log('Current: ', current);
       },
     }
     const columns = [
