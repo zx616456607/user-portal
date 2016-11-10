@@ -77,7 +77,7 @@ const MyComponent = React.createClass({
             <ContainerStatus
               status={item.status}
               creationTimestamp={item.metadata.creationTimestamp}
-              deletionTimestamp={container.metadata.deletionTimestamp}
+              deletionTimestamp={item.metadata.deletionTimestamp}
               />
           </div>
           <div className="image commonData">
