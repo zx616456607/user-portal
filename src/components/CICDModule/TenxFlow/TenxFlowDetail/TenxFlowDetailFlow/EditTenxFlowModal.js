@@ -17,6 +17,7 @@ import { DEFAULT_REGISTRY } from '../../../../../constants'
 import { updateTenxFlowState } from '../../../../../actions/cicd_flow'
 import './style/EditTenxFlowModal.less'
 import EnvComponent from './CreateEnvComponent.js'
+import CodeStoreListModal from './CodeStoreListModal.js'
 
 const RadioGroup = Radio.Group;
 const createForm = Form.create;
@@ -151,8 +152,23 @@ const menusText = defineMessages({
   envTitle: {
     id: 'CICD.Tenxflow.EditTenxFlowModal.envTitle',
     defaultMessage: '自定义环境变量',
+  },
+  codeStore: {
+    id: 'CICD.Tenxflow.EditTenxFlowModal.codeStore',
+    defaultMessage: '代码仓库',
   }
 });
+
+function fetchCodeStoreName(id, codeList) {
+  //this function for fetcht code store name 
+  let codeName = null;
+  codeList.map((item) => {
+    if(item.id == id) {
+      codeName = item.name;
+    }
+  });
+  return codeName;
+}
 
 let uuid = 0;
 let shellUid = 0;
@@ -163,20 +179,25 @@ let EditTenxFlowModal = React.createClass({
       useDockerfile: false,
       otherTag: false,
       envModalShow: null,
-      ImageStoreType: false
+      ImageStoreType: false,
+      currentCodeStore: null,
+      currentCodeStoreName: null
     }
   },
   componentDidMount() {
     uuid = 0;
     shellUid = 0;
-    const { config, form } = this.props;
+    const { config, form, codeList } = this.props;
     let otherFlowType = config.metadata.type + '';
+    let codeStoreName = fetchCodeStoreName(config.spec.project.id, codeList)
     if(otherFlowType != '5') {
       this.setState({
         otherFlowType: false,
         useDockerfile: false,
         ImageStoreType: false,
-        otherTag: false
+        otherTag: false,
+        currentCodeStore: config.spec.project.id,
+        currentCodeStoreName: codeStoreName
       });
     }else {     
       let useDockerfile = config.spec.build.dockerfileFrom == 1 ? true : false;
@@ -186,7 +207,9 @@ let EditTenxFlowModal = React.createClass({
         otherFlowType: otherFlowType,
         useDockerfile: useDockerfile,
         ImageStoreType: ImageStoreType,
-        otherTag: otherTag
+        otherTag: otherTag,
+        currentCodeStore: config.spec.project.id,
+        currentCodeStoreName: codeStoreName
       });
     }
     let shellList = config.spec.container.args;
@@ -341,6 +364,15 @@ let EditTenxFlowModal = React.createClass({
       }
     }
   },
+  realImageInput (rule, value, callback) {
+    //this function for user selected build image type
+    //and when user submit the form, the function will check the real image input or not 
+    if (this.state.otherFlowType == '5' && !!!value) {
+      callback([new Error('请输入镜像名称')]);
+    } else {
+      callback();
+    }
+  },
   changeUseDockerFile (e) {
     //this function for user change using the docker file or not
     if(e.target.checked) {
@@ -377,6 +409,18 @@ let EditTenxFlowModal = React.createClass({
       });
     }
   },
+  openCodeStoreModal() {
+    //this function for user select code store and user must be select code modal
+    this.setState({
+      codeStoreModalShow: true
+    });
+  },
+  closeCodeStoreModal() {
+    //this function for user select code store and user must be select code modal
+    this.setState({
+      codeStoreModalShow: false
+    });
+  },
   cancelChange(e) {
     //this function for reset the form and close the edit card
     e.preventDefault();
@@ -399,7 +443,6 @@ let EditTenxFlowModal = React.createClass({
         e.preventDefault();
         return;
       }
-      console.log(values)
       //get shell code
       let shellLength = values.shellCodes;
       let shellList = [];
@@ -445,7 +488,7 @@ let EditTenxFlowModal = React.createClass({
             'dependencies': serviceList
           },
           'project': {
-            'id': parseInt(config.spec.project.id)
+            'id': _this.state.currentCodeStore
         },
         }
       }
@@ -482,7 +525,12 @@ let EditTenxFlowModal = React.createClass({
       }
       updateTenxFlowState(flowId, stageId, body, {
         success: {
-          func: () => getTenxFlowStateList(flowId),
+          func: () => {
+            rootScope.setState({
+              currentFlowEdit: null
+            });
+            getTenxFlowStateList(flowId)
+            },
           isAsync: true
         }
       })
@@ -490,7 +538,7 @@ let EditTenxFlowModal = React.createClass({
   },
   render() {
     const { formatMessage } = this.props.intl;
-    const { config, form } = this.props;
+    const { config, form, codeList } = this.props;
     const shellList = config.spec.container.args;
     const servicesList = config.spec.container.dependencies;
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form;
@@ -566,7 +614,8 @@ let EditTenxFlowModal = React.createClass({
     });
     const imageRealNameProps = getFieldProps('imageRealName', {
       rules: [
-        { required: true, message: '请输入镜像名称' },
+        { message: '请输入镜像名称' },
+        { validator: this.realImageInput },
       ],
       initialValue: (!!config.spec.build ? config.spec.build.image : null)
     });
@@ -646,7 +695,8 @@ let EditTenxFlowModal = React.createClass({
             <span><FormattedMessage {...menusText.flowCode} /></span>
           </div>
           <div className='input'>
-            <Button className='selectCodeBtn' size='large' type='ghost'>
+            <span style={{ marginRight:'15px' }}>{this.state.currentCodeStoreName}</span>
+            <Button className='selectCodeBtn' size='large' type='ghost' onClick={this.openCodeStoreModal}>
               <i className='fa fa-file-code-o' />
               <FormattedMessage {...menusText.selectCode} />
             </Button>
@@ -832,6 +882,14 @@ let EditTenxFlowModal = React.createClass({
           <FormattedMessage {...menusText.submit} />
         </Button>
       </div>
+      <Modal className='tenxFlowCodeStoreModal'
+        title={<FormattedMessage {...menusText.codeStore} />}
+        visible={this.state.codeStoreModalShow}
+        onOk={this.closeCodeStoreModal}
+        onCancel={this.closeCodeStoreModal}
+      >
+        <CodeStoreListModal scope={scopeThis} config={codeList} hadSelected={this.state.currentCodeStore} />
+      </Modal>
     </div>
     )
   }

@@ -819,7 +819,7 @@ let CreateTenxFlowModal = React.createClass({
         onOk={this.closeCodeStoreModal}
         onCancel={this.closeCodeStoreModal}
       >
-        <CodeStoreListModal scope={scopeThis} config={codeList} />
+        <CodeStoreListModal scope={scopeThis} config={codeList} hadSelected={this.state.currentCodeStore} />
       </Modal>
     </div>
     )
