@@ -41,7 +41,7 @@ let MemberList = React.createClass({
   handleDel(e){
     
   },
-  onRowClick(){
+  handleAppSort(){
     const { sortOrder } = this.state
     this.setState({
       sortOrder: !sortOrder,
@@ -66,7 +66,7 @@ let MemberList = React.createClass({
     const columns = [
       {
         title: (
-          <div onClick={this.onRowClick}>
+          <div onClick={this.handleAppSort}>
             成员名
             <div className="ant-table-column-sorter">
               <span className= {this.state.sortOrder?'ant-table-column-sorter-up on':'ant-table-column-sorter-up off'} title="↑">
@@ -142,25 +142,46 @@ let TeamList = React.createClass({
       pagination: {},
       loading: false,
       sortOrder: true,
+      sortSpace: true,
     }
   },
-  onRowClick(){
+  handleAppSort(){
     const { sortOrder } = this.state
     this.setState({
       sortOrder: !sortOrder,
     })
     //req
   },
+  handleSortSpace(){
+    const { sortSpace } = this.state
+    this.setState({
+      sortSpace: !sortSpace,
+    })
+    //req
+  },
   render: function(){
-    let { sortedInfo, filteredInfo } = this.state
+    let { filteredInfo } = this.state
     const { teamSpacesList } = this.props
     filteredInfo = filteredInfo || {}
     const columns = [
       {
-        title: '空间名',
+        title: (
+          <div onClick={this.handleSortSpace}>
+            空间名
+            <div className="ant-table-column-sorter">
+              <span className= {this.state.sortSpace?'ant-table-column-sorter-up on':'ant-table-column-sorter-up off'} title="↑">
+                <i className="anticon anticon-caret-up"/>
+              </span>
+              <span className= {!this.state.sortSpace?'ant-table-column-sorter-down on':'ant-table-column-sorter-down off'} title="↓">
+                <i className="anticon anticon-caret-down"/>
+              </span>
+            </div>
+          </div>
+        ),
         dataIndex: 'teamName',
         key: 'teamName',
         className: 'tablePadding',
+        
       },
       {
         title: '备注',
@@ -169,7 +190,7 @@ let TeamList = React.createClass({
       },
       {
         title: (
-          <div onClick={this.onRowClick}>
+          <div onClick={this.handleAppSort}>
             应用
             <div className="ant-table-column-sorter">
               <span className= {this.state.sortOrder?'ant-table-column-sorter-up on':'ant-table-column-sorter-up off'} title="↑">
@@ -252,18 +273,8 @@ class TeamDetail extends Component{
     this.setState({ targetKeys })
   }
   addNewSpace(){
-    const { createTeamspace, teamID } = this.props
-    createTeamspace(teamID,{
-      
-    },{
-      success: {
-        func:() => {
-          this.setState({
-            addSpace: true,
-          })
-        },
-        isAsync: true
-      }
+    this.setState({
+      addSpace: true,
     })
   }
   handleNewSpaceOk(){
@@ -407,7 +418,6 @@ function mapStateToProp(state,props) {
   let clusterData = []
   let clusterList = []
   let teamUserList = []
-  let userList = []
   let teamSpacesList = []
   const { team_id } = props.params
   console.log('state',state);
@@ -454,20 +464,14 @@ function mapStateToProp(state,props) {
       teamSpacesList.push(
         {
           key: index,
-          
         }
       )
     })
   }
-  if(users){
-    
-  }
-  
   return {
     teamID: team_id,
     clusterList: clusterList,
     teamUserList: teamUserList,
-    userList: userList,
     teamSpacesList: teamSpacesList,
   }
 }

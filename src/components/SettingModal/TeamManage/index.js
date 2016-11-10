@@ -46,7 +46,6 @@ let TeamTable = React.createClass({
     const {deleteTeam} = this.props.scope.props
     confirm({
       title: '您是否确认要删除这项内容',
-      content: '点确认 1 秒后关闭',
       onOk() {
         console.log('del !!!!!')
         deleteTeam(this.props.teamID)
@@ -87,6 +86,7 @@ let TeamTable = React.createClass({
     const { addTeamusers, teamID } = this.props
     const { targetKeys } = this.state
     if(targetKeys.length !== 0){
+      
       addTeamusers(teamID,{
         
       },{

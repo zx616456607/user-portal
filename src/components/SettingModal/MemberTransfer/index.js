@@ -19,29 +19,26 @@ class MemberTransfer extends Component{
   constructor(props){
     super(props)
     this.state = {
-      mockData: [],
     }
   }
-  getMock() {
-    const { teamUserList, userList} = this.props
-    console.log('userList',userList);
-    userList.filter(function (item) {
-      return teamUserList.includes(item)
-    })
-    console.log('userListuserList',userList);
-    this.setState({
-      mockData:userList,
-    })
-  }
-  
   componentWillMount(){
-    this.props.loadUserList({size:0})
+    this.props.loadUserList({size:-1})
   }
   componentDidMount(){
-    this.getMock()
   }
   render(){
-    const { onChange,targetKeys } = this.props
+    const { onChange,targetKeys,userList,teamUserList } = this.props
+    let teamUserIDList = []
+    if(teamUserList.length !== 0){
+      teamUserList.map((item,index) => {
+        teamUserIDList.push(item.key)
+      })
+      if(userList.length !== 0){
+        userList.filter(function (item) {
+          return teamUserIDList.includes(item.key)
+        })
+      }
+    }
     return (
       <div id='MemberTransfer'>
         <Row className="listTitle">
@@ -53,7 +50,7 @@ class MemberTransfer extends Component{
           <Col span={12}>所属团队</Col>
         </Row>
         <Transfer
-          dataSource={this.state.mockData}
+          dataSource={userList}
           showSearch
           listStyle={{
             width: 250,
@@ -87,7 +84,7 @@ function mapStateToProp(state,props) {
     team.teamusers.map((item,index) => {
       teamUserList.push(
         {
-          key: index,
+          key: item.userID,
           title: '',
           description: '',
           name: 'pupumeng',

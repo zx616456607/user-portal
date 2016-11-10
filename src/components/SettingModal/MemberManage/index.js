@@ -16,6 +16,7 @@ import { loadUserList, createUser, deleteUser } from '../../../actions/user'
 
 const createForm = Form.create;
 const FormItem = Form.Item;
+const confirm = Modal.confirm;
 
 let MemberTable =  React.createClass({
   getInitialState() {
@@ -67,17 +68,25 @@ let MemberTable =  React.createClass({
   },
   delMember(record){
     const { scope } = this.props
-    scope.props.deleteUser(record.key,{
-      success: {
-        func: () => {
-          scope.props.loadUserList({
-            page: scope.state.page,
-            size: scope.state.pageSize,
-          })
-        },
-        isAsync: true
+    confirm({
+      title: '您是否确认要删除这项内容',
+      content: '点确认 1 秒后关闭',
+      onOk() {
+        console.log('del !!!!!')
+        scope.props.deleteUser(record.key,{
+          success: {
+            func: () => {
+              scope.props.loadUserList({
+                page: scope.state.page,
+                size: scope.state.pageSize,
+              })
+            },
+            isAsync: true
+          },
+        })
       },
-    })
+      onCancel() {},
+    });
   },
   render() {
     let { sortedInfo, filteredInfo } = this.state
