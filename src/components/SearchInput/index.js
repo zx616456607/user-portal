@@ -10,10 +10,12 @@
 import React, { Component } from 'react'
 import { Button, Input, Select, } from 'antd'
 import './style/SearchInput.less'
+import { connect } from 'react-redux'
+import { loadUserList } from '../../actions/user'
 
 const Option = Select.Option
 
-export default class SearchInput extends Component{
+class SearchInput extends Component{
   constructor(props){
     super(props)
     this.handleInt = this.handleInt.bind(this)
@@ -53,41 +55,48 @@ export default class SearchInput extends Component{
   handleSearch(){
     const { selecteData, searchValue, selecteValue } = this.state
     let { data, scope } = this.props
-
     if(selecteData.length === 0){
       return
     } else {
-      let result = []
-      let searchResult= []
-      selecteData.map((item,index) => {
-        let flag = item.indexOf(searchValue)
-        if(flag >= 0){
-          result.push(item)
-        }
-        if(result.length === 0){
-          scope.setState({
-            notFound: true
+      this.props.loadUserList({},{
+      success:{
+        func: () => {
+          console.log('search !!');
+          let result = []
+          let searchResult= []
+          selecteData.map((item,index) => {
+            let flag = item.indexOf(searchValue)
+            if(flag >= 0){
+              result.push(item)
+            }
+            if(result.length === 0){
+              scope.setState({
+                notFound: true
+              })
+            } else {
+              scope.setState({
+                notFound: false
+              })
+            }
           })
-        } else {
-          scope.setState({
-            notFound: false
+          data.map((item) => {
+            if(result.includes(item[`${selecteValue}`])){
+              searchResult.push(item)
+            }
           })
-        }
-      })
-      data.map((item) => {
-        if(result.includes(item[`${selecteValue}`])){
-          searchResult.push(item)
-        }
-      })
-      scope.setState({
-        searchResult: searchResult
-      })
+          scope.setState({
+            searchResult: searchResult
+          })
+        },
+        isAsync:true
+      }
+    })
     }
   }
   handleSelect(value){
     const { data } = this.props
-
     const selecteData = []
+    
     data.map((item,index) => {
       selecteData.push(item[`${value}`])
     })
@@ -96,8 +105,11 @@ export default class SearchInput extends Component{
       selecteData: selecteData
     })
   }
+  componentWillMount(){
+    this.props.loadUserList({})
+  }
   render(){
-    let { searchIntOption } = this.props
+    let { searchIntOption, } = this.props
     
     if(!searchIntOption){
       searchIntOption = {
@@ -151,3 +163,35 @@ export default class SearchInput extends Component{
     }
   }
 }
+
+function mapStateToProp(state) {
+  let usersData = []
+  let data = []
+  const users = state.user.users
+  if (users.result) {
+    if (users.result.users) {
+      usersData = users.result.users
+      console.log('usersData',usersData);
+      usersData.map((item,index) => {
+        data.push(
+          {
+            key: item.userID,
+            name: item.displayName,
+            tel: item.phone,
+            email: item.email,
+            style: item.role === 1?'团队管理员':'普通成员',
+            team: '1',
+            balance: item.balance,
+          }
+        )
+      })
+    }
+  }
+  return {
+    data: data,
+  }
+}
+
+export default connect(mapStateToProp, {
+  loadUserList,
+})(SearchInput)
