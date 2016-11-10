@@ -171,7 +171,7 @@ class AppServiceDetail extends Component {
         </Link>
       </Menu.Item>
     </Menu>);
-    const svcDomain = parseServiceDomain(service)
+    const svcDomain = parseServiceDomain(service, this.props.bindingDomains)
     return (
       <div id="AppServiceDetail">
         <div className="titleBox">
@@ -357,6 +357,7 @@ function mapStateToProps(state, props) {
 
   return {
     cluster,
+    bindingDomains: state.entities.current.cluster.bindingDomains,
     serviceName,
     serviceDetail: targetService.service,
     isServiceDetailFetching: targetService.isFetching,

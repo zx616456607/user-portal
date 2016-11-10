@@ -120,7 +120,6 @@ const MyComponent = React.createClass({
           </Menu.Item>
         </Menu>
       );
-      const domain = parseServiceDomain(item)
       return (
         <div className={item.checked ? 'selectedContainer containerDetail' : 'containerDetail'}
           key={item.metadata.name}
@@ -162,13 +161,6 @@ const MyComponent = React.createClass({
           <div className='visitIp commonData'>
             <Tooltip placement='topLeft' title={item.status.podIP}>
               <span>{item.status.podIP}</span>
-            </Tooltip>
-            <br />
-            <Tooltip placement='topLeft' title={domain.length > 0 ? domain[0] : ""}>
-              {
-                domain.length > 0 ?
-                  (<a target="_blank" href={domain[0]}>{domain[0]}</a>) : (<span>-</span>)
-              }
             </Tooltip>
           </div>
           <div className='createTime commonData'>
