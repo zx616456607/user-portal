@@ -14,8 +14,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../constants'
-import { getTenxFlowStateList } from '../../../../actions/cicd_flow'
-import { getProjectList, searchProject } from '../../../../actions/cicd_flow'
+import { getTenxFlowStateList, getProjectList, searchProject } from '../../../../actions/cicd_flow'
 import './style/TenxFlowDetailFlow.less'
 import EditTenxFlowModal from './TenxFlowDetailFlow/EditTenxFlowModal.js'
 import CreateTenxFlowModal from './TenxFlowDetailFlow/CreateTenxFlowModal.js'
@@ -50,8 +49,13 @@ class TenxFlowDetailFlow extends Component {
   }
 
   componentWillMount() {
-    const { getTenxFlowStateList, flowId } = this.props;
-    getTenxFlowStateList(flowId);
+    const { getTenxFlowStateList, flowId, getProjectList } = this.props;
+    getTenxFlowStateList(flowId, {
+      success: {        
+        func: () => getProjectList(),
+        isAsync: true        
+      }
+    });
   }
   
   createNewFlow() {
@@ -126,11 +130,17 @@ function mapStateToProps(state, props) {
     isFetching: false,
     stageList: []
   }
+  const defaultStatus = {
+    projectList:[]
+  }
   const { getTenxflowStageList } = state.cicd_flow;
   const { isFetching, stageList } = getTenxflowStageList || defaultStageList;
+  const { managed } = state.cicd_flow;
+  const {projectList} = managed || defaultStatus;
   return {
     isFetching,
-    stageList
+    stageList,
+    projectList
   }
 }
 

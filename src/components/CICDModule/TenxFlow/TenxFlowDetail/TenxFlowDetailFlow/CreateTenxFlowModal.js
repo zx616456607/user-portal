@@ -368,6 +368,7 @@ let CreateTenxFlowModal = React.createClass({
   handleSubmit(e) {
     //this function for user submit the form
     const { scope, createTenxFlowState, flowId, stageInfo } = this.props;
+    const { getTenxFlowStateList } = scope.props;
     const _this = this;
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
@@ -450,7 +451,12 @@ let CreateTenxFlowModal = React.createClass({
         }
         body.spec.build = imageBuildBody;
       }
-      createTenxFlowState(flowId, body);
+      createTenxFlowState(flowId, body, {
+        success: {
+          func: () => getTenxFlowStateList(flowId),
+          isAsync: true
+        }
+      });
     });
   },
   render() {
