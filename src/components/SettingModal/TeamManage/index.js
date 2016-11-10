@@ -50,7 +50,10 @@ let TeamTable = React.createClass({
       onOk() {
         console.log('del !!!!!')
         deleteTeam(teamID)
-        loadUserTeamList('default')
+        loadUserTeamList('default',{
+          page: this.state.page,
+          size: this.state.pageSize,
+        })
       },
       onCancel() {},
     });
@@ -58,7 +61,10 @@ let TeamTable = React.createClass({
   handleSortMember(){
     const { loadUserTeamList } = this.props.scope.props
     const { sortMember } = this.state
-    loadUserTeamList()
+    loadUserTeamList('default',{
+      page: this.state.page,
+      size: this.state.pageSize,
+    })
     this.setState({
       sortMember: !sortMember,
     })
@@ -66,7 +72,10 @@ let TeamTable = React.createClass({
   handleSortSpace(){
     const { loadUserTeamList } = this.props.scope.props
     const { sortSpace } = this.state
-    loadUserTeamList()
+    loadUserTeamList('default',{
+      page: this.state.page,
+      size: this.state.pageSize,
+    })
     this.setState({
       sortSpace: !sortSpace,
     })
@@ -74,7 +83,10 @@ let TeamTable = React.createClass({
   handleSortCluster(){
     const { loadUserTeamList } = this.props.scope.props
     const { sortCluster } = this.state
-    loadUserTeamList()
+    loadUserTeamList('default',{
+      page: this.state.page,
+      size: this.state.pageSize,
+    })
     this.setState({
       sortCluster: !sortCluster,
     })
@@ -82,7 +94,10 @@ let TeamTable = React.createClass({
   handleSortTeamName(){
     const { loadUserTeamList } = this.props.scope.props
     const { sortTeamName } = this.state
-    loadUserTeamList('default')
+    loadUserTeamList('default',{
+      page: this.state.page,
+      size: this.state.pageSize,
+    })
     this.setState({
       sortTeamName: !sortTeamName,
     })
@@ -120,18 +135,38 @@ let TeamTable = React.createClass({
   render() {
     let { sortedInfo, filteredInfo, targetKeys } = this.state
     const { searchResult, notFound } = this.props.scope.state
-    const { data } = this.props
+    const { data, scope } = this.props
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
-    let pageTotal = searchResult.length === 0 ? data.length : searchResult.length
+    console.log('this.props.scope.props.total',this.props.scope.props.total);
     const pagination = {
-      total: pageTotal,
+      total: this.props.scope.props.total,
       showSizeChanger: true,
       defaultPageSize: 5,
       pageSizeOptions: ['5','10','15','20'],
       onShowSizeChange(current, pageSize) {
+        scope.props.loadUserTeamList({
+          page: current,
+          size: pageSize,
+          sort: scope.state.sort
+        })
+        scope.setState({
+          page: current,
+          pageSize: pageSize
+        })
       },
       onChange(current) {
+        const {pageSize} = scope.state
+        console.log('Current: ', current);
+        scope.props.loadUserTeamList({
+          page: current,
+          size: pageSize,
+          sort: scope.state.sort
+        })
+        scope.setState({
+          page: current,
+          pageSize: pageSize
+        })
       },
     }
     const columns = [
@@ -262,6 +297,8 @@ class TeamManage extends Component {
       notFound: false,
       visible: false,
       teamName: '',
+      pageSize: 5,
+      page: 1,
     }
   }
   showModal() {
@@ -280,7 +317,10 @@ class TeamManage extends Component {
           this.setState({
             visible: false,
           })
-          this.props.loadUserTeamList('default')
+          this.props.loadUserTeamList('default',{
+            page: this.state.page,
+            size: this.state.pageSize,
+          })
         }
       }
     })
@@ -298,7 +338,10 @@ class TeamManage extends Component {
     })
   }
   componentWillMount(){
-    this.props.loadUserTeamList('default')
+    this.props.loadUserTeamList('default',{
+      page: 1,
+      size: 5,
+    })
   }
   render(){
     const scope = this
