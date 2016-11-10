@@ -48,8 +48,8 @@ exports.getUsers = function* () {
     from == -1
   }
   let queryObj = { from, size }
-  if (name) {
-    queryObj.filter = `name ${name}`
+  if (query && query.filter) {
+    queryObj.filter = query.filter
   }
   if (query && query.sort) {
     queryObj.sort = query.sort

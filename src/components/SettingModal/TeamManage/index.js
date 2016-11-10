@@ -27,6 +27,7 @@ let TeamTable = React.createClass({
       sortMember: true,
       sortSpace: true,
       sortCluster: true,
+      sortTeamName: true,
       addMember: false,
       targetKeys:[],
     }
@@ -78,6 +79,14 @@ let TeamTable = React.createClass({
       sortCluster: !sortCluster,
     })
   },
+  handleSortTeamName(){
+    const { loadUserTeamList } = this.props.scope.props
+    const { sortTeamName } = this.state
+    loadUserTeamList('default')
+    this.setState({
+      sortTeamName: !sortTeamName,
+    })
+  },
   addNewMember(){
     this.setState({
       addMember: true,
@@ -87,9 +96,7 @@ let TeamTable = React.createClass({
     const { addTeamusers, teamID } = this.props
     const { targetKeys } = this.state
     if(targetKeys.length !== 0){
-      
       addTeamusers(teamID,{
-        
       },{
         success: {
           func:() => {
@@ -129,7 +136,19 @@ let TeamTable = React.createClass({
     }
     const columns = [
       {
-        title: '团队名',
+        title: (
+          <div onClick={this.handleSortTeamName}>
+            团队名
+            <div className="ant-table-column-sorter">
+              <span className= {this.state.sortTeamName?'ant-table-column-sorter-up on':'ant-table-column-sorter-up off'} title="↑">
+                <i className="anticon anticon-caret-up"/>
+              </span>
+              <span className= {!this.state.sortTeamName?'ant-table-column-sorter-down on':'ant-table-column-sorter-down off'} title="↓">
+                <i className="anticon anticon-caret-down"/>
+              </span>
+            </div>
+          </div>
+        ),
         dataIndex: 'team',
         key: 'team',
         width: '20%',
