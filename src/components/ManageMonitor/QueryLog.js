@@ -130,7 +130,7 @@ let NamespaceModal = React.createClass({
     let value = e.target.value;
     let tempList = [];
     namespace.map((item) => {
-      if (item.name.indexOf(value) > -1) {
+      if (item.spaceName.indexOf(value) > -1) {
         tempList.push(item)
       }
     });
@@ -189,9 +189,8 @@ let ClusterModal = React.createClass({
     const {cluster, scope} = this.props;
     let value = e.target.value;
     let tempList = [];
-    scope.searchCluster();
     cluster.map((item) => {
-      if (item.name.indexOf(value) > -1) {
+      if (item.clusterName.indexOf(value) > -1) {
         tempList.push(item)
       }
     });
@@ -211,8 +210,10 @@ let ClusterModal = React.createClass({
     } else {
       clusterList = this.state.currentList.map((item, index) => {
         return (
-          <div className='clusterDetail' key={index} onClick={scope.onSelectCluster.bind(scope, item.name)}>
-            {item.name}
+          <div className='clusterDetail' key={index} onClick={scope.onSelectCluster.bind(scope, item.clusterName, item.clusterID)}>
+            <span className='leftSpan'>{item.clusterName}</span>
+            <span className='rightSpan'>{item.instanceNum}</span>
+            <span style={{ clear:'both' }}></span>
           </div>
         )
       });
@@ -221,6 +222,11 @@ let ClusterModal = React.createClass({
       <div className='clusterModal'>
         <div className='searchBox'>
           <Input className='commonSearchInput clusterInput' onChange={this.inputSearch} type='text' size='large' />
+          <div className='titleBox'>
+            <span className='leftSpan'>名称</span>
+            <span className='rightSpan'>实例</span>
+            <span style={{ clear:'both' }}></span>
+          </div>
         </div>
         <div className='dataList'>
           {clusterList}
@@ -469,7 +475,7 @@ class QueryLog extends Component {
         currentService: null,
         currentInstance: []
       });
-      getClusterOfQueryLog(teamId, null, {
+      getClusterOfQueryLog(teamId, {
         success: {
           func: (res) => {
             _this.setState({
@@ -482,7 +488,7 @@ class QueryLog extends Component {
     }
   }
 
-  onSelectCluster(name) {
+  onSelectCluster(name, clusterId) {
     //this function for user get search 10-20 of cluster list
     if (name != this.state.currentCluster) {
       this.setState({
@@ -641,7 +647,7 @@ class QueryLog extends Component {
             <div className='commonBox'>
               <span className='titleSpan'><FormattedMessage {...menusText.cluster} /></span>
               <Popover
-                content={<ClusterModal scope={scope} cluster={testData} />}
+                content={<ClusterModal scope={scope} cluster={this.state.clusterList} />}
                 trigger='click'
                 placement='bottom'
                 getTooltipContainer={() => document.getElementById('QueryLog')}
