@@ -98,8 +98,9 @@ exports.getUserTeams = function* () {
   if (query && query.sort) {
     queryObj.sort = query.sort
   }
+  queryObj.filter = "creatorID," + userID
   const api = apiFactory.getApi(loginUser)
-  const result = yield api.users.getBy([userID, 'teams'], queryObj)
+  const result = yield api.teams.get(queryObj)
   const teams = result.teams || []
   let total = 0
   if (result.listMeta && result.listMeta.total) {

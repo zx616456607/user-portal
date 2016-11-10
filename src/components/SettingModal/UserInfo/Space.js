@@ -24,16 +24,23 @@ let PersonalSpace = React.createClass ({
       <div>
         <Row className="contentTop">
           <Col span={4}>
-            <i className="fa fa-cube"/>
-            应用
+            <svg className="infSvg" style={{marginRight:8}}>
+              <use xlinkHref="#settingapp" />
+            </svg>
+            <span className="infSvgTxt">应用</span>
+            
           </Col>
           <Col span={4}>
-            <i className="fa fa-cube"/>
-            服务
+            <svg className="infSvg" style={{marginRight:8}}>
+              <use xlinkHref="#settingservice" />
+            </svg>
+            <span className="infSvgTxt">服务</span>
           </Col>
           <Col span={4}>
-            <i className="fa fa-cube"/>
-            容器
+            <svg className="infSvg" style={{marginRight:8}}>
+              <use xlinkHref="#settingcontainer" />
+            </svg>
+            <span className="infSvgTxt">容器</span>
           </Col>
         </Row>
         <Row className="contentList firstItem">
@@ -78,32 +85,46 @@ let TeamSpace = React.createClass({
       <div>
         <Row className="contentTop">
           <Col span={4}>
-            <i className="fa fa-cube"/>
-            名称
+            <svg className="infSvg" style={{marginRight:8}}>
+              <use xlinkHref="#settingname" />
+            </svg>
+            <span className="infSvgTxt">名称</span>
           </Col>
           <Col span={7}>
-            <i className="fa fa-cube"/>
-            所属团队
+            <svg className="infSvg" style={{marginRight:8}}>
+              <use xlinkHref="#settingownteam" />
+            </svg>
+            <span className="infSvgTxt">所属团队</span>
           </Col>
           <Col span={2}>
-            <i className="fa fa-cube"/>
-            应用
+            <svg className="infSvg" style={{marginRight:8}}>
+              <use xlinkHref="#settingapp" />
+            </svg>
+            <span className="infSvgTxt">应用</span>
           </Col>
           <Col span={2}>
-            <i className="fa fa-cube"/>
-            服务
+            <svg className="infSvg" style={{marginRight:8}}>
+              <use xlinkHref="#settingservice" />
+            </svg>
+            <span className="infSvgTxt">服务</span>
           </Col>
           <Col span={2}>
-            <i className="fa fa-cube"/>
-            容器
+            <svg className="infSvg" style={{marginRight:8}}>
+              <use xlinkHref="#settingservice" />
+            </svg>
+            <span className="infSvgTxt">容器</span>
           </Col>
           <Col span={3}>
-            <i className="fa fa-cube"/>
-            余额
+            <svg className="infSvg" style={{marginRight:8}}>
+              <use xlinkHref="#settingservice" />
+            </svg>
+            <span className="infSvgTxt">余额</span>
           </Col>
           <Col span={4}>
-            <i className="fa fa-cube"/>
-            操作
+            <svg className="infSvg" style={{marginRight:8}}>
+              <use xlinkHref="#settingservice" />
+            </svg>
+            <span className="infSvgTxt">操作</span>
           </Col>
         </Row>
         {items}
@@ -130,8 +151,12 @@ class Space extends Component{
       <div id='Space'>
         <Row className="spaceWrap">
           <div className="spaceTitle">
-            <i className="fa fa-cube"/>
-            {this.props.userName}的个人空间
+            <svg className="infSvg" style={{marginRight:8,color:'black'}}>
+              <use xlinkHref="#settingperspace" />
+            </svg>
+            <span className="infSvgTxt">
+              {this.props.userName}的个人空间
+            </span>
           </div>
           <div className="spaceContent">
             <PersonalSpace />
@@ -139,8 +164,12 @@ class Space extends Component{
         </Row>
         <Row className="spaceWrap">
           <div className="spaceTitle">
-            <i className="fa fa-cube"/>
-            {this.props.userName}的团队空间
+            <svg className="infSvg" style={{marginRight:8}}>
+              <use xlinkHref="#settingteamspace" />
+            </svg>
+            <span className="infSvgTxt">
+              {this.props.userName}的团队空间
+            </span>
           </div>
           <div className="spaceContent">
             <TeamSpace teamspaces={this.props.teamspaces}/>
