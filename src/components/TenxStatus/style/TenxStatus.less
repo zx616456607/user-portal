@@ -1,6 +1,6 @@
 .TenxStatus{
   line-height: 30px;
-  .Pending, .Starting {
+  .Pending, .Starting, .Deploying {
     color: dodgerblue;
     .ant-progress-bg {
       border-radius: 100px;
@@ -9,7 +9,7 @@
       position: relative;
     }
   }
-  .Running, .Restarting, .Redeploymenting, .Rebuilding, .Succeeded {
+  .Running, .Restarting, .Redeploying, .Rebuilding, .Succeeded {
     color: green;
     .ant-progress-bg {
       border-radius: 100px;
@@ -22,12 +22,12 @@
     color: orange;
     .ant-progress-bg {
       border-radius: 100px;
-      background-color: red;
+      background-color: orange;
       transition: all 0.4s cubic-bezier(0.08, 0.82, 0.17, 1) 0s;
-      position: orange;
+      position: relative;
     }
   }
-  .Stopping {
+  .Stopping, .Stopped {
     color: red;
     .ant-progress-bg {
       border-radius: 100px;

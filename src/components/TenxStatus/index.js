@@ -11,14 +11,14 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import { Progress } from 'antd'
+import { Progress, Icon } from 'antd'
 import moment from 'moment'
 import './style/TenxStatus.less'
 
 const PROGRESS_PHASES = [
   'Pending',
   'Terminating', 'Starting', 'Stopping',
-  'Scaling', 'Restarting', 'Redeploymenting',
+  'Scaling', 'Restarting', 'Redeploying',
   'Rebuilding',
 ]
 let progressInterval
@@ -54,6 +54,9 @@ class TenxStatus extends Component {
       phase,
       progress,
     } = props
+    if (progress && progress.status === false) {
+      return false
+    }
     if (progress || PROGRESS_PHASES.indexOf(phase) > -1) {
       return true
     }
@@ -74,21 +77,21 @@ class TenxStatus extends Component {
   }
 
   getReplicasElement() {
-    const { replicas } = this.props
-    if (!replicas) {
+    const { status, smart } = this.props
+    if (smart || !status || this.isProcess(this.props)) {
       return
     }
     let replicasText
-    const { current, desire } = replicas
-    if (current === 0) {
+    const { availableReplicas, replicas } = status
+    if (availableReplicas === 0) {
       replicasText = (
-        <span>All stopped</span>
+        <span> All stopped</span>
       )
-    } else if (current < desire) {
+    } else if (availableReplicas < replicas) {
       replicasText = (
         <span>
           Section running
-          <Icon type="exclamation-circle-o" style={{ color: 'yellow' }} />
+          <Icon type="exclamation-circle-o" style={{ marginLeft: 5, color: 'orange' }} />
         </span>
       )
     } else {
@@ -98,7 +101,7 @@ class TenxStatus extends Component {
     }
     return (
       <div>
-        {`${current}/${desire} `}
+        {`${availableReplicas}/${replicas} `}
         {replicasText}
       </div>
     )
@@ -132,13 +135,14 @@ class TenxStatus extends Component {
       phase,
       progress,
       smart,
+      deletionTimestamp,
     } = this.props
     const {
       percent
     } = this.state
     let phaseElement = (
       <div>
-        <i className="fa fa-circle" /> {phase}
+        <i className="fa fa-circle" /> {deletionTimestamp ? 'Terminating' : phase}
       </div>
     )
     let progressElement
@@ -179,15 +183,17 @@ TenxStatus.propTypes = {
   phase: PropTypes.oneOf([
     'Pending', 'Running', 'Unknown',
     'Terminating', 'Starting', 'Stopping',
-    'Scaling', 'Restarting', 'Redeploymenting',
-    'Rebuilding', 'Succeeded',
+    'Scaling', 'Restarting', 'Redeploying',
+    'Rebuilding', 'Succeeded', 'Stopped',
+    'Deploying',
   ]).isRequired,
   progress: PropTypes.shape({
+    status: PropTypes.bool,
     percent: PropTypes.number,
   }),
-  replicas: PropTypes.shape({
-    desire: PropTypes.number,
-    current: PropTypes.number,
+  status: PropTypes.shape({
+    replicas: PropTypes.number,
+    availableReplicas: PropTypes.number,
   }),
   creationTimestamp: PropTypes.string,
 }

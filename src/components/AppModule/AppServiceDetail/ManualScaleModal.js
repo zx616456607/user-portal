@@ -59,8 +59,15 @@ class ManualScaleModal extends Component {
     manualScaleService(cluster, serviceName, { num: realNum }, {
       success: {
         func: () => {
+          const { serviceList } = parentScope.state
+          serviceList.map(item => {
+            if (item.metadata.name === serviceName) {
+              item.status.phase = 'Scaling'
+            }
+          })
           parentScope.setState({
-            manualScaleModalShow: false
+            manualScaleModalShow: false,
+            serviceList
           })
           hide()
           message.success(`服务 ${serviceName} 已成功伸缩到 ${realNum} 个实例`)

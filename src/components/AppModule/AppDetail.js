@@ -146,7 +146,9 @@ class AppDetail extends Component {
                 <TabPane tab="服务实例" key={DEFAULT_TAB} >
                   <AppServiceList
                     location={location}
-                    key="AppServiceList" appName={appName} loading={isFetching} />
+                    key="AppServiceList"
+                    appName={appName}
+                    loading={isFetching} />
                 </TabPane>
                 <TabPane tab="应用拓扑图" key="#topology">应用拓扑图</TabPane>
                 <TabPane tab="编排文件" key="#stack" ><AppGraph key="AppGraph" cluster={this.props.cluster} appName={this.props.appName} /></TabPane>
