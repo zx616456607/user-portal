@@ -306,6 +306,31 @@ export function getDockerfiles(flowInfo, callback) {
     return dispatch(fetchDockerfiles(flowInfo, callback))
   }
 }
+// update detail dockerfile 
+export const PUT_DOCKER_FILES_REQUEST = 'PUT_DOCKER_FILES_REQUEST'
+export const PUT_DOCKER_FILES_SUCCESS = 'PUT_DOCKER_FILES_SUCCESS'
+export const PUT_DOCKER_FILES_FAILURE = 'PUT_DOCKER_FILES_FAILURE'
+
+function fetchPutDockerfile(flows, callback) {
+  return {
+    [FETCH_API]: {
+      types: [PUT_DOCKER_FILES_REQUEST, PUT_DOCKER_FILES_SUCCESS, PUT_DOCKER_FILES_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flows.flowId}/stages/${flows.stageId}/dockerfile`,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body: {content: flows.content}
+      }
+    },
+    callback
+  }
+}
+
+export function setDockerfile(flowInfo, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchPutDockerfile(flowInfo, callback))
+  }
+}
 
 export const SEARCH_DOCKER_FILES_LIST = 'SEARCH_DOCKER_FILES_LIST'
 export function searchDockerfile(names) {
