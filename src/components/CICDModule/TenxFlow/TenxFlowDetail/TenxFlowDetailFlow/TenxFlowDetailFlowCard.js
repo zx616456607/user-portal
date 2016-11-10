@@ -230,6 +230,17 @@ function currentEditClass(status, editIndex, index) {
     return 'commonCard';
   } 
 }
+
+function fetchCodeStoreName(id, codeList) {
+  //this function for fetcht code store name 
+  let codeName = null;
+  codeList.map((item) => {
+    if(item.id == id) {
+      codeName = item.name;
+    }
+  });
+  return codeName;
+}
   
 class TenxFlowDetailFlowCard extends Component {
   constructor(props) {
@@ -282,7 +293,7 @@ class TenxFlowDetailFlowCard extends Component {
   }
   
   render() {
-    let { config, index, scope, currentFlowEdit, flowId } = this.props;
+    let { config, index, scope, currentFlowEdit, flowId, codeList } = this.props;
     const scopeThis = this;
     return (
       <div id='TenxFlowDetailFlowCard' key={'TenxFlowDetailFlowCard' + index} className={ currentFlowEdit == index ? 'TenxFlowDetailFlowCardBigDiv':'' } >
@@ -320,7 +331,7 @@ class TenxFlowDetailFlowCard extends Component {
                       </div>
                       <div className='info'>
                         <i className='fa fa-github' />
-                        <span className='infoSpan'>{config.spec.container.image}</span>
+                        <span className='infoSpan'>{fetchCodeStoreName(config.spec.project.id, codeList)}</span>
                         <div style={{ clear:'both' }}></div>
                       </div>
                       <div style={{ clear:'both' }}></div>
