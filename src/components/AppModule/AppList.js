@@ -17,6 +17,7 @@ import { loadAppList, stopApps, deleteApps, restartApps, startApps } from '../..
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 import { tenxDateFormat } from '../../common/tools'
 import { browserHistory } from 'react-router'
+import AppStatus from '../TenxStatus/AppStatus'
 
 const confirm = Modal.confirm
 const ButtonGroup = Button.Group
@@ -146,12 +147,11 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className='appStatus commonData'>
-            <i className={item.appStatus == 0 ? 'normal fa fa-circle' : 'error fa fa-circle'}></i>
-            <span className={item.appStatus == 0 ? 'normal' : 'error'} >{item.appStatus == 0 ? '正常' : '异常'}</span>
+            <AppStatus services={item.services} phase={item.phase} />
           </div>
-          <div className='serviceNum commonData'>
+          {/*<div className='serviceNum commonData'>
             {item.serviceCount + '' || '-'}
-          </div>
+          </div>*/}
           <div className='containerNum commonData'>
             {item.instanceCount + '' || '-'}
           </div>
@@ -255,6 +255,12 @@ class AppList extends Component {
       content: appNames.join(', '),
       onOk() {
         return new Promise((resolve) => {
+          const allApps = self.state.appList
+          allApps.map((app) => {
+            if (appNames.indexOf(app.name) > -1) {
+              app.phase = 'Starting'
+            }
+          })
           startApps(cluster, appNames, {
             success: {
               func: () => loadData(self.props),
@@ -283,6 +289,15 @@ class AppList extends Component {
       content: appNames.join(', '),
       onOk() {
         return new Promise((resolve) => {
+          const allApps = self.state.appList
+          allApps.map((app) => {
+            if (appNames.indexOf(app.name) > -1) {
+              app.phase = 'Stopping'
+            }
+          })
+          self.setState({
+            appList: allApps
+          })
           stopApps(cluster, appNames, {
             success: {
               func: () => loadData(self.props),
@@ -311,6 +326,12 @@ class AppList extends Component {
       content: appNames.join(', '),
       onOk() {
         return new Promise((resolve) => {
+          const allApps = self.state.appList
+          allApps.map((app) => {
+            if (appNames.indexOf(app.name) > -1) {
+              app.phase = 'Terminating'
+            }
+          })
           deleteApps(cluster, appNames, {
             success: {
               func: () => loadData(self.props),
@@ -339,6 +360,12 @@ class AppList extends Component {
       content: appNames.join(', '),
       onOk() {
         return new Promise((resolve) => {
+          const allApps = self.state.appList
+          allApps.map((app) => {
+            if (appNames.indexOf(app.name) > -1) {
+              app.phase = 'Redeploying'
+            }
+          })
           restartApps(cluster, appNames, {
             success: {
               func: () => loadData(self.props),
@@ -453,6 +480,9 @@ class AppList extends Component {
               <Button type='ghost' size='large' onClick={this.batchStopApps} disabled={!isChecked}>
                 <i className='fa fa-stop'></i>停止
               </Button>
+              <Button type='ghost' size='large' onClick={() => loadData(this.props)}>
+                <i className='fa fa-refresh'></i>刷新
+              </Button>
               <Button type='ghost' size='large' onClick={this.batchDeleteApps} disabled={!isChecked}>
                 <i className='fa fa-trash-o'></i>删除
               </Button>
@@ -503,10 +533,10 @@ class AppList extends Component {
               <div className='appStatus commonTitle'>
                 应用状态
               </div>
-              <div className='serviceNum commonTitle'>
+              {/*<div className='serviceNum commonTitle'>
                 服务数量
                 <i className='fa fa-sort'></i>
-              </div>
+              </div>*/}
               <div className='containerNum commonTitle'>
                 容器数量
                 <i className='fa fa-sort'></i>

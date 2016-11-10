@@ -77,21 +77,32 @@ class TenxStatus extends Component {
   }
 
   getReplicasElement() {
-    const { status, smart } = this.props
-    if (smart || !status || this.isProcess(this.props)) {
+    const { status } = this.props
+    if (!status || this.isProcess(this.props)) {
       return
     }
     let replicasText
-    const { availableReplicas, replicas } = status
-    if (availableReplicas === 0) {
+    const { availableReplicas, replicas, text } = status
+    const exclamationIcon = (
+      <Icon type="exclamation-circle-o" style={{ marginLeft: 5, color: 'orange' }} />
+    )
+    if (text) {
+      replicasText = text
+      if (availableReplicas < replicas) {
+        replicasText = (
+          <span>
+            {text}{exclamationIcon}
+          </span>
+        )
+      }
+    } else if (availableReplicas === 0) {
       replicasText = (
         <span> All stopped</span>
       )
     } else if (availableReplicas < replicas) {
       replicasText = (
         <span>
-          Section running
-          <Icon type="exclamation-circle-o" style={{ marginLeft: 5, color: 'orange' }} />
+          Section running{exclamationIcon}
         </span>
       )
     } else {
@@ -108,8 +119,8 @@ class TenxStatus extends Component {
   }
 
   getCreationTimestampElement() {
-    const { phase, creationTimestamp, smart } = this.props
-    if (smart || !creationTimestamp) {
+    const { phase, creationTimestamp } = this.props
+    if (!creationTimestamp) {
       return
     }
     const date = new Date(creationTimestamp)
@@ -140,13 +151,22 @@ class TenxStatus extends Component {
     const {
       percent
     } = this.state
+    if (smart) {
+      return (
+        <span className="TenxStatus">
+          <span className={phase}>
+            <i className="fa fa-circle" /> {phase}
+          </span>
+        </span>
+      )
+    }
     let phaseElement = (
       <div>
-        <i className="fa fa-circle" /> {deletionTimestamp ? 'Terminating' : phase}
+        <i className="fa fa-circle" /> {phase}
       </div>
     )
     let progressElement
-    if (!smart && this.isProcess(this.props)) {
+    if (this.isProcess(this.props)) {
       phaseElement = (
         <div>
           {phase}
@@ -194,6 +214,7 @@ TenxStatus.propTypes = {
   status: PropTypes.shape({
     replicas: PropTypes.number,
     availableReplicas: PropTypes.number,
+    text: PropTypes.string,
   }),
   creationTimestamp: PropTypes.string,
 }

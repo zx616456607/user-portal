@@ -13,6 +13,7 @@ import { Row, Col, Button, Input, Select, Card, Icon, Table, Modal, Form, Checkb
 import SearchInput from '../../SearchInput'
 import { connect } from 'react-redux'
 import { loadUserList, createUser, deleteUser } from '../../../actions/user'
+import { Link } from 'react-router'
 
 const createForm = Form.create;
 const FormItem = Form.Item;
@@ -141,7 +142,6 @@ let MemberTable =  React.createClass({
       },
       onChange(current) {
         const {pageSize} = scope.state
-        const { users } = scope.props
         console.log('Current: ', current);
         scope.props.loadUserList({
           page: current,
@@ -241,7 +241,11 @@ let MemberTable =  React.createClass({
         width: 180,
         render: (text, record,index) => (
           <div>
-            <Button icon="setting" className="setBtn">管理</Button>
+            <Link to="/setting">
+            <Button icon="setting" className="setBtn">
+              管理
+            </Button>
+            </Link>
             <Button icon="delete" className="delBtn" onClick={() => this.delMember(record)}>
               删除
             </Button>
