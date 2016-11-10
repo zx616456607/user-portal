@@ -167,13 +167,28 @@ let EditTenxFlowModal = React.createClass({
     }
   },
   componentDidMount() {
+    uuid = 0;
+    shellUid = 0;
     const { config, form } = this.props;
     let otherFlowType = config.metadata.type + '';
-    let useDockerfile = config.spec.build.dockerfileFrom == 1 ? true : false;
-    this.setState({
-      otherFlowType: otherFlowType,
-      useDockerfile: useDockerfile
-    });
+    if(otherFlowType != '5') {
+      this.setState({
+        otherFlowType: false,
+        useDockerfile: false,
+        ImageStoreType: false,
+        otherTag: false
+      });
+    }else {     
+      let useDockerfile = config.spec.build.dockerfileFrom == 1 ? true : false;
+      let ImageStoreType = config.spec.build.registryType == 3 ? true : false;
+      let otherTag = config.spec.build.imageTagType == 3 ? true : false;
+      this.setState({
+        otherFlowType: otherFlowType,
+        useDockerfile: useDockerfile,
+        ImageStoreType: ImageStoreType,
+        otherTag: otherTag
+      });
+    }
     let shellList = config.spec.container.args;
     shellList.map((item, index) => {
       shellUid++;
@@ -465,10 +480,10 @@ let EditTenxFlowModal = React.createClass({
         }
         body.spec.build = imageBuildBody;
       }
-      console.log(body)
       updateTenxFlowState(flowId, stageId, body, {
         success: {
-          func: () => getTenxFlowStateList(flowId)
+          func: () => getTenxFlowStateList(flowId),
+          isAsync: true
         }
       })
     });
@@ -553,7 +568,7 @@ let EditTenxFlowModal = React.createClass({
       rules: [
         { required: true, message: '请输入镜像名称' },
       ],
-      initialValue: config.spec.build.image
+      initialValue: (!!config.spec.build ? config.spec.build.image : null)
     });
     const imageNameProps = getFieldProps('imageName', {
       rules: [
@@ -573,20 +588,21 @@ let EditTenxFlowModal = React.createClass({
       rules: [
         { message: '请输入Docker File地址' },
       ],
-      initialValue: (config.spec.build.dockerfilePath.replace('/',''))
+      initialValue: (!!config.spec.build ? config.spec.build.dockerfilePath.replace('/','') : null)
     });
     const otherImageStoreTypeProps = getFieldProps('otherStoreUrl', {
       rules: [
         { message: '请输入自定义仓库地址' },
         { validator: this.otherStoreUrlInput },
       ],
+      initialValue: (!!config.spec.build ? config.spec.build.customRegistry : null)
     });
     const otherImageTagProps = getFieldProps('otherTag', {
       rules: [
         { message: '请输入镜像版本' },
         { validator: this.otherTagInput },
       ],
-      initialValue: config.spec.build.customTag
+      initialValue: (!!config.spec.build ? config.spec.build.customTag : null)
     });
     return (
       <div id='EditTenxFlowModal' key='EditTenxFlowModal'>
@@ -745,7 +761,7 @@ let EditTenxFlowModal = React.createClass({
                 </div>
                 <div className='input imageType'>
                   <FormItem style={{ float:'left' }}>
-                    <RadioGroup {...getFieldProps('imageType', { initialValue: (config.spec.build.registryType + ''), onChange: this.changeImageStoreType })}>
+                    <RadioGroup {...getFieldProps('imageType', { initialValue: (!!config.spec.build ? (config.spec.build.registryType + '') : null), onChange: this.changeImageStoreType })}>
                       <Radio key='imageStore' value={'1'}><FormattedMessage {...menusText.imageStore} /></Radio>
                       <Radio key='DockerHub' value={'2'}>Docker Hub</Radio>
                       <Radio key='otherImage' value={'3'}><FormattedMessage {...menusText.otherImage} /></Radio>
@@ -772,7 +788,7 @@ let EditTenxFlowModal = React.createClass({
                 </div>
                 <div className='input'>
                   <FormItem style={{ float:'left' }}>
-                    <RadioGroup {...getFieldProps('imageTag', { initialValue: (config.spec.build.imageTagType + ''), onChange: this.changeImageTagType })}>
+                    <RadioGroup {...getFieldProps('imageTag', { initialValue: (!!config.spec.build ? (config.spec.build.imageTagType + '') : null), onChange: this.changeImageTagType })}>
                       <Radio key='branch' value={'1'}><FormattedMessage {...menusText.ImageTagByBranch} /></Radio>
                       <Radio key='time' value={'2'}><FormattedMessage {...menusText.ImageTagByTime} /></Radio>
                       <Radio key='other' value={'3'}><FormattedMessage {...menusText.otherImage} /></Radio>
@@ -799,7 +815,7 @@ let EditTenxFlowModal = React.createClass({
                 </div>
                 <div className='input imageType'>
                   <FormItem>
-                    <Switch {...getFieldProps('buildCache')} defaultChecked={config.spec.build.noCache} />
+                    <Switch {...getFieldProps('buildCache')} defaultChecked={!!config.spec.build ? config.spec.build.noCache : false} />
                   </FormItem>
                 </div>
                 <div style={{ clear:'both' }} />

@@ -355,6 +355,7 @@ let CreateTenxFlowModal = React.createClass({
   cancelChange(e) {
     //this function for reset the form and close the edit card
     e.preventDefault();
+    e.stopPropagation();
     this.props.form.resetFields();
     const { scope } = this.props;
     this.setState({
@@ -414,7 +415,7 @@ let CreateTenxFlowModal = React.createClass({
             'dependencies': serviceList
           },
           'project': {
-            'id': (stageInfo.length++) 
+            'id': (++stageInfo.length) 
         },
         }
       }

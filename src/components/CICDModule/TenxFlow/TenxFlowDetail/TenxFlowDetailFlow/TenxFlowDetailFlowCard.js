@@ -107,8 +107,9 @@ const menusText = defineMessages({
 
 function currentStatus(status) {
   //this function for show different status
-  switch(status) {
-    case 'finish':
+  const stageStatus = !!status ? status.status : 3;
+  switch(stageStatus) {
+    case 0:
       return (
         <div className='finishStatus status'>
           <Icon type="check-circle-o" />
@@ -116,7 +117,7 @@ function currentStatus(status) {
         </div>
         );
       break;
-    case 'running':
+    case 2:
       return (
         <div className='runningStatus status'>
           <i className='fa fa-cog fa-spin fa-3x fa-fw' />
@@ -124,7 +125,7 @@ function currentStatus(status) {
         </div>
         );
       break;
-    case 'fail':
+    case 1:
        return (
           <div className='failStatus status'>
             <Icon type="cross-circle-o" />
@@ -132,7 +133,7 @@ function currentStatus(status) {
           </div>
         );
       break;
-    case 'wait':
+    case 3:
       return (
         <div className='runningStatus status'>
           <Icon type="clock-circle-o" />
@@ -181,8 +182,9 @@ function currentFlowType(type) {
   
 function currentStatusBtn(status) {
   //this function for different status show different Btn msg
-  switch(status) {
-    case 'finish':
+  const stageStatus = !!status ? status.status : 3;
+  switch(stageStatus) {
+    case 0:
       return (
         <div>
           <i className='fa fa-play' />
@@ -190,7 +192,7 @@ function currentStatusBtn(status) {
         </div>
         );
       break;
-    case 'running':
+    case 2:
       return (
         <div>
           <i className='fa fa-stop' />
@@ -198,7 +200,7 @@ function currentStatusBtn(status) {
         </div>
         );
       break;
-    case 'fail':
+    case 1:
       return (
         <div>
           <i className='fa fa-repeat' />
@@ -206,7 +208,7 @@ function currentStatusBtn(status) {
         </div>
         );
       break;
-    case 'wait':
+    case 3:
       return (
         <div>
           <i className='fa fa-play' />
@@ -219,9 +221,10 @@ function currentStatusBtn(status) {
 
 function currentEditClass(status, editIndex, index) {
   //this function for different status and edit show different class
+  const stageStatus = !!status ? status.status : 3;
   if(editIndex == index) {
     return 'edittingCard commonCard';
-  }else if(status == 'running') {
+  }else if(stageStatus == 2) {
     return 'runningCard commonCard';
   }else {
     return 'commonCard';
@@ -245,7 +248,8 @@ class TenxFlowDetailFlowCard extends Component {
     //this function for user click the edit button and then open the edit modal
     const { scope, index } = this.props;
     scope.setState({
-      currentFlowEdit: index
+      currentFlowEdit: index,
+      createNewFlow: false
     });
   }
   
@@ -280,7 +284,6 @@ class TenxFlowDetailFlowCard extends Component {
   render() {
     let { config, index, scope, currentFlowEdit, flowId } = this.props;
     const scopeThis = this;
-    console.log(config)
     return (
       <div id='TenxFlowDetailFlowCard' key={'TenxFlowDetailFlowCard' + index} className={ currentFlowEdit == index ? 'TenxFlowDetailFlowCardBigDiv':'' } >
         <Card className={ currentEditClass(config.status, currentFlowEdit, index) }>
@@ -289,7 +292,7 @@ class TenxFlowDetailFlowCard extends Component {
               <QueueAnim key={'FlowCardShowAnimate' + index}>
                 <div key={'TenxFlowDetailFlowCardShow' + index}>
                   <div className='statusBox'>
-                    { currentStatus('wait') }
+                    { currentStatus(config.lastBuildStatus) }
                   </div>
                   <div className='infoBox'>
                     <div className='name commonInfo'>
@@ -335,7 +338,7 @@ class TenxFlowDetailFlowCard extends Component {
                     </div>
                     <div className='btnBox'>
                       <Button size='large' type='primary'>
-                        { currentStatusBtn('wait') }
+                        { currentStatusBtn(config.lastBuildStatus) }
                       </Button>
                       <Button size='large' type='ghost'>
                         <i className='fa fa-wpforms' />

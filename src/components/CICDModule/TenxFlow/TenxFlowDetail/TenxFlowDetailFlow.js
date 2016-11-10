@@ -65,7 +65,7 @@ class TenxFlowDetailFlow extends Component {
     //this function only for user close the modal of  create an new flow 
     this.setState({
       currentFlowEdit: null,
-      createNewFlow: false,    
+      createNewFlow: false
     });
   }
 
