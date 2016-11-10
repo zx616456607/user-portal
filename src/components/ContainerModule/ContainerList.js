@@ -198,8 +198,8 @@ const MyComponent = React.createClass({
 })
 
 function loadData(props) {
-  const { loadContainerList, cluster, page, size, name } = props
-  loadContainerList(cluster, { page, size, name })
+  const { loadContainerList, cluster, page, size, name, sortOrder } = props
+  loadContainerList(cluster, { page, size, name, sortOrder })
 }
 
 class ContainerList extends Component {
@@ -219,7 +219,6 @@ class ContainerList extends Component {
       searchInputDisabled: false,
       TerminalLayoutModal: false,
       currentContainer: null,
-      sortOrder: true,
     }
   }
 
@@ -238,7 +237,8 @@ class ContainerList extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    let { page, size, name, containerList, cluster } = nextProps
+    console.log("componentWillReceiveProps")
+    let { page, size, name, containerList, cluster, sortOrder } = nextProps
     this.setState({
       containerList
     })
@@ -246,7 +246,8 @@ class ContainerList extends Component {
       loadData(nextProps)
       return
     }
-    if (page === this.props.page && size === this.props.size && name === this.props.name) {
+    if (page === this.props.page && size === this.props.size && name === this.props.name
+        && sortOrder == this.props.sortOrder) {
       return
     }
     this.setState({
@@ -320,28 +321,22 @@ class ContainerList extends Component {
   }
 
   onPageChange(page) {
-    if (page === this.props.page) {
-      return;
-    }
-    const { pathname, size, name } = this.props
-    const query = {}
-    if (page !== 1) {
-      query.page = page
-      query.size = size
-    }
-    if (name) {
-      query.name = name
-    }
-    browserHistory.push({
-      pathname,
-      query
-    })
+    const { size, sortOrder } = this.props
+    this.updateBrowserHistory(page, size, sortOrder)
   }
 
   onShowSizeChange(page, size) {
-    if (size === this.props.size) {
+    const { sortOrder } = this.props
+    this.updateBrowserHistory(page, size, sortOrder)
+  }
+
+  updateBrowserHistory(page, size, sortOrder) {
+    if (page === this.props.page &&
+        size === this.props.size &&
+        sortOrder === this.props.sortOrder) {
       return
     }
+
     const query = {}
     if (page !== DEFAULT_PAGE) {
       query.page = page
@@ -353,21 +348,27 @@ class ContainerList extends Component {
     if (name) {
       query.name = name
     }
+    query.sortOrder = sortOrder
     const { pathname } = this.props
     browserHistory.push({
       pathname,
       query
     })
   }
-  sortCreateTime() {
-    const { sortOrder } = this.state
-    this.setState({
-      sortOrder: !sortOrder
-    })
+
+  sortCreateTime(){
+    let { page, size, sortOrder } = this.props
+    if (sortOrder == 'asc') {
+      sortOrder = 'desc'
+    } else {
+      sortOrder = 'asc'
+    }
+    this.updateBrowserHistory(page, size, sortOrder)
   }
+
   render() {
     const parentScope = this
-    const { name, page, size, total, cluster, containerList, isFetching } = this.props
+    const { name, page, size, sortOrder, total, cluster, containerList, isFetching } = this.props
     const { searchInputValue, searchInputDisabled } = this.state
     const checkedContainerList = containerList.filter((app) => app.checked)
     const isChecked = (checkedContainerList.length > 0)
@@ -458,11 +459,11 @@ class ContainerList extends Component {
               <div className='createTime commonTitle' onClick={this.sortCreateTime}>
                 创建时间
                 <div className="ant-table-column-sorter">
-                  <span className={this.state.sortOrder ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
-                    <i className="anticon anticon-caret-up" />
+                  <span className= {sortOrder == 'asc'?'ant-table-column-sorter-up on':'ant-table-column-sorter-up off'} title="↑">
+                    <i className="anticon anticon-caret-up"/>
                   </span>
-                  <span className={!this.state.sortOrder ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
-                    <i className="anticon anticon-caret-down" />
+                  <span className= {sortOrder == 'desc'?'ant-table-column-sorter-down on':'ant-table-column-sorter-down off'} title="↓">
+                    <i className="anticon anticon-caret-down"/>
                   </span>
                 </div>
               </div>
@@ -501,11 +502,15 @@ ContainerList.propTypes = {
   page: PropTypes.number.isRequired,
   size: PropTypes.number.isRequired,
   total: PropTypes.number.isRequired,
+  sortOrder: PropTypes.string.isRequired,
 }
 
 function mapStateToProps(state, props) {
   const { query, pathname } = props.location
-  let { page, size, name } = query
+  let { page, size, name, sortOrder } = query
+  if (sortOrder != 'asc' && sortOrder != 'desc') {
+    sortOrder = 'desc'
+  }
   page = parseInt(page || DEFAULT_PAGE)
   size = parseInt(size || DEFAULT_PAGE_SIZE)
   if (isNaN(page) || page < DEFAULT_PAGE) {
@@ -534,6 +539,7 @@ function mapStateToProps(state, props) {
     size,
     total,
     name,
+    sortOrder,
     containerList,
     isFetching
   }
