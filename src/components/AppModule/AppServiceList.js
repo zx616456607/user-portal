@@ -16,7 +16,6 @@ import AppServiceDetail from './AppServiceDetail'
 import './style/AppServiceList.less'
 import { loadServiceList, startServices, restartServices, stopServices, deleteServices, quickRestartServices } from '../../actions/services'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
-import { TENX_MARK } from '../../constants'
 import { browserHistory } from 'react-router'
 import RollingUpdateModal from './AppServiceDetail/RollingUpdateModal'
 import ConfigModal from './AppServiceDetail/ConfigModal'
@@ -181,11 +180,7 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className="status commonData">
-            <ServiceStatus
-              replicas={
-                item.spec.replicas || item.metadata.annotations[`${TENX_MARK}/replicas`]
-              }
-              status={item.status} />
+            <ServiceStatus service={item} />
           </div>
           <div className="image commonData">
             <Tooltip title={item.images.join(', ') ? item.images.join(', ') : ""}>

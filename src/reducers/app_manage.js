@@ -27,7 +27,13 @@ function appItems(state = {}, action) {
   switch (action.type) {
     case ActionTypes.APP_LIST_REQUEST:
       return merge({}, defaultState, state, {
-        [cluster]: { isFetching: true }
+        [cluster]: {
+          isFetching: (
+            state && state[cluster]
+              ? false
+              : true
+          )
+        }
       })
     case ActionTypes.APP_LIST_SUCCESS:
       return Object.assign({}, state, {

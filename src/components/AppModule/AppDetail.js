@@ -19,6 +19,7 @@ import AppMonitior from './AppMonitior'
 import './style/AppDetail.less'
 import { loadAppDetail } from '../../actions/app_manage'
 import { browserHistory } from 'react-router'
+import AppStatus from '../TenxStatus/AppStatus'
 
 const DEFAULT_TAB = '#service'
 
@@ -104,10 +105,7 @@ class AppDetail extends Component {
                 <div className="leftInfo">
                   <div className="status">
                     运行状态&nbsp;:
-                      <span>
-                      <i className={app.appStatus == 0 ? "normal fa fa-circle" : "error fa fa-circle"}></i>
-                      <span className={app.appStatus == 0 ? "normal" : "error"} >{app.appStatus == 0 ? "正常" : "异常"}</span>
-                    </span>
+                    <AppStatus services={app.services} smart={true} />
                   </div>
                   <div className="address">
                     {
