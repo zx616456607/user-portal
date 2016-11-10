@@ -177,7 +177,7 @@ class TenxStatus extends Component {
           strokeWidth={8}
           showInfo={false}
           status="active"
-          percent={percent} />
+          percent={percent}/>
       )
       if (!this.progressInterval) {
         this.setProgressPercent(percent)
@@ -201,11 +201,16 @@ class TenxStatus extends Component {
 TenxStatus.propTypes = {
   smart: PropTypes.bool,
   phase: PropTypes.oneOf([
-    'Pending', 'Running', 'Unknown',
-    'Terminating', 'Starting', 'Stopping',
-    'Scaling', 'Restarting', 'Redeploying',
-    'Rebuilding', 'Succeeded', 'Stopped',
-    'Deploying',
+    'Starting', 'Pending', 'Deploying',
+    'Stopping',
+    'Terminating',
+    'Scaling',
+    'Restarting',
+    'Redeploying', 'Rebuilding',
+    
+    'Unknown','Succeeded',
+    'Stopped',
+    'Running',
   ]).isRequired,
   progress: PropTypes.shape({
     status: PropTypes.bool,

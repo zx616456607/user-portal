@@ -1,7 +1,9 @@
 .TenxStatus{
-  line-height: 30px;
+  line-height: 25px;
   .Pending, .Starting, .Deploying {
     color: dodgerblue;
+    position: relative;
+    top: 5px;
     .ant-progress-bg {
       border-radius: 100px;
       background-color: #2db7f5;
@@ -11,18 +13,26 @@
   }
   .Running, .Restarting, .Redeploying, .Rebuilding, .Succeeded {
     color: green;
+    position: relative;
+    top: 5px;
     .ant-progress-bg {
       border-radius: 100px;
       background-color: green;
-      transition: all 0.4s cubic-bezier(0.08, 0.82, 0.17, 1) 0s;
+      background-image: linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent);
+      //transition: all 0.4s cubic-bezier(0.08, 0.82, 0.17, 1) 0s;
+      //transition: width .6s ease;
       position: relative;
     }
   }
   .Unknown {
     color: grey;
+    position: relative;
+    top: 5px;
   }
   .Terminating {
     color: orange;
+    position: relative;
+    top: 5px;
     .ant-progress-bg {
       border-radius: 100px;
       background-color: orange;
@@ -32,6 +42,8 @@
   }
   .Stopping, .Stopped {
     color: red;
+    position: relative;
+    top: 5px;
     .ant-progress-bg {
       border-radius: 100px;
       background-color: red;
@@ -41,6 +53,8 @@
   }
   .Scaling {
     color: purple;
+    position: relative;
+    top: 5px;
     .ant-progress-bg {
       border-radius: 100px;
       background-color: purple;
@@ -49,6 +63,12 @@
     }
   }
   .text {
-    color: grey
+    color: grey;
+    position: relative;
+    top: -2px;
+  }
+  .ant-progress-line {
+    position: relative;
+    top: -7px;
   }
 }

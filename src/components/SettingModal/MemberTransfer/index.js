@@ -24,8 +24,6 @@ class MemberTransfer extends Component{
   componentWillMount(){
     this.props.loadUserList({size:-1})
   }
-  componentDidMount(){
-  }
   render(){
     const { onChange,targetKeys,userList,teamUserList } = this.props
     let teamUserIDList = []
@@ -81,19 +79,20 @@ function mapStateToProp(state,props) {
   const team = state.team
   const users = state.user.users
   if(team.teamusers){
-    team.teamusers.map((item,index) => {
-      teamUserList.push(
-        {
-          key: item.userID,
-          title: '',
-          description: '',
-          name: 'pupumeng',
-          tel: '11111111',
-          email: '123@123.com',
-          style: '创业者',
-        }
-      )
-    })
+    if(team.teamusers.result){
+      const teamusers = team.teamusers.result.users
+      teamusers.map((item,index) => {
+        teamUserList.push(
+          {
+            key: item.userID,
+            name: item.userName,
+            tel: item.phone,
+            email: item.email,
+            style: item.role === 0?'普通成员':'系统管理员',
+          }
+        )
+      })
+    }
   }
   if(users){
     if(users.result){
