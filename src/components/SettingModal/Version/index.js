@@ -37,13 +37,13 @@ export default class Version extends Component{
                 <Row className="contentTop">
                     <Col span={8}>
                       <svg className="infSvg" style={{marginRight:8}}>
-                        <use xlinkHref="#settingname" />
+                        <use xlinkHref="#settingsycname" />
                       </svg>
                       <span className="infSvgTxt">系统名称</span>
                     </Col>
                     <Col span={8}>
                       <svg className="infSvg" style={{marginRight:8}}>
-                        <use xlinkHref="#settingperspace" />
+                        <use xlinkHref="#settingtranname" />
                       </svg>
                       <span className="infSvgTxt">对应名称</span>
                     </Col>
@@ -96,7 +96,7 @@ export default class Version extends Component{
             <Row className="versionWrap">
               <div className="versionTitle">
                 <svg className="infSvg" style={{marginRight:8}}>
-                  <use xlinkHref="#settingownteam" />
+                  <use xlinkHref="#settingbase" />
                 </svg>
                 <span className="infSvgTxt">
                   基础系统版本
@@ -106,7 +106,7 @@ export default class Version extends Component{
                 <Row className="contentTop">
                   <Col span={8}>
                     <svg className="infSvg" style={{marginRight:8}}>
-                      <use xlinkHref="#settingname" />
+                      <use xlinkHref="#settingsycname" />
                     </svg>
                     <span className="infSvgTxt">系统名称</span>
                   </Col>
