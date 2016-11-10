@@ -22,6 +22,7 @@ const userController = require('../controllers/user_manage')
 const teamController = require('../controllers/team_manage')
 const tokenController = require('../controllers/token')
 const devopsController = require('../controllers/devops')
+const licenseController = require('../controllers/license')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -188,7 +189,10 @@ module.exports = function (Router) {
   router.get('/ci-flows/:flow_id/stages/:stage_id', devopsController.getStage)
 
   // CD rules
-
+  router.post('/devops/ci-flows/:flow_id/cd-rules', devopsController.createCDRule)
+  router.get('/devops/ci-flows/:flow_id/cd-rules', devopsController.listCDRules)
+  router.delete('/devops/ci-flows/:flow_id/cd-rules/:rule_id', devopsController.removeCDRule)
+  router.put('/devops/ci-flows/:flow_id/cd-rules/:rule_id', devopsController.updateCDRule)
 
   // Flow build
   router.post('/devops/ci-flows/:flow_id/builds', devopsController.createFlowBuild)
@@ -196,8 +200,17 @@ module.exports = function (Router) {
   router.get('/devops/ci-flows/:flow_id/builds/:flow_build_id', devopsController.getFlowBuild)
   router.put('/devops/ci-flows/:flow_id/builds/:flow_build_id/stop', devopsController.stopBuild)
 
+  // CI Dockerfile
+  router.get('/devops/dockerfiles', devopsController.listDockerfiles)
+  router.post('/devops/ci-flows/:flow_id/stages/:stage_id/dockerfile', devopsController.addDockerfile)
+  router.get('/devops/ci-flows/:flow_id/stages/:stage_id/dockerfile', devopsController.getDockerfile)
+  router.delete('/devops/ci-flows/:flow_id/stages/:stage_id/dockerfile', devopsController.removeDockerfile)
+  router.put('/devops/ci-flows/:flow_id/stages/:stage_id/dockerfile', devopsController.updateDockerfile)
 
   // Token info
   router.get('/token', tokenController.getTokenInfo)
+
+  // License
+  router.get('/license', licenseController.getLicense)
   return router.routes()
 }

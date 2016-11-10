@@ -98,6 +98,7 @@ function fetchAddCodeRepo(type, obj, callback) {
         }
       }
     },
+    names: obj.name,
     callback: callback
   }
 }
@@ -138,7 +139,7 @@ export const DELETE_CODE_STORE_REQUEST = 'DELETE_CODE_STORE_REQUEST'
 export const DELETE_CODE_STORE_SUCCESS = 'DELETE_CODE_STORE_SUCCESS'
 export const DELETE_CODE_STORE_FAILURE = 'DELETE_CODE_STORE_FAILURE'
 
-function fetchRemoveProject(projectId) {
+function fetchRemoveProject(projectId, callback) {
   return {
     [FETCH_API]: {
       types: [DELETE_CODE_STORE_REQUEST, DELETE_CODE_STORE_SUCCESS, DELETE_CODE_STORE_FAILURE],
@@ -148,15 +149,43 @@ function fetchRemoveProject(projectId) {
         method: 'DELETE',
       }
     },
-    id: projectId
+    id: projectId,
+    callback
   }
 }
 
-export function removeProject(projectId) {
+export function removeProject(projectId, callback) {
   return(dispatch, getState) => {
-    return dispatch(fetchRemoveProject(projectId))
+    return dispatch(fetchRemoveProject(projectId, callback))
   }
 }
+
+export const NOT_ACTIVE_PROJECT_REQUEST = 'NOT_ACTIVE_PROJECT_REQUEST'
+export const NOT_ACTIVE_PROJECT_SUCCESS = 'NOT_ACTIVE_PROJECT_SUCCESS'
+export const NOT_ACTIVE_PROJECT_FAILURE = 'NOT_ACTIVE_PROJECT_FAILURE'
+
+// remove code repo project active
+function fetchNotActiveProject(projectId, callback) {
+  return {
+    [FETCH_API]: {
+      types: [NOT_ACTIVE_PROJECT_REQUEST, NOT_ACTIVE_PROJECT_SUCCESS, NOT_ACTIVE_PROJECT_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/managed-projects/${projectId}`,
+      schema: {},
+      options: {
+        method: 'DELETE',
+      }
+    },
+    id: projectId,
+    callback
+  }
+}
+export function notActiveProject(id, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchNotActiveProject(id, callback))
+  }
+}
+
+
 // search code project list
 export const SEARCH_CODE_STORE_LIST = 'SEARCH_CODE_STORE_LIST'
 
@@ -230,6 +259,84 @@ export function searchCodeRepo(codeName) {
   return {
     type: SEARCH_CODE_REPO_LIST,
     codeName
+  }
+}
+
+//dockerfile list
+export const GET_DOCKER_FILES_LIST_REQUEST = 'GET_DOCKER_FILES_LIST_REQUEST'
+export const GET_DOCKER_FILES_LIST_SUCCESS = 'GET_DOCKER_FILES_LIST_SUCCESS'
+export const GET_DOCKER_FILES_LIST_FAILURE = 'GET_DOCKER_FILES_LIST_FAILURE'
+function fetchgetDockerfileList() {
+  return {
+    [FETCH_API]: {
+      types: [GET_DOCKER_FILES_LIST_REQUEST, GET_DOCKER_FILES_LIST_SUCCESS, GET_DOCKER_FILES_LIST_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/dockerfiles`,
+      schema: {},
+      options: {
+        method: 'GET'
+      }
+    }
+  }
+}
+export function getDockerfileList() {
+  return (dispatch, getState) => {
+    return dispatch(fetchgetDockerfileList())
+  }
+}
+// get detail dockerfile 
+export const GET_DOCKER_FILES_REQUEST = 'GET_DOCKER_FILES_REQUEST'
+export const GET_DOCKER_FILES_SUCCESS = 'GET_DOCKER_FILES_SUCCESS'
+export const GET_DOCKER_FILES_FAILURE = 'GET_DOCKER_FILES_FAILURE'
+function fetchDockerfiles(flows, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_DOCKER_FILES_REQUEST, GET_DOCKER_FILES_SUCCESS, GET_DOCKER_FILES_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flows.flowId}/stages/${flows.stageId}/dockerfile`,
+      schema: {},
+      options: {
+        method: 'GET'
+      }
+    },
+    callback
+  }
+}
+
+export function getDockerfiles(flowInfo, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchDockerfiles(flowInfo, callback))
+  }
+}
+// update detail dockerfile 
+export const PUT_DOCKER_FILES_REQUEST = 'PUT_DOCKER_FILES_REQUEST'
+export const PUT_DOCKER_FILES_SUCCESS = 'PUT_DOCKER_FILES_SUCCESS'
+export const PUT_DOCKER_FILES_FAILURE = 'PUT_DOCKER_FILES_FAILURE'
+
+function fetchPutDockerfile(flows, callback) {
+  return {
+    [FETCH_API]: {
+      types: [PUT_DOCKER_FILES_REQUEST, PUT_DOCKER_FILES_SUCCESS, PUT_DOCKER_FILES_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flows.flowId}/stages/${flows.stageId}/dockerfile`,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body: {content: flows.content}
+      }
+    },
+    callback
+  }
+}
+
+export function setDockerfile(flowInfo, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchPutDockerfile(flowInfo, callback))
+  }
+}
+
+export const SEARCH_DOCKER_FILES_LIST = 'SEARCH_DOCKER_FILES_LIST'
+export function searchDockerfile(names) {
+  return {
+    type: SEARCH_DOCKER_FILES_LIST,
+    names
   }
 }
 
@@ -321,5 +428,146 @@ function fethcTenxFlowDetail(flowId, callback) {
 export function getTenxFlowDetail(flowId, callback) {
   return (dispatch, getState) => {
     return dispatch(fethcTenxFlowDetail(flowId, callback))
+  }
+}
+
+export const UPDATE_TENX_FLOW_ALERT_REQUEST = 'UPDATE_TENX_FLOW_ALERT_REQUEST'
+export const UPDATE_TENX_FLOW_ALERT_SUCCESS = 'UPDATE_TENX_FLOW_ALERT_SUCCESS'
+export const UPDATE_TENX_FLOW_ALERT_FAILURE = 'UPDATE_TENX_FLOW_ALERT_FAILURE'
+
+function updateTenxFlowAlert(flowId, newAlert, callback) {
+  return {
+    [FETCH_API]: {
+      types: [UPDATE_TENX_FLOW_ALERT_REQUEST, UPDATE_TENX_FLOW_ALERT_SUCCESS, UPDATE_TENX_FLOW_ALERT_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}`,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body: newAlert
+      }
+    },
+    callback: callback
+  }
+}
+
+export function putEditTenxFlowAlert(flowId, newAlert, callback) {
+  return (dispatch, getState) => {
+    return dispatch(updateTenxFlowAlert(flowId, newAlert, callback))
+  }
+}
+
+export const GET_TENX_FLOW_STATE_LIST_REQUEST = 'GET_TENX_FLOW_STATE_LIST_REQUEST'
+export const GET_TENX_FLOW_STATE_LIST_SUCCESS = 'GET_TENX_FLOW_STATE_LIST_SUCCESS'
+export const GET_TENX_FLOW_STATE_LIST_FAILURE = 'GET_TENX_FLOW_STATE_LIST_FAILURE'
+
+function fetchTenxFlowStateList(flowId, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_TENX_FLOW_STATE_LIST_REQUEST, GET_TENX_FLOW_STATE_LIST_SUCCESS, GET_TENX_FLOW_STATE_LIST_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/stages`,
+      schema: {},
+    },
+    callback: callback
+  }
+}
+
+export function getTenxFlowStateList(flowId, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchTenxFlowStateList(flowId, callback))
+  }
+}
+
+export const CREATE_TENX_FLOW_STATE_REQUEST = 'CREATE_TENX_FLOW_STATE_REQUEST'
+export const CREATE_TENX_FLOW_STATE_SUCCESS = 'CREATE_TENX_FLOW_STATE_SUCCESS'
+export const CREATE_TENX_FLOW_STATE_FAILURE = 'CREATE_TENX_FLOW_STATE_FAILURE'
+
+function postCreateTenxFlowState(flowId, newStage, callback) {
+  return {
+    [FETCH_API]: {
+      types: [CREATE_TENX_FLOW_STATE_REQUEST, CREATE_TENX_FLOW_STATE_SUCCESS, CREATE_TENX_FLOW_STATE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/stages`,
+      schema: {},
+      options: {
+        method: 'POST',
+        body: newStage
+      }
+    },
+    callback: callback
+  }
+}
+
+export function createTenxFlowState(flowId, newStage, callback) {
+  return (dispatch, getState) => {
+    return dispatch(postCreateTenxFlowState(flowId, newStage, callback))
+  }
+}
+
+export const UPDATE_TENX_FLOW_STATE_REQUEST = 'UPDATE_TENX_FLOW_STATE_REQUEST'
+export const UPDATE_TENX_FLOW_STATE_SUCCESS = 'UPDATE_TENX_FLOW_STATE_SUCCESS'
+export const UPDATE_TENX_FLOW_STATE_FAILURE = 'UPDATE_TENX_FLOW_STATE_FAILURE'
+
+function postUpdateTenxFlowState(flowId, stageId, newStage, callback) {
+  return {
+    [FETCH_API]: {
+      types: [UPDATE_TENX_FLOW_STATE_REQUEST, UPDATE_TENX_FLOW_STATE_SUCCESS, UPDATE_TENX_FLOW_STATE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/stages/${stageId}`,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body: newStage
+      }
+    },
+    callback: callback
+  }
+}
+
+export function updateTenxFlowState(flowId, stageId, newStage, callback) {
+  return (dispatch, getState) => {
+    return dispatch(postUpdateTenxFlowState(flowId, stageId, newStage, callback))
+  }
+}
+
+export const DELETE_TENX_FLOW_STATE_REQUEST = 'DELETE_TENX_FLOW_STATE_REQUEST'
+export const DELETE_TENX_FLOW_STATE_SUCCESS = 'DELETE_TENX_FLOW_STATE_SUCCESS'
+export const DELETE_TENX_FLOW_STATE_FAILURE = 'DELETE_TENX_FLOW_STATE_FAILURE'
+
+function deleteTenxFlowState(flowId, stageId, callback) {
+  return {
+    [FETCH_API]: {
+      types: [DELETE_TENX_FLOW_STATE_REQUEST, DELETE_TENX_FLOW_STATE_SUCCESS, DELETE_TENX_FLOW_STATE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/stages/${stageId}`,
+      schema: {},
+      options: {
+        method: 'DELETE'
+      }
+    },
+    callback: callback
+  }
+}
+
+export function deleteTenxFlowStateDetail(flowId, stageId, callback) {
+  return (dispatch, getState) => {
+    return dispatch(deleteTenxFlowState(flowId, stageId, callback))
+  }
+}
+
+export const GET_TENX_FLOW_STATE_DETAIL_REQUEST = 'GET_TENX_FLOW_STATE_DETAIL_REQUEST'
+export const GET_TENX_FLOW_STATE_DETAIL_SUCCESS = 'GET_TENX_FLOW_STATE_DETAIL_SUCCESS'
+export const GET_TENX_FLOW_STATE_DETAIL_FAILURE = 'GET_TENX_FLOW_STATE_DETAIL_FAILURE'
+
+function fetchTenxFlowStateDetail(flowId, stageId, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_TENX_FLOW_STATE_DETAIL_REQUEST, GET_TENX_FLOW_STATE_DETAIL_SUCCESS, GET_TENX_FLOW_STATE_DETAIL_FAILURE],
+      endpoint: `${API_URL_PREFIX}/ci-flows/${flowId}/stages/${stageId}`,
+      schema: {},
+    },
+    callback: callback
+  }
+}
+
+export function getTenxFlowStateDetail(flowId, stageId, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchTenxFlowStateDetail(flowId, stageId, callback))
   }
 }

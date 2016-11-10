@@ -20,29 +20,6 @@ import TestModal from '../../TerminalModal'
 import './style/TenxFlowList.less'
 import TenxFlowBuildLog from './TenxFlowBuildLog.js'
 
-let testData = [
-  {
-    'name': 'test1',
-    'updateTime': '1小时前',
-    'status': 'finish'
-  },
-  {
-    'name': 'test2',
-    'updateTime': '2小时前',
-    'status': 'running'
-  },
-  {
-    'name': 'test3',
-    'updateTime': '3小时前',
-    'status': 'finish'
-  },
-  {
-    'name': 'test4',
-    'updateTime': '4小时前',
-    'status': 'fail'
-  },
-]
-
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
 
@@ -159,7 +136,11 @@ let MyComponent = React.createClass({
             </Link>
           </div>
           <div className='time'>
-            <span>{item.updateTime ? item.updateTime : [<FormattedMessage {...menusText.unUpdate} />] }</span>
+            <span className='timeSpan'>
+              <Tooltip placement='topLeft' title={item.updateTime ? item.updateTime : [<FormattedMessage {...menusText.unUpdate} />]}>
+                <span>{item.updateTime ? item.updateTime : [<FormattedMessage {...menusText.unUpdate} />] }</span>
+              </Tooltip>
+            </span>
           </div>
           <div className='status'>
             <span>{ '-' }</span>

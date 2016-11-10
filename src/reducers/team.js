@@ -11,6 +11,8 @@
 import * as ActionTypes from '../actions/team'
 import reducerFactory from './factory'
 
+const options = { overwrite: true }
+
 export default function team(state = {
   teams: [],
   teamspaces: [],
@@ -21,21 +23,21 @@ export default function team(state = {
       REQUEST: ActionTypes.TEAM_LIST_REQUEST,
       SUCCESS: ActionTypes.TEAM_LIST_SUCCESS,
       FAILURE: ActionTypes.TEAM_LIST_FAILURE
-    }, state.teams, action),
+    }, state.teams, action, options),
     teamspaces: reducerFactory({
       REQUEST: ActionTypes.TEAMSPACE_LIST_REQUEST,
       SUCCESS: ActionTypes.TEAMSPACE_LIST_SUCCESS,
       FAILURE: ActionTypes.TEAMSPACE_LIST_FAILURE
-    }, state.teamspaces, action),
+    }, state.teamspaces, action, options),
     teamusers: reducerFactory({
       REQUEST: ActionTypes.TTEAMUSER_LIST_REQUEST,
       SUCCESS: ActionTypes.TTEAMUSER_LIST_SUCCESS,
       FAILURE: ActionTypes.TTEAMUSER_LIST_FAILURE
-    }, state.teamusers, action),
+    }, state.teamusers, action, options),
     teamClusters: reducerFactory({
       REQUEST: ActionTypes.TEAM_CLUSTERS_LIST_REQUEST,
       SUCCESS: ActionTypes.TEAM_CLUSTERS_LIST_SUCCESS,
       FAILURE: ActionTypes.TEAM_CLUSTERS_LIST_FAILURE
-    }, state.teamClusters, action),
+    }, state.teamClusters, action, options),
   }
 }

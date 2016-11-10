@@ -16,12 +16,18 @@ import { loadUserList, createUser, deleteUser } from '../../../actions/user'
 
 const createForm = Form.create;
 const FormItem = Form.Item;
+const confirm = Modal.confirm;
 
 let MemberTable =  React.createClass({
   getInitialState() {
     return {
       filteredInfo: null,
-      sortedInfo: null,
+      pagination: {},
+      loading: false,
+      sortName: true,
+      sortTeam: true,
+      sortBalance: true,
+      sort: "a,userName"
     };
   },
   handleChange(pagination, filters, sorter) {
@@ -30,6 +36,56 @@ let MemberTable =  React.createClass({
       sortedInfo: sorter,
     });
   },
+  getSort(order, column) {
+    var query = {}
+    var orderStr = 'a,'
+    if (!order) {
+      orderStr = 'd,'
+    }
+    return orderStr + column
+  },
+  handleSortName(){
+    const { loadUserList } = this.props.scope.props
+    const { sortName } = this.state
+    let sort = this.getSort(!sortName, 'userName')
+    loadUserList({
+        page: this.state.page,
+        size: this.state.pageSize,
+        sort,
+    })
+    this.setState({
+      sortName: !sortName,
+      sort,
+    })
+  },
+  handleSortTeam(){
+    const { loadUserList } = this.props.scope.props
+    const { sortTeam } = this.state
+    let sort = this.getSort(!sortTeam, 'userName')
+    loadUserList({
+        page: this.state.page,
+        size: this.state.pageSize,
+        sort,
+    })
+    this.setState({
+      sortTeam: !sortTeam,
+      sort,
+    })
+  },
+  handleSortBalance(){
+    const { loadUserList } = this.props.scope.props
+    const { sortBalance } = this.state
+    let sort = this.getSort(!sortBalance, 'userName')
+    loadUserList({
+        page: this.state.page,
+        size: this.state.pageSize,
+        sort,
+    })
+    this.setState({
+      sortBalance: !sortBalance,
+      sort,
+    })
+  },
   handleBack(){
     const { scope } = this.props
     scope.setState({
@@ -37,20 +93,27 @@ let MemberTable =  React.createClass({
     })
   },
   delMember(record){
-    console.log('delmember !',record);
     const { scope } = this.props
-    scope.props.deleteUser(record.key,{
-      success: {
-        func: () => {
-          console.log('del !');
-          scope.props.loadUserList({
-            page: scope.state.page,
-            size: scope.state.pageSize,
-          })
-        },
-        isAsync: true
+    confirm({
+      title: '您是否确认要删除这项内容',
+      content: '点确认 1 秒后关闭',
+      onOk() {
+        console.log('del !!!!!')
+        scope.props.deleteUser(record.key,{
+          success: {
+            func: () => {
+              scope.props.loadUserList({
+                page: scope.state.page,
+                size: scope.state.pageSize,
+                sort: scope.state.sort,
+              })
+            },
+            isAsync: true
+          },
+        })
       },
-    })
+      onCancel() {},
+    });
   },
   render() {
     let { sortedInfo, filteredInfo } = this.state
@@ -68,7 +131,8 @@ let MemberTable =  React.createClass({
         console.log('Current: ', current, '; PageSize: ', pageSize);
         scope.props.loadUserList({
           page: current,
-          size: pageSize
+          size: pageSize,
+          sort: scope.state.sort
         })
         scope.setState({
           pageSize: pageSize,
@@ -81,22 +145,32 @@ let MemberTable =  React.createClass({
         console.log('Current: ', current);
         scope.props.loadUserList({
           page: current,
-          size: pageSize
+          size: pageSize,
+          sort: scope.state.sort
         })
         scope.setState({
           pageSize: pageSize,
           page: current
         })
-        console.log('userList new ',users);
       },
     }
     const columns = [
       {
-        title: '成员名',
+        title: (
+          <div onClick={this.handleSortName}>
+            成员名
+            <div className="ant-table-column-sorter">
+              <span className= {this.state.sortName?'ant-table-column-sorter-up on':'ant-table-column-sorter-up off'} title="↑">
+                <i className="anticon anticon-caret-up"/>
+              </span>
+              <span className= {!this.state.sortName?'ant-table-column-sorter-down on':'ant-table-column-sorter-down off'} title="↓">
+                <i className="anticon anticon-caret-down"/>
+              </span>
+            </div>
+          </div>
+        ),
         dataIndex: 'name',
         key: 'name',
-        sorter: (a, b) => a.name.length - b.name.length,
-        sortOrder: sortedInfo.columnKey === 'name' && sortedInfo.order,
         className: 'memberName',
         width: 150,
       },
@@ -125,20 +199,40 @@ let MemberTable =  React.createClass({
         width: 150,
       },
       {
-        title: '团队',
+        title: (
+          <div onClick={this.handleSortTeam}>
+            团队
+            <div className="ant-table-column-sorter">
+              <span className= {this.state.sortTeam?'ant-table-column-sorter-up on':'ant-table-column-sorter-up off'} title="↑">
+                <i className="anticon anticon-caret-up"/>
+              </span>
+              <span className= {!this.state.sortTeam?'ant-table-column-sorter-down on':'ant-table-column-sorter-down off'} title="↓">
+                <i className="anticon anticon-caret-down"/>
+              </span>
+            </div>
+          </div>
+        ),
         dataIndex: 'team',
         key: 'team',
         width: 150,
-        sorter: (a, b) => a.team - b.team,
-        sortOrder: sortedInfo.columnKey === 'team' && sortedInfo.order,
       },
       {
-        title: '余额',
+        title: (
+          <div onClick={this.handleSortBalance}>
+            余额
+            <div className="ant-table-column-sorter">
+              <span className= {this.state.sortBalance?'ant-table-column-sorter-up on':'ant-table-column-sorter-up off'} title="↑">
+                <i className="anticon anticon-caret-up"/>
+              </span>
+              <span className= {!this.state.sortBalance?'ant-table-column-sorter-down on':'ant-table-column-sorter-down off'} title="↓">
+                <i className="anticon anticon-caret-down"/>
+              </span>
+            </div>
+          </div>
+        ),
         dataIndex: 'balance',
         key: 'balance',
         width: 150,
-        sorter: (a, b) => a.balance - b.balance,
-        sortOrder: sortedInfo.columnKey === 'balance' && sortedInfo.order,
       },
       {
         title: '操作',
@@ -232,6 +326,7 @@ let NewMemberForm = React.createClass({
             scope.props.loadUserList({
               page: scope.state.page,
               size: scope.state.pageSize,
+              sort: scope.state.sort
             })
           },
           isAsync: true
@@ -385,6 +480,7 @@ class MemberManage extends Component {
       memberList: [],
       pageSize: 5,
       page: 1,
+      sort: "a,userName",
     }
   }
   showModal() {
@@ -395,7 +491,8 @@ class MemberManage extends Component {
   componentWillMount(){
     this.props.loadUserList({
       page: 1,
-      size: 5
+      size: 5,
+      sort: "a,userName",
     })
     
   }
@@ -425,12 +522,12 @@ class MemberManage extends Component {
           <Button type="primary" size="large" onClick={this.showModal} icon="plus" className="addBtn">
             添加新成员
           </Button>
-          <SearchInput data={users} scope={scope} searchIntOption={searchIntOption}/>
+          <SearchInput scope={scope} searchIntOption={searchIntOption}/>
           <NewMemberForm visible={visible} scope={scope}/>
         </Row>
         <Row className="memberList">
           <Card>
-            <MemberTable scope={scope} data={users}/>
+            <MemberTable scope={scope} data={users} />
           </Card>
         </Row>
       </div>
@@ -456,7 +553,7 @@ function mapStateToProp(state) {
             tel: item.phone,
             email: item.email,
             style: item.role === 1?'团队管理员':'普通成员',
-            team: '1',
+            team: item.teamCount,
             balance: item.balance,
           }
         )

@@ -80,7 +80,7 @@ const menusText = defineMessages({
 let CreateTenxFlow = React.createClass({
   getInitialState: function() {
     return {
-      currentType: 'view',
+      currentType: '1',
       emailAlert: false,
       otherEmail: false,
       currentTenxFlow: null
@@ -111,7 +111,7 @@ let CreateTenxFlow = React.createClass({
     });
   },
   yamlInputCheck(rule, value, callback){
-    if(this.state.currentType == 'yaml' && !!!value){
+    if(this.state.currentType == '2' && !!!value){
       callback([new Error('请填写yaml文件')]);
     }else{
       callback();
@@ -174,7 +174,7 @@ let CreateTenxFlow = React.createClass({
     this.props.form.resetFields();
     const { scope } = this.props;
     this.setState({
-      currentType: 'view',
+      currentType: '1',
       emailAlert: false,
       otherEmail: false
     });
@@ -192,33 +192,47 @@ let CreateTenxFlow = React.createClass({
         return;
       }
       let body = {};
-      if( _this.emailAlert ) {       
-        body = {
-          'name': values.name,
-          'email_list': values.inputEmail.split(','),
+      if( _this.state.emailAlert ) {
+        let tempEmail = '';
+        if(values.radioEmail != 'others') {
+          tempEmail = values.radioEmail;
+        } else {
+          tempEmail = values.inputEmail.split(',');
+        }
+        let temp = {
+          'email_list': tempEmail,
           'ci': {
             'success_notification': values.checkFirst,
             'failed_notification': values.checkSecond
-            },
+          },
           'cd': {
             'success_notification': values.checkThird,
             'failed_notification': values.checkForth
-            }
+          }
+        }       
+        body = {
+          'name': values.name,
+          'init_type': parseInt(values.radioFlow),
+          'notification_config': JSON.stringify(temp)
         }
       } else {
         body = {
-          'name': values.name
+          'name': values.name,
+          'init_type': parseInt(values.radioFlow),
+          'notification_config': null
         }
       }
       createTenxFlowSingle(body, {
         success: {
-          func: (res) => browserHistory.push(`/ci_cd/tenx_flow/tenx_flow_build?${res.data.flow_id}`),
+          func: (res) => {
+            scope.setState({
+              createTenxFlowModal: false
+            });
+            browserHistory.push(`/ci_cd/tenx_flow/tenx_flow_build?${res.data.flowId}`)
+            },
           isAsync: true
         },
-      })
-      scope.setState({
-        createTenxFlowModal: false
-      });
+      });    
     });
   },
   render() {
@@ -236,7 +250,7 @@ let CreateTenxFlow = React.createClass({
         { required: true, message: '请选择创建Flow方式' },
       ],
       onChange: this.onChangeFlowType,
-      initialValue: 'view'
+      initialValue: '1'
     });
     const flowProps = getFieldProps('yaml', {
       rules: [
@@ -279,11 +293,11 @@ let CreateTenxFlow = React.createClass({
           <div className='input'>
             <FormItem className='flowTypeForm'>
               <RadioGroup {...radioFlowTypeProps} >
-                <Radio key='a' value={'view'}><FormattedMessage {...menusText.viewDefine} /></Radio>
-                <Radio key='b' value={'yaml'} disabled><FormattedMessage {...menusText.yamlDefine} /></Radio>
+                <Radio key='a' value={'1'}><FormattedMessage {...menusText.viewDefine} /></Radio>
+                <Radio key='b' value={'2'} disabled><FormattedMessage {...menusText.yamlDefine} /></Radio>
               </RadioGroup>
             </FormItem>
-            { this.state.currentType == 'yaml' ? [
+            { this.state.currentType == '2' ? [
               <QueueAnim type='right' key='yamlFormAnimate'>
                 <div className='yamlForm' key='yamlForm'>
                   <FormItem>

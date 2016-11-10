@@ -107,8 +107,9 @@ const menusText = defineMessages({
 
 function currentStatus(status) {
   //this function for show different status
-  switch(status) {
-    case 'finish':
+  const stageStatus = !!status ? status.status : 3;
+  switch(stageStatus) {
+    case 0:
       return (
         <div className='finishStatus status'>
           <Icon type="check-circle-o" />
@@ -116,7 +117,7 @@ function currentStatus(status) {
         </div>
         );
       break;
-    case 'running':
+    case 2:
       return (
         <div className='runningStatus status'>
           <i className='fa fa-cog fa-spin fa-3x fa-fw' />
@@ -124,7 +125,7 @@ function currentStatus(status) {
         </div>
         );
       break;
-    case 'fail':
+    case 1:
        return (
           <div className='failStatus status'>
             <Icon type="cross-circle-o" />
@@ -132,7 +133,7 @@ function currentStatus(status) {
           </div>
         );
       break;
-    case 'wait':
+    case 3:
       return (
         <div className='runningStatus status'>
           <Icon type="clock-circle-o" />
@@ -146,32 +147,32 @@ function currentStatus(status) {
 function currentFlowType(type) {
   //this function for show different flow type
   switch(type) {
-    case 'unitCheck':
+    case 1:
       return (
         <FormattedMessage {...menusText.unitCheck} />
         );
       break;
-    case 'containCheck':
+    case 2:
       return (
         <FormattedMessage {...menusText.containCheck} />
         );
       break;
-    case 'podToPodCheck':
+    case 3:
       return (
         <FormattedMessage {...menusText.podToPodCheck} />
         );
       break;
-    case 'runningCode':
+    case 4:
       return (
         <FormattedMessage {...menusText.runningCode} />
         );
       break;
-    case 'buildImage':
+    case 5:
       return (
         <FormattedMessage {...menusText.buildImage} />
         );
       break;
-    case 'other':
+    case 6:
       return (
         <FormattedMessage {...menusText.other} />
         );
@@ -181,8 +182,9 @@ function currentFlowType(type) {
   
 function currentStatusBtn(status) {
   //this function for different status show different Btn msg
-  switch(status) {
-    case 'finish':
+  const stageStatus = !!status ? status.status : 3;
+  switch(stageStatus) {
+    case 0:
       return (
         <div>
           <i className='fa fa-play' />
@@ -190,7 +192,7 @@ function currentStatusBtn(status) {
         </div>
         );
       break;
-    case 'running':
+    case 2:
       return (
         <div>
           <i className='fa fa-stop' />
@@ -198,7 +200,7 @@ function currentStatusBtn(status) {
         </div>
         );
       break;
-    case 'fail':
+    case 1:
       return (
         <div>
           <i className='fa fa-repeat' />
@@ -206,7 +208,7 @@ function currentStatusBtn(status) {
         </div>
         );
       break;
-    case 'wait':
+    case 3:
       return (
         <div>
           <i className='fa fa-play' />
@@ -219,13 +221,25 @@ function currentStatusBtn(status) {
 
 function currentEditClass(status, editIndex, index) {
   //this function for different status and edit show different class
+  const stageStatus = !!status ? status.status : 3;
   if(editIndex == index) {
     return 'edittingCard commonCard';
-  }else if(status == 'running') {
+  }else if(stageStatus == 2) {
     return 'runningCard commonCard';
   }else {
     return 'commonCard';
   } 
+}
+
+function fetchCodeStoreName(id, codeList) {
+  //this function for fetcht code store name 
+  let codeName = null;
+  codeList.map((item) => {
+    if(item.id == id) {
+      codeName = item.name;
+    }
+  });
+  return codeName;
 }
   
 class TenxFlowDetailFlowCard extends Component {
@@ -245,7 +259,8 @@ class TenxFlowDetailFlowCard extends Component {
     //this function for user click the edit button and then open the edit modal
     const { scope, index } = this.props;
     scope.setState({
-      currentFlowEdit: index
+      currentFlowEdit: index,
+      createNewFlow: false
     });
   }
   
@@ -278,7 +293,7 @@ class TenxFlowDetailFlowCard extends Component {
   }
   
   render() {
-    let { config, index, scope, currentFlowEdit } = this.props;
+    let { config, index, scope, currentFlowEdit, flowId, codeList } = this.props;
     const scopeThis = this;
     return (
       <div id='TenxFlowDetailFlowCard' key={'TenxFlowDetailFlowCard' + index} className={ currentFlowEdit == index ? 'TenxFlowDetailFlowCardBigDiv':'' } >
@@ -288,7 +303,7 @@ class TenxFlowDetailFlowCard extends Component {
               <QueueAnim key={'FlowCardShowAnimate' + index}>
                 <div key={'TenxFlowDetailFlowCardShow' + index}>
                   <div className='statusBox'>
-                    { currentStatus(config.status) }
+                    { currentStatus(config.lastBuildStatus) }
                   </div>
                   <div className='infoBox'>
                     <div className='name commonInfo'>
@@ -296,7 +311,7 @@ class TenxFlowDetailFlowCard extends Component {
                         <FormattedMessage {...menusText.name} />
                       </div>
                       <div className='info'>
-                        <span className='infoSpan'>{config.name}</span>
+                        <span className='infoSpan'>{config.metadata.name}</span>
                       </div>
                       <div style={{ clear:'both' }}></div>
                     </div>
@@ -306,7 +321,7 @@ class TenxFlowDetailFlowCard extends Component {
                       </div>
                       <div className='info'>
                         <i className='fa fa-cog' />
-                        { currentFlowType(config.type) }
+                        { currentFlowType(config.metadata.type) }
                       </div>
                       <div style={{ clear:'both' }}></div>
                     </div>
@@ -316,7 +331,7 @@ class TenxFlowDetailFlowCard extends Component {
                       </div>
                       <div className='info'>
                         <i className='fa fa-github' />
-                        <span className='infoSpan'>{config.codeSource}</span>
+                        <span className='infoSpan'>{fetchCodeStoreName(config.spec.project.id, codeList)}</span>
                         <div style={{ clear:'both' }}></div>
                       </div>
                       <div style={{ clear:'both' }}></div>
@@ -327,14 +342,14 @@ class TenxFlowDetailFlowCard extends Component {
                       </div>
                       <div className='info'>
                         <i className='fa fa-sitemap' />
-                        <span className='infoSpan'>{config.branch}</span>
+                        <span className='infoSpan'>{config.spec.project.branch}</span>
                         <div style={{ clear:'both' }}></div>
                       </div>
                       <div style={{ clear:'both' }}></div>
                     </div>
                     <div className='btnBox'>
                       <Button size='large' type='primary'>
-                        { currentStatusBtn(config.status) }
+                        { currentStatusBtn(config.lastBuildStatus) }
                       </Button>
                       <Button size='large' type='ghost'>
                         <i className='fa fa-wpforms' />
@@ -355,13 +370,13 @@ class TenxFlowDetailFlowCard extends Component {
           {
             currentFlowEdit == index ? [
               <QueueAnim key={'EditTenxFlowModalAnimate' + index}>
-                <EditTenxFlowModal key={'EditTenxFlowModal' + index} scope={scopeThis} config={config} editType={'edit'} />
+                <EditTenxFlowModal key={'EditTenxFlowModal' + index} rootScope={scope} scope={scopeThis} config={config} flowId={flowId} stageId={config.metadata.id} />
               </QueueAnim>
             ] : null
           }
           {
             (index == 0 && currentFlowEdit != index) ? [
-            <div className='cicdBox'>
+            <div className='cicdBox' key='cicdBox'>
               <Switch onChange={this.viewCicdBox}/>
               <p className='switchTitile'><FormattedMessage {...menusText.cicd} /></p>
               <p className='viewP' onClick={this.viewCicdBoxP}><FormattedMessage {...menusText.view} /></p>
@@ -371,7 +386,7 @@ class TenxFlowDetailFlowCard extends Component {
         </Card>
         {
           currentFlowEdit != index ? [
-            <div className={ config.status == 'finish' ? 'finishArrow arrowBox' : 'arrowBox' }>
+            <div className={ config.status == 'finish' ? 'finishArrow arrowBox' : 'arrowBox' } key='finishArrow'>
               <Icon type="arrow-right" />
             </div>
           ] : null

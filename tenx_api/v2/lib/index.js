@@ -55,4 +55,6 @@ module.exports = function (config) {
   // ~ devops
   this.devops = collections.create('devops')
 
+  // ~ license
+  this.license = collections.create('license')
 }

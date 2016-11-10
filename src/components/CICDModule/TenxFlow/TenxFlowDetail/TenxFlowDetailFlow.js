@@ -14,54 +14,11 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../constants'
+import { getTenxFlowStateList, getProjectList, searchProject } from '../../../../actions/cicd_flow'
 import './style/TenxFlowDetailFlow.less'
 import EditTenxFlowModal from './TenxFlowDetailFlow/EditTenxFlowModal.js'
+import CreateTenxFlowModal from './TenxFlowDetailFlow/CreateTenxFlowModal.js'
 import TenxFlowDetailFlowCard from './TenxFlowDetailFlow/TenxFlowDetailFlowCard.js'
-
-let testData = [
-  {
-    'name': 'test1',
-    'type': 'unitCheck',
-    'codeSource': 'github-gaojian',
-    'branch': 'master',
-    'status': 'finish'
-  },
-  {
-    'name': 'test2',
-    'type': 'podToPodCheck',
-    'codeSource': 'github-gaojian',
-    'branch': 'master',
-    'status': 'running'
-  },
-  {
-    'name': 'test3',
-    'type': 'containCheck',
-    'codeSource': 'github-gaojian',
-    'branch': 'master',
-    'status': 'finish'
-  },
-  {
-    'name': 'test4',
-    'type': 'runningCode',
-    'codeSource': 'github-gaojian',
-    'branch': 'master',
-    'status': 'fail'
-  },
-  {
-    'name': 'test5',
-    'type': 'other',
-    'codeSource': 'github-gaojian',
-    'branch': 'master',
-    'status': 'wait'
-  },
-  {
-    'name': 'test6',
-    'type': 'buildImage',
-    'codeSource': 'github-gaojian',
-    'branch': 'master',
-    'status': 'finish'
-  },
-]
 
 const menusText = defineMessages({
   title: {
@@ -82,48 +39,86 @@ class TenxFlowDetailFlow extends Component {
   constructor(props) {
     super(props);
     this.createNewFlow = this.createNewFlow.bind(this);
+    this.closeCreateNewFlow = this.closeCreateNewFlow.bind(this);
     this.state = {
       editTenxFlowModal: false,
-      currentModalType: 'create',
       currentModalShowFlow: null,
-      currentFlowEdit: null
+      currentFlowEdit: null,
+      createNewFlow: false
     }
   }
 
   componentWillMount() {
-    document.title = 'TenxFlow | 时速云';
+    const { getTenxFlowStateList, flowId, getProjectList } = this.props;
+    getTenxFlowStateList(flowId, {
+      success: {        
+        func: () => getProjectList(),
+        isAsync: true        
+      }
+    });
   }
   
   createNewFlow() {
     //this function only for user create an new flow show the edit modal
     this.setState({
-      editTenxFlowModal: true,
-      currentModalType: 'create'
+      currentFlowEdit: null,
+      createNewFlow: true,    
+    });
+  }
+  
+  closeCreateNewFlow() {
+    //this function only for user close the modal of  create an new flow 
+    this.setState({
+      currentFlowEdit: null,
+      createNewFlow: false
     });
   }
 
   render() {
+    const { flowId, stageInfo, stageList, isFetching, projectList } = this.props;
     let scope = this;
     let { currentFlowEdit } = scope.state;
-    let cards = testData.map( (item, index) => {
+    let cards = null;
+    if(isFetching) {
       return (
-        <TenxFlowDetailFlowCard config={item} scope={scope} index={index} currentFlowEdit={currentFlowEdit} />
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
       )
-    });
+    } else {      
+      cards = stageList.map( (item, index) => {
+        return (
+          <TenxFlowDetailFlowCard config={item} scope={scope} index={index} flowId={flowId} currentFlowEdit={currentFlowEdit} codeList={projectList} />
+        )
+      });
+    }
     return (
       <div id='TenxFlowDetailFlow'>
         <div className='paddingBox'>
           <Alert message={<FormattedMessage {...menusText.tooltip} />} type='info' />
           { cards }
-          <div style={{ clear:'both' }}></div>
-          <div className='commonCardBox createCardBox'>
+          <div className={ this.state.createNewFlow ? 'TenxFlowDetailFlowCardBigDiv commonCardBox createCardBox' : 'commonCardBox createCardBox'}>
             <Card className='commonCard createCard' onClick={this.createNewFlow}>
-              <Icon type="plus-circle-o" />
-              <p>
-                <FormattedMessage {...menusText.add} />
-              </p>
+              { !this.state.createNewFlow ? [
+                <QueueAnim key='createCardAnimate'>
+                  <div className='createInfo' key='createCard'>
+                    <Icon className='addIcon' type="plus-circle-o" />
+                    <p>
+                      <FormattedMessage {...menusText.add} />
+                    </p>
+                  </div>
+                </QueueAnim>
+              ] : null }
+              {
+                this.state.createNewFlow ? [
+                  <QueueAnim key='creattingCardAnimate'>
+                    <CreateTenxFlowModal key='CreateTenxFlowModal' scope={scope} flowId={flowId} stageInfo={stageInfo} codeList={projectList} />
+                  </QueueAnim>
+                ] : null
+              }
             </Card>
           </div>
+          <div style={{ clear:'both' }}></div>
         </div>
       </div>
     )
@@ -131,9 +126,21 @@ class TenxFlowDetailFlow extends Component {
 }
 
 function mapStateToProps(state, props) {
-
+  const defaultStageList = {
+    isFetching: false,
+    stageList: []
+  }
+  const defaultStatus = {
+    projectList:[]
+  }
+  const { getTenxflowStageList } = state.cicd_flow;
+  const { isFetching, stageList } = getTenxflowStageList || defaultStageList;
+  const { managed } = state.cicd_flow;
+  const {projectList} = managed || defaultStatus;
   return {
-
+    isFetching,
+    stageList,
+    projectList
   }
 }
 
@@ -142,7 +149,9 @@ TenxFlowDetailFlow.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-
+  getTenxFlowStateList,
+  getProjectList,
+  searchProject
 })(injectIntl(TenxFlowDetailFlow, {
   withRef: true,
 }));

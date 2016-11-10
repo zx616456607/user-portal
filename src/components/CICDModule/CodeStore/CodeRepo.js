@@ -14,9 +14,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import './style/CodeRepo.less'
-import { getRepoList , addCodeRepo, deleteRepo , registryRepo ,syncRepoList, searchCodeRepo , getUserInfo} from '../../../actions/cicd_flow'
-import GithubComponent from './GithubComponent'
-import SvnComponent from './SvnComponent'
+import { getRepoList , addCodeRepo , notActiveProject, deleteRepo , registryRepo ,syncRepoList, searchCodeRepo , getUserInfo} from '../../../actions/cicd_flow'
 
 const TabPane = Tabs.TabPane
 
@@ -129,6 +127,7 @@ const MyComponent = React.createClass({
             regToken:''
           })
           self.props.scope.props.getRepoList(config.type)
+          self.props.scope.props.getUserInfo(config.type)
         },
         isAsync: true
       }
@@ -142,6 +141,15 @@ const MyComponent = React.createClass({
     const parentScope = this.props.scope
     const codeName = e.target.value
     parentScope.props.searchCodeRepo(codeName)
+  },
+  notActive(id) {
+    this.props.scope.props.notActiveProject(id,{
+      success: {
+        func: ()=>{
+          message.success('撤消成功')
+        }
+      }
+    })
   },
   changeUrl(e) {
     this.setState({regUrl: e.target.value})
@@ -165,10 +173,10 @@ const MyComponent = React.createClass({
           <Modal title="授权同步代码源" visible={this.state.authorizeModal} onOk={()=>this.registryRepo() } onCancel={()=>this.setState({authorizeModal: false})}
           >
             <div style={{padding:"0 20px"}}>
-              <p style={{lineHeight:'40px'}}>Url：
+              <p style={{lineHeight:'30px'}}>仓库地址：
                 <Input placeholder="http://*** | https://***" onChange={this.changeUrl} value={this.state.regUrl} size="large" />
               </p>
-              <p style={{marginTop:'10px'}}>Private Token: 
+              <p style={{lineHeight:'30px'}}>Private Token: 
                 <Input placeholder="Private Token: " size="large" onChange={this.changeToken} value={this.state.regToken} />
               </p>
             </div>
@@ -182,10 +190,9 @@ const MyComponent = React.createClass({
           <div className="name textoverflow">{item.name}</div>
           <div className="type">{item.type == false ? "public" : "private"}</div>
           <div className="action">
-            {item.status ==1 ? 
-            <Tooltip placement="right" title="将公钥添加到代码库后，可激活为构建项目">
-              <Button type="primary" onClick={()=>{this.setState({keyModal: true})}}>公钥授权</Button>
-            </Tooltip>
+            {(item.managedProject && item.managedProject.active ==1) ? 
+              <span><Button type="ghost" disabled>已激活</Button>
+              <a onClick={()=>this.notActive(item.managedProject.id)} style={{marginLeft:'15px'}}>撤销</a></span>
             :
             <Tooltip placement="right" title="可构建项目">
               <Button type="ghost" onClick={()=>this.addBuild(item)} >激活</Button>
@@ -299,9 +306,6 @@ class CodeRepo extends Component {
               <p style={{paddingLeft:'36px', lineHeight:'40px'}}>选择代码源</p>
               <Tabs type="card" onChange={(e)=>this.setState({repokey: e})}>
                 <TabPane tab={gitlabBud} key="gitlab"><MyComponent formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} repoUser={this.props.repoUser} config={this.props.repoList} /></TabPane>
-                <TabPane tab={githubBud} key="github"><GithubComponent formatMessage={formatMessage} scope={scope} /></TabPane>
-                <TabPane tab={svnBud} key="svn"><SvnComponent formatMessage={formatMessage} scope={scope} /></TabPane>
-                <TabPane tab={bibucketBud} key="bibucket">无</TabPane>
               </Tabs>
             </div>
           </div>
@@ -345,7 +349,8 @@ export default connect(mapStateToProps,{
   registryRepo,
   syncRepoList,
   searchCodeRepo,
-  getUserInfo
+  getUserInfo,
+  notActiveProject
 })(injectIntl(CodeRepo, {
   withRef: true,
 }));

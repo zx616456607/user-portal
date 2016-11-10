@@ -24,16 +24,23 @@ let PersonalSpace = React.createClass ({
       <div>
         <Row className="contentTop">
           <Col span={4}>
-            <i className="fa fa-cube"/>
-            应用
+            <svg className="infSvg" style={{marginRight:8}}>
+              <use xlinkHref="#settingapp" />
+            </svg>
+            <span className="infSvgTxt">应用</span>
+            
           </Col>
           <Col span={4}>
-            <i className="fa fa-cube"/>
-            服务
+            <svg className="infSvg" style={{marginRight:8}}>
+              <use xlinkHref="#settingservice" />
+            </svg>
+            <span className="infSvgTxt">服务</span>
           </Col>
           <Col span={4}>
-            <i className="fa fa-cube"/>
-            容器
+            <svg className="infSvg" style={{marginRight:8}}>
+              <use xlinkHref="#settingcontainer" />
+            </svg>
+            <span className="infSvgTxt">容器</span>
           </Col>
         </Row>
         <Row className="contentList firstItem">
@@ -55,6 +62,7 @@ let TeamSpace = React.createClass({
     let firstRow = true
     let className = ""
     let items = this.props.teamspaces.map((teamspace) => {
+      console.log('teamspace',teamspace);
       if (firstRow) {
         className = "contentList firstItem"
         firstRow = false
@@ -63,10 +71,11 @@ let TeamSpace = React.createClass({
       }
       return (<Row className={className} key={teamspace.spaceName}>
           <Col span={4}>{teamspace.spaceName}</Col>
-          <Col span={4}>{teamspace.teamID}</Col>
-          <Col span={4}>6</Col>
-          <Col span={4}>1000</Col>
-          <Col span={4}>2002</Col>
+          <Col span={7}>{teamspace.teamID}</Col>
+          <Col span={2}>{teamspace.balance}</Col>
+          <Col span={2}>{teamspace.balance}</Col>
+          <Col span={2}>{teamspace.balance}</Col>
+          <Col span={3}>{teamspace.balance}</Col>
           <Col span={4}>
             <Button type="primary">进入空间</Button>
           </Col>
@@ -76,28 +85,46 @@ let TeamSpace = React.createClass({
       <div>
         <Row className="contentTop">
           <Col span={4}>
-            <i className="fa fa-cube"/>
-            名称
+            <svg className="infSvg" style={{marginRight:8}}>
+              <use xlinkHref="#settingname" />
+            </svg>
+            <span className="infSvgTxt">名称</span>
+          </Col>
+          <Col span={7}>
+            <svg className="infSvg" style={{marginRight:8}}>
+              <use xlinkHref="#settingownteam" />
+            </svg>
+            <span className="infSvgTxt">所属团队</span>
+          </Col>
+          <Col span={2}>
+            <svg className="infSvg" style={{marginRight:8}}>
+              <use xlinkHref="#settingapp" />
+            </svg>
+            <span className="infSvgTxt">应用</span>
+          </Col>
+          <Col span={2}>
+            <svg className="infSvg" style={{marginRight:8}}>
+              <use xlinkHref="#settingservice" />
+            </svg>
+            <span className="infSvgTxt">服务</span>
+          </Col>
+          <Col span={2}>
+            <svg className="infSvg" style={{marginRight:8}}>
+              <use xlinkHref="#settingservice" />
+            </svg>
+            <span className="infSvgTxt">容器</span>
+          </Col>
+          <Col span={3}>
+            <svg className="infSvg" style={{marginRight:8}}>
+              <use xlinkHref="#settingservice" />
+            </svg>
+            <span className="infSvgTxt">余额</span>
           </Col>
           <Col span={4}>
-            <i className="fa fa-cube"/>
-            所属团队
-          </Col>
-          <Col span={4}>
-            <i className="fa fa-cube"/>
-            应用
-          </Col>
-          <Col span={4}>
-            <i className="fa fa-cube"/>
-            服务
-          </Col>
-          <Col span={4}>
-            <i className="fa fa-cube"/>
-            容器
-          </Col>
-          <Col span={4}>
-            <i className="fa fa-cube"/>
-            操作
+            <svg className="infSvg" style={{marginRight:8}}>
+              <use xlinkHref="#settingservice" />
+            </svg>
+            <span className="infSvgTxt">操作</span>
           </Col>
         </Row>
         {items}
@@ -124,8 +151,12 @@ class Space extends Component{
       <div id='Space'>
         <Row className="spaceWrap">
           <div className="spaceTitle">
-            <i className="fa fa-cube"/>
-            {this.props.userName}的个人空间
+            <svg className="infSvg" style={{marginRight:8,color:'black'}}>
+              <use xlinkHref="#settingperspace" />
+            </svg>
+            <span className="infSvgTxt">
+              {this.props.userName}的个人空间
+            </span>
           </div>
           <div className="spaceContent">
             <PersonalSpace />
@@ -133,8 +164,12 @@ class Space extends Component{
         </Row>
         <Row className="spaceWrap">
           <div className="spaceTitle">
-            <i className="fa fa-cube"/>
-            {this.props.userName}的团队空间
+            <svg className="infSvg" style={{marginRight:8}}>
+              <use xlinkHref="#settingteamspace" />
+            </svg>
+            <span className="infSvgTxt">
+              {this.props.userName}的团队空间
+            </span>
           </div>
           <div className="spaceContent">
             <TeamSpace teamspaces={this.props.teamspaces}/>
@@ -151,6 +186,7 @@ function mapStateToProp(state) {
   let size = 0
   let userName = ''
   const {userDetail, teamspaces} = state.user
+  console.log('state',state);
   if (teamspaces.result) {
     if (teamspaces.result.teamspaces) {
       teamspacesData = teamspaces.result.teamspaces

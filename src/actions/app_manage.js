@@ -305,6 +305,15 @@ export function loadContainerList(cluster, query, requiredFields = []) {
   }
 }
 
+export const UPDATE_CONTAINER_LIST = 'UPDATE_CONTAINER_LIST'
+export function updateContainerList(cluster, containerList) {
+  return {
+    cluster,
+    containerList,
+    type: UPDATE_CONTAINER_LIST
+  }
+}
+
 export const CONTAINER_DETAIL_REQUEST = 'CONTAINER_DETAIL_REQUEST'
 export const CONTAINER_DETAIL_SUCCESS = 'CONTAINER_DETAIL_SUCCESS'
 export const CONTAINER_DETAIL_FAILURE = 'CONTAINER_DETAIL_FAILURE'

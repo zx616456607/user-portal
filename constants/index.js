@@ -33,4 +33,5 @@ exports.DEFAULT_PAGE = 1
 exports.DEFAULT_PAGE_SIZE = 10
 exports.MAX_PAGE_SIZE = 100
 exports.USER_CURRENT_CONFIG = 'tce_user_current_config'
-exports.ANNOTATION_TENX_DOMAIN = 'tenxcloud.com/tenxDomain'
+exports.ANNOTATION_SVC_SCHEMA_PORTNAME = 'tenxcloud.com/schemaPortname'
+exports.ANNOTATION_SVC_SCHEMA_PORT = 'tenxcloud.com/schemaPort'

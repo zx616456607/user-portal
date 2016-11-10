@@ -30,6 +30,10 @@ exports.getContainers = function* () {
   }
   const from = size * (page - 1)
   const queryObj = { from, size }
+  if (query.sortOrder) {
+    queryObj.sort_by = 'create_time'
+    queryObj.sort_order = query.sortOrder
+  }
   if (name) {
     queryObj.filter = `name ${name}`
   }
