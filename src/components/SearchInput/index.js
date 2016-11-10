@@ -22,14 +22,12 @@ class SearchInput extends Component{
     this.handleSearch = this.handleSearch.bind(this)
     this.handleSelect = this.handleSelect.bind(this)
     this.state = {
-      selecteData: [],
       selecteValue: '',
       searchValue: '',
     }
   }
   handleInt(e){
-    let { data, searchIntOption } = this.props
-
+    let { searchIntOption } = this.props
     const { selecteValue } = this.state
     const { addBefore, defaultValue,defaultSearchValue } = searchIntOption
     let value = ''
@@ -38,75 +36,35 @@ class SearchInput extends Component{
     } else {
       value = defaultSearchValue
     }
-      if(selecteValue === ''){
-        const selecteData = []
-        data.map((item,index) => {
-          selecteData.push(item[`${value}`])
-        })
-        this.setState({
-          selecteValue: value,
-          selecteData: selecteData
-        })
-      }
+    if(selecteValue === ''){
+      this.setState({
+        selecteValue: value,
+      })
+    }
     this.setState({
       searchValue: e.target.value
     })
   }
   handleSearch(){
-    const { selecteData, searchValue, selecteValue } = this.state
-    let { data, scope } = this.props
-    if(selecteData.length === 0){
-      return
-    } else {
-      this.props.loadUserList({},{
+    const { searchValue, selecteValue } = this.state
+    let { scope } = this.props
+    const { searchResult } = scope.state
+    this.props.loadUserList({},{
       success:{
         func: () => {
           console.log('search !!');
-          let result = []
-          let searchResult= []
-          selecteData.map((item,index) => {
-            let flag = item.indexOf(searchValue)
-            if(flag >= 0){
-              result.push(item)
-            }
-            if(result.length === 0){
-              scope.setState({
-                notFound: true
-              })
-            } else {
-              scope.setState({
-                notFound: false
-              })
-            }
-          })
-          data.map((item) => {
-            if(result.includes(item[`${selecteValue}`])){
-              searchResult.push(item)
-            }
-          })
           scope.setState({
-            searchResult: searchResult
+            
           })
         },
         isAsync:true
       }
     })
-    }
   }
   handleSelect(value){
-    const { data } = this.props
-    const selecteData = []
-    
-    data.map((item,index) => {
-      selecteData.push(item[`${value}`])
-    })
     this.setState({
       selecteValue:value,
-      selecteData: selecteData
     })
-  }
-  componentWillMount(){
-    this.props.loadUserList({})
   }
   render(){
     let { searchIntOption, } = this.props
@@ -165,30 +123,8 @@ class SearchInput extends Component{
 }
 
 function mapStateToProp(state) {
-  let usersData = []
-  let data = []
-  const users = state.user.users
-  if (users.result) {
-    if (users.result.users) {
-      usersData = users.result.users
-      console.log('usersData',usersData);
-      usersData.map((item,index) => {
-        data.push(
-          {
-            key: item.userID,
-            name: item.displayName,
-            tel: item.phone,
-            email: item.email,
-            style: item.role === 1?'团队管理员':'普通成员',
-            team: '1',
-            balance: item.balance,
-          }
-        )
-      })
-    }
-  }
   return {
-    data: data,
+    
   }
 }
 
