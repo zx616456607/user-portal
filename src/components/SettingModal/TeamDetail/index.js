@@ -14,6 +14,7 @@ import { Link } from 'react-router'
 import { deleteTeam, createTeamspace, addTeamusers, removeTeamusers, 
          loadTeamspaceList, loadTeamUserList, loadTeamClustersList } from '../../../actions/team'
 import { connect } from 'react-redux'
+import MemberTransfer from '../MemberTransfer'
 
 const memberListdata = [
   {name: 'pupumeng',tel: '11111111',email: '123@123.com',style: '创业者'},
@@ -214,11 +215,11 @@ class TeamDetail extends Component{
     this.state = {
       addMember: false,
       addSpace: false,
-      mockData: [],
-      targetKeys: [],
+      targetKeys:[],
     }
   }
   addNewMember(){
+    
     this.setState({
       addMember: true,
     })
@@ -245,6 +246,10 @@ class TeamDetail extends Component{
     this.setState({
       addMember: false,
     })
+  }
+  handleChange(targetKeys) {
+    console.log('targetKeys',targetKeys);
+    this.setState({ targetKeys })
   }
   addNewSpace(){
     const { createTeamspace, teamID } = this.props
@@ -284,7 +289,6 @@ class TeamDetail extends Component{
     })
   }
   componentDidMount() {
-    this.getMock()
   }
   componentWillMount(){
     const { loadTeamClustersList, loadTeamUserList, loadTeamspaceList, teamID, } = this.props
@@ -292,22 +296,10 @@ class TeamDetail extends Component{
     // loadTeamUserList(teamID)
     // loadTeamspaceList(teamID)
   }
-  getMock() {
-    const { teamUserList, userList} = this.props
-    const targetKeys = []
-    userList.filter(function (item) {
-      return teamUserList.includes(item)
-    })
-    this.setState({
-      mockData:userList,
-      targetKeys
-    })
-  }
-  handleChange(targetKeys) {
-    this.setState({ targetKeys })
-  }
+  
   render(){
     const { clusterList, teamUserList, teamSpacesList } = this.props
+    const { targetKeys } = this.state
     return (
       <div id='TeamDetail'>
         <Row style={{marginBottom:20}}>
@@ -365,34 +357,7 @@ class TeamDetail extends Component{
                        width="660px"
                        wrapClassName="newMemberModal"
                 >
-                  <Row className="listTitle">
-                    <Col span={10}>成员名</Col>
-                    <Col span={12}>所属团队</Col>
-                  </Row>
-                  <Row className="listTitle" style={{left:393}}>
-                    <Col span={10}>成员名</Col>
-                    <Col span={12}>所属团队</Col>
-                  </Row>
-                  <Transfer
-                    dataSource={this.state.mockData}
-                    showSearch
-                    listStyle={{
-                      width: 250,
-                      height: 300,
-                    }}
-                    operations={['添加', '移除']}
-                    targetKeys={this.state.targetKeys}
-                    onChange={this.handleChange}
-                    titles={['筛选用户','已选择用户']}
-                    render={
-                      item => (
-                        <Row style={{display:'inline-block',width:'100%'}}>
-                          <Col span={10} style={{overflow:'hidden'}}>{item.title}</Col>
-                          <Col span={14} style={{overflow:'hidden'}}>{item.description}</Col>
-                        </Row>
-                      )
-                    }
-                  />
+                  <MemberTransfer onChange={this.handleChange} targetKeys={targetKeys}/>
                 </Modal>
               </Col>
             </Row>

@@ -1,0 +1,51 @@
+.TenxStatus{
+  line-height: 30px;
+  .Pending, .Starting {
+    color: dodgerblue;
+    .ant-progress-bg {
+      border-radius: 100px;
+      background-color: #2db7f5;
+      transition: all 0.4s cubic-bezier(0.08, 0.82, 0.17, 1) 0s;
+      position: relative;
+    }
+  }
+  .Running, .Restarting, .Redeploymenting, .Rebuilding, .Succeeded {
+    color: green;
+    .ant-progress-bg {
+      border-radius: 100px;
+      background-color: green;
+      transition: all 0.4s cubic-bezier(0.08, 0.82, 0.17, 1) 0s;
+      position: relative;
+    }
+  }
+  .Terminating {
+    color: orange;
+    .ant-progress-bg {
+      border-radius: 100px;
+      background-color: red;
+      transition: all 0.4s cubic-bezier(0.08, 0.82, 0.17, 1) 0s;
+      position: orange;
+    }
+  }
+  .Stopping {
+    color: red;
+    .ant-progress-bg {
+      border-radius: 100px;
+      background-color: red;
+      transition: all 0.4s cubic-bezier(0.08, 0.82, 0.17, 1) 0s;
+      position: relative;
+    }
+  }
+  .Scaling {
+    color: purple;
+    .ant-progress-bg {
+      border-radius: 100px;
+      background-color: purple;
+      transition: all 0.4s cubic-bezier(0.08, 0.82, 0.17, 1) 0s;
+      position: relative;
+    }
+  }
+  .text {
+    color: grey
+  }
+}

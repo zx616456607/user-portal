@@ -159,8 +159,9 @@ const MyComponent = React.createClass({
     if (!config || config.length == 0) return (<div style={{lineHeight:'150px',textAlign:'center'}}>暂无数据</div>)
     let items = config.map((item) => {
       const dropdown = (
+        item.webhookUrl ? 
         <Menu onClick={this.operaMenuClick.bind(this, item)}
-          style={{ width: '100px' }}
+          style={{ width: '113px' }}
           >
           <Menu.Item key={`1@${item.name}`}>
             <i className='fa fa-eye' />&nbsp;
@@ -172,6 +173,16 @@ const MyComponent = React.createClass({
             </span>
           </Menu.Item>
         </Menu>
+        :
+        <Menu onClick={this.operaMenuClick.bind(this, item)}
+        style={{ width: '113px' }}
+        >
+        <Menu.Item key={`2@${item.name}`}>
+          <span><i className='fa fa-pencil-square-o' />&nbsp;
+          <FormattedMessage {...menusText.show} />
+          </span>
+        </Menu.Item>
+      </Menu>
       );
       return (
         <div className='CodeTable' key={item.name} >
@@ -194,17 +205,13 @@ const MyComponent = React.createClass({
             <Icon type="github" /> {item.address}
           </div>
           <div className='action'>
-            {item.webhookUrl ? 
-            <Dropdown.Button overlay={dropdown} type='ghost' onClick={()=>this.notActive(item.id)}>
+           
+            <Dropdown.Button overlay={dropdown} type='ghost' onClick={()=>this.notActive(item.id)} style={{width:'115px'}}>
               <i className='fa fa-trash' />&nbsp;
               <FormattedMessage {...menusText.releaseActivation} />
             </Dropdown.Button>
-            :
-            <Button type='ghost' onClick={()=>this.notActive(item.id)}>
-              <i className='fa fa-trash' />&nbsp;
-              <FormattedMessage {...menusText.releaseActivation} />
-            </Button>
-            }
+            
+            
           </div>
         </div>
       );
@@ -220,7 +227,7 @@ const MyComponent = React.createClass({
          >
           <div style={{padding:"0 20px"}}>
             <p style={{lineHeight:'40px'}}>* 将该URL填入到 {this.state.repoType} 项目的Web Hooks URL中</p>
-            <p><Input type="textarea" className="CodeCopy" autosize={{ minRows: 2, maxRows: 6 }} defaultValue={this.state.webhookUrl} /></p>
+            <p><Input type="textarea" className="CodeCopy" autosize={{ minRows: 2, maxRows: 6 }} value={this.state.webhookUrl} /></p>
             <p style={{marginTop:'10px'}}>
             <Tooltip title={this.state.copySuccess ? formatMessage(menusText.copySuccess) : formatMessage(menusText.clickCopy)} placement="right">
               <Button type="primary" size="large" onClick={this.copyDownloadCode} onMouseLeave={this.returnDefaultTooltip}><FormattedMessage {...menusText.copyBtn} /></Button>
@@ -229,7 +236,7 @@ const MyComponent = React.createClass({
           </div>
         </Modal>
 
-        <Modal title="项目公钥" visible={this.state.keyModal}
+        <Modal title="项目公钥" visible={this.state.keyModal} onCancel={()=>{this.setState({keyModal: false})}}
          footer={[
             <Button key="back" type="ghost" size="large" onClick={()=>{this.setState({keyModal: false})}}>关闭</Button>,
           ]}
@@ -239,7 +246,7 @@ const MyComponent = React.createClass({
             <p style={{lineHeight:'40px'}}><span style={{color:'#00A0EA'}} className="name">仓库: {this.state.repoType} / {this.state.itemName} </span>  <span style={{color:'#00A0EA', marginLeft:'20px'}} className="type">属性：{this.state.itemType==1 ? "私有" : "公有"}</span> </p>
 
             <p style={{lineHeight:'40px'}}>* 请手动配置一下公钥到github 项目中</p>
-            <p style={{marginBottom: '10px'}}><Input type="textarea" className="KeyCopy" autosize={{ minRows: 2, maxRows: 6 }} defaultValue={ this.state.publicKey}/></p>
+            <p style={{marginBottom: '10px'}}><Input type="textarea" className="KeyCopy" autosize={{ minRows: 2, maxRows: 6 }} value={ this.state.publicKey} /></p>
             <p style={{lineHeight:'40px'}}>
             <Tooltip title={this.state.copySuccess ? formatMessage(menusText.copySuccess) : formatMessage(menusText.clickCopy)} placement="right">
               <Button type="primary" size="large" onClick={this.copyItemKey} onMouseLeave={this.returnDefaultTooltip}><FormattedMessage {...menusText.copyBtn} /></Button>

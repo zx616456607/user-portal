@@ -20,6 +20,7 @@ import { loadContainerDetail, deleteContainers } from '../../actions/app_manage'
 import ContainerMonitior from './ContainerMonitior'
 import TerminalModal from '../TerminalModal'
 import { browserHistory } from 'react-router'
+import TenxStatus from '../TenxStatus'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -135,10 +136,7 @@ class ContainerDetail extends Component {
                   <div className="status">
                     运行状态&nbsp;:
                     <span>
-                      <i className={container.status.phase == 'Running' ? "normal fa fa-circle" : "error fa fa-circle"}></i>
-                      <span className={container.status.phase == 'Running' ? "normal" : "error"} >
-                        {container.status.phase}
-                      </span>
+                      <TenxStatus phase={container.status.phase} smart={true} />
                     </span>
                   </div>
                   <div className="address">

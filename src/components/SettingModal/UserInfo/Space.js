@@ -55,6 +55,7 @@ let TeamSpace = React.createClass({
     let firstRow = true
     let className = ""
     let items = this.props.teamspaces.map((teamspace) => {
+      console.log('teamspace',teamspace);
       if (firstRow) {
         className = "contentList firstItem"
         firstRow = false
@@ -62,12 +63,12 @@ let TeamSpace = React.createClass({
         className = "contentList"
       }
       return (<Row className={className} key={teamspace.spaceName}>
-          <Col span={3}>{teamspace.spaceName}</Col>
-          <Col span={5}>{teamspace.teamID}</Col>
-          <Col span={3}>6</Col>
-          <Col span={2}>1000</Col>
-          <Col span={4}>2002</Col>
-          <Col span={3}>2002</Col>
+          <Col span={4}>{teamspace.spaceName}</Col>
+          <Col span={7}>{teamspace.teamID}</Col>
+          <Col span={2}>{teamspace.balance}</Col>
+          <Col span={2}>{teamspace.balance}</Col>
+          <Col span={2}>{teamspace.balance}</Col>
+          <Col span={3}>{teamspace.balance}</Col>
           <Col span={4}>
             <Button type="primary">进入空间</Button>
           </Col>
@@ -80,7 +81,7 @@ let TeamSpace = React.createClass({
             <i className="fa fa-cube"/>
             名称
           </Col>
-          <Col span={5}>
+          <Col span={7}>
             <i className="fa fa-cube"/>
             所属团队
           </Col>
@@ -92,7 +93,7 @@ let TeamSpace = React.createClass({
             <i className="fa fa-cube"/>
             服务
           </Col>
-          <Col span={4}>
+          <Col span={2}>
             <i className="fa fa-cube"/>
             容器
           </Col>
@@ -156,6 +157,7 @@ function mapStateToProp(state) {
   let size = 0
   let userName = ''
   const {userDetail, teamspaces} = state.user
+  console.log('state',state);
   if (teamspaces.result) {
     if (teamspaces.result.teamspaces) {
       teamspacesData = teamspaces.result.teamspaces

@@ -14,6 +14,7 @@ import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import './style/AppContainerList.less'
 import { loadServiceContainerList } from '../../../actions/services'
+import TenxStatus from '../../TenxStatus'
 
 const MyComponent = React.createClass({
   propTypes: {
@@ -73,8 +74,10 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className="status commonData">
-            <i className={item.status.phase == 'Running' ? "normal fa fa-circle" : "error fa fa-circle"}></i>
-            &nbsp;{item.status.phase}
+            <TenxStatus
+              phase={item.status.phase}
+              creationTimestamp={item.metadata.creationTimestamp}
+              />
           </div>
           <div className="image commonData">
             <Tooltip placement="topLeft" title={item.images.join(', ') ? item.images.join(', ') : ""} >

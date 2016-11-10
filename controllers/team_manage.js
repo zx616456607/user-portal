@@ -27,10 +27,13 @@ exports.getUserTeamspaces = function* () {
   if (isNaN(page) || page < 1) {
     page = DEFAULT_PAGE
   }
-  if (isNaN(size) || size < 1 || size > MAX_PAGE_SIZE) {
+  if (isNaN(size) || size > MAX_PAGE_SIZE) {
     size = DEFAULT_PAGE_SIZE
   }
-  const from = size * (page - 1)
+  let from = size * (page - 1)
+  if (size == -1) {
+    from == -1
+  }
   let queryObj = { from, size }
   if (from == 0 && size == 0) {
     queryObj = {}
@@ -58,10 +61,13 @@ exports.getTeamClusters = function* () {
   if (isNaN(page) || page < DEFAULT_PAGE) {
     page = DEFAULT_PAGE
   }
-  if (isNaN(size) || size < 1 || size > MAX_PAGE_SIZE) {
+  if (isNaN(size) || size > MAX_PAGE_SIZE) {
     size = DEFAULT_PAGE_SIZE
   }
-  const from = size * (page - 1)
+  let from = size * (page - 1)
+  if (size == -1) {
+    from == -1
+  }
   let queryObj = { from, size }
   if (from == 0 && size == 0) {
     queryObj = {}
@@ -91,10 +97,13 @@ exports.getTeamUsers = function* () {
   if (isNaN(page) || page < 1) {
     page = DEFAULT_PAGE
   }
-  if (isNaN(size) || size < 1 || size > MAX_PAGE_SIZE) {
+  if (isNaN(size) || size > MAX_PAGE_SIZE) {
     size = DEFAULT_PAGE_SIZE
   }
-  const from = size * (page - 1)
+  let from = size * (page - 1)
+  if (size == -1) {
+    from == -1
+  }
   let queryObj = { from, size }
   if (from == 0 && size == 0) {
     queryObj = {}
