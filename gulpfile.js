@@ -15,7 +15,7 @@ var gulp = require('gulp');//图片压缩
 // svg merge
 var svgSymbols = require('gulp-svg-symbols');
 gulp.task('svg', function () {
-  return gulp.src('./static/img/sider/*.svg')
+  return gulp.src('./static/img/sider/**/*.svg')
     .pipe(svgSymbols())
     .pipe(gulp.dest('./static/img/sider/svg/'));
 })
