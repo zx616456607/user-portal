@@ -45,16 +45,32 @@ class SearchInput extends Component{
       searchValue: e.target.value
     })
   }
+  getFilterField(selecteValue) {
+    let field = selecteValue
+    if (selecteValue == "name") {
+      field = "userName"
+    } else if (selecteValue == "tel") {
+      field = "phone"
+    }
+    return field
+  }
   handleSearch(){
     const { searchValue, selecteValue } = this.state
     let { scope } = this.props
-    const { searchResult } = scope.state
-    this.props.loadUserList({},{
+    const { searchResult, pageSize, sort } = scope.state
+    let filter = this.getFilterField(selecteValue) + "," + searchValue
+    this.props.loadUserList({
+      pageSize,
+      page: 1,
+      sort,
+      filter,
+    },{
       success:{
         func: () => {
           console.log('search !!');
           scope.setState({
-            
+            page: 1,
+            filter,
           })
         },
         isAsync:true

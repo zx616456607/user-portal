@@ -163,7 +163,7 @@ const MyComponent = React.createClass({
           </Menu.Item>
         </Menu>
       );
-      const svcDomain = parseServiceDomain(item)
+      const svcDomain = parseServiceDomain(item, this.props.bindingDomains)
       return (
         <div
           className={item.checked ? "selectedInstance instanceDetail" : "instanceDetail"}
@@ -242,7 +242,6 @@ class AppServiceList extends Component {
     // this.showRollingUpdateModal = this.showRollingUpdateModal.bind(this)
     // this.showConfigModal = this.showConfigModal.bind(this)
     // this.showManualScaleModal = this.showManualScaleModal.bind(this)
-    this.onPageChange = this.onPageChange.bind(this)
     this.onShowSizeChange = this.onShowSizeChange.bind(this)
     this.state = {
       modalShow: false,
@@ -678,7 +677,8 @@ class AppServiceList extends Component {
             name={name}
             scope={parentScope}
             serviceList={serviceList}
-            loading={isFetching} />
+            loading={isFetching}
+            bindingDomains={this.props.bindingDomains} />
           <Modal
             title="垂直居中的对话框"
             visible={this.state.modalShow}
@@ -767,6 +767,7 @@ function mapStateToProps(state, props) {
   const { serviceList, isFetching, total } = targetServices || defaultServices
   return {
     cluster: cluster.clusterID,
+    bindingDomains: state.entities.current.cluster.bindingDomains,
     appName,
     pathname,
     page,

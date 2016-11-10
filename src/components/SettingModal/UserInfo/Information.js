@@ -217,7 +217,7 @@ function mapStateToProp(state) {
   if (userDetail.result && userDetail.result.data) {
     userDetailData = userDetail.result.data
   }
-  console.log('userDetail',userDetailData);
+
   return {
     userDetail: userDetailData
   }

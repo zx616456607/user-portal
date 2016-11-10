@@ -87,6 +87,7 @@ module.exports = function (Router) {
 
   // Users
   router.get('/users/:user_id', userController.getUserDetail)
+  router.get('/users/:user_id/app_info', userController.getUserAppInfo)
   router.get('/users', userController.getUsers)
   router.get('/users/:user_id/teams', userController.getUserTeams)
   router.get('/users/:user_id/teamspaces', userController.getUserTeamspaces)
@@ -181,6 +182,7 @@ module.exports = function (Router) {
   router.get('/devops/ci-flows/:flow_id', devopsController.getCIFlow)
   router.put('/devops/ci-flows/:flow_id', devopsController.updateCIFlow)
   router.delete('/devops/ci-flows/:flow_id', devopsController.removeCIFlow)
+  router.get('/devops/ci-flows/:flow_id/images', devopsController.getImagesOfFlow)
   // CI flow stages
   router.get('/devops/ci-flows/:flow_id/stages', devopsController.listFlowStages)
   router.post('/devops/ci-flows/:flow_id/stages', devopsController.createFlowStages)

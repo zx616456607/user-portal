@@ -231,7 +231,6 @@ exports.getAppServices = function* () {
     // get port info from annotation of service
     if (service.service.metadata.annotations && service.service.metadata.annotations[ANNOTATION_SVC_SCHEMA_PORT]) {
         service.deployment.ports = service.service.metadata.annotations[ANNOTATION_SVC_SCHEMA_PORT]
-        service.deployment.bindingDomains = result.data.bindingDomain
     }
     deployments.push(service.deployment)
   })

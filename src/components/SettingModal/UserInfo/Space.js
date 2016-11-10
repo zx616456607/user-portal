@@ -11,7 +11,7 @@ import React, { Component } from 'react'
 import { Row, Col, Button, } from 'antd'
 import './style/Space.less'
 import { connect } from 'react-redux'
-import { loadUserDetail, loadUserTeamspaceList } from '../../../actions/user'
+import { loadUserDetail, loadUserAppInfo, loadUserTeamspaceList } from '../../../actions/user'
 
 let PersonalSpace = React.createClass ({
   getInitialState(){
@@ -20,6 +20,7 @@ let PersonalSpace = React.createClass ({
     }
   },
   render: function () {
+   let { appCount, serviceCount, containerCount } = this.props
     return (
       <div>
         <Row className="contentTop">
@@ -28,7 +29,6 @@ let PersonalSpace = React.createClass ({
               <use xlinkHref="#settingapp" />
             </svg>
             <span className="infSvgTxt">应用</span>
-            
           </Col>
           <Col span={4}>
             <svg className="infSvg" style={{marginRight:8}}>
@@ -44,9 +44,9 @@ let PersonalSpace = React.createClass ({
           </Col>
         </Row>
         <Row className="contentList firstItem">
-          <Col span={4}>32</Col>
-          <Col span={4}>32</Col>
-          <Col span={4}>32</Col>
+          <Col span={4}> {appCount} </Col>
+          <Col span={4}> {serviceCount} </Col>
+          <Col span={4}> {containerCount} </Col>
         </Row>
       </div>
     )
@@ -110,19 +110,19 @@ let TeamSpace = React.createClass({
           </Col>
           <Col span={2}>
             <svg className="infSvg" style={{marginRight:8}}>
-              <use xlinkHref="#settingservice" />
+              <use xlinkHref="#settingcontainer" />
             </svg>
             <span className="infSvgTxt">容器</span>
           </Col>
           <Col span={3}>
             <svg className="infSvg" style={{marginRight:8}}>
-              <use xlinkHref="#settingservice" />
+              <use xlinkHref="#settingbalance" />
             </svg>
             <span className="infSvgTxt">余额</span>
           </Col>
           <Col span={4}>
             <svg className="infSvg" style={{marginRight:8}}>
-              <use xlinkHref="#settingservice" />
+              <use xlinkHref="#settingopt" />
             </svg>
             <span className="infSvgTxt">操作</span>
           </Col>
@@ -143,6 +143,7 @@ class Space extends Component{
   
   componentDidMount() {
     this.props.loadUserDetail("default")
+    this.props.loadUserAppInfo("default")
     this.props.loadUserTeamspaceList("default", null)
   }
 
@@ -159,7 +160,7 @@ class Space extends Component{
             </span>
           </div>
           <div className="spaceContent">
-            <PersonalSpace />
+            <PersonalSpace appCount={this.props.appCount} serviceCount={this.props.serviceCount} containerCount={this.props.containerCount}/>
           </div>
         </Row>
         <Row className="spaceWrap">
@@ -185,7 +186,10 @@ function mapStateToProp(state) {
   let total = 0
   let size = 0
   let userName = ''
-  const {userDetail, teamspaces} = state.user
+  let appCount = 0
+  let serviceCount = 0
+  let containerCount = 0
+  const {userDetail, teamspaces, userAppInfo} = state.user
   console.log('state',state);
   if (teamspaces.result) {
     if (teamspaces.result.teamspaces) {
@@ -204,15 +208,25 @@ function mapStateToProp(state) {
     userName = userDetail.result.data.userName
   }
 
+  if (userAppInfo.result && userAppInfo.result.data) {
+    appCount = userAppInfo.result.data.appCount
+    serviceCount = userAppInfo.result.data.serviceCount
+    containerCount = userAppInfo.result.data.containerCount
+  }
+
   return {
     userName,
     teamspaces: teamspacesData,
     total,
-    size
+    size,
+    appCount,
+    serviceCount,
+    containerCount,
   }
 }
 
 export default connect(mapStateToProp, {
   loadUserTeamspaceList,
   loadUserDetail,
+  loadUserAppInfo,
 })(Space)
