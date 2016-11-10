@@ -15,7 +15,7 @@ const DEFAULT_PAGE = constants.DEFAULT_PAGE
 const DEFAULT_PAGE_SIZE = constants.DEFAULT_PAGE_SIZE
 const MAX_PAGE_SIZE = constants.MAX_PAGE_SIZE
 
-exports.getUserTeamspaces = function* () {
+exports.getTeamspaces = function* () {
   const teamID = this.params.team_id
   const loginUser = this.session.loginUser
   const query = this.query || {}

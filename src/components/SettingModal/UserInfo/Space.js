@@ -71,10 +71,10 @@ let TeamSpace = React.createClass({
       }
       return (<Row className={className} key={teamspace.spaceName}>
           <Col span={4}>{teamspace.spaceName}</Col>
-          <Col span={7}>{teamspace.teamID}</Col>
-          <Col span={2}>{teamspace.balance}</Col>
-          <Col span={2}>{teamspace.balance}</Col>
-          <Col span={2}>{teamspace.balance}</Col>
+          <Col span={7}>{teamspace.teamName}</Col>
+          <Col span={2}>{teamspace.appCount}</Col>
+          <Col span={2}>{teamspace.serviceCount}</Col>
+          <Col span={2}>{teamspace.containerCount}</Col>
           <Col span={3}>{teamspace.balance}</Col>
           <Col span={4}>
             <Button type="primary">进入空间</Button>

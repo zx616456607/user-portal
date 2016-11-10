@@ -96,7 +96,7 @@ module.exports = function (Router) {
   router.patch('/users/:user_id', userController.updateUser)
 
   // Teams
-  router.get('/teams/:team_id/spaces', teamController.getUserTeamspaces)
+  router.get('/teams/:team_id/spaces', teamController.getTeamspaces)
   router.get('/teams/:team_id/clusters', teamController.getTeamClusters)
   router.get('/teams/:team_id/users', teamController.getTeamUsers)
   router.post('/teams', teamController.createTeam)
