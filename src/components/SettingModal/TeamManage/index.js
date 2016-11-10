@@ -42,13 +42,14 @@ let TeamTable = React.createClass({
       notFound: false,
     })
   },
-  delTeam(){
-    const {deleteTeam} = this.props.scope.props
+  delTeam(teamID){
+    const {deleteTeam,loadUserTeamList} = this.props.scope.props
     confirm({
       title: '您是否确认要删除这项内容',
       onOk() {
         console.log('del !!!!!')
-        deleteTeam(this.props.teamID)
+        deleteTeam(teamID)
+        loadUserTeamList('default')
       },
       onCancel() {},
     });
@@ -207,7 +208,7 @@ let TeamTable = React.createClass({
             >
               <MemberTransfer onChange={this.handleChange} targetKeys={targetKeys} teamID={record.key}/>
             </Modal>
-            <Button icon="delete" className="delBtn" onClick={this.delTeam} teamID={record.key}>删除</Button>
+            <Button icon="delete" className="delBtn" onClick={() => this.delTeam(record.key)}>删除</Button>
           </div>
         )
       },

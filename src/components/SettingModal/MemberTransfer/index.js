@@ -43,11 +43,11 @@ class MemberTransfer extends Component{
       <div id='MemberTransfer'>
         <Row className="listTitle">
           <Col span={10}>成员名</Col>
-          <Col span={12}>所属团队</Col>
+          <Col span={14}>邮箱</Col>
         </Row>
         <Row className="listTitle" style={{left:393}}>
           <Col span={10}>成员名</Col>
-          <Col span={12}>所属团队</Col>
+          <Col span={14}>邮箱</Col>
         </Row>
         <Transfer
           dataSource={userList}
@@ -101,8 +101,8 @@ function mapStateToProp(state,props) {
         userList.push(
           {
             key: item.userID,
-            title: item.userID,
-            description: item.userID
+            title: item.userName,
+            description: item.email
           }
         )
       })
