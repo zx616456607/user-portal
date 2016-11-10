@@ -133,7 +133,7 @@ const MyComponent = React.createClass({
   },
   render: function () {
     const { config, scope, formatMessage } = this.props
-    let items = config.map((item) => {
+    let items = config.map((item, index) => {
       const dropdown = (
         <Menu onClick={this.operaMenuClick.bind(this, item)} style={{ width: '150px' }}>
           <Menu.Item key='1'>
@@ -150,7 +150,7 @@ const MyComponent = React.createClass({
         </Menu>
       );
       return (
-        <div className='CodeTable' key={item.name} >
+        <div className='CodeTable' key={`dockerfile-${index}`} >
           <div className='name'>
             {item.stageName}
           </div>
@@ -232,7 +232,7 @@ class DockerFile extends Component {
                 <FormattedMessage {...menusText.itemName} />
               </div>
               <div className='type'>
-                tenxFlow
+                TenxFlow
               </div>
               <div className='editTime'>
                 <FormattedMessage {...menusText.editTime} />

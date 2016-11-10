@@ -16,7 +16,6 @@ import AppServiceDetail from './AppServiceDetail'
 import './style/AppServiceList.less'
 import { loadServiceList, startServices, restartServices, stopServices, deleteServices, quickRestartServices } from '../../actions/services'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
-import { TENX_MARK } from '../../constants'
 import { browserHistory } from 'react-router'
 import RollingUpdateModal from './AppServiceDetail/RollingUpdateModal'
 import ConfigModal from './AppServiceDetail/ConfigModal'
@@ -164,7 +163,7 @@ const MyComponent = React.createClass({
           </Menu.Item>
         </Menu>
       );
-      const svcDomain = parseServiceDomain(item)
+      const svcDomain = parseServiceDomain(item, this.props.bindingDomains)
       return (
         <div
           className={item.checked ? "selectedInstance instanceDetail" : "instanceDetail"}
@@ -181,11 +180,7 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className="status commonData">
-            <ServiceStatus
-              replicas={
-                item.spec.replicas || item.metadata.annotations[`${TENX_MARK}/replicas`]
-              }
-              status={item.status} />
+            <ServiceStatus service={item} />
           </div>
           <div className="image commonData">
             <Tooltip title={item.images.join(', ') ? item.images.join(', ') : ""}>
@@ -247,7 +242,6 @@ class AppServiceList extends Component {
     // this.showRollingUpdateModal = this.showRollingUpdateModal.bind(this)
     // this.showConfigModal = this.showConfigModal.bind(this)
     // this.showManualScaleModal = this.showManualScaleModal.bind(this)
-    this.onPageChange = this.onPageChange.bind(this)
     this.onShowSizeChange = this.onShowSizeChange.bind(this)
     this.state = {
       modalShow: false,
@@ -683,7 +677,8 @@ class AppServiceList extends Component {
             name={name}
             scope={parentScope}
             serviceList={serviceList}
-            loading={isFetching} />
+            loading={isFetching}
+            bindingDomains={this.props.bindingDomains} />
           <Modal
             title="垂直居中的对话框"
             visible={this.state.modalShow}
@@ -772,6 +767,7 @@ function mapStateToProps(state, props) {
   const { serviceList, isFetching, total } = targetServices || defaultServices
   return {
     cluster: cluster.clusterID,
+    bindingDomains: state.entities.current.cluster.bindingDomains,
     appName,
     pathname,
     page,

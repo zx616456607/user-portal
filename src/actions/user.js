@@ -44,7 +44,7 @@ export const USER_DETAIL_REQUEST = 'USER_DETAIL_REQUEST'
 export const USER_DETAIL_SUCCESS = 'USER_DETAIL_SUCCESS'
 export const USER_DETAIL_FAILURE = 'USER_DETAIL_FAILURE'
 
-// Fetches user list from API.
+// Fetches user detail from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchUserDetail(userID) {
   return {
@@ -61,6 +61,30 @@ function fetchUserDetail(userID) {
 export function loadUserDetail(userID, requiredFields = []) {
   return (dispatch, getState) => {
     return dispatch(fetchUserDetail(userID))
+  }
+}
+
+export const USER_APPINFO_REQUEST = 'USER_APPINFO_REQUEST'
+export const USER_APPINFO_SUCCESS = 'USER_APPINFO_SUCCESS'
+export const USER_APPINFO_FAILURE = 'USER_APPINFO_FAILURE'
+
+// Fetches user app info from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchUserAppInfo(userID) {
+  return {
+    [FETCH_API]: {
+      types: [USER_APPINFO_REQUEST, USER_APPINFO_SUCCESS, USER_APPINFO_FAILURE],
+      endpoint: `${API_URL_PREFIX}/users/${userID}/app_info`,
+      schema: {}
+    }
+  }
+}
+
+// Fetches user app info from API unless it is cached.
+// Relies on Redux Thunk middleware.
+export function loadUserAppInfo(userID, requiredFields = []) {
+  return (dispatch, getState) => {
+    return dispatch(fetchUserAppInfo(userID))
   }
 }
 

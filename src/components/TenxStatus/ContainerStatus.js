@@ -4,7 +4,7 @@
  */
 
 /**
- * Index status
+ * Container status
  *
  * v0.1 - 2016-11-08
  * @author Zhangpc
@@ -25,13 +25,11 @@ class ContainerStatus extends Component {
       phase = 'Terminating'
     }
     return (
-      <div className="ContainerStatus">
-        <TenxStatus
-          phase={phase}
-          progress={progress}
-          creationTimestamp={creationTimestamp}
-          smart={smart} />
-      </div>
+      <TenxStatus
+        phase={phase}
+        progress={progress}
+        creationTimestamp={creationTimestamp}
+        smart={smart} />
     )
   }
 }

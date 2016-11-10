@@ -49,6 +49,8 @@ class SearchInput extends Component{
     let field = selecteValue
     if (selecteValue == "name") {
       field = "userName"
+    } else if (selecteValue == "tel") {
+      field = "phone"
     }
     return field
   }

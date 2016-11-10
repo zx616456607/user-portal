@@ -126,7 +126,6 @@ exports.getServiceDetail = function* () {
     && result.data[serviceName].service.metadata.annotations
     && result.data[serviceName].service.metadata.annotations[ANNOTATION_SVC_SCHEMA_PORT]) {
     deployment.ports = result.data[serviceName].service.metadata.annotations[ANNOTATION_SVC_SCHEMA_PORT]
-    deployment.bindingDomains = result.data.bindingDomain
   }
   this.body = {
     cluster,

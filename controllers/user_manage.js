@@ -29,6 +29,17 @@ exports.getUserDetail = function* () {
   }
 }
 
+exports.getUserAppInfo = function* () {
+  let userID = this.params.user_id
+  const loginUser = this.session.loginUser
+  userID = userID === 'default' ? loginUser.id : userID
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.users.getBy([userID, "app_info"])
+  this.body = {
+    data: result
+  }
+}
+
 exports.getUsers = function* () {
   const loginUser = this.session.loginUser
   const query = this.query || {}
