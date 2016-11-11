@@ -156,6 +156,10 @@ const menusText = defineMessages({
   codeStore: {
     id: 'CICD.Tenxflow.CreateTenxFlowModal.codeStore',
     defaultMessage: '代码仓库',
+  },
+  noCodeStore: {
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.noCodeStore',
+    defaultMessage: '请选择代码仓库',
   }
 });
 
@@ -171,7 +175,8 @@ let CreateTenxFlowModal = React.createClass({
       ImageStoreType: false,
       codeStoreModalShow: false,
       currentCodeStore: null,
-      currentCodeStoreName: null
+      currentCodeStoreName: null,
+      noSelectedCodeStore: false
     }
   },
   componentWillMount() {
@@ -393,6 +398,17 @@ let CreateTenxFlowModal = React.createClass({
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         e.preventDefault();
+        if (!Boolean(_this.state.currentCodeStore)) {
+          _this.setState({
+            noSelectedCodeStore: true
+          });
+        }
+        return;
+      }
+      if (!Boolean(_this.state.currentCodeStore)) {
+        _this.setState({
+          noSelectedCodeStore: true
+        });
         return;
       }
       //get shell code
@@ -626,11 +642,12 @@ let CreateTenxFlowModal = React.createClass({
             <span><FormattedMessage {...menusText.flowCode} /></span>
           </div>
           <div className='input'>
-            <span style={{ marginRight:'15px' }}>{this.state.currentCodeStoreName}</span>
-            <Button className='selectCodeBtn' size='large' type='ghost' onClick={this.openCodeStoreModal}>
+            { !!this.state.currentCodeStoreName ? [<span style={{ marginRight:'15px' }}>{this.state.currentCodeStoreName}</span>] : null }
+            <Button className={ this.state.noSelectedCodeStore ? 'noCodeStoreButton selectCodeBtn' : 'selectCodeBtn'} size='large' type='ghost' onClick={this.openCodeStoreModal}>
               <i className='fa fa-file-code-o' />
               <FormattedMessage {...menusText.selectCode} />
             </Button>
+            <span className={ this.state.noSelectedCodeStore ? 'noCodeStoreSpan CodeStoreSpan' : 'CodeStoreSpan' }><FormattedMessage {...menusText.noCodeStore} /></span>
           </div>
           <div style={{ clear:'both' }} />
         </div>

@@ -32,6 +32,7 @@
       font-size: 14px;
     }
     .input {
+      position: relative;
       float: left;
       width: calc(~"100% - 150px");
       min-height: 50px;
@@ -57,6 +58,17 @@
         top: 8px !important;
       }
     }
+    .noCodeStoreSpan {
+      opacity: 1 !important;      
+    }
+    .CodeStoreSpan {
+      opacity: 0;
+      transition: all 0.3s linear;
+      position: absolute;
+      bottom: -29px;
+      left: 0px;
+      color: #f50;
+    }
     .flowType {
       .flowTypeForm {
         float: left;
@@ -68,9 +80,15 @@
       }
     }
     .selectCodeBtn {
+      transition: all 0.3s  cubic-bezier(0.645, 0.045, 0.355, 1); 
+      -webkit-transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
       i {
         margin-right: 7px;
       }
+    }
+    .noCodeStoreButton{
+      border-color: #f50 !important;
+      box-shadow: 0 0 0 2px rgba(255, 85, 0, 0.2);
     }
     .services {
       .defineEnvBtn {

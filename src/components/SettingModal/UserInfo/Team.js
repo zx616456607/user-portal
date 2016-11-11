@@ -10,8 +10,6 @@
 import React, { Component } from 'react'
 import { Row, Col, Button, } from 'antd'
 import './style/Team.less'
-import { connect } from 'react-redux'
-import { loadUserDetail, loadUserTeamList } from '../../../actions/user'
 
 let TeamList = React.createClass ({
   getInitialState(){
@@ -22,21 +20,7 @@ let TeamList = React.createClass ({
   render: function () {
     let firstRow = true
     let className = ""
-    let items = this.props.teams.map((team) => {
-      if (firstRow) {
-        className = "contentList firstItem"
-        firstRow = false
-      } else {
-        className = "contentList"
-      }
-      return (
-        <Row className={className} key={team.teamID}>
-          <Col span={4}>{team.teamName}</Col>
-          <Col span={4}>{team.spaceCount}</Col>
-          <Col span={4}>{team.clusterCount}</Col>
-        </Row>
-      )
-    })
+    const { teams } = this.props
     return (
       <div>
         <Row className="contentTop">
@@ -59,26 +43,43 @@ let TeamList = React.createClass ({
             <span className="infSvgTxt">集群</span>
           </Col>
         </Row>
-        {items}
+        {
+          teams?
+            teams.map((team) => {
+              if (firstRow) {
+                className = "contentList firstItem"
+                firstRow = false
+              } else {
+                className = "contentList"
+              }
+              return (
+                <Row className={className} key={team.teamID}>
+                  <Col span={4}>{team.teamName}</Col>
+                  <Col span={4}>{team.spaceCount}</Col>
+                  <Col span={4}>{team.clusterCount}</Col>
+                </Row>
+              )
+            }):
+            <div></div>
+        }
       </div>
     )
   }
 })
 
-class Team extends Component{
+export default class Team extends Component{
   constructor(props){
     super(props)
     this.state = {
       
     }
   }
-
   componentDidMount() {
-    this.props.loadUserTeamList("default", null)
-    this.props.loadUserDetail("default")
+    
   }
 
   render(){
+    const { teams, userDetail } = this.props
     return (
       <div id='Team'>
         <Row className="teamWrap">
@@ -87,50 +88,14 @@ class Team extends Component{
               <use xlinkHref="#settingownteam" />
             </svg>
             <span className="infSvgTxt">
-              {this.props.userName}的团队
+              {userDetail.userName}的团队
             </span>
           </div>
           <div className="teamContent">
-            <TeamList teams={this.props.teams}/>
+            <TeamList teams={teams}/>
           </div>
         </Row>
       </div>
     )
   }
 }
-
-function mapStateToProp(state) {
-  let teamsData = []
-  let total = 0
-  let size = 0
-  let userName = ''
-  const {userDetail, teams} = state.user
-  if (teams.result) {
-    if (teams.result.teams) {
-      teamsData = teams.result.teams
-    }
-    if (teams.result.total) {
-      total = teams.result.total
-    }
-    if (teams.result.count) {
-      size = teams.result.size
-    }
-  }
-
-  if (userDetail.result && userDetail.result.data && 
-      userDetail.result.data.userName) {
-    userName = userDetail.result.data.userName
-  }
-
-  return {
-    userName,
-    teams: teamsData,
-    total,
-    size
-  }
-}
-
-export default connect(mapStateToProp, {
-  loadUserTeamList,
-  loadUserDetail,
-})(Team)

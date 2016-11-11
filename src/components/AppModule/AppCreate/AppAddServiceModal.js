@@ -11,7 +11,7 @@ import React, { Component, PropTypes } from 'react'
 import { Input, Modal, Checkbox, Button, Card, Menu, Spin } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
-import { loadPublicImageList, loadPrivateImageList, searchPublicImages, loadFavouriteList } from '../../../actions/app_center'
+import { loadPublicImageList, loadPrivateImageList, searchPublicImages, loadFavouriteList, searchFavoriteImages, searchPrivateImages } from '../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import './style/AppAddServiceModal.less'
 
@@ -74,16 +74,26 @@ let AppAddServiceModal = React.createClass({
   getInitialState: function() {
     return {
       currentImageType: "publicImages",
+      publicImages: false,
+      privateImages: false,
+      fockImages: false
     }
   },
   selectImageType(currentType) {
     //the function for user select image type
     if(currentType === this.state.currentImageType) return
     this.setState({
-      currentImageType: currentType
+      currentImageType: currentType,
+      imageName: '',
+      [currentType]: false
     });
     const imageList = this.props.imageList[currentType]
-    if(imageList && imageList[this.props.registry] && imageList[this.props.registry].imageList.length > 0) return
+    if (this.state[currentType]) {
+      return this.searchImage(currentType, '')
+    }
+    if(imageList && imageList[this.props.registry] && imageList[this.props.registry].imageList.length > 0) {
+      return  
+    }
     this.props[currentType](this.props.registry)
   },
   closeModal() {
@@ -102,6 +112,37 @@ let AppAddServiceModal = React.createClass({
     document.title = '添加应用 | 时速云'
     const { registry, loadPublicImageList } = this.props
     this.props.publicImages(registry)
+  },
+  getImageName(e) {
+    this.setState({
+      imageName: e.target.value
+    })
+  },
+  searchImage(imageType, currentImageName) {
+    const type = imageType || this.state.currentImageType
+    let imageName = this.state.imageName
+    if(imageType) imageName = ''
+    if(imageName) {
+      this.setState({
+        [type]: true
+      })
+    } else {
+      this.setState({
+        [type]: false
+      })
+    }
+    if (type === 'publicImages') {
+      if (imageName) {
+        return this.props.searchPublicImages(this.props.registry, imageName)
+      }
+      this.props.publicImages(this.props.registry)
+    }
+    if (type === 'privateImages') {
+      return this.props.searchPrivateImages({ imageName: imageName, registry: this.props.registry })
+    }
+    if (type === 'fockImages') {
+      return this.props.searchFavoriteImages({ imageName: imageName, registry: this.props.registry })
+    }
   },
   render:function () {
     const parentScope = this
@@ -125,7 +166,7 @@ let AppAddServiceModal = React.createClass({
             收藏
           </Button>
           <div className="inputBox">
-            <Input size="large" placeholder="搜索你的本命服务名吧~" />
+            <Input size="large" placeholder="搜索你的本命服务名吧~" onChange={ e => this.getImageName(e)} onPressEnter={()=> this.searchImage()} value={this.state.imageName}/>
             <i className="fa fa-search"></i>
           </div>
           <div style={{ clear: "both" }}></div>
@@ -148,5 +189,8 @@ function mapStateToProps(state, props) {
 export default connect(mapStateToProps, {
   publicImages: loadPublicImageList,
   privateImages: loadPrivateImageList,
-  fockImages: loadFavouriteList
+  fockImages: loadFavouriteList,
+  searchPublicImages,
+  searchFavoriteImages,
+  searchPrivateImages
 })(AppAddServiceModal)

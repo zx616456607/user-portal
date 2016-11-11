@@ -10,8 +10,7 @@
 import React, { Component } from 'react'
 import { Row, Col, Button, } from 'antd'
 import './style/Space.less'
-import { connect } from 'react-redux'
-import { loadUserDetail, loadUserAppInfo, loadUserTeamspaceList } from '../../../actions/user'
+
 
 let PersonalSpace = React.createClass ({
   getInitialState(){
@@ -133,21 +132,15 @@ let TeamSpace = React.createClass({
   }
 })
 
-class Space extends Component{
+export default class Space extends Component{
   constructor(props){
     super(props)
     this.state = {
       
     }
   }
-  
-  componentDidMount() {
-    this.props.loadUserDetail("default")
-    this.props.loadUserAppInfo("default")
-    this.props.loadUserTeamspaceList("default", null)
-  }
-
   render(){
+    const {userDetail, appCount, serviceCount, containerCount, teamspaces} = this.props
     return (
       <div id='Space'>
         <Row className="spaceWrap">
@@ -156,11 +149,13 @@ class Space extends Component{
               <use xlinkHref="#settingperspace" />
             </svg>
             <span className="infSvgTxt">
-              {this.props.userName}的个人空间
+              {userDetail.userName}的个人空间
             </span>
           </div>
           <div className="spaceContent">
-            <PersonalSpace appCount={this.props.appCount} serviceCount={this.props.serviceCount} containerCount={this.props.containerCount}/>
+            <PersonalSpace appCount={appCount}
+                           serviceCount={serviceCount}
+                           containerCount={containerCount}/>
           </div>
         </Row>
         <Row className="spaceWrap">
@@ -169,64 +164,14 @@ class Space extends Component{
               <use xlinkHref="#settingteamspace" />
             </svg>
             <span className="infSvgTxt">
-              {this.props.userName}的团队空间
+              {userDetail.userName}的团队空间
             </span>
           </div>
           <div className="spaceContent">
-            <TeamSpace teamspaces={this.props.teamspaces}/>
+            <TeamSpace teamspaces={teamspaces}/>
           </div>
         </Row>
       </div>
     )
   }
 }
-
-function mapStateToProp(state) {
-  let teamspacesData = []
-  let total = 0
-  let size = 0
-  let userName = ''
-  let appCount = 0
-  let serviceCount = 0
-  let containerCount = 0
-  const {userDetail, teamspaces, userAppInfo} = state.user
-  console.log('state',state);
-  if (teamspaces.result) {
-    if (teamspaces.result.teamspaces) {
-      teamspacesData = teamspaces.result.teamspaces
-    }
-    if (teamspaces.result.total) {
-      total = teamspaces.result.total
-    }
-    if (teamspaces.result.count) {
-      size = teamspaces.result.size
-    }
-  }
-
-  if (userDetail.result && userDetail.result.data && 
-      userDetail.result.data.userName) {
-    userName = userDetail.result.data.userName
-  }
-
-  if (userAppInfo.result && userAppInfo.result.data) {
-    appCount = userAppInfo.result.data.appCount
-    serviceCount = userAppInfo.result.data.serviceCount
-    containerCount = userAppInfo.result.data.containerCount
-  }
-
-  return {
-    userName,
-    teamspaces: teamspacesData,
-    total,
-    size,
-    appCount,
-    serviceCount,
-    containerCount,
-  }
-}
-
-export default connect(mapStateToProp, {
-  loadUserTeamspaceList,
-  loadUserDetail,
-  loadUserAppInfo,
-})(Space)

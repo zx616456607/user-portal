@@ -57,6 +57,23 @@ export function searchPublicImages(registry, image) {
   }
 }
 
+export const IMAGE_SEARCH_PRIVATE = "IMAGE_SEARCH_PRIVATE"
+
+export function searchPrivateImages(condition) {
+  return {
+    type: IMAGE_SEARCH_PRIVATE,
+    condition
+  }
+}
+
+export const IMAGE_SEARCH_FAVORITE = "IMAGE_SEARCH_FAVORITE"
+export function searchFavoriteImages(condition) {
+  return {
+    type: IMAGE_SEARCH_FAVORITE,
+    condition
+  }
+}
+
 export const ADD_OTHER_STORE_REQUEST = 'ADD_OTHER_STORE_REQUEST'
 export const ADD_OTHER_STORE_SUCCESS = 'ADD_OTHER_STORE_SUCCESS'
 export const ADD_OTHER_STORE_FAILURE = 'ADD_OTHER_STORE_FAILURE'
@@ -140,14 +157,15 @@ export const GET_OTHER_IMAGE_TAGS_REQUEST = 'GET_OTHER_IMAGE_TAGS_REQUEST'
 export const GET_OTHER_IMAGE_TAGS_SUCCESS = 'GET_OTHER_IMAGE_TAGS_SUCCESS'
 export const GET_OTHER_IMAGE_TAGS_FAILURE = 'GET_OTHER_IMAGE_TAGS_FAILURE'
 
-export function getOtherImageTag(obj) {
+export function getOtherImageTag(obj, callback) {
   return {
     registry: obj.registry,
     [FETCH_API]: {
       types: [GET_OTHER_IMAGE_TAGS_REQUEST, GET_OTHER_IMAGE_TAGS_SUCCESS, GET_OTHER_IMAGE_TAGS_FAILURE],
       endpoint: `${API_URL_PREFIX}/docker-registry/${obj.id}/images/${obj.imageName}/tags`,
       schema: Schemas.REGISTRYS
-    }
+    },
+    callback
   }
 }
 

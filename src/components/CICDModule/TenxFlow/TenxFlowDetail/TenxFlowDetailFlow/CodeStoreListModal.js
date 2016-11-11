@@ -41,7 +41,8 @@ let CodeStoreListModal = React.createClass({
     scope.setState({
       currentCodeStore: id,
       currentCodeStoreName: name,
-      codeStoreModalShow: false
+      codeStoreModalShow: false,
+      noSelectedCodeStore: false
     });
   },
   closeModal () {

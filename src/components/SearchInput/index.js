@@ -67,7 +67,6 @@ class SearchInput extends Component{
     },{
       success:{
         func: () => {
-          console.log('search !!');
           scope.setState({
             page: 1,
             filter,
@@ -94,7 +93,7 @@ class SearchInput extends Component{
     if(addBefore){
       let selectBefore = (
         <Select defaultValue={defaultValue ? defaultValue : addBefore[0].key}
-                style={{ width: 80 }}
+                style={{ width: 80,borderColor:'transparent',boxShadow:'none'}}
                 onChange={this.handleSelect}>
           {
             addBefore.map((item,index) => {

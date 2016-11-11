@@ -917,13 +917,12 @@ class OperationalAudit extends Component {
   onPageChange(e) {
     //this function user input the page num and auto get the new page of log
     const { getOperationLogList } = this.props;
-    let tmpFrom = --e;
+    let tmpFrom = e - 1;
     this.setState({
       from: e
     })
-    console.log(this.state.from)
     let body = {
-      from: tmpFrom,
+      from: (tmpFrom * this.state.size),
       size: this.state.size,
       namespace: this.state.namespace,
       operation: this.state.operation,
@@ -938,6 +937,7 @@ class OperationalAudit extends Component {
   submitSearch() {
     //this functio for user submit search log
     const { getOperationLogList } = this.props;
+    const _this = this;
     let body = {
       from: 0,
       size: this.state.size,
@@ -948,7 +948,18 @@ class OperationalAudit extends Component {
       end_time: this.state.end_time,
       status: this.state.status
     }
-    getOperationLogList(body);
+    getOperationLogList(body, {
+      success: {
+        func: (res) => {
+          let totalNum = res.logs.count == 0 ? 1 : res.logs.count;
+          _this.setState({
+            from: 1,
+            totalNum: totalNum
+          });
+        },
+        isAsync: true
+      }
+    });
   }
 
   render() {
