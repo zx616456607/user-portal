@@ -32,12 +32,7 @@ let MemberTable =  React.createClass({
       filter: ""
     };
   },
-  handleChange(pagination, filters, sorter) {
-    this.setState({
-      filteredInfo: filters,
-      sortedInfo: sorter,
-    });
-  },
+  
   getSort(order, column) {
     var query = {}
     var orderStr = 'a,'
@@ -126,7 +121,6 @@ let MemberTable =  React.createClass({
     const { searchResult, notFound } = this.props.scope.state
     const { data, scope } = this.props
     console.log('listdata',data);
-    sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
     const pagination = {
       total: this.props.scope.props.total,
@@ -198,15 +192,49 @@ let MemberTable =  React.createClass({
         width: 200,
       },
       {
-        title: '类型',
+        title: (
+          <span>
+            
+            <div className="ant-dropdown ant-dropdown-placement-bottomLeft"
+                 style={{left: '816.208px', top: '196.438px'}}>
+              <div className="ant-table-filter-dropdown">
+                <ul className="ant-dropdown-menu ant-dropdown-menu-vertical  ant-dropdown-menu-root" role="menu" aria-activedescendant="" tabindex="0">
+                  <li className="ant-dropdown-menu-item" role="menuitem" aria-selected="false">
+                    <label className="ant-checkbox-wrapper">
+                      <span className="ant-checkbox">
+                      <span className="ant-checkbox-inner"></span>
+                      <input type="checkbox" className="ant-checkbox-input" value="on"/>
+                    </span>
+                    </label>
+                    <span>团队管理员</span>
+                  </li>
+                  <li className="ant-dropdown-menu-item" role="menuitem" aria-selected="false">
+                    <label className="ant-checkbox-wrapper">
+                      <span className="ant-checkbox">
+                        <span className="ant-checkbox-inner"></span>
+                        <input type="checkbox" className="ant-checkbox-input" value="on"/>
+                      </span>
+                    </label>
+                    <span>普通成员</span>
+                  </li>
+                </ul>
+                <div className="ant-table-filter-dropdown-btns">
+                  <a className="ant-table-filter-dropdown-link confirm">确定</a>
+                  <a className="ant-table-filter-dropdown-link clear">重置</a>
+                </div>
+              </div>
+            </div>
+            <i className="anticon anticon-filter" title="筛选"/>
+          </span>
+        ),
         dataIndex: 'style',
         key: 'style',
-        filters: [
+        /*filters: [
           { text: '团队管理员', value: '团队管理员' },
           { text: '普通成员', value: '普通成员' },
         ],
         filteredValue: filteredInfo.style,
-        onFilter: (value, record) => record.style.indexOf(value) === 0,
+        onFilter: (value, record) => record.style.indexOf(value) === 0,*/
         width: 150,
       },
       {
@@ -513,9 +541,6 @@ class MemberManage extends Component {
       sort: "a,userName",
       filter: "",
     })
-    
-  }
-  componentWillReceiveProps(nextProps){
     
   }
   render(){
