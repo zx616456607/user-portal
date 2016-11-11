@@ -12,7 +12,6 @@ import { Card } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { DEFAULT_REGISTRY } from '../../../../constants'
 import AutoDeployService from './ImageDeployLog/AutoDeployService.js'
 import ImageDeployLog from './ImageDeployLog/ImageDeployLog.js'
 import './style/ImageDeployLogBox.less'
@@ -72,7 +71,7 @@ class ImageDeployLogBox extends Component {
   }
   
   componentWillMount() {
-    document.title = 'TenxFlow | 时速云';
+    console.log('flowId', this.props.flowId)
   }
 
   render() {
@@ -81,7 +80,7 @@ class ImageDeployLogBox extends Component {
     return (
       <Card id='ImageDeployLogBox' >
         <AutoDeployService scope={scope} />
-        <ImageDeployLog scope={scope} />
+        <ImageDeployLog scope={scope} flowId={this.props.flowId}/>
       </Card>
     )
   }

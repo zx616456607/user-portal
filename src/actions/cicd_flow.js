@@ -340,6 +340,25 @@ export function searchDockerfile(names) {
   }
 }
 
+export const GET_DEPLOY_LOG_REQUEST = 'GET_DEPLOY_LOG_REQUEST'
+export const GET_DEPLOY_LOG_SUCCESS = 'GET_DEPLOY_LOG_SUCCESS'
+export const GET_DEPLOY_LOG_FAILURE = 'GET_DEPLOY_LOG_FAILURE'
+function fetchdeploymentLog(flowId) {
+  return {
+    [FETCH_API]: {
+      types: [GET_DEPLOY_LOG_REQUEST, GET_DEPLOY_LOG_SUCCESS, GET_DEPLOY_LOG_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/deployment-logs`,
+      schema: {},
+    }
+  }
+}
+
+export function deploymentLog(flowId) {
+  return (dispatch, getState) =>{
+    dispatch(fetchdeploymentLog(flowId))
+  }
+}
+
 export const GET_TENX_FLOW_LIST_REQUEST = 'GET_TENX_FLOW_LIST_REQUEST'
 export const GET_TENX_FLOW_LIST_SUCCESS = 'GET_TENX_FLOW_LIST_SUCCESS'
 export const GET_TENX_FLOW_LIST_FAILURE = 'GET_TENX_FLOW_LIST_FAILURE'
