@@ -249,9 +249,9 @@ class TeamDetail extends Component{
     const { targetKeys } = this.state
     console.log('targetKeys',targetKeys);
     if(targetKeys.length !== 0){
-      addTeamusers(teamID,{
+      addTeamusers(teamID,
         targetKeys
-      },{
+      ,{
         success: {
           func:() => {
             this.setState({
