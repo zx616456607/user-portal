@@ -226,6 +226,8 @@ class TeamDetail extends Component{
     this.handleNewSpaceOk = this.handleNewSpaceOk.bind(this)
     this.handleNewSpaceCancel = this.handleNewSpaceCancel.bind(this)
     this.handleChange = this.handleChange.bind(this)
+    this.handleNewSpaceName = this.handleNewSpaceName.bind(this)
+    this.handleNewSpaceDes = this.handleNewSpaceDes.bind(this)
     this.state = {
       addMember: false,
       addSpace: false,
@@ -276,6 +278,7 @@ class TeamDetail extends Component{
   handleNewSpaceOk(){
     const {createTeamspace, teamID, loadTeamspaceList} = this.props
     const {newSpaceName,newSpaceDes} = this.state
+    console.log('newSpaceName,newSpaceDes',newSpaceName);
     createTeamspace(teamID,{
       spaceName: newSpaceName,
       description: newSpaceDes,
@@ -306,8 +309,6 @@ class TeamDetail extends Component{
     this.setState({
       newSpaceDes: e.target.value
     })
-  }
-  componentDidMount() {
   }
   componentWillMount(){
     const { loadTeamClustersList, loadTeamUserList, loadTeamspaceList, teamID, } = this.props
