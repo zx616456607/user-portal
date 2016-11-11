@@ -415,6 +415,7 @@ class TeamDetail extends Component{
   }
 }
 function mapStateToProp(state,props) {
+  console.log('team_id',props.params);
   let clusterData = []
   let clusterList = []
   let teamUserList = []

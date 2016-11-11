@@ -248,7 +248,7 @@ let MemberTable =  React.createClass({
         width: 180,
         render: (text, record,index) => (
           <div>
-            <Link to="/setting">
+            <Link to={`/setting/${record.key}`}>
             <Button icon="setting" className="setBtn">
               管理
             </Button>
