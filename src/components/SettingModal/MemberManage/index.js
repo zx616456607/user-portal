@@ -192,9 +192,9 @@ let MemberTable =  React.createClass({
         width: 200,
       },
       {
-        title: (
+        title: '类型',
+         /* (
           <span>
-            
             <div className="ant-dropdown ant-dropdown-placement-bottomLeft"
                  style={{left: '816.208px', top: '196.438px'}}>
               <div className="ant-table-filter-dropdown">
@@ -226,14 +226,14 @@ let MemberTable =  React.createClass({
             </div>
             <i className="anticon anticon-filter" title="筛选"/>
           </span>
-        ),
+        ),*/
         dataIndex: 'style',
         key: 'style',
-        /*filters: [
+        filters: [
           { text: '团队管理员', value: '团队管理员' },
           { text: '普通成员', value: '普通成员' },
         ],
-        filteredValue: filteredInfo.style,
+        /*filteredValue: filteredInfo.style,
         onFilter: (value, record) => record.style.indexOf(value) === 0,*/
         width: 150,
       },
