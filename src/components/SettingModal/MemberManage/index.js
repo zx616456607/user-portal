@@ -248,7 +248,7 @@ let MemberTable =  React.createClass({
         width: 180,
         render: (text, record,index) => (
           <div>
-            <Link to={`/setting/${record.key}`}>
+            <Link to={`/setting/user/${record.key}`}>
             <Button icon="setting" className="setBtn">
               管理
             </Button>
@@ -523,7 +523,6 @@ class MemberManage extends Component {
       position: 'right',
       addBefore: [
         {key: 'name', value: '用户名'},
-        {key: 'team', value: '团队'},
         {key: 'tel', value: '手机号'},
         {key: 'email', value: '邮箱'},
       ],

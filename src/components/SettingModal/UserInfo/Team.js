@@ -20,21 +20,7 @@ let TeamList = React.createClass ({
   render: function () {
     let firstRow = true
     let className = ""
-    let items = this.props.teams.map((team) => {
-      if (firstRow) {
-        className = "contentList firstItem"
-        firstRow = false
-      } else {
-        className = "contentList"
-      }
-      return (
-        <Row className={className} key={team.teamID}>
-          <Col span={4}>{team.teamName}</Col>
-          <Col span={4}>{team.spaceCount}</Col>
-          <Col span={4}>{team.clusterCount}</Col>
-        </Row>
-      )
-    })
+    const { teams } = this.props
     return (
       <div>
         <Row className="contentTop">
@@ -57,7 +43,25 @@ let TeamList = React.createClass ({
             <span className="infSvgTxt">集群</span>
           </Col>
         </Row>
-        {items}
+        {
+          teams?
+            teams.map((team) => {
+              if (firstRow) {
+                className = "contentList firstItem"
+                firstRow = false
+              } else {
+                className = "contentList"
+              }
+              return (
+                <Row className={className} key={team.teamID}>
+                  <Col span={4}>{team.teamName}</Col>
+                  <Col span={4}>{team.spaceCount}</Col>
+                  <Col span={4}>{team.clusterCount}</Col>
+                </Row>
+              )
+            }):
+            <div></div>
+        }
       </div>
     )
   }

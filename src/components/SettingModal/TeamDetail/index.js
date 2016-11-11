@@ -16,17 +16,6 @@ import { deleteTeam, createTeamspace, addTeamusers, removeTeamusers,
 import { connect } from 'react-redux'
 import MemberTransfer from '../MemberTransfer'
 
-const memberListdata = [
-  {name: 'pupumeng',tel: '11111111',email: '123@123.com',style: '创业者'},
-  {name: 'pupumeng',tel: '11111111',email: '123@123.com',style: '创业者'},
-  {name: 'pupumeng',tel: '11111111',email: '123@123.com',style: '创业者'},
-  {name: 'pupumeng',tel: '11111111',email: '123@123.com',style: '创业者'},
-  {name: 'pupumeng',tel: '11111111',email: '123@123.com',style: '创业者'},
-]
-const teamListData = [
-  {teamName: '奔驰外包开发',remark: '外包团队使用的空间',app: '2333',},
-  {teamName: '民生测试开发',remark: '测试金融changing',app: '0',},
-]
 let MemberList = React.createClass({
   getInitialState(){
     return {
@@ -309,7 +298,7 @@ class TeamDetail extends Component{
   }
   
   render(){
-    const { clusterList, teamUserList, teamSpacesList } = this.props
+    const { clusterList, teamUserList, teamSpacesList, teamName } = this.props
     const { targetKeys } = this.state
     return (
       <div id='TeamDetail'>
@@ -317,7 +306,7 @@ class TeamDetail extends Component{
           <Link className="back" to="/setting/team">返回</Link>
         </Row>
         <Row className="title">
-          研发Team
+          {teamName}
         </Row>
         <Row className="content">
           <Alert message="这里展示了该团队在用的集群列表,资源配置是超级管理员在企业版后台,分配到该团队所用的计算等资源,以下集群对该团队的团队空间有效."/>
@@ -420,7 +409,7 @@ function mapStateToProp(state,props) {
   let clusterList = []
   let teamUserList = []
   let teamSpacesList = []
-  const { team_id } = props.params
+  const { team_id, team_name } = props.params
   console.log('state',state);
   const team = state.team
   const users = state.user.users
@@ -474,6 +463,7 @@ function mapStateToProp(state,props) {
   }
   return {
     teamID: team_id,
+    teamName: team_name,
     clusterList: clusterList,
     teamUserList: teamUserList,
     teamSpacesList: teamSpacesList,
