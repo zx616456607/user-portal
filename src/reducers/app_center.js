@@ -40,6 +40,29 @@ function privateImages(state = {}, action) {
       return merge({}, defaultState, state, {
         [registry]: { isFetching: false }
       })
+    case ActionTypes.IMAGE_SEARCH_PRIVATE: {
+      const {imageName, registry} = action.condition
+      const list = cloneDeep(state)
+      let imageList = list[registry].imageList
+      let imageListBak = list[registry].imageListBak
+      if (!imageListBak) {
+        list[registry].imageListBak = imageList
+        imageListBak = imageList
+      }
+      if (!imageName) {
+        list[registry].imageListBak = imageListBak
+        list[registry].imageList = imageListBak
+        return list
+      }
+      const result = []
+      imageListBak.forEach(item => {
+        if (item.name.indexOf(imageName) >= 0) {
+          result.push(item)
+        }
+      })
+      list[registry].imageList = result
+      return list
+    }
     default:
       return state
   }
@@ -423,7 +446,29 @@ function fockImagesList(state = {}, action) {
       return merge({}, defaultState, state, {
         [registry]: { isFetching: false }
       })
-
+    case ActionTypes.IMAGE_SEARCH_FAVORITE: {
+      const {imageName, registry} = action.condition
+      const list = cloneDeep(state)
+      let imageList = list[registry].imageList
+      let imageListBak = list[registry].imageListBak
+      if (!imageListBak) {
+        list[registry].imageListBak = imageList
+        imageListBak = imageList
+      }
+      if (!imageName) {
+        list[registry].imageListBak = imageListBak
+        list[registry].imageList = imageListBak
+        return list
+      }
+      const result = []
+      imageListBak.forEach(item => {
+        if (item.name.indexOf(imageName) >= 0) {
+          result.push(item)
+        }
+      })
+      list[registry].imageList = result
+      return list
+    }
     default:
       return state
   }
