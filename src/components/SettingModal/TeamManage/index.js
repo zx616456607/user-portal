@@ -163,6 +163,8 @@ let TeamTable = React.createClass({
       total: this.props.scope.props.total,
       showSizeChanger: true,
       defaultPageSize: 5,
+      defaultCurrent:1,
+      current:this.props.scope.state.current,
       pageSizeOptions: ['5','10','15','20'],
       onShowSizeChange(current, pageSize) {
         scope.props.loadUserTeamList('default',{
@@ -171,7 +173,8 @@ let TeamTable = React.createClass({
         })
         scope.setState({
           page: current,
-          pageSize: pageSize
+          pageSize: pageSize,
+          current: current,
         })
       },
       onChange(current) {
@@ -183,7 +186,8 @@ let TeamTable = React.createClass({
         })
         scope.setState({
           page: current,
-          pageSize: pageSize
+          pageSize: pageSize,
+          current: current,
         })
       },
     }
@@ -308,6 +312,7 @@ class TeamManage extends Component {
       teamName: '',
       pageSize: 5,
       page: 1,
+      current: 1,
     }
   }
   showModal() {
@@ -323,12 +328,12 @@ class TeamManage extends Component {
       success: {
         func: () => {
           console.log('create done');
-          this.setState({
-            visible: false,
-          })
           this.props.loadUserTeamList('default',{
             page: this.state.page,
             size: this.state.pageSize,
+          })
+          this.setState({
+            visible: false,
           })
         }
       }

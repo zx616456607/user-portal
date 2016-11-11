@@ -132,6 +132,8 @@ let MemberTable =  React.createClass({
       total: this.props.scope.props.total,
       showSizeChanger: true,
       defaultPageSize: 5,
+      defaultCurrent:1,
+      current:this.props.scope.state.current,
       pageSizeOptions: ['5','10','15','20'],
       onShowSizeChange(current, pageSize) {
         console.log('Current: ', current, '; PageSize: ', pageSize);
@@ -139,11 +141,12 @@ let MemberTable =  React.createClass({
           page: current,
           size: pageSize,
           sort: scope.state.sort,
-          filter: scope.state.filter
+          filter: scope.state.filter,
         })
         scope.setState({
           pageSize: pageSize,
-          page: current
+          page: current,
+          current: current,
         })
       },
       onChange(current) {
@@ -157,7 +160,8 @@ let MemberTable =  React.createClass({
         })
         scope.setState({
           pageSize: pageSize,
-          page: current
+          page: current,
+          current: current,
         })
       },
     }
@@ -494,6 +498,7 @@ class MemberManage extends Component {
       page: 1,
       sort: "a,userName",
       filter: "",
+      current: 1,
     }
   }
   showModal() {

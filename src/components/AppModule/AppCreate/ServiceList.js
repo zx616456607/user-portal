@@ -254,7 +254,6 @@ export default class ServiceList extends Component {
               </div>
               <div className="opera commonData">
                 操作
-
               </div>
               <div style={{ clear: "both" }}></div>
             </div>
