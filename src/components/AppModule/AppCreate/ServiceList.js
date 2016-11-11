@@ -188,18 +188,18 @@ export default class ServiceList extends Component {
     localStorage.removeItem('servicesList');
     localStorage.removeItem('selectedList');
   }
-	delAllSelected() {
+  delAllSelected() {
     let selectedList = this.state.selectedList
     let servicesList = this.state.servicesList
-    let newServiceList=servicesList.filter(function (service) {
+    let newServiceList = servicesList.filter(function (service) {
       return !selectedList.includes(service.id)
     })
     this.setState({
-      servicesList:newServiceList,
-      selectedList:[]
+      servicesList: newServiceList,
+      selectedList: []
     })
-	}
-	componentWillMount() {
+  }
+  componentWillMount() {
     const serviceList = JSON.parse(localStorage.getItem('servicesList'))
     if (serviceList) {
       this.setState({
@@ -225,13 +225,10 @@ export default class ServiceList extends Component {
           <div className="operaBox">
             <Button type="primary" size="large" onClick={this.openModal}>
               <i className="fa fa-plus" />&nbsp;
-
-               添加服务
+              添加服务
             </Button>
-
             <Button size="large" type="ghost" onClick={this.delAllSelected}>
               <i className="fa fa-trash" />&nbsp;
-
               删除
             </Button>
           </div>
@@ -242,15 +239,12 @@ export default class ServiceList extends Component {
               </div>
               <div className="name commonData">
                 服务名称
-
               </div>
               <div className="image commonData">
                 镜像
-
               </div>
               <div className="resource commonData">
                 计算资源
-
               </div>
               <div className="opera commonData">
                 操作
