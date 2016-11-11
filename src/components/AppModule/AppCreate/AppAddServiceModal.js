@@ -23,22 +23,21 @@ const MyComponent = React.createClass({
     //close model function
     const {scope} = this.props;
     const rootScope = scope.props.scope;
-    scope.setState({
-      
-    });
     rootScope.setState({
       currentSelectedImage: imageName,
       registryServer,
       modalShow: false,
       serviceModalShow: true,
-      isCreate: true
+      isCreate: true,
+      addServiceModalShow: false, // for add service
+      deployServiceModalShow: true,
     })
   },
   render: function () {
     const { images, registryServer, loading } = this.props
     if (loading) {
       return (
-        <div  className='loadingBox'>
+        <div className='loadingBox'>
           <Spin size='large' />
         </div>
       )
@@ -71,7 +70,7 @@ let AppAddServiceModal = React.createClass({
     selectedList: React.PropTypes.array,
     loadPublicImageList: PropTypes.func.isRequired
   },
-  getInitialState: function() {
+  getInitialState: function () {
     return {
       currentImageType: "publicImages",
       publicImages: false,
@@ -81,7 +80,7 @@ let AppAddServiceModal = React.createClass({
   },
   selectImageType(currentType) {
     //the function for user select image type
-    if(currentType === this.state.currentImageType) return
+    if (currentType === this.state.currentImageType) return
     this.setState({
       currentImageType: currentType,
       imageName: '',
@@ -91,22 +90,10 @@ let AppAddServiceModal = React.createClass({
     if (this.state[currentType]) {
       return this.searchImage(currentType, '')
     }
-    if(imageList && imageList[this.props.registry] && imageList[this.props.registry].imageList.length > 0) {
-      return  
+    if (imageList && imageList[this.props.registry] && imageList[this.props.registry].imageList.length > 0) {
+      return
     }
     this.props[currentType](this.props.registry)
-  },
-  closeModal() {
-    //the function for close the deploy new service modal
-    this.props.scope.setState({
-      modalShow: false
-    });
-  },
-  openModal() {
-    //the function for open the deploy new service modal
-    this.props.scope.setState({
-      modalShow: true
-    });
   },
   componentWillMount() {
     document.title = '添加应用 | 时速云'
@@ -121,8 +108,8 @@ let AppAddServiceModal = React.createClass({
   searchImage(imageType, currentImageName) {
     const type = imageType || this.state.currentImageType
     let imageName = this.state.imageName
-    if(imageType) imageName = ''
-    if(imageName) {
+    if (imageType) imageName = ''
+    if (imageName) {
       this.setState({
         [type]: true
       })
@@ -144,14 +131,14 @@ let AppAddServiceModal = React.createClass({
       return this.props.searchFavoriteImages({ imageName: imageName, registry: this.props.registry })
     }
   },
-  render:function () {
+  render: function () {
     const parentScope = this
     const { scope } = this.props
     let images = this.props.imageList[this.state.currentImageType][this.props.registry]
-    if(!images) {
-      images = { imageList: []}
+    if (!images) {
+      images = { imageList: [] }
     }
-    const { imageList, registryServer, isFetching } = images
+    const { imageList, server, isFetching } = images
     return (
       <div id="AppAddServiceModal" key="AppAddServiceModal">
         <div className="operaBox">
@@ -166,12 +153,16 @@ let AppAddServiceModal = React.createClass({
             收藏
           </Button>
           <div className="inputBox">
-            <Input size="large" placeholder="搜索你的本命服务名吧~" onChange={ e => this.getImageName(e)} onPressEnter={()=> this.searchImage()} value={this.state.imageName}/>
+            <Input size="large" placeholder="搜索你的本命服务名吧~" onChange={e => this.getImageName(e)} onPressEnter={() => this.searchImage()} value={this.state.imageName} />
             <i className="fa fa-search"></i>
           </div>
           <div style={{ clear: "both" }}></div>
         </div>
-        <MyComponent scope={parentScope} images={images.imageList} loading={isFetching} registryServer={registryServer} />
+        <MyComponent
+          scope={parentScope}
+          images={images.imageList}
+          loading={isFetching}
+          registryServer={server} />
       </div>
     )
   }

@@ -46,15 +46,14 @@ let TeamTable = React.createClass({
   },
   delTeam(teamID){
     const {deleteTeam,loadUserTeamList} = this.props.scope.props
+    const {page,pageSize,} = this.props.scope.state
     confirm({
       title: '您是否确认要删除这项内容',
       onOk() {
-        console.log('del !!!!!')
         deleteTeam(teamID)
         loadUserTeamList('default',{
-          page: this.state.page,
-          size: this.state.pageSize,
-          sort: this.state.sort,
+          page: page,
+          size: pageSize,
         })
       },
       onCancel() {},
@@ -160,20 +159,24 @@ let TeamTable = React.createClass({
     const { data, scope } = this.props
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
-    console.log('this.props.scope.props.total',this.props.scope.props.total);
     const pagination = {
       total: this.props.scope.props.total,
+      sort: this.props.scope.props.sort,
       showSizeChanger: true,
       defaultPageSize: 5,
+      defaultCurrent:1,
+      current:this.props.scope.state.current,
       pageSizeOptions: ['5','10','15','20'],
       onShowSizeChange(current, pageSize) {
         scope.props.loadUserTeamList('default',{
           page: current,
           size: pageSize,
+          sort,
         })
         scope.setState({
           page: current,
-          pageSize: pageSize
+          pageSize: pageSize,
+          current: current,
         })
       },
       onChange(current) {
@@ -182,10 +185,12 @@ let TeamTable = React.createClass({
         scope.props.loadUserTeamList('default',{
           page: current,
           size: pageSize,
+          sort,
         })
         scope.setState({
           page: current,
-          pageSize: pageSize
+          pageSize: pageSize,
+          current: current,
         })
       },
     }
@@ -310,6 +315,7 @@ class TeamManage extends Component {
       teamName: '',
       pageSize: 5,
       page: 1,
+      current: 1,
     }
   }
   showModal() {
@@ -325,15 +331,17 @@ class TeamManage extends Component {
       success: {
         func: () => {
           console.log('create done');
-          this.setState({
-            visible: false,
-          })
           this.props.loadUserTeamList('default',{
             page: this.state.page,
             size: this.state.pageSize,
+            sort: this.state.sort,
+          })
+          this.setState({
+            visible: false,
           })
         }
-      }
+      },
+      isAsync: true,
     })
   }
   handleCancel(e) {
@@ -352,6 +360,7 @@ class TeamManage extends Component {
     this.props.loadUserTeamList('default',{
       page: 1,
       size: 5,
+      sort: "a,teamName"
     })
   }
   render(){

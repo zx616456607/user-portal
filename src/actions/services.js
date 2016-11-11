@@ -42,6 +42,32 @@ export function loadServiceList(cluster, appName, query, requiredFields = []) {
   }
 }
 
+export const SERVICE_ADD_REQUEST = 'SERVICE_ADD_REQUEST'
+export const SERVICE_ADD_SUCCESS = 'SERVICE_ADD_SUCCESS'
+export const SERVICE_ADD_FAILURE = 'SERVICE_ADD_FAILURE'
+
+function fetchAddService(cluster, appName, body, callback) {
+  return {
+    cluster,
+    [FETCH_API]: {
+      types: [SERVICE_ADD_REQUEST, SERVICE_ADD_SUCCESS, SERVICE_ADD_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/apps/${appName}/services`,
+      options: {
+        method: 'POST',
+        body
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function addService(cluster, appName, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchAddService(cluster, appName, body, callback))
+  }
+}
+
 export const SERVICE_DETAIL_REQUEST = 'SERVICE_DETAIL_REQUEST'
 export const SERVICE_DETAIL_SUCCESS = 'SERVICE_DETAIL_SUCCESS'
 export const SERVICE_DETAIL_FAILURE = 'SERVICE_DETAIL_FAILURE'

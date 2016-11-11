@@ -8,13 +8,21 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Modal, Checkbox, Dropdown, Button, Card, Menu, Icon, Spin, Tooltip, Pagination, } from 'antd'
+import { Modal, message, Checkbox, Dropdown, Button, Card, Menu, Icon, Spin, Tooltip, Pagination, } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import AppServiceDetail from './AppServiceDetail'
 import './style/AppServiceList.less'
-import { loadServiceList, startServices, restartServices, stopServices, deleteServices, quickRestartServices } from '../../actions/services'
+import {
+  loadServiceList,
+  addService,
+  startServices,
+  restartServices,
+  stopServices,
+  deleteServices,
+  quickRestartServices
+} from '../../actions/services'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 import { browserHistory } from 'react-router'
 import RollingUpdateModal from './AppServiceDetail/RollingUpdateModal'
@@ -22,6 +30,9 @@ import ConfigModal from './AppServiceDetail/ConfigModal'
 import ManualScaleModal from './AppServiceDetail/ManualScaleModal'
 import parseServiceDomain from '../parseDomain'
 import ServiceStatus from '../TenxStatus/ServiceStatus'
+import AppAddServiceModal from './AppCreate/AppAddServiceModal'
+import AppDeployServiceModal from './AppCreate/AppDeployServiceModal'
+import yaml from 'js-yaml'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -238,11 +249,14 @@ class AppServiceList extends Component {
     this.batchDeleteServices = this.batchDeleteServices.bind(this)
     this.confirmDeleteServices = this.confirmDeleteServices.bind(this)
     this.confirmQuickRestartService = this.confirmQuickRestartService.bind(this)
+    this.showAddServiceModal = this.showAddServiceModal.bind(this)
+    this.closeAddServiceModal = this.closeAddServiceModal.bind(this)
     this.onPageChange = this.onPageChange.bind(this)
     // this.showRollingUpdateModal = this.showRollingUpdateModal.bind(this)
     // this.showConfigModal = this.showConfigModal.bind(this)
     // this.showManualScaleModal = this.showManualScaleModal.bind(this)
     this.onShowSizeChange = this.onShowSizeChange.bind(this)
+    this.onSubmitAddService = this.onSubmitAddService.bind(this)
     this.state = {
       modalShow: false,
       currentShowInstance: null,
@@ -250,6 +264,11 @@ class AppServiceList extends Component {
       searchInputDisabled: false,
       rollingUpdateModalShow: false,
       manualScaleModalShow: false,
+      addServiceModalShow: false, // for add service
+      deployServiceModalShow: false,
+      isCreate: true,
+      servicesList: [],
+      selectedList: [],
     }
   }
 
@@ -475,6 +494,12 @@ class AppServiceList extends Component {
     })
   }
 
+  showAddServiceModal() {
+    this.setState({
+      addServiceModalShow: true
+    })
+  }
+
   onPageChange(page) {
     if (page === this.props.page) {
       return
@@ -551,11 +576,49 @@ class AppServiceList extends Component {
     })
   }
 
+  closeAddServiceModal() {
+    this.setState({
+      addServiceModalShow: false
+    })
+  }
+
+  onSubmitAddService(serviceTemplate) {
+    const hide = message.loading('正在添加中...', 0)
+    const { cluster, appName, addService, loadServiceList } = this.props
+    const { Service, Deployment } = serviceTemplate
+    const body = {
+      template: `${yaml.dump(Service)}\n---\n${yaml.dump(Deployment)}`
+    }
+    addService(cluster, appName, body, {
+      success: {
+        func: () => {
+          loadServiceList(cluster, appName)
+          hide()
+          message.success(`服务 ${Service.metadata.name} 添加成功`)
+        },
+        isAsync: true
+      },
+      failed: {
+        func: () => {
+          hide()
+          message.error(`服务 ${Service.metadata.name} 添加失败`)
+        }
+      }
+    })
+  }
+
   render() {
     const parentScope = this
     let {
-      modalShow, currentShowInstance, serviceList, selectTab, rollingUpdateModalShow,
-      configModal, manualScaleModalShow
+      modalShow,
+      currentShowInstance,
+      serviceList,
+      selectTab,
+      rollingUpdateModalShow,
+      configModal,
+      manualScaleModalShow,
+      addServiceModalShow,
+      deployServiceModalShow,
     } = this.state
     const {
       name, pathname, page, size, total, isFetching, cluster, appName,
@@ -614,10 +677,6 @@ class AppServiceList extends Component {
               <i className="fa fa-stop"></i>
               停止
             </Button>
-            <Button size="large" onClick={() => loadServices(this.props)} >
-              <i className="fa fa-refresh"></i>
-              刷新
-            </Button>
             <Button size="large" onClick={this.batchDeleteServices} disabled={!isChecked}>
               <i className="fa fa-trash"></i>
               删除
@@ -628,6 +687,18 @@ class AppServiceList extends Component {
                 快速重启
               </Button>
             </Tooltip>
+            <Button size="large" onClick={() => loadServices(this.props)} >
+              <i className="fa fa-refresh"></i>
+              刷新
+            </Button>
+            <Button
+              size="large"
+              type="primary"
+              onClick={this.showAddServiceModal}
+              style={{ backgroundColor: '#2db7f5' }}>
+              <i className="fa fa-plus"></i>
+              添加服务
+            </Button>
             <Dropdown overlay={operaMenu} trigger={['click']}>
               <Button size="large" disabled={!isChecked}>
                 更多批量
@@ -647,7 +718,6 @@ class AppServiceList extends Component {
                   total={total} />
               </div>
             </div>
-            <div style={{ clear:'both' }}></div>
           </div>
           <div className="appTitle">
             <div className="selectIconTitle commonTitle">
@@ -716,6 +786,24 @@ class AppServiceList extends Component {
             visible={manualScaleModalShow}
             service={currentShowInstance}
             loadServiceList={loadServiceList} />
+          <Modal title="添加服务"
+            visible={addServiceModalShow}
+            className="AppAddServiceModal"
+            wrapClassName="appAddServiceModal"
+            onCancel={this.closeAddServiceModal}
+            >
+            <AppAddServiceModal scope={parentScope} />
+          </Modal>
+          <Modal
+            visible={deployServiceModalShow}
+            className="AppServiceDetail"
+            transitionName="move-right"
+            >
+            <AppDeployServiceModal
+              scope={parentScope}
+              onSubmitAddService={this.onSubmitAddService}
+              serviceOpen={deployServiceModalShow} />
+          </Modal>
         </QueueAnim>
       </div>
     )
@@ -782,6 +870,7 @@ function mapStateToProps(state, props) {
 
 export default connect(mapStateToProps, {
   loadServiceList,
+  addService,
   startServices,
   restartServices,
   stopServices,

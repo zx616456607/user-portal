@@ -288,7 +288,7 @@ class ContainerList extends Component {
   }
 
   searchContainers(e) {
-    const { name, pathname } = this.props
+    const { name, pathname, sortOrder } = this.props
     const { searchInputValue } = this.state
     if (searchInputValue === name) {
       return
@@ -300,6 +300,7 @@ class ContainerList extends Component {
     if (searchInputValue) {
       query.name = searchInputValue
     }
+    query.sortOrder = sortOrder
     browserHistory.push({
       pathname,
       query
