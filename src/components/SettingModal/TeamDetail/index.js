@@ -172,15 +172,14 @@ let TeamList = React.createClass({
             </div>
           </div>
         ),
-        dataIndex: 'teamName',
-        key: 'teamName',
+        dataIndex: 'spaceName',
+        key: 'spaceName',
         className: 'tablePadding',
-        
       },
       {
         title: '备注',
-        dataIndex: 'remark',
-        key: 'remark',
+        dataIndex: 'description',
+        key: 'description',
       },
       {
         title: (
@@ -196,8 +195,8 @@ let TeamList = React.createClass({
             </div>
           </div>
         ),
-        dataIndex: 'app',
-        key: 'app',
+        dataIndex: 'appCount',
+        key: 'appCount',
       },
       {
         title: '操作',
@@ -278,7 +277,7 @@ class TeamDetail extends Component{
     const {createTeamspace, teamID, loadTeamspaceList} = this.props
     const {newSpaceName,newSpaceDes} = this.state
     createTeamspace(teamID,{
-      name: newSpaceName,
+      spaceName: newSpaceName,
       description: newSpaceDes,
     },{
       success:{
@@ -474,14 +473,19 @@ function mapStateToProp(state,props) {
   }
   if(team.teamspaces){
     const teamSpaces = team.teamspaces
-    if(teamSpaces.length && teamSpaces.length !== 0){
-      teamSpaces.map((item,index) => {
-        teamSpacesList.push(
-          {
-            key: index,
-          }
-        )
-      })
+    if(teamSpaces.result){
+      if(teamSpaces.result.data){
+        teamSpaces.result.data.map((item,index) => {
+          teamSpacesList.push(
+            {
+              key: item.spaceID,
+              spaceName: item.spaceName,
+              description: item.description,
+              appCount: item.balance,
+            }
+          )
+        })
+      }
     }
   }
   return {
