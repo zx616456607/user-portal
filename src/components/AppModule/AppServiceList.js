@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Modal, Checkbox, Dropdown, Button, Card, Menu, Icon, Spin, Tooltip, Pagination, } from 'antd'
+import { Modal, message, Checkbox, Dropdown, Button, Card, Menu, Icon, Spin, Tooltip, Pagination, } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -583,6 +583,7 @@ class AppServiceList extends Component {
   }
 
   onSubmitAddService(serviceTemplate) {
+    const hide = message.loading('正在添加中...', 0)
     const { cluster, appName, addService, loadServiceList } = this.props
     const { Service, Deployment } = serviceTemplate
     const body = {
@@ -590,8 +591,18 @@ class AppServiceList extends Component {
     }
     addService(cluster, appName, body, {
       success: {
-        func: () => loadServiceList(cluster, appName),
+        func: () => {
+          loadServiceList(cluster, appName)
+          hide()
+          message.success(`服务 ${Service.metadata.name} 添加成功`)
+        },
         isAsync: true
+      },
+      failed: {
+        func: () => {
+          hide()
+          message.error(`服务 ${Service.metadata.name} 添加失败`)
+        }
       }
     })
   }
