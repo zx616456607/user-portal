@@ -249,9 +249,9 @@ class TeamDetail extends Component{
     const { targetKeys } = this.state
     console.log('targetKeys',targetKeys);
     if(targetKeys.length !== 0){
-      addTeamusers(teamID,{
+      addTeamusers(teamID,
         targetKeys
-      },{
+      ,{
         success: {
           func:() => {
             this.setState({
@@ -415,6 +415,7 @@ class TeamDetail extends Component{
   }
 }
 function mapStateToProp(state,props) {
+  console.log('team_id',props.params);
   let clusterData = []
   let clusterList = []
   let teamUserList = []

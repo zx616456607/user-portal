@@ -124,6 +124,7 @@ export default (
       <Route path="API" component={API} />
       <Route path="license" component={License} />
       <Route path="version" component={Version} />
+      <Route path=":user_id" component={UserInfo} />
     </Route>
     <Route path="manange_monitor" component={ManageMonitor}>
       <IndexRoute component={OperationalAudit} />

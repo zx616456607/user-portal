@@ -11,7 +11,7 @@ import React, { Component, PropTypes } from 'react'
 import { Input, Modal, Checkbox, Button, Card, Menu, Spin } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
-import { loadPublicImageList } from '../../../actions/app_center'
+import { loadPublicImageList, loadPrivateImageList, searchPublicImages, loadFavouriteList, searchFavoriteImages, searchPrivateImages } from '../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import './style/AppAddServiceModal.less'
 
@@ -73,14 +73,20 @@ let AppAddServiceModal = React.createClass({
   },
   getInitialState: function() {
     return {
-      currentImageType: "public",
+      currentImageType: "publicImages",
     }
   },
   selectImageType(currentType) {
     //the function for user select image type
+    if(currentType === this.state.currentImageType) return
+
     this.setState({
-      currentImageType: currentType
+      currentImageType: currentType,
+      imageName: ''
     });
+    const imageList = this.props.imageList[currentType]
+    if(imageList && imageList[this.props.registry] && imageList[this.props.registry].imageList.length > 0) return
+    this.props[currentType](this.props.registry)
   },
   closeModal() {
     //the function for close the deploy new service modal
@@ -97,55 +103,75 @@ let AppAddServiceModal = React.createClass({
   componentWillMount() {
     document.title = '添加应用 | 时速云'
     const { registry, loadPublicImageList } = this.props
-    loadPublicImageList(registry)
+    this.props.publicImages(registry)
+  },
+  getImageName(e) {
+    this.setState({
+      imageName: e.target.value
+    })
+  },
+  searchImage() {
+    const type = this.state.currentImageType
+    if (type === 'publicImages') {
+      if (this.state.imageName) {
+        return this.props.searchPublicImages(this.props.registry, this.state.imageName)
+      }
+      this.props.publicImages(this.props.registry)
+    }
+    if (type === 'privateImages') {
+      return this.props.searchPrivateImages({ imageName: this.state.imageName, registry: this.props.registry })
+    }
+    if (type === 'fockImages') {
+      return this.props.searchFavoriteImages({ imageName: this.state.imageName, registry: this.props.registry })
+    }
   },
   render:function () {
     const parentScope = this
-    const { publicImageList, registryServer, scope, isFetching } = this.props
+    const { scope } = this.props
+    let images = this.props.imageList[this.state.currentImageType][this.props.registry]
+    if(!images) {
+      images = { imageList: []}
+    }
+    const { imageList, registryServer, isFetching } = images
     return (
       <div id="AppAddServiceModal" key="AppAddServiceModal">
         <div className="operaBox">
           <span className="titleSpan">选择镜像</span>
-          <Button type={this.state.currentImageType == "public" ? "primary" : "ghost"} size="large" onClick={this.selectImageType.bind(this, "public")}>
+          <Button type={this.state.currentImageType == "publicImages" ? "primary" : "ghost"} size="large" onClick={this.selectImageType.bind(this, "publicImages")}>
             公有
           </Button>
-          <Button size="large" type={this.state.currentImageType == "private" ? "primary" : "ghost"} onClick={this.selectImageType.bind(this, "private")}>
+          <Button size="large" type={this.state.currentImageType == "privateImages" ? "primary" : "ghost"} onClick={this.selectImageType.bind(this, "privateImages")}>
             私有
           </Button>
-          <Button size="large" type={this.state.currentImageType == "collect" ? "primary" : "ghost"} onClick={this.selectImageType.bind(this, "collect")}>
+          <Button size="large" type={this.state.currentImageType == "fockImages" ? "primary" : "ghost"} onClick={this.selectImageType.bind(this, "fockImages")}>
             收藏
           </Button>
           <div className="inputBox">
-            <Input size="large" placeholder="搜索你的本命服务名吧~" />
+            <Input size="large" placeholder="搜索你的本命服务名吧~" onChange={ e => this.getImageName(e)} onPressEnter={()=> this.searchImage()} value={this.state.imageName}/>
             <i className="fa fa-search"></i>
           </div>
           <div style={{ clear: "both" }}></div>
         </div>
-        <MyComponent scope={parentScope} images={publicImageList} loading={isFetching} registryServer={registryServer} />
+        <MyComponent scope={parentScope} images={images.imageList} loading={isFetching} registryServer={registryServer} />
       </div>
     )
   }
 })
 
 function mapStateToProps(state, props) {
-  const defaultPublicImages = {
-    isFetching: false,
-    registry: DEFAULT_REGISTRY,
-    imageList: []
-  }
-  const {
-    publicImages
-  } = state.images
-  const { registry, imageList, isFetching, server } = publicImages[DEFAULT_REGISTRY] || defaultPublicImages
-
+  const registry = DEFAULT_REGISTRY
   return {
     registry,
-    registryServer: server,
-    publicImageList: imageList,
-    isFetching
+    imageList: state.images,
+    cluster: state.entities.current.cluster.clusterID
   }
 }
 
 export default connect(mapStateToProps, {
-  loadPublicImageList
+  publicImages: loadPublicImageList,
+  privateImages: loadPrivateImageList,
+  fockImages: loadFavouriteList,
+  searchPublicImages,
+  searchFavoriteImages,
+  searchPrivateImages
 })(AppAddServiceModal)

@@ -67,7 +67,6 @@ class SearchInput extends Component{
     },{
       success:{
         func: () => {
-          console.log('search !!');
           scope.setState({
             page: 1,
             filter,

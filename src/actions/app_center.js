@@ -57,6 +57,23 @@ export function searchPublicImages(registry, image) {
   }
 }
 
+export const IMAGE_SEARCH_PRIVATE = "IMAGE_SEARCH_PRIVATE"
+
+export function searchPrivateImages(condition) {
+  return {
+    type: IMAGE_SEARCH_PRIVATE,
+    condition
+  }
+}
+
+export const IMAGE_SEARCH_FAVORITE = "IMAGE_SEARCH_FAVORITE"
+export function searchFavoriteImages(condition) {
+  return {
+    type: IMAGE_SEARCH_FAVORITE,
+    condition
+  }
+}
+
 export const ADD_OTHER_STORE_REQUEST = 'ADD_OTHER_STORE_REQUEST'
 export const ADD_OTHER_STORE_SUCCESS = 'ADD_OTHER_STORE_SUCCESS'
 export const ADD_OTHER_STORE_FAILURE = 'ADD_OTHER_STORE_FAILURE'

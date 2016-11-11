@@ -28,7 +28,8 @@ let MemberTable =  React.createClass({
       sortName: true,
       sortTeam: true,
       sortBalance: true,
-      sort: "a,userName"
+      sort: "a,userName",
+      filter: ""
     };
   },
   handleChange(pagination, filters, sorter) {
@@ -53,6 +54,7 @@ let MemberTable =  React.createClass({
         page: this.state.page,
         size: this.state.pageSize,
         sort,
+        filter: this.state.filter,
     })
     this.setState({
       sortName: !sortName,
@@ -67,6 +69,7 @@ let MemberTable =  React.createClass({
         page: this.state.page,
         size: this.state.pageSize,
         sort,
+        filter: this.state.filter,
     })
     this.setState({
       sortTeam: !sortTeam,
@@ -81,6 +84,7 @@ let MemberTable =  React.createClass({
         page: this.state.page,
         size: this.state.pageSize,
         sort,
+        filter: this.state.filter,
     })
     this.setState({
       sortBalance: !sortBalance,
@@ -107,6 +111,7 @@ let MemberTable =  React.createClass({
                 page: scope.state.page,
                 size: scope.state.pageSize,
                 sort: scope.state.sort,
+                filter: scope.state.filter,
               })
             },
             isAsync: true
@@ -133,7 +138,8 @@ let MemberTable =  React.createClass({
         scope.props.loadUserList({
           page: current,
           size: pageSize,
-          sort: scope.state.sort
+          sort: scope.state.sort,
+          filter: scope.state.filter
         })
         scope.setState({
           pageSize: pageSize,
@@ -146,7 +152,8 @@ let MemberTable =  React.createClass({
         scope.props.loadUserList({
           page: current,
           size: pageSize,
-          sort: scope.state.sort
+          sort: scope.state.sort,
+          filter: scope.state.filter
         })
         scope.setState({
           pageSize: pageSize,
@@ -241,7 +248,7 @@ let MemberTable =  React.createClass({
         width: 180,
         render: (text, record,index) => (
           <div>
-            <Link to="/setting">
+            <Link to={`/setting/${record.key}`}>
             <Button icon="setting" className="setBtn">
               管理
             </Button>
@@ -330,7 +337,8 @@ let NewMemberForm = React.createClass({
             scope.props.loadUserList({
               page: scope.state.page,
               size: scope.state.pageSize,
-              sort: scope.state.sort
+              sort: scope.state.sort,
+              filter: scope.state.filter
             })
           },
           isAsync: true
@@ -485,6 +493,7 @@ class MemberManage extends Component {
       pageSize: 5,
       page: 1,
       sort: "a,userName",
+      filter: "",
     }
   }
   showModal() {
@@ -497,6 +506,7 @@ class MemberManage extends Component {
       page: 1,
       size: 5,
       sort: "a,userName",
+      filter: "",
     })
     
   }
