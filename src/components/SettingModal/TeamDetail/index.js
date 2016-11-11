@@ -37,21 +37,23 @@ let MemberList = React.createClass({
     })
     //req
   },
-  componentDidMount() {
+  delTeamMember(userID){
+    const { removeTeamusers,teamID, loadTeamUserList } = this.props
+    removeTeamusers(teamID,userID,{
+      success: {
+        func: () => {
+          console.log('delte!!');
+          loadTeamUserList(teamID)
+        },
+        isAsync: true
+      }
+    })
   },
   render: function(){
     let { sortedInfo, filteredInfo } = this.state
     const { teamUserList } = this.props
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
-    /*const menu = (
-      <Menu onClick={this.handleDel}>
-        <Menu.Item key="1" style={{left:730,width:105}}>
-          <Icon type="delete" />
-          删除
-        </Menu.Item>
-      </Menu>
-    )*/
     const columns = [
       {
         title: (
@@ -97,15 +99,9 @@ let MemberList = React.createClass({
         title: '操作',
         dataIndex: 'edit',
         key: 'edit',
-        render:() => (
+        render:(text,record,index) => (
           <div className="cardBtns">
-            {/*<Dropdown.Button onClick={this.handleEdit} overlay={menu} trigger={['click']} getPopupContainer={
-              () => document.getElementsByClassName('cardBtns')
-            }>
-              <Icon type="edit" />
-              修改
-            </Dropdown.Button>*/}
-            <Button icon="delete" className="delBtn">
+            <Button icon="delete" className="delBtn" onClick={() => this.delTeamMember(record.key)}>
               移除
             </Button>
           </div>
@@ -299,7 +295,7 @@ class TeamDetail extends Component{
   }
   
   render(){
-    const { clusterList, teamUserList, teamSpacesList, teamName } = this.props
+    const { clusterList, teamUserList, teamSpacesList, teamName,teamID,removeTeamusers,loadTeamUserList } = this.props
     const { targetKeys } = this.state
     return (
       <div id='TeamDetail'>
@@ -363,7 +359,10 @@ class TeamDetail extends Component{
               </Col>
             </Row>
             <Row>
-              <MemberList teamUserList={teamUserList}/>
+              <MemberList teamUserList={teamUserList}
+                          teamID={teamID}
+                          removeTeamusers={removeTeamusers}
+                          loadTeamUserList={loadTeamUserList}/>
             </Row>
           </Col>
           <Col span={3}/>
