@@ -239,7 +239,7 @@ class AppList extends Component {
       return
     }
     if (page === this.props.page && size === this.props.size && name === this.props.name
-      && sortOrder == this.props.sortOrder && sortBy == this.pros.sortBy) {
+      && sortOrder == this.props.sortOrder && sortBy == this.props.sortBy) {
       return
     }
     this.setState({
@@ -471,6 +471,26 @@ class AppList extends Component {
       confirmRestartApps: this.confirmRestartApps,
       confirmDeleteApps: this.confirmDeleteApps
     }
+
+    // kind: asc:升序（向上的箭头） desc:降序（向下的箭头）
+    // type: create_time：创建时间 instance_count：容器数量
+    function spliceSortClassName(kind, type, sortOrder, sortBy) {
+      const on = 'on'
+      const off = 'off'
+      let toggle = off
+      if (kind === sortOrder && type === sortBy) {
+        toggle = on
+      }
+      let prefix = ''
+      if (kind === 'asc') {
+        prefix = 'ant-table-column-sorter-up '
+      } else {
+        prefix = 'ant-table-column-sorter-down '
+      }
+
+      return prefix + toggle
+    }
+    
     return (
       <QueueAnim
         className='AppList'
@@ -550,10 +570,10 @@ class AppList extends Component {
               <div className='containerNum commonTitle' onClick={() => this.sortApps('instance_count')}>
                 容器数量
                   <div className="ant-table-column-sorter">
-                    <span className={sortOrder == 'asc' ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
+                    <span className={spliceSortClassName('asc', 'instance_count', sortOrder, sortBy)} title="↑">
                       <i className="anticon anticon-caret-up" />
                     </span>
-                    <span className={sortOrder == 'desc' ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
+                    <span className={spliceSortClassName('desc', 'instance_count', sortOrder, sortBy)} title="↓">
                       <i className="anticon anticon-caret-down" />
                     </span>
                   </div>
@@ -564,10 +584,10 @@ class AppList extends Component {
               <div className='createTime commonTitle' onClick={() => this.sortApps('create_time')}>
                 创建时间
                   <div className="ant-table-column-sorter">
-                    <span className={sortOrder == 'asc' ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
+                    <span className={spliceSortClassName('asc', 'create_time', sortOrder, sortBy)} title="↑">
                       <i className="anticon anticon-caret-up" />
                     </span>
-                    <span className={sortOrder == 'desc' ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
+                    <span className={spliceSortClassName('desc', 'create_time', sortOrder, sortBy)} title="↓">
                       <i className="anticon anticon-caret-down" />
                     </span>
                   </div>
