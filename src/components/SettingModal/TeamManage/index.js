@@ -30,6 +30,7 @@ let TeamTable = React.createClass({
       sortTeamName: true,
       addMember: false,
       targetKeys:[],
+      sort: "a,teamName",
     }
   },
   handleChange(pagination, filters, sorter) {
@@ -53,53 +54,74 @@ let TeamTable = React.createClass({
         loadUserTeamList('default',{
           page: this.state.page,
           size: this.state.pageSize,
+          sort: this.state.sort,
         })
       },
       onCancel() {},
     });
   },
+  getSort(order, column) {
+    var query = {}
+    var orderStr = 'a,'
+    if (!order) {
+      orderStr = 'd,'
+    }
+    return orderStr + column
+  },
   handleSortMember(){
     const { loadUserTeamList } = this.props.scope.props
     const { sortMember } = this.state
+    let sort = this.getSort(!sortMember, 'userCount')
     loadUserTeamList('default',{
       page: this.state.page,
       size: this.state.pageSize,
+      sort,
     })
     this.setState({
       sortMember: !sortMember,
+      sort,
     })
   },
   handleSortSpace(){
     const { loadUserTeamList } = this.props.scope.props
     const { sortSpace } = this.state
+    let sort = this.getSort(!sortSpace, 'spaceCount')
     loadUserTeamList('default',{
       page: this.state.page,
       size: this.state.pageSize,
+      sort,
     })
     this.setState({
       sortSpace: !sortSpace,
+      sort,
     })
   },
   handleSortCluster(){
     const { loadUserTeamList } = this.props.scope.props
     const { sortCluster } = this.state
+    let sort = this.getSort(!sortCluster, 'clusterCount')
     loadUserTeamList('default',{
       page: this.state.page,
       size: this.state.pageSize,
+      sort,
     })
     this.setState({
       sortCluster: !sortCluster,
+      sort,
     })
   },
   handleSortTeamName(){
     const { loadUserTeamList } = this.props.scope.props
     const { sortTeamName } = this.state
+    let sort = this.getSort(!sortTeamName, 'teamName')
     loadUserTeamList('default',{
       page: this.state.page,
       size: this.state.pageSize,
+      sort,
     })
     this.setState({
       sortTeamName: !sortTeamName,
+      sort,
     })
   },
   addNewMember(){
