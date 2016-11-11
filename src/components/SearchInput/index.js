@@ -56,7 +56,7 @@ class SearchInput extends Component{
   }
   handleSearch(){
     const { searchValue, selecteValue } = this.state
-    let { scope } = this.props
+    let { scope,total } = this.props
     const { searchResult, pageSize, sort } = scope.state
     let filter = this.getFilterField(selecteValue) + "," + searchValue
     this.props.loadUserList({
@@ -71,6 +71,7 @@ class SearchInput extends Component{
             page: 1,
             current: 1,
             filter,
+            total:total,
           })
         },
         isAsync:true
@@ -83,7 +84,7 @@ class SearchInput extends Component{
     })
   }
   render(){
-    let { searchIntOption, } = this.props
+    let { searchIntOption, total} = this.props
     
     if(!searchIntOption){
       searchIntOption = {
@@ -139,8 +140,16 @@ class SearchInput extends Component{
 }
 
 function mapStateToProp(state) {
+  let total = 0
+  const users = state.user.users
+  if (users.result) {
+    if (users.result.total) {
+      total = users.result.total
+    }
+  }
+  
   return {
-    
+    total
   }
 }
 
