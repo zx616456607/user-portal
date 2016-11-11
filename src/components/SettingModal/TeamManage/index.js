@@ -161,6 +161,7 @@ let TeamTable = React.createClass({
     filteredInfo = filteredInfo || {}
     const pagination = {
       total: this.props.scope.props.total,
+      sort: this.props.scope.props.sort,
       showSizeChanger: true,
       defaultPageSize: 5,
       defaultCurrent:1,
@@ -170,6 +171,7 @@ let TeamTable = React.createClass({
         scope.props.loadUserTeamList('default',{
           page: current,
           size: pageSize,
+          sort,
         })
         scope.setState({
           page: current,
@@ -183,6 +185,7 @@ let TeamTable = React.createClass({
         scope.props.loadUserTeamList('default',{
           page: current,
           size: pageSize,
+          sort,
         })
         scope.setState({
           page: current,
@@ -331,12 +334,14 @@ class TeamManage extends Component {
           this.props.loadUserTeamList('default',{
             page: this.state.page,
             size: this.state.pageSize,
+            sort: this.state.sort,
           })
           this.setState({
             visible: false,
           })
         }
-      }
+      },
+      isAsync: true,
     })
   }
   handleCancel(e) {
@@ -355,6 +360,7 @@ class TeamManage extends Component {
     this.props.loadUserTeamList('default',{
       page: 1,
       size: 5,
+      sort: "a,teamName"
     })
   }
   render(){
