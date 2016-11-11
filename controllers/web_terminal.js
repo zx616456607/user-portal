@@ -24,7 +24,8 @@ module.exports = function (server, redis) {
       socket.pipe(client)
     })
     proxy.on('error', (error) => {
-      console.log(error)
+      client.write("Sorry, cant't connect to this container ")
+      return
     })
     proxy.end()
     function _getProxyHeader(headers) {
