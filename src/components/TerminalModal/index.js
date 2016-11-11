@@ -22,13 +22,10 @@ class TerminalModal extends Component {
     this.changeBoxHeightEnd = this.changeBoxHeightEnd.bind(this);
     this.minWindow = this.minWindow.bind(this);
     this.closeWindow = this.closeWindow.bind(this);
-    this.state = {
-      
-    }
   }
   
   componentWillMount() {
-    
+
   }
   
   changeBoxHeight(e){
@@ -61,11 +58,18 @@ class TerminalModal extends Component {
   closeWindow(){
     //this function for close the modal
     const { scope } = this.props;
+    window.frames[0].postMessage('close', window.location.protocol + '//' +window.location.host)
     scope.setState({
       TerminalLayoutModal: false
     });
   }
-
+  componentWillReceiveProps(nextProps) {
+    const nextShow = nextProps.show
+    if(!nextShow) return
+    if(nextShow && nextProps.config.metadata.name === this.props.config.metadata.name && nextProps.config.metadata.namespace === this.props.config.metadata.namespace) {
+      window.frames[0].postMessage('reshow', window.location.protocol + '//' +window.location.host)
+    }
+  }
   render() {
     const { scope, config } = this.props;
     return (

@@ -288,7 +288,7 @@ class ContainerList extends Component {
   }
 
   searchContainers(e) {
-    const { name, pathname } = this.props
+    const { name, pathname, sortOrder } = this.props
     const { searchInputValue } = this.state
     if (searchInputValue === name) {
       return
@@ -300,6 +300,7 @@ class ContainerList extends Component {
     if (searchInputValue) {
       query.name = searchInputValue
     }
+    query.sortOrder = sortOrder
     browserHistory.push({
       pathname,
       query
@@ -372,6 +373,7 @@ class ContainerList extends Component {
     const funcs = {
       confirmDeleteContainer: this.confirmDeleteContainer,
     }
+    console.log(1)
     return (
       <QueueAnim
         className='ContainerList'
@@ -478,7 +480,7 @@ class ContainerList extends Component {
           transitionName='move-down'
           onCancel={this.closeTerminalLayoutModal}
           >
-          <TerminalModal scope={parentScope} config={this.state.currentContainer} />
+          <TerminalModal scope={parentScope} config={this.state.currentContainer} show={this.state.TerminalLayoutModal}/>
         </Modal>
       </QueueAnim>
     )

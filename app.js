@@ -18,6 +18,9 @@ const config = require('./configs')
 const middlewares = require('./services/middlewares')
 const logger = require('./utils/logger').getLogger('app')
 const app = koa()
+const terminal = require('./controllers/web_terminal')
+
+
 global.Promise = require('bluebird')
 // Disabled reject unauthorized
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
@@ -93,12 +96,14 @@ const sessionOpts = {
   maxAge: 1800000
 }
 const sessionMiddleware = session(sessionOpts)
+
+let sessionStore;
 // Session store
 // @important! server will pending here until the session store is connected
 if (config.session_store.url && config.session_store.pass) {
   const redisStore = require('koa-redis')
   let sessionRedisConfig = config.session_store.url.split(':')
-  let sessionStore = new redisStore({
+  sessionStore = new redisStore({
     host: sessionRedisConfig[0],
     port: sessionRedisConfig[1],
     pass: config.session_store.pass
@@ -244,6 +249,7 @@ if (config.protocol !== 'https') {
   })
 }
 
+
 // For socket server
 /*const io = require('socket.io')(server)
 const socketController = require('./controllers/socket')
@@ -257,5 +263,7 @@ logger.info('Set server timeout to ' + serverTimeOut + ' ms')
 server.setTimeout(serverTimeOut, function (socket) {
   logger.warn('Server timeout occurs')
 })
+
+terminal(server, sessionStore)
 
 module.exports = server

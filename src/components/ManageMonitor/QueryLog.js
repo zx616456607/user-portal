@@ -16,39 +16,10 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { getQueryLogList } from '../../actions/manage_monitor'
 import { loadServiceContainerList } from '../../actions/services'
 import { loadUserTeamspaceList } from '../../actions/user'
-import { getClusterOfQueryLog } from '../../actions/manage_monitor'
+import { getClusterOfQueryLog, getServiceOfQueryLog } from '../../actions/manage_monitor'
 import './style/QueryLog.less'
 
 const Option = Select.Option;
-
-let testData = [
-  {
-    name: 'gaojianAAA'
-  }, {
-    name: 'gaojianBBB'
-  }, {
-    name: 'gaojianCCC'
-  }, {
-    name: 'gaojianDDD'
-  }, {
-    name: 'gaojianEEE'
-  }, {
-    name: 'gaojianFFF'
-  }, {
-    name: 'gaojianGGG'
-  }, {
-    name: 'gaojianHHH'
-  },
-]
-
-const testServiceData = [
-  {
-    name: 'rter'
-  }, {
-    name: 'webapp'
-  },
-]
-
 
 const menusText = defineMessages({
   headTitle: {
@@ -61,7 +32,7 @@ const menusText = defineMessages({
   },
   user: {
     id: 'ManageMonitor.QueryLog.user',
-    defaultMsessage: '用户',
+    defaultMsessage: '空间',
   },
   selectUser: {
     id: 'ManageMonitor.QueryLog.selectUser',
@@ -107,7 +78,33 @@ const menusText = defineMessages({
     id: 'ManageMonitor.QueryLog.search',
     defaultMsessage: '立即查询',
   },
+  noNamespace: {
+    id: 'ManageMonitor.QueryLog.noNamespace',
+    defaultMsessage: '请选择空间',
+  },
+  noCluster: {
+    id: 'ManageMonitor.QueryLog.noCluster',
+    defaultMsessage: '请选择集群',
+  },
+  noService: {
+    id: 'ManageMonitor.QueryLog.noService',
+    defaultMsessage: '请选择服务',
+  },
+  noInstance: {
+    id: 'ManageMonitor.QueryLog.noInstance',
+    defaultMsessage: '请选择实例',
+  },
 });
+
+function checkClass(popup, isError) {
+  if(isError) {
+    return 'cloneSelectError cloneSelectInput';
+  } else if(popup) {
+    return 'cloneSelectInputClick cloneSelectInput';
+  } else {
+    return 'cloneSelectInput';
+  }
+}
 
 let NamespaceModal = React.createClass({
   propTypes: {
@@ -184,6 +181,11 @@ let ClusterModal = React.createClass({
       currentList: cluster
     });
   },
+  componentWillReceiveProps: function (nextProps) {
+    this.setState({
+      currentList: nextProps.cluster
+    })
+  },
   inputSearch: function (e) {
     //this function for user search namespace
     const {cluster, scope} = this.props;
@@ -199,8 +201,15 @@ let ClusterModal = React.createClass({
     });
   },
   render: function () {
-    const {scope} = this.props;
+    const {scope, isFetching, cluster} = this.props;
     let clusterList = null;
+    if(isFetching) {
+      return (      
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
+      )
+    }
     if (this.state.currentList.length == 0) {
       clusterList = (
         <div className='loadingBox'>
@@ -251,12 +260,16 @@ let ServiceModal = React.createClass({
       currentList: service
     });
   },
+  componentWillReceiveProps: function (nextProps) {
+    this.setState({
+      currentList: nextProps.service
+    })
+  },
   inputSearch: function (e) {
     //this function for user search namespace
     const {service, scope} = this.props;
     let value = e.target.value;
     let tempList = [];
-    scope.searchService();
     service.map((item) => {
       if (item.name.indexOf(value) > -1) {
         tempList.push(item)
@@ -267,8 +280,15 @@ let ServiceModal = React.createClass({
     });
   },
   render: function () {
-    const {service, scope} = this.props;
+    const {service, scope, isFetching} = this.props;
     let serviceList = null;
+    if(isFetching) {
+      return (      
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
+      )
+    }
     if (this.state.currentList.length == 0) {
       serviceList = (
         <div className='loadingBox'>
@@ -278,8 +298,10 @@ let ServiceModal = React.createClass({
     } else {
       serviceList = this.state.currentList.map((item, index) => {
         return (
-          <div className='serviceDetail' key={index} onClick={scope.onSelectService.bind(scope, item.name)}>
-            {item.name}
+          <div className='serviceDetail' key={index} onClick={scope.onSelectService.bind(scope, item.serviceName)}>
+            <span className='leftSpan'>{item.serviceName}</span>
+            <span className='rightSpan'>{item.instanceNum}</span>
+            <span style={{ clear:'both' }}></span>
           </div>
         )
       });
@@ -288,6 +310,11 @@ let ServiceModal = React.createClass({
       <div className='serviceModal'>
         <div className='searchBox'>
           <Input className='commonSearchInput serviceInput' onChange={this.inputSearch} type='text' size='large' />
+          <div className='titleBox'>
+            <span className='leftSpan'>名称</span>
+            <span className='rightSpan'>实例</span>
+            <span style={{ clear:'both' }}></span>
+          </div>
         </div>
         <div className='dataList'>
           {serviceList}
@@ -312,12 +339,16 @@ let InstanceModal = React.createClass({
       currentList: instance
     });
   },
+  componentWillReceiveProps: function (nextProps) {
+    this.setState({
+      currentList: nextProps.instance
+    })
+  },
   inputSearch: function (e) {
     //this function for user search namespace
     const {instance, scope} = this.props;
     let value = e.target.value;
     let tempList = [];
-    scope.searchInstance();
     instance.map((item) => {
       if (item.name.indexOf(value) > -1) {
         tempList.push(item)
@@ -328,54 +359,47 @@ let InstanceModal = React.createClass({
     });
   },
   render: function () {
-    const {instance, scope} = this.props;
+    const {scope, isFetching} = this.props;
+    const {currentList} = this.state;
     let instanceList = null;
-    if (!!instance[scope.state.currentService]) {
-      if (instance[scope.state.currentService].containerList.length == 0) {
-        instanceList = (
-          <div className='loadingBox'>
-            <span>没数据哦</span>
-          </div>
-        )
-      } else {
-        instanceList = instance[scope.state.currentService].containerList.map((item, index) => {
-          return (
-            <div className='instanceDetail' key={index} onClick={scope.onSelectInstance.bind(scope, item.metadata.name)}>
-              {item.metadata.name}
-            </div>
-          )
-        });
-      }
-      return (
-        <div className='instanceModal'>
-          <div className='searchBox'>
-            <Input className='commonSearchInput instanceInput' onChange={this.inputSearch} type='text' size='large' />
-          </div>
-          <div className='dataList'>
-            {instanceList}
-          </div>
+    if(isFetching) {
+      return (      
+        <div className='loadingBox'>
+          <Spin size='large' />
         </div>
       )
-    } else {
-      return (
+    }
+    if (currentList.length == 0) {
+      instanceList = (
         <div className='loadingBox'>
           <span>没数据哦</span>
         </div>
       )
+    } else {
+      instanceList = currentList.map((item, index) => {
+        return (
+          <div className='instanceDetail' key={index} onClick={scope.onSelectInstance.bind(scope, item.metadata.name)}>
+            {item.metadata.name}
+           </div>
+        )
+      });
     }
+    return (
+      <div className='instanceModal'>
+        <div className='searchBox'>
+          <Input className='commonSearchInput instanceInput' onChange={this.inputSearch} type='text' size='large' />
+        </div>
+        <div className='dataList'>
+          {instanceList}
+        </div>
+      </div>
+    )
   }
 });
 
 class QueryLog extends Component {
   constructor(props) {
     super(props)
-    this.getFirstNamespace = this.getFirstNamespace.bind(this);
-    this.getFirstCluster = this.getFirstCluster.bind(this);
-    this.getFirstService = this.getFirstService.bind(this);
-    this.getFirstInstance = this.getFirstInstance.bind(this);
-    this.searchCluster = this.searchCluster.bind(this);
-    this.searchService = this.searchService.bind(this);
-    this.searchInstance = this.searchInstance.bind(this);
     this.onSelectNamespace = this.onSelectNamespace.bind(this);
     this.onSelectCluster = this.onSelectCluster.bind(this);
     this.onSelectService = this.onSelectService.bind(this);
@@ -395,13 +419,22 @@ class QueryLog extends Component {
       namespaceList: null,
       clusterPopup: false,
       currentCluster: null,
-      clusterList: null,
+      currentClusterId: null,
+      clusterList: [],
       servicePopup: false,
       currentService: null,
-      serviceList: null,
+      serviceList: [],
       instancePopup: false,
       currentInstance: [],
-      instanceList: null,
+      instanceList: [],
+      gettingNamespace: true,
+      gettingCluster: false,
+      gettingSerivce: false,
+      gettingInstance: false,
+      selectedNamespace: false,
+      selectedCluster: false,
+      selectedSerivce: false,
+      selectedInstance: false,
       start_time: null,
       end_time: null,
       key_word: null,
@@ -419,48 +452,13 @@ class QueryLog extends Component {
       success: {
         func: (res) => {
           _this.setState({
-            namespaceList: res.teamspaces
+            namespaceList: res.teamspaces,
+            gettingNamespace: false
           })
         },
         isAsync: true
       }
     });
-    
-  }
-
-  getFirstNamespace() {
-    //this function for user get first 10-20 of namespace list
-    console.log('getFirstNamespace')
-  }
-
-  getFirstCluster() {
-    //this function for user get first 10-20 of cluster list
-    console.log('getFirstCluster')
-  }
-
-  getFirstService() {
-    //this function for user get first 10-20 of service list
-    console.log('getFirstService')
-  }
-
-  getFirstInstance() {
-    //this function for user get first 10-20 of instance list
-    console.log('getFirstInstance')
-  }
-
-  searchCluster() {
-    //this function for user get search 10-20 of cluster list
-    console.log('searchCluster')
-  }
-
-  searchService() {
-    //this function for user get search 10-20 of service list
-    console.log('searchService')
-  }
-
-  searchInstance() {
-    //this function for user get search 10-20 of instance list
-    console.log('searchInstance')
   }
 
   onSelectNamespace(name, teamId) {
@@ -469,17 +467,23 @@ class QueryLog extends Component {
     const _this = this;
     if (name != this.state.currentNamespace) {
       this.setState({
+        gettingCluster: true,
         namespacePopup: false,
         currentNamespace: name,
         currentCluster: null,
         currentService: null,
-        currentInstance: []
+        currentInstance: [],
+        clusterList: [],
+        serviceList: [],
+        instanceList: [],
+        selectedNamespace: false,
       });
       getClusterOfQueryLog(teamId, {
         success: {
           func: (res) => {
             _this.setState({
-              clusterList: res.data
+              clusterList: res.data,
+              gettingCluster: false
             });
           },
           isAsync: true
@@ -489,28 +493,59 @@ class QueryLog extends Component {
   }
 
   onSelectCluster(name, clusterId) {
-    //this function for user get search 10-20 of cluster list
+    //this function for user get search 10-20 of service list
+    const { getServiceOfQueryLog } = this.props;
+    const _this = this;
     if (name != this.state.currentCluster) {
       this.setState({
+        gettingSerivce: true,
         clusterPopup: false,
         currentCluster: name,
+        currentClusterId: clusterId,
         currentService: null,
-        currentInstance: []
+        currentInstance: [],
+        serviceList: [],
+        instanceList: [],
+        selectedCluster: false,
       });
-      this.getFirstService()
+      getServiceOfQueryLog(clusterId, {
+        success: {
+          func: (res) => {
+            _this.setState({
+              serviceList: res.data,
+              gettingSerivce: false
+            });
+          },
+          isAsync: true
+        }
+      });
     }
   }
 
   onSelectService(name) {
     //this function for user get search 10-20 of service list
+    const _this = this;
     if (name != this.state.currentService) {
       this.setState({
+        gettingInstance: true,
         currentService: name,
         servicePopup: false,
-        currentInstance: []
+        currentInstance: [],
+        instanceList: [],
+        selectedSerivce: false,
       });
-      const { cluster, loadServiceContainerList } = this.props;
-      loadServiceContainerList(cluster, name);
+      const { loadServiceContainerList } = this.props;
+      loadServiceContainerList(this.state.currentClusterId, name, [], {
+        success: {
+          func: (res) => {
+            _this.setState({
+              gettingInstance: false,
+              instanceList: res.data
+            })
+          },
+          isAsync: true
+        }
+      });
     }
   }
 
@@ -518,6 +553,9 @@ class QueryLog extends Component {
     //this function for user get search 10-20 of instance list
     let selectedFlag = false;
     let selectedIndex = -1;
+    this.setState({
+      selectedInstance: false,
+    })
     this.state.currentInstance.map((item, index) => {
       if (name == item) {
         selectedFlag = true;
@@ -595,7 +633,36 @@ class QueryLog extends Component {
 
   submitSearch() {
     //this function for search the log
-    const { cluster, getQueryLogList } = this.props;
+    //check user had selected all item
+    let checkFlag = true;
+    if(!Boolean(this.state.currentNamespace)) {
+      this.setState({
+        selectedNamespace: true
+      });
+      checkFlag = false;
+    }
+    if(!Boolean(this.state.currentCluster)) {
+      this.setState({
+        selectedCluster: true
+      });
+      checkFlag = false;
+    }
+    if(!Boolean(this.state.currentService)) {
+      this.setState({
+        selectedSerivce: true
+      });
+      checkFlag = false;
+    }
+    if(this.state.currentInstance.length == 0) {
+      this.setState({
+        selectedInstance: true
+      });
+      checkFlag = false;
+    }
+    if(!checkFlag) {
+      return ;
+    }
+    const { getQueryLogList } = this.props;
     let body = {
       date_start: this.state.start_time,
       date_end: this.state.end_time,
@@ -607,7 +674,7 @@ class QueryLog extends Component {
       searchKeyword: this.state.key_word
     });
     let instances = this.state.currentInstance.join(',');
-    getQueryLogList(cluster, instances, body);
+    getQueryLogList(this.state.currentClusterId, instances, body);
   }
 
   onChangeBigLog() {
@@ -620,6 +687,13 @@ class QueryLog extends Component {
   render() {
     const { formatMessage } = this.props.intl;
     const scope = this;
+    if(this.state.gettingNamespace) {
+      return (
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
+      )
+    }
     return (
       <QueueAnim className='QueryLogBox' type='right'>
         <div id='QueryLog' key='QueryLog'>
@@ -637,9 +711,10 @@ class QueryLog extends Component {
                 onVisibleChange={this.hideUserPopup}
                 visible={this.state.namespacePopup}
                 >
-                <div className={this.state.namespacePopup ? 'cloneSelectInputClick cloneSelectInput' : 'cloneSelectInput'} >
+                <div className={ checkClass(this.state.namespacePopup, this.state.selectedNamespace) } >
                   <span className='selectedSpan'>{this.state.currentNamespace ? this.state.currentNamespace : [<span className='placeholderSpan'><FormattedMessage {...menusText.selectUser} /></span>]}</span>
                   <Icon type='down' />
+                  <span className='wrongSpan'><FormattedMessage {...menusText.noNamespace} /></span>
                 </div>
               </Popover>
               <div style={{ clear: 'both' }}></div>
@@ -647,16 +722,17 @@ class QueryLog extends Component {
             <div className='commonBox'>
               <span className='titleSpan'><FormattedMessage {...menusText.cluster} /></span>
               <Popover
-                content={<ClusterModal scope={scope} cluster={this.state.clusterList} />}
+                content={<ClusterModal scope={scope} cluster={this.state.clusterList} isFetching={this.state.gettingCluster} />}
                 trigger='click'
                 placement='bottom'
                 getTooltipContainer={() => document.getElementById('QueryLog')}
                 onVisibleChange={this.hideClusterPopup}
                 visible={this.state.clusterPopup}
                 >
-                <div className={this.state.clusterPopup ? 'cloneSelectInputClick cloneSelectInput' : 'cloneSelectInput'} >
+                <div className={ checkClass(this.state.clusterPopup, this.state.selectedCluster) } >
                   <span className='selectedSpan'>{this.state.currentCluster ? this.state.currentCluster : [<span className='placeholderSpan'><FormattedMessage {...menusText.selectCluster} /></span>]}</span>
                   <Icon type='down' />
+                  <span className='wrongSpan'><FormattedMessage {...menusText.noCluster} /></span>
                 </div>
               </Popover>
               <div style={{ clear: 'both' }}></div>
@@ -664,16 +740,17 @@ class QueryLog extends Component {
             <div className='commonBox'>
               <span className='titleSpan'><FormattedMessage {...menusText.service} /></span>
               <Popover
-                content={<ServiceModal scope={scope} service={testServiceData} />}
+                content={<ServiceModal scope={scope} service={this.state.serviceList} isFetching={this.state.gettingSerivce} />}
                 trigger='click'
                 placement='bottom'
                 getTooltipContainer={() => document.getElementById('QueryLog')}
                 onVisibleChange={this.hideServicePopup}
                 visible={this.state.servicePopup}
                 >
-                <div className={this.state.servicePopup ? 'cloneSelectInputClick cloneSelectInput' : 'cloneSelectInput'} >
+                <div className={ checkClass(this.state.servicePopup, this.state.selectedSerivce) } >
                   <span className='selectedSpan'>{this.state.currentService ? this.state.currentService : [<span className='placeholderSpan'><FormattedMessage {...menusText.selectService} /></span>]}</span>
                   <Icon type='down' />
+                  <span className='wrongSpan'><FormattedMessage {...menusText.noService} /></span>
                 </div>
               </Popover>
               <div style={{ clear: 'both' }}></div>
@@ -681,15 +758,16 @@ class QueryLog extends Component {
             <div className='commonBox'>
               <span className='titleSpan'><FormattedMessage {...menusText.instance} /></span>
               <Popover
-                content={<InstanceModal scope={scope} instance={this.props.containersList} />}
+                content={<InstanceModal scope={scope} instance={this.state.instanceList} isFetching={this.state.gettingInstance} />}
                 trigger='click'
                 placement='bottom'
                 getTooltipContainer={() => document.getElementById('QueryLog')}
                 onVisibleChange={this.hideInstancePopup}
                 >
-                <div className={this.state.instancePopup ? 'cloneSelectInputClick cloneSelectInput' : 'cloneSelectInput'} >
+                <div className={ checkClass(this.state.instancePopup, this.state.selectedInstance) } >
                   <span className='selectedSpan'>{this.state.currentInstance.length != 0 ? this.state.currentInstance.join(',') : [<span className='placeholderSpan'><FormattedMessage {...menusText.selectInstance} /></span>]}</span>
                   <Icon type='down' />
+                  <span className='wrongSpan'><FormattedMessage {...menusText.noInstance} /></span>
                 </div>
               </Popover>
               <div style={{ clear: 'both' }}></div>
@@ -774,5 +852,6 @@ export default connect(mapStateToProps, {
   getQueryLogList,
   loadServiceContainerList,
   loadUserTeamspaceList,
-  getClusterOfQueryLog
+  getClusterOfQueryLog,
+  getServiceOfQueryLog
 })(QueryLog)

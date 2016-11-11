@@ -104,7 +104,7 @@ module.exports = function (Router) {
   router.post('/teams/:team_id/spaces', teamController.createTeamspace)
   router.post('/teams/:team_id/users', teamController.addTeamusers)
   //To remove multiple users, seperate the user ids with ",".
-  router.delete('/teams/:team_id/users/:user_id', teamController.removeTeamusers)
+  router.delete('/teams/:team_id/users/:user_ids', teamController.removeTeamusers)
 
   // spi
   router.post('/clusters/:cluster/services/:service_name/binddomain', serviceController.bindServiceDomain)
@@ -163,6 +163,7 @@ module.exports = function (Router) {
   // Manage Monitor
   router.post('/manage-monitor/getOperationAuditLog', manageMonitorController.getOperationAuditLog)
   router.get('/manage-monitor/:team_id/getClusterOfQueryLog', manageMonitorController.getClusterOfQueryLog)
+  router.get('/manage-monitor/:cluster_id/getServiceOfQueryLog', manageMonitorController.getServiceOfQueryLog)
   router.post('/clusters/:cluster/instances/:instances/getSearchLog', manageMonitorController.getSearchLog)
 
   // DevOps service: CI/CD

@@ -120,10 +120,11 @@ export default (
       <IndexRoute component={UserInfo} />
       <Route path="member" component={MemberManage} />
       <Route path="team" component={TeamManage} />
-      <Route path="detail/:team_id" component={TeamDetail} />
+      <Route path="team/:team_name/:team_id" component={TeamDetail} />
       <Route path="API" component={API} />
       <Route path="license" component={License} />
       <Route path="version" component={Version} />
+      <Route path="user/:user_id" component={UserInfo} />
     </Route>
     <Route path="manange_monitor" component={ManageMonitor}>
       <IndexRoute component={OperationalAudit} />

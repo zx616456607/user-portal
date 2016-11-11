@@ -188,8 +188,8 @@ const MyComponent = React.createClass({
 });
 
 function loadData(props) {
-  const { loadAppList, cluster, page, size, name } = props
-  loadAppList(cluster, { page, size, name })
+  const { loadAppList, cluster, page, size, name, sortOrder, sortBy } = props
+  loadAppList(cluster, { page, size, name, sortOrder, sortBy })
 }
 
 class AppList extends Component {
@@ -207,6 +207,7 @@ class AppList extends Component {
     this.searchApps = this.searchApps.bind(this)
     this.onPageChange = this.onPageChange.bind(this)
     this.onShowSizeChange = this.onShowSizeChange.bind(this)
+    this.sortApps = this.sortApps.bind(this)
     this.state = {
       appList: props.appList,
       searchInputValue: props.name,
@@ -232,12 +233,13 @@ class AppList extends Component {
     this.setState({
       appList: nextProps.appList
     })
-    let { page, size, name, cluster } = nextProps
+    let { page, size, name, cluster, sortOrder, sortBy } = nextProps
     if (cluster !== this.props.cluster) {
       loadData(nextProps)
       return
     }
-    if (page === this.props.page && size === this.props.size && name === this.props.name) {
+    if (page === this.props.page && size === this.props.size && name === this.props.name
+      && sortOrder == this.props.sortOrder && sortBy == this.props.sortBy) {
       return
     }
     this.setState({
@@ -386,7 +388,7 @@ class AppList extends Component {
   }
 
   searchApps(e) {
-    const { name, pathname } = this.props
+    const { name, pathname, sortOrder, sortBy } = this.props
     const { searchInputValue } = this.state
     if (searchInputValue === name) {
       return
@@ -398,6 +400,8 @@ class AppList extends Component {
     if (searchInputValue) {
       query.name = searchInputValue
     }
+    query.sortOrder = sortOrder
+    query.sortBy = sortBy
     browserHistory.push({
       pathname,
       query
@@ -405,28 +409,24 @@ class AppList extends Component {
   }
 
   onPageChange(page) {
-    if (page === this.props.page) {
-      return
-    }
-    const { pathname, size, name } = this.props
-    const query = {}
-    if (page !== DEFAULT_PAGE) {
-      query.page = page
-      query.size = size
-    }
-    if (name) {
-      query.name = name
-    }
-    browserHistory.push({
-      pathname,
-      query
-    })
+    const { size, sortOrder, sortBy } = this.props
+    this.updateBrowserHistory(page, size, sortOrder, sortBy)
   }
 
   onShowSizeChange(page, size) {
-    if (size === this.props.size) {
+    const { sortOrder, sortBy } = this.props
+    this.updateBrowserHistory(page, size, sortOrder, sortBy)
+  }
+
+  updateBrowserHistory(page, size, sortOrder, sortBy) {
+    
+    if (page === this.props.page &&
+      size === this.props.size &&
+      sortOrder === this.props.sortOrder &&
+      sortBy === this.props.sortBy) {
       return
     }
+
     const query = {}
     if (page !== DEFAULT_PAGE) {
       query.page = page
@@ -438,6 +438,8 @@ class AppList extends Component {
     if (name) {
       query.name = name
     }
+    query.sortOrder = sortOrder
+    query.sortBy = sortBy
     const { pathname } = this.props
     browserHistory.push({
       pathname,
@@ -445,9 +447,19 @@ class AppList extends Component {
     })
   }
 
+  sortApps(by) {
+    let { page, size, sortOrder } = this.props
+    if (sortOrder == 'asc') {
+      sortOrder = 'desc'
+    } else {
+      sortOrder = 'asc'
+    }
+    this.updateBrowserHistory(page, size, sortOrder, by)
+  }
+
   render() {
     const scope = this
-    const { name, pathname, page, size, total, cluster, isFetching } = this.props
+    const { name, pathname, page, size, sortOrder, sortBy, total, cluster, isFetching } = this.props
     const { appList, searchInputValue, searchInputDisabled } = this.state
     const checkedAppList = appList.filter((app) => app.checked)
     const isChecked = (checkedAppList.length > 0)
@@ -461,6 +473,26 @@ class AppList extends Component {
       confirmRestartApps: this.confirmRestartApps,
       confirmDeleteApps: this.confirmDeleteApps
     }
+
+    // kind: asc:升序（向上的箭头） desc:降序（向下的箭头）
+    // type: create_time：创建时间 instance_count：容器数量
+    function spliceSortClassName(kind, type, sortOrder, sortBy) {
+      const on = 'on'
+      const off = 'off'
+      let toggle = off
+      if (kind === sortOrder && type === sortBy) {
+        toggle = on
+      }
+      let prefix = ''
+      if (kind === 'asc') {
+        prefix = 'ant-table-column-sorter-up '
+      } else {
+        prefix = 'ant-table-column-sorter-down '
+      }
+
+      return prefix + toggle
+    }
+    
     return (
       <QueueAnim
         className='AppList'
@@ -537,16 +569,30 @@ class AppList extends Component {
                 服务数量
                 <i className='fa fa-sort'></i>
               </div>*/}
-              <div className='containerNum commonTitle'>
+              <div className='containerNum commonTitle' onClick={() => this.sortApps('instance_count')}>
                 容器数量
-                <i className='fa fa-sort'></i>
+                  <div className="ant-table-column-sorter">
+                    <span className={spliceSortClassName('asc', 'instance_count', sortOrder, sortBy)} title="↑">
+                      <i className="anticon anticon-caret-up" />
+                    </span>
+                    <span className={spliceSortClassName('desc', 'instance_count', sortOrder, sortBy)} title="↓">
+                      <i className="anticon anticon-caret-down" />
+                    </span>
+                  </div>
               </div>
               <div className='visitIp commonTitle'>
                 访问地址
               </div>
-              <div className='createTime commonTitle'>
+              <div className='createTime commonTitle' onClick={() => this.sortApps('create_time')}>
                 创建时间
-                <i className='fa fa-sort'></i>
+                  <div className="ant-table-column-sorter">
+                    <span className={spliceSortClassName('asc', 'create_time', sortOrder, sortBy)} title="↑">
+                      <i className="anticon anticon-caret-up" />
+                    </span>
+                    <span className={spliceSortClassName('desc', 'create_time', sortOrder, sortBy)} title="↓">
+                      <i className="anticon anticon-caret-down" />
+                    </span>
+                  </div>
               </div>
               <div className='actionBox commonTitle'>
                 操作
@@ -579,11 +625,19 @@ AppList.propTypes = {
   page: PropTypes.number.isRequired,
   size: PropTypes.number.isRequired,
   total: PropTypes.number.isRequired,
+  sortOrder: PropTypes.string.isRequired,
+  sortBy: PropTypes.string.isRequired,
 }
 
 function mapStateToProps(state, props) {
   const { query, pathname } = props.location
-  let { page, size, name } = query
+  let { page, size, name, sortOrder, sortBy } = query
+  if (sortOrder != 'asc' && sortOrder != 'desc') {
+    sortOrder = 'desc'
+  }
+  if (sortBy != 'instance_count') {
+    sortBy = 'create_time'
+  }
   page = parseInt(page || DEFAULT_PAGE)
   size = parseInt(size || DEFAULT_PAGE_SIZE)
   if (isNaN(page) || page < DEFAULT_PAGE) {
@@ -610,6 +664,8 @@ function mapStateToProps(state, props) {
     size,
     total,
     name,
+    sortOrder,
+    sortBy,
     appList,
     isFetching
   }

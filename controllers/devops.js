@@ -548,9 +548,13 @@ exports.getImagesOfFlow = function* () {
 exports.listDeploymentLogsOfFlow = function* () {
   const loginUser = this.session.loginUser
   const flow_id = this.params.flow_id
-
+  const limit = this.query.limit
+  var query = null
+  if (limit) {
+    query = {"limit": limit}
+  }
   const api = apiFactory.getDevOpsApi(loginUser)
-  const result = yield api.getBy(["ci-flows", flow_id, "deployment-logs"], null)
+  const result = yield api.getBy(["ci-flows", flow_id, "deployment-logs"], query)
 
   this.body = {
     data: result

@@ -132,7 +132,7 @@ const MyComponent = React.createClass({
         </div>
       )
     }
-    let items = imageList.map((item) => {
+    let items = imageList.map((item, index) => {
       const dropdown = (
         <Menu onClick={this.btnDeleteImage.bind(this, item.id)}
           style={{ width: "100px" }}
@@ -143,7 +143,7 @@ const MyComponent = React.createClass({
         </Menu>
       );
       return (
-        <div className="imageDetail" key={item.id} >
+        <div className="imageDetail" key={`${item.id}-${index}`} >
           <div className="imageBox">
             <img src="/img/test/github.jpg" />
           </div>

@@ -593,13 +593,12 @@ function mapStateToProps(state, props) {
   if (imageTag[DEFAULT_REGISTRY]) {
     targetImageTag = imageTag[DEFAULT_REGISTRY][currentSelectedImage]
   }
-  const {registry, tag, isFetching, server } = targetImageTag || defaultImageTags
+  const {registry, tag, isFetching } = targetImageTag || defaultImageTags
 
   const { cluster } = state.entities.current
   return {
     cluster: cluster.clusterID,
     registry,
-    registryServer: server,
     imageTags: tag || [],
     imageTagsIsFetching: isFetching,
     currentSelectedImage,

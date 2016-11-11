@@ -19,7 +19,7 @@ export const TEAMSPACE_LIST_FAILURE = 'TEAMSPACE_LIST_FAILURE'
 // Fetches teamspace list from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchTeamspaceList(teamID) {
-  let endpoint = `${API_URL_PREFIX}/teams/${teamID}`
+  let endpoint = `${API_URL_PREFIX}/teams/${teamID}/spaces`
   /*if (query) {
     endpoint += `?${toQuerystring(query)}`
   }*/

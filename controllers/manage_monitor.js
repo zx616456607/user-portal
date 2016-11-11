@@ -69,3 +69,27 @@ exports.getClusterOfQueryLog = function* () {
     data: clusters,
   }
 }
+
+exports.getServiceOfQueryLog = function* () {
+  const cluster = this.params.cluster_id
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster, 'apps'], {size: 1000})
+  const apps = result.data.apps
+  let serviceList = []
+  apps.map((app) => {
+    if (!app.services) {
+      app.services = []
+    }
+    app.services.map((service) => {
+      let tmpBody = {
+        serviceName: service.metadata.name,
+        instanceNum: service.spec.replicas
+      }
+      serviceList.push(tmpBody)
+    });
+  })
+  this.body = {
+    data: serviceList
+  }
+}

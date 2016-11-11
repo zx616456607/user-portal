@@ -18,7 +18,7 @@ export const USER_LIST_FAILURE = 'USER_LIST_FAILURE'
 
 // Fetches user list from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchUserList(query) {
+function fetchUserList(query, callback) {
   let endpoint = `${API_URL_PREFIX}/users`
   if (query) {
     endpoint += `?${toQuerystring(query)}`
@@ -28,15 +28,16 @@ function fetchUserList(query) {
       types: [USER_LIST_REQUEST, USER_LIST_SUCCESS, USER_LIST_FAILURE],
       endpoint,
       schema: {}
-    }
+    },
+    callback
   }
 }
 
 // Fetches users list from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function loadUserList(query, requiredFields = []) {
+export function loadUserList(query, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchUserList(query))
+    return dispatch(fetchUserList(query, callback))
   }
 }
 

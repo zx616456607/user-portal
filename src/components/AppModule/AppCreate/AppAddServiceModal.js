@@ -11,7 +11,7 @@ import React, { Component, PropTypes } from 'react'
 import { Input, Modal, Checkbox, Button, Card, Menu, Spin } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
-import { loadPublicImageList } from '../../../actions/app_center'
+import { loadPublicImageList, loadPrivateImageList, searchPublicImages, loadFavouriteList, searchFavoriteImages, searchPrivateImages } from '../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import './style/AppAddServiceModal.less'
 
@@ -23,22 +23,21 @@ const MyComponent = React.createClass({
     //close model function
     const {scope} = this.props;
     const rootScope = scope.props.scope;
-    scope.setState({
-      
-    });
     rootScope.setState({
       currentSelectedImage: imageName,
       registryServer,
       modalShow: false,
       serviceModalShow: true,
-      isCreate: true
+      isCreate: true,
+      addServiceModalShow: false, // for add service
+      deployServiceModalShow: true,
     })
   },
   render: function () {
     const { images, registryServer, loading } = this.props
     if (loading) {
       return (
-        <div  className='loadingBox'>
+        <div className='loadingBox'>
           <Spin size='large' />
         </div>
       )
@@ -71,81 +70,118 @@ let AppAddServiceModal = React.createClass({
     selectedList: React.PropTypes.array,
     loadPublicImageList: PropTypes.func.isRequired
   },
-  getInitialState: function() {
+  getInitialState: function () {
     return {
-      currentImageType: "public",
+      currentImageType: "publicImages",
+      publicImages: false,
+      privateImages: false,
+      fockImages: false
     }
   },
   selectImageType(currentType) {
     //the function for user select image type
+    if (currentType === this.state.currentImageType) return
     this.setState({
-      currentImageType: currentType
+      currentImageType: currentType,
+      imageName: '',
+      [currentType]: false
     });
-  },
-  closeModal() {
-    //the function for close the deploy new service modal
-    this.props.scope.setState({
-      modalShow: false
-    });
-  },
-  openModal() {
-    //the function for open the deploy new service modal
-    this.props.scope.setState({
-      modalShow: true
-    });
+    const imageList = this.props.imageList[currentType]
+    if (this.state[currentType]) {
+      return this.searchImage(currentType, '')
+    }
+    if (imageList && imageList[this.props.registry] && imageList[this.props.registry].imageList.length > 0) {
+      return
+    }
+    this.props[currentType](this.props.registry)
   },
   componentWillMount() {
     document.title = '添加应用 | 时速云'
     const { registry, loadPublicImageList } = this.props
-    loadPublicImageList(registry)
+    this.props.publicImages(registry)
   },
-  render:function () {
+  getImageName(e) {
+    this.setState({
+      imageName: e.target.value
+    })
+  },
+  searchImage(imageType, currentImageName) {
+    const type = imageType || this.state.currentImageType
+    let imageName = this.state.imageName
+    if (imageType) imageName = ''
+    if (imageName) {
+      this.setState({
+        [type]: true
+      })
+    } else {
+      this.setState({
+        [type]: false
+      })
+    }
+    if (type === 'publicImages') {
+      if (imageName) {
+        return this.props.searchPublicImages(this.props.registry, imageName)
+      }
+      this.props.publicImages(this.props.registry)
+    }
+    if (type === 'privateImages') {
+      return this.props.searchPrivateImages({ imageName: imageName, registry: this.props.registry })
+    }
+    if (type === 'fockImages') {
+      return this.props.searchFavoriteImages({ imageName: imageName, registry: this.props.registry })
+    }
+  },
+  render: function () {
     const parentScope = this
-    const { publicImageList, registryServer, scope, isFetching } = this.props
+    const { scope } = this.props
+    let images = this.props.imageList[this.state.currentImageType][this.props.registry]
+    if (!images) {
+      images = { imageList: [] }
+    }
+    const { imageList, server, isFetching } = images
     return (
       <div id="AppAddServiceModal" key="AppAddServiceModal">
         <div className="operaBox">
           <span className="titleSpan">选择镜像</span>
-          <Button type={this.state.currentImageType == "public" ? "primary" : "ghost"} size="large" onClick={this.selectImageType.bind(this, "public")}>
+          <Button type={this.state.currentImageType == "publicImages" ? "primary" : "ghost"} size="large" onClick={this.selectImageType.bind(this, "publicImages")}>
             公有
           </Button>
-          <Button size="large" type={this.state.currentImageType == "private" ? "primary" : "ghost"} onClick={this.selectImageType.bind(this, "private")}>
+          <Button size="large" type={this.state.currentImageType == "privateImages" ? "primary" : "ghost"} onClick={this.selectImageType.bind(this, "privateImages")}>
             私有
           </Button>
-          <Button size="large" type={this.state.currentImageType == "collect" ? "primary" : "ghost"} onClick={this.selectImageType.bind(this, "collect")}>
+          <Button size="large" type={this.state.currentImageType == "fockImages" ? "primary" : "ghost"} onClick={this.selectImageType.bind(this, "fockImages")}>
             收藏
           </Button>
           <div className="inputBox">
-            <Input size="large" placeholder="搜索你的本命服务名吧~" />
+            <Input size="large" placeholder="搜索你的本命服务名吧~" onChange={e => this.getImageName(e)} onPressEnter={() => this.searchImage()} value={this.state.imageName} />
             <i className="fa fa-search"></i>
           </div>
           <div style={{ clear: "both" }}></div>
         </div>
-        <MyComponent scope={parentScope} images={publicImageList} loading={isFetching} registryServer={registryServer} />
+        <MyComponent
+          scope={parentScope}
+          images={images.imageList}
+          loading={isFetching}
+          registryServer={server} />
       </div>
     )
   }
 })
 
 function mapStateToProps(state, props) {
-  const defaultPublicImages = {
-    isFetching: false,
-    registry: DEFAULT_REGISTRY,
-    imageList: []
-  }
-  const {
-    publicImages
-  } = state.images
-  const { registry, imageList, isFetching, server } = publicImages[DEFAULT_REGISTRY] || defaultPublicImages
-
+  const registry = DEFAULT_REGISTRY
   return {
     registry,
-    registryServer: server,
-    publicImageList: imageList,
-    isFetching
+    imageList: state.images,
+    cluster: state.entities.current.cluster.clusterID
   }
 }
 
 export default connect(mapStateToProps, {
-  loadPublicImageList
+  publicImages: loadPublicImageList,
+  privateImages: loadPrivateImageList,
+  fockImages: loadFavouriteList,
+  searchPublicImages,
+  searchFavoriteImages,
+  searchPrivateImages
 })(AppAddServiceModal)

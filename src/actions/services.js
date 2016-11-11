@@ -42,6 +42,32 @@ export function loadServiceList(cluster, appName, query, requiredFields = []) {
   }
 }
 
+export const SERVICE_ADD_REQUEST = 'SERVICE_ADD_REQUEST'
+export const SERVICE_ADD_SUCCESS = 'SERVICE_ADD_SUCCESS'
+export const SERVICE_ADD_FAILURE = 'SERVICE_ADD_FAILURE'
+
+function fetchAddService(cluster, appName, body, callback) {
+  return {
+    cluster,
+    [FETCH_API]: {
+      types: [SERVICE_ADD_REQUEST, SERVICE_ADD_SUCCESS, SERVICE_ADD_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/apps/${appName}/services`,
+      options: {
+        method: 'POST',
+        body
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function addService(cluster, appName, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchAddService(cluster, appName, body, callback))
+  }
+}
+
 export const SERVICE_DETAIL_REQUEST = 'SERVICE_DETAIL_REQUEST'
 export const SERVICE_DETAIL_SUCCESS = 'SERVICE_DETAIL_SUCCESS'
 export const SERVICE_DETAIL_FAILURE = 'SERVICE_DETAIL_FAILURE'
@@ -203,7 +229,7 @@ export const SERVICE_CONTAINERS_LIST_FAILURE = 'SERVICE_CONTAINERS_LIST_FAILURE'
 
 // Fetches container list from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchServiceContainerList(cluster, serviceName) {
+function fetchServiceContainerList(cluster, serviceName, callback) {
   return {
     cluster,
     serviceName,
@@ -211,15 +237,16 @@ function fetchServiceContainerList(cluster, serviceName) {
       types: [SERVICE_CONTAINERS_LIST_REQUEST, SERVICE_CONTAINERS_LIST_SUCCESS, SERVICE_CONTAINERS_LIST_FAILURE],
       endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/containers`,
       schema: Schemas.CONTAINERS
-    }
+    },
+    callback: callback
   }
 }
 
 // Fetches containers list from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function loadServiceContainerList(cluster, serviceName, requiredFields = []) {
+export function loadServiceContainerList(cluster, serviceName, requiredFields = [], callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchServiceContainerList(cluster, serviceName))
+    return dispatch(fetchServiceContainerList(cluster, serviceName, callback))
   }
 }
 

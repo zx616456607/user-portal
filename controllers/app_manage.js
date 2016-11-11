@@ -59,6 +59,12 @@ exports.getApps = function* () {
   if (name) {
     queryObj.filter = `name ${name}`
   }
+  if (query.sortOrder) {
+    queryObj.sort_order = query.sortOrder
+  }
+  if (query.sortBy) {
+    queryObj.sort_by = query.sortBy
+  }
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.getBy([cluster, 'apps'], queryObj)
   const apps = result.data.apps
@@ -162,9 +168,23 @@ exports.getAppsStatus = function* () {
 exports.addService = function* () {
   const cluster = this.params.cluster
   const appName = this.params.app_name
+  const body = this.request.body
+  if (!body || !body.template) {
+    const err = new Error('Service template is required.')
+    err.status = 400
+    throw err
+  }
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.createBy(
+    [cluster, 'apps', appName, 'services'],
+    null,
+    { template: body.template }
+  )
   this.body = {
     cluster,
-    appName
+    appName,
+    data: result.data
   }
 }
 
@@ -229,8 +249,8 @@ exports.getAppServices = function* () {
       service.deployment.images.push(container.image)
     })
     // get port info from annotation of service
-    if (service.service.metadata.annotations && service.service.metadata.annotations[ANNOTATION_SVC_SCHEMA_PORT]) {
-        service.deployment.ports = service.service.metadata.annotations[ANNOTATION_SVC_SCHEMA_PORT]
+    if (service.service && service.service.metadata.annotations && service.service.metadata.annotations[ANNOTATION_SVC_SCHEMA_PORT]) {
+      service.deployment.ports = service.service.metadata.annotations[ANNOTATION_SVC_SCHEMA_PORT]
     }
     deployments.push(service.deployment)
   })

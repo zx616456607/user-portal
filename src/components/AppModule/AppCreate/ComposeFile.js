@@ -63,7 +63,7 @@ class ComposeFile extends Component {
       cluster,
       template: appDescYaml,
       appName: appName,
-      remark: remark,
+      desc: remark,
     }
     let self = this
     this.props.createApp(appConfig, {

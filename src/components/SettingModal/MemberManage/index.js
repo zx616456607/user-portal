@@ -28,7 +28,8 @@ let MemberTable =  React.createClass({
       sortName: true,
       sortTeam: true,
       sortBalance: true,
-      sort: "a,userName"
+      sort: "a,userName",
+      filter: ""
     };
   },
   handleChange(pagination, filters, sorter) {
@@ -53,6 +54,7 @@ let MemberTable =  React.createClass({
         page: this.state.page,
         size: this.state.pageSize,
         sort,
+        filter: this.state.filter,
     })
     this.setState({
       sortName: !sortName,
@@ -62,11 +64,12 @@ let MemberTable =  React.createClass({
   handleSortTeam(){
     const { loadUserList } = this.props.scope.props
     const { sortTeam } = this.state
-    let sort = this.getSort(!sortTeam, 'userName')
+    let sort = this.getSort(!sortTeam, 'teamCount')
     loadUserList({
         page: this.state.page,
         size: this.state.pageSize,
         sort,
+        filter: this.state.filter,
     })
     this.setState({
       sortTeam: !sortTeam,
@@ -76,11 +79,12 @@ let MemberTable =  React.createClass({
   handleSortBalance(){
     const { loadUserList } = this.props.scope.props
     const { sortBalance } = this.state
-    let sort = this.getSort(!sortBalance, 'userName')
+    let sort = this.getSort(!sortBalance, 'balance')
     loadUserList({
         page: this.state.page,
         size: this.state.pageSize,
         sort,
+        filter: this.state.filter,
     })
     this.setState({
       sortBalance: !sortBalance,
@@ -107,6 +111,7 @@ let MemberTable =  React.createClass({
                 page: scope.state.page,
                 size: scope.state.pageSize,
                 sort: scope.state.sort,
+                filter: scope.state.filter,
               })
             },
             isAsync: true
@@ -127,17 +132,21 @@ let MemberTable =  React.createClass({
       total: this.props.scope.props.total,
       showSizeChanger: true,
       defaultPageSize: 5,
+      defaultCurrent:1,
+      current:this.props.scope.state.current,
       pageSizeOptions: ['5','10','15','20'],
       onShowSizeChange(current, pageSize) {
         console.log('Current: ', current, '; PageSize: ', pageSize);
         scope.props.loadUserList({
           page: current,
           size: pageSize,
-          sort: scope.state.sort
+          sort: scope.state.sort,
+          filter: scope.state.filter,
         })
         scope.setState({
           pageSize: pageSize,
-          page: current
+          page: current,
+          current: current,
         })
       },
       onChange(current) {
@@ -146,11 +155,13 @@ let MemberTable =  React.createClass({
         scope.props.loadUserList({
           page: current,
           size: pageSize,
-          sort: scope.state.sort
+          sort: scope.state.sort,
+          filter: scope.state.filter
         })
         scope.setState({
           pageSize: pageSize,
-          page: current
+          page: current,
+          current: current,
         })
       },
     }
@@ -241,7 +252,7 @@ let MemberTable =  React.createClass({
         width: 180,
         render: (text, record,index) => (
           <div>
-            <Link to="/setting">
+            <Link to={`/setting/user/${record.key}`}>
             <Button icon="setting" className="setBtn">
               管理
             </Button>
@@ -330,7 +341,8 @@ let NewMemberForm = React.createClass({
             scope.props.loadUserList({
               page: scope.state.page,
               size: scope.state.pageSize,
-              sort: scope.state.sort
+              sort: scope.state.sort,
+              filter: scope.state.filter
             })
           },
           isAsync: true
@@ -485,6 +497,8 @@ class MemberManage extends Component {
       pageSize: 5,
       page: 1,
       sort: "a,userName",
+      filter: "",
+      current: 1,
     }
   }
   showModal() {
@@ -497,6 +511,7 @@ class MemberManage extends Component {
       page: 1,
       size: 5,
       sort: "a,userName",
+      filter: "",
     })
     
   }
@@ -513,7 +528,6 @@ class MemberManage extends Component {
       position: 'right',
       addBefore: [
         {key: 'name', value: '用户名'},
-        {key: 'team', value: '团队'},
         {key: 'tel', value: '手机号'},
         {key: 'email', value: '邮箱'},
       ],

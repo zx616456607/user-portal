@@ -11,7 +11,7 @@ import React, {Component} from 'react'
 import { Row, Col, Card, Button, Input, Icon, Form } from 'antd'
 import './style/Information.less'
 import { connect } from 'react-redux'
-import { loadUserDetail, loadUserList, updateUser } from '../../../actions/user'
+import { updateUser } from '../../../actions/user'
 
 const createForm = Form.create;
 const FormItem = Form.Item;
@@ -144,13 +144,9 @@ class Information extends Component{
   }
   resetPsw(){
     this.setState({
-      revisePass:false
+      revisePass: false
     })
   }
-  componentDidMount() {
-    this.props.loadUserDetail("default")
-  }
-
   render(){
     const { revisePass } = this.state
     const { userDetail,updateUser } = this.props
@@ -204,26 +200,13 @@ class Information extends Component{
   }
 }
 
-function mapStateToProp(state) {
-  let userDetailData = {
-    displayName: "",
-    role: 0,
-    phone: "",
-    email: "",
-    balance: 0,
-    userID: '',
-  }
-  const {userDetail} = state.user
-  if (userDetail.result && userDetail.result.data) {
-    userDetailData = userDetail.result.data
-  }
+function mapStateToProp(state,props) {
 
   return {
-    userDetail: userDetailData
+    
   }
 }
 
 export default connect(mapStateToProp, {
-  loadUserDetail,
   updateUser,
 })(Information)
