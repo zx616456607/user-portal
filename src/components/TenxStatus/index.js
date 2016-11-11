@@ -68,6 +68,7 @@ class TenxStatus extends Component {
       if (percent >= 95) {
         clearInterval(this.progressInterval)
         delete this.progressInterval
+        return
       }
       percent += 5
       this.setState({
@@ -177,7 +178,7 @@ class TenxStatus extends Component {
           strokeWidth={8}
           showInfo={false}
           status="active"
-          percent={percent}/>
+          percent={percent} />
       )
       if (!this.progressInterval) {
         this.setProgressPercent(percent)
@@ -207,8 +208,8 @@ TenxStatus.propTypes = {
     'Scaling',
     'Restarting',
     'Redeploying', 'Rebuilding',
-    
-    'Unknown','Succeeded',
+
+    'Unknown', 'Succeeded',
     'Stopped',
     'Running',
   ]).isRequired,
