@@ -339,9 +339,9 @@ class TeamManage extends Component {
           this.setState({
             visible: false,
           })
-        }
-      },
-      isAsync: true,
+        },
+        isAsync: true,
+      }
     })
   }
   handleCancel(e) {
