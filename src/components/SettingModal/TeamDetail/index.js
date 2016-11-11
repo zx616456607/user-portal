@@ -234,7 +234,7 @@ class TeamDetail extends Component{
     })
   }
   handleNewMemberOk(){
-    const { addTeamusers, teamID } = this.props
+    const { addTeamusers, teamID, loadTeamUserList } = this.props
     const { targetKeys } = this.state
     console.log('targetKeys',targetKeys);
     if(targetKeys.length !== 0){
@@ -243,6 +243,7 @@ class TeamDetail extends Component{
       ,{
         success: {
           func:() => {
+            loadTeamUserList(teamID)
             this.setState({
               addMember: false,
             })
