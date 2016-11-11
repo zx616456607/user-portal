@@ -46,15 +46,14 @@ let TeamTable = React.createClass({
   },
   delTeam(teamID){
     const {deleteTeam,loadUserTeamList} = this.props.scope.props
+    const {page,pageSize,} = this.props.scope.state
     confirm({
       title: '您是否确认要删除这项内容',
       onOk() {
-        console.log('del !!!!!')
         deleteTeam(teamID)
         loadUserTeamList('default',{
-          page: this.state.page,
-          size: this.state.pageSize,
-          sort: this.state.sort,
+          page: page,
+          size: pageSize,
         })
       },
       onCancel() {},
@@ -160,7 +159,6 @@ let TeamTable = React.createClass({
     const { data, scope } = this.props
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
-    console.log('this.props.scope.props.total',this.props.scope.props.total);
     const pagination = {
       total: this.props.scope.props.total,
       showSizeChanger: true,

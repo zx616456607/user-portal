@@ -16,6 +16,8 @@ import { deleteTeam, createTeamspace, addTeamusers, removeTeamusers,
 import { connect } from 'react-redux'
 import MemberTransfer from '../MemberTransfer'
 
+const confirm = Modal.confirm;
+
 let MemberList = React.createClass({
   getInitialState(){
     return {
@@ -39,15 +41,22 @@ let MemberList = React.createClass({
   },
   delTeamMember(userID){
     const { removeTeamusers,teamID, loadTeamUserList } = this.props
-    removeTeamusers(teamID,userID,{
-      success: {
-        func: () => {
-          console.log('delte!!');
-          loadTeamUserList(teamID)
-        },
-        isAsync: true
-      }
-    })
+    confirm({
+      title: '您是否确认要删除这项内容',
+      onOk() {
+        removeTeamusers(teamID,userID,{
+          success: {
+            func: () => {
+              console.log('delte!!');
+              loadTeamUserList(teamID)
+            },
+            isAsync: true
+          }
+        })
+      },
+      onCancel() {},
+    });
+    
   },
   render: function(){
     let { sortedInfo, filteredInfo } = this.state
