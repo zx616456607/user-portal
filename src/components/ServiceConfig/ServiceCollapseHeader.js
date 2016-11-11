@@ -64,7 +64,7 @@ class CollapseHeader extends Component {
     }
     let configfile = {
       group,
-      cluster: this.props.cluster,
+      cluster: this.props.cluster.clusterID,
       name: this.state.configName,
       desc: this.state.configDesc
     }
@@ -79,20 +79,6 @@ class CollapseHeader extends Component {
             configName: '',
             configDesc: ''
           })
-          // self.props.configGroupName(configfile, {
-          //   success: {
-          //     func: (res)=>{
-          //       console.log('pppppppppppppppppppppppppppppppppppp')
-          //       console.log(res.data)
-          //       self.setState({
-          //         configNameList: res.data.configs,
-          //         sizeNumber: res.data.configs.length
-          //       })
-
-          //     },
-          //     isAsync: true
-          //   }
-          // })
           self.props.addConfigFile(configfile)
         },
         isAsync: true
@@ -142,7 +128,7 @@ class CollapseHeader extends Component {
     let configArray = []
     configArray.push(group)
     let configData = {
-      cluster: this.props.cluster,
+      cluster: this.props.cluster.clusterID,
       "groups": configArray
     }
     Modal.confirm({
