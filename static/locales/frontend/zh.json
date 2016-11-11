@@ -273,7 +273,7 @@
   "CICD.Tenxflow.EditTenxFlowModal.other": "自定义",
   "CICD.Tenxflow.EditTenxFlowModal.flowType": "项目类型",
   "CICD.Tenxflow.EditTenxFlowModal.flowCode": "项目代码",
-  "CICD.Tenxflow.EditTenxFlowModal.selectCode": "选择代码库",
+  "CICD.Tenxflow.EditTenxFlowModal.selectCode": "更新代码库",
   "CICD.Tenxflow.EditTenxFlowModal.imageName": "基础镜像",
   "CICD.Tenxflow.EditTenxFlowModal.flowName": "项目名称",
   "CICD.Tenxflow.EditTenxFlowModal.defineEnv": "自定义环境变量",
@@ -294,6 +294,7 @@
   "CICD.Tenxflow.EditTenxFlowModal.submit": "确定",
   "CICD.Tenxflow.EditTenxFlowModal.cancel": "取消",
   "CICD.Tenxflow.EditTenxFlowModal.envTitle": "自定义环境变量",
+  "CICD.Tenxflow.EditTenxFlowModal.branch": "分支：",
   
   "CICD.Tenxflow.CreateTenxFlowModal.titleEdit": "编辑项目卡片",
   "CICD.Tenxflow.CreateTenxFlowModal.titleAdd": "创建项目卡片",
@@ -329,6 +330,7 @@
   "CICD.Tenxflow.CreateTenxFlowModal.envTitle": "自定义环境变量",
   "CICD.Tenxflow.CreateTenxFlowModal.codeStore": "代码仓库",
   "CICD.Tenxflow.CreateTenxFlowModal.noCodeStore": "请选择代码仓库",
+  "CICD.Tenxflow.CreateTenxFlowModal.branch": "分支：",
     
   "CICD.Tenxflow.TenxFlowDetailFlowCard.name": "名称：",
   "CICD.Tenxflow.TenxFlowDetailFlowCard.type": "类型：",
@@ -359,6 +361,8 @@
   "CICD.Tenxflow.CodeStoreListModal.naem": "名称",
   "CICD.Tenxflow.CodeStoreListModal.attr": "属性",
   "CICD.Tenxflow.CodeStoreListModal.resource": "代码源",
+  "CICD.Tenxflow.CodeStoreListModal.selectBranch": "选择分支",
+  "CICD.Tenxflow.CodeStoreListModal.deploy": "部署",
   
   "CICD.Tenxflow.CICDSettingModal.tooltip": "当该项目对应的代码仓库，发生下面的操作时触发持续集成",
   "CICD.Tenxflow.CICDSettingModal.branch": "提交代码到branch",

@@ -15,6 +15,7 @@ import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import { getTenxFlowStateList, getProjectList, searchProject } from '../../../../actions/cicd_flow'
+import { getDockerfileList, getDockerfiles, setDockerfile, searchDockerfile } from '../../../../actions/cicd_flow'
 import './style/TenxFlowDetailFlow.less'
 import EditTenxFlowModal from './TenxFlowDetailFlow/EditTenxFlowModal.js'
 import CreateTenxFlowModal from './TenxFlowDetailFlow/CreateTenxFlowModal.js'
@@ -49,7 +50,7 @@ class TenxFlowDetailFlow extends Component {
   }
 
   componentWillMount() {
-    const { getTenxFlowStateList, flowId, getProjectList } = this.props;
+    const { getTenxFlowStateList, flowId, getProjectList, getDockerfileList } = this.props;
     getTenxFlowStateList(flowId, {
       success: {        
         func: () => getProjectList(),
@@ -133,14 +134,20 @@ function mapStateToProps(state, props) {
   const defaultStatus = {
     projectList:[]
   }
+  const defaultDockerFile = {
+    dockerfileList: [],
+  }
   const { getTenxflowStageList } = state.cicd_flow;
   const { isFetching, stageList } = getTenxflowStageList || defaultStageList;
   const { managed } = state.cicd_flow;
   const {projectList} = managed || defaultStatus;
+  const { dockerfileLists } = state.cicd_flow
+  const {dockerfileList} = dockerfileLists || defaultDockerFile
   return {
     isFetching,
     stageList,
-    projectList
+    projectList,
+    dockerfileList
   }
 }
 
@@ -151,7 +158,8 @@ TenxFlowDetailFlow.propTypes = {
 export default connect(mapStateToProps, {
   getTenxFlowStateList,
   getProjectList,
-  searchProject
+  searchProject,
+  getDockerfileList
 })(injectIntl(TenxFlowDetailFlow, {
   withRef: true,
 }));

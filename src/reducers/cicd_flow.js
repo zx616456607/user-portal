@@ -327,6 +327,31 @@ function getTenxflowStageDetail(state = {}, action) {
   }
 }
 
+function getCodeStoreBranchList(state = {}, action) {
+  const defaultState = {
+    isFetching: false,
+    branchList: {}
+  }
+  switch (action.type) {
+    case ActionTypes.GET_REPOS_BRANCH_REQUEST:
+      return merge({}, defaultState, state, {
+        isFetching: true
+      })
+    case ActionTypes.GET_REPOS_BRANCH_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        branchList: action.response.result.data,
+      }
+      )
+    case ActionTypes.GET_REPOS_BRANCH_FAILURE:
+      return merge({}, defaultState, state, {
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
+
 export default function cicd_flow(state = {}, action) {
   return {
     codeRepo: codeRepo(state.codeRepo, action),

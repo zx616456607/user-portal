@@ -115,23 +115,23 @@ export const GET_CODE_STORE_REQUEST = 'GET_CODE_STORE_REQUEST'
 export const GET_CODE_STORE_SUCCESS = 'GET_CODE_STORE_SUCCESS'
 export const GET_CODE_STORE_FAILURE = 'GET_CODE_STORE_FAILURE'
 
-function fetchProject() {
+function fetchProject(callback) {
   return {
     [FETCH_API]: {
       types: [GET_CODE_STORE_REQUEST, GET_CODE_STORE_SUCCESS, GET_CODE_STORE_FAILURE],
       endpoint: `${API_URL_PREFIX}/devops/managed-projects`,
       schema: {},
       options: {
-        method: 'GET',
-        
+        method: 'GET',        
       }
-    }
+    },
+    callback: callback
   }
 }
 
-export function getProjectList() {
+export function getProjectList(callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchProject())
+    return dispatch(fetchProject(callback))
   }
 }
 
@@ -569,5 +569,26 @@ function fetchTenxFlowStateDetail(flowId, stageId, callback) {
 export function getTenxFlowStateDetail(flowId, stageId, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchTenxFlowStateDetail(flowId, stageId, callback))
+  }
+}
+
+export const GET_REPOS_BRANCH_REQUEST = 'GET_REPOS_BRANCH_REQUEST'
+export const GET_REPOS_BRANCH_SUCCESS = 'GET_REPOS_BRANCH_SUCCESS'
+export const GET_REPOS_BRANCH_FAILURE = 'GET_REPOS_BRANCH_FAILURE'
+
+function fetchCodeStoreBranchDetail(storeType, reponame, project_id, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_REPOS_BRANCH_REQUEST, GET_REPOS_BRANCH_SUCCESS, GET_REPOS_BRANCH_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/repos/${storeType}/branches?reponame=${reponame}&&project_id=${project_id}`,
+      schema: {},
+    },
+    callback: callback
+  }
+}
+
+export function getCodeStoreBranchDetail(storeType, reponame, project_id, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchCodeStoreBranchDetail(storeType, reponame, project_id, callback))
   }
 }
