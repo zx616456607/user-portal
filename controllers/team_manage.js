@@ -43,11 +43,11 @@ exports.getTeamspaces = function* () {
   }
   const api = apiFactory.getApi(loginUser)
   const result = yield api.teams.getBy([teamID, 'spaces'], queryObj)
-  const teamspaces = result.data.teamspaces || []
+  const teamspaces = result.spaces || []
   this.body = {
     data: teamspaces,
-    total: result.data.total,
-    count: result.data.count
+    total: result.listMeta.total,
+    // count: result.data.count
   }
 }
 
