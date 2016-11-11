@@ -151,7 +151,7 @@ let AppAddServiceModal = React.createClass({
     if(!images) {
       images = { imageList: []}
     }
-    const { imageList, registryServer, isFetching } = images
+    const { imageList, server, isFetching } = images
     return (
       <div id="AppAddServiceModal" key="AppAddServiceModal">
         <div className="operaBox">
@@ -171,7 +171,7 @@ let AppAddServiceModal = React.createClass({
           </div>
           <div style={{ clear: "both" }}></div>
         </div>
-        <MyComponent scope={parentScope} images={images.imageList} loading={isFetching} registryServer={registryServer} />
+        <MyComponent scope={parentScope} images={images.imageList} loading={isFetching} registryServer={server} />
       </div>
     )
   }
