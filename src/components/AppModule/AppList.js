@@ -388,7 +388,7 @@ class AppList extends Component {
   }
 
   searchApps(e) {
-    const { name, pathname } = this.props
+    const { name, pathname, sortOrder, sortBy } = this.props
     const { searchInputValue } = this.state
     if (searchInputValue === name) {
       return
@@ -400,6 +400,8 @@ class AppList extends Component {
     if (searchInputValue) {
       query.name = searchInputValue
     }
+    query.sortOrder = sortOrder
+    query.sortBy = sortBy
     browserHistory.push({
       pathname,
       query
