@@ -59,6 +59,12 @@ exports.getApps = function* () {
   if (name) {
     queryObj.filter = `name ${name}`
   }
+  if (query.sortOrder) {
+    queryObj.sort_order = query.sortOrder
+  }
+  if (query.sortBy) {
+    queryObj.sort_by = query.sortBy
+  }
   const api = apiFactory.getK8sApi(loginUser)
   const result = yield api.getBy([cluster, 'apps'], queryObj)
   const apps = result.data.apps

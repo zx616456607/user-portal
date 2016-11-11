@@ -44,7 +44,7 @@ let MyComponent = React.createClass({
     if (this.props.imageId) {
       items = tagList.map((item, index) => {
         return (
-          <TabPane tab={<span><i className="fa fa-tag"></i>&nbsp;{item}</span>} className="imageDetail" key={index} >
+          <TabPane tab={<span><i className="fa fa-tag"></i>&nbsp;{item}</span>} className="imageDetail" key={`${item}@${index}`} >
             <OtherServiceApi imageTag={item} fullname={fullname} imageId={this.props.imageId} />
           </TabPane>
         );
@@ -52,7 +52,7 @@ let MyComponent = React.createClass({
     } else {
       items = tagList.map((item, index) => {
         return (
-          <TabPane tab={<span><i className="fa fa-tag"></i>&nbsp;{item}</span>} className="imageDetail" key={index} >
+          <TabPane tab={<span><i className="fa fa-tag"></i>&nbsp;{item}</span>} className="imageDetail" key={`${item}@${index}`} >
             <ServiceAPI imageTag={item} fullname={fullname} />
           </TabPane>
         );
@@ -95,7 +95,7 @@ class ImageVersion extends Component {
     //this function mean when the user change show image detail
     //it will be check the old iamge is different from the new one or not
     //if the different is true,so that the function will be request the new one's tag
-    const oldImageDatail = this.state.imageDetail;
+    const oldImageDatail = this.props.config;
     const newImageDetail = nextPorps.config;
     if (newImageDetail != oldImageDatail) {
       this.changeNewImage(newImageDetail);
@@ -112,8 +112,9 @@ class ImageVersion extends Component {
     const imageId = this.props.imageId
     const imageDetail = this.props.config;
     const config = { imageName: image, id: imageId }
+   
     if (typeof imageDetail === "string") {
-      const config = { imageName: imageDetail, id: imageId }
+      const config = { imageName: image, id: imageId }
       getOtherImageTag(config)
     } else {
       loadImageDetailTag(registry, image.name);
@@ -165,8 +166,8 @@ ImageVersion.propTypes = {
 
 function mapDispatchToProps(dispatch) {
   return {
-    getOtherImageTag: (obj) => {
-      dispatch(getOtherImageTag(obj))
+    getOtherImageTag: (obj, callback) => {
+      dispatch(getOtherImageTag(obj, callback))
     },
     loadImageDetailTag: (registry, name) => {
       dispatch(loadImageDetailTag(registry, name))

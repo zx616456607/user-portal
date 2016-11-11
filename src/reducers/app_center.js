@@ -392,7 +392,7 @@ function getOtherImageTagConfig(state = {}, action) {
   const registry = action.registry
   const defaultState = {
     isFetching: false,
-    configList: [],
+    configList: {},
     sizeInfo: '',
   }
 
@@ -402,11 +402,11 @@ function getOtherImageTagConfig(state = {}, action) {
         isFetching: true
       })
     case ActionTypes.GET_OTHER_TAG_CONFIG_SUCCESS:
-      return merge({}, defaultState, state, {
+      return Object.assign({}, defaultState, state, {
         isFetching: false,
-          tag: action.tag || [],
-          configList: action.response.result.configInfo || [],
-          sizeInfo: action.response.result.sizeInfo,
+        tag: action.tag || [],
+        configList: action.response.result.configInfo || {},
+        sizeInfo: action.response.result.sizeInfo,
       })
     case ActionTypes.GET_OTHER_TAG_CONFIG_FAILURE:
       return merge({}, defaultState, {
