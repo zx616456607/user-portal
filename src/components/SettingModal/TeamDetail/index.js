@@ -240,7 +240,6 @@ class TeamDetail extends Component{
     }
   }
   addNewMember(){
-    
     this.setState({
       addMember: true,
     })
@@ -248,9 +247,10 @@ class TeamDetail extends Component{
   handleNewMemberOk(){
     const { addTeamusers, teamID } = this.props
     const { targetKeys } = this.state
+    console.log('targetKeys',targetKeys);
     if(targetKeys.length !== 0){
       addTeamusers(teamID,{
-        
+        targetKeys
       },{
         success: {
           func:() => {
@@ -304,7 +304,7 @@ class TeamDetail extends Component{
   componentWillMount(){
     const { loadTeamClustersList, loadTeamUserList, loadTeamspaceList, teamID, } = this.props
     loadTeamClustersList(teamID)
-    // loadTeamUserList(teamID)
+    loadTeamUserList(teamID)
     // loadTeamspaceList(teamID)
   }
   
@@ -424,19 +424,20 @@ function mapStateToProp(state,props) {
   const team = state.team
   const users = state.user.users
   if(team.teamusers){
-    team.teamusers.map((item,index) => {
-      teamUserList.push(
-        {
-          key: index,
-          title: '',
-          description: '',
-          name: 'pupumeng',
-          tel: '11111111',
-          email: '123@123.com',
-          style: '创业者',
-        }
-      )
-    })
+    if(team.teamusers.result){
+      const teamusers = team.teamusers.result.users
+      teamusers.map((item,index) => {
+        teamUserList.push(
+          {
+            key: item.userID,
+            name: item.userName,
+            tel: item.phone,
+            email: item.email,
+            style: item.role === 0?'普通成员':'系统管理员',
+          }
+        )
+      })
+    }
   }
   if(team.teamClusters){
     const cluster = team.teamClusters
@@ -460,13 +461,15 @@ function mapStateToProp(state,props) {
   }
   if(team.teamspaces){
     const teamSpaces = team.teamspaces
-    teamSpaces.map((item,index) => {
-      teamSpacesList.push(
-        {
-          key: index,
-        }
-      )
-    })
+    if(teamSpaces.length !== 0){
+      teamSpaces.map((item,index) => {
+        teamSpacesList.push(
+          {
+            key: index,
+          }
+        )
+      })
+    }
   }
   return {
     teamID: team_id,

@@ -27,6 +27,7 @@ import CommmonStatus from '../../CommonStatus'
 import './style/AppServiceDetail.less'
 import TerminalModal from '../../TerminalModal'
 import parseServiceDomain from '../../parseDomain'
+import ServiceStatus from '../../TenxStatus/ServiceStatus'
 
 const DEFAULT_TAB = '#containers'
 const TabPane = Tabs.TabPane;
@@ -171,7 +172,7 @@ class AppServiceDetail extends Component {
         </Link>
       </Menu.Item>
     </Menu>);
-    const svcDomain = parseServiceDomain(service)
+    const svcDomain = parseServiceDomain(service, this.props.bindingDomains)
     return (
       <div id="AppServiceDetail">
         <div className="titleBox">
@@ -185,11 +186,11 @@ class AppServiceDetail extends Component {
               {service.metadata.name}
             </p>
             <div className="leftBox">
-              <span className="status">
+              <span>
                 运行状态&nbsp;:&nbsp;
-              <span className={service.status == "1" ? "normal" : "error"}>
-                  {service.status == "1" ? "运行中" : "异常"}
-                </span>
+                <ServiceStatus
+                  smart={true}
+                  service={service} />
               </span>
               <br />
               <span>
@@ -322,9 +323,9 @@ AppServiceDetail.propTypes = {
 }
 
 function mapStateToProps(state, props) {
-  const { scope } = props
+  const {scope} = props
   const currentShowInstance = scope.state.currentShowInstance
-  const { cluster, metadata } = currentShowInstance
+  const {cluster, metadata } = currentShowInstance
   const serviceName = metadata ? metadata.name : ''
   const defaultService = {
     isFetching: false,
@@ -357,6 +358,7 @@ function mapStateToProps(state, props) {
 
   return {
     cluster,
+    bindingDomains: state.entities.current.cluster.bindingDomains,
     serviceName,
     serviceDetail: targetService.service,
     isServiceDetailFetching: targetService.isFetching,

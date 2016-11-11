@@ -428,6 +428,7 @@
   "ManageMonitor.operationalAudit.ThirdPartyRegistry": "ThirdPartyRegistry",
   "ManageMonitor.operationalAudit.Volume": "Volume",
   "ManageMonitor.operationalAudit.VolumeConsumption": "VolumeConsumption",
+  "ManageMonitor.operationalAudit.allstatus": "all status",
   "ManageMonitor.operationalAudit.running": "running",
   "ManageMonitor.operationalAudit.success": "success",
   "ManageMonitor.operationalAudit.failed": "failed",

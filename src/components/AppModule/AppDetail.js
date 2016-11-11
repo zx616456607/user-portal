@@ -19,6 +19,7 @@ import AppMonitior from './AppMonitior'
 import './style/AppDetail.less'
 import { loadAppDetail } from '../../actions/app_manage'
 import { browserHistory } from 'react-router'
+import AppStatus from '../TenxStatus/AppStatus'
 
 const DEFAULT_TAB = '#service'
 
@@ -104,10 +105,9 @@ class AppDetail extends Component {
                 <div className="leftInfo">
                   <div className="status">
                     运行状态&nbsp;:
-                      <span>
-                      <i className={app.appStatus == 0 ? "normal fa fa-circle" : "error fa fa-circle"}></i>
-                      <span className={app.appStatus == 0 ? "normal" : "error"} >{app.appStatus == 0 ? "正常" : "异常"}</span>
-                    </span>
+                    <div style={{display: 'inline-block',position: 'relative',top: '-5px'}}>
+                      <AppStatus services={app.services} smart={true} />
+                    </div>
                   </div>
                   <div className="address">
                     {
@@ -146,7 +146,9 @@ class AppDetail extends Component {
                 <TabPane tab="服务实例" key={DEFAULT_TAB} >
                   <AppServiceList
                     location={location}
-                    key="AppServiceList" appName={appName} loading={isFetching} />
+                    key="AppServiceList"
+                    appName={appName}
+                    loading={isFetching} />
                 </TabPane>
                 <TabPane tab="应用拓扑图" key="#topology">应用拓扑图</TabPane>
                 <TabPane tab="编排文件" key="#stack" ><AppGraph key="AppGraph" cluster={this.props.cluster} appName={this.props.appName} /></TabPane>

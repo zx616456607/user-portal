@@ -128,13 +128,46 @@
         height: 30px;
         line-height: 30px;
         cursor: pointer;
+        .leftSpan {
+          float: left;
+          display: block;
+          width: 130px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .rightSpan {
+          float: left;
+          display: block;
+          width: 25px;
+          text-align: center;
+        }
         &:hover {
           background-color: #eaf8fe;
         }
       }
       .searchBox {
-        padding: 8px 16px;
+        padding: 8px 16px 0;
         border-bottom: 1px solid #EFEFEF;
+        .titleBox {
+          width: 100%;
+          height: 25px;
+          line-height: 25px;
+          .leftSpan {
+            float: left;
+            display: block;
+            width: 130px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+          .rightSpan {
+            float: left;
+            display: block;
+            width: 25px;
+            text-align: center;
+          }
+        }
       }
     }
     .serviceModal {
@@ -212,16 +245,16 @@
     .bigLogBox {
       z-index: 100;
       position: fixed;
-      margin-top: 0px !important;
+      margin-top: 0 !important;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
       overflow-y: auto;
-      .ant-card-body{
+      .ant-card-body {
         height: 100%;
       }
-      .msgBox{
+      .msgBox {
         height: calc(~"100% - 40px");
       }
     }

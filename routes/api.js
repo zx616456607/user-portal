@@ -87,6 +87,7 @@ module.exports = function (Router) {
 
   // Users
   router.get('/users/:user_id', userController.getUserDetail)
+  router.get('/users/:user_id/app_info', userController.getUserAppInfo)
   router.get('/users', userController.getUsers)
   router.get('/users/:user_id/teams', userController.getUserTeams)
   router.get('/users/:user_id/teamspaces', userController.getUserTeamspaces)
@@ -95,7 +96,7 @@ module.exports = function (Router) {
   router.patch('/users/:user_id', userController.updateUser)
 
   // Teams
-  router.get('/teams/:team_id/spaces', teamController.getUserTeamspaces)
+  router.get('/teams/:team_id/spaces', teamController.getTeamspaces)
   router.get('/teams/:team_id/clusters', teamController.getTeamClusters)
   router.get('/teams/:team_id/users', teamController.getTeamUsers)
   router.post('/teams', teamController.createTeam)
@@ -161,6 +162,7 @@ module.exports = function (Router) {
 
   // Manage Monitor
   router.post('/manage-monitor/getOperationAuditLog', manageMonitorController.getOperationAuditLog)
+  router.get('/manage-monitor/:team_id/getClusterOfQueryLog', manageMonitorController.getClusterOfQueryLog)
   router.post('/clusters/:cluster/instances/:instances/getSearchLog', manageMonitorController.getSearchLog)
 
   // DevOps service: CI/CD
@@ -181,6 +183,8 @@ module.exports = function (Router) {
   router.get('/devops/ci-flows/:flow_id', devopsController.getCIFlow)
   router.put('/devops/ci-flows/:flow_id', devopsController.updateCIFlow)
   router.delete('/devops/ci-flows/:flow_id', devopsController.removeCIFlow)
+  router.get('/devops/ci-flows/:flow_id/images', devopsController.getImagesOfFlow)
+  router.get('/devops/ci-flows/:flow_id/deployment-logs', devopsController.listDeploymentLogsOfFlow)
   // CI flow stages
   router.get('/devops/ci-flows/:flow_id/stages', devopsController.listFlowStages)
   router.post('/devops/ci-flows/:flow_id/stages', devopsController.createFlowStages)

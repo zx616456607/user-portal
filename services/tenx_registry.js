@@ -77,6 +77,13 @@ exports.getImageConfigs = function (username, imageFullName, tag) {
         reject(err)
         return
       }
+      if (!configs.configInfo) {// Probably the image was corrupted
+        logger.error('Failed to get image configs -> ' + statusCode)
+        err = new Error('Failed to get image configs')
+        err.status = 500
+        reject(err)
+        return
+      }
       var result = self.FormatImageInfo(JSON.parse(configs.configInfo), imageFullName, tag)
       result.sizeInfo = configs.sizeInfo
       resolve(result)

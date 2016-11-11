@@ -428,6 +428,7 @@
   "ManageMonitor.operationalAudit.ThirdPartyRegistry": "第三方容器",
   "ManageMonitor.operationalAudit.Volume": "存储",
   "ManageMonitor.operationalAudit.VolumeConsumption": "存储使用",
+  "ManageMonitor.operationalAudit.allstatus": "所有状态",
   "ManageMonitor.operationalAudit.running": "运行中",
   "ManageMonitor.operationalAudit.success": "完成",
   "ManageMonitor.operationalAudit.failed": "失败",

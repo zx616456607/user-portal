@@ -16,7 +16,8 @@ const options = { overwrite: true }
 export default function team(state = {
   teams: [],
   teamspaces: [],
-  teamClusters: []
+  teamClusters: [],
+  teamusers: [],
 }, action) {
   return {
     teams: reducerFactory({
@@ -30,9 +31,9 @@ export default function team(state = {
       FAILURE: ActionTypes.TEAMSPACE_LIST_FAILURE
     }, state.teamspaces, action, options),
     teamusers: reducerFactory({
-      REQUEST: ActionTypes.TTEAMUSER_LIST_REQUEST,
-      SUCCESS: ActionTypes.TTEAMUSER_LIST_SUCCESS,
-      FAILURE: ActionTypes.TTEAMUSER_LIST_FAILURE
+      REQUEST: ActionTypes.TEAMUSER_LIST_REQUEST,
+      SUCCESS: ActionTypes.TEAMUSER_LIST_SUCCESS,
+      FAILURE: ActionTypes.TEAMUSER_LIST_FAILURE
     }, state.teamusers, action, options),
     teamClusters: reducerFactory({
       REQUEST: ActionTypes.TEAM_CLUSTERS_LIST_REQUEST,

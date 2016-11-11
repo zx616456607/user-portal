@@ -53,11 +53,11 @@ let CodeStoreListModal = React.createClass({
   },
   render() {
     const { formatMessage } = this.props.intl;
-    const { scope, config } = this.props;
+    const { scope, config, hadSelected } = this.props;
     const codeItems = config.map((item, index) => {
       return (
       <QueueAnim key={'codeDetailAnimate' + index}>
-        <div className='codeDetail' key={'codeDetail' + index} onClick={this.selectedCodeStore.bind(this, item.id, item.name)}>
+        <div className={ item.id == hadSelected ? 'selectedCode codeDetail' : 'codeDetail' } key={'codeDetail' + index} onClick={this.selectedCodeStore.bind(this, item.id, item.name)}>
           <div className='commonTitle'>
             <span>{item.name}</span>
           </div>

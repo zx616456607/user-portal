@@ -29,6 +29,17 @@ exports.getUserDetail = function* () {
   }
 }
 
+exports.getUserAppInfo = function* () {
+  let userID = this.params.user_id
+  const loginUser = this.session.loginUser
+  userID = userID === 'default' ? loginUser.id : userID
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.users.getBy([userID, "app_info"])
+  this.body = {
+    data: result
+  }
+}
+
 exports.getUsers = function* () {
   const loginUser = this.session.loginUser
   const query = this.query || {}
@@ -48,8 +59,8 @@ exports.getUsers = function* () {
     from == -1
   }
   let queryObj = { from, size }
-  if (name) {
-    queryObj.filter = `name ${name}`
+  if (query && query.filter) {
+    queryObj.filter = query.filter
   }
   if (query && query.sort) {
     queryObj.sort = query.sort
@@ -150,6 +161,13 @@ exports.getUserTeamspaces = function* () {
   if (result.listMeta && result.listMeta.total) {
     total = result.listMeta.total
   }
+
+  for (let index in teamspaces) {
+    const r = yield api.teams.getBy([teamspaces[index].teamID, "spaces", teamspaces[index].spaceID, "app_info"])
+    teamspaces[index].appCount = r.appCount
+    teamspaces[index].serviceCount = r.serviceCount
+    teamspaces[index].containerCount = r.containerCount
+  } 
 
   this.body = {
     teamspaces,

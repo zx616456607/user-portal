@@ -20,7 +20,7 @@ import { tenxDateFormat } from '../../common/tools.js'
 import { browserHistory } from 'react-router'
 import TerminalModal from '../TerminalModal'
 import parseServiceDomain from '../parseDomain'
-import TenxStatus from '../TenxStatus'
+import ContainerStatus from '../TenxStatus/ContainerStatus'
 
 const ButtonGroup = Button.Group
 const confirm = Modal.confirm
@@ -120,7 +120,6 @@ const MyComponent = React.createClass({
           </Menu.Item>
         </Menu>
       );
-      const domain = parseServiceDomain(item)
       return (
         <div className={item.checked ? 'selectedContainer containerDetail' : 'containerDetail'}
           key={item.metadata.name}
@@ -139,10 +138,10 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className='containerStatus commonData'>
-            <TenxStatus
-              phase={item.status.phase}
-              progress={item.status.progress}
+            <ContainerStatus
+              status={item.status}
               creationTimestamp={item.metadata.creationTimestamp}
+              deletionTimestamp={item.metadata.deletionTimestamp}
               />
           </div>
           <div className='serviceName commonData'>
@@ -162,13 +161,6 @@ const MyComponent = React.createClass({
           <div className='visitIp commonData'>
             <Tooltip placement='topLeft' title={item.status.podIP}>
               <span>{item.status.podIP}</span>
-            </Tooltip>
-            <br />
-            <Tooltip placement='topLeft' title={domain.length > 0 ? domain[0] : ""}>
-              {
-                domain.length > 0 ?
-                  (<a target="_blank" href={domain[0]}>{domain[0]}</a>) : (<span>-</span>)
-              }
             </Tooltip>
           </div>
           <div className='createTime commonData'>

@@ -530,3 +530,33 @@ exports.updateDockerfile = function* () {
     data: result
   }
 }
+
+// Return the images that configured in stages of a flow
+// In most case, it should be one image
+exports.getImagesOfFlow = function* () {
+  const loginUser = this.session.loginUser
+  const flow_id = this.params.flow_id
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.getBy(["ci-flows", flow_id, "images"], null)
+
+  this.body = {
+    data: result
+  }
+}
+
+exports.listDeploymentLogsOfFlow = function* () {
+  const loginUser = this.session.loginUser
+  const flow_id = this.params.flow_id
+  const limit = this.query.limit
+  var query = null
+  if (limit) {
+    query = {"limit": limit}
+  }
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.getBy(["ci-flows", flow_id, "deployment-logs"], query)
+
+  this.body = {
+    data: result
+  }
+}
