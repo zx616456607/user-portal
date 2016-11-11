@@ -31,6 +31,7 @@ let TeamTable = React.createClass({
       addMember: false,
       targetKeys:[],
       sort: "a,teamName",
+      filter: "",
     }
   },
   handleChange(pagination, filters, sorter) {
@@ -46,7 +47,7 @@ let TeamTable = React.createClass({
   },
   delTeam(teamID){
     const {deleteTeam,loadUserTeamList} = this.props.scope.props
-    const {page,pageSize,sort} = this.props.scope.state
+    const {page,pageSize,sort, filter} = this.props.scope.state
     confirm({
       title: '您是否确认要删除这项内容',
       onOk() {
@@ -55,6 +56,7 @@ let TeamTable = React.createClass({
           page: page,
           size: pageSize,
           sort,
+          filter,
         })
       },
       onCancel() {},
@@ -76,6 +78,7 @@ let TeamTable = React.createClass({
       page: this.state.page,
       size: this.state.pageSize,
       sort,
+      filter: this.state.filter,
     })
     this.setState({
       sortMember: !sortMember,
@@ -90,6 +93,7 @@ let TeamTable = React.createClass({
       page: this.state.page,
       size: this.state.pageSize,
       sort,
+      filter: this.state.filter,
     })
     this.setState({
       sortSpace: !sortSpace,
@@ -104,6 +108,7 @@ let TeamTable = React.createClass({
       page: this.state.page,
       size: this.state.pageSize,
       sort,
+      filter: this.state.filter,
     })
     this.setState({
       sortCluster: !sortCluster,
@@ -118,6 +123,7 @@ let TeamTable = React.createClass({
       page: this.state.page,
       size: this.state.pageSize,
       sort,
+      filter: this.state.filter,
     })
     this.setState({
       sortTeamName: !sortTeamName,
@@ -162,7 +168,8 @@ let TeamTable = React.createClass({
     filteredInfo = filteredInfo || {}
     const pagination = {
       total: this.props.scope.props.total,
-      sort,
+      sort: this.props.scope.props.sort,
+      filter: this.props.scope.props.filter,
       showSizeChanger: true,
       defaultPageSize: 5,
       defaultCurrent:1,
@@ -173,6 +180,7 @@ let TeamTable = React.createClass({
           page: current,
           size: pageSize,
           sort,
+          filter,
         })
         scope.setState({
           page: current,
@@ -187,6 +195,7 @@ let TeamTable = React.createClass({
           page: current,
           size: pageSize,
           sort,
+          filter,
         })
         scope.setState({
           page: current,
@@ -338,6 +347,7 @@ class TeamManage extends Component {
             current: 1,
             size: this.state.pageSize,
             sort: this.state.sort,
+            filter: this.state.filter,
           })
           this.setState({
             visible: false,
@@ -363,7 +373,8 @@ class TeamManage extends Component {
     this.props.loadUserTeamList('default',{
       page: 1,
       size: 5,
-      sort: "a,teamName"
+      sort: "a,teamName",
+      filter: "",
     })
   }
   render(){
