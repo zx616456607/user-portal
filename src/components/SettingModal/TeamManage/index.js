@@ -145,10 +145,9 @@ let TeamTable = React.createClass({
       defaultPageSize: 5,
       pageSizeOptions: ['5','10','15','20'],
       onShowSizeChange(current, pageSize) {
-        scope.props.loadUserTeamList({
+        scope.props.loadUserTeamList('default',{
           page: current,
           size: pageSize,
-          sort: scope.state.sort
         })
         scope.setState({
           page: current,
@@ -158,10 +157,9 @@ let TeamTable = React.createClass({
       onChange(current) {
         const {pageSize} = scope.state
         console.log('Current: ', current);
-        scope.props.loadUserTeamList({
+        scope.props.loadUserTeamList('default',{
           page: current,
           size: pageSize,
-          sort: scope.state.sort
         })
         scope.setState({
           page: current,
@@ -267,21 +265,12 @@ let TeamTable = React.createClass({
         )
       },
     ]
-    if(notFound){
-      return (
-        <div id="notFound">
-          <div className="notFoundTip">没有查询到符合条件的记录，尝试其他关键字。</div>
-          <a onClick={this.handleBack}>[返回成员管理列表]</a>
-        </div>
-      )
-    } else {
-      return (
-        <Table columns={columns}
-               dataSource={searchResult.length === 0?data : searchResult}
-               pagination={pagination}
-               onChange={this.handleChange} />
-      )
-    }
+    return (
+      <Table columns={columns}
+             dataSource={searchResult.length === 0?data : searchResult}
+             pagination={pagination}
+             onChange={this.handleChange} />
+    )
   },
 })
 
