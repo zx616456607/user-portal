@@ -143,11 +143,11 @@ let AppDeployServiceModal = React.createClass({
       volumeMounts: volumeMounts,
       volumes: volumes
     })
-    if(volumes) {
+    if (volumes) {
       let isHaveVolume = volumes.some(volume => {
-        if(!volume.configMap) return true
+        if (!volume.configMap) return true
       })
-      if(isHaveVolume) {
+      if (isHaveVolume) {
         form.setFieldsValue({
           volumeSwitch: true
         })
@@ -183,9 +183,10 @@ let AppDeployServiceModal = React.createClass({
       }
     }
   },
-  submitNewService(parentScope) {
+  submitNewService() {
+    const parentScope = this.props.scope
     const scope = this.state;
-    const {getFieldValue,getFieldProps} = this.props.form
+    const {getFieldValue, getFieldProps} = this.props.form
     let composeType = scope.composeType;
     let portKey = getFieldValue('portKey')
     let envKey = getFieldValue('envKey')
@@ -202,7 +203,8 @@ let AppDeployServiceModal = React.createClass({
     let livePath = getFieldProps('livePath').value //高可用路径
     let args = getFieldProps('args').value //高可用路径
     //let config = getFileProps('config').value
-    let image = parentScope.state.registryServer + '/' + parentScope.state.currentSelectedImage + ':' + imageVersion //镜像名称
+    const { registryServer, currentSelectedImage } = parentScope.state
+    let image = registryServer + '/' + currentSelectedImage + ':' + imageVersion //镜像名称
     let deploymentList = new Deployment(serviceName)
     let serviceList = new Service(serviceName)
 
@@ -384,7 +386,7 @@ let AppDeployServiceModal = React.createClass({
       getFieldValue('volumeKey').map((k) => {
         let volumeChecked = getFieldProps(`volumeChecked${k}`).value   //服务只读
         let volumeInfo = getFieldProps(`volumeName${k}`).value
-        if(!volumeInfo) {
+        if (!volumeInfo) {
           return
         }
         volumeInfo = volumeInfo.split('/')
@@ -404,7 +406,7 @@ let AppDeployServiceModal = React.createClass({
             fsType: volumeInfo[1]
           }, {
               mountPath: getFieldProps(`volumePath${k}`).value,
-          })
+            })
         }
       })
     }
@@ -418,8 +420,8 @@ let AppDeployServiceModal = React.createClass({
           name: `configmap-volume-${item}`,
           configMap: vol,
         }, {
-          mountPath: volPath
-        })
+            mountPath: volPath
+          })
       })
     }
     //livenessProbe 高可用
@@ -429,7 +431,7 @@ let AppDeployServiceModal = React.createClass({
         path: livePath,
         initialDelaySeconds: parseInt(liveInitialDelaySeconds),
         timeoutSeconds: parseInt(liveTimeoutSeconds),
-      periodSeconds: parseInt(livePeriodSeconds)
+        periodSeconds: parseInt(livePeriodSeconds)
       })
     }
 
@@ -450,6 +452,11 @@ let AppDeployServiceModal = React.createClass({
       servicesList: newList,
       selectedList: newSeleList
     })
+    // for add service
+    const { onSubmitAddService } = this.props
+    if (onSubmitAddService) {
+      onSubmitAddService(serviceConfig)
+    }
     this.props.form.resetFields()
     this.setState({
       composeType: "1",
@@ -462,7 +469,8 @@ let AppDeployServiceModal = React.createClass({
       serNameErrState: '',
     })
   },
-  handleSubBtn(e, parentScope) {
+  handleSubBtn(e) {
+    const parentScope = this.props.scope
     const { form } = this.props
     const { getFieldProps, getFieldValue, isFieldValidating, getFieldError } = form
     e.preventDefault()
@@ -471,7 +479,7 @@ let AppDeployServiceModal = React.createClass({
         return
       }
       if (parentScope.state.isCreate) {
-        this.submitNewService(parentScope)
+        this.submitNewService()
       } else {
         const reviseServiceName = parentScope.state.checkInf.Service.metadata.name
         parentScope.state.selectedList.map((service, index) => {
@@ -484,18 +492,20 @@ let AppDeployServiceModal = React.createClass({
             parentScope.state.servicesList.splice(index, 1)
           }
         })
-        this.submitNewService(parentScope)
+        this.submitNewService()
       }
       this.props.form.resetFields()
       parentScope.setState({
-        serviceModalShow: false
+        serviceModalShow: false,
+        deployServiceModalShow: false, // for add service
       })
     })
   },
   closeModal() {
     const parentScope = this.props.scope;
     parentScope.setState({
-      serviceModalShow: false
+      serviceModalShow: false,
+      deployServiceModalShow: false, // for add service
     })
     this.props.form.resetFields()
     this.setState({
@@ -512,30 +522,31 @@ let AppDeployServiceModal = React.createClass({
   render: function () {
     const scope = this
     const parentScope = this.props.scope
-    const {servicesList} = parentScope.state.servicesList
     const {currentSelectedImage, registryServer, isCreate} = parentScope.state
     const { form, serviceOpen } = this.props
     const { composeType, disable } = this.state
     return (
       <div id="AppDeployServiceModal">
-        <Form horizontal onSubmit={ this.handleForm } >
+        <Form horizontal onSubmit={this.handleForm} >
           <NormalDeployBox
-            scope={scope} registryServer={registryServer}
+            scope={scope}
+            registryServer={registryServer}
             currentSelectedImage={currentSelectedImage}
-            serviceOpen={this.props.serviceOpen} isCreate={isCreate}
+            serviceOpen={this.props.serviceOpen}
+            isCreate={isCreate}
             composeType={composeType}
             form={form}
             cluster={this.props.cluster}
             />
           <Collapse>
             <Panel header={assitBoxTitle} key="1" className="assitBigBox">
-              <AssitDeployBox scope={scope} form={form}/>
+              <AssitDeployBox scope={scope} form={form} />
             </Panel>
             <Panel header={usefulBoxitle} key="2" className="usefulBigBox">
-              <UsefulDeployBox scope={scope} form={form}/>
+              <UsefulDeployBox scope={scope} form={form} />
             </Panel>
             <Panel header={composeBoxTitle} key="3" className="composeBigBox">
-              <ComposeDeployBox scope={scope} form={form} cluster={this.props.cluster} serviceOpen={this.props.serviceOpen}/>
+              <ComposeDeployBox scope={scope} form={form} cluster={this.props.cluster} serviceOpen={this.props.serviceOpen} />
             </Panel>
             <Panel header={advanceBoxTitle} key="4">
               <EnviroDeployBox scope={scope} form={form} />
@@ -545,13 +556,12 @@ let AppDeployServiceModal = React.createClass({
             <Button className="cancelBtn" size="large" type="ghost" onClick={this.closeModal}>
               取消
             </Button>
-              <Button className="createBtn" size="large" type="primary"
-                onClick={(e) => this.handleSubBtn(e, parentScope)}
-                servicesList={servicesList}
-                htmlType="submit"
-                >
-                {parentScope.state.isCreate ? '创建' : '修改'}
-              </Button>
+            <Button className="createBtn" size="large" type="primary"
+              onClick={(e) => this.handleSubBtn(e)}
+              htmlType="submit"
+              >
+              {parentScope.state.isCreate ? '创建' : '修改'}
+            </Button>
           </div>
         </Form>
       </div>

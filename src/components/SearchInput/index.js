@@ -11,7 +11,7 @@ import React, { Component } from 'react'
 import { Button, Input, Select, } from 'antd'
 import './style/SearchInput.less'
 import { connect } from 'react-redux'
-import { loadUserList } from '../../actions/user'
+import { loadUserList, loadUserTeamList } from '../../actions/user'
 
 const Option = Select.Option
 
@@ -52,29 +52,57 @@ class SearchInput extends Component{
     } else if (selecteValue == "tel") {
       field = "phone"
     }
+    else if (selecteValue == "team") {
+      field = "teamName"
+    }
     return field
   }
   handleSearch(){
     const { searchValue, selecteValue } = this.state
-    let { scope } = this.props
+    console.log("searchValue", searchValue)
+    console.log("selecteValue", selecteValue)
+    let { scope,total } = this.props
     const { searchResult, pageSize, sort } = scope.state
     let filter = this.getFilterField(selecteValue) + "," + searchValue
-    this.props.loadUserList({
-      pageSize,
-      page: 1,
-      sort,
-      filter,
-    },{
-      success:{
-        func: () => {
-          scope.setState({
-            page: 1,
-            filter,
-          })
-        },
-        isAsync:true
-      }
-    })
+    if (selecteValue == "team") {
+      this.props.loadUserTeamList('default', {
+        size: pageSize,
+        page: 1,
+        sort,
+        filter,
+      },{
+        success:{
+          func: () => {
+            scope.setState({
+              page: 1,
+              current: 1,
+              filter,
+              total,
+            })
+          },
+          isAsync:true
+        }
+      })
+    } else {
+      this.props.loadUserList({
+        pageSize,
+        page: 1,
+        sort,
+        filter,
+      },{
+        success:{
+          func: () => {
+            scope.setState({
+              page: 1,
+              current: 1,
+              filter,
+              total,
+            })
+          },
+          isAsync:true
+        }
+      })
+    }
   }
   handleSelect(value){
     this.setState({
@@ -82,7 +110,7 @@ class SearchInput extends Component{
     })
   }
   render(){
-    let { searchIntOption, } = this.props
+    let { searchIntOption, total} = this.props
     
     if(!searchIntOption){
       searchIntOption = {
@@ -93,7 +121,7 @@ class SearchInput extends Component{
     if(addBefore){
       let selectBefore = (
         <Select defaultValue={defaultValue ? defaultValue : addBefore[0].key}
-                style={{ width: 80 }}
+                style={{ width: 80}}
                 onChange={this.handleSelect}>
           {
             addBefore.map((item,index) => {
@@ -138,11 +166,20 @@ class SearchInput extends Component{
 }
 
 function mapStateToProp(state) {
+  let total = 0
+  const users = state.user.users
+  if (users.result) {
+    if (users.result.total) {
+      total = users.result.total
+    }
+  }
+  
   return {
-    
+    total
   }
 }
 
 export default connect(mapStateToProp, {
   loadUserList,
+  loadUserTeamList,
 })(SearchInput)

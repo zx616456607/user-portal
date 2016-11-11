@@ -239,6 +239,8 @@
   "CICD.Tenxflow.ImageDeployLog.runningAbnormal": "Abnormal",
   "CICD.Tenxflow.ImageDeployLog.success": "Success",
   "CICD.Tenxflow.ImageDeployLog.fail": "Fail",
+  "CICD.Tenxflow.ImageDeployLog.normalUpdate": "Normal Update",
+  "CICD.Tenxflow.ImageDeployLog.imageUpdate": "Rolling Update",
   
   "CICD.Tenxflow.AutoDeployService.tag": "Image Tag",
   "CICD.Tenxflow.AutoDeployService.service": "Service",

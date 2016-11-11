@@ -83,9 +83,9 @@ let MyComponent = React.createClass({
         </div>
       )
     }
-    let items = config.map((item) => {
+    let items = config.map((item, index) => {
       return (
-        <div className="imageDetail" key={item.id} >
+        <div className="imageDetail" key={`${item.id}-${index}`} >
           <div className="imageBox">
             <img src={item.icon == 'default' ? '/img/test/github.jpg' : item.icon} />
           </div>

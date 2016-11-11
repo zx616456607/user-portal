@@ -225,6 +225,29 @@ function getDockerfileList(state = {}, action) {
   }
 }
 
+function deployLog(state={}, action) {
+  const defaultStatus= {
+    isFetching: false,
+    deployList:[]
+  }
+  switch(action.type) {
+    case ActionTypes.GET_DEPLOY_LOG_REQUEST:
+      return merge({}, defaultStatus, state, {
+        isFetching: true
+      })
+    case ActionTypes.GET_DEPLOY_LOG_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        deployList:　action.response.result.data.results
+      })
+    case ActionTypes.GET_DEPLOY_LOG_FAILURE:
+      return Object.assign({}, state, {
+        isFetching: false,
+        deployList:[]
+      })
+  }
+}
+
 function getTenxflowList(state = {}, action) {
   const defaultState = {
     isFetching: false,
@@ -360,6 +383,7 @@ export default function cicd_flow(state = {}, action) {
     getTenxflowDetail: getTenxflowDetail(state.getTenxflowDetail, action),
     userInfo: getUserInfo(state.userInfo, action),
     dockerfileLists: getDockerfileList(state.dockerfileLists, action),
+    deployLog:　deployLog(state.deployLog, action),
     createTenxFlowSingle: reducerFactory({
       REQUEST: ActionTypes.CREATE_SINGLE_TENX_FLOW_REQUEST,
       SUCCESS: ActionTypes.CREATE_SINGLE_TENX_FLOW_SUCCESS,

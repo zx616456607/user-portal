@@ -109,7 +109,11 @@ exports.getUserTeams = function* () {
   if (query && query.sort) {
     queryObj.sort = query.sort
   }
-  queryObj.filter = "creatorID," + userID
+  //Todo enable below filter when API problem fixed
+  //queryObj.filter = "creatorID," + userID
+  if (query.filter) {
+    queryObj.filter = query.filter
+  }
   const api = apiFactory.getApi(loginUser)
   const result = yield api.teams.get(queryObj)
   const teams = result.teams || []

@@ -30,6 +30,8 @@ let TeamTable = React.createClass({
       sortTeamName: true,
       addMember: false,
       targetKeys:[],
+      sort: "a,teamName",
+      filter: "",
     }
   },
   handleChange(pagination, filters, sorter) {
@@ -45,61 +47,87 @@ let TeamTable = React.createClass({
   },
   delTeam(teamID){
     const {deleteTeam,loadUserTeamList} = this.props.scope.props
+    const {page,pageSize,sort, filter} = this.props.scope.state
     confirm({
       title: '您是否确认要删除这项内容',
       onOk() {
-        console.log('del !!!!!')
         deleteTeam(teamID)
         loadUserTeamList('default',{
-          page: this.state.page,
-          size: this.state.pageSize,
+          page: page,
+          size: pageSize,
+          sort,
+          filter,
         })
       },
       onCancel() {},
     });
   },
+  getSort(order, column) {
+    var query = {}
+    var orderStr = 'a,'
+    if (!order) {
+      orderStr = 'd,'
+    }
+    return orderStr + column
+  },
   handleSortMember(){
     const { loadUserTeamList } = this.props.scope.props
     const { sortMember } = this.state
+    let sort = this.getSort(!sortMember, 'userCount')
     loadUserTeamList('default',{
       page: this.state.page,
       size: this.state.pageSize,
+      sort,
+      filter: this.state.filter,
     })
     this.setState({
       sortMember: !sortMember,
+      sort,
     })
   },
   handleSortSpace(){
     const { loadUserTeamList } = this.props.scope.props
     const { sortSpace } = this.state
+    let sort = this.getSort(!sortSpace, 'spaceCount')
     loadUserTeamList('default',{
       page: this.state.page,
       size: this.state.pageSize,
+      sort,
+      filter: this.state.filter,
     })
     this.setState({
       sortSpace: !sortSpace,
+      sort,
     })
   },
   handleSortCluster(){
     const { loadUserTeamList } = this.props.scope.props
     const { sortCluster } = this.state
+    let sort = this.getSort(!sortCluster, 'clusterCount')
     loadUserTeamList('default',{
       page: this.state.page,
       size: this.state.pageSize,
+      sort,
+      filter: this.state.filter,
     })
     this.setState({
       sortCluster: !sortCluster,
+      sort,
     })
   },
   handleSortTeamName(){
     const { loadUserTeamList } = this.props.scope.props
     const { sortTeamName } = this.state
+    let sort = this.getSort(!sortTeamName, 'teamName')
     loadUserTeamList('default',{
       page: this.state.page,
       size: this.state.pageSize,
+      sort,
+      filter: this.state.filter,
     })
     this.setState({
       sortTeamName: !sortTeamName,
+      sort,
     })
   },
   addNewMember(){
@@ -134,38 +162,45 @@ let TeamTable = React.createClass({
   },
   render() {
     let { sortedInfo, filteredInfo, targetKeys } = this.state
-    const { searchResult, notFound } = this.props.scope.state
+    const { searchResult, notFound, sort, filter } = this.props.scope.state
     const { data, scope } = this.props
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
-    console.log('this.props.scope.props.total',this.props.scope.props.total);
     const pagination = {
       total: this.props.scope.props.total,
+      sort,
+      filter,
       showSizeChanger: true,
       defaultPageSize: 5,
+      defaultCurrent:1,
+      current:this.props.scope.state.current,
       pageSizeOptions: ['5','10','15','20'],
       onShowSizeChange(current, pageSize) {
-        scope.props.loadUserTeamList({
+        scope.props.loadUserTeamList('default',{
           page: current,
           size: pageSize,
-          sort: scope.state.sort
+          sort,
+          filter,
         })
         scope.setState({
           page: current,
-          pageSize: pageSize
+          pageSize: pageSize,
+          current: current,
         })
       },
       onChange(current) {
         const {pageSize} = scope.state
         console.log('Current: ', current);
-        scope.props.loadUserTeamList({
+        scope.props.loadUserTeamList('default',{
           page: current,
           size: pageSize,
-          sort: scope.state.sort
+          sort,
+          filter,
         })
         scope.setState({
           page: current,
-          pageSize: pageSize
+          pageSize: pageSize,
+          current: current,
         })
       },
     }
@@ -189,7 +224,7 @@ let TeamTable = React.createClass({
         width: '20%',
         className: 'teamName',
         render: (text,record,index) => (
-          <Link to={`/setting/detail/${record.key}`}>{text}</Link>
+          <Link to={`/setting/team/${record.team}/${record.key}`}>{text}</Link>
         )
       },
       {
@@ -267,21 +302,12 @@ let TeamTable = React.createClass({
         )
       },
     ]
-    if(notFound){
-      return (
-        <div id="notFound">
-          <div className="notFoundTip">没有查询到符合条件的记录，尝试其他关键字。</div>
-          <a onClick={this.handleBack}>[返回成员管理列表]</a>
-        </div>
-      )
-    } else {
-      return (
-        <Table columns={columns}
-               dataSource={searchResult.length === 0?data : searchResult}
-               pagination={pagination}
-               onChange={this.handleChange} />
-      )
-    }
+    return (
+      <Table columns={columns}
+             dataSource={searchResult.length === 0?data : searchResult}
+             pagination={pagination}
+             onChange={this.handleChange} />
+    )
   },
 })
 
@@ -299,6 +325,8 @@ class TeamManage extends Component {
       teamName: '',
       pageSize: 5,
       page: 1,
+      current: 1,
+      sort: 'a,teamName'
     }
   }
   showModal() {
@@ -314,14 +342,18 @@ class TeamManage extends Component {
       success: {
         func: () => {
           console.log('create done');
+          this.props.loadUserTeamList('default',{
+            page: 1,
+            current: 1,
+            size: this.state.pageSize,
+            sort: this.state.sort,
+            filter: this.state.filter,
+          })
           this.setState({
             visible: false,
           })
-          this.props.loadUserTeamList('default',{
-            page: this.state.page,
-            size: this.state.pageSize,
-          })
-        }
+        },
+        isAsync: true,
       }
     })
   }
@@ -341,6 +373,8 @@ class TeamManage extends Component {
     this.props.loadUserTeamList('default',{
       page: 1,
       size: 5,
+      sort: "a,teamName",
+      filter: "",
     })
   }
   render(){

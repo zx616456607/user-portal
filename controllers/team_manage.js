@@ -43,11 +43,22 @@ exports.getTeamspaces = function* () {
   }
   const api = apiFactory.getApi(loginUser)
   const result = yield api.teams.getBy([teamID, 'spaces'], queryObj)
-  const teamspaces = result.data.teamspaces || []
+  const teamspaces = result.spaces || []
+  let total = 0
+  if (result.listMeta && result.listMeta.total) {
+    total = result.listMeta.total
+  }
+
+  for (let index in teamspaces) {
+    const r = yield api.teams.getBy([teamspaces[index].teamID, "spaces", teamspaces[index].spaceID, "app_info"])
+    teamspaces[index].appCount = r.appCount
+    teamspaces[index].serviceCount = r.serviceCount
+    teamspaces[index].containerCount = r.containerCount
+  } 
+
   this.body = {
     data: teamspaces,
-    total: result.data.total,
-    count: result.data.count
+    total,
   }
 }
 
@@ -161,7 +172,7 @@ exports.createTeamspace = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
   const teamspace = this.request.body
-  if (!teamspace || !teamspace.name) {
+  if (!teamspace || !teamspace.spaceName) {
     const err = new Error('teamspace name is required.')
     err.status = 400
     throw err

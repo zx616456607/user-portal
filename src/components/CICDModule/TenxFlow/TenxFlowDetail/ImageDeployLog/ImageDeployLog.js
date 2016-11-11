@@ -13,53 +13,10 @@ import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { DEFAULT_REGISTRY } from '../../../../../constants'
+import { deploymentLog } from '../../../../../actions/cicd_flow'
 import './style/ImageDeployLog.less'
 
 const Panel = Collapse.Panel;
-
-let testData = [
-  {
-    'name': 'test1',
-    'updateTime': '1小时前',
-    'status': 'normal',
-    'user': 'gaojian',
-    'cost': '10小时',
-    'runningStatus': 'normal',
-    'config': '2C 8G',
-    'updateType': 'normal'
-  },
-  {
-    'name': 'test2',
-    'updateTime': '2小时前',
-    'status': 'normal',
-    'user': 'gaojian',
-    'cost': '10小时',
-    'runningStatus': 'fail',
-    'config': '2C 8G',
-    'updateType': 'normal'
-  },
-  {
-    'name': 'test3',
-    'updateTime': '3小时前',
-    'status': 'normal',
-    'user': 'gaojian',
-    'cost': '10小时',
-    'runningStatus': 'normal',
-    'config': '2C 8G',
-    'updateType': 'grey'
-  },
-  {
-    'name': 'test4',
-    'updateTime': '4小时前',
-    'status': 'fail',
-    'user': 'gaojian',
-    'cost': '10小时',
-    'runningStatus': 'normal',
-    'config': '2C 8G',
-    'updateType': 'normal'
-  },
-]
 
 const menusText = defineMessages({
   title: {
@@ -123,66 +80,39 @@ const menusText = defineMessages({
 function checkStatusSpan(status, scope) {
   //this function for user input the status return current words
   const { formatMessage } = scope.props.intl;
-  switch(status) {
-    case 'normal':
-      return formatMessage(menusText.success);
-      break;
-    case 'fail' :
-      return formatMessage(menusText.fail);;
-      break;
+  if (status == 1) {
+    return formatMessage(menusText.success)
   }
+  return formatMessage(menusText.fail)
+
 }
 
 function checkStatusClass(status) {
-  //this function for user input the status return current className
-  switch(status) {
-    case 'normal':
-      return 'normal';
-      break;
-    case 'fail':
-      return 'fail';
-      break;
+  if (status == 1) {
+    return 'normal'
   }
+  return 'fail'
+ 
 }
 
 function checkStatusIcon(status) {
   //this function for user input the status return current className
-  switch(status) {
-    case 'normal':
-      return 'normal fa fa-check-circle';
-      break;
-    case 'fail':
-      return 'fail fa fa-times-circle';
-      break;
+  if (status == 1) {
+    return 'normal fa fa-check-circle';
   }
+  return 'fail fa fa-times-circle';
 }
 
 function checkRunningStatusSpan(status, scope) {
   //this function for user input the status return current words
   const { formatMessage } = scope.props.intl;
-  switch(status) {
-    case 'normal':
-      return formatMessage(menusText.runningNormal);
-      break;
-    case 'fail':
-      return formatMessage(menusText.runningAbnormal);;
-      break;
+  if (status == 1) {
+    return formatMessage(menusText.runningNormal);
   }
+  return formatMessage(menusText.runningAbnormal);
 }
 
-function checkRunningStatusClass(status) {
-  //this function for user input the status return current className
-  switch(status) {
-    case 'normal':
-      return 'normal';
-      break;
-    case 'fail':
-      return 'fail';
-      break;
-  }
-}
-
-let MyLine = React.createClass({
+const MyLine = React.createClass({
   propTypes: {
     config: React.PropTypes.array,
     scope: React.PropTypes.object
@@ -193,11 +123,11 @@ let MyLine = React.createClass({
       const header = (
         <div className='header'>
           <div className='line'></div>
-          <i className={ checkStatusIcon(item.status) } />
+          <i className={ checkStatusIcon(item.result.status) } />
         </div>
       );
       return (
-        <Panel header={header} className='lineDetail' key={item.name} >
+        <Panel header={header} className='lineDetail' key={item.appName + Math.random()} >
           <div className='line'></div>
         </Panel>
       );
@@ -212,7 +142,7 @@ let MyLine = React.createClass({
   }
 });
 
-let MyComponent = React.createClass({
+const MyComponent = React.createClass({
   propTypes: {
     config: React.PropTypes.array,
     scope: React.PropTypes.object
@@ -227,31 +157,33 @@ let MyComponent = React.createClass({
   },
   render: function () {
     const { config, scope } = this.props;
-    let items = config.map((item) => {
+    
+    let items = config.map((item, index) => {
       const header = (
         <div className='header'>
           <span className='name commonHeader'>
-            {item.name}
+            {item.imageName}
           </span>
           <span className='status commonHeader'>
-            <span className={ checkStatusClass(item.status) }>
+            <span className={ checkStatusClass(item.result.status) }>
               <i className='fa fa-circle' />
-              { checkStatusSpan(item.status, scope) }
+              { checkStatusSpan(item.result.status, scope) }
             </span>
           </span>
           <span className='updateTime commonHeader'>
             <i className='fa fa-wpforms' />
-            {item.updateTime}
+            {item.createTime}
           </span>
           <span className='commonHeader'>
             <Icon type='clock-circle-o' />
-            <FormattedMessage {...menusText.cost} />
-            {item.cost}
+            <FormattedMessage {...menusText.cost} />&nbsp;
+            {item.result.duration}
           </span>
         </div>
       );
+
       return (
-        <Panel header={header} className='LogDetail' key={item.name} >
+        <Panel header={header} className='LogDetail' key={`${item.appName}+${index}`} >
           <div className='titleBox'>
             <span className='name commonTitle'>
               <FormattedMessage {...menusText.name} />
@@ -272,21 +204,21 @@ let MyComponent = React.createClass({
           </div>
           <div className='infoBox'>
             <span className='name commonInfo'>
-              {item.user}
+              {item.appName}
             </span>
-            <span className='commonInfo'>
-              {item.config}
+            <span className='commonInfo version'>
+              {item.targetVersion}
             </span>
             <span className='cluster commonInfo'>
-              {item.user}
+              {item.clusterName}
             </span>
-            <span className='commonInfo'>
-              {item.updateType == 'normal' ? [<FormattedMessage {...menusText.normalUpdate} />] : [<FormattedMessage {...menusText.imageUpdate} />]}
+            <span className='commonInfo upgrade'>
+              {item.upgradeStrategy == '1' ? [<FormattedMessage {...menusText.normalUpdate} />] : [<FormattedMessage {...menusText.imageUpdate} />]}
             </span>
             <span className='status commonInfo'>
-              <span className={ checkRunningStatusClass(item.status) }>
+              <span className={ checkStatusClass(item.result.status) }>
                 <i className='fa fa-circle' />
-                { checkRunningStatusSpan(item.runningStatus, scope) }
+                { checkRunningStatusSpan(item.result.status, scope) }
               </span>
             </span>
             <div style={{ clear:'both' }}></div>
@@ -313,11 +245,13 @@ class ImageDeployLog extends Component {
   }
 
   componentWillMount() {
-    document.title = 'TenxFlow | 时速云';
+    const {deploymentLog } = this.props
+    deploymentLog(this.props.flowId)
   }
 
   render() {
     const scope = this;
+    
     return (
       <div id='ImageDeployLog'>
         <div className='title'>
@@ -325,9 +259,8 @@ class ImageDeployLog extends Component {
         </div>
         <div className='paddingBox'>
           <Alert message={<FormattedMessage {...menusText.tooltip} />} type='info' />
-          <MyLine config={testData} scope={scope} />
-          <MyComponent config={testData} scope={scope} />
-          <div style={{ clear:'both' }}></div>
+          <MyLine config={this.props.deployList} scope={scope} />
+          <MyComponent config={this.props.deployList} scope={scope} />
         </div>
       </div>
     )
@@ -335,18 +268,25 @@ class ImageDeployLog extends Component {
 }
 
 function mapStateToProps(state, props) {
-
+  const defaultConfig = {
+    isFetching: false,
+    deployList: []
+  }
+  const {deployLog } = state.cicd_flow
+  const {deployList, isFetching} = deployLog || defaultConfig
   return {
-
+    deployList,
+    isFetching
   }
 }
 
 ImageDeployLog.propTypes = {
   intl: PropTypes.object.isRequired,
+  deploymentLog: PropTypes.func.isRequired
 }
 
 export default connect(mapStateToProps, {
-
+  deploymentLog
 })(injectIntl(ImageDeployLog, {
   withRef: true,
 }));

@@ -16,17 +16,8 @@ import { deleteTeam, createTeamspace, addTeamusers, removeTeamusers,
 import { connect } from 'react-redux'
 import MemberTransfer from '../MemberTransfer'
 
-const memberListdata = [
-  {name: 'pupumeng',tel: '11111111',email: '123@123.com',style: '创业者'},
-  {name: 'pupumeng',tel: '11111111',email: '123@123.com',style: '创业者'},
-  {name: 'pupumeng',tel: '11111111',email: '123@123.com',style: '创业者'},
-  {name: 'pupumeng',tel: '11111111',email: '123@123.com',style: '创业者'},
-  {name: 'pupumeng',tel: '11111111',email: '123@123.com',style: '创业者'},
-]
-const teamListData = [
-  {teamName: '奔驰外包开发',remark: '外包团队使用的空间',app: '2333',},
-  {teamName: '民生测试开发',remark: '测试金融changing',app: '0',},
-]
+const confirm = Modal.confirm;
+
 let MemberList = React.createClass({
   getInitialState(){
     return {
@@ -48,21 +39,30 @@ let MemberList = React.createClass({
     })
     //req
   },
-  componentDidMount() {
+  delTeamMember(userID){
+    const { removeTeamusers,teamID, loadTeamUserList } = this.props
+    confirm({
+      title: '您是否确认要删除这项内容',
+      onOk() {
+        removeTeamusers(teamID,userID,{
+          success: {
+            func: () => {
+              console.log('delte!!');
+              loadTeamUserList(teamID)
+            },
+            isAsync: true
+          }
+        })
+      },
+      onCancel() {},
+    });
+    
   },
   render: function(){
     let { sortedInfo, filteredInfo } = this.state
     const { teamUserList } = this.props
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
-    /*const menu = (
-      <Menu onClick={this.handleDel}>
-        <Menu.Item key="1" style={{left:730,width:105}}>
-          <Icon type="delete" />
-          删除
-        </Menu.Item>
-      </Menu>
-    )*/
     const columns = [
       {
         title: (
@@ -108,15 +108,9 @@ let MemberList = React.createClass({
         title: '操作',
         dataIndex: 'edit',
         key: 'edit',
-        render:() => (
+        render:(text,record,index) => (
           <div className="cardBtns">
-            {/*<Dropdown.Button onClick={this.handleEdit} overlay={menu} trigger={['click']} getPopupContainer={
-              () => document.getElementsByClassName('cardBtns')
-            }>
-              <Icon type="edit" />
-              修改
-            </Dropdown.Button>*/}
-            <Button icon="delete" className="delBtn">
+            <Button icon="delete" className="delBtn" onClick={() => this.delTeamMember(record.key)}>
               移除
             </Button>
           </div>
@@ -162,7 +156,46 @@ let TeamList = React.createClass({
   render: function(){
     let { filteredInfo } = this.state
     const { teamSpacesList } = this.props
+    const { searchResult, notFound, sort, filter } = this.state
     filteredInfo = filteredInfo || {}
+    /*const pagination = {
+      total: this.props.scope.props.total,
+      sort,
+      filter,
+      showSizeChanger: true,
+      defaultPageSize: 5,
+      defaultCurrent:1,
+      current:this.props.scope.state.current,
+      pageSizeOptions: ['5','10','15','20'],
+      onShowSizeChange(current, pageSize) {
+        scope.props.loadUserTeamList('default',{
+          page: current,
+          size: pageSize,
+          sort,
+          filter,
+        })
+        scope.setState({
+          page: current,
+          pageSize: pageSize,
+          current: current,
+        })
+      },
+      onChange(current) {
+        const {pageSize} = scope.state
+        console.log('Current: ', current);
+        scope.props.loadUserTeamList('default',{
+          page: current,
+          size: pageSize,
+          sort,
+          filter,
+        })
+        scope.setState({
+          page: current,
+          pageSize: pageSize,
+          current: current,
+        })
+      },
+    }*/
     const columns = [
       {
         title: (
@@ -178,18 +211,18 @@ let TeamList = React.createClass({
             </div>
           </div>
         ),
-        dataIndex: 'teamName',
-        key: 'teamName',
+        dataIndex: 'spaceName',
+        key: 'spaceName',
         className: 'tablePadding',
-        
       },
       {
         title: '备注',
-        dataIndex: 'remark',
-        key: 'remark',
+        dataIndex: 'description',
+        key: 'description',
       },
       {
-        title: (
+        title: '应用',
+          /*(
           <div onClick={this.handleAppSort}>
             应用
             <div className="ant-table-column-sorter">
@@ -201,9 +234,9 @@ let TeamList = React.createClass({
               </span>
             </div>
           </div>
-        ),
-        dataIndex: 'app',
-        key: 'app',
+        ),*/
+        dataIndex: 'appCount',
+        key: 'appCount',
       },
       {
         title: '操作',
@@ -233,10 +266,14 @@ class TeamDetail extends Component{
     this.handleNewSpaceOk = this.handleNewSpaceOk.bind(this)
     this.handleNewSpaceCancel = this.handleNewSpaceCancel.bind(this)
     this.handleChange = this.handleChange.bind(this)
+    this.handleNewSpaceName = this.handleNewSpaceName.bind(this)
+    this.handleNewSpaceDes = this.handleNewSpaceDes.bind(this)
     this.state = {
       addMember: false,
       addSpace: false,
       targetKeys:[],
+      newSpaceName: '',
+      newSpaceDes: '',
     }
   }
   addNewMember(){
@@ -245,7 +282,7 @@ class TeamDetail extends Component{
     })
   }
   handleNewMemberOk(){
-    const { addTeamusers, teamID } = this.props
+    const { addTeamusers, teamID, loadTeamUserList } = this.props
     const { targetKeys } = this.state
     console.log('targetKeys',targetKeys);
     if(targetKeys.length !== 0){
@@ -254,6 +291,7 @@ class TeamDetail extends Component{
       ,{
         success: {
           func:() => {
+            loadTeamUserList(teamID)
             this.setState({
               addMember: false,
             })
@@ -279,13 +317,16 @@ class TeamDetail extends Component{
   }
   handleNewSpaceOk(){
     const {createTeamspace, teamID, loadTeamspaceList} = this.props
+    const {newSpaceName,newSpaceDes} = this.state
+    console.log('newSpaceName,newSpaceDes',newSpaceName);
     createTeamspace(teamID,{
-      
+      spaceName: newSpaceName,
+      description: newSpaceDes,
     },{
       success:{
         func:() => {
           console.log('create !');
-          loadTeamspaceList()
+          loadTeamspaceList(teamID)
           this.setState({
             addSpace: false,
           })
@@ -299,17 +340,25 @@ class TeamDetail extends Component{
       addSpace: false,
     })
   }
-  componentDidMount() {
+  handleNewSpaceName(e){
+    this.setState({
+      newSpaceName: e.target.value
+    })
+  }
+  handleNewSpaceDes(e){
+    this.setState({
+      newSpaceDes: e.target.value
+    })
   }
   componentWillMount(){
     const { loadTeamClustersList, loadTeamUserList, loadTeamspaceList, teamID, } = this.props
     loadTeamClustersList(teamID)
     loadTeamUserList(teamID)
-    // loadTeamspaceList(teamID)
+    loadTeamspaceList(teamID)
   }
   
   render(){
-    const { clusterList, teamUserList, teamSpacesList } = this.props
+    const { clusterList, teamUserList, teamSpacesList, teamName,teamID,removeTeamusers,loadTeamUserList } = this.props
     const { targetKeys } = this.state
     return (
       <div id='TeamDetail'>
@@ -317,7 +366,7 @@ class TeamDetail extends Component{
           <Link className="back" to="/setting/team">返回</Link>
         </Row>
         <Row className="title">
-          研发Team
+          {teamName}
         </Row>
         <Row className="content">
           <Alert message="这里展示了该团队在用的集群列表,资源配置是超级管理员在企业版后台,分配到该团队所用的计算等资源,以下集群对该团队的团队空间有效."/>
@@ -373,7 +422,10 @@ class TeamDetail extends Component{
               </Col>
             </Row>
             <Row>
-              <MemberList teamUserList={teamUserList}/>
+              <MemberList teamUserList={teamUserList}
+                          teamID={teamID}
+                          removeTeamusers={removeTeamusers}
+                          loadTeamUserList={loadTeamUserList}/>
             </Row>
           </Col>
           <Col span={3}/>
@@ -393,13 +445,13 @@ class TeamDetail extends Component{
                   <Row className="addSpaceItem">
                     <Col span={3}>名称</Col>
                     <Col span={21}>
-                      <Input placeholder="新空间名称"/>
+                      <Input placeholder="新空间名称" onChange={this.handleNewSpaceName}/>
                     </Col>
                   </Row>
                   <Row className="addSpaceItem">
                     <Col span={3}>备注</Col>
                     <Col span={21}>
-                      <Input type="textarea" rows={5}/>
+                      <Input type="textarea" rows={5} onChange={this.handleNewSpaceDes}/>
                     </Col>
                   </Row>
                 </Modal>
@@ -420,7 +472,7 @@ function mapStateToProp(state,props) {
   let clusterList = []
   let teamUserList = []
   let teamSpacesList = []
-  const { team_id } = props.params
+  const { team_id, team_name } = props.params
   console.log('state',state);
   const team = state.team
   const users = state.user.users
@@ -462,18 +514,24 @@ function mapStateToProp(state,props) {
   }
   if(team.teamspaces){
     const teamSpaces = team.teamspaces
-    if(teamSpaces.length !== 0){
-      teamSpaces.map((item,index) => {
-        teamSpacesList.push(
-          {
-            key: index,
-          }
-        )
-      })
+    if(teamSpaces.result){
+      if(teamSpaces.result.data){
+        teamSpaces.result.data.map((item,index) => {
+          teamSpacesList.push(
+            {
+              key: item.spaceID,
+              spaceName: item.spaceName,
+              description: item.description,
+              appCount: item.balance,
+            }
+          )
+        })
+      }
     }
   }
   return {
     teamID: team_id,
+    teamName: team_name,
     clusterList: clusterList,
     teamUserList: teamUserList,
     teamSpacesList: teamSpacesList,

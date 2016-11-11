@@ -239,6 +239,8 @@
   "CICD.Tenxflow.ImageDeployLog.runningAbnormal": "异常",
   "CICD.Tenxflow.ImageDeployLog.success": "成功",
   "CICD.Tenxflow.ImageDeployLog.fail": "失败",
+  "CICD.Tenxflow.ImageDeployLog.normalUpdate": "普通升级",
+  "CICD.Tenxflow.ImageDeployLog.imageUpdate": "灰度升级",
   
   "CICD.Tenxflow.AutoDeployService.tag": "镜像版本",
   "CICD.Tenxflow.AutoDeployService.service": "服务",

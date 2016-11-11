@@ -64,33 +64,17 @@ class OtherServiceApi extends Component {
     super(props)
   }
 
-  // @workaround !! 
-  componentDidMount() {
-    const { fullname, imageTag , imageId} = this.props;
-    const config = {imageId, fullname, imageTag}
-    this.props.loadOtherDetailTagConfig(config, {
-      failed: {
-        func:(err)=>{
-          message.error(err.message)
-        }
-      }
-    })
-  }
-  componentWillReceiveProps(nextPorps) {
-    //this function mean when the user change show image detail
-    //it will be check the old iamge is different from the new one or not
-    //if the different is true,so that the function will be request the new one's tag
-    const oldImageDatail = this.props.fullname;
-    const newImageDetail = nextPorps.fullname;
-    const { fullname, imageTag , imageId} = this.props;
-    const config = {imageId, fullname, imageTag}
-    if (newImageDetail != oldImageDatail) {
-      this.props.loadOtherDetailTagConfig(config)
+ componentWillMount() {
+    const { registry, loadOtherDetailTagConfig } = this.props;
+    const { fullname, imageTag} = this.props;
+    const config= {
+      imageId: this.props.imageId, fullname, imageTag
     }
+    loadOtherDetailTagConfig(config);
   }
   render() {
     const { isFetching, configList , sizeInfo} = this.props;
-    // if (!configList || configList =='') return
+    if (!configList || configList =='') return (<div>无</div>)
     if (isFetching) {
       return (
         <Card className='loadingBox'>
@@ -133,7 +117,7 @@ class OtherServiceApi extends Component {
          <p>容器端口:&nbsp;{portsShow}</p> 
         {dataStorageShow}
         <p>运行命令及参数:&nbsp;{entrypointShow}{cmdShow}</p>
-        <div>大小：{(sizeInfo.totalSize > 0) ? sizeInfo.totalSize /1024 + 'K' : '未知'}</div>
+        <div>大小：{(sizeInfo.totalSize > 0) ? Math.round(sizeInfo.totalSize /1024) + ' K' : '未知'}</div>
         <p>所需环境变量: </p>
         <div className="itemBox">
           <div className="title">

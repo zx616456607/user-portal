@@ -32,12 +32,7 @@ let MemberTable =  React.createClass({
       filter: ""
     };
   },
-  handleChange(pagination, filters, sorter) {
-    this.setState({
-      filteredInfo: filters,
-      sortedInfo: sorter,
-    });
-  },
+  
   getSort(order, column) {
     var query = {}
     var orderStr = 'a,'
@@ -64,7 +59,7 @@ let MemberTable =  React.createClass({
   handleSortTeam(){
     const { loadUserList } = this.props.scope.props
     const { sortTeam } = this.state
-    let sort = this.getSort(!sortTeam, 'userName')
+    let sort = this.getSort(!sortTeam, 'teamCount')
     loadUserList({
         page: this.state.page,
         size: this.state.pageSize,
@@ -79,7 +74,7 @@ let MemberTable =  React.createClass({
   handleSortBalance(){
     const { loadUserList } = this.props.scope.props
     const { sortBalance } = this.state
-    let sort = this.getSort(!sortBalance, 'userName')
+    let sort = this.getSort(!sortBalance, 'balance')
     loadUserList({
         page: this.state.page,
         size: this.state.pageSize,
@@ -126,12 +121,13 @@ let MemberTable =  React.createClass({
     const { searchResult, notFound } = this.props.scope.state
     const { data, scope } = this.props
     console.log('listdata',data);
-    sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
     const pagination = {
       total: this.props.scope.props.total,
       showSizeChanger: true,
       defaultPageSize: 5,
+      defaultCurrent:1,
+      current:this.props.scope.state.current,
       pageSizeOptions: ['5','10','15','20'],
       onShowSizeChange(current, pageSize) {
         console.log('Current: ', current, '; PageSize: ', pageSize);
@@ -139,11 +135,12 @@ let MemberTable =  React.createClass({
           page: current,
           size: pageSize,
           sort: scope.state.sort,
-          filter: scope.state.filter
+          filter: scope.state.filter,
         })
         scope.setState({
           pageSize: pageSize,
-          page: current
+          page: current,
+          current: current,
         })
       },
       onChange(current) {
@@ -157,7 +154,8 @@ let MemberTable =  React.createClass({
         })
         scope.setState({
           pageSize: pageSize,
-          page: current
+          page: current,
+          current: current,
         })
       },
     }
@@ -195,14 +193,48 @@ let MemberTable =  React.createClass({
       },
       {
         title: '类型',
+         /* (
+          <span>
+            <div className="ant-dropdown ant-dropdown-placement-bottomLeft"
+                 style={{left: '816.208px', top: '196.438px'}}>
+              <div className="ant-table-filter-dropdown">
+                <ul className="ant-dropdown-menu ant-dropdown-menu-vertical  ant-dropdown-menu-root" role="menu" aria-activedescendant="" tabindex="0">
+                  <li className="ant-dropdown-menu-item" role="menuitem" aria-selected="false">
+                    <label className="ant-checkbox-wrapper">
+                      <span className="ant-checkbox">
+                      <span className="ant-checkbox-inner"></span>
+                      <input type="checkbox" className="ant-checkbox-input" value="on"/>
+                    </span>
+                    </label>
+                    <span>团队管理员</span>
+                  </li>
+                  <li className="ant-dropdown-menu-item" role="menuitem" aria-selected="false">
+                    <label className="ant-checkbox-wrapper">
+                      <span className="ant-checkbox">
+                        <span className="ant-checkbox-inner"></span>
+                        <input type="checkbox" className="ant-checkbox-input" value="on"/>
+                      </span>
+                    </label>
+                    <span>普通成员</span>
+                  </li>
+                </ul>
+                <div className="ant-table-filter-dropdown-btns">
+                  <a className="ant-table-filter-dropdown-link confirm">确定</a>
+                  <a className="ant-table-filter-dropdown-link clear">重置</a>
+                </div>
+              </div>
+            </div>
+            <i className="anticon anticon-filter" title="筛选"/>
+          </span>
+        ),*/
         dataIndex: 'style',
         key: 'style',
         filters: [
           { text: '团队管理员', value: '团队管理员' },
           { text: '普通成员', value: '普通成员' },
         ],
-        filteredValue: filteredInfo.style,
-        onFilter: (value, record) => record.style.indexOf(value) === 0,
+        /*filteredValue: filteredInfo.style,
+        onFilter: (value, record) => record.style.indexOf(value) === 0,*/
         width: 150,
       },
       {
@@ -248,7 +280,7 @@ let MemberTable =  React.createClass({
         width: 180,
         render: (text, record,index) => (
           <div>
-            <Link to={`/setting/${record.key}`}>
+            <Link to={`/setting/user/${record.key}`}>
             <Button icon="setting" className="setBtn">
               管理
             </Button>
@@ -494,6 +526,7 @@ class MemberManage extends Component {
       page: 1,
       sort: "a,userName",
       filter: "",
+      current: 1,
     }
   }
   showModal() {
@@ -510,9 +543,6 @@ class MemberManage extends Component {
     })
     
   }
-  componentWillReceiveProps(nextProps){
-    
-  }
   render(){
     const { users } = this.props
     console.log('users',users);
@@ -523,7 +553,6 @@ class MemberManage extends Component {
       position: 'right',
       addBefore: [
         {key: 'name', value: '用户名'},
-        {key: 'team', value: '团队'},
         {key: 'tel', value: '手机号'},
         {key: 'email', value: '邮箱'},
       ],
