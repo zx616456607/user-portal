@@ -203,7 +203,7 @@ export const SERVICE_CONTAINERS_LIST_FAILURE = 'SERVICE_CONTAINERS_LIST_FAILURE'
 
 // Fetches container list from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchServiceContainerList(cluster, serviceName) {
+function fetchServiceContainerList(cluster, serviceName, callback) {
   return {
     cluster,
     serviceName,
@@ -211,15 +211,16 @@ function fetchServiceContainerList(cluster, serviceName) {
       types: [SERVICE_CONTAINERS_LIST_REQUEST, SERVICE_CONTAINERS_LIST_SUCCESS, SERVICE_CONTAINERS_LIST_FAILURE],
       endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services/${serviceName}/containers`,
       schema: Schemas.CONTAINERS
-    }
+    },
+    callback: callback
   }
 }
 
 // Fetches containers list from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function loadServiceContainerList(cluster, serviceName, requiredFields = []) {
+export function loadServiceContainerList(cluster, serviceName, requiredFields = [], callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchServiceContainerList(cluster, serviceName))
+    return dispatch(fetchServiceContainerList(cluster, serviceName, callback))
   }
 }
 

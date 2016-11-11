@@ -328,6 +328,7 @@
   "CICD.Tenxflow.CreateTenxFlowModal.cancel": "取消",
   "CICD.Tenxflow.CreateTenxFlowModal.envTitle": "自定义环境变量",
   "CICD.Tenxflow.CreateTenxFlowModal.codeStore": "代码仓库",
+  "CICD.Tenxflow.CreateTenxFlowModal.noCodeStore": "请选择代码仓库",
     
   "CICD.Tenxflow.TenxFlowDetailFlowCard.name": "名称：",
   "CICD.Tenxflow.TenxFlowDetailFlowCard.type": "类型：",
@@ -454,6 +455,10 @@
   "ManageMonitor.QueryLog.startTime": "开始：",
   "ManageMonitor.QueryLog.endTime": "结束：",
   "ManageMonitor.QueryLog.keyword": "关键词：",
+  "ManageMonitor.QueryLog.noNamespace": "请选择空间",
+  "ManageMonitor.QueryLog.noCluster": "请选择集群",
+  "ManageMonitor.QueryLog.noService": "请选择服务",
+  "ManageMonitor.QueryLog.noInstance": "请选择实例",
   "ManageMonitor.QueryLog.search": "立即查询"
   
 }
