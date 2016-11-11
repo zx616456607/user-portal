@@ -74,18 +74,26 @@ let AppAddServiceModal = React.createClass({
   getInitialState: function() {
     return {
       currentImageType: "publicImages",
+      publicImages: false,
+      privateImages: false,
+      fockImages: false
     }
   },
   selectImageType(currentType) {
     //the function for user select image type
     if(currentType === this.state.currentImageType) return
-
     this.setState({
       currentImageType: currentType,
-      imageName: ''
+      imageName: '',
+      [currentType]: false
     });
     const imageList = this.props.imageList[currentType]
-    if(imageList && imageList[this.props.registry] && imageList[this.props.registry].imageList.length > 0) return
+    if (this.state[currentType]) {
+      return this.searchImage(currentType, '')
+    }
+    if(imageList && imageList[this.props.registry] && imageList[this.props.registry].imageList.length > 0) {
+      return  
+    }
     this.props[currentType](this.props.registry)
   },
   closeModal() {
@@ -110,19 +118,30 @@ let AppAddServiceModal = React.createClass({
       imageName: e.target.value
     })
   },
-  searchImage() {
-    const type = this.state.currentImageType
+  searchImage(imageType, currentImageName) {
+    const type = imageType || this.state.currentImageType
+    let imageName = this.state.imageName
+    if(imageType) imageName = ''
+    if(imageName) {
+      this.setState({
+        [type]: true
+      })
+    } else {
+      this.setState({
+        [type]: false
+      })
+    }
     if (type === 'publicImages') {
-      if (this.state.imageName) {
-        return this.props.searchPublicImages(this.props.registry, this.state.imageName)
+      if (imageName) {
+        return this.props.searchPublicImages(this.props.registry, imageName)
       }
       this.props.publicImages(this.props.registry)
     }
     if (type === 'privateImages') {
-      return this.props.searchPrivateImages({ imageName: this.state.imageName, registry: this.props.registry })
+      return this.props.searchPrivateImages({ imageName: imageName, registry: this.props.registry })
     }
     if (type === 'fockImages') {
-      return this.props.searchFavoriteImages({ imageName: this.state.imageName, registry: this.props.registry })
+      return this.props.searchFavoriteImages({ imageName: imageName, registry: this.props.registry })
     }
   },
   render:function () {
