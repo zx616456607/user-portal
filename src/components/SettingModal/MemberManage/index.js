@@ -64,7 +64,7 @@ let MemberTable =  React.createClass({
   handleSortTeam(){
     const { loadUserList } = this.props.scope.props
     const { sortTeam } = this.state
-    let sort = this.getSort(!sortTeam, 'userName')
+    let sort = this.getSort(!sortTeam, 'teamCount')
     loadUserList({
         page: this.state.page,
         size: this.state.pageSize,
@@ -79,7 +79,7 @@ let MemberTable =  React.createClass({
   handleSortBalance(){
     const { loadUserList } = this.props.scope.props
     const { sortBalance } = this.state
-    let sort = this.getSort(!sortBalance, 'userName')
+    let sort = this.getSort(!sortBalance, 'balance')
     loadUserList({
         page: this.state.page,
         size: this.state.pageSize,
