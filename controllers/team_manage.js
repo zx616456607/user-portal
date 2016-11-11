@@ -164,7 +164,7 @@ exports.createTeamspace = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
   const teamspace = this.request.body
-  if (!teamspace || !teamspace.name) {
+  if (!teamspace || !teamspace.spaceName) {
     const err = new Error('teamspace name is required.')
     err.status = 400
     throw err

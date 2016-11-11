@@ -46,7 +46,7 @@ let TeamTable = React.createClass({
   },
   delTeam(teamID){
     const {deleteTeam,loadUserTeamList} = this.props.scope.props
-    const {page,pageSize,} = this.props.scope.state
+    const {page,pageSize,sort} = this.props.scope.state
     confirm({
       title: '您是否确认要删除这项内容',
       onOk() {
@@ -54,6 +54,7 @@ let TeamTable = React.createClass({
         loadUserTeamList('default',{
           page: page,
           size: pageSize,
+          sort,
         })
       },
       onCancel() {},
