@@ -162,14 +162,14 @@ let TeamTable = React.createClass({
   },
   render() {
     let { sortedInfo, filteredInfo, targetKeys } = this.state
-    const { searchResult, notFound, sort } = this.props.scope.state
+    const { searchResult, notFound, sort, filter } = this.props.scope.state
     const { data, scope } = this.props
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
     const pagination = {
       total: this.props.scope.props.total,
-      sort: this.props.scope.props.sort,
-      filter: this.props.scope.props.filter,
+      sort,
+      filter,
       showSizeChanger: true,
       defaultPageSize: 5,
       defaultCurrent:1,
