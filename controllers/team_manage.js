@@ -48,6 +48,14 @@ exports.getTeamspaces = function* () {
   if (result.listMeta && result.listMeta.total) {
     total = result.listMeta.total
   }
+
+  for (let index in teamspaces) {
+    const r = yield api.teams.getBy([teamspaces[index].teamID, "spaces", teamspaces[index].spaceID, "app_info"])
+    teamspaces[index].appCount = r.appCount
+    teamspaces[index].serviceCount = r.serviceCount
+    teamspaces[index].containerCount = r.containerCount
+  } 
+
   this.body = {
     data: teamspaces,
     total,
