@@ -94,7 +94,7 @@ class SearchInput extends Component{
     if(addBefore){
       let selectBefore = (
         <Select defaultValue={defaultValue ? defaultValue : addBefore[0].key}
-                style={{ width: 80,borderColor:''}}
+                style={{ width: 80}}
                 onChange={this.handleSelect}>
           {
             addBefore.map((item,index) => {

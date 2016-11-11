@@ -231,6 +231,8 @@ class TeamDetail extends Component{
       addMember: false,
       addSpace: false,
       targetKeys:[],
+      newSpaceName: '',
+      newSpaceDes: '',
     }
   }
   addNewMember(){
@@ -274,13 +276,15 @@ class TeamDetail extends Component{
   }
   handleNewSpaceOk(){
     const {createTeamspace, teamID, loadTeamspaceList} = this.props
+    const {newSpaceName,newSpaceDes} = this.state
     createTeamspace(teamID,{
-      
+      name: newSpaceName,
+      description: newSpaceDes,
     },{
       success:{
         func:() => {
           console.log('create !');
-          loadTeamspaceList()
+          loadTeamspaceList(teamID)
           this.setState({
             addSpace: false,
           })
@@ -294,13 +298,23 @@ class TeamDetail extends Component{
       addSpace: false,
     })
   }
+  handleNewSpaceName(e){
+    this.setState({
+      newSpaceName: e.target.value
+    })
+  }
+  handleNewSpaceDes(e){
+    this.setState({
+      newSpaceDes: e.target.value
+    })
+  }
   componentDidMount() {
   }
   componentWillMount(){
     const { loadTeamClustersList, loadTeamUserList, loadTeamspaceList, teamID, } = this.props
     loadTeamClustersList(teamID)
     loadTeamUserList(teamID)
-    // loadTeamspaceList(teamID)
+    loadTeamspaceList(teamID)
   }
   
   render(){
@@ -391,13 +405,13 @@ class TeamDetail extends Component{
                   <Row className="addSpaceItem">
                     <Col span={3}>名称</Col>
                     <Col span={21}>
-                      <Input placeholder="新空间名称"/>
+                      <Input placeholder="新空间名称" onChange={this.handleNewSpaceName}/>
                     </Col>
                   </Row>
                   <Row className="addSpaceItem">
                     <Col span={3}>备注</Col>
                     <Col span={21}>
-                      <Input type="textarea" rows={5}/>
+                      <Input type="textarea" rows={5} onChange={this.handleNewSpaceDes}/>
                     </Col>
                   </Row>
                 </Modal>
@@ -460,7 +474,7 @@ function mapStateToProp(state,props) {
   }
   if(team.teamspaces){
     const teamSpaces = team.teamspaces
-    if(teamSpaces.length !== 0){
+    if(teamSpaces.length && teamSpaces.length !== 0){
       teamSpaces.map((item,index) => {
         teamSpacesList.push(
           {
