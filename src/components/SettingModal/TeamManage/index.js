@@ -316,6 +316,7 @@ class TeamManage extends Component {
       pageSize: 5,
       page: 1,
       current: 1,
+      sort: 'a,teamName'
     }
   }
   showModal() {
@@ -332,7 +333,8 @@ class TeamManage extends Component {
         func: () => {
           console.log('create done');
           this.props.loadUserTeamList('default',{
-            page: this.state.page,
+            page: 1,
+            current: 1,
             size: this.state.pageSize,
             sort: this.state.sort,
           })
