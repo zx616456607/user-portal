@@ -156,7 +156,46 @@ let TeamList = React.createClass({
   render: function(){
     let { filteredInfo } = this.state
     const { teamSpacesList } = this.props
+    const { searchResult, notFound, sort, filter } = this.state
     filteredInfo = filteredInfo || {}
+    /*const pagination = {
+      total: this.props.scope.props.total,
+      sort,
+      filter,
+      showSizeChanger: true,
+      defaultPageSize: 5,
+      defaultCurrent:1,
+      current:this.props.scope.state.current,
+      pageSizeOptions: ['5','10','15','20'],
+      onShowSizeChange(current, pageSize) {
+        scope.props.loadUserTeamList('default',{
+          page: current,
+          size: pageSize,
+          sort,
+          filter,
+        })
+        scope.setState({
+          page: current,
+          pageSize: pageSize,
+          current: current,
+        })
+      },
+      onChange(current) {
+        const {pageSize} = scope.state
+        console.log('Current: ', current);
+        scope.props.loadUserTeamList('default',{
+          page: current,
+          size: pageSize,
+          sort,
+          filter,
+        })
+        scope.setState({
+          page: current,
+          pageSize: pageSize,
+          current: current,
+        })
+      },
+    }*/
     const columns = [
       {
         title: (
@@ -182,7 +221,8 @@ let TeamList = React.createClass({
         key: 'description',
       },
       {
-        title: (
+        title: '应用',
+          /*(
           <div onClick={this.handleAppSort}>
             应用
             <div className="ant-table-column-sorter">
@@ -194,7 +234,7 @@ let TeamList = React.createClass({
               </span>
             </div>
           </div>
-        ),
+        ),*/
         dataIndex: 'appCount',
         key: 'appCount',
       },
