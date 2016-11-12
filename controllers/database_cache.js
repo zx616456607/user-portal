@@ -126,3 +126,14 @@ exports.deleteDatebaseCluster = function* () {
   }
 }
 
+exports.getPVC = function*() {
+  const cluster = this.params.cluster
+  const labels = this.query.labels
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster, 'persistentvolumeclaims'], labels)
+  this.body = {
+    result
+  }
+}
+

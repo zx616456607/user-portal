@@ -74,9 +74,15 @@ class ContainerGraph extends Component {
           self.setState({
             preScroll: self.infoBox.scrollHeight
           })
-          if (!result.data || result.data.length < 50) self.setState({
-            useGetLogs: false
-          })
+          if (!result.data || result.data.length < 50) {
+            self.setState({
+              useGetLogs: false
+            })
+          } else {
+            self.setState({
+              useGetLogs: true
+            })
+          }
         },
         isAsync: true
       }
@@ -122,13 +128,31 @@ class ContainerGraph extends Component {
   }
   getLogs() {
     const cluster = this.props.cluster
-    if(!this.props.containerLogs[cluster] || !this.props.containerLogs[cluster].logs) {
+    if (!this.props.containerLogs[cluster] || !this.props.containerLogs[cluster].logs) {
       return '无日志'
     }
     const logs = this.props.containerLogs[cluster].logs.data
-    if(!logs || logs.length <= 0 ) return '无日志'
-    const logContent = logs.map(log => {
-       return (<span key={log.id}>{log.log}</span>)
+    if (!logs || logs.length <= 0) return '无日志'
+    let page = Math.ceil(logs.length / 50)
+    let remainder = logs.length % 50
+    const logContent = logs.map((log, index) => {
+      let time = ''
+      if (log.timeNano) {
+        time = new Date(parseInt(log.timeNano.substring(0, 13))).toLocaleString()
+      }
+      if (index === 0) {
+        if (log.log === '无更多日志\n') {
+          return (<span key={index}>{ `${log.log}\npage ${page}\n` }</span>)
+        }
+        return (<span key={index}>{ `page ${page}\n${time ? `[${time}] ${log.log}` : log.log}` }</span>)
+      }
+      if (index + 1 === remainder && page !== 1) {
+        return (<span key={index}>{ `page ${--page}\n${time ? `[${time}] ${log.log}` : log.log}` }</span>)
+      }
+      if ((index + 1) % 50 === 0 && page !== 1) {
+        return (<span key={index}>{ `page ${--page}\n${time ? `[${time}] ${log.log}` : log.log}` }</span>)
+      }
+      return (<span key={log.id} index={index}>{ time ? `[${time}] ${log.log}` : log.log}</span>)
     })
     return logContent
   }
