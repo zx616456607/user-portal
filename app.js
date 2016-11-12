@@ -169,23 +169,17 @@ app.use(i18n.middleware)
 
 // For test
 app.use(function* (next) {
-  this.session.loginUser = {
-    user: "default",
-    id: 104,
-    namespace: "default",
-    token: "jgokzgfitsewtmbpxsbhtggabvrnktepuzohnssqjnsirtot"
-  }
   /*this.session.loginUser = {
     user: "mengyuan",
     namespace: "mengyuan",
     token: "vdarbhiorastaietwkulcssyzvsfmyscauiosusmybpzazde"
   }*/
-  /*this.session.loginUser = {
+  this.session.loginUser = {
     user: "zhangpc",
     id: 104,
     namespace: "zhangpc",
     token: "jgokzgfitsewtmbpxsbhtggabvrnktepuzohnssqjnsirtot"
-  }*/
+  }
   yield next
 })
 

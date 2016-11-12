@@ -368,6 +368,7 @@ export function searchDockerfile(names) {
 export const GET_DEPLOY_LOG_REQUEST = 'GET_DEPLOY_LOG_REQUEST'
 export const GET_DEPLOY_LOG_SUCCESS = 'GET_DEPLOY_LOG_SUCCESS'
 export const GET_DEPLOY_LOG_FAILURE = 'GET_DEPLOY_LOG_FAILURE'
+// get deployment log list
 function fetchdeploymentLog(flowId) {
   return {
     [FETCH_API]: {
@@ -381,6 +382,75 @@ function fetchdeploymentLog(flowId) {
 export function deploymentLog(flowId) {
   return (dispatch, getState) =>{
     dispatch(fetchdeploymentLog(flowId))
+  }
+}
+
+export const GET_CD_RULES_LIST_REQUEST = 'GET_CD_RULES_LIST_REQUEST'
+export const GET_CD_RULES_LIST_SUCCESS = 'GET_CD_RULES_LIST_SUCCESS'
+export const GET_CD_RULES_LIST_FAILURE = 'GET_CD_RULES_LIST_FAILURE'
+// GET cd rules
+function fetchCdRules(flowId, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_CD_RULES_LIST_REQUEST, GET_CD_RULES_LIST_SUCCESS, GET_CD_RULES_LIST_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/cd-rules`,
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function gitCdRules(flowId, callback) {
+  return (dispatch, getState) => {
+    dispatch(fetchCdRules(flowId, callback))
+  }
+}
+export const ADD_CD_RULES_LIST_REQUEST = 'ADD_CD_RULES_LIST_REQUEST'
+export const ADD_CD_RULES_LIST_SUCCESS = 'ADD_CD_RULES_LIST_SUCCESS'
+export const ADD_CD_RULES_LIST_FAILURE = 'ADD_CD_RULES_LIST_FAILURE'
+
+// add cd rules
+function fetchAddRules(obj, callback) {
+  return {
+    [FETCH_API]: {
+      types: [ADD_CD_RULES_LIST_REQUEST, ADD_CD_RULES_LIST_SUCCESS, ADD_CD_RULES_LIST_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${obj.flowId}/cd-rules`,
+      options: {
+        method: 'POST',
+        body: obj
+      },
+      schema: {},
+    },
+    callback
+  }
+}
+
+export const DELETE_CD_RULES_LIST_REQUEST = 'DELETE_CD_RULES_LIST_REQUEST'
+export const DELETE_CD_RULES_LIST_SUCCESS = 'ADDDELETE_RULES_LIST_SUCCESS'
+export const DELETE_CD_RULES_LIST_FAILURE = 'ADD_CDDELETELES_LIST_FAILURE'
+export function addCdRules(obj, callback) {
+  return (dispatch, getState) =>{
+    dispatch(fetchAddRules(obj, callback))
+  }
+}
+
+function fetchDeleteRules(flowId, ruleId, callback) {
+  return {
+    [FETCH_API]: {
+      types: [DELETE_CD_RULES_LIST_REQUEST, DELETE_CD_RULES_LIST_SUCCESS, DELETE_CD_RULES_LIST_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/cd-rules/${ruleId}`,
+      options: {
+        method: 'DELETE',
+      },
+      schema: {},
+    },
+    ruleId,
+    callback
+  }
+}
+export function deleteCdRule(flowId, ruleId, callback) {
+  return (dispatch, getState) => {
+    dispatch(fetchDeleteRules(flowId, ruleId, callback))
   }
 }
 
