@@ -242,3 +242,31 @@ export function removeTeamusers(teamID, userIDs, callback) {
     return dispatch(fetchRemoveTeamusers(teamID, userIDs, callback))
   }
 }
+
+export const TEAMSPACE_DELETE_REQUEST = 'TEAMSPACE_DELETE_REQUEST'
+export const TEAMSPACE_DELETE_SUCCESS = 'TEAMSPACE_DELETE_SUCCESS'
+export const TEAMSPACE_DELETE_FAILURE = 'TEAMSPACE_DELETE_FAILURE'
+
+// Remove team space from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchDeleteTeamspace(teamID, spaceID, callback) {
+  let endpoint = `${API_URL_PREFIX}/teams/${teamID}/spaces/${spaceID}`
+  return {
+    [FETCH_API]: {
+      types: [TEAMSPACE_DELETE_REQUEST, TEAMSPACE_DELETE_SUCCESS, TEAMSPACE_DELETE_FAILURE],
+      endpoint,
+      options: {
+        method: 'DELETE'
+      },
+      schema: {},
+    },
+    callback
+  }
+}
+// Remove team space from API
+// Relies on Redux Thunk middleware.
+export function deleteTeamspace(teamID, spaceID, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchDeleteTeamspace(teamID, spaceID, callback))
+  }
+}
