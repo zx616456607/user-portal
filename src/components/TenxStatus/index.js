@@ -14,6 +14,7 @@ import React, { Component, PropTypes } from 'react'
 import { Progress, Icon } from 'antd'
 import moment from 'moment'
 import './style/TenxStatus.less'
+import { FormattedMessage, defineMessages } from 'react-intl'
 
 const PROGRESS_PHASES = [
   'Pending',
@@ -21,7 +22,99 @@ const PROGRESS_PHASES = [
   'Scaling', 'Restarting', 'Redeploying',
   'Rebuilding',
 ]
-let progressInterval
+const locale = window.appLocale.locale
+if (locale === 'zh') {
+  moment.locale('zh-cn')
+} else {
+  moment.locale('en', {
+    relativeTime: {
+      future: "in %s",
+      past: "%s ago",
+      s: "%d s",
+      m: "a min",
+      mm: "%d min",
+      h: "1 h",
+      hh: "%d h",
+      d: "a day",
+      dd: "%d days",
+      M: "a month",
+      MM: "%d months",
+      y: "a year",
+      yy: "%d years"
+    }
+  })
+}
+
+const messages = defineMessages({
+  Starting: {
+    id: 'TenxStatus.Starting',
+    defaultMessage: '正在启动',
+  },
+  Pending: {
+    id: 'TenxStatus.Pending',
+    defaultMessage: '正在启动',
+  },
+  Deploying: {
+    id: 'TenxStatus.Deploying',
+    defaultMessage: '正在启动',
+  },
+  Stopping: {
+    id: 'TenxStatus.Stopping',
+    defaultMessage: '正在停止',
+  },
+  Terminating: {
+    id: 'TenxStatus.Terminating',
+    defaultMessage: '正在删除',
+  },
+  Scaling: {
+    id: 'TenxStatus.Scaling',
+    defaultMessage: '正在水平扩展',
+  },
+  Restarting: {
+    id: 'TenxStatus.Restarting',
+    defaultMessage: '全部重启中',
+  },
+  Redeploying: {
+    id: 'TenxStatus.Redeploying',
+    defaultMessage: '正在重新部署',
+  },
+  Rebuilding: {
+    id: 'TenxStatus.Rebuilding',
+    defaultMessage: '正在重建',
+  },
+  Unknown: {
+    id: 'TenxStatus.Unknown',
+    defaultMessage: '状态不明',
+  },
+  Succeeded: {
+    id: 'TenxStatus.Succeeded',
+    defaultMessage: '已完成',
+  },
+  Stopped: {
+    id: 'TenxStatus.Stopped',
+    defaultMessage: '已停止',
+  },
+  Running: {
+    id: 'TenxStatus.Running',
+    defaultMessage: '运行中',
+  },
+  RunningMsg: {
+    id: 'TenxStatus.RunningMsg',
+    defaultMessage: '已运行',
+  },
+  SectionRunningMsg: {
+    id: 'TenxStatus.SectionRunningMsg',
+    defaultMessage: '部分运行',
+  },
+  AllRunningMsg: {
+    id: 'TenxStatus.AllRunningMsg',
+    defaultMessage: '全部运行',
+  },
+  StoppedMsg: {
+    id: 'TenxStatus.StoppedMsg',
+    defaultMessage: '全部停止',
+  },
+})
 
 class TenxStatus extends Component {
   constructor(props) {
@@ -102,17 +195,18 @@ class TenxStatus extends Component {
       }
     } else if (availableReplicas === 0) {
       replicasText = (
-        <span> All stopped</span>
+        <span><FormattedMessage {...messages.StoppedMsg} /></span>
       )
     } else if (availableReplicas < replicas) {
       replicasText = (
         <span>
-          Section running{exclamationIcon}
+          <FormattedMessage {...messages.SectionRunningMsg} />
+          {exclamationIcon}
         </span>
       )
     } else {
       replicasText = (
-        <span>All running</span>
+        <span><FormattedMessage {...messages.AllRunningMsg} /></span>
       )
     }
     return (
@@ -132,14 +226,14 @@ class TenxStatus extends Component {
     if (phase === 'Succeeded') {
       return (
         <div>
-          Succeeded {moment().fromNow(date)}
+          <FormattedMessage {...messages.Succeeded} /> {moment().fromNow(date)}
         </div>
       )
     }
     if (phase === 'Running') {
       return (
         <div>
-          Running for {moment().from(date, true)}
+          <FormattedMessage {...messages.RunningMsg} /> {moment().from(date, true)}
         </div>
       )
     }
@@ -160,21 +254,21 @@ class TenxStatus extends Component {
       return (
         <span className="TenxStatus">
           <span className={phase}>
-            <i className="fa fa-circle" /> {phase}
+            <i className="fa fa-circle" /> <FormattedMessage {...messages[phase]} />
           </span>
         </span>
       )
     }
     let phaseElement = (
       <div>
-        <i className="fa fa-circle" /> {phase}
+        <i className="fa fa-circle" /> <FormattedMessage {...messages[phase]} />
       </div>
     )
     let progressElement
     if (this.isProcess(this.props)) {
       phaseElement = (
         <div>
-          {phase}
+          <FormattedMessage {...messages[phase]} />
         </div>
       )
       progressElement = (
@@ -212,7 +306,6 @@ TenxStatus.propTypes = {
     'Scaling',
     'Restarting',
     'Redeploying', 'Rebuilding',
-
     'Unknown', 'Succeeded',
     'Stopped',
     'Running',

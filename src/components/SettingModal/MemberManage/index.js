@@ -96,9 +96,7 @@ let MemberTable =  React.createClass({
     const { scope } = this.props
     confirm({
       title: '您是否确认要删除这项内容',
-      content: '点确认 1 秒后关闭',
       onOk() {
-        console.log('del !!!!!')
         scope.props.deleteUser(record.key,{
           success: {
             func: () => {
@@ -140,7 +138,7 @@ let MemberTable =  React.createClass({
         scope.setState({
           pageSize: pageSize,
           page: current,
-          current: current,
+          current: 1,
         })
       },
       onChange(current) {

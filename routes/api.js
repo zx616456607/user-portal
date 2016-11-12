@@ -105,6 +105,7 @@ module.exports = function (Router) {
   router.post('/teams/:team_id/users', teamController.addTeamusers)
   //To remove multiple users, seperate the user ids with ",".
   router.delete('/teams/:team_id/users/:user_ids', teamController.removeTeamusers)
+  router.delete('/teams/:team_id/spaces/:space_id', teamController.deleteTeamspace)
 
   // spi
   router.post('/clusters/:cluster/services/:service_name/binddomain', serviceController.bindServiceDomain)
