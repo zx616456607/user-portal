@@ -71,7 +71,7 @@ const menusText = defineMessages({
   },
   selectCode: {
     id: 'CICD.Tenxflow.EditTenxFlowModal.selectCode',
-    defaultMessage: '选择代码库',
+    defaultMessage: '更新代码库',
   },
   imageName: {
     id: 'CICD.Tenxflow.EditTenxFlowModal.imageName',
@@ -156,6 +156,10 @@ const menusText = defineMessages({
   codeStore: {
     id: 'CICD.Tenxflow.EditTenxFlowModal.codeStore',
     defaultMessage: '代码仓库',
+  },
+  branch: {
+    id: 'CICD.Tenxflow.EditTenxFlowModal.branch',
+    defaultMessage: '分支：',
   }
 });
 
@@ -181,7 +185,8 @@ let EditTenxFlowModal = React.createClass({
       envModalShow: null,
       ImageStoreType: false,
       currentCodeStore: null,
-      currentCodeStoreName: null
+      currentCodeStoreName: null,
+      currentCodeStoreBranch: null
     }
   },
   componentDidMount() {
@@ -197,7 +202,8 @@ let EditTenxFlowModal = React.createClass({
         ImageStoreType: false,
         otherTag: false,
         currentCodeStore: config.spec.project.id,
-        currentCodeStoreName: codeStoreName
+        currentCodeStoreName: codeStoreName,
+        currentCodeStoreBranch: config.spec.project.branch
       });
     }else {     
       let useDockerfile = config.spec.build.dockerfileFrom == 1 ? true : false;
@@ -209,7 +215,8 @@ let EditTenxFlowModal = React.createClass({
         ImageStoreType: ImageStoreType,
         otherTag: otherTag,
         currentCodeStore: config.spec.project.id,
-        currentCodeStoreName: codeStoreName
+        currentCodeStoreName: codeStoreName,
+        currentCodeStoreBranch: config.spec.project.branch
       });
     }
     let shellList = config.spec.container.args;
@@ -488,7 +495,8 @@ let EditTenxFlowModal = React.createClass({
             'dependencies': serviceList
           },
           'project': {
-            'id': _this.state.currentCodeStore
+            'id': _this.state.currentCodeStore,
+            'branch': _this.state.currentCodeStoreBranch
         },
         }
       }
@@ -695,7 +703,7 @@ let EditTenxFlowModal = React.createClass({
             <span><FormattedMessage {...menusText.flowCode} /></span>
           </div>
           <div className='input'>
-            <span style={{ marginRight:'15px' }}>{this.state.currentCodeStoreName}</span>
+            <span style={{ marginRight:'15px' }}>{this.state.currentCodeStoreName + '  ' + formatMessage(menusText.branch) + this.state.currentCodeStoreBranch}</span>
             <Button className='selectCodeBtn' size='large' type='ghost' onClick={this.openCodeStoreModal}>
               <i className='fa fa-file-code-o' />
               <FormattedMessage {...menusText.selectCode} />

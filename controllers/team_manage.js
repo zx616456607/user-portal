@@ -41,6 +41,9 @@ exports.getTeamspaces = function* () {
   if (name) {
     queryObj.filter = `name ${name}`
   }
+  if (query && query.sort) {
+    queryObj.sort = query.sort
+  }
   const api = apiFactory.getApi(loginUser)
   const result = yield api.teams.getBy([teamID, 'spaces'], queryObj)
   const teamspaces = result.spaces || []
@@ -48,6 +51,14 @@ exports.getTeamspaces = function* () {
   if (result.listMeta && result.listMeta.total) {
     total = result.listMeta.total
   }
+
+  for (let index in teamspaces) {
+    const r = yield api.teams.getBy([teamspaces[index].teamID, "spaces", teamspaces[index].spaceID, "app_info"])
+    teamspaces[index].appCount = r.appCount
+    teamspaces[index].serviceCount = r.serviceCount
+    teamspaces[index].containerCount = r.containerCount
+  }
+
   this.body = {
     data: teamspaces,
     total,
@@ -106,7 +117,7 @@ exports.getTeamUsers = function* () {
   let size = parseInt(query.size || DEFAULT_PAGE_SIZE)
   let sort_by = parseInt(query.sort_by || "name")
   let sort_order = parseInt(query.sort_order || true)
-  let name = query.name
+  let filter = query.filter
   if (isNaN(page) || page < 1) {
     page = DEFAULT_PAGE
   }
@@ -121,8 +132,11 @@ exports.getTeamUsers = function* () {
   if (from == 0 && size == 0) {
     queryObj = {}
   }
-  if (name) {
-    queryObj.filter = `name ${name}`
+  if (filter) {
+    queryObj.filter = filter
+  }
+  if (query && query.sort) {
+    queryObj.sort = query.sort
   }
   const api = apiFactory.getApi(loginUser)
   const result = yield api.teams.getBy([teamID, 'users'], queryObj)
@@ -164,7 +178,7 @@ exports.createTeamspace = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
   const teamspace = this.request.body
-  if (!teamspace || !teamspace.name) {
+  if (!teamspace || !teamspace.spaceName) {
     const err = new Error('teamspace name is required.')
     err.status = 400
     throw err
@@ -207,6 +221,19 @@ exports.removeTeamusers = function* () {
   const api = apiFactory.getApi(loginUser)
 
   const result = yield api.teams.deleteBy([teamID, 'users', userIDs])
+
+  this.body = {
+    data: result
+  }
+}
+
+exports.deleteTeamspace = function* () {
+  const teamID = this.params.team_id
+  const spaceID = this.params.space_id
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+
+  const result = yield api.teams.deleteBy([teamID, 'spaces', spaceID])
 
   this.body = {
     data: result

@@ -109,7 +109,11 @@ exports.getUserTeams = function* () {
   if (query && query.sort) {
     queryObj.sort = query.sort
   }
-  queryObj.filter = "creatorID," + userID
+  //Todo enable below filter when API problem fixed
+  //queryObj.filter = "creatorID," + userID
+  if (query.filter) {
+    queryObj.filter = query.filter
+  }
   const api = apiFactory.getApi(loginUser)
   const result = yield api.teams.get(queryObj)
   const teams = result.teams || []
@@ -196,7 +200,7 @@ exports.createUser = function* () {
     from: "service@tenxcloud.com", // sender address
     to: user.email, // list of receivers
     subject: '用户创建成功通知', // Subject line
-    html: `<b>${loginUser}您好:</b><br/><br/>恭喜您成功创建如下用户: <br/>用户名: ${user.userName}<br/>密码: ${user.password}` // html body
+    html: `<b>${loginUser.user}您好:</b><br/><br/>恭喜您成功创建如下用户: <br/>用户名: ${user.userName}<br/>密码: ${user.password}` // html body
   }
   try{
     yield email.sendEmail(mailOptions)

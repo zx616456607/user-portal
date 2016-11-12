@@ -13,6 +13,14 @@
 import React, { Component, PropTypes } from 'react'
 import TenxStatus from './'
 import { TENX_MARK } from '../../constants'
+import { injectIntl, defineMessages } from 'react-intl'
+
+const messages = defineMessages({
+  AppReplicasMsg: {
+    id: 'TenxStatus.AppReplicasMsg',
+    defaultMessage: '共{total}个服务',
+  }
+})
 
 class AppStatus extends Component {
   constructor(props) {
@@ -20,14 +28,12 @@ class AppStatus extends Component {
   }
 
   render() {
-    let { services, phase, smart } = this.props
+    let { services, phase, smart, intl } = this.props
+    const { formatMessage } = intl
     let status = {
       replicas: services.length,
       availableReplicas: 0,
-      text: `A total of ${services.length} service`
-    }
-    if (services.length > 1) {
-      status.text += 's'
+      text: `${formatMessage(messages.AppReplicasMsg, { total: services.length })}`
     }
     services.map(service => {
       let replicas = service.spec.replicas || service.metadata.annotations[`${TENX_MARK}/replicas`]
@@ -60,4 +66,6 @@ AppStatus.propTypes = {
   smart: PropTypes.bool,
 }
 
-export default AppStatus
+export default injectIntl(AppStatus, {
+  withRef: true,
+})

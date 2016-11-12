@@ -160,6 +160,14 @@ const menusText = defineMessages({
   noCodeStore: {
     id: 'CICD.Tenxflow.CreateTenxFlowModal.noCodeStore',
     defaultMessage: '请选择代码仓库',
+  },
+  branch: {
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.branch',
+    defaultMessage: '分支：',
+  },
+  dockerFileTitle: {
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.dockerFileTitle',
+    defaultMessage: '创建Docker File',
   }
 });
 
@@ -176,7 +184,10 @@ let CreateTenxFlowModal = React.createClass({
       codeStoreModalShow: false,
       currentCodeStore: null,
       currentCodeStoreName: null,
-      noSelectedCodeStore: false
+      noSelectedCodeStore: false,
+      currentCodeStoreBranch: null,
+      dockerFileModalShow: false,
+      dockerFileTextarea: null
     }
   },
   componentWillMount() {
@@ -329,6 +340,13 @@ let CreateTenxFlowModal = React.createClass({
       callback();
     }
   },
+  dockerfileTextareaInput(rule, value, callback) {
+    if (!this.state.useDockerfile && !!!value) {
+      callback([new Error('请输入docker file')]);
+    } else {
+      callback();
+    }
+  },
   changeUseDockerFile (e) {
     //this function for user change using the docker file or not
     if(e.target.checked) {
@@ -375,6 +393,21 @@ let CreateTenxFlowModal = React.createClass({
     //this function for user select code store and user must be select code modal
     this.setState({
       codeStoreModalShow: false
+    });
+  },
+  openDockerFileModal() {
+    this.setState({
+      dockerFileModalShow: true
+    });
+  },
+  closeDockerFileModal() {
+    this.setState({
+      dockerFileModalShow: false
+    });
+  },
+  onChangeDockerFileTextarea(e) {
+    this.setState({
+      dockerFileTextarea: e.target.value
     });
   },
   cancelChange(e) {
@@ -452,7 +485,8 @@ let CreateTenxFlowModal = React.createClass({
             'dependencies': serviceList
           },
           'project': {
-            'id': this.state.currentCodeStore
+            'id': this.state.currentCodeStore,
+            'branch': this.state.currentCodeStoreBranch
         },
         }
       }
@@ -600,6 +634,12 @@ let CreateTenxFlowModal = React.createClass({
         { validator: this.otherTagInput },
       ],
     });
+    const dockerFileTextareaProps = getFieldProps('dockerfileTextarea', {
+      rules: [
+        { message: '请输入docker file' },
+        { validator: this.dockerfileTextareaInput },
+      ],
+    });
     return (
       <div id='CreateTenxFlowModal' key='CreateTenxFlowModal'>
       <div className='titleBox'>
@@ -642,7 +682,9 @@ let CreateTenxFlowModal = React.createClass({
             <span><FormattedMessage {...menusText.flowCode} /></span>
           </div>
           <div className='input'>
-            { !!this.state.currentCodeStoreName ? [<span style={{ marginRight:'15px' }}>{this.state.currentCodeStoreName}</span>] : null }
+            { !!this.state.currentCodeStoreName ? [
+                <span style={{ marginRight:'15px' }}>{this.state.currentCodeStoreName + '  ' + formatMessage(menusText.branch) + this.state.currentCodeStoreBranch}</span>
+                ] : null }
             <Button className={ this.state.noSelectedCodeStore ? 'noCodeStoreButton selectCodeBtn' : 'selectCodeBtn'} size='large' type='ghost' onClick={this.openCodeStoreModal}>
               <i className='fa fa-file-code-o' />
               <FormattedMessage {...menusText.selectCode} />
@@ -728,10 +770,10 @@ let CreateTenxFlowModal = React.createClass({
                     !this.state.useDockerfile ? [
                       <QueueAnim key='useDockerFileAnimate'>
                         <div key='useDockerFileAnimateSecond'>
-                          <Button type='ghost' size='large' style={{ marginRight:'20px' }}>
+                          {/*<Button type='ghost' size='large' style={{ marginRight:'20px' }}>
                             <FormattedMessage {...menusText.selectDockerFile} />
-                          </Button>
-                          <Button type='ghost' size='large'>
+                          </Button>*/}
+                          <Button type='ghost' size='large' onClick={this.openDockerFileModal}>
                             <FormattedMessage {...menusText.createNewDockerFile} />
                           </Button>
                         </div>
@@ -821,6 +863,14 @@ let CreateTenxFlowModal = React.createClass({
             </QueueAnim>
           ] : null
         }
+        <Modal className='tenxFlowDockerFileModal'
+          title={<FormattedMessage {...menusText.dockerFileTitle} />}
+          visible={this.state.dockerFileModalShow}
+          onOk={this.closeDockerFileModal}
+          onCancel={this.closeDockerFileModal}
+        > 
+          <Input type='textarea' value={this.state.dockerFileTextarea} onChange={this.onChangeDockerFileTextarea} autosize={{ minRows: 10, maxRows: 10 }} />
+        </Modal>
       </Form>
       <div className='modalBtnBox'>
         <Button size='large' onClick={this.cancelChange}>

@@ -199,7 +199,9 @@ exports.listManagedProject = function* () {
 
   const api = apiFactory.getDevOpsApi(loginUser)
   const result = yield api.getBy(["managed-projects"], null)
-
+  result.results.map((item) => {
+    item.branchList = []
+  })
   this.body = {
     data: result
   }

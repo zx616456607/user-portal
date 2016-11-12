@@ -11,7 +11,7 @@ import React, { Component } from 'react'
 import { Button, Input, Select, } from 'antd'
 import './style/SearchInput.less'
 import { connect } from 'react-redux'
-import { loadUserList } from '../../actions/user'
+import { loadUserList, loadUserTeamList } from '../../actions/user'
 
 const Option = Select.Option
 
@@ -52,31 +52,57 @@ class SearchInput extends Component{
     } else if (selecteValue == "tel") {
       field = "phone"
     }
+    else if (selecteValue == "team") {
+      field = "teamName"
+    }
     return field
   }
   handleSearch(){
     const { searchValue, selecteValue } = this.state
+    console.log("searchValue", searchValue)
+    console.log("selecteValue", selecteValue)
     let { scope,total } = this.props
     const { searchResult, pageSize, sort } = scope.state
     let filter = this.getFilterField(selecteValue) + "," + searchValue
-    this.props.loadUserList({
-      pageSize,
-      page: 1,
-      sort,
-      filter,
-    },{
-      success:{
-        func: () => {
-          scope.setState({
-            page: 1,
-            current: 1,
-            filter,
-            total:total,
-          })
-        },
-        isAsync:true
-      }
-    })
+    if (selecteValue == "team") {
+      this.props.loadUserTeamList('default', {
+        size: pageSize,
+        page: 1,
+        sort,
+        filter,
+      },{
+        success:{
+          func: () => {
+            scope.setState({
+              page: 1,
+              current: 1,
+              filter,
+              total,
+            })
+          },
+          isAsync:true
+        }
+      })
+    } else {
+      this.props.loadUserList({
+        pageSize,
+        page: 1,
+        sort,
+        filter,
+      },{
+        success:{
+          func: () => {
+            scope.setState({
+              page: 1,
+              current: 1,
+              filter,
+              total,
+            })
+          },
+          isAsync:true
+        }
+      })
+    }
   }
   handleSelect(value){
     this.setState({
@@ -155,4 +181,5 @@ function mapStateToProp(state) {
 
 export default connect(mapStateToProp, {
   loadUserList,
+  loadUserTeamList,
 })(SearchInput)

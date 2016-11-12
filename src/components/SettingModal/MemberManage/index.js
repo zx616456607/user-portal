@@ -7,7 +7,7 @@
  * v0.1 - 2016/11/1
  * @author ZhaoXueYu
  */
-import React,{ Component } from 'react'
+import React, { Component } from 'react'
 import './style/MemberManage.less'
 import { Row, Col, Button, Input, Select, Card, Icon, Table, Modal, Form, Checkbox, Tooltip, } from 'antd'
 import SearchInput from '../../SearchInput'
@@ -19,7 +19,7 @@ const createForm = Form.create;
 const FormItem = Form.Item;
 const confirm = Modal.confirm;
 
-let MemberTable =  React.createClass({
+let MemberTable = React.createClass({
   getInitialState() {
     return {
       filteredInfo: null,
@@ -32,12 +32,7 @@ let MemberTable =  React.createClass({
       filter: ""
     };
   },
-  handleChange(pagination, filters, sorter) {
-    this.setState({
-      filteredInfo: filters,
-      sortedInfo: sorter,
-    });
-  },
+
   getSort(order, column) {
     var query = {}
     var orderStr = 'a,'
@@ -46,95 +41,124 @@ let MemberTable =  React.createClass({
     }
     return orderStr + column
   },
-  handleSortName(){
+  handleSortName() {
     const { loadUserList } = this.props.scope.props
     const { sortName } = this.state
+    const { page, pageSize, filter } = this.props.scope.state
     let sort = this.getSort(!sortName, 'userName')
     loadUserList({
-        page: this.state.page,
-        size: this.state.pageSize,
-        sort,
-        filter: this.state.filter,
+      page: page,
+      size: pageSize,
+      sort,
+      filter: filter,
     })
     this.setState({
       sortName: !sortName,
       sort,
     })
   },
-  handleSortTeam(){
+  handleSortTeam() {
     const { loadUserList } = this.props.scope.props
     const { sortTeam } = this.state
     let sort = this.getSort(!sortTeam, 'teamCount')
     loadUserList({
-        page: this.state.page,
-        size: this.state.pageSize,
-        sort,
-        filter: this.state.filter,
+      page: this.state.page,
+      size: this.state.pageSize,
+      sort,
+      filter: this.state.filter,
     })
     this.setState({
       sortTeam: !sortTeam,
       sort,
     })
   },
-  handleSortBalance(){
+  handleSortBalance() {
     const { loadUserList } = this.props.scope.props
     const { sortBalance } = this.state
     let sort = this.getSort(!sortBalance, 'balance')
     loadUserList({
-        page: this.state.page,
-        size: this.state.pageSize,
-        sort,
-        filter: this.state.filter,
+      page: this.state.page,
+      size: this.state.pageSize,
+      sort,
+      filter: this.state.filter,
     })
     this.setState({
       sortBalance: !sortBalance,
       sort,
     })
   },
-  handleBack(){
+  handleBack() {
     const { scope } = this.props
     scope.setState({
       notFound: false,
     })
   },
-  delMember(record){
+  delMember(record) {
     const { scope } = this.props
     confirm({
       title: '您是否确认要删除这项内容',
-      content: '点确认 1 秒后关闭',
       onOk() {
-        console.log('del !!!!!')
-        scope.props.deleteUser(record.key,{
+        scope.props.deleteUser(record.key, {
           success: {
             func: () => {
               scope.props.loadUserList({
-                page: scope.state.page,
+                page: 1,
                 size: scope.state.pageSize,
                 sort: scope.state.sort,
                 filter: scope.state.filter,
+              })
+              scope.setState({
+                current: 1
               })
             },
             isAsync: true
           },
         })
       },
-      onCancel() {},
+      onCancel() { },
     });
+  },
+  onTableChange(pagination, filters, sorter) {
+    // 点击分页、筛选、排序时触发
+    if (!filters.style) {
+      return
+    }
+    let styleFilterStr = filters.style.toString()
+    if (styleFilterStr === this.styleFilter) {
+      return
+    }
+    const { scope } = this.props
+    const { loadUserList } = scope.props
+    let { page, pageSize, sort } = scope.state
+    const query = {
+      page,
+      size: pageSize,
+      sort,
+    }
+    let filter
+    if (filters.style.length === 1) {
+      filter = `role,${filters.style[0]}`
+      query.filter = filter
+    }
+    scope.setState({
+      filter
+    })
+    loadUserList(query)
+    this.styleFilter = styleFilterStr
   },
   render() {
     let { sortedInfo, filteredInfo } = this.state
     const { searchResult, notFound } = this.props.scope.state
     const { data, scope } = this.props
-    console.log('listdata',data);
-    sortedInfo = sortedInfo || {}
+    console.log('listdata', data);
     filteredInfo = filteredInfo || {}
     const pagination = {
       total: this.props.scope.props.total,
       showSizeChanger: true,
       defaultPageSize: 5,
-      defaultCurrent:1,
-      current:this.props.scope.state.current,
-      pageSizeOptions: ['5','10','15','20'],
+      defaultCurrent: 1,
+      current: this.props.scope.state.current,
+      pageSizeOptions: ['5', '10', '15', '20'],
       onShowSizeChange(current, pageSize) {
         console.log('Current: ', current, '; PageSize: ', pageSize);
         scope.props.loadUserList({
@@ -146,11 +170,14 @@ let MemberTable =  React.createClass({
         scope.setState({
           pageSize: pageSize,
           page: current,
-          current: current,
+          current: 1,
         })
       },
       onChange(current) {
-        const {pageSize} = scope.state
+        const { pageSize, page } = scope.state
+        if (current === page) {
+          return
+        }
         console.log('Current: ', current);
         scope.props.loadUserList({
           page: current,
@@ -171,11 +198,11 @@ let MemberTable =  React.createClass({
           <div onClick={this.handleSortName}>
             成员名
             <div className="ant-table-column-sorter">
-              <span className= {this.state.sortName?'ant-table-column-sorter-up on':'ant-table-column-sorter-up off'} title="↑">
-                <i className="anticon anticon-caret-up"/>
+              <span className={this.state.sortName ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
+                <i className="anticon anticon-caret-up" />
               </span>
-              <span className= {!this.state.sortName?'ant-table-column-sorter-down on':'ant-table-column-sorter-down off'} title="↓">
-                <i className="anticon anticon-caret-down"/>
+              <span className={!this.state.sortName ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
+                <i className="anticon anticon-caret-down" />
               </span>
             </div>
           </div>
@@ -199,14 +226,48 @@ let MemberTable =  React.createClass({
       },
       {
         title: '类型',
+        /* (
+         <span>
+           <div className="ant-dropdown ant-dropdown-placement-bottomLeft"
+                style={{left: '816.208px', top: '196.438px'}}>
+             <div className="ant-table-filter-dropdown">
+               <ul className="ant-dropdown-menu ant-dropdown-menu-vertical  ant-dropdown-menu-root" role="menu" aria-activedescendant="" tabindex="0">
+                 <li className="ant-dropdown-menu-item" role="menuitem" aria-selected="false">
+                   <label className="ant-checkbox-wrapper">
+                     <span className="ant-checkbox">
+                     <span className="ant-checkbox-inner"></span>
+                     <input type="checkbox" className="ant-checkbox-input" value="on"/>
+                   </span>
+                   </label>
+                   <span>团队管理员</span>
+                 </li>
+                 <li className="ant-dropdown-menu-item" role="menuitem" aria-selected="false">
+                   <label className="ant-checkbox-wrapper">
+                     <span className="ant-checkbox">
+                       <span className="ant-checkbox-inner"></span>
+                       <input type="checkbox" className="ant-checkbox-input" value="on"/>
+                     </span>
+                   </label>
+                   <span>普通成员</span>
+                 </li>
+               </ul>
+               <div className="ant-table-filter-dropdown-btns">
+                 <a className="ant-table-filter-dropdown-link confirm">确定</a>
+                 <a className="ant-table-filter-dropdown-link clear">重置</a>
+               </div>
+             </div>
+           </div>
+           <i className="anticon anticon-filter" title="筛选"/>
+         </span>
+       ),*/
         dataIndex: 'style',
         key: 'style',
         filters: [
-          { text: '团队管理员', value: '团队管理员' },
-          { text: '普通成员', value: '普通成员' },
+          { text: '普通成员', value: 0 },
+          { text: '团队管理员', value: 1 },
         ],
-        filteredValue: filteredInfo.style,
-        onFilter: (value, record) => record.style.indexOf(value) === 0,
+        /*filteredValue: filteredInfo.style,
+        onFilter: (value, record) => record.style.indexOf(value) === 0,*/
         width: 150,
       },
       {
@@ -214,11 +275,11 @@ let MemberTable =  React.createClass({
           <div onClick={this.handleSortTeam}>
             团队
             <div className="ant-table-column-sorter">
-              <span className= {this.state.sortTeam?'ant-table-column-sorter-up on':'ant-table-column-sorter-up off'} title="↑">
-                <i className="anticon anticon-caret-up"/>
+              <span className={this.state.sortTeam ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
+                <i className="anticon anticon-caret-up" />
               </span>
-              <span className= {!this.state.sortTeam?'ant-table-column-sorter-down on':'ant-table-column-sorter-down off'} title="↓">
-                <i className="anticon anticon-caret-down"/>
+              <span className={!this.state.sortTeam ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
+                <i className="anticon anticon-caret-down" />
               </span>
             </div>
           </div>
@@ -232,11 +293,11 @@ let MemberTable =  React.createClass({
           <div onClick={this.handleSortBalance}>
             余额
             <div className="ant-table-column-sorter">
-              <span className= {this.state.sortBalance?'ant-table-column-sorter-up on':'ant-table-column-sorter-up off'} title="↑">
-                <i className="anticon anticon-caret-up"/>
+              <span className={this.state.sortBalance ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
+                <i className="anticon anticon-caret-up" />
               </span>
-              <span className= {!this.state.sortBalance?'ant-table-column-sorter-down on':'ant-table-column-sorter-down off'} title="↓">
-                <i className="anticon anticon-caret-down"/>
+              <span className={!this.state.sortBalance ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
+                <i className="anticon anticon-caret-down" />
               </span>
             </div>
           </div>
@@ -250,11 +311,11 @@ let MemberTable =  React.createClass({
         dataIndex: 'operation',
         key: 'operation',
         width: 180,
-        render: (text, record,index) => (
+        render: (text, record, index) => (
           <div>
             <Link to={`/setting/user/${record.key}`}>
-            <Button icon="setting" className="setBtn">
-              管理
+              <Button icon="setting" className="setBtn">
+                管理
             </Button>
             </Link>
             <Button icon="delete" className="delBtn" onClick={() => this.delMember(record)}>
@@ -264,7 +325,7 @@ let MemberTable =  React.createClass({
         ),
       },
     ]
-    if(notFound){
+    if (notFound) {
       return (
         <div id="notFound">
           <div className="notFoundTip">没有查询到符合条件的记录，尝试其他关键字。</div>
@@ -273,10 +334,10 @@ let MemberTable =  React.createClass({
       )
     } else {
       return (
-              <Table columns={columns}
-                     dataSource={searchResult.length === 0?data : searchResult}
-                     pagination={pagination}
-                     onChange={this.handleChange} />
+        <Table columns={columns}
+          dataSource={searchResult.length === 0 ? data : searchResult}
+          pagination={pagination}
+          onChange={this.onTableChange} />
       )
     }
   },
@@ -310,8 +371,8 @@ let NewMemberForm = React.createClass({
       callback();
     }
   },
-  telExists(rule, value, callback){
-    if(!/^[0-9][-0-9()]{5,12}[0-9]$/.test(value)){
+  telExists(rule, value, callback) {
+    if (!/^[0-9][-0-9()]{5,12}[0-9]$/.test(value)) {
       callback([new Error('请输入正确的手机号')]);
     } else {
       callback()
@@ -331,8 +392,8 @@ let NewMemberForm = React.createClass({
         phone: tel,
         sendEmail: check,
       }
-      
-      scope.props.createUser(newUser,{
+
+      scope.props.createUser(newUser, {
         success: {
           func: () => {
             scope.setState({
@@ -416,27 +477,27 @@ let NewMemberForm = React.createClass({
     return (
       <Form horizontal form={this.props.form}>
         <Modal title="添加新成员" visible={visible}
-               onOk={this.handleOk} onCancel={this.handleCancel}
-               wrapClassName="NewMemberForm"
-               width="463px"
-        >
+          onOk={this.handleOk} onCancel={this.handleCancel}
+          wrapClassName="NewMemberForm"
+          width="463px"
+          >
           <FormItem
             {...formItemLayout}
             label="名称"
             hasFeedback
             help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
-          >
+            >
             <Input {...nameProps} placeholder="新成员名称" />
           </FormItem>
           <FormItem
             {...formItemLayout}
             label="类型"
             hasFeedback
-          >
+            >
             <div>
               普通成员
               <Tooltip placement="right" title={text}>
-                <Icon type="question-circle-o" style={{marginLeft: 10}}/>
+                <Icon type="question-circle-o" style={{ marginLeft: 10 }} />
               </Tooltip>
             </div>
           </FormItem>
@@ -444,37 +505,37 @@ let NewMemberForm = React.createClass({
             {...formItemLayout}
             label="密码"
             hasFeedback
-          >
+            >
             <Input {...passwdProps} type="password" autoComplete="off"
-                   placeholder="新成员名称登录密码"
-            />
+              placeholder="新成员名称登录密码"
+              />
           </FormItem>
-    
+
           <FormItem
             {...formItemLayout}
             label="确认密码"
             hasFeedback
-          >
-            <Input {...rePasswdProps} type="password" autoComplete="off" placeholder="请再次输入密码确认"/>
+            >
+            <Input {...rePasswdProps} type="password" autoComplete="off" placeholder="请再次输入密码确认" />
           </FormItem>
           <FormItem
             {...formItemLayout}
             label="手机"
             hasFeedback
-          >
+            >
             <Input {...telProps} type="text" placeholder="新成员手机" />
           </FormItem>
           <FormItem
             {...formItemLayout}
             label="邮箱"
             hasFeedback
-          >
+            >
             <Input {...emailProps} type="email" placeholder="新成员邮箱账号" />
           </FormItem>
           <FormItem
             {...formItemLayout}
             label=""
-          >
+            >
             <Checkbox className="ant-checkbox-vertical" {...checkProps}>
               创建完成后, 密码账户名发送至该邮箱
             </Checkbox>
@@ -486,7 +547,7 @@ let NewMemberForm = React.createClass({
 })
 NewMemberForm = createForm()(NewMemberForm)
 class MemberManage extends Component {
-  constructor(props){
+  constructor(props) {
     super(props)
     this.showModal = this.showModal.bind(this)
     this.state = {
@@ -506,30 +567,27 @@ class MemberManage extends Component {
       visible: true,
     })
   }
-  componentWillMount(){
+  componentWillMount() {
     this.props.loadUserList({
       page: 1,
       size: 5,
       sort: "a,userName",
       filter: "",
     })
-    
+
   }
-  componentWillReceiveProps(nextProps){
-    
-  }
-  render(){
+  render() {
     const { users } = this.props
-    console.log('users',users);
+    console.log('users', users);
     const scope = this
     const { visible, memberList } = this.state
     const searchIntOption = {
-      width:'280px',
+      width: '280px',
       position: 'right',
       addBefore: [
-        {key: 'name', value: '用户名'},
-        {key: 'tel', value: '手机号'},
-        {key: 'email', value: '邮箱'},
+        { key: 'name', value: '用户名' },
+        { key: 'tel', value: '手机号' },
+        { key: 'email', value: '邮箱' },
       ],
       defaultValue: 'name',
       placeholder: '请输入关键词搜索',
@@ -540,8 +598,8 @@ class MemberManage extends Component {
           <Button type="primary" size="large" onClick={this.showModal} icon="plus" className="addBtn">
             添加新成员
           </Button>
-          <SearchInput scope={scope} searchIntOption={searchIntOption}/>
-          <NewMemberForm visible={visible} scope={scope}/>
+          <SearchInput scope={scope} searchIntOption={searchIntOption} />
+          <NewMemberForm visible={visible} scope={scope} />
         </Row>
         <Row className="memberList">
           <Card>
@@ -562,15 +620,15 @@ function mapStateToProp(state) {
     if (users.result.users) {
 
       usersData = users.result.users
-      console.log('usersData',usersData);
-      usersData.map((item,index) => {
+      console.log('usersData', usersData);
+      usersData.map((item, index) => {
         data.push(
           {
             key: item.userID,
             name: item.displayName,
             tel: item.phone,
             email: item.email,
-            style: item.role === 1?'团队管理员':'普通成员',
+            style: item.role === 1 ? '团队管理员' : '普通成员',
             team: item.teamCount,
             balance: item.balance,
           }
@@ -581,7 +639,7 @@ function mapStateToProp(state) {
       total = users.result.total
     }
   }
-  
+
   return {
     users: data,
     total

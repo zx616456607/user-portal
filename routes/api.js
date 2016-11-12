@@ -23,6 +23,7 @@ const teamController = require('../controllers/team_manage')
 const tokenController = require('../controllers/token')
 const devopsController = require('../controllers/devops')
 const licenseController = require('../controllers/license')
+const clusterController = require('../controllers/cluster_manage')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -42,6 +43,9 @@ module.exports = function (Router) {
   router.get('/storage-pools/:pool/:cluster/volumes/:name/bindinfo', volumeController.getBindInfo)
   router.get('/storage-pools/:pool/:cluster/volumes/:name/exportfile', volumeController.exportFile)
   router.get('/storage-pools/:cluster/volumes/available', volumeController.getAvailableVolume)
+
+  // Clusters
+  router.get('/clusters', clusterController.getClusters)
   // Apps
   router.post('/clusters/:cluster/apps', appController.createApp)
   router.get('/clusters/:cluster/apps', appController.getApps)
@@ -105,6 +109,7 @@ module.exports = function (Router) {
   router.post('/teams/:team_id/users', teamController.addTeamusers)
   //To remove multiple users, seperate the user ids with ",".
   router.delete('/teams/:team_id/users/:user_ids', teamController.removeTeamusers)
+  router.delete('/teams/:team_id/spaces/:space_id', teamController.deleteTeamspace)
 
   // spi
   router.post('/clusters/:cluster/services/:service_name/binddomain', serviceController.bindServiceDomain)
@@ -159,6 +164,7 @@ module.exports = function (Router) {
   router.post('/clusters/:cluster/createRedisCluster', databaseCacheController.createRedisCluster)
   router.get('/clusters/:cluster/getDatabaseDetail/:dbName', databaseCacheController.getDatabaseClusterDetail)
   router.get('/clusters/:cluster/deleteDatabase/:dbName', databaseCacheController.deleteDatebaseCluster)
+  router.get('/clusters/:cluster/persistentvolumeclaims', databaseCacheController.getPVC)
 
   // Manage Monitor
   router.post('/manage-monitor/getOperationAuditLog', manageMonitorController.getOperationAuditLog)
