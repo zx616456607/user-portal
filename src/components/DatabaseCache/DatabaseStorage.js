@@ -15,7 +15,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { remove, findIndex } from 'lodash'
-import { loadStorageList, deleteStorage, createStorage, formateStorage, resizeStorage } from '../../actions/storage'
+import { loadStorageList } from '../../actions/storage'
 import { DEFAULT_IMAGE_POOL } from '../../constants'
 import './style/DatabaseStorage.less'
 
@@ -542,7 +542,7 @@ class databaseStorage extends Component {
     return (
       <QueueAnim className="database_storage" type="right">
         <div id="DatabaseStorage" key="database_storage">
-          <div className="operationBox">
+          {/*<div className="operationBox">
             <div className="leftBox">
               <Button type="primary" size="large" onClick={this.showModal}>
                 <i className="fa fa-plus" />&nbsp;
@@ -599,12 +599,12 @@ class databaseStorage extends Component {
               </div>
             </div>
             <div className="clearDiv"></div>
-          </div>
+          </div>*/}
           <Card className="storageBox appBox">
             <div className="appTitle">
-              <div className="selectIconTitle commonTitle">
+              {/*<div className="selectIconTitle commonTitle">
                 <Checkbox onChange={(e) => this.onAllChange(e)} checked={this.isAllChecked()} disabled={!this.disableSelectAll()}></Checkbox>
-              </div>
+              </div>*/}
               <div className="name commonTitle"><FormattedMessage {...messages.storageName} /></div>
               <div className="status commonTitle"><FormattedMessage {...messages.status} /></div>
               <div className="formet commonTitle"><FormattedMessage {...messages.formats} /></div>
@@ -612,7 +612,7 @@ class databaseStorage extends Component {
               <div className="appname commonTitle"><FormattedMessage {...messages.app} /></div>
               <div className="size commonTitle"><FormattedMessage {...messages.size} /></div>
               <div className="createTime commonTitle"><FormattedMessage {...messages.createTime} /></div>
-              <div className="actionBox commonTitle"><FormattedMessage {...messages.action} /></div>
+              {/*<div className="actionBox commonTitle"><FormattedMessage {...messages.action} /></div>*/}
             </div>
             <MyComponent
               storage={this.props.storageList[this.props.currentImagePool]}

@@ -332,6 +332,31 @@ export function setDockerfile(flowInfo, callback) {
   }
 }
 
+export const CREATE_DOCKER_FILES_REQUEST = 'CREATE_DOCKER_FILES_REQUEST'
+export const CREATE_DOCKER_FILES_SUCCESS = 'CREATE_DOCKER_FILES_SUCCESS'
+export const CREATE_DOCKER_FILES_FAILURE = 'CREATE_DOCKER_FILES_FAILURE'
+
+function fetchCreateDockerfile(flows, callback) {
+  return {
+    [FETCH_API]: {
+      types: [CREATE_DOCKER_FILES_REQUEST, CREATE_DOCKER_FILES_SUCCESS, CREATE_DOCKER_FILES_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flows.flowId}/stages/${flows.stageId}/dockerfile`,
+      schema: {},
+      options: {
+        method: 'POST',
+        body: { content: flows.content }
+      }
+    },
+    callback
+  }
+}
+
+export function createDockerfile(flowInfo, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchCreateDockerfile(flowInfo, callback))
+  }
+}
+
 export const SEARCH_DOCKER_FILES_LIST = 'SEARCH_DOCKER_FILES_LIST'
 export function searchDockerfile(names) {
   return {
@@ -609,5 +634,30 @@ function fetchCodeStoreBranchDetail(storeType, reponame, project_id, callback) {
 export function getCodeStoreBranchDetail(storeType, reponame, project_id, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchCodeStoreBranchDetail(storeType, reponame, project_id, callback))
+  }
+}
+
+export const BUILD_TENX_FLOW_REQUEST = 'BUILD_TENX_FLOW_REQUEST'
+export const BUILD_TENX_FLOW_SUCCESS = 'BUILD_TENX_FLOW_SUCCESS'
+export const BUILD_TENX_FLOW_FAILURE = 'BUILD_TENX_FLOW_FAILURE'
+
+function postCreateTenxflowBuild(flowId, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [BUILD_TENX_FLOW_REQUEST, BUILD_TENX_FLOW_SUCCESS, BUILD_TENX_FLOW_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/builds`,
+      schema: {},
+      options: {
+        method: 'POST',
+        body: body
+      }
+    },
+    callback: callback
+  }
+}
+
+export function CreateTenxflowBuild(flowId, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(postCreateTenxflowBuild(flowId, body, callback))
   }
 }

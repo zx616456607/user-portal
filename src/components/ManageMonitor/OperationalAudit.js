@@ -308,6 +308,10 @@ const menusText = defineMessages({
     id: 'ManageMonitor.operationalAudit.objName',
     defaultMessage: '对象：',
   },
+  allResource: {
+    id: 'ManageMonitor.operationalAudit.allResource',
+    defaultMessage: '所有对象',
+  },
 });
 
 function returnOperationList(scope) {
@@ -866,6 +870,9 @@ class OperationalAudit extends Component {
         case '0':
           showOperationalList = operationalList;
           break;
+        default:
+          showOperationalList = operationalList;
+          break;
       }
       this.setState({
         selectOperationalList: showOperationalList,
@@ -1077,6 +1084,9 @@ class OperationalAudit extends Component {
     }, {
       value: '0',
       label: formatMessage(menusText.Unknown)
+    }, {
+      value: null,
+      label: formatMessage(menusText.allResource)
     },];
     const operationalSelectOptions = this.state.selectOperationalList.map((item) => {
       return (

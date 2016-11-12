@@ -234,6 +234,9 @@ function currentEditClass(status, editIndex, index) {
 function fetchCodeStoreName(id, codeList) {
   //this function for fetcht code store name 
   let codeName = null;
+  if(!Boolean(codeList)) {
+    return;
+  }
   codeList.map((item) => {
     if(item.id == id) {
       codeName = item.name;

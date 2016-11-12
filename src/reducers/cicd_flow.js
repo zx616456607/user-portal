@@ -416,6 +416,16 @@ export default function cicd_flow(state = {}, action) {
       SUCCESS: ActionTypes.DELETE_TENX_FLOW_STATE_SUCCESS,
       FAILURE: ActionTypes.DELETE_TENX_FLOW_STATE_FAILURE
     }, state.deleteTenxFlowStateDetail, action),
+    createDockerfile: reducerFactory({
+      REQUEST: ActionTypes.CREATE_DOCKER_FILES_REQUEST,
+      SUCCESS: ActionTypes.CREATE_DOCKER_FILES_SUCCESS,
+      FAILURE: ActionTypes.CREATE_DOCKER_FILES_FAILURE
+    }, state.createDockerfile, action),
+    CreateTenxflowBuild: reducerFactory({
+      REQUEST: ActionTypes.BUILD_TENX_FLOW_REQUEST,
+      SUCCESS: ActionTypes.BUILD_TENX_FLOW_SUCCESS,
+      FAILURE: ActionTypes.BUILD_TENX_FLOW_FAILURE
+    }, state.CreateTenxflowBuild, action),
   }
 }
 
