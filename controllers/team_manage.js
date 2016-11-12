@@ -41,6 +41,9 @@ exports.getTeamspaces = function* () {
   if (name) {
     queryObj.filter = `name ${name}`
   }
+  if (query && query.sort) {
+    queryObj.sort = query.sort
+  }
   const api = apiFactory.getApi(loginUser)
   const result = yield api.teams.getBy([teamID, 'spaces'], queryObj)
   const teamspaces = result.spaces || []
@@ -131,6 +134,9 @@ exports.getTeamUsers = function* () {
   }
   if (name) {
     queryObj.filter = `name ${name}`
+  }
+  if (query && query.sort) {
+    queryObj.sort = query.sort
   }
   const api = apiFactory.getApi(loginUser)
   const result = yield api.teams.getBy([teamID, 'users'], queryObj)
