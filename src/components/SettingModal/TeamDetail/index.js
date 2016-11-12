@@ -15,6 +15,7 @@ import {
   deleteTeam, createTeamspace, addTeamusers, removeTeamusers,
   loadTeamspaceList, loadTeamUserList, loadTeamClustersList,deleteTeamspace
 } from '../../../actions/team'
+import {loadClusterList} from '../../../actions/cluster'
 import { connect } from 'react-redux'
 import MemberTransfer from '../MemberTransfer'
 
@@ -498,8 +499,8 @@ class TeamDetail extends Component {
     })
   }
   componentWillMount() {
-    const { loadTeamClustersList, loadTeamUserList, loadTeamspaceList, teamID, } = this.props
-    loadTeamClustersList(teamID)
+    const { loadClusterList, loadTeamUserList, loadTeamspaceList, teamID, } = this.props
+    loadClusterList(teamID)
     loadTeamUserList(teamID, { sort: 'a,userName',size:5,page:1 })
     loadTeamspaceList(teamID, { sort: 'a,spaceName',size:5,page:1})
   }
@@ -710,6 +711,6 @@ export default connect(mapStateToProp, {
   removeTeamusers,
   loadTeamspaceList,
   loadTeamUserList,
-  loadTeamClustersList,
+  loadClusterList,
   deleteTeamspace,
 })(TeamDetail)

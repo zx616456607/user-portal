@@ -448,7 +448,6 @@ function mapStateToProp(state,props) {
       total = teams.result.total
     }
   }
-  console.log('teamData',teamsData);
   return {
     teams: data,
     total

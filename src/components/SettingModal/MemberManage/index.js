@@ -266,8 +266,6 @@ let MemberTable = React.createClass({
           { text: '普通成员', value: 0 },
           { text: '团队管理员', value: 1 },
         ],
-        /*filteredValue: filteredInfo.style,
-        onFilter: (value, record) => record.style.indexOf(value) === 0,*/
         width: 150,
       },
       {
@@ -398,6 +396,7 @@ let NewMemberForm = React.createClass({
           func: () => {
             scope.setState({
               visible: false,
+              
             })
             scope.props.loadUserList({
               page: scope.state.page,
