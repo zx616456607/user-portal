@@ -138,7 +138,7 @@ let MemberTable =  React.createClass({
         scope.setState({
           pageSize: pageSize,
           page: current,
-          current: current,
+          current: 1,
         })
       },
       onChange(current) {

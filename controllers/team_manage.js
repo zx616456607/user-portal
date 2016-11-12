@@ -226,3 +226,16 @@ exports.removeTeamusers = function* () {
     data: result
   }
 }
+
+exports.deleteTeamspace = function* () {
+  const teamID = this.params.team_id
+  const spaceID = this.params.space_id
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+
+  const result = yield api.teams.deleteBy([teamID, 'spaces', spaceID])
+
+  this.body = {
+    data: result
+  }
+}
