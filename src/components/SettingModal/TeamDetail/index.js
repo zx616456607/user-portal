@@ -284,7 +284,6 @@ class TeamDetail extends Component{
   handleNewMemberOk(){
     const { addTeamusers, teamID, loadTeamUserList } = this.props
     const { targetKeys } = this.state
-    console.log('targetKeys',targetKeys);
     if(targetKeys.length !== 0){
       addTeamusers(teamID,
         targetKeys
@@ -294,6 +293,7 @@ class TeamDetail extends Component{
             loadTeamUserList(teamID)
             this.setState({
               addMember: false,
+              targetKeys: [],
             })
           },
           isAsync: true
@@ -358,7 +358,7 @@ class TeamDetail extends Component{
   }
   
   render(){
-    const { clusterList, teamUserList, teamSpacesList, teamName,teamID,removeTeamusers,loadTeamUserList } = this.props
+    const { clusterList, teamUserList, teamUserIDList, teamSpacesList, teamName,teamID,removeTeamusers,loadTeamUserList } = this.props
     const { targetKeys } = this.state
     return (
       <div id='TeamDetail'>
@@ -417,7 +417,9 @@ class TeamDetail extends Component{
                        width="660px"
                        wrapClassName="newMemberModal"
                 >
-                  <MemberTransfer onChange={this.handleChange} targetKeys={targetKeys}/>
+                  <MemberTransfer onChange={this.handleChange}
+                                  targetKeys={targetKeys}
+                                  teamUserIDList={teamUserIDList}/>
                 </Modal>
               </Col>
             </Row>
@@ -472,6 +474,7 @@ function mapStateToProp(state,props) {
   let clusterList = []
   let teamUserList = []
   let teamSpacesList = []
+  let teamUserIDList = []
   const { team_id, team_name } = props.params
   console.log('state',state);
   const team = state.team
@@ -489,6 +492,7 @@ function mapStateToProp(state,props) {
             style: item.role === 0?'普通成员':'系统管理员',
           }
         )
+        teamUserIDList.push(item.userID)
       })
     }
   }
@@ -535,6 +539,7 @@ function mapStateToProp(state,props) {
     clusterList: clusterList,
     teamUserList: teamUserList,
     teamSpacesList: teamSpacesList,
+    teamUserIDList: teamUserIDList,
   }
 }
 export default connect(mapStateToProp, {
