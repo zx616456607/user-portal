@@ -32,6 +32,7 @@ let TeamTable = React.createClass({
       targetKeys:[],
       sort: "a,teamName",
       filter: "",
+      nowTeamID:''
     }
   },
   handleChange(pagination, filters, sorter) {
@@ -48,6 +49,7 @@ let TeamTable = React.createClass({
   delTeam(teamID){
     const {deleteTeam,loadUserTeamList} = this.props.scope.props
     const {page,pageSize,sort, filter} = this.props.scope.state
+    console.log('delt',teamID);
     confirm({
       title: '您是否确认要删除这项内容',
       onOk() {
@@ -130,28 +132,28 @@ let TeamTable = React.createClass({
       sort,
     })
   },
-  addNewMember(){
+  addNewMember(teamID){
     this.setState({
       addMember: true,
+      nowTeamID:teamID
     })
   },
-  handleNewMemberOk(teamID){
-    const { addTeamusers,loadUserTeamList } = this.props
-    const { targetKeys } = this.state
+  handleNewMemberOk(){
+    const { addTeamusers,loadUserTeamList,rowKey } = this.props
+    const { targetKeys,nowTeamID } = this.state
     const { page,size,sort ,filter} = this.props.scope.state
-    console.log('teamID',teamID);
     if(targetKeys.length !== 0){
-      addTeamusers(teamID,
+      addTeamusers(nowTeamID,
         targetKeys
       ,{
         success: {
           func:() => {
             console.log('done');
             loadUserTeamList('default',{
-              page: 1,
-              size: 5,
-              sort: "a,teamName",
-              filter: "",
+              page: page,
+              size: size,
+              sort: sort,
+              filter: filter,
             })
             this.setState({
               addMember: false,
@@ -176,6 +178,7 @@ let TeamTable = React.createClass({
     let { sortedInfo, filteredInfo, targetKeys } = this.state
     const { searchResult, notFound, sort, filter } = this.props.scope.state
     const { data, scope } = this.props
+    console.log('data',data);
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
     const pagination = {
@@ -299,10 +302,10 @@ let TeamTable = React.createClass({
         width: '20%',
         render: (text,record,index) => (
           <div>
-            <Button icon="plus" className="addBtn" onClick={this.addNewMember}>添加成员</Button>
-            <Modal title="添加新成员"
+            <Button icon="plus" className="addBtn" onClick={()=>this.addNewMember(record.key)}>添加成员</Button>
+            <Modal title='添加新成员'
                    visible={this.state.addMember}
-                   onOk={()=>this.handleNewMemberOk(record.key)}
+                   onOk={this.handleNewMemberOk}
                    onCancel={this.handleNewMemberCancel}
                    width="660px"
                    wrapClassName="newMemberModal"
@@ -318,7 +321,12 @@ let TeamTable = React.createClass({
       <Table columns={columns}
              dataSource={searchResult.length === 0?data : searchResult}
              pagination={pagination}
-             onChange={this.handleChange} />
+             onChange={this.handleChange}
+             rowKey={(record, index) => {
+               console.log('rowkey',record);
+               return record.key
+             }}
+      />
     )
   },
 })
@@ -392,7 +400,7 @@ class TeamManage extends Component {
   render(){
     const scope = this
     const { visible } = this.state
-    const { teams,addTeamusers } = this.props
+    const { teams,addTeamusers,loadUserTeamList } = this.props
     
     const searchIntOption = {
       placeholder: '搜索',
@@ -426,7 +434,7 @@ class TeamManage extends Component {
         </Row>
         <Row className="teamList">
           <Card>
-            <TeamTable data={teams} scope={scope} addTeamusers={addTeamusers}/>
+            <TeamTable data={teams} scope={scope} addTeamusers={addTeamusers} loadUserTeamList={loadUserTeamList}/>
           </Card>
         </Row>
       </div>

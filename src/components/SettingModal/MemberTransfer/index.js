@@ -26,6 +26,7 @@ class MemberTransfer extends Component{
   }
   render(){
     const { onChange,targetKeys,userList,teamUserIDList } = this.props
+    
     let teamUserList=teamUserIDList?teamUserIDList:[]
     let filterUserList = teamUserList.length !== 0 ?
       userList.filter(function (userItem) {
