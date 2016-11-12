@@ -419,7 +419,7 @@ class AppList extends Component {
   }
 
   updateBrowserHistory(page, size, sortOrder, sortBy) {
-    
+
     if (page === this.props.page &&
       size === this.props.size &&
       sortOrder === this.props.sortOrder &&
@@ -492,7 +492,7 @@ class AppList extends Component {
 
       return prefix + toggle
     }
-    
+
     return (
       <QueueAnim
         className='AppList'
@@ -501,9 +501,9 @@ class AppList extends Component {
         <div id='AppList' key='AppList'>
           <div className='operationBox'>
             <div className='leftBox'>
-              <Button type='ghost' size='large'>
+              <Button type='primary' size='large'>
                 <Link to='/app_manage/app_create'>
-                  <i className='fa fa-plus'></i>添加应用
+                  <i className='fa fa-plus'></i>创建应用
                 </Link>
               </Button>
               <Button type='ghost' size='large' onClick={this.batchStartApps} disabled={!isChecked}>
@@ -534,13 +534,13 @@ class AppList extends Component {
                     })
                   } }
                   value={searchInputValue}
-                  placeholder='输入应用名回车搜索'
+                  placeholder='按应用名搜索'
                   disabled={searchInputDisabled}
                   onPressEnter={this.searchApps} />
               </div>
             </div>
             <div className='pageBox'>
-              <span className='totalPage'>共{total}条</span>
+              <span className='totalPage'>共 {total} 条</span>
               <div className='paginationBox'>
                 <Pagination
                   simple
