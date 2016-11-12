@@ -135,17 +135,29 @@ let TeamTable = React.createClass({
       addMember: true,
     })
   },
-  handleNewMemberOk(){
-    const { addTeamusers, teamID } = this.props
+  handleNewMemberOk(teamID){
+    const { addTeamusers,loadUserTeamList } = this.props
     const { targetKeys } = this.state
+    const { page,size,sort ,filter} = this.props.scope.state
+    console.log('teamID',teamID);
     if(targetKeys.length !== 0){
-      addTeamusers(teamID,{
-      },{
+      addTeamusers(teamID,
+        targetKeys
+      ,{
         success: {
           func:() => {
+            console.log('done');
+            loadUserTeamList('default',{
+              page: 1,
+              size: 5,
+              sort: "a,teamName",
+              filter: "",
+            })
             this.setState({
               addMember: false,
+              targetKeys: []
             })
+            
           },
           isAsync: true
         }
@@ -290,7 +302,7 @@ let TeamTable = React.createClass({
             <Button icon="plus" className="addBtn" onClick={this.addNewMember}>添加成员</Button>
             <Modal title="添加新成员"
                    visible={this.state.addMember}
-                   onOk={this.handleNewMemberOk}
+                   onOk={()=>this.handleNewMemberOk(record.key)}
                    onCancel={this.handleNewMemberCancel}
                    width="660px"
                    wrapClassName="newMemberModal"
@@ -380,7 +392,7 @@ class TeamManage extends Component {
   render(){
     const scope = this
     const { visible } = this.state
-    const { teams } = this.props
+    const { teams,addTeamusers } = this.props
     
     const searchIntOption = {
       placeholder: '搜索',
@@ -414,7 +426,7 @@ class TeamManage extends Component {
         </Row>
         <Row className="teamList">
           <Card>
-            <TeamTable data={teams} scope={scope}/>
+            <TeamTable data={teams} scope={scope} addTeamusers={addTeamusers}/>
           </Card>
         </Row>
       </div>
