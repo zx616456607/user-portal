@@ -183,17 +183,17 @@ class ComposeFile extends Component {
               <span>应用名称</span>
               <FormItem help={isFieldValidating('appNameFormCheck') ? '校验中...' : (getFieldError('appNameFormCheck') || []).join(', ')}>
                 <Input size="large"
-                  placeholder="起一个萌萌哒的名称吧~"
+                  placeholder="请输入应用名称"
                   autoComplete="off"
                   {...appNameFormCheck} />
               </FormItem>
               <div style={{ clear: "both" }}></div>
             </div>
             <div className="introBox">
-              <span>添加描述</span>
+              <span>应用描述</span>
               <FormItem>
                 <Input size="large"
-                  placeholder="写一个萌萌哒的描述吧~"
+                  placeholder="请输入应用描述"
                   {...remarkFormCheck}
                   value={remark} />
               </FormItem>
