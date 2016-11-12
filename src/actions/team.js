@@ -18,11 +18,11 @@ export const TEAMSPACE_LIST_FAILURE = 'TEAMSPACE_LIST_FAILURE'
 
 // Fetches teamspace list from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchTeamspaceList(teamID) {
+function fetchTeamspaceList(teamID, query) {
   let endpoint = `${API_URL_PREFIX}/teams/${teamID}/spaces`
-  /*if (query) {
+  if (query) {
     endpoint += `?${toQuerystring(query)}`
-  }*/
+  }
   return {
     [FETCH_API]: {
       types: [TEAMSPACE_LIST_REQUEST, TEAMSPACE_LIST_SUCCESS, TEAMSPACE_LIST_FAILURE],
@@ -34,9 +34,9 @@ function fetchTeamspaceList(teamID) {
 
 // Fetches teamspace list from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function loadTeamspaceList(teamID, requiredFields = []) {
+export function loadTeamspaceList(teamID, query, requiredFields = []) {
   return (dispatch, getState) => {
-    return dispatch(fetchTeamspaceList(teamID))
+    return dispatch(fetchTeamspaceList(teamID, query))
   }
 }
 
