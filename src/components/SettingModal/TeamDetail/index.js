@@ -23,24 +23,33 @@ let MemberList = React.createClass({
     return {
       pagination: {},
       loading: false,
-      sortOrder: true,
+      sortUserOrder: true,
+      sortUser: "a,userName",
     }
   },
-  handleEdit(e){
-    
+  getUserSort(order, column) {
+    var orderStr = 'a,'
+    if (!order) {
+      orderStr = 'd,'
+    }
+    return orderStr + column
   },
-  handleDel(e){
-    
-  },
-  handleAppSort(){
-    const { sortOrder } = this.state
-    this.setState({
-      sortOrder: !sortOrder,
+  MemberNameSort(){
+    const { sortUserOrder } = this.state
+    const { loadTeamUserList, teamID} = this.props
+    let sort = this.getUserSort(!sortUserOrder, 'userName')
+    loadTeamUserList(teamID,{
+      sort,
     })
-    //req
+    console.log('sortUser !');
+    this.setState({
+      sortUserOrder: !sortUserOrder,
+      sortUser: sort,
+    })
   },
   delTeamMember(userID){
     const { removeTeamusers,teamID, loadTeamUserList } = this.props
+    const { sortUser } = this.state
     confirm({
       title: '您是否确认要删除这项内容',
       onOk() {
@@ -48,7 +57,7 @@ let MemberList = React.createClass({
           success: {
             func: () => {
               console.log('delte!!');
-              loadTeamUserList(teamID)
+              loadTeamUserList(teamID,{sort:sortUser})
             },
             isAsync: true
           }
@@ -59,20 +68,19 @@ let MemberList = React.createClass({
     
   },
   render: function(){
-    let { sortedInfo, filteredInfo } = this.state
+    let { filteredInfo } = this.state
     const { teamUserList } = this.props
-    sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
     const columns = [
       {
         title: (
-          <div onClick={this.handleAppSort}>
+          <div onClick={this.MemberNameSort}>
             成员名
             <div className="ant-table-column-sorter">
-              <span className= {this.state.sortOrder?'ant-table-column-sorter-up on':'ant-table-column-sorter-up off'} title="↑">
+              <span className= {this.state.sortUserOrder?'ant-table-column-sorter-up on':'ant-table-column-sorter-up off'} title="↑">
                 <i className="anticon anticon-caret-up"/>
               </span>
-              <span className= {!this.state.sortOrder?'ant-table-column-sorter-down on':'ant-table-column-sorter-down off'} title="↓">
+              <span className= {!this.state.sortUserOrder?'ant-table-column-sorter-down on':'ant-table-column-sorter-down off'} title="↓">
                 <i className="anticon anticon-caret-down"/>
               </span>
             </div>
@@ -274,6 +282,7 @@ class TeamDetail extends Component{
       targetKeys:[],
       newSpaceName: '',
       newSpaceDes: '',
+      sortUser: "a,userName",
     }
   }
   addNewMember(){
@@ -283,17 +292,17 @@ class TeamDetail extends Component{
   }
   handleNewMemberOk(){
     const { addTeamusers, teamID, loadTeamUserList } = this.props
-    const { targetKeys } = this.state
-    console.log('targetKeys',targetKeys);
+    const { targetKeys, sortUser } = this.state
     if(targetKeys.length !== 0){
       addTeamusers(teamID,
         targetKeys
       ,{
         success: {
           func:() => {
-            loadTeamUserList(teamID)
+            loadTeamUserList(teamID,{sort: sortUser})
             this.setState({
               addMember: false,
+              targetKeys: [],
             })
           },
           isAsync: true
@@ -318,14 +327,12 @@ class TeamDetail extends Component{
   handleNewSpaceOk(){
     const {createTeamspace, teamID, loadTeamspaceList} = this.props
     const {newSpaceName,newSpaceDes} = this.state
-    console.log('newSpaceName,newSpaceDes',newSpaceName);
     createTeamspace(teamID,{
       spaceName: newSpaceName,
       description: newSpaceDes,
     },{
       success:{
         func:() => {
-          console.log('create !');
           loadTeamspaceList(teamID)
           this.setState({
             addSpace: false,
@@ -353,12 +360,12 @@ class TeamDetail extends Component{
   componentWillMount(){
     const { loadTeamClustersList, loadTeamUserList, loadTeamspaceList, teamID, } = this.props
     loadTeamClustersList(teamID)
-    loadTeamUserList(teamID)
+    loadTeamUserList(teamID,{sort: 'a,userName'})
     loadTeamspaceList(teamID)
   }
   
   render(){
-    const { clusterList, teamUserList, teamSpacesList, teamName,teamID,removeTeamusers,loadTeamUserList } = this.props
+    const { clusterList, teamUserList, teamUserIDList, teamSpacesList, teamName,teamID,removeTeamusers,loadTeamUserList } = this.props
     const { targetKeys } = this.state
     return (
       <div id='TeamDetail'>
@@ -417,7 +424,9 @@ class TeamDetail extends Component{
                        width="660px"
                        wrapClassName="newMemberModal"
                 >
-                  <MemberTransfer onChange={this.handleChange} targetKeys={targetKeys}/>
+                  <MemberTransfer onChange={this.handleChange}
+                                  targetKeys={targetKeys}
+                                  teamUserIDList={teamUserIDList}/>
                 </Modal>
               </Col>
             </Row>
@@ -467,15 +476,13 @@ class TeamDetail extends Component{
   }
 }
 function mapStateToProp(state,props) {
-  console.log('team_id',props.params);
   let clusterData = []
   let clusterList = []
   let teamUserList = []
   let teamSpacesList = []
+  let teamUserIDList = []
   const { team_id, team_name } = props.params
-  console.log('state',state);
   const team = state.team
-  const users = state.user.users
   if(team.teamusers){
     if(team.teamusers.result){
       const teamusers = team.teamusers.result.users
@@ -489,6 +496,7 @@ function mapStateToProp(state,props) {
             style: item.role === 0?'普通成员':'系统管理员',
           }
         )
+        teamUserIDList.push(item.userID)
       })
     }
   }
@@ -535,6 +543,7 @@ function mapStateToProp(state,props) {
     clusterList: clusterList,
     teamUserList: teamUserList,
     teamSpacesList: teamSpacesList,
+    teamUserIDList: teamUserIDList,
   }
 }
 export default connect(mapStateToProp, {
