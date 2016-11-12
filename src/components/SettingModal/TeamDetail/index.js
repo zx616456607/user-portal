@@ -21,10 +21,12 @@ const confirm = Modal.confirm;
 let MemberList = React.createClass({
   getInitialState(){
     return {
-      pagination: {},
       loading: false,
       sortUserOrder: true,
       sortUser: "a,userName",
+      current: 1,
+      userPageSize: 5,
+      userPage: 1,
     }
   },
   getUserSort(order, column) {
@@ -34,7 +36,7 @@ let MemberList = React.createClass({
     }
     return orderStr + column
   },
-  MemberNameSort(){
+  sortMemberName(){
     const { sortUserOrder } = this.state
     const { loadTeamUserList, teamID} = this.props
     let sort = this.getUserSort(!sortUserOrder, 'userName')
@@ -47,6 +49,7 @@ let MemberList = React.createClass({
       sortUser: sort,
     })
   },
+ 
   delTeamMember(userID){
     const { removeTeamusers,teamID, loadTeamUserList } = this.props
     const { sortUser } = this.state
@@ -65,16 +68,53 @@ let MemberList = React.createClass({
       },
       onCancel() {},
     });
-    
+  },
+  onShowSizeChange(current, pageSize) {
+    let { sortUser } = this.state
+    const { loadTeamUserList,teamID } = this.props
+    loadTeamUserList(teamID,{
+      page: current,
+      size: pageSize,
+      sort: sortUser,
+    })
+    this.setState({
+      userPageSize: pageSize,
+      userPage: current,
+      current: current,
+    })
+  },
+  onChange(current) {
+    let { sortUser,userPageSize} = this.state
+    const { loadTeamUserList,teamID } = this.props
+    loadTeamUserList(teamID,{
+      page: current,
+      size: userPageSize,
+      sort: sortUser,
+    })
+    this.setState({
+      userPageSize: userPageSize,
+      userPage: current,
+      current: current,
+    })
   },
   render: function(){
-    let { filteredInfo } = this.state
-    const { teamUserList } = this.props
+    let { filteredInfo,current} = this.state
+    const { teamUserList,teamUsersTotal } = this.props
     filteredInfo = filteredInfo || {}
+    const pagination = {
+      total: teamUsersTotal,
+      showSizeChanger: true,
+      defaultPageSize: 5,
+      defaultCurrent:1,
+      current:current,
+      pageSizeOptions: ['5','10','15','20'],
+      onShowSizeChange: this.onShowSizeChange,
+      onChange: this.onChange,
+    }
     const columns = [
       {
         title: (
-          <div onClick={this.MemberNameSort}>
+          <div onClick={this.sortMemberName}>
             成员名
             <div className="ant-table-column-sorter">
               <span className= {this.state.sortUserOrder?'ant-table-column-sorter-up on':'ant-table-column-sorter-up off'} title="↑">
@@ -129,8 +169,7 @@ let MemberList = React.createClass({
       <div id='MemberList'>
         <Table columns={columns}
                dataSource={teamUserList}
-               onChange={this.handleTableChange}
-               pagination={this.state.pagination}
+               pagination={pagination}
                loading={this.state.loading}
                rowKey={record => record.registered}
         />
@@ -143,77 +182,98 @@ let TeamList = React.createClass({
     return {
       pagination: {},
       loading: false,
-      sortOrder: true,
-      sortSpace: true,
+      sortSpaceOrder: true,
+      sortSpace: 'a,spaceName',
+      current: 1,
+      spacePageSize: 5,
+      spacePage: 1,
     }
   },
-  handleAppSort(){
-    const { sortOrder } = this.state
-    this.setState({
-      sortOrder: !sortOrder,
-    })
-    //req
+  getSpaceSort(order, column) {
+    var orderStr = 'a,'
+    if (!order) {
+      orderStr = 'd,'
+    }
+    return orderStr + column
   },
-  handleSortSpace(){
-    const { sortSpace } = this.state
+  sortSpaceName(){
+    const { loadTeamspaceList, teamID} = this.props
+    const { sortSpaceOrder } = this.state
+    let sort = this.getSpaceSort(!sortSpaceOrder,'spaceName')
+    loadTeamspaceList(teamID,{sort,})
     this.setState({
-      sortSpace: !sortSpace,
+      sortSpaceOrder: !sortSpaceOrder,
+      sortSpace: sort
     })
-    //req
+  },
+  sortSpaceApp(){
+    const { sortSpaceOrder } = this.state
+    this.setState({
+      sortSpaceOrder: !sortSpaceOrder,
+    })
+  },
+  onShowSizeChange(current, pageSize) {
+    const { loadTeamspaceList, teamID } = this.props
+    const { sortSpace } = this.state
+    loadTeamspaceList(teamID,{
+      page: current,
+      size: pageSize,
+      sort: sortSpace,
+    })
+    this.setState({
+      spacePageSize: pageSize,
+      spacePage: current,
+      current: current,
+    })
+  },
+  onChange(current) {
+    const { loadTeamspaceList, teamID } = this.props
+    const { sortSpace, spacePageSize } = this.state
+    loadTeamspaceList(teamID,{
+      page: current,
+      size: spacePageSize,
+      sort: sortSpace,
+    })
+    this.setState({
+      spacePageSize: spacePageSize,
+      spacePage: current,
+      current: current,
+    })
+  },
+  delTeamSpace(spaceID){
+    const { removeTeamusers,teamID, loadTeamUserList } = this.props
+    const { sortSpace } = this.state
+    confirm({
+      title: '您是否确认要删除这项内容',
+      onOk() {
+        //rep
+      },
+      onCancel() {},
+    });
   },
   render: function(){
-    let { filteredInfo } = this.state
-    const { teamSpacesList } = this.props
-    const { searchResult, notFound, sort, filter } = this.state
-    filteredInfo = filteredInfo || {}
-    /*const pagination = {
-      total: this.props.scope.props.total,
-      sort,
-      filter,
+    const { teamSpacesList, teamSpacesTotal } = this.props
+    const { current } = this.state
+    const pagination = {
+      total: teamSpacesTotal,
       showSizeChanger: true,
       defaultPageSize: 5,
-      defaultCurrent:1,
-      current:this.props.scope.state.current,
+      defaultCurrent: 1,
+      current: current,
       pageSizeOptions: ['5','10','15','20'],
-      onShowSizeChange(current, pageSize) {
-        scope.props.loadUserTeamList('default',{
-          page: current,
-          size: pageSize,
-          sort,
-          filter,
-        })
-        scope.setState({
-          page: current,
-          pageSize: pageSize,
-          current: current,
-        })
-      },
-      onChange(current) {
-        const {pageSize} = scope.state
-        console.log('Current: ', current);
-        scope.props.loadUserTeamList('default',{
-          page: current,
-          size: pageSize,
-          sort,
-          filter,
-        })
-        scope.setState({
-          page: current,
-          pageSize: pageSize,
-          current: current,
-        })
-      },
-    }*/
+      onShowSizeChange: this.onShowSizeChange,
+      onChange: this.onChange,
+    }
     const columns = [
       {
         title: (
-          <div onClick={this.handleSortSpace}>
+          <div onClick={this.sortSpaceName}>
             空间名
             <div className="ant-table-column-sorter">
-              <span className= {this.state.sortSpace?'ant-table-column-sorter-up on':'ant-table-column-sorter-up off'} title="↑">
+              <span className= {this.state.sortSpaceOrder?'ant-table-column-sorter-up on':'ant-table-column-sorter-up off'} title="↑">
                 <i className="anticon anticon-caret-up"/>
               </span>
-              <span className= {!this.state.sortSpace?'ant-table-column-sorter-down on':'ant-table-column-sorter-down off'} title="↓">
+              <span className= {!this.state.sortSpaceOrder?'ant-table-column-sorter-down on':'ant-table-column-sorter-down off'} title="↓">
                 <i className="anticon anticon-caret-down"/>
               </span>
             </div>
@@ -229,9 +289,9 @@ let TeamList = React.createClass({
         key: 'description',
       },
       {
-        title: '应用',
-          /*(
-          <div onClick={this.handleAppSort}>
+        title: /*'应用',*/
+          (
+          <div onClick={this.sortSpaceApp}>
             应用
             <div className="ant-table-column-sorter">
               <span className= {this.state.sortOrder?'ant-table-column-sorter-up on':'ant-table-column-sorter-up off'} title="↑">
@@ -242,7 +302,7 @@ let TeamList = React.createClass({
               </span>
             </div>
           </div>
-        ),*/
+        ),
         dataIndex: 'appCount',
         key: 'appCount',
       },
@@ -250,8 +310,8 @@ let TeamList = React.createClass({
         title: '操作',
         dataIndex: 'opt',
         key: 'opt',
-        render:() => (
-          <Button icon="delete" className="delBtn">
+        render:(text,record,index) => (
+          <Button icon="delete" className="delBtn" onClick={() => this.delTeamSpace(record.key)}>
             删除
           </Button>
         )
@@ -259,7 +319,7 @@ let TeamList = React.createClass({
     ]
     return (
       <div id='TeamList'>
-        <Table columns={columns} dataSource={teamSpacesList}/>
+        <Table columns={columns} dataSource={teamSpacesList} pagination={pagination}/>
       </div>
     )
   }
@@ -283,6 +343,7 @@ class TeamDetail extends Component{
       newSpaceName: '',
       newSpaceDes: '',
       sortUser: "a,userName",
+      sortSpace: 'a,spaceName',
     }
   }
   addNewMember(){
@@ -361,12 +422,13 @@ class TeamDetail extends Component{
     const { loadTeamClustersList, loadTeamUserList, loadTeamspaceList, teamID, } = this.props
     loadTeamClustersList(teamID)
     loadTeamUserList(teamID,{sort: 'a,userName'})
-    loadTeamspaceList(teamID)
+    loadTeamspaceList(teamID,{sort: 'a,spaceName'})
   }
   
   render(){
-    const { clusterList, teamUserList, teamUserIDList, teamSpacesList, teamName,teamID,removeTeamusers,loadTeamUserList } = this.props
-    const { targetKeys } = this.state
+    const { clusterList, teamUserList, teamUserIDList, teamSpacesList, teamName,teamID,teamUsersTotal,teamSpacesTotal,
+      removeTeamusers,loadTeamUserList,loadTeamspaceList } = this.props
+    const { targetKeys,userPageSize, memberCurrent, spaceCurrent } = this.state
     return (
       <div id='TeamDetail'>
         <Row style={{marginBottom:20}}>
@@ -410,7 +472,7 @@ class TeamDetail extends Component{
             <Row style={{marginBottom: 20}}>
               <Col span={6} style={{height: 36, lineHeight: '36px'}}>
                 <Icon type="user" />
-                成员数({teamUserList.length})
+                成员数({teamUsersTotal})
               </Col>
               <Col span={6}>
                 <Button type="primary" size="large" icon="plus" className="addBtn"
@@ -434,7 +496,8 @@ class TeamDetail extends Component{
               <MemberList teamUserList={teamUserList}
                           teamID={teamID}
                           removeTeamusers={removeTeamusers}
-                          loadTeamUserList={loadTeamUserList}/>
+                          loadTeamUserList={loadTeamUserList}
+                          teamUsersTotal={teamUsersTotal}/>
             </Row>
           </Col>
           <Col span={3}/>
@@ -442,7 +505,7 @@ class TeamDetail extends Component{
             <Row style={{marginBottom: 20}}>
               <Col span={6} style={{height: 36, lineHeight: '36px'}}>
                 <Icon type="user" />
-                团队空间 ({teamSpacesList.length})
+                团队空间 ({teamSpacesTotal})
               </Col>
               <Col span={6}>
                 <Button type="primary" size="large" icon="plus" className="addBtn"
@@ -467,7 +530,10 @@ class TeamDetail extends Component{
               </Col>
             </Row>
             <Row>
-              <TeamList teamSpacesList={teamSpacesList}/>
+              <TeamList teamSpacesList={teamSpacesList}
+                        loadTeamspaceList={loadTeamspaceList}
+                        teamID={teamID}
+                        teamSpacesTotal={teamSpacesTotal}/>
             </Row>
           </Col>
         </Row>
@@ -481,11 +547,14 @@ function mapStateToProp(state,props) {
   let teamUserList = []
   let teamSpacesList = []
   let teamUserIDList = []
+  let teamUsersTotal = 0
+  let teamSpacesTotal = 0
   const { team_id, team_name } = props.params
   const team = state.team
   if(team.teamusers){
     if(team.teamusers.result){
       const teamusers = team.teamusers.result.users
+      teamUsersTotal = team.teamusers.result.total
       teamusers.map((item,index) => {
         teamUserList.push(
           {
@@ -523,6 +592,7 @@ function mapStateToProp(state,props) {
   if(team.teamspaces){
     const teamSpaces = team.teamspaces
     if(teamSpaces.result){
+      teamSpacesTotal = teamSpaces.result.total
       if(teamSpaces.result.data){
         teamSpaces.result.data.map((item,index) => {
           teamSpacesList.push(
@@ -544,6 +614,8 @@ function mapStateToProp(state,props) {
     teamUserList: teamUserList,
     teamSpacesList: teamSpacesList,
     teamUserIDList: teamUserIDList,
+    teamUsersTotal: teamUsersTotal,
+    teamSpacesTotal: teamSpacesTotal,
   }
 }
 export default connect(mapStateToProp, {
