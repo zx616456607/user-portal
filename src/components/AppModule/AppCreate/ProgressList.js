@@ -48,7 +48,7 @@ export default class ProgressList extends Component {
                   <svg className="commonLine">
                     <use xlinkHref="#stepline" />
                   </svg>
-                  <span>服务列表</span>
+                  <span>选择镜像</span>
                 </div>
                 <div className={currentShowSecondStep(pathName, "third") ? "currentStep thirdStep step" : "thirdStep step"}>
                   <svg className="commonCircle">
@@ -79,7 +79,7 @@ export default class ProgressList extends Component {
                   <svg className="commonLine">
                     <use xlinkHref="#stepline" />
                   </svg>
-                  <span>应用商城</span>
+                  <span>选择应用</span>
                 </div>
                 <div className={currentShowSecondStep(pathName, "third") ? "currentStep thirdStep step" : "thirdStep step"}>
                   <svg className="commonCircle">
