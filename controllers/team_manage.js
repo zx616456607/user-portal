@@ -57,7 +57,7 @@ exports.getTeamspaces = function* () {
     teamspaces[index].appCount = r.appCount
     teamspaces[index].serviceCount = r.serviceCount
     teamspaces[index].containerCount = r.containerCount
-  } 
+  }
 
   this.body = {
     data: teamspaces,
@@ -117,7 +117,7 @@ exports.getTeamUsers = function* () {
   let size = parseInt(query.size || DEFAULT_PAGE_SIZE)
   let sort_by = parseInt(query.sort_by || "name")
   let sort_order = parseInt(query.sort_order || true)
-  let name = query.name
+  let filter = query.filter
   if (isNaN(page) || page < 1) {
     page = DEFAULT_PAGE
   }
@@ -132,8 +132,8 @@ exports.getTeamUsers = function* () {
   if (from == 0 && size == 0) {
     queryObj = {}
   }
-  if (name) {
-    queryObj.filter = `name ${name}`
+  if (filter) {
+    queryObj.filter = filter
   }
   if (query && query.sort) {
     queryObj.sort = query.sort
