@@ -1139,6 +1139,18 @@ class OperationalAudit extends Component {
           <div style={{ clear:'both' }}></div>
         </div>
         <Card className='dataCard'>
+          <div className='bottomBox'>
+            <div className='pageBox'>
+              <Pagination 
+                simple 
+                total={this.state.totalNum} 
+                pageSize={15}
+                current={this.state.from}
+                onChange={this.onPageChange}
+                />
+            </div>
+            <span style={{ float:'right',lineHeight:'24px' }}>共计{this.state.totalNum}条</span>
+          </div>
           <div className='titleBox'>
             <div className='time commonTitle'>
               <FormattedMessage {...menusText.time} />
@@ -1167,17 +1179,6 @@ class OperationalAudit extends Component {
             <div style={{ clear:'both' }}></div>
           </div>
           <MyComponent scope={scope} config={logs} isFetching={isFetching} />
-          <div className='bottomBox'>
-            <div className='pageBox'>
-              <Pagination 
-                simple 
-                total={this.state.totalNum} 
-                pageSize={15}
-                current={this.state.from}
-                onChange={this.onPageChange}
-                />
-            </div>
-          </div>
         </Card>
       </div>
     </QueueAnim>

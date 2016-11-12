@@ -63,6 +63,9 @@
         background-color: #F8F8F8;
       }
     }
+    .displayNone{
+      display: none;
+    }
     .appTitle {
       width: 100%;
       height: 40px;
@@ -86,6 +89,9 @@
       width: 10%;
       overflow: hidden;
       text-overflow: ellipsis;
+      span{
+        display:block;white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+      }
     }
     .status {
       width: 10%;
@@ -113,10 +119,13 @@
       text-overflow: ellipsis;
     }
     .size {
-      width: 5%;
+      width: 10%;
     }
     .createTime {
       width: 10%;
+      span{
+        display:block;white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+      }
     }
     .actionBox {
       width: 10%;
