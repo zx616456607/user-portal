@@ -185,7 +185,7 @@ let TeamTable = React.createClass({
         scope.setState({
           page: current,
           pageSize: pageSize,
-          current: current,
+          current: 1,
         })
       },
       onChange(current) {

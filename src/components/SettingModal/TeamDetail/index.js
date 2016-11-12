@@ -80,7 +80,7 @@ let MemberList = React.createClass({
     this.setState({
       userPageSize: pageSize,
       userPage: current,
-      current: current,
+      current: 1,
     })
   },
   onChange(current) {
@@ -223,7 +223,7 @@ let TeamList = React.createClass({
     this.setState({
       spacePageSize: pageSize,
       spacePage: current,
-      current: current,
+      current: 1,
     })
   },
   onChange(current) {
