@@ -200,7 +200,7 @@ exports.createUser = function* () {
     from: "service@tenxcloud.com", // sender address
     to: user.email, // list of receivers
     subject: '用户创建成功通知', // Subject line
-    html: `<b>${loginUser}您好:</b><br/><br/>恭喜您成功创建如下用户: <br/>用户名: ${user.userName}<br/>密码: ${user.password}` // html body
+    html: `<b>${loginUser.user}您好:</b><br/><br/>恭喜您成功创建如下用户: <br/>用户名: ${user.userName}<br/>密码: ${user.password}` // html body
   }
   try{
     yield email.sendEmail(mailOptions)
