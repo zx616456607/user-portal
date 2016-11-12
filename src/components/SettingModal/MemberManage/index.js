@@ -44,12 +44,13 @@ let MemberTable =  React.createClass({
   handleSortName(){
     const { loadUserList } = this.props.scope.props
     const { sortName } = this.state
+    const { page, pageSize, filter } = this.props.scope.state
     let sort = this.getSort(!sortName, 'userName')
     loadUserList({
-        page: this.state.page,
-        size: this.state.pageSize,
+        page: page,
+        size: pageSize,
         sort,
-        filter: this.state.filter,
+        filter: filter,
     })
     this.setState({
       sortName: !sortName,
@@ -101,10 +102,13 @@ let MemberTable =  React.createClass({
           success: {
             func: () => {
               scope.props.loadUserList({
-                page: scope.state.page,
+                page: 1,
                 size: scope.state.pageSize,
                 sort: scope.state.sort,
                 filter: scope.state.filter,
+              })
+              scope.setState({
+                current: 1
               })
             },
             isAsync: true

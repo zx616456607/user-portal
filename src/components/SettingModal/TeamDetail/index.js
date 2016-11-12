@@ -13,7 +13,7 @@ import './style/TeamDetail.less'
 import { Link } from 'react-router'
 import {
   deleteTeam, createTeamspace, addTeamusers, removeTeamusers,
-  loadTeamspaceList, loadTeamUserList, loadTeamClustersList
+  loadTeamspaceList, loadTeamUserList, loadTeamClustersList,deleteTeamspace
 } from '../../../actions/team'
 import { connect } from 'react-redux'
 import MemberTransfer from '../MemberTransfer'
@@ -29,6 +29,7 @@ let MemberList = React.createClass({
       current: 1,
       userPageSize: 5,
       userPage: 1,
+      filter: ''
     }
   },
   getUserSort(order, column) {
@@ -39,11 +40,14 @@ let MemberList = React.createClass({
     return orderStr + column
   },
   sortMemberName() {
-    const { sortUserOrder } = this.state
+    const { sortUserOrder,userPageSize,userPage,filter } = this.state
     const { loadTeamUserList, teamID} = this.props
     let sort = this.getUserSort(!sortUserOrder, 'userName')
     loadTeamUserList(teamID, {
       sort,
+      page: userPageSize,
+      size: userPage,
+      filter,
     })
     console.log('sortUser !');
     this.setState({
@@ -51,18 +55,22 @@ let MemberList = React.createClass({
       sortUser: sort,
     })
   },
-
-  delTeamMember(userID) {
-    const { removeTeamusers, teamID, loadTeamUserList } = this.props
-    const { sortUser } = this.state
+ 
+  delTeamMember(userID){
+    const { removeTeamusers,teamID, loadTeamUserList } = this.props
+    const { sortUser, userPageSize, userPage, filter } = this.state
     confirm({
       title: '您是否确认要删除这项内容',
       onOk() {
         removeTeamusers(teamID, userID, {
           success: {
             func: () => {
-              console.log('delte!!');
-              loadTeamUserList(teamID, { sort: sortUser })
+              loadTeamUserList(teamID,{
+                sort:sortUser,
+                page: userPageSize,
+                size: userPage,
+                filter,
+              })
             },
             isAsync: true
           }
@@ -72,12 +80,13 @@ let MemberList = React.createClass({
     });
   },
   onShowSizeChange(current, pageSize) {
-    let { sortUser } = this.state
+    let { sortUser, filter } = this.state
     const { loadTeamUserList, teamID } = this.props
     loadTeamUserList(teamID, {
       page: current,
       size: pageSize,
       sort: sortUser,
+      filter,
     })
     this.setState({
       userPageSize: pageSize,
@@ -89,12 +98,13 @@ let MemberList = React.createClass({
     if (current === this.state.current) {
       return
     }
-    let { sortUser, userPageSize} = this.state
+    let { sortUser, userPageSize, filter} = this.state
     const { loadTeamUserList, teamID } = this.props
     loadTeamUserList(teamID, {
       page: current,
       size: userPageSize,
       sort: sortUser,
+      filter,
     })
     this.setState({
       userPageSize: userPageSize,
@@ -111,7 +121,6 @@ let MemberList = React.createClass({
     if (styleFilterStr === this.styleFilter) {
       return
     }
-    const { sortUserOrder } = this.state
     const { loadTeamUserList, teamID } = this.props
     let { sortUser, userPageSize, userPage } = this.state
     const query = {
@@ -119,9 +128,14 @@ let MemberList = React.createClass({
       size: userPageSize,
       sort: sortUser,
     }
+    let filter
     if (filters.style.length === 1) {
-      query.filter = `role,${filters.style[0]}`
+      filter = `role,${filters.style[0]}`
+      query.filter = filter
     }
+    this.setState({
+      filter
+    })
     loadTeamUserList(teamID, query)
     this.styleFilter = styleFilterStr
   },
@@ -177,8 +191,6 @@ let MemberList = React.createClass({
           { text: '普通成员', value: 0 },
           { text: '系统管理员', value: 1 },
         ],
-        // filteredValue: filteredInfo.style,
-        // onFilter: (value, record) => record.style.indexOf(value) === 0,
       },
       {
         title: '操作',
@@ -269,13 +281,24 @@ let TeamList = React.createClass({
       current: current,
     })
   },
-  delTeamSpace(spaceID) {
-    const { removeTeamusers, teamID, loadTeamUserList } = this.props
-    const { sortSpace } = this.state
+  delTeamSpace(spaceID){
+    const { deleteTeamspace,teamID, loadTeamspaceList } = this.props
+    const { sortSpace, spacePage, spacePageSize } = this.state
     confirm({
       title: '您是否确认要删除这项内容',
       onOk() {
-        //rep
+        deleteTeamspace(teamID,spaceID,{
+          success: {
+            func: () => {
+              loadTeamspaceList(teamID,{
+                sort:sortSpace,
+                page: spacePage,
+                size: spacePageSize,
+              })
+            },
+            isAsync: true
+          }
+        })
       },
       onCancel() { },
     });
@@ -389,7 +412,9 @@ class TeamDetail extends Component {
         , {
           success: {
             func: () => {
-              loadTeamUserList(teamID, { sort: sortUser })
+              loadTeamUserList(teamID, {
+                sort: sortUser,
+              })
               this.setState({
                 addMember: false,
                 targetKeys: [],
@@ -655,4 +680,5 @@ export default connect(mapStateToProp, {
   loadTeamspaceList,
   loadTeamUserList,
   loadTeamClustersList,
+  deleteTeamspace,
 })(TeamDetail)
