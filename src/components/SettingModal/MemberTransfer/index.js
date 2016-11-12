@@ -25,18 +25,13 @@ class MemberTransfer extends Component{
     this.props.loadUserList({size:-1})
   }
   render(){
-    const { onChange,targetKeys,userList,teamUserList } = this.props
-    let teamUserIDList = []
-    if(teamUserList.length !== 0){
-      teamUserList.map((item,index) => {
-        teamUserIDList.push(item.key)
-      })
-      if(userList.length !== 0){
-        userList.filter(function (item) {
-          return teamUserIDList.includes(item.key)
-        })
-      }
-    }
+    const { onChange,targetKeys,userList,teamUserIDList } = this.props
+    let filterUserList = teamUserIDList.length !== 0 ?
+       userList.filter(function (userItem) {
+        return !teamUserIDList.includes(userItem.key)
+      }):
+      userList
+    
     return (
       <div id='MemberTransfer'>
         <Row className="listTitle">
@@ -48,7 +43,7 @@ class MemberTransfer extends Component{
           <Col span={14}>邮箱</Col>
         </Row>
         <Transfer
-          dataSource={userList}
+          dataSource={filterUserList}
           showSearch
           listStyle={{
             width: 250,
@@ -72,28 +67,8 @@ class MemberTransfer extends Component{
   }
 }
 function mapStateToProp(state,props) {
-  console.log('state,,,',state);
-  let teamUserList = []
   let userList = []
-  console.log('state',state);
-  const team = state.team
   const users = state.user.users
-  if(team.teamusers){
-    if(team.teamusers.result){
-      const teamusers = team.teamusers.result.users
-      teamusers.map((item,index) => {
-        teamUserList.push(
-          {
-            key: item.userID,
-            name: item.userName,
-            tel: item.phone,
-            email: item.email,
-            style: item.role === 0?'普通成员':'系统管理员',
-          }
-        )
-      })
-    }
-  }
   if(users){
     if(users.result){
       users.result.users.map((item,index) => {
@@ -107,9 +82,7 @@ function mapStateToProp(state,props) {
       })
     }
   }
-  
   return {
-    teamUserList: teamUserList,
     userList: userList,
   }
 }
@@ -117,5 +90,4 @@ export default connect(mapStateToProp, {
   addTeamusers,
   loadUserList,
   removeTeamusers,
-  loadTeamUserList,
 })(MemberTransfer)

@@ -18,11 +18,11 @@ export const TEAMSPACE_LIST_FAILURE = 'TEAMSPACE_LIST_FAILURE'
 
 // Fetches teamspace list from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchTeamspaceList(teamID) {
+function fetchTeamspaceList(teamID, query) {
   let endpoint = `${API_URL_PREFIX}/teams/${teamID}/spaces`
-  /*if (query) {
+  if (query) {
     endpoint += `?${toQuerystring(query)}`
-  }*/
+  }
   return {
     [FETCH_API]: {
       types: [TEAMSPACE_LIST_REQUEST, TEAMSPACE_LIST_SUCCESS, TEAMSPACE_LIST_FAILURE],
@@ -34,9 +34,9 @@ function fetchTeamspaceList(teamID) {
 
 // Fetches teamspace list from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function loadTeamspaceList(teamID, requiredFields = []) {
+export function loadTeamspaceList(teamID, query, requiredFields = []) {
   return (dispatch, getState) => {
-    return dispatch(fetchTeamspaceList(teamID))
+    return dispatch(fetchTeamspaceList(teamID, query))
   }
 }
 
@@ -240,5 +240,33 @@ function fetchRemoveTeamusers(teamID, userIDs, callback) {
 export function removeTeamusers(teamID, userIDs, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchRemoveTeamusers(teamID, userIDs, callback))
+  }
+}
+
+export const TEAMSPACE_DELETE_REQUEST = 'TEAMSPACE_DELETE_REQUEST'
+export const TEAMSPACE_DELETE_SUCCESS = 'TEAMSPACE_DELETE_SUCCESS'
+export const TEAMSPACE_DELETE_FAILURE = 'TEAMSPACE_DELETE_FAILURE'
+
+// Remove team space from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchDeleteTeamspace(teamID, spaceID, callback) {
+  let endpoint = `${API_URL_PREFIX}/teams/${teamID}/spaces/${spaceID}`
+  return {
+    [FETCH_API]: {
+      types: [TEAMSPACE_DELETE_REQUEST, TEAMSPACE_DELETE_SUCCESS, TEAMSPACE_DELETE_FAILURE],
+      endpoint,
+      options: {
+        method: 'DELETE'
+      },
+      schema: {},
+    },
+    callback
+  }
+}
+// Remove team space from API
+// Relies on Redux Thunk middleware.
+export function deleteTeamspace(teamID, spaceID, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchDeleteTeamspace(teamID, spaceID, callback))
   }
 }
