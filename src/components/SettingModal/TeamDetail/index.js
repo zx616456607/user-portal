@@ -37,7 +37,7 @@ let MemberList = React.createClass({
   MemberNameSort(){
     const { sortUserOrder } = this.state
     const { loadTeamUserList, teamID} = this.props
-    let sort = this.getUserSort(!sortUserOrder, 'user_name')
+    let sort = this.getUserSort(!sortUserOrder, 'userName')
     loadTeamUserList(teamID,{
       sort,
     })
