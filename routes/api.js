@@ -23,6 +23,7 @@ const teamController = require('../controllers/team_manage')
 const tokenController = require('../controllers/token')
 const devopsController = require('../controllers/devops')
 const licenseController = require('../controllers/license')
+const clusterController = require('../controllers/cluster_manage')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -42,6 +43,9 @@ module.exports = function (Router) {
   router.get('/storage-pools/:pool/:cluster/volumes/:name/bindinfo', volumeController.getBindInfo)
   router.get('/storage-pools/:pool/:cluster/volumes/:name/exportfile', volumeController.exportFile)
   router.get('/storage-pools/:cluster/volumes/available', volumeController.getAvailableVolume)
+
+  // Clusters
+  router.get('/clusters', clusterController.getClusters)
   // Apps
   router.post('/clusters/:cluster/apps', appController.createApp)
   router.get('/clusters/:cluster/apps', appController.getApps)
