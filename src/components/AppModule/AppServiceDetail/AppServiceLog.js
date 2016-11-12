@@ -35,8 +35,13 @@ class AppServiceLog extends Component {
       size: 50
     }, {
         success: {
-          func() {
+          func(result) {
             self.infoBox.scrollTop = self.infoBox.scrollHeight
+            if (!result.data || result.data.length < 50) {
+              self.setState({
+                useGetLogs: false
+              })
+            }
           },
           isAsync: true
         }
@@ -49,6 +54,22 @@ class AppServiceLog extends Component {
     const cluster = this.props.cluster
     const serviceName = this.props.serviceName
     this.props.clearServiceLogs(cluster, serviceName)
+  }
+  componentWillReceiveProps(nextProp) {
+     const { serviceDetailmodalShow } = nextProp
+     if(serviceDetailmodalShow == this.props.serviceDetailmodalShow) return
+     if(!serviceDetailmodalShow){
+       this.props.clearServiceLogs(this.props.cluster, this.props.serviceName)
+       return
+     }
+     this.setState({
+       currentDate: formateDate(new Date(), 'YYYY-MM-DD'),
+       pageIndex: 1,
+       pageSize: 50,
+       useGetLogs: true,
+       preScroll: 0
+     })
+     this.changeCurrentDate(new Date(), true, nextProp.cluster, nextProp.serviceName),0
   }
   moutseRollLoadLogs() {
     if (!this.state.useGetLogs) return
@@ -91,10 +112,10 @@ class AppServiceLog extends Component {
       pageIndex: this.state.pageIndex + 1
     })
   }
-  changeCurrentDate(date, refresh) {
+  changeCurrentDate(date, refresh, tcluster, tserviceName) {
     if (!date) return
-    const cluster = this.props.cluster
-    const serviceName = this.props.serviceName
+    const cluster = tcluster || this.props.cluster
+    const serviceName = tserviceName || this.props.serviceName
     const self = this
     date = formateDate(date, 'YYYY-MM-DD')
     if (!refresh && date === this.state.currentDate) return
@@ -133,8 +154,26 @@ class AppServiceLog extends Component {
     }
     const logs = this.props.serviceLogs[cluster].logs.data
     if (!logs || logs.length <= 0) return '无日志'
-    const logContent = logs.map(log => {
-      return (<span key={log.id}>{log.log}</span>)
+    let page = Math.ceil(logs.length / 50)
+    let remainder = logs.length % 50
+    const logContent = logs.map((log, index) => {
+      let time = ''
+      if (log.timeNano) {
+        time = new Date(parseInt(log.timeNano.substring(0, 13))).toLocaleString()
+      }
+      if (index === 0) {
+        if (log.log === '无更多日志\n') {
+          return (<span key={index}>{ `${log.log}\npage ${page}\n` }</span>)
+        }
+        return (<span key={index}>{ `page ${page}\n${time ? `[${time}] ${log.log}` : log.log}` }</span>)
+      }
+      if (index + 1 === remainder && page !== 1) {
+        return (<span key={index}>{ `page ${--page}\n${time ? `[${time}] ${log.log}` : log.log}` }</span>)
+      }
+      if ((index + 1) % 50 === 0 && page !== 1) {
+        return (<span key={index}>{ `page ${--page}\n${time ? `[${time}] ${log.log}` : log.log}` }</span>)
+      }
+      return (<span key={log.id} index={index}>{ time ? `[${time}] ${log.log}` : log.log}</span>)
     })
     return logContent
   }
