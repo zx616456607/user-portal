@@ -14,7 +14,7 @@ import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import AppServiceDetail from './AppServiceDetail'
 import './style/AppServiceList.less'
-import { tenxDateFormat } from '../../common/tools'
+import { calcuDate } from '../../common/tools'
 import {
   loadServiceList,
   addService,
@@ -153,7 +153,7 @@ const MyComponent = React.createClass({
     if (serviceList.length < 1) {
       return (
         <div className="loadingBox">
-          还没有服务哦~
+          服务列表为空
         </div>
       )
     }
@@ -208,8 +208,8 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className="createTime commonData">
-            <Tooltip title={tenxDateFormat(item.metadata.creationTimestamp ? item.metadata.creationTimestamp : '')}>
-              <span>{tenxDateFormat(item.metadata.creationTimestamp || '')}</span>
+            <Tooltip title={calcuDate(item.metadata.creationTimestamp ? item.metadata.creationTimestamp : '')}>
+              <span>{calcuDate(item.metadata.creationTimestamp || '')}</span>
             </Tooltip>
           </div>
           <div className="actionBox commonData">
@@ -670,9 +670,21 @@ class AppServiceList extends Component {
           type="right"
           >
           <div className="operaBox">
+            <Button
+              size="large"
+              type="primary"
+              onClick={this.showAddServiceModal}
+              style={{ backgroundColor: '#2db7f5' }}>
+              <i className="fa fa-plus"></i>
+              添加服务
+            </Button>
             <Button size="large" onClick={this.confirmStartService} disabled={!isChecked}>
               <i className="fa fa-play"></i>
               启动
+            </Button>
+            <Button size="large" onClick={() => loadServices(this.props)} >
+              <i className="fa fa-refresh"></i>
+              刷新
             </Button>
             <Button size="large" onClick={this.batchStopServices} disabled={!isChecked}>
               <i className="fa fa-stop"></i>
@@ -688,18 +700,6 @@ class AppServiceList extends Component {
                 快速重启
               </Button>
             </Tooltip>
-            <Button size="large" onClick={() => loadServices(this.props)} >
-              <i className="fa fa-refresh"></i>
-              刷新
-            </Button>
-            <Button
-              size="large"
-              type="primary"
-              onClick={this.showAddServiceModal}
-              style={{ backgroundColor: '#2db7f5' }}>
-              <i className="fa fa-plus"></i>
-              添加服务
-            </Button>
             <Dropdown overlay={operaMenu} trigger={['click']}>
               <Button size="large" disabled={!isChecked}>
                 更多操作

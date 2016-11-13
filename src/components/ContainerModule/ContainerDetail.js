@@ -21,7 +21,7 @@ import ContainerMonitior from './ContainerMonitior'
 import TerminalModal from '../TerminalModal'
 import { browserHistory } from 'react-router'
 import ContainerStatus from '../TenxStatus/ContainerStatus'
-import { tenxDateFormat } from '../../common/tools'
+import { formatDate } from '../../common/tools'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -150,7 +150,7 @@ class ContainerDetail extends Component {
                 </div>
                 <div className="middleInfo">
                   <div className="createDate">
-                    创建&nbsp;:&nbsp; {tenxDateFormat(container.metadata.creationTimestamp || '')}
+                    创建&nbsp;:&nbsp; {formatDate(container.metadata.creationTimestamp || '')}
                   </div>
                   {/*<div className="updateDate">
                       更新&nbsp;:&nbsp;{container.metadata.creationTimestamp}

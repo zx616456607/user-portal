@@ -18,6 +18,7 @@ import { remove, findIndex } from 'lodash'
 import { loadStorageList, deleteStorage, createStorage, formateStorage, resizeStorage } from '../../actions/storage'
 import { DEFAULT_IMAGE_POOL } from '../../constants'
 import './style/storage.less'
+import { calcuDate } from '../../common/tools'
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
@@ -258,8 +259,8 @@ let MyComponent = React.createClass({
           <div className="size commonData">{item.totalSize}M</div>
           <div className="createTime commonData">
             <span className='spanBlock'>
-              <Tooltip placement="topLeft" title={item.createTime}>
-                <span>{item.createTime}</span>
+              <Tooltip placement="topLeft" title={calcuDate(item.createTime)}>
+                <span>{calcuDate(item.createTime)}</span>
               </Tooltip>
             </span>
           </div>

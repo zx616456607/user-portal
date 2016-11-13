@@ -15,7 +15,7 @@ import QueueAnim from 'rc-queue-anim'
 import './style/AppList.less'
 import { loadAppList, stopApps, deleteApps, restartApps, startApps } from '../../actions/app_manage'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
-import { tenxDateFormat } from '../../common/tools'
+import { calcuDate } from '../../common/tools'
 import { browserHistory } from 'react-router'
 import AppStatus from '../TenxStatus/AppStatus'
 
@@ -164,8 +164,8 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className='createTime commonData'>
-            <Tooltip title={tenxDateFormat(item.createTime)}>
-              <span>{tenxDateFormat(item.createTime)}</span>
+            <Tooltip title={calcuDate(item.createTime)}>
+              <span>{calcuDate(item.createTime)}</span>
             </Tooltip>
           </div>
           <div className='actionBox commonData'>
