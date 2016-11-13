@@ -10,11 +10,50 @@
  */
 'use strict'
 
-export function tenxDateFormat(oldDate) {
-  let newDate = oldDate.replace("T", " ");
-  newDate = newDate.replace("Z", " ");
-  newDate = newDate.split("+")[0];
-  return newDate;
+const moment = require('moment')
+
+export function tenxDateFormat2(timestamp) {
+  //let newDate = oldDate.replace("T", " ");
+  //newDate = newDate.replace("Z", " ");
+  //newDate = newDate.split("+")[0];
+  //return newDate;
+  if ( !timestamp || timestamp === '' ) {
+    return moment(new Date()).format("YYYY-MM-DD HH:mm:ss")
+  } else {
+    return moment(timestamp).format("YYYY-MM-DD HH:mm:ss")
+  }
+}
+// calcuDate
+export function tenxDateFormat(beginDate){
+  var begin = Date.parse(beginDate);
+  var end = new Date();
+  var date = end - begin;
+
+  var days = Math.floor(date/(24*3600*1000));
+
+  var months = Math.floor(days / 30);
+  var leave1 = date%(24*3600*1000);
+  var hours=Math.floor(leave1/(3600*1000));
+
+  var leave2=leave1%(3600*1000);
+  var minutes=Math.floor(leave2/(60*1000));
+
+  var leave3=leave2%(60*1000);
+  var seconds=Math.round(leave3/1000);
+
+  if (months > 0) {
+    return months + '月前';
+  } else if (days > 0) {
+    return days + '天前';
+  } else if (hours > 0) {
+    return hours + '小时前';
+  } else if (minutes > 0) {
+    return minutes + '分钟前';
+  } else if (seconds > 0) {
+    return seconds + '秒前';
+  } else {
+    return '1秒前';
+  }
 }
 
 // Y year

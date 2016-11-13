@@ -17,6 +17,7 @@ import AppGraph from './AppGraph'
 import AppLog from './AppLog'
 import AppMonitior from './AppMonitior'
 import './style/AppDetail.less'
+import { tenxDateFormat } from '../../common/tools'
 import { loadAppDetail } from '../../actions/app_manage'
 import { browserHistory } from 'react-router'
 import AppStatus from '../TenxStatus/AppStatus'
@@ -116,15 +117,15 @@ class AppDetail extends Component {
                     }
                   </div>
                   <div className="service">
-                    服务&nbsp;:&nbsp;{`${app.serviceCount}/${app.serviceCount}`}
+                    服务&nbsp;:&nbsp; {`${app.serviceCount} / ${app.serviceCount}`}
                   </div>
                 </div>
                 <div className="middleInfo">
                   <div className="createDate">
-                    创建&nbsp;:&nbsp;{app.createTime || '-'}
+                    创建&nbsp;:&nbsp;{tenxDateFormat(app.createTime || '')}
                   </div>
                   <div className="updateDate">
-                    更新&nbsp;:&nbsp;{updateDate}
+                    更新&nbsp;:&nbsp;{tenxDateFormat(updateDate || '')}
                   </div>
                 </div>
                 <div className="rightInfo">

@@ -408,13 +408,13 @@ class ContainerList extends Component {
                     })
                   } }
                   value={searchInputValue}
-                  placeholder='输入容器名回车搜索'
+                  placeholder='按容器名称搜索'
                   disabled={searchInputDisabled}
                   onPressEnter={this.searchContainers} />
               </div>
             </div>
             <div className='pageBox'>
-              <span className='totalPage'>共{total}条</span>
+              <span className='totalPage'>共 {total} 条</span>
               <div className='paginationBox'>
                 <Pagination
                   simple

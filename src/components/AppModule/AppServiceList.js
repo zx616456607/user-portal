@@ -14,6 +14,7 @@ import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import AppServiceDetail from './AppServiceDetail'
 import './style/AppServiceList.less'
+import { tenxDateFormat } from '../../common/tools'
 import {
   loadServiceList,
   addService,
@@ -207,8 +208,8 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className="createTime commonData">
-            <Tooltip title={item.metadata.creationTimestamp ? item.metadata.creationTimestamp : ""}>
-              <span>{item.metadata.creationTimestamp || '-'}</span>
+            <Tooltip title={tenxDateFormat(item.metadata.creationTimestamp ? item.metadata.creationTimestamp : '')}>
+              <span>{tenxDateFormat(item.metadata.creationTimestamp || '')}</span>
             </Tooltip>
           </div>
           <div className="actionBox commonData">

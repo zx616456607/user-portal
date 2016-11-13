@@ -114,7 +114,7 @@ const messages = defineMessages({
   },
   inputPlaceholder: {
     id: 'Storage.modal.inputPlaceholder',
-    defaultMessage: '输入应用名搜索',
+    defaultMessage: '按存储名称搜索',
   }
 })
 
