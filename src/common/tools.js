@@ -47,17 +47,17 @@ export function calcuDate(beginDate){
   var seconds=Math.round(leave3/1000);
 
   if (months > 0) {
-    return months + '月前';
+    return months + ' 月前';
   } else if (days > 0) {
-    return days + '天前';
+    return days + ' 天前';
   } else if (hours > 0) {
-    return hours + '小时前';
+    return hours + ' 小时前';
   } else if (minutes > 0) {
-    return minutes + '分钟前';
+    return minutes + ' 分钟前';
   } else if (seconds > 0) {
-    return seconds + '秒前';
+    return seconds + ' 秒前';
   } else {
-    return '1秒前';
+    return '1 秒前';
   }
 }
 
