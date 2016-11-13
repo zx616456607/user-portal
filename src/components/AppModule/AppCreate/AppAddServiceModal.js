@@ -45,7 +45,7 @@ const MyComponent = React.createClass({
     const items = images.map((item) => {
       return (
         <div key={item.name} className="serviceDetail">
-          <img className="imgUrl" src="/img/test/github.jpg" />
+          <img className="imgUrl" src="/img/default.png" />
           <div className="infoBox">
             <span className="name">{item.name}</span> <span className="type">{item.category || ''}</span><br />
             <span className="intro">{item.description}</span>
