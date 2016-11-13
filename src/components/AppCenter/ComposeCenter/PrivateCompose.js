@@ -17,7 +17,7 @@ import CreateCompose from './CreateCompose.js'
 import './style/PrivateCompose.less'
 import { loadMyStack , deleteMyStack , createStack, updateStack} from '../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../constants'
-import { tenxDateFormat } from '../../../common/tools'
+import { calcuDate } from '../../../common/tools'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -110,7 +110,7 @@ const MyList = React.createClass({
   actionStack(item) {
     const scope = this
     const list = item.key.split('&')[0]
-    
+
     if (list== 'edit') {
       const Index = parseInt(item.key.split('&')[1])
       this.props.self.setState({
@@ -173,18 +173,18 @@ const MyList = React.createClass({
           </div>
           <div className='attr'>{item.owner}</div>
           <div className='type'>
-            {item.isPublic == 1 ? 
+            {item.isPublic == 1 ?
               <span key={item.id + 'unlock'} className='publicAttr'><i className='fa fa-unlock-alt'></i>&nbsp;<FormattedMessage {...menusText.publicType} /></span>
               :
               <span key={item.id + 'lock'} className='privateAttr'><i className='fa fa-lock'></i>&nbsp;<FormattedMessage {...menusText.privateType} /></span>
             }
           </div>
-         
+
           <div className='image textoverflow'>
             <span className='maxSpan'>{item.description}</span>
           </div>
           <div className='time textoverflow'>
-            <span>{tenxDateFormat(item.createTime)}</span>
+            <span>{calcuDate(item.createTime)}</span>
           </div>
           <div className='opera Action'>
             <Dropdown.Button overlay={dropdown} type='ghost'>
@@ -221,7 +221,7 @@ class PrivateCompose extends Component {
     if (modal) {
      this.state = {
       stackItem: ''
-      } 
+      }
     }
 
   }

@@ -17,7 +17,7 @@ import AppGraph from './AppGraph'
 import AppLog from './AppLog'
 import AppMonitior from './AppMonitior'
 import './style/AppDetail.less'
-import { tenxDateFormat } from '../../common/tools'
+import { formatDate } from '../../common/tools'
 import { loadAppDetail } from '../../actions/app_manage'
 import { browserHistory } from 'react-router'
 import AppStatus from '../TenxStatus/AppStatus'
@@ -122,10 +122,10 @@ class AppDetail extends Component {
                 </div>
                 <div className="middleInfo">
                   <div className="createDate">
-                    创建&nbsp;:&nbsp;{tenxDateFormat(app.createTime || '')}
+                    创建&nbsp;:&nbsp;{formatDate(app.createTime || '')}
                   </div>
                   <div className="updateDate">
-                    更新&nbsp;:&nbsp;{tenxDateFormat(updateDate || '')}
+                    更新&nbsp;:&nbsp;{formatDate(updateDate || '')}
                   </div>
                 </div>
                 <div className="rightInfo">

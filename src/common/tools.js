@@ -12,19 +12,24 @@
 
 const moment = require('moment')
 
-export function tenxDateFormat2(timestamp) {
-  //let newDate = oldDate.replace("T", " ");
-  //newDate = newDate.replace("Z", " ");
-  //newDate = newDate.split("+")[0];
-  //return newDate;
+/**
+ * Format date
+ */
+export function formatDate(timestamp) {
   if ( !timestamp || timestamp === '' ) {
     return moment(new Date()).format("YYYY-MM-DD HH:mm:ss")
   } else {
     return moment(timestamp).format("YYYY-MM-DD HH:mm:ss")
   }
 }
-// calcuDate
-export function tenxDateFormat(beginDate){
+/**
+ * Calculate time
+ * Option
+ * - beginDate
+ * Output
+ * - three days ago, etc
+ */
+export function calcuDate(beginDate){
   var begin = Date.parse(beginDate);
   var end = new Date();
   var date = end - begin;

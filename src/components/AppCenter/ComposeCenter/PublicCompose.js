@@ -16,7 +16,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import "./style/PublicCompose.less"
 import { loadStack } from '../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../constants'
-import { tenxDateFormat } from '../../../common/tools'
+import { calcuDate } from '../../../common/tools'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -136,7 +136,7 @@ const MyComponent = React.createClass({
             <span className="maxSpan">{item.description}</span>
           </div>
           <div className="time textoverflow">
-            {tenxDateFormat(item.createTime)}
+            {calcuDate(item.createTime)}
           </div>
           <div className="opera">
             <Button type="ghost">

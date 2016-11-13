@@ -16,7 +16,7 @@ import './style/ContainerList.less'
 import { loadContainerList, deleteContainers, updateContainerList } from '../../actions/app_manage'
 import { LABEL_APPNAME } from '../../constants'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
-import { tenxDateFormat } from '../../common/tools.js'
+import { calcuDate } from '../../common/tools.js'
 import { browserHistory } from 'react-router'
 import TerminalModal from '../TerminalModal'
 import parseServiceDomain from '../parseDomain'
@@ -164,8 +164,8 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className='createTime commonData'>
-            <Tooltip placement='topLeft' title={tenxDateFormat(item.metadata.creationTimestamp)}>
-              <span>{tenxDateFormat(item.metadata.creationTimestamp)}</span>
+            <Tooltip placement='topLeft' title={calcuDate(item.metadata.creationTimestamp)}>
+              <span>{calcuDate(item.metadata.creationTimestamp)}</span>
             </Tooltip>
           </div>
           <div className='actionBox commonData'>

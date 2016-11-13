@@ -14,7 +14,7 @@ import { Row, Col, Modal, Button, Form, Icon, Checkbox, Menu, Dropdown, Input, m
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { createConfigFiles, deleteConfigGroup, loadConfigGroup, deleteConfigFiles, addConfigFile } from '../../actions/configs'
 import { connect } from 'react-redux'
-import { tenxDateFormat } from '../../common/tools.js'
+import { calcuDate } from '../../common/tools.js'
 
 
 const ButtonGroup = Button.Group
@@ -172,7 +172,7 @@ class CollapseHeader extends Component {
           {sizeNumber}个
         </Col>
         <Col span="6">
-          创建时间&nbsp;&nbsp;{tenxDateFormat(collapseHeader.creationTimestamp)}
+          创建时间&nbsp;&nbsp;{calcuDate(collapseHeader.creationTimestamp)}
         </Col>
         <Col span="6">
           <ButtonGroup>

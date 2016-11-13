@@ -13,7 +13,7 @@ import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import './style/AppContainerList.less'
-import { tenxDateFormat } from '../../../common/tools'
+import { calcuDate } from '../../../common/tools'
 import { loadServiceContainerList } from '../../../actions/services'
 import ContainerStatus from '../../TenxStatus/ContainerStatus'
 
@@ -90,7 +90,7 @@ const MyComponent = React.createClass({
             <span>内&nbsp;:&nbsp;{item.status.podIP}</span>
           </div>
           <div className="createTime commonData">
-            {tenxDateFormat(item.metadata.creationTimestamp || '')}
+            {calcuDate(item.metadata.creationTimestamp || '')}
           </div>
           <div style={{ clear: "both" }}></div>
         </div>
