@@ -141,7 +141,7 @@ class TenxFlowDetail extends Component {
         <div id='TenxFlowDetail' key='TenxFlowDetail'>
           <Card className='infoBox'>
             <div className='imgBox' >
-              <img src='/img/test/github.jpg' />
+              <img src='/img/default.png' />
             </div>
               <p className='title'>{flowInfo.name}</p>
             <div className='msgBox'>

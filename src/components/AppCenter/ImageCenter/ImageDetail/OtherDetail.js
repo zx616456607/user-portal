@@ -110,7 +110,7 @@ class OtherDetail extends Component {
       <div id="ImageDetailBox">
         <div className="headerBox">
           <div className="imgBox">
-            <img src="/img/test/github.jpg" />
+            <img src="/img/default.png" />
           </div>
           <div className="infoBox">
             <p className="imageName">{imageDetail}</p>

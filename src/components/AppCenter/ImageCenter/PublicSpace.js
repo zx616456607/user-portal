@@ -86,7 +86,7 @@ let MyComponent = React.createClass({
       return (
         <div className="imageDetail" key={item.name} >
           <div className="imageBox">
-            <img src="/img/test/github.jpg" />
+            <img src="/img/default.png" />
           </div>
           <div className="contentBox">
             <span className="title" onClick={this.showImageDetail.bind(this, item)}>

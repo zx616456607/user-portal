@@ -179,7 +179,7 @@ class AppServiceDetail extends Component {
           <Icon className="closeBtn" type="cross" onClick={this.closeModal} />
           {/*<i className="closeBtn fa fa-times" onClick={this.closeModal}></i>*/}
           <div className="imgBox">
-            <img src="/img/test/github.jpg" />
+            <img src="/img/default.png" />
           </div>
           <div className="infoBox">
             <p className="instanceName">
