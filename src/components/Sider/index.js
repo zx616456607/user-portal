@@ -159,7 +159,7 @@ class Slider extends Component {
         <ul className="siderTop">
           <li className="logoItem">
             <Link to="/">
-              <img className="logo" src="/img/sider/logo.svg" />
+              <img className="logo" src="/img/sider/logo@2x.png" />
             </Link>
           </li>
           <li onClick={this.selectModel.bind(this, "1", "#home")} className={currentKey == "1" ? "selectedLi" : ""}>

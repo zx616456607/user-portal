@@ -127,7 +127,7 @@ class TenxFlowDetail extends Component {
     const { formatMessage } = this.props.intl;
     const scope = this;
     const { flowInfo, isFetching } = this.props;
-    if(isFetching) {
+    if(isFetching || flowInfo == {} || !Boolean(flowInfo)) {
       return (
         <div className='loadingBox'>
           <Spin size='large' />
@@ -146,7 +146,7 @@ class TenxFlowDetail extends Component {
               <p className='title'>{flowInfo.name}</p>
             <div className='msgBox'>
               <span >这是状态</span>
-              <span className='updateTime'>{flowInfo.update_time ? flowInfo.update_time : [<FormattedMessage {...menusText.unUpdate} />] }</span>
+              <span className='updateTime'>{flowInfo.update_time ? flowInfo.update_time : [<span key='updateSpan'><FormattedMessage {...menusText.unUpdate} /></span>] }</span>
               <div style={{ clear:'both' }}></div>
             </div>
             <div className='btnBox'>

@@ -178,8 +178,8 @@ class CreateModel extends Component {
                   <use xlinkHref="#appcreatefast" />
                 </svg>
                 <div className="infoBox">
-                  <p>快速创建</p>
-                  <span>这是一个快速创建的介绍,怎么说呢,就是创建很快的,然后呢,总之呢,就是很快了!</span>
+                  <p>镜像仓库</p>
+                  <span>通过镜像仓库创建应用</span>
                 </div>
                 <svg className="commonSelectedImg">
                   <use xlinkHref="#appcreatemodelselect" />
@@ -191,8 +191,8 @@ class CreateModel extends Component {
                   <use xlinkHref="#appstore" />
                 </svg>
                 <div className="infoBox">
-                  <p>应用商城</p>
-                  <span>这是一个应用商城的介绍,啥应用都有,要啥有啥,啥啥都有的,就看你能不想到了!</span>
+                  <p>应用商店</p>
+                  <span>通过应用商店创建应用</span>
                 </div>
                 <svg className="commonSelectedImg">
                   <use xlinkHref="#appcreatemodelselect" />
@@ -205,7 +205,7 @@ class CreateModel extends Component {
                 </svg>
                 <div className="infoBox">
                   <p>编排文件</p>
-                  <span>这是一个编排文件的介绍,如果你感觉你可以自己直接写呢,那就选这个好啦,反正我是不会写!</span>
+                  <span>通过编排文件创建应用</span>
                 </div>
                 <svg className="commonSelectedImg">
                   <use xlinkHref="#appcreatemodelselect" />
@@ -218,7 +218,7 @@ class CreateModel extends Component {
                     <span>部署环境</span>
                     <Select size="large"
                       placeholder="请选择空间"
-                      style={{ width: 200 }}
+                      style={{ width: 150 }}
                       {...spaceFormCheck}>
                       <Option value="default">我的空间</Option>
                       {
@@ -235,7 +235,7 @@ class CreateModel extends Component {
                   <FormItem hasFeedback key="cluster">
                     <Select size="large"
                       placeholder="请选择集群"
-                      style={{ width: 200 }}
+                      style={{ width: 150 }}
                       {...clusterFormCheck}>
                       {
                         teamClusters.map(cluster => {

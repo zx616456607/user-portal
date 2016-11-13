@@ -14,7 +14,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../../constants'
-import { updateTenxFlowState } from '../../../../../actions/cicd_flow'
+import { updateTenxFlowState, getDockerfiles, setDockerfile } from '../../../../../actions/cicd_flow'
 import './style/EditTenxFlowModal.less'
 import EnvComponent from './CreateEnvComponent.js'
 import CodeStoreListModal from './CodeStoreListModal.js'
@@ -160,6 +160,14 @@ const menusText = defineMessages({
   branch: {
     id: 'CICD.Tenxflow.EditTenxFlowModal.branch',
     defaultMessage: '分支：',
+  },
+  dockerFileTitle: {
+    id: 'CICD.Tenxflow.EditTenxFlowModal.dockerFileTitle',
+    defaultMessage: '创建Docker File',
+  },
+  noDockerFileInput: {
+    id: 'CICD.Tenxflow.EditTenxFlowModal.noDockerFileInput',
+    defaultMessage: 'Docker File不能为空',
   }
 });
 
@@ -186,15 +194,35 @@ let EditTenxFlowModal = React.createClass({
       ImageStoreType: false,
       currentCodeStore: null,
       currentCodeStoreName: null,
-      currentCodeStoreBranch: null
+      currentCodeStoreBranch: null,
+      dockerFileModalShow: false,
+      dockerFileTextarea: null,
+      noDockerfileInput: false
     }
   },
   componentDidMount() {
     uuid = 0;
     shellUid = 0;
-    const { config, form, codeList } = this.props;
+    const _this = this;
+    const { config, form, getDockerfiles, codeList, flowId, stageId } = this.props;
     let otherFlowType = config.metadata.type + '';
     let codeStoreName = fetchCodeStoreName(config.spec.project.id, codeList)
+    if(config.spec.build.dockerfileFrom == 2) {    
+      let tempBody = {
+        flowId: flowId,
+        stageId: stageId
+      }
+      getDockerfiles(tempBody, {
+        success: {
+          func: (res) => {
+            _this.setState({
+              dockerFileTextarea: res.data.message.content
+            })
+          },
+          isAsync: true
+        }
+      })
+    }
     if(otherFlowType != '5') {
       this.setState({
         otherFlowType: false,
@@ -428,6 +456,21 @@ let EditTenxFlowModal = React.createClass({
       codeStoreModalShow: false
     });
   },
+  openDockerFileModal() {
+    this.setState({
+      dockerFileModalShow: true
+    });
+  },
+  closeDockerFileModal() {
+    this.setState({
+      dockerFileModalShow: false
+    });
+  },
+  onChangeDockerFileTextarea(e) {
+    this.setState({
+      dockerFileTextarea: e.target.value
+    });
+  },
   cancelChange(e) {
     //this function for reset the form and close the edit card
     e.preventDefault();
@@ -534,10 +577,26 @@ let EditTenxFlowModal = React.createClass({
       updateTenxFlowState(flowId, stageId, body, {
         success: {
           func: () => {
+            if(!_this.state.useDockerfile) {
+              let dockerfilebody = {
+                content: _this.state.dockerFileTextarea,
+                flowId: flowId,
+                stageId: stageId
+              }
+              setDockerfile(dockerfilebody, {
+                success: {
+                  func: () => {
+                    getTenxFlowStateList(flowId)
+                  },
+                  isAsync: true
+                }
+              })
+            }else{
+              getTenxFlowStateList(flowId)              
+            }
             rootScope.setState({
               currentFlowEdit: null
             });
-            getTenxFlowStateList(flowId)
             },
           isAsync: true
         }
@@ -645,7 +704,7 @@ let EditTenxFlowModal = React.createClass({
       rules: [
         { message: '请输入Docker File地址' },
       ],
-      initialValue: (!!config.spec.build ? config.spec.build.dockerfilePath.replace('/','') : null)
+      initialValue: (!!config.spec.build ? (config.spec.build.dockerfilePath == 1 ? config.spec.build.dockerfilePath.replace('/','') : null) : null)
     });
     const otherImageStoreTypeProps = getFieldProps('otherStoreUrl', {
       rules: [
@@ -788,12 +847,14 @@ let EditTenxFlowModal = React.createClass({
                     !this.state.useDockerfile ? [
                       <QueueAnim key='useDockerFileAnimate'>
                         <div key='useDockerFileAnimateSecond'>
-                          <Button type='ghost' size='large' style={{ marginRight:'20px' }}>
+                          {/*<Button type='ghost' size='large' style={{ marginRight:'20px' }}>
                             <FormattedMessage {...menusText.selectDockerFile} />
-                          </Button>
-                          <Button type='ghost' size='large'>
+                          </Button>*/}
+                          <Button className={ this.state.noDockerfileInput ? 'noCodeStoreButton' : null } type='ghost' size='large'
+                            onClick={this.openDockerFileModal}>
                             <FormattedMessage {...menusText.createNewDockerFile} />
                           </Button>
+                          <span className={ this.state.noDockerfileInput ? 'noCodeStoreSpan CodeStoreSpan' : 'CodeStoreSpan' }><FormattedMessage {...menusText.noDockerFileInput} /></span>
                         </div>
                       </QueueAnim>
                     ] : null
@@ -881,6 +942,14 @@ let EditTenxFlowModal = React.createClass({
             </QueueAnim>
           ] : null
         }
+        <Modal className='tenxFlowDockerFileModal'
+          title={<FormattedMessage {...menusText.dockerFileTitle} />}
+          visible={this.state.dockerFileModalShow}
+          onOk={this.closeDockerFileModal}
+          onCancel={this.closeDockerFileModal}
+        > 
+          <Input type='textarea' value={this.state.dockerFileTextarea} onChange={this.onChangeDockerFileTextarea} autosize={{ minRows: 10, maxRows: 10 }} />
+        </Modal>
       </Form>
       <div className='modalBtnBox'>
         <Button size='large' onClick={this.cancelChange}>
@@ -917,7 +986,9 @@ EditTenxFlowModal.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-  updateTenxFlowState
+  updateTenxFlowState,
+  getDockerfiles,
+  setDockerfile
 })(injectIntl(EditTenxFlowModal, {
   withRef: true,
 }));

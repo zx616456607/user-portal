@@ -80,7 +80,7 @@ class TenxFlowDetailFlow extends Component {
     let scope = this;
     let { currentFlowEdit } = scope.state;
     let cards = null;
-    if(isFetching) {
+    if(isFetching || (!Boolean(stageList))) {
       return (
         <div className='loadingBox'>
           <Spin size='large' />
@@ -89,7 +89,7 @@ class TenxFlowDetailFlow extends Component {
     } else {      
       cards = stageList.map( (item, index) => {
         return (
-          <TenxFlowDetailFlowCard config={item} scope={scope} index={index} flowId={flowId} currentFlowEdit={currentFlowEdit} codeList={projectList} />
+          <TenxFlowDetailFlowCard key={'TenxFlowDetailFlowCard' + index} config={item} scope={scope} index={index} flowId={flowId} currentFlowEdit={currentFlowEdit} codeList={projectList} />
         )
       });
     }

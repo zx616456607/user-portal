@@ -153,7 +153,7 @@ let AppAddServiceModal = React.createClass({
             收藏
           </Button>
           <div className="inputBox">
-            <Input size="large" placeholder="搜索你的本命服务名吧~" onChange={e => this.getImageName(e)} onPressEnter={() => this.searchImage()} value={this.state.imageName} />
+            <Input size="large" placeholder="按镜像名称搜索" onChange={e => this.getImageName(e)} onPressEnter={() => this.searchImage()} value={this.state.imageName} />
             <i className="fa fa-search"></i>
           </div>
           <div style={{ clear: "both" }}></div>

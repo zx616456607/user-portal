@@ -15,6 +15,7 @@ import {
   deleteTeam, createTeamspace, addTeamusers, removeTeamusers,
   loadTeamspaceList, loadTeamUserList, loadTeamClustersList,deleteTeamspace
 } from '../../../actions/team'
+import {loadClusterList} from '../../../actions/cluster'
 import { connect } from 'react-redux'
 import MemberTransfer from '../MemberTransfer'
 
@@ -42,11 +43,12 @@ let MemberList = React.createClass({
   sortMemberName() {
     const { sortUserOrder,userPageSize,userPage,filter } = this.state
     const { loadTeamUserList, teamID} = this.props
+    console.log('userPageSize',userPageSize);
     let sort = this.getUserSort(!sortUserOrder, 'userName')
     loadTeamUserList(teamID, {
       sort,
-      page: userPageSize,
-      size: userPage,
+      page: userPage,
+      size: userPageSize,
       filter,
     })
     console.log('sortUser !');
@@ -59,6 +61,8 @@ let MemberList = React.createClass({
   delTeamMember(userID){
     const { removeTeamusers,teamID, loadTeamUserList } = this.props
     const { sortUser, userPageSize, userPage, filter } = this.state
+    console.log('this',this);
+    let self = this
     confirm({
       title: '您是否确认要删除这项内容',
       onOk() {
@@ -67,9 +71,12 @@ let MemberList = React.createClass({
             func: () => {
               loadTeamUserList(teamID,{
                 sort:sortUser,
-                page: userPageSize,
-                size: userPage,
+                page: 1,
+                size: userPageSize,
                 filter,
+              })
+              self.setState({
+                current: 1,
               })
             },
             isAsync: true
@@ -83,14 +90,14 @@ let MemberList = React.createClass({
     let { sortUser, filter } = this.state
     const { loadTeamUserList, teamID } = this.props
     loadTeamUserList(teamID, {
-      page: current,
+      page: 1,
       size: pageSize,
       sort: sortUser,
       filter,
     })
     this.setState({
       userPageSize: pageSize,
-      userPage: current,
+      userPage: 1,
       current: 1,
     })
   },
@@ -198,7 +205,7 @@ let MemberList = React.createClass({
         key: 'edit',
         render: (text, record, index) => (
           <div className="cardBtns">
-            <Button icon="delete" className="delBtn" onClick={() => this.delTeamMember(record.key)}>
+            <Button icon="delete" className="delBtn" onClick={this.delTeamMember.bind(this,record.key)}>
               移除
             </Button>
           </div>
@@ -221,13 +228,7 @@ let MemberList = React.createClass({
 let TeamList = React.createClass({
   getInitialState() {
     return {
-      pagination: {},
-      loading: false,
       sortSpaceOrder: true,
-      sortSpace: 'a,spaceName',
-      current: 1,
-      spacePageSize: 5,
-      spacePage: 1,
     }
   },
   getSpaceSort(order, column) {
@@ -238,52 +239,56 @@ let TeamList = React.createClass({
     return orderStr + column
   },
   sortSpaceName() {
-    const { loadTeamspaceList, teamID} = this.props
-    const { sortSpaceOrder } = this.state
+    const { loadTeamspaceList, teamID, onChange,spacePageSize, spacePage} = this.props
+    const {sortSpaceOrder}=this.state
+    console.log('sortSpaceOrder',sortSpaceOrder);
     let sort = this.getSpaceSort(!sortSpaceOrder, 'spaceName')
-    loadTeamspaceList(teamID, { sort, })
+    loadTeamspaceList(teamID, {
+      sort,
+      size: spacePageSize,
+      page: spacePage,
+    })
+    onChange({
+      sortSpace: sort,
+    })
     this.setState({
       sortSpaceOrder: !sortSpaceOrder,
-      sortSpace: sort
     })
   },
   sortSpaceApp() {
-    const { sortSpaceOrder } = this.state
+    const { sortSpaceOrder, onChange } = this.props
     this.setState({
       sortSpaceOrder: !sortSpaceOrder,
     })
   },
   onShowSizeChange(current, pageSize) {
-    const { loadTeamspaceList, teamID } = this.props
-    const { sortSpace } = this.state
+    const { loadTeamspaceList, teamID, sortSpace, onChange } = this.props
     loadTeamspaceList(teamID, {
-      page: current,
+      page: 1,
       size: pageSize,
       sort: sortSpace,
     })
-    this.setState({
+    onChange({
       spacePageSize: pageSize,
-      spacePage: current,
-      current: 1,
+      spacePage: 1,
+      spaceCurrent: 1,
     })
   },
   onChange(current) {
-    const { loadTeamspaceList, teamID } = this.props
-    const { sortSpace, spacePageSize } = this.state
+    const { loadTeamspaceList, teamID, sortSpace, spacePageSize, onChange } = this.props
     loadTeamspaceList(teamID, {
       page: current,
       size: spacePageSize,
       sort: sortSpace,
     })
-    this.setState({
+    onChange({
       spacePageSize: spacePageSize,
       spacePage: current,
-      current: current,
+      spaceCurrent: current,
     })
   },
   delTeamSpace(spaceID){
-    const { deleteTeamspace,teamID, loadTeamspaceList } = this.props
-    const { sortSpace, spacePage, spacePageSize } = this.state
+    const { deleteTeamspace,teamID, loadTeamspaceList, sortSpace, spacePage, spacePageSize,onChange } = this.props
     confirm({
       title: '您是否确认要删除这项内容',
       onOk() {
@@ -292,8 +297,11 @@ let TeamList = React.createClass({
             func: () => {
               loadTeamspaceList(teamID,{
                 sort:sortSpace,
-                page: spacePage,
+                page: 1,
                 size: spacePageSize,
+              })
+              onChange({
+                spaceCurrent: 1
               })
             },
             isAsync: true
@@ -304,8 +312,8 @@ let TeamList = React.createClass({
     });
   },
   render: function () {
-    const { teamSpacesList, teamSpacesTotal } = this.props
-    const { current } = this.state
+    const { teamSpacesList, teamSpacesTotal,current } = this.props
+    const {sortSpaceOrder}=this.state
     const pagination = {
       total: teamSpacesTotal,
       showSizeChanger: true,
@@ -322,10 +330,10 @@ let TeamList = React.createClass({
           <div onClick={this.sortSpaceName}>
             空间名
             <div className="ant-table-column-sorter">
-              <span className={this.state.sortSpaceOrder ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
+              <span className={sortSpaceOrder ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
                 <i className="anticon anticon-caret-up" />
               </span>
-              <span className={!this.state.sortSpaceOrder ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
+              <span className={!sortSpaceOrder ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
                 <i className="anticon anticon-caret-down" />
               </span>
             </div>
@@ -341,7 +349,7 @@ let TeamList = React.createClass({
         key: 'description',
       },
       {
-        title: /*'应用',*/
+        title:
         (
           <div onClick={this.sortSpaceApp}>
             应用
@@ -388,6 +396,7 @@ class TeamDetail extends Component {
     this.handleChange = this.handleChange.bind(this)
     this.handleNewSpaceName = this.handleNewSpaceName.bind(this)
     this.handleNewSpaceDes = this.handleNewSpaceDes.bind(this)
+    this.handleSpaceChange = this.handleSpaceChange.bind(this)
     this.state = {
       addMember: false,
       addSpace: false,
@@ -396,6 +405,9 @@ class TeamDetail extends Component {
       newSpaceDes: '',
       sortUser: "a,userName",
       sortSpace: 'a,spaceName',
+      spaceCurrent: 1,
+      spacePageSize: 5,
+      spacePage: 1,
     }
   }
   addNewMember() {
@@ -441,16 +453,21 @@ class TeamDetail extends Component {
   }
   handleNewSpaceOk() {
     const {createTeamspace, teamID, loadTeamspaceList} = this.props
-    const {newSpaceName, newSpaceDes} = this.state
+    const {newSpaceName, newSpaceDes,sortSpace,spacePageSize} = this.state
     createTeamspace(teamID, {
       spaceName: newSpaceName,
       description: newSpaceDes,
     }, {
         success: {
           func: () => {
-            loadTeamspaceList(teamID)
+            loadTeamspaceList(teamID,{
+              sort: sortSpace,
+              size: spacePageSize,
+              page: 1,
+            })
             this.setState({
               addSpace: false,
+              spaceCurrent: 1
             })
           },
           isAsync: true
@@ -472,17 +489,26 @@ class TeamDetail extends Component {
       newSpaceDes: e.target.value
     })
   }
+  handleSpaceChange(query){
+    const { sortSpace,spacePageSize,spaceCurrent,spacePage } = this.state
+    this.setState({
+      sortSpace: query.sortSpace ? query.sortSpace: sortSpace,
+      spaceCurrent: query.spaceCurrent ? query.spaceCurrent:spaceCurrent ,
+      spacePageSize: query.spacePageSize ? query.spacePageSize: spacePageSize,
+      spacePage: query.spacePage ? query.spacePage:spacePage,
+    })
+  }
   componentWillMount() {
-    const { loadTeamClustersList, loadTeamUserList, loadTeamspaceList, teamID, } = this.props
-    loadTeamClustersList(teamID)
-    loadTeamUserList(teamID, { sort: 'a,userName' })
-    loadTeamspaceList(teamID, { sort: 'a,spaceName' })
+    const { loadClusterList, loadTeamUserList, loadTeamspaceList, teamID, } = this.props
+    loadClusterList(teamID)
+    loadTeamUserList(teamID, { sort: 'a,userName',size:5,page:1 })
+    loadTeamspaceList(teamID, { sort: 'a,spaceName',size:5,page:1})
   }
 
   render() {
     const { clusterList, teamUserList, teamUserIDList, teamSpacesList, teamName, teamID, teamUsersTotal, teamSpacesTotal,
-      removeTeamusers, loadTeamUserList, loadTeamspaceList } = this.props
-    const { targetKeys, userPageSize, memberCurrent, spaceCurrent } = this.state
+      removeTeamusers, loadTeamUserList, loadTeamspaceList,deleteTeamspace } = this.props
+    const { targetKeys, sortSpace, spaceCurrent, spacePageSize,spacePage,sortSpaceOrder } = this.state
     return (
       <div id='TeamDetail'>
         <Row style={{ marginBottom: 20 }}>
@@ -587,7 +613,13 @@ class TeamDetail extends Component {
               <TeamList teamSpacesList={teamSpacesList}
                 loadTeamspaceList={loadTeamspaceList}
                 teamID={teamID}
-                teamSpacesTotal={teamSpacesTotal} />
+                        sortSpace={sortSpace}
+                        current={spaceCurrent}
+                        spacePageSize={spacePageSize}
+                        spacePage={spacePage}
+                teamSpacesTotal={teamSpacesTotal}
+                        deleteTeamspace={deleteTeamspace}
+                        onChange={this.handleSpaceChange}/>
             </Row>
           </Col>
         </Row>
@@ -679,6 +711,6 @@ export default connect(mapStateToProp, {
   removeTeamusers,
   loadTeamspaceList,
   loadTeamUserList,
-  loadTeamClustersList,
+  loadClusterList,
   deleteTeamspace,
 })(TeamDetail)

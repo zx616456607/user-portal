@@ -245,6 +245,44 @@ function deployLog(state={}, action) {
         isFetching: false,
         deployList:[]
       })
+    default:
+      return state
+  }
+}
+
+function getCdRules(state={}, action) {
+  const defaultStatus= {
+    isFetching: false,
+    cdRulesList:[]
+  }
+  switch(action.type) {
+    case ActionTypes.GET_CD_RULES_LIST_REQUEST:
+      return merge({}, defaultStatus, state, {
+        isFetching: true
+      })
+    case ActionTypes.GET_CD_RULES_LIST_SUCCESS:
+      for (let i=0;i<action.response.result.data.results.length; i++) {
+        action.response.result.data.results[i].editing = false
+      }
+      return Object.assign({}, state, {
+        isFetching: false,
+        cdRulesList:　action.response.result.data.results
+      })
+    case ActionTypes.GET_CD_RULES_LIST_FAILURE:
+      return Object.assign({}, state, {
+        isFetching: false,
+        cdRulesList:[]
+      })
+    case ActionTypes.DELETE_CD_RULES_LIST_SUCCESS:
+      const cdState = cloneDeep(state)
+      let cin = findIndex(cdState.cdRulesList, item => {
+        return item.ruleId == action.ruleId
+      })
+      cdState.cdRulesList.splice(cin, 1)
+      return {...cdState}
+
+    default: 
+      return state
   }
 }
 
@@ -384,6 +422,7 @@ export default function cicd_flow(state = {}, action) {
     userInfo: getUserInfo(state.userInfo, action),
     dockerfileLists: getDockerfileList(state.dockerfileLists, action),
     deployLog:　deployLog(state.deployLog, action),
+    getCdRules: getCdRules(state.getCdRules, action), 
     createTenxFlowSingle: reducerFactory({
       REQUEST: ActionTypes.CREATE_SINGLE_TENX_FLOW_REQUEST,
       SUCCESS: ActionTypes.CREATE_SINGLE_TENX_FLOW_SUCCESS,
@@ -416,6 +455,16 @@ export default function cicd_flow(state = {}, action) {
       SUCCESS: ActionTypes.DELETE_TENX_FLOW_STATE_SUCCESS,
       FAILURE: ActionTypes.DELETE_TENX_FLOW_STATE_FAILURE
     }, state.deleteTenxFlowStateDetail, action),
+    createDockerfile: reducerFactory({
+      REQUEST: ActionTypes.CREATE_DOCKER_FILES_REQUEST,
+      SUCCESS: ActionTypes.CREATE_DOCKER_FILES_SUCCESS,
+      FAILURE: ActionTypes.CREATE_DOCKER_FILES_FAILURE
+    }, state.createDockerfile, action),
+    CreateTenxflowBuild: reducerFactory({
+      REQUEST: ActionTypes.BUILD_TENX_FLOW_REQUEST,
+      SUCCESS: ActionTypes.BUILD_TENX_FLOW_SUCCESS,
+      FAILURE: ActionTypes.BUILD_TENX_FLOW_FAILURE
+    }, state.CreateTenxflowBuild, action),
   }
 }
 

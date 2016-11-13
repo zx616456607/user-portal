@@ -52,7 +52,7 @@ export default class DatabaseSider extends Component {
               <Link to="/database_cache/redis_cluster">Redis集群</Link>
             </Menu.Item>
             <Menu.Item key="4">
-              <Link to="/database_cache/database_storage">存储</Link>
+              <Link to="/database_cache/database_storage">存储卷</Link>
             </Menu.Item>
           </Menu>
         </div>
