@@ -202,7 +202,7 @@ class AppServiceDetail extends Component {
               </span>
               <br />
               <span>
-                容器实例&nbsp;:&nbsp;{service.spec.replicas}/{service.spec.replicas}
+                容器实例&nbsp;:&nbsp; {service.spec.replicas} / {service.spec.replicas}
               </span>
             </div>
             <div className="rightBox">
