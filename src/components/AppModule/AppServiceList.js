@@ -701,12 +701,12 @@ class AppServiceList extends Component {
             </Button>
             <Dropdown overlay={operaMenu} trigger={['click']}>
               <Button size="large" disabled={!isChecked}>
-                更多批量
+                更多操作
                 <i className="fa fa-caret-down"></i>
               </Button>
             </Dropdown>
             <div className='rightBox'>
-              <span className='totalPage'>共{total}条</span>
+              <span className='totalPage'>共 {total} 条</span>
               <div className="paginationBox">
                 <Pagination
                   className="inlineBlock"
