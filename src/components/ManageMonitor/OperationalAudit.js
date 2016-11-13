@@ -1149,7 +1149,7 @@ class OperationalAudit extends Component {
                 onChange={this.onPageChange}
                 />
             </div>
-            <span style={{ float:'right',lineHeight:'24px' }}>共计{this.state.totalNum}条</span>
+            <span style={{ float:'right',lineHeight:'24px' }}>共计 {this.state.totalNum} 条</span>
           </div>
           <div className='titleBox'>
             <div className='time commonTitle'>
