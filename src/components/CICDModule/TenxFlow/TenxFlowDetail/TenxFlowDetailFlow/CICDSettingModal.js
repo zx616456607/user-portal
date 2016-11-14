@@ -47,7 +47,7 @@ const menusText = defineMessages({
     defaultMessage: '确定',
   },
   cicdTitle: {
-    id: 'CICD.Tenxflow.TenxFlowDetailFlowCard.cicdTitle',
+    id: 'CICD.Tenxflow.CICDSettingModal.cicdTitle',
     defaultMessage: '持续集成触发规则',
   },
 })
@@ -281,7 +281,8 @@ let CICDSettingModal = React.createClass({
       body.config.mergeRequest = useRequest;
     }
     scope.setState({
-      cicdSetModalShow: false
+      cicdSetModalShow: false,
+      ciRulesOpened: true
     });
     UpdateTenxflowCIRules(flowId, body, {
       success: {

@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Spin, Icon, Card, Alert, Modal, Button } from 'antd'
+import { Spin, Icon, Card, Alert, Modal, Button, notification } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -108,6 +108,10 @@ class TenxFlowDetailFlow extends Component {
     CreateTenxflowBuild(flowId, { stageId: stageId }, {
       success: {
         func: (res) => {
+          notification['success']({
+            message: '流程构建',
+            description: '流程构建成功~',
+          });
           let buildingList = _this.state.buildingList;
           buildingList.map((item) => {
             if(item.stageId == stageId) {

@@ -19,7 +19,8 @@ import './style/TenxFlowDetailFlowCard.less'
 import EditTenxFlowModal from './EditTenxFlowModal.js'
 import CICDSettingModal from './CICDSettingModal.js'
 
-const ButtonGroup = Button.Group
+const ButtonGroup = Button.Group;
+const confirm = Modal.confirm;
 
 const menusText = defineMessages({
   finish: {
@@ -271,8 +272,16 @@ class TenxFlowDetailFlowCard extends Component {
     this.ciRulesChangeSuccess = this.ciRulesChangeSuccess.bind(this);
     this.state = {
       editStatus: false,
-      cicdSetModalShow: false
+      cicdSetModalShow: false,
+      ciRulesOpened: false
     }
+  }
+  
+  componentWillReceiveProps(nextProps) {
+    let ciRulesOpened = nextProps.config.spec.ci.enabled == 1 ? true : false;
+    this.setState({
+      ciRulesOpened: ciRulesOpened
+    });
   }
   
   editFlow() {
@@ -287,14 +296,42 @@ class TenxFlowDetailFlowCard extends Component {
   viewCicdBox(e) {
     //this function for user change open cicd or not
     const { getTenxflowCIRules, flowId } = this.props;
+    const _this = this;
     if(e){
       getTenxflowCIRules(flowId);
       this.setState({
         cicdSetModalShow: true
       });
     }else {
-      this.setState({
-        cicdSetModalShow: false
+      confirm({
+        title: '确定关闭持续集成？',
+        content: `关闭持续集成`,
+        onOk() {            
+          let body = {
+            enabled: 0,
+            config: {
+              branch: null,
+              tag: null,
+              mergeRequest: null
+            }
+          }
+          _this.setState({
+            cicdSetModalShow: false,
+            ciRulesOpened: false
+          });
+          UpdateTenxflowCIRules(flowId, body, {
+            success: {
+              func: (res) => {
+                notification['success']({
+                  message: '持续集成',
+                  description: '关闭持续集成成功~',
+                });
+              },
+              isAsync: true
+            }
+          });
+        },
+        onCancel() {},
       });
     }
   }
@@ -420,7 +457,7 @@ class TenxFlowDetailFlowCard extends Component {
           {
             (index == 0 && currentFlowEdit != index) ? [
             <div className='cicdBox' key='cicdBox'>
-              <Switch onChange={this.viewCicdBox}/>
+              <Switch onChange={this.viewCicdBox} checked={this.state.ciRulesOpened}/>
               <p className='switchTitile'><FormattedMessage {...menusText.cicd} /></p>
               <p className='viewP' onClick={this.viewCicdBoxP}><FormattedMessage {...menusText.view} /></p>
             </div>
