@@ -15,7 +15,7 @@ import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import { getTenxFlowStateList, getProjectList, searchProject } from '../../../../actions/cicd_flow'
-import { getDockerfileList, getDockerfiles, setDockerfile, searchDockerfile } from '../../../../actions/cicd_flow'
+import { getDockerfileList, CreateTenxflowBuild } from '../../../../actions/cicd_flow'
 import './style/TenxFlowDetailFlow.less'
 import EditTenxFlowModal from './TenxFlowDetailFlow/EditTenxFlowModal.js'
 import CreateTenxFlowModal from './TenxFlowDetailFlow/CreateTenxFlowModal.js'
@@ -41,6 +41,7 @@ class TenxFlowDetailFlow extends Component {
     super(props);
     this.createNewFlow = this.createNewFlow.bind(this);
     this.closeCreateNewFlow = this.closeCreateNewFlow.bind(this);
+    this.buildFlow = this.buildFlow.bind(this);
     this.state = {
       editTenxFlowModal: false,
       currentModalShowFlow: null,
@@ -73,6 +74,18 @@ class TenxFlowDetailFlow extends Component {
       currentFlowEdit: null,
       createNewFlow: false
     });
+  }
+  
+  buildFlow(stageId) {
+    //this function for user build stage
+    //and user can build single one
+    const { CreateTenxflowBuild, getTenxFlowStateList, flowId } = this.props;
+    CreateTenxflowBuild(flowId, { stageId: stageId }, {
+      success: {
+        func: () => getTenxFlowStateList(flowId),
+        isAsync: true
+      }
+    })
   }
 
   render() {
@@ -159,7 +172,8 @@ export default connect(mapStateToProps, {
   getTenxFlowStateList,
   getProjectList,
   searchProject,
-  getDockerfileList
+  getDockerfileList,
+  CreateTenxflowBuild
 })(injectIntl(TenxFlowDetailFlow, {
   withRef: true,
 }));

@@ -252,6 +252,7 @@ class TenxFlowDetailFlowCard extends Component {
     this.viewCicdBox = this.viewCicdBox.bind(this);
     this.viewCicdBoxP = this.viewCicdBoxP.bind(this);
     this.cancelEditCard = this.cancelEditCard.bind(this);
+    this.buildFlow = this.buildFlow.bind(this);
     this.state = {
       editStatus: false,
       cicdSetModalShow: false
@@ -295,6 +296,12 @@ class TenxFlowDetailFlowCard extends Component {
     });
   }
   
+  buildFlow(stageId) {
+    //this function for user build single stage
+    const { scope } = this.props;
+    scope.buildFlow(stageId);
+  }
+   
   render() {
     let { config, index, scope, currentFlowEdit, flowId, codeList } = this.props;
     const scopeThis = this;
@@ -351,7 +358,7 @@ class TenxFlowDetailFlowCard extends Component {
                       <div style={{ clear:'both' }}></div>
                     </div>
                     <div className='btnBox'>
-                      <Button size='large' type='primary'>
+                      <Button size='large' type='primary' onClick={this.buildFlow.bind(this, config.metadata.id)}>
                         { currentStatusBtn(config.lastBuildStatus) }
                       </Button>
                       <Button size='large' type='ghost'>

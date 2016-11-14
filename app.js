@@ -180,6 +180,12 @@ app.use(function* (next) {
     namespace: "zhangpc",
     token: "jgokzgfitsewtmbpxsbhtggabvrnktepuzohnssqjnsirtot"
   }
+  /*this.session.loginUser = {
+    user: "default",
+    id: 104,
+    namespace: "default",
+    token: "jgokzgfitsewtmbpxsbhtggabvrnktepuzohnssqjnsirtot"
+  }*/
   yield next
 })
 
