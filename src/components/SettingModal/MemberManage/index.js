@@ -211,6 +211,11 @@ let MemberTable = React.createClass({
         key: 'name',
         className: 'memberName',
         width: 150,
+        render: (text, record, index) => (
+          <Link to={`/setting/user/${record.key}`}>
+            {text}
+          </Link>
+        ),
       },
       {
         title: '手机',
