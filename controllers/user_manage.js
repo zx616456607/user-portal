@@ -131,8 +131,21 @@ exports.getUserTeams = function* () {
 exports.getUserTeamspaces = function* () {
   let userID = this.params.user_id
   const loginUser = this.session.loginUser
-  userID = userID === 'default' ? loginUser.id : userID
   const query = this.query || {}
+ 
+  this.body = getUserTeamspacesImpl(userID, loginUser, query, false)
+}
+
+exports.getUserTeamspacesWithDetail = function* () {
+  let userID = this.params.user_id
+  const loginUser = this.session.loginUser
+  const query = this.query || {}
+ 
+  this.body = getUserTeamspacesImpl(userID, loginUser, query, true)
+}
+
+function getUserTeamspacesImpl(userID, loginUser, query, fetchStaticInfo) {
+  userID = userID === 'default' ? loginUser.id : userID
   let page = parseInt(query.page || DEFAULT_PAGE)
   let size = parseInt(query.size || DEFAULT_PAGE_SIZE)
   let sort_by = parseInt(query.sort_by || "name")
@@ -166,14 +179,16 @@ exports.getUserTeamspaces = function* () {
     total = result.listMeta.total
   }
 
-  for (let index in teamspaces) {
-    const r = yield api.teams.getBy([teamspaces[index].teamID, "spaces", teamspaces[index].spaceID, "app_info"])
-    teamspaces[index].appCount = r.appCount
-    teamspaces[index].serviceCount = r.serviceCount
-    teamspaces[index].containerCount = r.containerCount
-  } 
+  if (fetchStaticInfo) {
+    for (let index in teamspaces) {
+      const r = yield api.teams.getBy([teamspaces[index].teamID, "spaces", teamspaces[index].spaceID, "app_info"])
+      teamspaces[index].appCount = r.appCount
+      teamspaces[index].serviceCount = r.serviceCount
+      teamspaces[index].containerCount = r.containerCount
+    } 
+  }
 
-  this.body = {
+  return {
     teamspaces,
     total
   }
