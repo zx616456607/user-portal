@@ -141,10 +141,10 @@ exports.getUserTeamspacesWithDetail = function* () {
   const loginUser = this.session.loginUser
   const query = this.query || {}
  
-  this.body = getUserTeamspacesImpl(userID, loginUser, query, true)
+  this.body = yield getUserTeamspacesImpl(userID, loginUser, query, true)
 }
 
-function getUserTeamspacesImpl(userID, loginUser, query, fetchStaticInfo) {
+function* getUserTeamspacesImpl(userID, loginUser, query, fetchDetail) {
   userID = userID === 'default' ? loginUser.id : userID
   let page = parseInt(query.page || DEFAULT_PAGE)
   let size = parseInt(query.size || DEFAULT_PAGE_SIZE)
@@ -179,7 +179,7 @@ function getUserTeamspacesImpl(userID, loginUser, query, fetchStaticInfo) {
     total = result.listMeta.total
   }
 
-  if (fetchStaticInfo) {
+  if (fetchDetail) {
     for (let index in teamspaces) {
       const r = yield api.teams.getBy([teamspaces[index].teamID, "spaces", teamspaces[index].spaceID, "app_info"])
       teamspaces[index].appCount = r.appCount
