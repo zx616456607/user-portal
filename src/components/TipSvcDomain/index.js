@@ -21,14 +21,14 @@ let Tip = React.createClass({
     const { svcDomain } = this.props
     let item = svcDomain.map((item,index) => {
       return (
-        <Timeline.Item>{item}</Timeline.Item>
+        <li>{item}</li>
       )
     })
     return (
       <div id='Tip'>
-        <Timeline>
+        <ul>
           { item }
-        </Timeline>
+        </ul>
       </div>
     )
   }
@@ -85,7 +85,7 @@ export default class TipSvcDomain extends Component{
           <div>
             <a target="_blank" href={svcDomain[0]}>{svcDomain[0]}</a>
             <Tooltip placement="right" title={ <Tip svcDomain={svcDomain}/> }>
-              <Badge count='. . .' onClick={this.popTip}/>
+              <Badge count='...' onClick={this.popTip} style={{marginLeft:'5px',lineHeight:'12px'}}/>
             </Tooltip>
           </div>
         )
