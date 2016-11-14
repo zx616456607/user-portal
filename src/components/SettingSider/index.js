@@ -48,7 +48,7 @@ export default class SettingSider extends Component {
               <Link to="/setting/team">团队管理</Link>
             </Menu.Item>
             <Menu.Item key="4" style={{borderTop:'1px solid #e2e2e2',borderBottom:'1px solid #e2e2e2',
-              margin:'10px 0',height:63,padding:'10px 0'}}>
+              margin:'10px 0',height:63,padding:'10px 0'}} disabled>
               <Link to="/setting/note">通知设置</Link>
             </Menu.Item>
             <Menu.Item key="5">
