@@ -33,6 +33,7 @@ import parseServiceDomain from '../parseDomain'
 import ServiceStatus from '../TenxStatus/ServiceStatus'
 import AppAddServiceModal from './AppCreate/AppAddServiceModal'
 import AppDeployServiceModal from './AppCreate/AppDeployServiceModal'
+import TipSvcDomain from  '../TipSvcDomain'
 import yaml from 'js-yaml'
 
 const SubMenu = Menu.SubMenu
@@ -201,10 +202,12 @@ const MyComponent = React.createClass({
           </div>
           <div className="service commonData">
             <Tooltip title={svcDomain.length > 0 ? svcDomain[0] : ""}>
-              {
+              {/*{
                 svcDomain.length > 0 ?
-                  (<a target="_blank" href={svcDomain[0]}>{svcDomain[0]}</a>) : (<span>-</span>)
-              }
+                  (<a target="_blank" href={svcDomain[0]}>{svcDomain[0]}</a>) :
+                  (<span>-</span>)
+              }*/}
+              <TipSvcDomain svcDomain={svcDomain} />
             </Tooltip>
           </div>
           <div className="createTime commonData">
