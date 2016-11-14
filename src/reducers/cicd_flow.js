@@ -413,6 +413,31 @@ function getCodeStoreBranchList(state = {}, action) {
   }
 }
 
+function getTenxflowCIRules(state = {}, action) {
+  const defaultState = {
+    isFetching: false,
+    ciRules: {}
+  }
+  switch (action.type) {
+    case ActionTypes.GET_FLOW_CI_RULES_REQUEST:
+      return merge({}, defaultState, state, {
+        isFetching: true
+      })
+    case ActionTypes.GET_FLOW_CI_RULES_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        ciRules: action.response.result.data,
+      }
+      )
+    case ActionTypes.GET_FLOW_CI_RULES_FAILURE:
+      return merge({}, defaultState, state, {
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
+
 export default function cicd_flow(state = {}, action) {
   return {
     codeRepo: codeRepo(state.codeRepo, action),
@@ -423,6 +448,12 @@ export default function cicd_flow(state = {}, action) {
     dockerfileLists: getDockerfileList(state.dockerfileLists, action),
     deployLog:　deployLog(state.deployLog, action),
     getCdRules: getCdRules(state.getCdRules, action), 
+    getTenxflowCIRules: getTenxflowCIRules(state.getTenxflowCIRules, action), 
+    UpdateTenxflowCIRules: reducerFactory({
+      REQUEST: ActionTypes.UPDATE_FLOW_CI_RULES_REQUEST,
+      SUCCESS: ActionTypes.UPDATE_FLOW_CI_RULES_SUCCESS,
+      FAILURE: ActionTypes.UPDATE_FLOW_CI_RULES_FAILURE
+    }, state.UpdateTenxflowCIRules, action),
     createTenxFlowSingle: reducerFactory({
       REQUEST: ActionTypes.CREATE_SINGLE_TENX_FLOW_REQUEST,
       SUCCESS: ActionTypes.CREATE_SINGLE_TENX_FLOW_SUCCESS,

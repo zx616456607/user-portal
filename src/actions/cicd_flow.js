@@ -781,3 +781,48 @@ export function StopTenxflowBuild(flowId, buildId, callback) {
   }
 }
 
+export const GET_FLOW_CI_RULES_REQUEST = 'GET_FLOW_CI_RULES_REQUEST'
+export const GET_FLOW_CI_RULES_SUCCESS = 'GET_FLOW_CI_RULES_SUCCESS'
+export const GET_FLOW_CI_RULES_FAILURE = 'GET_FLOW_CI_RULES_FAILURE'
+
+function fetchTenxflowCIRules(flowId, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_FLOW_CI_RULES_REQUEST, GET_FLOW_CI_RULES_SUCCESS, GET_FLOW_CI_RULES_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/ci-rules`,
+      schema: {}
+    },
+    callback: callback
+  }
+}
+
+export function getTenxflowCIRules(flowId, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchTenxflowCIRules(flowId, callback))
+  }
+}
+
+export const UPDATE_FLOW_CI_RULES_REQUEST = 'UPDATE_FLOW_CI_RULES_REQUEST'
+export const UPDATE_FLOW_CI_RULES_SUCCESS = 'UPDATE_FLOW_CI_RULES_SUCCESS'
+export const UPDATE_FLOW_CI_RULES_FAILURE = 'UPDATE_FLOW_CI_RULES_FAILURE'
+
+function putUpdateTenxflowCIRules(flowId, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [UPDATE_FLOW_CI_RULES_REQUEST, UPDATE_FLOW_CI_RULES_SUCCESS, UPDATE_FLOW_CI_RULES_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/ci-rules`,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body: body
+      }
+    },
+    callback: callback
+  }
+}
+
+export function UpdateTenxflowCIRules(flowId, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(putUpdateTenxflowCIRules(flowId, body, callback))
+  }
+}

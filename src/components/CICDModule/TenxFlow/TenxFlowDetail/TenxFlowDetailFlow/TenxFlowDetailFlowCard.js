@@ -8,12 +8,13 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Spin, Icon, Card, Modal, Button, Switch, Menu, Dropdown } from 'antd'
+import { Spin, Icon, Card, Modal, Button, Switch, Menu, Dropdown, notification } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../../constants'
+import { getTenxflowCIRules, UpdateTenxflowCIRules } from '../../../../../actions/cicd_flow'
 import './style/TenxFlowDetailFlowCard.less'
 import EditTenxFlowModal from './EditTenxFlowModal.js'
 import CICDSettingModal from './CICDSettingModal.js'
@@ -267,6 +268,7 @@ class TenxFlowDetailFlowCard extends Component {
     this.viewCicdBoxP = this.viewCicdBoxP.bind(this);
     this.cancelEditCard = this.cancelEditCard.bind(this);
     this.buildFlow = this.buildFlow.bind(this);
+    this.ciRulesChangeSuccess = this.ciRulesChangeSuccess.bind(this);
     this.state = {
       editStatus: false,
       cicdSetModalShow: false
@@ -284,7 +286,9 @@ class TenxFlowDetailFlowCard extends Component {
   
   viewCicdBox(e) {
     //this function for user change open cicd or not
+    const { getTenxflowCIRules, flowId } = this.props;
     if(e){
+      getTenxflowCIRules(flowId);
       this.setState({
         cicdSetModalShow: true
       });
@@ -297,6 +301,8 @@ class TenxFlowDetailFlowCard extends Component {
   
   viewCicdBoxP(e) {
     //this function for open the modal of cicd
+    const { getTenxflowCIRules, flowId } = this.props;
+    getTenxflowCIRules(flowId);
     this.setState({
       cicdSetModalShow: true
     });
@@ -320,9 +326,17 @@ class TenxFlowDetailFlowCard extends Component {
       scope.buildFlow(stageId);
     }    
   }
+  
+  ciRulesChangeSuccess() {
+    //this function for alert user the ci rules change sucees
+    notification['success']({
+      message: 'CI规则',
+      description: 'CI规则修改成功~',
+    });
+  }
    
   render() {
-    let { config, index, scope, currentFlowEdit, flowId, codeList } = this.props;
+    let { config, index, scope, currentFlowEdit, flowId, codeList, isFetching, ciRules } = this.props;
     const scopeThis = this;
     return (
       <div id='TenxFlowDetailFlowCard' key={'TenxFlowDetailFlowCard' + index} className={ currentFlowEdit == index ? 'TenxFlowDetailFlowCardBigDiv':'' } >
@@ -424,7 +438,8 @@ class TenxFlowDetailFlowCard extends Component {
         <Modal className='tenxFlowCicdSetting'
           visible={this.state.cicdSetModalShow}
         >
-          <CICDSettingModal scope={scopeThis} />
+          <CICDSettingModal scope={scopeThis} flowId={flowId} 
+            ciRules={ciRules} isFetching={isFetching} />
         </Modal>
       </div>
     )
@@ -432,9 +447,15 @@ class TenxFlowDetailFlowCard extends Component {
 }
 
 function mapStateToProps(state, props) {
-
+  const defaultCiRules = {
+    isFetching: false,
+    ciRules: {}
+  }
+  const { getTenxflowCIRules } = state.cicd_flow;
+  const { isFetching, ciRules } = getTenxflowCIRules || defaultCiRules
   return {
-
+    isFetching,
+    ciRules
   }
 }
 
@@ -443,7 +464,8 @@ TenxFlowDetailFlowCard.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-
+  getTenxflowCIRules,
+  UpdateTenxflowCIRules
 })(injectIntl(TenxFlowDetailFlowCard, {
   withRef: true,
 }));

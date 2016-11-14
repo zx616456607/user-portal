@@ -205,7 +205,11 @@ module.exports = function (Router) {
   router.get('/devops/ci-flows/:flow_id/cd-rules', devopsController.listCDRules)
   router.delete('/devops/ci-flows/:flow_id/cd-rules/:rule_id', devopsController.removeCDRule)
   router.put('/devops/ci-flows/:flow_id/cd-rules/:rule_id', devopsController.updateCDRule)
-
+  
+  // CI rules
+  router.get('/devops/ci-flows/:flow_id/ci-rules', devopsController.getCIRule)
+  router.put('/devops/ci-flows/:flow_id/ci-rules', devopsController.updateCIRule)
+  
   // Flow build
   router.post('/devops/ci-flows/:flow_id/builds', devopsController.createFlowBuild)
   router.get('/devops/ci-flows/:flow_id/builds', devopsController.listBuilds)
