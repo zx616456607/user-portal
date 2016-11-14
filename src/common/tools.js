@@ -10,55 +10,52 @@
  */
 'use strict'
 
-const moment = require('moment')
+import moment from 'moment'
+
+const locale = window.appLocale.locale
+// Set moment internationalize
+if (locale === 'zh') {
+  moment.locale('zh-cn')
+} else {
+  moment.locale('en', {
+    relativeTime: {
+      future: "in %s",
+      past: "%s ago",
+      s: "%d s",
+      m: "a min",
+      mm: "%d min",
+      h: "1 h",
+      hh: "%d h",
+      d: "a day",
+      dd: "%d days",
+      M: "a month",
+      MM: "%d months",
+      y: "a year",
+      yy: "%d years"
+    }
+  })
+}
 
 /**
  * Format date
  */
 export function formatDate(timestamp) {
-  if ( !timestamp || timestamp === '' ) {
+  if (!timestamp || timestamp === '') {
     return moment(new Date()).format("YYYY-MM-DD HH:mm:ss")
   } else {
     return moment(timestamp).format("YYYY-MM-DD HH:mm:ss")
   }
 }
+
 /**
- * Calculate time
+ * Calculate time from now
  * Option
  * - beginDate
  * Output
  * - three days ago, etc
  */
-export function calcuDate(beginDate){
-  var begin = Date.parse(beginDate);
-  var end = new Date();
-  var date = end - begin;
-
-  var days = Math.floor(date/(24*3600*1000));
-
-  var months = Math.floor(days / 30);
-  var leave1 = date%(24*3600*1000);
-  var hours=Math.floor(leave1/(3600*1000));
-
-  var leave2=leave1%(3600*1000);
-  var minutes=Math.floor(leave2/(60*1000));
-
-  var leave3=leave2%(60*1000);
-  var seconds=Math.round(leave3/1000);
-
-  if (months > 0) {
-    return months + ' 月前';
-  } else if (days > 0) {
-    return days + ' 天前';
-  } else if (hours > 0) {
-    return hours + ' 小时前';
-  } else if (minutes > 0) {
-    return minutes + ' 分钟前';
-  } else if (seconds > 0) {
-    return seconds + ' 秒前';
-  } else {
-    return '1 秒前';
-  }
+export function calcuDate(beginDate) {
+  return moment(beginDate).fromNow()
 }
 
 // Y year

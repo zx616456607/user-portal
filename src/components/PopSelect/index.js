@@ -89,7 +89,7 @@ export default class PopSelect extends Component {
     const userSpace = {
       name: '我的空间',
       spaceName: '我的空间',
-      spaceID: 'default',
+      namespace: 'default',
       teamID: 'default'
     }
     const specialElement = (
