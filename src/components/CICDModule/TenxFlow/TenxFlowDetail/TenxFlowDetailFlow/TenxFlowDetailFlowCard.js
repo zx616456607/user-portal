@@ -246,7 +246,19 @@ function fetchCodeStoreName(id, codeList) {
   });
   return codeName;
 }
-  
+
+function buildButtonCheck(statusInfo) {
+  //this function for check the stage status
+  //and let the edit button is disable or not
+  if(Boolean(statusInfo)) {
+    if(statusInfo.status == 2) {
+      return true;
+    }
+  } else {
+    return false;
+  }
+}
+
 class TenxFlowDetailFlowCard extends Component {
   constructor(props) {
     super(props);
@@ -314,7 +326,7 @@ class TenxFlowDetailFlowCard extends Component {
     const scopeThis = this;
     return (
       <div id='TenxFlowDetailFlowCard' key={'TenxFlowDetailFlowCard' + index} className={ currentFlowEdit == index ? 'TenxFlowDetailFlowCardBigDiv':'' } >
-        <Card className={ currentEditClass(config.status, currentFlowEdit, index) }>
+        <Card className={ currentEditClass(config.lastBuildStatus, currentFlowEdit, index) }>
           {
             currentFlowEdit != index ? [
               <QueueAnim key={'FlowCardShowAnimate' + index}>
@@ -372,7 +384,7 @@ class TenxFlowDetailFlowCard extends Component {
                         <i className='fa fa-wpforms' />
                         <FormattedMessage {...menusText.logBtn} />
                       </Button>
-                      <Button size='large' type='ghost' className='editBtn' onClick={this.editFlow} disabled={ config.status == 'running' ? true : false }>
+                      <Button size='large' type='ghost' className='editBtn' onClick={this.editFlow} disabled={ buildButtonCheck(config.lastBuildStatus) }>
                         <i className='fa fa-pencil-square-o' />
                         <FormattedMessage {...menusText.editBtn} />
                       </Button>
@@ -403,7 +415,7 @@ class TenxFlowDetailFlowCard extends Component {
         </Card>
         {
           currentFlowEdit != index ? [
-            <div className={ config.status == 'finish' ? 'finishArrow arrowBox' : 'arrowBox' } key='finishArrow'>
+            <div className={ config.lastBuildStatus == 'finish' ? 'finishArrow arrowBox' : 'arrowBox' } key='finishArrow'>
               <Icon type="arrow-right" />
             </div>
           ] : null

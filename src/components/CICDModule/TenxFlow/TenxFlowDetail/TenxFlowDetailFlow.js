@@ -62,8 +62,14 @@ class TenxFlowDetailFlow extends Component {
       success: {        
         func: (res) => {
           res.data.results.map((item) =>{
+            let buildId = null;
+            if(!Boolean(item.lastBuildStatus)) {
+              buildId = null;
+            } else {
+              buildId = item.lastBuildStatus.buildId;
+            }
             buildingList.push({
-              buildId: item.lastBuildStatus.buildId,
+              buildId: buildId,
               stageId: item.metadata.id
             })
           });

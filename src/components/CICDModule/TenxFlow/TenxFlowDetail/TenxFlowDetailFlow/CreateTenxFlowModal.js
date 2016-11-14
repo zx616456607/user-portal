@@ -244,7 +244,7 @@ let CreateTenxFlowModal = React.createClass({
   },
   flowTypeChange(e) {
     //this function for user change the tenxflow type
-    if(e != '6') {
+    if(e != '5') {
       this.props.form.resetFields(['otherFlowType']);
     }
     if(e != '3') {
@@ -500,7 +500,7 @@ let CreateTenxFlowModal = React.createClass({
         }
       }
       //if user select the customer type (6), ths customType must be input
-      if(values.flowType == '6') {
+      if(values.flowType == '5') {
         body.metadata.customType = values.otherFlowType;
       }
       //if user select the image build type (5),the body will be add new body
@@ -679,14 +679,14 @@ let CreateTenxFlowModal = React.createClass({
               <Select {...flowTypeProps} style={{ width: 120 }}>
                 <Option value='1'><FormattedMessage {...menusText.unitCheck} /></Option>
                 <Option value='2'><FormattedMessage {...menusText.containCheck} /></Option>
+                <Option value='3'><FormattedMessage {...menusText.buildImage} /></Option>
                 {/*<Option value='3'><FormattedMessage {...menusText.podToPodCheck} /></Option>*/}
                 <Option value='4'><FormattedMessage {...menusText.runningCode} /></Option>
-                <Option value='3'><FormattedMessage {...menusText.buildImage} /></Option>
-                <Option value='6'><FormattedMessage {...menusText.other} /></Option>
+                <Option value='5'><FormattedMessage {...menusText.other} /></Option>
               </Select>
             </FormItem>
             {
-              this.state.otherFlowType == '6' ? [
+              this.state.otherFlowType == '5' ? [
                 <QueueAnim key='otherFlowTypeInput' className='otherFlowTypeInput'>
                   <div key='otherFlowTypeInput'>
                     <FormItem>
