@@ -19,7 +19,6 @@ import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constan
 import { calcuDate } from '../../common/tools.js'
 import { browserHistory } from 'react-router'
 import TerminalModal from '../TerminalModal'
-import parseServiceDomain from '../parseDomain'
 import ContainerStatus from '../TenxStatus/ContainerStatus'
 
 const ButtonGroup = Button.Group

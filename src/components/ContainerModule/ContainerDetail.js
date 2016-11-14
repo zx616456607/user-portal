@@ -136,7 +136,7 @@ class ContainerDetail extends Component {
                 <div className="leftInfo">
                   <div className="status">
                     运行状态&nbsp;:
-                    <span>
+                    <span style={{position:'relative',top:'-5px'}}>
                       <ContainerStatus
                         status={container.status}
                         smart={true}

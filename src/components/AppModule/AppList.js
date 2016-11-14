@@ -18,6 +18,7 @@ import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constan
 import { calcuDate } from '../../common/tools'
 import { browserHistory } from 'react-router'
 import AppStatus from '../TenxStatus/AppStatus'
+import { parseAppDomain } from '../parseDomain'
 
 const confirm = Modal.confirm
 const ButtonGroup = Button.Group
@@ -133,7 +134,7 @@ const MyComponent = React.createClass({
           </Menu.Item>
         </Menu>
       );
-      const appEntrance = item.entrance
+      const domains = parseAppDomain(item, this.props.bindingDomains)
       return (
         <div className={item.checked ? 'appDetail appDetailSelected' : 'appDetail'} key={item.name} onClick={this.selectAppByline.bind(this, item)} >
           <div className='selectIconTitle commonData'>
@@ -156,12 +157,15 @@ const MyComponent = React.createClass({
             {item.instanceCount + '' || '-'}
           </div>
           <div className='visitIp commonData'>
+            <span>-</span>
+          {/*
             <Tooltip title={appEntrance ? appEntrance : ''}>
               {
                 appEntrance ?
                   (<a target="_blank" href={appEntrance}>{appEntrance}</a>) : (<span>-</span>)
               }
             </Tooltip>
+          */}
           </div>
           <div className='createTime commonData'>
             <Tooltip title={calcuDate(item.createTime)}>
@@ -603,7 +607,8 @@ class AppList extends Component {
               config={appList}
               loading={isFetching}
               parentScope={scope}
-              funcs={funcs} />
+              funcs={funcs}
+              bindingDomains={this.props.bindingDomains} />
           </Card>
         </div>
       </QueueAnim>
@@ -659,6 +664,7 @@ function mapStateToProps(state, props) {
 
   return {
     cluster: cluster.clusterID,
+    bindingDomains: state.entities.current.cluster.bindingDomains,
     currentCluster: cluster,
     pathname,
     page,

@@ -142,9 +142,7 @@ class ImageDetailBox extends Component {
       success: {
         func: ()=>{
           message.success('更新成功！')
-          if (imageSpace == 'myCollection') {
-            scope.props.loadFavouriteList(DEFAULT_REGISTRY)
-          }
+          scope.props.loadFavouriteList(DEFAULT_REGISTRY)
         },
         isAsync: true
       }

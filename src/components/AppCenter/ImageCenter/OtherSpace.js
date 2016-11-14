@@ -167,11 +167,8 @@ class OtherSpace extends Component {
 
   searchImage(e) {
     const image = e.target.value
-    if (image != '') {
-      this.props.SearchOtherImage(image)
-      return
-    }
-    this.props.getOtherImageList(this.props.imageId)
+    this.props.SearchOtherImage(image)
+    // this.props.getOtherImageList(this.props.imageId)
   }
 
   render() {
