@@ -144,9 +144,15 @@ export default store => next => action => {
     return finalAction
   }
 
+  // add current.space.namespace for every fetch in headers
+  const space = store.getState().entities.current.space || {}
+  const options = fetchAPI.options || {}
+  options.headers = options.headers || {}
+  options.headers.teamspace = space.namespace
+
   const [requestType, successType, failureType] = types
   next(actionWith({ type: requestType }))
-  return fetchApi(endpoint, fetchAPI.options || {}, schema).then(
+  return fetchApi(endpoint, options, schema).then(
     response => next(actionWith({
       response,
       type: successType

@@ -25,17 +25,17 @@ export const SET_CURRENT = 'SET_CURRENT'
 // Resets the currently visible error message.
 export function setCurrent(current) {
   const config = getCookie(USER_CURRENT_CONFIG)
-  let [teamID, spaceID, clusterID] = config.split(',')
+  let [teamID, namespace, clusterID] = config.split(',')
   if (current.team) {
     teamID = current.team.teamID
   }
   if (current.space) {
-    spaceID = current.space.spaceID
+    namespace = current.space.namespace
   }
   if (current.cluster) {
     clusterID = current.cluster.clusterID
   }
-  setCookie(USER_CURRENT_CONFIG, `${teamID},${spaceID},${clusterID}`)
+  setCookie(USER_CURRENT_CONFIG, `${teamID},${namespace},${clusterID}`)
   return {
     current,
     type: SET_CURRENT

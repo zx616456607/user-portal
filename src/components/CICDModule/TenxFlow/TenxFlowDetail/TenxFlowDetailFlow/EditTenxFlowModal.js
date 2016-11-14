@@ -243,7 +243,7 @@ let EditTenxFlowModal = React.createClass({
         currentCodeStoreBranch: config.spec.project.branch
       });
     }
-    let shellList = config.spec.container.args;
+    let shellList = Boolean(config.spec.container.args) ? config.spec.container.args : [];
     if (shellList) {
         shellList.map((item, index) => {
         shellUid++;
@@ -254,7 +254,7 @@ let EditTenxFlowModal = React.createClass({
         });
       });
     }
-    let serviceList = config.spec.container.dependencies;
+    let serviceList = Boolean(config.spec.container.dependencies) ? config.spec.container.dependencies : [];
     if (serviceList) {
       serviceList.map((item, index) => {
         uuid++;
@@ -611,10 +611,10 @@ let EditTenxFlowModal = React.createClass({
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form;
     const scopeThis = this;
     getFieldProps('services', {
-      initialValue: [],
+      initialValue: [0],
     });
     getFieldProps('shellCodes', {
-      initialValue: [],
+      initialValue: [0],
     });
     const serviceItems = getFieldValue('services').map((k) => {
       let serviceDefault = !!servicesList[k] ? servicesList[k].service : null;
@@ -649,11 +649,12 @@ let EditTenxFlowModal = React.createClass({
       )
     });
     const shellCodeItems = getFieldValue('shellCodes').map((i) => {
+      let shellDefault = !!shellList[i] ? shellList[i] : ''
       const shellCodeProps = getFieldProps(`shellCode${i}`, {
         rules: [
           { message: '请输入脚本命令' },
         ],
-        initialValue: '',
+        initialValue: shellDefault,
       });
       return (
       <QueueAnim key={'shellCode' + i + 'Animate'}>

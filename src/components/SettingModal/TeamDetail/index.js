@@ -349,8 +349,8 @@ let TeamList = React.createClass({
         key: 'description',
       },
       {
-        title:
-        (
+        title: '应用',
+        /*(
           <div onClick={this.sortSpaceApp}>
             应用
             <div className="ant-table-column-sorter">
@@ -362,7 +362,7 @@ let TeamList = React.createClass({
               </span>
             </div>
           </div>
-        ),
+        ),*/
         dataIndex: 'appCount',
         key: 'appCount',
       },

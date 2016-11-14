@@ -426,8 +426,8 @@ function fetchAddRules(obj, callback) {
 }
 
 export const DELETE_CD_RULES_LIST_REQUEST = 'DELETE_CD_RULES_LIST_REQUEST'
-export const DELETE_CD_RULES_LIST_SUCCESS = 'ADDDELETE_RULES_LIST_SUCCESS'
-export const DELETE_CD_RULES_LIST_FAILURE = 'ADD_CDDELETELES_LIST_FAILURE'
+export const DELETE_CD_RULES_LIST_SUCCESS = 'DELETE_CD_RULES_LIST_SUCCESS'
+export const DELETE_CD_RULES_LIST_FAILURE = 'DELETE_CD_RULES_LIST_FAILURE'
 export function addCdRules(obj, callback) {
   return (dispatch, getState) =>{
     dispatch(fetchAddRules(obj, callback))
@@ -451,6 +451,31 @@ function fetchDeleteRules(flowId, ruleId, callback) {
 export function deleteCdRule(flowId, ruleId, callback) {
   return (dispatch, getState) => {
     dispatch(fetchDeleteRules(flowId, ruleId, callback))
+  }
+}
+
+export const UPDATE_CD_RULES_LIST_REQUEST = 'UPDATE_CD_RULES_LIST_REQUEST'
+export const UPDATE_CD_RULES_LIST_SUCCESS = 'UPDATE_CD_RULES_LIST_SUCCESS'
+export const UPDATE_CD_RULES_LIST_FAILURE = 'UPDATE_CD_RULES_LIST_FAILURE'
+
+function fetchPutCdRule(obj, callback) {
+  return {
+    [FETCH_API]: {
+      types: [UPDATE_CD_RULES_LIST_REQUEST, UPDATE_CD_RULES_LIST_SUCCESS, UPDATE_CD_RULES_LIST_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${obj.flowId}/cd-rules/${obj.ruleId}`,
+      options: {
+        method: 'PUT',
+        body: obj
+      },
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function putCdRule(obj, callback) {
+  return (dispatch, getState) => {
+    dispatch(fetchPutCdRule(obj, callback))
   }
 }
 
@@ -731,3 +756,28 @@ export function CreateTenxflowBuild(flowId, body, callback) {
     return dispatch(postCreateTenxflowBuild(flowId, body, callback))
   }
 }
+
+export const STOP_BUILD_TENX_FLOW_REQUEST = 'STOP_BUILD_TENX_FLOW_REQUEST'
+export const STOP_BUILD_TENX_FLOW_SUCCESS = 'STOP_BUILD_TENX_FLOW_SUCCESS'
+export const STOP_BUILD_TENX_FLOW_FAILURE = 'STOP_BUILD_TENX_FLOW_FAILURE'
+
+function putStopTenxflowBuild(flowId, buildId, callback) {
+  return {
+    [FETCH_API]: {
+      types: [STOP_BUILD_TENX_FLOW_REQUEST, STOP_BUILD_TENX_FLOW_SUCCESS, STOP_BUILD_TENX_FLOW_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/builds/${buildId}/stop`,
+      schema: {},
+      options: {
+        method: 'PUT',
+      }
+    },
+    callback: callback
+  }
+}
+
+export function StopTenxflowBuild(flowId, buildId, callback) {
+  return (dispatch, getState) => {
+    return dispatch(putStopTenxflowBuild(flowId, buildId, callback))
+  }
+}
+

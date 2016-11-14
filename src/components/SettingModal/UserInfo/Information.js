@@ -108,7 +108,6 @@ let ResetPassWord = React.createClass({
                       className={password === 'text' ? 'passIcon':''}/>
               </FormItem>
             </Col>
-            
           </Row>
           <FormItem hasFeedback>
             <Input type={password} className="passInt" {...rePasswdProps}

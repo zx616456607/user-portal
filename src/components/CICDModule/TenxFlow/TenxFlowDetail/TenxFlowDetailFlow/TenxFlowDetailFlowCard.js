@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Spin, Icon, Card, Modal, Button, Switch } from 'antd'
+import { Spin, Icon, Card, Modal, Button, Switch, Menu, Dropdown } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -17,6 +17,8 @@ import { DEFAULT_REGISTRY } from '../../../../../constants'
 import './style/TenxFlowDetailFlowCard.less'
 import EditTenxFlowModal from './EditTenxFlowModal.js'
 import CICDSettingModal from './CICDSettingModal.js'
+
+const ButtonGroup = Button.Group
 
 const menusText = defineMessages({
   finish: {
@@ -157,17 +159,17 @@ function currentFlowType(type) {
         <FormattedMessage {...menusText.containCheck} />
         );
       break;
-    case 3:
-      return (
-        <FormattedMessage {...menusText.podToPodCheck} />
-        );
-      break;
+//  case 3:
+//    return (
+//      <FormattedMessage {...menusText.podToPodCheck} />
+//      );
+//    break;
     case 4:
       return (
         <FormattedMessage {...menusText.runningCode} />
         );
       break;
-    case 5:
+    case 3:
       return (
         <FormattedMessage {...menusText.buildImage} />
         );
@@ -244,7 +246,19 @@ function fetchCodeStoreName(id, codeList) {
   });
   return codeName;
 }
-  
+
+function buildButtonCheck(statusInfo) {
+  //this function for check the stage status
+  //and let the edit button is disable or not
+  if(Boolean(statusInfo)) {
+    if(statusInfo.status == 2) {
+      return true;
+    }
+  } else {
+    return false;
+  }
+}
+
 class TenxFlowDetailFlowCard extends Component {
   constructor(props) {
     super(props);
@@ -296,10 +310,15 @@ class TenxFlowDetailFlowCard extends Component {
     });
   }
   
-  buildFlow(stageId) {
+  buildFlow(stageId, type, stageName) {
     //this function for user build single stage
     const { scope } = this.props;
-    scope.buildFlow(stageId);
+    const stageStatus = !!type ? type.status : 3;
+    if(stageStatus == 2) {
+      scope.stopBuildFlow(stageId, stageName);
+    } else {
+      scope.buildFlow(stageId);
+    }    
   }
    
   render() {
@@ -307,7 +326,7 @@ class TenxFlowDetailFlowCard extends Component {
     const scopeThis = this;
     return (
       <div id='TenxFlowDetailFlowCard' key={'TenxFlowDetailFlowCard' + index} className={ currentFlowEdit == index ? 'TenxFlowDetailFlowCardBigDiv':'' } >
-        <Card className={ currentEditClass(config.status, currentFlowEdit, index) }>
+        <Card className={ currentEditClass(config.lastBuildStatus, currentFlowEdit, index) }>
           {
             currentFlowEdit != index ? [
               <QueueAnim key={'FlowCardShowAnimate' + index}>
@@ -358,14 +377,14 @@ class TenxFlowDetailFlowCard extends Component {
                       <div style={{ clear:'both' }}></div>
                     </div>
                     <div className='btnBox'>
-                      <Button size='large' type='primary' onClick={this.buildFlow.bind(this, config.metadata.id)}>
+                      <Button size='large' type='primary' onClick={this.buildFlow.bind(this, config.metadata.id, config.lastBuildStatus, config.metadata.name)}>
                         { currentStatusBtn(config.lastBuildStatus) }
                       </Button>
                       <Button size='large' type='ghost'>
                         <i className='fa fa-wpforms' />
                         <FormattedMessage {...menusText.logBtn} />
                       </Button>
-                      <Button size='large' type='ghost' className='editBtn' onClick={this.editFlow} disabled={ config.status == 'running' ? true : false }>
+                      <Button size='large' type='ghost' className='editBtn' onClick={this.editFlow} disabled={ buildButtonCheck(config.lastBuildStatus) }>
                         <i className='fa fa-pencil-square-o' />
                         <FormattedMessage {...menusText.editBtn} />
                       </Button>
@@ -396,7 +415,7 @@ class TenxFlowDetailFlowCard extends Component {
         </Card>
         {
           currentFlowEdit != index ? [
-            <div className={ config.status == 'finish' ? 'finishArrow arrowBox' : 'arrowBox' } key='finishArrow'>
+            <div className={ config.lastBuildStatus == 'finish' ? 'finishArrow arrowBox' : 'arrowBox' } key='finishArrow'>
               <Icon type="arrow-right" />
             </div>
           ] : null
