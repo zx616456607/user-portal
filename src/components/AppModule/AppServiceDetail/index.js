@@ -26,7 +26,7 @@ import { loadServiceDetail, loadServiceContainerList } from '../../../actions/se
 import CommmonStatus from '../../CommonStatus'
 import './style/AppServiceDetail.less'
 import TerminalModal from '../../TerminalModal'
-import parseServiceDomain from '../../parseDomain'
+import { parseServiceDomain } from '../../parseDomain'
 import ServiceStatus from '../../TenxStatus/ServiceStatus'
 
 const DEFAULT_TAB = '#containers'

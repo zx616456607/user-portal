@@ -75,8 +75,18 @@ exports.getApps = function* () {
     app.appStatus = 0
     app.serviceCount = app.services.length
     app.instanceCount = 0
-    app.services.map((service) => {
-      app.instanceCount += service.spec.replicas
+    app.services.map((deployment) => {
+      app.instanceCount += deployment.spec.replicas
+      deployment.portForInternal = []
+      for (let i = 0; i < app.k8s_services.length; i++) {
+        if (app.k8s_services[i].metadata.name === deployment.metadata.name) {
+          if (app.k8s_services[i].metadata.annotations && app.k8s_services[i].metadata.annotations[ANNOTATION_SVC_SCHEMA_PORT]) {
+            deployment.ports = app.k8s_services[i].metadata.annotations[ANNOTATION_SVC_SCHEMA_PORT]
+          }
+          app.k8s_services[i].spec.ports.map((svcPort) => deployment.portForInternal.push(svcPort.port))
+          break
+        }
+      }
     })
     if (app.serviceCount < 1 || app.instanceCount < 1) {
       app.appStatus = 1
@@ -206,8 +216,18 @@ exports.getAppDetail = function* () {
   app.appStatus = 0
   app.serviceCount = app.services.length
   app.instanceCount = 0
-  app.services.map((service) => {
-    app.instanceCount += service.spec.replicas
+  app.services.map((deployment) => {
+    app.instanceCount += deployment.spec.replicas
+    deployment.portForInternal = []
+    for (let i = 0; i < app.k8s_services.length; i++) {
+      if (app.k8s_services[i].metadata.name === deployment.metadata.name) {
+        if (app.k8s_services[i].metadata.annotations && app.k8s_services[i].metadata.annotations[ANNOTATION_SVC_SCHEMA_PORT]) {
+          deployment.ports = app.k8s_services[i].metadata.annotations[ANNOTATION_SVC_SCHEMA_PORT]
+        }
+        app.k8s_services[i].spec.ports.map((svcPort) => deployment.portForInternal.push(svcPort.port))
+        break
+      }
+    }
   })
   if (app.serviceCount < 1 || app.instanceCount < 1) {
     app.appStatus = 1
@@ -252,6 +272,9 @@ exports.getAppServices = function* () {
     if (service.service && service.service.metadata.annotations && service.service.metadata.annotations[ANNOTATION_SVC_SCHEMA_PORT]) {
       service.deployment.ports = service.service.metadata.annotations[ANNOTATION_SVC_SCHEMA_PORT]
     }
+    service.deployment.portForInternal = []
+    service.service.spec.ports.map((svcPort) => service.deployment.portForInternal.push(svcPort.port))
+
     deployments.push(service.deployment)
   })
 
