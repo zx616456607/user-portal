@@ -10,27 +10,28 @@
 import React, { Component } from 'react'
 import { Row, Col, Transfer, } from 'antd'
 import './style/MemberTransfer.less'
-import { deleteTeam, createTeamspace, addTeamusers, removeTeamusers,
-  loadTeamspaceList, loadTeamUserList, loadTeamClustersList } from '../../../actions/team'
-import { loadUserList, createUser, deleteUser } from '../../../actions/user'
+import { addTeamusers, removeTeamusers} from '../../../actions/team'
+import { loadUserList } from '../../../actions/user'
 import { connect } from 'react-redux'
 
 class MemberTransfer extends Component{
   constructor(props){
     super(props)
+    this.filterOption = this.filterOption.bind(this)
     this.state = {
     }
+  }
+  filterOption(inputValue, option) {
+    return option.title.indexOf(inputValue) > -1;
   }
   componentWillMount(){
     this.props.loadUserList({size:-1})
   }
   render(){
     const { onChange,targetKeys,userList,teamUserIDList } = this.props
-    
-    let teamUserList=teamUserIDList?teamUserIDList:[]
-    let filterUserList = teamUserList.length !== 0 ?
+    let filterUserList = teamUserIDList.length !== 0 ?
       userList.filter(function (userItem) {
-        return !teamUserList.includes(userItem.key)
+        return !teamUserIDList.includes(userItem.key)
       }):
       userList
     
@@ -47,6 +48,7 @@ class MemberTransfer extends Component{
         <Transfer
           dataSource={filterUserList}
           showSearch
+          filterOption={this.filterOption}
           listStyle={{
             width: 250,
             height: 300,

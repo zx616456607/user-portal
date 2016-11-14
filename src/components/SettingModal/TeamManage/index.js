@@ -14,7 +14,7 @@ import { Link } from 'react-router'
 import SearchInput from '../../SearchInput'
 import { connect } from 'react-redux'
 import { loadUserTeamList } from '../../../actions/user'
-import { createTeam, deleteTeam, createTeamspace, addTeamusers, removeTeamusers } from '../../../actions/team'
+import { createTeam, deleteTeam, createTeamspace, addTeamusers, removeTeamusers,loadTeamUserList } from '../../../actions/team'
 import MemberTransfer from '../MemberTransfer'
 
 const confirm = Modal.confirm;
@@ -49,7 +49,6 @@ let TeamTable = React.createClass({
   delTeam(teamID){
     const {deleteTeam,loadUserTeamList} = this.props.scope.props
     const {page,pageSize,sort, filter} = this.props.scope.state
-    console.log('delt',teamID);
     confirm({
       title: '您是否确认要删除这项内容',
       onOk() {
@@ -133,6 +132,7 @@ let TeamTable = React.createClass({
     })
   },
   addNewMember(teamID){
+    this.props.loadTeamUserList(teamID,({size:-1}))
     this.setState({
       addMember: true,
       nowTeamID:teamID
@@ -157,7 +157,6 @@ let TeamTable = React.createClass({
             })
             this.setState({
               addMember: false,
-              targetKeys: []
             })
             
           },
@@ -177,8 +176,7 @@ let TeamTable = React.createClass({
   render() {
     let { sortedInfo, filteredInfo, targetKeys } = this.state
     const { searchResult, notFound, sort, filter } = this.props.scope.state
-    const { data, scope } = this.props
-    console.log('data',data);
+    const { data, scope, teamUserIDList } = this.props
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
     const pagination = {
@@ -303,14 +301,17 @@ let TeamTable = React.createClass({
         render: (text,record,index) => (
           <div>
             <Button icon="plus" className="addBtn" onClick={()=>this.addNewMember(record.key)}>添加成员</Button>
-            <Modal title='添加新成员'
-                   visible={this.state.addMember}
+            <Modal title='添加成员'
+                   visible={this.state.nowTeamID===record.key && this.state.addMember}
                    onOk={this.handleNewMemberOk}
                    onCancel={this.handleNewMemberCancel}
                    width="660px"
                    wrapClassName="newMemberModal"
             >
-              <MemberTransfer onChange={this.handleChange} targetKeys={targetKeys} teamID={record.key}/>
+              <MemberTransfer onChange={this.handleChange}
+                              targetKeys={targetKeys}
+                              teamID={record.key}
+                              teamUserIDList={teamUserIDList}/>
             </Modal>
             <Button icon="delete" className="delBtn" onClick={() => this.delTeam(record.key)}>删除</Button>
           </div>
@@ -322,10 +323,6 @@ let TeamTable = React.createClass({
              dataSource={searchResult.length === 0?data : searchResult}
              pagination={pagination}
              onChange={this.handleChange}
-             rowKey={(record, index) => {
-               console.log('rowkey',record);
-               return record.key
-             }}
       />
     )
   },
@@ -400,7 +397,7 @@ class TeamManage extends Component {
   render(){
     const scope = this
     const { visible } = this.state
-    const { teams,addTeamusers,loadUserTeamList } = this.props
+    const { teams,addTeamusers,loadUserTeamList, teamUserIDList,loadTeamUserList } = this.props
     
     const searchIntOption = {
       placeholder: '搜索',
@@ -434,7 +431,12 @@ class TeamManage extends Component {
         </Row>
         <Row className="teamList">
           <Card>
-            <TeamTable data={teams} scope={scope} addTeamusers={addTeamusers} loadUserTeamList={loadUserTeamList}/>
+            <TeamTable data={teams}
+                       scope={scope}
+                       addTeamusers={addTeamusers}
+                       loadUserTeamList={loadUserTeamList}
+                       loadTeamUserList={loadTeamUserList}
+                       teamUserIDList={teamUserIDList}/>
           </Card>
         </Row>
       </div>
@@ -446,6 +448,8 @@ function mapStateToProp(state,props) {
   let teamsData = []
   let total = 0
   let data = []
+  let teamUserIDList = []
+  const team = state.team
   const teams = state.user.teams
   if (teams.result) {
     if (teams.result.teams) {
@@ -467,10 +471,21 @@ function mapStateToProp(state,props) {
     if (teams.result.total) {
       total = teams.result.total
     }
+    if (team.teamusers) {
+      if (team.teamusers.result) {
+        const teamusers = team.teamusers.result.users
+      
+        teamusers.map((item, index) => {
+        
+          teamUserIDList.push(item.userID)
+        })
+      }
+    }
   }
   return {
     teams: data,
-    total
+    total,
+    teamUserIDList: teamUserIDList,
   }
 }
 
@@ -481,4 +496,5 @@ export default connect(mapStateToProp, {
   createTeamspace,
   addTeamusers,
   removeTeamusers,
+  loadTeamUserList,
 })(TeamManage)

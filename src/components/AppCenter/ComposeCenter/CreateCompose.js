@@ -149,7 +149,7 @@ class CreateCompose extends Component {
     });
     const descProps = getFieldProps('desc', {
       rules: [
-        { required: false },
+        {required: true,message: '真的不打算写点什么吗？'},
       ],
       initialValue: paretnState.stackItem.description      
     });
@@ -160,7 +160,7 @@ class CreateCompose extends Component {
       <div id="createCompose" key="createCompose">
       <Form horizontal>
          <div className="commonInput">
-          <div className="leftBox">
+          <div className="leftBox" style={{lineHeight:'35px'}}>
             <span className="title">编排名称</span>
           </div>
           <div className="rightBox">

@@ -95,6 +95,7 @@ module.exports = function (Router) {
   router.get('/users', userController.getUsers)
   router.get('/users/:user_id/teams', userController.getUserTeams)
   router.get('/users/:user_id/teamspaces', userController.getUserTeamspaces)
+  router.get('/users/:user_id/teamspaces/detail', userController.getUserTeamspacesWithDetail)
   router.post('/users', userController.createUser)
   router.delete('/users/:user_id', userController.deleteUser)
   router.patch('/users/:user_id', userController.updateUser)
@@ -204,7 +205,11 @@ module.exports = function (Router) {
   router.get('/devops/ci-flows/:flow_id/cd-rules', devopsController.listCDRules)
   router.delete('/devops/ci-flows/:flow_id/cd-rules/:rule_id', devopsController.removeCDRule)
   router.put('/devops/ci-flows/:flow_id/cd-rules/:rule_id', devopsController.updateCDRule)
-
+  
+  // CI rules
+  router.get('/devops/ci-flows/:flow_id/ci-rules', devopsController.getCIRule)
+  router.put('/devops/ci-flows/:flow_id/ci-rules', devopsController.updateCIRule)
+  
   // Flow build
   router.post('/devops/ci-flows/:flow_id/builds', devopsController.createFlowBuild)
   router.get('/devops/ci-flows/:flow_id/builds', devopsController.listBuilds)
