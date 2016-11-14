@@ -374,17 +374,17 @@ let AutoDeployService = React.createClass({
             {haveTag ? [
               <div>
                 <div className='tagTitle'>
-                  <span className='tag commonTitle'>
-                    <FormattedMessage {...menusText.tag} />
-                  </span>
                   <span className='service commonTitle'>
                     镜像名称
+                  </span>
+                  <span className='tag commonTitle'>
+                    <FormattedMessage {...menusText.tag} />
                   </span>
                   <span className='service commonTitle'>
                     集群
                   </span>
                   <span className='service commonTitle'>
-                    服务Id
+                    服务 ID
                   </span>
                   <span className='service commonTitle'>
                     服务名称
@@ -397,27 +397,23 @@ let AutoDeployService = React.createClass({
                   </span>
                   <div style={{ clear: 'both' }}></div>
                 </div>
-                
                 {items}
                 <div className="tagDetail">
-                  <div className='tag commonItem'>
-                    <Input size="large" value={this.state.tag} onChange={(e)=>this.setStateValue('tag', e)}  placeholder="输入镜像版本"/>
-                  </div>
                   <div className='service commonItem'>
                     <Input size="large" value={this.state.image_name} onChange={(e)=>this.setStateValue('image_name', e)}  placeholder="镜像名称"/>
+                  </div>
+                  <div className='tag commonItem'>
+                    <Input size="large" value={this.state.tag} onChange={(e)=>this.setStateValue('tag', e)}  placeholder="输入镜像版本"/>
                   </div>
                   <div key='cluster' className='service commonItem'>
                     <Input size="large" value={this.state.cluster_id} onChange={(e)=>this.setStateValue('cluster_id', e)}  placeholder="输入集群Id" />
                   </div>
-
                   <div key='select' className='service commonItem'>
                     <Input size="large" value={this.state.deployment_id} onChange={(e)=>this.setStateValue('deployment_id', e)}  placeholder="服务Id" />
-                    
                   </div>
                   <div key='imageName' className='service commonItem'>
                     <Input size="large" value={this.state.deployment_name} onChange={(e)=>this.setStateValue('deployment_name', e)}  placeholder="服务名称"/>
                   </div>
-
 
                   <div className='updateType commonItem'>
                     <RadioGroup onChange={(e)=>this.setStateValue('value',e)} value={this.state.value}>
