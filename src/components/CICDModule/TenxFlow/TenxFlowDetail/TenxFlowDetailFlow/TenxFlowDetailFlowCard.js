@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Spin, Icon, Card, Modal, Button, Switch } from 'antd'
+import { Spin, Icon, Card, Modal, Button, Switch, Menu, Dropdown } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -17,6 +17,8 @@ import { DEFAULT_REGISTRY } from '../../../../../constants'
 import './style/TenxFlowDetailFlowCard.less'
 import EditTenxFlowModal from './EditTenxFlowModal.js'
 import CICDSettingModal from './CICDSettingModal.js'
+
+const ButtonGroup = Button.Group
 
 const menusText = defineMessages({
   finish: {
@@ -157,17 +159,17 @@ function currentFlowType(type) {
         <FormattedMessage {...menusText.containCheck} />
         );
       break;
-    case 3:
-      return (
-        <FormattedMessage {...menusText.podToPodCheck} />
-        );
-      break;
+//  case 3:
+//    return (
+//      <FormattedMessage {...menusText.podToPodCheck} />
+//      );
+//    break;
     case 4:
       return (
         <FormattedMessage {...menusText.runningCode} />
         );
       break;
-    case 5:
+    case 3:
       return (
         <FormattedMessage {...menusText.buildImage} />
         );
@@ -296,10 +298,15 @@ class TenxFlowDetailFlowCard extends Component {
     });
   }
   
-  buildFlow(stageId) {
+  buildFlow(stageId, type, stageName) {
     //this function for user build single stage
     const { scope } = this.props;
-    scope.buildFlow(stageId);
+    const stageStatus = !!type ? type.status : 3;
+    if(stageStatus == 2) {
+      scope.stopBuildFlow(stageId, stageName);
+    } else {
+      scope.buildFlow(stageId);
+    }    
   }
    
   render() {
@@ -358,7 +365,7 @@ class TenxFlowDetailFlowCard extends Component {
                       <div style={{ clear:'both' }}></div>
                     </div>
                     <div className='btnBox'>
-                      <Button size='large' type='primary' onClick={this.buildFlow.bind(this, config.metadata.id)}>
+                      <Button size='large' type='primary' onClick={this.buildFlow.bind(this, config.metadata.id, config.lastBuildStatus, config.metadata.name)}>
                         { currentStatusBtn(config.lastBuildStatus) }
                       </Button>
                       <Button size='large' type='ghost'>

@@ -731,3 +731,28 @@ export function CreateTenxflowBuild(flowId, body, callback) {
     return dispatch(postCreateTenxflowBuild(flowId, body, callback))
   }
 }
+
+export const STOP_BUILD_TENX_FLOW_REQUEST = 'STOP_BUILD_TENX_FLOW_REQUEST'
+export const STOP_BUILD_TENX_FLOW_SUCCESS = 'STOP_BUILD_TENX_FLOW_SUCCESS'
+export const STOP_BUILD_TENX_FLOW_FAILURE = 'STOP_BUILD_TENX_FLOW_FAILURE'
+
+function putStopTenxflowBuild(flowId, buildId, callback) {
+  return {
+    [FETCH_API]: {
+      types: [STOP_BUILD_TENX_FLOW_REQUEST, STOP_BUILD_TENX_FLOW_SUCCESS, STOP_BUILD_TENX_FLOW_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/builds/${buildId}/stop`,
+      schema: {},
+      options: {
+        method: 'PUT',
+      }
+    },
+    callback: callback
+  }
+}
+
+export function StopTenxflowBuild(flowId, buildId, callback) {
+  return (dispatch, getState) => {
+    return dispatch(putStopTenxflowBuild(flowId, buildId, callback))
+  }
+}
+

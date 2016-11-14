@@ -174,6 +174,12 @@ app.use(function* (next) {
     namespace: "mengyuan",
     token: "vdarbhiorastaietwkulcssyzvsfmyscauiosusmybpzazde"
   }*/
+  /*this.session.loginUser = {
+    user: "wanglei",
+    id: 347,
+    namespace: "wanglei",
+    token: "dwbkggivnlgknozxforiognekydhrhikucurpmpjjidcfjry"
+  }*/
   this.session.loginUser = {
     user: "zhangpc",
     id: 104,

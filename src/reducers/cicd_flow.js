@@ -465,6 +465,11 @@ export default function cicd_flow(state = {}, action) {
       SUCCESS: ActionTypes.BUILD_TENX_FLOW_SUCCESS,
       FAILURE: ActionTypes.BUILD_TENX_FLOW_FAILURE
     }, state.CreateTenxflowBuild, action),
+    StopTenxflowBuild: reducerFactory({
+      REQUEST: ActionTypes.STOP_BUILD_TENX_FLOW_REQUEST,
+      SUCCESS: ActionTypes.STOP_BUILD_TENX_FLOW_SUCCESS,
+      FAILURE: ActionTypes.STOP_BUILD_TENX_FLOW_FAILURE
+    }, state.StopTenxflowBuild, action),
   }
 }
 

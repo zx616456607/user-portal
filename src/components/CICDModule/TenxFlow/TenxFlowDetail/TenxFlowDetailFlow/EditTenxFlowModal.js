@@ -187,7 +187,7 @@ let shellUid = 0;
 let EditTenxFlowModal = React.createClass({
   getInitialState: function() {
     return {
-      otherFlowType: '5',
+      otherFlowType: '3',
       useDockerfile: false,
       otherTag: false,
       envModalShow: null,
@@ -223,7 +223,7 @@ let EditTenxFlowModal = React.createClass({
         }
       })
     }
-    if(otherFlowType != '5') {
+    if(otherFlowType != '3') {
       this.setState({
         otherFlowType: false,
         useDockerfile: false,
@@ -315,7 +315,7 @@ let EditTenxFlowModal = React.createClass({
     if(e != '6') {
       this.props.form.resetFields(['otherFlowType']);
     }
-    if(e != '5') {
+    if(e != '3') {
       this.props.form.resetFields(['imageRealName']);
     }
     this.setState({
@@ -402,7 +402,7 @@ let EditTenxFlowModal = React.createClass({
   realImageInput (rule, value, callback) {
     //this function for user selected build image type
     //and when user submit the form, the function will check the real image input or not 
-    if (this.state.otherFlowType == '5' && !!!value) {
+    if (this.state.otherFlowType == '3' && !!!value) {
       callback([new Error('请输入镜像名称')]);
     } else {
       callback();
@@ -548,7 +548,7 @@ let EditTenxFlowModal = React.createClass({
         body.metadata.customType = values.otherFlowType;
       }
       //if user select the image build type (5),the body will be add new body
-      if(values.flowType == '5') {
+      if(values.flowType == '3') {
         let dockerFileFrom = _this.state.useDockerfile ? 1 : 2;
         let imageBuildBody = {
           'DockerfileFrom': dockerFileFrom,
@@ -736,9 +736,9 @@ let EditTenxFlowModal = React.createClass({
               <Select {...flowTypeProps} style={{ width: 120 }}>
                 <Option value='1'><FormattedMessage {...menusText.unitCheck} /></Option>
                 <Option value='2'><FormattedMessage {...menusText.containCheck} /></Option>
-                <Option value='3'><FormattedMessage {...menusText.podToPodCheck} /></Option>
+                {/*<Option value='3'><FormattedMessage {...menusText.podToPodCheck} /></Option>*/}
                 <Option value='4'><FormattedMessage {...menusText.runningCode} /></Option>
-                <Option value='5'><FormattedMessage {...menusText.buildImage} /></Option>
+                <Option value='3'><FormattedMessage {...menusText.buildImage} /></Option>
                 <Option value='6'><FormattedMessage {...menusText.other} /></Option>
               </Select>
             </FormItem>
@@ -824,7 +824,7 @@ let EditTenxFlowModal = React.createClass({
           <div style={{ clear:'both' }} />
         </div>
         {
-          this.state.otherFlowType == '5' ? [
+          this.state.otherFlowType == '3' ? [
             <QueueAnim className='buildImageForm'>
               <div className='line'></div>
               <div className='commonBox' key='buildImageFormAnimate'>
