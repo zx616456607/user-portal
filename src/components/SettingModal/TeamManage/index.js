@@ -157,7 +157,6 @@ let TeamTable = React.createClass({
             })
             this.setState({
               addMember: false,
-              targetKeys: []
             })
             
           },
