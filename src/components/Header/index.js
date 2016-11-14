@@ -86,10 +86,13 @@ class Header extends Component {
   }
 
   handleSpaceChange(space) {
-    const { loadTeamClustersList, setCurrent } = this.props
+    const { loadTeamClustersList, setCurrent, current } = this.props
+    if (space.namespace === current.space.namespace) {
+      return
+    }
     setCurrent({
       team: { teamID: space.teamID },
-      space
+      space,
     })
     loadTeamClustersList(space.teamID, { size: 100 }, {
       success: {
@@ -114,14 +117,20 @@ class Header extends Component {
       clustersVisible: false,
     })
     const { setCurrent, current } = this.props
-    if (cluster.clusterID === current.cluster.clusterID) {
+    if (current.cluster.spaceID === current.space.spaceID
+      && cluster.clusterID === current.cluster.clusterID) {
       return
     }
+    cluster.spaceID = current.space.spaceID
     setCurrent({
       cluster
     })
     const { pathname } = window.location
-    message.success(`集群已成功切换到 ${cluster.clusterName}`)
+    let msg = `集群已成功切换到 ${cluster.clusterName}`
+    if (current.cluster.spaceID !== current.space.spaceID) {
+      msg = `空间已成功切换到 ${current.space.spaceName}，${msg}`
+    }
+    message.success(msg)
     if (pathname.match(/\//g).length > 2) {
       browserHistory.push('/')
     }
@@ -130,10 +139,10 @@ class Header extends Component {
   componentWillMount() {
     const { loadTeamClustersList, setCurrent } = this.props
     const config = getCookie(USER_CURRENT_CONFIG)
-    const [teamID, spaceID, clusterID] = config.split(',')
+    const [teamID, namespace, clusterID] = config.split(',')
     setCurrent({
       team: { teamID },
-      space: { spaceID },
+      space: { namespace },
       cluster: { clusterID },
     })
     const self = this
@@ -141,14 +150,15 @@ class Header extends Component {
       success: {
         func: (resultT) => {
           let defaultSpace = resultT.teamspaces[0] || {}
-          if (spaceID === 'default') {
+          if (namespace === 'default') {
             defaultSpace = {
               spaceName: '我的空间',
-              teamID
+              namespace: 'default',
+              teamID,
             }
           } else {
             resultT.teamspaces.map(space => {
-              if (space.spaceID === spaceID) {
+              if (space.namespace === namespace) {
                 defaultSpace = space
               }
             })
@@ -159,6 +169,9 @@ class Header extends Component {
           loadTeamClustersList(defaultSpace.teamID, { size: 100 }, {
             success: {
               func: (resultC) => {
+                if (!resultC.data) {
+                  resultC.data = []
+                }
                 let defaultCluster = resultC.data[0] || {}
                 resultC.data.map(cluster => {
                   if (cluster.clusterID === clusterID) {

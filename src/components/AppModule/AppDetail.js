@@ -21,6 +21,7 @@ import { formatDate } from '../../common/tools'
 import { loadAppDetail } from '../../actions/app_manage'
 import { browserHistory } from 'react-router'
 import AppStatus from '../TenxStatus/AppStatus'
+import { parseAppDomain } from '../parseDomain'
 
 const DEFAULT_TAB = '#service'
 
@@ -87,6 +88,7 @@ class AppDetail extends Component {
     if (app && app.services && app.services[0]) {
       updateDate = app.services[0].metadata.creationTimestamp
     }
+    const domains = parseAppDomain(app, this.props.bindingDomains)
     return (
       <div id="AppDetail">
         <QueueAnim className="demo-content"
@@ -198,6 +200,7 @@ function mapStateToProps(state, props) {
   const { app, isFetching } = appDetail || defaultServices
   return {
     cluster: cluster.clusterID,
+    bindingDomains: state.entities.current.cluster.bindingDomains,
     appName: app_name,
     app,
     isFetching,

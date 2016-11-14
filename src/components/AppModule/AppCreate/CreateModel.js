@@ -40,19 +40,19 @@ class CreateModel extends Component {
     const { loadUserTeamspaceList, form, current } = this.props
     loadUserTeamspaceList('default', { size: 100 })
     form.setFieldsValue({
-      'spaceFormCheck': current.space.spaceID,
+      'spaceFormCheck': current.space.namespace,
       'clusterFormCheck': current.cluster.clusterID,
     })
   }
 
   componentWillReceiveProps(nextProps) {
     const { form, current, loadTeamClustersList } = nextProps
-    if (current.space.spaceID === this.props.current.space.spaceID && current.cluster.clusterID === this.props.current.cluster.clusterID) {
+    if (current.space.namespace === this.props.current.space.namespace && current.cluster.clusterID === this.props.current.cluster.clusterID) {
       return
     }
     loadTeamClustersList(current.space.teamID)
     form.setFieldsValue({
-      'spaceFormCheck': current.space.spaceID,
+      'spaceFormCheck': current.space.namespace,
       'clusterFormCheck': current.cluster.clusterID,
     })
   }
@@ -108,7 +108,7 @@ class CreateModel extends Component {
   handleSpaceChange(value) {
     const { teamspaces, loadTeamClustersList, setCurrent, form, current } = this.props
     teamspaces.map(space => {
-      if (space.spaceID === value) {
+      if (space.namespace === value) {
         setCurrent({
           space,
           team: {
@@ -224,7 +224,7 @@ class CreateModel extends Component {
                       {
                         teamspaces.map(space => {
                           return (
-                            <Option value={space.spaceID}>
+                            <Option value={space.namespace}>
                               {space.spaceName}
                             </Option>
                           )
