@@ -22,7 +22,7 @@ function codeRepo(state = {}, action) {
     case ActionTypes.GET_REPOS_LIST_REQUEST:
       return merge({}, defaultState, state, { isFetching: true })
     case ActionTypes.GET_REPOS_LIST_SUCCESS:
-      return merge({}, state, {
+      return Object.assign({}, state, {
         isFetching: false,
         repoList: action.response.result.data.results,
         bak: action.response.result.data.results
@@ -42,13 +42,6 @@ function codeRepo(state = {}, action) {
         bak: null
       })
     case ActionTypes.DELETE_REPOS_LIST_FAILURE:
-      return merge({}, state, { isFetching: false })
-    // registry
-    case ActionTypes.REGISTRY_CODE_REPO_REQUEST:
-      return merge({}, defaultState, state, { isFetching: false })
-    case ActionTypes.REGISTRY_CODE_REPO_SUCCESS:
-      return merge({}, state, { isFetching: false })
-    case ActionTypes.REGISTRY_CODE_REPO_FAILURE:
       return merge({}, state, { isFetching: false })
 
     // search 
@@ -104,7 +97,7 @@ function getProject(state = {}, action) {
     case ActionTypes.GET_CODE_STORE_REQUEST:
       return merge({}, defaultState, state, { isFetching: true })
     case ActionTypes.GET_CODE_STORE_SUCCESS:
-      return merge({}, state, {
+      return Object.assign({}, state, {
         isFetching: false,
         projectList: action.response.result.data.results,
         bak: action.response.result.data.results

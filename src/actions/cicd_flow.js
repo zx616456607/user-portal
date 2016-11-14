@@ -92,7 +92,7 @@ function fetchAddCodeRepo(type, obj, callback) {
           name: obj.name,
           source_full_name: obj.name,
           repo_type:type,
-          address: obj.sshUrl,
+          address: obj.private ? obj.sshUrl : obj.cloneUrl,
           gitlab_project_id: obj.projectId,
           is_private:obj.private ? 1 : 0
         }
