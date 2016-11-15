@@ -85,7 +85,6 @@ let MyComponent = React.createClass({
     let { flowId } = item;
     const { scope } = this.props;
     const { deleteTenxFlowSingle, getTenxFlowList } = scope.props;
-    console.log(scope.props)
     switch(key) {
       case 'deleteFlow':
         deleteTenxFlowSingle(flowId, {
