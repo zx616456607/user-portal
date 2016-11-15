@@ -62,6 +62,9 @@ const menusText = defineMessages({
 })
 
 function checkEmailType(emailList, scope, type) {
+  if(!Boolean(emailList)) {
+    return '';
+  }
   if(emailList.split(',').length > 1) {
     if(type != 'init') {     
       scope.setState({
@@ -102,6 +105,9 @@ let TenxFlowDetailAlert = React.createClass({
     document.title = 'TenxFlow | 时速云';
     const { notify } = this.props;
     let flag = !!notify;
+    if(notify == 'null') {
+      flag = false;
+    }
     this.setState({
       emailAlert: flag
     });
