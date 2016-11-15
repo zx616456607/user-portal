@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Tooltip, Badge, Timeline,Icon,Row,Col } from 'antd'
+import { Tooltip, Badge, Timeline,Icon,Row,Col,Popover } from 'antd'
 import './style/TipSvcDomain.less'
 
 class SvcTip extends Component {
@@ -23,7 +23,7 @@ class SvcTip extends Component {
       )
     })
     return (
-      <div className='Tip'>
+      <div className='SvcTip'>
         <ul>
           { item }
         </ul>
@@ -46,21 +46,22 @@ class AppTip extends Component {
         )
       } else if (item.data.length === 1) {
         return (
-          <Row className="firstSvc">
-            <Col style={{display:'inline-block'}}>{ item.name }</Col>
-            <Col style={{display:'inline-block'}} className='urlFirstItem'>
-              { item.data[0] }
-            </Col>
-          </Row>
+          <div>
+            <Row className="firstSvc">
+              <Col style={{display:'inline-block'}}>{ item.name }</Col>
+            </Row>
+            <Row className="svcItem">
+              <Col style={{display:'inline-block'}} className='urlItem'>
+                { item.data[0] }
+              </Col>
+            </Row>
+          </div>
         )
       } else {
         return (
           <div>
             <Row className="firstSvc">
               <Col style={{display:'inline-block'}}>{ item.name }</Col>
-              <Col style={{display:'inline-block'}} className='urlFirstItem'>
-                { item.data[0] }
-              </Col>
             </Row>
             {
               item.data.map((url,index) => {
@@ -69,7 +70,6 @@ class AppTip extends Component {
                 } else {
                   return (
                     <Row className="svcItem">
-                      <Col style={{display:'inline-block'}}/>
                       <Col style={{display:'inline-block'}} className='urlItem'>
                         { url }
                       </Col>
@@ -83,7 +83,7 @@ class AppTip extends Component {
       }
     })
     return (
-      <div id='AppTip'>
+      <div className='AppTip'>
         { item }
       </div>
     )
@@ -125,9 +125,13 @@ export default class TipSvcDomain extends Component{
         return (
           <div id='TipSvcDomain'>
             <a target="_blank" href={svcDomain[0]}>{svcDomain[0]}</a>
-            <Tooltip placement="right" title={ (<SvcTip svcDomain={svcDomain} />) }>
-              <div className="more"><Icon type="ellipsis" style={{transform: 'scale(.7)'}}/></div>
-            </Tooltip>
+              <Popover placement="right"
+                       content={<SvcTip svcDomain={svcDomain} />}
+                       trigger="click"
+                       getTooltipContainer={() => document.getElementById('TipSvcDomain')}
+                       arrowPointAtCenter={true}>
+                <div className="more"><Icon type="ellipsis" style={{transform: 'scale(.7)'}}/></div>
+              </Popover>
           </div>
         )
       }
@@ -143,11 +147,13 @@ export default class TipSvcDomain extends Component{
         return (
         <div id='TipAppDomain'>
           <a target="_blank">{appDomain[0].data[0]}</a>
-          <Tooltip placement="right" title={<AppTip appDomain={appDomain}/>}
+          <Popover placement="right"
+                   content={<AppTip appDomain={appDomain}/>}
+                   trigger="click"
                    getTooltipContainer={() => document.getElementById('TipAppDomain')}
                    arrowPointAtCenter={true}>
             <div className="more"><Icon type="ellipsis" style={{transform: 'scale(.7)'}}/></div>
-          </Tooltip>
+          </Popover>
         </div>
         )
       }
