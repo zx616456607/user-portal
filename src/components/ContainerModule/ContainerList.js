@@ -169,7 +169,7 @@ const MyComponent = React.createClass({
           </div>
           <div className='actionBox commonData'>
             <Dropdown.Button
-              overlay={dropdown} type='ghost'
+              overlay={dropdown} type='ghost' size='large'
               onClick={this.openTerminalModal.bind(this, item)}>
               <svg className='terminal'>
                 <use xlinkHref='#terminal' />
@@ -233,7 +233,7 @@ class ContainerList extends Component {
     this.setState({
       containerList
     })
-    if (currentCluster.clusterID !== this.props.currentCluster.clusterID || currentCluster.spaceID !== this.props.currentCluster.spaceID) {
+    if (currentCluster.clusterID !== this.props.currentCluster.clusterID || currentCluster.namespace !== this.props.currentCluster.namespace) {
       loadData(nextProps)
       return
     }
@@ -399,6 +399,7 @@ class ContainerList extends Component {
               </div>
               <div className='littleRight'>
                 <Input
+                  size='large'
                   onChange={(e) => {
                     this.setState({
                       searchInputValue: e.target.value

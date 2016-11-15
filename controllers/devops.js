@@ -590,3 +590,16 @@ exports.listDeploymentLogsOfFlow = function* () {
     data: result
   }
 }
+
+//flow build
+exports.getBuildLog = function* () {
+  const loginUser = this.session.loginUser
+  const flow_id = this.params.flow_id
+  
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.getBy(["ci-flows", flow_id, "builds"], null)
+  
+  this.body = {
+    data: result
+  }
+}

@@ -133,7 +133,7 @@ exports.getUserTeamspaces = function* () {
   const loginUser = this.session.loginUser
   const query = this.query || {}
  
-  this.body = getUserTeamspacesImpl(userID, loginUser, query, false)
+  this.body = yield getUserTeamspacesImpl(userID, loginUser, query, false)
 }
 
 exports.getUserTeamspacesWithDetail = function* () {

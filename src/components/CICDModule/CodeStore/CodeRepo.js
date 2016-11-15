@@ -1,20 +1,20 @@
- /**
- * Licensed Materials - Property of tenxcloud.com
- * (C) Copyright 2016 TenxCloud. All Rights Reserved.
- *
- * codeRepo component
- *
- * v0.1 - 2016-10-31
- * @author BaiYu
- */
+/**
+* Licensed Materials - Property of tenxcloud.com
+* (C) Copyright 2016 TenxCloud. All Rights Reserved.
+*
+* codeRepo component
+*
+* v0.1 - 2016-10-31
+* @author BaiYu
+*/
 import React, { Component, PropTypes } from 'react'
-import { Alert,Icon, Menu, Button, Card, Input, Tabs , Tooltip,message, Dropdown, Modal, Spin } from 'antd'
+import { Alert, Icon, Menu, Button, Card, Input, Tabs, Tooltip, message, Dropdown, Modal, Spin } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import './style/CodeRepo.less'
-import { getRepoList , addCodeRepo , notActiveProject, deleteRepo , registryRepo ,syncRepoList, searchCodeRepo , getUserInfo} from '../../../actions/cicd_flow'
+import { getRepoList, addCodeRepo, notActiveProject, deleteRepo, registryRepo, syncRepoList, searchCodeRepo, getUserInfo } from '../../../actions/cicd_flow'
 
 const TabPane = Tabs.TabPane
 
@@ -58,20 +58,16 @@ const menusText = defineMessages({
 })
 
 const MyComponent = React.createClass({
-  propTypes: { 
+  propTypes: {
   },
   getInitialState() {
-    return { 
-      copySuccess: false ,keyModal: false,
+    return {
+      copySuccess: false, keyModal: false,
       regUrl: '',
-      regToken:''
+      regToken: ''
     }
   },
-  componentWillMount() {
-    const types = this.props.scope.state.repokey
-    this.props.scope.props.getUserInfo(types)
-  },
- copyItemKey() {
+  copyItemKey() {
     const scope = this;
     let code = document.getElementsByClassName("KeyCopy");
     code[0].select();
@@ -80,10 +76,16 @@ const MyComponent = React.createClass({
       copySuccess: true
     });
   },
-  addBuild(item) {
-    this.props.scope.props.addCodeRepo('gitlab',item, {
+  addBuild(item, index) {
+    const parentScope = this.props.scope
+    const loadingList  = {} 
+    loadingList[index] = true
+    parentScope.setState({
+      loadingList
+    })
+    parentScope.props.addCodeRepo('gitlab', item, {
       success: {
-        func: ()=>{
+        func: () => {
           message.success('激活成功')
         }
       }
@@ -98,11 +100,11 @@ const MyComponent = React.createClass({
       onOk() {
         scope.props.deleteRepo(repoItem)
       },
-      onCancel() {},
+      onCancel() { },
     });
   },
   registryRepo() {
-    const url= this.state.regUrl
+    const url = this.state.regUrl
     const token = this.state.regToken
     if (!url) {
       message.info('地址不能为空')
@@ -117,14 +119,17 @@ const MyComponent = React.createClass({
       token,
       type: this.props.scope.state.repokey
     }
+    this.setState({
+      loading: true
+    })
     const self = this
     this.props.scope.props.registryRepo(config, {
       success: {
-        func: ()=> {
+        func: () => {
           self.setState({
             authorizeModal: false,
-            regUrl:'',
-            regToken:''
+            regUrl: '',
+            regToken: ''
           })
           self.props.scope.props.getRepoList(config.type)
           self.props.scope.props.getUserInfo(config.type)
@@ -144,28 +149,34 @@ const MyComponent = React.createClass({
   },
   changeSearch(e) {
     const codeName = e.target.value
-    if (codeName =='') {
+    if (codeName == '') {
       const parentScope = this.props.scope
       parentScope.props.searchCodeRepo(codeName)
     }
   },
-  notActive(id) {
-    this.props.scope.props.notActiveProject(id,{
+  notActive(id, index) {
+    const parentScope = this.props.scope
+    const loadingList  = {} 
+    loadingList[index] = false
+    parentScope.setState({
+      loadingList
+    })
+    parentScope.props.notActiveProject(id, {
       success: {
-        func: ()=>{
+        func: () => {
           message.success('撤消成功')
         }
       }
     })
   },
   changeUrl(e) {
-    this.setState({regUrl: e.target.value})
+    this.setState({ regUrl: e.target.value })
   },
   changeToken(e) {
-    this.setState({regToken: e.target.value})
+    this.setState({ regToken: e.target.value })
   },
   render: function () {
-    const { config, scope , formatMessage, isFetching} = this.props
+    const { config, scope, formatMessage, isFetching} = this.props
     if (isFetching) {
       return (
         <div className='loadingBox'>
@@ -175,15 +186,19 @@ const MyComponent = React.createClass({
     }
     if (!config) {
       return (
-        <div style={{lineHeight:'150px', paddingLeft:'250px'}}>
-          <Button type="primary" size="large" onClick={()=>this.setState({authorizeModal: true})}>授权同步代码源</Button>
-          <Modal title="授权同步代码源" visible={this.state.authorizeModal} onOk={()=>this.registryRepo() } onCancel={()=>this.setState({authorizeModal: false})}
-          >
-            <div style={{padding:"0 20px"}}>
-              <p style={{lineHeight:'30px'}}>仓库地址：
+        <div style={{ lineHeight: '150px', paddingLeft: '250px' }}>
+          <Button type="primary" size="large" onClick={() => { this.setState({ authorizeModal: true }) } }>授权同步代码源</Button>
+          <Modal title="授权同步代码源" visible={this.state.authorizeModal}
+            footer={[
+              <Button key="back" type="ghost" size="large" onClick={() => { this.setState({ authorizeModal: false }) } }>取消</Button>,
+              <Button key="submit" type="primary" size="large" loading={this.state.loading} onClick={() => this.registryRepo()}>确定</Button>,
+            ]}
+            >
+            <div style={{ padding: "0 20px" }}>
+              <p style={{ lineHeight: '30px' }}>仓库地址：
                 <Input placeholder="http://*** | https://***" onChange={this.changeUrl} value={this.state.regUrl} size="large" />
               </p>
-              <p style={{lineHeight:'30px'}}>Private Token: 
+              <p style={{ lineHeight: '30px' }}>Private Token:
                 <Input placeholder="Private Token: " size="large" onChange={this.changeToken} value={this.state.regToken} />
               </p>
             </div>
@@ -191,20 +206,20 @@ const MyComponent = React.createClass({
         </div>
       )
     }
-    let items = config.map((item) => {
+    let items = config.map((item, index) => {
       return (
         <div className='CodeTable' key={item.name} >
           <div className="name textoverflow">{item.name}</div>
           <div className="type">{item.type == false ? "public" : "private"}</div>
           <div className="action">
-            {(item.managedProject && item.managedProject.active ==1) ? 
+            {(item.managedProject && item.managedProject.active == 1) ?
               <span><Button type="ghost" disabled>已激活</Button>
-              <a onClick={()=>this.notActive(item.managedProject.id)} style={{marginLeft:'15px'}}>撤销</a></span>
-            :
-            <Tooltip placement="right" title="可构建项目">
-              <Button type="ghost" onClick={()=>this.addBuild(item)} >激活</Button>
-            </Tooltip>
-          }
+                <a onClick={() => this.notActive(item.managedProject.id, index)} style={{ marginLeft: '15px' }}>撤销</a></span>
+              :
+              <Tooltip placement="right" title="可构建项目">
+                <Button type="ghost" loading={scope.state.loadingList ? scope.state.loadingList[index] : false} onClick={() => this.addBuild(item, index)} >激活</Button>
+              </Tooltip>
+            }
           </div>
 
         </div>
@@ -213,21 +228,21 @@ const MyComponent = React.createClass({
     return (
       <div className='codelink'>
         <div className="tableHead">
-          <Icon type="user" /> {this.props.repoUser.username}
+          <Icon type="user" /> {this.props.repoUser ? this.props.repoUser.username : ''}
           <Tooltip placement="top" title={formatMessage(menusText.logout)}>
-            <Icon type="logout" onClick={()=>this.removeRepo()} style={{margin:'0 20px'}}/>
+            <Icon type="logout" onClick={() => this.removeRepo()} style={{ margin: '0 20px' }} />
           </Tooltip>
           <Tooltip placement="top" title={formatMessage(menusText.syncCode)}>
             <Icon type="reload" onClick={this.syncRepoList} />
           </Tooltip>
           <div className="right-search">
-            <Input className='searchBox' size="large" onChange={(e)=>this.changeSearch(e)} onPressEnter={(e)=> this.handleSearch(e)} style={{width:'180px'}} placeholder={formatMessage(menusText.search)} type='text' />
+            <Input className='searchBox' size="large" onChange={(e) => this.changeSearch(e)} onPressEnter={(e) => this.handleSearch(e)} style={{ width: '180px' }} placeholder={formatMessage(menusText.search)} type='text' />
             <i className='fa fa-search'>  </i>
           </div>
         </div>
         {/*  @project  Head end    */}
-        
-        { items }
+
+        {items}
 
       </div>
     );
@@ -245,8 +260,25 @@ class CodeRepo extends Component {
   componentWillMount() {
     document.title = '关联代码库 | 时速云';
     const {getRepoList } = this.props
-    getRepoList('gitlab')
-  
+    const self = this
+    getRepoList('gitlab', {
+      success: {
+        func: (res) => {
+          if (res.data.total > 0) {
+            let loadingList = {}
+            self.props.getUserInfo('gitlab')
+            for (let i = 0; i < res.data.results.length; i++) {
+              loadingList[i] = false
+            }
+            self.setState({
+              loadingList
+            })
+          }
+        },
+        isAsync: true
+      }
+    })
+
   }
 
   render() {
@@ -291,8 +323,8 @@ class CodeRepo extends Component {
           </div>
           <div>
             <div className="card-container">
-              <p style={{paddingLeft:'36px', lineHeight:'40px'}}>选择代码源</p>
-              <Tabs type="card" onChange={(e)=>this.setState({repokey: e})}>
+              <p style={{ paddingLeft: '36px', lineHeight: '40px' }}>选择代码源</p>
+              <Tabs type="card" onChange={(e) => { this.setState({ repokey: e }) } }>
                 <TabPane tab={gitlabBud} key="gitlab"><MyComponent formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} repoUser={this.props.repoUser} config={this.props.repoList} /></TabPane>
               </Tabs>
             </div>
@@ -309,10 +341,10 @@ function mapStateToProps(state, props) {
     repoList: [],
     isFetching: false
   }
-  const { codeRepo , userInfo} = state.cicd_flow
+  const { codeRepo, userInfo} = state.cicd_flow
   const defaultUser = {
-    username:'',
-    depot:''
+    username: '',
+    depot: ''
   }
   const { repoList, isFetching } = codeRepo || defaultValue
   const { repoUser } = userInfo || defaultUser
@@ -330,7 +362,7 @@ CodeRepo.propTypes = {
   deleteRepo: PropTypes.func.isRequired
 }
 
-export default connect(mapStateToProps,{
+export default connect(mapStateToProps, {
   getRepoList,
   addCodeRepo,
   deleteRepo,

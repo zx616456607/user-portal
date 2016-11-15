@@ -200,16 +200,24 @@ let CreateTenxFlowModal = React.createClass({
   },
   flowNameExists(rule, value, callback) {
     //this function for check the new tenxflow name is exist or not
-    if (!value) {
-      callback();
+    const { stageList } = this.props;
+    if(stageList.length > 0) {      
+      let flag = false;
+      if (!value) {
+        callback();
+      } else {
+        stageList.map((item) => {
+          if(item.metadata.name == value) {
+            flag = true;
+            callback([new Error('项目名称已经存在了哦')]);
+          }
+        });
+      }
+      if(!flag) {
+        callback();
+      }
     } else {
-      setTimeout(() => {
-        if (value === 'tenxflow') {
-          callback([new Error('抱歉，该名称已存在。')]);
-        } else {
-          callback();
-        }
-      }, 800);
+      callback();
     }
   },
   imageNameExists(rule, value, callback) {
@@ -560,7 +568,7 @@ let CreateTenxFlowModal = React.createClass({
   },
   render() {
     const { formatMessage } = this.props.intl;
-    const { form, codeList } = this.props;
+    const { form, codeList, stageList } = this.props;
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form;
     const scopeThis = this;
     getFieldProps('services', {

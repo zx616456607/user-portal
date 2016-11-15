@@ -33,8 +33,6 @@ function codeRepo(state = {}, action) {
         repoList: null
       })
     // delete
-    case ActionTypes.DELETE_REPOS_LIST_REQUEST:
-      return merge({}, defaultState, state, { isFetching: true })
     case ActionTypes.DELETE_REPOS_LIST_SUCCESS:
       return ({
         isFetching: false,
@@ -431,6 +429,31 @@ function getTenxflowCIRules(state = {}, action) {
   }
 }
 
+function getTenxflowBuildLogs(state = {}, action) {
+  const defaultState = {
+    isFetching: false,
+    logs: []
+  }
+  switch (action.type) {
+    case ActionTypes.GET_FLOW_BUILD_LOG_REQUEST:
+      return merge({}, defaultState, state, {
+        isFetching: true
+      })
+    case ActionTypes.GET_FLOW_BUILD_LOG_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        logs: action.response.result.data.results.results || []
+      }
+      )
+    case ActionTypes.GET_FLOW_BUILD_LOG_FAILURE:
+      return merge({}, defaultState, state, {
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
+
 export default function cicd_flow(state = {}, action) {
   return {
     codeRepo: codeRepo(state.codeRepo, action),
@@ -442,6 +465,7 @@ export default function cicd_flow(state = {}, action) {
     deployLog:　deployLog(state.deployLog, action),
     getCdRules: getCdRules(state.getCdRules, action), 
     getTenxflowCIRules: getTenxflowCIRules(state.getTenxflowCIRules, action), 
+    getTenxflowBuildLogs: getTenxflowBuildLogs(state.getTenxflowBuildLogs, action), 
     UpdateTenxflowCIRules: reducerFactory({
       REQUEST: ActionTypes.UPDATE_FLOW_CI_RULES_REQUEST,
       SUCCESS: ActionTypes.UPDATE_FLOW_CI_RULES_SUCCESS,

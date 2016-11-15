@@ -357,6 +357,7 @@
   "CICD.Tenxflow.TenxFlowDetailFlowCard.logBtn": "执行记录",
   "CICD.Tenxflow.TenxFlowDetailFlowCard.restartBtn": "重启",
   "CICD.Tenxflow.TenxFlowDetailFlowCard.editBtn": "编辑项目",
+  "CICD.Tenxflow.TenxFlowDetailFlowCard.deleteBtn": "删除项目",
   "CICD.Tenxflow.TenxFlowDetailFlow.title": "部署记录",
   "CICD.Tenxflow.TenxFlowDetailFlow.tooltip": "TenxFlow流程定义，这里您可以定义一系列构建所需要的项目执行过程，可以是代码构建，亦或是开发自测，也可以是自动化集成、并实现自动化部署的一个All-In-One Platform",
   "CICD.Tenxflow.TenxFlowDetailFlow.add": "添加Flow项目",
@@ -449,7 +450,7 @@
 
   "ManageMonitor.QueryLog.headTitle": "日志查询 | 时速云",
   "ManageMonitor.QueryLog.title": "日志查询",
-  "ManageMonitor.QueryLog.user": "用户：",
+  "ManageMonitor.QueryLog.user": "空间：",
   "ManageMonitor.QueryLog.selectUser": "选择用户",
   "ManageMonitor.QueryLog.cluster": "集群：",
   "ManageMonitor.QueryLog.selectCluster": "选择集群",

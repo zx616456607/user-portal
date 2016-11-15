@@ -13,7 +13,7 @@ import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { getTenxFlowList, deleteTenxFlowSingle } from '../../../actions/cicd_flow'
+import { getTenxFlowList, deleteTenxFlowSingle, getTenxflowBuildLogs } from '../../../actions/cicd_flow'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import CreateTenxFlow from './CreateTenxFlow.js'
 import TestModal from '../../TerminalModal'
@@ -85,7 +85,6 @@ let MyComponent = React.createClass({
     let { flowId } = item;
     const { scope } = this.props;
     const { deleteTenxFlowSingle, getTenxFlowList } = scope.props;
-    console.log(scope.props)
     switch(key) {
       case 'deleteFlow':
         deleteTenxFlowSingle(flowId, {
@@ -146,7 +145,7 @@ let MyComponent = React.createClass({
             <span>{ '-' }</span>
           </div>
           <div className='oprea'>
-            <Button className='logBtn' size='large' type='primary' onClick={scope.openTenxFlowDeployLogModal}>
+            <Button className='logBtn' size='large' type='primary' onClick={scope.openTenxFlowDeployLogModal.bind(scope, item.flowId)}>
               <i className='fa fa-wpforms' />&nbsp;
               <FormattedMessage {...menusText.deloyLog} />
             </Button>
@@ -200,8 +199,10 @@ class TenxFlowList extends Component {
     });
   }
 
-  openTenxFlowDeployLogModal() {
+  openTenxFlowDeployLogModal(flowId) {
     //this function for user open the modal of tenxflow deploy log
+    const { getTenxflowBuildLogs } = this.props;
+    getTenxflowBuildLogs(flowId)
     this.setState({
       TenxFlowDeployLogModal: true
     });
@@ -217,7 +218,7 @@ class TenxFlowList extends Component {
   render() {
     const { formatMessage } = this.props.intl;
     const scope = this;
-    const { isFetching, flowList } = this.props;
+    const { isFetching, flowList, buildFetching, logs } = this.props;
     return (
       <QueueAnim className='TenxFlowList'
         type='right'
@@ -257,14 +258,14 @@ class TenxFlowList extends Component {
           transitionName='move-right'
           onCancel={this.closeCreateTenxFlowModal}
           >
-          <CreateTenxFlow scope={scope} />
+          <CreateTenxFlow scope={scope} isFetching={isFetching} flowList={flowList} />
         </Modal>
         <Modal
           visible={this.state.TenxFlowDeployLogModal}
           className='TenxFlowBuildLogModal'
           onCancel={this.closeTenxFlowDeployLogModal}
           >
-          <TenxFlowBuildLog scope={scope} />
+          <TenxFlowBuildLog scope={scope} isFetching={buildFetching} logs={logs}/>
         </Modal>
       </QueueAnim>
     )
@@ -274,13 +275,22 @@ class TenxFlowList extends Component {
 function mapStateToProps(state, props) {
   const defaultFlowList= {
     isFetching: false,
-    flosList: [],
+    flowList: [],
+  }
+  const defaultBuildLog = {
+    buildFetching: false,
+    logs: [],
   }
   const { getTenxflowList } = state.cicd_flow
   const { isFetching, flowList } = getTenxflowList || defaultFlowList
+  const { getTenxflowBuildLogs } = state.cicd_flow
+  const { logs } = getTenxflowBuildLogs || defaultBuildLog
+  let buildFetching = getTenxflowBuildLogs.isFetching || defaultBuildLog.buildFetching
   return {
     isFetching,
-    flowList
+    flowList,
+    buildFetching,
+    logs
   }
 }
 
@@ -290,7 +300,8 @@ TenxFlowList.propTypes = {
 
 export default connect(mapStateToProps, {
   getTenxFlowList,
-  deleteTenxFlowSingle
+  deleteTenxFlowSingle,
+  getTenxflowBuildLogs
 })(injectIntl(TenxFlowList, {
   withRef: true,
 }));

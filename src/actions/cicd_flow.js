@@ -17,19 +17,20 @@ export const GET_REPOS_LIST_REQUEST = 'GET_REPOS_LIST_REQUEST'
 export const GET_REPOS_LIST_SUCCESS = 'GET_REPOS_LIST_SUCCESS'
 export const GET_REPOS_LIST_FAILURE = 'GET_REPOS_LIST_FAILURE'
 
-function fetchCodeStormList(types) {
+function fetchCodeStormList(types, callback) {
   return {
     [FETCH_API]: {
       types: [GET_REPOS_LIST_REQUEST, GET_REPOS_LIST_SUCCESS, GET_REPOS_LIST_FAILURE],
       endpoint: `${API_URL_PREFIX}/devops/repos/${types}`,
       schema: {}
-    }
+    },
+    callback
   }
 }
 
-export function getRepoList (types) {
+export function getRepoList (types, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchCodeStormList(types))
+    return dispatch(fetchCodeStormList(types, callback))
   }
 }
 
@@ -824,5 +825,26 @@ function putUpdateTenxflowCIRules(flowId, body, callback) {
 export function UpdateTenxflowCIRules(flowId, body, callback) {
   return (dispatch, getState) => {
     return dispatch(putUpdateTenxflowCIRules(flowId, body, callback))
+  }
+}
+
+export const GET_FLOW_BUILD_LOG_REQUEST = 'GET_FLOW_BUILD_LOG_REQUEST'
+export const GET_FLOW_BUILD_LOG_SUCCESS = 'GET_FLOW_BUILD_LOG_SUCCESS'
+export const GET_FLOW_BUILD_LOG_FAILURE = 'GET_FLOW_BUILD_LOG_FAILURE'
+
+function fetchTenxflowBuildLogs(flowId, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_FLOW_BUILD_LOG_REQUEST, GET_FLOW_BUILD_LOG_SUCCESS, GET_FLOW_BUILD_LOG_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/getBuildLogs`,
+      schema: {}
+    },
+    callback: callback
+  }
+}
+
+export function getTenxflowBuildLogs(flowId, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchTenxflowBuildLogs(flowId, callback))
   }
 }
