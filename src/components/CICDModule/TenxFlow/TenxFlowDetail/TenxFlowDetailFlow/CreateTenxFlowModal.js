@@ -14,7 +14,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../../constants'
-import { createTenxFlowState } from '../../../../../actions/cicd_flow'
+import { createTenxFlowState, createDockerfile } from '../../../../../actions/cicd_flow'
 import './style/CreateTenxFlowModal.less'
 import EnvComponent from './EnvComponent.js'
 import CodeStoreListModal from './CodeStoreListModal.js'
@@ -168,6 +168,10 @@ const menusText = defineMessages({
   dockerFileTitle: {
     id: 'CICD.Tenxflow.CreateTenxFlowModal.dockerFileTitle',
     defaultMessage: '创建Docker File',
+  },
+  noDockerFileInput: {
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.noDockerFileInput',
+    defaultMessage: 'Docker File不能为空',
   }
 });
 
@@ -176,7 +180,7 @@ let shellUid = 0;
 let CreateTenxFlowModal = React.createClass({
   getInitialState: function() {
     return {
-      otherFlowType: '5',
+      otherFlowType: '3',
       useDockerfile: false,
       otherTag: false,
       envModalShow: null,
@@ -187,7 +191,8 @@ let CreateTenxFlowModal = React.createClass({
       noSelectedCodeStore: false,
       currentCodeStoreBranch: null,
       dockerFileModalShow: false,
-      dockerFileTextarea: null
+      dockerFileTextarea: null,
+      noDockerfileInput: false
     }
   },
   componentWillMount() {
@@ -195,16 +200,24 @@ let CreateTenxFlowModal = React.createClass({
   },
   flowNameExists(rule, value, callback) {
     //this function for check the new tenxflow name is exist or not
-    if (!value) {
-      callback();
+    const { stageList } = this.props;
+    if(stageList.length > 0) {      
+      let flag = false;
+      if (!value) {
+        callback();
+      } else {
+        stageList.map((item) => {
+          if(item.metadata.name == value) {
+            flag = true;
+            callback([new Error('项目名称已经存在了哦')]);
+          }
+        });
+      }
+      if(!flag) {
+        callback();
+      }
     } else {
-      setTimeout(() => {
-        if (value === 'tenxflow') {
-          callback([new Error('抱歉，该名称已存在。')]);
-        } else {
-          callback();
-        }
-      }, 800);
+      callback();
     }
   },
   imageNameExists(rule, value, callback) {
@@ -239,10 +252,10 @@ let CreateTenxFlowModal = React.createClass({
   },
   flowTypeChange(e) {
     //this function for user change the tenxflow type
-    if(e != '6') {
+    if(e != '5') {
       this.props.form.resetFields(['otherFlowType']);
     }
-    if(e != '5') {
+    if(e != '3') {
       this.props.form.resetFields(['imageRealName', 'dockerFileUrl', 'otherStoreUrl', 'otherTag', 'imageType', 'imageTag', 'buildCache']);
       this.setState({
         useDockerfile: false,
@@ -334,15 +347,8 @@ let CreateTenxFlowModal = React.createClass({
   realImageInput (rule, value, callback) {
     //this function for user selected build image type
     //and when user submit the form, the function will check the real image input or not 
-    if (this.state.otherFlowType == '5' && !!!value) {
+    if (this.state.otherFlowType == '3' && !!!value) {
       callback([new Error('请输入镜像名称')]);
-    } else {
-      callback();
-    }
-  },
-  dockerfileTextareaInput(rule, value, callback) {
-    if (!this.state.useDockerfile && !!!value) {
-      callback([new Error('请输入docker file')]);
     } else {
       callback();
     }
@@ -425,7 +431,7 @@ let CreateTenxFlowModal = React.createClass({
   },
   handleSubmit(e) {
     //this function for user submit the form
-    const { scope, createTenxFlowState, flowId, stageInfo } = this.props;
+    const { scope, createTenxFlowState, flowId, stageInfo, createDockerfile } = this.props;
     const { getTenxFlowStateList } = scope.props;
     const _this = this;
     this.props.form.validateFields((errors, values) => {
@@ -436,6 +442,11 @@ let CreateTenxFlowModal = React.createClass({
             noSelectedCodeStore: true
           });
         }
+        if (!Boolean(_this.state.dockerFileTextarea && !this.state.useDockerfile)) {
+          _this.setState({
+            noDockerfileInput: true
+          });
+        }
         return;
       }
       if (!Boolean(_this.state.currentCodeStore)) {
@@ -444,6 +455,12 @@ let CreateTenxFlowModal = React.createClass({
         });
         return;
       }
+      if (!Boolean(_this.state.dockerFileTextarea) && !this.state.useDockerfile) {
+          _this.setState({
+            noDockerfileInput: true
+          });
+          return;
+        }
       //get shell code
       let shellLength = values.shellCodes;
       let shellList = [];
@@ -491,11 +508,11 @@ let CreateTenxFlowModal = React.createClass({
         }
       }
       //if user select the customer type (6), ths customType must be input
-      if(values.flowType == '6') {
+      if(values.flowType == '5') {
         body.metadata.customType = values.otherFlowType;
       }
       //if user select the image build type (5),the body will be add new body
-      if(values.flowType == '5') {
+      if(values.flowType == '3') {
         let dockerFileFrom = _this.state.useDockerfile ? 1 : 2;
         let imageBuildBody = {
           'DockerfileFrom': dockerFileFrom,
@@ -523,7 +540,27 @@ let CreateTenxFlowModal = React.createClass({
       }
       createTenxFlowState(flowId, body, {
         success: {
-          func: () => getTenxFlowStateList(flowId),
+          func: (res) => {
+            if(!_this.state.useDockerfile) {             
+              let dockerfilebody = {
+                content: _this.state.dockerFileTextarea,
+                flowId: flowId,
+                stageId: res.data.results.stageId
+              }
+              createDockerfile(dockerfilebody, {
+                success: {
+                  func: () => {
+                    scope.closeCreateNewFlow();
+                    getTenxFlowStateList(flowId)
+                  },
+                  isAsync: true
+                }
+              })
+            }else{
+              scope.closeCreateNewFlow();
+              getTenxFlowStateList(flowId)
+            }
+          },
           isAsync: true
         }
       });
@@ -531,7 +568,7 @@ let CreateTenxFlowModal = React.createClass({
   },
   render() {
     const { formatMessage } = this.props.intl;
-    const { form, codeList } = this.props;
+    const { form, codeList, stageList } = this.props;
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form;
     const scopeThis = this;
     getFieldProps('services', {
@@ -592,7 +629,7 @@ let CreateTenxFlowModal = React.createClass({
         { required: true, message: '请选择项目类型' },
       ],
       onChange: this.flowTypeChange,
-      initialValue: '5',
+      initialValue: '3',
     });
     const otherFlowTypeProps = getFieldProps('otherFlowType', {
       rules: [
@@ -634,12 +671,6 @@ let CreateTenxFlowModal = React.createClass({
         { validator: this.otherTagInput },
       ],
     });
-    const dockerFileTextareaProps = getFieldProps('dockerfileTextarea', {
-      rules: [
-        { message: '请输入docker file' },
-        { validator: this.dockerfileTextareaInput },
-      ],
-    });
     return (
       <div id='CreateTenxFlowModal' key='CreateTenxFlowModal'>
       <div className='titleBox'>
@@ -647,7 +678,7 @@ let CreateTenxFlowModal = React.createClass({
         <Icon type='cross' onClick={this.cancelChange} />
       </div>
       <Form horizontal>
-        <div className='commonBox'>
+        <div className='commonBox' key='bigForm'>
           <div className='title'>
             <span><FormattedMessage {...menusText.flowType} /></span>
           </div>
@@ -656,14 +687,14 @@ let CreateTenxFlowModal = React.createClass({
               <Select {...flowTypeProps} style={{ width: 120 }}>
                 <Option value='1'><FormattedMessage {...menusText.unitCheck} /></Option>
                 <Option value='2'><FormattedMessage {...menusText.containCheck} /></Option>
-                <Option value='3'><FormattedMessage {...menusText.podToPodCheck} /></Option>
+                <Option value='3'><FormattedMessage {...menusText.buildImage} /></Option>
+                {/*<Option value='3'><FormattedMessage {...menusText.podToPodCheck} /></Option>*/}
                 <Option value='4'><FormattedMessage {...menusText.runningCode} /></Option>
-                <Option value='5'><FormattedMessage {...menusText.buildImage} /></Option>
-                <Option value='6'><FormattedMessage {...menusText.other} /></Option>
+                <Option value='5'><FormattedMessage {...menusText.other} /></Option>
               </Select>
             </FormItem>
             {
-              this.state.otherFlowType == '6' ? [
+              this.state.otherFlowType == '5' ? [
                 <QueueAnim key='otherFlowTypeInput' className='otherFlowTypeInput'>
                   <div key='otherFlowTypeInput'>
                     <FormItem>
@@ -747,8 +778,8 @@ let CreateTenxFlowModal = React.createClass({
           <div style={{ clear:'both' }} />
         </div>
         {
-          this.state.otherFlowType == '5' ? [
-            <QueueAnim className='buildImageForm'>
+          this.state.otherFlowType == '3' ? [
+            <QueueAnim className='buildImageForm' key='buildImageForm'>
               <div className='line'></div>
               <div className='commonBox' key='buildImageFormAnimate'>
                 <div className='title'>
@@ -773,9 +804,11 @@ let CreateTenxFlowModal = React.createClass({
                           {/*<Button type='ghost' size='large' style={{ marginRight:'20px' }}>
                             <FormattedMessage {...menusText.selectDockerFile} />
                           </Button>*/}
-                          <Button type='ghost' size='large' onClick={this.openDockerFileModal}>
+                          <Button className={ this.state.noDockerfileInput ? 'noCodeStoreButton' : null } type='ghost' size='large' 
+                            onClick={this.openDockerFileModal}>
                             <FormattedMessage {...menusText.createNewDockerFile} />
                           </Button>
+                          <span className={ this.state.noDockerfileInput ? 'noCodeStoreSpan CodeStoreSpan' : 'CodeStoreSpan' }><FormattedMessage {...menusText.noDockerFileInput} /></span>
                         </div>
                       </QueueAnim>
                     ] : null
@@ -836,7 +869,7 @@ let CreateTenxFlowModal = React.createClass({
                   </FormItem>
                   {
                     this.state.otherTag ? [
-                      <QueueAnim>
+                      <QueueAnim key='otherTagAnimateBox'>
                         <div key='otherTagAnimate'>
                           <FormItem style={{ width:'220px',float:'left' }}>
                             <Input {...otherImageTagProps} type='text' size='large' />
@@ -907,7 +940,8 @@ CreateTenxFlowModal.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-  createTenxFlowState
+  createTenxFlowState,
+  createDockerfile
 })(injectIntl(CreateTenxFlowModal, {
   withRef: true,
 }));

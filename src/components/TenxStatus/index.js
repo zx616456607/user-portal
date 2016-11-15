@@ -226,7 +226,7 @@ class TenxStatus extends Component {
     if (phase === 'Succeeded') {
       return (
         <div>
-          <FormattedMessage {...messages.Succeeded} /> {moment().fromNow(date)}
+          <FormattedMessage {...messages.Succeeded} /> {moment(date).fromNow()}
         </div>
       )
     }

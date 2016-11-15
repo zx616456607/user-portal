@@ -16,10 +16,9 @@ import './style/ContainerList.less'
 import { loadContainerList, deleteContainers, updateContainerList } from '../../actions/app_manage'
 import { LABEL_APPNAME } from '../../constants'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
-import { tenxDateFormat } from '../../common/tools.js'
+import { calcuDate } from '../../common/tools.js'
 import { browserHistory } from 'react-router'
 import TerminalModal from '../TerminalModal'
-import parseServiceDomain from '../parseDomain'
 import ContainerStatus from '../TenxStatus/ContainerStatus'
 
 const ButtonGroup = Button.Group
@@ -164,13 +163,13 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className='createTime commonData'>
-            <Tooltip placement='topLeft' title={tenxDateFormat(item.metadata.creationTimestamp)}>
-              <span>{tenxDateFormat(item.metadata.creationTimestamp)}</span>
+            <Tooltip placement='topLeft' title={calcuDate(item.metadata.creationTimestamp)}>
+              <span>{calcuDate(item.metadata.creationTimestamp)}</span>
             </Tooltip>
           </div>
           <div className='actionBox commonData'>
             <Dropdown.Button
-              overlay={dropdown} type='ghost'
+              overlay={dropdown} type='ghost' size='large'
               onClick={this.openTerminalModal.bind(this, item)}>
               <svg className='terminal'>
                 <use xlinkHref='#terminal' />
@@ -230,12 +229,11 @@ class ContainerList extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    console.log("componentWillReceiveProps")
-    let { page, size, name, containerList, cluster, sortOrder } = nextProps
+    let { page, size, name, containerList, cluster, sortOrder, currentCluster } = nextProps
     this.setState({
       containerList
     })
-    if (cluster !== this.props.cluster) {
+    if (currentCluster.clusterID !== this.props.currentCluster.clusterID || currentCluster.namespace !== this.props.currentCluster.namespace) {
       loadData(nextProps)
       return
     }
@@ -373,7 +371,6 @@ class ContainerList extends Component {
     const funcs = {
       confirmDeleteContainer: this.confirmDeleteContainer,
     }
-    console.log(1)
     return (
       <QueueAnim
         className='ContainerList'
@@ -402,19 +399,20 @@ class ContainerList extends Component {
               </div>
               <div className='littleRight'>
                 <Input
+                  size='large'
                   onChange={(e) => {
                     this.setState({
                       searchInputValue: e.target.value
                     })
                   } }
                   value={searchInputValue}
-                  placeholder='输入容器名回车搜索'
+                  placeholder='按容器名称搜索'
                   disabled={searchInputDisabled}
                   onPressEnter={this.searchContainers} />
               </div>
             </div>
             <div className='pageBox'>
-              <span className='totalPage'>共{total}条</span>
+              <span className='totalPage'>共 {total}条</span>
               <div className='paginationBox'>
                 <Pagination
                   simple
@@ -480,7 +478,7 @@ class ContainerList extends Component {
           transitionName='move-down'
           onCancel={this.closeTerminalLayoutModal}
           >
-          <TerminalModal scope={parentScope} config={this.state.currentContainer} show={this.state.TerminalLayoutModal}/>
+          <TerminalModal scope={parentScope} config={this.state.currentContainer} show={this.state.TerminalLayoutModal} />
         </Modal>
       </QueueAnim>
     )
@@ -529,6 +527,7 @@ function mapStateToProps(state, props) {
 
   return {
     cluster: cluster.clusterID,
+    currentCluster: cluster,
     pathname,
     page,
     size,

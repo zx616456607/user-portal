@@ -159,7 +159,7 @@ class Slider extends Component {
         <ul className="siderTop">
           <li className="logoItem">
             <Link to="/">
-              <img className="logo" src="/img/sider/logo.svg" />
+              <img className="logo" src="/img/sider/logo@2x.png" />
             </Link>
           </li>
           <li onClick={this.selectModel.bind(this, "1", "#home")} className={currentKey == "1" ? "selectedLi" : ""}>
@@ -208,7 +208,7 @@ class Slider extends Component {
             </Tooltip>
           </li>
           <li onClick={this.selectModel.bind(this, "5", "#system")} className={currentKey == "5" ? "selectedLi" : ""}>
-            <Tooltip placement="right" title="系统集成" getTooltipContainer={() => document.getElementById("siderTooltip")}>
+            <Tooltip placement="right" title="集成中心" getTooltipContainer={() => document.getElementById("siderTooltip")}>
               <Link to="/">
                 <svg className="system commonImg">
                   <use xlinkHref="#system" />

@@ -429,7 +429,7 @@ let NormalDeployBox = React.createClass({
             <FormItem className="serviceNameForm"
               hasFeedback
               help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}>
-              <Input {...nameProps} size="large" placeholder="起一个萌萌哒的名字吧~" autoComplete="off" />
+              <Input {...nameProps} size="large" placeholder="请输入服务名称" autoComplete="off" />
             </FormItem>
             <div style={{ clear: "both" }}></div>
           </div>

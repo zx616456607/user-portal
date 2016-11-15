@@ -169,16 +169,35 @@ app.use(i18n.middleware)
 
 // For test
 app.use(function* (next) {
-  this.session.loginUser = {
-    user: "zhangpc",
-    id: 104,
-    namespace: "zhangpc",
-    token: "jgokzgfitsewtmbpxsbhtggabvrnktepuzohnssqjnsirtot"
+  let teamspace = this.headers.teamspace
+  if (teamspace === 'default') {
+    teamspace = null
   }
   /*this.session.loginUser = {
     user: "mengyuan",
     namespace: "mengyuan",
-    token: "vdarbhiorastaietwkulcssyzvsfmyscauiosusmybpzazde"
+    token: "vdarbhiorastaietwkulcssyzvsfmyscauiosusmybpzazde",
+    teamspace,
+  }*/
+  /*this.session.loginUser = {
+    user: "wanglei",
+    id: 347,
+    namespace: "wanglei",
+    token: "dwbkggivnlgknozxforiognekydhrhikucurpmpjjidcfjry",
+    teamspace,
+  }*/
+  this.session.loginUser = {
+    user: "zhangpc",
+    id: 104,
+    namespace: "zhangpc",
+    token: "jgokzgfitsewtmbpxsbhtggabvrnktepuzohnssqjnsirtot",
+    teamspace,
+  }
+  /*this.session.loginUser = {
+    user: "default",
+    id: 104,
+    token: "jgokzgfitsewtmbpxsbhtggabvrnktepuzohnssqjnsirtot",
+    teamspace,
   }*/
   yield next
 })

@@ -33,15 +33,15 @@ let testData = [
       {
         "id": "1001",
         "intro": "Jenkins 持续集成",
-        "imgUrl": "/img/test/github.jpg"
+        "imgUrl": "/img/appstore/jenkins.svg"
       }, {
         "id": "1002",
         "intro": "Sonar 代码分析",
-        "imgUrl": "/img/test/github.jpg"
+        "imgUrl": "/img/appstore/sonar.png"
       }, {
         "id": "1003",
         "intro": "Gitlab 代码托管",
-        "imgUrl": "/img/test/github.jpg"
+        "imgUrl": "/img/appstore/gitlab.svg"
       }
     ]
   }, {
@@ -50,11 +50,11 @@ let testData = [
       {
         "id": "2001",
         "intro": "Confluence",
-        "imgUrl": "/img/test/github.jpg"
+        "imgUrl": "/img/appstore/conflunt.png"
       }, {
         "id": "2002",
         "intro": "Jira",
-        "imgUrl": "/img/test/github.jpg"
+        "imgUrl": "/img/appstore/jira.jpg"
       }
     ]
   }, {
@@ -63,27 +63,27 @@ let testData = [
       {
         "id": "3001",
         "intro": "Java + Maven + Tomcat",
-        "imgUrl": "/img/test/github.jpg"
+        "imgUrl": "/img/appstore/tomcat.svg"
       }, {
         "id": "3001",
         "intro": "Java + Ant",
-        "imgUrl": "/img/test/github.jpg"
+        "imgUrl": "/img/appstore/tomcat.svg"
       }, {
         "id": "3002",
         "intro": "Python + Django",
-        "imgUrl": "/img/test/github.jpg"
+        "imgUrl": "/img/appstore/python.png"
       }, {
         "id": "3003",
         "intro": "Node.js",
-        "imgUrl": "/img/test/github.jpg"
+        "imgUrl": "/img/appstore/node.png"
       }, {
         "id": "3004",
         "intro": "PHP + Apache",
-        "imgUrl": "/img/test/github.jpg"
+        "imgUrl": "/img/appstore/php.jpg"
       }, {
         "id": "3005",
         "intro": "Golang",
-        "imgUrl": "/img/test/github.jpg"
+        "imgUrl": "/img/appstore/golang.png"
       }
     ]
   }, {
@@ -92,15 +92,15 @@ let testData = [
       {
         "id": "4001",
         "intro": "Tomcat",
-        "imgUrl": "/img/test/github.jpg"
+        "imgUrl": "/img/appstore/tomcat.png"
       }, {
         "id": "5002",
         "intro": "JBoss",
-        "imgUrl": "/img/test/github.jpg"
+        "imgUrl": "/img/appstore/jboss.png"
       }, {
         "id": "5003",
         "intro": "Weblogic",
-        "imgUrl": "/img/test/github.jpg"
+        "imgUrl": "/img/appstore/weblogic12.svg"
       }
     ]
   }, {
@@ -109,27 +109,27 @@ let testData = [
       {
         "id": "6001",
         "intro": "MySQL",
-        "imgUrl": "/img/test/github.jpg"
+        "imgUrl": "/img/appstore/mysql.svg"
       }, {
         "id": "6002",
         "intro": "PostgreSQL",
-        "imgUrl": "/img/test/github.jpg"
+        "imgUrl": "/img/appstore/mysql.svg"
       }, {
         "id": "6003",
         "intro": "Redis",
-        "imgUrl": "/img/test/github.jpg"
+        "imgUrl": "/img/appstore/redis.svg"
       }, {
         "id": "6004",
         "intro": "Mongodb",
-        "imgUrl": "/img/test/github.jpg"
+        "imgUrl": "/img/appstore/mongo.svg"
       }, {
         "id": "6005",
         "intro": "Mariadb",
-        "imgUrl": "/img/test/github.jpg"
+        "imgUrl": "/img/appstore/mariadb.png"
       }, {
         "id": "6005",
         "intro": "Zookeeper",
-        "imgUrl": "/img/test/github.jpg"
+        "imgUrl": "/img/appstore/zookeeper.svg"
       }
     ]
   }, {
@@ -138,7 +138,7 @@ let testData = [
       {
         "id": "2001",
         "intro": "Selenium",
-        "imgUrl": "/img/test/github.jpg"
+        "imgUrl": "/img/appstore/selenium.jpg"
       }
     ]
   }, {
@@ -147,11 +147,11 @@ let testData = [
       {
         "id": "8001",
         "intro": "Spark",
-        "imgUrl": "/img/test/github.jpg"
+        "imgUrl": "/img/appstore/spark.svg"
       }, {
         "id": "8001",
         "intro": "Storm",
-        "imgUrl": "/img/test/github.jpg"
+        "imgUrl": "/img/appstore/storm.png"
       }
     ]
   }
@@ -178,7 +178,8 @@ let MyComponent = React.createClass({
                     <img src={imageDetail.imgUrl} />
                   </div>
                   <div className="intro">
-                    <span>{imageDetail.intro}</span>
+                    <div style={{ "font-size": "14px" }} >{imageDetail.intro}</div>
+                    <div style={{ color: "#9ba3af", "margin-top": "3px"}}>{imageDetail.intro}</div>
                   </div>
                 </Card>
               )
@@ -267,22 +268,37 @@ class ImageStore extends Component {
         <div className="nav">
           <div className={current == "1" ? "currentNav navItem" : "navItem"} onClick={this.scrollElem.bind(this, 0)}>
             <i className={current == "1" ? "fa fa-star" : "fa fa-star-o"}></i>&nbsp;&nbsp;
-            title1
+            持续集成
           </div>
           <div className="line"></div>
           <div className={current == "2" ? "currentNav navItem" : "navItem"} onClick={this.scrollElem.bind(this, 1)}>
             <i className={current == "2" ? "fa fa-star" : "fa fa-star-o"}></i>&nbsp;&nbsp;
-            title2
+            项目管理
           </div>
           <div className="line"></div>
           <div className={current == "3" ? "currentNav navItem" : "navItem"} onClick={this.scrollElem.bind(this, 2)}>
             <i className={current == "3" ? "fa fa-star" : "fa fa-star-o"}></i>&nbsp;&nbsp;
-            title3
+            开发环境
           </div>
           <div className="line"></div>
           <div className={current == "4" ? "currentNav navItem" : "navItem"} onClick={this.scrollElem.bind(this, 3)}>
             <i className={current == "4" ? "fa fa-star" : "fa fa-star-o"}></i>&nbsp;&nbsp;
-            title4
+            Web 服务器
+          </div>
+          <div className="line"></div>
+          <div className={current == "5" ? "currentNav navItem" : "navItem"} onClick={this.scrollElem.bind(this, 4)}>
+            <i className={current == "5" ? "fa fa-star" : "fa fa-star-o"}></i>&nbsp;&nbsp;
+            数据库与缓存
+          </div>
+          <div className="line"></div>
+          <div className={current == "6" ? "currentNav navItem" : "navItem"} onClick={this.scrollElem.bind(this, 5)}>
+            <i className={current == "6" ? "fa fa-star" : "fa fa-star-o"}></i>&nbsp;&nbsp;
+            测试工具
+          </div>
+          <div className="line"></div>
+          <div className={current == "7" ? "currentNav navItem" : "navItem"} onClick={this.scrollElem.bind(this, 6)}>
+            <i className={current == "7" ? "fa fa-star" : "fa fa-star-o"}></i>&nbsp;&nbsp;
+            大数据
           </div>
         </div>
         <MyComponent key="ImageStoreBox" scope={scope} config={testData} />

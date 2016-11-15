@@ -14,7 +14,7 @@ import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import './style/ContainerLog.less'
 import { loadContainerDetailEvents } from '../../actions/app_manage'
-import { tenxDateFormat } from '../../common/tools.js'
+import { calcuDate } from '../../common/tools.js'
 
 function loadData(props) {
   const { cluster, containerName } = props;
@@ -59,7 +59,7 @@ let MyComponent = React.createClass({
             </div>
             <div className='createTime' >
               <span className='commonSpan' >
-                {tenxDateFormat(item.lastSeen)}
+                {calcuDate(item.lastSeen)}
               </span>
             </div>
           </div>
