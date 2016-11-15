@@ -305,11 +305,12 @@ class TenxFlowDetailFlowCard extends Component {
             cicdSetModalShow: false,
             ciRulesOpened: false
           });
+          this.setState({
+            cicdSetModalShow: false
+          });
         },
         onCancel() {},
-      this.setState({
-        cicdSetModalShow: false
-      });
+      }
     }
   }
   
