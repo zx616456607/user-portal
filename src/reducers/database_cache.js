@@ -129,12 +129,37 @@ function databaseClusterDetail(state = {}, action) {
   }
 }
 
+function loadDBStorageAllList(state = {}, action) {
+  const defaultState = {
+    isFetching: false,
+    storageList: []
+  }
+  switch (action.type) {
+    case ActionTypes.GET_DATABASE_STORAGE_ALL_LIST_REQUEST:
+      return merge({}, defaultState, state, {
+        isFetching: true 
+      })
+    case ActionTypes.GET_DATABASE_STORAGE_ALL_LIST_SUCCESS:
+      return merge({}, state, {
+        isFetching: false,
+        storageList: action.response.result.result.data.items || []
+      })
+    case ActionTypes.GET_DATABASE_STORAGE_ALL_LIST_FAILURE:
+      return merge({}, defaultState, state, {
+        isFetching: false 
+      })
+    default:
+      return state
+  }
+}
+
 
 export function databaseCache(state = { databaseCache: {} }, action) {
   return {
     databaseAllNames: databaseAllNames(state.databaseAllNames, action),
     mysqlDatabaseAllList: mysqlDatabaseAllList(state.mysqlDatabaseAllList, action),
     redisDatabaseAllList: redisDatabaseAllList(state.redisDatabaseAllList, action),
+    loadDBStorageAllList: loadDBStorageAllList(state.loadDBStorageAllList, action),
     createMySql: reducerFactory({
       REQUEST: ActionTypes.CREATE_MYSQL_DATABASE_CACHE_REQUEST,
       SUCCESS: ActionTypes.CREATE_MYSQL_DATABASE_CACHE_SUCCESS,

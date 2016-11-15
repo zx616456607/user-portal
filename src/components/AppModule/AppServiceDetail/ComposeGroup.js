@@ -69,7 +69,6 @@ let MyComponent = React.createClass({
       this.setState({
         config: []
       })
-      return
     }
     const config = []
     let index = 0

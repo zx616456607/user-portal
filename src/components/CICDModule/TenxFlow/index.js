@@ -256,7 +256,7 @@ class TenxFlowList extends Component {
           transitionName='move-right'
           onCancel={this.closeCreateTenxFlowModal}
           >
-          <CreateTenxFlow scope={scope} />
+          <CreateTenxFlow scope={scope} isFetching={isFetching} flowList={flowList} />
         </Modal>
         <Modal
           visible={this.state.TenxFlowDeployLogModal}

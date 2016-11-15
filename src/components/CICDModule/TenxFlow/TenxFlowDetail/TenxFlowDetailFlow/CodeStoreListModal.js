@@ -44,7 +44,7 @@ const menusText = defineMessages({
 function showBranchList(list) {
   if(list.length == 0) {
     return (
-      <Option value='loading'>
+      <Option key='loading' value='loading'>
         <div className='loadingBox'>
           <Spin />
         </div>
@@ -53,7 +53,7 @@ function showBranchList(list) {
   }
   let optionList = list.map((item) => {
     return (
-      <Option value={item.branch}>
+      <Option value={item.branch} key={item.commitId + item.branch}>
         {item.branch}
       </Option>
     )

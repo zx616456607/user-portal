@@ -12,9 +12,6 @@
       float: left;
       button {
         margin-right: 10px;
-        padding: 4px 10px;
-        height: 35px;
-        line-height: 27px;
         i {
           margin-right: 5px;
           font-size: 12px;
@@ -30,7 +27,7 @@
       .littleLeft {
         z-index: 10;
         position: absolute;
-        top: 7px;
+        top: 5px;
         right: 10px;
         font-size: 15px;
         color: #949494;
@@ -39,11 +36,8 @@
       .littleRight {
         float: left;
         input {
-          height: 35px;
-          line-height: 35px;
           font-size: 14px;
-          color: #333333;
-//        background-color: #f8f8f8;
+          color: #333333; //        background-color: #f8f8f8;
         }
       }
     }
@@ -97,6 +91,17 @@
       text-overflow: ellipsis;
       cursor: pointer;
     }
+    .actionBox {
+      svg use {
+        transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+        fill: #666;
+      }
+      .ant-btn-group:hover {
+        svg use {
+          fill: #2db7f5;
+        }
+      }
+    }
     .containerTitle {
       width: 100%;
       height: 40px;
@@ -125,10 +130,10 @@
       .containerDetail {
         transition: all 0.3s;
         width: 100%;
-        line-height: 50px;
+        line-height: 60px;
         border-bottom: 1px solid #d9d9d9;
         // font-size: 1.2em;
-        clear:both;
+        clear: both;
         zoom: 1;
         .containerStatus {
           i {
@@ -141,15 +146,8 @@
             color: #f85a5a;
           }
         }
-        .visitIp {
-          line-height: 30px;
-        }
         .actionBox {
-          padding-top: 14px;
-          button {
-            height: 35px;
-            line-height: 27px;
-          }
+          padding-top: 13px;
           .ant-btn-group {
             float: left;
           }
@@ -182,7 +180,7 @@
             width: 15px;
             height: 13px;
             position: absolute;
-            top: 10px;
+            top: 8px;
             left: 12px;
           }
         }
@@ -196,13 +194,13 @@
           color: #FFFFFF;
           border-color: #2db7f5;
           background-color: #2db7f5;
-        use {
-          fill: #FFFFFF !important;
-          transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
-              transition-property: all;
-              transition-duration: 0.3s;
-              transition-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1);
-        }
+          use {
+            fill: #FFFFFF !important;
+            transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+            transition-property: all;
+            transition-duration: 0.3s;
+            transition-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1);
+          }
         }
       }
     }

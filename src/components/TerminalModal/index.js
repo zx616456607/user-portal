@@ -73,7 +73,7 @@ class TerminalModal extends Component {
   render() {
     const { scope, config } = this.props;
     return (
-      <div id='TerminalModal' style={{height: '516px'}}>
+      <div id='TerminalModal'>
         <div className='titleBox' onDrag={this.changeBoxHeight} onDragEnd={this.changeBoxHeightEnd} draggable='true'>
         {config.metadata.name}
           <i className='fa fa-minus' onClick={this.minWindow} />

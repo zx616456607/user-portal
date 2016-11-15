@@ -13,7 +13,7 @@ import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import { loadServiceDetailEvents } from '../../../actions/services'
-import { tenxDateFormat } from '../../../common/tools.js'
+import { calcuDate } from '../../../common/tools.js'
 import CommonStatus from '../../CommonStatus'
 import './style/AppServiceEvent.less'
 
@@ -62,7 +62,7 @@ var MyComponent = React.createClass({
             </div>
             <div className='createTime'>
               <span className='commonSpan'>
-                {tenxDateFormat(item.lastSeen)}
+                {calcuDate(item.lastSeen)}
               </span>
             </div>
           </div>

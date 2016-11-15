@@ -8,12 +8,12 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Input, Form, Radio, Select, Alert, Icon } from 'antd'
+import { Button, Input, Form, Radio, Modal, Select, Spin, Alert, Icon, message } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { DEFAULT_REGISTRY } from '../../../../../constants'
+import { gitCdRules, addCdRules, deleteCdRule , putCdRule} from '../../../../../actions/cicd_flow'
 import './style/AutoDeployService.less'
 import { browserHistory } from 'react-router';
 
@@ -88,61 +88,123 @@ const menusText = defineMessages({
 
 let uuid = 0;
 let AutoDeployService = React.createClass({
-  getInitialState: function() {
+  getInitialState: function () {
     return {
-      editing: false
+      tag: '',
+      editingList: { tag: '' },
+      value: 1
     }
   },
-  componentWillMount () {
-    document.title = 'TenxFlow | 时速云';
+  componentWillMount() {
+    const {gitCdRules, form, flowId} = this.props
+    const _this = this
+    gitCdRules(flowId, {
+      success: {
+        func: (res) => {
+          const rulesList = res.data.results
+          const editingList = {}
+          // rulesList.map((item, index) => {
+          //   uuid++;
+          //   let keys = form.getFieldValue('rulesList');
+          //   keys = keys.concat(uuid);
+          //   console.log(keys)
+          //   form.setFieldsValue({
+          //     'rulesList': keys
+          //   });
+          // });
+          for (let i = 0; i < rulesList.length; i++) {
+            editingList[rulesList[i].ruleId] = false
+          }
+          this.setState({
+            editingList,
+            cdRulesList: rulesList,
+            value: 1,
+            tag: ''
+          })
+        },
+        isAsync: true
+      }
+    })
   },
-  changeEdit (e) {
+  changeEdit(index) {
+    const editingList = Object.assign({}, this.state.editingList)
+    editingList[index] = true
+    this.setState({
+      editingList,
+    })
     //this function for user change the edit type
     //if the current edit type is false,then the current type will be change to the true
     //if the current edit type is true,then the form will be submit and change to the false
-    const { editing } = this.state;
-    if(!editing) {
-      //it's meaning editing is false
-      this.setState({
-        editing: true
-      });
-    }else {
-      //it's meaning editing is true
-      e.preventDefault();
-      this.props.form.validateFields((errors, values) => {
-        if (errors) {
-          return;
-        }
-        this.setState({
-          editing: false
-        });
-      });
-    }
+
   },
-  cancelEdit (e) {
+  cancelEdit(index) {
+    const editingList = Object.assign({}, this.state.editingList)
+    editingList[index] = false
     this.setState({
-      editing: false
+      editingList
+    })
+    const {form} = this.props
+    form.resetFields()
+  },
+  removeRule(ruleId) {
+    const flowId = this.props.flowId
+    const self = this
+    Modal.confirm({
+      title: '删除自动部署服务',
+      content: '您是否确认要删除这项内容',
+      onOk() {
+        self.props.deleteCdRule(flowId, ruleId, {
+          success: {
+            func: () => {
+              message.success('删除成功')
+            }
+          }
+        })
+      },
+      onCancel() { },
+    })
+  },
+  updateReule(item) {
+    // console.log('list in', item.ruleId)
+    const self = this
+    const { form } = this.props;
+    const body = form.getFieldValue('rulesList')
+    form.validateFields((errors, values) => {
+      if (errors) {
+        return;
+      }
+      const config = {
+        ruleId: item.ruleId,
+        flowId: item.flowId,
+        image_name: values[`imageSelect${item.ruleId}`],
+        tag: values[`tagSelect${item.ruleId}`],
+        binding_service: {
+          cluster_id: values[`cluster${item.ruleId}`],
+          deployment_name: values[`bindDeploymentName${item.ruleId}`],
+          deployment_id: values[`bindDeploymentId${item.ruleId}`],
+        },
+        upgrade_strategy: values[`radio${item.ruleId}`],
+      }
+      self.props.putCdRule(config, {
+        success: {
+          func: () => {
+            const editingList = Object.assign({}, this.state.editingList)
+            editingList[item.ruleId] = false
+            this.setState({
+              editingList,
+            })
+            message.success('更新成功')
+          }
+        }
+      })
+
     });
   },
-  remove (k) {
-    const { form } = this.props;
-    // can use data-binding to get
-    if(this.state.editing){
-      let keys = form.getFieldValue('keys');
-      keys = keys.filter((key) => {
-        return key !== k;
-      });
-      // can use data-binding to set
-      form.setFieldsValue({
-        keys,
-      });
-    }
-  },
-  add () {
+  addDelpoy() {
     uuid++;
     const { form } = this.props;
     // can use data-binding to get
-    let keys = form.getFieldValue('keys');
+    let keys = form.getFieldValue('rulesList');
     keys = keys.concat(uuid);
     // can use data-binding to set
     // important! notify form to detect changes
@@ -150,60 +212,176 @@ let AutoDeployService = React.createClass({
       keys,
     });
   },
-  render () {
+  setStateValue(types, e) {
+    this.setState({
+      [types]: e.target.value
+    })
+  },
+  addReule() {
+    // @ push reule 
+    const config = {
+      flowId: this.props.flowId,
+      image_name: this.state.image_name,
+      tag: this.state.tag,
+      binding_service: {
+        cluster_id: this.state.cluster_id,
+        deployment_name: this.state.deployment_name,
+        deployment_id: this.state.deployment_id
+      },
+      upgrade_strategy: this.state.value,
+    }
+    if (!config.tag) {
+      message.info('请输入镜像版本')
+      return
+    }
+    if (!config.binding_service.cluster_id) {
+      message.info('集群Id不能为空')
+      return
+    }
+    if (!config.image_name) {
+      message.info('应用名称不能为空')
+      return
+    }
+    if (!config.binding_service.deployment_name) {
+      message.info('服务名称不能为空')
+      return
+    }
+    const {addCdRules, gitCdRules, flowId} = this.props
+    addCdRules(config, {
+      success: {
+        func: () => {
+          gitCdRules(flowId, {
+            success: {
+              func: (res) => {
+                const rulesList = res.data.results
+                const editingList = {}
+                for (let i = 0; i < rulesList.length; i++) {
+                  editingList[rulesList[i].ruleId] = false
+                }
+                this.setState({
+                  editingList,
+                  value: 1,
+                  image_name: '',
+                  cluster_id: '',
+                  deployment_name: '',
+                  tag: '',
+                  deployment_id: ''
+                })
+              },
+            }
+          })
+        },
+        isAsync: true
+      }
+    })
+  },
+  render() {
     const { formatMessage } = this.props.intl;
     const { getFieldProps, getFieldValue } = this.props.form;
-    getFieldProps('keys', {
+    getFieldProps('rulesList', {
       initialValue: [0],
     });
-    const haveTag = false;
-    const formItems = getFieldValue('keys').map((k) => {
-      const tagSelect = getFieldProps('tagSelect' + k, {
-        rules: [
-          { required: true, message: '请选择' },
-        ],
-      });
-      const selectProps = getFieldProps('serviceSelect' + k, {
-        rules: [
-          { required: true, message: '请选择' },
-        ],
-      });
-      const updateType = getFieldProps('radio' + k, {
-        initialValue: 'normalUpdate'
-      });
+    const haveTag = true;
+    const { cdRulesList, isFetching} = this.props
+    const self = this
+    if (isFetching || cdRulesList == {} || !Boolean(cdRulesList)) {
       return (
-        <div className='tagDetail'>
-          <Form.Item key={'name' + k} className='tag commonItem'>
-            <Select {...tagSelect} style={{ width: '90%' }} disabled={this.state.editing ? false : true } >
-              <Option value='test1'>test1</Option>
-              <Option value='test2'>test2</Option>
-              <Option value='test3'>test3</Option>
-              <Option value='test4'>test4</Option>
-              <Option value='test5'>test5</Option>
-            </Select>
-          </Form.Item>
-          <Form.Item key={'select' + k} className='service commonItem'>
-            <Select {...selectProps} style={{ width: '90%' }} disabled={this.state.editing ? false : true } >
-              <Option value='test1'>test1</Option>
-              <Option value='test2'>test2</Option>
-              <Option value='test3'>test3</Option>
-              <Option value='test4'>test4</Option>
-              <Option value='test5'>test5</Option>
-            </Select>
-          </Form.Item>
-          <Form.Item key={'radio' + k} className='updateType commonItem'>
-            <RadioGroup {...updateType} disabled={this.state.editing ? false : true } >
-              <Radio key='a' value={'normalUpdate'}><FormattedMessage {...menusText.normalUpdate} /></Radio>
-              <Radio key='b' value={'rollingUpdate'}><FormattedMessage {...menusText.imageUpdate} /></Radio>
-            </RadioGroup>
-          </Form.Item>
-          <div className='opera commonItem'>
-            <i className='fa fa-trash' onClick={() => this.remove(k)}></i>
+        <div> </div>
+      )
+    }
+    let items = cdRulesList.map((item, index) => {
+      // let items = getFieldValue('rulesList').map((i= i-1) => {
+      const tagSelect = getFieldProps('tagSelect' + item.ruleId, {
+        rules: [
+          { required: true , message:"请输入镜像版本"}
+        ],
+        initialValue: item.tag
+      });
+      const imageSelect = getFieldProps('imageSelect' + item.ruleId, {
+        rules: [
+          { required: true, message:"请输入镜像名称"}
+        ],
+        initialValue: item.bindingDeploymentName
+      });
+      const clusterSelect = getFieldProps('cluster' + item.ruleId, {
+        rules: [
+          { required: true, message:"请输入集群"}
+        ],
+        initialValue: item.bindingClusterId
+      });
+      const serviceIdSelect = getFieldProps('bindDeploymentId' + item.ruleId, {
+        rules: [
+          { required: true, message:"请输入服务Id"}
+        ],
+        initialValue: item.bindingDeploymentId
+      });
+      const serviceNameSelect = getFieldProps('bindDeploymentName' + item.ruleId, {
+        rules: [
+          { required: true, message:"请输入服务名称"}
+        ],
+        initialValue: item.bindingDeploymentName
+      });
+      const updateType = getFieldProps('radio' + item.ruleId, {
+        initialValue: item.upgradeStrategy
+      });
+      if (self.state != null && self.state.editingList) {
+        return (
+          <div className='tagDetail'>
+            <Form.Item key={'name' + item.ruleId} className='service commonItem'>
+              <Input defaultValue={item.imageName} {...imageSelect} disabled={!self.state.editingList[item.ruleId]} />
+            </Form.Item>
+
+            <Form.Item key={'tag' + item.ruleId} className='tag commonItem'>
+              <Input defaultValue={item.tag} {...tagSelect} disabled={!self.state.editingList[item.ruleId]} />
+            </Form.Item>
+
+            <Form.Item key={'cluster' + item.ruleId} className='service commonItem'>
+              <Input defaultValue={item.bindingClusterId} {...clusterSelect} disabled={!self.state.editingList[item.ruleId]} />
+            </Form.Item>
+
+            <Form.Item key={'binding_service' + item.ruleId} className='service commonItem'>
+              <Input defaultValue={item.bindingDeploymentId} {...serviceIdSelect} disabled={!self.state.editingList[item.ruleId]} />
+            </Form.Item>
+
+            <Form.Item key={'select' + item.ruleId} className='service commonItem'>
+              <Input defaultValue={item.bindingDeploymentName} {...serviceNameSelect} disabled={!self.state.editingList[item.ruleId]} />
+
+            </Form.Item>
+
+            <Form.Item key={'radio' + item.ruleId} className='updateType commonItem'>
+              <RadioGroup {...updateType} disabled={self.state.editingList[item.ruleId] ? false : true} defaultValue={item.upgradeStrategy ==1 ? 1 : 2}>
+                <Radio key='a' value={1} ><FormattedMessage {...menusText.normalUpdate} /></Radio>
+                <Radio key='b' value={2} ><FormattedMessage {...menusText.imageUpdate} /></Radio>
+              </RadioGroup>
+            </Form.Item>
+            <div className='opera commonItem'>
+              <div className='btnBox'>
+                {!self.state.editingList[item.ruleId] ? [
+                  <span><Icon type="edit" onClick={() => self.changeEdit(item.ruleId)} />
+                    <Icon type="delete" onClick={() => self.removeRule(item.ruleId)} style={{ marginLeft: '15px' }} />
+                  </span>
+                ] :
+                  [
+                    <span>
+                      <Button className='cancelBtn' size='large' type='ghost' onClick={() => self.updateReule(item)}>
+                        <FormattedMessage {...menusText.confirm} />
+                      </Button>
+
+                      <Button className='cancelBtn' style={{ marginLeft: '10px' }} size='large' type='ghost' onClick={() => self.cancelEdit(item.ruleId)}>
+                        <FormattedMessage {...menusText.cancel} />
+                      </Button>
+                    </span>
+                  ]
+                }
+              </div>
+            </div>
+            <div style={{ clear: 'both' }}></div>
           </div>
-          <div style={{ clear:'both' }}></div>
-        </div>
-      );
-    });
+        )
+      }
+
+    })
+
     return (
       <div id='AutoDeployService' key='AutoDeployService'>
         <div className='title'>
@@ -212,27 +390,37 @@ let AutoDeployService = React.createClass({
         <div className='paddingBox'>
           <Alert message={<FormattedMessage {...menusText.tooltips} />} type='info' />
           <div className='btnBox'>
-            { haveTag ? [
+            {/* {haveTag ? [
               <Button className='editBtn' size='large' type='primary' onClick={this.changeEdit}>
-                { this.state.editing ? formatMessage(menusText.confirm) : formatMessage(menusText.edit) }
+                {this.state.editing ? formatMessage(menusText.confirm) : formatMessage(menusText.edit)}
               </Button>
             ] : null}
-            { this.state.editing ? [
+            {this.state.editing ? [
               <Button className='cancelBtn' size='large' type='ghost' onClick={this.cancelEdit}>
                 <FormattedMessage {...menusText.cancel} />
               </Button>
-              ] : null
+            ] : null
             }
+            */}
           </div>
           <Form className='tagForm' horizontal form={this.props.form}>
-            { haveTag ? [
+            {haveTag ? [
               <div>
                 <div className='tagTitle'>
+                  <span className='service commonTitle'>
+                    镜像名称
+                  </span>
                   <span className='tag commonTitle'>
                     <FormattedMessage {...menusText.tag} />
                   </span>
                   <span className='service commonTitle'>
-                    <FormattedMessage {...menusText.service} />
+                    集群
+                  </span>
+                  <span className='service commonTitle'>
+                    服务 ID
+                  </span>
+                  <span className='service commonTitle'>
+                    服务名称
                   </span>
                   <span className='updateType commonTitle'>
                     <FormattedMessage {...menusText.updateType} />
@@ -240,26 +428,59 @@ let AutoDeployService = React.createClass({
                   <span className='opera commonTitle'>
                     <FormattedMessage {...menusText.opera} />
                   </span>
-                  <div style={{ clear:'both' }}></div>
+                  <div style={{ clear: 'both' }}></div>
                 </div>
-                {formItems}
+
+                {items}
+                <div className="tagDetail">
+                  <div className='service commonItem'>
+                    <Input size="large" value={this.state.image_name} onChange={(e) => this.setStateValue('image_name', e)} placeholder="镜像名称" />
+                  </div>
+                  <div className='tag commonItem'>
+                    <Input size="large" value={this.state.tag} onChange={(e) => this.setStateValue('tag', e)} placeholder="输入镜像版本" />
+                  </div>
+                  <div key='cluster' className='service commonItem'>
+                    <Input size="large" value={this.state.cluster_id} onChange={(e) => this.setStateValue('cluster_id', e)} placeholder="输入集群Id" />
+                  </div>
+                  <div key='select' className='service commonItem'>
+                    <Input size="large" value={this.state.deployment_id} onChange={(e) => this.setStateValue('deployment_id', e)} placeholder="服务Id" />
+
+                  </div>
+                  <div key='imageName' className='service commonItem'>
+                    <Input size="large" value={this.state.deployment_name} onChange={(e) => this.setStateValue('deployment_name', e)} placeholder="服务名称" />
+                  </div>
+
+                  <div className='updateType commonItem'>
+                    <RadioGroup onChange={(e) => this.setStateValue('value', e)} value={this.state.value}>
+                      <Radio key='a' value={1}><FormattedMessage {...menusText.normalUpdate} /></Radio>
+                      <Radio key='b' value={2}><FormattedMessage {...menusText.imageUpdate} /></Radio>
+                    </RadioGroup>
+                  </div>
+                  <div className='opera commonItem'>
+                    <Button className='cancelBtn' size='large' type='primary' onClick={() => self.addReule()}>
+                      添加
+                    </Button>
+
+                  </div>
+
+                </div>
               </div>
             ] : [
-              <div className='noTag'>
-                <Button className='delployBtn' size='large' type='primary'>
-                  <FormattedMessage {...menusText.addNow} />
-                </Button>
-                <p><FormattedMessage {...menusText.tooltipsFirst} /></p>
-                <p><FormattedMessage {...menusText.tooltipsSecond} /></p>
-              </div>
-            ] }
+                <div className='noTag'>
+                  <Button className='delployBtn' size='large' type='primary'>
+                    <FormattedMessage {...menusText.addNow} />
+                  </Button>
+                  <p><FormattedMessage {...menusText.tooltipsFirst} /></p>
+                  <p><FormattedMessage {...menusText.tooltipsSecond} /></p>
+                </div>
+              ]}
           </Form>
-          { this.state.editing ? [
-            <div className='addBtn' onClick={this.add}>
-              <Icon type='plus-circle-o' /><FormattedMessage {...menusText.add} />
-            </div>
-            ] : null
-          }
+          {/*
+          <div className='addBtn' onClick={this.addDelpoy}>
+            <Icon type='plus-circle-o' /><FormattedMessage {...menusText.add} />
+          </div>
+        */}
+
         </div>
       </div>
     );
@@ -267,9 +488,15 @@ let AutoDeployService = React.createClass({
 });
 
 function mapStateToProps(state, props) {
-
+  const defaultConfig = {
+    isFetching: false,
+    cdRulesList: []
+  }
+  const { getCdRules } = state.cicd_flow
+  const { cdRulesList, isFetching } = getCdRules || defaultConfig
   return {
-
+    isFetching,
+    cdRulesList
   }
 }
 
@@ -280,7 +507,10 @@ AutoDeployService.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-
+  gitCdRules,
+  addCdRules,
+  deleteCdRule,
+  putCdRule
 })(injectIntl(AutoDeployService, {
   withRef: true,
 }));

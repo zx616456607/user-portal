@@ -84,7 +84,7 @@ class StorageDetail extends Component {
           <div key="ca" className="AppInfo">
             <Card className="topCard">
               <div className="imgBox">
-                <img src="/img/test/github.jpg" />
+                <img src="/img/storage.png" />
               </div>
               <div className="infoBox">
                 <div className="appTitle">

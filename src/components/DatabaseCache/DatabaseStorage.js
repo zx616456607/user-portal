@@ -9,13 +9,13 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import { Checkbox, Card, Menu, Button, Icon, Radio, Modal, Input, Slider, InputNumber, Row, Col, message } from 'antd'
+import { Checkbox, Card, Menu, Button, Icon, Radio, Modal, Input, Slider, InputNumber, Row, Col, message, Spin, Tooltip } from 'antd'
 import { Link } from 'react-router'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { remove, findIndex } from 'lodash'
-import { loadStorageList, deleteStorage, createStorage, formateStorage, resizeStorage } from '../../actions/storage'
+import { loadDBStorageAllList } from '../../actions/database_cache'
 import { DEFAULT_IMAGE_POOL } from '../../constants'
 import './style/DatabaseStorage.less'
 
@@ -236,41 +236,50 @@ let MyComponent = React.createClass({
   render() {
     const { formatMessage } = this.props.intl
     let list = this.props.storage;
-    if (!list || !list.storageList) return (<div></div>)
-    let items = list.storageList.map((item) => {
+    let isFetching = this.props.isFetching;
+    if(isFetching) {
       return (
-        <div className="appDetail" key={item.name} >
-          <div className="selectIconTitle commonData">
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
+      )
+    }
+    let items = list.map((item) => {
+      return (
+        <div className={ item.status.phase == 'Bound' ? "appDetail" : 'displayNone'} key={item.name} >
+          {/*<div className="selectIconTitle commonData">
             <Checkbox disabled={item.isUsed} onChange={(e) => this.onchange(e, item.name)} checked={this.isChecked(item.name)}></Checkbox>
-          </div>
+          </div>*/}
           <div className="name commonData">
-            <Link to={`/app_manage/storage/${this.props.imagePool}/${this.props.cluster}/${item.name}`} >
-              {item.name}
-            </Link>
+            <Tooltip placement="topLeft" title={item.volume}>
+              <span>{item.volume}</span>       
+            </Tooltip>
           </div>
           <div className="status commonData">
-            <i className={item.isUsed == true ? "error fa fa-circle" : "normal fa fa-circle"}></i>
+            {/*<i className={item.isUsed == true ? "error fa fa-circle" : "normal fa fa-circle"}></i>
             <span className={item.isUsed == false ? "normal" : "error"} >
               {item.isUsed == true ? <FormattedMessage {...messages.use} /> : <FormattedMessage {...messages.noUse} />}
-            </span>
+            </span>*/}
+            {item.status.phase}
           </div>
           <div className="formet commonData">
-            {item.format}
-          </div>
-          <div className="forin commonData">
-            {item.mountPoint || '无'}
+            ext4
           </div>
           <div className="appname commonData">
             {item.appName || '无'}
           </div>
-          <div className="size commonData">{item.totalSize}M</div>
-          <div className="createTime commonData">{item.createTime}</div>
-          <div className="actionBtn">
+          <div className="size commonData">{item.status.capacity ? item.status.capacity.storage : '-'}</div>
+          <div className="createTime commonData">
+            <Tooltip placement="topLeft" title={item.objectMeta.creationTimestamp}>
+              <span>{item.objectMeta.creationTimestamp}</span>
+            </Tooltip>
+          </div>
+          {/*<div className="actionBtn">
             <Button disabled={item.isUsed} className="btn-warning" onClick={(e) => { this.showAction('format', item.name, item.format) } }><Icon type="delete" /><FormattedMessage {...messages.formatting} /></Button>
             <span className="margin"></span>
             <Button disabled={item.isUsed} className="btn-success" onClick={() => { this.showAction('resize', item.name, item.totalSize) } }><Icon type="scan" /><FormattedMessage {...messages.dilation} /></Button>
             <div style={{ clear: 'both' }}></div>
-          </div>
+          </div>*/}
           <div style={{ clear: 'both' }}></div>
         </div>
       );
@@ -366,7 +375,8 @@ class databaseStorage extends Component {
   }
 
   componentWillMount() {
-    this.props.loadStorageList(this.props.currentImagePool, this.props.currentCluster)
+    const {loadDBStorageAllList, currentCluster} = this.props;
+    loadDBStorageAllList('e0e6f297f1b3285fb81d27742255cfcf');
   }
 
   onChange(value) {
@@ -539,10 +549,11 @@ class databaseStorage extends Component {
 
   render() {
     const { formatMessage } = this.props.intl
+    console.log(this.props)
     return (
       <QueueAnim className="database_storage" type="right">
         <div id="DatabaseStorage" key="database_storage">
-          <div className="operationBox">
+          {/*<div className="operationBox">
             <div className="leftBox">
               <Button type="primary" size="large" onClick={this.showModal}>
                 <i className="fa fa-plus" />&nbsp;
@@ -599,29 +610,22 @@ class databaseStorage extends Component {
               </div>
             </div>
             <div className="clearDiv"></div>
-          </div>
+          </div>*/}
           <Card className="storageBox appBox">
             <div className="appTitle">
-              <div className="selectIconTitle commonTitle">
+              {/*<div className="selectIconTitle commonTitle">
                 <Checkbox onChange={(e) => this.onAllChange(e)} checked={this.isAllChecked()} disabled={!this.disableSelectAll()}></Checkbox>
-              </div>
+              </div>*/}
               <div className="name commonTitle"><FormattedMessage {...messages.storageName} /></div>
               <div className="status commonTitle"><FormattedMessage {...messages.status} /></div>
               <div className="formet commonTitle"><FormattedMessage {...messages.formats} /></div>
-              <div className="forin commonTitle"><FormattedMessage {...messages.forin} /></div>
+              {/*<div className="forin commonTitle"><FormattedMessage {...messages.forin} /></div>*/}
               <div className="appname commonTitle"><FormattedMessage {...messages.app} /></div>
               <div className="size commonTitle"><FormattedMessage {...messages.size} /></div>
               <div className="createTime commonTitle"><FormattedMessage {...messages.createTime} /></div>
-              <div className="actionBox commonTitle"><FormattedMessage {...messages.action} /></div>
+              {/*<div className="actionBox commonTitle"><FormattedMessage {...messages.action} /></div>*/}
             </div>
-            <MyComponent
-              storage={this.props.storageList[this.props.currentImagePool]}
-              volumeArray={this.state.volumeArray}
-              saveVolumeArray={this.selectItem()}
-              cluster={this.props.currentCluster}
-              imagePool={this.props.currentImagePool}
-              loadStorageList={() => { this.props.loadStorageList(this.props.currentImagePool, this.props.currentCluster) } }
-              />
+            <MyComponent storage={this.props.storageList} isFetching={this.props.isFetching}/>
           </Card>
         </div>
       </QueueAnim>
@@ -636,29 +640,20 @@ databaseStorage.propTypes = {
 
 function mapStateToProps(state) {
   const { cluster } = state.entities.current
+  const defaultConfig = {
+    isFetching: false,
+    storageList: {}
+  }
+  const { loadDBStorageAllList } = state.databaseCache
+  const { storageList, isFetching } = loadDBStorageAllList || defaultConfig
   return {
-    storageList: state.storage.storageList,
-    createStorage: state.storage.createStorage,
-    deleteStorage: state.storage.deleteStorage,
-    currentImagePool: DEFAULT_IMAGE_POOL,
+    storageList,
     currentCluster: cluster.clusterID
   }
 }
 
-function mapDispatchToProps(dispatch) {
-  return {
-    loadStorageList: (pool, cluster, query) => {
-      dispatch(loadStorageList(pool, cluster, query))
-    },
-    deleteStorage: (pool, cluster, volumeArray, callback) => {
-      dispatch(deleteStorage(pool, cluster, volumeArray, callback))
-    },
-    createStorage: (obj, callback) => {
-      dispatch(createStorage(obj, callback))
-    }
-  }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(databaseStorage, {
+export default connect(mapStateToProps, {
+  loadDBStorageAllList
+})(injectIntl(databaseStorage, {
   withRef: true,
 }))
