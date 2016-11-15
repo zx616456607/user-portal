@@ -1,13 +1,11 @@
 .QueryLogBox {
-  padding-top: 40px;
-  padding-left: 30px;
-  padding-right: 60px;
+  padding: 40px 60px 40px 30px;
   #QueryLog {
     .ant-popover-arrow {
       display: none;
     }
     .ant-popover-inner {
-      min-width: 155px !important;
+      min-width: 206px !important;
       .ant-popover-inner-content {
         padding: 0 !important;
       }
@@ -240,6 +238,10 @@
           }
         }
       }
+      .dataList {
+        max-height: 300px;
+        overflow-y: auto;
+      }
     }
     .instanceModal {
       .instanceDetail {
@@ -306,7 +308,7 @@
           .logSpan {
             color: #37fc34;
           }
-          .noDataSpan{
+          .noDataSpan {
             color: #37fc34;
           }
         }

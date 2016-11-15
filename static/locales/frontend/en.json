@@ -449,7 +449,7 @@
   
   "ManageMonitor.QueryLog.headTitle": "日志查询 | 时速云",
   "ManageMonitor.QueryLog.title": "Query Log",
-  "ManageMonitor.QueryLog.user": "User:",
+  "ManageMonitor.QueryLog.user": "Space:",
   "ManageMonitor.QueryLog.selectUser": "Select User",
   "ManageMonitor.QueryLog.cluster": "Cluster:",
   "ManageMonitor.QueryLog.selectCluster": "Select Cluster",

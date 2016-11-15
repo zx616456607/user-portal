@@ -635,8 +635,8 @@ let MyComponent = React.createClass({
             <span className='commonSpan'>{operationalFormat(item.operationType, scope)}</span>
           </div>
           <div className='obj commonTitle'>
-            <span className='objSpan'><FormattedMessage {...menusText.objType} />{resourceFormat(item.resourceType, scope)}</span>
-            <span className='objSpan'>
+            <span className='objSpan' style={{ top: '5px' }}><FormattedMessage {...menusText.objType} />{resourceFormat(item.resourceType, scope)}</span>
+            <span className='objSpan' style={{ top: '-2px' }}>
               <Tooltip placement="topLeft" title={item.resourceName + item.resourceId}>
                 <span><FormattedMessage {...menusText.objName} />{item.resourceName + item.resourceId}</span>
               </Tooltip>

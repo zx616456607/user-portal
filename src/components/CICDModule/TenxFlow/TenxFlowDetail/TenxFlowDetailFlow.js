@@ -206,7 +206,7 @@ class TenxFlowDetailFlow extends Component {
               {
                 this.state.createNewFlow ? [
                   <QueueAnim key='creattingCardAnimate'>
-                    <CreateTenxFlowModal key='CreateTenxFlowModal' scope={scope} flowId={flowId} stageInfo={stageInfo} codeList={projectList} />
+                    <CreateTenxFlowModal key='CreateTenxFlowModal' stageList={stageList} scope={scope} flowId={flowId} stageInfo={stageInfo} codeList={projectList} />
                   </QueueAnim>
                 ] : null
               }
