@@ -128,7 +128,8 @@ function otherImages(state = {}, action) {
     case ActionTypes.GET_OTHER_LIST_SUCCESS:
       return merge({}, defaultState, state, {
         isFetching: false,
-        imageList: action.response.result.repositories || []
+        imageList: action.response.result.repositories || [],
+        bak: action.response.result.repositories
       })
     case ActionTypes.GET_OTHER_LIST_FAILURE:
       return merge({}, defaultState, state, {
@@ -155,7 +156,10 @@ function otherImages(state = {}, action) {
     case ActionTypes.SEARCH_OTHER_LIST_REQUEST:
       const imageName = action.image
       const newState = cloneDeep(state)
-
+      if (imageName == '') {
+        newState.imageList = newState.bak
+        return newState
+      }
       const temp = state.imageList.filter(list => {
          const search = new RegExp(imageName)
          if (search.test(list)){

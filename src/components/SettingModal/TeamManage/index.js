@@ -14,7 +14,7 @@ import { Link } from 'react-router'
 import SearchInput from '../../SearchInput'
 import { connect } from 'react-redux'
 import { loadUserTeamList } from '../../../actions/user'
-import { createTeam, deleteTeam, createTeamspace, addTeamusers, removeTeamusers } from '../../../actions/team'
+import { createTeam, deleteTeam, createTeamspace, addTeamusers, removeTeamusers,loadTeamUserList } from '../../../actions/team'
 import MemberTransfer from '../MemberTransfer'
 
 const confirm = Modal.confirm;
@@ -32,6 +32,7 @@ let TeamTable = React.createClass({
       targetKeys:[],
       sort: "a,teamName",
       filter: "",
+      nowTeamID:''
     }
   },
   handleChange(pagination, filters, sorter) {
@@ -130,22 +131,34 @@ let TeamTable = React.createClass({
       sort,
     })
   },
-  addNewMember(){
+  addNewMember(teamID){
+    this.props.loadTeamUserList(teamID,({size:-1}))
     this.setState({
       addMember: true,
+      nowTeamID:teamID
     })
   },
   handleNewMemberOk(){
-    const { addTeamusers, teamID } = this.props
-    const { targetKeys } = this.state
+    const { addTeamusers,loadUserTeamList,rowKey } = this.props
+    const { targetKeys,nowTeamID } = this.state
+    const { page,size,sort ,filter} = this.props.scope.state
     if(targetKeys.length !== 0){
-      addTeamusers(teamID,{
-      },{
+      addTeamusers(nowTeamID,
+        targetKeys
+      ,{
         success: {
           func:() => {
+            console.log('done');
+            loadUserTeamList('default',{
+              page: page,
+              size: size,
+              sort: sort,
+              filter: filter,
+            })
             this.setState({
               addMember: false,
             })
+            
           },
           isAsync: true
         }
@@ -163,7 +176,7 @@ let TeamTable = React.createClass({
   render() {
     let { sortedInfo, filteredInfo, targetKeys } = this.state
     const { searchResult, notFound, sort, filter } = this.props.scope.state
-    const { data, scope } = this.props
+    const { data, scope, teamUserIDList } = this.props
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
     const pagination = {
@@ -287,15 +300,18 @@ let TeamTable = React.createClass({
         width: '20%',
         render: (text,record,index) => (
           <div>
-            <Button icon="plus" className="addBtn" onClick={this.addNewMember}>添加成员</Button>
-            <Modal title="添加新成员"
-                   visible={this.state.addMember}
+            <Button icon="plus" className="addBtn" onClick={()=>this.addNewMember(record.key)}>添加成员</Button>
+            <Modal title='添加成员'
+                   visible={this.state.nowTeamID===record.key && this.state.addMember}
                    onOk={this.handleNewMemberOk}
                    onCancel={this.handleNewMemberCancel}
                    width="660px"
                    wrapClassName="newMemberModal"
             >
-              <MemberTransfer onChange={this.handleChange} targetKeys={targetKeys} teamID={record.key}/>
+              <MemberTransfer onChange={this.handleChange}
+                              targetKeys={targetKeys}
+                              teamID={record.key}
+                              teamUserIDList={teamUserIDList}/>
             </Modal>
             <Button icon="delete" className="delBtn" onClick={() => this.delTeam(record.key)}>删除</Button>
           </div>
@@ -306,7 +322,8 @@ let TeamTable = React.createClass({
       <Table columns={columns}
              dataSource={searchResult.length === 0?data : searchResult}
              pagination={pagination}
-             onChange={this.handleChange} />
+             onChange={this.handleChange}
+      />
     )
   },
 })
@@ -380,7 +397,7 @@ class TeamManage extends Component {
   render(){
     const scope = this
     const { visible } = this.state
-    const { teams } = this.props
+    const { teams,addTeamusers,loadUserTeamList, teamUserIDList,loadTeamUserList } = this.props
     
     const searchIntOption = {
       placeholder: '搜索',
@@ -414,7 +431,12 @@ class TeamManage extends Component {
         </Row>
         <Row className="teamList">
           <Card>
-            <TeamTable data={teams} scope={scope}/>
+            <TeamTable data={teams}
+                       scope={scope}
+                       addTeamusers={addTeamusers}
+                       loadUserTeamList={loadUserTeamList}
+                       loadTeamUserList={loadTeamUserList}
+                       teamUserIDList={teamUserIDList}/>
           </Card>
         </Row>
       </div>
@@ -426,6 +448,8 @@ function mapStateToProp(state,props) {
   let teamsData = []
   let total = 0
   let data = []
+  let teamUserIDList = []
+  const team = state.team
   const teams = state.user.teams
   if (teams.result) {
     if (teams.result.teams) {
@@ -447,11 +471,21 @@ function mapStateToProp(state,props) {
     if (teams.result.total) {
       total = teams.result.total
     }
+    if (team.teamusers) {
+      if (team.teamusers.result) {
+        const teamusers = team.teamusers.result.users
+      
+        teamusers.map((item, index) => {
+        
+          teamUserIDList.push(item.userID)
+        })
+      }
+    }
   }
-  console.log('teamData',teamsData);
   return {
     teams: data,
-    total
+    total,
+    teamUserIDList: teamUserIDList,
   }
 }
 
@@ -462,4 +496,5 @@ export default connect(mapStateToProp, {
   createTeamspace,
   addTeamusers,
   removeTeamusers,
+  loadTeamUserList,
 })(TeamManage)

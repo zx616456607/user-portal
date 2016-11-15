@@ -142,9 +142,7 @@ class ImageDetailBox extends Component {
       success: {
         func: ()=>{
           message.success('更新成功！')
-          if (imageSpace == 'myCollection') {
-            scope.props.loadFavouriteList(DEFAULT_REGISTRY)
-          }
+          scope.props.loadFavouriteList(DEFAULT_REGISTRY)
         },
         isAsync: true
       }
@@ -196,7 +194,7 @@ class ImageDetailBox extends Component {
       <div id="ImageDetailBox">
         <div className="headerBox">
           <div className="imgBox">
-            <img src="/img/test/github.jpg" />
+            <img src="/img/default.png" />
           </div>
           <div className="infoBox">
             <p className="imageName">{imageDetail.name ? imageDetail.name : imageDetail.imageName}</p>
@@ -204,7 +202,7 @@ class ImageDetailBox extends Component {
               <p className="imageUrl">{imageDetail.description ? imageDetail.description : imageDetail.imageName}</p>
               <span className="type">
               <FormattedMessage {...menusText.type} />
-              { (imageInfo.isOwner) ? 
+              { (imageInfo.isOwner) ?
                 <Switch onChange={this.isSwitch} checked={(imageInfo.isPrivate == 0) ? true: false} checkedChildren={formatMessage(menusText.pubilicType) } unCheckedChildren={formatMessage(menusText.privateType)} />
               :
                 <Switch checked={(imageInfo.isPrivate ==0) ? true: false} disabled={true} defaultChecked="true" checkedChildren={formatMessage(menusText.pubilicType) } unCheckedChildren={formatMessage(menusText.privateType)} />
@@ -227,7 +225,7 @@ class ImageDetailBox extends Component {
                 <FormattedMessage {...menusText.colletctImage} />
               </Button>
             }
-             
+
             </div>
           </div>
           <div style={{ clear: "both" }}></div>

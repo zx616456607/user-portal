@@ -23,7 +23,7 @@ export default class ImageCenterSider extends Component {
       current: '1'
     }
   }
-  
+
   componentWillMount(){
     currentPathNameCheck(this);
   }
@@ -48,10 +48,10 @@ export default class ImageCenterSider extends Component {
               <Link to="/app_center">镜像仓库</Link>
             </Menu.Item>
             <Menu.Item key="2">
-              <Link to="/app_center/image_store">应用商城</Link>
+              <Link to="/app_center/image_store">应用商店</Link>
             </Menu.Item>
             <Menu.Item key="3">
-              <Link to="/app_center/stack_center">编排中心</Link>
+              <Link to="/app_center/stack_center">编排文件</Link>
             </Menu.Item>
           </Menu>
         </div>
@@ -61,7 +61,7 @@ export default class ImageCenterSider extends Component {
 }
 
 function currentPathNameCheck(scope) {
-  //this function for check the pathname and change the current key 
+  //this function for check the pathname and change the current key
   let pathname = window.location.pathname;
   //this check the pathname from the image_store
   let containerModule = pathname.indexOf('app_center/image_store');

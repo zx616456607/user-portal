@@ -11,7 +11,7 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import { Card, Select, Button, DatePicker, Input, Spin, Popover, Icon } from 'antd'
+import { Card, Select, Button, DatePicker, Input, Spin, Popover, Icon, Checkbox } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { getQueryLogList } from '../../actions/manage_monitor'
 import { loadServiceContainerList } from '../../actions/services'
@@ -94,6 +94,10 @@ const menusText = defineMessages({
     id: 'ManageMonitor.QueryLog.noInstance',
     defaultMsessage: '请选择实例',
   },
+  searchType: {
+    id: 'ManageMonitor.QueryLog.searchType',
+    defaultMsessage: '模糊查询',
+  },
 });
 
 function checkClass(popup, isError) {
@@ -104,6 +108,20 @@ function checkClass(popup, isError) {
   } else {
     return 'cloneSelectInput';
   }
+}
+
+function keywordFormat(log, scope) {
+  let str = scope.state.key_word;
+  let reg = new RegExp(str, "gi");
+  log = log.replace(reg, "<font style='color:rgb(255, 255, 0)'>" + str + "</font>");
+  return log;
+}
+
+function timeFormat(time) {
+  let newDate = new Date();
+  time = parseInt(time);
+  let newTime = newDate.setTime(time);
+  return newTime;
 }
 
 let NamespaceModal = React.createClass({
@@ -159,6 +177,9 @@ let NamespaceModal = React.createClass({
           <Input className='commonSearchInput namespaceInput' onChange={this.inputSearch} type='text' size='large' />
         </div>
         <div className='dataList'>
+          <div className='namespaceDetail' key='defaultNamespace' onClick={scope.onSelectNamespace.bind(scope, '我的空间', 'default')}>
+            <span>我的空间</span>
+          </div>
           {namespaceList}
         </div>
       </div>
@@ -397,6 +418,42 @@ let InstanceModal = React.createClass({
   }
 });
 
+let LogComponent = React.createClass({
+  render: function () {
+    const { logs, isFetching, scope } = this.props;
+    if(isFetching) {
+      return (
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
+      )
+    }
+    if(logs.length == 0) {
+      return (
+        <div className='loadingBox'>
+          <span className='noDataSpan'>暂无日志记录</span>
+        </div>
+      )
+    }
+    let logItems = logs.map((item, index) => {
+      return (
+        <div className='logDetail' key={'logDetail' + index}>
+          <span className='instanceSpan'>{'[' + item.name + ']'}</span>
+          <span className='instanceSpan'>{timeFormat(item.timeNano)}</span>
+          <span className='logSpan'>
+            <span dangerouslySetInnerHTML={{ __html:keywordFormat(item.log, scope) }}></span>
+          </span>
+        </div>
+      )
+    })
+    return (
+      <div className='logList'>
+        {logItems}
+      </div>
+    )
+  }
+});
+
 class QueryLog extends Component {
   constructor(props) {
     super(props)
@@ -412,6 +469,7 @@ class QueryLog extends Component {
     this.onChangeEndTime = this.onChangeEndTime.bind(this);
     this.onChangeKeyword = this.onChangeKeyword.bind(this);
     this.onChangeBigLog = this.onChangeBigLog.bind(this);
+    this.onChangeQueryType = this.onChangeQueryType.bind(this);
     this.submitSearch = this.submitSearch.bind(this);
     this.state = {
       namespacePopup: false,
@@ -439,7 +497,8 @@ class QueryLog extends Component {
       end_time: null,
       key_word: null,
       searchKeyword: null,
-      bigLog: false
+      bigLog: false,
+      queryType: true
     }
   }
 
@@ -630,6 +689,12 @@ class QueryLog extends Component {
       key_word: e.target.value
     });
   }
+  
+  onChangeQueryType(e) {
+    this.setState({
+      queryType: e.target.checked
+    })
+  }
 
   submitSearch() {
     //this function for search the log
@@ -663,12 +728,18 @@ class QueryLog extends Component {
       return ;
     }
     const { getQueryLogList } = this.props;
+    let key_word = this.state.key_word;
+    if(this.state.queryType) {
+      if(key_word.length > 0) {
+        key_word = '*' + this.state.key_word + '*';
+      }
+    }
     let body = {
       date_start: this.state.start_time,
       date_end: this.state.end_time,
       from: null,
       size: null,
-      keyword: this.state.key_word
+      keyword: key_word
     }
     this.setState({
       searchKeyword: this.state.key_word
@@ -685,6 +756,7 @@ class QueryLog extends Component {
   }
 
   render() {
+    const {logs, isFetching} = this.props;
     const { formatMessage } = this.props.intl;
     const scope = this;
     if(this.state.gettingNamespace) {
@@ -788,6 +860,7 @@ class QueryLog extends Component {
               <div style={{ clear: 'both' }}></div>
             </div>
             <div className='commonBox'>
+              <Checkbox onChange={this.onChangeQueryType} checked={this.state.queryType} style={{ marginLeft: '29px' }}><FormattedMessage {...menusText.searchType} /></Checkbox>
               <Button className='searchBtn' size='large' type='primary' onClick={this.submitSearch}>
                 <i className='fa fa-wpforms'></i>
                 <FormattedMessage {...menusText.search} />
@@ -801,7 +874,7 @@ class QueryLog extends Component {
               <i className={this.state.bigLog ? 'fa fa-compress' : 'fa fa-expand'} onClick={this.onChangeBigLog} />
             </div>
             <div className='msgBox'>
-
+              <LogComponent logs={logs} isFetching={isFetching} scope={scope}/>
             </div>
           </Card>
         </div>
@@ -823,9 +896,9 @@ function mapStateToProps(state, props) {
   const defaultContainers = {
     containersList: {}
   }
-  const { operationAuditLog } = state.manageMonitor
+  const { getQueryLog } = state.manageMonitor
   const { serviceContainers } = state.services
-  const { logs, isFetching } = operationAuditLog.logs || defaultLogs
+  const { logs, isFetching } = getQueryLog.logs || defaultLogs
   const containersList = serviceContainers[cluster.clusterID] || defaultContainers
   return {
     isTeamspacesFetching: teamspaces.isFetching,
