@@ -1,0 +1,125 @@
+.ImageSpace {
+  padding-top: 20px;
+  padding-bottom: 50px;
+  #ImageSpace {
+    .ant-card-body {
+      padding: 0 !important;
+    }
+    .operaBox {
+      padding: 24px;
+      position: relative;
+      .uploadBtn {
+        padding: 6px 10px !important;
+        border-radius: 4px;
+      }
+      .downloadBtn {
+        margin-left: 20px;
+        border-radius: 4px;
+        padding: 6px 10px !important;
+      }
+      .searchBox {
+        float: right;
+        width: 170px;
+        height: 32px;
+      }
+      .fa-search {
+        position: absolute;
+        right: 34px;
+        top: 31px;
+        font-size: 18px;
+        color: #999999;
+      }
+    }
+    .imageList {
+      .imageDetail {
+        transition: all 0.3s;
+        width: 100%;
+        height: 100px;
+        border-bottom: 1px solid #F2F2F2;
+        .imageBox {
+          padding: 17.5px 24px;
+          float: left;
+          width: 113px;
+          height: 100px;
+          img {
+            width: 65px;
+            height: 65px;
+            border: 2px solid #d7d7d7;
+            border-radius: 5px;
+          }
+        }
+        .contentBox {
+          padding-top: 25px;
+          float: left;
+          width: calc(~"100% - 263px");
+          .title {
+            margin-top: 25px;
+            line-height: 25px;
+            font-size: 16px;
+            color: #2db7f5;
+            cursor: pointer;
+          }
+          .type {
+            float: left;
+            display: block;
+            width: 33%;
+            line-height: 25px;
+            font-size: 14px;
+          }
+          .imageUrl {
+            float: left;
+            display: block;
+            width: 45%;
+            line-height: 25px;
+            font-size: 14px;
+            .colorUrl {
+              color: #2db7f5;
+            }
+          }
+          .downloadNum {
+            float: left;
+            display: block;
+            width: 20%;
+            line-height: 25px;
+            font-size: 14px;
+          }
+        }
+        .btnBox {
+          padding-top: 36px;
+          float: left;
+          width: 150px;
+        }
+        &:hover {
+          background-color: #F8F8F8;
+        }
+        &:last-child {
+          border-bottom: 0;
+        }
+      }
+    }
+  }
+}
+.uploadImageModal,
+.uploadImageModal {
+  width: 670px !important;
+  .ant-modal-body {
+    padding: 25px !important;
+    font-size: 14px !important;
+  }
+  .ant-modal-footer {
+    .ant-btn-ghost {
+      display: none;
+    }
+  }
+  .codeSpan {
+    margin: 10px 0;
+    display: block;
+    width: 100%;
+    min-height: 40px;
+    line-height: 40px;
+    padding: 0 20px;
+    word-break: keep-all;
+    color: #3d6cb4;
+    background-color: #F8F8F8;
+  }
+}

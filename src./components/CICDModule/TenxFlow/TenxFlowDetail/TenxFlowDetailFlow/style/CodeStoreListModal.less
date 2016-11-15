@@ -1,0 +1,52 @@
+#CodeStoreListModal {
+  width: 100%;
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  .titleBox,
+  .codeDetail {
+    transition: all 0.3s;
+    border-bottom: 1px solid #E5E5E5;
+  }
+  .codeDetail {
+    cursor: pointer;
+  }
+  .codeDetail:hover {
+    background-color: #F2F2F2;
+  }
+  .selectedCode{
+    background-color: #eaf8fe;
+  }
+  .commonTitle {
+    padding-left: 10px;
+    float: left;
+    width: 33.3%;
+    height: 55px;
+    line-height: 55px;
+    span {
+      width: 100%;
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .ant-select-arrow{
+      right: -43px !important;
+    }
+    .noSelectCodeStore{
+      .ant-select-selection{
+        border-color: #f50 !important;
+        box-shadow: 0 0 0 2px rgba(255, 85, 0, 0.2);
+        &:hover {
+          border-color: #f50 !important;
+        }
+      }
+    }
+  }
+}
+.tenxFlowCodeStoreModal{
+  width: 700px !important;
+  .ant-modal-footer{
+    display: none;
+  }
+}
