@@ -207,7 +207,7 @@ const MyComponent = React.createClass({
                   (<a target="_blank" href={svcDomain[0]}>{svcDomain[0]}</a>) :
                   (<span>-</span>)
               }*/}
-              <TipSvcDomain svcDomain={svcDomain} />
+              <TipSvcDomain svcDomain={svcDomain}/>
             </Tooltip>
           </div>
           <div className="createTime commonData">
