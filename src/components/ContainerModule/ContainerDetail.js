@@ -21,7 +21,6 @@ import ContainerMonitior from './ContainerMonitior'
 import TerminalModal from '../TerminalModal'
 import { browserHistory } from 'react-router'
 import ContainerStatus from '../TenxStatus/ContainerStatus'
-import { formatDate } from '../../common/tools'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -127,7 +126,7 @@ class ContainerDetail extends Component {
           <div key="ca" className="containerInfo">
             <Card className="topCard">
               <div className="imgBox">
-                <img src="/img/default.png" />
+                <img src="/img/test/github.jpg" />
               </div>
               <div className="infoBox">
                 <p className="appTitle">
@@ -136,7 +135,7 @@ class ContainerDetail extends Component {
                 <div className="leftInfo">
                   <div className="status">
                     运行状态&nbsp;:
-                    <span style={{position:'relative',top:'-5px'}}>
+                    <span>
                       <ContainerStatus
                         status={container.status}
                         smart={true}
@@ -150,7 +149,7 @@ class ContainerDetail extends Component {
                 </div>
                 <div className="middleInfo">
                   <div className="createDate">
-                    创建&nbsp;:&nbsp; {formatDate(container.metadata.creationTimestamp || '')}
+                    创建&nbsp;:&nbsp;{container.metadata.creationTimestamp}
                   </div>
                   {/*<div className="updateDate">
                       更新&nbsp;:&nbsp;{container.metadata.creationTimestamp}
@@ -158,7 +157,7 @@ class ContainerDetail extends Component {
                 </div>
                 <div className="rightInfo">
                   <div className="actionBox commonData">
-                    <Button type="primary" className="viewBtn" size='large'
+                    <Button type="primary" className="viewBtn"
                       onClick={(e) => this.openTerminalModal(container, e)}>
                       <svg className="terminal">
                         <use xlinkHref="#terminal" />
@@ -166,7 +165,7 @@ class ContainerDetail extends Component {
                       登录终端
                     </Button>
                     <Dropdown.Button
-                      onClick={this.deleteContainer} size='large'
+                      onClick={this.deleteContainer}
                       overlay={operaMenu} type="ghost">
                       <i className="fa fa-power-off"></i>&nbsp;重新分配
                     </Dropdown.Button>

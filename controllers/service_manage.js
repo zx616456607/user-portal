@@ -127,11 +127,6 @@ exports.getServiceDetail = function* () {
     && result.data[serviceName].service.metadata.annotations[ANNOTATION_SVC_SCHEMA_PORT]) {
     deployment.ports = result.data[serviceName].service.metadata.annotations[ANNOTATION_SVC_SCHEMA_PORT]
   }
-  deployment.portForInternal = []
-  if (result.data[serviceName]
-    && result.data[serviceName].service) {
-    result.data[serviceName].service.spec.ports.map((svcPort) => deployment.portForInternal.push(svcPort.port))
-  }
   this.body = {
     cluster,
     serviceName,

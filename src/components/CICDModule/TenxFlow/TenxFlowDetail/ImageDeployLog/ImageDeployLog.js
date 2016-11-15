@@ -119,7 +119,6 @@ const MyLine = React.createClass({
   },
   render: function () {
     const { config, scope } = this.props;
-    if (!config || config.length ==0)  return (<span></span>)
     let items = config.map((item) => {
       const header = (
         <div className='header'>
@@ -158,11 +157,7 @@ const MyComponent = React.createClass({
   },
   render: function () {
     const { config, scope } = this.props;
-    if (!config || config.length ==0) {
-      return (
-        <div style={{lineHeight:'100px', textAlign:'center'}}>暂无记录</div>
-      )
-    }
+    
     let items = config.map((item, index) => {
       const header = (
         <div className='header'>
@@ -250,8 +245,8 @@ class ImageDeployLog extends Component {
   }
 
   componentWillMount() {
-    const {deploymentLog , flowId} = this.props
-    deploymentLog(flowId)
+    const {deploymentLog } = this.props
+    deploymentLog(this.props.flowId)
   }
 
   render() {

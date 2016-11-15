@@ -2,6 +2,7 @@
 
 const https = require('https')
 const os = require('os')
+const logger = require('../utils/logger.js').getLogger("web_terminal")
 
 //var wsUrl = "wss://kubelet:kubelet@" + data['host'] + ":" + data['port'] + "/api/v1/namespaces/" + data['namespace'] + "/pods/" + data['pod'] + "/exec?stdout=1&stdin=1&stderr=1&tty=1&command=%2Fbin%2Fsh&command=-i";
 module.exports = function (server, redis) {
@@ -24,8 +25,10 @@ module.exports = function (server, redis) {
       socket.pipe(client)
     })
     proxy.on('error', (error) => {
-      client.write("Sorry, cant't connect to this container ")
-      return
+      logger.error('proxy error', error)
+    })
+    client.on('error', err => {
+      logger.error('client error', err)
     })
     proxy.end()
     function _getProxyHeader(headers) {

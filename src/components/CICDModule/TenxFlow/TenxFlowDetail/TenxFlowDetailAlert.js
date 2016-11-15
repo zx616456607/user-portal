@@ -61,31 +61,6 @@ const menusText = defineMessages({
   },
 })
 
-function checkEmailType(emailList, scope, type) {
-  if(emailList.split(',').length > 1) {
-    if(type != 'init') {     
-      scope.setState({
-        emailList: emailList[0]
-      });
-    }
-    return 'others';
-  } else if(emailList[0] == 'gaojian@tenxcloud.com') {
-    if(type != 'init') {
-      scope.setState({
-        emailList: null
-      });
-    }
-    return 'gaojian@tenxcloud.com';
-  } else {
-    if(type != 'init') {
-      scope.setState({
-        emailList: emailList[0]
-      });
-    }
-    return 'others';
-  }
-}
-
 let TenxFlowDetailAlert = React.createClass({
   getInitialState: function() {
     return {
@@ -239,7 +214,6 @@ let TenxFlowDetailAlert = React.createClass({
     });
   },
   render() {
-    const _this = this;
     const { formatMessage } = this.props.intl;
     const { scope, notify } = this.props;
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form;
@@ -248,7 +222,7 @@ let TenxFlowDetailAlert = React.createClass({
         { validator: this.radioEmailCheck },
       ],
       onChange: this.onChangeAlertEmail,
-      initialValue: checkEmailType(this.state.emailList, _this, 'init')
+      initialValue: this.state.otherEmail
     });
     const checkEmailProps = getFieldProps('inputEmail', {
       rules: [

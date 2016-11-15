@@ -87,7 +87,7 @@ const MyComponent = React.createClass({
       return (
         <div className="imageDetail" key={item} >
           <div className="imageBox">
-            <img src="/img/docker.png" />
+            <img src="/img/test/github.jpg" />
           </div>
           <div className="contentBox">
             <span className="title" onClick={this.showImageDetail.bind(this, item)}>
@@ -127,19 +127,19 @@ class OtherSpace extends Component {
       imageDetailModalShow: false
     }
   }
-
+  
   componentWillMount() {
     const { getOtherImageList, imageId } = this.props;
     getOtherImageList(imageId);
   }
-
+  
   closeImageDetailModal() {
     //this function for user close the modal of image detail info
     this.setState({
       imageDetailModalShow: false
     });
   }
-
+  
   deleteImage(id) {
     const scope = this
     const parentScope = this.props.scope
@@ -164,11 +164,14 @@ class OtherSpace extends Component {
       onCancel() {}
     })
   }
-
+  
   searchImage(e) {
     const image = e.target.value
-    this.props.SearchOtherImage(image)
-    // this.props.getOtherImageList(this.props.imageId)
+    if (image != '') {
+      this.props.SearchOtherImage(image)
+      return
+    }
+    this.props.getOtherImageList(this.props.imageId)
   }
 
   render() {
@@ -191,7 +194,7 @@ class OtherSpace extends Component {
                 <div className="name">
                   <i className="fa fa-user"></i>&nbsp;&nbsp;
                   {otherHead.username}
-                </div>
+                </div>              
               </div>
               <Button className="logout" size="large" type="ghost" onClick={()=>this.deleteImage(this.props.imageId)}>
                 <FormattedMessage {...menusText.logout} />

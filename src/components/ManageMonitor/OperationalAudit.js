@@ -14,7 +14,7 @@ import QueueAnim from 'rc-queue-anim'
 import { Card, Select, Button, DatePicker, Input, Cascader, Spin, Tooltip, Pagination } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { getOperationLogList } from '../../actions/manage_monitor'
-import {formatDate} from '../../common/tools.js'
+import {tenxDateFormat} from '../../common/tools.js'
 import './style/OperationalAudit.less'
 
 const Option = Select.Option;
@@ -103,7 +103,7 @@ const menusText = defineMessages({
   BatchDelete: {
     id: 'ManageMonitor.operationalAudit.BatchDelete',
     defaultMessage: '批量删除',
-  },
+  },  
   BatchStart: {
     id: 'ManageMonitor.operationalAudit.BatchStart',
     defaultMessage: '批量开始',
@@ -308,10 +308,6 @@ const menusText = defineMessages({
     id: 'ManageMonitor.operationalAudit.objName',
     defaultMessage: '对象：',
   },
-  allResource: {
-    id: 'ManageMonitor.operationalAudit.allResource',
-    defaultMessage: '所有对象',
-  },
 });
 
 function returnOperationList(scope) {
@@ -394,18 +390,18 @@ function duringTimeFormat(time, scope) {
         time = time / 60;
         time = time.toFixed(0);
         //hour
-        return (time + ' ' + formatMessage(menusText.hour) )
+        return (time + ' ' + formatMessage(menusText.hour) ) 
       } else {
         //min
-        return (time + ' ' + formatMessage(menusText.minute) )
+        return (time + ' ' + formatMessage(menusText.minute) ) 
       }
     } else {
       //s
-      return (time + ' ' + formatMessage(menusText.second) )
+      return (time + ' ' + formatMessage(menusText.second) ) 
     }
   } else {
     //ms
-    return (time + ' ' + formatMessage(menusText.millisecond) )
+    return (time + ' ' + formatMessage(menusText.millisecond) ) 
   }
 }
 
@@ -500,7 +496,7 @@ function resourceFormat(resourceType, scope) {
     case '0':
       return formatMessage(menusText.Unknown)
       break;
-  }
+  } 
 }
 
 function operationalFormat(operationalType, scope) {
@@ -564,7 +560,7 @@ function operationalFormat(operationalType, scope) {
     case '0':
       return formatMessage(menusText.Unknown)
       break;
-  }
+  } 
 }
 
 function statusFormat(status, scope) {
@@ -623,8 +619,8 @@ let MyComponent = React.createClass({
         <div className='logDetail' key={ index }>
           <div className='time commonTitle'>
             <span className='commonSpan'>
-              <Tooltip placement="topLeft" title={formatDate(item.time)}>
-                <span>{formatDate(item.time)}</span>
+              <Tooltip placement="topLeft" title={tenxDateFormat(item.time)}>
+                <span>{tenxDateFormat(item.time)}</span>
               </Tooltip>
             </span>
           </div>
@@ -635,8 +631,8 @@ let MyComponent = React.createClass({
             <span className='commonSpan'>{operationalFormat(item.operationType, scope)}</span>
           </div>
           <div className='obj commonTitle'>
-            <span className='objSpan' style={{ top: '5px' }}><FormattedMessage {...menusText.objType} />{resourceFormat(item.resourceType, scope)}</span>
-            <span className='objSpan' style={{ top: '-2px' }}>
+            <span className='objSpan'><FormattedMessage {...menusText.objType} />{resourceFormat(item.resourceType, scope)}</span>
+            <span className='objSpan'>
               <Tooltip placement="topLeft" title={item.resourceName + item.resourceId}>
                 <span><FormattedMessage {...menusText.objName} />{item.resourceName + item.resourceId}</span>
               </Tooltip>
@@ -697,7 +693,7 @@ class OperationalAudit extends Component {
       totalNum: 0
     }
   }
-
+  
   componentWillMount() {
     const { getOperationLogList } = this.props;
     const { formatMessage } = this.props.intl;
@@ -726,20 +722,20 @@ class OperationalAudit extends Component {
       }
     })
   }
-
+  
   componentWillReceiveProps(nextPorps) {
     //this function for user select different image
     //the nextProps is mean new props, and the this.props didn't change
     //so that we should use the nextProps
     const { isFetching } = nextPorps;
-    if(!isFetching) {
+    if(!isFetching) {     
       this.setState({
         logs: nextPorps.logs,
         totalNum: nextPorps.logs.count
       });
     }
   }
-
+  
   onChangeResource(e) {
     //this function for user change the resource
     //and then the operational list will be change
@@ -752,7 +748,7 @@ class OperationalAudit extends Component {
       switch(eventCode) {
         case '1':
           showOperationalList.push(operationalList[2]);
-          showOperationalList.push(operationalList[3]);
+          showOperationalList.push(operationalList[3]); 
           break;
         case '2':
           showOperationalList.push(operationalList[3]);
@@ -773,7 +769,7 @@ class OperationalAudit extends Component {
           showOperationalList.push(operationalList[13]);
           showOperationalList.push(operationalList[14]);
           showOperationalList.push(operationalList[15]);
-          break;
+          break;  
         case '7':
           showOperationalList.push(operationalList[3]);
           break;
@@ -825,10 +821,10 @@ class OperationalAudit extends Component {
           showOperationalList.push(operationalList[3]);
           break;
         case '19':
-          showOperationalList.push(operationalList[2]);
+          showOperationalList.push(operationalList[2]);        
           break;
         case '20':
-          showOperationalList.push(operationalList[2]);
+          showOperationalList.push(operationalList[2]);        
           break;
         case '21':
           showOperationalList.push(operationalList[2]);
@@ -838,7 +834,7 @@ class OperationalAudit extends Component {
           showOperationalList.push(operationalList[1]);
           showOperationalList.push(operationalList[2]);
           showOperationalList.push(operationalList[4]);
-          showOperationalList.push(operationalList[11]);
+          showOperationalList.push(operationalList[11]);       
           break;
         case '23':
           showOperationalList.push(operationalList[1]);
@@ -855,22 +851,19 @@ class OperationalAudit extends Component {
         case '26':
           showOperationalList.push(operationalList[1]);
           showOperationalList.push(operationalList[3]);
-          showOperationalList.push(operationalList[5]);
+          showOperationalList.push(operationalList[5]);       
           break;
         case '27':
           showOperationalList.push(operationalList[1]);
           showOperationalList.push(operationalList[3]);
           showOperationalList.push(operationalList[17]);
           showOperationalList.push(operationalList[18]);
-          showOperationalList.push(operationalList[11]);
+          showOperationalList.push(operationalList[11]);        
           break;
         case '28':
-          showOperationalList.push(operationalList[2]);
+          showOperationalList.push(operationalList[2]);       
           break;
         case '0':
-          showOperationalList = operationalList;
-          break;
-        default:
           showOperationalList = operationalList;
           break;
       }
@@ -880,47 +873,47 @@ class OperationalAudit extends Component {
       });
     }
   }
-
+  
   onShowResource(value, items) {
     //this function for show to the user selected resource
     return value[value.length - 1];
   }
-
+  
   onChangeObject(e) {
     //this function for user change operational
     this.setState({
       operation: parseInt(e)
     });
   }
-
+  
   onChangeStatus(e) {
     //this function for user change status
     this.setState({
       status: e
     });
   }
-
+  
   onChangeStartTime(e, str) {
     //this function for user change status
     this.setState({
       start_time: str
     });
   }
-
+  
   onChangeEndTime(e, str) {
     //this function for user change status
     this.setState({
       end_time: str
     });
   }
-
+  
   onChangeNamespace(e) {
     //this function for user change status
     this.setState({
       namespace: e.target.value
     });
   }
-
+  
   onPageChange(e) {
     //this function user input the page num and auto get the new page of log
     const { getOperationLogList } = this.props;
@@ -1084,9 +1077,6 @@ class OperationalAudit extends Component {
     }, {
       value: '0',
       label: formatMessage(menusText.Unknown)
-    }, {
-      value: null,
-      label: formatMessage(menusText.allResource)
     },];
     const operationalSelectOptions = this.state.selectOperationalList.map((item) => {
       return (
@@ -1100,16 +1090,16 @@ class OperationalAudit extends Component {
           <span><FormattedMessage {...menusText.title} /></span>
         </div>
         <div className='operaBox'>
-          <Cascader
+          <Cascader 
             changeOnSelect
-            options={resourceOption}
-            allowClear={false}
-            displayRender={this.onShowResource}
+            options={resourceOption} 
+            allowClear={false} 
+            displayRender={this.onShowResource} 
             onChange={this.onChangeResource}
             getPopupContainer={() => document.getElementById('operationalAudit')}
-            expandTrigger='hover'
-            size='large'
-            className='resourceSelect'
+            expandTrigger='hover' 
+            size='large' 
+            className='resourceSelect' 
             placeholder={formatMessage(menusText.selectObject)}
           />
           <Select showSearch className='eventSelect'
@@ -1139,18 +1129,6 @@ class OperationalAudit extends Component {
           <div style={{ clear:'both' }}></div>
         </div>
         <Card className='dataCard'>
-          <div className='bottomBox'>
-            <div className='pageBox'>
-              <Pagination
-                simple
-                total={this.state.totalNum}
-                pageSize={15}
-                current={this.state.from}
-                onChange={this.onPageChange}
-                />
-            </div>
-            <span style={{ float:'right',lineHeight:'24px' }}>共计 {this.state.totalNum} 条</span>
-          </div>
           <div className='titleBox'>
             <div className='time commonTitle'>
               <FormattedMessage {...menusText.time} />
@@ -1179,6 +1157,17 @@ class OperationalAudit extends Component {
             <div style={{ clear:'both' }}></div>
           </div>
           <MyComponent scope={scope} config={logs} isFetching={isFetching} />
+          <div className='bottomBox'>
+            <div className='pageBox'>
+              <Pagination 
+                simple 
+                total={this.state.totalNum} 
+                pageSize={15}
+                current={this.state.from}
+                onChange={this.onPageChange}
+                />
+            </div>
+          </div>
         </Card>
       </div>
     </QueueAnim>

@@ -8,13 +8,12 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Input, Form, Checkbox, Alert, Icon, Spin } from 'antd'
+import { Button, Input, Form, Checkbox, Alert, Icon } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../../constants'
-import { UpdateTenxflowCIRules } from '../../../../../actions/cicd_flow'
 import './style/CICDSettingModal.less'
 import { browserHistory } from 'react-router';
 
@@ -47,37 +46,10 @@ const menusText = defineMessages({
     defaultMessage: '确定',
   },
   cicdTitle: {
-    id: 'CICD.Tenxflow.CICDSettingModal.cicdTitle',
+    id: 'CICD.Tenxflow.TenxFlowDetailFlowCard.cicdTitle',
     defaultMessage: '持续集成触发规则',
   },
 })
-
-function checkBranchInit(config) {
-  //this function for user check branch is used or not
-  if(Boolean(config.config)) {
-    if(Boolean(config.config.branch)) {
-      return config.config.branch.name;
-    }
-    return '';
-  }
-  return '';
-}
-
-function checkTagInit(config) {
-  //this function for user check tag is used or not
-  if(Boolean(config.config)) {
-    if(Boolean(config.config.tag)) {
-      return config.config.tag.name;
-    }
-    return '';
-  }
-  return '';
-}
-
-function checkBranchUsed(config) {
-  //this function for check the branch is used or not
-  
-}
 
 let CICDSettingModal = React.createClass({
   getInitialState: function() {
@@ -143,13 +115,12 @@ let CICDSettingModal = React.createClass({
       useBranch: e.target.checked
     });
     if(e.target.checked) {
-      this.setState({
-        editBranch: true
-      });
-    } else {
-      this.setState({
-        editBranch: false
-      });
+      let branch = this.props.form.getFieldsValue(['branch']);
+      if(!!branch) {
+        this.setState({
+          editBranch: true
+        });
+      }
     }
   },
   onChangeUseTag(e) {
@@ -158,13 +129,12 @@ let CICDSettingModal = React.createClass({
       useTag: e.target.checked
     });
     if(e.target.checked) {
-      this.setState({
-        editTag: true
-      });
-    } else {
-      this.setState({
-        editTag: false
-      });
+      let tag = this.props.form.getFieldsValue(['tag']);
+      if(!!tag) {
+        this.setState({
+          editTag: true
+        });
+      }
     }
   },
   onEditBranch() {
@@ -173,10 +143,6 @@ let CICDSettingModal = React.createClass({
       this.setState({
         editBranch: true
       });
-    } else {
-      this.setState({
-        editBranch: false
-      });
     }
   },
   onEditTag() {
@@ -184,10 +150,6 @@ let CICDSettingModal = React.createClass({
     if(this.state.useTag) {
       this.setState({
         editTag: true
-      });
-    } else {
-      this.setState({
-        editTag: false
       });
     }
   },
@@ -215,12 +177,6 @@ let CICDSettingModal = React.createClass({
       editTag: false
     })
   },
-  onChangeUseRequest(e) {
-    //this function for user change use merge request or not
-    this.setState({
-      useRequest: e.target.checked
-    })
-  },
   handleReset(e) {
     //this function for reset the form
     e.preventDefault();
@@ -239,18 +195,15 @@ let CICDSettingModal = React.createClass({
   },
   handleSubmit(e) {
     //this function for user submit the form
-    const { scope, UpdateTenxflowCIRules, flowId } = this.props;
+    const { scope } = this.props;
     const _this = this;
     const { useBranch, useTag, useRequest } = this.state;
-    let branchInput = null;
-    let tagInput = null;
     if(useBranch) {
       this.props.form.validateFields(['branch'],(errors, values) => {
         if (!!errors) {
           e.preventDefault();
           return;
         }
-        branchInput = values;
       });
     }
     if(useTag) {
@@ -259,63 +212,22 @@ let CICDSettingModal = React.createClass({
           e.preventDefault();
           return;
         }
-        tagInput = values;
       });
     }
-    let body = {
-      enabled: 1,
-      config: {
-        branch: null,
-        tag: null,
-        mergeRequest: null
-      }
-    }
-    if(useBranch) {
-      body.config.branch = {
-        name: branchInput.branch
-      }
-    }
-    if(useTag) {
-      body.config.tag = {
-        name: tagInput.tag
-      }
-    }
-    if(useRequest) {
-      body.config.mergeRequest = useRequest;
-    }
-    scope.setState({
-      cicdSetModalShow: false,
-      ciRulesOpened: true
-    });
-    UpdateTenxflowCIRules(flowId, body, {
-      success: {
-        func: () => scope.ciRulesChangeSuccess(),
-        isAsync: true
-      }
-    })
   },
   render() {
     const { formatMessage } = this.props.intl;
-    const { scope, isFetching, ciRules  } = this.props;
-    if(isFetching || !Boolean(ciRules) ) {
-      return (
-        <div className='loadingBox'>
-          <Spin size='large' />
-        </div>
-      )
-    }
+    const { scope } = this.props;
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form;
     const branchProps = getFieldProps('branch', {
       rules: [
-        { required: true, message: '请输入Branch名称' },
+        { required: true, message: '请输入TenxFlow名称' },
       ],
-      initialValue: checkBranchInit(ciRules.results),
     });
     const tagProps = getFieldProps('tag', {
       rules: [
-        { required: true, message: '请输入Tag名称' },
+        { required: true, message: '请输入TenxFlow名称' },
       ],
-      initialValue: checkTagInit(ciRules.results),
     });
     return (
       <div id='CICDSettingModal' key='CICDSettingModal'>
@@ -369,7 +281,7 @@ let CICDSettingModal = React.createClass({
             <div className='commonBox'>
               <div className='checkBox'>
                 <FormItem>
-                  <Checkbox onChange={this.onChangeUseRequest} checked={this.state.useRequest}><FormattedMessage {...menusText.request} /></Checkbox>
+                  <Checkbox onChange={this.onChangeUseRequest}><FormattedMessage {...menusText.request} /></Checkbox>
                 </FormItem>
               </div>
             </div>
@@ -402,7 +314,7 @@ CICDSettingModal.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-  UpdateTenxflowCIRules
+
 })(injectIntl(CICDSettingModal, {
   withRef: true,
 }));

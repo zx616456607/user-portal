@@ -226,7 +226,7 @@ const MyComponent = React.createClass({
           </div>
         </div>
         {/*  @project  Head end    */}
-        
+
         { items }
 
       </div>

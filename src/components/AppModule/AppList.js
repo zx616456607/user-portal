@@ -15,10 +15,9 @@ import QueueAnim from 'rc-queue-anim'
 import './style/AppList.less'
 import { loadAppList, stopApps, deleteApps, restartApps, startApps } from '../../actions/app_manage'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
-import { calcuDate } from '../../common/tools'
+import { tenxDateFormat } from '../../common/tools'
 import { browserHistory } from 'react-router'
 import AppStatus from '../TenxStatus/AppStatus'
-import { parseAppDomain } from '../parseDomain'
 
 const confirm = Modal.confirm
 const ButtonGroup = Button.Group
@@ -134,7 +133,7 @@ const MyComponent = React.createClass({
           </Menu.Item>
         </Menu>
       );
-      const domains = parseAppDomain(item, this.props.bindingDomains)
+      const appEntrance = item.entrance
       return (
         <div className={item.checked ? 'appDetail appDetailSelected' : 'appDetail'} key={item.name} onClick={this.selectAppByline.bind(this, item)} >
           <div className='selectIconTitle commonData'>
@@ -157,19 +156,16 @@ const MyComponent = React.createClass({
             {item.instanceCount + '' || '-'}
           </div>
           <div className='visitIp commonData'>
-            <span>-</span>
-            {/*
             <Tooltip title={appEntrance ? appEntrance : ''}>
               {
                 appEntrance ?
                   (<a target="_blank" href={appEntrance}>{appEntrance}</a>) : (<span>-</span>)
               }
             </Tooltip>
-          */}
           </div>
           <div className='createTime commonData'>
-            <Tooltip title={calcuDate(item.createTime)}>
-              <span>{calcuDate(item.createTime)}</span>
+            <Tooltip title={tenxDateFormat(item.createTime)}>
+              <span>{tenxDateFormat(item.createTime)}</span>
             </Tooltip>
           </div>
           <div className='actionBox commonData'>
@@ -237,8 +233,8 @@ class AppList extends Component {
     this.setState({
       appList: nextProps.appList
     })
-    let { page, size, name, currentCluster, sortOrder, sortBy } = nextProps
-    if (currentCluster.clusterID !== this.props.currentCluster.clusterID || currentCluster.namespace !== this.props.currentCluster.namespace) {
+    let { page, size, name, cluster, sortOrder, sortBy } = nextProps
+    if (cluster !== this.props.cluster) {
       loadData(nextProps)
       return
     }
@@ -423,7 +419,7 @@ class AppList extends Component {
   }
 
   updateBrowserHistory(page, size, sortOrder, sortBy) {
-
+    
     if (page === this.props.page &&
       size === this.props.size &&
       sortOrder === this.props.sortOrder &&
@@ -496,7 +492,7 @@ class AppList extends Component {
 
       return prefix + toggle
     }
-
+    
     return (
       <QueueAnim
         className='AppList'
@@ -505,9 +501,9 @@ class AppList extends Component {
         <div id='AppList' key='AppList'>
           <div className='operationBox'>
             <div className='leftBox'>
-              <Button type='primary' size='large'>
+              <Button type='ghost' size='large'>
                 <Link to='/app_manage/app_create'>
-                  <i className='fa fa-plus'></i>创建应用
+                  <i className='fa fa-plus'></i>添加应用
                 </Link>
               </Button>
               <Button type='ghost' size='large' onClick={this.batchStartApps} disabled={!isChecked}>
@@ -532,20 +528,19 @@ class AppList extends Component {
               </div>
               <div className='littleRight'>
                 <Input
-                  size='large'
                   onChange={(e) => {
                     this.setState({
                       searchInputValue: e.target.value
                     })
                   } }
                   value={searchInputValue}
-                  placeholder='按应用名搜索'
+                  placeholder='输入应用名回车搜索'
                   disabled={searchInputDisabled}
                   onPressEnter={this.searchApps} />
               </div>
             </div>
             <div className='pageBox'>
-              <span className='totalPage'>共 {total}条</span>
+              <span className='totalPage'>共{total}条</span>
               <div className='paginationBox'>
                 <Pagination
                   simple
@@ -577,13 +572,13 @@ class AppList extends Component {
               <div className='containerNum commonTitle' onClick={() => this.sortApps('instance_count')}>
                 容器数量
                   <div className="ant-table-column-sorter">
-                  <span className={spliceSortClassName('asc', 'instance_count', sortOrder, sortBy)} title="↑">
-                    <i className="anticon anticon-caret-up" />
-                  </span>
-                  <span className={spliceSortClassName('desc', 'instance_count', sortOrder, sortBy)} title="↓">
-                    <i className="anticon anticon-caret-down" />
-                  </span>
-                </div>
+                    <span className={spliceSortClassName('asc', 'instance_count', sortOrder, sortBy)} title="↑">
+                      <i className="anticon anticon-caret-up" />
+                    </span>
+                    <span className={spliceSortClassName('desc', 'instance_count', sortOrder, sortBy)} title="↓">
+                      <i className="anticon anticon-caret-down" />
+                    </span>
+                  </div>
               </div>
               <div className='visitIp commonTitle'>
                 访问地址
@@ -591,13 +586,13 @@ class AppList extends Component {
               <div className='createTime commonTitle' onClick={() => this.sortApps('create_time')}>
                 创建时间
                   <div className="ant-table-column-sorter">
-                  <span className={spliceSortClassName('asc', 'create_time', sortOrder, sortBy)} title="↑">
-                    <i className="anticon anticon-caret-up" />
-                  </span>
-                  <span className={spliceSortClassName('desc', 'create_time', sortOrder, sortBy)} title="↓">
-                    <i className="anticon anticon-caret-down" />
-                  </span>
-                </div>
+                    <span className={spliceSortClassName('asc', 'create_time', sortOrder, sortBy)} title="↑">
+                      <i className="anticon anticon-caret-up" />
+                    </span>
+                    <span className={spliceSortClassName('desc', 'create_time', sortOrder, sortBy)} title="↓">
+                      <i className="anticon anticon-caret-down" />
+                    </span>
+                  </div>
               </div>
               <div className='actionBox commonTitle'>
                 操作
@@ -608,8 +603,7 @@ class AppList extends Component {
               config={appList}
               loading={isFetching}
               parentScope={scope}
-              funcs={funcs}
-              bindingDomains={this.props.bindingDomains} />
+              funcs={funcs} />
           </Card>
         </div>
       </QueueAnim>
@@ -665,8 +659,6 @@ function mapStateToProps(state, props) {
 
   return {
     cluster: cluster.clusterID,
-    bindingDomains: state.entities.current.cluster.bindingDomains,
-    currentCluster: cluster,
     pathname,
     page,
     size,

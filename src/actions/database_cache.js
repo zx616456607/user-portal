@@ -180,25 +180,3 @@ export function deleteDatabaseCluster(cluster, dbName, callback) {
     return dispatch(deleteDbCluster(cluster, dbName, callback))
   }
 }
-
-export const GET_DATABASE_STORAGE_ALL_LIST_REQUEST = 'GET_DATABASE_STORAGE_ALL_LIST_REQUEST'
-export const GET_DATABASE_STORAGE_ALL_LIST_SUCCESS = 'GET_DATABASE_STORAGE_ALL_LIST_SUCCESS'
-export const GET_DATABASE_STORAGE_ALL_LIST_FAILURE = 'GET_DATABASE_STORAGE_ALL_LIST_FAILURE'
-
-function fetchDBStorageAllList(cluster, callback) {
-  return {
-    cluster,
-    [FETCH_API]: {
-      types: [GET_DATABASE_STORAGE_ALL_LIST_REQUEST, GET_DATABASE_STORAGE_ALL_LIST_SUCCESS, GET_DATABASE_STORAGE_ALL_LIST_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/persistentvolumeclaims`,
-      schema: {}
-    },
-    callback
-  }
-}
-
-export function loadDBStorageAllList(cluster, callback) {
-  return (dispatch) => {
-    return dispatch(fetchDBStorageAllList(cluster, callback))
-  }
-}

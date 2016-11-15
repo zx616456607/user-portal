@@ -8,20 +8,18 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Spin, Icon, Card, Alert, Modal, Button, notification } from 'antd'
+import { Spin, Icon, Card, Alert, Modal } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import { getTenxFlowStateList, getProjectList, searchProject } from '../../../../actions/cicd_flow'
-import { getDockerfileList, CreateTenxflowBuild, StopTenxflowBuild } from '../../../../actions/cicd_flow'
+import { getDockerfileList, getDockerfiles, setDockerfile, searchDockerfile } from '../../../../actions/cicd_flow'
 import './style/TenxFlowDetailFlow.less'
 import EditTenxFlowModal from './TenxFlowDetailFlow/EditTenxFlowModal.js'
 import CreateTenxFlowModal from './TenxFlowDetailFlow/CreateTenxFlowModal.js'
 import TenxFlowDetailFlowCard from './TenxFlowDetailFlow/TenxFlowDetailFlowCard.js'
-
-const confirm = Modal.confirm;
 
 const menusText = defineMessages({
   title: {
@@ -43,41 +41,19 @@ class TenxFlowDetailFlow extends Component {
     super(props);
     this.createNewFlow = this.createNewFlow.bind(this);
     this.closeCreateNewFlow = this.closeCreateNewFlow.bind(this);
-    this.buildFlow = this.buildFlow.bind(this);
-    this.refreshStageList = this.refreshStageList.bind(this);
     this.state = {
       editTenxFlowModal: false,
       currentModalShowFlow: null,
       currentFlowEdit: null,
-      createNewFlow: false,
-      buildingList: []
+      createNewFlow: false
     }
   }
 
   componentWillMount() {
     const { getTenxFlowStateList, flowId, getProjectList, getDockerfileList } = this.props;
-    const _this = this;
-    let buildingList = [];
     getTenxFlowStateList(flowId, {
       success: {        
-        func: (res) => {
-          res.data.results.map((item) =>{
-            let buildId = null;
-            if(!Boolean(item.lastBuildStatus)) {
-              buildId = null;
-            } else {
-              buildId = item.lastBuildStatus.buildId;
-            }
-            buildingList.push({
-              buildId: buildId,
-              stageId: item.metadata.id
-            })
-          });
-          _this.setState({
-            buildingList: buildingList
-          });
-          getProjectList();
-        },
+        func: () => getProjectList(),
         isAsync: true        
       }
     });
@@ -98,79 +74,13 @@ class TenxFlowDetailFlow extends Component {
       createNewFlow: false
     });
   }
-  
-  buildFlow(stageId) {
-    //this function for user build stage
-    //and user can build single one
-    const { CreateTenxflowBuild, getTenxFlowStateList, flowId } = this.props;
-    let buildFlag = true;
-    const _this = this;
-    CreateTenxflowBuild(flowId, { stageId: stageId }, {
-      success: {
-        func: (res) => {
-          notification['success']({
-            message: '流程构建',
-            description: '流程构建成功~',
-          });
-          let buildingList = _this.state.buildingList;
-          buildingList.map((item) => {
-            if(item.stageId == stageId) {
-              buildFlag = false;
-              item.buildId = res.data.results.flowBuildId;
-            }
-          });
-          if(buildFlag) {
-            buildingList.push({
-              stageId: stageId,
-              buildId: res.data.results.flowBuildId
-            });
-          }
-          _this.setState({
-            buildingList: buildingList
-          });
-          getTenxFlowStateList(flowId);
-        },
-        isAsync: true
-      }
-    })
-  }
-  
-  stopBuildFlow(stageId, stageName) {
-    //this function for user stop building stage
-    const { StopTenxflowBuild, getTenxFlowStateList, flowId } = this.props;
-    const { buildingList } = this.state;
-    confirm({
-        title: '确定停止构建？',
-        content: `停止${stageName}构建`,
-        onOk() {
-          buildingList.map((item) => {
-            if(item.stageId == stageId) {
-              StopTenxflowBuild(flowId, item.buildId, {
-                success: {
-                  func: (res) => getTenxFlowStateList(flowId),
-                  isAsync: true
-                }
-              });
-            }
-          });          
-        },
-        onCancel() {},
-    });
-  }
-  
-  refreshStageList() {
-    //this function for temp refresh stage list 
-    //it will be instead of  using websocket get stage list for native
-    const { getTenxFlowStateList, flowId } = this.props;
-    getTenxFlowStateList(flowId);
-  }
 
   render() {
     const { flowId, stageInfo, stageList, isFetching, projectList } = this.props;
     let scope = this;
     let { currentFlowEdit } = scope.state;
     let cards = null;
-    if(!Boolean(stageList)) {
+    if(isFetching) {
       return (
         <div className='loadingBox'>
           <Spin size='large' />
@@ -179,7 +89,7 @@ class TenxFlowDetailFlow extends Component {
     } else {      
       cards = stageList.map( (item, index) => {
         return (
-          <TenxFlowDetailFlowCard key={'TenxFlowDetailFlowCard' + index} config={item} scope={scope} index={index} flowId={flowId} currentFlowEdit={currentFlowEdit} codeList={projectList} />
+          <TenxFlowDetailFlowCard config={item} scope={scope} index={index} flowId={flowId} currentFlowEdit={currentFlowEdit} codeList={projectList} />
         )
       });
     }
@@ -187,9 +97,6 @@ class TenxFlowDetailFlow extends Component {
       <div id='TenxFlowDetailFlow'>
         <div className='paddingBox'>
           <Alert message={<FormattedMessage {...menusText.tooltip} />} type='info' />
-          <Button style={{ marginBottom: '20px' }} size='large' type='primary' onClick={this.refreshStageList}>
-            <span><i className='fa fa-refresh'></i>&nbsp;刷新</span>
-          </Button><br />
           { cards }
           <div className={ this.state.createNewFlow ? 'TenxFlowDetailFlowCardBigDiv commonCardBox createCardBox' : 'commonCardBox createCardBox'}>
             <Card className='commonCard createCard' onClick={this.createNewFlow}>
@@ -206,7 +113,7 @@ class TenxFlowDetailFlow extends Component {
               {
                 this.state.createNewFlow ? [
                   <QueueAnim key='creattingCardAnimate'>
-                    <CreateTenxFlowModal key='CreateTenxFlowModal' stageList={stageList} scope={scope} flowId={flowId} stageInfo={stageInfo} codeList={projectList} />
+                    <CreateTenxFlowModal key='CreateTenxFlowModal' scope={scope} flowId={flowId} stageInfo={stageInfo} codeList={projectList} />
                   </QueueAnim>
                 ] : null
               }
@@ -252,9 +159,7 @@ export default connect(mapStateToProps, {
   getTenxFlowStateList,
   getProjectList,
   searchProject,
-  getDockerfileList,
-  CreateTenxflowBuild,
-  StopTenxflowBuild
+  getDockerfileList
 })(injectIntl(TenxFlowDetailFlow, {
   withRef: true,
 }));

@@ -24,7 +24,6 @@ import user from './user'
 import openApi from './open_api'
 import team from './team'
 import cicd_flow from './cicd_flow'
-import cluster from './cluster'
 
 // Updates an entity cache in response to any action with response.entities.
 function entities(state = {
@@ -118,8 +117,7 @@ const rootReducer = combineReducers({
   routing,
   openApi,
   team,
-  cicd_flow,
-  cluster,
+  cicd_flow
 })
 
 export default rootReducer

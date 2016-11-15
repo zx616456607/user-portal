@@ -46,10 +46,6 @@ const menusText = defineMessages({
   tooltips: {
     id: 'AppCenter.ImageCenter.PublicSpace.tooltips',
     defaultMessage: '公共镜像 —— 企业成员可以将在镜像空间内设置的私有镜像，一键开放为企业所有人可见的公共镜像，可以实现跨团队，共享容器镜像服务，实现企业内部高效开发协作的容器镜像PaaS平台。',
-  },
-  noData: {
-    id: 'AppCenter.ImageCenter.OtherSpace.noData',
-    defaultMessage: '暂无数据',
   }
 })
 
@@ -86,18 +82,11 @@ let MyComponent = React.createClass({
         </div>
       )
     }
-    if (imageList.length == 0) {
-      return (
-        <div className='loadingBox'>
-          <FormattedMessage {...menusText.noData} />
-        </div>
-      )
-    }
     let items = imageList.map((item) => {
       return (
         <div className="imageDetail" key={item.name} >
           <div className="imageBox">
-            <img src="/img/default.png" />
+            <img src="/img/test/github.jpg" />
           </div>
           <div className="contentBox">
             <span className="title" onClick={this.showImageDetail.bind(this, item)}>

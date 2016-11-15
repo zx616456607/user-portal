@@ -17,11 +17,9 @@ import AppGraph from './AppGraph'
 import AppLog from './AppLog'
 import AppMonitior from './AppMonitior'
 import './style/AppDetail.less'
-import { formatDate } from '../../common/tools'
 import { loadAppDetail } from '../../actions/app_manage'
 import { browserHistory } from 'react-router'
 import AppStatus from '../TenxStatus/AppStatus'
-import { parseAppDomain } from '../parseDomain'
 
 const DEFAULT_TAB = '#service'
 
@@ -88,7 +86,6 @@ class AppDetail extends Component {
     if (app && app.services && app.services[0]) {
       updateDate = app.services[0].metadata.creationTimestamp
     }
-    const domains = parseAppDomain(app, this.props.bindingDomains)
     return (
       <div id="AppDetail">
         <QueueAnim className="demo-content"
@@ -99,7 +96,7 @@ class AppDetail extends Component {
           <div key="ca" className="AppInfo">
             <Card className="topCard">
               <div className="imgBox">
-                <img src="/img/app.png" />
+                <img src="/img/test/github.jpg" />
               </div>
               <div className="infoBox">
                 <p className="appTitle">
@@ -119,15 +116,15 @@ class AppDetail extends Component {
                     }
                   </div>
                   <div className="service">
-                    服务&nbsp;:&nbsp; {`${app.serviceCount} / ${app.serviceCount}`}
+                    服务&nbsp;:&nbsp;{`${app.serviceCount}/${app.serviceCount}`}
                   </div>
                 </div>
                 <div className="middleInfo">
                   <div className="createDate">
-                    创建&nbsp;:&nbsp;{formatDate(app.createTime || '')}
+                    创建&nbsp;:&nbsp;{app.createTime || '-'}
                   </div>
                   <div className="updateDate">
-                    更新&nbsp;:&nbsp;{formatDate(updateDate || '')}
+                    更新&nbsp;:&nbsp;{updateDate}
                   </div>
                 </div>
                 <div className="rightInfo">
@@ -153,9 +150,9 @@ class AppDetail extends Component {
                     appName={appName}
                     loading={isFetching} />
                 </TabPane>
-                <TabPane tab="应用拓扑" key="#topology">应用拓扑</TabPane>
+                <TabPane tab="应用拓扑图" key="#topology">应用拓扑图</TabPane>
                 <TabPane tab="编排文件" key="#stack" ><AppGraph key="AppGraph" cluster={this.props.cluster} appName={this.props.appName} /></TabPane>
-                <TabPane tab="审计日志" key="#logs" >
+                <TabPane tab="操作日志" key="#logs" >
                   <AppLog key="AppLog"
                     cluster={this.props.cluster}
                     appName={this.props.appName} />
@@ -200,7 +197,6 @@ function mapStateToProps(state, props) {
   const { app, isFetching } = appDetail || defaultServices
   return {
     cluster: cluster.clusterID,
-    bindingDomains: state.entities.current.cluster.bindingDomains,
     appName: app_name,
     app,
     isFetching,

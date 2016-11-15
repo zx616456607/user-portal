@@ -10,52 +10,11 @@
  */
 'use strict'
 
-import moment from 'moment'
-
-const locale = window.appLocale.locale
-// Set moment internationalize
-if (locale === 'zh') {
-  moment.locale('zh-cn')
-} else {
-  moment.locale('en', {
-    relativeTime: {
-      future: "in %s",
-      past: "%s ago",
-      s: "%d s",
-      m: "a min",
-      mm: "%d min",
-      h: "1 h",
-      hh: "%d h",
-      d: "a day",
-      dd: "%d days",
-      M: "a month",
-      MM: "%d months",
-      y: "a year",
-      yy: "%d years"
-    }
-  })
-}
-
-/**
- * Format date
- */
-export function formatDate(timestamp) {
-  if (!timestamp || timestamp === '') {
-    return moment(new Date()).format("YYYY-MM-DD HH:mm:ss")
-  } else {
-    return moment(timestamp).format("YYYY-MM-DD HH:mm:ss")
-  }
-}
-
-/**
- * Calculate time from now
- * Option
- * - beginDate
- * Output
- * - three days ago, etc
- */
-export function calcuDate(beginDate) {
-  return moment(beginDate).fromNow()
+export function tenxDateFormat(oldDate) {
+  let newDate = oldDate.replace("T", " ");
+  newDate = newDate.replace("Z", " ");
+  newDate = newDate.split("+")[0];
+  return newDate;
 }
 
 // Y year

@@ -87,7 +87,7 @@ let MyComponent = React.createClass({
       return (
         <div className="imageDetail" key={`${item.id}-${index}`} >
           <div className="imageBox">
-            <img src='/img/default.png' />
+            <img src={item.icon == 'default' ? '/img/test/github.jpg' : item.icon} />
           </div>
           <div className="contentBox">
             <span className="title" onClick={this.showImageDetail.bind(this, item)}>
@@ -95,7 +95,7 @@ let MyComponent = React.createClass({
             </span><br />
             <span className="type">
               <FormattedMessage {...menusText.belong} />&nbsp;
-              {item.contributor}
+              {item.type}
             </span>
             <span className="imageUrl textoverflow">
               <FormattedMessage {...menusText.imageUrl} />&nbsp;

@@ -35,9 +35,7 @@ class ServiceStatus extends Component {
       availableReplicas = 0
     }
     if (!phase) {
-      if (unavailableReplicas > 0 && (!availableReplicas || availableReplicas < replicas)) {
-        phase = 'Starting'
-      } else if (observedGeneration >= metadata.generation && replicas === updatedReplicas) {
+      if (observedGeneration >= metadata.generation && replicas === updatedReplicas) {
         availableReplicas = updatedReplicas
         phase = 'Running'
       } else if (updatedReplicas && unavailableReplicas) {

@@ -145,7 +145,7 @@ const MyComponent = React.createClass({
       return (
         <div className="imageDetail" key={`${item.id}-${index}`} >
           <div className="imageBox">
-            <img src="/img/default.png" />
+            <img src="/img/test/github.jpg" />
           </div>
           <div className="contentBox">
             <span className="title" onClick={this.showImageDetail.bind(this, item)}>
@@ -256,7 +256,7 @@ class ImageSpace extends Component {
                 <i className="fa fa-cloud-download"></i>&nbsp;
                 <FormattedMessage {...menusText.downloadImage} />
               </Button>
-
+   
             </div>
             <MyComponent scope={scope} isFetching={this.props.isFetching} imageList= {imageList} registryServer= {server} deleteImage={(id)=>this.props.deleteImage(id)} getImageDetailInfo = {(obj,callback)=>this.props.getImageDetailInfo(obj,callback) } />
             <Modal title={<FormattedMessage {...menusText.uploadImage} />} className="uploadImageModal" visible={this.state.uploadModalVisible}

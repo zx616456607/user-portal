@@ -35,12 +35,10 @@ class App extends Component {
     notification.error({
       message: 'error',
       description: JSON.stringify(errorMessage.message),
-      // duration: 4.5,
-      // duration: null,
+      // duration: 5,
+      duration: null,
       onClose: handleDismissClick
     })
-
-    setTimeout(this.props.resetErrorMessage)
   }
 
   render() {

@@ -80,7 +80,7 @@ const MyComponent = React.createClass({
       },
       failed: {
         func: (res) => {
-          message.error(res.message.message)
+          message.error(res.data.message.message)
         }
       }
     })
