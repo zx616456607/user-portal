@@ -432,7 +432,7 @@ function getTenxflowCIRules(state = {}, action) {
 function getTenxflowBuildLogs(state = {}, action) {
   const defaultState = {
     isFetching: false,
-    logs: {}
+    logs: []
   }
   switch (action.type) {
     case ActionTypes.GET_FLOW_BUILD_LOG_REQUEST:
@@ -442,7 +442,7 @@ function getTenxflowBuildLogs(state = {}, action) {
     case ActionTypes.GET_FLOW_BUILD_LOG_SUCCESS:
       return Object.assign({}, state, {
         isFetching: false,
-        logs: action.response.result.data.results.results || {}
+        logs: action.response.result.data.results.results || []
       }
       )
     case ActionTypes.GET_FLOW_BUILD_LOG_FAILURE:
