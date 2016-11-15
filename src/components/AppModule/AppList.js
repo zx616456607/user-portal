@@ -532,6 +532,7 @@ class AppList extends Component {
               </div>
               <div className='littleRight'>
                 <Input
+                  size='large'
                   onChange={(e) => {
                     this.setState({
                       searchInputValue: e.target.value

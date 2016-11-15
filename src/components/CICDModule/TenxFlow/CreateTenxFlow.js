@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Input, Form, Switch, Radio, Checkbox } from 'antd'
+import { Button, Input, Form, Switch, Radio, Checkbox, Spin } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -91,16 +91,20 @@ let CreateTenxFlow = React.createClass({
   },
   nameExists(rule, value, callback) {
     //this function for check the new tenxflow name is exist or not
+    const { flowList } = this.props;
+    let flag = false;
     if (!value) {
       callback();
     } else {
-      setTimeout(() => {
-        if (value === 'tenxflow') {
-          callback([new Error('抱歉，该名称已被占用。')]);
-        } else {
-          callback();
+      flowList.map((item) => {
+        if(item.name == value) {
+          flag = true;
+          callback([new Error('flow名称已存在了哦~')]);
         }
-      }, 800);
+      });
+    }
+    if(!flag) {
+      callback()
     }
   },
   onChangeFlowType(e) {
@@ -237,7 +241,14 @@ let CreateTenxFlow = React.createClass({
   },
   render() {
     const { formatMessage } = this.props.intl;
-    const { scope } = this.props;
+    const { scope, isFetching } = this.props;
+    if(isFetching) {
+      return (
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
+      )
+    }
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form;
     const nameProps = getFieldProps('name', {
       rules: [
