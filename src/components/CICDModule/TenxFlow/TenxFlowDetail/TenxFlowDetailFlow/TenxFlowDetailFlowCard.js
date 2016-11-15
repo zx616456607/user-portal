@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Spin, Icon, Card, Modal, Button, Switch } from 'antd'
+import { Spin, Icon, Card, Modal, Button, Switch, Menu } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -310,7 +310,7 @@ class TenxFlowDetailFlowCard extends Component {
           });
         },
         onCancel() {},
-      }
+      })
     }
   }
   
