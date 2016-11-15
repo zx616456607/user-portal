@@ -103,6 +103,7 @@ exports.getTeamClusters = function* () {
   const result = yield api.teams.getBy([teamID, 'clusters'], queryObj)
   const clusters = result.clusters || []
   this.body = {
+    teamID,
     data: clusters,
     total: result.listMeta.total,
     count: result.listMeta.size
