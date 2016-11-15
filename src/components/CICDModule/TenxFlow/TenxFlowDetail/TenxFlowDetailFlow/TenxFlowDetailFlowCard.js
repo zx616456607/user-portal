@@ -295,7 +295,7 @@ class TenxFlowDetailFlowCard extends Component {
   
   viewCicdBox(e) {
     //this function for user change open cicd or not
-    const { getTenxflowCIRules, flowId } = this.props;
+    const { getTenxflowCIRules, UpdateTenxflowCIRules, flowId } = this.props;
     const _this = this;
     if(e){
       getTenxflowCIRules(flowId);
@@ -315,10 +315,6 @@ class TenxFlowDetailFlowCard extends Component {
               mergeRequest: null
             }
           }
-          _this.setState({
-            cicdSetModalShow: false,
-            ciRulesOpened: false
-          });
           UpdateTenxflowCIRules(flowId, body, {
             success: {
               func: (res) => {
@@ -329,6 +325,10 @@ class TenxFlowDetailFlowCard extends Component {
               },
               isAsync: true
             }
+          });
+          _this.setState({
+            cicdSetModalShow: false,
+            ciRulesOpened: false
           });
         },
         onCancel() {},
