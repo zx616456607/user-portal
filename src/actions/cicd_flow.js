@@ -92,7 +92,7 @@ function fetchAddCodeRepo(type, obj, callback) {
           name: obj.name,
           source_full_name: obj.name,
           repo_type:type,
-          address: obj.private ? obj.sshUrl : obj.cloneUrl,
+          address: obj.sshUrl,
           gitlab_project_id: obj.projectId,
           is_private:obj.private ? 1 : 0
         }
@@ -332,31 +332,6 @@ export function setDockerfile(flowInfo, callback) {
   }
 }
 
-export const CREATE_DOCKER_FILES_REQUEST = 'CREATE_DOCKER_FILES_REQUEST'
-export const CREATE_DOCKER_FILES_SUCCESS = 'CREATE_DOCKER_FILES_SUCCESS'
-export const CREATE_DOCKER_FILES_FAILURE = 'CREATE_DOCKER_FILES_FAILURE'
-
-function fetchCreateDockerfile(flows, callback) {
-  return {
-    [FETCH_API]: {
-      types: [CREATE_DOCKER_FILES_REQUEST, CREATE_DOCKER_FILES_SUCCESS, CREATE_DOCKER_FILES_FAILURE],
-      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flows.flowId}/stages/${flows.stageId}/dockerfile`,
-      schema: {},
-      options: {
-        method: 'POST',
-        body: { content: flows.content }
-      }
-    },
-    callback
-  }
-}
-
-export function createDockerfile(flowInfo, callback) {
-  return (dispatch, getState) => {
-    return dispatch(fetchCreateDockerfile(flowInfo, callback))
-  }
-}
-
 export const SEARCH_DOCKER_FILES_LIST = 'SEARCH_DOCKER_FILES_LIST'
 export function searchDockerfile(names) {
   return {
@@ -368,7 +343,6 @@ export function searchDockerfile(names) {
 export const GET_DEPLOY_LOG_REQUEST = 'GET_DEPLOY_LOG_REQUEST'
 export const GET_DEPLOY_LOG_SUCCESS = 'GET_DEPLOY_LOG_SUCCESS'
 export const GET_DEPLOY_LOG_FAILURE = 'GET_DEPLOY_LOG_FAILURE'
-// get deployment log list
 function fetchdeploymentLog(flowId) {
   return {
     [FETCH_API]: {
@@ -382,100 +356,6 @@ function fetchdeploymentLog(flowId) {
 export function deploymentLog(flowId) {
   return (dispatch, getState) =>{
     dispatch(fetchdeploymentLog(flowId))
-  }
-}
-
-export const GET_CD_RULES_LIST_REQUEST = 'GET_CD_RULES_LIST_REQUEST'
-export const GET_CD_RULES_LIST_SUCCESS = 'GET_CD_RULES_LIST_SUCCESS'
-export const GET_CD_RULES_LIST_FAILURE = 'GET_CD_RULES_LIST_FAILURE'
-// GET cd rules
-function fetchCdRules(flowId, callback) {
-  return {
-    [FETCH_API]: {
-      types: [GET_CD_RULES_LIST_REQUEST, GET_CD_RULES_LIST_SUCCESS, GET_CD_RULES_LIST_FAILURE],
-      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/cd-rules`,
-      schema: {},
-    },
-    callback
-  }
-}
-
-export function gitCdRules(flowId, callback) {
-  return (dispatch, getState) => {
-    dispatch(fetchCdRules(flowId, callback))
-  }
-}
-export const ADD_CD_RULES_LIST_REQUEST = 'ADD_CD_RULES_LIST_REQUEST'
-export const ADD_CD_RULES_LIST_SUCCESS = 'ADD_CD_RULES_LIST_SUCCESS'
-export const ADD_CD_RULES_LIST_FAILURE = 'ADD_CD_RULES_LIST_FAILURE'
-
-// add cd rules
-function fetchAddRules(obj, callback) {
-  return {
-    [FETCH_API]: {
-      types: [ADD_CD_RULES_LIST_REQUEST, ADD_CD_RULES_LIST_SUCCESS, ADD_CD_RULES_LIST_FAILURE],
-      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${obj.flowId}/cd-rules`,
-      options: {
-        method: 'POST',
-        body: obj
-      },
-      schema: {},
-    },
-    callback
-  }
-}
-
-export const DELETE_CD_RULES_LIST_REQUEST = 'DELETE_CD_RULES_LIST_REQUEST'
-export const DELETE_CD_RULES_LIST_SUCCESS = 'DELETE_CD_RULES_LIST_SUCCESS'
-export const DELETE_CD_RULES_LIST_FAILURE = 'DELETE_CD_RULES_LIST_FAILURE'
-export function addCdRules(obj, callback) {
-  return (dispatch, getState) =>{
-    dispatch(fetchAddRules(obj, callback))
-  }
-}
-
-function fetchDeleteRules(flowId, ruleId, callback) {
-  return {
-    [FETCH_API]: {
-      types: [DELETE_CD_RULES_LIST_REQUEST, DELETE_CD_RULES_LIST_SUCCESS, DELETE_CD_RULES_LIST_FAILURE],
-      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/cd-rules/${ruleId}`,
-      options: {
-        method: 'DELETE',
-      },
-      schema: {},
-    },
-    ruleId,
-    callback
-  }
-}
-export function deleteCdRule(flowId, ruleId, callback) {
-  return (dispatch, getState) => {
-    dispatch(fetchDeleteRules(flowId, ruleId, callback))
-  }
-}
-
-export const UPDATE_CD_RULES_LIST_REQUEST = 'UPDATE_CD_RULES_LIST_REQUEST'
-export const UPDATE_CD_RULES_LIST_SUCCESS = 'UPDATE_CD_RULES_LIST_SUCCESS'
-export const UPDATE_CD_RULES_LIST_FAILURE = 'UPDATE_CD_RULES_LIST_FAILURE'
-
-function fetchPutCdRule(obj, callback) {
-  return {
-    [FETCH_API]: {
-      types: [UPDATE_CD_RULES_LIST_REQUEST, UPDATE_CD_RULES_LIST_SUCCESS, UPDATE_CD_RULES_LIST_FAILURE],
-      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${obj.flowId}/cd-rules/${obj.ruleId}`,
-      options: {
-        method: 'PUT',
-        body: obj
-      },
-      schema: {},
-    },
-    callback
-  }
-}
-
-export function putCdRule(obj, callback) {
-  return (dispatch, getState) => {
-    dispatch(fetchPutCdRule(obj, callback))
   }
 }
 
@@ -729,100 +609,5 @@ function fetchCodeStoreBranchDetail(storeType, reponame, project_id, callback) {
 export function getCodeStoreBranchDetail(storeType, reponame, project_id, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchCodeStoreBranchDetail(storeType, reponame, project_id, callback))
-  }
-}
-
-export const BUILD_TENX_FLOW_REQUEST = 'BUILD_TENX_FLOW_REQUEST'
-export const BUILD_TENX_FLOW_SUCCESS = 'BUILD_TENX_FLOW_SUCCESS'
-export const BUILD_TENX_FLOW_FAILURE = 'BUILD_TENX_FLOW_FAILURE'
-
-function postCreateTenxflowBuild(flowId, body, callback) {
-  return {
-    [FETCH_API]: {
-      types: [BUILD_TENX_FLOW_REQUEST, BUILD_TENX_FLOW_SUCCESS, BUILD_TENX_FLOW_FAILURE],
-      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/builds`,
-      schema: {},
-      options: {
-        method: 'POST',
-        body: body
-      }
-    },
-    callback: callback
-  }
-}
-
-export function CreateTenxflowBuild(flowId, body, callback) {
-  return (dispatch, getState) => {
-    return dispatch(postCreateTenxflowBuild(flowId, body, callback))
-  }
-}
-
-export const STOP_BUILD_TENX_FLOW_REQUEST = 'STOP_BUILD_TENX_FLOW_REQUEST'
-export const STOP_BUILD_TENX_FLOW_SUCCESS = 'STOP_BUILD_TENX_FLOW_SUCCESS'
-export const STOP_BUILD_TENX_FLOW_FAILURE = 'STOP_BUILD_TENX_FLOW_FAILURE'
-
-function putStopTenxflowBuild(flowId, buildId, callback) {
-  return {
-    [FETCH_API]: {
-      types: [STOP_BUILD_TENX_FLOW_REQUEST, STOP_BUILD_TENX_FLOW_SUCCESS, STOP_BUILD_TENX_FLOW_FAILURE],
-      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/builds/${buildId}/stop`,
-      schema: {},
-      options: {
-        method: 'PUT',
-      }
-    },
-    callback: callback
-  }
-}
-
-export function StopTenxflowBuild(flowId, buildId, callback) {
-  return (dispatch, getState) => {
-    return dispatch(putStopTenxflowBuild(flowId, buildId, callback))
-  }
-}
-
-export const GET_FLOW_CI_RULES_REQUEST = 'GET_FLOW_CI_RULES_REQUEST'
-export const GET_FLOW_CI_RULES_SUCCESS = 'GET_FLOW_CI_RULES_SUCCESS'
-export const GET_FLOW_CI_RULES_FAILURE = 'GET_FLOW_CI_RULES_FAILURE'
-
-function fetchTenxflowCIRules(flowId, callback) {
-  return {
-    [FETCH_API]: {
-      types: [GET_FLOW_CI_RULES_REQUEST, GET_FLOW_CI_RULES_SUCCESS, GET_FLOW_CI_RULES_FAILURE],
-      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/ci-rules`,
-      schema: {}
-    },
-    callback: callback
-  }
-}
-
-export function getTenxflowCIRules(flowId, callback) {
-  return (dispatch, getState) => {
-    return dispatch(fetchTenxflowCIRules(flowId, callback))
-  }
-}
-
-export const UPDATE_FLOW_CI_RULES_REQUEST = 'UPDATE_FLOW_CI_RULES_REQUEST'
-export const UPDATE_FLOW_CI_RULES_SUCCESS = 'UPDATE_FLOW_CI_RULES_SUCCESS'
-export const UPDATE_FLOW_CI_RULES_FAILURE = 'UPDATE_FLOW_CI_RULES_FAILURE'
-
-function putUpdateTenxflowCIRules(flowId, body, callback) {
-  return {
-    [FETCH_API]: {
-      types: [UPDATE_FLOW_CI_RULES_REQUEST, UPDATE_FLOW_CI_RULES_SUCCESS, UPDATE_FLOW_CI_RULES_FAILURE],
-      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/ci-rules`,
-      schema: {},
-      options: {
-        method: 'PUT',
-        body: body
-      }
-    },
-    callback: callback
-  }
-}
-
-export function UpdateTenxflowCIRules(flowId, body, callback) {
-  return (dispatch, getState) => {
-    return dispatch(putUpdateTenxflowCIRules(flowId, body, callback))
   }
 }

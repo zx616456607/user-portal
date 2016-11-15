@@ -5,7 +5,7 @@
  * @author mengyuan
  */
 
-export function parseServiceDomain(item, bindingDomainStr) {
+export default function parseServiceDomain(item, bindingDomainStr) {
   let bindingDomain = []
   try {
     bindingDomain = JSON.parse(bindingDomainStr)
@@ -14,7 +14,7 @@ export function parseServiceDomain(item, bindingDomainStr) {
     bindingDomain = []
   }
   let domains = []
-  // parse external domain, item.ports is http/1234,tcp/321,udp/431
+  // item.ports is http/1234,tcp/321,udp/431
   if (item && item.metadata
     && item.ports
     && bindingDomain.length > 0) {
@@ -24,9 +24,9 @@ export function parseServiceDomain(item, bindingDomainStr) {
       if (pair.length == 2) {
         const schema = pair[0].toLowerCase()
         const port = pair[1]
+        // 检查是bindingDomain是否是IP，（此正则并不精确但在此处够用了）
         bindingDomain.map((bindingDomain) => {
           let domain = ''
-          // 检查是bindingDomain是否是IP，（此正则并不精确但在此处够用了）
           if (/^(\d{1,3}\.){3}\d{1,3}$/.test(bindingDomain)) {
             // e.g. http://192.168.1.123:1234
             domain = schema+'://'+bindingDomain+':'+port
@@ -44,18 +44,5 @@ export function parseServiceDomain(item, bindingDomainStr) {
       } 
     })
   }
-  // parse interanl domain item.portForInternal is ["1234", "4567", "5234"]
-  if (item && item.metadata.name && item.portForInternal) {
-    item.portForInternal.map((port) => domains.push(item.metadata.name + ":" + port))
-  }
-  return domains
-}
-
-export function parseAppDomain(app, bindingDomainStr) {
-  let domains = {}
-  app.services.map((item) => {
-    domains[item.metadata.name] = parseServiceDomain(item, bindingDomainStr)
-  })
-  
   return domains
 }

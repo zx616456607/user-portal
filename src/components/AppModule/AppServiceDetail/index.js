@@ -26,9 +26,8 @@ import { loadServiceDetail, loadServiceContainerList } from '../../../actions/se
 import CommmonStatus from '../../CommonStatus'
 import './style/AppServiceDetail.less'
 import TerminalModal from '../../TerminalModal'
-import { parseServiceDomain } from '../../parseDomain'
+import parseServiceDomain from '../../parseDomain'
 import ServiceStatus from '../../TenxStatus/ServiceStatus'
-import { TENX_MARK } from '../../../constants'
 
 const DEFAULT_TAB = '#containers'
 const TabPane = Tabs.TabPane;
@@ -180,7 +179,7 @@ class AppServiceDetail extends Component {
           <Icon className="closeBtn" type="cross" onClick={this.closeModal} />
           {/*<i className="closeBtn fa fa-times" onClick={this.closeModal}></i>*/}
           <div className="imgBox">
-            <img src="/img/default.png" />
+            <img src="/img/test/github.jpg" />
           </div>
           <div className="infoBox">
             <p className="instanceName">
@@ -203,14 +202,11 @@ class AppServiceDetail extends Component {
               </span>
               <br />
               <span>
-                容器实例&nbsp;:&nbsp;
-                {service.status.availableReplicas || 0}
-                /
-                {service.spec.replicas || service.metadata.annotations[`${TENX_MARK}/replicas`]}
+                容器实例&nbsp;:&nbsp;{service.spec.replicas}/{service.spec.replicas}
               </span>
             </div>
             <div className="rightBox">
-              <Button className="loginBtn" type="primary" size="large"
+              <Button className="loginBtn" type="primary"
                 onClick={this.openTerminalModal}>
                 <svg className="terminal">
                   <use xlinkHref="#terminal" />
@@ -231,8 +227,8 @@ class AppServiceDetail extends Component {
           className='TerminalLayoutModal'
           transitionName='move-down'
           onCancel={this.closeTerminalLayoutModal}
-          >
-          <TerminalModal scope={parentScope} config={containers.length > 0 ? containers[0] : null} show={this.state.TerminalLayoutModal} />
+        >
+          <TerminalModal scope={parentScope} config={containers.length > 0 ? containers[0] : null} show={this.state.TerminalLayoutModal}/>
         </Modal>
         <div className="bottomBox">
           <div className="siderBox">
@@ -302,7 +298,7 @@ class AppServiceDetail extends Component {
                   cluster={service.cluster} />
               </TabPane>
               <TabPane tab="日志" key="#logs">
-                <AppServiceLog serviceName={service.metadata.name} cluster={service.cluster} serviceDetailmodalShow={serviceDetailmodalShow} />
+                <AppServiceLog serviceName={service.metadata.name} cluster={service.cluster} serviceDetailmodalShow={serviceDetailmodalShow}/>
               </TabPane>
               <TabPane tab="事件" key="#events">
                 <AppServiceEvent serviceName={service.metadata.name} cluster={service.cluster} />

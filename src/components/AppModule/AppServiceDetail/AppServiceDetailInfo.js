@@ -13,7 +13,6 @@ import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import "./style/AppServiceDetailInfo.less"
-import { formatDate } from '../../../common/tools'
 
 export default class AppServiceDetailInfo extends Component {
   constructor(props) {
@@ -54,7 +53,7 @@ export default class AppServiceDetailInfo extends Component {
               {serviceDetail.images.join(', ') || '-'}
             </div>
             <div className="commonTitle">
-              {formatDate(serviceDetail.metadata.creationTimestamp || '')}
+              {serviceDetail.metadata.creationTimestamp}
             </div>
             <div style={{ clear: "both" }}></div>
           </div>

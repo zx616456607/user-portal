@@ -205,7 +205,7 @@ export default class AppStore extends Component {
           <div className="operaBox">
             <div className="line"></div>
             <span>选择应用</span>
-            <Input placeholder="搜索应用~" size="large" />
+            <Input placeholder="搜索你的本命应用~" size="large" />
             <Button>
               <i className="fa fa-search"></i>
             </Button>

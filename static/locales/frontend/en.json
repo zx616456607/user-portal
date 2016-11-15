@@ -295,9 +295,6 @@
   "CICD.Tenxflow.EditTenxFlowModal.cancel": "取消",
   "CICD.Tenxflow.EditTenxFlowModal.envTitle": "自定义环境变量",
   "CICD.Tenxflow.EditTenxFlowModal.branch": "Branch:",
-  "CICD.Tenxflow.EditTenxFlowModal.noDockerFileInput": "Docker File不能为空",
-  "CICD.Tenxflow.EditTenxFlowModal.dockerFileTitle": "创建Docker File",
-  
   "CICD.Tenxflow.CreateTenxFlowModal.titleEdit": "编辑项目卡片",
   "CICD.Tenxflow.CreateTenxFlowModal.titleAdd": "创建项目卡片",
   "CICD.Tenxflow.CreateTenxFlowModal.unitCheck": "执行失败",
@@ -333,9 +330,6 @@
   "CICD.Tenxflow.CreateTenxFlowModal.codeStore": "代码仓库",
   "CICD.Tenxflow.CreateTenxFlowModal.noCodeStore": "请选择代码仓库",
   "CICD.Tenxflow.CreateTenxFlowModal.branch": "分支：",
-  "CICD.Tenxflow.CreateTenxFlowModal.noDockerFileInput": "Docker File不能为空",
-  "CICD.Tenxflow.CreateTenxFlowModal.dockerFileTitle": "创建Docker File",
-  
   "CICD.Tenxflow.TenxFlowDetailFlowCard.name": "Name:",
   "CICD.Tenxflow.TenxFlowDetailFlowCard.type": "Type:",
   "CICD.Tenxflow.TenxFlowDetailFlowCard.code": "Code:",
@@ -445,11 +439,9 @@
   "ManageMonitor.operationalAudit.hour": "H",
   "ManageMonitor.operationalAudit.objType": "Type:",
   "ManageMonitor.operationalAudit.objName": "Obj:",
-  "ManageMonitor.operationalAudit.allResource": "All",
-  
   "ManageMonitor.QueryLog.headTitle": "日志查询 | 时速云",
   "ManageMonitor.QueryLog.title": "Query Log",
-  "ManageMonitor.QueryLog.user": "Space:",
+  "ManageMonitor.QueryLog.user": "User:",
   "ManageMonitor.QueryLog.selectUser": "Select User",
   "ManageMonitor.QueryLog.cluster": "Cluster:",
   "ManageMonitor.QueryLog.selectCluster": "Select Cluster",
@@ -464,7 +456,5 @@
   "ManageMonitor.QueryLog.noCluster": "请选择集群",
   "ManageMonitor.QueryLog.noService": "请选择服务",
   "ManageMonitor.QueryLog.noInstance": "请选择实例",
-  "ManageMonitor.QueryLog.search": "Search",
-  "ManageMonitor.QueryLog.searchType": "模糊查询"
-  
+  "ManageMonitor.QueryLog.search": "Search"
 }

@@ -18,7 +18,6 @@ import { remove, findIndex } from 'lodash'
 import { loadStorageList, deleteStorage, createStorage, formateStorage, resizeStorage } from '../../actions/storage'
 import { DEFAULT_IMAGE_POOL } from '../../constants'
 import './style/storage.less'
-import { calcuDate } from '../../common/tools'
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
@@ -115,7 +114,7 @@ const messages = defineMessages({
   },
   inputPlaceholder: {
     id: 'Storage.modal.inputPlaceholder',
-    defaultMessage: '按存储名称搜索',
+    defaultMessage: '输入应用名搜索',
   }
 })
 
@@ -259,14 +258,15 @@ let MyComponent = React.createClass({
           <div className="size commonData">{item.totalSize}M</div>
           <div className="createTime commonData">
             <span className='spanBlock'>
-              <Tooltip placement="topLeft" title={calcuDate(item.createTime)}>
-                <span>{calcuDate(item.createTime)}</span>
+              <Tooltip placement="topLeft" title={item.createTime}>
+                <span>{item.createTime}</span>
               </Tooltip>
             </span>
           </div>
           <div className="actionBtn commonData">
-            <Button size='large' disabled={item.isUsed} className="btn-warning" onClick={(e) => { this.showAction('format', item.name, item.format) } }><Icon type="delete" /><FormattedMessage {...messages.formatting} /></Button>
-            <Button size='large' disabled={item.isUsed} className="btn-success" onClick={() => { this.showAction('resize', item.name, item.totalSize) } }><Icon type="scan" /><FormattedMessage {...messages.dilation} /></Button>
+            <Button disabled={item.isUsed} className="btn-warning" onClick={(e) => { this.showAction('format', item.name, item.format) } }><Icon type="delete" /><FormattedMessage {...messages.formatting} /></Button>
+            <span className="margin"></span>
+            <Button disabled={item.isUsed} className="btn-success" onClick={() => { this.showAction('resize', item.name, item.totalSize) } }><Icon type="scan" /><FormattedMessage {...messages.dilation} /></Button>
             <div style={{ clear: 'both' }}></div>
           </div>
           <div style={{ clear: 'both' }}></div>
@@ -573,7 +573,7 @@ class Storage extends Component {
                 <i className="fa fa-search"></i>
               </div>
               <div className="littleRight">
-                <Input size="large" placeholder={formatMessage(messages.inputPlaceholder)} onChange={(e) => this.getSearchAppName(e)} onPressEnter={() => this.searchByAppName()} />
+                <Input placeholder={formatMessage(messages.inputPlaceholder)} onChange={(e) => this.getSearchAppName(e)} onPressEnter={() => this.searchByAppName()} />
               </div>
             </div>
             <div className="clearDiv"></div>

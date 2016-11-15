@@ -23,7 +23,6 @@ const teamController = require('../controllers/team_manage')
 const tokenController = require('../controllers/token')
 const devopsController = require('../controllers/devops')
 const licenseController = require('../controllers/license')
-const clusterController = require('../controllers/cluster_manage')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -43,9 +42,6 @@ module.exports = function (Router) {
   router.get('/storage-pools/:pool/:cluster/volumes/:name/bindinfo', volumeController.getBindInfo)
   router.get('/storage-pools/:pool/:cluster/volumes/:name/exportfile', volumeController.exportFile)
   router.get('/storage-pools/:cluster/volumes/available', volumeController.getAvailableVolume)
-
-  // Clusters
-  router.get('/clusters', clusterController.getClusters)
   // Apps
   router.post('/clusters/:cluster/apps', appController.createApp)
   router.get('/clusters/:cluster/apps', appController.getApps)
@@ -95,7 +91,6 @@ module.exports = function (Router) {
   router.get('/users', userController.getUsers)
   router.get('/users/:user_id/teams', userController.getUserTeams)
   router.get('/users/:user_id/teamspaces', userController.getUserTeamspaces)
-  router.get('/users/:user_id/teamspaces/detail', userController.getUserTeamspacesWithDetail)
   router.post('/users', userController.createUser)
   router.delete('/users/:user_id', userController.deleteUser)
   router.patch('/users/:user_id', userController.updateUser)
@@ -205,11 +200,7 @@ module.exports = function (Router) {
   router.get('/devops/ci-flows/:flow_id/cd-rules', devopsController.listCDRules)
   router.delete('/devops/ci-flows/:flow_id/cd-rules/:rule_id', devopsController.removeCDRule)
   router.put('/devops/ci-flows/:flow_id/cd-rules/:rule_id', devopsController.updateCDRule)
-  
-  // CI rules
-  router.get('/devops/ci-flows/:flow_id/ci-rules', devopsController.getCIRule)
-  router.put('/devops/ci-flows/:flow_id/ci-rules', devopsController.updateCIRule)
-  
+
   // Flow build
   router.post('/devops/ci-flows/:flow_id/builds', devopsController.createFlowBuild)
   router.get('/devops/ci-flows/:flow_id/builds', devopsController.listBuilds)

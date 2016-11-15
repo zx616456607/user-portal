@@ -109,10 +109,10 @@ exports.getUserTeams = function* () {
   if (query && query.sort) {
     queryObj.sort = query.sort
   }
+  //Todo enable below filter when API problem fixed
+  //queryObj.filter = "creatorID," + userID
   if (query.filter) {
-    queryObj.filter = query.filter + ",creatorID__eq," + userID
-  } else {
-    queryObj.filter = "creatorID__eq," + userID
+    queryObj.filter = query.filter
   }
   const api = apiFactory.getApi(loginUser)
   const result = yield api.teams.get(queryObj)
@@ -131,21 +131,8 @@ exports.getUserTeams = function* () {
 exports.getUserTeamspaces = function* () {
   let userID = this.params.user_id
   const loginUser = this.session.loginUser
-  const query = this.query || {}
- 
-  this.body = getUserTeamspacesImpl(userID, loginUser, query, false)
-}
-
-exports.getUserTeamspacesWithDetail = function* () {
-  let userID = this.params.user_id
-  const loginUser = this.session.loginUser
-  const query = this.query || {}
- 
-  this.body = yield getUserTeamspacesImpl(userID, loginUser, query, true)
-}
-
-function* getUserTeamspacesImpl(userID, loginUser, query, fetchDetail) {
   userID = userID === 'default' ? loginUser.id : userID
+  const query = this.query || {}
   let page = parseInt(query.page || DEFAULT_PAGE)
   let size = parseInt(query.size || DEFAULT_PAGE_SIZE)
   let sort_by = parseInt(query.sort_by || "name")
@@ -179,16 +166,14 @@ function* getUserTeamspacesImpl(userID, loginUser, query, fetchDetail) {
     total = result.listMeta.total
   }
 
-  if (fetchDetail) {
-    for (let index in teamspaces) {
-      const r = yield api.teams.getBy([teamspaces[index].teamID, "spaces", teamspaces[index].spaceID, "app_info"])
-      teamspaces[index].appCount = r.appCount
-      teamspaces[index].serviceCount = r.serviceCount
-      teamspaces[index].containerCount = r.containerCount
-    } 
-  }
+  for (let index in teamspaces) {
+    const r = yield api.teams.getBy([teamspaces[index].teamID, "spaces", teamspaces[index].spaceID, "app_info"])
+    teamspaces[index].appCount = r.appCount
+    teamspaces[index].serviceCount = r.serviceCount
+    teamspaces[index].containerCount = r.containerCount
+  } 
 
-  return {
+  this.body = {
     teamspaces,
     total
   }
@@ -215,7 +200,7 @@ exports.createUser = function* () {
     from: "service@tenxcloud.com", // sender address
     to: user.email, // list of receivers
     subject: '用户创建成功通知', // Subject line
-    html: `<b>${loginUser.user}您好:</b><br/><br/>恭喜您成功创建如下用户: <br/>用户名: ${user.userName}<br/>密码: ${user.password}` // html body
+    html: `<b>${loginUser}您好:</b><br/><br/>恭喜您成功创建如下用户: <br/>用户名: ${user.userName}<br/>密码: ${user.password}` // html body
   }
   try{
     yield email.sendEmail(mailOptions)

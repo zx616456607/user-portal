@@ -466,34 +466,6 @@ exports.updateCDRule = function* () {
 }
 
 /*
-CI rules 
-*/
-exports.getCIRule = function* () {
-  const loginUser = this.session.loginUser
-  const flow_id = this.params.flow_id
-  
-  const api = apiFactory.getDevOpsApi(loginUser)
-  const result = yield api.getBy(["ci-flows", flow_id, "ci-rules"])
-  
-  this.body = {
-    data: result
-  }
-}
-
-exports.updateCIRule = function* () {
-  const loginUser = this.session.loginUser
-  const flow_id = this.params.flow_id
-  const body = this.request.body
-  
-  const api = apiFactory.getDevOpsApi(loginUser)
-  const result = yield api.updateBy(["ci-flows", flow_id, "ci-rules"], null, body)
-
-  this.body = {
-    data: result
-  }
-}
-
-/*
 Dockerfile APIs
 */
 exports.listDockerfiles = function* () {

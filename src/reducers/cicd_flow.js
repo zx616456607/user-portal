@@ -22,7 +22,7 @@ function codeRepo(state = {}, action) {
     case ActionTypes.GET_REPOS_LIST_REQUEST:
       return merge({}, defaultState, state, { isFetching: true })
     case ActionTypes.GET_REPOS_LIST_SUCCESS:
-      return Object.assign({}, state, {
+      return merge({}, state, {
         isFetching: false,
         repoList: action.response.result.data.results,
         bak: action.response.result.data.results
@@ -42,6 +42,13 @@ function codeRepo(state = {}, action) {
         bak: null
       })
     case ActionTypes.DELETE_REPOS_LIST_FAILURE:
+      return merge({}, state, { isFetching: false })
+    // registry
+    case ActionTypes.REGISTRY_CODE_REPO_REQUEST:
+      return merge({}, defaultState, state, { isFetching: false })
+    case ActionTypes.REGISTRY_CODE_REPO_SUCCESS:
+      return merge({}, state, { isFetching: false })
+    case ActionTypes.REGISTRY_CODE_REPO_FAILURE:
       return merge({}, state, { isFetching: false })
 
     // search 
@@ -97,7 +104,7 @@ function getProject(state = {}, action) {
     case ActionTypes.GET_CODE_STORE_REQUEST:
       return merge({}, defaultState, state, { isFetching: true })
     case ActionTypes.GET_CODE_STORE_SUCCESS:
-      return Object.assign({}, state, {
+      return merge({}, state, {
         isFetching: false,
         projectList: action.response.result.data.results,
         bak: action.response.result.data.results
@@ -238,44 +245,6 @@ function deployLog(state={}, action) {
         isFetching: false,
         deployList:[]
       })
-    default:
-      return state
-  }
-}
-
-function getCdRules(state={}, action) {
-  const defaultStatus= {
-    isFetching: false,
-    cdRulesList:[]
-  }
-  switch(action.type) {
-    case ActionTypes.GET_CD_RULES_LIST_REQUEST:
-      return merge({}, defaultStatus, state, {
-        isFetching: true
-      })
-    case ActionTypes.GET_CD_RULES_LIST_SUCCESS:
-      for (let i=0;i<action.response.result.data.results.length; i++) {
-        action.response.result.data.results[i].editing = false
-      }
-      return Object.assign({}, state, {
-        isFetching: false,
-        cdRulesList:　action.response.result.data.results
-      })
-    case ActionTypes.GET_CD_RULES_LIST_FAILURE:
-      return Object.assign({}, state, {
-        isFetching: false,
-        cdRulesList:[]
-      })
-    case ActionTypes.DELETE_CD_RULES_LIST_SUCCESS:
-      const cdState = cloneDeep(state)
-      let cin = findIndex(cdState.cdRulesList, item => {
-        return item.ruleId == action.ruleId
-      })
-      cdState.cdRulesList.splice(cin, 1)
-      return {...cdState}
-
-    default: 
-      return state
   }
 }
 
@@ -406,31 +375,6 @@ function getCodeStoreBranchList(state = {}, action) {
   }
 }
 
-function getTenxflowCIRules(state = {}, action) {
-  const defaultState = {
-    isFetching: false,
-    ciRules: {}
-  }
-  switch (action.type) {
-    case ActionTypes.GET_FLOW_CI_RULES_REQUEST:
-      return merge({}, defaultState, state, {
-        isFetching: true
-      })
-    case ActionTypes.GET_FLOW_CI_RULES_SUCCESS:
-      return Object.assign({}, state, {
-        isFetching: false,
-        ciRules: action.response.result.data,
-      }
-      )
-    case ActionTypes.GET_FLOW_CI_RULES_FAILURE:
-      return merge({}, defaultState, state, {
-        isFetching: false
-      })
-    default:
-      return state
-  }
-}
-
 export default function cicd_flow(state = {}, action) {
   return {
     codeRepo: codeRepo(state.codeRepo, action),
@@ -440,13 +384,6 @@ export default function cicd_flow(state = {}, action) {
     userInfo: getUserInfo(state.userInfo, action),
     dockerfileLists: getDockerfileList(state.dockerfileLists, action),
     deployLog:　deployLog(state.deployLog, action),
-    getCdRules: getCdRules(state.getCdRules, action), 
-    getTenxflowCIRules: getTenxflowCIRules(state.getTenxflowCIRules, action), 
-    UpdateTenxflowCIRules: reducerFactory({
-      REQUEST: ActionTypes.UPDATE_FLOW_CI_RULES_REQUEST,
-      SUCCESS: ActionTypes.UPDATE_FLOW_CI_RULES_SUCCESS,
-      FAILURE: ActionTypes.UPDATE_FLOW_CI_RULES_FAILURE
-    }, state.UpdateTenxflowCIRules, action),
     createTenxFlowSingle: reducerFactory({
       REQUEST: ActionTypes.CREATE_SINGLE_TENX_FLOW_REQUEST,
       SUCCESS: ActionTypes.CREATE_SINGLE_TENX_FLOW_SUCCESS,
@@ -479,21 +416,6 @@ export default function cicd_flow(state = {}, action) {
       SUCCESS: ActionTypes.DELETE_TENX_FLOW_STATE_SUCCESS,
       FAILURE: ActionTypes.DELETE_TENX_FLOW_STATE_FAILURE
     }, state.deleteTenxFlowStateDetail, action),
-    createDockerfile: reducerFactory({
-      REQUEST: ActionTypes.CREATE_DOCKER_FILES_REQUEST,
-      SUCCESS: ActionTypes.CREATE_DOCKER_FILES_SUCCESS,
-      FAILURE: ActionTypes.CREATE_DOCKER_FILES_FAILURE
-    }, state.createDockerfile, action),
-    CreateTenxflowBuild: reducerFactory({
-      REQUEST: ActionTypes.BUILD_TENX_FLOW_REQUEST,
-      SUCCESS: ActionTypes.BUILD_TENX_FLOW_SUCCESS,
-      FAILURE: ActionTypes.BUILD_TENX_FLOW_FAILURE
-    }, state.CreateTenxflowBuild, action),
-    StopTenxflowBuild: reducerFactory({
-      REQUEST: ActionTypes.STOP_BUILD_TENX_FLOW_REQUEST,
-      SUCCESS: ActionTypes.STOP_BUILD_TENX_FLOW_SUCCESS,
-      FAILURE: ActionTypes.STOP_BUILD_TENX_FLOW_FAILURE
-    }, state.StopTenxflowBuild, action),
   }
 }
 

@@ -79,9 +79,6 @@ class SearchInput extends Component{
               filter,
               total,
             })
-            this.setState({
-              searchValue:''
-            })
           },
           isAsync:true
         }
@@ -101,9 +98,6 @@ class SearchInput extends Component{
               filter,
               total,
             })
-            this.setState({
-              searchValue:''
-            })
           },
           isAsync:true
         }
@@ -117,7 +111,7 @@ class SearchInput extends Component{
   }
   render(){
     let { searchIntOption, total} = this.props
-    let {searchValue} = this.state
+    
     if(!searchIntOption){
       searchIntOption = {
         placeholder: '请输入关键词搜索',
@@ -143,7 +137,7 @@ class SearchInput extends Component{
             <Input addonBefore={selectBefore}
                    placeholder={placeholder?placeholder:"请输入关键词搜索"}
                    onChange={this.handleInt}
-                   onPressEnter={this.handleSearch} value={searchValue}/>
+                   onPressEnter={this.handleSearch}/>
             <div className="ant-input-group-wrap">
               <Button icon="search"
                       className='ant-search-btn searchBtn'
