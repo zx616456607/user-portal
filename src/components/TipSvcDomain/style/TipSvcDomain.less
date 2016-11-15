@@ -1,2 +1,76 @@
 #TipSvcDomain {
+  .more {
+    display: inline-block;
+    margin-left: 5px;
+    width: 16px;
+    height: 16px;
+    line-height:16px;
+    border-radius: 50%;
+    border: 1px solid #4b4b4b;
+  }
+}
+#TipAppDomain {
+  .more {
+    display: inline-block;
+    margin-left: 5px;
+    width: 16px;
+    height: 16px;
+    line-height:16px;
+    border-radius: 50%;
+    border: 1px solid #4b4b4b;
+  }
+  .ant-tooltip-inner {
+    width: 190px !important;
+  }
+}
+#AppTip {
+  .firstSvc {
+    //position: relative;
+    .firstLine {
+      position: relative;
+      top: 25%;
+      height: 1px;
+      width: 20px;
+      background-color: #fff;
+    }
+    .urlFirstItem {
+      float: right;
+      position: relative;
+      &::before {
+        content: '';
+        height: 1px;
+        background-color: #fff;
+        width: 45px;
+        position: absolute;
+        top: 50%;
+        transform: translate(-50%,0);
+        left: -24px;
+      }
+    }
+  }
+  .urlItem {
+    float: right;
+    position: relative;
+    &::before {
+      content: '';
+      height: 20px;
+      background-color: #fff;
+      width: 1px;
+      position: absolute;
+      top: -9px;
+      transform: translate(-50%, 0);
+      left: -24px;
+    }
+    &::after {
+      content: '';
+      height: 1px;
+      background-color: #fff;
+      width: 23px;
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%, 0);
+      left: -13px;
+    }
+  }
+
 }

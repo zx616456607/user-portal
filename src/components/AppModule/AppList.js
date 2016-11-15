@@ -19,11 +19,12 @@ import { calcuDate } from '../../common/tools'
 import { browserHistory } from 'react-router'
 import AppStatus from '../TenxStatus/AppStatus'
 import { parseAppDomain } from '../parseDomain'
+import TipSvcDomain from '../TipSvcDomain'
 
 const confirm = Modal.confirm
 const ButtonGroup = Button.Group
 
-const MyComponent = React.createClass({
+let MyComponent = React.createClass({
   propTypes: {
     config: React.PropTypes.array,
     parentScope: React.PropTypes.object,
@@ -111,6 +112,20 @@ const MyComponent = React.createClass({
         </div>
       )
     }
+    const appDomain = [
+      {
+        name: 'servce1',
+        data: ['10.1.27.1',]
+      },
+      {
+        name: 'servce2',
+        data: ['10.1.27.1', '10.1.27.2', '10.1.27.3', '10.1.27.4', '10.1.27.5',]
+      },
+      {
+        name: 'servce3',
+        data: ['10.1.27.1', '10.1.27.2', '10.1.27.3', '10.1.27.4', '10.1.27.5',]
+      },
+    ]
     const items = config.map((item) => {
       const dropdown = (
         <Menu onClick={this.appOperaClick.bind(this, item)}
@@ -150,22 +165,13 @@ const MyComponent = React.createClass({
           <div className='appStatus commonData'>
             <AppStatus services={item.services} phase={item.phase} />
           </div>
-          {/*<div className='serviceNum commonData'>
-            {item.serviceCount + '' || '-'}
-          </div>*/}
           <div className='containerNum commonData'>
             {item.instanceCount + '' || '-'}
           </div>
           <div className='visitIp commonData'>
-            <span>-</span>
-          {/*
-            <Tooltip title={appEntrance ? appEntrance : ''}>
-              {
-                appEntrance ?
-                  (<a target="_blank" href={appEntrance}>{appEntrance}</a>) : (<span>-</span>)
-              }
+            <Tooltip title='appDomain'>
+              <TipSvcDomain appDomain={appDomain}/>
             </Tooltip>
-          */}
           </div>
           <div className='createTime commonData'>
             <Tooltip title={calcuDate(item.createTime)}>
