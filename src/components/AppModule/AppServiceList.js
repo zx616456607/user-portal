@@ -722,6 +722,7 @@ class AppServiceList extends Component {
                   total={total} />
               </div>
             </div>
+            <div style={{ clear:'both' }}></div>
           </div>
           <div className="appTitle">
             <div className="selectIconTitle commonTitle">

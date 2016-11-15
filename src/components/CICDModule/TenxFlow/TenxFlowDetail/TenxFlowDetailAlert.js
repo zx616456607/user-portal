@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Input, Form, Switch, Radio, Checkbox, Card } from 'antd'
+import { Button, Input, Form, Switch, Radio, Checkbox, Card, notification } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -62,6 +62,9 @@ const menusText = defineMessages({
 })
 
 function checkEmailType(emailList, scope, type) {
+  if(!Boolean(emailList)) {
+    return '';
+  }
   if(emailList.split(',').length > 1) {
     if(type != 'init') {     
       scope.setState({
@@ -102,6 +105,9 @@ let TenxFlowDetailAlert = React.createClass({
     document.title = 'TenxFlow | 时速云';
     const { notify } = this.props;
     let flag = !!notify;
+    if(notify == 'null') {
+      flag = false;
+    }
     this.setState({
       emailAlert: flag
     });
@@ -186,7 +192,31 @@ let TenxFlowDetailAlert = React.createClass({
         e.preventDefault();
         return;
       }
-      let temp = {
+      if(!this.state.emailAlert) {
+        let body = {
+          'notification_config': null
+        }
+        putEditTenxFlowAlert(flowId, body, {
+          success: {           
+            func: () => {
+              notification['success']({
+                message: '构建通知',
+                description: '修改构建通知成功~',
+              });
+              this.setState({
+                otherEmail: false,
+                checkFirst: false,
+                checkSecond: false,
+                checkThird: false,
+                checkForth: false,
+                emailList: null
+              });
+            },
+            isAsync: true
+          }
+        });
+      } else {
+        let temp = {
           'email_list': values.inputEmail.split(','),
           'ci': {
             'success_notification': values.checkFirst,
@@ -197,10 +227,21 @@ let TenxFlowDetailAlert = React.createClass({
             'failed_notification': values.checkForth
           }
         }
-      let body = {
-        'notification_config': JSON.stringify(temp)
+        let body = {
+          'notification_config': JSON.stringify(temp)
+        }
+        putEditTenxFlowAlert(flowId, body, {
+          success: {            
+            func: () => {
+              notification['success']({
+                message: '构建通知',
+                description: '修改构建通知成功~',
+              });
+            },
+            isAsync: true
+          }
+        });
       }
-      putEditTenxFlowAlert(flowId, body);
     });
   },
   render() {

@@ -28,7 +28,7 @@ function privateImages(state = {}, action) {
         [registry]: { isFetching: true }
       })
     case ActionTypes.IMAGE_PRIVATE_LIST_SUCCESS:
-      return merge({}, state, {
+      return Object.assign({}, state, {
         [registry]: {
           isFetching: false,
           registry,
@@ -112,7 +112,7 @@ function otherImages(state = {}, action) {
         isFetching: true
       })
     case ActionTypes.IMAGE_OTHER_SUCCESS:
-      return merge({}, state, {
+      return Object.assign({}, state, {
         isFetching: false,
         server: action.response.result.server,
         imageRow: action.response.result.data || []
@@ -126,7 +126,7 @@ function otherImages(state = {}, action) {
         isFetching: true
       })
     case ActionTypes.GET_OTHER_LIST_SUCCESS:
-      return merge({}, defaultState, state, {
+      return Object.assign({}, defaultState, state, {
         isFetching: false,
         imageList: action.response.result.repositories || [],
         bak: action.response.result.repositories
@@ -245,7 +245,7 @@ function imageTag(state = {}, action) {
         data.splice(latestTagIndex)
         data = ([LATEST]).concat(data)
       }
-      return merge({}, state, {
+      return Object.assign({}, state, {
         [registry]: {
           [fullName]: {
             isFetching: false,
@@ -493,7 +493,7 @@ function stackList(state={}, action) {
         [registry]: { isFetching: true }
       })
     case ActionTypes.GET_PRIVATE_STACK_SUCCESS:
-      return merge({}, state, {
+      return Object.assign({}, state, {
         [registry]: {
           isFetching: false,
           registry,
@@ -510,7 +510,7 @@ function stackList(state={}, action) {
         [registry]: { isFetching: true }
       })
     case ActionTypes.GET_PUBLIC_STACK_SUCCESS:
-      return merge({}, state, {
+      return Object.assign({}, state, {
         [registry]: {
           isFetching: false,
           stackList: action.response.result.data.data || []
@@ -538,10 +538,6 @@ function stackList(state={}, action) {
         [registry]: { isFetching: false }
       })
 // -------------         update          ----- -
-    case ActionTypes.UPDATE_PRIVATE_STACK_REQUEST:
-      return merge({}, state, {
-        [registry]: { isFetching: false }
-      })
     case ActionTypes.UPDATE_PRIVATE_STACK_SUCCESS:
       const updateStack = cloneDeep(state)
       const registry2 = action.registry
@@ -549,12 +545,11 @@ function stackList(state={}, action) {
       let ins = findIndex(stacks.myStackList, item => {
         return item.id == action.id
       })
-      stacks.myStackList[ins].is_public = action.obj.is_public
+      stacks.myStackList[ins].isPublic = action.obj.is_public
       stacks.myStackList[ins].name = action.obj.name
       stacks.myStackList[ins].content = action.obj.content
       stacks.myStackList[ins].description = action.obj.description
-      stacks.myStackList[ins].create_time = action.response.result.data.UpdateTime
-      return merge({}, {
+      return Object.assign({}, {
         [registry]: stacks
       })
     case ActionTypes.UPDATE_PRIVATE_STACK_FAILURE:

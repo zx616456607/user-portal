@@ -210,7 +210,7 @@ class AppServiceDetail extends Component {
               </span>
             </div>
             <div className="rightBox">
-              <Button className="loginBtn" type="primary"
+              <Button className="loginBtn" type="primary" size="large"
                 onClick={this.openTerminalModal}>
                 <svg className="terminal">
                   <use xlinkHref="#terminal" />

@@ -85,7 +85,6 @@ let MyComponent = React.createClass({
     let { flowId } = item;
     const { scope } = this.props;
     const { deleteTenxFlowSingle, getTenxFlowList } = scope.props;
-    console.log(scope.props)
     switch(key) {
       case 'deleteFlow':
         deleteTenxFlowSingle(flowId, {
@@ -257,7 +256,7 @@ class TenxFlowList extends Component {
           transitionName='move-right'
           onCancel={this.closeCreateTenxFlowModal}
           >
-          <CreateTenxFlow scope={scope} />
+          <CreateTenxFlow scope={scope} isFetching={isFetching} flowList={flowList} />
         </Modal>
         <Modal
           visible={this.state.TenxFlowDeployLogModal}

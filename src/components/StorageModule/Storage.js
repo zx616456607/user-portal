@@ -265,9 +265,8 @@ let MyComponent = React.createClass({
             </span>
           </div>
           <div className="actionBtn commonData">
-            <Button disabled={item.isUsed} className="btn-warning" onClick={(e) => { this.showAction('format', item.name, item.format) } }><Icon type="delete" /><FormattedMessage {...messages.formatting} /></Button>
-            <span className="margin"></span>
-            <Button disabled={item.isUsed} className="btn-success" onClick={() => { this.showAction('resize', item.name, item.totalSize) } }><Icon type="scan" /><FormattedMessage {...messages.dilation} /></Button>
+            <Button size='large' disabled={item.isUsed} className="btn-warning" onClick={(e) => { this.showAction('format', item.name, item.format) } }><Icon type="delete" /><FormattedMessage {...messages.formatting} /></Button>
+            <Button size='large' disabled={item.isUsed} className="btn-success" onClick={() => { this.showAction('resize', item.name, item.totalSize) } }><Icon type="scan" /><FormattedMessage {...messages.dilation} /></Button>
             <div style={{ clear: 'both' }}></div>
           </div>
           <div style={{ clear: 'both' }}></div>
@@ -574,7 +573,7 @@ class Storage extends Component {
                 <i className="fa fa-search"></i>
               </div>
               <div className="littleRight">
-                <Input placeholder={formatMessage(messages.inputPlaceholder)} onChange={(e) => this.getSearchAppName(e)} onPressEnter={() => this.searchByAppName()} />
+                <Input size="large" placeholder={formatMessage(messages.inputPlaceholder)} onChange={(e) => this.getSearchAppName(e)} onPressEnter={() => this.searchByAppName()} />
               </div>
             </div>
             <div className="clearDiv"></div>

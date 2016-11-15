@@ -176,8 +176,8 @@ class CollapseHeader extends Component {
         </Col>
         <Col span="6">
           <ButtonGroup>
-            <Dropdown.Button onClick={(e) => this.createConfigModal(e, true)} overlay={menu} type="ghost">
-              <Icon type="plus" />配置文件
+            <Dropdown.Button size='large' onClick={(e) => this.createConfigModal(e, true)} overlay={menu} type="ghost">
+              <span style={{ fontSize:'14px !important' }}><Icon type="plus" />&nbsp;配置文件</span>
             </Dropdown.Button>
           </ButtonGroup>
           {/*添加配置文件-弹出层-start*/}

@@ -169,9 +169,7 @@ let MyComponent = React.createClass({
             {item.instanceCount + '' || '-'}
           </div>
           <div className='visitIp commonData'>
-            <Tooltip title='appDomain'>
-              <TipSvcDomain appDomain={appDomain}/>
-            </Tooltip>
+            <TipSvcDomain appDomain={appDomain}/>
           </div>
           <div className='createTime commonData'>
             <Tooltip title={calcuDate(item.createTime)}>
@@ -244,7 +242,7 @@ class AppList extends Component {
       appList: nextProps.appList
     })
     let { page, size, name, currentCluster, sortOrder, sortBy } = nextProps
-    if (currentCluster.clusterID !== this.props.currentCluster.clusterID || currentCluster.spaceID !== this.props.currentCluster.spaceID) {
+    if (currentCluster.clusterID !== this.props.currentCluster.clusterID || currentCluster.namespace !== this.props.currentCluster.namespace) {
       loadData(nextProps)
       return
     }
@@ -538,6 +536,7 @@ class AppList extends Component {
               </div>
               <div className='littleRight'>
                 <Input
+                  size='large'
                   onChange={(e) => {
                     this.setState({
                       searchInputValue: e.target.value

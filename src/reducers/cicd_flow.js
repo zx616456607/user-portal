@@ -33,8 +33,6 @@ function codeRepo(state = {}, action) {
         repoList: null
       })
     // delete
-    case ActionTypes.DELETE_REPOS_LIST_REQUEST:
-      return merge({}, defaultState, state, { isFetching: true })
     case ActionTypes.DELETE_REPOS_LIST_SUCCESS:
       return ({
         isFetching: false,

@@ -116,6 +116,9 @@ let CICDSettingModal = React.createClass({
     if(!isFetching) {
       if(Boolean(ciRules)) {
         let config = ciRules.results;
+        if(!Boolean(config.config)) {
+          return;
+        }
         if(Boolean(config.config.branch)) {
           this.setState({
             useBranch: true

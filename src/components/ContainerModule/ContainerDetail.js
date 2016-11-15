@@ -158,7 +158,7 @@ class ContainerDetail extends Component {
                 </div>
                 <div className="rightInfo">
                   <div className="actionBox commonData">
-                    <Button type="primary" className="viewBtn"
+                    <Button type="primary" className="viewBtn" size='large'
                       onClick={(e) => this.openTerminalModal(container, e)}>
                       <svg className="terminal">
                         <use xlinkHref="#terminal" />
@@ -166,7 +166,7 @@ class ContainerDetail extends Component {
                       登录终端
                     </Button>
                     <Dropdown.Button
-                      onClick={this.deleteContainer}
+                      onClick={this.deleteContainer} size='large'
                       overlay={operaMenu} type="ghost">
                       <i className="fa fa-power-off"></i>&nbsp;重新分配
                     </Dropdown.Button>

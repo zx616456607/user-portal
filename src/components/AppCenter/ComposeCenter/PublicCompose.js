@@ -103,18 +103,6 @@ const MyComponent = React.createClass({
     config: React.PropTypes.array,
     scope: React.PropTypes.object
   },
-  menuClick: function (id) {
-    //this function for user delete select image
-
-  },
-  showImageDetail: function (id) {
-    //this function for user select image and show the image detail info
-    const scope = this.props.scope;
-    scope.setState({
-      imageDetailModalShow: true,
-      imageDetailModalShowId: id
-    });
-  },
   render: function () {
     const config = this.props.config
     if (config.length == 0) {

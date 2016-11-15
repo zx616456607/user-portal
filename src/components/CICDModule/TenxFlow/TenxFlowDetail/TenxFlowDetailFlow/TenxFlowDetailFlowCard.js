@@ -14,7 +14,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../../constants'
-import { getTenxflowCIRules, UpdateTenxflowCIRules } from '../../../../../actions/cicd_flow'
+import { getTenxflowCIRules, UpdateTenxflowCIRules, deleteTenxFlowStateDetail } from '../../../../../actions/cicd_flow'
 import './style/TenxFlowDetailFlowCard.less'
 import EditTenxFlowModal from './EditTenxFlowModal.js'
 import CICDSettingModal from './CICDSettingModal.js'
@@ -106,6 +106,10 @@ const menusText = defineMessages({
   editBtn: {
     id: 'CICD.Tenxflow.TenxFlowDetailFlowCard.editBtn',
     defaultMessage: '编辑项目',
+  },
+  deleteBtn: {
+    id: 'CICD.Tenxflow.TenxFlowDetailFlowCard.deleteBtn',
+    defaultMessage: '删除项目',
   },
 })
 
@@ -295,7 +299,7 @@ class TenxFlowDetailFlowCard extends Component {
   
   viewCicdBox(e) {
     //this function for user change open cicd or not
-    const { getTenxflowCIRules, flowId } = this.props;
+    const { getTenxflowCIRules, UpdateTenxflowCIRules, flowId } = this.props;
     const _this = this;
     if(e){
       getTenxflowCIRules(flowId);
@@ -315,10 +319,6 @@ class TenxFlowDetailFlowCard extends Component {
               mergeRequest: null
             }
           }
-          _this.setState({
-            cicdSetModalShow: false,
-            ciRulesOpened: false
-          });
           UpdateTenxflowCIRules(flowId, body, {
             success: {
               func: (res) => {
@@ -330,9 +330,46 @@ class TenxFlowDetailFlowCard extends Component {
               isAsync: true
             }
           });
+          _this.setState({
+            cicdSetModalShow: false,
+            ciRulesOpened: false
+          });
+          this.setState({
+            cicdSetModalShow: false
+          });
         },
         onCancel() {},
       });
+    }
+  }
+  
+  operaMenuClick(item, name, e) {
+    //this function for user click the dropdown menu
+    let key = e.key;
+    const { scope, deleteTenxFlowStateDetail, flowId } = this.props;
+    const { getTenxFlowStateList } = scope.props;
+    switch(key) {
+      case 'deleteStage':
+        confirm({
+        title: '确定删除构建流程？',
+        content: `确定删除构建流程${name}`,
+        onOk() {            
+          deleteTenxFlowStateDetail(flowId, item, {
+            success: {
+              func: () => {
+                notification['success']({
+                  message: '构建流程',
+                  description: '删除构建流程~',
+                });
+                getTenxFlowStateList(flowId);
+              },
+              isAsync: true
+            }
+          })         
+        },
+        onCancel() {},
+      });
+      break;
     }
   }
   
@@ -375,6 +412,15 @@ class TenxFlowDetailFlowCard extends Component {
   render() {
     let { config, index, scope, currentFlowEdit, flowId, codeList, isFetching, ciRules } = this.props;
     const scopeThis = this;
+    const dropdown = (
+      <Menu onClick={this.operaMenuClick.bind(this, config.metadata.id, config.metadata.name)} style={{ width: '110px' }}>
+        <Menu.Item key='deleteStage'>
+          <i className='fa fa-trash' style={{ float:'left', lineHeight: '16px', marginRight: '5px', fontSize: '14px' }} />
+          <span style={{ float: 'left', lineHeight: '16px', fontSize: '14px' }}><FormattedMessage {...menusText.deleteBtn} /></span>
+          <div style={{ clear: 'both' }}></div>
+        </Menu.Item>
+      </Menu>
+    );
     return (
       <div id='TenxFlowDetailFlowCard' key={'TenxFlowDetailFlowCard' + index} className={ currentFlowEdit == index ? 'TenxFlowDetailFlowCardBigDiv':'' } >
         <Card className={ currentEditClass(config.lastBuildStatus, currentFlowEdit, index) }>
@@ -428,17 +474,19 @@ class TenxFlowDetailFlowCard extends Component {
                       <div style={{ clear:'both' }}></div>
                     </div>
                     <div className='btnBox'>
-                      <Button size='large' type='primary' onClick={this.buildFlow.bind(this, config.metadata.id, config.lastBuildStatus, config.metadata.name)}>
+                      <Button size='large' type='primary' className='startBtn'
+                        onClick={this.buildFlow.bind(this, config.metadata.id, config.lastBuildStatus, config.metadata.name)}>
                         { currentStatusBtn(config.lastBuildStatus) }
                       </Button>
-                      <Button size='large' type='ghost'>
+                      <Button size='large' type='ghost' className='logBtn'>
                         <i className='fa fa-wpforms' />
                         <FormattedMessage {...menusText.logBtn} />
                       </Button>
-                      <Button size='large' type='ghost' className='editBtn' onClick={this.editFlow} disabled={ buildButtonCheck(config.lastBuildStatus) }>
+                      <Dropdown.Button overlay={dropdown} type='ghost' size='large' 
+                        className='editBtn' onClick={this.editFlow} disabled={ buildButtonCheck(config.lastBuildStatus) }>
                         <i className='fa fa-pencil-square-o' />
                         <FormattedMessage {...menusText.editBtn} />
-                      </Button>
+                      </Dropdown.Button>
                       <div style={{ clear:'both' }}></div>
                     </div>
                   </div>
@@ -502,7 +550,8 @@ TenxFlowDetailFlowCard.propTypes = {
 
 export default connect(mapStateToProps, {
   getTenxflowCIRules,
-  UpdateTenxflowCIRules
+  UpdateTenxflowCIRules,
+  deleteTenxFlowStateDetail
 })(injectIntl(TenxFlowDetailFlowCard, {
   withRef: true,
 }));
