@@ -47,8 +47,8 @@ class AppTip extends Component {
       } else if (item.data.length === 1) {
         return (
           <Row className="firstSvc">
-            <Col span={5}>{ item.name }</Col>
-            <Col span={10} className='urlFirstItem'>
+            <Col style={{display:'inline-block'}}>{ item.name }</Col>
+            <Col style={{display:'inline-block'}} className='urlFirstItem'>
               { item.data[0] }
             </Col>
           </Row>
@@ -57,8 +57,8 @@ class AppTip extends Component {
         return (
           <div>
             <Row className="firstSvc">
-              <Col span={5}>{ item.name }</Col>
-              <Col span={10} className='urlFirstItem'>
+              <Col style={{display:'inline-block'}}>{ item.name }</Col>
+              <Col style={{display:'inline-block'}} className='urlFirstItem'>
                 { item.data[0] }
               </Col>
             </Row>
@@ -69,8 +69,8 @@ class AppTip extends Component {
                 } else {
                   return (
                     <Row className="svcItem">
-                      <Col span={5}/>
-                      <Col span={10} className='urlItem'>
+                      <Col style={{display:'inline-block'}}/>
+                      <Col style={{display:'inline-block'}} className='urlItem'>
                         { url }
                       </Col>
                     </Row>
