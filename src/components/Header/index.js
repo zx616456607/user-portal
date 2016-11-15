@@ -87,9 +87,9 @@ class Header extends Component {
 
   handleSpaceChange(space) {
     const { loadTeamClustersList, setCurrent, current } = this.props
-    if (space.namespace === current.space.namespace) {
+    /*if (space.namespace === current.space.namespace) {
       return
-    }
+    }*/
     setCurrent({
       team: { teamID: space.teamID },
       space,
@@ -117,17 +117,17 @@ class Header extends Component {
       clustersVisible: false,
     })
     const { setCurrent, current } = this.props
-    if (current.cluster.spaceID === current.space.spaceID
+    if (current.cluster.namespace === current.space.namespace
       && cluster.clusterID === current.cluster.clusterID) {
       return
     }
-    cluster.spaceID = current.space.spaceID
+    cluster.namespace = current.space.namespace
     setCurrent({
       cluster
     })
     const { pathname } = window.location
     let msg = `集群已成功切换到 ${cluster.clusterName}`
-    if (current.cluster.spaceID !== current.space.spaceID) {
+    if (current.cluster.namespace !== current.space.namespace) {
       msg = `空间已成功切换到 ${current.space.spaceName}，${msg}`
     }
     message.success(msg)

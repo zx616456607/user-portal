@@ -158,7 +158,7 @@ const MyComponent = React.createClass({
           </div>
           <div className='visitIp commonData'>
             <span>-</span>
-          {/*
+            {/*
             <Tooltip title={appEntrance ? appEntrance : ''}>
               {
                 appEntrance ?
@@ -238,7 +238,7 @@ class AppList extends Component {
       appList: nextProps.appList
     })
     let { page, size, name, currentCluster, sortOrder, sortBy } = nextProps
-    if (currentCluster.clusterID !== this.props.currentCluster.clusterID || currentCluster.spaceID !== this.props.currentCluster.spaceID) {
+    if (currentCluster.clusterID !== this.props.currentCluster.clusterID || currentCluster.namespace !== this.props.currentCluster.namespace) {
       loadData(nextProps)
       return
     }

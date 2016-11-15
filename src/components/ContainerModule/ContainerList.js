@@ -233,7 +233,7 @@ class ContainerList extends Component {
     this.setState({
       containerList
     })
-    if (currentCluster.clusterID !== this.props.currentCluster.clusterID || currentCluster.spaceID !== this.props.currentCluster.spaceID) {
+    if (currentCluster.clusterID !== this.props.currentCluster.clusterID || currentCluster.namespace !== this.props.currentCluster.namespace) {
       loadData(nextProps)
       return
     }
