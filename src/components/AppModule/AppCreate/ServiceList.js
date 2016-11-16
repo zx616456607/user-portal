@@ -10,9 +10,11 @@
 import React, { Component, PropTypes } from 'react'
 import { Modal, Checkbox, Button, Card, Menu } from 'antd'
 import { Link } from 'react-router'
+import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import AppAddServiceModal from './AppAddServiceModal'
 import AppDeployServiceModal from './AppDeployServiceModal'
+import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import "./style/ServiceList.less"
 
 class MyComponent extends Component {
@@ -118,7 +120,7 @@ class MyComponent extends Component {
   }
 }
 
-export default class ServiceList extends Component {
+class ServiceList extends Component {
   constructor(props) {
     super(props);
     this.closeModal = this.closeModal.bind(this);
@@ -140,7 +142,28 @@ export default class ServiceList extends Component {
     }
   }
 
-
+  componentWillMount() {
+    const serviceList = JSON.parse(localStorage.getItem('servicesList'))
+    if (serviceList) {
+      this.setState({
+        servicesList: serviceList
+      })
+    }
+    const selectedList = JSON.parse(localStorage.getItem('selectedList'))
+    if (selectedList) {
+      this.setState({
+        selectedList: selectedList
+      })
+    }
+    const {registryServer, imageName} = this.props
+    if (registryServer && imageName) {
+      this.setState({
+        serviceModalShow: true,
+        registryServer,
+        currentSelectedImage: imageName
+      })
+    }
+  }
   closeModal() {
     this.setState({
       modalShow: false
@@ -198,20 +221,6 @@ export default class ServiceList extends Component {
       servicesList: newServiceList,
       selectedList: []
     })
-  }
-  componentWillMount() {
-    const serviceList = JSON.parse(localStorage.getItem('servicesList'))
-    if (serviceList) {
-      this.setState({
-        servicesList: serviceList
-      })
-    }
-    const selectedList = JSON.parse(localStorage.getItem('selectedList'))
-    if (selectedList) {
-      this.setState({
-        selectedList: selectedList
-      })
-    }
   }
 
   render() {
@@ -294,3 +303,17 @@ ServiceList.propTypes = {
   servicesList: PropTypes.array.isRequired,
 }
 
+function mapStateToProps(state, props) {
+  const { query } = props.location
+  const {imageName, registryServer} = query
+  return {
+    imageName,
+    registryServer
+  }
+}
+
+
+
+export default connect(mapStateToProps)(injectIntl(ServiceList, {
+  withRef: true,
+}))

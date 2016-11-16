@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Card, Timeline } from 'antd'
+import { Row, Col, Card, Timeline, } from 'antd'
 import './style/Admin.less'
 
 export default class Admin extends Component{
@@ -125,26 +125,108 @@ export default class Admin extends Component{
               </div>
             </Card>
           </Col>
-          <Col span={11}>
+          <Col span={11} className='teamCost'>
             <Card title="本日该团队消费" bordered={false} bodyStyle={{height:170}}>
               <Col span={10}>
                 
               </Col>
-              <Col span={14}>
-                <Row>
-                  <Col span={16} style={{paddingLeft:40}}>空间名称</Col>
-                  <Col span={8}>消费金额</Col>
+              <Col span={14} className='teamCostList'>
+                <Row className="teamCostListTitle">
+                  <Col span={16} style={{paddingLeft:40,height:40,lineHeight:'40px'}}>空间名称</Col>
+                  <Col span={8} style={{height:40,lineHeight:'40px'}}>消费金额</Col>
                 </Row>
-                <Timeline>
-                  <Timeline.Item>创建服务现场 2015-09-01</Timeline.Item>
-                  <Timeline.Item>初步排除网络异常 2015-09-01</Timeline.Item>
-                  <Timeline.Item>技术测试异常 2015-09-01</Timeline.Item>
-                  <Timeline.Item>网络异常正在修复 2015-09-01</Timeline.Item>
-                </Timeline>
+                <Row style={{height:130,overflowY:'auto'}}>
+                  <Row className="teamCostItem">
+                    <Col span={16} style={{paddingLeft:40}}>zhaoxueyu</Col>
+                    <Col span={8}>消费2T</Col>
+                  </Row>
+                  <Row className="teamCostItem">
+                    <Col span={16} style={{paddingLeft:40}}>zhaoxueyu</Col>
+                    <Col span={8}>消费2T</Col>
+                  </Row>
+                  <Row className="teamCostItem">
+                    <Col span={16} style={{paddingLeft:40}}>zhaoxueyu</Col>
+                    <Col span={8}>消费2T</Col>
+                  </Row>
+                  <Row className="teamCostItem">
+                    <Col span={16} style={{paddingLeft:40}}>zhaoxueyu</Col>
+                    <Col span={8}>消费2T</Col>
+                  </Row>
+                  <Row className="teamCostItem">
+                    <Col span={16} style={{paddingLeft:40}}>zhaoxueyu</Col>
+                    <Col span={8}>消费2T</Col>
+                  </Row>
+                  <Row className="teamCostItem">
+                    <Col span={16} style={{paddingLeft:40}}>zhaoxueyu</Col>
+                    <Col span={8}>消费2T</Col>
+                  </Row>
+                </Row>
               </Col>
             </Card>
           </Col>
-          <Col span={5}></Col>
+          <Col span={5} className='teamRecord'>
+            <Card title="今日该团队记录" bordered={false} bodyStyle={{height:170, overflowY:'auto'}}>
+              <table>
+                <tbody>
+                  <tr>
+                    <td>
+                      <Col span={18}>
+                        <svg className="teamRecSvg" style={{marginRight:10}}>
+                          <use xlinkHref="#settingname" />
+                        </svg>
+                        创建应用数量
+                      </Col>
+                      <Col span={6}>1000个</Col>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <Col span={18}>
+                        <svg className="teamRecSvg" style={{marginRight:10}}>
+                          <use xlinkHref="#settingname" />
+                        </svg>
+                        创建应用数量
+                      </Col>
+                      <Col span={6}>1000个</Col>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <Col span={18}>
+                        <svg className="teamRecSvg" style={{marginRight:10}}>
+                          <use xlinkHref="#settingname" />
+                        </svg>
+                        创建应用数量
+                      </Col>
+                      <Col span={6}>1000个</Col>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <Col span={18}>
+                        <svg className="teamRecSvg" style={{marginRight:10}}>
+                          <use xlinkHref="#settingname" />
+                        </svg>
+                        创建应用数量
+                      </Col>
+                      <Col span={6}>1000个</Col>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <Col span={18}>
+                        <svg className="teamRecSvg" style={{marginRight:10}}>
+                          <use xlinkHref="#settingname" />
+                        </svg>
+                        创建应用数量
+                      </Col>
+                      <Col span={6}>1000个</Col>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </Card>
+          </Col>
         </Row>
       </div>
     )

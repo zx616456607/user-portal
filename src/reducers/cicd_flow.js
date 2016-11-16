@@ -454,6 +454,82 @@ function getTenxflowBuildLogs(state = {}, action) {
   }
 }
 
+function getTenxflowBuildDetailLogs(state = {}, action) {
+  const defaultState = {
+    isFetching: false,
+    logs: []
+  }
+  switch (action.type) {
+    case ActionTypes.GET_FLOW_BUILD_DETAIL_LOG_REQUEST:
+      return merge({}, defaultState, state, {
+        isFetching: true
+      })
+    case ActionTypes.GET_FLOW_BUILD_DETAIL_LOG_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        logs: action.response.result.data.results.results || []
+      }
+      )
+    case ActionTypes.GET_FLOW_BUILD_DETAIL_LOG_FAILURE:
+      return merge({}, defaultState, state, {
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
+
+function getTenxflowBuildLastLogs(state = {}, action) {
+  const defaultState = {
+    isFetching: false,
+    logs: []
+  }
+  switch (action.type) {
+    case ActionTypes.GET_FLOW_BUILD_LAST_LOG_REQUEST:
+      return merge({}, defaultState, state, {
+        isFetching: true
+      })
+    case ActionTypes.GET_FLOW_BUILD_LAST_LOG_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        logs: action.response.result.data.results.results.stageBuilds || []
+      }
+      )
+    case ActionTypes.GET_FLOW_BUILD_LAST_LOG_FAILURE:
+      return merge({}, defaultState, state, {
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
+
+function getFlowBuildStageLogs(state = {}, action) {
+  const defaultState = {
+    isFetching: false,
+    logs: []
+  }
+  switch (action.type) {
+    case ActionTypes.GET_FLOW_BUILD_STAGE_LOG_REQUEST:
+      return merge({}, defaultState, state, {
+        isFetching: true
+      })
+    case ActionTypes.GET_FLOW_BUILD_STAGE_LOG_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        logs: action.response.result || []
+      }
+      )
+    case ActionTypes.GET_FLOW_BUILD_STAGE_LOG_FAILURE:
+      return merge({}, defaultState, state, {
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
+
+
 export default function cicd_flow(state = {}, action) {
   return {
     codeRepo: codeRepo(state.codeRepo, action),
@@ -466,6 +542,9 @@ export default function cicd_flow(state = {}, action) {
     getCdRules: getCdRules(state.getCdRules, action), 
     getTenxflowCIRules: getTenxflowCIRules(state.getTenxflowCIRules, action), 
     getTenxflowBuildLogs: getTenxflowBuildLogs(state.getTenxflowBuildLogs, action), 
+    getTenxflowBuildDetailLogs: getTenxflowBuildDetailLogs(state.getTenxflowBuildDetailLogs, action), 
+    getTenxflowBuildLastLogs: getTenxflowBuildLastLogs(state.getTenxflowBuildLastLogs, action), 
+    getFlowBuildStageLogs: getFlowBuildStageLogs(state.getFlowBuildStageLogs, action), 
     UpdateTenxflowCIRules: reducerFactory({
       REQUEST: ActionTypes.UPDATE_FLOW_CI_RULES_REQUEST,
       SUCCESS: ActionTypes.UPDATE_FLOW_CI_RULES_SUCCESS,

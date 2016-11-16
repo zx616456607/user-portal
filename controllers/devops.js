@@ -457,6 +457,10 @@ exports.getFlowBuild = function* () {
 
   const api = apiFactory.getDevOpsApi(loginUser)
   const result = yield api.getBy(["ci-flows", flow_id, "builds", flow_build_id], null)
+  result.results.results.map((item) => {
+    item.logInfo = null;
+    item.isFetching = false;
+  })
 
   this.body = {
     data: result
@@ -663,6 +667,32 @@ exports.getBuildLog = function* () {
   
   const api = apiFactory.getDevOpsApi(loginUser)
   const result = yield api.getBy(["ci-flows", flow_id, "builds"], null)
+  
+  this.body = {
+    data: result
+  }
+}
+
+exports.getLastBuildLog = function* () {
+  const loginUser = this.session.loginUser
+  const flow_id = this.params.flow_id
+  
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.getBy(["ci-flows", flow_id, "lastbuild"], null)
+  
+  this.body = {
+    data: result
+  }
+}
+
+exports.getFlowStageBuildLog = function* () {
+  const loginUser = this.session.loginUser
+  const flow_id = this.params.flow_id
+  const stage_id = this.params.stage_id
+  const stage_build_id = this.params.stage_build_id
+  
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.getBy(["ci-flows", flow_id, "stages", stage_id, "builds", stage_build_id, "log"], null)
   
   this.body = {
     data: result

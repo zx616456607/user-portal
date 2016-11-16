@@ -107,7 +107,9 @@ let MyComponent = React.createClass({
           </div>
           <div className="btnBox">
             <Button type="ghost">
+              <Link to={`/app_manage/app_create/fast_create?registryServer=${registryServer}&imageName=${item.name}`}>
               <FormattedMessage {...menusText.deployService} />
+              </Link>
             </Button>
           </div>
         </div>
