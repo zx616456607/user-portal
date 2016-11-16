@@ -148,6 +148,71 @@ exports.getUserInfo = function* () {
   }
 }
 
+// Get the redirect url of 3rdparty repository
+exports.getAuthRedirectUrl = function* () {
+  const loginUser = this.session.loginUser
+  const repoType = this.params.type
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.getBy(["repos", repoType, "auth"], null)
+  
+  this.body = {
+    data: result
+  }
+}
+
+exports.doUserAuthorization = function* () {
+  const method = "doUserAuthorization"
+  const loginUser = this.session.loginUser
+  var type = this.params.type
+  if (!type) {
+    this.status = 400
+    this.body = "No repository type specified"
+    return
+  }
+
+  var resData = {
+    authInfo: loginUser.ciAuthInfo || {},
+    type: type 
+  }
+  var state = this.query.state
+  if (state && loginUser.github_state && state !== loginUser.github_state) {
+    resData.err = type + ': 您填入的URL或token有错误, 请填入正确的信息'
+    res.render('ci/listcoderepo', resData)
+    return
+  }
+  delete loginUser.github_state
+  var users = type + '_users'
+  var authorized = type + '_authorized'
+  var authInfo = {
+    code: this.query.code
+  }
+  if (type === 'bitbucket') {
+    authInfo = {
+      code: this.query.oauth_token,
+      oauth_token_secret: loginUser.bitbucket_oauth_token_secret,
+      oauth_verifier: this.query.oauth_verifier
+    }
+  }
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.createBy(["repos", type], null, authInfo)
+
+  this.status = 200
+  this.body = type + " was authorized successfully"
+  /*var cicdAPI = new ci_cd_service(ci_cd_config.protocol, ci_cd_config.url, ci_cd_config.version, req.user.name, req.user.api_token);
+  cicdAPI.repos.createBy([req.user.name, type], null, authInfo, function(err, deptInfo) {
+    if (err) {
+      logger.error(method, type + " 用户验证失败: " + JSON.stringify(err));
+      resData.err = type + ': 您填入的URL或token有错误, 请填入正确的信息'
+      res.render('ci/listcoderepo', resData);
+      return;
+    }
+    logger.info(method, type + " 用户验证成功.");
+    resData.authInfo[users] = deptInfo.results;
+    resData.authInfo[authorized] = true;
+    req.user.ciAuthInfo = resData.authInfo
+    res.render('ci/listcoderepo', resData);
+  })*/
+}
 /*
 Managed projects
 */
