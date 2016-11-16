@@ -10,7 +10,7 @@
 import React, { Component } from 'react'
 import { Menu, Dropdown, Icon, Select, Input, Button, Form, Popover, Spin } from 'antd'
 import './style/PopSelect.less'
-import Content from './content'
+import Content from './Content'
 
 export default class PopSelect extends Component {
   constructor(props) {
