@@ -94,8 +94,7 @@ class CollapseList extends Component {
 }
 
 CollapseList.propTypes = {
-  groupData: PropTypes.array.isRequired,
-  // loadConfigName: PropTypes.func.isRequired
+  groupData: PropTypes.array.isRequired
 }
 
 class Service extends Component {
@@ -156,7 +155,7 @@ class Service extends Component {
       failed: {
         func: (res) => {
           let errorText
-          switch (res.code) {
+          switch (res.message.code) {
             case 403: errorText = '添加的配置过多'; break
             case 409: errorText = '配置组已存在'; break
             case 500: errorText = '网络异常'; break
@@ -224,11 +223,11 @@ class Service extends Component {
     return (
       <QueueAnim className="Service" type="right">
         <div id="Service" key="Service">
-          <Button type="primary" onClick={(e) => this.configModal(true)} size="large" style={{ padding: '5px 10px', maginRight: '15px' }}>
+          <Button type="primary" onClick={(e) => this.configModal(true)} size="large" style={{ padding: '5px 10px'}}>
             <Icon type="plus" />
             创建配置组
           </Button>
-          <Button size="large" style={{ marginLeft: "12px" }} onClick={() => this.btnDeleteGroup()} style={{ padding: '5px 10px' }}>
+          <Button size="large" onClick={() => this.btnDeleteGroup()} style={{ padding: '5px 10px', marginLeft: "15px"  }}>
             <Icon type="delete" /> 删除
           </Button>
           {/*创建配置组-弹出层-start*/}

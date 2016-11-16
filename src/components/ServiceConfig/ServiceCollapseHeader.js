@@ -86,7 +86,7 @@ class CollapseHeader extends Component {
       failed: {
         func: (res) => {
           let errorText
-          switch (res.code) {
+          switch (res.message.code) {
             case 403: errorText = '添加配置文件过多'; break
             case 409: errorText = '配置已存在'; break
             case 500: errorText = '网络异常'; break
