@@ -2,6 +2,8 @@ import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import { Breadcrumb } from 'antd'
 import "./style/IndexPage.less"
+import Admin from '../../components/Home/Admin'
+import Ordinary from '../../components/Home/Ordinary'
 
 export default class IndexPage extends Component {
   constructor(props) {
@@ -10,35 +12,9 @@ export default class IndexPage extends Component {
 
   render() {
     return (
-      <div id="home">
-        <div className="leftBox">
-          <div className="app commonImg">
-            <img src="/img/test/app.png" />
-          </div>
-          <div className="docker commonImg">
-            <img src="/img/test/docker.png" />
-          </div>
-          <div className="todayLog commonImg">
-            <img src="/img/test/todayLog.png" />
-          </div>
-          <div className="storage commonImg">
-            <img src="/img/test/storage.png" />
-          </div>
-        </div>
-        <div className="rightBox">
-          <div className="image commonImg">
-            <img src="/img/test/image.png" />
-          </div>
-          <div className="alert commonImg">
-            <img src="/img/test/alert.png" />
-          </div>
-        </div>
-        <div className="resource commonImg">
-          <img src="/img/test/resource.png" />
-        </div>
-        <div className="checkLog commonImg">
-          <img src="/img/test/checkLog.png" />
-        </div>
+      <div id="IndexPage">
+        <Admin />
+        <Ordinary />
       </div>
     )
   }

@@ -22,6 +22,7 @@ module.exports = function (Router) {
   router.get(/^(\/ci_cd|\/ci_cd\/[a-zA-Z0-9_-]+|\/ci_cd\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+)(\/|)$/, indexCtl.index)
   router.get(/^(\/setting|\/setting\/[a-zA-Z0-9_-]+|\/setting\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+|\/setting\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+)(\/|)$/, indexCtl.index)
   router.get(/^(\/manange_monitor|\/manange_monitor\/[a-zA-Z0-9_-]+|\/manange_monitor\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+)(\/|)$/, indexCtl.index)
+  router.get('/login', indexCtl.index)
 
   return router.routes()
 }
