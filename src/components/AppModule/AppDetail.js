@@ -90,6 +90,7 @@ class AppDetail extends Component {
       updateDate = app.services[0].metadata.creationTimestamp
     }
     const domains = parseAppDomain(app, this.props.bindingDomains)
+    const svcDomain = ['10.11.102.1111','10.11.102.222','10.11.102.333']
     return (
       <div id="AppDetail">
         <QueueAnim className="demo-content"
@@ -114,15 +115,12 @@ class AppDetail extends Component {
                     </div>
                   </div>
                   <div className="address">
-                    {
-                      app.entrance ?
-                        (
-                          <div>
-                            <a target="_blank" href={app.entrance}>{app.entrance}</a>
-                            <TipSvcDomain />
-                          </div>
-                        ) : (<span>-</span>)
-                    }
+                    
+                      {/*app.entrance ?*/}
+                        {/*(*/}
+                          <TipSvcDomain type='containerPop' svcDomain={svcDomain}/>
+                        {/*) : (<span>-</span>)*/}
+                    
                   </div>
                   <div className="service">
                     服务&nbsp;:&nbsp; {`${app.serviceCount} / ${app.serviceCount}`}
