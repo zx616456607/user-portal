@@ -25,104 +25,102 @@ export default class Admin extends Component{
         <Row className="content" gutter={16}>
           <Col span={8} className='teamInf'>
             <Card title="团队信息总览" bordered={false} bodyStyle={{height:170}}>
-              <div>
-                <Row className="teamInfItem">
-                  <Col span={12} style={{padding:'0 20px',}}>
-                    <Col span={13}>
-                      <svg className="teamInfSvg" style={{marginRight:10}}>
-                        <use xlinkHref="#settingname" />
-                      </svg>
-                      空间数
-                    </Col>
-                    <Col span={11} style={{textAlign:'right'}}>
-                      100个
-                    </Col>
-                  </Col>
-                  <Col span={12} style={{padding:'0 20px',}}>
-                    <Col span={11}>
-                      <svg className="teamInfSvg" style={{marginRight:10}}>
-                        <use xlinkHref="#settingname" />
-                      </svg>
-                      镜像数
-                    </Col>
-                    <Col span={13} style={{textAlign:'right'}}>
-                      9999个
-                    </Col>
-                  </Col>
-                </Row>
-                <Row className="teamInfItem">
-                  <Col span={12} style={{padding:'0 20px',}}>
-                    <Col span={13}>
-                      <svg className="teamInfSvg" style={{marginRight:10}}>
-                        <use xlinkHref="#settingname" />
-                      </svg>
-                      应用数
-                    </Col>
-                    <Col span={11} style={{textAlign:'right'}}>
-                      100个
-                    </Col>
-                  </Col>
-                  <Col span={12} style={{padding:'0 20px',}}>
-                    <Col span={13}>
-                      <svg className="teamInfSvg" style={{marginRight:10}}>
-                        <use xlinkHref="#settingname" />
-                      </svg>
-                      编排数
-                    </Col>
-                    <Col span={11} style={{textAlign:'right'}}>
-                      9999个
-                    </Col>
-                  </Col>
-                </Row>
-                <Row className="teamInfItem">
-                  <Col span={12} style={{padding:'0 20px',}}>
-                    <Col span={13}>
-                      <svg className="teamInfSvg" style={{marginRight:10}}>
-                        <use xlinkHref="#settingname" />
-                      </svg>
-                      服务数
-                    </Col>
-                    <Col span={11} style={{textAlign:'right'}}>
-                      100个
-                    </Col>
-                  </Col>
-                  <Col span={12} style={{padding:'0 20px',}}>
-                    <Col span={13}>
-                      <svg className="teamInfSvg" style={{marginRight:10}}>
-                        <use xlinkHref="#settingname" />
-                      </svg>
-                      存储卷数
-                    </Col>
-                    <Col span={11} style={{textAlign:'right'}}>
-                      9999个
-                    </Col>
-                  </Col>
-                </Row>
-                <Row className="teamInfItem">
-                  <Col span={12} style={{padding:'0 20px',}}>
-                    <Col span={13}>
-                      <svg className="teamInfSvg" style={{marginRight:10}}>
-                        <use xlinkHref="#settingname" />
-                      </svg>
-                      容器数
-                    </Col>
-                    <Col span={11} style={{textAlign:'right'}}>
-                      100个
-                    </Col>
-                  </Col>
-                  <Col span={12} style={{padding:'0 20px',}}>
-                    <Col span={13}>
-                      <svg className="teamInfSvg" style={{marginRight:10}}>
-                        <use xlinkHref="#settingname" />
-                      </svg>
-                      构建项目数
-                    </Col>
-                    <Col span={11} style={{textAlign:'right'}}>
-                      9999个
-                    </Col>
-                  </Col>
-                </Row>
-              </div>
+              <Row className="teamInfItem" gutter={16}>
+                <Col span={12} className='tab'>
+                  <div className='tabCell'>
+                    <svg className="teamInfSvg" style={{margin:'0 5px'}}>
+                      <use xlinkHref="#settingname" />
+                    </svg>
+                    空间数
+                  </div>
+                  <div style={{textAlign:'right'}} className='tabCell'>
+                    100个
+                  </div>
+                </Col>
+                <Col span={12} className='tab'>
+                  <div className='tabCell'>
+                    <svg className="teamInfSvg" style={{margin:'0 5px'}}>
+                      <use xlinkHref="#settingname" />
+                    </svg>
+                    镜像数
+                  </div>
+                   <div style={{textAlign:'right'}} className='tabCell'>
+                    9999个
+                  </div>
+                </Col>
+              </Row>
+              <Row className="teamInfItem" gutter={16}>
+                <Col span={12} className='tab'>
+                  <div className='tabCell'>
+                    <svg className="teamInfSvg" style={{margin:'0 5px'}}>
+                      <use xlinkHref="#settingname" />
+                    </svg>
+                    应用数
+                  </div>
+                  <div style={{textAlign:'right'}} className='tabCell'>
+                    100个
+                  </div>
+                </Col>
+                <Col span={12} className='tab'>
+                  <div className='tabCell'>
+                    <svg className="teamInfSvg" style={{margin:'0 5px'}}>
+                      <use xlinkHref="#settingname" />
+                    </svg>
+                    编排数
+                  </div>
+                   <div style={{textAlign:'right'}} className='tabCell'>
+                    9999个
+                  </div>
+                </Col>
+              </Row>
+              <Row className="teamInfItem" gutter={16}>
+                <Col span={12} className='tab'>
+                  <div className='tabCell'>
+                    <svg className="teamInfSvg" style={{margin:'0 5px'}}>
+                      <use xlinkHref="#settingname" />
+                    </svg>
+                    服务数
+                  </div>
+                  <div style={{textAlign:'right'}} className='tabCell'>
+                    100个
+                  </div>
+                </Col>
+                <Col span={12} className='tab'>
+                  <div className='tabCell'>
+                    <svg className="teamInfSvg" style={{margin:'0 5px'}}>
+                      <use xlinkHref="#settingname" />
+                    </svg>
+                    存储卷数
+                  </div>
+                   <div style={{textAlign:'right'}} className='tabCell'>
+                    9999个
+                  </div>
+                </Col>
+              </Row>
+              <Row className="teamInfItem" gutter={16}>
+                <Col span={12} className='tab'>
+                  <div className='tabCell'>
+                    <svg className="teamInfSvg" style={{margin:'0 5px'}}>
+                      <use xlinkHref="#settingname" />
+                    </svg>
+                    容器数
+                  </div>
+                  <div style={{textAlign:'right'}} className='tabCell'>
+                    100个
+                  </div>
+                </Col>
+                <Col span={12} className='tab'>
+                  <div className='tabCell'>
+                    <svg className="teamInfSvg" style={{margin:'0 5px'}}>
+                      <use xlinkHref="#settingname" />
+                    </svg>
+                    构建项目数
+                  </div>
+                   <div style={{textAlign:'right'}} className='tabCell'>
+                    9999个
+                  </div>
+                </Col>
+              </Row>
             </Card>
           </Col>
           <Col span={11} className='teamCost'>
@@ -135,7 +133,7 @@ export default class Admin extends Component{
                   <Col span={16} style={{paddingLeft:40,height:40,lineHeight:'40px'}}>空间名称</Col>
                   <Col span={8} style={{height:40,lineHeight:'40px'}}>消费金额</Col>
                 </Row>
-                <Row style={{height:130,overflowY:'auto'}}>
+                <Row className='teamCostListContent'>
                   <Row className="teamCostItem">
                     <Col span={16} style={{paddingLeft:40}}>zhaoxueyu</Col>
                     <Col span={8}>消费2T</Col>
@@ -170,13 +168,13 @@ export default class Admin extends Component{
                 <tbody>
                   <tr>
                     <td>
-                      <Col span={18}>
-                        <svg className="teamRecSvg" style={{marginRight:10}}>
-                          <use xlinkHref="#settingname" />
-                        </svg>
-                        创建应用数量
-                      </Col>
-                      <Col span={6}>1000个</Col>
+                      <svg className="teamRecSvg" style={{marginRight:10}}>
+                        <use xlinkHref="#settingname" />
+                      </svg>
+                      创建应用数量
+                    </td>
+                    <td>
+                      1000个
                     </td>
                   </tr>
                   <tr>
