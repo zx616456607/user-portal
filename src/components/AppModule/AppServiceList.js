@@ -203,11 +203,6 @@ const MyComponent = React.createClass({
           </div>
           <div className="service commonData">
             <Tooltip title={svcDomain.length > 0 ? svcDomain[0] : ""}>
-              {/*{
-                svcDomain.length > 0 ?
-                  (<a target="_blank" href={svcDomain[0]}>{svcDomain[0]}</a>) :
-                  (<span>-</span>)
-              }*/}
               <TipSvcDomain svcDomain={svcDomain}/>
             </Tooltip>
           </div>

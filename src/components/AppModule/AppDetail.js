@@ -22,6 +22,7 @@ import { loadAppDetail } from '../../actions/app_manage'
 import { browserHistory } from 'react-router'
 import AppStatus from '../TenxStatus/AppStatus'
 import { parseAppDomain } from '../parseDomain'
+import TipSvcDomain from '../TipSvcDomain'
 
 const DEFAULT_TAB = '#service'
 
@@ -115,7 +116,12 @@ class AppDetail extends Component {
                   <div className="address">
                     {
                       app.entrance ?
-                        (<a target="_blank" href={app.entrance}>{app.entrance}</a>) : (<span>-</span>)
+                        (
+                          <div>
+                            <a target="_blank" href={app.entrance}>{app.entrance}</a>
+                            <TipSvcDomain />
+                          </div>
+                        ) : (<span>-</span>)
                     }
                   </div>
                   <div className="service">
