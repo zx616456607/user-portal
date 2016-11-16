@@ -15,7 +15,7 @@ import { browserHistory } from 'react-router'
 import { setCurrent } from '../../../actions'
 import { loadTeamClustersList } from '../../../actions/team'
 import { connect } from 'react-redux'
-import PopContent from '../../PopSelect/content'
+import PopContent from '../../PopSelect/Content'
 
 
 let PersonalSpace = React.createClass({
