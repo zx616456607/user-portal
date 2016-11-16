@@ -125,22 +125,28 @@ export default class Admin extends Component{
               </div>
             </Card>
           </Col>
-          <Col span={11}>
+          <Col span={11} className='teamCost'>
             <Card title="本日该团队消费" bordered={false} bodyStyle={{height:170}}>
               <Col span={10}>
                 
               </Col>
-              <Col span={14}>
+              <Col span={14} className='teamCostList'>
                 <Row>
                   <Col span={16} style={{paddingLeft:40}}>空间名称</Col>
                   <Col span={8}>消费金额</Col>
                 </Row>
-                <Timeline>
-                  <Timeline.Item>创建服务现场 2015-09-01</Timeline.Item>
-                  <Timeline.Item>初步排除网络异常 2015-09-01</Timeline.Item>
-                  <Timeline.Item>技术测试异常 2015-09-01</Timeline.Item>
-                  <Timeline.Item>网络异常正在修复 2015-09-01</Timeline.Item>
-                </Timeline>
+                <Row className="teamCostItem">
+                  <Col span={16} style={{paddingLeft:40}}>zhaoxueyu</Col>
+                  <Col span={8}>消费2T</Col>
+                </Row>
+                <Row className="teamCostItem">
+                  <Col span={16} style={{paddingLeft:40}}>zhaoxueyu</Col>
+                  <Col span={8}>消费2T</Col>
+                </Row>
+                <Row className="teamCostItem">
+                  <Col span={16} style={{paddingLeft:40}}>zhaoxueyu</Col>
+                  <Col span={8}>消费2T</Col>
+                </Row>
               </Col>
             </Card>
           </Col>

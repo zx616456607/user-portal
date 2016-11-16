@@ -23,6 +23,28 @@
         }
       }
     }
-
+    .teamCost {
+      .ant-card-body {
+        padding: 0;
+      }
+      .teamCostList {
+        position: relative;
+        height: 170px;
+        border-left: 1px solid #e2e2e2;
+        .teamCostItem {
+          &::before {
+            content: '';
+            position: absolute;
+            display: inline-block;
+            top: 0;
+            transform: translate(-50%,-50%);
+            height: 7px;
+            width: 7px;
+            background-color: #46b2fa;
+            border-radius: 50%;
+          }
+        }
+      }
+    }
   }
 }
