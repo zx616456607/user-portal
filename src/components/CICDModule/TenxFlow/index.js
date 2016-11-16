@@ -16,9 +16,8 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { getTenxFlowList, deleteTenxFlowSingle, getTenxflowBuildLogs } from '../../../actions/cicd_flow'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import CreateTenxFlow from './CreateTenxFlow.js'
-import TestModal from '../../TerminalModal'
+import TenxFlowBuildLog from './TenxFlowBuildLog'
 import './style/TenxFlowList.less'
-import TenxFlowBuildLog from './TenxFlowBuildLog.js'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup

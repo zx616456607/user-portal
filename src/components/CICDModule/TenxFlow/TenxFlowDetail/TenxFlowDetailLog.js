@@ -8,14 +8,15 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Card, Dropdown, Spin, Menu, Icon } from 'antd'
+import { Button, Card, Dropdown, Spin, Menu, Icon, Modal } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../constants'
-import { getTenxflowBuildLogs } from '../../../../actions/cicd_flow'
+import { getTenxflowBuildLogs, getTenxflowBuildDetailLogs } from '../../../../actions/cicd_flow'
 import './style/TenxFLowDetailLog.less'
+import TenxFlowBuildLog from '../TenxFlowBuildLog'
 
 const menusText = defineMessages({
   bulidLog: {
@@ -118,6 +119,9 @@ function dateFormat(dateString) {
 function dateSizeFormat(startTime, endTime, scope) {
   //this function for user get the flow building time
   const { formatMessage } = scope.props.intl;
+  if(!Boolean(endTime)) {
+    return (<span>{formatMessage(menusText.running)}</span>)
+  }
   let newStart = new Date(Date.parse(startTime.replace('T', ' ').replace(/-/g, '/').split('.')[0]));
   let newEnd = new Date(Date.parse(endTime.replace('T', ' ').replace(/-/g, '/').split('.')[0]));
   let timeSize = newEnd.getTime() - newStart.getTime();
@@ -149,8 +153,7 @@ let MyComponent = React.createClass({
   },
   render: function () {
     const { config, scope, isFetching, spaceName, flowName } = this.props;
-    console.log(this.props)
-    if(isFetching) {
+    if(isFetching || config == undefined) {
       return (
         <div className='loadingBox'>
           <Spin size='large' />
@@ -175,7 +178,7 @@ let MyComponent = React.createClass({
         </Menu>
       );
       return (
-        <div className='LogDetail' key={spaceName + index} >
+        <div className='LogDetail' key={item.buildId + index} >
           <div className='leftBox'>
             <p className={ checkStatusClass(item.status) + ' title' }>
               { checkStatusSpan(item.status, scope) }
@@ -209,7 +212,8 @@ let MyComponent = React.createClass({
                   <i className='fa fa-eye' />&nbsp;
                   <FormattedMessage {...menusText.checkImage} />
                 </Button>
-                <Dropdown.Button overlay={dropdown} type='ghost' size='large' className='operaBtn'>
+                <Dropdown.Button overlay={dropdown} type='ghost' size='large' className='operaBtn' 
+                  onClick={() => scope.getBuildLogDetailInfo(item.buildId)}>
                   <i className='fa fa-pencil-square-o' />&nbsp;
                   <FormattedMessage {...menusText.bulidLog} />
                 </Dropdown.Button>
@@ -232,21 +236,46 @@ let MyComponent = React.createClass({
 class TenxFLowDetailLog extends Component {
   constructor(props) {
     super(props);
+    this.getBuildLogDetailInfo = this.getBuildLogDetailInfo.bind(this);
+    this.closeTenxFlowDeployLogModal = this.closeTenxFlowDeployLogModal.bind(this);
     this.state = {
+      TenxFlowDeployLogModal: false
     }
   }
 
   componentWillMount() {
     document.title = 'TenxFlow | 时速云';
     const { getTenxflowBuildLogs, flowId } = this.props;
-    getTenxflowBuildLogs(flowId)
+    getTenxflowBuildLogs(flowId);
+  }
+  
+  closeTenxFlowDeployLogModal() {
+    //this function for user close the deploy log
+    this.setState({
+      TenxFlowDeployLogModal: false
+    });
+  }
+  
+  getBuildLogDetailInfo(buildId) {
+    //this function for show user the detail log info
+    const { getTenxflowBuildDetailLogs, flowId } = this.props;
+    this.setState({
+      TenxFlowDeployLogModal: true
+    })
+    getTenxflowBuildDetailLogs(flowId, buildId)
   }
 
   render() {
-    const { scope, isFetching, logs, spaceName, flowName } = this.props;
+    const { scope, isFetching, logs, spaceName, flowName, detailFetching, detailLogs, flowId } = this.props;
+    const thisScope = this;
     return (
       <Card id='TenxFLowDetailLog'>
-        <MyComponent config={logs} scope={scope} isFetching={isFetching} spaceName={spaceName} flowName={flowName} />
+        <MyComponent config={logs} scope={thisScope} isFetching={isFetching} spaceName={spaceName} flowName={flowName} />
+        <Modal visible={this.state.TenxFlowDeployLogModal}
+          className='TenxFlowBuildLogModal'
+          onCancel={this.closeTenxFlowDeployLogModal} >
+          <TenxFlowBuildLog scope={thisScope} flowId={flowId} isFetching={detailFetching} logs={detailLogs}/>
+        </Modal>
       </Card>
     )
   }
@@ -257,15 +286,23 @@ function mapStateToProps(state, props) {
     isFetching: false,
     logs: []
   }
+  const defaultDetailStageLogs = {
+    detailFetching: false,
+    logs: []
+  }
   const { current } = state.entities
   const { space } = current
   const { spaceName } = space
-  const { getTenxflowBuildLogs } = state.cicd_flow
+  const { getTenxflowBuildLogs, getTenxflowBuildDetailLogs } = state.cicd_flow
   const { logs, isFetching } = getTenxflowBuildLogs || defaultLogs
+  const detailLogs = getTenxflowBuildDetailLogs.logs || defaultDetailStageLogs.logs
+  const detailFetching = getTenxflowBuildDetailLogs.detailFetching || defaultDetailStageLogs.detailFetching
   return {
     isFetching,
     logs,
-    spaceName
+    spaceName,
+    detailLogs,
+    detailFetching
   }
 }
 
@@ -274,7 +311,8 @@ TenxFLowDetailLog.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-  getTenxflowBuildLogs
+  getTenxflowBuildLogs,
+  getTenxflowBuildDetailLogs
 })(injectIntl(TenxFLowDetailLog, {
   withRef: true,
 }));

@@ -848,3 +848,45 @@ export function getTenxflowBuildLogs(flowId, callback) {
     return dispatch(fetchTenxflowBuildLogs(flowId, callback))
   }
 }
+
+export const GET_FLOW_BUILD_DETAIL_LOG_REQUEST = 'GET_FLOW_BUILD_DETAIL_LOG_REQUEST'
+export const GET_FLOW_BUILD_DETAIL_LOG_SUCCESS = 'GET_FLOW_BUILD_DETAIL_LOG_SUCCESS'
+export const GET_FLOW_BUILD_DETAIL_LOG_FAILURE = 'GET_FLOW_BUILD_DETAIL_LOG_FAILURE'
+
+function fetchTenxflowBuildDetailLogs(flowId, flowBuildId, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_FLOW_BUILD_DETAIL_LOG_REQUEST, GET_FLOW_BUILD_DETAIL_LOG_SUCCESS, GET_FLOW_BUILD_DETAIL_LOG_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/builds/${flowBuildId}`,
+      schema: {}
+    },
+    callback: callback
+  }
+}
+
+export function getTenxflowBuildDetailLogs(flowId, flowBuildId, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchTenxflowBuildDetailLogs(flowId, flowBuildId, callback))
+  }
+}
+
+export const GET_FLOW_BUILD_STAGE_LOG_REQUEST = 'GET_FLOW_BUILD_STAGE_LOG_REQUEST'
+export const GET_FLOW_BUILD_STAGE_LOG_SUCCESS = 'GET_FLOW_BUILD_STAGE_LOG_SUCCESS'
+export const GET_FLOW_BUILD_STAGE_LOG_FAILURE = 'GET_FLOW_BUILD_STAGE_LOG_FAILURE'
+
+function fetchFlowBuildStageLogs(flowId, stageId, stageBuildId, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_FLOW_BUILD_STAGE_LOG_REQUEST, GET_FLOW_BUILD_STAGE_LOG_SUCCESS, GET_FLOW_BUILD_STAGE_LOG_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/stages/${stageId}/builds/${stageBuildId}`,
+      schema: {}
+    },
+    callback: callback
+  }
+}
+
+export function getFlowBuildStageLogs(flowId, stageId,stageBuildId, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchFlowBuildStageLogs(flowId, stageId, stageBuildId, callback))
+  }
+}

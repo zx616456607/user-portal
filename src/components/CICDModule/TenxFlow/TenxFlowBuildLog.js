@@ -15,36 +15,11 @@ import $ from 'n-zepto'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../constants'
+import { getFlowBuildStageLogs } from '../../../actions/cicd_flow'
 import './style/TenxFlowBuildLog.less'
+import TenxFlowStageBuildLog from './TenxFlowStageBuildLog'
 
 const Panel = Collapse.Panel;
-
-let testData = [
-  {
-    'name': 'test1',
-    'updateTime': '2016-10-25 09:24:11',
-    'status': 'normal',
-    'cost': '10小时',
-  },
-  {
-    'name': 'test2',
-    'updateTime': '2016-10-25 09:24:11',
-    'status': 'normal',
-    'cost': '10小时',
-  },
-  {
-    'name': 'test3',
-    'updateTime': '2016-10-25 09:24:11',
-    'status': 'normal',
-    'cost': '10小时',
-  },
-  {
-    'name': 'test4',
-    'updateTime': '2016-10-25 09:24:11',
-    'status': 'fail',
-    'cost': '10小时',
-  },
-]
 
 const menusText = defineMessages({
   title: {
@@ -70,24 +45,52 @@ const menusText = defineMessages({
   fail: {
     id: 'CICD.Tenxflow.TenxFlowBuildLog.fail',
     defaultMessage: '执行失败',
-  }
+  },
+    msShow: {
+    id: 'CICD.Tenxflow.TenxFlowBuildLog.msShow',
+    defaultMessage: '毫秒',
+  },
+  sShow: {
+    id: 'CICD.Tenxflow.TenxFlowBuildLog.sShow',
+    defaultMessage: '秒',
+  },
+  mShow: {
+    id: 'CICD.Tenxflow.TenxFlowBuildLog.mShow',
+    defaultMessage: '分钟',
+  },
+  hShow: {
+    id: 'CICD.Tenxflow.TenxFlowBuildLog.hShow',
+    defaultMessage: '小时',
+  },
+  running: {
+    id: 'CICD.Tenxflow.TenxFlowBuildLog.running',
+    defaultMessage: '运行中',
+  },
+  wait: {
+    id: 'CICD.Tenxflow.TenxFlowBuildLog.wait',
+    defaultMessage: '等待',
+  },
+  nodata: {
+    id: 'CICD.Tenxflow.TenxFlowBuildLog.nodata',
+    defaultMessage: '数据为空',
+  },
 })
 
 function checkStatusSpan(status, scope) {
   //this function for user input the status return current words
   const { formatMessage } = scope.props.intl;
   switch (status) {
-    case 'running':
-      return formatMessage(menusText.running);
-      break;
-    case 'finish':
+    case 0:
       return formatMessage(menusText.finish);
       break;
-    case 'waitting':
-      return formatMessage(menusText.waitting);
-      break;
-    case 'fail':
+    case 1:
       return formatMessage(menusText.fail);
+      break;
+    case 2:
+      return formatMessage(menusText.running);
+      break;
+    case 3:
+      return formatMessage(menusText.waitting);
       break;
   }
 }
@@ -95,117 +98,143 @@ function checkStatusSpan(status, scope) {
 function checkStatusClass(status) {
   //this function for user input the status return current className
   switch (status) {
-    case 'running':
-      return 'running';
-      break;
-    case 'finish':
+    case 0:
       return 'finish';
       break;
-    case 'waitting':
-      return 'waitting';
-      break;
-    case 'fail':
+    case 1:
       return 'fail';
+      break;
+    case 2:
+      return 'running';
+      break;
+    case 3:
+      return 'waitting';
       break;
   }
 }
 
-let MyLine = React.createClass({
-  propTypes: {
-    config: React.PropTypes.array,
-    scope: React.PropTypes.object
-  },
-  render: function () {
-    const { config, scope } = this.props;
-    let items = config.map((item, index) => {
-      const header = (
-        <div className='header'>
-          <div className='line'></div>
-          <i className='fa fa-dot-circle-o' />
-        </div>
-      );
-      return (
-        <Panel header={header} className={'lineDetail lineDetail' + index} key={index} >
-          <div className='cover'></div>
-          <div className='hideCover'>
-            <div className='titleBox'>
-              <br />
-              <br />
-              <br />
-              <br />
-            </div>
-            <div className='infoBox'>
-
-            </div>
-          </div>
-        </Panel>
-      );
-    });
-    return (
-      <div className='leftBox'>
-        <Collapse className='logBoxLine' activeKey={scope.state.activePanel}>
-          {items}
-        </Collapse>
-      </div>
-    );
+function dateSizeFormat(startTime, endTime, scope) {
+  //this function for user get the flow building time
+  const { formatMessage } = scope.props.intl;
+  if(!Boolean(endTime)) {
+    return (<span>{formatMessage(menusText.running)}</span>)
   }
-});
+  let newStart = new Date(Date.parse(startTime.replace('T', ' ').replace(/-/g, '/').split('.')[0]));
+  let newEnd = new Date(Date.parse(endTime.replace('T', ' ').replace(/-/g, '/').split('.')[0]));
+  let timeSize = newEnd.getTime() - newStart.getTime();
+  if(timeSize > 1000) {
+    timeSize = parseInt(timeSize / 1000);
+    if(timeSize > 60) {
+      timeSize = parseInt(timeSize / 60);
+      if(timeSize > 60) {
+        timeSize = parseInt(timeSize / 60);
+        return (<span>{timeSize + formatMessage(menusText.hShow)}</span>)
+      } else {
+        return (<span>{timeSize + formatMessage(menusText.mShow)}</span>)
+      }
+    } else {
+      return (<span>{timeSize + formatMessage(menusText.sShow)}</span>)
+    }
+  } else {
+    return (<span>{timeSize + formatMessage(menusText.msShow)}</span>)
+  }
+}
+
+function checkStatusIcon(status) {
+  //this function for show different icon for different staus
+  switch(status) {
+    case 0:
+      return (<i className='normal fa fa-check-circle' aria-hidden='false'></i>);
+      break;
+    case 1:
+      return (<i className='fail fa fa-times-circle' aria-hidden='false'></i>);
+      break;
+    case 2:
+      return (<Spin />);
+      break;
+    case 3:
+      return (<i className='wait fa fa-circle' ></i>);
+      break;
+  }
+}
+
+function dateFormat(dateString) {
+  //this function for user format string to date
+  let newString = dateString.replace('T', ' ').replace(/-/g, '/').split('.')[0];
+  return newString;
+}
 
 let MyComponent = React.createClass({
   propTypes: {
     config: React.PropTypes.array,
     scope: React.PropTypes.object
   },
-  collapseAction: function (e) {
+  collapseAction: function (config, e) {
     //this function for user open or close collapse panel action
     //and then the line collapse will be current change
-    const { scope } = this.props;
-    scope.setState({
-      activePanel: e
-    });
+    const { scope, flowId } = this.props;
+    const { getFlowBuildStageLogs } = scope.props;
+    if(e.length > 0){
+      let index = e[e.length -1].replace('LogDetail','');
+      console.log(config[index])
+      getFlowBuildStageLogs(flowId, config[index].stageId, config[index].buildId, {
+        success: {
+          func: (res) => {
+            config[index].logInfo = res.message;
+          },
+          isAsync: true
+        }
+      })
+    }
   },
   render: function () {
-    const { config, scope } = this.props;
+    const { config, scope, flowId } = this.props;
     let items = config.map((item, index) => {
       const header = (
         <div className='header'>
-          <span className='name commonHeader'>
-            {item.name}
-          </span>
-          <span className='status commonHeader'>
-            <span className={checkStatusClass(item.status)}>
-              <i className='fa fa-circle' />
-              {checkStatusSpan(item.status, scope)}
-            </span>
-          </span>
-          <span className='updateTime commonHeader'>
-            <i className='fa fa-wpforms' />
-            {item.updateTime}
-          </span>
-          <span className='commonHeader'>
-            <Icon type='clock-circle-o' />
-            <FormattedMessage {...menusText.cost} />
-            {item.cost}
-          </span>
+          <div className='leftHeader'>
+            <div className='line'></div>
+            { checkStatusIcon(item.status) }
+          </div>
+          <div className='rightHeader'>
+            <div className='borderBox'>
+              <span className='name commonHeader'>
+                {item.stageName}
+              </span>
+              <span className='status commonHeader'>
+                <span className={checkStatusClass(item.status)}>
+                  {checkStatusSpan(item.status, scope)}
+                </span>
+              </span>
+              <span className='updateTime commonHeader'>
+                <i className='fa fa-wpforms' />
+                { dateFormat(item.creationTime) }
+              </span>
+              <span className='commonHeader'>
+                <Icon type='clock-circle-o' />
+                <FormattedMessage {...menusText.cost} />
+                { dateSizeFormat(item.creationTime, item.endTime, scope) }
+              </span>
+              <div style={{ clear: 'both' }}></div>
+            </div>
+          </div>
+          <div style={{ clear: 'both' }}></div>
         </div>
       );
       return (
-        <Panel header={header} className={'LogDetail LogDetail' + index} key={index}>
-          <div className='titleBox'>
-            <br />
-            <br />
-            <br />
-            <br />
+        <Panel header={header} className={'LogDetail LogDetail' + index} key={'LogDetail' + index} >
+          <div className='leftInfo'>
+            <div className='line'></div>
           </div>
-          <div className='infoBox'>
-
+          <div className='rightInfo'>
+            <TenxFlowStageBuildLog stageId={item.stageId} flowId={flowId} buildId={item.buildId} />
           </div>
         </Panel>
       );
     });
     return (
       <div className='rightBox'>
-        <Collapse className='logBox' onChange={this.collapseAction}>
+        <Collapse className='logBox' onChange={this.collapseAction.bind(this, config)}>
           {items}
         </Collapse>
       </div>
@@ -221,10 +250,6 @@ class TenxFlowBuildLog extends Component {
       activePanel: [],
       modalSize: 'normal'
     }
-  }
-
-  componentWillMount() {
-    document.title = 'TenxFlow | 时速云';
   }
 
   changeModalSize() {
@@ -245,8 +270,7 @@ class TenxFlowBuildLog extends Component {
 
   render() {
     const scope = this;
-    const { logs, isFetching } = this.props;
-    console.log(logs)
+    const { logs, isFetching, flowId } = this.props;
     if(isFetching) {
       return (
         <div id='TenxFlowBuildLog' className={this.state.modalSize == 'big' ? 'bigModal' : 'smallModal'}>
@@ -263,6 +287,22 @@ class TenxFlowBuildLog extends Component {
         </div>
       )
     }
+    if(logs.length == 0) {
+      return (
+        <div id='TenxFlowBuildLog' className={this.state.modalSize == 'big' ? 'bigModal' : 'smallModal'}>
+          <div className='title'>
+            <span>执行记录</span>
+            <i className='fa fa-expand' onClick={this.changeModalSize} />
+            <div style={{ clear: 'both' }}></div>
+          </div>
+          <div className='paddingBox'>
+            <div className='loadingBox'>
+              <span><FormattedMessage {...menusText.nodata} /></span>
+            </div>
+          </div>
+        </div>
+      )
+    }
     return (
       <div id='TenxFlowBuildLog' className={this.state.modalSize == 'big' ? 'bigModal' : 'smallModal'}>
         <div className='title'>
@@ -271,8 +311,7 @@ class TenxFlowBuildLog extends Component {
           <div style={{ clear: 'both' }}></div>
         </div>
         <div className='paddingBox'>
-          <MyComponent config={logs} scope={scope} />
-          <MyLine config={logs} scope={scope} />
+          <MyComponent config={logs} scope={scope} flowId={flowId} />
           <div style={{ clear: 'both' }}></div>
         </div>
       </div>
@@ -292,7 +331,7 @@ TenxFlowBuildLog.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-
+  getFlowBuildStageLogs
 })(injectIntl(TenxFlowBuildLog, {
   withRef: true,
 }));
