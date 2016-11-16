@@ -15,6 +15,8 @@ import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import './style/CodeRepo.less'
 import { getRepoList, addCodeRepo, notActiveProject, deleteRepo, registryRepo, syncRepoList, searchCodeRepo, getUserInfo } from '../../../actions/cicd_flow'
+import GithubComponent from './GithubComponent'
+import SvnComponent from './SvnComponent'
 
 const TabPane = Tabs.TabPane
 
@@ -135,6 +137,12 @@ const MyComponent = React.createClass({
           self.props.scope.props.getUserInfo(config.type)
         },
         isAsync: true
+      },
+      failed: {
+        func: (res)=> {
+          self.setState({loading: false})
+          message.error(res.message)
+        }
       }
     })
   },
@@ -326,6 +334,9 @@ class CodeRepo extends Component {
               <p style={{ paddingLeft: '36px', lineHeight: '40px' }}>选择代码源</p>
               <Tabs type="card" onChange={(e) => { this.setState({ repokey: e }) } }>
                 <TabPane tab={gitlabBud} key="gitlab"><MyComponent formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} repoUser={this.props.repoUser} config={this.props.repoList} /></TabPane>
+                <TabPane tab={githubBud} key="github"><GithubComponent formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope}  /></TabPane>
+                <TabPane tab={svnBud} key="svn"><SvnComponent formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} /></TabPane>
+
               </Tabs>
             </div>
           </div>

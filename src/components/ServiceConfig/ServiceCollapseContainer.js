@@ -30,7 +30,6 @@ function formatLinkContainer(data, groupname, name) {
           if (data[i].services[j].spec.template.spec.volumes[k].configMap && data[i].services[j].spec.template.spec.volumes[k].configMap.name == groupname) {
             for (let l = 0; l < data[i].services[j].spec.template.spec.volumes[k].configMap.items.length; l++) {
               if (data[i].services[j].spec.template.spec.volumes[k].configMap.items[l].key == name) {
-                console.log('key is', data[i].services[j].spec.template.spec.containers[l].name)
                 linkContainer.push(data[i].services[j].spec.template.spec.containers[l].name)
               }
             }
@@ -53,7 +52,6 @@ function formatVolumeMounts(data, groupname, name) {
           if (data[i].services[j].spec.template.spec.volumes[k].configMap && data[i].services[j].spec.template.spec.volumes[k].configMap.name == groupname) {
             for (let l = 0; l < data[i].services[j].spec.template.spec.volumes[k].configMap.items.length; l++) {
               if (data[i].services[j].spec.template.spec.volumes[k].configMap.items[l].key == name) {
-                console.log('key---- is', data[i].services[j].spec.template.spec.containers[l].volumeMounts)
                 for (let v = 0; v < data[i].services[j].spec.template.spec.containers[l].volumeMounts.length; v++) {
                   let others = [
                     {
@@ -71,7 +69,6 @@ function formatVolumeMounts(data, groupname, name) {
 
     }
   }
-  console.log('===========', volumeMounts)
   return volumeMounts
 }
 
@@ -89,10 +86,8 @@ class CollapseContainer extends Component {
   }
   componentWillMount() {
     // 暂时不重新加载 group file 父组件已经返回了
-    const { loadAppList } = this.props
+    const { loadAppList ,cluster} = this.props
     // this.props.loadConfigName(groupname)
-    console.log(this.props)
-    const { cluster } = this.props
     loadAppList(cluster)
 
   }
@@ -222,7 +217,6 @@ class CollapseContainer extends Component {
           </td>
         )
       }
-      console.log('data imageName', imageName)
       return (
         <Timeline.Item key={configFileItem.name}>
           <Row className='file-item'>
