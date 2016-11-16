@@ -33,6 +33,9 @@ import AppCreateComposeFile from './components/AppModule/AppCreate/ComposeFile'
 import ContainerList from './components/ContainerModule/ContainerList'
 import ContainerDetail from './components/ContainerModule/ContainerDetail'
 /*-------------------Container stop--------------------------------*/
+/*-----------Service start---------------*/
+import ServiceList from './components/AppModule/AllServiceList.js'
+/*-----------Service end-----------------*/
 /*-------------------App_manage Module Stop------------------------*/
 /*-------------------App_center Module Start-----------------------*/
 import AppCenter from './containers/AppCenter'
@@ -84,6 +87,9 @@ export default (
         <Route path="app_store" component={AppCreateAppStore} />
         <Route path="compose_file" component={AppCreateComposeFile} />
       </Route>
+		  <Route path="service">
+			  <IndexRoute component={ServiceList} /> 
+		  </Route>
       <Route path="container">
         <IndexRoute component={ContainerList} />
         <Route path=":container_name" component={ContainerDetail} />

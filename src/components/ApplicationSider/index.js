@@ -47,19 +47,22 @@ export default class AppSider extends Component {
             <Menu.Item key="1">
               <Link to="/app_manage">应用</Link>
             </Menu.Item>
-            <Menu.Item key="2">
+				    <Menu.Item key="2">
+				      <Link to="/app_manage/service">服务</Link>
+				    </Menu.Item>
+            <Menu.Item key="3">
               <Link to="/app_manage/container">容器</Link>
             </Menu.Item>
-            <Menu.Item key="3">
+            <Menu.Item key="4">
               <Link to="/app_manage/storage">存储</Link>
             </Menu.Item>
-            {/*<Menu.Item key="4">
+            {/*<Menu.Item key="5">
               <Link to="/app_manage/firewall">防火墙</Link>
             </Menu.Item>*/}
-            <Menu.Item key="5">
+            <Menu.Item key="6">
               <Link to="/app_manage/configs">服务配置</Link>
             </Menu.Item>
-            {/*<Menu.Item key="6">
+            {/*<Menu.Item key="7">
               <Link to="/app_manage/netName">内网域名</Link>
             </Menu.Item>*/}
           </Menu>
