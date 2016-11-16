@@ -301,7 +301,7 @@ let AutoDeployService = React.createClass({
         rules: [
           { required: true, message:"请输入镜像名称"}
         ],
-        initialValue: item.bindingDeploymentName
+        initialValue: item.imageName
       });
       const clusterSelect = getFieldProps('cluster' + item.ruleId, {
         rules: [
@@ -363,11 +363,11 @@ let AutoDeployService = React.createClass({
                 ] :
                   [
                     <span>
-                      <Button className='cancelBtn' size='large' type='ghost' onClick={() => self.updateReule(item)}>
+                      <Button className='cancelBtn'  style={{marginRight:'10px'}} size='large' type='ghost' onClick={() => self.updateReule(item)}>
                         <FormattedMessage {...menusText.confirm} />
                       </Button>
 
-                      <Button className='cancelBtn' style={{ marginLeft: '10px' }} size='large' type='ghost' onClick={() => self.cancelEdit(item.ruleId)}>
+                      <Button className='cancelBtn' size='large' type='ghost' onClick={() => self.cancelEdit(item.ruleId)}>
                         <FormattedMessage {...menusText.cancel} />
                       </Button>
                     </span>

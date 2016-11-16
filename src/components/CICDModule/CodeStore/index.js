@@ -227,7 +227,8 @@ const MyComponent = React.createClass({
          >
           <div style={{padding:"0 20px"}}>
             <p style={{lineHeight:'40px'}}>* 将该URL填入到 {this.state.repoType} 项目的Web Hooks URL中</p>
-            <p><Input type="textarea" className="CodeCopy" autosize={{ minRows: 2, maxRows: 6 }} value={this.state.webhookUrl} /></p>
+            <div style={{padding: '10px',border:'1px solid #d9d9d9',wordWrap:'break-word'}} className="valueBox">{this.state.webhookUrl}</div>
+            <p style={{opacity:'0',position:'absolute'}}><Input type="textarea" className="CodeCopy" autosize={{ minRows: 2, maxRows: 6 }} value={this.state.webhookUrl} /></p>
             <p style={{marginTop:'10px'}}>
             <Tooltip title={this.state.copySuccess ? formatMessage(menusText.copySuccess) : formatMessage(menusText.clickCopy)} placement="right">
               <Button type="primary" size="large" onClick={this.copyDownloadCode} onMouseLeave={this.returnDefaultTooltip}><FormattedMessage {...menusText.copyBtn} /></Button>
@@ -246,8 +247,9 @@ const MyComponent = React.createClass({
             <p style={{lineHeight:'40px'}}><span style={{color:'#00A0EA'}} className="name">仓库: {this.state.repoType} / {this.state.itemName} </span>  <span style={{color:'#00A0EA', marginLeft:'20px'}} className="type">属性：{this.state.itemType==1 ? "私有" : "公有"}</span> </p>
 
             <p style={{lineHeight:'40px'}}>* 请手动配置一下公钥到github 项目中</p>
-            <p style={{marginBottom: '10px'}}><Input type="textarea" className="KeyCopy" autosize={{ minRows: 2, maxRows: 6 }} value={ this.state.publicKey} /></p>
-            <p style={{lineHeight:'40px'}}>
+            <div style={{padding: '10px',border:'1px solid #d9d9d9',wordWrap:'break-word'}}>{ this.state.publicKey }</div>
+            <p style={{opacity:'0',position:'absolute'}}><Input type="textarea" className="KeyCopy" autosize={{ minRows: 2, maxRows: 6 }} value={ this.state.publicKey} /></p>
+            <p style={{marginTop:'10px'}}>
             <Tooltip title={this.state.copySuccess ? formatMessage(menusText.copySuccess) : formatMessage(menusText.clickCopy)} placement="right">
               <Button type="primary" size="large" onClick={this.copyItemKey} onMouseLeave={this.returnDefaultTooltip}><FormattedMessage {...menusText.copyBtn} /></Button>
             </Tooltip>

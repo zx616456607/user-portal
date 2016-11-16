@@ -13,9 +13,64 @@ import { Row, Icon, Input, Form, Modal, Timeline, Spin, message, Button } from '
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 // import ConfigFile from './ServiceConfigFile'
 import { loadConfigName, updateConfigName, configGroupName, deleteConfigName, changeConfigFile } from '../../actions/configs'
+import { loadAppList } from '../../actions/app_manage'
 import { connect } from 'react-redux'
+import unionWith from 'lodash/unionWith'
+import isEqual from 'lodash/isEqual'
 
 const FormItem = Form.Item
+
+function formatLinkContainer(data, groupname, name) {
+  let linkContainer = []
+  if (data.length == 0) return
+  for (let i = 0; i < data.length; i++) {
+    for (let j = 0; j < data[i].services.length; j++) {
+      if (data[i].services[j].spec.template.spec.volumes) {
+        for (let k = 0; k < data[i].services[j].spec.template.spec.volumes.length; k++) {
+          if (data[i].services[j].spec.template.spec.volumes[k].configMap && data[i].services[j].spec.template.spec.volumes[k].configMap.name == groupname) {
+            for (let l = 0; l < data[i].services[j].spec.template.spec.volumes[k].configMap.items.length; l++) {
+              if (data[i].services[j].spec.template.spec.volumes[k].configMap.items[l].key == name) {
+                linkContainer.push(data[i].services[j].spec.template.spec.containers[l].name)
+              }
+            }
+          }
+        }
+      }
+
+    }
+  }
+  return linkContainer
+}
+
+function formatVolumeMounts(data, groupname, name) {
+  let volumeMounts = []
+  if (data.length == 0) return
+  for (let i = 0; i < data.length; i++) {
+    for (let j = 0; j < data[i].services.length; j++) {
+      if (data[i].services[j].spec.template.spec.volumes) {
+        for (let k = 0; k < data[i].services[j].spec.template.spec.volumes.length; k++) {
+          if (data[i].services[j].spec.template.spec.volumes[k].configMap && data[i].services[j].spec.template.spec.volumes[k].configMap.name == groupname) {
+            for (let l = 0; l < data[i].services[j].spec.template.spec.volumes[k].configMap.items.length; l++) {
+              if (data[i].services[j].spec.template.spec.volumes[k].configMap.items[l].key == name) {
+                for (let v = 0; v < data[i].services[j].spec.template.spec.containers[l].volumeMounts.length; v++) {
+                  let others = [
+                    {
+                      imageName: data[i].services[j].spec.template.spec.containers[l].name,
+                      mountPath: data[i].services[j].spec.template.spec.containers[l].volumeMounts[v].mountPath
+                    }
+                  ]
+                  volumeMounts = unionWith(volumeMounts, others, isEqual)
+                }
+              }
+            }
+          }
+        }
+      }
+
+    }
+  }
+  return volumeMounts
+}
 
 class CollapseContainer extends Component {
   constructor(props) {
@@ -24,14 +79,16 @@ class CollapseContainer extends Component {
       modalConfigFile: false,
       configName: '',
       configtextarea: '',
+      checkConfigFile: false
       // collapseContainer: this.props.collapseContainer
 
     }
   }
   componentWillMount() {
     // 暂时不重新加载 group file 父组件已经返回了
-    // const { groupname } = this.props
+    const { loadAppList ,cluster} = this.props
     // this.props.loadConfigName(groupname)
+    loadAppList(cluster)
 
   }
 
@@ -112,7 +169,8 @@ class CollapseContainer extends Component {
     });
   }
   render() {
-    const { collapseContainer } = this.props
+    const { collapseContainer, groupname } = this.props
+    const self = this
     const formItemLayout = { labelCol: { span: 3 }, wrapperCol: { span: 21 } }
     let configFileList
     if (collapseContainer.length === 0) {
@@ -130,6 +188,35 @@ class CollapseContainer extends Component {
     }
 
     configFileList = collapseContainer.map((configFileItem) => {
+      let mounts = null
+      let volume = null
+      let imageName = ''
+      if (self.props.appList && self.props.appList.length > 0) {
+        imageName = formatLinkContainer(self.props.appList, groupname, configFileItem.name)
+        if (imageName.length ==0) {
+          volume = (<td style={{ textAlign: 'center' }}>
+            <div>暂无挂载</div>
+          </td>
+          )
+        } else {
+          mounts = formatVolumeMounts(self.props.appList, groupname, configFileItem.name)
+          volume = mounts.slice(0, 3).map((list, index) => {
+            return (
+              <td key={`key@${index}`}>
+                <div className="li">{list.imageName}</div>
+                <div className='lis'>{list.mountPath}</div>
+              </td>
+
+            )
+          })
+        }
+      } else {
+        volume = (
+          <td style={{ textAlign: 'center' }}>
+            <div>暂无挂载</div>
+          </td>
+        )
+      }
       return (
         <Timeline.Item key={configFileItem.name}>
           <Row className='file-item'>
@@ -150,15 +237,41 @@ class CollapseContainer extends Component {
                     </Button>
                   </td>
                   <td style={{ width: '130px' }}>
-                    <div className='li'>关联容器 <span className='node-number'>0</span></div>
+                    <div className='li'>关联容器 <span className='node-number'>{Array.from(new Set(imageName)).length}</span></div>
                     <div className='lis'>挂载路径</div>
                   </td>
-                  <td style={{ textAlign: 'center' }}>
-                    <div>暂无挂载</div>
-                  </td>
+                  { volume }
+
+                  {(mounts && mounts.length > 3) ?
+                    [<td style={{ textAlign: 'center' }}>
+                      <div style={{cursor:'pointer'}} onClick={()=> {this.setState({[this.props.groupname + configFileItem.name]: true})}}>查看更多</div>
+                    </td>]
+                    :null
+                  }
                 </tr>
               </tbody>
             </table>
+            <Modal
+              title={`配置文件 ${configFileItem.name}`}
+              wrapClassName="server-check-modal"
+              visible={this.state[this.props.groupname + configFileItem.name]}
+              onCancel={() => { this.setState({ [this.props.groupname + configFileItem.name]: false }) } }
+              >
+              <div className="check-config-head">
+                <div className="span4">容器名称</div>
+                <div className="span6">挂载路径</div>
+              </div>
+                {/*查看更多-关联容器列表-start*/}
+                {mounts && mounts.slice(3).map((list) => {
+                  return (
+                    <div className="check-config">
+                      <div className="span4">{list.imageName}</div>
+                      <div className="span6">{list.mountPath}</div>
+                    </div>
+                  )
+                })}
+                {/*查看更多-关联容器列表*-end*/}
+            </Modal>
           </Row>
         </Timeline.Item>
       )
@@ -216,30 +329,23 @@ function mapStateToProps(state, props) {
   }
   const { configGroupList, loadConfigName} = state.configReducers
   const { configNameList, isFetching} = configGroupList[cluster.clusterID] || defaultConfigList
+  const { appItems } = state.apps
+  const { appList } = appItems[cluster.clusterID] || []
   return {
     cluster: cluster.clusterID,
     isFetching,
     configNameList,
-  }
-}
-function mapDispatchToProps(dispatch) {
-  return {
-    loadConfigName: (cluster, obj, callback) => {
-      dispatch(loadConfigName(cluster, obj, callback))
-    },
-    updateConfigName: (obj, callback) => {
-      dispatch(updateConfigName(obj, callback))
-    },
-    deleteConfigName: (obj, callback) => {
-      dispatch(deleteConfigName(obj, callback))
-    },
-    configGroupName: (obj) => {
-      dispatch(configGroupName(obj))
-    },
-    changeConfigFile: (configFile) => dispatch(changeConfigFile(configFile))
+    appList
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(CollapseContainer, {
+export default connect(mapStateToProps, {
+  loadConfigName,
+  updateConfigName,
+  deleteConfigName,
+  configGroupName,
+  loadAppList
+
+})(injectIntl(CollapseContainer, {
   withRef: true,
 }))

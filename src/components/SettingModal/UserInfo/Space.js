@@ -10,12 +10,11 @@
 import React, { Component } from 'react'
 import { Row, Col, Button, Popover, Spin, message, } from 'antd'
 import './style/Space.less'
-import PopSelect from '../../PopSelect'
 import { browserHistory } from 'react-router'
 import { setCurrent } from '../../../actions'
 import { loadTeamClustersList } from '../../../actions/team'
 import { connect } from 'react-redux'
-import PopContent from '../../PopSelect/content'
+import PopContent from '../../PopSelect/Content'
 
 
 let PersonalSpace = React.createClass({
@@ -128,6 +127,7 @@ let TeamSpace = React.createClass({
                   loading={isTeamClustersFetching} />
               }
               trigger="click"
+              getTooltipContainer={() => document.getElementsByClassName('contentTop')[0]}
               onVisibleChange={this.handleVisibleChange.bind(this, teamspace)}>
               <Button type="primary">进入空间</Button>
             </Popover>
