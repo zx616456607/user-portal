@@ -301,7 +301,7 @@ let AutoDeployService = React.createClass({
         rules: [
           { required: true, message:"请输入镜像名称"}
         ],
-        initialValue: item.bindingDeploymentName
+        initialValue: item.imageName
       });
       const clusterSelect = getFieldProps('cluster' + item.ruleId, {
         rules: [
