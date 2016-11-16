@@ -27,19 +27,23 @@
     min-width: inherit;
   }
 }
-#TipAppDomain {
+.TipAppDomain {
   .more {
     display: inline-block;
-    background-color: #F2F2F2;
     margin-left: 5px;
     width: 15px;
     height: 16px;
     line-height:17px;
-    border-radius: 50%;
+    use {
+      fill: #F2F2F2;
+    }
     &:hover {
-      background-color: #000;
+      use {
+        fill: #000;
+      }
       color: #fff;
     }
+
   }
   .ant-tooltip-inner {
     width: 100% !important;

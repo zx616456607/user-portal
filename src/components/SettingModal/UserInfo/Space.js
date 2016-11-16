@@ -128,6 +128,7 @@ let TeamSpace = React.createClass({
                   loading={isTeamClustersFetching} />
               }
               trigger="click"
+              getTooltipContainer={() => document.getElementsByClassName('contentTop')[0]}
               onVisibleChange={this.handleVisibleChange.bind(this, teamspace)}>
               <Button type="primary">进入空间</Button>
             </Popover>

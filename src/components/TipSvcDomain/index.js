@@ -130,7 +130,9 @@ export default class TipSvcDomain extends Component{
                        trigger="click"
                        getTooltipContainer={() => document.getElementById('TipSvcDomain')}
                        arrowPointAtCenter={true}>
-                <div className="more"><Icon type="ellipsis" style={{transform: 'scale(.7)'}}/></div>
+                <svg className="more">
+                  <use xlinkHref="#more" />
+                </svg>
               </Popover>
           </div>
         )
@@ -145,14 +147,16 @@ export default class TipSvcDomain extends Component{
         )
       } else {
         return (
-        <div id='TipAppDomain'>
+        <div className='TipAppDomain'>
           <a target="_blank">{appDomain[0].data[0]}</a>
           <Popover placement="right"
                    content={<AppTip appDomain={appDomain}/>}
                    trigger="click"
-                   getTooltipContainer={() => document.getElementById('TipAppDomain')}
                    arrowPointAtCenter={true}>
-            <div className="more"><Icon type="ellipsis" style={{transform: 'scale(.7)'}}/></div>
+            {/*<div className="more"><Icon type="ellipsis" style={{transform: 'scale(.7)'}}/></div>*/}
+            <svg className="more">
+              <use xlinkHref="#more" />
+            </svg>
           </Popover>
         </div>
         )
