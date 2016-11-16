@@ -216,6 +216,7 @@ module.exports = function (Router) {
   router.get('/devops/ci-flows/:flow_id/builds/:flow_build_id', devopsController.getFlowBuild)
   router.put('/devops/ci-flows/:flow_id/builds/:flow_build_id/stop', devopsController.stopBuild)
   router.get('/devops/ci-flows/:flow_id/getBuildLogs', devopsController.getBuildLog)
+  router.get('/devops/ci-flows/:flow_id/getLastBuildLogs', devopsController.getLastBuildLog)
   router.get('/devops/ci-flows/:flow_id/stages/:stage_id/builds/:stage_build_id', devopsController.getFlowStageBuildLog)
 
   // CI Dockerfile

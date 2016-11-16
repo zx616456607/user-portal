@@ -214,7 +214,7 @@ let MyComponent = React.createClass({
                 </Button>
                 <Dropdown.Button overlay={dropdown} type='ghost' size='large' className='operaBtn' 
                   onClick={() => scope.getBuildLogDetailInfo(item.buildId)}>
-                  <i className='fa fa-pencil-square-o' />&nbsp;
+                  <i className='fa fa-wpforms' />&nbsp;
                   <FormattedMessage {...menusText.bulidLog} />
                 </Dropdown.Button>
               </div>
@@ -296,7 +296,7 @@ function mapStateToProps(state, props) {
   const { getTenxflowBuildLogs, getTenxflowBuildDetailLogs } = state.cicd_flow
   const { logs, isFetching } = getTenxflowBuildLogs || defaultLogs
   const detailLogs = getTenxflowBuildDetailLogs.logs || defaultDetailStageLogs.logs
-  const detailFetching = getTenxflowBuildDetailLogs.detailFetching || defaultDetailStageLogs.detailFetching
+  const detailFetching = getTenxflowBuildDetailLogs.isFetching || defaultDetailStageLogs.detailFetching
   return {
     isFetching,
     logs,

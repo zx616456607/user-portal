@@ -176,11 +176,18 @@ let MyComponent = React.createClass({
     const { getFlowBuildStageLogs } = scope.props;
     if(e.length > 0){
       let index = e[e.length -1].replace('LogDetail','');
-      console.log(config[index])
+      config[index].isFetching = true;
+      scope.setState({
+        currentLogList: config
+      })
       getFlowBuildStageLogs(flowId, config[index].stageId, config[index].buildId, {
         success: {
           func: (res) => {
             config[index].logInfo = res.message;
+            config[index].isFetching = false;
+            scope.setState({
+              currentLogList: config
+            })
           },
           isAsync: true
         }
@@ -227,7 +234,7 @@ let MyComponent = React.createClass({
             <div className='line'></div>
           </div>
           <div className='rightInfo'>
-            <TenxFlowStageBuildLog stageId={item.stageId} flowId={flowId} buildId={item.buildId} />
+            <TenxFlowStageBuildLog logs={item.logInfo} isFetching={item.isFetching} />
           </div>
         </Panel>
       );
@@ -247,8 +254,24 @@ class TenxFlowBuildLog extends Component {
     super(props);
     this.changeModalSize = this.changeModalSize.bind(this);
     this.state = {
-      activePanel: [],
-      modalSize: 'normal'
+      modalSize: 'normal',
+      currentLogList: []
+    }
+  }
+  
+  componentWillMount() {
+    const { logs } = this.props;
+    this.setState({
+      currentLogList: logs
+    })
+  }
+  
+  componentWillReceiveProps(nextProps) {
+    const { logs } = nextProps;
+    if(!nextProps.isFetching) {
+      this.setState({
+        currentLogList: logs
+      })
     }
   }
 
@@ -271,6 +294,7 @@ class TenxFlowBuildLog extends Component {
   render() {
     const scope = this;
     const { logs, isFetching, flowId } = this.props;
+    console.log(this.props)
     if(isFetching) {
       return (
         <div id='TenxFlowBuildLog' className={this.state.modalSize == 'big' ? 'bigModal' : 'smallModal'}>
@@ -287,7 +311,7 @@ class TenxFlowBuildLog extends Component {
         </div>
       )
     }
-    if(logs.length == 0) {
+    if(!Boolean(logs) || logs.length == 0 ) {
       return (
         <div id='TenxFlowBuildLog' className={this.state.modalSize == 'big' ? 'bigModal' : 'smallModal'}>
           <div className='title'>

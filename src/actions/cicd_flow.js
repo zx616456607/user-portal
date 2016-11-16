@@ -870,6 +870,27 @@ export function getTenxflowBuildDetailLogs(flowId, flowBuildId, callback) {
   }
 }
 
+export const GET_FLOW_BUILD_LAST_LOG_REQUEST = 'GET_FLOW_BUILD_LAST_LOG_REQUEST'
+export const GET_FLOW_BUILD_LAST_LOG_SUCCESS = 'GET_FLOW_BUILD_LAST_LOG_SUCCESS'
+export const GET_FLOW_BUILD_LAST_LOG_FAILURE = 'GET_FLOW_BUILD_LAST_LOG_FAILURE'
+
+function fetchTenxflowLastBuildLogs(flowId, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_FLOW_BUILD_LAST_LOG_REQUEST, GET_FLOW_BUILD_LAST_LOG_SUCCESS, GET_FLOW_BUILD_LAST_LOG_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/getLastBuildLogs`,
+      schema: {}
+    },
+    callback: callback
+  }
+}
+
+export function getTenxflowBuildLastLogs(flowId, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchTenxflowLastBuildLogs(flowId, callback))
+  }
+}
+
 export const GET_FLOW_BUILD_STAGE_LOG_REQUEST = 'GET_FLOW_BUILD_STAGE_LOG_REQUEST'
 export const GET_FLOW_BUILD_STAGE_LOG_SUCCESS = 'GET_FLOW_BUILD_STAGE_LOG_SUCCESS'
 export const GET_FLOW_BUILD_STAGE_LOG_FAILURE = 'GET_FLOW_BUILD_STAGE_LOG_FAILURE'

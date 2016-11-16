@@ -14,7 +14,6 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../constants'
-import { getFlowBuildStageLogs } from '../../../actions/cicd_flow'
 import './style/TenxFlowStageBuildLog.less'
 
 function formatLog(log) {
@@ -40,14 +39,11 @@ class TenxFlowStageBuildLog extends Component {
   }
 
   componentWillMount() {
-    const { getFlowBuildStageLogs, flowId, stageId, buildId } = this.props;
-    getFlowBuildStageLogs(flowId, stageId, buildId)
   }
 
   render() {
     const scope = this;
     const { logs, isFetching } = this.props;
-    console.log(logs)
     if(isFetching) {
       return (
         <div className='loadingBox'>
@@ -55,8 +51,7 @@ class TenxFlowStageBuildLog extends Component {
         </div>
       )
     }
-    const { message } = logs;
-    if(message.length == 0) {
+    if(!Boolean(logs)) {
       return (
         <div className='loadingBox'>
           <span>数据为空</span>
@@ -66,7 +61,7 @@ class TenxFlowStageBuildLog extends Component {
     return (
       <div id='TenxFlowStageBuildLog'>
         <div className='infoBox'>
-          {formatLog(message)}
+          {formatLog(logs)}
           <div style={{ clear: 'both' }}></div>
         </div>
       </div>
@@ -75,15 +70,8 @@ class TenxFlowStageBuildLog extends Component {
 }
 
 function mapStateToProps(state, props) {
-  const defaultLogs = {
-    isFetching: false,
-    logs: []
-  }
-  const { getFlowBuildStageLogs } = state.cicd_flow
-  const { isFetching, logs } = getFlowBuildStageLogs || defaultLogs
+  
   return {
-    isFetching,
-    logs
   }
 }
 
@@ -92,7 +80,7 @@ TenxFlowStageBuildLog.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-  getFlowBuildStageLogs
+  
 })(injectIntl(TenxFlowStageBuildLog, {
   withRef: true,
 }));
