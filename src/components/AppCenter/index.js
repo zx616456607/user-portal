@@ -336,7 +336,7 @@ class ImageCenter extends Component {
     }
   }
   
-  componentWillMount() {
+  componentDidMount() {
     this.props.LoadOtherImage({
       success: {
         func: (res) => {
