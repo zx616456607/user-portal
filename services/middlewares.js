@@ -38,3 +38,25 @@ exports.setUserCurrentConfig = function* (next) {
   })
   yield next
 }
+
+/**
+ * Auth user by session
+ */
+exports.auth = function* (next) {
+  const loginUser = this.session.loginUser
+  if (!loginUser) {
+    this.type = 'text'
+    this.body = 'Login expired'
+    switch (this.accepts('json', 'html')) {
+      case 'html':
+        this.status = 301
+        this.redirect('/login')
+        return
+      default:
+        let error = new Error('LOGIN_EXPIRED')
+        error.status = 403
+        throw error
+    }
+  }
+  yield next
+}

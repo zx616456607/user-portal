@@ -10,7 +10,6 @@
 import React, { Component } from 'react'
 import { Row, Col, Button, Popover, Spin, message, } from 'antd'
 import './style/Space.less'
-import PopSelect from '../../PopSelect'
 import { browserHistory } from 'react-router'
 import { setCurrent } from '../../../actions'
 import { loadTeamClustersList } from '../../../actions/team'
