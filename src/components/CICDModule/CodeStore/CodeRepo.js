@@ -116,6 +116,10 @@ const MyComponent = React.createClass({
       message.info('Private Token不能为空')
       return
     }
+    if (!(/^http:|^https:/).test(url)) {
+      message.info('地址输入有误')
+      return
+    }
     const config = {
       url,
       token,
