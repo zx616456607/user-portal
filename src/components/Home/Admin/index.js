@@ -172,9 +172,9 @@ export default class Admin extends Component{
                         <use xlinkHref="#settingname" />
                       </svg>
                       创建应用数量
-                    </td>
-                    <td>
-                      1000个
+                      <span>
+                        1000个
+                      </span>
                     </td>
                   </tr>
                   <tr>

@@ -76,7 +76,7 @@ let Login = React.createClass({
     }
     return (
       <div id="Login">
-        <Form horizontal>
+        <Form horizontal className="loginForm">
           <FormItem
             {...formItemLayout}
             label="用户名/邮箱"

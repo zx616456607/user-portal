@@ -117,7 +117,9 @@ class OtherDetail extends Component {
             <div className="rightBox">
               <Icon type='cross' className='cursor' style={{fontSize: '18px',position: 'absolute', top:'0px', right:'0px'}} onClick={this.props.scope.closeImageDetailModal} />
               <Button size="large" type="primary">
+                <Link to={`/app_manage/app_create/fast_create?registryServer=${ipAddress}&imageName=${imageDetail}`}>
                 <FormattedMessage {...menusText.deployImage} />
+                </Link>
               </Button>
             </div>
           </div>
