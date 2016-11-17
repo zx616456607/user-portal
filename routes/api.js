@@ -182,6 +182,10 @@ module.exports = function (Router) {
   router.delete('/devops/repos/:type', devopsController.removeRepository)
   router.get('/devops/repos/:type/branches', devopsController.listBranches)
   router.get('/devops/repos/:type/user', devopsController.getUserInfo)
+  // Auth with 3rdparty SCM and callback
+  router.get('/devops/repos/:type/auth', devopsController.getAuthRedirectUrl);
+  router.get('/devops/repos/:type/auth-callback', devopsController.doUserAuthorization)
+
   // Managed projects
   router.post('/devops/managed-projects', devopsController.addManagedProject)
   router.get('/devops/managed-projects', devopsController.listManagedProject)
@@ -217,6 +221,8 @@ module.exports = function (Router) {
   router.get('/devops/ci-flows/:flow_id/builds/:flow_build_id', devopsController.getFlowBuild)
   router.put('/devops/ci-flows/:flow_id/builds/:flow_build_id/stop', devopsController.stopBuild)
   router.get('/devops/ci-flows/:flow_id/getBuildLogs', devopsController.getBuildLog)
+  router.get('/devops/ci-flows/:flow_id/getLastBuildLogs', devopsController.getLastBuildLog)
+  router.get('/devops/ci-flows/:flow_id/stages/:stage_id/builds/:stage_build_id', devopsController.getFlowStageBuildLog)
 
   // CI Dockerfile
   router.get('/devops/dockerfiles', devopsController.listDockerfiles)

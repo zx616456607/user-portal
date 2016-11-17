@@ -17,7 +17,8 @@ const oauth = require('./oauth')
 const DEFAULT_PROTOCOL = 'http'
 const DEFAULT_API_PRIFIX = 'api'
 const DEFAULT_VERSION = 'v2'
-const DEFAULT_TIMEOUT = 1000 * 10
+// Github or other system maybe quite slow
+const DEFAULT_TIMEOUT = 1000 * 60
 const DEFAULT_DATATYPE = 'json'
 const logger = require('../../../utils/logger').getLogger(`tenx_api/request`)
 

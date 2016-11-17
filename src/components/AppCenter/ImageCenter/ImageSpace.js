@@ -169,7 +169,7 @@ const MyComponent = React.createClass({
           </div>
           <div className="btnBox">
             <Dropdown.Button overlay={dropdown} type="ghost">
-              <FormattedMessage {...menusText.deployService} />
+              <Link to={`/app_manage/app_create/fast_create?registryServer=${registryServer}&imageName=${item.name}`}><FormattedMessage {...menusText.deployService} /></Link>
             </Dropdown.Button>
           </div>
         </div>
@@ -198,7 +198,7 @@ class ImageSpace extends Component {
       privateDetailModal: false
     }
   }
-  componentDidMount() {
+  componentWillMount() {
     this.props.loadPrivateImageList(DEFAULT_REGISTRY);
   }
   openUploadModal() {
