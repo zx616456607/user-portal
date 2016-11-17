@@ -26,13 +26,13 @@ class ConfigModal extends Component {
       composeType: parseInt(DEFAULT_CONTAINER_RESOURCES_MEMORY)
     }
   }
-
+   
   componentWillReceiveProps(nextProps) {
     const { service, visible } = nextProps
     if (!service) {
       return
     }
-    if (visible) {
+    if (!visible) {
       return
     }
     let resources = service.spec.template.spec.containers[0].resources || DEFAULT_CONTAINER_RESOURCES
