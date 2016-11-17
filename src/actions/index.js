@@ -41,3 +41,24 @@ export function setCurrent(current) {
     type: SET_CURRENT
   }
 }
+
+export const VERIFY_CAPTCHA_REQUEST = 'VERIFY_CAPTCHA_REQUEST'
+export const VERIFY_CAPTCHA_SUCCESS = 'VERIFY_CAPTCHA_SUCCESS'
+export const VERIFY_CAPTCHA_FAILURE = 'VERIFY_CAPTCHA_FAILURE'
+
+function fetchVerifyCaptcha(captcha, callback) {
+  return {
+    captcha,
+    [FETCH_API]: {
+      types: [VERIFY_CAPTCHA_REQUEST, VERIFY_CAPTCHA_SUCCESS, VERIFY_CAPTCHA_FAILURE],
+      endpoint: `/captcha/${captcha}/verify`,
+      schema: {}
+    },
+    callback
+  }
+}
+export function verifyCaptcha(captcha, callback) {
+  return (dispatch) => {
+    return dispatch(fetchVerifyCaptcha(captcha, callback))
+  }
+}

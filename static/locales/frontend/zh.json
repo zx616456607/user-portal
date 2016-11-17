@@ -1,9 +1,9 @@
 {
   "Header.menu.doc": "文档",
   "Header.menu.user": "用户",
-  "Header.menu.user.menu1": "第一个菜单项",
-  "Header.menu.user.menu2": "第二个菜单项",
-  "Header.menu.user.menu3": "第三个菜单项（不可用）",
+  "Header.menu.user.logOut": "注销",
+  "Header.menu.user.menu2": "第二个",
+  "Header.menu.user.menu3": "第三个",
   "this.is.an.commnent": "/------------------------CommonStatus 通用状态-----------------------/",
   "Common.service": "服务",
   "CommonStatus.normal": "正常",
@@ -310,7 +310,6 @@
   "CICD.Tenxflow.EditTenxFlowModal.branch": "分支：",
   "CICD.Tenxflow.EditTenxFlowModal.noDockerFileInput": "Docker File不能为空",
   "CICD.Tenxflow.EditTenxFlowModal.dockerFileTitle": "创建Docker File",
-  
   "CICD.Tenxflow.CreateTenxFlowModal.titleEdit": "编辑项目卡片",
   "CICD.Tenxflow.CreateTenxFlowModal.titleAdd": "创建项目卡片",
   "CICD.Tenxflow.CreateTenxFlowModal.unitCheck": "单元测试",
@@ -348,7 +347,6 @@
   "CICD.Tenxflow.CreateTenxFlowModal.branch": "分支：",
   "CICD.Tenxflow.CreateTenxFlowModal.noDockerFileInput": "Docker File不能为空",
   "CICD.Tenxflow.CreateTenxFlowModal.dockerFileTitle": "创建Docker File",
-    
   "CICD.Tenxflow.TenxFlowDetailFlowCard.name": "名称：",
   "CICD.Tenxflow.TenxFlowDetailFlowCard.type": "类型：",
   "CICD.Tenxflow.TenxFlowDetailFlowCard.code": "代码：",
@@ -460,7 +458,6 @@
   "ManageMonitor.operationalAudit.objType": "类型：",
   "ManageMonitor.operationalAudit.objName": "对象：",
   "ManageMonitor.operationalAudit.allResource": "所有对象",
-
   "ManageMonitor.QueryLog.headTitle": "日志查询 | 时速云",
   "ManageMonitor.QueryLog.title": "日志查询",
   "ManageMonitor.QueryLog.user": "空间：",
@@ -480,5 +477,4 @@
   "ManageMonitor.QueryLog.noInstance": "请选择实例",
   "ManageMonitor.QueryLog.search": "立即查询",
   "ManageMonitor.QueryLog.searchType": "模糊查询"
-
 }

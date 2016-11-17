@@ -50,7 +50,7 @@ class CreateModel extends Component {
     if (current.space.namespace === this.props.current.space.namespace && current.cluster.clusterID === this.props.current.cluster.clusterID) {
       return
     }
-    loadTeamClustersList(current.space.teamID)
+    loadTeamClustersList(current.space.teamID, { size: 100 })
     form.setFieldsValue({
       'spaceFormCheck': current.space.namespace,
       'clusterFormCheck': current.cluster.clusterID,

@@ -19,6 +19,9 @@ module.exports = function (Router) {
   })
   // Auth
   router.post('/auth/users/verify', authController.verifyUser)
+  // Captcha
+  router.get('/captcha/gen', authController.generateCaptcha)
+  router.get('/captcha/:captcha/verify', authController.checkCaptchaIsCorrect)
 
   return router.routes()
 }
