@@ -18,7 +18,7 @@ const logger     = require('../utils/logger.js').getLogger("devops")
 Code repositories
 */
 /*
-Add a new repository type
+Add a new repository type: gitlab only
 */
 exports.registerRepo = function* () {
   const loginUser = this.session.loginUser
@@ -56,8 +56,8 @@ exports.registerRepo = function* () {
 exports.listRepository = function* () {
   const loginUser = this.session.loginUser
   const repoType = this.params.type
-  if (repoType != "gitlab") {
-    const err = new Error('Only support gitlab for now')
+  if (repoType != "gitlab" || repoType != 'github') {
+    const err = new Error('Only support gitlab/github for now')
     err.status = 400
     throw err
   }
@@ -73,8 +73,8 @@ exports.listRepository = function* () {
 exports.syncRepository = function* () {
   const loginUser = this.session.loginUser
   const repoType = this.params.type
-  if (repoType != "gitlab") {
-    const err = new Error('Only support gitlab for now')
+  if (repoType != "gitlab" || repoType != 'github')  {
+    const err = new Error('Only support gitlab/github for now')
     err.status = 400
     throw err
   }
@@ -90,8 +90,8 @@ exports.syncRepository = function* () {
 exports.removeRepository = function* () {
   const loginUser = this.session.loginUser
   const repoType = this.params.type
-  if (repoType != "gitlab") {
-    const err = new Error('Only support gitlab for now')
+  if (repoType != "gitlab" || repoType != "github") {
+    const err = new Error('Only support gitlab/github for now')
     err.status = 400
     throw err
   }
@@ -112,7 +112,7 @@ exports.listBranches = function* () {
   const repoType = this.params.type
   const repoName = this.query.reponame
   const project_id = this.query.project_id
-  if (repoType != "gitlab") {
+  if (repoType != "gitlab" || repoType != "github") {
     const err = new Error('Only support gitlab for now')
     err.status = 400
     throw err
@@ -134,7 +134,7 @@ exports.listBranches = function* () {
 exports.getUserInfo = function* () {
   const loginUser = this.session.loginUser
   const repoType = this.params.type
-  if (repoType != "gitlab") {
+  if (repoType != "gitlab" || repoType != "github")  {
     const err = new Error('Only support gitlab for now')
     err.status = 400
     throw err
@@ -177,7 +177,8 @@ exports.doUserAuthorization = function* () {
   var state = this.query.state
   if (state && loginUser.github_state && state !== loginUser.github_state) {
     resData.err = type + ': 您填入的URL或token有错误, 请填入正确的信息'
-    res.render('ci/listcoderepo', resData)
+    this.status = 400
+    this.body = resData.err
     return
   }
   delete loginUser.github_state
@@ -194,24 +195,15 @@ exports.doUserAuthorization = function* () {
     }
   }
   const api = apiFactory.getDevOpsApi(loginUser)
-  const result = yield api.createBy(["repos", type], null, authInfo)
+  const results = yield api.createBy(["repos", type], null, authInfo)
+
+  resData.authInfo[users] = results;
+  resData.authInfo[authorized] = true;
+  // Save to session
+  loginUser.ciAuthInfo = resData.authInfo
 
   this.status = 200
-  this.body = type + " was authorized successfully"
-  /*var cicdAPI = new ci_cd_service(ci_cd_config.protocol, ci_cd_config.url, ci_cd_config.version, req.user.name, req.user.api_token);
-  cicdAPI.repos.createBy([req.user.name, type], null, authInfo, function(err, deptInfo) {
-    if (err) {
-      logger.error(method, type + " 用户验证失败: " + JSON.stringify(err));
-      resData.err = type + ': 您填入的URL或token有错误, 请填入正确的信息'
-      res.render('ci/listcoderepo', resData);
-      return;
-    }
-    logger.info(method, type + " 用户验证成功.");
-    resData.authInfo[users] = deptInfo.results;
-    resData.authInfo[authorized] = true;
-    req.user.ciAuthInfo = resData.authInfo
-    res.render('ci/listcoderepo', resData);
-  })*/
+  this.body = results
 }
 /*
 Managed projects
@@ -238,6 +230,7 @@ exports.addManagedProject = function* () {
 
   switch (body.repo_type) {
     case "gitlab":
+    case "github":
       if (!body.source_full_name || !body.gitlab_project_id) {
         const err = new Error("source_full_name and gitlab_project_id for gitlab are required")
         err.status = 400
@@ -246,7 +239,7 @@ exports.addManagedProject = function* () {
       break;
     case "svn":
     default:
-      const err = new Error('Only support gitlab for now')
+      const err = new Error('Only support gitlab/github for now')
       err.status = 400
       throw err
   }
