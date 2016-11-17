@@ -166,7 +166,7 @@ class TenxFlowDetailFlow extends Component {
   }
 
   render() {
-    const { flowId, stageInfo, stageList, isFetching, projectList } = this.props;
+    const { flowId, stageInfo, stageList, isFetching, projectList, buildFetching, logs } = this.props;
     let scope = this;
     let { currentFlowEdit } = scope.state;
     let cards = null;
@@ -213,7 +213,7 @@ class TenxFlowDetailFlow extends Component {
             </Card>
           </div>
           <div style={{ clear:'both' }}></div>
-        </div>
+        </div>       
       </div>
     )
   }
@@ -227,20 +227,14 @@ function mapStateToProps(state, props) {
   const defaultStatus = {
     projectList:[]
   }
-  const defaultDockerFile = {
-    dockerfileList: [],
-  }
   const { getTenxflowStageList } = state.cicd_flow;
   const { isFetching, stageList } = getTenxflowStageList || defaultStageList;
   const { managed } = state.cicd_flow;
   const {projectList} = managed || defaultStatus;
-  const { dockerfileLists } = state.cicd_flow
-  const {dockerfileList} = dockerfileLists || defaultDockerFile
   return {
     isFetching,
     stageList,
-    projectList,
-    dockerfileList
+    projectList
   }
 }
 
