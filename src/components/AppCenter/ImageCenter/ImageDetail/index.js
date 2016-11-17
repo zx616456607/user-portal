@@ -212,7 +212,9 @@ class ImageDetailBox extends Component {
             <div className="rightBox">
               <Icon type='cross' className='cursor' style={{fontSize: '18px',position: 'absolute', top:'0px', right:'0px'}} onClick={this.props.scope.closeImageDetailModal} />
               <Button size="large" type="primary">
+                <Link to={`/app_manage/app_create/fast_create?registryServer=${ipAddress}&imageName=${imageName}`}>
                 <FormattedMessage {...menusText.deployImage} />
+                </Link>
               </Button>
             { ( imageInfo.isFavourite == 1) ?
               <Button size="large" type="ghost" onClick={ ()=>this.setimageStore(imageInfo.name, '0') }>
