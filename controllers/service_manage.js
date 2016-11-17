@@ -14,6 +14,8 @@ const INSTANCE_MAX_NUM = constants.INSTANCE_MAX_NUM
 const INSTANCE_AUTO_SCALE_MAX_CPU = constants.INSTANCE_AUTO_SCALE_MAX_CPU
 const ANNOTATION_SVC_SCHEMA_PORT = constants.ANNOTATION_SVC_SCHEMA_PORT
 const apiFactory = require('../services/api_factory')
+const DEFAULT_PAGE = constants.DEFAULT_PAGE
+const DEFAULT_PAGE_SIZE = constants.DEFAULT_PAGE_SIZE
 
 exports.startServices = function* () {
   const cluster = this.params.cluster
@@ -394,4 +396,29 @@ exports.checkServiceName = function* () {
   const response = yield spi.clusters.getBy([cluster, 'services', service, 'existence'])
   this.status = response.code
   this.body = response
+}
+
+exports.getAllService = function*() {
+  const cluster = this.params.cluster
+	let pageIndex = parseInt(this.query.pageIndex)
+	let pageSize = parseInt(this.query.pageSize)
+	const query = this.query || {}
+	if(isNaN(pageIndex)) {
+    pageIndex = DEFAULT_PAGE	
+	}
+	if(isNaN(pageSize)) {
+    pageSize = DEFAULT_PAGE_SIZE	
+	}
+  let name = query.name	
+  const queryObj = {
+    from: (pageIndex - 1)* pageSize,
+		size: pageSize
+	}
+	if(name) {
+    queryObj.filter = `name ${name}` 	
+	}
+  const api = apiFactory.getK8sApi(this.session.loginUser)
+	const response = yield api.getBy([cluster, 'services'], queryObj, null)
+	this.status = response.code
+	this.body = response
 }

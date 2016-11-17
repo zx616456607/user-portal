@@ -21,6 +21,7 @@ import { setCurrent } from '../../actions'
 import { getCookie } from '../../common/tools'
 import { USER_CURRENT_CONFIG } from '../../../constants'
 import { browserHistory } from 'react-router'
+import { Link } from 'react-router'
 
 const FormItem = Form.Item;
 const createForm = Form.create;
@@ -35,26 +36,26 @@ const menusText = defineMessages({
     id: 'Header.menu.user',
     defaultMessage: '用户',
   },
-  userMenu1: {
-    id: 'Header.menu.user.menu1',
-    defaultMessage: '第一个菜单项',
+  logOut: {
+    id: 'Header.menu.user.logOut',
+    defaultMessage: '注销',
   },
   userMenu2: {
     id: 'Header.menu.user.menu2',
-    defaultMessage: '第二个菜单项',
+    defaultMessage: '第二个',
   },
   userMenu3: {
     id: 'Header.menu.user.menu3',
-    defaultMessage: '第三个菜单项（不可用）',
+    defaultMessage: '第三个',
   }
 })
 
 const menu = (
   <Menu>
     <Menu.Item key="0">
-      <a target="_blank" href="http://www.alipay.com/">
-        <FormattedMessage {...menusText.userMenu1} />
-      </a>
+      <Link to="/login">
+        <Icon type="logout" /> <FormattedMessage {...menusText.logOut} />
+      </Link>
     </Menu.Item>
     <Menu.Item key="1">
       <a target="_blank" href="http://www.taobao.com/">
