@@ -8,8 +8,88 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Card, Timeline, } from 'antd'
+import { Row, Col, Card, } from 'antd'
 import './style/Admin.less'
+import ReactEcharts from 'echarts-for-react'
+
+
+let cost = 100
+let rest = 900
+let option = {
+  title: {
+    text: '余额 :  '+rest+'T币\n\n消费 :  '+cost+'T币',
+    x:'center',
+    top: '40%',
+    textStyle:{
+      color :'#6c6c6c',
+      fontStyle: 'normal',
+      fontWeight: 'normal',
+      fontSize: '14',
+    }
+  },
+  color: ['#46b2fa', '#2abe84'],
+  backgroundColor: '#fff',
+  tooltip: {
+    trigger: 'item',
+    formatter: "{b}: {c}<br/> ({d}%)"
+  },
+  legend: {
+    orient: 'vertical',
+    x: '50%',
+    top: 10,
+    data:['余额','消费'],
+    show: false
+  },
+  series: [
+    {
+      name:'本日该团队消费',
+      type:'pie',
+      radius: ['28', '40'],
+      center: ['50%','20%'],
+      avoidLabelOverlap: false,
+      itemStyle: {
+        normal: {
+          borderWidth: 2,
+          borderColor: '#ffffff',
+        },
+        emphasis: {
+          borderWidth: 0,
+          shadowBlur: 10,
+          shadowOffsetX: 0,
+          shadowColor: 'rgba(0, 0, 0, 0.5)'
+        }
+      },
+      hoverAnimation: false,
+      selectedOffset: 10,
+      label: {
+        normal: {
+          show: false,
+          position: 'center'
+        },
+        emphasis: {
+          show: true,
+          formatter: function (param) {
+            return param.percent.toFixed(0) + '%';
+          },
+          textStyle: {
+            fontSize: '14',
+            fontWeight: 'normal'
+          }
+        }
+      },
+      labelLine: {
+        normal: {
+          show: true
+        }
+      },
+      data:[
+        {value:900, name:'余额'},
+        {value:100, name:'消费'},
+      ]
+    }
+  ]
+}
+
 
 export default class Admin extends Component{
   constructor(props){
@@ -125,8 +205,11 @@ export default class Admin extends Component{
           </Col>
           <Col span={11} className='teamCost'>
             <Card title="本日该团队消费" bordered={false} bodyStyle={{height:170}}>
-              <Col span={10}>
-                
+              <Col span={10} style={{height:170}}>
+                  <ReactEcharts
+                    notMerge={true}
+                    option={option}
+                  />
               </Col>
               <Col span={14} className='teamCostList'>
                 <Row className="teamCostListTitle">
@@ -168,57 +251,46 @@ export default class Admin extends Component{
                 <tbody>
                   <tr>
                     <td>
-                      <svg className="teamRecSvg" style={{marginRight:10}}>
+                      <svg className="teamRecSvg">
                         <use xlinkHref="#settingname" />
                       </svg>
                       创建应用数量
-                      <span>
-                        1000个
-                      </span>
+                    </td>
+                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                      1000个
                     </td>
                   </tr>
                   <tr>
                     <td>
-                      <Col span={18}>
-                        <svg className="teamRecSvg" style={{marginRight:10}}>
-                          <use xlinkHref="#settingname" />
-                        </svg>
-                        创建应用数量
-                      </Col>
-                      <Col span={6}>1000个</Col>
+                      <svg className="teamRecSvg">
+                        <use xlinkHref="#settingname" />
+                      </svg>
+                      删除应用数量
+                    </td>
+                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                      1000个
                     </td>
                   </tr>
                   <tr>
                     <td>
-                      <Col span={18}>
-                        <svg className="teamRecSvg" style={{marginRight:10}}>
-                          <use xlinkHref="#settingname" />
-                        </svg>
-                        创建应用数量
-                      </Col>
-                      <Col span={6}>1000个</Col>
+                      <svg className="teamRecSvg">
+                        <use xlinkHref="#settingname" />
+                      </svg>
+                      创建存储卷个数
+                    </td>
+                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                      1000个
                     </td>
                   </tr>
                   <tr>
                     <td>
-                      <Col span={18}>
-                        <svg className="teamRecSvg" style={{marginRight:10}}>
-                          <use xlinkHref="#settingname" />
-                        </svg>
-                        创建应用数量
-                      </Col>
-                      <Col span={6}>1000个</Col>
+                      <svg className="teamRecSvg">
+                        <use xlinkHref="#settingname" />
+                      </svg>
+                      删除存储卷个数
                     </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <Col span={18}>
-                        <svg className="teamRecSvg" style={{marginRight:10}}>
-                          <use xlinkHref="#settingname" />
-                        </svg>
-                        创建应用数量
-                      </Col>
-                      <Col span={6}>1000个</Col>
+                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                      1000个
                     </td>
                   </tr>
                 </tbody>
