@@ -2,15 +2,18 @@
 #CICD {
   width: 100%;
   .CICDMenu {
+    transition: all 0.3s;
     position: fixed;
     width: 140px;
     height: 100%;
     background-color: #FFFFFF;
     border-right: 1px solid #E5E5E5;
-    transition: all 0.3s;
     &:hover {
       box-shadow: 0px 0px 7px #999999;
     }
+  }
+  .hiddenMenu {
+    width: 0px !important;
   }
   .CICDContent {
     margin-left: 140px;

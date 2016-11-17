@@ -9,26 +9,48 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { Breadcrumb } from 'antd'
-import CICDSider from '../../components/CICDSider'
+import SecondSider from '../../components/SecondSider'
 import IntlExp from '../../components/IntlExp'
 import QueueAnim from 'rc-queue-anim'
 import './style/CICD.less'
 
+const menuList = [
+  {
+    url: '/ci_cd',
+    name: '代码仓库'
+  },
+  {
+    url: '/ci_cd/tenx_flow',
+    name: 'TenxFlow'
+  },
+  {
+    url: '/ci_cd/docker_file',
+    name: 'DockerFile'
+  }
+]
+
 export default class CICD extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      containerSiderStyle: 'normal'
+    }
+  }
   render() {
     const { children } = this.props
+    const scope = this
     return (
-      <div id="CICD">
+      <div id='CICD'>
         <QueueAnim
-          className="CICDSiderAnimate"
-          key="CICDSiderAnimate"
-          type="left"
+          className='CICDSiderAnimate'
+          key='CICDSiderAnimate'
+          type='left'
           >
-          <div className="CICDMenu" key="imageSider">
-            <CICDSider />
+          <div className={ this.state.containerSiderStyle == 'normal' ? 'CICDMenu' : 'hiddenMenu CICDMenu'} key='imageSider'>
+            <SecondSider menuList={menuList} scope={scope} />
           </div>
         </QueueAnim>
-        <div className="CICDContent">
+        <div className='CICDContent'>
           {children}
         </div>
       </div>
