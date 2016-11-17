@@ -15,11 +15,12 @@ module.exports = function (config) {
     error.status = 400
     throw error
   }
-  if (!config.auth) {
+  // Some api do not need auth: login ...
+  /*if (!config.auth) {
     const error = new TypeError('auth info must be provided')
     error.status = 400
     throw error
-  }
+  }*/
   const request = require('./request')(config.protocol, config.host, config.api_prefix,
     config.version, config.auth, config.timeout)
 
