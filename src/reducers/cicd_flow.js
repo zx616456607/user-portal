@@ -529,6 +529,31 @@ function getFlowBuildStageLogs(state = {}, action) {
   }
 }
 
+function getStageBuildLogList(state = {}, action) {
+  const defaultState = {
+    isFetching: false,
+    logs: []
+  }
+  switch (action.type) {
+    case ActionTypes.GET_STAGE_BUILD_LOG_LIST_REQUEST:
+      return merge({}, defaultState, state, {
+        isFetching: true
+      })
+    case ActionTypes.GET_STAGE_BUILD_LOG_LIST_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        logs: action.response.result.data.results.results || []
+      }
+      )
+    case ActionTypes.GET_STAGE_BUILD_LOG_LIST_FAILURE:
+      return merge({}, defaultState, state, {
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
+
 
 export default function cicd_flow(state = {}, action) {
   return {
@@ -545,6 +570,7 @@ export default function cicd_flow(state = {}, action) {
     getTenxflowBuildDetailLogs: getTenxflowBuildDetailLogs(state.getTenxflowBuildDetailLogs, action), 
     getTenxflowBuildLastLogs: getTenxflowBuildLastLogs(state.getTenxflowBuildLastLogs, action), 
     getFlowBuildStageLogs: getFlowBuildStageLogs(state.getFlowBuildStageLogs, action), 
+    getStageBuildLogList: getStageBuildLogList(state.getStageBuildLogList, action), 
     UpdateTenxflowCIRules: reducerFactory({
       REQUEST: ActionTypes.UPDATE_FLOW_CI_RULES_REQUEST,
       SUCCESS: ActionTypes.UPDATE_FLOW_CI_RULES_SUCCESS,

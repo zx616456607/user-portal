@@ -911,3 +911,24 @@ export function getFlowBuildStageLogs(flowId, stageId,stageBuildId, callback) {
     return dispatch(fetchFlowBuildStageLogs(flowId, stageId, stageBuildId, callback))
   }
 }
+
+export const GET_STAGE_BUILD_LOG_LIST_REQUEST = 'GET_STAGE_BUILD_LOG_LIST_REQUEST'
+export const GET_STAGE_BUILD_LOG_LIST_SUCCESS = 'GET_STAGE_BUILD_LOG_LIST_SUCCESS'
+export const GET_STAGE_BUILD_LOG_LIST_FAILURE = 'GET_STAGE_BUILD_LOG_LIST_FAILURE'
+
+function fetchStageBuildLogList(flowId, stageId, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_STAGE_BUILD_LOG_LIST_REQUEST, GET_STAGE_BUILD_LOG_LIST_SUCCESS, GET_STAGE_BUILD_LOG_LIST_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/stages/${stageId}/getStageBuildLogs`,
+      schema: {}
+    },
+    callback: callback
+  }
+}
+
+export function getStageBuildLogList(flowId, stageId, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchStageBuildLogList(flowId, stageId, callback))
+  }
+}

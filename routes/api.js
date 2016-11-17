@@ -88,6 +88,7 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/services/:service_name/events', serviceController.getServiceDetailEvents)
   router.post('/clusters/:cluster/services/:service_name/logs', serviceController.getServiceLogs)
   router.get('/clusters/:cluster/services/:service_name/k8s-service', serviceController.getK8sService)
+  router.get('/clusters/:cluster/services', serviceController.getAllService)
 
   // Users
   router.get('/users/:user_id', userController.getUserDetail)
@@ -203,6 +204,7 @@ module.exports = function (Router) {
   router.delete('/devops/ci-flows/:flow_id/stages/:stage_id', devopsController.deleteFlowStage)
   router.put('/devops/ci-flows/:flow_id/stages/:stage_id', devopsController.updateFlowStage)
   router.get('/ci-flows/:flow_id/stages/:stage_id', devopsController.getStage)
+  router.get('/devops/ci-flows/:flow_id/stages/:stage_id/getStageBuildLogs', devopsController.getStageBuildLogList)
 
   // CD rules
   router.post('/devops/ci-flows/:flow_id/cd-rules', devopsController.createCDRule)

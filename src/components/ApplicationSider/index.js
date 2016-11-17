@@ -24,7 +24,7 @@ export default class AppSider extends Component {
     }
   }
 
-  componentWillMount(){
+  componentWillMount() {
     currentPathNameCheck(this);
   }
 
@@ -48,18 +48,21 @@ export default class AppSider extends Component {
               <Link to="/app_manage">应用</Link>
             </Menu.Item>
             <Menu.Item key="2">
-              <Link to="/app_manage/container">容器</Link>
+              <Link to="/app_manage/service">服务</Link>
             </Menu.Item>
             <Menu.Item key="3">
+              <Link to="/app_manage/container">容器</Link>
+            </Menu.Item>
+            <Menu.Item key="4">
               <Link to="/app_manage/storage">存储</Link>
             </Menu.Item>
-            {/*<Menu.Item key="4">
+            {/*<Menu.Item key="5">
               <Link to="/app_manage/firewall">防火墙</Link>
             </Menu.Item>*/}
-            <Menu.Item key="5">
+            <Menu.Item key="6">
               <Link to="/app_manage/configs">服务配置</Link>
             </Menu.Item>
-            {/*<Menu.Item key="6">
+            {/*<Menu.Item key="7">
               <Link to="/app_manage/netName">内网域名</Link>
             </Menu.Item>*/}
           </Menu>
@@ -72,25 +75,34 @@ export default class AppSider extends Component {
 function currentPathNameCheck(scope) {
   //this function for check the pathname and change the current key
   let pathname = window.location.pathname;
-  //this check the pathname from the container
-  let containerModule = pathname.indexOf('app_manage/container');
-  if( containerModule > -1 ){
+
+  let serviceModule = pathname.indexOf('app_manage/service')
+  if (serviceModule > -1) {
     scope.setState({
       current: '2'
-    });
-    return;
+    })
+    return
   }
-  //this check the pathname from the storage
-  let storageModule = pathname.indexOf('app_manage/storage');
-  if( storageModule > -1 ){
+
+  //this check the pathname from the container
+  let containerModule = pathname.indexOf('app_manage/container');
+  if (containerModule > -1) {
     scope.setState({
       current: '3'
     });
     return;
   }
+  //this check the pathname from the storage
+  let storageModule = pathname.indexOf('app_manage/storage');
+  if (storageModule > -1) {
+    scope.setState({
+      current: '4'
+    });
+    return;
+  }
   //this check the pathname from the configs
   let configsModule = pathname.indexOf('app_manage/configs');
-  if( configsModule > -1 ){
+  if (configsModule > -1) {
     scope.setState({
       current: '5'
     });
