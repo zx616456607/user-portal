@@ -88,7 +88,7 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/services/:service_name/events', serviceController.getServiceDetailEvents)
   router.post('/clusters/:cluster/services/:service_name/logs', serviceController.getServiceLogs)
   router.get('/clusters/:cluster/services/:service_name/k8s-service', serviceController.getK8sService)
-	router.get('/clusters/:cluster/services', serviceController.getAllService)
+  router.get('/clusters/:cluster/services', serviceController.getAllService)
 
   // Users
   router.get('/users/:user_id', userController.getUserDetail)

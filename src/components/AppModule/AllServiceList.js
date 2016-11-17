@@ -22,7 +22,7 @@ import {
   stopServices,
   deleteServices,
   quickRestartServices,
-	loadAllServices
+  loadAllServices
 } from '../../actions/services'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../../../constants'
 import { browserHistory } from 'react-router'
@@ -151,7 +151,7 @@ const MyComponent = React.createClass({
         </div>
       )
     }
-		let appName = "test"
+    let appName = "test"
     if (serviceList.length < 1) {
       return (
         <div className="loadingBox">
@@ -162,7 +162,7 @@ const MyComponent = React.createClass({
     const items = serviceList.map((item) => {
       item.cluster = cluster
       const dropdown = (
-        <Menu onClick={this.serviceOperaClick.bind(this, item)}>
+        <Menu onClick={this.serviceOperaClick.bind(this, item) }>
           <Menu.Item key="manualScale">
             水平扩展
           </Menu.Item>
@@ -178,20 +178,20 @@ const MyComponent = React.createClass({
         </Menu>
       );
       const svcDomain = parseServiceDomain(item, this.props.bindingDomains)
-			const images = item.spec.template.spec.containers.map(container => {
-        return container.image 
-			})
+      const images = item.spec.template.spec.containers.map(container => {
+        return container.image
+      })
       return (
         <div
           className={item.checked ? "selectedInstance instanceDetail" : "instanceDetail"}
           key={item.metadata.name}
-          onClick={(e) => this.selectServiceByLine(e, item)} >
+          onClick={(e) => this.selectServiceByLine(e, item) } >
           <div className="selectIconTitle commonData">
             <Checkbox value={item.metadata.name} checked={item.checked} onChange={this.onchange}></Checkbox>
           </div>
           <div className="name commonData">
             <Tooltip title={item.metadata.name}>
-              <span className="viewBtn" onClick={() => this.modalShow(item)}>
+              <span className="viewBtn" onClick={() => this.modalShow(item) }>
                 {item.metadata.name}
               </span>
             </Tooltip>
@@ -199,10 +199,10 @@ const MyComponent = React.createClass({
           <div className="status commonData">
             <ServiceStatus service={item}/>
           </div>
-					<div className="appname commonData">
-					  <Tooltip title={item.metadata.labels['tenxcloud.com/appName']}>
-						  <span>{item.metadata.labels['tenxcloud.com/appName']}</span>
-						</Tooltip>
+          <div className="appname commonData">
+            <Tooltip title={item.metadata.labels['tenxcloud.com/appName']}>
+              <span>{item.metadata.labels['tenxcloud.com/appName']}</span>
+            </Tooltip>
           </div>
           <div className="image commonData">
             <Tooltip title={images.join(', ') ? images.join(', ') : ""}>
@@ -220,14 +220,14 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className="createTime commonData">
-            <Tooltip title={calcuDate(item.metadata.creationTimestamp ? item.metadata.creationTimestamp : '')}>
-              <span>{calcuDate(item.metadata.creationTimestamp || '')}</span>
+            <Tooltip title={calcuDate(item.metadata.creationTimestamp ? item.metadata.creationTimestamp : '') }>
+              <span>{calcuDate(item.metadata.creationTimestamp || '') }</span>
             </Tooltip>
           </div>
           <div className="actionBox commonData">
             <Dropdown.Button
               overlay={dropdown} type='ghost'
-              onClick={() => this.modalShow(item)}>
+              onClick={() => this.modalShow(item) }>
               <Icon type="eye-o" />
               <span>查看</span>
             </Dropdown.Button>
@@ -245,12 +245,12 @@ const MyComponent = React.createClass({
 });
 
 function loadServices(props) {
-	const { cluster, loadAllServices, page, size, name } = props
-	loadAllServices(cluster, {
+  const { cluster, loadAllServices, page, size, name } = props
+  loadAllServices(cluster, {
     pageIndex: page,
-		pageSize: size,
-		name
-	})
+    pageSize: size,
+    name
+  })
 }
 
 class AppServiceList extends Component {
@@ -283,7 +283,7 @@ class AppServiceList extends Component {
       isCreate: true,
       servicesList: [],
       selectedList: [],
-			selectTab: '#autoScale'
+      selectTab: '#autoScale'
     }
   }
 
@@ -298,9 +298,9 @@ class AppServiceList extends Component {
 
   componentWillMount() {
     const { appName } = this.props
-		document.title = '服务列表 | 时速云'
-		loadServices(this.props)
-		return
+    document.title = '服务列表 | 时速云'
+    loadServices(this.props)
+    return
   }
 
   componentWillReceiveProps(nextProps) {
@@ -314,7 +314,7 @@ class AppServiceList extends Component {
     this.setState({
       searchInputDisabled: false
     })
-		loadServices(nextProps)
+    loadServices(nextProps)
   }
 
   confirmStartService(e) {
@@ -428,7 +428,7 @@ class AppServiceList extends Component {
 
   confirmStopServices(serviceList, callback) {
     const self = this
-    const { cluster,  stopServices } = this.props
+    const { cluster, stopServices } = this.props
     const serviceNames = serviceList.map((service) => service.metadata.name)
     if (!callback) {
       callback = {
@@ -530,14 +530,14 @@ class AppServiceList extends Component {
   }
   searchServices() {
     const { page, size, name, pathname } = this.props
-		if(this.state.searchInputValue != name) {
-			const query = { page, size, name:this.state.searchInputValue }
-	    browserHistory.push({
-		    pathname,
-				query
-			})	
-		}
-	}
+    if (this.state.searchInputValue != name) {
+      const query = { page, size, name: this.state.searchInputValue }
+      browserHistory.push({
+        pathname,
+        query
+      })
+    }
+  }
 
   /*showRollingUpdateModal() {
     this.setState({
@@ -608,23 +608,23 @@ class AppServiceList extends Component {
     } = this.state
     const {
       pathname, page, size, total, isFetching, cluster,
-			loadAllServices
+      loadAllServices
     } = this.props
-		let selectTab = this.state.selectTab
-		if(isFetching) {
-		  return (<div className="loadingBox">
-		    <Spin size="large" />			
-			</div>)
-		}
-		if(!serviceList) {
-	    return (
-			  <div></div>
-			)	
-		}
-		let appName = ''
-		if(this.state.currentShowInstance) {
-      appName = this.state.currentShowInstance.metadata.labels['tenxcloud.com/appName']	
-		}
+    let selectTab = this.state.selectTab
+    if (isFetching) {
+      return (<div className="loadingBox">
+        <Spin size="large" />
+      </div>)
+    }
+    if (!serviceList) {
+      return (
+        <div></div>
+      )
+    }
+    let appName = ''
+    if (this.state.currentShowInstance) {
+      appName = this.state.currentShowInstance.metadata.labels['tenxcloud.com/appName']
+    }
     const checkedServiceList = serviceList.filter((service) => service.checked)
     const checkedServiceNames = checkedServiceList.map((service) => service.metadata.name)
     const isChecked = (checkedServiceList.length > 0)
@@ -674,7 +674,7 @@ class AppServiceList extends Component {
               <i className="fa fa-play"></i>
               启动
             </Button>
-            <Button size="large" onClick={() => loadServices(this.props)} >
+            <Button size="large" onClick={() => loadServices(this.props) } >
               <i className="fa fa-refresh"></i>
               刷新
             </Button>
@@ -712,7 +712,7 @@ class AppServiceList extends Component {
                   } }
                   value={this.state.searchInputValue}
                   placeholder='按服务名搜索'
-                  onPressEnter={() => this.searchServices()} />
+                  onPressEnter={() => this.searchServices() } />
               </div>
             </div>
             <div className='rightBox'>
@@ -728,7 +728,7 @@ class AppServiceList extends Component {
                   total={total} />
               </div>
             </div>
-            <div style={{ clear:'both' }}></div>
+            <div style={{ clear: 'both' }}></div>
           </div>
           <div className="appTitle">
             <div className="selectIconTitle commonTitle">
@@ -736,25 +736,25 @@ class AppServiceList extends Component {
             </div>
             <div className="name commonTitle">
               服务名称
-          </div>
+            </div>
             <div className="status commonTitle">
               运行状态
-          </div>
-					  <div className="appname commonTitle">
-						  所属应用
-					</div>
+            </div>
+            <div className="appname commonTitle">
+              所属应用
+            </div>
             <div className="image commonTitle">
               镜像
-          </div>
+            </div>
             <div className="service commonTitle">
               服务地址
-          </div>
+            </div>
             <div className="createTime commonTitle">
               创建时间
-          </div>
+            </div>
             <div className="actionBox commonTitle">
               操作
-          </div>
+            </div>
             <div style={{ clear: "both" }}></div>
           </div>
           <MyComponent
@@ -784,14 +784,14 @@ class AppServiceList extends Component {
             cluster={cluster}
             appName={appName}
             visible={rollingUpdateModalShow}
-            loadServiceList={()=>loadServices(this.props)}
+            loadServiceList={() => loadServices(this.props) }
             service={currentShowInstance} />
           <ConfigModal
             parentScope={parentScope}
             cluster={cluster}
             appName={appName}
             visible={configModal}
-            loadServiceList={()=>loadServices(this.props)}
+            loadServiceList={() => loadServices(this.props) }
             service={currentShowInstance} />
           <ManualScaleModal
             parentScope={parentScope}
@@ -799,7 +799,7 @@ class AppServiceList extends Component {
             appName={appName}
             visible={manualScaleModalShow}
             service={currentShowInstance}
-            loadServiceList={()=>loadServices(this.props)} /> 
+            loadServiceList={() => loadServices(this.props) } />
           <Modal
             visible={deployServiceModalShow}
             className="AppServiceDetail"
@@ -833,7 +833,7 @@ function mapStateToProps(state, props) {
   return {
     cluster: cluster.clusterID,
     bindingDomains: state.entities.current.cluster.bindingDomains,
-		name,
+    name,
     pathname,
     page,
     size,
@@ -849,5 +849,5 @@ export default connect(mapStateToProps, {
   stopServices,
   deleteServices,
   quickRestartServices,
-	loadAllServices
+  loadAllServices
 })(AppServiceList)
