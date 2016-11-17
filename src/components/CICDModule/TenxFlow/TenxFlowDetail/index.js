@@ -8,13 +8,13 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Spin, Card, Button, Tabs } from 'antd'
+import { Spin, Card, Button, Tabs, Modal } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../constants'
-import { getTenxFlowDetail } from '../../../../actions/cicd_flow'
+import { getTenxFlowDetail, getTenxflowBuildLastLogs } from '../../../../actions/cicd_flow'
 import './style/TenxFlowDetail.less'
 import TenxFlowDetailAlert from './TenxFlowDetailAlert.js'
 import TenxFlowDetailYaml from './TenxFlowDetailYaml.js'
@@ -22,6 +22,7 @@ import TenxFlowDetailSetting from './TenxFlowDetailSetting.js'
 import TenxFlowDetailLog from './TenxFlowDetailLog.js'
 import ImageDeployLogBox from './ImageDeployLogBox.js'
 import TenxFlowDetailFlow from './TenxFlowDetailFlow.js'
+import TenxFlowBuildLog from '../TenxFlowBuildLog'
 
 const TabPane = Tabs.TabPane;
 
@@ -81,6 +82,8 @@ class TenxFlowDetail extends Component {
     super(props);
     this.openCreateTenxFlowModal = this.openCreateTenxFlowModal.bind(this);
     this.closeCreateTenxFlowModal = this.closeCreateTenxFlowModal.bind(this);
+    this.openTenxFlowDeployLogModal = this.openTenxFlowDeployLogModal.bind(this);
+    this.closeTenxFlowDeployLogModal = this.closeTenxFlowDeployLogModal.bind(this);
     this.state = {
       createTenxFlowModal: false,
       TenxFlowDeployLogModal: false,
@@ -111,9 +114,12 @@ class TenxFlowDetail extends Component {
 
   openTenxFlowDeployLogModal() {
     //this function for user open the modal of tenxflow deploy log
+    const { flowInfo, getTenxflowBuildLastLogs } = this.props;
+    const { flowId } = flowInfo;
     this.setState({
       TenxFlowDeployLogModal: true
     });
+    getTenxflowBuildLastLogs(flowId)
   }
 
   closeTenxFlowDeployLogModal() {
@@ -126,7 +132,7 @@ class TenxFlowDetail extends Component {
   render() {
     const { formatMessage } = this.props.intl;
     const scope = this;
-    const { flowInfo, isFetching } = this.props;
+    const { flowInfo, isFetching, buildFetching, logs } = this.props;
     if(isFetching || flowInfo == {} || !Boolean(flowInfo)) {
       return (
         <div className='loadingBox'>
@@ -158,7 +164,7 @@ class TenxFlowDetail extends Component {
                 <i className='fa fa-eye' />&nbsp;
                 <FormattedMessage {...menusText.checkImage} />
               </Button>
-              <Button size='large' type='ghost'>
+              <Button size='large' type='ghost' onClick={this.openTenxFlowDeployLogModal}>
                 <i className='fa fa-wpforms' />&nbsp;
                 <FormattedMessage {...menusText.deloyLog} />
               </Button>
@@ -175,6 +181,13 @@ class TenxFlowDetail extends Component {
             <TabPane tab='设置' key='6'><TenxFlowDetailSetting scope={scope} flowId={flowInfo.flowId} /></TabPane>
           </Tabs>
         </div>
+        <Modal
+          visible={this.state.TenxFlowDeployLogModal}
+          className='TenxFlowBuildLogModal'
+          onCancel={this.closeTenxFlowDeployLogModal}
+          >
+          <TenxFlowBuildLog scope={scope} isFetching={buildFetching} logs={logs} flowId={flowInfo.flowId}/>
+        </Modal>
       </QueueAnim>
     )
   }
@@ -185,11 +198,19 @@ function mapStateToProps(state, props) {
     isFetching: false,
     flowInfo: {}
   }
-  const { getTenxflowDetail } = state.cicd_flow;
+  const deafaultFlowLog = {
+    isFetching: false,
+    logs: []
+  }
+  const { getTenxflowDetail, getTenxflowBuildLastLogs } = state.cicd_flow;
   const { isFetching, flowInfo } = getTenxflowDetail || defaultFlowInfo;
+  const buildFetching = getTenxflowBuildLastLogs.isFetching ||  deafaultFlowLog.isFetching;
+  const { logs } = getTenxflowBuildLastLogs;
   return {
     isFetching,
-    flowInfo
+    flowInfo,
+    buildFetching,
+    logs
   }
 }
 
@@ -198,7 +219,8 @@ TenxFlowDetail.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-  getTenxFlowDetail
+  getTenxFlowDetail,
+  getTenxflowBuildLastLogs
 })(injectIntl(TenxFlowDetail, {
   withRef: true,
 }));

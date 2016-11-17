@@ -14,10 +14,11 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../../constants'
-import { getTenxflowCIRules, UpdateTenxflowCIRules, deleteTenxFlowStateDetail } from '../../../../../actions/cicd_flow'
+import { getTenxflowCIRules, UpdateTenxflowCIRules, deleteTenxFlowStateDetail, getStageBuildLogList } from '../../../../../actions/cicd_flow'
 import './style/TenxFlowDetailFlowCard.less'
 import EditTenxFlowModal from './EditTenxFlowModal.js'
 import CICDSettingModal from './CICDSettingModal.js'
+import StageBuildlog from './StageBuildlog.js'
 
 const ButtonGroup = Button.Group;
 const confirm = Modal.confirm;
@@ -274,10 +275,13 @@ class TenxFlowDetailFlowCard extends Component {
     this.cancelEditCard = this.cancelEditCard.bind(this);
     this.buildFlow = this.buildFlow.bind(this);
     this.ciRulesChangeSuccess = this.ciRulesChangeSuccess.bind(this);
+    this.openTenxFlowDeployLogModal = this.openTenxFlowDeployLogModal.bind(this);
+    this.closeTenxFlowDeployLogModal = this.closeTenxFlowDeployLogModal.bind(this);
     this.state = {
       editStatus: false,
       cicdSetModalShow: false,
-      ciRulesOpened: false
+      ciRulesOpened: false,
+      enxFlowDeployLogModal: false
     }
   }
   
@@ -408,9 +412,25 @@ class TenxFlowDetailFlowCard extends Component {
       description: 'CI规则修改成功~',
     });
   }
+  
+  openTenxFlowDeployLogModal(stageId) {
+    //this function for user open the modal of tenxflow deploy log
+    const { flowId, getStageBuildLogList } = this.props;
+    this.setState({
+      TenxFlowDeployLogModal: true
+    });
+    getStageBuildLogList(flowId, stageId)
+  }
+
+  closeTenxFlowDeployLogModal() {
+    //this function for user close the modal of tenxflow deploy log
+    this.setState({
+      TenxFlowDeployLogModal: false
+    });
+  }
    
   render() {
-    let { config, index, scope, currentFlowEdit, flowId, codeList, isFetching, ciRules } = this.props;
+    let { config, index, scope, currentFlowEdit, flowId, codeList, isFetching, ciRules, buildFetching, logs } = this.props;
     const scopeThis = this;
     const dropdown = (
       <Menu onClick={this.operaMenuClick.bind(this, config.metadata.id, config.metadata.name)} style={{ width: '110px' }}>
@@ -478,7 +498,7 @@ class TenxFlowDetailFlowCard extends Component {
                         onClick={this.buildFlow.bind(this, config.metadata.id, config.lastBuildStatus, config.metadata.name)}>
                         { currentStatusBtn(config.lastBuildStatus) }
                       </Button>
-                      <Button size='large' type='ghost' className='logBtn'>
+                      <Button size='large' type='ghost' className='logBtn' onClick={this.openTenxFlowDeployLogModal.bind(this, config.metadata.id)}>
                         <i className='fa fa-wpforms' />
                         <FormattedMessage {...menusText.logBtn} />
                       </Button>
@@ -526,6 +546,13 @@ class TenxFlowDetailFlowCard extends Component {
           <CICDSettingModal scope={scopeThis} flowId={flowId} 
             ciRules={ciRules} isFetching={isFetching} />
         </Modal>
+        <Modal
+          visible={this.state.TenxFlowDeployLogModal}
+          className='TenxFlowBuildLogModal'
+          onCancel={this.closeTenxFlowDeployLogModal}
+          >
+          <StageBuildlog scope={scope} isFetching={buildFetching} logs={logs} flowId={flowId}/>
+        </Modal>
       </div>
     )
   }
@@ -536,11 +563,20 @@ function mapStateToProps(state, props) {
     isFetching: false,
     ciRules: {}
   }
+  const defaultLogList = {
+    isFetching: false,
+    logs: []
+  }
   const { getTenxflowCIRules } = state.cicd_flow;
   const { isFetching, ciRules } = getTenxflowCIRules || defaultCiRules
+  const { getStageBuildLogList } = state.cicd_flow
+  const { logs } = getStageBuildLogList || defaultLogList
+  const buildFetching = getStageBuildLogList.isFetching || defaultLogList.isFetching
   return {
     isFetching,
-    ciRules
+    ciRules,
+    logs,
+    buildFetching
   }
 }
 
@@ -551,7 +587,8 @@ TenxFlowDetailFlowCard.propTypes = {
 export default connect(mapStateToProps, {
   getTenxflowCIRules,
   UpdateTenxflowCIRules,
-  deleteTenxFlowStateDetail
+  deleteTenxFlowStateDetail,
+  getStageBuildLogList
 })(injectIntl(TenxFlowDetailFlowCard, {
   withRef: true,
 }));

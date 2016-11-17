@@ -199,6 +199,7 @@ module.exports = function (Router) {
   router.delete('/devops/ci-flows/:flow_id/stages/:stage_id', devopsController.deleteFlowStage)
   router.put('/devops/ci-flows/:flow_id/stages/:stage_id', devopsController.updateFlowStage)
   router.get('/ci-flows/:flow_id/stages/:stage_id', devopsController.getStage)
+  router.get('/devops/ci-flows/:flow_id/stages/:stage_id/getStageBuildLogs', devopsController.getStageBuildLogList)
 
   // CD rules
   router.post('/devops/ci-flows/:flow_id/cd-rules', devopsController.createCDRule)
