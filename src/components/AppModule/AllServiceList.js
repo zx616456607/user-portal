@@ -784,14 +784,14 @@ class AppServiceList extends Component {
             cluster={cluster}
             appName={appName}
             visible={rollingUpdateModalShow}
-            loadServices={loadServices}
+            loadServiceList={()=>loadServices(this.props)}
             service={currentShowInstance} />
           <ConfigModal
             parentScope={parentScope}
             cluster={cluster}
             appName={appName}
             visible={configModal}
-            loadServices={loadServices}
+            loadServiceList={()=>loadServices(this.props)}
             service={currentShowInstance} />
           <ManualScaleModal
             parentScope={parentScope}
@@ -799,7 +799,7 @@ class AppServiceList extends Component {
             appName={appName}
             visible={manualScaleModalShow}
             service={currentShowInstance}
-            loadServices={loadServices} /> 
+            loadServiceList={()=>loadServices(this.props)} /> 
           <Modal
             visible={deployServiceModalShow}
             className="AppServiceDetail"

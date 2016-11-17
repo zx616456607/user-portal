@@ -75,11 +75,20 @@ export default class AppSider extends Component {
 function currentPathNameCheck(scope) {
   //this function for check the pathname and change the current key
   let pathname = window.location.pathname;
+
+  let serviceModule = pathname.indexOf('app_manage/service')
+  if(serviceModule > -1) {
+    scope.setState({
+      current: '2'
+    })
+    return
+  }
+
   //this check the pathname from the container
   let containerModule = pathname.indexOf('app_manage/container');
   if( containerModule > -1 ){
     scope.setState({
-      current: '2'
+      current: '3'
     });
     return;
   }
@@ -87,7 +96,7 @@ function currentPathNameCheck(scope) {
   let storageModule = pathname.indexOf('app_manage/storage');
   if( storageModule > -1 ){
     scope.setState({
-      current: '3'
+      current: '4'
     });
     return;
   }
