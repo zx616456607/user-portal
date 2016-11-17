@@ -1,33 +1,72 @@
-#TipSvcDomain {
+.TipSvcDomain {
   .more {
     display: inline-block;
+    position: relative;
     margin-left: 5px;
-    width: 16px;
+    top: 3px;
+    width: 15px;
     height: 16px;
-    line-height:16px;
-    border-radius: 50%;
-    border: 1px solid #4b4b4b;
+    use {
+      fill: #eeeeee;
+    }
   }
-}
-#TipAppDomain {
-  .more {
-    display: inline-block;
-    margin-left: 5px;
-    width: 16px;
-    height: 16px;
-    line-height:16px;
-    border-radius: 50%;
-    border: 1px solid #4b4b4b;
+  .showPop {
+    use {
+      fill: #49b1e2 !important;
+    }
   }
   .ant-tooltip-inner {
     width: 100% !important;
     min-width: 190px;
     max-width: none;
   }
+  .ant-popover-arrow {
+    &::after {
+      border-right-color: #4b4b4b;
+    }
+  }
+  .ant-popover-inner {
+    background-color: #4b4b4b;
+    min-width: inherit;
+  }
 }
-#AppTip {
+.TipAppDomain {
+  .more {
+    display: inline-block;
+    position: relative;
+    margin-left: 5px;
+    top: 3px;
+    width: 15px;
+    height: 16px;
+    use {
+      fill: #eeeeee;
+    }
+  }
+  .showPop {
+    use {
+      fill: #49b1e2 !important;
+    }
+  }
+  .ant-tooltip-inner {
+    width: 100% !important;
+    min-width: 190px;
+    max-width: none;
+  }
+  .ant-popover-arrow {
+    &::after {
+      border-right-color: #4b4b4b;
+    }
+  }
+  .ant-popover-inner {
+    background-color: #4b4b4b;
+    min-width: inherit;
+  }
+}
+
+.AppTip {
+  color: #000;
   .firstSvc {
-    //position: relative;
+    margin-bottom: 8px;
     .firstLine {
       position: relative;
       top: 25%;
@@ -35,28 +74,14 @@
       width: 20px;
       background-color: #fff;
     }
-    .urlFirstItem {
-      float: right;
-      position: relative;
-      &::before {
-        content: '';
-        height: 1px;
-        background-color: #fff;
-        width: 45px;
-        position: absolute;
-        top: 50%;
-        transform: translate(-50%,0);
-        left: -24px;
-      }
-    }
   }
   .urlItem {
-    float: right;
     position: relative;
+    margin-left: 45px;
     &::before {
       content: '';
       height: 20px;
-      background-color: #fff;
+      background-color: #000;
       width: 1px;
       position: absolute;
       top: -9px;
@@ -66,13 +91,17 @@
     &::after {
       content: '';
       height: 1px;
-      background-color: #fff;
+      background-color: #000;
       width: 23px;
       position: absolute;
       top: 50%;
       transform: translate(-50%, 0);
-      left: -13px;
+      left: -12px;
     }
   }
+
+}
+.SvcTip {
+  color: #000;
 
 }

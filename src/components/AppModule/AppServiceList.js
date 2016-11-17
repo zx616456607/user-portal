@@ -176,7 +176,8 @@ const MyComponent = React.createClass({
           </Menu.Item>
         </Menu>
       );
-      const svcDomain = parseServiceDomain(item, this.props.bindingDomains)
+      // const svcDomain = parseServiceDomain(item, this.props.bindingDomains)
+      const svcDomain = ['10.1.27.1', '10.1.27.2', '10.1.27.3', '10.1.27.4', '10.1.27.5',]
       return (
         <div
           className={item.checked ? "selectedInstance instanceDetail" : "instanceDetail"}
@@ -202,11 +203,6 @@ const MyComponent = React.createClass({
           </div>
           <div className="service commonData">
             <Tooltip title={svcDomain.length > 0 ? svcDomain[0] : ""}>
-              {/*{
-                svcDomain.length > 0 ?
-                  (<a target="_blank" href={svcDomain[0]}>{svcDomain[0]}</a>) :
-                  (<span>-</span>)
-              }*/}
               <TipSvcDomain svcDomain={svcDomain}/>
             </Tooltip>
           </div>

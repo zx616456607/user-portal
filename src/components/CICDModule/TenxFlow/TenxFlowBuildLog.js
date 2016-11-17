@@ -245,6 +245,24 @@ class TenxFlowBuildLog extends Component {
 
   render() {
     const scope = this;
+    const { logs, isFetching } = this.props;
+    console.log(logs)
+    if(isFetching) {
+      return (
+        <div id='TenxFlowBuildLog' className={this.state.modalSize == 'big' ? 'bigModal' : 'smallModal'}>
+          <div className='title'>
+            <span>执行记录</span>
+            <i className='fa fa-expand' onClick={this.changeModalSize} />
+            <div style={{ clear: 'both' }}></div>
+          </div>
+          <div className='paddingBox'>
+            <div className='loadingBox'>
+              <Spin size='large' />
+            </div>
+          </div>
+        </div>
+      )
+    }
     return (
       <div id='TenxFlowBuildLog' className={this.state.modalSize == 'big' ? 'bigModal' : 'smallModal'}>
         <div className='title'>
@@ -253,8 +271,8 @@ class TenxFlowBuildLog extends Component {
           <div style={{ clear: 'both' }}></div>
         </div>
         <div className='paddingBox'>
-          <MyComponent config={testData} scope={scope} />
-          <MyLine config={testData} scope={scope} />
+          <MyComponent config={logs} scope={scope} />
+          <MyLine config={logs} scope={scope} />
           <div style={{ clear: 'both' }}></div>
         </div>
       </div>

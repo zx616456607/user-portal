@@ -177,31 +177,31 @@ const MyComponent = React.createClass({
           </Menu.Item>
         </Menu>
       );
-      const svcDomain = parseServiceDomain(item.deployment, this.props.bindingDomains)
-			const images = item.deployment.spec.template.spec.containers.map(container => {
+      const svcDomain = parseServiceDomain(item, this.props.bindingDomains)
+			const images = item.spec.template.spec.containers.map(container => {
         return container.image 
 			})
       return (
         <div
           className={item.checked ? "selectedInstance instanceDetail" : "instanceDetail"}
-          key={item.deployment.metadata.name}
+          key={item.metadata.name}
           onClick={(e) => this.selectServiceByLine(e, item)} >
           <div className="selectIconTitle commonData">
-            <Checkbox value={item.deployment.metadata.name} checked={item.checked} onChange={this.onchange}></Checkbox>
+            <Checkbox value={item.metadata.name} checked={item.checked} onChange={this.onchange}></Checkbox>
           </div>
           <div className="name commonData">
-            <Tooltip title={item.deployment.metadata.name}>
+            <Tooltip title={item.metadata.name}>
               <span className="viewBtn" onClick={() => this.modalShow(item)}>
-                {item.deployment.metadata.name}
+                {item.metadata.name}
               </span>
             </Tooltip>
           </div>
           <div className="status commonData">
-            <ServiceStatus service={item.deployment} />
+            <ServiceStatus service={item}/>
           </div>
 					<div className="appname commonData">
-					  <Tooltip title={item.deployment.metadata.labels['tenxcloud.com/appName']}>
-						  <span>{item.deployment.metadata.labels['tenxcloud.com/appName']}</span>
+					  <Tooltip title={item.metadata.labels['tenxcloud.com/appName']}>
+						  <span>{item.metadata.labels['tenxcloud.com/appName']}</span>
 						</Tooltip>
           </div>
           <div className="image commonData">
@@ -220,14 +220,14 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className="createTime commonData">
-            <Tooltip title={calcuDate(item.deployment.metadata.creationTimestamp ? item.deployment.metadata.creationTimestamp : '')}>
-              <span>{calcuDate(item.deployment.metadata.creationTimestamp || '')}</span>
+            <Tooltip title={calcuDate(item.metadata.creationTimestamp ? item.metadata.creationTimestamp : '')}>
+              <span>{calcuDate(item.metadata.creationTimestamp || '')}</span>
             </Tooltip>
           </div>
           <div className="actionBox commonData">
             <Dropdown.Button
               overlay={dropdown} type='ghost'
-              onClick={() => this.modalShow(item.deployment)}>
+              onClick={() => this.modalShow(item)}>
               <Icon type="eye-o" />
               <span>查看</span>
             </Dropdown.Button>
@@ -338,7 +338,7 @@ class AppServiceList extends Component {
           })
           startServices(cluster, checkedServiceNames, {
             success: {
-              func: () => loadAllServices(cluster),
+              func: () => loadServices(self.props),
               isAsync: true
             }
           })
@@ -362,7 +362,7 @@ class AppServiceList extends Component {
     if (!callback) {
       callback = {
         success: {
-          func: () => loadAllServices(cluster),
+          func: () => loadServices(self.props),
           isAsync: true
         }
       }
@@ -409,7 +409,7 @@ class AppServiceList extends Component {
           })
           quickRestartServices(cluster, checkedServiceNames, {
             success: {
-              func: () => loadAllServices(cluster),
+              func: () => loadServices(self.props),
               isAsync: true
             }
           })
@@ -428,12 +428,12 @@ class AppServiceList extends Component {
 
   confirmStopServices(serviceList, callback) {
     const self = this
-    const { cluster, loadAllServices, stopServices } = this.props
+    const { cluster,  stopServices } = this.props
     const serviceNames = serviceList.map((service) => service.metadata.name)
     if (!callback) {
       callback = {
         success: {
-          func: () => loadAllServices(cluster, appName),
+          func: () => loadServices(self.props),
           isAsync: true
         }
       }
@@ -473,7 +473,7 @@ class AppServiceList extends Component {
     if (!callback) {
       callback = {
         success: {
-          func: () => loadServices(cluster, appName),
+          func: () => loadServices(self.props),
           isAsync: true
         }
       }
@@ -597,7 +597,6 @@ class AppServiceList extends Component {
   }
   render() {
     const parentScope = this
-		let appName = 'test'
     let {
       modalShow,
       currentShowInstance,
@@ -621,6 +620,10 @@ class AppServiceList extends Component {
 	    return (
 			  <div></div>
 			)	
+		}
+		let appName = ''
+		if(this.state.currentShowInstance) {
+      appName = this.state.currentShowInstance.metadata.labels['tenxcloud.com/appName']	
 		}
     const checkedServiceList = serviceList.filter((service) => service.checked)
     const checkedServiceNames = checkedServiceList.map((service) => service.metadata.name)

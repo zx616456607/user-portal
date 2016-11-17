@@ -339,7 +339,7 @@ class TenxFlowDetailFlowCard extends Component {
           });
         },
         onCancel() {},
-      });
+      })
     }
   }
   

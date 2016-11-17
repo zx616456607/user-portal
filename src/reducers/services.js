@@ -118,6 +118,12 @@ function serviceList (state = {}, action) {
 	    return merge({}, state, { isFetching: true })
 		}
 		case ActionTypes.SERVICE_GET_ALL_LIST_SUCCESS: {
+		 action.response.result.data.services =	action.response.result.data.services.map(service => {
+		    return {
+			    cluster: service.cluster,
+					...service.deployment
+				}	
+			})
       return merge({}, action.response.result.data, {isFetching: false})
 		}
 		case ActionTypes.SERVICE_GET_ALL_LIST_FAILURE: {

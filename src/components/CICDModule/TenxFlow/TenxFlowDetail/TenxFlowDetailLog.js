@@ -14,42 +14,8 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../constants'
+import { getTenxflowBuildLogs } from '../../../../actions/cicd_flow'
 import './style/TenxFLowDetailLog.less'
-
-let testData = [
-  {
-    'name': 'test1',
-    'updateTime': '1小时前',
-    'status': 'finish',
-    'user': 'gaojian',
-    'cost': '10小时',
-    'status': 'normal'
-  },
-  {
-    'name': 'test2',
-    'updateTime': '2小时前',
-    'status': 'running',
-    'user': 'gaojian',
-    'cost': '10小时',
-    'status': 'fail'
-  },
-  {
-    'name': 'test3',
-    'updateTime': '3小时前',
-    'status': 'finish',
-    'user': 'gaojian',
-    'cost': '10小时',
-    'status': 'normal'
-  },
-  {
-    'name': 'test4',
-    'updateTime': '4小时前',
-    'status': 'fail',
-    'user': 'gaojian',
-    'cost': '10小时',
-    'status': 'normal'
-  },
-]
 
 const menusText = defineMessages({
   bulidLog: {
@@ -80,17 +46,47 @@ const menusText = defineMessages({
     id: 'CICD.Tenxflow.TenxFLowDetailLog.fail',
     defaultMessage: '执行失败',
   },
+  msShow: {
+    id: 'CICD.Tenxflow.TenxFLowDetailLog.msShow',
+    defaultMessage: '毫秒',
+  },
+  sShow: {
+    id: 'CICD.Tenxflow.TenxFLowDetailLog.sShow',
+    defaultMessage: '秒',
+  },
+  mShow: {
+    id: 'CICD.Tenxflow.TenxFLowDetailLog.mShow',
+    defaultMessage: '分钟',
+  },
+  hShow: {
+    id: 'CICD.Tenxflow.TenxFLowDetailLog.hShow',
+    defaultMessage: '小时',
+  },
+  running: {
+    id: 'CICD.Tenxflow.TenxFLowDetailLog.running',
+    defaultMessage: '运行中',
+  },
+  wait: {
+    id: 'CICD.Tenxflow.TenxFLowDetailLog.wait',
+    defaultMessage: '等待',
+  },
 })
 
 function checkStatusSpan(status, scope) {
   //this function for user input the status return current words
   const { formatMessage } = scope.props.intl;
   switch(status) {
-    case 'normal':
+    case 0:
       return formatMessage(menusText.normal);
       break;
-    case 'fail':
+    case 1:
       return formatMessage(menusText.fail);
+      break;
+    case 2:
+      return formatMessage(menusText.running);
+      break;
+    case 3:
+      return formatMessage(menusText.wait);
       break;
   }
 }
@@ -98,12 +94,48 @@ function checkStatusSpan(status, scope) {
 function checkStatusClass(status) {
   //this function for user input the status return current className
   switch(status) {
-    case 'normal':
+    case 0:
       return 'normal';
       break;
-    case 'fail':
+    case 1:
       return 'fail';
       break;
+    case 2:
+      return 'runing';
+      break;
+    case 3:
+      return 'wait';
+      break;
+  }
+}
+
+function dateFormat(dateString) {
+  //this function for user format string to date
+  let newString = dateString.replace('T', ' ').replace(/-/g, '/').split('.')[0];
+  return newString;
+}
+
+function dateSizeFormat(startTime, endTime, scope) {
+  //this function for user get the flow building time
+  const { formatMessage } = scope.props.intl;
+  let newStart = new Date(Date.parse(startTime.replace('T', ' ').replace(/-/g, '/').split('.')[0]));
+  let newEnd = new Date(Date.parse(endTime.replace('T', ' ').replace(/-/g, '/').split('.')[0]));
+  let timeSize = newEnd.getTime() - newStart.getTime();
+  if(timeSize > 1000) {
+    timeSize = parseInt(timeSize / 1000);
+    if(timeSize > 60) {
+      timeSize = parseInt(timeSize / 60);
+      if(timeSize > 60) {
+        timeSize = parseInt(timeSize / 60);
+        return (<span>{timeSize + formatMessage(menusText.hShow)}</span>)
+      } else {
+        return (<span>{timeSize + formatMessage(menusText.mShow)}</span>)
+      }
+    } else {
+      return (<span>{timeSize + formatMessage(menusText.sShow)}</span>)
+    }
+  } else {
+    return (<span>{timeSize + formatMessage(menusText.msShow)}</span>)
   }
 }
 
@@ -116,8 +148,16 @@ let MyComponent = React.createClass({
     //this function for user click the drop menu
   },
   render: function () {
-    const { config, scope } = this.props;
-    let items = config.map((item) => {
+    const { config, scope, isFetching, spaceName, flowName } = this.props;
+    console.log(this.props)
+    if(isFetching) {
+      return (
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
+      )
+    }
+    let items = config.map((item, index) => {
       const dropdown = (
         <Menu onClick={this.operaMenuClick.bind(this, item)}
           style={{ width: '130px' }}
@@ -135,34 +175,34 @@ let MyComponent = React.createClass({
         </Menu>
       );
       return (
-        <div className='LogDetail' key={item.name} >
+        <div className='LogDetail' key={spaceName + index} >
           <div className='leftBox'>
             <p className={ checkStatusClass(item.status) + ' title' }>
               { checkStatusSpan(item.status, scope) }
             </p>
             <span className='space'>
               <i className='fa fa-github' />&nbsp;
-              {item.user}
+              {spaceName}
             </span>
             <i className={ checkStatusClass(item.status) + ' fa fa-dot-circle-o dot' } />
           </div>
           <div className='rightBox'>
             <p className='title'>
-              {item.name}
+              {flowName}
             </p>
             <div className='infoBox'>
               <span className='user'>
                 <i className='fa fa-user' />
-                {item.user}
+                {spaceName}
               </span>
               <span className='updateTime'>
                 <i className='fa fa-wpforms' />
-                {item.updateTime}
+                {dateFormat(item.creationTime)}
               </span>
               <span className='costTime'>
                 <Icon type='clock-circle-o' />
                 <FormattedMessage {...menusText.cost} />
-                {item.cost}
+                { dateSizeFormat(item.creationTime, item.endTime, scope) }
               </span>
               <div className='btnBox'>
                 <Button size='large' type='primary' className='viewBtn'>
@@ -198,22 +238,34 @@ class TenxFLowDetailLog extends Component {
 
   componentWillMount() {
     document.title = 'TenxFlow | 时速云';
+    const { getTenxflowBuildLogs, flowId } = this.props;
+    getTenxflowBuildLogs(flowId)
   }
 
   render() {
-    const scope = this;
+    const { scope, isFetching, logs, spaceName, flowName } = this.props;
     return (
       <Card id='TenxFLowDetailLog'>
-        <MyComponent config={testData} scope={scope} />
+        <MyComponent config={logs} scope={scope} isFetching={isFetching} spaceName={spaceName} flowName={flowName} />
       </Card>
     )
   }
 }
 
 function mapStateToProps(state, props) {
-
+  const defaultLogs = {
+    isFetching: false,
+    logs: []
+  }
+  const { current } = state.entities
+  const { space } = current
+  const { spaceName } = space
+  const { getTenxflowBuildLogs } = state.cicd_flow
+  const { logs, isFetching } = getTenxflowBuildLogs || defaultLogs
   return {
-
+    isFetching,
+    logs,
+    spaceName
   }
 }
 
@@ -222,7 +274,7 @@ TenxFLowDetailLog.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-
+  getTenxflowBuildLogs
 })(injectIntl(TenxFLowDetailLog, {
   withRef: true,
 }));

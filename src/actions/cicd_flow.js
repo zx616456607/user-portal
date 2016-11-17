@@ -827,3 +827,24 @@ export function UpdateTenxflowCIRules(flowId, body, callback) {
     return dispatch(putUpdateTenxflowCIRules(flowId, body, callback))
   }
 }
+
+export const GET_FLOW_BUILD_LOG_REQUEST = 'GET_FLOW_BUILD_LOG_REQUEST'
+export const GET_FLOW_BUILD_LOG_SUCCESS = 'GET_FLOW_BUILD_LOG_SUCCESS'
+export const GET_FLOW_BUILD_LOG_FAILURE = 'GET_FLOW_BUILD_LOG_FAILURE'
+
+function fetchTenxflowBuildLogs(flowId, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_FLOW_BUILD_LOG_REQUEST, GET_FLOW_BUILD_LOG_SUCCESS, GET_FLOW_BUILD_LOG_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/getBuildLogs`,
+      schema: {}
+    },
+    callback: callback
+  }
+}
+
+export function getTenxflowBuildLogs(flowId, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchTenxflowBuildLogs(flowId, callback))
+  }
+}
