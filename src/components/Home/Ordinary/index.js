@@ -111,7 +111,39 @@ let appOption = {
     },
   },
 }
-
+let CPUOption = {
+  tooltip: {
+    text:'CPU',
+    top:0,
+    left: 'center',
+  },
+  xAxis: {
+    type: value,
+    data: ['node','node1','node2'],
+    
+  },
+  yAxis: {
+    type:'value',
+    max:100,
+  },
+  series: {
+    type: 'bar',
+    data: [
+      {
+        name: 'node',
+        value: 10,
+      },
+      {
+        name: 'node1',
+        value: 80,
+      },
+      {
+        name: 'node2',
+        value: 30,
+      },
+    ]
+  }
+}
 export default class Ordinary extends Component{
   constructor(props){
     super(props)
@@ -330,7 +362,10 @@ export default class Ordinary extends Component{
             <Card title="计算资源使用率" bordered={false} bodyStyle={{height:200}}>
               <Row gutter={16}>
                 <Col span={6}>
-                  
+                  <ReactEcharts
+                    notMerge={true}
+                    option={CPUOption}
+                  />
                 </Col>
                 <Col span={6}></Col>
                 <Col span={6}></Col>
