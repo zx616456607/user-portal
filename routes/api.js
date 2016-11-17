@@ -181,6 +181,10 @@ module.exports = function (Router) {
   router.delete('/devops/repos/:type', devopsController.removeRepository)
   router.get('/devops/repos/:type/branches', devopsController.listBranches)
   router.get('/devops/repos/:type/user', devopsController.getUserInfo)
+  // Auth with 3rdparty SCM and callback
+  router.get('/devops/repos/:type/auth', devopsController.getAuthRedirectUrl);
+  router.get('/devops/repos/:type/auth-callback', devopsController.doUserAuthorization)
+
   // Managed projects
   router.post('/devops/managed-projects', devopsController.addManagedProject)
   router.get('/devops/managed-projects', devopsController.listManagedProject)
