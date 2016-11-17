@@ -19,6 +19,9 @@ class App extends Component {
   constructor(props) {
     super(props)
     this.handleDismissClick = this.handleDismissClick.bind(this)
+    this.state = {
+      siderStyle: 'mini'
+    }
   }
 
   handleDismissClick() {
@@ -45,6 +48,7 @@ class App extends Component {
 
   render() {
     let { children, pathname, errorMessage } = this.props
+    const scope = this;
     /*if (errorMessage) {
       if (errorMessage.statusCode === 404) {
         children = (
@@ -53,18 +57,18 @@ class App extends Component {
       }
     }*/
     return (
-      <div className="tenx-layout">
+      <div className='tenx-layout'>
         {this.renderErrorMessage()}
-        <div id="siderTooltip"></div>
-        <div className="tenx-layout-header">
-          <div className="tenx-layout-wrapper">
+        <div id='siderTooltip'></div>
+        <div className={ this.state.siderStyle == 'mini' ? 'tenx-layout-header' : 'tenx-layout-header-bigger tenx-layout-header'}>
+          <div className='tenx-layout-wrapper'>
             <Header />
           </div>
         </div>
-        <div className="tenx-layout-sider">
-          <Sider pathname={pathname} />
+        <div className={ this.state.siderStyle == 'mini' ? 'tenx-layout-sider' : 'tenx-layout-sider-bigger tenx-layout-sider'}>
+          <Sider pathname={pathname} scope={scope} siderStyle={this.state.siderStyle} />
         </div>
-        <div className="tenx-layout-content">
+        <div className={ this.state.siderStyle == 'mini' ? 'tenx-layout-content' : 'tenx-layout-content-bigger tenx-layout-content'}>
           {children}
         </div>
       </div>

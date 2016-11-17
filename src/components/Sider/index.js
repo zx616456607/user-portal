@@ -11,9 +11,10 @@ import React, { Component } from 'react'
 import { Card, message, Button, Tooltip, Popover, Icon, Menu, Modal, Radio, Upload, Badge } from 'antd'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
-import "./style/sider.less"
+import './style/sider.less'
 import { beforeUploadFile, uploading, mergeUploadingIntoList, getUploadFileUlr, uploadFileOptions, getVolumeBindInfo, changeStorageDetail } from '../../actions/storage'
 import { cloneDeep } from 'lodash'
+import QueueAnim from 'rc-queue-anim'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -23,21 +24,39 @@ class Slider extends Component {
   constructor(props) {
     super(props);
     this.selectModel = this.selectModel.bind(this);
+    this.changeSiderStyle = this.changeSiderStyle.bind(this);
     this.state = {
       currentKey: checkCurrentPath(this.props.pathname),
       isUnzip: false
     }
   }
+  
+  changeSiderStyle() {
+    //this function for user change the sider style to 'mini' or 'bigger'
+    const { scope, siderStyle } = this.props;
+    if(siderStyle == 'mini') {
+      scope.setState({
+        siderStyle: 'bigger'
+      });
+    } else {
+      scope.setState({
+        siderStyle: 'mini'
+      });
+    }
+  }
+  
   handleCancel() {
     const currentOptions = cloneDeep(this.props.uploadFileOptions)
     currentOptions.visible = false
     this.props.changeUploadFileOptions(currentOptions)
   }
+  
   selectModel(currentKey, currentIcon, event) {
     this.setState({
       currentKey: currentKey,
     });
   }
+  
   changeRadioValue(e) {
     this.setState({
       isUnzip: e.target.value
@@ -115,10 +134,12 @@ class Slider extends Component {
       }
     }
   }
+  
   render() {
+    const { siderStyle } = this.props
     const { currentKey } = this.state
     const noticeModel = (
-      <Card className="noticeModel" title="Card title" style={{ width: 300 }}>
+      <Card className='noticeModel' title='Card title' style={{ width: 300 }}>
         <p>{this.state.currentKey}</p>
         <p>Card content</p>
         <p>Card contasdfasdfasdfwaetgqwreent</p>
@@ -134,130 +155,280 @@ class Slider extends Component {
         <p>Card content</p>
       </Card>)
     return (
-      <div id="sider">
-        <Modal title="上传文件" wrapClassName="vertical-center-modal" footer="" visible={this.props.uploadFileOptions.visible} onCancel={() => this.handleCancel()}>
-          <div className="uploadModal">
+      <div id='sider'>
+        <Modal title='上传文件' wrapClassName='vertical-center-modal' footer='' visible={this.props.uploadFileOptions.visible} onCancel={() => this.handleCancel()}>
+          <div className='uploadModal'>
             <RadioGroup onChange={(e) => { this.changeRadioValue(e) } } value={this.state.isUnzip}>
-              <Radio key="a" value={false}>直接上传</Radio>
-              <Radio key="b" value={true}>上传并解压</Radio>
+              <Radio key='a' value={false}>直接上传</Radio>
+              <Radio key='b' value={true}>上传并解压</Radio>
             </RadioGroup>
             <p>
               <Upload {...this.getUploadData() }>
-                <Button type="primary">
-                  <Icon type="upload" /> 选择文件
+                <Button type='primary'>
+                  <Icon type='upload' /> 选择文件
                 </Button>
               </Upload>
             </p>
             <p>或将文件拖到这里</p>
           </div>
-          <ul className="uploadhint">
+          <ul className='uploadhint'>
             <li>1、支持任何格式文件，大小不超过600M</li>
             <li>2、仅支持 zip 格式文件解压，导入时会覆盖存储卷内[同文件名]</li>
             <li style={{ color: 'red' }}>* 请先停止挂载该存储卷的服务再进行文件导入</li>
           </ul>
         </Modal>
-        <ul className="siderTop">
-          <li className="logoItem">
-            <Link to="/">
-              <img className="logo" src="/img/sider/logo@2x.png" />
-            </Link>
-          </li>
-          <li onClick={this.selectModel.bind(this, "1", "#home")} className={currentKey == "1" ? "selectedLi" : ""}>
-            <Tooltip placement="right" title="总览" getTooltipContainer={() => document.getElementById("siderTooltip")}>
-              <Link to="/">
-                <svg className="home commonImg">
-                  <use xlinkHref="#home" />
-                </svg>
-              </Link>
-            </Tooltip>
-          </li>
-          <li onClick={this.selectModel.bind(this, "2", "#app")} className={currentKey == "2" ? "selectedLi" : ""}>
-            <Tooltip placement="right" title="应用管理" getTooltipContainer={() => document.getElementById("siderTooltip")}>
-              <Link to="/app_manage">
-                <svg className="app commonImg">
-                  <use xlinkHref="#app" />
-                </svg>
-              </Link>
-            </Tooltip>
-          </li>
-          <li onClick={this.selectModel.bind(this, "3", "#appCenter")} className={currentKey == "3" ? "selectedLi" : ""}>
-            <Tooltip placement="right" title="交付中心" getTooltipContainer={() => document.getElementById("siderTooltip")}>
-              <Link to="/app_center">
-                <svg className="center commonImg">
-                  <use xlinkHref="#center" />
-                </svg>
-              </Link>
-            </Tooltip>
-          </li>
-          <li onClick={this.selectModel.bind(this, "6", "#system")} className={currentKey == "6" ? "selectedLi" : ""}>
-            <Tooltip placement="right" title="CI/CD" getTooltipContainer={() => document.getElementById("siderTooltip")}>
-              <Link to="/ci_cd">
-                <svg className="system commonImg">
-                  <use xlinkHref="#system" />
-                </svg>
-              </Link>
-            </Tooltip>
-          </li>
-          <li onClick={this.selectModel.bind(this, "4", "#database")} className={currentKey == "4" ? "selectedLi" : ""}>
-            <Tooltip placement="right" title="数据库与缓存" getTooltipContainer={() => document.getElementById("siderTooltip")}>
-              <Link to="/database_cache">
-                <svg className="database commonImg">
-                  <use xlinkHref="#database" />
-                </svg>
-              </Link>
-            </Tooltip>
-          </li>
-          <li onClick={this.selectModel.bind(this, "5", "#system")} className={currentKey == "5" ? "selectedLi" : ""}>
-            <Tooltip placement="right" title="集成中心" getTooltipContainer={() => document.getElementById("siderTooltip")}>
-              <Link to="/">
-                <svg className="system commonImg">
-                  <use xlinkHref="#system" />
-                </svg>
-              </Link>
-            </Tooltip>
-          </li>
-          <li onClick={this.selectModel.bind(this, "7", "#manage")} className={currentKey == "7" ? "selectedLi" : ""}>
-            <Tooltip placement="right" title="管理与监控" getTooltipContainer={() => document.getElementById("siderTooltip")}>
-              <Link to="/manange_monitor">
-                <svg className="manageMoniter commonImg">
-                  <use xlinkHref="#managemoniter" />
-                </svg>
-              </Link>
-            </Tooltip>
-          </li>
-          <li onClick={this.selectModel.bind(this, "8", "#setting")} className={currentKey == "8" ? "selectedLi" : ""}>
-            <Tooltip placement="right" title="系统设置" getTooltipContainer={() => document.getElementById("siderTooltip")}>
-              <Link to="/setting">
-                <svg className="setting commonImg">
-                  <use xlinkHref="#setting" />
-                </svg>
-              </Link>
-            </Tooltip>
-          </li>
-        </ul>
-        <ul className="siderBottom">
-          <li>
-            <Tooltip placement="right" title="创建应用" getTooltipContainer={() => document.getElementById("siderTooltip")}>
-              <Link to="/app_manage/app_create">
-                <svg className="add commonImg">
-                  <use xlinkHref="#add" />
-                </svg>
-              </Link>
-            </Tooltip>
-          </li>
-          <li>
-            <Tooltip placement="right" title="通知中心">
-              <Popover placement="rightBottom" content={noticeModel} trigger="click">
-                <Link to="/">
-                  <Badge dot>
-                    <svg className="message commonImg">
-                      <use href="#message" />
-                    </svg>
-                  </Badge>
+        { siderStyle == 'mini' ? [
+        <QueueAnim type='left'>
+          <div key='miniSider' className='miniSider'>
+            <ul className='siderTop'>
+              <li className='logoItem'>
+                <Link to='/'>
+                  <img className='logo' src='/img/sider/logo@2x.png' />
                 </Link>
-              </Popover>
-            </Tooltip>
-          </li>
+              </li>
+              <li onClick={this.selectModel.bind(this, '1', '#home')} className={currentKey == '1' ? 'selectedLi' : ''} >
+                <Tooltip placement='right' title='总览' getTooltipContainer={() => document.getElementById('siderTooltip')}>
+                  <Link to='/'>
+                    <svg className='home commonImg'>
+                      {currentKey == '1' ? [<use xlinkHref='#homeselected' />] : [<use xlinkHref='#home' />]}
+                    </svg>
+                  </Link>
+                </Tooltip>
+              </li>
+              <li onClick={this.selectModel.bind(this, '2', '#app')} className={currentKey == '2' ? 'selectedLi' : ''}>
+                <Tooltip placement='right' title='应用管理' getTooltipContainer={() => document.getElementById('siderTooltip')}>
+                  <Link to='/app_manage'>
+                    <svg className='app commonImg'>
+                      <use xlinkHref='#app' />
+                    </svg>
+                  </Link>
+                </Tooltip>
+              </li>
+              <li onClick={this.selectModel.bind(this, '3', '#appCenter')} className={currentKey == '3' ? 'selectedLi' : ''}>
+                <Tooltip placement='right' title='交付中心' getTooltipContainer={() => document.getElementById('siderTooltip')}>
+                  <Link to='/app_center'>
+                    <svg className='center commonImg'>
+                      { currentKey == '3' ? [<use xlinkHref='#centerselected' />] : [<use xlinkHref='#center' />]}
+                    </svg>
+                  </Link>
+                </Tooltip>
+              </li>
+              <li onClick={this.selectModel.bind(this, '6', '#system')} className={currentKey == '6' ? 'selectedLi' : ''}>
+                <Tooltip placement='right' title='CI/CD' getTooltipContainer={() => document.getElementById('siderTooltip')}>
+                  <Link to='/ci_cd'>
+                    <svg className='system commonImg'>
+                      <use xlinkHref='#system' />
+                    </svg>
+                  </Link>
+                </Tooltip>
+              </li>
+              <li onClick={this.selectModel.bind(this, '4', '#database')} className={currentKey == '4' ? 'selectedLi' : ''}>
+                <Tooltip placement='right' title='数据库与缓存' getTooltipContainer={() => document.getElementById('siderTooltip')}>
+                  <Link to='/database_cache'>
+                    <svg className='database commonImg'>
+                      <use xlinkHref='#database' />
+                    </svg>
+                  </Link>
+                </Tooltip>
+              </li>
+              <li onClick={this.selectModel.bind(this, '5', '#system')} className={currentKey == '5' ? 'selectedLi' : ''}>
+                <Tooltip placement='right' title='集成中心' getTooltipContainer={() => document.getElementById('siderTooltip')}>
+                  <Link to='/'>
+                    <svg className='system commonImg'>
+                      <use xlinkHref='#system' />
+                    </svg>
+                  </Link>
+                </Tooltip>
+              </li>
+              <li onClick={this.selectModel.bind(this, '7', '#manage')} className={currentKey == '7' ? 'selectedLi' : ''}>
+                <Tooltip placement='right' title='管理与监控' getTooltipContainer={() => document.getElementById('siderTooltip')}>
+                  <Link to='/manange_monitor'>
+                    <svg className='manageMoniter commonImg'>
+                      <use xlinkHref='#managemoniter' />
+                    </svg>
+                  </Link>
+                </Tooltip>
+              </li>
+              <div style={{ clear: 'both' }}></div>
+            </ul>
+            <ul className='siderBottom'>
+              <li onClick={this.selectModel.bind(this, '9', '#addNewApp')} className={currentKey == '9' ? 'selectedLi' : ''}>
+                <Tooltip placement='right' title='创建应用' getTooltipContainer={() => document.getElementById('siderTooltip')}>
+                  <Link to='/app_manage/app_create'>
+                    <svg className='add commonImg'>
+                      { currentKey == '9' ? [<use xlinkHref='#addselected' />] : [<use xlinkHref='#add' />] }
+                    </svg>
+                  </Link>
+                </Tooltip>
+              </li>
+              <li>
+                <Tooltip placement='right' title='通知中心'>
+                  <Popover placement='rightBottom' content={noticeModel} trigger='click'>
+                    <Link to='/'>
+                      <Badge dot>
+                        <svg className='message commonImg'>
+                          <use href='#message' />
+                        </svg>
+                      </Badge>
+                    </Link>
+                  </Popover>
+                </Tooltip>
+              </li>
+              <li onClick={this.selectModel.bind(this, '8', '#setting')} className={currentKey == '8' ? 'selectedLi' : ''}>
+                <Tooltip placement='right' title='系统设置' getTooltipContainer={() => document.getElementById('siderTooltip')}>
+                  <Link to='/setting'>
+                    <svg className='setting commonImg'>
+                      {currentKey == '8' ? [<use xlinkHref='#settingselected' />] : [<use xlinkHref='#setting' />]}
+                    </svg>
+                  </Link>
+                </Tooltip>
+              </li>
+              <div style={{ clear: 'both' }}></div>
+            </ul>
+          </div>
+        </QueueAnim>
+        ] : null }
+        { siderStyle == 'bigger' ? [
+        <QueueAnim type='left'>
+          <div key='siderBigger' className='siderBigger'>
+            <div className='logBox'>
+              <Link to='/'>
+                <img className='logo' src='/img/sider/logo@2x.png' />
+              </Link>
+            </div>
+            <Menu
+              style={{ width: 200, backgroundColor: '#222222', color: '#c4c4c4' }}
+              mode='inline'
+              theme='dark'
+            > 
+              <Menu.Item key='0'>
+                <svg className='home commonImg'>
+                  {currentKey == '1' ? [<use xlinkHref='#homeselected' />] : [<use xlinkHref='#home' />]}
+                </svg>
+                <span>总览</span>
+              </Menu.Item>
+              <SubMenu key='sub1' 
+                title={
+                  <span>
+                    <svg className='home commonImg'>
+                      <use xlinkHref='#app' />
+                    </svg>
+                    <span className='commonSiderSpan'>应用管理</span>
+                    <div style={{ clear: 'both' }}></div>
+                  </span>
+                }
+              >
+                  <Menu.Item key='app'>应用</Menu.Item>
+                  <Menu.Item key='container'>容器</Menu.Item>
+                  <Menu.Item key='appStorage'>存储</Menu.Item>
+                  <Menu.Item key='serviceConfig'>服务配置</Menu.Item>
+              </SubMenu>
+              <SubMenu key='sub2' 
+                title={
+                  <span>
+                    <svg className='center commonImg'>
+                      <use xlinkHref='#center' />
+                    </svg>
+                    <span className='commonSiderSpan'>交付中心</span>
+                    <div style={{ clear: 'both' }}></div>
+                  </span>
+                }
+              >
+                <Menu.Item key='imageCenter'>镜像仓库</Menu.Item>
+                <Menu.Item key='imageStore'>应用商店</Menu.Item>
+                <Menu.Item key='composeFile'>编排文件</Menu.Item>
+              </SubMenu>
+              <SubMenu key='sub3' 
+                title={
+                  <span>
+                    <svg className='center commonImg'>
+                      <use xlinkHref='#system' />
+                    </svg>
+                    <span className='commonSiderSpan'>CI/CD</span>
+                    <div style={{ clear: 'both' }}></div>
+                  </span>
+                }
+              >
+                <Menu.Item key='codeStore'>代码仓库</Menu.Item>
+                <Menu.Item key='tenxFlow'>Tenx Flow</Menu.Item>
+                <Menu.Item key='dockerFlie'>Docker File</Menu.Item>
+              </SubMenu>
+              <SubMenu key='sub4' 
+                title={
+                  <span>
+                    <svg className='database commonImg'>
+                      <use xlinkHref='#database' />
+                    </svg>
+                    <span className='commonSiderSpan'>数据库与缓存</span>
+                    <div style={{ clear: 'both' }}></div>
+                  </span>
+                }
+              >
+                <Menu.Item key='mysql'>MySQL集群</Menu.Item>
+                <Menu.Item key='mongo'>Mongo集群</Menu.Item>
+                <Menu.Item key='redis'>Redis集群</Menu.Item>
+                <Menu.Item key='databaseStorage'>存储</Menu.Item>
+              </SubMenu>
+              <SubMenu key='sub5' 
+                title={
+                  <span>
+                    <svg className='system commonImg'>
+                      <use xlinkHref='#system' />
+                    </svg>
+                    <span className='commonSiderSpan'>集成中心</span>
+                    <div style={{ clear: 'both' }}></div>
+                  </span>
+                }
+              >
+              </SubMenu>
+              <SubMenu key='sub6' 
+                title={
+                  <span>
+                    <svg className='manageMoniter commonImg'>
+                      <use xlinkHref='#managemoniter' />
+                    </svg>
+                    <span className='commonSiderSpan'>管理与监控</span>
+                    <div style={{ clear: 'both' }}></div>
+                  </span>
+                }
+              >
+                <Menu.Item key='operationalMonitor'>操作审计</Menu.Item>
+                <Menu.Item key='queryLog'>日志查询</Menu.Item>
+                <Menu.Item key='monitorManage'>监控管理</Menu.Item>
+                <Menu.Item key='formCenter'>报表中心</Menu.Item>
+              </SubMenu>
+              <Menu.Item key='addApp'>
+                <svg className='add commonImg'>
+                  <use xlinkHref='#add' />
+                </svg>
+                <span>创建应用</span>
+              </Menu.Item>
+              <Menu.Item key='message'>
+                <svg className='message commonImg'>
+                  <use xlinkHref='#message' />
+                </svg>
+                <span>通知中心</span>
+              </Menu.Item>
+              <Menu.Item key='setting'>
+                <svg className='setting commonImg'>
+                  <use xlinkHref='#setting' />
+                </svg>
+                <span>系统设置</span>
+              </Menu.Item>
+            </Menu>
+          </div>
+        </QueueAnim>
+        ] : null
+        }
+        <ul className='changeSiderUl'>
+          <Tooltip placement='right' title={siderStyle == 'mini' ? '展开导航栏' : null} getTooltipContainer={() => document.getElementById('siderTooltip')}>
+            <li onClick={this.changeSiderStyle}>
+              <span>
+                { siderStyle == 'mini' ? [<i className='fa fa-indent'></i>] : [<i className='fa fa-outdent'></i>]}
+              </span>
+              { siderStyle == 'bigger' ?[<span>收起</span>] : null }
+            </li>
+          </Tooltip>
         </ul>
       </div>
     )
@@ -265,29 +436,33 @@ class Slider extends Component {
 }
 
 function checkCurrentPath(pathname) {
-  let ManageMonitorCheck = new RegExp("manange_monitor", "gi");
+  let ManageMonitorCheck = new RegExp('manange_monitor', 'gi');
   if (ManageMonitorCheck.test(pathname)) {
-    return "7";
+    return '7';
   }
-  let DatabaseCheck = new RegExp("database_cache", "gi");
-  let CICDCheck = new RegExp("ci_cd", "gi");
+  let DatabaseCheck = new RegExp('database_cache', 'gi');
+  let CICDCheck = new RegExp('ci_cd', 'gi');
   if (CICDCheck.test(pathname)) {
-    return "6";
+    return '6';
   }
   if (DatabaseCheck.test(pathname)) {
-    return "4";
+    return '4';
   }
-  let AppCenterCheck = new RegExp("app_center", "gi");
+  let AppCenterCheck = new RegExp('app_center', 'gi');
   if (AppCenterCheck.test(pathname)) {
-    return "3";
+    return '3';
   }
-  let ApplicationCheck = new RegExp("app_manage", "gi");
+  let ApplicationCheck = new RegExp('app_manage', 'gi');
   if (ApplicationCheck.test(pathname)) {
-    return "2";
+    return '2';
   }
-  let homeCheck = new RegExp("/", "gi");
+  let addApplicationCheck = new RegExp('app_manage/app_create', 'gi')
+  if (ApplicationCheck.test(pathname)) {
+    return '9';
+  }
+  let homeCheck = new RegExp('/', 'gi');
   if (homeCheck.test(pathname)) {
-    return "1";
+    return '1';
   }
 }
 

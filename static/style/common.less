@@ -22,10 +22,10 @@ svg path {
 }
 //header
 .tenx-layout-header {
+  transition: all 0.3s;
   z-index: 100;
   position: fixed;
   padding-left: 60px;
-  padding-right: 60px;
   top: 0;
   left: 0;
   height: 55px;
@@ -33,24 +33,39 @@ svg path {
   background-color: #FFFFFF;
   box-shadow: 0 1px 3px #ddd;
 }
+.tenx-layout-header-bigger {
+  padding-left: 200px !important;
+} 
 .tenx-layout-wrapper {
   padding: 0;
   height: 55px !important;
 }
 //sider
 .tenx-layout-sider {
+  transition: all 0.3s;
   z-index: 100;
   position: fixed;
   top: 0;
   width: 60px;
   min-height: 100%;
 }
+.tenx-layout-sider-bigger {
+  width: 200px !important;
+  #sider {
+    width: 200px !important;
+  }
+}
 .tenx-layout-content {
+  transition: all 0.3s;
   padding-top: 55px;
   margin-left: 60px;
   display: block;
   width: calc(~"100% - 60px");
   overflow-x: hidden;
+}
+.tenx-layout-content-bigger {
+  margin-left: 200px;
+  width: calc(~"100% - 200px");
 }
 .tenx-layout-bjreadcrumb {
   margin: 7px 0 -17px 24px;
