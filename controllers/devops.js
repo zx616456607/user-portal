@@ -41,6 +41,8 @@ exports.registerRepo = function* () {
       }
       break;
     case "svn":
+      break;
+  
     default:
       const err = new Error('Only support gitlab for now')
       err.status = 400
@@ -56,7 +58,7 @@ exports.registerRepo = function* () {
 exports.listRepository = function* () {
   const loginUser = this.session.loginUser
   const repoType = this.params.type
-  if (repoType != "gitlab" || repoType != 'github') {
+  if (repoType != "gitlab" && repoType != 'github') {
     const err = new Error('Only support gitlab/github for now')
     err.status = 400
     throw err
@@ -73,7 +75,7 @@ exports.listRepository = function* () {
 exports.syncRepository = function* () {
   const loginUser = this.session.loginUser
   const repoType = this.params.type
-  if (repoType != "gitlab" || repoType != 'github')  {
+  if (repoType != "gitlab" && repoType != 'github')  {
     const err = new Error('Only support gitlab/github for now')
     err.status = 400
     throw err
@@ -90,7 +92,7 @@ exports.syncRepository = function* () {
 exports.removeRepository = function* () {
   const loginUser = this.session.loginUser
   const repoType = this.params.type
-  if (repoType != "gitlab" || repoType != "github") {
+  if (repoType != "gitlab" && repoType != "github") {
     const err = new Error('Only support gitlab/github for now')
     err.status = 400
     throw err
@@ -112,7 +114,7 @@ exports.listBranches = function* () {
   const repoType = this.params.type
   const repoName = this.query.reponame
   const project_id = this.query.project_id
-  if (repoType != "gitlab" || repoType != "github") {
+  if (repoType != "gitlab" && repoType != "github") {
     const err = new Error('Only support gitlab for now')
     err.status = 400
     throw err
@@ -134,7 +136,7 @@ exports.listBranches = function* () {
 exports.getUserInfo = function* () {
   const loginUser = this.session.loginUser
   const repoType = this.params.type
-  if (repoType != "gitlab" || repoType != "github")  {
+  if (repoType != "gitlab" && repoType != "github")  {
     const err = new Error('Only support gitlab for now')
     err.status = 400
     throw err
