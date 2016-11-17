@@ -12,12 +12,15 @@
 'use strict'
 
 const authController = require('../controllers/auth')
+const indexCtl = require('../controllers')
 
 module.exports = function (Router) {
-  const router = new Router({
-    //
-  })
+  const router = new Router({})
+
   // Auth
+  router.get('/login', authController.login)
+  router.get('/logout', authController.logout)
+  router.post('/logout', authController.logout)
   router.post('/auth/users/verify', authController.verifyUser)
   // Captcha
   router.get('/captcha/gen', authController.generateCaptcha)

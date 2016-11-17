@@ -13,6 +13,8 @@ export const DEFAULT_IMAGE_POOL = 'k8s-pool'
 export const DEFAULT_REGISTRY = 'default'
 export const TENX_MARK = 'tenxcloud.com'
 export const LABEL_APPNAME = `${TENX_MARK}/appName`
+export const USERNAME_REG_EXP = new RegExp('^[a-z][-a-z0-9]{1,40}[a-z0-9]$')
+export const EMAIL_REG_EXP = new RegExp('^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$')
 export const TEST_MONITOR_OPTION = {
   title: {
     text: 'test monitor'

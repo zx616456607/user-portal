@@ -13,6 +13,31 @@
 const apiFactory = require('../services/api_factory')
 const logger = require('../utils/logger').getLogger('controllers/auth')
 const svgCaptcha = require('svg-captcha')
+const indexService = require('../services')
+
+exports.login = function* () {
+  let method = 'login'
+  let title = `${this.t('common:login')} | ${this.t('common:tenxcloud')}`
+  if (this.session.loginUser) {
+    this.status = 301
+    this.redirect('/')
+    return
+  }
+  yield this.render(global.indexHtml, { title, body: '' })
+}
+
+exports.logout = function* () {
+  delete this.session.loginUser
+  this.session = null
+  if (this.method === 'GET') {
+    // this.status = 301
+    this.redirect('/login')
+    return
+  }
+  this.body = {
+    message: 'login out success.'
+  }
+}
 
 /* Login success return
   {
@@ -65,6 +90,7 @@ exports.verifyUser = function* () {
     role: result.role,
     balance: result.balance,
   }
+  yield indexService.setUserCurrentConfigCookie.apply(this, [this.session.loginUser])
   delete result.userID
   delete result.statusCode
   this.body = {
@@ -83,7 +109,7 @@ exports.generateCaptcha = function* () {
 }
 
 exports.checkCaptchaIsCorrect = function* () {
-  const captcha = this.params.captcha
+  const captcha = this.params.captcha.toLowerCase()
   if (captcha !== this.session.captcha) {
     this.body = {
       correct: false,

@@ -9,10 +9,12 @@
  * @author Zhangpc
  */
 import React, { PropTypes } from 'react'
-import { Button, Form, Input, Card, Tooltip, } from 'antd'
+import { Button, Form, Input, Card, Tooltip, message, Alert, Col, } from 'antd'
 import './style/Login.less'
-import { verifyCaptcha } from '../../actions'
+import { verifyCaptcha, login } from '../../actions'
 import { connect } from 'react-redux'
+import { USERNAME_REG_EXP, EMAIL_REG_EXP } from '../../constants'
+import { browserHistory } from 'react-router'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -25,38 +27,79 @@ let Login = React.createClass({
   getInitialState() {
     return {
       random: '0',
+      submitting: false,
+      loginResult: {},
     }
-  },
-
-  handleReset(e) {
-    e.preventDefault()
-    this.props.form.resetFields()
   },
 
   handleSubmit(e) {
     e.preventDefault()
-    this.props.form.validateFields((errors, values) => {
+    const { login, form } = this.props
+    const { validateFields } = form
+    const self = this
+    validateFields((errors, values) => {
       if (!!errors) {
-        console.log('Errors in form!!!')
         return
       }
-      console.log('Submit!!!')
-      console.log(values)
+      this.setState({
+        submitting: true,
+      })
+      const body = {
+        password: values.password,
+        captcha: values.captcha
+      }
+      if (values.name.indexOf('@') > -1) {
+        body.email = values.name
+      } else {
+        body.username = values.name
+      }
+      login(body, {
+        success: {
+          func: (result) => {
+            self.setState({
+              submitting: false
+            })
+            message.success(`用户 ${values.name} 登录成功`)
+            browserHistory.push('/')
+          },
+          isAsync: true
+        },
+        failed: {
+          func: (err) => {
+            self.setState({
+              submitting: false,
+              loginResult: {
+                error: err.message.message
+              }
+            })
+            self.changeCaptcha()
+          },
+          isAsync: true
+        },
+      })
     })
   },
 
-  userExists(rule, value, callback) {
-    if (!value) {
+  checkName(rule, value, callback) {
+    if (!value || value.length < 3) {
       callback()
-    } else {
-      setTimeout(() => {
-        if (value === 'JasonWood') {
-          callback([new Error('抱歉，该用户名已被占用。')])
-        } else {
-          callback()
-        }
-      }, 800)
+      return
     }
+    setTimeout(() => {
+      if (value.indexOf('@') > -1) {
+        if (!EMAIL_REG_EXP.test(value)) {
+          callback([new Error('邮箱地址填写错误')])
+          return
+        }
+        callback()
+        return
+      }
+      if (!USERNAME_REG_EXP.test(value)) {
+        callback([new Error('用户名填写错误')])
+        return
+      }
+      callback()
+    }, 100)
   },
 
   checkPass(rule, value, callback) {
@@ -67,34 +110,41 @@ let Login = React.createClass({
   checkCaptcha(rule, value, callback) {
     if (!value) {
       callback()
-    } else {
-      const { verifyCaptcha } = this.props
-      setTimeout(() => {
-        if (!/^[a-zA-Z0-9]{4}$/.test(value)) {
-          callback([new Error('验证码错误')])
-          return
-        }
-        verifyCaptcha(value, {
-          success: {
-            func: (result) => {
-              console.log(result)
-              callback()
-            },
-            isAsync: true
-          },
-          failed: {
-            func: (err) => {
-              console.log(err)
-              callback([new Error('校验错误')])
-            },
-            isAsync: true
-          },
-        })
-      }, 800)
+      return
     }
+    const { verifyCaptcha } = this.props
+    setTimeout(() => {
+      if (!/^[a-zA-Z0-9]{4}$/.test(value)) {
+        callback([new Error('验证码输入错误')])
+        return
+      }
+      verifyCaptcha(value, {
+        success: {
+          func: (result) => {
+            if (!result.correct) {
+              callback([new Error('验证码输入错误')])
+              return
+            }
+            callback()
+          },
+          isAsync: true
+        },
+        failed: {
+          func: (err) => {
+            callback([new Error('校验错误')])
+          },
+          isAsync: true
+        },
+      })
+    }, 400)
   },
 
   changeCaptcha() {
+    const { resetFields, getFieldProps } = this.props.form
+    const captcha = getFieldProps('captcha').value
+    if (captcha) {
+      resetFields(['captcha'])
+    }
     this.setState({
       random: (Math.random() * 100000).toFixed()
     })
@@ -102,14 +152,14 @@ let Login = React.createClass({
 
   render() {
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form
-    const { random } = this.state
+    const { random, submitting, loginResult } = this.state
     const nameProps = getFieldProps('name', {
       rules: [
-        { required: true, min: 5, message: '用户名至少为 5 个字符' },
-        { validator: this.userExists },
+        { required: true, min: 3, message: '用户名至少为 3 个字符' },
+        { validator: this.checkName },
       ],
     })
-    const passwdProps = getFieldProps('passwd', {
+    const passwdProps = getFieldProps('password', {
       rules: [
         { required: true, whitespace: true, message: '请填写密码' },
         { validator: this.checkPass },
@@ -128,6 +178,11 @@ let Login = React.createClass({
     return (
       <div id="Login">
         <Card className="loginForm">
+          <div>
+            {
+              loginResult.error && <Alert message={loginResult.error} type="error" showIcon />
+            }
+          </div>
           <Form horizontal>
             <FormItem
               {...formItemLayout}
@@ -135,7 +190,7 @@ let Login = React.createClass({
               hasFeedback
               help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
               >
-              <Input {...nameProps} placeholder="实时校验，输入 JasonWood 看看" />
+              <Input {...nameProps} />
             </FormItem>
 
             <FormItem
@@ -152,17 +207,22 @@ let Login = React.createClass({
               {...formItemLayout}
               label="验证码"
               hasFeedback
+              help={isFieldValidating('captcha') ? '校验中...' : (getFieldError('captcha') || []).join(', ')}
               >
-              <Input {...captchaProps} autoComplete="off" />
-              <Tooltip placement="top" title="点击更换">
-                <img className="captchaImg" src={`/captcha/gen?_=${random}`} onClick={this.changeCaptcha} />
-              </Tooltip>
+              <Col span="12">
+                <Input {...captchaProps} autoComplete="off" />
+              </Col>
+              <Col span="12">
+                <Tooltip placement="top" title="点击更换">
+                  <img className="captchaImg" src={`/captcha/gen?_=${random}`} onClick={this.changeCaptcha} />
+                </Tooltip>
+              </Col>
             </FormItem>
 
             <FormItem wrapperCol={{ span: 12, offset: 7 }}>
-              <Button type="primary" onClick={this.handleSubmit}>确定</Button>
-              &nbsp;&nbsp;&nbsp;
-              <Button type="ghost" onClick={this.handleReset}>重置</Button>
+              <Button type="primary" onClick={this.handleSubmit} loading={submitting}>
+                {submitting ? '登录中...' : '登录'}
+              </Button>
             </FormItem>
           </Form>
         </Card>
@@ -179,6 +239,7 @@ Login = createForm()(Login)
 
 Login = connect(mapStateToProps, {
   verifyCaptcha,
+  login,
 })(Login)
 
 export default Login
