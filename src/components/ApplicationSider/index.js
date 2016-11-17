@@ -24,7 +24,7 @@ export default class AppSider extends Component {
     }
   }
 
-  componentWillMount(){
+  componentWillMount() {
     currentPathNameCheck(this);
   }
 
@@ -47,9 +47,9 @@ export default class AppSider extends Component {
             <Menu.Item key="1">
               <Link to="/app_manage">应用</Link>
             </Menu.Item>
-				    <Menu.Item key="2">
-				      <Link to="/app_manage/service">服务</Link>
-				    </Menu.Item>
+            <Menu.Item key="2">
+              <Link to="/app_manage/service">服务</Link>
+            </Menu.Item>
             <Menu.Item key="3">
               <Link to="/app_manage/container">容器</Link>
             </Menu.Item>
@@ -77,7 +77,7 @@ function currentPathNameCheck(scope) {
   let pathname = window.location.pathname;
 
   let serviceModule = pathname.indexOf('app_manage/service')
-  if(serviceModule > -1) {
+  if (serviceModule > -1) {
     scope.setState({
       current: '2'
     })
@@ -86,7 +86,7 @@ function currentPathNameCheck(scope) {
 
   //this check the pathname from the container
   let containerModule = pathname.indexOf('app_manage/container');
-  if( containerModule > -1 ){
+  if (containerModule > -1) {
     scope.setState({
       current: '3'
     });
@@ -94,7 +94,7 @@ function currentPathNameCheck(scope) {
   }
   //this check the pathname from the storage
   let storageModule = pathname.indexOf('app_manage/storage');
-  if( storageModule > -1 ){
+  if (storageModule > -1) {
     scope.setState({
       current: '4'
     });
@@ -102,7 +102,7 @@ function currentPathNameCheck(scope) {
   }
   //this check the pathname from the configs
   let configsModule = pathname.indexOf('app_manage/configs');
-  if( configsModule > -1 ){
+  if (configsModule > -1) {
     scope.setState({
       current: '5'
     });
