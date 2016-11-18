@@ -146,6 +146,35 @@ export function loadUserTeamspaceList(userID, query, callback) {
   }
 }
 
+export const USER_TEAMSPACE_DETAIL_LIST_REQUEST = 'USER_TEAMSPACE_DETAIL_LIST_REQUEST'
+export const USER_TEAMSPACE_DETAIL_LIST_SUCCESS = 'USER_TEAMSPACE_DETAIL_LIST_SUCCESS'
+export const USER_TEAMSPACE_DETAIL_LIST_FAILURE = 'USER_TEAMSPACE_DETAIL_LIST_FAILURE'
+
+// Fetches teamspace list from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchUserTeamspaceDetailList(userID, query, callback) {
+  let endpoint = `${API_URL_PREFIX}/users/${userID}/teamspaces/detail`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [USER_TEAMSPACE_DETAIL_LIST_REQUEST, USER_TEAMSPACE_DETAIL_LIST_SUCCESS, USER_TEAMSPACE_DETAIL_LIST_FAILURE],
+      endpoint,
+      schema: {}
+    },
+    callback
+  }
+}
+
+// Fetches teamspace list from API unless it is cached.
+// Relies on Redux Thunk middleware.
+export function loadUserTeamspaceDetailList(userID, query, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchUserTeamspaceDetailList(userID, query, callback))
+  }
+}
+
 export const USER_CREATE_REQUEST = 'USER_CREATE_REQUEST'
 export const USER_CREATE_SUCCESS = 'USER_CREATE_SUCCESS'
 export const USER_CREATE_FAILURE = 'USER_CREATE_FAILURE'

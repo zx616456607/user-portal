@@ -58,4 +58,7 @@ module.exports = function (config) {
 
   // ~ license
   this.license = collections.create('license')
+
+   // ~ overview
+  this.overview = collections.create('overview')
 }

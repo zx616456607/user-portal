@@ -144,11 +144,21 @@ export default store => next => action => {
     return finalAction
   }
 
-  // add current.space.namespace for every fetch in headers
+  // Add current.space.namespace for every fetch in headers
   const space = store.getState().entities.current.space || {}
   const options = fetchAPI.options || {}
   options.headers = options.headers || {}
   options.headers.teamspace = space.namespace
+
+  // The request body can be of the type String, Blob, or FormData.
+  // Other data structures need to be encoded before hand as one of these types.
+  // https://github.github.io/fetch/#request-body
+  // For co-body just handle 'PATCH' method
+  if (options.body) {
+    if (options.method === 'PATCH' && Object.prototype.toString.call(options.body) === '[object Object]') {
+      options.body = JSON.stringify(options.body)
+    }
+  }
 
   const [requestType, successType, failureType] = types
   next(actionWith({ type: requestType }))

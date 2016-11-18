@@ -11,6 +11,9 @@ import React, { Component } from 'react'
 import { Row, Col, Card, } from 'antd'
 import './style/Admin.less'
 import ReactEcharts from 'echarts-for-react'
+import { connect } from 'react-redux'
+import { loadTeamDetail } from '../../../actions/overview_team'
+
 
 
 let cost = 100
@@ -91,14 +94,21 @@ let option = {
 }
 
 
-export default class Admin extends Component{
+class Admin extends Component{
   constructor(props){
     super(props)
     this.state = {
       
     }
   }
+
+  componentWillMount() {
+    const { loadTeamDetail } = this.props
+    loadTeamDetail("t-aldakdsadssdsjkewr")
+  }
+
   render(){
+    const teamDetail = this.props.teamDetail
     return (
       <div id='Admin'>
         <Row className="title">空间对应的团队</Row>
@@ -114,7 +124,7 @@ export default class Admin extends Component{
                     空间数
                   </div>
                   <div style={{textAlign:'right'}} className='tabCell'>
-                    100个
+                    {teamDetail.spaceCnt}个
                   </div>
                 </Col>
                 <Col span={12} className='tab'>
@@ -125,7 +135,7 @@ export default class Admin extends Component{
                     镜像数
                   </div>
                    <div style={{textAlign:'right'}} className='tabCell'>
-                    9999个
+                    {teamDetail.imageCnt}个
                   </div>
                 </Col>
               </Row>
@@ -138,7 +148,7 @@ export default class Admin extends Component{
                     应用数
                   </div>
                   <div style={{textAlign:'right'}} className='tabCell'>
-                    100个
+                    {teamDetail.appCnt}个
                   </div>
                 </Col>
                 <Col span={12} className='tab'>
@@ -149,7 +159,7 @@ export default class Admin extends Component{
                     编排数
                   </div>
                    <div style={{textAlign:'right'}} className='tabCell'>
-                    9999个
+                    {teamDetail.templateCnt}个
                   </div>
                 </Col>
               </Row>
@@ -162,7 +172,7 @@ export default class Admin extends Component{
                     服务数
                   </div>
                   <div style={{textAlign:'right'}} className='tabCell'>
-                    100个
+                    {teamDetail.svcCnt}个
                   </div>
                 </Col>
                 <Col span={12} className='tab'>
@@ -173,7 +183,7 @@ export default class Admin extends Component{
                     存储卷数
                   </div>
                    <div style={{textAlign:'right'}} className='tabCell'>
-                    9999个
+                    {teamDetail.volumeCnt}个
                   </div>
                 </Col>
               </Row>
@@ -186,7 +196,7 @@ export default class Admin extends Component{
                     容器数
                   </div>
                   <div style={{textAlign:'right'}} className='tabCell'>
-                    100个
+                    {teamDetail.podCnt}个
                   </div>
                 </Col>
                 <Col span={12} className='tab'>
@@ -197,7 +207,7 @@ export default class Admin extends Component{
                     构建项目数
                   </div>
                    <div style={{textAlign:'right'}} className='tabCell'>
-                    9999个
+                    {teamDetail.flowCnt}个
                   </div>
                 </Col>
               </Row>
@@ -302,3 +312,52 @@ export default class Admin extends Component{
     )
   }
 }
+
+function mapStateToProp(state,props) {
+  let teamDetailData = {
+    spaceCnt: 0,
+    appCnt: 0,
+    svcCnt: 0,
+    podCnt: 0,
+    imageCnt: 0,
+    templateCnt: 0,
+    volumeCnt: 0,
+    flowCnt: 0,
+  }
+  const {teamDetail} = state.overviewTeam
+  if (teamDetail.result && teamDetail.result.data
+      && teamDetail.result.data.data) {
+    let data = teamDetail.result.data.data
+    if (data.spaceCnt) {
+      teamDetailData.spaceCnt = data.spaceCnt
+    }
+    if (data.appCnt) {
+      teamDetailData.appCnt = data.appCnt
+    }
+    if (data.svcCnt) {
+      teamDetailData.svcCnt = data.svcCnt
+    }
+    if (data.podCnt) {
+      teamDetailData.podCnt = data.podCnt
+    }
+    if (data.imageCnt) {
+      teamDetailData.imageCnt = data.imageCnt
+    }
+    if (data.templateCnt) {
+      teamDetailData.templateCnt = data.templateCnt
+    }
+    if (data.volumeCnt) {
+      teamDetailData.volumeCnt = data.volumeCnt
+    }
+    if (data.flowCnt) {
+      teamDetailData.flowCnt = data.flowCnt
+    }
+  } 
+  return {
+    teamDetail: teamDetailData,
+  }
+}
+
+export default connect(mapStateToProp, {
+  loadTeamDetail
+})(Admin)

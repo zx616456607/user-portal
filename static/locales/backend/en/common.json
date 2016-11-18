@@ -17,5 +17,11 @@
     "closed": "Closed",
     "opened": "Opened",
     "success": "Success"
+  },
+  "license": {
+    "NO_LICENSE": "Your system need add license, please contact the administrator to add license!",
+    "LICENSE_ERROR": "Your system license abnormal, please contact the administrator!",
+    "LICENSE_OK": "Your system license is available",
+    "TRAIL_EXPIRED": "Your trail has ended, please contact the administrator to buy a license"
   }
 }
