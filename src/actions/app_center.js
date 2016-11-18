@@ -252,6 +252,32 @@ export function getImageDetailInfo(obj, callback) {
   }
 }
 
+export const DELETE_PRIVATE_IMAGE_REQUEST = 'DELETE_PRIVATE_IMAGE_REQUEST'
+export const DELETE_PRIVATE_IMAGE_SUCCESS = 'DELETE_PRIVATE_IMAGE_SUCCESS'
+export const DELETE_PRIVATE_IMAGE_FAILURE = 'DELETE_PRIVATE_IMAGE_FAILURE'
+
+function fetchDeletePrivateImage(obj, callback) {
+  return {
+    [FETCH_API]: {
+      types: [DELETE_PRIVATE_IMAGE_REQUEST, DELETE_PRIVATE_IMAGE_SUCCESS, DELETE_PRIVATE_IMAGE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/registries/${obj.registry}/${obj.image}`,
+      schema: Schemas.REGISTRYS,
+      options: {
+        method: 'DELETE',
+      }
+    },
+    image:obj.image,
+    registry: obj.registry,
+    callback
+  }
+}
+
+export function deleteImage(obj, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchDeletePrivateImage(obj, callback))
+  }
+}
+
 export const SET_IMAGE_STORE_REQUEST = 'SET_IMAGE_STORE_REQUEST'
 export const SET_IMAGE_STORE_SUCCESS = 'SET_IMAGE_STORE_SUCCESS'
 export const SET_IMAGE_STORE_FAILURE = 'SET_IMAGE_STORE_FAILURE'
