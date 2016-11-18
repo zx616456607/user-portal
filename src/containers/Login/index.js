@@ -35,7 +35,7 @@ let Login = React.createClass({
   handleSubmit(e) {
     e.preventDefault()
     const { login, form, redirect } = this.props
-    const { validateFields } = form
+    const { validateFields, resetFields } = form
     const self = this
     validateFields((errors, values) => {
       if (!!errors) {
@@ -73,6 +73,7 @@ let Login = React.createClass({
               }
             })
             self.changeCaptcha()
+            resetFields(['password'])
           },
           isAsync: true
         },
