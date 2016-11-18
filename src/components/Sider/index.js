@@ -350,8 +350,8 @@ class Slider extends Component {
                 }
               >
                 <Menu.Item key='codeStore'>代码仓库</Menu.Item>
-                <Menu.Item key='tenxFlow'>Tenx Flow</Menu.Item>
-                <Menu.Item key='dockerFlie'>Docker File</Menu.Item>
+                <Menu.Item key='tenxFlow'>TenxFlow</Menu.Item>
+                <Menu.Item key='dockerFlie'>Dockerfile</Menu.Item>
               </SubMenu>
               <SubMenu key='sub4' 
                 title={

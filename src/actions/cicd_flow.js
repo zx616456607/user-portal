@@ -480,6 +480,26 @@ export function putCdRule(obj, callback) {
   }
 }
 
+export const GET_CD_RULES_IMAGE_REQUEST = 'GET_CD_RULES_IMAGE_REQUEST'
+export const GET_CD_RULES_IMAGE_SUCCESS = 'GET_CD_RULES_IMAGE_SUCCESS'
+export const GET_CD_RULES_IMAGE_FAILURE = 'GET_CD_RULES_IMAGE_FAILURE'
+
+function fetchCdInImage(flowId) {
+  return {
+    [FETCH_API]: {
+      types: [GET_CD_RULES_IMAGE_REQUEST, GET_CD_RULES_IMAGE_SUCCESS, GET_CD_RULES_IMAGE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/images`,
+      schema: {},
+    }
+  }
+}
+
+export function getCdInimage(flowId) {
+  return (dispatch, getState) => {
+    dispatch(fetchCdInImage(flowId))
+  }
+}
+
 export const GET_TENX_FLOW_LIST_REQUEST = 'GET_TENX_FLOW_LIST_REQUEST'
 export const GET_TENX_FLOW_LIST_SUCCESS = 'GET_TENX_FLOW_LIST_SUCCESS'
 export const GET_TENX_FLOW_LIST_FAILURE = 'GET_TENX_FLOW_LIST_FAILURE'

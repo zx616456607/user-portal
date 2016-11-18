@@ -183,7 +183,7 @@ let Login = React.createClass({
               loginResult.error && <Alert message={loginResult.error} type="error" showIcon />
             }
           </div>
-          <Form horizontal>
+          <Form horizontal onSubmit={this.handleSubmit}>
             <FormItem
               {...formItemLayout}
               label="用户名 / 邮箱"
@@ -209,14 +209,18 @@ let Login = React.createClass({
               hasFeedback
               help={isFieldValidating('captcha') ? '校验中...' : (getFieldError('captcha') || []).join(', ')}
               >
-              <Col span="12">
+              <Input {...captchaProps} autoComplete="off" />
+              <Tooltip placement="top" title="点击更换">
+                <img className="captchaImg" src={`/captcha/gen?_=${random}`} onClick={this.changeCaptcha} />
+              </Tooltip>
+              {/*<Col span="12">
                 <Input {...captchaProps} autoComplete="off" />
               </Col>
               <Col span="12">
                 <Tooltip placement="top" title="点击更换">
                   <img className="captchaImg" src={`/captcha/gen?_=${random}`} onClick={this.changeCaptcha} />
                 </Tooltip>
-              </Col>
+              </Col>*/}
             </FormItem>
 
             <FormItem wrapperCol={{ span: 12, offset: 7 }}>
@@ -224,6 +228,7 @@ let Login = React.createClass({
                 {submitting ? '登录中...' : '登录'}
               </Button>
             </FormItem>
+            <input type="submit" style={{ display: 'none' }} />
           </Form>
         </Card>
       </div>
