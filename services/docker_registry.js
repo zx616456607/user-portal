@@ -19,6 +19,8 @@ var tenx_registry = require('./tenx_registry')
 const Catalog_Scope = 'registry:catalog:*'
 const Repository_Scope_Prefix = 'repository'
 
+var TokenCacheMgr = []
+var TokenExpiredTime = 3600 // seconds
 /*
  * Docker registry APIs
  */
@@ -192,14 +194,28 @@ SpecRegistryAPIs.prototype.refreshToken = function (scope, callback) {
     callback(200, "Skip the token refresh step.")
     return
   }
+  var self = this
   var serviceHost = this.registryConfig.server.replace("http://", "").replace("https://", "")
   var exchangeURL = this.registryConfig.authServer + "?account=" + this.registryConfig.username + "&scope=" + scope +"&service=" + serviceHost
+  // Use exchangeURL as the key
+  if (TokenCacheMgr[exchangeURL]) {
+    var timePeriod = new Date() - TokenCacheMgr[exchangeURL].lastRefreshTime
+    if (timePeriod/1000 < TokenExpiredTime) {
+      console.log("Using cache...")
+      return callback(200, TokenCacheMgr[exchangeURL].lastToken)
+    }
+  }
 
   logger.debug(method, "Request url: " + exchangeURL)
   this.sendRequest(exchangeURL, this.getBasicAuthHeader(), null, function(statusCode, body) {
     logger.debug(method, "Refresh token Status code: " + statusCode)
     logger.debug(method, 'Refresh token body: ' + JSON.stringify(body))
     if (statusCode === 200) {
+      // Add to cache
+      TokenCacheMgr[exchangeURL] = {
+        lastRefreshTime: new Date(),
+        lastToken: body.token
+      }
       callback(statusCode, body.token)
     } else {
       callback(statusCode, body)
