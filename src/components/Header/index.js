@@ -53,9 +53,9 @@ const menusText = defineMessages({
 const menu = (
   <Menu>
     <Menu.Item key="0">
-      <Link to="/login">
+      <a href="/logout">
         <Icon type="logout" /> <FormattedMessage {...menusText.logOut} />
-      </Link>
+      </a>
     </Menu.Item>
     <Menu.Item key="1">
       <a target="_blank" href="http://www.taobao.com/">
@@ -193,6 +193,7 @@ class Header extends Component {
   render() {
     const {
       current,
+      loginUser,
       isTeamspacesFetching,
       teamspaces,
       isTeamClustersFetching,
@@ -249,7 +250,8 @@ class Header extends Component {
           </div>
           <Dropdown overlay={menu}>
             <div className="ant-dropdown-link userBtn">
-              <FormattedMessage {...menusText.user} />
+              {/*<FormattedMessage {...menusText.user} />*/}
+              {loginUser.info.userName || '...'}
               <Icon type="down" />
             </div>
           </Dropdown>
@@ -260,11 +262,12 @@ class Header extends Component {
 }
 
 function mapStateToProps(state, props) {
-  const { current } = state.entities
+  const { current, loginUser } = state.entities
   const { teamspaces } = state.user
   const { teamClusters } = state.team
   return {
     current,
+    loginUser,
     isTeamspacesFetching: teamspaces.isFetching,
     teamspaces: (teamspaces.result ? teamspaces.result.teamspaces : []),
     isTeamClustersFetching: teamClusters.isFetching,

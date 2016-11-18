@@ -1,6 +1,7 @@
 {
   "desc": "防止冗余，保存后端的一些通用字段",
   "console": "Console",
+  "login": "Sign in",
   "tenxcloud": "TenxCloud",
   "status": {
     "status": "Status",
