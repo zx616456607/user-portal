@@ -63,6 +63,7 @@ exports.verifyUser = function* () {
     err.status = 400
     throw err
   }
+  body.captcha = body.captcha.toLowerCase()
   if (body.captcha !== this.session.captcha) {
     logger.error(method, `captcha error: ${body.captcha} | ${this.session.captcha}(session)`)
     const err = new Error('CAPTCHA_ERROR')
