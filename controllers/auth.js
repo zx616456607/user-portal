@@ -81,7 +81,7 @@ exports.verifyUser = function* () {
   }
   const api = apiFactory.getApi()
   const result = yield api.users.createBy(['login'], null, data)
-  this.session.loginUser = {
+  const loginUser = {
     user: result.userName,
     id: result.userID,
     namespace: result.namespace,
@@ -91,6 +91,13 @@ exports.verifyUser = function* () {
     role: result.role,
     balance: result.balance,
   }
+  const licenseObj = yield indexService.getLicense(loginUser)
+  if (licenseObj.plain.code === -1) {
+    const err = new Error(licenseObj.message)
+    err.status = 401
+    throw err
+  }
+  this.session.loginUser = loginUser
   yield indexService.setUserCurrentConfigCookie.apply(this, [this.session.loginUser])
   delete result.userID
   delete result.statusCode
