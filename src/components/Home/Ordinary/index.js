@@ -11,6 +11,7 @@ import React, { Component } from 'react'
 import { Row, Col, Card, } from 'antd'
 import './style/Ordinary.less'
 import ReactEcharts from 'echarts-for-react'
+import MySpace from './MySpace'
 
 let value = 123
 
@@ -22,7 +23,7 @@ let clusterCostOption = {
   legend: {
     orient : 'vertical',
     left : '50%',
-    top : '20%',
+    top : '30%',
     data:[{name:'余额'}, {name:'消费'}],
     formatter: '{name} : '+value+'T币',
     /*formatter: function (name) {
@@ -37,7 +38,7 @@ let clusterCostOption = {
       type:'pie',
       selectedMode: 'single',
       radius : '40%',
-      center: ['20%', '30%'],
+      center: ['20%', '50%'],
       data:[
         {value:900, name:'余额'},
         {value:100, name:'消费',selected:true},
@@ -61,7 +62,7 @@ let appOption = {
   legend: {
     orient : 'vertical',
     left : '50%',
-    top : '4%',
+    top : 'middle',
     data:[{name:'运行中'}, {name:'已停止'},{name:'操作中'}],
     formatter: '{name} : '+value+'T币',
   },
@@ -73,7 +74,7 @@ let appOption = {
     hoverAnimation: false,
     selectedOffset: 0,
     radius: ['28', '40'],
-    center: ['15%', '15%'],
+    center: ['25%', '50%'],
     data:[
       {value:70, name:'运行中'},
       {value:20, name:'已停止'},
@@ -114,10 +115,11 @@ let appOption = {
 let CPUOption = {
   title: {
     text: 'CPU',
-    top: '0',
+    top: '15px',
     left: 'center',
     textStyle: {
-      fontWeight:'normal'
+      fontWeight:'normal',
+      fontSize:14
     }
   },
   color: ['#3398DB'],
@@ -179,9 +181,12 @@ let CPUOption = {
 let memoryOption = {
   title: {
     text: '内存',
-    top: '0',
+    top: '15px',
     left: 'center',
-    
+    textStyle: {
+      fontWeight:'normal',
+      fontSize:14
+    }
   },
   color: ['#3398DB'],
   tooltip : {
@@ -242,9 +247,12 @@ let memoryOption = {
 let diskOption = {
   title: {
     text: '磁盘',
-    top: '0',
+    top: '15px',
     left: 'center',
-    
+    textStyle: {
+      fontWeight:'normal',
+      fontSize:14
+    }
   },
   color: ['#3398DB'],
   tooltip : {
@@ -302,6 +310,7 @@ let diskOption = {
     }
   ]
 }
+
 export default class Ordinary extends Component{
   constructor(props){
     super(props)
@@ -315,10 +324,11 @@ export default class Ordinary extends Component{
         <Row className="title">我的空间-产品环境集群</Row>
         <Row className="content" gutter={16}>
           <Col span={8} className='clusterCost'>
-            <Card title="本日该集群消费" bordered={false} bodyStyle={{height:220}}>
+            <Card title="本日该集群消费" bordered={false} bodyStyle={{height:220,padding:'0 24px'}}>
               <ReactEcharts
                 notMerge={true}
                 option={clusterCostOption}
+                style={{height:'200px'}}
               />
             </Card>
           </Col>
@@ -468,41 +478,45 @@ export default class Ordinary extends Component{
             </Card>
           </Col>
         </Row>
-        <Row className="content" gutter={16} style={{marginTop:40}}>
+        <Row className="content" gutter={16} style={{marginTop:10}}>
           <Col span={6}>
-            <Card title="应用" bordered={false} bodyStyle={{height:175}}>
+            <Card title="应用" bordered={false} bodyStyle={{height:200,padding:'0 24px'}}>
               <ReactEcharts
                 notMerge={true}
                 option={appOption}
+                style={{height:'200px'}}
               />
             </Card>
           </Col>
           <Col span={6}>
-            <Card title="服务" bordered={false} bodyStyle={{height:175}}>
+            <Card title="服务" bordered={false} bodyStyle={{height:200,padding:'0 24px'}}>
               <ReactEcharts
                 notMerge={true}
                 option={appOption}
+                style={{height:'200px'}}
               />
             </Card>
           </Col>
           <Col span={6}>
-            <Card title="容器" bordered={false} bodyStyle={{height:175}}>
+            <Card title="容器" bordered={false} bodyStyle={{height:200,padding:'0 24px'}}>
               <ReactEcharts
                 notMerge={true}
                 option={appOption}
+                style={{height:'200px'}}
               />
             </Card>
           </Col>
           <Col span={6}>
-            <Card title="存储" bordered={false} bodyStyle={{height:175}}>
+            <Card title="存储" bordered={false} bodyStyle={{height:200,padding:'0 24px'}}>
               <ReactEcharts
                 notMerge={true}
                 option={appOption}
+                style={{height:'200px'}}
               />
             </Card>
           </Col>
         </Row>
-        <Row className="content" gutter={16} style={{marginTop: 40}}>
+        <Row className="content" gutter={16} style={{marginTop: 10}}>
           <Col span={6}>
             <Card title="数据库与缓存" bordered={false} bodyStyle={{height:200}}>
               <Row gutter={16}>
@@ -516,96 +530,75 @@ export default class Ordinary extends Component{
               </Row>
             </Card>
           </Col>
-          <Col span={18}>
-            <Card title="计算资源使用率" bordered={false} bodyStyle={{height:200}}>
-              <Row gutter={16}>
+          <Col span={18} className="hostState">
+            <Card title="计算资源使用率" bordered={false} bodyStyle={{height:200,padding:'0 24px'}}>
+              <Row gutter={16} style={{height:200}}>
                 <Col span={6}>
                   <ReactEcharts
                     notMerge={true}
                     option={CPUOption}
+                    style={{height:'200px'}}
                   />
                 </Col>
                 <Col span={6}>
                   <ReactEcharts
                     notMerge={true}
                     option={memoryOption}
+                    style={{height:'200px'}}
                   />
                 </Col>
                 <Col span={6}>
                   <ReactEcharts
                     notMerge={true}
                     option={diskOption}
+                    style={{height:'200px'}}
                   />
                 </Col>
-                <Col span={6} style={{borderLeft: '1px solid #e2e2e2'}}>
-                  <Row style={{fontSize:'18px',textAlign: 'center',height:60}}>主机状态</Row>
-                  <Row style={{padding:'0 30px',lineHeight:'30px'}}>
-                    <Col span={12}>
-                      <svg className="stateSvg">
-                        <use xlinkHref="#settingname" />
-                      </svg>
-                      主机总数
-                    </Col>
-                    <Col span={12} style={{textAlign:'right'}}>
-                      12346个
-                    </Col>
-                  </Row>
-                  <Row style={{padding:'0 30px',lineHeight:'30px'}}>
-                    <Col span={12}>
-                      <svg className="stateSvg">
-                        <use xlinkHref="#settingname" />
-                      </svg>
-                      健康主机数
-                    </Col>
-                    <Col span={12} style={{textAlign:'right'}}>
-                      12340个
-                    </Col>
-                  </Row>
-                  <Row style={{padding:'0 30px',lineHeight:'30px'}}>
-                    <Col span={12}>
-                      <svg className="stateSvg">
-                        <use xlinkHref="#settingname" />
-                      </svg>
-                      未启用主机数
-                    </Col>
-                    <Col span={12} style={{textAlign:'right'}}>
-                      6个
-                    </Col>
-                  </Row>
+                <Col span={6} style={{borderLeft: '1px solid #e2e2e2',height:'200px'}}>
+                  <Row style={{fontSize:'14px',textAlign: 'center',height:60,lineHeight:'60px'}}>主机状态</Row>
+                  <table>
+                    <tbody>
+                    <tr>
+                      <td>
+                        <svg className="stateSvg">
+                          <use xlinkHref="#settingname" />
+                        </svg>
+                        主机总数
+                      </td>
+                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                        12346个
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <svg className="stateSvg">
+                          <use xlinkHref="#settingname" />
+                        </svg>
+                        健康主机数
+                      </td>
+                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                        12340个
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <svg className="stateSvg">
+                          <use xlinkHref="#settingname" />
+                        </svg>
+                        未启用主机数
+                      </td>
+                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                        6个
+                      </td>
+                    </tr>
+                    </tbody>
+                  </table>
                 </Col>
               </Row>
             </Card>
           </Col>
         </Row>
-        <Row className="title" style={{marginTop: 40}}>我的空间</Row>
-        <Row className="content" gutter={16} style={{marginBottom: 100}}>
-          <Col span={6}>
-            <Card title="镜像仓库" bordered={false} bodyStyle={{height:175}}>
-              
-            </Card>
-            <Card title="编排概况" bordered={false} bodyStyle={{height:175}} style={{marginTop: 10}}>
-  
-            </Card>
-          </Col>
-          <Col span={6}>
-            <Card title="CI/CD" bordered={false} bodyStyle={{height:175}}>
-  
-            </Card>
-            <Card title="今日该集群记录" bordered={false} bodyStyle={{height:175}} style={{marginTop: 10}}>
-  
-            </Card>
-          </Col>
-          <Col span={6}>
-            <Card title="审计日志" bordered={false} bodyStyle={{height:410}}>
-  
-            </Card>
-          </Col>
-          <Col span={6}>
-            <Card title="告警" bordered={false} bodyStyle={{height:410}}>
-  
-            </Card>
-          </Col>
-        </Row>
+        <MySpace />
       </div>
     )
   }
