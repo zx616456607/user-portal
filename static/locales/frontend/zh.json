@@ -162,6 +162,8 @@
   "CICD.TenxStorm.creageCodeStore": "创建代码仓库",
   "CICD.TenxStorm.logout": "注销",
   "CICD.TenxStorm.syncCode": "同步代码",
+  "CICD.TenxStorm.publicType": "公有",
+  "CICD.TenxStorm.privateType": "私有",
   "CICD.DockerFile.tooltips": "云端DockerFile: 这里保存您在TenxFlow过程中创建的云端Dockerfile，方便再次查看或使用。（这里以使用Dockerfiler，对应TenxFlow子项目名称作为识别标识）",
   "CICD.DockerFile.show": "查看DockerFile",
   "CICD.DockerFile.editDockerFile": "编辑DockerFile",

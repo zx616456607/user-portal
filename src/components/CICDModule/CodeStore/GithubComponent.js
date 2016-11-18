@@ -130,14 +130,15 @@ const GithubComponent = React.createClass({
           <Button type="primary" size="large" onClick={()=>this.setState({authorizeModal: true})}>授权同步代码源</Button>
           <Modal title="授权同步代码源" visible={this.state.authorizeModal} onOk={()=>this.registryRepo() } onCancel={()=>this.setState({authorizeModal: false})}
           >
-            <div style={{padding:"0 20px"}}>
-              <p style={{lineHeight:'40px'}}>Url：
+            <div style={{ padding: "0 20px" }}>
+              <p style={{ lineHeight: '30px' }}>仓库地址：
                 <Input placeholder="http://*** | https://***" onChange={this.changeUrl} value={this.state.regUrl} size="large" />
               </p>
-              <p style={{marginTop:'10px'}}>Private Token: 
+              <p style={{ lineHeight: '30px' }}>Private Token:
                 <Input placeholder="Private Token: " size="large" onChange={this.changeToken} value={this.state.regToken} />
               </p>
             </div>
+           
           </Modal>
         </div>
       )

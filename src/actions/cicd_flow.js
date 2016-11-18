@@ -111,6 +111,30 @@ export function addCodeRepo(repo_type, obj, callback) {
   }
 }
 
+export const ADD_SVN_CODE_STORE_REQUEST = 'ADD_SVN_CODE_STORE_REQUEST'
+export const ADD_SVN_CODE_STORE_SUCCESS = 'ADD_SVN_CODE_STORE_SUCCESS'
+export const ADD_SVN_CODE_STORE_FAILURE = 'ADD_SVN_CODE_STORE_FAILURE'
+
+function fetchAddSvnmanageed(obj, callback) {
+  return {
+    [FETCH_API]: {
+      types: [ADD_SVN_CODE_STORE_REQUEST, ADD_SVN_CODE_STORE_SUCCESS, ADD_SVN_CODE_STORE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/managed-projects`,
+      schema: {},
+      options: {
+        method: 'POST',
+        body: obj    
+      }
+    },
+    callback: callback
+  }
+}
+// add svn managed project
+export function addSvnManaged(obj, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchAddSvnmanageed(obj, callback))
+  }
+}
 
 export const GET_CODE_STORE_REQUEST = 'GET_CODE_STORE_REQUEST'
 export const GET_CODE_STORE_SUCCESS = 'GET_CODE_STORE_SUCCESS'
