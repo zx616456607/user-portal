@@ -50,7 +50,8 @@ class TenxFlowDetailFlow extends Component {
       currentModalShowFlow: null,
       currentFlowEdit: null,
       createNewFlow: false,
-      buildingList: []
+      buildingList: [],
+      refreshing: false
     }
   }
 
@@ -81,6 +82,34 @@ class TenxFlowDetailFlow extends Component {
         isAsync: true        
       }
     });
+  }
+  
+  componentWillReceiveProps(nextProps) {
+    //this function for user click the top box and build all stages
+    const { startBuild, getTenxFlowStateList, flowId, CreateTenxflowBuild, scope } = nextProps;
+    if(startBuild) {
+      scope.setState({
+        startBuild: false
+      })
+      CreateTenxflowBuild(flowId, {}, {
+        success: {
+          func: (res) => {
+            getTenxFlowStateList(flowId, {
+              success: {
+                func: () => {                 
+                  notification['success']({
+                    message: '流程构建',
+                    description: '流程构建成功~',
+                  });
+                },
+                isAsync: true
+              }
+            });
+          },
+          isAsync: true
+        }
+      })
+    }
   }
   
   createNewFlow() {
@@ -162,11 +191,27 @@ class TenxFlowDetailFlow extends Component {
     //this function for temp refresh stage list 
     //it will be instead of  using websocket get stage list for native
     const { getTenxFlowStateList, flowId } = this.props;
-    getTenxFlowStateList(flowId);
+    this.setState({
+      refreshing: true
+    })
+    getTenxFlowStateList(flowId ,{
+      success: {
+        func: () => {
+          notification['success']({
+            message: '流程构建',
+            description: '流程构建刷新成功~',
+          });
+          this.setState({
+            refreshing: false
+          })
+        },
+        isAsync: true
+      }
+    });
   }
 
   render() {
-    const { flowId, stageInfo, stageList, isFetching, projectList, buildFetching, logs } = this.props;
+    const { flowId, stageInfo, stageList, isFetching, projectList, buildFetching, logs, supportedDependencies } = this.props;
     let scope = this;
     let { currentFlowEdit } = scope.state;
     let cards = null;
@@ -179,7 +224,9 @@ class TenxFlowDetailFlow extends Component {
     } else {      
       cards = stageList.map( (item, index) => {
         return (
-          <TenxFlowDetailFlowCard key={'TenxFlowDetailFlowCard' + index} config={item} scope={scope} index={index} flowId={flowId} currentFlowEdit={currentFlowEdit} codeList={projectList} />
+          <TenxFlowDetailFlowCard key={'TenxFlowDetailFlowCard' + index} config={item} 
+            scope={scope} index={index} flowId={flowId} currentFlowEdit={currentFlowEdit} 
+            codeList={projectList} supportedDependencies={supportedDependencies} />
         )
       });
     }
@@ -188,7 +235,7 @@ class TenxFlowDetailFlow extends Component {
         <div className='paddingBox'>
           <Alert message={<FormattedMessage {...menusText.tooltip} />} type='info' />
           <Button style={{ marginBottom: '20px' }} size='large' type='primary' onClick={this.refreshStageList}>
-            <span><i className='fa fa-refresh'></i>&nbsp;刷新</span>
+            <span><i className={this.state.refreshing ? 'fa fa-spin fa-refresh' : 'fa fa-refresh'}></i>&nbsp;刷新</span>
           </Button><br />
           { cards }
           <div className={ this.state.createNewFlow ? 'TenxFlowDetailFlowCardBigDiv commonCardBox createCardBox' : 'commonCardBox createCardBox'}>
@@ -206,7 +253,9 @@ class TenxFlowDetailFlow extends Component {
               {
                 this.state.createNewFlow ? [
                   <QueueAnim key='creattingCardAnimate'>
-                    <CreateTenxFlowModal key='CreateTenxFlowModal' stageList={stageList} scope={scope} flowId={flowId} stageInfo={stageInfo} codeList={projectList} />
+                    <CreateTenxFlowModal key='CreateTenxFlowModal' stageList={stageList} scope={scope} 
+                      flowId={flowId} stageInfo={stageInfo} codeList={projectList} 
+                      supportedDependencies={supportedDependencies}/>
                   </QueueAnim>
                 ] : null
               }

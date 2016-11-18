@@ -84,9 +84,11 @@ class TenxFlowDetail extends Component {
     this.closeCreateTenxFlowModal = this.closeCreateTenxFlowModal.bind(this);
     this.openTenxFlowDeployLogModal = this.openTenxFlowDeployLogModal.bind(this);
     this.closeTenxFlowDeployLogModal = this.closeTenxFlowDeployLogModal.bind(this);
+    this.startBuildStage = this.startBuildStage.bind(this);
     this.state = {
       createTenxFlowModal: false,
       TenxFlowDeployLogModal: false,
+      startBuild: false
     }
   }
 
@@ -128,6 +130,15 @@ class TenxFlowDetail extends Component {
       TenxFlowDeployLogModal: false
     });
   }
+  
+  startBuildStage() {
+    //this function for user build all stages 
+    //and the state changed will be trigger the children's recivice props
+    //and start build flow functon will be trigger in children
+    this.setState({
+      startBuild: true
+    })
+  }
 
   render() {
     const { formatMessage } = this.props.intl;
@@ -156,7 +167,7 @@ class TenxFlowDetail extends Component {
               <div style={{ clear:'both' }}></div>
             </div>
             <div className='btnBox'>
-              <Button size='large' type='primary'>
+              <Button size='large' type='primary' onClick={this.startBuildStage}>
                 <i className='fa fa-pencil-square-o' />&nbsp;
                 <FormattedMessage {...menusText.deloyStart} />
               </Button>
@@ -173,7 +184,7 @@ class TenxFlowDetail extends Component {
             <div style={{ clear:'both' }}></div>
           </Card>
           <Tabs defaultActiveKey='1' size="small">
-            <TabPane tab='构建流程定义' key='1'><TenxFlowDetailFlow scope={scope} flowId={flowInfo.flowId} stageInfo={flowInfo.stageInfo} /></TabPane>
+            <TabPane tab='构建流程定义' key='1'><TenxFlowDetailFlow scope={scope} flowId={flowInfo.flowId} stageInfo={flowInfo.stageInfo} supportedDependencies={flowInfo.supportedDependencies} startBuild={this.state.startBuild} /></TabPane>
             <TabPane tab='TenxFlow构建记录' key='2'><TenxFlowDetailLog scope={scope} flowId={flowInfo.flowId} flowName={flowInfo.name} /></TabPane>
             <TabPane tab='镜像部署记录' key='3'><ImageDeployLogBox scope={scope} flowId={flowInfo.flowId} /></TabPane>
             <TabPane tab='构建通知' key='4'><TenxFlowDetailAlert scope={scope} notify={flowInfo.notificationConfig} flowId={flowInfo.flowId} /></TabPane>

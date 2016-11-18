@@ -143,6 +143,9 @@
       height: 50px !important;
       line-height: 50px !important;
       color: #c4c4c4;
+      a {
+        color: #C4C4C4;
+      }
       &:hover {
         color: #FFFFFF !important;
         background-color: rgba(255,255,255,0.2);
@@ -157,20 +160,31 @@
         height: 40px !important;
         line-height: 40px !important;
         a {
-          padding-left: 0px !important;
+          padding-left: 0 !important;
           width: 100%;
           height: 40px;
         }
       }
     }
+    .ant-menu-submenu-selected {
+      use {
+        fill: #FFFFFF !important;
+      }
+    }
     .ant-menu-item-selected {
       color: #FFFFFF;
+      a {
+        color: #FFFFFF;
+      }
       use {
         fill: #FFFFFF !important;
       }
       &:hover {
         color: #FFFFFF;
         background-color: #2db7f5 !important;
+        a {
+          color: #FFFFFF;
+        }
         use {
           fill: #FFFFFF !important;
         }

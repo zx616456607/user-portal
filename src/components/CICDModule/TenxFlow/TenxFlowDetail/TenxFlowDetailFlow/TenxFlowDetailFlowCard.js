@@ -430,7 +430,7 @@ class TenxFlowDetailFlowCard extends Component {
   }
 
   render() {
-    let { config, index, scope, currentFlowEdit, flowId, codeList, isFetching, ciRules, buildFetching, logs } = this.props;
+    let { config, index, scope, currentFlowEdit, flowId, codeList, isFetching, ciRules, buildFetching, logs, supportedDependencies } = this.props;
     const scopeThis = this;
     const dropdown = (
       <Menu onClick={this.operaMenuClick.bind(this, config.metadata.id, config.metadata.name)} style={{ width: '110px' }}>
@@ -518,7 +518,9 @@ class TenxFlowDetailFlowCard extends Component {
           {
             currentFlowEdit == index ? [
               <QueueAnim key={'EditTenxFlowModalAnimate' + index}>
-                <EditTenxFlowModal key={'EditTenxFlowModal' + index} rootScope={scope} scope={scopeThis} config={config} flowId={flowId} stageId={config.metadata.id} codeList={codeList} />
+                <EditTenxFlowModal key={'EditTenxFlowModal' + index} rootScope={scope} scope={scopeThis} 
+                  config={config} flowId={flowId} stageId={config.metadata.id} codeList={codeList} 
+                  supportedDependencies={supportedDependencies}/>
               </QueueAnim>
             ] : null
           }

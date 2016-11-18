@@ -266,7 +266,7 @@
   "CICD.Tenxflow.AutoDeployService.imageUpdate": "Rolling Update",
   "CICD.Tenxflow.TenxFlowBuildLog.title": "Build Log",
   "CICD.Tenxflow.TenxFlowBuildLog.cost": "Cost",
-  "CICD.Tenxflow.TenxFlowBuildLog.running": "Building...",
+  "CICD.Tenxflow.TenxFlowBuildLog.building": "Building...",
   "CICD.Tenxflow.TenxFlowBuildLog.finish": "Finish",
   "CICD.Tenxflow.TenxFlowBuildLog.waitting": "Waitting",
   "CICD.Tenxflow.TenxFlowBuildLog.fail": "Failed",

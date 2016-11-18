@@ -30,8 +30,8 @@ const menusText = defineMessages({
     id: 'CICD.Tenxflow.TenxFlowBuildLog.cost',
     defaultMessage: '耗时',
   },
-  running: {
-    id: 'CICD.Tenxflow.TenxFlowBuildLog.running',
+  building: {
+    id: 'CICD.Tenxflow.TenxFlowBuildLog.building',
     defaultMessage: '执行中...',
   },
   finish: {

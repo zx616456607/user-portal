@@ -164,6 +164,10 @@ const menusText = defineMessages({
   noDockerFileInput: {
     id: 'CICD.Tenxflow.EditTenxFlowModal.noDockerFileInput',
     defaultMessage: 'Dockerfile 不能为空',
+  },
+  deleteCode: {
+    id: 'CICD.Tenxflow.EditTenxFlowModal.deleteCode',
+    defaultMessage: '清空',
   }
 });
 
@@ -176,6 +180,16 @@ function fetchCodeStoreName(id, codeList) {
     }
   });
   return codeName;
+}
+
+function fetchDockerFilePath(spec) {
+  if(!!spec.build) {
+    if(spec.build.dockerfileFrom == 1) {
+      return spec.build.dockerfilePath.replace('/','')
+    }
+    return null;
+  }
+  return null;
 }
 
 let uuid = 0;
@@ -456,6 +470,14 @@ let EditTenxFlowModal = React.createClass({
       codeStoreModalShow: false
     });
   },
+  deleteCodeStore() {
+    //this function for user delete the code store
+    this.setState({
+      currentCodeStore: null,
+      currentCodeStoreBranch: '',
+      currentCodeStoreName: ''
+    })
+  },
   openDockerFileModal() {
     this.setState({
       dockerFileModalShow: true
@@ -485,12 +507,23 @@ let EditTenxFlowModal = React.createClass({
   },
   handleSubmit(e) {
     //this function for user submit the form
-    const { scope, config, updateTenxFlowState, flowId, stageId, rootScope } = this.props;
+    const { scope, config, updateTenxFlowState, flowId, stageId, rootScope, setDockerfile } = this.props;
     const { getTenxFlowStateList } = rootScope.props;
     const _this = this;
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         e.preventDefault();
+        if (!Boolean(_this.state.dockerFileTextarea && !this.state.useDockerfile)) {
+          _this.setState({
+            noDockerfileInput: true
+          });
+        }
+        return;
+      }
+      if (!Boolean(_this.state.dockerFileTextarea) && !this.state.useDockerfile) {
+        _this.setState({
+          noDockerfileInput: true
+        });
         return;
       }
       //get shell code
@@ -577,7 +610,7 @@ let EditTenxFlowModal = React.createClass({
       updateTenxFlowState(flowId, stageId, body, {
         success: {
           func: () => {
-            if(!_this.state.useDockerfile) {
+            if(!_this.state.useDockerfile && values.flowType == '3') {
               let dockerfilebody = {
                 content: _this.state.dockerFileTextarea,
                 flowId: flowId,
@@ -605,11 +638,16 @@ let EditTenxFlowModal = React.createClass({
   },
   render() {
     const { formatMessage } = this.props.intl;
-    const { config, form, codeList } = this.props;
+    const { config, form, codeList, supportedDependencies } = this.props;
     const shellList = config.spec.container.args;
     const servicesList = config.spec.container.dependencies;
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form;
     const scopeThis = this;
+    let serviceSelectList = supportedDependencies.map((item, index) => {
+      return (
+        <Option value={item} key={item + index}>{item}</Option>
+      )
+    });
     getFieldProps('services', {
       initialValue: [0],
     });
@@ -630,8 +668,7 @@ let EditTenxFlowModal = React.createClass({
         <div className='serviceDetail' key={'serviceName' + k}>
           <Form.Item className='commonItem'>
             <Select {...serviceSelect} style={{ width: '100px' }} >
-              <Option value='MySQL'>MySQL</Option>
-              <Option value='Postgre'>Postgre</Option>
+              {serviceSelectList}
             </Select>
             <span className='defineEnvBtn' onClick={() => this.openEnvSettingModal(k)}><FormattedMessage {...menusText.defineEnv} /></span>
             <i className='fa fa-trash' onClick={() => this.removeService(k)}/>
@@ -660,7 +697,7 @@ let EditTenxFlowModal = React.createClass({
       <QueueAnim key={'shellCode' + i + 'Animate'}>
         <div className='serviceDetail' key={'shellCode' + i}>
           <FormItem className='serviceForm'>
-            <Input onKeyUp={() => this.addShellCode(i) } {...shellCodeProps} type='text' size='large' />
+            <Input disabled={ scopeThis.state.otherFlowType == '3' ? true : false } onKeyUp={() => this.addShellCode(i) } {...shellCodeProps} type='text' size='large' />
             <i className='fa fa-trash' onClick={() => this.removeShellCode(i)} />
           </FormItem>
           <div style={{ clera:'both' }}></div>
@@ -705,7 +742,7 @@ let EditTenxFlowModal = React.createClass({
       rules: [
         { message: '请输入 Dockerfile 地址' },
       ],
-      initialValue: (!!config.spec.build ? (config.spec.build.dockerfilePath == 1 ? config.spec.build.dockerfilePath.replace('/','') : null) : null)
+      initialValue: fetchDockerFilePath(config.spec)
     });
     const otherImageStoreTypeProps = getFieldProps('otherStoreUrl', {
       rules: [
@@ -744,7 +781,7 @@ let EditTenxFlowModal = React.createClass({
             </FormItem>
             {
               this.state.otherFlowType == '5' ? [
-                <QueueAnim className='otherFlowTypeInput'>
+                <QueueAnim className='otherFlowTypeInput' key='otherFlowTypeInput'>
                   <div key='otherFlowTypeInput'>
                     <FormItem>
                       <Input {...otherFlowTypeProps} size='large' />
@@ -753,7 +790,6 @@ let EditTenxFlowModal = React.createClass({
                 </QueueAnim>
               ] : null
             }
-
           </div>
           <div style={{ clear:'both' }} />
         </div>
@@ -766,6 +802,10 @@ let EditTenxFlowModal = React.createClass({
             <Button className='selectCodeBtn' size='large' type='ghost' onClick={this.openCodeStoreModal}>
               <i className='fa fa-file-code-o' />
               <FormattedMessage {...menusText.selectCode} />
+            </Button>
+            <Button type='ghost' size='large' style={{ marginLeft: '15px' }} onClick={this.deleteCodeStore}>
+              <i className='fa fa-trash' />&nbsp;
+              <FormattedMessage {...menusText.deleteCode} />
             </Button>
           </div>
           <div style={{ clear:'both' }} />
@@ -832,20 +872,18 @@ let EditTenxFlowModal = React.createClass({
                   <span>Dockerfile</span>
                 </div>
                 <div className='input' style={{ height: '100px' }}>
-                  <Checkbox onChange={this.changeUseDockerFile} checked={this.state.useDockerfile}></Checkbox>
-                  <span><FormattedMessage {...menusText.dockerFileCreate} /></span>
-                  {
-                    this.state.useDockerfile ? [
-                      <QueueAnim className='dockerFileInputAnimate' key='dockerFileInputAnimate'>
-                        <div key='useDockerFileAnimateSecond'>
-                          <Input className='dockerFileInput' {...dockerFileUrlProps} addonBefore='/' size='large' />
-                        </div>
-                      </QueueAnim>
-                    ] : null
-                  }
+                  <div className='operaBox' style={{ float: 'left', width: '500px' }}>
+                    <Checkbox onChange={this.changeUseDockerFile} checked={this.state.useDockerfile}></Checkbox>
+                    <span><FormattedMessage {...menusText.dockerFileCreate} /></span>
+                  </div>
+                  <QueueAnim className='dockerFileInputAnimate' key='dockerFileInputAnimate'>
+                    <div key='useDockerFileAnimateSecond'>
+                      <Input className='dockerFileInput' {...dockerFileUrlProps} addonBefore='/' size='large' />
+                    </div>
+                  </QueueAnim>
                   {
                     !this.state.useDockerfile ? [
-                      <QueueAnim key='useDockerFileAnimate'>
+                      <QueueAnim key='useDockerFileAnimate' style={{ float: 'left' }}>
                         <div key='useDockerFileAnimateSecond'>
                           {/*<Button type='ghost' size='large' style={{ marginRight:'20px' }}>
                             <FormattedMessage {...menusText.selectDockerFile} />
@@ -917,7 +955,7 @@ let EditTenxFlowModal = React.createClass({
                     this.state.otherTag ? [
                       <QueueAnim>
                         <div key='otherTagAnimate'>
-                          <FormItem style={{ width:'220px',float:'left' }}>
+                          <FormItem style={{ width:'200px',float:'left' }}>
                             <Input {...otherImageTagProps} type='text' size='large' />
                           </FormItem>
                         </div>

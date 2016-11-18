@@ -18,8 +18,168 @@ import QueueAnim from 'rc-queue-anim'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
-
 const RadioGroup = Radio.Group
+
+function checkUrlSelectedKey(scope) {
+  //this function for check the pathname and return the selected key of menu
+  const { pathname } = scope.props;
+  if(pathname.indexOf('/app_center/stack_center') > -1) {
+    return ['sub2', 'composeFile']
+  }
+  if(pathname.indexOf('/app_center/image_store') > -1) {
+    return ['sub2', 'imageStore']
+  }
+  if(pathname.indexOf('/app_center') > -1) {
+    return ['sub2', 'imageCenter']
+  }
+  if(pathname.indexOf('/app_manage/service') > -1) {
+    return ['sub1', 'appServices']
+  }
+  if(pathname.indexOf('/app_manage/container') > -1) {
+    return ['sub1', 'container']
+  }
+  if(pathname.indexOf('/app_manage/storage') > -1) {
+    return ['sub1', 'appStorage']
+  }
+  if(pathname.indexOf('/app_manage/configs') > -1) {
+    return ['sub1', 'serviceConfig']
+  }
+  if(pathname.indexOf('/app_manage') > -1) {
+    return ['sub1', 'app']
+  } 
+  if(pathname.indexOf('/ci_cd/docker_file') > -1) {
+    return ['sub3', 'dockerFlie']
+  }
+  if(pathname.indexOf('/ci_cd/tenx_flow') > -1) {
+    return ['sub3', 'tenxFlow']
+  }
+  if(pathname.indexOf('/ci_cd') > -1) {
+    return ['sub3', 'codeStore']
+  }
+  if(pathname.indexOf('/database_cache/mongo_cluster') > -1) {
+    return ['sub4', 'mongo']
+  }
+  if(pathname.indexOf('/database_cache/redis_cluster') > -1) {
+    return ['sub4', 'redis']
+  }
+  if(pathname.indexOf('/database_cache/database_storage') > -1) {
+    return ['sub4', 'databaseStorage']
+  }
+  if(pathname.indexOf('/database_cache') > -1) {
+    return ['sub4', 'mysql']
+  }
+  /*if(pathname.indexOf('/app_center/stack_center') > -1) {
+    return ['sub5']
+  }*/
+  if(pathname.indexOf('/manange_monitor/monitor') > -1) {
+    return ['sub6', 'monitorManage']
+  }
+  if(pathname.indexOf('/manange_monitor/query_log') > -1) {
+    return ['sub6', 'queryLog']
+  }
+  if(pathname.indexOf('/setting/member') > -1) {
+    return ['sub7', 'member']
+  }
+  if(pathname.indexOf('/setting/team') > -1) {
+    return ['sub7', 'team']
+  }
+  if(pathname.indexOf('/setting/note') > -1) {
+    return ['sub7', 'note']
+  }
+  if(pathname.indexOf('/setting/API') > -1) {
+    return ['sub7', 'API']
+  }
+  if(pathname.indexOf('/setting/version') > -1) {
+    return ['sub7', 'version']
+  }
+  if(pathname.indexOf('/setting/license') > -1) {
+    return ['sub7', 'license']
+  }
+  if(pathname.indexOf('/setting') > -1) {
+    return ['sub7', 'setting']
+  }
+}
+
+function checkUrlOpenKeys(scope) {
+  //this function for check the pathname and return the opened key of menu
+  const { pathname } = scope.props;
+  if(pathname.indexOf('/app_center/stack_center') > -1) {
+    return ['sub2']
+  }
+  if(pathname.indexOf('/app_center/image_store') > -1) {
+    return ['sub2']
+  }
+  if(pathname.indexOf('/app_center') > -1) {
+    return ['sub2']
+  }
+  if(pathname.indexOf('/app_manage/service') > -1) {
+    return ['sub1']
+  }
+  if(pathname.indexOf('/app_manage/container') > -1) {
+    return ['sub1']
+  }
+  if(pathname.indexOf('/app_manage/storage') > -1) {
+    return ['sub1']
+  } 
+  if(pathname.indexOf('/app_manage/configs') > -1) {
+    return ['sub1']
+  }
+  if(pathname.indexOf('/app_manage') > -1) {
+    return ['sub1']
+  } 
+  if(pathname.indexOf('/ci_cd/docker_file') > -1) {
+    return ['sub3']
+  }
+  if(pathname.indexOf('/ci_cd/tenx_flow') > -1) {
+    return ['sub3']
+  }
+  if(pathname.indexOf('/ci_cd') > -1) {
+    return ['sub3']
+  }
+  if(pathname.indexOf('/database_cache/mongo_cluster') > -1) {
+    return ['sub4']
+  }
+  if(pathname.indexOf('/database_cache/redis_cluster') > -1) {
+    return ['sub4']
+  }
+  if(pathname.indexOf('/database_cache/database_storage') > -1) {
+    return ['sub4']
+  }
+  if(pathname.indexOf('/database_cache') > -1) {
+    return ['sub4']
+  }
+  /*if(pathname.indexOf('/app_center/stack_center') > -1) {
+    return ['sub5']
+  }*/
+  if(pathname.indexOf('/manange_monitor/monitor') > -1) {
+    return ['sub6']
+  }
+  if(pathname.indexOf('/manange_monitor/query_log') > -1) {
+    return ['sub6']
+  }
+  if(pathname.indexOf('/setting/member') > -1) {
+    return ['sub7']
+  }
+  if(pathname.indexOf('/setting/team') > -1) {
+    return ['sub7']
+  }
+  if(pathname.indexOf('/setting/note') > -1) {
+    return ['sub7']
+  }
+  if(pathname.indexOf('/setting/API') > -1) {
+    return ['sub7']
+  }
+  if(pathname.indexOf('/setting/version') > -1) {
+    return ['sub7']
+  }
+  if(pathname.indexOf('/setting/license') > -1) {
+    return ['sub7']
+  }
+  if(pathname.indexOf('/setting') > -1) {
+    return ['sub7']
+  }
+}
+
 class Slider extends Component {
   constructor(props) {
     super(props);
@@ -138,6 +298,7 @@ class Slider extends Component {
   render() {
     const { siderStyle } = this.props
     const { currentKey } = this.state
+    const scope = this
     const noticeModel = (
       <Card className='noticeModel' title='Card title' style={{ width: 300 }}>
         <p>{this.state.currentKey}</p>
@@ -199,7 +360,7 @@ class Slider extends Component {
                 <Tooltip placement='right' title='应用管理' getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/app_manage'>
                     <svg className='app commonImg'>
-                      <use xlinkHref='#app' />
+                      { currentKey == '2' ? [<use xlinkHref='#appselected' />] : [<use xlinkHref='#app' />]}
                     </svg>
                   </Link>
                 </Tooltip>
@@ -216,8 +377,8 @@ class Slider extends Component {
               <li onClick={this.selectModel.bind(this, '6', '#system')} className={currentKey == '6' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title='CI/CD' getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/ci_cd'>
-                    <svg className='system commonImg'>
-                      <use xlinkHref='#system' />
+                    <svg className='cicd commonImg'>
+                      { currentKey == '6' ? [<use xlinkHref='#cicdselected' />] : [<use xlinkHref='#cicd' />]}
                     </svg>
                   </Link>
                 </Tooltip>
@@ -226,7 +387,7 @@ class Slider extends Component {
                 <Tooltip placement='right' title='数据库与缓存' getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/database_cache'>
                     <svg className='database commonImg'>
-                      <use xlinkHref='#database' />
+                      { currentKey == '4' ? [<use xlinkHref='#database-selected' />] : [<use xlinkHref='#database' />]}
                     </svg>
                   </Link>
                 </Tooltip>
@@ -300,6 +461,8 @@ class Slider extends Component {
               style={{ width: '100%', backgroundColor: '#222222', color: '#c4c4c4' }}
               mode='inline'
               theme='dark'
+              selectedKeys={checkUrlSelectedKey(scope)}
+              openKeys={checkUrlOpenKeys(scope)}
             > 
               <Menu.Item key='0'>
                 <Link to='/'>
@@ -312,7 +475,7 @@ class Slider extends Component {
               <SubMenu key='sub1' 
                 title={
                   <span>
-                    <svg className='home commonImg'>
+                    <svg className='app commonImg'>
                       <use xlinkHref='#app' />
                     </svg>
                     <span className='commonSiderSpan'>应用管理</span>
@@ -377,7 +540,7 @@ class Slider extends Component {
                 title={
                   <span>
                     <svg className='center commonImg'>
-                      <use xlinkHref='#system' />
+                      <use xlinkHref='#cicd' />
                     </svg>
                     <span className='commonSiderSpan'>CI/CD</span>
                     <div style={{ clear: 'both' }}></div>
