@@ -2,7 +2,7 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
- * StageBuildlog component
+ * StageBuildLog component
  *
  * v0.1 - 2016-10-25
  * @author GaoJian
@@ -15,62 +15,62 @@ import $ from 'n-zepto'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { getFlowBuildStageLogs } from '../../../../../actions/cicd_flow'
-import './style/StageBuildlog.less'
+import './style/StageBuildLog.less'
 import TenxFlowStageBuildLog from '../../TenxFlowStageBuildLog'
 
 const Panel = Collapse.Panel;
 
 const menusText = defineMessages({
   title: {
-    id: 'CICD.Tenxflow.StageBuildlog.title',
+    id: 'CICD.Tenxflow.StageBuildLog.title',
     defaultMessage: '执行记录',
   },
   cost: {
-    id: 'CICD.Tenxflow.StageBuildlog.cost',
+    id: 'CICD.Tenxflow.StageBuildLog.cost',
     defaultMessage: '耗时',
   },
   running: {
-    id: 'CICD.Tenxflow.StageBuildlog.running',
+    id: 'CICD.Tenxflow.StageBuildLog.running',
     defaultMessage: '执行中...',
   },
   finish: {
-    id: 'CICD.Tenxflow.StageBuildlog.finish',
+    id: 'CICD.Tenxflow.StageBuildLog.finish',
     defaultMessage: '执行完成',
   },
   waitting: {
-    id: 'CICD.Tenxflow.StageBuildlog.waitting',
+    id: 'CICD.Tenxflow.StageBuildLog.waitting',
     defaultMessage: '等待执行',
   },
   fail: {
-    id: 'CICD.Tenxflow.StageBuildlog.fail',
+    id: 'CICD.Tenxflow.StageBuildLog.fail',
     defaultMessage: '执行失败',
   },
-    msShow: {
-    id: 'CICD.Tenxflow.StageBuildlog.msShow',
+  msShow: {
+    id: 'CICD.Tenxflow.StageBuildLog.msShow',
     defaultMessage: '毫秒',
   },
   sShow: {
-    id: 'CICD.Tenxflow.StageBuildlog.sShow',
+    id: 'CICD.Tenxflow.StageBuildLog.sShow',
     defaultMessage: '秒',
   },
   mShow: {
-    id: 'CICD.Tenxflow.StageBuildlog.mShow',
+    id: 'CICD.Tenxflow.StageBuildLog.mShow',
     defaultMessage: '分钟',
   },
   hShow: {
-    id: 'CICD.Tenxflow.StageBuildlog.hShow',
+    id: 'CICD.Tenxflow.StageBuildLog.hShow',
     defaultMessage: '小时',
   },
   running: {
-    id: 'CICD.Tenxflow.StageBuildlog.running',
+    id: 'CICD.Tenxflow.StageBuildLog.running',
     defaultMessage: '运行中',
   },
   wait: {
-    id: 'CICD.Tenxflow.StageBuildlog.wait',
+    id: 'CICD.Tenxflow.StageBuildLog.wait',
     defaultMessage: '等待',
   },
   nodata: {
-    id: 'CICD.Tenxflow.StageBuildlog.nodata',
+    id: 'CICD.Tenxflow.StageBuildLog.nodata',
     defaultMessage: '数据为空',
   },
 })
@@ -115,17 +115,17 @@ function checkStatusClass(status) {
 function dateSizeFormat(startTime, endTime, scope) {
   //this function for user get the flow building time
   const { formatMessage } = scope.props.intl;
-  if(!Boolean(endTime)) {
+  if (!Boolean(endTime)) {
     return (<span>{formatMessage(menusText.running)}</span>)
   }
   let newStart = new Date(Date.parse(startTime.replace('T', ' ').replace(/-/g, '/').split('.')[0]));
   let newEnd = new Date(Date.parse(endTime.replace('T', ' ').replace(/-/g, '/').split('.')[0]));
   let timeSize = newEnd.getTime() - newStart.getTime();
-  if(timeSize > 1000) {
+  if (timeSize > 1000) {
     timeSize = parseInt(timeSize / 1000);
-    if(timeSize > 60) {
+    if (timeSize > 60) {
       timeSize = parseInt(timeSize / 60);
-      if(timeSize > 60) {
+      if (timeSize > 60) {
         timeSize = parseInt(timeSize / 60);
         return (<span>{timeSize + formatMessage(menusText.hShow)}</span>)
       } else {
@@ -141,7 +141,7 @@ function dateSizeFormat(startTime, endTime, scope) {
 
 function checkStatusIcon(status) {
   //this function for show different icon for different staus
-  switch(status) {
+  switch (status) {
     case 0:
       return (<i className='normal fa fa-check-circle' aria-hidden='false'></i>);
       break;
@@ -173,8 +173,8 @@ let MyComponent = React.createClass({
     //and then the line collapse will be current change
     const { scope, flowId } = this.props;
     const { getFlowBuildStageLogs } = scope.props;
-    if(e.length > 0){
-      let index = e[e.length -1].replace('LogDetail','');
+    if (e.length > 0) {
+      let index = e[e.length - 1].replace('LogDetail', '');
       config[index].isFetching = true;
       scope.setState({
         currentLogList: config
@@ -200,7 +200,7 @@ let MyComponent = React.createClass({
         <div className='header'>
           <div className='leftHeader'>
             <div className='line'></div>
-            { checkStatusIcon(item.status) }
+            {checkStatusIcon(item.status)}
           </div>
           <div className='rightHeader'>
             <div className='borderBox'>
@@ -214,12 +214,12 @@ let MyComponent = React.createClass({
               </span>
               <span className='updateTime commonHeader'>
                 <i className='fa fa-wpforms' />
-                { dateFormat(item.creationTime) }
+                {dateFormat(item.creationTime)}
               </span>
               <span className='commonHeader'>
                 <Icon type='clock-circle-o' />
                 <FormattedMessage {...menusText.cost} />
-                { dateSizeFormat(item.creationTime, item.endTime, scope) }
+                {dateSizeFormat(item.creationTime, item.endTime, scope)}
               </span>
               <div style={{ clear: 'both' }}></div>
             </div>
@@ -248,7 +248,7 @@ let MyComponent = React.createClass({
   }
 });
 
-class StageBuildlog extends Component {
+class StageBuildLog extends Component {
   constructor(props) {
     super(props);
     this.changeModalSize = this.changeModalSize.bind(this);
@@ -257,17 +257,17 @@ class StageBuildlog extends Component {
       currentLogList: []
     }
   }
-  
+
   componentWillMount() {
     const { logs } = this.props;
     this.setState({
       currentLogList: logs
     })
   }
-  
+
   componentWillReceiveProps(nextProps) {
     const { logs } = nextProps;
-    if(!nextProps.isFetching) {
+    if (!nextProps.isFetching) {
       this.setState({
         currentLogList: logs
       })
@@ -293,10 +293,9 @@ class StageBuildlog extends Component {
   render() {
     const scope = this;
     const { logs, isFetching, flowId } = this.props;
-    console.log(this.props)
-    if(isFetching) {
+    if (isFetching) {
       return (
-        <div id='StageBuildlog' className={this.state.modalSize == 'big' ? 'bigModal' : 'smallModal'}>
+        <div id='StageBuildLog' className={this.state.modalSize == 'big' ? 'bigModal' : 'smallModal'}>
           <div className='title'>
             <span>执行记录</span>
             <i className='fa fa-expand' onClick={this.changeModalSize} />
@@ -310,9 +309,9 @@ class StageBuildlog extends Component {
         </div>
       )
     }
-    if(!Boolean(logs) || logs.length == 0 ) {
+    if (!Boolean(logs) || logs.length == 0) {
       return (
-        <div id='StageBuildlog' className={this.state.modalSize == 'big' ? 'bigModal' : 'smallModal'}>
+        <div id='StageBuildLog' className={this.state.modalSize == 'big' ? 'bigModal' : 'smallModal'}>
           <div className='title'>
             <span>执行记录</span>
             <i className='fa fa-expand' onClick={this.changeModalSize} />
@@ -327,7 +326,7 @@ class StageBuildlog extends Component {
       )
     }
     return (
-      <div id='StageBuildlog' className={this.state.modalSize == 'big' ? 'bigModal' : 'smallModal'}>
+      <div id='StageBuildLog' className={this.state.modalSize == 'big' ? 'bigModal' : 'smallModal'}>
         <div className='title'>
           <span>执行记录</span>
           <i className='fa fa-expand' onClick={this.changeModalSize} />
@@ -349,13 +348,13 @@ function mapStateToProps(state, props) {
   }
 }
 
-StageBuildlog.propTypes = {
+StageBuildLog.propTypes = {
   intl: PropTypes.object.isRequired,
 }
 
 export default connect(mapStateToProps, {
   getFlowBuildStageLogs
-})(injectIntl(StageBuildlog, {
+})(injectIntl(StageBuildLog, {
   withRef: true,
 }));
 
