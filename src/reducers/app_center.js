@@ -63,6 +63,17 @@ function privateImages(state = {}, action) {
       list[registry].imageList = result
       return list
     }
+    case ActionTypes.DELETE_PRIVATE_IMAGE_SUCCESS: {
+      const delState =  cloneDeep(state)
+      const registry = action.registry
+      const imageList = delState[registry].imageList
+      const dIndex = findIndex(imageList, list => {
+        return list.name === action.image
+      })
+      delState[registry].imageList.splice(dIndex, 1)
+      return delState
+
+    }
     default:
       return state
   }

@@ -14,7 +14,7 @@ import Information from './Information'
 import Space from './Space'
 import Team from './Team'
 import { connect } from 'react-redux'
-import { loadUserDetail, loadUserList, updateUser,loadUserAppInfo, loadUserTeamspaceList, loadUserTeamList } from '../../../actions/user'
+import { loadUserDetail, loadUserList, updateUser,loadUserAppInfo, loadUserTeamspaceDetailList, loadUserTeamList } from '../../../actions/user'
 
 class UserInfo extends Component {
   constructor(props){
@@ -24,11 +24,11 @@ class UserInfo extends Component {
     }
   }
   componentWillMount() {
-    const { userID, loadUserDetail, loadUserAppInfo,loadUserTeamspaceList, loadUserTeamList } = this.props
+    const { userID, loadUserDetail, loadUserAppInfo,loadUserTeamspaceDetailList, loadUserTeamList } = this.props
     console.log('userIDuserID',userID);
     loadUserDetail(userID?userID:'default')
     loadUserAppInfo(userID?userID:'default')
-    loadUserTeamspaceList(userID?userID:'default', null)
+    loadUserTeamspaceDetailList(userID?userID:'default', null)
     loadUserTeamList(userID?userID:'default', null)
   }
   render(){
@@ -88,20 +88,20 @@ function mapStateToProp(state,props) {
     userID: '',
     userName: '',
   }
-  const {userDetail, teamspaces, userAppInfo,teams} = state.user
+  const {userDetail, teamspaceDetails, userAppInfo,teams} = state.user
   if (userDetail.result && userDetail.result.data) {
     userDetailData = userDetail.result.data
   }
   console.log('userDetailData',userDetailData);
-  if (teamspaces.result) {
-    if (teamspaces.result.teamspaces) {
-      teamspacesData = teamspaces.result.teamspaces
+  if (teamspaceDetails.result) {
+    if (teamspaceDetails.result.teamspaces) {
+      teamspacesData = teamspaceDetails.result.teamspaces
     }
-    if (teamspaces.result.total) {
-      spaceTotal = teamspaces.result.total
+    if (teamspaceDetails.result.total) {
+      spaceTotal = teamspaceDetails.result.total
     }
-    if (teamspaces.result.count) {
-      spaceSize = teamspaces.result.size
+    if (teamspaceDetails.result.count) {
+      spaceSize = teamspaceDetails.result.size
     }
   }
   if (userAppInfo.result && userAppInfo.result.data) {
@@ -138,7 +138,7 @@ function mapStateToProp(state,props) {
 export default connect(mapStateToProp, {
   loadUserDetail,
   updateUser,
-  loadUserTeamspaceList,
+  loadUserTeamspaceDetailList,
   loadUserAppInfo,
   loadUserList,
   loadUserTeamList,

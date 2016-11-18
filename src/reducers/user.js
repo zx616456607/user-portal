@@ -19,7 +19,8 @@ export default function user(state = {
   userDetail: {},
   users: [],
   teams: {},
-  teamspaces: {},
+  teamspaces: [],
+  teamspaceDetails: [],
   userAppInfo: {}
  }, action) {
   return {
@@ -52,6 +53,11 @@ export default function user(state = {
       REQUEST: ActionTypes.USER_TEAMSPACE_LIST_REQUEST,
       SUCCESS: ActionTypes.USER_TEAMSPACE_LIST_SUCCESS,
       FAILURE: ActionTypes.USER_TEAMSPACE_LIST_FAILURE
-    }, state.teamspaces, action, option)
+    }, state.teamspaces, action, option),
+    teamspaceDetails: reducerFactory({
+      REQUEST: ActionTypes.USER_TEAMSPACE_DETAIL_LIST_REQUEST,
+      SUCCESS: ActionTypes.USER_TEAMSPACE_DETAIL_LIST_SUCCESS,
+      FAILURE: ActionTypes.USER_TEAMSPACE_DETAIL_LIST_FAILURE
+    }, state.teamspaceDetails, action, option)
   }
 }
