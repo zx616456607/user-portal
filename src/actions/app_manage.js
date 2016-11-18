@@ -18,7 +18,7 @@ export const APP_LIST_FAILURE = 'APP_LIST_FAILURE'
 
 // Fetches app list from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchAppList(cluster, query) {
+function fetchAppList(cluster, query, callback) {
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/apps`
   if (query) {
     endpoint += `?${toQuerystring(query)}`
@@ -29,15 +29,16 @@ function fetchAppList(cluster, query) {
       types: [APP_LIST_REQUEST, APP_LIST_SUCCESS, APP_LIST_FAILURE],
       endpoint,
       schema: Schemas.APPS
-    }
+    },
+    callback: callback
   }
 }
 
 // Fetches apps list from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function loadAppList(cluster, query, requiredFields = []) {
+export function loadAppList(cluster, query, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchAppList(cluster, query))
+    return dispatch(fetchAppList(cluster, query, callback))
   }
 }
 

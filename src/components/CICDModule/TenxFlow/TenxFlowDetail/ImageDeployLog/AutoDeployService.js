@@ -13,7 +13,8 @@ import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { gitCdRules, addCdRules, deleteCdRule , putCdRule} from '../../../../../actions/cicd_flow'
+import { gitCdRules, addCdRules, deleteCdRule, putCdRule, getCdInimage } from '../../../../../actions/cicd_flow'
+import { loadAppList } from '../../../../../actions/app_manage'
 import './style/AutoDeployService.less'
 import { browserHistory } from 'react-router';
 
@@ -61,7 +62,11 @@ const menusText = defineMessages({
   },
   tooltips: {
     id: 'CICD.Tenxflow.AutoDeployService.tooltips',
-    defaultMessage: '注：通过服务对应的镜像版本选出要自动部署的服务，并配置好部署升级方式（即：TenxFlow构建出某镜像版本后，将对以下服务升级部署）',
+    defaultMessage: '1. 通过服务对应的镜像版本选出要自动部署的服务，并配置好部署升级方式（即：TenxFlow构建出某镜像版本后，将对以下服务升级部署）',
+  },
+  tooltips2: {
+    id: 'CICD.Tenxflow.AutoDeployService.tooltips2',
+    defaultMessage: '2. 除当前TenxFlow生成镜像会触发自动部署，其他更新镜像途径只要匹配部署规则（比如Docker push 对应版本镜像到仓库），也可触发自动部署'
   },
   addNow: {
     id: 'CICD.Tenxflow.AutoDeployService.addNow',
@@ -87,31 +92,24 @@ const menusText = defineMessages({
 })
 
 let uuid = 0;
+let provinceData = []
 let AutoDeployService = React.createClass({
   getInitialState: function () {
     return {
       tag: '',
       editingList: { tag: '' },
-      value: 1
+      value: 1,
+      serviceList: []
     }
   },
   componentWillMount() {
-    const {gitCdRules, form, flowId} = this.props
+    const {gitCdRules, form, flowId, getCdInimage} = this.props
     const _this = this
     gitCdRules(flowId, {
       success: {
         func: (res) => {
           const rulesList = res.data.results
           const editingList = {}
-          // rulesList.map((item, index) => {
-          //   uuid++;
-          //   let keys = form.getFieldValue('rulesList');
-          //   keys = keys.concat(uuid);
-          //   console.log(keys)
-          //   form.setFieldsValue({
-          //     'rulesList': keys
-          //   });
-          // });
           for (let i = 0; i < rulesList.length; i++) {
             editingList[rulesList[i].ruleId] = false
           }
@@ -125,7 +123,12 @@ let AutoDeployService = React.createClass({
         isAsync: true
       }
     })
+    getCdInimage(flowId)
   },
+  // componentDidMount() {
+  //   const { loadAppList, cluster} = this.props
+  //   loadAppList(cluster, { size: 100 })
+  // },
   changeEdit(index) {
     const editingList = Object.assign({}, this.state.editingList)
     editingList[index] = true
@@ -173,6 +176,8 @@ let AutoDeployService = React.createClass({
       if (errors) {
         return;
       }
+      let deployName = values[`bindDeploymentName${item.ruleId}`]
+      const bindName = deployName.split('&@')[0]
       const config = {
         ruleId: item.ruleId,
         flowId: item.flowId,
@@ -180,11 +185,12 @@ let AutoDeployService = React.createClass({
         tag: values[`tagSelect${item.ruleId}`],
         binding_service: {
           cluster_id: values[`cluster${item.ruleId}`],
-          deployment_name: values[`bindDeploymentName${item.ruleId}`],
+          deployment_name: bindName,
           deployment_id: values[`bindDeploymentId${item.ruleId}`],
         },
         upgrade_strategy: values[`radio${item.ruleId}`],
       }
+
       self.props.putCdRule(config, {
         success: {
           func: () => {
@@ -214,7 +220,51 @@ let AutoDeployService = React.createClass({
   },
   setStateValue(types, e) {
     this.setState({
+      [types]: e
+    })
+  },
+  setStateCluster(e) {
+    this.setState({
+      cluster_id: e
+    })
+    const self = this
+    const { loadAppList} = this.props
+    loadAppList(e, { size: 50 }, {
+      success: {
+        func: (res) => {
+          let deployment_id = ''
+          if (res.data.length > 0) {
+            provinceData = []
+            res.data.forEach((item) => {
+              if (item.services.length > 0) {
+                provinceData.push(item.services[0].metadata.name)
+              }
+            })
+            deployment_id = res.data[0].services[0].metadata.uid
+          } else {
+            provinceData = ['']
+          }
+          self.setState({
+            serviceList: res.data,
+            deployment_id,
+            deployment_name: provinceData[0]
+          })
+
+        }
+      }
+    })
+  },
+  setStateType(types, e) {
+    this.setState({
       [types]: e.target.value
+    })
+  },
+  setStateService(e) {
+    const names = e.split('&@')[0]
+    const ids = e.split('&@')[1]
+    this.setState({
+      deployment_name: names,
+      deployment_id: ids
     })
   },
   addReule() {
@@ -231,19 +281,19 @@ let AutoDeployService = React.createClass({
       upgrade_strategy: this.state.value,
     }
     if (!config.tag) {
-      message.info('请输入镜像版本')
+      message.info('请选择镜像版本')
       return
     }
     if (!config.binding_service.cluster_id) {
-      message.info('集群Id不能为空')
+      message.info('请选择集群名称')
       return
     }
     if (!config.image_name) {
-      message.info('应用名称不能为空')
+      message.info('请选择镜像名称')
       return
     }
     if (!config.binding_service.deployment_name) {
-      message.info('服务名称不能为空')
+      message.info('请选择服务名称')
       return
     }
     const {addCdRules, gitCdRules, flowId} = this.props
@@ -289,67 +339,87 @@ let AutoDeployService = React.createClass({
         <div> </div>
       )
     }
+    const {clusterList, cdImageList} = this.props
+
+    const imageOptions = cdImageList.map(item => <Option key={item}>{item}</Option>)
+    const clusterOptions = clusterList.map(list => <Option key={list.clusterID}>{list.clusterName}</Option>)
+    const appListOptions = []
+    this.state.serviceList.forEach((item) => {
+      if (item.services.length > 0) {
+        appListOptions.push(<Option key={item.services[0].metadata.name + '&@' + item.services[0].metadata.uid}>{item.services[0].metadata.name}</Option>)
+      }
+    })
+
     let items = cdRulesList.map((item, index) => {
       // let items = getFieldValue('rulesList').map((i= i-1) => {
       const tagSelect = getFieldProps('tagSelect' + item.ruleId, {
         rules: [
-          { required: true , message:"请输入镜像版本"}
+          { required: true, message: "请输入镜像版本" }
         ],
-        initialValue: item.tag
+        initialValue: item.tag == 1 ? '匹配版本' : '不匹配版本',
       });
       const imageSelect = getFieldProps('imageSelect' + item.ruleId, {
         rules: [
-          { required: true, message:"请输入镜像名称"}
+          { required: true, message: "请输入镜像名称" }
         ],
         initialValue: item.imageName
       });
       const clusterSelect = getFieldProps('cluster' + item.ruleId, {
         rules: [
-          { required: true, message:"请输入集群"}
+          { required: true, message: "请输入集群" }
         ],
         initialValue: item.bindingClusterId
       });
-      const serviceIdSelect = getFieldProps('bindDeploymentId' + item.ruleId, {
-        rules: [
-          { required: true, message:"请输入服务Id"}
-        ],
-        initialValue: item.bindingDeploymentId
-      });
       const serviceNameSelect = getFieldProps('bindDeploymentName' + item.ruleId, {
         rules: [
-          { required: true, message:"请输入服务名称"}
+          { required: true, message: "请输入服务名称" }
         ],
         initialValue: item.bindingDeploymentName
+      });
+      const serviceIdSelect = getFieldProps('bindDeploymentId' + item.ruleId, {
+        rules: [
+          { required: true, message: "请输入服务Id" }
+        ],
+        initialValue: item.bindingDeploymentId
       });
       const updateType = getFieldProps('radio' + item.ruleId, {
         initialValue: item.upgradeStrategy
       });
       if (self.state != null && self.state.editingList) {
         return (
-          <div className='tagDetail'>
+          <div className='tagDetail' key={item.ruleId}>
             <Form.Item key={'name' + item.ruleId} className='service commonItem'>
-              <Input defaultValue={item.imageName} {...imageSelect} disabled={!self.state.editingList[item.ruleId]} />
+              <Select size="large"  {...imageSelect} disabled={!self.state.editingList[item.ruleId]}>
+                {imageOptions}
+              </Select>
             </Form.Item>
 
-            <Form.Item key={'tag' + item.ruleId} className='tag commonItem'>
-              <Input defaultValue={item.tag} {...tagSelect} disabled={!self.state.editingList[item.ruleId]} />
-            </Form.Item>
 
             <Form.Item key={'cluster' + item.ruleId} className='service commonItem'>
-              <Input defaultValue={item.bindingClusterId} {...clusterSelect} disabled={!self.state.editingList[item.ruleId]} />
-            </Form.Item>
-
-            <Form.Item key={'binding_service' + item.ruleId} className='service commonItem'>
-              <Input defaultValue={item.bindingDeploymentId} {...serviceIdSelect} disabled={!self.state.editingList[item.ruleId]} />
+              <Select size="large"  {...clusterSelect} disabled={!self.state.editingList[item.ruleId]}>
+                {clusterOptions}
+              </Select>
             </Form.Item>
 
             <Form.Item key={'select' + item.ruleId} className='service commonItem'>
-              <Input defaultValue={item.bindingDeploymentName} {...serviceNameSelect} disabled={!self.state.editingList[item.ruleId]} />
+              <Select size="large"  {...serviceNameSelect} disabled={!self.state.editingList[item.ruleId]}>
+                {appListOptions}
+              </Select>
+            </Form.Item>
+            <Form.Item key={'selectId' + item.ruleId} className='service commonItem' style={{ display: 'none' }}>
+              <Select size="large"  {...serviceIdSelect}>
+              </Select>
+            </Form.Item>
 
+            <Form.Item key={'tag' + item.ruleId} className='tag commonItem'>
+              <Select size="large"  {...tagSelect} onChange={(e) => this.putTag(item.ruleIde)} disabled={!self.state.editingList[item.ruleId]}>
+                <Option value="1">匹配版本</Option>
+                <Option value="2">不匹配版本</Option>
+              </Select>
             </Form.Item>
 
             <Form.Item key={'radio' + item.ruleId} className='updateType commonItem'>
-              <RadioGroup {...updateType} disabled={self.state.editingList[item.ruleId] ? false : true} defaultValue={item.upgradeStrategy ==1 ? 1 : 2}>
+              <RadioGroup {...updateType} disabled={self.state.editingList[item.ruleId] ? false : true} defaultValue={item.upgradeStrategy == 1 ? 1 : 2}>
                 <Radio key='a' value={1} ><FormattedMessage {...menusText.normalUpdate} /></Radio>
                 <Radio key='b' value={2} ><FormattedMessage {...menusText.imageUpdate} /></Radio>
               </RadioGroup>
@@ -363,7 +433,7 @@ let AutoDeployService = React.createClass({
                 ] :
                   [
                     <span>
-                      <Button className='cancelBtn'  style={{marginRight:'10px'}} size='large' type='ghost' onClick={() => self.updateReule(item)}>
+                      <Button className='cancelBtn' style={{ marginRight: '10px' }} size='large' type='ghost' onClick={() => self.updateReule(item)}>
                         <FormattedMessage {...menusText.confirm} />
                       </Button>
 
@@ -382,15 +452,17 @@ let AutoDeployService = React.createClass({
 
     })
 
+
     return (
       <div id='AutoDeployService' key='AutoDeployService'>
         <div className='title'>
           <FormattedMessage {...menusText.title} />
         </div>
         <div className='paddingBox'>
-          <Alert message={<FormattedMessage {...menusText.tooltips} />} type='info' />
+          <Alert message={<div><div><FormattedMessage {...menusText.tooltips} /></div><div><FormattedMessage {...menusText.tooltips2} /></div></div>} type='info' />
+
+          {/* {haveTag ? [
           <div className='btnBox'>
-            {/* {haveTag ? [
               <Button className='editBtn' size='large' type='primary' onClick={this.changeEdit}>
                 {this.state.editing ? formatMessage(menusText.confirm) : formatMessage(menusText.edit)}
               </Button>
@@ -401,8 +473,8 @@ let AutoDeployService = React.createClass({
               </Button>
             ] : null
             }
-            */}
           </div>
+            */}
           <Form className='tagForm' horizontal form={this.props.form}>
             {haveTag ? [
               <div>
@@ -410,17 +482,15 @@ let AutoDeployService = React.createClass({
                   <span className='service commonTitle'>
                     镜像名称
                   </span>
-                  <span className='tag commonTitle'>
-                    <FormattedMessage {...menusText.tag} />
-                  </span>
+
                   <span className='service commonTitle'>
                     集群
                   </span>
                   <span className='service commonTitle'>
-                    服务 ID
-                  </span>
-                  <span className='service commonTitle'>
                     服务名称
+                  </span>
+                  <span className='tag commonTitle'>
+                    <FormattedMessage {...menusText.tag} />
                   </span>
                   <span className='updateType commonTitle'>
                     <FormattedMessage {...menusText.updateType} />
@@ -433,25 +503,30 @@ let AutoDeployService = React.createClass({
 
                 {items}
                 <div className="tagDetail">
-                  <div className='service commonItem'>
-                    <Input size="large" value={this.state.image_name} onChange={(e) => this.setStateValue('image_name', e)} placeholder="镜像名称" />
+                  <div className='service commonItem' key='imageName'>
+                    <Select size="large" onChange={(e) => this.setStateValue('image_name', e)} placeholder="镜像名称" >
+                      {imageOptions}
+                    </Select>
+                  </div>
+
+                  <div key='cluster' className='service commonItem'>
+                    <Select size="large" onChange={(e) => this.setStateCluster(e)} placeholder="选择集群" >
+                      {clusterOptions}
+                    </Select>
+                  </div>
+                  <div key='appname' className='service commonItem'>
+                    <Select size="large" value={this.state.deployment_name} disabled={this.state.cluster_id ? false : true} onChange={(e) => this.setStateService(e)} placeholder="服务名称" >
+                      {appListOptions}
+                    </Select>
                   </div>
                   <div className='tag commonItem'>
-                    <Input size="large" value={this.state.tag} onChange={(e) => this.setStateValue('tag', e)} placeholder="输入镜像版本" />
+                    <Select size="large" onChange={(e) => this.setStateValue('tag', e)} placeholder="输入镜像版本" >
+                      <Option value="1">匹配版本</Option>
+                      <Option value="2">不匹配版本</Option>
+                    </Select>
                   </div>
-                  <div key='cluster' className='service commonItem'>
-                    <Input size="large" value={this.state.cluster_id} onChange={(e) => this.setStateValue('cluster_id', e)} placeholder="输入集群Id" />
-                  </div>
-                  <div key='select' className='service commonItem'>
-                    <Input size="large" value={this.state.deployment_id} onChange={(e) => this.setStateValue('deployment_id', e)} placeholder="服务Id" />
-
-                  </div>
-                  <div key='imageName' className='service commonItem'>
-                    <Input size="large" value={this.state.deployment_name} onChange={(e) => this.setStateValue('deployment_name', e)} placeholder="服务名称" />
-                  </div>
-
                   <div className='updateType commonItem'>
-                    <RadioGroup onChange={(e) => this.setStateValue('value', e)} value={this.state.value}>
+                    <RadioGroup onChange={(e) => this.setStateType('value', e)} value={this.state.value}>
                       <Radio key='a' value={1}><FormattedMessage {...menusText.normalUpdate} /></Radio>
                       <Radio key='b' value={2}><FormattedMessage {...menusText.imageUpdate} /></Radio>
                     </RadioGroup>
@@ -492,11 +567,19 @@ function mapStateToProps(state, props) {
     isFetching: false,
     cdRulesList: []
   }
-  const { getCdRules } = state.cicd_flow
+  const { cluster } = state.entities.current
+  const { getCdRules, getCdImage} = state.cicd_flow
   const { cdRulesList, isFetching } = getCdRules || defaultConfig
+  const { cdImageList } = getCdImage || []
+  const { teamClusters } = state.team
+  const { result } = teamClusters
+
   return {
     isFetching,
-    cdRulesList
+    cdRulesList,
+    cdImageList,
+    cluster: cluster.clusterID,
+    clusterList: result.data || [],
   }
 }
 
@@ -510,7 +593,9 @@ export default connect(mapStateToProps, {
   gitCdRules,
   addCdRules,
   deleteCdRule,
-  putCdRule
+  putCdRule,
+  getCdInimage,
+  loadAppList
 })(injectIntl(AutoDeployService, {
   withRef: true,
 }));
