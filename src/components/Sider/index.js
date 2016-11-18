@@ -302,10 +302,12 @@ class Slider extends Component {
               theme='dark'
             > 
               <Menu.Item key='0'>
-                <svg className='home commonImg'>
-                  {currentKey == '1' ? [<use xlinkHref='#homeselected' />] : [<use xlinkHref='#home' />]}
-                </svg>
-                <span>总览</span>
+                <Link to='/'>
+                  <svg className='home commonImg'>
+                    {currentKey == '1' ? [<use xlinkHref='#homeselected' />] : [<use xlinkHref='#home' />]}
+                  </svg>
+                  <span>总览</span>
+                </Link>
               </Menu.Item>
               <SubMenu key='sub1' 
                 title={
@@ -318,10 +320,31 @@ class Slider extends Component {
                   </span>
                 }
               >
-                  <Menu.Item key='app'>应用</Menu.Item>
-                  <Menu.Item key='container'>容器</Menu.Item>
-                  <Menu.Item key='appStorage'>存储</Menu.Item>
-                  <Menu.Item key='serviceConfig'>服务配置</Menu.Item>
+                  <Menu.Item key='app'>
+                    <Link to='/app_manage'>
+                      <span>应用</span>
+                    </Link>
+                  </Menu.Item>
+                   <Menu.Item key='appServices'>
+                    <Link to='/app_manage/service'>
+                      <span>服务</span>
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item key='container'>
+                    <Link to='/app_manage/container'>
+                      <span>容器</span>
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item key='appStorage'>
+                    <Link to='/app_manage/storage'>
+                      <span>存储</span>
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item key='serviceConfig'>
+                    <Link to='/app_manage/configs'>
+                      <span>服务配置</span>
+                    </Link>
+                  </Menu.Item>
               </SubMenu>
               <SubMenu key='sub2' 
                 title={
@@ -334,9 +357,21 @@ class Slider extends Component {
                   </span>
                 }
               >
-                <Menu.Item key='imageCenter'>镜像仓库</Menu.Item>
-                <Menu.Item key='imageStore'>应用商店</Menu.Item>
-                <Menu.Item key='composeFile'>编排文件</Menu.Item>
+                <Menu.Item key='imageCenter'>
+                  <Link to='/app_center'>
+                    <span>镜像仓库</span>
+                  </Link>
+                </Menu.Item>
+                <Menu.Item key='imageStore'>
+                  <Link to='/app_center/image_store'>
+                    <span>应用商店</span>
+                  </Link>
+                </Menu.Item>
+                <Menu.Item key='composeFile'>
+                  <Link to='/app_center/stack_center'>
+                    <span>编排文件</span>
+                  </Link>
+                </Menu.Item>
               </SubMenu>
               <SubMenu key='sub3' 
                 title={
@@ -349,9 +384,21 @@ class Slider extends Component {
                   </span>
                 }
               >
-                <Menu.Item key='codeStore'>代码仓库</Menu.Item>
-                <Menu.Item key='tenxFlow'>TenxFlow</Menu.Item>
-                <Menu.Item key='dockerFlie'>Dockerfile</Menu.Item>
+                <Menu.Item key='codeStore'>
+                  <Link to='/ci_cd'>
+                    <span>代码仓库</span>
+                  </Link>
+                </Menu.Item>
+                <Menu.Item key='tenxFlow'>
+                  <Link to='/ci_cd/tenx_flow'>
+                    <span>TenxFlow</span>
+                  </Link>
+                </Menu.Item>
+                <Menu.Item key='dockerFlie'>
+                  <Link to='/ci_cd/docker_file'>
+                    <span>Dockerfile</span>
+                  </Link>
+                </Menu.Item>
               </SubMenu>
               <SubMenu key='sub4' 
                 title={
@@ -364,10 +411,26 @@ class Slider extends Component {
                   </span>
                 }
               >
-                <Menu.Item key='mysql'>MySQL集群</Menu.Item>
-                <Menu.Item key='mongo'>Mongo集群</Menu.Item>
-                <Menu.Item key='redis'>Redis集群</Menu.Item>
-                <Menu.Item key='databaseStorage'>存储</Menu.Item>
+                <Menu.Item key='mysql'>
+                  <Link to='/database_cache'>
+                    <span>MySQL集群</span>
+                  </Link>
+                </Menu.Item>
+                <Menu.Item key='mongo'>
+                  <Link to='/database_cache/mongo_cluster'>
+                    <span>Mongo集群</span>
+                  </Link>
+                </Menu.Item>
+                <Menu.Item key='redis'>
+                  <Link to='/database_cache/redis_cluster'>
+                    <span>Redis集群</span>
+                  </Link>
+                </Menu.Item>
+                <Menu.Item key='databaseStorage'>
+                  <Link to='/database_cache/database_storage'>
+                    <span>存储</span>
+                  </Link>
+                </Menu.Item>
               </SubMenu>
               <SubMenu key='sub5' 
                 title={
@@ -392,29 +455,92 @@ class Slider extends Component {
                   </span>
                 }
               >
-                <Menu.Item key='operationalMonitor'>操作审计</Menu.Item>
-                <Menu.Item key='queryLog'>日志查询</Menu.Item>
-                <Menu.Item key='monitorManage'>监控管理</Menu.Item>
-                <Menu.Item key='formCenter'>报表中心</Menu.Item>
+                <Menu.Item key='operationalMonitor'>
+                  <Link to='/manange_monitor'>
+                    <span>操作审计</span>
+                  </Link>
+                </Menu.Item>
+                <Menu.Item key='queryLog'>
+                  <Link to='/manange_monitor/query_log'>
+                    <span>日志查询</span>
+                  </Link>
+                </Menu.Item>
+                <Menu.Item key='monitorManage'>
+                  <Link to='/manange_monitor/monitor'>
+                    <span>监控管理</span>
+                  </Link>
+                </Menu.Item>
+                <Menu.Item key='formCenter'>
+                  <span>报表中心</span>
+                </Menu.Item>
               </SubMenu>
               <Menu.Item key='addApp'>
-                <svg className='add commonImg'>
-                  <use xlinkHref='#add' />
-                </svg>
-                <span>创建应用</span>
+                <Link to='/setting/member'>
+                  <span>
+                    <svg className='add commonImg'>
+                      <use xlinkHref='#add' />
+                    </svg>
+                    <span>创建应用</span>
+                  </span>
+                </Link>
               </Menu.Item>
               <Menu.Item key='message'>
-                <svg className='message commonImg'>
-                  <use xlinkHref='#message' />
-                </svg>
-                <span>通知中心</span>
+                <Link to=''>
+                  <span>
+                    <svg className='message commonImg'>
+                      <use xlinkHref='#message' />
+                    </svg>
+                    <span>通知中心</span>
+                  </span>
+                </Link>
               </Menu.Item>
-              <Menu.Item key='setting'>
-                <svg className='setting commonImg'>
-                  <use xlinkHref='#setting' />
-                </svg>
-                <span>系统设置</span>
-              </Menu.Item>
+              <SubMenu key='sub7' 
+                title={
+                  <span>
+                    <svg className='setting commonImg'>
+                      <use xlinkHref='#setting' />
+                    </svg>
+                    <span className='commonSiderSpan'>系统设置</span>
+                    <div style={{ clear: 'both' }}></div>
+                  </span>
+                }
+              >
+                <Menu.Item key='setting'>
+                  <Link to='/setting'>
+                    <span>我的信息</span>
+                  </Link>
+                </Menu.Item>
+                <Menu.Item key='member'>
+                  <Link to='/setting/member'>
+                    <span>成员管理</span>
+                  </Link>
+                </Menu.Item>
+                <Menu.Item key='team'>
+                  <Link to='/setting/team'>
+                    <span>团队管理</span>
+                  </Link>
+                </Menu.Item>
+                <Menu.Item key='note'>
+                  <Link to='/setting/note'>
+                    <span>通知设置</span>
+                  </Link>
+                </Menu.Item>
+                <Menu.Item key='API'>
+                  <Link to='/setting/API'>
+                    <span>开放API</span>
+                  </Link>
+                </Menu.Item>
+                <Menu.Item key='version'>
+                  <Link to='/setting/version'>
+                    <span>平台版本</span>
+                  </Link>
+                </Menu.Item>
+                <Menu.Item key='license'>
+                  <Link to='/setting/license'>
+                    <span>授权管理</span>
+                  </Link>
+                </Menu.Item>
+              </SubMenu>
             </Menu>
           </div>
         </QueueAnim>
