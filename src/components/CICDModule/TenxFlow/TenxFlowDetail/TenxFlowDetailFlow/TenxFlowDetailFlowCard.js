@@ -18,7 +18,7 @@ import { getTenxflowCIRules, UpdateTenxflowCIRules, deleteTenxFlowStateDetail, g
 import './style/TenxFlowDetailFlowCard.less'
 import EditTenxFlowModal from './EditTenxFlowModal.js'
 import CICDSettingModal from './CICDSettingModal.js'
-import StageBuildlog from './StageBuildlog.js'
+import StageBuildLog from './StageBuildLog.js'
 
 const ButtonGroup = Button.Group;
 const confirm = Modal.confirm;
@@ -551,7 +551,7 @@ class TenxFlowDetailFlowCard extends Component {
           className='TenxFlowBuildLogModal'
           onCancel={this.closeTenxFlowDeployLogModal}
           >
-          <StageBuildlog scope={scope} isFetching={buildFetching} logs={logs} flowId={flowId}/>
+          <StageBuildLog scope={scope} isFetching={buildFetching} logs={logs} flowId={flowId}/>
         </Modal>
       </div>
     )
