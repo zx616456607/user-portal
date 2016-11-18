@@ -232,16 +232,30 @@ exports.addManagedProject = function* () {
 
   switch (body.repo_type) {
     case "gitlab":
-    case "github":
       if (!body.source_full_name || !body.gitlab_project_id) {
         const err = new Error("source_full_name and gitlab_project_id for gitlab are required")
         err.status = 400
         throw err
       }
       break;
+    case "github":
+      if (!projectId) {
+        const err = new Error("projectId for github is required")
+        err.status = 400
+        throw err
+      }
+      break;
     case "svn":
+      if (body.is_private == 1) {
+        if (!body.username || !body.password) {
+          const err = new Error("username and password for private SVN repository are required")
+          err.status = 400
+          throw err
+        }
+      }
+      break;
     default:
-      const err = new Error('Only support gitlab/github for now')
+      const err = new Error('Only support gitlab/github/svn for now')
       err.status = 400
       throw err
   }
