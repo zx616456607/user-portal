@@ -10,17 +10,29 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import { resetErrorMessage } from '../actions'
-import { Icon, Menu, notification } from 'antd'
+import { Icon, Menu, notification, Modal, Button } from 'antd'
 import ErrorPage from './ErrorPage'
 import Header from '../components/Header'
 import Sider from '../components/Sider'
+import { Link } from 'react-router'
 
 class App extends Component {
   constructor(props) {
     super(props)
     this.handleDismissClick = this.handleDismissClick.bind(this)
     this.state = {
-      siderStyle: 'mini'
+      siderStyle: 'mini',
+      loginModalVisible: false,
+    }
+  }
+  componentWillReceiveProps(nextProps) {
+    const { errorMessage } = nextProps
+    if (!errorMessage) {
+      return
+    }
+    if (errorMessage.message === 'LOGIN_EXPIRED') {
+      this.setState({ loginModalVisible: true })
+      return
     }
   }
 
@@ -28,11 +40,20 @@ class App extends Component {
     this.props.resetErrorMessage()
   }
 
+  handleLoginModalCancel() {
+    this.setState({ loginModalVisible: false })
+  }
+
   renderErrorMessage() {
-    const { errorMessage } = this.props
+    const { errorMessage, resetErrorMessage } = this.props
     const handleDismissClick = this.handleDismissClick
     if (!errorMessage) {
       return null
+    }
+
+    if (errorMessage.message === 'LOGIN_EXPIRED') {
+      resetErrorMessage()
+      return
     }
 
     notification.error({
@@ -43,12 +64,13 @@ class App extends Component {
       onClose: handleDismissClick
     })
 
-    setTimeout(this.props.resetErrorMessage)
+    setTimeout(resetErrorMessage)
   }
 
   render() {
     let { children, pathname, errorMessage } = this.props
-    const scope = this;
+    const { loginModalVisible } = this.state
+    const scope = this
     /*if (errorMessage) {
       if (errorMessage.statusCode === 404) {
         children = (
@@ -60,17 +82,38 @@ class App extends Component {
       <div className='tenx-layout'>
         {this.renderErrorMessage()}
         <div id='siderTooltip'></div>
-        <div className={ this.state.siderStyle == 'mini' ? 'tenx-layout-header' : 'tenx-layout-header-bigger tenx-layout-header'}>
+        <div className={this.state.siderStyle == 'mini' ? 'tenx-layout-header' : 'tenx-layout-header-bigger tenx-layout-header'}>
           <div className='tenx-layout-wrapper'>
             <Header />
           </div>
         </div>
-        <div className={ this.state.siderStyle == 'mini' ? 'tenx-layout-sider' : 'tenx-layout-sider-bigger tenx-layout-sider'}>
+        <div className={this.state.siderStyle == 'mini' ? 'tenx-layout-sider' : 'tenx-layout-sider-bigger tenx-layout-sider'}>
           <Sider pathname={pathname} scope={scope} siderStyle={this.state.siderStyle} />
         </div>
-        <div className={ this.state.siderStyle == 'mini' ? 'tenx-layout-content' : 'tenx-layout-content-bigger tenx-layout-content'}>
+        <div className={this.state.siderStyle == 'mini' ? 'tenx-layout-content' : 'tenx-layout-content-bigger tenx-layout-content'}>
           {children}
         </div>
+        <Modal
+          visible={loginModalVisible}
+          title="登录失效"
+          onCancel={this.handleLoginModalCancel}
+          footer={[
+            <Link to={`/login?redirect=${pathname}`}>
+              <Button
+                key="submit"
+                type="primary"
+                size="large"
+                onClick={this.handleLoginModalCancel}>
+                去登录
+              </Button>
+            </Link>,
+          ]}
+          >
+          <div style={{ textAlign: 'center' }}>
+            <p><img src="/img/lost.svg" /></p>
+            <p>您的登录状态已失效，请登录后继续当前操作</p>
+          </div>
+        </Modal>
       </div>
     )
   }

@@ -34,7 +34,7 @@ let Login = React.createClass({
 
   handleSubmit(e) {
     e.preventDefault()
-    const { login, form } = this.props
+    const { login, form, redirect } = this.props
     const { validateFields } = form
     const self = this
     validateFields((errors, values) => {
@@ -60,7 +60,7 @@ let Login = React.createClass({
               submitting: false
             })
             message.success(`用户 ${values.name} 登录成功`)
-            browserHistory.push('/')
+            browserHistory.push(redirect || '/')
           },
           isAsync: true
         },
@@ -237,7 +237,10 @@ let Login = React.createClass({
 })
 
 function mapStateToProps(state, props) {
-  return {}
+  const { redirect } = props.location.query
+  return {
+    redirect
+  }
 }
 
 Login = createForm()(Login)
