@@ -21,6 +21,7 @@ import { setCurrent } from '../../actions'
 import { getCookie } from '../../common/tools'
 import { USER_CURRENT_CONFIG } from '../../../constants'
 import { browserHistory } from 'react-router'
+import { Link } from 'react-router'
 
 const FormItem = Form.Item;
 const createForm = Form.create;
@@ -35,25 +36,25 @@ const menusText = defineMessages({
     id: 'Header.menu.user',
     defaultMessage: '用户',
   },
-  userMenu1: {
-    id: 'Header.menu.user.menu1',
-    defaultMessage: '第一个菜单项',
+  logOut: {
+    id: 'Header.menu.user.logOut',
+    defaultMessage: '注销',
   },
   userMenu2: {
     id: 'Header.menu.user.menu2',
-    defaultMessage: '第二个菜单项',
+    defaultMessage: '第二个',
   },
   userMenu3: {
     id: 'Header.menu.user.menu3',
-    defaultMessage: '第三个菜单项（不可用）',
+    defaultMessage: '第三个',
   }
 })
 
 const menu = (
   <Menu>
     <Menu.Item key="0">
-      <a target="_blank" href="http://www.alipay.com/">
-        <FormattedMessage {...menusText.userMenu1} />
+      <a href="/logout">
+        <Icon type="logout" /> <FormattedMessage {...menusText.logOut} />
       </a>
     </Menu.Item>
     <Menu.Item key="1">
@@ -192,6 +193,7 @@ class Header extends Component {
   render() {
     const {
       current,
+      loginUser,
       isTeamspacesFetching,
       teamspaces,
       isTeamClustersFetching,
@@ -248,7 +250,8 @@ class Header extends Component {
           </div>
           <Dropdown overlay={menu}>
             <div className="ant-dropdown-link userBtn">
-              <FormattedMessage {...menusText.user} />
+              {/*<FormattedMessage {...menusText.user} />*/}
+              {loginUser.info.userName || '...'}
               <Icon type="down" />
             </div>
           </Dropdown>
@@ -259,11 +262,12 @@ class Header extends Component {
 }
 
 function mapStateToProps(state, props) {
-  const { current } = state.entities
+  const { current, loginUser } = state.entities
   const { teamspaces } = state.user
   const { teamClusters } = state.team
   return {
     current,
+    loginUser,
     isTeamspacesFetching: teamspaces.isFetching,
     teamspaces: (teamspaces.result ? teamspaces.result.teamspaces : []),
     isTeamClustersFetching: teamClusters.isFetching,

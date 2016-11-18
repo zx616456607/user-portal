@@ -14,6 +14,7 @@ import SearchInput from '../../SearchInput'
 import { connect } from 'react-redux'
 import { loadUserList, createUser, deleteUser } from '../../../actions/user'
 import { Link } from 'react-router'
+import { USERNAME_REG_EXP } from '../../../constants'
 
 const createForm = Form.create;
 const FormItem = Form.Item;
@@ -351,7 +352,7 @@ let NewMemberForm = React.createClass({
       callback([new Error('请输入用户名')]);
     } else {
       setTimeout(() => {
-        if (!/^[a-z][-a-z0-9]{1,40}[a-z0-9]$/.test(value)) {
+        if (!USERNAME_REG_EXP.test(value)) {
           callback([new Error('抱歉，用户名不合法。')]);
         } else {
           callback()
@@ -401,7 +402,7 @@ let NewMemberForm = React.createClass({
           func: () => {
             scope.setState({
               visible: false,
-              
+
             })
             scope.props.loadUserList({
               page: scope.state.page,

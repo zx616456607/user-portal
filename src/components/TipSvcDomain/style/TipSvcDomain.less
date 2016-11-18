@@ -1,15 +1,18 @@
-#TipSvcDomain {
+.TipSvcDomain {
   .more {
     display: inline-block;
-    background-color: #F2F2F2;
+    position: relative;
     margin-left: 5px;
+    top: 3px;
     width: 15px;
     height: 16px;
-    line-height:17px;
-    border-radius: 50%;
-    &:hover {
-      background-color: #000;
-      color: #fff;
+    use {
+      fill: #eeeeee;
+    }
+  }
+  .showPop {
+    use {
+      fill: #49b1e2 !important;
     }
   }
   .ant-tooltip-inner {
@@ -27,18 +30,21 @@
     min-width: inherit;
   }
 }
-#TipAppDomain {
+.TipAppDomain {
   .more {
     display: inline-block;
-    background-color: #F2F2F2;
+    position: relative;
     margin-left: 5px;
+    top: 3px;
     width: 15px;
     height: 16px;
-    line-height:17px;
-    border-radius: 50%;
-    &:hover {
-      background-color: #000;
-      color: #fff;
+    use {
+      fill: #eeeeee;
+    }
+  }
+  .showPop {
+    use {
+      fill: #49b1e2 !important;
     }
   }
   .ant-tooltip-inner {
@@ -58,7 +64,7 @@
 }
 
 .AppTip {
-  color: #fff;
+  color: #000;
   .firstSvc {
     margin-bottom: 8px;
     .firstLine {
@@ -75,8 +81,8 @@
     &::before {
       content: '';
       height: 20px;
-      background-color: #fff;
-      width: 2px;
+      background-color: #000;
+      width: 1px;
       position: absolute;
       top: -9px;
       transform: translate(-50%, 0);
@@ -85,7 +91,7 @@
     &::after {
       content: '';
       height: 1px;
-      background-color: #fff;
+      background-color: #000;
       width: 23px;
       position: absolute;
       top: 50%;
@@ -96,6 +102,6 @@
 
 }
 .SvcTip {
-  color: #fff;
+  color: #000;
 
 }

@@ -52,11 +52,11 @@ class API extends Component{
             <tr>
               <td className="tableTitle">
                 <span style={{marginRight: 10}}>Token</span>
-                <Icon type="eye" onClick={this.handleHidToken}
-                      className={hidToken === 'text'? 'hidToken' : ''}/>
               </td>
               <td>
                 <input type={hidToken} value={token} className="tokenInt" disabled/>
+                <Icon type="eye" onClick={this.handleHidToken}
+                      className={hidToken === 'text'? 'hidToken' : ''}/>
               </td>
             </tr>
             <tr>

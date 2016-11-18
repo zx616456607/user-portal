@@ -1,5 +1,5 @@
 /**
- * API handler for hub
+ * API handler for user portal
  *
  * v0.1 - 2016-09-22
  *
@@ -88,6 +88,7 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/services/:service_name/events', serviceController.getServiceDetailEvents)
   router.post('/clusters/:cluster/services/:service_name/logs', serviceController.getServiceLogs)
   router.get('/clusters/:cluster/services/:service_name/k8s-service', serviceController.getK8sService)
+  router.get('/clusters/:cluster/services', serviceController.getAllService)
 
   // Users
   router.get('/users/:user_id', userController.getUserDetail)
@@ -140,6 +141,7 @@ module.exports = function (Router) {
   router.get('/registries/:registry/private', registryController.getPrivateImages)
   router.get('/registries/:registry/favourite', registryController.getFavouriteImages)
   router.put('/registries/:registry/:image*', registryController.updateImageInfo)
+  router.delete('/registries/:registry/:image*', registryController.deleteImage)
 
   // Private docker registry integration
   router.get('/docker-registry', registryController.getPrivateRegistries)
@@ -181,6 +183,10 @@ module.exports = function (Router) {
   router.delete('/devops/repos/:type', devopsController.removeRepository)
   router.get('/devops/repos/:type/branches', devopsController.listBranches)
   router.get('/devops/repos/:type/user', devopsController.getUserInfo)
+  // Auth with 3rdparty SCM and callback
+  router.get('/devops/repos/:type/auth', devopsController.getAuthRedirectUrl);
+  router.get('/devops/repos/:type/auth-callback', devopsController.doUserAuthorization)
+
   // Managed projects
   router.post('/devops/managed-projects', devopsController.addManagedProject)
   router.get('/devops/managed-projects', devopsController.listManagedProject)
@@ -199,23 +205,26 @@ module.exports = function (Router) {
   router.delete('/devops/ci-flows/:flow_id/stages/:stage_id', devopsController.deleteFlowStage)
   router.put('/devops/ci-flows/:flow_id/stages/:stage_id', devopsController.updateFlowStage)
   router.get('/ci-flows/:flow_id/stages/:stage_id', devopsController.getStage)
+  router.get('/devops/ci-flows/:flow_id/stages/:stage_id/getStageBuildLogs', devopsController.getStageBuildLogList)
 
   // CD rules
   router.post('/devops/ci-flows/:flow_id/cd-rules', devopsController.createCDRule)
   router.get('/devops/ci-flows/:flow_id/cd-rules', devopsController.listCDRules)
   router.delete('/devops/ci-flows/:flow_id/cd-rules/:rule_id', devopsController.removeCDRule)
   router.put('/devops/ci-flows/:flow_id/cd-rules/:rule_id', devopsController.updateCDRule)
-  
+
   // CI rules
   router.get('/devops/ci-flows/:flow_id/ci-rules', devopsController.getCIRule)
   router.put('/devops/ci-flows/:flow_id/ci-rules', devopsController.updateCIRule)
-  
+
   // Flow build
   router.post('/devops/ci-flows/:flow_id/builds', devopsController.createFlowBuild)
   router.get('/devops/ci-flows/:flow_id/builds', devopsController.listBuilds)
   router.get('/devops/ci-flows/:flow_id/builds/:flow_build_id', devopsController.getFlowBuild)
   router.put('/devops/ci-flows/:flow_id/builds/:flow_build_id/stop', devopsController.stopBuild)
   router.get('/devops/ci-flows/:flow_id/getBuildLogs', devopsController.getBuildLog)
+  router.get('/devops/ci-flows/:flow_id/getLastBuildLogs', devopsController.getLastBuildLog)
+  router.get('/devops/ci-flows/:flow_id/stages/:stage_id/builds/:stage_build_id', devopsController.getFlowStageBuildLog)
 
   // CI Dockerfile
   router.get('/devops/dockerfiles', devopsController.listDockerfiles)
@@ -229,5 +238,6 @@ module.exports = function (Router) {
 
   // License
   router.get('/license', licenseController.getLicense)
+
   return router.routes()
 }

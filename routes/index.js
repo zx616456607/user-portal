@@ -13,6 +13,7 @@ const indexCtl = require('../controllers')
 
 module.exports = function (Router) {
   const router = new Router()
+
   // for frontend reload page
   router.get('/', indexCtl.index)
   router.get(/^(\/app_manage|\/app_manage\/[a-zA-Z0-9_-]+|\/app_manage\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+.+)(\/|)$/, indexCtl.index)

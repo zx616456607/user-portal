@@ -10,13 +10,40 @@
 
 
 import React, { Component, PropTypes } from 'react'
-import DatabaseSider from '../../components/DatabaseCache/databaseSider'
+import SecondSider from '../../components/SecondSider'
 import QueueAnim from 'rc-queue-anim'
 import './style/database.less'
 
+const menuList = [
+  {
+    url: '/database_cache',
+    name: 'MySQL集群'
+  },
+  {
+    url: '/database_cache/mongo_cluster',
+    name: 'Mongo集群'
+  },
+  {
+    url: '/database_cache/redis_cluster',
+    name: 'Redis集群'
+  },
+  {
+    url: '/database_cache/database_storage',
+    name: '存储卷'
+  }
+]
+
 export default class Database extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      containerSiderStyle: 'normal'
+    }
+  }
+  
   render() {
     const { children } = this.props
+    const scope = this
     return (
       <div id="Database">
         <QueueAnim 
@@ -24,11 +51,11 @@ export default class Database extends Component {
           key="DatabaseSider" 
           type="left"
           >
-          <div className="DatabaseMenu" key="imageSider">
-            <DatabaseSider />
+          <div className={ this.state.containerSiderStyle == 'normal' ? 'DatabaseMenu CommonSecondMenu' : 'hiddenMenu DatabaseMenu CommonSecondMenu'} key='imageSider'>
+            <SecondSider menuList={menuList} scope={scope} />
           </div>
         </QueueAnim>
-        <div className="DatabaseContent">
+        <div className={ this.state.containerSiderStyle == 'normal' ? 'DatabaseContent CommonSecondContent' : 'hiddenContent DatabaseContent CommonSecondContent' } >
           { children }
         </div>
       </div>

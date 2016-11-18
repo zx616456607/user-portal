@@ -99,7 +99,7 @@ const menusText = defineMessages({
   },
   dockerFileCreate: {
     id: 'CICD.Tenxflow.EditTenxFlowModal.dockerFileCreate',
-    defaultMessage: '使用代码仓库的docker file',
+    defaultMessage: '使用代码仓库中的 Dockerfile',
   },
   selectDockerFile: {
     id: 'CICD.Tenxflow.EditTenxFlowModal.selectDockerFile',
@@ -107,7 +107,7 @@ const menusText = defineMessages({
   },
   createNewDockerFile: {
     id: 'CICD.Tenxflow.EditTenxFlowModal.createNewDockerFile',
-    defaultMessage: '云端创建Dockerfile',
+    defaultMessage: '云端创建 Dockerfile',
   },
   imageRealName: {
     id: 'CICD.Tenxflow.EditTenxFlowModal.imageRealName',
@@ -159,11 +159,11 @@ const menusText = defineMessages({
   },
   dockerFileTitle: {
     id: 'CICD.Tenxflow.EditTenxFlowModal.dockerFileTitle',
-    defaultMessage: '创建Docker File',
+    defaultMessage: '创建 Dockerfile',
   },
   noDockerFileInput: {
     id: 'CICD.Tenxflow.EditTenxFlowModal.noDockerFileInput',
-    defaultMessage: 'Docker File不能为空',
+    defaultMessage: 'Dockerfile 不能为空',
   }
 });
 
@@ -409,7 +409,7 @@ let EditTenxFlowModal = React.createClass({
     }
   },
   changeUseDockerFile (e) {
-    //this function for user change using the docker file or not
+    //this function for user change using the Dockerfile or not
     if(e.target.checked) {
       this.setState({
         useDockerfile: true
@@ -703,7 +703,7 @@ let EditTenxFlowModal = React.createClass({
     });
     const dockerFileUrlProps = getFieldProps('dockerFileUrl', {
       rules: [
-        { message: '请输入Docker File地址' },
+        { message: '请输入 Dockerfile 地址' },
       ],
       initialValue: (!!config.spec.build ? (config.spec.build.dockerfilePath == 1 ? config.spec.build.dockerfilePath.replace('/','') : null) : null)
     });
@@ -829,7 +829,7 @@ let EditTenxFlowModal = React.createClass({
               <div className='line'></div>
               <div className='commonBox' key='buildImageFormAnimate'>
                 <div className='title'>
-                  <span>docker File</span>
+                  <span>Dockerfile</span>
                 </div>
                 <div className='input' style={{ height: '100px' }}>
                   <Checkbox onChange={this.changeUseDockerFile} checked={this.state.useDockerfile}></Checkbox>
@@ -910,7 +910,7 @@ let EditTenxFlowModal = React.createClass({
                     <RadioGroup {...getFieldProps('imageTag', { initialValue: (!!config.spec.build ? (config.spec.build.imageTagType + '') : null), onChange: this.changeImageTagType })}>
                       <Radio key='branch' value={'1'}><FormattedMessage {...menusText.ImageTagByBranch} /></Radio>
                       <Radio key='time' value={'2'}><FormattedMessage {...menusText.ImageTagByTime} /></Radio>
-                      <Radio key='other' value={'3'}><FormattedMessage {...menusText.otherImage} /></Radio>
+                      <Radio key='other' value={'3'}><FormattedMessage {...menusText.ImageTagByOther} /></Radio>
                     </RadioGroup>
                   </FormItem>
                   {

@@ -110,6 +110,18 @@ exports.getImageInfo = function* () {
   }
 }
 
+exports.deleteImage = function* () {
+  const registry = this.params.registry
+  const image = this.params.image
+  const loginUser = this.session.loginUser
+  const result = yield registryService.deleteImage(loginUser.user, image)
+
+  this.body = {
+    server: registryConfig.v2Server,
+    message: result
+  }
+}
+
 /*
 Methods below only for thirdparty(custom) docker registry integration
 */

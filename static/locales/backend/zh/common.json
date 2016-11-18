@@ -1,6 +1,7 @@
 {
   "desc": "防止冗余，保存后端的一些通用字段",
   "console": "控制台",
+  "login": "登录",
   "tenxcloud": "时速云",
   "status": {
     "status": "状态",

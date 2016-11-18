@@ -28,33 +28,71 @@ import cluster from './cluster'
 
 // Updates an entity cache in response to any action with response.entities.
 function entities(state = {
-  isFetching: false,
+  // isFetching: false,
+  loginUser: {
+    isFetching: false,
+    info: {}
+  },
   current: {
     team: {},
     space: {},
     cluster: {},
   },
 }, action) {
-  if (action.response && action.response.entities) {
+  /*if (action.response && action.response.entities) {
     let isFetching = false
     if (action.type.indexOf('_REQUEST') > -1) {
       isFetching = true
     }
     return merge({}, state, action.response.entities, { isFetching })
+  }*/
+  return {
+    current: current(state.current, action),
+    loginUser: loginUser(state.loginUser, action),
   }
+}
+
+function current(state, action) {
   switch (action.type) {
     case ActionTypes.SET_CURRENT:
       let current = action.current
       if (!current.team) {
-        current.team = state.current.team
+        current.team = state.team
       }
       if (!current.space) {
-        current.space = state.current.space
+        current.space = state.space
       }
       if (!current.cluster) {
-        current.cluster = state.current.cluster
+        current.cluster = state.cluster
       }
-      return Object.assign({}, state, { current })
+      return Object.assign({}, state, current)
+    default:
+      return state
+  }
+}
+
+function loginUser(state, action) {
+  switch (action.type) {
+    case ActionTypes.LOGIN_REQUEST:
+    case ActionTypes.LOGIN_USER_DETAIL_REQUEST:
+      return Object.assign({}, state, {
+        isFetching: true
+      })
+    case ActionTypes.LOGIN_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        info: action.response.result.user
+      })
+    case ActionTypes.LOGIN_USER_DETAIL_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        info: action.response.result.data
+      })
+    case ActionTypes.LOGIN_FAILURE:
+    case ActionTypes.LOGIN_USER_DETAIL_FAILURE:
+      return Object.assign({}, state, {
+        isFetching: false
+      })
     default:
       return state
   }
@@ -66,7 +104,9 @@ function errorMessage(state = null, action) {
 
   if (type === ActionTypes.RESET_ERROR_MESSAGE) {
     return null
-  } else if (error) {
+  }
+  // Avoid error is repeatedly handled
+  if (error && !error.handledByCallback) {
     return action.error
   }
 
@@ -90,8 +130,10 @@ function actionCallback(state = null, action) {
   }
   if (action.type.indexOf('_FAILURE') >= 0) {
     if (!callback.failed) return state
+    // Mark error is already handled
+    action.error.handledByCallback = true
     if (callback.failed.isAsync) {
-      setTimeout(callback.failed.func.bind(this, action.response.result))
+      setTimeout(callback.failed.func.bind(this, action.error))
       return state
     }
     callback.failed.func(action.error)
@@ -104,8 +146,8 @@ function actionCallback(state = null, action) {
 
 const rootReducer = combineReducers({
   entities,
+  actionCallback, // actionCallback must be in front of errorMessage
   errorMessage,
-  actionCallback,
   storage,
   ...appManageReducers,
   ...appCenterReducers,

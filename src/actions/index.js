@@ -41,3 +41,71 @@ export function setCurrent(current) {
     type: SET_CURRENT
   }
 }
+
+export const VERIFY_CAPTCHA_REQUEST = 'VERIFY_CAPTCHA_REQUEST'
+export const VERIFY_CAPTCHA_SUCCESS = 'VERIFY_CAPTCHA_SUCCESS'
+export const VERIFY_CAPTCHA_FAILURE = 'VERIFY_CAPTCHA_FAILURE'
+
+function fetchVerifyCaptcha(captcha, callback) {
+  return {
+    captcha,
+    [FETCH_API]: {
+      types: [VERIFY_CAPTCHA_REQUEST, VERIFY_CAPTCHA_SUCCESS, VERIFY_CAPTCHA_FAILURE],
+      endpoint: `/captcha/${captcha}/verify`,
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function verifyCaptcha(captcha, callback) {
+  return (dispatch) => {
+    return dispatch(fetchVerifyCaptcha(captcha, callback))
+  }
+}
+
+export const LOGIN_REQUEST = 'LOGIN_REQUEST'
+export const LOGIN_SUCCESS = 'LOGIN_SUCCESS'
+export const LOGIN_FAILURE = 'LOGIN_FAILURE'
+
+function fetchLogin(body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILURE],
+      endpoint: `/auth/users/verify`,
+      options: {
+        method: 'POST',
+        body,
+      },
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function login(body, callback) {
+  return (dispatch) => {
+    return dispatch(fetchLogin(body, callback))
+  }
+}
+
+export const LOGIN_USER_DETAIL_REQUEST = 'LOGIN_USER_DETAIL_REQUEST'
+export const LOGIN_USER_DETAIL_SUCCESS = 'LOGIN_USER_DETAIL_SUCCESS'
+export const LOGIN_USER_DETAIL_FAILURE = 'LOGIN_USER_DETAIL_FAILURE'
+
+function fetchLoginUserDetail(callback) {
+  return {
+    [FETCH_API]: {
+      types: [LOGIN_USER_DETAIL_REQUEST, LOGIN_USER_DETAIL_SUCCESS, LOGIN_USER_DETAIL_FAILURE],
+      endpoint: `/users/default`,
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function loadLoginUserDetail(callback) {
+  return (dispatch) => {
+    return dispatch(fetchLoginUserDetail(callback))
+  }
+}

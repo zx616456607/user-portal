@@ -167,49 +167,14 @@ const i18n = require('./services/i18n')
 app.use(i18n.handle())
 app.use(i18n.middleware)
 
-// For test
-app.use(function* (next) {
-  let teamspace = this.headers.teamspace
-  if (teamspace === 'default') {
-    teamspace = null
-  }
-  /*this.session.loginUser = {
-    user: "mengyuan",
-    namespace: "mengyuan",
-    token: "vdarbhiorastaietwkulcssyzvsfmyscauiosusmybpzazde",
-    teamspace,
-  }*/
-  /*this.session.loginUser = {
-    user: "wanglei",
-    id: 347,
-    namespace: "wanglei",
-    token: "dwbkggivnlgknozxforiognekydhrhikucurpmpjjidcfjry",
-    teamspace,
-  }*/
-  this.session.loginUser = {
-    user: "zhangpc",
-    id: 104,
-    namespace: "zhangpc",
-    token: "jgokzgfitsewtmbpxsbhtggabvrnktepuzohnssqjnsirtot",
-    teamspace,
-  }
-  /*this.session.loginUser = {
-    user: "default",
-    id: 104,
-    token: "jgokzgfitsewtmbpxsbhtggabvrnktepuzohnssqjnsirtot",
-    teamspace,
-  }*/
-  yield next
-})
-
-// For user auth
-/*const auth = require('./utils/auth')
-app.use(auth.authByToken)*/
-
+// Routes middleware
+// ~ No authentication required
+const noAuthRoutes = require('./routes/no_auth')
+app.use(noAuthRoutes(Router))
+// ~ Authentication required
+app.use(middlewares.auth)
 // For set user current config
 app.use(middlewares.setUserCurrentConfig)
-
-// Routes middleware
 const indexRoutes = require('./routes')
 app.use(indexRoutes(Router))
 const apiRoutes = require('./routes/api')
@@ -223,7 +188,7 @@ app.use(function* pageNotFound(next) {
   // we need to explicitly set 404 here
   // so that koa doesn't assign 200 on body=
   this.status = 404
-  switch (this.accepts('html', 'json')) {
+  switch (this.accepts('json', 'html')) {
     case 'html':
       this.type = 'html'
       this.body = '<h3>Page Not Found</h3>'

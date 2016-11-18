@@ -277,6 +277,28 @@ function getCdRules(state={}, action) {
   }
 }
 
+function getCdImage(state={}, action) {
+  const defaultState = {
+    isFetching: false,
+    cdImageList: []
+  }
+  switch(action.type) {
+    case ActionTypes.GET_CD_RULES_IMAGE_REQUEST:
+      return merge({}, defaultState, state, {
+        isFetching: true
+      })
+    case ActionTypes.GET_CD_RULES_IMAGE_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        cdImageList: action.response.result.data.images
+      })
+    case ActionTypes.GET_CD_RULES_IMAGE_FAILURE:
+      return defaultState
+    default:
+      return state
+  }
+}
+
 function getTenxflowList(state = {}, action) {
   const defaultState = {
     isFetching: false,
@@ -454,6 +476,107 @@ function getTenxflowBuildLogs(state = {}, action) {
   }
 }
 
+function getTenxflowBuildDetailLogs(state = {}, action) {
+  const defaultState = {
+    isFetching: false,
+    logs: []
+  }
+  switch (action.type) {
+    case ActionTypes.GET_FLOW_BUILD_DETAIL_LOG_REQUEST:
+      return merge({}, defaultState, state, {
+        isFetching: true
+      })
+    case ActionTypes.GET_FLOW_BUILD_DETAIL_LOG_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        logs: action.response.result.data.results.results || []
+      }
+      )
+    case ActionTypes.GET_FLOW_BUILD_DETAIL_LOG_FAILURE:
+      return merge({}, defaultState, state, {
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
+
+function getTenxflowBuildLastLogs(state = {}, action) {
+  const defaultState = {
+    isFetching: false,
+    logs: []
+  }
+  switch (action.type) {
+    case ActionTypes.GET_FLOW_BUILD_LAST_LOG_REQUEST:
+      return merge({}, defaultState, state, {
+        isFetching: true
+      })
+    case ActionTypes.GET_FLOW_BUILD_LAST_LOG_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        logs: action.response.result.data.results.results.stageBuilds || []
+      }
+      )
+    case ActionTypes.GET_FLOW_BUILD_LAST_LOG_FAILURE:
+      return merge({}, defaultState, state, {
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
+
+function getFlowBuildStageLogs(state = {}, action) {
+  const defaultState = {
+    isFetching: false,
+    logs: []
+  }
+  switch (action.type) {
+    case ActionTypes.GET_FLOW_BUILD_STAGE_LOG_REQUEST:
+      return merge({}, defaultState, state, {
+        isFetching: true
+      })
+    case ActionTypes.GET_FLOW_BUILD_STAGE_LOG_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        logs: action.response.result || []
+      }
+      )
+    case ActionTypes.GET_FLOW_BUILD_STAGE_LOG_FAILURE:
+      return merge({}, defaultState, state, {
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
+
+function getStageBuildLogList(state = {}, action) {
+  const defaultState = {
+    isFetching: false,
+    logs: []
+  }
+  switch (action.type) {
+    case ActionTypes.GET_STAGE_BUILD_LOG_LIST_REQUEST:
+      return merge({}, defaultState, state, {
+        isFetching: true
+      })
+    case ActionTypes.GET_STAGE_BUILD_LOG_LIST_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        logs: action.response.result.data.results.results || []
+      }
+      )
+    case ActionTypes.GET_STAGE_BUILD_LOG_LIST_FAILURE:
+      return merge({}, defaultState, state, {
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
+
+
 export default function cicd_flow(state = {}, action) {
   return {
     codeRepo: codeRepo(state.codeRepo, action),
@@ -464,8 +587,13 @@ export default function cicd_flow(state = {}, action) {
     dockerfileLists: getDockerfileList(state.dockerfileLists, action),
     deployLog:　deployLog(state.deployLog, action),
     getCdRules: getCdRules(state.getCdRules, action), 
+    getCdImage: getCdImage(state.getCdImage, action),
     getTenxflowCIRules: getTenxflowCIRules(state.getTenxflowCIRules, action), 
     getTenxflowBuildLogs: getTenxflowBuildLogs(state.getTenxflowBuildLogs, action), 
+    getTenxflowBuildDetailLogs: getTenxflowBuildDetailLogs(state.getTenxflowBuildDetailLogs, action), 
+    getTenxflowBuildLastLogs: getTenxflowBuildLastLogs(state.getTenxflowBuildLastLogs, action), 
+    getFlowBuildStageLogs: getFlowBuildStageLogs(state.getFlowBuildStageLogs, action), 
+    getStageBuildLogList: getStageBuildLogList(state.getStageBuildLogList, action), 
     UpdateTenxflowCIRules: reducerFactory({
       REQUEST: ActionTypes.UPDATE_FLOW_CI_RULES_REQUEST,
       SUCCESS: ActionTypes.UPDATE_FLOW_CI_RULES_SUCCESS,

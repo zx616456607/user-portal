@@ -13,12 +13,11 @@ import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { getTenxFlowList, deleteTenxFlowSingle, getTenxflowBuildLogs } from '../../../actions/cicd_flow'
+import { getTenxFlowList, deleteTenxFlowSingle, getTenxflowBuildLastLogs } from '../../../actions/cicd_flow'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import CreateTenxFlow from './CreateTenxFlow.js'
-import TestModal from '../../TerminalModal'
+import TenxFlowBuildLog from './TenxFlowBuildLog'
 import './style/TenxFlowList.less'
-import TenxFlowBuildLog from './TenxFlowBuildLog.js'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -175,7 +174,8 @@ class TenxFlowList extends Component {
     this.state = {
       createTenxFlowModal: false,
       TenxFlowDeployLogModal: false,
-      currentTenxFlow: null
+      currentTenxFlow: null,
+      currentFlowId: null
     }
   }
 
@@ -201,10 +201,11 @@ class TenxFlowList extends Component {
 
   openTenxFlowDeployLogModal(flowId) {
     //this function for user open the modal of tenxflow deploy log
-    const { getTenxflowBuildLogs } = this.props;
-    getTenxflowBuildLogs(flowId)
+    const { getTenxflowBuildLastLogs } = this.props;
+    getTenxflowBuildLastLogs(flowId)
     this.setState({
-      TenxFlowDeployLogModal: true
+      TenxFlowDeployLogModal: true,
+      currentFlowId: flowId
     });
   }
 
@@ -265,7 +266,7 @@ class TenxFlowList extends Component {
           className='TenxFlowBuildLogModal'
           onCancel={this.closeTenxFlowDeployLogModal}
           >
-          <TenxFlowBuildLog scope={scope} isFetching={buildFetching} logs={logs}/>
+          <TenxFlowBuildLog scope={scope} isFetching={buildFetching} logs={logs} flowId={this.state.currentFlowId}/>
         </Modal>
       </QueueAnim>
     )
@@ -283,9 +284,9 @@ function mapStateToProps(state, props) {
   }
   const { getTenxflowList } = state.cicd_flow
   const { isFetching, flowList } = getTenxflowList || defaultFlowList
-  const { getTenxflowBuildLogs } = state.cicd_flow
-  const { logs } = getTenxflowBuildLogs || defaultBuildLog
-  let buildFetching = getTenxflowBuildLogs.isFetching || defaultBuildLog.buildFetching
+  const { getTenxflowBuildLastLogs } = state.cicd_flow
+  const { logs } = getTenxflowBuildLastLogs || defaultBuildLog
+  let buildFetching = getTenxflowBuildLastLogs.isFetching || defaultBuildLog.buildFetching
   return {
     isFetching,
     flowList,
@@ -301,7 +302,7 @@ TenxFlowList.propTypes = {
 export default connect(mapStateToProps, {
   getTenxFlowList,
   deleteTenxFlowSingle,
-  getTenxflowBuildLogs
+  getTenxflowBuildLastLogs
 })(injectIntl(TenxFlowList, {
   withRef: true,
 }));

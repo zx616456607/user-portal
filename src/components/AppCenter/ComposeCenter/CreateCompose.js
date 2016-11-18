@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Form, Input, Button, Switch, Radio , message} from 'antd'
+import { Form, Input, Button, Switch, Modal, Radio , message} from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -122,7 +122,11 @@ class CreateCompose extends Component {
         },
         failed: {
           func: (err)=>{
-            message.error(err.message)
+            Modal.error({
+              title: '修改编排文件',
+              content: (<h2>{err.message.message}</h2>),
+            });
+
           }
         }
       })

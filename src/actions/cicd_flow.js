@@ -480,6 +480,26 @@ export function putCdRule(obj, callback) {
   }
 }
 
+export const GET_CD_RULES_IMAGE_REQUEST = 'GET_CD_RULES_IMAGE_REQUEST'
+export const GET_CD_RULES_IMAGE_SUCCESS = 'GET_CD_RULES_IMAGE_SUCCESS'
+export const GET_CD_RULES_IMAGE_FAILURE = 'GET_CD_RULES_IMAGE_FAILURE'
+
+function fetchCdInImage(flowId) {
+  return {
+    [FETCH_API]: {
+      types: [GET_CD_RULES_IMAGE_REQUEST, GET_CD_RULES_IMAGE_SUCCESS, GET_CD_RULES_IMAGE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/images`,
+      schema: {},
+    }
+  }
+}
+
+export function getCdInimage(flowId) {
+  return (dispatch, getState) => {
+    dispatch(fetchCdInImage(flowId))
+  }
+}
+
 export const GET_TENX_FLOW_LIST_REQUEST = 'GET_TENX_FLOW_LIST_REQUEST'
 export const GET_TENX_FLOW_LIST_SUCCESS = 'GET_TENX_FLOW_LIST_SUCCESS'
 export const GET_TENX_FLOW_LIST_FAILURE = 'GET_TENX_FLOW_LIST_FAILURE'
@@ -846,5 +866,89 @@ function fetchTenxflowBuildLogs(flowId, callback) {
 export function getTenxflowBuildLogs(flowId, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchTenxflowBuildLogs(flowId, callback))
+  }
+}
+
+export const GET_FLOW_BUILD_DETAIL_LOG_REQUEST = 'GET_FLOW_BUILD_DETAIL_LOG_REQUEST'
+export const GET_FLOW_BUILD_DETAIL_LOG_SUCCESS = 'GET_FLOW_BUILD_DETAIL_LOG_SUCCESS'
+export const GET_FLOW_BUILD_DETAIL_LOG_FAILURE = 'GET_FLOW_BUILD_DETAIL_LOG_FAILURE'
+
+function fetchTenxflowBuildDetailLogs(flowId, flowBuildId, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_FLOW_BUILD_DETAIL_LOG_REQUEST, GET_FLOW_BUILD_DETAIL_LOG_SUCCESS, GET_FLOW_BUILD_DETAIL_LOG_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/builds/${flowBuildId}`,
+      schema: {}
+    },
+    callback: callback
+  }
+}
+
+export function getTenxflowBuildDetailLogs(flowId, flowBuildId, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchTenxflowBuildDetailLogs(flowId, flowBuildId, callback))
+  }
+}
+
+export const GET_FLOW_BUILD_LAST_LOG_REQUEST = 'GET_FLOW_BUILD_LAST_LOG_REQUEST'
+export const GET_FLOW_BUILD_LAST_LOG_SUCCESS = 'GET_FLOW_BUILD_LAST_LOG_SUCCESS'
+export const GET_FLOW_BUILD_LAST_LOG_FAILURE = 'GET_FLOW_BUILD_LAST_LOG_FAILURE'
+
+function fetchTenxflowLastBuildLogs(flowId, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_FLOW_BUILD_LAST_LOG_REQUEST, GET_FLOW_BUILD_LAST_LOG_SUCCESS, GET_FLOW_BUILD_LAST_LOG_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/getLastBuildLogs`,
+      schema: {}
+    },
+    callback: callback
+  }
+}
+
+export function getTenxflowBuildLastLogs(flowId, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchTenxflowLastBuildLogs(flowId, callback))
+  }
+}
+
+export const GET_FLOW_BUILD_STAGE_LOG_REQUEST = 'GET_FLOW_BUILD_STAGE_LOG_REQUEST'
+export const GET_FLOW_BUILD_STAGE_LOG_SUCCESS = 'GET_FLOW_BUILD_STAGE_LOG_SUCCESS'
+export const GET_FLOW_BUILD_STAGE_LOG_FAILURE = 'GET_FLOW_BUILD_STAGE_LOG_FAILURE'
+
+function fetchFlowBuildStageLogs(flowId, stageId, stageBuildId, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_FLOW_BUILD_STAGE_LOG_REQUEST, GET_FLOW_BUILD_STAGE_LOG_SUCCESS, GET_FLOW_BUILD_STAGE_LOG_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/stages/${stageId}/builds/${stageBuildId}`,
+      schema: {}
+    },
+    callback: callback
+  }
+}
+
+export function getFlowBuildStageLogs(flowId, stageId,stageBuildId, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchFlowBuildStageLogs(flowId, stageId, stageBuildId, callback))
+  }
+}
+
+export const GET_STAGE_BUILD_LOG_LIST_REQUEST = 'GET_STAGE_BUILD_LOG_LIST_REQUEST'
+export const GET_STAGE_BUILD_LOG_LIST_SUCCESS = 'GET_STAGE_BUILD_LOG_LIST_SUCCESS'
+export const GET_STAGE_BUILD_LOG_LIST_FAILURE = 'GET_STAGE_BUILD_LOG_LIST_FAILURE'
+
+function fetchStageBuildLogList(flowId, stageId, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_STAGE_BUILD_LOG_LIST_REQUEST, GET_STAGE_BUILD_LOG_LIST_SUCCESS, GET_STAGE_BUILD_LOG_LIST_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/stages/${stageId}/getStageBuildLogs`,
+      schema: {}
+    },
+    callback: callback
+  }
+}
+
+export function getStageBuildLogList(flowId, stageId, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchStageBuildLogList(flowId, stageId, callback))
   }
 }

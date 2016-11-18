@@ -124,7 +124,7 @@ export const USER_TEAMSPACE_LIST_FAILURE = 'USER_TEAMSPACE_LIST_FAILURE'
 // Fetches teamspace list from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
 function fetchUserTeamspaceList(userID, query, callback) {
-  let endpoint = `${API_URL_PREFIX}/users/${userID}/teamspaces/detail`
+  let endpoint = `${API_URL_PREFIX}/users/${userID}/teamspaces`
   if (query) {
     endpoint += `?${toQuerystring(query)}`
   }

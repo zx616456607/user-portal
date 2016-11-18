@@ -120,9 +120,36 @@ exports.getImageInfo = function(username, imageFullName) {
         imageInfo.detailMarkdown = imageInfo.detail
       }
       if (!imageInfo.dockerfile) {
-        imageInfo.dockerfile = '';
+        imageInfo.dockerfile = ''
       }
       resolve(imageInfo)
+    })
+  })
+}
+
+exports.deleteImage = function(username, imageName, callback) {
+  const registry = new registryAPIs()
+  if (username) {
+    username = username.toLowerCase()
+  }
+  return new Promise(function (resolve, reject) {
+    registry.deleteImage(username, imageName, function(statusCode, result, err) {
+      if (err) {
+        reject(err)
+      }
+      if (statusCode < 300) {
+        resolve(statusCode)
+      } else {
+        if (statusCode == 404) {
+          // Don't return error if the image was already removed
+          logger.warn("Return OK for now, as the image already does not exit")
+          resolve(result)
+        } else {
+          logger.error("Failed to delete image -> " + statusCode)
+          err = 'Failed to delete image:' + result
+        }
+        reject(err)
+      }
     })
   })
 }
@@ -141,11 +168,11 @@ exports.getPrivateRepositories = function(username, showDetail) {
         reject(err)
       }
       if (statusCode < 300) {
-        logger.debug('getPrivateRepositories', 'Return my repositories: ' + JSON.stringify(respositories));
-        resolve(respositories.results);
+        logger.debug('getPrivateRepositories', 'Return my repositories: ' + JSON.stringify(respositories))
+        resolve(respositories.results)
       } else {
-        logger.error("Failed to get my repositories -> " + statusCode);
-        err = 'Failed to get my repositories: ' + respositories;
+        logger.error("Failed to get my repositories -> " + statusCode)
+        err = 'Failed to get my repositories: ' + respositories
         reject(err)
       }
     })
@@ -166,11 +193,11 @@ exports.getFavouriteRepositories = function(username, showDetail) {
         reject(err)
       }
       if (statusCode < 300) {
-        logger.debug('getFavouriteRepositories', 'Return my favourite repositories: ' + JSON.stringify(respositories));
-        resolve(respositories.results);
+        logger.debug('getFavouriteRepositories', 'Return my favourite repositories: ' + JSON.stringify(respositories))
+        resolve(respositories.results)
       } else {
-        logger.error("Failed to get my repositories -> " + statusCode);
-        err = 'Failed to get my repositories: ' + respositories;
+        logger.error("Failed to get my repositories -> " + statusCode)
+        err = 'Failed to get my repositories: ' + respositories
         reject(err)
       }
     })
@@ -189,16 +216,16 @@ exports.updateImageInfo = function(username, imageObj) {
   return new Promise(function (resolve, reject) {
     registry.updateImageInfo(username, imageObj, function(statusCode, result, err) {
       if (err) {
-        return reject(err);
+        return reject(err)
       }
       if (statusCode < 300) {
-        resolve(result);
+        resolve(result)
       } else {
-        logger.error("Failed to update image information -> " + statusCode);
-        err = 'Failed to update image information: ' + JSON.stringify(result);
-        reject(err);
+        logger.error("Failed to update image information -> " + statusCode)
+        err = 'Failed to update image information: ' + JSON.stringify(result)
+        reject(err)
       }
-    });
+    })
   })
 }
 

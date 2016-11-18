@@ -9,14 +9,37 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { Breadcrumb } from 'antd'
-import ManageMonitorSider from '../../components/ManageMonitorSider'
+import SecondSider from '../../components/SecondSider'
 import IntlExp from '../../components/IntlExp'
 import QueueAnim from 'rc-queue-anim'
 import './style/ManageMonitor.less'
 
+const menuList = [
+  {
+    url: '/manange_monitor',
+    name: '操作审计'
+  },
+  {
+    url: '/manange_monitor/query_log',
+    name: '日志查询'
+  },
+  {
+    url: '/manange_monitor/monitor',
+    name: '监控管理'
+  }
+]
+
 export default class ManageMonitor extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      containerSiderStyle: 'normal'
+    }
+  }
+  
   render() {
     const { children } = this.props
+    const scope = this
     return (
       <div id="ManageMonitor">
         <QueueAnim
@@ -24,11 +47,11 @@ export default class ManageMonitor extends Component {
           key="ManageMonitorSiderAnimate"
           type="left"
           >
-          <div className="ManageMonitorMenu" key="ManageMonitorSider">
-            <ManageMonitorSider />
+          <div className={ this.state.containerSiderStyle == 'normal' ? 'ManageMonitorMenu CommonSecondMenu' : 'hiddenMenu ManageMonitorMenu CommonSecondMenu'} key='ManageMonitorSider'>
+            <SecondSider menuList={menuList} scope={scope} />
           </div>
         </QueueAnim>
-        <div className="ManageMonitorContent">
+        <div className={ this.state.containerSiderStyle == 'normal' ? 'ManageMonitorContent CommonSecondContent' : 'hiddenContent ManageMonitorContent CommonSecondContent' } >
           {children}
         </div>
       </div>
