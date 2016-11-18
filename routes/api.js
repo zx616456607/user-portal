@@ -141,6 +141,7 @@ module.exports = function (Router) {
   router.get('/registries/:registry/private', registryController.getPrivateImages)
   router.get('/registries/:registry/favourite', registryController.getFavouriteImages)
   router.put('/registries/:registry/:image*', registryController.updateImageInfo)
+  router.delete('/registries/:registry/:image*', registryController.deleteImage)
 
   // Private docker registry integration
   router.get('/docker-registry', registryController.getPrivateRegistries)
