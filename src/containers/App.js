@@ -20,11 +20,13 @@ class App extends Component {
   constructor(props) {
     super(props)
     this.handleDismissClick = this.handleDismissClick.bind(this)
+    this.handleLoginModalCancel = this.handleLoginModalCancel.bind(this)
     this.state = {
       siderStyle: 'mini',
       loginModalVisible: false,
     }
   }
+
   componentWillReceiveProps(nextProps) {
     const { errorMessage } = nextProps
     if (!errorMessage) {

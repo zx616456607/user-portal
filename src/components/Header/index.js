@@ -17,7 +17,7 @@ import PopSelect from '../PopSelect'
 import { connect } from 'react-redux'
 import { loadUserTeamspaceList } from '../../actions/user'
 import { loadTeamClustersList } from '../../actions/team'
-import { setCurrent } from '../../actions'
+import { setCurrent, loadLoginUserDetail } from '../../actions'
 import { getCookie } from '../../common/tools'
 import { USER_CURRENT_CONFIG } from '../../../constants'
 import { browserHistory } from 'react-router'
@@ -138,7 +138,12 @@ class Header extends Component {
   }
 
   componentWillMount() {
-    const { loadTeamClustersList, setCurrent } = this.props
+    const {
+      loadTeamClustersList,
+      setCurrent,
+      loadLoginUserDetail,
+      loginUser,
+    } = this.props
     const config = getCookie(USER_CURRENT_CONFIG)
     const [teamID, namespace, clusterID] = config.split(',')
     setCurrent({
@@ -188,6 +193,10 @@ class Header extends Component {
         isAsync: true
       }
     })
+    // load user info
+    if (!loginUser.info.userName) {
+      loadLoginUserDetail()
+    }
   }
 
   render() {
@@ -279,4 +288,5 @@ export default connect(mapStateToProps, {
   loadUserTeamspaceList,
   loadTeamClustersList,
   setCurrent,
+  loadLoginUserDetail,
 })(Header)

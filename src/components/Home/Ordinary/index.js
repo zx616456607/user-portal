@@ -112,37 +112,195 @@ let appOption = {
   },
 }
 let CPUOption = {
-  tooltip: {
-    text:'CPU',
-    top:0,
+  title: {
+    text: 'CPU',
+    top: '0',
     left: 'center',
+    textStyle: {
+      fontWeight:'normal'
+    }
   },
-  xAxis: {
-    type: value,
-    data: ['node','node1','node2'],
+  color: ['#3398DB'],
+  tooltip : {
+    trigger: 'axis',
+    axisPointer : {
+      type : 'shadow'
+    },
+    formatter: '{b} : {c}'
+  },
+  grid: {
+    left: '3%',
+    right: '4%',
+    bottom: '3%',
+    containLabel: true
+  },
+  xAxis : [
+    {
+      type : 'category',
+      data : ['node', 'node1', 'node2'],
+      splitLine: {
+        "show": false
+      },
+      axisTick: {
+        "show": false
+      },
+      splitArea: {
+        "show": false
+      },
+      axisLabel: {
+        "interval": 0,
+      },
+    }
+  ],
+  yAxis : [
+    {
+      type : 'value',
+      max: 100,
+      splitNumber: 2,
+      interval: 50,
+      splitLine: {
+        show: true,
+        lineStyle: {
+          type: 'dashed'
+        },
+      },
+    }
+  ],
+  series : [
+    {
+      name:'',
+      type:'bar',
+      barWidth: '60%',
+      data:[10, 52, 100],
+      
+    }
+  ]
+}
+let memoryOption = {
+  title: {
+    text: '内存',
+    top: '0',
+    left: 'center',
     
   },
-  yAxis: {
-    type:'value',
-    max:100,
+  color: ['#3398DB'],
+  tooltip : {
+    trigger: 'axis',
+    axisPointer : {
+      type : 'shadow'
+    },
+    formatter: '{b} : {c}'
   },
-  series: {
-    type: 'bar',
-    data: [
-      {
-        name: 'node',
-        value: 10,
+  grid: {
+    left: '3%',
+    right: '4%',
+    bottom: '3%',
+    containLabel: true
+  },
+  xAxis : [
+    {
+      type : 'category',
+      data : ['node', 'node1', 'node2'],
+      splitLine: {
+        "show": false
       },
-      {
-        name: 'node1',
-        value: 80,
+      axisTick: {
+        "show": false
       },
-      {
-        name: 'node2',
-        value: 30,
+      splitArea: {
+        "show": false
       },
-    ]
-  }
+      axisLabel: {
+        "interval": 0,
+      },
+    }
+  ],
+  yAxis : [
+    {
+      type : 'value',
+      max: 100,
+      splitNumber: 2,
+      interval: 50,
+      splitLine: {
+        show: true,
+        lineStyle: {
+          type: 'dashed'
+        },
+      },
+    }
+  ],
+  series : [
+    {
+      name:'',
+      type:'bar',
+      barWidth: '60%',
+      data:[10, 52, 100],
+      
+    }
+  ]
+}
+let diskOption = {
+  title: {
+    text: '磁盘',
+    top: '0',
+    left: 'center',
+    
+  },
+  color: ['#3398DB'],
+  tooltip : {
+    trigger: 'axis',
+    axisPointer : {
+      type : 'shadow'
+    },
+    formatter: '{b} : {c}'
+  },
+  grid: {
+    left: '3%',
+    right: '4%',
+    bottom: '3%',
+    containLabel: true
+  },
+  xAxis : [
+    {
+      type : 'category',
+      data : ['node', 'node1', 'node2'],
+      splitLine: {
+        "show": false
+      },
+      axisTick: {
+        "show": false
+      },
+      splitArea: {
+        "show": false
+      },
+      axisLabel: {
+        "interval": 0,
+      },
+    }
+  ],
+  yAxis : [
+    {
+      type : 'value',
+      max: 100,
+      splitNumber: 2,
+      interval: 50,
+      splitLine: {
+        show: true,
+        lineStyle: {
+          type: 'dashed'
+        },
+      },
+    }
+  ],
+  series : [
+    {
+      name:'',
+      type:'bar',
+      barWidth: '60%',
+      data:[10, 52, 100],
+      
+    }
+  ]
 }
 export default class Ordinary extends Component{
   constructor(props){
@@ -367,9 +525,54 @@ export default class Ordinary extends Component{
                     option={CPUOption}
                   />
                 </Col>
-                <Col span={6}></Col>
-                <Col span={6}></Col>
-                <Col span={6}></Col>
+                <Col span={6}>
+                  <ReactEcharts
+                    notMerge={true}
+                    option={memoryOption}
+                  />
+                </Col>
+                <Col span={6}>
+                  <ReactEcharts
+                    notMerge={true}
+                    option={diskOption}
+                  />
+                </Col>
+                <Col span={6} style={{borderLeft: '1px solid #e2e2e2'}}>
+                  <Row style={{fontSize:'18px',textAlign: 'center',height:60}}>主机状态</Row>
+                  <Row style={{padding:'0 30px',lineHeight:'30px'}}>
+                    <Col span={12}>
+                      <svg className="stateSvg">
+                        <use xlinkHref="#settingname" />
+                      </svg>
+                      主机总数
+                    </Col>
+                    <Col span={12} style={{textAlign:'right'}}>
+                      12346个
+                    </Col>
+                  </Row>
+                  <Row style={{padding:'0 30px',lineHeight:'30px'}}>
+                    <Col span={12}>
+                      <svg className="stateSvg">
+                        <use xlinkHref="#settingname" />
+                      </svg>
+                      健康主机数
+                    </Col>
+                    <Col span={12} style={{textAlign:'right'}}>
+                      12340个
+                    </Col>
+                  </Row>
+                  <Row style={{padding:'0 30px',lineHeight:'30px'}}>
+                    <Col span={12}>
+                      <svg className="stateSvg">
+                        <use xlinkHref="#settingname" />
+                      </svg>
+                      未启用主机数
+                    </Col>
+                    <Col span={12} style={{textAlign:'right'}}>
+                      6个
+                    </Col>
+                  </Row>
+                </Col>
               </Row>
             </Card>
           </Col>

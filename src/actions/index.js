@@ -97,7 +97,7 @@ function fetchLoginUserDetail(callback) {
   return {
     [FETCH_API]: {
       types: [LOGIN_USER_DETAIL_REQUEST, LOGIN_USER_DETAIL_SUCCESS, LOGIN_USER_DETAIL_FAILURE],
-      endpoint: `/users/default`,
+      endpoint: `${API_URL_PREFIX}/users/default`,
       schema: {},
     },
     callback
