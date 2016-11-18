@@ -297,7 +297,7 @@ class Slider extends Component {
               </Link>
             </div>
             <Menu
-              style={{ width: 200, backgroundColor: '#222222', color: '#c4c4c4' }}
+              style={{ width: '100%', backgroundColor: '#222222', color: '#c4c4c4' }}
               mode='inline'
               theme='dark'
             > 

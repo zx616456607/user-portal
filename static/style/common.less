@@ -35,7 +35,7 @@ svg path {
 }
 .tenx-layout-header-bigger {
   padding-left: 200px !important;
-} 
+}
 .tenx-layout-wrapper {
   padding: 0;
   height: 55px !important;
@@ -65,7 +65,14 @@ svg path {
 }
 .tenx-layout-content-bigger {
   margin-left: 200px;
-  width: calc(~"100% - 200px");
+  width: 100%;
+  .CommonSecondMenu {
+    transform: translateX(-140px) !important;
+  }
+  .CommonSecondContent {
+    margin-left: 0px !important;
+    width: 100% !important;
+  }
 }
 .tenx-layout-bjreadcrumb {
   margin: 7px 0 -17px 24px;
@@ -168,7 +175,6 @@ svg path {
   .ant-modal-close {
     display: none !important;
   }
-
   .ant-modal-content {
     height: 100%;
     border-radius: 0 !important;

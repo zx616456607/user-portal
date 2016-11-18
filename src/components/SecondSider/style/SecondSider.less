@@ -1,5 +1,6 @@
 #SecondSider {
   transition: all 0.3s;
+  opacity: 1;
   padding-top: 40px;
   width: 140px;
   font-size: 14px;
@@ -28,7 +29,7 @@
   .ant-menu-item-active {
     width: 139px;
   }
-  .siderBtnBox{
+  .siderBtnBox {
     position: absolute;
     top: calc(~"50% - 62.5px");
     right: 0;
@@ -36,10 +37,25 @@
     height: 30px;
     line-height: 30px;
     text-align: center;
-    background-color: #e7eaea;
     cursor: pointer;
+    .fa {
+      z-index: 10;
+      position: absolute;
+      top: 8px;
+      left: 4px;
+    }
+    .btnBack {
+      z-index: 1;
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 30px;
+      border-top: 7px solid transparent;
+      border-right: 15px solid #e7eaea;
+      border-bottom: 7px solid transparent;
+    }
   }
-  .hideBtnBox{
+  .hideBtnBox {
     right: -15px;
   }
 }

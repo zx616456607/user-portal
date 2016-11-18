@@ -36,6 +36,7 @@ export default class CICD extends Component {
       containerSiderStyle: 'normal'
     }
   }
+  
   render() {
     const { children } = this.props
     const scope = this
@@ -46,11 +47,11 @@ export default class CICD extends Component {
           key='CICDSiderAnimate'
           type='left'
           >
-          <div className={ this.state.containerSiderStyle == 'normal' ? 'CICDMenu' : 'hiddenMenu CICDMenu'} key='imageSider'>
+          <div className={ this.state.containerSiderStyle == 'normal' ? 'CICDMenu CommonSecondMenu' : 'hiddenMenu CICDMenu CommonSecondMenu'} key='imageSider'>
             <SecondSider menuList={menuList} scope={scope} />
           </div>
         </QueueAnim>
-        <div className='CICDContent'>
+        <div className={ this.state.containerSiderStyle == 'normal' ? 'CICDContent CommonSecondContent' : 'hiddenContent CICDContent CommonSecondContent' } >
           {children}
         </div>
       </div>

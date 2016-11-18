@@ -9,13 +9,52 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { Breadcrumb } from 'antd'
-import SettingSider from '../../components/SettingSider'
+import SecondSider from '../../components/SecondSider'
 import QueueAnim from 'rc-queue-anim'
 import './style/setting.less'
 
+const menuList = [
+  {
+    url: '/setting',
+    name: '我的信息'
+  },
+  {
+    url: '/setting/member',
+    name: '成员管理'
+  },
+  {
+    url: '/setting/team',
+    name: '团队管理'
+  },
+  {
+    url: '/setting/note',
+    name: '通知设置'
+  },
+  {
+    url: '/setting/API',
+    name: '开放API'
+  },
+  {
+    url: '/setting/version',
+    name: '平台版本'
+  },
+  {
+    url: '/setting/license',
+    name: '授权管理'
+  }
+]
+
 export default class Setting extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      containerSiderStyle: 'normal'
+    }
+  }
+ 
   render() {
     const { children } = this.props
+    const scope = this
     return (
       <div id="Setting">
         <QueueAnim
@@ -23,11 +62,11 @@ export default class Setting extends Component {
           key="settingAnimate"
           type="left"
         >
-          <div className="settingMenu" key="settingSider">
-            <SettingSider />
+          <div className={ this.state.containerSiderStyle == 'normal' ? 'settingMenu CommonSecondMenu' : 'hiddenMenu settingMenu CommonSecondMenu'} key='settingSider'>
+            <SecondSider menuList={menuList} scope={scope} />
           </div>
         </QueueAnim>
-        <div className="settingContent">
+        <div className={ this.state.containerSiderStyle == 'normal' ? 'settingContent CommonSecondContent' : 'hiddenContent settingContent CommonSecondContent' } >
           {children}
         </div>
       </div>

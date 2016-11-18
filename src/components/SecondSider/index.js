@@ -104,6 +104,7 @@ export default class SecondSider extends Component {
           </Menu>
           <div className={ this.state.currentSiderStyle == 'normal' ? 'siderBtnBox' : 'hideBtnBox siderBtnBox' } onClick={this.changeSiderStyle}>
             { this.state.currentSiderStyle == 'normal' ? [<i key='fa-step-backward' className='fa fa-step-backward'></i>] : [<i key='fa-step-forward' className='fa fa-step-forward'></i>] }
+            <div className='btnBack'></div>
           </div>
         </div>
       </div>
