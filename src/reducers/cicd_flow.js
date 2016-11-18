@@ -277,6 +277,28 @@ function getCdRules(state={}, action) {
   }
 }
 
+function getCdImage(state={}, action) {
+  const defaultState = {
+    isFetching: false,
+    cdImageList: []
+  }
+  switch(action.type) {
+    case ActionTypes.GET_CD_RULES_IMAGE_REQUEST:
+      return merge({}, defaultState, state, {
+        isFetching: true
+      })
+    case ActionTypes.GET_CD_RULES_IMAGE_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        cdImageList: action.response.result.data.images
+      })
+    case ActionTypes.GET_CD_RULES_IMAGE_FAILURE:
+      return defaultState
+    default:
+      return state
+  }
+}
+
 function getTenxflowList(state = {}, action) {
   const defaultState = {
     isFetching: false,
@@ -565,6 +587,7 @@ export default function cicd_flow(state = {}, action) {
     dockerfileLists: getDockerfileList(state.dockerfileLists, action),
     deployLog:　deployLog(state.deployLog, action),
     getCdRules: getCdRules(state.getCdRules, action), 
+    getCdImage: getCdImage(state.getCdImage, action),
     getTenxflowCIRules: getTenxflowCIRules(state.getTenxflowCIRules, action), 
     getTenxflowBuildLogs: getTenxflowBuildLogs(state.getTenxflowBuildLogs, action), 
     getTenxflowBuildDetailLogs: getTenxflowBuildDetailLogs(state.getTenxflowBuildDetailLogs, action), 
