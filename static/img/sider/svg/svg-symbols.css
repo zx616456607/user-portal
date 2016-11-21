@@ -1,8 +1,87 @@
+.lost {
+  width: 260px;
+  height: 200px;
+}
+<![CDATA[ ]]>
+.gitlab {
+  width: 128px;
+  height: 128px;
+}
+
+.jenkins {
+  width: 180px;
+  height: 180px;
+}
+
+.mongo {
+  width: 200px;
+  height: 200px;
+}
+
+.mysql {
+  width: 200px;
+  height: 200px;
+}
+
+.redis {
+  width: 200px;
+  height: 200px;
+}
+
+.spark {
+  width: 967px;
+  height: 627px;
+}
+
+.tomcat {
+  width: 200px;
+  height: 200px;
+}
+
+.weblogic12 {
+  width: 1000px;
+  height: 1000px;
+}
+
+.zookeeper {
+  width: 1000px;
+  height: 1000px;
+}
+
+.add {
+  width: 40px;
+  height: 40px;
+}
+.st0{fill:#FFFFFF;}
+
 .addselected {
   width: 40px;
   height: 40px;
 }
-#addselected .st0{fill:#1AA2E7;}
+.st0{fill:#1AA2E7;}
+
+.app {
+  width: 40px;
+  height: 40px;
+}
+.st0{fill:#FFFFFF;}
+
+.appcreatefast {
+  width: 200px;
+  height: 200px;
+}
+
+.appcreatelayout {
+  width: 200px;
+  height: 200px;
+}
+
+.appcreatemodelselect {
+  width: 50px;
+  height: 50px;
+}
+.st0 { fill: #00A1EA; }
+.st1 { fill: #FFFFFF; }
 
 .applining {
   width: 50px;
@@ -17,46 +96,219 @@
   width: 40px;
   height: 40px;
 }
-#appselected .st0{fill:#1AA2E7;}
+.st0{fill:#1AA2E7;}
+
+.appstore {
+  width: 200px;
+  height: 200px;
+}
+
+.branch {
+  width: 22.9px;
+  height: 7px;
+}
+.st0{fill:#37B8F2;}
+
+.center {
+  width: 40px;
+  height: 40px;
+}
+.st0{fill:#FFFFFF;}
 
 .centerselected {
   width: 40px;
   height: 40px;
 }
-#centerselected .st0{fill:#1AA2E7;}
+.st0{fill:#1AA2E7;}
+
+.cicd {
+  width: 40px;
+  height: 40px;
+}
+.st0{fill:#FFFFFF;}
 
 .cicdselected {
   width: 40px;
   height: 40px;
 }
-#cicdselected .st0{fill:#1AA2E7;}
+.st0{fill:#1AA2E7;}
 
 .database-selected {
   width: 40px;
   height: 40px;
 }
-#database-selected .st0{fill:#1AA2E7;}
+.st0{fill:#1AA2E7;}
+
+.database {
+  width: 40px;
+  height: 40px;
+}
+.st0{fill:#FFFFFF;}
+
+.home {
+  width: 40px;
+  height: 40px;
+}
+.st0{fill:#666666;}
 
 .homeselected {
   width: 40px;
   height: 40px;
 }
-#homeselected .st0{fill:#1AA2E7;}
+.st0{fill:#1AA2E7;}
+
+.logo {
+  width: 200px;
+  height: 200px;
+}
+.st0{fill:#008BD5;}
+.st1{fill:#00AEDC;}
+
+.managemoniter {
+  width: 200px;
+  height: 200px;
+}
+.st0{fill:#FFFFFF;}
+
+.message {
+  width: 40px;
+  height: 40px;
+}
+.st0{fill:#FFFFFF;}
 
 .messageselected {
   width: 40px;
   height: 40px;
 }
-#messageselected .st0{fill:#1AA2E7;}
+.st0{fill:#1AA2E7;}
+
+.more {
+  width: 200px;
+  height: 200px;
+}
+<![CDATA[ ]]>
+.setting {
+  width: 40px;
+  height: 40px;
+}
+.st0{fill:#FFFFFF;}
 
 .settingselected {
   width: 40px;
   height: 40px;
 }
-#settingselected .st0{fill:#1AA2E7;}
+.st0{fill:#1AA2E7;}
+
+.step {
+  width: 200px;
+  height: 200px;
+}
+.st0{fill:#999999;}
+
+.stepline {
+  width: 50px;
+  height: 50px;
+}
+.st0{fill:#999999;}
+
+.system {
+  width: 40px;
+  height: 40px;
+}
+.st0{fill:#FFFFFF;}
 
 .systemselected {
   width: 40px;
   height: 40px;
 }
-#systemselected .st0{fill:#1AA2E7;}
+.st0{fill:#1AA2E7;}
+
+.terminal {
+  width: 200px;
+  height: 200px;
+}
+.st0{fill:#FFFFFF;}
+
+.settingapp {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill:#999999;}
+
+.settingbalance {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill:#666666;}
+
+.settingbase {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill:#666666;}
+
+.settingcluster {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill:#666666;}
+
+.settingcontainer {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill:#666666;}
+
+.settingname {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill:#666666;}
+
+.settingopt {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill:#666666;}
+
+.settingownteam {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill:#666666;}
+
+.settingperspace {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill:#666666;}
+
+.settingservice {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill:#666666;}
+
+.settingsycname {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill:#666666;}
+
+.settingteamspace {
+  width: 200px;
+  height: 200px;
+}
+.st0{fill:#666666;}
+
+.settingtranname {
+  width: 20px;
+  height: 20px;
+}
+.st0{fill:#666666;}
+
+.svg-symbols {
+  width: 100px;
+  height: 100px;
+}
+

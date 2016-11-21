@@ -75,10 +75,36 @@
       background-color: #fff;
     }
   }
+  .branchSvg {
+    width: 23px;
+    height: 7px;
+    margin-right: 8px;
+    use {
+      fill: #2db7f5 !important;
+    }
+  }
+  .ant-timeline-item-head-custom {
+    margin-top: 0;
+    padding: 0;
+  }
+  .ant-timeline-item-tail {
+    border-left: 1px solid #2db7f5;
+  }
+  .ant-timeline-item-content {
+    padding: 0 0 10px 5px;
+    top: -9px;
+    height: 20px;
+  }
+  .ant-popover-arrow {
+    border-right-color: #36baf5;
+  }
+  .ant-popover-inner {
+    border: 1px solid #36baf5;
+  }
   .urlItem {
     position: relative;
     margin-left: 45px;
-    &::before {
+    /*&::before {
       content: '';
       height: 20px;
       background-color: #000;
@@ -97,7 +123,7 @@
       top: 50%;
       transform: translate(-50%, 0);
       left: -12px;
-    }
+    }*/
   }
 
 }

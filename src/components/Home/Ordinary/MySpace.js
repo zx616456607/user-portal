@@ -263,27 +263,31 @@ export default class MySpace extends Component{
               </Row>
             </Card>
           </Col>
-          <Col span={6}>
+          <Col span={6} className='warnList'>
             <Card title="告警" bordered={false} bodyStyle={{height:410}}>
               <Timeline>
-                <Timeline.Item dot={
-                  <svg id="stateSvg"><use xlinkHref="#settingname" /></svg>
-                }>
-                  <Popover content={
-                    <div>
-                      <Row>API Server发生故障</Row>
-                      <Row>刚刚</Row>
-                    </div>
-                  } title="标题" visible={true}
-                           placement="right"
-                           getTooltipContainer={() => document.getElementById('posDiv')}
-                  >
-                    <div style={{width:1,height:1}} id="posDiv">121212</div>
-                  </Popover>
-                </Timeline.Item>
-                <Timeline.Item>初步排除网络异常 2015-09-01</Timeline.Item>
-                <Timeline.Item>技术测试异常 2015-09-01</Timeline.Item>
-                <Timeline.Item>网络异常正在修复 2015-09-01</Timeline.Item>
+                {
+                  [1,2,3].map((item,index) => {
+                    return (
+                      <Timeline.Item dot={
+                        <svg className="stateSvg"><use xlinkHref="#settingname" /></svg>
+                      }>
+                        <Popover content={
+                          <div>
+                            <Row>API Server发生故障</Row>
+                            <Row>刚刚</Row>
+                          </div>
+                        } visible={true}
+                                 placement="rightTop"
+                                 overlayClassName="warnItem"
+                                 getTooltipContainer={() => document.getElementsByClassName('warn')[index]}
+                        >
+                          <div style={{width:1,height:65}} className="warn"></div>
+                        </Popover>
+                      </Timeline.Item>
+                    )
+                  })
+                }
               </Timeline>
             </Card>
           </Col>
