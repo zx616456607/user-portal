@@ -17,7 +17,10 @@ exports.getClusterOperations = function* () {
   let queryObj = { cluster}
   const api = apiFactory.getApi(loginUser)
   const result = yield api.overview.getBy(["operations"], queryObj)
-  const data = result || {}
+  const data = {}
+  if (result && result.app) {
+    data = result.app
+  }
   this.body = {
     data
   }
