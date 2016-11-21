@@ -12,6 +12,7 @@
 
 import React, { Component, PropTypes } from 'react'
 import TenxStatus from './'
+import { getContainerStatus } from '../../common/status_identify'
 
 class ContainerStatus extends Component {
   constructor(props) {
@@ -19,8 +20,10 @@ class ContainerStatus extends Component {
   }
 
   render() {
-    const { status, creationTimestamp, deletionTimestamp, smart } = this.props
-    let { phase, progress } = status
+    const { container, smart } = this.props
+    const { metadata } = container
+    const { creationTimestamp, deletionTimestamp } = metadata
+    let { phase, progress } = getContainerStatus(container)
     if (deletionTimestamp) {
       phase = 'Terminating'
     }
@@ -35,9 +38,10 @@ class ContainerStatus extends Component {
 }
 
 ContainerStatus.propTypes = {
-  status: PropTypes.object.isRequired,
-  creationTimestamp: PropTypes.string,
-  deletionTimestamp: PropTypes.string,
+  container: PropTypes.object.isRequired,
+  // status: PropTypes.object.isRequired,
+  // creationTimestamp: PropTypes.string,
+  // deletionTimestamp: PropTypes.string,
   smart: PropTypes.bool,
 }
 

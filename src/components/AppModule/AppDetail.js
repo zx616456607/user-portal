@@ -124,12 +124,12 @@ class AppDetail extends Component {
                 <div className="leftInfo">
                   <div className="status">
                     运行状态&nbsp;:
-                    <div style={{display: 'inline-block',position: 'relative',top: '-5px'}}>
+                    <div style={{ display: 'inline-block', position: 'relative', top: '-5px' }}>
                       <AppStatus services={app.services} smart={true} />
                     </div>
                   </div>
                   <div className="address">
-                    <TipSvcDomain type='containerPop' appDomain={appDomain}/>
+                    <TipSvcDomain type='containerPop' appDomain={appDomain} />
                   </div>
                   <div className="service">
                     服务&nbsp;:&nbsp; {`${app.serviceCount} / ${app.serviceCount}`}
