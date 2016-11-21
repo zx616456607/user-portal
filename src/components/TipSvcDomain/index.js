@@ -44,6 +44,22 @@ class AppTip extends Component {
             <span>-</span>
           </div>
         )
+      } else if (item.data.length === 1) {
+        return (
+          <div>
+            <Row className="firstSvc">
+              <Col style={{display:'inline-block',color:'#49b1e2'}}>{ item.name }</Col>
+            </Row>
+            <Timeline>
+              <Timeline.Item dot={<div style={{height:5,width:5,backgroundColor:'#2db7f5',margin:'0 auto'}}></div>}></Timeline.Item>
+              <Timeline.Item dot={<div></div>}>
+                <svg className="branchSvg"><use xlinkHref="#branch"/></svg>
+                {item.data[0]}
+                <svg className="tipCopySvg"><use xlinkHref="#tipcopy"/></svg>
+              </Timeline.Item>
+            </Timeline>
+          </div>
+        )
       } else {
         return (
           <div>
@@ -51,16 +67,22 @@ class AppTip extends Component {
               <Col style={{display:'inline-block',color:'#49b1e2'}}>{ item.name }</Col>
             </Row>
             <Timeline>
-              <Timeline.Item dot={<div style={{height:5,width:5,backgroundColor:'#2db7f5',margin:'0 auto'}}></div>}/>
+              {/*<Timeline.Item dot={<div style={{height:5,width:5,backgroundColor:'#2db7f5',margin:'0 auto'}}></div>}/>*/}
             {
               item.data.map((url,index) => {
-                return (
+                if(index === 0){
+                  return (
+                    <Timeline.Item dot={<div style={{height:5,width:5,backgroundColor:'#2db7f5',margin:'0 auto'}}></div>}></Timeline.Item>
+                  )
+                } else {
+                  return (
                     <Timeline.Item dot={<div></div>}>
                       <svg className="branchSvg"><use xlinkHref="#branch"/></svg>
                       {url}
                       <svg className="tipCopySvg"><use xlinkHref="#tipcopy"/></svg>
                     </Timeline.Item>
-                )
+                  )
+                }
               })
             }
             </Timeline>
@@ -94,6 +116,7 @@ export default class TipSvcDomain extends Component{
   render(){
     const { appDomain,svcDomain,type } = this.props
     if (svcDomain) {
+      console.log('svcDomain',svcDomain);
       if(svcDomain.length == 0){
         return (
           <span>-</span>
@@ -106,10 +129,10 @@ export default class TipSvcDomain extends Component{
         )
       } else if (svcDomain.length == 2) {
         return (
-          <div id='TipSvcDomain'>
-            <a target="_blank" href={svcDomain[0]}>{svcDomain[0]}</a>
-            <a target="_blank" href={svcDomain[1]}>{svcDomain[1]}</a>
-          </div>
+          <Row id='TipSvcDomain'>
+              <a target="_blank" href={svcDomain[0]} style={{display:'block',height:30,lineHeight:'40px'}}>{svcDomain[0]}</a>
+              <a target="_blank" href={svcDomain[1]} style={{display:'block',height:30,lineHeight:'20px'}}>{svcDomain[1]}</a>
+          </Row>
         )
       } else if (svcDomain.length > 2) {
         return (
@@ -119,7 +142,8 @@ export default class TipSvcDomain extends Component{
                      content={<SvcTip svcDomain={svcDomain} />}
                      trigger="click"
                      onVisibleChange={ this.showPop }
-                     arrowPointAtCenter={true}>
+                     getTooltipContainer={() => document.getElementsByClassName('TipSvcDomain')[0]}
+                     >
               <svg className={this.state.show?'more showPop':'more'} onClick={this.showPop}>
                 <use xlinkHref="#more" />
               </svg>
@@ -141,14 +165,15 @@ export default class TipSvcDomain extends Component{
         )
       } else {
         return (
-          <div className='TipAppDomain'>
+          <div className={type ? 'TipAppDomain fixTop': 'TipAppDomain'}>
             <a target="_blank">{appDomain[0].data[0]}</a>
-            <Popover placement="right"
+            <Popover placement={type?'rightBottom':'rightTop'}
                      content={<AppTip appDomain={appDomain}/>}
                      trigger="click"
                      onVisibleChange={ this.showPop }
                      getTooltipContainer={() => document.getElementsByClassName('TipAppDomain')[0]}
-                     arrowPointAtCenter={true}>
+                     arrowPointAtCenter={true}
+                     >
               <svg className={this.state.show?'more showPop':'more'} onClick={this.showPop}>
                 <use xlinkHref="#more" />
               </svg>
