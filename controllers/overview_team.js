@@ -21,3 +21,15 @@ exports.getTeamDetail = function* () {
     data
   }
 }
+
+exports.getTeamOperations = function* () {
+  let team = this.params.team_id
+  const loginUser = this.session.loginUser
+  let queryObj = { team }
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.overview.getBy(["operations"], queryObj)
+  const data = result || {}
+  this.body = {
+    data
+  }
+}

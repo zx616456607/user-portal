@@ -116,6 +116,7 @@ module.exports = function (Router) {
 
   //Overview
   router.get('/overview/teams/:team_id/detail', overviewTeamController.getTeamDetail)
+  router.get('/overview/teams/:team_id/operations', overviewTeamController.getTeamOperations)
 
   // spi
   router.post('/clusters/:cluster/services/:service_name/binddomain', serviceController.bindServiceDomain)

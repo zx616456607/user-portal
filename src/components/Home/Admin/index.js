@@ -12,7 +12,7 @@ import { Row, Col, Card, } from 'antd'
 import './style/Admin.less'
 import ReactEcharts from 'echarts-for-react'
 import { connect } from 'react-redux'
-import { loadTeamDetail } from '../../../actions/overview_team'
+import { loadTeamDetail, loadTeamOperations } from '../../../actions/overview_team'
 
 
 
@@ -105,10 +105,12 @@ class Admin extends Component{
   componentWillMount() {
     const { loadTeamDetail } = this.props
     loadTeamDetail("t-aldakdsadssdsjkewr")
+    loadTeamOperations("t-aldakdsadssdsjkewr")
   }
 
   render(){
     const teamDetail = this.props.teamDetail
+    const teamOperations = this.props.teamOperations
     return (
       <div id='Admin'>
         <Row className="title">空间对应的团队</Row>
@@ -267,7 +269,7 @@ class Admin extends Component{
                       创建应用数量
                     </td>
                     <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                      1000个
+                      {teamOperations.appCreate}个
                     </td>
                   </tr>
                   <tr>
@@ -275,10 +277,65 @@ class Admin extends Component{
                       <svg className="teamRecSvg">
                         <use xlinkHref="#settingname" />
                       </svg>
-                      删除应用数量
+                      修改应用数量
                     </td>
                     <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                      1000个
+                      {teamOperations.appModify}个
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <svg className="teamRecSvg">
+                        <use xlinkHref="#settingname" />
+                      </svg>
+                      停止应用数量
+                    </td>
+                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                      {teamOperations.appStop}个
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <svg className="teamRecSvg">
+                        <use xlinkHref="#settingname" />
+                      </svg>
+                      启动应用数量
+                    </td>
+                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                      {teamOperations.appStart}个
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <svg className="teamRecSvg">
+                        <use xlinkHref="#settingname" />
+                      </svg>
+                      重新部署应用数量
+                    </td>
+                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                      {teamOperations.appRedeploy}个
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <svg className="teamRecSvg">
+                        <use xlinkHref="#settingname" />
+                      </svg>
+                      创建服务数量
+                    </td>
+                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                      {teamOperations.svcCreate}个
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <svg className="teamRecSvg">
+                        <use xlinkHref="#settingname" />
+                      </svg>
+                      删除服务数量
+                    </td>
+                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                      {teamOperations.svcDelete}个
                     </td>
                   </tr>
                   <tr>
@@ -324,7 +381,16 @@ function mapStateToProp(state,props) {
     volumeCnt: 0,
     flowCnt: 0,
   }
-  const {teamDetail} = state.overviewTeam
+  let teamOperationsData = {
+    appCreate: 0,
+    appModify: 0,
+    svcCreate: 0,
+    svcDelete: 0,
+    appStop: 0,
+    appStart: 0,
+    appRedeploy: 0,
+  }
+  const {teamDetail, teamOperations} = state.overviewTeam
   if (teamDetail.result && teamDetail.result.data
       && teamDetail.result.data.data) {
     let data = teamDetail.result.data.data
@@ -352,12 +418,42 @@ function mapStateToProp(state,props) {
     if (data.flowCnt) {
       teamDetailData.flowCnt = data.flowCnt
     }
-  } 
+  }
+  if (teamOperations.result && teamOperations.result.data
+      && teamOperations.result.data.data) {
+        let data = teamOperations.result.data.data
+        if (data.appCreate) {
+          teamOperationsData.appCreate = data.appCreate
+        }
+        if (data.appModify) {
+          teamOperationsData.appModify = data.appModify
+        }
+        if (data.svcCreate) {
+          teamOperationsData.svcCreate = data.svcCreate
+        }
+        if (data.svcDelete) {
+          teamOperationsData.svcDelete = data.svcDelete
+        }
+        if (data.appStop) {
+          teamOperationsData.appStop = data.appStop
+        }
+        if (data.appStart) {
+          teamOperationsData.appStart = data.appStart
+        }
+        if (data.appCreate) {
+          teamOperationsData.appCreate = data.appCreate
+        }
+        if (data.appRedeploy) {
+          teamOperationsData.appRedeploy = data.appRedeploy
+        } 
+      } 
   return {
     teamDetail: teamDetailData,
+    teamOperations: teamOperationsData,
   }
 }
 
 export default connect(mapStateToProp, {
-  loadTeamDetail
+  loadTeamDetail,
+  loadTeamOperations,
 })(Admin)
