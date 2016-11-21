@@ -116,6 +116,7 @@ export default class TipSvcDomain extends Component{
   render(){
     const { appDomain,svcDomain,type } = this.props
     if (svcDomain) {
+      console.log('svcDomain',svcDomain);
       if(svcDomain.length == 0){
         return (
           <span>-</span>
@@ -128,10 +129,10 @@ export default class TipSvcDomain extends Component{
         )
       } else if (svcDomain.length == 2) {
         return (
-          <div id='TipSvcDomain'>
-            <a target="_blank" href={svcDomain[0]}>{svcDomain[0]}</a>
-            <a target="_blank" href={svcDomain[1]}>{svcDomain[1]}</a>
-          </div>
+          <Row id='TipSvcDomain'>
+              <a target="_blank" href={svcDomain[0]} style={{display:'block',height:30,lineHeight:'40px'}}>{svcDomain[0]}</a>
+              <a target="_blank" href={svcDomain[1]} style={{display:'block',height:30,lineHeight:'20px'}}>{svcDomain[1]}</a>
+          </Row>
         )
       } else if (svcDomain.length > 2) {
         return (
@@ -141,7 +142,8 @@ export default class TipSvcDomain extends Component{
                      content={<SvcTip svcDomain={svcDomain} />}
                      trigger="click"
                      onVisibleChange={ this.showPop }
-                     arrowPointAtCenter={true}>
+                     getTooltipContainer={() => document.getElementsByClassName('TipSvcDomain')[0]}
+                     >
               <svg className={this.state.show?'more showPop':'more'} onClick={this.showPop}>
                 <use xlinkHref="#more" />
               </svg>
