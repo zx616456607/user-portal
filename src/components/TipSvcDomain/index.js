@@ -58,6 +58,7 @@ class AppTip extends Component {
                     <Timeline.Item dot={<div></div>}>
                       <svg className="branchSvg"><use xlinkHref="#branch"/></svg>
                       {url}
+                      <svg className="tipCopySvg"><use xlinkHref="#tipcopy"/></svg>
                     </Timeline.Item>
                 )
               })
@@ -92,21 +93,28 @@ export default class TipSvcDomain extends Component{
   }
   render(){
     const { appDomain,svcDomain,type } = this.props
-    if(type === 'containerPop'){
-      if(appDomain.length == 0){
+    if (svcDomain) {
+      if(svcDomain.length == 0){
         return (
           <span>-</span>
         )
-      } else if (appDomain.length == 1) {
+      } else if (svcDomain.length == 1) {
         return (
-          <div id='TipAppDomain'>
-            <a target="_blank" href={appDomain[0]}>{appDomain[0]}</a>
+          <div id='TipSvcDomain'>
+            <a target="_blank" href={svcDomain[0]}>{svcDomain[0]}</a>
           </div>
         )
-      } else {
+      } else if (svcDomain.length == 2) {
         return (
-          <div className='TipAppDomain'>
-            <a target="_blank" href={appDomain[0]}>{appDomain[0]}</a>
+          <div id='TipSvcDomain'>
+            <a target="_blank" href={svcDomain[0]}>{svcDomain[0]}</a>
+            <a target="_blank" href={svcDomain[1]}>{svcDomain[1]}</a>
+          </div>
+        )
+      } else if (svcDomain.length > 2) {
+        return (
+          <div className='TipSvcDomain'>
+            <a target="_blank" href={svcDomain[0]}>{svcDomain[0]}</a>
             <Popover placement="right"
                      content={<SvcTip svcDomain={svcDomain} />}
                      trigger="click"
@@ -119,69 +127,34 @@ export default class TipSvcDomain extends Component{
           </div>
         )
       }
-    } else {
-      if (svcDomain) {
-        if(svcDomain.length == 0){
-          return (
+    }
+    if (appDomain) {
+      if(appDomain.length === 0) {
+        return (
+          <div id="TipAppDomain">
             <span>-</span>
-          )
-        } else if (svcDomain.length == 1) {
-          return (
-            <div id='TipSvcDomain'>
-              <a target="_blank" href={svcDomain[0]}>{svcDomain[0]}</a>
-            </div>
-          )
-        } else if (svcDomain.length == 2) {
-          return (
-            <div id='TipSvcDomain'>
-              <a target="_blank" href={svcDomain[0]}>{svcDomain[0]}</a>
-              <a target="_blank" href={svcDomain[1]}>{svcDomain[1]}</a>
-            </div>
-          )
-        } else if (svcDomain.length > 2) {
-          return (
-            <div className='TipSvcDomain'>
-              <a target="_blank" href={svcDomain[0]}>{svcDomain[0]}</a>
-              <Popover placement="right"
-                       content={<SvcTip svcDomain={svcDomain} />}
-                       trigger="click"
-                       onVisibleChange={ this.showPop }
-                       arrowPointAtCenter={true}>
-                <svg className={this.state.show?'more showPop':'more'} onClick={this.showPop}>
-                  <use xlinkHref="#more" />
-                </svg>
-              </Popover>
-            </div>
-          )
-        }
-      }
-      if (appDomain) {
-        if(appDomain.length === 0) {
-          return (
-            <div id="TipAppDomain">
-              <span>-</span>
-            </div>
-          )
-        } else if (appDomain.length === 1) {
-          return (
+          </div>
+        )
+      } else if (appDomain.length === 1) {
+        return (
+          <a target="_blank">{appDomain[0].data[0]}</a>
+        )
+      } else {
+        return (
+          <div className='TipAppDomain'>
             <a target="_blank">{appDomain[0].data[0]}</a>
-          )
-        } else {
-          return (
-            <div className='TipAppDomain'>
-              <a target="_blank">{appDomain[0].data[0]}</a>
-              <Popover placement="right"
-                       content={<AppTip appDomain={appDomain}/>}
-                       trigger="click"
-                       onVisibleChange={ this.showPop }
-                       arrowPointAtCenter={true}>
-                <svg className={this.state.show?'more showPop':'more'} onClick={this.showPop}>
-                  <use xlinkHref="#more" />
-                </svg>
-              </Popover>
-            </div>
-          )
-        }
+            <Popover placement="right"
+                     content={<AppTip appDomain={appDomain}/>}
+                     trigger="click"
+                     onVisibleChange={ this.showPop }
+                     getTooltipContainer={() => document.getElementsByClassName('TipAppDomain')[0]}
+                     arrowPointAtCenter={true}>
+              <svg className={this.state.show?'more showPop':'more'} onClick={this.showPop}>
+                <use xlinkHref="#more" />
+              </svg>
+            </Popover>
+          </div>
+        )
       }
     }
   }
