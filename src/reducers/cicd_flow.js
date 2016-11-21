@@ -97,12 +97,11 @@ function githubRepo (state = {}, action) {
       return merge({}, defaultState, state, { isFetching: true })
     case ActionTypes.GET_GITHUB_LIST_SUCCESS: {
         const lists = action.response.result.data.results
-        const users = Object.keys(lists)
         return Object.assign({}, state, {
           isFetching: false,
-          githubList: lists[users],
-          bak: lists[users],
-          users
+          githubList: lists,
+          bak: lists,
+          users: lists[0].owner.name
         })
     }
     case ActionTypes.GET_GITHUB_LIST_FAILURE: {

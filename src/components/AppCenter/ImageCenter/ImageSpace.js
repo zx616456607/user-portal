@@ -150,6 +150,11 @@ const MyComponent = React.createClass({
         </div>
       )
     }
+    if (imageList.length === 0) {
+      return (
+        <div style={{lineHeight:'100px',height:'200px',paddingLeft:'40px'}}>您还没有镜像，去上传一个吧！</div>
+      )
+    }
     let items = imageList.map((item, index) => {
       const dropdown = (
         <Menu onClick={this.btnDeleteImage.bind(this, item.name)}
