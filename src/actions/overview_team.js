@@ -35,3 +35,27 @@ export function loadTeamDetail(teamID) {
     return dispatch(fetchTeamDetail(teamID))
   }
 }
+
+export const OVERVIEW_TEAM_OPERATIONS_REQUEST = 'OVERVIEW_TEAM_OPERATIONS_REQUEST'
+export const OVERVIEW_TEAM_OPERATIONS_SUCCESS = 'OVERVIEW_TEAM_OPERATIONS_SUCCESS'
+export const OVERVIEW_TEAM_OPERATIONS_FAILURE = 'OVERVIEW_TEAM_OPERATIONS_FAILURE'
+
+// Fetches team operations from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchTeamOperations(teamID) {
+  return {
+    [FETCH_API]: {
+      types: [OVERVIEW_TEAM_OPERATIONS_REQUEST, OVERVIEW_TEAM_OPERATIONS_SUCCESS, OVERVIEW_TEAM_OPERATIONS_FAILURE],
+      endpoint: `${API_URL_PREFIX}/overview/teams/${teamID}/operations`,
+      schema: {}
+    }
+  }
+}
+
+// Fetches team operations from API unless it is cached.
+// Relies on Redux Thunk middleware.
+export function loadTeamOperations(teamID) {
+  return (dispatch, getState) => {
+    return dispatch(fetchTeamOperations(teamID))
+  }
+}

@@ -12,6 +12,8 @@ import { Row, Col, Card, } from 'antd'
 import './style/Ordinary.less'
 import ReactEcharts from 'echarts-for-react'
 import MySpace from './MySpace'
+import { connect } from 'react-redux'
+import { loadClusterOperations } from '../../../actions/overview_cluster'
 
 let value = 123
 
@@ -311,14 +313,21 @@ let diskOption = {
   ]
 }
 
-export default class Ordinary extends Component{
+class Ordinary extends Component{
   constructor(props){
     super(props)
     this.state = {
       
     }
   }
+  
+  componentWillMount() {
+    const { loadClusterOperations } = this.props
+    loadClusterOperations("t-aldakdsadssdsjkewr")
+  }
+
   render(){
+    const clusterOperations = this.props.clusterOperations
     return (
       <div id='Ordinary' style={{marginTop:40}}>
         <Row className="title">我的空间-产品环境集群</Row>
@@ -437,20 +446,75 @@ export default class Ordinary extends Component{
                     创建应用数量
                   </td>
                   <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                    1000个
+                    {clusterOperations.appCreate}个
                   </td>
                 </tr>
                 <tr>
-                  <td>
-                    <svg className="teamRecSvg">
-                      <use xlinkHref="#settingname" />
-                    </svg>
-                    删除应用数量
-                  </td>
-                  <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                    1000个
-                  </td>
-                </tr>
+                    <td>
+                      <svg className="teamRecSvg">
+                        <use xlinkHref="#settingname" />
+                      </svg>
+                      修改应用数量
+                    </td>
+                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                      {clusterOperations.appModify}个
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <svg className="teamRecSvg">
+                        <use xlinkHref="#settingname" />
+                      </svg>
+                      停止应用数量
+                    </td>
+                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                      {clusterOperations.appStop}个
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <svg className="teamRecSvg">
+                        <use xlinkHref="#settingname" />
+                      </svg>
+                      启动应用数量
+                    </td>
+                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                      {clusterOperations.appStart}个
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <svg className="teamRecSvg">
+                        <use xlinkHref="#settingname" />
+                      </svg>
+                      重新部署应用数量
+                    </td>
+                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                      {clusterOperations.appRedeploy}个
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <svg className="teamRecSvg">
+                        <use xlinkHref="#settingname" />
+                      </svg>
+                      创建服务数量
+                    </td>
+                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                      {clusterOperations.svcCreate}个
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <svg className="teamRecSvg">
+                        <use xlinkHref="#settingname" />
+                      </svg>
+                      删除服务数量
+                    </td>
+                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                      {clusterOperations.svcDelete}个
+                    </td>
+                  </tr>
                 <tr>
                   <td>
                     <svg className="teamRecSvg">
@@ -603,3 +667,52 @@ export default class Ordinary extends Component{
     )
   }
 }
+
+
+function mapStateToProp(state,props) {
+  let clusterOperationsData = {
+    appCreate: 0,
+    appModify: 0,
+    svcCreate: 0,
+    svcDelete: 0,
+    appStop: 0,
+    appStart: 0,
+    appRedeploy: 0,
+  }
+  const {clusterOperations} = state.overviewCluster
+  if (clusterOperations.result && clusterOperations.result.data
+      && clusterOperations.result.data.data) {
+        let data = clusterOperations.result.data.data
+        if (data.appCreate) {
+          clusterOperationsData.appCreate = data.appCreate
+        }
+        if (data.appModify) {
+          clusterOperationsData.appModify = data.appModify
+        }
+        if (data.svcCreate) {
+          clusterOperationsData.svcCreate = data.svcCreate
+        }
+        if (data.svcDelete) {
+          clusterOperationsData.svcDelete = data.svcDelete
+        }
+        if (data.appStop) {
+          clusterOperationsData.appStop = data.appStop
+        }
+        if (data.appStart) {
+          clusterOperationsData.appStart = data.appStart
+        }
+        if (data.appCreate) {
+          clusterOperationsData.appCreate = data.appCreate
+        }
+        if (data.appRedeploy) {
+          clusterOperationsData.appRedeploy = data.appRedeploy
+        } 
+      } 
+  return {
+    clusterOperations: clusterOperationsData,
+  }
+}
+
+export default connect(mapStateToProp, {
+  loadClusterOperations,
+})(Ordinary)

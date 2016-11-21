@@ -16,13 +16,19 @@ const option = {
 }
 
 export default function overviewTeam(state = {
-  teamDetail: {}
+  teamDetail: {},
+  teamOperations: {}
  }, action) {
   return {
     teamDetail: reducerFactory({
       REQUEST: ActionTypes.OVERVIEW_TEAM_DETAIL_REQUEST,
       SUCCESS: ActionTypes.OVERVIEW_TEAM_DETAIL_SUCCESS,
       FAILURE: ActionTypes.OVERVIEW_TEAM_DETAIL_FAILURE
-    }, state.teamDetail, action, option)
+    }, state.teamDetail, action, option),
+    teamOperations: reducerFactory({
+      REQUEST: ActionTypes.OVERVIEW_TEAM_DETAIL_REQUEST,
+      SUCCESS: ActionTypes.OVERVIEW_TEAM_DETAIL_SUCCESS,
+      FAILURE: ActionTypes.OVERVIEW_TEAM_DETAIL_FAILURE
+    }, state.teamOperations, action, option)
   }
 }

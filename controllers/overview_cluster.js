@@ -4,28 +4,17 @@
  *
  * User manage controller
  *
- * v0.1 - 2016-11-01
+ * v0.1 - 2016-11-21
  * @author shouhong.zhang
  */
 'use strict'
 
 const apiFactory = require('../services/api_factory')
 
-exports.getTeamDetail = function* () {
-  let teamID = this.params.team_id
+exports.getClusterOperations = function* () {
+  let cluster = this.params.cluster_id
   const loginUser = this.session.loginUser
-  const api = apiFactory.getApi(loginUser)
-  const result = yield api.overview.getBy(["teams", teamID, "detail"])
-  const data = result || {}
-  this.body = {
-    data
-  }
-}
-
-exports.getTeamOperations = function* () {
-  let team = this.params.team_id
-  const loginUser = this.session.loginUser
-  let queryObj = { team }
+  let queryObj = { cluster}
   const api = apiFactory.getApi(loginUser)
   const result = yield api.overview.getBy(["operations"], queryObj)
   const data = {}
