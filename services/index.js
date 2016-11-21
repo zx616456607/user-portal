@@ -67,14 +67,14 @@ exports.getLicense = function* (loginUser) {
 }
 
 function _decrypt(text) {
-  var algorithm = 'aes-192-cbc';
-  var iv = new Buffer([1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1])
-  var pwd1 = 'T1X2C3D!'
-  var pwd2 = 'F^I$G&H*'
-  var pwd3 = 'T(E)R088'
-  var pwd = pwd1 + pwd2 + pwd3
-  var decipher = crypto.createDecipheriv(algorithm, pwd, iv)
-  var dec = decipher.update(text, 'base64', 'utf8')
+  const algorithm = 'aes-192-cbc'
+  let iv = new Buffer([1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1])
+  let pwd1 = 'T1X2C3D!'
+  let pwd2 = 'F^I$G&H*'
+  let pwd3 = 'T(E)R088'
+  let pwd = pwd1 + pwd2 + pwd3
+  let decipher = crypto.createDecipheriv(algorithm, pwd, iv)
+  let dec = decipher.update(text, 'base64', 'utf8')
   dec += decipher.final('utf8')
-  return dec;
+  return dec
 }

@@ -11,6 +11,8 @@ import React, { Component } from 'react'
 import { Row, Col, Card, Timeline, Popover } from 'antd'
 import './style/MySpace.less'
 import ReactEcharts from 'echarts-for-react'
+import { connect } from 'react-redux'
+import { loadSpaceOperations } from '../../../actions/overview_space'
 
 let imageOption = {
   series: [{
@@ -74,14 +76,22 @@ let layoutOption = {
     }
   }]
 }
-export default class MySpace extends Component{
+
+class MySpace extends Component{
   constructor(props){
     super(props)
     this.state = {
       
     }
   }
+
+  componentWillMount() {
+    const { loadSpaceOperations } = this.props
+    loadSpaceOperations()
+  }
+
   render(){
+    const spaceOperations = this.props.spaceOperations
     return (
       <div id='MySpace'>
         <Row className="title" style={{marginTop: 40}}>我的空间</Row>
@@ -171,27 +181,82 @@ export default class MySpace extends Component{
               <table className="clusterTab">
                 <tbody>
                 <tr>
-                  <td>
-                    <svg className="stateSvg">
-                      <use xlinkHref="#settingname" />
-                    </svg>
-                    创建应用数量
-                  </td>
-                  <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                    1000个
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <svg className="stateSvg">
-                      <use xlinkHref="#settingname" />
-                    </svg>
-                    删除应用数量
-                  </td>
-                  <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                    1000个
-                  </td>
-                </tr>
+                    <td>
+                      <svg className="stateSvg">
+                        <use xlinkHref="#settingname" />
+                      </svg>
+                      创建应用数量
+                    </td>
+                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                      {spaceOperations.appCreate}个
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <svg className="stateSvg">
+                        <use xlinkHref="#settingname" />
+                      </svg>
+                      修改应用数量
+                    </td>
+                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                      {spaceOperations.appModify}个
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <svg className="stateSvg">
+                        <use xlinkHref="#settingname" />
+                      </svg>
+                      停止应用数量
+                    </td>
+                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                      {spaceOperations.appStop}个
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <svg className="stateSvg">
+                        <use xlinkHref="#settingname" />
+                      </svg>
+                      启动应用数量
+                    </td>
+                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                      {spaceOperations.appStart}个
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <svg className="stateSvg">
+                        <use xlinkHref="#settingname" />
+                      </svg>
+                      重新部署应用数量
+                    </td>
+                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                      {spaceOperations.appRedeploy}个
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <svg className="stateSvg">
+                        <use xlinkHref="#settingname" />
+                      </svg>
+                      创建服务数量
+                    </td>
+                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                      {spaceOperations.svcCreate}个
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <svg className="stateSvg">
+                        <use xlinkHref="#settingname" />
+                      </svg>
+                      删除服务数量
+                    </td>
+                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                      {spaceOperations.svcDelete}个
+                    </td>
+                  </tr>
                 <tr>
                   <td>
                     <svg className="stateSvg">
@@ -263,27 +328,31 @@ export default class MySpace extends Component{
               </Row>
             </Card>
           </Col>
-          <Col span={6}>
+          <Col span={6} className='warnList'>
             <Card title="告警" bordered={false} bodyStyle={{height:410}}>
               <Timeline>
-                <Timeline.Item dot={
-                  <svg id="stateSvg"><use xlinkHref="#settingname" /></svg>
-                }>
-                  <Popover content={
-                    <div>
-                      <Row>API Server发生故障</Row>
-                      <Row>刚刚</Row>
-                    </div>
-                  } title="标题" visible={true}
-                           placement="right"
-                           getTooltipContainer={() => document.getElementById('posDiv')}
-                  >
-                    <div style={{width:1,height:1}} id="posDiv">121212</div>
-                  </Popover>
-                </Timeline.Item>
-                <Timeline.Item>初步排除网络异常 2015-09-01</Timeline.Item>
-                <Timeline.Item>技术测试异常 2015-09-01</Timeline.Item>
-                <Timeline.Item>网络异常正在修复 2015-09-01</Timeline.Item>
+                {
+                  [1,2,3].map((item,index) => {
+                    return (
+                      <Timeline.Item dot={
+                        <svg className="stateSvg"><use xlinkHref="#settingname" /></svg>
+                      }>
+                        <Popover content={
+                          <div>
+                            <Row>API Server发生故障</Row>
+                            <Row>刚刚</Row>
+                          </div>
+                        } visible={true}
+                                 placement="rightTop"
+                                 overlayClassName="warnItem"
+                                 getTooltipContainer={() => document.getElementsByClassName('warn')[index]}
+                        >
+                          <div style={{width:1,height:65}} className="warn"></div>
+                        </Popover>
+                      </Timeline.Item>
+                    )
+                  })
+                }
               </Timeline>
             </Card>
           </Col>
@@ -292,3 +361,51 @@ export default class MySpace extends Component{
     )
   }
 }
+
+function mapStateToProp(state,props) {
+  let spaceOperationsData = {
+    appCreate: 0,
+    appModify: 0,
+    svcCreate: 0,
+    svcDelete: 0,
+    appStop: 0,
+    appStart: 0,
+    appRedeploy: 0,
+  }
+  const {spaceOperations} = state.overviewSpace
+  if (spaceOperations.result && spaceOperations.result.data
+      && spaceOperations.result.data.data) {
+        let data = spaceOperations.result.data.data
+        if (data.appCreate) {
+          spaceOperationsData.appCreate = data.appCreate
+        }
+        if (data.appModify) {
+          spaceOperationsData.appModify = data.appModify
+        }
+        if (data.svcCreate) {
+          spaceOperationsData.svcCreate = data.svcCreate
+        }
+        if (data.svcDelete) {
+          spaceOperationsData.svcDelete = data.svcDelete
+        }
+        if (data.appStop) {
+          spaceOperationsData.appStop = data.appStop
+        }
+        if (data.appStart) {
+          spaceOperationsData.appStart = data.appStart
+        }
+        if (data.appCreate) {
+          spaceOperationsData.appCreate = data.appCreate
+        }
+        if (data.appRedeploy) {
+          spaceOperationsData.appRedeploy = data.appRedeploy
+        } 
+      } 
+  return {
+    spaceOperations: spaceOperationsData,
+  }
+}
+
+export default connect(mapStateToProp, {
+  loadSpaceOperations,
+})(MySpace)

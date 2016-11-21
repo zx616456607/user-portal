@@ -8,6 +8,13 @@
   width: 50px;
   height: 50px;
 }
+.st0 { fill: #00A1EA; }
+.st1 { fill: #FFFFFF; }
+
+.appcreatemodelselect {
+  width: 50px;
+  height: 50px;
+}
 #appcreatemodelselect .st0 { fill: #00A1EA; }
 #appcreatemodelselect .st1 { fill: #FFFFFF; }
 

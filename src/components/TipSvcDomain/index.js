@@ -44,7 +44,8 @@ class AppTip extends Component {
             <span>-</span>
           </div>
         )
-      } else if (item.data.length === 1) {
+      }
+      /*else if (item.data.length === 1) {
         return (
           <div>
             <Row className="firstSvc">
@@ -80,6 +81,29 @@ class AppTip extends Component {
             }
           </div>
         )
+      }*/
+      else {
+        return (
+          <div>
+            <Row className="firstSvc">
+              <Col style={{display:'inline-block',color:'#49b1e2'}}>{ item.name }</Col>
+            </Row>
+            <Timeline>
+              <Timeline.Item dot={<div style={{height:5,width:5,backgroundColor:'#2db7f5',margin:'0 auto'}}></div>}/>
+            {
+              item.data.map((url,index) => {
+                return (
+                    <Timeline.Item dot={<div></div>}>
+                      <svg className="branchSvg"><use xlinkHref="#branch"/></svg>
+                      {url}
+                    </Timeline.Item>
+                )
+              })
+            }
+            </Timeline>
+          </div>
+          
+        )
       }
     })
     return (
@@ -107,20 +131,20 @@ export default class TipSvcDomain extends Component{
   render(){
     const { appDomain,svcDomain,type } = this.props
     if(type === 'containerPop'){
-      if(svcDomain.length == 0){
+      if(appDomain.length == 0){
         return (
           <span>-</span>
         )
-      } else if (svcDomain.length == 1) {
+      } else if (appDomain.length == 1) {
         return (
-          <div id='TipSvcDomain'>
-            <a target="_blank" href={svcDomain[0]}>{svcDomain[0]}</a>
+          <div id='TipAppDomain'>
+            <a target="_blank" href={appDomain[0]}>{appDomain[0]}</a>
           </div>
         )
       } else {
         return (
-          <div className='TipSvcDomain'>
-            <a target="_blank" href={svcDomain[0]}>{svcDomain[0]}</a>
+          <div className='TipAppDomain'>
+            <a target="_blank" href={appDomain[0]}>{appDomain[0]}</a>
             <Popover placement="right"
                      content={<SvcTip svcDomain={svcDomain} />}
                      trigger="click"
@@ -170,11 +194,15 @@ export default class TipSvcDomain extends Component{
         }
       }
       if (appDomain) {
-        if(appDomain.length === 0){
+        if(appDomain.length === 0) {
           return (
             <div id="TipAppDomain">
               <span>-</span>
             </div>
+          )
+        } else if (appDomain.length === 1) {
+          return (
+            <a target="_blank">{appDomain[0].data[0]}</a>
           )
         } else {
           return (

@@ -12,6 +12,7 @@ import merge from 'lodash/merge'
 import union from 'lodash/union'
 import { routerReducer as routing } from 'react-router-redux'
 import { combineReducers } from 'redux'
+import entities from './entities'
 import * as appManageReducers from './app_manage'
 import * as appCenterReducers from './app_center'
 import * as servicesReducers from './services'
@@ -26,78 +27,8 @@ import team from './team'
 import cicd_flow from './cicd_flow'
 import cluster from './cluster'
 import overviewTeam from './overview_team'
-
-// Updates an entity cache in response to any action with response.entities.
-function entities(state = {
-  // isFetching: false,
-  loginUser: {
-    isFetching: false,
-    info: {}
-  },
-  current: {
-    team: {},
-    space: {},
-    cluster: {},
-  },
-}, action) {
-  /*if (action.response && action.response.entities) {
-    let isFetching = false
-    if (action.type.indexOf('_REQUEST') > -1) {
-      isFetching = true
-    }
-    return merge({}, state, action.response.entities, { isFetching })
-  }*/
-  return {
-    current: current(state.current, action),
-    loginUser: loginUser(state.loginUser, action),
-  }
-}
-
-function current(state, action) {
-  switch (action.type) {
-    case ActionTypes.SET_CURRENT:
-      let current = action.current
-      if (!current.team) {
-        current.team = state.team
-      }
-      if (!current.space) {
-        current.space = state.space
-      }
-      if (!current.cluster) {
-        current.cluster = state.cluster
-      }
-      return Object.assign({}, state, current)
-    default:
-      return state
-  }
-}
-
-function loginUser(state, action) {
-  switch (action.type) {
-    case ActionTypes.LOGIN_REQUEST:
-    case ActionTypes.LOGIN_USER_DETAIL_REQUEST:
-      return Object.assign({}, state, {
-        isFetching: true
-      })
-    case ActionTypes.LOGIN_SUCCESS:
-      return Object.assign({}, state, {
-        isFetching: false,
-        info: action.response.result.user
-      })
-    case ActionTypes.LOGIN_USER_DETAIL_SUCCESS:
-      return Object.assign({}, state, {
-        isFetching: false,
-        info: action.response.result.data
-      })
-    case ActionTypes.LOGIN_FAILURE:
-    case ActionTypes.LOGIN_USER_DETAIL_FAILURE:
-      return Object.assign({}, state, {
-        isFetching: false
-      })
-    default:
-      return state
-  }
-}
+import overviewCluster from './overview_cluster'
+import overviewSpace from './overview_space'
 
 // Updates error message to notify about the failed fetches.
 function errorMessage(state = null, action) {
@@ -164,6 +95,8 @@ const rootReducer = combineReducers({
   cicd_flow,
   cluster,
   overviewTeam,
+  overviewCluster,
+  overviewSpace,
 })
 
 export default rootReducer
