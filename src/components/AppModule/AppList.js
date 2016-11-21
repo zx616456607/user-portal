@@ -112,20 +112,6 @@ let MyComponent = React.createClass({
         </div>
       )
     }
-    const appDomain = [
-      {
-        name: 'servce1',
-        data: ['10.1.27.1',]
-      },
-      {
-        name: 'servce2',
-        data: ['10.1.27.1', '10.1.27.2', '10.1.27.3', '10.1.27.4', '10.1.27.5',]
-      },
-      {
-        name: 'servce3',
-        data: ['10.1.27.1', '10.1.27.2', '10.1.27.3', '10.1.27.4', '10.1.27.5',]
-      },
-    ]
     const items = config.map((item) => {
       const dropdown = (
         <Menu onClick={this.appOperaClick.bind(this, item)}
@@ -149,7 +135,7 @@ let MyComponent = React.createClass({
           </Menu.Item>
         </Menu>
       );
-      const domains = parseAppDomain(item, this.props.bindingDomains)
+      const appDomain = parseAppDomain(item, this.props.bindingDomains)
       return (
         <div className={item.checked ? 'appDetail appDetailSelected' : 'appDetail'} key={item.name} onClick={this.selectAppByline.bind(this, item)} >
           <div className='selectIconTitle commonData'>

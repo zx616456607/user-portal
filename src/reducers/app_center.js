@@ -260,7 +260,7 @@ function imageTag(state = {}, action) {
         [registry]: {
           [fullName]: {
             isFetching: false,
-            registry: action.response.result.registry,
+            registry: registry,
             server: action.response.result.server,
             tag: data,
           }
@@ -306,7 +306,7 @@ function imageTagConfig(state = {}, action) {
       return Object.assign({}, state, {
         [registry]: {
           isFetching: false,
-          registry: action.response.result.registry,
+          registry: registry,
           server: action.response.result.server,
           tag: action.response.result.tag || [],
           configList: action.response.result.data || [],
@@ -347,7 +347,7 @@ function imagesInfo(state = {}, action) {
       return Object.assign({}, state, {
         [registry]: {
           isFetching: false,
-          registry: action.response.result.registry,
+          registry: registry,
           imageInfo: action.response.result.data || null
         }
       })
@@ -452,7 +452,7 @@ function fockImagesList(state = {}, action) {
       return merge({}, {
         [registry]: {
           isFetching: false,
-          registry: action.response.result.registry,
+          registry: registry,
           server: action.response.result.server,
           imageList: action.response.result.data || []
         }

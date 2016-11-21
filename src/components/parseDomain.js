@@ -52,10 +52,12 @@ export function parseServiceDomain(item, bindingDomainStr) {
 }
 
 export function parseAppDomain(app, bindingDomainStr) {
-  let domains = {}
+  let domains = []
   app.services.map((item) => {
-    domains[item.metadata.name] = parseServiceDomain(item, bindingDomainStr)
+    domains.push({
+      name: item.metadata.name,
+      data: parseServiceDomain(item, bindingDomainStr)
+    })
   })
-  
-  return domains
+   return domains
 }

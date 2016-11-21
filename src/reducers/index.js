@@ -27,6 +27,8 @@ import team from './team'
 import cicd_flow from './cicd_flow'
 import cluster from './cluster'
 import overviewTeam from './overview_team'
+import overviewCluster from './overview_cluster'
+import overviewSpace from './overview_space'
 
 // Updates error message to notify about the failed fetches.
 function errorMessage(state = null, action) {
@@ -93,6 +95,8 @@ const rootReducer = combineReducers({
   cicd_flow,
   cluster,
   overviewTeam,
+  overviewCluster,
+  overviewSpace,
 })
 
 export default rootReducer
