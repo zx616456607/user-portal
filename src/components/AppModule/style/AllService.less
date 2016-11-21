@@ -1,21 +1,46 @@
 
 #AppServiceList {
-  padding-top: 10px;
   width: 100%;
-  .operaBox {
-    min-height: 35px;
-    button {
-      margin-right: 10px;
-      i {
-        margin-right: 8px;
-      }
-      .fa-caret-down {
-        margin-left: 8px;
-        margin-right: 0;
+  padding-top: 50px;
+  padding-left: 30px;
+  padding-right: 60px;
+  .operationBox {
+    width: 100%;
+    height: 35px;
+    margin-bottom: 20px;
+    .leftBox {
+      float: left;
+      button {
+        margin-right: 10px;
+        padding: 5px 10px;
+        i {
+          margin-right: 5px;
+        }
       }
     }
     .rightBox {
+      position: relative;
+      float: left;
+      .littleLeft {
+        z-index: 10;
+        position: absolute;
+        top: 5px;
+        right: 10px;
+        font-size: 15px;
+        color: #949494;
+        cursor: pointer;
+      }
+      .littleRight {
+        float: left;
+        input {
+          font-size: 14px;
+          color: #333333; //        background-color: #f8f8f8;
+        }
+      }
+    }
+    .pageBox {
       float: right;
+      height: 35px;
       .totalPage {
         float: left;
         margin-right: 8px;
@@ -28,83 +53,86 @@
       }
     }
   }
-  .appTitle {
-    margin-top: 10px;
-    width: 100%;
-    height: 40px;
-    line-height: 40px;
-    border-bottom: 1px solid #E5E5E5;
-    .commonTitle {
-      float: left;
-      padding-left: 5px;
-    }
-    .selectIconTitle {
-      width: 5%;
-      text-align: center;
-    }
-    .name,
-    .service,
-    .createTime {
-      width: 13.6%;
-    }
-		.appname {
-	    width: 9%		
-		}
-    .status {
-      width: 11%;
-    }
-    .image,
-    .actionBox {
-      width: 15.5%;
-    }
-  }
-  .dataBox {
-    .commonData {
-      float: left;
-      padding-left: 5px;
-      .viewBtn {
-        color: #2db7f5;
-        cursor: pointer;
-      }
-    }
-    .selectIconTitle {
-      width: 5%;
-      text-align: center;
-    }
-    .name,
-    .service,
-    .createTime {
-      width: 13.6%;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .status {
-      width: 11%;
-    }
-		.appname {
-	    width: 9%;	
-		}
-    .image,
-    .actionBox {
-      width: 15.5%;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .instanceDetail {
-      transition: all 0.3s;
-      line-height: 60px;
+  .appBox {
+    .appTitle {
+      margin-top: 10px;
+      width: 100%;
+      height: 40px;
+      line-height: 40px;
       border-bottom: 1px solid #E5E5E5;
-      &:hover {
-        background-color: #F2F2F2;
+      .commonTitle {
+        float: left;
+        padding-left: 5px;
+      }
+      .selectIconTitle {
+        width: 5%;
+        text-align: center;
+      }
+      .name,
+      .service,
+      .createTime {
+        width: 13.6%;
+      }
+      .appname {
+        width: 9%
+      }
+      .status {
+        width: 11%;
+      }
+      .image,
+      .actionBox {
+        width: 15.5%;
       }
     }
-    .selectedInstance {
-      background-color: #effdff;
+    .dataBox {
+      .commonData {
+        float: left;
+        padding-left: 5px;
+        .viewBtn {
+          color: #2db7f5;
+          cursor: pointer;
+        }
+      }
+      .selectIconTitle {
+        width: 5%;
+        text-align: center;
+      }
+      .name,
+      .service,
+      .createTime {
+        width: 13.6%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .status {
+        width: 11%;
+      }
+      .appname {
+        width: 9%;
+      }
+      .image,
+      .actionBox {
+        width: 15.5%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .instanceDetail {
+        transition: all 0.3s;
+        line-height: 60px;
+        border-bottom: 1px solid #E5E5E5;
+        &:hover {
+          background-color: #F2F2F2;
+        }
+      }
+      .selectedInstance {
+        background-color: #effdff;
+      }
+      .TenxStatus{
+        width: 90%;
+      }
     }
-		.TenxStatus{
-		  width: 90%;
-		}
   }
+
 }

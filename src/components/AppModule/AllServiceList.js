@@ -662,35 +662,33 @@ class AppServiceList extends Component {
           key="demo"
           type="right"
           >
-          <div className="operaBox">
-            <Button size="large" onClick={this.confirmStartService} disabled={!isChecked}>
-              <i className="fa fa-play"></i>
-              启动
-            </Button>
-            <Button size="large" onClick={() => loadServices(this.props) } >
-              <i className="fa fa-refresh"></i>
-              刷新
-            </Button>
-            <Button size="large" onClick={this.batchStopServices} disabled={!isChecked}>
-              <i className="fa fa-stop"></i>
-              停止
-            </Button>
-            <Button size="large" onClick={this.batchDeleteServices} disabled={!isChecked}>
-              <i className="fa fa-trash"></i>
-              删除
-            </Button>
-            <Tooltip placement="top" title="快速重启 = docker restart">
-              <Button size="large" onClick={this.confirmQuickRestartService} disabled={!isChecked}>
-                <i className="fa fa-bolt"></i>
-                快速重启
+          <div className='operationBox'>
+            <div className='leftBox'>
+              <Button type='ghost' size='large' onClick={this.confirmStartService} disabled={!isChecked}>
+                <i className='fa fa-play'></i>启动
               </Button>
-            </Tooltip>
-            <Dropdown overlay={operaMenu} trigger={['click']}>
-              <Button size="large" disabled={!isChecked}>
-                更多操作
-                <i className="fa fa-caret-down"></i>
+              <Button type='ghost' size='large' onClick={this.batchStopServices} disabled={!isChecked}>
+                <i className='fa fa-stop'></i>停止
               </Button>
-            </Dropdown>
+              <Button type='ghost' size='large' onClick={() => loadServices(this.props) }>
+                <i className='fa fa-refresh'></i>刷新
+              </Button>
+              <Button type='ghost' size='large' onClick={this.batchDeleteServices} disabled={!isChecked}>
+                <i className='fa fa-trash-o'></i>删除
+              </Button>
+              <Tooltip placement="top" title="快速重启 = docker restart">
+                <Button size="large" onClick={this.confirmQuickRestartService} disabled={!isChecked}>
+                  <i className="fa fa-bolt"></i>
+                  快速重启
+                </Button>
+              </Tooltip>
+              <Dropdown overlay={operaMenu} trigger={['click']}>
+                <Button size="large" disabled={!isChecked}>
+                  更多操作
+                  <i className="fa fa-caret-down"></i>
+                </Button>
+              </Dropdown>
+            </div>
             <div className='rightBox'>
               <div className='littleLeft' onClick={this.searchApps}>
                 <i className='fa fa-search'></i>
@@ -704,16 +702,16 @@ class AppServiceList extends Component {
                     })
                   } }
                   value={this.state.searchInputValue}
-                  placeholder='按服务名搜索'
-                  onPressEnter={() => this.searchServices() } />
+                  placeholder='按应用名搜索'
+                  onPressEnter={() => this.searchServices()} />
               </div>
             </div>
-            <div className='rightBox'>
-              <span className='totalPage'>共 {total} 条</span>
-              <div className="paginationBox">
+            <div className='pageBox'>
+              <span className='totalPage'>共 {total}条</span>
+              <div className='paginationBox'>
                 <Pagination
-                  className="inlineBlock"
                   simple
+                  className='inlineBlock'
                   onChange={this.onPageChange}
                   onShowSizeChange={this.onShowSizeChange}
                   current={page}
@@ -721,8 +719,9 @@ class AppServiceList extends Component {
                   total={total} />
               </div>
             </div>
-            <div style={{ clear: 'both' }}></div>
+            <div className='clearDiv'></div>
           </div>
+          <Card className='appBox'>
           <div className="appTitle">
             <div className="selectIconTitle commonTitle">
               <Checkbox checked={isAllChecked} onChange={this.onAllChange} disabled={serviceList.length < 1}></Checkbox>
@@ -750,6 +749,7 @@ class AppServiceList extends Component {
             </div>
             <div style={{ clear: "both" }}></div>
           </div>
+            
           <MyComponent
             cluster={cluster}
             name={name}
@@ -757,6 +757,7 @@ class AppServiceList extends Component {
             serviceList={serviceList}
             loading={isFetching}
             bindingDomains={this.props.bindingDomains} />
+          </Card>
           <Modal
             title="垂直居中的对话框"
             visible={this.state.modalShow}
@@ -803,6 +804,7 @@ class AppServiceList extends Component {
               onSubmitAddService={this.onSubmitAddService}
               serviceOpen={deployServiceModalShow} />
           </Modal>
+          
         </QueueAnim>
       </div>
     )
