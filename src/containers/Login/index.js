@@ -11,7 +11,7 @@
 import React, { PropTypes } from 'react'
 import { Button, Form, Input, Card, Tooltip, message, Alert, Col, } from 'antd'
 import './style/Login.less'
-import { verifyCaptcha, login } from '../../actions'
+import { verifyCaptcha, login } from '../../actions/entities'
 import { connect } from 'react-redux'
 import { USERNAME_REG_EXP, EMAIL_REG_EXP } from '../../constants'
 import { browserHistory } from 'react-router'
@@ -75,7 +75,7 @@ let Login = React.createClass({
             self.setState({
               submitting: false,
               loginResult: {
-                error: err.message.message
+                error: err.message.message || err.message
               },
               submitProps: {},
             })
@@ -221,14 +221,6 @@ let Login = React.createClass({
               <Tooltip placement="top" title="点击更换">
                 <img className="captchaImg" src={`/captcha/gen?_=${random}`} onClick={this.changeCaptcha} />
               </Tooltip>
-              {/*<Col span="12">
-                <Input {...captchaProps} autoComplete="off" />
-              </Col>
-              <Col span="12">
-                <Tooltip placement="top" title="点击更换">
-                  <img className="captchaImg" src={`/captcha/gen?_=${random}`} onClick={this.changeCaptcha} />
-                </Tooltip>
-              </Col>*/}
             </FormItem>
 
             <FormItem wrapperCol={{ span: 12, offset: 7 }}>
