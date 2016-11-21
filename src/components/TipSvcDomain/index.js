@@ -44,45 +44,7 @@ class AppTip extends Component {
             <span>-</span>
           </div>
         )
-      }
-      /*else if (item.data.length === 1) {
-        return (
-          <div>
-            <Row className="firstSvc">
-              <Col style={{display:'inline-block',color:'#49b1e2'}}>{ item.name }</Col>
-            </Row>
-            <Row className="svcItem">
-              <Col style={{display:'inline-block'}} className='urlItem'>
-                { item.data[0] }
-              </Col>
-            </Row>
-          </div>
-        )
       } else {
-        return (
-          <div>
-            <Row className="firstSvc">
-              <Col style={{display:'inline-block',color:'#49b1e2'}}>{ item.name }</Col>
-            </Row>
-            {
-              item.data.map((url,index) => {
-                if(index === 0){
-                  return
-                } else {
-                  return (
-                    <Row className="svcItem">
-                      <Col style={{display:'inline-block'}} className='urlItem'>
-                        { url }
-                      </Col>
-                    </Row>
-                  )
-                }
-              })
-            }
-          </div>
-        )
-      }*/
-      else {
         return (
           <div>
             <Row className="firstSvc">
