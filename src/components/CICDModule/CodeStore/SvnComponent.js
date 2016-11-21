@@ -1,20 +1,22 @@
- /**
- * Licensed Materials - Property of tenxcloud.com
- * (C) Copyright 2016 TenxCloud. All Rights Reserved.
- *
- * codeRepo component
- *
- * v0.1 - 2016-10-31
- * @author BaiYu
- */
+/**
+* Licensed Materials - Property of tenxcloud.com
+* (C) Copyright 2016 TenxCloud. All Rights Reserved.
+*
+* codeRepo component
+*
+* v0.1 - 2016-10-31
+* @author BaiYu
+*/
 import React, { Component, PropTypes } from 'react'
-import { Alert,Icon, Menu, Button, Card, Input, Tabs , Tooltip,message, Dropdown, Modal, Spin } from 'antd'
-import { Link } from 'react-router'
+import { Alert, Icon, Menu, Button, Card, Input, Tabs, Tooltip, message, Dropdown, Form, Modal, Spin, Switch } from 'antd'
+import { Link ,browserHistory} from 'react-router'
 import QueueAnim from 'rc-queue-anim'
+import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import { addSvnManaged, getUserInfo  } from '../../../actions/cicd_flow'
 
 const TabPane = Tabs.TabPane
-
+const FormItem = Form.Item;
 const menusText = defineMessages({
   search: {
     id: 'CICD.TenxStorm.search',
@@ -48,158 +50,169 @@ const menusText = defineMessages({
     id: 'CICD.TenxStorm.copySuccess',
     defaultMessage: '复制成功',
   },
+  pubilicType: {
+    id: 'CICD.TenxStorm.publicType',
+    defaultMessage: '公有'
+  },
+  privateType: {
+    id: 'CICD.TenxStorm.privateType',
+    defaultMessage: '私有'
+  }
 })
 
-const SvnComponent = React.createClass({
-  propTypes: { 
-  },
+let SvnComponent = React.createClass({
   getInitialState() {
-    return { 
-      copySuccess: false ,keyModal: false,
-      regUrl: '',
-      regToken:''
+    return {
+      authorizeModal: false,
+      privateType: true,
+      submiting: false
     }
   },
- copyItemKey() {
-    const scope = this;
-    let code = document.getElementsByClassName("KeyCopy");
-    code[0].select();
-    document.execCommand("Copy", false);
-    scope.setState({
-      copySuccess: true
-    });
-  },
-  addBuild(item) {
-    this.props.scope.props.addCodeRepo('gitlab',item)
-  },
-  removeRepo() {
-    const scope = this.props.scope
-    const repoItem = scope.state.repokey
-    Modal.confirm({
-      title: '注销代码源',
-      content: '您是否确认要注销这项代码源',
-      onOk() {
-        scope.props.deleteRepo(repoItem)
-      },
-      onCancel() {},
-    });
-  },
-  registryRepo() {
-    const url= this.state.regUrl
-    const token = this.state.regToken
-    if (!url) {
-      message.info('地址不能为空')
-      return
+  setModalStaus(status) {
+    const scope = this.props.form
+    if(status) {
+      scope.resetFields()
     }
-    if (!token) {
-      message.info('Private Token不能为空')
-      return
-    }
-    const config = {
-      url,
-      token,
-      type: this.props.scope.state.repokey
-    }
+    this.setState({authorizeModal: status})
+  },
+  handleSubmit(e) {
+    e.preventDefault();
     const self = this
-    this.props.scope.props.registryRepo(config, {
-      success: {
-        func: ()=> {
-          self.setState({
-            authorizeModal: false,
-            regUrl:'',
-            regToken:''
-          })
-          self.props.scope.props.getRepoList(config.type)
-        },
-        isAsync: true
+    const parentScope = this.props.scope.state
+    this.props.form.validateFields((errors, values) => {
+      if (errors) {
+        return;
       }
+      self.setState({submiting: true})
+      const config = {
+        "name": values.name,
+        "repo_type": parentScope.repokey,
+        "address": values.address,
+        "is_private": values.type ? 0 : 1
+        // "username": "wanglei2016",
+        // "password": "zaq11qaz"
+      }
+      if (!values.type) {
+        config.username = values.username
+        config.password = values.password
+      }
+      self.props.addSvnManaged (config, {
+        success: {
+          func: (res) => {
+            self.setState({
+              authorizeModal: false,
+              submiting: false,
+              privateType: true // default switch on switch private or public 
+            })
+            self.props.form.resetFields()
+            Modal.confirm({
+              title: '添加成功!',
+              content: (<h3>是否去查看所添加的项目！</h3>),
+              cancelText: '取消',
+              okText: '确定',
+              onOk() {
+                browserHistory.push('/ci_cd')
+              },
+              onCancel() {
+              }
+            });
+          }
+        },
+        failed: {
+          func: (res) => {
+            self.setState({submiting: false})
+            Modal.warning({
+              title: '添加失败!',
+              content: (<h3>{res.message}</h3>),
+            });
+          }
+        }
+      })
     })
   },
-  changeUrl(e) {
-    this.setState({regUrl: e.target.value})
-  },
-  changeToken(e) {
-    this.setState({regToken: e.target.value})
-  },
-  render: function () {
-    const { config, scope , formatMessage } = this.props
-    
-    if (!config || config.length ==0) {
-      return (
-        <div style={{lineHeight:'150px', paddingLeft:'250px'}}>
-          <Button type="primary" size="large" onClick={()=>this.setState({authorizeModal: true})}>授权同步代码源</Button>
-          <Modal title="授权同步代码源" visible={this.state.authorizeModal} onOk={()=>this.registryRepo() } onCancel={()=>this.setState({authorizeModal: false})}
-          >
-            <div style={{padding:"0 20px"}}>
-              <p style={{lineHeight:'40px'}}>Url：
-                <Input placeholder="http://*** | https://***" onChange={this.changeUrl} value={this.state.regUrl} size="large" />
-              </p>
-              <p style={{marginTop:'10px'}}>Private Token: 
-                <Input placeholder="Private Token: " size="large" onChange={this.changeToken} value={this.state.regToken} />
-              </p>
-            </div>
-          </Modal>
-        </div>
-      )
-    }
-    let items = config.map((item) => {
-      return (
-        <div className='CodeTable' key={item.name} >
-          <div className="name">{item.name}</div>
-          <div className="type">{item.type == false ? "public" : "private"}</div>
-          <div className="action">
-            {item.status ==1 ? 
-            <Tooltip placement="right" title="将公钥添加到代码库后，可激活为构建项目">
-              <Button type="primary" onClick={()=>{this.setState({keyModal: true})}}>公钥授权</Button>
-            </Tooltip>
-            :
-            <Tooltip placement="right" title="可构建项目">
-              <Button type="ghost" onClick={()=>this.addBuild(item)} >激活</Button>
-            </Tooltip>
-          }
-          </div>
-
-        </div>
-      );
+  render () {
+    const { config, scope, formatMessage } = this.props
+    const { getFieldProps, getFieldValue } = this.props.form;
+    const formItemLayout = {
+      labelCol: { span: 6 }, wrapperCol: { span: 14 }
+    };
+    const forName = getFieldProps('name', {
+      rules: [
+        { required: true, message: "输入名称" }
+      ],
+      initialValue: ''
+    });
+    const forUrl = getFieldProps('address', {
+      rules: [
+        { required: true, message: "输入地址" }
+      ],
+      initialValue: ''
+    });
+    const forType = getFieldProps('type', {
+      initialValue: true
+    });
+    const forUsername = getFieldProps('username', {
+      initialValue: ''
+    });
+    const forPassword = getFieldProps('password', {
+      initialValue: ''
     });
     return (
-      <div className='codelink'>
-        <div className="tableHead">
-          <Icon type="user" /> shwsosfs
-          <Tooltip placement="top" title={formatMessage(menusText.logout)}>
-            <Icon type="logout" onClick={()=>this.removeRepo()} style={{margin:'0 10px'}}/>
-          </Tooltip>
-          <Icon type="reload" />
-          <div className="right-search">
-            <Input className='searchBox' size="large" style={{width:'180px'}} placeholder={formatMessage(menusText.search)} type='text' />
-            <i className='fa fa-search'></i>
+      <div style={{ lineHeight: '150px', paddingLeft: '250px' }}>
+        <Button type="primary" size="large" onClick={() => this.setModalStaus(true)}>添加代码源</Button>
+        <Modal title="添加代码源" wrapClassName="svnModal" visible={this.state.authorizeModal}
+          onCancel={() => this.setModalStaus(false)}
+          footer={null}
+          >
+          <div style={{ padding: "25px 0" }}>
+            <Form horizontal onSubmit={this.handleSubmit}>
+              <FormItem  {...formItemLayout} label="名称：">
+                <Input placeholder="输入名称" size="large" {...forName} />
+              </FormItem>
+
+              <FormItem {...formItemLayout} label="地址：" >
+                <Input placeholder="http://*** | https://***" size="large" {...forUrl} />
+              </FormItem>
+
+              <FormItem {...formItemLayout} label="类型：">
+                <Switch defaultChecked={true} {...forType } onChange={(e)=> {this.setState({privateType: e})}} checkedChildren={formatMessage(menusText.pubilicType)} unCheckedChildren={formatMessage(menusText.privateType)} />
+              </FormItem>
+
+              { !this.state.privateType ?
+              [<QueueAnim type='right' key='svnModal-type'>
+                <FormItem {...formItemLayout} label="userName: ">
+                  <Input placeholder="输入用户名称" size="large" {...forUsername } />
+                </FormItem>
+
+                <FormItem {...formItemLayout} label="password: ">
+                  <Input type="password" placeholder="请输入密码" {...forPassword} />
+                </FormItem>
+              </QueueAnim>]
+              : null
+              }
+              <FormItem wrapperCol={{ span: 16, offset: 6 }} style={{ marginTop: 24 }}>
+                <Button type="primary" htmlType="submit" loading={this.state.submiting}>确定</Button>
+              </FormItem>
+            </Form>
+
           </div>
-        </div>
 
-        { items }
-
-        <Modal title="项目公钥" visible={this.state.keyModal}
-         footer={[
-            <Button key="back" type="ghost" size="large" onClick={()=>{this.setState({keyModal: false})}}>关闭</Button>,
-          ]}
-         >
-          <div style={{padding:"0 20px"}}>
-            <p style={{lineHeight:'30px'}}>检测到关联的代码托管系统：</p>
-            <p style={{lineHeight:'40px'}}><span style={{color:'#00A0EA'}} className="name">zubis 仓库</span>  <span style={{color:'#00A0EA'}} className="type">属性：私有</span> </p>
-
-            <p style={{lineHeight:'40px'}}>* 请手动配置一下公钥到github 项目中</p>
-            <p style={{marginBottom: '10px'}}><Input type="textarea" className="KeyCopy" autosize={{ minRows: 2, maxRows: 6 }} defaultValue="ssssss-keyvalueslfjsldfldsflkdjsfjdsfdsfkldsfhttp://gitlab.tenxcloud.comanch"/></p>
-            <p style={{lineHeight:'40px'}}>
-            <Tooltip title={this.state.copySuccess ? formatMessage(menusText.copySuccess) : formatMessage(menusText.clickCopy)} placement="right">
-              <Button type="primary" size="large" onClick={this.copyItemKey} onMouseLeave={this.returnDefaultTooltip}><FormattedMessage {...menusText.copyBtn} /></Button>
-            </Tooltip>
-          </p>
-          </div>
         </Modal>
-
       </div>
-    );
+    )
   }
 });
 
-export default SvnComponent
+SvnComponent = Form.create()(SvnComponent)
+
+SvnComponent.propTypes = {
+  addSvnManaged: PropTypes.func.isRequired,
+}
+
+function mapStateToProps(state, props) {
+  return {}
+}
+
+export default connect(mapStateToProps, {
+  addSvnManaged
+})(SvnComponent)

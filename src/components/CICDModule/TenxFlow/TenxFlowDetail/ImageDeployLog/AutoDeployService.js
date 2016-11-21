@@ -96,8 +96,8 @@ let provinceData = []
 let AutoDeployService = React.createClass({
   getInitialState: function () {
     return {
-      tag: '',
-      editingList: { tag: '' },
+      match_tag: '',
+      editingList: { match_tag: '' },
       value: 1,
       serviceList: []
     }
@@ -117,7 +117,7 @@ let AutoDeployService = React.createClass({
             editingList,
             cdRulesList: rulesList,
             value: 1,
-            tag: ''
+            match_tag: ''
           })
         },
         isAsync: true
@@ -125,10 +125,20 @@ let AutoDeployService = React.createClass({
     })
     getCdInimage(flowId)
   },
-  // componentDidMount() {
-  //   const { loadAppList, cluster} = this.props
-  //   loadAppList(cluster, { size: 100 })
-  // },
+  componentDidMount() {
+    const { loadAppList, cluster} = this.props
+    const self = this
+    loadAppList(cluster, { size: 50 }, {
+      success: {
+        func: (res) => {
+          self.setState({
+            serviceList: res.data
+          })
+
+        }
+      }
+    })
+  },
   changeEdit(index) {
     const editingList = Object.assign({}, this.state.editingList)
     editingList[index] = true
@@ -154,7 +164,7 @@ let AutoDeployService = React.createClass({
     const self = this
     Modal.confirm({
       title: '删除自动部署服务',
-      content: '您是否确认要删除这项内容',
+      content: (<h3>您是否确认要删除这项内容</h3>),
       onOk() {
         self.props.deleteCdRule(flowId, ruleId, {
           success: {
@@ -182,7 +192,7 @@ let AutoDeployService = React.createClass({
         ruleId: item.ruleId,
         flowId: item.flowId,
         image_name: values[`imageSelect${item.ruleId}`],
-        tag: values[`tagSelect${item.ruleId}`],
+        match_tag: values[`tagSelect${item.ruleId}`],
         binding_service: {
           cluster_id: values[`cluster${item.ruleId}`],
           deployment_name: bindName,
@@ -272,7 +282,7 @@ let AutoDeployService = React.createClass({
     const config = {
       flowId: this.props.flowId,
       image_name: this.state.image_name,
-      tag: this.state.tag,
+      match_tag: this.state.match_tag,
       binding_service: {
         cluster_id: this.state.cluster_id,
         deployment_name: this.state.deployment_name,
@@ -280,7 +290,7 @@ let AutoDeployService = React.createClass({
       },
       upgrade_strategy: this.state.value,
     }
-    if (!config.tag) {
+    if (!config.match_tag) {
       message.info('请选择镜像版本')
       return
     }
@@ -314,7 +324,7 @@ let AutoDeployService = React.createClass({
                   image_name: '',
                   cluster_id: '',
                   deployment_name: '',
-                  tag: '',
+                  match_tag: '',
                   deployment_id: ''
                 })
               },
@@ -356,7 +366,7 @@ let AutoDeployService = React.createClass({
         rules: [
           { required: true, message: "请输入镜像版本" }
         ],
-        initialValue: item.tag == 1 ? '匹配版本' : '不匹配版本',
+        initialValue: item.matchTag == 1 ? '匹配版本' : '不匹配版本',
       });
       const imageSelect = getFieldProps('imageSelect' + item.ruleId, {
         rules: [
@@ -388,12 +398,11 @@ let AutoDeployService = React.createClass({
       if (self.state != null && self.state.editingList) {
         return (
           <div className='tagDetail' key={item.ruleId}>
-            <Form.Item key={'name' + item.ruleId} className='service commonItem'>
+            <Form.Item key={'imageSelect' + item.ruleId} className='service commonItem'>
               <Select size="large"  {...imageSelect} disabled={!self.state.editingList[item.ruleId]}>
                 {imageOptions}
               </Select>
             </Form.Item>
-
 
             <Form.Item key={'cluster' + item.ruleId} className='service commonItem'>
               <Select size="large"  {...clusterSelect} disabled={!self.state.editingList[item.ruleId]}>
@@ -411,8 +420,8 @@ let AutoDeployService = React.createClass({
               </Select>
             </Form.Item>
 
-            <Form.Item key={'tag' + item.ruleId} className='tag commonItem'>
-              <Select size="large"  {...tagSelect} onChange={(e) => this.putTag(item.ruleIde)} disabled={!self.state.editingList[item.ruleId]}>
+            <Form.Item key={'match_tag' + item.ruleId} className='tag commonItem'>
+              <Select size="large"  {...tagSelect} disabled={!self.state.editingList[item.ruleId]}>
                 <Option value="1">匹配版本</Option>
                 <Option value="2">不匹配版本</Option>
               </Select>
@@ -520,7 +529,7 @@ let AutoDeployService = React.createClass({
                     </Select>
                   </div>
                   <div className='tag commonItem'>
-                    <Select size="large" onChange={(e) => this.setStateValue('tag', e)} placeholder="输入镜像版本" >
+                    <Select size="large" onChange={(e) => this.setStateValue('match_tag', e)} placeholder="输入镜像版本" >
                       <Option value="1">匹配版本</Option>
                       <Option value="2">不匹配版本</Option>
                     </Select>

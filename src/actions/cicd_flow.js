@@ -28,9 +28,60 @@ function fetchCodeStormList(types, callback) {
   }
 }
 
-export function getRepoList (types, callback) {
+export function getRepoList(types, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchCodeStormList(types, callback))
+  }
+}
+
+export const GET_GITHUB_LIST_REQUEST = 'GET_GITHUB_LIST_REQUEST'
+export const GET_GITHUB_LIST_SUCCESS = 'GET_GITHUB_LIST_SUCCESS'
+export const GET_GITHUB_LIST_FAILURE = 'GET_GITHUB_LIST_FAILURE'
+
+function fetchGithubCode(types) {
+  return {
+    [FETCH_API]: {
+      types: [GET_GITHUB_LIST_REQUEST, GET_GITHUB_LIST_SUCCESS, GET_GITHUB_LIST_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/repos/${types}`,
+      schema: {}
+    },
+
+  }
+}
+
+export function getGithubList(types) {
+  return (dispatch, getState) => {
+    dispatch(fetchGithubCode(types))
+  }
+}
+
+export const GET_GITHUB_URL_REQUEST = 'GET_GITHUB_URL_REQUEST'
+export const GET_GITHUB_URL_SUCCESS = 'GET_GITHUB_URL_SUCCESS'
+export const GET_GITHUB_URL_FAILURE = 'GET_GITHUB_URL_FAILURE'
+
+function fetchGithub(types, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_GITHUB_URL_REQUEST, GET_REPOS_LIST_SUCCESS, GET_GITHUB_URL_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/repos/${types}/auth`,
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function registryGithub(types, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchGithub(types, callback))
+  }
+}
+
+export const SEARCH_GITHUB_LIST = 'SEARCH_GITHUB_LIST'
+
+export function searchGithubList(image) {
+  return {
+    type: 　SEARCH_GITHUB_LIST,
+    image
   }
 }
 
@@ -82,21 +133,22 @@ export const ADD_CODE_STORE_SUCCESS = 'ADD_CODE_STORE_SUCCESS'
 export const ADD_CODE_STORE_FAILURE = 'ADD_CODE_STORE_FAILURE'
 
 function fetchAddCodeRepo(type, obj, callback) {
+  const body = {
+    name: obj.name,
+    source_full_name: obj.name,
+    repo_type: type,
+    address: obj.private ? obj.sshUrl : obj.cloneUrl,
+    gitlab_project_id: obj.projectId,
+    is_private: obj.private ? 1 : 0
+  }
   return {
     [FETCH_API]: {
       types: [ADD_CODE_STORE_REQUEST, ADD_CODE_STORE_SUCCESS, ADD_CODE_STORE_FAILURE],
       endpoint: `${API_URL_PREFIX}/devops/managed-projects`,
       schema: {},
-       options: {
+      options: {
         method: 'POST',
-        body: {
-          name: obj.name,
-          source_full_name: obj.name,
-          repo_type:type,
-          address: obj.private ? obj.sshUrl : obj.cloneUrl,
-          gitlab_project_id: obj.projectId,
-          is_private:obj.private ? 1 : 0
-        }
+        body: body
       }
     },
     names: obj.name,
@@ -111,6 +163,65 @@ export function addCodeRepo(repo_type, obj, callback) {
   }
 }
 
+export const ADD_GITHUB_PROJECT_REQUEST = 'ADD_GITHUB_PROJECT_REQUEST'
+export const ADD_GITHUB_PROJECT_SUCCESS = 'ADD_GITHUB_PROJECT_SUCCESS'
+export const ADD_GITHUB_PROJECT_FAILRUE = 'ADD_GITHUB_PROJECT_FAILRUE'
+
+function fetchAddGithupRepo(type, obj, callback) {
+    const body = {
+      name: obj.name,
+      is_private: obj.private ? 1 : 0,
+      repo_type: "github",
+      address: obj.private ? obj.sshUrl : obj.cloneUrl,
+      description: obj.description,
+      projectId: obj.projectId
+    }
+  
+  return {
+    [FETCH_API]: {
+      types: [ADD_GITHUB_PROJECT_REQUEST, ADD_GITHUB_PROJECT_SUCCESS, ADD_GITHUB_PROJECT_FAILRUE],
+      endpoint: `${API_URL_PREFIX}/devops/managed-projects`,
+      schema: {},
+      options: {
+        method: 'POST',
+        body: body
+      }
+    },
+    names: obj.name,
+    callback: callback
+  }
+}
+
+export function addGithubRepo(repo_type, obj, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchAddGithupRepo(repo_type, obj, callback))
+  }
+}
+
+export const ADD_SVN_CODE_STORE_REQUEST = 'ADD_SVN_CODE_STORE_REQUEST'
+export const ADD_SVN_CODE_STORE_SUCCESS = 'ADD_SVN_CODE_STORE_SUCCESS'
+export const ADD_SVN_CODE_STORE_FAILURE = 'ADD_SVN_CODE_STORE_FAILURE'
+
+function fetchAddSvnmanageed(obj, callback) {
+  return {
+    [FETCH_API]: {
+      types: [ADD_SVN_CODE_STORE_REQUEST, ADD_SVN_CODE_STORE_SUCCESS, ADD_SVN_CODE_STORE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/managed-projects`,
+      schema: {},
+      options: {
+        method: 'POST',
+        body: obj
+      }
+    },
+    callback: callback
+  }
+}
+// add svn managed project
+export function addSvnManaged(obj, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchAddSvnmanageed(obj, callback))
+  }
+}
 
 export const GET_CODE_STORE_REQUEST = 'GET_CODE_STORE_REQUEST'
 export const GET_CODE_STORE_SUCCESS = 'GET_CODE_STORE_SUCCESS'
@@ -123,7 +234,7 @@ function fetchProject(callback) {
       endpoint: `${API_URL_PREFIX}/devops/managed-projects`,
       schema: {},
       options: {
-        method: 'GET',        
+        method: 'GET',
       }
     },
     callback: callback
@@ -156,7 +267,7 @@ function fetchRemoveProject(projectId, callback) {
 }
 
 export function removeProject(projectId, callback) {
-  return(dispatch, getState) => {
+  return (dispatch, getState) => {
     return dispatch(fetchRemoveProject(projectId, callback))
   }
 }
@@ -190,10 +301,10 @@ export function notActiveProject(id, callback) {
 // search code project list
 export const SEARCH_CODE_STORE_LIST = 'SEARCH_CODE_STORE_LIST'
 
-export function searchProject(names){
+export function searchProject(names) {
   return {
     type: SEARCH_CODE_STORE_LIST,
-    codeName:names
+    codeName: names
   }
 }
 
@@ -320,7 +431,7 @@ function fetchPutDockerfile(flows, callback) {
       schema: {},
       options: {
         method: 'PUT',
-        body: {content: flows.content}
+        body: { content: flows.content }
       }
     },
     callback
@@ -381,7 +492,7 @@ function fetchdeploymentLog(flowId) {
 }
 
 export function deploymentLog(flowId) {
-  return (dispatch, getState) =>{
+  return (dispatch, getState) => {
     dispatch(fetchdeploymentLog(flowId))
   }
 }
@@ -430,7 +541,7 @@ export const DELETE_CD_RULES_LIST_REQUEST = 'DELETE_CD_RULES_LIST_REQUEST'
 export const DELETE_CD_RULES_LIST_SUCCESS = 'DELETE_CD_RULES_LIST_SUCCESS'
 export const DELETE_CD_RULES_LIST_FAILURE = 'DELETE_CD_RULES_LIST_FAILURE'
 export function addCdRules(obj, callback) {
-  return (dispatch, getState) =>{
+  return (dispatch, getState) => {
     dispatch(fetchAddRules(obj, callback))
   }
 }
@@ -926,7 +1037,7 @@ function fetchFlowBuildStageLogs(flowId, stageId, stageBuildId, callback) {
   }
 }
 
-export function getFlowBuildStageLogs(flowId, stageId,stageBuildId, callback) {
+export function getFlowBuildStageLogs(flowId, stageId, stageBuildId, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchFlowBuildStageLogs(flowId, stageId, stageBuildId, callback))
   }

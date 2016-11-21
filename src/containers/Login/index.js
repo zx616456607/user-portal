@@ -11,10 +11,11 @@
 import React, { PropTypes } from 'react'
 import { Button, Form, Input, Card, Tooltip, message, Alert, Col, } from 'antd'
 import './style/Login.less'
-import { verifyCaptcha, login } from '../../actions'
+import { verifyCaptcha, login } from '../../actions/entities'
 import { connect } from 'react-redux'
 import { USERNAME_REG_EXP, EMAIL_REG_EXP } from '../../constants'
 import { browserHistory } from 'react-router'
+import { genRandomString } from '../../common/tools'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -26,9 +27,10 @@ function noop() {
 let Login = React.createClass({
   getInitialState() {
     return {
-      random: '0',
+      random: genRandomString(),
       submitting: false,
       loginResult: {},
+      submitProps: {},
     }
   },
 
@@ -43,6 +45,9 @@ let Login = React.createClass({
       }
       this.setState({
         submitting: true,
+        submitProps: {
+          disabled: 'disabled'
+        }
       })
       const body = {
         password: values.password,
@@ -57,7 +62,8 @@ let Login = React.createClass({
         success: {
           func: (result) => {
             self.setState({
-              submitting: false
+              submitting: false,
+              submitProps: {},
             })
             message.success(`用户 ${values.name} 登录成功`)
             browserHistory.push(redirect || '/')
@@ -69,8 +75,9 @@ let Login = React.createClass({
             self.setState({
               submitting: false,
               loginResult: {
-                error: err.message.message
-              }
+                error: err.message.message || err.message
+              },
+              submitProps: {},
             })
             self.changeCaptcha()
             resetFields(['password'])
@@ -147,13 +154,13 @@ let Login = React.createClass({
       resetFields(['captcha'])
     }
     this.setState({
-      random: (Math.random() * 100000).toFixed()
+      random: genRandomString(),
     })
   },
 
   render() {
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form
-    const { random, submitting, loginResult } = this.state
+    const { random, submitting, loginResult, submitProps } = this.state
     const nameProps = getFieldProps('name', {
       rules: [
         { required: true, min: 3, message: '用户名至少为 3 个字符' },
@@ -214,14 +221,6 @@ let Login = React.createClass({
               <Tooltip placement="top" title="点击更换">
                 <img className="captchaImg" src={`/captcha/gen?_=${random}`} onClick={this.changeCaptcha} />
               </Tooltip>
-              {/*<Col span="12">
-                <Input {...captchaProps} autoComplete="off" />
-              </Col>
-              <Col span="12">
-                <Tooltip placement="top" title="点击更换">
-                  <img className="captchaImg" src={`/captcha/gen?_=${random}`} onClick={this.changeCaptcha} />
-                </Tooltip>
-              </Col>*/}
             </FormItem>
 
             <FormItem wrapperCol={{ span: 12, offset: 7 }}>
@@ -229,7 +228,7 @@ let Login = React.createClass({
                 {submitting ? '登录中...' : '登录'}
               </Button>
             </FormItem>
-            <input type="submit" style={{ display: 'none' }} />
+            <input type="submit" style={{ display: 'none' }} {...submitProps} />
           </Form>
         </Card>
       </div>

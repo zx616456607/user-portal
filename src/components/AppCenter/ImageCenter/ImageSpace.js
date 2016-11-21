@@ -13,7 +13,7 @@ import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { loadPrivateImageList ,getImageDetailInfo } from '../../../actions/app_center'
+import { loadPrivateImageList ,getImageDetailInfo ,deleteImage} from '../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../constants'
 
 import "./style/ImageSpace.less"
@@ -95,15 +95,33 @@ const MyComponent = React.createClass({
     config: React.PropTypes.array,
     scope: React.PropTypes.object
   },
-  btnDeleteImage: function (id) {
-    //this function for user delete select image
-    // this.props.deleteImage(id, {
-    //   success:{
-    //     func:(res)=>{
-    //       message.success('删除成功！')
-    //     }
-    //   }
-    // })
+  btnDeleteImage: function (image) {
+    //this function for user delete select imagex
+    const {deleteImage} = this.props.scope.props
+    const config = {
+      registry: DEFAULT_REGISTRY,
+      image
+    }
+    Modal.confirm({
+      title: '确定要删除所选中的镜像？',
+      okText: '确定',
+      cancelText: '取消',
+      onOk() {
+        deleteImage(config, {
+          success:{
+            func:()=>{
+              message.success('删除成功！')
+            }
+          },
+          failed:{
+            func: (res)=>{
+              message.error('删除失败')
+            }
+          }
+        })
+
+      }
+    })
   },
   showImageDetail: function (id) {
     //this function for user select image and show the image detail info
@@ -132,9 +150,14 @@ const MyComponent = React.createClass({
         </div>
       )
     }
+    if (imageList.length === 0) {
+      return (
+        <div style={{lineHeight:'100px',height:'200px',paddingLeft:'40px'}}>您还没有镜像，去上传一个吧！</div>
+      )
+    }
     let items = imageList.map((item, index) => {
       const dropdown = (
-        <Menu onClick={this.btnDeleteImage.bind(this, item.id)}
+        <Menu onClick={this.btnDeleteImage.bind(this, item.name)}
           style={{ width: "100px" }}
           >
           <Menu.Item key={item.id}>
@@ -143,7 +166,7 @@ const MyComponent = React.createClass({
         </Menu>
       );
       return (
-        <div className="imageDetail" key={`${item.id}-${index}`} >
+        <div className="imageDetail" key={`${item.name}-${index}`} >
           <div className="imageBox">
             <img src="/img/default.png" />
           </div>
@@ -258,7 +281,7 @@ class ImageSpace extends Component {
               </Button>
 
             </div>
-            <MyComponent scope={scope} isFetching={this.props.isFetching} imageList= {imageList} registryServer= {server} deleteImage={(id)=>this.props.deleteImage(id)} getImageDetailInfo = {(obj,callback)=>this.props.getImageDetailInfo(obj,callback) } />
+            <MyComponent scope={scope} isFetching={this.props.isFetching} imageList= {imageList} registryServer= {server} getImageDetailInfo = {(obj,callback)=>this.props.getImageDetailInfo(obj,callback) } />
             <Modal title={<FormattedMessage {...menusText.uploadImage} />} className="uploadImageModal" visible={this.state.uploadModalVisible}
               onCancel={this.closeUploadModal} onOk={this.closeUploadModal}
               >
@@ -333,18 +356,22 @@ function mapStateToProps(state, props) {
   }
 }
 
-function mapDispatchToProps(dispatch) {
-  return {
-    loadPrivateImageList: (DEFAULT_REGISTRY) => {
-      dispatch(loadPrivateImageList(DEFAULT_REGISTRY))
-    },
-    getImageDetailInfo :(obj, callback)=> {
-      dispatch(getImageDetailInfo(obj, callback))
-    },
+// function mapDispatchToProps(dispatch) {
+//   return {
+//     loadPrivateImageList: (DEFAULT_REGISTRY) => {
+//       dispatch(loadPrivateImageList(DEFAULT_REGISTRY))
+//     },
+//     getImageDetailInfo :(obj, callback)=> {
+//       dispatch(getImageDetailInfo(obj, callback))
+//     },
 
-  }
-}
+//   }
+// }
 
-export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(ImageSpace, {
+export default connect(mapStateToProps,{
+  loadPrivateImageList,
+  getImageDetailInfo,
+  deleteImage
+})(injectIntl(ImageSpace, {
   withRef: true,
 }))

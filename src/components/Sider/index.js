@@ -18,8 +18,30 @@ import QueueAnim from 'rc-queue-anim'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
-
 const RadioGroup = Radio.Group
+
+function checkUrlSelectedKey(scope) {
+  //this function for check the pathname and return the selected key of menu
+  const { pathname } = scope.props;
+  let pathList = pathname.split('/');
+  if(pathList.length == 2) {
+    return [pathList[1], pathList[1] + '_default']
+  } else {
+    return [pathList[1], pathList[2]]
+  }
+}
+
+function checkUrlOpenKeys(scope) {
+  //this function for check the pathname and return the opened key of menu
+  const { pathname } = scope.props;
+  let pathList = pathname.split('/');
+  if(pathList.length == 2) {
+    return [pathList[1], pathList[1] + '_default']
+  } else {
+    return [pathList[1], pathList[2]]
+  }
+}
+
 class Slider extends Component {
   constructor(props) {
     super(props);
@@ -138,6 +160,7 @@ class Slider extends Component {
   render() {
     const { siderStyle } = this.props
     const { currentKey } = this.state
+    const scope = this
     const noticeModel = (
       <Card className='noticeModel' title='Card title' style={{ width: 300 }}>
         <p>{this.state.currentKey}</p>
@@ -199,7 +222,7 @@ class Slider extends Component {
                 <Tooltip placement='right' title='应用管理' getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/app_manage'>
                     <svg className='app commonImg'>
-                      <use xlinkHref='#app' />
+                      { currentKey == '2' ? [<use xlinkHref='#appselected' />] : [<use xlinkHref='#app' />]}
                     </svg>
                   </Link>
                 </Tooltip>
@@ -216,8 +239,8 @@ class Slider extends Component {
               <li onClick={this.selectModel.bind(this, '6', '#system')} className={currentKey == '6' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title='CI/CD' getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/ci_cd'>
-                    <svg className='system commonImg'>
-                      <use xlinkHref='#system' />
+                    <svg className='cicd commonImg'>
+                      { currentKey == '6' ? [<use xlinkHref='#cicdselected' />] : [<use xlinkHref='#cicd' />]}
                     </svg>
                   </Link>
                 </Tooltip>
@@ -226,7 +249,7 @@ class Slider extends Component {
                 <Tooltip placement='right' title='数据库与缓存' getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/database_cache'>
                     <svg className='database commonImg'>
-                      <use xlinkHref='#database' />
+                      { currentKey == '4' ? [<use xlinkHref='#database-selected' />] : [<use xlinkHref='#database' />]}
                     </svg>
                   </Link>
                 </Tooltip>
@@ -289,7 +312,7 @@ class Slider extends Component {
         </QueueAnim>
         ] : null }
         { siderStyle == 'bigger' ? [
-        <QueueAnim type='left'>
+        <QueueAnim type='left' className='siderBiggerBox'>
           <div key='siderBigger' className='siderBigger'>
             <div className='logBox'>
               <Link to='/'>
@@ -300,6 +323,8 @@ class Slider extends Component {
               style={{ width: '100%', backgroundColor: '#222222', color: '#c4c4c4' }}
               mode='inline'
               theme='dark'
+              selectedKeys={checkUrlSelectedKey(scope)}
+              openKeys={checkUrlOpenKeys(scope)}
             > 
               <Menu.Item key='0'>
                 <Link to='/'>
@@ -309,10 +334,10 @@ class Slider extends Component {
                   <span>总览</span>
                 </Link>
               </Menu.Item>
-              <SubMenu key='sub1' 
+              <SubMenu key='app_manage' 
                 title={
                   <span>
-                    <svg className='home commonImg'>
+                    <svg className='app commonImg'>
                       <use xlinkHref='#app' />
                     </svg>
                     <span className='commonSiderSpan'>应用管理</span>
@@ -320,12 +345,12 @@ class Slider extends Component {
                   </span>
                 }
               >
-                  <Menu.Item key='app'>
+                  <Menu.Item key='app_manage_default'>
                     <Link to='/app_manage'>
                       <span>应用</span>
                     </Link>
                   </Menu.Item>
-                   <Menu.Item key='appServices'>
+                   <Menu.Item key='service'>
                     <Link to='/app_manage/service'>
                       <span>服务</span>
                     </Link>
@@ -335,18 +360,18 @@ class Slider extends Component {
                       <span>容器</span>
                     </Link>
                   </Menu.Item>
-                  <Menu.Item key='appStorage'>
+                  <Menu.Item key='storage'>
                     <Link to='/app_manage/storage'>
                       <span>存储</span>
                     </Link>
                   </Menu.Item>
-                  <Menu.Item key='serviceConfig'>
+                  <Menu.Item key='configs'>
                     <Link to='/app_manage/configs'>
                       <span>服务配置</span>
                     </Link>
                   </Menu.Item>
               </SubMenu>
-              <SubMenu key='sub2' 
+              <SubMenu key='app_center' 
                 title={
                   <span>
                     <svg className='center commonImg'>
@@ -357,50 +382,50 @@ class Slider extends Component {
                   </span>
                 }
               >
-                <Menu.Item key='imageCenter'>
+                <Menu.Item key='app_center_default'>
                   <Link to='/app_center'>
                     <span>镜像仓库</span>
                   </Link>
                 </Menu.Item>
-                <Menu.Item key='imageStore'>
+                <Menu.Item key='image_store'>
                   <Link to='/app_center/image_store'>
                     <span>应用商店</span>
                   </Link>
                 </Menu.Item>
-                <Menu.Item key='composeFile'>
+                <Menu.Item key='stack_center'>
                   <Link to='/app_center/stack_center'>
                     <span>编排文件</span>
                   </Link>
                 </Menu.Item>
               </SubMenu>
-              <SubMenu key='sub3' 
+              <SubMenu key='ci_cd' 
                 title={
                   <span>
                     <svg className='center commonImg'>
-                      <use xlinkHref='#system' />
+                      <use xlinkHref='#cicd' />
                     </svg>
                     <span className='commonSiderSpan'>CI/CD</span>
                     <div style={{ clear: 'both' }}></div>
                   </span>
                 }
               >
-                <Menu.Item key='codeStore'>
+                <Menu.Item key='ci_cd_default'>
                   <Link to='/ci_cd'>
                     <span>代码仓库</span>
                   </Link>
                 </Menu.Item>
-                <Menu.Item key='tenxFlow'>
+                <Menu.Item key='tenx_flow'>
                   <Link to='/ci_cd/tenx_flow'>
                     <span>TenxFlow</span>
                   </Link>
                 </Menu.Item>
-                <Menu.Item key='dockerFlie'>
+                <Menu.Item key='docker_file'>
                   <Link to='/ci_cd/docker_file'>
                     <span>Dockerfile</span>
                   </Link>
                 </Menu.Item>
               </SubMenu>
-              <SubMenu key='sub4' 
+              <SubMenu key='database_cache' 
                 title={
                   <span>
                     <svg className='database commonImg'>
@@ -411,28 +436,28 @@ class Slider extends Component {
                   </span>
                 }
               >
-                <Menu.Item key='mysql'>
+                <Menu.Item key='database_cache_default'>
                   <Link to='/database_cache'>
                     <span>MySQL集群</span>
                   </Link>
                 </Menu.Item>
-                <Menu.Item key='mongo'>
+                <Menu.Item key='mongo_cluster'>
                   <Link to='/database_cache/mongo_cluster'>
                     <span>Mongo集群</span>
                   </Link>
                 </Menu.Item>
-                <Menu.Item key='redis'>
+                <Menu.Item key='redis_cluster'>
                   <Link to='/database_cache/redis_cluster'>
                     <span>Redis集群</span>
                   </Link>
                 </Menu.Item>
-                <Menu.Item key='databaseStorage'>
+                <Menu.Item key='database_storage'>
                   <Link to='/database_cache/database_storage'>
                     <span>存储</span>
                   </Link>
                 </Menu.Item>
               </SubMenu>
-              <SubMenu key='sub5' 
+              <SubMenu key='manange_monitor' 
                 title={
                   <span>
                     <svg className='system commonImg'>
@@ -455,17 +480,17 @@ class Slider extends Component {
                   </span>
                 }
               >
-                <Menu.Item key='operationalMonitor'>
+                <Menu.Item key='manange_monitor_default'>
                   <Link to='/manange_monitor'>
                     <span>操作审计</span>
                   </Link>
                 </Menu.Item>
-                <Menu.Item key='queryLog'>
+                <Menu.Item key='query_log'>
                   <Link to='/manange_monitor/query_log'>
                     <span>日志查询</span>
                   </Link>
                 </Menu.Item>
-                <Menu.Item key='monitorManage'>
+                <Menu.Item key='monitor'>
                   <Link to='/manange_monitor/monitor'>
                     <span>监控管理</span>
                   </Link>
@@ -494,7 +519,7 @@ class Slider extends Component {
                   </span>
                 </Link>
               </Menu.Item>
-              <SubMenu key='sub7' 
+              <SubMenu key='setting' 
                 title={
                   <span>
                     <svg className='setting commonImg'>
@@ -505,7 +530,7 @@ class Slider extends Component {
                   </span>
                 }
               >
-                <Menu.Item key='setting'>
+                <Menu.Item key='setting_default'>
                   <Link to='/setting'>
                     <span>我的信息</span>
                   </Link>

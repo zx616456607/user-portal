@@ -20,6 +20,9 @@ const appTemplateController = require('../controllers/app_template')
 const manageMonitorController = require('../controllers/manage_monitor')
 const userController = require('../controllers/user_manage')
 const teamController = require('../controllers/team_manage')
+const overviewTeamController = require('../controllers/overview_team')
+const overviewClusterController = require('../controllers/overview_cluster')
+const overviewSpaceController = require('../controllers/overview_space')
 const tokenController = require('../controllers/token')
 const devopsController = require('../controllers/devops')
 const licenseController = require('../controllers/license')
@@ -112,6 +115,12 @@ module.exports = function (Router) {
   //To remove multiple users, seperate the user ids with ",".
   router.delete('/teams/:team_id/users/:user_ids', teamController.removeTeamusers)
   router.delete('/teams/:team_id/spaces/:space_id', teamController.deleteTeamspace)
+
+  //Overview
+  router.get('/overview/teams/:team_id/detail', overviewTeamController.getTeamDetail)
+  router.get('/overview/teams/:team_id/operations', overviewTeamController.getTeamOperations)
+  router.get('/overview/clusters/:cluster_id/operations', overviewClusterController.getClusterOperations)
+  router.get('/overview/operations', overviewSpaceController.getSpaceOperations)
 
   // spi
   router.post('/clusters/:cluster/services/:service_name/binddomain', serviceController.bindServiceDomain)

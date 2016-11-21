@@ -12,8 +12,8 @@
 
 import React, { Component, PropTypes } from 'react'
 import TenxStatus from './'
-import { TENX_MARK } from '../../constants'
 import { injectIntl, defineMessages } from 'react-intl'
+import { getAppStatus } from '../../common/status_identify'
 
 const messages = defineMessages({
   AppReplicasMsg: {
@@ -30,30 +30,11 @@ class AppStatus extends Component {
   render() {
     let { services, phase, smart, intl } = this.props
     const { formatMessage } = intl
-    let status = {
-      replicas: services.length,
-      availableReplicas: 0,
-      text: `${formatMessage(messages.AppReplicasMsg, { total: services.length })}`
-    }
-    services.map(service => {
-      let replicas = service.spec.replicas || service.metadata.annotations[`${TENX_MARK}/replicas`]
-      let { availableReplicas, updatedReplicas } = service.status
-      if (replicas > 0 && (availableReplicas > 0 || updatedReplicas > 0)) {
-        status.availableReplicas++
-      }
-    })
-    if (!phase) {
-      if (status.availableReplicas === 0) {
-        phase = 'Stopped'
-      } else if (status.availableReplicas > 0) {
-        phase = 'Running'
-      } else {
-        phase = 'Unknown'
-      }
-    }
+    const status = getAppStatus(services)
+    status.text = `${formatMessage(messages.AppReplicasMsg, { total: services.length })}`
     return (
       <TenxStatus
-        phase={phase}
+        phase={phase || status.phase}
         status={status}
         smart={smart} />
     )

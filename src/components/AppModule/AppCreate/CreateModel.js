@@ -15,7 +15,7 @@ import './style/CreateModel.less'
 import { connect } from 'react-redux'
 import { loadUserTeamspaceList } from '../../../actions/user'
 import { loadTeamClustersList } from '../../../actions/team'
-import { setCurrent } from '../../../actions'
+import { setCurrent } from '../../../actions/entities'
 
 const FormItem = Form.Item;
 const createForm = Form.create;

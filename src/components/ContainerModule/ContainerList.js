@@ -137,11 +137,7 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className='containerStatus commonData'>
-            <ContainerStatus
-              status={item.status}
-              creationTimestamp={item.metadata.creationTimestamp}
-              deletionTimestamp={item.metadata.deletionTimestamp}
-              />
+            <ContainerStatus container={item} />
           </div>
           <div className='serviceName commonData'>
             <Tooltip placement='topLeft' title={item.metadata.labels[LABEL_APPNAME] || ''}>

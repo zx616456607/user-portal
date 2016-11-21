@@ -63,6 +63,17 @@ function privateImages(state = {}, action) {
       list[registry].imageList = result
       return list
     }
+    case ActionTypes.DELETE_PRIVATE_IMAGE_SUCCESS: {
+      const delState =  cloneDeep(state)
+      const registry = action.registry
+      const imageList = delState[registry].imageList
+      const dIndex = findIndex(imageList, list => {
+        return list.name === action.image
+      })
+      delState[registry].imageList.splice(dIndex, 1)
+      return delState
+
+    }
     default:
       return state
   }
@@ -249,7 +260,7 @@ function imageTag(state = {}, action) {
         [registry]: {
           [fullName]: {
             isFetching: false,
-            registry: action.response.result.registry,
+            registry: registry,
             server: action.response.result.server,
             tag: data,
           }
@@ -295,7 +306,7 @@ function imageTagConfig(state = {}, action) {
       return Object.assign({}, state, {
         [registry]: {
           isFetching: false,
-          registry: action.response.result.registry,
+          registry: registry,
           server: action.response.result.server,
           tag: action.response.result.tag || [],
           configList: action.response.result.data || [],
@@ -336,7 +347,7 @@ function imagesInfo(state = {}, action) {
       return Object.assign({}, state, {
         [registry]: {
           isFetching: false,
-          registry: action.response.result.registry,
+          registry: registry,
           imageInfo: action.response.result.data || null
         }
       })
@@ -441,7 +452,7 @@ function fockImagesList(state = {}, action) {
       return merge({}, {
         [registry]: {
           isFetching: false,
-          registry: action.response.result.registry,
+          registry: registry,
           server: action.response.result.server,
           imageList: action.response.result.data || []
         }

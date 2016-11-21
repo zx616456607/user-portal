@@ -15,6 +15,8 @@ var request = require('request');
 var async   = require('async');
 var config  = require('../../configs/registry')
 
+var TokenCacheMgr = []
+var TokenExpiredTime = 3600 // seconds
 /*
  * Docker registry APIs
  */
@@ -393,21 +395,13 @@ curl "https://rv2.tenxcloud.com:8000/auth?account=admin&scope=repository%3Aedcap
 */
 DockerRegistryAPIs.prototype.getTagsV2 = function (user, repositoryName, callback) {
   var method = "getTagsV2";
+  var self = this
   /*
   TODO: Check if it's private repository before get the tags
   */
   logger.debug(method, "Get tags for " + repositoryName);
   // Use 'admin' for now if user login, so we can always get the tags for all repositories
-  var requestUser = (user == "" ? user : this.registryConfig.user);
-  var exchangeURL = this.registryConfig.v2AuthServer + "/auth?account=" + requestUser + "&scope=repository:" + repositoryName + ":pull&service=" + this.registryConfig.v2Server;
-  logger.debug(method, "Request url: " + exchangeURL);
-  var self = this;
-
-  request.get({
-    url: exchangeURL,
-    json: true,
-    headers: self.getAuthorizationHeader(user)
-  }, function (err, resp, body) {
+  this.refreshToken(user, repositoryName, function(err, resp, token){
     if (err) {
       logger.error(method, err);
       callback(500, body, err);
@@ -420,7 +414,7 @@ DockerRegistryAPIs.prototype.getTagsV2 = function (user, repositoryName, callbac
       if (resp.statusCode != 200) {
         return callback(404, body);
       }
-      var token = body.token;
+      var token = token;
       var tagRequestUrl = self.registryConfig.v2ServerProtocol + "://" + self.registryConfig.v2Server + "/v2/" + repositoryName + "/tags/list";
       logger.info("Get tag url: " + tagRequestUrl);
       request.get({
@@ -441,7 +435,41 @@ DockerRegistryAPIs.prototype.getTagsV2 = function (user, repositoryName, callbac
   });
 };
 
+DockerRegistryAPIs.prototype.refreshToken = function(user, repository, callback) {
+  var requestUser = (user == "" ? user : this.registryConfig.user);
+  var exchangeURL = this.registryConfig.v2AuthServer + "/auth?account=" + requestUser + "&scope=repository:" + repository + ":pull&service=" + this.registryConfig.v2Server;
+  // Use exchangeURL as the key
+  if (TokenCacheMgr[exchangeURL]) {
+    var timePeriod = new Date() - TokenCacheMgr[exchangeURL].lastRefreshTime
+    if (timePeriod/1000 < TokenExpiredTime) {
+      console.log("Using cache...")
+      return callback(null, {statusCode: 200}, TokenCacheMgr[exchangeURL].lastToken)
+    }
+  }
+  logger.debug("Request url: " + exchangeURL);
+  var self = this;
+
+  request.get({
+    url: exchangeURL,
+    json: true,
+    headers: self.getAuthorizationHeader(user)
+  }, function (err, resp, body) {
+    if (err) {
+      logger.error(method, err);
+      callback(err, resp, body);
+    } else {
+      // Add to cache
+      TokenCacheMgr[exchangeURL] = {
+        lastRefreshTime: new Date(),
+        lastToken: body.token
+      }
+      callback(null, resp, body.token);
+    }
+  })
+}
+
 /*
+v1: not used now
 curl 127.0.0.1:5000/v2/<repo>/manifests/<tag>
 
 */
@@ -516,20 +544,12 @@ DockerRegistryAPIs.prototype.getImageJsonInfoV2 = function (user, repositoryName
 
   async.waterfall([
     function (callback) {
-      // Use 'admin' for now if user login, so we can always get the tags for all repositories
-      var exchangeURL = self.registryConfig.v2AuthServer + "/auth?account=" + requestUser + "&scope=repository:" + repositoryName + ":pull&service=" + self.registryConfig.v2Server;
-
-      logger.debug(method, "Request url: " + exchangeURL);
-      request.get({
-        url: exchangeURL,
-        json: true,
-        headers: self.getAuthorizationHeader(user)
-      }, function (err, resp, body) {
+      self.refreshToken(requestUser, repositoryName, function(err, resp, token){
         if (err) {
           logger.error(method, err);
-          callback(err, body);
+          callback(err, resp);
         } else {
-          callback(null, body.token);
+          callback(null, token);
         }
       });
     },

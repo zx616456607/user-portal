@@ -159,3 +159,23 @@ export function setCookie(cName, value, options = {}) {
   const cookie = cookieArray.join('')
   document.cookie = cookie
 }
+
+/**
+ * Generate random string with specified length, default is 6
+ */
+export function genRandomString(mytoken, len) {
+  const DEFAULT_TOKEN = '0123456789qwertyuioplkjhgfdsazxcvbnmABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%&'
+  const DEFAULT_LEN = 6
+  if (!mytoken) {
+    mytoken = DEFAULT_TOKEN
+    len = DEFAULT_LEN
+  } else if (!len) {
+    len = mytoken
+    mytoken = DEFAULT_TOKEN
+  }
+  let randomStr = ''
+  for (let i = 0; i < len; i++) {
+    randomStr += mytoken.charAt(Math.ceil(Math.random() * 100000000) % mytoken.length)
+  }
+  return randomStr
+}

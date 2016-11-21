@@ -202,7 +202,7 @@ const MyComponent = React.createClass({
             </div>
           }
           <div className='codelink textoverflow'>
-            <Icon type="github" /> {item.address}
+            <i className={`fa fa-${item.repoType}`} /> {item.address}
           </div>
           <div className='action'>
            

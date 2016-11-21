@@ -17,5 +17,11 @@
     "closed": "已关闭",
     "opened": "已开启",
     "success": "成功"
+  },
+  "license": {
+    "NO_LICENSE": "您的系统尚未添加许可证，请联系管理员添加！",
+    "LICENSE_ERROR": "您的系统许可证异常，请联系管理员！",
+    "LICENSE_OK": "您的系统许可证有效！",
+    "TRAIL_EXPIRED": "您的系统试用期已结束，请联系管理员购买许可证！"
   }
 }

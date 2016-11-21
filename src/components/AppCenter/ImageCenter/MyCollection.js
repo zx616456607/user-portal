@@ -74,7 +74,7 @@ let MyComponent = React.createClass({
     })
   },
   render: function () {
-    let config = this.props.config;
+    let imageList = this.props.config;
     const {isFetching, registryServer} = this.props
     if (isFetching) {
       return (
@@ -83,7 +83,12 @@ let MyComponent = React.createClass({
         </div>
       )
     }
-    let items = config.map((item, index) => {
+    if (imageList.length === 0) {
+      return (
+        <div style={{lineHeight:'100px',height:'200px',paddingLeft:'40px'}}>您还没有收藏镜像！</div>
+      )
+    }
+    let items = imageList.map((item, index) => {
       return (
         <div className="imageDetail" key={`${item.id}-${index}`} >
           <div className="imageBox">

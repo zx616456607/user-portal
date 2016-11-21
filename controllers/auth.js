@@ -63,6 +63,7 @@ exports.verifyUser = function* () {
     err.status = 400
     throw err
   }
+  body.captcha = body.captcha.toLowerCase()
   if (body.captcha !== this.session.captcha) {
     logger.error(method, `captcha error: ${body.captcha} | ${this.session.captcha}(session)`)
     const err = new Error('CAPTCHA_ERROR')
@@ -80,7 +81,7 @@ exports.verifyUser = function* () {
   }
   const api = apiFactory.getApi()
   const result = yield api.users.createBy(['login'], null, data)
-  this.session.loginUser = {
+  const loginUser = {
     user: result.userName,
     id: result.userID,
     namespace: result.namespace,
@@ -90,6 +91,13 @@ exports.verifyUser = function* () {
     role: result.role,
     balance: result.balance,
   }
+  const licenseObj = yield indexService.getLicense(loginUser)
+  if (licenseObj.plain.code === -1) {
+    const err = new Error(licenseObj.message)
+    err.status = 401
+    throw err
+  }
+  this.session.loginUser = loginUser
   yield indexService.setUserCurrentConfigCookie.apply(this, [this.session.loginUser])
   delete result.userID
   delete result.statusCode

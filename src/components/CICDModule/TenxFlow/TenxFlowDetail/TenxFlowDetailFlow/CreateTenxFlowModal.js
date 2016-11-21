@@ -172,6 +172,10 @@ const menusText = defineMessages({
   noDockerFileInput: {
     id: 'CICD.Tenxflow.CreateTenxFlowModal.noDockerFileInput',
     defaultMessage: 'Dockerfile 不能为空',
+  },
+  deleteCode: {
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.deleteCode',
+    defaultMessage: '清空',
   }
 });
 
@@ -401,6 +405,14 @@ let CreateTenxFlowModal = React.createClass({
       codeStoreModalShow: false
     });
   },
+  deleteCodeStore() {
+    //this function for user delete the code store
+    this.setState({
+      currentCodeStore: null,
+      currentCodeStoreBranch: '',
+      currentCodeStoreName: ''
+    })
+  },
   openDockerFileModal() {
     this.setState({
       dockerFileModalShow: true
@@ -437,11 +449,6 @@ let CreateTenxFlowModal = React.createClass({
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         e.preventDefault();
-        if (!Boolean(_this.state.currentCodeStore)) {
-          _this.setState({
-            noSelectedCodeStore: true
-          });
-        }
         if (!Boolean(_this.state.dockerFileTextarea && !this.state.useDockerfile)) {
           _this.setState({
             noDockerfileInput: true
@@ -449,18 +456,12 @@ let CreateTenxFlowModal = React.createClass({
         }
         return;
       }
-      if (!Boolean(_this.state.currentCodeStore)) {
+      if (!Boolean(_this.state.dockerFileTextarea) && !this.state.useDockerfile) {
         _this.setState({
-          noSelectedCodeStore: true
+          noDockerfileInput: true
         });
         return;
       }
-      if (!Boolean(_this.state.dockerFileTextarea) && !this.state.useDockerfile) {
-          _this.setState({
-            noDockerfileInput: true
-          });
-          return;
-        }
       //get shell code
       let shellLength = values.shellCodes;
       let shellList = [];
@@ -568,9 +569,14 @@ let CreateTenxFlowModal = React.createClass({
   },
   render() {
     const { formatMessage } = this.props.intl;
-    const { form, codeList, stageList } = this.props;
+    const { form, codeList, stageList, supportedDependencies } = this.props;
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form;
     const scopeThis = this;
+    let serviceSelectList = supportedDependencies.map((item, index) => {
+      return (
+        <Option value={item} key={item + index}>{item}</Option>
+      )
+    });
     getFieldProps('services', {
       initialValue: [0],
     });
@@ -588,8 +594,7 @@ let CreateTenxFlowModal = React.createClass({
         <div className='serviceDetail' key={'serviceName' + k}>
           <Form.Item className='commonItem'>
             <Select {...serviceSelect} style={{ width: '100px' }} >
-              <Option value='MySQL'>MySQL</Option>
-              <Option value='Postgre'>Postgre</Option>
+              {serviceSelectList}
             </Select>
             <span className='defineEnvBtn' onClick={() => this.openEnvSettingModal(k)}><FormattedMessage {...menusText.defineEnv} /></span>
             <i className='fa fa-trash' onClick={() => this.removeService(k)}/>
@@ -616,7 +621,7 @@ let CreateTenxFlowModal = React.createClass({
       <QueueAnim key={'shellCode' + i + 'Animate'}>
         <div className='serviceDetail' key={'shellCode' + i}>
           <FormItem className='serviceForm'>
-            <Input onKeyUp={() => this.addShellCode(i) } {...shellCodeProps} type='text' size='large' />
+            <Input disabled={ scopeThis.state.otherFlowType == '3' ? true : false } onKeyUp={() => this.addShellCode(i) } {...shellCodeProps} type='text' size='large' />
             <i className='fa fa-trash' onClick={() => this.removeShellCode(i)} />
           </FormItem>
           <div style={{ clera:'both' }}></div>
@@ -688,7 +693,6 @@ let CreateTenxFlowModal = React.createClass({
                 <Option value='1'><FormattedMessage {...menusText.unitCheck} /></Option>
                 <Option value='2'><FormattedMessage {...menusText.containCheck} /></Option>
                 <Option value='3'><FormattedMessage {...menusText.buildImage} /></Option>
-                {/*<Option value='3'><FormattedMessage {...menusText.podToPodCheck} /></Option>*/}
                 <Option value='4'><FormattedMessage {...menusText.runningCode} /></Option>
                 <Option value='5'><FormattedMessage {...menusText.other} /></Option>
               </Select>
@@ -719,6 +723,10 @@ let CreateTenxFlowModal = React.createClass({
             <Button className={ this.state.noSelectedCodeStore ? 'noCodeStoreButton selectCodeBtn' : 'selectCodeBtn'} size='large' type='ghost' onClick={this.openCodeStoreModal}>
               <i className='fa fa-file-code-o' />
               <FormattedMessage {...menusText.selectCode} />
+            </Button>
+            <Button type='ghost' size='large' style={{ marginLeft: '15px' }} onClick={this.deleteCodeStore}>
+              <i className='fa fa-trash' />&nbsp;
+              <FormattedMessage {...menusText.deleteCode} />
             </Button>
             <span className={ this.state.noSelectedCodeStore ? 'noCodeStoreSpan CodeStoreSpan' : 'CodeStoreSpan' }><FormattedMessage {...menusText.noCodeStore} /></span>
           </div>
@@ -786,20 +794,18 @@ let CreateTenxFlowModal = React.createClass({
                   <span>Dockerfile</span>
                 </div>
                 <div className='input' style={{ height: '100px' }}>
-                  <Checkbox onChange={this.changeUseDockerFile}></Checkbox>
-                  <span><FormattedMessage {...menusText.dockerFileCreate} /></span>
-                  {
-                    this.state.useDockerfile ? [
-                      <QueueAnim className='dockerFileInputAnimate' key='dockerFileInputAnimate'>
-                        <div key='useDockerFileAnimateFirst'>
-                          <Input className='dockerFileInput' {...dockerFileUrlProps} addonBefore='/' size='large' />
-                        </div>
-                      </QueueAnim>
-                    ] : null
-                  }
+                  <div className='operaBox' style={{ float: 'left', width: '500px' }}>
+                    <Checkbox onChange={this.changeUseDockerFile}></Checkbox>
+                    <span><FormattedMessage {...menusText.dockerFileCreate} /></span>
+                  </div>
+                  <QueueAnim className='dockerFileInputAnimate' key='dockerFileInputAnimate'>
+                    <div key='useDockerFileAnimateFirst'>
+                      <Input className='dockerFileInput' {...dockerFileUrlProps} addonBefore='/' size='large' />
+                    </div>
+                  </QueueAnim>
                   {
                     !this.state.useDockerfile ? [
-                      <QueueAnim key='useDockerFileAnimate'>
+                      <QueueAnim key='useDockerFileAnimate' style={{ float: 'left' }}>
                         <div key='useDockerFileAnimateSecond'>
                           {/*<Button type='ghost' size='large' style={{ marginRight:'20px' }}>
                             <FormattedMessage {...menusText.selectDockerFile} />
@@ -871,7 +877,7 @@ let CreateTenxFlowModal = React.createClass({
                     this.state.otherTag ? [
                       <QueueAnim key='otherTagAnimateBox'>
                         <div key='otherTagAnimate'>
-                          <FormItem style={{ width:'220px',float:'left' }}>
+                          <FormItem style={{ width:'200px',float:'left' }}>
                             <Input {...otherImageTagProps} type='text' size='large' />
                           </FormItem>
                         </div>
