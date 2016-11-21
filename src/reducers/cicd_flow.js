@@ -23,9 +23,9 @@ function codeRepo(state = {}, action) {
       return merge({}, defaultState, state, { isFetching: true })
     case ActionTypes.GET_REPOS_LIST_SUCCESS:
       return Object.assign({}, state, {
-        isFetching: false,
-        repoList: action.response.result.data.results,
-        bak: action.response.result.data.results
+          isFetching: false,
+          repoList: action.response.result.data.results,
+          bak: action.response.result.data.results
       })
     case ActionTypes.GET_REPOS_LIST_FAILURE:
       return merge({}, state, {
@@ -82,6 +82,53 @@ function codeRepo(state = {}, action) {
       reState.repoList[Keys].managedProject = { active: 0 }
       return reState
     default:
+      return state
+  }
+}
+
+function githubRepo (state = {}, action) {
+  const defaultState = {
+    isFetching: false,
+    githubList: [],
+    users: ''
+  }
+  switch (action.type) {
+    case ActionTypes.GET_GITHUB_LIST_REQUEST:
+      return merge({}, defaultState, state, { isFetching: true })
+    case ActionTypes.GET_GITHUB_LIST_SUCCESS: {
+        const lists = action.response.result.data.results
+        const users = Object.keys(lists)
+        return Object.assign({}, state, {
+          isFetching: false,
+          githubList: lists[users],
+          bak: lists[users],
+          users
+        })
+    }
+    case ActionTypes.GET_GITHUB_LIST_FAILURE: {
+      return Object.assign({}, state, {
+          isFetching: false,
+          githubList: [],
+          bak: [],
+          users: ''
+        }) 
+    }
+    case ActionTypes.SEARCH_GITHUB_LIST: {
+      const newState = cloneDeep(state)
+      if (action.image == '') {
+        newState.githubList = newState.bak
+      }
+      const temp = newState.githubList.filter(list => {
+        const search = new RegExp(action.image)
+        if (search.test(list.name)) {
+          return true
+        }
+        return false
+      })
+      newState.githubList = temp
+      return newState
+    }
+    default: 
       return state
   }
 }
@@ -580,6 +627,7 @@ function getStageBuildLogList(state = {}, action) {
 export default function cicd_flow(state = {}, action) {
   return {
     codeRepo: codeRepo(state.codeRepo, action),
+    githubRepo: githubRepo(state.githubRepo, action),
     managed: getProject(state.managed, action),
     getTenxflowList: getTenxflowList(state.getTenxflowList, action),
     getTenxflowDetail: getTenxflowDetail(state.getTenxflowDetail, action),

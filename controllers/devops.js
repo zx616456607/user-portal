@@ -205,7 +205,8 @@ exports.doUserAuthorization = function* () {
   loginUser.ciAuthInfo = resData.authInfo
 
   this.status = 200
-  this.body = results
+  this.redirect('/ci_cd/coderepo?' + type)
+  //this.body = results
 }
 /*
 Managed projects
@@ -239,7 +240,7 @@ exports.addManagedProject = function* () {
       }
       break;
     case "github":
-      if (!projectId) {
+      if (!body.projectId) {
         const err = new Error("projectId for github is required")
         err.status = 400
         throw err

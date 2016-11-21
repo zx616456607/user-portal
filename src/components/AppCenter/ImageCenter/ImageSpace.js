@@ -102,16 +102,24 @@ const MyComponent = React.createClass({
       registry: DEFAULT_REGISTRY,
       image
     }
-    deleteImage(config, {
-      success:{
-        func:()=>{
-          message.success('删除成功！')
-        }
-      },
-      failed:{
-        func: (res)=>{
-          message.error('删除失败')
-        }
+    Modal.confirm({
+      title: '确定要删除所选中的镜像？',
+      okText: '确定',
+      cancelText: '取消',
+      onOk() {
+        deleteImage(config, {
+          success:{
+            func:()=>{
+              message.success('删除成功！')
+            }
+          },
+          failed:{
+            func: (res)=>{
+              message.error('删除失败')
+            }
+          }
+        })
+
       }
     })
   },
