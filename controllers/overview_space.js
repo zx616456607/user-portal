@@ -11,12 +11,10 @@
 
 const apiFactory = require('../services/api_factory')
 
-exports.getClusterOperations = function* () {
-  let cluster = this.params.cluster_id
+exports.getSpaceOperations = function* () {
   const loginUser = this.session.loginUser
-  let queryObj = { cluster}
   const api = apiFactory.getApi(loginUser)
-  const result = yield api.overview.getBy(["operations"], queryObj)
+  const result = yield api.overview.getBy(["operations"])
   const data = result || {}
   this.body = {
     data

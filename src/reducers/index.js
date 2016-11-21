@@ -27,6 +27,7 @@ import cicd_flow from './cicd_flow'
 import cluster from './cluster'
 import overviewTeam from './overview_team'
 import overviewCluster from './overview_cluster'
+import overviewSpace from './overview_space'
 
 // Updates an entity cache in response to any action with response.entities.
 function entities(state = {
@@ -166,6 +167,7 @@ const rootReducer = combineReducers({
   cluster,
   overviewTeam,
   overviewCluster,
+  overviewSpace,
 })
 
 export default rootReducer
