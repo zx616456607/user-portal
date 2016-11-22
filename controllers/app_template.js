@@ -15,8 +15,9 @@ const apiFactory = require('../services/api_factory')
 const logger     = require('../utils/logger.js').getLogger("app_template")
 
 /*
-List user templates based on router
+List user templates based on router, not content(yaml) will be returned
 filter=owned will list user/space templates
+filter=appstore will list tempaltes of AppStore
 other value will only list public ones
 */
 exports.listTemplates = function* () {
@@ -26,6 +27,26 @@ exports.listTemplates = function* () {
 
   const api = apiFactory.getTemplateApi(loginUser)
   const result = yield api.get({"filter": filter})
+
+  this.body = {
+    data: result
+  }
+}
+/*
+Get one template
+*/
+exports.getTemplate = function* () {
+  const loginUser = this.session.loginUser
+  const templateid = this.params.templateid
+
+  const api = apiFactory.getTemplateApi(loginUser)
+  if (!templateid) {
+    const err = new Error('Template ID is required.')
+    err.status = 400
+    throw err
+  }
+
+  const result = yield api.getBy([templateid])
 
   this.body = {
     data: result
