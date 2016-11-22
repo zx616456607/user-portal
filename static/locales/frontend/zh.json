@@ -352,6 +352,7 @@
   "CICD.Tenxflow.CreateTenxFlowModal.noDockerFileInput": "Dockerfile不能为空",
   "CICD.Tenxflow.CreateTenxFlowModal.dockerFileTitle": "创建Dockerfile",
   "CICD.Tenxflow.CreateTenxFlowModal.deleteCode": "清空",
+  "CICD.Tenxflow.CreateTenxFlowModal.emptyImageEnv": "环境变量值不能为空",
   "CICD.Tenxflow.TenxFlowDetailFlowCard.name": "名称：",
   "CICD.Tenxflow.TenxFlowDetailFlowCard.type": "类型：",
   "CICD.Tenxflow.TenxFlowDetailFlowCard.code": "代码：",

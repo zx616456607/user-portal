@@ -177,6 +177,10 @@ const menusText = defineMessages({
   deleteCode: {
     id: 'CICD.Tenxflow.CreateTenxFlowModal.deleteCode',
     defaultMessage: '清空',
+  },
+  emptyImageEnv: {
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.emptyImageEnv',
+    defaultMessage: '环境变量值不能为空',
   }
 });
 
@@ -462,7 +466,7 @@ let CreateTenxFlowModal = React.createClass({
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         e.preventDefault();
-        if (!Boolean(_this.state.dockerFileTextarea && !this.state.useDockerfile)) {
+        if (!Boolean(_this.state.dockerFileTextarea && !this.state.useDockerfile && _this.otherFlowType == '3')) {
           _this.setState({
             noDockerfileInput: true
           });
@@ -481,7 +485,7 @@ let CreateTenxFlowModal = React.createClass({
         });
         return;
       }
-      if (!Boolean(_this.state.dockerFileTextarea) && !this.state.useDockerfile) {
+      if (!Boolean(_this.state.dockerFileTextarea) && !this.state.useDockerfile && _this.otherFlowType == '3') {
         _this.setState({
           noDockerfileInput: true
         });
@@ -497,10 +501,14 @@ let CreateTenxFlowModal = React.createClass({
               emptyImageEnv: true
             });
           } else {
-            let name = `${values['imageEnvName' + item]}`
-            let tempEnv[name] = values['imageEnvValue' + item];
-            console.log(tempEnv)
-//          imageEnvList.push({tempEnv})
+            let tempName = values['imageEnvName' + item];
+            let tempEnv = {
+              [tempName]: values['imageEnvValue' + item]
+            }
+            imageEnvList.push(tempEnv)
+            _this.setState({
+              emptyImageEnv: false
+            });
           }
         }
       });
@@ -546,6 +554,7 @@ let CreateTenxFlowModal = React.createClass({
           'container': {
             'image': values.imageName,
             'args': shellList,
+            'env': imageEnvList,
             'dependencies': serviceList
           },
           'project': {
@@ -585,11 +594,11 @@ let CreateTenxFlowModal = React.createClass({
         }
         body.spec.build = imageBuildBody;
       }
-      console.log(values)
-      /*createTenxFlowState(flowId, body, {
+      console.log(body)
+      createTenxFlowState(flowId, body, {
         success: {
           func: (res) => {
-            if(!_this.state.useDockerfile) {             
+            if(!_this.state.useDockerfile && _this.otherFlowType == '3') {             
               let dockerfilebody = {
                 content: _this.state.dockerFileTextarea,
                 flowId: flowId,
@@ -611,7 +620,7 @@ let CreateTenxFlowModal = React.createClass({
           },
           isAsync: true
         }
-      });*/
+      });
     });
   },
   render() {
@@ -808,6 +817,7 @@ let CreateTenxFlowModal = React.createClass({
               <Input {...imageNameProps} type='text' size='large' />
             </FormItem>
             <span className={ this.state.emptyImageEnv ? 'emptyImageEnv defineEnvBtn' : 'defineEnvBtn'} onClick={this.openImageEnvModal}><FormattedMessage {...menusText.defineEnv} /></span>
+            { this.state.emptyImageEnv ? [<span className='emptyImageEnvError'><FormattedMessage {...menusText.emptyImageEnv} /></span>] : null }   
             <div style={{ clear:'both' }} />
           </div>
           <div style={{ clear:'both' }} />
