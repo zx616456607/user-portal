@@ -9,7 +9,7 @@
  * @author Zhangpc
  */
 import React, { PropTypes } from 'react'
-import { Button, Form, Input, Card, Tooltip, message, Alert, Col, } from 'antd'
+import { Button, Form, Input, Card, Tooltip, message, Alert, Col, Row} from 'antd'
 import './style/Login.less'
 import { verifyCaptcha, login } from '../../actions/entities'
 import { connect } from 'react-redux'
@@ -31,6 +31,9 @@ let Login = React.createClass({
       submitting: false,
       loginResult: {},
       submitProps: {},
+      intNameFocus:false,
+      intPassFocus:false,
+      intCheckFocus:false,
     }
   },
 
@@ -157,7 +160,49 @@ let Login = React.createClass({
       random: genRandomString(),
     })
   },
-
+  
+  intOnBlur(current){
+    const { getFieldProps } = this.props.form
+    if(current === 'name'){
+      if(getFieldProps('name').value === ''){
+        this.setState({
+          intNameFocus: false
+        })
+      }
+      return
+    }
+    if (current === 'pass') {
+      if(getFieldProps('name').value === ''){
+        this.setState({
+          intPassFocus: false
+        })
+      }
+      return
+    }
+    if (current === 'check') {
+      if(getFieldProps('name').value === ''){
+        this.setState({
+          intCheckFocus: false
+        })
+      }
+    }
+    return
+  },
+  intOnFocus(current){
+    if(current === 'name'){
+      this.setState({
+        intNameFocus: true
+      })
+    } else if (current === 'pass') {
+      this.setState({
+        intPassFocus: true
+      })
+    } else if (current === 'check') {
+      this.setState({
+        intCheckFocus: true
+      })
+    }
+  },
   render() {
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form
     const { random, submitting, loginResult, submitProps } = this.state
@@ -180,57 +225,72 @@ let Login = React.createClass({
       ],
     })
     const formItemLayout = {
-      labelCol: { span: 7 },
-      wrapperCol: { span: 12 },
+      wrapperCol: { span: 24 },
     }
     return (
-      <div id="Login">
-        <Card className="loginForm">
-          <div>
-            {
-              loginResult.error && <Alert message={loginResult.error} type="error" showIcon />
-            }
+        <div id="LoginBg">
+          <div className="login">
+            <Row>
+              {/*<svg className="logo">
+                <use xlinkHref="#loginlogo"/>
+              </svg>*/}
+              <img src="/img/sider/LogInLogo.svg" alt="logo" className="logo"/>
+              <div className="logtext" style={{fontSize:'14px'}}>领先的容器云平台和解决方案提供商</div>
+            </Row>
+            <Card className="loginForm" bordered={false}>
+              <div>
+                {
+                  loginResult.error && <Alert message={loginResult.error} type="error" showIcon />
+                }
+              </div>
+              <Form onSubmit={this.handleSubmit}>
+                <FormItem
+                  {...formItemLayout}
+                  hasFeedback
+                  help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
+                  className="formItemName"
+                >
+                  <div className={this.state.intNameFocus?"intName intOnFocus":"intName"}>用户名 / 邮箱</div>
+                  <Input {...nameProps} autoComplete="off" onBlur={this.intOnBlur.bind(this,'name')} onFocus={this.intOnFocus.bind(this,'name')} style={{height:35}}/>
+                </FormItem>
+      
+                <FormItem
+                  {...formItemLayout}
+                  hasFeedback
+                  className="formItemName"
+                >
+                  <div className={this.state.intPassFocus?"intName intOnFocus":"intName"}>密码</div>
+                  <Input {...passwdProps} type="password" autoComplete="off"
+                         onContextMenu={noop} onPaste={noop} onCopy={noop} onCut={noop}
+                         onBlur={this.intOnBlur.bind(this,'pass')} onFocus={this.intOnFocus.bind(this,'pass')} style={{height:35}}
+                  />
+                </FormItem>
+      
+                <FormItem
+                  {...formItemLayout}
+                  hasFeedback
+                  className="formItemName"
+                  help={isFieldValidating('captcha') ? '校验中...' : (getFieldError('captcha') || []).join(', ')}
+                >
+                  <div className={this.state.intCheckFocus?"intName intOnFocus":"intName"}>验证码</div>
+                  <Input {...captchaProps} autoComplete="off" onBlur={this.intOnBlur.bind(this,'check')} onFocus={this.intOnFocus.bind(this,'check')} style={{height:35}}/>
+                  <Tooltip placement="top" title="点击更换">
+                    <img className="captchaImg" src={`/captcha/gen?_=${random}`} onClick={this.changeCaptcha} />
+                  </Tooltip>
+                </FormItem>
+      
+                <FormItem wrapperCol={{ span: 24,}}>
+                  <Button type="primary" onClick={this.handleSubmit} loading={submitting} className="subBtn">
+                    {submitting ? '登录中...' : '登录'}
+                  </Button>
+                </FormItem>
+                <input type="submit" style={{ display: 'none' }} {...submitProps} />
+              </Form>
+            </Card>
           </div>
-          <Form horizontal onSubmit={this.handleSubmit}>
-            <FormItem
-              {...formItemLayout}
-              label="用户名 / 邮箱"
-              hasFeedback
-              help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
-              >
-              <Input {...nameProps} />
-            </FormItem>
-
-            <FormItem
-              {...formItemLayout}
-              label="密码"
-              hasFeedback
-              >
-              <Input {...passwdProps} type="password" autoComplete="off"
-                onContextMenu={noop} onPaste={noop} onCopy={noop} onCut={noop}
-                />
-            </FormItem>
-
-            <FormItem
-              {...formItemLayout}
-              label="验证码"
-              hasFeedback
-              help={isFieldValidating('captcha') ? '校验中...' : (getFieldError('captcha') || []).join(', ')}
-              >
-              <Input {...captchaProps} autoComplete="off" />
-              <Tooltip placement="top" title="点击更换">
-                <img className="captchaImg" src={`/captcha/gen?_=${random}`} onClick={this.changeCaptcha} />
-              </Tooltip>
-            </FormItem>
-
-            <FormItem wrapperCol={{ span: 12, offset: 7 }}>
-              <Button type="primary" onClick={this.handleSubmit} loading={submitting}>
-                {submitting ? '登录中...' : '登录'}
-              </Button>
-            </FormItem>
-            <input type="submit" style={{ display: 'none' }} {...submitProps} />
-          </Form>
-        </Card>
+          <div className="footer">
+            © 2016 时速云 企业版 v1.2.0
+          </div>
       </div>
     )
   }

@@ -20,7 +20,7 @@ function codeRepo(state = {}, action) {
   }
   switch (action.type) {
     case ActionTypes.GET_REPOS_LIST_REQUEST:
-      return merge({}, defaultState, state, { isFetching: true })
+      return merge({}, defaultState, { isFetching: true })
     case ActionTypes.GET_REPOS_LIST_SUCCESS:
       return Object.assign({}, state, {
         isFetching: false,
@@ -114,9 +114,7 @@ function githubRepo(state = {}, action) {
     case ActionTypes.GET_GITHUB_LIST_FAILURE: {
       return Object.assign({}, state, {
         isFetching: false,
-        githubList: [],
-        bak: [],
-        users: ''
+        githubList: false,
       })
     }
     case ActionTypes.DELETE_GITHUB_REPO_SUCCESS: {
@@ -129,7 +127,6 @@ function githubRepo(state = {}, action) {
       const newState = cloneDeep(state)
       if (action.image == '') {
         newState.githubList[action.users] = newState.bak[action.users]
-        return newState
       }
       const temp = newState.githubList[action.users].filter(list => {
         const search = new RegExp(action.image)

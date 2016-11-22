@@ -8,12 +8,16 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Card, } from 'antd'
+import { Row, Col, Card, Radio } from 'antd'
 import './style/Ordinary.less'
 import ReactEcharts from 'echarts-for-react'
 import MySpace from './MySpace'
 import { connect } from 'react-redux'
 import { loadClusterOperations } from '../../../actions/overview_cluster'
+import ProgressBox from '../../ProgressBox'
+
+const RadioButton = Radio.Button;
+const RadioGroup = Radio.Group;
 
 let value = 123
 
@@ -317,7 +321,7 @@ class Ordinary extends Component{
   constructor(props){
     super(props)
     this.state = {
-      
+      dataSelect: false
     }
   }
   
@@ -325,9 +329,12 @@ class Ordinary extends Component{
     const { loadClusterOperations } = this.props
     loadClusterOperations("t-aldakdsadssdsjkewr")
   }
-
+  handleDataBaseClick(){
+    
+  }
   render(){
     const clusterOperations = this.props.clusterOperations
+    const boxPos = '0.25'
     return (
       <div id='Ordinary' style={{marginTop:40}}>
         <Row className="title">我的空间-产品环境集群</Row>
@@ -570,23 +577,39 @@ class Ordinary extends Component{
               />
             </Card>
           </Col>
-          <Col span={6}>
+          <Col span={6} className='storage'>
             <Card title="存储" bordered={false} bodyStyle={{height:200,padding:'0 24px'}}>
-              <ReactEcharts
-                notMerge={true}
-                option={appOption}
-                style={{height:'200px'}}
-              />
+              <ProgressBox boxPos={boxPos}/>
+              <Col span={12} className='storageInf'>
+                <div className="storageInfList">
+                  <Row className='storageInfItem'>
+                    <Col span={12}>已使用:</Col>
+                    <Col span={12} style={{textAlign:'right'}}>62T</Col>
+                  </Row>
+                  <Row className='storageInfItem'>
+                    <Col span={12}>空闲:</Col>
+                    <Col span={12} style={{textAlign:'right'}}>38T</Col>
+                  </Row>
+                  <Row className='storageInfItem'>
+                    <Col span={12}>存储卷数:</Col>
+                    <Col span={12} style={{textAlign:'right'}}>1222个</Col>
+                  </Row>
+                  <Row className='storageInfItem'>
+                    <Col span={12}>使用中:</Col>
+                    <Col span={12} style={{textAlign:'right'}}>1220个</Col>
+                  </Row>
+                </div>
+              </Col>
             </Card>
           </Col>
         </Row>
         <Row className="content" gutter={16} style={{marginTop: 10}}>
-          <Col span={6}>
+          <Col span={6} className='dataBase'>
             <Card title="数据库与缓存" bordered={false} bodyStyle={{height:200}}>
               <Row gutter={16}>
-                <Col span={8}>MySQL集群</Col>
-                <Col span={8}>Mongo集群</Col>
-                <Col span={8}>Redis集群</Col>
+                <Col span={8} onClick={this.handleDataBaseClick} className={this.state.dataSelect?'seleted':''}><span className='dataBtn'>MySQL集群</span></Col>
+                <Col span={8} onClick={this.handleDataBaseClick} className={this.state.dataSelect?'seleted':''}><span className='dataBtn'>Mongo集群</span></Col>
+                <Col span={8} onClick={this.handleDataBaseClick} className={this.state.dataSelect?'seleted':''}><span className='dataBtn'>Redis集群</span></Col>
               </Row>
               <Row>
                 <Col span={12}></Col>
