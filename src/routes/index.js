@@ -99,6 +99,12 @@ const rootRoutes = {
         })
       },
     },{
+      path: 'integration',
+      component: require('../containers/Integration').default,
+      indexRoute: {
+        component: require('../components/IntegrationModule').default,
+      }
+    },{
       path: '*',
       component: require('../containers/ErrorPage').default,
     }],

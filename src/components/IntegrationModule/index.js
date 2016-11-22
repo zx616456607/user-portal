@@ -14,6 +14,7 @@ import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { Button, Alert, Card, Spin, Input } from 'antd'
 import './style/Integration.less'
+import IntegrationDetail from './IntegrationDetail'
 
 const ButtonGroup = Button.Group;
 
@@ -116,6 +117,7 @@ class Integration extends Component {
     super(props);
     this.onChangeShowType = this.onChangeShowType.bind(this);
     this.onChangeAppType = this.onChangeAppType.bind(this);
+    this.ShowDetailInfo = this.ShowDetailInfo.bind(this);
     this.state = {
       currentShowApps: 'all',
       currentAppType: '1',
@@ -141,9 +143,17 @@ class Integration extends Component {
     });
   }
   
+  ShowDetailInfo(name) {
+    //this function for view the app detail info
+    this.setState({
+      showType: 'detail'
+    });
+  }
+  
   render() {
     const { formatMessage } = this.props.intl;
     const {isFetching, appList} = this.props;
+    const scope = this;
     let appShow = appList.map((item, index) => {
       let envList = item.env.map((envItem, envIndex) => {
         return (
@@ -154,13 +164,14 @@ class Integration extends Component {
             <span className='envName'>
               {envItem.name}
             </span>
+            <div style={{ clear:'both' }}></div>
           </div>
         )
       })
       return (
         <div className='appDetail'>
           <div className='leftBox'>
-            <img />
+            <img src='/img/appstore/conflunt.png' />
           </div>
           <div className='middleBox'>
             <div className='appInfo'>
@@ -171,11 +182,13 @@ class Integration extends Component {
               <p><FormattedMessage {...menusText.envTitle} /></p>
               {envList}
             </div>
+            <div style={{ clear:'both' }}></div>
           </div>
           <div className='rightBox'>
             {
               item.status == 'installed' ? [
-                <Button className='installedBtn' key={'installedBtn' + index} size='large' type='ghost'>
+                <Button className='installedBtn' key={'installedBtn' + index} size='large' type='ghost'
+                  style={{ width: '102px' }} onClick={this.ShowDetailInfo.bind(scope, item.name)}>
                   <FormattedMessage {...menusText.showAppDetail} />
                 </Button>
               ] : null
@@ -183,18 +196,21 @@ class Integration extends Component {
             {
               item.status == 'running' ? [
                 <Button className='runningBtn' key={'runningBtn' + index} size='large' type='primary'>
+                  <i className='fa fa-cog fa-spin'></i>&nbsp;
                   <FormattedMessage {...menusText.running} />
                 </Button>
               ] : null
             }
             {
               item.status == 'unintsall' ? [
-                <Button className='unintsallBtn' key={'unintsallBtn' + index} size='large' type='primary'>
+                <Button className='unintsallBtn' key={'unintsallBtn' + index} size='large' type='primary'
+                  style={{ width: '102px' }}>
                   <FormattedMessage {...menusText.uninstall} />
                 </Button>
               ] : null
             }
           </div>
+          <div style={{ clear:'both' }}></div>
           {
             item.status == 'installed' ? [
               <div className='installedFlag' key='installedFlag'>
@@ -250,7 +266,7 @@ class Integration extends Component {
                     ] : null}
                     {this.state.showType == 'detail' ? [
                       <div className='detailBox' key='detailBox'>
-                        
+                        <IntegrationDetail scope={scope} />
                       </div>
                     ] : null}
                   </Card>
