@@ -8,6 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
+import { Row, Col, } from 'antd'
 import './style/ProgressBox.less'
 
 export default class ProgressBox extends Component{
@@ -18,30 +19,25 @@ export default class ProgressBox extends Component{
     }
   }
   render(){
+    const { boxPos } = this.props
     return (
-      <div id='ProgressBox'>
-        <div className="container">
+      <Col id='ProgressBox' span={12}>
+        <div className="boxContainer">
           <div className="wrapper">
             <div className="green">
               <div className="progress">
                 <div className="inner">
-                  <div className="txt">授信额度</div>
                   <div className="percent">
-                    <span className="symbol">￥</span>9000
-                    <span className="symbol">.00</span>
+                    {boxPos*100}%
                   </div>
-                  <div className="water"></div>
-                  <div className="water w2"></div>
-                  <div className="glare"></div>
-                  <div className="up">
-                    提额
-                  </div>
+                  <div className="water" style={{top:`${(1-boxPos)*100}%`}}></div>
+                  <div className="water w2" style={{top:`${(1-boxPos)*100}%`}}></div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </Col>
     )
   }
 }
