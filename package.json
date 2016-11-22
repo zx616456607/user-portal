@@ -6,9 +6,10 @@
   "scripts": {
     "start": "npm run dev",
     "pro": "export NODE_ENV=production&& node app.js",
-    "dev": "export NODE_ENV=development&& node app.js",
+    "dev": "npm run build-dll && export NODE_ENV=development&& node app.js",
     "build": "export NODE_ENV=production&& sh build.sh",
-    "win": "set NODE_ENV=development&& node app.js",
+    "build-dll": "webpack --config webpack.ddl.config",
+    "win": "npm run build-dll && set NODE_ENV=development&& node app.js",
     "win-pro": "set NODE_ENV=production&& node app.js",
     "win-build": "set NODE_ENV=production&& sh build.sh",
     "docker-base-build": "docker build -t tenxcloud/user-portal:base-4.4.7 -f Dockerfile.base .",
