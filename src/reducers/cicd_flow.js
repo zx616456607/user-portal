@@ -23,9 +23,9 @@ function codeRepo(state = {}, action) {
       return merge({}, defaultState, state, { isFetching: true })
     case ActionTypes.GET_REPOS_LIST_SUCCESS:
       return Object.assign({}, state, {
-          isFetching: false,
-          repoList: action.response.result.data.results,
-          bak: action.response.result.data.results
+        isFetching: false,
+        repoList: action.response.result.data.results,
+        bak: action.response.result.data.results
       })
     case ActionTypes.GET_REPOS_LIST_FAILURE:
       return merge({}, state, {
@@ -33,13 +33,13 @@ function codeRepo(state = {}, action) {
         repoList: null
       })
     // delete
-    case ActionTypes.DELETE_REPOS_LIST_SUCCESS:
+    case ActionTypes.DELETE_GITLAB_REPO_SUCCESS:
       return ({
         isFetching: false,
         repoList: null,
         bak: null
       })
-    case ActionTypes.DELETE_REPOS_LIST_FAILURE:
+    case ActionTypes.DELETE_GITLAB_REPO_FAILURE:
       return merge({}, state, { isFetching: false })
 
     // search 
@@ -86,7 +86,7 @@ function codeRepo(state = {}, action) {
   }
 }
 
-function githubRepo (state = {}, action) {
+function githubRepo(state = {}, action) {
   const defaultState = {
     isFetching: false,
     githubList: [],
@@ -96,38 +96,74 @@ function githubRepo (state = {}, action) {
     case ActionTypes.GET_GITHUB_LIST_REQUEST:
       return merge({}, defaultState, state, { isFetching: true })
     case ActionTypes.GET_GITHUB_LIST_SUCCESS: {
-        const lists = action.response.result.data.results
+      if (!action.response.result.data.hasOwnProperty('results')) {
         return Object.assign({}, state, {
           isFetching: false,
-          githubList: lists,
-          bak: lists,
-          users: lists[0].owner.name
+          githubList: false,
         })
+      }
+      const lists = cloneDeep(action.response.result.data.results)
+      const users = Object.keys(lists)[0]
+      return Object.assign({}, state, {
+        isFetching: false,
+        githubList: action.response.result.data.results,
+        bak: lists,
+        users: users
+      })
     }
     case ActionTypes.GET_GITHUB_LIST_FAILURE: {
       return Object.assign({}, state, {
-          isFetching: false,
-          githubList: [],
-          bak: [],
-          users: ''
-        }) 
+        isFetching: false,
+        githubList: false,
+      })
+    }
+    case ActionTypes.DELETE_GITHUB_REPO_SUCCESS: {
+      return Object.assign({}, state, {
+        isFetching: false,
+        githubList: false,
+      })
     }
     case ActionTypes.SEARCH_GITHUB_LIST: {
       const newState = cloneDeep(state)
       if (action.image == '') {
-        newState.githubList = newState.bak
+        newState.githubList[action.users] = newState.bak[action.users]
+        return newState
       }
-      const temp = newState.githubList.filter(list => {
+      const temp = newState.githubList[action.users].filter(list => {
         const search = new RegExp(action.image)
         if (search.test(list.name)) {
           return true
         }
         return false
       })
-      newState.githubList = temp
+      newState.githubList[action.users] = temp
       return newState
     }
-    default: 
+    // add github active
+    case ActionTypes.ADD_GITHUB_PROJECT_SUCCESS: {
+      const addState = cloneDeep(state)
+      const indexs = findIndex(addState.githubList[action.users], (item) => {
+        return item.name == action.names
+      })
+      addState.githubList[action.users][indexs].managedProject = {
+        active: 1,
+        id: action.response.result.data.projectId
+      }
+      return addState
+    }
+    // remove github active
+    case ActionTypes.NOT_Github_ACTIVE_PROJECT_SUCCESS: {
+      const rmState = cloneDeep(state)
+      const rindex = findIndex(rmState.githubList[action.users], (item) => {
+        if (item.managedProject && item.managedProject.id === action.id) {
+          return true
+        }
+        return false
+      })
+      rmState.githubList[action.users][rindex].managedProject = { active: 0 }
+      return rmState
+    }
+    default:
       return state
   }
 }
@@ -262,12 +298,12 @@ function getDockerfileList(state = {}, action) {
   }
 }
 
-function deployLog(state={}, action) {
-  const defaultStatus= {
+function deployLog(state = {}, action) {
+  const defaultStatus = {
     isFetching: false,
-    deployList:[]
+    deployList: []
   }
-  switch(action.type) {
+  switch (action.type) {
     case ActionTypes.GET_DEPLOY_LOG_REQUEST:
       return merge({}, defaultStatus, state, {
         isFetching: true
@@ -275,40 +311,40 @@ function deployLog(state={}, action) {
     case ActionTypes.GET_DEPLOY_LOG_SUCCESS:
       return Object.assign({}, state, {
         isFetching: false,
-        deployList:　action.response.result.data.results
+        deployList: 　action.response.result.data.results
       })
     case ActionTypes.GET_DEPLOY_LOG_FAILURE:
       return Object.assign({}, state, {
         isFetching: false,
-        deployList:[]
+        deployList: []
       })
     default:
       return state
   }
 }
 
-function getCdRules(state={}, action) {
-  const defaultStatus= {
+function getCdRules(state = {}, action) {
+  const defaultStatus = {
     isFetching: false,
-    cdRulesList:[]
+    cdRulesList: []
   }
-  switch(action.type) {
+  switch (action.type) {
     case ActionTypes.GET_CD_RULES_LIST_REQUEST:
       return merge({}, defaultStatus, state, {
         isFetching: true
       })
     case ActionTypes.GET_CD_RULES_LIST_SUCCESS:
-      for (let i=0;i<action.response.result.data.results.length; i++) {
+      for (let i = 0; i < action.response.result.data.results.length; i++) {
         action.response.result.data.results[i].editing = false
       }
       return Object.assign({}, state, {
         isFetching: false,
-        cdRulesList:　action.response.result.data.results
+        cdRulesList: 　action.response.result.data.results
       })
     case ActionTypes.GET_CD_RULES_LIST_FAILURE:
       return Object.assign({}, state, {
         isFetching: false,
-        cdRulesList:[]
+        cdRulesList: []
       })
     case ActionTypes.DELETE_CD_RULES_LIST_SUCCESS:
       const cdState = cloneDeep(state)
@@ -316,19 +352,19 @@ function getCdRules(state={}, action) {
         return item.ruleId == action.ruleId
       })
       cdState.cdRulesList.splice(cin, 1)
-      return {...cdState}
+      return {...cdState }
 
-    default: 
+    default:
       return state
   }
 }
 
-function getCdImage(state={}, action) {
+function getCdImage(state = {}, action) {
   const defaultState = {
     isFetching: false,
     cdImageList: []
   }
-  switch(action.type) {
+  switch (action.type) {
     case ActionTypes.GET_CD_RULES_IMAGE_REQUEST:
       return merge({}, defaultState, state, {
         isFetching: true
@@ -411,7 +447,7 @@ function getTenxflowStageList(state = {}, action) {
       return Object.assign({}, state, {
         isFetching: false,
         stageList: action.response.result.data.results,
-        }
+      }
       )
     case ActionTypes.GET_TENX_FLOW_STATE_LIST_FAILURE:
       return merge({}, defaultState, state, {
@@ -632,15 +668,15 @@ export default function cicd_flow(state = {}, action) {
     getTenxflowDetail: getTenxflowDetail(state.getTenxflowDetail, action),
     userInfo: getUserInfo(state.userInfo, action),
     dockerfileLists: getDockerfileList(state.dockerfileLists, action),
-    deployLog:　deployLog(state.deployLog, action),
-    getCdRules: getCdRules(state.getCdRules, action), 
+    deployLog: 　deployLog(state.deployLog, action),
+    getCdRules: getCdRules(state.getCdRules, action),
     getCdImage: getCdImage(state.getCdImage, action),
-    getTenxflowCIRules: getTenxflowCIRules(state.getTenxflowCIRules, action), 
-    getTenxflowBuildLogs: getTenxflowBuildLogs(state.getTenxflowBuildLogs, action), 
-    getTenxflowBuildDetailLogs: getTenxflowBuildDetailLogs(state.getTenxflowBuildDetailLogs, action), 
-    getTenxflowBuildLastLogs: getTenxflowBuildLastLogs(state.getTenxflowBuildLastLogs, action), 
-    getFlowBuildStageLogs: getFlowBuildStageLogs(state.getFlowBuildStageLogs, action), 
-    getStageBuildLogList: getStageBuildLogList(state.getStageBuildLogList, action), 
+    getTenxflowCIRules: getTenxflowCIRules(state.getTenxflowCIRules, action),
+    getTenxflowBuildLogs: getTenxflowBuildLogs(state.getTenxflowBuildLogs, action),
+    getTenxflowBuildDetailLogs: getTenxflowBuildDetailLogs(state.getTenxflowBuildDetailLogs, action),
+    getTenxflowBuildLastLogs: getTenxflowBuildLastLogs(state.getTenxflowBuildLastLogs, action),
+    getFlowBuildStageLogs: getFlowBuildStageLogs(state.getFlowBuildStageLogs, action),
+    getStageBuildLogList: getStageBuildLogList(state.getStageBuildLogList, action),
     UpdateTenxflowCIRules: reducerFactory({
       REQUEST: ActionTypes.UPDATE_FLOW_CI_RULES_REQUEST,
       SUCCESS: ActionTypes.UPDATE_FLOW_CI_RULES_SUCCESS,

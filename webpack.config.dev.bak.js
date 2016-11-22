@@ -17,7 +17,7 @@ var hotMiddleWareConfig = 'webpack-hot-middleware/client?path=/__webpack_hmr&tim
 console.log('Use development webpack config ...')
 
 module.exports = {
-  devtool: 'cheap-source-map',
+  devtool: 'source-map',
 
   entry: {
     main: [
@@ -55,11 +55,16 @@ module.exports = {
       loader: 'json-loader'
     }, {
       test: /\.css$/,
-      loader: 'style!css?sourceMap'
+      loader: ExtractTextPlugin.extract(
+        'css?sourceMap'
+      )
     }, {
       test: /\.less$/,
-      loader:
-        'style!css!less?sourceMap'
+      loader: ExtractTextPlugin.extract(
+        // activate source maps via loader query
+        'css?sourceMap!' +
+        'less?sourceMap'
+      )
     }]
   },
 
@@ -72,6 +77,8 @@ module.exports = {
     new webpack.optimize.OccurenceOrderPlugin(),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoErrorsPlugin(),
+    new ExtractTextPlugin('[name].css'),
+    // new ExtractTextPlugin('[name].css', { allChunks: true }), // or user style-loader ?
     new webpack.BannerPlugin('Licensed Materials - Property of tenxcloud.com\n(C) Copyright 2016 TenxCloud. All Rights Reserved.\nhttps://www.tenxcloud.com')
   ]
 }

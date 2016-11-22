@@ -173,7 +173,7 @@ const MyComponent = React.createClass({
     parentScope.setState({
       loadingList
     })
-    parentScope.props.notActiveProject(id, {
+    parentScope.props.notActiveProject('gitlab', id, {
       success: {
         func: () => {
           message.success('撤消成功')
@@ -196,6 +196,7 @@ const MyComponent = React.createClass({
         </div>
       )
     }
+    
     if (!config) {
       return (
         <div style={{ lineHeight: '150px', paddingLeft: '250px' }}>
@@ -218,7 +219,7 @@ const MyComponent = React.createClass({
         </div>
       )
     }
-    let items = config.map((item, index) => {
+    let items = config.length >0 && config.map((item, index) => {
       return (
         <div className='CodeTable' key={item.name} >
           <div className="name textoverflow">{item.name}</div>

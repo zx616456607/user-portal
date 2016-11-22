@@ -136,7 +136,7 @@ let testData = [
     "title": "测试工具",
     "imageList": [
       {
-        "id": "2001",
+        "id": "7001",
         "intro": "Selenium",
         "imgUrl": "/img/appstore/selenium.jpg"
       }

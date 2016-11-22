@@ -17,6 +17,7 @@ import { DEFAULT_REGISTRY } from '../../../../../constants'
 import { updateTenxFlowState, getDockerfiles, setDockerfile } from '../../../../../actions/cicd_flow'
 import './style/EditTenxFlowModal.less'
 import EnvComponent from './CreateEnvComponent.js'
+import ImageEnvComponent from './ImageEnvComponent.js'
 import CodeStoreListModal from './CodeStoreListModal.js'
 
 const RadioGroup = Radio.Group;
@@ -207,7 +208,8 @@ let EditTenxFlowModal = React.createClass({
       currentCodeStoreBranch: null,
       dockerFileModalShow: false,
       dockerFileTextarea: null,
-      noDockerfileInput: false
+      noDockerfileInput: false,
+      ImageEnvModal: false
     }
   },
   componentDidMount() {
@@ -491,6 +493,16 @@ let EditTenxFlowModal = React.createClass({
   onChangeDockerFileTextarea(e) {
     this.setState({
       dockerFileTextarea: e.target.value
+    });
+  },
+  openImageEnvModal() {
+    this.setState({
+      ImageEnvModal: true
+    });
+  },
+  closeImageEnvModal() {
+    this.setState({
+      ImageEnvModal: false
     });
   },
   cancelChange(e) {
@@ -830,14 +842,16 @@ let EditTenxFlowModal = React.createClass({
           <div className='title'>
             <span><FormattedMessage {...menusText.imageName} /></span>
           </div>
-          <div className='input'>
+          <div className='imageName input'>
             <FormItem
               hasFeedback
               help={isFieldValidating('imageName') ? '校验中...' : (getFieldError('imageName') || []).join(', ')}
-              style={{ width:'220px' }}
+              style={{ width:'220px', float: 'left' }}
             >
               <Input {...imageNameProps} type='text' size='large' />
             </FormItem>
+            <span className='defineEnvBtn' onClick={this.openImageEnvModal}><FormattedMessage {...menusText.defineEnv} /></span>
+            <div style={{ clear:'both' }} />
           </div>
           <div style={{ clear:'both' }} />
         </div>
@@ -865,7 +879,7 @@ let EditTenxFlowModal = React.createClass({
         </div>
         {
           this.state.otherFlowType == '3' ? [
-            <QueueAnim className='buildImageForm'>
+            <QueueAnim className='buildImageForm' key='buildImageForm'>
               <div className='line'></div>
               <div className='commonBox' key='buildImageFormAnimate'>
                 <div className='title'>
@@ -987,6 +1001,14 @@ let EditTenxFlowModal = React.createClass({
           onCancel={this.closeDockerFileModal}
         > 
           <Input type='textarea' value={this.state.dockerFileTextarea} onChange={this.onChangeDockerFileTextarea} autosize={{ minRows: 10, maxRows: 10 }} />
+        </Modal>
+        <Modal className='tenxFlowImageEnvModal'
+          title={<FormattedMessage {...menusText.envTitle} />}
+          visible={this.state.ImageEnvModal}
+          onOk={this.closeImageEnvModal}
+          onCancel={this.closeImageEnvModal}
+        >
+          <ImageEnvComponent />
         </Modal>
       </Form>
       <div className='modalBtnBox'>

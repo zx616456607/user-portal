@@ -242,6 +242,9 @@ function currentEditClass(status, editIndex, index) {
 
 function fetchCodeStoreName(id, codeList) {
   //this function for fetcht code store name
+  if(!Boolean(id)){
+    return '';
+  }
   let codeName = null;
   if (!Boolean(codeList)) {
     return;
@@ -477,7 +480,7 @@ class TenxFlowDetailFlowCard extends Component {
                       </div>
                       <div className='info'>
                         <i className='fa fa-github' />
-                        <span className='infoSpan'>{fetchCodeStoreName(config.spec.project.id, codeList)}</span>
+                        <span className='infoSpan'>{!!config.spec.project ? fetchCodeStoreName(config.spec.project.id, codeList) : null}</span>
                         <div style={{ clear: 'both' }}></div>
                       </div>
                       <div style={{ clear: 'both' }}></div>
@@ -488,7 +491,7 @@ class TenxFlowDetailFlowCard extends Component {
                       </div>
                       <div className='info'>
                         <i className='fa fa-sitemap' />
-                        <span className='infoSpan'>{config.spec.project.branch}</span>
+                        <span className='infoSpan'>{!!config.spec.project ? config.spec.project.branch : null}</span>
                         <div style={{ clear: 'both' }}></div>
                       </div>
                       <div style={{ clear: 'both' }}></div>

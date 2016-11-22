@@ -59,14 +59,14 @@
       }
     }
     .noCodeStoreSpan {
-      opacity: 1 !important;      
+      opacity: 1 !important;
     }
     .CodeStoreSpan {
       opacity: 0;
       transition: all 0.3s linear;
       position: absolute;
       bottom: -29px;
-      left: 0px;
+      left: 0;
       color: #f50;
     }
     .flowType {
@@ -80,15 +80,32 @@
       }
     }
     .selectCodeBtn {
-      transition: all 0.3s  cubic-bezier(0.645, 0.045, 0.355, 1); 
+      transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
       -webkit-transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
       i {
         margin-right: 7px;
       }
     }
-    .noCodeStoreButton{
+    .noCodeStoreButton {
       border-color: #f50 !important;
       box-shadow: 0 0 0 2px rgba(255, 85, 0, 0.2);
+    }
+    .imageName {
+      .defineEnvBtn {
+        margin-left: 15px;
+        color: #00A1EA;
+        font-size: 14px;
+        cursor: pointer;
+      }
+      .emptyImageEnv {
+        color: #f50;
+      }
+      .emptyImageEnvError {
+        position: absolute;
+        top: 26px;
+        left: 236px;
+        color: #f50;
+      }
     }
     .services {
       .defineEnvBtn {
