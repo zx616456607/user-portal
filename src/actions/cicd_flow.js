@@ -38,20 +38,20 @@ export const GET_GITHUB_LIST_REQUEST = 'GET_GITHUB_LIST_REQUEST'
 export const GET_GITHUB_LIST_SUCCESS = 'GET_GITHUB_LIST_SUCCESS'
 export const GET_GITHUB_LIST_FAILURE = 'GET_GITHUB_LIST_FAILURE'
 
-function fetchGithubCode(types) {
+function fetchGithubCode(types, callback) {
   return {
     [FETCH_API]: {
       types: [GET_GITHUB_LIST_REQUEST, GET_GITHUB_LIST_SUCCESS, GET_GITHUB_LIST_FAILURE],
       endpoint: `${API_URL_PREFIX}/devops/repos/${types}`,
       schema: {}
     },
-
+    callback
   }
 }
 
-export function getGithubList(types) {
+export function getGithubList(types, callback) {
   return (dispatch, getState) => {
-    dispatch(fetchGithubCode(types))
+    dispatch(fetchGithubCode(types, callback))
   }
 }
 
@@ -78,9 +78,10 @@ export function registryGithub(types, callback) {
 
 export const SEARCH_GITHUB_LIST = 'SEARCH_GITHUB_LIST'
 
-export function searchGithubList(image) {
+export function searchGithubList(users, image) {
   return {
     type: 　SEARCH_GITHUB_LIST,
+    users,
     image
   }
 }
@@ -105,14 +106,22 @@ export function getUserInfo(types) {
   }
 }
 
-export const DELETE_REPOS_LIST_REQUEST = 'DELETE_REPOS_LIST_REQUEST'
-export const DELETE_REPOS_LIST_SUCCESS = 'DELETE_REPOS_LIST_SUCCESS'
-export const DELETE_REPOS_LIST_FAILURE = 'DELETE_REPOS_LIST_FAILURE'
+export const DELETE_GITLAB_REPO_REQUEST = 'DELETE_GITLAB_REPO_REQUEST'
+export const DELETE_GITLAB_REPO_SUCCESS = 'DELETE_GITLAB_REPO_SUCCESS'
+export const DELETE_GITLAB_REPO_FAILURE = 'DELETE_GITLAB_REPO_FAILURE'
+
+export const DELETE_GITHUB_REPO_REQUEST = 'DELETE_GITHUB_REPO_REQUEST'
+export const DELETE_GITHUB_REPO_SUCCESS = 'DELETE_GITHUB_REPO_SUCCESS'
+export const DELETE_GITHUB_REPO_FAILURE = 'DELETE_GITHUB_REPO_FAILURE'
 
 function fetchDeleteRepoList(types) {
+  let actionKey = [DELETE_GITLAB_REPO_REQUEST,DELETE_GITLAB_REPO_SUCCESS,DELETE_GITLAB_REPO_FAILURE]
+  if (types === 'github') {
+    actionKey = [DELETE_GITHUB_REPO_REQUEST,DELETE_GITHUB_REPO_SUCCESS,DELETE_GITHUB_REPO_FAILURE]
+  }
   return {
     [FETCH_API]: {
-      types: [DELETE_REPOS_LIST_REQUEST, DELETE_REPOS_LIST_SUCCESS, DELETE_REPOS_LIST_FAILURE],
+      types: actionKey,
       endpoint: `${API_URL_PREFIX}/devops/repos/${types}`,
       schema: {},
       options: {
@@ -167,7 +176,7 @@ export const ADD_GITHUB_PROJECT_REQUEST = 'ADD_GITHUB_PROJECT_REQUEST'
 export const ADD_GITHUB_PROJECT_SUCCESS = 'ADD_GITHUB_PROJECT_SUCCESS'
 export const ADD_GITHUB_PROJECT_FAILRUE = 'ADD_GITHUB_PROJECT_FAILRUE'
 
-function fetchAddGithupRepo(type, obj, callback) {
+function fetchAddGithupRepo(obj, callback) {
     const body = {
       name: obj.name,
       is_private: obj.private ? 1 : 0,
@@ -188,6 +197,7 @@ function fetchAddGithupRepo(type, obj, callback) {
       }
     },
     names: obj.name,
+    users: obj.owner.username,
     callback: callback
   }
 }
@@ -291,12 +301,38 @@ function fetchNotActiveProject(projectId, callback) {
     callback
   }
 }
+// remove gitlab repo project active
 export function notActiveProject(id, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchNotActiveProject(id, callback))
   }
 }
 
+export const NOT_Github_ACTIVE_PROJECT_REQUEST = 'NOT_Github_ACTIVE_PROJECT_REQUEST'
+export const NOT_Github_ACTIVE_PROJECT_SUCCESS = 'NOT_Github_ACTIVE_PROJECT_SUCCESS'
+export const NOT_Github_ACTIVE_PROJECT_FAILURE = 'NOT_Github_ACTIVE_PROJECT_FAILURE'
+
+function fetchNotGithubProject(users, projectId, callback) {
+  return {
+    [FETCH_API]: {
+      types: [NOT_Github_ACTIVE_PROJECT_REQUEST, NOT_Github_ACTIVE_PROJECT_SUCCESS, NOT_Github_ACTIVE_PROJECT_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/managed-projects/${projectId}`,
+      schema: {},
+      options: {
+        method: 'DELETE',
+      }
+    },
+    users,
+    id: projectId,
+    callback
+  }
+}
+
+export function notGithubProject(users, id, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchNotGithubProject(users, id, callback))
+  }
+}
 
 // search code project list
 export const SEARCH_CODE_STORE_LIST = 'SEARCH_CODE_STORE_LIST'
@@ -347,9 +383,13 @@ export function registryRepo(obj, callback) {
 
 
 function fetchSyncRepo(type) {
+  let actionType = [GET_REPOS_LIST_REQUEST, GET_REPOS_LIST_SUCCESS, GET_REPOS_LIST_FAILURE]
+  if (type === 'github') {
+    actionType = [GET_GITHUB_LIST_REQUEST, GET_GITHUB_LIST_SUCCESS, GET_GITHUB_LIST_FAILURE]
+  }
   return {
     [FETCH_API]: {
-      types: [GET_REPOS_LIST_REQUEST, GET_REPOS_LIST_SUCCESS, GET_REPOS_LIST_FAILURE],
+      types: actionType,
       endpoint: `${API_URL_PREFIX}/devops/repos/${type}`,
       schema: {},
       options: {

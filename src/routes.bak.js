@@ -25,8 +25,8 @@ import StorageDetail from './components/StorageModule/StorageDetail'
 import Service from './components/ServiceConfig/Service'
 /*---------AppCreate Start---------*/
 import AppCreateSelectModel from './components/AppModule/AppCreate/CreateModel'
-import AppCreateServiceList from './components/AppModule/AppCreate/ServiceList'
 import AppCreateAppStore from './components/AppModule/AppCreate/AppStore'
+import AppCreateServiceList from './components/AppModule/AppCreate/ServiceList'
 import AppCreateComposeFile from './components/AppModule/AppCreate/ComposeFile'
 /*---------AppCreate Stop---------*/
 /*-------------------Application stop------------------------------*/
@@ -75,6 +75,10 @@ import OperationalAudit from './components/ManageMonitor/OperationalAudit'
 import QueryLog from './components/ManageMonitor/QueryLog'
 import MonitorModule from './components/ManageMonitor/MonitorModule'
 /*-------------------Manage & Monitor Module Stop---------------------------------*/
+/*-------------------Integration Module Start---------------------------------*/
+import Integration from './containers/Integration'
+import IntegrationList from './components/IntegrationModule'
+/*-------------------Integration Module Stop-----------*----------------------*/
 
 export default (
   <Route>
@@ -139,6 +143,9 @@ export default (
         <IndexRoute component={OperationalAudit} />
         <Route path="query_log" component={QueryLog} />
         <Route path="monitor" component={MonitorModule} />
+      </Route>
+      <Route path="integration" component={Integration}>
+        <IndexRoute component={IntegrationList} />
       </Route>
       <Route path="*" component={ErrorPage} />
     </Route>

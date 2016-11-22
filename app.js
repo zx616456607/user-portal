@@ -167,6 +167,17 @@ const i18n = require('./services/i18n')
 app.use(i18n.handle())
 app.use(i18n.middleware)
 
+// For test
+/*app.use(function* (next) {
+  this.session.loginUser = {
+    user: "zhangpc",
+    id: 104,
+    namespace: "zhangpc",
+    token: "jgokzgfitsewtmbpxsbhtggabvrnktepuzohnssqjnsirtot"
+  }
+  yield next
+})*/
+
 // Routes middleware
 // ~ No authentication required
 const noAuthRoutes = require('./routes/no_auth')
