@@ -24,6 +24,7 @@ logs
 *.log
 static/js/common.js
 static/js/main.js
+static/js/*.chunk.js
 static/locales/frontend/*.js
 static/style/main.css
 manifest.json
