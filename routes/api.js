@@ -68,6 +68,7 @@ module.exports = function (Router) {
 
   // AppTemplates
   router.get('/templates', appTemplateController.listTemplates)
+  router.get('/templates/:templateid', appTemplateController.getTemplate)
   router.post('/templates', appTemplateController.createTemplate)
   router.delete('/templates/:templateid', appTemplateController.deleteTemplate)
   router.put('/templates/:templateid', appTemplateController.updateTemplate)

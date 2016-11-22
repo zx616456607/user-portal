@@ -31,7 +31,9 @@ module.exports = {
   output: {
     path: path.join(__dirname, 'dist'),
     publicPath: '',
-    filename: '[name].js'
+    filename: '[name].js',
+    chunkFilename: '[id].chunk.js',
+    publicPath: '/js/'
   },
 
   externals: {
@@ -67,7 +69,7 @@ module.exports = {
     new webpack.optimize.CommonsChunkPlugin('common', 'common.js'),
     new webpack.optimize.OccurenceOrderPlugin(),
     new webpack.NoErrorsPlugin(),
-    new ExtractTextPlugin('[name].css'),
+    new ExtractTextPlugin('[name].css', { allChunks: true }),
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify('production')
     }),

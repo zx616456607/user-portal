@@ -25,8 +25,8 @@ import StorageDetail from './components/StorageModule/StorageDetail'
 import Service from './components/ServiceConfig/Service'
 /*---------AppCreate Start---------*/
 import AppCreateSelectModel from './components/AppModule/AppCreate/CreateModel'
-import AppCreateServiceList from './components/AppModule/AppCreate/ServiceList'
 import AppCreateAppStore from './components/AppModule/AppCreate/AppStore'
+import AppCreateServiceList from './components/AppModule/AppCreate/ServiceList'
 import AppCreateComposeFile from './components/AppModule/AppCreate/ComposeFile'
 /*---------AppCreate Stop---------*/
 /*-------------------Application stop------------------------------*/

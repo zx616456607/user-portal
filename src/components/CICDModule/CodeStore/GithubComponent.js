@@ -13,7 +13,7 @@ import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 
 import { connect } from 'react-redux'
-import { getGithubList, searchGithubList, addGithubRepo , registryGithub } from '../../../actions/cicd_flow'
+import { getGithubList, searchGithubList, addGithubRepo, notGithubProject , registryGithub } from '../../../actions/cicd_flow'
 
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 
@@ -54,32 +54,23 @@ const menusText = defineMessages({
   },
 })
 
-class GithubComponent extends Component {
+
+class CodeList extends Component {
   constructor(props) {
-    super(props);
-    this.state = {
-      repokey: 'github'
-    }
+    super(props)
   }
   componentWillMount() {
-    const self = this
-    self.props.getGithubList('github', {
-      success: {
-        func: (res) => {
-          if (res.data.total > 0) {
-            let loadingList = {}
-            for (let i = 0; i < res.data.results.length; i++) {
-              loadingList[i] = false
-            }
-            self.setState({
-              loadingList
-            })
-          }
-        }
-      }
+    const loadingList = {}
+    const data = this.props.data
+    for (let i = 0; i < data.length; i++) {
+      loadingList[i] = false
+    }
+    this.setState({
+      loadingList
     })
-
   }
+
+  // let CodeList = React.createClass({
 
   addBuild(item, index) {
     const loadingList = {}
@@ -88,7 +79,7 @@ class GithubComponent extends Component {
     this.setState({
       loadingList
     })
-    this.props.addGithubRepo('github', item, {
+    this.props.scope.props.addGithubRepo(item, {
       success: {
         func: () => {
           message.success('激活成功')
@@ -105,6 +96,75 @@ class GithubComponent extends Component {
       }
     })
   }
+  notActive(id, index) {
+    const parentScope = this.props.scope
+    const loadingList  = {} 
+    const users = parentScope.state.users
+    loadingList[index] = false
+    this.setState({
+      loadingList
+    })
+    parentScope.props.notGithubProject(users, id, {
+      success: {
+        func: () => {
+          message.success('撤消成功')
+        }
+      }
+    })
+  }
+
+  render() {
+    const { data } = this.props
+    const scope = this
+    let items = data.map((item, index) => {
+      return (
+        <div className='CodeTable' key={item.name} >
+          <div className="name textoverflow">{item.name}</div>
+          <div className="type">{item.private ? "private" : 'public'}</div>
+          <div className="action">
+            {(item.managedProject && item.managedProject.active == 1) ?
+              <span><Button type="ghost" disabled>已激活</Button>
+                <a onClick={() => this.notActive(item.managedProject.id, index)} style={{ marginLeft: '15px' }}>撤销</a></span>
+              :
+              <Tooltip placement="right" title="可构建项目">
+                <Button type="ghost" loading={scope.state.loadingList ? scope.state.loadingList[index] : false} onClick={() => this.addBuild(item, index)} >激活</Button>
+              </Tooltip>
+            }
+          </div>
+
+        </div>
+      );
+    });
+    return (
+      <QueueAnim type="right" key="detail-list">
+        {items}
+      </QueueAnim>
+    )
+  }
+}
+
+class GithubComponent extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      repokey: 'github'
+    }
+  }
+  componentWillMount() {
+    const self = this
+    self.props.getGithubList('github', {
+      success: {
+        func: (res)=> {
+          if (res.data.hasOwnProperty('results')) {
+            const users = Object.keys(res.data.results)[0]
+            self.setState({ users })
+          }
+        }
+      }
+    })
+  }
+
+
   removeRepo() {
     const scope = this.props.scope
     const repoItem = scope.state.repokey
@@ -130,17 +190,20 @@ class GithubComponent extends Component {
   }
   handleSearch(e) {
     const image = e.target.value
-    this.props.searchGithubList(image)
+    const users = this.state.users
+    this.props.searchGithubList(users, image)
   }
   changeSearch(e) {
     const image = e.target.value
+    const users = this.state.users
     if (image == '') {
-      this.props.searchGithubList(image)
+      this.props.searchGithubList(users, image)
     }
   }
   render() {
     const { githubList, formatMessage } = this.props
     const scope = this
+    let codeList = []
     if (!githubList) {
       return (
         <div style={{ lineHeight: '150px', paddingLeft: '250px' }}>
@@ -148,13 +211,23 @@ class GithubComponent extends Component {
         </div>
       )
     }
-    let items = githubList.map((item, index) => {
+    if (Object.keys(githubList).length > 0) {
+      for (let i in githubList) {
+        codeList.push(
+          <TabPane tab={i} key={i}>
+            <CodeList scope={scope} data={githubList[i]} />
+          </TabPane>
+        )
+      }
+
+    }
+    {/* let items = githubList.map((item, index) => {
       return (
         <div className='CodeTable' key={item.name} >
           <div className="name textoverflow">{item.name}</div>
           <div className="type">{item.private ? "private" : 'public'}</div>
           <div className="action">
-            {item.status == 1 ?
+            {(item.managedProject && item.managedProject.active == 1) ?
               <span><Button type="ghost" disabled>已激活</Button>
                 <a onClick={() => this.notActive(item.managedProject.id, index)} style={{ marginLeft: '15px' }}>撤销</a></span>
               :
@@ -167,21 +240,24 @@ class GithubComponent extends Component {
         </div>
       );
     });
+    */}
     return (
       <QueueAnim key="github-Component" type="right" className='codelink'>
-          <div className="tableHead">
-            <Icon type="user" /> {this.props.users}
-            <Tooltip placement="top" title={formatMessage(menusText.logout)}>
-              <Icon type="logout" onClick={() => this.removeRepo()} style={{ margin: '0 20px' }} />
-            </Tooltip>
-            <Icon type="reload" />
-            <div className="right-search">
-              <Input className='searchBox' size="large" style={{ width: '180px' }} onChange={(e) => this.changeSearch(e)} onPressEnter={(e) => this.handleSearch(e)} placeholder={formatMessage(menusText.search)} type='text' />
-              <i className='fa fa-search'></i>
-            </div>
+        <div className="tableHead">
+          <Icon type="user" /> {this.props.users}
+          <Tooltip placement="top" title={formatMessage(menusText.logout)}>
+            <Icon type="logout" onClick={() => this.removeRepo()} style={{ margin: '0 20px' }} />
+          </Tooltip>
+          <Icon type="reload" />
+          <div className="right-search">
+            <Input className='searchBox' size="large" style={{ width: '180px' }} onChange={(e) => this.changeSearch(e)} onPressEnter={(e) => this.handleSearch(e)} placeholder={formatMessage(menusText.search)} type='text' />
+            <i className='fa fa-search'></i>
           </div>
+        </div>
 
-          {items}
+        <Tabs>
+          {codeList}
+        </Tabs>
 
       </QueueAnim>
     );
@@ -215,7 +291,8 @@ export default connect(mapStateToProps, {
   registryGithub,
   getGithubList,
   searchGithubList,
-  addGithubRepo
+  addGithubRepo,
+  notGithubProject
 })(injectIntl(GithubComponent, {
   withRef: true,
 }))

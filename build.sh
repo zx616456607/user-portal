@@ -4,11 +4,12 @@ set -e
 build_user_portal() {
   set -x
   rm -rf dist
-  rm -f static/js/common.js static/js/main.js static/locales/frontend/*.js
+  rm -f static/js/common.js static/js/main.js static/js/*.chunk.js static/locales/frontend/*.js
   rm -f static/style/main.css
   node_modules/.bin/webpack -p --config webpack.config.prod.js
   cp dist/common.js static/js/common.js
   cp dist/main.js static/js/main.js
+  cp dist/*.chunk.js static/js/
   cp dist/zh.js static/locales/frontend/zh.js
   cp dist/en.js static/locales/frontend/en.js
   cp dist/main.css static/style/main.css

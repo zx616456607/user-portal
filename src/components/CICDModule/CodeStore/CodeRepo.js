@@ -173,7 +173,7 @@ const MyComponent = React.createClass({
     parentScope.setState({
       loadingList
     })
-    parentScope.props.notActiveProject(id, {
+    parentScope.props.notActiveProject('gitlab', id, {
       success: {
         func: () => {
           message.success('撤消成功')
@@ -195,6 +195,9 @@ const MyComponent = React.createClass({
           <Spin size='large' />
         </div>
       )
+    }
+    if (typeof config === 'object') {
+      return (<div></div>)
     }
     if (!config) {
       return (
