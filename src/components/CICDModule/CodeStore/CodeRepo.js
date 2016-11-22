@@ -173,7 +173,7 @@ const MyComponent = React.createClass({
     parentScope.setState({
       loadingList
     })
-    parentScope.props.notActiveProject('gitlab', id, {
+    parentScope.props.notActiveProject(id, {
       success: {
         func: () => {
           message.success('撤消成功')
