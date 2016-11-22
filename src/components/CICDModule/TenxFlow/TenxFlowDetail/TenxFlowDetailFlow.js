@@ -215,7 +215,7 @@ class TenxFlowDetailFlow extends Component {
     let scope = this;
     let { currentFlowEdit } = scope.state;
     let cards = null;
-    if(!Boolean(stageList)) {
+    if(!Boolean(stageList) || isFetching) {
       return (
         <div className='loadingBox'>
           <Spin size='large' />

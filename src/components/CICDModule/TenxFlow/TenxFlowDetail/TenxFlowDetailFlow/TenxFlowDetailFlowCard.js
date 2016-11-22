@@ -242,6 +242,9 @@ function currentEditClass(status, editIndex, index) {
 
 function fetchCodeStoreName(id, codeList) {
   //this function for fetcht code store name
+  if(!Boolean(id)){
+    return '';
+  }
   let codeName = null;
   if (!Boolean(codeList)) {
     return;
