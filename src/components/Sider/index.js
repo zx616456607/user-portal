@@ -256,7 +256,7 @@ class Slider extends Component {
               </li>
               <li onClick={this.selectModel.bind(this, '5', '#system')} className={currentKey == '5' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title='集成中心' getTooltipContainer={() => document.getElementById('siderTooltip')}>
-                  <Link to='/'>
+                  <Link to='/integration'>
                     <svg className='system commonImg'>
                       <use xlinkHref='#system' />
                     </svg>
@@ -457,8 +457,8 @@ class Slider extends Component {
                   </Link>
                 </Menu.Item>
               </SubMenu>
-              <SubMenu key='manange_monitor' 
-                title={
+              <Menu.Item key='integration'>
+                <Link to='/integration'>
                   <span>
                     <svg className='system commonImg'>
                       <use xlinkHref='#system' />
@@ -466,9 +466,8 @@ class Slider extends Component {
                     <span className='commonSiderSpan'>集成中心</span>
                     <div style={{ clear: 'both' }}></div>
                   </span>
-                }
-              >
-              </SubMenu>
+                </Link>
+              </Menu.Item>
               <SubMenu key='sub6' 
                 title={
                   <span>
