@@ -134,43 +134,46 @@ class MySpace extends Component{
           <Col span={6} className='cdid'>
             <Card title="CI/CD" bordered={false} bodyStyle={{height:175,padding:0}}>
               <Row style={{height:130}}>
-                <table>
-                  <tbody>
-                  <tr>
-                    <td>
-                      <svg className="stateSvg">
-                        <use xlinkHref="#settingname" />
-                      </svg>
-                      主机总数
-                    </td>
-                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                      12346个
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <svg className="stateSvg">
-                        <use xlinkHref="#settingname" />
-                      </svg>
-                      健康主机数
-                    </td>
-                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                      12340个
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <svg className="stateSvg">
-                        <use xlinkHref="#settingname" />
-                      </svg>
-                      未启用主机数
-                    </td>
-                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                      6个
-                    </td>
-                  </tr>
-                  </tbody>
-                </table>
+                <Col span={12} style={{height:130}}></Col>
+                <Col className='cicdInf'>
+                  <table>
+                    <tbody>
+                    <tr>
+                      <td>
+                        <svg className="stateSvg">
+                          <use xlinkHref="#settingname" />
+                        </svg>
+                        主机总数
+                      </td>
+                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                        12346个
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <svg className="stateSvg">
+                          <use xlinkHref="#settingname" />
+                        </svg>
+                        健康主机数
+                      </td>
+                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                        12340个
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <svg className="stateSvg">
+                          <use xlinkHref="#settingname" />
+                        </svg>
+                        未启用主机数
+                      </td>
+                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                        6个
+                      </td>
+                    </tr>
+                    </tbody>
+                  </table>
+                </Col>
               </Row>
               <Row style={{height:40,lineHeight:'40px',borderTop:'1px solid #e2e2e2',padding:'0 24px'}}>
                 服务状态:

@@ -20,9 +20,9 @@ let cost = 100
 let rest = 900
 let option = {
   title: {
-    text: '余额 :  '+rest+'T币\n\n消费 :  '+cost+'T币',
+    text: '余额 :  '+rest+'T币\n消费 :  '+cost+'T币',
     x:'center',
-    top: '40%',
+    top: '65%',
     textStyle:{
       color :'#6c6c6c',
       fontStyle: 'normal',
@@ -33,22 +33,24 @@ let option = {
   color: ['#46b2fa', '#2abe84'],
   backgroundColor: '#fff',
   tooltip: {
+    show: true,
     trigger: 'item',
     formatter: "{b}: {c}<br/> ({d}%)"
   },
   legend: {
+    show: false,
     orient: 'vertical',
     x: '50%',
     bottom: 0,
     data:['余额','消费'],
-    show: true
+    formatter: ''
   },
   series: [
     {
       name:'本日该团队消费',
       type:'pie',
       radius: ['28', '40'],
-      center: ['50%','30%'],
+      center: ['50%','40%'],
       avoidLabelOverlap: false,
       itemStyle: {
         normal: {
@@ -93,7 +95,6 @@ let option = {
   ]
 }
 
-
 class Admin extends Component{
   constructor(props){
     super(props)
@@ -125,7 +126,7 @@ class Admin extends Component{
                     </svg>
                     空间数
                   </div>
-                  <div style={{textAlign:'right'}} className='tabCell'>
+                  <div style={{textAlign:'left'}} className='tabCell'>
                     {teamDetail.spaceCnt}个
                   </div>
                 </Col>
@@ -149,7 +150,7 @@ class Admin extends Component{
                     </svg>
                     应用数
                   </div>
-                  <div style={{textAlign:'right'}} className='tabCell'>
+                  <div style={{textAlign:'left'}} className='tabCell'>
                     {teamDetail.appCnt}个
                   </div>
                 </Col>
@@ -173,7 +174,7 @@ class Admin extends Component{
                     </svg>
                     服务数
                   </div>
-                  <div style={{textAlign:'right'}} className='tabCell'>
+                  <div style={{textAlign:'left'}} className='tabCell'>
                     {teamDetail.svcCnt}个
                   </div>
                 </Col>
@@ -197,7 +198,7 @@ class Admin extends Component{
                     </svg>
                     容器数
                   </div>
-                  <div style={{textAlign:'right'}} className='tabCell'>
+                  <div style={{textAlign:'left'}} className='tabCell'>
                     {teamDetail.podCnt}个
                   </div>
                 </Col>
@@ -230,30 +231,16 @@ class Admin extends Component{
                   <Col span={8} style={{height:40,lineHeight:'40px'}}>消费金额</Col>
                 </Row>
                 <Row className='teamCostListContent'>
-                  <Row className="teamCostItem">
-                    <Col span={16} style={{paddingLeft:40}}>zhaoxueyu</Col>
-                    <Col span={8}>消费2T</Col>
-                  </Row>
-                  <Row className="teamCostItem">
-                    <Col span={16} style={{paddingLeft:40}}>zhaoxueyu</Col>
-                    <Col span={8}>消费2T</Col>
-                  </Row>
-                  <Row className="teamCostItem">
-                    <Col span={16} style={{paddingLeft:40}}>zhaoxueyu</Col>
-                    <Col span={8}>消费2T</Col>
-                  </Row>
-                  <Row className="teamCostItem">
-                    <Col span={16} style={{paddingLeft:40}}>zhaoxueyu</Col>
-                    <Col span={8}>消费2T</Col>
-                  </Row>
-                  <Row className="teamCostItem">
-                    <Col span={16} style={{paddingLeft:40}}>zhaoxueyu</Col>
-                    <Col span={8}>消费2T</Col>
-                  </Row>
-                  <Row className="teamCostItem">
-                    <Col span={16} style={{paddingLeft:40}}>zhaoxueyu</Col>
-                    <Col span={8}>消费2T</Col>
-                  </Row>
+                  {
+                    [1,2,3,4,5,6,7,8].map((item,index) => {
+                      return (
+                        <Row className="teamCostItem">
+                          <Col span={16} style={{paddingLeft:40}}>zhaoxueyu{index}</Col>
+                          <Col span={8} style={{paddingLeft:10}}>消费2T</Col>
+                        </Row>
+                      )
+                    })
+                  }
                 </Row>
               </Col>
             </Card>
