@@ -14,6 +14,7 @@ import ReactEcharts from 'echarts-for-react'
 import MySpace from './MySpace'
 import { connect } from 'react-redux'
 import { loadClusterOperations } from '../../../actions/overview_cluster'
+import ProgressBox from './ProgressBox'
 
 let value = 123
 
@@ -572,11 +573,7 @@ class Ordinary extends Component{
           </Col>
           <Col span={6}>
             <Card title="存储" bordered={false} bodyStyle={{height:200,padding:'0 24px'}}>
-              <ReactEcharts
-                notMerge={true}
-                option={appOption}
-                style={{height:'200px'}}
-              />
+              <ProgressBox />
             </Card>
           </Col>
         </Row>
