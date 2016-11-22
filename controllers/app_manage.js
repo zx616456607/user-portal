@@ -221,7 +221,7 @@ exports.getAppDetail = function* () {
   app.services.map((deployment) => {
     app.instanceCount += deployment.spec.replicas
     deployment.portForInternal = []
-    if (app.k8s_service) {
+    if (app.k8s_services) {
       for (let i = 0; i < app.k8s_services.length; i++) {
         if (app.k8s_services[i].metadata.name === deployment.metadata.name) {
           if (app.k8s_services[i].metadata.annotations && app.k8s_services[i].metadata.annotations[ANNOTATION_SVC_SCHEMA_PORT]) {
