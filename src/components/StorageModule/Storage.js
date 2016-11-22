@@ -9,7 +9,7 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import { Checkbox, Card, Menu, Button, Icon, Radio, Modal, Input, Slider, InputNumber, Row, Col, message, Tooltip } from 'antd'
+import { Checkbox, Card, Menu, Button, Dropdown, Icon, Radio, Modal, Input, Slider, InputNumber, Row, Col, message, Tooltip } from 'antd'
 import { Link } from 'react-router'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import QueueAnim from 'rc-queue-anim'
@@ -239,6 +239,10 @@ let MyComponent = React.createClass({
     let list = this.props.storage;
     if (!list || !list.storageList) return (<div></div>)
     let items = list.storageList.map((item) => {
+      const menu = (<Menu onClick={(e) => { this.showAction('format', item.name, item.format) } }>
+              <Menu.Item key="1" disabled={item.isUsed}><FormattedMessage {...messages.formatting} /></Menu.Item>
+            </Menu>
+            )
       return (
         <div className="appDetail" key={item.name} >
           <div className="selectIconTitle commonData">
@@ -265,11 +269,12 @@ let MyComponent = React.createClass({
             </span>
           </div>
           <div className="actionBtn commonData">
-            <Button size='large' disabled={item.isUsed} className="btn-warning" onClick={(e) => { this.showAction('format', item.name, item.format) } }><Icon type="delete" /><FormattedMessage {...messages.formatting} /></Button>
-            <Button size='large' disabled={item.isUsed} className="btn-success" onClick={() => { this.showAction('resize', item.name, item.totalSize) } }><Icon type="scan" /><FormattedMessage {...messages.dilation} /></Button>
-            <div style={{ clear: 'both' }}></div>
+            <Dropdown overlay={menu}>
+              <Button type="ghost" disabled={item.isUsed} style={{ marginLeft: 8 }}>
+                <h onClick={() => { this.showAction('resize', item.name, item.totalSize) } }><FormattedMessage {...messages.dilation} /> </h><Icon type="down" />
+              </Button>
+            </Dropdown>
           </div>
-          <div style={{ clear: 'both' }}></div>
         </div>
       );
     });

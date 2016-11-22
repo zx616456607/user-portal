@@ -75,11 +75,7 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className="status commonData">
-            <ContainerStatus
-              status={item.status}
-              creationTimestamp={item.metadata.creationTimestamp}
-              deletionTimestamp={item.metadata.deletionTimestamp}
-              />
+            <ContainerStatus container={item} />
           </div>
           <div className="image commonData">
             <Tooltip placement="topLeft" title={item.images.join(', ') ? item.images.join(', ') : ""} >

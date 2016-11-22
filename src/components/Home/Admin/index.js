@@ -39,16 +39,16 @@ let option = {
   legend: {
     orient: 'vertical',
     x: '50%',
-    top: 10,
+    bottom: 0,
     data:['余额','消费'],
-    show: false
+    show: true
   },
   series: [
     {
       name:'本日该团队消费',
       type:'pie',
       radius: ['28', '40'],
-      center: ['50%','20%'],
+      center: ['50%','30%'],
       avoidLabelOverlap: false,
       itemStyle: {
         normal: {
@@ -221,6 +221,7 @@ class Admin extends Component{
                   <ReactEcharts
                     notMerge={true}
                     option={option}
+                    style={{height:170}}
                   />
               </Col>
               <Col span={14} className='teamCostList'>

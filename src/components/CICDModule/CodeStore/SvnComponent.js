@@ -78,12 +78,12 @@ let SvnComponent = React.createClass({
   handleSubmit(e) {
     e.preventDefault();
     const self = this
-    this.setState({submiting: true})
     const parentScope = this.props.scope.state
     this.props.form.validateFields((errors, values) => {
       if (errors) {
         return;
       }
+      self.setState({submiting: true})
       const config = {
         "name": values.name,
         "repo_type": parentScope.repokey,

@@ -59,11 +59,10 @@ class Service {
   }
 
   addPort(name, protocol, targetPort, port) {
-    console.log("addPort", arguments)
     const k8sProtocol = (protocol === 'UDP' ? protocol : 'TCP')
     const portObj = {
       name,
-      k8sProtocol,
+      protocol: k8sProtocol,
       targetPort
     }
     if (port) {

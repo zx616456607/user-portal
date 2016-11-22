@@ -118,12 +118,17 @@ class MySpace extends Component{
                 </div>
               </Row>
             </Card>
-            <Card title="编排概况" bordered={false} bodyStyle={{height:175}} style={{marginTop: 10}}>
+            <Card title="编排概况" bordered={false} bodyStyle={{height:175,padding:'0',position:'relative'}} style={{marginTop: 10}}>
               <ReactEcharts
                 notMerge={true}
                 option={layoutOption}
                 style={{height:'90px'}}
               />
+              <div style={{position:'absolute',top:'66px',width:'100%',textAlign:'center'}}>100个</div>
+              <Row style={{textAlign:'center',height:40,lineHeight:'40px',padding:'0 24px'}}>
+                <Col span={12}>公有25个</Col>
+                <Col span={12}>私有75个</Col>
+              </Row>
             </Card>
           </Col>
           <Col span={6} className='cdid'>

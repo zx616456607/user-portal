@@ -102,16 +102,24 @@ const MyComponent = React.createClass({
       registry: DEFAULT_REGISTRY,
       image
     }
-    deleteImage(config, {
-      success:{
-        func:()=>{
-          message.success('删除成功！')
-        }
-      },
-      failed:{
-        func: (res)=>{
-          message.error('删除失败')
-        }
+    Modal.confirm({
+      title: '确定要删除所选中的镜像？',
+      okText: '确定',
+      cancelText: '取消',
+      onOk() {
+        deleteImage(config, {
+          success:{
+            func:()=>{
+              message.success('删除成功！')
+            }
+          },
+          failed:{
+            func: (res)=>{
+              message.error('删除失败')
+            }
+          }
+        })
+
       }
     })
   },
@@ -140,6 +148,11 @@ const MyComponent = React.createClass({
         <div className='loadingBox'>
           <Spin size='large' />
         </div>
+      )
+    }
+    if (imageList.length === 0) {
+      return (
+        <div style={{lineHeight:'100px',height:'200px',paddingLeft:'40px'}}>您还没有镜像，去上传一个吧！</div>
       )
     }
     let items = imageList.map((item, index) => {

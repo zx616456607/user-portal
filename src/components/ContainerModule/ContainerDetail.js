@@ -136,12 +136,8 @@ class ContainerDetail extends Component {
                 <div className="leftInfo">
                   <div className="status">
                     运行状态&nbsp;:
-                    <span style={{position:'relative',top:'-5px'}}>
-                      <ContainerStatus
-                        status={container.status}
-                        smart={true}
-                        deletionTimestamp={container.metadata.deletionTimestamp}
-                        />
+                    <span style={{ position: 'relative', top: '-5px' }}>
+                      <ContainerStatus container={container} smart={true} />
                     </span>
                   </div>
                   <div className="address">
@@ -198,7 +194,7 @@ class ContainerDetail extends Component {
             transitionName='move-down'
             onCancel={this.closeTerminalLayoutModal}
             >
-            <TerminalModal scope={parentScope} config={this.state.currentContainer} show={this.state.TerminalLayoutModal}/>
+            <TerminalModal scope={parentScope} config={this.state.currentContainer} show={this.state.TerminalLayoutModal} />
           </Modal>
         </QueueAnim>
       </div>

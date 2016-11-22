@@ -98,7 +98,7 @@ class AppDetail extends Component {
       },
       {
         name: 'servce2',
-        data: ['10.1.27.1', '10.1.27.2', '10.1.27.3', '10.1.27.4', '10.1.27.5',]
+        data: ['10.1.27.1',]
       },
       {
         name: 'servce3',
@@ -124,12 +124,12 @@ class AppDetail extends Component {
                 <div className="leftInfo">
                   <div className="status">
                     运行状态&nbsp;:
-                    <div style={{display: 'inline-block',position: 'relative',top: '-5px'}}>
+                    <div style={{ display: 'inline-block', position: 'relative', top: '-5px' }}>
                       <AppStatus services={app.services} smart={true} />
                     </div>
                   </div>
                   <div className="address">
-                    <TipSvcDomain type='containerPop' appDomain={appDomain}/>
+                    <TipSvcDomain appDomain={appDomain} type={true} />
                   </div>
                   <div className="service">
                     服务&nbsp;:&nbsp; {`${app.serviceCount} / ${app.serviceCount}`}
