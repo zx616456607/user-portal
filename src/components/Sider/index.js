@@ -52,7 +52,7 @@ class Slider extends Component {
       isUnzip: false
     }
   }
-  
+
   changeSiderStyle() {
     //this function for user change the sider style to 'mini' or 'bigger'
     const { scope, siderStyle } = this.props;
@@ -66,19 +66,19 @@ class Slider extends Component {
       });
     }
   }
-  
+
   handleCancel() {
     const currentOptions = cloneDeep(this.props.uploadFileOptions)
     currentOptions.visible = false
     this.props.changeUploadFileOptions(currentOptions)
   }
-  
+
   selectModel(currentKey, currentIcon, event) {
     this.setState({
       currentKey: currentKey,
     });
   }
-  
+
   changeRadioValue(e) {
     this.setState({
       isUnzip: e.target.value
@@ -156,7 +156,7 @@ class Slider extends Component {
       }
     }
   }
-  
+
   render() {
     const { siderStyle } = this.props
     const { currentKey } = this.state
@@ -316,16 +316,16 @@ class Slider extends Component {
           <div key='siderBigger' className='siderBigger'>
             <div className='logBox'>
               <Link to='/'>
-                <img className='logo' src='/img/sider/logo@2x.png' />
+                <img className='logo' src='/img/sider/logo.png' />
               </Link>
             </div>
             <Menu
-              style={{ width: '100%', backgroundColor: '#222222', color: '#c4c4c4' }}
+              style={{ width: '100%', backgroundColor: '#2A2F3A', color: '#c4c4c4' }}
               mode='inline'
               theme='dark'
               selectedKeys={checkUrlSelectedKey(scope)}
               openKeys={checkUrlOpenKeys(scope)}
-            > 
+            >
               <Menu.Item key='0'>
                 <Link to='/'>
                   <svg className='home commonImg'>
@@ -334,7 +334,7 @@ class Slider extends Component {
                   <span>总览</span>
                 </Link>
               </Menu.Item>
-              <SubMenu key='app_manage' 
+              <SubMenu key='app_manage'
                 title={
                   <span>
                     <svg className='app commonImg'>
@@ -371,7 +371,7 @@ class Slider extends Component {
                     </Link>
                   </Menu.Item>
               </SubMenu>
-              <SubMenu key='app_center' 
+              <SubMenu key='app_center'
                 title={
                   <span>
                     <svg className='center commonImg'>
@@ -398,7 +398,7 @@ class Slider extends Component {
                   </Link>
                 </Menu.Item>
               </SubMenu>
-              <SubMenu key='ci_cd' 
+              <SubMenu key='ci_cd'
                 title={
                   <span>
                     <svg className='center commonImg'>
@@ -425,7 +425,7 @@ class Slider extends Component {
                   </Link>
                 </Menu.Item>
               </SubMenu>
-              <SubMenu key='database_cache' 
+              <SubMenu key='database_cache'
                 title={
                   <span>
                     <svg className='database commonImg'>
@@ -438,22 +438,22 @@ class Slider extends Component {
               >
                 <Menu.Item key='database_cache_default'>
                   <Link to='/database_cache'>
-                    <span>MySQL集群</span>
+                    <span>关系型数据库</span>
                   </Link>
                 </Menu.Item>
                 <Menu.Item key='mongo_cluster'>
                   <Link to='/database_cache/mongo_cluster'>
-                    <span>Mongo集群</span>
+                    <span>MongoDB</span>
                   </Link>
                 </Menu.Item>
                 <Menu.Item key='redis_cluster'>
                   <Link to='/database_cache/redis_cluster'>
-                    <span>Redis集群</span>
+                    <span>缓存</span>
                   </Link>
                 </Menu.Item>
                 <Menu.Item key='database_storage'>
                   <Link to='/database_cache/database_storage'>
-                    <span>存储</span>
+                    <span>数据存储</span>
                   </Link>
                 </Menu.Item>
               </SubMenu>
@@ -468,7 +468,7 @@ class Slider extends Component {
                   </span>
                 </Link>
               </Menu.Item>
-              <SubMenu key='sub6' 
+              <SubMenu key='sub6'
                 title={
                   <span>
                     <svg className='manageMoniter commonImg'>
@@ -518,7 +518,7 @@ class Slider extends Component {
                   </span>
                 </Link>
               </Menu.Item>
-              <SubMenu key='setting' 
+              <SubMenu key='setting'
                 title={
                   <span>
                     <svg className='setting commonImg'>
