@@ -250,7 +250,7 @@
   "CICD.Tenxflow.ImageDeployLog.fail": "失败",
   "CICD.Tenxflow.ImageDeployLog.normalUpdate": "普通升级",
   "CICD.Tenxflow.ImageDeployLog.imageUpdate": "灰度升级",
-  "CICD.Tenxflow.AutoDeployService.tag": "镜像版本",
+  "CICD.Tenxflow.AutoDeployService.tag": "匹配规则",
   "CICD.Tenxflow.AutoDeployService.service": "服务",
   "CICD.Tenxflow.AutoDeployService.updateType": "升级策略",
   "CICD.Tenxflow.AutoDeployService.opera": "操作",

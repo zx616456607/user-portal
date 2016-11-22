@@ -24,9 +24,9 @@ const createForm = Form.create;
 const FormItem = Form.Item;
 
 const menusText = defineMessages({
-  tag: {
+  match_tag: {
     id: 'CICD.Tenxflow.AutoDeployService.tag',
-    defaultMessage: '镜像版本',
+    defaultMessage: '匹配规则',
   },
   service: {
     id: 'CICD.Tenxflow.AutoDeployService.service',
@@ -491,7 +491,6 @@ let AutoDeployService = React.createClass({
                   <span className='service commonTitle'>
                     镜像名称
                   </span>
-
                   <span className='service commonTitle'>
                     集群
                   </span>
@@ -499,7 +498,7 @@ let AutoDeployService = React.createClass({
                     服务名称
                   </span>
                   <span className='tag commonTitle'>
-                    <FormattedMessage {...menusText.tag} />
+                    <FormattedMessage {...menusText.match_tag} />
                   </span>
                   <span className='updateType commonTitle'>
                     <FormattedMessage {...menusText.updateType} />
