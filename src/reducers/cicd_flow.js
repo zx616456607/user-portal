@@ -114,9 +114,7 @@ function githubRepo(state = {}, action) {
     case ActionTypes.GET_GITHUB_LIST_FAILURE: {
       return Object.assign({}, state, {
         isFetching: false,
-        githubList: [],
-        bak: [],
-        users: ''
+        githubList: false,
       })
     }
     case ActionTypes.DELETE_GITHUB_REPO_SUCCESS: {
