@@ -15,7 +15,7 @@ import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import CreateCompose from './CreateCompose.js'
 import './style/PrivateCompose.less'
-import { loadMyStack , deleteMyStack , createStack, updateStack} from '../../../actions/app_center'
+import { loadMyStack ,loadStackDetail , deleteMyStack , createStack, updateStack} from '../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import { calcuDate } from '../../../common/tools'
 
@@ -112,7 +112,17 @@ const MyList = React.createClass({
     const list = item.key.split('&')[0]
 
     if (list== 'edit') {
-      const Index = parseInt(item.key.split('&')[1])
+      const Index = parseInt(item.key.split('@')[1])
+      const Id = item.key.match(/(.+&)(.+)(\?.+)/)[2]
+      this.props.self.props.loadStackDetail(Id, {
+        success: {
+          func: (res) => {
+          scope.props.self.setState({
+            stackItemContent: res.data.data.content
+          })
+          }
+        }
+      })
       this.props.self.setState({
         createModalShow: true,
         stackItem: this.props.config[Index]
@@ -158,7 +168,7 @@ const MyList = React.createClass({
     let items = config.map((item, index) => {
       const dropdown = (
         <Menu onClick={this.actionStack} style={{ width: '100px' }}>
-          <Menu.Item key={`edit&${index}`}>
+          <Menu.Item key={`edit&${item.id}?@${index}`}>
             <FormattedMessage {...menusText.editService} />
           </Menu.Item>
           <Menu.Item key={`delete&${item.id}?@${item.name}`}>
@@ -308,22 +318,12 @@ function mapStateToProps(state, props) {
   }
 }
 
-function mapDispatchToProps(dispatch) {
-  return {
-    loadMyStack: (DEFAULT_REGISTRY) => {
-      dispatch(loadMyStack(DEFAULT_REGISTRY))
-    },
-    deleteMyStack: (id, callback) => {
-      dispatch(deleteMyStack(id, callback))
-    },
-    createStack: (obj, callback) => {
-      dispatch(createStack(obj, callback))
-    },
-    updateStack: (obj, callback) => {
-      dispatch(updateStack(obj, callback))
-    }
-  }
-}
-export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(PrivateCompose, {
+export default connect(mapStateToProps, {
+  loadMyStack,
+  deleteMyStack,
+  createStack,
+  updateStack,
+  loadStackDetail
+})(injectIntl(PrivateCompose, {
   withRef: true,
 }))

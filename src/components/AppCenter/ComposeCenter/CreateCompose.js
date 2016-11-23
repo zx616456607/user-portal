@@ -149,7 +149,7 @@ class CreateCompose extends Component {
       rules: [
         { required: true, message: '真的不打算写点什么吗？' },
       ],
-      initialValue: paretnState.stackItem.content
+      initialValue: paretnState.stackItemContent
     });
     const descProps = getFieldProps('desc', {
       rules: [

@@ -34,6 +34,7 @@ let Login = React.createClass({
       intNameFocus:false,
       intPassFocus:false,
       intCheckFocus:false,
+      passWord: false,
     }
   },
 
@@ -70,6 +71,7 @@ let Login = React.createClass({
             })
             message.success(`用户 ${values.name} 登录成功`)
             browserHistory.push(redirect || '/')
+            resetFields()
           },
           isAsync: true
         },
@@ -164,7 +166,7 @@ let Login = React.createClass({
   intOnBlur(current){
     const { getFieldProps } = this.props.form
     if(current === 'name'){
-      if(getFieldProps('name').value === ''){
+      if(getFieldProps('name').value === '' || !getFieldProps('name').value){
         this.setState({
           intNameFocus: false
         })
@@ -172,15 +174,18 @@ let Login = React.createClass({
       return
     }
     if (current === 'pass') {
-      if(getFieldProps('name').value === ''){
+      console.log('pass value',getFieldProps('password').value);
+      if(getFieldProps('password').value === '' || !getFieldProps('password').value){
+        console.log('pass blur');
         this.setState({
-          intPassFocus: false
+          intPassFocus: false,
+          passWord: true,
         })
       }
       return
     }
     if (current === 'check') {
-      if(getFieldProps('name').value === ''){
+      if(getFieldProps('captcha').value === '' || !getFieldProps('captcha').value){
         this.setState({
           intCheckFocus: false
         })
@@ -189,19 +194,29 @@ let Login = React.createClass({
     return
   },
   intOnFocus(current){
+    console.log('this.refs',this.refs);
     if(current === 'name'){
+      this.refs.intName.refs.input.focus()
       this.setState({
         intNameFocus: true
       })
     } else if (current === 'pass') {
+      this.refs.intPass.refs.input.focus()
       this.setState({
-        intPassFocus: true
+        intPassFocus: true,
+        passWord: true,
       })
     } else if (current === 'check') {
+      this.refs.intCheck.refs.input.focus()
       this.setState({
         intCheckFocus: true
       })
     }
+  },
+  componentWillMount(){
+    console.log('123');
+    const { resetFields } = this.props.form
+    resetFields()
   },
   render() {
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form
@@ -230,7 +245,7 @@ let Login = React.createClass({
     return (
         <div id="LoginBg">
           <div className="login">
-            <Row>
+            <Row style={{textAlign:'center'}}>
               {/*<svg className="logo">
                 <use xlinkHref="#loginlogo"/>
               </svg>*/}
@@ -244,14 +259,19 @@ let Login = React.createClass({
                 }
               </div>
               <Form onSubmit={this.handleSubmit}>
+                <input style={{display:'none'}}/>
                 <FormItem
                   {...formItemLayout}
                   hasFeedback
                   help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
                   className="formItemName"
                 >
-                  <div className={this.state.intNameFocus?"intName intOnFocus":"intName"}>用户名 / 邮箱</div>
-                  <Input {...nameProps} autoComplete="off" onBlur={this.intOnBlur.bind(this,'name')} onFocus={this.intOnFocus.bind(this,'name')} style={{height:35}}/>
+                  <div className={this.state.intNameFocus?"intName intOnFocus":"intName"} onClick={this.intOnFocus.bind(this,'name')}>用户名 / 邮箱</div>
+                  
+                  <Input {...nameProps} autoComplete="off" onBlur={this.intOnBlur.bind(this,'name')}
+                         onFocus={this.intOnFocus.bind(this,'name')}
+                         ref="intName"
+                         style={{height:35}}/>
                 </FormItem>
       
                 <FormItem
@@ -259,10 +279,13 @@ let Login = React.createClass({
                   hasFeedback
                   className="formItemName"
                 >
-                  <div className={this.state.intPassFocus?"intName intOnFocus":"intName"}>密码</div>
-                  <Input {...passwdProps} type="password" autoComplete="off"
+                  <div className={this.state.intPassFocus?"intName intOnFocus":"intName"} onClick={this.intOnFocus.bind(this,'pass')}>密码</div>
+                  <Input {...passwdProps} autoComplete="off" type={this.state.passWord?'password':'text'}
                          onContextMenu={noop} onPaste={noop} onCopy={noop} onCut={noop}
-                         onBlur={this.intOnBlur.bind(this,'pass')} onFocus={this.intOnFocus.bind(this,'pass')} style={{height:35}}
+                         onBlur={this.intOnBlur.bind(this,'pass')}
+                         onFocus={this.intOnFocus.bind(this,'pass')}
+                         ref="intPass"
+                         style={{height:35}}
                   />
                 </FormItem>
       
@@ -272,8 +295,11 @@ let Login = React.createClass({
                   className="formItemName"
                   help={isFieldValidating('captcha') ? '校验中...' : (getFieldError('captcha') || []).join(', ')}
                 >
-                  <div className={this.state.intCheckFocus?"intName intOnFocus":"intName"}>验证码</div>
-                  <Input {...captchaProps} autoComplete="off" onBlur={this.intOnBlur.bind(this,'check')} onFocus={this.intOnFocus.bind(this,'check')} style={{height:35}}/>
+                  <div className={this.state.intCheckFocus?"intName intOnFocus":"intName"} onClick={this.intOnFocus.bind(this,'check')}>验证码</div>
+                  <Input {...captchaProps} autoComplete="off" onBlur={this.intOnBlur.bind(this,'check')}
+                         onFocus={this.intOnFocus.bind(this,'check')}
+                         ref="intCheck"
+                         style={{height:35}}/>
                   <Tooltip placement="top" title="点击更换">
                     <img className="captchaImg" src={`/captcha/gen?_=${random}`} onClick={this.changeCaptcha} />
                   </Tooltip>

@@ -110,6 +110,59 @@ exports.getTeamClusters = function* () {
   }
 }
 
+exports.getAllClusters = function* () {
+  const teamID = this.params.team_id
+  const loginUser = this.session.loginUser
+
+  const apiTeam = apiFactory.getApi(loginUser)
+  const resultTeam = yield apiTeam.teams.getBy([teamID, 'clusters'])
+  const teamClusters = resultTeam.clusters || []
+  let teamClusterMap = {}
+  for (let teamCluster of teamClusters) {
+    teamClusterMap[teamCluster.clusterID] = 1
+  }
+
+  const resultRequest = yield apiTeam.teams.getBy([teamID, 'requests', 'cluster'])
+  const requests = resultRequest.requests || []
+  let requestMap = {}
+  for (let index in requests) {
+    requestMap[requests[index].resourceID] = 1
+  }
+
+  const apiCluster = apiFactory.getK8sApi(loginUser)
+  const resultCluster = yield apiCluster.get({})
+  let clusters = resultCluster.clusters || []
+  for (let index in clusters) {
+    clusters[index].status = 'notAuthorized'
+    if (teamClusterMap[clusters[index].clusterID] == 1) {
+      clusters[index].status = 'authorized'
+    } else if (requestMap[clusters[index].clusterID] == 1) {
+      clusters[index].status = 'pending'
+    }
+  }
+
+  this.body = {
+    teamID,
+    data: clusters,
+    total: resultCluster.listMeta.total,
+    count: resultCluster.listMeta.size
+  }
+}
+
+exports.requestTeamCluster = function* () {
+  const teamID = this.params.team_id
+  const clusterID = this.params.cluster_id
+  const loginUser = this.session.loginUser
+
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.teams.updateBy([teamID, 'clusters', clusterID, 'request'])
+
+  this.body = {
+    teamID,
+    data: result
+  }
+}
+
 exports.getTeamUsers = function* () {
   const teamID = this.params.team_id
   const loginUser = this.session.loginUser
