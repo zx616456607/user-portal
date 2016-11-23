@@ -36,3 +36,27 @@ export function loadClusterOperations(clusterID) {
     return dispatch(fetchClusterOperations(clusterID))
   }
 }
+
+export const OVERVIEW_CLUSTER_SYSINFO_REQUEST = 'OVERVIEW_CLUSTER_SYSINFO_REQUEST'
+export const OVERVIEW_CLUSTER_SYSINFO_SUCCESS = 'OVERVIEW_CLUSTER_SYSINFO_SUCCESS'
+export const OVERVIEW_CLUSTER_SYSINFO_FAILURE = 'OVERVIEW_CLUSTER_SYSINFO_FAILURE'
+
+// Fetches cluster system information from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchClusterSysinfo(clusterID) {
+  return {
+    [FETCH_API]: {
+      types: [OVERVIEW_CLUSTER_SYSINFO_REQUEST, OVERVIEW_CLUSTER_SYSINFO_SUCCESS, OVERVIEW_CLUSTER_SYSINFO_FAILURE],
+      endpoint: `${API_URL_PREFIX}/overview/clusters/${clusterID}/sysinfo`,
+      schema: {}
+    }
+  }
+}
+
+// Fetches cluster system information from API unless it is cached.
+// Relies on Redux Thunk middleware.
+export function loadClusterSysinfo(clusterID) {
+  return (dispatch, getState) => {
+    return dispatch(fetchClusterSysinfo(clusterID))
+  }
+}
