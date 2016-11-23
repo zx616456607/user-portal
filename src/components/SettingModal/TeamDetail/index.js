@@ -13,7 +13,8 @@ import './style/TeamDetail.less'
 import { Link } from 'react-router'
 import {
   deleteTeam, createTeamspace, addTeamusers, removeTeamusers,
-  loadTeamspaceList, loadTeamUserList, loadAllClustersList,deleteTeamspace
+  loadTeamspaceList, loadTeamUserList, loadAllClustersList,
+  deleteTeamspace, requestTeamCluster
 } from '../../../actions/team'
 import { connect } from 'react-redux'
 import MemberTransfer from '../MemberTransfer'
@@ -713,4 +714,5 @@ export default connect(mapStateToProp, {
   loadTeamUserList,
   loadAllClustersList,
   deleteTeamspace,
+  requestTeamCluster,
 })(TeamDetail)

@@ -117,6 +117,7 @@ module.exports = function (Router) {
   //To remove multiple users, seperate the user ids with ",".
   router.delete('/teams/:team_id/users/:user_ids', teamController.removeTeamusers)
   router.delete('/teams/:team_id/spaces/:space_id', teamController.deleteTeamspace)
+  router.put('/teams/:team_id/clusters/:cluster_id/request', teamController.requestTeamCluster)
 
   //Overview
   router.get('/overview/teams/:team_id/detail', overviewTeamController.getTeamDetail)

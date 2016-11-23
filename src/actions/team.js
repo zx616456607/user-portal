@@ -126,6 +126,31 @@ export function loadAllClustersList(teamID, query, callback) {
   }
 }
 
+export const TEAM_REQUEST_CLUSTER_REQUEST = 'TEAM_REQUEST_CLUSTER_REQUEST'
+export const TEAM_REQUEST_CLUSTER_SUCCESS = 'TEAM_REQUEST_CLUSTER_SUCCESS'
+export const TEAM_REQUEST_CLUSTER_FAILURE = 'TEAM_REQUEST_CLUSTER_FAILURE'
+
+// Request team cluster from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchRequestTeamCluster(teamID, clusterID) {
+  let endpoint = `${API_URL_PREFIX}/teams/${teamID}/clusters/${clusterID}/request`
+  return {
+    [FETCH_API]: {
+      types: [TEAM_REQUEST_CLUSTER_REQUEST, TEAM_REQUEST_CLUSTER_SUCCESS, TEAM_REQUEST_CLUSTER_FAILURE],
+      endpoint,
+      schema: {}
+    }
+  }
+}
+
+// Request team cluster from API unless it is cached.
+// Relies on Redux Thunk middleware.
+export function requestTeamCluster(teamID, clusterID) {
+  return (dispatch) => {
+    return dispatch(fetchRequestTeamCluster(teamID, clusterID))
+  }
+}
+
 export const TEAM_CREATE_REQUEST = 'TEAM_CREATE_REQUEST'
 export const TEAM_CREATE_SUCCESS = 'TEAM_CREATE_SUCCESS'
 export const TEAM_CREATE_FAILURE = 'TEAM_CREATE_FAILURE'

@@ -149,6 +149,20 @@ exports.getAllClusters = function* () {
   }
 }
 
+exports.requestTeamCluster = function* () {
+  const teamID = this.params.team_id
+  const clusterID = this.params.cluster_id
+  const loginUser = this.session.loginUser
+
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.teams.updateBy([teamID, 'clusters', clusterID, 'request'])
+
+  this.body = {
+    teamID,
+    data: result
+  }
+}
+
 exports.getTeamUsers = function* () {
   const teamID = this.params.team_id
   const loginUser = this.session.loginUser
