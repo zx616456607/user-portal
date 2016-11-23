@@ -108,6 +108,7 @@ module.exports = function (Router) {
   // Teams
   router.get('/teams/:team_id/spaces', teamController.getTeamspaces)
   router.get('/teams/:team_id/clusters', teamController.getTeamClusters)
+  router.get('/teams/:team_id/clusters/all', teamController.getAllClusters)
   router.get('/teams/:team_id/users', teamController.getTeamUsers)
   router.post('/teams', teamController.createTeam)
   router.delete('/teams/:team_id', teamController.deleteTeam)
@@ -116,6 +117,7 @@ module.exports = function (Router) {
   //To remove multiple users, seperate the user ids with ",".
   router.delete('/teams/:team_id/users/:user_ids', teamController.removeTeamusers)
   router.delete('/teams/:team_id/spaces/:space_id', teamController.deleteTeamspace)
+  router.put('/teams/:team_id/clusters/:cluster_id/request', teamController.requestTeamCluster)
 
   //Overview
   router.get('/overview/teams/:team_id/detail', overviewTeamController.getTeamDetail)

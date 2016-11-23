@@ -204,7 +204,7 @@ exports.doUserAuthorization = function* () {
   // Save to session
   loginUser.ciAuthInfo = resData.authInfo
 
-  this.status = 200
+  this.status = 302
   this.redirect('/ci_cd/coderepo?' + type)
   //this.body = results
 }
