@@ -42,12 +42,11 @@ exports.auth = function* (next) {
   if (!loginUser) {
     switch (this.accepts('json', 'html')) {
       case 'html':
-        this.status = 301
         this.redirect('/login')
         return
       default:
         let error = new Error('LOGIN_EXPIRED')
-        error.status = 403
+        error.status = 401
         throw error
     }
   }

@@ -18,8 +18,8 @@ const indexService = require('../services')
 exports.login = function* () {
   let method = 'login'
   let title = `${this.t('common:login')} | ${this.t('common:tenxcloud')}`
+
   if (this.session.loginUser) {
-    this.status = 301
     this.redirect('/')
     return
   }
@@ -30,7 +30,6 @@ exports.logout = function* () {
   delete this.session.loginUser
   this.session = null
   if (this.method === 'GET') {
-    // this.status = 301
     this.redirect('/login')
     return
   }
