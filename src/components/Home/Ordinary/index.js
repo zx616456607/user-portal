@@ -13,7 +13,7 @@ import './style/Ordinary.less'
 import ReactEcharts from 'echarts-for-react'
 import MySpace from './MySpace'
 import { connect } from 'react-redux'
-import { loadClusterOperations } from '../../../actions/overview_cluster'
+import { loadClusterOperations, loadClusterSysinfo } from '../../../actions/overview_cluster'
 import ProgressBox from '../../ProgressBox'
 
 const RadioButton = Radio.Button;
@@ -329,8 +329,9 @@ class Ordinary extends Component{
   }
   
   componentWillMount() {
-    const { loadClusterOperations } = this.props
-    loadClusterOperations("t-aldakdsadssdsjkewr")
+    const { loadClusterOperations, loadClusterSysinfo } = this.props
+    loadClusterOperations("cce1c71ea85a5638b22c15d86c1f61df")
+    loadClusterSysinfo("cce1c71ea85a5638b22c15d86c1f61df")
   }
   handleDataBaseClick(current){
     if(current === 'tab1'){
@@ -359,7 +360,7 @@ class Ordinary extends Component{
     }
   }
   render(){
-    const clusterOperations = this.props.clusterOperations
+    const {clusterOperations, clusterSysinfo} = this.props
     const boxPos = '0.25'
     return (
       <div id='Ordinary' style={{marginTop:40}}>
@@ -383,16 +384,16 @@ class Ordinary extends Component{
                       <svg className="sysStateSvg">
                         <use xlinkHref="#settingname" />
                       </svg>
-                      docker
+                      Kubernetes
                     </td>
                     <td>
                       <svg className="sysStateSvg">
                         <use xlinkHref="#settingname" />
                       </svg>
-                      正常
+                      {clusterSysinfo.k8s.status}
                     </td>
                     <td style={{textAlign:'right',paddingRight:10}}>
-                      1.2.1
+                      {clusterSysinfo.k8s.version}
                     </td>
                   </tr>
                   <tr>
@@ -400,16 +401,16 @@ class Ordinary extends Component{
                       <svg className="sysStateSvg">
                         <use xlinkHref="#settingname" />
                       </svg>
-                      docker
+                      DNS
                     </td>
                     <td>
                       <svg className="sysStateSvg">
                         <use xlinkHref="#settingname" />
                       </svg>
-                      正常
+                      {clusterSysinfo.dns.status}
                     </td>
                     <td style={{textAlign:'right',paddingRight:10}}>
-                      1.2.1
+                      {clusterSysinfo.dns.version}
                     </td>
                   </tr>
                   <tr>
@@ -417,16 +418,16 @@ class Ordinary extends Component{
                       <svg className="sysStateSvg">
                         <use xlinkHref="#settingname" />
                       </svg>
-                      docker
+                      API Server
                     </td>
                     <td>
                       <svg className="sysStateSvg">
                         <use xlinkHref="#settingname" />
                       </svg>
-                      正常
+                      {clusterSysinfo.apiserver.status}
                     </td>
                     <td style={{textAlign:'right',paddingRight:10}}>
-                      1.2.1
+                      {clusterSysinfo.apiserver.version}
                     </td>
                   </tr>
                   <tr>
@@ -434,16 +435,16 @@ class Ordinary extends Component{
                       <svg className="sysStateSvg">
                         <use xlinkHref="#settingname" />
                       </svg>
-                      docker
+                      CICD
                     </td>
                     <td>
                       <svg className="sysStateSvg">
                         <use xlinkHref="#settingname" />
                       </svg>
-                      正常
+                      {clusterSysinfo.cicd.status}
                     </td>
                     <td style={{textAlign:'right',paddingRight:10}}>
-                      1.2.1
+                      {clusterSysinfo.cicd.version}
                     </td>
                   </tr>
                   <tr>
@@ -451,16 +452,16 @@ class Ordinary extends Component{
                       <svg className="sysStateSvg">
                         <use xlinkHref="#settingname" />
                       </svg>
-                      docker
+                      Logging
                     </td>
                     <td>
                       <svg className="sysStateSvg">
                         <use xlinkHref="#settingname" />
                       </svg>
-                      正常
+                      {clusterSysinfo.logging.status}
                     </td>
                     <td style={{textAlign:'right',paddingRight:10}}>
-                      1.2.1
+                      {clusterSysinfo.logging.version}
                     </td>
                   </tr>
                 </tbody>
@@ -728,7 +729,29 @@ function mapStateToProp(state,props) {
     appStart: 0,
     appRedeploy: 0,
   }
-  const {clusterOperations} = state.overviewCluster
+  let clusterSysinfoData = {
+    k8s:{
+      version: "",
+      status: ""
+    },
+    dns:{
+      version: "",
+      status: ""
+    },
+    apiserver:{
+      version: "",
+      status: ""
+    },
+    cicd:{
+      version: "",
+      status: ""
+    },
+    logging:{
+      version: "",
+      status: ""
+    }
+  }
+  const {clusterOperations, clusterSysinfo} = state.overviewCluster
   if (clusterOperations.result && clusterOperations.result.data
       && clusterOperations.result.data.data) {
         let data = clusterOperations.result.data.data
@@ -756,12 +779,57 @@ function mapStateToProp(state,props) {
         if (data.appRedeploy) {
           clusterOperationsData.appRedeploy = data.appRedeploy
         } 
-      } 
+      }
+  if (clusterSysinfo.result && clusterSysinfo.result.data) {
+        let data = clusterSysinfo.result.data
+        if (data.k8s) {
+          if (data.k8s.version) {
+            clusterSysinfoData.k8s.version = data.k8s.version
+          }
+          if (data.k8s.status) {
+            clusterSysinfoData.k8s.status = data.k8s.status
+          }
+        }
+        if (data.dns) {
+          if (data.dns.version) {
+            clusterSysinfoData.dns.version = data.dns.version
+          }
+          if (data.dns.status) {
+            clusterSysinfoData.dns.status = data.dns.status
+          }
+        }
+        if (data.apiserver) {
+          if (data.apiserver.version) {
+            clusterSysinfoData.apiserver.version = data.apiserver.version
+          }
+          if (data.apiserver.status) {
+            clusterSysinfoData.apiserver.status = data.apiserver.status
+          }
+        }
+        if (data.cicd) {
+          if (data.cicd.version) {
+            clusterSysinfoData.cicd.version = data.cicd.version
+          }
+          if (data.cicd.status) {
+            clusterSysinfoData.cicd.status = data.cicd.status
+          }
+        }
+        if (data.logging) {
+          if (data.logging.version) {
+            clusterSysinfoData.logging.version = data.logging.version
+          }
+          if (data.logging.status) {
+            clusterSysinfoData.logging.status = data.logging.status
+          }
+        }
+      }
   return {
     clusterOperations: clusterOperationsData,
+    clusterSysinfo: clusterSysinfoData,
   }
 }
 
 export default connect(mapStateToProp, {
   loadClusterOperations,
+  loadClusterSysinfo,
 })(Ordinary)
