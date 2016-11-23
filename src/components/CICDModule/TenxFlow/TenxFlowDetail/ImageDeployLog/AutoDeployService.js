@@ -99,7 +99,8 @@ let AutoDeployService = React.createClass({
       match_tag: '',
       editingList: { match_tag: '' },
       value: 1,
-      serviceList: []
+      serviceList: [],
+      addDelpoyRow: false
     }
   },
   componentWillMount() {
@@ -217,16 +218,7 @@ let AutoDeployService = React.createClass({
     });
   },
   addDelpoy() {
-    uuid++;
-    const { form } = this.props;
-    // can use data-binding to get
-    let keys = form.getFieldValue('rulesList');
-    keys = keys.concat(uuid);
-    // can use data-binding to set
-    // important! notify form to detect changes
-    form.setFieldsValue({
-      keys,
-    });
+    this.setState({ addDelpoyRow: true })
   },
   setStateValue(types, e) {
     this.setState({
@@ -333,6 +325,17 @@ let AutoDeployService = React.createClass({
         },
         isAsync: true
       }
+    })
+  },
+  cancelReule() {
+    this.setState({
+      addDelpoyRow: false,
+      value: 1,
+      image_name: '',
+      cluster_id: '',
+      deployment_name: '',
+      match_tag: '',
+      deployment_id: ''
     })
   },
   render() {
@@ -454,7 +457,7 @@ let AutoDeployService = React.createClass({
                 }
               </div>
             </div>
-            <div style={{ clear: 'both' }}></div>
+
           </div>
         )
       }
@@ -506,47 +509,51 @@ let AutoDeployService = React.createClass({
                   <span className='opera commonTitle'>
                     <FormattedMessage {...menusText.opera} />
                   </span>
-                  <div style={{ clear: 'both' }}></div>
                 </div>
 
                 {items}
-                <div className="tagDetail">
-                  <div className='service commonItem' key='imageName'>
-                    <Select size="large" onChange={(e) => this.setStateValue('image_name', e)} placeholder="镜像名称" >
-                      {imageOptions}
-                    </Select>
-                  </div>
+                {this.state.addDelpoyRow ?
 
-                  <div key='cluster' className='service commonItem'>
-                    <Select size="large" onChange={(e) => this.setStateCluster(e)} placeholder="选择集群" >
-                      {clusterOptions}
-                    </Select>
-                  </div>
-                  <div key='appname' className='service commonItem'>
-                    <Select size="large" value={this.state.deployment_name} disabled={this.state.cluster_id ? false : true} onChange={(e) => this.setStateService(e)} placeholder="服务名称" >
-                      {appListOptions}
-                    </Select>
-                  </div>
-                  <div className='tag commonItem'>
-                    <Select size="large" onChange={(e) => this.setStateValue('match_tag', e)} placeholder="输入镜像版本" >
-                      <Option value="1">匹配版本</Option>
-                      <Option value="2">不匹配版本</Option>
-                    </Select>
-                  </div>
-                  <div className='updateType commonItem'>
-                    <RadioGroup onChange={(e) => this.setStateType('value', e)} value={this.state.value}>
-                      <Radio key='a' value={1}><FormattedMessage {...menusText.normalUpdate} /></Radio>
-                      <Radio key='b' value={2}><FormattedMessage {...menusText.imageUpdate} /></Radio>
-                    </RadioGroup>
-                  </div>
-                  <div className='opera commonItem'>
-                    <Button className='cancelBtn' size='large' type='primary' onClick={() => self.addReule()}>
-                      添加
+                  <div className="tagDetail">
+                    <div className='service commonItem' key='imageName'>
+                      <Select size="large" onChange={(e) => this.setStateValue('image_name', e)} placeholder="镜像名称" >
+                        {imageOptions}
+                      </Select>
+                    </div>
+
+                    <div key='cluster' className='service commonItem'>
+                      <Select size="large" onChange={(e) => this.setStateCluster(e)} placeholder="选择集群" >
+                        {clusterOptions}
+                      </Select>
+                    </div>
+                    <div key='appname' className='service commonItem'>
+                      <Select size="large" value={this.state.deployment_name} disabled={this.state.cluster_id ? false : true} onChange={(e) => this.setStateService(e)} placeholder="服务名称" >
+                        {appListOptions}
+                      </Select>
+                    </div>
+                    <div className='tag commonItem'>
+                      <Select size="large" onChange={(e) => this.setStateValue('match_tag', e)} placeholder="输入镜像版本" >
+                        <Option value="1">匹配版本</Option>
+                        <Option value="2">不匹配版本</Option>
+                      </Select>
+                    </div>
+                    <div className='updateType commonItem'>
+                      <RadioGroup onChange={(e) => this.setStateType('value', e)} value={this.state.value}>
+                        <Radio key='a' value={1}><FormattedMessage {...menusText.normalUpdate} /></Radio>
+                        <Radio key='b' value={2}><FormattedMessage {...menusText.imageUpdate} /></Radio>
+                      </RadioGroup>
+                    </div>
+                    <div className='opera commonItem'>
+                      <Button className='cancelBtn' type='primary' onClick={() => self.addReule()}>
+                        添加
                     </Button>
-
+                    <Button style={{marginLeft:'10px'}} className='cancelBtn' type='ghost' onClick={() => self.cancelReule()}>
+                        取消
+                    </Button>
+                    </div>
                   </div>
-
-                </div>
+                  : null
+                }
               </div>
             ] : [
                 <div className='noTag'>
@@ -558,11 +565,11 @@ let AutoDeployService = React.createClass({
                 </div>
               ]}
           </Form>
-          {/*
+
           <div className='addBtn' onClick={this.addDelpoy}>
             <Icon type='plus-circle-o' /><FormattedMessage {...menusText.add} />
           </div>
-        */}
+
 
         </div>
       </div>

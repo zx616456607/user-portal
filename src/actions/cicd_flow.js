@@ -160,7 +160,7 @@ function fetchAddCodeRepo(type, obj, callback) {
         body: body
       }
     },
-    names: obj.name,
+    names: obj.name.toLowerCase(),
     callback: callback
   }
 }
@@ -197,7 +197,7 @@ function fetchAddGithupRepo(obj, callback) {
       }
     },
     names: obj.name,
-    users: obj.owner.username,
+    users: obj.owner.username.toLowerCase(),
     callback: callback
   }
 }
@@ -383,9 +383,13 @@ export function registryRepo(obj, callback) {
 
 
 function fetchSyncRepo(type) {
+  let actionType = [GET_REPOS_LIST_REQUEST, GET_REPOS_LIST_SUCCESS, GET_REPOS_LIST_FAILURE]
+  if (type === 'github') {
+    actionType = [GET_GITHUB_LIST_REQUEST, GET_GITHUB_LIST_SUCCESS, GET_GITHUB_LIST_FAILURE]
+  }
   return {
     [FETCH_API]: {
-      types: [GET_REPOS_LIST_REQUEST, GET_REPOS_LIST_SUCCESS, GET_REPOS_LIST_FAILURE],
+      types: actionType,
       endpoint: `${API_URL_PREFIX}/devops/repos/${type}`,
       schema: {},
       options: {

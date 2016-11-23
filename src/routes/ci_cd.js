@@ -12,7 +12,7 @@
 
 const CICDRoutes = [{
   path: 'coderepo',
-  component: require('../components/CICDModule/CodeStore').default,
+  component: require('../components/CICDModule/CodeStore/CodeRepo').default,
 },{
   path: 'tenx_flow',
   indexRoute: {

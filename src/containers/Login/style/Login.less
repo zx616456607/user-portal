@@ -1,28 +1,112 @@
-#Login{
-  background: url(/img/login-bg.jpg)
-  center
-  center
-  / cover no-repeat fixed;
+#LoginBg{
+  font-family: "Helvetica Neue",Helvetica,"Microsoft YaHei",Arial,"宋体","Hiragino Sans GB",STHeiti,"WenQuanYi Micro Hei",SimSun,sans-serif;
+  background: url(/img/banner.jpg) no-repeat;
+  background-color: #f8f8f8;
   width: 100%;
   position: absolute;
   height: 100%;
-  .loginForm {
+  .login {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%,-50%);
     width: 460px;
-    border-radius: 5px;
     background-color: #fff;
-    .captchaImg {
-      cursor: pointer;
-      height: 32px;
-      width: 96px;
-      position: relative;
-      float: right;
+    border-radius: 5px;
+    padding: 40px 50px 0 50px;
+    .logo {
+      display: inline-block;
+      width: 200px;
+      height: 62px;
     }
-    .test {
-      /**/
+    .logtext {
+      line-height: 40px;
+      height: 40px;
+      text-align: center;
     }
+    .loginForm {
+      .ant-card-body {
+        padding: 24px 0;
+      }
+      &:hover {
+        border: none;
+        box-shadow: none;
+      }
+      .ant-form-item-with-help {
+        margin-bottom: 24px !important;
+      }
+      .ant-form-item-control {
+        position: relative;
+        &:focus {
+          outline: none;
+        }
+      }
+      .has-error .ant-input,
+      .has-error .ant-input:hover,
+      .has-error .ant-input:focus {
+        box-shadow: none;
+      }
+      .has-error .ant-form-explain,
+      .has-error .ant-form-split {
+        padding-left: 10px;
+      }
+      input {
+        padding-left: 10px;
+        width: 100%;
+        border-radius: 0 !important;
+        border-top: 0;
+        border-left: 0;
+        border-right: 0;
+        &:focus {
+          box-shadow: none;
+        }
+      }
+      .formItemName {
+        height: 60px;
+        .intName {
+          font-size: 16px;
+          position: absolute;
+          top: -25px;
+          left: 0;
+          font-weight: normal;
+          -webkit-transform: translateY(25px);
+          transform: translateY(25px);
+          color: #aaa;
+          -webkit-transition: all 0.5s;
+          transition: all 0.5s;
+          cursor: text;
+          z-index: 10;
+        }
+        .intOnFocus {
+          top: -50px !important;
+        }
+        .captchaImg {
+          width: 110px;
+          position: absolute;
+          right: 40px;
+          top: -8px;
+        }
+      }
+      .subBtn {
+        font-size: 16px;
+        width: 100%;
+        height: 44px;
+        padding: 0;
+        background-color: #3890ef;
+        &:hover {
+          background-color: #2D6CB8;
+        }
+      }
+    }
+  }
+  .footer{
+    background: #efefef;
+    text-align: center;
+    color: #666;
+    position: absolute;
+    bottom: 0;
+    width:100%;
+    font-size: 12px;
+    height: 40px;line-height: 40px;
   }
 }

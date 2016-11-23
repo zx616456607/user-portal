@@ -8,12 +8,16 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Card, } from 'antd'
+import { Row, Col, Card, Radio } from 'antd'
 import './style/Ordinary.less'
 import ReactEcharts from 'echarts-for-react'
 import MySpace from './MySpace'
 import { connect } from 'react-redux'
-import { loadClusterOperations } from '../../../actions/overview_cluster'
+import { loadClusterOperations, loadClusterSysinfo, loadClusterStorage } from '../../../actions/overview_cluster'
+import ProgressBox from '../../ProgressBox'
+
+const RadioButton = Radio.Button;
+const RadioGroup = Radio.Group;
 
 let value = 123
 
@@ -316,18 +320,52 @@ let diskOption = {
 class Ordinary extends Component{
   constructor(props){
     super(props)
+    this.handleDataBaseClick = this.handleDataBaseClick.bind(this)
     this.state = {
-      
+      tab1: false,
+      tab2: false,
+      tab3: false,
     }
   }
   
   componentWillMount() {
-    const { loadClusterOperations } = this.props
-    loadClusterOperations("t-aldakdsadssdsjkewr")
+    const { loadClusterOperations, loadClusterSysinfo, loadClusterStorage } = this.props
+    loadClusterOperations("cce1c71ea85a5638b22c15d86c1f61df")
+    loadClusterSysinfo("cce1c71ea85a5638b22c15d86c1f61df")
+    loadClusterStorage("cce1c71ea85a5638b22c15d86c1f61df")
   }
-
+  handleDataBaseClick(current){
+    if(current === 'tab1'){
+      this.setState({
+        tab1: true,
+        tab2: false,
+        tab3: false,
+      })
+      return
+    }
+    if(current === 'tab2'){
+      this.setState({
+        tab1: false,
+        tab2: true,
+        tab3: false,
+      })
+      return
+    }
+    if(current === 'tab3'){
+      this.setState({
+        tab1: false,
+        tab2: false,
+        tab3: true,
+      })
+      return
+    }
+  }
   render(){
-    const clusterOperations = this.props.clusterOperations
+    const {clusterOperations, clusterSysinfo, clusterStorage} = this.props
+    let boxPos = 0
+    if ((clusterStorage.freeSize + clusterStorage.usedSize) > 0) {
+      boxPos = (clusterStorage.usedSize/(clusterStorage.freeSize + clusterStorage.usedSize)).toFixed(3)
+    }
     return (
       <div id='Ordinary' style={{marginTop:40}}>
         <Row className="title">我的空间-产品环境集群</Row>
@@ -350,16 +388,16 @@ class Ordinary extends Component{
                       <svg className="sysStateSvg">
                         <use xlinkHref="#settingname" />
                       </svg>
-                      docker
+                      Kubernetes
                     </td>
                     <td>
                       <svg className="sysStateSvg">
                         <use xlinkHref="#settingname" />
                       </svg>
-                      正常
+                      {clusterSysinfo.k8s.status}
                     </td>
                     <td style={{textAlign:'right',paddingRight:10}}>
-                      1.2.1
+                      {clusterSysinfo.k8s.version}
                     </td>
                   </tr>
                   <tr>
@@ -367,16 +405,16 @@ class Ordinary extends Component{
                       <svg className="sysStateSvg">
                         <use xlinkHref="#settingname" />
                       </svg>
-                      docker
+                      DNS
                     </td>
                     <td>
                       <svg className="sysStateSvg">
                         <use xlinkHref="#settingname" />
                       </svg>
-                      正常
+                      {clusterSysinfo.dns.status}
                     </td>
                     <td style={{textAlign:'right',paddingRight:10}}>
-                      1.2.1
+                      {clusterSysinfo.dns.version}
                     </td>
                   </tr>
                   <tr>
@@ -384,16 +422,16 @@ class Ordinary extends Component{
                       <svg className="sysStateSvg">
                         <use xlinkHref="#settingname" />
                       </svg>
-                      docker
+                      API Server
                     </td>
                     <td>
                       <svg className="sysStateSvg">
                         <use xlinkHref="#settingname" />
                       </svg>
-                      正常
+                      {clusterSysinfo.apiserver.status}
                     </td>
                     <td style={{textAlign:'right',paddingRight:10}}>
-                      1.2.1
+                      {clusterSysinfo.apiserver.version}
                     </td>
                   </tr>
                   <tr>
@@ -401,16 +439,16 @@ class Ordinary extends Component{
                       <svg className="sysStateSvg">
                         <use xlinkHref="#settingname" />
                       </svg>
-                      docker
+                      CICD
                     </td>
                     <td>
                       <svg className="sysStateSvg">
                         <use xlinkHref="#settingname" />
                       </svg>
-                      正常
+                      {clusterSysinfo.cicd.status}
                     </td>
                     <td style={{textAlign:'right',paddingRight:10}}>
-                      1.2.1
+                      {clusterSysinfo.cicd.version}
                     </td>
                   </tr>
                   <tr>
@@ -418,16 +456,16 @@ class Ordinary extends Component{
                       <svg className="sysStateSvg">
                         <use xlinkHref="#settingname" />
                       </svg>
-                      docker
+                      Logging
                     </td>
                     <td>
                       <svg className="sysStateSvg">
                         <use xlinkHref="#settingname" />
                       </svg>
-                      正常
+                      {clusterSysinfo.logging.status}
                     </td>
                     <td style={{textAlign:'right',paddingRight:10}}>
-                      1.2.1
+                      {clusterSysinfo.logging.version}
                     </td>
                   </tr>
                 </tbody>
@@ -570,23 +608,39 @@ class Ordinary extends Component{
               />
             </Card>
           </Col>
-          <Col span={6}>
+          <Col span={6} className='storage'>
             <Card title="存储" bordered={false} bodyStyle={{height:200,padding:'0 24px'}}>
-              <ReactEcharts
-                notMerge={true}
-                option={appOption}
-                style={{height:'200px'}}
-              />
+              <ProgressBox boxPos={boxPos}/>
+              <Col span={12} className='storageInf'>
+                <div className="storageInfList">
+                  <Row className='storageInfItem'>
+                    <Col span={12}>已使用:</Col>
+                    <Col span={12} style={{textAlign:'right'}}>{clusterStorage.usedSize}MB</Col>
+                  </Row>
+                  <Row className='storageInfItem'>
+                    <Col span={12}>空闲:</Col>
+                    <Col span={12} style={{textAlign:'right'}}>{clusterStorage.freeSize}MB</Col>
+                  </Row>
+                  <Row className='storageInfItem'>
+                    <Col span={12}>存储卷数:</Col>
+                    <Col span={12} style={{textAlign:'right'}}>{clusterStorage.totalCnt}个</Col>
+                  </Row>
+                  <Row className='storageInfItem'>
+                    <Col span={12}>使用中:</Col>
+                    <Col span={12} style={{textAlign:'right'}}>{clusterStorage.usedCnt}个</Col>
+                  </Row>
+                </div>
+              </Col>
             </Card>
           </Col>
         </Row>
         <Row className="content" gutter={16} style={{marginTop: 10}}>
-          <Col span={6}>
+          <Col span={6} className='dataBase'>
             <Card title="数据库与缓存" bordered={false} bodyStyle={{height:200}}>
               <Row gutter={16}>
-                <Col span={8}>MySQL集群</Col>
-                <Col span={8}>Mongo集群</Col>
-                <Col span={8}>Redis集群</Col>
+                <Col span={8} onClick={() => this.handleDataBaseClick('tab1')} className={this.state.tab1?'seleted':''}><span className='dataBtn'>MySQL集群</span></Col>
+                <Col span={8} onClick={() => this.handleDataBaseClick('tab2')} className={this.state.tab2?'seleted':''}><span className='dataBtn'>Mongo集群</span></Col>
+                <Col span={8} onClick={() => this.handleDataBaseClick('tab3')} className={this.state.tab3?'seleted':''}><span className='dataBtn'>Redis集群</span></Col>
               </Row>
               <Row>
                 <Col span={12}></Col>
@@ -679,7 +733,35 @@ function mapStateToProp(state,props) {
     appStart: 0,
     appRedeploy: 0,
   }
-  const {clusterOperations} = state.overviewCluster
+  let clusterSysinfoData = {
+    k8s:{
+      version: "",
+      status: ""
+    },
+    dns:{
+      version: "",
+      status: ""
+    },
+    apiserver:{
+      version: "",
+      status: ""
+    },
+    cicd:{
+      version: "",
+      status: ""
+    },
+    logging:{
+      version: "",
+      status: ""
+    }
+  }
+  let clusterStorageData = {
+    freeSize: 0,
+    totalCnt: 0,
+    usedCnt: 0,
+    usedSize: 0,
+  }
+  const {clusterOperations, clusterSysinfo, clusterStorage} = state.overviewCluster
   if (clusterOperations.result && clusterOperations.result.data
       && clusterOperations.result.data.data) {
         let data = clusterOperations.result.data.data
@@ -707,12 +789,74 @@ function mapStateToProp(state,props) {
         if (data.appRedeploy) {
           clusterOperationsData.appRedeploy = data.appRedeploy
         } 
-      } 
+      }
+  if (clusterSysinfo.result && clusterSysinfo.result.data) {
+        let data = clusterSysinfo.result.data
+        if (data.k8s) {
+          if (data.k8s.version) {
+            clusterSysinfoData.k8s.version = data.k8s.version
+          }
+          if (data.k8s.status) {
+            clusterSysinfoData.k8s.status = data.k8s.status
+          }
+        }
+        if (data.dns) {
+          if (data.dns.version) {
+            clusterSysinfoData.dns.version = data.dns.version
+          }
+          if (data.dns.status) {
+            clusterSysinfoData.dns.status = data.dns.status
+          }
+        }
+        if (data.apiserver) {
+          if (data.apiserver.version) {
+            clusterSysinfoData.apiserver.version = data.apiserver.version
+          }
+          if (data.apiserver.status) {
+            clusterSysinfoData.apiserver.status = data.apiserver.status
+          }
+        }
+        if (data.cicd) {
+          if (data.cicd.version) {
+            clusterSysinfoData.cicd.version = data.cicd.version
+          }
+          if (data.cicd.status) {
+            clusterSysinfoData.cicd.status = data.cicd.status
+          }
+        }
+        if (data.logging) {
+          if (data.logging.version) {
+            clusterSysinfoData.logging.version = data.logging.version
+          }
+          if (data.logging.status) {
+            clusterSysinfoData.logging.status = data.logging.status
+          }
+        }
+      }
+  if (clusterStorage.result && clusterStorage.result.data) {
+        let data = clusterStorage.result.data
+        if (data.freeSize) {
+          clusterStorageData.freeSize = data.freeSize
+        }
+        if (data.totalCnt) {
+          clusterStorageData.totalCnt = data.totalCnt
+        }
+        if (data.usedCnt) {
+          clusterStorageData.usedCnt = data.usedCnt
+        }
+        if (data.usedSize) {
+          clusterStorageData.usedSize = data.usedSize
+        }
+  }
   return {
     clusterOperations: clusterOperationsData,
+    clusterSysinfo: clusterSysinfoData,
+    clusterStorage: clusterStorageData,
   }
 }
 
 export default connect(mapStateToProp, {
   loadClusterOperations,
+  loadClusterSysinfo,
+  loadClusterStorage,
 })(Ordinary)

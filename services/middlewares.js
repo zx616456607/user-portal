@@ -42,13 +42,15 @@ exports.auth = function* (next) {
   if (!loginUser) {
     switch (this.accepts('json', 'html')) {
       case 'html':
-        this.status = 301
+        this.status = 302
         this.redirect('/login')
         return
       default:
-        let error = new Error('LOGIN_EXPIRED')
-        error.status = 403
-        throw error
+        this.status = 403
+        this.body = {
+          message: 'LOGIN_EXPIRED'
+        }
+        return
     }
   }
   let teamspace = this.headers.teamspace

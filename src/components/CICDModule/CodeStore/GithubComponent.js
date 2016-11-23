@@ -13,7 +13,7 @@ import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 
 import { connect } from 'react-redux'
-import { getGithubList, searchGithubList, addGithubRepo, notGithubProject , registryGithub } from '../../../actions/cicd_flow'
+import { getGithubList, searchGithubList, addGithubRepo, notGithubProject, registryGithub, syncRepoList } from '../../../actions/cicd_flow'
 
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 
@@ -83,6 +83,10 @@ class CodeList extends Component {
       success: {
         func: () => {
           message.success('激活成功')
+          loadingList[index] = false
+          self.setState({
+            loadingList
+          })
         }
       },
       failed: {
@@ -98,8 +102,8 @@ class CodeList extends Component {
   }
   notActive(id, index) {
     const parentScope = this.props.scope
-    const loadingList  = {} 
-    const users = parentScope.state.users
+    const loadingList = {}
+    const users = parentScope.state.users.toLowerCase()
     loadingList[index] = false
     this.setState({
       loadingList
@@ -114,8 +118,15 @@ class CodeList extends Component {
   }
 
   render() {
-    const { data } = this.props
+    const { data , isFetching} = this.props
     const scope = this
+    if (isFetching) {
+      return (
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
+      )
+    }
     let items = data.map((item, index) => {
       return (
         <div className='CodeTable' key={item.name} >
@@ -154,9 +165,9 @@ class GithubComponent extends Component {
     const self = this
     self.props.getGithubList('github', {
       success: {
-        func: (res)=> {
+        func: (res) => {
           if (res.data.hasOwnProperty('results')) {
-            const users = Object.keys(res.data.results)[0]
+            const users = Object.keys(res.data.results)[0].toLowerCase()
             self.setState({ users })
           }
         }
@@ -180,6 +191,7 @@ class GithubComponent extends Component {
 
   handSyncCode() {
     const { registryGithub } = this.props
+    message.loading('正在执行中...', 5);
     registryGithub('github', {
       success: {
         func: (res) => {
@@ -190,18 +202,27 @@ class GithubComponent extends Component {
   }
   handleSearch(e) {
     const image = e.target.value
-    const users = this.state.users
+    const users = this.state.users.toLowerCase()
     this.props.searchGithubList(users, image)
   }
   changeSearch(e) {
     const image = e.target.value
-    const users = this.state.users
+    const users = this.state.users.toLowerCase()
     if (image == '') {
       this.props.searchGithubList(users, image)
     }
   }
+  syncRepoList() {
+    const types = this.state.repokey
+    this.props.syncRepoList(types)
+  }
+  changeList(e) {
+    this.setState({
+      users: e
+    })
+  }
   render() {
-    const { githubList, formatMessage } = this.props
+    const { githubList, formatMessage, isFetching} = this.props
     const scope = this
     let codeList = []
     if (!githubList) {
@@ -214,8 +235,8 @@ class GithubComponent extends Component {
     if (Object.keys(githubList).length > 0) {
       for (let i in githubList) {
         codeList.push(
-          <TabPane tab={i} key={i}>
-            <CodeList scope={scope} data={githubList[i]} />
+          <TabPane tab={<span><Icon type="user" />{i}</span>} key={i}>
+            <CodeList scope={scope} isFetching={isFetching} data={githubList[i]} />
           </TabPane>
         )
       }
@@ -244,18 +265,17 @@ class GithubComponent extends Component {
     return (
       <QueueAnim key="github-Component" type="right" className='codelink'>
         <div className="tableHead">
-          <Icon type="user" /> {this.props.users}
           <Tooltip placement="top" title={formatMessage(menusText.logout)}>
             <Icon type="logout" onClick={() => this.removeRepo()} style={{ margin: '0 20px' }} />
           </Tooltip>
-          <Icon type="reload" />
+          <Icon type="reload" onClick={() => this.syncRepoList()} />
           <div className="right-search">
             <Input className='searchBox' size="large" style={{ width: '180px' }} onChange={(e) => this.changeSearch(e)} onPressEnter={(e) => this.handleSearch(e)} placeholder={formatMessage(menusText.search)} type='text' />
             <i className='fa fa-search'></i>
           </div>
         </div>
 
-        <Tabs>
+        <Tabs onChange={(e)=> this.changeList(e)}>
           {codeList}
         </Tabs>
 
@@ -292,7 +312,8 @@ export default connect(mapStateToProps, {
   getGithubList,
   searchGithubList,
   addGithubRepo,
-  notGithubProject
+  notGithubProject,
+  syncRepoList
 })(injectIntl(GithubComponent, {
   withRef: true,
 }))
