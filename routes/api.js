@@ -160,6 +160,7 @@ module.exports = function (Router) {
   router.get('/registries/:registry/favourite', registryController.getFavouriteImages)
   router.put('/registries/:registry/:image*', registryController.updateImageInfo)
   router.delete('/registries/:registry/:image*', registryController.deleteImage)
+  router.get('/Registries/:registry/stats', registryController.queryServerStats)
 
   // Private docker registry integration
   router.get('/docker-registry', registryController.getPrivateRegistries)
@@ -194,6 +195,7 @@ module.exports = function (Router) {
   router.post('/clusters/:cluster/instances/:instances/getSearchLog', manageMonitorController.getSearchLog)
 
   // DevOps service: CI/CD
+  router.get('/devops/stats', devopsController.getStats)
   // Repos
   router.post('/devops/repos/:type', devopsController.registerRepo)
   router.get('/devops/repos/:type', devopsController.listRepository)

@@ -918,14 +918,24 @@ DockerRegistryAPIs.prototype.getInternalAPIPrefix = function () {
 }
 
 DockerRegistryAPIs.prototype.getAuthorizationHeader = function (onbehalfUser) {
-  var authHeader = {};
+  var authHeader = {
+    'Authorization': 'Basic ' + Buffer(this.registryConfig.user + ':' + this.registryConfig.password).toString('base64')
+  };
   if (onbehalfUser) {
-    authHeader = {
-      'Authorization': 'Basic ' + Buffer(this.registryConfig.user + ':' + this.registryConfig.password).toString('base64')
-    };
     authHeader.onbehalfuser = onbehalfUser;
   }
   return authHeader;
+}
+
+// Only for admin user to use
+DockerRegistryAPIs.prototype.getAllRepositories = function (callback) {
+  var method = "getAllRepositories";
+  logger.debug(method, "Querying all docker images ...");
+
+  var requestUrl = this.getAPIPrefix() + "/admin/repositories";
+
+  logger.debug(method, "Request url: " + requestUrl);
+  this.sendRequest(requestUrl, 'GET', null, callback);
 }
 
 module.exports = DockerRegistryAPIs;
