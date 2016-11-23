@@ -366,27 +366,27 @@ class Slider extends Component {
               >
                   <Menu.Item key='app_manage_default'>
                     <Link to='/app_manage'>
-                      <span>应用</span>
+                      <span><span style={{ marginRight: '10px' }}>●</span>应用</span>
                     </Link>
                   </Menu.Item>
                    <Menu.Item key='service'>
                     <Link to='/app_manage/service'>
-                      <span>服务</span>
+                      <span><span style={{ marginRight: '10px' }}>●</span>服务</span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='container'>
                     <Link to='/app_manage/container'>
-                      <span>容器</span>
+                      <span><span style={{ marginRight: '10px' }}>●</span>容器</span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='storage'>
                     <Link to='/app_manage/storage'>
-                      <span>存储</span>
+                      <span><span style={{ marginRight: '10px' }}>●</span>存储</span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='configs'>
                     <Link to='/app_manage/configs'>
-                      <span>服务配置</span>
+                      <span><span style={{ marginRight: '10px' }}>●</span>服务配置</span>
                     </Link>
                   </Menu.Item>
               </SubMenu>
@@ -403,17 +403,17 @@ class Slider extends Component {
               >
                 <Menu.Item key='app_center_default'>
                   <Link to='/app_center'>
-                    <span>镜像仓库</span>
+                    <span><span style={{ marginRight: '10px' }}>●</span>镜像仓库</span>
                   </Link>
                 </Menu.Item>
                 <Menu.Item key='image_store'>
                   <Link to='/app_center/image_store'>
-                    <span>应用商店</span>
+                    <span><span style={{ marginRight: '10px' }}>●</span>应用商店</span>
                   </Link>
                 </Menu.Item>
                 <Menu.Item key='stack_center'>
                   <Link to='/app_center/stack_center'>
-                    <span>编排文件</span>
+                    <span><span style={{ marginRight: '10px' }}>●</span>编排文件</span>
                   </Link>
                 </Menu.Item>
               </SubMenu>
@@ -430,17 +430,17 @@ class Slider extends Component {
               >
                 <Menu.Item key='ci_cd_default'>
                   <Link to='/ci_cd'>
-                    <span>代码仓库</span>
+                    <span><span style={{ marginRight: '10px' }}>●</span>代码仓库</span>
                   </Link>
                 </Menu.Item>
                 <Menu.Item key='tenx_flow'>
                   <Link to='/ci_cd/tenx_flow'>
-                    <span>TenxFlow</span>
+                    <span><span style={{ marginRight: '10px' }}>●</span>TenxFlow</span>
                   </Link>
                 </Menu.Item>
                 <Menu.Item key='docker_file'>
                   <Link to='/ci_cd/docker_file'>
-                    <span>Dockerfile</span>
+                    <span><span style={{ marginRight: '10px' }}>●</span>Dockerfile</span>
                   </Link>
                 </Menu.Item>
               </SubMenu>
@@ -457,22 +457,22 @@ class Slider extends Component {
               >
                 <Menu.Item key='database_cache_default'>
                   <Link to='/database_cache'>
-                    <span>关系型数据库</span>
+                    <span><span style={{ marginRight: '10px' }}>●</span>关系型数据库</span>
                   </Link>
                 </Menu.Item>
                 <Menu.Item key='mongo_cluster'>
                   <Link to='/database_cache/mongo_cluster'>
-                    <span>MongoDB</span>
+                    <span><span style={{ marginRight: '10px' }}>●</span>MongoDB</span>
                   </Link>
                 </Menu.Item>
                 <Menu.Item key='redis_cluster'>
                   <Link to='/database_cache/redis_cluster'>
-                    <span>缓存</span>
+                    <span><span style={{ marginRight: '10px' }}>●</span>缓存</span>
                   </Link>
                 </Menu.Item>
                 <Menu.Item key='database_storage'>
                   <Link to='/database_cache/database_storage'>
-                    <span>数据存储</span>
+                    <span><span style={{ marginRight: '10px' }}>●</span>数据存储</span>
                   </Link>
                 </Menu.Item>
               </SubMenu>
@@ -500,21 +500,21 @@ class Slider extends Component {
               >
                 <Menu.Item key='manange_monitor_default'>
                   <Link to='/manange_monitor'>
-                    <span>操作审计</span>
+                    <span><span style={{ marginRight: '10px' }}>●</span>操作审计</span>
                   </Link>
                 </Menu.Item>
                 <Menu.Item key='query_log'>
                   <Link to='/manange_monitor/query_log'>
-                    <span>日志查询</span>
+                    <span><span style={{ marginRight: '10px' }}>●</span>日志查询</span>
                   </Link>
                 </Menu.Item>
                 <Menu.Item key='monitor'>
                   <Link to='/manange_monitor/monitor'>
-                    <span>监控管理</span>
+                    <span><span style={{ marginRight: '10px' }}>●</span>监控管理</span>
                   </Link>
                 </Menu.Item>
                 <Menu.Item key='formCenter'>
-                  <span>报表中心</span>
+                  <span><span style={{ marginRight: '10px' }}>●</span>报表中心</span>
                 </Menu.Item>
               </SubMenu>
               <Menu.Item key='addApp'>
@@ -550,37 +550,37 @@ class Slider extends Component {
               >
                 <Menu.Item key='setting_default'>
                   <Link to='/setting'>
-                    <span>我的信息</span>
+                    <span><span style={{ marginRight: '10px' }}>●</span>我的信息</span>
                   </Link>
                 </Menu.Item>
                 <Menu.Item key='member'>
                   <Link to='/setting/member'>
-                    <span>成员管理</span>
+                    <span><span style={{ marginRight: '10px' }}>●</span>成员管理</span>
                   </Link>
                 </Menu.Item>
                 <Menu.Item key='team'>
                   <Link to='/setting/team'>
-                    <span>团队管理</span>
+                    <span><span style={{ marginRight: '10px' }}>●</span>团队管理</span>
                   </Link>
                 </Menu.Item>
                 <Menu.Item key='note'>
                   <Link to='/setting/note'>
-                    <span>通知设置</span>
+                    <span><span style={{ marginRight: '10px' }}>●</span>通知设置</span>
                   </Link>
                 </Menu.Item>
                 <Menu.Item key='API'>
                   <Link to='/setting/API'>
-                    <span>开放API</span>
+                    <span><span style={{ marginRight: '10px' }}>●</span>开放API</span>
                   </Link>
                 </Menu.Item>
                 <Menu.Item key='version'>
                   <Link to='/setting/version'>
-                    <span>平台版本</span>
+                    <span><span style={{ marginRight: '10px' }}>●</span>平台版本</span>
                   </Link>
                 </Menu.Item>
                 <Menu.Item key='license'>
                   <Link to='/setting/license'>
-                    <span>授权管理</span>
+                    <span><span style={{ marginRight: '10px' }}>●</span>授权管理</span>
                   </Link>
                 </Menu.Item>
               </SubMenu>

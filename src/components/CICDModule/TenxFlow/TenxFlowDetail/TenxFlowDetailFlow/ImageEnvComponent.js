@@ -19,6 +19,15 @@ import './style/ImageEnvComponent.less'
 const createForm = Form.create;
 const FormItem = Form.Item;
 
+function checkInitVale(config, key) {
+  //this function for check the init value
+  if(key == '') {
+    return '';
+  } else {
+    return config[key]; 
+  }
+}
+
 let ImageEnvComponent = React.createClass({
   getInitialState: function() {
     return {
@@ -27,6 +36,7 @@ let ImageEnvComponent = React.createClass({
   },
   componentDidMount(){
     const { config, form } = this.props;
+    console.log(config)
     if(!!config) {
       config.map((item) => {
         let tmpUuid = ++this.state.uuid;
@@ -90,23 +100,31 @@ let ImageEnvComponent = React.createClass({
   },
   render() {
     const { formatMessage } = this.props.intl;
-    const { scope, index, form } = this.props;
+    const { scope, form, config } = this.props;
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = form;
     getFieldProps('imageEnvInputs', {
       initialValue: [0],
     });
     const ImageEnvInputItems = getFieldValue('imageEnvInputs').map((i) => {
+      let itemKey = '';
+      let configFlag = null;
+      if(Boolean(config)) { 
+        configFlag = config[i];
+        for(let item in config[i]) {
+          itemKey = item;
+        }
+      }
       const ImageEnvNameInputProps = getFieldProps(`imageEnvName${i}`, {
         rules: [
           { message: '请输入环境变量名' },
         ],
-        initialValue: '',
+        initialValue: itemKey,
       });
       const ImageEnvValueInputProps = getFieldProps(`imageEnvValue${i}`, {
         rules: [
           { message: '请输入环境变量值' },
         ],
-        initialValue: '',
+        initialValue: checkInitVale(configFlag, itemKey)
       });
       return (
       <QueueAnim key={`imageEnvInputs${i}`}>

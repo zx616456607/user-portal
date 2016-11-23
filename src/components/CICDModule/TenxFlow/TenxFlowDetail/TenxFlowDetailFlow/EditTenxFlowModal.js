@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Input, Form, Switch, Radio, Checkbox, Icon, Select, Modal } from 'antd'
+import { Button, Input, Form, Switch, Radio, Checkbox, Icon, Select, Modal, notification } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -525,17 +525,52 @@ let EditTenxFlowModal = React.createClass({
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         e.preventDefault();
-        if (!Boolean(_this.state.dockerFileTextarea && !this.state.useDockerfile)) {
+        if (!Boolean(_this.state.dockerFileTextarea && !this.state.useDockerfile && _this.otherFlowType == '3')) {
           _this.setState({
             noDockerfileInput: true
           });
         }
+        //check image env list
+        let imageEnvLength = values.imageEnvInputs;
+        imageEnvLength.map((item, index) => {
+          if(values['imageEnvName' + item] != '') {
+            if(values['imageEnvValue' + item] == '') {
+              _this.setState({
+                emptyImageEnv: true
+              });
+            }
+          }
+        });
         return;
       }
-      if (!Boolean(_this.state.dockerFileTextarea) && !this.state.useDockerfile) {
+      if (!Boolean(_this.state.dockerFileTextarea) && !this.state.useDockerfile && _this.otherFlowType == '3') {
         _this.setState({
           noDockerfileInput: true
         });
+        return;
+      }
+      //check image env list
+      let imageEnvLength = values.imageEnvInputs;
+      let imageEnvList = [];
+      imageEnvLength.map((item, index) => {
+        if(values['imageEnvName' + item] != '') {
+          if(values['imageEnvValue' + item] == '') {
+            _this.setState({
+              emptyImageEnv: true
+            });
+          } else {
+            let tempName = values['imageEnvName' + item];
+            let tempEnv = {
+              [tempName]: values['imageEnvValue' + item]
+            }
+            imageEnvList.push(tempEnv)
+            _this.setState({
+              emptyImageEnv: false
+            });
+          }
+        }
+      });
+      if(_this.state.emptyImageEnv) {
         return;
       }
       //get shell code
@@ -580,6 +615,7 @@ let EditTenxFlowModal = React.createClass({
           'container': {
             'image': values.imageName,
             'args': shellList,
+            'env': imageEnvList,
             'dependencies': serviceList
           },
           'project': {
@@ -642,7 +678,11 @@ let EditTenxFlowModal = React.createClass({
             rootScope.setState({
               currentFlowEdit: null
             });
-            },
+            notification['success']({
+              message: '持续集成',
+              description: '编辑成功~',
+            });
+          },
           isAsync: true
         }
       })
@@ -1008,7 +1048,7 @@ let EditTenxFlowModal = React.createClass({
           onOk={this.closeImageEnvModal}
           onCancel={this.closeImageEnvModal}
         >
-          <ImageEnvComponent scope={scopeThis} form={form} />
+          <ImageEnvComponent scope={scopeThis} form={form} config={config.spec.container.env} />
         </Modal>
       </Form>
       <div className='modalBtnBox'>
