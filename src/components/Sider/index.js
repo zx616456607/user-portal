@@ -47,6 +47,7 @@ class Slider extends Component {
     super(props);
     this.selectModel = this.selectModel.bind(this);
     this.changeSiderStyle = this.changeSiderStyle.bind(this);
+    this.onSelectMenu = this.onSelectMenu.bind(this);
     this.state = {
       currentKey: checkCurrentPath(this.props.pathname),
       isUnzip: false
@@ -83,6 +84,23 @@ class Slider extends Component {
     this.setState({
       isUnzip: e.target.value
     })
+  }
+  
+  onSelectMenu(e) {
+    //this function for user select the menu item and change the current key
+    console.log(e)
+    const { keyPath } = e;
+    if(keyPath.length > 1) {      
+      let currentKey = keyPath[1];
+      this.setState({
+        currentKey: currentKey
+      });
+    } else {
+      let currentKey = keyPath[0];
+      this.setState({
+        currentKey: currentKey
+      });
+    }
   }
 
   getUploadData() {
@@ -209,61 +227,61 @@ class Slider extends Component {
                   <img className='logo' src='/img/sider/logo@2x.png' />
                 </Link>
               </li>
-              <li onClick={this.selectModel.bind(this, '1', '#home')} className={currentKey == '1' ? 'selectedLi' : ''} >
+              <li onClick={this.selectModel.bind(this, 'home', '#home')} className={currentKey == 'home' ? 'selectedLi' : ''} >
                 <Tooltip placement='right' title='总览' getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/'>
                     <svg className='home commonImg'>
-                      {currentKey == '1' ? [<use xlinkHref='#homeselected' />] : [<use xlinkHref='#home' />]}
+                      {currentKey == 'home' ? [<use xlinkHref='#homeselected' />] : [<use xlinkHref='#home' />]}
                     </svg>
                   </Link>
                 </Tooltip>
               </li>
-              <li onClick={this.selectModel.bind(this, '2', '#app')} className={currentKey == '2' ? 'selectedLi' : ''}>
+              <li onClick={this.selectModel.bind(this, 'app_manage', '#app')} className={currentKey == 'app_manage' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title='应用管理' getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/app_manage'>
                     <svg className='app commonImg'>
-                      { currentKey == '2' ? [<use xlinkHref='#appselected' />] : [<use xlinkHref='#app' />]}
+                      { currentKey == 'app_manage' ? [<use xlinkHref='#appselected' />] : [<use xlinkHref='#app' />]}
                     </svg>
                   </Link>
                 </Tooltip>
               </li>
-              <li onClick={this.selectModel.bind(this, '3', '#appCenter')} className={currentKey == '3' ? 'selectedLi' : ''}>
+              <li onClick={this.selectModel.bind(this, 'app_center', '#appCenter')} className={currentKey == 'app_center' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title='交付中心' getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/app_center'>
                     <svg className='center commonImg'>
-                      { currentKey == '3' ? [<use xlinkHref='#centerselected' />] : [<use xlinkHref='#center' />]}
+                      { currentKey == 'app_center' ? [<use xlinkHref='#centerselected' />] : [<use xlinkHref='#center' />]}
                     </svg>
                   </Link>
                 </Tooltip>
               </li>
-              <li onClick={this.selectModel.bind(this, '6', '#system')} className={currentKey == '6' ? 'selectedLi' : ''}>
+              <li onClick={this.selectModel.bind(this, 'ci_cd', '#system')} className={currentKey == 'ci_cd' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title='CI/CD' getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/ci_cd'>
                     <svg className='cicd commonImg'>
-                      { currentKey == '6' ? [<use xlinkHref='#cicdselected' />] : [<use xlinkHref='#cicd' />]}
+                      { currentKey == 'ci_cd' ? [<use xlinkHref='#cicdselected' />] : [<use xlinkHref='#cicd' />]}
                     </svg>
                   </Link>
                 </Tooltip>
               </li>
-              <li onClick={this.selectModel.bind(this, '4', '#database')} className={currentKey == '4' ? 'selectedLi' : ''}>
+              <li onClick={this.selectModel.bind(this, 'database_cache', '#database')} className={currentKey == 'database_cache' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title='数据库与缓存' getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/database_cache'>
                     <svg className='database commonImg'>
-                      { currentKey == '4' ? [<use xlinkHref='#database-selected' />] : [<use xlinkHref='#database' />]}
+                      { currentKey == 'database_cache' ? [<use xlinkHref='#database-selected' />] : [<use xlinkHref='#database' />]}
                     </svg>
                   </Link>
                 </Tooltip>
               </li>
-              <li onClick={this.selectModel.bind(this, '5', '#system')} className={currentKey == '5' ? 'selectedLi' : ''}>
+              <li onClick={this.selectModel.bind(this, 'integration', '#system')} className={currentKey == 'integration' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title='集成中心' getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/integration'>
                     <svg className='system commonImg'>
-                      <use xlinkHref='#system' />
+                      { currentKey == 'integration' ? [<use xlinkHref='#systemselected' />] : [<use xlinkHref='#system' />] }
                     </svg>
                   </Link>
                 </Tooltip>
               </li>
-              <li onClick={this.selectModel.bind(this, '7', '#manage')} className={currentKey == '7' ? 'selectedLi' : ''}>
+              <li onClick={this.selectModel.bind(this, 'manange_monitor', '#manage')} className={currentKey == 'manange_monitor' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title='管理与监控' getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/manange_monitor'>
                     <svg className='manageMoniter commonImg'>
@@ -275,11 +293,11 @@ class Slider extends Component {
               <div style={{ clear: 'both' }}></div>
             </ul>
             <ul className='siderBottom'>
-              <li onClick={this.selectModel.bind(this, '9', '#addNewApp')} className={currentKey == '9' ? 'selectedLi' : ''}>
+              <li onClick={this.selectModel.bind(this, 'app_manage/app_create', '#addNewApp')} className={currentKey == 'app_manage/app_create' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title='创建应用' getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/app_manage/app_create'>
                     <svg className='add commonImg'>
-                      { currentKey == '9' ? [<use xlinkHref='#addselected' />] : [<use xlinkHref='#add' />] }
+                      { currentKey == 'app_manage/app_create' ? [<use xlinkHref='#addselected' />] : [<use xlinkHref='#add' />] }
                     </svg>
                   </Link>
                 </Tooltip>
@@ -297,11 +315,11 @@ class Slider extends Component {
                   </Popover>
                 </Tooltip>
               </li>
-              <li onClick={this.selectModel.bind(this, '8', '#setting')} className={currentKey == '8' ? 'selectedLi' : ''}>
+              <li onClick={this.selectModel.bind(this, 'setting', '#setting')} className={currentKey == 'setting' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title='系统设置' getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/setting'>
                     <svg className='setting commonImg'>
-                      {currentKey == '8' ? [<use xlinkHref='#settingselected' />] : [<use xlinkHref='#setting' />]}
+                      {currentKey == 'setting' ? [<use xlinkHref='#settingselected' />] : [<use xlinkHref='#setting' />]}
                     </svg>
                   </Link>
                 </Tooltip>
@@ -323,13 +341,14 @@ class Slider extends Component {
               style={{ width: '100%', backgroundColor: '#2A2F3A', color: '#c4c4c4' }}
               mode='inline'
               theme='dark'
-              selectedKeys={checkUrlSelectedKey(scope)}
-              openKeys={checkUrlOpenKeys(scope)}
+              defaultSelectedKeys={checkUrlSelectedKey(scope)}
+              defaultOpenKeys={checkUrlOpenKeys(scope)}
+              onClick={this.onSelectMenu}
             >
-              <Menu.Item key='0'>
+              <Menu.Item key='home'>
                 <Link to='/'>
                   <svg className='home commonImg'>
-                    {currentKey == '1' ? [<use xlinkHref='#homeselected' />] : [<use xlinkHref='#home' />]}
+                    <use xlinkHref='#home' />
                   </svg>
                   <span>总览</span>
                 </Link>
@@ -586,33 +605,12 @@ class Slider extends Component {
 }
 
 function checkCurrentPath(pathname) {
-  let ManageMonitorCheck = new RegExp('manange_monitor', 'gi');
-  if (ManageMonitorCheck.test(pathname)) {
-    return '7';
-  }
-  let DatabaseCheck = new RegExp('database_cache', 'gi');
-  let CICDCheck = new RegExp('ci_cd', 'gi');
-  if (CICDCheck.test(pathname)) {
-    return '6';
-  }
-  if (DatabaseCheck.test(pathname)) {
-    return '4';
-  }
-  let AppCenterCheck = new RegExp('app_center', 'gi');
-  if (AppCenterCheck.test(pathname)) {
-    return '3';
-  }
-  let ApplicationCheck = new RegExp('app_manage', 'gi');
-  if (ApplicationCheck.test(pathname)) {
-    return '2';
-  }
-  let addApplicationCheck = new RegExp('app_manage/app_create', 'gi')
-  if (ApplicationCheck.test(pathname)) {
-    return '9';
-  }
-  let homeCheck = new RegExp('/', 'gi');
-  if (homeCheck.test(pathname)) {
-    return '1';
+  let pathList = pathname.split('/');
+  let currentPath = pathList[0];
+  if(currentPath.length > 0) {
+    return currentPath;
+  } else {
+    return 'home';
   }
 }
 

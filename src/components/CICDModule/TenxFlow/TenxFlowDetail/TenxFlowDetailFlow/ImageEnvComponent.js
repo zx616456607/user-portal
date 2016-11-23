@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Input, Form } from 'antd'
+import { Button, Input, Form, Icon } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -25,46 +25,61 @@ let ImageEnvComponent = React.createClass({
       uuid: 0
     }
   },
-  addServicesInput (k, index, scope) {
-    //this function for user add an new input div
-    //there are no button for user click
-    //when user input words, after user key up would triger the function
-    const { form } = this.props;
-    let inputValue = form.getFieldValue('service' + index + 'input' + k);
-    if(k == this.state.uuid) {
-      if(!!inputValue) {
+  componentDidMount(){
+    const { config, form } = this.props;
+    if(!!config) {
+      config.map((item) => {
         let tmpUuid = ++this.state.uuid;
         this.setState({
           uuid: tmpUuid
         });
-        // can use data-binding to get
-        let keys = form.getFieldValue('service' + index + 'inputs');
+        let keys = form.getFieldValue('imageEnvInputs');
         keys = keys.concat(this.state.uuid);
-        // can use data-binding to set
-        // important! notify form to detect changes
-        let temp = 'service' + index + 'inputs';
+        let temp = 'imageEnvInputs';
         form.setFieldsValue({
-          [`${temp}`]: keys
+          'imageEnvInputs': keys
         });
-      }
+      });
+    } else {
+      form.setFieldsValue({
+        'imageEnvInputs': [0]
+      });
     }
   },
-  removeServicesInput (k, index, scope){
+  addImageEnv (k, index, scope) {
+    //this function for user add an new input div
+    //there are no button for user click
+    //when user input words, after user key up would triger the function
+    const { form } = this.props;
+    let inputValue = form.getFieldValue('imageEnvInputs');
+    let tmpUuid = ++this.state.uuid;
+    this.setState({
+      uuid: tmpUuid
+    });
+    // can use data-binding to get
+    let keys = form.getFieldValue('imageEnvInputs');
+    keys = keys.concat(this.state.uuid);
+    // can use data-binding to set
+    // important! notify form to detect changes
+    form.setFieldsValue({
+      'imageEnvInputs': keys
+    });
+  },
+  removeImageEnv (k, index, scope){
     //this function for user remove the input div
     const { form } = this.props;
     // can use data-binding to get
-    let keys = form.getFieldValue('service' + index + 'inputs');
-    if(keys.length == 1) {
-      return ;
-    }
+    let keys = form.getFieldValue('imageEnvInputs');
     keys = keys.filter((key) => {
       return key !== k;
     });
     // can use data-binding to set
-    let temp = 'service' + index + 'inputs';
     form.setFieldsValue({
-      [`${temp}`]: keys
+      'imageEnvInputs': keys
     });
+    if(keys.length == 0) {
+      this.addImageEnv(scope)
+    }
   },
   closeModal () {
     //this function for user close the env input modal
@@ -77,30 +92,66 @@ let ImageEnvComponent = React.createClass({
     const { formatMessage } = this.props.intl;
     const { scope, index, form } = this.props;
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = form;
-    getFieldProps('service' + index + 'inputs', {
+    getFieldProps('imageEnvInputs', {
       initialValue: [0],
     });
-    const servicesInputItems = getFieldValue('service' + index + 'inputs').map((i) => {
-      const servicesInputProps = getFieldProps(`service${index}input${i}`, {
+    const ImageEnvInputItems = getFieldValue('imageEnvInputs').map((i) => {
+      const ImageEnvNameInputProps = getFieldProps(`imageEnvName${i}`, {
         rules: [
-          { message: '请输入环境变量' },
+          { message: '请输入环境变量名' },
         ],
+        initialValue: '',
+      });
+      const ImageEnvValueInputProps = getFieldProps(`imageEnvValue${i}`, {
+        rules: [
+          { message: '请输入环境变量值' },
+        ],
+        initialValue: '',
       });
       return (
-      <QueueAnim key={'service' + index + 'input' + i + 'Animate'}>
-        <div className='serviceInputDetail' key={'service' + index + 'input' + i}>
-          <FormItem className='serviceInputForm'>
-            <Input onKeyUp={ () => this.addServicesInput(i, index, scope) } {...servicesInputProps} type='text' size='large' />
-            <i className='fa fa-trash' onClick={() => this.removeServicesInput(i, index, scope)} />
-          </FormItem>
-          <div style={{ clera:'both' }}></div>
+      <QueueAnim key={`imageEnvInputs${i}`}>
+        <div className='imageEnvInputDetail' key={`imageEnvInputDetail${i}`}>
+          <div className='commonTitle'>
+            <FormItem className='ImageEnvName'>
+              <Input {...ImageEnvNameInputProps} type='text' size='large' />
+            </FormItem>
+          </div>
+          <div className='equalTitle'>
+            <span>=</span>
+          </div>
+          <div className='commonTitle'>
+            <FormItem className='ImageEnvValue'>
+              <Input {...ImageEnvValueInputProps} type='text' size='large' />
+            </FormItem>
+          </div>
+          <div className='equalTitle'>
+            <i className='fa fa-trash' onClick={() => this.removeImageEnv(i)}/>
+          </div>
+          <div style={{ clear:'both' }}></div>
         </div>
       </QueueAnim>
       )
     });
     return (
       <div id='ImageEnvComponent' key='ImageEnvComponent'>
-        {servicesInputItems}
+        <div className='titleBox'>
+          <div className='commonTitle'>
+            <span>变量名</span>
+          </div>
+          <div className='equalTitle'>            
+          </div>
+          <div className='commonTitle'>
+            <span>变量值</span>
+          </div>
+          <div style={{ clear:'both' }}></div>
+        </div>
+        {ImageEnvInputItems}
+        <div className='addBtnBox'>
+          <div className='addBtn' onClick={this.addImageEnv}>
+            <Icon type='plus-circle-o' />
+            <span>增加环境变量</span>
+          </div>
+        </div>
       </div>
     )
   }

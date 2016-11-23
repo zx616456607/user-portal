@@ -1008,7 +1008,7 @@ let EditTenxFlowModal = React.createClass({
           onOk={this.closeImageEnvModal}
           onCancel={this.closeImageEnvModal}
         >
-          <ImageEnvComponent />
+          <ImageEnvComponent scope={scopeThis} form={form} />
         </Modal>
       </Form>
       <div className='modalBtnBox'>
