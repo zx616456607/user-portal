@@ -3,12 +3,16 @@ const path = require('path');
 
 const vendors = [
   'antd',
+  'babel-polyfill',
   'color-hash',
   'echarts-for-react',
   'humps',
   'isomorphic-fetch',
+  'lodash',
+  'moment',
   'n-zepto',
   'normalizr',
+  'rc-animate',
   'rc-queue-anim',
   'rc-scroll-anim',
   'rc-tween-one',
