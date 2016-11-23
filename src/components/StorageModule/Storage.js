@@ -496,13 +496,13 @@ class Storage extends Component {
       name: e.target.value
     })
   }
-  getSearchAppName(e) {
+  getSearchStorageName(e) {
     this.setState({
-      appName: e.target.value
+      storageName: e.target.value
     })
   }
-  searchByAppName(e) {
-    this.props.loadStorageList(this.props.currentImagePool, this.props.currentCluster, this.state.appName)
+  searchByStorageName(e) {
+    this.props.loadStorageList(this.props.currentImagePool, this.props.currentCluster, this.state.storageName)
   }
   showDeleteModal() {
     if (this.state.volumeArray.length <= 0) {
@@ -578,7 +578,7 @@ class Storage extends Component {
                 <i className="fa fa-search"></i>
               </div>
               <div className="littleRight">
-                <Input size="large" placeholder={formatMessage(messages.inputPlaceholder)} onChange={(e) => this.getSearchAppName(e)} onPressEnter={() => this.searchByAppName()} />
+                <Input size="large" placeholder={formatMessage(messages.inputPlaceholder)} onChange={(e) => this.getSearchStorageName(e)} onPressEnter={() => this.searchByStorageName()} />
               </div>
             </div>
             <div className="clearDiv"></div>

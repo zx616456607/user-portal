@@ -32,13 +32,13 @@ const volumeApi = new VolumeApi(volumeConfig)
 exports.getVolumeListByPool = function* () {
   const pool = this.params.pool
   const cluster = this.params.cluster
-  const appName = this.query.appname
+  const storageName = this.query.storagename
   let response
-  if(appName == '0') {
+  if(storageName == '0') {
     response = yield volumeApi.clusters.getBy([cluster, 'volumes'])
   } else {
     response = yield volumeApi.clusters.getBy([cluster, 'volumes'], {
-      appName: appName
+      storageName: storageName
     })
   }
   this.status = response.code
