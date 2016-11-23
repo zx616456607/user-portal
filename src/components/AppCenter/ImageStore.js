@@ -9,7 +9,7 @@
  */
 import React, { Component, PropTypes } from 'react'
 import ReactDOM from 'react-dom';
-import { Menu, Button, Card } from 'antd'
+import { Menu, Button, Card, Input } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import ScrollAnim from 'rc-scroll-anim';
 import TweenOne from 'rc-tween-one';
@@ -19,6 +19,7 @@ import $ from 'n-zepto'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import "./style/ImageStore.less"
 
+const InputGroup = Input.Group;
 const SubMenu = Menu.SubMenu;
 const MenuItemGroup = Menu.ItemGroup;
 const Link = ScrollAnim.Link;
@@ -178,8 +179,8 @@ let MyComponent = React.createClass({
                     <img src={imageDetail.imgUrl} />
                   </div>
                   <div className="intro">
-                    <div style={{ "font-size": "14px" }} >{imageDetail.intro}</div>
-                    <div style={{ color: "#9ba3af", "margin-top": "3px"}}>{imageDetail.intro}</div>
+                    <span className="span7 textoverflow">{imageDetail.intro}</span>
+                    <span className="span2"><Button className="btn-deploy">部署</Button></span>
                   </div>
                 </Card>
               )
@@ -191,7 +192,18 @@ let MyComponent = React.createClass({
       );
     });
     return (
-      <div style={{ transform: "none !important" }}>
+      <div className="storeBody" style={{ transform: "none !important" }}>
+        {/* <div className="topSearch">
+          <InputGroup className="ant-search-input-wrapper">
+          <Input placeholder="搜索应用"  onChange={this.handleInputChange}
+             onPressEnter={this.handleSearch}
+          />
+          <div className="ant-input-group-wrap">
+            <Button icon="search"  className="" onClick={this.handleSearch} />
+          </div>
+        </InputGroup>
+        </div>
+        */}
         {items}
         <p>&nbsp;</p>
         <p>&nbsp;</p>
