@@ -128,8 +128,8 @@ export const SEARCH_OTHER_LIST_REQUEST = 'SEARCH_OTHER_LIST_REQUEST'
 // Search Other image list getOtherImageList
 export function SearchOtherImage(image) {
   return {
-      type: SEARCH_OTHER_LIST_REQUEST,
-      image,
+    type: SEARCH_OTHER_LIST_REQUEST,
+    image,
   }
 }
 
@@ -266,7 +266,7 @@ function fetchDeletePrivateImage(obj, callback) {
         method: 'DELETE',
       }
     },
-    image:obj.image,
+    image: obj.image,
     registry: obj.registry,
     callback
   }
@@ -435,5 +435,29 @@ export function updateStack(obj, callback) {
     callback,
     registry: obj.registry,
     id: obj.id
+  }
+}
+
+export const GET_PRIVATE_STACK_INFO_REQUEST = 'GET_PRIVATE_STACK_INFO_REQUEST'
+export const GET_PRIVATE_STACK_INFO_SUCCESS = 'GET_PRIVATE_STACK_INFO_SUCCESS'
+export const GET_PRIVATE_STACK_INFO_FAILURE = 'GET_PRIVATE_STACK_INFO_FAILURE'
+
+function fetchStackDetail(id, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_PRIVATE_STACK_INFO_REQUEST, UPDATE_PRIVATE_STACK_SUCCESS, GET_PRIVATE_STACK_INFO_FAILURE],
+      endpoint: `${API_URL_PREFIX}/templates/${id}`,
+      schema: Schemas.REGISTRYS,
+      options: {
+        method: 'GET',
+      }
+    },
+    callback
+  }
+}
+
+export function loadStackDetail(id, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchStackDetail(id, callback))
   }
 }

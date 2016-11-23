@@ -103,7 +103,7 @@ class CodeList extends Component {
   notActive(id, index) {
     const parentScope = this.props.scope
     const loadingList = {}
-    const users = parentScope.state.users
+    const users = parentScope.state.users.toLowerCase()
     loadingList[index] = false
     this.setState({
       loadingList
@@ -167,7 +167,7 @@ class GithubComponent extends Component {
       success: {
         func: (res) => {
           if (res.data.hasOwnProperty('results')) {
-            const users = Object.keys(res.data.results)[0]
+            const users = Object.keys(res.data.results)[0].toLowerCase()
             self.setState({ users })
           }
         }
@@ -191,6 +191,7 @@ class GithubComponent extends Component {
 
   handSyncCode() {
     const { registryGithub } = this.props
+    message.loading('正在执行中...', 5);
     registryGithub('github', {
       success: {
         func: (res) => {
@@ -201,12 +202,12 @@ class GithubComponent extends Component {
   }
   handleSearch(e) {
     const image = e.target.value
-    const users = this.state.users
+    const users = this.state.users.toLowerCase()
     this.props.searchGithubList(users, image)
   }
   changeSearch(e) {
     const image = e.target.value
-    const users = this.state.users
+    const users = this.state.users.toLowerCase()
     if (image == '') {
       this.props.searchGithubList(users, image)
     }
@@ -274,7 +275,7 @@ class GithubComponent extends Component {
           </div>
         </div>
 
-        <Tabs onChange={()=> this.changeList(e)}>
+        <Tabs onChange={(e)=> this.changeList(e)}>
           {codeList}
         </Tabs>
 
