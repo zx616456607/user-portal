@@ -445,7 +445,7 @@ export const GET_PRIVATE_STACK_INFO_FAILURE = 'GET_PRIVATE_STACK_INFO_FAILURE'
 function fetchStackDetail(id, callback) {
   return {
     [FETCH_API]: {
-      types: [GET_PRIVATE_STACK_INFO_REQUEST, UPDATE_PRIVATE_STACK_SUCCESS, GET_PRIVATE_STACK_INFO_FAILURE],
+      types: [GET_PRIVATE_STACK_INFO_REQUEST, GET_PRIVATE_STACK_INFO_SUCCESS, GET_PRIVATE_STACK_INFO_FAILURE],
       endpoint: `${API_URL_PREFIX}/templates/${id}`,
       schema: Schemas.REGISTRYS,
       options: {
