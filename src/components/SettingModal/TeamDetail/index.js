@@ -13,9 +13,8 @@ import './style/TeamDetail.less'
 import { Link } from 'react-router'
 import {
   deleteTeam, createTeamspace, addTeamusers, removeTeamusers,
-  loadTeamspaceList, loadTeamUserList, loadTeamClustersList,deleteTeamspace
+  loadTeamspaceList, loadTeamUserList, loadAllClustersList,deleteTeamspace
 } from '../../../actions/team'
-import {loadClusterList} from '../../../actions/cluster'
 import { connect } from 'react-redux'
 import MemberTransfer from '../MemberTransfer'
 
@@ -499,8 +498,8 @@ class TeamDetail extends Component {
     })
   }
   componentWillMount() {
-    const { loadClusterList, loadTeamUserList, loadTeamspaceList, teamID, } = this.props
-    loadClusterList(teamID)
+    const { loadAllClustersList, loadTeamUserList, loadTeamspaceList, teamID, } = this.props
+    loadAllClustersList(teamID)
     loadTeamUserList(teamID, { sort: 'a,userName',size:5,page:1 })
     loadTeamspaceList(teamID, { sort: 'a,spaceName',size:5,page:1})
   }
@@ -539,7 +538,7 @@ class TeamDetail extends Component {
                     </Row>
                     <Row className="cardItem">
                       <Col span={8}>授权状态</Col>
-                      <Col span={16}><span>已授权</span></Col>
+                      <Col span={16}><span>{item.clusterStatus}</span></Col>
                     </Row>
                   </Card>
                 </Col>
@@ -655,8 +654,8 @@ function mapStateToProp(state, props) {
       })
     }
   }
-  if (team.teamClusters) {
-    const cluster = team.teamClusters
+  if (team.allClusters) {
+    const cluster = team.allClusters
     if (cluster.result) {
       if (cluster.result.data) {
         clusterData = cluster.result.data
@@ -668,6 +667,7 @@ function mapStateToProp(state, props) {
                 apiHost: item.apiHost,
                 clusterID: item.clusterID,
                 clusterName: item.clusterName,
+                clusterStatus: item.status,
               }
             )
           })
@@ -711,6 +711,6 @@ export default connect(mapStateToProp, {
   removeTeamusers,
   loadTeamspaceList,
   loadTeamUserList,
-  loadClusterList,
+  loadAllClustersList,
   deleteTeamspace,
 })(TeamDetail)
