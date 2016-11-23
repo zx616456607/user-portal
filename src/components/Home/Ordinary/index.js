@@ -12,8 +12,10 @@ import { Row, Col, Card, Radio } from 'antd'
 import './style/Ordinary.less'
 import ReactEcharts from 'echarts-for-react'
 import MySpace from './MySpace'
+import { getAppStatus, getServiceStatus, getContainerStatus } from '../../../common/status_identify'
 import { connect } from 'react-redux'
-import { loadClusterOperations, loadClusterSysinfo, loadClusterStorage } from '../../../actions/overview_cluster'
+import { loadClusterOperations, loadClusterSysinfo, loadClusterStorage,
+         loadClusterAppStatus } from '../../../actions/overview_cluster'
 import ProgressBox from '../../ProgressBox'
 
 let restValue = 12366
@@ -354,10 +356,11 @@ class Ordinary extends Component{
   }
   
   componentWillMount() {
-    const { loadClusterOperations, loadClusterSysinfo, loadClusterStorage } = this.props
+    const { loadClusterOperations, loadClusterSysinfo, loadClusterStorage, loadClusterAppStatus } = this.props
     loadClusterOperations("cce1c71ea85a5638b22c15d86c1f61df")
     loadClusterSysinfo("cce1c71ea85a5638b22c15d86c1f61df")
     loadClusterStorage("cce1c71ea85a5638b22c15d86c1f61df")
+    loadClusterAppStatus("cce1c71ea85a5638b22c15d86c1f61df")
   }
   handleDataBaseClick(current){
     if(current === 'tab1'){
@@ -845,6 +848,51 @@ class Ordinary extends Component{
   }
 }
 
+function setMap(map, key) {
+  if (map.get(key) == undefined) {
+   map.set(key, 1)
+  } else {
+   map.set(key, map.get(key)+1)
+  }
+}
+
+function getStatus(data) {
+  let appMap = new Map()
+  let svcMap = new Map()
+  let podMap = new Map()
+
+  for (let appName in data) {
+     let services = data[appName].deployments
+     let pods = data[appName].pods
+     let status = getAppStatus(services)
+     setMap(appMap, status.phase)
+     services.map(service => {
+       status = getServiceStatus(service)
+       setMap(svcMap, status.phase)
+     })
+     pods.map(pod => {
+       status = getContainerStatus(pod)
+       setMap(podMap, status.phase)
+     })
+  }
+
+  console.log("App Result: ")
+  for (let key of appMap.keys()) {
+    console.log(key, ": ", appMap.get(key))
+  }
+
+  console.log("Service Result: ")
+  for (let key of svcMap.keys()) {
+    console.log(key, ": ", svcMap.get(key))
+  }
+
+  console.log("Pod Result: ")
+  for (let key of podMap.keys()) {
+    console.log(key, ": ", podMap.get(key))
+  }
+
+  return {appMap, svcMap, podMap}
+}
 
 function mapStateToProp(state,props) {
   let clusterOperationsData = {
@@ -884,7 +932,12 @@ function mapStateToProp(state,props) {
     usedCnt: 0,
     usedSize: 0,
   }
-  const {clusterOperations, clusterSysinfo, clusterStorage} = state.overviewCluster
+  let clusterAppStatusData = {
+    appMap: new Map(),
+    svcMap: new Map(),
+    podMap: new Map(),
+  }
+  const {clusterOperations, clusterSysinfo, clusterStorage, clusterAppStatus} = state.overviewCluster
   if (clusterOperations.result && clusterOperations.result.data
       && clusterOperations.result.data.data) {
         let data = clusterOperations.result.data.data
@@ -971,10 +1024,15 @@ function mapStateToProp(state,props) {
           clusterStorageData.usedSize = data.usedSize
         }
   }
+  if (clusterAppStatus.result && clusterAppStatus.result.data) {
+    let data = clusterAppStatus.result.data
+    clusterAppStatusData = getStatus(data)
+  }
   return {
     clusterOperations: clusterOperationsData,
     clusterSysinfo: clusterSysinfoData,
     clusterStorage: clusterStorageData,
+    clusterAppStatus: clusterAppStatusData,
   }
 }
 
@@ -982,4 +1040,5 @@ export default connect(mapStateToProp, {
   loadClusterOperations,
   loadClusterSysinfo,
   loadClusterStorage,
+  loadClusterAppStatus,
 })(Ordinary)

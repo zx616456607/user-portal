@@ -84,3 +84,27 @@ export function loadClusterStorage(clusterID) {
     return dispatch(fetchClusterStorage(clusterID))
   }
 }
+
+export const OVERVIEW_CLUSTER_APPSTATUS_REQUEST = 'OVERVIEW_CLUSTER_APPSTATUS_REQUEST'
+export const OVERVIEW_CLUSTER_APPSTATUS_SUCCESS = 'OVERVIEW_CLUSTER_APPSTATUS_SUCCESS'
+export const OVERVIEW_CLUSTER_APPSTATUS_FAILURE = 'OVERVIEW_CLUSTER_APPSTATUS_FAILURE'
+
+// Fetches cluster app status information from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchClusterAppStatus(clusterID) {
+  return {
+    [FETCH_API]: {
+      types: [OVERVIEW_CLUSTER_APPSTATUS_REQUEST, OVERVIEW_CLUSTER_APPSTATUS_SUCCESS, OVERVIEW_CLUSTER_APPSTATUS_FAILURE],
+      endpoint: `${API_URL_PREFIX}/overview/clusters/${clusterID}/appstatus`,
+      schema: {}
+    }
+  }
+}
+
+// Fetches cluster app status information from API unless it is cached.
+// Relies on Redux Thunk middleware.
+export function loadClusterAppStatus(clusterID) {
+  return (dispatch, getState) => {
+    return dispatch(fetchClusterAppStatus(clusterID))
+  }
+}
