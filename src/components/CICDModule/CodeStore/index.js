@@ -167,11 +167,14 @@ const MyComponent = React.createClass({
             <i className='fa fa-eye' />&nbsp;
             WebHook
           </Menu.Item>
+          {item.isPrivate == 1 ?
           <Menu.Item key={`2@${item.name}`}>
             <span><i className='fa fa-pencil-square-o' />&nbsp;
             <FormattedMessage {...menusText.show} />
             </span>
           </Menu.Item>
+          :null
+          }
         </Menu>
         :
         <Menu onClick={this.operaMenuClick.bind(this, item)}

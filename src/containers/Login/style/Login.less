@@ -1,9 +1,7 @@
 #LoginBg{
   font-family: "Helvetica Neue",Helvetica,"Microsoft YaHei",Arial,"宋体","Hiragino Sans GB",STHeiti,"WenQuanYi Micro Hei",SimSun,sans-serif;
-  background: url(/img/banner.jpg)
-  center
-  center
-  / cover no-repeat fixed;
+  background: url(/img/banner.jpg) no-repeat;
+  background-color: #f8f8f8;
   width: 100%;
   position: absolute;
   height: 100%;
@@ -15,12 +13,11 @@
     width: 460px;
     background-color: #fff;
     border-radius: 5px;
+    padding: 40px 50px 0 50px;
     .logo {
-      display: block;
+      display: inline-block;
       width: 200px;
       height: 62px;
-      margin: 0 auto;
-      margin-top: 40px;
     }
     .logtext {
       line-height: 40px;
@@ -28,7 +25,9 @@
       text-align: center;
     }
     .loginForm {
-
+      .ant-card-body {
+        padding: 24px 0;
+      }
       &:hover {
         border: none;
         box-shadow: none;
