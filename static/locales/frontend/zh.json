@@ -33,7 +33,7 @@
   "Storage.modal.createBtn": "创建",
   "Storage.modal.createTitle": "创建存储",
   "Storage.modal.placeholder": "输入名称",
-  "Storage.modal.inputPlaceholder": "输入应用名搜索",
+  "Storage.modal.inputPlaceholder": "输入存储名称搜索",
   "StorageDetail.ModaluploadHead": "上传文件",
   "StorageDetail.ModaluploadBtn": "直接上传",
   "StorageDetail.ModaluploadBtnZip": "上传并解压",

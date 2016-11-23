@@ -21,7 +21,7 @@ export function fetchStorageList(pool, cluster, query, callback) {
     pool,
     [FETCH_API]: {
       types: [STORAGE_LIST_REQUEST, STORAGE_LIST_SUCCESS, STORAGE_LIST_FAILURE],
-      endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/${cluster}/volumes?appname=${query || 0}`,
+      endpoint: `${API_URL_PREFIX}/storage-pools/${pool}/${cluster}/volumes?storagename=${query || 0}`,
       schema: {}//Schemas.STORAGE
     },
     callback: callback
