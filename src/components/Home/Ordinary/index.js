@@ -13,7 +13,7 @@ import './style/Ordinary.less'
 import ReactEcharts from 'echarts-for-react'
 import MySpace from './MySpace'
 import { connect } from 'react-redux'
-import { loadClusterOperations, loadClusterSysinfo } from '../../../actions/overview_cluster'
+import { loadClusterOperations, loadClusterSysinfo, loadClusterStorage } from '../../../actions/overview_cluster'
 import ProgressBox from '../../ProgressBox'
 
 const RadioButton = Radio.Button;
@@ -329,9 +329,10 @@ class Ordinary extends Component{
   }
   
   componentWillMount() {
-    const { loadClusterOperations, loadClusterSysinfo } = this.props
+    const { loadClusterOperations, loadClusterSysinfo, loadClusterStorage } = this.props
     loadClusterOperations("cce1c71ea85a5638b22c15d86c1f61df")
     loadClusterSysinfo("cce1c71ea85a5638b22c15d86c1f61df")
+    loadClusterStorage("cce1c71ea85a5638b22c15d86c1f61df")
   }
   handleDataBaseClick(current){
     if(current === 'tab1'){
@@ -360,8 +361,11 @@ class Ordinary extends Component{
     }
   }
   render(){
-    const {clusterOperations, clusterSysinfo} = this.props
-    const boxPos = '0.25'
+    const {clusterOperations, clusterSysinfo, clusterStorage} = this.props
+    let boxPos = 0
+    if ((clusterStorage.freeSize + clusterStorage.usedSize) > 0) {
+      boxPos = (clusterStorage.usedSize/(clusterStorage.freeSize + clusterStorage.usedSize)).toFixed(3)
+    }
     return (
       <div id='Ordinary' style={{marginTop:40}}>
         <Row className="title">我的空间-产品环境集群</Row>
@@ -611,19 +615,19 @@ class Ordinary extends Component{
                 <div className="storageInfList">
                   <Row className='storageInfItem'>
                     <Col span={12}>已使用:</Col>
-                    <Col span={12} style={{textAlign:'right'}}>62T</Col>
+                    <Col span={12} style={{textAlign:'right'}}>{clusterStorage.usedSize}MB</Col>
                   </Row>
                   <Row className='storageInfItem'>
                     <Col span={12}>空闲:</Col>
-                    <Col span={12} style={{textAlign:'right'}}>38T</Col>
+                    <Col span={12} style={{textAlign:'right'}}>{clusterStorage.freeSize}MB</Col>
                   </Row>
                   <Row className='storageInfItem'>
                     <Col span={12}>存储卷数:</Col>
-                    <Col span={12} style={{textAlign:'right'}}>1222个</Col>
+                    <Col span={12} style={{textAlign:'right'}}>{clusterStorage.totalCnt}个</Col>
                   </Row>
                   <Row className='storageInfItem'>
                     <Col span={12}>使用中:</Col>
-                    <Col span={12} style={{textAlign:'right'}}>1220个</Col>
+                    <Col span={12} style={{textAlign:'right'}}>{clusterStorage.usedCnt}个</Col>
                   </Row>
                 </div>
               </Col>
@@ -751,7 +755,13 @@ function mapStateToProp(state,props) {
       status: ""
     }
   }
-  const {clusterOperations, clusterSysinfo} = state.overviewCluster
+  let clusterStorageData = {
+    freeSize: 0,
+    totalCnt: 0,
+    usedCnt: 0,
+    usedSize: 0,
+  }
+  const {clusterOperations, clusterSysinfo, clusterStorage} = state.overviewCluster
   if (clusterOperations.result && clusterOperations.result.data
       && clusterOperations.result.data.data) {
         let data = clusterOperations.result.data.data
@@ -823,13 +833,30 @@ function mapStateToProp(state,props) {
           }
         }
       }
+  if (clusterStorage.result && clusterStorage.result.data) {
+        let data = clusterStorage.result.data
+        if (data.freeSize) {
+          clusterStorageData.freeSize = data.freeSize
+        }
+        if (data.totalCnt) {
+          clusterStorageData.totalCnt = data.totalCnt
+        }
+        if (data.usedCnt) {
+          clusterStorageData.usedCnt = data.usedCnt
+        }
+        if (data.usedSize) {
+          clusterStorageData.usedSize = data.usedSize
+        }
+  }
   return {
     clusterOperations: clusterOperationsData,
     clusterSysinfo: clusterSysinfoData,
+    clusterStorage: clusterStorageData,
   }
 }
 
 export default connect(mapStateToProp, {
   loadClusterOperations,
   loadClusterSysinfo,
+  loadClusterStorage,
 })(Ordinary)

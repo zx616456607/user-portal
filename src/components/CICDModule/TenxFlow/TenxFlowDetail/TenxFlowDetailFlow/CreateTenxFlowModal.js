@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Input, Form, Switch, Radio, Checkbox, Icon, Select, Modal } from 'antd'
+import { Button, Input, Form, Switch, Radio, Checkbox, Icon, Select, Modal, notification } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -515,7 +515,6 @@ let CreateTenxFlowModal = React.createClass({
       if(_this.state.emptyImageEnv) {
         return;
       }
-      console.log(imageEnvList)
       //get shell code
       let shellLength = values.shellCodes;
       let shellList = [];
@@ -594,7 +593,6 @@ let CreateTenxFlowModal = React.createClass({
         }
         body.spec.build = imageBuildBody;
       }
-      console.log(body)
       createTenxFlowState(flowId, body, {
         success: {
           func: (res) => {
@@ -617,6 +615,10 @@ let CreateTenxFlowModal = React.createClass({
               scope.closeCreateNewFlow();
               getTenxFlowStateList(flowId)
             }
+            notification['success']({
+              message: '持续集成',
+              description: '创建成功~',
+            });
           },
           isAsync: true
         }

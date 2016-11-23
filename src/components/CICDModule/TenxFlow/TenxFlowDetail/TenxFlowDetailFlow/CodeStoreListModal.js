@@ -82,16 +82,16 @@ let CodeStoreListModal = React.createClass({
       }
     })
   },
-  selectedCodeStore(id, name, projectId) {
+  selectedCodeStore(list) {
     //this function for user select code store and show the branch list of code store
     const _this = this;
     const { getCodeStoreBranchDetail } = this.props;
-    getCodeStoreBranchDetail('gitlab', name, id, {
+    getCodeStoreBranchDetail(list.repoType, list.name, list.gitlabProjectId, {
       success: {
         func: (res) => {
           let tempList = _this.state.projectList;
           tempList.map((item) => {
-            if(item.id == projectId) {
+            if(item.id == list.id) {
               item.branchList = res.data.results;
             }
           });
@@ -164,8 +164,8 @@ let CodeStoreListModal = React.createClass({
           <div className='commonTitle'>
             <span>{item.address}</span>
           </div>
-          <div className='commonTitle' onClick={this.selectedCodeStore.bind(this, item.gitlabProjectId, item.name, item.id)}>         
-            <Select className={this.state.errorSelect == item.id ? 'noSelectCodeStore' : null} style={{ width: '120px', float: 'left', marginTop: '11.5px', marginRight: '15px'}} size='large'
+          <div className='commonTitle' onClick={this.selectedCodeStore.bind(this, item)}>         
+            <Select className={this.state.errorSelect == item.id ? 'noSelectCodeStore' : null} disabled={item.repoType =='svn'} style={{ width: '120px', float: 'left', marginTop: '11.5px', marginRight: '15px'}} size='large'
               onChange={this.onChangeBranch.bind(this, item.id)}>
               { showBranchList(item.branchList) }
             </Select>
