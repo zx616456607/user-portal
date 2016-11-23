@@ -31,6 +31,9 @@ export function getServiceStatus(service) {
     unavailableReplicas,
     observedGeneration,
   } = status
+  if (!metadata.annotations) {
+    metadata.annotations = {}
+  }
   const replicas = service.spec.replicas || metadata.annotations[`${TENX_MARK}/replicas`]
   status.replicas = replicas
   if (!phase) {

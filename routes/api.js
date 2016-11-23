@@ -40,11 +40,11 @@ module.exports = function (Router) {
   router.put('/storage-pools/:pool/:cluster/volumes/format', volumeController.formateVolume)
   router.put('/storage-pools/:pool/:cluster/volumes/size', volumeController.resizeVolume)
   router.get('/storage-pools/:pool/:cluster/volumes/:name', volumeController.getVolumeDetail)
-  router.post('/storage-pools/:pool/:cluster/volumes/:name/beforeimport', volumeController.beforeUploadFile)
-  router.post('/storage-pools/:pool/:cluster/volumes/:name/import', volumeController.uploadFile)
+  //router.post('/storage-pools/:pool/:cluster/volumes/:name/beforeimport', volumeController.beforeUploadFile)
+  //router.post('/storage-pools/:pool/:cluster/volumes/:name/import', volumeController.uploadFile)
   router.get('/storage-pools/:pool/:cluster/volumes/:name/filehistory', volumeController.getFileHistory)
   router.get('/storage-pools/:pool/:cluster/volumes/:name/bindinfo', volumeController.getBindInfo)
-  router.get('/storage-pools/:pool/:cluster/volumes/:name/exportfile', volumeController.exportFile)
+ // router.get('/storage-pools/:pool/:cluster/volumes/:name/exportfile', volumeController.exportFile)
   router.get('/storage-pools/:cluster/volumes/available', volumeController.getAvailableVolume)
 
   // Clusters
@@ -119,10 +119,16 @@ module.exports = function (Router) {
   router.delete('/teams/:team_id/spaces/:space_id', teamController.deleteTeamspace)
   router.put('/teams/:team_id/clusters/:cluster_id/request', teamController.requestTeamCluster)
 
-  //Overview
+  //Overview Team
   router.get('/overview/teams/:team_id/detail', overviewTeamController.getTeamDetail)
   router.get('/overview/teams/:team_id/operations', overviewTeamController.getTeamOperations)
+
+  //Overview Cluster
   router.get('/overview/clusters/:cluster_id/operations', overviewClusterController.getClusterOperations)
+  router.get('/overview/clusters/:cluster_id/sysinfo', overviewClusterController.getClusterSysinfo)
+  router.get('/overview/clusters/:cluster_id/storage', overviewClusterController.getClusterStorage)
+ 
+  //Overview Space
   router.get('/overview/operations', overviewSpaceController.getSpaceOperations)
 
   // spi

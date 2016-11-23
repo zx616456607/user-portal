@@ -25,3 +25,31 @@ exports.getClusterOperations = function* () {
     data
   }
 }
+
+exports.getClusterSysinfo = function* () {
+  let cluster = this.params.cluster_id
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.overview.getBy(["clusters", cluster, "system-info"])
+  let data = {}
+  if (result && result.data) {
+    data = result.data
+  }
+  this.body = {
+    data
+  }
+}
+
+exports.getClusterStorage = function* () {
+  let cluster = this.params.cluster_id
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.overview.getBy(["clusters", cluster, "storagestatus"])
+  let data = {}
+  if (result && result.data) {
+    data = result.data
+  }
+  this.body = {
+    data
+  }
+}

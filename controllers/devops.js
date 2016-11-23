@@ -198,15 +198,13 @@ exports.doUserAuthorization = function* () {
   }
   const api = apiFactory.getDevOpsApi(loginUser)
   const results = yield api.createBy(["repos", type], null, authInfo)
-
   resData.authInfo[users] = results;
   resData.authInfo[authorized] = true;
   // Save to session
   loginUser.ciAuthInfo = resData.authInfo
 
-  this.status = 302
+  this.status = 200
   this.redirect('/ci_cd/coderepo?' + type)
-  //this.body = results
 }
 /*
 Managed projects

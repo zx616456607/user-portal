@@ -171,7 +171,7 @@ let SvnComponent = React.createClass({
               </FormItem>
 
               <FormItem {...formItemLayout} label="地址：" >
-                <Input placeholder="http://*** | https://***" size="large" {...forUrl} />
+                <Input placeholder="" size="large" {...forUrl} />
               </FormItem>
 
               <FormItem {...formItemLayout} label="类型：">
@@ -180,11 +180,11 @@ let SvnComponent = React.createClass({
 
               { !this.state.privateType ?
               [<QueueAnim type='right' key='svnModal-type'>
-                <FormItem {...formItemLayout} label="userName: ">
+                <FormItem {...formItemLayout} label="用户名: ">
                   <Input placeholder="输入用户名称" size="large" {...forUsername } />
                 </FormItem>
 
-                <FormItem {...formItemLayout} label="password: ">
+                <FormItem {...formItemLayout} label="密码: ">
                   <Input type="password" placeholder="请输入密码" {...forPassword} />
                 </FormItem>
               </QueueAnim>]
