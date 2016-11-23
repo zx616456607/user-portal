@@ -172,11 +172,14 @@ const menusText = defineMessages({
   }
 });
 
-function fetchCodeStoreName(id, codeList) {
+function fetchCodeStoreName(project, codeList) {
   //this function for fetcht code store name 
   let codeName = null;
+  if (!project) {
+    return
+  }
   codeList.map((item) => {
-    if(item.id == id) {
+    if(item.id == project.id) {
       codeName = item.name;
     }
   });
@@ -217,8 +220,14 @@ let EditTenxFlowModal = React.createClass({
     shellUid = 0;
     const _this = this;
     const { config, form, getDockerfiles, codeList, flowId, stageId } = this.props;
+    if (!config.spec.project) {
+      config.spec.project = {
+        id: null,
+        branch: ''
+      }
+    }
     let otherFlowType = config.metadata.type + '';
-    let codeStoreName = fetchCodeStoreName(config.spec.project.id, codeList)
+    let codeStoreName = fetchCodeStoreName(config.spec.project, codeList)
     if (config.spec.build && config.spec.build.dockerfileFrom == 2) {    
       let tempBody = {
         flowId: flowId,
@@ -691,8 +700,8 @@ let EditTenxFlowModal = React.createClass({
   render() {
     const { formatMessage } = this.props.intl;
     const { config, form, codeList, supportedDependencies } = this.props;
-    const shellList = config.spec.container.args;
-    const servicesList = config.spec.container.dependencies;
+    const shellList = config.spec.container.args ? config.spec.container.args : [];
+    const servicesList = config.spec.container.dependencies ? config.spec.container.dependencies : [];
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form;
     const scopeThis = this;
     let serviceSelectList = supportedDependencies.map((item, index) => {
@@ -850,15 +859,19 @@ let EditTenxFlowModal = React.createClass({
             <span><FormattedMessage {...menusText.flowCode} /></span>
           </div>
           <div className='input'>
-            <span style={{ marginRight:'15px' }}>{this.state.currentCodeStoreName + '  ' + formatMessage(menusText.branch) + this.state.currentCodeStoreBranch}</span>
+            { this.state.currentCodeStore ? [
+              <span style={{ marginRight:'15px' }}>{this.state.currentCodeStoreName + '  ' + formatMessage(menusText.branch) + this.state.currentCodeStoreBranch}</span>
+            ] : null }
             <Button className='selectCodeBtn' size='large' type='ghost' onClick={this.openCodeStoreModal}>
               <i className='fa fa-file-code-o' />
               <FormattedMessage {...menusText.selectCode} />
             </Button>
-            <Button type='ghost' size='large' style={{ marginLeft: '15px' }} onClick={this.deleteCodeStore}>
-              <i className='fa fa-trash' />&nbsp;
-              <FormattedMessage {...menusText.deleteCode} />
-            </Button>
+            { this.state.currentCodeStore ? [
+              <Button type='ghost' size='large' style={{ marginLeft: '15px' }} onClick={this.deleteCodeStore}>
+                <i className='fa fa-trash' />&nbsp;
+                <FormattedMessage {...menusText.deleteCode} />
+              </Button>
+            ] : null }
           </div>
           <div style={{ clear:'both' }} />
         </div>
