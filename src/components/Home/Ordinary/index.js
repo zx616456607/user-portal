@@ -320,8 +320,11 @@ let diskOption = {
 class Ordinary extends Component{
   constructor(props){
     super(props)
+    this.handleDataBaseClick = this.handleDataBaseClick.bind(this)
     this.state = {
-      dataSelect: false
+      tab1: false,
+      tab2: false,
+      tab3: false,
     }
   }
   
@@ -329,8 +332,31 @@ class Ordinary extends Component{
     const { loadClusterOperations } = this.props
     loadClusterOperations("t-aldakdsadssdsjkewr")
   }
-  handleDataBaseClick(){
-    
+  handleDataBaseClick(current){
+    if(current === 'tab1'){
+      this.setState({
+        tab1: true,
+        tab2: false,
+        tab3: false,
+      })
+      return
+    }
+    if(current === 'tab2'){
+      this.setState({
+        tab1: false,
+        tab2: true,
+        tab3: false,
+      })
+      return
+    }
+    if(current === 'tab3'){
+      this.setState({
+        tab1: false,
+        tab2: false,
+        tab3: true,
+      })
+      return
+    }
   }
   render(){
     const clusterOperations = this.props.clusterOperations
@@ -607,9 +633,9 @@ class Ordinary extends Component{
           <Col span={6} className='dataBase'>
             <Card title="数据库与缓存" bordered={false} bodyStyle={{height:200}}>
               <Row gutter={16}>
-                <Col span={8} onClick={this.handleDataBaseClick} className={this.state.dataSelect?'seleted':''}><span className='dataBtn'>MySQL集群</span></Col>
-                <Col span={8} onClick={this.handleDataBaseClick} className={this.state.dataSelect?'seleted':''}><span className='dataBtn'>Mongo集群</span></Col>
-                <Col span={8} onClick={this.handleDataBaseClick} className={this.state.dataSelect?'seleted':''}><span className='dataBtn'>Redis集群</span></Col>
+                <Col span={8} onClick={() => this.handleDataBaseClick('tab1')} className={this.state.tab1?'seleted':''}><span className='dataBtn'>MySQL集群</span></Col>
+                <Col span={8} onClick={() => this.handleDataBaseClick('tab2')} className={this.state.tab2?'seleted':''}><span className='dataBtn'>Mongo集群</span></Col>
+                <Col span={8} onClick={() => this.handleDataBaseClick('tab3')} className={this.state.tab3?'seleted':''}><span className='dataBtn'>Redis集群</span></Col>
               </Row>
               <Row>
                 <Col span={12}></Col>
