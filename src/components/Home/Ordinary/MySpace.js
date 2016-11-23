@@ -104,11 +104,11 @@ class MySpace extends Component{
                 style={{height:'90px'}}
               />
               <div style={{position:'absolute',top:'66px',width:'100%',textAlign:'center'}}>100个</div>
-              <Row style={{textAlign:'center',height:40,lineHeight:'40px',padding:'0 24px'}}>
+              <Row style={{textAlign:'center',height:40,lineHeight:'40px',padding:'0 24px',fontSize: '14px'}}>
                 <Col span={12}>公有25个</Col>
                 <Col span={12}>私有75个</Col>
               </Row>
-              <Row style={{height:40,lineHeight:'40px',borderTop:'1px solid #e2e2e2',padding:'0 24px'}}>
+              <Row style={{height:40,lineHeight:'40px',borderTop:'1px solid #e2e2e2',padding:'0 24px',fontSize:'12px'}}>
                 服务状态:
                 <div style={{float:'right'}}>
                   <svg className="stateSvg">
@@ -135,7 +135,7 @@ class MySpace extends Component{
             <Card title="CI/CD" bordered={false} bodyStyle={{height:175,padding:0}}>
               <Row style={{height:130}}>
                 <Col span={12} style={{height:130}}></Col>
-                <Col className='cicdInf'>
+                <Col className='cicdInf' span={12}>
                   <table>
                     <tbody>
                     <tr>
@@ -143,10 +143,10 @@ class MySpace extends Component{
                         <svg className="stateSvg">
                           <use xlinkHref="#settingname" />
                         </svg>
-                        主机总数
+                        构建成功
                       </td>
                       <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                        12346个
+                        96个
                       </td>
                     </tr>
                     <tr>
@@ -154,10 +154,10 @@ class MySpace extends Component{
                         <svg className="stateSvg">
                           <use xlinkHref="#settingname" />
                         </svg>
-                        健康主机数
+                        构建失败
                       </td>
                       <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                        12340个
+                        4个
                       </td>
                     </tr>
                     <tr>
@@ -165,10 +165,10 @@ class MySpace extends Component{
                         <svg className="stateSvg">
                           <use xlinkHref="#settingname" />
                         </svg>
-                        未启用主机数
+                        正在构建
                       </td>
                       <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                        6个
+                        10个
                       </td>
                     </tr>
                     </tbody>
@@ -185,7 +185,7 @@ class MySpace extends Component{
                 </div>
               </Row>
             </Card>
-            <Card title="今日该集群记录" bordered={false} bodyStyle={{height:175, overflowY:'auto'}} style={{marginTop: 10}}>
+            <Card title="今日该集群记录" bordered={false} bodyStyle={{height:175, overflowY:'auto'}} style={{marginTop: 10,fontSize:'13px'}}>
               <table className="clusterTab">
                 <tbody>
                 <tr>
@@ -293,7 +293,7 @@ class MySpace extends Component{
           </Col>
           <Col span={6} className='log'>
             <Card title="审计日志" bordered={false} bodyStyle={{height:410}}>
-              <Timeline style={{height:350}}>
+              <Timeline style={{height:374,padding: '24px'}}>
                 <Timeline.Item dot={<svg className="stateSvg"><use xlinkHref="#settingname" /></svg>}>
                   <div className="logItem">
                     <div className="logTitle">停用应用</div>
@@ -336,27 +336,21 @@ class MySpace extends Component{
               </Row>
             </Card>
           </Col>
-          <Col span={6} className='warnList'>
+          <Col span={6} className='warn'>
             <Card title="告警" bordered={false} bodyStyle={{height:410}}>
-              <Timeline>
+              <Timeline className="warnList">
                 {
                   [1,2,3].map((item,index) => {
                     return (
                       <Timeline.Item dot={
-                        <svg className="stateSvg"><use xlinkHref="#settingname" /></svg>
+                        index === 0?
+                        <svg className="stateSvg"><use xlinkHref="#settingname" /></svg>:
+                          <div className="warnDot"></div>
                       }>
-                        <Popover content={
-                          <div>
-                            <Row>API Server发生故障</Row>
-                            <Row>刚刚</Row>
-                          </div>
-                        } visible={true}
-                                 placement="rightTop"
-                                 overlayClassName="warnItem"
-                                 getTooltipContainer={() => document.getElementsByClassName('warn')[index]}
-                        >
-                          <div style={{width:1,height:65}} className="warn"></div>
-                        </Popover>
+                        <div className={index === 0?"warnItem fistWarn":'warnItem'}>
+                          <Row className="itemTitle">API Server发生故障</Row>
+                          <Row className="itemInf">刚刚</Row>
+                        </div>
                       </Timeline.Item>
                     )
                   })

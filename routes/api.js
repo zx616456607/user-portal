@@ -40,11 +40,11 @@ module.exports = function (Router) {
   router.put('/storage-pools/:pool/:cluster/volumes/format', volumeController.formateVolume)
   router.put('/storage-pools/:pool/:cluster/volumes/size', volumeController.resizeVolume)
   router.get('/storage-pools/:pool/:cluster/volumes/:name', volumeController.getVolumeDetail)
-  router.post('/storage-pools/:pool/:cluster/volumes/:name/beforeimport', volumeController.beforeUploadFile)
-  router.post('/storage-pools/:pool/:cluster/volumes/:name/import', volumeController.uploadFile)
+  //router.post('/storage-pools/:pool/:cluster/volumes/:name/beforeimport', volumeController.beforeUploadFile)
+  //router.post('/storage-pools/:pool/:cluster/volumes/:name/import', volumeController.uploadFile)
   router.get('/storage-pools/:pool/:cluster/volumes/:name/filehistory', volumeController.getFileHistory)
   router.get('/storage-pools/:pool/:cluster/volumes/:name/bindinfo', volumeController.getBindInfo)
-  router.get('/storage-pools/:pool/:cluster/volumes/:name/exportfile', volumeController.exportFile)
+ // router.get('/storage-pools/:pool/:cluster/volumes/:name/exportfile', volumeController.exportFile)
   router.get('/storage-pools/:cluster/volumes/available', volumeController.getAvailableVolume)
 
   // Clusters
