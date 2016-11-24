@@ -18,8 +18,6 @@ import './style/TerminalModal.less'
 class TerminalModal extends Component {
   constructor(props) {
     super(props);
-    this.changeBoxHeight = this.changeBoxHeight.bind(this);
-    this.changeBoxHeightEnd = this.changeBoxHeightEnd.bind(this);
     this.minWindow = this.minWindow.bind(this);
     this.closeWindow = this.closeWindow.bind(this);
   }
@@ -30,63 +28,40 @@ class TerminalModal extends Component {
   
   componentDidMount() {
     let doc = $(document);
-    let box = $("#TerminalModal .titleBox")
+    let box = $('#TerminalModal .titleBox')
     let bodyHeight = $(document.body)[0].clientHeight;
-    console.log(box)
-    box.mousedown(function(){
+    box.mousedown(function(ee){
+      console.log(ee)
+      $('#TerminalModal .cover').css('display','block');
       $(document).mousemove(function(e){
         let newHeight = bodyHeight - e.clientY;
+        if(newHeight >= bodyHeight) {
+          newHeight = bodyHeight
+        }
+        if(newHeight <= 30) {
+          newHeight = 30;
+        }
         newHeight = newHeight + 'px !important';
         $('.TerminalLayoutModal').css('height',newHeight);
       })
     })
         
     doc.mouseup(function(){
+      $('#TerminalModal .cover').css('display','none');
       doc.unbind('mousemove')
     })
   }
   
-  changeBoxHeight(e){
-    //this function for user dragging the title and change the modal height
-    let bodyHeight = $(document.body)[0].clientHeight;
-    let newHeight = bodyHeight - e.screenY + 112;
-    if(newHeight >= bodyHeight){
-      newHeight = bodyHeight;
-    }
-    newHeight = newHeight + 'px !important';
-    $('.TerminalLayoutModal').css('height',newHeight);
-  }
-  
-  changeBoxHeightEnd(e){
-    //this function for user drag end the title and change the modal height
-    let bodyHeight = $(document.body)[0].clientHeight;
-    let newHeight = bodyHeight - e.screenY + 112;
-    if(newHeight >= bodyHeight){
-      newHeight = bodyHeight;
-    }
-    newHeight = newHeight + 'px !important';
-    $('.TerminalLayoutModal').css('height',newHeight);
-  }
-  
-  minWindow(){
+  minWindow(e){
     //this function for minx the modal
+    console.log(e)
+    e.stopPropagation();
     $('.TerminalLayoutModal').css('height','30px !important');
   }
   
-  onMouseDown(e) {
-    console.log(e.clientY)
-    console.log('document')
-    document.onmousemove(function(event){
-      console.log(event)
-    })
-  }
-  
-  onMouseUp(e) {
-    console.log(e.clientY)
-  }
-  
-  closeWindow(){
+  closeWindow(e){
     //this function for close the modal
+    e.stopPropagation();
     const { scope } = this.props;
     window.frames[0].postMessage('close', window.location.protocol + '//' +window.location.host)
     scope.setState({
@@ -106,13 +81,14 @@ class TerminalModal extends Component {
     const { scope, config } = this.props;
     return (
       <div id='TerminalModal'>
+        <div className='cover'></div>
         <div className='titleBox'>
         {config.metadata.name}
-          <i className='fa fa-minus' onClick={this.minWindow} />
+          <i className='fa fa-window-minimize' onClick={this.minWindow} />
           <i className='fa fa-times ' onClick={this.closeWindow} />
         </div>
         <div className='contentBox'>
-          <iframe src={`/js/container_terminal.html?host=192.168.1.92&port=6443&namespace=${config.metadata.namespace}&pod=${config.metadata.name}`} width="1270" height="450" />
+          <iframe src={`/js/container_terminal.html?host=192.168.1.92&port=6443&namespace=${config.metadata.namespace}&pod=${config.metadata.name}`} width='1270' height='550' />
         </div>
       </div>
     )
