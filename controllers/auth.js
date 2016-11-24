@@ -98,10 +98,15 @@ exports.verifyUser = function* () {
     err.status = 401
     throw err
   }
-  this.session.loginUser = loginUser
-  yield indexService.setUserCurrentConfigCookie.apply(this, [this.session.loginUser])
+  yield indexService.setUserCurrentConfigCookie.apply(this, [loginUser])
   delete result.userID
   delete result.statusCode
+  // Get user MD5 encrypted watch token
+  const spi = apiFactory.getSpi(loginUser)
+  const watchToken = yield spi.watch.getBy(['token'])
+  result.watchToken = watchToken.data
+  loginUser.watchToken = watchToken.data
+  this.session.loginUser = loginUser
   this.body = {
     user: result,
     message: 'login success',
