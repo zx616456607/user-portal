@@ -229,8 +229,8 @@ const MyComponent = React.createClass({
     if (!config) {
       return (
         <div style={{ lineHeight: '150px', paddingLeft: '250px' }}>
-          <Button type="primary" size="large" onClick={() => { this.setState({ authorizeModal: true }) } }>授权同步代码源</Button>
-          <Modal title="授权同步代码源" visible={this.state.authorizeModal}
+          <Button type="primary" size="large" onClick={() => { this.setState({ authorizeModal: true }) } }>添加 Gitlab 代码仓库</Button>
+          <Modal title="添加 Gitlab 代码仓库" visible={this.state.authorizeModal}
             footer={[
               <Button key="back" type="ghost" size="large" onClick={() => { this.setState({ authorizeModal: false }) } }>取消</Button>,
               <Button key="submit" type="primary" size="large" loading={this.state.loading} onClick={() => this.registryRepo()}>确定</Button>,

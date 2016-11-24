@@ -302,19 +302,6 @@ class Slider extends Component {
                   </Link>
                 </Tooltip>
               </li>
-              <li>
-                <Tooltip placement='right' title='通知中心'>
-                  <Popover placement='rightBottom' content={noticeModel} trigger='click'>
-                    <Link to='/'>
-                      <Badge dot>
-                        <svg className='message commonImg'>
-                          <use href='#message' />
-                        </svg>
-                      </Badge>
-                    </Link>
-                  </Popover>
-                </Tooltip>
-              </li>
               <li onClick={this.selectModel.bind(this, 'setting', '#setting')} className={currentKey == 'setting' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title='系统设置' getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/setting'>
@@ -512,14 +499,6 @@ class Slider extends Component {
                     <span><div className='sideCircle'></div> 日志查询</span>
                   </Link>
                 </Menu.Item>
-                <Menu.Item key='monitor' style={{ display: 'none' }}>
-                  <Link to='/manange_monitor/monitor'>
-                    <span><div className='sideCircle'></div> 监控管理</span>
-                  </Link>
-                </Menu.Item>
-                <Menu.Item key='formCenter' style={{ display: 'none' }}>
-                  <span><div className='sideCircle'></div> 报表中心</span>
-                </Menu.Item>
                 <div className='sline'></div>
               </SubMenu>
               <Menu.Item key='addApp' style={{ display: 'none' }}>
@@ -529,16 +508,6 @@ class Slider extends Component {
                       <use xlinkHref='#add' />
                     </svg>
                     <span>创建应用</span>
-                  </span>
-                </Link>
-              </Menu.Item>
-              <Menu.Item key='message'>
-                <Link to=''>
-                  <span>
-                    <svg className='message commonImg'>
-                      <use xlinkHref='#message' />
-                    </svg>
-                    <span>通知中心</span>
                   </span>
                 </Link>
               </Menu.Item>

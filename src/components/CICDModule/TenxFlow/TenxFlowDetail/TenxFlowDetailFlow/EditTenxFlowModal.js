@@ -987,8 +987,8 @@ let EditTenxFlowModal = React.createClass({
                   <FormItem style={{ float:'left' }}>
                     <RadioGroup {...getFieldProps('imageType', { initialValue: (!!config.spec.build ? (config.spec.build.registryType + '') : null), onChange: this.changeImageStoreType })}>
                       <Radio key='imageStore' value={'1'}><FormattedMessage {...menusText.imageStore} /></Radio>
-                      <Radio key='DockerHub' value={'2'}>Docker Hub</Radio>
-                      <Radio key='otherImage' value={'3'}><FormattedMessage {...menusText.otherImage} /></Radio>
+                      <Radio key='DockerHub' value={'2'} disabled>Docker Hub</Radio>
+                      <Radio key='otherImage' value={'3'} disabled><FormattedMessage {...menusText.otherImage} /></Radio>
                     </RadioGroup>
                   </FormItem>
                   {

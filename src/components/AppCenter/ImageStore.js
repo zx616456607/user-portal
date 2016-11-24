@@ -209,6 +209,18 @@ let MyComponent = React.createClass({
         <p>&nbsp;</p>
         <p>&nbsp;</p>
         <p>&nbsp;</p>
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
       </div>
     );
   }
@@ -251,7 +263,7 @@ class ImageStore extends Component {
           current: i + 1
         });
       }
-      if ((scroll + rootHeight - itemClient) > (offetset + 100) && i == moduleList.length - 1) {
+      if ((scroll + rootHeight - itemClient) > (offetset + 350) && i == moduleList.length - 1) {
         //it's mean when the box sroll to the bottom ,and the last module apart from the top end bigger than 150px
         //so that the current will be change to the last one
         this.setState({

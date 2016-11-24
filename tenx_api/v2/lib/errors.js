@@ -61,12 +61,19 @@ class InvalidHttpCodeError extends Error {
     switch (err.name) {
       case 'ConnectionTimeoutError':
         this.statusCode = 504
+        this.message = `Gateway Timeout`
         break
       case 'RequestError':
         this.statusCode = 503
         break
       default:
         this.statusCode = 500
+    }
+    switch (err.code) {
+      case 'ETIMEDOUT':
+        this.message = `Gateway Timeout`
+        this.statusCode = 504
+        break
     }
   }
 }

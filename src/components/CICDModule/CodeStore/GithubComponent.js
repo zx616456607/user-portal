@@ -191,7 +191,7 @@ class GithubComponent extends Component {
 
   handSyncCode() {
     const { registryGithub } = this.props
-    message.loading('正在执行中...', 5);
+    message.loading('正在执行中...', 20);
     registryGithub('github', {
       success: {
         func: (res) => {
@@ -228,7 +228,7 @@ class GithubComponent extends Component {
     if (!githubList) {
       return (
         <div style={{ lineHeight: '150px', paddingLeft: '250px' }}>
-          <Button type="primary" size="large" onClick={() => this.handSyncCode()}>授权同步代码源</Button>
+          <Button type="primary" size="large" onClick={() => this.handSyncCode()}>授权、同步 Github 代码源</Button>
         </div>
       )
     }

@@ -2,7 +2,7 @@
 * Licensed Materials - Property of tenxcloud.com
 * (C) Copyright 2016 TenxCloud. All Rights Reserved.
 *
-* DockerFile component
+* Dockerfile component
 *
 * v0.1 - 2016-10-31
 * @author BaiYu
@@ -21,15 +21,15 @@ import './style/DockerFile.less'
 const menusText = defineMessages({
   tooltips: {
     id: 'CICD.DockerFile.tooltips',
-    defaultMessage: '云端DockerFile: 这里保存您在TenxFlow过程中创建的云端Dockerfile，方便再次查看或使用。（这里以使用Dockerfiler，对应TenxFlow子项目名称作为识别标识）',
+    defaultMessage: '云端Dockerfile: 这里保存您在TenxFlow过程中创建的云端Dockerfile，方便再次查看或使用。（这里的Dockerfile对应TenxFlow中子项目名称）',
   },
   show: {
     id: 'CICD.DockerFile.show',
-    defaultMessage: '查看DockerFile',
+    defaultMessage: '查看Dockerfile',
   },
   editDockerFile: {
     id: 'CICD.DockerFile.editDockerFile',
-    defaultMessage: '编辑DockerFile',
+    defaultMessage: '编辑Dockerfile',
   },
   itemName: {
     id: 'CICD.DockerFile.itemName',
@@ -124,7 +124,7 @@ const MyComponent = React.createClass({
       failed: {
         func: (res) => {
           Modal.error({
-            title: '编辑DockerFile',
+            title: '编辑Dockerfile',
             content: `${res.error.message.message}`,
           });
         }
@@ -175,7 +175,7 @@ const MyComponent = React.createClass({
       <div className='CodeStore'>
         {items}
 
-        <Modal title="DockerFile" width="600px" visible={this.state.showDockerFileModal} wrapClassName="dockerFileModal" onCancel={() => this.closeModal()}
+        <Modal title="Dockerfile" width="600px" visible={this.state.showDockerFileModal} wrapClassName="dockerFileModal" onCancel={() => this.closeModal()}
           footer={null}
           >
           <div style={{ padding: "0 20px 20px", minHeight: '300px' }}>
@@ -185,7 +185,7 @@ const MyComponent = React.createClass({
           </div>
         </Modal>
 
-        <Modal title="DockerFile" width="600px" visible={this.state.editDockerFileModal} onOk={() => this.editDockerFile()} onCancel={() => this.closeModal()}
+        <Modal title="Dockerfile" width="600px" visible={this.state.editDockerFileModal} onOk={() => this.editDockerFile()} onCancel={() => this.closeModal()}
           >
           <div style={{ padding: "0 20px 20px", minHeight: '300px' }}>
             <Input type="textarea" value={this.state.dockerfiles} style={{ height: '280px' }} onChange={(e) => this.setState({ dockerfiles: e.target.value })} />
@@ -204,7 +204,7 @@ class DockerFile extends Component {
   }
 
   componentWillMount() {
-    document.title = 'DockerFile | 时速云';
+    document.title = 'Dockerfile | 时速云';
     this.props.getDockerfileList()
   }
 

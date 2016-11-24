@@ -20,11 +20,7 @@ const rootRoutes = {
     },
   }, {
     path: '/',
-    getComponent: (location, cb) => {
-      require.ensure([], (require) => {
-        cb(null, require('../containers/App').default)
-      })
-    },
+    component: require('../containers/App').default,
     indexRoute: {
       getComponent: (location, cb) => {
         require.ensure([], (require) => {
@@ -32,7 +28,7 @@ const rootRoutes = {
         })
       },
     },
-    childRoutes:[{
+    childRoutes: [{
       path: 'app_manage',
       component: require('../containers/Application').default,
       indexRoute: {
@@ -43,7 +39,7 @@ const rootRoutes = {
           cb(null, require('./app_manage').default)
         })
       },
-    },{
+    }, {
       path: 'app_center',
       component: require('../containers/AppCenter').default,
       indexRoute: {
@@ -54,7 +50,7 @@ const rootRoutes = {
           cb(null, require('./app_center').default)
         })
       },
-    },{
+    }, {
       path: 'database_cache',
       component: require('../containers/Database').default,
       indexRoute: {
@@ -65,7 +61,7 @@ const rootRoutes = {
           cb(null, require('./database_cache').default)
         })
       },
-    },{
+    }, {
       path: 'ci_cd',
       component: require('../containers/CICD').default,
       indexRoute: {
@@ -76,7 +72,7 @@ const rootRoutes = {
           cb(null, require('./ci_cd').default)
         })
       },
-    },{
+    }, {
       path: 'setting',
       component: require('../containers/Setting').default,
       indexRoute: {
@@ -87,7 +83,7 @@ const rootRoutes = {
           cb(null, require('./setting').default)
         })
       },
-    },{
+    }, {
       path: 'manange_monitor',
       component: require('../containers/ManageMonitor').default,
       indexRoute: {
@@ -98,13 +94,13 @@ const rootRoutes = {
           cb(null, require('./manange_monitor').default)
         })
       },
-    },{
+    }, {
       path: 'integration',
       component: require('../containers/Integration').default,
       indexRoute: {
         component: require('../components/IntegrationModule').default,
       }
-    },{
+    }, {
       path: '*',
       component: require('../containers/ErrorPage').default,
     }],

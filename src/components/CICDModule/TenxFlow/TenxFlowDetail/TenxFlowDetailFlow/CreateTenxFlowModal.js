@@ -470,6 +470,7 @@ let CreateTenxFlowModal = React.createClass({
           _this.setState({
             noDockerfileInput: true
           });
+
         }
         return;
         //check image env list
@@ -903,8 +904,8 @@ let CreateTenxFlowModal = React.createClass({
                   <FormItem style={{ float:'left' }}>
                     <RadioGroup {...getFieldProps('imageType', { initialValue: '1', onChange: this.changeImageStoreType })}>
                       <Radio key='imageStore' value={'1'}><FormattedMessage {...menusText.imageStore} /></Radio>
-                      <Radio key='DockerHub' value={'2'}>Docker Hub</Radio>
-                      <Radio key='otherImage' value={'3'}><FormattedMessage {...menusText.otherImage} /></Radio>
+                      <Radio key='DockerHub' value={'2'} disabled>Docker Hub</Radio>
+                      <Radio key='otherImage' value={'3'} disabled><FormattedMessage {...menusText.otherImage} /></Radio>
                     </RadioGroup>
                   </FormItem>
                   {
