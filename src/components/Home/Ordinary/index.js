@@ -73,78 +73,7 @@ let clusterCostOption = {
     }
   ]
 }
-let appOption = {
-  tooltip : {
-    trigger: 'item',
-    formatter: "{b} : {c}({d}%)"
-  },
-  legend: {
-    orient : 'vertical',
-    left : '50%',
-    top : 'middle',
-    data:[{name:'运行中'}, {name:'已停止'},{name:'操作中'}],
-    formatter: function (name) {
-      if(name === '运行中'){
-        return name + ': ' + appCountRun + 'T币'
-      } else if (name === '已停止') {
-        return name + ': ' + appCountStop + 'T币'
-      } else if (name === '操作中') {
-        return name + ': ' + appCountBusy + 'T币'
-      }
-    },
-    textStyle: {
-      fontSize: 14,
-    },
-    itemGap: 15,
-    itemWidth: 10,
-    itemHeight: 10,
-  },
-  color: ['#46b3f8','#b5e0ff','#2abe84'],
-  series: {
-    type:'pie',
-    selectedMode: 'single',
-    avoidLabelOverlap: false,
-    hoverAnimation: false,
-    selectedOffset: 0,
-    radius: ['28', '40'],
-    center: ['25%', '50%'],
-    data:[
-      {value:70, name:'运行中'},
-      {value:20, name:'已停止'},
-      {value:10, name:'操作中',selected:true},
-    ],
-    label: {
-      normal: {
-        position: 'center',
-        show: false,
-      },
-      emphasis: {
-        // formatter: '{b}:{c}<br/>({d}%)',
-        show: true,
-        position: 'center',
-        formatter: function (param) {
-          return param.percent.toFixed(0) + '%';
-        },
-        textStyle: {
-          fontSize: '14',
-          fontWeight: 'normal'
-        }
-      }
-    },
-    itemStyle: {
-      normal: {
-        borderWidth: 2,
-        borderColor: '#ffffff',
-      },
-      emphasis: {
-        borderWidth: 0,
-        shadowBlur: 10,
-        shadowOffsetX: 0,
-        shadowColor: 'rgba(0, 0, 0, 0.5)'
-      }
-    },
-  },
-}
+
 let CPUOption = {
   title: {
     text: 'CPU',
@@ -361,6 +290,7 @@ class Ordinary extends Component{
     loadClusterSysinfo("cce1c71ea85a5638b22c15d86c1f61df")
     loadClusterStorage("cce1c71ea85a5638b22c15d86c1f61df")
     loadClusterAppStatus("cce1c71ea85a5638b22c15d86c1f61df")
+    
   }
   handleDataBaseClick(current){
     if(current === 'tab1'){
@@ -389,10 +319,236 @@ class Ordinary extends Component{
     }
   }
   render(){
-    const {clusterOperations, clusterSysinfo, clusterStorage} = this.props
+    const {clusterOperations, clusterSysinfo, clusterStorage, clusterAppStatus} = this.props
+    console.log('clusterAppStatus',clusterAppStatus);
     let boxPos = 0
     if ((clusterStorage.freeSize + clusterStorage.usedSize) > 0) {
       boxPos = (clusterStorage.usedSize/(clusterStorage.freeSize + clusterStorage.usedSize)).toFixed(3)
+    }
+    let appRunning = clusterAppStatus.appMap.get('Running')
+    let appStopped = clusterAppStatus.appMap.get('Stopped')
+    let svcRunning = clusterAppStatus.svcMap.get('Running')
+    let svcStopped = clusterAppStatus.svcMap.get('Stopped')
+    let conRunning = clusterAppStatus.podMap.get('Running')
+    let conTerminating = clusterAppStatus.podMap.get('Terminating')
+    let conPending = clusterAppStatus.podMap.get('Pending')
+    
+    let appOption = {
+      tooltip : {
+        trigger: 'item',
+        formatter: "{b} : {c}({d}%)"
+      },
+      legend: {
+        orient : 'vertical',
+        left : '50%',
+        top : 'middle',
+        data:[{name:'运行中'}, {name:'已停止'},{name:'操作中'}],
+        formatter: function (name) {
+          if(name === '运行中'){
+            return name + ': ' + appRunning + '个'
+          } else if (name === '已停止') {
+            return name + ': ' + appStopped + '个'
+          } else if (name === '操作中') {
+            return name + ': ' + appCountBusy + '个'
+          }
+        },
+        textStyle: {
+          fontSize: 14,
+        },
+        itemGap: 15,
+        itemWidth: 10,
+        itemHeight: 10,
+      },
+      color: ['#46b3f8','#b5e0ff','#2abe84'],
+      series: {
+        type:'pie',
+        selectedMode: 'single',
+        avoidLabelOverlap: false,
+        hoverAnimation: false,
+        selectedOffset: 0,
+        radius: ['28', '40'],
+        center: ['25%', '50%'],
+        data:[
+          {value:appRunning, name:'运行中'},
+          {value:appStopped, name:'已停止'},
+          {value:10, name:'操作中',selected:true},
+        ],
+        label: {
+          normal: {
+            position: 'center',
+            show: false,
+          },
+          emphasis: {
+            // formatter: '{b}:{c}<br/>({d}%)',
+            show: true,
+            position: 'center',
+            formatter: function (param) {
+              return param.percent.toFixed(0) + '%';
+            },
+            textStyle: {
+              fontSize: '14',
+              fontWeight: 'normal'
+            }
+          }
+        },
+        itemStyle: {
+          normal: {
+            borderWidth: 2,
+            borderColor: '#ffffff',
+          },
+          emphasis: {
+            borderWidth: 0,
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowColor: 'rgba(0, 0, 0, 0.5)'
+          }
+        },
+      },
+    }
+    let serviceOption = {
+      tooltip : {
+        trigger: 'item',
+        formatter: "{b} : {c}({d}%)"
+      },
+      legend: {
+        orient : 'vertical',
+        left : '50%',
+        top : 'middle',
+        data:[{name:'运行中'}, {name:'已停止'},{name:'操作中'}],
+        formatter: function (name) {
+          if(name === '运行中'){
+            return name + ': ' + svcRunning + '个'
+          } else if (name === '已停止') {
+            return name + ': ' + svcStopped + '个'
+          } else if (name === '操作中') {
+            return name + ': ' + appCountBusy + '个'
+          }
+        },
+        textStyle: {
+          fontSize: 14,
+        },
+        itemGap: 15,
+        itemWidth: 10,
+        itemHeight: 10,
+      },
+      color: ['#46b3f8','#b5e0ff','#2abe84','#f6575e'],
+      series: {
+        type:'pie',
+        selectedMode: 'single',
+        avoidLabelOverlap: false,
+        hoverAnimation: false,
+        selectedOffset: 0,
+        radius: ['28', '40'],
+        center: ['25%', '50%'],
+        data:[
+          {value:svcRunning, name:'运行中'},
+          {value:svcStopped, name:'已停止'},
+          {value:10, name:'操作中',selected:true},
+          {value:10, name:'异常'},
+        ],
+        label: {
+          normal: {
+            position: 'center',
+            show: false,
+          },
+          emphasis: {
+            // formatter: '{b}:{c}<br/>({d}%)',
+            show: true,
+            position: 'center',
+            formatter: function (param) {
+              return param.percent.toFixed(0) + '%';
+            },
+            textStyle: {
+              fontSize: '14',
+              fontWeight: 'normal'
+            }
+          }
+        },
+        itemStyle: {
+          normal: {
+            borderWidth: 2,
+            borderColor: '#ffffff',
+          },
+          emphasis: {
+            borderWidth: 0,
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowColor: 'rgba(0, 0, 0, 0.5)'
+          }
+        },
+      },
+    }
+    let containerOption = {
+      tooltip : {
+        trigger: 'item',
+        formatter: "{b} : {c}({d}%)"
+      },
+      legend: {
+        orient : 'vertical',
+        left : '50%',
+        top : 'middle',
+        data:[{name:'运行中'}, {name:'异常'},{name:'操作中'}],
+        formatter: function (name) {
+          if(name === '运行中'){
+            return name + ': ' + conRunning + '个'
+          } else if (name === '异常') {
+            return name + ': ' + conTerminating + '个'
+          } else if (name === '操作中') {
+            return name + ': ' + conPending + '个'
+          }
+        },
+        textStyle: {
+          fontSize: 14,
+        },
+        itemGap: 15,
+        itemWidth: 10,
+        itemHeight: 10,
+      },
+      color: ['#46b3f8','#f6575e','#2abe84'],
+      series: {
+        type:'pie',
+        selectedMode: 'single',
+        avoidLabelOverlap: false,
+        hoverAnimation: false,
+        selectedOffset: 0,
+        radius: ['28', '40'],
+        center: ['25%', '50%'],
+        data:[
+          {value:conRunning, name:'运行中'},
+          {value:conTerminating, name:'异常'},
+          {value:conPending, name:'操作中',selected:true},
+        ],
+        label: {
+          normal: {
+            position: 'center',
+            show: false,
+          },
+          emphasis: {
+            // formatter: '{b}:{c}<br/>({d}%)',
+            show: true,
+            position: 'center',
+            formatter: function (param) {
+              return param.percent.toFixed(0) + '%';
+            },
+            textStyle: {
+              fontSize: '14',
+              fontWeight: 'normal'
+            }
+          }
+        },
+        itemStyle: {
+          normal: {
+            borderWidth: 2,
+            borderColor: '#ffffff',
+          },
+          emphasis: {
+            borderWidth: 0,
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowColor: 'rgba(0, 0, 0, 0.5)'
+          }
+        },
+      },
     }
     return (
       <div id='Ordinary' style={{marginTop:40}}>
@@ -622,7 +778,7 @@ class Ordinary extends Component{
             <Card title="服务" bordered={false} bodyStyle={{height:200,padding:'0 24px'}}>
               <ReactEcharts
                 notMerge={true}
-                option={appOption}
+                option={serviceOption}
                 style={{height:'200px'}}
               />
             </Card>
@@ -631,7 +787,7 @@ class Ordinary extends Component{
             <Card title="容器" bordered={false} bodyStyle={{height:200,padding:'0 24px'}}>
               <ReactEcharts
                 notMerge={true}
-                option={appOption}
+                option={containerOption}
                 style={{height:'200px'}}
               />
             </Card>

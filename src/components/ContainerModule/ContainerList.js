@@ -155,7 +155,7 @@ const MyComponent = React.createClass({
           </div>
           <div className='visitIp commonData'>
             <Tooltip placement='topLeft' title={item.status.podIP}>
-              <span>{item.status.podIP}</span>
+              <span>{item.status.podIP || '-'}</span>
             </Tooltip>
           </div>
           <div className='createTime commonData'>

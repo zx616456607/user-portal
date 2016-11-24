@@ -98,6 +98,14 @@ const menusText = defineMessages({
     id: 'ManageMonitor.QueryLog.searchType',
     defaultMsessage: '模糊查询',
   },
+  allBtn: {
+    id: 'ManageMonitor.QueryLog.allBtn',
+    defaultMsessage: '全选',
+  },
+  cancelBtn: {
+    id: 'ManageMonitor.QueryLog.cancelBtn',
+    defaultMsessage: '取消',
+  },
 });
 
 function checkClass(popup, isError) {
@@ -122,6 +130,21 @@ function timeFormat(time) {
   time = parseInt(time);
   let newTime = newDate.setTime(time);
   return newTime;
+}
+
+function instanceSelected(config, instance) {
+  //this function for view to user which instance is selected
+  let selectedFlag = false;
+  config.map((item) => {
+    if(item == instance) {
+      selectedFlag = true;
+    }
+  })
+  if(selectedFlag) {
+    return 'instanceSelected instanceDetail';
+  } else {
+    return 'instanceDetail';
+  }
 }
 
 let NamespaceModal = React.createClass({
@@ -379,6 +402,24 @@ let InstanceModal = React.createClass({
       currentList: tempList
     });
   },
+  onSelectAllInstances() {
+    //this function for user select all instance
+    const { scope } = this.props;
+    const { currentList } = this.state;
+    let tempList = currentList.map((item) => {
+      return item.metadata.name; 
+    })
+    scope.setState({
+      currentInstance: tempList
+    });
+  },
+  onCancelSelectedAllInstance() {
+    //this function for user cancel select all instance
+    const { scope } = this.props;
+    scope.setState({
+      currentInstance: []
+    });
+  },
   render: function () {
     const {scope, isFetching} = this.props;
     const {currentList} = this.state;
@@ -399,7 +440,7 @@ let InstanceModal = React.createClass({
     } else {
       instanceList = currentList.map((item, index) => {
         return (
-          <div className='instanceDetail' key={index} onClick={scope.onSelectInstance.bind(scope, item.metadata.name)}>
+          <div className={instanceSelected(scope.state.currentInstance, item.metadata.name)} key={index} onClick={scope.onSelectInstance.bind(scope, item.metadata.name)}>
             {item.metadata.name}
            </div>
         )
@@ -409,6 +450,14 @@ let InstanceModal = React.createClass({
       <div className='instanceModal'>
         <div className='searchBox'>
           <Input className='commonSearchInput instanceInput' onChange={this.inputSearch} type='text' size='large' />
+          <div className='btnBox'>
+            <div className='allBtn' onClick={this.onSelectAllInstances}>
+              <FormattedMessage {...menusText.allBtn} />
+            </div>
+            <div className='cancelBtn' onClick={this.onCancelSelectedAllInstance}>
+              <FormattedMessage {...menusText.cancelBtn} />
+            </div>
+          </div>
         </div>
         <div className='dataList'>
           {instanceList}
