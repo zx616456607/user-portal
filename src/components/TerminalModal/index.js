@@ -25,7 +25,25 @@ class TerminalModal extends Component {
   }
   
   componentWillMount() {
-
+    
+  }
+  
+  componentDidMount() {
+    let doc = $(document);
+    let box = $("#TerminalModal .titleBox")
+    let bodyHeight = $(document.body)[0].clientHeight;
+    console.log(box)
+    box.mousedown(function(){
+      $(document).mousemove(function(e){
+        let newHeight = bodyHeight - e.clientY;
+        newHeight = newHeight + 'px !important';
+        $('.TerminalLayoutModal').css('height',newHeight);
+      })
+    })
+        
+    doc.mouseup(function(){
+      doc.unbind('mousemove')
+    })
   }
   
   changeBoxHeight(e){
@@ -55,6 +73,18 @@ class TerminalModal extends Component {
     $('.TerminalLayoutModal').css('height','30px !important');
   }
   
+  onMouseDown(e) {
+    console.log(e.clientY)
+    console.log('document')
+    document.onmousemove(function(event){
+      console.log(event)
+    })
+  }
+  
+  onMouseUp(e) {
+    console.log(e.clientY)
+  }
+  
   closeWindow(){
     //this function for close the modal
     const { scope } = this.props;
@@ -63,6 +93,7 @@ class TerminalModal extends Component {
       TerminalLayoutModal: false
     });
   }
+  
   componentWillReceiveProps(nextProps) {
     const nextShow = nextProps.show
     if(!nextShow) return
@@ -70,11 +101,12 @@ class TerminalModal extends Component {
       window.frames[0].postMessage('reshow', window.location.protocol + '//' +window.location.host)
     }
   }
+  
   render() {
     const { scope, config } = this.props;
     return (
       <div id='TerminalModal'>
-        <div className='titleBox' onDrag={this.changeBoxHeight} onDragEnd={this.changeBoxHeightEnd} draggable='true'>
+        <div className='titleBox'>
         {config.metadata.name}
           <i className='fa fa-minus' onClick={this.minWindow} />
           <i className='fa fa-times ' onClick={this.closeWindow} />
