@@ -384,6 +384,41 @@ let TeamList = React.createClass({
     )
   }
 })
+let ClusterState = React.createClass({
+  getInitialState(){
+    return {
+      
+    }
+  },
+  applyClusterState(){
+    const {requestTeamCluster,clusterID,teamID} = this.props
+    requestTeamCluster(teamID,clusterID)
+  },
+  render: function(){
+    const {state} = this.props
+    if(state === 'authorized'){
+      return (
+        <div id='ClusterState'>
+          <span style={{color:'#5fb55e'}}>已授权</span>
+        </div>
+      )
+    } else if (state === 'notAuthorized') {
+      return (
+        <div id='ClusterState'>
+          <span style={{color:'#f85050'}}>未授权</span>
+          <Button type="primary" onClick={this.applyClusterState} style={{backgroundColor:'#00a1e9'}} className="applyBtn">立即申请</Button>
+        </div>
+      )
+    } else if (state === 'pending') {
+      return (
+        <div id='ClusterState'>
+          <span style={{color:'#5fb55e'}}>申请中...</span>
+          <Button type="primary" onClick={this.applyClusterState} style={{backgroundColor:'#5db75d'}} className="applyBtn">重复申请</Button>
+        </div>
+      )
+    }
+  }
+})
 class TeamDetail extends Component {
   constructor(props) {
     super(props)
@@ -507,7 +542,7 @@ class TeamDetail extends Component {
 
   render() {
     const { clusterList, teamUserList, teamUserIDList, teamSpacesList, teamName, teamID, teamUsersTotal, teamSpacesTotal,
-      removeTeamusers, loadTeamUserList, loadTeamspaceList,deleteTeamspace } = this.props
+      removeTeamusers, loadTeamUserList, loadTeamspaceList,deleteTeamspace,requestTeamCluster } = this.props
     const { targetKeys, sortSpace, spaceCurrent, spacePageSize,spacePage,sortSpaceOrder } = this.state
     return (
       <div id='TeamDetail'>
@@ -539,7 +574,9 @@ class TeamDetail extends Component {
                     </Row>
                     <Row className="cardItem">
                       <Col span={8}>授权状态</Col>
-                      <Col span={16}><span>{item.clusterStatus}</span></Col>
+                      <Col span={16}>
+                          <ClusterState state={item.clusterStatus} requestTeamCluster={requestTeamCluster} clusterID={item.clusterID} teamID={teamID}/>
+                      </Col>
                     </Row>
                   </Card>
                 </Col>

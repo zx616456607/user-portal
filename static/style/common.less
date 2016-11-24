@@ -214,3 +214,51 @@ svg path {
   background-color: #333333 !important;
   color: #fff !important;
 }
+.ant-table-column-sorter {
+  margin-left: 4px;
+  display: inline-block;
+  width: 12px;
+  height: 15px;
+  vertical-align: middle;
+  text-align: center;
+}
+.ant-table-column-sorter-up, .ant-table-column-sorter-down {
+  line-height: 4px;
+  height: 6px;
+  display: block;
+  width: 12px;
+  cursor: pointer;
+}
+:root .ant-table-column-sorter .anticon-caret-up, :root .ant-table-column-sorter .anticon-caret-down {
+  font-size: 12px;
+  -webkit-filter: none;
+  filter: none;
+}
+.ant-table-column-sorter-up.on .anticon-caret-up, .ant-table-column-sorter-down.on .anticon-caret-up, .ant-table-column-sorter-up.on .anticon-caret-down, .ant-table-column-sorter-down.on .anticon-caret-down {
+  color: #2db7f5;
+}
+.ant-table-column-sorter .anticon-caret-up, .ant-table-column-sorter .anticon-caret-down {
+  display: inline-block;
+  font-size: 12px;
+  font-size: 6px \9;
+  -webkit-transform: scale(0.5) rotate(0deg);
+  -ms-transform: scale(0.5) rotate(0deg);
+  transform: scale(0.5) rotate(0deg);
+  -ms-filter: "progid:DXImageTransform.Microsoft.Matrix(sizingMethod='auto expand', M11=1, M12=0, M21=0, M22=1)";
+  zoom: 1;
+  line-height: 6px;
+  height: 6px;
+  color: #aaa;
+}
+.anticon {
+  display: inline-block;
+  font-style: normal;
+  vertical-align: baseline;
+  text-align: center;
+  text-transform: none;
+  text-rendering: auto;
+  line-height: 1;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
