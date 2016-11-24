@@ -78,3 +78,17 @@ exports.getClusterDbServices = function* () {
     data
   }
 }
+
+exports.getClusterNodeSummary = function* () {
+  let cluster = this.params.cluster_id
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.overview.getBy(["clusters", cluster, "nodesummary"])
+  let data = {}
+  if (result && result.data) {
+    data = result.data
+  }
+  this.body = {
+    data
+  }
+}
