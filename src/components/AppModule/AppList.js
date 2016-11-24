@@ -348,6 +348,58 @@ let StopAppsModal = React.createClass({
     )
   }
 })
+let RestarAppsModal = React.createClass({
+  getInitialState(){
+    return {
+      
+    }
+  },
+  render: function(){
+    const { appList } = this.props
+    const checkedAppList = appList.filter((app) => app.checked)
+    let stoppedApps = []
+    
+    checkedAppList.map((app,index) => {
+      if(app.status.phase === 'Stopped'){
+        stoppedApps.push(app)
+      }
+    })
+    let item = stoppedApps.map((app,index) => {
+      return (
+        <tr>
+          <td>{index+1}</td>
+          <td>{app.name}</td>
+          <td style={{color:'#f85958'}}>服务为已停止状态</td>
+        </tr>
+      )
+    })
+    return (
+      <div id="StartAppsModal">
+        {
+          stoppedApps.length !== 0 ?
+            <div>
+              <Alert message={<span>你选择的{checkedAppList.length}个服务中, 有<span className="modalDot" style={{backgroundColor:'#f85958'}}>{stoppedApps.length}个</span>已经是已停止状态, 不需再停止</span>}
+                     type="warning" showIcon/>
+              <div style={{height:26}}>Tip: 已停止状态的服务不需再次停止</div>
+              <div className="tableWarp">
+                <table className="modalList">
+                  <tbody>
+                  {item}
+                  </tbody>
+                </table>
+              </div>
+            
+            </div>:
+            <div></div>
+        }
+        <div className="confirm">
+          <Icon type="question-circle-o" style={{marginRight:'10px'}}/>
+          您是否确定停止这{(checkedAppList.length - stoppedApps.length)}个运行中的服务 ?
+        </div>
+      </div>
+    )
+  }
+})
 
 function loadData(props) {
   const { loadAppList, cluster, page, size, name, sortOrder, sortBy } = props
@@ -358,9 +410,7 @@ class AppList extends Component {
   constructor(props) {
     super(props)
     this.onAllChange = this.onAllChange.bind(this)
-    this.confirmStartApps = this.confirmStartApps.bind(this)
     this.batchStartApps = this.batchStartApps.bind(this)
-    this.confirmStopApps = this.confirmStopApps.bind(this)
     this.batchStopApps = this.batchStopApps.bind(this)
     this.confirmDeleteApps = this.confirmDeleteApps.bind(this)
     this.batchDeleteApps = this.batchDeleteApps.bind(this)
@@ -374,6 +424,8 @@ class AppList extends Component {
     this.handleStartAppsCancel = this.handleStartAppsCancel.bind(this)
     this.handleStopAppsOk = this.handleStopAppsOk.bind(this)
     this.handleStopAppsCancel = this.handleStopAppsCancel.bind(this)
+    this.handleRestarAppsOk = this.handleRestarAppsOk.bind(this)
+    this.handleRestarAppsCancel = this.handleRestarAppsCancel.bind(this)
     this.state = {
       appList: props.appList,
       searchInputValue: props.name,
@@ -383,6 +435,7 @@ class AppList extends Component {
       restartBtn: false,
       startAppsModal: false,
       stopAppsModal: false,
+      restarAppsModal: false,
     }
   }
 
@@ -419,7 +472,7 @@ class AppList extends Component {
     loadData(nextProps)
   }
 
-  confirmStartApps(appList) {
+ /* confirmStartApps(appList) {
     const self = this
     const { cluster, startApps } = this.props
     const appNames = appList.map((app) => app.name)
@@ -450,7 +503,7 @@ class AppList extends Component {
       },
       onCancel() { },
     });
-  }
+  }*/
 
   batchStartApps(e) {
     this.setState({
@@ -462,7 +515,12 @@ class AppList extends Component {
       stopAppsModal: true
     })
   }
-  confirmStopApps(appList) {
+  batchRestartApps(e) {
+    this.setState({
+      restarAppsModal: true
+    })
+  }
+ /* confirmStopApps(appList) {
     const self = this
     const { cluster, stopApps } = this.props
     const appNames = appList.map((app) => app.name)
@@ -491,7 +549,7 @@ class AppList extends Component {
       },
       onCancel() { },
     })
-  }
+  }*/
 
   confirmDeleteApps(appList) {
     const self = this
@@ -555,11 +613,7 @@ class AppList extends Component {
     });
   }
 
-  batchRestartApps(e) {
-    const { appList } = this.state
-    const checkedAppList = appList.filter((app) => app.checked)
-    this.confirmRestartApps(checkedAppList)
-  }
+  
 
   searchApps(e) {
     const { name, pathname, sortOrder, sortBy } = this.props
@@ -631,51 +685,84 @@ class AppList extends Component {
     this.updateBrowserHistory(page, size, sortOrder, by)
   }
   handleStartAppsOk(){
-    this.setState({
-      startAppsModal:false,
-    })
-    
     const self = this
     const { cluster, startApps,appList } = this.props
     const checkedAppList = appList.filter((app) => app.checked)
     const appNames = checkedAppList.map((app) => app.name)
-    
-    confirm({
-      title: `您是否确认要启动这${appNames.length}个应用`,
-      content: appNames.join(', '),
-      onOk() {
-        return new Promise((resolve) => {
-          const allApps = self.state.appList
-          allApps.map((app) => {
-            if (appNames.indexOf(app.name) > -1) {
-              app.phase = 'Starting'
-            }
+    const allApps = self.state.appList
+    allApps.map((app) => {
+      if (appNames.indexOf(app.name) > -1) {
+        app.phase = 'Starting'
+      }
+    })
+    startApps(cluster, appNames, {
+      success: {
+        func: () => {
+          loadData(self.props)
+          this.setState({
+            startAppsModal:false,
+            runBtn: false,
+            stopBtn: false,
+            restartBtn: false,
           })
-          startApps(cluster, appNames, {
-            success: {
-              func: () => loadData(self.props),
-              isAsync: true
-            }
-          })
-          resolve()
-        });
-      },
-      onCancel() { },
-    });
+        },
+        isAsync: true
+      }
+    })
   }
   handleStartAppsCancel(){
     this.setState({
       startAppsModal:false,
+      runBtn: false,
+      stopBtn: false,
+      restartBtn: false,
     })
   }
   handleStopAppsOk(){
-    this.setState({
-      stopAppsModal:false,
+    const self = this
+    const { cluster, stopApps,appList } = this.props
+    const checkedAppList = appList.filter((app) => app.checked)
+    const appNames = checkedAppList.map((app) => app.name)
+    const allApps = self.state.appList
+    allApps.map((app) => {
+      if (appNames.indexOf(app.name) > -1) {
+        app.phase = 'Stopping'
+      }
+    })
+    stopApps(cluster, appNames, {
+      success: {
+        func: () => {
+          loadData(self.props)
+          this.setState({
+            stopAppsModal:false,
+            runBtn: false,
+            stopBtn: false,
+            restartBtn: false,
+          })
+        },
+        isAsync: true
+      }
     })
   }
   handleStopAppsCancel(){
     this.setState({
       stopAppsModal:false,
+      runBtn: false,
+      stopBtn: false,
+      restartBtn: false,
+    })
+  }
+  handleRestarAppsOk(){
+    this.setState({
+      restarAppsModal:true,
+    })
+  }
+  handleRestarAppsCancel(){
+    this.setState({
+      restarAppsModal:false,
+      runBtn: false,
+      stopBtn: false,
+      restartBtn: false,
     })
   }
   render() {
@@ -733,7 +820,7 @@ class AppList extends Component {
               <Modal title="启动操作" visible={this.state.startAppsModal}
                      onOk={this.handleStartAppsOk} onCancel={this.handleStartAppsCancel}
               >
-                <StartAppsModal appList={appList} cluster={cluster} startApps={startApps}/>
+                <StartAppsModal appList={appList} />
               </Modal>
               <Button type='ghost' size='large' onClick={this.batchStopApps} disabled={!stopBtn}>
                 <i className='fa fa-stop'/>停止
@@ -741,7 +828,7 @@ class AppList extends Component {
               <Modal title="停止操作" visible={this.state.stopAppsModal}
                      onOk={this.handleStopAppsOk} onCancel={this.handleStopAppsCancel}
               >
-                <StopAppsModal appList={appList} stopApps={stopApps}/>
+                <StopAppsModal appList={appList} />
               </Modal>
               <Button type='ghost' size='large' onClick={() => loadData(this.props)}>
                 <i className='fa fa-refresh'/>刷新
@@ -752,6 +839,11 @@ class AppList extends Component {
               <Button type='ghost' size='large' onClick={this.batchRestartApps} disabled={!restartBtn}>
                 <i className='fa fa-undo'/>重新部署
               </Button>
+              <Modal title="重新部署操作" visible={this.state.restarAppsModal}
+                     onOk={this.handleRestarAppsOk} onCancel={this.handleRestarAppsCancel}
+              >
+                <RestarAppsModal appList={appList} />
+              </Modal>
             </div>
             <div className='rightBox'>
               <div className='littleLeft' onClick={this.searchApps}>
