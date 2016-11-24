@@ -31,7 +31,9 @@ class TerminalModal extends Component {
     let box = $('#TerminalModal .titleBox')
     let bodyHeight = $(document.body)[0].clientHeight;
     box.mousedown(function(ee){
-      console.log(ee)
+      if(ee.path[0].className != 'titleBox') {
+        return;
+      }
       $('#TerminalModal .cover').css('display','block');
       $(document).mousemove(function(e){
         let newHeight = bodyHeight - e.clientY;
@@ -52,11 +54,13 @@ class TerminalModal extends Component {
     })
   }
   
-  minWindow(e){
+  minWindow(){
     //this function for minx the modal
-    console.log(e)
-    e.stopPropagation();
-    $('.TerminalLayoutModal').css('height','30px !important');
+    $('.TerminalLayoutModal').css('transition', 'all 0.3s');
+    $('.TerminalLayoutModal').css('height', '30px !important');
+    setTimeout(function(){
+      $('.TerminalLayoutModal').css('transition', 'all');
+    })
   }
   
   closeWindow(e){
