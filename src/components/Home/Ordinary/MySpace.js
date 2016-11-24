@@ -12,7 +12,7 @@ import { Row, Col, Card, Timeline, Popover } from 'antd'
 import './style/MySpace.less'
 import ReactEcharts from 'echarts-for-react'
 import { connect } from 'react-redux'
-import { loadSpaceOperations, loadSpaceCICDStats, loadSpaceImageStats } from '../../../actions/overview_space'
+import { loadSpaceOperations, loadSpaceCICDStats, loadSpaceImageStats, loadSpaceTemplateStats } from '../../../actions/overview_space'
 
 let imageOption = {
   series: [{
@@ -86,14 +86,15 @@ class MySpace extends Component{
   }
 
   componentWillMount() {
-    const { loadSpaceOperations, loadSpaceCICDStats, loadSpaceImageStats } = this.props
+    const { loadSpaceOperations, loadSpaceCICDStats, loadSpaceImageStats, loadSpaceTemplateStats } = this.props
     loadSpaceOperations()
     loadSpaceCICDStats()
     loadSpaceImageStats()
+    loadSpaceTemplateStats()
   }
 
   render(){
-    const {spaceOperations, spaceCICDStats, spaceImageStats } = this.props
+    const {spaceOperations, spaceCICDStats, spaceImageStats, spaceTemplateStats } = this.props
     return (
       <div id='MySpace'>
         <Row className="title" style={{marginTop: 40}}>我的空间</Row>
@@ -126,10 +127,10 @@ class MySpace extends Component{
                 option={layoutOption}
                 style={{height:'90px'}}
               />
-              <div style={{position:'absolute',top:'66px',width:'100%',textAlign:'center'}}>100个</div>
+              <div style={{position:'absolute',top:'66px',width:'100%',textAlign:'center'}}>{spaceTemplateStats.public+spaceTemplateStats.private}个</div>
               <Row style={{textAlign:'center',height:40,lineHeight:'40px',padding:'0 24px'}}>
-                <Col span={12}>公有25个</Col>
-                <Col span={12}>私有75个</Col>
+                <Col span={12}>公有{spaceTemplateStats.public}个</Col>
+                <Col span={12}>私有{spaceTemplateStats.private}个</Col>
               </Row>
             </Card>
           </Col>
@@ -385,10 +386,14 @@ function mapStateToProp(state,props) {
     publicNumber: 0, 
     privateNumber: 0,
   }
-  const {spaceOperations, spaceCICDStats, spaceImageStats} = state.overviewSpace
+  let spaceTemplateStatsData = {
+    public: 0, 
+    private: 0,
+  }
+  const {spaceOperations, spaceCICDStats, spaceImageStats, spaceTemplateStats} = state.overviewSpace
   if (spaceOperations.result && spaceOperations.result.data
-      && spaceOperations.result.data.data) {
-    let data = spaceOperations.result.data.data
+      && spaceOperations.result.data.data && spaceOperations.result.data.data.app) {
+    let data = spaceOperations.result.data.data.app
     if (data.appCreate) {
       spaceOperationsData.appCreate = data.appCreate
     }
@@ -426,10 +431,17 @@ function mapStateToProp(state,props) {
     spaceImageStatsData.publicNumber = data.publicNumber
     spaceImageStatsData.privateNumber = data.privateNumber
   } 
+  if (spaceTemplateStats.result && spaceTemplateStats.result.data
+      && spaceTemplateStats.result.data.data) {
+    let data = spaceTemplateStats.result.data.data
+    spaceTemplateStatsData.public = data.public
+    spaceTemplateStatsData.private = data.private
+  } 
   return {
     spaceOperations: spaceOperationsData,
     spaceCICDStats: spaceCICDStatsData,
     spaceImageStats: spaceImageStatsData,
+    spaceTemplateStats: spaceTemplateStatsData,
   }
 }
 
@@ -437,4 +449,5 @@ export default connect(mapStateToProp, {
   loadSpaceOperations,
   loadSpaceCICDStats,
   loadSpaceImageStats,
+  loadSpaceTemplateStats,
 })(MySpace)

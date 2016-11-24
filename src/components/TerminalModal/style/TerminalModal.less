@@ -1,26 +1,46 @@
 #TerminalModal {
+  position: relative;
   height: 100%;
+  .cover {
+    display: none;
+    z-index: 9999;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0);
+  }
   .titleBox {
     padding: 0 20px;
     width: 100%;
     height: 30px;
+    line-height: 30px;
     cursor: row-resize;
     background-color: #f8f8f8;
-    .fa-times{
+    .fa {
+      transition: all 0.3s;
+      width: 20px;
+      height: 20px;
+      text-align: center;
+      border-radius: 3px;
+    }
+    .fa-times {
       position: absolute;
       top: 5px;
       right: 20px;
       font-size: 21px;
       cursor: pointer;
-      border-radius: 10.5px; 
     }
-    .fa-minus{
+    .fa-window-minimize {
       position: absolute;
-      top: 7px;
+      top: 5px;
       right: 50px;
-      font-size: 20px;
+      font-size: 18px;
       cursor: pointer;
-      border-radius:10px; 
+    }
+    .fa:hover {
+      box-shadow: 0 1px 6px rgba(100, 100, 100, 0.8);
     }
   }
   .contentBox {
@@ -32,6 +52,7 @@
     iframe {
       width: calc(~"100% + 18px");
       height: 100%;
+      border: 0px !important;
     }
   }
 }

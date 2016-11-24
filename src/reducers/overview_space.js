@@ -18,7 +18,8 @@ const option = {
 export default function overviewSpace(state = {
   spaceOperations: {},
   spaceCICDStats: {},
-  spaceImageStats: {}
+  spaceImageStats: {},
+  spaceTemplateStats: {}
  }, action) {
   return {
     spaceOperations: reducerFactory({
@@ -35,6 +36,11 @@ export default function overviewSpace(state = {
       REQUEST: ActionTypes.OVERVIEW_SPACE_IMAGE_REQUEST,
       SUCCESS: ActionTypes.OVERVIEW_SPACE_IMAGE_SUCCESS,
       FAILURE: ActionTypes.OVERVIEW_SPACE_IMAGE_FAILURE
-    }, state.spaceImageStats, action, option)
+    }, state.spaceImageStats, action, option),
+    spaceTemplateStats: reducerFactory({
+      REQUEST: ActionTypes.OVERVIEW_SPACE_TEMPLATE_REQUEST,
+      SUCCESS: ActionTypes.OVERVIEW_SPACE_TEMPLATE_SUCCESS,
+      FAILURE: ActionTypes.OVERVIEW_SPACE_TEMPLATE_FAILURE
+    }, state.spaceTemplateStats, action, option)
   }
 }

@@ -597,7 +597,7 @@ let CreateTenxFlowModal = React.createClass({
       createTenxFlowState(flowId, body, {
         success: {
           func: (res) => {
-            if(!_this.state.useDockerfile && _this.otherFlowType == '3') {             
+            if(!_this.state.useDockerfile && _this.state.otherFlowType == '3') {             
               let dockerfilebody = {
                 content: _this.state.dockerFileTextarea,
                 flowId: flowId,
