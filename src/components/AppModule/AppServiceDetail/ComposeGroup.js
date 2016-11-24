@@ -115,6 +115,14 @@ let MyComponent = React.createClass({
       }
     }
     let config = this.state.config;
+    if (config.length == 0) {
+      return (
+        <Card className="composeList">
+        {loading}
+        <div style={{lineHeight:'60px'}}>暂无配置</div>
+      </Card>
+      )
+    }
     let items = config.map((item) => {
       return (
         <div className="composeDetail" key={item.id.toString() }>
