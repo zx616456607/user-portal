@@ -414,11 +414,18 @@ exports.getAllService = function*() {
     from: (pageIndex - 1)* pageSize,
 		size: pageSize
 	}
-	if(name) {
+	if (name) {
     queryObj.filter = `name ${name}` 	
 	}
   const api = apiFactory.getK8sApi(this.session.loginUser)
 	const response = yield api.getBy([cluster, 'services'], queryObj, null)
 	this.status = response.code
+  response.data.services.map((item) => {
+    if (item.service && item.deployment) {
+      item.deployment.ports = item.service.metadata.annotations[ANNOTATION_SVC_SCHEMA_PORT]
+      item.deployment.portForInternal = []
+      item.service.spec.ports.map((svcPort) => item.deployment.portForInternal.push(svcPort.port))
+    }
+  })
 	this.body = response
 }
