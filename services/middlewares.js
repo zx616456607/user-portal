@@ -46,7 +46,7 @@ exports.auth = function* (next) {
         this.redirect('/login')
         return
       default:
-        this.status = 403
+        this.status = 401
         this.body = {
           message: 'LOGIN_EXPIRED'
         }

@@ -153,7 +153,7 @@ function currentStatus(status) {
   }
 }
 
-function currentFlowType(type) {
+function currentFlowType(type, customTypeText) {
   //this function for show different flow type
   switch (type) {
     case 1:
@@ -181,10 +181,8 @@ function currentFlowType(type) {
         <FormattedMessage {...menusText.buildImage} />
       );
       break;
-    case 6:
-      return (
-        <FormattedMessage {...menusText.other} />
-      );
+    case 5:
+      return customTypeText;
       break;
   }
 }
@@ -470,7 +468,7 @@ class TenxFlowDetailFlowCard extends Component {
                       </div>
                       <div className='info'>
                         <i className='fa fa-cog' />
-                        {currentFlowType(config.metadata.type)}
+                        {currentFlowType(config.metadata.type, config.metadata.customType)}
                       </div>
                       <div style={{ clear: 'both' }}></div>
                     </div>

@@ -12,7 +12,7 @@ import { Row, Col, Card, Timeline, Popover } from 'antd'
 import './style/MySpace.less'
 import ReactEcharts from 'echarts-for-react'
 import { connect } from 'react-redux'
-import { loadSpaceOperations } from '../../../actions/overview_space'
+import { loadSpaceOperations, loadSpaceCICDStats, loadSpaceImageStats } from '../../../actions/overview_space'
 
 let imageOption = {
   series: [{
@@ -86,12 +86,14 @@ class MySpace extends Component{
   }
 
   componentWillMount() {
-    const { loadSpaceOperations } = this.props
+    const { loadSpaceOperations, loadSpaceCICDStats, loadSpaceImageStats } = this.props
     loadSpaceOperations()
+    loadSpaceCICDStats()
+    loadSpaceImageStats()
   }
 
   render(){
-    const spaceOperations = this.props.spaceOperations
+    const {spaceOperations, spaceCICDStats, spaceImageStats } = this.props
     return (
       <div id='MySpace'>
         <Row className="title" style={{marginTop: 40}}>我的空间</Row>
@@ -103,12 +105,12 @@ class MySpace extends Component{
                 option={imageOption}
                 style={{height:'90px'}}
               />
-              <div style={{position:'absolute',top:'66px',width:'100%',textAlign:'center'}}>100个</div>
-              <Row style={{textAlign:'center',height:40,lineHeight:'40px',padding:'0 24px'}}>
-                <Col span={12}>公有25个</Col>
-                <Col span={12}>私有75个</Col>
+              <div style={{position:'absolute',top:'66px',width:'100%',textAlign:'center'}}>{spaceImageStats.publicNumber+spaceImageStats.privateNumber}个</div>
+              <Row style={{textAlign:'center',height:40,lineHeight:'40px',padding:'0 24px',fontSize: '14px'}}>
+                <Col span={12}>公有{spaceImageStats.publicNumber}个</Col>
+                <Col span={12}>私有{spaceImageStats.privateNumber}个</Col>
               </Row>
-              <Row style={{height:40,lineHeight:'40px',borderTop:'1px solid #e2e2e2',padding:'0 24px'}}>
+              <Row style={{height:40,lineHeight:'40px',borderTop:'1px solid #e2e2e2',padding:'0 24px',fontSize:'12px'}}>
                 服务状态:
                 <div style={{float:'right'}}>
                   <svg className="stateSvg">
@@ -135,7 +137,7 @@ class MySpace extends Component{
             <Card title="CI/CD" bordered={false} bodyStyle={{height:175,padding:0}}>
               <Row style={{height:130}}>
                 <Col span={12} style={{height:130}}></Col>
-                <Col className='cicdInf'>
+                <Col className='cicdInf' span={12}>
                   <table>
                     <tbody>
                     <tr>
@@ -143,10 +145,10 @@ class MySpace extends Component{
                         <svg className="stateSvg">
                           <use xlinkHref="#settingname" />
                         </svg>
-                        主机总数
+                        构建成功
                       </td>
                       <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                        12346个
+                        {spaceCICDStats.succeedNumber}个
                       </td>
                     </tr>
                     <tr>
@@ -154,10 +156,10 @@ class MySpace extends Component{
                         <svg className="stateSvg">
                           <use xlinkHref="#settingname" />
                         </svg>
-                        健康主机数
+                        构建失败
                       </td>
                       <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                        12340个
+                        {spaceCICDStats.failedNumber}个
                       </td>
                     </tr>
                     <tr>
@@ -165,10 +167,10 @@ class MySpace extends Component{
                         <svg className="stateSvg">
                           <use xlinkHref="#settingname" />
                         </svg>
-                        未启用主机数
+                        正在构建
                       </td>
                       <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                        6个
+                        {spaceCICDStats.runningNumber}个
                       </td>
                     </tr>
                     </tbody>
@@ -185,7 +187,7 @@ class MySpace extends Component{
                 </div>
               </Row>
             </Card>
-            <Card title="今日该集群记录" bordered={false} bodyStyle={{height:175, overflowY:'auto'}} style={{marginTop: 10}}>
+            <Card title="今日该集群记录" bordered={false} bodyStyle={{height:175, overflowY:'auto'}} style={{marginTop: 10,fontSize:'13px'}}>
               <table className="clusterTab">
                 <tbody>
                 <tr>
@@ -293,7 +295,7 @@ class MySpace extends Component{
           </Col>
           <Col span={6} className='log'>
             <Card title="审计日志" bordered={false} bodyStyle={{height:410}}>
-              <Timeline style={{height:350}}>
+              <Timeline style={{height:374,padding: '24px'}}>
                 <Timeline.Item dot={<svg className="stateSvg"><use xlinkHref="#settingname" /></svg>}>
                   <div className="logItem">
                     <div className="logTitle">停用应用</div>
@@ -336,27 +338,21 @@ class MySpace extends Component{
               </Row>
             </Card>
           </Col>
-          <Col span={6} className='warnList'>
+          <Col span={6} className='warn'>
             <Card title="告警" bordered={false} bodyStyle={{height:410}}>
-              <Timeline>
+              <Timeline className="warnList">
                 {
                   [1,2,3].map((item,index) => {
                     return (
                       <Timeline.Item dot={
-                        <svg className="stateSvg"><use xlinkHref="#settingname" /></svg>
+                        index === 0?
+                        <svg className="stateSvg"><use xlinkHref="#settingname" /></svg>:
+                          <div className="warnDot"></div>
                       }>
-                        <Popover content={
-                          <div>
-                            <Row>API Server发生故障</Row>
-                            <Row>刚刚</Row>
-                          </div>
-                        } visible={true}
-                                 placement="rightTop"
-                                 overlayClassName="warnItem"
-                                 getTooltipContainer={() => document.getElementsByClassName('warn')[index]}
-                        >
-                          <div style={{width:1,height:65}} className="warn"></div>
-                        </Popover>
+                        <div className={index === 0?"warnItem fistWarn":'warnItem'}>
+                          <Row className="itemTitle">API Server发生故障</Row>
+                          <Row className="itemInf">刚刚</Row>
+                        </div>
                       </Timeline.Item>
                     )
                   })
@@ -380,40 +376,65 @@ function mapStateToProp(state,props) {
     appStart: 0,
     appRedeploy: 0,
   }
-  const {spaceOperations} = state.overviewSpace
+  let spaceCICDStatsData = {
+    succeedNumber: 0,
+    runningNumber: 0,
+    failedNumber: 0,
+  }
+  let spaceImageStatsData = {
+    publicNumber: 0, 
+    privateNumber: 0,
+  }
+  const {spaceOperations, spaceCICDStats, spaceImageStats} = state.overviewSpace
   if (spaceOperations.result && spaceOperations.result.data
       && spaceOperations.result.data.data) {
-        let data = spaceOperations.result.data.data
-        if (data.appCreate) {
-          spaceOperationsData.appCreate = data.appCreate
-        }
-        if (data.appModify) {
-          spaceOperationsData.appModify = data.appModify
-        }
-        if (data.svcCreate) {
-          spaceOperationsData.svcCreate = data.svcCreate
-        }
-        if (data.svcDelete) {
-          spaceOperationsData.svcDelete = data.svcDelete
-        }
-        if (data.appStop) {
-          spaceOperationsData.appStop = data.appStop
-        }
-        if (data.appStart) {
-          spaceOperationsData.appStart = data.appStart
-        }
-        if (data.appCreate) {
-          spaceOperationsData.appCreate = data.appCreate
-        }
-        if (data.appRedeploy) {
-          spaceOperationsData.appRedeploy = data.appRedeploy
-        } 
-      } 
+    let data = spaceOperations.result.data.data
+    if (data.appCreate) {
+      spaceOperationsData.appCreate = data.appCreate
+    }
+    if (data.appModify) {
+      spaceOperationsData.appModify = data.appModify
+    }
+    if (data.svcCreate) {
+      spaceOperationsData.svcCreate = data.svcCreate
+    }
+    if (data.svcDelete) {
+      spaceOperationsData.svcDelete = data.svcDelete
+    }
+    if (data.appStop) {
+      spaceOperationsData.appStop = data.appStop
+    }
+    if (data.appStart) {
+      spaceOperationsData.appStart = data.appStart
+    }
+    if (data.appCreate) {
+      spaceOperationsData.appCreate = data.appCreate
+    }
+    if (data.appRedeploy) {
+      spaceOperationsData.appRedeploy = data.appRedeploy
+    } 
+  }
+  if (spaceCICDStats.result && spaceCICDStats.result.data &&
+      spaceCICDStats.result.data.results && spaceCICDStats.result.data.results.flowBuild) {
+    let data = spaceCICDStats.result.data.results.flowBuild
+    spaceCICDStatsData.succeedNumber = data.succeedNumber
+    spaceCICDStatsData.runningNumber = data.runningNumber
+    spaceCICDStatsData.failedNumber = data.failedNumber
+  } 
+  if (spaceImageStats.result && spaceImageStats.result.data) {
+    let data = spaceImageStats.result.data
+    spaceImageStatsData.publicNumber = data.publicNumber
+    spaceImageStatsData.privateNumber = data.privateNumber
+  } 
   return {
     spaceOperations: spaceOperationsData,
+    spaceCICDStats: spaceCICDStatsData,
+    spaceImageStats: spaceImageStatsData,
   }
 }
 
 export default connect(mapStateToProp, {
   loadSpaceOperations,
+  loadSpaceCICDStats,
+  loadSpaceImageStats,
 })(MySpace)

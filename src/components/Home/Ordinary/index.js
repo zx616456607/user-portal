@@ -12,14 +12,19 @@ import { Row, Col, Card, Radio } from 'antd'
 import './style/Ordinary.less'
 import ReactEcharts from 'echarts-for-react'
 import MySpace from './MySpace'
+import { getAppStatus, getServiceStatus, getContainerStatus } from '../../../common/status_identify'
 import { connect } from 'react-redux'
-import { loadClusterOperations, loadClusterSysinfo, loadClusterStorage } from '../../../actions/overview_cluster'
+import { loadClusterOperations, loadClusterSysinfo, loadClusterStorage,
+         loadClusterAppStatus } from '../../../actions/overview_cluster'
 import ProgressBox from '../../ProgressBox'
 
-const RadioButton = Radio.Button;
-const RadioGroup = Radio.Group;
+let restValue = 12366
+let costValue = 45666
+//应用数
+let appCountRun = 10
+let appCountStop = 100
+let appCountBusy = 1000
 
-let value = 123
 
 let clusterCostOption = {
   tooltip : {
@@ -31,11 +36,19 @@ let clusterCostOption = {
     left : '50%',
     top : '30%',
     data:[{name:'余额'}, {name:'消费'}],
-    formatter: '{name} : '+value+'T币',
-    /*formatter: function (name) {
-      console.log('name',name);
-      return name
-    }*/
+    formatter: function (name) {
+      if(name === '余额'){
+        return name + ': ' + restValue + 'T币'
+      } else {
+        return name + ': ' + costValue + 'T币'
+      }
+    },
+    textStyle: {
+      fontSize: 14,
+    },
+    itemGap: 15,
+    itemWidth: 10,
+    itemHeight: 10,
   },
   color: ['#46b2fa', '#f6565e'],
   series : [
@@ -44,7 +57,7 @@ let clusterCostOption = {
       type:'pie',
       selectedMode: 'single',
       radius : '40%',
-      center: ['20%', '50%'],
+      center: ['30%', '50%'],
       data:[
         {value:900, name:'余额'},
         {value:100, name:'消费',selected:true},
@@ -70,7 +83,21 @@ let appOption = {
     left : '50%',
     top : 'middle',
     data:[{name:'运行中'}, {name:'已停止'},{name:'操作中'}],
-    formatter: '{name} : '+value+'T币',
+    formatter: function (name) {
+      if(name === '运行中'){
+        return name + ': ' + appCountRun + 'T币'
+      } else if (name === '已停止') {
+        return name + ': ' + appCountStop + 'T币'
+      } else if (name === '操作中') {
+        return name + ': ' + appCountBusy + 'T币'
+      }
+    },
+    textStyle: {
+      fontSize: 14,
+    },
+    itemGap: 15,
+    itemWidth: 10,
+    itemHeight: 10,
   },
   color: ['#46b3f8','#b5e0ff','#2abe84'],
   series: {
@@ -322,17 +349,18 @@ class Ordinary extends Component{
     super(props)
     this.handleDataBaseClick = this.handleDataBaseClick.bind(this)
     this.state = {
-      tab1: false,
+      tab1: true,
       tab2: false,
       tab3: false,
     }
   }
   
   componentWillMount() {
-    const { loadClusterOperations, loadClusterSysinfo, loadClusterStorage } = this.props
+    const { loadClusterOperations, loadClusterSysinfo, loadClusterStorage, loadClusterAppStatus } = this.props
     loadClusterOperations("cce1c71ea85a5638b22c15d86c1f61df")
     loadClusterSysinfo("cce1c71ea85a5638b22c15d86c1f61df")
     loadClusterStorage("cce1c71ea85a5638b22c15d86c1f61df")
+    loadClusterAppStatus("cce1c71ea85a5638b22c15d86c1f61df")
   }
   handleDataBaseClick(current){
     if(current === 'tab1'){
@@ -385,13 +413,13 @@ class Ordinary extends Component{
                 <tbody>
                   <tr>
                     <td>
-                      <svg className="sysStateSvg">
+                      <svg className="stateSvg">
                         <use xlinkHref="#settingname" />
                       </svg>
                       Kubernetes
                     </td>
                     <td>
-                      <svg className="sysStateSvg">
+                      <svg className="stateSvg">
                         <use xlinkHref="#settingname" />
                       </svg>
                       {clusterSysinfo.k8s.status}
@@ -402,13 +430,13 @@ class Ordinary extends Component{
                   </tr>
                   <tr>
                     <td>
-                      <svg className="sysStateSvg">
+                      <svg className="stateSvg">
                         <use xlinkHref="#settingname" />
                       </svg>
                       DNS
                     </td>
                     <td>
-                      <svg className="sysStateSvg">
+                      <svg className="stateSvg">
                         <use xlinkHref="#settingname" />
                       </svg>
                       {clusterSysinfo.dns.status}
@@ -419,13 +447,13 @@ class Ordinary extends Component{
                   </tr>
                   <tr>
                     <td>
-                      <svg className="sysStateSvg">
+                      <svg className="stateSvg">
                         <use xlinkHref="#settingname" />
                       </svg>
                       API Server
                     </td>
                     <td>
-                      <svg className="sysStateSvg">
+                      <svg className="stateSvg">
                         <use xlinkHref="#settingname" />
                       </svg>
                       {clusterSysinfo.apiserver.status}
@@ -436,13 +464,13 @@ class Ordinary extends Component{
                   </tr>
                   <tr>
                     <td>
-                      <svg className="sysStateSvg">
+                      <svg className="stateSvg">
                         <use xlinkHref="#settingname" />
                       </svg>
                       CICD
                     </td>
                     <td>
-                      <svg className="sysStateSvg">
+                      <svg className="stateSvg">
                         <use xlinkHref="#settingname" />
                       </svg>
                       {clusterSysinfo.cicd.status}
@@ -453,13 +481,13 @@ class Ordinary extends Component{
                   </tr>
                   <tr>
                     <td>
-                      <svg className="sysStateSvg">
+                      <svg className="stateSvg">
                         <use xlinkHref="#settingname" />
                       </svg>
                       Logging
                     </td>
                     <td>
-                      <svg className="sysStateSvg">
+                      <svg className="stateSvg">
                         <use xlinkHref="#settingname" />
                       </svg>
                       {clusterSysinfo.logging.status}
@@ -642,9 +670,113 @@ class Ordinary extends Component{
                 <Col span={8} onClick={() => this.handleDataBaseClick('tab2')} className={this.state.tab2?'seleted':''}><span className='dataBtn'>Mongo集群</span></Col>
                 <Col span={8} onClick={() => this.handleDataBaseClick('tab3')} className={this.state.tab3?'seleted':''}><span className='dataBtn'>Redis集群</span></Col>
               </Row>
-              <Row>
+              <Row style={{display: this.state.tab1?'block':'none'}}>
                 <Col span={12}></Col>
+                <Col span={12} style={{marginTop:40}}>
+                  <table>
+                    <tbody>
+                    <tr>
+                      <td>
+                        <div className="stateDot" style={{backgroundColor:'#46b2fa'}}></div>
+                        运行中:
+                      </td>
+                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                        70个
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div className="stateDot" style={{backgroundColor:'#a2d7ff'}}></div>
+                        已停止
+                      </td>
+                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                        20个
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div className="stateDot" style={{backgroundColor:'#28bd83'}}></div>
+                        操作中
+                      </td>
+                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                        10个
+                      </td>
+                    </tr>
+                    </tbody>
+                  </table>
+                </Col>
+              </Row>
+              <Row style={{display: this.state.tab2?'block':'none'}}>
                 <Col span={12}></Col>
+                <Col span={12} style={{marginTop:40}}>
+                  <table>
+                    <tbody>
+                    <tr>
+                      <td>
+                        <div className="stateDot" style={{backgroundColor:'#46b2fa'}}></div>
+                        运行中:
+                      </td>
+                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                        70个
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div className="stateDot" style={{backgroundColor:'#a2d7ff'}}></div>
+                        已停止
+                      </td>
+                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                        20个
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div className="stateDot" style={{backgroundColor:'#28bd83'}}></div>
+                        操作中
+                      </td>
+                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                        10个
+                      </td>
+                    </tr>
+                    </tbody>
+                  </table>
+                </Col>
+              </Row>
+              <Row style={{display: this.state.tab3?'block':'none'}}>
+                <Col span={12}></Col>
+                <Col span={12} style={{marginTop:40}}>
+                  <table>
+                    <tbody>
+                    <tr>
+                      <td>
+                        <div className="stateDot" style={{backgroundColor:'#46b2fa'}}></div>
+                        运行中:
+                      </td>
+                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                        70个
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div className="stateDot" style={{backgroundColor:'#a2d7ff'}}></div>
+                        已停止
+                      </td>
+                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                        20个
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div className="stateDot" style={{backgroundColor:'#28bd83'}}></div>
+                        操作中
+                      </td>
+                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                        10个
+                      </td>
+                    </tr>
+                    </tbody>
+                  </table>
+                </Col>
               </Row>
             </Card>
           </Col>
@@ -678,9 +810,7 @@ class Ordinary extends Component{
                     <tbody>
                     <tr>
                       <td>
-                        <svg className="stateSvg">
-                          <use xlinkHref="#settingname" />
-                        </svg>
+                        <div className="stateDot" style={{backgroundColor:'#43b4f6'}}></div>
                         主机总数
                       </td>
                       <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
@@ -689,9 +819,7 @@ class Ordinary extends Component{
                     </tr>
                     <tr>
                       <td>
-                        <svg className="stateSvg">
-                          <use xlinkHref="#settingname" />
-                        </svg>
+                        <div className="stateDot" style={{backgroundColor:'#2abe84'}}></div>
                         健康主机数
                       </td>
                       <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
@@ -700,9 +828,7 @@ class Ordinary extends Component{
                     </tr>
                     <tr>
                       <td>
-                        <svg className="stateSvg">
-                          <use xlinkHref="#settingname" />
-                        </svg>
+                        <div className="stateDot" style={{backgroundColor:'#a2d8fa'}}></div>
                         未启用主机数
                       </td>
                       <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
@@ -722,6 +848,51 @@ class Ordinary extends Component{
   }
 }
 
+function setMap(map, key) {
+  if (map.get(key) == undefined) {
+   map.set(key, 1)
+  } else {
+   map.set(key, map.get(key)+1)
+  }
+}
+
+function getStatus(data) {
+  let appMap = new Map()
+  let svcMap = new Map()
+  let podMap = new Map()
+
+  for (let appName in data) {
+     let services = data[appName].deployments
+     let pods = data[appName].pods
+     let status = getAppStatus(services)
+     setMap(appMap, status.phase)
+     services.map(service => {
+       status = getServiceStatus(service)
+       setMap(svcMap, status.phase)
+     })
+     pods.map(pod => {
+       status = getContainerStatus(pod)
+       setMap(podMap, status.phase)
+     })
+  }
+
+  console.log("App Result: ")
+  for (let key of appMap.keys()) {
+    console.log(key, ": ", appMap.get(key))
+  }
+
+  console.log("Service Result: ")
+  for (let key of svcMap.keys()) {
+    console.log(key, ": ", svcMap.get(key))
+  }
+
+  console.log("Pod Result: ")
+  for (let key of podMap.keys()) {
+    console.log(key, ": ", podMap.get(key))
+  }
+
+  return {appMap, svcMap, podMap}
+}
 
 function mapStateToProp(state,props) {
   let clusterOperationsData = {
@@ -761,7 +932,12 @@ function mapStateToProp(state,props) {
     usedCnt: 0,
     usedSize: 0,
   }
-  const {clusterOperations, clusterSysinfo, clusterStorage} = state.overviewCluster
+  let clusterAppStatusData = {
+    appMap: new Map(),
+    svcMap: new Map(),
+    podMap: new Map(),
+  }
+  const {clusterOperations, clusterSysinfo, clusterStorage, clusterAppStatus} = state.overviewCluster
   if (clusterOperations.result && clusterOperations.result.data
       && clusterOperations.result.data.data) {
         let data = clusterOperations.result.data.data
@@ -848,10 +1024,15 @@ function mapStateToProp(state,props) {
           clusterStorageData.usedSize = data.usedSize
         }
   }
+  if (clusterAppStatus.result && clusterAppStatus.result.data) {
+    let data = clusterAppStatus.result.data
+    clusterAppStatusData = getStatus(data)
+  }
   return {
     clusterOperations: clusterOperationsData,
     clusterSysinfo: clusterSysinfoData,
     clusterStorage: clusterStorageData,
+    clusterAppStatus: clusterAppStatusData,
   }
 }
 
@@ -859,4 +1040,5 @@ export default connect(mapStateToProp, {
   loadClusterOperations,
   loadClusterSysinfo,
   loadClusterStorage,
+  loadClusterAppStatus,
 })(Ordinary)

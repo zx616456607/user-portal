@@ -40,11 +40,11 @@ module.exports = function (Router) {
   router.put('/storage-pools/:pool/:cluster/volumes/format', volumeController.formateVolume)
   router.put('/storage-pools/:pool/:cluster/volumes/size', volumeController.resizeVolume)
   router.get('/storage-pools/:pool/:cluster/volumes/:name', volumeController.getVolumeDetail)
-  router.post('/storage-pools/:pool/:cluster/volumes/:name/beforeimport', volumeController.beforeUploadFile)
-  router.post('/storage-pools/:pool/:cluster/volumes/:name/import', volumeController.uploadFile)
+  //router.post('/storage-pools/:pool/:cluster/volumes/:name/beforeimport', volumeController.beforeUploadFile)
+  //router.post('/storage-pools/:pool/:cluster/volumes/:name/import', volumeController.uploadFile)
   router.get('/storage-pools/:pool/:cluster/volumes/:name/filehistory', volumeController.getFileHistory)
   router.get('/storage-pools/:pool/:cluster/volumes/:name/bindinfo', volumeController.getBindInfo)
-  router.get('/storage-pools/:pool/:cluster/volumes/:name/exportfile', volumeController.exportFile)
+ // router.get('/storage-pools/:pool/:cluster/volumes/:name/exportfile', volumeController.exportFile)
   router.get('/storage-pools/:cluster/volumes/available', volumeController.getAvailableVolume)
 
   // Clusters
@@ -127,6 +127,7 @@ module.exports = function (Router) {
   router.get('/overview/clusters/:cluster_id/operations', overviewClusterController.getClusterOperations)
   router.get('/overview/clusters/:cluster_id/sysinfo', overviewClusterController.getClusterSysinfo)
   router.get('/overview/clusters/:cluster_id/storage', overviewClusterController.getClusterStorage)
+  router.get('/overview/clusters/:cluster_id/appstatus', overviewClusterController.getClusterAppStatus)
  
   //Overview Space
   router.get('/overview/operations', overviewSpaceController.getSpaceOperations)
@@ -160,6 +161,7 @@ module.exports = function (Router) {
   router.get('/registries/:registry/favourite', registryController.getFavouriteImages)
   router.put('/registries/:registry/:image*', registryController.updateImageInfo)
   router.delete('/registries/:registry/:image*', registryController.deleteImage)
+  router.get('/registries/:registry/stats', registryController.queryServerStats)
 
   // Private docker registry integration
   router.get('/docker-registry', registryController.getPrivateRegistries)
@@ -194,6 +196,7 @@ module.exports = function (Router) {
   router.post('/clusters/:cluster/instances/:instances/getSearchLog', manageMonitorController.getSearchLog)
 
   // DevOps service: CI/CD
+  router.get('/devops/stats', devopsController.getStats)
   // Repos
   router.post('/devops/repos/:type', devopsController.registerRepo)
   router.get('/devops/repos/:type', devopsController.listRepository)

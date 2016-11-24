@@ -9,8 +9,6 @@
  */
 import React, { Component } from 'react'
 import { Card } from 'antd'
-import { Link } from 'react-router'
-import { connect } from 'react-redux'
 import './style/DetailInfo.less'
 
 export default class DetailInfo extends Component {
@@ -19,7 +17,10 @@ export default class DetailInfo extends Component {
     // codeBox
   }
   render() {
-    const detailMarkdown  = this.props.detailInfo
+    let detailMarkdown  = this.props.detailInfo
+    if (detailMarkdown == '') {
+      detailMarkdown = '还没有添加详细信息'
+    }
     return (
       <Card className="imageDetailInfo">
         <div dangerouslySetInnerHTML={{__html:detailMarkdown}}></div>

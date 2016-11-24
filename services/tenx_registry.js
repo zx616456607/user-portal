@@ -229,6 +229,27 @@ exports.updateImageInfo = function(username, imageObj) {
   })
 }
 
+/*
+Only for admin user to use, and only get the number of all images
+*/
+exports.queryRegistryStats = function() {
+  var registry = new registryAPIs()
+  return new Promise(function (resolve, reject) {
+    registry.getAllRepositories(function(statusCode, result, err) {
+      if (err) {
+        return reject(err)
+      }
+      if (statusCode < 300) {
+        resolve(result)
+      } else {
+        logger.error("Failed to get all images -> " + statusCode)
+        err = 'Failed to get all images: ' + JSON.stringify(result)
+        reject(err)
+      }
+    })
+  })
+}
+
 exports.FormatImageInfo = function(imageInfo, imageName, tag) {
   var image = {}
   if (!imageInfo) {
