@@ -107,7 +107,7 @@ class ImageDetailBox extends Component {
   copyDownloadCode() {
     //this function for user click the copy btn and copy the download code
     const scope = this;
-    let code = document.getElementsByClassName("pullCodeInput");
+    let code = document.getElementsByClassName("privateCodeInput");
     code[0].select();
     document.execCommand("Copy", false);
     scope.setState({
@@ -236,11 +236,11 @@ class ImageDetailBox extends Component {
           <div className="code">
             <i className="fa fa-download"></i>&nbsp;
           <FormattedMessage {...menusText.downloadImage} />&nbsp;&nbsp;&nbsp;&nbsp;
-           <span className="pullCode">docker pull {this.props.server}/{imageName}&nbsp;&nbsp;</span>
-            <Tooltip title={this.state.copySuccess ? formatMessage(menusText.copySuccess) : formatMessage(menusText.copyBtn)} getTooltipContainer={() => document.getElementById("ImageDetailBox")}>
+           <span className="pullCode textoverflow">docker pull {this.props.server}/{imageName}&nbsp;&nbsp;</span>
+            <Tooltip title={this.state.copySuccess ? formatMessage(menusText.copySuccess) : formatMessage(menusText.copyBtn)}>
               <i className="fa fa-copy" onClick={this.copyDownloadCode} onMouseLeave={this.returnDefaultTooltip}></i>
             </Tooltip>
-            <input className="pullCodeInput" defaultValue={pullCode} style={{ position: "absolute", opacity: "0" }} />
+            <input className="privateCodeInput" defaultValue={pullCode} style={{ position: "absolute", opacity: "0" }} />
           </div>
           <div className="times">
             <i className="fa fa-cloud-download"></i>&nbsp;&nbsp;

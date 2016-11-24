@@ -198,7 +198,7 @@ const MyList = React.createClass({
           </div>
           <div className='opera Action'>
             <Dropdown.Button overlay={dropdown} type='ghost'>
-              <FormattedMessage {...menusText.deployService} />
+              <Link to={`/app_manage/app_create/compose_file?templateid=${item.id}`}><FormattedMessage {...menusText.deployService} /></Link>
             </Dropdown.Button>
           </div>
         </div>

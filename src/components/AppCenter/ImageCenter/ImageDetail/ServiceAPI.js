@@ -9,7 +9,6 @@
  */
 import React, { Component } from 'react'
 import { Card, Spin } from 'antd'
-import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import { loadImageDetailTagConfig } from '../../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../../constants'
