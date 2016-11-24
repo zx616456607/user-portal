@@ -28,10 +28,7 @@ exports.getTeamOperations = function* () {
   let queryObj = { team }
   const api = apiFactory.getApi(loginUser)
   const result = yield api.overview.getBy(["operations"], queryObj)
-  const data = {}
-  if (result && result.app) {
-    data = result.app
-  }
+  const data = result || {}
   this.body = {
     data
   }

@@ -15,10 +15,17 @@ exports.getSpaceOperations = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
   const result = yield api.overview.getBy(["operations"])
-  const data = {}
-  if (result && result.app) {
-    data = result.app
+  const data = result || {}
+  this.body = {
+    data
   }
+}
+
+exports.getSpaceTemplateStats = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.overview.getBy(["templates"])
+  const data = result || {}
   this.body = {
     data
   }
