@@ -9,7 +9,7 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
-import { Tooltip, Checkbox, Card, Menu, Dropdown, Button, Icon, Modal, Spin, Input, Pagination } from 'antd'
+import { Tooltip, Checkbox, Card, Menu, Dropdown, Button, Icon, Modal, Spin, Input, Pagination, Alert } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import './style/AppList.less'
@@ -34,11 +34,44 @@ let MyComponent = React.createClass({
     const { value, checked } = e.target
     const { parentScope } = this.props
     const { appList } = parentScope.state
+    console.log('appList',appList);
+    const checkedList = appList.filter((app) => app.checked)
+    console.log('checkedList',checkedList);
     appList.map((app) => {
       if (app.name === value) {
         app.checked = checked
       }
     });
+    if(checkedList.length === 0){
+      parentScope.setState({
+        runBtn: false,
+        stopBtn: false,
+        restartBtn: false,
+      })
+      return
+    }
+    if(checkedList.length === 1){
+        if(checkedList[0].status.phase === 'Running'){
+          console.log('run !');
+          parentScope.setState({
+            runBtn: false,
+            stopBtn: true,
+            restartBtn: true,
+          })
+        } else if(checkedList[0].status.phase === 'Stopped') {
+          parentScope.setState({
+            runBtn: true,
+            stopBtn: false,
+            restartBtn: false,
+          })
+        }
+    } else if (checkedList.length >1) {
+      parentScope.setState({
+        runBtn: true,
+        stopBtn: true,
+        restartBtn: true,
+      })
+    }
     parentScope.setState({
       appList
     });
@@ -69,6 +102,37 @@ let MyComponent = React.createClass({
           app.checked = !app.checked
         }
       });
+      const checkedList = appList.filter((app) => app.checked)
+      if(checkedList.length === 0){
+        parentScope.setState({
+          runBtn: false,
+          stopBtn: false,
+          restartBtn: false,
+        })
+        return
+      }
+      if(checkedList.length === 1){
+        if(checkedList[0].status.phase === 'Running'){
+          console.log('run !');
+          parentScope.setState({
+            runBtn: false,
+            stopBtn: true,
+            restartBtn: true,
+          })
+        } else if(checkedList[0].status.phase === 'Stopped') {
+          parentScope.setState({
+            runBtn: true,
+            stopBtn: false,
+            restartBtn: false,
+          })
+        }
+      } else if (checkedList.length >1) {
+        parentScope.setState({
+          runBtn: true,
+          stopBtn: true,
+          restartBtn: true,
+        })
+      }
       parentScope.setState({
         appList
       });
@@ -139,7 +203,7 @@ let MyComponent = React.createClass({
       return (
         <div className={item.checked ? 'appDetail appDetailSelected' : 'appDetail'} key={item.name} onClick={this.selectAppByline.bind(this, item)} >
           <div className='selectIconTitle commonData'>
-            <Checkbox value={item.name} checked={item.checked} onChange={this.onchange}></Checkbox>
+            <Checkbox value={item.name} checked={item.checked} onChange={this.onchange}/>
           </div>
           <div className='appName commonData'>
             <Tooltip title={item.name}>
@@ -180,6 +244,162 @@ let MyComponent = React.createClass({
     );
   }
 });
+let StartAppsModal = React.createClass({
+  getInitialState(){
+    return {
+      
+    }
+  },
+  render: function(){
+    const { appList } = this.props
+    const checkedAppList = appList.filter((app) => app.checked)
+    let runningApps = []
+    
+    checkedAppList.map((app,index) => {
+      if(app.status.phase === 'Running'){
+        runningApps.push(app)
+      }
+    })
+    let item = runningApps.map((app,index) => {
+      return (
+        <tr>
+          <td>{index+1}</td>
+          <td>{app.name}</td>
+          <td style={{color:'#4bbd74'}}>服务为运行中状态</td>
+        </tr>
+      )
+    })
+    return (
+      <div id="StartAppsModal">
+        {
+          runningApps.length !== 0 ?
+            <div>
+              <Alert message={<span>你选择的{checkedAppList.length}个服务中, 有<span className="modalDot" style={{backgroundColor:'#4bbd74'}}>{runningApps.length}个</span>已经是运行中状态, 不需再启动</span>}
+                     type="warning" showIcon/>
+              <div style={{height:26}}>Tip: 运行中状态的服务不需再次启动</div>
+              <div className="tableWarp">
+                <table className="modalList">
+                  <tbody>
+                  {item}
+                  </tbody>
+                </table>
+              </div>
+              
+            </div>:
+            <div></div>
+        }
+        <div className="confirm">
+          <Icon type="question-circle-o" style={{marginRight:'10px'}}/>
+          您是否确定启动这{(checkedAppList.length - runningApps.length)}个已停止的服务 ?
+        </div>
+      </div>
+    )
+  }
+})
+let StopAppsModal = React.createClass({
+  getInitialState(){
+    return {
+      
+    }
+  },
+  render: function(){
+    const { appList } = this.props
+    const checkedAppList = appList.filter((app) => app.checked)
+    let stoppedApps = []
+    
+    checkedAppList.map((app,index) => {
+      if(app.status.phase === 'Stopped'){
+        stoppedApps.push(app)
+      }
+    })
+    let item = stoppedApps.map((app,index) => {
+      return (
+        <tr>
+          <td>{index+1}</td>
+          <td>{app.name}</td>
+          <td style={{color:'#f85958'}}>服务为已停止状态</td>
+        </tr>
+      )
+    })
+    return (
+      <div id="StartAppsModal">
+        {
+          stoppedApps.length !== 0 ?
+            <div>
+              <Alert message={<span>你选择的{checkedAppList.length}个服务中, 有<span className="modalDot" style={{backgroundColor:'#f85958'}}>{stoppedApps.length}个</span>已经是已停止状态, 不需再停止</span>}
+                     type="warning" showIcon/>
+              <div style={{height:26}}>Tip: 已停止状态的服务不需再次停止</div>
+              <div className="tableWarp">
+                <table className="modalList">
+                  <tbody>
+                  {item}
+                  </tbody>
+                </table>
+              </div>
+            
+            </div>:
+            <div></div>
+        }
+        <div className="confirm">
+          <Icon type="question-circle-o" style={{marginRight:'10px'}}/>
+          您是否确定停止这{(checkedAppList.length - stoppedApps.length)}个运行中的服务 ?
+        </div>
+      </div>
+    )
+  }
+})
+let RestarAppsModal = React.createClass({
+  getInitialState(){
+    return {
+      
+    }
+  },
+  render: function(){
+    const { appList } = this.props
+    const checkedAppList = appList.filter((app) => app.checked)
+    let stoppedApps = []
+    
+    checkedAppList.map((app,index) => {
+      if(app.status.phase === 'Stopped'){
+        stoppedApps.push(app)
+      }
+    })
+    let item = stoppedApps.map((app,index) => {
+      return (
+        <tr>
+          <td>{index+1}</td>
+          <td>{app.name}</td>
+          <td style={{color:'#f85958'}}>服务为已停止状态</td>
+        </tr>
+      )
+    })
+    return (
+      <div id="StartAppsModal">
+        {
+          stoppedApps.length !== 0 ?
+            <div>
+              <Alert message={<span>你选择的{checkedAppList.length}个服务中, 有<span className="modalDot" style={{backgroundColor:'#f85958'}}>{stoppedApps.length}个</span>已经是已停止状态, 不需再停止</span>}
+                     type="warning" showIcon/>
+              <div style={{height:26}}>Tip: 已停止状态的服务不需再次停止</div>
+              <div className="tableWarp">
+                <table className="modalList">
+                  <tbody>
+                  {item}
+                  </tbody>
+                </table>
+              </div>
+            
+            </div>:
+            <div></div>
+        }
+        <div className="confirm">
+          <Icon type="question-circle-o" style={{marginRight:'10px'}}/>
+          您是否确定停止这{(checkedAppList.length - stoppedApps.length)}个运行中的服务 ?
+        </div>
+      </div>
+    )
+  }
+})
 
 function loadData(props) {
   const { loadAppList, cluster, page, size, name, sortOrder, sortBy } = props
@@ -190,9 +410,7 @@ class AppList extends Component {
   constructor(props) {
     super(props)
     this.onAllChange = this.onAllChange.bind(this)
-    this.confirmStartApps = this.confirmStartApps.bind(this)
     this.batchStartApps = this.batchStartApps.bind(this)
-    this.confirmStopApps = this.confirmStopApps.bind(this)
     this.batchStopApps = this.batchStopApps.bind(this)
     this.confirmDeleteApps = this.confirmDeleteApps.bind(this)
     this.batchDeleteApps = this.batchDeleteApps.bind(this)
@@ -202,10 +420,22 @@ class AppList extends Component {
     this.onPageChange = this.onPageChange.bind(this)
     this.onShowSizeChange = this.onShowSizeChange.bind(this)
     this.sortApps = this.sortApps.bind(this)
+    this.handleStartAppsOk = this.handleStartAppsOk.bind(this)
+    this.handleStartAppsCancel = this.handleStartAppsCancel.bind(this)
+    this.handleStopAppsOk = this.handleStopAppsOk.bind(this)
+    this.handleStopAppsCancel = this.handleStopAppsCancel.bind(this)
+    this.handleRestarAppsOk = this.handleRestarAppsOk.bind(this)
+    this.handleRestarAppsCancel = this.handleRestarAppsCancel.bind(this)
     this.state = {
       appList: props.appList,
       searchInputValue: props.name,
       searchInputDisabled: false,
+      runBtn: false,
+      stopBtn: false,
+      restartBtn: false,
+      startAppsModal: false,
+      stopAppsModal: false,
+      restarAppsModal: false,
     }
   }
 
@@ -242,10 +472,15 @@ class AppList extends Component {
     loadData(nextProps)
   }
 
-  confirmStartApps(appList) {
+ /* confirmStartApps(appList) {
     const self = this
     const { cluster, startApps } = this.props
     const appNames = appList.map((app) => app.name)
+    appList.map((app,index) => {
+      if(app.status.phase === 'Running'){
+        
+      }
+    })
     confirm({
       title: `您是否确认要启动这${appNames.length}个应用`,
       content: appNames.join(', '),
@@ -268,15 +503,24 @@ class AppList extends Component {
       },
       onCancel() { },
     });
-  }
+  }*/
 
   batchStartApps(e) {
-    const { appList } = this.state
-    const checkedAppList = appList.filter((app) => app.checked)
-    this.confirmStartApps(checkedAppList)
+    this.setState({
+      startAppsModal: true
+    })
   }
-
-  confirmStopApps(appList) {
+  batchStopApps(e) {
+    this.setState({
+      stopAppsModal: true
+    })
+  }
+  batchRestartApps(e) {
+    this.setState({
+      restarAppsModal: true
+    })
+  }
+ /* confirmStopApps(appList) {
     const self = this
     const { cluster, stopApps } = this.props
     const appNames = appList.map((app) => app.name)
@@ -305,13 +549,7 @@ class AppList extends Component {
       },
       onCancel() { },
     })
-  }
-
-  batchStopApps(e) {
-    const { appList } = this.state
-    const checkedAppList = appList.filter((app) => app.checked)
-    this.confirmStopApps(checkedAppList)
-  }
+  }*/
 
   confirmDeleteApps(appList) {
     const self = this
@@ -375,11 +613,7 @@ class AppList extends Component {
     });
   }
 
-  batchRestartApps(e) {
-    const { appList } = this.state
-    const checkedAppList = appList.filter((app) => app.checked)
-    this.confirmRestartApps(checkedAppList)
-  }
+  
 
   searchApps(e) {
     const { name, pathname, sortOrder, sortBy } = this.props
@@ -450,11 +684,91 @@ class AppList extends Component {
     }
     this.updateBrowserHistory(page, size, sortOrder, by)
   }
-
+  handleStartAppsOk(){
+    const self = this
+    const { cluster, startApps,appList } = this.props
+    const checkedAppList = appList.filter((app) => app.checked)
+    const appNames = checkedAppList.map((app) => app.name)
+    const allApps = self.state.appList
+    allApps.map((app) => {
+      if (appNames.indexOf(app.name) > -1) {
+        app.phase = 'Starting'
+      }
+    })
+    startApps(cluster, appNames, {
+      success: {
+        func: () => {
+          loadData(self.props)
+          this.setState({
+            startAppsModal:false,
+            runBtn: false,
+            stopBtn: false,
+            restartBtn: false,
+          })
+        },
+        isAsync: true
+      }
+    })
+  }
+  handleStartAppsCancel(){
+    this.setState({
+      startAppsModal:false,
+      runBtn: false,
+      stopBtn: false,
+      restartBtn: false,
+    })
+  }
+  handleStopAppsOk(){
+    const self = this
+    const { cluster, stopApps,appList } = this.props
+    const checkedAppList = appList.filter((app) => app.checked)
+    const appNames = checkedAppList.map((app) => app.name)
+    const allApps = self.state.appList
+    allApps.map((app) => {
+      if (appNames.indexOf(app.name) > -1) {
+        app.phase = 'Stopping'
+      }
+    })
+    stopApps(cluster, appNames, {
+      success: {
+        func: () => {
+          loadData(self.props)
+          this.setState({
+            stopAppsModal:false,
+            runBtn: false,
+            stopBtn: false,
+            restartBtn: false,
+          })
+        },
+        isAsync: true
+      }
+    })
+  }
+  handleStopAppsCancel(){
+    this.setState({
+      stopAppsModal:false,
+      runBtn: false,
+      stopBtn: false,
+      restartBtn: false,
+    })
+  }
+  handleRestarAppsOk(){
+    this.setState({
+      restarAppsModal:true,
+    })
+  }
+  handleRestarAppsCancel(){
+    this.setState({
+      restarAppsModal:false,
+      runBtn: false,
+      stopBtn: false,
+      restartBtn: false,
+    })
+  }
   render() {
     const scope = this
-    const { name, pathname, page, size, sortOrder, sortBy, total, cluster, isFetching } = this.props
-    const { appList, searchInputValue, searchInputDisabled } = this.state
+    const { name, pathname, page, size, sortOrder, sortBy, total, cluster, isFetching,startApps, stopApps } = this.props
+    const { appList, searchInputValue, searchInputDisabled,runBtn,stopBtn,restartBtn } = this.state
     const checkedAppList = appList.filter((app) => app.checked)
     const isChecked = (checkedAppList.length > 0)
     let isAllChecked = (appList.length === checkedAppList.length)
@@ -497,28 +811,43 @@ class AppList extends Component {
             <div className='leftBox'>
               <Button type='primary' size='large'>
                 <Link to='/app_manage/app_create'>
-                  <i className='fa fa-plus'></i>创建应用
+                  <i className='fa fa-plus'/>创建应用
                 </Link>
               </Button>
-              <Button type='ghost' size='large' onClick={this.batchStartApps} disabled={!isChecked}>
-                <i className='fa fa-play'></i>启动
+              <Button type='ghost' size='large' onClick={this.batchStartApps} disabled={!runBtn}>
+                <i className='fa fa-play'/>启动
               </Button>
-              <Button type='ghost' size='large' onClick={this.batchStopApps} disabled={!isChecked}>
-                <i className='fa fa-stop'></i>停止
+              <Modal title="启动操作" visible={this.state.startAppsModal}
+                     onOk={this.handleStartAppsOk} onCancel={this.handleStartAppsCancel}
+              >
+                <StartAppsModal appList={appList} />
+              </Modal>
+              <Button type='ghost' size='large' onClick={this.batchStopApps} disabled={!stopBtn}>
+                <i className='fa fa-stop'/>停止
               </Button>
+              <Modal title="停止操作" visible={this.state.stopAppsModal}
+                     onOk={this.handleStopAppsOk} onCancel={this.handleStopAppsCancel}
+              >
+                <StopAppsModal appList={appList} />
+              </Modal>
               <Button type='ghost' size='large' onClick={() => loadData(this.props)}>
-                <i className='fa fa-refresh'></i>刷新
+                <i className='fa fa-refresh'/>刷新
               </Button>
               <Button type='ghost' size='large' onClick={this.batchDeleteApps} disabled={!isChecked}>
-                <i className='fa fa-trash-o'></i>删除
+                <i className='fa fa-trash-o'/>删除
               </Button>
-              <Button type='ghost' size='large' onClick={this.batchRestartApps} disabled={!isChecked}>
-                <i className='fa fa-undo'></i>重新部署
+              <Button type='ghost' size='large' onClick={this.batchRestartApps} disabled={!restartBtn}>
+                <i className='fa fa-undo'/>重新部署
               </Button>
+              <Modal title="重新部署操作" visible={this.state.restarAppsModal}
+                     onOk={this.handleRestarAppsOk} onCancel={this.handleRestarAppsCancel}
+              >
+                <RestarAppsModal appList={appList} />
+              </Modal>
             </div>
             <div className='rightBox'>
               <div className='littleLeft' onClick={this.searchApps}>
-                <i className='fa fa-search'></i>
+                <i className='fa fa-search'/>
               </div>
               <div className='littleRight'>
                 <Input
@@ -527,7 +856,7 @@ class AppList extends Component {
                     this.setState({
                       searchInputValue: e.target.value
                     })
-                  } }
+                  }}
                   value={searchInputValue}
                   placeholder='按应用名搜索'
                   disabled={searchInputDisabled}
@@ -552,7 +881,7 @@ class AppList extends Component {
           <Card className='appBox'>
             <div className='appTitle'>
               <div className='selectIconTitle commonTitle'>
-                <Checkbox checked={isAllChecked} onChange={this.onAllChange} disabled={appList.length < 1}></Checkbox>
+                <Checkbox checked={isAllChecked} onChange={this.onAllChange} disabled={appList.length < 1}/>
               </div>
               <div className='appName commonTitle'>
                 应用名称

@@ -173,39 +173,44 @@ class VmList extends Component {
           </div>
           <div className='cpu commonTitle'>
             <span className='commonSpan'>
-              <Tooltip placement='topLeft' title={item.ip}>
-                <span>{item.ip}</span>
-              </Tooltip>
+              <span className='topSpan'>8核</span>
+              <span className='bottomSpan'>20%</span>
             </span>
           </div>
           <div className='memory commonTitle'>
             <span className='commonSpan'>
-              <span>{item.runTime}</span>
+              <span className='topSpan'>8G</span>
+              <span className='bottomSpan'>20%</span>
             </span>
           </div>
           <div className='disk commonTitle'>
             <span className='commonSpan'>
-              <Tooltip placement='topLeft' title={item.startTime}>
-                <span>{item.startTime}</span>
-              </Tooltip>
+              <span className='topSpan'>8T</span>
+              <span className='bottomSpan'>20%</span>
             </span>
           </div>
           <div className='runTime commonTitle'>
-            <span className='commonSpan'>
-              <Tooltip placement='topLeft' title={item.env}>
-                <span>{item.env}</span>
-              </Tooltip>
-            </span>
-          </div>
-          <div className='startTime commonTitle'>
             <span className='commonSpan'>
               <Tooltip placement='topLeft' title={item.life}>
                 <span>{item.life}</span>
               </Tooltip>
             </span>
           </div>
+          <div className='startTime commonTitle'>
+            <span className='commonSpan'>
+              <Tooltip placement='topLeft' title={item.startTime}>
+                <span>{item.startTime}</span>
+              </Tooltip>
+            </span>
+          </div>
           <div className='opera commonTitle'>
-            <Dropdown.Button overlay={menu} type="ghost">
+            <Button size='large' type='primary' className='terminalBtn'>
+              <svg className='terminal'>
+                <use xlinkHref='#terminal' />
+              </svg>
+              <span style={{ marginLeft: '20px' }}>终端</span>
+            </Button>
+            <Dropdown.Button overlay={menu} type="ghost" size='large'>
               干嘛呢
             </Dropdown.Button>
           </div>

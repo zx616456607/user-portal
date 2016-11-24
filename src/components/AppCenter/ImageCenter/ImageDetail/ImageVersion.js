@@ -9,7 +9,6 @@
  */
 import React, { Component } from 'react'
 import { Card, Spin, Tabs } from 'antd'
-import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import ServiceAPI from './ServiceAPI.js'

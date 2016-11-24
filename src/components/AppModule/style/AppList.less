@@ -1,7 +1,8 @@
 #AppList {
-  padding-top: 40px;
+  padding-top: 25px;
   padding-left: 30px;
-  padding-right: 60px;
+  padding-right: 30px;
+  margin-bottom: 30px;
   .clearDiv {
     clear: both;
   }
@@ -17,6 +18,7 @@
           margin-right: 5px;
         }
       }
+
     }
     .rightBox {
       position: relative;
@@ -108,7 +110,7 @@
       }
     }
     .dataBox {
-      padding-bottom: 40px;
+      padding-bottom: 20px;
       width: 100%;
       height: auto;
       line-height: 60px;
@@ -168,5 +170,35 @@
         }
       }
     }
+  }
+}
+#StartAppsModal {
+  .confirm {
+    color: #00a0ea;
+  }
+  .tableWarp {
+    height: 131px;
+    overflow-y: auto;
+    margin-bottom: 16px;
+    .modalList {
+      width: 100%;
+      border-collapse: collapse;
+
+      tr {
+        border: 1px solid #e2e2e2;
+        height: 25px;
+        line-height: 25px;
+        text-align: center;
+      }
+    }
+  }
+  .modalDot {
+    display: inline-block;
+    height: 16px;
+    width: 30px;
+    text-align: center;
+    line-height: 16px;
+    border-radius: 8px;
+    color: #fff;
   }
 }

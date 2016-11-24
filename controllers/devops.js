@@ -198,7 +198,6 @@ exports.doUserAuthorization = function* () {
   }
   const api = apiFactory.getDevOpsApi(loginUser)
   const results = yield api.createBy(["repos", type], null, authInfo)
-
   resData.authInfo[users] = results;
   resData.authInfo[authorized] = true;
   // Save to session
@@ -206,7 +205,6 @@ exports.doUserAuthorization = function* () {
 
   this.status = 200
   this.redirect('/ci_cd/coderepo?' + type)
-  //this.body = results
 }
 /*
 Managed projects
@@ -713,10 +711,21 @@ exports.getStageBuildLogList = function* () {
   const loginUser = this.session.loginUser
   const flow_id = this.params.flow_id
   const stage_id = this.params.stage_id
-  
+
   const api = apiFactory.getDevOpsApi(loginUser)
   const result = yield api.getBy(["ci-flows", flow_id, "stages", stage_id, "builds"], null)
   
+  this.body = {
+    data: result
+  }
+}
+
+exports.getStats = function* () {
+  const loginUser = this.session.loginUser
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.getBy(["stats"], null)
+
   this.body = {
     data: result
   }

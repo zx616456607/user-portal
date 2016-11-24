@@ -40,11 +40,11 @@ module.exports = function (Router) {
   router.put('/storage-pools/:pool/:cluster/volumes/format', volumeController.formateVolume)
   router.put('/storage-pools/:pool/:cluster/volumes/size', volumeController.resizeVolume)
   router.get('/storage-pools/:pool/:cluster/volumes/:name', volumeController.getVolumeDetail)
-  router.post('/storage-pools/:pool/:cluster/volumes/:name/beforeimport', volumeController.beforeUploadFile)
-  router.post('/storage-pools/:pool/:cluster/volumes/:name/import', volumeController.uploadFile)
+  //router.post('/storage-pools/:pool/:cluster/volumes/:name/beforeimport', volumeController.beforeUploadFile)
+  //router.post('/storage-pools/:pool/:cluster/volumes/:name/import', volumeController.uploadFile)
   router.get('/storage-pools/:pool/:cluster/volumes/:name/filehistory', volumeController.getFileHistory)
   router.get('/storage-pools/:pool/:cluster/volumes/:name/bindinfo', volumeController.getBindInfo)
-  router.get('/storage-pools/:pool/:cluster/volumes/:name/exportfile', volumeController.exportFile)
+ // router.get('/storage-pools/:pool/:cluster/volumes/:name/exportfile', volumeController.exportFile)
   router.get('/storage-pools/:cluster/volumes/available', volumeController.getAvailableVolume)
 
   // Clusters
@@ -108,6 +108,7 @@ module.exports = function (Router) {
   // Teams
   router.get('/teams/:team_id/spaces', teamController.getTeamspaces)
   router.get('/teams/:team_id/clusters', teamController.getTeamClusters)
+  router.get('/teams/:team_id/clusters/all', teamController.getAllClusters)
   router.get('/teams/:team_id/users', teamController.getTeamUsers)
   router.post('/teams', teamController.createTeam)
   router.delete('/teams/:team_id', teamController.deleteTeam)
@@ -116,12 +117,23 @@ module.exports = function (Router) {
   //To remove multiple users, seperate the user ids with ",".
   router.delete('/teams/:team_id/users/:user_ids', teamController.removeTeamusers)
   router.delete('/teams/:team_id/spaces/:space_id', teamController.deleteTeamspace)
+  router.put('/teams/:team_id/clusters/:cluster_id/request', teamController.requestTeamCluster)
 
-  //Overview
+  //Overview Team
   router.get('/overview/teams/:team_id/detail', overviewTeamController.getTeamDetail)
   router.get('/overview/teams/:team_id/operations', overviewTeamController.getTeamOperations)
+
+  //Overview Cluster
   router.get('/overview/clusters/:cluster_id/operations', overviewClusterController.getClusterOperations)
+  router.get('/overview/clusters/:cluster_id/sysinfo', overviewClusterController.getClusterSysinfo)
+  router.get('/overview/clusters/:cluster_id/storage', overviewClusterController.getClusterStorage)
+  router.get('/overview/clusters/:cluster_id/appstatus', overviewClusterController.getClusterAppStatus)
+  router.get('/overview/clusters/:cluster_id/dbservices', overviewClusterController.getClusterDbServices)
+  router.get('/overview/clusters/:cluster_id/nodesummary', overviewClusterController.getClusterNodeSummary)
+ 
+  //Overview Space
   router.get('/overview/operations', overviewSpaceController.getSpaceOperations)
+  router.get('/overview/templates', overviewSpaceController.getSpaceTemplateStats)
 
   // spi
   router.post('/clusters/:cluster/services/:service_name/binddomain', serviceController.bindServiceDomain)
@@ -152,6 +164,7 @@ module.exports = function (Router) {
   router.get('/registries/:registry/favourite', registryController.getFavouriteImages)
   router.put('/registries/:registry/:image*', registryController.updateImageInfo)
   router.delete('/registries/:registry/:image*', registryController.deleteImage)
+  router.get('/registries/:registry/stats', registryController.queryServerStats)
 
   // Private docker registry integration
   router.get('/docker-registry', registryController.getPrivateRegistries)
@@ -186,6 +199,7 @@ module.exports = function (Router) {
   router.post('/clusters/:cluster/instances/:instances/getSearchLog', manageMonitorController.getSearchLog)
 
   // DevOps service: CI/CD
+  router.get('/devops/stats', devopsController.getStats)
   // Repos
   router.post('/devops/repos/:type', devopsController.registerRepo)
   router.get('/devops/repos/:type', devopsController.listRepository)

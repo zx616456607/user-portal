@@ -3,7 +3,7 @@
   position: inherit;
   width: 60px;
   height: 100%;
-  background-color: #2A2F3A;
+  background-color: #2b333d;
   transition: all 0.3s;
   //公用li样式
   .miniSider {
@@ -16,7 +16,7 @@
     }
     .logoItem {
       margin-bottom: 20px;
-      background-color: #3F434D;
+      background-color: #333c47;
     }
     li {
       padding: 0 !important;
@@ -31,7 +31,7 @@
       }
     }
     li:hover {
-      background-color: #3F434D;
+      background-color: #333c47;
       use {
         fill: #d6dbea !important;
       }
@@ -39,14 +39,14 @@
   }
   //被选中态
   .selectedLi {
-    background-color: #3F434D;
+    background-color: #333c47;
     border-right: 3px solid #00afdd;
     use {
       fill: #2db7f5 !important;
     }
   }
   .selectedLi:hover {
-    background-color: #3F434D;
+    background-color: #333c47;
     border-right: 3px solid #00afdd;
     use {
       fill: #2db7f5 !important;
@@ -99,14 +99,14 @@
       text-align: center;
       font-size: 14px;
       color: #a4a8a9;
-      background-color: #3F434D;
+      background-color: #333c47;
       cursor: pointer;
       i {
         margin-right: 8px;
       }
     }
   }
-  .siderBiggerBox{
+  .siderBiggerBox {
     height: calc(~"100% - 50px");
   }
   .siderBigger {
@@ -132,6 +132,25 @@
     .commonSiderSpan {
       float: left;
     }
+    .sideCircle {
+      width: 3px;
+      height: 3px;
+      margin-top: -3px;
+      background: #C4C4C4;
+      vertical-align: middle;
+      margin-right: 15px;
+      display: inline-block;
+    }
+    .sideCircle:hover {
+      background-color: #2db7f5;
+    }
+    .sline {
+      clear: both;
+      height: 10px;
+    }
+    .ant-menu-dark .ant-menu-inline.ant-menu-sub {
+      background-color: #333c47;
+    }
     .ant-menu-root {
       height: calc(~"100% - 70px");
       overflow-y: auto;
@@ -141,7 +160,7 @@
       height: 45px !important;
       line-height: 45px !important;
       &:hover {
-        a{
+        a {
           color: #FFFFFF !important;
         }
         use {
@@ -161,8 +180,11 @@
         color: #C4C4C4;
       }
       &:hover {
-        a{
+        a {
           color: #FFFFFF !important;
+        }
+        .sideCircle {
+          background-color: #FFFFFF;
         }
         use {
           fill: #FFFFFF !important;
@@ -171,7 +193,7 @@
     }
     .ant-menu-submenu {
       .ant-menu-item {
-        padding-left: 50px !important;
+        padding-left: 30px !important;
         height: 40px !important;
         line-height: 40px !important;
         a {
@@ -191,6 +213,9 @@
       a {
         color: #FFFFFF;
       }
+      .sideCircle {
+        background-color: #FFFFFF;
+      }
       use {
         fill: #FFFFFF !important;
       }
@@ -198,6 +223,9 @@
         color: #FFFFFF;
         a {
           color: #FFFFFF;
+        }
+        .sideCircle {
+          background-color: #FFFFFF;
         }
         use {
           fill: #FFFFFF !important;
@@ -210,11 +238,11 @@
       height: 55px;
       line-height: 55px;
       text-align: center;
-      background-color: #3F434D;
+      background-color: #333c47;
       a {
         width: 100% !important;
         text-align: left;
-        padding: 10px 0px 0px 20px;
+        padding: 10px 0 0 20px;
       }
       img {
         height: 32px;

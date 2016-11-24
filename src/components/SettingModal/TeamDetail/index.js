@@ -13,9 +13,9 @@ import './style/TeamDetail.less'
 import { Link } from 'react-router'
 import {
   deleteTeam, createTeamspace, addTeamusers, removeTeamusers,
-  loadTeamspaceList, loadTeamUserList, loadTeamClustersList,deleteTeamspace
+  loadTeamspaceList, loadTeamUserList, loadAllClustersList,
+  deleteTeamspace, requestTeamCluster
 } from '../../../actions/team'
-import {loadClusterList} from '../../../actions/cluster'
 import { connect } from 'react-redux'
 import MemberTransfer from '../MemberTransfer'
 
@@ -384,6 +384,47 @@ let TeamList = React.createClass({
     )
   }
 })
+let ClusterState = React.createClass({
+  getInitialState(){
+    return {
+      
+    }
+  },
+  applyClusterState(){
+    const {requestTeamCluster,clusterID,teamID,loadAllClustersList} = this.props
+    requestTeamCluster(teamID,clusterID)
+    loadAllClustersList(teamID)
+  },
+  componentWillMount(){
+    const {requestTeamCluster,clusterID,teamID,loadAllClustersList} = this.props
+    loadAllClustersList(teamID)
+  },
+  render: function(){
+    const {state} = this.props
+    console.log('render state',state);
+    if(state === 'authorized'){
+      return (
+        <div id='ClusterState'>
+          <span style={{color:'#5fb55e'}}>已授权</span>
+        </div>
+      )
+    } else if (state === 'notAuthorized') {
+      return (
+        <div id='ClusterState'>
+          <span style={{color:'#f85050'}}>未授权</span>
+          <Button type="primary" onClick={this.applyClusterState} style={{backgroundColor:'#00a1e9'}} className="applyBtn">立即申请</Button>
+        </div>
+      )
+    } else if (state === 'pending') {
+      return (
+        <div id='ClusterState'>
+          <span style={{color:'#82c4f4'}}>授权中...</span>
+          {/*<Button type="primary" onClick={this.applyClusterState} style={{backgroundColor:'#5db75d',borderColor:'#5db75d'}} className="applyBtn">重复申请</Button>*/}
+        </div>
+      )
+    }
+  }
+})
 class TeamDetail extends Component {
   constructor(props) {
     super(props)
@@ -499,15 +540,15 @@ class TeamDetail extends Component {
     })
   }
   componentWillMount() {
-    const { loadClusterList, loadTeamUserList, loadTeamspaceList, teamID, } = this.props
-    loadClusterList(teamID)
+    const { loadAllClustersList, loadTeamUserList, loadTeamspaceList, teamID, } = this.props
+    loadAllClustersList(teamID)
     loadTeamUserList(teamID, { sort: 'a,userName',size:5,page:1 })
     loadTeamspaceList(teamID, { sort: 'a,spaceName',size:5,page:1})
   }
 
   render() {
     const { clusterList, teamUserList, teamUserIDList, teamSpacesList, teamName, teamID, teamUsersTotal, teamSpacesTotal,
-      removeTeamusers, loadTeamUserList, loadTeamspaceList,deleteTeamspace } = this.props
+      removeTeamusers, loadTeamUserList, loadTeamspaceList,deleteTeamspace,requestTeamCluster,loadAllClustersList } = this.props
     const { targetKeys, sortSpace, spaceCurrent, spacePageSize,spacePage,sortSpaceOrder } = this.state
     return (
       <div id='TeamDetail'>
@@ -539,7 +580,9 @@ class TeamDetail extends Component {
                     </Row>
                     <Row className="cardItem">
                       <Col span={8}>授权状态</Col>
-                      <Col span={16}><span>已授权</span></Col>
+                      <Col span={16}>
+                          <ClusterState state={item.clusterStatus} requestTeamCluster={requestTeamCluster} loadAllClustersList={loadAllClustersList} clusterID={item.clusterID} teamID={teamID}/>
+                      </Col>
                     </Row>
                   </Card>
                 </Col>
@@ -655,8 +698,8 @@ function mapStateToProp(state, props) {
       })
     }
   }
-  if (team.teamClusters) {
-    const cluster = team.teamClusters
+  if (team.allClusters) {
+    const cluster = team.allClusters
     if (cluster.result) {
       if (cluster.result.data) {
         clusterData = cluster.result.data
@@ -668,6 +711,7 @@ function mapStateToProp(state, props) {
                 apiHost: item.apiHost,
                 clusterID: item.clusterID,
                 clusterName: item.clusterName,
+                clusterStatus: item.status,
               }
             )
           })
@@ -711,6 +755,7 @@ export default connect(mapStateToProp, {
   removeTeamusers,
   loadTeamspaceList,
   loadTeamUserList,
-  loadClusterList,
+  loadAllClustersList,
   deleteTeamspace,
+  requestTeamCluster,
 })(TeamDetail)

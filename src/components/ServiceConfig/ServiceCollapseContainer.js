@@ -14,6 +14,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 // import ConfigFile from './ServiceConfigFile'
 import { loadConfigName, updateConfigName, configGroupName, deleteConfigName, changeConfigFile } from '../../actions/configs'
 import { loadAppList } from '../../actions/app_manage'
+import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import unionWith from 'lodash/unionWith'
 import isEqual from 'lodash/isEqual'
@@ -200,10 +201,10 @@ class CollapseContainer extends Component {
           )
         } else {
           mounts = formatVolumeMounts(self.props.appList, groupname, configFileItem.name)
-          volume = mounts.slice(0, 3).map((list, index) => {
+          volume = mounts.slice(0, 2).map((list, index) => {
             return (
               <td key={`key@${index}`}>
-                <div className="li">{list.imageName}</div>
+                <div className="li"><Link to={`/app_manage/detail/${list.imageName}`}>{list.imageName}</Link></div>
                 <div className='lis'>{list.mountPath}</div>
               </td>
 
@@ -225,7 +226,7 @@ class CollapseContainer extends Component {
               <tbody>
                 <tr>
                   <td style={{ padding: '15px' }}>
-                    <div style={{ width: '180px' }} className='textoverflow'><Icon type='file-text' style={{ marginRight: '10px' }} />{configFileItem.name}</div>
+                    <div style={{ width: '160px' }} className='textoverflow'><Icon type='file-text' style={{ marginRight: '10px' }} />{configFileItem.name}</div>
                   </td>
                   <td style={{ padding: '15px 20px' }}>
                     <Button type='primary' style={{ height: '30px', padding: '0 9px' }}
@@ -242,7 +243,7 @@ class CollapseContainer extends Component {
                   </td>
                   { volume }
 
-                  {(mounts && mounts.length > 3) ?
+                  {(mounts && mounts.length > 2) ?
                     [<td style={{ textAlign: 'center' }}>
                       <div style={{cursor:'pointer'}} onClick={()=> {this.setState({[this.props.groupname + configFileItem.name]: true})}}>查看更多</div>
                     </td>]
@@ -262,10 +263,10 @@ class CollapseContainer extends Component {
                 <div className="span6">挂载路径</div>
               </div>
                 {/*查看更多-关联容器列表-start*/}
-                {mounts && mounts.slice(3).map((list) => {
+                {mounts && mounts.slice(2).map((list) => {
                   return (
                     <div className="check-config">
-                      <div className="span4">{list.imageName}</div>
+                      <div className="span4"><Link to={`/app_manage/detail/${list.imageName}`}>{list.imageName}</Link></div>
                       <div className="span6">{list.mountPath}</div>
                     </div>
                   )

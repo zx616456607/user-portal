@@ -260,14 +260,18 @@ class Integration extends Component {
                   </div>
                   <Card className='infoBox'>
                     {this.state.showType == 'list' ? [
-                      <div className='listBox' key='listBox'>
-                        {appShow}
-                      </div>
+                      <QueueAnim key='listBoxAnimate'>
+                        <div className='listBox' key='listBox'>
+                          {appShow}
+                        </div>
+                      </QueueAnim>
                     ] : null}
                     {this.state.showType == 'detail' ? [
-                      <div className='detailBox' key='detailBox'>
-                        <IntegrationDetail scope={scope} />
-                      </div>
+                      <QueueAnim key='detailBoxAnimate'>
+                        <div className='detailBox' key='detailBox'>
+                          <IntegrationDetail scope={scope} />
+                        </div>
+                      </QueueAnim>
                     ] : null}
                   </Card>
                 </div>

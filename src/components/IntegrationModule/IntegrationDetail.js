@@ -72,7 +72,7 @@ class IntegrationDetail extends Component {
       <QueueAnim className='IntegrationDetailAnimate' key='IntegrationDetailAnimate'>
         <div id='IntegrationDetail'>
           <Tabs>
-            <TabPane tab={<FormattedMessage {...menusText.VSphere} />} key='1'>{/*<VSphere scope={scope} />*/}</TabPane>
+            <TabPane tab={<FormattedMessage {...menusText.VSphere} />} key='1'><VSphere scope={scope} /></TabPane>
             <TabPane tab={<FormattedMessage {...menusText.vmList} />} key='2'><VmList scope={scope} /></TabPane>
             <TabPane tab={<FormattedMessage {...menusText.physicalList} />} key='3'><PhysicalList scope={scope} /></TabPane>
             <TabPane tab={<FormattedMessage {...menusText.VSphereConfig} />} key='4'><VSphereConfig scope={scope} /></TabPane>

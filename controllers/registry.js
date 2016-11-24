@@ -122,6 +122,31 @@ exports.deleteImage = function* () {
   }
 }
 
+exports.queryServerStats = function* () {
+  const registry = this.params.registry
+  const result = yield registryService.queryRegistryStats()
+  var data = {
+    public_number: 0,
+    private_number: 0
+  }
+  if (result && result.results) {
+    result.results.forEach(function(image) {
+      let isPrivate = parseInt(image.isPrivate)
+      if (isPrivate == 1) {
+        data.private_number++
+      } else if (isPrivate == 0) {
+        data.public_number++
+      } else {
+        logger.error("Image that has issue that needs to fix: " + JSON.stringify(image))
+      }
+    })
+  }
+  this.body = {
+    server: registryConfig.v2Server,
+    data: data
+  }
+}
+
 /*
 Methods below only for thirdparty(custom) docker registry integration
 */
@@ -276,6 +301,7 @@ exports.specGetImageTagSize = function* () {
     this.body = "Docker Registry not found"
   }
 }
+
 // Get registry server information
 function* _getRegistryServerInfo(session, user, id){
   var serverInfo = {}

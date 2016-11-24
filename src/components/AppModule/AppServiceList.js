@@ -662,7 +662,7 @@ class AppServiceList extends Component {
       </Menu>
     );
     return (
-      <div id="AppServiceList">
+      <div id="AppServiceList" style={{ padding: '10px 15px' }}>
         <QueueAnim className="demo-content"
           key="demo"
           type="right"
@@ -692,15 +692,13 @@ class AppServiceList extends Component {
               <i className="fa fa-trash"></i>
               删除
             </Button>
-            <Tooltip placement="top" title="快速重启 = docker restart">
-              <Button size="large" onClick={this.confirmQuickRestartService} disabled={!isChecked}>
-                <i className="fa fa-bolt"></i>
-                快速重启
-              </Button>
-            </Tooltip>
+            <Button size="large" onClick={this.confirmQuickRestartService} disabled={!isChecked}>
+              <i className="fa fa-bolt"></i>
+              重启
+            </Button>
             <Dropdown overlay={operaMenu} trigger={['click']}>
               <Button size="large" disabled={!isChecked}>
-                更多操作
+                更多
                 <i className="fa fa-caret-down"></i>
               </Button>
             </Dropdown>

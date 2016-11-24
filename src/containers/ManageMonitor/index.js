@@ -22,10 +22,6 @@ const menuList = [
   {
     url: '/manange_monitor/query_log',
     name: '日志查询'
-  },
-  {
-    url: '/manange_monitor/monitor',
-    name: '监控管理'
   }
 ]
 

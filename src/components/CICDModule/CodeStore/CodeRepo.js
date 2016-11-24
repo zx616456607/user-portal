@@ -56,6 +56,30 @@ const menusText = defineMessages({
   syncCode: {
     id: 'CICD.TenxStorm.syncCode',
     defaultMessage: '同步代码',
+  },
+  SuccessfulActivation: {
+    id: 'CICD.TenxStorm.SuccessfulActivation',
+    defaultMessage: '激活成功',
+  },
+  CancellationCode: {
+    id: 'CICD.TenxStorm.CancellationCode',
+    defaultMessage: '注销代码源',
+  },
+  sureCancellationCode: {
+    id: 'CICD.TenxStorm.sureCancellationCode',
+    defaultMessage: '您是否确认要注销这项代码源',
+  },
+  notSrc: {
+    id: 'CICD.TenxStorm.notSrc',
+    defaultMessage: '地址不能为空',
+  },
+  errorSrc: {
+    id: 'CICD.TenxStorm.errorSrc',
+    defaultMessage: '地址输入有误',
+  },
+  UndoSuccessful: {
+    id: 'CICD.TenxStorm.UndoSuccessful',
+    defaultMessage: '撤消成功',
   }
 })
 
@@ -81,6 +105,7 @@ const MyComponent = React.createClass({
   addBuild(item, index) {
     const parentScope = this.props.scope
     const loadingList  = {} 
+    const self = this
     loadingList[index] = true
     parentScope.setState({
       loadingList
@@ -88,7 +113,8 @@ const MyComponent = React.createClass({
     parentScope.props.addCodeRepo('gitlab', item, {
       success: {
         func: () => {
-          message.success('激活成功')
+          const { formatMessage } = self.props
+          message.success(formatMessage(...menusText.SuccessfulActivation))
         }
       }
     })
@@ -96,9 +122,10 @@ const MyComponent = React.createClass({
   removeRepo() {
     const scope = this.props.scope
     const repoItem = scope.state.repokey
+    const { formatMessage } = this.props
     Modal.confirm({
-      title: '注销代码源',
-      content: '您是否确认要注销这项代码源',
+      title: formatMessage(...menusText.CancellationCode),
+      content: (<h3>formatMessage(...menusText.sureCancellationCode))</h3>),
       onOk() {
         scope.props.deleteRepo(repoItem)
       },
@@ -108,8 +135,9 @@ const MyComponent = React.createClass({
   registryRepo() {
     const url = this.state.regUrl
     const token = this.state.regToken
+    const { formatMessage } = this.props
     if (!url) {
-      message.info('地址不能为空')
+      message.info(formatMessage(...menusText.notSrc))
       return
     }
     if (!token) {
@@ -117,7 +145,7 @@ const MyComponent = React.createClass({
       return
     }
     if (!(/^http:|^https:/).test(url)) {
-      message.info('地址输入有误')
+      message.info(formatMessage(...menusText.errorSrc))
       return
     }
     const config = {
@@ -168,6 +196,7 @@ const MyComponent = React.createClass({
   },
   notActive(id, index) {
     const parentScope = this.props.scope
+    const {formatMessage} = this.props
     const loadingList  = {} 
     loadingList[index] = false
     parentScope.setState({
@@ -176,7 +205,7 @@ const MyComponent = React.createClass({
     parentScope.props.notActiveProject(id, {
       success: {
         func: () => {
-          message.success('撤消成功')
+          message.success(formatMessage(...menusText.UndoSuccessful))
         }
       }
     })
@@ -200,8 +229,8 @@ const MyComponent = React.createClass({
     if (!config) {
       return (
         <div style={{ lineHeight: '150px', paddingLeft: '250px' }}>
-          <Button type="primary" size="large" onClick={() => { this.setState({ authorizeModal: true }) } }>授权同步代码源</Button>
-          <Modal title="授权同步代码源" visible={this.state.authorizeModal}
+          <Button type="primary" size="large" onClick={() => { this.setState({ authorizeModal: true }) } }>添加 Gitlab 代码仓库</Button>
+          <Modal title="添加 Gitlab 代码仓库" visible={this.state.authorizeModal}
             footer={[
               <Button key="back" type="ghost" size="large" onClick={() => { this.setState({ authorizeModal: false }) } }>取消</Button>,
               <Button key="submit" type="primary" size="large" loading={this.state.loading} onClick={() => this.registryRepo()}>确定</Button>,

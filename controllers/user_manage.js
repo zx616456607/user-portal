@@ -24,6 +24,9 @@ exports.getUserDetail = function* () {
   const result = yield api.users.getBy([userID])
   const users = result.users || []
   const user = users.length > 0 ? users[0] : {}
+  if (userID === 'default') {
+    user.watchToken = this.session.loginUser.watchToken
+  }
   this.body = {
     data: user
   }
@@ -132,7 +135,7 @@ exports.getUserTeamspaces = function* () {
   let userID = this.params.user_id
   const loginUser = this.session.loginUser
   const query = this.query || {}
- 
+
   this.body = yield getUserTeamspacesImpl(userID, loginUser, query, false)
 }
 
@@ -140,7 +143,7 @@ exports.getUserTeamspacesWithDetail = function* () {
   let userID = this.params.user_id
   const loginUser = this.session.loginUser
   const query = this.query || {}
- 
+
   this.body = yield getUserTeamspacesImpl(userID, loginUser, query, true)
 }
 
@@ -185,7 +188,7 @@ function* getUserTeamspacesImpl(userID, loginUser, query, fetchDetail) {
       teamspaces[index].appCount = r.appCount
       teamspaces[index].serviceCount = r.serviceCount
       teamspaces[index].containerCount = r.containerCount
-    } 
+    }
   }
 
   return {
@@ -217,12 +220,12 @@ exports.createUser = function* () {
     subject: '用户创建成功通知', // Subject line
     html: `<b>${loginUser.user}您好:</b><br/><br/>恭喜您成功创建如下用户: <br/>用户名: ${user.userName}<br/>密码: ${user.password}` // html body
   }
-  try{
+  try {
     yield email.sendEmail(mailOptions)
     this.body = {
       data: result
     }
-  } catch(err) {
+  } catch (err) {
     const err = new Error('User has been created but sent email failed: ' + error)
     err.status = 500
     throw err
@@ -234,7 +237,7 @@ exports.deleteUser = function* () {
   const loginUser = this.session.loginUser
   userID = userID === 'default' ? loginUser.id : userID
   const api = apiFactory.getApi(loginUser)
-  
+
   const result = yield api.users.delete(userID)
 
   this.body = {

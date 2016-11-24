@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Input, Form, Switch, Radio, Checkbox, Icon, Select, Modal } from 'antd'
+import { Button, Input, Form, Switch, Radio, Checkbox, Icon, Select, Modal, notification } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -108,7 +108,7 @@ const menusText = defineMessages({
   },
   createNewDockerFile: {
     id: 'CICD.Tenxflow.EditTenxFlowModal.createNewDockerFile',
-    defaultMessage: '云端创建 Dockerfile',
+    defaultMessage: '使用云端 Dockerfile',
   },
   imageRealName: {
     id: 'CICD.Tenxflow.EditTenxFlowModal.imageRealName',
@@ -172,11 +172,14 @@ const menusText = defineMessages({
   }
 });
 
-function fetchCodeStoreName(id, codeList) {
+function fetchCodeStoreName(project, codeList) {
   //this function for fetcht code store name 
   let codeName = null;
+  if (!project) {
+    return
+  }
   codeList.map((item) => {
-    if(item.id == id) {
+    if(item.id == project.id) {
       codeName = item.name;
     }
   });
@@ -199,7 +202,7 @@ let EditTenxFlowModal = React.createClass({
   getInitialState: function() {
     return {
       otherFlowType: '3',
-      useDockerfile: false,
+      useDockerfile: true,
       otherTag: false,
       envModalShow: null,
       ImageStoreType: false,
@@ -217,8 +220,14 @@ let EditTenxFlowModal = React.createClass({
     shellUid = 0;
     const _this = this;
     const { config, form, getDockerfiles, codeList, flowId, stageId } = this.props;
+    if (!config.spec.project) {
+      config.spec.project = {
+        id: null,
+        branch: ''
+      }
+    }
     let otherFlowType = config.metadata.type + '';
-    let codeStoreName = fetchCodeStoreName(config.spec.project.id, codeList)
+    let codeStoreName = fetchCodeStoreName(config.spec.project, codeList)
     if (config.spec.build && config.spec.build.dockerfileFrom == 2) {    
       let tempBody = {
         flowId: flowId,
@@ -237,7 +246,7 @@ let EditTenxFlowModal = React.createClass({
     }
     if(otherFlowType != '3') {
       this.setState({
-        otherFlowType: false,
+        otherFlowType: otherFlowType,
         useDockerfile: false,
         ImageStoreType: false,
         otherTag: false,
@@ -525,19 +534,54 @@ let EditTenxFlowModal = React.createClass({
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         e.preventDefault();
-        if (!Boolean(_this.state.dockerFileTextarea && !this.state.useDockerfile)) {
+        if (!Boolean(_this.state.dockerFileTextarea && !this.state.useDockerfile && _this.otherFlowType == '3')) {
           _this.setState({
             noDockerfileInput: true
           });
         }
+        //check image env list
+        let imageEnvLength = values.imageEnvInputs || [];
+        imageEnvLength.map((item, index) => {
+          if(values['imageEnvName' + item] != '') {
+            if(values['imageEnvValue' + item] == '') {
+              _this.setState({
+                emptyImageEnv: true
+              });
+            }
+          }
+        });
         return;
       }
-      if (!Boolean(_this.state.dockerFileTextarea) && !this.state.useDockerfile) {
+      if (!Boolean(_this.state.dockerFileTextarea) && !this.state.useDockerfile && _this.otherFlowType == '3') {
         _this.setState({
           noDockerfileInput: true
         });
         return;
       }
+      //check image env list
+      let imageEnvLength = values.imageEnvInputs || [];
+      let imageEnvList = [];
+      imageEnvLength.map((item, index) => {
+        if(values['imageEnvName' + item] != '') {
+          if(values['imageEnvValue' + item] == '') {
+            _this.setState({
+              emptyImageEnv: true
+            });
+          } else {
+            let tempName = values['imageEnvName' + item];
+            let tempEnv = {
+              [tempName]: values['imageEnvValue' + item]
+            }
+            imageEnvList.push(tempEnv)
+            _this.setState({
+              emptyImageEnv: false
+            });
+          }
+        }
+      });
+      /*if(_this.state.emptyImageEnv) {
+        return;
+      }*/
       //get shell code
       let shellLength = values.shellCodes;
       let shellList = [];
@@ -580,6 +624,7 @@ let EditTenxFlowModal = React.createClass({
           'container': {
             'image': values.imageName,
             'args': shellList,
+            'env': imageEnvList,
             'dependencies': serviceList
           },
           'project': {
@@ -642,7 +687,11 @@ let EditTenxFlowModal = React.createClass({
             rootScope.setState({
               currentFlowEdit: null
             });
-            },
+            notification['success']({
+              message: '持续集成',
+              description: '编辑成功~',
+            });
+          },
           isAsync: true
         }
       })
@@ -651,8 +700,8 @@ let EditTenxFlowModal = React.createClass({
   render() {
     const { formatMessage } = this.props.intl;
     const { config, form, codeList, supportedDependencies } = this.props;
-    const shellList = config.spec.container.args;
-    const servicesList = config.spec.container.dependencies;
+    const shellList = config.spec.container.args ? config.spec.container.args : [];
+    const servicesList = config.spec.container.dependencies ? config.spec.container.dependencies : [];
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form;
     const scopeThis = this;
     let serviceSelectList = supportedDependencies.map((item, index) => {
@@ -728,6 +777,7 @@ let EditTenxFlowModal = React.createClass({
       rules: [
         { message: '输入自定义项目类型' },
       ],
+      initialValue: config.metadata.customType,
     });
     const imageRealNameProps = getFieldProps('imageRealName', {
       rules: [
@@ -810,15 +860,19 @@ let EditTenxFlowModal = React.createClass({
             <span><FormattedMessage {...menusText.flowCode} /></span>
           </div>
           <div className='input'>
-            <span style={{ marginRight:'15px' }}>{this.state.currentCodeStoreName + '  ' + formatMessage(menusText.branch) + this.state.currentCodeStoreBranch}</span>
+            { this.state.currentCodeStore ? [
+              <span style={{ marginRight:'15px' }}>{this.state.currentCodeStoreName + '  ' + formatMessage(menusText.branch) + this.state.currentCodeStoreBranch}</span>
+            ] : null }
             <Button className='selectCodeBtn' size='large' type='ghost' onClick={this.openCodeStoreModal}>
               <i className='fa fa-file-code-o' />
               <FormattedMessage {...menusText.selectCode} />
             </Button>
-            <Button type='ghost' size='large' style={{ marginLeft: '15px' }} onClick={this.deleteCodeStore}>
-              <i className='fa fa-trash' />&nbsp;
-              <FormattedMessage {...menusText.deleteCode} />
-            </Button>
+            { this.state.currentCodeStore ? [
+              <Button type='ghost' size='large' style={{ marginLeft: '15px' }} onClick={this.deleteCodeStore}>
+                <i className='fa fa-trash' />&nbsp;
+                <FormattedMessage {...menusText.deleteCode} />
+              </Button>
+            ] : null }
           </div>
           <div style={{ clear:'both' }} />
         </div>
@@ -934,8 +988,8 @@ let EditTenxFlowModal = React.createClass({
                   <FormItem style={{ float:'left' }}>
                     <RadioGroup {...getFieldProps('imageType', { initialValue: (!!config.spec.build ? (config.spec.build.registryType + '') : null), onChange: this.changeImageStoreType })}>
                       <Radio key='imageStore' value={'1'}><FormattedMessage {...menusText.imageStore} /></Radio>
-                      <Radio key='DockerHub' value={'2'}>Docker Hub</Radio>
-                      <Radio key='otherImage' value={'3'}><FormattedMessage {...menusText.otherImage} /></Radio>
+                      <Radio key='DockerHub' value={'2'} disabled>Docker Hub</Radio>
+                      <Radio key='otherImage' value={'3'} disabled><FormattedMessage {...menusText.otherImage} /></Radio>
                     </RadioGroup>
                   </FormItem>
                   {
@@ -1008,7 +1062,7 @@ let EditTenxFlowModal = React.createClass({
           onOk={this.closeImageEnvModal}
           onCancel={this.closeImageEnvModal}
         >
-          <ImageEnvComponent />
+          <ImageEnvComponent scope={scopeThis} form={form} config={config.spec.container.env} />
         </Modal>
       </Form>
       <div className='modalBtnBox'>

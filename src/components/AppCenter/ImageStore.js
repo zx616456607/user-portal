@@ -9,7 +9,7 @@
  */
 import React, { Component, PropTypes } from 'react'
 import ReactDOM from 'react-dom';
-import { Menu, Button, Card } from 'antd'
+import { Menu, Button, Card, Input } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import ScrollAnim from 'rc-scroll-anim';
 import TweenOne from 'rc-tween-one';
@@ -19,6 +19,7 @@ import $ from 'n-zepto'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import "./style/ImageStore.less"
 
+const InputGroup = Input.Group;
 const SubMenu = Menu.SubMenu;
 const MenuItemGroup = Menu.ItemGroup;
 const Link = ScrollAnim.Link;
@@ -26,7 +27,7 @@ const Element = ScrollAnim.Element;
 const ScrollOverPack = ScrollAnim.OverPack;
 const EventListener = ScrollAnim.Event;
 
-let testData = [
+let appStoreImages = [
   {
     "title": "持续集成与部署",
     "imageList": [
@@ -65,23 +66,23 @@ let testData = [
         "intro": "Java + Maven + Tomcat",
         "imgUrl": "/img/appstore/tomcat.svg"
       }, {
-        "id": "3001",
+        "id": "3002",
         "intro": "Java + Ant",
         "imgUrl": "/img/appstore/tomcat.svg"
       }, {
-        "id": "3002",
+        "id": "3003",
         "intro": "Python + Django",
         "imgUrl": "/img/appstore/python.png"
       }, {
-        "id": "3003",
+        "id": "3004",
         "intro": "Node.js",
         "imgUrl": "/img/appstore/node.png"
       }, {
-        "id": "3004",
+        "id": "3005",
         "intro": "PHP + Apache",
         "imgUrl": "/img/appstore/php.jpg"
       }, {
-        "id": "3005",
+        "id": "3006",
         "intro": "Golang",
         "imgUrl": "/img/appstore/golang.png"
       }
@@ -92,13 +93,13 @@ let testData = [
       {
         "id": "4001",
         "intro": "Tomcat",
-        "imgUrl": "/img/appstore/tomcat.png"
+        "imgUrl": "/img/appstore/tomcat.svg"
       }, {
-        "id": "5002",
+        "id": "4002",
         "intro": "JBoss",
         "imgUrl": "/img/appstore/jboss.png"
       }, {
-        "id": "5003",
+        "id": "4003",
         "intro": "Weblogic",
         "imgUrl": "/img/appstore/weblogic12.svg"
       }
@@ -107,27 +108,27 @@ let testData = [
     "title": "数据库与缓存(单节点)",
     "imageList": [
       {
-        "id": "6001",
+        "id": "5001",
         "intro": "MySQL",
         "imgUrl": "/img/appstore/mysql.svg"
       }, {
-        "id": "6002",
+        "id": "5002",
         "intro": "PostgreSQL",
         "imgUrl": "/img/appstore/mysql.svg"
       }, {
-        "id": "6003",
+        "id": "5003",
         "intro": "Redis",
         "imgUrl": "/img/appstore/redis.svg"
       }, {
-        "id": "6004",
+        "id": "5004",
         "intro": "Mongodb",
         "imgUrl": "/img/appstore/mongo.svg"
       }, {
-        "id": "6005",
+        "id": "5005",
         "intro": "Mariadb",
         "imgUrl": "/img/appstore/mariadb.png"
       }, {
-        "id": "6005",
+        "id": "5006",
         "intro": "Zookeeper",
         "imgUrl": "/img/appstore/zookeeper.svg"
       }
@@ -136,7 +137,7 @@ let testData = [
     "title": "测试工具",
     "imageList": [
       {
-        "id": "7001",
+        "id": "6001",
         "intro": "Selenium",
         "imgUrl": "/img/appstore/selenium.jpg"
       }
@@ -145,11 +146,11 @@ let testData = [
     "title": "大数据处理",
     "imageList": [
       {
-        "id": "8001",
+        "id": "7001",
         "intro": "Spark",
         "imgUrl": "/img/appstore/spark.svg"
       }, {
-        "id": "8001",
+        "id": "7002",
         "intro": "Storm",
         "imgUrl": "/img/appstore/storm.png"
       }
@@ -178,8 +179,8 @@ let MyComponent = React.createClass({
                     <img src={imageDetail.imgUrl} />
                   </div>
                   <div className="intro">
-                    <div style={{ "font-size": "14px" }} >{imageDetail.intro}</div>
-                    <div style={{ color: "#9ba3af", "margin-top": "3px"}}>{imageDetail.intro}</div>
+                    <span className="span7 textoverflow">{imageDetail.intro}</span>
+                    <span className="span2"><Button className="btn-deploy">部署</Button></span>
                   </div>
                 </Card>
               )
@@ -191,8 +192,35 @@ let MyComponent = React.createClass({
       );
     });
     return (
-      <div style={{ transform: "none !important" }}>
+      <div className="storeBody" style={{ transform: "none !important" }}>
+        {/* <div className="topSearch">
+          <InputGroup className="ant-search-input-wrapper">
+          <Input placeholder="搜索应用"  onChange={this.handleInputChange}
+             onPressEnter={this.handleSearch}
+          />
+          <div className="ant-input-group-wrap">
+            <Button icon="search"  className="" onClick={this.handleSearch} />
+          </div>
+        </InputGroup>
+        </div>
+        */}
         {items}
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
       </div>
     );
   }
@@ -235,7 +263,7 @@ class ImageStore extends Component {
           current: i + 1
         });
       }
-      if ((scroll + rootHeight - itemClient) > (offetset - 50) && i == moduleList.length - 1) {
+      if ((scroll + rootHeight - itemClient) > (offetset + 350) && i == moduleList.length - 1) {
         //it's mean when the box sroll to the bottom ,and the last module apart from the top end bigger than 150px
         //so that the current will be change to the last one
         this.setState({
@@ -301,7 +329,7 @@ class ImageStore extends Component {
             大数据
           </div>
         </div>
-        <MyComponent key="ImageStoreBox" scope={scope} config={testData} />
+        <MyComponent key="ImageStoreBox" scope={scope} config={appStoreImages} />
       </QueueAnim>
     )
   }

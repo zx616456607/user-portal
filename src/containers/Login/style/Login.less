@@ -1,26 +1,24 @@
 #LoginBg{
   font-family: "Helvetica Neue",Helvetica,"Microsoft YaHei",Arial,"宋体","Hiragino Sans GB",STHeiti,"WenQuanYi Micro Hei",SimSun,sans-serif;
-  background: url(/img/banner.jpg)
-  center
-  center
-  / cover no-repeat fixed;
+  background: url(/img/banner4.jpg) 50% 50% / cover no-repeat fixed;
+  -webkit-background-size:contain;
+  background-size:100% 100%;
+  background-color: #000;
   width: 100%;
   position: absolute;
   height: 100%;
   .login {
     position: absolute;
-    top: 50%;
+    top: 45%;
     left: 50%;
     transform: translate(-50%,-50%);
-    width: 460px;
+    width: 30%;
     background-color: #fff;
     border-radius: 5px;
+    padding: 30px 50px 0 50px;
     .logo {
-      display: block;
-      width: 200px;
-      height: 62px;
-      margin: 0 auto;
-      margin-top: 40px;
+      display: inline-block;
+      width: 180px;
     }
     .logtext {
       line-height: 40px;
@@ -28,13 +26,18 @@
       text-align: center;
     }
     .loginForm {
-
+      .ant-card-body {
+        padding: 24px 0;
+      }
       &:hover {
         border: none;
         box-shadow: none;
       }
+      .ant-form-item {
+        margin-bottom: 10px;
+      }
       .ant-form-item-with-help {
-        margin-bottom: 24px !important;
+        margin-bottom: 10px !important;
       }
       .ant-form-item-control {
         position: relative;
@@ -63,9 +66,9 @@
         }
       }
       .formItemName {
-        height: 60px;
+        height: 50px;
         .intName {
-          font-size: 16px;
+          font-size: 12px;
           position: absolute;
           top: -25px;
           left: 0;
@@ -84,7 +87,7 @@
         .captchaImg {
           width: 110px;
           position: absolute;
-          right: 40px;
+          right: 10px;
           top: -8px;
         }
       }
@@ -93,9 +96,9 @@
         width: 100%;
         height: 44px;
         padding: 0;
-        background-color: #3890ef;
+        background-color: #2db7f5;
         &:hover {
-          background-color: #2D6CB8;
+          background-color: #2db7f5;
         }
       }
     }
@@ -108,6 +111,7 @@
     bottom: 0;
     width:100%;
     font-size: 12px;
-    height: 40px;line-height: 40px;
+    height: 40px;
+    line-height: 40px;
   }
 }
