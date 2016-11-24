@@ -108,7 +108,7 @@ const menusText = defineMessages({
   },
   createNewDockerFile: {
     id: 'CICD.Tenxflow.EditTenxFlowModal.createNewDockerFile',
-    defaultMessage: '云端创建 Dockerfile',
+    defaultMessage: '使用云端 Dockerfile',
   },
   imageRealName: {
     id: 'CICD.Tenxflow.EditTenxFlowModal.imageRealName',
@@ -202,7 +202,7 @@ let EditTenxFlowModal = React.createClass({
   getInitialState: function() {
     return {
       otherFlowType: '3',
-      useDockerfile: false,
+      useDockerfile: true,
       otherTag: false,
       envModalShow: null,
       ImageStoreType: false,
@@ -246,7 +246,7 @@ let EditTenxFlowModal = React.createClass({
     }
     if(otherFlowType != '3') {
       this.setState({
-        otherFlowType: false,
+        otherFlowType: otherFlowType,
         useDockerfile: false,
         ImageStoreType: false,
         otherTag: false,
@@ -540,7 +540,7 @@ let EditTenxFlowModal = React.createClass({
           });
         }
         //check image env list
-        let imageEnvLength = values.imageEnvInputs;
+        let imageEnvLength = values.imageEnvInputs || [];
         imageEnvLength.map((item, index) => {
           if(values['imageEnvName' + item] != '') {
             if(values['imageEnvValue' + item] == '') {
@@ -559,7 +559,7 @@ let EditTenxFlowModal = React.createClass({
         return;
       }
       //check image env list
-      let imageEnvLength = values.imageEnvInputs;
+      let imageEnvLength = values.imageEnvInputs || [];
       let imageEnvList = [];
       imageEnvLength.map((item, index) => {
         if(values['imageEnvName' + item] != '') {
@@ -579,9 +579,9 @@ let EditTenxFlowModal = React.createClass({
           }
         }
       });
-      if(_this.state.emptyImageEnv) {
+      /*if(_this.state.emptyImageEnv) {
         return;
-      }
+      }*/
       //get shell code
       let shellLength = values.shellCodes;
       let shellList = [];
@@ -777,6 +777,7 @@ let EditTenxFlowModal = React.createClass({
       rules: [
         { message: '输入自定义项目类型' },
       ],
+      initialValue: config.metadata.customType,
     });
     const imageRealNameProps = getFieldProps('imageRealName', {
       rules: [
