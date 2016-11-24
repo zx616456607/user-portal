@@ -13,6 +13,7 @@ import merge from 'lodash/merge'
 import union from 'lodash/union'
 import reducerFactory from './factory'
 import cloneDeep from 'lodash/cloneDeep'
+import { getServiceStatus } from '../common/status_identify'
 
 function serviceItmes(state = {}, action) {
   const cluster = action.cluster
@@ -111,27 +112,26 @@ function serviceDetail(state = {}, action) {
       return state
   }
 }
-function serviceList (state = {}, action) {
+function serviceList(state = {}, action) {
   const cluster = action.cluster
-	switch(action.type) {
-		case ActionTypes.SERVICE_GET_ALL_LIST_REQUEST: {
-	    return merge({}, state, { isFetching: true })
-		}
-		case ActionTypes.SERVICE_GET_ALL_LIST_SUCCESS: {
-		 action.response.result.data.services =	action.response.result.data.services.map(service => {
-		    return {
-			    cluster: service.cluster,
-					...service.deployment
-				}	
-			})
-      return merge({}, action.response.result.data, {isFetching: false})
-		}
-		case ActionTypes.SERVICE_GET_ALL_LIST_FAILURE: {
-	    return merge({}, state, {isFetching: false})	
-		}
-	  default:
-			return state
-	}
+  switch (action.type) {
+    case ActionTypes.SERVICE_GET_ALL_LIST_REQUEST: {
+      return merge({}, state, { isFetching: true })
+    }
+    case ActionTypes.SERVICE_GET_ALL_LIST_SUCCESS: {
+      action.response.result.data.services = action.response.result.data.services.map(service => {
+        service.deployment.cluster = service.cluster
+        service.deployment.status = getServiceStatus(service.deployment)
+        return service.deployment
+      })
+      return merge({}, action.response.result.data, { isFetching: false })
+    }
+    case ActionTypes.SERVICE_GET_ALL_LIST_FAILURE: {
+      return merge({}, state, { isFetching: false })
+    }
+    default:
+      return state
+  }
 }
 
 
@@ -282,7 +282,7 @@ function k8sService(state = {}, action) {
 export function services(state = { appItmes: {} }, action) {
   return {
     serviceItmes: serviceItmes(state.serviceItmes, action),
-		serviceList: serviceList(state.serviceList, action),
+    serviceList: serviceList(state.serviceList, action),
     serviceContainers: serviceContainers(state.serviceContainers, action),
     serviceDetail: serviceDetail(state.serviceDetail, action),
     serviceDetailEvents: serviceDetailEvents(state.serviceDetailEvents, action),
