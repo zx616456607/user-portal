@@ -138,6 +138,9 @@ function fetchRequestTeamCluster(teamID, clusterID) {
     [FETCH_API]: {
       types: [TEAM_REQUEST_CLUSTER_REQUEST, TEAM_REQUEST_CLUSTER_SUCCESS, TEAM_REQUEST_CLUSTER_FAILURE],
       endpoint,
+      options: {
+        method: 'PUT'
+      },
       schema: {}
     }
   }
