@@ -162,7 +162,7 @@ let Login = React.createClass({
       random: genRandomString(),
     })
   },
-  
+
   intOnBlur(current){
     const { getFieldProps } = this.props.form
     if(current === 'name'){
@@ -250,7 +250,7 @@ let Login = React.createClass({
                 <use xlinkHref="#loginlogo"/>
               </svg>*/}
               <img src="/img/sider/LogInLogo.svg" alt="logo" className="logo"/>
-              <div className="logtext" style={{fontSize:'14px'}}>领先的容器云平台和解决方案提供商</div>
+              <div className="logtext" style={{fontSize:'14px'}}>技术领先的容器云计算服务商</div>
             </Row>
             <Card className="loginForm" bordered={false}>
               <div>
@@ -267,13 +267,13 @@ let Login = React.createClass({
                   className="formItemName"
                 >
                   <div className={this.state.intNameFocus?"intName intOnFocus":"intName"} onClick={this.intOnFocus.bind(this,'name')}>用户名 / 邮箱</div>
-                  
+
                   <Input {...nameProps} autoComplete="off" onBlur={this.intOnBlur.bind(this,'name')}
                          onFocus={this.intOnFocus.bind(this,'name')}
                          ref="intName"
                          style={{height:35}}/>
                 </FormItem>
-      
+
                 <FormItem
                   {...formItemLayout}
                   hasFeedback
@@ -288,7 +288,7 @@ let Login = React.createClass({
                          style={{height:35}}
                   />
                 </FormItem>
-      
+
                 <FormItem
                   {...formItemLayout}
                   hasFeedback
@@ -304,7 +304,7 @@ let Login = React.createClass({
                     <img className="captchaImg" src={`/captcha/gen?_=${random}`} onClick={this.changeCaptcha} />
                   </Tooltip>
                 </FormItem>
-      
+
                 <FormItem wrapperCol={{ span: 24,}}>
                   <Button type="primary" onClick={this.handleSubmit} loading={submitting} className="subBtn">
                     {submitting ? '登录中...' : '登录'}

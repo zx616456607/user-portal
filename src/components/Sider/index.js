@@ -85,12 +85,12 @@ class Slider extends Component {
       isUnzip: e.target.value
     })
   }
-  
+
   onSelectMenu(e) {
     //this function for user select the menu item and change the current key
     console.log(e)
     const { keyPath } = e;
-    if(keyPath.length > 1) {      
+    if(keyPath.length > 1) {
       let currentKey = keyPath[1];
       this.setState({
         currentKey: currentKey
@@ -293,7 +293,7 @@ class Slider extends Component {
               <div style={{ clear: 'both' }}></div>
             </ul>
             <ul className='siderBottom'>
-              <li onClick={this.selectModel.bind(this, 'app_manage/app_create', '#addNewApp')} className={currentKey == 'app_manage/app_create' ? 'selectedLi' : ''}>
+              <li style={{ display: 'none' }} onClick={this.selectModel.bind(this, 'app_manage/app_create', '#addNewApp')} className={currentKey == 'app_manage/app_create' ? 'selectedLi' : ''}>
                 <Tooltip placement='right' title='创建应用' getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/app_manage/app_create'>
                     <svg className='add commonImg'>
@@ -325,7 +325,7 @@ class Slider extends Component {
               </Link>
             </div>
             <Menu
-              style={{ width: '100%', backgroundColor: '#2A2F3A', color: '#c4c4c4' }}
+              style={{ width: '100%', backgroundColor: '#2b333d', color: '#c4c4c4' }}
               mode='inline'
               theme='dark'
               defaultSelectedKeys={checkUrlSelectedKey(scope)}
@@ -353,29 +353,30 @@ class Slider extends Component {
               >
                   <Menu.Item key='app_manage_default'>
                     <Link to='/app_manage'>
-                      <span><span style={{ marginRight: '10px' }}>●</span>应用</span>
+                      <span><div className='sideCircle'></div> 应用</span>
                     </Link>
                   </Menu.Item>
                    <Menu.Item key='service'>
                     <Link to='/app_manage/service'>
-                      <span><span style={{ marginRight: '10px' }}>●</span>服务</span>
+                      <span><div className='sideCircle'></div> 服务</span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='container'>
                     <Link to='/app_manage/container'>
-                      <span><span style={{ marginRight: '10px' }}>●</span>容器</span>
+                      <span><div className='sideCircle'></div> 容器</span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='storage'>
                     <Link to='/app_manage/storage'>
-                      <span><span style={{ marginRight: '10px' }}>●</span>存储</span>
+                      <span><div className='sideCircle'></div> 存储</span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='configs'>
                     <Link to='/app_manage/configs'>
-                      <span><span style={{ marginRight: '10px' }}>●</span>服务配置</span>
+                      <span><div className='sideCircle'></div> 服务配置</span>
                     </Link>
                   </Menu.Item>
+                  <div className='sline'></div>
               </SubMenu>
               <SubMenu key='app_center'
                 title={
@@ -390,19 +391,20 @@ class Slider extends Component {
               >
                 <Menu.Item key='app_center_default'>
                   <Link to='/app_center'>
-                    <span><span style={{ marginRight: '10px' }}>●</span>镜像仓库</span>
+                    <span><div className='sideCircle'></div> 镜像仓库</span>
                   </Link>
                 </Menu.Item>
                 <Menu.Item key='image_store'>
                   <Link to='/app_center/image_store'>
-                    <span><span style={{ marginRight: '10px' }}>●</span>应用商店</span>
+                    <span><div className='sideCircle'></div> 应用商店</span>
                   </Link>
                 </Menu.Item>
                 <Menu.Item key='stack_center'>
                   <Link to='/app_center/stack_center'>
-                    <span><span style={{ marginRight: '10px' }}>●</span>编排文件</span>
+                    <span><div className='sideCircle'></div> 编排文件</span>
                   </Link>
                 </Menu.Item>
+                <div className='sline'></div>
               </SubMenu>
               <SubMenu key='ci_cd'
                 title={
@@ -417,19 +419,20 @@ class Slider extends Component {
               >
                 <Menu.Item key='ci_cd_default'>
                   <Link to='/ci_cd'>
-                    <span><span style={{ marginRight: '10px' }}>●</span>代码仓库</span>
+                    <span><div className='sideCircle'></div> 代码仓库</span>
                   </Link>
                 </Menu.Item>
                 <Menu.Item key='tenx_flow'>
                   <Link to='/ci_cd/tenx_flow'>
-                    <span><span style={{ marginRight: '10px' }}>●</span>TenxFlow</span>
+                    <span><div className='sideCircle'></div> TenxFlow</span>
                   </Link>
                 </Menu.Item>
                 <Menu.Item key='docker_file'>
                   <Link to='/ci_cd/docker_file'>
-                    <span><span style={{ marginRight: '10px' }}>●</span>Dockerfile</span>
+                    <span><div className='sideCircle'></div> Dockerfile</span>
                   </Link>
                 </Menu.Item>
+                <div className='sline'></div>
               </SubMenu>
               <SubMenu key='database_cache'
                 title={
@@ -444,24 +447,25 @@ class Slider extends Component {
               >
                 <Menu.Item key='database_cache_default'>
                   <Link to='/database_cache'>
-                    <span><span style={{ marginRight: '10px' }}>●</span>关系型数据库</span>
+                    <span><div className='sideCircle'></div> 关系型数据库</span>
                   </Link>
                 </Menu.Item>
                 <Menu.Item key='mongo_cluster'>
                   <Link to='/database_cache/mongo_cluster'>
-                    <span><span style={{ marginRight: '10px' }}>●</span>MongoDB</span>
+                    <span><div className='sideCircle'></div> MongoDB</span>
                   </Link>
                 </Menu.Item>
                 <Menu.Item key='redis_cluster'>
                   <Link to='/database_cache/redis_cluster'>
-                    <span><span style={{ marginRight: '10px' }}>●</span>缓存</span>
+                    <span><div className='sideCircle'></div> 缓存</span>
                   </Link>
                 </Menu.Item>
                 <Menu.Item key='database_storage'>
                   <Link to='/database_cache/database_storage'>
-                    <span><span style={{ marginRight: '10px' }}>●</span>数据存储</span>
+                    <span><div className='sideCircle'></div> 数据存储</span>
                   </Link>
                 </Menu.Item>
+                <div className='sline'></div>
               </SubMenu>
               <Menu.Item key='integration'>
                 <Link to='/integration'>
@@ -487,16 +491,17 @@ class Slider extends Component {
               >
                 <Menu.Item key='manange_monitor_default'>
                   <Link to='/manange_monitor'>
-                    <span><span style={{ marginRight: '10px' }}>●</span>操作审计</span>
+                    <span><div className='sideCircle'></div> 操作审计</span>
                   </Link>
                 </Menu.Item>
                 <Menu.Item key='query_log'>
                   <Link to='/manange_monitor/query_log'>
-                    <span><span style={{ marginRight: '10px' }}>●</span>日志查询</span>
+                    <span><div className='sideCircle'></div> 日志查询</span>
                   </Link>
                 </Menu.Item>
+                <div className='sline'></div>
               </SubMenu>
-              <Menu.Item key='addApp'>
+              <Menu.Item key='addApp' style={{ display: 'none' }}>
                 <Link to='/setting/member'>
                   <span>
                     <svg className='add commonImg'>
@@ -519,39 +524,40 @@ class Slider extends Component {
               >
                 <Menu.Item key='setting_default'>
                   <Link to='/setting'>
-                    <span><span style={{ marginRight: '10px' }}>●</span>我的信息</span>
+                    <span><div className='sideCircle'></div> 我的信息</span>
                   </Link>
                 </Menu.Item>
                 <Menu.Item key='member'>
                   <Link to='/setting/member'>
-                    <span><span style={{ marginRight: '10px' }}>●</span>成员管理</span>
+                    <span><div className='sideCircle'></div> 成员管理</span>
                   </Link>
                 </Menu.Item>
                 <Menu.Item key='team'>
                   <Link to='/setting/team'>
-                    <span><span style={{ marginRight: '10px' }}>●</span>团队管理</span>
+                    <span><div className='sideCircle'></div> 团队管理</span>
                   </Link>
                 </Menu.Item>
                 <Menu.Item key='note'>
                   <Link to='/setting/note'>
-                    <span><span style={{ marginRight: '10px' }}>●</span>通知设置</span>
+                    <span><div className='sideCircle'></div> 通知设置</span>
                   </Link>
                 </Menu.Item>
                 <Menu.Item key='API'>
                   <Link to='/setting/API'>
-                    <span><span style={{ marginRight: '10px' }}>●</span>开放API</span>
+                    <span><div className='sideCircle'></div> 开放API</span>
                   </Link>
                 </Menu.Item>
                 <Menu.Item key='version'>
                   <Link to='/setting/version'>
-                    <span><span style={{ marginRight: '10px' }}>●</span>平台版本</span>
+                    <span><div className='sideCircle'></div> 平台版本</span>
                   </Link>
                 </Menu.Item>
                 <Menu.Item key='license'>
                   <Link to='/setting/license'>
-                    <span><span style={{ marginRight: '10px' }}>●</span>授权管理</span>
+                    <span><div className='sideCircle'></div> 授权管理</span>
                   </Link>
                 </Menu.Item>
+                <div className='sline'></div>
               </SubMenu>
             </Menu>
           </div>
