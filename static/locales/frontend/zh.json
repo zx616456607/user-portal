@@ -488,5 +488,7 @@
   "ManageMonitor.QueryLog.noService": "请选择服务",
   "ManageMonitor.QueryLog.noInstance": "请选择实例",
   "ManageMonitor.QueryLog.search": "立即查询",
-  "ManageMonitor.QueryLog.searchType": "模糊查询"
+  "ManageMonitor.QueryLog.searchType": "模糊查询",
+  "ManageMonitor.QueryLog.allBtn": "全选",
+  "ManageMonitor.QueryLog.cancelBtn": "取消"
 }
