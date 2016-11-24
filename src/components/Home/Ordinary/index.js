@@ -939,8 +939,9 @@ function mapStateToProp(state,props) {
   }
   const {clusterOperations, clusterSysinfo, clusterStorage, clusterAppStatus} = state.overviewCluster
   if (clusterOperations.result && clusterOperations.result.data
-      && clusterOperations.result.data.data) {
-        let data = clusterOperations.result.data.data
+      && clusterOperations.result.data.data
+      && clusterOperations.result.data.data.app) {
+        let data = clusterOperations.result.data.data.app
         if (data.appCreate) {
           clusterOperationsData.appCreate = data.appCreate
         }

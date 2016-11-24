@@ -380,8 +380,9 @@ function mapStateToProp(state,props) {
   }
   const {teamDetail, teamOperations} = state.overviewTeam
   if (teamDetail.result && teamDetail.result.data
-      && teamDetail.result.data.data) {
-    let data = teamDetail.result.data.data
+      && teamDetail.result.data.data
+      && teamDetail.result.data.data.app) {
+    let data = teamDetail.result.data.data.app
     if (data.spaceCnt) {
       teamDetailData.spaceCnt = data.spaceCnt
     }

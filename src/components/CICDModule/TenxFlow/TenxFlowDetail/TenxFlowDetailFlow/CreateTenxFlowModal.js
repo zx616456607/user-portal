@@ -112,7 +112,7 @@ const menusText = defineMessages({
   },
   createNewDockerFile: {
     id: 'CICD.Tenxflow.CreateTenxFlowModal.createNewDockerFile',
-    defaultMessage: '云端创建Dockerfile',
+    defaultMessage: '使用云端 Dockerfile',
   },
   imageRealName: {
     id: 'CICD.Tenxflow.CreateTenxFlowModal.imageRealName',
@@ -190,7 +190,7 @@ let CreateTenxFlowModal = React.createClass({
   getInitialState: function() {
     return {
       otherFlowType: '3',
-      useDockerfile: false,
+      useDockerfile: true,
       otherTag: false,
       envModalShow: null,
       ImageStoreType: false,
@@ -472,9 +472,8 @@ let CreateTenxFlowModal = React.createClass({
           });
 
         }
-        return;
         //check image env list
-        let imageEnvLength = values.imageEnvInputs;
+        let imageEnvLength = values.imageEnvInputs || [];
         imageEnvLength.map((item, index) => {
           if(values['imageEnvName' + item] != '') {
             if(values['imageEnvValue' + item] == '') {
@@ -493,7 +492,7 @@ let CreateTenxFlowModal = React.createClass({
         return;
       }
       //check image env list
-      let imageEnvLength = values.imageEnvInputs;
+      let imageEnvLength = values.imageEnvInputs || [];
       let imageEnvList = [];
       imageEnvLength.map((item, index) => {
         if(values['imageEnvName' + item] != '') {
@@ -513,9 +512,9 @@ let CreateTenxFlowModal = React.createClass({
           }
         }
       });
-      if(_this.state.emptyImageEnv) {
+      /*if(_this.state.emptyImageEnv) {
         return;
-      }
+      }*/
       //get shell code
       let shellLength = values.shellCodes;
       let shellList = [];
@@ -597,7 +596,7 @@ let CreateTenxFlowModal = React.createClass({
       createTenxFlowState(flowId, body, {
         success: {
           func: (res) => {
-            if(!_this.state.useDockerfile && _this.otherFlowType == '3') {             
+            if(!_this.state.useDockerfile && _this.state.otherFlowType == '3') {             
               let dockerfilebody = {
                 content: _this.state.dockerFileTextarea,
                 flowId: flowId,
@@ -857,7 +856,7 @@ let CreateTenxFlowModal = React.createClass({
                 </div>
                 <div className='input' style={{ height: '100px' }}>
                   <div className='operaBox' style={{ float: 'left', width: '500px' }}>
-                    <Checkbox onChange={this.changeUseDockerFile}></Checkbox>
+                    <Checkbox onChange={this.changeUseDockerFile} checked={this.state.useDockerfile}></Checkbox>
                     <span><FormattedMessage {...menusText.dockerFileCreate} /></span>
                   </div>
                   <QueueAnim className='dockerFileInputAnimate' key='dockerFileInputAnimate'>

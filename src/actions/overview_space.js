@@ -84,3 +84,27 @@ export function loadSpaceImageStats() {
     return dispatch(fetchSpaceImageStats())
   }
 }
+
+export const OVERVIEW_SPACE_TEMPLATE_REQUEST = 'OVERVIEW_SPACE_TEMPLATE_REQUEST'
+export const OVERVIEW_SPACE_TEMPLATE_SUCCESS = 'OVERVIEW_SPACE_TEMPLATE_SUCCESS'
+export const OVERVIEW_SPACE_TEMPLATE_FAILURE = 'OVERVIEW_SPACE_TEMPLATE_FAILURE'
+
+// Fetches space template stats from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchSpaceTemplateStats() {
+  return {
+    [FETCH_API]: {
+      types: [OVERVIEW_SPACE_TEMPLATE_REQUEST, OVERVIEW_SPACE_TEMPLATE_SUCCESS, OVERVIEW_SPACE_TEMPLATE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/overview/templates`,
+      schema: {}
+    }
+  }
+}
+
+// Fetches space template stats from API unless it is cached.
+// Relies on Redux Thunk middleware.
+export function loadSpaceTemplateStats() {
+  return (dispatch, getState) => {
+    return dispatch(fetchSpaceTemplateStats())
+  }
+}

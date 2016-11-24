@@ -14,6 +14,7 @@ import union from 'lodash/union'
 import cloneDeep from 'lodash/cloneDeep'
 import reducerFactory from './factory'
 import { DEFAULT_PAGE_SIZE } from '../../constants'
+import { getAppStatus, getServiceStatus, getContainerStatus } from '../common/status_identify'
 
 function appItems(state = {}, action) {
   const cluster = action.cluster
@@ -36,11 +37,17 @@ function appItems(state = {}, action) {
         }
       })
     case ActionTypes.APP_LIST_SUCCESS:
+      // Identify app status
+      let appList = action.response.result.data || []
+      appList = appList.map(app => {
+        app.status = getAppStatus(app.services)
+        return app
+      })
       return Object.assign({}, state, {
         [cluster]: {
           isFetching: false,
           cluster: action.response.result.cluster,
-          appList: action.response.result.data || [],
+          appList,
           size: action.response.result.count,
           total: action.response.result.total,
         }
@@ -156,13 +163,18 @@ function serviceItmes(state = {}, action) {
         }
       })
     case ActionTypes.SERVICE_LIST_SUCCESS:
+      let serviceList = action.response.result.data || []
+      serviceList = serviceList.map((service) => {
+        service.status = getServiceStatus(service)
+        return service
+      })
       return Object.assign({}, state, {
         [cluster]: {
           [appName]: {
             isFetching: false,
             cluster: action.response.result.cluster,
             appName: action.response.result.appName,
-            serviceList: union(state.services, action.response.result.data)
+            serviceList,
           }
         }
       })
@@ -204,6 +216,11 @@ function containerItems(state = {}, action) {
         }
       })
     case ActionTypes.CONTAINER_LIST_SUCCESS:
+      let containerList = action.response.result.data || []
+      containerList = containerList.map(container => {
+        container.status = getContainerStatus(container)
+        return container
+      })
       return Object.assign({}, state, {
         [cluster]: {
           isFetching: false,

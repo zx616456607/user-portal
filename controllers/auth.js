@@ -14,6 +14,7 @@ const apiFactory = require('../services/api_factory')
 const logger = require('../utils/logger').getLogger('controllers/auth')
 const svgCaptcha = require('svg-captcha')
 const indexService = require('../services')
+const config = require('../configs')
 
 exports.login = function* () {
   let method = 'login'
@@ -91,7 +92,9 @@ exports.verifyUser = function* () {
     token: result.apiToken,
     role: result.role,
     balance: result.balance,
+    tenxApi: config.tenx_api
   }
+  result.tenxApi = loginUser.tenxApi
   const licenseObj = yield indexService.getLicense(loginUser)
   if (licenseObj.plain.code === -1) {
     const err = new Error(licenseObj.message)
@@ -102,10 +105,10 @@ exports.verifyUser = function* () {
   delete result.userID
   delete result.statusCode
   // Get user MD5 encrypted watch token
-  const spi = apiFactory.getSpi(loginUser)
+  /*const spi = apiFactory.getSpi(loginUser)
   const watchToken = yield spi.watch.getBy(['token'])
   result.watchToken = watchToken.data
-  loginUser.watchToken = watchToken.data
+  loginUser.watchToken = watchToken.data*/
   this.session.loginUser = loginUser
   this.body = {
     user: result,
