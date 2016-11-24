@@ -14,6 +14,7 @@ import union from 'lodash/union'
 import cloneDeep from 'lodash/cloneDeep'
 import reducerFactory from './factory'
 import { DEFAULT_PAGE_SIZE } from '../../constants'
+import { getAppStatus } from '../common/status_identify'
 
 function appItems(state = {}, action) {
   const cluster = action.cluster
@@ -36,11 +37,17 @@ function appItems(state = {}, action) {
         }
       })
     case ActionTypes.APP_LIST_SUCCESS:
+      // Identify app status
+      let appList = action.response.result.data || []
+      appList = appList.map(app => {
+        app.status = getAppStatus(app.services)
+        return app
+      })
       return Object.assign({}, state, {
         [cluster]: {
           isFetching: false,
           cluster: action.response.result.cluster,
-          appList: action.response.result.data || [],
+          appList,
           size: action.response.result.count,
           total: action.response.result.total,
         }
