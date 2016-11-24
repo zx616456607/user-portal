@@ -15,7 +15,7 @@ import MySpace from './MySpace'
 import { getAppStatus, getServiceStatus, getContainerStatus } from '../../../common/status_identify'
 import { connect } from 'react-redux'
 import { loadClusterOperations, loadClusterSysinfo, loadClusterStorage,
-         loadClusterAppStatus } from '../../../actions/overview_cluster'
+         loadClusterAppStatus, loadClusterDbServices } from '../../../actions/overview_cluster'
 import ProgressBox from '../../ProgressBox'
 
 let restValue = 12366
@@ -285,12 +285,12 @@ class Ordinary extends Component{
   }
   
   componentWillMount() {
-    const { loadClusterOperations, loadClusterSysinfo, loadClusterStorage, loadClusterAppStatus } = this.props
+    const { loadClusterOperations, loadClusterSysinfo, loadClusterStorage, loadClusterAppStatus, loadClusterDbServices } = this.props
     loadClusterOperations("cce1c71ea85a5638b22c15d86c1f61df")
     loadClusterSysinfo("cce1c71ea85a5638b22c15d86c1f61df")
     loadClusterStorage("cce1c71ea85a5638b22c15d86c1f61df")
     loadClusterAppStatus("cce1c71ea85a5638b22c15d86c1f61df")
-    
+    loadClusterDbServices("e0e6f297f1b3285fb81d27742255cfcf")
   }
   handleDataBaseClick(current){
     if(current === 'tab1'){
@@ -1050,6 +1050,43 @@ function getStatus(data) {
   return {appMap, svcMap, podMap}
 }
 
+function getDbServiceStatus(data) {
+  let dbServiceMap = new Map()
+  dbServiceMap.set("mysql", new Map())
+  dbServiceMap.set("mongo", new Map())
+  dbServiceMap.set("redis", new Map())
+
+  data.petSets.map(petSet => {
+    let key = "unknown"
+    if (petSet.objectMeta && petSet.objectMeta.labels
+      && petSet.objectMeta.labels.appType) {
+      key = petSet.objectMeta.labels.appType
+    }
+
+    let map = dbServiceMap.get(key)
+    if (map && petSet.pods) {
+      if (petSet.pods.failed != 0) {
+        setMap(map, "failed")
+      } else if (petSet.pods.pending != 0) {
+        setMap(map, "pending")
+      } else if (petSet.pods.running == petSet.pods.desired) {
+        setMap(map, "running")
+      } else {
+        setMap(map, "unknown")
+      }
+    }
+  })
+
+  for (let [key, map] of dbServiceMap) {
+    console.log(key, " status: ")
+    for (let [status, count] of map) {
+      console.log("---", status, ": ", count)
+    }
+  }
+
+  return dbServiceMap
+}
+
 function mapStateToProp(state,props) {
   let clusterOperationsData = {
     appCreate: 0,
@@ -1093,7 +1130,12 @@ function mapStateToProp(state,props) {
     svcMap: new Map(),
     podMap: new Map(),
   }
-  const {clusterOperations, clusterSysinfo, clusterStorage, clusterAppStatus} = state.overviewCluster
+  let clusterDbServicesData = new Map()
+  clusterDbServicesData.set("mysql", new Map())
+  clusterDbServicesData.set("mongo", new Map())
+  clusterDbServicesData.set("redis", new Map())
+
+  const {clusterOperations, clusterSysinfo, clusterStorage, clusterAppStatus, clusterDbServices} = state.overviewCluster
   if (clusterOperations.result && clusterOperations.result.data
       && clusterOperations.result.data.data
       && clusterOperations.result.data.data.app) {
@@ -1185,11 +1227,16 @@ function mapStateToProp(state,props) {
     let data = clusterAppStatus.result.data
     clusterAppStatusData = getStatus(data)
   }
+  if (clusterDbServices.result && clusterDbServices.result.data) {
+    let data = clusterDbServices.result.data
+    clusterDbServicesData = getDbServiceStatus(data)
+  }
   return {
     clusterOperations: clusterOperationsData,
     clusterSysinfo: clusterSysinfoData,
     clusterStorage: clusterStorageData,
     clusterAppStatus: clusterAppStatusData,
+    clusterDbServices: clusterDbServicesData,
   }
 }
 
@@ -1198,4 +1245,5 @@ export default connect(mapStateToProp, {
   loadClusterSysinfo,
   loadClusterStorage,
   loadClusterAppStatus,
+  loadClusterDbServices,
 })(Ordinary)
