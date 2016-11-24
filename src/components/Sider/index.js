@@ -537,11 +537,6 @@ class Slider extends Component {
                     <span><div className='sideCircle'></div> 团队管理</span>
                   </Link>
                 </Menu.Item>
-                <Menu.Item key='note'>
-                  <Link to='/setting/note'>
-                    <span><div className='sideCircle'></div> 通知设置</span>
-                  </Link>
-                </Menu.Item>
                 <Menu.Item key='API'>
                   <Link to='/setting/API'>
                     <span><div className='sideCircle'></div> 开放API</span>

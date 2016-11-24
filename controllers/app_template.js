@@ -13,7 +13,7 @@
 
 const apiFactory = require('../services/api_factory')
 const logger     = require('../utils/logger.js').getLogger("app_template")
-
+const markdown   = require('markdown-it')()
 /*
 List user templates based on router, not content(yaml) will be returned
 filter=owned will list user/space templates
@@ -47,6 +47,10 @@ exports.getTemplate = function* () {
   }
 
   const result = yield api.getBy([templateid])
+  if (result && result.data.type == 3) {
+    // Convert to markdown if it's appstore
+    result.data.description = markdown.render(result.data.description)
+  }
 
   this.body = {
     data: result
