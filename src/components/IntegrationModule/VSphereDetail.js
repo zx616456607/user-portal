@@ -293,35 +293,25 @@ class VSphereDetail extends Component {
         </div>
         <div style={{ clear: 'both' }}></div>
         <div className='bottomBox'>
-          <div className='commonBox'>
-            <svg className='appcreatelayout'>
-              <use xlinkHref='#appcreatelayout' />
-            </svg>
+          <div className='cpu commonBox'>
+            <img src='/img/integration/cpu.png' />
             <p>CPU共200核</p>
           </div>
-          <div className='commonBox'>
-            <svg className='appcreatelayout'>
-              <use xlinkHref='#appcreatelayout' />
-            </svg>
+          <div className='vm commonBox'>
+            <img src='/img/integration/vm.png' />
             <p>预计还可创建虚拟vm数量</p>
             <p>20台</p>
           </div>
-          <div className='commonBox'>
-            <svg className='appcreatelayout'>
-              <use xlinkHref='#appcreatelayout' />
-            </svg>
+          <div className='cpuUsed commonBox'>
+            <img src='/img/integration/cpuUsed.png' />
             <p>CPU 可用20核</p>
           </div>
-          <div className='commonBox'>
-            <svg className='appcreatelayout'>
-              <use xlinkHref='#appcreatelayout' />
-            </svg>
+          <div className='memory commonBox'>
+            <img src='/img/integration/memory.png' />
             <p>内存18G 已用10G</p>
           </div>
-          <div className='commonBox'>
-            <svg className='appcreatelayout'>
-              <use xlinkHref='#appcreatelayout' />
-            </svg>
+          <div className='disk commonBox'>
+            <img src='/img/integration/disk.png' />
             <p>磁盘100T 已用80T</p>
           </div>
         </div>

@@ -302,9 +302,9 @@
   "CICD.Tenxflow.EditTenxFlowModal.servicesTitle": "常用服务",
   "CICD.Tenxflow.EditTenxFlowModal.addServices": "继续添加",
   "CICD.Tenxflow.EditTenxFlowModal.shellCode": "脚本命令",
-  "CICD.Tenxflow.EditTenxFlowModal.dockerFileCreate": "使用代码仓库的Dockerfile",
+  "CICD.Tenxflow.EditTenxFlowModal.dockerFileCreate": "使用代码仓库中的 Dockerfile",
   "CICD.Tenxflow.EditTenxFlowModal.selectDockerFile": "选择已有",
-  "CICD.Tenxflow.EditTenxFlowModal.createNewDockerFile": "云端创建Dockerfile",
+  "CICD.Tenxflow.EditTenxFlowModal.createNewDockerFile": "使用云端 Dockerfile",
   "CICD.Tenxflow.EditTenxFlowModal.imageRealName": "镜像名称",
   "CICD.Tenxflow.EditTenxFlowModal.imageStore": "镜像仓库",
   "CICD.Tenxflow.EditTenxFlowModal.otherImage": "自定义仓库",
@@ -337,9 +337,9 @@
   "CICD.Tenxflow.CreateTenxFlowModal.servicesTitle": "常用服务",
   "CICD.Tenxflow.CreateTenxFlowModal.addServices": "继续添加",
   "CICD.Tenxflow.CreateTenxFlowModal.shellCode": "脚本命令",
-  "CICD.Tenxflow.CreateTenxFlowModal.dockerFileCreate": "使用代码仓库的Dockerfile",
+  "CICD.Tenxflow.CreateTenxFlowModal.dockerFileCreate": "使用代码仓库中的 Dockerfile",
   "CICD.Tenxflow.CreateTenxFlowModal.selectDockerFile": "选择已有",
-  "CICD.Tenxflow.CreateTenxFlowModal.createNewDockerFile": "云端创建Dockerfile",
+  "CICD.Tenxflow.CreateTenxFlowModal.createNewDockerFile": "使用云端 Dockerfile",
   "CICD.Tenxflow.CreateTenxFlowModal.imageRealName": "镜像名称",
   "CICD.Tenxflow.CreateTenxFlowModal.imageStore": "镜像仓库",
   "CICD.Tenxflow.CreateTenxFlowModal.otherImage": "自定义仓库",
@@ -488,5 +488,7 @@
   "ManageMonitor.QueryLog.noService": "请选择服务",
   "ManageMonitor.QueryLog.noInstance": "请选择实例",
   "ManageMonitor.QueryLog.search": "立即查询",
-  "ManageMonitor.QueryLog.searchType": "模糊查询"
+  "ManageMonitor.QueryLog.searchType": "模糊查询",
+  "ManageMonitor.QueryLog.allBtn": "全选",
+  "ManageMonitor.QueryLog.cancelBtn": "取消"
 }
