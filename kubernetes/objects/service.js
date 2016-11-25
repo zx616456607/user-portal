@@ -73,10 +73,10 @@ class Service {
       this.metadata.annotations = {}
     }
     if (!this.metadata.annotations[TENX_SCHEMA_PORTNAME]) {
-      this.metadata.annotations[TENX_SCHEMA_PORTNAME] = `${protocol}/${name}`
+      this.metadata.annotations[TENX_SCHEMA_PORTNAME] = `${name}/${protocol}`
     }
     else {
-      this.metadata.annotations[TENX_SCHEMA_PORTNAME] += `,${protocol}/${name}`
+      this.metadata.annotations[TENX_SCHEMA_PORTNAME] += `,${name}/${protocol}`
     }
   }
   
