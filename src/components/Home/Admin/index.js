@@ -108,8 +108,8 @@ class Admin extends Component{
   }
   componentDidMount(){
     const { loadTeamDetail, loadTeamOperations } = this.props
-    loadTeamDetail("t-aldakdsadssdsjkewr")
-    loadTeamOperations("t-aldakdsadssdsjkewr")
+    loadTeamDetail()
+    loadTeamOperations()
   }
   render(){
     const teamDetail = this.props.teamDetail

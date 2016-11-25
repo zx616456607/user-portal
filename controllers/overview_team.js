@@ -12,10 +12,9 @@
 const apiFactory = require('../services/api_factory')
 
 exports.getTeamDetail = function* () {
-  let teamID = this.params.team_id
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
-  const result = yield api.overview.getBy(["teams", teamID, "detail"])
+  const result = yield api.overview.getBy(["team-detail"])
   const data = result || {}
   this.body = {
     data
@@ -23,11 +22,9 @@ exports.getTeamDetail = function* () {
 }
 
 exports.getTeamOperations = function* () {
-  let team = this.params.team_id
   const loginUser = this.session.loginUser
-  let queryObj = { team }
   const api = apiFactory.getApi(loginUser)
-  const result = yield api.overview.getBy(["operations"], queryObj)
+  const result = yield api.overview.getBy(["team-operations"])
   const data = result || {}
   this.body = {
     data

@@ -255,7 +255,7 @@ class MySpace extends Component{
                 </div>
               </Row>
             </Card>
-            <Card title="今日该集群记录" bordered={false} bodyStyle={{height:175, overflowY:'auto'}} style={{marginTop: 10,fontSize:'13px'}}>
+            <Card title="今日该空间记录" bordered={false} bodyStyle={{height:175, overflowY:'auto'}} style={{marginTop: 10,fontSize:'13px'}}>
               <table className="clusterTab">
                 <tbody>
                 <tr>

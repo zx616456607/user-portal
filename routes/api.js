@@ -121,8 +121,8 @@ module.exports = function (Router) {
   router.put('/teams/:team_id/clusters/:cluster_id/request', teamController.requestTeamCluster)
 
   //Overview Team
-  router.get('/overview/teams/:team_id/detail', overviewTeamController.getTeamDetail)
-  router.get('/overview/teams/:team_id/operations', overviewTeamController.getTeamOperations)
+  router.get('/overview/teamdetail', overviewTeamController.getTeamDetail)
+  router.get('/overview/teamoperations', overviewTeamController.getTeamOperations)
 
   //Overview Cluster
   router.get('/overview/clusters/:cluster_id/operations', overviewClusterController.getClusterOperations)
