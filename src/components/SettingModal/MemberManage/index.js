@@ -211,7 +211,7 @@ let MemberTable = React.createClass({
         dataIndex: 'name',
         key: 'name',
         className: 'memberName',
-        width: 150,
+        width: '15%',
         render: (text, record, index) => (
           <Link to={`/setting/user/${record.key}`}>
             {text}
@@ -222,13 +222,13 @@ let MemberTable = React.createClass({
         title: '手机',
         dataIndex: 'tel',
         key: 'tel',
-        width: 150,
+        width: '15%',
       },
       {
         title: '邮箱',
         dataIndex: 'email',
         key: 'email',
-        width: 200,
+        width: '15%',
       },
       {
         title: '类型',
@@ -272,7 +272,7 @@ let MemberTable = React.createClass({
           { text: '普通成员', value: 0 },
           { text: '团队管理员', value: 1 },
         ],
-        width: 150,
+        width: '10%',
       },
       {
         title: (
@@ -290,7 +290,7 @@ let MemberTable = React.createClass({
         ),
         dataIndex: 'team',
         key: 'team',
-        width: 150,
+        width: '10%',
       },
       {
         title: (
@@ -308,7 +308,7 @@ let MemberTable = React.createClass({
         ),
         dataIndex: 'balance',
         key: 'balance',
-        width: 150,
+        width: '10%',
       },
       {
         title: '操作',

@@ -234,7 +234,7 @@ let TeamTable = React.createClass({
         ),
         dataIndex: 'team',
         key: 'team',
-        width: '20%',
+        width: '10%',
         className: 'teamName',
         render: (text,record,index) => (
           <Link to={`/setting/team/${record.team}/${record.key}`}>{text}</Link>
@@ -256,7 +256,7 @@ let TeamTable = React.createClass({
         ),
         dataIndex: 'member',
         key: 'member',
-        width: '20%',
+        width: '10%',
       },
       {
         title: (
@@ -274,7 +274,7 @@ let TeamTable = React.createClass({
         ),
         dataIndex: 'cluster',
         key: 'cluster',
-        width: '20%',
+        width: '10%',
       },
       {
         title: (
@@ -292,7 +292,7 @@ let TeamTable = React.createClass({
         ),
         dataIndex: 'space',
         key: 'space',
-        width: '20%',
+        width: '10%',
       },
       {
         title: '操作',
