@@ -10,7 +10,7 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import "./style/StorageBind.less"
-import { Card, Row, Col, Icon } from 'antd';
+import { Card, Row, Col, Icon, Spin } from 'antd';
 import { Timeline } from 'antd';
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { getVolumeBindInfo } from '../../actions/storage'
@@ -45,6 +45,12 @@ class StorageBind extends Component {
 
     const {formatMessage} = this.props.intl
     let mountInfo = this.props.volumeBindInfo.volumeBindInfo
+    let isFetching = this.props.volumeBindInfo.isFetching
+    if (isFetching) {
+    return (<div className="loadingBox">
+       <Spin size="large"></Spin> 
+       </div>) 
+    }
     if(!mountInfo || !mountInfo.appName) {
       return (<div id="StorageBind">
         <Row>

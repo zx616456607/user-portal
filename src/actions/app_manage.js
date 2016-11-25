@@ -83,7 +83,7 @@ export function fetchCreateApp(appConfig, callback) {
         body: {
           name: appConfig.appName,
           template: appConfig.template,
-          remark: appConfig.remark
+          desc: appConfig.desc
         }
       },
       schema: Schemas.APPS

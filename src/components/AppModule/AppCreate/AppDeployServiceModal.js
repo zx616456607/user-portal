@@ -416,6 +416,8 @@ let AppDeployServiceModal = React.createClass({
       totalNumber.forEach(item => {
         const vol = getFieldValue(`vol${item}`)
         const volPath = getFieldValue(`volPath${item}`)
+        if(!vol) return
+        if(vol.length <= 0) return
         deploymentList.addContainerVolume(serviceName, {
           name: `configmap-volume-${item}`,
           configMap: vol,
