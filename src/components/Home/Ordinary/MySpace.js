@@ -277,7 +277,7 @@ class MySpace extends Component{
                     创建存储卷个数
                   </td>
                   <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                    1000个
+                    {spaceOperations.volumeCreate}个
                   </td>
                 </tr>
                 <tr>
@@ -288,7 +288,7 @@ class MySpace extends Component{
                     删除存储卷个数
                   </td>
                   <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                    1000个
+                     {spaceOperations.volumeDelete}个
                   </td>
                 </tr>
                 </tbody>
@@ -378,6 +378,8 @@ function mapStateToProp(state,props) {
     appStop: 0,
     appStart: 0,
     appRedeploy: 0,
+    volumeCreate: 0,
+    volumeDelete: 0,
   }
   let spaceCICDStatsData = {
     succeedNumber: 0,
@@ -395,32 +397,43 @@ function mapStateToProp(state,props) {
   let spaceWarningsData = []
   const {spaceOperations, spaceCICDStats, spaceImageStats, spaceTemplateStats, spaceWarnings} = state.overviewSpace
   if (spaceOperations.result && spaceOperations.result.data
-      && spaceOperations.result.data.data && spaceOperations.result.data.data.app) {
-    let data = spaceOperations.result.data.data.app
-    if (data.appCreate) {
-      spaceOperationsData.appCreate = data.appCreate
+      && spaceOperations.result.data.data) {
+    if (spaceOperations.result.data.data.app) {
+      let data = spaceOperations.result.data.data.app
+      if (data.appCreate) {
+        spaceOperationsData.appCreate = data.appCreate
+      }
+      if (data.appModify) {
+        spaceOperationsData.appModify = data.appModify
+      }
+      if (data.svcCreate) {
+        spaceOperationsData.svcCreate = data.svcCreate
+      }
+      if (data.svcDelete) {
+        spaceOperationsData.svcDelete = data.svcDelete
+      }
+      if (data.appStop) {
+        spaceOperationsData.appStop = data.appStop
+      }
+      if (data.appStart) {
+        spaceOperationsData.appStart = data.appStart
+      }
+      if (data.appCreate) {
+        spaceOperationsData.appCreate = data.appCreate
+      }
+      if (data.appRedeploy) {
+        spaceOperationsData.appRedeploy = data.appRedeploy
+      } 
     }
-    if (data.appModify) {
-      spaceOperationsData.appModify = data.appModify
+    if (spaceOperations.result.data.data.volume) {
+      let data = spaceOperations.result.data.data.volume
+      if (data.volumeCreate) {
+        spaceOperationsData.volumeCreate = data.volumeCreate
+      }
+      if (data.volumeDelete) {
+        spaceOperationsData.volumeDelete = data.volumeDelete
+      }
     }
-    if (data.svcCreate) {
-      spaceOperationsData.svcCreate = data.svcCreate
-    }
-    if (data.svcDelete) {
-      spaceOperationsData.svcDelete = data.svcDelete
-    }
-    if (data.appStop) {
-      spaceOperationsData.appStop = data.appStop
-    }
-    if (data.appStart) {
-      spaceOperationsData.appStart = data.appStart
-    }
-    if (data.appCreate) {
-      spaceOperationsData.appCreate = data.appCreate
-    }
-    if (data.appRedeploy) {
-      spaceOperationsData.appRedeploy = data.appRedeploy
-    } 
   }
   if (spaceCICDStats.result && spaceCICDStats.result.data &&
       spaceCICDStats.result.data.results && spaceCICDStats.result.data.results.flowBuild) {

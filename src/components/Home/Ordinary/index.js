@@ -746,7 +746,7 @@ class Ordinary extends Component{
                     创建存储卷个数
                   </td>
                   <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                    1000个
+                    {clusterOperations.volumeCreate}个
                   </td>
                 </tr>
                 <tr>
@@ -757,7 +757,7 @@ class Ordinary extends Component{
                     删除存储卷个数
                   </td>
                   <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                    1000个
+                     {clusterOperations.volumeDelete}个
                   </td>
                 </tr>
                 </tbody>
@@ -1097,6 +1097,8 @@ function mapStateToProp(state,props) {
     appStop: 0,
     appStart: 0,
     appRedeploy: 0,
+    volumeCreate: 0,
+    volumeDelete: 0,
   }
   let clusterSysinfoData = {
     k8s:{
@@ -1150,34 +1152,44 @@ function mapStateToProp(state,props) {
   const {clusterOperations, clusterSysinfo, clusterStorage, 
     clusterAppStatus, clusterDbServices, clusterNodeSummary} = state.overviewCluster
   if (clusterOperations.result && clusterOperations.result.data
-      && clusterOperations.result.data.data
-      && clusterOperations.result.data.data.app) {
-        let data = clusterOperations.result.data.data.app
-        if (data.appCreate) {
-          clusterOperationsData.appCreate = data.appCreate
-        }
-        if (data.appModify) {
-          clusterOperationsData.appModify = data.appModify
-        }
-        if (data.svcCreate) {
-          clusterOperationsData.svcCreate = data.svcCreate
-        }
-        if (data.svcDelete) {
-          clusterOperationsData.svcDelete = data.svcDelete
-        }
-        if (data.appStop) {
-          clusterOperationsData.appStop = data.appStop
-        }
-        if (data.appStart) {
-          clusterOperationsData.appStart = data.appStart
-        }
-        if (data.appCreate) {
-          clusterOperationsData.appCreate = data.appCreate
-        }
-        if (data.appRedeploy) {
-          clusterOperationsData.appRedeploy = data.appRedeploy
-        } 
+      && clusterOperations.result.data.data) {
+    if (clusterOperations.result.data.data.app) {
+      let data = clusterOperations.result.data.data.app
+      if (data.appCreate) {
+        clusterOperationsData.appCreate = data.appCreate
       }
+      if (data.appModify) {
+        clusterOperationsData.appModify = data.appModify
+      }
+      if (data.svcCreate) {
+        clusterOperationsData.svcCreate = data.svcCreate
+      }
+      if (data.svcDelete) {
+        clusterOperationsData.svcDelete = data.svcDelete
+      }
+      if (data.appStop) {
+        clusterOperationsData.appStop = data.appStop
+      }
+      if (data.appStart) {
+        clusterOperationsData.appStart = data.appStart
+      }
+      if (data.appCreate) {
+        clusterOperationsData.appCreate = data.appCreate
+      }
+      if (data.appRedeploy) {
+        clusterOperationsData.appRedeploy = data.appRedeploy
+      } 
+    }
+    if (clusterOperations.result.data.data.volume) {
+      let data = clusterOperations.result.data.data.volume
+      if (data.volumeCreate) {
+        clusterOperationsData.volumeCreate = data.volumeCreate
+      }
+      if (data.volumeDelete) {
+        clusterOperationsData.volumeDelete = data.volumeDelete
+      }
+    }
+  }
   if (clusterSysinfo.result && clusterSysinfo.result.data) {
     let data = clusterSysinfo.result.data
     if (data.k8s) {
