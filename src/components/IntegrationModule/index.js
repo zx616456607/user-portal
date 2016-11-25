@@ -71,7 +71,8 @@ class Integration extends Component {
     this.state = {
       currentShowApps: 'all',
       currentAppType: '1',
-      showType: 'list'
+      showType: 'list',
+      currentIntegration: null
     }
   }
   
@@ -96,10 +97,11 @@ class Integration extends Component {
     });
   }
   
-  ShowDetailInfo(name) {
+  ShowDetailInfo(id) {
     //this function for view the app detail info
     this.setState({
-      showType: 'detail'
+      showType: 'detail',
+      currentIntegration: id
     });
   }
   
@@ -164,7 +166,7 @@ class Integration extends Component {
               {
                 /*item.status == 'installed' ? */[
                   <Button className='installedBtn' key={'installedBtn' + index} size='large' type='ghost'
-                    style={{ width: '102px' }} onClick={this.ShowDetailInfo.bind(scope, item.name)}>
+                    style={{ width: '102px' }} onClick={this.ShowDetailInfo.bind(scope, item.id)}>
                     <FormattedMessage {...menusText.showAppDetail} />
                   </Button>
                 ] /*: null*/
@@ -293,7 +295,7 @@ class Integration extends Component {
                     {this.state.showType == 'detail' ? [
                       <QueueAnim key='detailBoxAnimate'>
                         <div className='detailBox' key='detailBox'>
-                          <IntegrationDetail scope={scope} />
+                          <IntegrationDetail scope={scope} integrationId={this.state.currentIntegration} />
                         </div>
                       </QueueAnim>
                     ] : null}

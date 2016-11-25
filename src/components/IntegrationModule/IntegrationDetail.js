@@ -12,7 +12,8 @@ import React, { Component, PropTypes } from 'react'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { Button, Tabs } from 'antd'
+import { Button, Tabs, Spin } from 'antd'
+import { getIntegrationDateCenter } from '../../actions/integration'
 import './style/IntegrationDetail.less'
 import VSphere from './VSphereDetail'
 import VmList from './VmList'
@@ -49,11 +50,24 @@ class IntegrationDetail extends Component {
     super(props);
     this.returnToList = this.returnToList.bind(this);
     this.state = {
+      currentDataCenter: null
     }
   }
   
   componentWillMount() {
     document.title = '集成中心 | 时速云';
+    const { getIntegrationDateCenter, integrationId } = this.props;
+    const scope = this;
+    getIntegrationDateCenter(integrationId, {
+      success: {
+        func: (res) => {
+          let tempValue = res.result.data.all[0];
+          scope.setState({
+            currentDataCenter: tempValue
+          })
+        }
+      }
+    });
   }
   
   returnToList() {
@@ -67,15 +81,30 @@ class IntegrationDetail extends Component {
   render() {
     const { formatMessage } = this.props.intl;
     const scope = this;
-      
+    const { isFetching, dataCenters, integrationId } = this.props;
+    if(isFetching || !Boolean(dataCenters) || dataCenters==[]) {
+      return (
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
+      )
+    }
     return (
       <QueueAnim className='IntegrationDetailAnimate' key='IntegrationDetailAnimate'>
         <div id='IntegrationDetail'>
           <Tabs>
-            <TabPane tab={<FormattedMessage {...menusText.VSphere} />} key='1'><VSphere scope={scope} /></TabPane>
-            <TabPane tab={<FormattedMessage {...menusText.vmList} />} key='2'><VmList scope={scope} /></TabPane>
-            <TabPane tab={<FormattedMessage {...menusText.physicalList} />} key='3'><PhysicalList scope={scope} /></TabPane>
-            <TabPane tab={<FormattedMessage {...menusText.VSphereConfig} />} key='4'><VSphereConfig scope={scope} /></TabPane>
+            <TabPane tab={<FormattedMessage {...menusText.VSphere} />} key='1'>
+              <VSphere scope={scope} dataCenters={dataCenters} integrationId={integrationId} currentDataCenter={this.state.currentDataCenter} />
+            </TabPane>
+            <TabPane tab={<FormattedMessage {...menusText.vmList} />} key='2'>
+              <VmList scope={scope} dataCenters={dataCenters} integrationId={integrationId} currentDataCenter={this.state.currentDataCenter} />
+            </TabPane>
+            <TabPane tab={<FormattedMessage {...menusText.physicalList} />} key='3'>
+              <PhysicalList scope={scope} dataCenters={dataCenters} integrationId={integrationId} currentDataCenter={this.state.currentDataCenter} />
+            </TabPane>
+            <TabPane tab={<FormattedMessage {...menusText.VSphereConfig} />} key='4'>
+              <VSphereConfig scope={scope} />
+            </TabPane>
           </Tabs>
           <Button size='large' type='primary' className='backBtn' onClick={this.returnToList}>
             <FormattedMessage {...menusText.back} />
@@ -87,10 +116,15 @@ class IntegrationDetail extends Component {
 }
 
 function mapStateToProps(state, props) {
-  const defaultAppList = {
+  const defaultDataCenterList = {
+    isFetching: false,
+    dataCenters: []
   }
-  const {isFetching, appList} = defaultAppList
+  const { getIntegrationDateCenter } = state.integration
+  const {isFetching, dataCenters} = getIntegrationDateCenter || defaultDataCenterList
   return {
+    isFetching,
+    dataCenters
   }
 }
 
@@ -99,7 +133,7 @@ IntegrationDetail.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-
+  getIntegrationDateCenter
 })(injectIntl(IntegrationDetail, {
   withRef: true,
 }));

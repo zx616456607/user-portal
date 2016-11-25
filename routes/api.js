@@ -261,6 +261,14 @@ module.exports = function (Router) {
   
   // Integration
   router.get('/integrations/getAllIntegration', integrationController.getAllIntegrations)
+  router.post('/integrations/createIntegration', integrationController.createIntegrations)
+  router.delete('/integrations/deleteIntegrations/:id', integrationController.deleteIntegrations)
+  router.get('/integrations/getIntegrationDateCenter/:id', integrationController.getIntegrationDateCenter)
+  router.get('/integrations/getIntegrationVmList/:id', integrationController.getIntegrationVmList)
+  router.post('/integrations/manageIntegrationsVmDetail/:id', integrationController.manageIntegrationsVmDetail)
+  router.get('/integrations/getCreateVmConfig/:id', integrationController.getCreateVmConfig)
+  router.post('/integrations/createIntegrationVm/:id', integrationController.createIntegrationVm)
+  router.get('/integrations/getIntegrationPods/:id', integrationController.getIntegrationPods)
 
   // Token info
   router.get('/token', tokenController.getTokenInfo)

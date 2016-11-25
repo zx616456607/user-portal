@@ -13,9 +13,12 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import ReactEcharts from 'echarts-for-react'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { Button } from 'antd'
+import { Button, Spin, Select } from 'antd'
+import { getIntegrationPodDetail } from '../../actions/integration'
 import './style/VSphereDetail.less'
 import ProgressBox from '../ProgressBox'
+
+const Option = Select.Option;
 
 let CPUOption = {
   title: {
@@ -198,17 +201,96 @@ const menusText = defineMessages({
   },
 })
 
+function diskFormat(num) {
+  if(num < 1024) {
+    return num + 'MB'
+  }
+  num = parseInt(num / 1024);
+  if(num < 1024) {
+    return num + 'GB'
+  }
+  num = parseInt(num / 1024);
+  return num + 'TB'
+}
+
+function checkHealthPods(config) {
+  let num = 0;
+  config.map((item) => {
+    if(item.powerstate == 'poweron') {
+      num++
+    }
+  })
+  return num;
+}
+
+function checkErrorPods(config) {
+  let num = 0;
+  config.map((item) => {
+    if(item.powerstate == 'poweroff') {
+      num++
+    }
+  })
+  return num;
+}
+
 class VSphereDetail extends Component {
   constructor(props) {
     super(props);
+    this.onChangeDataCenter = this.onChangeDataCenter.bind(this);
     this.state = {
     }
   }
   
+  componentDidMount() {
+    const { getIntegrationPodDetail, dataCenters, integrationId, currentDataCenter } = this.props;
+    let datacenter = !!currentDataCenter ? currentDataCenter : dataCenters[0]
+    getIntegrationPodDetail(integrationId, datacenter);
+  }
+  
+  onChangeDataCenter(e) {
+    //this function for user change the current data center
+    const { scope, getIntegrationPodDetail, integrationId } = this.props;
+    scope.setState({
+      currentDataCenter: e
+    });
+    getIntegrationPodDetail(integrationId, e)
+  }
+  
   render() {
     const { formatMessage } = this.props.intl;
+    const {isFetching, pods, dataCenters, currentDataCenter} = this.props;
+    console.log(this.props)
+    if(isFetching || !Boolean(pods)) {
+      return (
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
+      )
+    }
+    let diskTotal = 0;
+    let diskUsed = 0;
+    let diskFree = 0;
+    let memoryTotal = 0;
+    let cpuTotal = 0;
+    pods.map((item) => {
+      diskTotal = diskTotal + item.diskTotal;
+      diskUsed = item.diskTotal - item.diskFree;
+      diskFree = diskFree + item.diskFree;
+      memoryTotal= memoryTotal + item.memoryTotal;
+      cpuTotal = cpuTotal + item.cpuNumber;
+    })
+    let selectDcShow = dataCenters.map((item, index) => {
+      return (
+        <Option value={item} key={item}>{item.replace('/','')}</Option>
+      )
+    });
     return (
       <div id='VSphereDetail'>
+        <div className='selectBox'>
+          <Select defaultValue={currentDataCenter} style={{ width: 150 }} size='large' onChange={this.onChangeDataCenter}>
+            {selectDcShow}
+          </Select>
+        </div>
         <div className='leftBox'>
           <div className='titleBox'>
             <FormattedMessage {...menusText.resource} />
@@ -234,7 +316,7 @@ class VSphereDetail extends Component {
               </div>
               <span><FormattedMessage {...menusText.podNum} /></span>
               <span className='rightSpan'><FormattedMessage {...menusText.unit} /></span>
-              <span className='rightSpan'>12345</span>
+              <span className='rightSpan'>{pods.length}</span>
               <div style={{ clear: 'both' }}></div>
             </div>
             <div className='healthPod'>
@@ -242,7 +324,7 @@ class VSphereDetail extends Component {
               </div>
               <span><FormattedMessage {...menusText.healthPod} /></span>
               <span className='rightSpan'><FormattedMessage {...menusText.unit} /></span>
-              <span className='rightSpan'>12222</span>
+              <span className='rightSpan'>{checkHealthPods(pods)}</span>
               <div style={{ clear: 'both' }}></div>
             </div>
             <div className='unstartPod'>
@@ -250,7 +332,7 @@ class VSphereDetail extends Component {
               </div>
               <span><FormattedMessage {...menusText.unstartPod} /></span>
               <span className='rightSpan'><FormattedMessage {...menusText.unit} /></span>
-              <span className='rightSpan'>123</span>
+              <span className='rightSpan'>{checkErrorPods(pods)}</span>
               <div style={{ clear: 'both' }}></div>
             </div>
           </div>
@@ -261,31 +343,29 @@ class VSphereDetail extends Component {
             <FormattedMessage {...menusText.storage} />
           </div>
           <div className='littleLeft'>
-            <ProgressBox boxPos={0.50} />
+            <ProgressBox boxPos={parseFloat(diskUsed/diskTotal).toFixed(2)} />
           </div>
           <div className='littelRight'>
             <div className='commonBox'>
               <span className='leftSpan'><FormattedMessage {...menusText.used} /></span>
-              <span className='rightSpan'>T</span>
-              <span className='rightSpan'>123</span>
+              <span className='rightSpan'>{diskFormat(diskUsed)}</span>
               <div style={{ clear: 'both' }}></div>
             </div>
             <div className='commonBox'>
               <span className='leftSpan'><FormattedMessage {...menusText.idle} /></span>
-              <span className='rightSpan'>T</span>
-              <span className='rightSpan'>123</span>
+              <span className='rightSpan'>{diskFormat(diskFree)}</span>
               <div style={{ clear: 'both' }}></div>
             </div>
             <div className='commonBox'>
               <span className='leftSpan'><FormattedMessage {...menusText.vgNum} /></span>
               <span className='rightSpan'><FormattedMessage {...menusText.unit} /></span>
-              <span className='rightSpan'>123</span>
+              <span className='rightSpan'>-</span>
               <div style={{ clear: 'both' }}></div>
             </div>
             <div className='commonBox'>
               <span className='leftSpan'><FormattedMessage {...menusText.using} /></span>
               <span className='rightSpan'><FormattedMessage {...menusText.unit} /></span>
-              <span className='rightSpan'>123</span>
+              <span className='rightSpan'>-</span>
               <div style={{ clear: 'both' }}></div>
             </div>
           </div>
@@ -295,24 +375,24 @@ class VSphereDetail extends Component {
         <div className='bottomBox'>
           <div className='cpu commonBox'>
             <img src='/img/integration/cpu.png' />
-            <p>CPU共200核</p>
+            <p>CPU共{cpuTotal}核</p>
           </div>
           <div className='vm commonBox'>
             <img src='/img/integration/vm.png' />
             <p>预计还可创建虚拟vm数量</p>
-            <p>20台</p>
+            <p>- 台</p>
           </div>
           <div className='cpuUsed commonBox'>
             <img src='/img/integration/cpuUsed.png' />
-            <p>CPU 可用20核</p>
+            <p>CPU 可用 - 核</p>
           </div>
           <div className='memory commonBox'>
             <img src='/img/integration/memory.png' />
-            <p>内存18G 已用10G</p>
+            <p>内存{diskFormat(memoryTotal)}</p>
           </div>
           <div className='disk commonBox'>
             <img src='/img/integration/disk.png' />
-            <p>磁盘100T 已用80T</p>
+            <p>磁盘{diskFormat(diskTotal)} 已用{diskFormat(diskUsed)}</p>
           </div>
         </div>
         <div className='tagBox'>
@@ -325,10 +405,15 @@ class VSphereDetail extends Component {
 }
 
 function mapStateToProps(state, props) {
-  const defaultAppList = {
+  const defaultApp = {
+    isFetching: false,
+    pods: []
   }
-  const {isFetching, appList} = defaultAppList
+  const { getIntegrationPodDetail } = state.integration
+  const {isFetching, pods} = getIntegrationPodDetail || defaultApp
   return {
+    isFetching,
+    pods
   }
 }
 VSphereDetail.propTypes = {
@@ -336,7 +421,7 @@ VSphereDetail.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-
+  getIntegrationPodDetail
 })(injectIntl(VSphereDetail, {
   withRef: true,
 }));
