@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Menu, Button, Card, Input } from 'antd'
+import { Menu, Button, Card, Input ,Modal} from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import ScrollAnim from 'rc-scroll-anim'
 import Animate from 'rc-animate'
@@ -16,7 +16,7 @@ import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { loadAppStore } from '../../actions/app_center'
-
+import DetailBox from './StoreDetail'
 import { DEFAULT_REGISTRY } from '../../constants'
 
 import "./style/ImageStore.less"
@@ -112,6 +112,7 @@ class AppStore extends Component {
   }
 
   componentWillMount() {
+    document.title = '应用商店 | 时速云'
     const { loadAppStore } = this.props
     loadAppStore(DEFAULT_REGISTRY)
   }
@@ -168,11 +169,11 @@ class AppStore extends Component {
     const storeList = appStoreList.map((list, index) => {
       return (
         <span>
-          <div className={current == index +1 ? "currentNav navItem" : "navItem"} onClick={()=> this.scrollElem(index)}>
-            <i className={current == index +1 ? "fa fa-star" : "fa fa-star-o"}></i>&nbsp;&nbsp;
-              { list.title }
+          <div className={current == index + 1 ? "currentNav navItem" : "navItem"} onClick={() => this.scrollElem(index)}>
+            <i className={current == index + 1 ? "fa fa-star" : "fa fa-star-o"}></i>&nbsp;&nbsp;
+              {list.title}
           </div>
-        { (appStoreList.length -1 > index) ? [<div className="line"></div>] : null }
+          {(appStoreList.length - 1 > index) ? [<div className="line"></div>] : null}
         </span>
       )
     })
@@ -186,6 +187,15 @@ class AppStore extends Component {
           {storeList}
         </div>
         <MyComponent key="ImageStoreBox" scope={scope} config={this.props.appStoreList} />
+        <Modal
+          visible={this.state.privateDetailModal}
+          className="AppServiceDetail"
+          transitionName="move-right"
+          onCancel={this.closeImageDetailModal}
+          >
+          {/* right detail box  */}
+          <DetailBox  />
+        </Modal>
       </QueueAnim>
     )
   }

@@ -522,7 +522,7 @@ let AppDeployServiceModal = React.createClass({
   render: function () {
     const scope = this
     const parentScope = this.props.scope
-    const {currentSelectedImage, registryServer, isCreate} = parentScope.state
+    const {currentSelectedImage, registryServer, isCreate, other} = parentScope.state
     const { form, serviceOpen } = this.props
     const { composeType, disable } = this.state
     return (
@@ -537,6 +537,7 @@ let AppDeployServiceModal = React.createClass({
             composeType={composeType}
             form={form}
             cluster={this.props.cluster}
+            other= {other}
             />
           <Collapse>
             <Panel header={assitBoxTitle} key="1" className="assitBigBox">

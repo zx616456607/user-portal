@@ -336,6 +336,7 @@ class ImageCenter extends Component {
   }
   
   componentDidMount() {
+    document.title = '镜像仓库 | 时速云'
     this.props.LoadOtherImage({
       success: {
         func: (res) => {
