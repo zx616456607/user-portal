@@ -26,7 +26,7 @@ function databaseAllNames(state = {}, action) {
         'DbClusters': { isFetching: true }
       })
     case ActionTypes.GET_DATABASE_CACHE_ALL_NAME_SUCCESS:
-      return merge({}, state, {
+      return Object.assign({}, state, {
         'DbClusters': {
           isFetching: false,
           databaseNames: action.response.result.databaseNames || []
@@ -55,7 +55,7 @@ function mysqlDatabaseAllList(state = {}, action) {
         'MySql': { isFetching: true }
       })
     case ActionTypes.MYSQL_DATABASE_CACHE_ALL_LIST_SUCCESS:
-      return merge({}, state, {
+      return Object.assign({}, state, {
         'MySql': {
           isFetching: false,
           database: 'MySql',
@@ -85,7 +85,7 @@ function redisDatabaseAllList(state = {}, action) {
         'Redis': { isFetching: true }
       })
     case ActionTypes.REDIS_DATABASE_CACHE_ALL_LIST_SUCCESS:
-      return merge({}, state, {
+      return Object.assign({}, state, {
         'Redis': {
           isFetching: false,
           database: 'Redis',
@@ -114,7 +114,7 @@ function databaseClusterDetail(state = {}, action) {
         databaseInfo: { isFetching: true }
       })
     case ActionTypes.GET_DATABASE_DETAIL_INFO_SUCCESS:
-      return merge({}, state, {
+      return Object.assign({}, state, {
         databaseInfo: {
           isFetching: false,
           databaseInfo: action.response.result.databaseInfo || null
@@ -140,7 +140,7 @@ function loadDBStorageAllList(state = {}, action) {
         isFetching: true 
       })
     case ActionTypes.GET_DATABASE_STORAGE_ALL_LIST_SUCCESS:
-      return merge({}, state, {
+      return Object.assign({}, state, {
         isFetching: false,
         storageList: action.response.result.result.data.items || []
       })

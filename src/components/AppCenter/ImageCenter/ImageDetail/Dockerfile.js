@@ -30,7 +30,7 @@ export default class Dockerfile extends Component {
     if (dockerfile == '') {
       return (
         <Card className="dockerfile">
-          Not Dockerfile
+          还没有添加 Dockerfile
         </Card>
       )
     }

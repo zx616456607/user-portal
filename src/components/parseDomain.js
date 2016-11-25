@@ -15,6 +15,8 @@ export function parseServiceDomain(item, bindingDomainStr) {
   }
   let domains = []
   // parse external domain, item.ports is http/1234,tcp/321,udp/431
+  console.log("aaaaaaaaaaaaaaaaaa",item)
+  console.log("bindingDomain",bindingDomain)
   if (item && item.metadata
     && item.ports
     && bindingDomain.length > 0) {
