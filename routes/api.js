@@ -27,6 +27,7 @@ const tokenController = require('../controllers/token')
 const devopsController = require('../controllers/devops')
 const licenseController = require('../controllers/license')
 const clusterController = require('../controllers/cluster_manage')
+const integrationController = require('../controllers/integration')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -254,6 +255,9 @@ module.exports = function (Router) {
   router.get('/devops/ci-flows/:flow_id/stages/:stage_id/dockerfile', devopsController.getDockerfile)
   router.delete('/devops/ci-flows/:flow_id/stages/:stage_id/dockerfile', devopsController.removeDockerfile)
   router.put('/devops/ci-flows/:flow_id/stages/:stage_id/dockerfile', devopsController.updateDockerfile)
+  
+  // Integration
+  router.get('/integrations/getAllIntegration', integrationController.getAllIntegrations)
 
   // Token info
   router.get('/token', tokenController.getTokenInfo)
