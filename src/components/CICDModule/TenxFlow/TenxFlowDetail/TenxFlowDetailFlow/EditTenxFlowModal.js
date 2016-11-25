@@ -429,18 +429,19 @@ let EditTenxFlowModal = React.createClass({
     let inputValue = form.getFieldValue('shellCode' + index);
     let changed = false
     let keys = form.getFieldValue('shellCodes');
-    if(index == shellUid && !!inputValue) {
-      shellUid++;
+    let max = keys[keys.length - 1]
+    if(index == max && !!inputValue) {
+      // shellUid++;
       changed = true
       // can use data-binding to get
-      keys = keys.concat(shellUid);
+      keys = keys.concat(max + 1);
       // can use data-binding to set
       // important! notify form to detect changes
     }
-    if (index == shellUid - 1 && !inputValue) {
+    if (index == max - 1 && !inputValue) {
       let nextInputValue = form.getFieldValue('shellCode' + index + 1);
       if (!nextInputValue) {
-        shellUid--;
+        // shellUid--;
         changed = true
         keys.pop()
       }
@@ -694,10 +695,8 @@ let EditTenxFlowModal = React.createClass({
       let shellLength = values.shellCodes;
       let shellList = [];
       shellLength.map((item, index) => {
-        if((index + 1) != shellLength.length) {
-          if(!!values['shellCode' + item]) {            
-            shellList.push(values['shellCode' + item]);
-          }
+        if(!!values['shellCode' + item]) {
+          shellList.push(values['shellCode' + item]);
         }
       });
       let body = {
@@ -849,9 +848,9 @@ let EditTenxFlowModal = React.createClass({
         <div className='serviceDetail' key={'shellCode' + i}>
           <FormItem className='serviceForm'>
             <Input disabled={ scopeThis.state.otherFlowType == '3' ? true : false } onKeyUp={() => this.addShellCode(i) } {...shellCodeProps} type='text' size='large' />
-            { scopeThis.state.otherFlowType == '3' ? null : (scodes.length == 1 ? null : [
+            { scopeThis.state.otherFlowType == '3' || scodes.length == 1 ? null : [
               <i className='fa fa-trash' onClick={() => this.removeShellCode(i)} />
-            ]) }
+            ] }
           </FormItem>
           <div style={{ clera:'both' }}></div>
         </div>
