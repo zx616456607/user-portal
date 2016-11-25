@@ -567,6 +567,34 @@ let EditTenxFlowModal = React.createClass({
             }
           }
         });
+         //check service code
+        let serviceLength = values.services;
+        let emptyServiceEnv = _this.state.emptyServiceEnv;
+        serviceLength.map((item) => {
+          let temp = {
+            'service': values['serviceSelect' + item]
+          }
+          if(!!values['serviceSelect' + item]) {
+            let tempLength = values['service' + item + 'inputs'] || [];
+            let tempList = [];
+            //this flag for service detail env list check the value input or not
+            let emptyFlag = false;
+            tempLength.map((littleItem) => {
+              if(values['service' + item +'inputName' + littleItem] != '') {
+                if(values['service' + item +'inputValue' + littleItem] == '') {
+                  //if user didn't input value but input the key name
+                  //the error list will be add the services num
+                  if(emptyServiceEnv.indexOf(item) == -1) {
+                    emptyServiceEnv.push(item);
+                  }
+                }
+              }
+            });
+          }
+        });
+        _this.setState({
+          emptyServiceEnv: emptyServiceEnv
+        })
         return;
       }
       //this flag for all form error flag
