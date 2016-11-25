@@ -888,6 +888,10 @@ export const GET_REPOS_BRANCH_SUCCESS = 'GET_REPOS_BRANCH_SUCCESS'
 export const GET_REPOS_BRANCH_FAILURE = 'GET_REPOS_BRANCH_FAILURE'
 
 function fetchCodeStoreBranchDetail(storeType, reponame, project_id, callback) {
+  if (storeType == "svn") {
+    // No branch to fetch for svn
+    return
+  }
   return {
     [FETCH_API]: {
       types: [GET_REPOS_BRANCH_REQUEST, GET_REPOS_BRANCH_SUCCESS, GET_REPOS_BRANCH_FAILURE],
