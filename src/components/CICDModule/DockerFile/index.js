@@ -21,15 +21,15 @@ import './style/DockerFile.less'
 const menusText = defineMessages({
   tooltips: {
     id: 'CICD.DockerFile.tooltips',
-    defaultMessage: '云端Dockerfile: 这里保存您在TenxFlow过程中创建的云端Dockerfile，方便再次查看或使用。（这里的Dockerfile对应TenxFlow中子项目名称）',
+    defaultMessage: '云端 Dockerfile: 这里保存您在 TenxFlow 过程中创建的云端 Dockerfile，方便再次查看或使用。（这里的 Dockerfile 对应 TenxFlow 中子项目名称）',
   },
   show: {
     id: 'CICD.DockerFile.show',
-    defaultMessage: '查看Dockerfile',
+    defaultMessage: '查看 Dockerfile',
   },
   editDockerFile: {
     id: 'CICD.DockerFile.editDockerFile',
-    defaultMessage: '编辑Dockerfile',
+    defaultMessage: '编辑 Dockerfile',
   },
   itemName: {
     id: 'CICD.DockerFile.itemName',

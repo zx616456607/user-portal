@@ -9,7 +9,6 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { Menu, Button, Card } from 'antd'
-import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'

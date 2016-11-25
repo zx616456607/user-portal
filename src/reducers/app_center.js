@@ -11,7 +11,7 @@
 import * as ActionTypes from '../actions/app_center'
 import merge from 'lodash/merge'
 import reducerFactory from './factory'
-import { cloneDeep , remove, findIndex} from 'lodash'
+import { cloneDeep, remove, findIndex } from 'lodash'
 
 function privateImages(state = {}, action) {
   const registry = action.registry
@@ -64,7 +64,7 @@ function privateImages(state = {}, action) {
       return list
     }
     case ActionTypes.DELETE_PRIVATE_IMAGE_SUCCESS: {
-      const delState =  cloneDeep(state)
+      const delState = cloneDeep(state)
       const registry = action.registry
       const imageList = delState[registry].imageList
       const dIndex = findIndex(imageList, list => {
@@ -172,11 +172,11 @@ function otherImages(state = {}, action) {
         return newState
       }
       const temp = state.imageList.filter(list => {
-         const search = new RegExp(imageName)
-         if (search.test(list)){
-           return true
-         }
-         return false
+        const search = new RegExp(imageName)
+        if (search.test(list)) {
+          return true
+        }
+        return false
       })
       newState.imageList = temp
       return newState
@@ -489,13 +489,14 @@ function fockImagesList(state = {}, action) {
   }
 }
 // ----------------------      编排中心          -----------
-function stackList(state={}, action) {
+function stackList(state = {}, action) {
   const registry = action.registry
   const defaultState = {
     [registry]: {
       isFetching: false,
       myStackList: [],
-      stackList: []
+      stackList: [],
+      appStoreList: []
     }
   }
   switch (action.type) {
@@ -538,7 +539,7 @@ function stackList(state={}, action) {
       })
     case ActionTypes.DELETE_PRIVATE_STACK_SUCCESS:
       const oldStack = cloneDeep(state)
-      const Registry= action.registry
+      const Registry = action.registry
       const list = oldStack[Registry]
       let ids = remove(list.myStackList, item => {
         return item.id == action.id
@@ -548,7 +549,7 @@ function stackList(state={}, action) {
       return merge({}, state, {
         [registry]: { isFetching: false }
       })
-// -------------         update          ----- -
+    // -------------         update          ----- -
     case ActionTypes.UPDATE_PRIVATE_STACK_SUCCESS:
       const updateStack = cloneDeep(state)
       const registry2 = action.registry
@@ -567,24 +568,61 @@ function stackList(state={}, action) {
       return merge({}, state, {
         [registry]: { isFetching: false }
       })
+    case ActionTypes.GET_APP_STORE_LIST_REQUEST: {
+      return merge({}, state, {
+        [registry]: {isFetching: false  }
+      })
+    }
+    case ActionTypes.GET_APP_STORE_LIST_SUCCESS: {
+      const result = action.response.result.data.data || []
+      let data = []
+      const imageList = []
+      const temp = {}
+      for(let a in result) {
+        let key = result[a].category
+        if (!temp[key]) {
+          temp[key] = {imageList:[], title: key}
+          temp[key].imageList.push(result[a])
+        } else {
+          temp[key].imageList.push(result[a])
+        }
+      }
+      const resultArray = Object.getOwnPropertyNames(temp).map(item => {
+        return temp[item]
+      })
+      return Object.assign({}, state, {
+        [registry]: {
+          isFetching: false,
+          appStoreList: resultArray
+        }
+      })
+    }
+    case ActionTypes.GET_APP_STORE_LIST_FAILURE: {
+      return merge({}, state, {
+        [registry]: {
+          isFetching: false,
+          appStoreList: false
+        }
+      })
+    }
     default:
       return state
   }
 }
 
-function createStack(state={}, action) {
+function createStack(state = {}, action) {
   switch (action.type) {
-   case ActionTypes.CREATE_STACK_REQUEST:
+    case ActionTypes.CREATE_STACK_REQUEST:
       return merge({}, state, {
-       isFetching: true 
+        isFetching: true
       })
     case ActionTypes.CREATE_STACK_SUCCESS:
       return merge({}, state, {
-        isFetching: false 
+        isFetching: false
       })
     case ActionTypes.CREATE_STACK_FAILURE:
       return merge({}, state, {
-         isFetching: false 
+        isFetching: false
       })
     default:
       return state
