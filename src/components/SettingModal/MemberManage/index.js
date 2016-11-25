@@ -589,6 +589,7 @@ class MemberManage extends Component {
     const searchIntOption = {
       width: '280px',
       position: 'right',
+      height: '50px',
       addBefore: [
         { key: 'name', value: '用户名' },
         { key: 'tel', value: '手机号' },
@@ -600,8 +601,8 @@ class MemberManage extends Component {
     return (
       <div id="MemberManage">
         <Row>
-          <Button type="primary" size="large" onClick={this.showModal} icon="plus" className="addBtn">
-            添加新成员
+          <Button type="primary" size="large" onClick={this.showModal} className="addBtn">
+            <i className='fa fa-plus'/> 添加新成员
           </Button>
           <SearchInput scope={scope} searchIntOption={searchIntOption} />
           <NewMemberForm visible={visible} scope={scope} />

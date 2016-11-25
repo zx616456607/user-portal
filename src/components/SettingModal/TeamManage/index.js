@@ -409,8 +409,8 @@ class TeamManage extends Component {
         包含『团队空间』这一逻辑隔离层， 以实现对应您企业内部各个不同项目， 或者不同逻辑组在云平台上操作对象的隔离， 团队管理员可见对应团队的所有空间的应用等对象。"
                type="info"/>
         <Row className="teamOption">
-          <Button icon="plus" type="primary" size="large" onClick={this.showModal} className="plusBtn">
-            创建团队
+          <Button type="primary" size="large" onClick={this.showModal} className="plusBtn">
+            <i className='fa fa-plus'/>  创建团队
           </Button>
             <Modal title="创建团队" visible={visible}
                    onOk={this.handleOk} onCancel={this.handleCancel}
