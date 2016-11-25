@@ -129,10 +129,12 @@ module.exports = function (Router) {
   router.get('/overview/clusters/:cluster_id/storage', overviewClusterController.getClusterStorage)
   router.get('/overview/clusters/:cluster_id/appstatus', overviewClusterController.getClusterAppStatus)
   router.get('/overview/clusters/:cluster_id/dbservices', overviewClusterController.getClusterDbServices)
+  router.get('/overview/clusters/:cluster_id/nodesummary', overviewClusterController.getClusterNodeSummary)
  
   //Overview Space
   router.get('/overview/operations', overviewSpaceController.getSpaceOperations)
   router.get('/overview/templates', overviewSpaceController.getSpaceTemplateStats)
+  router.get('/overview/warnings', overviewSpaceController.getSpaceWarnings)
 
   // spi
   router.post('/clusters/:cluster/services/:service_name/binddomain', serviceController.bindServiceDomain)

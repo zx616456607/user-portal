@@ -29,7 +29,7 @@ const menusText = defineMessages({
   },
   belong: {
     id: 'AppCenter.ImageCenter.OtherSpace.belong',
-    defaultMessage: '所属空间：',
+    defaultMessage: '类型：',
   },
   imageUrl: {
     id: 'AppCenter.ImageCenter.OtherSpace.imageUrl',

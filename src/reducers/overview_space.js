@@ -19,7 +19,8 @@ export default function overviewSpace(state = {
   spaceOperations: {},
   spaceCICDStats: {},
   spaceImageStats: {},
-  spaceTemplateStats: {}
+  spaceTemplateStats: {},
+  spaceWarnings: {}
  }, action) {
   return {
     spaceOperations: reducerFactory({
@@ -41,6 +42,11 @@ export default function overviewSpace(state = {
       REQUEST: ActionTypes.OVERVIEW_SPACE_TEMPLATE_REQUEST,
       SUCCESS: ActionTypes.OVERVIEW_SPACE_TEMPLATE_SUCCESS,
       FAILURE: ActionTypes.OVERVIEW_SPACE_TEMPLATE_FAILURE
-    }, state.spaceTemplateStats, action, option)
+    }, state.spaceTemplateStats, action, option),
+    spaceWarnings: reducerFactory({
+      REQUEST: ActionTypes.OVERVIEW_SPACE_WARNING_REQUEST,
+      SUCCESS: ActionTypes.OVERVIEW_SPACE_WARNING_SUCCESS,
+      FAILURE: ActionTypes.OVERVIEW_SPACE_WARNING_FAILURE
+    }, state.spaceWarnings, action, option)
   }
 }

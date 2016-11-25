@@ -201,7 +201,7 @@ class CollapseContainer extends Component {
           )
         } else {
           mounts = formatVolumeMounts(self.props.appList, groupname, configFileItem.name)
-          volume = mounts.slice(0, 3).map((list, index) => {
+          volume = mounts.slice(0, 2).map((list, index) => {
             return (
               <td key={`key@${index}`}>
                 <div className="li"><Link to={`/app_manage/detail/${list.imageName}`}>{list.imageName}</Link></div>
@@ -243,7 +243,7 @@ class CollapseContainer extends Component {
                   </td>
                   { volume }
 
-                  {(mounts && mounts.length > 3) ?
+                  {(mounts && mounts.length > 2) ?
                     [<td style={{ textAlign: 'center' }}>
                       <div style={{cursor:'pointer'}} onClick={()=> {this.setState({[this.props.groupname + configFileItem.name]: true})}}>查看更多</div>
                     </td>]
@@ -263,7 +263,7 @@ class CollapseContainer extends Component {
                 <div className="span6">挂载路径</div>
               </div>
                 {/*查看更多-关联容器列表-start*/}
-                {mounts && mounts.slice(3).map((list) => {
+                {mounts && mounts.slice(2).map((list) => {
                   return (
                     <div className="check-config">
                       <div className="span4"><Link to={`/app_manage/detail/${list.imageName}`}>{list.imageName}</Link></div>

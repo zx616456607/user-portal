@@ -158,7 +158,7 @@ let TeamTable = React.createClass({
             this.setState({
               addMember: false,
             })
-            
+
           },
           isAsync: true
         }
@@ -234,7 +234,7 @@ let TeamTable = React.createClass({
         ),
         dataIndex: 'team',
         key: 'team',
-        width: '20%',
+        width: '10%',
         className: 'teamName',
         render: (text,record,index) => (
           <Link to={`/setting/team/${record.team}/${record.key}`}>{text}</Link>
@@ -256,7 +256,7 @@ let TeamTable = React.createClass({
         ),
         dataIndex: 'member',
         key: 'member',
-        width: '20%',
+        width: '10%',
       },
       {
         title: (
@@ -274,7 +274,7 @@ let TeamTable = React.createClass({
         ),
         dataIndex: 'cluster',
         key: 'cluster',
-        width: '20%',
+        width: '10%',
       },
       {
         title: (
@@ -292,7 +292,7 @@ let TeamTable = React.createClass({
         ),
         dataIndex: 'space',
         key: 'space',
-        width: '20%',
+        width: '10%',
       },
       {
         title: '操作',
@@ -398,7 +398,7 @@ class TeamManage extends Component {
     const scope = this
     const { visible } = this.state
     const { teams,addTeamusers,loadUserTeamList, teamUserIDList,loadTeamUserList } = this.props
-    
+
     const searchIntOption = {
       placeholder: '搜索',
       defaultSearchValue: 'team',
@@ -409,8 +409,8 @@ class TeamManage extends Component {
         包含『团队空间』这一逻辑隔离层， 以实现对应您企业内部各个不同项目， 或者不同逻辑组在云平台上操作对象的隔离， 团队管理员可见对应团队的所有空间的应用等对象。"
                type="info"/>
         <Row className="teamOption">
-          <Button icon="plus" type="primary" size="large" onClick={this.showModal} className="plusBtn">
-            创建团队
+          <Button type="primary" size="large" onClick={this.showModal} className="plusBtn">
+            <i className='fa fa-plus'/>  创建团队
           </Button>
             <Modal title="创建团队" visible={visible}
                    onOk={this.handleOk} onCancel={this.handleCancel}
@@ -423,7 +423,7 @@ class TeamManage extends Component {
                 </Col>
               </Row>
             </Modal>
-          <Button className="viewBtn">
+          <Button className="viewBtn" style={{display: "none"}}>
             <Icon type="picture" />
             查看成员&团队图例
           </Button>
@@ -474,9 +474,9 @@ function mapStateToProp(state,props) {
     if (team.teamusers) {
       if (team.teamusers.result) {
         const teamusers = team.teamusers.result.users
-      
+
         teamusers.map((item, index) => {
-        
+
           teamUserIDList.push(item.userID)
         })
       }

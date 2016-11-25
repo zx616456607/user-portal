@@ -461,3 +461,27 @@ export function loadStackDetail(id, callback) {
     return dispatch(fetchStackDetail(id, callback))
   }
 }
+
+export const GET_APP_STORE_LIST_REQUEST = 'GET_APP_STORE_LIST_REQUEST'
+export const GET_APP_STORE_LIST_SUCCESS = 'GET_APP_STORE_LIST_SUCCESS'
+export const GET_APP_STORE_LIST_FAILURE = 'GET_APP_STORE_LIST_FAILURE'
+
+function fetchAppStore(registry) {
+  return {
+    [FETCH_API]: {
+      types: [GET_APP_STORE_LIST_REQUEST, GET_APP_STORE_LIST_SUCCESS, GET_APP_STORE_LIST_FAILURE],
+      endpoint: `${API_URL_PREFIX}/templates?filter=appstore`,
+      schema: Schemas.REGISTRYS,
+      options: {
+        method: 'GET',
+      }
+    },
+    registry
+  }
+}
+
+export function loadAppStore(registry) {
+  return (dispatch, getState) => {
+    return dispatch(fetchAppStore(registry))
+  }
+}
