@@ -158,7 +158,7 @@ let TeamTable = React.createClass({
             this.setState({
               addMember: false,
             })
-            
+
           },
           isAsync: true
         }
@@ -398,7 +398,7 @@ class TeamManage extends Component {
     const scope = this
     const { visible } = this.state
     const { teams,addTeamusers,loadUserTeamList, teamUserIDList,loadTeamUserList } = this.props
-    
+
     const searchIntOption = {
       placeholder: '搜索',
       defaultSearchValue: 'team',
@@ -423,7 +423,7 @@ class TeamManage extends Component {
                 </Col>
               </Row>
             </Modal>
-          <Button className="viewBtn">
+          <Button className="viewBtn" style={{display: "none"}}>
             <Icon type="picture" />
             查看成员&团队图例
           </Button>
@@ -474,9 +474,9 @@ function mapStateToProp(state,props) {
     if (team.teamusers) {
       if (team.teamusers.result) {
         const teamusers = team.teamusers.result.users
-      
+
         teamusers.map((item, index) => {
-        
+
           teamUserIDList.push(item.userID)
         })
       }
