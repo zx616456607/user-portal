@@ -857,7 +857,7 @@ let EditTenxFlowModal = React.createClass({
       </QueueAnim>
       )
     });
-    if (this.state.otherFlowType == '3') {
+    if (this.state.otherFlowType == '3' && shellCodeItems.length > 1) {
       shellCodeItems.pop()
     }
     const flowTypeProps = getFieldProps('flowType', {
