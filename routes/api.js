@@ -134,6 +134,7 @@ module.exports = function (Router) {
   //Overview Space
   router.get('/overview/operations', overviewSpaceController.getSpaceOperations)
   router.get('/overview/templates', overviewSpaceController.getSpaceTemplateStats)
+  router.get('/overview/warnings', overviewSpaceController.getSpaceWarnings)
 
   // spi
   router.post('/clusters/:cluster/services/:service_name/binddomain', serviceController.bindServiceDomain)
