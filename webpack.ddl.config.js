@@ -1,6 +1,8 @@
 const webpack = require('webpack');
 const path = require('path');
 
+console.log('Build webpack dll ...')
+
 const vendors = [
   'antd',
   'babel-polyfill',
