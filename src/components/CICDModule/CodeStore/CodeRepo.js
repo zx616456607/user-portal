@@ -114,7 +114,7 @@ const MyComponent = React.createClass({
       success: {
         func: () => {
           const { formatMessage } = self.props
-          message.success(formatMessage(...menusText.SuccessfulActivation))
+          message.success(formatMessage(menusText.SuccessfulActivation))
         }
       }
     })
@@ -124,8 +124,8 @@ const MyComponent = React.createClass({
     const repoItem = scope.state.repokey
     const { formatMessage } = this.props
     Modal.confirm({
-      title: formatMessage(...menusText.CancellationCode),
-      content: (<h3>formatMessage(...menusText.sureCancellationCode))</h3>),
+      title: formatMessage(menusText.CancellationCode),
+      content: (<h3>formatMessage(menusText.sureCancellationCode))</h3>),
       onOk() {
         scope.props.deleteRepo(repoItem)
       },
@@ -137,7 +137,7 @@ const MyComponent = React.createClass({
     const token = this.state.regToken
     const { formatMessage } = this.props
     if (!url) {
-      message.info(formatMessage(...menusText.notSrc))
+      message.info(formatMessage(menusText.notSrc))
       return
     }
     if (!token) {
@@ -145,7 +145,7 @@ const MyComponent = React.createClass({
       return
     }
     if (!(/^http:|^https:/).test(url)) {
-      message.info(formatMessage(...menusText.errorSrc))
+      message.info(formatMessage(menusText.errorSrc))
       return
     }
     const config = {
@@ -205,7 +205,7 @@ const MyComponent = React.createClass({
     parentScope.props.notActiveProject(id, {
       success: {
         func: () => {
-          message.success(formatMessage(...menusText.UndoSuccessful))
+          message.success(formatMessage(menusText.UndoSuccessful))
         }
       }
     })

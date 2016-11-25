@@ -478,10 +478,12 @@ exports.getFlowBuild = function* () {
 exports.stopBuild = function* () {
   const loginUser = this.session.loginUser
   const flow_id = this.params.flow_id
-  const flow_build_id = this.params.flow_build_id
+  const stage_id = this.params.stage_id
+  // Stage build id here
+  const stage_build_id = this.params.build_id
 
   const api = apiFactory.getDevOpsApi(loginUser)
-  const result = yield api.updateBy(["ci-flows", flow_id, "builds", flow_build_id, "stop"], null)
+  const result = yield api.updateBy(["ci-flows", flow_id, "stages", stage_id, "builds", stage_build_id, "stop"], null)
 
   this.body = {
     data: result

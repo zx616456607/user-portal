@@ -12,7 +12,7 @@ import { Form, Select, Input, InputNumber, Modal, Checkbox, Button, Card, Menu, 
 import { connect } from 'react-redux'
 import filter from 'lodash/filter'
 import { DEFAULT_REGISTRY } from '../../../../constants'
-import { loadImageDetailTag, loadImageDetailTagConfig } from '../../../../actions/app_center'
+import { loadImageDetailTag, loadImageDetailTagConfig, getOtherImageTag, loadOtherDetailTagConfig } from '../../../../actions/app_center'
 import { checkServiceName } from '../../../../actions/app_manage'
 import { loadFreeVolume, createStorage } from '../../../../actions/storage'
 import "./style/NormalDeployBox.less"
@@ -257,7 +257,34 @@ MyComponent = connect(mapStateToMyComponentProp, {
 
 
 function loadImageTags(props) {
-  const { registry, currentSelectedImage, loadImageDetailTag } = props
+  const self = this
+  const { registry, currentSelectedImage, loadImageDetailTag, getOtherImageTag, other} = props
+  const local = location.search.split('&other=')[1] || ''
+  if (local !== '') {
+    getOtherImageTag({ id: other, imageName: currentSelectedImage }, {
+      success: {
+        func: (result) => {
+          const LATEST = 'latest'
+          let tag = result.tags[0]
+          if (result.tags.indexOf(LATEST) > -1) {
+            tag = LATEST
+          }
+          const config = {
+            imageId: other,
+            fullname: currentSelectedImage,
+            imageTag: tag
+          }
+          loadImageTagConfigs(config, props)
+          const { setFieldsValue } = props.form
+          setFieldsValue({
+            imageVersion: tag
+          })
+        },
+        isAsync: true
+      }
+    })
+    return
+  }
   loadImageDetailTag(registry, currentSelectedImage, {
     success: {
       func: (result) => {
@@ -306,7 +333,24 @@ function setEnv(defaultEnv, form) {
   }
 }
 function loadImageTagConfigs(tag, props) {
-  const { currentSelectedImage, loadImageDetailTagConfig, scope, isCreate } = props
+  const { currentSelectedImage, loadImageDetailTagConfig, scope, isCreate ,loadOtherDetailTagConfig} = props
+  if (typeof tag === 'object') {
+    loadOtherDetailTagConfig(tag, {
+      success: {
+        func: (result) => {
+          if (!isCreate) {
+            return
+          }
+          const { form } = props
+          const { containerPorts, defaultEnv } = result.configInfo
+          setPorts(containerPorts, form)
+          setEnv(defaultEnv, form)
+        },
+        isAsync: true
+      }
+    })
+    return
+  }
   loadImageDetailTagConfig(DEFAULT_REGISTRY, currentSelectedImage, tag, {
     success: {
       func: (result) => {
@@ -401,7 +445,8 @@ let NormalDeployBox = React.createClass({
 
   render: function () {
     const parentScope = this.props.scope;
-    const { imageTags, imageTagsIsFetching, form, composeType, cluster} = this.props
+    const { imageTagsIsFetching, form, composeType, cluster} = this.props
+    const imageTags = this.props.otherImages ? this.props.otherImages : this.props.imageTags
     const { getFieldProps, getFieldError, isFieldValidating } = form
     const nameProps = getFieldProps('name', {
       rules: [
@@ -588,14 +633,14 @@ function mapStateToProps(state, props) {
     tag: []
   }
   const {currentSelectedImage} = props
-  const {imageTag} = state.getImageTag
+  const {imageTag, otherImageTag} = state.getImageTag
   let targetImageTag
   if (imageTag[DEFAULT_REGISTRY]) {
     targetImageTag = imageTag[DEFAULT_REGISTRY][currentSelectedImage]
   }
-  const {registry, tag, isFetching } = targetImageTag || defaultImageTags
-
+  let {registry, tag, isFetching } = targetImageTag || defaultImageTags
   const { cluster } = state.entities.current
+  const otherImages = otherImageTag.imageTag
   return {
     cluster: cluster.clusterID,
     registry,
@@ -603,7 +648,8 @@ function mapStateToProps(state, props) {
     imageTagsIsFetching: isFetching,
     currentSelectedImage,
     checkServiceName: state.apps.checkServiceName,
-    tagConfig: state.getImageTagConfig.imageTagConfig
+    tagConfig: state.getImageTagConfig.imageTagConfig,
+    otherImages
   }
 }
 
@@ -611,6 +657,8 @@ NormalDeployBox = connect(mapStateToProps, {
   loadImageDetailTag,
   loadImageDetailTagConfig,
   checkServiceName,
+  getOtherImageTag,
+  loadOtherDetailTagConfig
 })(NormalDeployBox)
 
 export default NormalDeployBox

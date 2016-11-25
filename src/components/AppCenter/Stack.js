@@ -26,6 +26,9 @@ class ComposeCenter extends Component {
       current: "privateCompose",
     }
   }
+  componentWillMount() {
+    document.title = '编排文件 | 时速云'
+  }
   selectCurrentTab(current) {
     //this function for user select current show tabs
     this.setState({
