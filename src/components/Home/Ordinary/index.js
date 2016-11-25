@@ -285,7 +285,10 @@ class Ordinary extends Component{
   }
   
   componentWillMount() {
-    const { loadClusterOperations, loadClusterSysinfo, loadClusterStorage, 
+    
+  }
+  componentDidMount(){
+    const { loadClusterOperations, loadClusterSysinfo, loadClusterStorage,
       loadClusterAppStatus, loadClusterDbServices, loadClusterNodeSummary } = this.props
     loadClusterOperations("cce1c71ea85a5638b22c15d86c1f61df")
     loadClusterSysinfo("cce1c71ea85a5638b22c15d86c1f61df")
@@ -333,6 +336,10 @@ class Ordinary extends Component{
     let conRunning = clusterAppStatus.podMap.get('Running')
     let conTerminating = clusterAppStatus.podMap.get('Terminating')
     let conPending = clusterAppStatus.podMap.get('Pending')
+  
+    let legendData = []
+    let seriesData = []
+    
     
     let appOption = {
       tooltip : {
@@ -415,14 +422,17 @@ class Ordinary extends Component{
         orient : 'vertical',
         left : '50%',
         top : 'middle',
-        data:[{name:'运行中'}, {name:'已停止'},{name:'操作中'}],
+        // data:[{name:'运行中'}, {name:'已停止'},{name:'操作中'},{name:'异常'}],
+        data: legendData,
         formatter: function (name) {
           if(name === '运行中'){
             return name + ': ' + svcRunning + '个'
           } else if (name === '已停止') {
-            return name + ': ' + svcStopped + '个'
+            return name + ': ' + svcStopped?svcStopped:0 + '个'
           } else if (name === '操作中') {
             return name + ': ' + appCountBusy + '个'
+          }else if (name === '异常') {
+            return name + ': ' + 0 + '个'
           }
         },
         textStyle: {
@@ -441,12 +451,13 @@ class Ordinary extends Component{
         selectedOffset: 0,
         radius: ['28', '40'],
         center: ['25%', '50%'],
-        data:[
+        /*data:[
           {value:svcRunning, name:'运行中'},
           {value:svcStopped, name:'已停止'},
           {value:10, name:'操作中',selected:true},
           {value:10, name:'异常'},
-        ],
+        ],*/
+        data: seriesData,
         label: {
           normal: {
             position: 'center',
