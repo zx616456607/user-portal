@@ -9,26 +9,46 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
-import { resetErrorMessage } from '../actions'
-import { Icon, Menu, notification, Modal, Button } from 'antd'
-import ErrorPage from './ErrorPage'
-import Header from '../components/Header'
-import Sider from '../components/Sider'
+import { resetErrorMessage } from '../../actions'
+import { Icon, Menu, notification, Modal, Button, Spin, } from 'antd'
+import ErrorPage from '../ErrorPage'
+import Header from '../../components/Header'
+import Sider from '../../components/Sider'
+import WebSocket from '../../components/WebSocket'
 import { Link } from 'react-router'
+import { setSockets, loadLoginUserDetail } from '../../actions/entities'
+import { isEmptyObject } from '../../common/tools'
+import { updateContainerList } from '../../actions/app_manage'
+import { handleOnMessage } from './status'
 
 class App extends Component {
   constructor(props) {
     super(props)
     this.handleDismissClick = this.handleDismissClick.bind(this)
     this.handleLoginModalCancel = this.handleLoginModalCancel.bind(this)
+    this.onStatusWebsocketSetup = this.onStatusWebsocketSetup.bind(this)
+    this.getStatusWatchWs = this.getStatusWatchWs.bind(this)
     this.state = {
       siderStyle: 'mini',
       loginModalVisible: false,
     }
   }
 
+  componentWillMount() {
+    const { loginUser, loadLoginUserDetail } = this.props
+    // load user info
+    if (isEmptyObject(loginUser)) {
+      loadLoginUserDetail()
+    }
+  }
+
   componentWillReceiveProps(nextProps) {
-    const { errorMessage } = nextProps
+    const { errorMessage, current } = nextProps
+    const { statusWatchWs } = this.props.sockets
+    const { space, cluster } = current
+    if (space.namespace !== this.props.current.space.namespace || cluster.clusterID !== this.props.current.cluster.clusterID) {
+      statusWatchWs && statusWatchWs.close()
+    }
     if (!errorMessage) {
       return
     }
@@ -69,8 +89,45 @@ class App extends Component {
     setTimeout(resetErrorMessage)
   }
 
+  onStatusWebsocketSetup(ws) {
+    const { setSockets, loginUser, current } = this.props
+    const { watchToken, namespace } = loginUser
+    const watchAuthInfo = {
+      accessToken: watchToken,
+      namespace: namespace
+    }
+    if (current.space.namespace !== 'default') {
+      watchAuthInfo.teamspace = current.space.namespace
+    }
+    ws.send(JSON.stringify(watchAuthInfo))
+    setSockets({
+      statusWatchWs: ws
+    })
+    ws.onmessage = (event) => {
+      // this.props.onMessage(event.data)
+      handleOnMessage(this.props, JSON.parse(event.data))
+    }
+  }
+
+  getStatusWatchWs() {
+    if (!window.WebSocket) {
+      // Show some tips?
+      return
+    }
+    const { loginUser } = this.props
+    if (!loginUser.tenxApi) {
+      return
+    }
+    return (
+      <WebSocket
+        url={`ws://${loginUser.tenxApi.host}/spi/v2/watch`}
+        onSetup={this.onStatusWebsocketSetup}
+        debug={true} />
+    )
+  }
+
   render() {
-    let { children, pathname, errorMessage } = this.props
+    let { children, pathname, errorMessage, loginUser } = this.props
     const { loginModalVisible } = this.state
     const scope = this
     /*if (errorMessage) {
@@ -80,6 +137,13 @@ class App extends Component {
         )
       }
     }*/
+    if (isEmptyObject(loginUser)) {
+      return (
+        <div className="loading">
+          <Spin size="large" />
+        </div>
+      )
+    }
     return (
       <div className='tenx-layout'>
         {this.renderErrorMessage()}
@@ -94,6 +158,7 @@ class App extends Component {
         </div>
         <div className={this.state.siderStyle == 'mini' ? 'tenx-layout-content' : 'tenx-layout-content-bigger tenx-layout-content'}>
           {children}
+          {this.getChildren}
         </div>
         <Modal
           visible={loginModalVisible}
@@ -116,6 +181,7 @@ class App extends Component {
             <p>您的登录状态已失效，请登录后继续当前操作</p>
           </div>
         </Modal>
+        {this.getStatusWatchWs()}
       </div>
     )
   }
@@ -131,12 +197,21 @@ App.propTypes = {
 }
 
 function mapStateToProps(state, props) {
+  const { errorMessage, entities } = state
+  const { current, sockets, loginUser } = entities
   return {
-    errorMessage: state.errorMessage,
-    pathname: props.location.pathname
+    reduxState: state,
+    errorMessage,
+    pathname: props.location.pathname,
+    current,
+    sockets,
+    loginUser: loginUser.info,
   }
 }
 
 export default connect(mapStateToProps, {
-  resetErrorMessage
+  resetErrorMessage,
+  setSockets,
+  loadLoginUserDetail,
+  updateContainerList,
 })(App)

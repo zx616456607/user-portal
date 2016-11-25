@@ -487,6 +487,11 @@ class AppList extends Component {
     loadData(this.props)
   }
 
+  componentDidMount() {
+    const { statusWatchWs } = this.props
+    statusWatchWs && statusWatchWs.send(JSON.stringify({ cluster: "cce1c71ea85a5638b22c15d86c1f61df", type: "app", name: ["nginx"] }))
+  }
+
   componentWillReceiveProps(nextProps) {
     this.setState({
       appList: nextProps.appList
@@ -1058,6 +1063,7 @@ function mapStateToProps(state, props) {
     size = DEFAULT_PAGE_SIZE
   }
   const { cluster } = state.entities.current
+  const { statusWatchWs } = state.entities.sockets
   const defaultApps = {
     isFetching: false,
     cluster: cluster.clusterID,
@@ -1070,6 +1076,7 @@ function mapStateToProps(state, props) {
 
   return {
     cluster: cluster.clusterID,
+    statusWatchWs,
     bindingDomains: state.entities.current.cluster.bindingDomains,
     currentCluster: cluster,
     pathname,
