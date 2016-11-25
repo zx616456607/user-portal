@@ -10,6 +10,10 @@
  */
 import { TENX_MARK } from '../constants'
 
+/**
+ * Get container status
+ * return one of [Pending, Running, Terminating, Failed, Unknown]
+ */
 export function getContainerStatus(container) {
   const { status, metadata } = container
   const { deletionTimestamp } = metadata
@@ -19,6 +23,10 @@ export function getContainerStatus(container) {
   return status
 }
 
+/**
+ * Get service status
+ * return one of [Pending, Running, Deploying, Stopped]
+ */
 export function getServiceStatus(service) {
   const { status, metadata } = service
   if (!status.availableReplicas) {
@@ -38,7 +46,7 @@ export function getServiceStatus(service) {
   status.replicas = replicas
   if (!phase) {
     if (unavailableReplicas > 0 && (!availableReplicas || availableReplicas < replicas)) {
-      status.phase = 'Starting'
+      status.phase = 'Pending'
     } else if (observedGeneration >= metadata.generation && replicas === updatedReplicas) {
       status.availableReplicas = updatedReplicas
       status.phase = 'Running'
@@ -54,6 +62,10 @@ export function getServiceStatus(service) {
   return status
 }
 
+/**
+ * Get app status by services list
+ * return one of [Running, Stopped, Unknown]
+ */
 export function getAppStatus(services) {
   const appStatus = {
     replicas: services.length,
