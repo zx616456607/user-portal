@@ -184,6 +184,17 @@ const menusText = defineMessages({
   }
 });
 
+function emptyServiceEnvCheck(errorList, item) {
+  //this function for show which env list of services is error
+  let errorFlag = false;
+  errorList.map((errorDetail) => {
+    if(errorDetail == item) {
+      errorFlag = true;
+    }
+  });
+  return errorFlag;
+}
+
 let uuid = 0;
 let shellUid = 0;
 let CreateTenxFlowModal = React.createClass({
@@ -203,7 +214,8 @@ let CreateTenxFlowModal = React.createClass({
       dockerFileTextarea: null,
       noDockerfileInput: false,
       ImageEnvModal: false,
-      emptyImageEnv: false
+      emptyImageEnv: false,
+      emptyServiceEnv: []
     }
   },
   componentWillMount() {
@@ -470,7 +482,6 @@ let CreateTenxFlowModal = React.createClass({
           _this.setState({
             noDockerfileInput: true
           });
-
         }
         //check image env list
         let imageEnvLength = values.imageEnvInputs || [];
@@ -483,38 +494,120 @@ let CreateTenxFlowModal = React.createClass({
             }
           }
         });
+         //check service code
+        let serviceLength = values.services;
+        let emptyServiceEnv = _this.state.emptyServiceEnv;
+        serviceLength.map((item) => {
+          let temp = {
+            'service': values['serviceSelect' + item]
+          }
+          if(!!values['serviceSelect' + item]) {
+            let tempLength = values['service' + item + 'inputs'] || [];
+            let tempList = [];
+            //this flag for service detail env list check the value input or not
+            let emptyFlag = false;
+            tempLength.map((littleItem) => {
+              if(values['service' + item +'inputName' + littleItem] != '') {
+                if(values['service' + item +'inputValue' + littleItem] == '') {
+                  //if user didn't input value but input the key name
+                  //the error list will be add the services num
+                  if(emptyServiceEnv.indexOf(item) == -1) {
+                    emptyServiceEnv.push(item);
+                  }
+                }
+              }
+            });
+          }
+        });
+        _this.setState({
+          emptyServiceEnv: emptyServiceEnv
+        })
         return;
       }
+      //this flag for all form error flag
+      let errorFlag = false;
       if (!Boolean(_this.state.dockerFileTextarea) && !this.state.useDockerfile && _this.otherFlowType == '3') {
         _this.setState({
           noDockerfileInput: true
         });
-        return;
+        errorFlag = true;
       }
+      //get service code
+      let serviceLength = values.services;
+      let serviceList = [];
+      //due to the setState is not async
+      //so in the function we get it for cache and do all change in this cache
+      //and when the service check end, we setState change the state
+      let emptyServiceEnv = _this.state.emptyServiceEnv;
+      serviceLength.map((item) => {
+        let temp = {
+          'service': values['serviceSelect' + item]
+        }
+        if(!!values['serviceSelect' + item]) {
+          let tempLength = values['service' + item + 'inputs'] || [];
+          let tempList = [];
+          //this flag for service detail env list check the value input or not
+          let emptyFlag = false;
+          tempLength.map((littleItem) => {
+            if(values['service' + item +'inputName' + littleItem] != '') {
+              if(values['service' + item +'inputValue' + littleItem] == '') {
+                //if user didn't input value but input the key name
+                //the error list will be add the services num
+                if(emptyServiceEnv.indexOf(item) == -1) {
+                  emptyServiceEnv.push(item);
+                }
+                errorFlag = true;
+                emptyFlag = true;
+              } else {
+                let tempBody = {
+                  name: values['service' + item +'inputName' + littleItem],
+                  value: values['service' + item +'inputValue' + littleItem]            
+                }
+                tempList.push(tempBody);
+              }
+            }
+          });
+          if(!emptyFlag) {
+            emptyServiceEnv = emptyServiceEnv.filter((key) => {
+              return key !== item;
+            });
+          }
+          temp.env = tempList;
+          serviceList.push(temp);
+        }
+      });
+      _this.setState({
+        emptyServiceEnv: emptyServiceEnv
+      })
       //check image env list
       let imageEnvLength = values.imageEnvInputs || [];
       let imageEnvList = [];
+      let imageEnvFlag = false;
       imageEnvLength.map((item, index) => {
         if(values['imageEnvName' + item] != '') {
           if(values['imageEnvValue' + item] == '') {
             _this.setState({
               emptyImageEnv: true
             });
+            errorFlag = true;
+            imageEnvFlag = true;
           } else {
-            let tempName = values['imageEnvName' + item];
-            let tempEnv = {
-              [tempName]: values['imageEnvValue' + item]
+            let tempBody = {
+              name: values['imageEnvName' + item],
+              value: values['imageEnvValue' + item]
             }
-            imageEnvList.push(tempEnv)
-            _this.setState({
-              emptyImageEnv: false
-            });
+            imageEnvList.push(tempBody)
           }
         }
       });
-      /*if(_this.state.emptyImageEnv) {
+      if(!imageEnvFlag) {
+        _this.setState({
+          emptyImageEnv: false
+        });
+      }
+      if(errorFlag) {
         return;
-      }*/
+      }
       //get shell code
       let shellLength = values.shellCodes;
       let shellList = [];
@@ -523,25 +616,6 @@ let CreateTenxFlowModal = React.createClass({
           if(!!values['shellCode' + item]) {            
             shellList.push(values['shellCode' + item]);
           }
-        }
-      });
-      //get service code
-      let serviceLength = values.services;
-      let serviceList = [];
-      serviceLength.map((item) => {
-        let temp = {
-          'service': values['serviceSelect' + item]
-        }
-        if(!!values['serviceSelect' + item]) {
-          let tempLength = values['service' + item + 'inputs'];
-          let tempList = [];
-          tempLength.map((littleItem, littleIndex) => {
-            if((littleIndex + 1) != tempLength.length) {
-              tempList.push(values['service' + item +'input' + littleItem]);
-            }
-          });
-          temp.env = tempList;
-          serviceList.push(temp);
         }
       });
       let body = {
@@ -654,7 +728,11 @@ let CreateTenxFlowModal = React.createClass({
             <Select {...serviceSelect} style={{ width: '100px' }} >
               {serviceSelectList}
             </Select>
-            <span className='defineEnvBtn' onClick={() => this.openEnvSettingModal(k)}><FormattedMessage {...menusText.defineEnv} /></span>
+            <span className={ emptyServiceEnvCheck(scopeThis.state.emptyServiceEnv, k) ? 'emptyImageEnv defineEnvBtn' : 'defineEnvBtn'} 
+              onClick={() => this.openEnvSettingModal(k)}>
+              <FormattedMessage {...menusText.defineEnv} />
+            </span>
+            { emptyServiceEnvCheck(scopeThis.state.emptyServiceEnv, k) ? [<span className='emptyImageEnvError'><FormattedMessage {...menusText.emptyImageEnv} /></span>] : null }
             <i className='fa fa-trash' onClick={() => this.removeService(k)}/>
           </Form.Item>
           <Modal className='tenxFlowServiceEnvModal'

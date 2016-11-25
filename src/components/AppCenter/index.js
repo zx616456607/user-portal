@@ -9,7 +9,6 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { Modal, Tabs, Icon, Menu, Button, Card, Form, Input, message } from 'antd'
-import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import TweenOne from 'rc-tween-one';
 import { connect } from 'react-redux'
@@ -337,6 +336,7 @@ class ImageCenter extends Component {
   }
   
   componentDidMount() {
+    document.title = '镜像仓库 | 时速云'
     this.props.LoadOtherImage({
       success: {
         func: (res) => {

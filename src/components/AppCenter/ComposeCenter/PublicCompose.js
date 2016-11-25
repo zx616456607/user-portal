@@ -127,9 +127,11 @@ const MyComponent = React.createClass({
             {calcuDate(item.createTime)}
           </div>
           <div className="opera">
+            <Link to={`/app_manage/app_create/compose_file`}>
             <Button type="ghost">
               <FormattedMessage {...menusText.deployService} />
             </Button>
+            </Link>
           </div>
         </div>
       );

@@ -122,3 +122,12 @@ export function loadLicense(callback) {
     return dispatch(fetchLicense(callback))
   }
 }
+
+export const SET_SOCKETS = 'SET_SOCKETS'
+// Resets the currently visible error message.
+export function setSockets(sockets) {
+  return {
+    sockets,
+    type: SET_SOCKETS
+  }
+}

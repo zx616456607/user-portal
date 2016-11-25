@@ -64,3 +64,31 @@ exports.getClusterAppStatus = function* () {
     data
   }
 }
+
+exports.getClusterDbServices = function* () {
+  let cluster = this.params.cluster_id
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster, "dbservices"])
+  let data = {}
+  if (result && result.data) {
+    data = result.data
+  }
+  this.body = {
+    data
+  }
+}
+
+exports.getClusterNodeSummary = function* () {
+  let cluster = this.params.cluster_id
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.overview.getBy(["clusters", cluster, "nodesummary"])
+  let data = {}
+  if (result && result.data) {
+    data = result.data
+  }
+  this.body = {
+    data
+  }
+}

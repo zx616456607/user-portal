@@ -169,6 +169,10 @@ const menusText = defineMessages({
   deleteCode: {
     id: 'CICD.Tenxflow.EditTenxFlowModal.deleteCode',
     defaultMessage: '清空',
+  },
+  emptyImageEnv: {
+    id: 'CICD.Tenxflow.CreateTenxFlowModal.emptyImageEnv',
+    defaultMessage: '环境变量值不能为空',
   }
 });
 
@@ -196,6 +200,17 @@ function fetchDockerFilePath(spec) {
   return null;
 }
 
+function emptyServiceEnvCheck(errorList, item) {
+  //this function for show which env list of services is error
+  let errorFlag = false;
+  errorList.map((errorDetail) => {
+    if(errorDetail == item) {
+      errorFlag = true;
+    }
+  });
+  return errorFlag;
+}
+
 let uuid = 0;
 let shellUid = 0;
 let EditTenxFlowModal = React.createClass({
@@ -212,7 +227,9 @@ let EditTenxFlowModal = React.createClass({
       dockerFileModalShow: false,
       dockerFileTextarea: null,
       noDockerfileInput: false,
-      ImageEnvModal: false
+      ImageEnvModal: false,
+      emptyImageEnv: false,
+      emptyServiceEnv: []
     }
   },
   componentDidMount() {
@@ -410,18 +427,28 @@ let EditTenxFlowModal = React.createClass({
     //when user input words, after user key up would triger the function
     const { form } = this.props;
     let inputValue = form.getFieldValue('shellCode' + index);
-    if(index == shellUid) {
-      if(!!inputValue) {
-        shellUid++;
-        // can use data-binding to get
-        let keys = form.getFieldValue('shellCodes');
-        keys = keys.concat(shellUid);
-        // can use data-binding to set
-        // important! notify form to detect changes
-        form.setFieldsValue({
-          'shellCodes': keys
-        });
+    let changed = false
+    let keys = form.getFieldValue('shellCodes');
+    if(index == shellUid && !!inputValue) {
+      shellUid++;
+      changed = true
+      // can use data-binding to get
+      keys = keys.concat(shellUid);
+      // can use data-binding to set
+      // important! notify form to detect changes
+    }
+    if (index == shellUid - 1 && !inputValue) {
+      let nextInputValue = form.getFieldValue('shellCode' + index + 1);
+      if (!nextInputValue) {
+        shellUid--;
+        changed = true
+        keys.pop()
       }
+    }
+    if (changed) {
+      form.setFieldsValue({
+        'shellCodes': keys
+      });
     }
   },
   realImageInput (rule, value, callback) {
@@ -550,38 +577,119 @@ let EditTenxFlowModal = React.createClass({
             }
           }
         });
+         //check service code
+        let serviceLength = values.services;
+        let emptyServiceEnv = _this.state.emptyServiceEnv;
+        serviceLength.map((item) => {
+          let temp = {
+            'service': values['serviceSelect' + item]
+          }
+          if(!!values['serviceSelect' + item]) {
+            let tempLength = values['service' + item + 'inputs'] || [];
+            let tempList = [];
+            //this flag for service detail env list check the value input or not
+            let emptyFlag = false;
+            tempLength.map((littleItem) => {
+              if(values['service' + item +'inputName' + littleItem] != '') {
+                if(values['service' + item +'inputValue' + littleItem] == '') {
+                  //if user didn't input value but input the key name
+                  //the error list will be add the services num
+                  if(emptyServiceEnv.indexOf(item) == -1) {
+                    emptyServiceEnv.push(item);
+                  }
+                }
+              }
+            });
+          }
+        });
+        _this.setState({
+          emptyServiceEnv: emptyServiceEnv
+        })
         return;
       }
+      //this flag for all form error flag
+      let errorFlag = false;
       if (!Boolean(_this.state.dockerFileTextarea) && !this.state.useDockerfile && _this.otherFlowType == '3') {
         _this.setState({
           noDockerfileInput: true
         });
-        return;
+        errorFlag = true;
       }
+      //get service code
+      let serviceLength = values.services;
+      let serviceList = [];
+      //due to the setState is not async
+      //so in the function we get it for cache and do all change in this cache
+      //and when the service check end, we setState change the state
+      let emptyServiceEnv = _this.state.emptyServiceEnv;
+      serviceLength.map((item) => {
+        let temp = {
+          'service': values['serviceSelect' + item]
+        }
+        if(!!values['serviceSelect' + item]) {
+          let tempLength = values['service' + item + 'inputs'] || [];
+          let tempList = [];
+          //this flag for service detail env list check the value input or not
+          let emptyFlag = false;
+          tempLength.map((littleItem) => {
+            if(values['service' + item +'inputName' + littleItem] != '') {
+              if(values['service' + item +'inputValue' + littleItem] == '') {
+                //if user didn't input value but input the key name
+                //the error list will be add the services num
+                if(emptyServiceEnv.indexOf(item) == -1) {
+                  emptyServiceEnv.push(item);
+                }
+                errorFlag = true;
+                emptyFlag = true;
+              } else {
+                let tempBody = {
+                  name: values['service' + item +'inputName' + littleItem],
+                  value: values['service' + item +'inputValue' + littleItem]            
+                }
+                tempList.push(tempBody);
+              }
+            }
+          });
+          if(!emptyFlag) {
+            emptyServiceEnv = emptyServiceEnv.filter((key) => {
+              return key !== item;
+            });
+          }
+          temp.env = tempList;
+          serviceList.push(temp);
+        }
+      });
+      _this.setState({
+        emptyServiceEnv: emptyServiceEnv
+      })
       //check image env list
       let imageEnvLength = values.imageEnvInputs || [];
       let imageEnvList = [];
+      let imageEnvFlag = false;
       imageEnvLength.map((item, index) => {
         if(values['imageEnvName' + item] != '') {
           if(values['imageEnvValue' + item] == '') {
             _this.setState({
               emptyImageEnv: true
             });
+            errorFlag = true;
           } else {
-            let tempName = values['imageEnvName' + item];
-            let tempEnv = {
-              [tempName]: values['imageEnvValue' + item]
+            let tempBody = {
+              name: values['imageEnvName' + item],
+              value: values['imageEnvValue' + item]
             }
-            imageEnvList.push(tempEnv)
-            _this.setState({
-              emptyImageEnv: false
-            });
+            imageEnvList.push(tempBody)
           }
         }
       });
-      /*if(_this.state.emptyImageEnv) {
+      if(!imageEnvFlag) {
+        _this.setState({
+          emptyImageEnv: false
+        });
+      }
+      if(errorFlag) {
         return;
-      }*/
+      }
       //get shell code
       let shellLength = values.shellCodes;
       let shellList = [];
@@ -590,29 +698,6 @@ let EditTenxFlowModal = React.createClass({
           if(!!values['shellCode' + item]) {            
             shellList.push(values['shellCode' + item]);
           }
-        }
-      });
-      //get service code
-      let serviceLength = values.services;
-      let serviceList = [];
-      serviceLength.map((item) => {
-        let temp = {
-          'service': values['serviceSelect' + item]
-        }
-        if(!!values['serviceSelect' + item]) {
-          let tempLength = values['service' + item + 'inputs'];
-          let tempList = [];
-          if(tempLength == undefined) {
-            tempList = config.spec.container.dependencies[item].env;            
-          } else {            
-            tempLength.map((littleItem, littleIndex) => {
-              if((littleIndex + 1) != tempLength.length) {
-                tempList.push(values['service' + item +'input' + littleItem]);
-              }
-            });
-          }
-          temp.env = tempList;
-          serviceList.push(temp);
         }
       });
       let body = {
@@ -731,7 +816,11 @@ let EditTenxFlowModal = React.createClass({
             <Select {...serviceSelect} style={{ width: '100px' }} >
               {serviceSelectList}
             </Select>
-            <span className='defineEnvBtn' onClick={() => this.openEnvSettingModal(k)}><FormattedMessage {...menusText.defineEnv} /></span>
+            <span className={ emptyServiceEnvCheck(scopeThis.state.emptyServiceEnv, k) ? 'emptyImageEnv defineEnvBtn' : 'defineEnvBtn'} 
+              onClick={() => this.openEnvSettingModal(k)}>
+              <FormattedMessage {...menusText.defineEnv} />
+            </span>
+            { emptyServiceEnvCheck(scopeThis.state.emptyServiceEnv, k) ? [<span className='emptyImageEnvError'><FormattedMessage {...menusText.emptyImageEnv} /></span>] : null }
             <i className='fa fa-trash' onClick={() => this.removeService(k)}/>
           </Form.Item>
           <Modal className='tenxFlowServiceEnvModal'
@@ -746,7 +835,8 @@ let EditTenxFlowModal = React.createClass({
       </QueueAnim>
       )
     });
-    const shellCodeItems = getFieldValue('shellCodes').map((i) => {
+    const scodes = getFieldValue('shellCodes')
+    const shellCodeItems = scodes.map((i) => {
       let shellDefault = !!shellList[i] ? shellList[i] : ''
       const shellCodeProps = getFieldProps(`shellCode${i}`, {
         rules: [
@@ -759,13 +849,18 @@ let EditTenxFlowModal = React.createClass({
         <div className='serviceDetail' key={'shellCode' + i}>
           <FormItem className='serviceForm'>
             <Input disabled={ scopeThis.state.otherFlowType == '3' ? true : false } onKeyUp={() => this.addShellCode(i) } {...shellCodeProps} type='text' size='large' />
-            <i className='fa fa-trash' onClick={() => this.removeShellCode(i)} />
+            { scopeThis.state.otherFlowType == '3' ? null : (scodes.length == 1 ? null : [
+              <i className='fa fa-trash' onClick={() => this.removeShellCode(i)} />
+            ]) }
           </FormItem>
           <div style={{ clera:'both' }}></div>
         </div>
       </QueueAnim>
       )
     });
+    if (this.state.otherFlowType == '3') {
+      shellCodeItems.pop()
+    }
     const flowTypeProps = getFieldProps('flowType', {
       rules: [
         { required: true, message: '请选择项目类型' },
@@ -904,7 +999,8 @@ let EditTenxFlowModal = React.createClass({
             >
               <Input {...imageNameProps} type='text' size='large' />
             </FormItem>
-            <span className='defineEnvBtn' onClick={this.openImageEnvModal}><FormattedMessage {...menusText.defineEnv} /></span>
+            <span className={ this.state.emptyImageEnv ? 'emptyImageEnv defineEnvBtn' : 'defineEnvBtn'} onClick={this.openImageEnvModal}><FormattedMessage {...menusText.defineEnv} /></span>            
+            { this.state.emptyImageEnv ? [<span className='emptyImageEnvError'><FormattedMessage {...menusText.emptyImageEnv} /></span>] : null }   
             <div style={{ clear:'both' }} />
           </div>
           <div style={{ clear:'both' }} />

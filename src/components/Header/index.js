@@ -193,10 +193,6 @@ class Header extends Component {
         isAsync: true
       }
     })
-    // load user info
-    if (!loginUser.info.userName) {
-      loadLoginUserDetail()
-    }
   }
 
   render() {

@@ -9,7 +9,6 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { Menu, Button, Card } from 'antd'
-import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
@@ -26,6 +25,9 @@ class ComposeCenter extends Component {
     this.state = {
       current: "privateCompose",
     }
+  }
+  componentWillMount() {
+    document.title = '编排文件 | 时速云'
   }
   selectCurrentTab(current) {
     //this function for user select current show tabs

@@ -24,8 +24,9 @@ exports.getUserDetail = function* () {
   const result = yield api.users.getBy([userID])
   const users = result.users || []
   const user = users.length > 0 ? users[0] : {}
-  if (userID === 'default') {
-    user.watchToken = this.session.loginUser.watchToken
+  if (this.params.user_id === 'default') {
+    user.tenxApi = loginUser.tenxApi
+    user.watchToken = loginUser.watchToken
   }
   this.body = {
     data: user

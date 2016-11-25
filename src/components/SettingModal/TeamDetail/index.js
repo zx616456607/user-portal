@@ -418,8 +418,8 @@ let ClusterState = React.createClass({
     } else if (state === 'pending') {
       return (
         <div id='ClusterState'>
-          <span style={{color:'#5fb55e'}}>申请中...</span>
-          <Button type="primary" onClick={this.applyClusterState} style={{backgroundColor:'#5db75d',borderColor:'#5db75d'}} className="applyBtn">重复申请</Button>
+          <span style={{color:'#82c4f4'}}>授权中...</span>
+          {/*<Button type="primary" onClick={this.applyClusterState} style={{backgroundColor:'#5db75d',borderColor:'#5db75d'}} className="applyBtn">重复申请</Button>*/}
         </div>
       )
     }

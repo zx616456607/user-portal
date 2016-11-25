@@ -9,7 +9,6 @@
  */
 import React, { Component } from 'react'
 import { Card, Spin ,message} from 'antd'
-import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import { loadOtherDetailTagConfig} from '../../../../actions/app_center'
 import './style/ServiceAPI.less'

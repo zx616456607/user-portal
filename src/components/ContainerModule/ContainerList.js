@@ -20,6 +20,7 @@ import { calcuDate } from '../../common/tools.js'
 import { browserHistory } from 'react-router'
 import TerminalModal from '../TerminalModal'
 import ContainerStatus from '../TenxStatus/ContainerStatus'
+import { addPodWatch } from '../../containers/App/status'
 
 const ButtonGroup = Button.Group
 const confirm = Modal.confirm
@@ -93,6 +94,13 @@ const MyComponent = React.createClass({
   handleDropdown: function (e) {
     e.stopPropagation()
   },
+  getImages(item) {
+    let images = []
+    item.spec.containers.map((container) => {
+      images.push(container.image)
+    })
+    return images.join(', ')
+  },
   render: function () {
     const { scope, config, loading } = this.props
     if (loading) {
@@ -119,6 +127,7 @@ const MyComponent = React.createClass({
           </Menu.Item>
         </Menu>
       );
+      const images = this.getImages(item)
       return (
         <div className={item.checked ? 'selectedContainer containerDetail' : 'containerDetail'}
           key={item.metadata.name}
@@ -149,13 +158,13 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className='imageName commonData'>
-            <Tooltip placement='topLeft' title={item.images.join(', ')}>
-              <span>{item.images.join(', ')}</span>
+            <Tooltip placement='topLeft' title={images}>
+              <span>{images}</span>
             </Tooltip>
           </div>
           <div className='visitIp commonData'>
             <Tooltip placement='topLeft' title={item.status.podIP}>
-              <span>{item.status.podIP}</span>
+              <span>{item.status.podIP || '-'}</span>
             </Tooltip>
           </div>
           <div className='createTime commonData'>
@@ -186,13 +195,31 @@ const MyComponent = React.createClass({
 })
 
 function loadData(props) {
-  const { loadContainerList, cluster, page, size, name, sortOrder } = props
-  loadContainerList(cluster, { page, size, name, sortOrder })
+  const {
+    loadContainerList, cluster, page,
+    size, name, sortOrder,
+    statusWatchWs
+  } = props
+  setInterval(function () {
+    console.log(`props.statusWatchWs--------------`)
+    console.log(props.statusWatchWs)
+  }, 1000)
+  loadContainerList(cluster, { page, size, name, sortOrder }, {
+    success: {
+      func: (result) => {
+        console.log(result)
+        // Add pod status watch
+        addPodWatch(cluster, statusWatchWs, result.data)
+      },
+      isAsync: true
+    }
+  })
 }
 
 class ContainerList extends Component {
   constructor(props) {
     super(props)
+    this.loadData = this.loadData.bind(this)
     this.onAllChange = this.onAllChange.bind(this)
     this.searchContainers = this.searchContainers.bind(this)
     this.closeTerminalLayoutModal = this.closeTerminalLayoutModal.bind(this)
@@ -210,9 +237,26 @@ class ContainerList extends Component {
     }
   }
 
+  loadData(nextProps) {
+    const selt = this
+    const {
+      loadContainerList, cluster, page,
+      size, name, sortOrder,
+    } = nextProps || this.props
+    loadContainerList(cluster, { page, size, name, sortOrder }, {
+      success: {
+        func: (result) => {
+          // Add pod status watch, props must include statusWatchWs!!!
+          addPodWatch(cluster, selt.props, result.data)
+        },
+        isAsync: true
+      }
+    })
+  }
+
   onAllChange(e) {
-    const { checked } = e.target
-    const { containerList } = this.state
+    const {checked} = e.target
+    const {containerList} = this.state
     containerList.map((container) => container.checked = checked)
     this.setState({
       containerList
@@ -221,7 +265,7 @@ class ContainerList extends Component {
 
   componentWillMount() {
     document.title = '容器列表 | 时速云'
-    loadData(this.props)
+    this.loadData()
   }
 
   componentWillReceiveProps(nextProps) {
@@ -230,7 +274,7 @@ class ContainerList extends Component {
       containerList
     })
     if (currentCluster.clusterID !== this.props.currentCluster.clusterID || currentCluster.namespace !== this.props.currentCluster.namespace) {
-      loadData(nextProps)
+      this.loadData(nextProps)
       return
     }
     if (page === this.props.page && size === this.props.size && name === this.props.name
@@ -240,18 +284,18 @@ class ContainerList extends Component {
     this.setState({
       searchInputDisabled: false
     })
-    loadData(nextProps)
+    this.loadData(nextProps)
   }
 
   batchDeleteContainers(e) {
-    const { containerList } = this.state
+    const {containerList} = this.state
     const checkedContainerList = containerList.filter((container) => container.checked)
     this.confirmDeleteContainer(checkedContainerList)
   }
 
   confirmDeleteContainer(containerList) {
     const self = this
-    const { cluster, deleteContainers, updateContainerList } = this.props
+    const {cluster, deleteContainers, updateContainerList } = this.props
     const allContainers = this.props.containerList
     const containerNames = containerList.map((container) => container.metadata.name)
     confirm({
@@ -270,7 +314,9 @@ class ContainerList extends Component {
           updateContainerList(cluster, allContainers)
           deleteContainers(cluster, containerNames, {
             success: {
-              func: () => loadData(self.props),
+              func: () => {
+                // loadData(self.props)
+              },
               isAsync: true
             }
           })
@@ -282,8 +328,8 @@ class ContainerList extends Component {
   }
 
   searchContainers(e) {
-    const { name, pathname, sortOrder } = this.props
-    const { searchInputValue } = this.state
+    const {name, pathname, sortOrder } = this.props
+    const {searchInputValue} = this.state
     if (searchInputValue === name) {
       return
     }
@@ -309,12 +355,12 @@ class ContainerList extends Component {
   }
 
   onPageChange(page) {
-    const { size, sortOrder } = this.props
+    const {size, sortOrder } = this.props
     this.updateBrowserHistory(page, size, sortOrder)
   }
 
   onShowSizeChange(page, size) {
-    const { sortOrder } = this.props
+    const {sortOrder} = this.props
     this.updateBrowserHistory(page, size, sortOrder)
   }
 
@@ -332,12 +378,12 @@ class ContainerList extends Component {
     if (size !== DEFAULT_PAGE_SIZE) {
       query.size = size
     }
-    const { name } = this.props
+    const {name} = this.props
     if (name) {
       query.name = name
     }
     query.sortOrder = sortOrder
-    const { pathname } = this.props
+    const {pathname} = this.props
     browserHistory.push({
       pathname,
       query
@@ -356,8 +402,12 @@ class ContainerList extends Component {
 
   render() {
     const parentScope = this
-    const { name, page, size, sortOrder, total, cluster, containerList, isFetching } = this.props
-    const { searchInputValue, searchInputDisabled } = this.state
+    const {
+      name, page, size,
+      sortOrder, total, cluster,
+      isFetching, statusWatchWs,
+    } = this.props
+    const {containerList, searchInputValue, searchInputDisabled } = this.state
     const checkedContainerList = containerList.filter((app) => app.checked)
     const isChecked = (checkedContainerList.length > 0)
     let isAllChecked = (containerList.length === checkedContainerList.length)
@@ -367,6 +417,7 @@ class ContainerList extends Component {
     const funcs = {
       confirmDeleteContainer: this.confirmDeleteContainer,
     }
+
     return (
       <QueueAnim
         className='ContainerList'
@@ -384,7 +435,7 @@ class ContainerList extends Component {
               </Button>
               <Button
                 size='large'
-                onClick={() => loadData(this.props)}>
+                onClick={() => this.loadData(this.props)}>
                 <i className='fa fa-refresh'></i>
                 刷新
               </Button>
@@ -495,8 +546,8 @@ ContainerList.propTypes = {
 }
 
 function mapStateToProps(state, props) {
-  const { query, pathname } = props.location
-  let { page, size, name, sortOrder } = query
+  const {query, pathname } = props.location
+  let {page, size, name, sortOrder } = query
   if (sortOrder != 'asc' && sortOrder != 'desc') {
     sortOrder = 'desc'
   }
@@ -508,7 +559,8 @@ function mapStateToProps(state, props) {
   if (isNaN(size) || size < 1 || size > MAX_PAGE_SIZE) {
     size = DEFAULT_PAGE_SIZE
   }
-  const { cluster } = state.entities.current
+  const {cluster} = state.entities.current
+  const {statusWatchWs} = state.entities.sockets
   const defaultContainers = {
     isFetching: false,
     cluster: cluster.clusterID,
@@ -519,11 +571,12 @@ function mapStateToProps(state, props) {
   const {
     containerItems
   } = state.containers
-  const { containerList, isFetching, total } = containerItems[cluster.clusterID] || defaultContainers
+  const {containerList, isFetching, total } = containerItems[cluster.clusterID] || defaultContainers
 
   return {
     cluster: cluster.clusterID,
     currentCluster: cluster,
+    statusWatchWs,
     pathname,
     page,
     size,

@@ -108,3 +108,27 @@ export function loadSpaceTemplateStats() {
     return dispatch(fetchSpaceTemplateStats())
   }
 }
+
+export const OVERVIEW_SPACE_WARNING_REQUEST = 'OVERVIEW_SPACE_WARNING_REQUEST'
+export const OVERVIEW_SPACE_WARNING_SUCCESS = 'OVERVIEW_SPACE_WARNING_SUCCESS'
+export const OVERVIEW_SPACE_WARNING_FAILURE = 'OVERVIEW_SPACE_WARNING_FAILURE'
+
+// Fetches space warnings from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchSpaceWarnings() {
+  return {
+    [FETCH_API]: {
+      types: [OVERVIEW_SPACE_WARNING_REQUEST, OVERVIEW_SPACE_WARNING_SUCCESS, OVERVIEW_SPACE_WARNING_FAILURE],
+      endpoint: `${API_URL_PREFIX}/overview/warnings`,
+      schema: {}
+    }
+  }
+}
+
+// Fetches space warnings from API unless it is cached.
+// Relies on Redux Thunk middleware.
+export function loadSpaceWarnings() {
+  return (dispatch, getState) => {
+    return dispatch(fetchSpaceWarnings())
+  }
+}

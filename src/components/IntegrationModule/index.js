@@ -11,63 +11,13 @@
 import React, { Component, PropTypes } from 'react'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
+import { getAllIntegration } from '../../actions/integration'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { Button, Alert, Card, Spin, Input } from 'antd'
 import './style/Integration.less'
 import IntegrationDetail from './IntegrationDetail'
 
 const ButtonGroup = Button.Group;
-
-let testData = [
-  {
-    name: 'vsphere',
-    intro: '企业集成应用中心，这里有时速云企业版提供了业内顶尖的企业管理和开发者工具集合，您可以在这里一键安装，并且在当前控制台完成所有应用的安装、卸载以及对应功能的管理。',
-    status: 'installed',
-    env: [
-      {
-        'name': 'aaaaa',
-      },
-      {
-        'name': 'bbbbb',
-      },
-      {
-        'name': 'ccccc',
-      },
-    ]
-  },
-  {
-    name: 'vsphere',
-    intro: '企业集成应用中心，这里有时速云企业版提供了业内顶尖的企业管理和开发者工具集合，您可以在这里一键安装，并且在当前控制台完成所有应用的安装、卸载以及对应功能的管理。',
-    status: 'running',
-    env: [
-      {
-        'name': 'aaaaa',
-      },
-      {
-        'name': 'bbbbb',
-      },
-      {
-        'name': 'ccccc',
-      },
-    ]
-  },
-  {
-    name: 'vsphere',
-    intro: '企业集成应用中心，这里有时速云企业版提供了业内顶尖的企业管理和开发者工具集合，您可以在这里一键安装，并且在当前控制台完成所有应用的安装、卸载以及对应功能的管理。',
-    status: 'unintsall',
-    env: [
-      {
-        'name': 'aaaaa',
-      },
-      {
-        'name': 'bbbbb',
-      },
-      {
-        'name': 'ccccc',
-      },
-    ]
-  }
-]
 
 const menusText = defineMessages({
   tooltips: {
@@ -127,6 +77,9 @@ class Integration extends Component {
   
   componentWillMount() {
     document.title = '集成中心 | 时速云';
+    const { getAllIntegration } = this.props;
+    console.log(this.props)
+    getAllIntegration();
   }
   
   onChangeShowType(type) {
@@ -152,75 +105,99 @@ class Integration extends Component {
   
   render() {
     const { formatMessage } = this.props.intl;
-    const {isFetching, appList} = this.props;
+    const {isFetching, integrations} = this.props;
     const scope = this;
-    let appShow = appList.map((item, index) => {
-      let envList = item.env.map((envItem, envIndex) => {
-        return (
-          <div className='envDetail' key={'envDetail' + envIndex}>
-            <div className='numBox'>
-              {envIndex + 1}
-            </div>
-            <span className='envName'>
-              {envItem.name}
-            </span>
-            <div style={{ clear:'both' }}></div>
-          </div>
-        )
-      })
+    if(isFetching) {
       return (
-        <div className='appDetail'>
-          <div className='leftBox'>
-            <img src='/img/appstore/conflunt.png' />
-          </div>
-          <div className='middleBox'>
-            <div className='appInfo'>
-              <p>{item.name}</p>
-              <span>{item.intro}</span>
-            </div>
-            <div className='envInfo'>
-              <p><FormattedMessage {...menusText.envTitle} /></p>
-              {envList}
-            </div>
-            <div style={{ clear:'both' }}></div>
-          </div>
-          <div className='rightBox'>
-            {
-              item.status == 'installed' ? [
-                <Button className='installedBtn' key={'installedBtn' + index} size='large' type='ghost'
-                  style={{ width: '102px' }} onClick={this.ShowDetailInfo.bind(scope, item.name)}>
-                  <FormattedMessage {...menusText.showAppDetail} />
-                </Button>
-              ] : null
-            }
-            {
-              item.status == 'running' ? [
-                <Button className='runningBtn' key={'runningBtn' + index} size='large' type='primary'>
-                  <i className='fa fa-cog fa-spin'></i>&nbsp;
-                  <FormattedMessage {...menusText.running} />
-                </Button>
-              ] : null
-            }
-            {
-              item.status == 'unintsall' ? [
-                <Button className='unintsallBtn' key={'unintsallBtn' + index} size='large' type='primary'
-                  style={{ width: '102px' }}>
-                  <FormattedMessage {...menusText.uninstall} />
-                </Button>
-              ] : null
-            }
-          </div>
-          <div style={{ clear:'both' }}></div>
-          {
-            item.status == 'installed' ? [
-              <div className='installedFlag' key='installedFlag'>
-                <FormattedMessage {...menusText.installedFlag} />
-              </div>
-            ] : null
-          }
+        <div className='loadingBox'>
+          <Spin size='large' />
         </div>
       )
-    });
+    }
+    let appShow = null;
+    if(integrations.length > 0) {  
+      appShow = integrations.map((item, index) => {
+        let envList = (
+          <div>
+            <div className='envDetail' key={'appDetail' + index + 'envDetail0'}>
+              <div className='numBox'>
+                {'1'}
+              </div>
+              <span className='envName'>部署好的vSphere环境</span>
+              <div style={{ clear:'both' }}></div>
+            </div>
+            <div className='envDetail' key={'appDetail' + index + 'envDetail1'}>
+              <div className='numBox'>
+                {'2'}
+              </div>
+              <span className='envName'>vSphere访问URL</span>
+              <div style={{ clear:'both' }}></div>
+            </div>
+            <div className='envDetail' key={'appDetail' + index + 'envDetail2'}>
+              <div className='numBox'>
+                {'3'}
+              </div>
+              <span className='envName'>登录账号&密码</span>
+              <div style={{ clear:'both' }}></div>
+            </div>
+          </div>
+        )
+        return (
+          <div className='appDetail'>
+            <div className='leftBox'>
+              <img src='/img/appstore/vmware.png' />
+            </div>
+            <div className='middleBox'>
+              <div className='appInfo'>
+                <p>vSphere</p>
+                <span>vSphere是VMware公司推出一套服务器虚拟化解决方案。</span>
+                <br />
+                <span>vSphere将应用程序和操作系统从底层分离出来，从而简化了IT操作，用户现有的应用程序可以看到专有资源，而服务器则可以作为资源池进行管理。</span>
+              </div>
+              <div className='envInfo'>
+                <p><FormattedMessage {...menusText.envTitle} /></p>
+                {envList}
+              </div>
+              <div style={{ clear:'both' }}></div>
+            </div>
+            <div className='rightBox'>
+              {
+                /*item.status == 'installed' ? */[
+                  <Button className='installedBtn' key={'installedBtn' + index} size='large' type='ghost'
+                    style={{ width: '102px' }} onClick={this.ShowDetailInfo.bind(scope, item.name)}>
+                    <FormattedMessage {...menusText.showAppDetail} />
+                  </Button>
+                ] /*: null*/
+              }
+              {
+                item.status == 'running' ? [
+                  <Button className='runningBtn' key={'runningBtn' + index} size='large' type='primary'>
+                    <i className='fa fa-cog fa-spin'></i>&nbsp;
+                    <FormattedMessage {...menusText.running} />
+                  </Button>
+                ] : null
+              }
+              {
+                item.status == 'unintsall' ? [
+                  <Button className='unintsallBtn' key={'unintsallBtn' + index} size='large' type='primary'
+                    style={{ width: '102px' }}>
+                    <FormattedMessage {...menusText.uninstall} />
+                  </Button>
+                ] : null
+              }
+            </div>
+            <div style={{ clear:'both' }}></div>
+            {
+              /*item.status == 'installed' ?*/ [
+                <div className='installedFlag' key='installedFlag'>
+                  <FormattedMessage {...menusText.installedFlag} />
+                </div>
+              ] /*: null*/
+            }
+          </div>
+        )
+      });
+    }
     return (
       <QueueAnim className='IntegrationAnimateBox' key='IntegrationAnimateBox'>
         <div id='IntegrationList'>
@@ -263,6 +240,53 @@ class Integration extends Component {
                       <QueueAnim key='listBoxAnimate'>
                         <div className='listBox' key='listBox'>
                           {appShow}
+                          { integrations.length == 0 ? [
+                            <div className='appDetail'>
+                              <div className='leftBox'>
+                                <img src='/img/appstore/vmware.png' />
+                              </div>
+                              <div className='middleBox'>
+                                <div className='appInfo'>
+                                  <p>vSphere</p>
+                                  <span>vSphere是VMware公司推出一套服务器虚拟化解决方案。</span>
+                                  <br />
+                                  <span>vSphere将应用程序和操作系统从底层分离出来，从而简化了IT操作，用户现有的应用程序可以看到专有资源，而服务器则可以作为资源池进行管理。</span>
+                                </div>
+                                <div className='envInfo'>
+                                  <p><FormattedMessage {...menusText.envTitle} /></p>
+                                  <div className='envDetail'>
+                                    <div className='numBox'>
+                                      {'1'}
+                                    </div>
+                                    <span className='envName'>部署好的VSphere环境</span>
+                                    <div style={{ clear:'both' }}></div>
+                                  </div>
+                                  <div className='envDetail'>
+                                    <div className='numBox'>
+                                      {'2'}
+                                    </div>
+                                    <span className='envName'>VSphere访问URL</span>
+                                    <div style={{ clear:'both' }}></div>
+                                  </div>
+                                  <div className='envDetail'>
+                                    <div className='numBox'>
+                                      {'3'}
+                                    </div>
+                                    <span className='envName'>登录账号&密码</span>
+                                    <div style={{ clear:'both' }}></div>
+                                  </div>
+                                </div>
+                                <div style={{ clear:'both' }}></div>
+                              </div>
+                              <div className='rightBox'>
+                                <Button className='unintsallBtn' key='unintsallBtn' size='large' type='primary'
+                                  style={{ width: '102px' }}>
+                                  <FormattedMessage {...menusText.uninstall} />
+                                </Button>
+                              </div>
+                              <div style={{ clear:'both' }}></div>
+                            </div>
+                          ] : null }
                         </div>
                       </QueueAnim>
                     ] : null}
@@ -287,12 +311,13 @@ class Integration extends Component {
 function mapStateToProps(state, props) {
   const defaultAppList = {
     isFetching: false,
-    appList: testData
+    integrations: []
   }
-  const {isFetching, appList} = defaultAppList
+  const { getAllIntegration } = state.integration
+  const {isFetching, integrations} = getAllIntegration || defaultAppList
   return {
     isFetching,
-    appList
+    integrations
   }
 }
 
@@ -301,7 +326,7 @@ Integration.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-
+  getAllIntegration
 })(injectIntl(Integration, {
   withRef: true,
 }));

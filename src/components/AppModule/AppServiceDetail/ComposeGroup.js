@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component } from 'react'
-import { Card, Spin, Modal } from 'antd'
+import { Card, Spin, Modal ,Input , Button} from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -53,11 +53,16 @@ let MyComponent = React.createClass({
     this.props.loadConfigName(this.props.cluster, { group, Name: name }, {
       success: {
         func: (result) => {
-          Modal.confirm({
-            title: '配置文件',
-            content: <pre>{result.data}</pre>,
-            okText: '确定'
+          self.setState({
+            modalConfigFile: true,
+            configName: name,
+            configtextarea: (<pre>{result.data}</pre>)
           })
+          // Modal.confirm({
+          //   title: '配置文件',
+          //   content: <pre>{result.data}</pre>,
+          //   okText: '确定'
+          // })
         }
       }
     })
@@ -115,6 +120,13 @@ let MyComponent = React.createClass({
       }
     }
     let config = this.state.config;
+    if (config.length == 0) {
+      return (
+        <Card className="composeList">
+          <div style={{lineHeight:'60px'}}>暂无配置</div>
+        </Card>
+      )
+    }
     let items = config.map((item) => {
       return (
         <div className="composeDetail" key={item.id.toString() }>
@@ -135,6 +147,27 @@ let MyComponent = React.createClass({
       <Card className="composeList">
         {loading}
         { items }
+
+        <Modal
+          title='查看配置文件' wrapClassName='read-configFile' visible={this.state.modalConfigFile}
+          footer={
+           <Button type="primary" onClick={() => { this.setState({ modalConfigFile: false }) } }>确定</Button>
+          }
+          >
+          <div className='configFile-name'>
+            <div className="ant-col-3 key">名称：</div>
+            <div className="ant-col-19"><Input disabled="true" value={this.state.configName} /></div>
+          </div>
+          <div className="configFile-wrap">
+            <div className="ant-col-3 key">内容：</div>
+            <div className="ant-col-19">
+              <div className="configFile-content">
+              {this.state.configtextarea}
+              </div>
+            </div>
+          </div>
+          <br />
+        </Modal>
       </Card>
     );
   }

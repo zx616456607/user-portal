@@ -117,7 +117,7 @@ class OtherDetail extends Component {
             <div className="rightBox">
               <Icon type='cross' className='cursor' style={{fontSize: '18px',position: 'absolute', top:'0px', right:'0px'}} onClick={this.props.scope.closeImageDetailModal} />
               <Button size="large" type="primary">
-                <Link to={`/app_manage/app_create/fast_create?registryServer=${ipAddress}&imageName=${imageDetail}`}>
+                <Link to={`/app_manage/app_create/fast_create?registryServer=${ipAddress}&imageName=${imageDetail}&other=${this.props.imageId}`}>
                 <FormattedMessage {...menusText.deployImage} />
                 </Link>
               </Button>
@@ -129,8 +129,8 @@ class OtherDetail extends Component {
           <div className="code">
             <i className="fa fa-download"></i>&nbsp;
           <FormattedMessage {...menusText.downloadImage} />&nbsp;&nbsp;&nbsp;&nbsp;
-           <span className="pullCode">docker pull {ipAddress}/{imageDetail}&nbsp;&nbsp;</span>
-            <Tooltip title={this.state.copySuccess ? formatMessage(menusText.copySuccess) : formatMessage(menusText.copyBtn)} getTooltipContainer={() => document.getElementById("ImageDetailBox")}>
+           <span className="pullCode textoverflow">docker pull {ipAddress}/{imageDetail}&nbsp;&nbsp;</span>
+            <Tooltip title={this.state.copySuccess ? formatMessage(menusText.copySuccess) : formatMessage(menusText.copyBtn)}>
               <i className="fa fa-copy" onClick={this.copyDownloadCode} onMouseLeave={this.returnDefaultTooltip}></i>
             </Tooltip>
             <input className="pullCodeInput" defaultValue={pullCode} style={{ position: "absolute", opacity: "0" }} />

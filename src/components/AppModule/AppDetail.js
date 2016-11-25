@@ -90,7 +90,7 @@ class AppDetail extends Component {
       updateDate = app.services[0].metadata.creationTimestamp
     }
     const appDomain = parseAppDomain(app, this.props.bindingDomains)
-   // const svcDomain = ['10.11.102.1111','10.11.102.222','10.11.102.333']
+    // const svcDomain = ['10.11.102.1111','10.11.102.222','10.11.102.333']
     // const appDomain = [
     //   {
     //     name: 'servce1',
@@ -166,7 +166,7 @@ class AppDetail extends Component {
                     appName={appName}
                     loading={isFetching} />
                 </TabPane>
-                <TabPane tab="应用拓扑" key="#topology">应用拓扑</TabPane>
+                {/*<TabPane tab="应用拓扑" key="#topology" >应用拓扑</TabPane>*/}
                 <TabPane tab="编排文件" key="#stack" ><AppGraph key="AppGraph" cluster={this.props.cluster} appName={this.props.appName} /></TabPane>
                 <TabPane tab="审计日志" key="#logs" >
                   <AppLog key="AppLog"

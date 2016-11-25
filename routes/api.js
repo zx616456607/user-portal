@@ -27,6 +27,7 @@ const tokenController = require('../controllers/token')
 const devopsController = require('../controllers/devops')
 const licenseController = require('../controllers/license')
 const clusterController = require('../controllers/cluster_manage')
+const integrationController = require('../controllers/integration')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -128,10 +129,13 @@ module.exports = function (Router) {
   router.get('/overview/clusters/:cluster_id/sysinfo', overviewClusterController.getClusterSysinfo)
   router.get('/overview/clusters/:cluster_id/storage', overviewClusterController.getClusterStorage)
   router.get('/overview/clusters/:cluster_id/appstatus', overviewClusterController.getClusterAppStatus)
+  router.get('/overview/clusters/:cluster_id/dbservices', overviewClusterController.getClusterDbServices)
+  router.get('/overview/clusters/:cluster_id/nodesummary', overviewClusterController.getClusterNodeSummary)
  
   //Overview Space
   router.get('/overview/operations', overviewSpaceController.getSpaceOperations)
   router.get('/overview/templates', overviewSpaceController.getSpaceTemplateStats)
+  router.get('/overview/warnings', overviewSpaceController.getSpaceWarnings)
 
   // spi
   router.post('/clusters/:cluster/services/:service_name/binddomain', serviceController.bindServiceDomain)
@@ -243,7 +247,7 @@ module.exports = function (Router) {
   router.post('/devops/ci-flows/:flow_id/builds', devopsController.createFlowBuild)
   router.get('/devops/ci-flows/:flow_id/builds', devopsController.listBuilds)
   router.get('/devops/ci-flows/:flow_id/builds/:flow_build_id', devopsController.getFlowBuild)
-  router.put('/devops/ci-flows/:flow_id/builds/:flow_build_id/stop', devopsController.stopBuild)
+  router.put('/devops/ci-flows/:flow_id/stages/:stage_id/builds/:build_id/stop', devopsController.stopBuild)
   router.get('/devops/ci-flows/:flow_id/getBuildLogs', devopsController.getBuildLog)
   router.get('/devops/ci-flows/:flow_id/getLastBuildLogs', devopsController.getLastBuildLog)
   router.get('/devops/ci-flows/:flow_id/stages/:stage_id/builds/:stage_build_id', devopsController.getFlowStageBuildLog)
@@ -254,6 +258,9 @@ module.exports = function (Router) {
   router.get('/devops/ci-flows/:flow_id/stages/:stage_id/dockerfile', devopsController.getDockerfile)
   router.delete('/devops/ci-flows/:flow_id/stages/:stage_id/dockerfile', devopsController.removeDockerfile)
   router.put('/devops/ci-flows/:flow_id/stages/:stage_id/dockerfile', devopsController.updateDockerfile)
+  
+  // Integration
+  router.get('/integrations/getAllIntegration', integrationController.getAllIntegrations)
 
   // Token info
   router.get('/token', tokenController.getTokenInfo)

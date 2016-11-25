@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Input, Form } from 'antd'
+import { Button, Input, Form, Icon } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -18,6 +18,22 @@ import './style/EnvComponent.less'
 
 const createForm = Form.create;
 const FormItem = Form.Item;
+
+function checkInitEnvName(config) {
+  //this function for init the env name
+  if(!!config) {
+    return config.name;
+  } 
+  return '';
+}
+
+function checkInitEnvValue(config) {
+  //this function for init the env name
+  if(!!config) {
+    return config.value;
+  } 
+  return '';
+}
 
 let CreateEnvComponent = React.createClass({
   getInitialState: function() {
@@ -40,38 +56,30 @@ let CreateEnvComponent = React.createClass({
       });
     });
   },
-  addServicesInput (k, index, scope) {
+  addServicesInput (index) {
     //this function for user add an new input div
     //there are no button for user click
     //when user input words, after user key up would triger the function
     const { form } = this.props;
-    let inputValue = form.getFieldValue('service' + index + 'input' + k);
-    if(k == this.state.uuid) {
-      if(!!inputValue) {
-        let tmpUuid = ++this.state.uuid;
-        this.setState({
-          uuid: tmpUuid
-        });
-        // can use data-binding to get
-        let keys = form.getFieldValue('service' + index + 'inputs');
-        keys = keys.concat(this.state.uuid);
-        // can use data-binding to set
-        // important! notify form to detect changes
-        let temp = 'service' + index + 'inputs';
-        form.setFieldsValue({
-          [`${temp}`]: keys
-        });
-      }
-    }
+    let tmpUuid = ++this.state.uuid;
+    this.setState({
+      uuid: tmpUuid
+    });
+    // can use data-binding to get
+    let keys = form.getFieldValue('service' + index + 'inputs');
+    keys = keys.concat(this.state.uuid);
+    // can use data-binding to set
+    // important! notify form to detect changes
+    let temp = 'service' + index + 'inputs';
+    form.setFieldsValue({
+      [`${temp}`]: keys
+    });
   },
-  removeServicesInput (k, index, scope){
+  removeServicesInput (k, index){
     //this function for user remove the input div
     const { form } = this.props;
     // can use data-binding to get
     let keys = form.getFieldValue('service' + index + 'inputs');
-    if(keys.length == 1) {
-      return ;
-    }
     keys = keys.filter((key) => {
       return key !== k;
     });
@@ -80,6 +88,9 @@ let CreateEnvComponent = React.createClass({
     form.setFieldsValue({
       [`${temp}`]: keys
     });
+    if(keys.length == 0) {
+      this.addServicesInput(index)
+    }
   },
   closeModal () {
     //this function for user close the env input modal
@@ -96,19 +107,37 @@ let CreateEnvComponent = React.createClass({
       initialValue: [0],
     });
     const servicesInputItems = getFieldValue('service' + index + 'inputs').map((i) => {
-      const servicesInputProps = getFieldProps(`service${index}input${i}`, {
+      const servicesInputNameProps = getFieldProps(`service${index}inputName${i}`, {
         rules: [
-          { message: '请输入环境变量' },
+          { message: '请输入环境变量名' },
         ],
-        initialValue: config[i]
+        initialValue: checkInitEnvName(config[i]),
+      });
+      const servicesInputValueProps = getFieldProps(`service${index}inputValue${i}`, {
+        rules: [
+          { message: '请输入环境变量值' },
+        ],
+        initialValue: checkInitEnvValue(config[i]),
       });
       return (
       <QueueAnim key={'service' + index + 'input' + i + 'Animate'}>
         <div className='serviceInputDetail' key={'service' + index + 'input' + i}>
-          <FormItem className='serviceInputForm'>
-            <Input onKeyUp={ () => this.addServicesInput(i, index, scope) } {...servicesInputProps} type='text' size='large' />
-            <i className='fa fa-trash' onClick={() => this.removeServicesInput(i, index, scope)} />
-          </FormItem>
+          <div className='commonTitle'>
+            <FormItem className='serviceInputForm'>
+              <Input {...servicesInputNameProps} type='text' size='large' />
+            </FormItem>
+          </div>
+          <div className='equalTitle'>
+            <span>=</span>
+          </div>
+          <div className='commonTitle'>
+            <FormItem className='serviceInputForm'>
+              <Input {...servicesInputValueProps} type='text' size='large' />
+            </FormItem>
+          </div>
+          <div className='equalTitle'>
+            <i className='fa fa-trash' onClick={() => this.removeServicesInput(i, index)} />
+          </div>
           <div style={{ clera:'both' }}></div>
         </div>
       </QueueAnim>
@@ -116,7 +145,24 @@ let CreateEnvComponent = React.createClass({
     });
     return (
       <div id='CreateEnvComponent' key='CreateEnvComponent'>
+        <div className='titleBox'>
+          <div className='commonTitle'>
+            <span>变量名</span>
+          </div>
+          <div className='equalTitle'>            
+          </div>
+          <div className='commonTitle'>
+            <span>变量值</span>
+          </div>
+          <div style={{ clear:'both' }}></div>
+        </div>
         {servicesInputItems}
+        <div className='addBtnBox'>
+          <div className='addBtn' onClick={() => this.addServicesInput(index)}>
+            <Icon type='plus-circle-o' />
+            <span>增加环境变量</span>
+          </div>
+        </div>
       </div>
     )
   }

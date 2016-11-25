@@ -12,10 +12,10 @@ import { Row, Col, Card, Timeline, Popover, Spin } from 'antd'
 import './style/MySpace.less'
 import ReactEcharts from 'echarts-for-react'
 import { connect } from 'react-redux'
-import { loadSpaceOperations, loadSpaceCICDStats, loadSpaceImageStats, loadSpaceTemplateStats } from '../../../actions/overview_space'
 import { getOperationLogList } from '../../../actions/manage_monitor'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { Link } from 'react-router'
+import { loadSpaceOperations, loadSpaceCICDStats, loadSpaceImageStats, loadSpaceTemplateStats, loadSpaceWarnings } from '../../../actions/overview_space'
 
 let imageOption = {
   series: [{
@@ -89,7 +89,8 @@ class MySpace extends Component{
   }
 
   componentWillMount() {
-   const { loadSpaceOperations, loadSpaceCICDStats, loadSpaceImageStats, loadSpaceTemplateStatst, getOperationLogList } = this.props
+   const { loadSpaceOperations, loadSpaceCICDStats, loadSpaceImageStats, loadSpaceTemplateStatst, loadSpaceWarnings, getOperationLogList } = this.props
+    loadSpaceWarnings()
     loadSpaceOperations()
     loadSpaceCICDStats()
     loadSpaceImageStats()
@@ -154,7 +155,7 @@ class MySpace extends Component{
   }
 
   render(){
-    const {spaceOperations, spaceCICDStats, spaceImageStats, spaceTemplateStats } = this.props
+    const {spaceOperations, spaceCICDStats, spaceImageStats, spaceTemplateStats, spaceWarnings } = this.props
     let isFetchingAuditLog = true
     if (this.props.auditLog) {
       isFetchingAuditLog  = this.props.auditLog.isFetching
@@ -340,7 +341,7 @@ class MySpace extends Component{
                     创建存储卷个数
                   </td>
                   <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                    1000个
+                    {spaceOperations.volumeCreate}个
                   </td>
                 </tr>
                 <tr>
@@ -351,7 +352,7 @@ class MySpace extends Component{
                     删除存储卷个数
                   </td>
                   <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                    1000个
+                     {spaceOperations.volumeDelete}个
                   </td>
                 </tr>
                 </tbody>
@@ -365,7 +366,7 @@ class MySpace extends Component{
             <Card title="告警" bordered={false} bodyStyle={{height:410}}>
               <Timeline className="warnList">
                 {
-                  [1,2,3].map((item,index) => {
+                  spaceWarnings.map((item,index) => {
                     return (
                       <Timeline.Item dot={
                         index === 0?
@@ -373,8 +374,9 @@ class MySpace extends Component{
                           <div className="warnDot"></div>
                       }>
                         <div className={index === 0?"warnItem fistWarn":'warnItem'}>
-                          <Row className="itemTitle">API Server发生故障</Row>
-                          <Row className="itemInf">刚刚</Row>
+                          <Row className="itemTitle">{item.reason}</Row>
+                          <Row className="itemTitle">{item.involvedObject.kind}: {item.involvedObject.name}</Row>
+                          <Row className="itemInf">{item.metadata.creationTimestamp}</Row>
                         </div>
                       </Timeline.Item>
                     )
@@ -398,6 +400,8 @@ function mapStateToProp(state,props) {
     appStop: 0,
     appStart: 0,
     appRedeploy: 0,
+    volumeCreate: 0,
+    volumeDelete: 0,
   }
   let spaceCICDStatsData = {
     succeedNumber: 0,
@@ -412,34 +416,46 @@ function mapStateToProp(state,props) {
     public: 0, 
     private: 0,
   }
-  const {spaceOperations, spaceCICDStats, spaceImageStats, spaceTemplateStats} = state.overviewSpace
+  let spaceWarningsData = []
+  const {spaceOperations, spaceCICDStats, spaceImageStats, spaceTemplateStats, spaceWarnings} = state.overviewSpace
   if (spaceOperations.result && spaceOperations.result.data
-      && spaceOperations.result.data.data && spaceOperations.result.data.data.app) {
-    let data = spaceOperations.result.data.data.app
-    if (data.appCreate) {
-      spaceOperationsData.appCreate = data.appCreate
+      && spaceOperations.result.data.data) {
+    if (spaceOperations.result.data.data.app) {
+      let data = spaceOperations.result.data.data.app
+      if (data.appCreate) {
+        spaceOperationsData.appCreate = data.appCreate
+      }
+      if (data.appModify) {
+        spaceOperationsData.appModify = data.appModify
+      }
+      if (data.svcCreate) {
+        spaceOperationsData.svcCreate = data.svcCreate
+      }
+      if (data.svcDelete) {
+        spaceOperationsData.svcDelete = data.svcDelete
+      }
+      if (data.appStop) {
+        spaceOperationsData.appStop = data.appStop
+      }
+      if (data.appStart) {
+        spaceOperationsData.appStart = data.appStart
+      }
+      if (data.appCreate) {
+        spaceOperationsData.appCreate = data.appCreate
+      }
+      if (data.appRedeploy) {
+        spaceOperationsData.appRedeploy = data.appRedeploy
+      } 
     }
-    if (data.appModify) {
-      spaceOperationsData.appModify = data.appModify
+    if (spaceOperations.result.data.data.volume) {
+      let data = spaceOperations.result.data.data.volume
+      if (data.volumeCreate) {
+        spaceOperationsData.volumeCreate = data.volumeCreate
+      }
+      if (data.volumeDelete) {
+        spaceOperationsData.volumeDelete = data.volumeDelete
+      }
     }
-    if (data.svcCreate) {
-      spaceOperationsData.svcCreate = data.svcCreate
-    }
-    if (data.svcDelete) {
-      spaceOperationsData.svcDelete = data.svcDelete
-    }
-    if (data.appStop) {
-      spaceOperationsData.appStop = data.appStop
-    }
-    if (data.appStart) {
-      spaceOperationsData.appStart = data.appStart
-    }
-    if (data.appCreate) {
-      spaceOperationsData.appCreate = data.appCreate
-    }
-    if (data.appRedeploy) {
-      spaceOperationsData.appRedeploy = data.appRedeploy
-    } 
   }
   if (spaceCICDStats.result && spaceCICDStats.result.data &&
       spaceCICDStats.result.data.results && spaceCICDStats.result.data.results.flowBuild) {
@@ -458,8 +474,30 @@ function mapStateToProp(state,props) {
     let data = spaceTemplateStats.result.data.data
     spaceTemplateStatsData.public = data.public
     spaceTemplateStatsData.private = data.private
-  } 
-
+  }
+  if (spaceWarnings.result && spaceWarnings.result.data
+      && spaceWarnings.result.data.data) {
+    let data = spaceWarnings.result.data.data
+    data.map(warning => {
+      let warningData = {
+        metadata: {
+          creationTimestamp: "",
+        }, 
+        involvedObject: {
+          kind: "",
+          name: "",
+        },
+        reason: "",
+        message: "",
+      }
+      warningData.metadata.creationTimestamp = warning.metadata.creationTimestamp
+      warningData.involvedObject.kind = warning.involvedObject.kind
+      warningData.involvedObject.name = warning.involvedObject.name
+      warningData.reason = warning.reason
+      warningData.message = warning.message
+      spaceWarningsData.push(warningData)
+    })
+  }
   return {
     spaceOperations: spaceOperationsData,
     spaceCICDStats: spaceCICDStatsData,
@@ -469,6 +507,7 @@ function mapStateToProp(state,props) {
     namespace: state.entities.current.space.namespace,
     teamspace: state.entities.current.team.teamId,
     auditLog: state.manageMonitor.operationAuditLog.logs,
+    spaceWarnings: spaceWarningsData,
   }
 }
 
@@ -480,11 +519,10 @@ export default connect(mapStateToProp, {
   loadSpaceCICDStats,
   loadSpaceImageStats,
   loadSpaceTemplateStats,
-  getOperationLogList
+  getOperationLogList,
+  loadSpaceWarnings,
 })(MySpace)
-
-
-
+ 
 const menusText = defineMessages({
   headTitle: {
     id: 'ManageMonitor.operationalAudit.headTitle',

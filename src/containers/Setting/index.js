@@ -26,10 +26,10 @@ const menuList = [
     url: '/setting/team',
     name: '团队管理'
   },
-  {
-    url: '/setting/note',
-    name: '通知设置'
-  },
+  //{
+  //  url: '/setting/note',
+  //  name: '通知设置'
+  //},
   {
     url: '/setting/API',
     name: '开放API'
@@ -51,7 +51,7 @@ export default class Setting extends Component {
       containerSiderStyle: 'normal'
     }
   }
- 
+
   render() {
     const { children } = this.props
     const scope = this

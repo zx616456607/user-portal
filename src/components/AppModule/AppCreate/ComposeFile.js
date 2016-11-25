@@ -9,12 +9,12 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { Dropdown, Modal, Checkbox, Button, Card, Menu, Input, Select, Popconfirm, message, Form } from 'antd'
-import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import "./style/ComposeFile.less"
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { createApp, checkAppName } from '../../../actions/app_manage'
+import { loadStackDetail } from '../../../actions/app_center'
 import * as yaml from 'js-yaml'
 import { browserHistory } from 'react-router'
 
@@ -54,6 +54,21 @@ class ComposeFile extends Component {
       remark: '',
       visible: false,
       condition: true,
+    }
+  }
+  componentWillMount() {
+    const { templateid } = this.props.location.query
+    const self = this
+    if (templateid) {
+      this.props.loadStackDetail(templateid, {
+        success: {
+          func: (res) => {
+            self.setState({
+              appDescYaml: res.data.data.content
+            })
+          }
+        }
+      })
     }
   }
   subApp() {
@@ -153,9 +168,7 @@ class ComposeFile extends Component {
       }
     })
   }
-  componentWillMount() {
-    //
-  }
+
   render() {
     const { appDescYaml, remark } = this.state
     const { getFieldProps, getFieldValue, getFieldError, isFieldValidating } = this.props.form
@@ -257,7 +270,8 @@ function mapStateToProps(state) {
 
 ComposeFile = connect(mapStateToProps, {
   createApp,
-  checkAppName
+  checkAppName,
+  loadStackDetail
 })(injectIntl(ComposeFile, {
   withRef: true,
 }))

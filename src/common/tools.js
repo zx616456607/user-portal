@@ -179,3 +179,13 @@ export function genRandomString(mytoken, len) {
   }
   return randomStr
 }
+
+/**
+ * Check object if empty.
+ */
+export function isEmptyObject(obj) {
+  for (var name in obj) {
+    return false
+  }
+  return true
+}
