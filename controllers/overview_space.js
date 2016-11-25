@@ -30,3 +30,13 @@ exports.getSpaceTemplateStats = function* () {
     data
   }
 }
+
+exports.getSpaceWarnings = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.overview.getBy(["warnings"])
+  const data = result || {}
+  this.body = {
+    data
+  }
+}

@@ -12,7 +12,7 @@ import { Row, Col, Card, Timeline, Popover } from 'antd'
 import './style/MySpace.less'
 import ReactEcharts from 'echarts-for-react'
 import { connect } from 'react-redux'
-import { loadSpaceOperations, loadSpaceCICDStats, loadSpaceImageStats, loadSpaceTemplateStats } from '../../../actions/overview_space'
+import { loadSpaceOperations, loadSpaceCICDStats, loadSpaceImageStats, loadSpaceTemplateStats, loadSpaceWarnings } from '../../../actions/overview_space'
 
 let imageOption = {
   series: [{
@@ -86,15 +86,16 @@ class MySpace extends Component{
   }
 
   componentWillMount() {
-    const { loadSpaceOperations, loadSpaceCICDStats, loadSpaceImageStats, loadSpaceTemplateStats } = this.props
+    const { loadSpaceOperations, loadSpaceCICDStats, loadSpaceImageStats, loadSpaceTemplateStats, loadSpaceWarnings } = this.props
     loadSpaceOperations()
     loadSpaceCICDStats()
     loadSpaceImageStats()
     loadSpaceTemplateStats()
+    loadSpaceWarnings()
   }
 
   render(){
-    const {spaceOperations, spaceCICDStats, spaceImageStats, spaceTemplateStats } = this.props
+    const {spaceOperations, spaceCICDStats, spaceImageStats, spaceTemplateStats, spaceWarnings } = this.props
     return (
       <div id='MySpace'>
         <Row className="title" style={{marginTop: 40}}>我的空间</Row>
@@ -343,7 +344,7 @@ class MySpace extends Component{
             <Card title="告警" bordered={false} bodyStyle={{height:410}}>
               <Timeline className="warnList">
                 {
-                  [1,2,3].map((item,index) => {
+                  spaceWarnings.map((item,index) => {
                     return (
                       <Timeline.Item dot={
                         index === 0?
@@ -351,8 +352,9 @@ class MySpace extends Component{
                           <div className="warnDot"></div>
                       }>
                         <div className={index === 0?"warnItem fistWarn":'warnItem'}>
-                          <Row className="itemTitle">API Server发生故障</Row>
-                          <Row className="itemInf">刚刚</Row>
+                          <Row className="itemTitle">{item.reason}</Row>
+                          <Row className="itemTitle">{item.involvedObject.kind}: {item.involvedObject.name}</Row>
+                          <Row className="itemInf">{item.metadata.creationTimestamp}</Row>
                         </div>
                       </Timeline.Item>
                     )
@@ -390,7 +392,8 @@ function mapStateToProp(state,props) {
     public: 0, 
     private: 0,
   }
-  const {spaceOperations, spaceCICDStats, spaceImageStats, spaceTemplateStats} = state.overviewSpace
+  let spaceWarningsData = []
+  const {spaceOperations, spaceCICDStats, spaceImageStats, spaceTemplateStats, spaceWarnings} = state.overviewSpace
   if (spaceOperations.result && spaceOperations.result.data
       && spaceOperations.result.data.data && spaceOperations.result.data.data.app) {
     let data = spaceOperations.result.data.data.app
@@ -436,12 +439,36 @@ function mapStateToProp(state,props) {
     let data = spaceTemplateStats.result.data.data
     spaceTemplateStatsData.public = data.public
     spaceTemplateStatsData.private = data.private
-  } 
+  }
+  if (spaceWarnings.result && spaceWarnings.result.data
+      && spaceWarnings.result.data.data) {
+    let data = spaceWarnings.result.data.data
+    data.map(warning => {
+      let warningData = {
+        metadata: {
+          creationTimestamp: "",
+        }, 
+        involvedObject: {
+          kind: "",
+          name: "",
+        },
+        reason: "",
+        message: "",
+      }
+      warningData.metadata.creationTimestamp = warning.metadata.creationTimestamp
+      warningData.involvedObject.kind = warning.involvedObject.kind
+      warningData.involvedObject.name = warning.involvedObject.name
+      warningData.reason = warning.reason
+      warningData.message = warning.message
+      spaceWarningsData.push(warningData)
+    })
+  }
   return {
     spaceOperations: spaceOperationsData,
     spaceCICDStats: spaceCICDStatsData,
     spaceImageStats: spaceImageStatsData,
     spaceTemplateStats: spaceTemplateStatsData,
+    spaceWarnings: spaceWarningsData,
   }
 }
 
@@ -450,4 +477,5 @@ export default connect(mapStateToProp, {
   loadSpaceCICDStats,
   loadSpaceImageStats,
   loadSpaceTemplateStats,
+  loadSpaceWarnings,
 })(MySpace)
