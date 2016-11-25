@@ -108,3 +108,51 @@ export function loadClusterAppStatus(clusterID) {
     return dispatch(fetchClusterAppStatus(clusterID))
   }
 }
+
+export const OVERVIEW_CLUSTER_DBSERVICE_REQUEST = 'OVERVIEW_CLUSTER_DBSERVICE_REQUEST'
+export const OVERVIEW_CLUSTER_DBSERVICE_SUCCESS = 'OVERVIEW_CLUSTER_DBSERVICE_SUCCESS'
+export const OVERVIEW_CLUSTER_DBSERVICE_FAILURE = 'OVERVIEW_CLUSTER_DBSERVICE_FAILURE'
+
+// Fetches cluster db services information from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchClusterDbServices(clusterID) {
+  return {
+    [FETCH_API]: {
+      types: [OVERVIEW_CLUSTER_DBSERVICE_REQUEST, OVERVIEW_CLUSTER_DBSERVICE_SUCCESS, OVERVIEW_CLUSTER_DBSERVICE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/overview/clusters/${clusterID}/dbservices`,
+      schema: {}
+    }
+  }
+}
+
+// Fetches cluster db services information from API unless it is cached.
+// Relies on Redux Thunk middleware.
+export function loadClusterDbServices(clusterID) {
+  return (dispatch, getState) => {
+    return dispatch(fetchClusterDbServices(clusterID))
+  }
+}
+
+export const OVERVIEW_CLUSTER_NODESUMMARY_REQUEST = 'OVERVIEW_CLUSTER_NODESUMMARY_REQUEST'
+export const OVERVIEW_CLUSTER_NODESUMMARY_SUCCESS = 'OVERVIEW_CLUSTER_NODESUMMARY_SUCCESS'
+export const OVERVIEW_CLUSTER_NODESUMMARY_FAILURE = 'OVERVIEW_CLUSTER_NODESUMMARY_FAILURE'
+
+// Fetches cluster node summary information from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchClusterNodeSummary(clusterID) {
+  return {
+    [FETCH_API]: {
+      types: [OVERVIEW_CLUSTER_NODESUMMARY_REQUEST, OVERVIEW_CLUSTER_NODESUMMARY_SUCCESS, OVERVIEW_CLUSTER_NODESUMMARY_FAILURE],
+      endpoint: `${API_URL_PREFIX}/overview/clusters/${clusterID}/nodesummary`,
+      schema: {}
+    }
+  }
+}
+
+// Fetches cluster node summary information from API unless it is cached.
+// Relies on Redux Thunk middleware.
+export function loadClusterNodeSummary(clusterID) {
+  return (dispatch, getState) => {
+    return dispatch(fetchClusterNodeSummary(clusterID))
+  }
+}

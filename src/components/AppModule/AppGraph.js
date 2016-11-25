@@ -20,7 +20,7 @@ let OrchfileComponent = React.createClass({
     this.props.getAppOrchfile(this.props.cluster, this.props.appName)
   },
   render: function () {
-    if(!this.props.appOrchfile || !this.props.appOrchfile.result 
+    if(!this.props.appOrchfile || !this.props.appOrchfile.result
        || this.props.appOrchfile.result.data <=0 ) {
       return  <div className="introBox"></div>
     }
@@ -30,7 +30,7 @@ let OrchfileComponent = React.createClass({
         <div className="bottomBox">
           <span>描述文件&nbsp;:&nbsp;</span>
           <div className="introBox">
-           <pre>{content}</pre> 
+           <pre>{content}</pre>
           </div>
           <div style={{ clear: "both" }}></div>
         </div>
@@ -56,9 +56,7 @@ export default class AppGraph extends Component {
 
   render() {
     return (
-      <div id="AppGraph">
-        <OrchfileComponent  cluster={this.props.cluster} appName={this.props.appName} />
-      </div>
+      <OrchfileComponent  cluster={this.props.cluster} appName={this.props.appName} />
     )
   }
 }
