@@ -23,9 +23,9 @@ class IndexPage extends Component {
     }
   }
   render() {
-    const { loginUser } = this.props
-    console.log('loginUser',loginUser);
-    if(loginUser.info.role === 1){
+    const { loginUser,current } = this.props
+    console.log('current',current);
+    if(loginUser.info.role === 1 && current.space.namespace !== 'default'){
       return (
         <div id="IndexPage">
           <Admin />

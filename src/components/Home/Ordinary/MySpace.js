@@ -119,7 +119,9 @@ class MySpace extends Component{
          if(index > 5) return
          if(index === 0) {
            return ele.push(
-             <Timeline.Item dot={<svg className="stateSvg"><use xlinkHref="#settingname" /></svg>}>
+             <Timeline.Item
+               
+             >
                <div className="logItem">
                  <div className="logTitle">{`${operationalFormat(item.operationType, this)}${resourceFormat(item.resourceType, this) || ''}${item.resourceName}`}</div>
                  <div className="logInf">

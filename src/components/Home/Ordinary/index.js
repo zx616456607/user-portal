@@ -289,13 +289,32 @@ class Ordinary extends Component{
   }
   componentDidMount(){
     const { loadClusterOperations, loadClusterSysinfo, loadClusterStorage,
+      loadClusterAppStatus, loadClusterDbServices, loadClusterNodeSummary,current } = this.props
+    console.log('current',current.clusterID);
+    const {clusterID} = current.cluster
+    loadClusterOperations(clusterID)
+    loadClusterSysinfo(clusterID)
+    loadClusterStorage(clusterID)
+    loadClusterAppStatus(clusterID)
+    loadClusterDbServices(clusterID)
+    loadClusterNodeSummary(clusterID)
+  }
+  componentWillReceiveProps(nextProps){
+    const { loadClusterOperations, loadClusterSysinfo, loadClusterStorage,
       loadClusterAppStatus, loadClusterDbServices, loadClusterNodeSummary } = this.props
-    loadClusterOperations("cce1c71ea85a5638b22c15d86c1f61df")
-    loadClusterSysinfo("cce1c71ea85a5638b22c15d86c1f61df")
-    loadClusterStorage("cce1c71ea85a5638b22c15d86c1f61df")
-    loadClusterAppStatus("cce1c71ea85a5638b22c15d86c1f61df")
-    loadClusterDbServices("e0e6f297f1b3285fb81d27742255cfcf")
-    loadClusterNodeSummary("cce1c71ea85a5638b22c15d86c1f61df")
+    const {current} = nextProps
+    const {clusterID} = current.cluster
+    if(clusterID !== this.props.current.cluster.clusterID){
+      console.log('nextProps');
+      loadClusterOperations(clusterID)
+      loadClusterSysinfo(clusterID)
+      loadClusterStorage(clusterID)
+      loadClusterAppStatus(clusterID)
+      loadClusterDbServices(clusterID)
+      loadClusterNodeSummary(clusterID)
+      return
+    }
+    
   }
   handleDataBaseClick(current){
     if(current === 'tab1'){
@@ -324,6 +343,7 @@ class Ordinary extends Component{
     }
   }
   render(){
+    console.log('rendered!!!');
     const {clusterOperations, clusterSysinfo, clusterStorage, clusterAppStatus, clusterNodeSummary} = this.props
     let boxPos = 0
     if ((clusterStorage.freeSize + clusterStorage.usedSize) > 0) {
@@ -1100,6 +1120,7 @@ function getDbServiceStatus(data) {
 }
 
 function mapStateToProp(state,props) {
+  const { current } = state.entities
   let clusterOperationsData = {
     appCreate: 0,
     appModify: 0,
@@ -1271,6 +1292,7 @@ function mapStateToProp(state,props) {
     clusterNodeSummaryData = clusterNodeSummary.result.data
   }
   return {
+    current,
     clusterOperations: clusterOperationsData,
     clusterSysinfo: clusterSysinfoData,
     clusterStorage: clusterStorageData,
