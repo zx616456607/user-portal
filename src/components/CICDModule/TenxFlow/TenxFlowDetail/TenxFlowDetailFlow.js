@@ -145,13 +145,13 @@ class TenxFlowDetailFlow extends Component {
           buildingList.map((item) => {
             if(item.stageId == stageId) {
               buildFlag = false;
-              item.buildId = res.data.results.flowBuildId;
+              item.buildId = res.data.results.stageBuildId;
             }
           });
           if(buildFlag) {
             buildingList.push({
               stageId: stageId,
-              buildId: res.data.results.flowBuildId
+              buildId: res.data.results.stageBuildId
             });
           }
           _this.setState({
@@ -174,9 +174,15 @@ class TenxFlowDetailFlow extends Component {
         onOk() {
           buildingList.map((item) => {
             if(item.stageId == stageId) {
-              StopTenxflowBuild(flowId, item.buildId, {
+              StopTenxflowBuild(flowId, item.stageId, item.buildId, {
                 success: {
-                  func: (res) => getTenxFlowStateList(flowId),
+                  func: (res) => {
+                    notification['success']({
+                      message: '构建停止成功',
+                      description: '构建停止成功~',
+                    });
+                    getTenxFlowStateList(flowId);
+                  },
                   isAsync: true
                 }
               });

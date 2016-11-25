@@ -18,11 +18,11 @@ export const OVERVIEW_TEAM_DETAIL_FAILURE = 'OVERVIEW_TEAM_DETAIL_FAILURE'
 
 // Fetches team overview detail from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchTeamDetail(teamID) {
+function fetchTeamDetail() {
   return {
     [FETCH_API]: {
       types: [OVERVIEW_TEAM_DETAIL_REQUEST, OVERVIEW_TEAM_DETAIL_SUCCESS, OVERVIEW_TEAM_DETAIL_FAILURE],
-      endpoint: `${API_URL_PREFIX}/overview/teams/${teamID}/detail`,
+      endpoint: `${API_URL_PREFIX}/overview/teamdetail`,
       schema: {}
     }
   }
@@ -30,9 +30,9 @@ function fetchTeamDetail(teamID) {
 
 // Fetches team overview detail from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function loadTeamDetail(teamID) {
+export function loadTeamDetail() {
   return (dispatch, getState) => {
-    return dispatch(fetchTeamDetail(teamID))
+    return dispatch(fetchTeamDetail())
   }
 }
 
@@ -42,11 +42,11 @@ export const OVERVIEW_TEAM_OPERATIONS_FAILURE = 'OVERVIEW_TEAM_OPERATIONS_FAILUR
 
 // Fetches team operations from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchTeamOperations(teamID) {
+function fetchTeamOperations() {
   return {
     [FETCH_API]: {
       types: [OVERVIEW_TEAM_OPERATIONS_REQUEST, OVERVIEW_TEAM_OPERATIONS_SUCCESS, OVERVIEW_TEAM_OPERATIONS_FAILURE],
-      endpoint: `${API_URL_PREFIX}/overview/teams/${teamID}/operations`,
+      endpoint: `${API_URL_PREFIX}/overview/teamoperations`,
       schema: {}
     }
   }
@@ -54,8 +54,8 @@ function fetchTeamOperations(teamID) {
 
 // Fetches team operations from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function loadTeamOperations(teamID) {
+export function loadTeamOperations() {
   return (dispatch, getState) => {
-    return dispatch(fetchTeamOperations(teamID))
+    return dispatch(fetchTeamOperations())
   }
 }

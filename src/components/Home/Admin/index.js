@@ -104,11 +104,13 @@ class Admin extends Component{
   }
 
   componentWillMount() {
-    const { loadTeamDetail, loadTeamOperations } = this.props
-    loadTeamDetail("t-aldakdsadssdsjkewr")
-    loadTeamOperations("t-aldakdsadssdsjkewr")
+    
   }
-
+  componentDidMount(){
+    const { loadTeamDetail, loadTeamOperations } = this.props
+    loadTeamDetail()
+    loadTeamOperations()
+  }
   render(){
     const teamDetail = this.props.teamDetail
     const teamOperations = this.props.teamOperations
@@ -334,7 +336,7 @@ class Admin extends Component{
                       创建存储卷个数
                     </td>
                     <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                      1000个
+                      {teamOperations.volumeCreate}个
                     </td>
                   </tr>
                   <tr>
@@ -345,7 +347,7 @@ class Admin extends Component{
                       删除存储卷个数
                     </td>
                     <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                      1000个
+                      {teamOperations.volumeDelete}个
                     </td>
                   </tr>
                 </tbody>
@@ -377,12 +379,13 @@ function mapStateToProp(state,props) {
     appStop: 0,
     appStart: 0,
     appRedeploy: 0,
+    volumeCreate: 0,
+    volumeDelete: 0,
   }
   const {teamDetail, teamOperations} = state.overviewTeam
   if (teamDetail.result && teamDetail.result.data
-      && teamDetail.result.data.data
-      && teamDetail.result.data.data.app) {
-    let data = teamDetail.result.data.data.app
+      && teamDetail.result.data.data) {
+    let data = teamDetail.result.data.data
     if (data.spaceCnt) {
       teamDetailData.spaceCnt = data.spaceCnt
     }
@@ -410,32 +413,43 @@ function mapStateToProp(state,props) {
   }
   if (teamOperations.result && teamOperations.result.data
       && teamOperations.result.data.data) {
-        let data = teamOperations.result.data.data
-        if (data.appCreate) {
-          teamOperationsData.appCreate = data.appCreate
-        }
-        if (data.appModify) {
-          teamOperationsData.appModify = data.appModify
-        }
-        if (data.svcCreate) {
-          teamOperationsData.svcCreate = data.svcCreate
-        }
-        if (data.svcDelete) {
-          teamOperationsData.svcDelete = data.svcDelete
-        }
-        if (data.appStop) {
-          teamOperationsData.appStop = data.appStop
-        }
-        if (data.appStart) {
-          teamOperationsData.appStart = data.appStart
-        }
-        if (data.appCreate) {
-          teamOperationsData.appCreate = data.appCreate
-        }
-        if (data.appRedeploy) {
-          teamOperationsData.appRedeploy = data.appRedeploy
-        } 
-      } 
+    if (teamOperations.result.data.data.app) {
+      let data = teamOperations.result.data.data
+      if (data.appCreate) {
+        teamOperationsData.appCreate = data.appCreate
+      }
+      if (data.appModify) {
+        teamOperationsData.appModify = data.appModify
+      }
+      if (data.svcCreate) {
+        teamOperationsData.svcCreate = data.svcCreate
+      }
+      if (data.svcDelete) {
+        teamOperationsData.svcDelete = data.svcDelete
+      }
+      if (data.appStop) {
+        teamOperationsData.appStop = data.appStop
+      }
+      if (data.appStart) {
+        teamOperationsData.appStart = data.appStart
+      }
+      if (data.appCreate) {
+        teamOperationsData.appCreate = data.appCreate
+      }
+      if (data.appRedeploy) {
+        teamOperationsData.appRedeploy = data.appRedeploy
+      }
+    }
+    if (teamOperations.result.data.data.volume) {
+      let data = teamOperations.result.data.data.volume
+      if (data.volumeCreate) {
+        teamOperationsData.volumeCreate = data.volumeCreate
+      }
+      if (data.volumeDelete) {
+        teamOperationsData.volumeDelete = data.volumeDelete
+      }
+    }
+  } 
   return {
     teamDetail: teamDetailData,
     teamOperations: teamOperationsData,

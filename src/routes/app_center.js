@@ -12,7 +12,7 @@
 
 const appCenterRoutes = [{
   path: 'image_store',
-  component: require('../components/AppCenter/ImageStore').default,
+  component: require('../components/AppCenter/AppStore').default,
 },{
   path: 'stack_center',
   component: require('../components/AppCenter/Stack').default,

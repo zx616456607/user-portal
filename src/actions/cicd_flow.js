@@ -888,6 +888,10 @@ export const GET_REPOS_BRANCH_SUCCESS = 'GET_REPOS_BRANCH_SUCCESS'
 export const GET_REPOS_BRANCH_FAILURE = 'GET_REPOS_BRANCH_FAILURE'
 
 function fetchCodeStoreBranchDetail(storeType, reponame, project_id, callback) {
+  if (storeType == "svn") {
+    // No branch to fetch for svn
+    return
+  }
   return {
     [FETCH_API]: {
       types: [GET_REPOS_BRANCH_REQUEST, GET_REPOS_BRANCH_SUCCESS, GET_REPOS_BRANCH_FAILURE],
@@ -933,11 +937,11 @@ export const STOP_BUILD_TENX_FLOW_REQUEST = 'STOP_BUILD_TENX_FLOW_REQUEST'
 export const STOP_BUILD_TENX_FLOW_SUCCESS = 'STOP_BUILD_TENX_FLOW_SUCCESS'
 export const STOP_BUILD_TENX_FLOW_FAILURE = 'STOP_BUILD_TENX_FLOW_FAILURE'
 
-function putStopTenxflowBuild(flowId, buildId, callback) {
+function putStopTenxflowBuild(flowId, stageId, buildId, callback) {
   return {
     [FETCH_API]: {
       types: [STOP_BUILD_TENX_FLOW_REQUEST, STOP_BUILD_TENX_FLOW_SUCCESS, STOP_BUILD_TENX_FLOW_FAILURE],
-      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/builds/${buildId}/stop`,
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/stages/${stageId}/builds/${buildId}/stop`,
       schema: {},
       options: {
         method: 'PUT',
@@ -947,9 +951,9 @@ function putStopTenxflowBuild(flowId, buildId, callback) {
   }
 }
 
-export function StopTenxflowBuild(flowId, buildId, callback) {
+export function StopTenxflowBuild(flowId, stageId, buildId, callback) {
   return (dispatch, getState) => {
-    return dispatch(putStopTenxflowBuild(flowId, buildId, callback))
+    return dispatch(putStopTenxflowBuild(flowId, stageId, buildId, callback))
   }
 }
 

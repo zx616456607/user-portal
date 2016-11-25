@@ -138,7 +138,6 @@ class MyCollection extends Component {
     }
   }
   componentWillMount() {
-    document.title = '我的收藏 | 时速云';
     const { loadFavouriteList } = this.props
     loadFavouriteList(DEFAULT_REGISTRY)
   }

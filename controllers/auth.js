@@ -105,10 +105,15 @@ exports.verifyUser = function* () {
   delete result.userID
   delete result.statusCode
   // Get user MD5 encrypted watch token
-  /*const spi = apiFactory.getSpi(loginUser)
-  const watchToken = yield spi.watch.getBy(['token'])
-  result.watchToken = watchToken.data
-  loginUser.watchToken = watchToken.data*/
+  try {
+    const spi = apiFactory.getSpi(loginUser)
+    const watchToken = yield spi.watch.getBy(['token'])
+    result.watchToken = watchToken.data
+    loginUser.watchToken = watchToken.data
+  } catch (err) {
+    logger.error(`Get user MD5 encrypted watch token failed.`)
+    logger.error(err.stack)
+  }
   this.session.loginUser = loginUser
   this.body = {
     user: result,

@@ -24,7 +24,7 @@ const menuList = [
   },
   {
     url: '/ci_cd/docker_file',
-    name: 'DockerFile'
+    name: 'Dockerfile'
   }
 ]
 
@@ -35,7 +35,7 @@ export default class CICD extends Component {
       containerSiderStyle: 'normal'
     }
   }
-  
+
   render() {
     const { children } = this.props
     const scope = this

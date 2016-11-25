@@ -43,21 +43,22 @@ export const OVERVIEW_SPACE_CICD_FAILURE = 'OVERVIEW_SPACE_CICD_FAILURE'
 
 // Fetches space CICD stats from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchSpaceCICDStats() {
+function fetchSpaceCICDStats(callback) {
   return {
     [FETCH_API]: {
       types: [OVERVIEW_SPACE_CICD_REQUEST, OVERVIEW_SPACE_CICD_SUCCESS, OVERVIEW_SPACE_CICD_FAILURE],
       endpoint: `${API_URL_PREFIX}/devops/stats`,
       schema: {}
-    }
+    },
+    callback
   }
 }
 
 // Fetches space CICD stats from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function loadSpaceCICDStats() {
+export function loadSpaceCICDStats(callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchSpaceCICDStats())
+    return dispatch(fetchSpaceCICDStats(callback))
   }
 }
 
@@ -67,21 +68,22 @@ export const OVERVIEW_SPACE_IMAGE_FAILURE = 'OVERVIEW_SPACE_IMAGE_FAILURE'
 
 // Fetches space image stats from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchSpaceImageStats() {
+function fetchSpaceImageStats(callback) {
   return {
     [FETCH_API]: {
       types: [OVERVIEW_SPACE_IMAGE_REQUEST, OVERVIEW_SPACE_IMAGE_SUCCESS, OVERVIEW_SPACE_IMAGE_FAILURE],
       endpoint: `${API_URL_PREFIX}/registries/:registry/stats`,
       schema: {}
-    }
+    },
+    callback
   }
 }
 
 // Fetches space image stats from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function loadSpaceImageStats() {
+export function loadSpaceImageStats(callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchSpaceImageStats())
+    return dispatch(fetchSpaceImageStats(callback))
   }
 }
 

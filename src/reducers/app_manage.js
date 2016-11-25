@@ -216,8 +216,8 @@ function containerItems(state = {}, action) {
         }
       })
     case ActionTypes.CONTAINER_LIST_SUCCESS:
-      let containerList = action.response.result.data || []
-      containerList = containerList.map(container => {
+      let containers = action.response.result.data || []
+      containers = containers.map(container => {
         container.status = getContainerStatus(container)
         return container
       })
@@ -228,7 +228,7 @@ function containerItems(state = {}, action) {
           appName: action.response.result.appName,
           size: action.response.result.count,
           total: action.response.result.total,
-          containerList: action.response.result.data,
+          containerList: containers,
         }
       })
     case ActionTypes.CONTAINER_LIST_FAILURE:
@@ -238,7 +238,7 @@ function containerItems(state = {}, action) {
         }
       })
     case ActionTypes.UPDATE_CONTAINER_LIST:
-      return merge({}, state, {
+      return Object.assign({}, state, {
         [cluster]: {
           total: containerList.length,
           containerList,
