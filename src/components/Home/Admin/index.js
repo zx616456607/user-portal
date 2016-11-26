@@ -115,7 +115,7 @@ class Admin extends Component{
     const teamDetail = this.props.teamDetail
     const teamOperations = this.props.teamOperations
     return (
-      <div id='Admin'>
+      <div id='Admin' style={{marginBottom:40}}>
         <Row className="title">空间对应的团队</Row>
         <Row className="content" gutter={16}>
           <Col span={8} className='teamInf'>

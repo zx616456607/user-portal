@@ -669,7 +669,7 @@ class Ordinary extends Component{
       ]
     }
     return (
-      <div id='Ordinary' style={{marginTop:40}}>
+      <div id='Ordinary'>
         <Row className="title">我的空间-产品环境集群</Row>
         <Row className="content" gutter={16}>
           <Col span={8} className='clusterCost'>
