@@ -221,6 +221,7 @@ module.exports = function (Router) {
   router.post('/devops/ci-flows', devopsController.createCIFlows)
   router.get('/devops/ci-flows', devopsController.listCIFlows)
   router.get('/devops/ci-flows/:flow_id', devopsController.getCIFlow)
+  router.get('/devops/ci-flows/:flow_id/yaml', devopsController.getCIFlowYAML)
   router.put('/devops/ci-flows/:flow_id', devopsController.updateCIFlow)
   router.delete('/devops/ci-flows/:flow_id', devopsController.removeCIFlow)
   router.get('/devops/ci-flows/:flow_id/images', devopsController.getImagesOfFlow)
