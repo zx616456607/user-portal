@@ -12,10 +12,11 @@ import React, { Component, PropTypes } from 'react'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { getIntegrationVmList } from '../../actions/integration'
-import { Button, Alert, Card, Spin, Input, Tooltip, Dropdown, Menu, Select } from 'antd'
+import { getIntegrationVmList, manageVmDetail } from '../../actions/integration'
+import { Button, Alert, Card, Spin, Input, Tooltip, Dropdown, Menu, Select, notification, Modal } from 'antd'
 import { formatDate, calcuDate } from '../../common/tools'
 import './style/VmList.less'
+import CreateVmModal from './CreateVmModal'
 
 const ButtonGroup = Button.Group;
 const Option = Select.Option;
@@ -23,7 +24,7 @@ const Option = Select.Option;
 const menusText = defineMessages({
   create: {
     id: 'Integration.VmList.create',
-    defaultMessage: '创建虚拟机',
+    defaultMessage: '克隆虚拟机',
   },
   ip: {
     id: 'Integration.VmList.ip',
@@ -61,6 +62,26 @@ const menusText = defineMessages({
     id: 'Integration.VmList.core',
     defaultMessage: '核',
   },
+  poweron: {
+    id: 'Integration.VmList.poweron',
+    defaultMessage: '打开电源',
+  },
+  poweroff: {
+    id: 'Integration.VmList.poweroff',
+    defaultMessage: '关闭电源',
+  },
+  shutdown: {
+    id: 'Integration.VmList.shutdown',
+    defaultMessage: '关闭虚拟机',
+  },
+  delete: {
+    id: 'Integration.VmList.delete',
+    defaultMessage: '删除虚拟机',
+  },
+  createTitle: {
+    id: 'Integration.VmList.createTitle',
+    defaultMessage: '克隆虚拟机',
+  }
 })
 
 function diskFormat(num) {
@@ -82,10 +103,15 @@ class VmList extends Component {
     this.onChangeAppType = this.onChangeAppType.bind(this);
     this.ShowDetailInfo = this.ShowDetailInfo.bind(this);
     this.onChangeDataCenter = this.onChangeDataCenter.bind(this);
+    this.onPowerOn = this.onPowerOn.bind(this);
+    this.meunClick = this.meunClick.bind(this);
+    this.closeCreateVmModal = this.closeCreateVmModal.bind(this);
+    this.openCreateVmModal = this.openCreateVmModal.bind(this);
     this.state = {
       currentShowApps: 'all',
       currentAppType: '1',
-      showType: 'list'
+      showType: 'list',
+      createVmModal: false
     }
   }
   
@@ -125,11 +151,106 @@ class VmList extends Component {
     getIntegrationVmList(integrationId, e)
   }
   
+  onPowerOn(path) {
+    //this function for user power on the vm
+    const { manageVmDetail, integrationId, currentDataCenter, vmList } = this.props;
+    let tempBody = {
+      action: 'poweron',
+      vm: [path]
+    }
+    vmList.map((item) => {
+      if(item.path == path && item.powerstate == 'poweron') {
+        notification['warning']({
+          message: '打开电源',
+          description: '该虚机已经打开电源了~',
+        });
+      }
+    })
+    manageVmDetail(integrationId, currentDataCenter, tempBody, {
+      success: {
+        func: () => {
+          vmList.map((item) => {
+            if(item.path == path) {
+              item.powerstate = 'poweron'
+            }
+          });
+          notification['warning']({
+          message: '打开电源',
+          description: '虚机打开电源成功~',
+        });
+        },
+        isAsync: true
+      }
+    });
+  }
+  
+  meunClick(path, key) {
+    //this function for user manage the vm 
+    const { manageVmDetail, integrationId, currentDataCenter, vmList } = this.props;
+    let title = null;
+    let msg = null;
+    let errorMsg = null;
+    switch(key.key) {
+      case 'poweroff':
+        title = '关闭电源';
+        msg = '关闭电源成功~';
+        errorMsg = '该虚机已经关闭电源了~';
+        break;
+      case 'shutdown':
+        title = '关闭虚拟机';
+        msg = '关闭虚拟机成功~';
+        errorMsg = '该虚机已经关闭了~';
+        break;
+      case 'delete':
+        title = '删除虚拟机';
+        msg = '删除虚拟机成功~';
+        errorMsg = '该虚机已经被删除了~';
+        break;
+    }
+    vmList.map((item) => {
+      if(item.path == path && item.powerstate == key.key) {
+        notification['warning']({
+          message: title,
+          description: errorMsg,
+        });
+      }
+    })
+    manageVmDetail(integrationId, currentDataCenter, tempBody, {
+      success: {
+        func: () => {
+          vmList.map((item) => {
+            if(item.path == path) {
+              item.powerstate = key.key
+            }
+          });
+          notification['warning']({
+          message: title,
+          description: msg,
+        });
+        },
+        isAsync: true
+      }
+    });
+  }
+  
+  openCreateVmModal() {
+    //this function for user open the create vm modal
+    this.setState({
+      createVmModal: true
+    })
+  }
+  
+  closeCreateVmModal() {
+    //this function for user close the create vm modal
+    this.setState({
+      createVmModal: false
+    })
+  }
+  
   render() {
     const { formatMessage } = this.props.intl;
-    const {isFetching, vmList, dataCenters, currentDataCenter} = this.props;
+    const { isFetching, vmList, dataCenters, currentDataCenter, integrationId } = this.props;
     const scope = this;
-    console.log(this.props)
     if(isFetching || !Boolean(vmList)) {
       return (
         <div className='loadingBox'>
@@ -139,10 +260,10 @@ class VmList extends Component {
     }
     let appShow = vmList.map((item, index) => {
       const menu = (
-        <Menu>
-          <Menu.Item key="1">我是干嘛的</Menu.Item>
-          <Menu.Item key="2">我是干嘛的</Menu.Item>
-          <Menu.Item key="3">我是干嘛的</Menu.Item>
+        <Menu onClick={this.meunClick.bind(this, item.path)}>
+          <Menu.Item key='poweroff'><FormattedMessage {...menusText.poweroff} /></Menu.Item>
+          <Menu.Item key='shutdown'><FormattedMessage {...menusText.shutdown} /></Menu.Item>
+          <Menu.Item key='delete' disabled><FormattedMessage {...menusText.delete} /></Menu.Item>
         </Menu>
       )
       return (
@@ -202,8 +323,8 @@ class VmList extends Component {
               </svg>
               <span style={{ marginLeft: '20px' }}>终端</span>
             </Button>*/}
-            <Dropdown.Button overlay={menu} type="ghost" size='large'>
-              干嘛呢
+            <Dropdown.Button overlay={menu} type='ghost' size='large' onClick={this.onPowerOn.bind(this, item.path)}>
+              <FormattedMessage {...menusText.poweron} />
             </Dropdown.Button>
           </div>
           <div style={{ clear: 'both' }}></div>
@@ -218,7 +339,7 @@ class VmList extends Component {
     return (
       <div id='VmList' key='VmList'>
         <div className='operaBox'>
-          <Button type='primary' size='large'>
+          <Button type='primary' size='large' onClick={this.openCreateVmModal.bind(this)}>
             <i className='fa fa-plus' />&nbsp;
             <FormattedMessage {...menusText.create} />
           </Button>
@@ -267,6 +388,14 @@ class VmList extends Component {
             <span>暂无数据</span>
           </div>
         ] : null }
+        <Modal
+          title={<FormattedMessage {...menusText.createTitle} />}
+          className='createIntegrationModal'
+          visible={this.state.createVmModal}
+          onCancel={this.closeCreateVmModal.bind(this)}
+        >
+          <CreateVmModal scope={scope} createVmModal={this.state.createVmModal} currentDataCenter={currentDataCenter} integrationId={integrationId}/>
+        </Modal>
       </div>
     )
   }
@@ -290,7 +419,8 @@ VmList.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-  getIntegrationVmList
+  getIntegrationVmList,
+  manageVmDetail
 })(injectIntl(VmList, {
   withRef: true,
 }));

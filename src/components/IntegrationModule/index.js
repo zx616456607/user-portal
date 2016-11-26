@@ -65,6 +65,10 @@ const menusText = defineMessages({
     id: 'Integration.IntegrationIndex.createTitle',
     defaultMessage: '集成安装',
   },
+  commingSoon: {
+    id: 'Integration.IntegrationIndex.commingSoon',
+    defaultMessage: '敬请期待',
+  },
 })
 
 class Integration extends Component {
@@ -310,6 +314,49 @@ class Integration extends Component {
                               <div style={{ clear:'both' }}></div>
                             </div>
                           ] : null }
+                          <div className='cephDetail appDetail'>
+                            <div className='leftBox'>
+                              <img src='/img/appstore/ceph.png' />
+                            </div>
+                            <div className='middleBox'>
+                              <div className='appInfo'>
+                                <p>Ceph存储总览应用</p>
+                                <span>这个应用具备查看Ceph总体存储相关情况的Dashboard，可以配置安装后，立即查看。</span>
+                              </div>
+                              <div className='envInfo'>
+                                <p><FormattedMessage {...menusText.envTitle} /></p>
+                                <div className='envDetail'>
+                                  <div className='numBox'>
+                                    {'1'}
+                                  </div>
+                                  <span className='envName'>Ceph存储集群</span>
+                                  <div style={{ clear:'both' }}></div>
+                                </div>
+                                <div className='envDetail'>
+                                  <div className='numBox'>
+                                    {'2'}
+                                  </div>
+                                  <span className='envName'>Ceph API</span>
+                                  <div style={{ clear:'both' }}></div>
+                                </div>
+                                <div className='envDetail'>
+                                  <div className='numBox'>
+                                    {'3'}
+                                  </div>
+                                  <span className='envName'>Ceph授权</span>
+                                  <div style={{ clear:'both' }}></div>
+                                </div>
+                              </div>
+                              <div style={{ clear:'both' }}></div>
+                            </div>
+                            <div className='rightBox'>
+                              <Button className='unintsallBtn' key='unintsallBtn' size='large' type='primary'
+                                style={{ width: '102px' }} disabled>
+                                <FormattedMessage {...menusText.commingSoon} />
+                              </Button>
+                            </div>
+                            <div style={{ clear:'both' }}></div>
+                          </div>
                         </div>
                       </QueueAnim>
                     ] : null}
