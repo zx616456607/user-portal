@@ -14,7 +14,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../../constants'
-import { createTenxFlowState, createDockerfile } from '../../../../../actions/cicd_flow'
+import { createTenxFlowState, createDockerfile , getAvailableImage} from '../../../../../actions/cicd_flow'
 import './style/CreateTenxFlowModal.less'
 import EnvComponent from './EnvComponent.js'
 import CreateImageEnvComponent from './CreateImageEnvComponent.js'
@@ -220,6 +220,8 @@ let CreateTenxFlowModal = React.createClass({
   },
   componentWillMount() {
     document.title = 'TenxFlow | 时速云';
+    const {getAvailableImage} = this.props
+    getAvailableImage()
   },
   flowNameExists(rule, value, callback) {
     //this function for check the new tenxflow name is exist or not
@@ -718,6 +720,7 @@ let CreateTenxFlowModal = React.createClass({
     const { form, codeList, stageList, supportedDependencies } = this.props;
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form;
     const scopeThis = this;
+    console.log('33333333', this.props)
     let serviceSelectList = supportedDependencies.map((item, index) => {
       return (
         <Option value={item} key={item + index}>{item}</Option>
@@ -1097,9 +1100,13 @@ let CreateTenxFlowModal = React.createClass({
 });
 
 function mapStateToProps(state, props) {
-
+  const defaultState ={
+    imageList: []
+  }
+  const { availableImage } = state.cicd_flow
+  const { imageList } = availableImage || defaultState
   return {
-
+    imageList
   }
 }
 
@@ -1111,7 +1118,8 @@ CreateTenxFlowModal.propTypes = {
 
 export default connect(mapStateToProps, {
   createTenxFlowState,
-  createDockerfile
+  createDockerfile,
+  getAvailableImage
 })(injectIntl(CreateTenxFlowModal, {
   withRef: true,
 }));

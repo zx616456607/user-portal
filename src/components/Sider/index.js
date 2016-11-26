@@ -219,7 +219,6 @@ class Slider extends Component {
           </ul>
         </Modal>
         { siderStyle == 'mini' ? [
-        <QueueAnim type='left'>
           <div key='miniSider' className='miniSider'>
             <ul className='siderTop'>
               <li className='logoItem'>
@@ -314,7 +313,6 @@ class Slider extends Component {
               <div style={{ clear: 'both' }}></div>
             </ul>
           </div>
-        </QueueAnim>
         ] : null }
         { siderStyle == 'bigger' ? [
         <QueueAnim type='left' className='siderBiggerBox'>
