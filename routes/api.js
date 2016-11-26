@@ -269,6 +269,8 @@ module.exports = function (Router) {
   router.get('/integrations/getCreateVmConfig/:id', integrationController.getCreateVmConfig)
   router.post('/integrations/createIntegrationVm/:id', integrationController.createIntegrationVm)
   router.get('/integrations/getIntegrationPods/:id', integrationController.getIntegrationPods)
+  router.get('/integrations/getIntegrationConfig/:id', integrationController.getIntegrationConfig)
+  router.put('/integrations/updateIntegrationConfig/:id', integrationController.updateIntegrationConfig)
 
   // Token info
   router.get('/token', tokenController.getTokenInfo)

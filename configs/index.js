@@ -29,7 +29,5 @@ const config = {
 //   host: "192.168.1.103:48000" || env.TENX_API_HOST
    }
 }
->>>>>>> 005a81e41135892bd768517cdda23d45f90dacf9
-}
 
 module.exports = config

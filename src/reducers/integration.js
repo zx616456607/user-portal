@@ -128,6 +128,29 @@ function getIntegrationPodDetail(state = {}, action) {
   }
 }
 
+function getIntegrationConfig(state = {}, action) {
+  const defaultState = {
+    config: {}
+  }
+  switch (action.type) {
+    case ActionTypes.GET_INTEGRATION_DETAIL_CONFIG_REQUEST:
+      return merge({}, defaultState, state, {
+        isFetching: true
+      })
+    case ActionTypes.GET_INTEGRATION_DETAIL_CONFIG_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        config: action.response.result.result.data || {}
+      })
+    case ActionTypes.GET_INTEGRATION_DETAIL_CONFIG_FAILURE:
+      return merge({}, defaultState, state, {
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
+
 export function integration(state = { integration: {} }, action) {
   return {
     getAllIntegration: getAllIntegration(state.getAllIntegration, action),
@@ -135,6 +158,7 @@ export function integration(state = { integration: {} }, action) {
     getIntegrationVmList: getIntegrationVmList(state.getIntegrationVmList, action),
     getCloneVmConfig: getCloneVmConfig(state.getCloneVmConfig, action),
     getIntegrationPodDetail: getIntegrationPodDetail(state.getIntegrationPodDetail, action),
+    getIntegrationConfig: getIntegrationConfig(state.getIntegrationConfig, action),
     createIntegration: reducerFactory({
       REQUEST: ActionTypes.POST_CREATE_INTEGRATION_REQUEST,
       SUCCESS: ActionTypes.POST_CREATE_INTEGRATION_SUCCESS,
@@ -155,5 +179,10 @@ export function integration(state = { integration: {} }, action) {
       SUCCESS: ActionTypes.POST_CREATE_INTEGRATION_VM_SUCCESS,
       FAILURE: ActionTypes.POST_CREATE_INTEGRATION_VM_FAILURE
     }, state.createIntegrationVm, action),
+    updateIntegrationConfig: reducerFactory({
+      REQUEST: ActionTypes.UPDATE_INTEGRATION_DETAIL_CONFIG_REQUEST,
+      SUCCESS: ActionTypes.UPDATE_INTEGRATION_DETAIL_CONFIG_SUCCESS,
+      FAILURE: ActionTypes.UPDATE_INTEGRATION_DETAIL_CONFIG_FAILURE
+    }, state.updateIntegrationConfig, action),
   }
 }

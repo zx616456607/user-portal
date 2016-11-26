@@ -193,11 +193,11 @@ const menusText = defineMessages({
   },
   vgNum: {
     id: 'Integration.VSphereDetail.vgNum',
-    defaultMessage: '存储卷数：',
+    defaultMessage: '硬盘总数：',
   },
   using: {
     id: 'Integration.VSphereDetail.using',
-    defaultMessage: '使用中：',
+    defaultMessage: '可用硬盘：',
   },
 })
 
@@ -211,6 +211,18 @@ function diskFormat(num) {
   }
   num = parseInt(num / 1024);
   return num + 'TB'
+}
+
+function diskFormatNoUnit(num) {
+  if(num < 1024) {
+    return num 
+  }
+  num = parseInt(num / 1024);
+  if(num < 1024) {
+    return num 
+  }
+  num = parseInt(num / 1024);
+  return num 
 }
 
 function checkHealthPods(config) {
@@ -231,6 +243,65 @@ function checkErrorPods(config) {
     }
   })
   return num;
+}
+
+function getCpuFreeCount(singleHz, count, usedHz) {
+  let usedCpu = Math.round(usedHz/singleHz);
+  return (count - usedCpu)
+}
+
+function setCpuAllocate(pods) {
+  let sortList = [];
+  let cpuTotal = 0;
+  pods.map((item) => {
+    let usedCpu = Math.round(item.cpuTotalUsedMhz/item.cpuMhz);
+    cpuTotal = cpuTotal + item.cpuNumber;
+    let tempBody = {
+      name: item.name,
+      usedCpu: usedCpu
+    }
+    sortList.push(tempBody)
+  })
+  sortList.sort();
+  let nameList = [];
+  let cpuList = [];
+  sortList.map((item, index) => {
+    if(index < 3) {     
+      nameList.push(item.name);
+      cpuList.push(item.usedCpu);
+    }
+  })
+  CPUOption.xAxis[0].data = nameList;
+  CPUOption.series[0].data = cpuList;
+  CPUOption.yAxis[0].max = cpuTotal;
+  CPUOption.yAxis[0].interval = Math.round(cpuTotal/2);
+}
+
+function setMemoryAllocate(pods) {
+  let sortList = [];
+  let memoryTotalMb = 0;
+  pods.map((item) => {
+    memoryTotalMb = memoryTotalMb + item.memoryTotalMb;
+    let tempBody = {
+      name: item.name,
+      memoryUsedMb: diskFormatNoUnit(item.memoryUsedMb)
+    }
+    sortList.push(tempBody)
+  })
+  sortList.sort();
+  let nameList = [];
+  let memoryUsedMbList = [];
+  sortList.map((item, index) => {
+    if(index < 3) {     
+      nameList.push(item.name);
+      memoryUsedMbList.push(item.memoryUsedMb);
+    }
+  })
+  memoryTotalMb = diskFormatNoUnit(memoryTotalMb)
+  memoryOption.xAxis[0].data = nameList;
+  memoryOption.series[0].data = memoryUsedMbList;
+  memoryOption.yAxis[0].max = memoryTotalMb;
+  memoryOption.yAxis[0].interval = Math.round(memoryTotalMb/2);
 }
 
 class VSphereDetail extends Component {
@@ -259,7 +330,6 @@ class VSphereDetail extends Component {
   render() {
     const { formatMessage } = this.props.intl;
     const {isFetching, pods, dataCenters, currentDataCenter} = this.props;
-    console.log(this.props)
     if(isFetching || !Boolean(pods)) {
       return (
         <div className='loadingBox'>
@@ -270,14 +340,28 @@ class VSphereDetail extends Component {
     let diskTotal = 0;
     let diskUsed = 0;
     let diskFree = 0;
+    let diskCount = 0;
+    let diskHealthCount = 0;
     let memoryTotal = 0;
+    let memoryUsedTotal = 0;
     let cpuTotal = 0;
+    let cpuFree = 0
+    setCpuAllocate(pods)
+    setMemoryAllocate(pods)
     pods.map((item) => {
-      diskTotal = diskTotal + item.diskTotal;
-      diskUsed = item.diskTotal - item.diskFree;
-      diskFree = diskFree + item.diskFree;
-      memoryTotal= memoryTotal + item.memoryTotal;
+      memoryTotal= memoryTotal + item.memoryTotalMb;
+      memoryUsedTotal= memoryUsedTotal + item.memoryUsedMb;
       cpuTotal = cpuTotal + item.cpuNumber;
+      diskCount = diskCount + item.disks.length;
+      cpuFree = cpuFree + getCpuFreeCount(item.cpuMhz, item.cpuNumber, item.cpuTotalUsedMhz)
+      item.disks.map((disk) => {
+        diskTotal = diskTotal + disk.capacityMb;
+        diskFree = diskFree + disk.freeMb;
+        diskUsed = diskUsed + disk.capacityMb - disk.freeMb;
+        if(disk.accessable) {
+          diskHealthCount++;
+        }
+      });
     })
     let selectDcShow = dataCenters.map((item, index) => {
       return (
@@ -291,110 +375,123 @@ class VSphereDetail extends Component {
             {selectDcShow}
           </Select>
         </div>
-        <div className='leftBox'>
-          <div className='titleBox'>
-            <FormattedMessage {...menusText.resource} />
-          </div>
-          <div className='littleLeft'>
-            <ReactEcharts
-              notMerge={true}
-              option={CPUOption}
-              style={{height:'200px'}}
-            />
-          </div>
-          <div className='littelMiddle'>
-            <ReactEcharts
-              notMerge={true}
-              option={memoryOption}
-              style={{height:'200px'}}
-            />
-          </div>
-          <div className='littelRight'>
-            <p><FormattedMessage {...menusText.podStatus} /></p>
-            <div className='podNum'>
-              <div className='colorBox'>
+        {
+          pods.length == 0 ? [
+            <div className='loadingBox'>
+              <span>没有物理主机哦</span>
+            </div>
+          ] : null
+        }
+        {
+          pods.length > 0 ? [
+            <div>
+              <div className='leftBox'>
+                <div className='titleBox'>
+                  <FormattedMessage {...menusText.resource} />
+                </div>
+                <div className='littleLeft'>
+                  <ReactEcharts
+                    notMerge={true}
+                    option={CPUOption}
+                    style={{height:'200px'}}
+                  />
+                </div>
+                <div className='littelMiddle'>
+                  <ReactEcharts
+                    notMerge={true}
+                    option={memoryOption}
+                    style={{height:'200px'}}
+                  />
+                </div>
+                <div className='littelRight'>
+                  <p><FormattedMessage {...menusText.podStatus} /></p>
+                  <div className='podNum'>
+                    <div className='colorBox'>
+                    </div>
+                    <span><FormattedMessage {...menusText.podNum} /></span>
+                    <span className='rightSpan'><FormattedMessage {...menusText.unit} /></span>
+                    <span className='rightSpan'>{pods.length}</span>
+                    <div style={{ clear: 'both' }}></div>
+                  </div>
+                  <div className='healthPod'>
+                    <div className='colorBox'>
+                    </div>
+                    <span><FormattedMessage {...menusText.healthPod} /></span>
+                    <span className='rightSpan'><FormattedMessage {...menusText.unit} /></span>
+                    <span className='rightSpan'>{checkHealthPods(pods)}</span>
+                    <div style={{ clear: 'both' }}></div>
+                  </div>
+                  <div className='unstartPod'>
+                    <div className='colorBox'>
+                    </div>
+                    <span><FormattedMessage {...menusText.unstartPod} /></span>
+                    <span className='rightSpan'><FormattedMessage {...menusText.unit} /></span>
+                    <span className='rightSpan'>{checkErrorPods(pods)}</span>
+                    <div style={{ clear: 'both' }}></div>
+                  </div>
+                </div>
+                <div style={{ clear: 'both' }}></div>
               </div>
-              <span><FormattedMessage {...menusText.podNum} /></span>
-              <span className='rightSpan'><FormattedMessage {...menusText.unit} /></span>
-              <span className='rightSpan'>{pods.length}</span>
-              <div style={{ clear: 'both' }}></div>
-            </div>
-            <div className='healthPod'>
-              <div className='colorBox'>
+              <div className='rightBox'>
+                <div className='titleBox'>
+                  <FormattedMessage {...menusText.storage} />
+                </div>
+                <div className='littleLeft'>
+                  <ProgressBox boxPos={parseFloat(diskUsed/diskTotal).toFixed(2)} />
+                </div>
+                <div className='littelRight'>
+                  <div className='commonBox'>
+                    <span className='leftSpan'><FormattedMessage {...menusText.used} /></span>
+                    <span className='rightSpan'>{diskFormat(diskUsed)}</span>
+                    <div style={{ clear: 'both' }}></div>
+                  </div>
+                  <div className='commonBox'>
+                    <span className='leftSpan'><FormattedMessage {...menusText.idle} /></span>
+                    <span className='rightSpan'>{diskFormat(diskTotal - diskUsed)}</span>
+                    <div style={{ clear: 'both' }}></div>
+                  </div>
+                  <div className='commonBox'>
+                    <span className='leftSpan'><FormattedMessage {...menusText.vgNum} /></span>
+                    <span className='rightSpan'><FormattedMessage {...menusText.unit} /></span>
+                    <span className='rightSpan'>{diskCount}</span>
+                    <div style={{ clear: 'both' }}></div>
+                  </div>
+                  <div className='commonBox'>
+                    <span className='leftSpan'><FormattedMessage {...menusText.using} /></span>
+                    <span className='rightSpan'><FormattedMessage {...menusText.unit} /></span>
+                    <span className='rightSpan'>{diskHealthCount}</span>
+                    <div style={{ clear: 'both' }}></div>
+                  </div>
+                </div>
+                <div style={{ clear: 'both' }}></div>
               </div>
-              <span><FormattedMessage {...menusText.healthPod} /></span>
-              <span className='rightSpan'><FormattedMessage {...menusText.unit} /></span>
-              <span className='rightSpan'>{checkHealthPods(pods)}</span>
               <div style={{ clear: 'both' }}></div>
-            </div>
-            <div className='unstartPod'>
-              <div className='colorBox'>
+              <div className='bottomBox'>
+                <div className='cpu commonBox'>
+                  <img src='/img/integration/cpu.png' />
+                  <p>CPU共{cpuTotal}核</p>
+                </div>
+                <div className='vm commonBox'>
+                  <img src='/img/integration/vm.png' />
+                  <p>预计还可创建虚拟vm数量</p>
+                  <p>- 台</p>
+                </div>
+                <div className='cpuUsed commonBox'>
+                  <img src='/img/integration/cpuUsed.png' />
+                  <p>CPU 可用 {cpuFree} 核</p>
+                </div>
+                <div className='memory commonBox'>
+                  <img src='/img/integration/memory.png' />
+                  <p>内存{diskFormat(memoryTotal)} 已用{diskFormat(memoryUsedTotal)}</p>
+                </div>
+                <div className='disk commonBox'>
+                  <img src='/img/integration/disk.png' />
+                  <p>磁盘{diskFormat(diskTotal)} 已用{diskFormat(diskUsed)}</p>
+                </div>
               </div>
-              <span><FormattedMessage {...menusText.unstartPod} /></span>
-              <span className='rightSpan'><FormattedMessage {...menusText.unit} /></span>
-              <span className='rightSpan'>{checkErrorPods(pods)}</span>
-              <div style={{ clear: 'both' }}></div>
             </div>
-          </div>
-          <div style={{ clear: 'both' }}></div>
-        </div>
-        <div className='rightBox'>
-          <div className='titleBox'>
-            <FormattedMessage {...menusText.storage} />
-          </div>
-          <div className='littleLeft'>
-            <ProgressBox boxPos={parseFloat(diskUsed/diskTotal).toFixed(2)} />
-          </div>
-          <div className='littelRight'>
-            <div className='commonBox'>
-              <span className='leftSpan'><FormattedMessage {...menusText.used} /></span>
-              <span className='rightSpan'>{diskFormat(diskUsed)}</span>
-              <div style={{ clear: 'both' }}></div>
-            </div>
-            <div className='commonBox'>
-              <span className='leftSpan'><FormattedMessage {...menusText.idle} /></span>
-              <span className='rightSpan'>{diskFormat(diskFree)}</span>
-              <div style={{ clear: 'both' }}></div>
-            </div>
-            <div className='commonBox'>
-              <span className='leftSpan'><FormattedMessage {...menusText.vgNum} /></span>
-              <span className='rightSpan'><FormattedMessage {...menusText.unit} /></span>
-              <span className='rightSpan'>-</span>
-              <div style={{ clear: 'both' }}></div>
-            </div>
-            <div className='commonBox'>
-              <span className='leftSpan'><FormattedMessage {...menusText.using} /></span>
-              <span className='rightSpan'><FormattedMessage {...menusText.unit} /></span>
-              <span className='rightSpan'>-</span>
-              <div style={{ clear: 'both' }}></div>
-            </div>
-          </div>
-          <div style={{ clear: 'both' }}></div>
-        </div>
-        <div style={{ clear: 'both' }}></div>
-        <div className='bottomBox'>
-          <div className='cpu commonBox'>
-            <img src='/img/integration/cpu.png' />
-            <p>CPU共{cpuTotal}核</p>
-          </div>
-          <div className='vm commonBox'>
-            <img src='/img/integration/vm.png' />
-            <p>预计还可创建虚拟vm数量</p>
-            <p>- 台</p>
-          </div>
-          <div className='cpuUsed commonBox'>
-            <img src='/img/integration/cpuUsed.png' />
-            <p>CPU 可用 - 核</p>
-          </div>
-          <div className='memory commonBox'>
-            <img src='/img/integration/memory.png' />
-            <p>内存{diskFormat(memoryTotal)}</p>
-          </div>
-          <div className='disk commonBox'>
-            <img src='/img/integration/disk.png' />
-            <p>磁盘{diskFormat(diskTotal)} 已用{diskFormat(diskUsed)}</p>
-          </div>
-        </div>
+          ] : null
+        }
         <div className='tagBox'>
           <i className='fa fa-tag' />
           <span>VSphere版本:2.0</span>

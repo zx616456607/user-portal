@@ -30,6 +30,27 @@ exports.createIntegrations = function* () {
   }
 }
 
+exports.getIntegrationConfig = function* () {
+  const id = this.params.id
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.integrations.getBy(['vsphere', id]);
+  this.body = {
+    result,
+  }
+}
+
+exports.updateIntegrationConfig = function* () {
+  const id = this.params.id
+  const body = this.request.body
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.integrations.updateBy(['vsphere', id], null, body);
+  this.body = {
+    result,
+  }
+}
+
 exports.deleteIntegrations = function* () {
   const id = this.params.id
   const loginUser = this.session.loginUser

@@ -80,7 +80,8 @@ class IntegrationDetail extends Component {
   
   render() {
     const { formatMessage } = this.props.intl;
-    const scope = this;
+    const { scope } = this.props;
+    const thisScope = this;
     const { isFetching, dataCenters, integrationId } = this.props;
     if(isFetching || !Boolean(dataCenters) || dataCenters==[]) {
       return (
@@ -94,16 +95,16 @@ class IntegrationDetail extends Component {
         <div id='IntegrationDetail'>
           <Tabs>
             <TabPane tab={<FormattedMessage {...menusText.VSphere} />} key='1'>
-              <VSphere scope={scope} dataCenters={dataCenters} integrationId={integrationId} currentDataCenter={this.state.currentDataCenter} />
+              <VSphere scope={thisScope} dataCenters={dataCenters} integrationId={integrationId} currentDataCenter={this.state.currentDataCenter} />
             </TabPane>
             <TabPane tab={<FormattedMessage {...menusText.vmList} />} key='2'>
-              <VmList scope={scope} dataCenters={dataCenters} integrationId={integrationId} currentDataCenter={this.state.currentDataCenter} />
+              <VmList scope={thisScope} dataCenters={dataCenters} integrationId={integrationId} currentDataCenter={this.state.currentDataCenter} />
             </TabPane>
             <TabPane tab={<FormattedMessage {...menusText.physicalList} />} key='3'>
-              <PhysicalList scope={scope} dataCenters={dataCenters} integrationId={integrationId} currentDataCenter={this.state.currentDataCenter} />
+              <PhysicalList scope={thisScope} dataCenters={dataCenters} integrationId={integrationId} currentDataCenter={this.state.currentDataCenter} />
             </TabPane>
             <TabPane tab={<FormattedMessage {...menusText.VSphereConfig} />} key='4'>
-              <VSphereConfig scope={scope} />
+              <VSphereConfig scope={thisScope} rootScope={scope} integrationId={integrationId} />
             </TabPane>
           </Tabs>
           <Button size='large' type='primary' className='backBtn' onClick={this.returnToList}>

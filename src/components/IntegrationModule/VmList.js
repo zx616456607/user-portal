@@ -196,12 +196,12 @@ class VmList extends Component {
             </span>
           </div>
           <div className='opera commonTitle'>
-            <Button size='large' type='primary' className='terminalBtn'>
+            {/*<Button size='large' type='primary' className='terminalBtn'>
               <svg className='terminal'>
                 <use xlinkHref='#terminal' />
               </svg>
               <span style={{ marginLeft: '20px' }}>终端</span>
-            </Button>
+            </Button>*/}
             <Dropdown.Button overlay={menu} type="ghost" size='large'>
               干嘛呢
             </Dropdown.Button>

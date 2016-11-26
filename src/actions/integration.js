@@ -32,6 +32,52 @@ export function getAllIntegration(callback) {
   }
 }
 
+export const GET_INTEGRATION_DETAIL_CONFIG_REQUEST = 'GET_INTEGRATION_DETAIL_CONFIG_REQUEST'
+export const GET_INTEGRATION_DETAIL_CONFIG_SUCCESS = 'GET_INTEGRATION_DETAIL_CONFIG_SUCCESS'
+export const GET_INTEGRATION_DETAIL_CONFIG_FAILURE = 'GET_INTEGRATION_DETAIL_CONFIG_FAILURE'
+
+function fetchIntegrationConfig(id, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_INTEGRATION_DETAIL_CONFIG_REQUEST, GET_INTEGRATION_DETAIL_CONFIG_SUCCESS, GET_INTEGRATION_DETAIL_CONFIG_FAILURE],
+      endpoint: `${API_URL_PREFIX}/integrations/getIntegrationConfig/${id}`,
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function getIntegrationConfig(id, callback) {
+  return (dispatch) => {
+    return dispatch(fetchIntegrationConfig(id, callback))
+  }
+}
+
+export const UPDATE_INTEGRATION_DETAIL_CONFIG_REQUEST = 'UPDATE_INTEGRATION_DETAIL_CONFIG_REQUEST'
+export const UPDATE_INTEGRATION_DETAIL_CONFIG_SUCCESS = 'UPDATE_INTEGRATION_DETAIL_CONFIG_SUCCESS'
+export const UPDATE_INTEGRATION_DETAIL_CONFIG_FAILURE = 'UPDATE_INTEGRATION_DETAIL_CONFIG_FAILURE'
+
+function postUpdateIntegrationConfig(id, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [UPDATE_INTEGRATION_DETAIL_CONFIG_REQUEST, UPDATE_INTEGRATION_DETAIL_CONFIG_SUCCESS, UPDATE_INTEGRATION_DETAIL_CONFIG_FAILURE],
+      endpoint: `${API_URL_PREFIX}/integrations/updateIntegrationConfig/${id}`,
+      options: {
+        method: 'PUT',
+        body: body
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function updateIntegrationConfig(id, body, callback) {
+  return (dispatch) => {
+    return dispatch(postUpdateIntegrationConfig(id, body, callback))
+  }
+}
+
 export const POST_CREATE_INTEGRATION_REQUEST = 'POST_CREATE_INTEGRATION_REQUEST'
 export const POST_CREATE_INTEGRATION_SUCCESS = 'POST_CREATE_INTEGRATION_SUCCESS'
 export const POST_CREATE_INTEGRATION_FAILURE = 'POST_CREATE_INTEGRATION_FAILURE'
