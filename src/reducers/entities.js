@@ -58,6 +58,19 @@ function loginUser(state, action) {
   }
 }
 
+function sockets(state, action) {
+  switch (action.type) {
+    case ActionTypes.SET_SOCKETS:
+      let sockets = action.sockets
+      if (!sockets.statusWatchWs) {
+        sockets.statusWatchWs = state.statusWatchWs
+      }
+      return Object.assign({}, state, sockets)
+    default:
+      return state
+  }
+}
+
 function license(state, action) {
   switch (action.type) {
     case ActionTypes.LICENSE_REQUEST:
@@ -91,6 +104,7 @@ export default function entities(state = {
     cluster: {},
   },
   license: {},
+  sockets: {},
 }, action) {
   /*if (action.response && action.response.entities) {
     let isFetching = false
@@ -103,5 +117,6 @@ export default function entities(state = {
     current: current(state.current, action),
     loginUser: loginUser(state.loginUser, action),
     license: license(state.license, action),
+    sockets: sockets(state.sockets, action),
   }
 }

@@ -155,12 +155,13 @@ class ServiceList extends Component {
         selectedList: selectedList
       })
     }
-    const {registryServer, imageName} = this.props
+    const {registryServer, imageName, other} = this.props
     if (registryServer && imageName) {
       this.setState({
         serviceModalShow: true,
         registryServer,
-        currentSelectedImage: imageName
+        currentSelectedImage: imageName,
+        other
       })
     }
   }
@@ -297,18 +298,13 @@ class ServiceList extends Component {
   }
 }
 
-ServiceList.propTypes = {
-  cluster: PropTypes.string.isRequired,
-  isFetching: PropTypes.bool.isRequired,
-  servicesList: PropTypes.array.isRequired,
-}
-
 function mapStateToProps(state, props) {
   const { query } = props.location
-  const {imageName, registryServer} = query
+  const {imageName, registryServer, other} = query
   return {
     imageName,
-    registryServer
+    registryServer,
+    other
   }
 }
 

@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component, PropTypes } from 'react'
-import { Tabs, Card, Menu, Progress } from 'antd'
+import { Tabs, Card, Menu, Progress, Spin } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -74,7 +74,8 @@ class StorageDetail extends Component {
   render() {
     const { formatMessage } = this.props.intl
     const { currentKey } = this.state
-    const { StorageInfo } = this.props
+    const { StorageInfo, isFetching } = this.props
+
     return (
       <div id="StorageDetail">
         <QueueAnim className="demo-content"
@@ -86,7 +87,7 @@ class StorageDetail extends Component {
               <div className="imgBox">
                 <img src="/img/storage.png" />
               </div>
-              <div className="infoBox">
+              {isFetching == false ? <div className="infoBox">
                 <div className="appTitle">
                   {StorageInfo.volumeName}
                 </div>
@@ -109,7 +110,8 @@ class StorageDetail extends Component {
                   </div>
                 </div>
                 <div style={{ clear:"both" }}></div>
-              </div>
+              </div> : <div className="loadingBox"><Spin size="large"></Spin></div>}
+
               <div style={{ clear:"both" }}></div>
             </Card>
             <Card className="bottomCard">
@@ -117,7 +119,7 @@ class StorageDetail extends Component {
                 tabPosition="top"
                 defaultActiveKey="1"
               >
-                <TabPane tab={<FormattedMessage {...messages.bindContainer} />} key="2" >
+                <TabPane tab={<FormattedMessage {...messages.bindContainer} />} key="1" >
                   <StorageBind pool={StorageInfo.imagePool} cluster={StorageInfo.cluster} volumeName={ StorageInfo.volumeName } />
                 </TabPane>
               </Tabs>
@@ -143,6 +145,7 @@ function mapStateToProps(state, props) {
   }
   const StorageInfo  = state.storage.storageDetail.StorageInfo || defaultInfo
   return {
+    isFetching: state.storage.storageDetail.isFetching,
     StorageInfo
   }
 }

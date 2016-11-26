@@ -145,7 +145,6 @@ class PublicSpace extends Component {
   }
 
   componentWillMount() {
-    document.title = '公有镜像 | 时速云';
     const { registry, loadPublicImageList } = this.props
     loadPublicImageList(registry)
   }

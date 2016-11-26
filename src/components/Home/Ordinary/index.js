@@ -285,14 +285,36 @@ class Ordinary extends Component{
   }
   
   componentWillMount() {
-    const { loadClusterOperations, loadClusterSysinfo, loadClusterStorage, 
+    
+  }
+  componentDidMount(){
+    const { loadClusterOperations, loadClusterSysinfo, loadClusterStorage,
+      loadClusterAppStatus, loadClusterDbServices, loadClusterNodeSummary,current } = this.props
+    console.log('current',current.clusterID);
+    const {clusterID} = current.cluster
+    loadClusterOperations(clusterID)
+    loadClusterSysinfo(clusterID)
+    loadClusterStorage(clusterID)
+    loadClusterAppStatus(clusterID)
+    loadClusterDbServices(clusterID)
+    loadClusterNodeSummary(clusterID)
+  }
+  componentWillReceiveProps(nextProps){
+    const { loadClusterOperations, loadClusterSysinfo, loadClusterStorage,
       loadClusterAppStatus, loadClusterDbServices, loadClusterNodeSummary } = this.props
-    loadClusterOperations("cce1c71ea85a5638b22c15d86c1f61df")
-    loadClusterSysinfo("cce1c71ea85a5638b22c15d86c1f61df")
-    loadClusterStorage("cce1c71ea85a5638b22c15d86c1f61df")
-    loadClusterAppStatus("cce1c71ea85a5638b22c15d86c1f61df")
-    loadClusterDbServices("e0e6f297f1b3285fb81d27742255cfcf")
-    loadClusterNodeSummary("cce1c71ea85a5638b22c15d86c1f61df")
+    const {current} = nextProps
+    const {clusterID} = current.cluster
+    if(clusterID !== this.props.current.cluster.clusterID){
+      console.log('nextProps');
+      loadClusterOperations(clusterID)
+      loadClusterSysinfo(clusterID)
+      loadClusterStorage(clusterID)
+      loadClusterAppStatus(clusterID)
+      loadClusterDbServices(clusterID)
+      loadClusterNodeSummary(clusterID)
+      return
+    }
+    
   }
   handleDataBaseClick(current){
     if(current === 'tab1'){
@@ -321,6 +343,7 @@ class Ordinary extends Component{
     }
   }
   render(){
+    console.log('rendered!!!');
     const {clusterOperations, clusterSysinfo, clusterStorage, clusterAppStatus, clusterNodeSummary} = this.props
     let boxPos = 0
     if ((clusterStorage.freeSize + clusterStorage.usedSize) > 0) {
@@ -333,6 +356,10 @@ class Ordinary extends Component{
     let conRunning = clusterAppStatus.podMap.get('Running')
     let conTerminating = clusterAppStatus.podMap.get('Terminating')
     let conPending = clusterAppStatus.podMap.get('Pending')
+  
+    let legendData = []
+    let seriesData = []
+    
     
     let appOption = {
       tooltip : {
@@ -415,14 +442,17 @@ class Ordinary extends Component{
         orient : 'vertical',
         left : '50%',
         top : 'middle',
-        data:[{name:'运行中'}, {name:'已停止'},{name:'操作中'}],
+        // data:[{name:'运行中'}, {name:'已停止'},{name:'操作中'},{name:'异常'}],
+        data: legendData,
         formatter: function (name) {
           if(name === '运行中'){
             return name + ': ' + svcRunning + '个'
           } else if (name === '已停止') {
-            return name + ': ' + svcStopped + '个'
+            return name + ': ' + svcStopped?svcStopped:0 + '个'
           } else if (name === '操作中') {
             return name + ': ' + appCountBusy + '个'
+          }else if (name === '异常') {
+            return name + ': ' + 0 + '个'
           }
         },
         textStyle: {
@@ -441,12 +471,13 @@ class Ordinary extends Component{
         selectedOffset: 0,
         radius: ['28', '40'],
         center: ['25%', '50%'],
-        data:[
+        /*data:[
           {value:svcRunning, name:'运行中'},
           {value:svcStopped, name:'已停止'},
           {value:10, name:'操作中',selected:true},
           {value:10, name:'异常'},
-        ],
+        ],*/
+        data: seriesData,
         label: {
           normal: {
             position: 'center',
@@ -1089,6 +1120,7 @@ function getDbServiceStatus(data) {
 }
 
 function mapStateToProp(state,props) {
+  const { current } = state.entities
   let clusterOperationsData = {
     appCreate: 0,
     appModify: 0,
@@ -1260,6 +1292,7 @@ function mapStateToProp(state,props) {
     clusterNodeSummaryData = clusterNodeSummary.result.data
   }
   return {
+    current,
     clusterOperations: clusterOperationsData,
     clusterSysinfo: clusterSysinfoData,
     clusterStorage: clusterStorageData,

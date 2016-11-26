@@ -121,8 +121,8 @@ module.exports = function (Router) {
   router.put('/teams/:team_id/clusters/:cluster_id/request', teamController.requestTeamCluster)
 
   //Overview Team
-  router.get('/overview/teams/:team_id/detail', overviewTeamController.getTeamDetail)
-  router.get('/overview/teams/:team_id/operations', overviewTeamController.getTeamOperations)
+  router.get('/overview/teamdetail', overviewTeamController.getTeamDetail)
+  router.get('/overview/teamoperations', overviewTeamController.getTeamOperations)
 
   //Overview Cluster
   router.get('/overview/clusters/:cluster_id/operations', overviewClusterController.getClusterOperations)
@@ -247,7 +247,7 @@ module.exports = function (Router) {
   router.post('/devops/ci-flows/:flow_id/builds', devopsController.createFlowBuild)
   router.get('/devops/ci-flows/:flow_id/builds', devopsController.listBuilds)
   router.get('/devops/ci-flows/:flow_id/builds/:flow_build_id', devopsController.getFlowBuild)
-  router.put('/devops/ci-flows/:flow_id/builds/:flow_build_id/stop', devopsController.stopBuild)
+  router.put('/devops/ci-flows/:flow_id/stages/:stage_id/builds/:build_id/stop', devopsController.stopBuild)
   router.get('/devops/ci-flows/:flow_id/getBuildLogs', devopsController.getBuildLog)
   router.get('/devops/ci-flows/:flow_id/getLastBuildLogs', devopsController.getLastBuildLog)
   router.get('/devops/ci-flows/:flow_id/stages/:stage_id/builds/:stage_build_id', devopsController.getFlowStageBuildLog)

@@ -104,7 +104,7 @@ const MyComponent = React.createClass({
           </div>
           <div className="btnBox">
             <Button type="ghost">
-              <Link to={`/app_manage/app_create/fast_create?registryServer=${ipAddress}&imageName=${item}`}>
+              <Link to={`/app_manage/app_create/fast_create?registryServer=${ipAddress}&imageName=${item}&other=${this.props.imageId}`}>
               <FormattedMessage {...menusText.deployService} />
               </Link>
             </Button>

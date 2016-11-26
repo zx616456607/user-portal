@@ -90,7 +90,7 @@ class AppDetail extends Component {
       updateDate = app.services[0].metadata.creationTimestamp
     }
     const appDomain = parseAppDomain(app, this.props.bindingDomains)
-   // const svcDomain = ['10.11.102.1111','10.11.102.222','10.11.102.333']
+    // const svcDomain = ['10.11.102.1111','10.11.102.222','10.11.102.333']
     // const appDomain = [
     //   {
     //     name: 'servce1',

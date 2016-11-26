@@ -427,18 +427,29 @@ let EditTenxFlowModal = React.createClass({
     //when user input words, after user key up would triger the function
     const { form } = this.props;
     let inputValue = form.getFieldValue('shellCode' + index);
-    if(index == shellUid) {
-      if(!!inputValue) {
-        shellUid++;
-        // can use data-binding to get
-        let keys = form.getFieldValue('shellCodes');
-        keys = keys.concat(shellUid);
-        // can use data-binding to set
-        // important! notify form to detect changes
-        form.setFieldsValue({
-          'shellCodes': keys
-        });
+    let changed = false
+    let keys = form.getFieldValue('shellCodes');
+    let max = keys[keys.length - 1]
+    if(index == max && !!inputValue) {
+      // shellUid++;
+      changed = true
+      // can use data-binding to get
+      keys = keys.concat(max + 1);
+      // can use data-binding to set
+      // important! notify form to detect changes
+    }
+    if (index == max - 1 && !inputValue) {
+      let nextInputValue = form.getFieldValue('shellCode' + index + 1);
+      if (!nextInputValue) {
+        // shellUid--;
+        changed = true
+        keys.pop()
       }
+    }
+    if (changed) {
+      form.setFieldsValue({
+        'shellCodes': keys
+      });
     }
   },
   realImageInput (rule, value, callback) {
@@ -684,10 +695,8 @@ let EditTenxFlowModal = React.createClass({
       let shellLength = values.shellCodes;
       let shellList = [];
       shellLength.map((item, index) => {
-        if((index + 1) != shellLength.length) {
-          if(!!values['shellCode' + item]) {            
-            shellList.push(values['shellCode' + item]);
-          }
+        if(!!values['shellCode' + item]) {
+          shellList.push(values['shellCode' + item]);
         }
       });
       let body = {
@@ -825,7 +834,8 @@ let EditTenxFlowModal = React.createClass({
       </QueueAnim>
       )
     });
-    const shellCodeItems = getFieldValue('shellCodes').map((i) => {
+    const scodes = getFieldValue('shellCodes')
+    const shellCodeItems = scodes.map((i) => {
       let shellDefault = !!shellList[i] ? shellList[i] : ''
       const shellCodeProps = getFieldProps(`shellCode${i}`, {
         rules: [
@@ -838,13 +848,18 @@ let EditTenxFlowModal = React.createClass({
         <div className='serviceDetail' key={'shellCode' + i}>
           <FormItem className='serviceForm'>
             <Input disabled={ scopeThis.state.otherFlowType == '3' ? true : false } onKeyUp={() => this.addShellCode(i) } {...shellCodeProps} type='text' size='large' />
-            <i className='fa fa-trash' onClick={() => this.removeShellCode(i)} />
+            { scopeThis.state.otherFlowType == '3' || scodes.length == 1 ? null : [
+              <i className='fa fa-trash' onClick={() => this.removeShellCode(i)} />
+            ] }
           </FormItem>
           <div style={{ clera:'both' }}></div>
         </div>
       </QueueAnim>
       )
     });
+    if (this.state.otherFlowType == '3' && shellCodeItems.length > 1) {
+      shellCodeItems.pop()
+    }
     const flowTypeProps = getFieldProps('flowType', {
       rules: [
         { required: true, message: '请选择项目类型' },

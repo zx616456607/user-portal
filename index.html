@@ -11,9 +11,31 @@
     <script src="https://as.alipayobjects.com/g/component/??console-polyfill/0.2.2/index.js,es5-shim/4.5.7/es5-shim.min.js,es5-shim/4.5.7/es5-sham.min.js,html5shiv/3.7.2/html5shiv.min.js,media-match/2.0.2/media.match.min.js"></script>
   <![endif]-->
   <script>
+    function loadScript(url, callback){
+      if(!callback) callback = function(){}
+      var script = document.createElement ('script')
+      script.type = 'text/javascript';
+      if (script.readyState){ //IE
+        script.onreadystatechange = function(){
+          if (script.readyState == 'loaded' || script.readyState == 'complete'){
+            script.onreadystatechange = null;
+            callback();
+          }
+        };
+      } else { //Others
+        script.onload = function(){
+          callback();
+        };
+      }
+      script.src = url;
+      document.getElementsByTagName('head')[0].appendChild(script);
+    }
+  </script>
+  <script>
     if (!window.Intl) {
-      document.writeln('<script src="/js/lib/intl/1.0.1/intl.min.js">' + '<' + '/script>');
-      document.writeln('<script src="/js/lib/intl/1.0.1/locale-data/zh.js">' + '<' + '/script>');
+      loadScript('/js/lib/intl/1.0.1/intl.min.js', function() {
+        loadScript('/js/lib/intl/1.0.1/locale-data/zh.js')
+      })
     }
   </script>
   <title>

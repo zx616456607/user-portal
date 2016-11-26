@@ -83,7 +83,7 @@ export function fetchCreateApp(appConfig, callback) {
         body: {
           name: appConfig.appName,
           template: appConfig.template,
-          remark: appConfig.remark
+          desc: appConfig.desc
         }
       },
       schema: Schemas.APPS
@@ -283,7 +283,7 @@ export const CONTAINER_LIST_FAILURE = 'CONTAINER_LIST_FAILURE'
 
 // Fetches container list from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchContainerList(cluster, query) {
+function fetchContainerList(cluster, query, callback) {
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/containers`
   if (query) {
     endpoint += `?${toQuerystring(query)}`
@@ -294,15 +294,16 @@ function fetchContainerList(cluster, query) {
       types: [CONTAINER_LIST_REQUEST, CONTAINER_LIST_SUCCESS, CONTAINER_LIST_FAILURE],
       endpoint,
       schema: Schemas.CONTAINERS
-    }
+    },
+    callback
   }
 }
 
 // Fetches containers list from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function loadContainerList(cluster, query, requiredFields = []) {
+export function loadContainerList(cluster, query, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchContainerList(cluster, query))
+    return dispatch(fetchContainerList(cluster, query, callback))
   }
 }
 
