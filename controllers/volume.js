@@ -171,8 +171,6 @@ exports.getBindInfo = function* () {
 }
 
 exports.getAvailableVolume = function*() {
-  volumeConfig.version = 'v2'
-  volumeConfig.host = '192.168.1.103:48000'
   const cluster = this.params.cluster
   const volumeApi = apiFactory.getK8sApi(this.session.loginUser)
   const response = yield volumeApi.getBy([cluster, 'volumes', 'available'], null)
