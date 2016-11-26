@@ -141,7 +141,9 @@ exports.addPrivateRegistry = function* () {
   const reqData = this.request.body
   const api = apiFactory.getManagedRegistryApi(loginUser)
   // Encrypt the password before save to database
-  reqData.encrypted_password = securityUtil.encryptContent(reqData.password, loginUser.token, algorithm)
+  if (reqData.username && reqData.password) {
+    reqData.encrypted_password = securityUtil.encryptContent(reqData.password, loginUser.token, algorithm)
+  }
   const result = yield api.createBy([name], null, reqData)
 
   this.status = result.code
