@@ -1104,7 +1104,7 @@ let EditTenxFlowModal = React.createClass({
               </div>
               <div className='commonBox'>
                 <div className='title'>
-                  <span><FormattedMessage {...menusText.imageRealName} /></span>
+                  <span><FormattedMessage {...menusText.ImageTag} /></span>
                 </div>
                 <div className='input'>
                   <FormItem style={{ float:'left' }}>
