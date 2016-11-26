@@ -48,12 +48,12 @@ class DetailBox extends Component {
     super(props)
   }
   render() {
-    const {data} = this.props
+    const {data, scope} = this.props
     return (
       <div className="appStoreDetail" key="appStoreDetail">
         <div className="topTitle">
-          持续集成与部署：
-          <span className="rightColse"><Icon type="cross" /></span>
+          
+          <span className="rightColse" onClick={()=> {scope.setState({detailModal: false})} }><Icon type="cross" /></span>
         </div>
         <div className="wrapContent">
           <div className="boxDeploy">
