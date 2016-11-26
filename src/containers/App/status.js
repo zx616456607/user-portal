@@ -15,6 +15,8 @@
   name: ["nginx"]
 }*/
 import merge from 'lodash/merge'
+import { LABEL_APPNAME } from '../../constants'
+
 const MAX_SEND_MSG_INTERVAL = 50
 
 export function addWatch(type, cluster, ws, data = []) {
@@ -94,11 +96,15 @@ export function handleOnMessage(props, response) {
   // try {
   response = JSON.parse(response)
   const { type, data, watchType } = response
-  const { reduxState, updateContainerList, updateAppList } = props
-  const { entities, containers, apps } = reduxState
+  const { reduxState, updateAppServicesList, updateAppList } = props
+  const { entities, containers, apps, services } = reduxState
   const cluster = entities.current.cluster.clusterID
   if (watchType === 'pod') {
     handleOnPodMessage(props, response)
+  } else if (watchType === 'deployment') {
+    let appName = response.data.metadata.labels[LABEL_APPNAME]
+    let { serviceList } = services.serviceItmes[cluster][appName]
+    updateAppServicesList(cluster, appName, _changeListByWatch(serviceList, response))
   } else if (watchType === 'app') {
     let { appList } = apps.appItems[cluster]
     updateAppList(cluster, _changeAppListByWatch(appList, response))

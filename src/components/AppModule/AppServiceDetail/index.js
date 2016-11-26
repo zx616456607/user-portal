@@ -57,7 +57,7 @@ class AppServiceDetail extends Component {
   }
 
   loadData(nextProps) {
-    const selt = this
+    const self = this
     const {
       cluster,
       serviceName,
@@ -70,7 +70,7 @@ class AppServiceDetail extends Component {
       success: {
         func: (result) => {
           // Add pod status watch, props must include statusWatchWs!!!
-          addPodWatch(cluster, selt.props, result.data)
+          addPodWatch(cluster, self.props, result.data)
         },
         isAsync: true
       }

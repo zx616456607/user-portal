@@ -720,7 +720,6 @@ class AppList extends Component {
   }
 
   updateBrowserHistory(page, size, sortOrder, sortBy) {
-
     if (page === this.props.page &&
       size === this.props.size &&
       sortOrder === this.props.sortOrder &&

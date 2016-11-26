@@ -18,7 +18,7 @@ export const SERVICE_LIST_FAILURE = 'SERVICE_LIST_FAILURE'
 
 // Fetches service list from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchServiceList(cluster, appName, query) {
+function fetchServiceList(cluster, appName, query, callback) {
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/apps/${appName}/services`
   if (query) {
     endpoint += `?${toQuerystring(query)}`
@@ -30,15 +30,16 @@ function fetchServiceList(cluster, appName, query) {
       types: [SERVICE_LIST_REQUEST, SERVICE_LIST_SUCCESS, SERVICE_LIST_FAILURE],
       endpoint,
       schema: Schemas.SERVICES
-    }
+    },
+    callback
   }
 }
 
 // Fetches services list from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function loadServiceList(cluster, appName, query, requiredFields = []) {
+export function loadServiceList(cluster, appName, query, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchServiceList(cluster, appName, query))
+    return dispatch(fetchServiceList(cluster, appName, query, callback))
   }
 }
 

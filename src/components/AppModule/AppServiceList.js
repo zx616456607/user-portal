@@ -35,6 +35,7 @@ import AppAddServiceModal from './AppCreate/AppAddServiceModal'
 import AppDeployServiceModal from './AppCreate/AppDeployServiceModal'
 import TipSvcDomain from '../TipSvcDomain'
 import yaml from 'js-yaml'
+import { addDeploymentWatch, removeDeploymentWatch } from '../../containers/App/status'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -570,10 +571,19 @@ class AppServiceList extends Component {
   }
 
   loadServices(nextProps) {
+    const self = this
     const {
       cluster, appName, loadServiceList, page, size, name
     } = nextProps || this.props
-    loadServiceList(cluster, appName, { page, size, name })
+    loadServiceList(cluster, appName, { page, size, name }, {
+      success: {
+        func: (result) => {
+          // Add deploment status watch, props must include statusWatchWs!!!
+          addDeploymentWatch(cluster, self.props, result.data)
+        },
+        isAsync: true
+      }
+    })
   }
 
   onAllChange(e) {
@@ -588,7 +598,7 @@ class AppServiceList extends Component {
   componentWillMount() {
     const { appName } = this.props
     document.title = `${appName} 的服务列表 | 时速云`
-    loadServices(this.props)
+    this.loadServices()
   }
 
   componentWillReceiveProps(nextProps) {
@@ -602,7 +612,15 @@ class AppServiceList extends Component {
     this.setState({
       searchInputDisabled: false
     })
-    loadServices(nextProps)
+    this.loadServices(nextProps)
+  }
+
+  componentWillUnmount() {
+    const {
+      cluster,
+      statusWatchWs,
+    } = this.props
+    removeDeploymentWatch(cluster, statusWatchWs)
   }
 
   /* confirmStartService(e) {
@@ -681,8 +699,8 @@ class AppServiceList extends Component {
     startServices(cluster, serviceNames, {
       success: {
         func: () => {
-          loadServiceList(cluster, appName)
-          this.setState({
+          // loadServiceList(cluster, appName)
+          self.setState({
             StartServiceModal: false,
             runBtn: false,
             stopBtn: false,
@@ -722,8 +740,8 @@ class AppServiceList extends Component {
     stopServices(cluster, serviceNames, {
       success: {
         func: () => {
-          loadServiceList(cluster, appName)
-          this.setState({
+          // loadServiceList(cluster, appName)
+          self.setState({
             StopServiceModal: false,
             runBtn: false,
             stopBtn: false,
@@ -759,14 +777,14 @@ class AppServiceList extends Component {
       }
     })
     self.setState({
-      serviceList: allServices
+      serviceList: allServices,
+      RestarServiceModal: false,
     })
     restartServices(cluster, serviceNames, {
       success: {
         func: () => {
-          loadServiceList(cluster, appName)
-          this.setState({
-            RestarServiceModal: false,
+          // loadServiceList(cluster, appName)
+          self.setState({
             runBtn: false,
             stopBtn: false,
             restartBtn: false,
@@ -808,7 +826,7 @@ class AppServiceList extends Component {
       success: {
         func: () => {
           loadServiceList(cluster, appName)
-          this.setState({
+          self.setState({
             QuickRestarServiceModal: false,
             runBtn: false,
             stopBtn: false,
@@ -1167,7 +1185,7 @@ class AppServiceList extends Component {
               >
               <StartServiceModal serviceList={serviceList} />
             </Modal>
-            <Button size="large" onClick={() => loadServices(this.props)} >
+            <Button size="large" onClick={() => this.loadServices(this.props)} >
               <i className="fa fa-refresh"></i>
               刷新
             </Button>
@@ -1335,6 +1353,7 @@ function mapStateToProps(state, props) {
   }
   const { appName } = props
   const { cluster } = state.entities.current
+  const { statusWatchWs } = state.entities.sockets
   const defaultServices = {
     isFetching: false,
     cluster: cluster.clusterID,
@@ -1351,6 +1370,7 @@ function mapStateToProps(state, props) {
   const { serviceList, isFetching, total } = targetServices || defaultServices
   return {
     cluster: cluster.clusterID,
+    statusWatchWs,
     bindingDomains: state.entities.current.cluster.bindingDomains,
     appName,
     pathname,
