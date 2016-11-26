@@ -260,7 +260,7 @@ module.exports = function (Router) {
   router.delete('/devops/ci-flows/:flow_id/stages/:stage_id/dockerfile', devopsController.removeDockerfile)
   router.put('/devops/ci-flows/:flow_id/stages/:stage_id/dockerfile', devopsController.updateDockerfile)
   // Available CI images
-  router.put('/devops/ci/images', devopsController.getAvailableImages)
+  router.get('/devops/ci/images', devopsController.getAvailableImages)
 
   // Integration
   router.get('/integrations/getAllIntegration', integrationController.getAllIntegrations)
