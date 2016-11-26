@@ -20,7 +20,7 @@ import { calcuDate } from '../../common/tools.js'
 import { browserHistory } from 'react-router'
 import TerminalModal from '../TerminalModal'
 import ContainerStatus from '../TenxStatus/ContainerStatus'
-import { addPodWatch } from '../../containers/App/status'
+import { addPodWatch, removePodWatch } from '../../containers/App/status'
 
 const ButtonGroup = Button.Group
 const confirm = Modal.confirm
@@ -194,28 +194,6 @@ const MyComponent = React.createClass({
   }
 })
 
-function loadData(props) {
-  const {
-    loadContainerList, cluster, page,
-    size, name, sortOrder,
-    statusWatchWs
-  } = props
-  setInterval(function () {
-    console.log(`props.statusWatchWs--------------`)
-    console.log(props.statusWatchWs)
-  }, 1000)
-  loadContainerList(cluster, { page, size, name, sortOrder }, {
-    success: {
-      func: (result) => {
-        console.log(result)
-        // Add pod status watch
-        addPodWatch(cluster, statusWatchWs, result.data)
-      },
-      isAsync: true
-    }
-  })
-}
-
 class ContainerList extends Component {
   constructor(props) {
     super(props)
@@ -268,6 +246,14 @@ class ContainerList extends Component {
     this.loadData()
   }
 
+  componentWillUnmount() {
+    const {
+      cluster,
+      statusWatchWs,
+    } = this.props
+    removePodWatch(cluster, statusWatchWs)
+  }
+
   componentWillReceiveProps(nextProps) {
     let { page, size, name, containerList, cluster, sortOrder, currentCluster } = nextProps
     this.setState({
@@ -303,6 +289,7 @@ class ContainerList extends Component {
       content: containerNames.join(', '),
       onOk() {
         return new Promise((resolve) => {
+          resolve()
           allContainers.map(container => {
             if (containerNames.indexOf(container.metadata.name) > -1) {
               container.status.phase = 'Rebuilding'
@@ -320,7 +307,6 @@ class ContainerList extends Component {
               isAsync: true
             }
           })
-          resolve()
         });
       },
       onCancel() { },

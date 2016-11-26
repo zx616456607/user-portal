@@ -15,6 +15,7 @@ import { Progress, Icon } from 'antd'
 import moment from 'moment'
 import './style/TenxStatus.less'
 import { FormattedMessage, defineMessages } from 'react-intl'
+import isEqual from 'lodash/isEqual'
 
 const PROGRESS_PHASES = [
   'Pending',
@@ -134,7 +135,7 @@ class TenxStatus extends Component {
       this.setState({
         percent: progress.percent
       })
-    } else {
+    } else if (!isEqual(nextProps, this.props)) {
       this.setState({
         percent: 5
       })
@@ -171,7 +172,7 @@ class TenxStatus extends Component {
       this.setState({
         percent
       })
-    }, 50) // After one second, the progress will up to 100%
+    }, 100) // After 2 seconds, the progress will up to 100%
   }
 
   getReplicasElement() {

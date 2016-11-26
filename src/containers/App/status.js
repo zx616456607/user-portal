@@ -14,6 +14,7 @@
   type: "app",
   name: ["nginx"]
 }*/
+import merge from 'lodash/merge'
 const MAX_SEND_MSG_INTERVAL = 50
 
 export function addWatch(type, cluster, ws, data = []) {
@@ -40,8 +41,8 @@ export function addPodWatch(cluster, props, pods = []) {
     return
   }
   let config = {
-    cluster,
     type: 'pod',
+    cluster,
     name
   }
   _addWatch(props, config)
@@ -49,6 +50,8 @@ export function addPodWatch(cluster, props, pods = []) {
 
 export function addDeploymentWatch(cluster, props, deployments = []) {
   let name = []
+  console.log(`deployments--------------------------`)
+  console.log(deployments)
   deployments.filter(deployment => {
     if (name.indexOf(deployment.metadata.name) < 0) {
       name.push(deployment.metadata.name)
@@ -58,8 +61,8 @@ export function addDeploymentWatch(cluster, props, deployments = []) {
     return
   }
   let config = {
-    cluster,
     type: 'deployment',
+    cluster,
     name
   }
   _addWatch(props, config)
@@ -76,8 +79,8 @@ export function addAppWatch(cluster, props, apps = []) {
     return
   }
   let config = {
-    cluster,
     type: 'app',
+    cluster,
     name
   }
   _addWatch(props, config)
@@ -86,16 +89,60 @@ export function addAppWatch(cluster, props, apps = []) {
 export function handleOnMessage(props, response) {
   try {
     const { type, data, watchType } = response
-    const { reduxState, updateContainerList } = props
-    const { entities, containers } = reduxState
+    const { reduxState, updateContainerList, updateAppList } = props
+    const { entities, containers, apps } = reduxState
     const cluster = entities.current.cluster.clusterID
     if (watchType === 'pod') {
       let { containerList } = containers.containerItems[cluster]
       updateContainerList(cluster, _changeListByWatch(containerList, response))
+    } else if (watchType === 'app') {
+      let { appList } = apps.appItems[cluster]
+      updateAppList(cluster, _changeAppListByWatch(appList, response))
     }
   } catch (err) {
     console.error('handleOnMessage err:', err)
   }
+}
+
+
+export function removeWatch(type, cluster, ws) {
+  switch (type) {
+    case 'pod':
+      return removePodWatch(cluster, ws)
+    case 'deployment':
+      return removeDeploymentWatch(cluster, ws)
+    case 'app':
+      return removeAppWatch(cluster, ws)
+    default:
+      return
+  }
+}
+
+export function removePodWatch(cluster, ws) {
+  let config = {
+    type: 'pod',
+    cluster,
+    code: 'CLOSED'
+  }
+  ws.send(JSON.stringify(config))
+}
+
+export function removeDeploymentWatch(cluster, ws) {
+  let config = {
+    type: 'deployment',
+    cluster,
+    code: 'CLOSED'
+  }
+  ws.send(JSON.stringify(config))
+}
+
+export function removeAppWatch(cluster, ws) {
+  let config = {
+    type: 'app',
+    cluster,
+    code: 'CLOSED'
+  }
+  ws.send(JSON.stringify(config))
 }
 
 function _addWatch(props, config) {
@@ -124,9 +171,13 @@ function _changeListByWatch(list, response) {
       switch (type) {
         case 'ADDED':
         case 'MODIFIED':
-          result.push(data)
+          delete item.status
+          delete item.checked
+          result.push(merge({}, item, data))
         case 'DELETED':
         // do noting here
+        case 'ERROR':
+        // @TODO
       }
     } else {
       result.push(item)
@@ -136,4 +187,22 @@ function _changeListByWatch(list, response) {
     result.unshift(data)
   }
   return result
+}
+
+function _changeAppListByWatch(apps, response) {
+  const { name, type } = response
+  if (type === 'ADDED') {
+    return apps
+  }
+  let result = []
+  let exist = false
+  apps.map(app => {
+    if (app.name === name) {
+      app.services = _changeListByWatch(app.services, response)
+      delete app.checked
+    }
+  })
+  console.log(`apps---------------------------handled`)
+  console.log(apps)
+  return apps
 }

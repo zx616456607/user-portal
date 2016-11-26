@@ -1,5 +1,9 @@
 FROM 192.168.1.113/zhangpc/node:4.4.7
 
+# Set timezone
+ENV TZ=Asia/Shanghai
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 # Create app directory
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
