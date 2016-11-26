@@ -115,7 +115,7 @@ class Admin extends Component{
     const teamDetail = this.props.teamDetail
     const teamOperations = this.props.teamOperations
     return (
-      <div id='Admin'>
+      <div id='Admin' style={{marginBottom:40}}>
         <Row className="title">空间对应的团队</Row>
         <Row className="content" gutter={16}>
           <Col span={8} className='teamInf'>
@@ -248,110 +248,112 @@ class Admin extends Component{
             </Card>
           </Col>
           <Col span={5} className='teamRecord'>
-            <Card title="今日该团队记录" bordered={false} bodyStyle={{height:170, overflowY:'auto',fontSize:'14px'}}>
-              <table>
-                <tbody>
-                  <tr>
-                    <td>
-                      <svg className="teamRecSvg">
-                        <use xlinkHref="#homeappcount" />
-                      </svg>
-                      创建应用数量
-                    </td>
-                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                      {teamOperations.appCreate}个
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <svg className="teamRecSvg">
-                        <use xlinkHref="#homeappcount" />
-                      </svg>
-                      修改应用数量
-                    </td>
-                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                      {teamOperations.appModify}个
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <svg className="teamRecSvg">
-                        <use xlinkHref="#homeappcount" />
-                      </svg>
-                      停止应用数量
-                    </td>
-                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                      {teamOperations.appStop}个
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <svg className="teamRecSvg">
-                        <use xlinkHref="#homeappcount" />
-                      </svg>
-                      启动应用数量
-                    </td>
-                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                      {teamOperations.appStart}个
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <svg className="teamRecSvg">
-                        <use xlinkHref="#homeappcount" />
-                      </svg>
-                      重新部署应用数量
-                    </td>
-                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                      {teamOperations.appRedeploy}个
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <svg className="teamRecSvg">
-                        <use xlinkHref="#homeservicecount" />
-                      </svg>
-                      创建服务数量
-                    </td>
-                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                      {teamOperations.svcCreate}个
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <svg className="teamRecSvg">
-                        <use xlinkHref="#homeservicecount" />
-                      </svg>
-                      删除服务数量
-                    </td>
-                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                      {teamOperations.svcDelete}个
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <svg className="teamRecSvg">
-                        <use xlinkHref="#homesavecount" />
-                      </svg>
-                      创建存储卷个数
-                    </td>
-                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                      {teamOperations.volumeCreate}个
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <svg className="teamRecSvg">
-                        <use xlinkHref="#homesavecount" />
-                      </svg>
-                      删除存储卷个数
-                    </td>
-                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                      {teamOperations.volumeDelete}个
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+            <Card title="今日该团队记录" bordered={false} bodyStyle={{height:170,fontSize:'14px'}}>
+              <div style={{overflowY:'auto',height:'127px'}}>
+                <table>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <svg className="teamRecSvg">
+                          <use xlinkHref="#homeappcount" />
+                        </svg>
+                        创建应用数量
+                      </td>
+                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                        {teamOperations.appCreate}个
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <svg className="teamRecSvg">
+                          <use xlinkHref="#homeappcount" />
+                        </svg>
+                        修改应用数量
+                      </td>
+                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                        {teamOperations.appModify}个
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <svg className="teamRecSvg">
+                          <use xlinkHref="#homeappcount" />
+                        </svg>
+                        停止应用数量
+                      </td>
+                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                        {teamOperations.appStop}个
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <svg className="teamRecSvg">
+                          <use xlinkHref="#homeappcount" />
+                        </svg>
+                        启动应用数量
+                      </td>
+                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                        {teamOperations.appStart}个
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <svg className="teamRecSvg">
+                          <use xlinkHref="#homeappcount" />
+                        </svg>
+                        重新部署应用数量
+                      </td>
+                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                        {teamOperations.appRedeploy}个
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <svg className="teamRecSvg">
+                          <use xlinkHref="#homeservicecount" />
+                        </svg>
+                        创建服务数量
+                      </td>
+                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                        {teamOperations.svcCreate}个
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <svg className="teamRecSvg">
+                          <use xlinkHref="#homeservicecount" />
+                        </svg>
+                        删除服务数量
+                      </td>
+                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                        {teamOperations.svcDelete}个
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <svg className="teamRecSvg">
+                          <use xlinkHref="#homesavecount" />
+                        </svg>
+                        创建存储卷个数
+                      </td>
+                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                        {teamOperations.volumeCreate}个
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <svg className="teamRecSvg">
+                          <use xlinkHref="#homesavecount" />
+                        </svg>
+                        删除存储卷个数
+                      </td>
+                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                        {teamOperations.volumeDelete}个
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </Card>
           </Col>
         </Row>

@@ -12,7 +12,8 @@ import React, { Component, PropTypes } from 'react'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { Button, Input, Modal, notification, Form } from 'antd'
+import { Button, Input, Modal, notification, Form, Spin } from 'antd'
+import { deleteIntegration, getIntegrationConfig, updateIntegrationConfig } from '../../actions/integration'
 import './style/VSphereConfig.less'
 
 const createForm = Form.create;
@@ -61,7 +62,8 @@ let VSphereConfig = React.createClass({
     }
   },
   componentWillMount() {
-    
+    const { getIntegrationConfig, integrationId } = this.props;
+    getIntegrationConfig(integrationId)
   },
   editConfig() {
     //this function for user start edit the config
@@ -71,14 +73,27 @@ let VSphereConfig = React.createClass({
   },
   deleteConfig() {
     //this function for user unzip the app
+    const { deleteIntegration, integrationId, rootScope } = this.props;
+    const { getAllIntegration } = rootScope.props;
     Modal.confirm({
       title: '卸载应用？',
       content: '确定要卸载该应用？',
       onOk() {
-        notification['success']({
-          message: '卸载应用',
-          description: '卸载应用成功~',
-        });
+        deleteIntegration(integrationId, {
+          success: {
+            func: () => {
+              notification['success']({
+                message: '卸载应用',
+                description: '卸载应用成功~',
+              });
+              rootScope.setState({
+                showType: 'list'
+              });
+              getAllIntegration();
+            },
+            isAsync: true
+          }
+        })
       },
       onCancel() {},
     });
@@ -105,44 +120,67 @@ let VSphereConfig = React.createClass({
   },
   handleSubmit(e) {
     //this function for user submit the form
+    const { updateIntegrationConfig, integrationId, getIntegrationConfig } = this.props;
     const _this = this;
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         e.preventDefault();
         return;
       }
-      console.log(values)
-      _this.setState({
-        edittingFlag: false
+      updateIntegrationConfig(integrationId, values, {
+        success: {
+          func: () => {
+            getIntegrationConfig(integrationId, {
+              success: {
+                func: () => {
+                  _this.setState({
+                    edittingFlag: false
+                  })
+                },
+                isAsync: true
+              }
+            })
+          },
+          isAsync: true
+        }
       })
+      
     })
   },
   render() {
+    const { isFetching, config } = this.props;
+    if(isFetching || !Boolean(config)) {
+      return (
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
+      )
+    }
     const { formatMessage } = this.props.intl;
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form;
-    const configNameProps = getFieldProps('configName', {
+    const configNameProps = getFieldProps('name', {
       rules: [
         { required: true, message: '请输入VSphere名称' },
       ],
-      initialValue: 'gaojian'
+      initialValue: config.name
     });
-    const configAddressProps = getFieldProps('configAddress', {
+    const configAddressProps = getFieldProps('url', {
       rules: [
         { required: true, message: '请输入VSphere地址' },
       ],
-      initialValue: 'www.tenxcloud.com'
+      initialValue: config.url
     });
     const usernameProps = getFieldProps('username', {
       rules: [
         { required: true, message: '请输入用户名' },
       ],
-      initialValue: 'gaojian'
+      initialValue: config.username
     });
     const passwordProps = getFieldProps('password', {
       rules: [
         { required: true, message: '请输入密码' },
       ],
-      initialValue: 'gaojian'
+      initialValue: config.password
     });
     return (
       <div id='VSphereConfig'>
@@ -222,10 +260,15 @@ let VSphereConfig = React.createClass({
 })
 
 function mapStateToProps(state, props) {
-  const defaultAppList = {
+  const defaultConfig = {
+    isFetcing: false,
+    config: {}
   }
-  const {isFetching, appList} = defaultAppList
+  const { getIntegrationConfig } = state.integration
+  const {isFetching, config} = getIntegrationConfig || defaultConfig
   return {
+    isFetching,
+    config
   }
 }
 
@@ -236,7 +279,9 @@ VSphereConfig.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-
+  deleteIntegration,
+  updateIntegrationConfig,
+  getIntegrationConfig
 })(injectIntl(VSphereConfig, {
   withRef: true,
 }));

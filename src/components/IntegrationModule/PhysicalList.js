@@ -12,54 +12,13 @@ import React, { Component, PropTypes } from 'react'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { Button, Alert, Card, Spin, Input, Tooltip, Dropdown, Menu } from 'antd'
+import { Button, Alert, Card, Spin, Input, Tooltip, Dropdown, Menu, Select } from 'antd'
+import { getIntegrationPodDetail } from '../../actions/integration'
+import { formatDate, calcuDate } from '../../common/tools'
 import './style/PhysicalList.less'
 
 const ButtonGroup = Button.Group;
-
-
-let testData = [
-  {
-    id: '192.168.1.1',
-    status: 'running',
-    pod: '192.168.1.2',
-    ip: '233.233.233.233',
-    runTime: '30Days',
-    startTime: '2016-11-22 19:38:27',
-    env: 'tcp',
-    life: '3Years',
-  },
-  {
-    id: '192.168.1.1',
-    status: 'running',
-    pod: '192.168.1.2',
-    ip: '233.233.233.233',
-    runTime: '30Days',
-    startTime: '2016-11-22 19:38:27',
-    env: 'tcp',
-    life: '3Years',
-  },
-  {
-    id: '192.168.1.1',
-    status: 'running',
-    pod: '192.168.1.2',
-    ip: '233.233.233.233',
-    runTime: '30Days',
-    startTime: '2016-11-22 19:38:27',
-    env: 'tcp',
-    life: '3Years',
-  },
-  {
-    id: '192.168.1.1',
-    status: 'running',
-    pod: '192.168.1.2',
-    ip: '233.233.233.233',
-    runTime: '30Days',
-    startTime: '2016-11-22 19:38:27',
-    env: 'tcp',
-    life: '3Years',
-  }
-]
+const Option = Select.Option;
 
 const menusText = defineMessages({
   reset: {
@@ -90,19 +49,31 @@ const menusText = defineMessages({
     id: 'Integration.PhysicalList.startTime',
     defaultMessage: '启动时间',
   },
-  env: {
-    id: 'Integration.PhysicalList.env',
-    defaultMessage: '网络环境',
+  memory: {
+    id: 'Integration.PhysicalList.memory',
+    defaultMessage: '内存',
   },
-  life: {
-    id: 'Integration.PhysicalList.life',
-    defaultMessage: '生命周期',
+  disk: {
+    id: 'Integration.PhysicalList.disk',
+    defaultMessage: '硬盘',
   },
-  opera: {
-    id: 'Integration.PhysicalList.opera',
-    defaultMessage: '更多操作',
+  core: {
+    id: 'Integration.PhysicalList.core',
+    defaultMessage: '核',
   },
 })
+
+function diskFormat(num) {
+  if(num < 1024) {
+    return num + 'MB'
+  }
+  num = parseInt(num / 1024);
+  if(num < 1024) {
+    return num + 'GB'
+  }
+  num = parseInt(num / 1024);
+  return num + 'TB'
+}
 
 class PhysicalList extends Component {
   constructor(props) {
@@ -110,15 +81,29 @@ class PhysicalList extends Component {
     this.onChangeShowType = this.onChangeShowType.bind(this);
     this.onChangeAppType = this.onChangeAppType.bind(this);
     this.ShowDetailInfo = this.ShowDetailInfo.bind(this);
+    this.onSearchPods = this.onSearchPods.bind(this);
+    this.onChangeDataCenter = this.onChangeDataCenter.bind(this);
     this.state = {
       currentShowApps: 'all',
       currentAppType: '1',
-      showType: 'list'
+      showType: 'list',
+      pods: []
     }
   }
   
   componentWillMount() {
     document.title = '集成中心 | 时速云';
+    const { getIntegrationPodDetail, integrationId, currentDataCenter } = this.props;
+    getIntegrationPodDetail(integrationId, currentDataCenter)
+  }
+  
+  componentWillReceiveProps(nextProps) {
+    const {isFetching, pods} = nextProps;
+    if(!isFetching && Boolean(pods)) {
+      this.setState({
+        pods: pods
+      })
+    }
   }
   
   onChangeShowType(type) {
@@ -142,36 +127,67 @@ class PhysicalList extends Component {
     });
   }
   
+  onSearchPods(e) {
+    //this function for user search the detail pod
+    let value = e.target.value;
+    if(value.length > 0) {
+      let { pods } = this.props;
+      let newPods = [];
+      pods.map((item) => {
+        if(item.name.indexOf(value) > -1) {
+          newPods.push(item)
+        }
+      });
+      this.setState({
+        pods: newPods
+      });
+    } else {
+      let { pods } = this.props;
+      this.setState({
+        pods: pods
+      });
+    }
+  }
+  
+  onChangeDataCenter(e) {
+    //this function for user change the current data center
+    const { scope, getIntegrationPodDetail, integrationId } = this.props;
+    scope.setState({
+      currentDataCenter: e
+    });
+    getIntegrationPodDetail(integrationId, e)
+  }
+  
   render() {
     const { formatMessage } = this.props.intl;
-    const {isFetching, physicalList} = this.props;
-    const scope = this;
-    let appShow = physicalList.map((item, index) => {
-      const menu = (
-        <Menu>
-          <Menu.Item key="1">我是干嘛的</Menu.Item>
-          <Menu.Item key="2">我是干嘛的</Menu.Item>
-          <Menu.Item key="3">我是干嘛的</Menu.Item>
-        </Menu>
+    const {isFetching, pods, dataCenters, currentDataCenter} = this.props;
+    if(isFetching || !Boolean(pods)) {
+      return (
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
       )
+    }
+    const scope = this;
+    let appShow = this.state.pods.map((item, index) => {
       return (
         <div className='podDetail' key={'podDetail' + index}>
           <div className='id commonTitle'>
             <span className='commonSpan'>
-              <Tooltip placement='topLeft' title={item.id}>
-                <span>{item.id}</span>
+              <Tooltip placement='topLeft' title={item.name}>
+                <span>{item.name}</span>
               </Tooltip>
             </span>
           </div>
           <div className='status commonTitle'>
             <span className='commonSpan'>
-              <span>{item.status}</span>
+              <span>{item.powerstate}</span>
             </span>
           </div>
           <div className='pod commonTitle'>
             <span className='commonSpan'>
-              <Tooltip placement='topLeft' title={item.pod}>
-               <span>{item.pod}</span>
+              <Tooltip placement='topLeft' title={item.model}>
+               <span>{item.model}</span>
               </Tooltip>
             </span>
           </div>
@@ -184,50 +200,51 @@ class PhysicalList extends Component {
           </div>
           <div className='runTime commonTitle'>
             <span className='commonSpan'>
-              <span>{item.runTime}</span>
+              <span>{calcuDate(item.bootTime)}</span>
             </span>
           </div>
           <div className='startTime commonTitle'>
             <span className='commonSpan'>
-              <Tooltip placement='topLeft' title={item.startTime}>
-                <span>{item.startTime}</span>
+              <Tooltip placement='topLeft' title={formatDate(item.bootTime)}>
+                <span>{formatDate(item.bootTime)}</span>
               </Tooltip>
             </span>
           </div>
-          <div className='env commonTitle'>
+          <div className='cpu commonTitle'>
             <span className='commonSpan'>
-              <Tooltip placement='topLeft' title={item.env}>
-                <span>{item.env}</span>
-              </Tooltip>
+              <span>{item.cpuNumber}<FormattedMessage {...menusText.core} /></span>
             </span>
           </div>
-          <div className='life commonTitle'>
+          <div className='memory commonTitle'>
             <span className='commonSpan'>
-              <Tooltip placement='topLeft' title={item.life}>
-                <span>{item.life}</span>
-              </Tooltip>
+              <span>{diskFormat(item.memoryTotal)}</span>
             </span>
           </div>
-          <div className='opera commonTitle'>
-            <Dropdown.Button overlay={menu} type="ghost">
-              干嘛呢
-            </Dropdown.Button>
+          <div className='disk commonTitle'>
+            <span className='commonSpan'>
+              <span className='topSpan'>{diskFormat(item.diskTotal)}</span>
+              <span className='bottomSpan'>{parseInt(100*item.diskFree/item.diskTotal)}%</span>
+            </span>
           </div>
           <div style={{ clear: 'both' }}></div>
         </div>
       )
     });
+    let selectDcShow = dataCenters.map((item, index) => {
+      return (
+        <Option value={item} key={item}>{item.replace('/','')}</Option>
+      )
+    });
     return (
       <div id='PhysicalList' key='PhysicalList'>
         <div className='operaBox'>
-          <Button type='primary' size='large'>
-            <i className='fa fa-refresh' />&nbsp;
-            <FormattedMessage {...menusText.reset} />
-          </Button>
           <div className='searchBox'>
-            <Input type='text' size='large' />
+            <Input type='text' size='large' onKeyUp={this.onSearchPods.bind(this)}/>
             <i className='fa fa-search' />
           </div>
+          <Select defaultValue={currentDataCenter} style={{ width: 150, marginLeft: '15px' }} size='large' onChange={this.onChangeDataCenter}>
+            {selectDcShow}
+          </Select>
           <div style={{ clear: 'both' }}></div>
         </div>
         <div className='titleBox'>
@@ -249,32 +266,38 @@ class PhysicalList extends Component {
           <div className='startTime commonTitle'>
             <FormattedMessage {...menusText.startTime} />
           </div>
-          <div className='env commonTitle'>
-            <FormattedMessage {...menusText.env} />
+          <div className='cpu commonTitle'>
+            CPU
           </div>
-          <div className='life commonTitle'>
-            <FormattedMessage {...menusText.life} />
+          <div className='memory commonTitle'>
+            <FormattedMessage {...menusText.memory} />
           </div>
-          <div className='opera commonTitle'>
-            <FormattedMessage {...menusText.opera} />
+          <div className='disk commonTitle'>
+            <FormattedMessage {...menusText.disk} />
           </div>
           <div style={{ clear: 'both' }}></div>
         </div>
         {appShow}
+        { pods.length == 0 ? [
+          <div className='loadingBox' key='loadingBox'>
+            <span>暂无数据</span>
+          </div>
+        ] : null }
       </div>
     )
   }
 }
 
 function mapStateToProps(state, props) {
-  const defaultAppList = {
+  const defaultPodsList = {
     isFetching: false,
-    physicalList: testData
+    pods: []
   }
-  const {isFetching, physicalList} = defaultAppList
+  const { getIntegrationPodDetail } = state.integration
+  const {isFetching, pods} = getIntegrationPodDetail || defaultPodsList
   return {
     isFetching,
-    physicalList
+    pods
   }
 }
 
@@ -283,7 +306,7 @@ PhysicalList.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-
+  getIntegrationPodDetail
 })(injectIntl(PhysicalList, {
   withRef: true,
 }));

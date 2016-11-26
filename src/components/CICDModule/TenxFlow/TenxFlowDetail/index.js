@@ -14,7 +14,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../constants'
-import { getTenxFlowDetail, getTenxflowBuildLastLogs } from '../../../../actions/cicd_flow'
+import { getTenxFlowDetail, getTenxflowBuildLastLogs, getTenxFlowYAML } from '../../../../actions/cicd_flow'
 import './style/TenxFlowDetail.less'
 import TenxFlowDetailAlert from './TenxFlowDetailAlert.js'
 import TenxFlowDetailYaml from './TenxFlowDetailYaml.js'
@@ -139,7 +139,22 @@ class TenxFlowDetail extends Component {
       startBuild: true
     })
   }
-
+  handleChange(e) {
+    if ('5' == e) {
+      const _this = this
+      const {flowInfo, getTenxFlowYAML} = this.props
+      getTenxFlowYAML(flowInfo.flowId, {
+        success: {
+          func: (resp) => {
+            _this.setState({
+              yamlContent: resp.data.results
+            })
+          },
+          isAsync: true
+        }
+      })
+    }
+  }
   render() {
     const { formatMessage } = this.props.intl;
     const scope = this;
@@ -183,12 +198,12 @@ class TenxFlowDetail extends Component {
             </div>
             <div style={{ clear:'both' }}></div>
           </Card>
-          <Tabs defaultActiveKey='1' size="small">
+          <Tabs defaultActiveKey='1' size="small" onChange={(e)=>this.handleChange(e)}>
             <TabPane tab='构建流程定义' key='1'><TenxFlowDetailFlow scope={scope} flowId={flowInfo.flowId} stageInfo={flowInfo.stageInfo} supportedDependencies={flowInfo.supportedDependencies} startBuild={this.state.startBuild} /></TabPane>
             <TabPane tab='TenxFlow构建记录' key='2'><TenxFlowDetailLog scope={scope} flowId={flowInfo.flowId} flowName={flowInfo.name} /></TabPane>
             <TabPane tab='镜像部署记录' key='3'><ImageDeployLogBox scope={scope} flowId={flowInfo.flowId} /></TabPane>
             <TabPane tab='构建通知' key='4'><TenxFlowDetailAlert scope={scope} notify={flowInfo.notificationConfig} flowId={flowInfo.flowId} /></TabPane>
-            <TabPane tab='TenxFow Yaml' key='5'><TenxFlowDetailYaml scope={scope} /></TabPane>
+            <TabPane tab='TenxFow Yaml' key='5'><TenxFlowDetailYaml flowId={flowInfo.flowId} yaml={this.state.yamlContent} /></TabPane>
             <TabPane tab='设置' key='6'><TenxFlowDetailSetting scope={scope} flowId={flowInfo.flowId} /></TabPane>
           </Tabs>
         </div>
@@ -230,6 +245,7 @@ TenxFlowDetail.propTypes = {
 }
 
 export default connect(mapStateToProps, {
+  getTenxFlowYAML,
   getTenxFlowDetail,
   getTenxflowBuildLastLogs
 })(injectIntl(TenxFlowDetail, {

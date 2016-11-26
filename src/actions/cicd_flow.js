@@ -883,6 +883,27 @@ export function getTenxFlowStateDetail(flowId, stageId, callback) {
   }
 }
 
+export const GET_TENX_FLOW_YAML_REQUEST = 'GET_TENX_FLOW_YAML_REQUEST'
+export const GET_TENX_FLOW_YAML_SUCCESS = 'GET_TENX_FLOW_YAML_SUCCESS'
+export const GET_TENX_FLOW_YAML_FAILURE = 'GET_TENX_FLOW_YAML_FAILURE'
+
+function fetchTenxFlowYAML(flowId, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_TENX_FLOW_YAML_REQUEST, GET_TENX_FLOW_YAML_SUCCESS, GET_TENX_FLOW_YAML_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/yaml`,
+      schema: {}
+    },
+    callback: callback
+  }
+}
+
+export function getTenxFlowYAML(flowId, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchTenxFlowYAML(flowId, callback))
+  }
+}
+
 export const GET_REPOS_BRANCH_REQUEST = 'GET_REPOS_BRANCH_REQUEST'
 export const GET_REPOS_BRANCH_SUCCESS = 'GET_REPOS_BRANCH_SUCCESS'
 export const GET_REPOS_BRANCH_FAILURE = 'GET_REPOS_BRANCH_FAILURE'
