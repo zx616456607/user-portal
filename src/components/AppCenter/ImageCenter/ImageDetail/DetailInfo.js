@@ -22,7 +22,7 @@ export default class DetailInfo extends Component {
       detailMarkdown = '还没有添加详细信息'
     }
     return (
-      <Card className="imageDetailInfo">
+      <Card className="imageDetailInfo markdown">
         <div dangerouslySetInnerHTML={{__html:detailMarkdown}}></div>
       </Card>
     )

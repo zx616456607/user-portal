@@ -21,8 +21,13 @@ class DetailInfo extends Component {
   }
   render () {
     const {data} = this.props
+    if (!data) {
+      return (
+        <div>暂无信息</div>
+      )
+    }
     return (
-      <div className="infoList">
+      <div className="infoList markdown">
         <div dangerouslySetInnerHTML={{__html: data.description}}></div>
       </div>
     )
@@ -35,10 +40,17 @@ class DetailStack extends Component {
   }
   render () {
     const {data} = this.props
+    if (!data) {
+      return (
+        <div>暂无编辑文件</div>
+      )
+    }
     return (
       <div className="infoList">
-        <Input type="textarea" value={data.content} autosize={{ minRows: 5, maxRows: 20 }}/>
+        <div className="operaBox"><Icon type="star-o" style={{marginRight:'15px'}}/><Icon type="arrow-salt" /></div>
+        <textarea>{data.content}</textarea>
       </div>
+      
     )
   }
 }
