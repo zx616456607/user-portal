@@ -38,7 +38,11 @@ export function addPodWatch(cluster, props, pods = []) {
     }
   })
   if (name.length < 1) {
-    return
+    if (props.serviceName) {
+      name.push(props.serviceName)
+    } else {
+      return
+    }
   }
   let config = {
     type: 'pod',
@@ -87,20 +91,39 @@ export function addAppWatch(cluster, props, apps = []) {
 }
 
 export function handleOnMessage(props, response) {
-  try {
-    const { type, data, watchType } = response
-    const { reduxState, updateContainerList, updateAppList } = props
-    const { entities, containers, apps } = reduxState
-    const cluster = entities.current.cluster.clusterID
-    if (watchType === 'pod') {
-      let { containerList } = containers.containerItems[cluster]
-      updateContainerList(cluster, _changeListByWatch(containerList, response))
-    } else if (watchType === 'app') {
-      let { appList } = apps.appItems[cluster]
-      updateAppList(cluster, _changeAppListByWatch(appList, response))
-    }
-  } catch (err) {
+  // try {
+  response = JSON.parse(response)
+  const { type, data, watchType } = response
+  const { reduxState, updateContainerList, updateAppList } = props
+  const { entities, containers, apps } = reduxState
+  const cluster = entities.current.cluster.clusterID
+  if (watchType === 'pod') {
+    handleOnPodMessage(props, response)
+  } else if (watchType === 'app') {
+    let { appList } = apps.appItems[cluster]
+    updateAppList(cluster, _changeAppListByWatch(appList, response))
+  }
+  /*} catch (err) {
     console.error('handleOnMessage err:', err)
+  }*/
+}
+
+export function handleOnPodMessage(props, response) {
+  const { reduxState, updateContainerList, updateServiceContainersList } = props
+  const { entities, containers, services } = reduxState
+  const cluster = entities.current.cluster.clusterID
+  let serviceName = response.data.metadata.labels.name
+  // Update containers list
+  if (containers.containerItems
+    && containers.containerItems[cluster]
+    && containers.containerItems[cluster].containerList) {
+    let containerList = containers.containerItems[cluster].containerList
+    updateContainerList(cluster, _changeListByWatch(containerList, response))
+  }
+  // Update service container list
+  let service = services.serviceContainers[cluster][serviceName]
+  if (service) {
+    updateServiceContainersList(cluster, serviceName, _changeListByWatch(service.containerList, response))
   }
 }
 
@@ -202,7 +225,5 @@ function _changeAppListByWatch(apps, response) {
       delete app.checked
     }
   })
-  console.log(`apps---------------------------handled`)
-  console.log(apps)
   return apps
 }

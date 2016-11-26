@@ -19,6 +19,7 @@ import { Link } from 'react-router'
 import { setSockets, loadLoginUserDetail } from '../../actions/entities'
 import { isEmptyObject } from '../../common/tools'
 import { updateContainerList, updateAppList } from '../../actions/app_manage'
+import { updateAppServicesList, updateServiceContainersList } from '../../actions/services'
 import { handleOnMessage } from './status'
 
 class App extends Component {
@@ -105,7 +106,7 @@ class App extends Component {
     })
     ws.onmessage = (event) => {
       // this.props.onMessage(event.data)
-      handleOnMessage(this.props, JSON.parse(event.data))
+      handleOnMessage(this.props, event.data)
     }
   }
 
@@ -215,4 +216,6 @@ export default connect(mapStateToProps, {
   loadLoginUserDetail,
   updateContainerList,
   updateAppList,
+  updateAppServicesList,
+  updateServiceContainersList,
 })(App)

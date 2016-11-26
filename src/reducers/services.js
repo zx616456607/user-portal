@@ -13,7 +13,7 @@ import merge from 'lodash/merge'
 import union from 'lodash/union'
 import reducerFactory from './factory'
 import cloneDeep from 'lodash/cloneDeep'
-import { getServiceStatus } from '../common/status_identify'
+import { getServiceStatus, getContainerStatus } from '../common/status_identify'
 
 function serviceItmes(state = {}, action) {
   const cluster = action.cluster
@@ -42,15 +42,18 @@ function serviceItmes(state = {}, action) {
         }
       })
     case ActionTypes.SERVICE_LIST_SUCCESS:
+      let serviceList = action.response.result.data || []
+      serviceList = serviceList.map((service) => {
+        service.status = getServiceStatus(service)
+        return service
+      })
       return Object.assign({}, state, {
         [cluster]: {
           [appName]: {
             isFetching: false,
             cluster: action.response.result.cluster,
             appName: action.response.result.appName,
-            serviceList: union(state.services, action.response.result.data),
-            size: action.response.result.count,
-            total: action.response.result.total,
+            serviceList,
           }
         }
       })
@@ -60,6 +63,17 @@ function serviceItmes(state = {}, action) {
           [appName]: {
             isFetching: false
           }
+        }
+      })
+    case ActionTypes.UPDATE_APP_SERVICES_LIST:
+      let serviceItems = state[cluster][appName]
+      serviceItems.serviceList = action.serviceList.map(service => {
+        service.status = getServiceStatus(service)
+        return service
+      })
+      return Object.assign({}, state, {
+        [cluster]: {
+          [appName]: serviceItems
         }
       })
     default:
@@ -158,13 +172,18 @@ function serviceContainers(state = {}, action) {
         }
       })
     case ActionTypes.SERVICE_CONTAINERS_LIST_SUCCESS:
+      let containerList = action.response.result.data || []
+      containerList = containerList.map(container => {
+        container.status = getContainerStatus(container)
+        return container
+      })
       return Object.assign({}, state, {
         [cluster]: {
           [serviceName]: {
             isFetching: false,
             cluster: action.response.result.cluster,
             serviceName: action.response.result.serviceName,
-            containerList: union(state.services, action.response.result.data)
+            containerList,
           }
         }
       })
@@ -174,6 +193,17 @@ function serviceContainers(state = {}, action) {
           [serviceName]: {
             isFetching: false
           }
+        }
+      })
+    case ActionTypes.UPDATE_SERVICE_CONTAINERS_LIST:
+      let containerItems = state[cluster][serviceName]
+      containerItems.containerList = action.containerList.map(container => {
+        container.status = getContainerStatus(container)
+        return container
+      })
+      return Object.assign({}, state, {
+        [cluster]: {
+          [serviceName]: containerItems
         }
       })
     default:
