@@ -64,23 +64,30 @@ export function getServiceStatus(service) {
 
 /**
  * Get app status by services list
- * return one of [Running, Stopped, Unknown]
+ * return one of [Running, Pending, Stopped, Unknown]
  */
 export function getAppStatus(services) {
   const appStatus = {
     replicas: services.length,
     availableReplicas: 0,
+    unavailableReplicas: 0,
   }
   services.map(service => {
     let serviceStatus = getServiceStatus(service)
-    let { availableReplicas } = serviceStatus
+    let { availableReplicas, unavailableReplicas } = serviceStatus
     if (availableReplicas > 0) {
       appStatus.availableReplicas++
     }
+    if (unavailableReplicas > 0) {
+      appStatus.unavailableReplicas++
+    }
   })
-  if (appStatus.availableReplicas === 0) {
+  let { availableReplicas, unavailableReplicas } = appStatus
+  if (availableReplicas === 0 && unavailableReplicas > 0) {
+    appStatus.phase = 'Pending'
+  } else if (availableReplicas === 0) {
     appStatus.phase = 'Stopped'
-  } else if (appStatus.availableReplicas > 0) {
+  } else if (availableReplicas > 0) {
     appStatus.phase = 'Running'
   } else {
     appStatus.phase = 'Unknown'

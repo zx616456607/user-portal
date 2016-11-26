@@ -24,9 +24,10 @@ const config = {
   tenx_api: {
     protocol: "http" || env.TENX_API_PROTOCOL,
     // host: "localhost:8000" || env.TENX_API_HOST
-    // host: "192.168.0.63:8000" || env.TENX_API_HOST
-    host: "192.168.1.103:48000" || env.TENX_API_HOST
-  }
+    host: "192.168.0.230:8000" || env.TENX_API_HOST
+    //host: "192.168.0.63:8000" || env.TENX_API_HOST
+//   host: "192.168.1.103:48000" || env.TENX_API_HOST
+   }
 }
 
 module.exports = config

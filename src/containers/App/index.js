@@ -14,11 +14,11 @@ import { Icon, Menu, notification, Modal, Button, Spin, } from 'antd'
 import ErrorPage from '../ErrorPage'
 import Header from '../../components/Header'
 import Sider from '../../components/Sider'
-import WebSocket from '../../components/WebSocket'
+import Websocket from '../../components/Websocket'
 import { Link } from 'react-router'
 import { setSockets, loadLoginUserDetail } from '../../actions/entities'
 import { isEmptyObject } from '../../common/tools'
-import { updateContainerList } from '../../actions/app_manage'
+import { updateContainerList, updateAppList } from '../../actions/app_manage'
 import { handleOnMessage } from './status'
 
 class App extends Component {
@@ -119,7 +119,7 @@ class App extends Component {
       return
     }
     return (
-      <WebSocket
+      <Websocket
         url={`ws://${loginUser.tenxApi.host}/spi/v2/watch`}
         onSetup={this.onStatusWebsocketSetup}
         debug={true} />
@@ -214,4 +214,5 @@ export default connect(mapStateToProps, {
   setSockets,
   loadLoginUserDetail,
   updateContainerList,
+  updateAppList,
 })(App)

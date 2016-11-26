@@ -124,12 +124,14 @@ let CodeStoreListModal = React.createClass({
     const { scope } = this.props;
     let tempList = this.state.projectList;
     let branch = null;
+    let repoType = null
     tempList.map((item) => {
       if(item.id == id) {
         branch = item.currentBranch;
+        repoType = item.repoType
       }
     });
-    if(!Boolean(branch)) {
+    if(!Boolean(branch) && repoType != "svn") {
       this.setState({
         errorSelect: id
       })

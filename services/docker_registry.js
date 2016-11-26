@@ -201,7 +201,7 @@ SpecRegistryAPIs.prototype.refreshToken = function (scope, callback) {
   if (TokenCacheMgr[exchangeURL]) {
     var timePeriod = new Date() - TokenCacheMgr[exchangeURL].lastRefreshTime
     if (timePeriod/1000 < TokenExpiredTime) {
-      console.log("Using cache...")
+      logger.info(method, "Using cache...")
       return callback(200, TokenCacheMgr[exchangeURL].lastToken)
     }
   }

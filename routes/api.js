@@ -121,8 +121,8 @@ module.exports = function (Router) {
   router.put('/teams/:team_id/clusters/:cluster_id/request', teamController.requestTeamCluster)
 
   //Overview Team
-  router.get('/overview/teams/:team_id/detail', overviewTeamController.getTeamDetail)
-  router.get('/overview/teams/:team_id/operations', overviewTeamController.getTeamOperations)
+  router.get('/overview/teamdetail', overviewTeamController.getTeamDetail)
+  router.get('/overview/teamoperations', overviewTeamController.getTeamOperations)
 
   //Overview Cluster
   router.get('/overview/clusters/:cluster_id/operations', overviewClusterController.getClusterOperations)
@@ -262,6 +262,16 @@ module.exports = function (Router) {
   
   // Integration
   router.get('/integrations/getAllIntegration', integrationController.getAllIntegrations)
+  router.post('/integrations/createIntegration', integrationController.createIntegrations)
+  router.delete('/integrations/deleteIntegrations/:id', integrationController.deleteIntegrations)
+  router.get('/integrations/getIntegrationDateCenter/:id', integrationController.getIntegrationDateCenter)
+  router.get('/integrations/getIntegrationVmList/:id', integrationController.getIntegrationVmList)
+  router.post('/integrations/manageIntegrationsVmDetail/:id', integrationController.manageIntegrationsVmDetail)
+  router.get('/integrations/getCreateVmConfig/:id', integrationController.getCreateVmConfig)
+  router.post('/integrations/createIntegrationVm/:id', integrationController.createIntegrationVm)
+  router.get('/integrations/getIntegrationPods/:id', integrationController.getIntegrationPods)
+  router.get('/integrations/getIntegrationConfig/:id', integrationController.getIntegrationConfig)
+  router.put('/integrations/updateIntegrationConfig/:id', integrationController.updateIntegrationConfig)
 
   // Token info
   router.get('/token', tokenController.getTokenInfo)

@@ -13,6 +13,7 @@ import './style/MySpace.less'
 import ReactEcharts from 'echarts-for-react'
 import { connect } from 'react-redux'
 import { getOperationLogList } from '../../../actions/manage_monitor'
+import { calcuDate } from "../../../common/tools"
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { Link } from 'react-router'
 import { loadSpaceOperations, loadSpaceCICDStats, loadSpaceImageStats, loadSpaceTemplateStats, loadSpaceWarnings } from '../../../actions/overview_space'
@@ -119,11 +120,13 @@ class MySpace extends Component{
          if(index > 5) return
          if(index === 0) {
            return ele.push(
-             <Timeline.Item dot={<svg className="stateSvg"><use xlinkHref="#settingname" /></svg>}>
+             <Timeline.Item
+               
+             >
                <div className="logItem">
                  <div className="logTitle">{`${operationalFormat(item.operationType, this)}${resourceFormat(item.resourceType, this) || ''}${item.resourceName}`}</div>
                  <div className="logInf">
-                 {format(new Date() - new Date(item.time), this)}
+                 {calcuDate(item.time)}
                 <div className="logTime"> {`持续${duringTimeFormat(new Date(item.duration) - 0, this)}`}</div>
                  </div>
                </div>
@@ -134,7 +137,7 @@ class MySpace extends Component{
            <div className="logItem">
              <div className="logTitle">{`${operationalFormat(item.operationType, this)}${resourceFormat(item.resourceType, this) || ''}${item.resourceName}`}}</div>
              <div className="logInf">
-               {format(new Date() - new Date(item.time), this)}
+               {calcuDate(item.time)}
                <div className="logTime"> {`持续${duringTimeFormat(new Date(item.duration) - 0, this)}`}</div>
              </div>
            </div>
@@ -144,12 +147,12 @@ class MySpace extends Component{
 
     return (
       <Card title="审计日志" bordered={false} bodyStyle={{ height: 410 }}>
-        <Timeline style={{ height: 374, padding: '24px' }}>
+        <Timeline style={{ height: 374, padding: '24px' ,overflowY:'auto'}}>
           {ele}
         </Timeline>
         <Row style={{ height: 40, lineHeight: '40px', borderTop: '1px solid #e2e2e2', padding: '0 24px', fontSize: '12px' }}>
           <Link to="/manange_monitor">查看更多 >></Link>
-      </Row>
+        </Row>
       </Card>
     )
   }
@@ -179,14 +182,15 @@ class MySpace extends Component{
               <Row style={{height:40,lineHeight:'40px',borderTop:'1px solid #e2e2e2',padding:'0 24px',fontSize:'12px'}}>
                 服务状态:
                 <div style={{float:'right'}}>
-                  <svg className="stateSvg">
+                  {/*<svg className="stateSvg">
                     <use xlinkHref="#settingname" />
-                  </svg>
-                  健康
+                  </svg>*/}
+                  <img src='/img/homeRight.png' className='svcStateImg'/>
+                  <span style={{color:'#38c28c'}}>健康</span>
                 </div>
               </Row>
             </Card>
-            <Card title="编排概况" bordered={false} bodyStyle={{height:175,padding:'0',position:'relative'}} style={{marginTop: 10}}>
+            <Card title="编排概况" bordered={false} bodyStyle={{height:175,padding:'0',position:'relative',fontSize:'14px'}} style={{marginTop: 10}}>
               <ReactEcharts
                 notMerge={true}
                 option={layoutOption}
@@ -202,15 +206,18 @@ class MySpace extends Component{
           <Col span={6} className='cdid'>
             <Card title="CI/CD" bordered={false} bodyStyle={{height:175,padding:0}}>
               <Row style={{height:130}}>
-                <Col span={12} style={{height:130}}></Col>
+                <Col span={12} style={{height:130,lineHeight:'130px',textAlign:'center'}}>
+                  <img src='/img/homeCICD.png' style={{display:'inline-block',verticalAlign:'middle'}}/>
+                </Col>
                 <Col className='cicdInf' span={12}>
                   <table>
                     <tbody>
                     <tr>
                       <td>
-                        <svg className="stateSvg">
+                        {/*<svg className="stateSvg">
                           <use xlinkHref="#settingname" />
-                        </svg>
+                        </svg>*/}
+                        <div className='cicdDot' style={{backgroundColor:'#13c563'}}></div>
                         构建成功
                       </td>
                       <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
@@ -219,9 +226,10 @@ class MySpace extends Component{
                     </tr>
                     <tr>
                       <td>
-                        <svg className="stateSvg">
+                        {/*<svg className="stateSvg">
                           <use xlinkHref="#settingname" />
-                        </svg>
+                        </svg>*/}
+                        <div className='cicdDot' style={{backgroundColor:'#f7676d'}}></div>
                         构建失败
                       </td>
                       <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
@@ -230,9 +238,10 @@ class MySpace extends Component{
                     </tr>
                     <tr>
                       <td>
-                        <svg className="stateSvg">
+                        {/*<svg className="stateSvg">
                           <use xlinkHref="#settingname" />
-                        </svg>
+                        </svg>*/}
+                        <div className='cicdDot' style={{backgroundColor:'#46b2fa'}}></div>
                         正在构建
                       </td>
                       <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
@@ -246,20 +255,22 @@ class MySpace extends Component{
               <Row style={{height:40,lineHeight:'40px',borderTop:'1px solid #e2e2e2',padding:'0 24px'}}>
                 服务状态:
                 <div style={{float:'right'}}>
-                  <svg className="stateSvg">
+                  {/*<svg className="stateSvg">
                     <use xlinkHref="#settingname" />
-                  </svg>
-                  健康
+                  </svg>*/}
+                  <img src='/img/homeRight.png' className='svcStateImg'/>
+                  <span style={{color:'#38c28c'}}>健康</span>
                 </div>
               </Row>
             </Card>
-            <Card title="今日该集群记录" bordered={false} bodyStyle={{height:175, overflowY:'auto'}} style={{marginTop: 10,fontSize:'13px'}}>
-              <table className="clusterTab">
+            <Card title="今日该空间记录" bordered={false} bodyStyle={{height:175}} style={{marginTop: 10,fontSize:'13px'}}>
+              <div style={{overflowY:'auto',height:'124px'}}>
+                <table className="clusterTab">
                 <tbody>
                 <tr>
                     <td>
                       <svg className="stateSvg">
-                        <use xlinkHref="#settingname" />
+                        <use xlinkHref="#homeappcount" />
                       </svg>
                       创建应用数量
                     </td>
@@ -270,7 +281,7 @@ class MySpace extends Component{
                   <tr>
                     <td>
                       <svg className="stateSvg">
-                        <use xlinkHref="#settingname" />
+                        <use xlinkHref="#homeappcount" />
                       </svg>
                       修改应用数量
                     </td>
@@ -281,7 +292,7 @@ class MySpace extends Component{
                   <tr>
                     <td>
                       <svg className="stateSvg">
-                        <use xlinkHref="#settingname" />
+                        <use xlinkHref="#homeappcount" />
                       </svg>
                       停止应用数量
                     </td>
@@ -292,7 +303,7 @@ class MySpace extends Component{
                   <tr>
                     <td>
                       <svg className="stateSvg">
-                        <use xlinkHref="#settingname" />
+                        <use xlinkHref="#homeappcount" />
                       </svg>
                       启动应用数量
                     </td>
@@ -303,7 +314,7 @@ class MySpace extends Component{
                   <tr>
                     <td>
                       <svg className="stateSvg">
-                        <use xlinkHref="#settingname" />
+                        <use xlinkHref="#homeappcount" />
                       </svg>
                       重新部署应用数量
                     </td>
@@ -314,7 +325,7 @@ class MySpace extends Component{
                   <tr>
                     <td>
                       <svg className="stateSvg">
-                        <use xlinkHref="#settingname" />
+                        <use xlinkHref="#homeservicecount" />
                       </svg>
                       创建服务数量
                     </td>
@@ -325,7 +336,7 @@ class MySpace extends Component{
                   <tr>
                     <td>
                       <svg className="stateSvg">
-                        <use xlinkHref="#settingname" />
+                        <use xlinkHref="#homeservicecount" />
                       </svg>
                       删除服务数量
                     </td>
@@ -336,7 +347,7 @@ class MySpace extends Component{
                 <tr>
                   <td>
                     <svg className="stateSvg">
-                      <use xlinkHref="#settingname" />
+                      <use xlinkHref="#homesavecount" />
                     </svg>
                     创建存储卷个数
                   </td>
@@ -347,7 +358,7 @@ class MySpace extends Component{
                 <tr>
                   <td>
                     <svg className="stateSvg">
-                      <use xlinkHref="#settingname" />
+                      <use xlinkHref="#homesavecount" />
                     </svg>
                     删除存储卷个数
                   </td>
@@ -356,7 +367,8 @@ class MySpace extends Component{
                   </td>
                 </tr>
                 </tbody>
-              </table>
+                </table>
+              </div>  
             </Card>
           </Col>
           <Col span={6} className='log'>
@@ -364,25 +376,27 @@ class MySpace extends Component{
           </Col>
           <Col span={6} className='warn'>
             <Card title="告警" bordered={false} bodyStyle={{height:410}}>
-              <Timeline className="warnList">
-                {
-                  spaceWarnings.map((item,index) => {
-                    return (
-                      <Timeline.Item dot={
-                        index === 0?
-                        <svg className="stateSvg"><use xlinkHref="#settingname" /></svg>:
-                          <div className="warnDot"></div>
-                      }>
-                        <div className={index === 0?"warnItem fistWarn":'warnItem'}>
-                          <Row className="itemTitle">{item.reason}</Row>
-                          <Row className="itemTitle">{item.involvedObject.kind}: {item.involvedObject.name}</Row>
-                          <Row className="itemInf">{item.metadata.creationTimestamp}</Row>
-                        </div>
-                      </Timeline.Item>
-                    )
-                  })
-                }
-              </Timeline>
+              <div className="warnListWrap">
+                <Timeline className="warnList">
+                  {
+                    spaceWarnings.map((item,index) => {
+                      return (
+                        <Timeline.Item dot={
+                          index === 0?
+                            <div className="warnDot" style={{backgroundColor:'#f6575c'}}></div>:
+                            <div className="warnDot"></div>
+                        }>
+                          <div className={index === 0?"warnItem fistWarn":'warnItem'}>
+                            <Row className="itemTitle">{item.reason}</Row>
+                            <Row className="itemTitle">{item.involvedObject.kind}: {item.involvedObject.name}</Row>
+                            <Row className="itemInf">{calcuDate(item.metadata.creationTimestamp)}</Row>
+                          </div>
+                        </Timeline.Item>
+                      )
+                    })
+                  }
+                </Timeline>
+              </div>
             </Card>
           </Col>
         </Row>
@@ -817,33 +831,6 @@ const menusText = defineMessages({
     defaultMessage: '所有对象',
   },
 });
-
-function format(time) {
-  time = (time/1000).toFixed(2)
-  //s
-  if(time > 60) {
-    time = (time / 60).toFixed(0)
-    if(time > 60) {
-      time = (time / 60).toFixed(0)
-      if(time > 24) {
-        time = (time / 24).toFixed(0)
-        if(time > 30) {
-          time = (time / 30).toFixed(0)
-          if(time > 365) {
-            time = (time / 365).toFixed(0)
-            return `${time}年前`
-          }
-          return `${time}月前`
-        }
-        return `${time}天前` 
-      }
-      return `${time}小时前` 
-    }
-    return `${tiem}分钟前`
-  }
-  return '刚刚'
-}
-
 
 function duringTimeFormat(time, scope) {
   //this function for format duringtime

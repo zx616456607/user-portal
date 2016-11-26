@@ -10,13 +10,13 @@ export function parseServiceDomain(item, bindingDomainStr) {
   try {
     bindingDomain = JSON.parse(bindingDomainStr)
   }
-  catch(e) {
+  catch (e) {
     bindingDomain = []
   }
   let domains = []
   // parse external domain, item.ports is http/1234,tcp/321,udp/431
-  console.log("aaaaaaaaaaaaaaaaaa",item)
-  console.log("bindingDomain",bindingDomain)
+  /*console.log("aaaaaaaaaaaaaaaaaa",item)
+  console.log("bindingDomain",bindingDomain)*/
   if (item && item.metadata
     && item.ports
     && bindingDomain.length > 0) {
@@ -31,19 +31,19 @@ export function parseServiceDomain(item, bindingDomainStr) {
           // 检查是bindingDomain是否是IP，（此正则并不精确但在此处够用了）
           if (/^(\d{1,3}\.){3}\d{1,3}$/.test(bindingDomain)) {
             // e.g. http://192.168.1.123:1234
-            domain = schema+'://'+bindingDomain+':'+port
+            domain = schema + '://' + bindingDomain + ':' + port
           }
           else {
             // e.g. http://servicename-mengyuan.test.tenxcloud.com:8080
-            domain = schema+'://'+item.metadata.name+'-'+item.metadata.namespace+'.'+bindingDomain+':'+port
+            domain = schema + '://' + item.metadata.name + '-' + item.metadata.namespace + '.' + bindingDomain + ':' + port
           }
           // if prefix is http://, remove suffix :80
-          domain = domain.replace(/^(http:\/\/.*):80$/,'$1')
+          domain = domain.replace(/^(http:\/\/.*):80$/, '$1')
           // if prefix is https://, remove suffix :443
-          domain = domain.replace(/^(https:\/\/.*):443$/,'$1')
+          domain = domain.replace(/^(https:\/\/.*):443$/, '$1')
           domains.push(domain)
         })
-      } 
+      }
     })
   }
   // parse interanl domain item.portForInternal is ["1234", "4567", "5234"]
@@ -61,5 +61,5 @@ export function parseAppDomain(app, bindingDomainStr) {
       data: parseServiceDomain(item, bindingDomainStr)
     })
   })
-   return domains
+  return domains
 }

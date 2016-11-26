@@ -125,25 +125,9 @@ exports.deleteImage = function* () {
 exports.queryServerStats = function* () {
   const registry = this.params.registry
   const result = yield registryService.queryRegistryStats()
-  var data = {
-    public_number: 0,
-    private_number: 0
-  }
-  if (result && result.results) {
-    result.results.forEach(function(image) {
-      let isPrivate = parseInt(image.isPrivate)
-      if (isPrivate == 1) {
-        data.private_number++
-      } else if (isPrivate == 0) {
-        data.public_number++
-      } else {
-        logger.error("Image that has issue that needs to fix: " + JSON.stringify(image))
-      }
-    })
-  }
   this.body = {
     server: registryConfig.v2Server,
-    data: data
+    data: result
   }
 }
 
@@ -157,7 +141,9 @@ exports.addPrivateRegistry = function* () {
   const reqData = this.request.body
   const api = apiFactory.getManagedRegistryApi(loginUser)
   // Encrypt the password before save to database
-  reqData.encrypted_password = securityUtil.encryptContent(reqData.password, loginUser.token, algorithm)
+  if (reqData.username && reqData.password) {
+    reqData.encrypted_password = securityUtil.encryptContent(reqData.password, loginUser.token, algorithm)
+  }
   const result = yield api.createBy([name], null, reqData)
 
   this.status = result.code

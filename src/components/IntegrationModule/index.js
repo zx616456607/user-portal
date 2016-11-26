@@ -13,9 +13,10 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { getAllIntegration } from '../../actions/integration'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { Button, Alert, Card, Spin, Input } from 'antd'
+import { Button, Alert, Card, Spin, Input, Modal } from 'antd'
 import './style/Integration.less'
 import IntegrationDetail from './IntegrationDetail'
+import CreateVSphereModal from './CreateVSphereModal'
 
 const ButtonGroup = Button.Group;
 
@@ -60,6 +61,10 @@ const menusText = defineMessages({
     id: 'Integration.IntegrationIndex.installedFlag',
     defaultMessage: '已安装',
   },
+  createTitle: {
+    id: 'Integration.IntegrationIndex.createTitle',
+    defaultMessage: '集成安装',
+  },
 })
 
 class Integration extends Component {
@@ -68,17 +73,20 @@ class Integration extends Component {
     this.onChangeShowType = this.onChangeShowType.bind(this);
     this.onChangeAppType = this.onChangeAppType.bind(this);
     this.ShowDetailInfo = this.ShowDetailInfo.bind(this);
+    this.closeCreateIntegration = this.closeCreateIntegration.bind(this);
+    this.openCreateIntegration = this.openCreateIntegration.bind(this);
     this.state = {
       currentShowApps: 'all',
       currentAppType: '1',
-      showType: 'list'
+      showType: 'list',
+      currentIntegration: null,
+      createIntegrationModal: false
     }
   }
   
   componentWillMount() {
     document.title = '集成中心 | 时速云';
     const { getAllIntegration } = this.props;
-    console.log(this.props)
     getAllIntegration();
   }
   
@@ -96,10 +104,25 @@ class Integration extends Component {
     });
   }
   
-  ShowDetailInfo(name) {
+  ShowDetailInfo(id) {
     //this function for view the app detail info
     this.setState({
-      showType: 'detail'
+      showType: 'detail',
+      currentIntegration: id
+    });
+  }
+  
+  openCreateIntegration() {
+    //this function for user open the create integration modal
+    this.setState({
+      createIntegrationModal: true
+    })
+  }
+  
+  closeCreateIntegration() {
+    //this function for user close the create integration modal
+    this.setState({
+      createIntegrationModal: false
     });
   }
   
@@ -164,7 +187,7 @@ class Integration extends Component {
               {
                 /*item.status == 'installed' ? */[
                   <Button className='installedBtn' key={'installedBtn' + index} size='large' type='ghost'
-                    style={{ width: '102px' }} onClick={this.ShowDetailInfo.bind(scope, item.name)}>
+                    style={{ width: '102px' }} onClick={this.ShowDetailInfo.bind(scope, item.id)}>
                     <FormattedMessage {...menusText.showAppDetail} />
                   </Button>
                 ] /*: null*/
@@ -280,7 +303,7 @@ class Integration extends Component {
                               </div>
                               <div className='rightBox'>
                                 <Button className='unintsallBtn' key='unintsallBtn' size='large' type='primary'
-                                  style={{ width: '102px' }}>
+                                  style={{ width: '102px' }} onClick={this.openCreateIntegration.bind(this)}>
                                   <FormattedMessage {...menusText.uninstall} />
                                 </Button>
                               </div>
@@ -293,7 +316,7 @@ class Integration extends Component {
                     {this.state.showType == 'detail' ? [
                       <QueueAnim key='detailBoxAnimate'>
                         <div className='detailBox' key='detailBox'>
-                          <IntegrationDetail scope={scope} />
+                          <IntegrationDetail scope={scope} integrationId={this.state.currentIntegration} />
                         </div>
                       </QueueAnim>
                     ] : null}
@@ -303,6 +326,14 @@ class Integration extends Component {
             ]
           }
         </div>
+        <Modal
+          title={<FormattedMessage {...menusText.createTitle} />}
+          className='createIntegrationModal'
+          visible={this.state.createIntegrationModal}
+          onCancel={this.closeCreateIntegration.bind(this)}
+        >
+          <CreateVSphereModal scope={scope} createIntegrationModal={this.state.createIntegrationModal}/>
+        </Modal>
       </QueueAnim>
     )
   }

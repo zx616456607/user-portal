@@ -668,7 +668,7 @@ let EditTenxFlowModal = React.createClass({
       let imageEnvList = [];
       let imageEnvFlag = false;
       imageEnvLength.map((item, index) => {
-        if(values['imageEnvName' + item] != '') {
+        if(!!values['imageEnvName' + item]) {
           if(values['imageEnvValue' + item] == '') {
             _this.setState({
               emptyImageEnv: true
@@ -955,7 +955,7 @@ let EditTenxFlowModal = React.createClass({
           </div>
           <div className='input'>
             { this.state.currentCodeStore ? [
-              <span style={{ marginRight:'15px' }}>{this.state.currentCodeStoreName + '  ' + formatMessage(menusText.branch) + this.state.currentCodeStoreBranch}</span>
+              <span style={{ marginRight:'15px' }}>{this.state.currentCodeStoreName + '  ' + (this.state.currentCodeStoreBranch ? formatMessage(menusText.branch) + this.state.currentCodeStoreBranch : '') }</span>
             ] : null }
             <Button className='selectCodeBtn' size='large' type='ghost' onClick={this.openCodeStoreModal}>
               <i className='fa fa-file-code-o' />
@@ -1104,7 +1104,7 @@ let EditTenxFlowModal = React.createClass({
               </div>
               <div className='commonBox'>
                 <div className='title'>
-                  <span><FormattedMessage {...menusText.imageRealName} /></span>
+                  <span><FormattedMessage {...menusText.ImageTag} /></span>
                 </div>
                 <div className='input'>
                   <FormItem style={{ float:'left' }}>
