@@ -20,11 +20,6 @@ import ProgressBox from '../../ProgressBox'
 
 let restValue = 12366
 let costValue = 45666
-//应用数
-let appCountRun = 10
-let appCountStop = 100
-let appCountBusy = 1000
-
 
 let clusterCostOption = {
   tooltip : {
@@ -70,205 +65,6 @@ let clusterCostOption = {
         emphasis: {
         }
       }
-    }
-  ]
-}
-
-let CPUOption = {
-  title: {
-    text: 'CPU',
-    top: '15px',
-    left: 'center',
-    textStyle: {
-      fontWeight:'normal',
-      fontSize:14
-    }
-  },
-  color: ['#3398DB'],
-  tooltip : {
-    trigger: 'axis',
-    axisPointer : {
-      type : 'shadow'
-    },
-    formatter: '{b} : {c}'
-  },
-  grid: {
-    left: '3%',
-    right: '4%',
-    bottom: '3%',
-    containLabel: true
-  },
-  xAxis : [
-    {
-      type : 'category',
-      data : ['node', 'node1', 'node2'],
-      splitLine: {
-        "show": false
-      },
-      axisTick: {
-        "show": false
-      },
-      splitArea: {
-        "show": false
-      },
-      axisLabel: {
-        "interval": 0,
-      },
-    }
-  ],
-  yAxis : [
-    {
-      type : 'value',
-      max: 100,
-      splitNumber: 2,
-      interval: 50,
-      splitLine: {
-        show: true,
-        lineStyle: {
-          type: 'dashed'
-        },
-      },
-    }
-  ],
-  series : [
-    {
-      name:'',
-      type:'bar',
-      barWidth: '60%',
-      data:[10, 52, 100],
-      
-    }
-  ]
-}
-let memoryOption = {
-  title: {
-    text: '内存',
-    top: '15px',
-    left: 'center',
-    textStyle: {
-      fontWeight:'normal',
-      fontSize:14
-    }
-  },
-  color: ['#3398DB'],
-  tooltip : {
-    trigger: 'axis',
-    axisPointer : {
-      type : 'shadow'
-    },
-    formatter: '{b} : {c}'
-  },
-  grid: {
-    left: '3%',
-    right: '4%',
-    bottom: '3%',
-    containLabel: true
-  },
-  xAxis : [
-    {
-      type : 'category',
-      data : ['node', 'node1', 'node2'],
-      splitLine: {
-        "show": false
-      },
-      axisTick: {
-        "show": false
-      },
-      splitArea: {
-        "show": false
-      },
-      axisLabel: {
-        "interval": 0,
-      },
-    }
-  ],
-  yAxis : [
-    {
-      type : 'value',
-      max: 100,
-      splitNumber: 2,
-      interval: 50,
-      splitLine: {
-        show: true,
-        lineStyle: {
-          type: 'dashed'
-        },
-      },
-    }
-  ],
-  series : [
-    {
-      name:'',
-      type:'bar',
-      barWidth: '60%',
-      data:[10, 52, 100],
-      
-    }
-  ]
-}
-let diskOption = {
-  title: {
-    text: '磁盘',
-    top: '15px',
-    left: 'center',
-    textStyle: {
-      fontWeight:'normal',
-      fontSize:14
-    }
-  },
-  color: ['#3398DB'],
-  tooltip : {
-    trigger: 'axis',
-    axisPointer : {
-      type : 'shadow'
-    },
-    formatter: '{b} : {c}'
-  },
-  grid: {
-    left: '3%',
-    right: '4%',
-    bottom: '3%',
-    containLabel: true
-  },
-  xAxis : [
-    {
-      type : 'category',
-      data : ['node', 'node1', 'node2'],
-      splitLine: {
-        "show": false
-      },
-      axisTick: {
-        "show": false
-      },
-      splitArea: {
-        "show": false
-      },
-      axisLabel: {
-        "interval": 0,
-      },
-    }
-  ],
-  yAxis : [
-    {
-      type : 'value',
-      max: 100,
-      splitNumber: 2,
-      interval: 50,
-      splitLine: {
-        show: true,
-        lineStyle: {
-          type: 'dashed'
-        },
-      },
-    }
-  ],
-  series : [
-    {
-      name:'',
-      type:'bar',
-      barWidth: '60%',
-      data:[10, 52, 100],
-      
     }
   ]
 }
@@ -341,20 +137,22 @@ class Ordinary extends Component{
     }
   }
   render(){
-    const {clusterOperations, clusterSysinfo, clusterStorage, clusterAppStatus, clusterNodeSummary} = this.props
+    const {clusterOperations, clusterSysinfo, clusterStorage, clusterAppStatus, clusterNodeSummary,clusterDbServices} = this.props
     let boxPos = 0
     if ((clusterStorage.freeSize + clusterStorage.usedSize) > 0) {
       boxPos = (clusterStorage.usedSize/(clusterStorage.freeSize + clusterStorage.usedSize)).toFixed(3)
     }
+    console.log('clusterDbServices:   ',clusterDbServices.get('mysql'));
+    //应用
     let appRunning = clusterAppStatus.appMap.get('Running')
     let appStopped = clusterAppStatus.appMap.get('Stopped')
     let appOthers = clusterAppStatus.appMap.get('Unknown')
-    
+    //服务
     let svcRunning = clusterAppStatus.svcMap.get('Running')
     let svcStopped = clusterAppStatus.svcMap.get('Stopped')
     let svcOthers = clusterAppStatus.svcMap.get('Deploying')?clusterAppStatus.svcMap.get('Deploying'):0 +
                     clusterAppStatus.svcMap.get('Pending')?clusterAppStatus.svcMap.get('Pending'):0
-    
+    //容器
     let conRunning = clusterAppStatus.podMap.get('Running')
     let conFailed = clusterAppStatus.podMap.get('Failed')
     let conOthers = clusterAppStatus.podMap.get('Pending')?clusterAppStatus.podMap.get('Pending'):0 +
@@ -370,7 +168,81 @@ class Ordinary extends Component{
     conRunning = conRunning ? conRunning:0
     conFailed = conFailed ? conFailed:0
     conOthers = conOthers ? conOthers:0
-    
+    //计算资源使用率
+    //CPU
+    let CPUNameArr = []
+    let CPUUsedArr = []
+    if(clusterNodeSummary.cpu.length !== 0){
+      clusterNodeSummary.cpu.map((item,index) => {
+        CPUNameArr.push(item.name.replace(/192.168./,''))
+        CPUUsedArr.push(item.used)
+      })
+    }
+    //内存
+    let memoryNameArr = []
+    let memoryUsedArr = []
+    if(clusterNodeSummary.cpu.length !== 0){
+      clusterNodeSummary.cpu.map((item,index) => {
+        memoryNameArr.push(item.name.replace(/192.168./,''))
+        memoryUsedArr.push(item.used)
+      })
+    }
+    //磁盘
+    let diskNameArr = []
+    let diskUsedArr = []
+    if(clusterNodeSummary.cpu.length !== 0){
+      clusterNodeSummary.cpu.map((item,index) => {
+        diskNameArr.push(item.name.replace(/192.168./,''))
+        diskUsedArr.push(item.used)
+      })
+    }
+    //数据库与缓存
+    //MySQL
+    const mysqlData = clusterDbServices.get('mysql')
+    let mySQLRunning = 0
+    let mySQLStopped = 0
+    let mySQLOthers = 0
+    if(mysqlData.size !== 0){
+      console.log('mysqlData.get(running)',mysqlData.get('running'));
+      mysqlData.get('failed')?mysqlData.get('failed'):0
+      mysqlData.get('pending')?mysqlData.get('pending'):0
+      mysqlData.get('running')?mysqlData.get('running'):0
+      mysqlData.get('unknown')?mysqlData.get('unknown'):0
+      mySQLRunning = mysqlData.get('running')
+      mySQLStopped = mysqlData.get('failed') + mysqlData.get('unknown')
+      mySQLOthers = mysqlData.get('pending')
+    }
+    //Mongo
+    const mongoData = clusterDbServices.get('mysql')
+    let mongoRunning = 0
+    let mongoStopped = 0
+    let mongoOthers = 0
+    if(mongoData.size !== 0){
+      console.log('mysqlData.get(running)',mongoData.get('running'));
+      mongoData.get('failed')?mongoData.get('failed'):0
+      mongoData.get('pending')?mongoData.get('pending'):0
+      mongoData.get('running')?mongoData.get('running'):0
+      mongoData.get('unknown')?mongoData.get('unknown'):0
+      mongoRunning = mongoData.get('running')
+      mongoStopped = mongoData.get('failed') + mongoData.get('unknown')
+      mongoOthers = mongoData.get('pending')
+    }
+    //Redis
+    const redisData = clusterDbServices.get('mysql')
+    let redisRunning = 0
+    let redisStopped = 0
+    let redisOthers = 0
+    if(redisData.size !== 0){
+      console.log('mysqlData.get(running)',mysqlData.get('running'));
+      redisData.get('failed')?redisData.get('failed'):0
+      redisData.get('pending')?redisData.get('pending'):0
+      redisData.get('running')?redisData.get('running'):0
+      redisData.get('unknown')?redisData.get('unknown'):0
+      redisRunning = redisData.get('running')
+      redisStopped = redisData.get('failed') + redisData.get('unknown')
+      redisOthers = redisData.get('pending')
+    }
+    //Options
     let appOption = {
       tooltip : {
         trigger: 'item',
@@ -589,6 +461,204 @@ class Ordinary extends Component{
         },
       },
     }
+    let CPUOption = {
+      title: {
+        text: 'CPU',
+        top: '15px',
+        left: 'center',
+        textStyle: {
+          fontWeight:'normal',
+          fontSize:14
+        }
+      },
+      color: ['#3398DB'],
+      tooltip : {
+        trigger: 'axis',
+        axisPointer : {
+          type : 'shadow'
+        },
+        formatter: '{b} : {c}'
+      },
+      grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true
+      },
+      xAxis : [
+        {
+          type : 'category',
+          data : CPUNameArr,
+          splitLine: {
+            "show": false
+          },
+          axisTick: {
+            "show": false
+          },
+          splitArea: {
+            "show": false
+          },
+          axisLabel: {
+            "interval": 0,
+          },
+        }
+      ],
+      yAxis : [
+        {
+          type : 'value',
+          max: 100,
+          splitNumber: 2,
+          interval: 50,
+          splitLine: {
+            show: true,
+            lineStyle: {
+              type: 'dashed'
+            },
+          },
+        }
+      ],
+      series : [
+        {
+          name:'',
+          type:'bar',
+          barWidth: '60%',
+          data:CPUUsedArr,
+        
+        }
+      ]
+    }
+    let memoryOption = {
+      title: {
+        text: '内存',
+        top: '15px',
+        left: 'center',
+        textStyle: {
+          fontWeight:'normal',
+          fontSize:14
+        }
+      },
+      color: ['#3398DB'],
+      tooltip : {
+        trigger: 'axis',
+        axisPointer : {
+          type : 'shadow'
+        },
+        formatter: '{b} : {c}'
+      },
+      grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true
+      },
+      xAxis : [
+        {
+          type : 'category',
+          data : memoryNameArr,
+          splitLine: {
+            "show": false
+          },
+          axisTick: {
+            "show": false
+          },
+          splitArea: {
+            "show": false
+          },
+          axisLabel: {
+            "interval": 0,
+          },
+        }
+      ],
+      yAxis : [
+        {
+          type : 'value',
+          max: 100,
+          splitNumber: 2,
+          interval: 50,
+          splitLine: {
+            show: true,
+            lineStyle: {
+              type: 'dashed'
+            },
+          },
+        }
+      ],
+      series : [
+        {
+          name:'',
+          type:'bar',
+          barWidth: '60%',
+          data:memoryUsedArr,
+        
+        }
+      ]
+    }
+    let diskOption = {
+      title: {
+        text: '磁盘',
+        top: '15px',
+        left: 'center',
+        textStyle: {
+          fontWeight:'normal',
+          fontSize:14
+        }
+      },
+      color: ['#3398DB'],
+      tooltip : {
+        trigger: 'axis',
+        axisPointer : {
+          type : 'shadow'
+        },
+        formatter: '{b} : {c}'
+      },
+      grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true
+      },
+      xAxis : [
+        {
+          type : 'category',
+          data : diskNameArr,
+          splitLine: {
+            "show": false
+          },
+          axisTick: {
+            "show": false
+          },
+          splitArea: {
+            "show": false
+          },
+          axisLabel: {
+            "interval": 0,
+          },
+        }
+      ],
+      yAxis : [
+        {
+          type : 'value',
+          max: 100,
+          splitNumber: 2,
+          interval: 50,
+          splitLine: {
+            show: true,
+            lineStyle: {
+              type: 'dashed'
+            },
+          },
+        }
+      ],
+      series : [
+        {
+          name:'',
+          type:'bar',
+          barWidth: '60%',
+          data:diskUsedArr,
+        
+        }
+      ]
+    }
     return (
       <div id='Ordinary' style={{marginTop:40}}>
         <Row className="title">我的空间-产品环境集群</Row>
@@ -608,22 +678,21 @@ class Ordinary extends Component{
                 <tbody>
                   <tr>
                     <td>
-                      <img className="stateSvg" src="/img/homeEtcd.png"/>
+                      <img className="stateImg" src="/img/homeEtcd.png"/>
                       Kubernetes
                     </td>
                     <td>
                       {
                         clusterSysinfo.k8s.status === '正常'?
                           <div>
-                            <svg className="stateSvg">
-                              <use xlinkHref="#settingname" />
-                            </svg>
+                           <div className='errorDot' style={{backgroundColor:'#2eb764'}}></div>
                             <span style={{color:'#2eb865'}}>正常</span>
                           </div>:
                           <div>
-                            <svg className="stateSvg">
+                            {/*<svg className="stateSvg">
                               <use xlinkHref="#settingname" />
-                            </svg>
+                            </svg>*/}
+                            <div className='errorDot' style={{backgroundColor:'#f85a59'}}></div>
                             <span style={{color:'#f85a59'}}>异常</span>
                           </div>
                       }
@@ -635,27 +704,20 @@ class Ordinary extends Component{
                   <tr>
                     <td>
                       <svg className="stateSvg">
-                        <use xlinkHref="#settingname" />
+                        <use xlinkHref="#homewww" />
                       </svg>
                       DNS
                     </td>
                     <td>
-                      <svg className="stateSvg">
-                        <use xlinkHref="#settingname" />
-                      </svg>
                       {
                         clusterSysinfo.dns.status === '正常'?
                         <div>
-                        <svg className="stateSvg">
-                        <use xlinkHref="#settingname" />
-                        </svg>
-                        <span style={{color:'#2eb865'}}>正常</span>
+                          <div className='errorDot' style={{backgroundColor:'#2eb764'}}></div>
+                          <span style={{color:'#2eb865'}}>正常</span>
                         </div>:
                         <div>
-                        <svg className="stateSvg">
-                        <use xlinkHref="#settingname" />
-                        </svg>
-                        <span style={{color:'#f85a59'}}>异常</span>
+                          <div className='errorDot' style={{backgroundColor:'#f85a59'}}></div>
+                          <span style={{color:'#f85a59'}}>异常</span>
                         </div>
                       }
                     </td>
@@ -666,15 +728,22 @@ class Ordinary extends Component{
                   <tr>
                     <td>
                       <svg className="stateSvg">
-                        <use xlinkHref="#settingname" />
+                        <use xlinkHref="#homeapiservice" />
                       </svg>
                       API Server
                     </td>
                     <td>
-                      <svg className="stateSvg">
-                        <use xlinkHref="#settingname" />
-                      </svg>
-                      {clusterSysinfo.apiserver.status}
+                      {
+                        clusterSysinfo.apiserver.status === '正常'?
+                          <div>
+                            <div className='errorDot' style={{backgroundColor:'#2eb764'}}></div>
+                            <span style={{color:'#2eb865'}}>正常</span>
+                          </div>:
+                          <div>
+                            <div className='errorDot' style={{backgroundColor:'#f85a59'}}></div>
+                            <span style={{color:'#f85a59'}}>异常</span>
+                          </div>
+                      }
                     </td>
                     <td style={{textAlign:'right',paddingRight:10}}>
                       {clusterSysinfo.apiserver.version}
@@ -688,10 +757,17 @@ class Ordinary extends Component{
                       CICD
                     </td>
                     <td>
-                      <svg className="stateSvg">
-                        <use xlinkHref="#settingname" />
-                      </svg>
-                      {clusterSysinfo.cicd.status}
+                      {
+                        clusterSysinfo.cicd.status === '正常'?
+                          <div>
+                            <div className='errorDot' style={{backgroundColor:'#2eb764'}}></div>
+                            <span style={{color:'#2eb865'}}>正常</span>
+                          </div>:
+                          <div>
+                            <div className='errorDot' style={{backgroundColor:'#f85a59'}}></div>
+                            <span style={{color:'#f85a59'}}>异常</span>
+                          </div>
+                      }
                     </td>
                     <td style={{textAlign:'right',paddingRight:10}}>
                       {clusterSysinfo.cicd.version}
@@ -705,10 +781,17 @@ class Ordinary extends Component{
                       Logging
                     </td>
                     <td>
-                      <svg className="stateSvg">
-                        <use xlinkHref="#settingname" />
-                      </svg>
-                      {clusterSysinfo.logging.status}
+                      {
+                        clusterSysinfo.logging.status === '正常'?
+                          <div>
+                            <div className='errorDot' style={{backgroundColor:'#2eb764'}}></div>
+                            <span style={{color:'#2eb865'}}>正常</span>
+                          </div>:
+                          <div>
+                            <div className='errorDot' style={{backgroundColor:'#f85a59'}}></div>
+                            <span style={{color:'#f85a59'}}>异常</span>
+                          </div>
+                      }
                     </td>
                     <td style={{textAlign:'right',paddingRight:10}}>
                       {clusterSysinfo.logging.version}
@@ -719,24 +802,25 @@ class Ordinary extends Component{
             </Card>
           </Col>
           <Col span={5} className='clusterRecord'>
-            <Card title="今日该集群记录" bordered={false} bodyStyle={{height:220, overflowY:'auto'}}>
-              <table>
-                <tbody>
-                <tr>
-                  <td>
-                    <svg className="teamRecSvg">
-                      <use xlinkHref="#settingname" />
-                    </svg>
-                    创建应用数量
-                  </td>
-                  <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                    {clusterOperations.appCreate}个
-                  </td>
-                </tr>
-                <tr>
+            <Card title="今日该集群记录" bordered={false} bodyStyle={{height:220}}>
+              <div style={{overflowY:'auto',height:'172px'}}>
+                <table>
+                  <tbody>
+                  <tr>
                     <td>
                       <svg className="teamRecSvg">
-                        <use xlinkHref="#settingname" />
+                        <use xlinkHref="#homeappcount" />
+                      </svg>
+                      创建应用数量
+                    </td>
+                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                      {clusterOperations.appCreate}个
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <svg className="teamRecSvg">
+                        <use xlinkHref="#homeappcount" />
                       </svg>
                       修改应用数量
                     </td>
@@ -747,7 +831,7 @@ class Ordinary extends Component{
                   <tr>
                     <td>
                       <svg className="teamRecSvg">
-                        <use xlinkHref="#settingname" />
+                        <use xlinkHref="#homeappcount" />
                       </svg>
                       停止应用数量
                     </td>
@@ -758,7 +842,7 @@ class Ordinary extends Component{
                   <tr>
                     <td>
                       <svg className="teamRecSvg">
-                        <use xlinkHref="#settingname" />
+                        <use xlinkHref="#homeappcount" />
                       </svg>
                       启动应用数量
                     </td>
@@ -769,7 +853,7 @@ class Ordinary extends Component{
                   <tr>
                     <td>
                       <svg className="teamRecSvg">
-                        <use xlinkHref="#settingname" />
+                        <use xlinkHref="#homeappcount" />
                       </svg>
                       重新部署应用数量
                     </td>
@@ -780,7 +864,7 @@ class Ordinary extends Component{
                   <tr>
                     <td>
                       <svg className="teamRecSvg">
-                        <use xlinkHref="#settingname" />
+                        <use xlinkHref="#homeservicecount" />
                       </svg>
                       创建服务数量
                     </td>
@@ -791,7 +875,7 @@ class Ordinary extends Component{
                   <tr>
                     <td>
                       <svg className="teamRecSvg">
-                        <use xlinkHref="#settingname" />
+                        <use xlinkHref="#homeservicecount" />
                       </svg>
                       删除服务数量
                     </td>
@@ -799,30 +883,31 @@ class Ordinary extends Component{
                       {clusterOperations.svcDelete}个
                     </td>
                   </tr>
-                <tr>
-                  <td>
-                    <svg className="teamRecSvg">
-                      <use xlinkHref="#settingname" />
-                    </svg>
-                    创建存储卷个数
-                  </td>
-                  <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                    {clusterOperations.volumeCreate}个
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <svg className="teamRecSvg">
-                      <use xlinkHref="#settingname" />
-                    </svg>
-                    删除存储卷个数
-                  </td>
-                  <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                     {clusterOperations.volumeDelete}个
-                  </td>
-                </tr>
-                </tbody>
-              </table>
+                  <tr>
+                    <td>
+                      <svg className="teamRecSvg">
+                        <use xlinkHref="#homesavecount" />
+                      </svg>
+                      创建存储卷个数
+                    </td>
+                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                      {clusterOperations.volumeCreate}个
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <svg className="teamRecSvg">
+                        <use xlinkHref="#homesavecount" />
+                      </svg>
+                      删除存储卷个数
+                    </td>
+                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                      {clusterOperations.volumeDelete}个
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
             </Card>
           </Col>
         </Row>
@@ -889,7 +974,9 @@ class Ordinary extends Component{
                 <Col span={8} onClick={() => this.handleDataBaseClick('tab3')} className={this.state.tab3?'seleted':''}><span className='dataBtn'>Redis集群</span></Col>
               </Row>
               <Row style={{display: this.state.tab1?'block':'none'}}>
-                <Col span={12}></Col>
+                <Col span={12} style={{marginTop:'40px',textAlign:'center'}}>
+                  <img className='dbImg' src="/img/homeMySQL.png" alt="MySQL"/>
+                </Col>
                 <Col span={12} style={{marginTop:40}}>
                   <table>
                     <tbody>
@@ -899,7 +986,7 @@ class Ordinary extends Component{
                         运行中:
                       </td>
                       <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                        70个
+                        {mySQLRunning}个
                       </td>
                     </tr>
                     <tr>
@@ -908,7 +995,7 @@ class Ordinary extends Component{
                         已停止
                       </td>
                       <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                        20个
+                        {mySQLStopped}个
                       </td>
                     </tr>
                     <tr>
@@ -917,7 +1004,7 @@ class Ordinary extends Component{
                         操作中
                       </td>
                       <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                        10个
+                        {mySQLOthers}个
                       </td>
                     </tr>
                     </tbody>
@@ -925,7 +1012,9 @@ class Ordinary extends Component{
                 </Col>
               </Row>
               <Row style={{display: this.state.tab2?'block':'none'}}>
-                <Col span={12}></Col>
+                <Col span={12} style={{marginTop:'40px',textAlign:'center'}}>
+                  <img className='dbImg' src="/img/homeMongoCluster.png" alt="MongoCluster"/>
+                </Col>
                 <Col span={12} style={{marginTop:40}}>
                   <table>
                     <tbody>
@@ -935,7 +1024,7 @@ class Ordinary extends Component{
                         运行中:
                       </td>
                       <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                        70个
+                        {mongoRunning}个
                       </td>
                     </tr>
                     <tr>
@@ -944,7 +1033,7 @@ class Ordinary extends Component{
                         已停止
                       </td>
                       <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                        20个
+                        {mongoStopped}个
                       </td>
                     </tr>
                     <tr>
@@ -953,7 +1042,7 @@ class Ordinary extends Component{
                         操作中
                       </td>
                       <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                        10个
+                        {mongoOthers}个
                       </td>
                     </tr>
                     </tbody>
@@ -961,7 +1050,9 @@ class Ordinary extends Component{
                 </Col>
               </Row>
               <Row style={{display: this.state.tab3?'block':'none'}}>
-                <Col span={12}></Col>
+                <Col span={12} style={{marginTop:'40px',textAlign:'center'}}>
+                  <img className='dbImg' src="/img/homeRedis.png" alt="Redis"/>
+                </Col>
                 <Col span={12} style={{marginTop:40}}>
                   <table>
                     <tbody>
@@ -971,7 +1062,7 @@ class Ordinary extends Component{
                         运行中:
                       </td>
                       <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                        70个
+                        {redisRunning}个
                       </td>
                     </tr>
                     <tr>
@@ -980,7 +1071,7 @@ class Ordinary extends Component{
                         已停止
                       </td>
                       <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                        20个
+                        {redisStopped}个
                       </td>
                     </tr>
                     <tr>
@@ -989,7 +1080,7 @@ class Ordinary extends Component{
                         操作中
                       </td>
                       <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                        10个
+                        {redisOthers}个
                       </td>
                     </tr>
                     </tbody>
