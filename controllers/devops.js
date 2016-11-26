@@ -732,3 +732,14 @@ exports.getStats = function* () {
     data: result
   }
 }
+
+exports.getAvailableImages = function*() {
+  const loginUser = this.session.loginUser
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.getBy(["ci", "images"], null)
+
+  this.body = {
+    data: result
+  }
+}

@@ -842,7 +842,6 @@ let CreateTenxFlowModal = React.createClass({
                 <Option value='2'><FormattedMessage {...menusText.containCheck} /></Option>
                 <Option value='3'><FormattedMessage {...menusText.buildImage} /></Option>
                 <Option value='4'><FormattedMessage {...menusText.runningCode} /></Option>
-                <Option value='5'><FormattedMessage {...menusText.other} /></Option>
               </Select>
             </FormItem>
             {
