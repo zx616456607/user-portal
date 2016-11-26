@@ -290,7 +290,6 @@ class Ordinary extends Component{
   componentDidMount(){
     const { loadClusterOperations, loadClusterSysinfo, loadClusterStorage,
       loadClusterAppStatus, loadClusterDbServices, loadClusterNodeSummary,current } = this.props
-    console.log('current',current.clusterID);
     const {clusterID} = current.cluster
     loadClusterOperations(clusterID)
     loadClusterSysinfo(clusterID)
@@ -305,7 +304,6 @@ class Ordinary extends Component{
     const {current} = nextProps
     const {clusterID} = current.cluster
     if(clusterID !== this.props.current.cluster.clusterID){
-      console.log('nextProps');
       loadClusterOperations(clusterID)
       loadClusterSysinfo(clusterID)
       loadClusterStorage(clusterID)
@@ -343,7 +341,6 @@ class Ordinary extends Component{
     }
   }
   render(){
-    console.log('rendered!!!');
     const {clusterOperations, clusterSysinfo, clusterStorage, clusterAppStatus, clusterNodeSummary} = this.props
     let boxPos = 0
     if ((clusterStorage.freeSize + clusterStorage.usedSize) > 0) {
@@ -351,15 +348,28 @@ class Ordinary extends Component{
     }
     let appRunning = clusterAppStatus.appMap.get('Running')
     let appStopped = clusterAppStatus.appMap.get('Stopped')
+    let appOthers = clusterAppStatus.appMap.get('Unknown')
+    
     let svcRunning = clusterAppStatus.svcMap.get('Running')
     let svcStopped = clusterAppStatus.svcMap.get('Stopped')
-    let conRunning = clusterAppStatus.podMap.get('Running')
-    let conTerminating = clusterAppStatus.podMap.get('Terminating')
-    let conPending = clusterAppStatus.podMap.get('Pending')
-  
-    let legendData = []
-    let seriesData = []
+    let svcOthers = clusterAppStatus.svcMap.get('Deploying')?clusterAppStatus.svcMap.get('Deploying'):0 +
+                    clusterAppStatus.svcMap.get('Pending')?clusterAppStatus.svcMap.get('Pending'):0
     
+    let conRunning = clusterAppStatus.podMap.get('Running')
+    let conFailed = clusterAppStatus.podMap.get('Failed')
+    let conOthers = clusterAppStatus.podMap.get('Pending')?clusterAppStatus.podMap.get('Pending'):0 +
+                    clusterAppStatus.podMap.get('Terminating')?clusterAppStatus.podMap.get('Terminating'):0 +
+                    clusterAppStatus.podMap.get('Unknown')?clusterAppStatus.podMap.get('Unknown'):0
+    
+    appRunning = appRunning ? appRunning:0
+    appStopped = appStopped ? appStopped:0
+    appOthers = appOthers ? appOthers:0
+    svcRunning = svcRunning ? svcRunning:0
+    svcStopped = svcStopped ? svcStopped:0
+    svcOthers = svcOthers ? svcOthers:0
+    conRunning = conRunning ? conRunning:0
+    conFailed = conFailed ? conFailed:0
+    conOthers = conOthers ? conOthers:0
     
     let appOption = {
       tooltip : {
@@ -377,7 +387,7 @@ class Ordinary extends Component{
           } else if (name === '已停止') {
             return name + ': ' + appStopped + '个'
           } else if (name === '操作中') {
-            return name + ': ' + appCountBusy + '个'
+            return name + ': ' + appOthers + '个'
           }
         },
         textStyle: {
@@ -399,7 +409,7 @@ class Ordinary extends Component{
         data:[
           {value:appRunning, name:'运行中'},
           {value:appStopped, name:'已停止'},
-          {value:10, name:'操作中',selected:true},
+          {value:appOthers, name:'操作中',selected:true},
         ],
         label: {
           normal: {
@@ -442,17 +452,15 @@ class Ordinary extends Component{
         orient : 'vertical',
         left : '50%',
         top : 'middle',
-        // data:[{name:'运行中'}, {name:'已停止'},{name:'操作中'},{name:'异常'}],
-        data: legendData,
+        data:[{name:'运行中'}, {name:'已停止'},{name:'操作中'}],
+        // data: legendData,
         formatter: function (name) {
           if(name === '运行中'){
             return name + ': ' + svcRunning + '个'
           } else if (name === '已停止') {
-            return name + ': ' + svcStopped?svcStopped:0 + '个'
+            return name + ': ' + svcStopped + '个'
           } else if (name === '操作中') {
-            return name + ': ' + appCountBusy + '个'
-          }else if (name === '异常') {
-            return name + ': ' + 0 + '个'
+            return name + ': ' + svcOthers + '个'
           }
         },
         textStyle: {
@@ -471,13 +479,12 @@ class Ordinary extends Component{
         selectedOffset: 0,
         radius: ['28', '40'],
         center: ['25%', '50%'],
-        /*data:[
+        data:[
           {value:svcRunning, name:'运行中'},
           {value:svcStopped, name:'已停止'},
-          {value:10, name:'操作中',selected:true},
-          {value:10, name:'异常'},
-        ],*/
-        data: seriesData,
+          {value:svcOthers, name:'操作中',selected:true},
+        ],
+        // data: seriesData,
         label: {
           normal: {
             position: 'center',
@@ -524,9 +531,9 @@ class Ordinary extends Component{
           if(name === '运行中'){
             return name + ': ' + conRunning + '个'
           } else if (name === '异常') {
-            return name + ': ' + conTerminating + '个'
+            return name + ': ' + conFailed + '个'
           } else if (name === '操作中') {
-            return name + ': ' + conPending + '个'
+            return name + ': ' + conOthers + '个'
           }
         },
         textStyle: {
@@ -547,8 +554,8 @@ class Ordinary extends Component{
         center: ['25%', '50%'],
         data:[
           {value:conRunning, name:'运行中'},
-          {value:conTerminating, name:'异常'},
-          {value:conPending, name:'操作中',selected:true},
+          {value:conFailed, name:'异常'},
+          {value:conOthers, name:'操作中',selected:true},
         ],
         label: {
           normal: {
@@ -601,16 +608,25 @@ class Ordinary extends Component{
                 <tbody>
                   <tr>
                     <td>
-                      <svg className="stateSvg">
-                        <use xlinkHref="#settingname" />
-                      </svg>
+                      <img className="stateSvg" src="/img/homeEtcd.png"/>
                       Kubernetes
                     </td>
                     <td>
-                      <svg className="stateSvg">
-                        <use xlinkHref="#settingname" />
-                      </svg>
-                      {clusterSysinfo.k8s.status}
+                      {
+                        clusterSysinfo.k8s.status === '正常'?
+                          <div>
+                            <svg className="stateSvg">
+                              <use xlinkHref="#settingname" />
+                            </svg>
+                            <span style={{color:'#2eb865'}}>正常</span>
+                          </div>:
+                          <div>
+                            <svg className="stateSvg">
+                              <use xlinkHref="#settingname" />
+                            </svg>
+                            <span style={{color:'#f85a59'}}>异常</span>
+                          </div>
+                      }
                     </td>
                     <td style={{textAlign:'right',paddingRight:10}}>
                       {clusterSysinfo.k8s.version}
@@ -627,7 +643,21 @@ class Ordinary extends Component{
                       <svg className="stateSvg">
                         <use xlinkHref="#settingname" />
                       </svg>
-                      {clusterSysinfo.dns.status}
+                      {
+                        clusterSysinfo.dns.status === '正常'?
+                        <div>
+                        <svg className="stateSvg">
+                        <use xlinkHref="#settingname" />
+                        </svg>
+                        <span style={{color:'#2eb865'}}>正常</span>
+                        </div>:
+                        <div>
+                        <svg className="stateSvg">
+                        <use xlinkHref="#settingname" />
+                        </svg>
+                        <span style={{color:'#f85a59'}}>异常</span>
+                        </div>
+                      }
                     </td>
                     <td style={{textAlign:'right',paddingRight:10}}>
                       {clusterSysinfo.dns.version}

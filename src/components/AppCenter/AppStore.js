@@ -15,7 +15,7 @@ import Animate from 'rc-animate'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { loadAppStore } from '../../actions/app_center'
+import { loadAppStore , loadStackDetail } from '../../actions/app_center'
 import DetailBox from './StoreDetail'
 import { DEFAULT_REGISTRY } from '../../constants'
 
@@ -30,9 +30,27 @@ const Element = ScrollAnim.Element;
 // const EventListener = ScrollAnim.Event;
 
 
-let MyComponent = React.createClass({
+const MyComponent = React.createClass({
   propTypes: {
     config: React.PropTypes.array
+  },
+  showDetail(id) {
+    console.log('id is', id)
+    const parentScope = this.props.scope
+    const {loadStackDetail} = parentScope.props
+    loadStackDetail(id, {
+      success: {
+        func: (res) => {
+          parentScope.setState({
+            detailModal: true,
+            detailContent: res.data.data
+          })
+        }
+      }
+    })
+    // this.props.scope.setState({
+    //   detailModal: true
+    // })
   },
   render: function () {
     const { scope } = this.props;
@@ -47,7 +65,7 @@ let MyComponent = React.createClass({
             {item.imageList.map((imageDetail) => {
               return (
                 <Card className="imageDetail">
-                  <div className="imgBox">
+                  <div className="imgBox" onClick={()=>this.showDetail(imageDetail.id)}>
                     <img src={imageDetail.imageUrl} />
                   </div>
                   <div className="intro">
@@ -97,6 +115,7 @@ let MyComponent = React.createClass({
     );
   }
 });
+
 class AppStore extends Component {
   constructor(props) {
     super(props);
@@ -107,7 +126,8 @@ class AppStore extends Component {
       scrollTop: 0,
       ElemPaused: true,
       ElemReverse: false,
-      ElemMoment: null
+      ElemMoment: null,
+      detailContent: false
     }
   }
 
@@ -182,19 +202,20 @@ class AppStore extends Component {
         type="right"
         onScroll={this.windowScroll.bind(this)}
         ref="ImageStoreBox"
+        key="ImageStoreBox"
         >
         <div className="nav">
           {storeList}
         </div>
-        <MyComponent key="ImageStoreBox" scope={scope} config={this.props.appStoreList} />
+        <MyComponent key="ImageStoreBox-component" scope={scope} config={this.props.appStoreList} />
         <Modal
-          visible={this.state.privateDetailModal}
+          visible={this.state.detailModal}
           className="AppServiceDetail"
           transitionName="move-right"
-          onCancel={this.closeImageDetailModal}
+          onCancel={()=> {this.setState({detailModal: false}) }}
           >
           {/* right detail box  */}
-          <DetailBox  />
+          <DetailBox scope={scope} data={this.state.detailContent} />
         </Modal>
       </QueueAnim>
     )
@@ -223,7 +244,8 @@ function mapStateToProps(state, props) {
 }
 
 export default connect(mapStateToProps, {
-  loadAppStore
+  loadAppStore,
+  loadStackDetail
 })(injectIntl(AppStore, {
   withRef: true,
 }))

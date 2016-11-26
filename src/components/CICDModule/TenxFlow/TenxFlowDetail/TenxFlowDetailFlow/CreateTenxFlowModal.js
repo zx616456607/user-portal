@@ -866,7 +866,7 @@ let CreateTenxFlowModal = React.createClass({
           </div>
           <div className='input'>
             { !!this.state.currentCodeStoreName ? [
-                <span style={{ marginRight:'15px' }}>{this.state.currentCodeStoreName + '  ' + formatMessage(menusText.branch) + this.state.currentCodeStoreBranch}</span>
+                <span style={{ marginRight:'15px' }}>{this.state.currentCodeStoreName + '  ' + (this.state.currentCodeStoreBranch ? formatMessage(menusText.branch) + this.state.currentCodeStoreBranch : '') }</span>
                 ] : null }
             <Button className={ this.state.noSelectedCodeStore ? 'noCodeStoreButton selectCodeBtn' : 'selectCodeBtn'} size='large' type='ghost' onClick={this.openCodeStoreModal}>
               <i className='fa fa-file-code-o' />
