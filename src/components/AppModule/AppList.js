@@ -422,11 +422,6 @@ let RestarAppsModal = React.createClass({
   }
 })
 
-/*function loadData(props) {
-  const { loadAppList, cluster, page, size, name, sortOrder, sortBy } = props
-  loadAppList(cluster, { page, size, name, sortOrder, sortBy })
-}*/
-
 class AppList extends Component {
   constructor(props) {
     super(props)
@@ -677,7 +672,7 @@ class AppList extends Component {
           })
           deleteApps(cluster, appNames, {
             success: {
-              func: self.loadData,
+              func: () => self.loadData(self.props),
               isAsync: true
             }
           })
