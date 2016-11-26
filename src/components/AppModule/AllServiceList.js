@@ -68,19 +68,45 @@ const MyComponent = React.createClass({
           stopBtn: true,
           restartBtn: true,
         })
-      } else if(checkedList[0].status.phase === 'Stopped') {
+        return
+      }
+      if(checkedList[0].status.phase === 'Stopped') {
         scope.setState({
           runBtn: true,
           stopBtn: false,
           restartBtn: false,
         })
       }
-    } else if (checkedList.length >1) {
+      return
+    }
+    if (checkedList.length >1) {
+      let runCount = 0
+      let stopCount = 0
+      checkedList.map((item,index) => {
+        item.status.phase === 'Running'?runCount++:stopCount++
+      })
+      if (runCount === checkedList.length) {
+        scope.setState({
+          runBtn: false,
+          stopBtn: true,
+          restartBtn: true,
+        })
+        return
+      }
+      if (stopCount === checkedList.length) {
+        scope.setState({
+          runBtn: true,
+          stopBtn: false,
+          restartBtn: false,
+        })
+        return
+      }
       scope.setState({
         runBtn: true,
         stopBtn: true,
         restartBtn: true,
       })
+      return
     }
     scope.setState({
       serviceList
@@ -112,19 +138,45 @@ const MyComponent = React.createClass({
             stopBtn: true,
             restartBtn: true,
           })
-        } else if(checkedList[0].status.phase === 'Stopped') {
+          return
+        }
+        if(checkedList[0].status.phase === 'Stopped') {
           scope.setState({
             runBtn: true,
             stopBtn: false,
             restartBtn: false,
           })
+          return
         }
-      } else if (checkedList.length >1) {
+      }
+      if (checkedList.length >1) {
+        let runCount = 0
+        let stopCount = 0
+        checkedList.map((item,index) => {
+          item.status.phase === 'Running'?runCount++:stopCount++
+        })
+        if (runCount === checkedList.length) {
+          scope.setState({
+            runBtn: false,
+            stopBtn: true,
+            restartBtn: true,
+          })
+          return
+        }
+        if (stopCount === checkedList.length) {
+          scope.setState({
+            runBtn: true,
+            stopBtn: false,
+            restartBtn: false,
+          })
+          return
+        }
         scope.setState({
           runBtn: true,
           stopBtn: true,
           restartBtn: true,
         })
+        return
       }
       scope.setState({
         serviceList
@@ -441,7 +493,7 @@ let RestarServiceModal = React.createClass({
               <Alert message={
                 <span>你选择的{checkedServiceList.length}个服务中, 有
                   <span className="modalDot" style={{backgroundColor:'#f85958'}}>{stoppedService.length}个</span>
-                  已经是已停止状态, 不能做重新部署
+                  是已停止状态, 不能做重新部署
                 </span>
               } type="warning" showIcon/>
               <div style={{height:26}}>Tip: 运行状态时服务才可以重新部署</div>
@@ -496,10 +548,10 @@ let QuickRestarServiceModal = React.createClass({
               <Alert message={
                 <span>你选择的{checkedServiceList.length}个服务中, 有
                   <span className="modalDot" style={{backgroundColor:'#f85958'}}>{stoppedService.length}个</span>
-                  已经是已停止状态, 不能做重新部署
+                  是已停止状态, 不能快速重启
                 </span>
               } type="warning" showIcon/>
-              <div style={{height:26}}>Tip: 运行状态时服务才可以重新部署</div>
+              <div style={{height:26}}>Tip: 运行状态时服务才可以快速重启</div>
               <div className="tableWarp">
                 <table className="modalList">
                   <tbody>
@@ -513,7 +565,7 @@ let QuickRestarServiceModal = React.createClass({
         }
         <div className="confirm">
           <Icon type="question-circle-o" style={{marginRight:'10px'}}/>
-          您是否确定重新部署这{(checkedServiceList.length - stoppedService.length)}个可以重新部署的服务 ?
+          您是否确定快速重启这{(checkedServiceList.length - stoppedService.length)}个可以快速重启的服务 ?
         </div>
       </div>
     )
@@ -537,8 +589,8 @@ class AppServiceList extends Component {
     /*this.confirmStartService = this.confirmStartService.bind(this)
     this.batchStopServices = this.batchStopServices.bind(this)
     this.confirmStopServices = this.confirmStopServices.bind(this)
-    this.batchRestartServices = this.batchRestartServices.bind(this)
-    this.confirmRestartServices = this.confirmRestartServices.bind(this)*/
+    this.batchRestartServices = this.batchRestartServices.bind(this)*/
+    // this.confirmRestartServices = this.confirmRestartServices.bind(this)
     this.batchDeleteServices = this.batchDeleteServices.bind(this)
     this.confirmDeleteServices = this.confirmDeleteServices.bind(this)
     // this.confirmQuickRestartService = this.confirmQuickRestartService.bind(this)
@@ -613,44 +665,7 @@ class AppServiceList extends Component {
     loadServices(nextProps)
   }
 
-  /*confirmStartService(e) {
-    const self = this
-    const { serviceList } = this.state
-    const { cluster, loadAllServices, startServices } = this.props
-    const checkedServiceList = serviceList.filter((service) => service.checked)
-    const checkedServiceNames = checkedServiceList.map((service) => service.metadata.name)
-    confirm({
-      title: `您是否确认要启动这${checkedServiceList.length}个服务`,
-      content: checkedServiceNames.join(', '),
-      onOk() {
-        return new Promise((resolve) => {
-          serviceList.map((service) => {
-            if (checkedServiceNames.indexOf(service.metadata.name) > -1) {
-              service.status.phase = 'Starting'
-            }
-          })
-          self.setState({
-            serviceList
-          })
-          startServices(cluster, checkedServiceNames, {
-            success: {
-              func: () => loadServices(self.props),
-              isAsync: true
-            }
-          })
-          resolve()
-        });
-      },
-      onCancel() { },
-    })
-  }
-  batchRestartServices(e) {
-    const { serviceList } = this.state
-    const { cluster } = this.props
-    const checkedServiceList = serviceList.filter((service) => service.checked)
-    this.confirmRestartServices(checkedServiceList)
-  }
-  confirmRestartServices(serviceList, callback) {
+  /*confirmRestartServices(serviceList, callback) {
     const self = this
     const { cluster, loadAllServices, restartServices } = this.props
     const serviceNames = serviceList.map((service) => service.metadata.name)
@@ -677,75 +692,6 @@ class AppServiceList extends Component {
             serviceList: allServices
           })
           restartServices(cluster, serviceNames, callback)
-          resolve()
-        });
-      },
-      onCancel() { },
-    })
-  }
-  confirmQuickRestartService(e) {
-    const self = this
-    const { serviceList } = this.state
-    const { cluster, loadAllServices, quickRestartServices } = this.props
-    const checkedServiceList = serviceList.filter((service) => service.checked)
-    const checkedServiceNames = checkedServiceList.map((service) => service.metadata.name)
-    confirm({
-      title: `您是否确认要快速重启这${checkedServiceList.length}个服务`,
-      content: checkedServiceNames.join(', '),
-      onOk() {
-        return new Promise((resolve) => {
-          serviceList.map((service) => {
-            if (checkedServiceNames.indexOf(service.metadata.name) > -1) {
-              service.status.phase = 'Restarting'
-            }
-          })
-          self.setState({
-            serviceList
-          })
-          quickRestartServices(cluster, checkedServiceNames, {
-            success: {
-              func: () => loadServices(self.props),
-              isAsync: true
-            }
-          })
-          resolve()
-        });
-      },
-      onCancel() { },
-    })
-  }
-  batchStopServices(e) {
-    const { serviceList } = this.state
-    const checkedServiceList = serviceList.filter((service) => service.checked)
-    this.confirmStopServices(checkedServiceList)
-  }
-  confirmStopServices(serviceList, callback) {
-    const self = this
-    const { cluster, stopServices } = this.props
-    const serviceNames = serviceList.map((service) => service.metadata.name)
-    if (!callback) {
-      callback = {
-        success: {
-          func: () => loadServices(self.props),
-          isAsync: true
-        }
-      }
-    }
-    confirm({
-      title: `您是否确认要停止这${serviceNames.length}个服务`,
-      content: serviceNames.join(', '),
-      onOk() {
-        return new Promise((resolve) => {
-          const allServices = self.state.serviceList
-          allServices.map((service) => {
-            if (serviceNames.indexOf(service.metadata.name) > -1) {
-              service.status.phase = 'Stopping'
-            }
-          })
-          self.setState({
-            serviceList: allServices
-          })
-          stopServices(cluster, serviceNames, callback)
           resolve()
         });
       },
@@ -855,10 +801,11 @@ class AppServiceList extends Component {
       StopServiceModal:false,
     })
   }
-  handleRestarServiceOk(){
+  handleRestarServiceOk(services){
     const self = this
     const { cluster, restartServices, serviceList } = this.props
-    const checkedServiceList = serviceList.filter((service) => service.checked)
+    let servicesList = services ? services : serviceList
+    const checkedServiceList = servicesList.filter((service) => service.checked)
     let runningServices = []
     
     checkedServiceList.map((service,index) => {
@@ -1076,7 +1023,7 @@ class AppServiceList extends Component {
     }
     // currentShowInstance = checkedServiceList[0]
     const funcs = {
-      confirmRestartServices: this.confirmRestartServices,
+      handleRestarServiceOk: this.handleRestarServiceOk,
       confirmStopServices: this.confirmStopServices,
       confirmDeleteServices: this.confirmDeleteServices,
     }
@@ -1128,7 +1075,7 @@ class AppServiceList extends Component {
                   快速重启
                 </Button>
               </Tooltip>
-              <Modal title="重新操作" visible={this.state.QuickRestarServiceModal}
+              <Modal title="重启操作" visible={this.state.QuickRestarServiceModal}
                      onOk={this.handleQuickRestarServiceOk} onCancel={this.handleQuickRestarServiceCancel}
               >
                 <QuickRestarServiceModal serviceList={serviceList} />

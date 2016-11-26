@@ -69,6 +69,47 @@ let clusterCostOption = {
   ]
 }
 
+let SvcState = React.createClass({
+  getInitialState(){
+    return {
+      
+    }
+  },
+  render: function(){
+    const { svcState } = this.props
+    let item
+    if(svcState === 'normal'){
+      item = (
+        <div id='SvcState'>
+          <div className='errorDot' style={{backgroundColor:'#2eb764'}}></div>
+          <span style={{color:'#2eb865'}}>正常</span>
+        </div>
+      )
+    }
+    if(svcState === 'warning'){
+      item = (
+        <div id='SvcState'>
+          <div className='errorDot' style={{backgroundColor:'#f0986b'}}></div>
+          <span style={{color:'#f0986b'}}>警告</span>
+        </div>
+      )
+    }
+    if(svcState === 'abnormal'){
+      item = (
+        <div>
+          <div className='errorDot' style={{backgroundColor:'#f85a59'}}></div>
+          <span style={{color:'#f85a59'}}>异常</span>
+        </div>
+      )
+    }
+    return (
+      <div id='SvcState'>
+        { item }
+      </div>
+    )
+  }
+})
+  
 class Ordinary extends Component{
   constructor(props){
     super(props)
@@ -175,9 +216,7 @@ class Ordinary extends Component{
     if(clusterNodeSummary.cpu.length !== 0){
       clusterNodeSummary.cpu.map((item,index) => {
         let name = item.name.replace(/192.168./,'')
-        name.substring(0, 5)
-        console.log('item.name',name)
-        CPUNameArr.push(name)
+        CPUNameArr.push(name.substring(0, 7))
         CPUUsedArr.push(item.used)
       })
     }
@@ -187,9 +226,7 @@ class Ordinary extends Component{
     if(clusterNodeSummary.cpu.length !== 0){
       clusterNodeSummary.cpu.map((item,index) => {
         let name = item.name.replace(/192.168./,'')
-        name.substring(0, 5)
-        console.log('item.name',name)
-        memoryNameArr.push(name)
+        memoryNameArr.push(name.substring(0, 7))
         memoryUsedArr.push(item.used)
       })
     }
@@ -199,9 +236,7 @@ class Ordinary extends Component{
     if(clusterNodeSummary.cpu.length !== 0){
       clusterNodeSummary.cpu.map((item,index) => {
         let name = item.name.replace(/192.168./,'')
-        name.substring(0, 5)
-        console.log('item.name',name)
-        diskNameArr.push(name)
+        diskNameArr.push(name.substring(0, 7))
         diskUsedArr.push(item.used)
       })
     }
@@ -212,7 +247,6 @@ class Ordinary extends Component{
     let mySQLStopped = 0
     let mySQLOthers = 0
     if(mysqlData.size !== 0){
-      console.log('mysqlData.get(running)',mysqlData.get('running'));
       mysqlData.get('failed')?mysqlData.get('failed'):0
       mysqlData.get('pending')?mysqlData.get('pending'):0
       mysqlData.get('running')?mysqlData.get('running'):0
@@ -227,7 +261,6 @@ class Ordinary extends Component{
     let mongoStopped = 0
     let mongoOthers = 0
     if(mongoData.size !== 0){
-      console.log('mysqlData.get(running)',mongoData.get('running'));
       mongoData.get('failed')?mongoData.get('failed'):0
       mongoData.get('pending')?mongoData.get('pending'):0
       mongoData.get('running')?mongoData.get('running'):0
@@ -242,7 +275,6 @@ class Ordinary extends Component{
     let redisStopped = 0
     let redisOthers = 0
     if(redisData.size !== 0){
-      console.log('mysqlData.get(running)',mysqlData.get('running'));
       redisData.get('failed')?redisData.get('failed'):0
       redisData.get('pending')?redisData.get('pending'):0
       redisData.get('running')?redisData.get('running'):0
@@ -486,7 +518,7 @@ class Ordinary extends Component{
         axisPointer : {
           type : 'shadow'
         },
-        formatter: '{b} : {c}'
+        formatter: '{b} : {c}%'
       },
       grid: {
         left: '3%',
@@ -552,7 +584,7 @@ class Ordinary extends Component{
         axisPointer : {
           type : 'shadow'
         },
-        formatter: '{b} : {c}'
+        formatter: '{b} : {c}%'
       },
       grid: {
         left: '3%',
@@ -618,7 +650,7 @@ class Ordinary extends Component{
         axisPointer : {
           type : 'shadow'
         },
-        formatter: '{b} : {c}'
+        formatter: '{b} : {c}%'
       },
       grid: {
         left: '3%',
@@ -691,20 +723,7 @@ class Ordinary extends Component{
                       Kubernetes
                     </td>
                     <td>
-                      {
-                        clusterSysinfo.k8s.status === '正常'?
-                          <div>
-                           <div className='errorDot' style={{backgroundColor:'#2eb764'}}></div>
-                            <span style={{color:'#2eb865'}}>正常</span>
-                          </div>:
-                          <div>
-                            {/*<svg className="stateSvg">
-                              <use xlinkHref="#settingname" />
-                            </svg>*/}
-                            <div className='errorDot' style={{backgroundColor:'#f85a59'}}></div>
-                            <span style={{color:'#f85a59'}}>异常</span>
-                          </div>
-                      }
+                      <SvcState svcState={clusterSysinfo.k8s.status} />
                     </td>
                     <td style={{textAlign:'right',paddingRight:10}}>
                       {clusterSysinfo.k8s.version}
@@ -718,17 +737,7 @@ class Ordinary extends Component{
                       DNS
                     </td>
                     <td>
-                      {
-                        clusterSysinfo.dns.status === '正常'?
-                        <div>
-                          <div className='errorDot' style={{backgroundColor:'#2eb764'}}></div>
-                          <span style={{color:'#2eb865'}}>正常</span>
-                        </div>:
-                        <div>
-                          <div className='errorDot' style={{backgroundColor:'#f85a59'}}></div>
-                          <span style={{color:'#f85a59'}}>异常</span>
-                        </div>
-                      }
+                      <SvcState svcState={clusterSysinfo.dns.status} />
                     </td>
                     <td style={{textAlign:'right',paddingRight:10}}>
                       {clusterSysinfo.dns.version}
@@ -742,17 +751,7 @@ class Ordinary extends Component{
                       API Server
                     </td>
                     <td>
-                      {
-                        clusterSysinfo.apiserver.status === '正常'?
-                          <div>
-                            <div className='errorDot' style={{backgroundColor:'#2eb764'}}></div>
-                            <span style={{color:'#2eb865'}}>正常</span>
-                          </div>:
-                          <div>
-                            <div className='errorDot' style={{backgroundColor:'#f85a59'}}></div>
-                            <span style={{color:'#f85a59'}}>异常</span>
-                          </div>
-                      }
+                      <SvcState svcState={clusterSysinfo.apiserver.status} />
                     </td>
                     <td style={{textAlign:'right',paddingRight:10}}>
                       {clusterSysinfo.apiserver.version}
@@ -766,17 +765,7 @@ class Ordinary extends Component{
                       CICD
                     </td>
                     <td>
-                      {
-                        clusterSysinfo.cicd.status === '正常'?
-                          <div>
-                            <div className='errorDot' style={{backgroundColor:'#2eb764'}}></div>
-                            <span style={{color:'#2eb865'}}>正常</span>
-                          </div>:
-                          <div>
-                            <div className='errorDot' style={{backgroundColor:'#f85a59'}}></div>
-                            <span style={{color:'#f85a59'}}>异常</span>
-                          </div>
-                      }
+                      <SvcState svcState={clusterSysinfo.cicd.status} />
                     </td>
                     <td style={{textAlign:'right',paddingRight:10}}>
                       {clusterSysinfo.cicd.version}
@@ -790,17 +779,7 @@ class Ordinary extends Component{
                       Logging
                     </td>
                     <td>
-                      {
-                        clusterSysinfo.logging.status === '正常'?
-                          <div>
-                            <div className='errorDot' style={{backgroundColor:'#2eb764'}}></div>
-                            <span style={{color:'#2eb865'}}>正常</span>
-                          </div>:
-                          <div>
-                            <div className='errorDot' style={{backgroundColor:'#f85a59'}}></div>
-                            <span style={{color:'#f85a59'}}>异常</span>
-                          </div>
-                      }
+                      <SvcState svcState={clusterSysinfo.logging.status} />
                     </td>
                     <td style={{textAlign:'right',paddingRight:10}}>
                       {clusterSysinfo.logging.version}
@@ -962,7 +941,7 @@ class Ordinary extends Component{
                     <Col span={12} style={{textAlign:'right'}}>{clusterStorage.freeSize}MB</Col>
                   </Row>
                   <Row className='storageInfItem'>
-                    <Col span={12}>存储卷数:</Col>
+                    <Col span={12}>存储卷:</Col>
                     <Col span={12} style={{textAlign:'right'}}>{clusterStorage.totalCnt}个</Col>
                   </Row>
                   <Row className='storageInfItem'>
@@ -982,11 +961,11 @@ class Ordinary extends Component{
                 <Col span={8} onClick={() => this.handleDataBaseClick('tab2')} className={this.state.tab2?'seleted':''}><span className='dataBtn'>Mongo集群</span></Col>
                 <Col span={8} onClick={() => this.handleDataBaseClick('tab3')} className={this.state.tab3?'seleted':''}><span className='dataBtn'>Redis集群</span></Col>
               </Row>
-              <Row style={{display: this.state.tab1?'block':'none'}}>
-                <Col span={12} style={{marginTop:'40px',textAlign:'center'}}>
-                  <img className='dbImg' src="/img/homeMySQL.png" alt="MySQL"/>
+              <Row style={{display: this.state.tab1?'block':'none',height:130}}>
+                <Col span={12} className='dbImg'>
+                  <img src="/img/homeMySQL.png" alt="MySQL"/>
                 </Col>
-                <Col span={12} style={{marginTop:40}}>
+                <Col span={12} className='dbInf'>
                   <table>
                     <tbody>
                     <tr>
@@ -1020,11 +999,11 @@ class Ordinary extends Component{
                   </table>
                 </Col>
               </Row>
-              <Row style={{display: this.state.tab2?'block':'none'}}>
-                <Col span={12} style={{marginTop:'40px',textAlign:'center'}}>
-                  <img className='dbImg' src="/img/homeMongoCluster.png" alt="MongoCluster"/>
+              <Row style={{display: this.state.tab2?'block':'none',height:130}}>
+                <Col span={12} className='dbImg'>
+                  <img src="/img/homeMongoCluster.png" alt="MongoCluster"/>
                 </Col>
-                <Col span={12} style={{marginTop:40}}>
+                <Col span={12} className='dbInf'>
                   <table>
                     <tbody>
                     <tr>
@@ -1058,11 +1037,11 @@ class Ordinary extends Component{
                   </table>
                 </Col>
               </Row>
-              <Row style={{display: this.state.tab3?'block':'none'}}>
-                <Col span={12} style={{marginTop:'40px',textAlign:'center'}}>
-                  <img className='dbImg' src="/img/homeRedis.png" alt="Redis"/>
+              <Row style={{display: this.state.tab3?'block':'none',height:130}}>
+                <Col span={12} className='dbImg'>
+                  <img src="/img/homeRedis.png" alt="Redis"/>
                 </Col>
-                <Col span={12} style={{marginTop:40}}>
+                <Col span={12} className='dbInf'>
                   <table>
                     <tbody>
                     <tr>
