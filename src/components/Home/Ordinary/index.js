@@ -14,8 +14,7 @@ import ReactEcharts from 'echarts-for-react'
 import MySpace from './MySpace'
 import { getAppStatus, getServiceStatus, getContainerStatus } from '../../../common/status_identify'
 import { connect } from 'react-redux'
-import { loadClusterOperations, loadClusterSysinfo, loadClusterStorage,
-         loadClusterAppStatus, loadClusterDbServices, loadClusterNodeSummary } from '../../../actions/overview_cluster'
+import { loadClusterInfo } from '../../../actions/overview_cluster'
 import ProgressBox from '../../ProgressBox'
 
 let restValue = 12366
@@ -84,28 +83,16 @@ class Ordinary extends Component{
     
   }
   componentDidMount(){
-    const { loadClusterOperations, loadClusterSysinfo, loadClusterStorage,
-      loadClusterAppStatus, loadClusterDbServices, loadClusterNodeSummary,current } = this.props
+    const { loadClusterInfo, current } = this.props
     const {clusterID} = current.cluster
-    loadClusterOperations(clusterID)
-    loadClusterSysinfo(clusterID)
-    loadClusterStorage(clusterID)
-    loadClusterAppStatus(clusterID)
-    loadClusterDbServices(clusterID)
-    loadClusterNodeSummary(clusterID)
+    loadClusterInfo(clusterID)
   }
   componentWillReceiveProps(nextProps){
-    const { loadClusterOperations, loadClusterSysinfo, loadClusterStorage,
-      loadClusterAppStatus, loadClusterDbServices, loadClusterNodeSummary } = this.props
+    const { loadClusterInfo } = this.props
     const {current} = nextProps
     const {clusterID} = current.cluster
     if(clusterID !== this.props.current.cluster.clusterID){
-      loadClusterOperations(clusterID)
-      loadClusterSysinfo(clusterID)
-      loadClusterStorage(clusterID)
-      loadClusterAppStatus(clusterID)
-      loadClusterDbServices(clusterID)
-      loadClusterNodeSummary(clusterID)
+      loadClusterInfo(clusterID)
       return
     }
     
@@ -184,8 +171,8 @@ class Ordinary extends Component{
     //内存
     let memoryNameArr = []
     let memoryUsedArr = []
-    if(clusterNodeSummary.cpu.length !== 0){
-      clusterNodeSummary.cpu.map((item,index) => {
+    if(clusterNodeSummary.memory.length !== 0){
+      clusterNodeSummary.memory.map((item,index) => {
         let name = item.name.replace(/192.168./,'')
         name.substring(0, 5)
         console.log('item.name',name)
@@ -196,8 +183,8 @@ class Ordinary extends Component{
     //磁盘
     let diskNameArr = []
     let diskUsedArr = []
-    if(clusterNodeSummary.cpu.length !== 0){
-      clusterNodeSummary.cpu.map((item,index) => {
+    if(clusterNodeSummary.storage.length !== 0){
+      clusterNodeSummary.storage.map((item,index) => {
         let name = item.name.replace(/192.168./,'')
         name.substring(0, 5)
         console.log('item.name',name)
@@ -1312,114 +1299,115 @@ function mapStateToProp(state,props) {
   }
 
   const {clusterOperations, clusterSysinfo, clusterStorage, 
-    clusterAppStatus, clusterDbServices, clusterNodeSummary} = state.overviewCluster
-  if (clusterOperations.result && clusterOperations.result.data
-      && clusterOperations.result.data.data) {
-    if (clusterOperations.result.data.data.app) {
-      let data = clusterOperations.result.data.data.app
-      if (data.appCreate) {
-        clusterOperationsData.appCreate = data.appCreate
+    clusterAppStatus, clusterDbServices, clusterNodeSummary, clusterInfo} = state.overviewCluster
+  if (clusterInfo.result && clusterInfo.result) {
+    if (clusterInfo.result.operations) {
+      if (clusterInfo.result.operations.app) {
+        let data = clusterInfo.result.operations.app
+        if (data.appCreate) {
+          clusterOperationsData.appCreate = data.appCreate
+        }
+        if (data.appModify) {
+          clusterOperationsData.appModify = data.appModify
+        }
+        if (data.svcCreate) {
+          clusterOperationsData.svcCreate = data.svcCreate
+        }
+        if (data.svcDelete) {
+          clusterOperationsData.svcDelete = data.svcDelete
+        }
+        if (data.appStop) {
+          clusterOperationsData.appStop = data.appStop
+        }
+        if (data.appStart) {
+          clusterOperationsData.appStart = data.appStart
+        }
+        if (data.appCreate) {
+          clusterOperationsData.appCreate = data.appCreate
+        }
+        if (data.appRedeploy) {
+          clusterOperationsData.appRedeploy = data.appRedeploy
+        } 
       }
-      if (data.appModify) {
-        clusterOperationsData.appModify = data.appModify
-      }
-      if (data.svcCreate) {
-        clusterOperationsData.svcCreate = data.svcCreate
-      }
-      if (data.svcDelete) {
-        clusterOperationsData.svcDelete = data.svcDelete
-      }
-      if (data.appStop) {
-        clusterOperationsData.appStop = data.appStop
-      }
-      if (data.appStart) {
-        clusterOperationsData.appStart = data.appStart
-      }
-      if (data.appCreate) {
-        clusterOperationsData.appCreate = data.appCreate
-      }
-      if (data.appRedeploy) {
-        clusterOperationsData.appRedeploy = data.appRedeploy
-      } 
-    }
-    if (clusterOperations.result.data.data.volume) {
-      let data = clusterOperations.result.data.data.volume
-      if (data.volumeCreate) {
-        clusterOperationsData.volumeCreate = data.volumeCreate
-      }
-      if (data.volumeDelete) {
-        clusterOperationsData.volumeDelete = data.volumeDelete
-      }
-    }
-  }
-  if (clusterSysinfo.result && clusterSysinfo.result.data) {
-    let data = clusterSysinfo.result.data
-    if (data.k8s) {
-      if (data.k8s.version) {
-        clusterSysinfoData.k8s.version = data.k8s.version
-      }
-      if (data.k8s.status) {
-        clusterSysinfoData.k8s.status = data.k8s.status
+      if (clusterInfo.result.operations.volume) {
+        let data = clusterInfo.result.operations.volume
+        if (data.volumeCreate) {
+          clusterOperationsData.volumeCreate = data.volumeCreate
+        }
+        if (data.volumeDelete) {
+          clusterOperationsData.volumeDelete = data.volumeDelete
+        }
       }
     }
-    if (data.dns) {
-      if (data.dns.version) {
-        clusterSysinfoData.dns.version = data.dns.version
+    if (clusterInfo.result.sysinfo) {
+      let data = clusterInfo.result.sysinfo
+      if (data.k8s) {
+        if (data.k8s.version) {
+          clusterSysinfoData.k8s.version = data.k8s.version
+        }
+        if (data.k8s.status) {
+          clusterSysinfoData.k8s.status = data.k8s.status
+        }
       }
-      if (data.dns.status) {
-        clusterSysinfoData.dns.status = data.dns.status
+      if (data.dns) {
+        if (data.dns.version) {
+          clusterSysinfoData.dns.version = data.dns.version
+        }
+        if (data.dns.status) {
+          clusterSysinfoData.dns.status = data.dns.status
+        }
+      }
+      if (data.apiserver) {
+        if (data.apiserver.version) {
+          clusterSysinfoData.apiserver.version = data.apiserver.version
+        }
+        if (data.apiserver.status) {
+          clusterSysinfoData.apiserver.status = data.apiserver.status
+        }
+      }
+      if (data.cicd) {
+        if (data.cicd.version) {
+          clusterSysinfoData.cicd.version = data.cicd.version
+        }
+        if (data.cicd.status) {
+          clusterSysinfoData.cicd.status = data.cicd.status
+        }
+      }
+      if (data.logging) {
+        if (data.logging.version) {
+          clusterSysinfoData.logging.version = data.logging.version
+        }
+        if (data.logging.status) {
+          clusterSysinfoData.logging.status = data.logging.status
+        }
       }
     }
-    if (data.apiserver) {
-      if (data.apiserver.version) {
-        clusterSysinfoData.apiserver.version = data.apiserver.version
+    if (clusterInfo.result.storage) {
+      let data = clusterInfo.result.storage
+      if (data.freeSize) {
+        clusterStorageData.freeSize = data.freeSize
       }
-      if (data.apiserver.status) {
-        clusterSysinfoData.apiserver.status = data.apiserver.status
+      if (data.totalCnt) {
+        clusterStorageData.totalCnt = data.totalCnt
       }
-    }
-    if (data.cicd) {
-      if (data.cicd.version) {
-        clusterSysinfoData.cicd.version = data.cicd.version
+      if (data.usedCnt) {
+        clusterStorageData.usedCnt = data.usedCnt
       }
-      if (data.cicd.status) {
-        clusterSysinfoData.cicd.status = data.cicd.status
-      }
-    }
-    if (data.logging) {
-      if (data.logging.version) {
-        clusterSysinfoData.logging.version = data.logging.version
-      }
-      if (data.logging.status) {
-        clusterSysinfoData.logging.status = data.logging.status
+      if (data.usedSize) {
+        clusterStorageData.usedSize = data.usedSize
       }
     }
-  }
-  if (clusterStorage.result && clusterStorage.result.data) {
-    let data = clusterStorage.result.data
-    if (data.freeSize) {
-      clusterStorageData.freeSize = data.freeSize
+    if (clusterInfo.result.appstatus) {
+      let data = clusterInfo.result.appstatus
+      clusterAppStatusData = getStatus(data)
     }
-    if (data.totalCnt) {
-      clusterStorageData.totalCnt = data.totalCnt
+    if (clusterInfo.result.dbservices) {
+      let data = clusterInfo.result.dbservices
+      clusterDbServicesData = getDbServiceStatus(data)
     }
-    if (data.usedCnt) {
-      clusterStorageData.usedCnt = data.usedCnt
+    if (clusterInfo.result.nodesummary) {
+      clusterNodeSummaryData = clusterInfo.result.nodesummary
     }
-    if (data.usedSize) {
-      clusterStorageData.usedSize = data.usedSize
-    }
-  }
-  if (clusterAppStatus.result && clusterAppStatus.result.data) {
-    let data = clusterAppStatus.result.data
-    clusterAppStatusData = getStatus(data)
-  }
-  if (clusterDbServices.result && clusterDbServices.result.data) {
-    let data = clusterDbServices.result.data
-    clusterDbServicesData = getDbServiceStatus(data)
-  }
-  if (clusterNodeSummary.result && clusterNodeSummary.result.data) {
-    clusterNodeSummaryData = clusterNodeSummary.result.data
   }
   return {
     current,
@@ -1433,10 +1421,5 @@ function mapStateToProp(state,props) {
 }
 
 export default connect(mapStateToProp, {
-  loadClusterOperations,
-  loadClusterSysinfo,
-  loadClusterStorage,
-  loadClusterAppStatus,
-  loadClusterDbServices,
-  loadClusterNodeSummary,
+  loadClusterInfo,
 })(Ordinary)
