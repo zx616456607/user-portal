@@ -84,6 +84,9 @@ let MyComponent = React.createClass({
       case 'deleteApp':
         this.deleteApp(item.name);
         break;
+      case 'restartApp':
+        this.restartApp(item.name);
+        break;
     }
   },
   selectAppByline: function (item, e) {
@@ -145,8 +148,7 @@ let MyComponent = React.createClass({
     //confirmStopApps([app])
     batchStopApps([app])
   },
-  restartApp: function (e, name) {
-    e.stopPropagation()
+  restartApp: function (name) {
     const { confirmRestartApps, batchRestartApps } = this.props.funcs
     const app = {
       name
@@ -188,16 +190,21 @@ let MyComponent = React.createClass({
           <Menu.Item key='deleteApp'>
             <span>删除</span>
           </Menu.Item>
+          <Menu.Item key='restartApp'
+            disabled={item.status.phase === 'Stopped'}
+            onClick={(e) => this.restartApp(e, item.name)}>
+            <span>重新部署</span>
+          </Menu.Item>
           <Menu.Item key='topology'>
             <Link to={`/app_manage/detail/${item.name}#topology`} >
               查看拓扑图
             </Link>
           </Menu.Item>
-          <Menu.Item key='stack'>
+          {/*<Menu.Item key='stack'>
             <Link to={`/app_manage/detail/${item.name}#stack`} >
               查看编排
             </Link>
-          </Menu.Item>
+          </Menu.Item>*/}
         </Menu>
       );
       const appDomain = parseAppDomain(item, this.props.bindingDomains)
@@ -228,21 +235,13 @@ let MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className='actionBox commonData'>
-            {/*<Dropdown.Button
+            <Dropdown.Button
               overlay={dropdown} type='ghost'
-              disabled
-              onClick={(e) => this.restartApp(e, item.name)}>
-              <span>重新部署</span>
-            </Dropdown.Button>*/}
-            <Dropdown overlay={dropdown}>
-              <Button type="ghost"
-                onClick={(e) => this.restartApp(e, item.name)}
-                disabled={item.status.phase === 'Stopped'}
-                >
-                重新部署
-                <Icon type="down" />
-              </Button>
-            </Dropdown>
+              onClick={(e) => e.stopPropagation()}>
+              <Link to={`/app_manage/detail/${item.name}#stack`} >
+                查看编排
+              </Link>
+            </Dropdown.Button>
           </div>
           <div style={{ clear: 'both', width: '0' }}></div>
         </div>
