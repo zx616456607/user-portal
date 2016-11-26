@@ -42,6 +42,16 @@ export function loadAppList(cluster, query, callback) {
   }
 }
 
+
+export const UPDATE_APP_LIST = 'UPDATE_APP_LIST'
+export function updateAppList(cluster, appList) {
+  return {
+    cluster,
+    appList,
+    type: UPDATE_APP_LIST
+  }
+}
+
 export const APP_DETAIL_REQUEST = 'APP_DETAIL_REQUEST'
 export const APP_DETAIL_SUCCESS = 'APP_DETAIL_SUCCESS'
 export const APP_DETAIL_FAILURE = 'APP_DETAIL_FAILURE'

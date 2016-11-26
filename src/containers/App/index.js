@@ -18,7 +18,7 @@ import WebSocket from '../../components/WebSocket'
 import { Link } from 'react-router'
 import { setSockets, loadLoginUserDetail } from '../../actions/entities'
 import { isEmptyObject } from '../../common/tools'
-import { updateContainerList } from '../../actions/app_manage'
+import { updateContainerList, updateAppList } from '../../actions/app_manage'
 import { handleOnMessage } from './status'
 
 class App extends Component {
@@ -214,4 +214,5 @@ export default connect(mapStateToProps, {
   setSockets,
   loadLoginUserDetail,
   updateContainerList,
+  updateAppList,
 })(App)
