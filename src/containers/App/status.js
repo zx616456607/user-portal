@@ -50,6 +50,8 @@ export function addPodWatch(cluster, props, pods = []) {
 
 export function addDeploymentWatch(cluster, props, deployments = []) {
   let name = []
+  console.log(`deployments--------------------------`)
+  console.log(deployments)
   deployments.filter(deployment => {
     if (name.indexOf(deployment.metadata.name) < 0) {
       name.push(deployment.metadata.name)
@@ -68,8 +70,6 @@ export function addDeploymentWatch(cluster, props, deployments = []) {
 
 export function addAppWatch(cluster, props, apps = []) {
   let name = []
-  console.log(`apps--------------------------`)
-  console.log(apps)
   apps.filter(app => {
     if (name.indexOf(app.name) < 0) {
       name.push(app.name)
@@ -97,10 +97,6 @@ export function handleOnMessage(props, response) {
       updateContainerList(cluster, _changeListByWatch(containerList, response))
     } else if (watchType === 'app') {
       let { appList } = apps.appItems[cluster]
-      console.log(`apps------------`)
-      console.log(apps)
-      console.log(cluster)
-      console.log(appList)
       updateAppList(cluster, _changeAppListByWatch(appList, response))
     }
   } catch (err) {
@@ -180,6 +176,8 @@ function _changeListByWatch(list, response) {
           result.push(merge({}, item, data))
         case 'DELETED':
         // do noting here
+        case 'ERROR':
+        // @TODO
       }
     } else {
       result.push(item)

@@ -20,7 +20,7 @@ import { browserHistory } from 'react-router'
 import AppStatus from '../TenxStatus/AppStatus'
 import { parseAppDomain } from '../parseDomain'
 import TipSvcDomain from '../TipSvcDomain'
-import { addAppWatch } from '../../containers/App/status'
+import { addAppWatch, removeAppWatch } from '../../containers/App/status'
 
 const confirm = Modal.confirm
 const ButtonGroup = Button.Group
@@ -507,8 +507,12 @@ class AppList extends Component {
     this.loadData()
   }
 
-  componentDidMount() {
-    //
+  componentWillUnmount() {
+    const {
+      cluster,
+      statusWatchWs,
+    } = this.props
+    removeAppWatch(cluster, statusWatchWs)
   }
 
   componentWillReceiveProps(nextProps) {
