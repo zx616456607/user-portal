@@ -12,7 +12,7 @@ import { Row, Col, Card, } from 'antd'
 import './style/Admin.less'
 import ReactEcharts from 'echarts-for-react'
 import { connect } from 'react-redux'
-import { loadTeamDetail, loadTeamOperations } from '../../../actions/overview_team'
+import { loadTeamInfo } from '../../../actions/overview_team'
 
 
 
@@ -107,9 +107,8 @@ class Admin extends Component{
     
   }
   componentDidMount(){
-    const { loadTeamDetail, loadTeamOperations } = this.props
-    loadTeamDetail()
-    loadTeamOperations()
+    const { loadTeamInfo } = this.props
+    loadTeamInfo()
   }
   render(){
     const teamDetail = this.props.teamDetail
@@ -384,74 +383,74 @@ function mapStateToProp(state,props) {
     volumeCreate: 0,
     volumeDelete: 0,
   }
-  const {teamDetail, teamOperations} = state.overviewTeam
-  if (teamDetail.result && teamDetail.result.data
-      && teamDetail.result.data.data) {
-    let data = teamDetail.result.data.data
-    if (data.spaceCnt) {
-      teamDetailData.spaceCnt = data.spaceCnt
+  const {teamDetail, teamOperations, teamInfo} = state.overviewTeam
+  if (teamInfo.result) {
+    if (teamInfo.result.teamdetail) {
+      let data = teamInfo.result.teamdetail
+      if (data.spaceCnt) {
+        teamDetailData.spaceCnt = data.spaceCnt
+      }
+      if (data.appCnt) {
+        teamDetailData.appCnt = data.appCnt
+      }
+      if (data.svcCnt) {
+        teamDetailData.svcCnt = data.svcCnt
+      }
+      if (data.podCnt) {
+        teamDetailData.podCnt = data.podCnt
+      }
+      if (data.imageCnt) {
+        teamDetailData.imageCnt = data.imageCnt
+      }
+      if (data.templateCnt) {
+        teamDetailData.templateCnt = data.templateCnt
+      }
+      if (data.volumeCnt) {
+        teamDetailData.volumeCnt = data.volumeCnt
+      }
+      if (data.flowCnt) {
+        teamDetailData.flowCnt = data.flowCnt
+      }
     }
-    if (data.appCnt) {
-      teamDetailData.appCnt = data.appCnt
-    }
-    if (data.svcCnt) {
-      teamDetailData.svcCnt = data.svcCnt
-    }
-    if (data.podCnt) {
-      teamDetailData.podCnt = data.podCnt
-    }
-    if (data.imageCnt) {
-      teamDetailData.imageCnt = data.imageCnt
-    }
-    if (data.templateCnt) {
-      teamDetailData.templateCnt = data.templateCnt
-    }
-    if (data.volumeCnt) {
-      teamDetailData.volumeCnt = data.volumeCnt
-    }
-    if (data.flowCnt) {
-      teamDetailData.flowCnt = data.flowCnt
-    }
+    if (teamInfo.result.operations) {
+      if (teamInfo.result.operations.app) {
+        let data = teamInfo.result.operations.app
+        if (data.appCreate) {
+          teamOperationsData.appCreate = data.appCreate
+        }
+        if (data.appModify) {
+          teamOperationsData.appModify = data.appModify
+        }
+        if (data.svcCreate) {
+          teamOperationsData.svcCreate = data.svcCreate
+        }
+        if (data.svcDelete) {
+          teamOperationsData.svcDelete = data.svcDelete
+        }
+        if (data.appStop) {
+          teamOperationsData.appStop = data.appStop
+        }
+        if (data.appStart) {
+          teamOperationsData.appStart = data.appStart
+        }
+        if (data.appCreate) {
+          teamOperationsData.appCreate = data.appCreate
+        }
+        if (data.appRedeploy) {
+          teamOperationsData.appRedeploy = data.appRedeploy
+        }
+      }
+      if (teamInfo.result.operations.volume) {
+        let data = teamInfo.result.operations.volume
+        if (data.volumeCreate) {
+          teamOperationsData.volumeCreate = data.volumeCreate
+        }
+        if (data.volumeDelete) {
+          teamOperationsData.volumeDelete = data.volumeDelete
+        }
+      }
+    } 
   }
-  if (teamOperations.result && teamOperations.result.data
-      && teamOperations.result.data.data) {
-    if (teamOperations.result.data.data.app) {
-      let data = teamOperations.result.data.data
-      if (data.appCreate) {
-        teamOperationsData.appCreate = data.appCreate
-      }
-      if (data.appModify) {
-        teamOperationsData.appModify = data.appModify
-      }
-      if (data.svcCreate) {
-        teamOperationsData.svcCreate = data.svcCreate
-      }
-      if (data.svcDelete) {
-        teamOperationsData.svcDelete = data.svcDelete
-      }
-      if (data.appStop) {
-        teamOperationsData.appStop = data.appStop
-      }
-      if (data.appStart) {
-        teamOperationsData.appStart = data.appStart
-      }
-      if (data.appCreate) {
-        teamOperationsData.appCreate = data.appCreate
-      }
-      if (data.appRedeploy) {
-        teamOperationsData.appRedeploy = data.appRedeploy
-      }
-    }
-    if (teamOperations.result.data.data.volume) {
-      let data = teamOperations.result.data.data.volume
-      if (data.volumeCreate) {
-        teamOperationsData.volumeCreate = data.volumeCreate
-      }
-      if (data.volumeDelete) {
-        teamOperationsData.volumeDelete = data.volumeDelete
-      }
-    }
-  } 
   return {
     teamDetail: teamDetailData,
     teamOperations: teamOperationsData,
@@ -459,6 +458,5 @@ function mapStateToProp(state,props) {
 }
 
 export default connect(mapStateToProp, {
-  loadTeamDetail,
-  loadTeamOperations,
+  loadTeamInfo,
 })(Admin)
