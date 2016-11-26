@@ -13,6 +13,7 @@ import './style/MySpace.less'
 import ReactEcharts from 'echarts-for-react'
 import { connect } from 'react-redux'
 import { getOperationLogList } from '../../../actions/manage_monitor'
+import { calcuDate } from "../../../common/tools"
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { Link } from 'react-router'
 import { loadSpaceOperations, loadSpaceCICDStats, loadSpaceImageStats, loadSpaceTemplateStats, loadSpaceWarnings } from '../../../actions/overview_space'
@@ -119,11 +120,13 @@ class MySpace extends Component{
          if(index > 5) return
          if(index === 0) {
            return ele.push(
-             <Timeline.Item dot={<svg className="stateSvg"><use xlinkHref="#settingname" /></svg>}>
+             <Timeline.Item
+               
+             >
                <div className="logItem">
                  <div className="logTitle">{`${operationalFormat(item.operationType, this)}${resourceFormat(item.resourceType, this) || ''}${item.resourceName}`}</div>
                  <div className="logInf">
-                 {format(new Date() - new Date(item.time), this)}
+                 {calcuDate(item.time)}
                 <div className="logTime"> {`持续${duringTimeFormat(new Date(item.duration) - 0, this)}`}</div>
                  </div>
                </div>
@@ -134,7 +137,7 @@ class MySpace extends Component{
            <div className="logItem">
              <div className="logTitle">{`${operationalFormat(item.operationType, this)}${resourceFormat(item.resourceType, this) || ''}${item.resourceName}`}}</div>
              <div className="logInf">
-               {format(new Date() - new Date(item.time), this)}
+               {calcuDate(item.time)}
                <div className="logTime"> {`持续${duringTimeFormat(new Date(item.duration) - 0, this)}`}</div>
              </div>
            </div>
@@ -253,7 +256,7 @@ class MySpace extends Component{
                 </div>
               </Row>
             </Card>
-            <Card title="今日该集群记录" bordered={false} bodyStyle={{height:175, overflowY:'auto'}} style={{marginTop: 10,fontSize:'13px'}}>
+            <Card title="今日该空间记录" bordered={false} bodyStyle={{height:175, overflowY:'auto'}} style={{marginTop: 10,fontSize:'13px'}}>
               <table className="clusterTab">
                 <tbody>
                 <tr>
@@ -376,7 +379,7 @@ class MySpace extends Component{
                         <div className={index === 0?"warnItem fistWarn":'warnItem'}>
                           <Row className="itemTitle">{item.reason}</Row>
                           <Row className="itemTitle">{item.involvedObject.kind}: {item.involvedObject.name}</Row>
-                          <Row className="itemInf">{item.metadata.creationTimestamp}</Row>
+                          <Row className="itemInf">{calcuDate(item.metadata.creationTimestamp)}</Row>
                         </div>
                       </Timeline.Item>
                     )
@@ -817,33 +820,6 @@ const menusText = defineMessages({
     defaultMessage: '所有对象',
   },
 });
-
-function format(time) {
-  time = (time/1000).toFixed(2)
-  //s
-  if(time > 60) {
-    time = (time / 60).toFixed(0)
-    if(time > 60) {
-      time = (time / 60).toFixed(0)
-      if(time > 24) {
-        time = (time / 24).toFixed(0)
-        if(time > 30) {
-          time = (time / 30).toFixed(0)
-          if(time > 365) {
-            time = (time / 365).toFixed(0)
-            return `${time}年前`
-          }
-          return `${time}月前`
-        }
-        return `${time}天前` 
-      }
-      return `${time}小时前` 
-    }
-    return `${tiem}分钟前`
-  }
-  return '刚刚'
-}
-
 
 function duringTimeFormat(time, scope) {
   //this function for format duringtime

@@ -115,7 +115,7 @@ exports.listBranches = function* () {
   const repoName = this.query.reponame
   const project_id = this.query.project_id
   if (repoType != "gitlab" && repoType != "github") {
-    const err = new Error('Only support gitlab for now')
+    const err = new Error('Only support gitlab/github for now')
     err.status = 400
     throw err
   }

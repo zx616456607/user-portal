@@ -14,7 +14,7 @@ const apiFactory = require('../services/api_factory')
 exports.getSpaceOperations = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
-  const result = yield api.overview.getBy(["operations"])
+  const result = yield api.overview.getBy(["space-operations"])
   const data = result || {}
   this.body = {
     data

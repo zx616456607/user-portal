@@ -235,7 +235,7 @@ Only for admin user to use, and only get the number of all images
 exports.queryRegistryStats = function() {
   var registry = new registryAPIs()
   return new Promise(function (resolve, reject) {
-    registry.getAllRepositories(function(statusCode, result, err) {
+    registry.getRepositoryStats(function(statusCode, result, err) {
       if (err) {
         return reject(err)
       }

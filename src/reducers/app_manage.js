@@ -56,6 +56,15 @@ function appItems(state = {}, action) {
       return merge({}, defaultState, state, {
         [cluster]: { isFetching: false }
       })
+    case ActionTypes.UPDATE_APP_LIST:
+      let appItems = state[cluster]
+      appItems.appList = action.appList.map(app => {
+        app.status = getAppStatus(app.services)
+        return app
+      })
+      return Object.assign({}, state, {
+        [cluster]: appItems
+      })
     default:
       return state
   }
@@ -194,7 +203,7 @@ function serviceItmes(state = {}, action) {
 // ~~~ containers
 
 function containerItems(state = {}, action) {
-  const { cluster, containerList } = action
+  const { cluster } = action
   const defaultState = {
     [cluster]: {
       isFetching: false,
@@ -238,11 +247,13 @@ function containerItems(state = {}, action) {
         }
       })
     case ActionTypes.UPDATE_CONTAINER_LIST:
+      let containerItems = state[cluster]
+      containerItems.containerList = action.containerList.map(container => {
+        container.status = getContainerStatus(container)
+        return container
+      })
       return Object.assign({}, state, {
-        [cluster]: {
-          total: containerList.length,
-          containerList,
-        }
+        [cluster]: containerItems
       })
     default:
       return state

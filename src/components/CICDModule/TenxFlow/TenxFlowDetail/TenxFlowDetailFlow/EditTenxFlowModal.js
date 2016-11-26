@@ -429,18 +429,19 @@ let EditTenxFlowModal = React.createClass({
     let inputValue = form.getFieldValue('shellCode' + index);
     let changed = false
     let keys = form.getFieldValue('shellCodes');
-    if(index == shellUid && !!inputValue) {
-      shellUid++;
+    let max = keys[keys.length - 1]
+    if(index == max && !!inputValue) {
+      // shellUid++;
       changed = true
       // can use data-binding to get
-      keys = keys.concat(shellUid);
+      keys = keys.concat(max + 1);
       // can use data-binding to set
       // important! notify form to detect changes
     }
-    if (index == shellUid - 1 && !inputValue) {
+    if (index == max - 1 && !inputValue) {
       let nextInputValue = form.getFieldValue('shellCode' + index + 1);
       if (!nextInputValue) {
-        shellUid--;
+        // shellUid--;
         changed = true
         keys.pop()
       }
@@ -667,7 +668,7 @@ let EditTenxFlowModal = React.createClass({
       let imageEnvList = [];
       let imageEnvFlag = false;
       imageEnvLength.map((item, index) => {
-        if(values['imageEnvName' + item] != '') {
+        if(!!values['imageEnvName' + item]) {
           if(values['imageEnvValue' + item] == '') {
             _this.setState({
               emptyImageEnv: true
@@ -694,10 +695,8 @@ let EditTenxFlowModal = React.createClass({
       let shellLength = values.shellCodes;
       let shellList = [];
       shellLength.map((item, index) => {
-        if((index + 1) != shellLength.length) {
-          if(!!values['shellCode' + item]) {            
-            shellList.push(values['shellCode' + item]);
-          }
+        if(!!values['shellCode' + item]) {
+          shellList.push(values['shellCode' + item]);
         }
       });
       let body = {
@@ -849,16 +848,16 @@ let EditTenxFlowModal = React.createClass({
         <div className='serviceDetail' key={'shellCode' + i}>
           <FormItem className='serviceForm'>
             <Input disabled={ scopeThis.state.otherFlowType == '3' ? true : false } onKeyUp={() => this.addShellCode(i) } {...shellCodeProps} type='text' size='large' />
-            { scopeThis.state.otherFlowType == '3' ? null : (scodes.length == 1 ? null : [
+            { scopeThis.state.otherFlowType == '3' || scodes.length == 1 ? null : [
               <i className='fa fa-trash' onClick={() => this.removeShellCode(i)} />
-            ]) }
+            ] }
           </FormItem>
           <div style={{ clera:'both' }}></div>
         </div>
       </QueueAnim>
       )
     });
-    if (this.state.otherFlowType == '3') {
+    if (this.state.otherFlowType == '3' && shellCodeItems.length > 1) {
       shellCodeItems.pop()
     }
     const flowTypeProps = getFieldProps('flowType', {
@@ -956,7 +955,7 @@ let EditTenxFlowModal = React.createClass({
           </div>
           <div className='input'>
             { this.state.currentCodeStore ? [
-              <span style={{ marginRight:'15px' }}>{this.state.currentCodeStoreName + '  ' + formatMessage(menusText.branch) + this.state.currentCodeStoreBranch}</span>
+              <span style={{ marginRight:'15px' }}>{this.state.currentCodeStoreName + '  ' + (this.state.currentCodeStoreBranch ? formatMessage(menusText.branch) + this.state.currentCodeStoreBranch : '') }</span>
             ] : null }
             <Button className='selectCodeBtn' size='large' type='ghost' onClick={this.openCodeStoreModal}>
               <i className='fa fa-file-code-o' />

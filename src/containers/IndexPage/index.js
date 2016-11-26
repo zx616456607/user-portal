@@ -4,16 +4,37 @@ import { Breadcrumb } from 'antd'
 import "./style/IndexPage.less"
 import Admin from '../../components/Home/Admin'
 import Ordinary from '../../components/Home/Ordinary'
+import { setCurrent, loadLoginUserDetail } from '../../actions/entities'
 
-export default class IndexPage extends Component {
+class IndexPage extends Component {
   constructor(props) {
     super(props)
+    
   }
-
+  componentDidMount(){
+    const {
+      loadTeamClustersList,
+      setCurrent,
+      loadLoginUserDetail,
+      loginUser,
+    } = this.props
+    if (!loginUser.info.userName) {
+      loadLoginUserDetail()
+    }
+  }
   render() {
+    const { loginUser,current } = this.props
+    console.log('current',current);
+    if(loginUser.info.role === 1 && current.space.namespace !== 'default'){
+      return (
+        <div id="IndexPage">
+          <Admin />
+          <Ordinary />
+        </div>
+      )
+    }
     return (
       <div id="IndexPage">
-        <Admin />
         <Ordinary />
       </div>
     )
@@ -21,9 +42,20 @@ export default class IndexPage extends Component {
 }
 
 IndexPage.propTypes = {
-  //
+  
 }
 
+function mapStateToProps(state,props) {
+  const { current, loginUser } = state.entities
+  return {
+    current,
+    loginUser,
+  }
+}
+export default connect (mapStateToProps,{
+  setCurrent,
+  loadLoginUserDetail,
+})(IndexPage)
 /*function mapStateToProps(state, props) {
   const { login, name } = props.params
   const {

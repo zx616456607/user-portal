@@ -28,13 +28,16 @@ class AppStatus extends Component {
   }
 
   render() {
-    let { services, phase, smart, intl } = this.props
+    const { app, smart, intl } = this.props
+    let { status, services } = app
     const { formatMessage } = intl
-    const status = getAppStatus(services)
+    if (!status) {
+      status = getAppStatus(services)
+    }
     status.text = `${formatMessage(messages.AppReplicasMsg, { total: services.length })}`
     return (
       <TenxStatus
-        phase={phase || status.phase}
+        phase={status.phase}
         status={status}
         smart={smart} />
     )
@@ -42,8 +45,7 @@ class AppStatus extends Component {
 }
 
 AppStatus.propTypes = {
-  services: PropTypes.array.isRequired,
-  phase: PropTypes.string,
+  app: PropTypes.object.isRequired,
   smart: PropTypes.bool,
 }
 

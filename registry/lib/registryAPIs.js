@@ -928,11 +928,11 @@ DockerRegistryAPIs.prototype.getAuthorizationHeader = function (onbehalfUser) {
 }
 
 // Only for admin user to use
-DockerRegistryAPIs.prototype.getAllRepositories = function (callback) {
-  var method = "getAllRepositories";
-  logger.debug(method, "Querying all docker images ...");
+DockerRegistryAPIs.prototype.getRepositoryStats = function (callback) {
+  var method = "getRepositoryStats";
+  logger.debug(method, "Querying repository stats ...");
 
-  var requestUrl = this.getAPIPrefix() + "/admin/repositories";
+  var requestUrl = this.getAPIPrefix() + "/admin/repositories/stats";
 
   logger.debug(method, "Request url: " + requestUrl);
   this.sendRequest(requestUrl, 'GET', null, callback);
