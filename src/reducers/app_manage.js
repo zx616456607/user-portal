@@ -57,13 +57,13 @@ function appItems(state = {}, action) {
         [cluster]: { isFetching: false }
       })
     case ActionTypes.UPDATE_APP_LIST:
-      let appItems = state[cluster]
-      appItems.appList = action.appList.map(app => {
+      let apps = state[cluster]
+      apps.appList = action.appList.map(app => {
         app.status = getAppStatus(app.services)
         return app
       })
       return Object.assign({}, state, {
-        [cluster]: appItems
+        [cluster]: apps
       })
     default:
       return state

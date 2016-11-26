@@ -175,6 +175,8 @@ function _changeListByWatch(list, response) {
       switch (type) {
         case 'ADDED':
         case 'MODIFIED':
+          delete item.status
+          delete item.checked
           result.push(merge({}, item, data))
         case 'DELETED':
         // do noting here
@@ -190,12 +192,19 @@ function _changeListByWatch(list, response) {
 }
 
 function _changeAppListByWatch(apps, response) {
+  const { name, type } = response
+  if (type === 'ADDED') {
+    return apps
+  }
   let result = []
   let exist = false
   apps.map(app => {
-    if (app.name = response.name) {
+    if (app.name === name) {
       app.services = _changeListByWatch(app.services, response)
+      delete app.checked
     }
   })
+  console.log(`apps---------------------------handled`)
+  console.log(apps)
   return apps
 }

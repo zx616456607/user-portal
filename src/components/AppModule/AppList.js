@@ -776,12 +776,15 @@ class AppList extends Component {
         app.status.phase = 'Starting'
       }
     })
+    self.setState({
+      startAppsModal: false,
+      appList: allApps
+    })
     startApps(cluster, appNames, {
       success: {
         func: () => {
           // self.loadData()
           self.setState({
-            startAppsModal: false,
             runBtn: false,
             stopBtn: false,
             restartBtn: false,
@@ -814,12 +817,15 @@ class AppList extends Component {
         app.status.phase = 'Stopping'
       }
     })
+    self.setState({
+      stopAppsModal: false,
+      appList: allApps
+    })
     stopApps(cluster, appNames, {
       success: {
         func: () => {
           // self.loadData()
           self.setState({
-            stopAppsModal: false,
             runBtn: false,
             stopBtn: false,
             restartBtn: false,
@@ -853,12 +859,15 @@ class AppList extends Component {
         app.status.phase = 'Redeploying'
       }
     })
+    self.setState({
+      restarAppsModal: false,
+      appList: allApps
+    })
     restartApps(cluster, appNames, {
       success: {
         func: () => {
           // self.loadData()
           self.setState({
-            restarAppsModal: false,
             runBtn: false,
             stopBtn: false,
             restartBtn: false,
