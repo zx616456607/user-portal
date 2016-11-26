@@ -192,10 +192,7 @@ function fetchCodeStoreName(project, codeList) {
 
 function fetchDockerFilePath(spec) {
   if(!!spec.build) {
-    if(spec.build.dockerfileFrom == 1) {
-      return spec.build.dockerfilePath.replace('/','')
-    }
-    return null;
+    return spec.build.dockerfilePath;
   }
   return null;
 }
@@ -562,10 +559,12 @@ let EditTenxFlowModal = React.createClass({
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         e.preventDefault();
-        if (!Boolean(_this.state.dockerFileTextarea && !this.state.useDockerfile && _this.otherFlowType == '3')) {
-          _this.setState({
-            noDockerfileInput: true
-          });
+        let invalidDockerfile = Boolean(!_this.state.dockerFileTextarea && !_this.state.useDockerfile && values.flowType == '3');
+        _this.setState({
+          noDockerfileInput: invalidDockerfile
+        });
+        if (invalidDockerfile) {
+          errorFlag = true;
         }
         //check image env list
         let imageEnvLength = values.imageEnvInputs || [];
@@ -610,10 +609,11 @@ let EditTenxFlowModal = React.createClass({
       }
       //this flag for all form error flag
       let errorFlag = false;
-      if (!Boolean(_this.state.dockerFileTextarea) && !this.state.useDockerfile && _this.otherFlowType == '3') {
-        _this.setState({
-          noDockerfileInput: true
-        });
+      let invalidDockerfile = Boolean(!_this.state.dockerFileTextarea && !_this.state.useDockerfile && values.flowType == '3');
+      _this.setState({
+        noDockerfileInput: invalidDockerfile
+      });
+      if (invalidDockerfile) {
         errorFlag = true;
       }
       //get service code
@@ -737,14 +737,16 @@ let EditTenxFlowModal = React.createClass({
         if(this.state.ImageStoreType) {          
           imageBuildBody.customRegistry = values.otherStoreUrl;
         }
-        if(this.state.useDockerfile) {
-          let tmpDockerFileUrl = null;
-          if(!!!values.dockerFileUrl) {
-            tmpDockerFileUrl = '';
-          } else {
-            tmpDockerFileUrl = values.dockerFileUrl;
-          }
+        let tmpDockerFileUrl = null;
+        if(!!!values.dockerFileUrl) {
+          tmpDockerFileUrl = '';
+        } else {
+          tmpDockerFileUrl = values.dockerFileUrl;
+        }
+        if (tmpDockerFileUrl.indexOf('/') != 0) {
           imageBuildBody.DockerfilePath = '/' + tmpDockerFileUrl;
+        } else {
+          imageBuildBody.DockerfilePath = tmpDockerFileUrl;
         }
         body.spec.build = imageBuildBody;
       }
@@ -1040,7 +1042,7 @@ let EditTenxFlowModal = React.createClass({
                   </div>
                   <QueueAnim className='dockerFileInputAnimate' key='dockerFileInputAnimate'>
                     <div key='useDockerFileAnimateSecond'>
-                      <Input className='dockerFileInput' {...dockerFileUrlProps} addonBefore='/' size='large' />
+                      <Input className='dockerFileInput' {...dockerFileUrlProps} addonBefore=' ' size='large' />
                     </div>
                   </QueueAnim>
                   {

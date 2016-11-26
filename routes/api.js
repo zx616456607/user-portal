@@ -121,10 +121,12 @@ module.exports = function (Router) {
   router.put('/teams/:team_id/clusters/:cluster_id/request', teamController.requestTeamCluster)
 
   //Overview Team
+  router.get('/overview/teaminfo', overviewTeamController.getTeamOverview)
   router.get('/overview/teamdetail', overviewTeamController.getTeamDetail)
   router.get('/overview/teamoperations', overviewTeamController.getTeamOperations)
 
   //Overview Cluster
+  router.get('/overview/clusterinfo/clusters/:cluster_id', overviewClusterController.getClusterOverview)
   router.get('/overview/clusters/:cluster_id/operations', overviewClusterController.getClusterOperations)
   router.get('/overview/clusters/:cluster_id/sysinfo', overviewClusterController.getClusterSysinfo)
   router.get('/overview/clusters/:cluster_id/storage', overviewClusterController.getClusterStorage)
@@ -133,6 +135,7 @@ module.exports = function (Router) {
   router.get('/overview/clusters/:cluster_id/nodesummary', overviewClusterController.getClusterNodeSummary)
  
   //Overview Space
+  router.get('/overview/spaceinfo', overviewSpaceController.getSpaceOverview)
   router.get('/overview/operations', overviewSpaceController.getSpaceOperations)
   router.get('/overview/templates', overviewSpaceController.getSpaceTemplateStats)
   router.get('/overview/warnings', overviewSpaceController.getSpaceWarnings)
@@ -260,7 +263,7 @@ module.exports = function (Router) {
   router.delete('/devops/ci-flows/:flow_id/stages/:stage_id/dockerfile', devopsController.removeDockerfile)
   router.put('/devops/ci-flows/:flow_id/stages/:stage_id/dockerfile', devopsController.updateDockerfile)
   // Available CI images
-  router.put('/devops/ci/images', devopsController.getAvailableImages)
+  router.get('/devops/ci/images', devopsController.getAvailableImages)
 
   // Integration
   router.get('/integrations/getAllIntegration', integrationController.getAllIntegrations)
