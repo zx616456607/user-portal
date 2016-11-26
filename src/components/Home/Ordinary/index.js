@@ -174,7 +174,10 @@ class Ordinary extends Component{
     let CPUUsedArr = []
     if(clusterNodeSummary.cpu.length !== 0){
       clusterNodeSummary.cpu.map((item,index) => {
-        CPUNameArr.push(item.name.replace(/192.168./,''))
+        let name = item.name.replace(/192.168./,'')
+        name.substring(0, 5)
+        console.log('item.name',name)
+        CPUNameArr.push(name)
         CPUUsedArr.push(item.used)
       })
     }
@@ -183,7 +186,10 @@ class Ordinary extends Component{
     let memoryUsedArr = []
     if(clusterNodeSummary.cpu.length !== 0){
       clusterNodeSummary.cpu.map((item,index) => {
-        memoryNameArr.push(item.name.replace(/192.168./,''))
+        let name = item.name.replace(/192.168./,'')
+        name.substring(0, 5)
+        console.log('item.name',name)
+        memoryNameArr.push(name)
         memoryUsedArr.push(item.used)
       })
     }
@@ -192,7 +198,10 @@ class Ordinary extends Component{
     let diskUsedArr = []
     if(clusterNodeSummary.cpu.length !== 0){
       clusterNodeSummary.cpu.map((item,index) => {
-        diskNameArr.push(item.name.replace(/192.168./,''))
+        let name = item.name.replace(/192.168./,'')
+        name.substring(0, 5)
+        console.log('item.name',name)
+        diskNameArr.push(name)
         diskUsedArr.push(item.used)
       })
     }
@@ -660,7 +669,7 @@ class Ordinary extends Component{
       ]
     }
     return (
-      <div id='Ordinary' style={{marginTop:40}}>
+      <div id='Ordinary'>
         <Row className="title">我的空间-产品环境集群</Row>
         <Row className="content" gutter={16}>
           <Col span={8} className='clusterCost'>

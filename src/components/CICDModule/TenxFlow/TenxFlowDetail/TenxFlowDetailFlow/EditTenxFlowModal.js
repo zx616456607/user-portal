@@ -932,7 +932,6 @@ let EditTenxFlowModal = React.createClass({
                 <Option value='2'><FormattedMessage {...menusText.runningCode} /></Option>
                 <Option value='3'><FormattedMessage {...menusText.buildImage} selected/></Option>
                 <Option value='4'><FormattedMessage {...menusText.containCheck} /></Option>
-                <Option value='5'><FormattedMessage {...menusText.other} /></Option>
               </Select>
             </FormItem>
             {
@@ -1081,7 +1080,7 @@ let EditTenxFlowModal = React.createClass({
                 </div>
                 <div className='input imageType'>
                   <FormItem style={{ float:'left' }}>
-                    <RadioGroup {...getFieldProps('imageType', { initialValue: (!!config.spec.build ? (config.spec.build.registryType + '') : null), onChange: this.changeImageStoreType })}>
+                    <RadioGroup {...getFieldProps('imageType', { initialValue: (!!config.spec.build ? (config.spec.build.registryType + '') : '1'), onChange: this.changeImageStoreType })}>
                       <Radio key='imageStore' value={'1'}><FormattedMessage {...menusText.imageStore} /></Radio>
                       <Radio key='DockerHub' value={'2'} disabled>Docker Hub</Radio>
                       <Radio key='otherImage' value={'3'} disabled><FormattedMessage {...menusText.otherImage} /></Radio>
@@ -1108,7 +1107,7 @@ let EditTenxFlowModal = React.createClass({
                 </div>
                 <div className='input'>
                   <FormItem style={{ float:'left' }}>
-                    <RadioGroup {...getFieldProps('imageTag', { initialValue: (!!config.spec.build ? (config.spec.build.imageTagType + '') : null), onChange: this.changeImageTagType })}>
+                    <RadioGroup {...getFieldProps('imageTag', { initialValue: (!!config.spec.build ? (config.spec.build.imageTagType + '') : '1'), onChange: this.changeImageTagType })}>
                       <Radio key='branch' value={'1'}><FormattedMessage {...menusText.ImageTagByBranch} /></Radio>
                       <Radio key='time' value={'2'}><FormattedMessage {...menusText.ImageTagByTime} /></Radio>
                       <Radio key='other' value={'3'}><FormattedMessage {...menusText.ImageTagByOther} /></Radio>

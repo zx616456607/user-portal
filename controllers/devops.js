@@ -336,6 +336,18 @@ exports.getCIFlow = function* (){
   }
 }
 
+exports.getCIFlowYAML = function* (){
+  const loginUser = this.session.loginUser
+  const flow_id = this.params.flow_id
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.getBy(["ci-flows", flow_id], {o: 'yaml'})
+
+  this.body = {
+    data: result
+  }
+}
+
 exports.updateCIFlow = function* (){
   const loginUser = this.session.loginUser
   const flow_id = this.params.flow_id
@@ -727,6 +739,17 @@ exports.getStats = function* () {
 
   const api = apiFactory.getDevOpsApi(loginUser)
   const result = yield api.getBy(["stats"], null)
+
+  this.body = {
+    data: result
+  }
+}
+
+exports.getAvailableImages = function*() {
+  const loginUser = this.session.loginUser
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.getBy(["ci", "images"], null)
 
   this.body = {
     data: result
