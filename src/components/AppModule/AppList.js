@@ -195,12 +195,12 @@ let MyComponent = React.createClass({
             onClick={(e) => this.restartApp(e, item.name)}>
             <span>重新部署</span>
           </Menu.Item>
-          <Menu.Item key='topology'>
+          {/*<Menu.Item key='topology'>
             <Link to={`/app_manage/detail/${item.name}#topology`} >
               查看拓扑图
             </Link>
           </Menu.Item>
-          {/*<Menu.Item key='stack'>
+          <Menu.Item key='stack'>
             <Link to={`/app_manage/detail/${item.name}#stack`} >
               查看编排
             </Link>

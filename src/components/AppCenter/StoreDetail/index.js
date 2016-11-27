@@ -48,7 +48,7 @@ class DetailStack extends Component {
     return (
       <div className="infoList">
         <div className="operaBox"><Icon type="star-o" style={{marginRight:'15px'}}/><Icon type="arrow-salt" /></div>
-        <textarea>{data.content}</textarea>
+        <textarea readOnly>{data.content}</textarea>
       </div>
       
     )

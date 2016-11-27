@@ -222,11 +222,11 @@ let MyComponent = React.createClass({
     });
     const passwdProps = getFieldProps('passwd', {
       rules: [
-        { required: false, whitespace: true },
+        { required: false, message: '请输入密码', whitespace: true },
       ],
     });
     const registryProps = getFieldProps('registryName', {
-      rules: [{ required: true, whitespace: true }]
+      rules: [{ required: true, message: '请输入仓库名称', whitespace: true }]
     })
     return (
       <div className='modalBox'>

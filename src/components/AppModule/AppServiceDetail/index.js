@@ -194,11 +194,6 @@ class AppServiceDetail extends Component {
         <span onClick={() => this.delteService(service)}>删除</span>
       </Menu.Item>
       <Menu.Item key="3">
-        <Link to={`/app_manage/detail/${appName}#topology`} onClick={this.closeModal} >
-          查看拓扑图
-        </Link>
-      </Menu.Item>
-      <Menu.Item key="4">
         <Link to={`/app_manage/detail/${appName}#stack`} onClick={this.closeModal} >
           查看编排
         </Link>
