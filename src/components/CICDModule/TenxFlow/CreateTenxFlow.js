@@ -91,6 +91,9 @@ let CreateTenxFlow = React.createClass({
   },
   nameExists(rule, value, callback) {
     //this function for check the new tenxflow name is exist or not
+    if (this.state.currentType == '2') {
+      return callback()
+    };
     const { flowList } = this.props;
     let flag = false;
     if (!value) {
@@ -254,7 +257,7 @@ let CreateTenxFlow = React.createClass({
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form;
     const nameProps = getFieldProps('name', {
       rules: [
-        { required: true, message: '请输入TenxFlow名称' },
+        { required: this.state.currentType == '1', message: '请输入TenxFlow名称' },
         { validator: this.nameExists },
       ],
     });
@@ -286,21 +289,6 @@ let CreateTenxFlow = React.createClass({
       <Form horizontal>
         <div className='commonBox'>
           <div className='title'>
-            <span><FormattedMessage {...menusText.name} /></span>
-          </div>
-          <div className='input'>
-            <FormItem
-              hasFeedback
-              help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
-              style={{ width:'220px' }}
-            >
-              <Input {...nameProps} type='text' size='large' />
-            </FormItem>
-          </div>
-          <div style={{ clear:'both' }} />
-        </div>
-        <div className='commonBox'>
-          <div className='title'>
             <span><FormattedMessage {...menusText.create} /></span>
           </div>
           <div className='input'>
@@ -324,30 +312,49 @@ let CreateTenxFlow = React.createClass({
           </div>
           <div style={{ clear:'both' }} />
         </div>
-        <div className='commonBox'>
-          <div className='title'>
-            <span><FormattedMessage {...menusText.email} /></span>
+        { this.state.currentType == '1' ? [
+          <div className='commonBox'>
+            <div className='title'>
+              <span><FormattedMessage {...menusText.name} /></span>
+            </div>
+            <div className='input'>
+              <FormItem
+                hasFeedback
+                help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
+                style={{ width:'220px' }}
+              >
+                <Input {...nameProps} type='text' size='large' />
+              </FormItem>
+            </div>
+            <div style={{ clear:'both' }} />
           </div>
-          <div className='input'>
-            <Switch onChange={this.onChangeEmailAlert} checked={this.state.emailAlert} />
-            { this.state.emailAlert ? [
-              <QueueAnim type='right' key='selectedEmailAnimate'>
-                <div className='selectedEmail' key='selectedEmail'>
-                  <FormItem>
-                    <RadioGroup {...radioEmailProps} >
-                      <Radio key='a' value={'gaojian@tenxcloud.com'}>gaojian@tenxcloud.com</Radio><br />
-                      <Radio key='b' value={'others'}><FormattedMessage {...menusText.otherEmail} /></Radio><br />
-                    </RadioGroup>
-                  </FormItem>
-                  <FormItem className='emailInputForm'>
-                    <Input {...checkEmailProps} type='text' size='large' disabled={ !this.state.otherEmail } />
-                  </FormItem>
-                </div>
-              </QueueAnim>
-            ]:null }
+        ] : null }
+        { this.state.currentType == '1' ? [
+          <div className='commonBox'>
+            <div className='title'>
+              <span><FormattedMessage {...menusText.email} /></span>
+            </div>
+            <div className='input'>
+              <Switch onChange={this.onChangeEmailAlert} checked={this.state.emailAlert} />
+              { this.state.emailAlert ? [
+                <QueueAnim type='right' key='selectedEmailAnimate'>
+                  <div className='selectedEmail' key='selectedEmail'>
+                    <FormItem>
+                      <RadioGroup {...radioEmailProps} >
+                        <Radio key='a' value={'gaojian@tenxcloud.com'}>gaojian@tenxcloud.com</Radio><br />
+                        <Radio key='b' value={'others'}><FormattedMessage {...menusText.otherEmail} /></Radio><br />
+                      </RadioGroup>
+                    </FormItem>
+                    <FormItem className='emailInputForm'>
+                      <Input {...checkEmailProps} type='text' size='large' disabled={ !this.state.otherEmail } />
+                    </FormItem>
+                  </div>
+                </QueueAnim>
+              ]:null }
+            </div>
+            <div style={{ clear:'both' }} />
           </div>
-          <div style={{ clear:'both' }} />
-        </div>
+        ] : null }
         { this.state.emailAlert ? [
           <QueueAnim type='right' key='checkedEmailAnimate'>
             <div className='commonBox' key='checkedEmail'>

@@ -299,7 +299,7 @@ exports.createCIFlows = function* (){
   const loginUser = this.session.loginUser
   const body = this.request.body
 
-  if (!body.name) {
+  if (body.init_type == '1' && !body.name) {
     const err = new Error('name of flow is required')
     err.status = 400
     throw err
