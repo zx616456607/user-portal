@@ -306,7 +306,14 @@ exports.createCIFlows = function* (){
   }
 
   const api = apiFactory.getDevOpsApi(loginUser)
-  const result = yield api.createBy(["ci-flows"], null, body)
+
+  let result 
+  if (body.init_type == '2') {
+    result = yield api.createBy(["ci-flows"], {o: 'yaml'}, body.yaml)
+  } else {
+    result = yield api.createBy(["ci-flows"], null, body)
+  }
+  
 
   this.body = {
     data: result

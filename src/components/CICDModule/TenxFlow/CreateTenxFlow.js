@@ -217,12 +217,14 @@ let CreateTenxFlow = React.createClass({
         body = {
           'name': values.name,
           'init_type': parseInt(values.radioFlow),
+          'yaml': values.yaml,
           'notification_config': JSON.stringify(temp)
         }
       } else {
         body = {
           'name': values.name,
           'init_type': parseInt(values.radioFlow),
+          'yaml': values.yaml,
           'notification_config': null
         }
       }
@@ -305,7 +307,7 @@ let CreateTenxFlow = React.createClass({
             <FormItem className='flowTypeForm'>
               <RadioGroup {...radioFlowTypeProps} >
                 <Radio key='a' value={'1'}><FormattedMessage {...menusText.viewDefine} /></Radio>
-                <Radio key='b' value={'2'} disabled><FormattedMessage {...menusText.yamlDefine} /></Radio>
+                <Radio key='b' value={'2'}><FormattedMessage {...menusText.yamlDefine} /></Radio>
               </RadioGroup>
             </FormItem>
             { this.state.currentType == '2' ? [
