@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Card, Timeline, Popover, Spin } from 'antd'
+import { Row, Col, Card, Timeline, Popover, Spin, Icon } from 'antd'
 import './style/MySpace.less'
 import ReactEcharts from 'echarts-for-react'
 import { connect } from 'react-redux'
@@ -85,7 +85,8 @@ class MySpace extends Component{
   constructor(props){
     super(props)
     this.state = {
-      
+      cicdStates: true,
+      ImageStates: true,
     }
   }
 
@@ -94,8 +95,26 @@ class MySpace extends Component{
   }
   componentDidMount() {
     const { loadSpaceInfo, loadSpaceCICDStats, loadSpaceImageStats, getOperationLogList } = this.props
-    loadSpaceCICDStats()
-    loadSpaceImageStats()
+    loadSpaceCICDStats({
+      error: {
+        func: () => {
+          this.setState({
+            cicdStates: false,
+          })
+        },
+        isAsync: true
+      }
+    })
+    loadSpaceImageStats({
+      error: {
+        func: () => {
+          this.setState({
+            ImageStates: false,
+          })
+        },
+        isAsync: true
+      }
+    })
     loadSpaceInfo()
     let {} = this.props
     let { namespace, teamspace } = this.props
@@ -156,7 +175,7 @@ class MySpace extends Component{
   }
 
   render(){
-    const {spaceOperations, spaceCICDStats, spaceImageStats, spaceTemplateStats } = this.props
+    const {spaceOperations, spaceCICDStats, spaceImageStats, spaceTemplateStats, spaceName } = this.props
     let isFetchingAuditLog = true
     if (this.props.auditLog) {
       isFetchingAuditLog  = this.props.auditLog.isFetching
@@ -164,7 +183,7 @@ class MySpace extends Component{
     let spaceWarnings = []
     return (
       <div id='MySpace'>
-        <Row className="title" style={{marginTop: 40}}>我的空间</Row>
+        <Row className="title" style={{marginTop: 40}}>空间 : {spaceName}</Row>
         <Row className="content" gutter={16} style={{marginBottom: 100}}>
           <Col span={6}>
             <Card title="镜像仓库" bordered={false} bodyStyle={{height:175,padding:'0',position:'relative'}}>
@@ -180,13 +199,17 @@ class MySpace extends Component{
               </Row>
               <Row style={{height:40,lineHeight:'40px',borderTop:'1px solid #e2e2e2',padding:'0 24px',fontSize:'12px'}}>
                 服务状态:
-                <div style={{float:'right'}}>
-                  {/*<svg className="stateSvg">
-                    <use xlinkHref="#settingname" />
-                  </svg>*/}
-                  <img src='/img/homeRight.png' className='svcStateImg'/>
-                  <span style={{color:'#38c28c'}}>健康</span>
-                </div>
+                {
+                  this.state.ImageStates ?
+                    <div style={{float:'right'}}>
+                      <Icon type="check-circle-o" style={{color:'#42c592',marginRight:'10px'}}/>
+                      <span style={{color:'#38c28c'}}>健康</span>
+                    </div>:
+                    <div style={{float:'right'}}>
+                      <Icon type="exclamation-circle" style={{color:'#f85a59',marginRight:'10px'}}/>
+                      <span style={{color:'#f85a59'}}>异常</span>
+                    </div>
+                }
               </Row>
             </Card>
             <Card title="编排概况" bordered={false} bodyStyle={{height:175,padding:'0',position:'relative',fontSize:'14px'}} style={{marginTop: 10}}>
@@ -253,13 +276,17 @@ class MySpace extends Component{
               </Row>
               <Row style={{height:40,lineHeight:'40px',borderTop:'1px solid #e2e2e2',padding:'0 24px'}}>
                 服务状态:
-                <div style={{float:'right'}}>
-                  {/*<svg className="stateSvg">
-                    <use xlinkHref="#settingname" />
-                  </svg>*/}
-                  <img src='/img/homeRight.png' className='svcStateImg'/>
-                  <span style={{color:'#38c28c'}}>健康</span>
-                </div>
+                {
+                  this.state.cicdStates ?
+                    <div style={{float:'right'}}>
+                      <Icon type="check-circle-o" style={{color:'#42c592',marginRight:'10px'}}/>
+                      <span style={{color:'#38c28c'}}>健康</span>
+                    </div>:
+                    <div style={{float:'right'}}>
+                      <Icon type="exclamation-circle" style={{color:'#f85a59',marginRight:'10px'}}/>
+                      <span style={{color:'#f85a59'}}>异常</span>
+                    </div>
+                }
               </Row>
             </Card>
             <Card title="今日该空间记录" bordered={false} bodyStyle={{height:175}} style={{marginTop: 10,fontSize:'13px'}}>

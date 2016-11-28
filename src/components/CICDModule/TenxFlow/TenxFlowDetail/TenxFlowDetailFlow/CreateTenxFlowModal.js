@@ -222,15 +222,7 @@ let CreateTenxFlowModal = React.createClass({
   componentWillMount() {
     const self = this
     const {getAvailableImage} = this.props
-      getAvailableImage({
-      success: {
-        func: (res) => {
-          self.setState({
-            baseImage: res.data.results
-          })
-        }
-      }
-    })
+    getAvailableImage()
   },
   flowNameExists(rule, value, callback) {
     //this function for check the new tenxflow name is exist or not
@@ -285,11 +277,9 @@ let CreateTenxFlowModal = React.createClass({
     }
   },
   flowTypeChange(e) {
-    const { imageList } = this.props
     const ins = e.split('@')[1]
-    const baseImage = imageList[ins].imageList
     this.props.form.resetFields(['otherFlowType', 'imageNameProps']);
-    if (e != '3') {
+    if (ins != '3') {
       this.props.form.resetFields(['imageRealName', 'dockerFileUrl', 'otherStoreUrl', 'otherTag', 'imageType', 'imageTag', 'buildCache']);
       this.setState({
         useDockerfile: false,
