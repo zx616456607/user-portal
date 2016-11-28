@@ -31,7 +31,7 @@ function formatLinkContainer(data, groupname, name) {
           if (data[i].services[j].spec.template.spec.volumes[k].configMap && data[i].services[j].spec.template.spec.volumes[k].configMap.name == groupname) {
             for (let l = 0; l < data[i].services[j].spec.template.spec.volumes[k].configMap.items.length; l++) {
               if (data[i].services[j].spec.template.spec.volumes[k].configMap.items[l].key == name) {
-                linkContainer.push(data[i].services[j].spec.template.spec.containers[l].name)
+                linkContainer.push(data[i].name)
               }
             }
           }
@@ -56,7 +56,7 @@ function formatVolumeMounts(data, groupname, name) {
                 for (let v = 0; v < data[i].services[j].spec.template.spec.containers[l].volumeMounts.length; v++) {
                   let others = [
                     {
-                      imageName: data[i].services[j].spec.template.spec.containers[l].name,
+                      imageName: data[i].name,
                       mountPath: data[i].services[j].spec.template.spec.containers[l].volumeMounts[v].mountPath
                     }
                   ]
@@ -238,7 +238,7 @@ class CollapseContainer extends Component {
                     </Button>
                   </td>
                   <td style={{ width: '130px' }}>
-                    <div className='li'>关联容器 <span className='node-number'>{Array.from(new Set(imageName)).length}</span></div>
+                    <div className='li'>关联应用 <span className='node-number'>{Array.from(new Set(imageName)).length}</span></div>
                     <div className='lis'>挂载路径</div>
                   </td>
                   { volume }
