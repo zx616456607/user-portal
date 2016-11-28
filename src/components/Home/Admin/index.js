@@ -20,7 +20,8 @@ let cost = 100
 let rest = 900
 let option = {
   title: {
-    text: '余额 :  '+rest+'T币\n消费 :  '+cost+'T币',
+    show: false,
+    text: '余额 :  '+rest+'T币\n\n消费 :  '+cost+'T币',
     x:'center',
     top: '65%',
     textStyle:{
@@ -38,12 +39,24 @@ let option = {
     formatter: "{b}: {c}<br/> ({d}%)"
   },
   legend: {
-    show: false,
+    show: true,
     orient: 'vertical',
-    x: '50%',
-    bottom: 0,
+    x: 'center',
+    top: '65%',
     data:['余额','消费'],
-    formatter: ''
+    formatter: function (name) {
+      if(name === '余额'){
+        return name + ': ' + rest + 'T币'
+      } else if (name === '消费') {
+        return name + ': ' + cost + 'T币'
+      }
+    },
+    textStyle: {
+      fontSize: 14,
+    },
+    itemGap: 8,
+    itemWidth: 10,
+    itemHeight: 10,
   },
   series: [
     {

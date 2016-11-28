@@ -201,8 +201,6 @@ function mapStateToProps(state, props) {
   const { errorMessage, entities } = state
   const { current, sockets, loginUser } = entities
   const { location } = props
-  console.log(`location---------------------`)
-  console.log(location)
   const { pathname, search, hash } = location
   let redirectUrl = pathname
   if (search) {

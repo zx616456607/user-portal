@@ -795,6 +795,8 @@ class AppServiceList extends Component {
     })
   }
   handleRestarServiceCancel() {
+    console.log(`this.state-----------------`)
+    console.log(this.state)
     this.setState({
       RestarServiceModal: false,
     })
@@ -1115,9 +1117,17 @@ class AppServiceList extends Component {
 
   render() {
     const parentScope = this
-    let {modalShow, currentShowInstance, serviceList, selectTab, rollingUpdateModalShow, configModal, manualScaleModalShow,
-      addServiceModalShow, deployServiceModalShow, runBtn, stopBtn, restartBtn} = this.state
-    const {name, pathname, page, size, total, isFetching, cluster, appName, loadServiceList} = this.props
+    let {
+      modalShow, currentShowInstance, serviceList,
+      selectTab, rollingUpdateModalShow, configModal,
+      manualScaleModalShow, addServiceModalShow, deployServiceModalShow,
+      runBtn, stopBtn, restartBtn,
+    } = this.state
+    const {
+      name, pathname, page,
+      size, total, isFetching,
+      cluster, appName, loadServiceList
+    } = this.props
     const checkedServiceList = serviceList.filter((service) => service.checked)
     const checkedServiceNames = checkedServiceList.map((service) => service.metadata.name)
     const isChecked = (checkedServiceList.length > 0)
@@ -1135,11 +1145,6 @@ class AppServiceList extends Component {
       <Menu>
         <Menu.Item key="0" disabled={!restartBtn}>
           <span onClick={this.batchRestartService}>重新部署</span>
-          <Modal title="重新部署操作" visible={this.state.RestarServiceModal}
-            onOk={this.handleRestarServiceOk} onCancel={this.handleRestarServiceCancel}
-            >
-            <RestarServiceModal serviceList={serviceList} />
-          </Modal>
         </Menu.Item>
         {/*<Menu.Item key="1">
           <span onClick={this.showManualScaleModal}>水平扩展</span>
@@ -1180,6 +1185,11 @@ class AppServiceList extends Component {
               <i className="fa fa-play"></i>
               启动
             </Button>
+            <Modal title="重新部署操作" visible={this.state.RestarServiceModal}
+              onOk={this.handleRestarServiceOk} onCancel={this.handleRestarServiceCancel}
+              >
+              <RestarServiceModal serviceList={serviceList} />
+            </Modal>
             <Modal title="启动操作" visible={this.state.StartServiceModal}
               onOk={this.handleStartServiceOk} onCancel={this.handleStartServiceCancel}
               >

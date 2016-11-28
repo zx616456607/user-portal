@@ -36,6 +36,7 @@ import AppDeployServiceModal from './AppCreate/AppDeployServiceModal'
 import TipSvcDomain from '../TipSvcDomain'
 import yaml from 'js-yaml'
 import { addDeploymentWatch, removeDeploymentWatch } from '../../containers/App/status'
+import { LABEL_APPNAME } from '../../constants'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -293,6 +294,7 @@ const MyComponent = React.createClass({
       const images = item.spec.template.spec.containers.map(container => {
         return container.image
       })
+      const appName = item.metadata.labels[LABEL_APPNAME]
       return (
         <div
           className={item.checked ? "selectedInstance instanceDetail" : "instanceDetail"}
@@ -312,8 +314,10 @@ const MyComponent = React.createClass({
             <ServiceStatus service={item} />
           </div>
           <div className="appname commonData">
-            <Tooltip title={item.metadata.labels['tenxcloud.com/appName']}>
-              <span>{item.metadata.labels['tenxcloud.com/appName']}</span>
+            <Tooltip title={appName}>
+              <Link to={`/app_manage/detail/${appName}`}>
+                <span>{appName}</span>
+              </Link>
             </Tooltip>
           </div>
           <div className="image commonData">
@@ -1049,11 +1053,6 @@ class ServiceList extends Component {
       <Menu>
         <Menu.Item key="0" disabled={!restartBtn}>
           <span onClick={this.batchRestartService}>重新部署</span>
-          <Modal title="重新部署操作" visible={this.state.RestarServiceModal}
-            onOk={this.handleRestarServiceOk} onCancel={this.handleRestarServiceCancel}
-            >
-            <RestarServiceModal serviceList={serviceList} />
-          </Modal>
         </Menu.Item>
       </Menu>
     );
@@ -1068,6 +1067,11 @@ class ServiceList extends Component {
               <Button type='ghost' size='large' onClick={this.batchStartService} disabled={!runBtn}>
                 <i className='fa fa-play'></i>启动
               </Button>
+              <Modal title="重新部署操作" visible={this.state.RestarServiceModal}
+                onOk={this.handleRestarServiceOk} onCancel={this.handleRestarServiceCancel}
+                >
+                <RestarServiceModal serviceList={serviceList} />
+              </Modal>
               <Modal title="启动操作" visible={this.state.StartServiceModal}
                 onOk={this.handleStartServiceOk} onCancel={this.handleStartServiceCancel}
                 >

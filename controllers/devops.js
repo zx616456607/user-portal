@@ -728,6 +728,20 @@ exports.getFlowStageBuildLog = function* () {
   }
 }
 
+exports.getFlowStageBuildEvents = function* () {
+  const loginUser = this.session.loginUser
+  const flow_id = this.params.flow_id
+  const stage_id = this.params.stage_id
+  const stage_build_id = this.params.stage_build_id
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.getBy(["ci-flows", flow_id, "stages", stage_id, "builds", stage_build_id, "events"], null)
+
+  this.body = {
+    data: result
+  }
+}
+
 exports.getStageBuildLogList = function* () {
   const loginUser = this.session.loginUser
   const flow_id = this.params.flow_id
