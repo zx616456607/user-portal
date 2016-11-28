@@ -898,7 +898,7 @@ class ServiceList extends Component {
     quickRestartServices(cluster, serviceNames, {
       success: {
         func: () => {
-          // self.loadServices()
+          self.loadServices()
           this.setState({
             QuickRestarServiceModal: false,
             runBtn: false,

@@ -154,7 +154,7 @@ export function handleOnPodMessage(props, response) {
   }
   // Update service container list
   let servicesObj = services.serviceContainers[cluster]
-  if (servicesObj[serviceName]) {
+  if (servicesObj && servicesObj[serviceName]) {
     let { containerList } = servicesObj[serviceName]
     updateServiceContainersList(cluster, serviceName, _changeListByWatch(containerList, response))
   }
