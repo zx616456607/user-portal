@@ -46,7 +46,7 @@ let TenxFlowDetailYaml = React.createClass({
     <div id='TenxFlowDetailYaml' key='TenxFlowDetailYaml'>
       <Alert type='info' message={<FormattedMessage {...menusText.tooltips} />} />
       <Card className='yamlCard'>
-        <Input disabled={true} type='textarea' {...yaml} autosize={{ minRows: 20, maxRows: 20 }} />
+        <Input readOnly type='textarea' {...yaml} autosize={{ minRows: 20, maxRows: 20 }} />
       </Card>
     </div>
     )

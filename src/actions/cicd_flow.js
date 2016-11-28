@@ -1128,3 +1128,24 @@ export function getStageBuildLogList(flowId, stageId, callback) {
     return dispatch(fetchStageBuildLogList(flowId, stageId, callback))
   }
 }
+
+export const GET_AVAILABLE_IMAGE_REQUEST = 'GET_AVAILABLE_IMAGE_REQUEST'
+export const GET_AVAILABLE_IMAGE_SUCCESS = 'GET_AVAILABLE_IMAGE_SUCCESS'
+export const GET_AVAILABLE_IMAGE_FAILURE = 'GET_AVAILABLE_IMAGE_FAILURE'
+
+function fetchAvailableImage(callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_AVAILABLE_IMAGE_REQUEST, GET_AVAILABLE_IMAGE_SUCCESS, GET_AVAILABLE_IMAGE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci/images`,
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function getAvailableImage(callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchAvailableImage(callback))
+  }
+}

@@ -84,9 +84,9 @@ const menusText = defineMessages({
     id: 'CICD.Tenxflow.TenxFlowDetailFlowCard.buildImage',
     defaultMessage: '镜像构建',
   },
-  other: {
-    id: 'CICD.Tenxflow.TenxFlowDetailFlowCard.other',
-    defaultMessage: '自定义',
+  linkPod: {
+    id: 'CICD.Tenxflow.TenxFlowDetailFlowCard.linkPod',
+    defaultMessage: '依赖环境',
   },
   startBtn: {
     id: 'CICD.Tenxflow.TenxFlowDetailFlowCard.startBtn',
@@ -166,24 +166,23 @@ function currentFlowType(type, customTypeText) {
         <FormattedMessage {...menusText.containCheck} />
       );
       break;
-    //  case 3:
-    //    return (
-    //      <FormattedMessage {...menusText.podToPodCheck} />
-    //      );
-    //    break;
     case 4:
-      return (
-        <FormattedMessage {...menusText.runningCode} />
-      );
-      break;
     case 3:
       return (
         <FormattedMessage {...menusText.buildImage} />
       );
       break;
+      return (
+        <FormattedMessage {...menusText.runningCode} />
+      );
+      break;
     case 5:
       return customTypeText;
       break;
+    default:
+      return (
+        <FormattedMessage {...menusText.linkPod} />
+      )
   }
 }
 

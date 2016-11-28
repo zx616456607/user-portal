@@ -190,10 +190,13 @@ class OtherSpace extends Component {
                   <i className="fa fa-link"></i>&nbsp;&nbsp;
                     {otherHead.url}
                 </div>
+                {otherHead.username ?
                 <div className="name">
                   <i className="fa fa-user"></i>&nbsp;&nbsp;
                   {otherHead.username}
                 </div>
+                :null
+                }
               </div>
               <Button className="logout" size="large" type="ghost" onClick={()=>this.deleteImage(this.props.imageId)}>
                 <FormattedMessage {...menusText.logout} />

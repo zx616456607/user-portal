@@ -12,6 +12,30 @@ import { FETCH_API, Schemas } from '../middleware/api'
 import { API_URL_PREFIX } from '../constants'
 import { toQuerystring } from '../common/tools'
 
+export const OVERVIEW_TEAMINFO_REQUEST = 'OVERVIEW_TEAMINFO_REQUEST'
+export const OVERVIEW_TEAMINFO_SUCCESS = 'OVERVIEW_TEAMINFO_SUCCESS'
+export const OVERVIEW_TEAMINFO_FAILURE = 'OVERVIEW_TEAMINFO_FAILURE'
+
+// Fetches team overview from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchTeamInfo() {
+  return {
+    [FETCH_API]: {
+      types: [OVERVIEW_TEAMINFO_REQUEST, OVERVIEW_TEAMINFO_SUCCESS, OVERVIEW_TEAMINFO_FAILURE],
+      endpoint: `${API_URL_PREFIX}/overview/teaminfo`,
+      schema: {}
+    }
+  }
+}
+
+// Fetches team overview from API unless it is cached.
+// Relies on Redux Thunk middleware.
+export function loadTeamInfo() {
+  return (dispatch, getState) => {
+    return dispatch(fetchTeamInfo())
+  }
+}
+
 export const OVERVIEW_TEAM_DETAIL_REQUEST = 'OVERVIEW_TEAM_DETAIL_REQUEST'
 export const OVERVIEW_TEAM_DETAIL_SUCCESS = 'OVERVIEW_TEAM_DETAIL_SUCCESS'
 export const OVERVIEW_TEAM_DETAIL_FAILURE = 'OVERVIEW_TEAM_DETAIL_FAILURE'

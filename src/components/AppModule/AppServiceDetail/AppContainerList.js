@@ -45,6 +45,13 @@ const MyComponent = React.createClass({
       selectedList: oldList
     });
   },
+  getImages(item) {
+    let images = []
+    item.spec.containers.map((container) => {
+      images.push(container.image)
+    })
+    return images.join(', ')
+  },
   render: function () {
     const {config, loading} = this.props
     if (loading) {
@@ -62,6 +69,7 @@ const MyComponent = React.createClass({
       )
     }
     const items = config.map((item) => {
+      const images = this.getImages(item)
       return (
         <div className="containerDetail" key={item.metadata.name}>
           {/*(<div className="selectIconTitle commonData">
@@ -78,8 +86,8 @@ const MyComponent = React.createClass({
             <ContainerStatus container={item} />
           </div>
           <div className="image commonData">
-            <Tooltip placement="topLeft" title={item.images.join(', ') ? item.images.join(', ') : ""} >
-              <span>{item.images.join(', ') || '-'}</span>
+            <Tooltip placement="topLeft" title={images ? images : ""} >
+              <span>{images || '-'}</span>
             </Tooltip>
           </div>
           <div className="address commonData">

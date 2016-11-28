@@ -247,12 +247,12 @@ let MyComponent = React.createClass({
             onClick={(e) => this.restartApp(e, item.name)}>
             <span>重新部署</span>
           </Menu.Item>
-          <Menu.Item key='topology'>
+          {/*<Menu.Item key='topology'>
             <Link to={`/app_manage/detail/${item.name}#topology`} >
               查看拓扑图
             </Link>
           </Menu.Item>
-          {/*<Menu.Item key='stack'>
+          <Menu.Item key='stack'>
             <Link to={`/app_manage/detail/${item.name}#stack`} >
               查看编排
             </Link>
@@ -473,11 +473,6 @@ let RestarAppsModal = React.createClass({
     )
   }
 })
-
-/*function loadData(props) {
-  const { loadAppList, cluster, page, size, name, sortOrder, sortBy } = props
-  loadAppList(cluster, { page, size, name, sortOrder, sortBy })
-}*/
 
 class AppList extends Component {
   constructor(props) {
@@ -729,7 +724,7 @@ class AppList extends Component {
           })
           deleteApps(cluster, appNames, {
             success: {
-              func: self.loadData,
+              func: () => self.loadData(self.props),
               isAsync: true
             }
           })
@@ -777,7 +772,6 @@ class AppList extends Component {
   }
 
   updateBrowserHistory(page, size, sortOrder, sortBy) {
-
     if (page === this.props.page &&
       size === this.props.size &&
       sortOrder === this.props.sortOrder &&

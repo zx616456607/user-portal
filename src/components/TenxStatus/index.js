@@ -163,7 +163,7 @@ class TenxStatus extends Component {
 
   setProgressPercent(percent) {
     this.progressInterval = setInterval(() => {
-      if (percent >= 100) {
+      if (percent >= 90) {
         clearInterval(this.progressInterval)
         delete this.progressInterval
         return
@@ -172,7 +172,7 @@ class TenxStatus extends Component {
       this.setState({
         percent
       })
-    }, 100) // After 2 seconds, the progress will up to 100%
+    }, 100)
   }
 
   getReplicasElement() {

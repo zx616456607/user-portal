@@ -16,6 +16,7 @@ const option = {
 }
 
 export default function overviewCluster(state = {
+  clusterInfo: {},
   clusterOperations: {},
   clusterSysinfo: {},
   clusterStorage: {},
@@ -24,6 +25,11 @@ export default function overviewCluster(state = {
   clusterNodeSummary: {},
  }, action) {
   return {
+    clusterInfo: reducerFactory({
+      REQUEST: ActionTypes.OVERVIEW_CLUSTERINFO_REQUEST,
+      SUCCESS: ActionTypes.OVERVIEW_CLUSTERINFO_SUCCESS,
+      FAILURE: ActionTypes.OVERVIEW_CLUSTERINFO_FAILURE
+    }, state.clusterInfo, action, option),
     clusterOperations: reducerFactory({
       REQUEST: ActionTypes.OVERVIEW_CLUSTER_OPERATIONS_REQUEST,
       SUCCESS: ActionTypes.OVERVIEW_CLUSTER_OPERATIONS_SUCCESS,

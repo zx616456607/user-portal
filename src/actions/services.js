@@ -18,7 +18,7 @@ export const SERVICE_LIST_FAILURE = 'SERVICE_LIST_FAILURE'
 
 // Fetches service list from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchServiceList(cluster, appName, query) {
+function fetchServiceList(cluster, appName, query, callback) {
   let endpoint = `${API_URL_PREFIX}/clusters/${cluster}/apps/${appName}/services`
   if (query) {
     endpoint += `?${toQuerystring(query)}`
@@ -30,15 +30,27 @@ function fetchServiceList(cluster, appName, query) {
       types: [SERVICE_LIST_REQUEST, SERVICE_LIST_SUCCESS, SERVICE_LIST_FAILURE],
       endpoint,
       schema: Schemas.SERVICES
-    }
+    },
+    callback
   }
 }
 
 // Fetches services list from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function loadServiceList(cluster, appName, query, requiredFields = []) {
+export function loadServiceList(cluster, appName, query, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchServiceList(cluster, appName, query))
+    return dispatch(fetchServiceList(cluster, appName, query, callback))
+  }
+}
+
+export const UPDATE_APP_SERVICES_LIST = 'UPDATE_APP_SERVICES_LIST'
+
+export function updateAppServicesList(cluster, appName, serviceList) {
+  return {
+    cluster,
+    appName,
+    serviceList,
+    type: UPDATE_APP_SERVICES_LIST
   }
 }
 
@@ -244,9 +256,20 @@ function fetchServiceContainerList(cluster, serviceName, callback) {
 
 // Fetches containers list from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function loadServiceContainerList(cluster, serviceName, requiredFields = [], callback) {
+export function loadServiceContainerList(cluster, serviceName, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchServiceContainerList(cluster, serviceName, callback))
+  }
+}
+
+export const UPDATE_SERVICE_CONTAINERS_LIST = 'UPDATE_SERVICE_CONTAINERS_LIST'
+
+export function updateServiceContainersList(cluster, serviceName, containerList) {
+  return {
+    cluster,
+    serviceName,
+    containerList,
+    type: UPDATE_SERVICE_CONTAINERS_LIST
   }
 }
 
@@ -592,16 +615,16 @@ export const SERVICE_GET_ALL_LIST_SUCCESS = 'SERVICE_GET_ALL_LIST_SUCCESS'
 export const SERVICE_GET_ALL_LIST_FAILURE = 'SERVICE_GET_ALL_LIST_FAILURE'
 
 export function fetchAllServices(cluster, {pageIndex, pageSize, name}) {
-	return {	
-	  [FETCH_API]: {
-		  types: [ SERVICE_GET_ALL_LIST_REQUEST, SERVICE_GET_ALL_LIST_SUCCESS, SERVICE_GET_ALL_LIST_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services?pageIndex=${pageIndex}&pageSize=${pageSize}${ name ? `&name=${name}` : ''}`,
-			schema: {}
-		}
-	}
+  return {
+    [FETCH_API]: {
+      types: [SERVICE_GET_ALL_LIST_REQUEST, SERVICE_GET_ALL_LIST_SUCCESS, SERVICE_GET_ALL_LIST_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/services?pageIndex=${pageIndex}&pageSize=${pageSize}${name ? `&name=${name}` : ''}`,
+      schema: {}
+    }
+  }
 }
 export function loadAllServices(cluster, condition) {
-  return	(dispath, getState) => {
-		return dispath(fetchAllServices(cluster, condition))	
-	}
+  return (dispath, getState) => {
+    return dispath(fetchAllServices(cluster, condition))
+  }
 }

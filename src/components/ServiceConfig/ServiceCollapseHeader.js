@@ -161,7 +161,7 @@ class CollapseHeader extends Component {
     );
     return (
       <Row>
-        <Col className="group-name" span="6">
+        <Col className="group-name textoverflow" span="6">
           <Checkbox onChange={(e) => this.handChage(e, collapseHeader.name)} onClick={(e) => this.handleDropdown(e)}></Checkbox>
           <Icon type="folder-open" />
           <Icon type="folder" />

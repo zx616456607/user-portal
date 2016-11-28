@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Modal, Tabs, Icon, Menu, Button, Card, Form, Input, message } from 'antd'
+import { Modal, Tabs, Icon, Menu, Button, Card, Form, Input, message ,Alert} from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import TweenOne from 'rc-tween-one';
 import { connect } from 'react-redux'
@@ -39,9 +39,6 @@ let MyComponent = React.createClass({
       NameReverse: false,
       NamePaused: true,
       NameMoment: null,
-      EmailReverse: false,
-      EmailPaused: true,
-      EmailMoment: null,
       PwdReverse: false,
       PwdPaused: true,
       PwdMoment: null,
@@ -53,6 +50,7 @@ let MyComponent = React.createClass({
       regMoment: null,
       regPaused: true,
       regReverse: false,
+      inputType: 'text',
 
     };
   },
@@ -87,7 +85,8 @@ let MyComponent = React.createClass({
         this.setState({
           PwdPaused: false,
           PwdReverse: false,
-          PwdMoment: null
+          PwdMoment: null,
+          inputType: 'password'
         });
         break;
       case 'registryName':
@@ -166,10 +165,9 @@ let MyComponent = React.createClass({
       }
       const config = {
         registryName: values.registryName,
-        username: values.username,
+        username: values.username || null,
         password: values.passwd || null,
         url: values.url,
-        description: values.description || null
       }
       const self = this
       this.props.addOtherStore(config, {
@@ -191,6 +189,14 @@ let MyComponent = React.createClass({
             }, 500)
           }
         },
+        failed: {
+          func: (res) => {
+            Modal.error({
+              title: '添加第三方镜像失败',
+              content: (<h3>{res.message}</h3>)
+            });
+          }
+        },
         isAsync: true
       })
       //when the code running here,it's meaning user had input all things,
@@ -208,25 +214,19 @@ let MyComponent = React.createClass({
         { required: true, message: '请输入地址' }
       ],
     });
-    const emailProps = getFieldProps('description', {
-      validate: [{
-        rules: [
-          { required: false, message: '描述' },
-        ]
-      }],
-    });
+
     const nameProps = getFieldProps('username', {
       rules: [
-        { required: true, message: '请输入用户名' }
+        { required: false, message: '请输入用户名' }
       ],
     });
     const passwdProps = getFieldProps('passwd', {
       rules: [
-        { required: true, whitespace: true },
+        { required: false, message: '请输入密码', whitespace: true },
       ],
     });
     const registryProps = getFieldProps('registryName', {
-      rules: [{ required: true, whitespace: true }]
+      rules: [{ required: true, message: '请输入仓库名称', whitespace: true }]
     })
     return (
       <div className='modalBox'>
@@ -255,14 +255,14 @@ let MyComponent = React.createClass({
             </TweenOne>
             <Input {...urlProps} ref='urlInput' onFocus={this.inputOnFocus.bind(this, 'url')} onBlur={this.inputOnBlur.bind(this, 'url')} />
           </FormItem>
-
+          <Alert message="私有仓库需要填写用户名和密码" type="info" showIcon />
           <FormItem hasFeedback >
             <TweenOne
               animation={{ top: '-20', duration: 500 }}
               paused={this.state.NamePaused}
               reverse={this.state.NameReverse}
               moment={this.state.NameMoment}
-              style={{ position: 'absolute', width: '10%', top: '0' }}
+              style={{ position: 'absolute', width: '20%', top: '0' }}
               >
               <span className='title'>用户名</span>
             </TweenOne>
@@ -274,24 +274,14 @@ let MyComponent = React.createClass({
               paused={this.state.PwdPaused}
               reverse={this.state.PwdReverse}
               moment={this.state.PwdMoment}
-              style={{ position: 'absolute', width: '10%', top: '0' }}
+              style={{ position: 'absolute', width: '20%', top: '0' }}
               >
               <span className='title'>密码</span>
             </TweenOne>
-            <Input {...passwdProps} ref='pwdInput' type='password' autoComplete='off' onFocus={this.inputOnFocus.bind(this, 'password')} onBlur={this.inputOnBlur.bind(this, 'password')} />
+            <Input {...passwdProps} ref='pwdInput' type={this.state.inputType} autoComplete='off' onFocus={this.inputOnFocus.bind(this, 'password')} onBlur={this.inputOnBlur.bind(this, 'password')} />
           </FormItem>
-          <FormItem hasFeedback >
-            <TweenOne
-              animation={{ top: '-20', duration: 500 }}
-              paused={this.state.EmailPaused}
-              reverse={this.state.EmailReverse}
-              moment={this.state.EmailMoment}
-              style={{ paddingLeft: '10px' }}
-              >
-              <span>描述</span>
-            </TweenOne>
-            <Input {...emailProps} type='textarea' ref='textareaInput' rows='5' />
-          </FormItem>
+
+          <br />
           <div className='btnBox'>
             <Button size='large' type='primary' onClick={this.handleSubmit}>确定</Button>
             &nbsp;&nbsp;&nbsp;
@@ -331,10 +321,10 @@ class ImageCenter extends Component {
       otherSpaceType: '1',
       imageDetailModalShow: false,
       otherHead: {},
-      otherImageHead:[]
+      otherImageHead: []
     }
   }
-  
+
   componentDidMount() {
     document.title = '镜像仓库 | 时速云'
     this.props.LoadOtherImage({
@@ -393,7 +383,7 @@ class ImageCenter extends Component {
         type='right'
         >
         <div id='ImageCenter' key='ImageCenterBox'>
-          <Tabs 
+          <Tabs
             key='ImageCenterTabs'
             defaultActiveKey='1'
             tabBarExtraContent={
@@ -402,9 +392,9 @@ class ImageCenter extends Component {
                   <span>添加第三方</span>
               </Button>
             }
-          >
-            
-            { ImageTabList }
+            >
+
+            {ImageTabList}
           </Tabs>
           <Modal title='添加第三方' className='addOtherSpaceModal' visible={this.state.createModalShow}
             onCancel={this.closeAddModal}
