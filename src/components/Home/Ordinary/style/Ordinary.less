@@ -1,4 +1,8 @@
 #Ordinary {
+  min-width: 1200px;
+  .ant-card {
+    min-width: 280px !important;
+  }
   .ant-card-head-title {
     font-weight: normal;
   }
@@ -25,8 +29,8 @@
     .sysState {
       .errorDot {
         display: inline-block;
-        width: 10px;
-        height: 10px;
+        width: 12px;
+        height: 12px;
         border-radius: 50%;
         margin-right: 10px;
       }
@@ -112,6 +116,18 @@
           height: 27px;
           line-height: 27px;
         }
+      }
+      .dbImg {
+        text-align: center;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+      .dbInf {
+        position: absolute;
+        top: 50%;
+        right: 0;
+        transform: translateY(-50%);
       }
       .dataBtn {
         display: inline-block;
