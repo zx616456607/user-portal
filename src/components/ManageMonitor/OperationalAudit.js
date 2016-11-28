@@ -594,6 +594,18 @@ function statusFormat(status, scope) {
   }
 }
 
+function formatResourceName(resourceName) {
+  //this function for format the resourceName
+  if(resourceName.indexOf('{') > -1) {
+    let newBody = JSON.parse(resourceName);
+    let newName = newBody.services;
+    newName = newName.join(',');
+    return newName;
+  } else {
+    return resourceName;
+  }
+}
+
 let MyComponent = React.createClass({
   propTypes: {
     config: React.PropTypes.array
@@ -634,8 +646,8 @@ let MyComponent = React.createClass({
           <div className='obj commonTitle'>
             <span className='objSpan' style={{ top: '5px' }}><FormattedMessage {...menusText.objType} />{resourceFormat(item.resourceType, scope)}</span>
             <span className='objSpan' style={{ top: '-2px' }}>
-              <Tooltip placement="topLeft" title={item.resourceName + item.resourceId}>
-                <span><FormattedMessage {...menusText.objName} />{item.resourceName + item.resourceId}</span>
+              <Tooltip placement="topLeft" title={formatResourceName(item.resourceName) + item.resourceId}>
+                <span><FormattedMessage {...menusText.objName} />{formatResourceName(item.resourceName) + item.resourceId}</span>
               </Tooltip>
             </span>
           </div>

@@ -81,6 +81,14 @@ const menusText = defineMessages({
   createTitle: {
     id: 'Integration.VmList.createTitle',
     defaultMessage: '克隆虚拟机',
+  },
+  poweronStatus: {
+    id: 'Integration.VmList.poweronStatus',
+    defaultMessage: '运行中',
+  },
+  poweroffStatus: {
+    id: 'Integration.VmList.poweroffStatus',
+    defaultMessage: '已关闭',
   }
 })
 
@@ -94,6 +102,22 @@ function diskFormat(num) {
   }
   num = parseInt(num / 1024);
   return num + 'TB'
+}
+
+function formatStatus(status) {
+  //this function for format status
+  switch(status) {
+    case 'poweron':
+      return (
+        <span className='poweron'><i className='fa fa-circle' /><FormattedMessage {...menusText.poweronStatus} /></span>
+      )
+      break;
+    case 'poweroff':
+      return (
+        <span className='poweroff'><i className='fa fa-circle' /><FormattedMessage {...menusText.poweroffStatus} /></span>
+      )
+      break;
+  }
 }
 
 class VmList extends Component {
@@ -156,7 +180,7 @@ class VmList extends Component {
     const { manageVmDetail, integrationId, currentDataCenter, vmList } = this.props;
     let tempBody = {
       action: 'poweron',
-      vm: [path]
+      vm: path
     }
     vmList.map((item) => {
       if(item.path == path && item.powerstate == 'poweron') {
@@ -174,7 +198,7 @@ class VmList extends Component {
               item.powerstate = 'poweron'
             }
           });
-          notification['warning']({
+          notification['success']({
           message: '打开电源',
           description: '虚机打开电源成功~',
         });
@@ -215,6 +239,10 @@ class VmList extends Component {
         });
       }
     })
+    let tempBody = {
+      action: key.key,
+      vm: path
+    }
     manageVmDetail(integrationId, currentDataCenter, tempBody, {
       success: {
         func: () => {
@@ -223,7 +251,7 @@ class VmList extends Component {
               item.powerstate = key.key
             }
           });
-          notification['warning']({
+          notification['success']({
           message: title,
           description: msg,
         });
@@ -277,7 +305,7 @@ class VmList extends Component {
           </div>
           <div className='status commonTitle'>
             <span className='commonSpan'>
-              <span>{item.powerstate}</span>
+              <span>{formatStatus(item.powerstate)}</span>
             </span>
           </div>
           <div className='pod commonTitle'>
