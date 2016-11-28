@@ -128,7 +128,7 @@ class App extends Component {
   }
 
   render() {
-    let { children, pathname, errorMessage, loginUser } = this.props
+    let { children, pathname, redirectUrl, errorMessage, loginUser } = this.props
     const { loginModalVisible } = this.state
     const scope = this
     /*if (errorMessage) {
@@ -166,7 +166,7 @@ class App extends Component {
           title="登录失效"
           onCancel={this.handleLoginModalCancel}
           footer={[
-            <Link to={`/login?redirect=${pathname}`}>
+            <Link to={`/login?redirect=${redirectUrl}`}>
               <Button
                 key="submit"
                 type="primary"
@@ -200,10 +200,22 @@ App.propTypes = {
 function mapStateToProps(state, props) {
   const { errorMessage, entities } = state
   const { current, sockets, loginUser } = entities
+  const { location } = props
+  console.log(`location---------------------`)
+  console.log(location)
+  const { pathname, search, hash } = location
+  let redirectUrl = pathname
+  if (search) {
+    redirectUrl += search
+  }
+  if (hash) {
+    redirectUrl += hash
+  }
   return {
     reduxState: state,
     errorMessage,
-    pathname: props.location.pathname,
+    pathname,
+    redirectUrl,
     current,
     sockets,
     loginUser: loginUser.info,
