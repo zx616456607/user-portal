@@ -176,20 +176,20 @@ class Ordinary extends Component{
   }
   handleSize(size){
     if(!size){
-      return 0 + 'KB'
+      return 0 + 'MB'
     }
     let result = 0
     if(size < 1024){
-      return size + 'KB'
+      return size + 'MB'
     }
     if(size < 1024*1024){
       result = this.thousandBitSeparator((size/1024).toFixed(2))
       console.log('result : ',result);
-      return result + 'MB'
+      return result + 'GB'
     }
     if(size < 1024*1024*1024){
       result = this.thousandBitSeparator((size/(1024*1024)).toFixed(2))
-      return result + 'GB'
+      return result + 'T'
     }
     result = this.thousandBitSeparator((size/(1024*1024*1024)).toFixed(2))
     return result + 'T'
