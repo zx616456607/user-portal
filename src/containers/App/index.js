@@ -123,7 +123,7 @@ class App extends Component {
       <Websocket
         url={`ws://${loginUser.tenxApi.host}/spi/v2/watch`}
         onSetup={this.onStatusWebsocketSetup}
-        debug={true} />
+        debug={false} />
     )
   }
 

@@ -71,8 +71,8 @@ let MyComponent = React.createClass({
     if (checkedList.length > 1) {
       let runCount = 0
       let stopCount = 0
-      checkedList.map((item,index) => {
-        item.status.phase === 'Running'?runCount++:stopCount++
+      checkedList.map((item, index) => {
+        item.status.phase === 'Running' ? runCount++ : stopCount++
       })
       if (runCount === checkedList.length) {
         parentScope.setState({
@@ -161,8 +161,8 @@ let MyComponent = React.createClass({
       if (checkedList.length > 1) {
         let runCount = 0
         let stopCount = 0
-        checkedList.map((item,index) => {
-          item.status.phase === 'Running'?runCount++:stopCount++
+        checkedList.map((item, index) => {
+          item.status.phase === 'Running' ? runCount++ : stopCount++
         })
         if (runCount === checkedList.length) {
           parentScope.setState({
@@ -288,6 +288,7 @@ let MyComponent = React.createClass({
           </div>
           <div className='actionBox commonData'>
             <Dropdown.Button
+              getPopupContainer={document.getElementById('AppList')}
               overlay={dropdown} type='ghost'
               onClick={(e) => e.stopPropagation()}>
               <Link to={`/app_manage/detail/${item.name}#stack`} >
