@@ -34,7 +34,7 @@ export function addWatch(type, cluster, ws, data = []) {
 
 export function addPodWatch(cluster, props, pods = []) {
   let name = []
-  pods.filter(pod => {
+  pods.map(pod => {
     if (name.indexOf(pod.metadata.labels.name) < 0) {
       name.push(pod.metadata.labels.name)
     }
@@ -56,9 +56,7 @@ export function addPodWatch(cluster, props, pods = []) {
 
 export function addDeploymentWatch(cluster, props, deployments = []) {
   let name = []
-  console.log(`deployments--------------------------`)
-  console.log(deployments)
-  deployments.filter(deployment => {
+  deployments.map(deployment => {
     if (name.indexOf(deployment.metadata.name) < 0) {
       name.push(deployment.metadata.name)
     }
@@ -76,7 +74,7 @@ export function addDeploymentWatch(cluster, props, deployments = []) {
 
 export function addAppWatch(cluster, props, apps = []) {
   let name = []
-  apps.filter(app => {
+  apps.map(app => {
     if (name.indexOf(app.name) < 0) {
       name.push(app.name)
     }
@@ -102,16 +100,44 @@ export function handleOnMessage(props, response) {
   if (watchType === 'pod') {
     handleOnPodMessage(props, response)
   } else if (watchType === 'deployment') {
-    let appName = response.data.metadata.labels[LABEL_APPNAME]
-    let { serviceList } = services.serviceItmes[cluster][appName]
-    updateAppServicesList(cluster, appName, _changeListByWatch(serviceList, response))
+    handleOnDeploymentMessage(props, response)
+    /*let appName = data.metadata.labels[LABEL_APPNAME]
+    let { serviceList } = services.serviceItems[cluster][appName]
+    updateAppServicesList(cluster, appName, _changeListByWatch(serviceList, response))*/
   } else if (watchType === 'app') {
+    // @Todo: Only deployment returned, but k8s service must be returned
+    if (type === 'ADDED') {
+      return
+    }
     let { appList } = apps.appItems[cluster]
     updateAppList(cluster, _changeAppListByWatch(appList, response))
   }
   /*} catch (err) {
     console.error('handleOnMessage err:', err)
   }*/
+}
+
+export function handleOnDeploymentMessage(props, response) {
+  const { type, data, watchType } = response
+  // @Todo: Only deployment returned, but k8s service must be returned
+  if (type === 'ADDED') {
+    return
+  }
+  const { reduxState, updateAppServicesList, updateServicesList } = props
+  const { entities, services } = reduxState
+  const cluster = entities.current.cluster.clusterID
+  let appName = data.metadata.labels[LABEL_APPNAME]
+  let { serviceItems, serviceList } = services
+  // Update app service list
+  let appServiceItems = serviceItems[cluster]
+  if (appServiceItems && appServiceItems[appName]) {
+    updateAppServicesList(cluster, appName, _changeListByWatch(appServiceItems[appName], response))
+  }
+  // Update cluster service list
+  let clusterServiceList = serviceList.services
+  if (clusterServiceList) {
+    updateServicesList(_changeListByWatch(clusterServiceList, response))
+  }
 }
 
 export function handleOnPodMessage(props, response) {
@@ -127,9 +153,10 @@ export function handleOnPodMessage(props, response) {
     updateContainerList(cluster, _changeListByWatch(containerList, response))
   }
   // Update service container list
-  let service = services.serviceContainers[cluster][serviceName]
-  if (service) {
-    updateServiceContainersList(cluster, serviceName, _changeListByWatch(service.containerList, response))
+  let servicesObj = services.serviceContainers[cluster]
+  if (servicesObj[serviceName]) {
+    let { containerList } = servicesObj[serviceName]
+    updateServiceContainersList(cluster, serviceName, _changeListByWatch(containerList, response))
   }
 }
 
@@ -220,9 +247,6 @@ function _changeListByWatch(list, response) {
 
 function _changeAppListByWatch(apps, response) {
   const { name, type } = response
-  if (type === 'ADDED') {
-    return apps
-  }
   let result = []
   let exist = false
   apps.map(app => {

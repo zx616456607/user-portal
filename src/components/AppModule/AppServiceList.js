@@ -1361,11 +1361,11 @@ function mapStateToProps(state, props) {
     serviceList: []
   }
   const {
-    serviceItmes
+    serviceItems
   } = state.services
   let targetServices
-  if (serviceItmes[cluster.clusterID] && serviceItmes[cluster.clusterID][appName]) {
-    targetServices = serviceItmes[cluster.clusterID][appName]
+  if (serviceItems[cluster.clusterID] && serviceItems[cluster.clusterID][appName]) {
+    targetServices = serviceItems[cluster.clusterID][appName]
   }
   const { serviceList, isFetching, total } = targetServices || defaultServices
   return {
