@@ -33,8 +33,9 @@ import { parseServiceDomain } from '../parseDomain'
 import ServiceStatus from '../TenxStatus/ServiceStatus'
 import AppAddServiceModal from './AppCreate/AppAddServiceModal'
 import AppDeployServiceModal from './AppCreate/AppDeployServiceModal'
-import TipSvcDomain from  '../TipSvcDomain'
+import TipSvcDomain from '../TipSvcDomain'
 import yaml from 'js-yaml'
+import { addDeploymentWatch, removeDeploymentWatch } from '../../containers/App/status'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -53,7 +54,7 @@ const MyComponent = React.createClass({
         service.checked = checked
       }
     })
-    if(checkedList.length === 0){
+    if (checkedList.length === 0) {
       scope.setState({
         runBtn: false,
         stopBtn: false,
@@ -61,21 +62,21 @@ const MyComponent = React.createClass({
       })
       return
     }
-    if(checkedList.length === 1){
-      if(checkedList[0].status.phase === 'Running'){
+    if (checkedList.length === 1) {
+      if (checkedList[0].status.phase === 'Running') {
         scope.setState({
           runBtn: false,
           stopBtn: true,
           restartBtn: true,
         })
-      } else if(checkedList[0].status.phase === 'Stopped') {
+      } else if (checkedList[0].status.phase === 'Stopped') {
         scope.setState({
           runBtn: true,
           stopBtn: false,
           restartBtn: false,
         })
       }
-    } else if (checkedList.length >1) {
+    } else if (checkedList.length > 1) {
       scope.setState({
         runBtn: true,
         stopBtn: true,
@@ -97,7 +98,7 @@ const MyComponent = React.createClass({
         }
       })
       const checkedList = serviceList.filter((service) => service.checked)
-      if(checkedList.length === 0){
+      if (checkedList.length === 0) {
         scope.setState({
           runBtn: false,
           stopBtn: false,
@@ -105,21 +106,21 @@ const MyComponent = React.createClass({
         })
         return
       }
-      if(checkedList.length === 1){
-        if(checkedList[0].status.phase === 'Running'){
+      if (checkedList.length === 1) {
+        if (checkedList[0].status.phase === 'Running') {
           scope.setState({
             runBtn: false,
             stopBtn: true,
             restartBtn: true,
           })
-        } else if(checkedList[0].status.phase === 'Stopped') {
+        } else if (checkedList[0].status.phase === 'Stopped') {
           scope.setState({
             runBtn: true,
             stopBtn: false,
             restartBtn: false,
           })
         }
-      } else if (checkedList.length >1) {
+      } else if (checkedList.length > 1) {
         scope.setState({
           runBtn: true,
           stopBtn: true,
@@ -243,7 +244,7 @@ const MyComponent = React.createClass({
           key={item.metadata.name}
           onClick={(e) => this.selectServiceByLine(e, item)} >
           <div className="selectIconTitle commonData">
-            <Checkbox value={item.metadata.name} checked={item.checked} onChange={this.onchange}/>
+            <Checkbox value={item.metadata.name} checked={item.checked} onChange={this.onchange} />
           </div>
           <div className="name commonData">
             <Tooltip title={item.metadata.name}>
@@ -262,7 +263,7 @@ const MyComponent = React.createClass({
           </div>
           <div className="service commonData">
             <Tooltip title={svcDomain.length > 0 ? svcDomain[0] : ""}>
-              <TipSvcDomain svcDomain={svcDomain}/>
+              <TipSvcDomain svcDomain={svcDomain} />
             </Tooltip>
           </div>
           <div className="createTime commonData">
@@ -291,27 +292,27 @@ const MyComponent = React.createClass({
 });
 
 let StartServiceModal = React.createClass({
-  getInitialState(){
+  getInitialState() {
     return {
-      
+
     }
   },
-  render: function(){
+  render: function () {
     const { serviceList } = this.props
     const checkedServiceList = serviceList.filter((service) => service.checked)
     let runningServices = []
-    
-    checkedServiceList.map((service,index) => {
-      if(service.status.phase === 'Running'){
+
+    checkedServiceList.map((service, index) => {
+      if (service.status.phase === 'Running') {
         runningServices.push(service)
       }
     })
-    let item = runningServices.map((service,index) => {
+    let item = runningServices.map((service, index) => {
       return (
         <tr>
-          <td>{index+1}</td>
+          <td>{index + 1}</td>
           <td>{service.name}</td>
-          <td style={{color:'#4bbd74'}}>服务为运行中状态</td>
+          <td style={{ color: '#4bbd74' }}>服务为运行中状态</td>
         </tr>
       )
     })
@@ -322,24 +323,24 @@ let StartServiceModal = React.createClass({
             <div>
               <Alert message={
                 <span>你选择的{checkedServiceList.length}个服务中, 有
-                  <span className="modalDot" style={{backgroundColor:'#4bbd74'}}>{runningServices.length}个</span>
+                  <span className="modalDot" style={{ backgroundColor: '#4bbd74' }}>{runningServices.length}个</span>
                   已经是运行中状态, 不需再启动
                 </span>
-              } type="warning" showIcon/>
-              <div style={{height:26}}>Tip: 运行中状态的服务不需再次启动</div>
+              } type="warning" showIcon />
+              <div style={{ height: 26 }}>Tip: 运行中状态的服务不需再次启动</div>
               <div className="tableWarp">
                 <table className="modalList">
                   <tbody>
-                  {item}
+                    {item}
                   </tbody>
                 </table>
               </div>
-            
-            </div>:
+
+            </div> :
             <div></div>
         }
         <div className="confirm">
-          <Icon type="question-circle-o" style={{marginRight:'10px'}}/>
+          <Icon type="question-circle-o" style={{ marginRight: '10px' }} />
           您是否确定启动这{(checkedServiceList.length - runningServices.length)}个已停止的服务 ?
         </div>
       </div>
@@ -347,27 +348,27 @@ let StartServiceModal = React.createClass({
   }
 })
 let StopServiceModal = React.createClass({
-  getInitialState(){
+  getInitialState() {
     return {
-      
+
     }
   },
-  render: function(){
+  render: function () {
     const { serviceList } = this.props
     const checkedServiceList = serviceList.filter((service) => service.checked)
     let stoppedService = []
-    
-    checkedServiceList.map((service,index) => {
-      if(service.status.phase === 'Stopped'){
+
+    checkedServiceList.map((service, index) => {
+      if (service.status.phase === 'Stopped') {
         stoppedService.push(service)
       }
     })
-    let item = stoppedService.map((service,index) => {
+    let item = stoppedService.map((service, index) => {
       return (
         <tr>
-          <td>{index+1}</td>
+          <td>{index + 1}</td>
           <td>{service.name}</td>
-          <td style={{color:'#f85958'}}>服务为已停止状态</td>
+          <td style={{ color: '#f85958' }}>服务为已停止状态</td>
         </tr>
       )
     })
@@ -378,24 +379,24 @@ let StopServiceModal = React.createClass({
             <div>
               <Alert message={
                 <span>你选择的{checkedServiceList.length}个服务中, 有
-                  <span className="modalDot" style={{backgroundColor:'#f85958'}}>{stoppedService.length}个</span>
+                  <span className="modalDot" style={{ backgroundColor: '#f85958' }}>{stoppedService.length}个</span>
                   已经是已停止状态, 不需再停止
                 </span>
-              } type="warning" showIcon/>
-              <div style={{height:26}}>Tip: 已停止状态的服务不需再次停止</div>
+              } type="warning" showIcon />
+              <div style={{ height: 26 }}>Tip: 已停止状态的服务不需再次停止</div>
               <div className="tableWarp">
                 <table className="modalList">
                   <tbody>
-                  {item}
+                    {item}
                   </tbody>
                 </table>
               </div>
-            
-            </div>:
+
+            </div> :
             <div></div>
         }
         <div className="confirm">
-          <Icon type="question-circle-o" style={{marginRight:'10px'}}/>
+          <Icon type="question-circle-o" style={{ marginRight: '10px' }} />
           您是否确定停止这{(checkedServiceList.length - stoppedService.length)}个运行中的服务 ?
         </div>
       </div>
@@ -403,26 +404,26 @@ let StopServiceModal = React.createClass({
   }
 })
 let RestarServiceModal = React.createClass({
-  getInitialState(){
+  getInitialState() {
     return {
-      
+
     }
   },
-  render: function(){
+  render: function () {
     const { serviceList } = this.props
     const checkedServiceList = serviceList.filter((service) => service.checked)
     let stoppedService = []
-    checkedServiceList.map((service,index) => {
-      if(service.status.phase === 'Stopped'){
+    checkedServiceList.map((service, index) => {
+      if (service.status.phase === 'Stopped') {
         stoppedService.push(service)
       }
     })
-    let item = stoppedService.map((service,index) => {
+    let item = stoppedService.map((service, index) => {
       return (
         <tr>
-          <td>{index+1}</td>
+          <td>{index + 1}</td>
           <td>{service.name}</td>
-          <td style={{color:'#f85958'}}>服务为已停止状态</td>
+          <td style={{ color: '#f85958' }}>服务为已停止状态</td>
         </tr>
       )
     })
@@ -433,24 +434,24 @@ let RestarServiceModal = React.createClass({
             <div>
               <Alert message={
                 <span>你选择的{checkedServiceList.length}个服务中, 有
-                  <span className="modalDot" style={{backgroundColor:'#f85958'}}>{stoppedService.length}个</span>
+                  <span className="modalDot" style={{ backgroundColor: '#f85958' }}>{stoppedService.length}个</span>
                   已经是已停止状态, 不能做重新部署
                 </span>
-              } type="warning" showIcon/>
-              <div style={{height:26}}>Tip: 运行状态时服务才可以重新部署</div>
+              } type="warning" showIcon />
+              <div style={{ height: 26 }}>Tip: 运行状态时服务才可以重新部署</div>
               <div className="tableWarp">
                 <table className="modalList">
                   <tbody>
-                  {item}
+                    {item}
                   </tbody>
                 </table>
               </div>
-            
-            </div>:
+
+            </div> :
             <div></div>
         }
         <div className="confirm">
-          <Icon type="question-circle-o" style={{marginRight:'10px'}}/>
+          <Icon type="question-circle-o" style={{ marginRight: '10px' }} />
           您是否确定重新部署这{(checkedServiceList.length - stoppedService.length)}个可以重新部署的服务 ?
         </div>
       </div>
@@ -458,26 +459,26 @@ let RestarServiceModal = React.createClass({
   }
 })
 let QuickRestarServiceModal = React.createClass({
-  getInitialState(){
+  getInitialState() {
     return {
-      
+
     }
   },
-  render: function(){
+  render: function () {
     const { serviceList } = this.props
     const checkedServiceList = serviceList.filter((service) => service.checked)
     let stoppedService = []
-    checkedServiceList.map((service,index) => {
-      if(service.status.phase === 'Stopped'){
+    checkedServiceList.map((service, index) => {
+      if (service.status.phase === 'Stopped') {
         stoppedService.push(service)
       }
     })
-    let item = stoppedService.map((service,index) => {
+    let item = stoppedService.map((service, index) => {
       return (
         <tr>
-          <td>{index+1}</td>
+          <td>{index + 1}</td>
           <td>{service.name}</td>
-          <td style={{color:'#f85958'}}>服务为已停止状态</td>
+          <td style={{ color: '#f85958' }}>服务为已停止状态</td>
         </tr>
       )
     })
@@ -488,24 +489,24 @@ let QuickRestarServiceModal = React.createClass({
             <div>
               <Alert message={
                 <span>你选择的{checkedServiceList.length}个服务中, 有
-                  <span className="modalDot" style={{backgroundColor:'#f85958'}}>{stoppedService.length}个</span>
+                  <span className="modalDot" style={{ backgroundColor: '#f85958' }}>{stoppedService.length}个</span>
                   已经是已停止状态, 不能做快速重启
                 </span>
-              } type="warning" showIcon/>
-              <div style={{height:26}}>Tip: 运行状态时服务才可以快速重启</div>
+              } type="warning" showIcon />
+              <div style={{ height: 26 }}>Tip: 运行状态时服务才可以快速重启</div>
               <div className="tableWarp">
                 <table className="modalList">
                   <tbody>
-                  {item}
+                    {item}
                   </tbody>
                 </table>
               </div>
-            
-            </div>:
+
+            </div> :
             <div></div>
         }
         <div className="confirm">
-          <Icon type="question-circle-o" style={{marginRight:'10px'}}/>
+          <Icon type="question-circle-o" style={{ marginRight: '10px' }} />
           您是否确定快速重启这{(checkedServiceList.length - stoppedService.length)}个可以快速重启的服务 ?
         </div>
       </div>
@@ -513,10 +514,10 @@ let QuickRestarServiceModal = React.createClass({
   }
 })
 
-function loadServices(props) {
+/*function loadServices(props) {
   const { cluster, appName, loadServiceList, page, size, name } = props
   loadServiceList(cluster, appName, { page, size, name })
-}
+}*/
 
 class AppServiceList extends Component {
   constructor(props) {
@@ -534,7 +535,7 @@ class AppServiceList extends Component {
     // this.showManualScaleModal = this.showManualScaleModal.bind(this)
     this.onShowSizeChange = this.onShowSizeChange.bind(this)
     this.onSubmitAddService = this.onSubmitAddService.bind(this)
-  
+
     this.batchStartService = this.batchStartService.bind(this)
     this.batchStopService = this.batchStopService.bind(this)
     this.batchRestartService = this.batchRestartService.bind(this)
@@ -569,6 +570,22 @@ class AppServiceList extends Component {
     }
   }
 
+  loadServices(nextProps) {
+    const self = this
+    const {
+      cluster, appName, loadServiceList, page, size, name
+    } = nextProps || this.props
+    loadServiceList(cluster, appName, { page, size, name }, {
+      success: {
+        func: (result) => {
+          // Add deploment status watch, props must include statusWatchWs!!!
+          addDeploymentWatch(cluster, self.props, result.data)
+        },
+        isAsync: true
+      }
+    })
+  }
+
   onAllChange(e) {
     const { checked } = e.target
     const { serviceList } = this.state
@@ -581,7 +598,7 @@ class AppServiceList extends Component {
   componentWillMount() {
     const { appName } = this.props
     document.title = `${appName} 的服务列表 | 时速云`
-    loadServices(this.props)
+    this.loadServices()
   }
 
   componentWillReceiveProps(nextProps) {
@@ -595,41 +612,49 @@ class AppServiceList extends Component {
     this.setState({
       searchInputDisabled: false
     })
-    loadServices(nextProps)
+    this.loadServices(nextProps)
   }
 
- /* confirmStartService(e) {
-    const self = this
-    const { serviceList } = this.state
-    const { cluster, appName, loadServiceList, startServices } = this.props
-    const checkedServiceList = serviceList.filter((service) => service.checked)
-    const checkedServiceNames = checkedServiceList.map((service) => service.metadata.name)
-    confirm({
-      title: `您是否确认要启动这${checkedServiceList.length}个服务`,
-      content: checkedServiceNames.join(', '),
-      onOk() {
-        return new Promise((resolve) => {
-          serviceList.map((service) => {
-            if (checkedServiceNames.indexOf(service.metadata.name) > -1) {
-              service.status.phase = 'Starting'
-            }
-          })
-          self.setState({
-            serviceList
-          })
-          startServices(cluster, checkedServiceNames, {
-            success: {
-              func: () => loadServiceList(cluster, appName),
-              isAsync: true
-            }
-          })
-          resolve()
-        });
-      },
-      onCancel() { },
-    })
-  }*/
-  
+  componentWillUnmount() {
+    const {
+      cluster,
+      statusWatchWs,
+    } = this.props
+    removeDeploymentWatch(cluster, statusWatchWs)
+  }
+
+  /* confirmStartService(e) {
+     const self = this
+     const { serviceList } = this.state
+     const { cluster, appName, loadServiceList, startServices } = this.props
+     const checkedServiceList = serviceList.filter((service) => service.checked)
+     const checkedServiceNames = checkedServiceList.map((service) => service.metadata.name)
+     confirm({
+       title: `您是否确认要启动这${checkedServiceList.length}个服务`,
+       content: checkedServiceNames.join(', '),
+       onOk() {
+         return new Promise((resolve) => {
+           serviceList.map((service) => {
+             if (checkedServiceNames.indexOf(service.metadata.name) > -1) {
+               service.status.phase = 'Starting'
+             }
+           })
+           self.setState({
+             serviceList
+           })
+           startServices(cluster, checkedServiceNames, {
+             success: {
+               func: () => loadServiceList(cluster, appName),
+               isAsync: true
+             }
+           })
+           resolve()
+         });
+       },
+       onCancel() { },
+     })
+   }*/
+
   batchStartService(e) {
     this.setState({
       StartServiceModal: true
@@ -650,14 +675,14 @@ class AppServiceList extends Component {
       QuickRestarServiceModal: true
     })
   }
-  
-  handleStartServiceOk(){
+
+  handleStartServiceOk() {
     const self = this
-    const { cluster, startServices,serviceList,appName,loadServiceList } = this.props
+    const { cluster, startServices, serviceList, appName, loadServiceList } = this.props
     let stoppedService = []
     const checkedServiceList = serviceList.filter((service) => service.checked)
-    checkedServiceList.map((service,index) => {
-      if(service.status.phase === 'Stopped'){
+    checkedServiceList.map((service, index) => {
+      if (service.status.phase === 'Stopped') {
         stoppedService.push(service)
       }
     })
@@ -674,9 +699,9 @@ class AppServiceList extends Component {
     startServices(cluster, serviceNames, {
       success: {
         func: () => {
-          loadServiceList(cluster, appName)
-          this.setState({
-            StartServiceModal:false,
+          // loadServiceList(cluster, appName)
+          self.setState({
+            StartServiceModal: false,
             runBtn: false,
             stopBtn: false,
             restartBtn: false,
@@ -686,19 +711,19 @@ class AppServiceList extends Component {
       }
     })
   }
-  handleStartServiceCancel(){
+  handleStartServiceCancel() {
     this.setState({
-      StartServiceModal:false,
+      StartServiceModal: false,
     })
   }
-  handleStopServiceOk(){
+  handleStopServiceOk() {
     const self = this
-    const { cluster, stopServices,serviceList,appName,loadServiceList } = this.props
+    const { cluster, stopServices, serviceList, appName, loadServiceList } = this.props
     const checkedServiceList = serviceList.filter((service) => service.checked)
     let runningServices = []
-    
-    checkedServiceList.map((service,index) => {
-      if(service.status.phase === 'Running'){
+
+    checkedServiceList.map((service, index) => {
+      if (service.status.phase === 'Running') {
         runningServices.push(service)
       }
     })
@@ -715,9 +740,9 @@ class AppServiceList extends Component {
     stopServices(cluster, serviceNames, {
       success: {
         func: () => {
-          loadServiceList(cluster, appName)
-          this.setState({
-            StopServiceModal:false,
+          // loadServiceList(cluster, appName)
+          self.setState({
+            StopServiceModal: false,
             runBtn: false,
             stopBtn: false,
             restartBtn: false,
@@ -727,39 +752,39 @@ class AppServiceList extends Component {
       }
     })
   }
-  handleStopServiceCancel(){
+  handleStopServiceCancel() {
     this.setState({
-      StopServiceModal:false,
+      StopServiceModal: false,
     })
   }
-  handleRestarServiceOk(){
+  handleRestarServiceOk() {
     const self = this
-    const { cluster, restartServices, serviceList,loadServiceList,appName } = this.props
+    const { cluster, restartServices, serviceList, loadServiceList, appName } = this.props
     const checkedServiceList = serviceList.filter((service) => service.checked)
     let runningServices = []
-    
-    checkedServiceList.map((service,index) => {
-      if(service.status.phase === 'Running'){
+
+    checkedServiceList.map((service, index) => {
+      if (service.status.phase === 'Running') {
         runningServices.push(service)
       }
     })
     const serviceNames = runningServices.map((service) => service.metadata.name)
     const allServices = self.state.serviceList
-    
+
     allServices.map((service) => {
       if (serviceNames.indexOf(service.metadata.name) > -1) {
         service.status.phase = 'Redeploying'
       }
     })
     self.setState({
-      serviceList: allServices
+      serviceList: allServices,
+      RestarServiceModal: false,
     })
     restartServices(cluster, serviceNames, {
       success: {
         func: () => {
-          loadServiceList(cluster, appName)
-          this.setState({
-            RestarServiceModal: false,
+          // loadServiceList(cluster, appName)
+          self.setState({
             runBtn: false,
             stopBtn: false,
             restartBtn: false,
@@ -769,26 +794,26 @@ class AppServiceList extends Component {
       }
     })
   }
-  handleRestarServiceCancel(){
+  handleRestarServiceCancel() {
     this.setState({
-      RestarServiceModal:false,
+      RestarServiceModal: false,
     })
   }
-  handleQuickRestarServiceOk(){
+  handleQuickRestarServiceOk() {
     const self = this
-    const { cluster, quickRestartServices, serviceList,loadServiceList,appName } = this.props
+    const { cluster, quickRestartServices, serviceList, loadServiceList, appName } = this.props
     const checkedServiceList = serviceList.filter((service) => service.checked)
     let runningServices = []
-  
-    checkedServiceList.map((service,index) => {
-      console.log('service :::',service);
-      if(service.status.phase === 'Running'){
+
+    checkedServiceList.map((service, index) => {
+      console.log('service :::', service);
+      if (service.status.phase === 'Running') {
         runningServices.push(service)
       }
     })
     const serviceNames = runningServices.map((service) => service.metadata.name)
     const allServices = self.state.serviceList
-  
+
     allServices.map((service) => {
       if (serviceNames.indexOf(service.metadata.name) > -1) {
         service.status.phase = 'Restarting'
@@ -801,7 +826,7 @@ class AppServiceList extends Component {
       success: {
         func: () => {
           loadServiceList(cluster, appName)
-          this.setState({
+          self.setState({
             QuickRestarServiceModal: false,
             runBtn: false,
             stopBtn: false,
@@ -812,9 +837,9 @@ class AppServiceList extends Component {
       }
     })
   }
-  handleQuickRestarServiceCancel(){
+  handleQuickRestarServiceCancel() {
     this.setState({
-      QuickRestarServiceModal:false,
+      QuickRestarServiceModal: false,
     })
   }
   /*batchRestartServices(e) {
@@ -856,7 +881,7 @@ class AppServiceList extends Component {
       onCancel() { },
     })
   }
-  
+
   batchStopServices(e) {
     const { serviceList } = this.state
     const checkedServiceList = serviceList.filter((service) => service.checked)
@@ -895,7 +920,7 @@ class AppServiceList extends Component {
       onCancel() { },
     })
   }*/
-  
+
   batchDeleteServices(e) {
     const { serviceList } = this.state
     const checkedServiceList = serviceList.filter((service) => service.checked)
@@ -1111,8 +1136,8 @@ class AppServiceList extends Component {
         <Menu.Item key="0" disabled={!restartBtn}>
           <span onClick={this.batchRestartService}>重新部署</span>
           <Modal title="重新部署操作" visible={this.state.RestarServiceModal}
-                 onOk={this.handleRestarServiceOk} onCancel={this.handleRestarServiceCancel}
-          >
+            onOk={this.handleRestarServiceOk} onCancel={this.handleRestarServiceCancel}
+            >
             <RestarServiceModal serviceList={serviceList} />
           </Modal>
         </Menu.Item>
@@ -1156,11 +1181,11 @@ class AppServiceList extends Component {
               启动
             </Button>
             <Modal title="启动操作" visible={this.state.StartServiceModal}
-                   onOk={this.handleStartServiceOk} onCancel={this.handleStartServiceCancel}
-            >
+              onOk={this.handleStartServiceOk} onCancel={this.handleStartServiceCancel}
+              >
               <StartServiceModal serviceList={serviceList} />
             </Modal>
-            <Button size="large" onClick={() => loadServices(this.props)} >
+            <Button size="large" onClick={() => this.loadServices(this.props)} >
               <i className="fa fa-refresh"></i>
               刷新
             </Button>
@@ -1169,8 +1194,8 @@ class AppServiceList extends Component {
               停止
             </Button>
             <Modal title="停止操作" visible={this.state.StopServiceModal}
-                   onOk={this.handleStopServiceOk} onCancel={this.handleStopServiceCancel}
-            >
+              onOk={this.handleStopServiceOk} onCancel={this.handleStopServiceCancel}
+              >
               <StopServiceModal serviceList={serviceList} />
             </Modal>
             <Button size="large" onClick={this.batchDeleteServices} disabled={!isChecked}>
@@ -1182,8 +1207,8 @@ class AppServiceList extends Component {
               重启
             </Button>
             <Modal title="重新操作" visible={this.state.QuickRestarServiceModal}
-                   onOk={this.handleQuickRestarServiceOk} onCancel={this.handleQuickRestarServiceCancel}
-            >
+              onOk={this.handleQuickRestarServiceOk} onCancel={this.handleQuickRestarServiceCancel}
+              >
               <QuickRestarServiceModal serviceList={serviceList} />
             </Modal>
             <Dropdown overlay={operaMenu} trigger={['click']}>
@@ -1193,7 +1218,7 @@ class AppServiceList extends Component {
               </Button>
             </Dropdown>
             <div className='rightBox'>
-              <span className='totalPage'>共 {total} 条</span>
+              <span className='totalPage'>共 {total}条</span>
               <div className="paginationBox">
                 <Pagination
                   className="inlineBlock"
@@ -1205,11 +1230,11 @@ class AppServiceList extends Component {
                   total={total} />
               </div>
             </div>
-            <div style={{ clear:'both' }}></div>
+            <div style={{ clear: 'both' }}></div>
           </div>
           <div className="appTitle">
             <div className="selectIconTitle commonTitle">
-              <Checkbox checked={isAllChecked} onChange={this.onAllChange} disabled={serviceList.length < 1}/>
+              <Checkbox checked={isAllChecked} onChange={this.onAllChange} disabled={serviceList.length < 1} />
             </div>
             <div className="name commonTitle">
               服务名称
@@ -1328,6 +1353,7 @@ function mapStateToProps(state, props) {
   }
   const { appName } = props
   const { cluster } = state.entities.current
+  const { statusWatchWs } = state.entities.sockets
   const defaultServices = {
     isFetching: false,
     cluster: cluster.clusterID,
@@ -1344,6 +1370,7 @@ function mapStateToProps(state, props) {
   const { serviceList, isFetching, total } = targetServices || defaultServices
   return {
     cluster: cluster.clusterID,
+    statusWatchWs,
     bindingDomains: state.entities.current.cluster.bindingDomains,
     appName,
     pathname,

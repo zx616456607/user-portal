@@ -125,7 +125,7 @@ class AppDetail extends Component {
                   <div className="status">
                     运行状态&nbsp;:
                     <div style={{ display: 'inline-block', position: 'relative', top: '-5px' }}>
-                      <AppStatus services={app.services} smart={true} />
+                      <AppStatus app={app} smart={true} />
                     </div>
                   </div>
                   <div className="address">

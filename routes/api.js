@@ -121,10 +121,12 @@ module.exports = function (Router) {
   router.put('/teams/:team_id/clusters/:cluster_id/request', teamController.requestTeamCluster)
 
   //Overview Team
+  router.get('/overview/teaminfo', overviewTeamController.getTeamOverview)
   router.get('/overview/teamdetail', overviewTeamController.getTeamDetail)
   router.get('/overview/teamoperations', overviewTeamController.getTeamOperations)
 
   //Overview Cluster
+  router.get('/overview/clusterinfo/clusters/:cluster_id', overviewClusterController.getClusterOverview)
   router.get('/overview/clusters/:cluster_id/operations', overviewClusterController.getClusterOperations)
   router.get('/overview/clusters/:cluster_id/sysinfo', overviewClusterController.getClusterSysinfo)
   router.get('/overview/clusters/:cluster_id/storage', overviewClusterController.getClusterStorage)
@@ -133,6 +135,7 @@ module.exports = function (Router) {
   router.get('/overview/clusters/:cluster_id/nodesummary', overviewClusterController.getClusterNodeSummary)
  
   //Overview Space
+  router.get('/overview/spaceinfo', overviewSpaceController.getSpaceOverview)
   router.get('/overview/operations', overviewSpaceController.getSpaceOperations)
   router.get('/overview/templates', overviewSpaceController.getSpaceTemplateStats)
   router.get('/overview/warnings', overviewSpaceController.getSpaceWarnings)
@@ -221,6 +224,7 @@ module.exports = function (Router) {
   router.post('/devops/ci-flows', devopsController.createCIFlows)
   router.get('/devops/ci-flows', devopsController.listCIFlows)
   router.get('/devops/ci-flows/:flow_id', devopsController.getCIFlow)
+  router.get('/devops/ci-flows/:flow_id/yaml', devopsController.getCIFlowYAML)
   router.put('/devops/ci-flows/:flow_id', devopsController.updateCIFlow)
   router.delete('/devops/ci-flows/:flow_id', devopsController.removeCIFlow)
   router.get('/devops/ci-flows/:flow_id/images', devopsController.getImagesOfFlow)
@@ -258,9 +262,21 @@ module.exports = function (Router) {
   router.get('/devops/ci-flows/:flow_id/stages/:stage_id/dockerfile', devopsController.getDockerfile)
   router.delete('/devops/ci-flows/:flow_id/stages/:stage_id/dockerfile', devopsController.removeDockerfile)
   router.put('/devops/ci-flows/:flow_id/stages/:stage_id/dockerfile', devopsController.updateDockerfile)
-  
+  // Available CI images
+  router.get('/devops/ci/images', devopsController.getAvailableImages)
+
   // Integration
   router.get('/integrations/getAllIntegration', integrationController.getAllIntegrations)
+  router.post('/integrations/createIntegration', integrationController.createIntegrations)
+  router.delete('/integrations/deleteIntegrations/:id', integrationController.deleteIntegrations)
+  router.get('/integrations/getIntegrationDateCenter/:id', integrationController.getIntegrationDateCenter)
+  router.get('/integrations/getIntegrationVmList/:id', integrationController.getIntegrationVmList)
+  router.post('/integrations/manageIntegrationsVmDetail/:id', integrationController.manageIntegrationsVmDetail)
+  router.get('/integrations/getCreateVmConfig/:id', integrationController.getCreateVmConfig)
+  router.post('/integrations/createIntegrationVm/:id', integrationController.createIntegrationVm)
+  router.get('/integrations/getIntegrationPods/:id', integrationController.getIntegrationPods)
+  router.get('/integrations/getIntegrationConfig/:id', integrationController.getIntegrationConfig)
+  router.put('/integrations/updateIntegrationConfig/:id', integrationController.updateIntegrationConfig)
 
   // Token info
   router.get('/token', tokenController.getTokenInfo)

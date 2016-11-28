@@ -575,7 +575,6 @@ function stackList(state = {}, action) {
     }
     case ActionTypes.GET_APP_STORE_LIST_SUCCESS: {
       const result = action.response.result.data.data || []
-      let data = []
       const imageList = []
       const temp = {}
       for(let a in result) {

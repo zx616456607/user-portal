@@ -28,14 +28,14 @@ class IndexPage extends Component {
     if(loginUser.info.role === 1 && current.space.namespace !== 'default'){
       return (
         <div id="IndexPage">
-          <Admin />
-          <Ordinary />
+          <Admin spaceName={current.space.namespace}/>
+          <Ordinary spaceName={current.space.namespace} clusterName={current.cluster.clusterName}/>
         </div>
       )
     }
     return (
       <div id="IndexPage">
-        <Ordinary />
+        <Ordinary spaceName={current.space.namespace} clusterName={current.cluster.clusterName}/>
       </div>
     )
   }

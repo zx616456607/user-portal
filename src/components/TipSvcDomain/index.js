@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Tooltip, Badge, Timeline,Icon,Row,Col,Popover } from 'antd'
+import { Tooltip, Badge, Timeline, Icon, Row, Col, Popover } from 'antd'
 import './style/TipSvcDomain.less'
 
 class SvcTip extends Component {
@@ -17,8 +17,8 @@ class SvcTip extends Component {
   }
   render() {
     const { svcDomain } = this.props
-    let item = svcDomain.map((item,index) => {
-      if(item.indexOf('http://') !== -1 || item.indexOf('https://') !== -1){
+    let item = svcDomain.map((item, index) => {
+      if (item.indexOf('http://') !== -1 || item.indexOf('https://') !== -1) {
         return (
           <li key={item}>
             <a href={item} target="_blank">{item}</a>
@@ -35,7 +35,7 @@ class SvcTip extends Component {
     return (
       <div className='SvcTip'>
         <ul>
-          { item }
+          {item}
         </ul>
       </div>
     )
@@ -47,8 +47,8 @@ class AppTip extends Component {
   }
   render() {
     const { appDomain } = this.props
-    let item = appDomain.map((item,index) => {
-      if(item.data.length === 0){
+    let item = appDomain.map((item, index) => {
+      if (item.data.length === 0) {
         return (
           <div>
             <span>-</span>
@@ -58,18 +58,18 @@ class AppTip extends Component {
         return (
           <div>
             <Row className="firstSvc">
-              <Col style={{display:'inline-block',color:'#49b1e2'}}>{ item.name }</Col>
+              <Col style={{ display: 'inline-block', color: '#49b1e2' }}>{item.name}</Col>
             </Row>
             <Timeline>
-              <Timeline.Item dot={<div style={{height:5,width:5,backgroundColor:'#2db7f5',margin:'0 auto'}}></div>}></Timeline.Item>
+              <Timeline.Item dot={<div style={{ height: 5, width: 5, backgroundColor: '#2db7f5', margin: '0 auto' }}></div>}></Timeline.Item>
               <Timeline.Item dot={<div></div>}>
-                <svg className="branchSvg"><use xlinkHref="#branch"/></svg>
+                <svg className="branchSvg"><use xlinkHref="#branch" /></svg>
                 {
-                  (item.data[0].indexOf('http://') === -1 || item.data[0].indexOf('https://') === -1)?
+                  (item.data[0].indexOf('http://') === -1 || item.data[0].indexOf('https://') === -1) ?
                     item.data[0] :
                     <a href={item.data[0]} target="_blank">{item.data[0]}</a>
                 }
-                <svg className="tipCopySvg"><use xlinkHref="#tipcopy"/></svg>
+                <svg className="tipCopySvg"><use xlinkHref="#tipcopy" /></svg>
               </Timeline.Item>
             </Timeline>
           </div>
@@ -78,73 +78,73 @@ class AppTip extends Component {
         return (
           <div>
             <Row className="firstSvc">
-              <Col style={{display:'inline-block',color:'#49b1e2'}}>{ item.name }</Col>
+              <Col style={{ display: 'inline-block', color: '#49b1e2' }}>{item.name}</Col>
             </Row>
             <Timeline>
-            {
-              item.data.map((url,index) => {
-                if(index === 0){
-                  return (
-                    <Timeline.Item dot={<div style={{height:5,width:5,backgroundColor:'#2db7f5',margin:'0 auto'}}></div>}></Timeline.Item>
-                  )
-                } else {
-                  if(url.indexOf('http://') !== -1 || url.indexOf('https://') !== -1){
+              {
+                item.data.map((url, index) => {
+                  if (index === 0) {
                     return (
-                      <Timeline.Item dot={<div></div>}>
-                        <svg className="branchSvg"><use xlinkHref="#branch"/></svg>
-                        <a href={url} target="_blank">{url}</a>
-                        <svg className="tipCopySvg"><use xlinkHref="#tipcopy"/></svg>
-                      </Timeline.Item>
+                      <Timeline.Item dot={<div style={{ height: 5, width: 5, backgroundColor: '#2db7f5', margin: '0 auto' }}></div>}></Timeline.Item>
                     )
                   } else {
-                    return (
-                      <Timeline.Item dot={<div></div>}>
-                        <svg className="branchSvg"><use xlinkHref="#branch"/></svg>
-                        {url}
-                        <svg className="tipCopySvg"><use xlinkHref="#tipcopy"/></svg>
-                      </Timeline.Item>
-                    )
+                    if (url.indexOf('http://') !== -1 || url.indexOf('https://') !== -1) {
+                      return (
+                        <Timeline.Item dot={<div></div>}>
+                          <svg className="branchSvg"><use xlinkHref="#branch" /></svg>
+                          <a href={url} target="_blank">{url}</a>
+                          <svg className="tipCopySvg"><use xlinkHref="#tipcopy" /></svg>
+                        </Timeline.Item>
+                      )
+                    } else {
+                      return (
+                        <Timeline.Item dot={<div></div>}>
+                          <svg className="branchSvg"><use xlinkHref="#branch" /></svg>
+                          {url}
+                          <svg className="tipCopySvg"><use xlinkHref="#tipcopy" /></svg>
+                        </Timeline.Item>
+                      )
+                    }
                   }
-                }
-              })
-            }
+                })
+              }
             </Timeline>
           </div>
-          
+
         )
       }
     })
     return (
       <div className='AppTip'>
-        { item }
+        {item}
       </div>
     )
   }
 }
-export default class TipSvcDomain extends Component{
-  constructor(props){
+export default class TipSvcDomain extends Component {
+  constructor(props) {
     super(props)
     this.showPop = this.showPop.bind(this)
     this.state = {
       show: false
     }
   }
-  showPop(){
+  showPop() {
     const {show} = this.state
     this.setState({
       show: !show
     })
   }
-  render(){
-    const { appDomain,svcDomain,type } = this.props
+  render() {
+    const { appDomain, svcDomain, type } = this.props
     if (svcDomain) {
-      console.log('svcDomain',svcDomain);
-      if(svcDomain.length == 0){
+      // console.log('svcDomain', svcDomain);
+      if (svcDomain.length == 0) {
         return (
           <span>-</span>
         )
       } else if (svcDomain.length == 1) {
-        if(svcDomain[0].indexOf('http://') === -1 || svcDomain[0].indexOf('https://') === -1){
+        if (svcDomain[0].indexOf('http://') === -1 || svcDomain[0].indexOf('https://') === -1) {
           return (
             <div id='TipSvcDomain'>
               {svcDomain[0]}
@@ -158,14 +158,14 @@ export default class TipSvcDomain extends Component{
           )
         }
       } else if (svcDomain.length == 2) {
-        let item = svcDomain.map((item,index) => {
-          if(item.indexOf('http://') !== -1 || item.indexOf('https://') !== -1){
+        let item = svcDomain.map((item, index) => {
+          if (item.indexOf('http://') !== -1 || item.indexOf('https://') !== -1) {
             return (
-                <a target="_blank" href={item} style={{display:'block',height:30,lineHeight:'40px'}}>{item}</a>
+              <a target="_blank" href={item} style={{ display: 'block', height: 30, lineHeight: '40px' }}>{item}</a>
             )
           } else {
             return (
-                <span style={{display:'block',height:30,lineHeight:'40px'}}>{item}</span>
+              <span style={{ display: 'block', height: 30, lineHeight: '40px' }}>{item}</span>
             )
           }
         })
@@ -179,17 +179,17 @@ export default class TipSvcDomain extends Component{
           <div className='TipSvcDomain'>
             {
               (svcDomain[0].indexOf('http://') !== -1 || svcDomain[0].indexOf('https://') !== -1) ?
-                <a target="_blank" href={svcDomain[0]}>{svcDomain[0]}</a>:
-              svcDomain[0]
+                <a target="_blank" href={svcDomain[0]}>{svcDomain[0]}</a> :
+                svcDomain[0]
             }
-            
+
             <Popover placement="right"
-                     content={<SvcTip svcDomain={svcDomain} />}
-                     trigger="click"
-                     onVisibleChange={ this.showPop }
-                     getTooltipContainer={() => document.getElementsByClassName('TipSvcDomain')[0]}
-                     >
-              <svg className={this.state.show?'more showPop':'more'} onClick={this.showPop}>
+              content={<SvcTip svcDomain={svcDomain} />}
+              trigger="click"
+              onVisibleChange={this.showPop}
+              getTooltipContainer={() => document.getElementsByClassName('TipSvcDomain')[0]}
+              >
+              <svg className={this.state.show ? 'more showPop' : 'more'} onClick={this.showPop}>
                 <use xlinkHref="#more" />
               </svg>
             </Popover>
@@ -198,17 +198,17 @@ export default class TipSvcDomain extends Component{
       }
     }
     if (appDomain) {
-      if(appDomain.length === 0) {
+      if (appDomain.length === 0) {
         return (
           <div id="TipAppDomain">
             <span>-</span>
           </div>
         )
       } else if (appDomain.length === 1) {
-        if(appDomain[0].data[0].indexOf('http://') === -1 || appDomain[0].data[0].indexOf('https://') === -1){
-          console.log('appDomain data length',appDomain[0].data[0].indexOf('http://') === -1);
+        if (appDomain[0].data[0].indexOf('http://') === -1 || appDomain[0].data[0].indexOf('https://') === -1) {
+          // console.log('appDomain data length',appDomain[0].data[0].indexOf('http://') === -1);
           return (
-          <span>{appDomain[0].data[0]}</span>
+            <span>{appDomain[0].data[0]}</span>
           )
         } else {
           return (
@@ -217,20 +217,20 @@ export default class TipSvcDomain extends Component{
         }
       } else {
         return (
-          <div className={type ? 'TipAppDomain fixTop': 'TipAppDomain'}>
+          <div className={type ? 'TipAppDomain fixTop' : 'TipAppDomain'}>
             {
               (appDomain[0].data[0].indexOf('http://') !== -1 || appDomain[0].data[0].indexOf('https://') !== -1) ?
-                <a target="_blank" href={appDomain[0].data[0]}>{appDomain[0].data[0]}</a>:
+                <a target="_blank" href={appDomain[0].data[0]}>{appDomain[0].data[0]}</a> :
                 appDomain[0].data[0]
             }
-            <Popover placement={type?'rightBottom':'rightTop'}
-                     content={<AppTip appDomain={appDomain}/>}
-                     trigger="click"
-                     onVisibleChange={ this.showPop }
-                     getTooltipContainer={() => document.getElementsByClassName('TipAppDomain')[0]}
-                     arrowPointAtCenter={true}
-                     >
-              <svg className={this.state.show?'more showPop':'more'} onClick={this.showPop}>
+            <Popover placement={type ? 'rightBottom' : 'rightTop'}
+              content={<AppTip appDomain={appDomain} />}
+              trigger="click"
+              onVisibleChange={this.showPop}
+              getTooltipContainer={() => document.getElementsByClassName('TipAppDomain')[0]}
+              arrowPointAtCenter={true}
+              >
+              <svg className={this.state.show ? 'more showPop' : 'more'} onClick={this.showPop}>
                 <use xlinkHref="#more" />
               </svg>
             </Popover>

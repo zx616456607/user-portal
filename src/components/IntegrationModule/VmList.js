@@ -12,54 +12,13 @@ import React, { Component, PropTypes } from 'react'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { Button, Alert, Card, Spin, Input, Tooltip, Dropdown, Menu } from 'antd'
+import { getIntegrationVmList } from '../../actions/integration'
+import { Button, Alert, Card, Spin, Input, Tooltip, Dropdown, Menu, Select } from 'antd'
+import { formatDate, calcuDate } from '../../common/tools'
 import './style/VmList.less'
 
 const ButtonGroup = Button.Group;
-
-
-let testData = [
-  {
-    id: '192.168.1.1',
-    status: 'running',
-    pod: '192.168.1.2',
-    ip: '233.233.233.233',
-    runTime: '30Days',
-    startTime: '2016-11-22 19:38:27',
-    env: 'tcp',
-    life: '3Years',
-  },
-  {
-    id: '192.168.1.1',
-    status: 'running',
-    pod: '192.168.1.2',
-    ip: '233.233.233.233',
-    runTime: '30Days',
-    startTime: '2016-11-22 19:38:27',
-    env: 'tcp',
-    life: '3Years',
-  },
-  {
-    id: '192.168.1.1',
-    status: 'running',
-    pod: '192.168.1.2',
-    ip: '233.233.233.233',
-    runTime: '30Days',
-    startTime: '2016-11-22 19:38:27',
-    env: 'tcp',
-    life: '3Years',
-  },
-  {
-    id: '192.168.1.1',
-    status: 'running',
-    pod: '192.168.1.2',
-    ip: '233.233.233.233',
-    runTime: '30Days',
-    startTime: '2016-11-22 19:38:27',
-    env: 'tcp',
-    life: '3Years',
-  }
-]
+const Option = Select.Option;
 
 const menusText = defineMessages({
   create: {
@@ -98,7 +57,23 @@ const menusText = defineMessages({
     id: 'Integration.VmList.opera',
     defaultMessage: '操作',
   },
+  core: {
+    id: 'Integration.VmList.core',
+    defaultMessage: '核',
+  },
 })
+
+function diskFormat(num) {
+  if(num < 1024) {
+    return num + 'MB'
+  }
+  num = parseInt(num / 1024);
+  if(num < 1024) {
+    return num + 'GB'
+  }
+  num = parseInt(num / 1024);
+  return num + 'TB'
+}
 
 class VmList extends Component {
   constructor(props) {
@@ -106,6 +81,7 @@ class VmList extends Component {
     this.onChangeShowType = this.onChangeShowType.bind(this);
     this.onChangeAppType = this.onChangeAppType.bind(this);
     this.ShowDetailInfo = this.ShowDetailInfo.bind(this);
+    this.onChangeDataCenter = this.onChangeDataCenter.bind(this);
     this.state = {
       currentShowApps: 'all',
       currentAppType: '1',
@@ -115,6 +91,8 @@ class VmList extends Component {
   
   componentWillMount() {
     document.title = '集成中心 | 时速云';
+    const { getIntegrationVmList, integrationId, currentDataCenter } = this.props;
+    getIntegrationVmList(integrationId, currentDataCenter)
   }
   
   onChangeShowType(type) {
@@ -138,11 +116,28 @@ class VmList extends Component {
     });
   }
   
+  onChangeDataCenter(e) {
+    //this function for user change the current data center
+    const { scope, getIntegrationVmList, integrationId } = this.props;
+    scope.setState({
+      currentDataCenter: e
+    });
+    getIntegrationVmList(integrationId, e)
+  }
+  
   render() {
     const { formatMessage } = this.props.intl;
-    const {isFetching, VmList} = this.props;
+    const {isFetching, vmList, dataCenters, currentDataCenter} = this.props;
     const scope = this;
-    let appShow = VmList.map((item, index) => {
+    console.log(this.props)
+    if(isFetching || !Boolean(vmList)) {
+      return (
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
+      )
+    }
+    let appShow = vmList.map((item, index) => {
       const menu = (
         <Menu>
           <Menu.Item key="1">我是干嘛的</Menu.Item>
@@ -154,68 +149,70 @@ class VmList extends Component {
         <div className='podDetail' key={'podDetail' + index}>
           <div className='ip commonTitle'>
             <span className='commonSpan'>
-              <Tooltip placement='topLeft' title={item.id}>
-                <span>{item.id}</span>
+              <Tooltip placement='topLeft' title={!!item.ip ? item.ip : null}>
+                <span>{!!item.ip ? item.ip : '-'}</span>
               </Tooltip>
             </span>
           </div>
           <div className='status commonTitle'>
             <span className='commonSpan'>
-              <span>{item.status}</span>
+              <span>{item.powerstate}</span>
             </span>
           </div>
           <div className='pod commonTitle'>
             <span className='commonSpan'>
-              <Tooltip placement='topLeft' title={item.pod}>
-               <span>{item.pod}</span>
+              <Tooltip placement='topLeft' title={item.name}>
+               <span>{item.name}</span>
               </Tooltip>
             </span>
           </div>
           <div className='cpu commonTitle'>
             <span className='commonSpan'>
-              <span className='topSpan'>8核</span>
-              <span className='bottomSpan'>20%</span>
+              <span>{item.cpuNumber}<FormattedMessage {...menusText.core} /></span>
             </span>
           </div>
           <div className='memory commonTitle'>
             <span className='commonSpan'>
-              <span className='topSpan'>8G</span>
-              <span className='bottomSpan'>20%</span>
+              <span>{diskFormat(item.memoryTotal)}</span>
             </span>
           </div>
           <div className='disk commonTitle'>
             <span className='commonSpan'>
-              <span className='topSpan'>8T</span>
-              <span className='bottomSpan'>20%</span>
+              <span>{diskFormat(item.diskTotal)}</span>
             </span>
           </div>
           <div className='runTime commonTitle'>
             <span className='commonSpan'>
-              <Tooltip placement='topLeft' title={item.life}>
-                <span>{item.life}</span>
+              <Tooltip placement='topLeft' title={!!item.bootTime ? calcuDate(item.bootTime) : null}>
+                <span>{!!item.bootTime ? calcuDate(item.bootTime) : '-'}</span>
               </Tooltip>
             </span>
           </div>
           <div className='startTime commonTitle'>
             <span className='commonSpan'>
-              <Tooltip placement='topLeft' title={item.startTime}>
-                <span>{item.startTime}</span>
+              <Tooltip placement='topLeft' title={!!item.bootTime ? formatDate(item.bootTime) : null}>
+                <span>{!!item.bootTime ? formatDate(item.bootTime) : '-'}</span>
               </Tooltip>
             </span>
           </div>
           <div className='opera commonTitle'>
-            <Button size='large' type='primary' className='terminalBtn'>
+            {/*<Button size='large' type='primary' className='terminalBtn'>
               <svg className='terminal'>
                 <use xlinkHref='#terminal' />
               </svg>
               <span style={{ marginLeft: '20px' }}>终端</span>
-            </Button>
+            </Button>*/}
             <Dropdown.Button overlay={menu} type="ghost" size='large'>
               干嘛呢
             </Dropdown.Button>
           </div>
           <div style={{ clear: 'both' }}></div>
         </div>
+      )
+    });
+    let selectDcShow = dataCenters.map((item, index) => {
+      return (
+        <Option value={item} key={item}>{item.replace('/','')}</Option>
       )
     });
     return (
@@ -229,6 +226,9 @@ class VmList extends Component {
             <Input type='text' size='large' />
             <i className='fa fa-search' />
           </div>
+          <Select defaultValue={currentDataCenter} style={{ width: 150, marginLeft: '15px' }} size='large' onChange={this.onChangeDataCenter}>
+            {selectDcShow}
+          </Select>
           <div style={{ clear: 'both' }}></div>
         </div>
         <div className='titleBox'>
@@ -262,20 +262,26 @@ class VmList extends Component {
           <div style={{ clear: 'both' }}></div>
         </div>
         {appShow}
+        { vmList.length == 0 ? [
+          <div className='loadingBox' key='loadingBox'>
+            <span>暂无数据</span>
+          </div>
+        ] : null }
       </div>
     )
   }
 }
 
 function mapStateToProps(state, props) {
-  const defaultAppList = {
+  const defaultVmList = {
     isFetching: false,
-    VmList: testData
+    vmList: []
   }
-  const {isFetching, VmList} = defaultAppList
+  const { getIntegrationVmList } = state.integration
+  const { isFetching, vmList } = getIntegrationVmList || defaultVmList
   return {
     isFetching,
-    VmList
+    vmList
   }
 }
 
@@ -284,7 +290,7 @@ VmList.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-
+  getIntegrationVmList
 })(injectIntl(VmList, {
   withRef: true,
 }));

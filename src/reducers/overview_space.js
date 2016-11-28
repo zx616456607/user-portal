@@ -16,6 +16,7 @@ const option = {
 }
 
 export default function overviewSpace(state = {
+  spaceInfo: {},
   spaceOperations: {},
   spaceCICDStats: {},
   spaceImageStats: {},
@@ -23,6 +24,11 @@ export default function overviewSpace(state = {
   spaceWarnings: {}
  }, action) {
   return {
+    spaceInfo: reducerFactory({
+      REQUEST: ActionTypes.OVERVIEW_SPACEINFO_REQUEST,
+      SUCCESS: ActionTypes.OVERVIEW_SPACEINFO_SUCCESS,
+      FAILURE: ActionTypes.OVERVIEW_SPACEINFO_FAILURE
+    }, state.spaceInfo, action, option),
     spaceOperations: reducerFactory({
       REQUEST: ActionTypes.OVERVIEW_SPACE_OPERATIONS_REQUEST,
       SUCCESS: ActionTypes.OVERVIEW_SPACE_OPERATIONS_SUCCESS,

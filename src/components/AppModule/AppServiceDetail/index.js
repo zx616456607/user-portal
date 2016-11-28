@@ -29,16 +29,17 @@ import TerminalModal from '../../TerminalModal'
 import { parseServiceDomain } from '../../parseDomain'
 import ServiceStatus from '../../TenxStatus/ServiceStatus'
 import { TENX_MARK } from '../../../constants'
+import { addPodWatch, removePodWatch } from '../../../containers/App/status'
 
 const DEFAULT_TAB = '#containers'
 const TabPane = Tabs.TabPane;
 
-function loadData(props) {
+/*function loadData(props) {
   const { cluster, serviceName, loadServiceDetail, loadServiceContainerList } = props
   document.title = `${serviceName} 服务详情页 | 时速云`
   loadServiceDetail(cluster, serviceName)
   loadServiceContainerList(cluster, serviceName)
-}
+}*/
 
 class AppServiceDetail extends Component {
   constructor(props) {
@@ -53,6 +54,27 @@ class AppServiceDetail extends Component {
       activeTabKey: props.selectTab || DEFAULT_TAB,
       TerminalLayoutModal: false,
     }
+  }
+
+  loadData(nextProps) {
+    const self = this
+    const {
+      cluster,
+      serviceName,
+      loadServiceDetail,
+      loadServiceContainerList
+    } = nextProps || this.props
+    document.title = `${serviceName} 服务详情页 | 时速云`
+    loadServiceDetail(cluster, serviceName)
+    loadServiceContainerList(cluster, serviceName, {
+      success: {
+        func: (result) => {
+          // Add pod status watch, props must include statusWatchWs!!!
+          addPodWatch(cluster, self.props, result.data)
+        },
+        isAsync: true
+      }
+    })
   }
 
   closeModal() {
@@ -75,7 +97,7 @@ class AppServiceDetail extends Component {
     });
   }
   componentWillMount() {
-    loadData(this.props)
+    this.loadData()
   }
 
   componentWillReceiveProps(nextProps) {
@@ -84,7 +106,7 @@ class AppServiceDetail extends Component {
       return
     }
     if (serviceDetailmodalShow) {
-      loadData(nextProps)
+      this.loadData(nextProps)
       if (serviceName === this.props.serviceName && (!selectTab)) {
         return
       }
@@ -93,6 +115,15 @@ class AppServiceDetail extends Component {
       })
     }
   }
+
+  componentWillUnmount() {
+    const {
+      cluster,
+      statusWatchWs,
+    } = this.props
+    removePodWatch(cluster, statusWatchWs)
+  }
+
   onTabClick(activeTabKey) {
     if (activeTabKey === this.state.activeTabKey) {
       return
@@ -104,10 +135,11 @@ class AppServiceDetail extends Component {
   restartService(service) {
     const { funcs } = this.props
     const self = this
-    funcs.confirmRestartServices([service], {
+    console.log('service',service);
+    funcs.handleRestarServiceOk([service], {
       success: {
         func: () => {
-          loadData(self.props)
+          self.loadData()
           self.setState({
             activeTabKey: DEFAULT_TAB
           })
@@ -123,7 +155,7 @@ class AppServiceDetail extends Component {
     funcs.confirmStopServices([service], {
       success: {
         func: () => {
-          loadData(self.props)
+          self.loadData()
           self.setState({
             activeTabKey: DEFAULT_TAB
           })
@@ -163,11 +195,6 @@ class AppServiceDetail extends Component {
         <span onClick={() => this.delteService(service)}>删除</span>
       </Menu.Item>
       <Menu.Item key="3">
-        <Link to={`/app_manage/detail/${appName}#topology`} onClick={this.closeModal} >
-          查看拓扑图
-        </Link>
-      </Menu.Item>
-      <Menu.Item key="4">
         <Link to={`/app_manage/detail/${appName}#stack`} onClick={this.closeModal} >
           查看编排
         </Link>
@@ -328,6 +355,7 @@ AppServiceDetail.propTypes = {
 
 function mapStateToProps(state, props) {
   const {scope} = props
+  const {statusWatchWs} = state.entities.sockets
   const currentShowInstance = scope.state.currentShowInstance
   const {cluster, metadata } = currentShowInstance
   const serviceName = metadata ? metadata.name : ''
@@ -362,6 +390,7 @@ function mapStateToProps(state, props) {
 
   return {
     cluster,
+    statusWatchWs,
     bindingDomains: state.entities.current.cluster.bindingDomains,
     serviceName,
     serviceDetail: targetService.service,

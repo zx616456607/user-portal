@@ -12,6 +12,29 @@ import { FETCH_API, Schemas } from '../middleware/api'
 import { API_URL_PREFIX } from '../constants'
 import { toQuerystring } from '../common/tools'
 
+export const OVERVIEW_SPACEINFO_REQUEST = 'OVERVIEW_SPACEINFO_REQUEST'
+export const OVERVIEW_SPACEINFO_SUCCESS = 'OVERVIEW_SPACEINFO_SUCCESS'
+export const OVERVIEW_SPACEINFO_FAILURE = 'OVERVIEW_SPACEINFO_FAILURE'
+
+// Fetches space info from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchSpaceInfo() {
+  return {
+    [FETCH_API]: {
+      types: [OVERVIEW_SPACEINFO_REQUEST, OVERVIEW_SPACEINFO_SUCCESS, OVERVIEW_SPACEINFO_FAILURE],
+      endpoint: `${API_URL_PREFIX}/overview/spaceinfo`,
+      schema: {}
+    }
+  }
+}
+
+// Fetches space info from API unless it is cached.
+// Relies on Redux Thunk middleware.
+export function loadSpaceInfo() {
+  return (dispatch, getState) => {
+    return dispatch(fetchSpaceInfo())
+  }
+}
 
 export const OVERVIEW_SPACE_OPERATIONS_REQUEST = 'OVERVIEW_SPACE_OPERATIONS_REQUEST'
 export const OVERVIEW_SPACE_OPERATIONS_SUCCESS = 'OVERVIEW_SPACE_OPERATIONS_SUCCESS'

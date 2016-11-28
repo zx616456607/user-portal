@@ -38,12 +38,15 @@ let TenxFlowDetailYaml = React.createClass({
   render() {
     const { formatMessage } = this.props.intl;
     const { scope } = this.props;
-    const { getFieldProps, getFieldError, isFieldValidating } = this.props.form;
+    const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form;
+    const yaml = getFieldProps(`yaml`, {
+      initialValue: this.props.yaml,
+    });
     return (
     <div id='TenxFlowDetailYaml' key='TenxFlowDetailYaml'>
       <Alert type='info' message={<FormattedMessage {...menusText.tooltips} />} />
       <Card className='yamlCard'>
-        <Input disabled={true} type='textarea' autosize={{ minRows: 20, maxRows: 20 }} />
+        <Input readOnly type='textarea' {...yaml} autosize={{ minRows: 20, maxRows: 20 }} />
       </Card>
     </div>
     )

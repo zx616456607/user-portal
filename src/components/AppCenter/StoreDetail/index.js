@@ -21,8 +21,13 @@ class DetailInfo extends Component {
   }
   render () {
     const {data} = this.props
+    if (!data) {
+      return (
+        <div>暂无信息</div>
+      )
+    }
     return (
-      <div className="infoList">
+      <div className="infoList markdown">
         <div dangerouslySetInnerHTML={{__html: data.description}}></div>
       </div>
     )
@@ -35,10 +40,17 @@ class DetailStack extends Component {
   }
   render () {
     const {data} = this.props
+    if (!data) {
+      return (
+        <div>暂无编辑文件</div>
+      )
+    }
     return (
       <div className="infoList">
-        <Input type="textarea" value={data.content} autosize={{ minRows: 5, maxRows: 20 }}/>
+        <div className="operaBox"><Icon type="star-o" style={{marginRight:'15px'}}/><Icon type="arrow-salt" /></div>
+        <textarea readOnly>{data.content}</textarea>
       </div>
+      
     )
   }
 }
@@ -48,12 +60,12 @@ class DetailBox extends Component {
     super(props)
   }
   render() {
-    const {data} = this.props
+    const {data, scope} = this.props
     return (
       <div className="appStoreDetail" key="appStoreDetail">
         <div className="topTitle">
-          持续集成与部署：
-          <span className="rightColse"><Icon type="cross" /></span>
+          
+          <span className="rightColse" onClick={()=> {scope.setState({detailModal: false})} }><Icon type="cross" /></span>
         </div>
         <div className="wrapContent">
           <div className="boxDeploy">
@@ -64,13 +76,13 @@ class DetailBox extends Component {
               <li>来源：{data.owner}</li>
             </ul>
             <div className="right-btn">
-              <Button size="large" type="primary">部署</Button>
+              <Link to={`/app_manage/app_create/compose_file?templateid=${data.id}`} ><Button size="large" type="primary">部署</Button></Link>
             </div>
           </div>
           <div className="boxContent">
             <Tabs className="itemList" defaultActiveKey="1">
-              <TabPane tab="基本信息" key={1}><DetailInfo data={ data } /></TabPane>
-              <TabPane tab="编排文件" key={2}><DetailStack data={ data } /></TabPane>
+              <TabPane tab={<div style={{lineHeight:'40px'}}>基本信息</div>} key={1}><DetailInfo data={ data } /></TabPane>
+              <TabPane tab={<div style={{lineHeight:'40px'}}>编排文件</div>} key={2}><DetailStack data={ data } /></TabPane>
             </Tabs>
           </div>
         </div>

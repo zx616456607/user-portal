@@ -84,9 +84,9 @@ const menusText = defineMessages({
     id: 'CICD.Tenxflow.TenxFlowDetailFlowCard.buildImage',
     defaultMessage: '镜像构建',
   },
-  other: {
-    id: 'CICD.Tenxflow.TenxFlowDetailFlowCard.other',
-    defaultMessage: '自定义',
+  linkPod: {
+    id: 'CICD.Tenxflow.TenxFlowDetailFlowCard.linkPod',
+    defaultMessage: '依赖环境',
   },
   startBtn: {
     id: 'CICD.Tenxflow.TenxFlowDetailFlowCard.startBtn',
@@ -166,24 +166,23 @@ function currentFlowType(type, customTypeText) {
         <FormattedMessage {...menusText.containCheck} />
       );
       break;
-    //  case 3:
-    //    return (
-    //      <FormattedMessage {...menusText.podToPodCheck} />
-    //      );
-    //    break;
     case 4:
-      return (
-        <FormattedMessage {...menusText.runningCode} />
-      );
-      break;
     case 3:
       return (
         <FormattedMessage {...menusText.buildImage} />
       );
       break;
+      return (
+        <FormattedMessage {...menusText.runningCode} />
+      );
+      break;
     case 5:
       return customTypeText;
       break;
+    default:
+      return (
+        <FormattedMessage {...menusText.linkPod} />
+      )
   }
 }
 
@@ -356,15 +355,15 @@ class TenxFlowDetailFlowCard extends Component {
     switch (key) {
       case 'deleteStage':
         confirm({
-          title: '确定删除构建流程？',
-          content: `确定删除构建流程${name}`,
+          title: '确定删除构建项目？',
+          content: `确定删除构建项目 ${name}`,
           onOk() {
             deleteTenxFlowStateDetail(flowId, item, {
               success: {
                 func: () => {
                   notification['success']({
-                    message: '构建流程',
-                    description: '删除构建流程~',
+                    message: '删除构建项目',
+                    description: '删除构建项目成功~',
                   });
                   getTenxFlowStateList(flowId);
                 },

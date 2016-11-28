@@ -14,7 +14,7 @@ import union from 'lodash/union'
 import cloneDeep from 'lodash/cloneDeep'
 import reducerFactory from './factory'
 import { DEFAULT_PAGE_SIZE } from '../../constants'
-import { getAppStatus, getServiceStatus, getContainerStatus } from '../common/status_identify'
+import { getAppStatus, getContainerStatus } from '../common/status_identify'
 
 function appItems(state = {}, action) {
   const cluster = action.cluster
@@ -55,6 +55,15 @@ function appItems(state = {}, action) {
     case ActionTypes.APP_LIST_FAILURE:
       return merge({}, defaultState, state, {
         [cluster]: { isFetching: false }
+      })
+    case ActionTypes.UPDATE_APP_LIST:
+      let apps = state[cluster]
+      apps.appList = action.appList.map(app => {
+        app.status = getAppStatus(app.services)
+        return app
+      })
+      return Object.assign({}, state, {
+        [cluster]: apps
       })
     default:
       return state
@@ -140,7 +149,7 @@ export function apps(state = { appItmes: {} }, action) {
 
 // ~~~ services
 
-function serviceItmes(state = {}, action) {
+/*function serviceItmes(state = {}, action) {
   const cluster = action.cluster
   const appName = action.appName
   const defaultState = {
@@ -189,12 +198,12 @@ function serviceItmes(state = {}, action) {
     default:
       return state
   }
-}
+}*/
 
 // ~~~ containers
 
 function containerItems(state = {}, action) {
-  const { cluster, containerList } = action
+  const { cluster } = action
   const defaultState = {
     [cluster]: {
       isFetching: false,
@@ -238,11 +247,13 @@ function containerItems(state = {}, action) {
         }
       })
     case ActionTypes.UPDATE_CONTAINER_LIST:
+      let containerItems = state[cluster]
+      containerItems.containerList = action.containerList.map(container => {
+        container.status = getContainerStatus(container)
+        return container
+      })
       return Object.assign({}, state, {
-        [cluster]: {
-          total: containerList.length,
-          containerList,
-        }
+        [cluster]: containerItems
       })
     default:
       return state
