@@ -299,14 +299,21 @@ exports.createCIFlows = function* (){
   const loginUser = this.session.loginUser
   const body = this.request.body
 
-  if (!body.name) {
+  if (body.init_type == '1' && !body.name) {
     const err = new Error('name of flow is required')
     err.status = 400
     throw err
   }
 
   const api = apiFactory.getDevOpsApi(loginUser)
-  const result = yield api.createBy(["ci-flows"], null, body)
+
+  let result 
+  if (body.init_type == '2') {
+    result = yield api.createBy(["ci-flows"], {o: 'yaml'}, body.yaml)
+  } else {
+    result = yield api.createBy(["ci-flows"], null, body)
+  }
+  
 
   this.body = {
     data: result
@@ -330,6 +337,18 @@ exports.getCIFlow = function* (){
 
   const api = apiFactory.getDevOpsApi(loginUser)
   const result = yield api.getBy(["ci-flows", flow_id], null)
+
+  this.body = {
+    data: result
+  }
+}
+
+exports.getCIFlowYAML = function* (){
+  const loginUser = this.session.loginUser
+  const flow_id = this.params.flow_id
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.getBy(["ci-flows", flow_id], {o: 'yaml'})
 
   this.body = {
     data: result
@@ -727,6 +746,17 @@ exports.getStats = function* () {
 
   const api = apiFactory.getDevOpsApi(loginUser)
   const result = yield api.getBy(["stats"], null)
+
+  this.body = {
+    data: result
+  }
+}
+
+exports.getAvailableImages = function*() {
+  const loginUser = this.session.loginUser
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.getBy(["ci", "images"], null)
 
   this.body = {
     data: result

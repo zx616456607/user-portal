@@ -8,3 +8,4 @@
  * @author Zhangpc
  */
 import '../../static/style/common.less'
+import '../../static/style/markdown.less'

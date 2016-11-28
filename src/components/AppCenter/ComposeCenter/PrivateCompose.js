@@ -85,7 +85,7 @@ const menusText = defineMessages({
   },
   tooltipsFirst: {
     id: 'AppCenter.ComposeCenter.Stack.tooltipsFirst',
-    defaultMessage: '目前时速云支持两种类型的服务编排服务：',
+    defaultMessage: '时速云支持原生 Kubernetes 的资源定义方式，并支持服务之间的编排部署自动化，从而帮助开发者和运维人员创建并管理新一代的基于容器技术的微服务架构应用。',
   },
   tooltipsSecond: {
     id: 'AppCenter.ComposeCenter.Stack.tooltipsSecond',

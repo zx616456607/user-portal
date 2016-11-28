@@ -52,7 +52,8 @@ class CreateCompose extends Component {
     //this function for user submit add other image space
     e.preventDefault();
     const parentScope = this.props.scope;
-    this.props.form.validateFields((errors, values) => {
+    const form = this.props.form
+    form.validateFields((errors, values) => {
       if (!!errors) {
         //it's mean there are some thing is null,user didn't input
         return;
@@ -79,7 +80,8 @@ class CreateCompose extends Component {
         },
         failed: {
           func: (err)=>{
-            message.error(err.message)
+            console.log(err.message.message)
+            message.error(err.message.message)
           }
         }
       })
@@ -91,7 +93,8 @@ class CreateCompose extends Component {
     //this function for user submit add other image space
     e.preventDefault();
     const parentScope = this.props.scope;
-    this.props.form.validateFields((errors, values) => {
+    const form = this.props.form
+    form.validateFields((errors, values) => {
       if (!!errors) {
         //it's mean there are some thing is null,user didn't input
         return;

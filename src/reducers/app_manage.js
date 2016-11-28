@@ -14,7 +14,7 @@ import union from 'lodash/union'
 import cloneDeep from 'lodash/cloneDeep'
 import reducerFactory from './factory'
 import { DEFAULT_PAGE_SIZE } from '../../constants'
-import { getAppStatus, getServiceStatus, getContainerStatus } from '../common/status_identify'
+import { getAppStatus, getContainerStatus } from '../common/status_identify'
 
 function appItems(state = {}, action) {
   const cluster = action.cluster
@@ -149,7 +149,7 @@ export function apps(state = { appItmes: {} }, action) {
 
 // ~~~ services
 
-function serviceItmes(state = {}, action) {
+/*function serviceItmes(state = {}, action) {
   const cluster = action.cluster
   const appName = action.appName
   const defaultState = {
@@ -198,7 +198,7 @@ function serviceItmes(state = {}, action) {
     default:
       return state
   }
-}
+}*/
 
 // ~~~ containers
 

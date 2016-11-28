@@ -2,7 +2,7 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
- *  config group
+ *  cicd flow
  *
  * v2.0 - 2016/11/07
  * @author  BaiYu
@@ -435,6 +435,31 @@ function getTenxflowDetail(state = {}, action) {
   }
 }
 
+function getTenxflowYAML(state = {}, action) {
+  const defaultState = {
+    isFetching: false,
+    flowInfo: {}
+  }
+  switch (action.type) {
+    case ActionTypes.GET_TENX_FLOW_YAML_REQUEST:
+      return merge({}, defaultState, state, {
+        isFetching: true
+      })
+    case ActionTypes.GET_TENX_FLOW_YAML_SUCCESS:
+      return Object.assign({}, state, {
+        isFetching: false,
+        flowYAML: action.response.result.data.results
+      }
+      )
+    case ActionTypes.GET_TENX_FLOW_YAML_FAILURE:
+      return merge({}, defaultState, state, {
+        isFetching: false
+      })
+    default:
+      return state
+  }
+}
+
 function getTenxflowStageList(state = {}, action) {
   const defaultState = {
     isFetching: false,
@@ -660,6 +685,46 @@ function getStageBuildLogList(state = {}, action) {
   }
 }
 
+function availableImage(state ={}, action) {
+  const defaultState = {
+    isFetching: false,
+    imageList: []
+  }
+  switch(action.type) {
+    case ActionTypes.GET_AVAILABLE_IMAGE_REQUEST: {
+      return merge({}, defaultState, {isFetching: true})
+    }
+    case ActionTypes.GET_AVAILABLE_IMAGE_SUCCESS: {
+      const result = action.response.result.data.results || []
+      const imageList = []
+      const temp = {}
+      for(let a in result) {
+        let key = result[a].categoryName
+        if (!temp[key]) {
+          temp[key] = {imageList:[], title: key}
+          temp[key].imageList.push(result[a])
+        } else {
+          temp[key].imageList.push(result[a])
+        }
+      }
+      const resultArray = Object.getOwnPropertyNames(temp).map(item => {
+        return temp[item]
+      })
+      return Object.assign({}, state, {
+        isFetching: false,
+        imageList: resultArray
+      })
+    }
+    case ActionTypes.GET_AVAILABLE_IMAGE_FAILURE: {
+      return {
+        isFetching: false,
+        imageList: false
+      }
+    }
+    default:
+      return state
+  }
+}
 
 export default function cicd_flow(state = {}, action) {
   return {
@@ -668,9 +733,10 @@ export default function cicd_flow(state = {}, action) {
     managed: getProject(state.managed, action),
     getTenxflowList: getTenxflowList(state.getTenxflowList, action),
     getTenxflowDetail: getTenxflowDetail(state.getTenxflowDetail, action),
+    getTenxflowYAML: getTenxflowYAML(state.getTenxflowYAML, action),
     userInfo: getUserInfo(state.userInfo, action),
     dockerfileLists: getDockerfileList(state.dockerfileLists, action),
-    deployLog: 　deployLog(state.deployLog, action),
+    deployLog: deployLog(state.deployLog, action),
     getCdRules: getCdRules(state.getCdRules, action),
     getCdImage: getCdImage(state.getCdImage, action),
     getTenxflowCIRules: getTenxflowCIRules(state.getTenxflowCIRules, action),
@@ -679,6 +745,7 @@ export default function cicd_flow(state = {}, action) {
     getTenxflowBuildLastLogs: getTenxflowBuildLastLogs(state.getTenxflowBuildLastLogs, action),
     getFlowBuildStageLogs: getFlowBuildStageLogs(state.getFlowBuildStageLogs, action),
     getStageBuildLogList: getStageBuildLogList(state.getStageBuildLogList, action),
+    availableImage: availableImage(state.availableImage, action),
     UpdateTenxflowCIRules: reducerFactory({
       REQUEST: ActionTypes.UPDATE_FLOW_CI_RULES_REQUEST,
       SUCCESS: ActionTypes.UPDATE_FLOW_CI_RULES_SUCCESS,

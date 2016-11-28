@@ -16,7 +16,7 @@ import { getOperationLogList } from '../../../actions/manage_monitor'
 import { calcuDate } from "../../../common/tools"
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { Link } from 'react-router'
-import { loadSpaceOperations, loadSpaceCICDStats, loadSpaceImageStats, loadSpaceTemplateStats, loadSpaceWarnings } from '../../../actions/overview_space'
+import { loadSpaceCICDStats, loadSpaceImageStats, loadSpaceInfo } from '../../../actions/overview_space'
 
 let imageOption = {
   series: [{
@@ -90,23 +90,21 @@ class MySpace extends Component{
   }
 
   componentWillMount() {
-   const { loadSpaceOperations, loadSpaceCICDStats, loadSpaceImageStats, loadSpaceTemplateStatst, loadSpaceWarnings, getOperationLogList } = this.props
-    loadSpaceWarnings()
-    loadSpaceOperations()
+   
+  }
+  componentDidMount() {
+    const { loadSpaceInfo, loadSpaceCICDStats, loadSpaceImageStats, getOperationLogList } = this.props
     loadSpaceCICDStats()
     loadSpaceImageStats()
-    loadSpaceTemplateStats()
+    loadSpaceInfo()
     let {} = this.props
     let { namespace, teamspace } = this.props
     if(teamspace != 'default') namespace = teamspace
     getOperationLogList({
       from: 0,
-      size: 100,
+      size: 50,
       namespace: namespace
     })
-  }
-  componentDidMount() {
-
   }
   getOperationLog() {
     const logs = this.props.auditLog
@@ -431,44 +429,72 @@ function mapStateToProp(state,props) {
     private: 0,
   }
   let spaceWarningsData = []
-  const {spaceOperations, spaceCICDStats, spaceImageStats, spaceTemplateStats, spaceWarnings} = state.overviewSpace
-  if (spaceOperations.result && spaceOperations.result.data
-      && spaceOperations.result.data.data) {
-    if (spaceOperations.result.data.data.app) {
-      let data = spaceOperations.result.data.data.app
-      if (data.appCreate) {
-        spaceOperationsData.appCreate = data.appCreate
+  const {spaceOperations, spaceCICDStats, spaceImageStats, spaceTemplateStats, spaceWarnings, spaceInfo} = state.overviewSpace
+  if (spaceInfo.result) {
+    if (spaceInfo.result.operations) {
+      if (spaceInfo.result.operations.app) {
+        let data = spaceInfo.result.operations.app
+        if (data.appCreate) {
+          spaceOperationsData.appCreate = data.appCreate
+        }
+        if (data.appModify) {
+          spaceOperationsData.appModify = data.appModify
+        }
+        if (data.svcCreate) {
+          spaceOperationsData.svcCreate = data.svcCreate
+        }
+        if (data.svcDelete) {
+          spaceOperationsData.svcDelete = data.svcDelete
+        }
+        if (data.appStop) {
+          spaceOperationsData.appStop = data.appStop
+        }
+        if (data.appStart) {
+          spaceOperationsData.appStart = data.appStart
+        }
+        if (data.appCreate) {
+          spaceOperationsData.appCreate = data.appCreate
+        }
+        if (data.appRedeploy) {
+          spaceOperationsData.appRedeploy = data.appRedeploy
+        } 
       }
-      if (data.appModify) {
-        spaceOperationsData.appModify = data.appModify
+      if (spaceInfo.result.operations.volume) {
+        let data = spaceInfo.result.operations.volume
+        if (data.volumeCreate) {
+          spaceOperationsData.volumeCreate = data.volumeCreate
+        }
+        if (data.volumeDelete) {
+          spaceOperationsData.volumeDelete = data.volumeDelete
+        }
       }
-      if (data.svcCreate) {
-        spaceOperationsData.svcCreate = data.svcCreate
-      }
-      if (data.svcDelete) {
-        spaceOperationsData.svcDelete = data.svcDelete
-      }
-      if (data.appStop) {
-        spaceOperationsData.appStop = data.appStop
-      }
-      if (data.appStart) {
-        spaceOperationsData.appStart = data.appStart
-      }
-      if (data.appCreate) {
-        spaceOperationsData.appCreate = data.appCreate
-      }
-      if (data.appRedeploy) {
-        spaceOperationsData.appRedeploy = data.appRedeploy
-      } 
     }
-    if (spaceOperations.result.data.data.volume) {
-      let data = spaceOperations.result.data.data.volume
-      if (data.volumeCreate) {
-        spaceOperationsData.volumeCreate = data.volumeCreate
-      }
-      if (data.volumeDelete) {
-        spaceOperationsData.volumeDelete = data.volumeDelete
-      }
+    if (spaceInfo.result.templates) {
+      let data = spaceInfo.result.templates
+      spaceTemplateStatsData.public = data.public
+      spaceTemplateStatsData.private = data.private
+    }
+    if (spaceInfo.result.warnings) {
+      let data = spaceInfo.result.warnings
+      data.map(warning => {
+        let warningData = {
+          metadata: {
+            creationTimestamp: "",
+          }, 
+          involvedObject: {
+            kind: "",
+            name: "",
+          },
+          reason: "",
+          message: "",
+        }
+        warningData.metadata.creationTimestamp = warning.metadata.creationTimestamp
+        warningData.involvedObject.kind = warning.involvedObject.kind
+        warningData.involvedObject.name = warning.involvedObject.name
+        warningData.reason = warning.reason
+        warningData.message = warning.message
+        spaceWarningsData.push(warningData)
+      })
     }
   }
   if (spaceCICDStats.result && spaceCICDStats.result.data &&
@@ -483,35 +509,7 @@ function mapStateToProp(state,props) {
     spaceImageStatsData.publicNumber = data.publicNumber
     spaceImageStatsData.privateNumber = data.privateNumber
   } 
-  if (spaceTemplateStats.result && spaceTemplateStats.result.data
-      && spaceTemplateStats.result.data.data) {
-    let data = spaceTemplateStats.result.data.data
-    spaceTemplateStatsData.public = data.public
-    spaceTemplateStatsData.private = data.private
-  }
-  if (spaceWarnings.result && spaceWarnings.result.data
-      && spaceWarnings.result.data.data) {
-    let data = spaceWarnings.result.data.data
-    data.map(warning => {
-      let warningData = {
-        metadata: {
-          creationTimestamp: "",
-        }, 
-        involvedObject: {
-          kind: "",
-          name: "",
-        },
-        reason: "",
-        message: "",
-      }
-      warningData.metadata.creationTimestamp = warning.metadata.creationTimestamp
-      warningData.involvedObject.kind = warning.involvedObject.kind
-      warningData.involvedObject.name = warning.involvedObject.name
-      warningData.reason = warning.reason
-      warningData.message = warning.message
-      spaceWarningsData.push(warningData)
-    })
-  }
+
   return {
     spaceOperations: spaceOperationsData,
     spaceCICDStats: spaceCICDStatsData,
@@ -529,12 +527,10 @@ MySpace = injectIntl(MySpace, {
   withRef: true,
 })
 export default connect(mapStateToProp, {
-  loadSpaceOperations,
   loadSpaceCICDStats,
   loadSpaceImageStats,
-  loadSpaceTemplateStats,
   getOperationLogList,
-  loadSpaceWarnings,
+  loadSpaceInfo,
 })(MySpace)
  
 const menusText = defineMessages({

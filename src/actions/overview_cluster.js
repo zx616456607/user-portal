@@ -12,6 +12,29 @@ import { FETCH_API, Schemas } from '../middleware/api'
 import { API_URL_PREFIX } from '../constants'
 import { toQuerystring } from '../common/tools'
 
+export const OVERVIEW_CLUSTERINFO_REQUEST = 'OVERVIEW_CLUSTERINFO_REQUEST'
+export const OVERVIEW_CLUSTERINFO_SUCCESS = 'OVERVIEW_CLUSTERINFO_SUCCESS'
+export const OVERVIEW_CLUSTERINFO_FAILURE = 'OVERVIEW_CLUSTERINFO_FAILURE'
+
+// Fetches cluster info from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchClusterInfo(clusterID) {
+  return {
+    [FETCH_API]: {
+      types: [OVERVIEW_CLUSTERINFO_REQUEST, OVERVIEW_CLUSTERINFO_SUCCESS, OVERVIEW_CLUSTERINFO_FAILURE],
+      endpoint: `${API_URL_PREFIX}/overview/clusterinfo/clusters/${clusterID}`,
+      schema: {}
+    }
+  }
+}
+
+// Fetches cluster info from API unless it is cached.
+// Relies on Redux Thunk middleware.
+export function loadClusterInfo(clusterID) {
+  return (dispatch, getState) => {
+    return dispatch(fetchClusterInfo(clusterID))
+  }
+}
 
 export const OVERVIEW_CLUSTER_OPERATIONS_REQUEST = 'OVERVIEW_CLUSTER_OPERATIONS_REQUEST'
 export const OVERVIEW_CLUSTER_OPERATIONS_SUCCESS = 'OVERVIEW_CLUSTER_OPERATIONS_SUCCESS'

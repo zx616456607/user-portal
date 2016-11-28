@@ -192,10 +192,7 @@ function fetchCodeStoreName(project, codeList) {
 
 function fetchDockerFilePath(spec) {
   if(!!spec.build) {
-    if(spec.build.dockerfileFrom == 1) {
-      return spec.build.dockerfilePath.replace('/','')
-    }
-    return null;
+    return spec.build.dockerfilePath;
   }
   return null;
 }
@@ -562,10 +559,12 @@ let EditTenxFlowModal = React.createClass({
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         e.preventDefault();
-        if (!Boolean(_this.state.dockerFileTextarea && !this.state.useDockerfile && _this.otherFlowType == '3')) {
-          _this.setState({
-            noDockerfileInput: true
-          });
+        let invalidDockerfile = Boolean(!_this.state.dockerFileTextarea && !_this.state.useDockerfile && values.flowType == '3');
+        _this.setState({
+          noDockerfileInput: invalidDockerfile
+        });
+        if (invalidDockerfile) {
+          errorFlag = true;
         }
         //check image env list
         let imageEnvLength = values.imageEnvInputs || [];
@@ -610,10 +609,11 @@ let EditTenxFlowModal = React.createClass({
       }
       //this flag for all form error flag
       let errorFlag = false;
-      if (!Boolean(_this.state.dockerFileTextarea) && !this.state.useDockerfile && _this.otherFlowType == '3') {
-        _this.setState({
-          noDockerfileInput: true
-        });
+      let invalidDockerfile = Boolean(!_this.state.dockerFileTextarea && !_this.state.useDockerfile && values.flowType == '3');
+      _this.setState({
+        noDockerfileInput: invalidDockerfile
+      });
+      if (invalidDockerfile) {
         errorFlag = true;
       }
       //get service code
@@ -737,14 +737,16 @@ let EditTenxFlowModal = React.createClass({
         if(this.state.ImageStoreType) {          
           imageBuildBody.customRegistry = values.otherStoreUrl;
         }
-        if(this.state.useDockerfile) {
-          let tmpDockerFileUrl = null;
-          if(!!!values.dockerFileUrl) {
-            tmpDockerFileUrl = '';
-          } else {
-            tmpDockerFileUrl = values.dockerFileUrl;
-          }
+        let tmpDockerFileUrl = null;
+        if(!!!values.dockerFileUrl) {
+          tmpDockerFileUrl = '';
+        } else {
+          tmpDockerFileUrl = values.dockerFileUrl;
+        }
+        if (tmpDockerFileUrl.indexOf('/') != 0) {
           imageBuildBody.DockerfilePath = '/' + tmpDockerFileUrl;
+        } else {
+          imageBuildBody.DockerfilePath = tmpDockerFileUrl;
         }
         body.spec.build = imageBuildBody;
       }
@@ -932,7 +934,6 @@ let EditTenxFlowModal = React.createClass({
                 <Option value='2'><FormattedMessage {...menusText.runningCode} /></Option>
                 <Option value='3'><FormattedMessage {...menusText.buildImage} selected/></Option>
                 <Option value='4'><FormattedMessage {...menusText.containCheck} /></Option>
-                <Option value='5'><FormattedMessage {...menusText.other} /></Option>
               </Select>
             </FormItem>
             {
@@ -1041,7 +1042,7 @@ let EditTenxFlowModal = React.createClass({
                   </div>
                   <QueueAnim className='dockerFileInputAnimate' key='dockerFileInputAnimate'>
                     <div key='useDockerFileAnimateSecond'>
-                      <Input className='dockerFileInput' {...dockerFileUrlProps} addonBefore='/' size='large' />
+                      <Input className='dockerFileInput' {...dockerFileUrlProps} addonBefore=' ' size='large' />
                     </div>
                   </QueueAnim>
                   {
@@ -1081,7 +1082,7 @@ let EditTenxFlowModal = React.createClass({
                 </div>
                 <div className='input imageType'>
                   <FormItem style={{ float:'left' }}>
-                    <RadioGroup {...getFieldProps('imageType', { initialValue: (!!config.spec.build ? (config.spec.build.registryType + '') : null), onChange: this.changeImageStoreType })}>
+                    <RadioGroup {...getFieldProps('imageType', { initialValue: (!!config.spec.build ? (config.spec.build.registryType + '') : '1'), onChange: this.changeImageStoreType })}>
                       <Radio key='imageStore' value={'1'}><FormattedMessage {...menusText.imageStore} /></Radio>
                       <Radio key='DockerHub' value={'2'} disabled>Docker Hub</Radio>
                       <Radio key='otherImage' value={'3'} disabled><FormattedMessage {...menusText.otherImage} /></Radio>
@@ -1108,7 +1109,7 @@ let EditTenxFlowModal = React.createClass({
                 </div>
                 <div className='input'>
                   <FormItem style={{ float:'left' }}>
-                    <RadioGroup {...getFieldProps('imageTag', { initialValue: (!!config.spec.build ? (config.spec.build.imageTagType + '') : null), onChange: this.changeImageTagType })}>
+                    <RadioGroup {...getFieldProps('imageTag', { initialValue: (!!config.spec.build ? (config.spec.build.imageTagType + '') : '1'), onChange: this.changeImageTagType })}>
                       <Radio key='branch' value={'1'}><FormattedMessage {...menusText.ImageTagByBranch} /></Radio>
                       <Radio key='time' value={'2'}><FormattedMessage {...menusText.ImageTagByTime} /></Radio>
                       <Radio key='other' value={'3'}><FormattedMessage {...menusText.ImageTagByOther} /></Radio>

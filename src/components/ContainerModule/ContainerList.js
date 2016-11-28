@@ -391,7 +391,7 @@ class ContainerList extends Component {
     const {
       name, page, size,
       sortOrder, total, cluster,
-      isFetching, statusWatchWs,
+      isFetching,
     } = this.props
     const {containerList, searchInputValue, searchInputDisabled } = this.state
     const checkedContainerList = containerList.filter((app) => app.checked)
