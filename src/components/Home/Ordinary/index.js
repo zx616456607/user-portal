@@ -248,17 +248,19 @@ class Ordinary extends Component{
     }
     //磁盘
     let diskNameArr = []
-    let diskUsedArr = []
+    let diskUsedArr = ["没有数据"]
     if(clusterNodeSummary.storage.length !== 0){
       clusterNodeSummary.storage.map((item,index) => {
         let name = item.name.replace(/192.168./,'')
         diskNameArr.push(name.substring(0, 7))
-        diskUsedArr.push(item.used)
+        diskUsedArr.push((':'+item.used+'%'))
       })
+      return
     }
     //数据库与缓存
     //MySQL
     const mysqlData = clusterDbServices.get('mysql')
+    console.log('clusterDbServices',clusterDbServices);
     let mySQLRunning = 0
     let mySQLStopped = 0
     let mySQLOthers = 0
@@ -272,7 +274,7 @@ class Ordinary extends Component{
       mySQLOthers = mysqlData.get('pending')
     }
     //Mongo
-    const mongoData = clusterDbServices.get('mysql')
+    const mongoData = clusterDbServices.get('mongo')
     let mongoRunning = 0
     let mongoStopped = 0
     let mongoOthers = 0
@@ -286,7 +288,7 @@ class Ordinary extends Component{
       mongoOthers = mongoData.get('pending')
     }
     //Redis
-    const redisData = clusterDbServices.get('mysql')
+    const redisData = clusterDbServices.get('redis')
     let redisRunning = 0
     let redisStopped = 0
     let redisOthers = 0
@@ -666,7 +668,7 @@ class Ordinary extends Component{
         axisPointer : {
           type : 'shadow'
         },
-        formatter: '{b} : {c}%'
+        formatter: '{b}  {c}'
       },
       grid: {
         left: '3%',
@@ -776,7 +778,7 @@ class Ordinary extends Component{
                   <tr>
                     <td>
                       <svg className="stateSvg">
-                        <use xlinkHref="#settingname" />
+                        <use xlinkHref="#cicd" />
                       </svg>
                       CICD
                     </td>
@@ -790,7 +792,7 @@ class Ordinary extends Component{
                   <tr>
                     <td>
                       <svg className="stateSvg">
-                        <use xlinkHref="#settingname" />
+                        <use xlinkHref="#homeLogging" />
                       </svg>
                       Logging
                     </td>

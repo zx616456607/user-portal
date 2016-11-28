@@ -320,13 +320,13 @@ function returnOperationList(scope) {
       {
         value: '1',
         label: formatMessage(menusText.Create)
-      },{
+      },/*{
         value: '2',
         label: formatMessage(menusText.Get)
       },{
         value: '3',
         label: formatMessage(menusText.List)
-      },{
+      },*/{
         value: '4',
         label: formatMessage(menusText.Update)
       },{
@@ -561,9 +561,6 @@ function operationalFormat(operationalType, scope) {
     case '18':
       return formatMessage(menusText.Expand)
       break;
-    case '0':
-      return formatMessage(menusText.Unknown)
-      break;
   }
 }
 
@@ -751,23 +748,28 @@ class OperationalAudit extends Component {
       let operationalList = returnOperationList(this);
       switch(eventCode) {
         case '1':
-          showOperationalList.push(operationalList[2]);
-          showOperationalList.push(operationalList[3]);
+//        showOperationalList.push(operationalList[2]);
+//        showOperationalList.push(operationalList[3]);
+          showOperationalList = [];
           break;
         case '2':
-          showOperationalList.push(operationalList[3]);
+          showOperationalList = [];
+//        showOperationalList.push(operationalList[3]);
           break;
         case '3':
-          showOperationalList.push(operationalList[3]);
+          showOperationalList = [];
+//        showOperationalList.push(operationalList[3]);
           break;
         case '4':
-          showOperationalList.push(operationalList[2]);
+          showOperationalList = [];
+//        showOperationalList.push(operationalList[2]);
           break;
         case '5':
-          showOperationalList.push(operationalList[2]);
+          showOperationalList = [];
+//        showOperationalList.push(operationalList[2]);
           break;
         case '6':
-          showOperationalList.push(operationalList[3]);
+//        showOperationalList.push(operationalList[3]);
           showOperationalList.push(operationalList[11]);
           showOperationalList.push(operationalList[12]);
           showOperationalList.push(operationalList[13]);
@@ -775,16 +777,19 @@ class OperationalAudit extends Component {
           showOperationalList.push(operationalList[15]);
           break;
         case '7':
-          showOperationalList.push(operationalList[3]);
+          showOperationalList = [];
+//        showOperationalList.push(operationalList[3]);
           break;
         case '8':
-          showOperationalList.push(operationalList[3]);
+          showOperationalList = [];
+//        showOperationalList.push(operationalList[3]);
           break;
         case '9':
           showOperationalList = [];
           break;
         case '10':
-          showOperationalList.push(operationalList[2]);
+          showOperationalList = [];
+//        showOperationalList.push(operationalList[2]);
           break;
         case '11':
           showOperationalList.push(operationalList[4]);
@@ -795,7 +800,7 @@ class OperationalAudit extends Component {
           showOperationalList.push(operationalList[4]);
           break;
         case '13':
-          showOperationalList.push(operationalList[2]);
+//        showOperationalList.push(operationalList[2]);
           showOperationalList.push(operationalList[4]);
           showOperationalList.push(operationalList[5]);
           break;
@@ -812,8 +817,8 @@ class OperationalAudit extends Component {
           break;
         case '17':
           showOperationalList.push(operationalList[1]);
-          showOperationalList.push(operationalList[2]);
-          showOperationalList.push(operationalList[3]);
+//        showOperationalList.push(operationalList[2]);
+//        showOperationalList.push(operationalList[3]);
           showOperationalList.push(operationalList[5]);
           showOperationalList.push(operationalList[12]);
           showOperationalList.push(operationalList[13]);
@@ -822,27 +827,29 @@ class OperationalAudit extends Component {
           break;
         case '18':
           showOperationalList.push(operationalList[1]);
-          showOperationalList.push(operationalList[3]);
+//        showOperationalList.push(operationalList[3]);
           break;
         case '19':
-          showOperationalList.push(operationalList[2]);
+          showOperationalList = [];
+//        showOperationalList.push(operationalList[2]);
           break;
         case '20':
-          showOperationalList.push(operationalList[2]);
+          showOperationalList = [];
+//        showOperationalList.push(operationalList[2]);
           break;
         case '21':
-          showOperationalList.push(operationalList[2]);
+//        showOperationalList.push(operationalList[2]);
           showOperationalList.push(operationalList[4]);
           break;
         case '22':
           showOperationalList.push(operationalList[1]);
-          showOperationalList.push(operationalList[2]);
+//        showOperationalList.push(operationalList[2]);
           showOperationalList.push(operationalList[4]);
           showOperationalList.push(operationalList[11]);
           break;
         case '23':
           showOperationalList.push(operationalList[1]);
-          showOperationalList.push(operationalList[2]);
+//        showOperationalList.push(operationalList[2]);
           showOperationalList.push(operationalList[4]);
           showOperationalList.push(operationalList[11]);
           break;
@@ -850,22 +857,24 @@ class OperationalAudit extends Component {
           showOperationalList = [];
           break;
         case '25':
-          showOperationalList.push(operationalList[2]);
+          showOperationalList = [];
+//        showOperationalList.push(operationalList[2]);
           break;
         case '26':
           showOperationalList.push(operationalList[1]);
-          showOperationalList.push(operationalList[3]);
+//        showOperationalList.push(operationalList[3]);
           showOperationalList.push(operationalList[5]);
           break;
         case '27':
           showOperationalList.push(operationalList[1]);
-          showOperationalList.push(operationalList[3]);
+//        showOperationalList.push(operationalList[3]);
           showOperationalList.push(operationalList[17]);
           showOperationalList.push(operationalList[18]);
           showOperationalList.push(operationalList[11]);
           break;
         case '28':
-          showOperationalList.push(operationalList[2]);
+          showOperationalList = [];
+//        showOperationalList.push(operationalList[2]);
           break;
         case '0':
           showOperationalList = operationalList;
@@ -973,7 +982,7 @@ class OperationalAudit extends Component {
     const { isFetching, logs } = this.props;
     const { formatMessage } = this.props.intl;
     const scope = this;
-    const resourceOption = [{
+    const resourceOption = [/*{
       value: '1',
       label: formatMessage(menusText.Instance),
       children: [{
@@ -992,13 +1001,13 @@ class OperationalAudit extends Component {
         value: '5',
         label: formatMessage(menusText.InstanceContainerMetrics),
       }],
-    }, {
+    }, */{
       value: '6',
       label: formatMessage(menusText.Service),
       children: [{
         value: '6',
         label: formatMessage(menusText.Service),
-      },{
+      },/*{
         value: '7',
         label: formatMessage(menusText.ServiceInstance),
       },{
@@ -1010,7 +1019,7 @@ class OperationalAudit extends Component {
       },{
         value: '10',
         label: formatMessage(menusText.ServiceK8sService),
-      },{
+      },*/{
         value: '11',
         label: formatMessage(menusText.ServiceRollingUpgrade),
       },{
@@ -1038,13 +1047,13 @@ class OperationalAudit extends Component {
       },{
         value: '18',
         label: formatMessage(menusText.AppService),
-      },{
+      },/*{
         value: '19',
         label: formatMessage(menusText.AppOperationLog),
       },{
         value: '20',
         label: formatMessage(menusText.AppExtraInfo),
-      },{
+      },*/{
         value: '21',
         label: formatMessage(menusText.AppTopology),
       },],
@@ -1058,7 +1067,7 @@ class OperationalAudit extends Component {
         value: '23',
         label: formatMessage(menusText.Config),
       }],
-    }, {
+    }, /*{
       value: '24',
       label: formatMessage(menusText.Node),
       children: [{
@@ -1068,7 +1077,7 @@ class OperationalAudit extends Component {
         value: '25',
         label: formatMessage(menusText.NodeMetrics),
       }],
-    }, {
+    }, */{
       value: '26',
       label: formatMessage(menusText.ThirdPartyRegistry)
     }, {
@@ -1077,17 +1086,17 @@ class OperationalAudit extends Component {
       children: [{
         value: '27',
         label: formatMessage(menusText.Volume),
-      },{
+      }/*,{
         value: '28',
         label: formatMessage(menusText.VolumeConsumption),
-      }],
-    }, {
+      }*/],
+    }, /*{
       value: '0',
       label: formatMessage(menusText.Unknown)
-    }, {
+    }, */{
       value: null,
       label: formatMessage(menusText.allResource)
-    },];
+    }];
     const operationalSelectOptions = this.state.selectOperationalList.map((item) => {
       return (
         <Option key={item.value} value={item.value}>{item.label}</Option>
@@ -1103,7 +1112,7 @@ class OperationalAudit extends Component {
           <Cascader
             changeOnSelect
             options={resourceOption}
-            allowClear={false}
+            allowClear={true}
             displayRender={this.onShowResource}
             onChange={this.onChangeResource}
             getPopupContainer={() => document.getElementById('operationalAudit')}

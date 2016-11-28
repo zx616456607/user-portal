@@ -92,7 +92,7 @@ class TerminalModal extends Component {
           <i className='fa fa-times ' onClick={this.closeWindow} />
         </div>
         <div className='contentBox'>
-          <iframe src={`/js/container_terminal.html?host=192.168.1.92&port=6443&namespace=${config.metadata.namespace}&pod=${config.metadata.name}`} width='1270' height='550' />
+          <iframe src={`/js/container_terminal.html?host=192.168.1.92&port=6443&namespace=${config.metadata.namespace}&pod=${config.metadata.name}`} />
         </div>
       </div>
     )

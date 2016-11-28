@@ -84,7 +84,7 @@ function getIntegrationVmList(state = {}, action) {
 
 function getCloneVmConfig(state = {}, action) {
   const defaultState = {
-    dataCenters: {}
+    config: {}
   }
   switch (action.type) {
     case ActionTypes.GET_CLONE_VM_CONFIG_REQUEST:
@@ -94,7 +94,7 @@ function getCloneVmConfig(state = {}, action) {
     case ActionTypes.GET_CLONE_VM_CONFIG_SUCCESS:
       return Object.assign({}, state, {
         isFetching: false,
-        dataCenters: action.response.result || {}
+        config: action.response.result.result.data || {}
       })
     case ActionTypes.GET_CLONE_VM_CONFIG_FAILURE:
       return merge({}, defaultState, state, {

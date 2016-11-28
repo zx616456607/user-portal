@@ -23,6 +23,10 @@
           }
         })
     });
+    window.addEventListener("resize", function(e){
+      var rowsNum = parseInt(e.target.innerHeight / 12) - 2;
+      term.resize(170, rowsNum)
+    })
     function webSocketConnect() {
       var params = location.href.split('?')[1].split('&');
       var data = {}

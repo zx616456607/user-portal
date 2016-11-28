@@ -179,11 +179,12 @@ var normal = 0
  * Terminal
  */
 
-function Terminal(options) {
+function Terminal(options, type) {
   var self = this;
-
-  if (!(this instanceof Terminal)) {
-    return new Terminal(arguments[0], arguments[1], arguments[2]);
+  if(!type) {
+    if (!(this instanceof Terminal)) {
+      return new Terminal(arguments[0], arguments[1], arguments[2]);
+    }
   }
 
   Stream.call(this);
@@ -1272,8 +1273,8 @@ Terminal.prototype.refresh = function(start, end) {
     , parent;
 
   if (end - start >= this.rows / 2) {
-    parent = this.element.parentNode;
-    if (parent) parent.removeChild(this.element);
+      parent = this.element.parentNode;
+      if (parent) parent.removeChild(this.element);
   }
 
   width = this.cols;

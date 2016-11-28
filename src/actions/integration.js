@@ -113,8 +113,7 @@ function deleteIntegrationDetail(id, callback) {
       types: [DELETE_INTEGRATION_DETAIL_REQUEST, DELETE_INTEGRATION_DETAIL_SUCCESS, DELETE_INTEGRATION_DETAIL_FAILURE],
       endpoint: `${API_URL_PREFIX}/integrations/deleteIntegrations/${id}`,
       options: {
-        method: 'DELETE',
-        body: body
+        method: 'DELETE'
       },
       schema: {}
     },
