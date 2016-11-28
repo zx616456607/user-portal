@@ -906,7 +906,6 @@ let EditTenxFlowModal = React.createClass({
       ],
       initialValue: (!!config.spec.build ? config.spec.build.image : null)
     });
-    console.log("---- " + buildImages[intFlowTypeIndex].imageList[0].imageName)
     const imageNameProps = getFieldProps('imageName', {
       rules: [
         { required: true, message: '请选择基础镜像' }
