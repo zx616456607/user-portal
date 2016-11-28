@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Card, Radio } from 'antd'
+import { Row, Col, Card, Radio, Icon } from 'antd'
 import './style/Ordinary.less'
 import ReactEcharts from 'echarts-for-react'
 import MySpace from './MySpace'
@@ -96,7 +96,7 @@ let SvcState = React.createClass({
     if(svcState === 'abnormal'){
       item = (
         <div>
-          <div className='errorDot' style={{backgroundColor:'#f85a59'}}></div>
+          <Icon type="exclamation-circle" style={{color:'#f85a59'}} className='errorDot'/>
           <span style={{color:'#f85a59'}}>异常</span>
         </div>
       )
@@ -113,6 +113,8 @@ class Ordinary extends Component{
   constructor(props){
     super(props)
     this.handleDataBaseClick = this.handleDataBaseClick.bind(this)
+    this.handleSize = this.handleSize.bind(this)
+    this.thousandBitSeparator = this.thousandBitSeparator.bind(this)
     this.state = {
       tab1: true,
       tab2: false,
@@ -164,13 +166,40 @@ class Ordinary extends Component{
       return
     }
   }
+  thousandBitSeparator(num) {
+    return num && (num
+        .toString().indexOf('.') != -1 ? num.toString().replace(/(\d)(?=(\d{3})+\.)/g, function($0, $1) {
+        return $1 + ",";
+      }) : num.toString().replace(/(\d)(?=(\d{3}))/g, function($0, $1) {
+        return $1 + ",";
+    }));
+  }
+  handleSize(size){
+    if(!size){
+      return 0 + 'KB'
+    }
+    let result = 0
+    if(size < 1024){
+      return size + 'KB'
+    }
+    if(size < 1024*1024){
+      result = this.thousandBitSeparator((size/1024).toFixed(2))
+      console.log('result : ',result);
+      return result + 'MB'
+    }
+    if(size < 1024*1024*1024){
+      result = this.thousandBitSeparator((size/(1024*1024)).toFixed(2))
+      return result + 'GB'
+    }
+    result = this.thousandBitSeparator((size/(1024*1024*1024)).toFixed(2))
+    return result + 'T'
+  }
   render(){
-    const {clusterOperations, clusterSysinfo, clusterStorage, clusterAppStatus, clusterNodeSummary,clusterDbServices} = this.props
+    const {clusterOperations, clusterSysinfo, clusterStorage, clusterAppStatus, clusterNodeSummary,clusterDbServices,spaceName,clusterName} = this.props
     let boxPos = 0
     if ((clusterStorage.freeSize + clusterStorage.usedSize) > 0) {
       boxPos = (clusterStorage.usedSize/(clusterStorage.freeSize + clusterStorage.usedSize)).toFixed(3)
     }
-    console.log('clusterDbServices:   ',clusterDbServices.get('mysql'));
     //应用
     let appRunning = clusterAppStatus.appMap.get('Running')
     let appStopped = clusterAppStatus.appMap.get('Stopped')
@@ -689,7 +718,7 @@ class Ordinary extends Component{
     }
     return (
       <div id='Ordinary'>
-        <Row className="title">我的空间-产品环境集群</Row>
+        <Row className="title">空间 :{spaceName} - {clusterName}集群</Row>
         <Row className="content" gutter={16}>
           <Col span={8} className='clusterCost'>
             <Card title="本日该集群消费" bordered={false} bodyStyle={{height:220,padding:'0 24px'}}>
@@ -700,7 +729,7 @@ class Ordinary extends Component{
               />
             </Card>
           </Col>
-          <Col span={11} className='sysState'>
+          <Col span={10} className='sysState'>
             <Card title="系统状态和版本" bordered={false} bodyStyle={{height:220}}>
               <table>
                 <tbody>
@@ -776,7 +805,7 @@ class Ordinary extends Component{
               </table>
             </Card>
           </Col>
-          <Col span={5} className='clusterRecord'>
+          <Col span={6} className='clusterRecord'>
             <Card title="今日该集群记录" bordered={false} bodyStyle={{height:220}}>
               <div style={{overflowY:'auto',height:'172px'}}>
                 <table>
@@ -921,11 +950,11 @@ class Ordinary extends Component{
                 <div className="storageInfList">
                   <Row className='storageInfItem'>
                     <Col span={12}>已使用:</Col>
-                    <Col span={12} style={{textAlign:'right'}}>{clusterStorage.usedSize}MB</Col>
+                    <Col span={12} style={{textAlign:'right'}}>{this.handleSize(clusterStorage.usedSize)}</Col>
                   </Row>
                   <Row className='storageInfItem'>
                     <Col span={12}>空闲:</Col>
-                    <Col span={12} style={{textAlign:'right'}}>{clusterStorage.freeSize}MB</Col>
+                    <Col span={12} style={{textAlign:'right'}}>{this.handleSize(clusterStorage.freeSize)}</Col>
                   </Row>
                   <Row className='storageInfItem'>
                     <Col span={12}>存储卷:</Col>
@@ -1126,7 +1155,7 @@ class Ordinary extends Component{
             </Card>
           </Col>
         </Row>
-        <MySpace />
+        <MySpace spaceName={spaceName} />
       </div>
     )
   }
