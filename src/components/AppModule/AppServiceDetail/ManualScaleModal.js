@@ -30,13 +30,12 @@ class ManualScaleModal extends Component {
       realNum: value
     })
   }
-
   componentWillReceiveProps(nextProps) {
     const { service, visible } = nextProps
     if (!service) {
       return
     }
-    if (visible) {
+    if (!visible) {
       return
     }
     this.setState({
