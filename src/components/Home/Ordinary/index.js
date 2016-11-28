@@ -17,8 +17,8 @@ import { connect } from 'react-redux'
 import { loadClusterInfo } from '../../../actions/overview_cluster'
 import ProgressBox from '../../ProgressBox'
 
-let restValue = 12366
-let costValue = 45666
+let restValue = '12366'
+let costValue = '45666'
 
 let clusterCostOption = {
   tooltip : {
@@ -335,7 +335,7 @@ class Ordinary extends Component{
         avoidLabelOverlap: false,
         hoverAnimation: false,
         selectedOffset: 0,
-        radius: ['28', '40'],
+        radius: ['32', '45'],
         center: ['25%', '50%'],
         data:[
           {value:appRunning, name:'运行中'},
@@ -408,7 +408,7 @@ class Ordinary extends Component{
         avoidLabelOverlap: false,
         hoverAnimation: false,
         selectedOffset: 0,
-        radius: ['28', '40'],
+        radius: ['32', '45'],
         center: ['25%', '50%'],
         data:[
           {value:svcRunning, name:'运行中'},
@@ -481,7 +481,7 @@ class Ordinary extends Component{
         avoidLabelOverlap: false,
         hoverAnimation: false,
         selectedOffset: 0,
-        radius: ['28', '40'],
+        radius: ['32', '45'],
         center: ['25%', '50%'],
         data:[
           {value:conRunning, name:'运行中'},
@@ -580,9 +580,8 @@ class Ordinary extends Component{
         {
           name:'',
           type:'bar',
-          barWidth: '60%',
+          barWidth: 16,
           data:CPUUsedArr,
-        
         }
       ]
     }
@@ -646,7 +645,7 @@ class Ordinary extends Component{
         {
           name:'',
           type:'bar',
-          barWidth: '60%',
+          barWidth: 16,
           data:memoryUsedArr,
         
         }
@@ -712,7 +711,7 @@ class Ordinary extends Component{
         {
           name:'',
           type:'bar',
-          barWidth: '60%',
+          barWidth: 16,
           data:diskUsedArr,
         
         }
@@ -737,7 +736,7 @@ class Ordinary extends Component{
                 <tbody>
                   <tr>
                     <td>
-                      <img className="stateImg" src="/img/homeEtcd.png"/>
+                      <img className="stateImg" src="/img/homeKubernetes.png"/>
                       Kubernetes
                     </td>
                     <td>
