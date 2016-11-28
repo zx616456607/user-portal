@@ -36,6 +36,7 @@ import AppDeployServiceModal from './AppCreate/AppDeployServiceModal'
 import TipSvcDomain from '../TipSvcDomain'
 import yaml from 'js-yaml'
 import { addDeploymentWatch, removeDeploymentWatch } from '../../containers/App/status'
+import { LABEL_APPNAME } from '../../constants'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -293,6 +294,7 @@ const MyComponent = React.createClass({
       const images = item.spec.template.spec.containers.map(container => {
         return container.image
       })
+      const appName = item.metadata.labels[LABEL_APPNAME]
       return (
         <div
           className={item.checked ? "selectedInstance instanceDetail" : "instanceDetail"}
@@ -312,8 +314,10 @@ const MyComponent = React.createClass({
             <ServiceStatus service={item} />
           </div>
           <div className="appname commonData">
-            <Tooltip title={item.metadata.labels['tenxcloud.com/appName']}>
-              <span>{item.metadata.labels['tenxcloud.com/appName']}</span>
+            <Tooltip title={appName}>
+              <Link to={`/app_manage/detail/${appName}`}>
+                <span>{appName}</span>
+              </Link>
             </Tooltip>
           </div>
           <div className="image commonData">
