@@ -14,7 +14,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../../constants'
-import { updateTenxFlowState, getDockerfiles, setDockerfile } from '../../../../../actions/cicd_flow'
+import { updateTenxFlowState, getDockerfiles, setDockerfile, getAvailableImage } from '../../../../../actions/cicd_flow'
 import './style/EditTenxFlowModal.less'
 import EnvComponent from './CreateEnvComponent.js'
 import ImageEnvComponent from './ImageEnvComponent.js'
@@ -183,7 +183,7 @@ function fetchCodeStoreName(project, codeList) {
     return
   }
   codeList.map((item) => {
-    if(item.id == project.id) {
+    if (item.id == project.id) {
       codeName = item.name;
     }
   });
@@ -191,7 +191,7 @@ function fetchCodeStoreName(project, codeList) {
 }
 
 function fetchDockerFilePath(spec) {
-  if(!!spec.build) {
+  if (!!spec.build) {
     return spec.build.dockerfilePath;
   }
   return null;
@@ -201,7 +201,7 @@ function emptyServiceEnvCheck(errorList, item) {
   //this function for show which env list of services is error
   let errorFlag = false;
   errorList.map((errorDetail) => {
-    if(errorDetail == item) {
+    if (errorDetail == item) {
       errorFlag = true;
     }
   });
@@ -211,7 +211,7 @@ function emptyServiceEnvCheck(errorList, item) {
 let uuid = 0;
 let shellUid = 0;
 let EditTenxFlowModal = React.createClass({
-  getInitialState: function() {
+  getInitialState: function () {
     return {
       otherFlowType: '3',
       useDockerfile: true,
@@ -226,8 +226,13 @@ let EditTenxFlowModal = React.createClass({
       noDockerfileInput: false,
       ImageEnvModal: false,
       emptyImageEnv: false,
-      emptyServiceEnv: []
+      emptyServiceEnv: [],
+      baseImage: []
     }
+  },
+  componentWillMount() {
+    const {getAvailableImage} = this.props
+    getAvailableImage()
   },
   componentDidMount() {
     uuid = 0;
@@ -242,7 +247,7 @@ let EditTenxFlowModal = React.createClass({
     }
     let otherFlowType = config.metadata.type + '';
     let codeStoreName = fetchCodeStoreName(config.spec.project, codeList)
-    if (config.spec.build && config.spec.build.dockerfileFrom == 2) {    
+    if (config.spec.build && config.spec.build.dockerfileFrom == 2) {
       let tempBody = {
         flowId: flowId,
         stageId: stageId
@@ -258,7 +263,7 @@ let EditTenxFlowModal = React.createClass({
         }
       })
     }
-    if(otherFlowType != '3') {
+    if (otherFlowType != '3') {
       this.setState({
         otherFlowType: otherFlowType,
         useDockerfile: false,
@@ -268,7 +273,7 @@ let EditTenxFlowModal = React.createClass({
         currentCodeStoreName: codeStoreName,
         currentCodeStoreBranch: config.spec.project.branch
       });
-    } else {     
+    } else {
       let useDockerfile = (config.spec.build && config.spec.build.dockerfileFrom == 1) ? true : false;
       let ImageStoreType = (config.spec.build && config.spec.build.registryType == 3) ? true : false;
       let otherTag = (config.spec.build && config.spec.build.imageTagType == 3) ? true : false;
@@ -284,14 +289,14 @@ let EditTenxFlowModal = React.createClass({
     }
     let shellList = Boolean(config.spec.container.args) ? config.spec.container.args : [];
     if (shellList) {
-        shellList.map((item, index) => {
-        shellUid++;
-        let keys = form.getFieldValue('shellCodes');
-        keys = keys.concat(shellUid);
-        form.setFieldsValue({
-          'shellCodes': keys
-        });
-      });
+      // shellList.map((item, index) => {
+      //   shellUid++;
+      //   let keys = form.getFieldValue('shellCodes');
+      //   keys = keys.concat(shellUid);
+      //   form.setFieldsValue({
+      //     'shellCodes': keys
+      //   });
+      // });
     }
     let serviceList = Boolean(config.spec.container.dependencies) ? config.spec.container.dependencies : [];
     if (serviceList) {
@@ -351,17 +356,18 @@ let EditTenxFlowModal = React.createClass({
   },
   flowTypeChange(e) {
     //this function for user change the tenxflow type
-    if(e != '5') {
+    const ins = e.split('@')[1]
+    if (ins != '5') {
       this.props.form.resetFields(['otherFlowType']);
     }
-    if(e != '3') {
+    if (ins != '3') {
       this.props.form.resetFields(['imageRealName']);
     }
     this.setState({
-      otherFlowType: e
+      otherFlowType: ins
     });
   },
-  removeService (k) {
+  removeService(k) {
     //the function for user remove the service select box
     const { form } = this.props;
     // can use data-binding to get
@@ -371,13 +377,13 @@ let EditTenxFlowModal = React.createClass({
     });
     // can use data-binding to set
     form.setFieldsValue({
-      'services':keys
+      'services': keys
     });
-    if(keys.length == 0) {
-      this.addService ()
+    if (keys.length == 0) {
+      this.addService()
     }
   },
-  addService () {
+  addService() {
     //this function for user add an new box of service select
     uuid++;
     const { form } = this.props;
@@ -390,25 +396,25 @@ let EditTenxFlowModal = React.createClass({
       'services': keys
     });
   },
-  openEnvSettingModal (index) {
+  openEnvSettingModal(index) {
     //this function for user open the modal of setting the service env
     this.setState({
       envModalShow: index
     });
   },
-  closeEnvSettingModal () {
+  closeEnvSettingModal() {
     //this function for user close the modal of setting the service env
     this.setState({
       envModalShow: null
     });
   },
-  removeShellCode (k) {
+  removeShellCode(k) {
     //the function for user remove the shell code box
     const { form } = this.props;
     // can use data-binding to get
     let keys = form.getFieldValue('shellCodes');
-    if(keys.length == 1) {
-      return ;
+    if (keys.length == 1) {
+      return;
     }
     keys = keys.filter((key) => {
       return key !== k;
@@ -418,7 +424,7 @@ let EditTenxFlowModal = React.createClass({
       'shellCodes': keys
     });
   },
-  addShellCode (index) {
+  addShellCode(index) {
     //this function for user add an new box of shell code
     //there are no button for user click
     //when user input words, after user key up would triger the function
@@ -427,7 +433,7 @@ let EditTenxFlowModal = React.createClass({
     let changed = false
     let keys = form.getFieldValue('shellCodes');
     let max = keys[keys.length - 1]
-    if(index == max && !!inputValue) {
+    if (index == max && !!inputValue) {
       // shellUid++;
       changed = true
       // can use data-binding to get
@@ -449,7 +455,7 @@ let EditTenxFlowModal = React.createClass({
       });
     }
   },
-  realImageInput (rule, value, callback) {
+  realImageInput(rule, value, callback) {
     //this function for user selected build image type
     //and when user submit the form, the function will check the real image input or not 
     if (this.state.otherFlowType == '3' && !!!value) {
@@ -458,21 +464,21 @@ let EditTenxFlowModal = React.createClass({
       callback();
     }
   },
-  changeUseDockerFile (e) {
+  changeUseDockerFile(e) {
     //this function for user change using the Dockerfile or not
-    if(e.target.checked) {
+    if (e.target.checked) {
       this.setState({
         useDockerfile: true
       });
-    }else {
+    } else {
       this.setState({
         useDockerfile: false
       });
     }
   },
-  changeImageStoreType (e) {
+  changeImageStoreType(e) {
     //this function for user change image store type
-    if( e.target.value == '3' ) {
+    if (e.target.value == '3') {
       this.setState({
         ImageStoreType: true
       });
@@ -482,9 +488,9 @@ let EditTenxFlowModal = React.createClass({
       });
     }
   },
-  changeImageTagType (e) {
+  changeImageTagType(e) {
     //this function for user change image tag type
-    if( e.target.value == '3' ) {
+    if (e.target.value == '3') {
       this.setState({
         otherTag: true
       });
@@ -569,32 +575,32 @@ let EditTenxFlowModal = React.createClass({
         //check image env list
         let imageEnvLength = values.imageEnvInputs || [];
         imageEnvLength.map((item, index) => {
-          if(values['imageEnvName' + item] != '') {
-            if(values['imageEnvValue' + item] == '') {
+          if (values['imageEnvName' + item] != '') {
+            if (values['imageEnvValue' + item] == '') {
               _this.setState({
                 emptyImageEnv: true
               });
             }
           }
         });
-         //check service code
+        //check service code
         let serviceLength = values.services;
         let emptyServiceEnv = _this.state.emptyServiceEnv;
         serviceLength.map((item) => {
           let temp = {
             'service': values['serviceSelect' + item]
           }
-          if(!!values['serviceSelect' + item]) {
+          if (!!values['serviceSelect' + item]) {
             let tempLength = values['service' + item + 'inputs'] || [];
             let tempList = [];
             //this flag for service detail env list check the value input or not
             let emptyFlag = false;
             tempLength.map((littleItem) => {
-              if(values['service' + item +'inputName' + littleItem] != '') {
-                if(values['service' + item +'inputValue' + littleItem] == '') {
+              if (values['service' + item + 'inputName' + littleItem] != '') {
+                if (values['service' + item + 'inputValue' + littleItem] == '') {
                   //if user didn't input value but input the key name
                   //the error list will be add the services num
-                  if(emptyServiceEnv.indexOf(item) == -1) {
+                  if (emptyServiceEnv.indexOf(item) == -1) {
                     emptyServiceEnv.push(item);
                   }
                 }
@@ -606,6 +612,11 @@ let EditTenxFlowModal = React.createClass({
           emptyServiceEnv: emptyServiceEnv
         })
         return;
+      }
+     if (values.flowType == '构建镜像') {
+        values.flowType = 3
+      } else {
+       values.flowType =  values.flowType.split('@')[1]
       }
       //this flag for all form error flag
       let errorFlag = false;
@@ -627,31 +638,31 @@ let EditTenxFlowModal = React.createClass({
         let temp = {
           'service': values['serviceSelect' + item]
         }
-        if(!!values['serviceSelect' + item]) {
+        if (!!values['serviceSelect' + item]) {
           let tempLength = values['service' + item + 'inputs'] || [];
           let tempList = [];
           //this flag for service detail env list check the value input or not
           let emptyFlag = false;
           tempLength.map((littleItem) => {
-            if(values['service' + item +'inputName' + littleItem] != '') {
-              if(values['service' + item +'inputValue' + littleItem] == '') {
+            if (values['service' + item + 'inputName' + littleItem] != '') {
+              if (values['service' + item + 'inputValue' + littleItem] == '') {
                 //if user didn't input value but input the key name
                 //the error list will be add the services num
-                if(emptyServiceEnv.indexOf(item) == -1) {
+                if (emptyServiceEnv.indexOf(item) == -1) {
                   emptyServiceEnv.push(item);
                 }
                 errorFlag = true;
                 emptyFlag = true;
               } else {
                 let tempBody = {
-                  name: values['service' + item +'inputName' + littleItem],
-                  value: values['service' + item +'inputValue' + littleItem]            
+                  name: values['service' + item + 'inputName' + littleItem],
+                  value: values['service' + item + 'inputValue' + littleItem]
                 }
                 tempList.push(tempBody);
               }
             }
           });
-          if(!emptyFlag) {
+          if (!emptyFlag) {
             emptyServiceEnv = emptyServiceEnv.filter((key) => {
               return key !== item;
             });
@@ -668,8 +679,8 @@ let EditTenxFlowModal = React.createClass({
       let imageEnvList = [];
       let imageEnvFlag = false;
       imageEnvLength.map((item, index) => {
-        if(!!values['imageEnvName' + item]) {
-          if(values['imageEnvValue' + item] == '') {
+        if (!!values['imageEnvName' + item]) {
+          if (values['imageEnvValue' + item] == '') {
             _this.setState({
               emptyImageEnv: true
             });
@@ -683,26 +694,26 @@ let EditTenxFlowModal = React.createClass({
           }
         }
       });
-      if(!imageEnvFlag) {
+      if (!imageEnvFlag) {
         _this.setState({
           emptyImageEnv: false
         });
       }
-      if(errorFlag) {
+      if (errorFlag) {
         return;
       }
       //get shell code
       let shellLength = values.shellCodes;
       let shellList = [];
       shellLength.map((item, index) => {
-        if(!!values['shellCode' + item]) {
+        if (!!values['shellCode' + item]) {
           shellList.push(values['shellCode' + item]);
         }
       });
       let body = {
         'metadata': {
           'name': values.flowName,
-          'type': parseInt(values.flowType), 
+          'type': parseInt(values.flowType),
         },
         'spec': {
           'container': {
@@ -714,15 +725,15 @@ let EditTenxFlowModal = React.createClass({
           'project': {
             'id': _this.state.currentCodeStore,
             'branch': _this.state.currentCodeStoreBranch
-        },
+          },
         }
       }
       //if user select the customer type (5), ths customType must be input
-      if(values.flowType == '5') {
+      if (values.flowType == 5) {
         body.metadata.customType = values.otherFlowType;
       }
       //if user select the image build type (3),the body will be add new body
-      if(values.flowType == '3') {
+      if (values.flowType == 3) {
         let dockerFileFrom = _this.state.useDockerfile ? 1 : 2;
         let imageBuildBody = {
           'DockerfileFrom': dockerFileFrom,
@@ -731,14 +742,14 @@ let EditTenxFlowModal = React.createClass({
           'noCache': values.buildCache,
           'image': values.imageRealName
         }
-        if(this.state.otherTag) {
+        if (this.state.otherTag) {
           imageBuildBody.customTag = values.otherTag;
         }
-        if(this.state.ImageStoreType) {          
+        if (this.state.ImageStoreType) {
           imageBuildBody.customRegistry = values.otherStoreUrl;
         }
         let tmpDockerFileUrl = null;
-        if(!!!values.dockerFileUrl) {
+        if (!!!values.dockerFileUrl) {
           tmpDockerFileUrl = '';
         } else {
           tmpDockerFileUrl = values.dockerFileUrl;
@@ -753,7 +764,7 @@ let EditTenxFlowModal = React.createClass({
       updateTenxFlowState(flowId, stageId, body, {
         success: {
           func: () => {
-            if(!_this.state.useDockerfile && values.flowType == '3') {
+            if (!_this.state.useDockerfile && values.flowType == 3) {
               let dockerfilebody = {
                 content: _this.state.dockerFileTextarea,
                 flowId: flowId,
@@ -767,8 +778,8 @@ let EditTenxFlowModal = React.createClass({
                   isAsync: true
                 }
               })
-            }else{
-              getTenxFlowStateList(flowId)              
+            } else {
+              getTenxFlowStateList(flowId)
             }
             rootScope.setState({
               currentFlowEdit: null
@@ -785,16 +796,40 @@ let EditTenxFlowModal = React.createClass({
   },
   render() {
     const { formatMessage } = this.props.intl;
-    const { config, form, codeList, supportedDependencies } = this.props;
+    const { config, form, codeList, supportedDependencies ,imageList} = this.props;
     const shellList = config.spec.container.args ? config.spec.container.args : [];
     const servicesList = config.spec.container.dependencies ? config.spec.container.dependencies : [];
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form;
     const scopeThis = this;
-    let serviceSelectList = supportedDependencies.map((item, index) => {
+    if (imageList === undefined || imageList.length ===0) {
+      return (<div></div>)
+    }
+    let intFlowTypeIndex = this.state.otherFlowType - 1
+    let buildImages = []
+    let dependenciesImages = []
+    imageList.forEach(function(image) {
+      if (image.imageList[0].categoryId > 100) {
+        dependenciesImages.push(image)
+      } else {
+        buildImages.push(image)
+      }
+    })
+    let serviceSelectList = dependenciesImages[0].imageList.map((item, index) => {
       return (
-        <Option value={item} key={item + index}>{item}</Option>
+        <Option value={item.imageName} key={index}>{item.imageName}</Option>
       )
     });
+    const selectImage = buildImages.map((list, index) => {
+      return (
+        <Option key={ list.title } value={list.title + `@`+ (index+1) }>{list.title}</Option>
+      )
+    })
+    this.state.baseImage = buildImages[intFlowTypeIndex].imageList
+    const baseImage = this.state.baseImage.map(list => {
+      return (
+        <Option key={list.imageName}>{list.imageName}</Option>
+      )
+    })
     getFieldProps('services', {
       initialValue: [0],
     });
@@ -811,29 +846,29 @@ let EditTenxFlowModal = React.createClass({
         initialValue: serviceDefault,
       });
       return (
-      <QueueAnim key={'serviceName' + k + 'Animate'}>
-        <div className='serviceDetail' key={'serviceName' + k}>
-          <Form.Item className='commonItem'>
-            <Select {...serviceSelect} style={{ width: '100px' }} >
-              {serviceSelectList}
-            </Select>
-            <span className={ emptyServiceEnvCheck(scopeThis.state.emptyServiceEnv, k) ? 'emptyImageEnv defineEnvBtn' : 'defineEnvBtn'} 
-              onClick={() => this.openEnvSettingModal(k)}>
-              <FormattedMessage {...menusText.defineEnv} />
-            </span>
-            { emptyServiceEnvCheck(scopeThis.state.emptyServiceEnv, k) ? [<span className='emptyImageEnvError'><FormattedMessage {...menusText.emptyImageEnv} /></span>] : null }
-            <i className='fa fa-trash' onClick={() => this.removeService(k)}/>
-          </Form.Item>
-          <Modal className='tenxFlowServiceEnvModal'
-            title={<FormattedMessage {...menusText.envTitle} />}
-            visible={this.state.envModalShow == k ? true : false}
-            onOk={this.closeEnvSettingModal}
-            onCancel={this.closeEnvSettingModal}
-          >
-            <EnvComponent scope={scopeThis} config={envDefault} index={k} form={form} />
-          </Modal>
-        </div>
-      </QueueAnim>
+        <QueueAnim key={'serviceName' + k + 'Animate'}>
+          <div className='serviceDetail' key={'serviceName' + k}>
+            <Form.Item className='commonItem'>
+              <Select {...serviceSelect} style={{ width: '220px' }} >
+                {serviceSelectList}
+              </Select>
+              <span className={emptyServiceEnvCheck(scopeThis.state.emptyServiceEnv, k) ? 'emptyImageEnv defineEnvBtn' : 'defineEnvBtn'}
+                onClick={() => this.openEnvSettingModal(k)}>
+                <FormattedMessage {...menusText.defineEnv} />
+              </span>
+              {emptyServiceEnvCheck(scopeThis.state.emptyServiceEnv, k) ? [<span className='emptyImageEnvError'><FormattedMessage {...menusText.emptyImageEnv} /></span>] : null}
+              <i className='fa fa-trash' onClick={() => this.removeService(k)} />
+            </Form.Item>
+            <Modal className='tenxFlowServiceEnvModal'
+              title={<FormattedMessage {...menusText.envTitle} />}
+              visible={this.state.envModalShow == k ? true : false}
+              onOk={this.closeEnvSettingModal}
+              onCancel={this.closeEnvSettingModal}
+              >
+              <EnvComponent scope={scopeThis} config={envDefault} index={k} form={form} />
+            </Modal>
+          </div>
+        </QueueAnim>
       )
     });
     const scodes = getFieldValue('shellCodes')
@@ -846,17 +881,17 @@ let EditTenxFlowModal = React.createClass({
         initialValue: shellDefault,
       });
       return (
-      <QueueAnim key={'shellCode' + i + 'Animate'}>
-        <div className='serviceDetail' key={'shellCode' + i}>
-          <FormItem className='serviceForm'>
-            <Input disabled={ scopeThis.state.otherFlowType == '3' ? true : false } onKeyUp={() => this.addShellCode(i) } {...shellCodeProps} type='text' size='large' />
-            { scopeThis.state.otherFlowType == '3' || scodes.length == 1 ? null : [
-              <i className='fa fa-trash' onClick={() => this.removeShellCode(i)} />
-            ] }
-          </FormItem>
-          <div style={{ clera:'both' }}></div>
-        </div>
-      </QueueAnim>
+        <QueueAnim key={'shellCode' + i + 'Animate'}>
+          <div className='serviceDetail' key={'shellCode' + i}>
+            <FormItem className='serviceForm'>
+              <Input disabled={scopeThis.state.otherFlowType == '3' ? true : false} onKeyUp={() => this.addShellCode(i)} {...shellCodeProps} type='text' size='large' />
+              {scopeThis.state.otherFlowType == '3' || scodes.length == 1 ? null : [
+                <i className='fa fa-trash' onClick={() => this.removeShellCode(i)} />
+              ]}
+            </FormItem>
+            <div style={{ clera: 'both' }}></div>
+          </div>
+        </QueueAnim>
       )
     });
     if (this.state.otherFlowType == '3' && shellCodeItems.length > 1) {
@@ -867,7 +902,7 @@ let EditTenxFlowModal = React.createClass({
         { required: true, message: '请选择项目类型' },
       ],
       onChange: this.flowTypeChange,
-      initialValue: config.metadata.type + '',
+      initialValue: imageList[config.metadata.type -1].title,
     });
     const otherFlowTypeProps = getFieldProps('otherFlowType', {
       rules: [
@@ -884,8 +919,9 @@ let EditTenxFlowModal = React.createClass({
     });
     const imageNameProps = getFieldProps('imageName', {
       rules: [
-        { required: true, message: '请输入基础镜像' },
-        { validator: this.imageNameExists },       
+        { required: true, message: '请选择基础镜像' },
+        { validator: this.imageNameExists },
+        buildImages[intFlowTypeIndex].imageList[0].imageName
       ],
       initialValue: config.spec.container.image
     });
@@ -918,274 +954,283 @@ let EditTenxFlowModal = React.createClass({
     });
     return (
       <div id='EditTenxFlowModal' key='EditTenxFlowModal'>
-      <div className='titleBox'>
-        <span><FormattedMessage {...menusText.titleEdit} /></span>
-        <Icon type='cross' onClick={this.cancelChange} />
-      </div>
-      <Form horizontal>
-        <div className='commonBox'>
-          <div className='title'>
-            <span><FormattedMessage {...menusText.flowType} /></span>
-          </div>
-          <div className='input flowType'>
-            <FormItem className='flowTypeForm'>
-              <Select {...flowTypeProps} style={{ width: 120 }}>
-                <Option value='1'><FormattedMessage {...menusText.unitCheck} /></Option>
-                <Option value='2'><FormattedMessage {...menusText.runningCode} /></Option>
-                <Option value='3'><FormattedMessage {...menusText.buildImage} selected/></Option>
-                <Option value='4'><FormattedMessage {...menusText.containCheck} /></Option>
-              </Select>
-            </FormItem>
-            {
-              this.state.otherFlowType == '5' ? [
-                <QueueAnim className='otherFlowTypeInput' key='otherFlowTypeInput'>
-                  <div key='otherFlowTypeInput'>
-                    <FormItem>
-                      <Input {...otherFlowTypeProps} size='large' />
-                    </FormItem>
-                  </div>
-                </QueueAnim>
-              ] : null
-            }
-          </div>
-          <div style={{ clear:'both' }} />
+        <div className='titleBox'>
+          <span><FormattedMessage {...menusText.titleEdit} /></span>
+          <Icon type='cross' onClick={this.cancelChange} />
         </div>
-        <div className='commonBox'>
-          <div className='title'>
-            <span><FormattedMessage {...menusText.flowCode} /></span>
-          </div>
-          <div className='input'>
-            { this.state.currentCodeStore ? [
-              <span style={{ marginRight:'15px' }}>{this.state.currentCodeStoreName + '  ' + (this.state.currentCodeStoreBranch ? formatMessage(menusText.branch) + this.state.currentCodeStoreBranch : '') }</span>
-            ] : null }
-            <Button className='selectCodeBtn' size='large' type='ghost' onClick={this.openCodeStoreModal}>
-              <i className='fa fa-file-code-o' />
-              <FormattedMessage {...menusText.selectCode} />
-            </Button>
-            { this.state.currentCodeStore ? [
-              <Button type='ghost' size='large' style={{ marginLeft: '15px' }} onClick={this.deleteCodeStore}>
-                <i className='fa fa-trash' />&nbsp;
-                <FormattedMessage {...menusText.deleteCode} />
-              </Button>
-            ] : null }
-          </div>
-          <div style={{ clear:'both' }} />
-        </div>
-        <div className='commonBox'>
-          <div className='title'>
-            <span><FormattedMessage {...menusText.flowName} /></span>
-          </div>
-          <div className='input'>
-            <FormItem
-              hasFeedback
-              help={isFieldValidating('flowName') ? '校验中...' : (getFieldError('flowName') || []).join(', ')}
-              style={{ width:'220px' }}
-            >
-              <Input {...flowNameProps} type='text' size='large' />
-            </FormItem>
-          </div>
-          <div style={{ clear:'both' }} />
-        </div>
-        <div className='line'></div>
-        <div className='commonBox'>
-          <div className='title'>
-            <span><FormattedMessage {...menusText.imageName} /></span>
-          </div>
-          <div className='imageName input'>
-            <FormItem
-              hasFeedback
-              help={isFieldValidating('imageName') ? '校验中...' : (getFieldError('imageName') || []).join(', ')}
-              style={{ width:'220px', float: 'left' }}
-            >
-              <Input {...imageNameProps} type='text' size='large' />
-            </FormItem>
-            <span className={ this.state.emptyImageEnv ? 'emptyImageEnv defineEnvBtn' : 'defineEnvBtn'} onClick={this.openImageEnvModal}><FormattedMessage {...menusText.defineEnv} /></span>            
-            { this.state.emptyImageEnv ? [<span className='emptyImageEnvError'><FormattedMessage {...menusText.emptyImageEnv} /></span>] : null }   
-            <div style={{ clear:'both' }} />
-          </div>
-          <div style={{ clear:'both' }} />
-        </div>
-        <div className='commonBox'>
-          <div className='title'>
-            <span><FormattedMessage {...menusText.servicesTitle} /></span>
-          </div>
-          <div className='input services'>
-            {serviceItems}
-            <div className='addServicesBtn' onClick={this.addService}>
-              <Icon type='plus-circle-o' />
-              <FormattedMessage {...menusText.addServices} />
+        <Form horizontal>
+          <div className='commonBox'>
+            <div className='title'>
+              <span><FormattedMessage {...menusText.flowType} /></span>
             </div>
-          </div>
-          <div style={{ clear:'both' }} />
-        </div>
-        <div className='commonBox'>
-          <div className='title'>
-            <span><FormattedMessage {...menusText.shellCode} /></span>
-          </div>
-          <div className='input shellCode'>
-            {shellCodeItems}
-          </div>
-          <div style={{ clear:'both' }} />
-        </div>
-        {
-          this.state.otherFlowType == '3' ? [
-            <QueueAnim className='buildImageForm' key='buildImageForm'>
-              <div className='line'></div>
-              <div className='commonBox' key='buildImageFormAnimate'>
-                <div className='title'>
-                  <span>Dockerfile</span>
-                </div>
-                <div className='input' style={{ height: '100px' }}>
-                  <div className='operaBox' style={{ float: 'left', width: '500px' }}>
-                    <Checkbox onChange={this.changeUseDockerFile} checked={this.state.useDockerfile}></Checkbox>
-                    <span><FormattedMessage {...menusText.dockerFileCreate} /></span>
-                  </div>
-                  <QueueAnim className='dockerFileInputAnimate' key='dockerFileInputAnimate'>
-                    <div key='useDockerFileAnimateSecond'>
-                      <Input className='dockerFileInput' {...dockerFileUrlProps} addonBefore=' ' size='large' />
+            <div className='input flowType'>
+              <FormItem className='flowTypeForm'>
+                <Select {...flowTypeProps} style={{ width: 120 }}>
+                  { selectImage }
+                  {/* <Option value='1'><FormattedMessage {...menusText.unitCheck} /></Option>
+                  <Option value='2'><FormattedMessage {...menusText.runningCode} /></Option>
+                  <Option value='3'><FormattedMessage {...menusText.buildImage} selected /></Option>
+                  <Option value='4'><FormattedMessage {...menusText.containCheck} /></Option>
+                  */}
+                </Select>
+              </FormItem>
+              {
+                this.state.otherFlowType == '5' ? [
+                  <QueueAnim className='otherFlowTypeInput' key='otherFlowTypeInput'>
+                    <div key='otherFlowTypeInput'>
+                      <FormItem>
+                        <Input {...otherFlowTypeProps} size='large' />
+                      </FormItem>
                     </div>
                   </QueueAnim>
-                  {
-                    !this.state.useDockerfile ? [
-                      <QueueAnim key='useDockerFileAnimate' style={{ float: 'left' }}>
-                        <div key='useDockerFileAnimateSecond'>
-                          {/*<Button type='ghost' size='large' style={{ marginRight:'20px' }}>
+                ] : null
+              }
+            </div>
+            <div style={{ clear: 'both' }} />
+          </div>
+          <div className='commonBox'>
+            <div className='title'>
+              <span><FormattedMessage {...menusText.flowCode} /></span>
+            </div>
+            <div className='input'>
+              {this.state.currentCodeStore ? [
+                <span style={{ marginRight: '15px' }}>{this.state.currentCodeStoreName + '  ' + (this.state.currentCodeStoreBranch ? formatMessage(menusText.branch) + this.state.currentCodeStoreBranch : '')}</span>
+              ] : null}
+              <Button className='selectCodeBtn' size='large' type='ghost' onClick={this.openCodeStoreModal}>
+                <i className='fa fa-file-code-o' />
+                <FormattedMessage {...menusText.selectCode} />
+              </Button>
+              {this.state.currentCodeStore ? [
+                <Button type='ghost' size='large' style={{ marginLeft: '15px' }} onClick={this.deleteCodeStore}>
+                  <i className='fa fa-trash' />&nbsp;
+                <FormattedMessage {...menusText.deleteCode} />
+                </Button>
+              ] : null}
+            </div>
+            <div style={{ clear: 'both' }} />
+          </div>
+          <div className='commonBox'>
+            <div className='title'>
+              <span><FormattedMessage {...menusText.flowName} /></span>
+            </div>
+            <div className='input'>
+              <FormItem
+                hasFeedback
+                help={isFieldValidating('flowName') ? '校验中...' : (getFieldError('flowName') || []).join(', ')}
+                style={{ width: '220px' }}
+                >
+                <Input {...flowNameProps} />
+              </FormItem>
+            </div>
+            <div style={{ clear: 'both' }} />
+          </div>
+          <div className='line'></div>
+          <div className='commonBox'>
+            <div className='title'>
+              <span><FormattedMessage {...menusText.imageName} /></span>
+            </div>
+            <div className='imageName input'>
+              <FormItem
+                hasFeedback
+                help={isFieldValidating('imageName') ? '校验中...' : (getFieldError('imageName') || []).join(', ')}
+                style={{ width: '220px', float: 'left' }}
+                >
+                {/*<Input {...imageNameProps} type='text' size='large' /> */}
+                <Select {...imageNameProps}>
+                  { baseImage }
+                </Select>
+              </FormItem>
+              <span className={this.state.emptyImageEnv ? 'emptyImageEnv defineEnvBtn' : 'defineEnvBtn'} onClick={this.openImageEnvModal}><FormattedMessage {...menusText.defineEnv} /></span>
+              {this.state.emptyImageEnv ? [<span className='emptyImageEnvError'><FormattedMessage {...menusText.emptyImageEnv} /></span>] : null}
+              <div style={{ clear: 'both' }} />
+            </div>
+            <div style={{ clear: 'both' }} />
+          </div>
+          <div className='commonBox'>
+            <div className='title'>
+              <span><FormattedMessage {...menusText.servicesTitle} /></span>
+            </div>
+            <div className='input services'>
+              {serviceItems}
+              <div className='addServicesBtn' onClick={this.addService}>
+                <Icon type='plus-circle-o' />
+                <FormattedMessage {...menusText.addServices} />
+              </div>
+            </div>
+            <div style={{ clear: 'both' }} />
+          </div>
+          <div className='commonBox'>
+            <div className='title'>
+              <span><FormattedMessage {...menusText.shellCode} /></span>
+            </div>
+            <div className='input shellCode'>
+              {shellCodeItems}
+            </div>
+            <div style={{ clear: 'both' }} />
+          </div>
+          {
+            this.state.otherFlowType == '3' ? [
+              <QueueAnim className='buildImageForm' key='buildImageForm'>
+                <div className='line'></div>
+                <div className='commonBox' key='buildImageFormAnimate'>
+                  <div className='title'>
+                    <span>Dockerfile</span>
+                  </div>
+                  <div className='input' style={{ height: '100px' }}>
+                    <div className='operaBox' style={{ float: 'left', width: '500px' }}>
+                      <Checkbox onChange={this.changeUseDockerFile} checked={this.state.useDockerfile}></Checkbox>
+                      <span><FormattedMessage {...menusText.dockerFileCreate} /></span>
+                    </div>
+                    <QueueAnim className='dockerFileInputAnimate' key='dockerFileInputAnimate'>
+                      <div key='useDockerFileAnimateSecond'>
+                        <Input className='dockerFileInput' {...dockerFileUrlProps} addonBefore=' ' size='large' />
+                      </div>
+                    </QueueAnim>
+                    {
+                      !this.state.useDockerfile ? [
+                        <QueueAnim key='useDockerFileAnimate' style={{ float: 'left' }}>
+                          <div key='useDockerFileAnimateSecond'>
+                            {/*<Button type='ghost' size='large' style={{ marginRight:'20px' }}>
                             <FormattedMessage {...menusText.selectDockerFile} />
                           </Button>*/}
-                          <Button className={ this.state.noDockerfileInput ? 'noCodeStoreButton' : null } type='ghost' size='large'
-                            onClick={this.openDockerFileModal}>
-                            <FormattedMessage {...menusText.createNewDockerFile} />
-                          </Button>
-                          <span className={ this.state.noDockerfileInput ? 'noCodeStoreSpan CodeStoreSpan' : 'CodeStoreSpan' }><FormattedMessage {...menusText.noDockerFileInput} /></span>
-                        </div>
-                      </QueueAnim>
-                    ] : null
-                  }
+                            <Button className={this.state.noDockerfileInput ? 'noCodeStoreButton' : null} type='ghost' size='large'
+                              onClick={this.openDockerFileModal}>
+                              <FormattedMessage {...menusText.createNewDockerFile} />
+                            </Button>
+                            <span className={this.state.noDockerfileInput ? 'noCodeStoreSpan CodeStoreSpan' : 'CodeStoreSpan'}><FormattedMessage {...menusText.noDockerFileInput} /></span>
+                          </div>
+                        </QueueAnim>
+                      ] : null
+                    }
+                  </div>
+                  <div style={{ clear: 'both' }} />
                 </div>
-                <div style={{ clear:'both' }} />
-              </div>
-              <div className='commonBox'>
-                <div className='title'>
-                  <span><FormattedMessage {...menusText.imageRealName} /></span>
+                <div className='commonBox'>
+                  <div className='title'>
+                    <span><FormattedMessage {...menusText.imageRealName} /></span>
+                  </div>
+                  <div className='input imageType'>
+                    <FormItem style={{ width: '220px', float: 'left', marginRight: '20px' }}>
+                      <Input {...imageRealNameProps} type='text' size='large' />
+                    </FormItem>
+                    <div style={{ clear: 'both' }} />
+                  </div>
+                  <div style={{ clear: 'both' }} />
                 </div>
-                <div className='input imageType'>
-                  <FormItem style={{ width:'220px',float:'left',marginRight:'20px' }}>
-                    <Input {...imageRealNameProps} type='text' size='large' />
-                  </FormItem>
-                  <div style={{ clear:'both' }} />
+                <div className='commonBox'>
+                  <div className='title'>
+                    <span><FormattedMessage {...menusText.ImageStoreType} /></span>
+                  </div>
+                  <div className='input imageType'>
+                    <FormItem style={{ float: 'left' }}>
+                      <RadioGroup {...getFieldProps('imageType', { initialValue: (!!config.spec.build ? (config.spec.build.registryType + '') : '1'), onChange: this.changeImageStoreType }) }>
+                        <Radio key='imageStore' value={'1'}><FormattedMessage {...menusText.imageStore} /></Radio>
+                        <Radio key='DockerHub' value={'2'} disabled>Docker Hub</Radio>
+                        <Radio key='otherImage' value={'3'} disabled><FormattedMessage {...menusText.otherImage} /></Radio>
+                      </RadioGroup>
+                    </FormItem>
+                    {
+                      this.state.ImageStoreType ? [
+                        <QueueAnim key='otherImageStoreTypeAnimate'>
+                          <div key='otherImageStoreType'>
+                            <FormItem style={{ width: '220px', float: 'left' }}>
+                              <Input {...otherImageStoreTypeProps} type='text' size='large' />
+                            </FormItem>
+                          </div>
+                        </QueueAnim>
+                      ] : null
+                    }
+                    <div style={{ clear: 'both' }} />
+                  </div>
+                  <div style={{ clear: 'both' }} />
                 </div>
-                <div style={{ clear:'both' }} />
-              </div>
-              <div className='commonBox'>
-                <div className='title'>
-                  <span><FormattedMessage {...menusText.ImageStoreType} /></span>
+                <div className='commonBox'>
+                  <div className='title'>
+                    <span><FormattedMessage {...menusText.ImageTag} /></span>
+                  </div>
+                  <div className='input'>
+                    <FormItem style={{ float: 'left' }}>
+                      <RadioGroup {...getFieldProps('imageTag', { initialValue: (!!config.spec.build ? (config.spec.build.imageTagType + '') : '1'), onChange: this.changeImageTagType }) }>
+                        <Radio key='branch' value={'1'}><FormattedMessage {...menusText.ImageTagByBranch} /></Radio>
+                        <Radio key='time' value={'2'}><FormattedMessage {...menusText.ImageTagByTime} /></Radio>
+                        <Radio key='other' value={'3'}><FormattedMessage {...menusText.ImageTagByOther} /></Radio>
+                      </RadioGroup>
+                    </FormItem>
+                    {
+                      this.state.otherTag ? [
+                        <QueueAnim>
+                          <div key='otherTagAnimate'>
+                            <FormItem style={{ width: '200px', float: 'left' }}>
+                              <Input {...otherImageTagProps} type='text' size='large' />
+                            </FormItem>
+                          </div>
+                        </QueueAnim>
+                      ] : null
+                    }
+                    <div style={{ clear: 'both' }} />
+                  </div>
+                  <div style={{ clear: 'both' }} />
                 </div>
-                <div className='input imageType'>
-                  <FormItem style={{ float:'left' }}>
-                    <RadioGroup {...getFieldProps('imageType', { initialValue: (!!config.spec.build ? (config.spec.build.registryType + '') : '1'), onChange: this.changeImageStoreType })}>
-                      <Radio key='imageStore' value={'1'}><FormattedMessage {...menusText.imageStore} /></Radio>
-                      <Radio key='DockerHub' value={'2'} disabled>Docker Hub</Radio>
-                      <Radio key='otherImage' value={'3'} disabled><FormattedMessage {...menusText.otherImage} /></Radio>
-                    </RadioGroup>
-                  </FormItem>
-                  {
-                    this.state.ImageStoreType ? [
-                      <QueueAnim key='otherImageStoreTypeAnimate'>
-                        <div key='otherImageStoreType'>
-                          <FormItem style={{ width:'220px',float:'left' }}>
-                            <Input {...otherImageStoreTypeProps} type='text' size='large' />
-                          </FormItem>
-                        </div>
-                      </QueueAnim>
-                    ] : null
-                  }
-                  <div style={{ clear:'both' }} />
+                <div className='commonBox'>
+                  <div className='title'>
+                    <span><FormattedMessage {...menusText.buildCache} /></span>
+                  </div>
+                  <div className='input imageType'>
+                    <FormItem>
+                      <Switch {...getFieldProps('buildCache') } defaultChecked={!!config.spec.build ? config.spec.build.noCache : false} />
+                    </FormItem>
+                  </div>
+                  <div style={{ clear: 'both' }} />
                 </div>
-                <div style={{ clear:'both' }} />
-              </div>
-              <div className='commonBox'>
-                <div className='title'>
-                  <span><FormattedMessage {...menusText.ImageTag} /></span>
-                </div>
-                <div className='input'>
-                  <FormItem style={{ float:'left' }}>
-                    <RadioGroup {...getFieldProps('imageTag', { initialValue: (!!config.spec.build ? (config.spec.build.imageTagType + '') : '1'), onChange: this.changeImageTagType })}>
-                      <Radio key='branch' value={'1'}><FormattedMessage {...menusText.ImageTagByBranch} /></Radio>
-                      <Radio key='time' value={'2'}><FormattedMessage {...menusText.ImageTagByTime} /></Radio>
-                      <Radio key='other' value={'3'}><FormattedMessage {...menusText.ImageTagByOther} /></Radio>
-                    </RadioGroup>
-                  </FormItem>
-                  {
-                    this.state.otherTag ? [
-                      <QueueAnim>
-                        <div key='otherTagAnimate'>
-                          <FormItem style={{ width:'200px',float:'left' }}>
-                            <Input {...otherImageTagProps} type='text' size='large' />
-                          </FormItem>
-                        </div>
-                      </QueueAnim>
-                    ] : null
-                  }
-                  <div style={{ clear:'both' }} />
-                </div>
-                <div style={{ clear:'both' }} />
-              </div>
-              <div className='commonBox'>
-                <div className='title'>
-                  <span><FormattedMessage {...menusText.buildCache} /></span>
-                </div>
-                <div className='input imageType'>
-                  <FormItem>
-                    <Switch {...getFieldProps('buildCache')} defaultChecked={!!config.spec.build ? config.spec.build.noCache : false} />
-                  </FormItem>
-                </div>
-                <div style={{ clear:'both' }} />
-              </div>
-            </QueueAnim>
-          ] : null
-        }
-        <Modal className='tenxFlowDockerFileModal'
-          title={<FormattedMessage {...menusText.dockerFileTitle} />}
-          visible={this.state.dockerFileModalShow}
-          onOk={this.closeDockerFileModal}
-          onCancel={this.closeDockerFileModal}
-        > 
-          <Input type='textarea' value={this.state.dockerFileTextarea} onChange={this.onChangeDockerFileTextarea} autosize={{ minRows: 10, maxRows: 10 }} />
+              </QueueAnim>
+            ] : null
+          }
+          <Modal className='tenxFlowDockerFileModal'
+            title={<FormattedMessage {...menusText.dockerFileTitle} />}
+            visible={this.state.dockerFileModalShow}
+            onOk={this.closeDockerFileModal}
+            onCancel={this.closeDockerFileModal}
+            >
+            <Input type='textarea' value={this.state.dockerFileTextarea} onChange={this.onChangeDockerFileTextarea} autosize={{ minRows: 10, maxRows: 10 }} />
+          </Modal>
+          <Modal className='tenxFlowImageEnvModal'
+            title={<FormattedMessage {...menusText.envTitle} />}
+            visible={this.state.ImageEnvModal}
+            onOk={this.closeImageEnvModal}
+            onCancel={this.closeImageEnvModal}
+            >
+            <ImageEnvComponent scope={scopeThis} form={form} config={config.spec.container.env} />
+          </Modal>
+        </Form>
+        <div className='modalBtnBox'>
+          <Button size='large' onClick={this.cancelChange}>
+            <FormattedMessage {...menusText.cancel} />
+          </Button>
+          <Button size='large' type='primary' onClick={this.handleSubmit}>
+            <FormattedMessage {...menusText.submit} />
+          </Button>
+        </div>
+        <Modal className='tenxFlowCodeStoreModal'
+          title={<FormattedMessage {...menusText.codeStore} />}
+          visible={this.state.codeStoreModalShow}
+          onOk={this.closeCodeStoreModal}
+          onCancel={this.closeCodeStoreModal}
+          >
+          <CodeStoreListModal scope={scopeThis} config={codeList} hadSelected={this.state.currentCodeStore} />
         </Modal>
-        <Modal className='tenxFlowImageEnvModal'
-          title={<FormattedMessage {...menusText.envTitle} />}
-          visible={this.state.ImageEnvModal}
-          onOk={this.closeImageEnvModal}
-          onCancel={this.closeImageEnvModal}
-        >
-          <ImageEnvComponent scope={scopeThis} form={form} config={config.spec.container.env} />
-        </Modal>
-      </Form>
-      <div className='modalBtnBox'>
-        <Button size='large' onClick={this.cancelChange}>
-          <FormattedMessage {...menusText.cancel} />
-        </Button>
-        <Button size='large' type='primary' onClick={this.handleSubmit}>
-          <FormattedMessage {...menusText.submit} />
-        </Button>
       </div>
-      <Modal className='tenxFlowCodeStoreModal'
-        title={<FormattedMessage {...menusText.codeStore} />}
-        visible={this.state.codeStoreModalShow}
-        onOk={this.closeCodeStoreModal}
-        onCancel={this.closeCodeStoreModal}
-      >
-        <CodeStoreListModal scope={scopeThis} config={codeList} hadSelected={this.state.currentCodeStore} />
-      </Modal>
-    </div>
     )
   }
 });
 
 function mapStateToProps(state, props) {
-
+  const defaultState = {
+    imageList: []
+  }
+  const { availableImage } = state.cicd_flow
+  const { imageList } = availableImage || defaultState
   return {
-
+    imageList
   }
 }
 
@@ -1198,7 +1243,8 @@ EditTenxFlowModal.propTypes = {
 export default connect(mapStateToProps, {
   updateTenxFlowState,
   getDockerfiles,
-  setDockerfile
+  setDockerfile,
+  getAvailableImage
 })(injectIntl(EditTenxFlowModal, {
   withRef: true,
 }));

@@ -111,11 +111,12 @@ class Admin extends Component{
     loadTeamInfo()
   }
   render(){
+    const { spaceName } = this.props
     const teamDetail = this.props.teamDetail
     const teamOperations = this.props.teamOperations
     return (
       <div id='Admin' style={{marginBottom:40}}>
-        <Row className="title">空间对应的团队</Row>
+        <Row className="title">空间 : {spaceName} 对应的团队</Row>
         <Row className="content" gutter={16}>
           <Col span={8} className='teamInf'>
             <Card title="团队信息总览" bordered={false} bodyStyle={{height:170}}>
