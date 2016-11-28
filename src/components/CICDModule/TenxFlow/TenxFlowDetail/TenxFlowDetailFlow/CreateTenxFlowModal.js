@@ -289,10 +289,16 @@ let CreateTenxFlowModal = React.createClass({
     const ins = e.split('@')[1]
     const baseImage = imageList[ins].imageList
     this.props.form.resetFields(['otherFlowType', 'imageNameProps']);
-    if (e != '3') {
+    if (ins != 3) {
       this.props.form.resetFields(['imageRealName', 'dockerFileUrl', 'otherStoreUrl', 'otherTag', 'imageType', 'imageTag', 'buildCache']);
       this.setState({
         useDockerfile: false,
+        otherTag: false,
+        ImageStoreType: false
+      });
+    } else {
+      this.setState({
+        useDockerfile: true,
         otherTag: false,
         ImageStoreType: false
       });
@@ -412,7 +418,7 @@ let CreateTenxFlowModal = React.createClass({
   },
   changeImageStoreType(e) {
     //this function for user change image store type
-    if (e.target.value == '3') {
+    if (e.target.value == 3) {
       this.setState({
         ImageStoreType: true
       });
@@ -424,7 +430,7 @@ let CreateTenxFlowModal = React.createClass({
   },
   changeImageTagType(e) {
     //this function for user change image tag type
-    if (e.target.value == '3') {
+    if (e.target.value == 3) {
       this.setState({
         otherTag: true
       });
