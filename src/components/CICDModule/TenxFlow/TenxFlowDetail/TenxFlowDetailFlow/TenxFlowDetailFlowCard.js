@@ -355,15 +355,15 @@ class TenxFlowDetailFlowCard extends Component {
     switch (key) {
       case 'deleteStage':
         confirm({
-          title: '确定删除构建流程？',
-          content: `确定删除构建流程${name}`,
+          title: '确定删除构建项目？',
+          content: `确定删除构建项目 ${name}`,
           onOk() {
             deleteTenxFlowStateDetail(flowId, item, {
               success: {
                 func: () => {
                   notification['success']({
-                    message: '构建流程',
-                    description: '删除构建流程~',
+                    message: '删除构建项目',
+                    description: '删除构建项目成功~',
                   });
                   getTenxFlowStateList(flowId);
                 },
