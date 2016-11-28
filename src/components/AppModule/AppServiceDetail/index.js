@@ -135,7 +135,8 @@ class AppServiceDetail extends Component {
   restartService(service) {
     const { funcs } = this.props
     const self = this
-    funcs.confirmRestartServices([service], {
+    console.log('service',service);
+    funcs.handleRestarServiceOk([service], {
       success: {
         func: () => {
           self.loadData()

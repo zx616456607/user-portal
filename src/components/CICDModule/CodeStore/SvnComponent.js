@@ -9,11 +9,11 @@
 */
 import React, { Component, PropTypes } from 'react'
 import { Alert, Icon, Menu, Button, Card, Input, Tabs, Tooltip, message, Dropdown, Form, Modal, Spin, Switch } from 'antd'
-import { Link ,browserHistory} from 'react-router'
+import { Link, browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { addSvnManaged, getUserInfo  } from '../../../actions/cicd_flow'
+import { addSvnManaged, getUserInfo } from '../../../actions/cicd_flow'
 
 const TabPane = Tabs.TabPane
 const FormItem = Form.Item;
@@ -70,10 +70,10 @@ let SvnComponent = React.createClass({
   },
   setModalStaus(status) {
     const scope = this.props.form
-    if(status) {
+    if (status) {
       scope.resetFields()
     }
-    this.setState({authorizeModal: status})
+    this.setState({ authorizeModal: status })
   },
   handleSubmit(e) {
     e.preventDefault();
@@ -83,7 +83,6 @@ let SvnComponent = React.createClass({
       if (errors) {
         return;
       }
-      self.setState({submiting: true})
       const config = {
         "name": values.name,
         "repo_type": parentScope.repokey,
@@ -96,7 +95,15 @@ let SvnComponent = React.createClass({
         config.username = values.username
         config.password = values.password
       }
-      self.props.addSvnManaged (config, {
+      if (config.address.indexOf('http:') < 0 || config.address.indexOf('https:') < 0) {
+        Modal.warning({
+          title: '地址输入有误',
+          content: '地址以http:// 或者 https:// 开头'
+        });
+        return
+      }
+      self.setState({ submiting: true })
+      self.props.addSvnManaged(config, {
         success: {
           func: (res) => {
             self.setState({
@@ -120,17 +127,17 @@ let SvnComponent = React.createClass({
         },
         failed: {
           func: (res) => {
-            self.setState({submiting: false})
+            self.setState({ submiting: false })
             Modal.warning({
               title: '添加失败!',
-              content: (<h3>{res.message}</h3>),
+              content: (<h3>{res.message.message}</h3>),
             });
           }
         }
       })
     })
   },
-  render () {
+  render() {
     const { config, scope, formatMessage } = this.props
     const { getFieldProps, getFieldValue } = this.props.form;
     const formItemLayout = {
@@ -175,20 +182,20 @@ let SvnComponent = React.createClass({
               </FormItem>
 
               <FormItem {...formItemLayout} label="类型：">
-                <Switch defaultChecked={true} {...forType } onChange={(e)=> {this.setState({privateType: e})}} checkedChildren={formatMessage(menusText.pubilicType)} unCheckedChildren={formatMessage(menusText.privateType)} />
+                <Switch defaultChecked={true} {...forType } onChange={(e) => { this.setState({ privateType: e }) } } checkedChildren={formatMessage(menusText.pubilicType)} unCheckedChildren={formatMessage(menusText.privateType)} />
               </FormItem>
 
-              { !this.state.privateType ?
-              [<QueueAnim type='right' key='svnModal-type'>
-                <FormItem {...formItemLayout} label="用户名: ">
-                  <Input placeholder="输入用户名称" size="large" {...forUsername } />
-                </FormItem>
+              {!this.state.privateType ?
+                [<QueueAnim type='right' key='svnModal-type'>
+                  <FormItem {...formItemLayout} label="用户名: ">
+                    <Input placeholder="输入用户名称" size="large" {...forUsername } />
+                  </FormItem>
 
-                <FormItem {...formItemLayout} label="密码: ">
-                  <Input type="password" placeholder="请输入密码" {...forPassword} />
-                </FormItem>
-              </QueueAnim>]
-              : null
+                  <FormItem {...formItemLayout} label="密码: ">
+                    <Input type="password" placeholder="请输入密码" {...forPassword} />
+                  </FormItem>
+                </QueueAnim>]
+                : null
               }
               <FormItem wrapperCol={{ span: 16, offset: 6 }} style={{ marginTop: 24 }}>
                 <Button type="primary" htmlType="submit" loading={this.state.submiting}>确定</Button>

@@ -149,7 +149,7 @@ export function apps(state = { appItmes: {} }, action) {
 
 // ~~~ services
 
-/*function serviceItmes(state = {}, action) {
+/*function serviceItems(state = {}, action) {
   const cluster = action.cluster
   const appName = action.appName
   const defaultState = {

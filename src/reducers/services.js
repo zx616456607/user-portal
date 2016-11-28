@@ -15,7 +15,7 @@ import reducerFactory from './factory'
 import cloneDeep from 'lodash/cloneDeep'
 import { getServiceStatus, getContainerStatus } from '../common/status_identify'
 
-function serviceItmes(state = {}, action) {
+function serviceItems(state = {}, action) {
   const cluster = action.cluster
   const appName = action.appName
   const defaultState = {
@@ -133,16 +133,34 @@ function serviceList(state = {}, action) {
       return merge({}, state, { isFetching: true })
     }
     case ActionTypes.SERVICE_GET_ALL_LIST_SUCCESS: {
-      action.response.result.data.services = action.response.result.data.services.map(service => {
-        service.deployment.cluster = service.cluster
-        service.deployment.status = getServiceStatus(service.deployment)
-        return service.deployment
-      })
-      return merge({}, action.response.result.data, { isFetching: false })
+      return merge({}, {
+        count: action.response.result.data.count,
+        services: action.response.result.data.services.map(service => {
+          service.deployment.cluster = service.cluster
+          service.deployment.status = getServiceStatus(service.deployment)
+          return service.deployment
+        }),
+        total: action.response.result.data.total,
+      }, { isFetching: false })
     }
     case ActionTypes.SERVICE_GET_ALL_LIST_FAILURE: {
       return merge({}, state, { isFetching: false })
     }
+    case ActionTypes.UPDATE_SERVICE_GET_ALL_LIST:
+      let serviceItems = state
+      serviceItems.services = action.deploymentList.map(deployment => {
+        deployment.status = getServiceStatus(deployment)
+        return deployment
+      })
+      /*state.services.map(service => {
+        action.deploymentList.map(deployment => {
+          if (deployment.metadata.name === service.deployment.metadata.name) {
+            service.deployment = deployment
+            serviceItems.push(service)
+          }
+        })
+      })*/
+      return Object.assign({}, state, serviceItems)
     default:
       return state
   }
@@ -311,7 +329,7 @@ function k8sService(state = {}, action) {
 
 export function services(state = { appItmes: {} }, action) {
   return {
-    serviceItmes: serviceItmes(state.serviceItmes, action),
+    serviceItems: serviceItems(state.serviceItems, action),
     serviceList: serviceList(state.serviceList, action),
     serviceContainers: serviceContainers(state.serviceContainers, action),
     serviceDetail: serviceDetail(state.serviceDetail, action),
