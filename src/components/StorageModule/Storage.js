@@ -239,7 +239,7 @@ let MyComponent = React.createClass({
     let list = this.props.storage;
     if (!list || !list.storageList) return (<div></div>)
     let items = list.storageList.map((item) => {
-      const menu = (<Menu onClick={(e) => { this.showAction('format', item.name, item.format) } }>
+      const menu = (<Menu onClick={(e) => { this.showAction('format', item.name, item.format) } } style={{width:'90px'}}>
               <Menu.Item key="1" disabled={item.isUsed}><FormattedMessage {...messages.formatting} /></Menu.Item>
             </Menu>
             )
@@ -271,9 +271,13 @@ let MyComponent = React.createClass({
           <div className="actionBtn commonData">
             <Dropdown overlay={menu}>
               <Button type="ghost" disabled={item.isUsed} style={{ marginLeft: 8 }}>
-                <h onClick={() => { this.showAction('resize', item.name, item.totalSize) } }><FormattedMessage {...messages.dilation} /> </h><Icon type="down" />
+                <div className="h" onClick={() => { this.showAction('resize', item.name, item.totalSize) } }><FormattedMessage {...messages.dilation} /> </div><Icon type="down" />
               </Button>
             </Dropdown>
+            {/* <Dropdown.Button overlay={menu} className={item.isUsed ? 'disabled' : ''} disabled={item.isUsed} type='ghost'>
+              <div className='h' onClick={() => { this.showAction('resize', item.name, item.totalSize) } }><FormattedMessage {...messages.dilation} /></div>
+            </Dropdown.Button>
+            */}
           </div>
         </div>
       );

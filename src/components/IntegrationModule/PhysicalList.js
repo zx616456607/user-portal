@@ -61,6 +61,14 @@ const menusText = defineMessages({
     id: 'Integration.PhysicalList.core',
     defaultMessage: '核',
   },
+  poweronStatus: {
+    id: 'Integration.PhysicalList.poweronStatus',
+    defaultMessage: '运行中',
+  },
+  poweroffStatus: {
+    id: 'Integration.PhysicalList.poweroffStatus',
+    defaultMessage: '已关闭',
+  },
 })
 
 function diskFormat(num) {
@@ -73,6 +81,46 @@ function diskFormat(num) {
   }
   num = parseInt(num / 1024);
   return num + 'TB'
+}
+
+function getTotalDisk(disks) {
+  //this function for user get total disk
+  let diskTotal = 0;
+  disks.map((disk) => {
+    if(disk.accessable) {
+      diskTotal = diskTotal + disk.capacityMb;
+    }
+  });
+  return diskTotal;
+}
+
+function getUsedDisk(disks) {
+  //this function for user get used disk
+  let diskTotal = 0;
+  let diskFree = 0;
+  disks.map((disk) => {
+    if(disk.accessable) {
+      diskTotal = diskTotal + disk.capacityMb;
+      diskFree = diskFree + disk.freeMb;
+    }
+  });
+  return diskTotal - diskFree;
+}
+
+function formatStatus(status) {
+  //this function for format status
+  switch(status) {
+    case 'poweron':
+      return (
+        <span className='poweron'><i className='fa fa-circle' /><FormattedMessage {...menusText.poweronStatus} /></span>
+      )
+      break;
+    case 'poweroff':
+      return (
+        <span className='poweroff'><i className='fa fa-circle' /><FormattedMessage {...menusText.poweroffStatus} /></span>
+      )
+      break;
+  }
 }
 
 class PhysicalList extends Component {
@@ -181,7 +229,7 @@ class PhysicalList extends Component {
           </div>
           <div className='status commonTitle'>
             <span className='commonSpan'>
-              <span>{item.powerstate}</span>
+              <span>{formatStatus(item.powerstate)}</span>
             </span>
           </div>
           <div className='pod commonTitle'>
@@ -217,13 +265,14 @@ class PhysicalList extends Component {
           </div>
           <div className='memory commonTitle'>
             <span className='commonSpan'>
-              <span>{diskFormat(item.memoryTotal)}</span>
+              <span className='topSpan'>{diskFormat(item.memoryTotalMb)}</span>
+              <span className='bottomSpan'>{parseInt(100*item.memoryUsedMb/item.memoryTotalMb)}%</span>
             </span>
           </div>
           <div className='disk commonTitle'>
             <span className='commonSpan'>
-              <span className='topSpan'>{diskFormat(item.diskTotal)}</span>
-              <span className='bottomSpan'>{parseInt(100*item.diskFree/item.diskTotal)}%</span>
+              <span className='topSpan'>{diskFormat(getTotalDisk(item.disks))}</span>
+              <span className='bottomSpan'>{parseInt(100*getUsedDisk(item.disks)/getTotalDisk(item.disks))}%</span>
             </span>
           </div>
           <div style={{ clear: 'both' }}></div>

@@ -48,6 +48,8 @@ module.exports = (protocol, host, api_prefix, version, auth, timeout) => {
     options.timeout = object.timeout || timeout
     options.headers = object.headers
     options.data = object.data
+    
+    console.log("--- urllib ---" + JSON.stringify(options.data))
     if (object.options) {
       options.headers = _.merge(options.headers, object.options)
     }

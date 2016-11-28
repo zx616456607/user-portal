@@ -35,6 +35,8 @@ import AppAddServiceModal from './AppCreate/AppAddServiceModal'
 import AppDeployServiceModal from './AppCreate/AppDeployServiceModal'
 import TipSvcDomain from '../TipSvcDomain'
 import yaml from 'js-yaml'
+import { addDeploymentWatch, removeDeploymentWatch } from '../../containers/App/status'
+import { LABEL_APPNAME } from '../../constants'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -292,6 +294,7 @@ const MyComponent = React.createClass({
       const images = item.spec.template.spec.containers.map(container => {
         return container.image
       })
+      const appName = item.metadata.labels[LABEL_APPNAME]
       return (
         <div
           className={item.checked ? "selectedInstance instanceDetail" : "instanceDetail"}
@@ -311,8 +314,10 @@ const MyComponent = React.createClass({
             <ServiceStatus service={item} />
           </div>
           <div className="appname commonData">
-            <Tooltip title={item.metadata.labels['tenxcloud.com/appName']}>
-              <span>{item.metadata.labels['tenxcloud.com/appName']}</span>
+            <Tooltip title={appName}>
+              <Link to={`/app_manage/detail/${appName}`}>
+                <span>{appName}</span>
+              </Link>
             </Tooltip>
           </div>
           <div className="image commonData">
@@ -570,14 +575,14 @@ let QuickRestarServiceModal = React.createClass({
   }
 })
 
-function loadServices(props) {
+/*function loadServices(props) {
   const { cluster, loadAllServices, page, size, name } = props
   loadAllServices(cluster, {
     pageIndex: page,
     pageSize: size,
     name
   })
-}
+}*/
 
 class ServiceList extends Component {
   constructor(props) {
@@ -633,6 +638,27 @@ class ServiceList extends Component {
     }
   }
 
+  loadServices(nextProps) {
+    const self = this
+    const { cluster, loadAllServices, page, size, name } = nextProps || this.props
+    const query = {
+      pageIndex: page,
+      pageSize: size,
+      name
+    }
+    loadAllServices(cluster, query, {
+      success: {
+        func: (result) => {
+          // Add deploment status watch, props must include statusWatchWs!!!
+          let { services } = result.data
+          let deployments = services.map(service => service.deployment)
+          addDeploymentWatch(cluster, self.props, deployments)
+        },
+        isAsync: true
+      }
+    })
+  }
+
   onAllChange(e) {
     const { checked } = e.target
     const { serviceList } = this.state
@@ -645,8 +671,16 @@ class ServiceList extends Component {
   componentWillMount() {
     const { appName } = this.props
     document.title = '服务列表 | 时速云'
-    loadServices(this.props)
+    this.loadServices()
     return
+  }
+
+  componentWillUnmount() {
+    const {
+      cluster,
+      statusWatchWs,
+    } = this.props
+    removeDeploymentWatch(cluster, statusWatchWs)
   }
 
   componentWillReceiveProps(nextProps) {
@@ -660,7 +694,7 @@ class ServiceList extends Component {
     this.setState({
       searchInputDisabled: false
     })
-    loadServices(nextProps)
+    this.loadServices(nextProps)
   }
 
   /*confirmRestartServices(serviceList, callback) {
@@ -741,7 +775,7 @@ class ServiceList extends Component {
     startServices(cluster, serviceNames, {
       success: {
         func: () => {
-          loadServices(self.props)
+          // self.loadServices()
           this.setState({
             StartServiceModal: false,
             runBtn: false,
@@ -782,7 +816,7 @@ class ServiceList extends Component {
     stopServices(cluster, serviceNames, {
       success: {
         func: () => {
-          loadServices(self.props)
+          // self.loadServices()
           this.setState({
             StopServiceModal: false,
             runBtn: false,
@@ -825,7 +859,7 @@ class ServiceList extends Component {
     restartServices(cluster, serviceNames, {
       success: {
         func: () => {
-          loadServices(self.props)
+          // self.loadServices()
           this.setState({
             RestarServiceModal: false,
             runBtn: false,
@@ -868,7 +902,7 @@ class ServiceList extends Component {
     quickRestartServices(cluster, serviceNames, {
       success: {
         func: () => {
-          loadServices(self.props)
+          self.loadServices()
           this.setState({
             QuickRestarServiceModal: false,
             runBtn: false,
@@ -898,7 +932,7 @@ class ServiceList extends Component {
     if (!callback) {
       callback = {
         success: {
-          func: () => loadServices(self.props),
+          func: () => self.loadServices(self.props),
           isAsync: true
         }
       }
@@ -998,16 +1032,6 @@ class ServiceList extends Component {
       loadAllServices
     } = this.props
     let selectTab = this.state.selectTab
-    /*if (isFetching) {
-      return (<div className="loadingBox">
-        <Spin size="large" />
-      </div>)
-    }
-    if (!serviceList) {
-      return (
-        <div></div>
-      )
-    }*/
     let appName = ''
     if (this.state.currentShowInstance) {
       appName = this.state.currentShowInstance.metadata.labels['tenxcloud.com/appName']
@@ -1029,11 +1053,6 @@ class ServiceList extends Component {
       <Menu>
         <Menu.Item key="0" disabled={!restartBtn}>
           <span onClick={this.batchRestartService}>重新部署</span>
-          <Modal title="重新部署操作" visible={this.state.RestarServiceModal}
-            onOk={this.handleRestarServiceOk} onCancel={this.handleRestarServiceCancel}
-            >
-            <RestarServiceModal serviceList={serviceList} />
-          </Modal>
         </Menu.Item>
       </Menu>
     );
@@ -1048,6 +1067,11 @@ class ServiceList extends Component {
               <Button type='ghost' size='large' onClick={this.batchStartService} disabled={!runBtn}>
                 <i className='fa fa-play'></i>启动
               </Button>
+              <Modal title="重新部署操作" visible={this.state.RestarServiceModal}
+                onOk={this.handleRestarServiceOk} onCancel={this.handleRestarServiceCancel}
+                >
+                <RestarServiceModal serviceList={serviceList} />
+              </Modal>
               <Modal title="启动操作" visible={this.state.StartServiceModal}
                 onOk={this.handleStartServiceOk} onCancel={this.handleStartServiceCancel}
                 >
@@ -1061,7 +1085,7 @@ class ServiceList extends Component {
                 >
                 <StopServiceModal serviceList={serviceList} />
               </Modal>
-              <Button type='ghost' size='large' onClick={() => loadServices(this.props)}>
+              <Button type='ghost' size='large' onClick={() => this.loadServices(this.props)}>
                 <i className='fa fa-refresh'></i>刷新
               </Button>
               <Button type='ghost' size='large' onClick={this.batchDeleteServices} disabled={!isChecked}>
@@ -1174,14 +1198,14 @@ class ServiceList extends Component {
             cluster={cluster}
             appName={appName}
             visible={rollingUpdateModalShow}
-            loadServiceList={() => loadServices(this.props)}
+            loadServiceList={() => this.loadServices(this.props)}
             service={currentShowInstance} />
           <ConfigModal
             parentScope={parentScope}
             cluster={cluster}
             appName={appName}
             visible={configModal}
-            loadServiceList={() => loadServices(this.props)}
+            loadServiceList={() => this.loadServices(this.props)}
             service={currentShowInstance} />
           <ManualScaleModal
             parentScope={parentScope}
@@ -1189,7 +1213,7 @@ class ServiceList extends Component {
             appName={appName}
             visible={manualScaleModalShow}
             service={currentShowInstance}
-            loadServiceList={() => loadServices(this.props)} />
+            loadServiceList={() => this.loadServices(this.props)} />
           <Modal
             visible={deployServiceModalShow}
             className="AppServiceDetail"
@@ -1220,9 +1244,11 @@ function mapStateToProps(state, props) {
     size = DEFAULT_PAGE_SIZE
   }
   const { cluster } = state.entities.current
+  const { statusWatchWs } = state.entities.sockets
   const { services, isFetching, total } = state.services.serviceList
   return {
     cluster: cluster.clusterID,
+    statusWatchWs,
     bindingDomains: state.entities.current.cluster.bindingDomains,
     name,
     pathname,

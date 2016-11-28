@@ -64,8 +64,9 @@
     transition: all 0.3s;
     position: relative;
     width: 100%;
-    height: 150px;
+    min-height: 150px;
     border-bottom: 1px solid #E5E5E5;
+    overflow: hidden;
     .leftBox {
       padding: 20px;
       float: left;
@@ -83,7 +84,7 @@
       padding: 20px 0;
       float: left;
       width: calc(~"100% - 350px");
-      height: 150px;
+      min-height: 150px;
       .appInfo {
         padding-right: 20px;
         float: left;
@@ -166,6 +167,15 @@
         .appInfo p {
           color: #00A1EA;
         }
+      }
+    }
+  }
+  .cephDetail {
+    .leftBox {
+      img {
+        padding: 0 20px !important;
+        width: auto !important;
+        height: 100%;
       }
     }
   }

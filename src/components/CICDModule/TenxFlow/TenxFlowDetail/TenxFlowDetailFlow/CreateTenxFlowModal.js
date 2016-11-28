@@ -246,20 +246,6 @@ let CreateTenxFlowModal = React.createClass({
       callback();
     }
   },
-  // imageNameExists(rule, value, callback) {
-  //   //this function for check the image name is exist or not
-  //   if (!value) {
-  //     callback();
-  //   } else {
-  //     setTimeout(() => {
-  //       if (value === 'tenxflow') {
-  //         callback([new Error('抱歉，该名称不存在。')]);
-  //       } else {
-  //         callback();
-  //       }
-  //     }, 800);
-  //   }
-  // },
   otherStoreUrlInput(rule, value, callback) {
     //this function for user selected other store and should be input the image store url
     if (this.state.ImageStoreType && !!!value) {
@@ -279,10 +265,16 @@ let CreateTenxFlowModal = React.createClass({
   flowTypeChange(e) {
     const ins = e.split('@')[1]
     this.props.form.resetFields(['otherFlowType', 'imageNameProps']);
-    if (ins != '3') {
+    if (ins != 3) {
       this.props.form.resetFields(['imageRealName', 'dockerFileUrl', 'otherStoreUrl', 'otherTag', 'imageType', 'imageTag', 'buildCache']);
       this.setState({
         useDockerfile: false,
+        otherTag: false,
+        ImageStoreType: false
+      });
+    } else {
+      this.setState({
+        useDockerfile: true,
         otherTag: false,
         ImageStoreType: false
       });
@@ -402,7 +394,7 @@ let CreateTenxFlowModal = React.createClass({
   },
   changeImageStoreType(e) {
     //this function for user change image store type
-    if (e.target.value == '3') {
+    if (e.target.value == 3) {
       this.setState({
         ImageStoreType: true
       });
@@ -414,7 +406,7 @@ let CreateTenxFlowModal = React.createClass({
   },
   changeImageTagType(e) {
     //this function for user change image tag type
-    if (e.target.value == '3') {
+    if (e.target.value == 3) {
       this.setState({
         otherTag: true
       });
@@ -824,7 +816,7 @@ let CreateTenxFlowModal = React.createClass({
     });
     const imageNameProps = getFieldProps('imageName', {
       rules: [
-        { required: true, message: '请输入基础镜像' }
+        { required: true, message: '请选择基础镜像' }
       ],
       initialValue: buildImages[intFlowTypeIndex].imageList[0].imageName
     });
@@ -914,7 +906,7 @@ let CreateTenxFlowModal = React.createClass({
             </div>
             <div className='imageName input'>
               <FormItem style={{ width: '220px', float: 'left' }}>
-                <Select {...imageNameProps} defaultValue={baseImage[2]}>
+                <Select {...imageNameProps}>
                   { baseImage }
                 </Select>
               </FormItem>
