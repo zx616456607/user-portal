@@ -51,13 +51,12 @@ class StorageBind extends Component {
        <Spin size="large"></Spin> 
        </div>) 
     }
-    if(!mountInfo || !mountInfo.appName) {
-      return (<div id="StorageBind">
-        <Row>
-          <Col>
-          </Col>
-        </Row>
-      </div>)
+    if(!mountInfo || mountInfo.appName =='') {
+      return (
+        <div id="StorageBind" style={{paddingLeft:'15px'}}>
+            无绑定容器
+        </div>
+      )
     }
     return (
       <div id="StorageBind">
