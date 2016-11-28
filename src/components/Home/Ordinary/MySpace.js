@@ -156,11 +156,12 @@ class MySpace extends Component{
   }
 
   render(){
-    const {spaceOperations, spaceCICDStats, spaceImageStats, spaceTemplateStats, spaceWarnings } = this.props
+    const {spaceOperations, spaceCICDStats, spaceImageStats, spaceTemplateStats } = this.props
     let isFetchingAuditLog = true
     if (this.props.auditLog) {
       isFetchingAuditLog  = this.props.auditLog.isFetching
     }
+    let spaceWarnings = []
     return (
       <div id='MySpace'>
         <Row className="title" style={{marginTop: 40}}>我的空间</Row>
@@ -377,6 +378,11 @@ class MySpace extends Component{
               <div className="warnListWrap">
                 <Timeline className="warnList">
                   {
+                    spaceWarnings.length === 0?
+                      <div className="noWarnImg">
+                        <img src="/img/homeNoWarn.png" alt="NoWarn"/>
+                        <div>暂时无系统告警</div>
+                      </div>:
                     spaceWarnings.map((item,index) => {
                       return (
                         <Timeline.Item dot={

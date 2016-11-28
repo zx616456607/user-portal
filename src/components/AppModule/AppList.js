@@ -57,19 +57,45 @@ let MyComponent = React.createClass({
           stopBtn: true,
           restartBtn: true,
         })
-      } else if (checkedList[0].status.phase === 'Stopped') {
+        return
+      }
+      if (checkedList[0].status.phase === 'Stopped') {
         parentScope.setState({
           runBtn: true,
           stopBtn: false,
           restartBtn: false,
         })
+        return
       }
-    } else if (checkedList.length > 1) {
+    }
+    if (checkedList.length > 1) {
+      let runCount = 0
+      let stopCount = 0
+      checkedList.map((item,index) => {
+        item.status.phase === 'Running'?runCount++:stopCount++
+      })
+      if (runCount === checkedList.length) {
+        parentScope.setState({
+          runBtn: false,
+          stopBtn: true,
+          restartBtn: true,
+        })
+        return
+      }
+      if (stopCount === checkedList.length) {
+        parentScope.setState({
+          runBtn: true,
+          stopBtn: false,
+          restartBtn: false,
+        })
+        return
+      }
       parentScope.setState({
         runBtn: true,
         stopBtn: true,
         restartBtn: true,
       })
+      return
     }
     parentScope.setState({
       appList
@@ -121,19 +147,45 @@ let MyComponent = React.createClass({
             stopBtn: true,
             restartBtn: true,
           })
-        } else if (checkedList[0].status.phase === 'Stopped') {
+          return
+        }
+        if (checkedList[0].status.phase === 'Stopped') {
           parentScope.setState({
             runBtn: true,
             stopBtn: false,
             restartBtn: false,
           })
         }
-      } else if (checkedList.length > 1) {
+        return
+      }
+      if (checkedList.length > 1) {
+        let runCount = 0
+        let stopCount = 0
+        checkedList.map((item,index) => {
+          item.status.phase === 'Running'?runCount++:stopCount++
+        })
+        if (runCount === checkedList.length) {
+          parentScope.setState({
+            runBtn: false,
+            stopBtn: true,
+            restartBtn: true,
+          })
+          return
+        }
+        if (stopCount === checkedList.length) {
+          parentScope.setState({
+            runBtn: true,
+            stopBtn: false,
+            restartBtn: false,
+          })
+          return
+        }
         parentScope.setState({
           runBtn: true,
           stopBtn: true,
           restartBtn: true,
         })
+        return
       }
       parentScope.setState({
         appList
@@ -398,7 +450,7 @@ let RestarAppsModal = React.createClass({
               <Alert message={
                 <span>你选择的{checkedAppList.length}个应用中, 有
                   <span className="modalDot" style={{ backgroundColor: '#f85958' }}>{stoppedApps.length}个</span>
-                  已经是已停止状态, 不能做重新部署
+                  是已停止状态, 不能做重新部署
                 </span>
               } type="warning" showIcon />
               <div style={{ height: 26 }}>Tip: 运行状态时应用才可以重新部署</div>
