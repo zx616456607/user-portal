@@ -12,7 +12,7 @@ const TENXCLOUD_PREFIX = 'tenxcloud.com/'
 const TENX_SCHEMA_PORTNAME = 'tenxcloud.com/schemaPortname'
 
 class Service {
-  constructor(name) {
+  constructor(name, cluster) {
     this.kind = 'Service'
     this.apiVersion = 'v1'
     this.metadata = {
@@ -28,6 +28,9 @@ class Service {
       },
       externalIPs: []
     }
+    if (cluster && cluster.publicIPs) {
+      this.spec.externalIPs = JSON.parse(cluster.publicIPs)
+    }
   }
 
   importFromK8SService(k8sService) {
@@ -40,7 +43,7 @@ class Service {
           //Remove tenxcloud added labels
           if (key.indexOf(TENXCLOUD_PREFIX) != 0) {
             this.metadata.labels[key] = k8sService.metadata.labels[key]
-          } 
+          }
         }
       }
     }
@@ -79,7 +82,7 @@ class Service {
       this.metadata.annotations[TENX_SCHEMA_PORTNAME] += `,${name}/${protocol}`
     }
   }
-  
+
   createMysqlDataBase(name) {
     const appLabels = {
       app: name
@@ -91,7 +94,7 @@ class Service {
       port: 3306,
       name: 'mysql'
     }]
-    this.metadata.namespace= 'zhangpc'
+    this.metadata.namespace = 'zhangpc'
     this.metadata.labels = appLabels
     this.spec.selector = appLabels
     this.spec.clusterIP = 'None'
@@ -99,7 +102,7 @@ class Service {
     this.metadata.annotations = annotations
     delete this.spec.externalIPs
   }
-  
+
   createRedisDatabase(name) {
     const appLabels = {
       app: name
@@ -111,7 +114,7 @@ class Service {
       port: 6379,
       name: 'redix'
     }]
-    this.metadata.namespace= 'zhangpc'
+    this.metadata.namespace = 'zhangpc'
     this.metadata.labels = appLabels
     this.spec.selector = appLabels
     this.spec.clusterIP = 'None'
@@ -119,7 +122,7 @@ class Service {
     this.metadata.annotations = annotations
     delete this.spec.externalIPs
   }
-  
+
 }
 
 module.exports = Service
