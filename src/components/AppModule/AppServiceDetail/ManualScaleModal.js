@@ -38,7 +38,6 @@ class ManualScaleModal extends Component {
     if (!visible) {
       return
     }
-    console.log(service)
     this.setState({
       realNum: service.spec.replicas
     })
