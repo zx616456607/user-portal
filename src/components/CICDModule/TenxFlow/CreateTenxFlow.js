@@ -341,7 +341,7 @@ let CreateTenxFlow = React.createClass({
                   <div className='selectedEmail' key='selectedEmail'>
                     <FormItem>
                       <RadioGroup {...radioEmailProps} >
-                        <Radio key='a' value={'gaojian@tenxcloud.com'}>gaojian@tenxcloud.com</Radio><br />
+                        <Radio key='a' value={'service@tenxcloud.com'}>service@tenxcloud.com</Radio><br />
                         <Radio key='b' value={'others'}><FormattedMessage {...menusText.otherEmail} /></Radio><br />
                       </RadioGroup>
                     </FormItem>

@@ -151,43 +151,25 @@ export default class TipSvcDomain extends Component {
         if (svcDomain[0].indexOf('http://') === -1 || svcDomain[0].indexOf('https://') === -1) {
           return (
             <div id='TipSvcDomain'>
-              {svcDomain[0]}
+              {svcDomain[0].slice(0, 15)+'...'}
             </div>
           )
         } else {
           return (
             <div id='TipSvcDomain'>
-              <a target="_blank" href={svcDomain[0]}>{svcDomain[0]}</a>
+              <a target="_blank" href={svcDomain[0]}>{svcDomain[0].slice(0, 15)+'...'}</a>
             </div>
           )
         }
       }
-      /*if (svcDomain.length == 2) {
-        let item = svcDomain.map((item, index) => {
-          if (item.indexOf('http://') !== -1 || item.indexOf('https://') !== -1) {
-            return (
-              <a target="_blank" href={item} style={{ display: 'block', height: 30, lineHeight: '40px' }}>{item}</a>
-            )
-          } else {
-            return (
-              <span style={{ display: 'block', height: 30, lineHeight: '40px' }}>{item}</span>
-            )
-          }
-        })
-        return (
-          <Row id='TipSvcDomain'>
-            {item}
-          </Row>
-        )
-      }*/
       if (svcDomain.length > 1) {
         return (
           <div className='TipSvcDomain'>
             <span>
               {
                 (svcDomain[0].indexOf('http://') !== -1 || svcDomain[0].indexOf('https://') !== -1) ?
-                  <a target="_blank" href={svcDomain[0]}>{svcDomain[0]}</a> :
-                  svcDomain[0]
+                  <a target="_blank" href={svcDomain[0]}>{svcDomain[0].slice(0, 15)+'...'}</a> :
+                  svcDomain[0].slice(0, 15)+'...'
               }
             </span>
             <Popover placement="right"
@@ -215,11 +197,11 @@ export default class TipSvcDomain extends Component {
         if (appDomain[0].data[0].indexOf('http://') === -1 || appDomain[0].data[0].indexOf('https://') === -1) {
           // console.log('appDomain data length',appDomain[0].data[0].indexOf('http://') === -1);
           return (
-            <span>{appDomain[0].data[0]}</span>
+            <span>{appDomain[0].data[0].slice(0, 15)+'...'}</span>
           )
         } else {
           return (
-            <a target="_blank" href={appDomain[0].data[0]}>{appDomain[0].data[0]}</a>
+            <a target="_blank" href={appDomain[0].data[0]}>{appDomain[0].data[0].slice(0, 15)+'...'}</a>
           )
         }
       } else {
@@ -227,14 +209,14 @@ export default class TipSvcDomain extends Component {
           <div className={type ? 'TipAppDomain fixTop' : 'TipAppDomain'}>
             {
               (appDomain[0].data[0].indexOf('http://') !== -1 || appDomain[0].data[0].indexOf('https://') !== -1) ?
-                <a target="_blank" href={appDomain[0].data[0]}>{appDomain[0].data[0]}</a> :
-                appDomain[0].data[0]
+                <a target="_blank" href={appDomain[0].data[0]}>{appDomain[0].data[0].slice(0, 15)+'...'}</a> :
+                appDomain[0].data[0].slice(0, 15)+'...'
             }
             <Popover placement={type ? 'rightBottom' : 'rightTop'}
               content={<AppTip appDomain={appDomain} />}
               trigger="click"
               onVisibleChange={this.showPop}
-              getTooltipContainer={() => document.getElementsByClassName('more')[0]}
+              getTooltipContainer={() => document.getElementsByClassName('TipAppDomain')[0]}
               arrowPointAtCenter={true}
               >
               <svg className={this.state.show ? 'more showPop' : 'more'} onClick={this.showPop}>

@@ -833,19 +833,25 @@ class ServiceList extends Component {
       StopServiceModal: false,
     })
   }
-  handleRestarServiceOk(services) {
+  handleRestarServiceOk(currentSvc) {
+    console.log('currentSvc',currentSvc)
     const self = this
     const { cluster, restartServices, serviceList } = this.props
-    let servicesList = services ? services : serviceList
-    const checkedServiceList = servicesList.filter((service) => service.checked)
+    let servicesList = serviceList
+    console.log('servicesList',servicesList)
+    let checkedServiceList = servicesList.filter((service) => service.checked)
     let runningServices = []
-
+    if (currentSvc) {
+      servicesList = currentSvc
+      checkedServiceList = currentSvc
+    }
     checkedServiceList.map((service, index) => {
       if (service.status.phase === 'Running') {
         runningServices.push(service)
       }
     })
     const serviceNames = runningServices.map((service) => service.metadata.name)
+    console.log('serviceNames',serviceNames)
     const allServices = self.state.serviceList
 
     allServices.map((service) => {

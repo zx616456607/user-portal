@@ -91,30 +91,30 @@ export function addAppWatch(cluster, props, apps = []) {
 }
 
 export function handleOnMessage(props, response) {
-  // try {
-  response = JSON.parse(response)
-  const { type, data, watchType } = response
-  const { reduxState, updateAppServicesList, updateAppList } = props
-  const { entities, containers, apps, services } = reduxState
-  const cluster = entities.current.cluster.clusterID
-  if (watchType === 'pod') {
-    handleOnPodMessage(props, response)
-  } else if (watchType === 'deployment') {
-    handleOnDeploymentMessage(props, response)
-    /*let appName = data.metadata.labels[LABEL_APPNAME]
-    let { serviceList } = services.serviceItems[cluster][appName]
-    updateAppServicesList(cluster, appName, _changeListByWatch(serviceList, response))*/
-  } else if (watchType === 'app') {
-    // @Todo: Only deployment returned, but k8s service must be returned
-    if (type === 'ADDED') {
-      return
+  try {
+    response = JSON.parse(response)
+    const { type, data, watchType } = response
+    const { reduxState, updateAppServicesList, updateAppList } = props
+    const { entities, containers, apps, services } = reduxState
+    const cluster = entities.current.cluster.clusterID
+    if (watchType === 'pod') {
+      handleOnPodMessage(props, response)
+    } else if (watchType === 'deployment') {
+      handleOnDeploymentMessage(props, response)
+      /*let appName = data.metadata.labels[LABEL_APPNAME]
+      let { serviceList } = services.serviceItems[cluster][appName]
+      updateAppServicesList(cluster, appName, _changeListByWatch(serviceList, response))*/
+    } else if (watchType === 'app') {
+      // @Todo: Only deployment returned, but k8s service must be returned
+      if (type === 'ADDED') {
+        return
+      }
+      let { appList } = apps.appItems[cluster]
+      updateAppList(cluster, _changeAppListByWatch(appList, response))
     }
-    let { appList } = apps.appItems[cluster]
-    updateAppList(cluster, _changeAppListByWatch(appList, response))
-  }
-  /*} catch (err) {
+  } catch (err) {
     console.error('handleOnMessage err:', err)
-  }*/
+  }
 }
 
 export function handleOnDeploymentMessage(props, response) {

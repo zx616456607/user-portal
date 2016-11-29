@@ -112,6 +112,20 @@ let MyComponent = React.createClass({
       )
     }
     let items = config.map((item) => {
+      let status = ''
+      switch(item.status) {
+        case 0:
+          status = "成功"
+          break;
+        case 1:
+          status = "失败"
+          break;
+        case 2:
+          status = "执行中..."
+          break;
+        default:
+          status = "等待中..."
+      }
       const dropdown = (
         <Menu onClick={this.operaMenuClick.bind(this, item)}>
           <Menu.Item key='viewImage'>
@@ -141,7 +155,7 @@ let MyComponent = React.createClass({
             </span>
           </div>
           <div className='status'>
-            <span>{ '-' }</span>
+            <span>{status}</span>
           </div>
           <div className='oprea'>
             <Button className='logBtn' size='large' type='primary' onClick={scope.openTenxFlowDeployLogModal.bind(scope, item.flowId)}>
