@@ -415,10 +415,12 @@ let StopServiceModal = React.createClass({
     }
   },
   render: function () {
-    const { serviceList } = this.props
-    const checkedServiceList = serviceList.filter((service) => service.checked)
+    const { serviceList, scope } = this.props
+    let checkedServiceList = serviceList.filter((service) => service.checked)
     let stoppedService = []
-
+    if(scope.state.currentShowInstance){
+      checkedServiceList = [scope.state.currentShowInstance]
+    }
     checkedServiceList.map((service, index) => {
       if (service.status.phase === 'Stopped') {
         stoppedService.push(service)
@@ -799,9 +801,11 @@ class ServiceList extends Component {
   handleStopServiceOk() {
     const self = this
     const { cluster, stopServices, serviceList } = this.props
-    const checkedServiceList = serviceList.filter((service) => service.checked)
+    let checkedServiceList = serviceList.filter((service) => service.checked)
     let runningServices = []
-
+    if (this.state.currentShowInstance) {
+      checkedServiceList = [this.state.currentShowInstance]
+    }
     checkedServiceList.map((service, index) => {
       if (service.status.phase === 'Running') {
         runningServices.push(service)
@@ -872,7 +876,6 @@ class ServiceList extends Component {
     restartServices(cluster, serviceNames, {
       success: {
         func: () => {
-          // self.loadServices()
           this.setState({
             runBtn: false,
             stopBtn: false,
@@ -1058,6 +1061,8 @@ class ServiceList extends Component {
     const funcs = {
       handleRestarServiceOk: this.handleRestarServiceOk,
       batchRestartService: this.batchRestartService,
+      batchStopService: this.batchStopService,
+      
       confirmStopServices: this.confirmStopServices,
       confirmDeleteServices: this.confirmDeleteServices,
     }
@@ -1095,7 +1100,7 @@ class ServiceList extends Component {
               <Modal title="停止操作" visible={this.state.StopServiceModal}
                 onOk={this.handleStopServiceOk} onCancel={this.handleStopServiceCancel}
                 >
-                <StopServiceModal serviceList={serviceList} />
+                <StopServiceModal serviceList={serviceList} scope={parentScope}/>
               </Modal>
               <Button type='ghost' size='large' onClick={() => this.loadServices(this.props)}>
                 <i className='fa fa-refresh'></i>刷新
