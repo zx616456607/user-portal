@@ -138,8 +138,27 @@ class CollapseHeader extends Component {
         self.props.deleteConfigGroup(configData, {
           success: {
             func: () => {
-              message.success('删除成功')
               // self.props.loadConfigGroup()
+              const errorText =[]
+              if (res.message.length > 0) {
+                res.message.forEach(function(list){
+                  errorText.push({
+                    name: list.name,
+                    text: list.error
+                  })
+                })
+                const content = errorText.map(list => {
+                  return (
+                    <h3>{list.name} ：{list.text}</h3>
+                  )
+                })
+                Modal.error({
+                  title:'删除配置组失败!',
+                  content
+                })
+              } else {
+                message.success('删除成功')
+              }
               self.setState({
                 configArray: [],
               })
@@ -151,12 +170,12 @@ class CollapseHeader extends Component {
     })
   }
   render() {
-    const {collapseHeader, } = this.props
+    const {collapseHeader } = this.props
     const {sizeNumber} = this.state
     const formItemLayout = { labelCol: { span: 3 }, wrapperCol: { span: 21 } }
     const menu = (
       <Menu onClick={() => this.btnDeleteGroup(collapseHeader.name)} mode="vertical">
-        <Menu.Item key="1">删除配置组</Menu.Item>
+        <Menu.Item key="1"><Icon type="delete" /> 删除配置组</Menu.Item>
       </Menu>
     );
     return (
