@@ -99,6 +99,10 @@ const messages = defineMessages({
     id: 'TenxStatus.Running',
     defaultMessage: '运行中',
   },
+  Abnormal: {
+    id: 'TenxStatus.Abnormal',
+    defaultMessage: '异常',
+  },
   RunningMsg: {
     id: 'TenxStatus.RunningMsg',
     defaultMessage: '已运行',
@@ -116,6 +120,10 @@ const messages = defineMessages({
     defaultMessage: '全部停止',
   },
 })
+
+const exclamationIcon = (
+  <Icon type="exclamation-circle-o" style={{ marginLeft: 5, color: 'orange' }} />
+)
 
 class TenxStatus extends Component {
   constructor(props) {
@@ -176,15 +184,12 @@ class TenxStatus extends Component {
   }
 
   getReplicasElement() {
-    const { status } = this.props
-    if (!status || this.isProcess(this.props)) {
+    const { phase, status } = this.props
+    if (!status || status.disableReplicasElement || this.isProcess(this.props)) {
       return
     }
     let replicasText
     const { availableReplicas, replicas, text } = status
-    const exclamationIcon = (
-      <Icon type="exclamation-circle-o" style={{ marginLeft: 5, color: 'orange' }} />
-    )
     if (text) {
       replicasText = text
       if (availableReplicas < replicas) {
@@ -219,7 +224,7 @@ class TenxStatus extends Component {
   }
 
   getCreationTimestampElement() {
-    const { phase, creationTimestamp } = this.props
+    const { phase, status, creationTimestamp } = this.props
     if (!creationTimestamp) {
       return
     }
@@ -235,6 +240,20 @@ class TenxStatus extends Component {
       return (
         <div>
           <FormattedMessage {...messages.RunningMsg} /> {moment().from(date, true)}
+        </div>
+      )
+    }
+    if (phase === 'Running') {
+      return (
+        <div>
+          <FormattedMessage {...messages.RunningMsg} /> {moment().from(date, true)}
+        </div>
+      )
+    }
+    if (phase === 'Abnormal') {
+      return (
+        <div>
+          {status.abnormalText}{exclamationIcon}
         </div>
       )
     }
@@ -310,6 +329,7 @@ TenxStatus.propTypes = {
     'Unknown', 'Succeeded',
     'Stopped',
     'Running',
+    'Abnormal',
   ]).isRequired,
   progress: PropTypes.shape({
     status: PropTypes.bool,
