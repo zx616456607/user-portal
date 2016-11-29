@@ -373,7 +373,7 @@ let StartServiceModal = React.createClass({
       return (
         <tr>
           <td>{index + 1}</td>
-          <td>{service.name}</td>
+          <td>{service.metadata.name}</td>
           <td style={{ color: '#4bbd74' }}>服务为运行中状态</td>
         </tr>
       )
@@ -428,7 +428,7 @@ let StopServiceModal = React.createClass({
       return (
         <tr>
           <td>{index + 1}</td>
-          <td>{service.name}</td>
+          <td>{service.metadata.name}</td>
           <td style={{ color: '#f85958' }}>服务为已停止状态</td>
         </tr>
       )
@@ -483,7 +483,7 @@ let RestarServiceModal = React.createClass({
       return (
         <tr>
           <td>{index + 1}</td>
-          <td>{service.name}</td>
+          <td>{service.metadata.name}</td>
           <td style={{ color: '#f85958' }}>服务为已停止状态</td>
         </tr>
       )
@@ -538,7 +538,7 @@ let QuickRestarServiceModal = React.createClass({
       return (
         <tr>
           <td>{index + 1}</td>
-          <td>{service.name}</td>
+          <td>{service.metadata.name}</td>
           <td style={{ color: '#f85958' }}>服务为已停止状态</td>
         </tr>
       )
@@ -833,19 +833,25 @@ class ServiceList extends Component {
       StopServiceModal: false,
     })
   }
-  handleRestarServiceOk(services) {
+  handleRestarServiceOk(currentSvc) {
+    console.log('currentSvc',currentSvc)
     const self = this
     const { cluster, restartServices, serviceList } = this.props
-    let servicesList = services ? services : serviceList
-    const checkedServiceList = servicesList.filter((service) => service.checked)
+    let servicesList = serviceList
+    console.log('servicesList',servicesList)
+    let checkedServiceList = servicesList.filter((service) => service.checked)
     let runningServices = []
-
+    if (currentSvc) {
+      servicesList = currentSvc
+      checkedServiceList = currentSvc
+    }
     checkedServiceList.map((service, index) => {
       if (service.status.phase === 'Running') {
         runningServices.push(service)
       }
     })
     const serviceNames = runningServices.map((service) => service.metadata.name)
+    console.log('serviceNames',serviceNames)
     const allServices = self.state.serviceList
 
     allServices.map((service) => {
@@ -1122,7 +1128,7 @@ class ServiceList extends Component {
                     })
                   } }
                   value={this.state.searchInputValue}
-                  placeholder='按应用名搜索'
+                  placeholder='按服务名称搜索'
                   onPressEnter={() => this.searchServices()} />
               </div>
             </div>

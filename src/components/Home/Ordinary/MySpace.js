@@ -117,12 +117,9 @@ class MySpace extends Component{
     })
     loadSpaceInfo()
     let {} = this.props
-    let { namespace, teamspace } = this.props
-    if(teamspace != 'default') namespace = teamspace
     getOperationLogList({
       from: 0,
-      size: 50,
-      namespace: namespace
+      size: 7
     })
   }
   getOperationLog() {
@@ -542,17 +539,14 @@ function mapStateToProp(state,props) {
     spaceImageStatsData.publicNumber = data.publicNumber
     spaceImageStatsData.privateNumber = data.privateNumber
   } 
-
   return {
     spaceOperations: spaceOperationsData,
     spaceCICDStats: spaceCICDStatsData,
     spaceImageStats: spaceImageStatsData,
     spaceTemplateStats: spaceTemplateStatsData,
     cluster: state.entities.current.cluster.clusterID,
-    namespace: state.entities.current.space.namespace,
-    teamspace: state.entities.current.team.teamId,
     auditLog: state.manageMonitor.operationAuditLog.logs,
-    spaceWarnings: spaceWarningsData,
+    spaceWarnings: spaceWarningsData
   }
 }
 

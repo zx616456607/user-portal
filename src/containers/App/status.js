@@ -131,7 +131,8 @@ export function handleOnDeploymentMessage(props, response) {
   // Update app service list
   let appServiceItems = serviceItems[cluster]
   if (appServiceItems && appServiceItems[appName]) {
-    updateAppServicesList(cluster, appName, _changeListByWatch(appServiceItems[appName], response))
+    let { serviceList } = appServiceItems[appName]
+    updateAppServicesList(cluster, appName, _changeListByWatch(serviceList, response))
   }
   // Update cluster service list
   let clusterServiceList = serviceList.services

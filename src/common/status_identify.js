@@ -28,13 +28,16 @@ export function getContainerStatus(container) {
  * return one of [Pending, Running, Deploying, Stopped]
  */
 export function getServiceStatus(service) {
-  const { status, metadata } = service
-  if (!status.availableReplicas) {
-    status.availableReplicas = 0
+  let { status, metadata } = service
+  let availableReplicas = 0
+  if (!status) {
+    status = {}
+  }
+  if (status) {
+    availableReplicas = status.availableReplicas || 0
   }
   let {
     phase,
-    availableReplicas,
     updatedReplicas,
     unavailableReplicas,
     observedGeneration,

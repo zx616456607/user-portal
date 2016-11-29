@@ -84,7 +84,7 @@ const menusText = defineMessages({
   },
   servicesTitle: {
     id: 'CICD.Tenxflow.CreateTenxFlowModal.servicesTitle',
-    defaultMessage: '常用服务',
+    defaultMessage: '依赖服务',
   },
   addServices: {
     id: 'CICD.Tenxflow.CreateTenxFlowModal.addServices',

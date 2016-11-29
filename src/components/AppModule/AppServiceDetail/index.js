@@ -201,6 +201,12 @@ class AppServiceDetail extends Component {
       </Menu.Item>
     </Menu>);
     const svcDomain = parseServiceDomain(service, this.props.bindingDomains)
+    let availableReplicas = 0
+    if (service) {
+      if (service.status) {
+        availableReplicas = service.status.availableReplicas || 0
+      }
+    }
     return (
       <div id="AppServiceDetail">
         <div className="titleBox">
@@ -231,7 +237,7 @@ class AppServiceDetail extends Component {
               <br />
               <span>
                 容器实例&nbsp;:&nbsp;
-                {service.status.availableReplicas || 0}
+                {availableReplicas}
                 /
                 {service.spec.replicas || service.metadata.annotations[`${TENX_MARK}/replicas`]}
               </span>
