@@ -75,9 +75,9 @@ let SvcState = React.createClass({
     }
   },
   render: function(){
-    const { svcState } = this.props
+    const { currentState } = this.props
     let item
-    if(svcState === 'normal'){
+    if(currentState === 'normal'){
       item = (
         <div id='SvcState'>
           <div className='errorDot' style={{backgroundColor:'#2eb764'}}></div>
@@ -85,7 +85,7 @@ let SvcState = React.createClass({
         </div>
       )
     }
-    if(svcState === 'warning'){
+    if(currentState === 'warning'){
       item = (
         <div id='SvcState'>
           <div className='errorDot' style={{backgroundColor:'#f0986b'}}></div>
@@ -93,7 +93,7 @@ let SvcState = React.createClass({
         </div>
       )
     }
-    if(svcState === 'abnormal'){
+    if(currentState === 'abnormal'){
       item = (
         <div>
           <Icon type="exclamation-circle" style={{color:'#f85a59'}} className='errorDot'/>
@@ -194,6 +194,11 @@ class Ordinary extends Component{
     result = this.thousandBitSeparator((size/(1024*1024*1024)).toFixed(2))
     return result + 'T'
   }
+  /*render(){
+    return (
+      <div>111</div>
+    )
+  }*/
   render(){
     const {clusterOperations, clusterSysinfo, clusterStorage, clusterAppStatus, clusterNodeSummary,clusterDbServices,spaceName,clusterName} = this.props
     let boxPos = 0
@@ -208,13 +213,13 @@ class Ordinary extends Component{
     let svcRunning = clusterAppStatus.svcMap.get('Running')
     let svcStopped = clusterAppStatus.svcMap.get('Stopped')
     let svcOthers = clusterAppStatus.svcMap.get('Deploying')?clusterAppStatus.svcMap.get('Deploying'):0 +
-                    clusterAppStatus.svcMap.get('Pending')?clusterAppStatus.svcMap.get('Pending'):0
+    clusterAppStatus.svcMap.get('Pending')?clusterAppStatus.svcMap.get('Pending'):0
     //容器
     let conRunning = clusterAppStatus.podMap.get('Running')
     let conFailed = clusterAppStatus.podMap.get('Failed')
     let conOthers = clusterAppStatus.podMap.get('Pending')?clusterAppStatus.podMap.get('Pending'):0 +
-                    clusterAppStatus.podMap.get('Terminating')?clusterAppStatus.podMap.get('Terminating'):0 +
-                    clusterAppStatus.podMap.get('Unknown')?clusterAppStatus.podMap.get('Unknown'):0
+    clusterAppStatus.podMap.get('Terminating')?clusterAppStatus.podMap.get('Terminating'):0 +
+    clusterAppStatus.podMap.get('Unknown')?clusterAppStatus.podMap.get('Unknown'):0
     
     appRunning = appRunning ? appRunning:0
     appStopped = appStopped ? appStopped:0
@@ -229,12 +234,15 @@ class Ordinary extends Component{
     //CPU
     let CPUNameArr = []
     let CPUUsedArr = []
+    console.log('clusterNodeSummary.cpu.length',clusterNodeSummary.cpu)
     if(clusterNodeSummary.cpu.length !== 0){
       clusterNodeSummary.cpu.map((item,index) => {
         let name = item.name.replace(/192.168./,'')
         CPUNameArr.push(name.substring(0, 7))
         CPUUsedArr.push(item.used)
       })
+    } else {
+      CPUUsedArr = ['没有数据']
     }
     //内存
     let memoryNameArr = []
@@ -245,17 +253,20 @@ class Ordinary extends Component{
         memoryNameArr.push(name.substring(0, 7))
         memoryUsedArr.push(item.used)
       })
+    } else {
+      memoryUsedArr = ['没有数据']
     }
     //磁盘
     let diskNameArr = []
-    let diskUsedArr = ["没有数据"]
+    let diskUsedArr = []
     if(clusterNodeSummary.storage.length !== 0){
       clusterNodeSummary.storage.map((item,index) => {
         let name = item.name.replace(/192.168./,'')
         diskNameArr.push(name.substring(0, 7))
-        diskUsedArr.push((':'+item.used+'%'))
+        diskUsedArr.push((item.used))
       })
-      return
+    } else {
+      diskUsedArr = ['没有数据']
     }
     //数据库与缓存
     //MySQL
@@ -536,7 +547,7 @@ class Ordinary extends Component{
         axisPointer : {
           type : 'shadow'
         },
-        formatter: '{b} : {c}%'
+        formatter: clusterNodeSummary.cpu.length === 0?'':'{b} : {c}%'
       },
       grid: {
         left: '3%',
@@ -601,7 +612,7 @@ class Ordinary extends Component{
         axisPointer : {
           type : 'shadow'
         },
-        formatter: '{b} : {c}%'
+        formatter: clusterNodeSummary.memory.length === 0?'':'{b} : {c}%'
       },
       grid: {
         left: '3%',
@@ -647,7 +658,7 @@ class Ordinary extends Component{
           type:'bar',
           barWidth: 16,
           data:memoryUsedArr,
-        
+          
         }
       ]
     }
@@ -667,7 +678,7 @@ class Ordinary extends Component{
         axisPointer : {
           type : 'shadow'
         },
-        formatter: '{b}  {c}'
+        formatter: clusterNodeSummary.storage.length === 0?'':'{b} : {c}%'
       },
       grid: {
         left: '3%',
@@ -713,7 +724,7 @@ class Ordinary extends Component{
           type:'bar',
           barWidth: 16,
           data:diskUsedArr,
-        
+          
         }
       ]
     }
@@ -734,74 +745,74 @@ class Ordinary extends Component{
             <Card title="系统状态和版本" bordered={false} bodyStyle={{height:220}}>
               <table>
                 <tbody>
-                  <tr>
-                    <td>
-                      <img className="stateImg" src="/img/homeKubernetes.png"/>
-                      Kubernetes
-                    </td>
-                    <td>
-                      <SvcState svcState={clusterSysinfo.k8s.status} />
-                    </td>
-                    <td style={{textAlign:'right',paddingRight:10}}>
-                      {clusterSysinfo.k8s.version}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <svg className="stateSvg">
-                        <use xlinkHref="#homewww" />
-                      </svg>
-                      DNS
-                    </td>
-                    <td>
-                      <SvcState svcState={clusterSysinfo.dns.status} />
-                    </td>
-                    <td style={{textAlign:'right',paddingRight:10}}>
-                      {clusterSysinfo.dns.version}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <svg className="stateSvg">
-                        <use xlinkHref="#homeapiservice" />
-                      </svg>
-                      API Server
-                    </td>
-                    <td>
-                      <SvcState svcState={clusterSysinfo.apiserver.status} />
-                    </td>
-                    <td style={{textAlign:'right',paddingRight:10}}>
-                      {clusterSysinfo.apiserver.version}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <svg className="stateSvg">
-                        <use xlinkHref="#cicd" />
-                      </svg>
-                      CICD
-                    </td>
-                    <td>
-                      <SvcState svcState={clusterSysinfo.cicd.status} />
-                    </td>
-                    <td style={{textAlign:'right',paddingRight:10}}>
-                      {clusterSysinfo.cicd.version}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <svg className="stateSvg">
-                        <use xlinkHref="#homeLogging" />
-                      </svg>
-                      Logging
-                    </td>
-                    <td>
-                      <SvcState svcState={clusterSysinfo.logging.status} />
-                    </td>
-                    <td style={{textAlign:'right',paddingRight:10}}>
-                      {clusterSysinfo.logging.version}
-                    </td>
-                  </tr>
+                <tr>
+                  <td>
+                    <img className="stateImg" src="/img/homeKubernetes.png"/>
+                    Kubernetes
+                  </td>
+                  <td>
+                    <SvcState currentState={clusterSysinfo.k8s.status} />
+                  </td>
+                  <td style={{textAlign:'right',paddingRight:10}}>
+                    {clusterSysinfo.k8s.version}
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <svg className="stateSvg">
+                      <use xlinkHref="#homewww" />
+                    </svg>
+                    DNS
+                  </td>
+                  <td>
+                    <SvcState currentState={clusterSysinfo.dns.status} />
+                  </td>
+                  <td style={{textAlign:'right',paddingRight:10}}>
+                    {clusterSysinfo.dns.version}
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <svg className="stateSvg">
+                      <use xlinkHref="#homeapiservice" />
+                    </svg>
+                    API Server
+                  </td>
+                  <td>
+                    <SvcState currentState={clusterSysinfo.apiserver.status} />
+                  </td>
+                  <td style={{textAlign:'right',paddingRight:10}}>
+                    {clusterSysinfo.apiserver.version}
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <svg className="stateSvg">
+                      <use xlinkHref="#cicd" />
+                    </svg>
+                    CICD
+                  </td>
+                  <td>
+                    <SvcState currentState={clusterSysinfo.cicd.status} />
+                  </td>
+                  <td style={{textAlign:'right',paddingRight:10}}>
+                    {clusterSysinfo.cicd.version}
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <svg className="stateSvg">
+                      <use xlinkHref="#homeLogging" />
+                    </svg>
+                    Logging
+                  </td>
+                  <td>
+                    <SvcState currentState={clusterSysinfo.logging.status} />
+                  </td>
+                  <td style={{textAlign:'right',paddingRight:10}}>
+                    {clusterSysinfo.logging.version}
+                  </td>
+                </tr>
                 </tbody>
               </table>
             </Card>
@@ -1307,7 +1318,7 @@ function mapStateToProp(state,props) {
     storage: [],
   }
 
-  const {clusterOperations, clusterSysinfo, clusterStorage, 
+  const {clusterOperations, clusterSysinfo, clusterStorage,
     clusterAppStatus, clusterDbServices, clusterNodeSummary, clusterInfo} = state.overviewCluster
   if (clusterInfo.result && clusterInfo.result) {
     if (clusterInfo.result.operations) {
@@ -1336,7 +1347,7 @@ function mapStateToProp(state,props) {
         }
         if (data.appRedeploy) {
           clusterOperationsData.appRedeploy = data.appRedeploy
-        } 
+        }
       }
       if (clusterInfo.result.operations.volume) {
         let data = clusterInfo.result.operations.volume
