@@ -135,7 +135,7 @@ class AppServiceDetail extends Component {
   restartService(service) {
     const { funcs, scope} = this.props
     const _self = this
-    funcs.batchRestartService(true)
+    funcs.batchRestartService()
     // funcs.handleRestarServiceOk([service], _self
       /*{
       success: {
@@ -155,7 +155,7 @@ class AppServiceDetail extends Component {
   stopService(service) {
     const { funcs } = this.props
     const self = this
-    funcs.confirmStopServices([service], {
+    /*funcs.confirmStopServices([service], {
       success: {
         func: () => {
           self.loadData()
@@ -165,7 +165,8 @@ class AppServiceDetail extends Component {
         },
         isAsync: true
       }
-    })
+    })*/
+    funcs.batchStopService()
   }
 
   delteService(service) {

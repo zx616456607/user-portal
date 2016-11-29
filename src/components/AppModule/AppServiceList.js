@@ -135,6 +135,7 @@ const MyComponent = React.createClass({
   modalShow: function (item) {
     // e.stopPropagation()
     const {scope} = this.props;
+    console.log('scope :::',scope);
     scope.setState({
       selectTab: null,
       modalShow: true,
@@ -719,9 +720,11 @@ class AppServiceList extends Component {
   handleStopServiceOk() {
     const self = this
     const { cluster, stopServices, serviceList, appName, loadServiceList } = this.props
-    const checkedServiceList = serviceList.filter((service) => service.checked)
+    let checkedServiceList = serviceList.filter((service) => service.checked)
     let runningServices = []
-
+    if (this.state.currentShowInstance) {
+      checkedServiceList = [this.state.currentShowInstance]
+    }
     checkedServiceList.map((service, index) => {
       if (service.status.phase === 'Running') {
         runningServices.push(service)
@@ -760,9 +763,13 @@ class AppServiceList extends Component {
   handleRestarServiceOk() {
     const self = this
     const { cluster, restartServices, serviceList, loadServiceList, appName } = this.props
-    const checkedServiceList = serviceList.filter((service) => service.checked)
+    let checkedServiceList = serviceList.filter((service) => service.checked)
     let runningServices = []
-
+    
+    if (this.state.currentShowInstance) {
+      checkedServiceList = [this.state.currentShowInstance]
+    }
+    
     checkedServiceList.map((service, index) => {
       if (service.status.phase === 'Running') {
         runningServices.push(service)
@@ -1140,6 +1147,9 @@ class AppServiceList extends Component {
       confirmRestartServices: this.confirmRestartServices,
       confirmStopServices: this.confirmStopServices,
       confirmDeleteServices: this.confirmDeleteServices,
+      
+      batchRestartService: this.batchRestartService,
+      batchStopService: this.batchStopService,
     }
     const operaMenu = (
       <Menu>

@@ -746,15 +746,10 @@ class ServiceList extends Component {
       StopServiceModal: true
     })
   }
-  batchRestartService(detail) {
+  batchRestartService() {
     this.setState({
       RestarServiceModal: true
     })
-    if(detail){
-      this.setState({
-        detail: true
-      })
-    }
   }
   batchQuickRestartService() {
     this.setState({
@@ -852,11 +847,9 @@ class ServiceList extends Component {
     let checkedServiceList = servicesList.filter((service) => service.checked)
     let runningServices = []
     if (this.state.currentShowInstance) {
-      servicesList = this.state.currentShowInstance
       checkedServiceList = [this.state.currentShowInstance]
     }
     checkedServiceList.map((service, index) => {
-      console.log('phase :::',service.status);
       if(service.status){
         if (service.status.phase === 'Running') {
           runningServices.push(service)
@@ -876,7 +869,8 @@ class ServiceList extends Component {
       }
     })
     self.setState({
-      serviceList: allServices
+      serviceList: allServices,
+      RestarServiceModal: false,
     })
     restartServices(cluster, serviceNames, {
       success: {
@@ -884,7 +878,6 @@ class ServiceList extends Component {
           // self.loadServices()
           console.log('restartServices callback');
           this.setState({
-            RestarServiceModal: false,
             runBtn: false,
             stopBtn: false,
             restartBtn: false,
