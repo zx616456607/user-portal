@@ -1,0 +1,102 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2016 TenxCloud. All Rights Reserved.
+ *
+ *  Storage list
+ *
+ * v0.1 - 2016/11/29
+ * @author ZhaoXueYu
+ */
+import React, { Component } from 'react'
+import { Alert, Icon } from 'antd'
+import StopModal from './StopModal'
+import StartModal from './StartModal'
+import './style/StateBtnModal.less'
+
+export default class StateBtnModal extends Component{
+  constructor(props){
+    super(props)
+    this.state = {
+      
+    }
+  }
+  render(){
+    const { state, appList } = this.props
+    console.log('state',state);
+    let alertText = ''
+    let tip = ''
+    let tbInf = ''
+    let opt = ''
+    let stateText = ''
+    switch (state) {
+      case 'Running' :
+        console.log('111');
+        alertText = '已经是运行中状态, 不需再启动'
+        tip = '运行中状态的应用不需再次启动'
+        tbInf = '应用为运行中状态'
+        opt = '启动'
+        stateText = '已停止'
+        break
+      case 'Stopped' :
+        alertText = '已经是已停止状态, 不需再停止'
+        tip = '已停止状态的应用不需再次停止'
+        tbInf = '应用为已停止状态'
+        opt = '停止'
+        stateText = '运行中'
+        break
+      default :
+        alertText = ''
+        tip = ''
+        tbInf = ''
+        opt = ''
+        stateText = ''
+        break
+    }
+    const checkedList = appList.filter((app) => app.checked)
+    let disableArr = []
+    
+    checkedList.map((app, index) => {
+      if (app.status.phase === state) {
+        disableArr.push(app)
+      }
+    })
+    let disableItem = disableArr.map((item, index) => {
+      return (
+        <tr>
+          <td>{index + 1}</td>
+          <td>{item.name}</td>
+          <td style={{ color: '#f85958' }}>{ tbInf }</td>
+        </tr>
+      )
+    })
+    console.log('alertText',alertText);
+    return (
+      <div id="StateBtnModal">
+        {
+          disableArr.length !== 0 ?
+            <div>
+              <Alert message={
+                <span>你选择的{checkedList.length}个{appList?'应用':'服务'}中, 有
+                  <span className="modalDot" style={{ backgroundColor: '#f85958' }}>{disableArr.length}个</span>
+                  { alertText }
+                </span>
+              } type="warning" showIcon />
+              <div style={{ height: 26 }}>Tip: { tip }</div>
+              <div className="tableWarp">
+                <table className="modalList">
+                  <tbody>
+                  {disableItem}
+                  </tbody>
+                </table>
+              </div>
+            </div> :
+            <div></div>
+        }
+        <div className="confirm">
+          <Icon type="question-circle-o" style={{ marginRight: '10px' }} />
+          您是否确定{opt}这{(checkedList.length - disableArr.length)}个{stateText}的{appList?'应用':'服务'} ?
+        </div>
+      </div>
+    )
+  }
+}

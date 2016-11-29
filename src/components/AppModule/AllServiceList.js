@@ -415,10 +415,12 @@ let StopServiceModal = React.createClass({
     }
   },
   render: function () {
-    const { serviceList } = this.props
-    const checkedServiceList = serviceList.filter((service) => service.checked)
+    const { serviceList, scope } = this.props
+    let checkedServiceList = serviceList.filter((service) => service.checked)
     let stoppedService = []
-
+    if(scope.state.currentShowInstance){
+      checkedServiceList = [scope.state.currentShowInstance]
+    }
     checkedServiceList.map((service, index) => {
       if (service.status.phase === 'Stopped') {
         stoppedService.push(service)
@@ -471,8 +473,11 @@ let RestarServiceModal = React.createClass({
     }
   },
   render: function () {
-    const { serviceList } = this.props
-    const checkedServiceList = serviceList.filter((service) => service.checked)
+    const { serviceList, scope } = this.props
+    let checkedServiceList = serviceList.filter((service) => service.checked)
+    if (scope.state.currentShowInstance) {
+      checkedServiceList = [scope.state.currentShowInstance]
+    }
     let stoppedService = []
     checkedServiceList.map((service, index) => {
       if (service.status.phase === 'Stopped') {
@@ -635,6 +640,7 @@ class ServiceList extends Component {
       StopServiceModal: false,
       RestarServiceModal: false,
       QuickRestarServiceModal: false,
+      detail: false,
     }
   }
 
@@ -795,9 +801,11 @@ class ServiceList extends Component {
   handleStopServiceOk() {
     const self = this
     const { cluster, stopServices, serviceList } = this.props
-    const checkedServiceList = serviceList.filter((service) => service.checked)
+    let checkedServiceList = serviceList.filter((service) => service.checked)
     let runningServices = []
-
+    if (this.state.currentShowInstance) {
+      checkedServiceList = [this.state.currentShowInstance]
+    }
     checkedServiceList.map((service, index) => {
       if (service.status.phase === 'Running') {
         runningServices.push(service)
@@ -833,41 +841,42 @@ class ServiceList extends Component {
       StopServiceModal: false,
     })
   }
-  handleRestarServiceOk(currentSvc) {
-    console.log('currentSvc',currentSvc)
+  handleRestarServiceOk() {
     const self = this
     const { cluster, restartServices, serviceList } = this.props
     let servicesList = serviceList
-    console.log('servicesList',servicesList)
+
     let checkedServiceList = servicesList.filter((service) => service.checked)
     let runningServices = []
-    if (currentSvc) {
-      servicesList = currentSvc
-      checkedServiceList = currentSvc
+    if (this.state.currentShowInstance) {
+      checkedServiceList = [this.state.currentShowInstance]
     }
     checkedServiceList.map((service, index) => {
-      if (service.status.phase === 'Running') {
-        runningServices.push(service)
+      if(service.status){
+        if (service.status.phase === 'Running') {
+          runningServices.push(service)
+        }
       }
     })
     const serviceNames = runningServices.map((service) => service.metadata.name)
-    console.log('serviceNames',serviceNames)
     const allServices = self.state.serviceList
 
     allServices.map((service) => {
+
       if (serviceNames.indexOf(service.metadata.name) > -1) {
-        service.status.phase = 'Redeploying'
+        if (service.status) {
+          service.status.phase = 'Redeploying'
+        }
       }
     })
     self.setState({
-      serviceList: allServices
+      serviceList: allServices,
+      RestarServiceModal: false,
     })
     restartServices(cluster, serviceNames, {
       success: {
         func: () => {
-          // self.loadServices()
           this.setState({
-            RestarServiceModal: false,
             runBtn: false,
             stopBtn: false,
             restartBtn: false,
@@ -889,7 +898,6 @@ class ServiceList extends Component {
     let runningServices = []
 
     checkedServiceList.map((service, index) => {
-      console.log('service :::', service);
       if (service.status.phase === 'Running') {
         runningServices.push(service)
       }
@@ -1052,6 +1060,9 @@ class ServiceList extends Component {
     // currentShowInstance = checkedServiceList[0]
     const funcs = {
       handleRestarServiceOk: this.handleRestarServiceOk,
+      batchRestartService: this.batchRestartService,
+      batchStopService: this.batchStopService,
+      
       confirmStopServices: this.confirmStopServices,
       confirmDeleteServices: this.confirmDeleteServices,
     }
@@ -1076,7 +1087,7 @@ class ServiceList extends Component {
               <Modal title="重新部署操作" visible={this.state.RestarServiceModal}
                 onOk={this.handleRestarServiceOk} onCancel={this.handleRestarServiceCancel}
                 >
-                <RestarServiceModal serviceList={serviceList} />
+                <RestarServiceModal serviceList={serviceList} scope={parentScope} />
               </Modal>
               <Modal title="启动操作" visible={this.state.StartServiceModal}
                 onOk={this.handleStartServiceOk} onCancel={this.handleStartServiceCancel}
@@ -1089,7 +1100,7 @@ class ServiceList extends Component {
               <Modal title="停止操作" visible={this.state.StopServiceModal}
                 onOk={this.handleStopServiceOk} onCancel={this.handleStopServiceCancel}
                 >
-                <StopServiceModal serviceList={serviceList} />
+                <StopServiceModal serviceList={serviceList} scope={parentScope}/>
               </Modal>
               <Button type='ghost' size='large' onClick={() => this.loadServices(this.props)}>
                 <i className='fa fa-refresh'></i>刷新
