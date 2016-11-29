@@ -202,8 +202,10 @@ class AppServiceDetail extends Component {
     </Menu>);
     const svcDomain = parseServiceDomain(service, this.props.bindingDomains)
     let availableReplicas = 0
-    if (service.status) {
-      availableReplicas = service.status.availableReplicas || 0
+    if (service) {
+      if (service.status) {
+        availableReplicas = service.status.availableReplicas || 0
+      }
     }
     return (
       <div id="AppServiceDetail">
