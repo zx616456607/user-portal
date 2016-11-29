@@ -23,9 +23,9 @@ export function getContainerStatus(container) {
   const { containerStatuses } = status
   let restartCount = 0
   containerStatuses.map(containerStatus => {
-    const { ready } = containerStatus
+    // const { ready } = containerStatus
     const containerRestartCount = containerStatus.restartCount
-    if (!ready && containerRestartCount > restartCount) {
+    if (containerRestartCount > restartCount) {
       restartCount = containerRestartCount
     }
   })
