@@ -29,26 +29,32 @@ export default class StateBtnModal extends Component{
     let stateText = ''
     switch (state) {
       case 'Running' :
-        console.log('111');
         alertText = '已经是运行中状态, 不需再启动'
         tip = '运行中状态的应用不需再次启动'
-        tbInf = '应用为运行中状态'
+        tbInf = '为运行中状态'
         opt = '启动'
         stateText = '已停止'
         break
       case 'Stopped' :
         alertText = '已经是已停止状态, 不需再停止'
         tip = '已停止状态的应用不需再次停止'
-        tbInf = '应用为已停止状态'
+        tbInf = '为已停止状态'
         opt = '停止'
         stateText = '运行中'
         break
       case 'Restart' :
         alertText = '是已停止状态, 不能做重新部署'
         tip = '运行状态时应用才可以重新部署'
-        tbInf = '应用为已停止状态'
+        tbInf = '为已停止状态'
         opt = '重新部署'
-        stateText = '重新部署'
+        stateText = '可以重新部署'
+        break
+      case 'QuickRestar' :
+        alertText = '是已停止状态, 不能快速重启'
+        tip = '运行状态时服务才可以快速重启'
+        tbInf = '为已停止状态'
+        opt = '快速重启'
+        stateText = '可以快速重启'
         break
       default :
         alertText = ''
@@ -60,7 +66,8 @@ export default class StateBtnModal extends Component{
     }
     let checkedList = appList?appList.filter((app) => app.checked):serviceList.filter((service) => service.checked)
     let disableArr = []
-    let checkedState = state === 'Restart'?'Stopped':state
+    let checkedState = state === 'Restart'||'QuickRestar'?'Stopped':state
+    
     if (scope) {
       if (scope.state.currentShowInstance) {
         checkedList = [scope.state.currentShowInstance]
@@ -76,7 +83,7 @@ export default class StateBtnModal extends Component{
         <tr>
           <td>{index + 1}</td>
           <td>{appList?item.name:item.metadata.name}</td>
-          <td style={{ color: '#f85958' }}>{ tbInf }</td>
+          <td style={{ color: '#f85958' }}>{appList?'应用':'服务'}{ tbInf }</td>
         </tr>
       )
     })
