@@ -21,6 +21,7 @@ import { browserHistory } from 'react-router';
 const RadioGroup = Radio.Group;
 const createForm = Form.create;
 const FormItem = Form.Item;
+const DefaultEmailAddress = 'service@tenxcloud.com'
 
 const menusText = defineMessages({
   name: {
@@ -277,7 +278,8 @@ let CreateTenxFlow = React.createClass({
       rules: [
         { validator: this.radioEmailCheck },
       ],
-      onChange: this.onChangeAlertEmail
+      onChange: this.onChangeAlertEmail,
+      initialValue: DefaultEmailAddress
     });
     const checkEmailProps = getFieldProps('inputEmail', {
       rules: [
@@ -341,7 +343,7 @@ let CreateTenxFlow = React.createClass({
                   <div className='selectedEmail' key='selectedEmail'>
                     <FormItem>
                       <RadioGroup {...radioEmailProps} >
-                        <Radio key='a' value={'service@tenxcloud.com'}>service@tenxcloud.com</Radio><br />
+                        <Radio key='a' value={DefaultEmailAddress}>{DefaultEmailAddress}</Radio><br />
                         <Radio key='b' value={'others'}><FormattedMessage {...menusText.otherEmail} /></Radio><br />
                       </RadioGroup>
                     </FormItem>

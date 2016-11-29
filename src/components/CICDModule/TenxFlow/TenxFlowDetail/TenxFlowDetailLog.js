@@ -157,6 +157,13 @@ let MyComponent = React.createClass({
         </div>
       )
     }
+    if (!config || config.length <1) {
+      return (
+        <div className='LogDetail'>
+        目前还没有任何构建记录
+        </div>
+      )
+    }
     let items = config.map((item, index) => {
       const dropdown = (
         <Menu onClick={this.operaMenuClick.bind(this, item)}
