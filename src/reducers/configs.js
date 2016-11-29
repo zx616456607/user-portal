@@ -73,22 +73,38 @@ function configGroupList(state = {}, action) {
       return merge({}, state, {
         [cluster]: { isFetching: false }
       })
-    case ActionTypes.DELETE_CONFIG_GROUP_REQUEST:
-      return merge({}, state, { isFetching: true })
     case ActionTypes.DELETE_CONFIG_GROUP_SUCCESS:
       const delState = cloneDeep(state)
       const configFile3 = action.groupName
       const cluster3 = action.cluster
       const configGroup3 = delState[cluster3]
       let index3
-      for (let i=0; i < configFile3.length; i++) {
-         index3 = findIndex(configGroup3.configGroup, item => {
-          return item.name === configFile3[i]
-        })
-        configGroup3.configGroup.splice(index3,1)
+      let index4
+      const resData = action.response.result.message
+      if (resData.length == 0) {
+        for (let i = 0; i < configFile3.length; i++) {
+          index3 = findIndex(configGroup3.configGroup, item => {
+            return item.name === configFile3[i]
+          })
+          configGroup3.configGroup.splice(index3, 1)
+        }
+      } else {
+        // has delete err group name
+        for (let i = 0; i < configFile3.length; i++) {
+          index3 = findIndex(configFile3, item => {
+            return item == resData[i].name
+          })
+          configFile3.splice(index3, 1)
+        }
+        for (let i = 0; i < configFile3.length; i++) {
+          index4 = findIndex(configGroup3.configGroup, item => {
+            return item.name === configFile3[i]
+          })
+          configGroup3.configGroup.splice(index4, 1)
+        }
       }
       return delState
-      // return union({}, state, { isFetching: false })
+    // return union({}, state, { isFetching: false })
     case ActionTypes.DELETE_CONFIG_GROUP_FAILURE:
       return merge({}, state, { isFetching: false })
     default:
@@ -151,9 +167,9 @@ function createConfigFiles(state = {}, action) {
 function deleteConfigName(state = {}, action) {
   switch (action.type) {
     case ActionTypes.DELETE_CONFIG_FILES_REQUEST:
-      return  union({}, state, { isFetching: true })
+      return union({}, state, { isFetching: true })
     case ActionTypes.DELETE_CONFIG_FILES_SUCCESS:
-      return  union({}, state, { isFetching: false })
+      return union({}, state, { isFetching: false })
     case ActionTypes.DELETE_CONFIG_FILES_FAILURE:
       return union({}, state, { isFetching: false })
     default:
@@ -161,7 +177,7 @@ function deleteConfigName(state = {}, action) {
   }
 }
 
-export default function configReducers(state = {configGroupList: {}}, action) {
+export default function configReducers(state = { configGroupList: {} }, action) {
   return {
     configGroupList: configGroupList(state.configGroupList, action),
     createConfigGroup: createConfigGroup(state.createConfigGroup, action),

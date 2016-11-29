@@ -90,7 +90,7 @@ exports.deleteConfigGroup = function* () {
   }
   this.status = response.code
   this.body = {
-    message: 'delete success'
+    message: response.data
   }
 }
 
@@ -167,6 +167,6 @@ exports.deleteConfigFiles = function* () {
   let response = yield api.batchDeleteBy([cluster, 'configgroups', group, 'configs', 'batch-delete'], null, data)
   this.status = response.code
   this.body = {
-    data: response.data
+    message: response.data
   }
 }

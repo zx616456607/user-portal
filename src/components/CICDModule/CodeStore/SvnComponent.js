@@ -88,8 +88,6 @@ let SvnComponent = React.createClass({
         "repo_type": parentScope.repokey,
         "address": values.address,
         "is_private": values.type ? 0 : 1
-        // "username": "wanglei2016",
-        // "password": "zaq11qaz"
       }
       if (!values.type) {
         config.username = values.username

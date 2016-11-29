@@ -79,16 +79,14 @@ function checkStatusSpan(status, scope) {
   switch(status) {
     case 0:
       return formatMessage(menusText.normal);
-      break;
     case 1:
       return formatMessage(menusText.fail);
-      break;
     case 2:
       return formatMessage(menusText.running);
-      break;
     case 3:
       return formatMessage(menusText.wait);
-      break;
+    default: 
+      return formatMessage(menusText.normal);
   }
 }
 
@@ -97,16 +95,12 @@ function checkStatusClass(status) {
   switch(status) {
     case 0:
       return 'normal';
-      break;
     case 1:
       return 'fail';
-      break;
     case 2:
       return 'runing';
-      break;
     case 3:
       return 'wait';
-      break;
   }
 }
 
