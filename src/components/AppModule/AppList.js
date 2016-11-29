@@ -902,7 +902,7 @@ class AppList extends Component {
               <Modal title="重新部署操作" visible={this.state.restarAppsModal}
                 onOk={this.handleRestarAppsOk} onCancel={this.handleRestarAppsCancel}
                 >
-                <RestarAppsModal appList={appList} />
+                <StateBtnModal appList={appList} state='Restart'/>
               </Modal>
             </div>
             <div className='rightBox'>
