@@ -17,6 +17,7 @@ import { getTenxFlowList, deleteTenxFlowSingle, getTenxflowBuildLastLogs ,Create
 import { DEFAULT_REGISTRY } from '../../../constants'
 import CreateTenxFlow from './CreateTenxFlow.js'
 import TenxFlowBuildLog from './TenxFlowBuildLog'
+import moment from 'moment'
 import './style/TenxFlowList.less'
 
 const SubMenu = Menu.SubMenu
@@ -68,6 +69,14 @@ const menusText = defineMessages({
     defaultMessage: '未更新',
   }
 })
+
+function dateFormat(dateString) {
+  if (!dateString) {
+    return '';
+  }
+  var timeStr = moment(dateString);
+  return timeStr.format("YYYY-MM-DD HH:mm:ss")
+}
 
 let MyComponent = React.createClass({
   propTypes: {
@@ -162,8 +171,8 @@ let MyComponent = React.createClass({
           </div>
           <div className='time'>
             <span className='timeSpan'>
-              <Tooltip placement='topLeft' title={item.updateTime ? item.updateTime : [<FormattedMessage {...menusText.unUpdate} />]}>
-                <span>{item.updateTime ? item.updateTime : [<FormattedMessage {...menusText.unUpdate} />]}</span>
+              <Tooltip placement='topLeft' title={item.updateTime ? dateFormat(item.updateTime) : dateFormat(item.createTime)}>
+                <span>{item.updateTime ? dateFormat(item.updateTime) : dateFormat(item.createTime) }</span>
               </Tooltip>
             </span>
           </div>

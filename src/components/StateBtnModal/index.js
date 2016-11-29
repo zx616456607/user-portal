@@ -21,8 +21,7 @@ export default class StateBtnModal extends Component{
     }
   }
   render(){
-    const { state, appList } = this.props
-    console.log('state',state);
+    const { state, appList,serviceList,scope } = this.props
     let alertText = ''
     let tip = ''
     let tbInf = ''
@@ -44,6 +43,13 @@ export default class StateBtnModal extends Component{
         opt = '停止'
         stateText = '运行中'
         break
+      case 'Restart' :
+        alertText = '是已停止状态, 不能做重新部署'
+        tip = '运行状态时应用才可以重新部署'
+        tbInf = '应用为已停止状态'
+        opt = '重新部署'
+        stateText = '重新部署'
+        break
       default :
         alertText = ''
         tip = ''
@@ -52,24 +58,28 @@ export default class StateBtnModal extends Component{
         stateText = ''
         break
     }
-    const checkedList = appList.filter((app) => app.checked)
+    let checkedList = appList?appList.filter((app) => app.checked):serviceList.filter((service) => service.checked)
     let disableArr = []
-    
-    checkedList.map((app, index) => {
-      if (app.status.phase === state) {
-        disableArr.push(app)
+    let checkedState = state === 'Restart'?'Stopped':state
+    if (scope) {
+      if (scope.state.currentShowInstance) {
+        checkedList = [scope.state.currentShowInstance]
+      }
+    }
+    checkedList.map((item, index) => {
+      if (item.status.phase === checkedState) {
+        disableArr.push(item)
       }
     })
     let disableItem = disableArr.map((item, index) => {
       return (
         <tr>
           <td>{index + 1}</td>
-          <td>{item.name}</td>
+          <td>{appList?item.name:item.metadata.name}</td>
           <td style={{ color: '#f85958' }}>{ tbInf }</td>
         </tr>
       )
     })
-    console.log('alertText',alertText);
     return (
       <div id="StateBtnModal">
         {

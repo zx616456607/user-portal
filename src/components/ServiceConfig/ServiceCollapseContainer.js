@@ -57,6 +57,7 @@ function formatVolumeMounts(data, groupname, name) {
                   let others = [
                     {
                       imageName: data[i].name,
+                      serviceName: data[i].services[j].metadata.name,
                       mountPath: data[i].services[j].spec.template.spec.containers[l].volumeMounts[v].mountPath
                     }
                   ]
@@ -223,7 +224,7 @@ class CollapseContainer extends Component {
           volume = mounts.slice(0, 2).map((list, index) => {
             return (
               <td key={`key@${index}`}>
-                <div className="li"><Link to={`/app_manage/detail/${list.imageName}`}>{list.imageName}</Link></div>
+                <div className="li">应用：<Link to={`/app_manage/detail/${list.imageName}`}>{list.imageName}</Link>，服务名称：{list.serviceName}</div>
                 <div className='lis'>{list.mountPath}</div>
               </td>
 
@@ -257,7 +258,7 @@ class CollapseContainer extends Component {
                     </Button>
                   </td>
                   <td style={{ width: '130px' }}>
-                    <div className='li'>关联应用 <span className='node-number'>{Array.from(new Set(imageName)).length}</span></div>
+                    <div className='li'>关联服务 <span className='node-number'>{Array.from(new Set(imageName)).length}</span></div>
                     <div className='lis'>挂载路径</div>
                   </td>
                   { volume }

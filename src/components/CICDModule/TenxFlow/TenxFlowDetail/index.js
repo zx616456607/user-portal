@@ -178,7 +178,7 @@ class TenxFlowDetail extends Component {
               <p className='title'>{flowInfo.name}</p>
             <div className='msgBox'>
               <span>这是状态</span>
-              <span className='updateTime'>{flowInfo.update_time ? flowInfo.update_time : [<span key='updateSpan'><FormattedMessage {...menusText.unUpdate} /></span>] }</span>
+              <span className='updateTime'>{flowInfo.update_time ? flowInfo.update_time : flowInfo.create_time }</span>
               <div style={{ clear:'both' }}></div>
             </div>
             <div className='btnBox'>

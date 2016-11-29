@@ -37,6 +37,7 @@ import TipSvcDomain from '../TipSvcDomain'
 import yaml from 'js-yaml'
 import { addDeploymentWatch, removeDeploymentWatch } from '../../containers/App/status'
 import { LABEL_APPNAME } from '../../constants'
+import StateBtnModal from '../StateBtnModal'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -353,61 +354,6 @@ const MyComponent = React.createClass({
   }
 });
 
-let StartServiceModal = React.createClass({
-  getInitialState() {
-    return {
-      //
-    }
-  },
-  render: function () {
-    const { serviceList } = this.props
-    const checkedServiceList = serviceList.filter((service) => service.checked)
-    let runningServices = []
-
-    checkedServiceList.map((service, index) => {
-      if (service.status.phase === 'Running') {
-        runningServices.push(service)
-      }
-    })
-    let item = runningServices.map((service, index) => {
-      return (
-        <tr>
-          <td>{index + 1}</td>
-          <td>{service.metadata.name}</td>
-          <td style={{ color: '#4bbd74' }}>服务为运行中状态</td>
-        </tr>
-      )
-    })
-    return (
-      <div id="StartServiceModal">
-        {
-          runningServices.length !== 0 ?
-            <div>
-              <Alert message={
-                <span>你选择的{checkedServiceList.length}个服务中, 有
-                  <span className="modalDot" style={{ backgroundColor: '#4bbd74' }}>{runningServices.length}个</span>
-                  已经是运行中状态, 不需再启动
-                </span>
-              } type="warning" showIcon />
-              <div style={{ height: 26 }}>Tip: 运行中状态的服务不需再次启动</div>
-              <div className="tableWarp">
-                <table className="modalList">
-                  <tbody>
-                    {item}
-                  </tbody>
-                </table>
-              </div>
-            </div> :
-            <div></div>
-        }
-        <div className="confirm">
-          <Icon type="question-circle-o" style={{ marginRight: '10px' }} />
-          您是否确定启动这{(checkedServiceList.length - runningServices.length)}个已停止的服务 ?
-        </div>
-      </div>
-    )
-  }
-})
 let StopServiceModal = React.createClass({
   getInitialState() {
     return {
@@ -466,68 +412,11 @@ let StopServiceModal = React.createClass({
     )
   }
 })
-let RestarServiceModal = React.createClass({
-  getInitialState() {
-    return {
 
-    }
-  },
-  render: function () {
-    const { serviceList, scope } = this.props
-    let checkedServiceList = serviceList.filter((service) => service.checked)
-    if (scope.state.currentShowInstance) {
-      checkedServiceList = [scope.state.currentShowInstance]
-    }
-    let stoppedService = []
-    checkedServiceList.map((service, index) => {
-      if (service.status.phase === 'Stopped') {
-        stoppedService.push(service)
-      }
-    })
-    let item = stoppedService.map((service, index) => {
-      return (
-        <tr>
-          <td>{index + 1}</td>
-          <td>{service.metadata.name}</td>
-          <td style={{ color: '#f85958' }}>服务为已停止状态</td>
-        </tr>
-      )
-    })
-    return (
-      <div id="StartServiceModal">
-        {
-          stoppedService.length !== 0 ?
-            <div>
-              <Alert message={
-                <span>你选择的{checkedServiceList.length}个服务中, 有
-                  <span className="modalDot" style={{ backgroundColor: '#f85958' }}>{stoppedService.length}个</span>
-                  是已停止状态, 不能做重新部署
-                </span>
-              } type="warning" showIcon />
-              <div style={{ height: 26 }}>Tip: 运行状态时服务才可以重新部署</div>
-              <div className="tableWarp">
-                <table className="modalList">
-                  <tbody>
-                    {item}
-                  </tbody>
-                </table>
-              </div>
-
-            </div> :
-            <div></div>
-        }
-        <div className="confirm">
-          <Icon type="question-circle-o" style={{ marginRight: '10px' }} />
-          您是否确定重新部署这{(checkedServiceList.length - stoppedService.length)}个可以重新部署的服务 ?
-        </div>
-      </div>
-    )
-  }
-})
 let QuickRestarServiceModal = React.createClass({
   getInitialState() {
     return {
-
+      
     }
   },
   render: function () {
@@ -1087,12 +976,12 @@ class ServiceList extends Component {
               <Modal title="重新部署操作" visible={this.state.RestarServiceModal}
                 onOk={this.handleRestarServiceOk} onCancel={this.handleRestarServiceCancel}
                 >
-                <RestarServiceModal serviceList={serviceList} scope={parentScope} />
+                <StateBtnModal serviceList={serviceList} scope={parentScope} state='Restart' />
               </Modal>
               <Modal title="启动操作" visible={this.state.StartServiceModal}
                 onOk={this.handleStartServiceOk} onCancel={this.handleStartServiceCancel}
                 >
-                <StartServiceModal serviceList={serviceList} />
+                <StateBtnModal serviceList={serviceList} state='Running'/>
               </Modal>
               <Button type='ghost' size='large' onClick={this.batchStopService} disabled={!stopBtn}>
                 <i className='fa fa-stop'></i>停止
@@ -1100,7 +989,7 @@ class ServiceList extends Component {
               <Modal title="停止操作" visible={this.state.StopServiceModal}
                 onOk={this.handleStopServiceOk} onCancel={this.handleStopServiceCancel}
                 >
-                <StopServiceModal serviceList={serviceList} scope={parentScope}/>
+                <StateBtnModal serviceList={serviceList} scope={parentScope} state='Stopped'/>
               </Modal>
               <Button type='ghost' size='large' onClick={() => this.loadServices(this.props)}>
                 <i className='fa fa-refresh'></i>刷新

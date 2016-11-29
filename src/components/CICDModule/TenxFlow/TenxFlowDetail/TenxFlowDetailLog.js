@@ -15,6 +15,7 @@ import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import { getTenxflowBuildLogs, getTenxflowBuildDetailLogs } from '../../../../actions/cicd_flow'
+import moment from 'moment'
 import './style/TenxFLowDetailLog.less'
 import TenxFlowBuildLog from '../TenxFlowBuildLog'
 
@@ -105,9 +106,11 @@ function checkStatusClass(status) {
 }
 
 function dateFormat(dateString) {
-  //this function for user format string to date
-  let newString = dateString.replace('T', ' ').replace(/-/g, '/').split('.')[0];
-  return newString;
+  if (!dateString) {
+    return '';
+  }
+  var timeStr = moment(dateString);
+  return timeStr.format("YYYY-MM-DD HH:mm:ss")
 }
 
 function dateSizeFormat(startTime, endTime, scope) {
