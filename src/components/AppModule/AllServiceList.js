@@ -373,7 +373,7 @@ let StartServiceModal = React.createClass({
       return (
         <tr>
           <td>{index + 1}</td>
-          <td>{service.name}</td>
+          <td>{service.metadata.name}</td>
           <td style={{ color: '#4bbd74' }}>服务为运行中状态</td>
         </tr>
       )
@@ -428,7 +428,7 @@ let StopServiceModal = React.createClass({
       return (
         <tr>
           <td>{index + 1}</td>
-          <td>{service.name}</td>
+          <td>{service.metadata.name}</td>
           <td style={{ color: '#f85958' }}>服务为已停止状态</td>
         </tr>
       )
@@ -483,7 +483,7 @@ let RestarServiceModal = React.createClass({
       return (
         <tr>
           <td>{index + 1}</td>
-          <td>{service.name}</td>
+          <td>{service.metadata.name}</td>
           <td style={{ color: '#f85958' }}>服务为已停止状态</td>
         </tr>
       )
@@ -538,7 +538,7 @@ let QuickRestarServiceModal = React.createClass({
       return (
         <tr>
           <td>{index + 1}</td>
-          <td>{service.name}</td>
+          <td>{service.metadata.name}</td>
           <td style={{ color: '#f85958' }}>服务为已停止状态</td>
         </tr>
       )
