@@ -133,12 +133,14 @@ class AppServiceDetail extends Component {
     })
   }
   restartService(service) {
-    const { funcs } = this.props
-    const self = this
-    console.log('service',service);
-    funcs.handleRestarServiceOk([service], {
+    const { funcs, scope} = this.props
+    const _self = this
+    funcs.batchRestartService(true)
+    // funcs.handleRestarServiceOk([service], _self
+      /*{
       success: {
         func: () => {
+          console.log('handleRestarServiceOk callback');
           self.loadData()
           self.setState({
             activeTabKey: DEFAULT_TAB
@@ -146,7 +148,8 @@ class AppServiceDetail extends Component {
         },
         isAsync: true
       }
-    })
+    }*/
+    // )
   }
 
   stopService(service) {

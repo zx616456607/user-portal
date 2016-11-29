@@ -188,6 +188,7 @@ const MyComponent = React.createClass({
   modalShow: function (item) {
     // e.stopPropagation()
     const {scope} = this.props;
+    console.log('scope scope',scope);
     scope.setState({
       selectTab: null,
       modalShow: true,
@@ -471,8 +472,11 @@ let RestarServiceModal = React.createClass({
     }
   },
   render: function () {
-    const { serviceList } = this.props
-    const checkedServiceList = serviceList.filter((service) => service.checked)
+    const { serviceList, scope } = this.props
+    let checkedServiceList = serviceList.filter((service) => service.checked)
+    if(scope.state.currentShowInstance){
+      checkedServiceList = [scope.state.currentShowInstance]
+    }
     let stoppedService = []
     checkedServiceList.map((service, index) => {
       if (service.status.phase === 'Stopped') {
@@ -635,6 +639,7 @@ class ServiceList extends Component {
       StopServiceModal: false,
       RestarServiceModal: false,
       QuickRestarServiceModal: false,
+      detail: false,
     }
   }
 
@@ -741,10 +746,15 @@ class ServiceList extends Component {
       StopServiceModal: true
     })
   }
-  batchRestartService() {
+  batchRestartService(detail) {
     this.setState({
       RestarServiceModal: true
     })
+    if(detail){
+      this.setState({
+        detail: true
+      })
+    }
   }
   batchQuickRestartService() {
     this.setState({
@@ -833,21 +843,24 @@ class ServiceList extends Component {
       StopServiceModal: false,
     })
   }
-  handleRestarServiceOk(currentSvc) {
-    console.log('currentSvc',currentSvc)
+  handleRestarServiceOk() {
     const self = this
     const { cluster, restartServices, serviceList } = this.props
     let servicesList = serviceList
     console.log('servicesList',servicesList)
+    
     let checkedServiceList = servicesList.filter((service) => service.checked)
     let runningServices = []
-    if (currentSvc) {
-      servicesList = currentSvc
-      checkedServiceList = currentSvc
+    if (this.state.currentShowInstance) {
+      servicesList = this.state.currentShowInstance
+      checkedServiceList = [this.state.currentShowInstance]
     }
     checkedServiceList.map((service, index) => {
-      if (service.status.phase === 'Running') {
-        runningServices.push(service)
+      console.log('phase :::',service.status);
+      if(service.status){
+        if (service.status.phase === 'Running') {
+          runningServices.push(service)
+        }
       }
     })
     const serviceNames = runningServices.map((service) => service.metadata.name)
@@ -855,8 +868,11 @@ class ServiceList extends Component {
     const allServices = self.state.serviceList
 
     allServices.map((service) => {
+      
       if (serviceNames.indexOf(service.metadata.name) > -1) {
-        service.status.phase = 'Redeploying'
+        if(service.status){
+          service.status.phase = 'Redeploying'
+        }
       }
     })
     self.setState({
@@ -866,6 +882,7 @@ class ServiceList extends Component {
       success: {
         func: () => {
           // self.loadServices()
+          console.log('restartServices callback');
           this.setState({
             RestarServiceModal: false,
             runBtn: false,
@@ -1052,6 +1069,7 @@ class ServiceList extends Component {
     // currentShowInstance = checkedServiceList[0]
     const funcs = {
       handleRestarServiceOk: this.handleRestarServiceOk,
+      batchRestartService: this.batchRestartService,
       confirmStopServices: this.confirmStopServices,
       confirmDeleteServices: this.confirmDeleteServices,
     }
@@ -1076,7 +1094,7 @@ class ServiceList extends Component {
               <Modal title="重新部署操作" visible={this.state.RestarServiceModal}
                 onOk={this.handleRestarServiceOk} onCancel={this.handleRestarServiceCancel}
                 >
-                <RestarServiceModal serviceList={serviceList} />
+                <RestarServiceModal serviceList={serviceList} scope={parentScope}/>
               </Modal>
               <Modal title="启动操作" visible={this.state.StartServiceModal}
                 onOk={this.handleStartServiceOk} onCancel={this.handleStartServiceCancel}
