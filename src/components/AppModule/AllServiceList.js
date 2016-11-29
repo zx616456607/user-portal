@@ -1118,7 +1118,7 @@ class ServiceList extends Component {
                     })
                   } }
                   value={this.state.searchInputValue}
-                  placeholder='按应用名搜索'
+                  placeholder='按服务名称搜索'
                   onPressEnter={() => this.searchServices()} />
               </div>
             </div>
