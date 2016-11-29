@@ -123,7 +123,7 @@ class App extends Component {
       <Websocket
         url={`ws://${loginUser.tenxApi.host}/spi/v2/watch`}
         onSetup={this.onStatusWebsocketSetup}
-        debug={true} />
+        debug={false} />
     )
   }
 
@@ -201,8 +201,6 @@ function mapStateToProps(state, props) {
   const { errorMessage, entities } = state
   const { current, sockets, loginUser } = entities
   const { location } = props
-  console.log(`location---------------------`)
-  console.log(location)
   const { pathname, search, hash } = location
   let redirectUrl = pathname
   if (search) {

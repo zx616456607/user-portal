@@ -72,13 +72,13 @@ function checkEmailType(emailList, scope, type) {
       });
     }
     return 'others';
-  } else if(emailList[0] == 'gaojian@tenxcloud.com') {
+  } else if(emailList[0] == 'service@tenxcloud.com') {
     if(type != 'init') {
       scope.setState({
         emailList: null
       });
     }
-    return 'gaojian@tenxcloud.com';
+    return 'service@tenxcloud.com';
   } else {
     if(type != 'init') {
       scope.setState({
@@ -276,7 +276,7 @@ let TenxFlowDetailAlert = React.createClass({
                 <div className='selectedEmail' key='selectedEmail'>
                   <FormItem>
                     <RadioGroup {...radioEmailProps} >
-                      <Radio key='a' value={'gaojian@tenxcloud.com'}>gaojian@tenxcloud.com</Radio><br />
+                      <Radio key='a' value={'service@tenxcloud.com'}>service@tenxcloud.com</Radio><br />
                       <Radio key='b' value={'others'}><FormattedMessage {...menusText.otherEmail} /></Radio><br />
                     </RadioGroup>
                   </FormItem>

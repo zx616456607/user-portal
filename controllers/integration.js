@@ -55,7 +55,7 @@ exports.deleteIntegrations = function* () {
   const id = this.params.id
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
-  const result = yield api.integrations.deleteBy(['vsphere', id]);
+  const result = yield api.integrations.deleteBy([id]);
   this.body = {
     result,
   }
@@ -111,6 +111,7 @@ exports.createIntegrationVm = function* () {
   const body = this.request.body
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
+  console.log(body)
   const result = yield api.integrations.createBy(['vsphere', id, 'vm', 'clone'], {'dc': dcPath}, body);
   this.body = {
     result,

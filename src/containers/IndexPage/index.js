@@ -25,17 +25,17 @@ class IndexPage extends Component {
   render() {
     const { loginUser,current } = this.props
     console.log('current',current);
-    if(loginUser.info.role === 1 && current.space.namespace !== 'default'){
+    if(loginUser.info.role === 1 && current.space.spaceName !== 'default'){
       return (
         <div id="IndexPage">
-          <Admin spaceName={current.space.namespace}/>
-          <Ordinary spaceName={current.space.namespace} clusterName={current.cluster.clusterName}/>
+          <Admin spaceName={current.space.spaceName}/>
+          <Ordinary spaceName={current.space.spaceName} clusterName={current.cluster.clusterName}/>
         </div>
       )
     }
     return (
       <div id="IndexPage">
-        <Ordinary spaceName={current.space.namespace} clusterName={current.cluster.clusterName}/>
+        <Ordinary spaceName={current.space.spaceName} clusterName={current.cluster.clusterName}/>
       </div>
     )
   }

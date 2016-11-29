@@ -494,7 +494,7 @@ class VSphereDetail extends Component {
         }
         <div className='tagBox'>
           <i className='fa fa-tag' />
-          <span>VSphere版本:2.0</span>
+          <span>VSphere版本:6.0</span>
         </div>
       </div>
     )

@@ -85,7 +85,7 @@ class Deployment {
               metadata[key] = k8sDeployment.spec.template.metadata[key]
             }
           }
-        
+
           if (k8sDeployment.spec.template.metadata.labels) {
             let labels = {}
             for (let key in k8sDeployment.spec.template.metadata.labels) {
@@ -108,10 +108,10 @@ class Deployment {
           if (k8sDeployment.spec.template.spec.volumes) {
             let volumes = []
             for (let vol of k8sDeployment.spec.template.spec.volumes) {
-              let volume = {name: vol.name}
+              let volume = { name: vol.name }
               if (vol.rbd && vol.rbd.image) {
                 let strs = vol.rbd.image.split('.')
-                volume.rbd = {image: strs[strs.length-1]}
+                volume.rbd = { image: strs[strs.length - 1] }
               }
               volumes.push(volume)
             }
@@ -145,22 +145,22 @@ class Deployment {
               }
               if (ct.resources) {
                 let resources = {}
-                if (ct.resources.limits)  {
+                if (ct.resources.limits) {
                   let limits = {}
                   if (ct.resources.limits.memory) {
-                      limits.memory = ct.resources.limits.memory
+                    limits.memory = ct.resources.limits.memory
                   }
                   if (Object.keys(limits).length > 0) {
                     resources.limits = limits
                   }
                 }
-                if (ct.resources.requests)  {
+                if (ct.resources.requests) {
                   let requests = {}
                   if (ct.resources.requests.cpu) {
-                      requests.cpu = ct.resources.requests.cpu
+                    requests.cpu = ct.resources.requests.cpu
                   }
                   if (ct.resources.requests.memory) {
-                      requests.memory = ct.resources.requests.memory
+                    requests.memory = ct.resources.requests.memory
                   }
                   if (Object.keys(requests).length > 0) {
                     resources.requests = requests
@@ -168,7 +168,7 @@ class Deployment {
                 }
                 if (Object.keys(resources).length > 0) {
                   container.resources = resources
-                } 
+                }
               }
               if (Object.keys(container).length > 0) {
                 containers.push(container)
@@ -178,12 +178,12 @@ class Deployment {
               spec.containers = containers
             }
           }
-        
+
           if (Object.keys(spec).length > 0) {
             template.spec = spec
           }
         }
-        
+
         if (Object.keys(template).length > 0) {
           spec.template = template
         }

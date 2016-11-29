@@ -75,7 +75,6 @@ class StorageDetail extends Component {
     const { formatMessage } = this.props.intl
     const { currentKey } = this.state
     const { StorageInfo, isFetching } = this.props
-
     return (
       <div id="StorageDetail">
         <QueueAnim className="demo-content"
@@ -87,7 +86,7 @@ class StorageDetail extends Component {
               <div className="imgBox">
                 <img src="/img/storage.png" />
               </div>
-              {isFetching == false ? <div className="infoBox">
+              <div className="infoBox">
                 <div className="appTitle">
                   {StorageInfo.volumeName}
                 </div>
@@ -110,7 +109,7 @@ class StorageDetail extends Component {
                   </div>
                 </div>
                 <div style={{ clear:"both" }}></div>
-              </div> : <div className="loadingBox"><Spin size="large"></Spin></div>}
+              </div>
 
               <div style={{ clear:"both" }}></div>
             </Card>

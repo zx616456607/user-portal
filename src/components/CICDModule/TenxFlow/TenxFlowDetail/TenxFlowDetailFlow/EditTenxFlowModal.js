@@ -80,7 +80,7 @@ const menusText = defineMessages({
   },
   servicesTitle: {
     id: 'CICD.Tenxflow.EditTenxFlowModal.servicesTitle',
-    defaultMessage: '常用服务',
+    defaultMessage: '依赖服务',
   },
   addServices: {
     id: 'CICD.Tenxflow.EditTenxFlowModal.addServices',
@@ -813,6 +813,9 @@ let EditTenxFlowModal = React.createClass({
         <Option key={ list.title } value={list.title + `@`+ (index+1) }>{list.title}</Option>
       )
     })
+    if (intFlowTypeIndex > buildImages.length - 1) {
+      intFlowTypeIndex = buildImages.length - 1
+    }
     this.state.baseImage = buildImages[intFlowTypeIndex].imageList
     const baseImage = this.state.baseImage.map(list => {
       return (
@@ -906,7 +909,6 @@ let EditTenxFlowModal = React.createClass({
       ],
       initialValue: (!!config.spec.build ? config.spec.build.image : null)
     });
-    console.log("---- " + buildImages[intFlowTypeIndex].imageList[0].imageName)
     const imageNameProps = getFieldProps('imageName', {
       rules: [
         { required: true, message: '请选择基础镜像' }

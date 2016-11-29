@@ -16,6 +16,7 @@ import UsefulDeployBox from './AppDeployComponents/UsefulDeployBox'
 import ComposeDeployBox from './AppDeployComponents/ComposeDeployBox'
 import EnviroDeployBox from './AppDeployComponents/EnviroDeployBox'
 import "./style/AppDeployServiceModal.less"
+import { connect } from 'react-redux'
 
 const Deployment = require('../../../../kubernetes/objects/deployment')
 const Service = require('../../../../kubernetes/objects/service')
@@ -206,7 +207,7 @@ let AppDeployServiceModal = React.createClass({
     const { registryServer, currentSelectedImage } = parentScope.state
     let image = registryServer + '/' + currentSelectedImage + ':' + imageVersion //镜像名称
     let deploymentList = new Deployment(serviceName)
-    let serviceList = new Service(serviceName)
+    let serviceList = new Service(serviceName, this.props.cluster)
 
     var ImageConfig = {
       resources: {
@@ -416,8 +417,8 @@ let AppDeployServiceModal = React.createClass({
       totalNumber.forEach(item => {
         const vol = getFieldValue(`vol${item}`)
         const volPath = getFieldValue(`volPath${item}`)
-        if(!vol) return
-        if(vol.length <= 0) return
+        if (!vol) return
+        if (vol.length <= 0) return
         deploymentList.addContainerVolume(serviceName, {
           name: `configmap-volume-${item}`,
           configMap: vol,
@@ -539,7 +540,7 @@ let AppDeployServiceModal = React.createClass({
             composeType={composeType}
             form={form}
             cluster={this.props.cluster}
-            other= {other}
+            other={other}
             />
           <Collapse>
             <Panel header={assitBoxTitle} key="1" className="assitBigBox">
@@ -603,6 +604,18 @@ const advanceBoxTitle = (
     <div style={{ clear: "both" }}></div>
   </div>
 );
+
+function mapStateToProps(state) {
+  const { cluster } = state.entities.current
+  return {
+    cluster,
+  }
+}
+
+AppDeployServiceModal = connect(mapStateToProps, {
+  //
+})(AppDeployServiceModal)
+
 AppDeployServiceModal = createForm()(AppDeployServiceModal);
 
 export default AppDeployServiceModal

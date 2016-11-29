@@ -12,9 +12,10 @@ const Service = require('../kubernetes/objects/service')
 const apiFactory = require('../services/api_factory')
 
 exports.getOperationAuditLog = function* () {
-  const reqBody = this.request.body
+  let reqBody = this.request.body
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
+  reqBody.namespace = loginUser.teamspeace || loginUser.namespace
   const result = yield api.audits.createBy(['logs'], null, reqBody);
   this.body = {
     logs: result.data
