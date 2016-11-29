@@ -28,14 +28,18 @@ export function getContainerStatus(container) {
  * return one of [Pending, Running, Deploying, Stopped]
  */
 export function getServiceStatus(service) {
-  let { status, metadata } = service
+  const { status, metadata } = service
+  const replicas = service.spec.replicas || metadata.annotations[`${TENX_MARK}/replicas`]
   let availableReplicas = 0
   if (!status) {
-    status = {}
+    return {
+      phase: 'Stopped',
+      availableReplicas: 0,
+      replicas
+    }
   }
-  if (status) {
-    availableReplicas = status.availableReplicas || 0
-  }
+  availableReplicas = status.availableReplicas || 0
+  status.availableReplicas = availableReplicas
   let {
     phase,
     updatedReplicas,
@@ -45,7 +49,6 @@ export function getServiceStatus(service) {
   if (!metadata.annotations) {
     metadata.annotations = {}
   }
-  const replicas = service.spec.replicas || metadata.annotations[`${TENX_MARK}/replicas`]
   status.replicas = replicas
   if (!phase) {
     if (unavailableReplicas > 0 && (!availableReplicas || availableReplicas < replicas)) {

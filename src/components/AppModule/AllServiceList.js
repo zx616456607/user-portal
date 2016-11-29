@@ -188,7 +188,6 @@ const MyComponent = React.createClass({
   modalShow: function (item) {
     // e.stopPropagation()
     const {scope} = this.props;
-    console.log('scope scope',scope);
     scope.setState({
       selectTab: null,
       modalShow: true,
@@ -474,7 +473,7 @@ let RestarServiceModal = React.createClass({
   render: function () {
     const { serviceList, scope } = this.props
     let checkedServiceList = serviceList.filter((service) => service.checked)
-    if(scope.state.currentShowInstance){
+    if (scope.state.currentShowInstance) {
       checkedServiceList = [scope.state.currentShowInstance]
     }
     let stoppedService = []
@@ -842,8 +841,7 @@ class ServiceList extends Component {
     const self = this
     const { cluster, restartServices, serviceList } = this.props
     let servicesList = serviceList
-    console.log('servicesList',servicesList)
-    
+
     let checkedServiceList = servicesList.filter((service) => service.checked)
     let runningServices = []
     if (this.state.currentShowInstance) {
@@ -857,13 +855,12 @@ class ServiceList extends Component {
       }
     })
     const serviceNames = runningServices.map((service) => service.metadata.name)
-    console.log('serviceNames',serviceNames)
     const allServices = self.state.serviceList
 
     allServices.map((service) => {
-      
+
       if (serviceNames.indexOf(service.metadata.name) > -1) {
-        if(service.status){
+        if (service.status) {
           service.status.phase = 'Redeploying'
         }
       }
@@ -876,7 +873,6 @@ class ServiceList extends Component {
       success: {
         func: () => {
           // self.loadServices()
-          console.log('restartServices callback');
           this.setState({
             runBtn: false,
             stopBtn: false,
@@ -899,7 +895,6 @@ class ServiceList extends Component {
     let runningServices = []
 
     checkedServiceList.map((service, index) => {
-      console.log('service :::', service);
       if (service.status.phase === 'Running') {
         runningServices.push(service)
       }
@@ -1087,7 +1082,7 @@ class ServiceList extends Component {
               <Modal title="重新部署操作" visible={this.state.RestarServiceModal}
                 onOk={this.handleRestarServiceOk} onCancel={this.handleRestarServiceCancel}
                 >
-                <RestarServiceModal serviceList={serviceList} scope={parentScope}/>
+                <RestarServiceModal serviceList={serviceList} scope={parentScope} />
               </Modal>
               <Modal title="启动操作" visible={this.state.StartServiceModal}
                 onOk={this.handleStartServiceOk} onCancel={this.handleStartServiceCancel}

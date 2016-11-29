@@ -137,18 +137,18 @@ class AppServiceDetail extends Component {
     const _self = this
     funcs.batchRestartService()
     // funcs.handleRestarServiceOk([service], _self
-      /*{
-      success: {
-        func: () => {
-          console.log('handleRestarServiceOk callback');
-          self.loadData()
-          self.setState({
-            activeTabKey: DEFAULT_TAB
-          })
-        },
-        isAsync: true
-      }
-    }*/
+    /*{
+    success: {
+      func: () => {
+        console.log('handleRestarServiceOk callback');
+        self.loadData()
+        self.setState({
+          activeTabKey: DEFAULT_TAB
+        })
+      },
+      isAsync: true
+    }
+  }*/
     // )
   }
 
@@ -197,11 +197,6 @@ class AppServiceDetail extends Component {
       </Menu.Item>
       <Menu.Item key="2">
         <span onClick={() => this.delteService(service)}>删除</span>
-      </Menu.Item>
-      <Menu.Item key="3">
-        <Link to={`/app_manage/detail/${appName}#stack`} onClick={this.closeModal} >
-          查看编排
-        </Link>
       </Menu.Item>
     </Menu>);
     const svcDomain = parseServiceDomain(service, this.props.bindingDomains)
