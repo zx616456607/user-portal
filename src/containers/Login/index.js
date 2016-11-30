@@ -214,7 +214,6 @@ let Login = React.createClass({
     }
   },
   componentWillMount() {
-    console.log('123');
     const { resetFields } = this.props.form
     resetFields()
   },
