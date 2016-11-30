@@ -36,7 +36,7 @@ let CPUOption = {
     axisPointer : {
       type : 'shadow'
     },
-    formatter: '{b} : {c}'
+    formatter: '{c} 核'
   },
   grid: {
     left: '3%',
@@ -103,7 +103,7 @@ let memoryOption = {
     axisPointer : {
       type : 'shadow'
     },
-    formatter: '{b} : {c}'
+    formatter: '{c} G'
   },
   grid: {
     left: '3%',
@@ -345,7 +345,8 @@ class VSphereDetail extends Component {
     let memoryTotal = 0;
     let memoryUsedTotal = 0;
     let cpuTotal = 0;
-    let cpuFree = 0
+    let cpuFree = 0;
+    let vmTotal = 0;
     setCpuAllocate(pods)
     setMemoryAllocate(pods)
     pods.map((item) => {
@@ -353,7 +354,8 @@ class VSphereDetail extends Component {
       memoryUsedTotal= memoryUsedTotal + item.memoryUsedMb;
       cpuTotal = cpuTotal + item.cpuNumber;
       diskCount = diskCount + item.disks.length;
-      cpuFree = cpuFree + getCpuFreeCount(item.cpuMhz, item.cpuNumber, item.cpuTotalUsedMhz)
+      vmTotal = vmTotal + item.vmNumber;
+      cpuFree = cpuFree + getCpuFreeCount(item.cpuMhz, item.cpuNumber, item.cpuTotalUsedMhz);
       item.disks.map((disk) => {
         diskTotal = diskTotal + disk.capacityMb;
         diskFree = diskFree + disk.freeMb;
@@ -377,14 +379,14 @@ class VSphereDetail extends Component {
         </div>
         {
           pods.length == 0 ? [
-            <div className='loadingBox'>
+            <div className='loadingBox' key='loadingBox'>
               <span>没有物理主机哦</span>
             </div>
           ] : null
         }
         {
           pods.length > 0 ? [
-            <div>
+            <div key='detailBox'>
               <div className='leftBox'>
                 <div className='titleBox'>
                   <FormattedMessage {...menusText.resource} />
@@ -473,8 +475,8 @@ class VSphereDetail extends Component {
                 </div>
                 <div className='vm commonBox'>
                   <img src='/img/integration/vm.png' />
-                  <p>预计还可创建虚拟vm数量</p>
-                  <p>- 台</p>
+                  <p>共计虚拟机vm数量</p>
+                  <p>{vmTotal}台</p>
                 </div>
                 <div className='cpuUsed commonBox'>
                   <img src='/img/integration/cpuUsed.png' />
@@ -494,7 +496,7 @@ class VSphereDetail extends Component {
         }
         <div className='tagBox'>
           <i className='fa fa-tag' />
-          <span>VSphere版本:6.0</span>
+          <span>vSphere版本:6.0</span>
         </div>
       </div>
     )

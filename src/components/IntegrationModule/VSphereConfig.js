@@ -22,11 +22,11 @@ const FormItem = Form.Item;
 const menusText = defineMessages({
   name: {
     id: 'Integration.VSphereConfig.name',
-    defaultMessage: 'VSphere名称',
+    defaultMessage: 'vSphere名称',
   },
   address: {
     id: 'Integration.VSphereConfig.address',
-    defaultMessage: 'VSphere地址',
+    defaultMessage: 'vSphere地址',
   },
   user: {
     id: 'Integration.VSphereConfig.user',
@@ -160,13 +160,13 @@ let VSphereConfig = React.createClass({
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form;
     const configNameProps = getFieldProps('name', {
       rules: [
-        { required: true, message: '请输入VSphere名称' },
+        { required: true, message: '请输入vSphere名称' },
       ],
       initialValue: config.name
     });
     const configAddressProps = getFieldProps('url', {
       rules: [
-        { required: true, message: '请输入VSphere地址' },
+        { required: true, message: '请输入vSphere地址' },
       ],
       initialValue: config.url
     });

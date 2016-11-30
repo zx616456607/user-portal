@@ -49,9 +49,17 @@ class Slider extends Component {
     this.changeSiderStyle = this.changeSiderStyle.bind(this);
     this.onSelectMenu = this.onSelectMenu.bind(this);
     this.state = {
-      currentKey: checkCurrentPath(this.props.pathname),
+      currentKey: 'home',
       isUnzip: false
     }
+  }
+  
+  componentWillMount() {
+    const { pathname } = this.props;
+    let currentKey = pathname.split('/')[1];
+    this.setState({
+      currentKey: currentKey
+    })
   }
 
   changeSiderStyle() {
@@ -573,6 +581,7 @@ class Slider extends Component {
 }
 
 function checkCurrentPath(pathname) {
+  console.log(pathname)
   let pathList = pathname.split('/');
   let currentPath = pathList[0];
   if(currentPath.length > 0) {

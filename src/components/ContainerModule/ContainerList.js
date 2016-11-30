@@ -76,8 +76,10 @@ const MyComponent = React.createClass({
     //this function for user open the terminal modal
     e.stopPropagation();
     const { parentScope } = this.props;
+    let { currentContainer } = parentScope.state;
+    currentContainer.push(item)
     parentScope.setState({
-      currentContainer: item,
+      currentContainer: currentContainer,
       TerminalLayoutModal: true
     });
   },
@@ -211,7 +213,7 @@ class ContainerList extends Component {
       searchInputValue: props.name,
       searchInputDisabled: false,
       TerminalLayoutModal: false,
-      currentContainer: null,
+      currentContainer: [],
     }
   }
 
@@ -510,6 +512,7 @@ class ContainerList extends Component {
           className='TerminalLayoutModal'
           transitionName='move-down'
           onCancel={this.closeTerminalLayoutModal}
+          maskClosable={false}
           >
           <TerminalModal scope={parentScope} config={this.state.currentContainer} show={this.state.TerminalLayoutModal} />
         </Modal>
