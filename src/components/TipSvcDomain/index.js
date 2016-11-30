@@ -196,13 +196,12 @@ export default class TipSvcDomain extends Component {
         )
       } else if (appDomain.length === 1) {
         if (appDomain[0].data[0].indexOf('http://') === -1 || appDomain[0].data[0].indexOf('https://') === -1) {
-          // console.log('appDomain data length',appDomain[0].data[0].indexOf('http://') === -1);
           return (
-            <span>{appDomain[0].data[0].slice(0, 15)+'...'}</span>
+            <span>{appDomain[0].data[0]}</span>
           )
         } else {
           return (
-            <a target="_blank" href={appDomain[0].data[0]}>{appDomain[0].data[0].slice(0, 15)+'...'}</a>
+            <a target="_blank" href={appDomain[0].data[0]}>{appDomain[0].data[0]}</a>
           )
         }
       } else {
