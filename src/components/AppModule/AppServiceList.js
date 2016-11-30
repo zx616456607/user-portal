@@ -357,7 +357,7 @@ let StopServiceModal = React.createClass({
     const { serviceList,scope} = this.props
     let checkedServiceList = serviceList.filter((service) => service.checked)
     let stoppedService = []
-  
+
     if(scope.state.currentShowInstance){
       checkedServiceList = [scope.state.currentShowInstance]
     }
@@ -728,7 +728,7 @@ class AppServiceList extends Component {
     let checkedServiceList = serviceList.filter((service) => service.checked)
     let runningServices = []
     if (this.state.currentShowInstance) {
-      
+
       checkedServiceList = [this.state.currentShowInstance]
     }
     checkedServiceList.map((service, index) => {
@@ -771,11 +771,11 @@ class AppServiceList extends Component {
     const { cluster, restartServices, serviceList, loadServiceList, appName } = this.props
     let checkedServiceList = serviceList.filter((service) => service.checked)
     let runningServices = []
-    
+
     if (this.state.currentShowInstance) {
       checkedServiceList = [this.state.currentShowInstance]
     }
-    
+
     checkedServiceList.map((service, index) => {
       if (service.status.phase === 'Running') {
         runningServices.push(service)
@@ -1150,7 +1150,7 @@ class AppServiceList extends Component {
       confirmRestartServices: this.confirmRestartServices,
       confirmStopServices: this.confirmStopServices,
       confirmDeleteServices: this.confirmDeleteServices,
-      
+
       batchRestartService: this.batchRestartService,
       batchStopService: this.batchStopService,
     }
@@ -1194,6 +1194,10 @@ class AppServiceList extends Component {
               <i className="fa fa-plus"></i>
               添加服务
             </Button>
+            <Button size="large" onClick={() => this.loadServices(this.props)} >
+              <i className="fa fa-refresh"></i>
+              刷新
+            </Button>
             <Button size="large" onClick={this.batchStartService} disabled={!runBtn}>
               <i className="fa fa-play"></i>
               启动
@@ -1208,10 +1212,6 @@ class AppServiceList extends Component {
               >
               <StartServiceModal serviceList={serviceList} />
             </Modal>
-            <Button size="large" onClick={() => this.loadServices(this.props)} >
-              <i className="fa fa-refresh"></i>
-              刷新
-            </Button>
             <Button size="large" onClick={this.batchStopService} disabled={!stopBtn}>
               <i className="fa fa-stop"></i>
               停止
