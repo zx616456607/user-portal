@@ -36,6 +36,7 @@ const vendors = [
 ];
 
 module.exports = {
+  devtool: 'cheap-source-map',
   output: {
     path: 'static/webpack_dll',
     filename: '[name].js',
