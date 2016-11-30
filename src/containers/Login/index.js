@@ -166,7 +166,8 @@ let Login = React.createClass({
   intOnBlur(current) {
     const { getFieldProps } = this.props.form
     if (current === 'name') {
-      if (getFieldProps('name').value === '' || !getFieldProps('name').value) {
+      let name = getFieldProps('name').value
+      if (name === '' || !name) {
         this.setState({
           intNameFocus: false
         })
@@ -174,9 +175,8 @@ let Login = React.createClass({
       return
     }
     if (current === 'pass') {
-      console.log('pass value', getFieldProps('password').value);
-      if (getFieldProps('password').value === '' || !getFieldProps('password').value) {
-        console.log('pass blur');
+      let password = getFieldProps('password').value
+      if (password === '' || !password) {
         this.setState({
           intPassFocus: false,
           passWord: true,
@@ -185,7 +185,8 @@ let Login = React.createClass({
       return
     }
     if (current === 'check') {
-      if (getFieldProps('captcha').value === '' || !getFieldProps('captcha').value) {
+      let captcha = getFieldProps('captcha').value
+      if (captcha === '' || !captcha) {
         this.setState({
           intCheckFocus: false
         })
@@ -193,8 +194,8 @@ let Login = React.createClass({
     }
     return
   },
+
   intOnFocus(current) {
-    console.log('this.refs', this.refs);
     if (current === 'name') {
       this.refs.intName.refs.input.focus()
       this.setState({
@@ -213,11 +214,12 @@ let Login = React.createClass({
       })
     }
   },
+
   componentWillMount() {
-    console.log('123');
     const { resetFields } = this.props.form
     resetFields()
   },
+
   render() {
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form
     const { random, submitting, loginResult, submitProps } = this.state
