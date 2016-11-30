@@ -134,7 +134,7 @@ class Integration extends Component {
     const { formatMessage } = this.props.intl;
     const {isFetching, integrations} = this.props;
     const scope = this;
-    if(isFetching) {
+    if(isFetching || !Boolean(integrations)) {
       return (
         <div className='loadingBox'>
           <Spin size='large' />
@@ -254,21 +254,21 @@ class Integration extends Component {
             ] : [
               <QueueAnim key='infoBoxAnimateBox'>
                 <div key='infoBoxAnimate'>
-                  <div className='typeBox'>
+                  {/*<div className='typeBox'>
                     <span className='title'><FormattedMessage {...menusText.appType} /></span>
                     <span className={ this.state.currentAppType == '1' ? 'selectedType commonType' : 'commonType'} onClick={this.onChangeAppType.bind(this, '1')}>Iaas平台</span>
                     <span className={ this.state.currentAppType == '2' ? 'selectedType commonType' : 'commonType'} onClick={this.onChangeAppType.bind(this, '2')}>时速云公有云</span>
                     <span className={ this.state.currentAppType == '3' ? 'selectedType commonType' : 'commonType'} onClick={this.onChangeAppType.bind(this, '3')}>存储平台</span>
                     <span className={ this.state.currentAppType == '4' ? 'selectedType commonType' : 'commonType'} onClick={this.onChangeAppType.bind(this, '4')}>安全工具</span>
                     <span className={ this.state.currentAppType == '5' ? 'selectedType commonType' : 'commonType'} onClick={this.onChangeAppType.bind(this, '5')}>企业CRM</span>
-                  </div>
+                  </div>*/}
                   <Card className='infoBox'>
                     {this.state.showType == 'list' ? [
                       <QueueAnim key='listBoxAnimate'>
                         <div className='listBox' key='listBox'>
                           {appShow}
                           { integrations.length == 0 ? [
-                            <div className='appDetail'>
+                            <div className='appDetail' key='noAppDetail'>
                               <div className='leftBox'>
                                 <img src='/img/appstore/vmware.png' />
                               </div>
@@ -285,14 +285,14 @@ class Integration extends Component {
                                     <div className='numBox'>
                                       {'1'}
                                     </div>
-                                    <span className='envName'>部署好的VSphere环境</span>
+                                    <span className='envName'>部署好的vSphere环境</span>
                                     <div style={{ clear:'both' }}></div>
                                   </div>
                                   <div className='envDetail'>
                                     <div className='numBox'>
                                       {'2'}
                                     </div>
-                                    <span className='envName'>VSphere访问URL</span>
+                                    <span className='envName'>vSphere访问URL</span>
                                     <div style={{ clear:'both' }}></div>
                                   </div>
                                   <div className='envDetail'>

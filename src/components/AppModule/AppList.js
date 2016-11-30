@@ -21,6 +21,7 @@ import AppStatus from '../TenxStatus/AppStatus'
 import { parseAppDomain } from '../parseDomain'
 import TipSvcDomain from '../TipSvcDomain'
 import { addAppWatch, removeAppWatch } from '../../containers/App/status'
+import StateBtnModal from '../StateBtnModal'
 
 const confirm = Modal.confirm
 const ButtonGroup = Button.Group
@@ -307,118 +308,8 @@ let MyComponent = React.createClass({
     );
   }
 });
-let StartAppsModal = React.createClass({
-  getInitialState() {
-    return {
 
-    }
-  },
-  render: function () {
-    const { appList } = this.props
-    const checkedAppList = appList.filter((app) => app.checked)
-    let runningApps = []
 
-    checkedAppList.map((app, index) => {
-      if (app.status.phase === 'Running') {
-        runningApps.push(app)
-      }
-    })
-    let item = runningApps.map((app, index) => {
-      return (
-        <tr>
-          <td>{index + 1}</td>
-          <td>{app.name}</td>
-          <td style={{ color: '#4bbd74' }}>应用为运行中状态</td>
-        </tr>
-      )
-    })
-    return (
-      <div id="StartAppsModal">
-        {
-          runningApps.length !== 0 ?
-            <div>
-              <Alert message={
-                <span>你选择的{checkedAppList.length}个应用中, 有
-                  <span className="modalDot" style={{ backgroundColor: '#4bbd74' }}>{runningApps.length}个</span>
-                  已经是运行中状态, 不需再启动
-                </span>
-              } type="warning" showIcon />
-              <div style={{ height: 26 }}>Tip: 运行中状态的应用不需再次启动</div>
-              <div className="tableWarp">
-                <table className="modalList">
-                  <tbody>
-                    {item}
-                  </tbody>
-                </table>
-              </div>
-
-            </div> :
-            <div></div>
-        }
-        <div className="confirm">
-          <Icon type="question-circle-o" style={{ marginRight: '10px' }} />
-          您是否确定启动这{(checkedAppList.length - runningApps.length)}个已停止的应用 ?
-        </div>
-      </div>
-    )
-  }
-})
-let StopAppsModal = React.createClass({
-  getInitialState() {
-    return {
-
-    }
-  },
-  render: function () {
-    const { appList } = this.props
-    const checkedAppList = appList.filter((app) => app.checked)
-    let stoppedApps = []
-
-    checkedAppList.map((app, index) => {
-      if (app.status.phase === 'Stopped') {
-        stoppedApps.push(app)
-      }
-    })
-    let item = stoppedApps.map((app, index) => {
-      return (
-        <tr>
-          <td>{index + 1}</td>
-          <td>{app.name}</td>
-          <td style={{ color: '#f85958' }}>应用为已停止状态</td>
-        </tr>
-      )
-    })
-    return (
-      <div id="StartAppsModal">
-        {
-          stoppedApps.length !== 0 ?
-            <div>
-              <Alert message={
-                <span>你选择的{checkedAppList.length}个应用中, 有
-                  <span className="modalDot" style={{ backgroundColor: '#f85958' }}>{stoppedApps.length}个</span>
-                  已经是已停止状态, 不需再停止
-                </span>
-              } type="warning" showIcon />
-              <div style={{ height: 26 }}>Tip: 已停止状态的应用不需再次停止</div>
-              <div className="tableWarp">
-                <table className="modalList">
-                  <tbody>
-                    {item}
-                  </tbody>
-                </table>
-              </div>
-
-            </div> :
-            <div></div>
-        }
-        <div className="confirm">
-          <Icon type="question-circle-o" style={{ marginRight: '10px' }} />
-          您是否确定停止这{(checkedAppList.length - stoppedApps.length)}个运行中的应用 ?
-        </div>
-      </div>
-    )
-  }
-})
 let RestarAppsModal = React.createClass({
   getInitialState() {
     return {
@@ -989,7 +880,7 @@ class AppList extends Component {
               <Modal title="启动操作" visible={this.state.startAppsModal}
                 onOk={this.handleStartAppsOk} onCancel={this.handleStartAppsCancel}
                 >
-                <StartAppsModal appList={appList} />
+                <StateBtnModal appList={appList} state='Running'/>
               </Modal>
               <Button type='ghost' size='large' onClick={() => this.batchStopApps()} disabled={!stopBtn}>
                 <i className='fa fa-stop' />停止
@@ -997,7 +888,7 @@ class AppList extends Component {
               <Modal title="停止操作" visible={this.state.stopAppsModal}
                 onOk={this.handleStopAppsOk} onCancel={this.handleStopAppsCancel}
                 >
-                <StopAppsModal appList={appList} />
+                <StateBtnModal appList={appList} state='Stopped'/>
               </Modal>
               <Button type='ghost' size='large' onClick={() => this.loadData(this.props)}>
                 <i className='fa fa-refresh' />刷新
@@ -1011,7 +902,7 @@ class AppList extends Component {
               <Modal title="重新部署操作" visible={this.state.restarAppsModal}
                 onOk={this.handleRestarAppsOk} onCancel={this.handleRestarAppsCancel}
                 >
-                <RestarAppsModal appList={appList} />
+                <StateBtnModal appList={appList} state='Restart'/>
               </Modal>
             </div>
             <div className='rightBox'>

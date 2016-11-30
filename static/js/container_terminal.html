@@ -25,7 +25,9 @@
     });
     window.addEventListener("resize", function(e){
       var rowsNum = parseInt(e.target.innerHeight / 12) - 2;
-      term.resize(170, rowsNum)
+      var colsNum = parseInt((e.target.innerWidth - 40) / 12) - 2;
+      term.resize(colsNum, rowsNum)
+      term.element.focus();
     })
     function webSocketConnect() {
       var params = location.href.split('?')[1].split('&');
@@ -49,11 +51,13 @@
      
       // Create a new terminal connection to a container
       function terminalConnect() {
+        var rowsNum = parseInt(window.innerHeight / 12) - 2;
+        var colsNum = parseInt((window.innerWidth - 40) / 12) - 2;
         ws = new WebSocket(wsUrl, "base64.channel.k8s.io");
         ws.addEventListener("open", function(event) {
           term = new Terminal({
-            cols: 170,
-            rows: 35,
+            cols: colsNum,
+            rows: rowsNum,
             screenKeys: true
           });
 
@@ -111,6 +115,16 @@
             term.destroy()
             term = null
          }
+    }
+    
+    function focusTerminal() {
+      term.showCursor();
+      term.refresh(term.x, term.y);
+      term.element.focus();
+    }
+    
+    function closeTerminal() {
+      closeWebSocket(ws, term);
     }
   </script>
 </head>

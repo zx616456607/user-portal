@@ -55,6 +55,11 @@ export default class SecondSider extends Component {
     const { menuList } = this.props
     currentPathNameCheck(this, menuList);
   }
+  
+  componentWillReceiveProps(nextProps) {
+    const { menuList } = nextProps
+    currentPathNameCheck(this, menuList)
+  }
 
   handleClick(e) {
     this.setState({

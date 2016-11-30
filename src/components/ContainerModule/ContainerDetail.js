@@ -100,7 +100,7 @@ class ContainerDetail extends Component {
     const { containerName, isFetching, container, cluster } = this.props
     const { children } = this.props
     const { currentKey } = this.state
-    if (isFetching || !!!container.metadata) {
+    if (isFetching || !!!container || !!!container.metadata) {
       return (
         <div className='loadingBox'>
           <Spin size='large' />

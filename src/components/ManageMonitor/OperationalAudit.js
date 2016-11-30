@@ -598,9 +598,24 @@ function formatResourceName(resourceName) {
   //this function for format the resourceName
   if(resourceName.indexOf('{') > -1) {
     let newBody = JSON.parse(resourceName);
-    let newName = newBody.services;
-    newName = newName.join(',');
-    return newName;
+    //check services
+    if(!!newBody.services) {   
+      let newName = newBody.services;
+      if(newName.length == 0) {
+        return '-';
+      }
+      newName = newName.join(',');
+      return newName;
+    }
+    //check apps
+    if(!!newBody.apps) {
+      let newName = newBody.apps;
+      if(newName.length == 0) {
+        return '-';
+      }
+      newName = newName.join(',');
+      return newName;
+    }
   } else {
     return resourceName;
   }

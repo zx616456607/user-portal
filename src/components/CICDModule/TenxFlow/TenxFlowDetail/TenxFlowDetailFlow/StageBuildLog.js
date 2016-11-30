@@ -15,6 +15,7 @@ import $ from 'n-zepto'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { getFlowBuildStageLogs } from '../../../../../actions/cicd_flow'
+import moment from 'moment'
 import './style/StageBuildLog.less'
 import TenxFlowStageBuildLog from '../../TenxFlowStageBuildLog'
 
@@ -158,9 +159,11 @@ function checkStatusIcon(status) {
 }
 
 function dateFormat(dateString) {
-  //this function for user format string to date
-  let newString = dateString.replace('T', ' ').replace(/-/g, '/').split('.')[0];
-  return newString;
+  if (!dateString) {
+    return '';
+  }
+  var timeStr = moment(dateString);
+  return timeStr.format("YYYY-MM-DD HH:mm:ss")
 }
 
 let MyComponent = React.createClass({
