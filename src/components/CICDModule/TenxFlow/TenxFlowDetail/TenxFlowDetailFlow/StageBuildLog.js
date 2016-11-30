@@ -203,11 +203,6 @@ let MyComponent = React.createClass({
       })
     }
   },
-  changeItemStatus() {
-    return (index, status) => {
-      this.props.changeItemStatus(index, status)
-    }
-  },
   render: function () {
     const { config, scope, flowId } = this.props;
 
@@ -253,7 +248,7 @@ let MyComponent = React.createClass({
             <div className='line'></div>
           </div>
           <div className='rightInfo'>
-            <TenxFlowStageBuildLog logs={item.logInfo} isFetching={item.isFetching} logInfo={item} flowId={flowId} changeItemStatus={this.changeItemStatus()} index={index}/>
+            <TenxFlowStageBuildLog logs={item.logInfo} isFetching={item.isFetching} logInfo={item} flowId={flowId} index={index}/>
           </div>
         </Panel>
       );
