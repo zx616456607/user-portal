@@ -15,7 +15,7 @@ import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import './style/TenxFlowStageBuildLog.less'
-import WebSocket from '../../Websocket/socketIO'
+import WebSocket from '../../Websocket/socketIo'
 import { changeCiFlowStatus } from '../../../actions/cicd_flow'
 
 
