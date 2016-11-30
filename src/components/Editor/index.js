@@ -13,7 +13,7 @@
 import React, { Component, PropTypes } from 'react'
 import CodeMirror from 'react-codemirror'
 import 'codemirror/lib/codemirror.css'
-import 'codeMirror/theme/3024-night.css'
+import 'codemirror/theme/3024-night.css'
 
 class Editor extends Component {
   constructor(props) {
