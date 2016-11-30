@@ -22,16 +22,18 @@ export function getContainerStatus(container) {
   }
   const { containerStatuses } = status
   let restartCount = 0
-  containerStatuses.map(containerStatus => {
-    // const { ready } = containerStatus
-    const containerRestartCount = containerStatus.restartCount
-    if (containerRestartCount > restartCount) {
-      restartCount = containerRestartCount
+  if (containerStatuses) {
+    containerStatuses.map(containerStatus => {
+      // const { ready } = containerStatus
+      const containerRestartCount = containerStatus.restartCount
+      if (containerRestartCount > restartCount) {
+        restartCount = containerRestartCount
+      }
+    })
+    if (restartCount >= CONTAINER_MAX_RESTART_COUNT) {
+      status.phase = 'Abnormal'
+      status.restartCount = restartCount
     }
-  })
-  if (restartCount >= CONTAINER_MAX_RESTART_COUNT) {
-    status.phase = 'Abnormal'
-    status.restartCount = restartCount
   }
   return status
 }
