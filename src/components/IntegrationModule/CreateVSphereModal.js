@@ -25,11 +25,11 @@ const FormItem = Form.Item;
 const menusText = defineMessages({
   name: {
     id: 'Integration.VSphereConfig.name',
-    defaultMessage: 'VSphere名称',
+    defaultMessage: 'vSphere名称',
   },
   address: {
     id: 'Integration.VSphereConfig.address',
-    defaultMessage: 'VSphere地址',
+    defaultMessage: 'vSphere地址',
   },
   user: {
     id: 'Integration.VSphereConfig.user',

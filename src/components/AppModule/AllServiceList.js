@@ -354,121 +354,6 @@ const MyComponent = React.createClass({
   }
 });
 
-let StopServiceModal = React.createClass({
-  getInitialState() {
-    return {
-
-    }
-  },
-  render: function () {
-    const { serviceList, scope } = this.props
-    let checkedServiceList = serviceList.filter((service) => service.checked)
-    let stoppedService = []
-    if(scope.state.currentShowInstance){
-      checkedServiceList = [scope.state.currentShowInstance]
-    }
-    checkedServiceList.map((service, index) => {
-      if (service.status.phase === 'Stopped') {
-        stoppedService.push(service)
-      }
-    })
-    let item = stoppedService.map((service, index) => {
-      return (
-        <tr>
-          <td>{index + 1}</td>
-          <td>{service.metadata.name}</td>
-          <td style={{ color: '#f85958' }}>服务为已停止状态</td>
-        </tr>
-      )
-    })
-    return (
-      <div id="StartServiceModal">
-        {
-          stoppedService.length !== 0 ?
-            <div>
-              <Alert message={
-                <span>你选择的{checkedServiceList.length}个服务中, 有
-                  <span className="modalDot" style={{ backgroundColor: '#f85958' }}>{stoppedService.length}个</span>
-                  已经是已停止状态, 不需再停止
-                </span>
-              } type="warning" showIcon />
-              <div style={{ height: 26 }}>Tip: 已停止状态的服务不需再次停止</div>
-              <div className="tableWarp">
-                <table className="modalList">
-                  <tbody>
-                    {item}
-                  </tbody>
-                </table>
-              </div>
-
-            </div> :
-            <div></div>
-        }
-        <div className="confirm">
-          <Icon type="question-circle-o" style={{ marginRight: '10px' }} />
-          您是否确定停止这{(checkedServiceList.length - stoppedService.length)}个运行中的服务 ?
-        </div>
-      </div>
-    )
-  }
-})
-
-let QuickRestarServiceModal = React.createClass({
-  getInitialState() {
-    return {
-      
-    }
-  },
-  render: function () {
-    const { serviceList } = this.props
-    const checkedServiceList = serviceList.filter((service) => service.checked)
-    let stoppedService = []
-    checkedServiceList.map((service, index) => {
-      if (service.status.phase === 'Stopped') {
-        stoppedService.push(service)
-      }
-    })
-    let item = stoppedService.map((service, index) => {
-      return (
-        <tr>
-          <td>{index + 1}</td>
-          <td>{service.metadata.name}</td>
-          <td style={{ color: '#f85958' }}>服务为已停止状态</td>
-        </tr>
-      )
-    })
-    return (
-      <div id="StartServiceModal">
-        {
-          stoppedService.length !== 0 ?
-            <div>
-              <Alert message={
-                <span>你选择的{checkedServiceList.length}个服务中, 有
-                  <span className="modalDot" style={{ backgroundColor: '#f85958' }}>{stoppedService.length}个</span>
-                  是已停止状态, 不能快速重启
-                </span>
-              } type="warning" showIcon />
-              <div style={{ height: 26 }}>Tip: 运行状态时服务才可以快速重启</div>
-              <div className="tableWarp">
-                <table className="modalList">
-                  <tbody>
-                    {item}
-                  </tbody>
-                </table>
-              </div>
-
-            </div> :
-            <div></div>
-        }
-        <div className="confirm">
-          <Icon type="question-circle-o" style={{ marginRight: '10px' }} />
-          您是否确定快速重启这{(checkedServiceList.length - stoppedService.length)}个可以快速重启的服务 ?
-        </div>
-      </div>
-    )
-  }
-})
-
 /*function loadServices(props) {
   const { cluster, loadAllServices, page, size, name } = props
   loadAllServices(cluster, {
@@ -670,7 +555,6 @@ class ServiceList extends Component {
     startServices(cluster, serviceNames, {
       success: {
         func: () => {
-          // self.loadServices()
           this.setState({
             StartServiceModal: false,
             runBtn: false,
@@ -713,7 +597,6 @@ class ServiceList extends Component {
     stopServices(cluster, serviceNames, {
       success: {
         func: () => {
-          // self.loadServices()
           this.setState({
             StopServiceModal: false,
             runBtn: false,
@@ -805,7 +688,6 @@ class ServiceList extends Component {
     quickRestartServices(cluster, serviceNames, {
       success: {
         func: () => {
-          self.loadServices()
           this.setState({
             QuickRestarServiceModal: false,
             runBtn: false,
@@ -1006,7 +888,7 @@ class ServiceList extends Component {
               <Modal title="重启操作" visible={this.state.QuickRestarServiceModal}
                 onOk={this.handleQuickRestarServiceOk} onCancel={this.handleQuickRestarServiceCancel}
                 >
-                <QuickRestarServiceModal serviceList={serviceList} />
+                <StateBtnModal serviceList={serviceList} state='QuickRestar'/>
               </Modal>
               <Dropdown overlay={operaMenu} trigger={['click']}>
                 <Button size="large" disabled={!isChecked}>
