@@ -143,6 +143,7 @@ export default class TipSvcDomain extends Component {
   render() {
     const { appDomain, svcDomain, type } = this.props
     if (svcDomain) {
+      console.log('svcDomainsvcDomain:=-==',svcDomain)
       if (svcDomain.length == 0) {
         return (
           <span>-</span>
@@ -151,13 +152,13 @@ export default class TipSvcDomain extends Component {
         if (svcDomain[0].indexOf('http://') === -1 || svcDomain[0].indexOf('https://') === -1) {
           return (
             <div id='TipSvcDomain'>
-              {svcDomain[0].slice(0, 15)+'...'}
+              {svcDomain[0]}
             </div>
           )
         } else {
           return (
             <div id='TipSvcDomain'>
-              <a target="_blank" href={svcDomain[0]}>{svcDomain[0].slice(0, 15)+'...'}</a>
+              <a target="_blank" href={svcDomain[0]}>{svcDomain[0]}</a>
             </div>
           )
         }
