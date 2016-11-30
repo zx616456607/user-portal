@@ -23,7 +23,8 @@ exports.getClusterOverview = function* () {
              api.overview.getBy(["clusters", cluster, "storagestatus"]),
              api.overview.getBy(["clusters", cluster, "appstatus"]),
              api.overview.getBy(["clusters", cluster, "nodesummary"]),
-             k8sapi.getBy([cluster, "dbservices"])]
+             k8sapi.getBy([cluster, "dbservices"]),
+             api.overview.getBy(["clusters", cluster, "space-consumption"]),]
   let operations = {}
   if (result && result[0] && result[0].data) {
     operations = result[0].data
@@ -48,13 +49,18 @@ exports.getClusterOverview = function* () {
   if (result && result[5] && result[5].data) {
     dbservices = result[5].data
   }
+  let spaceconsumption = {}
+  if (result && result[6] && result[6].data) {
+    spaceconsumption = result[6].data
+  }
   this.body = {
     operations,
     sysinfo,
     storage,
     appstatus,
     nodesummary,
-    dbservices
+    dbservices,
+    spaceconsumption,
   }
 }
 
