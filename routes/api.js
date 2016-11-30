@@ -163,6 +163,7 @@ module.exports = function (Router) {
   // Registries of TenxCloud
   router.get('/registries/:registry', registryController.getImages)
   router.get('/registries/:registry/:user/:name/detailInfo', registryController.getImageInfo)
+  router.get('/registries/:registry/:user/:name', registryController.checkImage)
   router.get('/registries/:registry/:user/:name/tags', registryController.getImageTags)
   router.get('/registries/:registry/:user/:name/tags/:tag/configs', registryController.getImageConfigs)
   router.get('/registries/:registry/private', registryController.getPrivateImages)

@@ -91,7 +91,7 @@ exports.getImageConfigs = function (username, imageFullName, tag) {
   })
 }
 
-exports.getImageInfo = function(username, imageFullName) {
+exports.getImageInfo = function(username, imageFullName, isCheckOnly) {
   const registry = new registryAPIs()
   if (username) {
     username = username.toLowerCase()
@@ -105,10 +105,14 @@ exports.getImageInfo = function(username, imageFullName) {
       }
       if (statusCode > 300) {
         // Indicate whether the current user is the owner
-        logger.error("Failed to get image information -> " + statusCode)
-        err = new Error('Failed to get image info , dockerfile: ' + imageInfo)
+        logger.error("Failed to get image information: " + statusCode)
+        err = new Error('Failed to get image information: ' + imageInfo)
         err.status = statusCode
-        reject(err)
+        if (isCheckOnly) {
+          resolve(err)
+        } else {
+          reject(err)
+        }
         return
       }
       if (imageInfo && imageInfo.contributor == username) {
