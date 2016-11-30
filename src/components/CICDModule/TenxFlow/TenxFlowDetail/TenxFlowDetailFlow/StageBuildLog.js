@@ -304,12 +304,6 @@ class StageBuildLog extends Component {
       });
     }
   }
-  changeItemStatus() {
-    return (index, status) => {
-      const { config } = this.props
-      config[index].status = status
-    }
-  }
   render() {
     const scope = this;
     const { logs, isFetching, flowId } = this.props;
@@ -353,7 +347,7 @@ class StageBuildLog extends Component {
           <div style={{ clear: 'both' }}></div>
         </div>
         <div className='paddingBox'>
-          <MyComponent config={logs} scope={scope} flowId={flowId}  changeItemStatus={this.changeItemStatus()}/>
+          <MyComponent config={logs} scope={scope} flowId={flowId}/>
           <div style={{ clear: 'both' }}></div>
         </div>
       </div>
