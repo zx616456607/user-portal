@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Spin, Icon, Card, Modal, Button, Switch, Menu, Dropdown, notification } from 'antd'
+import { Spin, Icon, Card, Modal, Button, Switch, Menu, Dropdown, notification, Tooltip } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -112,6 +112,10 @@ const menusText = defineMessages({
     id: 'CICD.Tenxflow.TenxFlowDetailFlowCard.deleteBtn',
     defaultMessage: '删除项目',
   },
+  didNotDelete: {
+    id: 'CICD.Tenxflow.TenxFlowDetailFlowCard.didNotDelete',
+    defaultMessage: '只能从最后一个开始删除哦',
+  }
 })
 
 function currentStatus(status) {
@@ -430,14 +434,14 @@ class TenxFlowDetailFlowCard extends Component {
   }
 
   render() {
-    let { config, index, scope, currentFlowEdit, flowId, codeList, isFetching, ciRules, buildFetching, logs, supportedDependencies } = this.props;
+    let { config, index, scope, currentFlowEdit, flowId, codeList, isFetching, ciRules, buildFetching, logs, supportedDependencies, totalLength } = this.props;
     const scopeThis = this;
     const dropdown = (
       <Menu onClick={this.operaMenuClick.bind(this, config.metadata.id, config.metadata.name)} style={{ width: '110px' }}>
-        <Menu.Item key='deleteStage'>
-          <i className='fa fa-trash' style={{ float: 'left', lineHeight: '16px', marginRight: '5px', fontSize: '14px' }} />
-          <span style={{ float: 'left', lineHeight: '16px', fontSize: '14px' }}><FormattedMessage {...menusText.deleteBtn} /></span>
-          <div style={{ clear: 'both' }}></div>
+        <Menu.Item key='deleteStage' disabled={ index == (totalLength - 1) ? false : true }>
+              <i className='fa fa-trash' style={{ float: 'left', lineHeight: '16px', marginRight: '5px', fontSize: '14px' }} />
+              <span style={{ float: 'left', lineHeight: '16px', fontSize: '14px' }} ><FormattedMessage {...menusText.deleteBtn} /></span>
+              <div style={{ clear: 'both' }}></div>
         </Menu.Item>
       </Menu>
     );

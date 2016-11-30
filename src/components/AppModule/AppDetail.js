@@ -210,7 +210,7 @@ function mapStateToProps(state, props) {
     appDetail
   } = state.apps
   let targetServices
-  const { app, isFetching } = appDetail || defaultServices
+  const { app, isFetching } = appDetail || defaultApp
   return {
     cluster: cluster.clusterID,
     bindingDomains: state.entities.current.cluster.bindingDomains,

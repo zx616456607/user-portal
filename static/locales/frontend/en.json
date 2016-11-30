@@ -383,6 +383,7 @@
   "CICD.Tenxflow.TenxFlowDetailFlowCard.restartBtn": "Restart",
   "CICD.Tenxflow.TenxFlowDetailFlowCard.editBtn": "Edit",
   "CICD.Tenxflow.TenxFlowDetailFlowCard.deleteBtn": "Delete",
+  "CICD.Tenxflow.TenxFlowDetailFlowCard.didNotDelete": "只能从最后一个开始删除哦",
   "CICD.Tenxflow.TenxFlowDetailFlow.title": "Deploy Log",
   "CICD.Tenxflow.TenxFlowDetailFlow.tooltip": "TenxFlow流程定义，这里您可以定义一系列构建所需要的项目执行过程，可以是代码构建，亦或是开发自测，也可以是自动化集成、并实现自动化部署的一个All-In-One Platform",
   "CICD.Tenxflow.TenxFlowDetailFlow.add": "Add New Flow",

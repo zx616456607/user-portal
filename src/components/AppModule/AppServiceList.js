@@ -1386,7 +1386,8 @@ function mapStateToProps(state, props) {
     isFetching: false,
     cluster: cluster.clusterID,
     appName,
-    serviceList: []
+    serviceList: [],
+    total: 0
   }
   const {
     serviceItems
