@@ -15,7 +15,7 @@ import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import './style/TenxFlowStageBuildLog.less'
-import WebSocket from '../../Websocket/socketIo'
+import WebSocket from '../../Websocket/socketIO'
 import { changeCiFlowStatus } from '../../../actions/cicd_flow'
 
 
@@ -25,7 +25,7 @@ function formatLog(log) {
   let showLogs = newLog.map((item, index) => {
     return (
       <div className='stageBuildLogDetail' key={ 'stageBuildLogDetail' + index }>
-        <span><pre>{item}</pre></span>
+        <span><pre dangerouslySetInnerHTML={{__html:item}}></pre></span>
       </div>
     )
   });
@@ -43,10 +43,10 @@ class TenxFlowStageBuildLog extends Component {
   }
   componentWillMount() {
     const { status, buildId, stageId} = this.props.logInfo
-    const { flowId } = this.props
+    const { flowId, loginUser } = this.props
     if(status == 2) {
       this.setState({
-        websocket: <WebSocket url='192.168.0.43:8090' protocol='http' onSetup={(socket) =>this.onSetup(socket)}/>,
+        websocket: <WebSocket url={loginUser.info.cicdApi.host} protocol={loginUser.info.cicdApi.protocol} onSetup={(socket) =>this.onSetup(socket)}/>,
       })
     }
   }
@@ -54,18 +54,13 @@ class TenxFlowStageBuildLog extends Component {
     const logInfo = this.props.logInfo
     const self = this
    
-    let newLogs = []
     socket.emit("ciLogs", {flowId: this.props.flowId, stageId: logInfo.stageId, stageBuildId: logInfo.buildId })
-    socket.on("ciLogs", function(data) {
-      newLogs.push(data.toString())
-      if(newLogs.length >= 3 ) {
-        let oldLogs = self.state.logs
-          self.setState({
-          logs: oldLogs + newLogs.join('')
-         })
-         newLogs = []
-        }
+    socket.on("ciLogs", function (data) {
+      let oldLogs = self.state.logs
+      self.setState({
+        logs: oldLogs + data.toString()
       })
+    })
     socket.on("ciLogs-ended", function(data) {
       self.props.changeCiFlowStatus(self.props.index, data.state, self.state.logs)
     })
@@ -80,7 +75,7 @@ class TenxFlowStageBuildLog extends Component {
         </div>
       )
     }
-    if(!Boolean(logs) && !this.state.logs) {
+    if(!Boolean(logs) && !this.state.websocket) {
       return (
         <div className='loadingBox'>
           <span>暂无日志</span>
@@ -103,8 +98,8 @@ class TenxFlowStageBuildLog extends Component {
 }
 
 function mapStateToProps(state, props) {
-  
   return {
+    loginUser: state.entities.loginUser
   }
 }
 

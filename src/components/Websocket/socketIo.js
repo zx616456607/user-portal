@@ -15,16 +15,10 @@ class Websocket extends Component {
   constructor(props) {
     super(props)
   }
-  logging(logline) {
-    if (this.props.debug === true) {
-      console.log(logline)
-    }
-  }
 
   setupWebsocket() {
     const { url, protocol } = this.props
-    console.log(url + protocol)
-    let ws = io.connect(url, {
+    let ws = io(url, {
         transports: ['websocket']
     })
     this.setState({

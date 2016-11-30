@@ -178,13 +178,17 @@ let MyComponent = React.createClass({
     const { getFlowBuildStageLogs } = scope.props;
     if (e.length > 0) {
       let index = e[e.length - 1].replace('LogDetail', '');
+      if(config[index].status == 2) {
+        scope.setState({
+          currentLogList: config
+        })
+        return
+      }
       config[index].isFetching = true;
       scope.setState({
         currentLogList: config
       })
-      if(config[index].status == 2) {
-        return
-      }
+
       getFlowBuildStageLogs(flowId, config[index].stageId, config[index].buildId, {
         success: {
           func: (res) => {
