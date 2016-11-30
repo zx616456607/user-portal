@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Input, Form, Radio, Modal, Select, Spin, Alert, Icon, message } from 'antd'
+import { Button, Input, Form, Radio, Modal, Select, Spin, Alert, Icon, message ,Popover} from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -231,25 +231,35 @@ let AutoDeployService = React.createClass({
     })
     const self = this
     const { loadAppList} = this.props
+    const imageName = this.state.image_name
     loadAppList(e, { size: 50 }, {
       success: {
         func: (res) => {
           let deployment_id = ''
+          let provinceData = []
+          provinceData.push({
+            imagename:'',
+            bindId:''
+          })
           if (res.data.length > 0) {
-            provinceData = []
             res.data.forEach((item) => {
               if (item.services.length > 0) {
-                provinceData.push(item.services[0].metadata.name)
+                if (item.services[0].spec.template.spec.containers[0].image.indexOf(imageName) > 0) {
+                  provinceData.push({
+                    imagename: item.services[0].metadata.name,
+                    bindId: item.services[0].metadata.uid
+                  })
+                }
               }
             })
+
             deployment_id = res.data[0].services[0].metadata.uid
-          } else {
-            provinceData = ['']
           }
+          // console.log(provinceData)
           self.setState({
-            serviceList: res.data,
+            serviceList: provinceData,
             deployment_id,
-            deployment_name: provinceData[0]
+            deployment_name: provinceData[1].imagename
           })
 
         }
@@ -352,46 +362,51 @@ let AutoDeployService = React.createClass({
         <div> </div>
       )
     }
+    const content = (
+      <a>
+        <div onClick={this.hide}>去部署服务</div>
+      </a>
+    );
     const {clusterList, cdImageList} = this.props
 
     const imageOptions = cdImageList.map(item => <Option key={item}>{item}</Option>)
     const clusterOptions = clusterList.map(list => <Option key={list.clusterID}>{list.clusterName}</Option>)
     const appListOptions = []
-    this.state.serviceList.forEach((item) => {
-      if (item.services.length > 0) {
-        appListOptions.push(<Option key={item.services[0].metadata.name + '&@' + item.services[0].metadata.uid}>{item.services[0].metadata.name}</Option>)
-      }
-    })
+    if (this.state.serviceList.length > 0) {
+      this.state.serviceList.slice(1).forEach((item) => {
+          appListOptions.push(<Option key={item.imagename + '&@' + item.bindId}>{item.imagename}</Option>)
+      })
+    }
 
     let items = cdRulesList.map((item, index) => {
       // let items = getFieldValue('rulesList').map((i= i-1) => {
       const tagSelect = getFieldProps('tagSelect' + item.ruleId, {
         rules: [
-          { required: true, message: "请输入镜像版本" }
+          { required: true, message: "请选择镜像版本" }
         ],
         initialValue: item.matchTag == 1 ? '匹配版本' : '不匹配版本',
       });
       const imageSelect = getFieldProps('imageSelect' + item.ruleId, {
         rules: [
-          { required: true, message: "请输入镜像名称" }
+          { required: true, message: "请选择镜像名称" }
         ],
         initialValue: item.imageName
       });
       const clusterSelect = getFieldProps('cluster' + item.ruleId, {
         rules: [
-          { required: true, message: "请输入集群" }
+          { required: true, message: "请选择集群" }
         ],
         initialValue: item.bindingClusterId
       });
       const serviceNameSelect = getFieldProps('bindDeploymentName' + item.ruleId, {
         rules: [
-          { required: true, message: "请输入服务名称" }
+          { required: true, message: "请选择服务名称" }
         ],
         initialValue: item.bindingDeploymentName
       });
       const serviceIdSelect = getFieldProps('bindDeploymentId' + item.ruleId, {
         rules: [
-          { required: true, message: "请输入服务Id" }
+          { required: true, message: "请选择服务名称" }
         ],
         initialValue: item.bindingDeploymentId
       });
@@ -527,9 +542,15 @@ let AutoDeployService = React.createClass({
                       </Select>
                     </div>
                     <div key='appname' className='service commonItem'>
-                      <Select size="large" value={this.state.deployment_name} disabled={this.state.cluster_id ? false : true} onChange={(e) => this.setStateService(e)} placeholder="服务名称" >
+                      {this.state.deployment_name =='' ?
+                       <Popover content={content} placement="top" title="部署服务？" trigger="click">
+                        <Input size="large" value=""/>
+                      </Popover>
+                      :
+                      [<Select size="large" value={this.state.deployment_name} disabled={this.state.cluster_id ? false : true} onChange={(e) => this.setStateService(e)} placeholder="服务名称" >
                         {appListOptions}
-                      </Select>
+                      </Select>]
+                    }
                     </div>
                     <div className='tag commonItem'>
                       <Select size="large" onChange={(e) => this.setStateValue('match_tag', e)} placeholder="输入镜像版本" >

@@ -80,16 +80,14 @@ function checkStatusSpan(status, scope) {
   switch(status) {
     case 0:
       return formatMessage(menusText.normal);
-      break;
     case 1:
       return formatMessage(menusText.fail);
-      break;
     case 2:
       return formatMessage(menusText.running);
-      break;
     case 3:
       return formatMessage(menusText.wait);
-      break;
+    default: 
+      return formatMessage(menusText.normal);
   }
 }
 
@@ -98,16 +96,12 @@ function checkStatusClass(status) {
   switch(status) {
     case 0:
       return 'normal';
-      break;
     case 1:
       return 'fail';
-      break;
     case 2:
       return 'runing';
-      break;
     case 3:
       return 'wait';
-      break;
   }
 }
 
@@ -160,6 +154,13 @@ let MyComponent = React.createClass({
       return (
         <div className='loadingBox'>
           <Spin size='large' />
+        </div>
+      )
+    }
+    if (!config || config.length <1) {
+      return (
+        <div className='LogDetail'>
+        目前还没有任何构建记录
         </div>
       )
     }

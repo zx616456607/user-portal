@@ -17,55 +17,54 @@ import { connect } from 'react-redux'
 import { loadClusterInfo } from '../../../actions/overview_cluster'
 import ProgressBox from '../../ProgressBox'
 
-let restValue = '12366'
-let costValue = '45666'
-
-let clusterCostOption = {
-  tooltip : {
-    trigger: 'item',
-    formatter: "{b} : {c}<br/> ({d}%)"
-  },
-  legend: {
-    orient : 'vertical',
-    left : '50%',
-    top : '30%',
-    data:[{name:'余额'}, {name:'消费'}],
-    formatter: function (name) {
-      if(name === '余额'){
-        return name + ': ' + restValue + 'T币'
-      } else {
-        return name + ': ' + costValue + 'T币'
-      }
+function getClusterCostOption(costValue, restValue) {
+  return {
+    tooltip : {
+      trigger: 'item',
+      formatter: "{b} : {c}<br/> ({d}%)"
     },
-    textStyle: {
-      fontSize: 14,
+    legend: {
+      orient : 'vertical',
+      left : '50%',
+      top : '30%',
+      data:[{name:'余额'}, {name:'消费'}],
+      formatter: function (name) {
+        if(name === '余额'){
+          return name + ': ' + restValue + 'T币'
+        } else {
+          return name + ': ' + costValue + 'T币'
+        }
+      },
+      textStyle: {
+        fontSize: 14,
+      },
+      itemGap: 15,
+      itemWidth: 10,
+      itemHeight: 10,
     },
-    itemGap: 15,
-    itemWidth: 10,
-    itemHeight: 10,
-  },
-  color: ['#46b2fa', '#f6565e'],
-  series : [
-    {
-      name:'',
-      type:'pie',
-      selectedMode: 'single',
-      radius : '40%',
-      center: ['30%', '50%'],
-      data:[
-        {value:900, name:'余额'},
-        {value:100, name:'消费',selected:true},
-      ],
-      itemStyle: {
-        normal: {
-          borderWidth: 0.5,
-          borderColor: '#ffffff'
-        },
-        emphasis: {
+    color: ['#46b2fa', '#f6565e'],
+    series : [
+      {
+        name:'',
+        type:'pie',
+        selectedMode: 'single',
+        radius : '40%',
+        center: ['30%', '50%'],
+        data:[
+          {value:900, name:'余额'},
+          {value:100, name:'消费',selected:true},
+        ],
+        itemStyle: {
+          normal: {
+            borderWidth: 0.5,
+            borderColor: '#ffffff'
+          },
+          emphasis: {
+          }
         }
       }
-    }
-  ]
+    ]
+  }
 }
 
 let SvcState = React.createClass({
@@ -200,7 +199,7 @@ class Ordinary extends Component{
     )
   }*/
   render(){
-    const {clusterOperations, clusterSysinfo, clusterStorage, clusterAppStatus, clusterNodeSummary,clusterDbServices,spaceName,clusterName} = this.props
+    const {clusterOperations, clusterSysinfo, clusterStorage, clusterAppStatus, clusterNodeSummary,clusterDbServices,spaceName,clusterName,clusterNodeSpaceConsumption} = this.props
     let boxPos = 0
     if ((clusterStorage.freeSize + clusterStorage.usedSize) > 0) {
       boxPos = (clusterStorage.usedSize/(clusterStorage.freeSize + clusterStorage.usedSize)).toFixed(3)
@@ -737,7 +736,7 @@ class Ordinary extends Component{
             <Card title="本日该集群消费" bordered={false} bodyStyle={{height:220,padding:'0 24px'}}>
               <ReactEcharts
                 notMerge={true}
-                option={clusterCostOption}
+                option={getClusterCostOption(clusterNodeSpaceConsumption.consumption/100, clusterNodeSpaceConsumption.balance/100)}
                 style={{height:'200px'}}
               />
             </Card>
@@ -1318,6 +1317,10 @@ function mapStateToProp(state,props) {
     memory: [],
     storage: [],
   }
+  let clusterNodeSpaceConsumption = {
+    balance: 0,
+    consumption: 0,
+  }
 
   const {clusterOperations, clusterSysinfo, clusterStorage,
     clusterAppStatus, clusterDbServices, clusterNodeSummary, clusterInfo} = state.overviewCluster
@@ -1429,6 +1432,10 @@ function mapStateToProp(state,props) {
     if (clusterInfo.result.nodesummary) {
       clusterNodeSummaryData = clusterInfo.result.nodesummary
     }
+    if (clusterInfo.result.spaceconsumption) {
+      clusterNodeSpaceConsumption.balance = clusterInfo.result.spaceconsumption.balance
+      clusterNodeSpaceConsumption.consumption = clusterInfo.result.spaceconsumption.consumption
+    }
   }
   return {
     current,
@@ -1438,6 +1445,7 @@ function mapStateToProp(state,props) {
     clusterAppStatus: clusterAppStatusData,
     clusterDbServices: clusterDbServicesData,
     clusterNodeSummary: clusterNodeSummaryData,
+    clusterNodeSpaceConsumption: clusterNodeSpaceConsumption,
   }
 }
 
