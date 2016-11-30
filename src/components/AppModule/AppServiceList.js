@@ -1194,10 +1194,6 @@ class AppServiceList extends Component {
               <i className="fa fa-plus"></i>
               添加服务
             </Button>
-            <Button size="large" onClick={() => this.loadServices(this.props)} >
-              <i className="fa fa-refresh"></i>
-              刷新
-            </Button>
             <Button size="large" onClick={this.batchStartService} disabled={!runBtn}>
               <i className="fa fa-play"></i>
               启动
@@ -1215,6 +1211,10 @@ class AppServiceList extends Component {
             <Button size="large" onClick={this.batchStopService} disabled={!stopBtn}>
               <i className="fa fa-stop"></i>
               停止
+            </Button>
+            <Button size="large" onClick={() => this.loadServices(this.props)} >
+              <i className="fa fa-refresh"></i>
+              刷新
             </Button>
             <Modal title="停止操作" visible={this.state.StopServiceModal}
               onOk={this.handleStopServiceOk} onCancel={this.handleStopServiceCancel}
