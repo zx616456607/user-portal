@@ -18,7 +18,7 @@ import { injectIntl, defineMessages } from 'react-intl'
 const messages = defineMessages({
   ContainerAbnormalMsg: {
     id: 'TenxStatus.ContainerAbnormalMsg',
-    defaultMessage: '已重启{restartCount}次',
+    defaultMessage: '已重启 {restartCount} 次',
   }
 })
 

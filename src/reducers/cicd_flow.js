@@ -680,6 +680,13 @@ function getStageBuildLogList(state = {}, action) {
       return merge({}, defaultState, state, {
         isFetching: false
       })
+    case ActionTypes.CHANGE_CI_FLOW_STATUS: {
+      const cloneStats = cloneDeep(state)
+      const {index, status, log} = action.body
+      cloneStats.logs[index].status = status
+      cloneStats.logs[index].logInfo = log
+      return cloneStats
+    }
     default:
       return state
   }
@@ -725,6 +732,7 @@ function availableImage(state ={}, action) {
       return state
   }
 }
+
 
 export default function cicd_flow(state = {}, action) {
   return {
