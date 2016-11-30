@@ -4,32 +4,21 @@
 	 viewBox="0 0 40 40" style="enable-background:new 0 0 40 40;" xml:space="preserve">
 <style type="text/css">
 	.st0{fill:#2CA2F3;}
-	.st1{fill:#C8E8FC;}
-	.st2{fill:#ECF7FD;}
 </style>
-<g id="XMLID_119_">
-	<ellipse id="XMLID_111_" class="st0" cx="7.2" cy="30.8" rx="7.1" ry="7.5"/>
-	<ellipse id="XMLID_118_" class="st0" cx="13.1" cy="22" rx="7.1" ry="7.5"/>
-	<ellipse id="XMLID_116_" class="st0" cx="24.1" cy="22.5" rx="11" ry="11.6"/>
-	<ellipse id="XMLID_121_" class="st0" cx="32.7" cy="30.6" rx="7.2" ry="7.7"/>
-	<rect id="XMLID_123_" x="7.2" y="26.1" class="st0" width="25.3" height="12.2"/>
-</g>
-<g id="XMLID_16_">
-	<g id="XMLID_76_">
-		<g id="XMLID_82_">
-			<ellipse id="XMLID_83_" class="st1" cx="8.9" cy="30.4" rx="6.1" ry="6.6"/>
-		</g>
-		<g id="XMLID_80_">
-			<ellipse id="XMLID_81_" class="st1" cx="14" cy="22.7" rx="6.1" ry="6.6"/>
-		</g>
-		<ellipse id="XMLID_79_" class="st1" cx="23.6" cy="23.2" rx="9.5" ry="10.2"/>
-		<ellipse id="XMLID_78_" class="st1" cx="31" cy="30.3" rx="6.3" ry="6.7"/>
-		<rect id="XMLID_77_" x="8.9" y="26.3" class="st1" width="21.9" height="10.7"/>
+<g>
+	<g>
+		<path class="st0" d="M35.1,23.1c0-0.3,0-0.6,0-0.8c0-4.2-2.2-7.9-5.4-10v2.9c2.1,1.9,3.4,4.7,3.4,7.8c0,0.3,0,0.5,0,0.8
+			c2.5,0.9,4.2,3.4,4.2,6.3c0,3.7-2.8,6.7-6.3,6.7c-0.1,0-0.1,0-0.2,0v0H8.9c-3.4,0-6.1-3-6.1-6.6c0-3.3,2.3-6.1,5.2-6.5
+			c-0.1-0.4-0.1-0.8-0.1-1.2c0-2.3,1.1-4.4,2.8-5.6v-2.2C8,15.8,6,18.5,6,21.8c0,0.5,0,0.9,0.1,1.4c-3.4,0.5-6,3.6-6,7.4
+			c0,4.1,3.2,7.5,7.1,7.5h25.3v0c0.1,0,0.1,0,0.2,0c4,0,7.2-3.4,7.2-7.7C39.9,27,37.9,24.2,35.1,23.1z"/>
 	</g>
 </g>
-<path id="XMLID_155_" class="st0" d="M28.3,38.1h-17c-0.5,0-1-0.4-1-1V4.9c0-0.5,0.4-1,1-1h17c0.5,0,1,0.4,1,1v32.3
-	C29.3,37.7,28.8,38.1,28.3,38.1z"/>
-<rect id="XMLID_109_" x="12.4" y="6.4" class="st2" width="14.8" height="29.8"/>
+<g>
+	<g>
+		<path class="st0" d="M28.7,3.9h-17c-0.6,0-1,0.5-1,1v32.2c0,0.6,0.5,1,1,1h17c0.5,0,1-0.4,1-0.9V4.9C29.7,4.3,29.2,3.9,28.7,3.9z
+			 M27.6,36.2H12.8V6.4h14.8V36.2z"/>
+	</g>
+</g>
 <rect id="XMLID_137_" x="15" y="10.7" class="st0" width="9.6" height="1.6"/>
 <rect id="XMLID_140_" x="15" y="15.6" class="st0" width="9.6" height="1.6"/>
 </svg>

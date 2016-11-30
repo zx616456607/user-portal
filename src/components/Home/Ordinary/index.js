@@ -263,6 +263,7 @@ class Ordinary extends Component{
       clusterNodeSummary.storage.map((item,index) => {
         let name = item.name.replace(/192.168./,'')
         diskNameArr.push(name.substring(0, 7))
+        // diskNameArr.push(item.name)
         diskUsedArr.push((item.used))
       })
     } else {
@@ -272,7 +273,6 @@ class Ordinary extends Component{
     //数据库与缓存
     //MySQL
     const mysqlData = clusterDbServices.get('mysql')
-    console.log('clusterDbServices',clusterDbServices);
     let mySQLRunning = 0
     let mySQLStopped = 0
     let mySQLOthers = 0
@@ -702,6 +702,7 @@ class Ordinary extends Component{
           },
           axisLabel: {
             "interval": 0,
+            // rotate: 45,
           },
         }
       ],
@@ -1107,7 +1108,9 @@ class Ordinary extends Component{
             </Card>
           </Col>
           <Col span={18} className="hostState">
-            <Card title="计算资源使用率" bordered={false} bodyStyle={{height:200,padding:'0 24px'}}>
+            <Card title={
+              <span>计算资源使用率&nbsp;&nbsp;注: 显示使用率前三的节点</span>
+            } bordered={false} bodyStyle={{height:200,padding:'0 24px'}}>
               <Row gutter={16} style={{height:200}}>
                 <Col span={6}>
                   <ReactEcharts

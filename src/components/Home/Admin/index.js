@@ -172,7 +172,7 @@ class Admin extends Component{
                 <Col span={12} className='tab'>
                   <div className='tabCell'>
                     <svg className="teamInfSvg" style={{margin:'0 5px'}}>
-                      <use xlinkHref="#homelayout" />
+                      <use xlinkHref="#homelayoutCount" />
                     </svg>
                     编排数
                   </div>
