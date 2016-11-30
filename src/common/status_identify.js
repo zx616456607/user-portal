@@ -9,16 +9,29 @@
  * @author Zhangpc
  */
 import { TENX_MARK } from '../constants'
-
+const CONTAINER_MAX_RESTART_COUNT = 5
 /**
  * Get container status
- * return one of [Pending, Running, Terminating, Failed, Unknown]
+ * return one of [Pending, Running, Terminating, Failed, Unknown, Abnormal]
  */
 export function getContainerStatus(container) {
   const { status, metadata } = container
   const { deletionTimestamp } = metadata
   if (deletionTimestamp) {
     status.phase = 'Terminating'
+  }
+  const { containerStatuses } = status
+  let restartCount = 0
+  containerStatuses.map(containerStatus => {
+    // const { ready } = containerStatus
+    const containerRestartCount = containerStatus.restartCount
+    if (containerRestartCount > restartCount) {
+      restartCount = containerRestartCount
+    }
+  })
+  if (restartCount >= CONTAINER_MAX_RESTART_COUNT) {
+    status.phase = 'Abnormal'
+    status.restartCount = restartCount
   }
   return status
 }
@@ -28,14 +41,18 @@ export function getContainerStatus(container) {
  * return one of [Pending, Running, Deploying, Stopped]
  */
 export function getServiceStatus(service) {
-  let { status, metadata } = service
+  const { status, metadata } = service
+  const replicas = service.spec.replicas || metadata.annotations[`${TENX_MARK}/replicas`]
   let availableReplicas = 0
   if (!status) {
-    status = {}
+    return {
+      phase: 'Stopped',
+      availableReplicas: 0,
+      replicas
+    }
   }
-  if (status) {
-    availableReplicas = status.availableReplicas || 0
-  }
+  availableReplicas = status.availableReplicas || 0
+  status.availableReplicas = availableReplicas
   let {
     phase,
     updatedReplicas,
@@ -45,7 +62,6 @@ export function getServiceStatus(service) {
   if (!metadata.annotations) {
     metadata.annotations = {}
   }
-  const replicas = service.spec.replicas || metadata.annotations[`${TENX_MARK}/replicas`]
   status.replicas = replicas
   if (!phase) {
     if (unavailableReplicas > 0 && (!availableReplicas || availableReplicas < replicas)) {

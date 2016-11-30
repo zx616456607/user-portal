@@ -50,6 +50,7 @@ class AppServiceDetail extends Component {
     this.stopService = this.stopService.bind(this)
     this.closeTerminalLayoutModal = this.closeTerminalLayoutModal.bind(this)
     this.openTerminalModal = this.openTerminalModal.bind(this)
+    this.handleMenuShow = this.handleMenuShow.bind(this)
     this.state = {
       activeTabKey: props.selectTab || DEFAULT_TAB,
       TerminalLayoutModal: false,
@@ -135,27 +136,27 @@ class AppServiceDetail extends Component {
   restartService(service) {
     const { funcs, scope} = this.props
     const _self = this
-    funcs.batchRestartService(true)
+    funcs.batchRestartService()
     // funcs.handleRestarServiceOk([service], _self
-      /*{
-      success: {
-        func: () => {
-          console.log('handleRestarServiceOk callback');
-          self.loadData()
-          self.setState({
-            activeTabKey: DEFAULT_TAB
-          })
-        },
-        isAsync: true
-      }
-    }*/
+    /*{
+    success: {
+      func: () => {
+        console.log('handleRestarServiceOk callback');
+        self.loadData()
+        self.setState({
+          activeTabKey: DEFAULT_TAB
+        })
+      },
+      isAsync: true
+    }
+  }*/
     // )
   }
 
   stopService(service) {
     const { funcs } = this.props
     const self = this
-    funcs.confirmStopServices([service], {
+    /*funcs.confirmStopServices([service], {
       success: {
         func: () => {
           self.loadData()
@@ -165,7 +166,9 @@ class AppServiceDetail extends Component {
         },
         isAsync: true
       }
-    })
+    })*/
+    console.log('funcs',funcs);
+    funcs.batchStopService()
   }
 
   delteService(service) {
@@ -173,7 +176,16 @@ class AppServiceDetail extends Component {
     const self = this
     funcs.confirmDeleteServices([service])
   }
-
+  handleMenuShow(){
+    const { scope } = this.props
+    const service = scope.state.currentShowInstance
+    if(service.status){
+      if(service.status.phase === 'Stopped'){
+        return true
+      }
+    }
+    return false
+  }
   render() {
     const parentScope = this
     const {
@@ -187,20 +199,16 @@ class AppServiceDetail extends Component {
     } = this.props
     const { activeTabKey } = this.state
     const service = scope.state.currentShowInstance
+    console.log('currentShowInstance   :',service);
     const operaMenu = (<Menu>
-      <Menu.Item key="0">
+      <Menu.Item key="0" disabled={this.handleMenuShow()}>
         <span onClick={() => this.restartService(service)}>重新部署</span>
       </Menu.Item>
-      <Menu.Item key="1">
+      <Menu.Item key="1" disabled={this.handleMenuShow()}>
         <span onClick={() => this.stopService(service)}>停止</span>
       </Menu.Item>
       <Menu.Item key="2">
         <span onClick={() => this.delteService(service)}>删除</span>
-      </Menu.Item>
-      <Menu.Item key="3">
-        <Link to={`/app_manage/detail/${appName}#stack`} onClick={this.closeModal} >
-          查看编排
-        </Link>
       </Menu.Item>
     </Menu>);
     const svcDomain = parseServiceDomain(service, this.props.bindingDomains)
@@ -225,9 +233,11 @@ class AppServiceDetail extends Component {
             <div className="leftBox">
               <span>
                 运行状态&nbsp;:&nbsp;
-                <ServiceStatus
-                  smart={true}
-                  service={service} />
+                <span style={{position:'relative',top:'-5px'}}>
+                  <ServiceStatus
+                    smart={true}
+                    service={service} />
+                </span>
               </span>
               <br />
               <span>

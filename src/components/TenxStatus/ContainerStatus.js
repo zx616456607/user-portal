@@ -13,6 +13,14 @@
 import React, { Component, PropTypes } from 'react'
 import TenxStatus from './'
 import { getContainerStatus } from '../../common/status_identify'
+import { injectIntl, defineMessages } from 'react-intl'
+
+const messages = defineMessages({
+  ContainerAbnormalMsg: {
+    id: 'TenxStatus.ContainerAbnormalMsg',
+    defaultMessage: '已重启{restartCount}次',
+  }
+})
 
 class ContainerStatus extends Component {
   constructor(props) {
@@ -20,17 +28,21 @@ class ContainerStatus extends Component {
   }
 
   render() {
-    const { container, smart } = this.props
+    const { container, smart, intl } = this.props
+    const { formatMessage } = intl
     const { metadata } = container
-    const { creationTimestamp, deletionTimestamp } = metadata
-    let { phase, progress } = getContainerStatus(container)
-    if (deletionTimestamp) {
-      phase = 'Terminating'
+    const { creationTimestamp } = metadata
+    const status = getContainerStatus(container)
+    let { phase, progress, restartCount } = getContainerStatus(container)
+    if (phase === 'Abnormal') {
+      status.abnormalText = `${formatMessage(messages.ContainerAbnormalMsg, { restartCount })}`
     }
+    status.disableReplicasElement = true
     return (
       <TenxStatus
         phase={phase}
         progress={progress}
+        status={status}
         creationTimestamp={creationTimestamp}
         smart={smart} />
     )
@@ -39,10 +51,9 @@ class ContainerStatus extends Component {
 
 ContainerStatus.propTypes = {
   container: PropTypes.object.isRequired,
-  // status: PropTypes.object.isRequired,
-  // creationTimestamp: PropTypes.string,
-  // deletionTimestamp: PropTypes.string,
   smart: PropTypes.bool,
 }
 
-export default ContainerStatus
+export default injectIntl(ContainerStatus, {
+  withRef: true,
+})

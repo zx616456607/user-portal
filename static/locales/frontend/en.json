@@ -68,11 +68,13 @@
   "TenxStatus.Succeeded": "Succeeded",
   "TenxStatus.Stopped": "Stopped",
   "TenxStatus.Running": "Running",
+  "TenxStatus.Abnormal": "Abnormal",
   "TenxStatus.RunningMsg": "Running for",
   "TenxStatus.SectionRunningMsg": "Section running",
   "TenxStatus.AllRunningMsg": "All running",
   "TenxStatus.StoppedMsg": "All stopped",
   "TenxStatus.AppReplicasMsg": "A total of {total} service",
+  "TenxStatus.ContainerAbnormalMsg": "Restarted {restartCount} times",
   "this.is.an.commnent": "/-------------------App Center交付中心------------------/",
   "AppCenter.ImageCenter.ImageSpace.search": "Search",
   "AppCenter.ImageCenter.ImageSpace.publicType": "Public",
@@ -550,5 +552,5 @@
   "Integration.VSphereDetail.used": "已使用：",
   "Integration.VSphereDetail.idle": "空闲：",
   "Integration.VSphereDetail.vgNum": "硬盘总数：",
-  "Integration.VSphereDetail.using": "可用硬盘："  
+  "Integration.VSphereDetail.using": "可用硬盘："
 }
