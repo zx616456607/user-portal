@@ -88,14 +88,12 @@ let SvnComponent = React.createClass({
         "repo_type": parentScope.repokey,
         "address": values.address,
         "is_private": values.type ? 0 : 1
-        // "username": "wanglei2016",
-        // "password": "zaq11qaz"
       }
       if (!values.type) {
         config.username = values.username
         config.password = values.password
       }
-      if (config.address.indexOf('http:') < 0 || config.address.indexOf('https:') < 0) {
+      if (config.address.indexOf('http') == -1) {
         Modal.warning({
           title: '地址输入有误',
           content: '地址以http:// 或者 https:// 开头'

@@ -13,7 +13,7 @@ import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { getTenxFlowList, deleteTenxFlowSingle, getTenxflowBuildLastLogs } from '../../../actions/cicd_flow'
+import { getTenxFlowList, deleteTenxFlowSingle, getTenxflowBuildLastLogs ,CreateTenxflowBuild} from '../../../actions/cicd_flow'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import CreateTenxFlow from './CreateTenxFlow.js'
 import TenxFlowBuildLog from './TenxFlowBuildLog'
@@ -60,10 +60,6 @@ const menusText = defineMessages({
     id: 'CICD.Tenxflow.TenxFlowList.deloyStart',
     defaultMessage: '立即构建',
   },
-  checkImage: {
-    id: 'CICD.Tenxflow.TenxFlowList.checkImage',
-    defaultMessage: '查看镜像',
-  },
   delete: {
     id: 'CICD.Tenxflow.TenxFlowList.delete',
     defaultMessage: '删除TenxFlow',
@@ -93,16 +89,19 @@ let MyComponent = React.createClass({
     let { flowId } = item;
     const { scope } = this.props;
     const { deleteTenxFlowSingle, getTenxFlowList } = scope.props;
-    switch(key) {
-      case 'deleteFlow':
+    Modal.confirm({
+      title: '您是否确认要删除这项内容',
+      content: (<h3>{item.name}</h3>),
+      onOk() {
         deleteTenxFlowSingle(flowId, {
           success: {
             func: () => getTenxFlowList(),
             isAsync: true
           }
         })
-        break;
-    }
+      }
+    });
+    
   },
   showDeloyLog: function (item, e) {
     //this function for show user the deploy log of the tenxflow
@@ -111,20 +110,40 @@ let MyComponent = React.createClass({
       TenxFlowDeployLogModal: true
     });
   },
+  starFlowBuild(flowId) {
+    const {CreateTenxflowBuild } = this.props.scope.props
+    CreateTenxflowBuild(flowId, {}, {
+      success: {
+        func: (res) => {
+          console.log(res)        
+        },
+        isAsync: true
+      },
+      failed: {
+        func: (res)=> {
+          Modal.error({
+            title: '构建失败',
+            content: (res.message.results.message)
+          });
+        }
+      }
+    })
+
+  },
   render: function () {
     const { config, scope, isFetching } = this.props;
-    if(isFetching) {
+    if (isFetching) {
       return (
         <div className='loadingBox'>
           <Spin size='large' />
         </div>
       )
     }
-    let items = config.map((item) => {
+    const items = config.map((item) => {
       let status = ''
-      switch(item.status) {
+      switch (item.status) {
         case 0:
-          status = "成功"
+          status = '成功'
           break;
         case 1:
           status = "失败"
@@ -137,15 +156,9 @@ let MyComponent = React.createClass({
       }
       const dropdown = (
         <Menu onClick={this.operaMenuClick.bind(this, item)}>
-          <Menu.Item key='viewImage'>
-            <i className='fa fa-eye' style={{ float:'left', lineHeight:'32px', marginRight:'7px' }} />&nbsp;
-            <span style={{ float:'left', lineHeight:'32px' }}><FormattedMessage {...menusText.checkImage} /></span>
-            <div style={{ clear:'both' }}></div>
-          </Menu.Item>
           <Menu.Item key='deleteFlow'>
-            <i className='fa fa-trash' style={{ float:'left', lineHeight:'32px', marginRight:'7px' }} />&nbsp;
-            <span style={{ float:'left', lineHeight:'32px' }}><FormattedMessage {...menusText.delete} /></span>
-            <div style={{ clear:'both' }}></div>
+            <i className='fa fa-trash' style={{lineHeight: '20px', marginRight: '5px' }} />&nbsp;
+            <FormattedMessage {...menusText.delete} style={{display:'inlineBlock'}}/>
           </Menu.Item>
         </Menu>
       );
@@ -163,8 +176,8 @@ let MyComponent = React.createClass({
               </Tooltip>
             </span>
           </div>
-          <div className='status'>
-            <span>{status}</span>
+          <div className={`status status-`+`${item.status}`}>
+            <span><i className="fa fa-circle"></i>{status}</span>
           </div>
           <div className='oprea'>
             <Button className='logBtn' size='large' type='primary' onClick={scope.openTenxFlowDeployLogModal.bind(scope, item.flowId)}>
@@ -172,8 +185,10 @@ let MyComponent = React.createClass({
               <FormattedMessage {...menusText.deloyLog} />
             </Button>
             <Dropdown.Button overlay={dropdown} type='ghost' size='large'>
-              <i className='fa fa-pencil-square-o' />&nbsp;
-              <FormattedMessage {...menusText.deloyStart} />
+              <span onClick={()=> this.starFlowBuild(item.flowId)}>
+                <i className='fa fa-pencil-square-o' />&nbsp;
+                <FormattedMessage {...menusText.deloyStart} />
+              </span>
             </Dropdown.Button>
           </div>
         </div>
@@ -273,7 +288,7 @@ class TenxFlowList extends Component {
                 <FormattedMessage {...menusText.opera} />
               </div>
             </div>
-            <MyComponent scope={scope} config={flowList} isFetching={isFetching}  />
+            <MyComponent scope={scope} config={flowList} isFetching={isFetching} />
           </Card>
         </div>
         <Modal
@@ -289,7 +304,7 @@ class TenxFlowList extends Component {
           className='TenxFlowBuildLogModal'
           onCancel={this.closeTenxFlowDeployLogModal}
           >
-          <TenxFlowBuildLog scope={scope} isFetching={buildFetching} logs={logs} flowId={this.state.currentFlowId}/>
+          <TenxFlowBuildLog scope={scope} isFetching={buildFetching} logs={logs} flowId={this.state.currentFlowId} />
         </Modal>
       </QueueAnim>
     )
@@ -297,7 +312,7 @@ class TenxFlowList extends Component {
 }
 
 function mapStateToProps(state, props) {
-  const defaultFlowList= {
+  const defaultFlowList = {
     isFetching: false,
     flowList: [],
   }
@@ -325,7 +340,8 @@ TenxFlowList.propTypes = {
 export default connect(mapStateToProps, {
   getTenxFlowList,
   deleteTenxFlowSingle,
-  getTenxflowBuildLastLogs
+  getTenxflowBuildLastLogs,
+  CreateTenxflowBuild
 })(injectIntl(TenxFlowList, {
   withRef: true,
 }));

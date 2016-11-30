@@ -156,9 +156,28 @@ class CollapseContainer extends Component {
       onOk() {
         self.props.deleteConfigName(groups, {
           success: {
-            func: () => {
-              message.success('删除配置文件成功')
-              self.props.configGroupName(groups)
+            func: (res) => {
+              const errorText =[]
+              if (res.message.length > 0) {
+                res.message.forEach(function(list){
+                  errorText.push({
+                    name: list.name,
+                    text: list.error
+                  })
+                })
+                const content = errorText.map(list => {
+                  return (
+                    <h3>{list.name} ：{list.text}</h3>
+                  )
+                })
+                Modal.error({
+                  title:'删除配置文件失败!',
+                  content
+                })
+              } else {
+                message.success('删除配置文件成功')
+                self.props.configGroupName(groups)
+              }
             },
             isAsync: true
           }

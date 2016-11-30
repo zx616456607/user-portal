@@ -75,6 +75,7 @@ class CollapseList extends Component {
               />
           }
           handChageProp={this.handChageProp}
+          configChecnkBox={this.props.configChecnkBox}
           key={group.name}
           >
           <CollapseContainer
@@ -189,10 +190,29 @@ class Service extends Component {
       onOk() {
         self.props.deleteConfigGroup(configData, {
           success: {
-            func: () => {
-              message.success('删除成功')
+            func: (res) => {
+              const errorText =[]
+              if (res.message.length > 0) {
+                res.message.forEach(function(list){
+                  errorText.push({
+                    name: list.name,
+                    text: list.error
+                  })
+                })
+                const content = errorText.map(list => {
+                  return (
+                    <h3>{list.name} ：{list.text}</h3>
+                  )
+                })
+                Modal.error({
+                  title:'删除配置组失败!',
+                  content
+                })
+              } else {
+                message.success('删除成功')
+              }
               self.setState({
-                configArray: [],
+                configArray: []
               })
             },
             isAsync: true

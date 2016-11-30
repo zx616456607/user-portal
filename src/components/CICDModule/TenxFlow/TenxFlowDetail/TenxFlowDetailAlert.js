@@ -21,6 +21,7 @@ import { browserHistory } from 'react-router';
 const RadioGroup = Radio.Group;
 const createForm = Form.create;
 const FormItem = Form.Item;
+const DefaultEmailAddress = 'service@tenxcloud.com'
 
 const menusText = defineMessages({
   email: {
@@ -63,29 +64,24 @@ const menusText = defineMessages({
 
 function checkEmailType(emailList, scope, type) {
   if(!Boolean(emailList)) {
-    return '';
+    return DefaultEmailAddress;
   }
-  if(emailList.split(',').length > 1) {
-    if(type != 'init') {     
-      scope.setState({
-        emailList: emailList[0]
-      });
-    }
-    return 'others';
-  } else if(emailList[0] == 'service@tenxcloud.com') {
+  if (emailList == DefaultEmailAddress) {
     if(type != 'init') {
       scope.setState({
         emailList: null
       });
     }
-    return 'service@tenxcloud.com';
-  } else {
+    return DefaultEmailAddress;
+  } else if (emailList) {
     if(type != 'init') {
       scope.setState({
-        emailList: emailList[0]
+        emailList: emailList
       });
     }
-    return 'others';
+    return 'others'
+  } else {
+    return ''
   }
 }
 
@@ -98,7 +94,7 @@ let TenxFlowDetailAlert = React.createClass({
       checkSecond: false,
       checkThird: false,
       checkForth: false,
-      emailList: null
+      emailList: ''
     }
   },
   componentWillMount() {
@@ -111,15 +107,21 @@ let TenxFlowDetailAlert = React.createClass({
     this.setState({
       emailAlert: flag
     });
-    if(flag) {      
+    if(flag) {
       const newNotify = JSON.parse( notify );
+      let otherEmail = true;
+      let emailList = newNotify.email_list;
+      if (newNotify.email_list == DefaultEmailAddress){
+        otherEmail = null
+        emailList = ''
+      }
       this.setState({
         checkFirst: newNotify.ci.success_notification,
         checkSecond: newNotify.ci.failed_notification,
         checkThird: newNotify.cd.success_notification,
         checkForth: newNotify.cd.failed_notification,
-        emailList: newNotify.email_list.join(','),
-        otherEmail: true
+        emailList: emailList,
+        otherEmail: otherEmail
       });
     }
   },
@@ -155,13 +157,16 @@ let TenxFlowDetailAlert = React.createClass({
   emailInputCheck(rule, value, callback){
     if(this.state.otherEmail && !!!value){
        callback([new Error('请输入邮件通知地址')]);
-    }else{
-      if(this.state.otherEmail) {        
+    } else {
+      if(this.state.otherEmail) {
+        if (value.indexOf(',', value.length - 1) == -1) {
+          value += ',';
+        }
         let emailList = value.split(',');
         let emailCheck = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
         let flag = true;
         emailList.map((item) => {
-          if( !emailCheck.test(item) ) {
+          if(item.trim() != '' && !emailCheck.test(item) ) {
             flag = false;
             callback([new Error('请输入正确邮件地址')]);
           }
@@ -216,8 +221,14 @@ let TenxFlowDetailAlert = React.createClass({
           }
         });
       } else {
+        let emailList = ''
+        if (this.state.otherEmail) {
+          emailList = values.inputEmail;
+        } else {
+          emailList = DefaultEmailAddress;
+        }
         let temp = {
-          'email_list': values.inputEmail.split(','),
+          'email_list': emailList,
           'ci': {
             'success_notification': values.checkFirst,
             'failed_notification': values.checkSecond
@@ -276,7 +287,7 @@ let TenxFlowDetailAlert = React.createClass({
                 <div className='selectedEmail' key='selectedEmail'>
                   <FormItem>
                     <RadioGroup {...radioEmailProps} >
-                      <Radio key='a' value={'service@tenxcloud.com'}>service@tenxcloud.com</Radio><br />
+                      <Radio key='a' value={DefaultEmailAddress}>{DefaultEmailAddress}</Radio><br />
                       <Radio key='b' value={'others'}><FormattedMessage {...menusText.otherEmail} /></Radio><br />
                     </RadioGroup>
                   </FormItem>
