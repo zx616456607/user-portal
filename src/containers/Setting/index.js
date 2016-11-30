@@ -19,6 +19,10 @@ const menuList = [
     name: '我的信息'
   },
   {
+    url: '/setting/cost',
+    name: '费用中心'
+  },
+  {
     url: '/setting/member',
     name: '成员管理'
   },

@@ -3,13 +3,11 @@
 <svg version="1.1" id="图层_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 40 40" style="enable-background:new 0 0 40 40;" xml:space="preserve">
 <style type="text/css">
-	.st0{fill:#FFFFFF;}
+	.st0{fill:#2CA2F3;}
+	.st1{fill:#E8F5FD;}
 </style>
-<g>
-	<g>
-		<path class="st0" d="M0.5,33.4h14.7V6L0.5,33.4z M12.9,31H4.5l8.4-16.4V31z"/>
-	</g>
-</g>
+<polygon id="XMLID_75_" class="st0" points="0.5,33.4 15.2,6 15.2,33.4 "/>
+<polygon id="XMLID_76_" class="st1" points="4.5,31 12.9,14.6 12.9,31 "/>
 <polygon id="XMLID_87_" class="st0" points="39.5,33.4 24.8,6 24.8,33.4 "/>
 <rect id="XMLID_38_" x="18.2" y="17.3" class="st0" width="3.7" height="3.7"/>
 <rect id="XMLID_78_" x="18.2" y="25.5" class="st0" width="3.7" height="3.7"/>

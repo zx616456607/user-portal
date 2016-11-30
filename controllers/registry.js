@@ -102,7 +102,19 @@ exports.getImageInfo = function* () {
   const tag = this.params.tag
   const loginUser = this.session.loginUser
   const result = yield registryService.getImageInfo(loginUser.user, imageFullName)
-  // this.status = result.code
+  this.body = {
+    server: registryConfig.v2Server,
+    name: imageFullName,
+    data: result
+  }
+}
+
+exports.checkImage = function* () {
+  const registry = this.params.registry
+  const imageFullName = this.params.user + '/' + this.params.name
+  const tag = this.params.tag
+  const loginUser = this.session.loginUser
+  const result = yield registryService.getImageInfo(loginUser.user, imageFullName, true)
   this.body = {
     server: registryConfig.v2Server,
     name: imageFullName,

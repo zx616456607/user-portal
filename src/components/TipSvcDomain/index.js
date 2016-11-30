@@ -95,7 +95,6 @@ class AppTip extends Component {
                     )
                   }
                   if (url.indexOf('http://') !== -1 || url.indexOf('https://') !== -1) {
-                    console.log('url', url);
                     return (
                       <Timeline.Item dot={<div></div>}>
                         <svg className="branchSvg"><use xlinkHref="#branch" /></svg>
@@ -187,7 +186,6 @@ export default class TipSvcDomain extends Component {
       }
     }
     if (appDomain) {
-      // console.log('appDomainappDomain:=-==',appDomain)
       if (appDomain.length === 0) {
         return (
           <div id="TipAppDomain">
@@ -195,6 +193,7 @@ export default class TipSvcDomain extends Component {
           </div>
         )
       } else if (appDomain.length === 1) {
+
         if (appDomain[0].data.length <= 1) {
           if (appDomain[0].data[0].indexOf('http://') === -1 || appDomain[0].data[0].indexOf('https://') === -1) {
             return (

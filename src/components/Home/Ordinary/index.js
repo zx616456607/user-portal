@@ -183,7 +183,6 @@ class Ordinary extends Component{
     }
     if(size < 1024*1024){
       result = this.thousandBitSeparator((size/1024).toFixed(2))
-      console.log('result : ',result);
       return result + 'GB'
     }
     if(size < 1024*1024*1024){
@@ -233,7 +232,6 @@ class Ordinary extends Component{
     //CPU
     let CPUNameArr = []
     let CPUUsedArr = []
-    console.log('clusterNodeSummary.cpu.length',clusterNodeSummary.cpu)
     if(clusterNodeSummary.cpu.length !== 0){
       clusterNodeSummary.cpu.map((item,index) => {
         let name = item.name.replace(/192.168./,'')
@@ -262,16 +260,15 @@ class Ordinary extends Component{
       clusterNodeSummary.storage.map((item,index) => {
         let name = item.name.replace(/192.168./,'')
         diskNameArr.push(name.substring(0, 7))
+        // diskNameArr.push(item.name)
         diskUsedArr.push((item.used))
       })
     } else {
-      console.log('没有数据....没有数据')
       diskUsedArr = ['没有数据']
     }
     //数据库与缓存
     //MySQL
     const mysqlData = clusterDbServices.get('mysql')
-    console.log('clusterDbServices',clusterDbServices);
     let mySQLRunning = 0
     let mySQLStopped = 0
     let mySQLOthers = 0
@@ -701,6 +698,7 @@ class Ordinary extends Component{
           },
           axisLabel: {
             "interval": 0,
+            // rotate: 45,
           },
         }
       ],
@@ -802,7 +800,7 @@ class Ordinary extends Component{
                 <tr>
                   <td>
                     <svg className="stateSvg">
-                      <use xlinkHref="#homeLogging" />
+                      <use xlinkHref="#homelogging" />
                     </svg>
                     Logging
                   </td>
@@ -1106,7 +1104,9 @@ class Ordinary extends Component{
             </Card>
           </Col>
           <Col span={18} className="hostState">
-            <Card title="计算资源使用率" bordered={false} bodyStyle={{height:200,padding:'0 24px'}}>
+            <Card title={
+              <span>计算资源使用率<div style={{width:50,display:'inline-block'}}></div>注: 显示使用率前三的节点</span>
+            } bordered={false} bodyStyle={{height:200,padding:'0 24px'}}>
               <Row gutter={16} style={{height:200}}>
                 <Col span={6}>
                   <ReactEcharts
@@ -1200,22 +1200,6 @@ function getStatus(data) {
        setMap(podMap, status.phase)
      })
   }
-
-  console.log("App Result: ")
-  for (let key of appMap.keys()) {
-    console.log(key, ": ", appMap.get(key))
-  }
-
-  console.log("Service Result: ")
-  for (let key of svcMap.keys()) {
-    console.log(key, ": ", svcMap.get(key))
-  }
-
-  console.log("Pod Result: ")
-  for (let key of podMap.keys()) {
-    console.log(key, ": ", podMap.get(key))
-  }
-
   return {appMap, svcMap, podMap}
 }
 
@@ -1245,14 +1229,6 @@ function getDbServiceStatus(data) {
       }
     }
   })
-
-  for (let [key, map] of dbServiceMap) {
-    console.log(key, " status: ")
-    for (let [status, count] of map) {
-      console.log("---", status, ": ", count)
-    }
-  }
-
   return dbServiceMap
 }
 
