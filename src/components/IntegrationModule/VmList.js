@@ -89,6 +89,10 @@ const menusText = defineMessages({
   poweroffStatus: {
     id: 'Integration.VmList.poweroffStatus',
     defaultMessage: '已关闭',
+  },
+  refresh: {
+    id: 'Integration.VmList.refresh',
+    defaultMessage: '刷新',
   }
 })
 
@@ -131,6 +135,7 @@ class VmList extends Component {
     this.meunClick = this.meunClick.bind(this);
     this.closeCreateVmModal = this.closeCreateVmModal.bind(this);
     this.openCreateVmModal = this.openCreateVmModal.bind(this);
+    this.refreshVmList = this.refreshVmList.bind(this);
     this.state = {
       currentShowApps: 'all',
       currentAppType: '1',
@@ -275,6 +280,12 @@ class VmList extends Component {
     })
   }
   
+  refreshVmList() {
+    //this function for refresh the vm list
+    const { currentDataCenter, getIntegrationVmList, integrationId } = this.props;
+    getIntegrationVmList(integrationId, currentDataCenter);
+  }
+  
   render() {
     const { formatMessage } = this.props.intl;
     const { isFetching, vmList, dataCenters, currentDataCenter, integrationId } = this.props;
@@ -298,8 +309,11 @@ class VmList extends Component {
         <div className='podDetail' key={'podDetail' + index}>
           <div className='ip commonTitle'>
             <span className='commonSpan'>
-              <Tooltip placement='topLeft' title={!!item.ip ? item.ip : null}>
-                <span>{!!item.ip ? item.ip : '-'}</span>
+              <Tooltip placement='topLeft' title={item.name}>
+                <span className='topSpan'>{item.name}</span>
+              </Tooltip>
+              <Tooltip placement='topLeft' title={!!item.ip ? item.ip : '-'}>
+                <span className='bottomSpan'>{!!item.ip ? item.ip : '-'}</span>
               </Tooltip>
             </span>
           </div>
@@ -310,8 +324,8 @@ class VmList extends Component {
           </div>
           <div className='pod commonTitle'>
             <span className='commonSpan'>
-              <Tooltip placement='topLeft' title={item.name}>
-               <span>{item.name}</span>
+              <Tooltip placement='topLeft' title={item.type}>
+               <span>{item.type}</span>
               </Tooltip>
             </span>
           </div>
@@ -370,6 +384,10 @@ class VmList extends Component {
           <Button type='primary' size='large' onClick={this.openCreateVmModal.bind(this)}>
             <i className='fa fa-plus' />&nbsp;
             <FormattedMessage {...menusText.create} />
+          </Button>
+          <Button type='primary' size='large' className='refreshBtn' onClick={this.refreshVmList.bind(this)}>
+            <i className='fa fa-refresh' />&nbsp;
+            <FormattedMessage {...menusText.refresh} />
           </Button>
           <div className='searchBox'>
             <Input type='text' size='large' />

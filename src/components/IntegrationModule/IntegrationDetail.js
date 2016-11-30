@@ -25,7 +25,7 @@ const TabPane = Tabs.TabPane;
 const menusText = defineMessages({
   VSphere: {
     id: 'Integration.IntegrationDetail.VSphere',
-    defaultMessage: 'VSphere面板',
+    defaultMessage: 'vSphere面板',
   },
   vmList: {
     id: 'Integration.IntegrationDetail.vmList',
@@ -37,7 +37,7 @@ const menusText = defineMessages({
   },
   VSphereConfig: {
     id: 'Integration.IntegrationDetail.VSphereConfig',
-    defaultMessage: '配置VSphere',
+    defaultMessage: '配置vSphere',
   },
   back: {
     id: 'Integration.IntegrationDetail.back',

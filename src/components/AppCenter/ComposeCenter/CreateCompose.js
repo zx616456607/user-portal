@@ -30,14 +30,14 @@ class CreateCompose extends Component {
       composeAttr: false,
     }
   }
-  
+
   onChangeAttr(e) {
     //this function for user change the compose attr
     this.setState({
       composeAttr: e
     });
   }
-  
+
   handleReset(e) {
     //this function for user close add other image space modal
     e.preventDefault();
@@ -47,7 +47,7 @@ class CreateCompose extends Component {
       createModalShow: false
     });
   }
-  
+
   handleSubmit(e) {
     //this function for user submit add other image space
     e.preventDefault();
@@ -137,28 +137,28 @@ class CreateCompose extends Component {
       //and should submit the message to the backend
     });
   }
-  
+
   render() {
     const scope = this.props.scope;
     const paretnState = this.props.paretnState
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form;
     const nameProps = getFieldProps('name', {
       rules: [
-        { required: true, message: '请输入用户名' }
+        { required: true, message: '编排名称' }
       ],
       initialValue: paretnState.stackItem.name
     });
     const textareaProps = getFieldProps('textarea', {
       rules: [
-        { required: true, message: '真的不打算写点什么吗？' },
+        { required: true, message: '编排文件' },
       ],
       initialValue: paretnState.stackItemContent
     });
     const descProps = getFieldProps('desc', {
       rules: [
-        {required: true,message: '真的不打算写点什么吗？'},
+        {required: true,message: '描述信息'},
       ],
-      initialValue: paretnState.stackItem.description      
+      initialValue: paretnState.stackItem.description
     });
     const switchProps = getFieldProps('checked', {
       initialValue: paretnState.stackItem.isPublic == 1 ? true : false
@@ -209,7 +209,7 @@ class CreateCompose extends Component {
           </FormItem>
         </div>
         <div style={{ clear:"both" }}></div>
-      </div>      
+      </div>
       </Form>
       <div className="btnBox">
         <Button size="large" onClick={ this.handleReset } style={{ marginRight:"15px" }}>
