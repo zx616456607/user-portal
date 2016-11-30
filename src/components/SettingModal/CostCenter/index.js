@@ -2,7 +2,7 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
- *  Storage list
+ *  CostCenter
  *
  * v0.1 - 2016/11/30
  * @author ZhaoXueYu

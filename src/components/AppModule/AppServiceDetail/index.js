@@ -137,37 +137,11 @@ class AppServiceDetail extends Component {
     const { funcs, scope} = this.props
     const _self = this
     funcs.batchRestartService()
-    // funcs.handleRestarServiceOk([service], _self
-    /*{
-    success: {
-      func: () => {
-        console.log('handleRestarServiceOk callback');
-        self.loadData()
-        self.setState({
-          activeTabKey: DEFAULT_TAB
-        })
-      },
-      isAsync: true
-    }
-  }*/
-    // )
   }
 
   stopService(service) {
     const { funcs } = this.props
     const self = this
-    /*funcs.confirmStopServices([service], {
-      success: {
-        func: () => {
-          self.loadData()
-          self.setState({
-            activeTabKey: DEFAULT_TAB
-          })
-        },
-        isAsync: true
-      }
-    })*/
-    console.log('funcs',funcs);
     funcs.batchStopService()
   }
 
@@ -199,7 +173,6 @@ class AppServiceDetail extends Component {
     } = this.props
     const { activeTabKey } = this.state
     const service = scope.state.currentShowInstance
-    console.log('currentShowInstance   :',service);
     const operaMenu = (<Menu>
       <Menu.Item key="0" disabled={this.handleMenuShow()}>
         <span onClick={() => this.restartService(service)}>重新部署</span>
