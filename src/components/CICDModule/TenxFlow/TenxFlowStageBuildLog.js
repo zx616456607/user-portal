@@ -49,6 +49,9 @@ class TenxFlowStageBuildLog extends Component {
         websocket: <WebSocket url={loginUser.info.cicdApi.host} protocol={loginUser.info.cicdApi.protocol} onSetup={(socket) =>this.onSetup(socket)}/>,
       })
     }
+    this.setState({
+      status: status
+    })
   }
   onSetup(socket) {
     const logInfo = this.props.logInfo
@@ -72,6 +75,13 @@ class TenxFlowStageBuildLog extends Component {
       return (
         <div className='loadingBox'>
           <Spin size='large' />
+        </div>
+      )
+    }
+    if(this.state.status === 3) {
+      return (
+        <div className='loadingBox'>
+          <span>等待执行中</span>
         </div>
       )
     }

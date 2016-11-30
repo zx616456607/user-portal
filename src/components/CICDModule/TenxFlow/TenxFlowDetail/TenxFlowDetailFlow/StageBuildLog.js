@@ -178,7 +178,7 @@ let MyComponent = React.createClass({
     const { getFlowBuildStageLogs } = scope.props;
     if (e.length > 0) {
       let index = e[e.length - 1].replace('LogDetail', '');
-      if(config[index].status == 2) {
+      if(config[index].status == 2 || config[index].status == 3) {
         scope.setState({
           currentLogList: config
         })
