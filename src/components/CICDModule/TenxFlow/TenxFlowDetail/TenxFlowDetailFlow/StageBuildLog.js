@@ -179,6 +179,9 @@ let MyComponent = React.createClass({
       scope.setState({
         currentLogList: config
       })
+      if(config[index].status == 2) {
+        return
+      }
       getFlowBuildStageLogs(flowId, config[index].stageId, config[index].buildId, {
         success: {
           func: (res) => {
