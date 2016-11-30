@@ -27,6 +27,7 @@ exports.getUserDetail = function* () {
   if (this.params.user_id === 'default') {
     user.tenxApi = loginUser.tenxApi
     user.watchToken = loginUser.watchToken
+    user.cicdApi = loginUser.cicdApi
   }
   this.body = {
     data: user

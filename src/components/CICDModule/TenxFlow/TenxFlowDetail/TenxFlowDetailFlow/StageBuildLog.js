@@ -178,10 +178,17 @@ let MyComponent = React.createClass({
     const { getFlowBuildStageLogs } = scope.props;
     if (e.length > 0) {
       let index = e[e.length - 1].replace('LogDetail', '');
+      if(config[index].status == 2 || config[index].status == 3) {
+        scope.setState({
+          currentLogList: config
+        })
+        return
+      }
       config[index].isFetching = true;
       scope.setState({
         currentLogList: config
       })
+
       getFlowBuildStageLogs(flowId, config[index].stageId, config[index].buildId, {
         success: {
           func: (res) => {
@@ -198,7 +205,12 @@ let MyComponent = React.createClass({
   },
   render: function () {
     const { config, scope, flowId } = this.props;
+
     let items = config.map((item, index) => {
+      let com = <FormattedMessage {...menusText.cost} />
+      if (item.status == 2) {
+        com = ''
+      }
       const header = (
         <div className='header'>
           <div className='leftHeader'>
@@ -221,8 +233,8 @@ let MyComponent = React.createClass({
               </span>
               <span className='commonHeader'>
                 <Icon type='clock-circle-o' />
-                <FormattedMessage {...menusText.cost} />
-                {dateSizeFormat(item.creationTime, item.endTime, scope)}
+                {com}
+                { item.status == 2 ? '' : dateSizeFormat(item.creationTime, item.endTime, scope)}
               </span>
               <div style={{ clear: 'both' }}></div>
             </div>
@@ -236,7 +248,7 @@ let MyComponent = React.createClass({
             <div className='line'></div>
           </div>
           <div className='rightInfo'>
-            <TenxFlowStageBuildLog logs={item.logInfo} isFetching={item.isFetching} />
+            <TenxFlowStageBuildLog logs={item.logInfo} isFetching={item.isFetching} logInfo={item} flowId={flowId} index={index}/>
           </div>
         </Panel>
       );
@@ -292,7 +304,6 @@ class StageBuildLog extends Component {
       });
     }
   }
-
   render() {
     const scope = this;
     const { logs, isFetching, flowId } = this.props;
@@ -336,7 +347,7 @@ class StageBuildLog extends Component {
           <div style={{ clear: 'both' }}></div>
         </div>
         <div className='paddingBox'>
-          <MyComponent config={logs} scope={scope} flowId={flowId} />
+          <MyComponent config={logs} scope={scope} flowId={flowId}/>
           <div style={{ clear: 'both' }}></div>
         </div>
       </div>
