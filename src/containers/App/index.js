@@ -32,14 +32,26 @@ class App extends Component {
     this.state = {
       siderStyle: 'mini',
       loginModalVisible: false,
+      loadLoginUserSuccess: true,
     }
   }
 
   componentWillMount() {
+    const self = this
     const { loginUser, loadLoginUserDetail } = this.props
     // load user info
     if (isEmptyObject(loginUser)) {
-      loadLoginUserDetail()
+      loadLoginUserDetail({
+        failed: {
+          func: (err) => {
+            self.setState({
+              loadLoginUserSuccess: false,
+              loginErr: err,
+            })
+          },
+          isAsync: true
+        }
+      })
     }
   }
 
@@ -129,7 +141,7 @@ class App extends Component {
 
   render() {
     let { children, pathname, redirectUrl, errorMessage, loginUser } = this.props
-    const { loginModalVisible } = this.state
+    const { loginModalVisible, loadLoginUserSuccess, loginErr, siderStyle } = this.state
     const scope = this
     /*if (errorMessage) {
       if (errorMessage.statusCode === 404) {
@@ -139,6 +151,24 @@ class App extends Component {
       }
     }*/
     if (isEmptyObject(loginUser)) {
+      if (!loadLoginUserSuccess) {
+        return (
+          <div className='tenx-layout'>
+            <div id='siderTooltip'></div>
+            <div className="tenx-layout-header">
+              <div className='tenx-layout-wrapper'>
+                <Header />
+              </div>
+            </div>
+            <div className="tenx-layout-sider">
+              <Sider pathname={pathname} scope={scope} siderStyle={siderStyle} />
+            </div>
+            <div className="tenx-layout-content">
+              <ErrorPage code={loginErr.statusCode} />
+            </div>
+          </div>
+        )
+      }
       return (
         <div className="loading">
           <Spin size="large" />
@@ -159,7 +189,6 @@ class App extends Component {
         </div>
         <div className={this.state.siderStyle == 'mini' ? 'tenx-layout-content' : 'tenx-layout-content-bigger tenx-layout-content'}>
           {children}
-          {this.getChildren}
         </div>
         <Modal
           visible={loginModalVisible}

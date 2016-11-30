@@ -15,39 +15,25 @@ import QueueAnim from 'rc-queue-anim'
 import "./style/AppGraph.less"
 import ReactDOM from 'react-dom';
 import { getAppOrchfile } from '../../actions/app_manage'
+import YamlEditor from '../Editor/Yaml'
 
 let OrchfileComponent = React.createClass({
   componentWillMount() {
     this.props.getAppOrchfile(this.props.cluster, this.props.appName)
   },
   componentDidMount() {
-    // TODO: this is workaround, use setTimeout to get the DOM after rendered
-    //       we need use the native react ReactDOM to get the real DOM
-    setTimeout(function() {
-      let editCode = CodeMirror.fromTextArea(document.getElementById("code"), {
-        styleActiveLine: true,
-        lineNumbers: true,
-        theme: "3024-night",
-        lineWrapping: true
-      })
-    }, 1000)
-    // TODO: we need it works like below
-    // var myTextArea = ReactDOM.findDOMNode(this.refs.myTextArea)
-    // CodeMirror.fromTextArea($(myTextArea).text, {})
+    //
   },
   render: function () {
-    if(!this.props.appOrchfile || !this.props.appOrchfile.result
-       || this.props.appOrchfile.result.data <=0 ) {
-      return  <div className="introBox"></div>
+    if (!this.props.appOrchfile || !this.props.appOrchfile.result
+      || this.props.appOrchfile.result.data <= 0) {
+      return <div className="introBox"></div>
     }
     let content = this.props.appOrchfile.result.data;
     return (
       <div id="AppGraph">
         <div className="bottomBox">
-          <span>描述文件&nbsp;:&nbsp;</span>
-          <div className="introBox">
-           <textarea ref="myTextArea" id="code" name="code" style={{minHeight: 280, minWidth: 700}} value={content} />
-          </div>
+          <YamlEditor value={content} />
           <div style={{ clear: "both" }}></div>
         </div>
       </div>
@@ -72,7 +58,7 @@ export default class AppGraph extends Component {
 
   render() {
     return (
-      <OrchfileComponent  cluster={this.props.cluster} appName={this.props.appName} />
+      <OrchfileComponent cluster={this.props.cluster} appName={this.props.appName} />
     )
   }
 }

@@ -1149,3 +1149,17 @@ export function getAvailableImage(callback) {
     return dispatch(fetchAvailableImage(callback))
   }
 }
+
+
+export const CHANGE_CI_FLOW_STATUS = "CHANGE_CI_FLOW_STATUS"
+
+export function changeCiFlowStatus(index, status, log) {
+  return {
+    type: CHANGE_CI_FLOW_STATUS,
+    body: {
+      index,
+      status,
+      log
+    }
+  }
+}
