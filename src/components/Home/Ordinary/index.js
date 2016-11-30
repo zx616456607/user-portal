@@ -804,7 +804,7 @@ class Ordinary extends Component{
                 <tr>
                   <td>
                     <svg className="stateSvg">
-                      <use xlinkHref="#homeLogging" />
+                      <use xlinkHref="#homelogging" />
                     </svg>
                     Logging
                   </td>
