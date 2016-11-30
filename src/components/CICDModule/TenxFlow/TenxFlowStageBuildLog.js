@@ -15,6 +15,9 @@ import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import './style/TenxFlowStageBuildLog.less'
+import WebSocket from '../../Websocket/socketIo'
+import { changeCiFlowStatus } from '../../../actions/cicd_flow'
+
 
 function formatLog(log) {
   //this function for format log
@@ -22,7 +25,7 @@ function formatLog(log) {
   let showLogs = newLog.map((item, index) => {
     return (
       <div className='stageBuildLogDetail' key={ 'stageBuildLogDetail' + index }>
-        <span>{item}</span>
+        <span><pre dangerouslySetInnerHTML={{__html:item}}></pre></span>
       </div>
     )
   });
@@ -34,16 +37,40 @@ class TenxFlowStageBuildLog extends Component {
     super(props);
     this.state = {
       activePanel: [],
-      modalSize: 'normal'
+      modalSize: 'normal',
+      logs: ''
     }
   }
-
   componentWillMount() {
+    const { status, buildId, stageId} = this.props.logInfo
+    const { flowId, loginUser } = this.props
+    if(status == 2) {
+      this.setState({
+        websocket: <WebSocket url={loginUser.info.cicdApi.host} protocol={loginUser.info.cicdApi.protocol} onSetup={(socket) =>this.onSetup(socket)}/>,
+      })
+    }
+    this.setState({
+      status: status
+    })
   }
-
+  onSetup(socket) {
+    const logInfo = this.props.logInfo
+    const self = this
+   
+    socket.emit("ciLogs", {flowId: this.props.flowId, stageId: logInfo.stageId, stageBuildId: logInfo.buildId })
+    socket.on("ciLogs", function (data) {
+      let oldLogs = self.state.logs
+      self.setState({
+        logs: oldLogs + data.toString()
+      })
+    })
+    socket.on("ciLogs-ended", function(data) {
+      self.props.changeCiFlowStatus(self.props.index, data.state, self.state.logs)
+    })
+  }
   render() {
     const scope = this;
-    const { logs, isFetching } = this.props;
+    let { logs, isFetching } = this.props;
     if(isFetching) {
       return (
         <div className='loadingBox'>
@@ -51,17 +78,28 @@ class TenxFlowStageBuildLog extends Component {
         </div>
       )
     }
-    if(!Boolean(logs)) {
+    if(this.state.status === 3) {
       return (
         <div className='loadingBox'>
-          <span>数据为空</span>
+          <span>等待执行中</span>
         </div>
       )
+    }
+    if(!Boolean(logs) && !this.state.websocket) {
+      return (
+        <div className='loadingBox'>
+          <span>暂无日志</span>
+        </div>
+      )
+    }
+    if (!logs) {
+      logs = this.state.logs
     }
     return (
       <div id='TenxFlowStageBuildLog'>
         <div className='infoBox'>
           {formatLog(logs)}
+          {this.state.websocket}
           <div style={{ clear: 'both' }}></div>
         </div>
       </div>
@@ -70,8 +108,8 @@ class TenxFlowStageBuildLog extends Component {
 }
 
 function mapStateToProps(state, props) {
-  
   return {
+    loginUser: state.entities.loginUser
   }
 }
 
@@ -80,7 +118,7 @@ TenxFlowStageBuildLog.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-  
+  changeCiFlowStatus
 })(injectIntl(TenxFlowStageBuildLog, {
   withRef: true,
 }));

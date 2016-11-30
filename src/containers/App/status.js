@@ -101,9 +101,6 @@ export function handleOnMessage(props, response) {
       handleOnPodMessage(props, response)
     } else if (watchType === 'deployment') {
       handleOnDeploymentMessage(props, response)
-      /*let appName = data.metadata.labels[LABEL_APPNAME]
-      let { serviceList } = services.serviceItems[cluster][appName]
-      updateAppServicesList(cluster, appName, _changeListByWatch(serviceList, response))*/
     } else if (watchType === 'app') {
       // @Todo: Only deployment returned, but k8s service must be returned
       if (type === 'ADDED') {

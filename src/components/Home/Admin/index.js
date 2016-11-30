@@ -14,98 +14,96 @@ import ReactEcharts from 'echarts-for-react'
 import { connect } from 'react-redux'
 import { loadTeamInfo } from '../../../actions/overview_team'
 
-
-
-let cost = 100
-let rest = 900
-let option = {
-  title: {
-    show: false,
-    text: '余额 :  '+rest+'T币\n\n消费 :  '+cost+'T币',
-    x:'center',
-    top: '65%',
-    textStyle:{
-      color :'#6c6c6c',
-      fontStyle: 'normal',
-      fontWeight: 'normal',
-      fontSize: '14',
-    }
-  },
-  color: ['#46b2fa', '#2abe84'],
-  backgroundColor: '#fff',
-  tooltip: {
-    show: true,
-    trigger: 'item',
-    formatter: "{b}: {c}<br/> ({d}%)"
-  },
-  legend: {
-    show: true,
-    orient: 'vertical',
-    x: 'center',
-    top: '65%',
-    data:['余额','消费'],
-    formatter: function (name) {
-      if(name === '余额'){
-        return name + ': ' + rest + 'T币'
-      } else if (name === '消费') {
-        return name + ': ' + cost + 'T币'
+function getOption(cost, rest) {
+  return {
+    title: {
+      show: false,
+      text: '余额 :  '+rest+'T币\n\n消费 :  '+cost+'T币',
+      x:'center',
+      top: '65%',
+      textStyle:{
+        color :'#6c6c6c',
+        fontStyle: 'normal',
+        fontWeight: 'normal',
+        fontSize: '14',
       }
     },
-    textStyle: {
-      fontSize: 14,
+    color: ['#46b2fa', '#2abe84'],
+    backgroundColor: '#fff',
+    tooltip: {
+      show: true,
+      trigger: 'item',
+      formatter: "{b}: {c}<br/> ({d}%)"
     },
-    itemGap: 8,
-    itemWidth: 10,
-    itemHeight: 10,
-  },
-  series: [
-    {
-      name:'本日该团队消费',
-      type:'pie',
-      radius: ['28', '40'],
-      center: ['50%','40%'],
-      avoidLabelOverlap: false,
-      itemStyle: {
-        normal: {
-          borderWidth: 2,
-          borderColor: '#ffffff',
-        },
-        emphasis: {
-          borderWidth: 0,
-          shadowBlur: 10,
-          shadowOffsetX: 0,
-          shadowColor: 'rgba(0, 0, 0, 0.5)'
+    legend: {
+      show: true,
+      orient: 'vertical',
+      x: 'center',
+      top: '65%',
+      data:['余额','消费'],
+      formatter: function (name) {
+        if(name === '余额'){
+          return name + ': ' + rest + 'T币'
+        } else if (name === '消费') {
+          return name + ': ' + cost + 'T币'
         }
       },
-      hoverAnimation: false,
-      selectedOffset: 10,
-      label: {
-        normal: {
-          show: false,
-          position: 'center'
-        },
-        emphasis: {
-          show: true,
-          formatter: function (param) {
-            return param.percent.toFixed(0) + '%';
+      textStyle: {
+        fontSize: 14,
+      },
+      itemGap: 8,
+      itemWidth: 10,
+      itemHeight: 10,
+    },
+    series: [
+      {
+        name:'本日该团队消费',
+        type:'pie',
+        radius: ['28', '40'],
+        center: ['50%','40%'],
+        avoidLabelOverlap: false,
+        itemStyle: {
+          normal: {
+            borderWidth: 2,
+            borderColor: '#ffffff',
           },
-          textStyle: {
-            fontSize: '14',
-            fontWeight: 'normal'
+          emphasis: {
+            borderWidth: 0,
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowColor: 'rgba(0, 0, 0, 0.5)'
           }
-        }
-      },
-      labelLine: {
-        normal: {
-          show: true
-        }
-      },
-      data:[
-        {value:900, name:'余额'},
-        {value:100, name:'消费'},
-      ]
-    }
-  ]
+        },
+        hoverAnimation: false,
+        selectedOffset: 10,
+        label: {
+          normal: {
+            show: false,
+            position: 'center'
+          },
+          emphasis: {
+            show: true,
+            formatter: function (param) {
+              return param.percent.toFixed(0) + '%';
+            },
+            textStyle: {
+              fontSize: '14',
+              fontWeight: 'normal'
+            }
+          }
+        },
+        labelLine: {
+          normal: {
+            show: true
+          }
+        },
+        data:[
+          {value:cost, name:'余额'},
+          {value:rest, name:'消费'},
+        ]
+      }
+    ]
+  }
 }
 
 class Admin extends Component{
@@ -126,6 +124,7 @@ class Admin extends Component{
   render(){
     const { spaceName } = this.props
     const teamDetail = this.props.teamDetail
+    const teamConsumption = this.props.teamConsumption
     const teamOperations = this.props.teamOperations
     return (
       <div id='Admin' style={{marginBottom:40}}>
@@ -236,7 +235,7 @@ class Admin extends Component{
               <Col span={10} style={{height:170}}>
                   <ReactEcharts
                     notMerge={true}
-                    option={option}
+                    option={getOption(teamConsumption.consumption/100, teamConsumption.balance/100)}
                     style={{height:170}}
                   />
               </Col>
@@ -247,11 +246,11 @@ class Admin extends Component{
                 </Row>
                 <Row className='teamCostListContent'>
                   {
-                    [1,2,3,4,5,6,7,8].map((item,index) => {
+                    teamConsumption.detail.map((item) => {
                       return (
                         <Row className="teamCostItem">
-                          <Col span={16} style={{paddingLeft:40}}>zhaoxueyu{index}</Col>
-                          <Col span={8} style={{paddingLeft:10}}>消费2T</Col>
+                          <Col span={16} style={{paddingLeft:40}}>item.teamname</Col>
+                          <Col span={8} style={{paddingLeft:10}}>消费 {item.consumption / 100} T</Col>
                         </Row>
                       )
                     })
@@ -397,6 +396,11 @@ function mapStateToProp(state,props) {
     volumeCreate: 0,
     volumeDelete: 0,
   }
+  let teamConsumption = {
+    balance: 0,
+    consumption: 0,
+    detail: [],
+  }
   const {teamDetail, teamOperations, teamInfo} = state.overviewTeam
   if (teamInfo.result) {
     if (teamInfo.result.teamdetail) {
@@ -464,10 +468,16 @@ function mapStateToProp(state,props) {
         }
       }
     } 
+    if (teamInfo.result.teamconsumption) {
+      teamConsumption.balance = teamInfo.result.teamconsumption.balance || 0
+      teamConsumption.consumption = teamInfo.result.teamconsumption.consumption || 0
+      teamConsumption.detail = teamInfo.result.teamconsumption.detail || []
+    } 
   }
   return {
     teamDetail: teamDetailData,
     teamOperations: teamOperationsData,
+    teamConsumption: teamConsumption,
   }
 }
 

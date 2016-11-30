@@ -61,6 +61,7 @@
     "nodemailer": "^2.6.4",
     "rc-animate": "^2.3.1",
     "request": "^2.75.0",
+    "socket.io-client": "^1.7.1",
     "svg-captcha": "^1.0.7",
     "text-encoding": "^0.6.1",
     "urllib": "^2.13.1"
@@ -97,6 +98,7 @@
     "rc-scroll-anim": "^0.3.9",
     "rc-tween-one": "^0.8.5",
     "react": "^15.3.1",
+    "react-codemirror": "^0.3.0",
     "react-dom": "^15.3.1",
     "react-intl": "^2.1.5",
     "react-redux": "^4.4.5",
@@ -110,6 +112,7 @@
     "redux-logger": "^2.6.1",
     "redux-thunk": "^2.1.0",
     "should": "^11.1.1",
+    "socket.io-client": "^1.7.1",
     "style-loader": "^0.13.1",
     "webpack": "^1.13.2",
     "webpack-dev-middleware": "^1.6.1",

@@ -10,7 +10,8 @@
  * @author Zhangpc
 */
 
-const SettingRoutes = [{
+
+const settingRoutes = [{
   path: 'member',
   component: require('../components/SettingModal/MemberManage').default,
 },{
@@ -36,4 +37,5 @@ const SettingRoutes = [{
   component: require('../components/SettingModal/CostCenter').default,
 }]
 
-export default SettingRoutes
+
+export default settingRoutes

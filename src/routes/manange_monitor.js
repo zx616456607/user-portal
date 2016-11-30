@@ -10,7 +10,7 @@
  * @author Zhangpc
 */
 
-const CICDRoutes = [{
+const manangeMonitorRoutes = [{
   path: 'query_log',
   component: require('../components/ManageMonitor/QueryLog').default,
 },{
@@ -18,4 +18,4 @@ const CICDRoutes = [{
   component: require('../components/ManageMonitor/MonitorModule').default,
 }]
 
-export default CICDRoutes
+export default manangeMonitorRoutes

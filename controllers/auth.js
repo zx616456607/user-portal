@@ -15,6 +15,7 @@ const logger = require('../utils/logger').getLogger('controllers/auth')
 const svgCaptcha = require('svg-captcha')
 const indexService = require('../services')
 const config = require('../configs')
+const devOps = require("../configs/devops")
 
 exports.login = function* () {
   let method = 'login'
@@ -92,9 +93,11 @@ exports.verifyUser = function* () {
     token: result.apiToken,
     role: result.role,
     balance: result.balance,
-    tenxApi: config.tenx_api
+    tenxApi: config.tenx_api,
+    cicdApi: devOps
   }
   result.tenxApi = loginUser.tenxApi
+  result.cicdApi = loginUser.cicdApi
   const licenseObj = yield indexService.getLicense(loginUser)
   if (licenseObj.plain.code === -1) {
     const err = new Error(licenseObj.message)

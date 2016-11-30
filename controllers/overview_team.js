@@ -16,7 +16,8 @@ exports.getTeamOverview = function* () {
   const api = apiFactory.getApi(loginUser)
   const result = 
       yield [api.overview.getBy(["team-operations"]), 
-             api.overview.getBy(["team-detail"])]
+             api.overview.getBy(["team-detail"]),
+             api.overview.getBy(["team-consumption"]),]
   let operations = {}
   if (result && result[0] && result[0].data) {
     operations = result[0].data
@@ -25,9 +26,14 @@ exports.getTeamOverview = function* () {
   if (result && result[1] && result[1].data) {
     teamdetail = result[1].data
   }
+  let teamconsumption = {}
+  if (result && result[2] && result[2].data) {
+    teamconsumption = result[2].data
+  }
   this.body = {
     operations,
     teamdetail,
+    teamconsumption,
   }
 }
 
