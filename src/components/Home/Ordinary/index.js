@@ -266,6 +266,7 @@ class Ordinary extends Component{
         diskUsedArr.push((item.used))
       })
     } else {
+      console.log('没有数据....没有数据')
       diskUsedArr = ['没有数据']
     }
     //数据库与缓存
@@ -547,7 +548,7 @@ class Ordinary extends Component{
         axisPointer : {
           type : 'shadow'
         },
-        formatter: clusterNodeSummary.cpu.length === 0?'':'{b} : {c}%'
+        formatter: clusterNodeSummary.cpu.length === 0?'{c}':'{b} : {c}%'
       },
       grid: {
         left: '3%',
@@ -612,7 +613,7 @@ class Ordinary extends Component{
         axisPointer : {
           type : 'shadow'
         },
-        formatter: clusterNodeSummary.memory.length === 0?'':'{b} : {c}%'
+        formatter: clusterNodeSummary.memory.length === 0?'{c}':'{b} : {c}%'
       },
       grid: {
         left: '3%',
@@ -678,7 +679,7 @@ class Ordinary extends Component{
         axisPointer : {
           type : 'shadow'
         },
-        formatter: clusterNodeSummary.storage.length === 0?'':'{b} : {c}%'
+        formatter: clusterNodeSummary.storage.length === 0?'{c}':'{b} : {c}%'
       },
       grid: {
         left: '3%',

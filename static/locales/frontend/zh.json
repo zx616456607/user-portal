@@ -74,7 +74,7 @@
   "TenxStatus.AllRunningMsg": "全部运行",
   "TenxStatus.StoppedMsg": "全部停止",
   "TenxStatus.AppReplicasMsg": "共{total}个服务",
-  "TenxStatus.ContainerAbnormalMsg": "已重启{restartCount}次",
+  "TenxStatus.ContainerAbnormalMsg": "已重启 {restartCount} 次",
   "this.is.an.commnent": "/------------------------App Center交付中心-----------------------/",
   "AppCenter.ImageCenter.ImageSpace.search": "搜索",
   "AppCenter.ImageCenter.ImageSpace.publicType": "公有",
