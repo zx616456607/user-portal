@@ -105,6 +105,7 @@ class AppDetail extends Component {
     //     data: ['10.1.27.1', '10.1.27.2', '10.1.27.3', '10.1.27.4', '10.1.27.5',]
     //   },
     // ]
+    console.log('appDomain:::',appDomain)
     return (
       <div id="AppDetail">
         <QueueAnim className="demo-content"
@@ -129,7 +130,7 @@ class AppDetail extends Component {
                     </div>
                   </div>
                   <div className="address">
-                    <TipSvcDomain appDomain={appDomain} type={true} />
+                    <TipSvcDomain appDomain={appDomain} />
                   </div>
                   <div className="service">
                     服务&nbsp;:&nbsp; {`${app.serviceCount} / ${app.serviceCount}`}
