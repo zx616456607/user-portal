@@ -77,7 +77,15 @@ const MyComponent = React.createClass({
     e.stopPropagation();
     const { parentScope } = this.props;
     let { currentContainer } = parentScope.state;
-    currentContainer.push(item)
+    let hadFlag = false;
+    currentContainer.map((container) => {
+      if(container.metadata.name == item.metadata.name) {
+        hadFlag = true;
+      }
+    });
+    if(!hadFlag) {      
+      currentContainer.push(item)
+    }
     parentScope.setState({
       currentContainer: currentContainer,
       TerminalLayoutModal: true

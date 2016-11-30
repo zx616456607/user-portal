@@ -10,13 +10,14 @@
 import React, { Component, PropTypes } from 'react'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
-import { Icon, Tabs,  } from 'antd'
+import { Icon, Tabs, Modal } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../constants'
 import $ from 'n-zepto'
 import './style/TerminalModal.less'
 
 const TabPane = Tabs.TabPane;
+const confirm = Modal.confirm;
 
 class TerminalModal extends Component {
   constructor(props) {
@@ -70,7 +71,7 @@ class TerminalModal extends Component {
   minWindow(){
     //this function for minx the modal
     $('.TerminalLayoutModal').css('transition', 'all 0.3s');
-    $('.TerminalLayoutModal').css('height', '30px !important');
+    $('.TerminalLayoutModal').css('height', '35px !important');
     setTimeout(function(){
       $('.TerminalLayoutModal').css('transition', 'all');
     })
@@ -79,10 +80,24 @@ class TerminalModal extends Component {
   closeWindow(e){
     //this function for close the modal
     e.stopPropagation();
-    const { scope } = this.props;
-    window.frames[0].postMessage('close', window.location.protocol + '//' +window.location.host)
-    scope.setState({
-      TerminalLayoutModal: false
+    const _this = this;
+    confirm({
+      title: '关闭终端链接',
+      content: `确定要关闭所有终端链接么?`,
+      onOk() {      
+        const { scope, config } = _this.props;
+        config.map((item, index) => {
+          let frameKey = item.metadata.name + index;
+          window.frames[frameKey].contentWindow.closeTerminal();
+        })
+        scope.setState({
+          TerminalLayoutModal: false,
+          currentContainer: []
+        });
+      },
+      onCancel() {
+        
+      },
     });
   }
   
@@ -94,12 +109,16 @@ class TerminalModal extends Component {
         currentTab: currentTab
       });
     }
-    let terminal = $('.TerminalLayoutModal').css('height'))
-//  const nextShow = nextProps.show
-//  if(!nextShow) return
-//  if(nextShow && nextProps.config.metadata.name === this.props.config.metadata.name && nextProps.config.metadata.namespace === this.props.config.metadata.namespace) {
-//    
-//  }
+    //when the modal is min(35px height), user open an new one the modal will be error
+    //so we change the modal height to show the terminal
+    let terminal = $('.TerminalLayoutModal').css('height');
+    if(terminal == '35px') {
+      $('.TerminalLayoutModal').css('transition', 'all 0.3s');
+      $('.TerminalLayoutModal').css('height', '550px !important');
+      setTimeout(function(){
+        $('.TerminalLayoutModal').css('transition', 'all');
+      })
+    }
   }
   
   onChangeTabs(e) {
@@ -113,24 +132,34 @@ class TerminalModal extends Component {
   closeTerminal(config, index) {
     //this function for user close the current terminal
     //and we will ask user make sure to close the terminal or not
-    const { scope } = this.props;
-    const { currentContainer } = scope.state;
-    let newList = [];
-    currentContainer.map((item) => {
-      if(item.metadata.name != config.metadata.name) {
-        newList.push(item);
-      }
+    const _this = this;
+    confirm({
+      title: '关闭终端链接',
+      content: `确定要关闭${config.metadata.name}的终端链接么?`,
+      onOk() {      
+        const { scope } = _this.props;
+        const { currentContainer } = scope.state;
+        let newList = [];
+        currentContainer.map((item) => {
+          if(item.metadata.name != config.metadata.name) {
+            newList.push(item);
+          }
+        });
+        scope.setState({
+          currentContainer: newList
+        });
+        let frameKey = config.metadata.name + index;
+        window.frames[frameKey].contentWindow.closeTerminal();
+        if(newList.length == 0) {
+          scope.setState({
+            TerminalLayoutModal: false
+          });
+        }
+      },
+      onCancel() {
+        
+      },
     });
-    scope.setState({
-      currentContainer: newList
-    });
-    let frameKey = config.metadata.name + index;
-    window.frames[frameKey].contentWindow.closeTerminal();
-    if(newList.length == 0) {
-      scope.setState({
-        TerminalLayoutModal: false
-      });
-    }
   }
   
   render() {

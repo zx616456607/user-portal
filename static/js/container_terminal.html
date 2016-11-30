@@ -24,26 +24,10 @@
         })
     });
     window.addEventListener("resize", function(e){
-      var rowHeight = 12;
-      if(Boolean(term)) {    
-        var children = document.getElementsByClassName("terminal")[0].children;
-        for(var i = 0; i < children.length; i++) {
-          var childText = children[i].innerText.replace('&nbsp;','');
-          if(childText == '') {
-            continue;
-          }
-          if(childText.indexOf('#') > -1) {
-            var str = childText.split('#')[0];
-            if(str.length > 20) {
-              rowHeight = 24;
-              break;
-            }
-          }
-        }
-        var rowsNum = parseInt(e.target.innerHeight / rowHeight) - 2;
-        term.resize(250, rowsNum)
-        term.element.focus();
-      }
+      var rowsNum = parseInt(e.target.innerHeight / 12) - 2;
+      var colsNum = parseInt((e.target.innerWidth - 40) / 12) - 2;
+      term.resize(colsNum, rowsNum)
+      term.element.focus();
     })
     function webSocketConnect() {
       var params = location.href.split('?')[1].split('&');
@@ -67,11 +51,12 @@
      
       // Create a new terminal connection to a container
       function terminalConnect() {
-        var rowsNum = parseInt(window.innerHeight / 24) - 2;
+        var rowsNum = parseInt(window.innerHeight / 12) - 2;
+        var colsNum = parseInt((window.innerWidth - 40) / 12) - 2;
         ws = new WebSocket(wsUrl, "base64.channel.k8s.io");
         ws.addEventListener("open", function(event) {
           term = new Terminal({
-            cols: 200,
+            cols: colsNum,
             rows: rowsNum,
             screenKeys: true
           });
