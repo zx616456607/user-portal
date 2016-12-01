@@ -20,7 +20,7 @@ class AppCreate extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      createModel: "fast"
+      createModel: 'fast'
     }
   }
   render() {
@@ -33,18 +33,18 @@ class AppCreate extends Component {
     
     return (
       <QueueAnim
-        id="AppCreate"
-        type="right"
+        id='AppCreateBox'
+        type='right'
         >
-        <div className="AppCreate" key="AppCreate">
+        <div className='AppCreate' id='AppCreate' key='AppCreate'>
           <Card>
-            <div className="leftBox">
+            <div className='leftBox'>
               <ProgressList scope={parentScope} />
             </div>
-            <div className="rightBox">
+            <div className='rightBox'>
               {newChildren}
             </div>
-            <div style={{ clear: "both" }}></div>
+            <div style={{ clear: 'both' }}></div>
           </Card>
         </div>
         

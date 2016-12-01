@@ -15,11 +15,16 @@ import "./style/ComposeFile.less"
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { createApp, checkAppName } from '../../../actions/app_manage'
 import { loadStackDetail } from '../../../actions/app_center'
+import YamlEditor from '../../Editor/Yaml'
 import * as yaml from 'js-yaml'
 import { browserHistory } from 'react-router'
 
 const FormItem = Form.Item;
 const createForm = Form.create;
+
+const defaultEditOpts = {
+  readOnly: false,
+}
 
 class ComposeFile extends Component {
   constructor(props) {
@@ -222,13 +227,9 @@ class ComposeFile extends Component {
                 <div style={{ clear: "both" }}></div>
               </div>
               <div className="bottomBox">
-                <span>描述文件</span>
+                <span className='title'>描述文件</span>
                 <div className="textareaBox">
-                  <div className="operaBox">
-                    <i className="fa fa-expand" />
-                    <i className="fa fa-star-o" />
-                  </div>
-                  <textarea value={appDescYaml} onChange={this.handleYaml} />
+                  <YamlEditor value={appDescYaml} options={defaultEditOpts} parentId={'AppCreate'} />
                 </div>
                 <div style={{ clear: "both" }}></div>
               </div>

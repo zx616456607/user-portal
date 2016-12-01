@@ -33,7 +33,7 @@ let OrchfileComponent = React.createClass({
     return (
       <div id="AppGraph">
         <div className="bottomBox">
-          <YamlEditor value={content} />
+          <YamlEditor value={content} parentId={'AppInfo'} />
           <div style={{ clear: "both" }}></div>
         </div>
       </div>

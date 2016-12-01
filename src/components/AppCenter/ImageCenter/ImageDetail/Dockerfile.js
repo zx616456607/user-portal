@@ -10,6 +10,7 @@
 
 import React, { Component } from 'react'
 import { Card , Spin} from 'antd'
+import DockerFileEditor from '../../../Editor/DockerFile'
 
 export default class Dockerfile extends Component {
   constructor(props) {
@@ -36,7 +37,7 @@ export default class Dockerfile extends Component {
     }
     return (
       <Card className="dockerfile">
-        <pre>{dockerfile}</pre>
+        <DockerFileEditor value={dockerfile} />
       </Card>
     )
   }

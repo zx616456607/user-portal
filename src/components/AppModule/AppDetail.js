@@ -106,75 +106,75 @@ class AppDetail extends Component {
     //   },
     // ]
     return (
-      <div id="AppDetail">
-        <QueueAnim className="demo-content"
-          key="demo"
-          type="right"
+      <div id='AppDetail'>
+        <QueueAnim className='demo-content'
+          key='demo'
+          type='right'
           >
-          <div className="cover"></div>
-          <div key="ca" className="AppInfo">
-            <Card className="topCard">
-              <div className="imgBox">
-                <img src="/img/app.png" />
+          <div className='cover'></div>
+          <div key='ca' className='AppInfo' id='AppInfo'>
+            <Card className='topCard'>
+              <div className='imgBox'>
+                <img src='/img/app.png' />
               </div>
-              <div className="infoBox">
-                <p className="appTitle">
+              <div className='infoBox'>
+                <p className='appTitle'>
                   {appName}
                 </p>
-                <div className="leftInfo">
-                  <div className="status">
+                <div className='leftInfo'>
+                  <div className='status'>
                     运行状态&nbsp;:
                     <div style={{ display: 'inline-block', position: 'relative', top: '-5px' }}>
                       <AppStatus app={app} smart={true} />
                     </div>
                   </div>
-                  <div className="address">
+                  <div className='address'>
                     <TipSvcDomain appDomain={appDomain} type={true} />
                   </div>
-                  <div className="service">
+                  <div className='service'>
                     服务&nbsp;:&nbsp; {`${app.serviceCount} / ${app.serviceCount}`}
                   </div>
                 </div>
-                <div className="middleInfo">
-                  <div className="createDate">
+                <div className='middleInfo'>
+                  <div className='createDate'>
                     创建&nbsp;:&nbsp;{formatDate(app.createTime || '')}
                   </div>
-                  <div className="updateDate">
+                  <div className='updateDate'>
                     更新&nbsp;:&nbsp;{formatDate(updateDate || '')}
                   </div>
                 </div>
-                <div className="rightInfo">
-                  <div className="introduction">
+                <div className='rightInfo'>
+                  <div className='introduction'>
                     应用描述&nbsp;:&nbsp;{app.description || '无'}
                   </div>
                 </div>
-                <div style={{ clear: "both" }}></div>
+                <div style={{ clear: 'both' }}></div>
               </div>
-              <div style={{ clear: "both" }}></div>
+              <div style={{ clear: 'both' }}></div>
             </Card>
-            <Card className="bottomCard">
+            <Card className='bottomCard'>
               <Tabs
-                tabPosition="top"
+                tabPosition='top'
                 defaultActiveKey={activeTabKey}
                 onTabClick={this.onTabClick}
                 activeKey={activeTabKey}
                 >
-                <TabPane tab="服务实例" key={DEFAULT_TAB} >
+                <TabPane tab='服务实例' key={DEFAULT_TAB} >
                   <AppServiceList
                     location={location}
-                    key="AppServiceList"
+                    key='AppServiceList'
                     appName={appName}
                     loading={isFetching} />
                 </TabPane>
-                {/*<TabPane tab="应用拓扑" key="#topology" >应用拓扑</TabPane>*/}
-                <TabPane tab="编排文件" key="#stack" >
-                  <AppGraph key="AppGraph" cluster={this.props.cluster} appName={this.props.appName} /></TabPane>
-                <TabPane tab="审计日志" key="#logs" >
-                  <AppLog key="AppLog"
+                {/*<TabPane tab='应用拓扑' key='#topology' >应用拓扑</TabPane>*/}
+                <TabPane tab='编排文件' key='#stack' >
+                  <AppGraph key='AppGraph' cluster={this.props.cluster} appName={this.props.appName} /></TabPane>
+                <TabPane tab='审计日志' key='#logs' >
+                  <AppLog key='AppLog'
                     cluster={this.props.cluster}
                     appName={this.props.appName} />
                 </TabPane>
-                <TabPane tab="监控" key="#monitor" >
+                <TabPane tab='监控' key='#monitor' >
                   <AppMonitior
                     cluster={this.props.cluster}
                     appName={this.props.appName} />

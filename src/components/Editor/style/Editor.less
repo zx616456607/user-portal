@@ -1,0 +1,38 @@
+#CodeMirror { 
+  transition:  all 0.3s;
+  min-height: 349px;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  .editOperaBox {
+    padding: 0 16px;
+    font-size: 14px;
+    height: 49px;
+    line-height: 49px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    background-color: #333333 !important;
+    .title {
+      color: #16B9FE;
+      font-weight: bold;
+    }
+    .operaBtn {
+      float: right;
+      color: #999;
+      cursor: pointer;
+    }
+  }
+}
+.bigCodeMirror {
+  z-index: 999;
+  .editOperaBox{
+    border-radius: 0px !important;
+  }
+  .ReactCodeMirror {
+    height: calc(~"100% - 50px") !important;
+  }
+  .CodeMirror {
+    height: 100%;
+  }
+}

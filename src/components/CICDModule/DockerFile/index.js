@@ -12,10 +12,9 @@ import { Alert, Menu, Button, Card, message, Input, Tooltip, Dropdown, Modal, Sp
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
-
 import { getDockerfileList, getDockerfiles, setDockerfile, searchDockerfile } from '../../../actions/cicd_flow'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-
+import DockFileEditor from '../../Editor/DockerFile'
 import './style/DockerFile.less'
 
 const menusText = defineMessages({
@@ -178,10 +177,8 @@ const MyComponent = React.createClass({
         <Modal title="Dockerfile" width="600px" visible={this.state.showDockerFileModal} wrapClassName="dockerFileModal" onCancel={() => this.closeModal()}
           footer={null}
           >
-          <div style={{ padding: "0 20px 20px", minHeight: '300px' }}>
-            <pre>
-              {this.state.dockerfiles}
-            </pre>
+          <div style={{ padding: "0px", minHeight: '300px' }}>
+            <DockFileEditor value={this.state.dockerfiles} />
           </div>
         </Modal>
 
