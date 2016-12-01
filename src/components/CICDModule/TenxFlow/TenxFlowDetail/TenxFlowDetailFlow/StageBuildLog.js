@@ -17,7 +17,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { getFlowBuildStageLogs } from '../../../../../actions/cicd_flow'
 import moment from 'moment'
 import './style/StageBuildLog.less'
-import TenxFlowTenxFlowBuildLog from '../../TenxFlowBuildLog'
+import TenxFlowStageBuildLog  from '../../TenxFlowStageBuildLog'
 
 const Panel = Collapse.Panel;
 
@@ -248,7 +248,7 @@ let MyComponent = React.createClass({
             <div className='line'></div>
           </div>
           <div className='rightInfo'>
-            <TenxFlowTenxFlowBuildLog logs={item} isFetching={item.isFetching} logInfo={item} flowId={flowId} index={index}/>
+            <TenxFlowStageBuildLog  logs={item.logInfo} isFetching={item.isFetching} logInfo={item} flowId={flowId} index={index}/>
           </div>
         </Panel>
       );

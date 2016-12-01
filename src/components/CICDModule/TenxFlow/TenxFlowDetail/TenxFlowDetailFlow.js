@@ -81,7 +81,7 @@ class TenxFlowDetailFlow extends Component {
           })
           _this.setState({
             buildingList: buildingList,
-            websocket: <Socket url={cicdApi.host} path={cicdApi.path} protocol={cicdApi.protocol} onSetup={(socket) => _this.onSetup(socket)} />   
+            websocket: <Socket url={cicdApi.host} path={cicdApi.statusPath} protocol={cicdApi.protocol} onSetup={(socket) => _this.onSetup(socket)} />   
           });
           getProjectList();
         },
