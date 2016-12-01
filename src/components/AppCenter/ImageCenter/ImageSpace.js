@@ -124,7 +124,7 @@ const MyComponent = React.createClass({
   },
   componentWillMount() {
     const imagename = location.search.split('imageName=')[1]
-    if (imagename !== '') {
+    if (imagename !== '' && imagename !== undefined) {
       const scope = this.props.scope;
       const config = {
         registry: DEFAULT_REGISTRY,
