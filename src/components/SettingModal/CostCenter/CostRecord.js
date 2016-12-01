@@ -17,96 +17,53 @@ import { loadTeamClustersList } from '../../../actions/team'
 import { setCurrent, loadLoginUserDetail } from '../../../actions/entities'
 import { getCookie } from '../../../common/tools'
 import { USER_CURRENT_CONFIG } from '../../../../constants'
+import TeamCost from './TeamCost'
 
-function loadSpaces(props, callback) {
-  const { loadUserTeamspaceList } = props
-  loadUserTeamspaceList('default', { size: 100 }, callback)
-}
 class CostRecord extends Component{
   constructor(props){
     super(props)
     this.handleSpaceChange = this.handleSpaceChange.bind(this)
     this.state = {
       spacesVisible: false,
-      clustersVisible: false,
-      focus: false,
+      currentSpaceName: '我的空间',
+      currentTeamName: '',
     }
   }
   handleSpaceChange(space) {
-    const { loadTeamClustersList, setCurrent, current } = this.props
-    setCurrent({
-      team: { teamID: space.teamID },
-      space,
-    })
-    loadTeamClustersList(space.teamID, { size: 100 }, {
-      success: {
-        func: (result) => {
-          if (result.data.length < 1) {
-            setCurrent({
-              cluster: {}
-            })
-          }
-        },
-        isAsync: true
-      }
-    })
+    const { loadTeamClustersList,loadUserTeamspaceList, setCurrent, current, loginUser } = this.props
+    // this.setState({
+      // isTeamspacesFetching: true
+    // })
+    console.log('space',space)
+    // loadUserTeamspaceList(loginUser.info.userID,{ size: 100 }, {
+    //   success: {
+    //     func:()=>{
+    //       this.setState({
+    //         isTeamspacesFetching: false,
+    //       })
+    //     },
+    //     isAsync: true
+    //   }
+    // })
     this.setState({
       spacesVisible: false,
-      clustersVisible: true,
+      currentSpaceName: space.spaceName,
+      currentTeamName: space.teamName,
     })
   }
   componentWillMount() {
     const {
       loadTeamClustersList,
-      setCurrent,
       loadLoginUserDetail,
+      loadUserTeamspaceList,
       loginUser,
+      userDetail,
+      teamspaces,
     } = this.props
-    const config = getCookie(USER_CURRENT_CONFIG)
-    const [teamID, namespace, clusterID] = config.split(',')
-    setCurrent({
-      team: { teamID },
-      space: { namespace },
-      cluster: { clusterID },
-    })
-    const self = this
-    loadSpaces(this.props, {
+    loadUserTeamspaceList(loginUser.info.userID||userDetail.userID,{ size: -1 }, {
       success: {
-        func: (resultT) => {
-          let defaultSpace = resultT.teamspaces[0] || {}
-          if (namespace === 'default') {
-            defaultSpace = {
-              spaceName: '我的空间',
-              namespace: 'default',
-              teamID,
-            }
-          } else {
-            resultT.teamspaces.map(space => {
-              if (space.namespace === namespace) {
-                defaultSpace = space
-              }
-            })
-          }
-          setCurrent({
-            space: defaultSpace
-          })
-          loadTeamClustersList(defaultSpace.teamID, { size: 100 }, {
-            success: {
-              func: (resultC) => {
-                if (!resultC.data) {
-                  resultC.data = []
-                }
-                let defaultCluster = resultC.data[0] || {}
-                resultC.data.map(cluster => {
-                  if (cluster.clusterID === clusterID) {
-                    defaultCluster = cluster
-                  }
-                })
-                setCurrent({ cluster: defaultCluster })
-              },
-              isAsync: true
-            }
-          })
+        func:()=>{
+          console.log('teamspaces',teamspaces)
         },
         isAsync: true
       }
@@ -116,34 +73,45 @@ class CostRecord extends Component{
     const {
       current,
       loginUser,
-      isTeamspacesFetching,
       teamspaces,
-      isTeamClustersFetching,
       teamClusters,
     } = this.props
-    const {
+    let {
       spacesVisible,
-      clustersVisible,
+      currentSpaceName,
+      currentTeamName,
     } = this.state
-    teamspaces.map((space) => {
-      space.name = space.spaceName
-    })
-    teamClusters.map((cluster) => {
-      cluster.name = cluster.clusterName
-    })
+    console.log('---------------------------')
+    console.log('current: ',current)
+    console.log('loginUser: ',loginUser)
+    console.log('teamspaces: ',teamspaces)
+    console.log('teamClusters: ',teamClusters)
+    console.log('currentSpaceName: ',currentSpaceName)
+    console.log('currentTeamName: ',currentTeamName)
+    console.log('---------------------------')
     return (
       <div id='CostRecord'>
-        <Card>
-          <PopSelect
+        <Card style={{marginBottom: '20px'}}>
+          <i className='fa fa-cube' style={{marginRight:'10px'}}/>
+          <div style={{display:'inline-block'}}>
+            <PopSelect
               title="选择项目空间"
               btnStyle={false}
               special={true}
               visible={spacesVisible}
               list={teamspaces}
-              loading={isTeamspacesFetching}
+              loading={false}
               onChange={this.handleSpaceChange}
-              selectValue={current.space.spaceName || '...'}
+              selectValue={ currentSpaceName }
           />
+          </div>
+        </Card>
+        {
+          (loginUser.info.role === 1 && currentTeamName)?
+          <TeamCost currentSpaceName = {currentSpaceName} currentTeamName={currentTeamName}/>:
+          <div></div>
+        }
+        <Card>
         </Card>
       </div>
     )
@@ -151,20 +119,17 @@ class CostRecord extends Component{
 }
 function mapStateToProps (state,props) {
   const { current, loginUser } = state.entities
-  const { teamspaces } = state.user
-  const { teamClusters } = state.team
+  const { teamspaces,userDetail } = state.user
+
   return {
     current,
     loginUser,
-    isTeamspacesFetching: teamspaces.isFetching,
     teamspaces: (teamspaces.result ? teamspaces.result.teamspaces : []),
-    isTeamClustersFetching: teamClusters.isFetching,
-    teamClusters: (teamClusters.result ? teamClusters.result.data : []),
+    userDetail: userDetail.result.data
   }
 }
 export default connect (mapStateToProps,{
   loadUserTeamspaceList,
   loadTeamClustersList,
-  setCurrent,
   loadLoginUserDetail,
 })(CostRecord) 

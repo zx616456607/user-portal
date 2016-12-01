@@ -72,7 +72,7 @@ export default class PopSelect extends Component {
               </Button> :
               <a className="ant-dropdown-link lineBtn" href="#">
                 {selectValue}
-                <Icon type="down" className={rotate} />
+                <Icon type="down" className={rotate} style={{float:'right',marginLeft:'10px'}}/>
               </a>
           }
         </Popover>
