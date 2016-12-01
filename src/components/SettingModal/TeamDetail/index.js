@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Alert, Card, Icon, Button, Table, Menu, Dropdown, Modal, Input, Transfer, } from 'antd'
+import { Row, Col, Alert, Card, Icon, Button, Table, Menu, Dropdown, Modal, Input, Transfer, message, notification, } from 'antd'
 import './style/TeamDetail.less'
 import { Link } from 'react-router'
 import {
@@ -18,6 +18,7 @@ import {
 } from '../../../actions/team'
 import { connect } from 'react-redux'
 import MemberTransfer from '../MemberTransfer'
+import CreateSpaceModal from '../CreateSpaceModal'
 
 const confirm = Modal.confirm;
 
@@ -57,7 +58,7 @@ let MemberList = React.createClass({
       sortUser: sort,
     })
   },
- 
+
   delTeamMember(userID){
     const { removeTeamusers,teamID, loadTeamUserList } = this.props
     const { sortUser, userPageSize, userPage, filter } = this.state
@@ -387,7 +388,7 @@ let TeamList = React.createClass({
 let ClusterState = React.createClass({
   getInitialState(){
     return {
-      
+
     }
   },
   applyClusterState(){
@@ -432,7 +433,7 @@ class TeamDetail extends Component {
     this.handleNewMemberOk = this.handleNewMemberOk.bind(this)
     this.handleNewMemberCancel = this.handleNewMemberCancel.bind(this)
     this.addNewSpace = this.addNewSpace.bind(this)
-    this.handleNewSpaceOk = this.handleNewSpaceOk.bind(this)
+    this.spaceOnSubmit = this.spaceOnSubmit.bind(this)
     this.handleNewSpaceCancel = this.handleNewSpaceCancel.bind(this)
     this.handleChange = this.handleChange.bind(this)
     this.handleNewSpaceName = this.handleNewSpaceName.bind(this)
@@ -440,7 +441,7 @@ class TeamDetail extends Component {
     this.handleSpaceChange = this.handleSpaceChange.bind(this)
     this.state = {
       addMember: false,
-      addSpace: false,
+      createSpaceModalVisible: false,
       targetKeys: [],
       newSpaceName: '',
       newSpaceDes: '',
@@ -489,35 +490,47 @@ class TeamDetail extends Component {
   }
   addNewSpace() {
     this.setState({
-      addSpace: true,
+      createSpaceModalVisible: true,
     })
   }
-  handleNewSpaceOk() {
-    const {createTeamspace, teamID, loadTeamspaceList} = this.props
-    const {newSpaceName, newSpaceDes,sortSpace,spacePageSize} = this.state
-    createTeamspace(teamID, {
-      spaceName: newSpaceName,
-      description: newSpaceDes,
-    }, {
+  spaceOnSubmit(space) {
+    const { createTeamspace, teamID, loadTeamspaceList } = this.props
+    const { newSpaceName, newSpaceDes, sortSpace, spacePageSize } = this.state
+    const hide = message.loading('正在执行中...', 0)
+    createTeamspace(teamID, space, {
         success: {
           func: () => {
+            hide()
+            notification.success({
+              message: `创建空间 ${space.spaceName} 成功`,
+            })
             loadTeamspaceList(teamID,{
               sort: sortSpace,
               size: spacePageSize,
               page: 1,
             })
             this.setState({
-              addSpace: false,
+              createSpaceModalVisible: false,
               spaceCurrent: 1
             })
           },
           isAsync: true
+        },
+        failed: {
+          func: (err) => {
+            hide()
+            notification.error({
+              message: `创建空间 ${space.spaceName} 失败`,
+              description: err.message.message,
+              duration: 0
+            })
+          }
         }
       })
   }
   handleNewSpaceCancel(e) {
     this.setState({
-      addSpace: false,
+      createSpaceModalVisible: false,
     })
   }
   handleNewSpaceName(e) {
@@ -547,8 +560,14 @@ class TeamDetail extends Component {
   }
 
   render() {
-    const { clusterList, teamUserList, teamUserIDList, teamSpacesList, teamName, teamID, teamUsersTotal, teamSpacesTotal,
-      removeTeamusers, loadTeamUserList, loadTeamspaceList,deleteTeamspace,requestTeamCluster,loadAllClustersList } = this.props
+    const scope = this
+    const {
+      clusterList, teamUserList, teamUserIDList,
+      teamSpacesList, teamName, teamID,
+      teamUsersTotal, teamSpacesTotal, removeTeamusers,
+      loadTeamUserList, loadTeamspaceList, deleteTeamspace,
+      requestTeamCluster,loadAllClustersList
+    } = this.props
     const { targetKeys, sortSpace, spaceCurrent, spacePageSize,spacePage,sortSpaceOrder } = this.state
     return (
       <div id='TeamDetail'>
@@ -635,21 +654,10 @@ class TeamDetail extends Component {
                   onClick={this.addNewSpace}>
                   创建新空间
                 </Button>
-                <Modal title="创建新空间" visible={this.state.addSpace}
-                  onOk={this.handleNewSpaceOk} onCancel={this.handleNewSpaceCancel} wrapClassName="addSpaceModal">
-                  <Row className="addSpaceItem">
-                    <Col span={3}>名称</Col>
-                    <Col span={21}>
-                      <Input placeholder="新空间名称" onChange={this.handleNewSpaceName} />
-                    </Col>
-                  </Row>
-                  <Row className="addSpaceItem">
-                    <Col span={3}>备注</Col>
-                    <Col span={21}>
-                      <Input type="textarea" rows={5} onChange={this.handleNewSpaceDes} />
-                    </Col>
-                  </Row>
-                </Modal>
+                <CreateSpaceModal
+                  scope={scope}
+                  visible={this.state.createSpaceModalVisible}
+                  onSubmit={this.spaceOnSubmit}/>
               </Col>
             </Row>
             <Row>
