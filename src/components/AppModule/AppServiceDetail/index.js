@@ -238,7 +238,7 @@ class AppServiceDetail extends Component {
             </Button>
               <Dropdown overlay={operaMenu} trigger={['click']}>
                 <Button type="ghost" size="large" className="ant-dropdown-link" href="#">
-                  更多 <i className="fa fa-caret-down"></i>
+                  服务相关 <i className="fa fa-caret-down"></i>
                 </Button>
               </Dropdown>
             </div>

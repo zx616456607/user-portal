@@ -45,7 +45,7 @@ module.exports = function (Router) {
   //router.post('/storage-pools/:pool/:cluster/volumes/:name/import', volumeController.uploadFile)
   router.get('/storage-pools/:pool/:cluster/volumes/:name/filehistory', volumeController.getFileHistory)
   router.get('/storage-pools/:pool/:cluster/volumes/:name/bindinfo', volumeController.getBindInfo)
- // router.get('/storage-pools/:pool/:cluster/volumes/:name/exportfile', volumeController.exportFile)
+  // router.get('/storage-pools/:pool/:cluster/volumes/:name/exportfile', volumeController.exportFile)
   router.get('/storage-pools/:cluster/volumes/available', volumeController.getAvailableVolume)
 
   // Clusters
@@ -105,6 +105,7 @@ module.exports = function (Router) {
   router.post('/users', userController.createUser)
   router.delete('/users/:user_id', userController.deleteUser)
   router.patch('/users/:user_id', userController.updateUser)
+  router.get('/users/:user_name/existence', userController.checkUserName)
 
   // Teams
   router.get('/teams/:team_id/spaces', teamController.getTeamspaces)
@@ -119,6 +120,8 @@ module.exports = function (Router) {
   router.delete('/teams/:team_id/users/:user_ids', teamController.removeTeamusers)
   router.delete('/teams/:team_id/spaces/:space_id', teamController.deleteTeamspace)
   router.put('/teams/:team_id/clusters/:cluster_id/request', teamController.requestTeamCluster)
+  router.get('/teams/:team_name/existence', teamController.checkTeamName)
+  router.get('/teams/:team_id/spaces/:space_name/existence', teamController.checkSpaceName)
 
   //Overview Team
   router.get('/overview/teaminfo', overviewTeamController.getTeamOverview)
@@ -133,7 +136,7 @@ module.exports = function (Router) {
   router.get('/overview/clusters/:cluster_id/appstatus', overviewClusterController.getClusterAppStatus)
   router.get('/overview/clusters/:cluster_id/dbservices', overviewClusterController.getClusterDbServices)
   router.get('/overview/clusters/:cluster_id/nodesummary', overviewClusterController.getClusterNodeSummary)
- 
+
   //Overview Space
   router.get('/overview/spaceinfo', overviewSpaceController.getSpaceOverview)
   router.get('/overview/operations', overviewSpaceController.getSpaceOperations)
