@@ -30,6 +30,7 @@ import { parseServiceDomain } from '../../parseDomain'
 import ServiceStatus from '../../TenxStatus/ServiceStatus'
 import { TENX_MARK } from '../../../constants'
 import { addPodWatch, removePodWatch } from '../../../containers/App/status'
+import TipSvcDomain from '../../TipSvcDomain'
 
 const DEFAULT_TAB = '#containers'
 const TabPane = Tabs.TabPane;
@@ -204,29 +205,28 @@ class AppServiceDetail extends Component {
               {service.metadata.name}
             </p>
             <div className="leftBox">
-              <span>
+              <div>
                 运行状态&nbsp;:&nbsp;
                 <span style={{position:'relative',top:'-5px'}}>
                   <ServiceStatus
                     smart={true}
                     service={service} />
                 </span>
-              </span>
-              <br />
-              <span>
+              </div>
+              <div>
                 地址&nbsp;:&nbsp;
-                {
-                  svcDomain.length > 0 ?
-                    (<a target="_blank" href={svcDomain[0]}>{svcDomain[0]}</a>) : (<span>-</span>)
-                }
-              </span>
-              <br />
-              <span>
+                <div style={{display: 'inline-block'}}>
+                  <TipSvcDomain svcDomain={svcDomain}/>
+                </div>
+              </div>
+              <div>
                 容器实例&nbsp;:&nbsp;
-                {availableReplicas}
-                /
-                {service.spec.replicas || service.metadata.annotations[`${TENX_MARK}/replicas`]}
-              </span>
+                <span>
+                  {availableReplicas}
+                  /
+                  {service.spec.replicas || service.metadata.annotations[`${TENX_MARK}/replicas`]}
+                </span>
+              </div>
             </div>
             <div className="rightBox">
               <Button className="loginBtn" type="primary" size="large"
