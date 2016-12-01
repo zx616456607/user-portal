@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Alert, Button, Icon, Card, Table, Modal, Input, Tooltip } from 'antd'
+import { Row, Col, Alert, Button, Icon, Card, Table, Modal, Input, Tooltip, message, notification,  } from 'antd'
 import './style/TeamManage.less'
 import { Link } from 'react-router'
 import SearchInput from '../../SearchInput'
@@ -16,6 +16,7 @@ import { connect } from 'react-redux'
 import { loadUserTeamList } from '../../../actions/user'
 import { createTeam, deleteTeam, createTeamspace, addTeamusers, removeTeamusers,loadTeamUserList } from '../../../actions/team'
 import MemberTransfer from '../MemberTransfer'
+import CreateTeamModal from '../CreateTeamModal'
 
 const confirm = Modal.confirm;
 
@@ -320,9 +321,9 @@ let TeamTable = React.createClass({
     ]
     return (
       <Table columns={columns}
-             dataSource={searchResult.length === 0?data : searchResult}
-             pagination={pagination}
-             onChange={this.handleChange}
+            dataSource={searchResult.length === 0 ? data : searchResult}
+            pagination={pagination}
+            onChange={this.handleChange}
       />
     )
   },
@@ -332,8 +333,7 @@ class TeamManage extends Component {
   constructor(props){
     super(props)
     this.showModal = this.showModal.bind(this)
-    this.handleOk = this.handleOk.bind(this)
-    this.handleCancel = this.handleCancel.bind(this)
+    this.teamOnSubmit = this.teamOnSubmit.bind(this)
     this.handleCreateTeamInt = this.handleCreateTeamInt.bind(this)
     this.state = {
       searchResult: [],
@@ -351,33 +351,40 @@ class TeamManage extends Component {
       visible: true,
     })
   }
-  handleOk() {
-    this.props.createTeam(
-      {
-        teamName: this.state.teamName
-      },{
+  teamOnSubmit(team) {
+    const { createTeam, loadUserTeamList } = this.props
+    const { pageSize, sort, filter } = this.state
+    const hide = message.loading('正在执行中...', 0)
+    createTeam(team, {
       success: {
         func: () => {
-          console.log('create done');
-          this.props.loadUserTeamList('default',{
+          hide()
+          notification.success({
+            message: `创建团队 ${team.teamName} 成功`,
+          })
+          loadUserTeamList('default',{
             page: 1,
             current: 1,
-            size: this.state.pageSize,
-            sort: this.state.sort,
-            filter: this.state.filter,
+            size: pageSize,
+            sort,
+            filter,
           })
           this.setState({
             visible: false,
           })
         },
         isAsync: true,
+      },
+      failed: {
+        func: (err) => {
+          hide()
+          notification.error({
+            message: `创建团队 ${team.teamName} 失败`,
+            description: err.message.message,
+            duration: 0
+          })
+        }
       }
-    })
-  }
-  handleCancel(e) {
-    e.preventDefault();
-    this.setState({
-      visible: false,
     })
   }
   handleCreateTeamInt(e){
@@ -410,19 +417,9 @@ class TeamManage extends Component {
                type="info"/>
         <Row className="teamOption">
           <Button type="primary" size="large" onClick={this.showModal} className="plusBtn">
-            <i className='fa fa-plus'/>  创建团队
+            <i className='fa fa-plus'/> 创建团队
           </Button>
-            <Modal title="创建团队" visible={visible}
-                   onOk={this.handleOk} onCancel={this.handleCancel}
-                   wrapClassName="NewTeamForm"
-                   width="463px">
-              <Row className="NewTeamItem">
-                <Col span={4}>名称</Col>
-                <Col span={20}>
-                  <Input placeholder="新团队名称" onChange={this.handleCreateTeamInt} defaultValue=""/>
-                </Col>
-              </Row>
-            </Modal>
+          <CreateTeamModal scope={scope} visible={visible} onSubmit={this.teamOnSubmit} />
           <Button className="viewBtn" style={{display: "none"}}>
             <Icon type="picture" />
             查看成员&团队图例

@@ -10,7 +10,7 @@
  * @author Zhangpc
  */
 
-import React, { Component, PropTypes } from 'react'
+import React from 'react'
 import { Input, Modal, Form, Checkbox, Tooltip, Icon, } from 'antd'
 import { USERNAME_REG_EXP } from '../../../constants'
 

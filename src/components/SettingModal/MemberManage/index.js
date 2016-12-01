@@ -9,7 +9,7 @@
  */
 import React, { Component } from 'react'
 import './style/MemberManage.less'
-import { Row, Col, Button, Input, Select, Card, Icon, Table, Modal, Form, Checkbox, Tooltip, message, notification, } from 'antd'
+import { Row, Col, Button, Input, Select, Card, Icon, Table, Modal, Checkbox, Tooltip, message, notification, } from 'antd'
 import SearchInput from '../../SearchInput'
 import { connect } from 'react-redux'
 import { loadUserList, createUser, deleteUser } from '../../../actions/user'
@@ -17,8 +17,6 @@ import { Link } from 'react-router'
 import { USERNAME_REG_EXP } from '../../../constants'
 import CreateUserModal from '../CreateUserModal'
 
-const createForm = Form.create
-const FormItem = Form.Item
 const confirm = Modal.confirm
 
 let MemberTable = React.createClass({
