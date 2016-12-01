@@ -9,16 +9,17 @@
  */
 import React, { Component } from 'react'
 import './style/MemberManage.less'
-import { Row, Col, Button, Input, Select, Card, Icon, Table, Modal, Form, Checkbox, Tooltip, } from 'antd'
+import { Row, Col, Button, Input, Select, Card, Icon, Table, Modal, Form, Checkbox, Tooltip, message, notification, } from 'antd'
 import SearchInput from '../../SearchInput'
 import { connect } from 'react-redux'
 import { loadUserList, createUser, deleteUser } from '../../../actions/user'
 import { Link } from 'react-router'
 import { USERNAME_REG_EXP } from '../../../constants'
+import CreateUserModal from '../CreateUserModal'
 
-const createForm = Form.create;
-const FormItem = Form.Item;
-const confirm = Modal.confirm;
+const createForm = Form.create
+const FormItem = Form.Item
+const confirm = Modal.confirm
 
 let MemberTable = React.createClass({
   getInitialState() {
@@ -31,7 +32,7 @@ let MemberTable = React.createClass({
       sortBalance: true,
       sort: "a,userName",
       filter: ""
-    };
+    }
   },
 
   getSort(order, column) {
@@ -151,7 +152,6 @@ let MemberTable = React.createClass({
     let { sortedInfo, filteredInfo } = this.state
     const { searchResult, notFound } = this.props.scope.state
     const { data, scope } = this.props
-    console.log('listdata', data);
     filteredInfo = filteredInfo || {}
     const pagination = {
       total: this.props.scope.props.total,
@@ -346,215 +346,12 @@ let MemberTable = React.createClass({
     }
   },
 })
-let NewMemberForm = React.createClass({
-  userExists(rule, value, callback) {
-    if (!value) {
-      callback([new Error('请输入用户名')]);
-    } else {
-      setTimeout(() => {
-        if (!USERNAME_REG_EXP.test(value)) {
-          callback([new Error('抱歉，用户名不合法。')]);
-        } else {
-          callback()
-        }
-      }, 800);
-    }
-  },
-  checkPass(rule, value, callback) {
-    const { validateFields } = this.props.form;
-    if (value) {
-      validateFields(['rePasswd'], { force: true });
-    }
-    callback();
-  },
-  checkPass2(rule, value, callback) {
-    const { getFieldValue } = this.props.form;
-    if (value && value !== getFieldValue('passwd')) {
-      callback('两次输入密码不一致！');
-    } else {
-      callback();
-    }
-  },
-  telExists(rule, value, callback) {
-    if (!/^[0-9][-0-9()]{5,12}[0-9]$/.test(value)) {
-      callback([new Error('请输入正确的手机号')]);
-    } else {
-      callback()
-    }
-  },
-  handleOk() {
-    const { scope, users } = this.props
-    this.props.form.validateFields((errors, values) => {
-      if (!!errors) {
-        return;
-      }
-      const { name, passwd, email, tel, check, } = values
-      let newUser = {
-        userName: name,
-        password: passwd,
-        email: email,
-        phone: tel,
-        sendEmail: check,
-      }
 
-      scope.props.createUser(newUser, {
-        success: {
-          func: () => {
-            scope.setState({
-              visible: false,
-
-            })
-            scope.props.loadUserList({
-              page: scope.state.page,
-              size: scope.state.pageSize,
-              sort: scope.state.sort,
-              filter: scope.state.filter
-            })
-          },
-          isAsync: true
-        },
-      })
-    });
-  },
-  handleCancel(e) {
-    const { scope } = this.props
-    e.preventDefault();
-    this.props.form.resetFields();
-    scope.setState({
-      visible: false,
-    })
-  },
-  render() {
-    const { form, scope, visible } = this.props
-    const { getFieldProps, getFieldError, isFieldValidating } = form
-    const text = <span>前台只能添加普通成员</span>
-    const nameProps = getFieldProps('name', {
-      rules: [
-        { validator: this.userExists },
-      ],
-    })
-    const telProps = getFieldProps('tel', {
-      validate: [{
-        rules: [
-          { required: true, message: '请输入手机号' },
-        ],
-        trigger: 'onBlur',
-      }, {
-        rules: [
-          { validator: this.telExists },
-        ],
-        trigger: ['onBlur', 'onChange'],
-      }],
-    })
-    const emailProps = getFieldProps('email', {
-      validate: [{
-        rules: [
-          { required: true, message: '请输入邮箱地址' },
-        ],
-        trigger: 'onBlur',
-      }, {
-        rules: [
-          { type: 'email', message: '请输入正确的邮箱地址' },
-        ],
-        trigger: ['onBlur', 'onChange'],
-      }],
-    })
-    const passwdProps = getFieldProps('passwd', {
-      rules: [
-        { required: true, whitespace: true, message: '请填写密码' },
-        { validator: this.checkPass },
-      ],
-    })
-    const rePasswdProps = getFieldProps('rePasswd', {
-      rules: [{
-        required: true,
-        whitespace: true,
-        message: '请再次输入密码',
-      }, {
-        validator: this.checkPass2,
-      }],
-    })
-    const checkProps = getFieldProps('check', {})
-    const formItemLayout = {
-      labelCol: { span: 7 },
-      wrapperCol: { span: 12 },
-    }
-    return (
-      <Form horizontal form={this.props.form}>
-        <Modal title="添加新成员" visible={visible}
-          onOk={this.handleOk} onCancel={this.handleCancel}
-          wrapClassName="NewMemberForm"
-          width="463px"
-          >
-          <FormItem
-            {...formItemLayout}
-            label="名称"
-            hasFeedback
-            help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
-            >
-            <Input {...nameProps} placeholder="新成员名称" />
-          </FormItem>
-          <FormItem
-            {...formItemLayout}
-            label="类型"
-            hasFeedback
-            >
-            <div>
-              普通成员
-              <Tooltip placement="right" title={text}>
-                <Icon type="question-circle-o" style={{ marginLeft: 10 }} />
-              </Tooltip>
-            </div>
-          </FormItem>
-          <FormItem
-            {...formItemLayout}
-            label="密码"
-            hasFeedback
-            >
-            <Input {...passwdProps} type="password" autoComplete="off"
-              placeholder="新成员名称登录密码"
-              />
-          </FormItem>
-
-          <FormItem
-            {...formItemLayout}
-            label="确认密码"
-            hasFeedback
-            >
-            <Input {...rePasswdProps} type="password" autoComplete="off" placeholder="请再次输入密码确认" />
-          </FormItem>
-          <FormItem
-            {...formItemLayout}
-            label="手机"
-            hasFeedback
-            >
-            <Input {...telProps} type="text" placeholder="新成员手机" />
-          </FormItem>
-          <FormItem
-            {...formItemLayout}
-            label="邮箱"
-            hasFeedback
-            >
-            <Input {...emailProps} type="email" placeholder="新成员邮箱账号" />
-          </FormItem>
-          <FormItem
-            {...formItemLayout}
-            label=""
-            >
-            <Checkbox className="ant-checkbox-vertical" {...checkProps}>
-              创建完成后, 密码账户名发送至该邮箱
-            </Checkbox>
-          </FormItem>
-        </Modal>
-      </Form>
-    )
-  },
-})
-NewMemberForm = createForm()(NewMemberForm)
 class MemberManage extends Component {
   constructor(props) {
     super(props)
     this.showModal = this.showModal.bind(this)
+    this.userOnSubmit = this.userOnSubmit.bind(this)
     this.state = {
       searchResult: [],
       notFound: false,
@@ -579,11 +376,41 @@ class MemberManage extends Component {
       sort: "a,userName",
       filter: "",
     })
-
+  }
+  userOnSubmit(user) {
+    const { createUser, loadUserList } = this.props
+    const { page, pageSize, sort, filter } = this.state
+    const hide = message.loading('正在执行中...', 0)
+    createUser(user, {
+      success: {
+        func: () => {
+          loadUserList({
+            page,
+            size: pageSize,
+            sort,
+            filter,
+          })
+          hide()
+          notification.success({
+            message: `创建用户 ${user.userName} 成功`
+          })
+        },
+        isAsync: true
+      },
+      failed: {
+        func: (err) => {
+          hide()
+          notification.error({
+            message: `创建用户 ${user.userName} 失败`,
+            description: err.message.message,
+            duration: 0
+          })
+        }
+      }
+    })
   }
   render() {
     const { users } = this.props
-    console.log('users', users);
     const scope = this
     const { visible, memberList } = this.state
     const searchIntOption = {
@@ -602,10 +429,10 @@ class MemberManage extends Component {
       <div id="MemberManage">
         <Row>
           <Button type="primary" size="large" onClick={this.showModal} className="addBtn">
-            <i className='fa fa-plus'/> 添加新成员
+            <i className='fa fa-plus' /> 添加新成员
           </Button>
           <SearchInput scope={scope} searchIntOption={searchIntOption} />
-          <NewMemberForm visible={visible} scope={scope} />
+          <CreateUserModal visible={visible} scope={scope} onSubmit={this.userOnSubmit} />
         </Row>
         <Row className="memberList">
           <Card>
