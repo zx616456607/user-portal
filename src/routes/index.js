@@ -100,7 +100,7 @@ const rootRoutes = {
       indexRoute: {
         component: require('../components/IntegrationModule').default,
       }
-    }, {
+    },{
       path: '*',
       component: require('../containers/ErrorPage').default,
     }],

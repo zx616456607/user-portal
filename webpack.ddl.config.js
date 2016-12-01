@@ -19,6 +19,7 @@ const vendors = [
   'rc-scroll-anim',
   'rc-tween-one',
   'react',
+  'react-codemirror',
   'react-dom',
   'react-intl',
   'react-redux',
@@ -30,10 +31,12 @@ const vendors = [
   'redux-devtools-log-monitor',
   'redux-logger',
   'redux-thunk',
+  'socket.io-client',
   // ...其它库
 ];
 
 module.exports = {
+  devtool: 'cheap-source-map',
   output: {
     path: 'static/webpack_dll',
     filename: '[name].js',

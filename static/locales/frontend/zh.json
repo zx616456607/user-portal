@@ -553,5 +553,16 @@
   "Integration.VSphereDetail.used": "已使用：",
   "Integration.VSphereDetail.idle": "空闲：",
   "Integration.VSphereDetail.vgNum": "硬盘总数：",
-  "Integration.VSphereDetail.using": "可用硬盘："
+  "Integration.VSphereDetail.using": "可用硬盘：",
+  "this.is.an.commnent": "/------------------------Editor 编辑器-----------------------/",
+  "Editor.Error.rows": "行：",
+  "Editor.Error.lines": "列：",
+  "Editor.Error.unknownReason": "未知错误",
+  "Editor.Error.yamlError": "yaml语法错误：",
+  "Editor.Error.yamlErrorReason": "错误原因：",
+  "Editor.Error.num": "第",
+  "Editor.Error.yamlIndex": "段yaml",
+  "Editor.Error.errorNum": "错误数：",
+  "Editor.Error.nextOne": "下一个",
+  "Editor.Error.lastOne": "上一个"
 }

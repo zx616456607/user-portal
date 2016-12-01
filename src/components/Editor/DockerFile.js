@@ -22,6 +22,7 @@ const defaultOpts = {
   styleActiveLine: true,
   theme: '3024-night',
   lineWrapping: true,
+  tabSize: 2,
 }
 
 class DockerFileEditor extends Component {
@@ -30,11 +31,11 @@ class DockerFileEditor extends Component {
   }
 
   render() {
-    const { value, options, parentId } = this.props
+    const { value, options, parentId, callback } = this.props
     const newOpts = merge({}, defaultOpts, options)
     newOpts.mode = 'dockerfile'
     return (
-      <Editor value={value} options={newOpts} title={'Docker File'} parentId={parentId} />
+      <Editor value={value} options={newOpts} title={'Docker File'} parentId={parentId} callback={callback} />
     )
   }
 }

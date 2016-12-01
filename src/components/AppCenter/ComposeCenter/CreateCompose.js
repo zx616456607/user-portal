@@ -30,9 +30,11 @@ class CreateCompose extends Component {
     this.handleReset = this.handleReset.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.updateSubmit = this.updateSubmit.bind(this)
+    this.onChangeYamlEditor = this.onChangeYamlEditor.bind(this)
     this.state = {
       composeType: 'stack',
       composeAttr: false,
+      currentYaml: null 
     }
   }
 
@@ -67,7 +69,7 @@ class CreateCompose extends Component {
       const registry = this.props.registry
       const config = {
         'is_public': this.state.composeAttr ? 1 : 2,
-        'content': values.textarea,
+        'content': this.state.currentYaml,
         'name': values.name,
         'description': values.desc
       }
@@ -98,7 +100,8 @@ class CreateCompose extends Component {
     //this function for user submit add other image space
     e.preventDefault();
     const parentScope = this.props.scope;
-    const form = this.props.form
+    const form = this.props.form;
+    const _this = this;
     form.validateFields((errors, values) => {
       if (!!errors) {
         //it's mean there are some thing is null,user didn't input
@@ -110,7 +113,7 @@ class CreateCompose extends Component {
         registry,
         'id': parentScope.state.stackItem.id,
         'is_public': this.state.composeAttr ? 1 : 2,
-        'content': values.textarea,
+        'content': this.state.currentYaml,
         'name': values.name,
         'description': values.desc
       }
@@ -142,6 +145,13 @@ class CreateCompose extends Component {
       //and should submit the message to the backend
     });
   }
+  
+  onChangeYamlEditor(e) {
+    //this function for editor callback
+    this.setState({
+      currentYaml: e
+    })
+  }
 
   render() {
     const scope = this.props.scope;
@@ -152,12 +162,6 @@ class CreateCompose extends Component {
         { required: true, message: '编排名称' }
       ],
       initialValue: paretnState.stackItem.name
-    });
-    const textareaProps = getFieldProps('textarea', {
-      rules: [
-        { required: true, message: '编排文件' },
-      ],
-      initialValue: paretnState.stackItemContent
     });
     const descProps = getFieldProps('desc', {
       rules: [
@@ -209,10 +213,7 @@ class CreateCompose extends Component {
         <span className='title'>描述文件</span>
         </div>
         <div className='rightBox'>
-          <YamlEditor value={paretnState.stackItemContent} options={defaultEditOpts}/>
-          {/*<FormItem hasFeedback>
-            <Input type='textarea' {...textareaProps} autosize={{ minRows: 10, maxRows: 30 }}/>
-          </FormItem>*/}
+          <YamlEditor value={!!paretnState.stackItemContent ? paretnState.stackItemContent : ''} options={defaultEditOpts} callback={this.onChangeYamlEditor.bind(this)}/>
         </div>
         <div style={{ clear:'both' }}></div>
       </div>

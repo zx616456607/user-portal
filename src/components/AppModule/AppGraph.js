@@ -22,7 +22,7 @@ let OrchfileComponent = React.createClass({
     this.props.getAppOrchfile(this.props.cluster, this.props.appName)
   },
   componentDidMount() {
-    //
+    
   },
   render: function () {
     if (!this.props.appOrchfile || !this.props.appOrchfile.result

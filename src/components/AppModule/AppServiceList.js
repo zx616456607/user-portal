@@ -135,7 +135,6 @@ const MyComponent = React.createClass({
   modalShow: function (item) {
     // e.stopPropagation()
     const {scope} = this.props;
-    console.log('scope :::',scope);
     scope.setState({
       selectTab: null,
       modalShow: true,
@@ -728,7 +727,6 @@ class AppServiceList extends Component {
     const { cluster, stopServices, serviceList, appName, loadServiceList } = this.props
     let checkedServiceList = serviceList.filter((service) => service.checked)
     let runningServices = []
-    console.log('this.state.currentShowInstance',this.state.currentShowInstance);
     if (this.state.currentShowInstance) {
       
       checkedServiceList = [this.state.currentShowInstance]
@@ -810,8 +808,6 @@ class AppServiceList extends Component {
     })
   }
   handleRestarServiceCancel() {
-    console.log(`this.state-----------------`)
-    console.log(this.state)
     this.setState({
       RestarServiceModal: false,
     })
@@ -823,7 +819,6 @@ class AppServiceList extends Component {
     let runningServices = []
 
     checkedServiceList.map((service, index) => {
-      console.log('service :::', service);
       if (service.status.phase === 'Running') {
         runningServices.push(service)
       }

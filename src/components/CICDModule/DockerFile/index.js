@@ -17,6 +17,10 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import DockFileEditor from '../../Editor/DockerFile'
 import './style/DockerFile.less'
 
+const editorOptions = {
+  readOnly: false
+}
+
 const menusText = defineMessages({
   tooltips: {
     id: 'CICD.DockerFile.tooltips',
@@ -130,6 +134,12 @@ const MyComponent = React.createClass({
       }
     })
   },
+  onChangeDockerFile(e) {
+    //this functio for the editor ccallback
+    this.setState({
+      dockerfiles: e
+    })
+  },
   render: function () {
     const { config, scope, formatMessage } = this.props
     let items = config.map((item, index) => {
@@ -182,10 +192,19 @@ const MyComponent = React.createClass({
           </div>
         </Modal>
 
-        <Modal title="Dockerfile" width="600px" visible={this.state.editDockerFileModal} onOk={() => this.editDockerFile()} onCancel={() => this.closeModal()}
+        <Modal className='dockerFileEditModal' title="Dockerfile" width="600px" visible={this.state.editDockerFileModal} 
+          onCancel={() => this.closeModal()}
           >
-          <div style={{ padding: "0 20px 20px", minHeight: '300px' }}>
-            <Input type="textarea" value={this.state.dockerfiles} style={{ height: '280px' }} onChange={(e) => this.setState({ dockerfiles: e.target.value })} />
+          <div style={{ minHeight: '300px' }}>
+            <DockFileEditor value={this.state.dockerfiles} callback={this.onChangeDockerFile.bind(this)} options={editorOptions} />
+          </div>
+          <div className='btnBox'>
+            <Button size='large' type='primary' onClick={this.editDockerFile}>
+              <span>确定</span>
+            </Button>
+            <Button size='large' type='primary' onClick={this.closeModal}>
+              <span>取消</span>
+            </Button>
           </div>
         </Modal>
 

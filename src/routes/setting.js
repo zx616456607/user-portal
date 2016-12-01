@@ -10,7 +10,8 @@
  * @author Zhangpc
 */
 
-const CICDRoutes = [{
+
+const settingRoutes = [{
   path: 'member',
   component: require('../components/SettingModal/MemberManage').default,
 },{
@@ -31,6 +32,10 @@ const CICDRoutes = [{
 },{
   path: 'user/:user_id',
   component: require('../components/SettingModal/UserInfo').default,
+},{
+  path: 'cost',
+  component: require('../components/SettingModal/CostCenter').default,
 }]
 
-export default CICDRoutes
+
+export default settingRoutes

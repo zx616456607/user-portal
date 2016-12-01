@@ -178,7 +178,7 @@ export function removePodWatch(cluster, ws) {
     cluster,
     code: 'CLOSED'
   }
-  ws.send(JSON.stringify(config))
+  ws && ws.send(JSON.stringify(config))
 }
 
 export function removeDeploymentWatch(cluster, ws) {
@@ -187,7 +187,7 @@ export function removeDeploymentWatch(cluster, ws) {
     cluster,
     code: 'CLOSED'
   }
-  ws.send(JSON.stringify(config))
+  ws && ws.send(JSON.stringify(config))
 }
 
 export function removeAppWatch(cluster, ws) {
@@ -196,7 +196,7 @@ export function removeAppWatch(cluster, ws) {
     cluster,
     code: 'CLOSED'
   }
-  ws.send(JSON.stringify(config))
+  ws && ws.send(JSON.stringify(config))
 }
 
 function _addWatch(props, config) {

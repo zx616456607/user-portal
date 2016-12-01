@@ -52,7 +52,6 @@ let MyComponent = React.createClass({
     }
     if (checkedList.length === 1) {
       if (checkedList[0].status.phase === 'Running') {
-        console.log('run !');
         parentScope.setState({
           runBtn: false,
           stopBtn: true,
@@ -142,7 +141,6 @@ let MyComponent = React.createClass({
       }
       if (checkedList.length === 1) {
         if (checkedList[0].status.phase === 'Running') {
-          console.log('run !');
           parentScope.setState({
             runBtn: false,
             stopBtn: true,
@@ -512,7 +510,6 @@ class AppList extends Component {
   }
   batchStopApps(app) {
     const { appList } = this.state
-    console.log('app0', app);
     if (app) {
       appList.map((item) => {
         item.checked = false
@@ -526,7 +523,6 @@ class AppList extends Component {
     })
   }
   batchRestartApps(app) {
-    console.log('add', app);
     const { appList } = this.state
     if (app) {
       appList.map((item) => {

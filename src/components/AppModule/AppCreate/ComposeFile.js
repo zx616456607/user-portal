@@ -37,6 +37,7 @@ class ComposeFile extends Component {
     this.handleForm = this.handleForm.bind(this)
     this.appNameCheck = this.appNameCheck.bind(this)
     this.remarkCheck = this.remarkCheck.bind(this)
+    this.editYamlSetState = this.editYamlSetState.bind(this)
 
     let serviceList = JSON.parse(localStorage.getItem('servicesList'))
     let selectedList = JSON.parse(localStorage.getItem('selectedList'))
@@ -173,6 +174,12 @@ class ComposeFile extends Component {
       }
     })
   }
+  editYamlSetState(e) {
+    //this function for yaml edit callback function
+    this.setState({
+      appDescYaml: e
+    })
+  }
 
   render() {
     const { appDescYaml, remark } = this.state
@@ -229,7 +236,7 @@ class ComposeFile extends Component {
               <div className="bottomBox">
                 <span className='title'>描述文件</span>
                 <div className="textareaBox">
-                  <YamlEditor value={appDescYaml} options={defaultEditOpts} parentId={'AppCreate'} />
+                  <YamlEditor value={appDescYaml} options={defaultEditOpts} parentId={'AppCreate'} callback={this.editYamlSetState}/>
                 </div>
                 <div style={{ clear: "both" }}></div>
               </div>

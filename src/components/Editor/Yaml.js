@@ -22,6 +22,7 @@ const defaultOpts = {
   styleActiveLine: true,
   theme: '3024-night',
   lineWrapping: true,
+  tabSize: 2,
 }
 
 class YamlEditor extends Component {
@@ -30,11 +31,11 @@ class YamlEditor extends Component {
   }
 
   render() {
-    const { value, options, parentId } = this.props
+    const { value, options, parentId, callback } = this.props
     const newOpts = merge({}, defaultOpts, options)
     newOpts.mode = 'yaml'
     return (
-      <Editor value={value} options={newOpts} title={'Yaml'} parentId={parentId} />
+      <Editor value={value} options={newOpts} title={'Yaml'} parentId={parentId} callback={callback} />
     )
   }
 }
