@@ -7,32 +7,31 @@
  * v0.1 - 2016/10/31
  * @author ZhaoXueYu
  */
-import React, {Component} from 'react'
+import React, { Component } from 'react'
 import { Row, Col, Card, Button, } from 'antd'
 import './style/UserInfo.less'
 import Information from './Information'
 import Space from './Space'
 import Team from './Team'
 import { connect } from 'react-redux'
-import { loadUserDetail, loadUserList, updateUser,loadUserAppInfo, loadUserTeamspaceDetailList, loadUserTeamList } from '../../../actions/user'
+import { loadUserDetail, loadUserList, updateUser, loadUserAppInfo, loadUserTeamspaceDetailList, loadUserTeamList } from '../../../actions/user'
 
 class UserInfo extends Component {
-  constructor(props){
+  constructor(props) {
     super(props)
     this.state = {
-      
+
     }
   }
   componentWillMount() {
-    const { userID, loadUserDetail, loadUserAppInfo,loadUserTeamspaceDetailList, loadUserTeamList } = this.props
-    console.log('userIDuserID',userID);
-    loadUserDetail(userID?userID:'default')
-    loadUserAppInfo(userID?userID:'default')
-    loadUserTeamspaceDetailList(userID?userID:'default', null)
-    loadUserTeamList(userID?userID:'default', null)
+    const { userID, loadUserDetail, loadUserAppInfo, loadUserTeamspaceDetailList, loadUserTeamList } = this.props
+    loadUserDetail(userID ? userID : 'default')
+    loadUserAppInfo(userID ? userID : 'default')
+    loadUserTeamspaceDetailList(userID ? userID : 'default', null)
+    loadUserTeamList(userID ? userID : 'default', null)
   }
-  render(){
-    const { userDetail, appCount, serviceCount, containerCount, teamspaces,teams } = this.props
+  render() {
+    const { userDetail, appCount, serviceCount, containerCount, teamspaces, teams } = this.props
     return (
       <div id="UserInfo">
         <Row className="title">
@@ -40,7 +39,7 @@ class UserInfo extends Component {
         </Row>
         <Row className="content">
           <Card>
-            <Information userDetail={userDetail}/>
+            <Information userDetail={userDetail} />
           </Card>
         </Row>
         <Row className="title">
@@ -49,10 +48,10 @@ class UserInfo extends Component {
         <Row className="content">
           <Card>
             <Space userDetail={userDetail}
-                   appCount={appCount}
-                   serviceCount={serviceCount}
-                   containerCount={containerCount}
-                   teamspaces={teamspaces}/>
+              appCount={appCount}
+              serviceCount={serviceCount}
+              containerCount={containerCount}
+              teamspaces={teamspaces} />
           </Card>
         </Row>
         <Row className="title">
@@ -61,14 +60,14 @@ class UserInfo extends Component {
         <Row className="content">
           <Card>
             <Team userDetail={userDetail}
-                  teams={teams}/>
+              teams={teams} />
           </Card>
         </Row>
       </div>
     )
   }
 }
-function mapStateToProp(state,props) {
+function mapStateToProp(state, props) {
   const { user_id } = props.params
   let teamspacesData = []
   let spaceTotal = 0
@@ -88,11 +87,10 @@ function mapStateToProp(state,props) {
     userID: '',
     userName: '',
   }
-  const {userDetail, teamspaceDetails, userAppInfo,teams} = state.user
+  const {userDetail, teamspaceDetails, userAppInfo, teams} = state.user
   if (userDetail.result && userDetail.result.data) {
     userDetailData = userDetail.result.data
   }
-  console.log('userDetailData',userDetailData);
   if (teamspaceDetails.result) {
     if (teamspaceDetails.result.teamspaces) {
       teamspacesData = teamspaceDetails.result.teamspaces

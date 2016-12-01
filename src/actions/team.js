@@ -176,7 +176,7 @@ function fetchCreateTeam(body, callback) {
   }
 }
 
-// Create team from API 
+// Create team from API
 // Relies on Redux Thunk middleware.
 export function createTeam(body, callback) {
   return (dispatch, getState) => {
@@ -234,7 +234,7 @@ function fetchCreateTeamspace(teamID, body, callback) {
   }
 }
 
-// Create teamspace from API 
+// Create teamspace from API
 // Relies on Redux Thunk middleware.
 export function createTeamspace(teamID, body, callback) {
   return (dispatch, getState) => {
@@ -264,7 +264,7 @@ function fetchAddTeamusers(teamID, body, callback) {
   }
 }
 
-// Add team users from API 
+// Add team users from API
 // Relies on Redux Thunk middleware.
 export function addTeamusers(teamID, body, callback) {
   return (dispatch, getState) => {
@@ -325,5 +325,51 @@ function fetchDeleteTeamspace(teamID, spaceID, callback) {
 export function deleteTeamspace(teamID, spaceID, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchDeleteTeamspace(teamID, spaceID, callback))
+  }
+}
+
+// Check team name existence
+export const TEAM_CHECK_NAME_REQUEST = 'TEAM_CHECK_NAME_REQUEST'
+export const TEAM_CHECK_NAME_SUCCESS = 'TEAM_CHECK_NAME_SUCCESS'
+export const TEAM_CHECK_NAME_FAILURE = 'TEAM_CHECK_NAME_FAILURE'
+
+function fetchCheckTeamName(teamName, callback) {
+  return {
+    teamName,
+    [FETCH_API]: {
+      types: [TEAM_CHECK_NAME_REQUEST, TEAM_CHECK_NAME_SUCCESS, TEAM_CHECK_NAME_FAILURE],
+      endpoint: `${API_URL_PREFIX}/teams/${teamName}/existence`,
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function checkTeamName(teamName, callback) {
+  return (dispatch) => {
+    return dispatch(fetchCheckTeamName(teamName, callback))
+  }
+}
+
+// Check team space name existence
+export const TEAM_CHECK_SPACE_NAME_REQUEST = 'TEAM_CHECK_SPACE_NAME_REQUEST'
+export const TEAM_CHECK_SPACE_NAME_SUCCESS = 'TEAM_CHECK_SPACE_NAME_SUCCESS'
+export const TEAM_CHECK_SPACE_NAME_FAILURE = 'TEAM_CHECK_SPACE_NAME_FAILURE'
+
+function fetchCheckTeamSpaceName(teamID, spaceName, callback) {
+  return {
+    spaceName,
+    [FETCH_API]: {
+      types: [TEAM_CHECK_SPACE_NAME_REQUEST, TEAM_CHECK_SPACE_NAME_SUCCESS, TEAM_CHECK_SPACE_NAME_FAILURE],
+      endpoint: `${API_URL_PREFIX}/teams/${teamID}/spaces/${spaceName}/existence`,
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function checkTeamSpaceName(teamID, spaceName, callback) {
+  return (dispatch) => {
+    return dispatch(fetchCheckTeamSpaceName(teamID, spaceName, callback))
   }
 }

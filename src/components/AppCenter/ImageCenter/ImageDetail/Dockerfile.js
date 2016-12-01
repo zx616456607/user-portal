@@ -28,7 +28,7 @@ export default class Dockerfile extends Component {
         </Card>
       )
     }
-    if (dockerfile == '') {
+    if (dockerfile == '' || !dockerfile) {
       return (
         <Card className="dockerfile">
           还没有添加 Dockerfile

@@ -197,7 +197,7 @@ function fetchCreateUser(body, callback) {
   }
 }
 
-// Create user from API 
+// Create user from API
 // Relies on Redux Thunk middleware.
 export function createUser(body, callback) {
   return (dispatch, getState) => {
@@ -255,10 +255,33 @@ function fetchUpdateUser(userID, body, callback) {
   }
 }
 
-// Update user from API 
+// Update user from API
 // Relies on Redux Thunk middleware.
 export function updateUser(userID, body, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchUpdateUser(userID, body, callback))
+  }
+}
+
+// Check user name existence
+export const USER_CHECK_NAME_REQUEST = 'USER_CHECK_NAME_REQUEST'
+export const USER_CHECK_NAME_SUCCESS = 'USER_CHECK_NAME_SUCCESS'
+export const USER_CHECK_NAME_FAILURE = 'USER_CHECK_NAME_FAILURE'
+
+function fetchCheckUserName(userName, callback) {
+  return {
+    userName,
+    [FETCH_API]: {
+      types: [USER_CHECK_NAME_REQUEST, USER_CHECK_NAME_SUCCESS, USER_CHECK_NAME_FAILURE],
+      endpoint: `${API_URL_PREFIX}/users/${userName}/existence`,
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function checkUserName(userName, callback) {
+  return (dispatch) => {
+    return dispatch(fetchCheckUserName(userName, callback))
   }
 }

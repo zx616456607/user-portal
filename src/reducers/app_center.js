@@ -374,6 +374,16 @@ function imagesInfo(state = {}, action) {
       return merge({}, defaultState, state, {
         [registry]: { isFetching: false }
       })
+    case ActionTypes.GET_CHECK_IMAGE_SUCCESS: {
+      return Object.assign({}, state, {
+        [registry]: {
+          isFetching: false,
+          registry: registry,
+          server: action.response.result.server,
+          imageInfo: action.response.result.data || null
+        }
+      })
+    }
     default:
       return state
   }
