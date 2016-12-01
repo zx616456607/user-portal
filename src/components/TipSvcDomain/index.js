@@ -18,7 +18,7 @@ class SvcTip extends Component {
   render() {
     const { svcDomain } = this.props
     let item = svcDomain.map((item, index) => {
-      if (item.indexOf('http://') !== -1 || item.indexOf('https://') !== -1) {
+      /* if (item.indexOf('http://') !== -1 || item.indexOf('https://') !== -1) {
         return (
           <li key={item}>
             <a href={item} target="_blank">{item}</a>
@@ -30,7 +30,12 @@ class SvcTip extends Component {
             {item}
           </li>
         )
-      }
+      }*/
+      return (
+        <li key={item}>
+          <a href={item} target="_blank">{item}</a>
+        </li>
+      )
     })
     return (
       <div className='SvcTip'>
@@ -68,9 +73,10 @@ class AppTip extends Component {
               <Timeline.Item dot={<div></div>}>
                 <svg className="branchSvg"><use xlinkHref="#branch" /></svg>
                 {
-                  (item.data[0].indexOf('http://') === -1 || item.data[0].indexOf('https://') === -1) ?
-                    item.data[0] :
-                    <a href={item.data[0]} target="_blank">{item.data[0]}</a>
+                  //(item.data[0].indexOf('http://') === -1 || item.data[0].indexOf('https://') === -1) ?
+                  //  item.data[0] :
+                  //  <a href={item.data[0]} target="_blank">{item.data[0]}</a>
+                  <a href={item.data[0]} target="_blank">{item.data[0]}</a>
                 }
                 <svg className="tipCopySvg"><use xlinkHref="#tipcopy" /></svg>
               </Timeline.Item>
@@ -106,7 +112,7 @@ class AppTip extends Component {
                   return (
                     <Timeline.Item dot={<div></div>}>
                       <svg className="branchSvg"><use xlinkHref="#branch" /></svg>
-                      {url}
+                      <a href={url} target="_blank">{url}</a>
                       <svg className="tipCopySvg"><use xlinkHref="#tipcopy" /></svg>
                     </Timeline.Item>
                   )
@@ -147,7 +153,7 @@ export default class TipSvcDomain extends Component {
           <span>-</span>
         )
       } else if (svcDomain.length == 1) {
-        if (svcDomain[0].indexOf('http://') === -1 || svcDomain[0].indexOf('https://') === -1) {
+        /* if (svcDomain[0].indexOf('http://') === -1 || svcDomain[0].indexOf('https://') === -1) {
           return (
             <div id='TipSvcDomain'>
               {svcDomain[0]}
@@ -159,16 +165,21 @@ export default class TipSvcDomain extends Component {
               <a target="_blank" href={svcDomain[0]}>{svcDomain[0]}</a>
             </div>
           )
-        }
+        }*/
+        return (
+          <div id='TipSvcDomain'>
+            <a target="_blank" href={svcDomain[0]}>{svcDomain[0]}</a>
+          </div>
+        )
       }
       if (svcDomain.length > 1) {
         return (
           <div className='TipSvcDomain'>
-            <span>
+            <span className="appDomain">
               {
-                (svcDomain[0].indexOf('http://') !== -1 || svcDomain[0].indexOf('https://') !== -1) ?
-                  <a target="_blank" href={svcDomain[0]}>{svcDomain[0].slice(0, 15) + '...'}</a> :
-                  svcDomain[0].slice(0, 15) + '...'
+                //(svcDomain[0].indexOf('http://') !== -1 || svcDomain[0].indexOf('https://') !== -1) ?
+                //  <a target="_blank" href={svcDomain[0]}>{svcDomain[0]}</a> : svcDomain[0]
+                 <a target="_blank" href={svcDomain[0]}>{svcDomain[0]}</a>
               }
             </span>
             <Popover placement="right"
@@ -195,24 +206,29 @@ export default class TipSvcDomain extends Component {
       } else if (appDomain.length === 1) {
 
         if (appDomain[0].data.length <= 1) {
-          if (appDomain[0].data[0].indexOf('http://') === -1 || appDomain[0].data[0].indexOf('https://') === -1) {
+          /* if (appDomain[0].data[0].indexOf('http://') === -1 || appDomain[0].data[0].indexOf('https://') === -1) {
             return (
-              <span>{appDomain[0].data[0]}</span>
+              <a target="_blank" href={appDomain[0].data[0]}>{appDomain[0].data[0]}</a>
             )
           } else {
             return (
               <a target="_blank" href={appDomain[0].data[0]}>{appDomain[0].data[0]}</a>
             )
-          }
+          }**/
+          return (
+            <a target="_blank" href={appDomain[0].data[0]}>{appDomain[0].data[0]}</a>
+          )
         }
         if (appDomain[0].data.length > 1) {
           return (
             <div className={type ? 'TipAppDomain fixTop' : 'TipAppDomain'}>
-              {
-                (appDomain[0].data[0].indexOf('http://') !== -1 || appDomain[0].data[0].indexOf('https://') !== -1) ?
-                  <a target="_blank" href={appDomain[0].data[0]}>{appDomain[0].data[0].slice(0, 15) + '...'}</a> :
-                  appDomain[0].data[0].slice(0, 15) + '...'
-              }
+              <span className="appDomain">
+                {
+                  //(appDomain[0].data[0].indexOf('http://') !== -1 || appDomain[0].data[0].indexOf('https://') !== -1) ?
+                  //  <a target="_blank" href={appDomain[0].data[0]}>{appDomain[0].data[0]}</a> : appDomain[0].data[0]
+                  <a target="_blank" href={appDomain[0].data[0]}>{appDomain[0].data[0]}</a>
+                }
+              </span>
               <Popover placement={type ? 'rightBottom' : 'rightTop'}
                 content={<AppTip appDomain={appDomain} />}
                 trigger="click"
@@ -230,11 +246,13 @@ export default class TipSvcDomain extends Component {
       } else {
         return (
           <div className={type ? 'TipAppDomain fixTop' : 'TipAppDomain'}>
-            {
-              (appDomain[0].data[0].indexOf('http://') !== -1 || appDomain[0].data[0].indexOf('https://') !== -1) ?
-                <a target="_blank" href={appDomain[0].data[0]}>{appDomain[0].data[0].slice(0, 15) + '...'}</a> :
-                appDomain[0].data[0].slice(0, 15) + '...'
-            }
+            <span className="appDomain">
+              {
+                //(appDomain[0].data[0].indexOf('http://') !== -1 || appDomain[0].data[0].indexOf('https://') !== -1) ?
+                //  <a target="_blank" href={appDomain[0].data[0]}>{appDomain[0].data[0]}</a> : appDomain[0].data[0]
+                <a target="_blank" href={appDomain[0].data[0]}>{appDomain[0].data[0]}</a>
+              }
+            </span>
             <Popover placement={type ? 'rightBottom' : 'rightTop'}
               content={<AppTip appDomain={appDomain} />}
               trigger="click"
