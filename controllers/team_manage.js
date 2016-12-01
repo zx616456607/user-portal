@@ -293,3 +293,20 @@ exports.deleteTeamspace = function* () {
     data: result
   }
 }
+
+exports.checkTeamName = function* () {
+  const teamName = this.params.team_name
+  const api = apiFactory.getApi(this.session.loginUser)
+  const response = yield api.teams.getBy([teamName, 'existence'])
+  this.status = response.code
+  this.body = response
+}
+
+exports.checkSpaceName = function* () {
+  const teamID = this.params.team_id
+  const spaceName = this.params.space_name
+  const api = apiFactory.getApi(this.session.loginUser)
+  const response = yield api.teams.getBy([teamID, 'spaces', spaceName, 'existence'])
+  this.status = response.code
+  this.body = response
+}

@@ -14,7 +14,7 @@ import { Link } from 'react-router'
 import {
   deleteTeam, createTeamspace, addTeamusers, removeTeamusers,
   loadTeamspaceList, loadTeamUserList, loadAllClustersList,
-  deleteTeamspace, requestTeamCluster
+  deleteTeamspace, requestTeamCluster, checkTeamSpaceName,
 } from '../../../actions/team'
 import { connect } from 'react-redux'
 import MemberTransfer from '../MemberTransfer'
@@ -42,9 +42,8 @@ let MemberList = React.createClass({
     return orderStr + column
   },
   sortMemberName() {
-    const { sortUserOrder,userPageSize,userPage,filter } = this.state
+    const { sortUserOrder, userPageSize, userPage, filter } = this.state
     const { loadTeamUserList, teamID} = this.props
-    console.log('userPageSize',userPageSize);
     let sort = this.getUserSort(!sortUserOrder, 'userName')
     loadTeamUserList(teamID, {
       sort,
@@ -52,17 +51,15 @@ let MemberList = React.createClass({
       size: userPageSize,
       filter,
     })
-    console.log('sortUser !');
     this.setState({
       sortUserOrder: !sortUserOrder,
       sortUser: sort,
     })
   },
 
-  delTeamMember(userID){
-    const { removeTeamusers,teamID, loadTeamUserList } = this.props
+  delTeamMember(userID) {
+    const { removeTeamusers, teamID, loadTeamUserList } = this.props
     const { sortUser, userPageSize, userPage, filter } = this.state
-    console.log('this',this);
     let self = this
     confirm({
       title: '您是否确认要删除这项内容',
@@ -70,8 +67,8 @@ let MemberList = React.createClass({
         removeTeamusers(teamID, userID, {
           success: {
             func: () => {
-              loadTeamUserList(teamID,{
-                sort:sortUser,
+              loadTeamUserList(teamID, {
+                sort: sortUser,
                 page: 1,
                 size: userPageSize,
                 filter,
@@ -206,7 +203,7 @@ let MemberList = React.createClass({
         key: 'edit',
         render: (text, record, index) => (
           <div className="cardBtns">
-            <Button icon="delete" className="delBtn" onClick={this.delTeamMember.bind(this,record.key)}>
+            <Button icon="delete" className="delBtn" onClick={this.delTeamMember.bind(this, record.key)}>
               移除
             </Button>
           </div>
@@ -240,9 +237,8 @@ let TeamList = React.createClass({
     return orderStr + column
   },
   sortSpaceName() {
-    const { loadTeamspaceList, teamID, onChange,spacePageSize, spacePage} = this.props
-    const {sortSpaceOrder}=this.state
-    console.log('sortSpaceOrder',sortSpaceOrder);
+    const { loadTeamspaceList, teamID, onChange, spacePageSize, spacePage} = this.props
+    const {sortSpaceOrder} = this.state
     let sort = this.getSpaceSort(!sortSpaceOrder, 'spaceName')
     loadTeamspaceList(teamID, {
       sort,
@@ -288,16 +284,16 @@ let TeamList = React.createClass({
       spaceCurrent: current,
     })
   },
-  delTeamSpace(spaceID){
-    const { deleteTeamspace,teamID, loadTeamspaceList, sortSpace, spacePage, spacePageSize,onChange } = this.props
+  delTeamSpace(spaceID) {
+    const { deleteTeamspace, teamID, loadTeamspaceList, sortSpace, spacePage, spacePageSize, onChange } = this.props
     confirm({
       title: '您是否确认要删除这项内容',
       onOk() {
-        deleteTeamspace(teamID,spaceID,{
+        deleteTeamspace(teamID, spaceID, {
           success: {
             func: () => {
-              loadTeamspaceList(teamID,{
-                sort:sortSpace,
+              loadTeamspaceList(teamID, {
+                sort: sortSpace,
                 page: 1,
                 size: spacePageSize,
               })
@@ -313,8 +309,8 @@ let TeamList = React.createClass({
     });
   },
   render: function () {
-    const { teamSpacesList, teamSpacesTotal,current } = this.props
-    const {sortSpaceOrder}=this.state
+    const { teamSpacesList, teamSpacesTotal, current } = this.props
+    const {sortSpaceOrder} = this.state
     const pagination = {
       total: teamSpacesTotal,
       showSizeChanger: true,
@@ -386,40 +382,39 @@ let TeamList = React.createClass({
   }
 })
 let ClusterState = React.createClass({
-  getInitialState(){
+  getInitialState() {
     return {
 
     }
   },
-  applyClusterState(){
-    const {requestTeamCluster,clusterID,teamID,loadAllClustersList} = this.props
-    requestTeamCluster(teamID,clusterID)
+  applyClusterState() {
+    const {requestTeamCluster, clusterID, teamID, loadAllClustersList} = this.props
+    requestTeamCluster(teamID, clusterID)
     loadAllClustersList(teamID)
   },
-  componentWillMount(){
-    const {requestTeamCluster,clusterID,teamID,loadAllClustersList} = this.props
+  componentWillMount() {
+    const {requestTeamCluster, clusterID, teamID, loadAllClustersList} = this.props
     loadAllClustersList(teamID)
   },
-  render: function(){
+  render: function () {
     const {state} = this.props
-    console.log('render state',state);
-    if(state === 'authorized'){
+    if (state === 'authorized') {
       return (
         <div id='ClusterState'>
-          <span style={{color:'#5fb55e'}}>已授权</span>
+          <span style={{ color: '#5fb55e' }}>已授权</span>
         </div>
       )
     } else if (state === 'notAuthorized') {
       return (
         <div id='ClusterState'>
-          <span style={{color:'#f85050'}}>未授权</span>
-          <Button type="primary" onClick={this.applyClusterState} style={{backgroundColor:'#00a1e9'}} className="applyBtn">立即申请</Button>
+          <span style={{ color: '#f85050' }}>未授权</span>
+          <Button type="primary" onClick={this.applyClusterState} style={{ backgroundColor: '#00a1e9' }} className="applyBtn">立即申请</Button>
         </div>
       )
     } else if (state === 'pending') {
       return (
         <div id='ClusterState'>
-          <span style={{color:'#82c4f4'}}>授权中...</span>
+          <span style={{ color: '#82c4f4' }}>授权中...</span>
           {/*<Button type="primary" onClick={this.applyClusterState} style={{backgroundColor:'#5db75d',borderColor:'#5db75d'}} className="applyBtn">重复申请</Button>*/}
         </div>
       )
@@ -485,7 +480,6 @@ class TeamDetail extends Component {
     })
   }
   handleChange(targetKeys) {
-    console.log('targetKeys', targetKeys);
     this.setState({ targetKeys })
   }
   addNewSpace() {
@@ -498,35 +492,35 @@ class TeamDetail extends Component {
     const { newSpaceName, newSpaceDes, sortSpace, spacePageSize } = this.state
     const hide = message.loading('正在执行中...', 0)
     createTeamspace(teamID, space, {
-        success: {
-          func: () => {
-            hide()
-            notification.success({
-              message: `创建空间 ${space.spaceName} 成功`,
-            })
-            loadTeamspaceList(teamID,{
-              sort: sortSpace,
-              size: spacePageSize,
-              page: 1,
-            })
-            this.setState({
-              createSpaceModalVisible: false,
-              spaceCurrent: 1
-            })
-          },
-          isAsync: true
+      success: {
+        func: () => {
+          hide()
+          notification.success({
+            message: `创建空间 ${space.spaceName} 成功`,
+          })
+          loadTeamspaceList(teamID, {
+            sort: sortSpace,
+            size: spacePageSize,
+            page: 1,
+          })
+          this.setState({
+            createSpaceModalVisible: false,
+            spaceCurrent: 1
+          })
         },
-        failed: {
-          func: (err) => {
-            hide()
-            notification.error({
-              message: `创建空间 ${space.spaceName} 失败`,
-              description: err.message.message,
-              duration: 0
-            })
-          }
+        isAsync: true
+      },
+      failed: {
+        func: (err) => {
+          hide()
+          notification.error({
+            message: `创建空间 ${space.spaceName} 失败`,
+            description: err.message.message,
+            duration: 0
+          })
         }
-      })
+      }
+    })
   }
   handleNewSpaceCancel(e) {
     this.setState({
@@ -543,20 +537,20 @@ class TeamDetail extends Component {
       newSpaceDes: e.target.value
     })
   }
-  handleSpaceChange(query){
-    const { sortSpace,spacePageSize,spaceCurrent,spacePage } = this.state
+  handleSpaceChange(query) {
+    const { sortSpace, spacePageSize, spaceCurrent, spacePage } = this.state
     this.setState({
-      sortSpace: query.sortSpace ? query.sortSpace: sortSpace,
-      spaceCurrent: query.spaceCurrent ? query.spaceCurrent:spaceCurrent ,
-      spacePageSize: query.spacePageSize ? query.spacePageSize: spacePageSize,
-      spacePage: query.spacePage ? query.spacePage:spacePage,
+      sortSpace: query.sortSpace ? query.sortSpace : sortSpace,
+      spaceCurrent: query.spaceCurrent ? query.spaceCurrent : spaceCurrent,
+      spacePageSize: query.spacePageSize ? query.spacePageSize : spacePageSize,
+      spacePage: query.spacePage ? query.spacePage : spacePage,
     })
   }
   componentWillMount() {
     const { loadAllClustersList, loadTeamUserList, loadTeamspaceList, teamID, } = this.props
     loadAllClustersList(teamID)
-    loadTeamUserList(teamID, { sort: 'a,userName',size:5,page:1 })
-    loadTeamspaceList(teamID, { sort: 'a,spaceName',size:5,page:1})
+    loadTeamUserList(teamID, { sort: 'a,userName', size: 5, page: 1 })
+    loadTeamspaceList(teamID, { sort: 'a,spaceName', size: 5, page: 1 })
   }
 
   render() {
@@ -566,9 +560,12 @@ class TeamDetail extends Component {
       teamSpacesList, teamName, teamID,
       teamUsersTotal, teamSpacesTotal, removeTeamusers,
       loadTeamUserList, loadTeamspaceList, deleteTeamspace,
-      requestTeamCluster,loadAllClustersList
+      requestTeamCluster, loadAllClustersList, checkTeamSpaceName,
     } = this.props
-    const { targetKeys, sortSpace, spaceCurrent, spacePageSize,spacePage,sortSpaceOrder } = this.state
+    const { targetKeys, sortSpace, spaceCurrent, spacePageSize, spacePage, sortSpaceOrder } = this.state
+    const funcs = {
+      checkTeamSpaceName
+    }
     return (
       <div id='TeamDetail'>
         <Row style={{ marginBottom: 20 }}>
@@ -600,7 +597,7 @@ class TeamDetail extends Component {
                     <Row className="cardItem">
                       <Col span={8}>授权状态</Col>
                       <Col span={16}>
-                          <ClusterState state={item.clusterStatus} requestTeamCluster={requestTeamCluster} loadAllClustersList={loadAllClustersList} clusterID={item.clusterID} teamID={teamID}/>
+                        <ClusterState state={item.clusterStatus} requestTeamCluster={requestTeamCluster} loadAllClustersList={loadAllClustersList} clusterID={item.clusterID} teamID={teamID} />
                       </Col>
                     </Row>
                   </Card>
@@ -657,20 +654,22 @@ class TeamDetail extends Component {
                 <CreateSpaceModal
                   scope={scope}
                   visible={this.state.createSpaceModalVisible}
-                  onSubmit={this.spaceOnSubmit}/>
+                  onSubmit={this.spaceOnSubmit}
+                  teamID={teamID}
+                  funcs={funcs} />
               </Col>
             </Row>
             <Row>
               <TeamList teamSpacesList={teamSpacesList}
                 loadTeamspaceList={loadTeamspaceList}
                 teamID={teamID}
-                        sortSpace={sortSpace}
-                        current={spaceCurrent}
-                        spacePageSize={spacePageSize}
-                        spacePage={spacePage}
+                sortSpace={sortSpace}
+                current={spaceCurrent}
+                spacePageSize={spacePageSize}
+                spacePage={spacePage}
                 teamSpacesTotal={teamSpacesTotal}
-                        deleteTeamspace={deleteTeamspace}
-                        onChange={this.handleSpaceChange}/>
+                deleteTeamspace={deleteTeamspace}
+                onChange={this.handleSpaceChange} />
             </Row>
           </Col>
         </Row>
@@ -766,4 +765,5 @@ export default connect(mapStateToProp, {
   loadAllClustersList,
   deleteTeamspace,
   requestTeamCluster,
+  checkTeamSpaceName,
 })(TeamDetail)

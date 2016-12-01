@@ -23,12 +23,27 @@ let CreateSpaceModal = React.createClass({
       callback([new Error('请输入空间名')])
       return
     }
+    const { teamID, funcs } = this.props
+    const { checkTeamSpaceName } = funcs
     setTimeout(() => {
       if (!USERNAME_REG_EXP.test(value)) {
         callback([new Error('抱歉，空间名不合法。')])
         return
       }
-      callback()
+      checkTeamSpaceName(teamID, value, {
+        success: {
+          func: (result) => {
+            if (result.data) {
+              callback([new Error('空间名已经存在')])
+              return
+            }
+            callback()
+          },
+          failed: (err) => {
+            callback([new Error('空间名校验失败')])
+          }
+        }
+      })
     }, 800)
   },
   handleOk() {
@@ -71,25 +86,25 @@ let CreateSpaceModal = React.createClass({
     }
     return (
       <Modal title="创建新空间" visible={visible}
-             onOk={this.handleOk} onCancel={this.handleCancel}
-             wrapClassName="addSpaceModal"
-             width="463px">
-      <Form horizontal>
-        <FormItem
-          {...formItemLayout}
-          label="名称"
-          hasFeedback
-          help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
-          >
-          <Input {...nameProps} placeholder="新空间名称" />
-        </FormItem>
-        <FormItem
-          {...formItemLayout}
-          label="备注">
-          <Input type="textarea" {...descriptionProps} placeholder="备注" />
-        </FormItem>
-      </Form>
-    </Modal>
+        onOk={this.handleOk} onCancel={this.handleCancel}
+        wrapClassName="addSpaceModal"
+        width="463px">
+        <Form horizontal>
+          <FormItem
+            {...formItemLayout}
+            label="名称"
+            hasFeedback
+            help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
+            >
+            <Input {...nameProps} placeholder="新空间名称" />
+          </FormItem>
+          <FormItem
+            {...formItemLayout}
+            label="备注">
+            <Input type="textarea" {...descriptionProps} placeholder="备注" />
+          </FormItem>
+        </Form>
+      </Modal>
     )
   }
 })

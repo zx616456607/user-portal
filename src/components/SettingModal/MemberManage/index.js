@@ -12,7 +12,7 @@ import './style/MemberManage.less'
 import { Row, Col, Button, Input, Select, Card, Icon, Table, Modal, Checkbox, Tooltip, message, notification, } from 'antd'
 import SearchInput from '../../SearchInput'
 import { connect } from 'react-redux'
-import { loadUserList, createUser, deleteUser } from '../../../actions/user'
+import { loadUserList, createUser, deleteUser, checkUserName } from '../../../actions/user'
 import { Link } from 'react-router'
 import { USERNAME_REG_EXP } from '../../../constants'
 import CreateUserModal from '../CreateUserModal'
@@ -159,7 +159,6 @@ let MemberTable = React.createClass({
       current: this.props.scope.state.current,
       pageSizeOptions: ['5', '10', '15', '20'],
       onShowSizeChange(current, pageSize) {
-        console.log('Current: ', current, '; PageSize: ', pageSize);
         scope.props.loadUserList({
           page: current,
           size: pageSize,
@@ -177,7 +176,6 @@ let MemberTable = React.createClass({
         if (current === page) {
           return
         }
-        console.log('Current: ', current);
         scope.props.loadUserList({
           page: current,
           size: pageSize,
@@ -408,7 +406,7 @@ class MemberManage extends Component {
     })
   }
   render() {
-    const { users } = this.props
+    const { users, checkUserName } = this.props
     const scope = this
     const { visible, memberList } = this.state
     const searchIntOption = {
@@ -423,6 +421,9 @@ class MemberManage extends Component {
       defaultValue: 'name',
       placeholder: '请输入关键词搜索',
     }
+    const funcs = {
+      checkUserName
+    }
     return (
       <div id="MemberManage">
         <Row>
@@ -430,7 +431,11 @@ class MemberManage extends Component {
             <i className='fa fa-plus' /> 添加新成员
           </Button>
           <SearchInput scope={scope} searchIntOption={searchIntOption} />
-          <CreateUserModal visible={visible} scope={scope} onSubmit={this.userOnSubmit} />
+          <CreateUserModal
+            visible={visible}
+            scope={scope}
+            onSubmit={this.userOnSubmit}
+            funcs={funcs} />
         </Row>
         <Row className="memberList">
           <Card>
@@ -449,9 +454,7 @@ function mapStateToProp(state) {
   const users = state.user.users
   if (users.result) {
     if (users.result.users) {
-
       usersData = users.result.users
-      console.log('usersData', usersData);
       usersData.map((item, index) => {
         data.push(
           {
@@ -481,4 +484,5 @@ export default connect(mapStateToProp, {
   loadUserList,
   createUser,
   deleteUser,
+  checkUserName,
 })(MemberManage)

@@ -14,7 +14,11 @@ import { Link } from 'react-router'
 import SearchInput from '../../SearchInput'
 import { connect } from 'react-redux'
 import { loadUserTeamList } from '../../../actions/user'
-import { createTeam, deleteTeam, createTeamspace, addTeamusers, removeTeamusers,loadTeamUserList } from '../../../actions/team'
+import {
+  createTeam, deleteTeam, createTeamspace,
+  addTeamusers, removeTeamusers, loadTeamUserList,
+  checkTeamName,
+} from '../../../actions/team'
 import MemberTransfer from '../MemberTransfer'
 import CreateTeamModal from '../CreateTeamModal'
 
@@ -30,10 +34,10 @@ let TeamTable = React.createClass({
       sortCluster: true,
       sortTeamName: true,
       addMember: false,
-      targetKeys:[],
+      targetKeys: [],
       sort: "a,teamName",
       filter: "",
-      nowTeamID:''
+      nowTeamID: ''
     }
   },
   handleChange(pagination, filters, sorter) {
@@ -41,27 +45,27 @@ let TeamTable = React.createClass({
       filteredInfo: filters,
     })
   },
-  handleBack(){
+  handleBack() {
     const { scope } = this.props
     scope.setState({
       notFound: false,
     })
   },
-  delTeam(teamID){
-    const {deleteTeam,loadUserTeamList} = this.props.scope.props
-    const {page,pageSize,sort, filter} = this.props.scope.state
+  delTeam(teamID) {
+    const {deleteTeam, loadUserTeamList} = this.props.scope.props
+    const {page, pageSize, sort, filter} = this.props.scope.state
     confirm({
       title: '您是否确认要删除这项内容',
       onOk() {
         deleteTeam(teamID)
-        loadUserTeamList('default',{
+        loadUserTeamList('default', {
           page: page,
           size: pageSize,
           sort,
           filter,
         })
       },
-      onCancel() {},
+      onCancel() { },
     });
   },
   getSort(order, column) {
@@ -72,11 +76,11 @@ let TeamTable = React.createClass({
     }
     return orderStr + column
   },
-  handleSortMember(){
+  handleSortMember() {
     const { loadUserTeamList } = this.props.scope.props
     const { sortMember } = this.state
     let sort = this.getSort(!sortMember, 'userCount')
-    loadUserTeamList('default',{
+    loadUserTeamList('default', {
       page: this.state.page,
       size: this.state.pageSize,
       sort,
@@ -87,11 +91,11 @@ let TeamTable = React.createClass({
       sort,
     })
   },
-  handleSortSpace(){
+  handleSortSpace() {
     const { loadUserTeamList } = this.props.scope.props
     const { sortSpace } = this.state
     let sort = this.getSort(!sortSpace, 'spaceCount')
-    loadUserTeamList('default',{
+    loadUserTeamList('default', {
       page: this.state.page,
       size: this.state.pageSize,
       sort,
@@ -102,11 +106,11 @@ let TeamTable = React.createClass({
       sort,
     })
   },
-  handleSortCluster(){
+  handleSortCluster() {
     const { loadUserTeamList } = this.props.scope.props
     const { sortCluster } = this.state
     let sort = this.getSort(!sortCluster, 'clusterCount')
-    loadUserTeamList('default',{
+    loadUserTeamList('default', {
       page: this.state.page,
       size: this.state.pageSize,
       sort,
@@ -117,11 +121,11 @@ let TeamTable = React.createClass({
       sort,
     })
   },
-  handleSortTeamName(){
+  handleSortTeamName() {
     const { loadUserTeamList } = this.props.scope.props
     const { sortTeamName } = this.state
     let sort = this.getSort(!sortTeamName, 'teamName')
-    loadUserTeamList('default',{
+    loadUserTeamList('default', {
       page: this.state.page,
       size: this.state.pageSize,
       sort,
@@ -132,41 +136,40 @@ let TeamTable = React.createClass({
       sort,
     })
   },
-  addNewMember(teamID){
-    this.props.loadTeamUserList(teamID,({size:-1}))
+  addNewMember(teamID) {
+    this.props.loadTeamUserList(teamID, ({ size: -1 }))
     this.setState({
       addMember: true,
-      nowTeamID:teamID
+      nowTeamID: teamID
     })
   },
-  handleNewMemberOk(){
-    const { addTeamusers,loadUserTeamList,rowKey } = this.props
-    const { targetKeys,nowTeamID } = this.state
-    const { page,size,sort ,filter} = this.props.scope.state
-    if(targetKeys.length !== 0){
+  handleNewMemberOk() {
+    const { addTeamusers, loadUserTeamList, rowKey } = this.props
+    const { targetKeys, nowTeamID } = this.state
+    const { page, size, sort, filter} = this.props.scope.state
+    if (targetKeys.length !== 0) {
       addTeamusers(nowTeamID,
         targetKeys
-      ,{
-        success: {
-          func:() => {
-            console.log('done');
-            loadUserTeamList('default',{
-              page: page,
-              size: size,
-              sort: sort,
-              filter: filter,
-            })
-            this.setState({
-              addMember: false,
-            })
+        , {
+          success: {
+            func: () => {
+              loadUserTeamList('default', {
+                page: page,
+                size: size,
+                sort: sort,
+                filter: filter,
+              })
+              this.setState({
+                addMember: false,
+              })
 
-          },
-          isAsync: true
-        }
-      })
+            },
+            isAsync: true
+          }
+        })
     }
   },
-  handleNewMemberCancel(e){
+  handleNewMemberCancel(e) {
     this.setState({
       addMember: false,
     })
@@ -186,11 +189,11 @@ let TeamTable = React.createClass({
       filter,
       showSizeChanger: true,
       defaultPageSize: 5,
-      defaultCurrent:1,
-      current:this.props.scope.state.current,
-      pageSizeOptions: ['5','10','15','20'],
+      defaultCurrent: 1,
+      current: this.props.scope.state.current,
+      pageSizeOptions: ['5', '10', '15', '20'],
       onShowSizeChange(current, pageSize) {
-        scope.props.loadUserTeamList('default',{
+        scope.props.loadUserTeamList('default', {
           page: current,
           size: pageSize,
           sort,
@@ -204,8 +207,7 @@ let TeamTable = React.createClass({
       },
       onChange(current) {
         const {pageSize} = scope.state
-        console.log('Current: ', current);
-        scope.props.loadUserTeamList('default',{
+        scope.props.loadUserTeamList('default', {
           page: current,
           size: pageSize,
           sort,
@@ -224,11 +226,11 @@ let TeamTable = React.createClass({
           <div onClick={this.handleSortTeamName}>
             团队名
             <div className="ant-table-column-sorter">
-              <span className= {this.state.sortTeamName?'ant-table-column-sorter-up on':'ant-table-column-sorter-up off'} title="↑">
-                <i className="anticon anticon-caret-up"/>
+              <span className={this.state.sortTeamName ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
+                <i className="anticon anticon-caret-up" />
               </span>
-              <span className= {!this.state.sortTeamName?'ant-table-column-sorter-down on':'ant-table-column-sorter-down off'} title="↓">
-                <i className="anticon anticon-caret-down"/>
+              <span className={!this.state.sortTeamName ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
+                <i className="anticon anticon-caret-down" />
               </span>
             </div>
           </div>
@@ -237,7 +239,7 @@ let TeamTable = React.createClass({
         key: 'team',
         width: '10%',
         className: 'teamName',
-        render: (text,record,index) => (
+        render: (text, record, index) => (
           <Link to={`/setting/team/${record.team}/${record.key}`}>{text}</Link>
         )
       },
@@ -246,11 +248,11 @@ let TeamTable = React.createClass({
           <div onClick={this.handleSortMember}>
             成员
             <div className="ant-table-column-sorter">
-              <span className= {this.state.sortMember?'ant-table-column-sorter-up on':'ant-table-column-sorter-up off'} title="↑">
-                <i className="anticon anticon-caret-up"/>
+              <span className={this.state.sortMember ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
+                <i className="anticon anticon-caret-up" />
               </span>
-              <span className= {!this.state.sortMember?'ant-table-column-sorter-down on':'ant-table-column-sorter-down off'} title="↓">
-                <i className="anticon anticon-caret-down"/>
+              <span className={!this.state.sortMember ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
+                <i className="anticon anticon-caret-down" />
               </span>
             </div>
           </div>
@@ -264,11 +266,11 @@ let TeamTable = React.createClass({
           <div onClick={this.handleSortCluster}>
             在用集群
             <div className="ant-table-column-sorter">
-              <span className= {this.state.sortCluster?'ant-table-column-sorter-up on':'ant-table-column-sorter-up off'} title="↑">
-                <i className="anticon anticon-caret-up"/>
+              <span className={this.state.sortCluster ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
+                <i className="anticon anticon-caret-up" />
               </span>
-              <span className= {!this.state.sortCluster?'ant-table-column-sorter-down on':'ant-table-column-sorter-down off'} title="↓">
-                <i className="anticon anticon-caret-down"/>
+              <span className={!this.state.sortCluster ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
+                <i className="anticon anticon-caret-down" />
               </span>
             </div>
           </div>
@@ -282,11 +284,11 @@ let TeamTable = React.createClass({
           <div onClick={this.handleSortSpace}>
             团队空间
             <div className="ant-table-column-sorter">
-              <span className= {this.state.sortSpace?'ant-table-column-sorter-up on':'ant-table-column-sorter-up off'} title="↑">
-                <i className="anticon anticon-caret-up"/>
+              <span className={this.state.sortSpace ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
+                <i className="anticon anticon-caret-up" />
               </span>
-              <span className= {!this.state.sortSpace?'ant-table-column-sorter-down on':'ant-table-column-sorter-down off'} title="↓">
-                <i className="anticon anticon-caret-down"/>
+              <span className={!this.state.sortSpace ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
+                <i className="anticon anticon-caret-down" />
               </span>
             </div>
           </div>
@@ -299,20 +301,20 @@ let TeamTable = React.createClass({
         title: '操作',
         key: 'operation',
         width: '20%',
-        render: (text,record,index) => (
+        render: (text, record, index) => (
           <div>
-            <Button icon="plus" className="addBtn" onClick={()=>this.addNewMember(record.key)}>添加成员</Button>
+            <Button icon="plus" className="addBtn" onClick={() => this.addNewMember(record.key)}>添加成员</Button>
             <Modal title='添加成员'
-                   visible={this.state.nowTeamID===record.key && this.state.addMember}
-                   onOk={this.handleNewMemberOk}
-                   onCancel={this.handleNewMemberCancel}
-                   width="660px"
-                   wrapClassName="newMemberModal"
-            >
+              visible={this.state.nowTeamID === record.key && this.state.addMember}
+              onOk={this.handleNewMemberOk}
+              onCancel={this.handleNewMemberCancel}
+              width="660px"
+              wrapClassName="newMemberModal"
+              >
               <MemberTransfer onChange={this.handleChange}
-                              targetKeys={targetKeys}
-                              teamID={record.key}
-                              teamUserIDList={teamUserIDList}/>
+                targetKeys={targetKeys}
+                teamID={record.key}
+                teamUserIDList={teamUserIDList} />
             </Modal>
             <Button icon="delete" className="delBtn" onClick={() => this.delTeam(record.key)}>删除</Button>
           </div>
@@ -321,16 +323,16 @@ let TeamTable = React.createClass({
     ]
     return (
       <Table columns={columns}
-            dataSource={searchResult.length === 0 ? data : searchResult}
-            pagination={pagination}
-            onChange={this.handleChange}
-      />
+        dataSource={searchResult.length === 0 ? data : searchResult}
+        pagination={pagination}
+        onChange={this.handleChange}
+        />
     )
   },
 })
 
 class TeamManage extends Component {
-  constructor(props){
+  constructor(props) {
     super(props)
     this.showModal = this.showModal.bind(this)
     this.teamOnSubmit = this.teamOnSubmit.bind(this)
@@ -362,7 +364,7 @@ class TeamManage extends Component {
           notification.success({
             message: `创建团队 ${team.teamName} 成功`,
           })
-          loadUserTeamList('default',{
+          loadUserTeamList('default', {
             page: 1,
             current: 1,
             size: pageSize,
@@ -387,53 +389,61 @@ class TeamManage extends Component {
       }
     })
   }
-  handleCreateTeamInt(e){
-    console.log('input value',e.target.value);
+  handleCreateTeamInt(e) {
     this.setState({
       teamName: e.target.value
     })
   }
-  componentWillMount(){
-    this.props.loadUserTeamList('default',{
+  componentWillMount() {
+    this.props.loadUserTeamList('default', {
       page: 1,
       size: 5,
       sort: "a,teamName",
       filter: "",
     })
   }
-  render(){
+  render() {
     const scope = this
     const { visible } = this.state
-    const { teams,addTeamusers,loadUserTeamList, teamUserIDList,loadTeamUserList } = this.props
-
+    const {
+      teams, addTeamusers, loadUserTeamList,
+      teamUserIDList, loadTeamUserList, checkTeamName
+    } = this.props
     const searchIntOption = {
       placeholder: '搜索',
       defaultSearchValue: 'team',
     }
+    const funcs = {
+      checkTeamName
+    }
     return (
       <div id="TeamManage">
-        <Alert message="团队, 由若干个成员组成的一个集体, 可等效于公司的部门、项目组、或子公司，
-        包含『团队空间』这一逻辑隔离层， 以实现对应您企业内部各个不同项目， 或者不同逻辑组在云平台上操作对象的隔离， 团队管理员可见对应团队的所有空间的应用等对象。"
-               type="info"/>
+        <Alert message={`团队, 由若干个成员组成的一个集体, 可等效于公司的部门、项目组、或子公司，
+          包含『团队空间』这一逻辑隔离层， 以实现对应您企业内部各个不同项目， 或者不同逻辑组在云平台上操作对象的隔离， 团队管理员可见对应团队的所有空间的应用等对象。`}
+          type="info" />
         <Row className="teamOption">
           <Button type="primary" size="large" onClick={this.showModal} className="plusBtn">
-            <i className='fa fa-plus'/> 创建团队
+            <i className='fa fa-plus' /> 创建团队
           </Button>
-          <CreateTeamModal scope={scope} visible={visible} onSubmit={this.teamOnSubmit} />
-          <Button className="viewBtn" style={{display: "none"}}>
+          <CreateTeamModal
+            scope={scope}
+            visible={visible}
+            onSubmit={this.teamOnSubmit}
+            funcs={funcs} />
+          <Button className="viewBtn" style={{ display: "none" }}>
             <Icon type="picture" />
             查看成员&团队图例
           </Button>
-          <SearchInput searchIntOption={searchIntOption} scope={scope} data={teams}/>
+          <SearchInput searchIntOption={searchIntOption} scope={scope} data={teams} />
         </Row>
         <Row className="teamList">
           <Card>
             <TeamTable data={teams}
-                       scope={scope}
-                       addTeamusers={addTeamusers}
-                       loadUserTeamList={loadUserTeamList}
-                       loadTeamUserList={loadTeamUserList}
-                       teamUserIDList={teamUserIDList}/>
+              scope={scope}
+              addTeamusers={addTeamusers}
+              loadUserTeamList={loadUserTeamList}
+              loadTeamUserList={loadTeamUserList}
+              teamUserIDList={teamUserIDList} />
           </Card>
         </Row>
       </div>
@@ -441,7 +451,7 @@ class TeamManage extends Component {
   }
 }
 
-function mapStateToProp(state,props) {
+function mapStateToProp(state, props) {
   let teamsData = []
   let total = 0
   let data = []
@@ -451,8 +461,8 @@ function mapStateToProp(state,props) {
   if (teams.result) {
     if (teams.result.teams) {
       teamsData = teams.result.teams
-      if(teamsData.length !== 0){
-        teamsData.map((item,index) => {
+      if (teamsData.length !== 0) {
+        teamsData.map((item, index) => {
           data.push(
             {
               key: item.teamID,
@@ -494,4 +504,5 @@ export default connect(mapStateToProp, {
   addTeamusers,
   removeTeamusers,
   loadTeamUserList,
+  checkTeamName,
 })(TeamManage)

@@ -23,12 +23,26 @@ let CreateTeamModal = React.createClass({
       callback([new Error('请输入团队名')])
       return
     }
+    const { checkTeamName } = this.props.funcs
     setTimeout(() => {
       if (!USERNAME_REG_EXP.test(value)) {
         callback([new Error('抱歉，团队名不合法。')])
         return
       }
-      callback()
+      checkTeamName(value, {
+        success: {
+          func: (result) => {
+            if (result.data) {
+              callback([new Error('团队名已经存在')])
+              return
+            }
+            callback()
+          },
+          failed: (err) => {
+            callback([new Error('团队名校验失败')])
+          }
+        }
+      })
     }, 800)
   },
   handleOk() {
@@ -69,20 +83,20 @@ let CreateTeamModal = React.createClass({
     }
     return (
       <Modal title="创建团队" visible={visible}
-             onOk={this.handleOk} onCancel={this.handleCancel}
-             wrapClassName="NewTeamForm"
-             width="463px">
-      <Form horizontal>
-        <FormItem
-          {...formItemLayout}
-          label="名称"
-          hasFeedback
-          help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
-          >
-          <Input {...nameProps} placeholder="新团队名称" />
-        </FormItem>
-      </Form>
-    </Modal>
+        onOk={this.handleOk} onCancel={this.handleCancel}
+        wrapClassName="NewTeamForm"
+        width="463px">
+        <Form horizontal>
+          <FormItem
+            {...formItemLayout}
+            label="名称"
+            hasFeedback
+            help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
+            >
+            <Input {...nameProps} placeholder="新团队名称" />
+          </FormItem>
+        </Form>
+      </Modal>
     )
   }
 })

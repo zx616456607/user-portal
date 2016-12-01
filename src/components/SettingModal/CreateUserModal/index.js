@@ -23,12 +23,26 @@ let CreateUserModal = React.createClass({
       callback([new Error('请输入用户名')])
       return
     }
+    const { checkUserName } = this.props.funcs
     setTimeout(() => {
       if (!USERNAME_REG_EXP.test(value)) {
         callback([new Error('抱歉，用户名不合法。')])
         return
       }
-      callback()
+      checkUserName(value, {
+        success: {
+          func: (result) => {
+            if (result.data) {
+              callback([new Error('用户名已经存在')])
+              return
+            }
+            callback()
+          },
+          failed: (err) => {
+            callback([new Error('用户名校验失败')])
+          }
+        }
+      })
     }, 800)
   },
   checkPass(rule, value, callback) {
