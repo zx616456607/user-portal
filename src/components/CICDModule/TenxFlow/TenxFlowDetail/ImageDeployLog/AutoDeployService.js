@@ -220,27 +220,15 @@ let AutoDeployService = React.createClass({
   addDelpoy() {
     this.setState({ addDelpoyRow: true })
   },
-  setStateValue(types, e) {
-    this.setState({
-      [types]: e
-    })
-  },
-  setStateCluster(e) {
-    this.setState({
-      cluster_id: e
-    })
+  getAppList(cluster,imageName) {
     const self = this
     const { loadAppList} = this.props
-    const imageName = this.state.image_name
-    loadAppList(e, { size: 50 }, {
+    // const imageName = this.state.image_name
+    loadAppList(cluster, { size: 50 }, {
       success: {
         func: (res) => {
           let deployment_id = ''
           let provinceData = []
-          provinceData.push({
-            imagename:'',
-            bindId:''
-          })
           if (res.data.length > 0) {
             res.data.forEach((item) => {
               if (item.services.length > 0) {
@@ -255,16 +243,33 @@ let AutoDeployService = React.createClass({
 
             deployment_id = res.data[0].services[0].metadata.uid
           }
-          // console.log(provinceData)
+          console.log(imageName)
+          console.log(cluster)
+          console.log(provinceData)
           self.setState({
-            serviceList: provinceData,
-            deployment_id,
-            deployment_name: provinceData[1].imagename
+              serviceList: provinceData,
+              deployment_id,
+              deployment_name: provinceData.length > 0 ? provinceData[0].imagename : ''
           })
-
         }
       }
     })
+  },
+  setStateValue(types, e) {
+    this.setState({
+      [types]: e
+    })
+    const cluster = this.state.cluster_id ? this.state.cluster_id : this.props.cluster
+    if (types === 'image_name') {
+      this.getAppList(cluster, e)
+    }
+  },
+  setStateCluster(e) {
+    this.setState({
+      cluster_id: e
+    })
+    this.getAppList(e, this.state.image_name)
+    
   },
   setStateType(types, e) {
     this.setState({
@@ -364,7 +369,7 @@ let AutoDeployService = React.createClass({
     }
     const content = (
       <a>
-        <div onClick={this.hide}>去部署服务</div>
+        <div>去部署服务</div>
       </a>
     );
     const {clusterList, cdImageList} = this.props
@@ -373,11 +378,10 @@ let AutoDeployService = React.createClass({
     const clusterOptions = clusterList.map(list => <Option key={list.clusterID}>{list.clusterName}</Option>)
     const appListOptions = []
     if (this.state.serviceList.length > 0) {
-      this.state.serviceList.slice(1).forEach((item) => {
-          appListOptions.push(<Option key={item.imagename + '&@' + item.bindId}>{item.imagename}</Option>)
+      this.state.serviceList.forEach((item) => {
+         appListOptions.push(<Option key={item.imagename + '&@' + item.bindId}>{item.imagename}</Option>)
       })
     }
-
     let items = cdRulesList.map((item, index) => {
       // let items = getFieldValue('rulesList').map((i= i-1) => {
       const tagSelect = getFieldProps('tagSelect' + item.ruleId, {
@@ -429,9 +433,9 @@ let AutoDeployService = React.createClass({
             </Form.Item>
 
             <Form.Item key={'select' + item.ruleId} className='service commonItem'>
-              <Select size="large"  {...serviceNameSelect} disabled={!self.state.editingList[item.ruleId]}>
-                {appListOptions}
-              </Select>
+            <Select size="large"  {...serviceNameSelect} disabled={!self.state.editingList[item.ruleId]}>
+            </Select>
+            
             </Form.Item>
             <Form.Item key={'selectId' + item.ruleId} className='service commonItem' style={{ display: 'none' }}>
               <Select size="large"  {...serviceIdSelect}>
@@ -453,10 +457,14 @@ let AutoDeployService = React.createClass({
             </Form.Item>
             <div className='opera commonItem'>
               <div className='btnBox'>
+                {/*
+                <span>
+                  <Icon type="edit" onClick={() => self.changeEdit(item.ruleId)} /> 
+                  <Icon type="delete" onClick={() => self.removeRule(item.ruleId)} style={{ marginLeft: '15px' }} />
+                </span>
+                */}
                 {!self.state.editingList[item.ruleId] ? [
-                  <span><Icon type="edit" onClick={() => self.changeEdit(item.ruleId)} />
-                    <Icon type="delete" onClick={() => self.removeRule(item.ruleId)} style={{ marginLeft: '15px' }} />
-                  </span>
+                  <Button type="ghost"  onClick={() => self.removeRule(item.ruleId)}>删除</Button>
                 ] :
                   [
                     <span>
@@ -543,12 +551,12 @@ let AutoDeployService = React.createClass({
                     </div>
                     <div key='appname' className='service commonItem'>
                       {this.state.deployment_name =='' ?
-                       <Popover content={content} placement="top" title="部署服务？" trigger="click">
+                       <Popover content={content} placement="topLeft" title="已选择镜像名称？" trigger="click">
                         <Input size="large" value=""/>
                       </Popover>
                       :
                       [<Select size="large" value={this.state.deployment_name} disabled={this.state.cluster_id ? false : true} onChange={(e) => this.setStateService(e)} placeholder="服务名称" >
-                        {appListOptions}
+                         { appListOptions } 
                       </Select>]
                     }
                     </div>
@@ -595,7 +603,7 @@ let AutoDeployService = React.createClass({
         </div>
       </div>
     );
-  },
+  }
 });
 
 function mapStateToProps(state, props) {

@@ -8,14 +8,13 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Menu, Button, Card, Input, Dropdown,Spin, Modal ,message} from 'antd'
+import { Menu, Button, Card, Input, Dropdown, Spin, Modal, message ,notification} from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { loadPrivateImageList ,getImageDetailInfo ,deleteImage} from '../../../actions/app_center'
+import { loadPrivateImageList, getImageDetailInfo, deleteImage, checkImage } from '../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../constants'
-
 import "./style/ImageSpace.less"
 import ImageDetailBox from './ImageDetail'
 
@@ -108,13 +107,13 @@ const MyComponent = React.createClass({
       cancelText: '取消',
       onOk() {
         deleteImage(config, {
-          success:{
-            func:()=>{
+          success: {
+            func: () => {
               message.success('删除成功！')
             }
           },
-          failed:{
-            func: (res)=>{
+          failed: {
+            func: (res) => {
               message.error('删除失败')
             }
           }
@@ -123,17 +122,48 @@ const MyComponent = React.createClass({
       }
     })
   },
+  componentWillMount() {
+    const imagename = location.search.split('imageName=')[1]
+    if (imagename !== '') {
+      const scope = this.props.scope;
+      const config = {
+        registry: DEFAULT_REGISTRY,
+        image: imagename
+      }
+      scope.setState({
+        privateDetailModal: true,
+        currentImage: this.props.imageInfo
+      });
+      scope.props.checkImage(config, {
+        success: {
+          func: (res) => {
+            if (res.data.hasOwnProperty('status') && res.data.status == 404) {
+              notification.warning({
+                message: '镜像不存在',
+                description:'所查看的镜像不存在, 建议关闭详情信息框',
+                key: 'showNotImageDetail'
+              })
+              return
+            }
+          }
+        }
+      })
+      this.setState({
+        imageInfo: this.props.imageInfo
+      })
+    }
+  },
   showImageDetail: function (id) {
     //this function for user select image and show the image detail info
-     const scope = this.props.scope;
-     scope.setState({
-      privateDetailModal:true,
-      currentImage:id
-     });
-     const fullgroup={registry: DEFAULT_REGISTRY, fullName: id.name}
-     this.props.getImageDetailInfo(fullgroup, {
+    const scope = this.props.scope;
+    scope.setState({
+      privateDetailModal: true,
+      currentImage: id
+    });
+    const fullgroup = { registry: DEFAULT_REGISTRY, fullName: id.name }
+    this.props.getImageDetailInfo(fullgroup, {
       success: {
-        func: (res)=> {
+        func: (res) => {
           scope.setState({
             imageInfo: res.data
           })
@@ -152,7 +182,7 @@ const MyComponent = React.createClass({
     }
     if (imageList.length === 0) {
       return (
-        <div style={{lineHeight:'100px',height:'200px',paddingLeft:'40px'}}>您还没有镜像，去上传一个吧！</div>
+        <div style={{ lineHeight: '100px', height: '200px', paddingLeft: '40px' }}>您还没有镜像，去上传一个吧！</div>
       )
     }
     let items = imageList.map((item, index) => {
@@ -184,7 +214,7 @@ const MyComponent = React.createClass({
             </span>
             <span className="imageUrl textoverflow">
               <FormattedMessage {...menusText.imageUrl} />&nbsp;
-              <span className="">{ registryServer }/{item.name}</span>
+              <span className="">{registryServer}/{item.name}</span>
             </span>
             <span className="downloadNum">
               <FormattedMessage {...menusText.downloadNum} />&nbsp;{item.downloadNumber}
@@ -263,7 +293,7 @@ class ImageSpace extends Component {
     const { formatMessage } = this.props.intl;
     const rootscope = this.props.scope;
     const scope = this;
-    const { imageList ,server} = this.props
+    const { imageList, server, imageInfo} = this.props
     return (
       <QueueAnim className="ImageSpace"
         type="right"
@@ -281,7 +311,7 @@ class ImageSpace extends Component {
               </Button>
 
             </div>
-            <MyComponent scope={scope} isFetching={this.props.isFetching} imageList= {imageList} registryServer= {server} getImageDetailInfo = {(obj,callback)=>this.props.getImageDetailInfo(obj,callback) } />
+            <MyComponent scope={scope} isFetching={this.props.isFetching} imageList={imageList} registryServer={server} imageInfo={imageInfo} getImageDetailInfo={(obj, callback) => this.props.getImageDetailInfo(obj, callback)} />
             <Modal title={<FormattedMessage {...menusText.uploadImage} />} className="uploadImageModal" visible={this.state.uploadModalVisible}
               onCancel={this.closeUploadModal} onOk={this.closeUploadModal}
               >
@@ -336,16 +366,16 @@ function mapStateToProps(state, props) {
     isFetching: false,
     registry: DEFAULT_REGISTRY,
     imageList: [],
-    server:''
+    server: ''
 
   }
   const defaultConfig = {
     isFetching: false,
-    imageInfo: {dockerfile:'', detailMarkdown:''}
+    imageInfo: { dockerfile: '', detailMarkdown: '' }
   }
   const { privateImages, imagesInfo } = state.images
-  const { imageList, isFetching, registry ,server} = privateImages[DEFAULT_REGISTRY] || defaultPrivateImages
-  const { imageInfo } = imagesInfo || defaultConfig
+  const { imageList, isFetching, registry, server} = privateImages[DEFAULT_REGISTRY] || defaultPrivateImages
+  const { imageInfo } = imagesInfo[DEFAULT_REGISTRY] || defaultConfig
 
   return {
     imageList,
@@ -368,10 +398,11 @@ function mapStateToProps(state, props) {
 //   }
 // }
 
-export default connect(mapStateToProps,{
+export default connect(mapStateToProps, {
   loadPrivateImageList,
   getImageDetailInfo,
-  deleteImage
+  deleteImage,
+  checkImage
 })(injectIntl(ImageSpace, {
   withRef: true,
 }))

@@ -63,9 +63,6 @@ let MyComponent = React.createClass({
 class ServiceAPI extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-
-    }
   }
 
   componentWillMount() {

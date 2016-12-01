@@ -252,6 +252,28 @@ export function getImageDetailInfo(obj, callback) {
   }
 }
 
+export const GET_CHECK_IMAGE_REQUEST = 'GET_CHECK_IMAGE_REQUEST'
+export const GET_CHECK_IMAGE_SUCCESS = 'GET_CHECK_IMAGE_SUCCESS'
+export const GET_CHECK_IMAGE_FAILURE = 'GET_CHECK_IMAGE_FAILURE'
+
+function fetchCheckImage(obj, callback) {
+  return {
+    [FETCH_API]: {
+      types: [GET_CHECK_IMAGE_REQUEST, GET_CHECK_IMAGE_SUCCESS, GET_CHECK_IMAGE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/registries/${obj.registry}/${obj.image}`,
+      schema: {}
+    },
+    registry: obj.registry,
+    callback
+  }
+}
+
+export function checkImage(obj, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchCheckImage(obj, callback))
+  }
+}
+
 export const DELETE_PRIVATE_IMAGE_REQUEST = 'DELETE_PRIVATE_IMAGE_REQUEST'
 export const DELETE_PRIVATE_IMAGE_SUCCESS = 'DELETE_PRIVATE_IMAGE_SUCCESS'
 export const DELETE_PRIVATE_IMAGE_FAILURE = 'DELETE_PRIVATE_IMAGE_FAILURE'

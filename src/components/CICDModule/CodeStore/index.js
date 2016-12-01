@@ -21,7 +21,7 @@ import './style/CodeStore.less'
 const menusText = defineMessages({
   tooltips: {
     id: 'CICD.TenxStorm.tooltips',
-    defaultMessage: '代码仓库：这里完成构建前的准备的工作，开发者可以在这里关联企业里业务代码所在的托管仓库，关联好的代码仓库后，选择激活代码项目为可构建状态，后便后续构建Flow里选择可构建的代码库。',
+    defaultMessage: '代码仓库：这里完成构建前的准备的工作，开发者可以在这里关联企业里业务代码所在的托管仓库，关联好的代码仓库后，选择激活代码项目为可构建状态，后便后续构建TenxFlow里选择可构建的代码库。',
   },
   show: {
     id: 'CICD.TenxStorm.show',
@@ -249,7 +249,7 @@ const MyComponent = React.createClass({
             <p style={{lineHeight:'30px'}}>检测到关联的代码托管系统：</p>
             <p style={{lineHeight:'40px'}}><span style={{color:'#00A0EA'}} className="name">仓库: {this.state.repoType} / {this.state.itemName} </span>  <span style={{color:'#00A0EA', marginLeft:'20px'}} className="type">属性：{this.state.itemType==1 ? "私有" : "公有"}</span> </p>
 
-            <p style={{lineHeight:'40px'}}>* 请手动配置一下公钥到github 项目中</p>
+            <p style={{lineHeight:'40px'}}>* 请手动配置以下公钥到github 项目中</p>
             <div style={{padding: '10px',border:'1px solid #d9d9d9',wordWrap:'break-word'}}>{ this.state.publicKey }</div>
             <p style={{opacity:'0',position:'absolute'}}><Input type="textarea" className="KeyCopy" autosize={{ minRows: 2, maxRows: 6 }} value={ this.state.publicKey} /></p>
             <p style={{marginTop:'10px'}}>
