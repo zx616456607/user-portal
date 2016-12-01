@@ -62,8 +62,8 @@ const menusText = defineMessages({
     id: 'CICD.Tenxflow.TenxFlowBuildLog.hShow',
     defaultMessage: '小时',
   },
-  running: {
-    id: 'CICD.Tenxflow.TenxFlowBuildLog.running',
+  building: {
+    id: 'CICD.Tenxflow.TenxFlowBuildLog.building',
     defaultMessage: '运行中',
   },
   wait: {
@@ -87,7 +87,7 @@ function checkStatusSpan(status, scope) {
       return formatMessage(menusText.fail);
       break;
     case 2:
-      return formatMessage(menusText.running);
+      return formatMessage(menusText.building);
       break;
     case 3:
       return formatMessage(menusText.waitting);
@@ -117,7 +117,7 @@ function dateSizeFormat(startTime, endTime, scope) {
   //this function for user get the flow building time
   const { formatMessage } = scope.props.intl;
   if (!Boolean(endTime)) {
-    return (<span>{formatMessage(menusText.running)}</span>)
+    return (<span>{formatMessage(menusText.building)}</span>)
   }
   let newStart = new Date(Date.parse(startTime.replace('T', ' ').replace(/-/g, '/').split('.')[0]));
   let newEnd = new Date(Date.parse(endTime.replace('T', ' ').replace(/-/g, '/').split('.')[0]));
@@ -263,7 +263,7 @@ let MyComponent = React.createClass({
   }
 });
 
-class TenxFlowBuildLog extends Component {
+class StageBuildLog extends Component {
   constructor(props) {
     super(props);
     this.changeModalSize = this.changeModalSize.bind(this);
@@ -309,7 +309,7 @@ class TenxFlowBuildLog extends Component {
     const { logs, isFetching, flowId } = this.props;
     if (isFetching) {
       return (
-        <div id='TenxFlowBuildLog' className={this.state.modalSize == 'big' ? 'bigModal' : 'smallModal'}>
+        <div id='StageBuildLog' className={this.state.modalSize == 'big' ? 'bigModal' : 'smallModal'}>
           <div className='title'>
             <span>执行记录</span>
             <i className='fa fa-expand' onClick={this.changeModalSize} />
@@ -325,7 +325,7 @@ class TenxFlowBuildLog extends Component {
     }
     if (!Boolean(logs) || logs.length == 0) {
       return (
-        <div id='TenxFlowBuildLog' className={this.state.modalSize == 'big' ? 'bigModal' : 'smallModal'}>
+        <div id='StageBuildLog' className={this.state.modalSize == 'big' ? 'bigModal' : 'smallModal'}>
           <div className='title'>
             <span>执行记录</span>
             <i className='fa fa-expand' onClick={this.changeModalSize} />
@@ -340,7 +340,7 @@ class TenxFlowBuildLog extends Component {
       )
     }
     return (
-      <div id='TenxFlowBuildLog' className={this.state.modalSize == 'big' ? 'bigModal' : 'smallModal'}>
+      <div id='StageBuildLog' className={this.state.modalSize == 'big' ? 'bigModal' : 'smallModal'}>
         <div className='title'>
           <span>执行记录</span>
           <i className='fa fa-expand' onClick={this.changeModalSize} />
@@ -362,13 +362,13 @@ function mapStateToProps(state, props) {
   }
 }
 
-TenxFlowBuildLog.propTypes = {
+StageBuildLog.propTypes = {
   intl: PropTypes.object.isRequired,
 }
 
 export default connect(mapStateToProps, {
   getFlowBuildStageLogs
-})(injectIntl(TenxFlowBuildLog, {
+})(injectIntl(StageBuildLog, {
   withRef: true,
 }));
 

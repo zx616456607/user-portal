@@ -330,7 +330,7 @@ function mapStateToProps(state, props) {
     isFetching,
     flowList,
     buildFetching,
-    logs,
+    logs
   }
 }
 

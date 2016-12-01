@@ -102,7 +102,7 @@ class TenxFlowDetailFlow extends Component {
           func: (res) => {
             getTenxFlowStateList(flowId, {
               success: {
-                func: (result) => {                 
+                func: () => {                 
                   notification['success']({
                     message: '流程构建',
                     description: '流程构建成功~',
