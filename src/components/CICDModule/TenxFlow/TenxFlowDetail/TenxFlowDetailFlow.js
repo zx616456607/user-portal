@@ -15,11 +15,13 @@ import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import { getTenxFlowStateList, getProjectList, searchProject } from '../../../../actions/cicd_flow'
-import { getDockerfileList, CreateTenxflowBuild, StopTenxflowBuild } from '../../../../actions/cicd_flow'
+import { getDockerfileList, CreateTenxflowBuild, StopTenxflowBuild, changeSingleState } from '../../../../actions/cicd_flow'
 import './style/TenxFlowDetailFlow.less'
 import EditTenxFlowModal from './TenxFlowDetailFlow/EditTenxFlowModal.js'
 import CreateTenxFlowModal from './TenxFlowDetailFlow/CreateTenxFlowModal.js'
 import TenxFlowDetailFlowCard from './TenxFlowDetailFlow/TenxFlowDetailFlowCard.js'
+import Socket from '../../../Websocket/socketIo'
+
 
 const confirm = Modal.confirm;
 
@@ -51,7 +53,8 @@ class TenxFlowDetailFlow extends Component {
       currentFlowEdit: null,
       createNewFlow: false,
       buildingList: [],
-      refreshing: false
+      refreshing: false,
+      websocket: ''
     }
   }
 
@@ -59,6 +62,7 @@ class TenxFlowDetailFlow extends Component {
     const { getTenxFlowStateList, flowId, getProjectList, getDockerfileList } = this.props;
     const _this = this;
     let buildingList = [];
+    const cicdApi = this.props.cicdApi
     getTenxFlowStateList(flowId, {
       success: {        
         func: (res) => {
@@ -71,11 +75,13 @@ class TenxFlowDetailFlow extends Component {
             }
             buildingList.push({
               buildId: buildId,
-              stageId: item.metadata.id
+              stageId: item.metadata.id,
+              status: item.lastBuildStatus.status
             })
-          });
+          })
           _this.setState({
-            buildingList: buildingList
+            buildingList: buildingList,
+            websocket: <Socket url={cicdApi.host} path={cicdApi.path} protocol={cicdApi.protocol} onSetup={(socket) => _this.onSetup(socket)} />   
           });
           getProjectList();
         },
@@ -96,7 +102,7 @@ class TenxFlowDetailFlow extends Component {
           func: (res) => {
             getTenxFlowStateList(flowId, {
               success: {
-                func: () => {                 
+                func: (result) => {                 
                   notification['success']({
                     message: '流程构建',
                     description: '流程构建成功~',
@@ -146,16 +152,19 @@ class TenxFlowDetailFlow extends Component {
             if(item.stageId == stageId) {
               buildFlag = false;
               item.buildId = res.data.results.stageBuildId;
+              item.status = 2
             }
           });
           if(buildFlag) {
             buildingList.push({
               stageId: stageId,
-              buildId: res.data.results.stageBuildId
+              buildId: res.data.results.stageBuildId,
+              status: 2
             });
           }
+          _this.onSetup(_this.state.socket, buildingList)
           _this.setState({
-            buildingList: buildingList
+            buildingList: buildingList  
           });
           getTenxFlowStateList(flowId);
         },
@@ -215,9 +224,79 @@ class TenxFlowDetailFlow extends Component {
       }
     });
   }
-
+  onSetup(socket, buildList) {
+    const buildingList = buildList || this.state.buildingList
+    const flowId = this.props.flowId 
+    const self = this
+    const watchedBuilds = []
+    self.setState({
+      socket
+    })
+    buildingList.forEach(item => {
+      if(item.status === 0 || item.status === 1) {
+        item.buildId = null
+      }
+      watchedBuilds.push({
+        stageBuildId: item.buildId,
+        stageId: item.stageId
+      })
+    })
+    if(watchedBuilds.length <= 0) {
+      return
+    }
+    const watchCondition = {  
+      flowId: flowId,
+      watchedBuilds
+    }
+    this.setState({
+      watchCondition: watchCondition
+    })
+    const { getTenxFlowStateList } = this.props
+      socket.emit("stageBuildStatus", watchCondition)
+      socket.on("stageBuildStatus", function (data) {
+        if(data.status !== 200) { return }
+        if (data.results.buildStatus == 2) {
+          let buildingList = []
+            getTenxFlowStateList(flowId, {
+              success: {
+                func: (res) => {
+                  res.data.results.map((item) =>{
+                    let buildId = null;
+                    if(!Boolean(item.lastBuildStatus)) {
+                      buildId = null;
+                    } else {
+                      buildId = item.lastBuildStatus.buildId;
+                    }
+                    buildingList.push({
+                      buildId: buildId,
+                      stageId: item.metadata.id,
+                      status: item.lastBuildStatus.status
+                    })
+                  })
+                  self.setState({ 
+                    buildingList
+                  })
+                  socket.off("stageBuildStatus")
+                  self.onSetup(self.state.socket, buildingList)
+                },
+                isAsync: false
+              }
+            })
+        }
+        const { changeSingleState } = self.props
+        changeSingleState(data.results)
+      })
+  }
+  addWatch(buildId, stageBuildId) { 
+    const { socket, watchCondition } = this.state
+    watchCondition.watchedBuilds.push({
+      stageBuildId: stageBuildId,
+      stageId: item.stageId
+    })
+    socket.emit('stageBuildStage', watchCondition)
+  }
   render() {
-    const { flowId, stageInfo, stageList, isFetching, projectList, buildFetching, logs, supportedDependencies } = this.props;
+    const { flowId, stageInfo, stageList, isFetching, projectList, buildFetching, logs, supportedDependencies, cicdApi } = this.props;
     let scope = this;
     let { currentFlowEdit } = scope.state;
     let cards = null;
@@ -261,15 +340,17 @@ class TenxFlowDetailFlow extends Component {
                   <QueueAnim key='creattingCardAnimate'>
                     <CreateTenxFlowModal key='CreateTenxFlowModal' stageList={stageList} scope={scope} 
                       flowId={flowId} stageInfo={stageInfo} codeList={projectList} 
-                      supportedDependencies={supportedDependencies}/>
+                      supportedDependencies={supportedDependencies} />
                   </QueueAnim>
                 ] : null
               }
             </Card>
           </div>
           <div style={{ clear:'both' }}></div>
-        </div>       
+        </div>  
+        {this.state.websocket}
       </div>
+
     )
   }
 }
@@ -286,10 +367,12 @@ function mapStateToProps(state, props) {
   const { isFetching, stageList } = getTenxflowStageList || defaultStageList;
   const { managed } = state.cicd_flow;
   const {projectList} = managed || defaultStatus;
+  const cicdApi = state.entities.loginUser.info.cicdApi
   return {
     isFetching,
     stageList,
-    projectList
+    projectList,
+    cicdApi
   }
 }
 
@@ -303,7 +386,8 @@ export default connect(mapStateToProps, {
   searchProject,
   getDockerfileList,
   CreateTenxflowBuild,
-  StopTenxflowBuild
+  StopTenxflowBuild,
+  changeSingleState
 })(injectIntl(TenxFlowDetailFlow, {
   withRef: true,
 }));

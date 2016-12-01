@@ -221,6 +221,7 @@ class TenxFlowList extends Component {
     document.title = 'TenxFlow | 时速云';
     const { getTenxFlowList } = this.props;
     getTenxFlowList();
+    const { cicdApi } = this.props
   }
 
   openCreateTenxFlowModal() {
@@ -257,7 +258,7 @@ class TenxFlowList extends Component {
   render() {
     const { formatMessage } = this.props.intl;
     const scope = this;
-    const { isFetching, flowList, buildFetching, logs } = this.props;
+    const { isFetching, flowList, buildFetching, logs, cicdApi } = this.props;
     return (
       <QueueAnim className='TenxFlowList'
         type='right'
@@ -329,7 +330,7 @@ function mapStateToProps(state, props) {
     isFetching,
     flowList,
     buildFetching,
-    logs
+    logs,
   }
 }
 

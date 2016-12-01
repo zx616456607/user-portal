@@ -17,61 +17,61 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { getFlowBuildStageLogs } from '../../../../../actions/cicd_flow'
 import moment from 'moment'
 import './style/StageBuildLog.less'
-import TenxFlowStageBuildLog from '../../TenxFlowStageBuildLog'
+import TenxFlowTenxFlowBuildLog from '../../TenxFlowBuildLog'
 
 const Panel = Collapse.Panel;
 
 const menusText = defineMessages({
   title: {
-    id: 'CICD.Tenxflow.StageBuildLog.title',
+    id: 'CICD.Tenxflow.TenxFlowBuildLog.title',
     defaultMessage: '执行记录',
   },
   cost: {
-    id: 'CICD.Tenxflow.StageBuildLog.cost',
+    id: 'CICD.Tenxflow.TenxFlowBuildLog.cost',
     defaultMessage: '耗时',
   },
   running: {
-    id: 'CICD.Tenxflow.StageBuildLog.running',
+    id: 'CICD.Tenxflow.TenxFlowBuildLog.running',
     defaultMessage: '执行中...',
   },
   finish: {
-    id: 'CICD.Tenxflow.StageBuildLog.finish',
+    id: 'CICD.Tenxflow.TenxFlowBuildLog.finish',
     defaultMessage: '执行完成',
   },
   waitting: {
-    id: 'CICD.Tenxflow.StageBuildLog.waitting',
+    id: 'CICD.Tenxflow.TenxFlowBuildLog.waitting',
     defaultMessage: '等待执行',
   },
   fail: {
-    id: 'CICD.Tenxflow.StageBuildLog.fail',
+    id: 'CICD.Tenxflow.TenxFlowBuildLog.fail',
     defaultMessage: '执行失败',
   },
   msShow: {
-    id: 'CICD.Tenxflow.StageBuildLog.msShow',
+    id: 'CICD.Tenxflow.TenxFlowBuildLog.msShow',
     defaultMessage: '毫秒',
   },
   sShow: {
-    id: 'CICD.Tenxflow.StageBuildLog.sShow',
+    id: 'CICD.Tenxflow.TenxFlowBuildLog.sShow',
     defaultMessage: '秒',
   },
   mShow: {
-    id: 'CICD.Tenxflow.StageBuildLog.mShow',
+    id: 'CICD.Tenxflow.TenxFlowBuildLog.mShow',
     defaultMessage: '分钟',
   },
   hShow: {
-    id: 'CICD.Tenxflow.StageBuildLog.hShow',
+    id: 'CICD.Tenxflow.TenxFlowBuildLog.hShow',
     defaultMessage: '小时',
   },
   running: {
-    id: 'CICD.Tenxflow.StageBuildLog.running',
+    id: 'CICD.Tenxflow.TenxFlowBuildLog.running',
     defaultMessage: '运行中',
   },
   wait: {
-    id: 'CICD.Tenxflow.StageBuildLog.wait',
+    id: 'CICD.Tenxflow.TenxFlowBuildLog.wait',
     defaultMessage: '等待',
   },
   nodata: {
-    id: 'CICD.Tenxflow.StageBuildLog.nodata',
+    id: 'CICD.Tenxflow.TenxFlowBuildLog.nodata',
     defaultMessage: '数据为空',
   },
 })
@@ -248,7 +248,7 @@ let MyComponent = React.createClass({
             <div className='line'></div>
           </div>
           <div className='rightInfo'>
-            <TenxFlowStageBuildLog logs={item.logInfo} isFetching={item.isFetching} logInfo={item} flowId={flowId} index={index}/>
+            <TenxFlowTenxFlowBuildLog logs={item} isFetching={item.isFetching} logInfo={item} flowId={flowId} index={index}/>
           </div>
         </Panel>
       );
@@ -263,7 +263,7 @@ let MyComponent = React.createClass({
   }
 });
 
-class StageBuildLog extends Component {
+class TenxFlowBuildLog extends Component {
   constructor(props) {
     super(props);
     this.changeModalSize = this.changeModalSize.bind(this);
@@ -309,7 +309,7 @@ class StageBuildLog extends Component {
     const { logs, isFetching, flowId } = this.props;
     if (isFetching) {
       return (
-        <div id='StageBuildLog' className={this.state.modalSize == 'big' ? 'bigModal' : 'smallModal'}>
+        <div id='TenxFlowBuildLog' className={this.state.modalSize == 'big' ? 'bigModal' : 'smallModal'}>
           <div className='title'>
             <span>执行记录</span>
             <i className='fa fa-expand' onClick={this.changeModalSize} />
@@ -325,7 +325,7 @@ class StageBuildLog extends Component {
     }
     if (!Boolean(logs) || logs.length == 0) {
       return (
-        <div id='StageBuildLog' className={this.state.modalSize == 'big' ? 'bigModal' : 'smallModal'}>
+        <div id='TenxFlowBuildLog' className={this.state.modalSize == 'big' ? 'bigModal' : 'smallModal'}>
           <div className='title'>
             <span>执行记录</span>
             <i className='fa fa-expand' onClick={this.changeModalSize} />
@@ -340,7 +340,7 @@ class StageBuildLog extends Component {
       )
     }
     return (
-      <div id='StageBuildLog' className={this.state.modalSize == 'big' ? 'bigModal' : 'smallModal'}>
+      <div id='TenxFlowBuildLog' className={this.state.modalSize == 'big' ? 'bigModal' : 'smallModal'}>
         <div className='title'>
           <span>执行记录</span>
           <i className='fa fa-expand' onClick={this.changeModalSize} />
@@ -362,13 +362,13 @@ function mapStateToProps(state, props) {
   }
 }
 
-StageBuildLog.propTypes = {
+TenxFlowBuildLog.propTypes = {
   intl: PropTypes.object.isRequired,
 }
 
 export default connect(mapStateToProps, {
   getFlowBuildStageLogs
-})(injectIntl(StageBuildLog, {
+})(injectIntl(TenxFlowBuildLog, {
   withRef: true,
 }));
 
