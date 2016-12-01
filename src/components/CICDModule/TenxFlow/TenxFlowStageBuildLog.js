@@ -44,9 +44,10 @@ class TenxFlowStageBuildLog extends Component {
   componentWillMount() {
     const { status, buildId, stageId} = this.props.logInfo
     const { flowId, loginUser } = this.props
+    const cicdApi = loginUser.info.cicdApi
     if(status == 2) {
       this.setState({
-        websocket: <WebSocket url={loginUser.info.cicdApi.host} protocol={loginUser.info.cicdApi.protocol} onSetup={(socket) =>this.onSetup(socket)}/>,
+        websocket: <WebSocket url={cicdApi.host} protocol={cicdApi.protocol} path={cicdApi.logPath} onSetup={(socket) =>this.onSetup(socket)}/>,
       })
     }
     this.setState({

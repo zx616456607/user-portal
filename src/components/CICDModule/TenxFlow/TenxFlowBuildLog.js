@@ -294,7 +294,6 @@ class TenxFlowBuildLog extends Component {
   render() {
     const scope = this;
     const { logs, isFetching, flowId } = this.props;
-    console.log(this.props)
     if(isFetching) {
       return (
         <div id='TenxFlowBuildLog' className={this.state.modalSize == 'big' ? 'bigModal' : 'smallModal'}>
