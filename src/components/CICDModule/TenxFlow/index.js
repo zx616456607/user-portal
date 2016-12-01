@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Alert, Menu, Button, Card, Input, Tooltip, Dropdown, Modal, Spin } from 'antd'
+import { Alert, Menu, Button, Card, Input, Tooltip, Dropdown, Modal, Spin, notification } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -98,6 +98,19 @@ let MyComponent = React.createClass({
           success: {
             func: () => getTenxFlowList(),
             isAsync: true
+          },
+          failed: {
+            func: (res)=> {
+              let statusCode = res.statusCode;
+              switch(statusCode) {
+                case 500: 
+                  break;
+              }
+              notification['error']({
+                message: '删除失败',
+                description: '',
+              });
+            }
           }
         })
       }
@@ -140,7 +153,6 @@ let MyComponent = React.createClass({
         }
       }
     })
-
   },
   render: function () {
     const { config, scope, isFetching } = this.props;

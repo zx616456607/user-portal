@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Input, Form, Card, Alert } from 'antd'
+import { Button, Input, Card, Alert } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -16,9 +16,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import './style/TenxFlowDetailYaml.less'
 import { browserHistory } from 'react-router';
-
-const createForm = Form.create;
-const FormItem = Form.Item;
+import YamlEditor from '../../../Editor/Yaml'
 
 const menusText = defineMessages({
   tooltips: {
@@ -37,16 +35,12 @@ let TenxFlowDetailYaml = React.createClass({
   },
   render() {
     const { formatMessage } = this.props.intl;
-    const { scope } = this.props;
-    const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form;
-    const yaml = getFieldProps(`yaml`, {
-      initialValue: this.props.yaml,
-    });
+    const { scope, yaml } = this.props;
     return (
     <div id='TenxFlowDetailYaml' key='TenxFlowDetailYaml'>
       <Alert type='info' message={<FormattedMessage {...menusText.tooltips} />} />
       <Card className='yamlCard'>
-        <Input readOnly type='textarea' {...yaml} autosize={{ minRows: 20, maxRows: 20 }} />
+        <YamlEditor value={yaml} parentId={'TenxFlowDetail'}/>
       </Card>
     </div>
     )
@@ -59,8 +53,6 @@ function mapStateToProps(state, props) {
     
   }
 }
-
-TenxFlowDetailYaml = createForm()(TenxFlowDetailYaml);
 
 TenxFlowDetailYaml.propTypes = {
   intl: PropTypes.object.isRequired,

@@ -310,7 +310,7 @@ class TenxFlowDetailFlow extends Component {
       cards = stageList.map( (item, index) => {
         return (
           <TenxFlowDetailFlowCard key={'TenxFlowDetailFlowCard' + index} config={item} 
-            scope={scope} index={index} flowId={flowId} currentFlowEdit={currentFlowEdit} 
+            scope={scope} index={index} flowId={flowId} currentFlowEdit={currentFlowEdit} totalLength={stageList.length}
             codeList={projectList} supportedDependencies={supportedDependencies} />
         )
       });
