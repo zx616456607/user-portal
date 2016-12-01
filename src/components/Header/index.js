@@ -71,7 +71,7 @@ const menu = (
 
 function loadSpaces(props, callback) {
   const { loadUserTeamspaceList } = props
-  loadUserTeamspaceList('default', { size: 100 }, callback)
+  loadUserTeamspaceList('default', { size: -1 }, callback)
 }
 
 class Header extends Component {
@@ -172,7 +172,7 @@ class Header extends Component {
           setCurrent({
             space: defaultSpace
           })
-          loadTeamClustersList(defaultSpace.teamID, { size: 100 }, {
+          loadTeamClustersList(defaultSpace.teamID, { size: -1 }, {
             success: {
               func: (resultC) => {
                 if (!resultC.data) {

@@ -261,4 +261,11 @@ exports.updateUser = function* () {
   }
 }
 
+exports.checkUserName = function* () {
+  const userName = this.params.user_name
+  const api = apiFactory.getApi(this.session.loginUser)
+  const response = yield api.users.getBy([userName, 'existence'])
+  this.status = response.code
+  this.body = response
+}
 

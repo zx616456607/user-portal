@@ -18,7 +18,7 @@ export default class DetailInfo extends Component {
   }
   render() {
     let detailMarkdown  = this.props.detailInfo
-    if (detailMarkdown == '') {
+    if (detailMarkdown == '' || !detailMarkdown) {
       detailMarkdown = '还没有添加详细信息'
     }
     return (
