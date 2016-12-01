@@ -91,7 +91,7 @@ class MySpace extends Component{
   }
 
   componentWillMount() {
-   
+
   }
   componentDidMount() {
     const { loadSpaceInfo, loadSpaceCICDStats, loadSpaceImageStats, getOperationLogList } = this.props
@@ -135,7 +135,7 @@ class MySpace extends Component{
          if(index === 0) {
            return ele.push(
              <Timeline.Item
-               
+
              >
                <div className="logItem">
                  <div className="logTitle">{`${operationalFormat(item.operationType, this)}${resourceFormat(item.resourceType, this) || ''}${item.resourceName}`}</div>
@@ -164,7 +164,7 @@ class MySpace extends Component{
         <Timeline style={{ height: 374, padding: '24px' ,overflowY:'auto'}}>
           {ele}
         </Timeline>
-        <Row style={{ height: 40, lineHeight: '40px', borderTop: '1px solid #e2e2e2', padding: '0 24px', fontSize: '12px' }}>
+        <Row style={{ height: 30, lineHeight: '30px', borderTop: '1px solid #e2e2e2', padding: '0 24px', fontSize: '12px' }}>
           <Link to="/manange_monitor">查看更多 >></Link>
         </Row>
       </Card>
@@ -180,8 +180,8 @@ class MySpace extends Component{
     let spaceWarnings = []
     return (
       <div id='MySpace'>
-        <Row className="title" style={{marginTop: 40}}>空间 : {spaceName}</Row>
-        <Row className="content" gutter={16} style={{marginBottom: 100}}>
+        <Row className="title" style={{marginTop: 40}}>空间：{spaceName}</Row>
+        <Row className="content" gutter={16} style={{marginBottom: 30}}>
           <Col span={6}>
             <Card title="镜像仓库" bordered={false} bodyStyle={{height:175,padding:'0',position:'relative'}}>
               <ReactEcharts
@@ -391,7 +391,7 @@ class MySpace extends Component{
                 </tr>
                 </tbody>
                 </table>
-              </div>  
+              </div>
             </Card>
           </Col>
           <Col span={6} className='log'>
@@ -451,11 +451,11 @@ function mapStateToProp(state,props) {
     failedNumber: 0,
   }
   let spaceImageStatsData = {
-    publicNumber: 0, 
+    publicNumber: 0,
     privateNumber: 0,
   }
   let spaceTemplateStatsData = {
-    public: 0, 
+    public: 0,
     private: 0,
   }
   let spaceWarningsData = []
@@ -487,7 +487,7 @@ function mapStateToProp(state,props) {
         }
         if (data.appRedeploy) {
           spaceOperationsData.appRedeploy = data.appRedeploy
-        } 
+        }
       }
       if (spaceInfo.result.operations.volume) {
         let data = spaceInfo.result.operations.volume
@@ -510,7 +510,7 @@ function mapStateToProp(state,props) {
         let warningData = {
           metadata: {
             creationTimestamp: "",
-          }, 
+          },
           involvedObject: {
             kind: "",
             name: "",
@@ -533,12 +533,12 @@ function mapStateToProp(state,props) {
     spaceCICDStatsData.succeedNumber = data.succeedNumber
     spaceCICDStatsData.runningNumber = data.runningNumber
     spaceCICDStatsData.failedNumber = data.failedNumber
-  } 
+  }
   if (spaceImageStats.result && spaceImageStats.result.data) {
     let data = spaceImageStats.result.data
     spaceImageStatsData.publicNumber = data.publicNumber
     spaceImageStatsData.privateNumber = data.privateNumber
-  } 
+  }
   return {
     spaceOperations: spaceOperationsData,
     spaceCICDStats: spaceCICDStatsData,
@@ -559,7 +559,7 @@ export default connect(mapStateToProp, {
   getOperationLogList,
   loadSpaceInfo,
 })(MySpace)
- 
+
 const menusText = defineMessages({
   headTitle: {
     id: 'ManageMonitor.operationalAudit.headTitle',
