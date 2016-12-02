@@ -113,8 +113,11 @@ class AppDetail extends Component {
                       <AppStatus app={app} smart={true} />
                     </div>
                   </div>
-                  <div className='address'>
-                    <TipSvcDomain appDomain={appDomain} type={true} />
+                  <div className='address appDetailDomain'>
+                    <span>地址&nbsp;:&nbsp;</span>
+                    <div style={{display: 'inline-block'}}>
+                      <TipSvcDomain appDomain={appDomain} parentNode='appDetailDomain'/>
+                    </div>
                   </div>
                   <div className='service'>
                     服务&nbsp;:&nbsp; {`${app.serviceCount} / ${app.serviceCount}`}
