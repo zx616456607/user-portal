@@ -16,9 +16,9 @@ const rootRoutes = {
     getComponent: (location, cb) => {
       require.ensure([], (require) => {
         if (model === 'standard') {
-          cb(null, require('../containers/Login/standard').default)
+          cb(null, require('../containers/Login/Standard').default)
         } else {
-          cb(null, require('../containers/Login/enterprise').default)
+          cb(null, require('../containers/Login/Enterprise').default)
         }
       })
     },
@@ -28,7 +28,11 @@ const rootRoutes = {
     indexRoute: {
       getComponent: (location, cb) => {
         require.ensure([], (require) => {
-          cb(null, require('../containers/IndexPage').default)
+          if (model === 'standard') {
+            cb(null, require('../containers/IndexPage/Standard').default)
+          } else {
+            cb(null, require('../containers/IndexPage/Enterprise').default)
+          }
         })
       },
     },
