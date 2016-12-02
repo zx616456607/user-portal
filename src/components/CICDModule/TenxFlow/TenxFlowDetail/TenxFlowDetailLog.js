@@ -36,10 +36,6 @@ const menusText = defineMessages({
     id: 'CICD.Tenxflow.TenxFLowDetailLog.cost',
     defaultMessage: '耗时',
   },
-  checkImage: {
-    id: 'CICD.Tenxflow.TenxFLowDetailLog.checkImage',
-    defaultMessage: '查看镜像',
-  },
   normal: {
     id: 'CICD.Tenxflow.TenxFLowDetailLog.normal',
     defaultMessage: '执行成功',
@@ -212,10 +208,7 @@ let MyComponent = React.createClass({
                 { dateSizeFormat(item.creationTime, item.endTime, scope) }
               </span>
               <div className='btnBox'>
-                <Button size='large' type='primary' className='viewBtn'>
-                  <i className='fa fa-eye' />&nbsp;
-                  <FormattedMessage {...menusText.checkImage} />
-                </Button>
+              
                 <Dropdown.Button overlay={dropdown} type='ghost' size='large' className='operaBtn' 
                   onClick={() => scope.getBuildLogDetailInfo(item.buildId)}>
                   <i className='fa fa-wpforms' />&nbsp;

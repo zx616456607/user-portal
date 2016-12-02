@@ -32,6 +32,7 @@ class DockerFileEditor extends Component {
 
   render() {
     const { value, options, parentId, callback } = this.props
+    console.log(this.props.title)
     const newOpts = merge({}, defaultOpts, options)
     newOpts.mode = 'dockerfile'
     return (
