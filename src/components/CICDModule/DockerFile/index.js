@@ -183,7 +183,6 @@ const MyComponent = React.createClass({
     return (
       <div className='CodeStore'>
         {items}
-
         <Modal title="Dockerfile" width="600px" visible={this.state.showDockerFileModal} wrapClassName="dockerFileModal" onCancel={() => this.closeModal()}
           footer={null}
           >
@@ -207,8 +206,6 @@ const MyComponent = React.createClass({
             </Button>
           </div>
         </Modal>
-
-
       </div>
     );
   }
@@ -232,6 +229,10 @@ class DockerFile extends Component {
   render() {
     const { formatMessage } = this.props.intl;
     const scope = this;
+    var message = ""
+    if (this.props.dockerfileList.length <1) {
+      message = "目前还没有添加任何云端 Dockerfile"
+    }
     return (
       <QueueAnim className='TenxFlowList'
         type='right'
@@ -260,7 +261,7 @@ class DockerFile extends Component {
             <MyComponent scope={scope} formatMessage={formatMessage} config={this.props.dockerfileList} />
           </Card>
         </div>
-
+        <div><br/> * {message}<br/></div>
       </QueueAnim>
     )
   }
