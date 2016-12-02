@@ -506,12 +506,14 @@ function stackList(state = {}, action) {
       isFetching: false,
       myStackList: [],
       stackList: [],
-      appStoreList: []
+      appStoreList: [],
+      prvbak: [],
+      pukbak: []
     }
   }
   switch (action.type) {
     case ActionTypes.GET_PRIVATE_STACK_REQUEST:
-      return merge({}, defaultState, state, {
+      return merge({}, state, defaultState, {
         [registry]: { isFetching: true }
       })
     case ActionTypes.GET_PRIVATE_STACK_SUCCESS:
@@ -519,7 +521,10 @@ function stackList(state = {}, action) {
         [registry]: {
           isFetching: false,
           registry,
-          myStackList: action.response.result.data.data || []
+          stackList: state[registry].stackList,
+          myStackList: action.response.result.data.data || [],
+          prvbak: action.response.result.data.data,
+          pukbak: state[registry].stackList
         }
       })
     case ActionTypes.GET_PRIVATE_STACK_FAILURE:
@@ -528,20 +533,56 @@ function stackList(state = {}, action) {
       })
 
     case ActionTypes.GET_PUBLIC_STACK_REQUEST:
-      return merge({}, defaultState, state, {
+      return merge({}, defaultState, state ,{
         [registry]: { isFetching: true }
       })
     case ActionTypes.GET_PUBLIC_STACK_SUCCESS:
       return Object.assign({}, state, {
         [registry]: {
           isFetching: false,
-          stackList: action.response.result.data.data || []
+          myStackList: state[registry].myStackList,
+          stackList: action.response.result.data.data || [],
+          pukbak: action.response.result.data.data,
+          prvbak: state[registry].myStackList
         }
       })
     case ActionTypes.GET_PUBLIC_STACK_FAILURE:
       return merge({}, defaultState, state, {
         [registry]: { isFetching: false }
       })
+    // ----------------------- search template -------------
+    case ActionTypes.SEARCH_PUBLIC_STACK_LIST: {
+      const publicState = cloneDeep(state)
+      if (action.imageName == '') {
+        publicState[registry].stackList = publicState[registry].pukbak
+        return publicState
+      }
+      const template =  publicState[registry].pukbak.filter(list => {
+        const search = new RegExp(action.imageName)
+        if (search.test(list.name)) {
+          return true
+        }
+        return false
+      })
+      publicState[registry].stackList = template
+      return publicState
+    }
+    case ActionTypes.SEARCH_PRIVATE_STACK_LIST: {
+      const privateState = cloneDeep(state)
+      if (action.imageName == '') {
+        privateState[registry].myStackList = privateState[registry].prvbak
+        return privateState
+      }
+      const template =  privateState[registry].prvbak.filter(list => {
+        const search = new RegExp(action.imageName)
+        if (search.test(list.name)) {
+          return true
+        }
+        return false
+      })
+      privateState[registry].myStackList = template
+      return privateState
+    }
     // ---------------------- delete template     ---------
     case ActionTypes.DELETE_PRIVATE_STACK_REQUEST:
       return merge({}, state, {
