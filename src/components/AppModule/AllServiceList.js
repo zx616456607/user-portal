@@ -624,7 +624,7 @@ class ServiceList extends Component {
       checkedServiceList = [this.state.currentShowInstance]
     }
     checkedServiceList.map((service, index) => {
-      if(service.status){
+      if (service.status) {
         if (service.status.phase === 'Running') {
           runningServices.push(service)
         }
@@ -833,7 +833,7 @@ class ServiceList extends Component {
       handleRestarServiceOk: this.handleRestarServiceOk,
       batchRestartService: this.batchRestartService,
       batchStopService: this.batchStopService,
-      
+
       confirmStopServices: this.confirmStopServices,
       confirmDeleteServices: this.confirmDeleteServices,
     }
@@ -863,7 +863,7 @@ class ServiceList extends Component {
               <Modal title="启动操作" visible={this.state.StartServiceModal}
                 onOk={this.handleStartServiceOk} onCancel={this.handleStartServiceCancel}
                 >
-                <StateBtnModal serviceList={serviceList} state='Running'/>
+                <StateBtnModal serviceList={serviceList} state='Running' />
               </Modal>
               <Button type='ghost' size='large' onClick={this.batchStopService} disabled={!stopBtn}>
                 <i className='fa fa-stop'></i>停止
@@ -871,7 +871,7 @@ class ServiceList extends Component {
               <Modal title="停止操作" visible={this.state.StopServiceModal}
                 onOk={this.handleStopServiceOk} onCancel={this.handleStopServiceCancel}
                 >
-                <StateBtnModal serviceList={serviceList} scope={parentScope} state='Stopped'/>
+                <StateBtnModal serviceList={serviceList} scope={parentScope} state='Stopped' />
               </Modal>
               <Button type='ghost' size='large' onClick={() => this.loadServices(this.props)}>
                 <i className='fa fa-refresh'></i>刷新
@@ -888,7 +888,7 @@ class ServiceList extends Component {
               <Modal title="重启操作" visible={this.state.QuickRestarServiceModal}
                 onOk={this.handleQuickRestarServiceOk} onCancel={this.handleQuickRestarServiceCancel}
                 >
-                <StateBtnModal serviceList={serviceList} state='QuickRestar'/>
+                <StateBtnModal serviceList={serviceList} state='QuickRestar' />
               </Modal>
               <Dropdown overlay={operaMenu} trigger={['click']}>
                 <Button size="large" disabled={!isChecked}>
