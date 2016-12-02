@@ -38,9 +38,13 @@ function errorMessage(state = null, action) {
   if (type === ActionTypes.RESET_ERROR_MESSAGE) {
     return null
   }
+
   // Avoid error is repeatedly handled
   if (error && !error.handledByCallback) {
-    return action.error
+    return {
+      type,
+      error,
+    }
   }
 
   return state
