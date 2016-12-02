@@ -81,6 +81,14 @@ class CostRecord extends Component{
       currentSpaceName,
       currentTeamName,
     } = this.state
+    console.log('---------------------------')
+    console.log('current: ',current)
+    console.log('loginUser: ',loginUser)
+    console.log('teamspaces: ',teamspaces)
+    console.log('teamClusters: ',teamClusters)
+    console.log('currentSpaceName: ',currentSpaceName)
+    console.log('currentTeamName: ',currentTeamName)
+    console.log('---------------------------')
     return (
       <div id='CostRecord'>
         <Card style={{marginBottom: '20px'}}>
