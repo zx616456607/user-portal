@@ -15,7 +15,7 @@ export const TENX_MARK = 'tenxcloud.com'
 export const LABEL_APPNAME = `${TENX_MARK}/appName`
 export const USERNAME_REG_EXP = new RegExp('^[a-z][-a-z0-9]{1,40}[a-z0-9]$')
 export const EMAIL_REG_EXP = new RegExp('^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$')
-// When these action occurs the page will render to ErrorPage
+// When these actions occurs the page will render to ErrorPage(StatusCode === 404 || StatusCode >= 500).
 export const SHOW_ERROR_PAGE_ACTION_TYPES = [
   'APP_DETAIL_FAILURE',
   'CONTAINER_DETAIL_FAILURE',
