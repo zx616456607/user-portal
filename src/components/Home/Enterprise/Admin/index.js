@@ -12,7 +12,7 @@ import { Row, Col, Card, } from 'antd'
 import './style/Admin.less'
 import ReactEcharts from 'echarts-for-react'
 import { connect } from 'react-redux'
-import { loadTeamInfo } from '../../../actions/overview_team'
+import { loadTeamInfo } from '../../../../actions/overview_team'
 
 function getOption(cost, rest) {
   return {
@@ -110,12 +110,12 @@ class Admin extends Component{
   constructor(props){
     super(props)
     this.state = {
-      
+
     }
   }
 
   componentWillMount() {
-    
+
   }
   componentDidMount(){
     const { loadTeamInfo } = this.props
@@ -467,12 +467,12 @@ function mapStateToProp(state,props) {
           teamOperationsData.volumeDelete = data.volumeDelete
         }
       }
-    } 
+    }
     if (teamInfo.result.teamconsumption) {
       teamConsumption.balance = teamInfo.result.teamconsumption.balance || 0
       teamConsumption.consumption = teamInfo.result.teamconsumption.consumption || 0
       teamConsumption.detail = teamInfo.result.teamconsumption.detail || []
-    } 
+    }
   }
   return {
     teamDetail: teamDetailData,

@@ -12,11 +12,11 @@ import { Row, Col, Card, Timeline, Popover, Spin, Icon } from 'antd'
 import './style/MySpace.less'
 import ReactEcharts from 'echarts-for-react'
 import { connect } from 'react-redux'
-import { getOperationLogList } from '../../../actions/manage_monitor'
-import { calcuDate } from "../../../common/tools"
+import { getOperationLogList } from '../../../../actions/manage_monitor'
+import { calcuDate } from "../../../../common/tools"
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { Link } from 'react-router'
-import { loadSpaceCICDStats, loadSpaceImageStats, loadSpaceInfo } from '../../../actions/overview_space'
+import { loadSpaceCICDStats, loadSpaceImageStats, loadSpaceInfo } from '../../../../actions/overview_space'
 
 let imageOption = {
   series: [{

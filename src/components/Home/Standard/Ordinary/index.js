@@ -12,10 +12,10 @@ import { Row, Col, Card, Radio, Icon } from 'antd'
 import './style/Ordinary.less'
 import ReactEcharts from 'echarts-for-react'
 import MySpace from './MySpace'
-import { getAppStatus, getServiceStatus, getContainerStatus } from '../../../common/status_identify'
+import { getAppStatus, getServiceStatus, getContainerStatus } from '../../../../common/status_identify'
 import { connect } from 'react-redux'
-import { loadClusterInfo } from '../../../actions/overview_cluster'
-import ProgressBox from '../../ProgressBox'
+import { loadClusterInfo } from '../../../../actions/overview_cluster'
+import ProgressBox from '../../../ProgressBox'
 
 function getClusterCostOption(costValue, restValue) {
   return {
@@ -1104,67 +1104,7 @@ class Ordinary extends Component{
             </Card>
           </Col>
           <Col span={18} className="hostState">
-            <Card title={
-              <span>计算资源使用率<div style={{width:50,display:'inline-block'}}></div>注: 显示使用率前三的节点</span>
-            } bordered={false} bodyStyle={{height:200,padding:'0 24px'}}>
-              <Row gutter={16} style={{height:200}}>
-                <Col span={6}>
-                  <ReactEcharts
-                    notMerge={true}
-                    option={CPUOption}
-                    style={{height:'200px'}}
-                  />
-                </Col>
-                <Col span={6}>
-                  <ReactEcharts
-                    notMerge={true}
-                    option={memoryOption}
-                    style={{height:'200px'}}
-                  />
-                </Col>
-                <Col span={6}>
-                  <ReactEcharts
-                    notMerge={true}
-                    option={diskOption}
-                    style={{height:'200px'}}
-                  />
-                </Col>
-                <Col span={6} style={{borderLeft: '1px solid #e2e2e2',height:'200px'}}>
-                  <Row style={{fontSize:'14px',textAlign: 'center',height:60,lineHeight:'60px'}}>主机状态</Row>
-                  <table>
-                    <tbody>
-                    <tr>
-                      <td>
-                        <div className="stateDot" style={{backgroundColor:'#43b4f6'}}></div>
-                        主机总数
-                      </td>
-                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                        {clusterNodeSummary.nodeInfo.total}个
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <div className="stateDot" style={{backgroundColor:'#2abe84'}}></div>
-                        健康主机数
-                      </td>
-                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                        {clusterNodeSummary.nodeInfo.health}个
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <div className="stateDot" style={{backgroundColor:'#a2d8fa'}}></div>
-                        未启用主机数
-                      </td>
-                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                        {clusterNodeSummary.nodeInfo.unused}个
-                      </td>
-                    </tr>
-                    </tbody>
-                  </table>
-                </Col>
-              </Row>
-            </Card>
+
           </Col>
         </Row>
         <MySpace spaceName={spaceName} />

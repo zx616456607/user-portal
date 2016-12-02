@@ -2,17 +2,17 @@ import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import { Breadcrumb } from 'antd'
 import "./style/IndexPage.less"
-import Admin from '../../components/Home/Admin'
-import Ordinary from '../../components/Home/Ordinary'
-import { setCurrent, loadLoginUserDetail } from '../../actions/entities'
+import { setCurrent, loadLoginUserDetail } from '../../../actions/entities'
+import Admin from '../../../components/Home/Enterprise/Admin'
+import Ordinary from '../../../components/Home/Enterprise/Ordinary'
 
 class IndexPage extends Component {
   constructor(props) {
     super(props)
-    
+
   }
   componentWillMount(){
-    document.title = '总览 | 时速云'
+    document.title = '总览 | 时速云企业版 2.0'
   }
   componentDidMount(){
     const {
@@ -46,7 +46,7 @@ class IndexPage extends Component {
 }
 
 IndexPage.propTypes = {
-  
+
 }
 
 function mapStateToProps(state,props) {
