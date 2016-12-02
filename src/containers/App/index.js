@@ -56,7 +56,7 @@ class App extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { errorMessage, current } = nextProps
+    const { errorMessage, current, pathname, resetErrorMessage } = nextProps
     const { statusWatchWs } = this.props.sockets
     const { space, cluster } = current
     if (space.namespace !== this.props.current.space.namespace || cluster.clusterID !== this.props.current.cluster.clusterID) {
@@ -65,9 +65,13 @@ class App extends Component {
     if (!errorMessage) {
       return
     }
-    if (errorMessage.message === 'LOGIN_EXPIRED') {
+    const { statusCode, message } = errorMessage
+    if (message === 'LOGIN_EXPIRED') {
       this.setState({ loginModalVisible: true })
       return
+    }
+    if (pathname !== this.props.pathname) {
+      resetErrorMessage()
     }
   }
 
@@ -79,6 +83,17 @@ class App extends Component {
     this.setState({ loginModalVisible: false })
   }
 
+  showErrorPage(errorMessage) {
+    if (!errorMessage) {
+      return false
+    }
+    const { statusCode } = errorMessage
+    if (statusCode === 404 || statusCode >= 500) {
+      return true
+    }
+    return false
+  }
+
   renderErrorMessage() {
     const { errorMessage, resetErrorMessage } = this.props
     const handleDismissClick = this.handleDismissClick
@@ -86,15 +101,20 @@ class App extends Component {
       return null
     }
 
+    const { statusCode, message } = errorMessage
     if (errorMessage.message === 'LOGIN_EXPIRED') {
       resetErrorMessage()
       return
     }
 
+    if (this.showErrorPage(errorMessage)) {
+      return
+    }
+
     notification.error({
-      message: 'error',
+      message: `${statusCode} error`,
       description: JSON.stringify(errorMessage.message),
-      // duration: 4.5,
+      duration: 10,
       // duration: null,
       onClose: handleDismissClick
     })
@@ -139,36 +159,31 @@ class App extends Component {
     )
   }
 
+  getChildren() {
+    const { children, errorMessage, loginUser } = this.props
+    const { loadLoginUserSuccess, loginErr } = this.state
+    if (isEmptyObject(loginUser) && !loadLoginUserSuccess) {
+      return (
+        <ErrorPage code={loginErr.statusCode} />
+      )
+    }
+    if (!errorMessage) {
+      return children
+    }
+    const { statusCode, message } = errorMessage
+    if (this.showErrorPage(errorMessage)) {
+      return (
+        <ErrorPage code={statusCode} message={errorMessage} />
+      )
+    }
+    return children
+  }
+
   render() {
-    let { children, pathname, redirectUrl, errorMessage, loginUser } = this.props
+    let { children, pathname, redirectUrl, loginUser } = this.props
     const { loginModalVisible, loadLoginUserSuccess, loginErr, siderStyle } = this.state
     const scope = this
-    /*if (errorMessage) {
-      if (errorMessage.statusCode === 404) {
-        children = (
-          <ErrorPage />
-        )
-      }
-    }*/
-    if (isEmptyObject(loginUser)) {
-      if (!loadLoginUserSuccess) {
-        return (
-          <div className='tenx-layout'>
-            <div id='siderTooltip'></div>
-            <div className="tenx-layout-header">
-              <div className='tenx-layout-wrapper'>
-                <Header />
-              </div>
-            </div>
-            <div className="tenx-layout-sider">
-              <Sider pathname={pathname} scope={scope} siderStyle={siderStyle} />
-            </div>
-            <div className="tenx-layout-content">
-              <ErrorPage code={loginErr.statusCode} />
-            </div>
-          </div>
-        )
-      }
+    if (isEmptyObject(loginUser) && loadLoginUserSuccess) {
       return (
         <div className="loading">
           <Spin size="large" />
@@ -188,7 +203,7 @@ class App extends Component {
           <Sider pathname={pathname} scope={scope} siderStyle={this.state.siderStyle} />
         </div>
         <div className={this.state.siderStyle == 'mini' ? 'tenx-layout-content' : 'tenx-layout-content-bigger tenx-layout-content'}>
-          {children}
+          {this.getChildren()}
         </div>
         <Modal
           visible={loginModalVisible}

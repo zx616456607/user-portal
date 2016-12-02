@@ -8,15 +8,39 @@
  * @author Zhangpc
  */
 import React, { Component, PropTypes } from 'react'
-import { Breadcrumb } from 'antd'
 
-export default class ErrorPage extends Component {
+class ErrorPage extends Component {
+  constructor(props) {
+    super(props)
+  }
+
+  renderErrorMessage() {
+    let { code, message } = this.props
+    if (message.message) {
+      message = message.message
+    }
+    return (
+      <p>
+        <h1>{`${code} error`}</h1>
+        <h2>{message}</h2>
+      </p>
+    )
+  }
+
   render() {
     return (
       <div id='NotFoundErrorPageBox'>
+        {this.renderErrorMessage()}
         <iframe className='NotFoundErrorPage' src='/ErrorPage/index.html'>
         </iframe>
       </div>
     )
   }
 }
+
+ErrorPage.propTypes = {
+  code: PropTypes.number.isRequired,
+  message: PropTypes.object,
+}
+
+export default ErrorPage
