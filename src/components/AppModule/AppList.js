@@ -214,6 +214,10 @@ let MyComponent = React.createClass({
     }
     confirmDeleteApps([app])
   },
+  goStack(appName, e) {
+    e.stopPropagation()
+    browserHistory.push(`/app_manage/detail/${appName}#stack`)
+  },
   render: function () {
     const { config, loading } = this.props
     if (loading) {
@@ -289,10 +293,8 @@ let MyComponent = React.createClass({
             <Dropdown.Button
               getPopupContainer={document.getElementById('AppList')}
               overlay={dropdown} type='ghost'
-              onClick={(e) => e.stopPropagation()}>
-              <Link to={`/app_manage/detail/${item.name}#stack`} >
-                查看编排
-              </Link>
+              onClick={this.goStack.bind(this, item.name)}>
+              查看编排
             </Dropdown.Button>
           </div>
           <div style={{ clear: 'both', width: '0' }}></div>
@@ -865,18 +867,18 @@ class AppList extends Component {
         <div id='AppList' key='AppList'>
           <div className='operationBox'>
             <div className='leftBox'>
-              <Button type='primary' size='large'>
-                <Link to='/app_manage/app_create'>
+              <Link to='/app_manage/app_create'>
+                <Button type='primary' size='large'>
                   <i className='fa fa-plus' />创建应用
-                </Link>
-              </Button>
+                </Button>
+              </Link>
               <Button type='ghost' size='large' onClick={this.batchStartApps} disabled={!runBtn}>
                 <i className='fa fa-play' />启动
               </Button>
               <Modal title="启动操作" visible={this.state.startAppsModal}
                 onOk={this.handleStartAppsOk} onCancel={this.handleStartAppsCancel}
                 >
-                <StateBtnModal appList={appList} state='Running'/>
+                <StateBtnModal appList={appList} state='Running' />
               </Modal>
               <Button type='ghost' size='large' onClick={() => this.batchStopApps()} disabled={!stopBtn}>
                 <i className='fa fa-stop' />停止
@@ -884,7 +886,7 @@ class AppList extends Component {
               <Modal title="停止操作" visible={this.state.stopAppsModal}
                 onOk={this.handleStopAppsOk} onCancel={this.handleStopAppsCancel}
                 >
-                <StateBtnModal appList={appList} state='Stopped'/>
+                <StateBtnModal appList={appList} state='Stopped' />
               </Modal>
               <Button type='ghost' size='large' onClick={() => this.loadData(this.props)}>
                 <i className='fa fa-refresh' />刷新
@@ -898,7 +900,7 @@ class AppList extends Component {
               <Modal title="重新部署操作" visible={this.state.restarAppsModal}
                 onOk={this.handleRestarAppsOk} onCancel={this.handleRestarAppsCancel}
                 >
-                <StateBtnModal appList={appList} state='Restart'/>
+                <StateBtnModal appList={appList} state='Restart' />
               </Modal>
             </div>
             <div className='rightBox'>

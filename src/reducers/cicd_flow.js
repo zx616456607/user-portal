@@ -486,6 +486,9 @@ function getTenxflowStageList(state = {}, action) {
       console.log(state)
       const cloneState = cloneDeep(state)
       cloneState.stageList.forEach(item => {
+        if(!item.lastBuildStatus) {
+          return
+        }
         if(item.metadata.id == body.stageId && item.lastBuildStatus.buildId == body.stageBuildId) { 
           item.lastBuildStatus.status = body.buildStatus
         }
