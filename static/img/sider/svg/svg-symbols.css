@@ -15,10 +15,10 @@
   width: 50px;
   height: 50px;
 }
-.applining0{fill:none;stroke:url(#XMLID_3_);stroke-miterlimit:10;}
-.applining1{fill:none;stroke:url(#XMLID_4_);stroke-miterlimit:10;stroke-dasharray:4.1818,2.0909;}
-.applining2{fill:none;stroke:url(#XMLID_5_);stroke-miterlimit:10;}
-.applining3{fill:none;stroke:url(#XMLID_6_);stroke-miterlimit:10;stroke-dasharray:4.1818,2.0909;}
+#applining .applining0{fill:none;stroke:url(#XMLID_3_);stroke-miterlimit:10;}
+#applining .applining1{fill:none;stroke:url(#XMLID_4_);stroke-miterlimit:10;stroke-dasharray:4.1818,2.0909;}
+#applining .applining2{fill:none;stroke:url(#XMLID_5_);stroke-miterlimit:10;}
+#applining .applining3{fill:none;stroke:url(#XMLID_6_);stroke-miterlimit:10;stroke-dasharray:4.1818,2.0909;}
 
 .appselected {
   width: 40px;
@@ -44,11 +44,76 @@
 }
 #database-selected .st0{fill:#1AA2E7;}
 
+.homeappcountcolor {
+  width: 40px;
+  height: 40px;
+}
+#homeappcountcolor .st0{fill:#2CA2F3;}
+#homeappcountcolor .st1{fill:#E8F5FD;}
+#homeappcountcolor .st2{fill:#C8E8FC;}
+
+.homebuildcountcolor {
+  width: 40px;
+  height: 40px;
+}
+#homebuildcountcolor .st0{fill:#2CA2F3;}
+#homebuildcountcolor .st1{fill:#ECF7FD;}
+
+.homecontainercountcolor {
+  width: 40px;
+  height: 40px;
+}
+#homecontainercountcolor .st0{fill:#2CA2F3;}
+#homecontainercountcolor .st1{fill:#E8F5FD;}
+
+.homeimagecountcolor {
+  width: 40px;
+  height: 40px;
+}
+#homeimagecountcolor .st0{fill:#2CA2F3;}
+#homeimagecountcolor .st1{fill:#E8F5FD;}
+
+.homelayoutcountcolor {
+  width: 40px;
+  height: 40px;
+}
+#homelayoutcountcolor .st0{fill:#F0A582;}
+#homelayoutcountcolor .st1{fill:#FDE8DD;}
+
+.homesavecountcolor {
+  width: 40px;
+  height: 40px;
+}
+#homesavecountcolor .st0{fill:#7474F7;}
+#homesavecountcolor .st1{fill:#F1F1FE;}
+
 .homeselected {
   width: 40px;
   height: 40px;
 }
 #homeselected .st0{fill:#1AA2E7;}
+
+.homeservicecountcolor {
+  width: 40px;
+  height: 40px;
+}
+#homeservicecountcolor .st0{fill:#2CA2F3;}
+
+.homespacecountcolor {
+  width: 40px;
+  height: 40px;
+}
+#homespacecountcolor .st0{fill:#2CA2F3;}
+#homespacecountcolor .st1{fill:#E8F5FD;}
+
+.homewww {
+  width: 20px;
+  height: 20px;
+}
+#homewww .st0{fill-rule:evenodd;clip-rule:evenodd;fill:#272536;}
+
+#logo .st0{fill:#008BD5;}
+#logo .st1{fill:#00AEDC;}
 
 .managemoniterselected {
   width: 40px;
@@ -73,3 +138,6 @@
   height: 40px;
 }
 #systemselected .st0{fill:#1AA2E7;}
+
+#tipcopy .st0{fill:none;}
+#tipcopy .st1{fill:#5B5B5B;}
