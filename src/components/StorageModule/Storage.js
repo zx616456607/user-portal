@@ -532,11 +532,10 @@ class Storage extends Component {
           <div className="operationBox">
             <div className="leftBox">
               <Button type="primary" size="large" onClick={this.showModal}>
-                <i className="fa fa-plus" />&nbsp;
-                <FormattedMessage {...messages.createTitle} />
+                <i className="fa fa-plus" /><FormattedMessage {...messages.createTitle} />
               </Button>
               <Button type="ghost" className="stopBtn" size="large" onClick={() => { this.showDeleteModal() } }>
-                <Icon type="delete" /><FormattedMessage {...messages.delete} />
+                <i className="fa fa-trash-o" /><FormattedMessage {...messages.delete} />
               </Button>
               <Modal title={formatMessage(messages.createModalTitle)}
                 visible={this.state.visible}

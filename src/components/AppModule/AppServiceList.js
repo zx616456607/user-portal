@@ -261,9 +261,9 @@ const MyComponent = React.createClass({
               <span>{item.images.join(', ') || '-'}</span>
             </Tooltip>
           </div>
-          <div className="service commonData">
+          <div className="service commonData appSvcListDomain">
             <Tooltip title={svcDomain.length > 0 ? svcDomain[0] : ""}>
-              <TipSvcDomain svcDomain={svcDomain} />
+              <TipSvcDomain svcDomain={svcDomain} parentNode='appSvcListDomain'/>
             </Tooltip>
           </div>
           <div className="createTime commonData">

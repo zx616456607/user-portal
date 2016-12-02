@@ -1,9 +1,20 @@
 .TipSvcDomain {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  .appDomain {
+    overflow: hidden;
+    text-overflow:ellipsis;
+    white-space: nowrap;
+    max-width: 80%;
+    float: left;
+  }
   .more {
     display: inline-block;
-    position: relative;
+    position: absolute;
     margin-left: 5px;
-    top: 3px;
+    top: 50%;
+    transform: translateY(-50%);
     width: 15px;
     height: 16px;
     cursor: pointer;
@@ -16,27 +27,34 @@
       fill: #49b1e2 !important;
     }
   }
-  .ant-tooltip-inner {
-    width: 100% !important;
-    min-width: 190px;
-    max-width: none;
-  }
-  .ant-popover-arrow {
-    border-right-color: #36baf5;
-  }
-  .ant-popover-inner {
-    border: 1px solid #36baf5;
-    min-width: inherit;
+  .domainWrap {
+    display: inline-block;
+    width: calc(100% - 15px);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 }
 .TipAppDomain {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  .appDomain {
+    overflow: hidden;
+    text-overflow:ellipsis;
+    white-space: nowrap;
+    max-width: 80%;
+    float: left;
+  }
   .more {
     display: inline-block;
-    position: relative;
+    position: absolute;
     margin-left: 5px;
-    top: 3px;
+    top: 50%;
+    transform: translateY(-50%);
     width: 15px;
     height: 16px;
+    cursor: pointer;
     use {
       fill: #eeeeee;
     }
@@ -46,23 +64,21 @@
       fill: #49b1e2 !important;
     }
   }
-  .ant-tooltip-inner {
-    width: 100% !important;
-    min-width: 190px;
-    max-width: none;
-  }
-  .ant-popover-arrow {
-    border-right-color: #36baf5;
-  }
-  .ant-popover-inner {
-    border: 1px solid #36baf5;
-    min-width: inherit;
+  .domainWrap {
+    display: inline-block;
+    width: calc(100% - 15px);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 }
 .fixTop {
   .ant-popover {
     top: 82px !important;
   }
+}
+.fixHeight {
+
 }
 .AppTip {
   color: #000;
@@ -116,9 +132,9 @@
 }
 .firstUrl {
   display: inline-block;
-    width: 70%;
-    overflow: hidden;
-    word-wrap: break-word;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+  width: 70%;
+  overflow: hidden;
+  word-wrap: break-word;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
