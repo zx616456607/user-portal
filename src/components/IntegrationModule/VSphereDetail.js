@@ -13,7 +13,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import ReactEcharts from 'echarts-for-react'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { Button, Spin, Select } from 'antd'
+import { Button, Spin, Select, Icon, Tooltip } from 'antd'
 import { getIntegrationPodDetail } from '../../actions/integration'
 import './style/VSphereDetail.less'
 import ProgressBox from '../ProgressBox'
@@ -318,6 +318,13 @@ class VSphereDetail extends Component {
     getIntegrationPodDetail(integrationId, datacenter);
   }
   
+  componentWillReceiveProps(nextProps) {
+    const { getIntegrationPodDetail, integrationId, currentDataCenter } = nextProps;
+    if(nextProps.currentDataCenter != this.props.currentDataCenter) {
+      getIntegrationPodDetail(integrationId, currentDataCenter)
+    }
+  }
+  
   onChangeDataCenter(e) {
     //this function for user change the current data center
     const { scope, getIntegrationPodDetail, integrationId } = this.props;
@@ -328,6 +335,7 @@ class VSphereDetail extends Component {
   }
   
   render() {
+    console.log(this.props)
     const { formatMessage } = this.props.intl;
     const {isFetching, pods, dataCenters, currentDataCenter} = this.props;
     if(isFetching || !Boolean(pods)) {
@@ -341,12 +349,16 @@ class VSphereDetail extends Component {
     let diskUsed = 0;
     let diskFree = 0;
     let diskCount = 0;
+    let diskShow = [];
     let diskHealthCount = 0;
     let memoryTotal = 0;
     let memoryUsedTotal = 0;
     let cpuTotal = 0;
     let cpuFree = 0;
     let vmTotal = 0;
+    let netTotal = 0;
+    let netHealtTotal = 0;
+    let netShow = [];
     setCpuAllocate(pods)
     setMemoryAllocate(pods)
     pods.map((item) => {
@@ -356,27 +368,41 @@ class VSphereDetail extends Component {
       diskCount = diskCount + item.disks.length;
       vmTotal = vmTotal + item.vmNumber;
       cpuFree = cpuFree + getCpuFreeCount(item.cpuMhz, item.cpuNumber, item.cpuTotalUsedMhz);
-      item.disks.map((disk) => {
+      netTotal = netTotal + item.networks.length;
+      netShow.push(item.networks.map((network) => {
+        if(network.vmNumber > 0) {
+          netHealtTotal++;
+        }
+        return (
+          <div className='netwrokDetail'>
+            <Tooltip placement='topLeft' title={network.name}>
+              <span className='leftSpan'>{network.name}</span>
+            </Tooltip>
+            <span className='rightSpan'>
+              {network.vmNumber > 0 ? [<span><Icon style={{ color: '#5cb85c' }} type="check-circle-o" />&nbsp;是</span>] : [<span><Icon style={{ color: '#f85a5a' }} type="cross-circle-o" />&nbsp;否</span>]}
+            </span>
+          </div>
+        )
+      }))
+      diskShow.push(item.disks.map((disk) => {
         diskTotal = diskTotal + disk.capacityMb;
         diskFree = diskFree + disk.freeMb;
         diskUsed = diskUsed + disk.capacityMb - disk.freeMb;
         if(disk.accessable) {
           diskHealthCount++;
         }
-      });
-    })
-    let selectDcShow = dataCenters.map((item, index) => {
-      return (
-        <Option value={item} key={item}>{item.replace('/','')}</Option>
-      )
+        return (
+          <div className='diskDetail'>
+            <Tooltip placement='topLeft' title={disk.name}>
+              <span className='leftSpan'>{disk.name}</span>
+            </Tooltip>
+            <span className='rightSpan'>{diskFormat(disk.capacityMb)}</span>
+          </div>
+        )
+      }))
     });
     return (
       <div id='VSphereDetail'>
-        <div className='selectBox'>
-          <Select defaultValue={currentDataCenter} style={{ width: 150 }} size='large' onChange={this.onChangeDataCenter}>
-            {selectDcShow}
-          </Select>
-        </div>
         {
           pods.length == 0 ? [
             <div className='loadingBox' key='loadingBox'>
@@ -471,24 +497,45 @@ class VSphereDetail extends Component {
               <div className='bottomBox'>
                 <div className='cpu commonBox'>
                   <img src='/img/integration/cpu.png' />
-                  <p>CPU共{cpuTotal}核</p>
-                </div>
-                <div className='vm commonBox'>
-                  <img src='/img/integration/vm.png' />
-                  <p>共计虚拟机vm数量</p>
-                  <p>{vmTotal}台</p>
-                </div>
-                <div className='cpuUsed commonBox'>
-                  <img src='/img/integration/cpuUsed.png' />
+                  <p>CPU共 {cpuTotal} 核</p>
                   <p>CPU 可用 {cpuFree} 核</p>
                 </div>
                 <div className='memory commonBox'>
                   <img src='/img/integration/memory.png' />
-                  <p>内存{diskFormat(memoryTotal)} 已用{diskFormat(memoryUsedTotal)}</p>
+                  <p>内存共 {diskFormat(memoryTotal)}</p>
+                  <p>已用{diskFormat(memoryUsedTotal)}</p>                 
+                </div>
+                <div className='network commonBox'>
+                  <div className='leftCommon'>
+                    <img src='/img/integration/network.png' />
+                    <p>网络共{netTotal}个</p>
+                    <p>可访问{netHealtTotal}个</p>
+                  </div>
+                  <div className='rightCommon'>
+                    <div className='titleBox'>
+                      <span className='leftSpan'>名称</span>
+                      <span className='rightSpan'>可访问</span>
+                    </div>
+                    <div className='dataBox'>
+                      {netShow}
+                    </div>
+                  </div>
                 </div>
                 <div className='disk commonBox'>
-                  <img src='/img/integration/disk.png' />
-                  <p>磁盘{diskFormat(diskTotal)} 已用{diskFormat(diskUsed)}</p>
+                  <div className='leftCommon'>
+                    <img src='/img/integration/disk.png' />
+                    <p>磁盘共 {diskFormat(diskTotal)}</p>
+                    <p>已用 {diskFormat(diskUsed)}</p>
+                  </div>
+                  <div className='rightCommon'>
+                    <div className='titleBox'>
+                      <span className='leftSpan'>磁盘名</span>
+                      <span className='rightSpan'>容量</span>
+                    </div>
+                    <div className='dataBox'>
+                      {diskShow}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

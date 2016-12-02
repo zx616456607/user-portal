@@ -613,7 +613,7 @@ let NormalDeployBox = React.createClass({
                 <InputNumber className="inputNum"
                   {...getFieldProps('instanceNum', {
                     initialValue: '1'
-                  }) }
+                  }) } disabled={form.getFieldValue('volumeSwitch')}
                   size="large" min={1} max={100} />
                 &nbsp;&nbsp;个
               </FormItem>

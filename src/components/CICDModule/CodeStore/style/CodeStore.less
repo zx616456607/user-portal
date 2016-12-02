@@ -3,7 +3,7 @@
   padding-left: 30px;
   padding-right: 30px;
   margin-bottom: 30px;
-  #CodeStore{
+  #CodeStore {
     .ant-alert {
       margin-bottom: 0 !important;
       padding: 14px 24px !important;
@@ -13,8 +13,10 @@
       background-color: #d9edf6;
       border: 1px dashed #85d7fd !important;
     }
-    .tenxflowBox{
-      .ant-card-body{padding:0}
+    .tenxflowBox {
+      .ant-card-body {
+        padding: 0;
+      }
     }
     .operaBox {
       padding-top: 20px;
@@ -33,27 +35,77 @@
         color: #999999;
       }
     }
-    .tenxflowBox{
-      .titleBox,.CodeTable{
+    .tenxflowBox {
+      .titleBox,
+      .CodeTable {
         width: 100%;
         height: 50px;
         line-height: 50px;
         border-bottom: 1px solid #F2F2F2;
         overflow: hidden;
-        .name{width: 20%;float: left;padding-left: 30px;}
-        .codelink{width: 35%;float: left;padding-left: 10px;.fa{font-size: 14px;}}
-        .action{width: 20%;float: left;padding-left: 10px;}
-        .type{width: 25%;float: left;padding-left: 10px;}
-        .type.private{
-          color: #5FB962;
-          button{background: #5FB962;color: white;}
+        .name {
+          width: 20%;
+          float: left;
+          padding-left: 30px;
         }
-        .type.public{
+        .codelink {
+          width: 35%;
+          float: left;
+          padding-left: 10px;
+          .fa {
+            font-size: 14px;
+          }
+        }
+        .action {
+          width: 20%;
+          float: left;
+          padding-left: 10px;
+        }
+        .type {
+          position: relative;
+          width: 25%;
+          float: left;
+          padding-left: 10px;
+        }
+        .type.private {
+          color: #5FB962;
+          button {
+            background: #5FB962;
+            color: white;
+          }
+        }
+        .type.public {
           color: #00A0EA;
-          button{background: #5FB962;color: white}
+          button {
+            background: #5FB962;
+            color: white;
+          }
+        }
+        .privateSvg,
+        .publicSvg {
+          width: 12px;
+          height: 12px;
+          use {
+            fill: #5FB962;
+          }
+        }
+        .publicSvg {
+          use {
+            fill: #00A0EA;
+          }
+        }
+        .filterSvg {
+          position: absolute;
+          top: 18px;
+          left: 40px;
+          width: 12px;
+          height: 12px;
+          use {
+            fill: #00A0EA;
+          }
         }
       }
-      .CodeTable:hover{
+      .CodeTable:hover {
         background: #FAFAFA;
       }
     }

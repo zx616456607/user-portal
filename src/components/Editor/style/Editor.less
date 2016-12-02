@@ -30,12 +30,20 @@
       color: #999;
       cursor: pointer;
       .anticon-question-circle-o {
-        float: left;
+        float: right;
         margin-right: 20px;
         line-height: 49px;
         font-size: 15px;
       }
+      .anticon-arrow-salt,
+      .anticon-shrink {
+        float: right;
+        line-height: 49px;
+      }
     }
+  }
+  .ReactCodeMirror {
+    font-family: 'Consolas,Menlo,Courier,monospace';
   }
   .CodeMirrorErrorBox {
     padding: 0 16px;
@@ -49,6 +57,9 @@
     .errorNumSpan {
       float: left;
       line-height: 32px;
+    }
+    .noErrorSpan {
+      color: #5CB85C !important;
     }
     .line {
       margin: 10px 10px 0;
@@ -83,6 +94,7 @@
   }
 }
 .bigCodeMirror {
+  position: fixed;
   z-index: 999;
   .editOperaBox {
     border-radius: 0 !important;
@@ -97,5 +109,10 @@
     border: 0 !important;
     border-radius: 0 !important;
     overflow-y: auto;
+  }
+}
+.bigCodeMirrorNoEdit{
+  .ReactCodeMirror {
+    height: calc(~"100% - 50px") !important;
   }
 }
