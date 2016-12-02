@@ -9,12 +9,10 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { Button, Input, Form, Switch, Radio, Checkbox, Spin } from 'antd'
-import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { createTenxFlowSingle } from '../../../actions/cicd_flow'
-import { DEFAULT_REGISTRY } from '../../../constants'
 import './style/CreateTenxFlow.less'
 import { browserHistory } from 'react-router';
 

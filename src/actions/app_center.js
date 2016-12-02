@@ -387,7 +387,7 @@ export const GET_PRIVATE_STACK_REQUEST = 'GET_PRIVATE_STACK_REQUEST'
 export const GET_PRIVATE_STACK_SUCCESS = 'GET_PRIVATE_STACK_SUCCESS'
 export const GET_PRIVATE_STACK_FAILURE = 'GET_PRIVATE_STACK_FAILURE'
 
-export function loadMyStack(registry) {
+function fetchLoadPrivateStack(registry) {
   return {
     registry,
     [FETCH_API]: {
@@ -398,11 +398,17 @@ export function loadMyStack(registry) {
   }
 }
 
+export function loadMyStack(registry) {
+  return (dispatch, getState) => {
+    return dispatch(fetchLoadPrivateStack(registry))
+  }
+}
+
 export const GET_PUBLIC_STACK_REQUEST = 'GET_PUBLIC_STACK_REQUEST'
 export const GET_PUBLIC_STACK_SUCCESS = 'GET_PUBLIC_STACK_SUCCESS'
 export const GET_PUBLIC_STACK_FAILURE = 'GET_PUBLIC_STACK_FAILURE'
 
-export function loadStack(registry) {
+function fetchLoadStack(registry) {
   return {
     registry,
     [FETCH_API]: {
@@ -410,6 +416,32 @@ export function loadStack(registry) {
       endpoint: `${API_URL_PREFIX}/templates`,
       schema: Schemas.REGISTRYS,
     }
+  }
+}
+
+export function loadStack(registry) {
+  return (dispatch, getState) => {
+    return dispatch(fetchLoadStack(registry))
+  }
+}
+
+export const SEARCH_PRIVATE_STACK_LIST = 'SEARCH_PRIVATE_STACK_LIST'
+export const SEARCH_PUBLIC_STACK_LIST = 'SEARCH_PUBLIC_STACK_LIST'
+function fetchSearchStack(obj) {
+  let type = SEARCH_PRIVATE_STACK_LIST
+  if (obj.stackType === 'public-stack') {
+    type = SEARCH_PUBLIC_STACK_LIST
+  }
+  return {
+    type,
+    registry: obj.registry,
+    imageName: obj.imageName
+  }
+}
+
+export function searchStack(obj) {
+  return (dispatch, getState) => {
+    return dispatch(fetchSearchStack(obj))
   }
 }
 
@@ -488,7 +520,7 @@ export const GET_APP_STORE_LIST_REQUEST = 'GET_APP_STORE_LIST_REQUEST'
 export const GET_APP_STORE_LIST_SUCCESS = 'GET_APP_STORE_LIST_SUCCESS'
 export const GET_APP_STORE_LIST_FAILURE = 'GET_APP_STORE_LIST_FAILURE'
 
-function fetchAppStore(registry) {
+function fetchAppStore(registry, callback) {
   return {
     [FETCH_API]: {
       types: [GET_APP_STORE_LIST_REQUEST, GET_APP_STORE_LIST_SUCCESS, GET_APP_STORE_LIST_FAILURE],
@@ -498,12 +530,13 @@ function fetchAppStore(registry) {
         method: 'GET',
       }
     },
-    registry
+    registry,
+    callback
   }
 }
 
-export function loadAppStore(registry) {
+export function loadAppStore(registry, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchAppStore(registry))
+    return dispatch(fetchAppStore(registry, callback))
   }
 }

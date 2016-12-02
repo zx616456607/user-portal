@@ -8,133 +8,15 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Input, Modal, Checkbox, Button, Card, Menu } from 'antd'
-import { Link } from 'react-router'
+import { Input, Button, Card ,Popconfirm} from 'antd'
+import { Link , browserHistory} from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
+import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import { loadAppStore } from '../../../actions/app_center'
+import { DEFAULT_REGISTRY } from '../../../constants'
 import "./style/AppStore.less"
 
-const testData = [{
-  id: "1",
-  imageName: "Github",
-  resource: "/img/test/github.jpg",
-}, {
-  id: "2",
-  imageName: "Mysql",
-  resource: "/img/test/mysql.jpg",
-}, {
-  id: "3",
-  imageName: "Github",
-  resource: "/img/test/github.jpg",
-}, {
-  id: "4",
-  imageName: "Oracle",
-  resource: "/img/test/oracle.jpg",
-}, {
-  id: "5",
-  imageName: "Mysql",
-  resource: "/img/test/mysql.jpg",
-}, {
-  id: "6",
-  imageName: "Php",
-  resource: "/img/test/php.jpg",
-}, {
-  id: "7",
-  imageName: "Oracle",
-  resource: "/img/test/oracle.jpg",
-}, {
-  id: "8",
-  imageName: "Oracle",
-  resource: "/img/test/oracle.jpg",
-}, {
-  id: "9",
-  imageName: "Github",
-  resource: "/img/test/github.jpg",
-}, {
-  id: "10",
-  imageName: "Github",
-  resource: "/img/test/github.jpg",
-}, {
-  id: "11",
-  imageName: "Github",
-  resource: "/img/test/github.jpg",
-}, {
-  id: "12",
-  imageName: "Github",
-  resource: "/img/test/github.jpg",
-}, {
-  id: "13",
-  imageName: "Github",
-  resource: "/img/test/github.jpg",
-}, {
-  id: "14",
-  imageName: "Github",
-  resource: "/img/test/github.jpg",
-}, {
-  id: "15",
-  imageName: "Github",
-  resource: "/img/test/github.jpg",
-}, {
-  id: "16",
-  imageName: "Oracle",
-  resource: "/img/test/oracle.jpg",
-}, {
-  id: "17",
-  imageName: "Github",
-  resource: "/img/test/github.jpg",
-}, {
-  id: "18",
-  imageName: "Github",
-  resource: "/img/test/github.jpg",
-}, {
-  id: "19",
-  imageName: "Github",
-  resource: "/img/test/github.jpg",
-}, {
-  id: "20",
-  imageName: "Github",
-  resource: "/img/test/github.jpg",
-}, {
-  id: "21",
-  imageName: "Github",
-  resource: "/img/test/github.jpg",
-}, {
-  id: "22",
-  imageName: "Github",
-  resource: "/img/test/github.jpg",
-}, {
-  id: "23",
-  imageName: "Github",
-  resource: "/img/test/github.jpg",
-}, {
-  id: "24",
-  imageName: "Github",
-  resource: "/img/test/github.jpg",
-}, {
-  id: "25",
-  imageName: "Github",
-  resource: "/img/test/github.jpg",
-}, {
-  id: "26",
-  imageName: "Github",
-  resource: "/img/test/github.jpg",
-}, {
-  id: "27",
-  imageName: "Github",
-  resource: "/img/test/github.jpg",
-}, {
-  id: "28",
-  imageName: "Github",
-  resource: "/img/test/github.jpg",
-}, {
-  id: "29",
-  imageName: "Github",
-  resource: "/img/test/github.jpg",
-}, {
-  id: "30",
-  imageName: "Github",
-  resource: "/img/test/github.jpg",
-}];
 
 let MyComponent = React.createClass({
   propTypes: {
@@ -153,7 +35,7 @@ let MyComponent = React.createClass({
   onSelect: function (e) {
     //single item selected function
     const {scope} = this.props;
-    let oldList = scope.state.selectedList;
+    let oldList = [];
     if (oldList.includes(e)) {
       let index = oldList.indexOf(e);
       oldList.splice(index, 1);
@@ -161,21 +43,22 @@ let MyComponent = React.createClass({
       oldList.push(e);
     }
     scope.setState({
-      selectedList: oldList
+      selectedList: oldList,
+      condition: true
     });
   },
   render: function () {
-    let config = this.props.config;
+    let config = this.props.config
     let items = config.map((item) => {
       return (
         <div key={item.id} className={this.checkedFunc(item.id) ? "selectedApp AppDetail" : "AppDetail"}
           onClick={this.onSelect.bind(this, item.id)}
           >
           <Card className="imgBox">
-            <img src={item.resource} />
+            <img src={item.imageUrl} />
             <i className="selectIcon fa fa-check-circle"></i>
           </Card>
-          <span>{item.imageName}</span>
+          <span className="textoverflow">{item.name}</span>
         </div>
       );
     });
@@ -187,12 +70,49 @@ let MyComponent = React.createClass({
   }
 });
 
-export default class AppStore extends Component {
+class AppStore extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      selectedList: []
+      selectedList: [],
+      appStoreList: [],
+      visible: false,
+      condition: false
     }
+  }
+  componentWillMount() {
+    const self = this
+    document.title = '创建应用 | 时速云'
+    this.props.loadAppStore(DEFAULT_REGISTRY, {
+      success: {
+        func: (res) => {
+          self.setState({
+            appStoreList: res.data.data || []
+          })
+        }
+      }
+    })
+  }
+  godeploystack(visible) {
+    if (!visible) {
+      this.setState({ visible });
+      return;
+    }
+    if (this.state.condition) {
+     // 直接执行下一步
+     const temid = this.state.selectedList
+     browserHistory.push(`/app_manage/app_create/compose_file?templateid=${temid}`) 
+    } else {
+      this.setState({ visible });  // 进行确认
+    }
+  }
+  confirm() {
+    const selectedList = []
+    selectedList.push(this.state.appStoreList[0].id)
+    this.setState({
+      condition: true,
+      selectedList
+    })
   }
 
   render() {
@@ -212,7 +132,7 @@ export default class AppStore extends Component {
             <div style={{ clear: "both" }}></div>
           </div>
           <div className="dataBox">
-            <MyComponent config={testData} scope={parentScope} />
+            <MyComponent config={this.state.appStoreList} scope={parentScope} />
           </div>
           <div className="btnBox">
             <Link to={`/app_manage/app_create`}>
@@ -221,10 +141,14 @@ export default class AppStore extends Component {
             </Button>
             </Link>
             <Link to={`/app_manage/app_create/compose_file`}>
+            </Link>
+            <Popconfirm title="您还没有选择应用，是否默认选择第一个！"
+              visible={this.state.visible} onVisibleChange={(e)=>this.godeploystack(e)}
+              onConfirm={()=> this.confirm()} >
               <Button type="primary" size="large">
                 下一步
-            </Button>
-            </Link>
+              </Button>
+            </Popconfirm>
           </div>
         </div>
       </QueueAnim>
@@ -235,3 +159,26 @@ export default class AppStore extends Component {
 AppStore.propTypes = {
   selectedList: React.PropTypes.array
 }
+
+function mapStateToProps(state, props) {
+  const defaultPrivateImages = {
+    isFetching: false,
+    registry: DEFAULT_REGISTRY,
+    appStoreList: [],
+
+  }
+  const { stackCenter } = state.images
+  const { appStoreList, isFetching, registry } = stackCenter[DEFAULT_REGISTRY] || defaultPrivateImages
+
+  return {
+    appStoreList,
+    isFetching,
+    registry,
+  }
+}
+
+export default connect(mapStateToProps, {
+  loadAppStore
+})(injectIntl(AppStore, {
+  withRef: true,
+}))
