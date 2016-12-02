@@ -39,7 +39,7 @@ class TenxFlowStageBuildLog extends Component {
     }
   }
   componentWillMount() {
-    const { status, buildId, stageId} = this.props.logInfo
+    const { status, buildId, stageId } = this.props.logInfo
     const { flowId, loginUser } = this.props
     const cicdApi = loginUser.info.cicdApi
     if(status == 2) {
