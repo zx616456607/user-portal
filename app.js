@@ -19,8 +19,12 @@ const middlewares = require('./services/middlewares')
 const logger = require('./utils/logger').getLogger('app')
 const app = koa()
 const terminal = require('./controllers/web_terminal')
-
-
+// Define version
+if (process.env.MODE === 'standard' || process.env.MODE === 'enterprise') {
+  global.model = process.env.MODE
+} else {
+  global.model = config.model.type
+}
 global.Promise = require('bluebird')
 // Disabled reject unauthorized
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
