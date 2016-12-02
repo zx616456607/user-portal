@@ -18,7 +18,7 @@ import $ from 'n-zepto'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import CodeMirror from 'react-codemirror'
 import 'codemirror/lib/codemirror.css'
-import 'codeMirror/theme/3024-night.css'
+import 'codemirror/theme/3024-night.css'
 import './style/Editor.less'
 
 let yaml = require('js-yaml')
