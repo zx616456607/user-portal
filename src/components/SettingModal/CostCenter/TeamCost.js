@@ -13,7 +13,10 @@ import './style/TeamCost.less'
 import ReactEcharts from 'echarts-for-react'
 
 const MonthPicker = DatePicker.MonthPicker
-
+let teamCostArr = []
+for(let i=1;i<32;i++){
+  teamCostArr.push(i)
+}
 
 export default class TeamCost extends Component{
   constructor(props){
@@ -29,9 +32,9 @@ export default class TeamCost extends Component{
     let m = date.getMonth()+1
     return (y+'-'+m)
   }
+  
   render(){
     const { currentTeamName, currentSpaceName } = this.props
-    
     let teamCostTitle = (
       <div className="teamCostTitle">
         <span>空间{currentSpaceName}对应的团队{currentTeamName}该月消费详情</span>
@@ -39,21 +42,21 @@ export default class TeamCost extends Component{
       </div>
     )
     let teamCostPie ={
-      title: {
+      tooltip: {
         trigger: 'item',
         formatter: "{b} : {c}<br/> ({d}%)"
       },
       color: ['#46b2fa','#2abe84'],
-      lengend: {
+      legend: {
         orient : 'vertical',
-        left : '60%',
-        top : '30%',
+        left : 'center',
+        bottom : '0',
         data: [{name:'余额'}, {name:'消费'}],
         formatter: function (name) {
           if(name === '余额'){
-            return name + ': ' + restValue + 'T币'
+            return name + ': ' + 70 + 'T币'
           } else {
-            return name + ': ' + costValue + 'T币'
+            return name + ': ' + 30 + 'T币'
           }
         },
         textStyle: {
@@ -63,22 +66,87 @@ export default class TeamCost extends Component{
         itemWidth: 10,
         itemHeight: 10,
       },
-      series: {
+      series: [{
+        name:'',
         type: 'pie',
         selectedMode: 'single',
-        center: ['50%','50%'],
+        selectedOffset: 5,
+        center: ['50%','30%'],
         radius: '45%',
-        data: [{name: '余额',value:70},{name: '消费',value: 30,selected: true}],
+        data: [
+          {name: '余额',value:70},
+          {name: '消费',value: 30,selected: true}
+        ],
         itemStyle: {
           normal: {
-            borderWidth: 0.2,
+            borderWidth: 0,
             borderColor: '#ffffff'
           },
+          emphasis: {
+          }
         }
-      },
+      }]
     }
-    let teamCostLine = {
-      
+    
+    let teamCostBar = {
+      color: ['#3398DB'],
+      tooltip : {
+        trigger: 'axis',
+        axisPointer : {
+          type : 'shadow'
+        },
+        formatter: '{b} : {c}%',
+        position: function (point, params, dom) {
+          return [point[0]-25, '10%'];
+        },
+      },
+      grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true,
+        height: 150
+      },
+      xAxis : [
+        {
+          type : 'category',
+          data : teamCostArr,
+          splitLine: {
+            "show": false
+          },
+          axisTick: {
+            "show": false
+          },
+          splitArea: {
+            "show": false
+          },
+          axisLabel: {
+            "interval": 0,
+          },
+        }
+      ],
+      yAxis : [
+        {
+          type : 'value',
+          max: 100,
+          splitNumber: 2,
+          interval: 50,
+          splitLine: {
+            show: true,
+            lineStyle: {
+              type: 'dashed'
+            },
+          },
+        }
+      ],
+      series : [
+        {
+          name:'',
+          type:'bar',
+          barWidth: 16,
+          data: teamCostArr,
+        }
+      ]
     }
     return (
       <div id='TeamCost'>
@@ -88,11 +156,15 @@ export default class TeamCost extends Component{
              <ReactEcharts
               notMerge={true}
               option={teamCostPie}
-
+              style={{height: '172px'}}
              />
             </Col>
             <Col span={18}>
-              
+              <ReactEcharts
+              notMerge={true}
+              option={teamCostBar}
+              style={{height: '172px'}}
+             />
             </Col>
           </Row>
         </Card>

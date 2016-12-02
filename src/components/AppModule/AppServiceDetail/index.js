@@ -213,8 +213,8 @@ class AppServiceDetail extends Component {
                     service={service} />
                 </span>
               </div>
-              <div>
-                地址&nbsp;:&nbsp;
+              <div className='address'>
+                <span>地址&nbsp;:&nbsp;</span>
                 <div style={{display: 'inline-block'}}>
                   <TipSvcDomain svcDomain={svcDomain} parentNode='appSvcDetailDomain'/>
                 </div>
