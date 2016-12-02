@@ -42,7 +42,7 @@ exports.auth = function* (next) {
   if (!loginUser) {
     let redirectUrl = '/login'
     let requestUrl = this.request.url
-    if (requestUrl.indexOf(redirectUrl) < 0) {
+    if (requestUrl.indexOf(redirectUrl) < 0 && requestUrl !== '/') {
       redirectUrl += `?redirect=${requestUrl}`
     }
     switch (this.accepts('json', 'html')) {
