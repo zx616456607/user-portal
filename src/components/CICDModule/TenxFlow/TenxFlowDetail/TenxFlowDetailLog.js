@@ -169,11 +169,6 @@ let MyComponent = React.createClass({
         <Menu onClick={this.operaMenuClick.bind(this, item)}
           style={{ width: '130px' }}
           >
-          <Menu.Item key='1'>
-            <i className='fa fa-download' style={{ float:'left',lineHeight:'18px',marginRight:'5px' }} />
-            <span style={{ float:'left' }} ><FormattedMessage {...menusText.downLoadBulidLog} /></span>
-            <div style={{ clear:'both' }}></div>
-          </Menu.Item>
           <Menu.Item key='2'>
             <i className='fa fa-eye' style={{ float:'left',lineHeight:'18px',marginRight:'5px' }} />
             <span style={{ float:'left' }} ><FormattedMessage {...menusText.viewBulidLog} /></span>
