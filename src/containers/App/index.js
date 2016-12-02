@@ -21,6 +21,7 @@ import { isEmptyObject } from '../../common/tools'
 import { updateContainerList, updateAppList } from '../../actions/app_manage'
 import { updateAppServicesList, updateServiceContainersList, updateServicesList } from '../../actions/services'
 import { handleOnMessage } from './status'
+import { SHOW_ERROR_PAGE_ACTION_TYPES } from '../../constants'
 
 class App extends Component {
   constructor(props) {
@@ -65,7 +66,7 @@ class App extends Component {
     if (!errorMessage) {
       return
     }
-    const { statusCode, message } = errorMessage
+    const { statusCode, message } = errorMessage.error
     if (message === 'LOGIN_EXPIRED') {
       this.setState({ loginModalVisible: true })
       return
@@ -87,7 +88,11 @@ class App extends Component {
     if (!errorMessage) {
       return false
     }
-    const { statusCode } = errorMessage
+    const { type, error } = errorMessage
+    if (SHOW_ERROR_PAGE_ACTION_TYPES.indexOf(type) < 0) {
+      return false
+    }
+    const { statusCode } = error
     if (statusCode === 404 || statusCode >= 500) {
       return true
     }
@@ -101,8 +106,8 @@ class App extends Component {
       return null
     }
 
-    const { statusCode, message } = errorMessage
-    if (errorMessage.message === 'LOGIN_EXPIRED') {
+    const { statusCode, message } = errorMessage.error
+    if (message === 'LOGIN_EXPIRED') {
       resetErrorMessage()
       return
     }
@@ -113,7 +118,7 @@ class App extends Component {
 
     notification.error({
       message: `${statusCode} error`,
-      description: JSON.stringify(errorMessage.message),
+      description: JSON.stringify(message),
       duration: 10,
       // duration: null,
       onClose: handleDismissClick
@@ -170,10 +175,10 @@ class App extends Component {
     if (!errorMessage) {
       return children
     }
-    const { statusCode, message } = errorMessage
+    const { statusCode, message } = errorMessage.error
     if (this.showErrorPage(errorMessage)) {
       return (
-        <ErrorPage code={statusCode} message={errorMessage} />
+        <ErrorPage code={statusCode} errorMessage={errorMessage} />
       )
     }
     return children

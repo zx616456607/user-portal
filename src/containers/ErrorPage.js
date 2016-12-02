@@ -14,16 +14,28 @@ class ErrorPage extends Component {
     super(props)
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    const { code, errorMessage } = nextProps
+    const { type } = errorMessage || {}
+    const _errorMessage = this.props.errorMessage || {}
+    if (code === this.props.code && type === _errorMessage.type) {
+      return false
+    }
+    return true
+  }
+
   renderErrorMessage() {
-    let { code, message } = this.props
-    if (message.message) {
+    const { code, errorMessage } = this.props
+    const { error } = errorMessage
+    let { message } = error
+    if (message && message.message) {
       message = message.message
     }
     return (
-      <p>
+      <div>
         <h1>{`${code} error`}</h1>
         <h2>{message}</h2>
-      </p>
+      </div>
     )
   }
 
@@ -40,7 +52,7 @@ class ErrorPage extends Component {
 
 ErrorPage.propTypes = {
   code: PropTypes.number.isRequired,
-  message: PropTypes.object,
+  errorMessage: PropTypes.object,
 }
 
 export default ErrorPage
