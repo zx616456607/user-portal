@@ -146,7 +146,7 @@ export default class TipSvcDomain extends Component {
     })
   }
   render() {
-    const { appDomain, svcDomain, type } = this.props
+    const { appDomain, svcDomain, type, parentNode } = this.props
     if (svcDomain) {
       if (svcDomain.length == 0) {
         return (
@@ -186,7 +186,7 @@ export default class TipSvcDomain extends Component {
               content={<SvcTip svcDomain={svcDomain} />}
               trigger="click"
               onVisibleChange={this.showPop}
-              getTooltipContainer={() => document.getElementsByClassName('TipSvcDomain')[0]}
+              getTooltipContainer={() => document.getElementsByClassName(parentNode)[0]}
               >
               <svg className={this.state.show ? 'more showPop' : 'more'} onClick={this.showPop}>
                 <use xlinkHref="#more" />
@@ -204,7 +204,6 @@ export default class TipSvcDomain extends Component {
           </div>
         )
       } else if (appDomain.length === 1) {
-
         if (appDomain[0].data.length <= 1) {
           /* if (appDomain[0].data[0].indexOf('http://') === -1 || appDomain[0].data[0].indexOf('https://') === -1) {
             return (
@@ -233,7 +232,7 @@ export default class TipSvcDomain extends Component {
                 content={<AppTip appDomain={appDomain} />}
                 trigger="click"
                 onVisibleChange={this.showPop}
-                getTooltipContainer={() => document.getElementsByClassName('TipAppDomain')[0]}
+                getTooltipContainer={() => document.getElementsByClassName(parentNode)[0]}
                 arrowPointAtCenter={true}
                 >
                 <svg className={this.state.show ? 'more showPop' : 'more'} onClick={this.showPop}>
@@ -257,7 +256,7 @@ export default class TipSvcDomain extends Component {
               content={<AppTip appDomain={appDomain} />}
               trigger="click"
               onVisibleChange={this.showPop}
-              getTooltipContainer={() => document.getElementsByClassName('TipAppDomain')[0]}
+              getTooltipContainer={() => document.getElementsByClassName(parentNode)[0]}
               arrowPointAtCenter={true}
               >
               <svg className={this.state.show ? 'more showPop' : 'more'} onClick={this.showPop}>

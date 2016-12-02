@@ -73,11 +73,14 @@ class TenxFlowDetailFlow extends Component {
             } else {
               buildId = item.lastBuildStatus.buildId;
             }
-            buildingList.push({
+            let buildItem = {
               buildId: buildId,
-              stageId: item.metadata.id,
-              status: item.lastBuildStatus.status
-            })
+              stageId: item.metadata.id
+            }
+            if(item.lastBuildStatus) {
+              buildItem.status = item.lastBuildStatus.status
+            }
+            buildingList.push(buildItem)
           })
           _this.setState({
             buildingList: buildingList,
@@ -267,11 +270,14 @@ class TenxFlowDetailFlow extends Component {
                     } else {
                       buildId = item.lastBuildStatus.buildId;
                     }
-                    buildingList.push({
+                    let buildItem = {
                       buildId: buildId,
-                      stageId: item.metadata.id,
-                      status: item.lastBuildStatus.status
-                    })
+                      stageId: item.metadata.id
+                    }
+                    if(item.lastBuildStatus) {
+                      buildItem.status = item.lastBuildStatus.status
+                    }
+                    buildingList.push(buildItem)
                   })
                   self.setState({ 
                     buildingList

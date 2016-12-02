@@ -326,8 +326,8 @@ const MyComponent = React.createClass({
               <span>{images.join(', ') || '-'}</span>
             </Tooltip>
           </div>
-          <div className="service commonData">
-            <TipSvcDomain svcDomain={svcDomain} />
+          <div className="service commonData allSvcListDomain">
+            <TipSvcDomain svcDomain={svcDomain} parentNode='allSvcListDomain'/>
           </div>
           <div className="createTime commonData">
             <Tooltip title={calcuDate(item.metadata.creationTimestamp ? item.metadata.creationTimestamp : '')}>
