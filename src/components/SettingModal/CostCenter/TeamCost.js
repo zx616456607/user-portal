@@ -47,7 +47,7 @@ export default class TeamCost extends Component{
       color: ['#46b2fa','#2abe84'],
       lengend: {
         orient : 'vertical',
-        left : '50%',
+        left : '60%',
         top : '30%',
         data: [{name:'余额'}, {name:'消费'}],
         formatter: function (name) {
@@ -66,12 +66,13 @@ export default class TeamCost extends Component{
       },
       series: {
         type: 'pie',
+        selectedMode: 'single',
         center: ['50%','50%'],
-        radius: '40%',
+        radius: '45%',
         data: [{name: '余额',value:70},{name: '消费',value: 30,selected: true}],
         itemStyle: {
           normal: {
-            borderWidth: 0.5,
+            borderWidth: 0.2,
             borderColor: '#ffffff'
           },
         }

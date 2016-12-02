@@ -135,12 +135,14 @@ export default class TipSvcDomain extends Component {
   }
   showPop() {
     const {show} = this.state
+    console.log('show !')
     this.setState({
       show: !show
     })
   }
   render() {
-    const { appDomain, svcDomain, type } = this.props
+    const { appDomain, svcDomain, type, parentNode } = this.props
+    console.log('parentNode',parentNode)
     if (svcDomain) {
       if (svcDomain.length == 0) {
         return (
@@ -167,15 +169,15 @@ export default class TipSvcDomain extends Component {
             <span>
               {
                 (svcDomain[0].indexOf('http://') !== -1 || svcDomain[0].indexOf('https://') !== -1) ?
-                  <a target="_blank" href={svcDomain[0]}>{svcDomain[0].slice(0, 15) + '...'}</a> :
-                  svcDomain[0].slice(0, 15) + '...'
+                  <a className='domainWrap' target="_blank" href={svcDomain[0]}>{svcDomain[0]}</a> :
+                  <span className='domainWrap'>{svcDomain[0]}</span>
               }
             </span>
             <Popover placement="right"
               content={<SvcTip svcDomain={svcDomain} />}
               trigger="click"
               onVisibleChange={this.showPop}
-              getTooltipContainer={() => document.getElementsByClassName('TipSvcDomain')[0]}
+              getTooltipContainer={() => document.getElementsByClassName(parentNode)[0]}
               >
               <svg className={this.state.show ? 'more showPop' : 'more'} onClick={this.showPop}>
                 <use xlinkHref="#more" />
@@ -193,7 +195,6 @@ export default class TipSvcDomain extends Component {
           </div>
         )
       } else if (appDomain.length === 1) {
-
         if (appDomain[0].data.length <= 1) {
           if (appDomain[0].data[0].indexOf('http://') === -1 || appDomain[0].data[0].indexOf('https://') === -1) {
             return (
@@ -211,13 +212,13 @@ export default class TipSvcDomain extends Component {
               {
                 (appDomain[0].data[0].indexOf('http://') !== -1 || appDomain[0].data[0].indexOf('https://') !== -1) ?
                   <a target="_blank" href={appDomain[0].data[0]}>{appDomain[0].data[0].slice(0, 15) + '...'}</a> :
-                  appDomain[0].data[0].slice(0, 15) + '...'
+                  <span className='domainWrap'>{appDomain[0].data[0]}</span>
               }
               <Popover placement={type ? 'rightBottom' : 'rightTop'}
                 content={<AppTip appDomain={appDomain} />}
                 trigger="click"
                 onVisibleChange={this.showPop}
-                getTooltipContainer={() => document.getElementsByClassName('TipAppDomain')[0]}
+                getTooltipContainer={() => document.getElementsByClassName(parentNode)[0]}
                 arrowPointAtCenter={true}
                 >
                 <svg className={this.state.show ? 'more showPop' : 'more'} onClick={this.showPop}>
@@ -233,13 +234,13 @@ export default class TipSvcDomain extends Component {
             {
               (appDomain[0].data[0].indexOf('http://') !== -1 || appDomain[0].data[0].indexOf('https://') !== -1) ?
                 <a target="_blank" href={appDomain[0].data[0]}>{appDomain[0].data[0].slice(0, 15) + '...'}</a> :
-                appDomain[0].data[0].slice(0, 15) + '...'
+                <span className='domainWrap'>{appDomain[0].data[0]}</span>
             }
             <Popover placement={type ? 'rightBottom' : 'rightTop'}
               content={<AppTip appDomain={appDomain} />}
               trigger="click"
               onVisibleChange={this.showPop}
-              getTooltipContainer={() => document.getElementsByClassName('TipAppDomain')[0]}
+              getTooltipContainer={() => document.getElementsByClassName(parentNode)[0]}
               arrowPointAtCenter={true}
               >
               <svg className={this.state.show ? 'more showPop' : 'more'} onClick={this.showPop}>

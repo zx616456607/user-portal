@@ -204,7 +204,7 @@ class AppServiceDetail extends Component {
             <p className="instanceName">
               {service.metadata.name}
             </p>
-            <div className="leftBox">
+            <div className="leftBox appSvcDetailDomain">
               <div>
                 运行状态&nbsp;:&nbsp;
                 <span style={{position:'relative',top:'-5px'}}>
@@ -216,7 +216,7 @@ class AppServiceDetail extends Component {
               <div>
                 地址&nbsp;:&nbsp;
                 <div style={{display: 'inline-block'}}>
-                  <TipSvcDomain svcDomain={svcDomain}/>
+                  <TipSvcDomain svcDomain={svcDomain} parentNode='appSvcDetailDomain'/>
                 </div>
               </div>
               <div>
