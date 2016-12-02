@@ -211,11 +211,11 @@ let MyComponent = React.createClass({
                   <i className='fa fa-eye' />&nbsp;
                   <FormattedMessage {...menusText.checkImage} />
                 </Button>
-                <Dropdown.Button overlay={dropdown} type='ghost' size='large' className='operaBtn' 
+                <Button size='large' type='primary' className='operaBtn'
                   onClick={() => scope.getBuildLogDetailInfo(item.buildId)}>
                   <i className='fa fa-wpforms' />&nbsp;
                   <FormattedMessage {...menusText.bulidLog} />
-                </Dropdown.Button>
+                </Button>
               </div>
               <div style={{ clear:'both' }}></div>
             </div>

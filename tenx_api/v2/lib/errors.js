@@ -59,6 +59,7 @@ class InvalidHttpCodeError extends Error {
     super()
     this.message = err.message
     switch (err.name) {
+      case 'ResponseTimeoutError':
       case 'ConnectionTimeoutError':
         this.statusCode = 504
         this.message = `Gateway Timeout`

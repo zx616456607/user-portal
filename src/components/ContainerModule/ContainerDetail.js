@@ -13,8 +13,8 @@ import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import ContainerDetailInfo from "./ContainerDetailInfo.js"
-import ContainerDetailGraph from "./ContainerGraph.js"
-import ContainerDetailLog from "./ContainerLog.js"
+import ContainerLogs from "./ContainerLogs"
+import ContainerEvents from "./ContainerEvents"
 import "./style/ContainerDetail.less"
 import { loadContainerDetail, deleteContainers } from '../../actions/app_manage'
 import ContainerMonitior from './ContainerMonitior'
@@ -183,8 +183,12 @@ class ContainerDetail extends Component {
                 <TabPane tab="监控" key="2" >
                   <ContainerMonitior key="ContainerMonitior" containerName={containerName} cluster={cluster} />
                 </TabPane>
-                <TabPane tab="日志" key="3" ><ContainerDetailGraph key="ContainerDetailGraph" containerName={containerName} cluster={cluster} /></TabPane>
-                <TabPane tab="事件" key="4" ><ContainerDetailLog key="ContainerDetailLog" containerName={containerName} cluster={cluster} /></TabPane>
+                <TabPane tab="日志" key="3" >
+                  <ContainerLogs key="ContainerLogs" containerName={containerName} cluster={cluster} />
+                </TabPane>
+                <TabPane tab="事件" key="4" >
+                  <ContainerEvents key="ContainerEvents" containerName={containerName} cluster={cluster} />
+                </TabPane>
               </Tabs>
             </Card>
           </div>

@@ -11,11 +11,11 @@
 import React, { PropTypes } from 'react'
 import { Button, Form, Input, Card, Tooltip, message, Alert, Col, Row } from 'antd'
 import './style/Login.less'
-import { verifyCaptcha, login } from '../../actions/entities'
+import { verifyCaptcha, login } from '../../../actions/entities'
 import { connect } from 'react-redux'
-import { USERNAME_REG_EXP, EMAIL_REG_EXP } from '../../constants'
+import { USERNAME_REG_EXP, EMAIL_REG_EXP } from '../../../constants'
 import { browserHistory } from 'react-router'
-import { genRandomString } from '../../common/tools'
+import { genRandomString } from '../../../common/tools'
 
 const createForm = Form.create
 const FormItem = Form.Item

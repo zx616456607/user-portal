@@ -8,9 +8,14 @@
  * @author Zhangpc
  */
 'use strict'
+const modes = require('./models');
 const env = process.env
 const config = {
   production: false,
+  model: {
+    type: 'standard',
+    modules: modes['standard']
+  },
   protocol: 'http' || env.DASHBOARD_PROTOCOL,
   hostname: "0.0.0.0" || env.DASHBOARD_HOST,
   port: 8003 || env.DASHBOARD_PORT,
@@ -26,8 +31,8 @@ const config = {
     // host: "localhost:8000" || env.TENX_API_HOST
     // host: "192.168.0.63:8000" || env.TENX_API_HOST
     host: "192.168.1.103:48000" || env.TENX_API_HOST
-//     host: "192.168.0.230:8000" || env.TENX_API_HOST
-//     host: "192.168.3.3:48000" || env.TENX_API_HOST
+    // host: "192.168.0.230:8000" || env.TENX_API_HOST
+    // host: "192.168.3.3:48000" || env.TENX_API_HOST
   }
 }
 

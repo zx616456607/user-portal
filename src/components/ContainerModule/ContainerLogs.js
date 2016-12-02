@@ -2,7 +2,7 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
- * ContainerGraph component
+ * ContainerLogs component
  *
  * v0.1 - 2016-09-22
  * @author GaoJian
@@ -13,10 +13,10 @@ import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import { formateDate } from '../../common/tools'
-import "./style/ContainerGraph.less"
+import "./style/ContainerLogs.less"
 import { loadContainerLogs, clearContainerLogs } from '../../actions/app_manage'
 
-class ContainerGraph extends Component {
+class ContainerLogs extends Component {
   constructor(props) {
     super(props)
     this.onChangeLogSize = this.onChangeLogSize.bind(this)
@@ -203,8 +203,8 @@ function mapStateToProps(state) {
     containerLogs: state.containers.containerLogs
   }
 }
-ContainerGraph = connect(mapStateToProps, {
+ContainerLogs = connect(mapStateToProps, {
   loadContainerLogs,
   clearContainerLogs
-})(ContainerGraph)
-export default ContainerGraph
+})(ContainerLogs)
+export default ContainerLogs

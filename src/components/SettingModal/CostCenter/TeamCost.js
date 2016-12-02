@@ -99,6 +99,7 @@ export default class TeamCost extends Component{
         position: function (point, params, dom) {
           return [point[0]-25, '10%'];
         },
+        extraCssText: '::after: {content:""}'
       },
       grid: {
         left: '3%',
@@ -156,14 +157,14 @@ export default class TeamCost extends Component{
              <ReactEcharts
               notMerge={true}
               option={teamCostPie}
-              style={{height: '172px'}}
+              style={{height: '170px'}}
              />
             </Col>
             <Col span={18}>
               <ReactEcharts
               notMerge={true}
               option={teamCostBar}
-              style={{height: '172px'}}
+              style={{height: '170px'}}
              />
             </Col>
           </Row>
