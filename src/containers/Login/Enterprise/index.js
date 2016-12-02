@@ -3,7 +3,7 @@
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  */
 
-/* Login page
+/* Login page for enterprise
  *
  * v0.1 - 2016-11-16
  * @author Zhangpc
@@ -322,7 +322,7 @@ let Login = React.createClass({
           </Card>
         </div>
         <div className="footer">
-          © 2016 时速云 标准版 v2.0
+          © 2016 时速云 企业版 v2.0
           </div>
       </div>
     )
