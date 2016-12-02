@@ -243,12 +243,11 @@ class Service extends Component {
     return (
       <QueueAnim className="Service" type="right">
         <div id="Service" key="Service">
-          <Button type="primary" onClick={(e) => this.configModal(true)} size="large" style={{ padding: '5px 10px'}}>
-            <Icon type="plus" />
-            创建配置组
+          <Button type="primary" size="large" onClick={(e) => this.configModal(true)}>
+            <i className="fa fa-plus" /> 创建配置组
           </Button>
-          <Button size="large" onClick={() => this.btnDeleteGroup()} style={{ padding: '5px 10px', marginLeft: "15px"  }}>
-            <Icon type="delete" /> 删除
+          <Button type="ghost" size="large" onClick={() => this.btnDeleteGroup()} style={{ marginLeft: "12px" }}>
+            <i className="fa fa-trash-o" /> 删除
           </Button>
           {/*创建配置组-弹出层-start*/}
           <Modal

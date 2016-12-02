@@ -158,7 +158,6 @@ export function handleOnPodMessage(props, response) {
   }
 }
 
-
 export function removeWatch(type, cluster, ws) {
   switch (type) {
     case 'pod':

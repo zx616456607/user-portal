@@ -9,11 +9,8 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { Spin, Icon, Collapse, Alert } from 'antd'
-import { Link } from 'react-router'
-import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { DEFAULT_REGISTRY } from '../../../constants'
 import './style/TenxFlowStageBuildLog.less'
 import WebSocket from '../../Websocket/socketIo'
 import { changeCiFlowStatus } from '../../../actions/cicd_flow'

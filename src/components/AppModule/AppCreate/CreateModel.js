@@ -9,7 +9,7 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { Card, Button, Form, Select, Menu, } from 'antd'
-import { Link } from 'react-router'
+import { Link , browserHistory} from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import './style/CreateModel.less'
 import { connect } from 'react-redux'
@@ -149,10 +149,7 @@ class CreateModel extends Component {
       teamClusters
     } = this.props
     const { getFieldProps, getFieldValue, getFieldError, isFieldValidating } = form
-    const {
-      createModel,
-      linkUrl,
-    } = this.state
+    const { createModel , linkUrl} = this.state
     const spaceFormCheck = getFieldProps('spaceFormCheck', {
       rules: [
         { validator: this.spaceNameCheck }
@@ -262,7 +259,7 @@ class CreateModel extends Component {
             <Link to={`/app_manage/app_create/${linkUrl}`}>
               <Button size="large" type="primary" disabled={this.state.disabled}>
                 下一步
-                </Button>
+              </Button>
             </Link>
           </div>
         </div>
