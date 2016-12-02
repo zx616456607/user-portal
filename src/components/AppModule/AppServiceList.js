@@ -1126,6 +1126,7 @@ class AppServiceList extends Component {
   }
 
   render() {
+    console.log(this.props)
     const parentScope = this
     let {
       modalShow, currentShowInstance, serviceList,

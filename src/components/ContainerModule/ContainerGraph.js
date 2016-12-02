@@ -19,12 +19,14 @@ import { loadContainerLogs, clearContainerLogs } from '../../actions/app_manage'
 class ContainerGraph extends Component {
   constructor(props) {
     super(props)
+    this.onChangeLogSize = this.onChangeLogSize.bind(this)
     this.state = {
       currentDate: formateDate(new Date(), 'YYYY-MM-DD'),
       pageIndex: 1,
       pageSize: 50,
       useGetLogs: true,
-      preScroll: 0
+      preScroll: 0,
+      logSize: 'normal'
     }
   }
   componentWillMount() {
@@ -159,13 +161,28 @@ class ContainerGraph extends Component {
   refreshLogs() {
     this.changeCurrentDate(this.state.currentDate, true)
   }
+  onChangeLogSize() {
+    //this function for user change the log size to 'big' or 'normal'
+    const { logSize } = this.state;
+    if(logSize == 'big') {
+      document.getElementById('containerInfo').style.transform = 'translateX(0px)';
+      this.setState({
+        logSize: 'normal'
+      })
+    } else {
+      document.getElementById('containerInfo').style.transform = 'none';
+      this.setState({
+        logSize: 'big'
+      })
+    }
+  }
   render() {
     return (
       <div id="ContainerGraph">
-        <div className="bottomBox">
+        <div className={this.state.logSize == 'big' ? "bigBox bottomBox" : 'bottomBox'} >
           <div className="introBox">
             <div className="operaBox">
-              <i className="fa fa-expand"></i>
+              <i className="fa fa-expand" onClick={this.onChangeLogSize.bind(this)}></i>
               <i className="fa fa-refresh" onClick={() => {this.refreshLogs()}}></i>
               <DatePicker className="datePicker" onChange={(date)=> this.changeCurrentDate(date)} value={this.state.currentDate}/>
             </div>

@@ -37,6 +37,9 @@
       }
     }
   }
+  .ReactCodeMirror {
+    font-family: 'Consolas,Menlo,Courier,monospace';
+  }
   .CodeMirrorErrorBox {
     padding: 0 16px;
     width: 100%;
@@ -83,6 +86,7 @@
   }
 }
 .bigCodeMirror {
+  position: fixed;
   z-index: 999;
   .editOperaBox {
     border-radius: 0 !important;
@@ -97,5 +101,10 @@
     border: 0 !important;
     border-radius: 0 !important;
     overflow-y: auto;
+  }
+}
+.bigCodeMirrorNoEdit{
+  .ReactCodeMirror {
+    height: calc(~"100% - 50px") !important;
   }
 }

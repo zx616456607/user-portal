@@ -14,14 +14,11 @@ import React, { Component, PropTypes } from 'react'
 import { Icon, Button, Tooltip } from 'antd'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import $ from 'n-zepto'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import CodeMirror from 'react-codemirror'
 import 'codemirror/lib/codemirror.css'
 import 'codemirror/theme/3024-night.css'
 import './style/Editor.less'
-
-let yaml = require('js-yaml')
 
 const menusText = defineMessages({
   rows: {
@@ -70,50 +67,33 @@ const menusText = defineMessages({
   },
 })
 
-//for js-yaml settting
-const YamlDumpOpts = {
-    noRefs: true,
-    lineWidth: 5000
-}
-
-function matchYamlError(e, index, scope, height) {
-  //this function for format yaml error
-  //and we will change it to intl
-  const { formatMessage } = scope.props.intl;
-  let markExist = true;
-  let reasonExist = true;
-  if(!Boolean(e.mark)) {
-    //sometime the mark is undefined
-    markExist = false;
+function matchClass(state, config) {
+  //this function for match different class name
+  if(state == 'big') {
+    if(config.readOnly) {
+      return 'bigCodeMirror bigCodeMirrorNoEdit';
+    } else {
+      if(config.mode == 'yaml') {
+        return 'bigCodeMirror';
+      }
+      if(config.mode == 'dockerfile') {
+        return 'bigCodeMirror bigCodeMirrorNoEdit';
+      }
+    }
+  } else {
+    return null;
   }
-  if(!Boolean(e.reason)) {
-    //sometime the reason is undefined
-    reasonExist = false;
-    return formatMessage(menusText.search)
-  }
-  let errorBody = {
-    index: (index + 1),
-    reason: e.reason
-  }
-  if(markExist) {
-    errorBody.column = e.mark.column;
-    errorBody.line = e.mark.line + 1;
-  }
-  return errorBody;
 }
 
 class Editor extends Component {
   constructor(props) {
     super(props)
     this.changeBoxSize = this.changeBoxSize.bind(this);
-    this.onChangeFunc = this.onChangeFunc.bind(this);
     this.onChangeLastError = this.onChangeLastError.bind(this);
     this.onChangeNextError = this.onChangeNextError.bind(this);
     this.state = {
       currentBox: 'normal',
-      currentValues: null,
-      errorList: [],
-      currentErrorIndex: 0
+      currentValues: null
     }
   }
   
@@ -128,7 +108,7 @@ class Editor extends Component {
     const { value } = nextProps;
     this.setState({
       currentValues: value,
-      errorList: []
+      currentBox: 'normal',
     })
   }
   
@@ -163,117 +143,56 @@ class Editor extends Component {
     }
   }
   
-  onChangeFunc(e) {
-    //this function for user input new words
-    //and we will test the text is right or not
-    //and the new words will be callback from the props
-    //sometimes the code may not only one and they were split by '---' 
-    const { title, callback } = this.props;
-    let { errorList, currentErrorIndex } = this.state;
-    const _this = this;
-    let newErrorList = [];
-    this.setState({
-      currentValues: e
-    });
-    if(title == 'Yaml') {
-      if(e.indexOf('---') > -1) {
-        //multi codes
-        let codeList = e.split('---');
-        codeList.map((item, index) => {
-          try {
-            yaml.safeLoad(item)
-          } catch(error) {
-            let height = 0;
-            for(let item of e) {
-              if(item == '\n') {
-                height++;
-              }
-            }
-            newErrorList.push(matchYamlError(error, index, _this, height))
-          }
-        })
-      } else {
-        //only one
-        try {
-          yaml.safeLoad(e)
-        } catch(error) {   
-          let height = 0;
-            for(let item of e) {
-              if(item == '\n') {
-                height++;
-              }
-            }
-          newErrorList.push(matchYamlError(error, 0, _this, height))
-        }
-      }
-    }
-    callback(e);
-    //the error num changed
-    if(newErrorList.length != errorList.length && newErrorList.length > 0) {
-      currentErrorIndex = newErrorList.length - 1;
-      this.setState({
-        currentErrorIndex: currentErrorIndex,
-      });
-    }
-    if(newErrorList.length == 0) {
-      currentErrorIndex = 0;
-      this.setState({
-        currentErrorIndex: currentErrorIndex,
-      });
-    }
-    this.setState({
-      errorList: newErrorList,
-    });
-  }
-  
   onChangeLastError() {
     //this function for view user last one error
-    let { errorList, currentErrorIndex } = this.state;
+    let { errorList, currentErrorIndex, scope } = this.props;
     currentErrorIndex--;
     if( currentErrorIndex < 0 ) {
       currentErrorIndex = errorList.length - 1;
     }
-    this.setState({
+    scope.setState({
       currentErrorIndex: currentErrorIndex
     })
   }
   
   onChangeNextError() {
     //this function for view user next one error
-    let { errorList, currentErrorIndex } = this.state;
+    let { errorList, currentErrorIndex, scope } = this.props;
     currentErrorIndex++;
     if( currentErrorIndex >= errorList.length ) {
       currentErrorIndex = 0;
     }
-    this.setState({
+    scope.setState({
       currentErrorIndex: currentErrorIndex
     })
   }
 
   render() {
-    const { options, title } = this.props;
-    const { errorList, currentErrorIndex } = this.state;
-    let errorShow = errorList.map((item, index) => {
-      return (
-            <QueueAnim key={'codeMirrorErrorDetailAnimate' + index} className='codeMirrorErrorDetailAnimate'>
-              <div className='codeMirrorErrorDetail' key={'codeMirrorErrorDetail' + index}>
-                <span>[{this.state.currentErrorIndex + 1}]</span>
-                <span><FormattedMessage {...menusText.num} />{item.index}<FormattedMessage {...menusText.yamlIndex} /></span>&nbsp;
-                {
-                  Boolean(item.line) ? [
-                    <span key='codeMirrorErrorDetailspan'>
-                      <span><FormattedMessage {...menusText.rows} />{item.line}</span>&nbsp;
-                      <span><FormattedMessage {...menusText.lines} />{item.column}</span>&nbsp;
-                    </span>
-                  ] : null
-                }  
-                <span><FormattedMessage {...menusText.yamlErrorReason} />{item.reason}</span>
-              </div>
-            </QueueAnim>
-      )
-    })
+    const { options, title, errorList, currentErrorIndex, onChange } = this.props;
+    let errorShow = null;
+    if(title == 'Yaml') {     
+      errorShow = errorList.map((item, index) => {
+        return (
+              <QueueAnim key={'codeMirrorErrorDetailAnimate' + index} className='codeMirrorErrorDetailAnimate'>
+                <div className='codeMirrorErrorDetail' key={'codeMirrorErrorDetail' + index}>
+                  <span>[{currentErrorIndex + 1}]</span>
+                  <span><FormattedMessage {...menusText.num} />{item.index}<FormattedMessage {...menusText.yamlIndex} /></span>&nbsp;
+                  {
+                    Boolean(item.line) ? [
+                      <span key='codeMirrorErrorDetailspan'>
+                        <span><FormattedMessage {...menusText.rows} />{item.line}</span>&nbsp;
+                        <span><FormattedMessage {...menusText.lines} />{item.column}</span>&nbsp;
+                      </span>
+                    ] : null
+                  }  
+                  <span><FormattedMessage {...menusText.yamlErrorReason} />{item.reason}</span>
+                </div>
+              </QueueAnim>
+        )
+      })
+    }
     return (
-      <div id='CodeMirror' className={ this.state.currentBox == 'big' ? 'bigCodeMirror' : null }>
+      <div id='CodeMirror' className={ matchClass(this.state.currentBox, options) }>
         <div className='editOperaBox'>
           <span className='title'>{title}</span>
           <div className='operaBtn' onClick={this.changeBoxSize.bind(this)}>
@@ -288,11 +207,11 @@ class Editor extends Component {
             }
           </div>
         </div>
-        <CodeMirror ref='CodeMirror' value={this.state.currentValues} options={options} onChange={this.onChangeFunc.bind(this)} />
+        <CodeMirror ref='CodeMirror' value={this.state.currentValues} options={options} onChange={onChange} />
         {
-          !options.readOnly ? [           
+          !options.readOnly && title == 'Yaml' ? [           
             <div className='CodeMirrorErrorBox' key='CodeMirrorErrorBox'>
-              <span className='errorNumSpan'><FormattedMessage {...menusText.errorNum} />{this.state.errorList.length}</span>
+              <span className='errorNumSpan'><FormattedMessage {...menusText.errorNum} />{errorList.length}</span>
               <div className='line' />
               {errorShow[currentErrorIndex]}
               <div className='CodeMirrorBtnBox'>

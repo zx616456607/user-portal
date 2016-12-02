@@ -150,6 +150,13 @@ class VmList extends Component {
     getIntegrationVmList(integrationId, currentDataCenter)
   }
   
+  componentWillReceiveProps(nextProps) {
+    const { getIntegrationVmList, integrationId, currentDataCenter } = nextProps;
+    if(nextProps.currentDataCenter != this.props.currentDataCenter) {
+      getIntegrationVmList(integrationId, currentDataCenter)
+    }
+  }
+  
   onChangeShowType(type) {
     //this function for user change the type of app list
     this.setState({
@@ -180,32 +187,48 @@ class VmList extends Component {
     getIntegrationVmList(integrationId, e)
   }
   
-  onPowerOn(path) {
+  onPowerOn(path, status) {
     //this function for user power on the vm
     const { manageVmDetail, integrationId, currentDataCenter, vmList } = this.props;
     let tempBody = {
-      action: 'poweron',
+      action: status,
       vm: path
     }
+    let title = null;
+    let successMsg = null;
+    let errorMsg = null;
+    let newStatus = null;
+    if(status == 'poweron') {
+      title = '打开虚拟机';
+      successMsg = '该虚机已经打开了~';
+      errorMsg = '打开虚拟机成功~';
+      newStatus = 'poweroff';
+    } else if (status == 'poweroff') {
+      title = '关闭虚拟机';
+      successMsg = '该虚机已经关闭了~';
+      errorMsg = '关闭虚拟机成功~';
+      newStatus = 'poweron';
+    }
     vmList.map((item) => {
-      if(item.path == path && item.powerstate == 'poweron') {
+      if(item.path == path && item.powerstate == status) {
         notification['warning']({
-          message: '打开电源',
-          description: '该虚机已经打开电源了~',
+          message: title,
+          description: errorMsg,
         });
       }
-    })
+    });
     manageVmDetail(integrationId, currentDataCenter, tempBody, {
       success: {
         func: () => {
           vmList.map((item) => {
             if(item.path == path) {
-              item.powerstate = 'poweron'
+              
+              item.powerstate = newStatus;
             }
           });
           notification['success']({
-          message: '打开电源',
-          description: '虚机打开电源成功~',
+          message: title,
+          description: successMsg,
         });
         },
         isAsync: true
@@ -234,6 +257,11 @@ class VmList extends Component {
         title = '删除虚拟机';
         msg = '删除虚拟机成功~';
         errorMsg = '该虚机已经被删除了~';
+        break;
+      case 'poweron':
+        title = '打开虚拟机';
+        msg = '打开虚拟机成功~';
+        errorMsg = '该虚机已经被打开了~';
         break;
     }
     vmList.map((item) => {
@@ -299,10 +327,12 @@ class VmList extends Component {
     }
     let appShow = vmList.map((item, index) => {
       const menu = (
-        <Menu onClick={this.meunClick.bind(this, item.path)}>
-          <Menu.Item key='poweroff'><FormattedMessage {...menusText.poweroff} /></Menu.Item>
-          <Menu.Item key='shutdown'><FormattedMessage {...menusText.shutdown} /></Menu.Item>
-          <Menu.Item key='delete' disabled><FormattedMessage {...menusText.delete} /></Menu.Item>
+        <Menu onClick={this.meunClick.bind(this, item.path)} style={{ width: '126px' }}>
+          { 
+            item.powerstate == 'poweron' ? [<Menu.Item key='poweroff'><i className='fa fa-stop' />&nbsp;<FormattedMessage {...menusText.poweroff} /></Menu.Item>] : [<Menu.Item key='poweron'><i className='fa fa-play' />&nbsp;<FormattedMessage {...menusText.poweron} /></Menu.Item>]
+          }          
+          <Menu.Item key='shutdown'><i className='fa fa-chain-broken' />&nbsp;<FormattedMessage {...menusText.shutdown} /></Menu.Item>
+          <Menu.Item key='delete' disabled><i className='fa fa-trash' />&nbsp;<FormattedMessage {...menusText.delete} /></Menu.Item>
         </Menu>
       )
       return (
@@ -324,8 +354,8 @@ class VmList extends Component {
           </div>
           <div className='pod commonTitle'>
             <span className='commonSpan'>
-              <Tooltip placement='topLeft' title={item.type}>
-               <span>{item.type}</span>
+              <Tooltip placement='topLeft' title={item.hostSystem}>
+               <span>{item.hostSystem}</span>
               </Tooltip>
             </span>
           </div>
@@ -365,17 +395,14 @@ class VmList extends Component {
               </svg>
               <span style={{ marginLeft: '20px' }}>终端</span>
             </Button>*/}
-            <Dropdown.Button overlay={menu} type='ghost' size='large' onClick={this.onPowerOn.bind(this, item.path)}>
-              <FormattedMessage {...menusText.poweron} />
+            <Dropdown.Button overlay={menu} type='ghost' size='large' onClick={this.onPowerOn.bind(this, item.path, item.powerstate)}>
+              <span>
+                { item.powerstate == 'poweron' ? [<span><i className='fa fa-play' />&nbsp;<FormattedMessage {...menusText.poweron} /></span>] : [<span><i className='fa fa-stop' />&nbsp;<FormattedMessage {...menusText.poweroff} /></span>] }
+              </span>
             </Dropdown.Button>
           </div>
           <div style={{ clear: 'both' }}></div>
         </div>
-      )
-    });
-    let selectDcShow = dataCenters.map((item, index) => {
-      return (
-        <Option value={item} key={item}>{item.replace('/','')}</Option>
       )
     });
     return (
@@ -393,9 +420,6 @@ class VmList extends Component {
             <Input type='text' size='large' />
             <i className='fa fa-search' />
           </div>
-          <Select defaultValue={currentDataCenter} style={{ width: 150, marginLeft: '15px' }} size='large' onChange={this.onChangeDataCenter}>
-            {selectDcShow}
-          </Select>
           <div style={{ clear: 'both' }}></div>
         </div>
         <div className='titleBox'>

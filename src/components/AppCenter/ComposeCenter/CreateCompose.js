@@ -37,6 +37,17 @@ class CreateCompose extends Component {
       currentYaml: null 
     }
   }
+  
+  componentWillReceiveProps(nextProps) {
+    const { paretnState } = nextProps;
+    let currentYaml = '';
+    if(!!paretnState.stackItemContent) {
+      currentYaml =  paretnState.stackItemContent;
+    }
+    this.setState({
+      currentYaml: currentYaml
+    })
+  }
 
   onChangeAttr(e) {
     //this function for user change the compose attr
@@ -213,7 +224,7 @@ class CreateCompose extends Component {
         <span className='title'>描述文件</span>
         </div>
         <div className='rightBox'>
-          <YamlEditor value={!!paretnState.stackItemContent ? paretnState.stackItemContent : ''} options={defaultEditOpts} callback={this.onChangeYamlEditor.bind(this)}/>
+          <YamlEditor value={this.state.currentYaml} options={defaultEditOpts} callback={this.onChangeYamlEditor.bind(this)}/>
         </div>
         <div style={{ clear:'both' }}></div>
       </div>

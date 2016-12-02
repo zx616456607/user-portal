@@ -107,6 +107,11 @@ function getUsedDisk(disks) {
   return diskTotal - diskFree;
 }
 
+function getCpuUsedCount(singleHz, usedHz) {
+  let usedCpu = Math.round(usedHz/singleHz);
+  return usedCpu;
+}
+
 function formatStatus(status) {
   //this function for format status
   switch(status) {
@@ -130,7 +135,6 @@ class PhysicalList extends Component {
     this.onChangeAppType = this.onChangeAppType.bind(this);
     this.ShowDetailInfo = this.ShowDetailInfo.bind(this);
     this.onSearchPods = this.onSearchPods.bind(this);
-    this.onChangeDataCenter = this.onChangeDataCenter.bind(this);
     this.state = {
       currentShowApps: 'all',
       currentAppType: '1',
@@ -146,11 +150,14 @@ class PhysicalList extends Component {
   }
   
   componentWillReceiveProps(nextProps) {
-    const {isFetching, pods} = nextProps;
+    const { isFetching, pods, getIntegrationPodDetail, integrationId, currentDataCenter } = nextProps;
     if(!isFetching && Boolean(pods)) {
       this.setState({
         pods: pods
       })
+    }
+    if(nextProps.currentDataCenter != this.props.currentDataCenter) {
+      getIntegrationPodDetail(integrationId, currentDataCenter)
     }
   }
   
@@ -197,15 +204,6 @@ class PhysicalList extends Component {
     }
   }
   
-  onChangeDataCenter(e) {
-    //this function for user change the current data center
-    const { scope, getIntegrationPodDetail, integrationId } = this.props;
-    scope.setState({
-      currentDataCenter: e
-    });
-    getIntegrationPodDetail(integrationId, e)
-  }
-  
   render() {
     const { formatMessage } = this.props.intl;
     const {isFetching, pods, dataCenters, currentDataCenter} = this.props;
@@ -223,7 +221,10 @@ class PhysicalList extends Component {
           <div className='id commonTitle'>
             <span className='commonSpan'>
               <Tooltip placement='topLeft' title={item.name}>
-                <span>{item.name}</span>
+                <span className='topSpan'>{item.name}</span>
+              </Tooltip>
+              <Tooltip placement='topLeft' title={item.ip}>
+                <span className='bottomSpan'>{item.ip}</span>
               </Tooltip>
             </span>
           </div>
@@ -246,21 +247,10 @@ class PhysicalList extends Component {
               </Tooltip>
             </span>
           </div>
-          <div className='runTime commonTitle'>
-            <span className='commonSpan'>
-              <span>{calcuDate(item.bootTime)}</span>
-            </span>
-          </div>
-          <div className='startTime commonTitle'>
-            <span className='commonSpan'>
-              <Tooltip placement='topLeft' title={formatDate(item.bootTime)}>
-                <span>{formatDate(item.bootTime)}</span>
-              </Tooltip>
-            </span>
-          </div>
           <div className='cpu commonTitle'>
             <span className='commonSpan'>
-              <span>{item.cpuNumber}<FormattedMessage {...menusText.core} /></span>
+              <span className='topSpan'>{item.cpuNumber}<FormattedMessage {...menusText.core} /></span>
+              <span className='bottomSpan'>{getCpuUsedCount(item.cpuMhz, item.cpuTotalUsedMhz)}<FormattedMessage {...menusText.core} /></span>
             </span>
           </div>
           <div className='memory commonTitle'>
@@ -275,13 +265,20 @@ class PhysicalList extends Component {
               <span className='bottomSpan'>{parseInt(100*getUsedDisk(item.disks)/getTotalDisk(item.disks))}%</span>
             </span>
           </div>
+          <div className='runTime commonTitle'>
+            <span className='commonSpan'>
+              <span>{calcuDate(item.bootTime)}</span>
+            </span>
+          </div>
+          <div className='startTime commonTitle'>
+            <span className='commonSpan'>
+              <Tooltip placement='topLeft' title={formatDate(item.bootTime)}>
+                <span>{formatDate(item.bootTime)}</span>
+              </Tooltip>
+            </span>
+          </div>
           <div style={{ clear: 'both' }}></div>
         </div>
-      )
-    });
-    let selectDcShow = dataCenters.map((item, index) => {
-      return (
-        <Option value={item} key={item}>{item.replace('/','')}</Option>
       )
     });
     return (
@@ -291,9 +288,6 @@ class PhysicalList extends Component {
             <Input type='text' size='large' onKeyUp={this.onSearchPods.bind(this)}/>
             <i className='fa fa-search' />
           </div>
-          <Select defaultValue={currentDataCenter} style={{ width: 150, marginLeft: '15px' }} size='large' onChange={this.onChangeDataCenter}>
-            {selectDcShow}
-          </Select>
           <div style={{ clear: 'both' }}></div>
         </div>
         <div className='titleBox'>
@@ -309,20 +303,20 @@ class PhysicalList extends Component {
           <div className='ip commonTitle'>
             <FormattedMessage {...menusText.ip} />
           </div>
-          <div className='runTime commonTitle'>
-            <FormattedMessage {...menusText.runTime} />
-          </div>
-          <div className='startTime commonTitle'>
-            <FormattedMessage {...menusText.startTime} />
-          </div>
           <div className='cpu commonTitle'>
-            CPU
+            CPU/已使用
           </div>
           <div className='memory commonTitle'>
             <FormattedMessage {...menusText.memory} />
           </div>
           <div className='disk commonTitle'>
             <FormattedMessage {...menusText.disk} />
+          </div>
+          <div className='runTime commonTitle'>
+            <FormattedMessage {...menusText.runTime} />
+          </div>
+          <div className='startTime commonTitle'>
+            <FormattedMessage {...menusText.startTime} />
           </div>
           <div style={{ clear: 'both' }}></div>
         </div>
