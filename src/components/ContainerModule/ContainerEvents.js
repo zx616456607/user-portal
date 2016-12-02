@@ -2,7 +2,7 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
- * ContainerLog component
+ * ContainerEvents component
  *
  * v0.1 - 2016-09-22
  * @author GaoJian
@@ -12,7 +12,7 @@ import { Checkbox, Dropdown, Button, Card, Menu, Icon, Spin } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import './style/ContainerLog.less'
+import './style/ContainerEvents.less'
 import { loadContainerDetailEvents } from '../../actions/app_manage'
 import { calcuDate } from '../../common/tools.js'
 
@@ -27,17 +27,17 @@ let MyComponent = React.createClass({
   },
   render: function () {
     let { config, isFetching } = this.props;
-    if (!!!config) {
-      return (
-        <div className="noData" >
-          No Data
-        </div>
-      )
-    }
     if (isFetching) {
       return (
         <div className="loadingBox" >
           <Spin size="large" />
+        </div>
+      )
+    }
+    if (!!!config || config.length < 1) {
+      return (
+        <div className="noData" >
+          No Data
         </div>
       )
     }
@@ -75,7 +75,7 @@ let MyComponent = React.createClass({
   }
 });
 
-class ContainerLog extends Component {
+class ContainerEvents extends Component {
   constructor(props) {
     super(props);
   }
@@ -87,14 +87,14 @@ class ContainerLog extends Component {
   render() {
     const { eventList, isFetching } = this.props;
     return (
-      <div id='ContainerLog' >
+      <div id='ContainerEvents' >
         <MyComponent config={eventList} isFetching={isFetching} />
       </div>
     )
   }
 }
 
-ContainerLog.propTypes = {
+ContainerEvents.propTypes = {
   // Injected by React Redux
   cluster: PropTypes.string.isRequired,
   eventList: PropTypes.object.isRequired,
@@ -120,4 +120,4 @@ function mapStateToProps(state, props) {
 
 export default connect(mapStateToProps, {
   loadContainerDetailEvents
-})(ContainerLog)
+})(ContainerEvents)
