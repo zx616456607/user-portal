@@ -4,28 +4,28 @@
  */
 
 /**
- * Yaml editor
+ * DockerFile editor
  *
  * v0.1 - 2016-11-30
- * @author Zhangpc
+ * @author GaoJian
  */
 
 import React, { Component, PropTypes } from 'react'
 import Editor from './'
-import 'codemirror/mode/yaml/yaml'
+import 'codemirror/mode/dockerfile/dockerfile'
 import merge from 'lodash/merge'
 
 const defaultOpts = {
   lineNumbers: true,
   readOnly: true,
-  mode: 'yaml',
+  mode: 'dockerfile',
   styleActiveLine: true,
   theme: '3024-night',
   lineWrapping: true,
   tabSize: 2,
 }
 
-class YamlEditor extends Component {
+class DockerFileEditor extends Component {
   constructor(props) {
     super(props)
   }
@@ -33,11 +33,11 @@ class YamlEditor extends Component {
   render() {
     const { value, options, parentId, callback } = this.props
     const newOpts = merge({}, defaultOpts, options)
-    newOpts.mode = 'yaml'
+    newOpts.mode = 'dockerfile'
     return (
-      <Editor value={value} options={newOpts} title={'Yaml'} parentId={parentId} callback={callback} />
+      <Editor value={value} options={newOpts} title={'Docker File'} parentId={parentId} callback={callback} />
     )
   }
 }
 
-export default YamlEditor
+export default DockerFileEditor

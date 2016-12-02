@@ -25,14 +25,14 @@ function getClusterCostOption(costValue, restValue) {
     },
     legend: {
       orient : 'vertical',
-      left : '50%',
+      left : '60%',
       top : '30%',
       data:[{name:'余额'}, {name:'消费'}],
       formatter: function (name) {
         if(name === '余额'){
-          return name + ': ' + restValue + 'T币'
+          return name + '：￥' + restValue
         } else {
-          return name + ': ' + costValue + 'T币'
+          return name + '：￥' + costValue
         }
       },
       textStyle: {
@@ -42,13 +42,13 @@ function getClusterCostOption(costValue, restValue) {
       itemWidth: 10,
       itemHeight: 10,
     },
-    color: ['#46b2fa', '#f6565e'],
+    color: ['#46b2fa', '#2abe84'],
     series : [
       {
         name:'',
         type:'pie',
         selectedMode: 'single',
-        radius : '40%',
+        radius : '45%',
         center: ['30%', '50%'],
         data:[
           {value:900, name:'余额'},
@@ -70,7 +70,7 @@ function getClusterCostOption(costValue, restValue) {
 let SvcState = React.createClass({
   getInitialState(){
     return {
-      
+
     }
   },
   render: function(){
@@ -107,7 +107,7 @@ let SvcState = React.createClass({
     )
   }
 })
-  
+
 class Ordinary extends Component{
   constructor(props){
     super(props)
@@ -120,9 +120,9 @@ class Ordinary extends Component{
       tab3: false,
     }
   }
-  
+
   componentWillMount() {
-    
+
   }
   componentDidMount(){
     const { loadClusterInfo, current } = this.props
@@ -137,7 +137,7 @@ class Ordinary extends Component{
       loadClusterInfo(clusterID)
       return
     }
-    
+
   }
   handleDataBaseClick(current){
     if(current === 'tab1'){
@@ -218,7 +218,7 @@ class Ordinary extends Component{
     let conOthers = clusterAppStatus.podMap.get('Pending')?clusterAppStatus.podMap.get('Pending'):0 +
     clusterAppStatus.podMap.get('Terminating')?clusterAppStatus.podMap.get('Terminating'):0 +
     clusterAppStatus.podMap.get('Unknown')?clusterAppStatus.podMap.get('Unknown'):0
-    
+
     appRunning = appRunning ? appRunning:0
     appStopped = appStopped ? appStopped:0
     appOthers = appOthers ? appOthers:0
@@ -655,7 +655,7 @@ class Ordinary extends Component{
           type:'bar',
           barWidth: 16,
           data:memoryUsedArr,
-          
+
         }
       ]
     }
@@ -722,13 +722,13 @@ class Ordinary extends Component{
           type:'bar',
           barWidth: 16,
           data:diskUsedArr,
-          
+
         }
       ]
     }
     return (
       <div id='Ordinary'>
-        <Row className="title">空间 :{spaceName} - {clusterName}集群</Row>
+        <Row className="title">空间：{spaceName} - {clusterName}集群</Row>
         <Row className="content" gutter={16}>
           <Col span={8} className='clusterCost'>
             <Card title="本日该集群消费" bordered={false} bodyStyle={{height:220,padding:'0 24px'}}>
@@ -927,34 +927,34 @@ class Ordinary extends Component{
         </Row>
         <Row className="content" gutter={16} style={{marginTop:10}}>
           <Col span={6}>
-            <Card title="应用" bordered={false} bodyStyle={{height:200,padding:'0 24px'}}>
+            <Card title="应用" bordered={false} bodyStyle={{height:180,padding:'0 24px'}}>
               <ReactEcharts
                 notMerge={true}
                 option={appOption}
-                style={{height:'200px'}}
+                style={{height:'180px'}}
               />
             </Card>
           </Col>
           <Col span={6}>
-            <Card title="服务" bordered={false} bodyStyle={{height:200,padding:'0 24px'}}>
+            <Card title="服务" bordered={false} bodyStyle={{height:180,padding:'0 24px'}}>
               <ReactEcharts
                 notMerge={true}
                 option={serviceOption}
-                style={{height:'200px'}}
+                style={{height:'180px'}}
               />
             </Card>
           </Col>
           <Col span={6}>
-            <Card title="容器" bordered={false} bodyStyle={{height:200,padding:'0 24px'}}>
+            <Card title="容器" bordered={false} bodyStyle={{height:180,padding:'0 24px'}}>
               <ReactEcharts
                 notMerge={true}
                 option={containerOption}
-                style={{height:'200px'}}
+                style={{height:'180px'}}
               />
             </Card>
           </Col>
           <Col span={6} className='storage'>
-            <Card title="存储" bordered={false} bodyStyle={{height:200,padding:'0 24px'}}>
+            <Card title="存储" bordered={false} bodyStyle={{height:180,padding:'0 24px'}}>
               <ProgressBox boxPos={boxPos}/>
               <Col span={12} className='storageInf'>
                 <div className="storageInfList">
@@ -983,9 +983,9 @@ class Ordinary extends Component{
           <Col span={6} className='dataBase'>
             <Card title="数据库与缓存" bordered={false} bodyStyle={{height:200}}>
               <Row gutter={16}>
-                <Col span={8} onClick={() => this.handleDataBaseClick('tab1')} className={this.state.tab1?'seleted':''}><span className='dataBtn'>MySQL集群</span></Col>
-                <Col span={8} onClick={() => this.handleDataBaseClick('tab2')} className={this.state.tab2?'seleted':''}><span className='dataBtn'>Mongo集群</span></Col>
-                <Col span={8} onClick={() => this.handleDataBaseClick('tab3')} className={this.state.tab3?'seleted':''}><span className='dataBtn'>Redis集群</span></Col>
+                <Col span={8} onClick={() => this.handleDataBaseClick('tab1')} className={this.state.tab1?'seleted':''}><span className='dataBtn'>MySQL</span></Col>
+                <Col span={8} onClick={() => this.handleDataBaseClick('tab2')} className={this.state.tab2?'seleted':''}><span className='dataBtn'>MongoDB</span></Col>
+                <Col span={8} onClick={() => this.handleDataBaseClick('tab3')} className={this.state.tab3?'seleted':''}><span className='dataBtn'>Redis</span></Col>
               </Row>
               <Row style={{display: this.state.tab1?'block':'none',height:130}}>
                 <Col span={12} className='dbImg'>
@@ -1282,7 +1282,7 @@ function mapStateToProp(state,props) {
   clusterDbServicesData.set("mysql", new Map())
   clusterDbServicesData.set("mongo", new Map())
   clusterDbServicesData.set("redis", new Map())
-  
+
   let clusterNodeSummaryData = {
     nodeInfo: {
       total: 0,

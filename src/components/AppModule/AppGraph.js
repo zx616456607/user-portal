@@ -22,7 +22,7 @@ let OrchfileComponent = React.createClass({
     this.props.getAppOrchfile(this.props.cluster, this.props.appName)
   },
   componentDidMount() {
-    //
+    
   },
   render: function () {
     if (!this.props.appOrchfile || !this.props.appOrchfile.result
@@ -33,7 +33,7 @@ let OrchfileComponent = React.createClass({
     return (
       <div id="AppGraph">
         <div className="bottomBox">
-          <YamlEditor value={content} />
+          <YamlEditor value={content} parentId={'AppInfo'} />
           <div style={{ clear: "both" }}></div>
         </div>
       </div>

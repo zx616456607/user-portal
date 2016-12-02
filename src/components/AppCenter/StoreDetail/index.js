@@ -13,6 +13,8 @@ import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import './style/storeDetail.less'
+import YamlEditor from '../../Editor/Yaml'
+
 const TabPane = Tabs.TabPane;
 
 class DetailInfo extends Component {
@@ -47,8 +49,7 @@ class DetailStack extends Component {
     }
     return (
       <div className="infoList">
-        <div className="operaBox"><Icon type="star-o" style={{marginRight:'15px'}}/><Icon type="arrow-salt" /></div>
-        <textarea readOnly>{data.content}</textarea>
+        <YamlEditor value={data.content} />
       </div>
       
     )

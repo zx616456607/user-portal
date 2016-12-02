@@ -383,6 +383,7 @@
   "CICD.Tenxflow.TenxFlowDetailFlowCard.restartBtn": "Restart",
   "CICD.Tenxflow.TenxFlowDetailFlowCard.editBtn": "Edit",
   "CICD.Tenxflow.TenxFlowDetailFlowCard.deleteBtn": "Delete",
+  "CICD.Tenxflow.TenxFlowDetailFlowCard.didNotDelete": "只能从最后一个开始删除哦",
   "CICD.Tenxflow.TenxFlowDetailFlow.title": "Deploy Log",
   "CICD.Tenxflow.TenxFlowDetailFlow.tooltip": "TenxFlow流程定义，这里您可以定义一系列构建所需要的项目执行过程，可以是代码构建，亦或是开发自测，也可以是自动化集成、并实现自动化部署的一个All-In-One Platform",
   "CICD.Tenxflow.TenxFlowDetailFlow.add": "Add New Flow",
@@ -552,5 +553,16 @@
   "Integration.VSphereDetail.used": "已使用：",
   "Integration.VSphereDetail.idle": "空闲：",
   "Integration.VSphereDetail.vgNum": "硬盘总数：",
-  "Integration.VSphereDetail.using": "可用硬盘："
+  "Integration.VSphereDetail.using": "可用硬盘：",
+  "this.is.an.commnent": "/------------------------Editor 编辑器-----------------------/",
+  "Editor.Error.rows": "行：",
+  "Editor.Error.lines": "列：",
+  "Editor.Error.unknownReason": "未知错误",
+  "Editor.Error.yamlError": "yaml语法错误：",
+  "Editor.Error.yamlErrorReason": "错误原因：",
+  "Editor.Error.num": "第",
+  "Editor.Error.yamlIndex": "段yaml",
+  "Editor.Error.errorNum": "错误数：",
+  "Editor.Error.nextOne": "下一个",
+  "Editor.Error.lastOne": "上一个"
 }

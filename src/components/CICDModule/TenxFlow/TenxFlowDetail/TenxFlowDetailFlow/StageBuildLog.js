@@ -207,10 +207,6 @@ let MyComponent = React.createClass({
     const { config, scope, flowId } = this.props;
 
     let items = config.map((item, index) => {
-      let com = <FormattedMessage {...menusText.cost} />
-      if (item.status == 2) {
-        com = ''
-      }
       const header = (
         <div className='header'>
           <div className='leftHeader'>
@@ -233,7 +229,7 @@ let MyComponent = React.createClass({
               </span>
               <span className='commonHeader'>
                 <Icon type='clock-circle-o' />
-                {com}
+                { item.status != 2 ? [<FormattedMessage {...menusText.cost} />] : null }
                 { item.status == 2 ? '' : dateSizeFormat(item.creationTime, item.endTime, scope)}
               </span>
               <div style={{ clear: 'both' }}></div>

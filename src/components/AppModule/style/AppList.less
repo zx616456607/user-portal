@@ -61,7 +61,6 @@
     width: 100%;
     border-radius: 5px;
     background-color: #FFFFFF;
-    min-height: 1000px;
     .selectIconTitle {
       width: 5%;
       overflow: hidden;
@@ -130,6 +129,23 @@
         }
       }
       .appDetail {
+        .appListDomain {
+          height: 60px;
+          line-height: 60px;
+          display: flex;
+          .ant-tooltip-inner {
+            width: 100% !important;
+            min-width: 190px;
+            max-width: none;
+          }
+          .ant-popover-arrow {
+            border-right-color: #36baf5 !important;
+          }
+          .ant-popover-inner {
+            border: 1px solid #36baf5;
+            min-width: inherit;
+          }
+        }
         transition: all 0.3s;
         width: 100%;
         min-height: 51px;

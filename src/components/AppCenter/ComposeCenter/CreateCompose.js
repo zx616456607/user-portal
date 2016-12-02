@@ -12,11 +12,16 @@ import { Form, Input, Button, Switch, Modal, Radio , message} from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import "./style/CreateCompose.less"
+import './style/CreateCompose.less'
+import YamlEditor from '../../Editor/Yaml'
 
 const createForm = Form.create;
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
+
+const defaultEditOpts = {
+  readOnly: false,
+}
 
 class CreateCompose extends Component {
   constructor(props) {
@@ -25,9 +30,11 @@ class CreateCompose extends Component {
     this.handleReset = this.handleReset.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.updateSubmit = this.updateSubmit.bind(this)
+    this.onChangeYamlEditor = this.onChangeYamlEditor.bind(this)
     this.state = {
-      composeType: "stack",
+      composeType: 'stack',
       composeAttr: false,
+      currentYaml: null 
     }
   }
 
@@ -62,7 +69,7 @@ class CreateCompose extends Component {
       const registry = this.props.registry
       const config = {
         'is_public': this.state.composeAttr ? 1 : 2,
-        'content': values.textarea,
+        'content': this.state.currentYaml,
         'name': values.name,
         'description': values.desc
       }
@@ -93,7 +100,8 @@ class CreateCompose extends Component {
     //this function for user submit add other image space
     e.preventDefault();
     const parentScope = this.props.scope;
-    const form = this.props.form
+    const form = this.props.form;
+    const _this = this;
     form.validateFields((errors, values) => {
       if (!!errors) {
         //it's mean there are some thing is null,user didn't input
@@ -105,7 +113,7 @@ class CreateCompose extends Component {
         registry,
         'id': parentScope.state.stackItem.id,
         'is_public': this.state.composeAttr ? 1 : 2,
-        'content': values.textarea,
+        'content': this.state.currentYaml,
         'name': values.name,
         'description': values.desc
       }
@@ -137,6 +145,13 @@ class CreateCompose extends Component {
       //and should submit the message to the backend
     });
   }
+  
+  onChangeYamlEditor(e) {
+    //this function for editor callback
+    this.setState({
+      currentYaml: e
+    })
+  }
 
   render() {
     const scope = this.props.scope;
@@ -148,12 +163,6 @@ class CreateCompose extends Component {
       ],
       initialValue: paretnState.stackItem.name
     });
-    const textareaProps = getFieldProps('textarea', {
-      rules: [
-        { required: true, message: '编排文件' },
-      ],
-      initialValue: paretnState.stackItemContent
-    });
     const descProps = getFieldProps('desc', {
       rules: [
         {required: true,message: '描述信息'},
@@ -164,59 +173,57 @@ class CreateCompose extends Component {
       initialValue: paretnState.stackItem.isPublic == 1 ? true : false
     })
     return (
-      <div id="createCompose" key="createCompose">
+      <div id='createCompose' key='createCompose'>
       <Form horizontal>
-         <div className="commonInput">
-          <div className="leftBox" style={{lineHeight:'35px'}}>
-            <span className="title">编排名称</span>
+         <div className='commonInput'>
+          <div className='leftBox' style={{lineHeight:'35px'}}>
+            <span className='title'>编排名称</span>
           </div>
-          <div className="rightBox">
-            <FormItem hasFeedback style={{ width:"220px" }} >
+          <div className='rightBox'>
+            <FormItem hasFeedback style={{ width:'220px' }} >
               <Input {...nameProps} disabled={paretnState.stackItem.name ? true : false}/>
             </FormItem>
           </div>
-          <div style={{ clear:"both" }}></div>
+          <div style={{ clear:'both' }}></div>
         </div>
-        <div className="switch commonInput">
-          <div className="leftBox">
-            <span className="title">编排属性</span>
+        <div className='switch commonInput'>
+          <div className='leftBox'>
+            <span className='title'>编排属性</span>
           </div>
-          <div className="rightBox" style={{width:'100px', paddingTop:'8px'}}>
+          <div className='rightBox' style={{width:'100px', paddingTop:'8px'}}>
             <FormItem hasFeedback>
               <Switch {...switchProps} defaultChecked={paretnState.stackItem.isPublic == 1 ? true : false} checkedChildren={'公开'} unCheckedChildren={'私有'}  onChange={this.onChangeAttr} />
             </FormItem>
           </div>
-          <div style={{ clear:"both" }}></div>
+          <div style={{ clear:'both' }}></div>
         </div>
-        <div className="intro commonInput">
-          <div className="leftBox">
-          <span className="title">描述信息</span>
+        <div className='intro commonInput'>
+          <div className='leftBox'>
+          <span className='title'>描述信息</span>
           </div>
-          <div className="rightBox">
+          <div className='rightBox'>
             <FormItem hasFeedback>
-            <Input type="textarea" {...descProps} autosize={{ minRows: 2, maxRows: 3 }} />
+            <Input type='textarea' {...descProps} autosize={{ minRows: 2, maxRows: 3 }} />
             </FormItem>
           </div>
-          <div style={{ clear:"both" }}></div>
+          <div style={{ clear:'both' }}></div>
         </div>
-      <div className="file commonInput composeText">
-        <div className="leftBox">
-        <span className="title">描述文件</span>
+      <div className='file commonInput composeText'>
+        <div className='leftBox'>
+        <span className='title'>描述文件</span>
         </div>
-        <div className="rightBox">
-          <FormItem hasFeedback>
-          <Input type="textarea" {...textareaProps} autosize={{ minRows: 10, maxRows: 30 }}/>
-          </FormItem>
+        <div className='rightBox'>
+          <YamlEditor value={!!paretnState.stackItemContent ? paretnState.stackItemContent : ''} options={defaultEditOpts} callback={this.onChangeYamlEditor.bind(this)}/>
         </div>
-        <div style={{ clear:"both" }}></div>
+        <div style={{ clear:'both' }}></div>
       </div>
       </Form>
-      <div className="btnBox">
-        <Button size="large" onClick={ this.handleReset } style={{ marginRight:"15px" }}>
+      <div className='btnBox'>
+        <Button size='large' onClick={ this.handleReset } style={{ marginRight:'15px' }}>
         取消
         </Button>
         {
-          paretnState.stackItem.name ? [<Button size="large" type="primary" onClick={ this.updateSubmit}> 保存</Button>] : [<Button size="large" type="primary" onClick={ this.handleSubmit }> 确定</Button>]
+          paretnState.stackItem.name ? [<Button size='large' type='primary' onClick={ this.updateSubmit}> 保存</Button>] : [<Button size='large' type='primary' onClick={ this.handleSubmit }> 确定</Button>]
         }
       </div>
     </div>

@@ -277,8 +277,8 @@ let MyComponent = React.createClass({
           <div className='containerNum commonData'>
             {item.instanceCount + '' || '-'}
           </div>
-          <div className='visitIp commonData'>
-            <TipSvcDomain appDomain={appDomain} />
+          <div className='visitIp commonData appListDomain'>
+            <TipSvcDomain appDomain={appDomain} parentNode='appListDomain'/>
           </div>
           <div className='createTime commonData'>
             <Tooltip title={calcuDate(item.createTime)}>
