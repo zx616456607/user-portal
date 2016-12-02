@@ -927,35 +927,35 @@ class ServiceList extends Component {
                   total={total} />
               </div>
             </div>
-            <div className='clearDiv'></div>
+            <div style={{ clear: 'both' }}></div>
           </div>
           <Card className='appBox'>
-            <div className="appTitle">
+            <div className='appTitle'>
               <div className="selectIconTitle commonTitle">
                 <Checkbox checked={isAllChecked} onChange={this.onAllChange} disabled={serviceList.length < 1}></Checkbox>
               </div>
-              <div className="name commonTitle">
+              <div className='name commonTitle'>
                 服务名称
             </div>
-              <div className="status commonTitle">
+              <div className='status commonTitle'>
                 运行状态
             </div>
-              <div className="appname commonTitle">
+              <div className='appname commonTitle'>
                 所属应用
             </div>
-              <div className="image commonTitle">
+              <div className='image commonTitle'>
                 镜像
             </div>
-              <div className="service commonTitle">
+              <div className='service commonTitle'>
                 服务地址
             </div>
-              <div className="createTime commonTitle">
+              <div className='createTime commonTitle'>
                 创建时间
             </div>
-              <div className="actionBox commonTitle">
+              <div className='actionBox commonTitle'>
                 操作
             </div>
-              <div style={{ clear: "both" }}></div>
+              <div style={{ clear: 'both' }}></div>
             </div>
 
             <MyComponent
@@ -967,10 +967,10 @@ class ServiceList extends Component {
               bindingDomains={this.props.bindingDomains} />
           </Card>
           <Modal
-            title="垂直居中的对话框"
+            title='垂直居中的对话框'
             visible={this.state.modalShow}
-            className="AppServiceDetail"
-            transitionName="move-right"
+            className='AppServiceDetail'
+            transitionName='move-right'
             onCancel={this.closeModal}
             >
             <AppServiceDetail
@@ -1004,8 +1004,8 @@ class ServiceList extends Component {
             loadServiceList={() => this.loadServices(this.props)} />
           <Modal
             visible={deployServiceModalShow}
-            className="AppServiceDetail"
-            transitionName="move-right"
+            className='AppServiceDetail'
+            transitionName='move-right'
             >
             <AppDeployServiceModal
               scope={parentScope}

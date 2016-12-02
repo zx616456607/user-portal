@@ -14,6 +14,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../../constants'
+import DockerFileEditor from '../../../../Editor/DockerFile'
 import { createTenxFlowState, createDockerfile, getAvailableImage } from '../../../../../actions/cicd_flow'
 import './style/CreateTenxFlowModal.less'
 import EnvComponent from './EnvComponent.js'
@@ -24,6 +25,10 @@ const RadioGroup = Radio.Group;
 const createForm = Form.create;
 const FormItem = Form.Item;
 const Option = Select.Option;
+
+const defaultOptions = {
+  readOnly: false
+}
 
 const menusText = defineMessages({
   titleEdit: {
@@ -448,7 +453,7 @@ let CreateTenxFlowModal = React.createClass({
   },
   onChangeDockerFileTextarea(e) {
     this.setState({
-      dockerFileTextarea: e.target.value
+      dockerFileTextarea: e
     });
   },
   openImageEnvModal() {
@@ -1055,13 +1060,13 @@ let CreateTenxFlowModal = React.createClass({
               </QueueAnim>
             ] : null
           }
-          <Modal className='tenxFlowDockerFileModal'
+          <Modal className='dockerFileEditModal'
             title={<FormattedMessage {...menusText.dockerFileTitle} />}
             visible={this.state.dockerFileModalShow}
             onOk={this.closeDockerFileModal}
             onCancel={this.closeDockerFileModal}
             >
-            <Input type='textarea' value={this.state.dockerFileTextarea} onChange={this.onChangeDockerFileTextarea} autosize={{ minRows: 10, maxRows: 10 }} />
+            <DockerFileEditor value={this.state.dockerFileTextarea} onChange={this.onChangeDockerFileTextarea} options={defaultOptions} />
           </Modal>
           <Modal className='tenxFlowImageEnvModal'
             title={<FormattedMessage {...menusText.envTitle} />}
