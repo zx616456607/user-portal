@@ -18,6 +18,7 @@ import { loadStackDetail } from '../../../actions/app_center'
 import YamlEditor from '../../Editor/Yaml'
 import * as yaml from 'js-yaml'
 import { browserHistory } from 'react-router'
+import AppAddStackModal from './AppAddStackModal'
 
 const FormItem = Form.Item;
 const createForm = Form.create;
@@ -60,6 +61,8 @@ class ComposeFile extends Component {
       remark: '',
       visible: false,
       condition: true,
+      modalShow: false,
+      stackType: true
     }
   }
   componentWillMount() {
@@ -70,7 +73,8 @@ class ComposeFile extends Component {
         success: {
           func: (res) => {
             self.setState({
-              appDescYaml: res.data.data.content
+              appDescYaml: res.data.data.content,
+              stackType: false
             })
           }
         }
@@ -87,6 +91,14 @@ class ComposeFile extends Component {
       desc: remark,
     }
     let self = this
+    if (appConfig.appName =='') {
+      message.info('请填写应用名称')
+      return
+    }
+    if (appConfig.template =='') {
+      message.info('请选择编排文件')
+      return
+    }
     this.props.createApp(appConfig, {
       success: {
         func: () => {
@@ -180,7 +192,16 @@ class ComposeFile extends Component {
       appDescYaml: e
     })
   }
-
+  selectStack() {
+    this.setState({
+      modalShow: true
+    })
+  }
+  closeModal() {
+    this.setState({
+      modalShow: false
+    })
+  }
   render() {
     const { appDescYaml, remark } = this.state
     const { getFieldProps, getFieldValue, getFieldError, isFieldValidating } = this.props.form
@@ -197,7 +218,6 @@ class ComposeFile extends Component {
     })
     const parentScope = this.props.scope;
     const createModel = parentScope.state.createModel;
-    let backUrl = backLink(createModel);
     return (
       <QueueAnim id="ComposeFile"
         type="right"
@@ -225,14 +245,18 @@ class ComposeFile extends Component {
               <div style={{ clear: "both" }}></div>
             </div>
             <div className="composeBox">
+              {this.state.stackType ?
+                
               <div className="topBox">
                 <span>编排类型</span>
-                <span>tenxcloud.yaml</span>
-                <Button size="large" type="primary">
+                <span>{this.state.templateName}</span>
+                <Button size="large" type="primary" onClick={()=> this.selectStack()}>
                   选择编排
-              </Button>
-                <div style={{ clear: "both" }}></div>
+                </Button>
+                
               </div>
+              : null
+              }
               <div className="bottomBox">
                 <span className='title'>描述文件</span>
                 <div className="textareaBox">
@@ -249,7 +273,7 @@ class ComposeFile extends Component {
                 onConfirm={this.confirm}
                 onCancel={this.cancel}
                 visible={this.state.visible}>
-                <Button size="large" type="primary" className="lastBtn">
+                <Button size="large" type="primary" className="lastBtn" onClick={()=> browserHistory.goBack()}>
                   上一步
                   </Button>
               </Popconfirm>
@@ -259,6 +283,14 @@ class ComposeFile extends Component {
             </div>
           </div>
         </Form>
+        <Modal title="选择编排文件"
+          visible={this.state.modalShow}
+          className="AppAddServiceModal"
+          wrapClassName="appAddServiceModal"
+          onCancel={()=> this.closeModal()}
+          >
+          <AppAddStackModal scope={ this } />
+        </Modal>
       </QueueAnim>
     )
   }
@@ -288,13 +320,3 @@ ComposeFile = createForm()(ComposeFile)
 
 export default ComposeFile
 
-function backLink(createModel) {
-  switch (createModel) {
-    case "fast":
-      return "/app_manage/app_create/fast_create";
-    case "store":
-      return "/app_manage/app_create/app_store";
-    case "layout":
-      return "/app_manage/app_create";
-  }
-}
