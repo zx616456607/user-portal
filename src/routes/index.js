@@ -9,13 +9,17 @@
  * v0.1 - 2016-11-22
  * @author Zhangpc
 */
-
+const model = require('../../configs').model.type
 const rootRoutes = {
   childRoutes: [{
     path: '/login',
     getComponent: (location, cb) => {
       require.ensure([], (require) => {
-        cb(null, require('../containers/Login').default)
+        if (model === 'standard') {
+          cb(null, require('../containers/Login/standard').default)
+        } else {
+          cb(null, require('../containers/Login/enterprise').default)
+        }
       })
     },
   }, {
