@@ -405,6 +405,7 @@ function getTenxflowList(state = {}, action) {
       return merge({}, defaultState, state, {
         isFetching: false
       })
+ 
     default:
       return state
   }
@@ -480,6 +481,17 @@ function getTenxflowStageList(state = {}, action) {
       return merge({}, defaultState, state, {
         isFetching: false
       })
+    case ActionTypes.CHANGE_SINGLE_TENX_FLOW_STATE:
+      const body = action.body
+      console.log(state)
+      const cloneState = cloneDeep(state)
+      cloneState.stageList.forEach(item => {
+        if(item.metadata.id == body.stageId && item.lastBuildStatus.buildId == body.stageBuildId) { 
+          item.lastBuildStatus.status = body.buildStatus
+        }
+      })
+      return cloneState
+       
     default:
       return state
   }

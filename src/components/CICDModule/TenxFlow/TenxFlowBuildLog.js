@@ -219,7 +219,7 @@ let MyComponent = React.createClass({
               </span>
               <span className='commonHeader'>
                 <Icon type='clock-circle-o' />
-                <FormattedMessage {...menusText.cost} />
+                { item.status != 2 ? [<FormattedMessage {...menusText.cost} key='cost' />] : null }
                 { dateSizeFormat(item.creationTime, item.endTime, scope) }
               </span>
               <div style={{ clear: 'both' }}></div>
@@ -294,7 +294,6 @@ class TenxFlowBuildLog extends Component {
   render() {
     const scope = this;
     const { logs, isFetching, flowId } = this.props;
-    console.log(this.props)
     if(isFetching) {
       return (
         <div id='TenxFlowBuildLog' className={this.state.modalSize == 'big' ? 'bigModal' : 'smallModal'}>

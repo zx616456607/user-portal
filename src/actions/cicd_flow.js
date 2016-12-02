@@ -672,6 +672,15 @@ export function getTenxFlowList(callback) {
   }
 }
 
+export const CHANGE_SINGLE_TENX_FLOW_STATE = "CHANGE_SINGLE_TENX_FLOW_STATE"
+
+export function changeSingleState(body) {
+  return {
+    type: CHANGE_SINGLE_TENX_FLOW_STATE,
+    body: body
+  }
+}
+
 export const DELETE_SINGLE_TENX_FLOW_REQUEST = 'DELETE_SINGLE_TENX_FLOW_REQUEST'
 export const DELETE_SINGLE_TENX_FLOW_SUCCESS = 'DELETE_SINGLE_TENX_FLOW_SUCCESS'
 export const DELETE_SINGLE_TENX_FLOW_FAILURE = 'DELETE_SINGLE_TENX_FLOW_FAILURE'

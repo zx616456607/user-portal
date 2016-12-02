@@ -8,13 +8,14 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Spin, Card, Button, Tabs, Modal } from 'antd'
-import { Link } from 'react-router'
+import { Spin, Card, Button, Tabs, Modal , message, Popover } from 'antd'
+import { browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import { getTenxFlowDetail, getTenxflowBuildLastLogs, getTenxFlowYAML } from '../../../../actions/cicd_flow'
+import { checkImage } from '../../../../actions/app_center'
 import './style/TenxFlowDetail.less'
 import TenxFlowDetailAlert from './TenxFlowDetailAlert.js'
 import TenxFlowDetailYaml from './TenxFlowDetailYaml.js'
@@ -88,7 +89,8 @@ class TenxFlowDetail extends Component {
     this.state = {
       createTenxFlowModal: false,
       TenxFlowDeployLogModal: false,
-      startBuild: false
+      startBuild: false,
+      showImage: []
     }
   }
 
@@ -96,8 +98,26 @@ class TenxFlowDetail extends Component {
     document.title = 'TenxFlow | 时速云';
     const { getTenxFlowDetail } = this.props;
     let { search } = this.props.location;
-    search = search.slice(1);
-    getTenxFlowDetail(search);
+    search = search.slice(1)
+    const self = this
+    getTenxFlowDetail(search, {
+      success: {
+        func: (res) => {
+          const result = res.data.results.stageInfo
+          const showImage = []
+          if (result.length > 0) {
+            result.forEach(list => {
+              if (list.spec.hasOwnProperty('build')) {
+                showImage.push(list.spec.build.image)
+              }
+            })
+          }
+          self.setState({
+            showImage
+          })
+        }
+      }
+    });
   }
 
   openCreateTenxFlowModal() {
@@ -155,6 +175,21 @@ class TenxFlowDetail extends Component {
       })
     }
   }
+  goCheckImage(image) {
+    const config = {registry: DEFAULT_REGISTRY, image}
+    this.props.checkImage(config, {
+      success: {
+        func: (res) => {
+          if (res.data.hasOwnProperty('status') && res.data.status == 404) {
+            message.error('镜像不存在')
+            return
+          }
+          browserHistory.push(`/app_center?imageName=${image}`)
+        },
+        isAsync: true
+      }
+    })
+  }
   render() {
     const { formatMessage } = this.props.intl;
     const scope = this;
@@ -166,6 +201,11 @@ class TenxFlowDetail extends Component {
         </div>
       )
     }
+    const checkImage = this.state.showImage.length > 0 && this.state.showImage.map(list => {
+      return (
+        <div onClick={()=> this.goCheckImage(list)} key={list} style={{lineHeight:'25px'}}><a>{ list }</a></div>
+      )
+    })
     return (
       <QueueAnim className='TenxFlowDetail'
         type='right'
@@ -186,10 +226,16 @@ class TenxFlowDetail extends Component {
                 <i className='fa fa-pencil-square-o' />&nbsp;
                 <FormattedMessage {...menusText.deloyStart} />
               </Button>
-              <Button size='large' type='ghost'>
-                <i className='fa fa-eye' />&nbsp;
-                <FormattedMessage {...menusText.checkImage} />
-              </Button>
+              {this.state.showImage.length > 0 ?
+                <Popover placement="topLeft" title="查看镜像" content={ checkImage } >
+                  <Button size='large' type='ghost'>
+                    <i className='fa fa-eye' />&nbsp;
+                    <FormattedMessage {...menusText.checkImage} />
+                  </Button>
+                </Popover>
+                :
+                null
+              }
               <Button size='large' type='ghost' onClick={this.openTenxFlowDeployLogModal}>
                 <i className='fa fa-wpforms' />&nbsp;
                 <FormattedMessage {...menusText.deloyLog} />
@@ -247,7 +293,8 @@ TenxFlowDetail.propTypes = {
 export default connect(mapStateToProps, {
   getTenxFlowYAML,
   getTenxFlowDetail,
-  getTenxflowBuildLastLogs
+  getTenxflowBuildLastLogs,
+  checkImage
 })(injectIntl(TenxFlowDetail, {
   withRef: true,
 }));

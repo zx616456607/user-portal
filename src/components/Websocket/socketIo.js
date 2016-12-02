@@ -17,8 +17,11 @@ class Websocket extends Component {
   }
 
   setupWebsocket() {
-    const { url, protocol } = this.props
-    let ws = io(url, {
+    let { url, path, protocol } = this.props
+    if(!path) {
+      path = '/'
+    }
+    let ws = io(url + path, {
         transports: ['websocket']
     })
     this.setState({

@@ -13,7 +13,9 @@
 
 const config = {
   "protocol": "http",
-  "host": "192.168.1.103:38090"
+  "host": "192.168.1.103:38090",
+  "statusPath": "/stagebuild/status",
+  "logPath": "/stagebuild/log"
 }
 
 module.exports = config
