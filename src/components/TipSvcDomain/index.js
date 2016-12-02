@@ -135,14 +135,12 @@ export default class TipSvcDomain extends Component {
   }
   showPop() {
     const {show} = this.state
-    console.log('show !')
     this.setState({
       show: !show
     })
   }
   render() {
     const { appDomain, svcDomain, type, parentNode } = this.props
-    console.log('parentNode',parentNode)
     if (svcDomain) {
       if (svcDomain.length == 0) {
         return (

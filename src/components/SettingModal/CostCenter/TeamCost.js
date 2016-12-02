@@ -27,7 +27,6 @@ export default class TeamCost extends Component{
     let date = new Date
     let y = date.getFullYear()
     let m = date.getMonth()+1
-    console.log('date: ',y+'-'+m)
     return (y+'-'+m)
   }
   render(){
@@ -89,6 +88,7 @@ export default class TeamCost extends Component{
              <ReactEcharts
               notMerge={true}
               option={teamCostPie}
+
              />
             </Col>
             <Col span={18}>
