@@ -31,7 +31,6 @@ const defaultOpts = {
   readOnly: true,
   mode: 'yaml',
   styleActiveLine: true,
-  theme: '3024-night',
   lineWrapping: true,
   tabSize: 2,
 }

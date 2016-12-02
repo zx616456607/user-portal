@@ -194,13 +194,17 @@ const MyComponent = React.createClass({
           </div>
           {item.isPrivate == 1 ? 
             <div className="type private">
-              <i className="fa fa-lock"></i>&nbsp;
+              <svg className='privateSvg'>
+                <use xlinkHref='#cicdprivate' />
+              </svg>
               <span className="margin">private</span>
               <Button type="ghost" style={{marginLeft:'10px'}} onClick={()=>this.showItemKeyModal(item)}><i className="fa fa-eye"></i> 查看公钥</Button>
             </div>
           :
             <div className='type public'>
-              <i className="fa fa-unlock-alt"></i>&nbsp;
+              <svg className='publicSvg'>
+                <use xlinkHref='#cicdpublic' />
+              </svg>
               <span className="margin">public</span>
             </div>
           }
@@ -209,8 +213,8 @@ const MyComponent = React.createClass({
           </div>
           <div className='action'>
            
-            <Dropdown.Button overlay={dropdown} type='ghost' onClick={()=>this.notActive(item.id)} style={{width:'115px'}}>
-              <i className='fa fa-trash' />&nbsp;
+            <Dropdown.Button overlay={dropdown} type='ghost' onClick={()=>this.notActive(item.id)} >
+              <Icon type='delete' />
               <FormattedMessage {...menusText.releaseActivation} />
             </Dropdown.Button>
             
@@ -363,8 +367,10 @@ class CodeStore extends Component {
               <div className='type'>
                <Dropdown overlay={menu} trigger={['click']}>
                   <a className="ant-dropdown-link" href="#">
-                  <FormattedMessage {...menusText.attr} />
-                  <i className="fa fa-filter" aria-hidden="true"></i>
+                    <FormattedMessage {...menusText.attr} />
+                    <svg className='filterSvg'>
+                      <use xlinkHref='#cicdfilter' />
+                    </svg>
                   </a>
                 </Dropdown>
               </div>
