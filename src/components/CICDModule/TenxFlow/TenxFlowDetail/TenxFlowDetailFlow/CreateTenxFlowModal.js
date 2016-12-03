@@ -284,6 +284,12 @@ let CreateTenxFlowModal = React.createClass({
         ImageStoreType: false
       });
     }
+    // Clean the command entries
+    this.props.form.setFieldsValue({'shellCodes': [0]});
+    this.props.form.setFieldsValue({'shellCode0': ''});
+    if (this.props.config && this.props.config.spec && this.props.config.spec.container) {
+      this.props.config.spec.container.args = {}
+    }
     this.setState({
       otherFlowType: ins
     })
@@ -1052,7 +1058,7 @@ let CreateTenxFlowModal = React.createClass({
                   </div>
                   <div className='input imageType'>
                     <FormItem>
-                      <Switch {...getFieldProps('buildCache', { initialValue: false }) } />
+                      <Switch {...getFieldProps('buildCache') } defaultChecked={true} />
                     </FormItem>
                   </div>
                   <div style={{ clear: 'both' }} />

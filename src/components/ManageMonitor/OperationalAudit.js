@@ -574,7 +574,6 @@ function statusFormat(status, scope) {
           <FormattedMessage {...menusText.success} />
         </span>
       )
-      break;
     case 0:
       return (
         <span className='running'>
@@ -582,7 +581,6 @@ function statusFormat(status, scope) {
           <FormattedMessage {...menusText.running} />
         </span>
       )
-      break;
     default :
       return (
         <span className='fail'>
@@ -590,7 +588,6 @@ function statusFormat(status, scope) {
           <FormattedMessage {...menusText.failed} />
         </span>
       )
-      break;
   }
 }
 
@@ -661,8 +658,8 @@ let MyComponent = React.createClass({
           <div className='obj commonTitle'>
             <span className='objSpan' style={{ top: '5px' }}><FormattedMessage {...menusText.objType} />{resourceFormat(item.resourceType, scope)}</span>
             <span className='objSpan' style={{ top: '-2px' }}>
-              <Tooltip placement="topLeft" title={formatResourceName(item.resourceName) + item.resourceId}>
-                <span><FormattedMessage {...menusText.objName} />{formatResourceName(item.resourceName) + item.resourceId}</span>
+              <Tooltip placement="topLeft" title={item.resourceName}>
+                <span><FormattedMessage {...menusText.objName} />{formatResourceName(item.resourceName)}{item.resourceId ? " - " + item.resourceId: ''}</span>
               </Tooltip>
             </span>
           </div>

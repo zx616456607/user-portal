@@ -294,14 +294,14 @@ let EditTenxFlowModal = React.createClass({
     }
     let shellList = Boolean(config.spec.container.args) ? config.spec.container.args : [];
     if (shellList) {
-      // shellList.map((item, index) => {
-      //   shellUid++;
-      //   let keys = form.getFieldValue('shellCodes');
-      //   keys = keys.concat(shellUid);
-      //   form.setFieldsValue({
-      //     'shellCodes': keys
-      //   });
-      // });
+      shellList.map((item, index) => {
+        shellUid++;
+        let keys = form.getFieldValue('shellCodes');
+        keys = keys.concat(shellUid);
+        form.setFieldsValue({
+          'shellCodes': keys
+        });
+      });
     }
     let serviceList = Boolean(config.spec.container.dependencies) ? config.spec.container.dependencies : [];
     if (serviceList) {
@@ -362,6 +362,10 @@ let EditTenxFlowModal = React.createClass({
         ImageStoreType: false
       });
     }
+    // Clean the command entries
+    this.props.form.setFieldsValue({'shellCodes': [0]});
+    this.props.form.setFieldsValue({'shellCode0': ''});
+    this.props.config.spec.container.args = {}
     this.setState({
       otherFlowType: ins
     })
