@@ -1,6 +1,7 @@
 FROM 192.168.1.113/zhangpc/user-portal:base-4.4.7
 MAINTAINER zhangpc<zhangpc@tenxcloud.com>
 
+# Build image for standard verison
 ENV NODE_ENV production
 
 ADD . /usr/src/app/
@@ -9,6 +10,8 @@ ADD . /usr/src/app/
 RUN chmod +x /usr/src/app/build.sh
 RUN /usr/src/app/build.sh
 RUN rm -rf /usr/src/app/src
+RUN rm -rf /usr/src/app/configs/index.js
+RUN mv /usr/src/app/configs/index.std.js  /usr/src/app/configs/index.js
 
 EXPOSE 8003
 
