@@ -28,13 +28,16 @@ class DockerFileEditor extends Component {
   constructor(props) {
     super(props)
   }
-
+  onChangeFunc(e) {
+    const { callback } = this.props;
+    callback(e);
+  }
   render() {
     const { value, options, parentId, callback } = this.props
     const newOpts = merge({}, defaultOpts, options)
     newOpts.mode = 'dockerfile'
     return (
-      <Editor value={value} options={newOpts} title={'Docker File'} parentId={parentId} callback={callback} />
+      <Editor value={value} options={newOpts} title={'Dockerfile'} parentId={parentId} onChange={this.onChangeFunc.bind(this)} callback={callback} />
     )
   }
 }

@@ -14,7 +14,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { getDockerfileList, getDockerfiles, setDockerfile, searchDockerfile } from '../../../actions/cicd_flow'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import DockFileEditor from '../../Editor/DockerFile'
+import DockerFileEditor from '../../Editor/DockerFile'
 import './style/DockerFile.less'
 
 const editorOptions = {
@@ -135,7 +135,7 @@ const MyComponent = React.createClass({
     })
   },
   onChangeDockerFile(e) {
-    //this functio for the editor ccallback
+    //this functio for the editor callback
     this.setState({
       dockerfiles: e
     })
@@ -187,7 +187,7 @@ const MyComponent = React.createClass({
           footer={null}
           >
           <div style={{ padding: "0px", minHeight: '300px' }}>
-            <DockFileEditor value={this.state.dockerfiles} />
+            <DockerFileEditor value={this.state.dockerfiles} />
           </div>
         </Modal>
 
@@ -195,7 +195,7 @@ const MyComponent = React.createClass({
           onCancel={() => this.closeModal()}
           >
           <div style={{ minHeight: '300px' }}>
-            <DockFileEditor value={this.state.dockerfiles} callback={this.onChangeDockerFile.bind(this)} options={editorOptions} />
+            <DockerFileEditor value={this.state.dockerfiles} callback={this.onChangeDockerFile} options={editorOptions} />
           </div>
           <div className='btnBox'>
             <Button size='large' type='primary' onClick={this.editDockerFile}>
@@ -231,7 +231,7 @@ class DockerFile extends Component {
     const scope = this;
     var message = ""
     if (this.props.dockerfileList.length <1) {
-      message = "目前还没有添加任何云端 Dockerfile"
+      message = " * 目前还没有添加任何云端 Dockerfile"
     }
     return (
       <QueueAnim className='TenxFlowList'
@@ -261,7 +261,7 @@ class DockerFile extends Component {
             <MyComponent scope={scope} formatMessage={formatMessage} config={this.props.dockerfileList} />
           </Card>
         </div>
-        <div><br/> * {message}<br/></div>
+        <div><br/>{message}<br/></div>
       </QueueAnim>
     )
   }

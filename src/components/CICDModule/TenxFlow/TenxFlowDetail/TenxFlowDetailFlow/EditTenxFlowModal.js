@@ -227,7 +227,7 @@ let EditTenxFlowModal = React.createClass({
       currentCodeStoreName: null,
       currentCodeStoreBranch: null,
       dockerFileModalShow: false,
-      dockerFileTextarea: null,
+      dockerFileTextarea: '',
       noDockerfileInput: false,
       ImageEnvModal: false,
       emptyImageEnv: false,
@@ -297,10 +297,12 @@ let EditTenxFlowModal = React.createClass({
       shellList.map((item, index) => {
         shellUid++;
         let keys = form.getFieldValue('shellCodes');
-        keys = keys.concat(shellUid);
-        form.setFieldsValue({
-          'shellCodes': keys
-        });
+        if (keys) {
+          keys = keys.concat(shellUid);
+          form.setFieldsValue({
+            'shellCodes': keys
+          });
+        }
       });
     }
     let serviceList = Boolean(config.spec.container.dependencies) ? config.spec.container.dependencies : [];
@@ -1166,7 +1168,7 @@ let EditTenxFlowModal = React.createClass({
                   </div>
                   <div className='input imageType'>
                     <FormItem>
-                      <Switch {...getFieldProps('buildCache') } defaultChecked={!!config.spec.build ? config.spec.build.noCache : false} />
+                      <Switch {...getFieldProps('buildCache') } defaultChecked={!!config.spec.build ? config.spec.build.noCache : true} />
                     </FormItem>
                   </div>
                   <div style={{ clear: 'both' }} />
@@ -1180,7 +1182,12 @@ let EditTenxFlowModal = React.createClass({
             onOk={this.closeDockerFileModal}
             onCancel={this.closeDockerFileModal}
             >
-            <DockerFileEditor value={this.state.dockerFileTextarea} onChange={this.onChangeDockerFileTextarea} options={defaultOptions} />
+            <DockerFileEditor value={this.state.dockerFileTextarea} callback={this.onChangeDockerFileTextarea} options={defaultOptions} />
+            <div className='btnBox'>
+              <Button size='large' type='primary' onClick={this.closeDockerFileModal}>
+                <span>关闭</span>
+              </Button>
+            </div>
           </Modal>
           <Modal className='tenxFlowImageEnvModal'
             title={<FormattedMessage {...menusText.envTitle} />}
