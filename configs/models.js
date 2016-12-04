@@ -12,6 +12,7 @@
 
 const models = {
   standard: { // 标准版
+    mode: 'standard',
     network: 'public',
     modules: {
       billing: { // 开启资源计费
@@ -47,6 +48,7 @@ const models = {
     }
   },
   enterprise: { // 企业版
+    mode: 'enterprise',
     network: 'private',
     modules: {
       billing: { // 开启资源计费
@@ -82,5 +84,5 @@ const models = {
     }
   }
 }
-
-module.exports = models
+// set the product mode here
+module.exports = models.enterprise

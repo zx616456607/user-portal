@@ -9,13 +9,13 @@
  * v0.1 - 2016-11-22
  * @author Zhangpc
 */
-const model = require('../../configs').model.type
+const mode = require('../../configs/models').mode
 const rootRoutes = {
   childRoutes: [{
     path: '/login',
     getComponent: (location, cb) => {
       require.ensure([], (require) => {
-        if (model === 'standard') {
+        if (mode === 'standard') {
           cb(null, require('../containers/Login/Standard').default)
         } else {
           cb(null, require('../containers/Login/Enterprise').default)
@@ -28,7 +28,7 @@ const rootRoutes = {
     indexRoute: {
       getComponent: (location, cb) => {
         require.ensure([], (require) => {
-          if (model === 'standard') {
+          if (mode === 'standard') {
             cb(null, require('../containers/IndexPage/Standard').default)
           } else {
             cb(null, require('../containers/IndexPage/Enterprise').default)

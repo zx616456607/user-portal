@@ -8,29 +8,19 @@
  * @author Zhangpc
  */
 'use strict'
-const modes = require('./models');
-// Remove the process.dev definition, as configs/index.js will be used in src/routes/index.js which
-// cannot recognition the process from node.js, and it is specific for react
-// const env = process.env
+
+const env = process.env
 const config = {
   production: false,
-  model: {
-    type: 'enterprise',
-    modules: modes['enterprise']
-  },
-  // protocol: 'http' || env.DASHBOARD_PROTOCOL,
-  // hostname: "0.0.0.0" || env.DASHBOARD_HOST,
-  protocol: 'http',
-  hostname: '0.0.0.0',
+  protocol: 'http' || env.DASHBOARD_PROTOCOL,
+  hostname: "0.0.0.0" || env.DASHBOARD_HOST,
   port: 8003,
   intl_cookie_name: 'intl_locale',
   session_key: 'tce',
   session_secret: ['tenxcloud_dashboard', 'secret_dream008'],
   session_store: {
-    // url: null || env.SESSION_STORE_URL,
-    // pass: null || env.SESSION_STORE_PASS
-    url: null,
-    pass: null
+    url: null || env.SESSION_STORE_URL,
+    pass: null || env.SESSION_STORE_PASS
   },
   tenx_api: {
     protocol: 'http',

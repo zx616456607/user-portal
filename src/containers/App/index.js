@@ -23,6 +23,8 @@ import { updateAppServicesList, updateServiceContainersList, updateServicesList 
 import { handleOnMessage } from './status'
 import { SHOW_ERROR_PAGE_ACTION_TYPES } from '../../constants'
 
+const mode = require('../../../configs/models').mode
+
 class App extends Component {
   constructor(props) {
     super(props)
@@ -31,7 +33,7 @@ class App extends Component {
     this.onStatusWebsocketSetup = this.onStatusWebsocketSetup.bind(this)
     this.getStatusWatchWs = this.getStatusWatchWs.bind(this)
     this.state = {
-      siderStyle: 'mini',
+      siderStyle: mode === 'standard' ? 'mini' : 'bigger',
       loginModalVisible: false,
       loadLoginUserSuccess: true,
     }
