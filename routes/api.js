@@ -266,6 +266,7 @@ module.exports = function (Router) {
   // Filter by type
   router.get('/clusters/:cluster/dbservices', databaseCacheController.listDBService)
   router.get('/clusters/:cluster/dbservices/:name', databaseCacheController.getDBService)
+  router.patch('/clusters/:cluster/dbservices/:name', databaseCacheController.scaleDBService)
 
   // Integration
   router.get('/integrations/getAllIntegration', integrationController.getAllIntegrations)
