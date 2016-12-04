@@ -596,7 +596,7 @@ function formatResourceName(resourceName) {
   if(resourceName.indexOf('{') > -1) {
     let newBody = JSON.parse(resourceName);
     //check services
-    if(!!newBody.services) {   
+    if(!!newBody.services) {
       let newName = newBody.services;
       if(newName.length == 0) {
         return '-';
@@ -1166,8 +1166,7 @@ class OperationalAudit extends Component {
           <DatePicker onChange={this.onChangeEndTime} style={{ marginRight: 20, marginTop: 10, float:'left' }} showTime format='yyyy-MM-dd HH:mm:ss' size='large' />
           <Input onChange={this.onChangeNamespace} className='namespaceInput' type='text' size='large' />
           <Button className='searchBtn' size='large' type='primary' onClick={this.submitSearch}>
-            <i className='fa fa-wpforms'></i>
-            <FormattedMessage {...menusText.search} />
+            <i className='fa fa-wpforms'></i> <FormattedMessage {...menusText.search} />
           </Button>
           <div style={{ clear:'both' }}></div>
         </div>

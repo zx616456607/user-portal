@@ -53,7 +53,7 @@ class Slider extends Component {
       isUnzip: false
     }
   }
-  
+
   componentWillMount() {
     const { pathname } = this.props;
     let currentKey = pathname.split('/')[1];
@@ -289,7 +289,7 @@ class Slider extends Component {
                 </Tooltip>
               </li>
               <li onClick={this.selectModel.bind(this, 'manange_monitor', '#manage')} className={currentKey == 'manange_monitor' ? 'selectedLi' : ''}>
-                <Tooltip placement='right' title='管理与监控' getTooltipContainer={() => document.getElementById('siderTooltip')}>
+                <Tooltip placement='right' title='管理与日志' getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/manange_monitor'>
                     <svg className='manageMoniter commonImg'>
                       <use xlinkHref='#managemoniter' />
@@ -297,14 +297,11 @@ class Slider extends Component {
                   </Link>
                 </Tooltip>
               </li>
-              <div style={{ clear: 'both' }}></div>
-            </ul>
-            <ul className='siderBottom'>
-              <li style={{ display: 'none' }} onClick={this.selectModel.bind(this, 'app_manage/app_create', '#addNewApp')} className={currentKey == 'app_manage/app_create' ? 'selectedLi' : ''}>
-                <Tooltip placement='right' title='创建应用' getTooltipContainer={() => document.getElementById('siderTooltip')}>
-                  <Link to='/app_manage/app_create'>
-                    <svg className='add commonImg'>
-                      { currentKey == 'app_manage/app_create' ? [<use xlinkHref='#addselected' />] : [<use xlinkHref='#add' />] }
+              <li onClick={this.selectModel.bind(this, 'account', '#account')} className={currentKey == 'account' ? 'selectedLi' : ''}>
+                <Tooltip placement='right' title='账户中心' getTooltipContainer={() => document.getElementById('siderTooltip')}>
+                  <Link to='/account'>
+                    <svg className='account commonImg'>
+                      {currentKey == 'account' ? [<use xlinkHref='#messageselected' />] : [<use xlinkHref='#message' />]}
                     </svg>
                   </Link>
                 </Tooltip>
@@ -320,6 +317,18 @@ class Slider extends Component {
               </li>
               <div style={{ clear: 'both' }}></div>
             </ul>
+            {/*<ul className='siderBottom'>
+              <li style={{ display: 'none' }} onClick={this.selectModel.bind(this, 'app_manage/app_create', '#addNewApp')} className={currentKey == 'app_manage/app_create' ? 'selectedLi' : ''}>
+                <Tooltip placement='right' title='创建应用' getTooltipContainer={() => document.getElementById('siderTooltip')}>
+                  <Link to='/app_manage/app_create'>
+                    <svg className='add commonImg'>
+                      { currentKey == 'app_manage/app_create' ? [<use xlinkHref='#addselected' />] : [<use xlinkHref='#add' />] }
+                    </svg>
+                  </Link>
+                </Tooltip>
+              </li>
+              <div style={{ clear: 'both' }}></div>
+            </ul>*/}
           </div>
         ] : null }
         { siderStyle == 'bigger' ? [
@@ -490,7 +499,7 @@ class Slider extends Component {
                     <svg className='manageMoniter commonImg'>
                       <use xlinkHref='#managemoniter' />
                     </svg>
-                    <span className='commonSiderSpan'>管理与监控</span>
+                    <span className='commonSiderSpan'>管理与日志</span>
                     <div style={{ clear: 'both' }}></div>
                   </span>
                 }
@@ -507,16 +516,41 @@ class Slider extends Component {
                 </Menu.Item>
                 <div className='sline'></div>
               </SubMenu>
-              <Menu.Item key='addApp' style={{ display: 'none' }}>
-                <Link to='/setting/member'>
+
+              <SubMenu key='account'
+                title={
                   <span>
-                    <svg className='add commonImg'>
-                      <use xlinkHref='#add' />
+                    <svg className='account commonImg'>
+                      <use xlinkHref='#message' />
                     </svg>
-                    <span>创建应用</span>
+                    <span className='commonSiderSpan'>账户中心</span>
+                    <div style={{ clear: 'both' }}></div>
                   </span>
-                </Link>
-              </Menu.Item>
+                }
+              >
+                <Menu.Item key='account_default'>
+                  <Link to='/account'>
+                    <span><div className='sideCircle'></div> 我的账户</span>
+                  </Link>
+                </Menu.Item>
+                <Menu.Item key='member'>
+                  <Link to='/account/member'>
+                    <span><div className='sideCircle'></div> 成员管理</span>
+                  </Link>
+                </Menu.Item>
+                <Menu.Item key='team'>
+                  <Link to='/account/team'>
+                    <span><div className='sideCircle'></div> 团队管理</span>
+                  </Link>
+                </Menu.Item>
+                <Menu.Item key='cost'>
+                  <Link to='/account/cost'>
+                    <span><div className='sideCircle'></div> 费用中心</span>
+                  </Link>
+                </Menu.Item>
+                <div className='sline'></div>
+              </SubMenu>
+
               <SubMenu key='setting'
                 title={
                   <span>
@@ -528,26 +562,6 @@ class Slider extends Component {
                   </span>
                 }
               >
-                <Menu.Item key='setting_default'>
-                  <Link to='/setting'>
-                    <span><div className='sideCircle'></div> 我的信息</span>
-                  </Link>
-                </Menu.Item>
-                <Menu.Item key='member'>
-                  <Link to='/setting/member'>
-                    <span><div className='sideCircle'></div> 成员管理</span>
-                  </Link>
-                </Menu.Item>
-                <Menu.Item key='team'>
-                  <Link to='/setting/team'>
-                    <span><div className='sideCircle'></div> 团队管理</span>
-                  </Link>
-                </Menu.Item>
-                <Menu.Item key='API'>
-                  <Link to='/setting/API'>
-                    <span><div className='sideCircle'></div> 开放API</span>
-                  </Link>
-                </Menu.Item>
                 <Menu.Item key='version'>
                   <Link to='/setting/version'>
                     <span><div className='sideCircle'></div> 平台版本</span>
@@ -556,6 +570,16 @@ class Slider extends Component {
                 <Menu.Item key='license'>
                   <Link to='/setting/license'>
                     <span><div className='sideCircle'></div> 授权管理</span>
+                  </Link>
+                </Menu.Item>
+                <Menu.Item key='API'>
+                  <Link to='/setting/API'>
+                    <span><div className='sideCircle'></div> 开放 API</span>
+                  </Link>
+                </Menu.Item>
+                <Menu.Item key='personalized'>
+                  <Link to='/setting/personalized'>
+                    <span><div className='sideCircle'></div> 个性化设置</span>
                   </Link>
                 </Menu.Item>
                 <div className='sline'></div>

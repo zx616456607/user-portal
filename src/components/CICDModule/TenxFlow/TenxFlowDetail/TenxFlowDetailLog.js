@@ -207,10 +207,6 @@ let MyComponent = React.createClass({
                 { dateSizeFormat(item.creationTime, item.endTime, scope) }
               </span>
               <div className='btnBox'>
-                <Button size='large' type='primary' className='viewBtn'>
-                  <i className='fa fa-eye' />&nbsp;
-                  <FormattedMessage {...menusText.checkImage} />
-                </Button>
                 <Button size='large' type='primary' className='operaBtn'
                   onClick={() => scope.getBuildLogDetailInfo(item.buildId)}>
                   <i className='fa fa-wpforms' />&nbsp;

@@ -81,10 +81,21 @@ const rootRoutes = {
         })
       },
     }, {
+      path: 'account',
+      component: require('../containers/Account').default,
+      indexRoute: {
+        component: require('../components/AccountModal/UserInfo').default,
+      },
+      getChildRoutes: (location, cb) => {
+        require.ensure([], function (require) {
+          cb(null, require('./account').default)
+        })
+      },
+    }, {
       path: 'setting',
       component: require('../containers/Setting').default,
       indexRoute: {
-        component: require('../components/SettingModal/UserInfo').default,
+        component: require('../components/SettingModal/Version').default,
       },
       getChildRoutes: (location, cb) => {
         require.ensure([], function (require) {
