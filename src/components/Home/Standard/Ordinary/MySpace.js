@@ -179,7 +179,7 @@ class MySpace extends Component{
     }
     let spaceWarnings = []
     return (
-      <div id='MySpace'>
+      <div id='MySpaceStd'>
         <Row className="title" style={{marginTop: 20}}>{spaceName}</Row>
         <Row className="content" gutter={16} style={{marginBottom: 30}}>
           <Col span={6}>

@@ -127,7 +127,7 @@ class Admin extends Component{
     const teamConsumption = this.props.teamConsumption
     const teamOperations = this.props.teamOperations
     return (
-      <div id='Admin' style={{marginBottom:40}}>
+      <div id='AdminStd' style={{marginBottom:40}}>
         <Row className="title">空间 : {spaceName} 对应的团队</Row>
         <Row className="content" gutter={16}>
           <Col span={8} className='teamInf'>
