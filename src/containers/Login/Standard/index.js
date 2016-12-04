@@ -245,7 +245,7 @@ let Login = React.createClass({
       wrapperCol: { span: 24 },
     }
     return (
-      <div id="LoginBg">
+      <div id="LoginBgStd">
         <div className="login">
           <Row style={{ textAlign: 'center' }}>
             {/*<svg className="logo">
