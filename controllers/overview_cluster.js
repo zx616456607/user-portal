@@ -11,14 +11,15 @@
 
 const apiFactory = require('../services/api_factory')
 
+// TODO: should we break down these methods as it's bad proformance for overview
 exports.getClusterOverview = function* () {
   let cluster = this.params.cluster_id
   const loginUser = this.session.loginUser
   let queryObj = { cluster}
   const api = apiFactory.getApi(loginUser)
   const k8sapi = apiFactory.getK8sApi(loginUser)
-  const result = 
-      yield [api.overview.getBy(["space-operations"], queryObj), 
+  const result =
+      yield [api.overview.getBy(["space-operations"], queryObj),
              api.overview.getBy(["clusters", cluster, "system-info"]),
              api.overview.getBy(["clusters", cluster, "storagestatus"]),
              api.overview.getBy(["clusters", cluster, "appstatus"]),
@@ -59,6 +60,54 @@ exports.getClusterOverview = function* () {
     storage,
     appstatus,
     nodesummary,
+    dbservices,
+    spaceconsumption,
+  }
+}
+
+// add the overview for standard version
+exports.getStdClusterOverview = function* () {
+  let cluster = this.params.cluster_id
+  const loginUser = this.session.loginUser
+  let queryObj = { cluster}
+  const api = apiFactory.getApi(loginUser)
+  const k8sapi = apiFactory.getK8sApi(loginUser)
+  const result =
+      yield [api.overview.getBy(["space-operations"], queryObj),
+             api.overview.getBy(["clusters", cluster, "system-info"]),
+             api.overview.getBy(["clusters", cluster, "storagestatus"]),
+             api.overview.getBy(["clusters", cluster, "appstatus"]),
+             k8sapi.getBy([cluster, "dbservices"]),
+             api.overview.getBy(["clusters", cluster, "space-consumption"]),]
+  let operations = {}
+  if (result && result[0] && result[0].data) {
+    operations = result[0].data
+  }
+  let sysinfo = {}
+  if (result && result[1] && result[1].data) {
+    sysinfo = result[1].data
+  }
+  let storage = {}
+  if (result && result[2] && result[2].data) {
+    storage = result[2].data
+  }
+  let appstatus = {}
+  if (result && result[3] && result[3].data) {
+    appstatus = result[3].data
+  }
+  let dbservices = {}
+  if (result && result[4] && result[4].data) {
+    dbservices = result[4].data
+  }
+  let spaceconsumption = {}
+  if (result && result[5] && result[5].data) {
+    spaceconsumption = result[5].data
+  }
+  this.body = {
+    operations,
+    sysinfo,
+    storage,
+    appstatus,
     dbservices,
     spaceconsumption,
   }

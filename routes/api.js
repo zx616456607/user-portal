@@ -130,6 +130,7 @@ module.exports = function (Router) {
 
   //Overview Cluster
   router.get('/overview/clusterinfo/clusters/:cluster_id', overviewClusterController.getClusterOverview)
+  router.get('/overview/clusterinfo-std/clusters/:cluster_id', overviewClusterController.getStdClusterOverview)
   router.get('/overview/clusters/:cluster_id/operations', overviewClusterController.getClusterOperations)
   router.get('/overview/clusters/:cluster_id/sysinfo', overviewClusterController.getClusterSysinfo)
   router.get('/overview/clusters/:cluster_id/storage', overviewClusterController.getClusterStorage)
