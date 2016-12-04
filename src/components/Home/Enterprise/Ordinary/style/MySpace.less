@@ -34,11 +34,16 @@
       right: 0;
       transform: translate(0,-50%);
       table {
-        font-size: 14px;
+        font-size: 13px;
         width: 100%;
+        color: #666;
         tr {
           height: 27px;
           line-height: 27px;
+          .cicdNum {
+            text-align:'right';
+            padding-right: 5px;
+          }
         }
       }
     }
@@ -49,9 +54,14 @@
     border-collapse: collapse;
     tr {
       border: 1px solid #e2e2e2;
+      color: #666;
       td {
         line-height: 29px;
         font-size: 13px;
+      }
+      .trecordNum {
+        text-align: 'right';
+        padding-right: 10px;
       }
     }
   }
@@ -63,7 +73,7 @@
       height: 50px;
       .logTitle {
         height: 30px;
-        font-size: 14px;
+        font-size: 13px;
       }
       .logInf {
         height: 20px;

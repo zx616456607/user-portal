@@ -17,6 +17,7 @@ const oauth = require('./oauth')
 const DEFAULT_PROTOCOL = 'http'
 const DEFAULT_API_PRIFIX = 'api'
 const DEFAULT_VERSION = 'v2'
+
 // 1. Github or other system maybe quite slow
 // 2. Petset scale might be slow
 const DEFAULT_TIMEOUT = 1000 * 60

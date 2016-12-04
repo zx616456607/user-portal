@@ -10,29 +10,30 @@
 import React, { Component, PropTypes } from 'react'
 import { Breadcrumb } from 'antd'
 import SecondSider from '../../components/SecondSider'
+import IntlExp from '../../components/IntlExp'
 import QueueAnim from 'rc-queue-anim'
-import './style/setting.less'
+import './style/account.less'
 
 const menuList = [
   {
-    url: '/setting/version',
-    name: '平台版本'
+    url: '/account',
+    name: '我的账户'
   },
   {
-    url: '/setting/license',
-    name: '授权管理'
+    url: '/account/member',
+    name: '成员管理'
   },
   {
-    url: '/setting/API',
-    name: '开放 API'
+    url: '/account/team',
+    name: '团队管理'
   },
   {
-    url: '/setting/personalized',
-    name: '个性化设置'
+    url: '/account/cost',
+    name: '费用中心'
   }
 ]
 
-export default class Setting extends Component {
+export default class Account extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -44,17 +45,17 @@ export default class Setting extends Component {
     const { children } = this.props
     const scope = this
     return (
-      <div id="Setting">
+      <div id="Account">
         <QueueAnim
-          className="settingAnimate"
-          key="settingAnimate"
+          className="accountAnimate"
+          key="accountAnimate"
           type="left"
         >
-          <div className={ this.state.containerSiderStyle == 'normal' ? 'settingMenu CommonSecondMenu' : 'hiddenMenu settingMenu CommonSecondMenu'} key='settingSider'>
+          <div className={ this.state.containerSiderStyle == 'normal' ? 'accountMenu CommonSecondMenu' : 'hiddenMenu accountMenu CommonSecondMenu'} key='accountSider'>
             <SecondSider menuList={menuList} scope={scope} />
           </div>
         </QueueAnim>
-        <div className={ this.state.containerSiderStyle == 'normal' ? 'settingContent CommonSecondContent' : 'hiddenContent settingContent CommonSecondContent' } >
+        <div className={ this.state.containerSiderStyle == 'normal' ? 'accountContent CommonSecondContent' : 'hiddenContent accountContent CommonSecondContent' } >
           {children}
         </div>
       </div>
@@ -62,7 +63,7 @@ export default class Setting extends Component {
   }
 }
 
-Setting.propTypes = {
+Account.propTypes = {
   // Injected by React Router
   children: PropTypes.node
 }

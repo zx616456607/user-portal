@@ -180,7 +180,7 @@ class MySpace extends Component{
     let spaceWarnings = []
     return (
       <div id='MySpace'>
-        <Row className="title" style={{marginTop: 40}}>空间：{spaceName}</Row>
+        <Row className="title" style={{marginTop: 20}}>{spaceName}</Row>
         <Row className="content" gutter={16} style={{marginBottom: 30}}>
           <Col span={6}>
             <Card title="镜像仓库" bordered={false} bodyStyle={{height:175,padding:'0',position:'relative'}}>
@@ -189,10 +189,10 @@ class MySpace extends Component{
                 option={imageOption}
                 style={{height:'90px'}}
               />
-              <div style={{position:'absolute',top:'66px',width:'100%',textAlign:'center'}}>{spaceImageStats.publicNumber+spaceImageStats.privateNumber}个</div>
-              <Row style={{textAlign:'center',height:40,lineHeight:'40px',padding:'0 24px',fontSize: '14px'}}>
-                <Col span={12}>公有{spaceImageStats.publicNumber}个</Col>
-                <Col span={12}>私有{spaceImageStats.privateNumber}个</Col>
+              <div style={{position:'absolute',top:'66px',width:'100%',textAlign:'center'}}>{spaceImageStats.publicNumber+spaceImageStats.privateNumber} 个</div>
+              <Row style={{textAlign:'center',height:40,lineHeight:'40px',padding:'0 24px',fontSize: '13px', color: '#666'}}>
+                <Col span={12}>公有 {spaceImageStats.publicNumber} 个</Col>
+                <Col span={12}>私有 {spaceImageStats.privateNumber} 个</Col>
               </Row>
               <Row style={{height:40,lineHeight:'40px',borderTop:'1px solid #e2e2e2',padding:'0 24px',fontSize:'12px'}}>
                 服务状态:
@@ -215,10 +215,10 @@ class MySpace extends Component{
                 option={layoutOption}
                 style={{height:'90px'}}
               />
-              <div style={{position:'absolute',top:'66px',width:'100%',textAlign:'center'}}>{spaceTemplateStats.public+spaceTemplateStats.private}个</div>
-              <Row style={{textAlign:'center',height:40,lineHeight:'40px',padding:'0 24px'}}>
-                <Col span={12}>公有{spaceTemplateStats.public}个</Col>
-                <Col span={12}>私有{spaceTemplateStats.private}个</Col>
+              <div style={{position:'absolute',top:'66px',width:'100%',textAlign:'center'}}>{spaceTemplateStats.public+spaceTemplateStats.private} 个</div>
+              <Row style={{textAlign:'center',height:40,lineHeight:'40px',padding:'0 24px',fontSize: '13px', color: '#666'}}>
+                <Col span={12}>公有 {spaceTemplateStats.public} 个</Col>
+                <Col span={12}>私有 {spaceTemplateStats.private} 个</Col>
               </Row>
             </Card>
           </Col>
@@ -239,8 +239,8 @@ class MySpace extends Component{
                         <div className='cicdDot' style={{backgroundColor:'#13c563'}}></div>
                         构建成功
                       </td>
-                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                        {spaceCICDStats.succeedNumber}个
+                      <td className="cicdNum">
+                        {spaceCICDStats.succeedNumber} 个
                       </td>
                     </tr>
                     <tr>
@@ -251,8 +251,8 @@ class MySpace extends Component{
                         <div className='cicdDot' style={{backgroundColor:'#f7676d'}}></div>
                         构建失败
                       </td>
-                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                        {spaceCICDStats.failedNumber}个
+                      <td className="cicdNum">
+                        {spaceCICDStats.failedNumber} 个
                       </td>
                     </tr>
                     <tr>
@@ -263,8 +263,8 @@ class MySpace extends Component{
                         <div className='cicdDot' style={{backgroundColor:'#46b2fa'}}></div>
                         正在构建
                       </td>
-                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                        {spaceCICDStats.runningNumber}个
+                      <td className="cicdNum">
+                        {spaceCICDStats.runningNumber} 个
                       </td>
                     </tr>
                     </tbody>
@@ -295,21 +295,10 @@ class MySpace extends Component{
                       <svg className="stateSvg">
                         <use xlinkHref="#homeappcount" />
                       </svg>
-                      创建应用数量
+                      创建应用
                     </td>
-                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                      {spaceOperations.appCreate}个
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <svg className="stateSvg">
-                        <use xlinkHref="#homeappcount" />
-                      </svg>
-                      修改应用数量
-                    </td>
-                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                      {spaceOperations.appModify}个
+                    <td className="trecordNum">
+                      {spaceOperations.appCreate} 个
                     </td>
                   </tr>
                   <tr>
@@ -317,32 +306,10 @@ class MySpace extends Component{
                       <svg className="stateSvg">
                         <use xlinkHref="#homeappcount" />
                       </svg>
-                      停止应用数量
+                      停止应用
                     </td>
-                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                      {spaceOperations.appStop}个
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <svg className="stateSvg">
-                        <use xlinkHref="#homeappcount" />
-                      </svg>
-                      启动应用数量
-                    </td>
-                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                      {spaceOperations.appStart}个
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <svg className="stateSvg">
-                        <use xlinkHref="#homeappcount" />
-                      </svg>
-                      重新部署应用数量
-                    </td>
-                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                      {spaceOperations.appRedeploy}个
+                    <td className="trecordNum">
+                      {spaceOperations.appStop} 个
                     </td>
                   </tr>
                   <tr>
@@ -350,10 +317,10 @@ class MySpace extends Component{
                       <svg className="stateSvg">
                         <use xlinkHref="#homeservicecount" />
                       </svg>
-                      创建服务数量
+                      创建服务
                     </td>
-                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                      {spaceOperations.svcCreate}个
+                    <td className="trecordNum">
+                      {spaceOperations.svcCreate} 个
                     </td>
                   </tr>
                   <tr>
@@ -361,10 +328,10 @@ class MySpace extends Component{
                       <svg className="stateSvg">
                         <use xlinkHref="#homeservicecount" />
                       </svg>
-                      删除服务数量
+                      删除服务
                     </td>
-                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                      {spaceOperations.svcDelete}个
+                    <td className="trecordNum">
+                      {spaceOperations.svcDelete} 个
                     </td>
                   </tr>
                 <tr>
@@ -372,10 +339,10 @@ class MySpace extends Component{
                     <svg className="stateSvg">
                       <use xlinkHref="#homesavecount" />
                     </svg>
-                    创建存储卷个数
+                    创建存储卷
                   </td>
-                  <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                    {spaceOperations.volumeCreate}个
+                  <td className="trecordNum">
+                    {spaceOperations.volumeCreate} 个
                   </td>
                 </tr>
                 <tr>
@@ -383,12 +350,45 @@ class MySpace extends Component{
                     <svg className="stateSvg">
                       <use xlinkHref="#homesavecount" />
                     </svg>
-                    删除存储卷个数
+                    删除存储卷
                   </td>
-                  <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                     {spaceOperations.volumeDelete}个
+                  <td className="trecordNum">
+                     {spaceOperations.volumeDelete} 个
                   </td>
                 </tr>
+                <tr>
+                    <td>
+                      <svg className="stateSvg">
+                        <use xlinkHref="#homeappcount" />
+                      </svg>
+                      修改应用
+                    </td>
+                    <td className="trecordNum">
+                      {spaceOperations.appModify} 个
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <svg className="stateSvg">
+                        <use xlinkHref="#homeappcount" />
+                      </svg>
+                      启动应用
+                    </td>
+                    <td className="trecordNum">
+                      {spaceOperations.appStart} 个
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <svg className="stateSvg">
+                        <use xlinkHref="#homeappcount" />
+                      </svg>
+                      重新部署
+                    </td>
+                    <td className="trecordNum">
+                      {spaceOperations.appRedeploy} 个
+                    </td>
+                  </tr>
                 </tbody>
                 </table>
               </div>

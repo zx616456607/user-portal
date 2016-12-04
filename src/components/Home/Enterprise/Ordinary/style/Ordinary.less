@@ -1,8 +1,5 @@
 #Ordinary {
   min-width: 100%;
-  .ant-card {
-    min-width: 280px !important;
-  }
   .ant-card-head-title {
     font-weight: normal;
   }
@@ -14,14 +11,14 @@
     border-radius: 3px;
   }
   .title {
-    border-left:4px solid #46b2fa;
+    border-left:3px solid #46b2fa;
     color: #46b2fa;
-    height: 20px;
-    line-height: 20px;
+    height: 18px;
+    line-height: 18px;
     padding-left: 10px;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
     font-weight: normal;
-    font-size: 14px;
+    font-size: 13px;
   }
   .content {
     .clusterCost {}
@@ -56,6 +53,12 @@
           td {
             font-size: 13px;
             line-height: 33px;
+            .recordNum {
+              text-align: 'right';
+              padding-right: 10px;
+              font-size: '13px';
+              color: #666;
+            }
           }
         }
       }
@@ -88,6 +91,12 @@
         tr {
           height: 27px;
           line-height: 27px;
+          color: #666;
+          .hostNum {
+            text-align: 'right';
+            padding-right: 10px;
+            font-size: 13px;
+          }
         }
       }
     }
@@ -97,11 +106,13 @@
         .storageInfList {
           position: relative;
           top: 50%;
+          padding-left: 5px;
           transform: translate(0,-50%);
           .storageInfItem {
-            font-size: 14px;
+            font-size: 13px;
             height: 25px;
             line-height: 25px;
+            color: #666;
           }
         }
       }
@@ -113,6 +124,10 @@
         tr {
           height: 27px;
           line-height: 27px;
+          font-size: 13px;
+          .dbNum {
+            text-align:'right';
+          }
         }
       }
       .dbImg {
@@ -136,7 +151,7 @@
         height: 28px;
         line-height: 28px;
         cursor: pointer;
-        font-size: 12px;
+        font-size: 13px;
       }
       .seleted {
         .dataBtn{
