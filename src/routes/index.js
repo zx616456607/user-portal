@@ -24,7 +24,7 @@ const rootRoutes = {
     },
   }, {
     path: '/',
-    component: require('../containers/App').default,
+    component: mode === 'standard' ? require('../containers/App/Standard').default : require('../containers/App/Enterprise').default,
     indexRoute: {
       getComponent: (location, cb) => {
         require.ensure([], (require) => {

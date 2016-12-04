@@ -14,24 +14,44 @@ import IntlExp from '../../components/IntlExp'
 import QueueAnim from 'rc-queue-anim'
 import './style/account.less'
 
-const menuList = [
-  {
-    url: '/account',
-    name: '我的账户'
-  },
-  {
-    url: '/account/member',
-    name: '成员管理'
-  },
-  {
-    url: '/account/team',
-    name: '团队管理'
-  },
-  {
-    url: '/account/cost',
-    name: '费用中心'
-  }
-]
+const mode = require('../../../configs/models').mode
+let menuList = []
+if (mode === 'enterprise') {
+  menuList = [
+    {
+      url: '/account',
+      name: '我的账户'
+    },
+    {
+      url: '/account/member',
+      name: '成员管理'
+    },
+    {
+      url: '/account/team',
+      name: '团队管理'
+    },
+    {
+      url: '/account/cost',
+      name: '费用中心'
+    }
+  ]
+} else {
+  menuList = [
+    {
+      url: '/account',
+      name: '我的账户'
+    },
+    {
+      url: '/account/myteam',
+      name: '我的团队'
+    },
+    {
+      url: '/account/cost',
+      name: '费用中心'
+    }
+  ]
+}
+
 
 export default class Account extends Component {
   constructor(props) {

@@ -12,7 +12,7 @@ import { Card, message, Button, Tooltip, Popover, Icon, Menu, Modal, Radio, Uplo
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import './style/sider.less'
-import { beforeUploadFile, uploading, mergeUploadingIntoList, getUploadFileUlr, uploadFileOptions, getVolumeBindInfo, changeStorageDetail } from '../../actions/storage'
+import { beforeUploadFile, uploading, mergeUploadingIntoList, getUploadFileUlr, uploadFileOptions, getVolumeBindInfo, changeStorageDetail } from '../../../actions/storage'
 import { cloneDeep } from 'lodash'
 import QueueAnim from 'rc-queue-anim'
 
@@ -306,15 +306,6 @@ class Slider extends Component {
                   </Link>
                 </Tooltip>
               </li>
-              <li onClick={this.selectModel.bind(this, 'setting', '#setting')} className={currentKey == 'setting' ? 'selectedLi' : ''}>
-                <Tooltip placement='right' title='系统设置' getTooltipContainer={() => document.getElementById('siderTooltip')}>
-                  <Link to='/setting'>
-                    <svg className='setting commonImg'>
-                      {currentKey == 'setting' ? [<use xlinkHref='#settingselected' />] : [<use xlinkHref='#setting' />]}
-                    </svg>
-                  </Link>
-                </Tooltip>
-              </li>
               <div style={{ clear: 'both' }}></div>
             </ul>
             {/*<ul className='siderBottom'>
@@ -533,53 +524,14 @@ class Slider extends Component {
                     <span><div className='sideCircle'></div> 我的账户</span>
                   </Link>
                 </Menu.Item>
-                <Menu.Item key='member'>
-                  <Link to='/account/member'>
-                    <span><div className='sideCircle'></div> 成员管理</span>
-                  </Link>
-                </Menu.Item>
-                <Menu.Item key='team'>
-                  <Link to='/account/team'>
-                    <span><div className='sideCircle'></div> 团队管理</span>
+                <Menu.Item key='myteam'>
+                  <Link to='/account/myteam'>
+                    <span><div className='sideCircle'></div> 我的团队</span>
                   </Link>
                 </Menu.Item>
                 <Menu.Item key='cost'>
                   <Link to='/account/cost'>
                     <span><div className='sideCircle'></div> 费用中心</span>
-                  </Link>
-                </Menu.Item>
-                <div className='sline'></div>
-              </SubMenu>
-
-              <SubMenu key='setting'
-                title={
-                  <span>
-                    <svg className='setting commonImg'>
-                      <use xlinkHref='#setting' />
-                    </svg>
-                    <span className='commonSiderSpan'>系统设置</span>
-                    <div style={{ clear: 'both' }}></div>
-                  </span>
-                }
-              >
-                <Menu.Item key='version'>
-                  <Link to='/setting/version'>
-                    <span><div className='sideCircle'></div> 平台版本</span>
-                  </Link>
-                </Menu.Item>
-                <Menu.Item key='license'>
-                  <Link to='/setting/license'>
-                    <span><div className='sideCircle'></div> 授权管理</span>
-                  </Link>
-                </Menu.Item>
-                <Menu.Item key='API'>
-                  <Link to='/setting/API'>
-                    <span><div className='sideCircle'></div> 开放 API</span>
-                  </Link>
-                </Menu.Item>
-                <Menu.Item key='personalized'>
-                  <Link to='/setting/personalized'>
-                    <span><div className='sideCircle'></div> 个性化设置</span>
                   </Link>
                 </Menu.Item>
                 <div className='sline'></div>

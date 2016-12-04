@@ -934,7 +934,7 @@ class Ordinary extends Component{
             </Card>
           </Col>
         </Row>
-        <Row className="content" gutter={16} style={{marginTop:10}}>
+        <Row className="content" gutter={16} style={{marginTop:16}}>
           <Col span={6}>
             <Card title="应用" bordered={false} bodyStyle={{height:180,padding:'0 24px'}}>
               <ReactEcharts
@@ -988,7 +988,7 @@ class Ordinary extends Component{
             </Card>
           </Col>
         </Row>
-        <Row className="content" gutter={16} style={{marginTop: 10}}>
+        <Row className="content" gutter={16} style={{marginTop: 16}}>
           <Col span={6} className='dataBase'>
             <Card title="数据库与缓存" bordered={false} bodyStyle={{height:200}}>
               <Row gutter={16}>

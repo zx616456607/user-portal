@@ -37,6 +37,7 @@ function getClusterCostOption(costValue, restValue) {
       },
       textStyle: {
         fontSize: 14,
+        color: '#666'
       },
       itemGap: 15,
       itemWidth: 10,
@@ -322,15 +323,16 @@ class Ordinary extends Component{
         data:[{name:'运行中'}, {name:'已停止'},{name:'操作中'}],
         formatter: function (name) {
           if(name === '运行中'){
-            return name + ': ' + appRunning + '个'
+            return name + '  ' + appRunning + ' 个'
           } else if (name === '已停止') {
-            return name + ': ' + appStopped + '个'
+            return name + '  ' + appStopped + ' 个'
           } else if (name === '操作中') {
-            return name + ': ' + appOthers + '个'
+            return name + '  ' + appOthers + ' 个'
           }
         },
         textStyle: {
-          fontSize: 14,
+          fontSize: 13,
+          color: '#666'
         },
         itemGap: 15,
         itemWidth: 10,
@@ -363,7 +365,8 @@ class Ordinary extends Component{
               return param.percent.toFixed(0) + '%';
             },
             textStyle: {
-              fontSize: '14',
+              fontSize: '13',
+              color: '#666',
               fontWeight: 'normal'
             }
           }
@@ -395,15 +398,16 @@ class Ordinary extends Component{
         // data: legendData,
         formatter: function (name) {
           if(name === '运行中'){
-            return name + ': ' + svcRunning + '个'
+            return name + '  ' + svcRunning + ' 个'
           } else if (name === '已停止') {
-            return name + ': ' + svcStopped + '个'
+            return name + '  ' + svcStopped + ' 个'
           } else if (name === '操作中') {
-            return name + ': ' + svcOthers + '个'
+            return name + '  ' + svcOthers + ' 个'
           }
         },
         textStyle: {
-          fontSize: 14,
+          fontSize: 13,
+          color: '#666'
         },
         itemGap: 15,
         itemWidth: 10,
@@ -437,7 +441,8 @@ class Ordinary extends Component{
               return param.percent.toFixed(0) + '%';
             },
             textStyle: {
-              fontSize: '14',
+              fontSize: '13',
+              color: '#666',
               fontWeight: 'normal'
             }
           }
@@ -468,15 +473,16 @@ class Ordinary extends Component{
         data:[{name:'运行中'}, {name:'异常'},{name:'操作中'}],
         formatter: function (name) {
           if(name === '运行中'){
-            return name + ': ' + conRunning + '个'
+            return name + '  ' + conRunning + '个'
           } else if (name === '异常') {
-            return name + ': ' + conFailed + '个'
+            return name + '  ' + conFailed + ' 个'
           } else if (name === '操作中') {
-            return name + ': ' + conOthers + '个'
+            return name + '  ' + conOthers + ' 个'
           }
         },
         textStyle: {
-          fontSize: 14,
+          fontSize: 13,
+          color: '#666'
         },
         itemGap: 15,
         itemWidth: 10,
@@ -509,7 +515,8 @@ class Ordinary extends Component{
               return param.percent.toFixed(0) + '%';
             },
             textStyle: {
-              fontSize: '14',
+              fontSize: '13',
+              color: '#666',
               fontWeight: 'normal'
             }
           }
@@ -535,10 +542,10 @@ class Ordinary extends Component{
         left: 'center',
         textStyle: {
           fontWeight:'normal',
-          fontSize:14
+          fontSize:13
         }
       },
-      color: ['#3398DB'],
+      color: ['#46b2fa'],
       tooltip : {
         trigger: 'axis',
         axisPointer : {
@@ -600,10 +607,11 @@ class Ordinary extends Component{
         left: 'center',
         textStyle: {
           fontWeight:'normal',
-          fontSize:14
+          fontSize:13,
+          color: '#666'
         }
       },
-      color: ['#3398DB'],
+      color: ['#46b2fa'],
       tooltip : {
         trigger: 'axis',
         axisPointer : {
@@ -666,10 +674,11 @@ class Ordinary extends Component{
         left: 'center',
         textStyle: {
           fontWeight:'normal',
-          fontSize:14
+          fontSize:13,
+          color: '#666'
         }
       },
-      color: ['#3398DB'],
+      color: ['#46b2fa'],
       tooltip : {
         trigger: 'axis',
         axisPointer : {
@@ -728,7 +737,7 @@ class Ordinary extends Component{
     }
     return (
       <div id='Ordinary'>
-        <Row className="title">空间：{spaceName} - {clusterName}集群</Row>
+        <Row className="title">{spaceName} - {clusterName}集群</Row>
         <Row className="content" gutter={16}>
           <Col span={8} className='clusterCost'>
             <Card title="本日该集群消费" bordered={false} bodyStyle={{height:220,padding:'0 24px'}}>
@@ -825,21 +834,10 @@ class Ordinary extends Component{
                       <svg className="teamRecSvg">
                         <use xlinkHref="#homeappcount" />
                       </svg>
-                      创建应用数量
+                      创建应用
                     </td>
-                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                      {clusterOperations.appCreate}个
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <svg className="teamRecSvg">
-                        <use xlinkHref="#homeappcount" />
-                      </svg>
-                      修改应用数量
-                    </td>
-                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                      {clusterOperations.appModify}个
+                    <td className="recordNum">
+                      {clusterOperations.appCreate} 个
                     </td>
                   </tr>
                   <tr>
@@ -847,32 +845,10 @@ class Ordinary extends Component{
                       <svg className="teamRecSvg">
                         <use xlinkHref="#homeappcount" />
                       </svg>
-                      停止应用数量
+                      停止应用
                     </td>
-                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                      {clusterOperations.appStop}个
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <svg className="teamRecSvg">
-                        <use xlinkHref="#homeappcount" />
-                      </svg>
-                      启动应用数量
-                    </td>
-                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                      {clusterOperations.appStart}个
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <svg className="teamRecSvg">
-                        <use xlinkHref="#homeappcount" />
-                      </svg>
-                      重新部署应用数量
-                    </td>
-                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                      {clusterOperations.appRedeploy}个
+                    <td className="recordNum">
+                      {clusterOperations.appStop} 个
                     </td>
                   </tr>
                   <tr>
@@ -880,10 +856,10 @@ class Ordinary extends Component{
                       <svg className="teamRecSvg">
                         <use xlinkHref="#homeservicecount" />
                       </svg>
-                      创建服务数量
+                      创建服务
                     </td>
-                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                      {clusterOperations.svcCreate}个
+                    <td className="recordNum">
+                      {clusterOperations.svcCreate} 个
                     </td>
                   </tr>
                   <tr>
@@ -891,21 +867,10 @@ class Ordinary extends Component{
                       <svg className="teamRecSvg">
                         <use xlinkHref="#homeservicecount" />
                       </svg>
-                      删除服务数量
+                      删除服务
                     </td>
-                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                      {clusterOperations.svcDelete}个
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <svg className="teamRecSvg">
-                        <use xlinkHref="#homesavecount" />
-                      </svg>
-                      创建存储卷个数
-                    </td>
-                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                      {clusterOperations.volumeCreate}个
+                    <td className="recordNum">
+                      {clusterOperations.svcDelete} 个
                     </td>
                   </tr>
                   <tr>
@@ -913,10 +878,54 @@ class Ordinary extends Component{
                       <svg className="teamRecSvg">
                         <use xlinkHref="#homesavecount" />
                       </svg>
-                      删除存储卷个数
+                      创建存储卷
                     </td>
-                    <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                      {clusterOperations.volumeDelete}个
+                    <td className="recordNum">
+                      {clusterOperations.volumeCreate} 个
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <svg className="teamRecSvg">
+                        <use xlinkHref="#homesavecount" />
+                      </svg>
+                      删除存储卷
+                    </td>
+                    <td className="recordNum">
+                      {clusterOperations.volumeDelete} 个
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <svg className="teamRecSvg">
+                        <use xlinkHref="#homeappcount" />
+                      </svg>
+                      修改应用
+                    </td>
+                    <td className="recordNum">
+                      {clusterOperations.appModify} 个
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <svg className="teamRecSvg">
+                        <use xlinkHref="#homeappcount" />
+                      </svg>
+                      启动应用
+                    </td>
+                    <td className="recordNum">
+                      {clusterOperations.appStart} 个
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <svg className="teamRecSvg">
+                        <use xlinkHref="#homeappcount" />
+                      </svg>
+                      重新部署
+                    </td>
+                    <td className="recordNum">
+                      {clusterOperations.appRedeploy} 个
                     </td>
                   </tr>
                   </tbody>
@@ -925,7 +934,7 @@ class Ordinary extends Component{
             </Card>
           </Col>
         </Row>
-        <Row className="content" gutter={16} style={{marginTop:10}}>
+        <Row className="content" gutter={16} style={{marginTop:16}}>
           <Col span={6}>
             <Card title="应用" bordered={false} bodyStyle={{height:180,padding:'0 24px'}}>
               <ReactEcharts
@@ -959,32 +968,32 @@ class Ordinary extends Component{
               <Col span={12} className='storageInf'>
                 <div className="storageInfList">
                   <Row className='storageInfItem'>
-                    <Col span={12}>已使用:</Col>
+                    <Col span={12}>已使用</Col>
                     <Col span={12} style={{textAlign:'right'}}>{this.handleSize(clusterStorage.usedSize)}</Col>
                   </Row>
                   <Row className='storageInfItem'>
-                    <Col span={12}>空闲:</Col>
+                    <Col span={12}>空闲</Col>
                     <Col span={12} style={{textAlign:'right'}}>{this.handleSize(clusterStorage.freeSize)}</Col>
                   </Row>
                   <Row className='storageInfItem'>
-                    <Col span={12}>存储卷:</Col>
-                    <Col span={12} style={{textAlign:'right'}}>{clusterStorage.totalCnt}个</Col>
+                    <Col span={12}>存储卷</Col>
+                    <Col span={12} style={{textAlign:'right'}}>{clusterStorage.totalCnt} 个</Col>
                   </Row>
                   <Row className='storageInfItem'>
-                    <Col span={12}>使用中:</Col>
-                    <Col span={12} style={{textAlign:'right'}}>{clusterStorage.usedCnt}个</Col>
+                    <Col span={12}>使用中</Col>
+                    <Col span={12} style={{textAlign:'right'}}>{clusterStorage.usedCnt} 个</Col>
                   </Row>
                 </div>
               </Col>
             </Card>
           </Col>
         </Row>
-        <Row className="content" gutter={16} style={{marginTop: 10}}>
+        <Row className="content" gutter={16} style={{marginTop: 16}}>
           <Col span={6} className='dataBase'>
             <Card title="数据库与缓存" bordered={false} bodyStyle={{height:200}}>
               <Row gutter={16}>
                 <Col span={8} onClick={() => this.handleDataBaseClick('tab1')} className={this.state.tab1?'seleted':''}><span className='dataBtn'>MySQL</span></Col>
-                <Col span={8} onClick={() => this.handleDataBaseClick('tab2')} className={this.state.tab2?'seleted':''}><span className='dataBtn'>MongoDB</span></Col>
+                <Col span={8} onClick={() => this.handleDataBaseClick('tab2')} className={this.state.tab2?'seleted':''}><span className='dataBtn'>Mongo</span></Col>
                 <Col span={8} onClick={() => this.handleDataBaseClick('tab3')} className={this.state.tab3?'seleted':''}><span className='dataBtn'>Redis</span></Col>
               </Row>
               <Row style={{display: this.state.tab1?'block':'none',height:130}}>
@@ -997,9 +1006,9 @@ class Ordinary extends Component{
                     <tr>
                       <td>
                         <div className="stateDot" style={{backgroundColor:'#46b2fa'}}></div>
-                        运行中:
+                        运行中
                       </td>
-                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                      <td className="dbNum">
                         {mySQLRunning}个
                       </td>
                     </tr>
@@ -1008,7 +1017,7 @@ class Ordinary extends Component{
                         <div className="stateDot" style={{backgroundColor:'#a2d7ff'}}></div>
                         已停止
                       </td>
-                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                      <td className="dbNum">
                         {mySQLStopped}个
                       </td>
                     </tr>
@@ -1017,7 +1026,7 @@ class Ordinary extends Component{
                         <div className="stateDot" style={{backgroundColor:'#28bd83'}}></div>
                         操作中
                       </td>
-                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                      <td className="dbNum">
                         {mySQLOthers}个
                       </td>
                     </tr>
@@ -1035,9 +1044,9 @@ class Ordinary extends Component{
                     <tr>
                       <td>
                         <div className="stateDot" style={{backgroundColor:'#46b2fa'}}></div>
-                        运行中:
+                        运行中
                       </td>
-                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                      <td className="dbNum">
                         {mongoRunning}个
                       </td>
                     </tr>
@@ -1046,7 +1055,7 @@ class Ordinary extends Component{
                         <div className="stateDot" style={{backgroundColor:'#a2d7ff'}}></div>
                         已停止
                       </td>
-                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                      <td className="dbNum">
                         {mongoStopped}个
                       </td>
                     </tr>
@@ -1055,7 +1064,7 @@ class Ordinary extends Component{
                         <div className="stateDot" style={{backgroundColor:'#28bd83'}}></div>
                         操作中
                       </td>
-                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                      <td className="dbNum">
                         {mongoOthers}个
                       </td>
                     </tr>
@@ -1073,9 +1082,9 @@ class Ordinary extends Component{
                     <tr>
                       <td>
                         <div className="stateDot" style={{backgroundColor:'#46b2fa'}}></div>
-                        运行中:
+                        运行中
                       </td>
-                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                      <td className="dbNum">
                         {redisRunning}个
                       </td>
                     </tr>
@@ -1084,7 +1093,7 @@ class Ordinary extends Component{
                         <div className="stateDot" style={{backgroundColor:'#a2d7ff'}}></div>
                         已停止
                       </td>
-                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                      <td className="dbNum">
                         {redisStopped}个
                       </td>
                     </tr>
@@ -1093,7 +1102,7 @@ class Ordinary extends Component{
                         <div className="stateDot" style={{backgroundColor:'#28bd83'}}></div>
                         操作中
                       </td>
-                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
+                      <td className="dbNum">
                         {redisOthers}个
                       </td>
                     </tr>
@@ -1104,7 +1113,67 @@ class Ordinary extends Component{
             </Card>
           </Col>
           <Col span={18} className="hostState">
-
+            <Card title={
+              <span>计算资源使用率<div style={{width:30,display:'inline-block'}}></div><span style={{fontSize: '12px',color:'#666'}}>注: 显示使用率前三的节点</span></span>
+            } bordered={false} bodyStyle={{height:200,padding:'0px 20px'}}>
+              <Row gutter={16} style={{height:200}}>
+                <Col span={6}>
+                  <ReactEcharts
+                    notMerge={true}
+                    option={CPUOption}
+                    style={{height:'200px'}}
+                  />
+                </Col>
+                <Col span={6}>
+                  <ReactEcharts
+                    notMerge={true}
+                    option={memoryOption}
+                    style={{height:'200px'}}
+                  />
+                </Col>
+                <Col span={6}>
+                  <ReactEcharts
+                    notMerge={true}
+                    option={diskOption}
+                    style={{height:'200px'}}
+                  />
+                </Col>
+                <Col span={6} style={{borderLeft: '1px solid #e2e2e2',height:'200px'}}>
+                  <Row style={{fontSize:'14px',textAlign: 'center',height:60,lineHeight:'60px'}}>主机状态</Row>
+                  <table>
+                    <tbody>
+                    <tr>
+                      <td>
+                        <div className="stateDot" style={{backgroundColor:'#43b4f6'}}></div>
+                        主机总数
+                      </td>
+                      <td className="hostNum">
+                        {clusterNodeSummary.nodeInfo.total} 个
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div className="stateDot" style={{backgroundColor:'#2abe84'}}></div>
+                        健康主机数
+                      </td>
+                      <td className="hostNum">
+                        {clusterNodeSummary.nodeInfo.health} 个
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div className="stateDot" style={{backgroundColor:'#a2d8fa'}}></div>
+                        未启用主机数
+                      </td>
+                      <td className="hostNum">
+                        {clusterNodeSummary.nodeInfo.unused} 个
+                      </td>
+                    </tr>
+                    </tbody>
+                  </table>
+                </Col>
+              </Row>
+            </Card>
           </Col>
         </Row>
         <MySpace spaceName={spaceName} />
