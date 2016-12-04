@@ -216,7 +216,7 @@ let CreateTenxFlowModal = React.createClass({
       noSelectedCodeStore: false,
       currentCodeStoreBranch: null,
       dockerFileModalShow: false,
-      dockerFileTextarea: null,
+      dockerFileTextarea: '',
       noDockerfileInput: false,
       ImageEnvModal: false,
       emptyImageEnv: false,
@@ -1058,7 +1058,7 @@ let CreateTenxFlowModal = React.createClass({
                   </div>
                   <div className='input imageType'>
                     <FormItem>
-                      <Switch {...getFieldProps('buildCache') } defaultChecked={true} />
+                      <Switch {...getFieldProps('buildCache', {initialValue: true})} defaultChecked={true} />
                     </FormItem>
                   </div>
                   <div style={{ clear: 'both' }} />
@@ -1072,7 +1072,12 @@ let CreateTenxFlowModal = React.createClass({
             onOk={this.closeDockerFileModal}
             onCancel={this.closeDockerFileModal}
             >
-            <DockerFileEditor value={this.state.dockerFileTextarea} onChange={this.onChangeDockerFileTextarea} options={defaultOptions} />
+            <DockerFileEditor value={this.state.dockerFileTextarea} callback={this.onChangeDockerFileTextarea} options={defaultOptions} />
+            <div className='btnBox'>
+              <Button size='large' type='primary' onClick={this.closeDockerFileModal}>
+                <span>关闭</span>
+              </Button>
+            </div>
           </Modal>
           <Modal className='tenxFlowImageEnvModal'
             title={<FormattedMessage {...menusText.envTitle} />}

@@ -298,7 +298,7 @@ class TenxFlowList extends Component {
     const { isFetching, flowList, buildFetching, logs, cicdApi } = this.props;
     let message = ''
     if (flowList.length < 1) {
-      message = "目前还没有添加任何 TenxFlow"
+      message = " * 目前还没有添加任何 TenxFlow"
     }
     return (
       <QueueAnim className='TenxFlowList'
@@ -348,7 +348,7 @@ class TenxFlowList extends Component {
           >
           <TenxFlowBuildLog scope={scope} isFetching={buildFetching} logs={logs} flowId={this.state.currentFlowId} />
         </Modal>
-        <div><br/> * {message}<br/></div>
+        <div><br/>{message}<br/></div>
       </QueueAnim>
     )
   }

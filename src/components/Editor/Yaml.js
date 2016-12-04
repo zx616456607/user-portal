@@ -98,7 +98,6 @@ class YamlEditor extends Component {
       let codeList = e.split('---');
       codeList.map((item, index) => {
         try {
-          console.log(item)
           yaml.safeLoad(item)
         } catch(error) {
           let height = 0;
