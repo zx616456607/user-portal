@@ -15,8 +15,8 @@ const modes = require('./models');
 const config = {
   production: false,
   model: {
-    type: 'enterprise',
-    modules: modes['enterprise']
+    type: 'standard',
+    modules: modes['standard']
   },
   // protocol: 'http' || env.DASHBOARD_PROTOCOL,
   // hostname: "0.0.0.0" || env.DASHBOARD_HOST,
