@@ -212,7 +212,7 @@ class Header extends Component {
             <svg className='headerteamspace'>
               <use xlinkHref='#headerteamspace' />
             </svg>
-            <span style={{ marginLeft: 5 }}>空间</span>
+            <span style={{ marginLeft: 15 }}>空间</span>
           </div>
           <div className="spaceBtn">
             <PopSelect
@@ -231,7 +231,7 @@ class Header extends Component {
             <svg className='headercluster'>
               <use xlinkHref='#headercluster' />
             </svg>
-            <span style={{ marginLeft: 10 }}>集群</span>
+            <span style={{ marginLeft: 20 }}>集群</span>
           </div>
           <div className="envirBox">
             <PopSelect
