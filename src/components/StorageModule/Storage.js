@@ -170,6 +170,7 @@ let MyComponent = React.createClass({
               self.setState({
                 visible: false,
               })
+              message.success('格式化存储卷成功')
               this.props.loadStorageList()
             }
           }
