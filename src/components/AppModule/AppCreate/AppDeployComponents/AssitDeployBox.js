@@ -40,7 +40,7 @@ let AssitDeployBox = React.createClass({
       currentDate: e.target.value
     });
   },
-  
+
   render:function () {
     const { form } = this.props
     const parentScope = this.props.scope;
@@ -53,13 +53,13 @@ let AssitDeployBox = React.createClass({
               <span className="commonSpan">进入点</span>
               <Input className="entryInput"
                 size="large"
-                placeholder="找啊找啊在哪里进入啊~"
+                placeholder="配置容器启动后执行的命令"
                 {...getFieldProps('entryInput') }
                 />
               <div style={{ clear: "both" }}></div>
             </div>
             <div className="inputBox">
-              <span className="commonSpan">执行命令</span>
+              <span className="commonSpan">启动命令</span>
               <div className="selectBox">
                 <FormItem>
                   <RadioGroup
@@ -95,7 +95,7 @@ let AssitDeployBox = React.createClass({
               <span className="commonSpan">时区设置</span>
               <div className="checkBox">
                 <Checkbox value={parentScope.state.currentDate} onChange={this.changeCurrentDate} /><span className="checkTitle">使用所在主机节点的时区</span><br />
-                <span className="tooltip">选中后,可以保证容器始终与其所在的主机节点保持一致</span>
+                <span className="tooltip">选中后，可以保证容器始终与其所在的主机节点保持一致</span>
               </div>
               <div style={{ clear: "both" }}></div>
             </div>
