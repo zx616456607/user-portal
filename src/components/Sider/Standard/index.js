@@ -96,7 +96,6 @@ class Slider extends Component {
 
   onSelectMenu(e) {
     //this function for user select the menu item and change the current key
-    console.log(e)
     const { keyPath } = e;
     if(keyPath.length > 1) {
       let currentKey = keyPath[1];
@@ -557,7 +556,6 @@ class Slider extends Component {
 }
 
 function checkCurrentPath(pathname) {
-  console.log(pathname)
   let pathList = pathname.split('/');
   let currentPath = pathList[0];
   if(currentPath.length > 0) {
