@@ -17,7 +17,7 @@ class SvcTip extends Component {
   }
   render() {
     const { svcDomain } = this.props
-    let item = svcDomain.map((item, index) => {
+    let item = svcDomain.map((element, index) => {
       /* if (item.indexOf('http://') !== -1 || item.indexOf('https://') !== -1) {
         return (
           <li key={item}>
@@ -31,9 +31,10 @@ class SvcTip extends Component {
           </li>
         )
       }*/
+      let linkURL = 'http://' + element
       return (
-        <li key={item}>
-          <a href={item} target="_blank">{item}</a>
+        <li key={element}>
+          <a href={linkURL} target="_blank">{element}</a>
         </li>
       )
     })
@@ -63,6 +64,7 @@ class AppTip extends Component {
         )
       }
       if (item.data.length === 1) {
+        let linkURL = 'http://' + item.data[0]
         return (
           <div>
             <Row className="firstSvc">
@@ -76,7 +78,7 @@ class AppTip extends Component {
                   //(item.data[0].indexOf('http://') === -1 || item.data[0].indexOf('https://') === -1) ?
                   //  item.data[0] :
                   //  <a href={item.data[0]} target="_blank">{item.data[0]}</a>
-                  <a href={item.data[0]} target="_blank">{item.data[0]}</a>
+                  <a href={linkURL} target="_blank">{item.data[0]}</a>
                 }
                 <svg className="tipCopySvg"><use xlinkHref="#tipcopy" /></svg>
               </Timeline.Item>
@@ -100,19 +102,11 @@ class AppTip extends Component {
                       <Timeline.Item dot={<div style={{ height: 5, width: 5, backgroundColor: '#2db7f5', margin: '0 auto' }}></div>}></Timeline.Item>
                     )
                   }
-                  if (url.indexOf('http://') !== -1 || url.indexOf('https://') !== -1) {
-                    return (
-                      <Timeline.Item dot={<div></div>}>
-                        <svg className="branchSvg"><use xlinkHref="#branch" /></svg>
-                        <a href={url} target="_blank">{url}</a>
-                        <svg className="tipCopySvg"><use xlinkHref="#tipcopy" /></svg>
-                      </Timeline.Item>
-                    )
-                  }
+                  let linkURL = 'http://' + url
                   return (
                     <Timeline.Item dot={<div></div>}>
                       <svg className="branchSvg"><use xlinkHref="#branch" /></svg>
-                      <a href={url} target="_blank">{url}</a>
+                      <a href={linkURL} target="_blank">{url}</a>
                       <svg className="tipCopySvg"><use xlinkHref="#tipcopy" /></svg>
                     </Timeline.Item>
                   )
@@ -166,20 +160,22 @@ export default class TipSvcDomain extends Component {
             </div>
           )
         }*/
+        let linkURL = 'http://' + svcDomain[0]
         return (
           <div id='TipSvcDomain'>
-            <a target="_blank" href={svcDomain[0]}>{svcDomain[0]}</a>
+            <a target="_blank" href={linkURL}>{svcDomain[0]}</a>
           </div>
         )
       }
       if (svcDomain.length > 1) {
+        let linkURL = 'http://' + svcDomain[0]
         return (
           <div className='TipSvcDomain'>
             <span className="appDomain">
               {
                 //(svcDomain[0].indexOf('http://') !== -1 || svcDomain[0].indexOf('https://') !== -1) ?
                 //  <a target="_blank" href={svcDomain[0]}>{svcDomain[0]}</a> : svcDomain[0]
-                 <a target="_blank" href={svcDomain[0]}>{svcDomain[0]}</a>
+                 <a target="_blank" href={linkURL}>{svcDomain[0]}</a>
               }
             </span>
             <Popover placement="right"
@@ -214,18 +210,20 @@ export default class TipSvcDomain extends Component {
               <a target="_blank" href={appDomain[0].data[0]}>{appDomain[0].data[0]}</a>
             )
           }**/
+          let linkURL = 'http://' + appDomain[0].data[0]
           return (
-            <a target="_blank" href={appDomain[0].data[0]}>{appDomain[0].data[0]}</a>
+            <a target="_blank" href={linkURL}>{appDomain[0].data[0]}</a>
           )
         }
         if (appDomain[0].data.length > 1) {
+          let linkURL = 'http://' + appDomain[0].data[0]
           return (
             <div className={type ? 'TipAppDomain fixTop' : 'TipAppDomain'}>
               <span className="appDomain">
                 {
                   //(appDomain[0].data[0].indexOf('http://') !== -1 || appDomain[0].data[0].indexOf('https://') !== -1) ?
                   //  <a target="_blank" href={appDomain[0].data[0]}>{appDomain[0].data[0]}</a> : appDomain[0].data[0]
-                  <a target="_blank" href={appDomain[0].data[0]}>{appDomain[0].data[0]}</a>
+                  <a target="_blank" href={linkURL}>{appDomain[0].data[0]}</a>
                 }
               </span>
               <Popover placement={type ? 'rightBottom' : 'rightTop'}
@@ -243,13 +241,14 @@ export default class TipSvcDomain extends Component {
           )
         }
       } else {
+        let linkURL = 'http://' + appDomain[0].data[0]
         return (
           <div className={type ? 'TipAppDomain fixTop' : 'TipAppDomain'}>
             <span className="appDomain">
               {
                 //(appDomain[0].data[0].indexOf('http://') !== -1 || appDomain[0].data[0].indexOf('https://') !== -1) ?
                 //  <a target="_blank" href={appDomain[0].data[0]}>{appDomain[0].data[0]}</a> : appDomain[0].data[0]
-                <a target="_blank" href={appDomain[0].data[0]}>{appDomain[0].data[0]}</a>
+                <a target="_blank" href={linkURL}>{appDomain[0].data[0]}</a>
               }
             </span>
             <Popover placement={type ? 'rightBottom' : 'rightTop'}

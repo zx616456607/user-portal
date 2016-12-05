@@ -19,6 +19,22 @@ export default class ContainerDetailInfo extends Component {
     super(props);
   }
 
+  getMount(container) {
+    const ele = []
+    if (container.spec.containers[0].volumeMounts) {
+      container.spec.containers[0].volumeMounts.forEach((volume) => {
+        if(volume.mountPath === '/var/run/secrets/kubernetes.io/serviceaccount') return
+        ele.push (
+          <div key={volume.name}>
+            <div className="commonTitle">{volume.name}</div>
+            <div className="commonTitle">{volume.mountPath}</div>
+            <div style={{ clear: "both" }}></div>
+          </div>
+        )
+      })
+    }
+    return ele
+  }
   render() {
     const parentScope = this
     const { container } = this.props
@@ -117,18 +133,8 @@ export default class ContainerDetailInfo extends Component {
               </div>
               <div style={{ clear: "both" }}></div>
             </div>
-            <div className="dataBox">
-              {
-                container.spec.containers[0].volumeMounts && container.spec.containers[0].volumeMounts.map((volume) => {
-                  return (
-                    <div key={volume.name}>
-                      <div className="commonTitle">{volume.name}</div>
-                      <div className="commonTitle">{volume.mountPath}</div>
-                      <div style={{ clear: "both" }}></div>
-                    </div>
-                  )
-                })
-              }
+            <div className="dataBox"> 
+               { this.getMount(container) }
             </div>
           </div>
         </div>
