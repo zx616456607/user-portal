@@ -46,6 +46,15 @@ class Service {
           }
         }
       }
+      if (k8sService.metadata.annotations) {
+        for (let key in k8sService.metadata.annotations) {
+          if (key == TENX_SCHEMA_PORTNAME) {
+            this.metadata.annotations = {}
+            this.metadata.annotations[key] = k8sService.metadata.annotations[key]
+            break;
+          }
+        }
+      }
     }
 
     if (k8sService.spec) {

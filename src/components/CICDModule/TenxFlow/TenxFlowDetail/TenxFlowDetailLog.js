@@ -36,10 +36,6 @@ const menusText = defineMessages({
     id: 'CICD.Tenxflow.TenxFLowDetailLog.cost',
     defaultMessage: '耗时',
   },
-  checkImage: {
-    id: 'CICD.Tenxflow.TenxFLowDetailLog.checkImage',
-    defaultMessage: '查看镜像',
-  },
   normal: {
     id: 'CICD.Tenxflow.TenxFLowDetailLog.normal',
     defaultMessage: '执行成功',
