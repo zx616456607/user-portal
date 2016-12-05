@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Card, Icon, Button, DatePicker, Table} from 'antd'
+import { Row, Col, Card, Icon, Button, DatePicker, Table, Select } from 'antd'
 import './style/CostRecord.less'
 import PopSelect from '../../PopSelect'
 import { connect } from 'react-redux'
@@ -19,6 +19,7 @@ import TeamCost from './TeamCost'
 import ReactEcharts from 'echarts-for-react'
 
 const MonthPicker = DatePicker.MonthPicker
+const Option = Select.Option
 
 let spaceCostArr = []
 for(let i=1;i<32;i++){
@@ -37,8 +38,6 @@ class CostRecord extends Component{
     }
   }
   handleSpaceChange(space) {
-    const { loadTeamClustersList,loadUserTeamspaceList, setCurrent, current, loginUser } = this.props
-    console.log('space',space)
     this.setState({
       spacesVisible: false,
       currentSpaceName: space.spaceName,
@@ -54,7 +53,7 @@ class CostRecord extends Component{
       userDetail,
       teamspaces,
     } = this.props
-    loadUserTeamspaceList(loginUser.info.userID||userDetail.userID,{ size: -1 }, {
+    loadUserTeamspaceList(loginUser.info.userID||userDetail.userID,{ size: 100 }, {
       success: {
         func:()=>{
           console.log('teamspaces',teamspaces)
@@ -186,6 +185,12 @@ class CostRecord extends Component{
       },
       yAxis: {
         type: 'value',
+        splitLine: {
+          show: true,
+          lineStyle: {
+            type: 'dashed'
+          },
+        },
       },
       grid: {
         top: 20,
@@ -201,13 +206,29 @@ class CostRecord extends Component{
     let spaceCostTitle = (
       <div className="teamCostTitle">
         <span>{currentSpaceName}该月消费</span>
-        <MonthPicker style={{float: 'right'}} defaultValue={this.transformDate()}/>
+        <div style={{flex: 'auto'}}>
+          <MonthPicker style={{float: 'right'}} defaultValue={this.transformDate()}/>
+        </div>
       </div>
     )
     let spaceCostDetailTitle = (
       <div className="teamCostTitle">
         <span>{currentSpaceName}该月消费详情</span>
-        <MonthPicker style={{float: 'right'}} defaultValue={this.transformDate()}/>
+        <div style={{flex: 'auto'}}>
+          <MonthPicker style={{float: 'right'}} defaultValue={this.transformDate()}/>
+        </div>
+      </div>
+    )
+    let spaceTableTitle = (
+      <div className="teamCostTitle">
+        <span>{currentSpaceName}该月消费详情</span>
+        <MonthPicker style={{marginLeft: 40}} defaultValue={this.transformDate()}/>
+        <div style={{flex: 'auto'}}>
+          <Select defaultValue="all" style={{ width: 120, float: 'right'}}>
+            <Option value="all">全部</Option>
+            <Option value="containter">容器服务</Option>
+          </Select>
+        </div>
       </div>
     )
     let spaceCostBar = {
@@ -279,6 +300,7 @@ class CostRecord extends Component{
         title: '消费ID',
         dataIndex: 'id',
         key: 'id',
+        className: 'firstCol',
       },
       {
         title: '服务名称',
@@ -321,6 +343,16 @@ class CostRecord extends Component{
         key: 'ps',
       },
     ]
+    let pagination = {
+      total: costData.length,
+      showSizeChanger: true,
+      onShowSizeChange(current, pageSize) {
+        console.log('Current: ', current, '; PageSize: ', pageSize);
+      },
+      onChange(current) {
+        console.log('Current: ', current);
+      },
+    }
     console.log('---------------------------')
     console.log('current: ',current)
     console.log('loginUser: ',loginUser)
@@ -400,9 +432,9 @@ class CostRecord extends Component{
              />
           </Card>
         </Row>
-        <Row style={{marginBottom: '100px'}}>
-          <Card title={spaceCostDetailTitle}>
-            <Table columns={TableSpaceCostDetail} dataSource={costData}/>
+        <Row style={{marginBottom: '100px'}} className='SpaceCostDetailTab'>
+          <Card title={spaceTableTitle}>
+            <Table columns={TableSpaceCostDetail} dataSource={costData} pagination={pagination}/>
           </Card>
         </Row>
       </div>
@@ -412,12 +444,13 @@ class CostRecord extends Component{
 function mapStateToProps (state,props) {
   const { current, loginUser } = state.entities
   const { teamspaces,userDetail } = state.user
+  console.log('current',current)
 
   return {
     current,
     loginUser,
     teamspaces: (teamspaces.result ? teamspaces.result.teamspaces : []),
-    userDetail: userDetail.result.data
+    userDetail: (userDetail.result ? userDetail.result.data: {})
   }
 }
 export default connect (mapStateToProps,{

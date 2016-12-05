@@ -311,7 +311,7 @@ let MyComponent = React.createClass({
             <RadioGroup defaultValue='ext4' value={this.state.formateType} size="large" onChange={(e) => this.changeType(e)}>
               <RadioButton value="ext4">ext4</RadioButton>
               <RadioButton value="xfs">xfs</RadioButton>
-             
+
             </RadioGroup>
           </div>
         </Modal>
@@ -348,6 +348,7 @@ class Storage extends Component {
     this.handleCancel = this.handleCancel.bind(this)
     this.onChange = this.onChange.bind(this)
     this.deleteStorage = this.deleteStorage.bind(this)
+    this.focus = this.focus.bind(this)
     this.state = {
       visible: false,
       volumeArray: [],
@@ -564,7 +565,7 @@ class Storage extends Component {
                     <FormattedMessage {...messages.name} />
                   </Col>
                   <Col span="12">
-                    <Input ref={(input) => this.focusInput = input } value={this.state.name} placeholder={formatMessage(messages.placeholder)} onChange={(e) => { this.handleInputName(e) } }/>
+                    <Input value={this.state.name} placeholder={formatMessage(messages.placeholder)} onChange={(e) => { this.handleInputName(e) }}/>
                   </Col>
                 </Row>
                 <Row style={{ height: '40px' }}>
