@@ -38,8 +38,6 @@ class CostRecord extends Component{
     }
   }
   handleSpaceChange(space) {
-    const { loadTeamClustersList,loadUserTeamspaceList, setCurrent, current, loginUser } = this.props
-    console.log('space',space)
     this.setState({
       spacesVisible: false,
       currentSpaceName: space.spaceName,
@@ -55,14 +53,14 @@ class CostRecord extends Component{
       userDetail,
       teamspaces,
     } = this.props
-    // loadUserTeamspaceList(loginUser.info.userID||userDetail.userID,{ size: 100 }, {
-    //   success: {
-    //     func:()=>{
-    //       console.log('teamspaces',teamspaces)
-    //     },
-    //     isAsync: true
-    //   }
-    // })
+    loadUserTeamspaceList(loginUser.info.userID||userDetail.userID,{ size: 100 }, {
+      success: {
+        func:()=>{
+          console.log('teamspaces',teamspaces)
+        },
+        isAsync: true
+      }
+    })
   }
   transformDate(){
     let date = new Date
@@ -73,7 +71,7 @@ class CostRecord extends Component{
   render(){
     const {
       current,
-      // loginUser,
+      loginUser,
       teamspaces,
       teamClusters,
     } = this.props
@@ -187,6 +185,12 @@ class CostRecord extends Component{
       },
       yAxis: {
         type: 'value',
+        splitLine: {
+          show: true,
+          lineStyle: {
+            type: 'dashed'
+          },
+        },
       },
       grid: {
         top: 20,
@@ -202,20 +206,24 @@ class CostRecord extends Component{
     let spaceCostTitle = (
       <div className="teamCostTitle">
         <span>{currentSpaceName}该月消费</span>
-        <MonthPicker style={{float: 'right'}} defaultValue={this.transformDate()}/>
+        <div style={{flex: 'auto'}}>
+          <MonthPicker style={{float: 'right'}} defaultValue={this.transformDate()}/>
+        </div>
       </div>
     )
     let spaceCostDetailTitle = (
       <div className="teamCostTitle">
         <span>{currentSpaceName}该月消费详情</span>
-        <MonthPicker style={{float: 'right'}} defaultValue={this.transformDate()}/>
+        <div style={{flex: 'auto'}}>
+          <MonthPicker style={{float: 'right'}} defaultValue={this.transformDate()}/>
+        </div>
       </div>
     )
     let spaceTableTitle = (
       <div className="teamCostTitle">
         <span>{currentSpaceName}该月消费详情</span>
         <MonthPicker style={{marginLeft: 40}} defaultValue={this.transformDate()}/>
-        <div className='changeFilter'>
+        <div style={{flex: 'auto'}}>
           <Select defaultValue="all" style={{ width: 120, float: 'right'}}>
             <Option value="all">全部</Option>
             <Option value="containter">容器服务</Option>
@@ -353,7 +361,6 @@ class CostRecord extends Component{
     console.log('currentSpaceName: ',currentSpaceName)
     console.log('currentTeamName: ',currentTeamName)
     console.log('---------------------------')
-    let loginUser = {'info':{role:1}}
     return (
       <div id='CostRecord'>
         <Card style={{marginBottom: '20px'}}>
@@ -441,13 +448,13 @@ function mapStateToProps (state,props) {
 
   return {
     current,
-    // loginUser,
-    // teamspaces: (teamspaces.result ? teamspaces.result.teamspaces : []),
-    // userDetail: userDetail.result.data
+    loginUser,
+    teamspaces: (teamspaces.result ? teamspaces.result.teamspaces : []),
+    userDetail: (userDetail.result ? userDetail.result.data: {})
   }
 }
 export default connect (mapStateToProps,{
-  // loadUserTeamspaceList,
-  // loadTeamClustersList,
-  // loadLoginUserDetail,
+  loadUserTeamspaceList,
+  loadTeamClustersList,
+  loadLoginUserDetail,
 })(CostRecord) 

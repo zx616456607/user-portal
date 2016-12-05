@@ -11,6 +11,7 @@ import React, { Component } from 'react'
 import { Tabs , } from 'antd'
 import './style/CostCenter.less'
 import CostRecord from './CostRecord'
+import RechargeRecord from './RechargeRecord'
 
 const TabPane = Tabs.TabPane;
 

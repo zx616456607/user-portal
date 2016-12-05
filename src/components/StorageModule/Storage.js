@@ -343,6 +343,7 @@ class Storage extends Component {
     this.handleCancel = this.handleCancel.bind(this)
     this.onChange = this.onChange.bind(this)
     this.deleteStorage = this.deleteStorage.bind(this)
+    this.focus = this.focus.bind(this)
     this.state = {
       visible: false,
       volumeArray: [],
@@ -549,7 +550,7 @@ class Storage extends Component {
                     <FormattedMessage {...messages.name} />
                   </Col>
                   <Col span="12">
-                    <Input value={this.state.name} placeholder={formatMessage(messages.placeholder)} onChange={(e) => { this.handleInputName(e) } } />
+                    <Input value={this.state.name} placeholder={formatMessage(messages.placeholder)} onChange={(e) => { this.handleInputName(e) }}/>
                   </Col>
                 </Row>
                 <Row style={{ height: '40px' }}>
