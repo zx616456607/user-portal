@@ -96,20 +96,42 @@
       height: 50px;
       button {
         float: left !important;
-        margin-right: 0px !important;
+        margin-right: 0 !important;
         padding: 5px !important;
         i {
           margin-right: 7px;
         }
       }
       .startBtn,
-      .logBtn{
+      .logBtn {
         margin-right: 10px !important;
       }
-      .editBtn{
+      .logBtn {
+        position: relative;
+        padding-left: 22px !important;
+        svg {
+          position: absolute;
+          top: 8px;
+          left: 5px;
+          width: 14px;
+          height: 14px;
+        }
+      }
+      .editBtn {
+        position: relative;
         float: left;
-        .anticon{
-          margin-right: 0px;
+        .anticon {
+          margin-right: 0;
+        }
+        button:first-child {
+          padding-left: 22px !important;
+        }
+        svg {
+          position: absolute;
+          top: 8px;
+          left: 5px;
+          width: 14px;
+          height: 14px;
         }
       }
     }
@@ -165,6 +187,10 @@
   }
   .runningArrow {
     color: #00A1EA;
+  }
+  svg {
+    width: 80px;
+    height: 240px;
   }
 }
 .TenxFlowDetailFlowCardBigDiv {

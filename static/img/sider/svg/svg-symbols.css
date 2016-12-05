@@ -1,3 +1,10 @@
+.appcenterlogo {
+  width: 20px;
+  height: 20px;
+}
+#appcenterlogo .st0{fill:#56ABE4;}
+#appcenterlogo .st1{fill:#FFFFFF;}
+
 .addselected {
   width: 40px;
   height: 40px;

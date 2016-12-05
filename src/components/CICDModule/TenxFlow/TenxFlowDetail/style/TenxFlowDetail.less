@@ -39,9 +39,27 @@
       .btnBox {
         float: right;
         width: 440px;
-        button {
+        button {          
           float: right;
           margin-right: 20px;
+          
+        }
+        .buildBtn,
+        .titleLogBtn {
+          position: relative;
+          padding-left: 33px;
+          svg {
+            position: absolute;
+            top: 8px;
+            left: 15px;
+            width: 14px;
+            height: 14px;
+          }
+        }
+        .buildBtn {
+          use {
+            fill: #FFFFFF;
+          }
         }
       }
     }

@@ -198,18 +198,20 @@ const MyComponent = React.createClass({
       return (
         <div className="imageDetail" key={`${item.name}-${index}`} >
           <div className="imageBox">
-            <img src="/img/default.png" />
+            <svg className='appcenterlogo'>
+              <use xlinkHref='#appcenterlogo' />
+            </svg>
           </div>
           <div className="contentBox">
             <span className="title" onClick={this.showImageDetail.bind(this, item)}>
               {item.name}
             </span><br />
             <span className="type">
-              <FormattedMessage {...menusText.type} />&nbsp;
+              <FormattedMessage {...menusText.type} />&nbsp;&nbsp;&nbsp;
                 {item.isPrivate == "0" ? [
-                <span key={item.id + "unlock"}><i className="fa fa-unlock-alt"></i>&nbsp;<FormattedMessage {...menusText.publicType} /></span>]
+                <span key={item.id + "unlock"}><svg className='cicdpublic'><use xlinkHref='#cicdpublic' /></svg>&nbsp;<FormattedMessage {...menusText.publicType} /></span>]
                 :
-                [<span key={item.id + "lock"}><i className="fa fa-lock"></i>&nbsp;<FormattedMessage {...menusText.privateType} /></span>]
+                [<span key={item.id + "lock"}><svg className='cicdprivate'><use xlinkHref='#cicdprivate' /></svg>&nbsp;<FormattedMessage {...menusText.privateType} /></span>]
               }
             </span>
             <span className="imageUrl textoverflow">
@@ -302,11 +304,15 @@ class ImageSpace extends Component {
           <Card className="ImageSpaceCard">
             <div className="operaBox">
               <Button className="uploadBtn" size="large" type="primary" onClick={this.openUploadModal}>
-                <i className="fa fa-cloud-upload"></i>&nbsp;
+                <svg className='appcenterupload'>
+                  <use xlinkHref='#appcenterupload' />
+                </svg>
                 <FormattedMessage {...menusText.uploadImage} />
               </Button>
               <Button className="downloadBtn" size="large" type="ghost" onClick={this.openDownloadModal}>
-                <i className="fa fa-cloud-download"></i>&nbsp;
+                <svg className='appcenterdownload'>
+                  <use xlinkHref='#appcenterdownload' />
+                </svg>
                 <FormattedMessage {...menusText.downloadImage} />
               </Button>
 

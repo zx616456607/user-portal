@@ -209,7 +209,9 @@ class Header extends Component {
       <div id="header">
         <div className="space">
           <div className="spaceTxt">
-            <i className="fa fa-cube" />
+            <svg className='headerteamspace'>
+              <use xlinkHref='#headerteamspace' />
+            </svg>
             <span style={{ marginLeft: 5 }}>空间</span>
           </div>
           <div className="spaceBtn">
@@ -226,8 +228,10 @@ class Header extends Component {
         </div>
         <div className="cluster">
           <div className="clusterTxt">
-            <i className="fa fa-sitemap" />
-            <span style={{ marginLeft: 5 }}>集群</span>
+            <svg className='headercluster'>
+              <use xlinkHref='#headercluster' />
+            </svg>
+            <span style={{ marginLeft: 10 }}>集群</span>
           </div>
           <div className="envirBox">
             <PopSelect

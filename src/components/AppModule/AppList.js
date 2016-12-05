@@ -869,7 +869,7 @@ class AppList extends Component {
             <div className='leftBox'>
               <Link to='/app_manage/app_create'>
                 <Button type='primary' size='large'>
-                  <i className='fa fa-plus' />创建应用
+                  <Icon type='plus' style={{ marginRight: '0px' }} />创建应用
                 </Button>
               </Link>
               <Button type='ghost' size='large' onClick={this.batchStartApps} disabled={!runBtn}>

@@ -19,7 +19,7 @@ const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 
 function loadData(props, query) {
-  const { cluster, appName, loadAppMetricsCPU, loadAppMetricsMemory, loadAppMetricsNetworkReceived, loadAppMetricsNetworkTransmitted } = props
+  const { cluster, appName, loadAppMetricsCPU, loadAppMetricsMemory, loadAppMetricsNetworkReceived, loadAppMetricsNetworkTransmitted, getAllAppMonitorData } = props
   loadAppMetricsCPU(cluster, appName, query)
   loadAppMetricsMemory(cluster, appName, query)
   loadAppMetricsNetworkReceived(cluster, appName, query)
@@ -50,7 +50,8 @@ class AppMonitior extends Component {
   }
 
   render() {
-    const { cpu, memory, networkReceived, networkTransmitted } = this.props
+    const { cpu, memory, networkReceived, networkTransmitted, appAllMetrics } = this.props
+    const { data } = appAllMetrics.result
     return (
       <div id="AppMonitior">
         <TimeControl onChange={this.handleTimeChange} />
@@ -76,6 +77,7 @@ function mapStateToProps(state, props) {
     memory,
     networkReceived,
     networkTransmitted,
+    appAllMetrics
   } = state.metrics.apps
   const cpuData = {
     isFetching: CPU.isFetching,
@@ -106,6 +108,7 @@ function mapStateToProps(state, props) {
     networkTransmittedData.data = networkTransmitted.result.data || []
   }
   return {
+    appAllMetrics: appAllMetrics,
     cpu: cpuData,
     memory: memoryData,
     networkReceived: networkReceivedData,
@@ -117,5 +120,5 @@ export default connect(mapStateToProps, {
   loadAppMetricsCPU,
   loadAppMetricsMemory,
   loadAppMetricsNetworkReceived,
-  loadAppMetricsNetworkTransmitted,
+  loadAppMetricsNetworkTransmitted
 })(AppMonitior)

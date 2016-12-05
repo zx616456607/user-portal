@@ -3,16 +3,16 @@
   .operaBox {
     padding-left: 30px;
     .searchBox {
-      margin-left: 0px;
+      margin-left: 0;
     }
   }
-  .titleBox{
+  .titleBox {
     margin-top: 10px;
     width: 100%;
     min-height: 40px;
     line-height: 40px;
     border-bottom: 1px solid #E5E5E5;
-    .commonTitle{
+    .commonTitle {
       padding-left: 10px;
       float: left;
       width: 10%;
@@ -22,32 +22,35 @@
     .id,
     .pod,
     .ip,
-    .startTime{
+    .startTime {
       width: 12.5%;
     }
-    .id{
+    .startTime {
+      padding-right: 10px;
+    }
+    .id {
       padding-left: 30px;
     }
   }
-  .podDetail{
+  .podDetail {
     transition: all 0.3s;
     width: 100%;
     min-height: 60px;
     line-height: 60px;
     border-bottom: 1px solid #E5E5E5;
-    .commonTitle{
+    .commonTitle {
       padding-left: 10px;
       float: left;
       width: 10%;
       height: 60px;
       line-height: 60px;
-      .commonSpan{
+      .commonSpan {
         display: block;
         width: 100%;
         word-break: break-all;
         white-space: nowrap;
         overflow: hidden;
-        text-overflow:ellipsis;
+        text-overflow: ellipsis;
         .topSpan,
         .bottomSpan {
           display: block;
@@ -57,14 +60,14 @@
         .topSpan {
           margin-top: 10px;
         }
-        .poweron{
-          .fa{
+        .poweron {
+          .fa {
             margin-right: 7px;
           }
           color: #5CB85C;
         }
-        .poweroff{
-          .fa{
+        .poweroff {
+          .fa {
             margin-right: 7px;
           }
           color: #F85A5A;
@@ -74,10 +77,18 @@
     .id,
     .pod,
     .ip,
-    .startTime{
+    .startTime {
       width: 12.5%;
     }
-    .id{
+    .id {
+      .bottomSpan {
+        color: #999999;
+      }
+    }
+    .startTime {
+      padding-right: 10px;
+    }
+    .id {
       padding-left: 30px;
     }
     &:hover {

@@ -775,7 +775,7 @@ let CreateTenxFlowModal = React.createClass({
                 <FormattedMessage {...menusText.defineEnv} />
               </span>
               {emptyServiceEnvCheck(scopeThis.state.emptyServiceEnv, k) ? [<span className='emptyImageEnvError'><FormattedMessage {...menusText.emptyImageEnv} /></span>] : null}
-              <i className='fa fa-trash' onClick={() => this.removeService(k)} />
+              <Icon type='delete' onClick={() => this.removeService(k)} />
             </Form.Item>
             <Modal className='tenxFlowServiceEnvModal'
               title={<FormattedMessage {...menusText.envTitle} />}
@@ -802,7 +802,7 @@ let CreateTenxFlowModal = React.createClass({
             <FormItem className='serviceForm'>
               <Input disabled={scopeThis.state.otherFlowType == 3 ? true : false} onKeyUp={() => this.addShellCode(i)} {...shellCodeProps} type='text' size='large' />
               {scopeThis.state.otherFlowType == 3 || scodes.length == 1 ? null : [
-                <i className='fa fa-trash' onClick={() => this.removeShellCode(i)} />
+                <Icon type='delete' onClick={() => this.removeShellCode(i)} />
               ]}
             </FormItem>
             <div style={{ clera: 'both' }}></div>
@@ -884,11 +884,13 @@ let CreateTenxFlowModal = React.createClass({
                 <span style={{ marginRight: '15px' }}>{this.state.currentCodeStoreName + '  ' + (this.state.currentCodeStoreBranch ? formatMessage(menusText.branch) + this.state.currentCodeStoreBranch : '')}</span>
               ] : null}
               <Button className={this.state.noSelectedCodeStore ? 'noCodeStoreButton selectCodeBtn' : 'selectCodeBtn'} size='large' type='ghost' onClick={this.openCodeStoreModal}>
-                <i className='fa fa-file-code-o' />
+                <svg className='codeSvg'>
+                  <use xlinkHref='#cicdreflash' />
+                </svg>
                 <FormattedMessage {...menusText.selectCode} />
               </Button>
               <Button type='ghost' size='large' style={{ marginLeft: '15px' }} onClick={this.deleteCodeStore}>
-                <i className='fa fa-trash' />&nbsp;
+                <Icon type='delete' style={{ marginRight: '7px' }} />
               <FormattedMessage {...menusText.deleteCode} />
               </Button>
               <span className={this.state.noSelectedCodeStore ? 'noCodeStoreSpan CodeStoreSpan' : 'CodeStoreSpan'}><FormattedMessage {...menusText.noCodeStore} /></span>
