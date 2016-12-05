@@ -467,6 +467,8 @@ let EditTenxFlowModal = React.createClass({
       callback([new Error('请输入镜像名称')]);
     } else if (value.search('/') > -1) {
       callback([new Error('不允许指定镜像仓库地址和用户')])
+    } else if (value.search(':') > -1) {
+      callback([new Error('不允许指定镜像标签')])
     } else {
       callback()
     }
