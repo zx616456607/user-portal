@@ -12,7 +12,7 @@ import React, { Component, PropTypes } from 'react'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { Input, Select, InputNumber, Button, Form } from 'antd'
+import { Input, Select, InputNumber, Button, Form, Icon } from 'antd'
 import { postCreateMysqlDbCluster, postCreateRedisDbCluster, loadDbCacheAllNames } from '../../actions/database_cache'
 import './style/CreateDatabase.less'
 
@@ -253,7 +253,7 @@ let CreateDatabase = React.createClass({
                     <Option value='yiminghe'>yiminghe</Option>
                   </Select>
                   <i className='fa fa-refresh litteColor'></i>
-                  <i className='fa fa-trash litteColor'></i>
+                  <Icon type='delete' />
                 </FormItem>
               </div>
               <div style={{ clear: 'both' }}></div>

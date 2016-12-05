@@ -388,7 +388,7 @@ class ImageCenter extends Component {
             defaultActiveKey='1'
             tabBarExtraContent={
               <Button className='addBtn' key='addBtn' size='large' type='primary' onClick={this.addImageTab}>
-                <i className='fa fa-plus'></i>&nbsp;
+                <Icon type='plus' />&nbsp;
                   <span>添加第三方</span>
               </Button>
             }

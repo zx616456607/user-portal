@@ -92,7 +92,9 @@ let MyComponent = React.createClass({
       return (
         <div className="imageDetail" key={`${item.id}-${index}`} >
           <div className="imageBox">
-            <img src='/img/default.png' />
+            <svg className='appcenterlogo'>
+              <use xlinkHref='#appcenterlogo' />
+            </svg>
           </div>
           <div className="contentBox">
             <span className="title" onClick={this.showImageDetail.bind(this, item)}>

@@ -24,7 +24,7 @@ export default function metrics(
       CPU: {}, memory: {}, networkReceived: {}, networkTransmitted: {}
     },
     apps: {
-      CPU: {}, memory: {}, networkReceived: {}, networkTransmitted: {}
+      CPU: {}, memory: {}, networkReceived: {}, networkTransmitted: {}, appAllMetrics: {}
     }
   }, action) {
   return {

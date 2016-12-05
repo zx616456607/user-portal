@@ -8,13 +8,13 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Spin, Icon, Collapse, Alert } from 'antd'
+import { Spin, Icon, Collapse, Alert, Button, notification } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import $ from 'n-zepto'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { getFlowBuildStageLogs } from '../../../../../actions/cicd_flow'
+import { getFlowBuildStageLogs, StopTenxflowBuild } from '../../../../../actions/cicd_flow'
 import moment from 'moment'
 import './style/StageBuildLog.less'
 import TenxFlowStageBuildLog  from '../../TenxFlowStageBuildLog'
@@ -228,9 +228,14 @@ let MyComponent = React.createClass({
                 {dateFormat(item.creationTime)}
               </span>
               <span className='commonHeader'>
-                <Icon type='clock-circle-o' />
-                { item.status != 2 ? [<FormattedMessage {...menusText.cost} />] : null }
-                { item.status == 2 ? '' : dateSizeFormat(item.creationTime, item.endTime, scope)}
+                { (item.status != 2 && item.status !=3) ? [<Icon type='clock-circle-o' />] : null }
+                { (item.status != 2 && item.status !=3) ? [<FormattedMessage {...menusText.cost} />] : null }
+                { (item.status == 2 || item.status == 3) ? '' : dateSizeFormat(item.creationTime, item.endTime, scope)}
+                { (item.status == 2 || item.status == 3) ? [
+                  <Button type='primary' onClick={scope.stopStageBuild.bind(scope, item)}>
+                    <span>停止</span>
+                  </Button>
+                ] : null }
               </span>
               <div style={{ clear: 'both' }}></div>
             </div>
@@ -263,6 +268,7 @@ class StageBuildLog extends Component {
   constructor(props) {
     super(props);
     this.changeModalSize = this.changeModalSize.bind(this);
+    this.stopStageBuild = this.stopStageBuild.bind(this);
     this.state = {
       modalSize: 'normal',
       currentLogList: []
@@ -300,6 +306,25 @@ class StageBuildLog extends Component {
       });
     }
   }
+  
+  stopStageBuild(item, e) {
+    e.stopPropagation();
+    const { StopTenxflowBuild, flowId, scope } = this.props;
+    const { getStageBuildLogList } = scope.props;
+    StopTenxflowBuild(flowId, item.stageId, item.buildId, {
+      success: {
+        func: () => {
+          notification['success']({
+            message: '停止构建',
+            description: '停止构建成功',
+          });
+          getStageBuildLogList(flowId, item.stageId)
+        },
+        isAsync: true
+      }
+    })
+  }
+  
   render() {
     const scope = this;
     const { logs, isFetching, flowId } = this.props;
@@ -363,7 +388,8 @@ StageBuildLog.propTypes = {
 }
 
 export default connect(mapStateToProps, {
-  getFlowBuildStageLogs
+  getFlowBuildStageLogs,
+  StopTenxflowBuild
 })(injectIntl(StageBuildLog, {
   withRef: true,
 }));

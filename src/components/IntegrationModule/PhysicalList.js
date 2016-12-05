@@ -39,7 +39,7 @@ const menusText = defineMessages({
   },
   ip: {
     id: 'Integration.PhysicalList.ip',
-    defaultMessage: '物理机IP',
+    defaultMessage: '所属群集',
   },
   runTime: {
     id: 'Integration.PhysicalList.runTime',
@@ -242,8 +242,8 @@ class PhysicalList extends Component {
           </div>
           <div className='ip commonTitle'>
             <span className='commonSpan'>
-              <Tooltip placement='topLeft' title={item.ip}>
-                <span>{item.ip}</span>
+              <Tooltip placement='topLeft' title={item.computeResource}>
+                <span>{item.computeResource}</span>
               </Tooltip>
             </span>
           </div>
