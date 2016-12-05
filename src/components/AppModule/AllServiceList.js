@@ -879,12 +879,9 @@ class ServiceList extends Component {
               <Button type='ghost' size='large' onClick={this.batchDeleteServices} disabled={!isChecked}>
                 <i className='fa fa-trash-o'></i>删除
               </Button>
-              <Tooltip placement="top" title="快速重启 = docker restart">
-                <Button size="large" onClick={this.batchQuickRestartService} disabled={!restartBtn}>
-                  <i className="fa fa-bolt"></i>
-                  快速重启
-                </Button>
-              </Tooltip>
+              <Button type='ghost' size="large" onClick={this.batchQuickRestartService} disabled={!restartBtn}>
+                <i className="fa fa-bolt"></i>重启
+              </Button>
               <Modal title="重启操作" visible={this.state.QuickRestarServiceModal}
                 onOk={this.handleQuickRestarServiceOk} onCancel={this.handleQuickRestarServiceCancel}
                 >

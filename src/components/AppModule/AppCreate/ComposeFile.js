@@ -246,19 +246,19 @@ class ComposeFile extends Component {
             </div>
             <div className="composeBox">
               {this.state.stackType ?
-                
+
               <div className="topBox">
                 <span>编排类型</span>
                 <span>{this.state.templateName}</span>
                 <Button size="large" type="primary" onClick={()=> this.selectStack()}>
                   选择编排
                 </Button>
-                
+
               </div>
               : null
               }
               <div className="bottomBox">
-                <span className='title'>描述文件</span>
+                <span className='title'>编排文件</span>
                 <div className="textareaBox">
                   <YamlEditor value={appDescYaml} options={defaultEditOpts} parentId={'AppCreate'} callback={this.editYamlSetState}/>
                 </div>
