@@ -11,31 +11,23 @@
 */
 
 
-const settingRoutes = [{
-  path: 'member',
-  component: require('../components/SettingModal/MemberManage').default,
-},{
-  path: 'team',
-  component: require('../components/SettingModal/TeamManage').default,
-},{
-  path: 'team/:team_name/:team_id',
-  component: require('../components/SettingModal/TeamDetail').default,
-},{
-  path: 'API',
-  component: require('../components/SettingModal/API').default,
-},{
-  path: 'license',
-  component: require('../components/SettingModal/License').default,
-},{
-  path: 'version',
-  component: require('../components/SettingModal/Version').default,
-},{
-  path: 'user/:user_id',
-  component: require('../components/SettingModal/UserInfo').default,
-},{
-  path: 'cost',
-  component: require('../components/SettingModal/CostCenter').default,
-}]
+const settingRoutes = [
+  {
+    path: 'version',
+    component: require('../components/SettingModal/Version').default,
+  },
+  {
+    path: 'license',
+    component: require('../components/SettingModal/License').default,
+  },
+  {
+    path: 'API',
+    component: require('../components/SettingModal/API').default,
+  },{
+    path: 'personalized',
+    component: require('../components/SettingModal/Personalized').default,
+  }
+]
 
 
 export default settingRoutes

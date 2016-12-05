@@ -57,15 +57,6 @@ const menu = (
         <Icon type="logout" /> <FormattedMessage {...menusText.logOut} />
       </a>
     </Menu.Item>
-    <Menu.Item key="1">
-      <a target="_blank" href="http://www.taobao.com/">
-        <FormattedMessage {...menusText.userMenu2} />
-      </a>
-    </Menu.Item>
-    <Menu.Divider />
-    <Menu.Item key="3" disabled>
-      <FormattedMessage {...menusText.userMenu3} />
-    </Menu.Item>
   </Menu>
 )
 

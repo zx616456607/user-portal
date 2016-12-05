@@ -40,10 +40,15 @@ exports.setUserCurrentConfig = function* (next) {
 exports.auth = function* (next) {
   const loginUser = this.session.loginUser
   if (!loginUser) {
+    let redirectUrl = '/login'
+    let requestUrl = this.request.url
+    if (requestUrl.indexOf(redirectUrl) < 0 && requestUrl !== '/') {
+      redirectUrl += `?redirect=${requestUrl}`
+    }
     switch (this.accepts('json', 'html')) {
       case 'html':
         this.status = 302
-        this.redirect('/login')
+        this.redirect(redirectUrl)
         return
       default:
         this.status = 401

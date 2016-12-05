@@ -15,36 +15,20 @@ import './style/setting.less'
 
 const menuList = [
   {
-    url: '/setting',
-    name: '我的信息'
-  },
-  {
-    url: '/setting/cost',
-    name: '费用中心'
-  },
-  {
-    url: '/setting/member',
-    name: '成员管理'
-  },
-  {
-    url: '/setting/team',
-    name: '团队管理'
-  },
-  //{
-  //  url: '/setting/note',
-  //  name: '通知设置'
-  //},
-  {
-    url: '/setting/API',
-    name: '开放API'
-  },
-  {
     url: '/setting/version',
     name: '平台版本'
   },
   {
     url: '/setting/license',
     name: '授权管理'
+  },
+  {
+    url: '/setting/API',
+    name: '开放 API'
+  },
+  {
+    url: '/setting/personalized',
+    name: '个性化设置'
   }
 ]
 

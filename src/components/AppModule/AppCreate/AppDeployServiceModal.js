@@ -523,6 +523,7 @@ let AppDeployServiceModal = React.createClass({
     })
   },
   render: function () {
+    console.log(this.props)
     const scope = this
     const parentScope = this.props.scope
     const {currentSelectedImage, registryServer, isCreate, other} = parentScope.state

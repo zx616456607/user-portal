@@ -53,6 +53,7 @@ function serviceItems(state = {}, action) {
             isFetching: false,
             cluster: action.response.result.cluster,
             appName: action.response.result.appName,
+            total: action.response.result.total,
             serviceList,
           }
         }

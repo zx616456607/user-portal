@@ -206,21 +206,21 @@ class AppServiceDetail extends Component {
             </p>
             <div className="leftBox appSvcDetailDomain">
               <div>
-                运行状态&nbsp;:&nbsp;
+                运行状态：
                 <span style={{position:'relative',top:'-5px'}}>
                   <ServiceStatus
                     smart={true}
                     service={service} />
                 </span>
               </div>
-              <div>
-                地址&nbsp;:&nbsp;
-                <div style={{display: 'inline-block'}}>
+              <div className='address'>
+                <span>地址：</span>
+                <div className='addressRight'>
                   <TipSvcDomain svcDomain={svcDomain} parentNode='appSvcDetailDomain'/>
                 </div>
               </div>
               <div>
-                容器实例&nbsp;:&nbsp;
+                容器实例：
                 <span>
                   {availableReplicas}
                   /

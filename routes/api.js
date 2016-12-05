@@ -130,6 +130,7 @@ module.exports = function (Router) {
 
   //Overview Cluster
   router.get('/overview/clusterinfo/clusters/:cluster_id', overviewClusterController.getClusterOverview)
+  router.get('/overview/clusterinfo-std/clusters/:cluster_id', overviewClusterController.getStdClusterOverview)
   router.get('/overview/clusters/:cluster_id/operations', overviewClusterController.getClusterOperations)
   router.get('/overview/clusters/:cluster_id/sysinfo', overviewClusterController.getClusterSysinfo)
   router.get('/overview/clusters/:cluster_id/storage', overviewClusterController.getClusterStorage)
@@ -190,16 +191,6 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/containers/:container_name/metrics', metricsController.getContainerMetrics)
   router.get('/clusters/:cluster/services/:service_name/metrics', metricsController.getServiceMetrics)
   router.get('/clusters/:cluster/apps/:app_name/metrics', metricsController.getAppMetrics)
-
-  // DataBase Cache
-  router.get('/clusters/:cluster/getAllDbNames', databaseCacheController.getAllDbNames)
-  router.get('/clusters/:cluster/getMysql', databaseCacheController.getMySqlList)
-  router.get('/clusters/:cluster/getRedis', databaseCacheController.getRedisList)
-  router.post('/clusters/:cluster/createMysqlCluster', databaseCacheController.createMysqlCluster)
-  router.post('/clusters/:cluster/createRedisCluster', databaseCacheController.createRedisCluster)
-  router.get('/clusters/:cluster/getDatabaseDetail/:dbName', databaseCacheController.getDatabaseClusterDetail)
-  router.get('/clusters/:cluster/deleteDatabase/:dbName', databaseCacheController.deleteDatebaseCluster)
-  router.get('/clusters/:cluster/persistentvolumeclaims', databaseCacheController.getPVC)
 
   // Manage Monitor
   router.post('/manage-monitor/getOperationAuditLog', manageMonitorController.getOperationAuditLog)
@@ -269,6 +260,14 @@ module.exports = function (Router) {
   router.put('/devops/ci-flows/:flow_id/stages/:stage_id/dockerfile', devopsController.updateDockerfile)
   // Available CI images
   router.get('/devops/ci/images', devopsController.getAvailableImages)
+
+  // Petsets - DB service APIs
+  router.post('/clusters/:cluster/dbservices', databaseCacheController.createNewDBService)
+  router.delete('/clusters/:cluster/dbservices/:name', databaseCacheController.deleteDBService)
+  // Filter by type
+  router.get('/clusters/:cluster/dbservices', databaseCacheController.listDBService)
+  router.get('/clusters/:cluster/dbservices/:name', databaseCacheController.getDBService)
+  router.patch('/clusters/:cluster/dbservices/:name', databaseCacheController.scaleDBService)
 
   // Integration
   router.get('/integrations/getAllIntegration', integrationController.getAllIntegrations)

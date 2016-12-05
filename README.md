@@ -26,6 +26,14 @@
 npm install cnpm -g --registry=https://registry.npm.taobao.org
 cnpm install
 ```
+### Fork下来之后同步代码
+```
+git remote add upstream http://gitlab.tenxcloud.com/enterprise-2.0/user-portal.git
+git fetch upstream
+git merge upstream/dev-branch
+git commit -m "merge from dev-branch"
+git push -u origin dev-branch
+```
 ### 运行开发环境-development
 #### Linux
 ```bash

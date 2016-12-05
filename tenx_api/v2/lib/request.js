@@ -17,8 +17,10 @@ const oauth = require('./oauth')
 const DEFAULT_PROTOCOL = 'http'
 const DEFAULT_API_PRIFIX = 'api'
 const DEFAULT_VERSION = 'v2'
-// Github or other system maybe quite slow
-const DEFAULT_TIMEOUT = 1000 * 30
+
+// 1. Github or other system maybe quite slow
+// 2. Petset scale might be slow
+const DEFAULT_TIMEOUT = 1000 * 60
 const DEFAULT_DATATYPE = 'json'
 const logger = require('../../../utils/logger').getLogger(`tenx_api/request`)
 
@@ -48,8 +50,7 @@ module.exports = (protocol, host, api_prefix, version, auth, timeout) => {
     options.timeout = object.timeout || timeout
     options.headers = object.headers
     options.data = object.data
-    
-    console.log("--- urllib ---" + JSON.stringify(options.data))
+
     if (object.options) {
       options.headers = _.merge(options.headers, object.options)
     }

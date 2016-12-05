@@ -8,7 +8,7 @@
  * @author BaiYu
  */
 import React, { Component } from 'react'
-import { Card , Button, Icon} from 'antd'
+import { Card , Button, Icon, message} from 'antd'
 import './style/DetailInfo.less'
 import DockFileEditor from '../../../Editor/DockerFile'
 
@@ -16,32 +16,68 @@ export default class DetailInfo extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      editor: false
+      editor: false,
+      detailInfo: ''
     }
   }
   handEdit() {
-    console.log(this)
     this.setState({
-      editor: true
+      editor: true,
+      detailInfo: this.props.scope.props.imageInfo.detail
     })
   }
   onChangeDockerFile(e) {
     //this functio for the editor ccallback
     this.setState({
-      dockerfiles: e
+      detailInfo: e
     })
   }
   updateImageInfo() {
-    console.log(this)
-    const { updateImageinfo } = this.props.scope
-    // updateImageinfo()
+    const { updateImageinfo ,getImageDetailInfo} = this.props.scope.props
+    const image = this.props.detailInfo.name
+    const _this = this
+    const config = {
+      image,
+      fullName:image,
+      registry: this.props.registry,
+      body: { detail: this.state.detailInfo }
+    }
+    const scope = this.props.scope
+    updateImageinfo(config, {
+      success: {
+        func: (res)=> {
+          getImageDetailInfo(config, {
+            success: {
+              func: (res)=> {
+                scope.setState({
+                  imageInfo: res.data
+                })
+              }
+            }
+          })
+          _this.setState({
+            editor: false
+          })
+        },
+        isAsync: true
+      },
+      failed: {
+        func: (res)=> {
+          message.error('更新失败！')
+          _this.setState({
+            editor: false
+          })
+        }
+
+      }
+    })
   }
   render() {
-    let detailMarkdown  = this.props.detailInfo
+    let { detailMarkdown } = this.props.detailInfo
+    const detailInfo = this.state.detailInfo
     if (detailMarkdown == '' || !detailMarkdown) {
       detailMarkdown = '还没有添加详细信息'
     }
-    console.log('sfjlsd', this.props)
     const editorOptions = {
       readOnly: false
     }
@@ -53,10 +89,10 @@ export default class DetailInfo extends Component {
         }
         {this.state.editor ? 
         <div className="editInfo">
-          <DockFileEditor title="基本信息" value={this.state.dockerfiles} callback={this.onChangeDockerFile.bind(this)} options={editorOptions} />
-          <div style={{float: 'right', lineHeight:'50px'}}>
+          <DockFileEditor title="基本信息" value={ detailInfo } callback={this.onChangeDockerFile.bind(this)} options={editorOptions} />
+          <div style={{lineHeight:'50px'}} className="text-center">
             <Button size="large" type="ghost" onClick={()=> this.setState({editor: false})} style={{marginRight:'10px'}}>取消</Button>
-            <Button size="large" type="primary" onClick={()=>this.updateImageInfo()}>确定</Button>
+            <Button size="large" type="primary" onClick={()=> this.updateImageInfo()}>确定</Button>
           </div>
         </div>
         :

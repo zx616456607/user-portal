@@ -28,11 +28,27 @@ function fetchClusterInfo(clusterID) {
   }
 }
 
+function fetchStdClusterInfo(clusterID) {
+  return {
+    [FETCH_API]: {
+      types: [OVERVIEW_CLUSTERINFO_REQUEST, OVERVIEW_CLUSTERINFO_SUCCESS, OVERVIEW_CLUSTERINFO_FAILURE],
+      endpoint: `${API_URL_PREFIX}/overview/clusterinfo-std/clusters/${clusterID}`,
+      schema: {}
+    }
+  }
+}
+
 // Fetches cluster info from API unless it is cached.
 // Relies on Redux Thunk middleware.
 export function loadClusterInfo(clusterID) {
   return (dispatch, getState) => {
     return dispatch(fetchClusterInfo(clusterID))
+  }
+}
+
+export function loadStdClusterInfo(clusterID) {
+  return (dispatch, getState) => {
+    return dispatch(fetchStdClusterInfo(clusterID))
   }
 }
 

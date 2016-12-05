@@ -574,7 +574,6 @@ function statusFormat(status, scope) {
           <FormattedMessage {...menusText.success} />
         </span>
       )
-      break;
     case 0:
       return (
         <span className='running'>
@@ -582,7 +581,6 @@ function statusFormat(status, scope) {
           <FormattedMessage {...menusText.running} />
         </span>
       )
-      break;
     default :
       return (
         <span className='fail'>
@@ -590,7 +588,6 @@ function statusFormat(status, scope) {
           <FormattedMessage {...menusText.failed} />
         </span>
       )
-      break;
   }
 }
 
@@ -599,7 +596,7 @@ function formatResourceName(resourceName) {
   if(resourceName.indexOf('{') > -1) {
     let newBody = JSON.parse(resourceName);
     //check services
-    if(!!newBody.services) {   
+    if(!!newBody.services) {
       let newName = newBody.services;
       if(newName.length == 0) {
         return '-';
@@ -661,8 +658,8 @@ let MyComponent = React.createClass({
           <div className='obj commonTitle'>
             <span className='objSpan' style={{ top: '5px' }}><FormattedMessage {...menusText.objType} />{resourceFormat(item.resourceType, scope)}</span>
             <span className='objSpan' style={{ top: '-2px' }}>
-              <Tooltip placement="topLeft" title={formatResourceName(item.resourceName) + item.resourceId}>
-                <span><FormattedMessage {...menusText.objName} />{formatResourceName(item.resourceName) + item.resourceId}</span>
+              <Tooltip placement="topLeft" title={item.resourceName}>
+                <span><FormattedMessage {...menusText.objName} />{formatResourceName(item.resourceName)}{item.resourceId ? " - " + item.resourceId: ''}</span>
               </Tooltip>
             </span>
           </div>
@@ -1169,8 +1166,7 @@ class OperationalAudit extends Component {
           <DatePicker onChange={this.onChangeEndTime} style={{ marginRight: 20, marginTop: 10, float:'left' }} showTime format='yyyy-MM-dd HH:mm:ss' size='large' />
           <Input onChange={this.onChangeNamespace} className='namespaceInput' type='text' size='large' />
           <Button className='searchBtn' size='large' type='primary' onClick={this.submitSearch}>
-            <i className='fa fa-wpforms'></i>
-            <FormattedMessage {...menusText.search} />
+            <i className='fa fa-wpforms'></i> <FormattedMessage {...menusText.search} />
           </Button>
           <div style={{ clear:'both' }}></div>
         </div>

@@ -165,11 +165,6 @@ let MyComponent = React.createClass({
         <Menu onClick={this.operaMenuClick.bind(this, item)}
           style={{ width: '130px' }}
           >
-          <Menu.Item key='1'>
-            <i className='fa fa-download' style={{ float:'left',lineHeight:'18px',marginRight:'5px' }} />
-            <span style={{ float:'left' }} ><FormattedMessage {...menusText.downLoadBulidLog} /></span>
-            <div style={{ clear:'both' }}></div>
-          </Menu.Item>
           <Menu.Item key='2'>
             <i className='fa fa-eye' style={{ float:'left',lineHeight:'18px',marginRight:'5px' }} />
             <span style={{ float:'left' }} ><FormattedMessage {...menusText.viewBulidLog} /></span>
@@ -208,12 +203,11 @@ let MyComponent = React.createClass({
                 { dateSizeFormat(item.creationTime, item.endTime, scope) }
               </span>
               <div className='btnBox'>
-              
-                <Dropdown.Button overlay={dropdown} type='ghost' size='large' className='operaBtn' 
+                <Button size='large' type='primary' className='operaBtn'
                   onClick={() => scope.getBuildLogDetailInfo(item.buildId)}>
                   <i className='fa fa-wpforms' />&nbsp;
                   <FormattedMessage {...menusText.bulidLog} />
-                </Dropdown.Button>
+                </Button>
               </div>
               <div style={{ clear:'both' }}></div>
             </div>

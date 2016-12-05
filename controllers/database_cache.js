@@ -5,7 +5,7 @@
  * Database cache controller
  *
  * v0.1 - 2016-10-27
- * @author GaoJian
+ * @author GaoJian / Lei
  */
 'use strict'
 let yaml = require('js-yaml')
@@ -14,126 +14,133 @@ const petSetMysql = require('../kubernetes/objects/petSetMysql')
 const petSetRedis = require('../kubernetes/objects/petSetRedis')
 const apiFactory = require('../services/api_factory')
 
-exports.getAllDbNames = function* () {
+/*
+basicInfo {
+  templateId: "xxxx",
+  serviceName: "xxxx",
+  replicas: 3,
+  volumeSize: 500,
+  password: "xxxx"
+}
+*/
+// Use the selected template to create petsets in k8s cluster
+exports.createNewDBService = function* () {
   const cluster = this.params.cluster
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([cluster, 'dbservices']);
-  const databases = result.data.petSets || []
-  let dbNames = new Array();
-  if(databases.length > 0) {    
-    databases.map((item) => {
-      dbNames.push(item.serivceName);
-    });
-  } else {
-    dbNames = [];
+  // Get required info
+  const basicInfo = this.request.body
+  const templateApi = apiFactory.getTemplateApi(loginUser)
+  if (!basicInfo.templateId) {
+    const err = new Error('No database template provided.')
+    err.status = 400
+    throw err
   }
+    if (!basicInfo.serviceName || !basicInfo.volumeSize || !basicInfo.replicas || !basicInfo.password) {
+    const err = new Error('serviceName, volumeSize, replicas, password are required')
+    err.status = 400
+    throw err
+  }
+  const appTemplate = yield templateApi.getBy([basicInfo.templateId])
+  let yamlContent = appTemplate.data.content
+  yamlContent = yamlContent.replace(/\{\{name\}\}/g, basicInfo.serviceName).replace("{{size}}", basicInfo.volumeSize).replace("{{password}}", basicInfo.password).replace("{{replicas}}", basicInfo.replicas)
+
+  const result = yield api.createBy([cluster, 'dbservices'], {category: appTemplate.data.category}, yamlContent);
+
   this.body = {
-    cluster,
-    databaseNames: dbNames,
+    result
   }
 }
 
-exports.getMySqlList = function* () {
+/*
+Remove petset and related resources from k8s cluster
+*/
+exports.deleteDBService = function* () {
+  const loginUser = this.session.loginUser
+  const cluster = this.params.cluster
+  const serviceName = this.params.name
+  const api = apiFactory.getK8sApi(loginUser)
+
+  const result = yield api.deleteBy([cluster, 'dbservices', serviceName]);
+
+  this.body = {
+    result
+  }
+}
+
+/*
+type = mysql/redis/....
+*/
+exports.listDBService = function* () {
   const cluster = this.params.cluster
   const loginUser = this.session.loginUser
+  const query = this.query || {}
+  const category = query.type
+
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([cluster, 'dbservices'], {'labels': 'appType=mysql'});
+  const result = yield api.getBy([cluster, 'dbservices'], {"category": category});
   const databases = result.data.petSets || []
+  // remote some data
+  databases.forEach(function(db) {
+    if (db.objectMeta) {
+      delete db.objectMeta.labels
+    }
+    delete db.typeMeta
+  })
   this.body = {
     cluster,
     databaseList: databases,
   }
 }
 
-exports.getRedisList = function* () {
+exports.scaleDBService = function* () {
   const cluster = this.params.cluster
   const loginUser = this.session.loginUser
+  const serviceName = this.params.name
+  // {"replicas": 3}
+  const body = this.request.body
+
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([cluster, 'dbservices'], {'labels': 'appType=redis'});
-  const databases = result.data.petSets || []
+  const result = yield api.patchBy([cluster, 'dbservices', serviceName], null, body);
+
+  this.body = {
+    result
+  }
+}
+
+exports.getDBService = function* () {
+  const cluster = this.params.cluster
+  const loginUser = this.session.loginUser
+  const serviceName = this.params.name
+
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.getBy([cluster, 'dbservices', serviceName], null);
+  const database = result.data || []
+
+  // Remove some data
+  if (database.objectMeta) {
+    delete database.objectMeta.labels
+  }
+  delete database.typeMeta
+  delete database.eventList
+  if (database.podList && database.podList.pods) {
+    database.podList.pods.forEach(function(pod) {
+      if (pod.objectMeta) {
+        delete pod.objectMeta.labels
+        delete pod.objectMeta.annotations
+      }
+    })
+  }
+  if (database.serviceInfo) {
+    delete database.serviceInfo.labels
+    delete database.serviceInfo.annotations
+    delete database.serviceInfo.selector
+  }
+
   this.body = {
     cluster,
-    databaseList: databases,
+    database,
   }
 }
 
-exports.createMysqlCluster = function* () {
-  const cluster = this.params.cluster
-  const dbBody = this.request.body
-  const loginUser = this.session.loginUser
-  const api = apiFactory.getK8sApi(loginUser)
-  let service = new Service(dbBody.name)
-  service.createMysqlDataBase(dbBody.name)
-  let petset = new petSetMysql(dbBody.name)
-  petset.createMysqlDatabase( dbBody.servicesNum, dbBody.password)
-  let tempList = []
-  const dumpOpts = {
-    noRefs: true,
-    lineWidth: 5000
-  }
-  tempList.push(yaml.dump(service, dumpOpts), yaml.dump(petset, dumpOpts))
-  tempList = tempList.join('---\n')
-  const result = yield api.createBy([cluster, 'dbservices'], null, tempList)
-  this.body = {
-    result
-  }
-}
-
-exports.createRedisCluster = function* () {
-  const cluster = this.params.cluster
-  const dbBody = this.request.body
-  const loginUser = this.session.loginUser
-  const api = apiFactory.getK8sApi(loginUser)
-  let service = new Service(dbBody.name)
-  service.createRedisDatabase(dbBody.name)
-  let petset = new petSetRedis(dbBody.name)
-  petset.createRedisDatabase( dbBody.servicesNum)
-  let tempList = []
-  const dumpOpts = {
-    noRefs: true,
-    lineWidth: 5000
-  }
-  tempList.push(yaml.dump(service, dumpOpts), yaml.dump(petset, dumpOpts))
-  tempList = tempList.join('---\n')
-  console.log(tempList)
-  const result = yield api.createBy([cluster, 'dbservices'], null, tempList)
-  this.body = {
-    result
-  }
-}
-
-exports.getDatabaseClusterDetail = function* () {
-  const cluster = this.params.cluster
-  const dbName = this.params.dbName
-  const loginUser = this.session.loginUser
-  const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([cluster, 'dbservices', dbName]);
-  this.body = {
-    cluster,
-    databaseInfo: result.data
-  }
-}
-
-exports.deleteDatebaseCluster = function* () {
-  const cluster = this.params.cluster
-  const dbName = this.params.dbName
-  const loginUser = this.session.loginUser
-  const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.deleteBy([cluster, 'dbservices', dbName]);
-  this.body = {
-    result
-  }
-}
-
-exports.getPVC = function*() {
-  const cluster = this.params.cluster
-  const labels = this.query.labels
-  const loginUser = this.session.loginUser
-  const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([cluster, 'persistentvolumeclaims'], { labels })
-  this.body = {
-    result
-  }
-}
 
