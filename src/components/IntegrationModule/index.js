@@ -229,7 +229,7 @@ class Integration extends Component {
       <QueueAnim className='IntegrationAnimateBox' key='IntegrationAnimateBox'>
         <div id='IntegrationList'>
           <Alert message={formatMessage(menusText.tooltips)} type='info' />
-          <div className='operaBox'>
+          {/*<div className='operaBox'>
             <ButtonGroup size='large'>
               <Button type={this.state.currentShowApps == 'all' ? 'primary' : 'ghost'} onClick={this.onChangeShowType.bind(this, 'all')}>
                 <FormattedMessage {...menusText.allApps} />
@@ -246,7 +246,7 @@ class Integration extends Component {
               <i className='fa fa-search' />
             </div>
             <div style={{ clear: 'both' }}></div>
-          </div>
+          </div>*/}
           { isFetching ? [
               <div className='loadingBox' key='loadingBox'>
                 <Spin size='large' />

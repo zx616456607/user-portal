@@ -12,7 +12,7 @@ import React, { Component, PropTypes } from 'react'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { Button, Tabs, Spin } from 'antd'
+import { Button, Tabs, Spin, Select } from 'antd'
 import { getIntegrationDateCenter } from '../../actions/integration'
 import './style/IntegrationDetail.less'
 import VSphere from './VSphereDetail'
@@ -21,6 +21,7 @@ import PhysicalList from './PhysicalList'
 import VSphereConfig from './VSphereConfig'
 
 const TabPane = Tabs.TabPane;
+const Option = Select.Option;
 
 const menusText = defineMessages({
   VSphere: {
@@ -41,7 +42,7 @@ const menusText = defineMessages({
   },
   back: {
     id: 'Integration.IntegrationDetail.back',
-    defaultMessage: '返回',
+    defaultMessage: '返回应用列表',
   },
 })
 
@@ -49,6 +50,7 @@ class IntegrationDetail extends Component {
   constructor(props) {
     super(props);
     this.returnToList = this.returnToList.bind(this);
+    this.onChangeDataCenter = this.onChangeDataCenter.bind(this);
     this.state = {
       currentDataCenter: null
     }
@@ -78,6 +80,13 @@ class IntegrationDetail extends Component {
     });
   }
   
+  onChangeDataCenter(e) {
+    //this function for user change the current data center
+    this.setState({
+      currentDataCenter: e
+    });
+  }
+  
   render() {
     const { formatMessage } = this.props.intl;
     const { scope } = this.props;
@@ -90,9 +99,19 @@ class IntegrationDetail extends Component {
         </div>
       )
     }
+    let selectDcShow = dataCenters.map((item, index) => {
+      return (
+        <Option value={item} key={item}>{item.replace('/','')}</Option>
+      )
+    });
     return (
       <QueueAnim className='IntegrationDetailAnimate' key='IntegrationDetailAnimate'>
         <div id='IntegrationDetail'>
+          <div className='dcSelector'>
+            <Select defaultValue={this.state.currentDataCenter} style={{ width: 150, marginLeft: '15px' }} size='large' onChange={this.onChangeDataCenter}>
+              {selectDcShow}
+            </Select>
+          </div>
           <Tabs>
             <TabPane tab={<FormattedMessage {...menusText.VSphere} />} key='1'>
               <VSphere scope={thisScope} dataCenters={dataCenters} integrationId={integrationId} currentDataCenter={this.state.currentDataCenter} />
@@ -107,7 +126,7 @@ class IntegrationDetail extends Component {
               <VSphereConfig scope={thisScope} rootScope={scope} integrationId={integrationId} />
             </TabPane>
           </Tabs>
-          <Button size='large' type='primary' className='backBtn' onClick={this.returnToList}>
+          <Button size='large' type='ghost' className='backBtn' onClick={this.returnToList}>
             <FormattedMessage {...menusText.back} />
           </Button>
         </div>

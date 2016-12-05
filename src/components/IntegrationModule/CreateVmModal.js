@@ -120,7 +120,6 @@ let CreateVmModal = React.createClass({
     //this function for user submit the form
     const { scope, createIntegrationVm, integrationId, currentDataCenter } = this.props;
     const { getAllIntegration } = scope.props;
-    console.log(this.state)
     let errorFlag = false;
     if(this.state.template == '' || !Boolean(this.state.template)) {
       this.setState({
@@ -178,21 +177,30 @@ let CreateVmModal = React.createClass({
     }
     const { formatMessage } = this.props.intl;
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form;
-    let datastores = config.datastores.map((item) => {
-      return (
-        <Option value={item} key={item}>{item}</Option>
-      )
-    });
-    let resourcePools = config.resourcePools.map((item) => {
-      return (
-        <Option value={item} key={item}>{item}</Option>
-      )
-    });
-    let templates = config.templates.map((item) => {
-      return (
-        <Option value={item} key={item}>{item}</Option>
-      )
-    })
+    let datastores = null;
+    if(!!config.datastores){
+      datastores = config.datastores.map((item) => {
+        return (
+          <Option value={item} key={item}>{item}</Option>
+        )
+      });
+    }
+    let resourcePools = null;
+    if(!!config.resourcePools) {
+      resourcePools = config.resourcePools.map((item) => {
+        return (
+          <Option value={item} key={item}>{item}</Option>
+        )
+      });
+    }
+    let templates = null;
+    if(!!config.templates) {
+      templates = config.templates.map((item) => {
+        return (
+          <Option value={item} key={item}>{item}</Option>
+        )
+      })
+    }
     return (
       <div id='CreateVmModal' key='CreateVmModal'>
         <div className='commonBox'>

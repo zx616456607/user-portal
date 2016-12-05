@@ -14,6 +14,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../../constants'
+import DockerFileEditor from '../../../../Editor/DockerFile'
 import { updateTenxFlowState, getDockerfiles, setDockerfile, getAvailableImage } from '../../../../../actions/cicd_flow'
 import './style/EditTenxFlowModal.less'
 import EnvComponent from './CreateEnvComponent.js'
@@ -24,6 +25,10 @@ const RadioGroup = Radio.Group;
 const createForm = Form.create;
 const FormItem = Form.Item;
 const Option = Select.Option;
+
+const defaultOptions = {
+  readOnly: false
+}
 
 const menusText = defineMessages({
   titleEdit: {
@@ -222,7 +227,7 @@ let EditTenxFlowModal = React.createClass({
       currentCodeStoreName: null,
       currentCodeStoreBranch: null,
       dockerFileModalShow: false,
-      dockerFileTextarea: null,
+      dockerFileTextarea: '',
       noDockerfileInput: false,
       ImageEnvModal: false,
       emptyImageEnv: false,
@@ -289,14 +294,16 @@ let EditTenxFlowModal = React.createClass({
     }
     let shellList = Boolean(config.spec.container.args) ? config.spec.container.args : [];
     if (shellList) {
-      // shellList.map((item, index) => {
-      //   shellUid++;
-      //   let keys = form.getFieldValue('shellCodes');
-      //   keys = keys.concat(shellUid);
-      //   form.setFieldsValue({
-      //     'shellCodes': keys
-      //   });
-      // });
+      shellList.map((item, index) => {
+        shellUid++;
+        let keys = form.getFieldValue('shellCodes');
+        if (keys) {
+          keys = keys.concat(shellUid);
+          form.setFieldsValue({
+            'shellCodes': keys
+          });
+        }
+      });
     }
     let serviceList = Boolean(config.spec.container.dependencies) ? config.spec.container.dependencies : [];
     if (serviceList) {
@@ -357,6 +364,10 @@ let EditTenxFlowModal = React.createClass({
         ImageStoreType: false
       });
     }
+    // Clean the command entries
+    this.props.form.setFieldsValue({'shellCodes': [0]});
+    this.props.form.setFieldsValue({'shellCode0': ''});
+    this.props.config.spec.container.args = {}
     this.setState({
       otherFlowType: ins
     })
@@ -526,7 +537,7 @@ let EditTenxFlowModal = React.createClass({
   },
   onChangeDockerFileTextarea(e) {
     this.setState({
-      dockerFileTextarea: e.target.value
+      dockerFileTextarea: e
     });
   },
   openImageEnvModal() {
@@ -1157,7 +1168,7 @@ let EditTenxFlowModal = React.createClass({
                   </div>
                   <div className='input imageType'>
                     <FormItem>
-                      <Switch {...getFieldProps('buildCache') } defaultChecked={!!config.spec.build ? config.spec.build.noCache : false} />
+                      <Switch {...getFieldProps('buildCache') } defaultChecked={!!config.spec.build ? config.spec.build.noCache : true} />
                     </FormItem>
                   </div>
                   <div style={{ clear: 'both' }} />
@@ -1165,13 +1176,18 @@ let EditTenxFlowModal = React.createClass({
               </QueueAnim>
             ] : null
           }
-          <Modal className='tenxFlowDockerFileModal'
+          <Modal className='dockerFileEditModal'
             title={<FormattedMessage {...menusText.dockerFileTitle} />}
             visible={this.state.dockerFileModalShow}
             onOk={this.closeDockerFileModal}
             onCancel={this.closeDockerFileModal}
             >
-            <Input type='textarea' value={this.state.dockerFileTextarea} onChange={this.onChangeDockerFileTextarea} autosize={{ minRows: 10, maxRows: 10 }} />
+            <DockerFileEditor value={this.state.dockerFileTextarea} callback={this.onChangeDockerFileTextarea} options={defaultOptions} />
+            <div className='btnBox'>
+              <Button size='large' type='primary' onClick={this.closeDockerFileModal}>
+                <span>关闭</span>
+              </Button>
+            </div>
           </Modal>
           <Modal className='tenxFlowImageEnvModal'
             title={<FormattedMessage {...menusText.envTitle} />}

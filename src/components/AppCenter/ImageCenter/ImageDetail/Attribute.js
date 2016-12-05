@@ -32,6 +32,12 @@ class Attribute extends Component {
   }
   render() {
     const detailInfo = this.props.detailInfo
+    let favouriteMessage = ''
+    if (detailInfo.favouriteNumber > 0) {
+      favouriteMessage = detailInfo.favouriteNumber + '个人收藏了该镜像'
+    } else {
+      favouriteMessage = '还没有人收藏该镜像'
+    }
     if (detailInfo == '') {
       return (
         <Card className="detailInfo">
@@ -43,7 +49,7 @@ class Attribute extends Component {
       <Card className="attr">
         <ul id="attribute">
           <li className="leftKey"><Icon type="user" /><FormattedMessage{...menusText.contributor} />： &nbsp;{detailInfo.contributor}</li>
-          <li className="leftKey"><Icon type="star-o" /><FormattedMessage{...menusText.favouriteNumber} />： &nbsp;{detailInfo.favouriteNumber} 个人收藏了该镜像</li>
+          <li className="leftKey"><Icon type="star-o" /><FormattedMessage{...menusText.favouriteNumber} />： &nbsp;{favouriteMessage}</li>
           <li className="leftKey"><Icon type="clock-circle-o" /><FormattedMessage{...menusText.creationTime} />： &nbsp;{detailInfo.creationTime}</li>
         </ul>
       </Card>

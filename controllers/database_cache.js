@@ -93,6 +93,21 @@ exports.listDBService = function* () {
   }
 }
 
+exports.scaleDBService = function* () {
+  const cluster = this.params.cluster
+  const loginUser = this.session.loginUser
+  const serviceName = this.params.name
+  // {"replicas": 3}
+  const body = this.request.body
+
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.patchBy([cluster, 'dbservices', serviceName], null, body);
+
+  this.body = {
+    result
+  }
+}
+
 exports.getDBService = function* () {
   const cluster = this.params.cluster
   const loginUser = this.session.loginUser

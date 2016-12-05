@@ -114,8 +114,8 @@ class AppDetail extends Component {
                     </div>
                   </div>
                   <div className='address appDetailDomain'>
-                    <span>地址&nbsp;:&nbsp;</span>
-                    <div style={{display: 'inline-block'}}>
+                    <span className='title'>地址：</span>
+                    <div className='addressRight'>
                       <TipSvcDomain appDomain={appDomain} parentNode='appDetailDomain'/>
                     </div>
                   </div>

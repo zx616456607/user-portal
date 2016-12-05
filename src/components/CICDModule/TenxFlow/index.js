@@ -234,11 +234,14 @@ class TenxFlowList extends Component {
     this.closeCreateTenxFlowModal = this.closeCreateTenxFlowModal.bind(this);
     this.openTenxFlowDeployLogModal = this.openTenxFlowDeployLogModal.bind(this);
     this.closeTenxFlowDeployLogModal = this.closeTenxFlowDeployLogModal.bind(this);
+    this.onSearchFlow = this.onSearchFlow.bind(this);
     this.state = {
       createTenxFlowModal: false,
       TenxFlowDeployLogModal: false,
       currentTenxFlow: null,
-      currentFlowId: null
+      currentFlowId: null,
+      flowList: [],
+      searchingFlag: false
     }
   }
 
@@ -259,6 +262,15 @@ class TenxFlowList extends Component {
         }
       }
     });
+  }
+  
+  componentWillReceiveProps(nextProps) {
+    const { isFetching, flowList } = nextProps;
+    if( !isFetching && !!flowList ) {
+      this.setState({
+        flowList: flowList
+      });
+    }
   }
 
   openCreateTenxFlowModal() {
@@ -291,11 +303,45 @@ class TenxFlowList extends Component {
       TenxFlowDeployLogModal: false
     });
   }
+  
+  onSearchFlow(e) {
+    //this function for user search special flow
+    let keyword = e.target.value;
+    let searchingFlag = false;
+    if(keyword.length > 0) {
+      searchingFlag = true;
+    }
+    const { flowList } = this.props;
+    let newList = [];
+    flowList.map((item) => {
+      if(item.name.indexOf(keyword) > -1) {
+        newList.push(item);
+      }
+    });
+    this.setState({
+      flowList: newList,
+      searchingFlag: searchingFlag
+    })
+  }
 
   render() {
     const { formatMessage } = this.props.intl;
     const scope = this;
-    const { isFetching, flowList, buildFetching, logs, cicdApi } = this.props;
+    const { isFetching, buildFetching, logs, cicdApi } = this.props;
+    const { flowList, searchingFlag } = this.state;
+    let message = '';
+    if( isFetching || !flowList ) {
+      return (
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
+      )
+    }
+    if (flowList.length < 1 && !searchingFlag) {
+      message = " * 目前还没有添加任何 TenxFlow"
+    } else if (flowList.length < 1 && searchingFlag) {
+      message = " * 没有匹配到相关TenxFlow"
+    }
     return (
       <QueueAnim className='TenxFlowList'
         type='right'
@@ -307,7 +353,7 @@ class TenxFlowList extends Component {
               <i className='fa fa-plus' />&nbsp;
               <FormattedMessage {...menusText.create} />
             </Button>
-            <Input className='searchBox' placeholder={formatMessage(menusText.search)} type='text' />
+            <Input className='searchBox' placeholder={formatMessage(menusText.search)} type='text' onChange={this.onSearchFlow} />
             <i className='fa fa-search'></i>
             <div style={{ clear: 'both' }}></div>
           </div>
@@ -344,6 +390,7 @@ class TenxFlowList extends Component {
           >
           <TenxFlowBuildLog scope={scope} isFetching={buildFetching} logs={logs} flowId={this.state.currentFlowId} />
         </Modal>
+        <div><br/>{message}<br/></div>
       </QueueAnim>
     )
   }
