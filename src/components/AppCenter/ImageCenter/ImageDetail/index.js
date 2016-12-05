@@ -12,7 +12,7 @@ import { Tabs, Button, Card,Switch , Menu, Tooltip ,Icon, message} from 'antd'
 import { Link} from 'react-router'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { imageStore, imageSwitch ,loadPublicImageList , loadFavouriteList , loadPrivateImageList} from '../../../../actions/app_center'
+import { imageStore, imageSwitch ,loadPublicImageList , loadFavouriteList , loadPrivateImageList, updateImageinfo, getImageDetailInfo} from '../../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import ImageVersion from './ImageVersion.js'
 import DetailInfo from './DetailInfo'
@@ -184,7 +184,7 @@ class ImageDetailBox extends Component {
 
   render() {
     const { formatMessage } = this.props.intl;
-    const imageInfo = this.props.imageInfo || {'detailMarkdown': ''}
+    const imageInfo = this.props.imageInfo
     const imageDetail = this.props.config;
     const scope = this;
     const ipAddress = this.props.server;
@@ -250,8 +250,8 @@ class ImageDetailBox extends Component {
         </div>
         <div className="tabBox">
           <Tabs className="itemList" defaultActiveKey="1">
-            <TabPane tab={formatMessage(menusText.info)} key="1"><DetailInfo detailInfo={imageInfo.detailMarkdown} /></TabPane>
-            <TabPane tab="DockerFile" key="2"><DockerFile isFetching = {this.props.isFetching} dockerfile={imageInfo.dockerfile} /></TabPane>
+            <TabPane tab={formatMessage(menusText.info)} key="1"><DetailInfo scope={ this } registry={ DEFAULT_REGISTRY } detailInfo={imageInfo} isOwner={imageInfo.isOwner}/></TabPane>
+            <TabPane tab="DockerFile" key="2"><DockerFile isFetching = {this.props.isFetching} scope={this} registry={ DEFAULT_REGISTRY } detailInfo={imageInfo} isOwner={imageInfo.isOwner} /></TabPane>
             <TabPane tab={formatMessage(menusText.tag)} key="3"><ImageVersion scope={scope} config={imageDetail} /></TabPane>
             <TabPane tab={formatMessage(menusText.attribute)} key="4"><Attribute detailInfo = {imageInfo} /></TabPane>
           </Tabs>
@@ -279,26 +279,34 @@ function mapStateToProps(state, props) {
   }
 }
 
-function mapDispatchToProps(dispatch) {
-  return {
-    imageStore: (obj, callback) => {
-      dispatch(imageStore(obj, callback))
-    },
-    imageSwitch: (obj, callback) => {
-      dispatch(imageSwitch(obj, callback))
-    },
-    loadPrivateImageList: (DEFAULT_REGISTRY) => {
-      dispatch(loadPrivateImageList(DEFAULT_REGISTRY))
-    },
-    loadPublicImageList: (registry) => {
-      dispatch(loadPublicImageList(registry))
-    },
-    loadFavouriteList: (registry) =>{
-      dispatch(loadFavouriteList(registry))
-    }
-  }
-}
+// function mapDispatchToProps(dispatch) {
+//   return {
+//     imageStore: (obj, callback) => {
+//       dispatch(imageStore(obj, callback))
+//     },
+//     imageSwitch: (obj, callback) => {
+//       dispatch(imageSwitch(obj, callback))
+//     },
+//     loadPrivateImageList: (DEFAULT_REGISTRY) => {
+//       dispatch(loadPrivateImageList(DEFAULT_REGISTRY))
+//     },
+//     loadPublicImageList: (registry) => {
+//       dispatch(loadPublicImageList(registry))
+//     },
+//     loadFavouriteList: (registry) =>{
+//       dispatch(loadFavouriteList(registry))
+//     }
+//   }
+// }
 
-export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(ImageDetailBox, {
+export default connect(mapStateToProps, {
+  imageStore,
+  imageSwitch,
+  loadPrivateImageList,
+  loadPublicImageList,
+  loadFavouriteList,
+  updateImageinfo,
+  getImageDetailInfo
+})(injectIntl(ImageDetailBox, {
   withRef: true,
 }));

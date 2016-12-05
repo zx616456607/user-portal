@@ -20,6 +20,7 @@ const logger = require('./utils/logger').getLogger('app')
 const app = koa()
 const terminal = require('./controllers/web_terminal')
 
+
 global.Promise = require('bluebird')
 // Disabled reject unauthorized
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
