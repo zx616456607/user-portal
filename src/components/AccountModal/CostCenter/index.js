@@ -28,7 +28,9 @@ export default class CostCenter extends Component{
           <TabPane tab="消费记录" key="1">
             <CostRecord />
           </TabPane>
-          <TabPane tab="充值记录" key="2">充值记录</TabPane>
+          <TabPane tab="充值记录" key="2">
+            <RechargeRecord />
+          </TabPane>
         </Tabs>
       </div>
     )

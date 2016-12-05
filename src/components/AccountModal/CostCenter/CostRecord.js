@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Card, Icon, Button, DatePicker, Table} from 'antd'
+import { Row, Col, Card, Icon, Button, DatePicker, Table, Select } from 'antd'
 import './style/CostRecord.less'
 import PopSelect from '../../PopSelect'
 import { connect } from 'react-redux'
@@ -19,6 +19,7 @@ import TeamCost from './TeamCost'
 import ReactEcharts from 'echarts-for-react'
 
 const MonthPicker = DatePicker.MonthPicker
+const Option = Select.Option
 
 let spaceCostArr = []
 for(let i=1;i<32;i++){
@@ -54,14 +55,14 @@ class CostRecord extends Component{
       userDetail,
       teamspaces,
     } = this.props
-    loadUserTeamspaceList(loginUser.info.userID||userDetail.userID,{ size: -1 }, {
-      success: {
-        func:()=>{
-          console.log('teamspaces',teamspaces)
-        },
-        isAsync: true
-      }
-    })
+    // loadUserTeamspaceList(loginUser.info.userID||userDetail.userID,{ size: 100 }, {
+    //   success: {
+    //     func:()=>{
+    //       console.log('teamspaces',teamspaces)
+    //     },
+    //     isAsync: true
+    //   }
+    // })
   }
   transformDate(){
     let date = new Date
@@ -72,7 +73,7 @@ class CostRecord extends Component{
   render(){
     const {
       current,
-      loginUser,
+      // loginUser,
       teamspaces,
       teamClusters,
     } = this.props
@@ -210,6 +211,18 @@ class CostRecord extends Component{
         <MonthPicker style={{float: 'right'}} defaultValue={this.transformDate()}/>
       </div>
     )
+    let spaceTableTitle = (
+      <div className="teamCostTitle">
+        <span>{currentSpaceName}该月消费详情</span>
+        <MonthPicker style={{marginLeft: 40}} defaultValue={this.transformDate()}/>
+        <div className='changeFilter'>
+          <Select defaultValue="all" style={{ width: 120, float: 'right'}}>
+            <Option value="all">全部</Option>
+            <Option value="containter">容器服务</Option>
+          </Select>
+        </div>
+      </div>
+    )
     let spaceCostBar = {
       color: ['#3398DB'],
       tooltip : {
@@ -279,6 +292,7 @@ class CostRecord extends Component{
         title: '消费ID',
         dataIndex: 'id',
         key: 'id',
+        className: 'firstCol',
       },
       {
         title: '服务名称',
@@ -321,6 +335,16 @@ class CostRecord extends Component{
         key: 'ps',
       },
     ]
+    let pagination = {
+      total: costData.length,
+      showSizeChanger: true,
+      onShowSizeChange(current, pageSize) {
+        console.log('Current: ', current, '; PageSize: ', pageSize);
+      },
+      onChange(current) {
+        console.log('Current: ', current);
+      },
+    }
     console.log('---------------------------')
     console.log('current: ',current)
     console.log('loginUser: ',loginUser)
@@ -329,6 +353,7 @@ class CostRecord extends Component{
     console.log('currentSpaceName: ',currentSpaceName)
     console.log('currentTeamName: ',currentTeamName)
     console.log('---------------------------')
+    let loginUser = {'info':{role:1}}
     return (
       <div id='CostRecord'>
         <Card style={{marginBottom: '20px'}}>
@@ -400,9 +425,9 @@ class CostRecord extends Component{
              />
           </Card>
         </Row>
-        <Row style={{marginBottom: '100px'}}>
-          <Card title={spaceCostDetailTitle}>
-            <Table columns={TableSpaceCostDetail} dataSource={costData}/>
+        <Row style={{marginBottom: '100px'}} className='SpaceCostDetailTab'>
+          <Card title={spaceTableTitle}>
+            <Table columns={TableSpaceCostDetail} dataSource={costData} pagination={pagination}/>
           </Card>
         </Row>
       </div>
@@ -412,16 +437,17 @@ class CostRecord extends Component{
 function mapStateToProps (state,props) {
   const { current, loginUser } = state.entities
   const { teamspaces,userDetail } = state.user
+  console.log('current',current)
 
   return {
     current,
-    loginUser,
-    teamspaces: (teamspaces.result ? teamspaces.result.teamspaces : []),
-    userDetail: userDetail.result.data
+    // loginUser,
+    // teamspaces: (teamspaces.result ? teamspaces.result.teamspaces : []),
+    // userDetail: userDetail.result.data
   }
 }
 export default connect (mapStateToProps,{
-  loadUserTeamspaceList,
-  loadTeamClustersList,
-  loadLoginUserDetail,
+  // loadUserTeamspaceList,
+  // loadTeamClustersList,
+  // loadLoginUserDetail,
 })(CostRecord) 
