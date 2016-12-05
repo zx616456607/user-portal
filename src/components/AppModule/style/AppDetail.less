@@ -1,33 +1,45 @@
-#AppDetail{
+#AppDetail {
   padding-top: 25px;
   padding-left: 30px;
   padding-right: 30px;
   margin-bottom: 30px;
-  .imgBox{
+  .imgBox {
     float: left;
     width: 120px;
     height: 120px;
     border-radius: 10px;
-    box-shadow: 0px 0px 5px #C2C2C2;
-    img{
+    box-shadow: 0 0 5px #C2C2C2;
+    img {
       width: 118px;
       height: 118px;
       border-radius: 10px;
       padding: 20px;
     }
   }
-  .infoBox{
+  .infoBox {
     float: left;
     width: calc(~"100% - 120px");
     padding-left: 20px;
     color: #666666;
-    .appTitle{
+    .appTitle {
       font-size: 16px;
       color: #333333;
     }
-    .leftInfo{
+    .leftInfo {
+      float: left;
+      width: 33%;
+      line-height: 35px;
+      .title{
+        display: inline-block;
+        width: auto;
+      }
+      .addressRight{
+        width: calc(~"100% - 45px");
+        height: 100%;
+      }
       .appDetailDomain {
         display: flex;
+        width: 100%;
         height: 35px;
         line-height: 35px;
         .ant-tooltip-inner {
@@ -43,38 +55,32 @@
           min-width: inherit;
         }
       }
-      float: left;
-      width: 33%;
-      line-height: 35px;
-      .status{
-        span{
-
-        }
-        i{
-          margin:0px 5px;
+      .status {
+        span {}
+        i {
+          margin: 0 5px;
         }
       }
     }
-    .middleInfo{
+    .middleInfo {
       float: left;
       width: 33%;
       line-height: 35px;
     }
-    .rightInfo{
+    .rightInfo {
       float: left;
       padding-top: 8px;
       width: 33%;
     }
   }
-  .bottomCard{
+  .bottomCard {
     margin-top: 20px;
-    .ant-menu-item{
-      padding: 0px 30px;
+    .ant-menu-item {
+      padding: 0 30px;
       font-size: 14px;
       color: #333333;
     }
   }
-
   .ant-card {
     overflow: visible;
   }
