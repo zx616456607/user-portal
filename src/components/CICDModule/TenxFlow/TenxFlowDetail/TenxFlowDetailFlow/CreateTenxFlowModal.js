@@ -387,6 +387,8 @@ let CreateTenxFlowModal = React.createClass({
     //and when user submit the form, the function will check the real image input or not 
     if (this.state.otherFlowType == 3 && !!!value) {
       callback([new Error('请输入镜像名称')]);
+    } else if (value.match(/[\/:]/)) {
+      callback([new Error('不能包含“/”和“:”')])
     } else {
       callback();
     }

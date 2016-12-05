@@ -137,7 +137,9 @@ let MyComponent = React.createClass({
   getInitialState() {
     return {
       visible: false,
-      modalTitle: ''
+      modalTitle: '',
+      modalSize: 1,
+      size: 0
     };
   },
   propTypes: {
@@ -158,10 +160,6 @@ let MyComponent = React.createClass({
     const self = this
     let type = this.state.modalType
     if (type === 'format') {
-      if (this.state.formateType === this.state.format) {
-        message.error('格式不能和以前相同')
-        return
-      }
       this.props.formateStorage(this.props.imagePool, this.props.cluster, {
         name: this.state.modalName,
         fsType: this.state.formateType
@@ -172,6 +170,7 @@ let MyComponent = React.createClass({
               self.setState({
                 visible: false,
               })
+              message.success('格式化存储卷成功')
               this.props.loadStorageList()
             }
           }
@@ -191,6 +190,7 @@ let MyComponent = React.createClass({
               self.setState({
                 visible: false,
               })
+              message.success('扩容成功')
               this.props.loadStorageList()
             }
           }
@@ -200,6 +200,11 @@ let MyComponent = React.createClass({
   cancelModal() {
     this.setState({
       visible: false,
+    });
+  },
+  onChange(value) {
+    this.setState({
+      size: value,
     });
   },
   showAction(type, one, two) {
@@ -285,7 +290,7 @@ let MyComponent = React.createClass({
     return (
       <div className="dataBox">
         {items}
-        <Modal title={this.state.modalTitle} visible={this.state.visible} onOk={(e) => { this.handleSure() } } onCancel={(e) => { this.cancelModal() } } okText="OK" cancelText="Cancel">
+        <Modal title={this.state.modalTitle} visible={this.state.visible} onOk={(e) => { this.handleSure() } } onCancel={(e) => { this.cancelModal() } } okText="确定" cancelText="取消">
           <div className={this.state.modalType === 'resize' ? 'show' : 'hide'}>
             <Row style={{ height: '40px' }}>
               <Col span="3" className="text-center" style={{ lineHeight: '30px' }}><FormattedMessage {...messages.name} /></Col>
@@ -306,7 +311,7 @@ let MyComponent = React.createClass({
             <RadioGroup defaultValue='ext4' value={this.state.formateType} size="large" onChange={(e) => this.changeType(e)}>
               <RadioButton value="ext4">ext4</RadioButton>
               <RadioButton value="xfs">xfs</RadioButton>
-              <RadioButton value="reiserfs">reiserfs</RadioButton>
+             
             </RadioGroup>
           </div>
         </Modal>
@@ -349,7 +354,7 @@ class Storage extends Component {
       volumeArray: [],
       currentType: 'ext4',
       inputName: '',
-      size: 200
+      size: 1
     }
   }
   componentWillMount() {
@@ -395,7 +400,7 @@ class Storage extends Component {
           self.setState({
             visible: false,
             name: '',
-            size: 0,
+            size: 1,
             currentType: 'ext4'
           })
           self.props.loadStorageList(self.props.currentImagePool, self.props.currentCluster)
@@ -407,7 +412,7 @@ class Storage extends Component {
   handleCancel() {
     this.setState({
       visible: false,
-      size: 0,
+      size: 1,
       name: '',
       currentType: 'ext4'
     });
@@ -558,10 +563,10 @@ class Storage extends Component {
                     {formatMessage(messages.size)}
                   </Col>
                   <Col span="12">
-                    <Slider min={1} max={1024} onChange={this.onChange} value={this.state.size} />
+                    <Slider min={1} max={9999} onChange={this.onChange} value={this.state.size} />
                   </Col>
                   <Col span="8">
-                    <InputNumber min={1} max={1024} style={{ marginLeft: '16px' }} value={this.state.size} onChange={(e) => { this.onChange(e) } } />
+                    <InputNumber min={1} max={9999} style={{ marginLeft: '16px' }} value={this.state.size} onChange={this.onChange} />
                     <span style={{ paddingLeft: 10 }} >MB</span>
                   </Col>
                 </Row>
@@ -572,7 +577,6 @@ class Storage extends Component {
                   <Col span="20" className="action-btns" style={{ lineHeight: '30px' }}>
                     <Button type={this.state.currentType === 'ext4' ? 'primary' : 'ghost'} onClick={(e) => { this.changeType('ext4') } }>ext4</Button>
                     <Button type={this.state.currentType === 'xfs' ? 'primary' : 'ghost'} style={{ margin: '0 10px' }} onClick={(e) => { this.changeType('xfs') } }>xfs</Button>
-                    <Button type={this.state.currentType === 'reiserfs' ? 'primary' : 'ghost'} onClick={(e) => { this.changeType('reiserfs') } }>reiserfs</Button>
                   </Col>
                 </Row>
               </Modal>

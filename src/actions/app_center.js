@@ -300,6 +300,33 @@ export function deleteImage(obj, callback) {
   }
 }
 
+export const UPDATA_IMAGE_INFO_REQUEST = 'UPDATA_IMAGE_INFO_REQUEST'
+export const UPDATA_IMAGE_INFO_SUCCESS = 'UPDATA_IMAGE_INFO_SUCCESS'
+export const UPDATA_IMAGE_INFO_FAILURE = 'UPDATA_IMAGE_INFO_FAILURE'
+
+function fetchUpdateImageInfo(obj, callback) {
+  return {
+    [FETCH_API]: {
+      types: [UPDATA_IMAGE_INFO_REQUEST, UPDATA_IMAGE_INFO_SUCCESS, UPDATA_IMAGE_INFO_FAILURE],
+      endpoint: `${API_URL_PREFIX}/registries/${obj.registry}/${obj.image}`,
+      schema: Schemas.REGISTRYS,
+      options: {
+        method: 'PUT',
+        body: obj.body
+      }
+    },
+    image: obj.image,
+    registry: obj.registry,
+    callback
+  }
+}
+
+export function updateImageinfo(obj, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchUpdateImageInfo(obj, callback))
+  }
+}
+
 export const SET_IMAGE_STORE_REQUEST = 'SET_IMAGE_STORE_REQUEST'
 export const SET_IMAGE_STORE_SUCCESS = 'SET_IMAGE_STORE_SUCCESS'
 export const SET_IMAGE_STORE_FAILURE = 'SET_IMAGE_STORE_FAILURE'
