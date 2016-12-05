@@ -12,10 +12,10 @@
 const constants = require('../constants')
 const INSTANCE_MAX_NUM = constants.INSTANCE_MAX_NUM
 const INSTANCE_AUTO_SCALE_MAX_CPU = constants.INSTANCE_AUTO_SCALE_MAX_CPU
-const ANNOTATION_SVC_SCHEMA_PORT = constants.ANNOTATION_SVC_SCHEMA_PORT
 const apiFactory = require('../services/api_factory')
 const DEFAULT_PAGE = constants.DEFAULT_PAGE
 const DEFAULT_PAGE_SIZE = constants.DEFAULT_PAGE_SIZE
+const portHelper = require('./port_helper')
 
 exports.startServices = function* () {
   const cluster = this.params.cluster
@@ -123,16 +123,8 @@ exports.getServiceDetail = function* () {
       deployment.images.push(container.image)
     })
   }
-  if (result.data[serviceName]
-    && result.data[serviceName].service
-    && result.data[serviceName].service.metadata.annotations
-    && result.data[serviceName].service.metadata.annotations[ANNOTATION_SVC_SCHEMA_PORT]) {
-    deployment.ports = result.data[serviceName].service.metadata.annotations[ANNOTATION_SVC_SCHEMA_PORT]
-  }
-  deployment.portForInternal = []
-  if (result.data[serviceName]
-    && result.data[serviceName].service) {
-    result.data[serviceName].service.spec.ports.map((svcPort) => deployment.portForInternal.push(svcPort.port))
+  if (result.data[serviceName] && result.data[serviceName].service) {
+    portHelper.addPort(deployment, result.data[serviceName].service)
   }
   this.body = {
     cluster,
@@ -421,11 +413,7 @@ exports.getAllService = function*() {
 	const response = yield api.getBy([cluster, 'services'], queryObj, null)
 	this.status = response.code
   response.data.services.map((item) => {
-    if (item.service && item.deployment) {
-      item.deployment.ports = item.service.metadata.annotations[ANNOTATION_SVC_SCHEMA_PORT]
-      item.deployment.portForInternal = []
-      item.service.spec.ports.map((svcPort) => item.deployment.portForInternal.push(svcPort.port))
-    }
+    portHelper.addPort(item.deployment, item.service)
   })
 	this.body = response
 }

@@ -14,36 +14,28 @@ export function parseServiceDomain(item, bindingDomainStr) {
     bindingDomain = []
   }
   let domains = []
-  // parse external domain, item.ports is http/1234,tcp/321,udp/431
-  /*console.log("aaaaaaaaaaaaaaaaaa",item)
-  console.log("bindingDomain",bindingDomain)*/
+  // parse external domain, item.portsForExternal is array like [{name:"abasd",port:12345,protocol:"TCP",targetPort:1234},...]
   if (item && item.metadata
-    && item.ports
+    && item.portsForExternal
     && bindingDomain.length > 0) {
-    let schemaPort = item.ports
-    schemaPort.split(',').map((pairStr) => {
-      const pair = pairStr.split('/')
-      if (pair.length == 2) {
-        const schema = pair[0].toLowerCase()
-        const port = pair[1]
-        bindingDomain.map((bindingDomain) => {
-          let domain = ''
-          // 检查是bindingDomain是否是IP，（此正则并不精确但在此处够用了）
-          if (/^(\d{1,3}\.){3}\d{1,3}$/.test(bindingDomain)) {
-            // e.g. http://192.168.1.123:1234
-            domain = bindingDomain + ':' + port
-          }
-          else {
-            // e.g. http://servicename-mengyuan.test.tenxcloud.com:8080
-            domain = item.metadata.name + '-' + item.metadata.namespace + '.' + bindingDomain + ':' + port
-          }
-          // if prefix is http://, remove suffix :80
-          domain = domain.replace(/^(http:\/\/.*):80$/, '$1')
-          // if prefix is https://, remove suffix :443
-          domain = domain.replace(/^(https:\/\/.*):443$/, '$1')
-          domains.push(domain)
-        })
-      }
+    item.portsForExternal.map((port) => {
+      bindingDomain.map((bindingDomain) => {
+        let domain = ''
+        // 检查是bindingDomain是否是IP，（此正则并不精确但在此处够用了）
+        if (/^(\d{1,3}\.){3}\d{1,3}$/.test(bindingDomain)) {
+          // e.g. http://192.168.1.123:1234
+          domain = bindingDomain + ':' + port.port
+        }
+        else {
+          // e.g. http://servicename-mengyuan.test.tenxcloud.com:8080
+          domain = item.metadata.name + '-' + item.metadata.namespace + '.' + bindingDomain + ':' + port.port
+        }
+        // if prefix is http://, remove suffix :80
+        domain = domain.replace(/^(http:\/\/.*):80$/, '$1')
+        // if prefix is https://, remove suffix :443
+        domain = domain.replace(/^(https:\/\/.*):443$/, '$1')
+        domains.push(domain)
+      })
     })
   }
   // parse interanl domain item.portForInternal is ["1234", "4567", "5234"]
