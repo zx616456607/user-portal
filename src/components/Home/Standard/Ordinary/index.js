@@ -36,7 +36,7 @@ function getClusterCostOption(costValue, restValue) {
         }
       },
       textStyle: {
-        fontSize: 14,
+        fontSize: 13,
         color: '#666'
       },
       itemGap: 15,
@@ -49,8 +49,8 @@ function getClusterCostOption(costValue, restValue) {
         name:'',
         type:'pie',
         selectedMode: 'single',
-        radius : '45%',
-        center: ['30%', '50%'],
+        radius : '42%',
+        center: ['32%', '50%'],
         data:[
           {value:900, name:'余额'},
           {value:100, name:'消费',selected:true},
@@ -531,13 +531,13 @@ class Ordinary extends Component{
             </Card>
           </Col>
           <Col span={6} className='sysState'>
-            <Card title="健康状态" bordered={false} bodyStyle={{height:200}}>
+            <Card title="健康状态" bordered={false} bodyStyle={{height:200,padding:'10px 20px 10px 20px'}}>
               <table>
                 <tbody>
                 <tr>
                   <td>
                     <img className="stateImg" src="/img/homeKubernetes.png"/>
-                    Kubernetes
+                    Engine
                   </td>
                   <td>
                     <SvcState currentState={clusterSysinfo.k8s.status} />
@@ -570,7 +570,7 @@ class Ordinary extends Component{
                     <svg className="stateSvg">
                       <use xlinkHref="#cicd" />
                     </svg>
-                    CICD
+                    CI/CD
                   </td>
                   <td>
                     <SvcState currentState={clusterSysinfo.cicd.status} />
@@ -752,7 +752,7 @@ class Ordinary extends Component{
             </Card>
           </Col>
           <Col span={6} className='clusterRecord'>
-            <Card title="今日该集群记录" bordered={false} bodyStyle={{height:200}}>
+            <Card title="今日该区域记录" bordered={false} bodyStyle={{height:200}}>
               <div style={{overflowY:'auto',height:'152px'}}>
                 <table>
                   <tbody>
@@ -765,6 +765,28 @@ class Ordinary extends Component{
                     </td>
                     <td className="recordNum">
                       {clusterOperations.appCreate} 个
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <svg className="teamRecSvg">
+                        <use xlinkHref="#homeservicecount" />
+                      </svg>
+                      创建服务
+                    </td>
+                    <td className="recordNum">
+                      {clusterOperations.svcCreate} 个
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <svg className="teamRecSvg">
+                        <use xlinkHref="#homesavecount" />
+                      </svg>
+                      创建存储卷
+                    </td>
+                    <td className="recordNum">
+                      {clusterOperations.volumeCreate} 个
                     </td>
                   </tr>
                   <tr>
@@ -783,32 +805,10 @@ class Ordinary extends Component{
                       <svg className="teamRecSvg">
                         <use xlinkHref="#homeservicecount" />
                       </svg>
-                      创建服务
-                    </td>
-                    <td className="recordNum">
-                      {clusterOperations.svcCreate} 个
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <svg className="teamRecSvg">
-                        <use xlinkHref="#homeservicecount" />
-                      </svg>
                       删除服务
                     </td>
                     <td className="recordNum">
                       {clusterOperations.svcDelete} 个
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <svg className="teamRecSvg">
-                        <use xlinkHref="#homesavecount" />
-                      </svg>
-                      创建存储卷
-                    </td>
-                    <td className="recordNum">
-                      {clusterOperations.volumeCreate} 个
                     </td>
                   </tr>
                   <tr>
