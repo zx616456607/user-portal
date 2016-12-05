@@ -119,7 +119,7 @@ class MySpace extends Component{
     let {} = this.props
     getOperationLogList({
       from: 0,
-      size: 7
+      size: 5
     })
   }
   getOperationLog() {
@@ -161,7 +161,7 @@ class MySpace extends Component{
 
     return (
       <Card title="审计日志" bordered={false} bodyStyle={{ height: 410 }}>
-        <Timeline style={{ height: 374, padding: '24px' ,overflowY:'auto'}}>
+        <Timeline style={{ height: 374, padding: '24px' ,overflowY:'hidden'}}>
           {ele}
         </Timeline>
         <Row style={{ height: 30, lineHeight: '30px', borderTop: '1px solid #e2e2e2', padding: '0 24px', fontSize: '12px' }}>
@@ -304,34 +304,12 @@ class MySpace extends Component{
                   <tr>
                     <td>
                       <svg className="stateSvg">
-                        <use xlinkHref="#homeappcount" />
-                      </svg>
-                      停止应用
-                    </td>
-                    <td className="trecordNum">
-                      {spaceOperations.appStop} 个
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <svg className="stateSvg">
                         <use xlinkHref="#homeservicecount" />
                       </svg>
                       创建服务
                     </td>
                     <td className="trecordNum">
                       {spaceOperations.svcCreate} 个
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <svg className="stateSvg">
-                        <use xlinkHref="#homeservicecount" />
-                      </svg>
-                      删除服务
-                    </td>
-                    <td className="trecordNum">
-                      {spaceOperations.svcDelete} 个
                     </td>
                   </tr>
                 <tr>
@@ -343,6 +321,28 @@ class MySpace extends Component{
                   </td>
                   <td className="trecordNum">
                     {spaceOperations.volumeCreate} 个
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <svg className="stateSvg">
+                      <use xlinkHref="#homeappcount" />
+                    </svg>
+                    停止应用
+                  </td>
+                  <td className="trecordNum">
+                    {spaceOperations.appStop} 个
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <svg className="stateSvg">
+                      <use xlinkHref="#homeservicecount" />
+                    </svg>
+                    删除服务
+                  </td>
+                  <td className="trecordNum">
+                    {spaceOperations.svcDelete} 个
                   </td>
                 </tr>
                 <tr>
