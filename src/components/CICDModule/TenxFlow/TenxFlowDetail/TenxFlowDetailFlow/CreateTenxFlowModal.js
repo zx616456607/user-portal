@@ -387,6 +387,10 @@ let CreateTenxFlowModal = React.createClass({
     //and when user submit the form, the function will check the real image input or not 
     if (this.state.otherFlowType == 3 && !!!value) {
       callback([new Error('请输入镜像名称')]);
+    } else if (value.search('/') > -1) {
+      callback([new Error('不允许指定镜像仓库地址和用户')])
+    } else if (value.search(':') > -1) {
+      callback([new Error('不允许指定镜像标签')])
     } else {
       callback();
     }
