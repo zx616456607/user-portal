@@ -138,8 +138,8 @@ let MyComponent = React.createClass({
     return {
       visible: false,
       modalTitle: '',
-      modalSize: 1,
-      size: 0
+      modalSize: 500,
+      size: 500
     };
   },
   propTypes: {
@@ -298,9 +298,9 @@ let MyComponent = React.createClass({
             </Row>
             <Row style={{ height: '40px' }}>
               <Col span="3" className="text-center" style={{ lineHeight: '30px' }}>{formatMessage(messages.size)}</Col>
-              <Col span="12"><Slider min={this.state.modalSize} max={9999} onChange={(e) => { this.changeDilation(e) } } value={this.state.size} /></Col>
+              <Col span="12"><Slider min={this.state.modalSize} max={10240} onChange={(e) => { this.changeDilation(e) } } value={this.state.size} /></Col>
               <Col span="8">
-                <InputNumber min={this.state.modalSize} max={9999} style={{ marginLeft: '16px' }} value={this.state.size} onChange={(e) => { this.onChange(e) } } />
+                <InputNumber min={this.state.modalSize} max={10240} style={{ marginLeft: '16px' }} value={this.state.size} onChange={(e) => { this.onChange(e) } } />
                 <span style={{ paddingLeft: 10 }} >MB</span>
               </Col>
             </Row>
@@ -353,7 +353,7 @@ class Storage extends Component {
       volumeArray: [],
       currentType: 'ext4',
       inputName: '',
-      size: 1
+      size: 500
     }
   }
   componentWillMount() {
@@ -368,6 +368,12 @@ class Storage extends Component {
     this.setState({
       visible: true,
     });
+    const self = this
+    setTimeout(function () {
+      if (self.focusInput) {
+        self.focusInput.refs.input.focus()
+      }
+    }, 0)
   }
   handleOk() {
     //create storage
@@ -399,9 +405,10 @@ class Storage extends Component {
           self.setState({
             visible: false,
             name: '',
-            size: 1,
+            size: 500,
             currentType: 'ext4'
           })
+          message.success('创建存储成功')
           self.props.loadStorageList(self.props.currentImagePool, self.props.currentCluster)
         },
         isAsync: true
@@ -411,7 +418,7 @@ class Storage extends Component {
   handleCancel() {
     this.setState({
       visible: false,
-      size: 1,
+      size: 500,
       name: '',
       currentType: 'ext4'
     });
@@ -429,7 +436,10 @@ class Storage extends Component {
     })
     this.props.deleteStorage(this.props.currentImagePool, this.props.currentCluster, { volumes: volumeArray }, {
       success: {
-        func: () => this.props.loadStorageList(this.props.currentImagePool, this.props.currentCluster),
+        func: () => {
+          this.props.loadStorageList(this.props.currentImagePool, this.props.currentCluster)
+          message.success('删除存储成功')
+        },
         isAsync: true
       }
     })
@@ -554,7 +564,7 @@ class Storage extends Component {
                     <FormattedMessage {...messages.name} />
                   </Col>
                   <Col span="12">
-                    <Input value={this.state.name} placeholder={formatMessage(messages.placeholder)} onChange={(e) => { this.handleInputName(e) } } />
+                    <Input ref={(input) => this.focusInput = input } value={this.state.name} placeholder={formatMessage(messages.placeholder)} onChange={(e) => { this.handleInputName(e) } }/>
                   </Col>
                 </Row>
                 <Row style={{ height: '40px' }}>
@@ -562,10 +572,10 @@ class Storage extends Component {
                     {formatMessage(messages.size)}
                   </Col>
                   <Col span="12">
-                    <Slider min={1} max={9999} onChange={this.onChange} value={this.state.size} />
+                    <Slider min={500} max={10240} onChange={this.onChange} value={this.state.size} />
                   </Col>
                   <Col span="8">
-                    <InputNumber min={1} max={9999} style={{ marginLeft: '16px' }} value={this.state.size} onChange={this.onChange} />
+                    <InputNumber min={500} max={10240} style={{ marginLeft: '16px' }} value={this.state.size} onChange={this.onChange} />
                     <span style={{ paddingLeft: 10 }} >MB</span>
                   </Col>
                 </Row>
