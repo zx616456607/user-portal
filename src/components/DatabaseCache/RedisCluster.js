@@ -63,8 +63,8 @@ let MyComponent = React.createClass({
               <li>
                 <span className='listKey'>地址</span>
                 <span className='listLink'>
-                  <Tooltip placement="topLeft" title={'tcp://' + item.objectMeta.name + '.' + item.objectMeta.namespace + '.svc.cluster.local'}>
-                    <span>{'tcp://' + item.objectMeta.name + '.' + item.objectMeta.namespace + '.svc.cluster.local'}</span>
+                  <Tooltip placement="topLeft" title={item.objectMeta.name + '.' + item.objectMeta.namespace + '.svc.cluster.local'}>
+                    <span>{item.objectMeta.name + '.' + item.objectMeta.namespace + '.svc.cluster.local'}</span>
                   </Tooltip>
                 </span>
                 <div style={{ clear: 'both' }}></div>
