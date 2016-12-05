@@ -34,10 +34,10 @@ class CreateCompose extends Component {
     this.state = {
       composeType: 'stack',
       composeAttr: false,
-      currentYaml: null 
+      currentYaml: null
     }
   }
-  
+
   componentWillReceiveProps(nextProps) {
     const { paretnState } = nextProps;
     let currentYaml = '';
@@ -156,7 +156,7 @@ class CreateCompose extends Component {
       //and should submit the message to the backend
     });
   }
-  
+
   onChangeYamlEditor(e) {
     //this function for editor callback
     this.setState({
@@ -221,7 +221,7 @@ class CreateCompose extends Component {
         </div>
       <div className='file commonInput composeText'>
         <div className='leftBox'>
-        <span className='title'>描述文件</span>
+        <span className='title'>编排文件</span>
         </div>
         <div className='rightBox'>
           <YamlEditor value={this.state.currentYaml} options={defaultEditOpts} callback={this.onChangeYamlEditor.bind(this)}/>

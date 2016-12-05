@@ -565,7 +565,7 @@ class Storage extends Component {
                     <FormattedMessage {...messages.name} />
                   </Col>
                   <Col span="12">
-                    <Input value={this.state.name} placeholder={formatMessage(messages.placeholder)} onChange={(e) => { this.handleInputName(e) }}/>
+                    <Input ref={ (input) => this.focusInput = input } value={this.state.name} placeholder={formatMessage(messages.placeholder)} onChange={(e) => { this.handleInputName(e) }}/>
                   </Col>
                 </Row>
                 <Row style={{ height: '40px' }}>
