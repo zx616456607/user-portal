@@ -70,11 +70,18 @@ class StorageDetail extends Component {
     document.title = "存储详情 | 时速云"
     loadData(this.props)
   }
-
   render() {
     const { formatMessage } = this.props.intl
     const { currentKey } = this.state
     const { StorageInfo, isFetching } = this.props
+    if (isFetching) {
+      return (
+        <div className="loadingBox">
+          <Spin size="large"></Spin> 
+        </div>
+       ) 
+    }
+    const consumption = (StorageInfo.consumption / StorageInfo.size) * 100
     return (
       <div id="StorageDetail">
         <QueueAnim className="demo-content"
@@ -104,7 +111,7 @@ class StorageDetail extends Component {
                   <div className="use">
                     <FormattedMessage {...messages.useLevel} />
                     ：&nbsp;&nbsp;
-                    <Progress percent={(StorageInfo.consumption / StorageInfo.size) * 100} showInfo={false} />
+                    <Progress strokeWidth={8} showInfo={false} status="active" percent={ consumption} />
                     &nbsp;&nbsp;{ StorageInfo.consumption } / { StorageInfo.size } MB
                   </div>
                 </div>
@@ -150,5 +157,5 @@ function mapStateToProps(state, props) {
 }
 
 export default connect(mapStateToProps,{
-  loadStorageInfo}
-)(injectIntl(StorageDetail,{withRef: true,}))
+  loadStorageInfo,
+})(injectIntl(StorageDetail,{withRef: true}))

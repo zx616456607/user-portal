@@ -137,22 +137,22 @@ function uploadFile(state = {}, action) {
   }
   switch (action.type) {
     case ActionTypes.STORAGE_UPLOAD_REQUEST: {
-      return _.merge({}, defaultState, state, {
+      return merge({}, defaultState, state, {
         isFetching: true
       })
     }
     case ActionTypes.STORAGE_UPLOAD_SUCCESS: {
-      return _.merge({}, defaultState, state, {
+      return merge({}, defaultState, state, {
         isFetching: false
       })
     }
     case ActionTypes.STORAGE_UPLOAD_FAILURE: {
-      return _.merge({}, defaultState, state, {
+      return merge({}, defaultState, state, {
         isFetching: false
       })
     }
     case ActionTypes.STORAGE_UPLOADING: {
-      return _.merge({}, defaultState, state, {
+      return merge({}, defaultState, state, {
         percent: action.percent
       })
     }
@@ -168,11 +168,11 @@ function getStorageFileHistory(state = {}, action) {
   }
   switch (action.type) {
     case ActionTypes.STORAGE_FILEHISTORY_REQUEST:
-      return _.merge({}, defaultState, { isFetching: true })
+      return merge({}, defaultState, { isFetching: true })
     case ActionTypes.STORAGE_FILEHISTORY_SUCCESS:
       return Object.assign({}, { history: action.response.result.data }, { isFetching: false })
     case ActionTypes.STORAGE_FILEHISTORY_FAILURE:
-      return _.merge({}, defaultState, { isFetching: false })
+      return merge({}, defaultState, { isFetching: false })
     case ActionTypes.STORAGE_MERGE_UPLOADINGFILE:
       const customState = _.cloneDeep(state)
       var index = -1
@@ -198,7 +198,7 @@ function getStorageFileHistory(state = {}, action) {
 function beforeUploadFile(state = {}, action) {
   switch (action.type) {
     case ActionTypes.STORAGE_BEFORE_UPLOADFILE_REQUEST:
-      return _.merge({}, state, { isFetching: true })
+      return merge({}, state, { isFetching: true })
     case ActionTypes.STORAGE_BEFORE_UPLOADFILE_SUCCESS:
       return Object.assign({}, state, action.response.result.data, { isFetching: false })
     case ActionTypes.STORAGE_BEFORE_UPLOADFILE_FAILURE:
@@ -214,11 +214,11 @@ function volumeBindInfo(state = {}, action) {
   }
   switch (action.type) {
     case ActionTypes.STORAGE_GETVOLUMEBIND_REQUEST:
-      return _.merge({}, defaultState, { isFetching: true })
+      return merge({}, defaultState, { isFetching: true })
     case ActionTypes.STORAGE_GETVOLUMEBIND_SUCCESS:
-      return _.merge({}, defaultState, { volumeBindInfo: action.response.result.data }, { isFetching: false })
+      return merge({}, defaultState, { volumeBindInfo: action.response.result.data }, { isFetching: false })
     case ActionTypes.STORAGE_GETVOLUMEBIND_FAILURE:
-      return _.merge({}, defaultState, { isFetching: false })
+      return merge({}, defaultState, { isFetching: false })
     default:
       return state
   }
@@ -258,26 +258,26 @@ function exportFile(state = {}, action) {
   }
   switch (action.type) {
     case ActionTypes.STORAGE_EXPORT_FILE_REQUEST:
-      return _.merge({}, defaultState, state, { isFetching: true })
+      return merge({}, defaultState, state, { isFetching: true })
     case ActionTypes.STORAGE_EXPORT_FILE_SUCCESS:
-      return _.merge({}, defaultState, state, { visible: true, percent: 100, isFetching: false }, action.response.result.data)
+      return merge({}, defaultState, state, { visible: true, percent: 100, isFetching: false }, action.response.result.data)
     case ActionTypes.STORAGE_EXPORT_FILE_DONE:
-      return _.merge({}, defaultState, state, { visible: false, percent: 100, isFetching: false})
+      return merge({}, defaultState, state, { visible: false, percent: 100, isFetching: false})
     case ActionTypes.STORAGE_EXPORT_FILE_FAILURE:
-      return _.merge({}, defaultState, state, { visible: false, percent: 100, isFetching: false })
+      return merge({}, defaultState, state, { visible: false, percent: 100, isFetching: false })
     default:
-      return _.merge({}, defaultState, state)
+      return merge({}, defaultState, state)
   }
 }
 
 function avaliableVolume(state = {}, action) {
   switch(action.type) {
     case ActionTypes.STORAGE_GET_FREE_VOLUME_REQUEST:
-      return _.merge({}, {isFetching: true})
+      return merge({}, {isFetching: true})
     case ActionTypes.STORAGE_GET_FREE_VOLUME_SUCCESS: 
-      return _.merge({}, action.response.result, { isFetching: false})
+      return merge({}, action.response.result, { isFetching: false})
     case ActionTypes.STORAGE_GET_FREE_VOLUME_FAIULRE:
-      return _.merge({}, state, {isFetching: false})
+      return merge({}, state, {isFetching: false})
     default: 
       return state
   }
