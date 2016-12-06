@@ -40,7 +40,7 @@ let TenxFlowDetailYaml = React.createClass({
     <div id='TenxFlowDetailYaml' key='TenxFlowDetailYaml'>
       <Alert type='info' message={<FormattedMessage {...menusText.tooltips} />} />
       <Card className='yamlCard'>
-        <YamlEditor value={yaml} parentId={'TenxFlowDetail'}/>
+        <YamlEditor title="TenxFlow 定义文件" value={yaml} parentId={'TenxFlowDetail'}/>
       </Card>
     </div>
     )
