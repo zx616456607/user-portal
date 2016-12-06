@@ -18,8 +18,30 @@ const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
 const Option = Select.Option;
 const OptGroup = Select.OptGroup;
-let uuidPort = 0;
-let uuidEnviro = 0;
+let uuidPort = 1;
+let uuidEnviro = 1;
+
+function currentShowInputType(form, type, index) {
+  //this function for check different type
+  const {getFieldValue, getFieldProps} = form;
+  let value = getFieldProps(`portType${index}`).value;
+  if(value == type) {   
+    return true;
+  } else {
+    return false;
+  }
+}
+
+function currentShowTcpInputType(form, index) {
+  //this function for check tcp different type
+  const {getFieldValue, getFieldProps} = form;
+  let value = getFieldProps(`portTcpType${index}`).value;
+  if(value == 'special') {   
+    return true;
+  } else {
+    return false;
+  }
+}
 
 let MyComponentEnviro = React.createClass({
   propTypes: {
@@ -128,7 +150,7 @@ let MyComponentPort = React.createClass({
       portKey,
     });
   },
-  portsExists(rule, value, callback) {
+  portsExists(index, rule, value, callback) {
     const {getFieldValue, getFieldProps} = this.props.form
     if (!value) {
       callback([new Error('抱歉，必须填端口.')])
@@ -144,27 +166,47 @@ let MyComponentPort = React.createClass({
         })
         return
       } else {
-        var i = 0
+        let i = 0
         this.setState({
           addDis: false,
         })
         getFieldValue('portKey').map((k) => {
-          if(value === getFieldProps(`targetPortUrl${k}`).value){
+          if(value === getFieldProps(`targetPortUrl${k}`).value && k != index){
             i++
-            if(i>1){
-              callback([new Error('抱歉，端口名称重复.')])
-              this.setState({
-                addDis: true,
-              })
-              return
-            }
           }
         })
-        callback()
+        if(i > 0){
+          callback([new Error('抱歉，端口名称重复.')])
+          this.setState({
+            addDis: true,
+          })
+          return
+        } else {
+          callback();
+          return;
+        }
       }
     }
   },
+  podPortExist(index, rule, value, callback) {
+    const {getFieldValue, getFieldProps} = this.props.form;
+    let errorFlag = false;
+    getFieldValue('portKey').map((k) => {
+      if(value === getFieldProps(`portUrl${k}`).value && k != index ) {
+        errorFlag = true;       
+      }
+    })
+    if(errorFlag) {
+      callback([new Error('映射主机端口重复.')])
+      return;
+    } else {
+      callback();
+      return;
+    }
+    
+  },
   render: function () {
+    const scopeThis = this;
     const { form, parentScope } = this.props
     const { intDis ,addDis} = this.state
     const { getFieldProps, getFieldValue, isFieldValidating, getFieldError } = form
@@ -178,8 +220,8 @@ let MyComponentPort = React.createClass({
             <div className="input">
               <FormItem hasFeedback
                 help={isFieldValidating(`targetPortUrl${k}`) ? '校验中...' : (getFieldError(`targetPortUrl${k}`) || []).join(', ')}>
-                <Input {...getFieldProps(`targetPortUrl${k}`, {
-                  rules: [{ validator: this.portsExists },],
+                <Input key={`targetPortUrl${k}`} {...getFieldProps(`targetPortUrl${k}`, {
+                  rules: [{ validator: this.portsExists.bind(scopeThis, k) },],
                 }) } className="composeUrl" type="text" size="large"/>
               </FormItem>
             </div>
@@ -195,14 +237,29 @@ let MyComponentPort = React.createClass({
                   optionFilterProp="children"
                   notFoundContent="无法找到"
                   className="portGroup" size="large">
-                  <Option value="http">Http</Option>
-                  <Option value="tcp">Tcp</Option>
-                  <Option value="udp">Udp</Option>
+                  <Option value="HTTP">Http</Option>
+                  <Option value="TCP">Tcp</Option>
+                  {/*<Option value="udp">Udp</Option>*/}
                 </Select>
               </FormItem>
             </div>
             <div className="mapping">
-              <Input {...getFieldProps(`portUrl${k}`, {}) } className="composeUrl" type="text" size="large" />
+              {currentShowInputType(form, 'HTTP', k) ? [<span className='httpSpan'>80</span>] : null}
+              {currentShowInputType(form, 'TCP', k) ? [
+                <div className='tcpDiv'>
+                  <Select {...getFieldProps(`portTcpType${k}`,{
+                      rules: [{
+                        message: '请选择端口类型',
+                      },],
+                      initialValue: 'auto'
+                    })} style={{ width: '100px' }}
+                    size="large">
+                    <Option value="auto">动态生成</Option>
+                    <Option value="special">指定端口</Option>
+                  </Select>
+                  { currentShowTcpInputType(form, k) ? [<FormItem className='tcpInputForm' key={`portUrl${k}`}><Input {...getFieldProps(`portUrl${k}`, {rules: [{validator: this.podPortExist.bind(scopeThis, k)}]}) } style={{ width: '100px' }} type="text" size="large" /></FormItem>] : null}
+                </div>
+                ] : null}
             </div>
             <div className="opera">
               <i className="fa fa-trash-o" onClick={() => this.remove(k)} />

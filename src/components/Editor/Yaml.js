@@ -144,12 +144,12 @@ class YamlEditor extends Component {
   
 
   render() {
-    const { value, options, parentId, callback } = this.props
+    const { value, options, parentId, callback, title } = this.props
     const scope = this
     const newOpts = merge({}, defaultOpts, options)
     newOpts.mode = 'yaml'
     return (
-      <Editor value={value} scope={scope} options={newOpts} title={'Yaml'} parentId={parentId} currentErrorIndex={this.state.currentErrorIndex}
+      <Editor value={value} scope={scope} options={newOpts} title={ !!title ? title : 'Yaml'} parentId={parentId} currentErrorIndex={this.state.currentErrorIndex}
         callback={callback} onChange={this.onChangeFunc.bind(this)} errorList={this.state.errorList} />
     )
   }
