@@ -17,6 +17,7 @@ import ComposeDeployBox from './AppDeployComponents/ComposeDeployBox'
 import EnviroDeployBox from './AppDeployComponents/EnviroDeployBox'
 import "./style/AppDeployServiceModal.less"
 import { connect } from 'react-redux'
+import { CREATE_APP_ANNOTATIONS } from '../../../constants'
 
 const Deployment = require('../../../../kubernetes/objects/deployment')
 const Service = require('../../../../kubernetes/objects/service')
@@ -108,19 +109,43 @@ let AppDeployServiceModal = React.createClass({
       })
     }
   },
-  setPorts(ports, ServicePorts, form) {
+  setPorts(ports, ServicePorts, form, annotations) {
+    //this function for init port to form
+    //we didn't support http 
     const portsArr = []
+    let protocolList = annotations[CREATE_APP_ANNOTATIONS].split(',');
     if (ports) {
       ports.map(function (item, index) {
+        let protocol = null;
+        let name = null;
+        ServicePorts.map((port) => {
+          if(port.targetPort == item.containerPort) {
+            name = port.name;
+          }
+        })
+        protocolList.map((protocolDetail) => {
+          if(protocolDetail.indexOf(name) > -1) {
+            protocol = protocolDetail.split('/')[1];
+          }
+        });
         portsArr.push((index + 1));
         form.setFieldsValue({
           portKey: portsArr,
           ['targetPortUrl' + (index + 1)]: item.containerPort,
-          ['portType' + (index + 1)]: item.protocol,
+          ['portType' + (index + 1)]: protocol,
         })
         if (ServicePorts[index].port) {
           form.setFieldsValue({
             ['portUrl' + (index + 1)]: ServicePorts[index].port,
+          })
+          if(protocol == 'TCP') {
+            form.setFieldsValue({
+              ['portTcpType' + (index + 1)]: 'special',
+            })
+          }
+        }else if(protocol == 'TCP') {
+          form.setFieldsValue({
+            ['portTcpType' + (index + 1)]: 'auto',
           })
         }
       })
@@ -129,6 +154,7 @@ let AppDeployServiceModal = React.createClass({
   setForm() {
     const { scope } = this.props
     const { form } = this.props
+    const { annotations } = this.props.scope.state.checkInf.Service.metadata;
     const volumeMounts = this.props.scope.state.checkInf.Deployment.spec.template.spec.containers[0].volumeMounts
     const livenessProbe = this.props.scope.state.checkInf.Deployment.spec.template.spec.containers[0].livenessProbe
     const env = this.props.scope.state.checkInf.Deployment.spec.template.spec.containers[0].env
@@ -163,7 +189,7 @@ let AppDeployServiceModal = React.createClass({
       })
     }
     this.setEnv(env, form)
-    this.setPorts(ports, ServicePorts, form)
+    this.setPorts(ports, ServicePorts, form, annotations)
     this.setState({
       composeType: this.limits(),
     })
@@ -330,23 +356,34 @@ let AppDeployServiceModal = React.createClass({
     //ports
     if (portKey) {
       getFieldValue('portKey').map((k) => {
-        if (getFieldProps(`portUrl${k}`).value) {
+        let portType = getFieldProps(`portType${k}`).value;
+        let portUrl = null;
+        if(portType == 'HTTP') {
+          portUrl = 80;
           serviceList.addPort(
             serviceName + '-' + k,
             getFieldProps(`portType${k}`).value.toUpperCase(),
             parseInt(getFieldProps(`targetPortUrl${k}`).value),
-            parseInt(getFieldProps(`portUrl${k}`).value),
+            parseInt(portUrl)
           )
-        } else {
-          if (getFieldProps(`portType${k}`).value) {
+        } else if(portType == 'TCP'){
+          let tcpType = getFieldProps(`portTcpType${k}`).value;
+          if(tcpType == 'auto') {
+            serviceList.addPort(
+              serviceName + '-' + k,
+              getFieldProps(`portType${k}`).value.toUpperCase(),
+              parseInt(getFieldProps(`targetPortUrl${k}`).value)
+            )
+          } else if(tcpType == 'special') {              
+            portUrl = getFieldProps(`portUrl${k}`).value;
             serviceList.addPort(
               serviceName + '-' + k,
               getFieldProps(`portType${k}`).value.toUpperCase(),
               parseInt(getFieldProps(`targetPortUrl${k}`).value),
+              parseInt(portUrl)
             )
           }
         }
-
         if (getFieldProps(`portType${k}`).value) {
           deploymentList.addContainerPort(
             serviceName,
@@ -523,7 +560,6 @@ let AppDeployServiceModal = React.createClass({
     })
   },
   render: function () {
-    console.log(this.props)
     const scope = this
     const parentScope = this.props.scope
     const {currentSelectedImage, registryServer, isCreate, other} = parentScope.state

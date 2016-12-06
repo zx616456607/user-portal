@@ -12,6 +12,7 @@ export const API_URL_PREFIX = '/api/v2'
 export const DEFAULT_IMAGE_POOL = 'k8s-pool'
 export const DEFAULT_REGISTRY = 'default'
 export const TENX_MARK = 'tenxcloud.com'
+export const CREATE_APP_ANNOTATIONS = 'tenxcloud.com/schemaPortname'
 export const LABEL_APPNAME = `${TENX_MARK}/appName`
 export const USERNAME_REG_EXP = new RegExp('^[a-z][-a-z0-9]{1,40}[a-z0-9]$')
 export const EMAIL_REG_EXP = new RegExp('^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$')
