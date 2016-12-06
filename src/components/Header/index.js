@@ -50,16 +50,21 @@ const menusText = defineMessages({
   }
 })
 
-const menu = (
-  <Menu>
-    <Menu.Item key="0">
-      <a href="/logout">
-        <Icon type="logout" /> <FormattedMessage {...menusText.logOut} />
-      </a>
-    </Menu.Item>
-  </Menu>
-)
+let logMenu = (
+  <div>
 
+  </div>
+)
+let logTitle = (
+  <div className='logTitle'>
+    <div style={{width:46,height:46,float:'left'}}></div>
+    <div style={{float:'left'}}>
+      <div>Zhaoxy</div>
+      <div>Zhaoxy@qq.com</div>
+    </div>
+    <div className='loginTag'></div>
+  </div>  
+)
 function loadSpaces(props, callback) {
   const { loadUserTeamspaceList } = props
   loadUserTeamspaceList('default', { size: 100 }, callback)
@@ -248,13 +253,17 @@ class Header extends Component {
           <div className="docBtn">
             <FormattedMessage {...menusText.doc} />
           </div>
-          <Dropdown overlay={menu}>
-            <div className="ant-dropdown-link userBtn">
-              {/*<FormattedMessage {...menusText.user} />*/}
+          <Popover content={logMenu}
+          title={logTitle}
+          overlayClassName='logPopMenu'
+          placement="bottomRight"
+          arrowPointAtCenter={true}
+          trigger='click'>
+            <div className='userBtn'>
               {loginUser.info.userName || '...'}
               <Icon type="down" />
             </div>
-          </Dropdown>
+          </Popover>
         </div>
       </div>
     )
