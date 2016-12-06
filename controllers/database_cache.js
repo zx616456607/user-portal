@@ -10,8 +10,6 @@
 'use strict'
 let yaml = require('js-yaml')
 const Service = require('../kubernetes/objects/service')
-const petSetMysql = require('../kubernetes/objects/petSetMysql')
-const petSetRedis = require('../kubernetes/objects/petSetRedis')
 const apiFactory = require('../services/api_factory')
 
 /*
