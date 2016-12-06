@@ -63,10 +63,13 @@ class CostRecord extends Component{
     })
   }
   transformDate(){
+    function _addZero(text) {
+      return text.toString().length === 2 ? text : `0${text}`
+    }
     let date = new Date
     let y = date.getFullYear()
     let m = date.getMonth()+1
-    return (y+'-'+m)
+    return (y+'-'+_addZero(m))
   }
   render(){
     const {
@@ -81,18 +84,6 @@ class CostRecord extends Component{
       currentTeamName,
     } = this.state
     let spaceMonthCost = {
-      title: {
-        show: false,
-        text: '余额 :  '+70+'T币\n\n消费 :  '+30+'T币',
-        x:'center',
-        top: '65%',
-        textStyle:{
-          color :'#6c6c6c',
-          fontStyle: 'normal',
-          fontWeight: 'normal',
-          fontSize: '14',
-        }
-      },
       color: ['#46b2fa', '#2abe84'],
       backgroundColor: '#fff',
       tooltip: {
@@ -175,6 +166,14 @@ class CostRecord extends Component{
         axisPointer: {
           animation: false
         },
+        formatter: '{b}<br/>消费 {c}T',
+        textStyle: {
+          color: '#46b2fa',
+          fontSize: 12,
+        },
+        backgroundColor: '#fff',
+        borderWidth: 1,
+        borderColor: '#46b2fa',
       },
       color: ['#6cc1fa'],
       xAxis: {
@@ -182,6 +181,15 @@ class CostRecord extends Component{
         data: ['2016-01','2016-01','2016-01','2016-01','2016-01','2016-01',],
         axisLine: {onZero: true},
         boundaryGap: false,
+        axisTick: {
+          alignWithLabel: true,
+        },
+        splitLine: {
+          show: true,
+          lineStyle: {
+            type: 'dashed'
+          },
+        },
       },
       yAxis: {
         type: 'value',
@@ -221,7 +229,7 @@ class CostRecord extends Component{
     )
     let spaceTableTitle = (
       <div className="teamCostTitle">
-        <span>{currentSpaceName}该月消费详情</span>
+        <span>{currentSpaceName}消费明细</span>
         <MonthPicker style={{marginLeft: 40}} defaultValue={this.transformDate()}/>
         <div style={{flex: 'auto'}}>
           <Select defaultValue="all" style={{ width: 120, float: 'right'}}>
@@ -238,11 +246,17 @@ class CostRecord extends Component{
         axisPointer : {
           type : 'shadow'
         },
-        formatter: '{b} : {c}%',
-        position: function (point, params, dom) {
-          return [point[0]-25, '10%'];
+        formatter: this.transformDate()+'-{b}<br/>消费 {c}T',
+        /*position: function (point, params, dom) {
+         return [point[0]-25, '10%'];
+         },*/
+        textStyle: {
+          color: '#46b2fa',
+          fontSize: 12,
         },
-        extraCssText: '::after: {content:""}'
+        backgroundColor: '#fff',
+        borderWidth: 1,
+        borderColor: '#46b2fa',
       },
       grid: {
         left: '3%',
@@ -364,7 +378,7 @@ class CostRecord extends Component{
     return (
       <div id='CostRecord'>
         <Card style={{marginBottom: '20px'}}>
-          <i className='fa fa-cube' style={{marginRight:'10px'}}/>
+          <i className='fa fa-cube' style={{marginRight:'10px',fontSize: '14px'}}/>
           <div style={{display:'inline-block'}}>
             <PopSelect
               title="选择项目空间"
@@ -395,8 +409,18 @@ class CostRecord extends Component{
               </Col>
               <Col span={14} className='teamCostList'>
                 <Row className="teamCostListTitle">
-                  <Col span={16} style={{paddingLeft:40,height:40,lineHeight:'40px'}}>空间名称</Col>
-                  <Col span={8} style={{height:40,lineHeight:'40px'}}>消费金额</Col>
+                  <Col span={16} style={{paddingLeft:40,height:40,lineHeight:'40px'}}>
+                    <svg className="headercluster">
+                      <use xlinkHref="#headercluster"/>
+                    </svg>
+                    集群名称
+                  </Col>
+                  <Col span={8} style={{height:40,lineHeight:'40px'}}>
+                    <svg className="headercluster">
+                      <use xlinkHref="#headercluster"/>
+                    </svg>
+                    消费金额
+                  </Col>
                 </Row>
                 <Row className='teamCostListContent'>
                   {
@@ -404,7 +428,7 @@ class CostRecord extends Component{
                       return (
                         <Row className="teamCostItem">
                           <Col span={16} style={{paddingLeft:40}}>item.teamname</Col>
-                          <Col span={8} style={{paddingLeft:10}}>消费 111T</Col>
+                          <Col span={8} style={{paddingLeft:10}}>111T</Col>
                         </Row>
                       )
                     })
