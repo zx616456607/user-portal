@@ -413,7 +413,9 @@ class ContainerList extends Component {
     const funcs = {
       confirmDeleteContainer: this.confirmDeleteContainer,
     }
-
+    let oncache = this.state.currentContainer.map((item) => {
+      return item.metadata.name;
+    })
     return (
       <QueueAnim
         className='ContainerList'
@@ -522,7 +524,7 @@ class ContainerList extends Component {
           onCancel={this.closeTerminalLayoutModal}
           maskClosable={false}
           >
-          <TerminalModal scope={parentScope} config={this.state.currentContainer} show={this.state.TerminalLayoutModal} />
+          <TerminalModal scope={parentScope} config={this.state.currentContainer} show={this.state.TerminalLayoutModal} oncache={oncache}/>
         </Modal>
       </QueueAnim>
     )

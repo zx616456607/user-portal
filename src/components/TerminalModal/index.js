@@ -42,6 +42,7 @@ class TerminalModal extends Component {
   }
   
   componentDidMount() {
+    //bind change modal height event
     let doc = $(document);
     let box = $('#TerminalModal .titleBox');
     let bodyHeight = $(document.body)[0].clientHeight;
@@ -66,6 +67,12 @@ class TerminalModal extends Component {
       $('#TerminalModal .cover').css('display','none');
       doc.unbind('mousemove')
     });
+    //change css
+    $('.TerminalLayoutModal').parent().parent().find('.ant-modal-mask').css('display', 'none');
+    $('.TerminalLayoutModal').parent().css('box-shadow', '0px 0px 15px #1a1a1a');
+    $('.TerminalLayoutModal').parent().css('top','initial');
+    $('.TerminalLayoutModal').parent().css('right','initial');
+    $('.TerminalLayoutModal').parent().css('height','auto');
   }
   
   minWindow(){

@@ -90,7 +90,8 @@ class TenxFlowDetail extends Component {
       createTenxFlowModal: false,
       TenxFlowDeployLogModal: false,
       startBuild: false,
-      showImage: []
+      showImage: [],
+      statusName:0
     }
   }
   flowState() {
@@ -111,7 +112,8 @@ class TenxFlowDetail extends Component {
         status = "等待中..."
     }
     this.setState({
-      status
+      status,
+      statusName: search
     })
   }
   componentWillMount() {
@@ -238,9 +240,8 @@ class TenxFlowDetail extends Component {
             </div>
               <p className='title'>{flowInfo.name}</p>
             <div className='msgBox'>
-              <span>状态：{this.state.status}</span>
+              状态：<span className={'status-'+this.state.statusName}><i className="fa fa-circle" style={{marginRight:'5px'}}></i>{this.state.status}</span>
               <span className='updateTime'>{flowInfo.update_time ? flowInfo.update_time : flowInfo.create_time }</span>
-              <div style={{ clear:'both' }}></div>
             </div>
             <div className='btnBox'>
               <Button size='large' type='primary' onClick={this.startBuildStage} className='buildBtn'>
