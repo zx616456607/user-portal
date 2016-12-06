@@ -26,6 +26,9 @@
     window.addEventListener("resize", function(e){
       var rowsNum = parseInt(e.target.innerHeight / 12) - 2;
       var colsNum = parseInt((e.target.innerWidth - 40) / 12) - 2;
+      if(colsNum <= 5) {
+        colsNum = 5;
+      }
       term.resize(colsNum, rowsNum)
       term.element.focus();
     })
