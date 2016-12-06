@@ -12,7 +12,7 @@
 
 exports.addPort =  function (deployment, serviceList) {
   if (!deployment || !serviceList) {
-      retrun
+      return
   }
   deployment.portForInternal = []
   deployment.portsForExternal = []
