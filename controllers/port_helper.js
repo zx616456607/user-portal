@@ -30,7 +30,6 @@ exports.addPort =  function (deployment, serviceList) {
           for (let i = 0; i< portDef.length; i++) {
             let p = portDef[i].split('/')
             if (p && p.length > 1) {
-              console.log(p[0] + " vs " + port.name)
               if (p[0] == port.name) {
                 port.protocol = p[1]
                 break

@@ -257,7 +257,7 @@ class ImageDetailBox extends Component {
         <div className="tabBox">
           <Tabs className="itemList" defaultActiveKey="1">
             <TabPane tab={formatMessage(menusText.info)} key="1"><DetailInfo scope={ this } registry={ DEFAULT_REGISTRY } detailInfo={imageInfo} isOwner={imageInfo.isOwner}/></TabPane>
-            <TabPane tab="DockerFile" key="2"><DockerFile isFetching = {this.props.isFetching} scope={this} registry={ DEFAULT_REGISTRY } detailInfo={imageInfo} isOwner={imageInfo.isOwner} /></TabPane>
+            <TabPane tab="Dockerfile" key="2"><DockerFile isFetching = {this.props.isFetching} scope={this} registry={ DEFAULT_REGISTRY } detailInfo={imageInfo} isOwner={imageInfo.isOwner} /></TabPane>
             <TabPane tab={formatMessage(menusText.tag)} key="3"><ImageVersion scope={scope} config={imageDetail} /></TabPane>
             <TabPane tab={formatMessage(menusText.attribute)} key="4"><Attribute detailInfo = {imageInfo} /></TabPane>
           </Tabs>
