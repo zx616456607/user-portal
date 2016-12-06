@@ -40,7 +40,7 @@ class Service {
       }
       if (k8sService.metadata.labels) {
         for (let key in k8sService.metadata.labels) {
-          //Remove tenxcloud added labels
+          // Remove tenxcloud added labels
           if (key.indexOf(TENXCLOUD_PREFIX) != 0) {
             this.metadata.labels[key] = k8sService.metadata.labels[key]
           }
@@ -88,8 +88,7 @@ class Service {
     // Mark real protocol in annotations
     if (!this.metadata.annotations[TENX_SCHEMA_PORTNAME]) {
       this.metadata.annotations[TENX_SCHEMA_PORTNAME] = `${name}/${protocol}`
-    }
-    else {
+    } else {
       this.metadata.annotations[TENX_SCHEMA_PORTNAME] += `,${name}/${protocol}`
     }
   }
