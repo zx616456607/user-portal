@@ -97,7 +97,6 @@ class TenxFlowDetail extends Component {
     let { search } = this.props.location;
     let status=''
     search = search.split('&')[1]
-    console.log(search)
     switch (search) {
       case '0':
         status = '成功'
