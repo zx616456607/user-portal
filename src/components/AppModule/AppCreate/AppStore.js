@@ -73,9 +73,11 @@ let MyComponent = React.createClass({
 class AppStore extends Component {
   constructor(props) {
     super(props);
+    this.onSearchApp = this.onSearchApp.bind(this);
     this.state = {
       selectedList: [],
       appStoreList: [],
+      defaultAppStoreList: [],
       visible: false,
       condition: false
     }
@@ -87,7 +89,8 @@ class AppStore extends Component {
       success: {
         func: (res) => {
           self.setState({
-            appStoreList: res.data.data || []
+            appStoreList: res.data.data || [],
+            defaultAppStoreList: res.data.data
           })
         }
       }
@@ -114,6 +117,20 @@ class AppStore extends Component {
       selectedList
     })
   }
+  onSearchApp(e) {
+    //this function for user search special app
+    let keyword = e.target.value;
+    const { defaultAppStoreList } = this.state;
+    let newList = [];
+    defaultAppStoreList.map((item) => {
+      if(item.name.indexOf(keyword) > -1) {
+        newList.push(item)
+      }
+    });
+    this.setState({
+      appStoreList: newList
+    })
+  }
 
   render() {
     const parentScope = this
@@ -125,7 +142,7 @@ class AppStore extends Component {
           <div className="operaBox">
             <div className="line"></div>
             <span>选择应用</span>
-            <Input placeholder="搜索应用~" size="large" />
+            <Input placeholder="搜索应用~" size="large"  onChange={this.onSearchApp} />
             <Button>
               <i className="fa fa-search"></i>
             </Button>
