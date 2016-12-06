@@ -13,7 +13,10 @@
     }
   }
   .lineBtn {
-    display: inline-block;
+    display: flex;
+    display: -webkit-flex;
+    -webkit-align-items: center;
+    align-items: center;
     width: 100%;
   }
   .ant-popover-title {
@@ -27,7 +30,6 @@
   }
   .anticon {
     float: right;
-    margin-top: 3px;
   }
   .rotate0{
     transform: scale(.66666667) rotate(0deg);
@@ -37,6 +39,7 @@
     transition-delay: initial;
   }
   .rotate180{
+    margin-top: -4px;
     transform: scale(.66666667) rotate(180deg);
     transition: transform .2s ease;
     transition-duration: 0.2s, 0.2s;
