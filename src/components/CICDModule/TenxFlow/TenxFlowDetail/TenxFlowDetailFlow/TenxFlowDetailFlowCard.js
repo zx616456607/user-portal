@@ -197,7 +197,7 @@ function currentStatusBtn(status) {
     case 0:
       return (
         <div>
-          <i className='fa fa-play' />
+          <Icon type='caret-right' />
           <span><FormattedMessage {...menusText.startBtn} /></span>
         </div>
       );
@@ -439,7 +439,7 @@ class TenxFlowDetailFlowCard extends Component {
     const dropdown = (
       <Menu onClick={this.operaMenuClick.bind(this, config.metadata.id, config.metadata.name)} style={{ width: '110px' }}>
         <Menu.Item key='deleteStage' disabled={ index == (totalLength - 1) ? false : true }>
-              <i className='fa fa-trash' style={{ float: 'left', lineHeight: '16px', marginRight: '5px', fontSize: '14px' }} />
+              <Icon type='delete' style={{ float: 'left', lineHeight: '16px', marginRight: '5px', fontSize: '14px' }} />
               <span style={{ float: 'left', lineHeight: '16px', fontSize: '14px' }} ><FormattedMessage {...menusText.deleteBtn} /></span>
               <div style={{ clear: 'both' }}></div>
         </Menu.Item>
@@ -503,12 +503,16 @@ class TenxFlowDetailFlowCard extends Component {
                         {currentStatusBtn(config.lastBuildStatus)}
                       </Button>
                       <Button size='large' type='ghost' className='logBtn' onClick={this.openTenxFlowDeployLogModal.bind(this, config.metadata.id)}>
-                        <i className='fa fa-wpforms' />
+                        <svg className='cicdlogSvg'>
+                          <use xlinkHref='#cicdlog' />
+                        </svg>
                         <FormattedMessage {...menusText.logBtn} />
                       </Button>
                       <Dropdown.Button overlay={dropdown} type='ghost' size='large'
                         className='editBtn' onClick={this.editFlow} disabled={buildButtonCheck(config.lastBuildStatus)}>
-                        <i className='fa fa-pencil-square-o' />
+                        <svg className='cicdlogSvg'>
+                          <use xlinkHref='#cicdedit' />
+                        </svg>
                         <FormattedMessage {...menusText.editBtn} />
                       </Dropdown.Button>
                       <div style={{ clear: 'both' }}></div>
@@ -540,8 +544,10 @@ class TenxFlowDetailFlowCard extends Component {
         </Card>
         {
           currentFlowEdit != index ? [
-            <div className={config.lastBuildStatus == 'finish' ? 'finishArrow arrowBox' : 'arrowBox'} key='finishArrow'>
-              <Icon type="arrow-right" />
+            <div className={config.lastBuildStatus == 'finish' ? 'finishArrow arrowBox' : 'arrowBox'} key='finishArrow'>          
+              <svg className='cicdarrow'>
+                <use xlinkHref='#cicdarrow' />
+              </svg>
             </div>
           ] : null
         }
@@ -557,7 +563,7 @@ class TenxFlowDetailFlowCard extends Component {
           className='TenxFlowBuildLogModal'
           onCancel={this.closeTenxFlowDeployLogModal}
           >
-          <StageBuildLog scope={scope} isFetching={buildFetching} logs={logs} flowId={flowId} />
+          <StageBuildLog scope={scopeThis} isFetching={buildFetching} logs={logs} flowId={flowId} />
         </Modal>
       </div>
     )

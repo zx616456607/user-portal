@@ -9,13 +9,43 @@
       padding: 24px;
       position: relative;
       .uploadBtn {
+        position: relative;
         padding: 5px 10px !important;
+        padding-left: 30px !important;
         border-radius: 4px;
+        svg {
+          position: absolute;
+          top: 8px;
+          left: 10px;
+          width: 14px;
+          height: 14px;
+          use {
+            fill: #FFFFFF;
+          }
+        }
       }
       .downloadBtn {
+        position: relative;
         margin-left: 20px;
         border-radius: 4px;
         padding: 5px 10px !important;
+        padding-left: 30px !important;
+        svg {
+          position: absolute;
+          top: 8px;
+          left: 10px;
+          width: 14px;
+          height: 14px;
+          use {
+            transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+            fill: #666666;
+          }
+        }
+        &:hover {
+          use {
+            fill: #2db7f5;
+          }
+        }
       }
       .searchBox {
         float: right;
@@ -41,7 +71,7 @@
           float: left;
           width: 113px;
           height: 100px;
-          img {
+          svg {
             width: 65px;
             height: 65px;
             padding: 14px;
@@ -61,11 +91,22 @@
             cursor: pointer;
           }
           .type {
+            position: relative;
             float: left;
             display: block;
             width: 33%;
             line-height: 25px;
             font-size: 14px;
+            svg {
+              position: absolute;
+              top: 5px;
+              left: 42px;
+              width: 14px;
+              height: 14px;
+              use {
+                fill: #666666;
+              }
+            }
           }
           .imageUrl {
             float: left;

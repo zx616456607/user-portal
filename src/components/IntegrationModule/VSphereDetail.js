@@ -421,14 +421,14 @@ class VSphereDetail extends Component {
                   <ReactEcharts
                     notMerge={true}
                     option={CPUOption}
-                    style={{height:'200px'}}
+                    style={{height:'200px', width: '100%'}}
                   />
                 </div>
                 <div className='littelMiddle'>
                   <ReactEcharts
                     notMerge={true}
                     option={memoryOption}
-                    style={{height:'200px'}}
+                    style={{height:'200px', width: '100%'}}
                   />
                 </div>
                 <div className='littelRight'>

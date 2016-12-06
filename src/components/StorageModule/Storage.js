@@ -137,7 +137,9 @@ let MyComponent = React.createClass({
   getInitialState() {
     return {
       visible: false,
-      modalTitle: ''
+      modalTitle: '',
+      modalSize: 500,
+      size: 500
     };
   },
   propTypes: {
@@ -158,10 +160,6 @@ let MyComponent = React.createClass({
     const self = this
     let type = this.state.modalType
     if (type === 'format') {
-      if (this.state.formateType === this.state.format) {
-        message.error('格式不能和以前相同')
-        return
-      }
       this.props.formateStorage(this.props.imagePool, this.props.cluster, {
         name: this.state.modalName,
         fsType: this.state.formateType
@@ -172,6 +170,7 @@ let MyComponent = React.createClass({
               self.setState({
                 visible: false,
               })
+              message.success('格式化存储卷成功')
               this.props.loadStorageList()
             }
           }
@@ -191,6 +190,7 @@ let MyComponent = React.createClass({
               self.setState({
                 visible: false,
               })
+              message.success('扩容成功')
               this.props.loadStorageList()
             }
           }
@@ -200,6 +200,11 @@ let MyComponent = React.createClass({
   cancelModal() {
     this.setState({
       visible: false,
+    });
+  },
+  onChange(value) {
+    this.setState({
+      size: value,
     });
   },
   showAction(type, one, two) {
@@ -285,7 +290,7 @@ let MyComponent = React.createClass({
     return (
       <div className="dataBox">
         {items}
-        <Modal title={this.state.modalTitle} visible={this.state.visible} onOk={(e) => { this.handleSure() } } onCancel={(e) => { this.cancelModal() } } okText="OK" cancelText="Cancel">
+        <Modal title={this.state.modalTitle} visible={this.state.visible} onOk={(e) => { this.handleSure() } } onCancel={(e) => { this.cancelModal() } } okText="确定" cancelText="取消">
           <div className={this.state.modalType === 'resize' ? 'show' : 'hide'}>
             <Row style={{ height: '40px' }}>
               <Col span="3" className="text-center" style={{ lineHeight: '30px' }}><FormattedMessage {...messages.name} /></Col>
@@ -293,9 +298,9 @@ let MyComponent = React.createClass({
             </Row>
             <Row style={{ height: '40px' }}>
               <Col span="3" className="text-center" style={{ lineHeight: '30px' }}>{formatMessage(messages.size)}</Col>
-              <Col span="12"><Slider min={this.state.modalSize} max={9999} onChange={(e) => { this.changeDilation(e) } } value={this.state.size} /></Col>
+              <Col span="12"><Slider min={this.state.modalSize} max={10240} onChange={(e) => { this.changeDilation(e) } } value={this.state.size} /></Col>
               <Col span="8">
-                <InputNumber min={this.state.modalSize} max={9999} style={{ marginLeft: '16px' }} value={this.state.size} onChange={(e) => { this.onChange(e) } } />
+                <InputNumber min={this.state.modalSize} max={10240} style={{ marginLeft: '16px' }} value={this.state.size} onChange={(e) => { this.onChange(e) } } />
                 <span style={{ paddingLeft: 10 }} >MB</span>
               </Col>
             </Row>
@@ -306,7 +311,7 @@ let MyComponent = React.createClass({
             <RadioGroup defaultValue='ext4' value={this.state.formateType} size="large" onChange={(e) => this.changeType(e)}>
               <RadioButton value="ext4">ext4</RadioButton>
               <RadioButton value="xfs">xfs</RadioButton>
-              <RadioButton value="reiserfs">reiserfs</RadioButton>
+
             </RadioGroup>
           </div>
         </Modal>
@@ -343,12 +348,13 @@ class Storage extends Component {
     this.handleCancel = this.handleCancel.bind(this)
     this.onChange = this.onChange.bind(this)
     this.deleteStorage = this.deleteStorage.bind(this)
+    this.focus = this.focus.bind(this)
     this.state = {
       visible: false,
       volumeArray: [],
       currentType: 'ext4',
       inputName: '',
-      size: 200
+      size: 500
     }
   }
   componentWillMount() {
@@ -363,6 +369,12 @@ class Storage extends Component {
     this.setState({
       visible: true,
     });
+    const self = this
+    setTimeout(function () {
+      if (self.focusInput) {
+        self.focusInput.refs.input.focus()
+      }
+    }, 0)
   }
   handleOk() {
     //create storage
@@ -394,9 +406,10 @@ class Storage extends Component {
           self.setState({
             visible: false,
             name: '',
-            size: 0,
+            size: 500,
             currentType: 'ext4'
           })
+          message.success('创建存储成功')
           self.props.loadStorageList(self.props.currentImagePool, self.props.currentCluster)
         },
         isAsync: true
@@ -406,7 +419,7 @@ class Storage extends Component {
   handleCancel() {
     this.setState({
       visible: false,
-      size: 0,
+      size: 500,
       name: '',
       currentType: 'ext4'
     });
@@ -424,7 +437,10 @@ class Storage extends Component {
     })
     this.props.deleteStorage(this.props.currentImagePool, this.props.currentCluster, { volumes: volumeArray }, {
       success: {
-        func: () => this.props.loadStorageList(this.props.currentImagePool, this.props.currentCluster),
+        func: () => {
+          this.props.loadStorageList(this.props.currentImagePool, this.props.currentCluster)
+          message.success('删除存储成功')
+        },
         isAsync: true
       }
     })
@@ -549,7 +565,7 @@ class Storage extends Component {
                     <FormattedMessage {...messages.name} />
                   </Col>
                   <Col span="12">
-                    <Input value={this.state.name} placeholder={formatMessage(messages.placeholder)} onChange={(e) => { this.handleInputName(e) } } />
+                    <Input ref={ (input) => this.focusInput = input } value={this.state.name} placeholder={formatMessage(messages.placeholder)} onChange={(e) => { this.handleInputName(e) }}/>
                   </Col>
                 </Row>
                 <Row style={{ height: '40px' }}>
@@ -557,10 +573,10 @@ class Storage extends Component {
                     {formatMessage(messages.size)}
                   </Col>
                   <Col span="12">
-                    <Slider min={1} max={1024} onChange={this.onChange} value={this.state.size} />
+                    <Slider min={500} max={10240} onChange={this.onChange} value={this.state.size} />
                   </Col>
                   <Col span="8">
-                    <InputNumber min={1} max={1024} style={{ marginLeft: '16px' }} value={this.state.size} onChange={(e) => { this.onChange(e) } } />
+                    <InputNumber min={500} max={10240} style={{ marginLeft: '16px' }} value={this.state.size} onChange={this.onChange} />
                     <span style={{ paddingLeft: 10 }} >MB</span>
                   </Col>
                 </Row>
@@ -571,7 +587,6 @@ class Storage extends Component {
                   <Col span="20" className="action-btns" style={{ lineHeight: '30px' }}>
                     <Button type={this.state.currentType === 'ext4' ? 'primary' : 'ghost'} onClick={(e) => { this.changeType('ext4') } }>ext4</Button>
                     <Button type={this.state.currentType === 'xfs' ? 'primary' : 'ghost'} style={{ margin: '0 10px' }} onClick={(e) => { this.changeType('xfs') } }>xfs</Button>
-                    <Button type={this.state.currentType === 'reiserfs' ? 'primary' : 'ghost'} onClick={(e) => { this.changeType('reiserfs') } }>reiserfs</Button>
                   </Col>
                 </Row>
               </Modal>

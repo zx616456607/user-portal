@@ -78,7 +78,8 @@
     border-bottom: 1px solid #d6d6d6;
     background-color: #FFFFFF;
     .code {
-      padding-left: 30px;
+      position: relative;
+      padding-left: 50px;
       float: left;
       width: 70%;
       height: 40px;
@@ -90,20 +91,36 @@
         display: inline-block;
         vertical-align: middle;
       }
-     
+      .appcenterdownload {
+        left: 30px;
+      }
     }
-     .fa-copy {
-       margin-left: 20px;
-       color: #2db7f5;
-       cursor: pointer;
+    .appcentercopy {
+      z-index: 100;
+      right: 30px;
+      cursor: pointer;
+      use {
+        fill: #2db7f5;
+      }
     }
     .times {
+      position: relative;
       float: left;
       width: 30%;
       height: 40px;
       line-height: 40px;
       text-align: center;
       font-size: 14px;
+      svg {
+        top: 12px;
+        left: 70px;
+      }
+    }
+    svg {
+      position: absolute;
+      top: 11px;
+      width: 16px;
+      height: 16px;
     }
   }
   .tabBox {
@@ -114,11 +131,16 @@
     }
   }
 }
-#attribute{
-  li{
-    line-height: 40px;font-size: 14px;
+#attribute {
+  li {
+    line-height: 40px;
+    font-size: 14px;
   }
-  .leftKey{
-    span{display: inline-block;width: 80px;margin-left: 10px;}
+  .leftKey {
+    span {
+      display: inline-block;
+      width: 80px;
+      margin-left: 10px;
+    }
   }
 }

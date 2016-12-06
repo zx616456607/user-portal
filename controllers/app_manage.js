@@ -16,7 +16,7 @@ const constants = require('../constants')
 const DEFAULT_PAGE = constants.DEFAULT_PAGE
 const DEFAULT_PAGE_SIZE = constants.DEFAULT_PAGE_SIZE
 const MAX_PAGE_SIZE = constants.MAX_PAGE_SIZE
-const ANNOTATION_SVC_SCHEMA_PORT = constants.ANNOTATION_SVC_SCHEMA_PORT
+const portHelper = require('./port_helper')
 
 exports.createApp = function* () {
   const cluster = this.params.cluster
@@ -77,18 +77,7 @@ exports.getApps = function* () {
     app.instanceCount = 0
     app.services.map((deployment) => {
       app.instanceCount += deployment.spec.replicas
-      deployment.portForInternal = []
-      if (app.k8s_services) {
-        for (let i = 0; i < app.k8s_services.length; i++) {
-          if (app.k8s_services[i].metadata.name === deployment.metadata.name) {
-            if (app.k8s_services[i].metadata.annotations && app.k8s_services[i].metadata.annotations[ANNOTATION_SVC_SCHEMA_PORT]) {
-              deployment.ports = app.k8s_services[i].metadata.annotations[ANNOTATION_SVC_SCHEMA_PORT]
-            }
-            app.k8s_services[i].spec.ports.map((svcPort) => deployment.portForInternal.push(svcPort.port))
-            break
-          }
-        }
-      }
+      portHelper.addPort(deployment, app.k8s_services)
     })
     if (app.serviceCount < 1 || app.instanceCount < 1) {
       app.appStatus = 1
@@ -220,18 +209,7 @@ exports.getAppDetail = function* () {
   app.instanceCount = 0
   app.services.map((deployment) => {
     app.instanceCount += deployment.spec.replicas
-    deployment.portForInternal = []
-    if (app.k8s_services) {
-      for (let i = 0; i < app.k8s_services.length; i++) {
-        if (app.k8s_services[i].metadata.name === deployment.metadata.name) {
-          if (app.k8s_services[i].metadata.annotations && app.k8s_services[i].metadata.annotations[ANNOTATION_SVC_SCHEMA_PORT]) {
-            deployment.ports = app.k8s_services[i].metadata.annotations[ANNOTATION_SVC_SCHEMA_PORT]
-          }
-          app.k8s_services[i].spec.ports.map((svcPort) => deployment.portForInternal.push(svcPort.port))
-          break
-        }
-      }
-    }
+    portHelper.addPort(deployment, app.k8s_services)
   })
   if (app.serviceCount < 1 || app.instanceCount < 1) {
     app.appStatus = 1
@@ -272,12 +250,7 @@ exports.getAppServices = function* () {
     service.deployment.spec.template.spec.containers.map((container) => {
       service.deployment.images.push(container.image)
     })
-    // get port info from annotation of service
-    if (service.service && service.service.metadata.annotations && service.service.metadata.annotations[ANNOTATION_SVC_SCHEMA_PORT]) {
-      service.deployment.ports = service.service.metadata.annotations[ANNOTATION_SVC_SCHEMA_PORT]
-    }
-    service.deployment.portForInternal = []
-    service.service.spec.ports.map((svcPort) => service.deployment.portForInternal.push(svcPort.port))
+    portHelper.addPort(service.deployment, service.service)
 
     deployments.push(service.deployment)
   })

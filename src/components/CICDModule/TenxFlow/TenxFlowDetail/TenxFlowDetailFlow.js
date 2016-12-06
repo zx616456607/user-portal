@@ -334,7 +334,9 @@ class TenxFlowDetailFlow extends Component {
               { !this.state.createNewFlow ? [
                 <QueueAnim key='createCardAnimate'>
                   <div className='createInfo' key='createCard'>
-                    <Icon className='addIcon' type="plus-circle-o" />
+                    <svg className='addIcon'>
+                      <use xlinkHref='#cicdcreate' />
+                    </svg>
                     <p>
                       <FormattedMessage {...menusText.add} />
                     </p>

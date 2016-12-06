@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Input, Form, Switch, Radio, Checkbox, Spin, Select } from 'antd'
+import { Button, Input, Form, Switch, Radio, Checkbox, Spin, Select, Tooltip } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -46,6 +46,18 @@ const menusText = defineMessages({
     defaultMessage: '取消',
   },
 })
+
+function diskFormat(num) {
+  if(num < 1024) {
+    return num + 'MB'
+  }
+  num = parseInt(num / 1024);
+  if(num < 1024) {
+    return num + 'GB'
+  }
+  num = parseInt(num / 1024);
+  return num + 'TB'
+}
 
 let CreateVmModal = React.createClass({
   getInitialState: function() {
@@ -100,7 +112,6 @@ let CreateVmModal = React.createClass({
     })
   },
   onChangeDatastore(e) {
-    console.log(e)
     //this function for user change the datastore
     this.setState({
       datastore: e,
@@ -197,7 +208,16 @@ let CreateVmModal = React.createClass({
     if(!!config.templates) {
       templates = config.templates.map((item) => {
         return (
-          <Option value={item} key={item}>{item}</Option>
+          <Option value={item.path} key={item.path}>
+            <div className='vmTemplateDetail'>
+              <Tooltip placement="right" title={item.path}>
+                <p className='path'>{item.path}</p>
+              </Tooltip>
+              <p className='lowcase'>客户机操作系统：{item.type}</p>
+              <p className='lowcase'>虚拟机版本：{item.version}</p>
+              <p className='lowcase'>CPU/内存：{item.cpuNumber + 'C'}/{diskFormat(item.memoryTotal)}</p>
+            </div>
+          </Option>
         )
       })
     }
@@ -208,7 +228,9 @@ let CreateVmModal = React.createClass({
             <span><FormattedMessage {...menusText.templateTitle} /></span>
           </div>
           <div className='inputBox'>
-            <Select style={{ width: '300px' }} onChange={this.onChangeTemplate} value={this.state.template}>
+            <Select style={{ width: '320px' }} onChange={this.onChangeTemplate} value={this.state.template}
+              getPopupContainer={() => document.getElementById('CreateVmModal')}  
+            >
               {templates}
             </Select>
           </div>
@@ -228,7 +250,7 @@ let CreateVmModal = React.createClass({
             <span><FormattedMessage {...menusText.resourcePool} /></span>
           </div>
           <div className='inputBox'>
-            <Select style={{ width: '300px' }} onChange={this.onChangeResourcePool} value={this.state.resourcePool}>
+            <Select style={{ width: '320px' }} onChange={this.onChangeResourcePool} value={this.state.resourcePool}>
               {resourcePools}
             </Select>             
           </div>
@@ -239,7 +261,7 @@ let CreateVmModal = React.createClass({
             <span><FormattedMessage {...menusText.datastores}/></span>
           </div>
           <div className='inputBox'>            
-            <Select style={{ width: '300px' }} onChange={this.onChangeDatastore} value={this.state.datastore}>
+            <Select style={{ width: '320px' }} onChange={this.onChangeDatastore} value={this.state.datastore}>
               {datastores}
             </Select>              
           </div>

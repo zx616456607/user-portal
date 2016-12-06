@@ -677,7 +677,7 @@ let MyComponent = React.createClass({
             <span className='commonSpan'>{statusFormat(item.status, scope)}</span>
           </div>
           <div className='user commonTitle'>
-            <i className='fa fa-user' />
+            <i className='fa fa-user-o' />
             <span className='commonSpan'>{item.namespace}</span>
             <div style={{ clear:'both' }}></div>
           </div>

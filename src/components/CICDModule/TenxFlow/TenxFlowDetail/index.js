@@ -222,8 +222,10 @@ class TenxFlowDetail extends Component {
               <div style={{ clear:'both' }}></div>
             </div>
             <div className='btnBox'>
-              <Button size='large' type='primary' onClick={this.startBuildStage}>
-                <i className='fa fa-pencil-square-o' />&nbsp;
+              <Button size='large' type='primary' onClick={this.startBuildStage} className='buildBtn'>
+                <svg className='cicdbuildfast'>
+                  <use xlinkHref='#cicdbuildfast' />
+                </svg>
                 <FormattedMessage {...menusText.deloyStart} />
               </Button>
               {this.state.showImage.length > 0 ?
@@ -236,8 +238,10 @@ class TenxFlowDetail extends Component {
                 :
                 null
               }
-              <Button size='large' type='ghost' onClick={this.openTenxFlowDeployLogModal}>
-                <i className='fa fa-wpforms' />&nbsp;
+              <Button size='large' type='ghost' onClick={this.openTenxFlowDeployLogModal} className='titleLogBtn'>
+                <svg className='cicdlog'>
+                  <use xlinkHref='#cicdlog' />
+                </svg>
                 <FormattedMessage {...menusText.deloyLog} />
               </Button>
               <div style={{ clear:'both' }}></div>

@@ -1,40 +1,56 @@
 //header
-#header{
+#header {
   height: 55px;
   overflow: hidden;
   .space {
     float: left;
     display: inline-block;
-    width: 230px;
+    min-width: 180px;
     border-right: 1px solid #c9c9c9;
     background-color: #fff;
     .spaceTxt {
+      position: relative;
       height: 19px;
       display: inline-block;
       padding: 0 10px;
       margin: 18px 0;
-      width: 90px;
+      width: 75px;
       text-align: center;
-      border-right: 1px solid #666666;
+      border-right: 1px solid #c9c9c9;
+      svg {
+        position: absolute;
+        top: 2px;
+        left: 15px;
+        width: 12px;
+        height: 12px;
+      }
     }
     .spaceBtn {
       display: inline-block;
-      margin-left: 10px;
-      width: 110px;
+      padding-left: 20px;
       text-align: center;
     }
   }
   .cluster {
     float: left;
+    min-width: 200px;
     display: inline-block;
     .clusterTxt {
+      position: relative;
       height: 19px;
       display: inline-block;
       padding: 0 10px;
       margin: 18px 0;
-      width: 90px;
+      width: 85px;
       text-align: center;
-      border-right: 1px solid #666666;
+      border-right: 1px solid #c9c9c9;
+      svg {
+        position: absolute;
+        top: 1px;
+        left: 18px;
+        width: 14px;
+        height: 14px;
+      }
     }
     .clusterBtn {
       display: inline-block;
@@ -49,38 +65,36 @@
     }
     .envirBox {
       display: inline-block;
-      margin-left: 10px;
-      width: 120px;
+      margin-left: 20px;
       text-align: center;
     }
   }
   .ant-popover {
     width: 180px;
   }
-    //右侧帮助文档和用户框样式
-  .rightBox{
-        float: right;
-        height: 55px;
-        line-height: 55px;
-        .docBtn{
-            float: left;
-            padding: 0px 10px;
-            cursor: pointer;
-        }
-        .userBtn{
-            float: left;
-            padding: 0px 20px;
-            width: auto;
-            cursor: pointer;
-            i{
-                margin-left: 10px;
-                font-size: 10px !important;
-            }
-        }
+  //右侧帮助文档和用户框样式
+  .rightBox {
+    float: right;
+    height: 55px;
+    line-height: 55px;
+    .docBtn {
+      float: left;
+      padding: 0 10px;
+      cursor: pointer;
     }
+    .userBtn {
+      float: left;
+      padding: 0 20px;
+      width: auto;
+      cursor: pointer;
+      i {
+        margin-left: 10px;
+        font-size: 10px !important;
+      }
+    }
+  }
   .placeholder {
     color: #30a7e9;
     padding-left: 10px;
   }
-
 }

@@ -136,24 +136,59 @@ class VmList extends Component {
     this.closeCreateVmModal = this.closeCreateVmModal.bind(this);
     this.openCreateVmModal = this.openCreateVmModal.bind(this);
     this.refreshVmList = this.refreshVmList.bind(this);
+    this.onSearchVmList = this.onSearchVmList.bind(this);
+    this.onConfirmOperaVm = this.onConfirmOperaVm.bind(this);
+    this.closeConfirmModal = this.closeConfirmModal.bind(this);
     this.state = {
       currentShowApps: 'all',
       currentAppType: '1',
       showType: 'list',
-      createVmModal: false
+      createVmModal: false,
+      vmList: [],
+      confirmMsg: null,
+      confirmModal: false,
+      currentOperaVm: null
     }
   }
   
   componentWillMount() {
     document.title = '集成中心 | 时速云';
     const { getIntegrationVmList, integrationId, currentDataCenter } = this.props;
-    getIntegrationVmList(integrationId, currentDataCenter)
+    const _this = this;
+    getIntegrationVmList(integrationId, currentDataCenter, {
+      success: {
+        func: (res) => {
+          let vmList = res.result.data;
+          if(!Boolean(vmList)) {
+            vmList = [];
+          }
+          _this.setState({
+            vmList: vmList
+          })
+        },
+        isAsync: true
+      }
+    })
   }
   
   componentWillReceiveProps(nextProps) {
     const { getIntegrationVmList, integrationId, currentDataCenter } = nextProps;
+    const _this = this;
     if(nextProps.currentDataCenter != this.props.currentDataCenter) {
-      getIntegrationVmList(integrationId, currentDataCenter)
+      getIntegrationVmList(integrationId, currentDataCenter, {
+        success: {
+          func: (res) => {
+            let vmList = res.result.data;
+            if(!Boolean(vmList)) {
+              vmList = [];
+            }
+            _this.setState({
+              vmList: vmList
+            })
+          },
+          isAsync: true
+        }
+      })
     }
   }
   
@@ -187,110 +222,62 @@ class VmList extends Component {
     getIntegrationVmList(integrationId, e)
   }
   
-  onPowerOn(path, status) {
+  onPowerOn(path, status, name) {
     //this function for user power on the vm
-    const { manageVmDetail, integrationId, currentDataCenter, vmList } = this.props;
+    const { manageVmDetail, integrationId, currentDataCenter, vmList } = this.props; 
     let tempBody = {
       action: status,
       vm: path
     }
     let title = null;
-    let successMsg = null;
+    let confirmMsg = null;
     let errorMsg = null;
     let newStatus = null;
     if(status == 'poweron') {
-      title = '打开虚拟机';
-      successMsg = '该虚机已经打开了~';
-      errorMsg = '打开虚拟机成功~';
-      newStatus = 'poweroff';
+      title = '确认启动';
+      confirmMsg = '是否确定启动虚机' + name;
+      tempBody.action = 'poweroff'
     } else if (status == 'poweroff') {
-      title = '关闭虚拟机';
-      successMsg = '该虚机已经关闭了~';
-      errorMsg = '关闭虚拟机成功~';
-      newStatus = 'poweron';
+      title = '确认关闭';
+      confirmMsg = '是否确定关闭虚拟机' + name + '的客户机操作系统';
+      tempBody.action = 'poweron'
     }
-    vmList.map((item) => {
-      if(item.path == path && item.powerstate == status) {
-        notification['warning']({
-          message: title,
-          description: errorMsg,
-        });
-      }
-    });
-    manageVmDetail(integrationId, currentDataCenter, tempBody, {
-      success: {
-        func: () => {
-          vmList.map((item) => {
-            if(item.path == path) {
-              
-              item.powerstate = newStatus;
-            }
-          });
-          notification['success']({
-          message: title,
-          description: successMsg,
-        });
-        },
-        isAsync: true
-      }
+    this.setState({
+      confirmModal: true,
+      confirmMsg: confirmMsg,
+      confirmTitle: title,
+      currentOperaVm: tempBody
     });
   }
   
-  meunClick(path, key) {
+  meunClick(path, name, key) {
     //this function for user manage the vm 
     const { manageVmDetail, integrationId, currentDataCenter, vmList } = this.props;
     let title = null;
-    let msg = null;
-    let errorMsg = null;
+    let confirmMsg = null;
     switch(key.key) {
       case 'poweroff':
-        title = '关闭电源';
-        msg = '关闭电源成功~';
-        errorMsg = '该虚机已经关闭电源了~';
-        break;
-      case 'shutdown':
         title = '关闭虚拟机';
-        msg = '关闭虚拟机成功~';
-        errorMsg = '该虚机已经关闭了~';
+        confirmMsg = '是否确定关闭虚拟机' + name + '的客户机操作系统';
         break;
       case 'delete':
         title = '删除虚拟机';
-        msg = '删除虚拟机成功~';
-        errorMsg = '该虚机已经被删除了~';
+        confirmMsg = '是否确定删除虚拟机' + name;
         break;
       case 'poweron':
-        title = '打开虚拟机';
-        msg = '打开虚拟机成功~';
-        errorMsg = '该虚机已经被打开了~';
+        title = '启动虚拟机';
+        confirmMsg = '是否确定启动虚拟机' + name;
         break;
     }
-    vmList.map((item) => {
-      if(item.path == path && item.powerstate == key.key) {
-        notification['warning']({
-          message: title,
-          description: errorMsg,
-        });
-      }
-    })
     let tempBody = {
       action: key.key,
       vm: path
     }
-    manageVmDetail(integrationId, currentDataCenter, tempBody, {
-      success: {
-        func: () => {
-          vmList.map((item) => {
-            if(item.path == path) {
-              item.powerstate = key.key
-            }
-          });
-          notification['success']({
-          message: title,
-          description: msg,
-        });
-        },
-        isAsync: true
-      }
+    this.setState({
+      confirmModal: true,
+      confirmMsg: confirmMsg,
+      confirmTitle: title,
+      currentOperaVm: tempBody
     });
   }
   
@@ -314,97 +301,180 @@ class VmList extends Component {
     getIntegrationVmList(integrationId, currentDataCenter);
   }
   
+  onSearchVmList(e) {
+    //this function for user search special vm
+    let keyword = e.target.value;
+    const { vmList } = this.props;
+    let newList = [];
+    vmList.map((item) => {
+      if(item.name.indexOf(keyword) > -1) {
+        newList.push(item)
+      }
+    });
+    this.setState({
+      vmList: newList
+    })
+  }
+  
+  onConfirmOperaVm() {
+    //this function for user confirm opera vm
+    let { manageVmDetail, integrationId, currentDataCenter } = this.props;
+    let { vmList } = this.state;
+    const { currentOperaVm } = this.state;
+    let tempBody = {
+      action: currentOperaVm.action,
+      vm: currentOperaVm.vm
+    }
+    let errorMsg = '';
+    let successMsg = '';
+    let title = '';
+    if(currentOperaVm.action == 'poweron') {
+      title = '启动虚拟机';
+      errorMsg = '虚拟机已经启动了';
+      successMsg = '启动虚拟机成功';
+    } else if(currentOperaVm.action == 'poweroff') {
+      title = '关闭虚拟机';
+      errorMsg = '虚拟机已经关闭了';
+      successMsg = '关闭虚拟机成功';
+    }
+    this.setState({
+      confirmModal: false
+    })
+    manageVmDetail(integrationId, currentDataCenter, tempBody, {
+      success: {
+        func: () => {
+          vmList.map((item) => {
+            if(item.path == currentOperaVm.vm) {
+              item.powerstate = currentOperaVm.action;
+            }
+          });
+          this.setState({
+            vmList: vmList
+          })
+          notification['success']({
+            message: title,
+            description: successMsg,
+          });
+        },
+        isAsync: true
+      },
+      failed: {
+        func: (error) => {
+          if(error.message.code == 500) {
+            notification['error']({
+              message: title,
+              description: errorMsg,
+            });
+          }
+        }
+      }
+    });
+  }
+  
+  closeConfirmModal() {
+    //this function for user close the oprea vm modal
+    this.setState({
+      confirmModal: false
+    })
+  }
+  
   render() {
     const { formatMessage } = this.props.intl;
-    const { isFetching, vmList, dataCenters, currentDataCenter, integrationId } = this.props;
+    const { isFetching, dataCenters, currentDataCenter, integrationId } = this.props;
     const scope = this;
-    if(isFetching || !Boolean(vmList)) {
+    if(isFetching) {
       return (
         <div className='loadingBox'>
           <Spin size='large' />
         </div>
       )
     }
-    let appShow = vmList.map((item, index) => {
-      const menu = (
-        <Menu onClick={this.meunClick.bind(this, item.path)} style={{ width: '126px' }}>
-          { 
-            item.powerstate == 'poweron' ? [<Menu.Item key='poweroff'><i className='fa fa-stop' />&nbsp;<FormattedMessage {...menusText.poweroff} /></Menu.Item>] : [<Menu.Item key='poweron'><i className='fa fa-play' />&nbsp;<FormattedMessage {...menusText.poweron} /></Menu.Item>]
-          }          
-          <Menu.Item key='shutdown'><i className='fa fa-chain-broken' />&nbsp;<FormattedMessage {...menusText.shutdown} /></Menu.Item>
-          <Menu.Item key='delete' disabled><i className='fa fa-trash' />&nbsp;<FormattedMessage {...menusText.delete} /></Menu.Item>
-        </Menu>
-      )
-      return (
-        <div className='podDetail' key={'podDetail' + index}>
-          <div className='ip commonTitle'>
-            <span className='commonSpan'>
-              <Tooltip placement='topLeft' title={item.name}>
-                <span className='topSpan'>{item.name}</span>
-              </Tooltip>
-              <Tooltip placement='topLeft' title={!!item.ip ? item.ip : '-'}>
-                <span className='bottomSpan'>{!!item.ip ? item.ip : '-'}</span>
-              </Tooltip>
-            </span>
-          </div>
-          <div className='status commonTitle'>
-            <span className='commonSpan'>
-              <span>{formatStatus(item.powerstate)}</span>
-            </span>
-          </div>
-          <div className='pod commonTitle'>
-            <span className='commonSpan'>
-              <Tooltip placement='topLeft' title={item.hostSystem}>
-               <span>{item.hostSystem}</span>
-              </Tooltip>
-            </span>
-          </div>
-          <div className='cpu commonTitle'>
-            <span className='commonSpan'>
-              <span>{item.cpuNumber}<FormattedMessage {...menusText.core} /></span>
-            </span>
-          </div>
-          <div className='memory commonTitle'>
-            <span className='commonSpan'>
-              <span>{diskFormat(item.memoryTotal)}</span>
-            </span>
-          </div>
-          <div className='disk commonTitle'>
-            <span className='commonSpan'>
-              <span>{diskFormat(item.diskTotal)}</span>
-            </span>
-          </div>
-          <div className='runTime commonTitle'>
-            <span className='commonSpan'>
-              <Tooltip placement='topLeft' title={!!item.bootTime ? calcuDate(item.bootTime) : null}>
-                <span>{!!item.bootTime ? calcuDate(item.bootTime) : '-'}</span>
-              </Tooltip>
-            </span>
-          </div>
-          <div className='startTime commonTitle'>
-            <span className='commonSpan'>
-              <Tooltip placement='topLeft' title={!!item.bootTime ? formatDate(item.bootTime) : null}>
-                <span>{!!item.bootTime ? formatDate(item.bootTime) : '-'}</span>
-              </Tooltip>
-            </span>
-          </div>
-          <div className='opera commonTitle'>
-            {/*<Button size='large' type='primary' className='terminalBtn'>
-              <svg className='terminal'>
-                <use xlinkHref='#terminal' />
-              </svg>
-              <span style={{ marginLeft: '20px' }}>终端</span>
-            </Button>*/}
-            <Dropdown.Button overlay={menu} type='ghost' size='large' onClick={this.onPowerOn.bind(this, item.path, item.powerstate)}>
-              <span>
-                { item.powerstate == 'poweron' ? [<span><i className='fa fa-play' />&nbsp;<FormattedMessage {...menusText.poweron} /></span>] : [<span><i className='fa fa-stop' />&nbsp;<FormattedMessage {...menusText.poweroff} /></span>] }
+    const { vmList } = this.state;
+    let appShow = null;
+    if(Boolean(vmList)) {      
+      appShow = vmList.map((item, index) => {
+        const menu = (
+          <Menu onClick={this.meunClick.bind(this, item.path, item.name)} style={{ width: '126px' }}>
+            { 
+              item.powerstate == 'poweroff' ? [<Menu.Item key='poweroff'><i className='fa fa-stop' />&nbsp;<FormattedMessage {...menusText.poweroff} /></Menu.Item>] : [<Menu.Item key='poweron'><i className='fa fa-play' />&nbsp;<FormattedMessage {...menusText.poweron} /></Menu.Item>]
+            }          
+            <Menu.Item key='delete' disabled><i className='fa fa-trash' />&nbsp;<FormattedMessage {...menusText.delete} /></Menu.Item>
+          </Menu>
+        )
+        return (
+          <div className='podDetail' key={'podDetail' + index}>
+            <div className='ip commonTitle'>
+              <span className='commonSpan'>
+                {
+                  !!item.ip ? [
+                    <span>
+                      <Tooltip placement='topLeft' title={item.name}>
+                        <span className='topSpan'>{item.name}</span>
+                      </Tooltip>
+                      <Tooltip placement='topLeft' title={!!item.ip ? item.ip : '-'}>
+                        <span className='bottomSpan'>{!!item.ip ? item.ip : '-'}</span>
+                      </Tooltip>
+                    </span>
+                  ] : [
+                    <span>{item.name}</span>
+                  ]
+                }
+                
               </span>
-            </Dropdown.Button>
+            </div>
+            <div className='status commonTitle'>
+              <span className='commonSpan'>
+                <span>{formatStatus(item.powerstate)}</span>
+              </span>
+            </div>
+            <div className='pod commonTitle'>
+              <span className='commonSpan'>
+                <Tooltip placement='topLeft' title={item.hostSystem}>
+                 <span>{item.hostSystem}</span>
+                </Tooltip>
+              </span>
+            </div>
+            <div className='cpu commonTitle'>
+              <span className='commonSpan'>
+                <span>{item.cpuNumber}<FormattedMessage {...menusText.core} /></span>
+              </span>
+            </div>
+            <div className='memory commonTitle'>
+              <span className='commonSpan'>
+                <span>{diskFormat(item.memoryTotal)}</span>
+              </span>
+            </div>
+            <div className='disk commonTitle'>
+              <span className='commonSpan'>
+                <span>{diskFormat(item.diskTotal)}</span>
+              </span>
+            </div>
+            <div className='runTime commonTitle'>
+              <span className='commonSpan'>
+                <Tooltip placement='topLeft' title={!!item.bootTime ? calcuDate(item.bootTime) : null}>
+                  <span>{!!item.bootTime ? calcuDate(item.bootTime) : '-'}</span>
+                </Tooltip>
+              </span>
+            </div>
+            <div className='startTime commonTitle'>
+              <span className='commonSpan'>
+                <Tooltip placement='topLeft' title={!!item.bootTime ? formatDate(item.bootTime) : null}>
+                  <span>{!!item.bootTime ? formatDate(item.bootTime) : '-'}</span>
+                </Tooltip>
+              </span>
+            </div>
+            <div className='opera commonTitle'>
+              <Dropdown.Button overlay={menu} type='ghost' size='large' onClick={this.onPowerOn.bind(this, item.path, item.powerstate, item.name)}>
+                <span>
+                  { item.powerstate == 'poweroff' ? [<span><i className='fa fa-play' />&nbsp;<FormattedMessage {...menusText.poweron} /></span>] : [<span><i className='fa fa-stop' />&nbsp;<FormattedMessage {...menusText.poweroff} /></span>] }
+                </span>
+              </Dropdown.Button>
+            </div>
+            <div style={{ clear: 'both' }}></div>
           </div>
-          <div style={{ clear: 'both' }}></div>
-        </div>
-      )
-    });
+        )
+      });
+    }
     return (
       <div id='VmList' key='VmList'>
         <div className='operaBox'>
@@ -417,7 +487,7 @@ class VmList extends Component {
             <FormattedMessage {...menusText.refresh} />
           </Button>
           <div className='searchBox'>
-            <Input type='text' size='large' />
+            <Input type='text' size='large' onChange={this.onSearchVmList} />
             <i className='fa fa-search' />
           </div>
           <div style={{ clear: 'both' }}></div>
@@ -465,6 +535,15 @@ class VmList extends Component {
           onCancel={this.closeCreateVmModal.bind(this)}
         >
           <CreateVmModal scope={scope} createVmModal={this.state.createVmModal} currentDataCenter={currentDataCenter} integrationId={integrationId}/>
+        </Modal>
+        <Modal
+          className='operaVmModal'
+          visible={this.state.confirmModal}
+          onOk={this.onConfirmOperaVm}
+          onCancel={this.closeConfirmModal}
+          title={this.state.confirmTitle}
+        >
+          <Alert message={this.state.confirmMsg} type='warning' />
         </Modal>
       </div>
     )

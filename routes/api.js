@@ -191,6 +191,7 @@ module.exports = function (Router) {
   router.get('/clusters/:cluster/containers/:container_name/metrics', metricsController.getContainerMetrics)
   router.get('/clusters/:cluster/services/:service_name/metrics', metricsController.getServiceMetrics)
   router.get('/clusters/:cluster/apps/:app_name/metrics', metricsController.getAppMetrics)
+  // router.get('/clusters/:cluster/apps/:app_name/getAllMetrics', metricsController.getAppAllMetrics)
 
   // Manage Monitor
   router.post('/manage-monitor/getOperationAuditLog', manageMonitorController.getOperationAuditLog)
