@@ -36,13 +36,13 @@ class ContainerLogs extends Component {
     this.props.loadContainerLogs(cluster, containerName, {
       size: 50
     }, {
-      success: {
-        func() {
-          self.infoBox.scrollTop = self.infoBox.scrollHeight
-        },
-        isAsync: true
-      }
-    })
+        success: {
+          func() {
+            self.infoBox.scrollTop = self.infoBox.scrollHeight
+          },
+          isAsync: true
+        }
+      })
     this.setState({
       pageIndex: 2
     })
@@ -53,13 +53,13 @@ class ContainerLogs extends Component {
     this.props.clearContainerLogs(cluster, containerName)
   }
   moutseRollLoadLogs() {
-    if(!this.state.useGetLogs) return
-    if(this.infoBox.scrollTop >= 100 || this.infoBox.offsetHeight === this.infoBox.scrollHeight) return
+    if (!this.state.useGetLogs) return
+    if (this.infoBox.scrollTop >= 100 || this.infoBox.offsetHeight === this.infoBox.scrollHeight) return
     this.setState({
       useGetLogs: false
     })
     const cluster = this.props.cluster
-    const containerName =  this.props.containerName
+    const containerName = this.props.containerName
     const self = this
     const scrollBottom = this.infoBox.scrollBottom
     this.props.loadContainerLogs(cluster, containerName, {
@@ -68,33 +68,33 @@ class ContainerLogs extends Component {
       date_start: this.state.currentDate,
       date_end: this.state.currentDate
     }, {
-      success: {
-        func(result) {
-          if(self.state.preScroll !== 0) {
-            self.infoBox.scrollTop = self.infoBox.scrollHeight - self.state.preScroll
-          }
-          self.setState({
-            preScroll: self.infoBox.scrollHeight
-          })
-          if (!result.data || result.data.length < 50) {
+        success: {
+          func(result) {
+            if (self.state.preScroll !== 0) {
+              self.infoBox.scrollTop = self.infoBox.scrollHeight - self.state.preScroll
+            }
             self.setState({
-              useGetLogs: false
+              preScroll: self.infoBox.scrollHeight
             })
-          } else {
-            self.setState({
-              useGetLogs: true
-            })
-          }
-        },
-        isAsync: true
-      }
-    })
+            if (!result.data || result.data.length < 50) {
+              self.setState({
+                useGetLogs: false
+              })
+            } else {
+              self.setState({
+                useGetLogs: true
+              })
+            }
+          },
+          isAsync: true
+        }
+      })
     this.setState({
       pageIndex: this.state.pageIndex + 1
     })
   }
   changeCurrentDate(date, refresh) {
-    if(!date) return
+    if (!date) return
     const cluster = this.props.cluster
     const containerName = this.props.containerName
     const self = this
@@ -144,17 +144,17 @@ class ContainerLogs extends Component {
       }
       if (index === 0) {
         if (log.log === '无更多日志\n') {
-          return (<span key={index}>{ `${log.log}\npage ${page}\n` }</span>)
+          return (<span key={index}>{`${log.log}\npage ${page}\n`}</span>)
         }
-        return (<span key={index}>{ `page ${page}\n${time ? `[${time}] ${log.log}` : log.log}` }</span>)
+        return (<span key={index}>{`page ${page}\n${time ? `[${time}] ${log.log}` : log.log}`}</span>)
       }
       if (index + 1 === remainder && page !== 1) {
-        return (<span key={index}>{ `page ${--page}\n${time ? `[${time}] ${log.log}` : log.log}` }</span>)
+        return (<span key={index}>{`page ${--page}\n${time ? `[${time}] ${log.log}` : log.log}`}</span>)
       }
       if ((index + 1) % 50 === 0 && page !== 1) {
-        return (<span key={index}>{ `page ${--page}\n${time ? `[${time}] ${log.log}` : log.log}` }</span>)
+        return (<span key={index}>{`page ${--page}\n${time ? `[${time}] ${log.log}` : log.log}`}</span>)
       }
-      return (<span key={log.id} index={index}>{ time ? `[${time}] ${log.log}` : log.log}</span>)
+      return (<span key={log.id} index={index}>{time ? `[${time}] ${log.log}` : log.log}</span>)
     })
     return logContent
   }
@@ -164,7 +164,7 @@ class ContainerLogs extends Component {
   onChangeLogSize() {
     //this function for user change the log size to 'big' or 'normal'
     const { logSize } = this.state;
-    if(logSize == 'big') {
+    if (logSize == 'big') {
       document.getElementById('containerInfo').style.transform = 'translateX(0px)';
       this.setState({
         logSize: 'normal'
@@ -178,16 +178,16 @@ class ContainerLogs extends Component {
   }
   render() {
     return (
-      <div id="ContainerGraph">
+      <div id="ContainerLogs">
         <div className={this.state.logSize == 'big' ? "bigBox bottomBox" : 'bottomBox'} >
           <div className="introBox">
             <div className="operaBox">
               <i className="fa fa-expand" onClick={this.onChangeLogSize.bind(this)}></i>
-              <i className="fa fa-refresh" onClick={() => {this.refreshLogs()}}></i>
-              <DatePicker className="datePicker" onChange={(date)=> this.changeCurrentDate(date)} value={this.state.currentDate}/>
+              <i className="fa fa-refresh" onClick={() => { this.refreshLogs() } }></i>
+              <DatePicker className="datePicker" onChange={(date) => this.changeCurrentDate(date)} value={this.state.currentDate} />
             </div>
-            <div className="infoBox" ref={(c)=> this.infoBox = c} onScroll ={ () => this.moutseRollLoadLogs() }>
-              <pre> { this.getLogs() } </pre>
+            <div className="infoBox" ref={(c) => this.infoBox = c} onScroll={() => this.moutseRollLoadLogs()}>
+              <pre> {this.getLogs()} </pre>
             </div>
             <div style={{ clear: "both" }}></div>
           </div>
