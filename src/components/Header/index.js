@@ -12,7 +12,6 @@ import { Menu, Dropdown, Icon, Select, Input, Button, Form, Popover, message } f
 import { FormattedMessage, defineMessages } from 'react-intl'
 import "./style/header.less"
 import querystring from 'querystring'
-import classNames from 'classnames'
 import PopSelect from '../PopSelect'
 import { connect } from 'react-redux'
 import { loadUserTeamspaceList } from '../../actions/user'
