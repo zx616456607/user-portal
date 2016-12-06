@@ -15,11 +15,7 @@ const rootRoutes = {
     path: '/login',
     getComponent: (location, cb) => {
       require.ensure([], (require) => {
-        if (mode === 'standard') {
-          cb(null, require('../containers/Login/Standard').default)
-        } else {
-          cb(null, require('../containers/Login/Enterprise').default)
-        }
+        cb(null, mode === 'standard' ? require('../containers/Login/Standard').default : require('../containers/Login/Enterprise').default)
       })
     },
   }, {
@@ -28,11 +24,7 @@ const rootRoutes = {
     indexRoute: {
       getComponent: (location, cb) => {
         require.ensure([], (require) => {
-          if (mode === 'standard') {
-            cb(null, require('../containers/IndexPage/Standard').default)
-          } else {
-            cb(null, require('../containers/IndexPage/Enterprise').default)
-          }
+          cb(null, mode === 'standard' ? require('../containers/IndexPage/Standard').default : require('../containers/IndexPage/Enterprise').default)
         })
       },
     },
@@ -93,13 +85,13 @@ const rootRoutes = {
       },
     }, {
       path: 'setting',
-      component: require('../containers/Setting').default,
+      component: mode === 'standard' ? require('../containers/App/Standard').default : require('../containers/Setting').default,
       indexRoute: {
-        component: require('../components/SettingModal/Version').default,
+        component: mode === 'standard' ? require('../containers/IndexPage/Standard').default : require('../components/SettingModal/Version').default,
       },
       getChildRoutes: (location, cb) => {
         require.ensure([], function (require) {
-          cb(null, require('./setting').default)
+          cb(null, mode === 'standard' ? null : require('./setting').default)
         })
       },
     }, {
