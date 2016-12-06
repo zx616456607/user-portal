@@ -258,7 +258,7 @@ class ComposeFile extends Component {
               : null
               }
               <div className="bottomBox">
-                <span className='title'>编排文件</span>
+                <span className='titleSpan'>编排文件</span>
                 <div className="textareaBox">
                   <YamlEditor value={appDescYaml} options={defaultEditOpts} parentId={'AppCreate'} callback={this.editYamlSetState}/>
                 </div>
