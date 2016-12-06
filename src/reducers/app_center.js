@@ -114,7 +114,8 @@ function publicImages(state = {}, action) {
 function otherImages(state = {}, action) {
   const defaultState = {
     isFetching: false,
-    imageList: [],
+    bak: [],
+    bakImageList: [],
     imageRow: {}
   }
   switch (action.type) {
@@ -171,7 +172,7 @@ function otherImages(state = {}, action) {
         newState.imageList = newState.bak
         return newState
       }
-      const temp = state.imageList.filter(list => {
+      const temp = state.bak.filter(list => {
         const search = new RegExp(imageName)
         if (search.test(list)) {
           return true

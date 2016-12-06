@@ -93,12 +93,33 @@ class TenxFlowDetail extends Component {
       showImage: []
     }
   }
-
+  flowState() {
+    let { search } = this.props.location;
+    let status=''
+    search = search.split('&')[1]
+    console.log(search)
+    switch (search) {
+      case '0':
+        status = '成功'
+        break;
+      case '1':
+        status = "失败"
+        break;
+      case '2':
+        status = "执行中..."
+        break;
+      default:
+        status = "等待中..."
+    }
+    this.setState({
+      status
+    })
+  }
   componentWillMount() {
     document.title = 'TenxFlow | 时速云';
     const { getTenxFlowDetail } = this.props;
     let { search } = this.props.location;
-    search = search.slice(1)
+    search = search.split('?')[1].split('&')[0]
     const self = this
     getTenxFlowDetail(search, {
       success: {
@@ -118,6 +139,7 @@ class TenxFlowDetail extends Component {
         }
       }
     });
+    this.flowState()
   }
 
   openCreateTenxFlowModal() {
@@ -217,7 +239,7 @@ class TenxFlowDetail extends Component {
             </div>
               <p className='title'>{flowInfo.name}</p>
             <div className='msgBox'>
-              <span>这是状态</span>
+              <span>状态：{this.state.status}</span>
               <span className='updateTime'>{flowInfo.update_time ? flowInfo.update_time : flowInfo.create_time }</span>
               <div style={{ clear:'both' }}></div>
             </div>
