@@ -31,10 +31,13 @@ class CostRecord extends Component{
     super(props)
     this.handleSpaceChange = this.handleSpaceChange.bind(this)
     this.transformDate = this.transformDate.bind(this)
+    this.handleFilter = this.handleFilter.bind(this)
     this.state = {
       spacesVisible: false,
       currentSpaceName: '我的空间',
       currentTeamName: '',
+      filteredInfo: null,
+      sortedInfo: null,
     }
   }
   handleSpaceChange(space) {
@@ -70,6 +73,12 @@ class CostRecord extends Component{
     let m = date.getMonth()+1
     return (y+'-'+_addZero(m))
   }
+  handleFilter(value,option,e){
+    console.log('value,option,e',value,option,e);
+    this.setState({
+      filteredInfo: value
+    })
+  }
   render(){
     const {
       current,
@@ -81,7 +90,11 @@ class CostRecord extends Component{
       spacesVisible,
       currentSpaceName,
       currentTeamName,
+      filteredInfo,
+      sortedInfo,
     } = this.state
+    sortedInfo = sortedInfo || {};
+    filteredInfo = filteredInfo || {};
     let spaceMonthCost = {
       color: ['#46b2fa', '#2abe84'],
       backgroundColor: '#fff',
@@ -231,7 +244,8 @@ class CostRecord extends Component{
         <span>{currentSpaceName}消费明细</span>
         <MonthPicker style={{marginLeft: 40}} defaultValue={this.transformDate()}/>
         <div style={{flex: 'auto'}}>
-          <Select defaultValue="all" style={{ width: 120, float: 'right'}}>
+          <Select defaultValue="all" style={{ width: 120, float: 'right'}}
+                  onSelect={(value,option) => this.handleFilter(value,option)}>
             <Option value="all">全部</Option>
             <Option value="containter">容器服务</Option>
           </Select>
@@ -306,7 +320,11 @@ class CostRecord extends Component{
       ]
     }
     let costData = [
-
+      {id: 'zhaoxy',svcName:'test',svcType:'容器服务',price:'0.035T',cost:'0.01T',time:'11:11:11',long:'11分钟',cluster:'生产环境',ps:'...'},
+      {id: 'zhaoxy',svcName:'test',svcType:'容器服务',price:'0.035T',cost:'0.01T',time:'11:11:11',long:'11分钟',cluster:'生产环境',ps:'...'},
+      {id: 'zhaoxy',svcName:'test',svcType:'容器服务',price:'0.035T',cost:'0.01T',time:'11:11:11',long:'11分钟',cluster:'生产环境',ps:'...'},
+      {id: 'zhaoxy',svcName:'test',svcType:'全部',price:'0.035T',cost:'0.01T',time:'11:11:11',long:'11分钟',cluster:'生产环境',ps:'...'},
+      {id: 'zhaoxy',svcName:'test',svcType:'全部',price:'0.035T',cost:'0.01T',time:'11:11:11',long:'11分钟',cluster:'生产环境',ps:'...'},
     ]
     let TableSpaceCostDetail  = [
       {
@@ -324,6 +342,12 @@ class CostRecord extends Component{
         title: '服务类型',
         dataIndex: 'svcType',
         key: 'svcType',
+        filters: [
+          { text: '全部', value: '全' },
+          { text: '容器服务', value: '容' },
+        ],
+        filteredValue: filteredInfo.svcType,
+        onFilter: (value, record) => record.svcType.indexOf(value) === 0,
       },
       {
         title: '单价',
