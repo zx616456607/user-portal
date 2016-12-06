@@ -158,19 +158,27 @@ let CodeStoreListModal = React.createClass({
     }
     const codeItems = this.state.projectList.map((item, index) => {
       return (
-      <QueueAnim key={'codeDetailAnimate' + index}>
+      <QueueAnim key={'codeDetailAnimate' + index} id="codeDetailAnimate">
         <div className={ item.id == hadSelected ? 'selectedCode codeDetail' : 'codeDetail' } key={'codeDetail' + index} >
           <div className='commonTitle'>
             <span>{item.name}</span>
           </div>
           <div className='commonTitle'>
-            <span>{item.address}</span>
+            <span className="address">{item.address}</span>
           </div>
-          <div className='commonTitle' onClick={this.selectedCodeStore.bind(this, item)}>         
-            <Select className={this.state.errorSelect == item.id ? 'noSelectCodeStore' : null} disabled={item.repoType =='svn'} style={{ width: '120px', float: 'left', marginTop: '11.5px', marginRight: '15px'}} size='large'
+          <div className='commonTitle'>
+          {item.repoType !='svn' ? 
+            <div onClick={()=> this.selectedCodeStore(item)} style={{ width: '120px',float:'left', marginRight: '15px'}}>
+              <Select className={this.state.errorSelect == item.id ? 'noSelectCodeStore' : null} style={{ width: '120px'}} size='large'
+                onChange={this.onChangeBranch.bind(this, item.id)} getPopupContainer={() => document.getElementById('codeDetailAnimate')}>
+                { showBranchList(item.branchList) }
+              </Select>
+            </div>
+          :
+            <Select value="不支持的类型" disabled={true} style={{ width: '120px', float:'left', marginTop: '11.5px', marginRight: '15px'}} size='large'
               onChange={this.onChangeBranch.bind(this, item.id)}>
-              { showBranchList(item.branchList) }
             </Select>
+          }
             <Button size='large' type='primary' style={{ float: 'left', marginTop: '11.5px' }} 
               onClick={this.onSubmitCodeStore.bind(this, item.id, item.name)}>
               <FormattedMessage {...menusText.deploy} />
