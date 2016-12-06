@@ -156,7 +156,7 @@ class RechargeRecord extends Component{
                wrapClassName='remindModal'
                onOk={this.handleOk}
                onCancel={this.handleCancel}
-               width = '610' >
+               width = '610px' >
           <div>
             <Alert message={alertMessage} type="info" />
             <Row style={{color: '#333333',height: 35}}>
