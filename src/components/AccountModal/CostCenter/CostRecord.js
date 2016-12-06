@@ -56,7 +56,6 @@ class CostRecord extends Component{
     loadUserTeamspaceList(loginUser.info.userID||userDetail.userID,{ size: 100 }, {
       success: {
         func:()=>{
-          console.log('teamspaces',teamspaces)
         },
         isAsync: true
       }
@@ -361,20 +360,10 @@ class CostRecord extends Component{
       total: costData.length,
       showSizeChanger: true,
       onShowSizeChange(current, pageSize) {
-        console.log('Current: ', current, '; PageSize: ', pageSize);
       },
       onChange(current) {
-        console.log('Current: ', current);
       },
     }
-    console.log('---------------------------')
-    console.log('current: ',current)
-    console.log('loginUser: ',loginUser)
-    console.log('teamspaces: ',teamspaces)
-    console.log('teamClusters: ',teamClusters)
-    console.log('currentSpaceName: ',currentSpaceName)
-    console.log('currentTeamName: ',currentTeamName)
-    console.log('---------------------------')
     return (
       <div id='CostRecord'>
         <Card style={{marginBottom: '20px'}}>
@@ -468,7 +457,6 @@ class CostRecord extends Component{
 function mapStateToProps (state,props) {
   const { current, loginUser } = state.entities
   const { teamspaces,userDetail } = state.user
-  console.log('current',current)
 
   return {
     current,

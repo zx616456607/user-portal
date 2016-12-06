@@ -25,7 +25,6 @@ class RechargeRecord extends Component{
   }
   handleSpaceChange(space) {
     const { loadTeamClustersList,loadUserTeamspaceList, setCurrent, current, loginUser } = this.props
-    console.log('space',space)
     this.setState({
       spacesVisible: false,
       currentSpaceName: space.spaceName,
@@ -54,7 +53,6 @@ class RechargeRecord extends Component{
     loadUserTeamspaceList(loginUser.info.userID||userDetail.userID,{ size: 100 }, {
       success: {
         func:()=>{
-          console.log('teamspaces',teamspaces)
         },
         isAsync: true
       }
