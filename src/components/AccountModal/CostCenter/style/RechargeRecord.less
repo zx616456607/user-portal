@@ -1,4 +1,7 @@
 #RechargeRecord {
+  .lineBtn {
+    font-size: 14px;
+  }
   .selectSpace {
     display: flex;
     display: -webkit-flex;
@@ -10,15 +13,44 @@
       background-color: #fff;
       font-weight: normal;
       font-size: 14px;
+      color: #2e2e2e !important;
     }
     .firstCol {
       padding-left: 24px;
     }
+    .blueFont {
+      color: #30aaf7;
+    }
+    .greenFont {
+      color: #11b672;
+    }
   }
 }
 .remindModal {
-  .ant-alert-info {
-    border-style: dashed;
-    border-color: #82d6fb;
+  .ant-modal-body {
+    font-size: 14px;
+    padding: 16px 30px;
+    .ant-alert {
+      margin-bottom: 20px;
+    }
+    .ant-alert-info {
+      font-size: 14px;
+      border-style: dashed;
+      border-color: #82d6fb;
+    }
+  }
+  .ant-btn {
+    width: 80px;
+    height: 36px;
+    border-radius: 3px;
+    font-weight: normal;
+    border: none;
+    &:hover {
+      border: none;
+    }
+  }
+  .ant-btn-ghost {
+    background-color: #efefef;
+    color: #717171;
   }
 }

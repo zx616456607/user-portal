@@ -72,10 +72,6 @@ export function loadConfigName(cluster, obj, callback) {
     [FETCH_API]: {
       types: [CONFIG_listName_REQUEST, CONFIG_LISTName_SUCCESS, CONFIG_LISTName_FAILURE],
       endpoint: `${API_URL_PREFIX}/clusters/${cluster}/configgroups/${obj.group}/configs/${obj.Name}`,
-      options: {
-        method: 'GET',
-        body: { name: obj.Name }
-      },
       schema: {}
     },
     callback: callback

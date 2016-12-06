@@ -593,7 +593,7 @@ class Storage extends Component {
             </div>
             <div className="rightBox">
               <div className="littleLeft">
-                <i className="fa fa-search"></i>
+                <i className="fa fa-search"/>
               </div>
               <div className="littleRight">
                 <Input size="large" placeholder={formatMessage(messages.inputPlaceholder)} onChange={(e) => this.getSearchStorageName(e)} onPressEnter={() => this.searchByStorageName()} />
@@ -604,7 +604,7 @@ class Storage extends Component {
           <Card className="storageBox appBox">
             <div className="appTitle">
               <div className="selectIconTitle commonTitle">
-                <Checkbox onChange={(e) => this.onAllChange(e)} checked={this.isAllChecked()} disabled={!this.disableSelectAll()}></Checkbox>
+                <Checkbox onChange={(e) => this.onAllChange(e)} checked={this.isAllChecked()} disabled={!this.disableSelectAll()}/>
               </div>
               <div className="name commonTitle"><FormattedMessage {...messages.storageName} /></div>
               <div className="status commonTitle"><FormattedMessage {...messages.status} /></div>

@@ -171,7 +171,6 @@ class TerminalModal extends Component {
   
   render() {
     const { scope, config } = this.props;
-    console.log('config',config)
     const _this = this;
     const operaBox = (
       <div className='operaBox'>

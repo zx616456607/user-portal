@@ -312,6 +312,54 @@ const menusText = defineMessages({
     id: 'ManageMonitor.operationalAudit.allResource',
     defaultMessage: '所有对象',
   },
+  CICDResources: {
+    id: 'ManageMonitor.operationalAudit.CICDResources',
+    defaultMessage: 'CI/CD',
+  },
+  Repo: {
+    id: 'ManageMonitor.operationalAudit.Repo',
+    defaultMessage: '代码仓库',
+  },
+  Project: {
+    id: 'ManageMonitor.operationalAudit.Project',
+    defaultMessage: '已激活代码库',
+  },
+  Flow: {
+    id: 'ManageMonitor.operationalAudit.Flow',
+    defaultMessage: 'TenxFlow',
+  },
+  Stage: {
+    id: 'ManageMonitor.operationalAudit.Stage',
+    defaultMessage: 'TenxFlow执行过程',
+  },
+  Link: {
+    id: 'ManageMonitor.operationalAudit.Link',
+    defaultMessage: 'TenxFlow共享目录',
+  },
+  Build: {
+    id: 'ManageMonitor.operationalAudit.Build',
+    defaultMessage: 'TenxFlow构建',
+  },
+  CIRule: {
+    id: 'ManageMonitor.operationalAudit.CIRule',
+    defaultMessage: 'CI规则',
+  },
+  CDRule: {
+    id: 'ManageMonitor.operationalAudit.CDRule',
+    defaultMessage: 'CD规则',
+  },
+  Dockerfile: {
+    id: 'ManageMonitor.operationalAudit.Dockerfile',
+    defaultMessage: '云端Dockerfile',
+  },
+  CINotification: {
+    id: 'ManageMonitor.operationalAudit.CINotification',
+    defaultMessage: 'CI',
+  },
+  CDNotification: {
+    id: 'ManageMonitor.operationalAudit.CDNotification',
+    defaultMessage: 'CD',
+  },
 });
 
 function returnOperationList(scope) {
@@ -496,6 +544,39 @@ function resourceFormat(resourceType, scope) {
       break;
     case '28':
       return formatMessage(menusText.VolumeConsumption)
+      break;
+    case '36':
+      return formatMessage(menusText.Repo)
+      break;
+    case '37':
+      return formatMessage(menusText.Project)
+      break;
+    case '38':
+      return formatMessage(menusText.Flow)
+      break;
+    case '39':
+      return formatMessage(menusText.Stage)
+      break;
+    case '40':
+      return formatMessage(menusText.Link)
+      break;
+    case '41':
+      return formatMessage(menusText.Build)
+      break;
+    case '42':
+      return formatMessage(menusText.CIRule)
+      break;
+    case '43':
+      return formatMessage(menusText.CDRule)
+      break;
+    case '44':
+      return formatMessage(menusText.Dockerfile)
+      break;
+    case '45':
+      return formatMessage(menusText.CINotification)
+      break;
+    case '46':
+      return formatMessage(menusText.CDNotification)
       break;
     case '0':
       return formatMessage(menusText.Unknown)
@@ -766,7 +847,7 @@ class OperationalAudit extends Component {
     //and then the operational list will be change
     const { formatMessage } = this.props.intl;
     if(e.length == 1 && (e != 26 || e != 29) ) {
-    }else {
+    } else {
       let eventCode = e[e.length - 1];
       let showOperationalList = new Array();
       let operationalList = returnOperationList(this);
@@ -899,6 +980,31 @@ class OperationalAudit extends Component {
         case '28':
           showOperationalList = [];
 //        showOperationalList.push(operationalList[2]);
+          break;
+        case '36':
+        case '39':
+        case '43':
+        case '44':
+          showOperationalList.push(operationalList[0]);
+          showOperationalList.push(operationalList[1]);
+          showOperationalList.push(operationalList[2]);
+          break;
+        case '37':
+        case '38':
+          showOperationalList.push(operationalList[0]);
+          showOperationalList.push(operationalList[2]);
+          break;
+        case '40':
+        case '42':
+          showOperationalList.push(operationalList[1]);
+          break;
+        case '41':
+          showOperationalList.push(operationalList[3]);
+          showOperationalList.push(operationalList[4]);
+          break;
+        case '45':
+        case '46':
+          showOperationalList.push(operationalList[3]);
           break;
         case '0':
           showOperationalList = operationalList;
@@ -1114,6 +1220,45 @@ class OperationalAudit extends Component {
         value: '28',
         label: formatMessage(menusText.VolumeConsumption),
       }*/],
+    }, {
+      value: '36',
+      label: formatMessage(menusText.CICDResources),
+      children: [
+        {
+          value: '36',
+          label: formatMessage(menusText.Repo),
+        }, {
+          value: '37',
+          label: formatMessage(menusText.Project),
+        }, {
+          value: '38',
+          label: formatMessage(menusText.Flow),
+        }, {
+          value: '39',
+          label: formatMessage(menusText.Stage),
+        }, {
+          value: '40',
+          label: formatMessage(menusText.Link),
+        }, {
+          value: '41',
+          label: formatMessage(menusText.Build),
+        }, {
+          value: '42',
+          label: formatMessage(menusText.CIRule),
+        }, {
+          value: '43',
+          label: formatMessage(menusText.CDRule),
+        }, {
+          value: '44',
+          label: formatMessage(menusText.Dockerfile),
+        }, {
+          value: '45',
+          label: formatMessage(menusText.CINotification),
+        }, {
+          value: '46',
+          label: formatMessage(menusText.CDNotification),
+        }
+      ]
     }, /*{
       value: '0',
       label: formatMessage(menusText.Unknown)
