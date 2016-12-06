@@ -50,8 +50,7 @@ class AppMonitior extends Component {
   }
 
   render() {
-    const { cpu, memory, networkReceived, networkTransmitted, appAllMetrics } = this.props
-    const { data } = appAllMetrics.result
+    const { cpu, memory, networkReceived, networkTransmitted } = this.props
     return (
       <div id="AppMonitior">
         <TimeControl onChange={this.handleTimeChange} />

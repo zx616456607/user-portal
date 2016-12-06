@@ -19,16 +19,23 @@ export function parseServiceDomain(item, bindingDomainStr) {
     && item.portsForExternal
     && bindingDomain.length > 0) {
     item.portsForExternal.map((port) => {
+      let nameInfo = item.metadata.name
+      let portInfo = ":" + port.port
+      if (bindingDomain && port.protocol.toLowerCase() == 'http') {
+        // Remove port number and use port name as url prefix
+        portInfo = ''
+        nameInfo = port.name
+      }
       bindingDomain.map((bindingDomain) => {
         let domain = ''
         // 检查是bindingDomain是否是IP，（此正则并不精确但在此处够用了）
         if (/^(\d{1,3}\.){3}\d{1,3}$/.test(bindingDomain)) {
           // e.g. http://192.168.1.123:1234
-          domain = bindingDomain + ':' + port.port
+          domain = bindingDomain + portInfo
         }
         else {
           // e.g. http://servicename-mengyuan.test.tenxcloud.com:8080
-          domain = item.metadata.name + '-' + item.metadata.namespace + '.' + bindingDomain + ':' + port.port
+          domain = nameInfo+ '-' + item.metadata.namespace + '.' + bindingDomain + portInfo
         }
         // if prefix is http://, remove suffix :80
         domain = domain.replace(/^(http:\/\/.*):80$/, '$1')

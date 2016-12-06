@@ -10,6 +10,8 @@
 
 'use strict'
 
+const constants = require('../constants')
+
 exports.addPort =  function (deployment, serviceList) {
   if (!deployment || !serviceList) {
       return
@@ -22,6 +24,20 @@ exports.addPort =  function (deployment, serviceList) {
   for (let i = 0; i < serviceList.length; i++) {
     if (serviceList[i].metadata.name === deployment.metadata.name) {
       if (serviceList[i].spec.externalIPs && serviceList[i].spec.externalIPs.length > 0 && serviceList[i].spec.ports && serviceList[i].spec.ports.length > 0) {
+        serviceList[i].spec.ports.forEach(function(port) {
+          let annotations = serviceList[i].metadata.annotations[constants.ANNOTATION_SVC_SCHEMA_PORTNAME]
+          let portDef = annotations.split(",")
+          for (let i = 0; i< portDef.length; i++) {
+            let p = portDef[i].split('/')
+            if (p && p.length > 1) {
+              console.log(p[0] + " vs " + port.name)
+              if (p[0] == port.name) {
+                port.protocol = p[1]
+                break
+              }
+            }
+          }
+        })
         deployment.portsForExternal = serviceList[i].spec.ports
       }
       serviceList[i].spec.ports.map((svcPort) => deployment.portForInternal.push(svcPort.port))
