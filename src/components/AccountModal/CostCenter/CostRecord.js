@@ -32,6 +32,7 @@ class CostRecord extends Component{
     this.handleSpaceChange = this.handleSpaceChange.bind(this)
     this.transformDate = this.transformDate.bind(this)
     this.handleFilter = this.handleFilter.bind(this)
+    this.handleTableChange = this.handleTableChange.bind(this)
     this.state = {
       spacesVisible: false,
       currentSpaceName: '我的空间',
@@ -45,6 +46,40 @@ class CostRecord extends Component{
       spacesVisible: false,
       currentSpaceName: space.spaceName,
       currentTeamName: space.teamName,
+    })
+  }
+  transformDate(){
+    function _addZero(text) {
+      return text.toString().length === 2 ? text : `0${text}`
+    }
+    let date = new Date
+    let y = date.getFullYear()
+    let m = date.getMonth()+1
+    return (y+'-'+_addZero(m))
+  }
+  handleTableChange(pagination, filters, sorter){
+    this.setState({
+      filteredInfo: filters,
+      sortedInfo: sorter,
+    });
+  }
+  handleFilter(value,option,e){
+    let filterValue = ''
+    switch(value){
+      case 'containter':
+       filterValue = '容'
+       break
+      case 'test':
+       filterValue = 'test'
+       break
+      default :
+       filterValue = ''
+       break
+    }
+    this.setState({
+      filteredInfo: {
+        svcType: [filterValue]
+      }
     })
   }
   componentWillMount() {
@@ -62,21 +97,6 @@ class CostRecord extends Component{
         },
         isAsync: true
       }
-    })
-  }
-  transformDate(){
-    function _addZero(text) {
-      return text.toString().length === 2 ? text : `0${text}`
-    }
-    let date = new Date
-    let y = date.getFullYear()
-    let m = date.getMonth()+1
-    return (y+'-'+_addZero(m))
-  }
-  handleFilter(value,option,e){
-    console.log('value,option,e',value,option,e);
-    this.setState({
-      filteredInfo: value
     })
   }
   render(){
@@ -248,6 +268,7 @@ class CostRecord extends Component{
                   onSelect={(value,option) => this.handleFilter(value,option)}>
             <Option value="all">全部</Option>
             <Option value="containter">容器服务</Option>
+            <Option value="test">test</Option>
           </Select>
         </div>
       </div>
@@ -323,8 +344,8 @@ class CostRecord extends Component{
       {id: 'zhaoxy',svcName:'test',svcType:'容器服务',price:'0.035T',cost:'0.01T',time:'11:11:11',long:'11分钟',cluster:'生产环境',ps:'...'},
       {id: 'zhaoxy',svcName:'test',svcType:'容器服务',price:'0.035T',cost:'0.01T',time:'11:11:11',long:'11分钟',cluster:'生产环境',ps:'...'},
       {id: 'zhaoxy',svcName:'test',svcType:'容器服务',price:'0.035T',cost:'0.01T',time:'11:11:11',long:'11分钟',cluster:'生产环境',ps:'...'},
-      {id: 'zhaoxy',svcName:'test',svcType:'全部',price:'0.035T',cost:'0.01T',time:'11:11:11',long:'11分钟',cluster:'生产环境',ps:'...'},
-      {id: 'zhaoxy',svcName:'test',svcType:'全部',price:'0.035T',cost:'0.01T',time:'11:11:11',long:'11分钟',cluster:'生产环境',ps:'...'},
+      {id: 'zhaoxy',svcName:'test',svcType:'test',price:'0.035T',cost:'0.01T',time:'11:11:11',long:'11分钟',cluster:'生产环境',ps:'...'},
+      {id: 'zhaoxy',svcName:'test',svcType:'test',price:'0.035T',cost:'0.01T',time:'11:11:11',long:'11分钟',cluster:'生产环境',ps:'...'},
     ]
     let TableSpaceCostDetail  = [
       {
@@ -343,7 +364,7 @@ class CostRecord extends Component{
         dataIndex: 'svcType',
         key: 'svcType',
         filters: [
-          { text: '全部', value: '全' },
+          { text: 'test', value: 'test' },
           { text: '容器服务', value: '容' },
         ],
         filteredValue: filteredInfo.svcType,
@@ -471,7 +492,7 @@ class CostRecord extends Component{
         </Row>
         <Row style={{marginBottom: '100px'}} className='SpaceCostDetailTab'>
           <Card title={spaceTableTitle}>
-            <Table columns={TableSpaceCostDetail} dataSource={costData} pagination={pagination}/>
+            <Table columns={TableSpaceCostDetail} dataSource={costData} pagination={pagination} onChange={this.handleTableChange}/>
           </Card>
         </Row>
       </div>
