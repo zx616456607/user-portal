@@ -172,7 +172,7 @@ class CollapseHeader extends Component {
   render() {
     const {collapseHeader } = this.props
     const {sizeNumber} = this.state
-    const formItemLayout = { labelCol: { span: 3 }, wrapperCol: { span: 21 } }
+    const formItemLayout = { labelCol: { span: 2 }, wrapperCol: { span: 21 } }
     const menu = (
       <Menu onClick={() => this.btnDeleteGroup(collapseHeader.name)} mode="vertical">
         <Menu.Item key="1"><Icon type="delete" /> 删除配置组</Menu.Item>
@@ -206,10 +206,11 @@ class CollapseHeader extends Component {
             visible={this.state.modalConfigFile}
             onOk={(e) => this.createConfigFile(collapseHeader.name)}
             onCancel={(e) => this.createConfigModal(e, false)}
+            width = "800"
             >
             <div className="configFile-inf" style={{ padding: '0 10px' }}>
               <p className="configFile-tip" style={{ color: "#16a3ea", height: '35px', textIndent: '10px' }}>
-                <Icon type="info-circle-o" style={{ marginRight: "10px" }} />
+                &nbsp;&nbsp;&nbsp;<Icon type="info-circle-o" style={{ marginRight: "10px" }} />
                 即将保存一个配置文件 , 您可以在创建应用 → 添加服务时 , 关联使用该配置
               </p>
               <Form horizontal>
@@ -217,7 +218,7 @@ class CollapseHeader extends Component {
                   <Input type="text" value={this.state.configName} onChange={(e) => this.addConfigFile(e, 'name')} className="configName" />
                 </FormItem>
                 <FormItem {...formItemLayout} label="内容">
-                  <Input type="textarea" style={{ minHeight: '100px' }} value={this.state.configDesc} onChange={(e) => this.addConfigFile(e, 'desc')} />
+                  <Input type="textarea" style={{ minHeight: '300px' }} value={this.state.configDesc} onChange={(e) => this.addConfigFile(e, 'desc')} />
                 </FormItem>
               </Form>
             </div>

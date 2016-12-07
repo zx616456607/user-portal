@@ -88,7 +88,7 @@ class ServiceAPI extends Component {
     if (!!dataStorage) {
       dataStorageShow = dataStorage.map((item) => {
         return (
-          <p>数据存储器: &nbsp;{item}</p>
+          <p> - &nbsp;{item}</p>
         )
       });
     }
@@ -107,18 +107,35 @@ class ServiceAPI extends Component {
         )
       });
     }
+    let size = 0;
+    let unit = ' K';
+    if (configList.sizeInfo && configList.sizeInfo.totalSize > 0) {
+      size = configList.sizeInfo.totalSize;
+      if (size > 1024) {
+        size = Math.ceil(size /1024)
+      }
+      if (size > 1024) {
+        size = Math.ceil(size /1024)
+        unit = ' M'
+      }
+      if (size > 1024) {
+        size = Math.ceil(size /1024)
+        unit = ' G'
+      }
+    }
     let { defaultEnv } = configList;
     return (
       <Card className="imageServiceAPI" key='imageserviceapi'>
-        <p>容器端口:&nbsp;{portsShow}</p>
-        {dataStorageShow}
-        <p>运行命令及参数：&nbsp;{entrypointShow}{cmdShow}</p>
-        <div>大小：{(configList.sizeInfo && configList.sizeInfo.totalSize > 0) ? Math.ceil(configList.sizeInfo.totalSize / 1024) + ' K' : '未知'}</div>
-        <p>所需环境变量: </p>
+        <p><li>服务端口:&nbsp;&nbsp;{portsShow ? portsShow:"该镜像无端口定义"}</li></p>
+        <p><li>存储卷</li></p>
+        {dataStorageShow ? dataStorageShow : " - 该镜像无存储卷定义"}
+        <p><li>运行命令及参数:&nbsp;&nbsp;{entrypointShow}&nbsp;{cmdShow}</li></p>
+        <div><li>大小：{(size > 0) ? size + unit : '未知'}</li></div>
+        <p><li>环境变量定义</li></p>
         <div className="itemBox">
           <div className="title">
             <span className="leftSpan">变量名</span>
-            <span className="rightSpan">镜像</span>
+            <span className="rightSpan">默认值</span>
             <div style={{ clear: "both" }}></div>
           </div>
           <MyComponent config={defaultEnv} />
