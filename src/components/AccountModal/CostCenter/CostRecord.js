@@ -247,7 +247,7 @@ class CostRecord extends Component{
       <div className="teamCostTitle">
         <span>{currentSpaceName}该月消费</span>
         <div style={{flex: 'auto'}}>
-          <MonthPicker style={{float: 'right'}} defaultValue={this.transformDate()}/>
+          <MonthPicker style={{float: 'left',marginLeft: '40px'}} defaultValue={this.transformDate()}/>
         </div>
       </div>
     )
@@ -255,7 +255,7 @@ class CostRecord extends Component{
       <div className="teamCostTitle">
         <span>{currentSpaceName}该月消费详情</span>
         <div style={{flex: 'auto'}}>
-          <MonthPicker style={{float: 'right'}} defaultValue={this.transformDate()}/>
+          <MonthPicker style={{float: 'left',marginLeft: '40px'}} defaultValue={this.transformDate()}/>
         </div>
       </div>
     )
@@ -264,7 +264,7 @@ class CostRecord extends Component{
         <span>{currentSpaceName}消费明细</span>
         <MonthPicker style={{marginLeft: 40}} defaultValue={this.transformDate()}/>
         <div style={{flex: 'auto'}}>
-          <Select defaultValue="all" style={{ width: 120, float: 'right'}}
+          <Select defaultValue="all" style={{ width: 120, float: 'left',marginLeft: '40px'}}
                   onSelect={(value,option) => this.handleFilter(value,option)}>
             <Option value="all">全部</Option>
             <Option value="containter">容器服务</Option>
