@@ -31,7 +31,7 @@ class MemberTransfer extends Component{
   renderItem(item){
     let customLabel = (
       <Row style={{display:'inline-block',width:'100%'}}>
-        <Col span={9} style={{overflow:'hidden'}}>{item.title}</Col>
+        <Col span={9} style={{overflow:'hidden',whiteSpace: "nowrap",textOverflow: 'ellipsis'}}>{item.title}</Col>
         <Col span={12} style={{overflow:'hidden',whiteSpace: "nowrap",textOverflow: 'ellipsis'}}>{item.description}</Col>
       </Row>
     )
