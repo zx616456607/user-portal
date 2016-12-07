@@ -412,7 +412,7 @@ class Storage extends Component {
       message.error('请输入存储卷大小')
       return
     }
-    const hide = message.loading('执行中', 0)
+    const hide = message.loading('创建存储卷中', 0)
     let storageConfig = {
       driver: 'rbd',
       name: this.state.name,
