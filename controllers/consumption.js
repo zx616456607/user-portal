@@ -20,3 +20,12 @@ exports.getDetail = function* () {
     data: result.data
   }
 }
+
+exports.getTrend = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.consumptions.getBy(['trend'])
+  this.body = {
+    data: result.data
+  }
+}

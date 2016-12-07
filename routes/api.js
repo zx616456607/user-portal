@@ -292,6 +292,7 @@ module.exports = function (Router) {
 
   // consumption and charge
   router.get('/consumptions/detail', consumptionController.getDetail)
+  router.get('/consumptions/trend', consumptionController.getTrend)
 
   return router.routes()
 }

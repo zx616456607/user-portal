@@ -15,10 +15,11 @@ import { connect } from 'react-redux'
 import { loadUserTeamspaceList } from '../../../actions/user'
 import { loadTeamClustersList } from '../../../actions/team'
 import { setCurrent, loadLoginUserDetail } from '../../../actions/entities'
-import { loadConsumptionDetail } from '../../../actions/consumption'
+import { loadConsumptionDetail,loadConsumptionTrend } from '../../../actions/consumption'
 import TeamCost from './TeamCost'
 import ReactEcharts from 'echarts-for-react'
 import { formatDate } from '../../../common/tools'
+import moment from 'moment'
 
 const MonthPicker = DatePicker.MonthPicker
 const Option = Select.Option
@@ -95,6 +96,7 @@ class CostRecord extends Component{
       userDetail,
       teamspaces,
       loadConsumptionDetail,
+      loadConsumptionTrend,
     } = this.props
     loadUserTeamspaceList(loginUser.info.userID||userDetail.userID,{ size: 100 }, {
       success: {
@@ -104,6 +106,7 @@ class CostRecord extends Component{
       }
     })
     loadConsumptionDetail(0, this.state.consumptionDetailPageSize)
+    loadConsumptionTrend()
   }
   render(){
     const _this = this
@@ -114,6 +117,7 @@ class CostRecord extends Component{
       teamClusters,
       consumptionDetail,
       loadConsumptionDetail,
+      consumptionTrend,
     } = this.props
     let {
       spacesVisible,
@@ -201,56 +205,77 @@ class CostRecord extends Component{
         }
       ]
     }
-    let spaceCostSixMonths = {
-      tooltip: {
-        trigger: 'axis',
-        axisPointer: {
-          animation: false
+    let getSpaceCostSixMonths = function() {
+      let xAxisData = []
+      let yAxisData = []
+      for (let i = 5; i >= 0; i--) {
+        const month = moment().subtract(i, 'months').format('YYYY-MM')
+        xAxisData.push(month)
+      }
+      xAxisData.map(month => {
+        let find = false
+        for (const item of consumptionTrend) {
+          if (item.time == month) {
+            yAxisData.push(item.cost/100)
+            find = true
+            continue
+          }
+        }
+        if (!find) {
+          yAxisData.push(0.00)
+        }
+      })
+      return {
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: {
+            animation: false
+          },
+          formatter: '{b}<br/>消费 {c}T',
+          textStyle: {
+            color: '#46b2fa',
+            fontSize: 12,
+          },
+          backgroundColor: '#fff',
+          borderWidth: 1,
+          borderColor: '#46b2fa',
         },
-        formatter: '{b}<br/>消费 {c}T',
-        textStyle: {
-          color: '#46b2fa',
-          fontSize: 12,
-        },
-        backgroundColor: '#fff',
-        borderWidth: 1,
-        borderColor: '#46b2fa',
-      },
-      color: ['#6cc1fa'],
-      xAxis: {
-        type: 'category',
-        data: ['2016-01','2016-01','2016-01','2016-01','2016-01','2016-01',],
-        axisLine: {onZero: true},
-        boundaryGap: false,
-        axisTick: {
-          alignWithLabel: true,
-        },
-        splitLine: {
-          show: true,
-          lineStyle: {
-            type: 'dashed'
+        color: ['#6cc1fa'],
+        xAxis: {
+          type: 'category',
+          data: xAxisData,
+          axisLine: {onZero: true},
+          boundaryGap: false,
+          axisTick: {
+            alignWithLabel: true,
+          },
+          splitLine: {
+            show: true,
+            lineStyle: {
+              type: 'dashed'
+            },
           },
         },
-      },
-      yAxis: {
-        type: 'value',
-        splitLine: {
-          show: true,
-          lineStyle: {
-            type: 'dashed'
+        yAxis: {
+          type: 'value',
+          splitLine: {
+            show: true,
+            lineStyle: {
+              type: 'dashed'
+            },
           },
         },
-      },
-      grid: {
-        top: 20,
-        bottom: 30,
-      },
-      series: [{
-        type: 'line',
-        data: [10,20,30,40,50,60],
-        symbolSize: 8,
-        
-      },]
+        grid: {
+          top: 20,
+          bottom: 30,
+        },
+        series: [{
+          type: 'line',
+          data: yAxisData,
+          symbolSize: 8,
+          
+        },]
+      }
     }
     let spaceCostTitle = (
       <div className="teamCostTitle">
@@ -505,7 +530,7 @@ class CostRecord extends Component{
           <Col span={12}>
             <Card title='近6个月的消费走势' bodyStyle={{padding:0}}>
               <ReactEcharts
-                option = {spaceCostSixMonths}
+                option = {getSpaceCostSixMonths()}
                 notMerge = {true}
                 style = {{height: 170}}
               />
@@ -533,14 +558,15 @@ class CostRecord extends Component{
 function mapStateToProps (state,props) {
   const { current, loginUser } = state.entities
   const { teamspaces,userDetail } = state.user
-  const { detail } = state.consumption
+  const { detail, trend } = state.consumption
   
   return {
     current,
     loginUser,
     teamspaces: (teamspaces.result ? teamspaces.result.teamspaces : []),
     userDetail: (userDetail.result ? userDetail.result.data: {}),
-    consumptionDetail: (detail.result ? detail.result.data : {}), 
+    consumptionDetail: (detail.result ? detail.result.data : {}),
+    consumptionTrend: (trend.result ? trend.result.data : []),
   }
 }
 export default connect (mapStateToProps,{
@@ -548,4 +574,5 @@ export default connect (mapStateToProps,{
   loadTeamClustersList,
   loadLoginUserDetail,
   loadConsumptionDetail,
+  loadConsumptionTrend,
 })(CostRecord) 

@@ -17,6 +17,7 @@ const option = {
 
 export default function detail(state = {
   detail: {},
+  trend: {},
  }, action) {
   return {
     detail: reducerFactory({
@@ -24,5 +25,10 @@ export default function detail(state = {
       SUCCESS: ActionTypes.CONSUMPTION_DETAIL_SUCCESS,
       FAILURE: ActionTypes.CONSUMPTION_DETAIL_FAILURE,
     }, state.detail, action, option),
+    trend: reducerFactory({
+      REQUEST: ActionTypes.CONSUMPTION_TREND_REQUEST,
+      SUCCESS: ActionTypes.CONSUMPTION_TREND_SUCCESS,
+      FAILURE: ActionTypes.CONSUMPTION_TREND_FAILURE,
+    }, state.trend, action, option),
   }
 }

@@ -40,3 +40,25 @@ export function loadConsumptionDetail(from, size) {
     return dispatch(fetchDetail(from, size))
   }
 }
+
+
+export const CONSUMPTION_TREND_REQUEST = 'CONSUMPTION_TREND_REQUEST'
+export const CONSUMPTION_TREND_SUCCESS = 'CONSUMPTION_TREND_SUCCESS'
+export const CONSUMPTION_TREND_FAILURE = 'CONSUMPTION_TREND_FAILURE'
+
+function fetchTrend() {
+  const endpoint = `${API_URL_PREFIX}/consumptions/trend`
+  return {
+    [FETCH_API]: {
+      types: [CONSUMPTION_TREND_REQUEST, CONSUMPTION_TREND_SUCCESS, CONSUMPTION_TREND_FAILURE],
+      endpoint: endpoint,
+      schema: {}
+    }
+  }
+}
+
+export function loadConsumptionTrend() {
+  return (dispatch, getState) => {
+    return dispatch(fetchTrend())
+  }
+}
