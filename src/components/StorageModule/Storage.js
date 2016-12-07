@@ -9,6 +9,7 @@
  */
 
 import React, { Component, PropTypes } from 'react'
+import ReactDOM from 'react-dom'
 import { Checkbox, Card, Menu, Button, Dropdown, Icon, Radio, Modal, Input, Slider, InputNumber, Row, Col, message, Tooltip } from 'antd'
 import { Link } from 'react-router'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
@@ -159,6 +160,7 @@ let MyComponent = React.createClass({
   handleSure() {
     const self = this
     let type = this.state.modalType
+    const hide = message.loading("执行中", 0)
     if (type === 'format') {
       this.props.formateStorage(this.props.imagePool, this.props.cluster, {
         name: this.state.modalName,
@@ -170,7 +172,19 @@ let MyComponent = React.createClass({
               self.setState({
                 visible: false,
               })
+              hide()
               message.success('格式化存储卷成功')
+              this.props.loadStorageList()
+            }
+          }, 
+          failed: {
+            isAsync: true,
+            func: () => {
+              self.setState({
+                visible: false,
+              })
+              hide()
+              message.success('格式化存储卷失败')
               this.props.loadStorageList()
             }
           }
@@ -190,8 +204,20 @@ let MyComponent = React.createClass({
               self.setState({
                 visible: false,
               })
+              hide()
               message.success('扩容成功')
-              this.props.loadStorageList()
+              self.props.loadStorageList()
+            }
+          },
+          failed: {
+            isAsync: true,
+            func: () => {
+              self.setState({
+                visible: false,
+              })
+              hide()
+              message.error('扩容失败')
+              self.props.loadStorageList()
             }
           }
         })
@@ -386,7 +412,7 @@ class Storage extends Component {
       message.error('请输入存储卷大小')
       return
     }
-
+    const hide = message.loading('执行中', 0)
     let storageConfig = {
       driver: 'rbd',
       name: this.state.name,
@@ -409,11 +435,26 @@ class Storage extends Component {
             size: 500,
             currentType: 'ext4'
           })
+          hide()
           message.success('创建存储成功')
           self.props.loadStorageList(self.props.currentImagePool, self.props.currentCluster)
         },
         isAsync: true
       },
+      failed: {
+        isAsync: true,
+        func: () => {
+          self.setState({
+            visible: false,
+            name: '',
+            size: 500,
+            currentType: 'ext4'
+          })
+          hide()
+          message.error('创建存储失败')
+          self.props.loadStorageList(self.props.currentImagePool, self.props.currentCluster)
+        }
+      }
     })
   }
   handleCancel() {
@@ -435,13 +476,23 @@ class Storage extends Component {
     volumeArray = volumeArray.map(item => {
       return item.name
     })
+    const hide = message.loading("删除存储中", 0)
     this.props.deleteStorage(this.props.currentImagePool, this.props.currentCluster, { volumes: volumeArray }, {
       success: {
         func: () => {
+          hide()
           this.props.loadStorageList(this.props.currentImagePool, this.props.currentCluster)
           message.success('删除存储成功')
         },
         isAsync: true
+      },
+      failed: {
+        isAsync: true,
+        func: () => {
+          hide()
+          message.error('删除存储失败')
+          this.props.loadStorageList(this.props.currentImagePool, this.props.currentCluster)
+        }
       }
     })
   }
