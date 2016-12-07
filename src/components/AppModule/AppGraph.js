@@ -22,12 +22,12 @@ let OrchfileComponent = React.createClass({
     this.props.getAppOrchfile(this.props.cluster, this.props.appName)
   },
   componentDidMount() {
-    
+
   },
   render: function () {
     if (!this.props.appOrchfile || !this.props.appOrchfile.result
       || this.props.appOrchfile.result.data <= 0) {
-      return <div className="introBox"></div>
+      return <div className="introBox">无</div>
     }
     let content = this.props.appOrchfile.result.data;
     return (
