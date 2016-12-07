@@ -335,7 +335,6 @@ class VSphereDetail extends Component {
   }
   
   render() {
-    console.log(this.props)
     const { formatMessage } = this.props.intl;
     const {isFetching, pods, dataCenters, currentDataCenter} = this.props;
     if(isFetching || !Boolean(pods)) {
@@ -379,7 +378,7 @@ class VSphereDetail extends Component {
               <span className='leftSpan'>{network.name}</span>
             </Tooltip>
             <span className='rightSpan'>
-              {network.vmNumber > 0 ? [<span><Icon style={{ color: '#5cb85c' }} type="check-circle-o" />&nbsp;是</span>] : [<span><Icon style={{ color: '#f85a5a' }} type="cross-circle-o" />&nbsp;否</span>]}
+              {network.vmNumber > 0 ? [<span key='netwrokDetailRightSpan'><Icon style={{ color: '#5cb85c' }} type="check-circle-o" />&nbsp;是</span>] : [<span key='netwrokDetailRightSpan'><Icon style={{ color: '#f85a5a' }} type="cross-circle-o" />&nbsp;否</span>]}
             </span>
           </div>
         )

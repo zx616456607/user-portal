@@ -112,9 +112,10 @@ let AppDeployServiceModal = React.createClass({
   setPorts(ports, ServicePorts, form, annotations) {
     //this function for init port to form
     //we didn't support http 
-    const portsArr = []
-    let protocolList = annotations[CREATE_APP_ANNOTATIONS].split(',');
-    if (ports) {
+    const portsArr = [] 
+    if (!!ports && ports.length > 0 && !!annotations) {
+      let tempAnnotations = annotations;
+      let protocolList = tempAnnotations['tenxcloud.com/schemaPortname'].split(',');
       ports.map(function (item, index) {
         let protocol = null;
         let name = null;
@@ -161,9 +162,10 @@ let AppDeployServiceModal = React.createClass({
     const ports = this.props.scope.state.checkInf.Deployment.spec.template.spec.containers[0].ports
     const ServicePorts = this.props.scope.state.checkInf.Service.spec.ports
     const volumes = this.props.scope.state.checkInf.Deployment.spec.template.spec.volumes
+    let imageVersion = scope.state.checkInf.Deployment.spec.template.spec.containers[0].image.split(':')[1]
     form.setFieldsValue({
       name: scope.state.checkInf.Service.metadata.name,
-      imageVersion: scope.state.checkInf.Deployment.spec.template.spec.containers[0].image.split(':')[1],
+      imageVersion: imageVersion,
       instanceNum: scope.state.checkInf.Deployment.spec.replicas,
       volumeSwitch: this.volumeSwitch(volumeMounts, form),
       getUsefulType: this.getUsefulType(livenessProbe, form),
@@ -199,14 +201,13 @@ let AppDeployServiceModal = React.createClass({
       this.setForm()
     }
   },
-  componentWillUpdate(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     const {serviceOpen} = nextProps
-    if (serviceOpen == this.props.serviceOpen) {
-      return
-    }
-    if (serviceOpen) {
-      if (!this.props.scope.state.isCreate) {
-        this.setForm()
+    if (serviceOpen != this.props.serviceOpen && serviceOpen) {
+      if (serviceOpen) {
+        if (!this.props.scope.state.isCreate) {
+          this.setForm()
+        }
       }
     }
   },

@@ -202,6 +202,14 @@ function fetchDockerFilePath(spec) {
   return null;
 }
 
+function fetchDockerFileName(spec) {
+  if (!!spec.build) {
+    return spec.build.dockerfileName;
+  }
+  return null;
+}
+
+
 function emptyServiceEnvCheck(errorList, item) {
   //this function for show which env list of services is error
   let errorFlag = false;
@@ -761,6 +769,9 @@ let EditTenxFlowModal = React.createClass({
         } else {
           imageBuildBody.DockerfilePath = tmpDockerFileUrl;
         }
+        if(!!values.dockerFileName) {
+          imageBuildBody.DockerfileName = values.dockerFileName;
+        }
         body.spec.build = imageBuildBody;
       }
       updateTenxFlowState(flowId, stageId, body, {
@@ -941,6 +952,12 @@ let EditTenxFlowModal = React.createClass({
       ],
       initialValue: fetchDockerFilePath(config.spec)
     });
+    const dockerFileNameProps = getFieldProps('dockerFileName', {
+      rules: [
+        { message: '请输入 Dockerfile 名称' },
+      ],
+      initialValue: fetchDockerFileName(config.spec),
+    });
     const otherImageStoreTypeProps = getFieldProps('otherStoreUrl', {
       rules: [
         { message: '请输入自定义仓库地址' },
@@ -1079,6 +1096,7 @@ let EditTenxFlowModal = React.createClass({
                     <QueueAnim className='dockerFileInputAnimate' key='dockerFileInputAnimate'>
                       <div key='useDockerFileAnimateSecond'>
                         <Input className='dockerFileInput' {...dockerFileUrlProps} addonBefore=' ' size='large' />
+                        <Input className='dockerFileInput' {...dockerFileNameProps} size='large' />
                       </div>
                     </QueueAnim>
                     {

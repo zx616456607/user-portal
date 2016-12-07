@@ -209,6 +209,7 @@ class CreateModel extends Component {
                 </svg>
                 <i className="fa fa-check"></i>
               </div>
+              <div style={{ clear: "both" }}></div>
               <div className="envirBox">
                 <Form>
                   <FormItem hasFeedback key="space">
@@ -247,7 +248,6 @@ class CreateModel extends Component {
                   </FormItem>
                 </Form>
               </div>
-              <div style={{ clear: "both" }}></div>
             </div>
           </div>
           <div className="bottomBox">
