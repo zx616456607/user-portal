@@ -48,14 +48,21 @@ class CostRecord extends Component{
       currentTeamName: space.teamName,
     })
   }
-  transformDate(){
+  transformDate(data){
     function _addZero(text) {
       return text.toString().length === 2 ? text : `0${text}`
     }
+    
     let date = new Date
     let y = date.getFullYear()
     let m = date.getMonth()+1
-    return (y+'-'+_addZero(m))
+    let d = date.getDate()
+    if (data) {
+      console.log('data',d)
+      return (y+'-'+_addZero(m)+'-'+_addZero(d))
+    }else {
+      return (y+'-'+_addZero(m))
+    }
   }
   handleTableChange(pagination, filters, sorter){
     this.setState({
@@ -247,7 +254,7 @@ class CostRecord extends Component{
       <div className="teamCostTitle">
         <span>{currentSpaceName}该月消费</span>
         <div style={{flex: 'auto'}}>
-          <MonthPicker style={{float: 'left',marginLeft: '40px'}} defaultValue={this.transformDate()}/>
+          <MonthPicker style={{float: 'left',marginLeft: '40px'}} defaultValue={this.transformDate(false)}/>
         </div>
       </div>
     )
@@ -255,7 +262,7 @@ class CostRecord extends Component{
       <div className="teamCostTitle">
         <span>{currentSpaceName}该月消费详情</span>
         <div style={{flex: 'auto'}}>
-          <MonthPicker style={{float: 'left',marginLeft: '40px'}} defaultValue={this.transformDate()}/>
+          <DatePicker style={{float: 'left',marginLeft: '40px'}} defaultValue={this.transformDate(true)}/>
         </div>
       </div>
     )
