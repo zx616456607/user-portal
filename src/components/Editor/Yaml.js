@@ -106,20 +106,20 @@ class YamlEditor extends Component {
               height++;
             }
           }
-        newErrorList.push(matchYamlError(error, index, _this, height))
+          newErrorList.push(matchYamlError(error, index, _this, height))
         }
       })
     } else {
       //only one
       try {
         yaml.safeLoad(e)
-      } catch(error) {   
+      } catch(error) {
         let height = 0;
-          for(let item of e) {
-            if(item == '\n') {
-              height++;
-            }
+        for(let item of e) {
+          if(item == '\n') {
+            height++;
           }
+        }
         newErrorList.push(matchYamlError(error, 0, _this, height))
       }
     }
