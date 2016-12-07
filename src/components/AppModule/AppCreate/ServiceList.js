@@ -99,13 +99,11 @@ class MyComponent extends Component {
           <div className="opera commonData">
             <Button className="viewBtn" type="ghost" size="large" onClick={() => this.checkService(item.name, item.inf)}>
               <i className="fa fa-eye" />&nbsp;
-              查看
-
+              <span>查看</span>
             </Button>
             <Button type="ghost" size="large" onClick={() => this.deleteService(item.name)}>
               <i className="fa fa-trash" />&nbsp;
-              删除
-
+              <span>删除</span>
             </Button>
           </div>
           <div style={{ clear: "both" }}></div>

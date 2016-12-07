@@ -685,6 +685,9 @@ let CreateTenxFlowModal = React.createClass({
         } else {
           imageBuildBody.DockerfilePath = tmpDockerFileUrl;
         }
+        if(!!values.dockerFileName) {
+          imageBuildBody.DockerfileName = values.dockerFileName;
+        }
         body.spec.build = imageBuildBody;
       }
       createTenxFlowState(flowId, body, {
@@ -845,6 +848,12 @@ let CreateTenxFlowModal = React.createClass({
       ],
       initialValue: '/',
     });
+    const dockerFileNameProps = getFieldProps('dockerFileName', {
+      rules: [
+        { message: '请输入 Dockerfile 名称' },
+      ],
+      initialValue: '',
+    });
     const otherImageStoreTypeProps = getFieldProps('otherStoreUrl', {
       rules: [
         { message: '请输入自定义仓库地址' },
@@ -969,6 +978,7 @@ let CreateTenxFlowModal = React.createClass({
                     <QueueAnim className='dockerFileInputAnimate' key='dockerFileInputAnimate'>
                       <div key='useDockerFileAnimateFirst'>
                         <Input className='dockerFileInput' {...dockerFileUrlProps} addonBefore=' ' size='large' />
+                        <Input className='dockerFileInput' {...dockerFileNameProps} size='large' />
                       </div>
                     </QueueAnim>
                     {
