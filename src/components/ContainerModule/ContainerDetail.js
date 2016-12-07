@@ -184,7 +184,11 @@ class ContainerDetail extends Component {
                   <ContainerMonitior key="ContainerMonitior" containerName={containerName} cluster={cluster} />
                 </TabPane>
                 <TabPane tab="日志" key="3" >
-                  <ContainerLogs key="ContainerLogs" containerName={containerName} cluster={cluster} />
+                  <ContainerLogs
+                    key="ContainerLogs"
+                    containerName={containerName}
+                    serviceName={container.metadata.labels.name}
+                    cluster={cluster} />
                 </TabPane>
                 <TabPane tab="事件" key="4" >
                   <ContainerEvents key="ContainerEvents" containerName={containerName} cluster={cluster} />
