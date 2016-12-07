@@ -13,13 +13,13 @@ import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { getTenxFlowList, deleteTenxFlowSingle, getTenxflowBuildLastLogs ,CreateTenxflowBuild , getTenxflowBuildDetailLogs} from '../../../actions/cicd_flow'
+import { getTenxFlowList, deleteTenxFlowSingle, getTenxflowBuildLastLogs, CreateTenxflowBuild, getTenxflowBuildDetailLogs } from '../../../actions/cicd_flow'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import CreateTenxFlow from './CreateTenxFlow.js'
 import TenxFlowBuildLog from './TenxFlowBuildLog'
 import moment from 'moment'
 import './style/TenxFlowList.less'
-import { cloneDeep } from 'lodash'
+import cloneDeep from 'lodash/cloneDeep'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -100,10 +100,10 @@ let MyComponent = React.createClass({
             isAsync: true
           },
           failed: {
-            func: (res)=> {
+            func: (res) => {
               let statusCode = res.statusCode;
-              switch(statusCode) {
-                case 500: 
+              switch (statusCode) {
+                case 500:
                   break;
               }
               notification['error']({
@@ -115,7 +115,7 @@ let MyComponent = React.createClass({
         })
       }
     });
-    
+
   },
   showDeloyLog: function (item, e) {
     //this function for show user the deploy log of the tenxflow
@@ -125,7 +125,7 @@ let MyComponent = React.createClass({
     });
   },
   starFlowBuild(flowId, index) {
-    const {CreateTenxflowBuild ,getTenxflowBuildDetailLogs} = this.props.scope.props
+    const {CreateTenxflowBuild, getTenxflowBuildDetailLogs} = this.props.scope.props
     const parentScope = this.props.scope
     CreateTenxflowBuild(flowId, {}, {
       success: {
@@ -145,7 +145,7 @@ let MyComponent = React.createClass({
         isAsync: true
       },
       failed: {
-        func: (res)=> {
+        func: (res) => {
           Modal.error({
             title: '构建失败',
             content: (res.message.results.message)
@@ -182,8 +182,8 @@ let MyComponent = React.createClass({
       const dropdown = (
         <Menu onClick={this.operaMenuClick.bind(this, item)}>
           <Menu.Item key='deleteFlow'>
-            <i className='fa fa-trash' style={{lineHeight: '20px', marginRight: '5px' }} />&nbsp;
-            <FormattedMessage {...menusText.delete} style={{display:'inlineBlock'}}/>
+            <i className='fa fa-trash' style={{ lineHeight: '20px', marginRight: '5px' }} />&nbsp;
+            <FormattedMessage {...menusText.delete} style={{ display: 'inlineBlock' }} />
           </Menu.Item>
         </Menu>
       );
@@ -197,11 +197,11 @@ let MyComponent = React.createClass({
           <div className='time'>
             <span className='timeSpan'>
               <Tooltip placement='topLeft' title={item.updateTime ? dateFormat(item.updateTime) : dateFormat(item.createTime)}>
-                <span>{item.updateTime ? dateFormat(item.updateTime) : dateFormat(item.createTime) }</span>
+                <span>{item.updateTime ? dateFormat(item.updateTime) : dateFormat(item.createTime)}</span>
               </Tooltip>
             </span>
           </div>
-          <div className={`status status-`+`${flowListState[index].status}`}>
+          <div className={`status status-` + `${flowListState[index].status}`}>
             <span><i className="fa fa-circle"></i>{status}</span>
           </div>
           <div className='oprea'>
@@ -210,7 +210,7 @@ let MyComponent = React.createClass({
               <FormattedMessage {...menusText.deloyLog} />
             </Button>
             <Dropdown.Button overlay={dropdown} type='ghost' size='large'>
-              <span onClick={()=> this.starFlowBuild(item.flowId, index)}>
+              <span onClick={() => this.starFlowBuild(item.flowId, index)}>
                 <i className='fa fa-pencil-square-o' />&nbsp;
                 <FormattedMessage {...menusText.deloyStart} />
               </span>
@@ -251,10 +251,10 @@ class TenxFlowList extends Component {
     const self = this
     getTenxFlowList({
       success: {
-        func:(res) => {
+        func: (res) => {
           const flowListState = []
           res.data.results.forEach((list, index) => {
-            flowListState.push({status:list.status})
+            flowListState.push({ status: list.status })
           })
           self.setState({
             flowListState
@@ -263,10 +263,10 @@ class TenxFlowList extends Component {
       }
     });
   }
-  
+
   componentWillReceiveProps(nextProps) {
     const { isFetching, flowList } = nextProps;
-    if( !isFetching && !!flowList ) {
+    if (!isFetching && !!flowList) {
       this.setState({
         flowList: flowList
       });
@@ -303,18 +303,18 @@ class TenxFlowList extends Component {
       TenxFlowDeployLogModal: false
     });
   }
-  
+
   onSearchFlow(e) {
     //this function for user search special flow
     let keyword = e.target.value;
     let searchingFlag = false;
-    if(keyword.length > 0) {
+    if (keyword.length > 0) {
       searchingFlag = true;
     }
     const { flowList } = this.props;
     let newList = [];
     flowList.map((item) => {
-      if(item.name.indexOf(keyword) > -1) {
+      if (item.name.indexOf(keyword) > -1) {
         newList.push(item);
       }
     });
@@ -330,7 +330,7 @@ class TenxFlowList extends Component {
     const { isFetching, buildFetching, logs, cicdApi } = this.props;
     const { flowList, searchingFlag } = this.state;
     let message = '';
-    if( isFetching || !flowList ) {
+    if (isFetching || !flowList) {
       return (
         <div className='loadingBox'>
           <Spin size='large' />
@@ -390,7 +390,7 @@ class TenxFlowList extends Component {
           >
           <TenxFlowBuildLog scope={scope} isFetching={buildFetching} logs={logs} flowId={this.state.currentFlowId} />
         </Modal>
-        <div><br/>{message}<br/></div>
+        <div><br />{message}<br /></div>
       </QueueAnim>
     )
   }
