@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Input, Form, Switch, Radio, Checkbox, Spin, Select, Tooltip } from 'antd'
+import { Button, Input, Form, Switch, Radio, Checkbox, Spin, Select, Tooltip, notification } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -130,7 +130,7 @@ let CreateVmModal = React.createClass({
   handleSubmitCreate() {
     //this function for user submit the form
     const { scope, createIntegrationVm, integrationId, currentDataCenter } = this.props;
-    const { getAllIntegration } = scope.props;
+    const { getIntegrationVmList } = scope.props;
     let errorFlag = false;
     if(this.state.template == '' || !Boolean(this.state.template)) {
       this.setState({
@@ -159,21 +159,39 @@ let CreateVmModal = React.createClass({
     if(errorFlag) {
       return;
     }
+    let tempVm = this.state.template.split('/');
+    let newTempVm = tempVm.slice(0, tempVm.length - 1).join('/');
     let body = {
       template: this.state.template,
-      vm: this.state.template + '/' + this.state.vm,
+      vm: newTempVm + '/' + this.state.vm,
       resource_pool: this.state.resourcePool,
       datastore: this.state.datastore       
     }
+    scope.setState({
+      createVmModal: false
+    });
     createIntegrationVm(integrationId, currentDataCenter, body, {
       success: {
         func: () => {
-          scope.setState({
-            createVmModal: false
+          notification['success']({
+            message: '克隆虚拟机',
+            description: '克隆虚拟机成功',
           });
           getIntegrationVmList(integrationId, currentDataCenter);  
         },
         isAsync: true
+      },
+      failed: {
+        func: (error) => {
+          let errorMsg = '克隆虚拟机失败'
+          if(error.message.message.indexOf('already exists') > -1) {
+            errorMsg = '虚拟机名称重复'
+          }
+          notification['error']({
+            message: '克隆虚拟机',
+            description: errorMsg,
+          });
+        }
       }
     })
   },

@@ -34,25 +34,27 @@ export function loadDbCacheAllNames(cluster, callback) {
 }
 
 
-export const MYSQL_DATABASE_CACHE_ALL_LIST_REQUEST = 'MYSQL_DATABASE_CACHE_ALL_LIST_REQUEST'
-export const MYSQL_DATABASE_CACHE_ALL_LIST_SUCCESS = 'MYSQL_DATABASE_CACHE_ALL_LIST_SUCCESS'
-export const MYSQL_DATABASE_CACHE_ALL_LIST_FAILURE = 'MYSQL_DATABASE_CACHE_ALL_LIST_FAILURE'
-
-function fetchMysqlDbCacheAllList(cluster, callback) {
+export const GET_DATABASE_CACHE_ALL_LIST_REQUEST = 'GET_DATABASE_CACHE_ALL_LIST_REQUEST'
+export const GET_DATABASE_CACHE_ALL_LIST_SUCCESS = 'GET_DATABASE_CACHE_ALL_LIST_SUCCESS'
+export const GET_DATABASE_CACHE_ALL_LIST_FAILURE = 'GET_DATABASE_CACHE_ALL_LIST_FAILURE'
+// MYSQL_DATABASE_CACHE_ALL_LIST_REQUEST
+function fetchDbCacheList(cluster, types, callback) {
+  if (!types) types='mysql'
   return {
     cluster,
     [FETCH_API]: {
-      types: [MYSQL_DATABASE_CACHE_ALL_LIST_REQUEST, MYSQL_DATABASE_CACHE_ALL_LIST_SUCCESS, MYSQL_DATABASE_CACHE_ALL_LIST_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/getMysql`,
+      types: [GET_DATABASE_CACHE_ALL_LIST_REQUEST, GET_DATABASE_CACHE_ALL_LIST_SUCCESS, GET_DATABASE_CACHE_ALL_LIST_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/dbservices?type=${types}`,
       schema: {}
     },
+    types,
     callback
   }
 }
 
-export function loadMysqlDbCacheAllList(cluster, callback) {
+export function loadDbCacheList(cluster, types, callback) {
   return (dispatch) => {
-    return dispatch(fetchMysqlDbCacheAllList(cluster, callback))
+    return dispatch(fetchDbCacheList(cluster, types, callback))
   }
 }
 
@@ -82,19 +84,15 @@ export const CREATE_MYSQL_DATABASE_CACHE_REQUEST = 'CREATE_MYSQL_DATABASE_CACHE_
 export const CREATE_MYSQL_DATABASE_CACHE_SUCCESS = 'CREATE_MYSQL_DATABASE_CACHE_SUCCESS'
 export const CREATE_MYSQL_DATABASE_CACHE_FAILURE = 'CREATE_MYSQL_DATABASE_CACHE_FAILURE'
 
-function createMysqlDbCluster(newDb, callback) {
+function fetchCreateDbCluster(newDb, callback) {
   return {
     cluster: newDb.cluster,
     [FETCH_API]: {
       types: [CREATE_MYSQL_DATABASE_CACHE_REQUEST, CREATE_MYSQL_DATABASE_CACHE_SUCCESS, CREATE_MYSQL_DATABASE_CACHE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${newDb.cluster}/createMysqlCluster`,
+      endpoint: `${API_URL_PREFIX}/clusters/${newDb.cluster}/dbservices`,
       options: {
         method: 'POST',
-        body: {
-          name: newDb.name,
-          servicesNum: newDb.servicesNum,
-          password: newDb.password
-        }
+        body: newDb
       },
       schema: {}
     },
@@ -102,9 +100,9 @@ function createMysqlDbCluster(newDb, callback) {
   }
 }
 
-export function postCreateMysqlDbCluster(newDb, callback) {
+export function CreateDbCluster(newDb, callback) {
   return (dispatch) => {
-    return dispatch(createMysqlDbCluster(newDb, callback))
+    return dispatch(fetchCreateDbCluster(newDb, callback))
   }
 }
 
@@ -146,7 +144,7 @@ function getDbClusterDetail(cluster, dbName, callback) {
     cluster,
     [FETCH_API]: {
       types: [GET_DATABASE_DETAIL_INFO_REQUEST, GET_DATABASE_DETAIL_INFO_SUCCESS, GET_DATABASE_DETAIL_INFO_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/getDatabaseDetail/${dbName}`,
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/dbservices/${dbName}`,
       schema: {}
     },
     callback

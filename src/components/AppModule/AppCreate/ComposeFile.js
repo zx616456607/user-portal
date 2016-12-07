@@ -80,6 +80,11 @@ class ComposeFile extends Component {
         }
       })
     }
+    if (this.props.location.query.hasOwnProperty('query')) {
+      self.setState({
+         stackType: false
+      })
+    }
   }
   subApp() {
     const {appName, appDescYaml, remark} = this.state
