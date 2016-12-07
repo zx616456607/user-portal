@@ -17,6 +17,7 @@ const markdown   = require('markdown-it')()
 /*
 List user templates based on router, not content(yaml) will be returned
 filter=owned will list user/space templates
+filter=dbservice will list service of database & cache
 filter=appstore will list tempaltes of AppStore
 other value will only list public ones
 */
