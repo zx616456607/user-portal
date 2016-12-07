@@ -147,18 +147,38 @@ class AppUseful extends Component {
   confirmSet() {
     const submitInfo = this.state.submitInfo
     const propertys = Object.getOwnPropertyNames(submitInfo)
-    if(this.state.checkType === 'http') {
-      if(propertys.length < 4 || !submitInfo.info.path || !submitInfo.info.path) {
-        message.error('信息填写不全')
-        return
-      }
+    if (!submitInfo.info.port) {
+      message.error('请填写端口')
+      return
     }
-    if(this.state.checkType === 'tcp') {
-      if (propertys.length < 4) {
-        message.error('信息填写不全')
-        return
-      } 
+    if (submitInfo.info.port < 1 || submitInfo.info.port > 65535) {
+      message.error('端口只允许填写1~65535之间的数字')
+      return 
     }
+    if (submitInfo.initialDelaySeconds && submitInfo.initialDelaySeconds < 0) {
+      message.error('首次检查延时不能为负')
+      return 
+    }
+    if (submitInfo.timeoutSeconds && submitInfo.timeoutSeconds < 1) {
+      message.error('检查超时不能小于1')
+      return 
+    }
+    if (submitInfo.periodSeconds && submitInfo.periodSeconds < 1) {
+      message.error('检查间隔不能小于1')
+      return 
+    }
+    // if(this.state.checkType === 'http') {
+    //   if(propertys.length < 4 || !submitInfo.info.path || !submitInfo.info.path) {
+    //     message.error('信息填写不全')
+    //     return
+    //   }
+    // }
+    // if(this.state.checkType === 'tcp') {
+    //   if (propertys.length < 4) {
+    //     message.error('信息填写不全')
+    //     return
+    //   } 
+    // }
     if (this.state.checkType === 'null') {
       const changeServiceAvailability = this.props.changeServiceAvailability
       const cluster = this.props.cluster
@@ -179,16 +199,16 @@ class AppUseful extends Component {
     if(self.state.checkType === 'http') {
       options.httpGet = {
         port: parseInt(submitInfo.info.port),
-        path: submitInfo.info.path
+        path: '/' + (submitInfo.info.path ? submitInfo.info.path : '')
       }
     } else {
       options.tcpSocket = {
         port: parseInt(submitInfo.info.port)
       }
     }
-    options.initialDelaySeconds = parseInt(submitInfo.initialDelaySeconds)
-    options.timeoutSeconds = parseInt(submitInfo.timeoutSeconds)
-    options.periodSeconds = parseInt(submitInfo.periodSeconds)
+    options.initialDelaySeconds = submitInfo.initialDelaySeconds ? parseInt(submitInfo.initialDelaySeconds) : 0
+    options.timeoutSeconds = submitInfo.timeoutSeconds ? parseInt(submitInfo.timeoutSeconds) : 1
+    options.periodSeconds = submitInfo.periodSeconds ? parseInt(submitInfo.periodSeconds) : 10
     changeServiceAvailability(cluster, serviceName, options, {
       success: {
         func() {
@@ -299,7 +319,9 @@ class AppUseful extends Component {
                 <div className="input">
                   <span style={{ float: "left", marginLeft: "10px" }}>/</span>
                   <div className="commonInput">
-                    <Input type="text" disabled={this.state.editFlag} value={submitInfo.info.path} onChange={(e)=> this.getInputInfo('path', e)}/>
+                    <Input type="text" disabled={this.state.editFlag} 
+                      value={submitInfo.info.path && submitInfo.info.path.length > 0 && submitInfo.info.path[0] === '/' ? submitInfo.info.path.substr(1) : submitInfo.info.path} 
+                      onChange={(e)=> this.getInputInfo('path', e)}/>
                   </div>
                   <div style={{ clear: "both" }}></div>
                 </div>

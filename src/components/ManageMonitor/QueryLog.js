@@ -18,6 +18,7 @@ import { loadServiceContainerList } from '../../actions/services'
 import { loadUserTeamspaceList } from '../../actions/user'
 import { getClusterOfQueryLog, getServiceOfQueryLog } from '../../actions/manage_monitor'
 import './style/QueryLog.less'
+import { formatDate } from '../../common/tools'
 
 const Option = Select.Option;
 
@@ -109,9 +110,9 @@ const menusText = defineMessages({
 });
 
 function checkClass(popup, isError) {
-  if(isError) {
+  if (isError) {
     return 'cloneSelectError cloneSelectInput';
-  } else if(popup) {
+  } else if (popup) {
     return 'cloneSelectInputClick cloneSelectInput';
   } else {
     return 'cloneSelectInput';
@@ -128,19 +129,19 @@ function keywordFormat(log, scope) {
 function timeFormat(time) {
   let newDate = new Date();
   time = parseInt(time);
-  let newTime = newDate.setTime(time);
-  return newTime;
+  let newTime = newDate.setTime(time / 1000000);
+  return formatDate(newTime);
 }
 
 function instanceSelected(config, instance) {
   //this function for view to user which instance is selected
   let selectedFlag = false;
   config.map((item) => {
-    if(item == instance) {
+    if (item == instance) {
       selectedFlag = true;
     }
   })
-  if(selectedFlag) {
+  if (selectedFlag) {
     return 'instanceSelected instanceDetail';
   } else {
     return 'instanceDetail';
@@ -247,8 +248,8 @@ let ClusterModal = React.createClass({
   render: function () {
     const {scope, isFetching, cluster} = this.props;
     let clusterList = null;
-    if(isFetching) {
-      return (      
+    if (isFetching) {
+      return (
         <div className='loadingBox'>
           <Spin size='large' />
         </div>
@@ -266,7 +267,7 @@ let ClusterModal = React.createClass({
           <div className='clusterDetail' key={index} onClick={scope.onSelectCluster.bind(scope, item.clusterName, item.clusterID)}>
             <span className='leftSpan'>{item.clusterName}</span>
             <span className='rightSpan'>{item.instanceNum}</span>
-            <span style={{ clear:'both' }}></span>
+            <span style={{ clear: 'both' }}></span>
           </div>
         )
       });
@@ -278,7 +279,7 @@ let ClusterModal = React.createClass({
           <div className='titleBox'>
             <span className='leftSpan'>名称</span>
             <span className='rightSpan'>实例</span>
-            <span style={{ clear:'both' }}></span>
+            <span style={{ clear: 'both' }}></span>
           </div>
         </div>
         <div className='dataList'>
@@ -326,8 +327,8 @@ let ServiceModal = React.createClass({
   render: function () {
     const {service, scope, isFetching} = this.props;
     let serviceList = null;
-    if(isFetching) {
-      return (      
+    if (isFetching) {
+      return (
         <div className='loadingBox'>
           <Spin size='large' />
         </div>
@@ -345,7 +346,7 @@ let ServiceModal = React.createClass({
           <div className='serviceDetail' key={index} onClick={scope.onSelectService.bind(scope, item.serviceName)}>
             <span className='leftSpan'>{item.serviceName}</span>
             <span className='rightSpan'>{item.instanceNum}</span>
-            <span style={{ clear:'both' }}></span>
+            <span style={{ clear: 'both' }}></span>
           </div>
         )
       });
@@ -357,7 +358,7 @@ let ServiceModal = React.createClass({
           <div className='titleBox'>
             <span className='leftSpan'>名称</span>
             <span className='rightSpan'>实例</span>
-            <span style={{ clear:'both' }}></span>
+            <span style={{ clear: 'both' }}></span>
           </div>
         </div>
         <div className='dataList'>
@@ -407,7 +408,7 @@ let InstanceModal = React.createClass({
     const { scope } = this.props;
     const { currentList } = this.state;
     let tempList = currentList.map((item) => {
-      return item.metadata.name; 
+      return item.metadata.name;
     })
     scope.setState({
       currentInstance: tempList
@@ -424,8 +425,8 @@ let InstanceModal = React.createClass({
     const {scope, isFetching} = this.props;
     const {currentList} = this.state;
     let instanceList = null;
-    if(isFetching) {
-      return (      
+    if (isFetching) {
+      return (
         <div className='loadingBox'>
           <Spin size='large' />
         </div>
@@ -442,7 +443,7 @@ let InstanceModal = React.createClass({
         return (
           <div className={instanceSelected(scope.state.currentInstance, item.metadata.name)} key={index} onClick={scope.onSelectInstance.bind(scope, item.metadata.name)}>
             {item.metadata.name}
-           </div>
+          </div>
         )
       });
     }
@@ -470,14 +471,14 @@ let InstanceModal = React.createClass({
 let LogComponent = React.createClass({
   render: function () {
     const { logs, isFetching, scope } = this.props;
-    if(isFetching) {
+    if (isFetching) {
       return (
         <div className='loadingBox'>
           <Spin size='large' />
         </div>
       )
     }
-    if(logs.length == 0) {
+    if (logs.length == 0) {
       return (
         <div className='loadingBox'>
           <span className='noDataSpan'>暂无日志记录</span>
@@ -490,14 +491,16 @@ let LogComponent = React.createClass({
           <span className='instanceSpan'>{'[' + item.name + ']'}</span>
           <span className='instanceSpan'>{timeFormat(item.timeNano)}</span>
           <span className='logSpan'>
-            <span dangerouslySetInnerHTML={{ __html:keywordFormat(item.log, scope) }}></span>
+            <span dangerouslySetInnerHTML={{ __html: keywordFormat(item.log, scope) }}></span>
           </span>
         </div>
       )
     })
     return (
       <div className='logList'>
-        {logItems}
+        <pre>
+          {logItems}
+        </pre>
       </div>
     )
   }
@@ -526,7 +529,7 @@ class QueryLog extends Component {
       namespaceList: null,
       clusterPopup: false,
       currentCluster: null,
-      currentClusterId: null,
+      currentClusterId: props.cluster,
       clusterList: [],
       servicePopup: false,
       currentService: null,
@@ -554,7 +557,7 @@ class QueryLog extends Component {
   componentWillMount() {
     const { formatMessage } = this.props.intl;
     document.title = formatMessage(menusText.headTitle);
-    const { loadUserTeamspaceList } = this.props;  
+    const { loadUserTeamspaceList, current, query } = this.props;
     const _this = this;
     loadUserTeamspaceList('default', { size: 100 }, {
       success: {
@@ -567,6 +570,23 @@ class QueryLog extends Component {
         isAsync: true
       }
     });
+    const { space, cluster } = current;
+    const { spaceName, teamID } = space;
+    this.onSelectNamespace(spaceName, teamID);
+    const { clusterName, clusterID } = cluster;
+    this.onSelectCluster(clusterName, clusterID);
+    const { service, instance } = query;
+    if (service && instance) {
+      this.setState({
+        currentNamespace: spaceName,
+        currentCluster: clusterName,
+        currentClusterId: clusterID,
+        currentService: service,
+      });
+      this.onSelectService(service);
+      this.onSelectInstance(instance);
+      setTimeout(this.submitSearch);
+    }
   }
 
   onSelectNamespace(name, teamId) {
@@ -643,7 +663,7 @@ class QueryLog extends Component {
         selectedSerivce: false,
       });
       const { loadServiceContainerList } = this.props;
-      loadServiceContainerList(this.state.currentClusterId, name, [], {
+      loadServiceContainerList(this.state.currentClusterId, name, {
         success: {
           func: (res) => {
             _this.setState({
@@ -738,7 +758,7 @@ class QueryLog extends Component {
       key_word: e.target.value
     });
   }
-  
+
   onChangeQueryType(e) {
     this.setState({
       queryType: e.target.checked
@@ -749,37 +769,37 @@ class QueryLog extends Component {
     //this function for search the log
     //check user had selected all item
     let checkFlag = true;
-    if(!Boolean(this.state.currentNamespace)) {
+    if (!Boolean(this.state.currentNamespace)) {
       this.setState({
         selectedNamespace: true
       });
       checkFlag = false;
     }
-    if(!Boolean(this.state.currentCluster)) {
+    if (!Boolean(this.state.currentCluster)) {
       this.setState({
         selectedCluster: true
       });
       checkFlag = false;
     }
-    if(!Boolean(this.state.currentService)) {
+    if (!Boolean(this.state.currentService)) {
       this.setState({
         selectedSerivce: true
       });
       checkFlag = false;
     }
-    if(this.state.currentInstance.length == 0) {
+    if (this.state.currentInstance.length == 0) {
       this.setState({
         selectedInstance: true
       });
       checkFlag = false;
     }
-    if(!checkFlag) {
-      return ;
+    if (!checkFlag) {
+      return;
     }
     const { getQueryLogList } = this.props;
     let key_word = this.state.key_word;
-    if(this.state.queryType) {
-      if(key_word.length > 0) {
+    if (this.state.queryType) {
+      if (key_word && key_word.length > 0) {
         key_word = '*' + this.state.key_word + '*';
       }
     }
@@ -808,7 +828,7 @@ class QueryLog extends Component {
     const {logs, isFetching} = this.props;
     const { formatMessage } = this.props.intl;
     const scope = this;
-    if(this.state.gettingNamespace) {
+    if (this.state.gettingNamespace) {
       return (
         <div className='loadingBox'>
           <Spin size='large' />
@@ -832,7 +852,7 @@ class QueryLog extends Component {
                 onVisibleChange={this.hideUserPopup}
                 visible={this.state.namespacePopup}
                 >
-                <div className={ checkClass(this.state.namespacePopup, this.state.selectedNamespace) } >
+                <div className={checkClass(this.state.namespacePopup, this.state.selectedNamespace)} >
                   <span className='selectedSpan'>{this.state.currentNamespace ? this.state.currentNamespace : [<span className='placeholderSpan'><FormattedMessage {...menusText.selectUser} /></span>]}</span>
                   <Icon type='down' />
                   <span className='wrongSpan'><FormattedMessage {...menusText.noNamespace} /></span>
@@ -850,7 +870,7 @@ class QueryLog extends Component {
                 onVisibleChange={this.hideClusterPopup}
                 visible={this.state.clusterPopup}
                 >
-                <div className={ checkClass(this.state.clusterPopup, this.state.selectedCluster) } >
+                <div className={checkClass(this.state.clusterPopup, this.state.selectedCluster)} >
                   <span className='selectedSpan'>{this.state.currentCluster ? this.state.currentCluster : [<span className='placeholderSpan'><FormattedMessage {...menusText.selectCluster} /></span>]}</span>
                   <Icon type='down' />
                   <span className='wrongSpan'><FormattedMessage {...menusText.noCluster} /></span>
@@ -868,7 +888,7 @@ class QueryLog extends Component {
                 onVisibleChange={this.hideServicePopup}
                 visible={this.state.servicePopup}
                 >
-                <div className={ checkClass(this.state.servicePopup, this.state.selectedSerivce) } >
+                <div className={checkClass(this.state.servicePopup, this.state.selectedSerivce)} >
                   <span className='selectedSpan'>{this.state.currentService ? this.state.currentService : [<span className='placeholderSpan'><FormattedMessage {...menusText.selectService} /></span>]}</span>
                   <Icon type='down' />
                   <span className='wrongSpan'><FormattedMessage {...menusText.noService} /></span>
@@ -885,7 +905,7 @@ class QueryLog extends Component {
                 getTooltipContainer={() => document.getElementById('QueryLog')}
                 onVisibleChange={this.hideInstancePopup}
                 >
-                <div className={ checkClass(this.state.instancePopup, this.state.selectedInstance) } >
+                <div className={checkClass(this.state.instancePopup, this.state.selectedInstance)} >
                   <span className='selectedSpan'>{this.state.currentInstance.length != 0 ? this.state.currentInstance.join(',') : [<span className='placeholderSpan'><FormattedMessage {...menusText.selectInstance} /></span>]}</span>
                   <Icon type='down' />
                   <span className='wrongSpan'><FormattedMessage {...menusText.noInstance} /></span>
@@ -909,7 +929,8 @@ class QueryLog extends Component {
               <div style={{ clear: 'both' }}></div>
             </div>
             <div className='commonBox'>
-              <Checkbox onChange={this.onChangeQueryType} checked={this.state.queryType} style={{ marginLeft: '29px' }}><FormattedMessage {...menusText.searchType} /></Checkbox>
+              <Checkbox onChange={this.onChangeQueryType} checked={this.state.queryType} style={{ marginLeft: '29px' }}>
+                <FormattedMessage {...menusText.searchType} /></Checkbox>
               <Button className='searchBtn' size='large' type='primary' onClick={this.submitSearch}>
                 <i className='fa fa-wpforms'></i>
                 <FormattedMessage {...menusText.search} />
@@ -923,7 +944,7 @@ class QueryLog extends Component {
               <i className={this.state.bigLog ? 'fa fa-compress' : 'fa fa-expand'} onClick={this.onChangeBigLog} />
             </div>
             <div className='msgBox'>
-              <LogComponent logs={logs} isFetching={isFetching} scope={scope}/>
+              <LogComponent logs={logs} isFetching={isFetching} scope={scope} />
             </div>
           </Card>
         </div>
@@ -933,8 +954,8 @@ class QueryLog extends Component {
 }
 
 function mapStateToProps(state, props) {
-  const { cluster } = state.entities.current
   const { current } = state.entities
+  const { cluster } = current
   const { teamspaces } = state.user
   const { teamClusters } = state.team
   const defaultLogs = {
@@ -949,6 +970,7 @@ function mapStateToProps(state, props) {
   const { serviceContainers } = state.services
   const { logs, isFetching } = getQueryLog.logs || defaultLogs
   const containersList = serviceContainers[cluster.clusterID] || defaultContainers
+  const { query } = props.location
   return {
     isTeamspacesFetching: teamspaces.isFetching,
     teamspaces: (teamspaces.result ? teamspaces.result.teamspaces : []),
@@ -958,6 +980,8 @@ function mapStateToProps(state, props) {
     containersList,
     isFetching,
     logs,
+    current,
+    query,
   }
 }
 

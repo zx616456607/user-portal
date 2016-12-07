@@ -126,6 +126,7 @@ exports.getDBService = function* () {
       if (pod.objectMeta) {
         delete pod.objectMeta.labels
         delete pod.objectMeta.annotations
+        delete pod.annotations
       }
     })
   }

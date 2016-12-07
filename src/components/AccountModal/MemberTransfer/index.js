@@ -18,6 +18,7 @@ class MemberTransfer extends Component{
   constructor(props){
     super(props)
     this.filterOption = this.filterOption.bind(this)
+    this.renderItem = this.renderItem.bind(this)
     this.state = {
     }
   }
@@ -27,6 +28,19 @@ class MemberTransfer extends Component{
   componentWillMount(){
     this.props.loadUserList({size:-1})
   }
+  renderItem(item){
+    let customLabel = (
+      <Row style={{display:'inline-block',width:'100%'}}>
+        <Col span={9} style={{overflow:'hidden',whiteSpace: "nowrap",textOverflow: 'ellipsis'}}>{item.title}</Col>
+        <Col span={12} style={{overflow:'hidden',whiteSpace: "nowrap",textOverflow: 'ellipsis'}}>{item.description}</Col>
+      </Row>
+    )
+    return {
+      label: customLabel,
+      value: item.description,
+    }
+  }
+  
   render(){
     const { onChange,targetKeys,userList,teamUserIDList } = this.props
     let filterUserList = teamUserIDList.length !== 0 ?
@@ -34,7 +48,7 @@ class MemberTransfer extends Component{
         return !teamUserIDList.includes(userItem.key)
       }):
       userList
-    
+      console.log('filterUserList:::',filterUserList)
     return (
       <div id='MemberTransfer'>
         <Row className="listTitle">
@@ -57,14 +71,7 @@ class MemberTransfer extends Component{
           targetKeys={targetKeys}
           onChange={onChange}
           titles={['筛选用户','已选择用户']}
-          render={
-            item => (
-              <Row style={{display:'inline-block',width:'100%'}}>
-                <Col span={10} style={{overflow:'hidden'}}>{item.title}</Col>
-                <Col span={14} style={{overflow:'hidden'}}>{item.description}</Col>
-              </Row>
-            )
-          }
+          render={this.renderItem}
         />
       </div>
     )
