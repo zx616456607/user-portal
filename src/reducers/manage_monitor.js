@@ -11,7 +11,7 @@
 import * as ActionTypes from '../actions/manage_monitor'
 import merge from 'lodash/merge'
 import reducerFactory from './factory'
-import { cloneDeep } from 'lodash'
+import cloneDeep from 'lodash/cloneDeep'
 
 function operationAuditLog(state = {}, action) {
   const defaultState = {
@@ -77,7 +77,7 @@ function getClusterOfQueryLog(state = {}, action) {
   switch (action.type) {
     case ActionTypes.GET_CLUSTER_OF_TEAM_FOR_LOG_REQUEST:
       return Object.assign({}, defaultState, state, {
-        isFetching: true 
+        isFetching: true
       })
     case ActionTypes.GET_CLUSTER_OF_TEAM_FOR_LOG_SUCCESS:
       return Object.assign({}, state, {
@@ -86,7 +86,7 @@ function getClusterOfQueryLog(state = {}, action) {
       })
     case ActionTypes.GET_CLUSTER_OF_TEAM_FOR_LOG_FAILURE:
       return Object.assign({}, defaultState, state, {
-        isFetching: false 
+        isFetching: false
       })
     default:
       return state
@@ -101,7 +101,7 @@ function getServiceOfQueryLog(state = {}, action) {
   switch (action.type) {
     case ActionTypes.GET_SERVICE_OF_TEAM_FOR_LOG_REQUEST:
       return Object.assign({}, defaultState, state, {
-        isFetching: true 
+        isFetching: true
       })
     case ActionTypes.GET_SERVICE_OF_TEAM_FOR_LOG_SUCCESS:
       return Object.assign({}, state, {
@@ -110,7 +110,7 @@ function getServiceOfQueryLog(state = {}, action) {
       })
     case ActionTypes.GET_SERVICE_OF_TEAM_FOR_LOG_FAILURE:
       return Object.assign({}, defaultState, state, {
-        isFetching: false 
+        isFetching: false
       })
     default:
       return state

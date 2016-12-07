@@ -11,7 +11,7 @@
 import * as ActionTypes from '../actions/integration'
 import merge from 'lodash/merge'
 import reducerFactory from './factory'
-import { cloneDeep } from 'lodash'
+import cloneDeep from 'lodash/cloneDeep'
 
 function getAllIntegration(state = {}, action) {
   const defaultState = {
