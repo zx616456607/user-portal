@@ -192,7 +192,7 @@ class CollapseContainer extends Component {
   render() {
     const { collapseContainer, groupname } = this.props
     const self = this
-    const formItemLayout = { labelCol: { span: 3 }, wrapperCol: { span: 21 } }
+    const formItemLayout = { labelCol: { span: 2 }, wrapperCol: { span: 21 } }
     let configFileList
     if (collapseContainer.length === 0) {
       // message.info(this.props.groupname + '未添加配置文件')
@@ -310,10 +310,11 @@ class CollapseContainer extends Component {
           visible={this.state.modalConfigFile}
           onOk={() => this.editConfigFile(this.props.groupname)}
           onCancel={() => { this.setState({ modalConfigFile: false }) } }
+          width = "800"
           >
           <div className='configFile-inf'>
             <p className='configFile-tip' style={{ color: '#16a3ea', height: '35px', textIndent: '12px' }}>
-              <Icon type='info-circle-o' style={{ marginRight: '10px' }} />
+              &nbsp;&nbsp;&nbsp;<Icon type='info-circle-o' style={{ marginRight: '10px' }} />
               即将保存一个配置文件 , 您可以在创建应用 → 添加服务时 , 关联使用该配置
             </p>
             <Form horizontal>
@@ -321,7 +322,7 @@ class CollapseContainer extends Component {
                 <Input type='text' className='configName' disabled={true} value={this.state.configName} />
               </FormItem>
               <FormItem {...formItemLayout} label='内容'>
-                <Input type='textarea' style={{ minHeight: 100 }} value={this.state.configtextarea} onChange={(e) => this.setInputValue(e)} />
+                <Input type='textarea' style={{ minHeight: 300 }} value={this.state.configtextarea} onChange={(e) => this.setInputValue(e)} />
               </FormItem>
             </Form>
           </div>
