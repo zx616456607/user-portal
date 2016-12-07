@@ -30,6 +30,7 @@ import cluster from './cluster'
 import overviewTeam from './overview_team'
 import overviewCluster from './overview_cluster'
 import overviewSpace from './overview_space'
+import consumption from './consumption'
 
 // Updates error message to notify about the failed fetches.
 function errorMessage(state = null, action) {
@@ -103,6 +104,7 @@ const rootReducer = combineReducers({
   overviewTeam,
   overviewCluster,
   overviewSpace,
+  consumption,
 })
 
 export default rootReducer

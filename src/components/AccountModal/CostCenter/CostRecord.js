@@ -15,8 +15,10 @@ import { connect } from 'react-redux'
 import { loadUserTeamspaceList } from '../../../actions/user'
 import { loadTeamClustersList } from '../../../actions/team'
 import { setCurrent, loadLoginUserDetail } from '../../../actions/entities'
+import { loadConsumptionDetail } from '../../../actions/consumption'
 import TeamCost from './TeamCost'
 import ReactEcharts from 'echarts-for-react'
+import { formatDate } from '../../../common/tools'
 
 const MonthPicker = DatePicker.MonthPicker
 const Option = Select.Option
@@ -39,6 +41,8 @@ class CostRecord extends Component{
       currentTeamName: '',
       filteredInfo: null,
       sortedInfo: null,
+      consumptionDetailCurrentPage: 1, // start from 1
+      consumptionDetailPageSize: 10,
     }
   }
   handleSpaceChange(space) {
@@ -90,6 +94,7 @@ class CostRecord extends Component{
       loginUser,
       userDetail,
       teamspaces,
+      loadConsumptionDetail,
     } = this.props
     loadUserTeamspaceList(loginUser.info.userID||userDetail.userID,{ size: 100 }, {
       success: {
@@ -98,13 +103,17 @@ class CostRecord extends Component{
         isAsync: true
       }
     })
+    loadConsumptionDetail(0, this.state.consumptionDetailPageSize)
   }
   render(){
+    const _this = this
     const {
       current,
       loginUser,
       teamspaces,
       teamClusters,
+      consumptionDetail,
+      loadConsumptionDetail,
     } = this.props
     let {
       spacesVisible,
@@ -340,13 +349,25 @@ class CostRecord extends Component{
         }
       ]
     }
-    let costData = [
-      {id: 'zhaoxy',svcName:'test',svcType:'容器服务',price:'0.035T',cost:'0.01T',time:'11:11:11',long:'11分钟',cluster:'生产环境',ps:'...'},
-      {id: 'zhaoxy',svcName:'test',svcType:'容器服务',price:'0.035T',cost:'0.01T',time:'11:11:11',long:'11分钟',cluster:'生产环境',ps:'...'},
-      {id: 'zhaoxy',svcName:'test',svcType:'容器服务',price:'0.035T',cost:'0.01T',time:'11:11:11',long:'11分钟',cluster:'生产环境',ps:'...'},
-      {id: 'zhaoxy',svcName:'test',svcType:'test',price:'0.035T',cost:'0.01T',time:'11:11:11',long:'11分钟',cluster:'生产环境',ps:'...'},
-      {id: 'zhaoxy',svcName:'test',svcType:'test',price:'0.035T',cost:'0.01T',time:'11:11:11',long:'11分钟',cluster:'生产环境',ps:'...'},
-    ]
+    let convertDetailItems = function(itemsRaw) {
+      if (!Array.isArray(itemsRaw)) {
+        return []
+      }
+      let items = JSON.parse(JSON.stringify(itemsRaw))
+      const typeMap = {
+        '1': '容器服务',
+        '3': '主机服务',
+        '4': '存储服务',
+      }
+      items.map(function(item) {
+        item.type = typeMap[item.type]
+        item.unitPrice = (item.unitPrice / 100).toFixed(2) + 'T'
+        item.amount = (item.amount / 100).toFixed(2) + 'T'
+        item.startTime = formatDate(item.startTime)
+      })
+      return items
+    }
+    let costData = convertDetailItems(consumptionDetail.consumptions)
     let TableSpaceCostDetail  = [
       {
         title: '消费ID',
@@ -356,15 +377,14 @@ class CostRecord extends Component{
       },
       {
         title: '服务名称',
-        dataIndex: 'svcName',
-        key: 'svcName',
+        dataIndex: 'consumptionName',
+        key: 'consumptionName',
       },
       {
         title: '服务类型',
-        dataIndex: 'svcType',
-        key: 'svcType',
+        dataIndex: 'type',
+        key: 'type',
         filters: [
-          { text: 'test', value: 'test' },
           { text: '容器服务', value: '容' },
         ],
         filteredValue: filteredInfo.svcType,
@@ -372,28 +392,28 @@ class CostRecord extends Component{
       },
       {
         title: '单价',
-        dataIndex: 'price',
-        key: 'price',
+        dataIndex: 'unitPrice',
+        key: 'unitPrice',
       },
       {
         title: '消费金额',
-        dataIndex: 'cost',
-        key: 'cost',
+        dataIndex: 'amount',
+        key: 'amount',
       },
       {
         title: '生效时间',
-        dataIndex: 'time',
-        key: 'time',
+        dataIndex: 'startTime',
+        key: 'startTime',
       },
       {
         title: '消费时长',
-        dataIndex: 'long',
-        key: 'long',
+        dataIndex: 'continueTime',
+        key: 'continueTime',
       },
       {
         title: '集群',
-        dataIndex: 'cluster',
-        key: 'cluster',
+        dataIndex: 'clusterName',
+        key: 'clusterName',
       },
       {
         title: '备注',
@@ -402,11 +422,22 @@ class CostRecord extends Component{
       },
     ]
     let pagination = {
-      total: costData.length,
+      current: _this.state.consumptionDetailCurrentPage,
+      total: consumptionDetail.total,
       showSizeChanger: true,
       onShowSizeChange(current, pageSize) {
+        loadConsumptionDetail(0, pageSize)
+        _this.setState({
+          consumptionDetailPageSize: pageSize,
+          consumptionDetailCurrentPage: 1,
+        })
       },
       onChange(current) {
+        const pageSize = _this.state.consumptionDetailPageSize
+        loadConsumptionDetail((current-1) * pageSize, pageSize)
+        _this.setState({
+          consumptionDetailCurrentPage: current,
+        })
       },
     }
     return (
@@ -502,16 +533,19 @@ class CostRecord extends Component{
 function mapStateToProps (state,props) {
   const { current, loginUser } = state.entities
   const { teamspaces,userDetail } = state.user
-
+  const { detail } = state.consumption
+  
   return {
     current,
     loginUser,
     teamspaces: (teamspaces.result ? teamspaces.result.teamspaces : []),
-    userDetail: (userDetail.result ? userDetail.result.data: {})
+    userDetail: (userDetail.result ? userDetail.result.data: {}),
+    consumptionDetail: (detail.result ? detail.result.data : {}), 
   }
 }
 export default connect (mapStateToProps,{
   loadUserTeamspaceList,
   loadTeamClustersList,
   loadLoginUserDetail,
+  loadConsumptionDetail,
 })(CostRecord) 
