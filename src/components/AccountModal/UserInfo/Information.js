@@ -76,7 +76,6 @@ let ResetPassWord = React.createClass({
     }
   },
   componentDidMount(){
-    console.log('this.refs.intPass',this.refs)
     this.refs.intPass.refs.input.focus()
   },
   render: function () {

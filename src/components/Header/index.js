@@ -190,7 +190,6 @@ class Header extends Component {
       isTeamClustersFetching,
       teamClusters,
     } = this.props
-    console.log('loginUser',loginUser)
     const {
       spacesVisible,
       clustersVisible,

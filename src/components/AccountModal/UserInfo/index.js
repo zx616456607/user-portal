@@ -32,7 +32,6 @@ class UserInfo extends Component {
   }
   render() {
     const { userDetail, appCount, serviceCount, containerCount, teamspaces, teams, editPass } = this.props
-    console.log('editPass',editPass)
     return (
       <div id="UserInfo">
         <Row className="title">
@@ -75,7 +74,6 @@ function mapStateToProp(state, props) {
     editPass = true
     user_id = ''
   }
-  console.log('props.params::::',props.params)
   let teamspacesData = []
   let spaceTotal = 0
   let spaceSize = 0
