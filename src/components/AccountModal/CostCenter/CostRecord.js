@@ -402,6 +402,7 @@ class CostRecord extends Component{
       },
     ]
     let pagination = {
+      current: 1,
       total: costData.length,
       showSizeChanger: true,
       onShowSizeChange(current, pageSize) {
