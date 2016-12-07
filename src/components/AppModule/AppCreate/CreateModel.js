@@ -65,7 +65,7 @@ class CreateModel extends Component {
     } else if (currentSelect == "store") {
       linkUrl = "app_store"
     } else if (currentSelect == "layout") {
-      linkUrl = "compose_file"
+      linkUrl = "compose_file?query=entery"
     }
     const parentScope = this.props.scope;
     this.setState({
@@ -115,6 +115,7 @@ class CreateModel extends Component {
             teamID: space.teamID
           }
         })
+        console.log('sfslfjdlsfjldsfjldsjf', space.teamID)
         loadTeamClustersList(space.teamID, { size: 100 }, {
           success: {
             func: (result) => {

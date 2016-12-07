@@ -9,7 +9,6 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { Tabs, Checkbox, Dropdown, Button, Card, Menu, Icon, Modal, Popover } from 'antd'
-import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import ContainerList from './AppContainerList'

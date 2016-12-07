@@ -413,21 +413,24 @@ export function createStack(obj, callback) {
 export const GET_PRIVATE_STACK_REQUEST = 'GET_PRIVATE_STACK_REQUEST'
 export const GET_PRIVATE_STACK_SUCCESS = 'GET_PRIVATE_STACK_SUCCESS'
 export const GET_PRIVATE_STACK_FAILURE = 'GET_PRIVATE_STACK_FAILURE'
-
-function fetchLoadPrivateStack(registry) {
+//filter=owned private templates  filter=dbservice is database cluster
+function fetchLoadTemplates(registry, query, callback) {
+  let filter = 'owned'
+  if (query) filter = query
   return {
     registry,
     [FETCH_API]: {
       types: [GET_PRIVATE_STACK_REQUEST, GET_PRIVATE_STACK_SUCCESS, GET_PRIVATE_STACK_FAILURE],
-      endpoint: `${API_URL_PREFIX}/templates?filter=owned`,
+      endpoint: `${API_URL_PREFIX}/templates?filter=${filter}`,
       schema: Schemas.REGISTRYS,
-    }
+    },
+    callback
   }
 }
 
-export function loadMyStack(registry) {
+export function loadMyStack(registry, query, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchLoadPrivateStack(registry))
+    return dispatch(fetchLoadTemplates(registry, query, callback))
   }
 }
 
