@@ -343,7 +343,7 @@ class TenxFlowDetailFlowCard extends Component {
           cicdSetModalShow: false,
           ciRulesOpened: false
         });
-        this.setState({
+        _this.setState({
           cicdSetModalShow: false
         });
       },

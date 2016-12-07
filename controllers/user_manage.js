@@ -227,7 +227,7 @@ exports.createUser = function* () {
     this.body = {
       data: result
     }
-  } catch (err) {
+  } catch (error) {
     const err = new Error('User has been created but sent email failed: ' + error)
     err.status = 500
     throw err

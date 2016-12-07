@@ -12,7 +12,6 @@ import { Menu, Dropdown, Icon, Select, Input, Button, Form, Popover, message } f
 import { FormattedMessage, defineMessages } from 'react-intl'
 import "./style/header.less"
 import querystring from 'querystring'
-import classNames from 'classnames'
 import PopSelect from '../PopSelect'
 import { connect } from 'react-redux'
 import { loadUserTeamspaceList } from '../../actions/user'
@@ -49,17 +48,6 @@ const menusText = defineMessages({
     defaultMessage: '第三个',
   }
 })
-
-const menu = (
-  <Menu>
-    <Menu.Item key="0">
-      <a href="/logout">
-        <Icon type="logout" /> <FormattedMessage {...menusText.logOut} />
-      </a>
-    </Menu.Item>
-  </Menu>
-)
-
 function loadSpaces(props, callback) {
   const { loadUserTeamspaceList } = props
   loadUserTeamspaceList('default', { size: 100 }, callback)
@@ -70,9 +58,11 @@ class Header extends Component {
     super(props)
     this.handleSpaceChange = this.handleSpaceChange.bind(this)
     this.handleClusterChange = this.handleClusterChange.bind(this)
+    this.handleVisibleChange = this.handleVisibleChange.bind(this)
     this.state = {
       spacesVisible: false,
       clustersVisible: false,
+      visible: false,
       focus: false,
     }
   }
@@ -127,7 +117,12 @@ class Header extends Component {
       browserHistory.push('/')
     }
   }
-
+  handleVisibleChange() {
+    const { visible } = this.state
+    this.setState({
+      visible: !visible
+    })
+  }
   componentWillMount() {
     const {
       loadTeamClustersList,
@@ -185,7 +180,7 @@ class Header extends Component {
       }
     })
   }
-
+  
   render() {
     const {
       current,
@@ -198,6 +193,7 @@ class Header extends Component {
     const {
       spacesVisible,
       clustersVisible,
+      visible,
     } = this.state
     teamspaces.map((space) => {
       space.name = space.spaceName
@@ -205,6 +201,78 @@ class Header extends Component {
     teamClusters.map((cluster) => {
       cluster.name = cluster.clusterName
     })
+    let logMenu = (
+      <div className='logMenu'>
+        <div className='rechangeInf'>
+          <div className='balance'>
+            <p>账户余额 &nbsp;:</p>
+            <p><span>{loginUser.info.balance?loginUser.info.balance : 0}</span><span style={{fontSize:'14px',color:'#8a8a8a'}}>&nbsp;&nbsp;T币</span></p>
+          </div>
+          <Button style={{height:30,backgroundColor:'#46b2fa',borderColor:'#46b2fa',color:'#fff',fontSize:'14px'}}>立即充值</Button>
+        </div>
+        <table className='navTab'>
+          <tbody>
+            <tr>
+              <td>
+                <Link to='/account'>
+                  <svg className='logMenuSvg'>
+                    <use xlinkHref='#logaccountinf'/>
+                  </svg>
+                  <div>账户信息</div>
+                </Link>
+              </td>
+              <td>
+                <Link to='/account/cost'>
+                  <svg className='logMenuSvg'>
+                    <use xlinkHref='#logcostrecord'/>
+                  </svg>
+                  <div>消费记录</div>
+                </Link>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <Link to='/account/user/editPass'>
+                  <svg className='logMenuSvg'>
+                    <use xlinkHref='#logchangepass'/>
+                  </svg>
+                  <div>修改密码</div>
+                </Link>
+              </td>
+              <td>
+                <Link to='/account'>
+                  <svg className='logMenuSvg'>
+                    <use xlinkHref='#logteam'/>
+                  </svg>
+                  <div>我的团队</div>
+                </Link>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div className='logCancle'>
+          <a href='/logout'>
+            <svg className='logCancleSvg'>
+              <use xlinkHref='#logteam'/>
+            </svg>
+            注销登录
+          </a>
+        </div>
+      </div>
+    )
+    let logTitle = (
+      <div className='logTitle'>
+        <div className='logAvatar'>{loginUser.info.userName?loginUser.info.userName.substr(0,1).toUpperCase() : ''}</div>
+        <div style={{float:'left',paddingLeft: '7px'}}>
+          <div style={{lineHeight: '20px',paddingTop: '8px',minWidth:180}}>
+            <p style={{fontSize: '16px',color: '#46b2fa'}}>{loginUser.info.userName || '...'}</p>
+            <p style={{fontSize: '12px'}}>{loginUser.info.email || '...'}</p>
+          </div>
+        </div>
+        <div className='loginTag'>个人</div>
+      </div>
+    )
+    const rotate = visible ? 'rotate180' : 'rotate0'
     return (
       <div id="header">
         <div className="space">
@@ -248,13 +316,20 @@ class Header extends Component {
           <div className="docBtn">
             <FormattedMessage {...menusText.doc} />
           </div>
-          <Dropdown overlay={menu}>
-            <div className="ant-dropdown-link userBtn">
-              {/*<FormattedMessage {...menusText.user} />*/}
+          <Popover content={logMenu}
+          title={logTitle}
+          overlayClassName='logPopMenu'
+          placement="bottomRight"
+          arrowPointAtCenter={true}
+          trigger='click'
+          visible={this.state.visible}
+          onVisibleChange={this.handleVisibleChange}
+          >
+            <div className='userBtn'>
               {loginUser.info.userName || '...'}
-              <Icon type="down" />
+              <Icon type="down" className={rotate}/>
             </div>
-          </Dropdown>
+          </Popover>
         </div>
       </div>
     )

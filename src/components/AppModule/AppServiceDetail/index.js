@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Tabs, Checkbox, Dropdown, Button, Card, Menu, Icon, Modal } from 'antd'
+import { Tabs, Checkbox, Dropdown, Button, Card, Menu, Icon, Modal, Popover } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -42,6 +42,17 @@ const TabPane = Tabs.TabPane;
   loadServiceContainerList(cluster, serviceName)
 }*/
 
+function terminalSelectedCheck(item, list) {
+  //this function for check the container selected or not
+  let existFlag = false;
+  list.map((container) => {
+    if(item.metadata.name == container.metadata.name) {
+      existFlag = true;
+    }
+  });
+  return existFlag;
+}
+
 class AppServiceDetail extends Component {
   constructor(props) {
     super(props)
@@ -55,6 +66,7 @@ class AppServiceDetail extends Component {
     this.state = {
       activeTabKey: props.selectTab || DEFAULT_TAB,
       TerminalLayoutModal: false,
+      currentContainer: []
     }
   }
 
@@ -85,19 +97,36 @@ class AppServiceDetail extends Component {
       modalShow: false
     });
   }
+  
   closeTerminalLayoutModal() {
     //this function for user close the terminal modal
     this.setState({
       TerminalLayoutModal: false
     });
   }
-  openTerminalModal(e) {
+  
+  openTerminalModal(item) {
     //this function for user open the terminal modal
-    e.stopPropagation();
+    let { currentContainer } = this.state;
+    let existFlag = false;
+    currentContainer.map((container) => {
+      if(container.metadata.name == item.metadata.name) {
+        existFlag = true;
+      }
+    })
+    if(!existFlag) {    
+      currentContainer.push(item)
+    }
     this.setState({
-      TerminalLayoutModal: true
+      currentContainer: currentContainer
     });
+    setTimeout(() => {
+      this.setState({
+        TerminalLayoutModal: true
+      });
+    })
   }
+  
   componentWillMount() {
     this.loadData()
   }
@@ -134,6 +163,7 @@ class AppServiceDetail extends Component {
       activeTabKey
     })
   }
+  
   restartService(service) {
     const { funcs, scope} = this.props
     const _self = this
@@ -151,6 +181,7 @@ class AppServiceDetail extends Component {
     const self = this
     funcs.confirmDeleteServices([service])
   }
+  
   handleMenuShow(){
     const { scope } = this.props
     const service = scope.state.currentShowInstance
@@ -161,6 +192,7 @@ class AppServiceDetail extends Component {
     }
     return false
   }
+  
   render() {
     const parentScope = this
     const {
@@ -172,16 +204,19 @@ class AppServiceDetail extends Component {
       isContainersFetching,
       appName,
     } = this.props
-    const { activeTabKey } = this.state
+    const { activeTabKey, currentContainer } = this.state
+    let nocache = currentContainer.map((item) => {
+      return item.metadata.name;
+    })
     const service = scope.state.currentShowInstance
     const operaMenu = (<Menu>
-      <Menu.Item key="0" disabled={this.handleMenuShow()}>
+      <Menu.Item key='0' disabled={this.handleMenuShow()}>
         <span onClick={() => this.restartService(service)}>重新部署</span>
       </Menu.Item>
-      <Menu.Item key="1" disabled={this.handleMenuShow()}>
+      <Menu.Item key='1' disabled={this.handleMenuShow()}>
         <span onClick={() => this.stopService(service)}>停止</span>
       </Menu.Item>
-      <Menu.Item key="2">
+      <Menu.Item key='2'>
         <span onClick={() => this.delteService(service)}>删除</span>
       </Menu.Item>
     </Menu>);
@@ -192,19 +227,27 @@ class AppServiceDetail extends Component {
         availableReplicas = service.status.availableReplicas || 0
       }
     }
+    let containerShow = containers.map((item) => {
+      return (
+        <div className={ terminalSelectedCheck(item, parentScope.state.currentContainer) ? 'containerTerminalDetailSelected containerTerminalDetail' : 'containerTerminalDetail'} 
+          onClick={this.openTerminalModal.bind(parentScope, item)}>
+          <span>{item.metadata.name}</span>
+        </div>
+      )
+    })
     return (
-      <div id="AppServiceDetail">
-        <div className="titleBox">
-          <Icon className="closeBtn" type="cross" onClick={this.closeModal} />
-          {/*<i className="closeBtn fa fa-times" onClick={this.closeModal}></i>*/}
-          <div className="imgBox">
-            <img src="/img/default.png" />
+      <div id='AppServiceDetail'>
+        <div className='titleBox'>
+          <Icon className='closeBtn' type='cross' onClick={this.closeModal} />
+          {/*<i className='closeBtn fa fa-times' onClick={this.closeModal}></i>*/}
+          <div className='imgBox'>
+            <img src='/img/default.png' />
           </div>
-          <div className="infoBox">
-            <p className="instanceName">
+          <div className='infoBox'>
+            <p className='instanceName'>
               {service.metadata.name}
             </p>
-            <div className="leftBox appSvcDetailDomain">
+            <div className='leftBox appSvcDetailDomain'>
               <div>
                 运行状态：
                 <span style={{position:'relative',top:'-5px'}}>
@@ -228,22 +271,23 @@ class AppServiceDetail extends Component {
                 </span>
               </div>
             </div>
-            <div className="rightBox">
-              <Button className="loginBtn" type="primary" size="large"
-                onClick={this.openTerminalModal}>
-                <svg className="terminal">
-                  <use xlinkHref="#terminal" />
-                </svg>
-                登录终端
-            </Button>
+            <div className='rightBox'>
+              <Popover content={containerShow} title='选择实例链接' trigger='click' getTooltipContainer={() => document.getElementById('AppServiceDetail')}>                
+                <Button className='loginBtn' type='primary' size='large'>
+                  <svg className='terminal'>
+                    <use xlinkHref='#terminal' />
+                  </svg>
+                  <span>登录终端</span>
+                </Button>
+              </Popover>
               <Dropdown overlay={operaMenu} trigger={['click']}>
-                <Button type="ghost" size="large" className="ant-dropdown-link" href="#">
-                  服务相关 <i className="fa fa-caret-down"></i>
+                <Button type='ghost' size='large' className='ant-dropdown-link' href='#'>
+                  服务相关 <i className='fa fa-caret-down'></i>
                 </Button>
               </Dropdown>
             </div>
           </div>
-          <div style={{ clear: "both" }}></div>
+          <div style={{ clear: 'both' }}></div>
         </div>
         <Modal
           visible={this.state.TerminalLayoutModal}
@@ -251,16 +295,16 @@ class AppServiceDetail extends Component {
           transitionName='move-down'
           onCancel={this.closeTerminalLayoutModal}
           >
-          <TerminalModal scope={parentScope} config={containers.length > 0 ? containers[0] : null} show={this.state.TerminalLayoutModal} />
+          <TerminalModal scope={parentScope} config={currentContainer} show={this.state.TerminalLayoutModal} nocache={nocache} />
         </Modal>
-        <div className="bottomBox">
-          <div className="siderBox">
+        <div className='bottomBox'>
+          <div className='siderBox'>
             <Tabs
-              tabPosition="left"
+              tabPosition='left'
               onTabClick={this.onTabClick}
               activeKey={activeTabKey}
               >
-              <TabPane tab="容器实例" key="#containers">
+              <TabPane tab='容器实例' key='#containers'>
                 <ContainerList
                   serviceName={service.metadata.name}
                   cluster={service.cluster}
@@ -268,12 +312,12 @@ class AppServiceDetail extends Component {
                   loading={isContainersFetching}
                   />
               </TabPane>
-              <TabPane tab="基础信息" key="#basic">
+              <TabPane tab='基础信息' key='#basic'>
                 <AppServiceDetailInfo
                   serviceDetail={serviceDetail}
                   loading={isServiceDetailFetching} />
               </TabPane>
-              <TabPane tab="配置组" key="#configgroup">
+              <TabPane tab='配置组' key='#configgroup'>
                 <ComposeGroup
                   serviceDetailmodalShow={serviceDetailmodalShow}
                   serviceName={service.metadata.name}
@@ -281,7 +325,7 @@ class AppServiceDetail extends Component {
                   cluster={service.cluster}
                   />
               </TabPane>
-              <TabPane tab="绑定域名" key="#binddomain">
+              <TabPane tab='绑定域名' key='#binddomain'>
                 <BindDomain
                   cluster={service.cluster}
                   serviceName={service.metadata.name}
@@ -289,7 +333,7 @@ class AppServiceDetail extends Component {
                   service={serviceDetail}
                   />
               </TabPane>
-              <TabPane tab="端口" key="#ports">
+              <TabPane tab='端口' key='#ports'>
                 <PortDetail
                   serviceName={service.metadata.name}
                   cluster={service.cluster}
@@ -298,7 +342,7 @@ class AppServiceDetail extends Component {
                   serviceDetailmodalShow={serviceDetailmodalShow}
                   />
               </TabPane>
-              <TabPane tab="高可用" key="#livenessprobe">
+              <TabPane tab='高可用' key='#livenessprobe'>
                 <AppUseful
                   service={serviceDetail}
                   loading={isServiceDetailFetching}
@@ -307,28 +351,28 @@ class AppServiceDetail extends Component {
                   serviceDetailmodalShow={serviceDetailmodalShow}
                   />
               </TabPane>
-              <TabPane tab="监控" key="#monitor">
-                <div className="ServiceMonitor">
+              <TabPane tab='监控' key='#monitor'>
+                <div className='ServiceMonitor'>
                   <ServiceMonitor
                     serviceName={service.metadata.name}
                     cluster={service.cluster} />
                 </div>
               </TabPane>
-              <TabPane tab="自动伸缩" key="#autoScale">
+              <TabPane tab='自动伸缩' key='#autoScale'>
                 <AppAutoScale
                   replicas={service.spec.replicas}
                   serviceName={service.metadata.name}
                   cluster={service.cluster} />
               </TabPane>
-              <TabPane tab="日志" key="#logs">
+              <TabPane tab='日志' key='#logs'>
                 <AppServiceLog serviceName={service.metadata.name} cluster={service.cluster} serviceDetailmodalShow={serviceDetailmodalShow} />
               </TabPane>
-              <TabPane tab="事件" key="#events">
+              <TabPane tab='事件' key='#events'>
                 <AppServiceEvent serviceName={service.metadata.name} cluster={service.cluster} />
               </TabPane>
             </Tabs>
           </div>
-          <div className="contentBox">
+          <div className='contentBox'>
           </div>
         </div>
       </div>

@@ -291,7 +291,7 @@ class Slider extends Component {
                 <Tooltip placement='right' title='管理与日志' getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/manange_monitor'>
                     <svg className='manageMoniter commonImg'>
-                      <use xlinkHref='#managemoniter' />
+                      { currentKey == 'manange_monitor' ? [<use xlinkHref='#managemoniterselected' />] : [<use xlinkHref='#managemoniter' />] }
                     </svg>
                   </Link>
                 </Tooltip>

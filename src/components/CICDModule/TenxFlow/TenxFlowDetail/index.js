@@ -90,15 +90,37 @@ class TenxFlowDetail extends Component {
       createTenxFlowModal: false,
       TenxFlowDeployLogModal: false,
       startBuild: false,
-      showImage: []
+      showImage: [],
+      statusName:0
     }
   }
-
+  flowState() {
+    let { search } = this.props.location;
+    let status=''
+    search = search.split('&')[1]
+    switch (search) {
+      case '0':
+        status = '成功'
+        break;
+      case '1':
+        status = "失败"
+        break;
+      case '2':
+        status = "执行中..."
+        break;
+      default:
+        status = "等待中..."
+    }
+    this.setState({
+      status,
+      statusName: search
+    })
+  }
   componentWillMount() {
     document.title = 'TenxFlow | 时速云';
     const { getTenxFlowDetail } = this.props;
     let { search } = this.props.location;
-    search = search.slice(1)
+    search = search.split('?')[1].split('&')[0]
     const self = this
     getTenxFlowDetail(search, {
       success: {
@@ -118,6 +140,7 @@ class TenxFlowDetail extends Component {
         }
       }
     });
+    this.flowState()
   }
 
   openCreateTenxFlowModal() {
@@ -217,9 +240,8 @@ class TenxFlowDetail extends Component {
             </div>
               <p className='title'>{flowInfo.name}</p>
             <div className='msgBox'>
-              <span>这是状态</span>
+              状态：<span className={'status-'+this.state.statusName}><i className="fa fa-circle" style={{marginRight:'5px'}}></i>{this.state.status}</span>
               <span className='updateTime'>{flowInfo.update_time ? flowInfo.update_time : flowInfo.create_time }</span>
-              <div style={{ clear:'both' }}></div>
             </div>
             <div className='btnBox'>
               <Button size='large' type='primary' onClick={this.startBuildStage} className='buildBtn'>
@@ -253,7 +275,7 @@ class TenxFlowDetail extends Component {
             <TabPane tab='TenxFlow构建记录' key='2'><TenxFlowDetailLog scope={scope} flowId={flowInfo.flowId} flowName={flowInfo.name} /></TabPane>
             <TabPane tab='镜像部署记录' key='3'><ImageDeployLogBox scope={scope} flowId={flowInfo.flowId} /></TabPane>
             <TabPane tab='构建通知' key='4'><TenxFlowDetailAlert scope={scope} notify={flowInfo.notificationConfig} flowId={flowInfo.flowId} /></TabPane>
-            <TabPane tab='TenxFow Yaml' key='5'><TenxFlowDetailYaml flowId={flowInfo.flowId} yaml={this.state.yamlContent} /></TabPane>
+            <TabPane tab='TenxFow Yaml 描述' key='5'><TenxFlowDetailYaml flowId={flowInfo.flowId} yaml={this.state.yamlContent} /></TabPane>
             <TabPane tab='设置' key='6'><TenxFlowDetailSetting scope={scope} flowId={flowInfo.flowId} /></TabPane>
           </Tabs>
         </div>

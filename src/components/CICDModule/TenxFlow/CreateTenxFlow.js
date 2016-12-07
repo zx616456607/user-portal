@@ -13,6 +13,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { createTenxFlowSingle } from '../../../actions/cicd_flow'
+import YamlEditor from '../../Editor/Yaml'
 import './style/CreateTenxFlow.less'
 import { browserHistory } from 'react-router';
 
@@ -20,6 +21,9 @@ const RadioGroup = Radio.Group;
 const createForm = Form.create;
 const FormItem = Form.Item;
 const DefaultEmailAddress = 'service@tenxcloud.com'
+const defaultEditOpts = {
+  readOnly: false,
+}
 
 const menusText = defineMessages({
   name: {
@@ -82,7 +86,8 @@ let CreateTenxFlow = React.createClass({
       currentType: '1',
       emailAlert: false,
       otherEmail: false,
-      currentTenxFlow: null
+      currentTenxFlow: null,
+      currentYaml: null
     }
   },
   componentWillMount() {
@@ -111,7 +116,6 @@ let CreateTenxFlow = React.createClass({
   },
   onChangeFlowType(e) {
     //this function for user change the tenxflow type
-    this.props.form.resetFields(['yaml']);
     this.setState({
       currentType: e.target.value
     });
@@ -219,14 +223,14 @@ let CreateTenxFlow = React.createClass({
         body = {
           'name': values.name,
           'init_type': parseInt(values.radioFlow),
-          'yaml': values.yaml,
+          'yaml': this.state.currentYaml,
           'notification_config': JSON.stringify(temp)
         }
       } else {
         body = {
           'name': values.name,
           'init_type': parseInt(values.radioFlow),
-          'yaml': values.yaml,
+          'yaml': this.state.currentYaml,
           'notification_config': null
         }
       }
@@ -242,6 +246,14 @@ let CreateTenxFlow = React.createClass({
         },
       });    
     });
+  },
+  onChangeYamlEditor(e) {
+    //this function for editor callback
+    if (e) {
+      this.setState({
+        currentYaml: e
+      })
+    }
   },
   render() {
     const { formatMessage } = this.props.intl;
@@ -266,11 +278,6 @@ let CreateTenxFlow = React.createClass({
       ],
       onChange: this.onChangeFlowType,
       initialValue: '1'
-    });
-    const flowProps = getFieldProps('yaml', {
-      rules: [
-        { validator: this.yamlInputCheck },
-      ],
     });
     const radioEmailProps = getFieldProps('radioEmail', {
       rules: [
@@ -298,20 +305,13 @@ let CreateTenxFlow = React.createClass({
                 <Radio key='b' value={'2'}><FormattedMessage {...menusText.yamlDefine} /></Radio>
               </RadioGroup>
             </FormItem>
-            { this.state.currentType == '2' ? [
-              <QueueAnim type='right' key='yamlFormAnimate'>
-                <div className='yamlForm' key='yamlForm'>
-                  <FormItem>
-                    <Input {...flowProps} type='textarea' autosize={{ minRows: 10, maxRows: 30 }} />
-                  </FormItem>
-                </div>
-              </QueueAnim>
-            ] : null }
-
             <div style={{ clear:'both' }} />
           </div>
           <div style={{ clear:'both' }} />
         </div>
+        { this.state.currentType == '2' ? [
+        <YamlEditor title="TenxFlow 定义文件" value={this.state.currentYaml} options={defaultEditOpts} callback={this.onChangeYamlEditor}/>
+        ] : null }
         { this.state.currentType == '1' ? [
           <div className='commonBox'>
             <div className='title'>

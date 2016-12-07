@@ -53,7 +53,7 @@ class CollapseList extends Component {
   render() {
     const {groupData} = this.props
     const scope = this
-    if (groupData.length === 0) return (<div style={{ lineHeight: '50px' }}>还没有创建过配置项</div>)
+    if (groupData.length === 0) return (<div style={{ lineHeight: '50px' }}>还没有创建过配置组</div>)
     let groups = groupData.map((group) => {
       return (
         // <Servicec
@@ -246,7 +246,7 @@ class Service extends Component {
           <Button type="primary" size="large" onClick={(e) => this.configModal(true)}>
             <i className="fa fa-plus" /> 创建配置组
           </Button>
-          <Button type="ghost" size="large" onClick={() => this.btnDeleteGroup()} style={{ marginLeft: "12px" }}>
+          <Button size="large" onClick={() => this.btnDeleteGroup()} style={{ marginLeft: "12px" }}>
             <i className="fa fa-trash-o" /> 删除
           </Button>
           {/*创建配置组-弹出层-start*/}

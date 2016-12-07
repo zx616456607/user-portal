@@ -8,203 +8,220 @@
  * @author GaoJian
  */
 import React, { Component } from 'react'
-import { DatePicker } from 'antd'
+import { Icon, Tooltip } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import { formateDate } from '../../common/tools'
+import { formatDate } from '../../common/tools'
+import { ecma48SgrEscape } from '../../common/ecma48_sgr_escape'
 import "./style/ContainerLogs.less"
-import { loadContainerLogs, clearContainerLogs } from '../../actions/app_manage'
+// import { clearContainerLogs } from '../../actions/app_manage'
+import Websocket from '../Websocket'
 
 class ContainerLogs extends Component {
   constructor(props) {
     super(props)
     this.onChangeLogSize = this.onChangeLogSize.bind(this)
+    this.getLogsWatchWs = this.getLogsWatchWs.bind(this)
+    this.onLogsWebsocketSetup = this.onLogsWebsocketSetup.bind(this)
+    this.loopWatchStatus = this.loopWatchStatus.bind(this)
+    this.handleLoopWatchStatus = this.handleLoopWatchStatus.bind(this)
+    this.getLogs = this.getLogs.bind(this)
     this.state = {
-      currentDate: formateDate(new Date(), 'YYYY-MM-DD'),
-      pageIndex: 1,
-      pageSize: 50,
-      useGetLogs: true,
-      preScroll: 0,
-      logSize: 'normal'
+      logSize: 'normal',
+      watchStatus: 'play',
+      logs: [],
     }
   }
+
   componentWillMount() {
-    const cluster = this.props.cluster
-    const containerName = this.props.containerName
-    const self = this
-    this.props.loadContainerLogs(cluster, containerName, {
-      size: 50
-    }, {
-      success: {
-        func() {
-          self.infoBox.scrollTop = self.infoBox.scrollHeight
-        },
-        isAsync: true
-      }
-    })
-    this.setState({
-      pageIndex: 2
-    })
+    //
   }
+
   componentWillUnmount() {
-    const cluster = this.props.cluster
-    const containerName = this.props.containerName
-    this.props.clearContainerLogs(cluster, containerName)
+    this.ws.close()
   }
-  moutseRollLoadLogs() {
-    if(!this.state.useGetLogs) return
-    if(this.infoBox.scrollTop >= 100 || this.infoBox.offsetHeight === this.infoBox.scrollHeight) return
-    this.setState({
-      useGetLogs: false
-    })
-    const cluster = this.props.cluster
-    const containerName =  this.props.containerName
-    const self = this
-    const scrollBottom = this.infoBox.scrollBottom
-    this.props.loadContainerLogs(cluster, containerName, {
-      from: (this.state.pageIndex - 1) * this.state.pageSize,
-      size: this.state.pageSize,
-      date_start: this.state.currentDate,
-      date_end: this.state.currentDate
-    }, {
-      success: {
-        func(result) {
-          if(self.state.preScroll !== 0) {
-            self.infoBox.scrollTop = self.infoBox.scrollHeight - self.state.preScroll
-          }
-          self.setState({
-            preScroll: self.infoBox.scrollHeight
-          })
-          if (!result.data || result.data.length < 50) {
-            self.setState({
-              useGetLogs: false
-            })
-          } else {
-            self.setState({
-              useGetLogs: true
-            })
-          }
-        },
-        isAsync: true
-      }
-    })
-    this.setState({
-      pageIndex: this.state.pageIndex + 1
-    })
-  }
-  changeCurrentDate(date, refresh) {
-    if(!date) return
-    const cluster = this.props.cluster
-    const containerName = this.props.containerName
-    const self = this
-    date = formateDate(date, 'YYYY-MM-DD')
-    if (!refresh && date === this.state.currentDate) return
-    this.setState({
-      currentDate: date,
-      useGetLogs: true,
-      pageIndex: 2,
-    })
-    this.props.clearContainerLogs(cluster, containerName)
-    this.props.loadContainerLogs(cluster, containerName, {
-      from: 0,
-      size: this.state.pageSize,
-      date_start: date,
-      date_end: date
-    }, {
-        success: {
-          func(result) {
-            if (!result.data || result.data.length < 50) {
-              self.setState({
-                useGetLogs: false
-              })
-            }
-            self.setState({
-              preScroll: self.infoBox.scrollHeight
-            })
-            self.infoBox.scrollTop = self.infoBox.scrollHeight
-          },
-          isAsync: true
-        }
-      })
-  }
-  getLogs() {
-    const cluster = this.props.cluster
-    if (!this.props.containerLogs[cluster] || !this.props.containerLogs[cluster].logs) {
-      return '无日志'
+
+  componentDidUpdate(prevProps, prevState) {
+    const { logs } = prevState
+    const _state = this.state
+    if (_state.watchStatus === 'pause') {
+      return
     }
-    const logs = this.props.containerLogs[cluster].logs.data
-    if (!logs || logs.length <= 0) return '无日志'
-    let page = Math.ceil(logs.length / 50)
-    let remainder = logs.length % 50
-    const logContent = logs.map((log, index) => {
-      let time = ''
-      if (log.timeNano) {
-        time = new Date(parseInt(log.timeNano.substring(0, 13))).toLocaleString()
-      }
-      if (index === 0) {
-        if (log.log === '无更多日志\n') {
-          return (<span key={index}>{ `${log.log}\npage ${page}\n` }</span>)
-        }
-        return (<span key={index}>{ `page ${page}\n${time ? `[${time}] ${log.log}` : log.log}` }</span>)
-      }
-      if (index + 1 === remainder && page !== 1) {
-        return (<span key={index}>{ `page ${--page}\n${time ? `[${time}] ${log.log}` : log.log}` }</span>)
-      }
-      if ((index + 1) % 50 === 0 && page !== 1) {
-        return (<span key={index}>{ `page ${--page}\n${time ? `[${time}] ${log.log}` : log.log}` }</span>)
-      }
-      return (<span key={log.id} index={index}>{ time ? `[${time}] ${log.log}` : log.log}</span>)
-    })
-    return logContent
+    const logsBottom = document.getElementById('logsBottom')
+    logsBottom.scrollIntoView({ block: "end", behavior: "smooth" })
   }
-  refreshLogs() {
-    this.changeCurrentDate(this.state.currentDate, true)
-  }
+
   onChangeLogSize() {
     //this function for user change the log size to 'big' or 'normal'
     const { logSize } = this.state;
-    if(logSize == 'big') {
+    if (logSize == 'big') {
       document.getElementById('containerInfo').style.transform = 'translateX(0px)';
       this.setState({
         logSize: 'normal'
       })
-    } else {
-      document.getElementById('containerInfo').style.transform = 'none';
+      return
+    }
+    document.getElementById('containerInfo').style.transform = 'none';
+    this.setState({
+      logSize: 'big'
+    })
+  }
+
+  getLogsWatchWs() {
+    if (!window.WebSocket) {
+      // Show some tips?
+      return
+    }
+    const { loginUser } = this.props
+    if (!loginUser.tenxApi) {
+      return
+    }
+    return (
+      <Websocket
+        url={`ws://${loginUser.tenxApi.host}/spi/v2/watch`}
+        onSetup={this.onLogsWebsocketSetup}
+        debug={false} />
+    )
+  }
+
+  onLogsWebsocketSetup(ws) {
+    this.setState({
+      logs: []
+    })
+    this.ws = ws
+    const { cluster, containerName, loginUser, current } = this.props
+    const { watchToken, namespace } = loginUser
+    const watchAuthInfo = {
+      accessToken: watchToken,
+      namespace: namespace,
+      type: 'log',
+      name: containerName,
+      cluster,
+    }
+    if (current.space.namespace !== 'default') {
+      watchAuthInfo.teamspace = current.space.namespace
+    }
+    ws.send(JSON.stringify(watchAuthInfo))
+    ws.onmessage = (event) => {
+      let { data } = event
+      data = JSON.parse(data)
+      const { name, log } = data
+      if (log === undefined) {
+        return
+      }
+      const logArray = log.split('\n')
+      const { logs } = this.state
+      logArray.map(log => {
+        if (!log) return
+        logs.push({
+          name,
+          log
+        })
+      })
       this.setState({
-        logSize: 'big'
+        logs
       })
     }
   }
-  render() {
+
+  renderLog(logObj, index) {
+    let { name, log } = logObj
+    const dateReg = /\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{9}(Z|(\+\d{2}:\d{2}))\b/
+    let logDateArray = log.match(dateReg)
+    let logDate
+    if (logDateArray && logDateArray[0]) {
+      logDate = logDateArray[0]
+      log = log.replace(logDate, '')
+    }
     return (
-      <div id="ContainerGraph">
-        <div className={this.state.logSize == 'big' ? "bigBox bottomBox" : 'bottomBox'} >
+      <div key={`logs_${index}`}>
+        <span style={{ color: 'yellow' }}>[{name}] </span>
+        {
+          logDate &&
+          <span style={{ color: 'orange' }}>[{formatDate(logDate)}]</span>
+        }
+        <span dangerouslySetInnerHTML={{ __html: ecma48SgrEscape(log) }}></span>
+      </div>
+    )
+  }
+
+  loopWatchStatus() {
+    const { watchStatus } = this.state
+    return watchStatus === 'pause' ? 'play' : 'pause'
+  }
+
+  handleLoopWatchStatus() {
+    const { watchStatus } = this.state
+    let nextWatchStatus = this.loopWatchStatus()
+    const ws = this.ws
+    const data = {
+      action: nextWatchStatus
+    }
+    ws && ws.send(JSON.stringify(data))
+    this.setState({
+      watchStatus: nextWatchStatus
+    })
+  }
+
+  getLogs() {
+    const { logs } = this.state
+    if (logs.length < 1) {
+      return (
+        <pre>No logs.</pre>
+      )
+    }
+    return (
+      <pre>{logs.map(this.renderLog)}</pre>
+    )
+  }
+
+  render() {
+    const { containerName, serviceName } = this.props
+    const { logSize, watchStatus, logs } = this.state
+    const iconType = this.loopWatchStatus()
+    return (
+      <div id="ContainerLogs">
+        <div className={logSize == 'big' ? "bigBox bottomBox" : 'bottomBox'} >
           <div className="introBox">
             <div className="operaBox">
-              <i className="fa fa-expand" onClick={this.onChangeLogSize.bind(this)}></i>
-              <i className="fa fa-refresh" onClick={() => {this.refreshLogs()}}></i>
-              <DatePicker className="datePicker" onChange={(date)=> this.changeCurrentDate(date)} value={this.state.currentDate}/>
+              <span>
+                <Link to={`/manange_monitor/query_log?service=${serviceName}&instance=${containerName}`}>
+                  历史日志
+                </Link>
+              </span>
             </div>
-            <div className="infoBox" ref={(c)=> this.infoBox = c} onScroll ={ () => this.moutseRollLoadLogs() }>
-              <pre> { this.getLogs() } </pre>
+            <div className="infoBox" ref={(c) => this.infoBox = c}>
+              {this.getLogs()}
+              <pre id="logsBottom"></pre>
             </div>
             <div style={{ clear: "both" }}></div>
+            <div className="operaBox">
+              <i className="fa fa-expand" onClick={this.onChangeLogSize.bind(this)}></i>
+              <Tooltip placement="top" title={`click to ${iconType}`}>
+                <i className={`fa fa-${iconType}-circle-o`} onClick={this.handleLoopWatchStatus} />
+              </Tooltip>
+            </div>
           </div>
           <div style={{ clear: "both" }}></div>
         </div>
+        {this.getLogsWatchWs()}
       </div>
     )
   }
 }
 
 function mapStateToProps(state) {
+  const { current, loginUser } = state.entities
   return {
-    containerLogs: state.containers.containerLogs
+    containerLogs: state.containers.containerLogs,
+    loginUser: loginUser.info,
+    current,
   }
 }
+
 ContainerLogs = connect(mapStateToProps, {
-  loadContainerLogs,
-  clearContainerLogs
+  // clearContainerLogs,
 })(ContainerLogs)
+
 export default ContainerLogs

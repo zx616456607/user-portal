@@ -417,7 +417,7 @@ function mapStateToProps (state,props) {
     current,
     loginUser,
     teamspaces: (teamspaces.result ? teamspaces.result.teamspaces : []),
-    userDetail: userDetail.result.data
+    userDetail: (userDetail.result ? userDetail.result.data : {})
   }
 }
 export default connect (mapStateToProps,{
