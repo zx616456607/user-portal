@@ -14,22 +14,22 @@ export function ecma48SgrEscape(str) {
   // \033表示\e
   // ([0-9]{1,2})表示param，且捕获param值
   // (?:;([0-9]{1,2}))*表示0或多个‘;param’，且捕获param值，(?:regexp)表示不捕获regexp的值
-  var re = /\033\[([0-9]{1,2})(?:;([0-9]{1,2}))*m/;
+  let re = /\033\[([0-9]{1,2})(?:;([0-9]{1,2}))*m/;
   re.compile(re);
 
   //查找sgr序列
-  var i = str.search(re);
-  var ret = "";
+  let i = str.search(re);
+  let ret = "";
   while (i >= 0) {
     ret += str.substr(0, i);
     str = str.substr(i);
     // 获取匹配结果，matched[0]为sgr序列，其余为param
-    var matched = str.match(re);
+    let matched = str.match(re);
     if (_is_valid_sgr(matched)) {
       //查找下一处sgr序列
       str = str.substr(matched[0].length);
       i = str.search(re);
-      var text;
+      let text;
       if (i >= 0) {
         //如找到下一个sgr序列，则将两序列之间的字符串转译
         text = str.substr(0, i);
@@ -57,7 +57,7 @@ export function ecma48SgrEscape(str) {
 
 function _escape_sgr_str(matched, text) {
   // 暂时只支持加粗和字体颜色
-  for (var i = 1; i < matched.length; i++) {
+  for (let i = 1; i < matched.length; i++) {
     switch (matched[i]) {
       case "1":
         text = text.bold(); //加粗
@@ -98,7 +98,7 @@ function _is_valid_sgr(matched) {
     // \e[0m 这种情况
     return _is_valid_sgr_param(matched[1]);
   }
-  for (var i = 1; i < matched.length; i++) {
+  for (let i = 1; i < matched.length; i++) {
     if (_is_valid_sgr_param(matched[i]) === false) {
       return false;
     }
@@ -148,7 +148,7 @@ function _is_valid_sgr(matched) {
 // 47      set white background
 // 49      set default background color
 function _is_valid_sgr_param(str) {
-  var num = parseInt(str);
+  let num = parseInt(str);
   if ((num >= 0 && num <= 2)
     || (num >= 10 && num <= 12)
     || (num >= 30 && num <= 47)
