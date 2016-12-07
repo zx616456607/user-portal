@@ -102,7 +102,6 @@ let MyComponent = React.createClass({
     });
   },
   appOperaClick: function (item, e) {
-    //this function for user click opera menu
     switch (e.key) {
       case 'stopApp':
         this.stopApp(item.name);
@@ -116,11 +115,6 @@ let MyComponent = React.createClass({
     }
   },
   selectAppByline: function (item, e) {
-    //this function for user click app line ,and then this app will be selected
-    //when user click the menu button will trigger the function
-    //so the first thing should estimate
-    //the event target is the menu button or others
-    //if the target is menu button , the function will be return null
     let stopPro = e._dispatchInstances;
     if (stopPro.length != 2) {
       const { parentScope } = this.props
@@ -250,16 +244,6 @@ let MyComponent = React.createClass({
             onClick={(e) => this.restartApp(e, item.name)}>
             <span>重新部署</span>
           </Menu.Item>
-          {/*<Menu.Item key='topology'>
-            <Link to={`/app_manage/detail/${item.name}#topology`} >
-              查看拓扑图
-            </Link>
-          </Menu.Item>
-          <Menu.Item key='stack'>
-            <Link to={`/app_manage/detail/${item.name}#stack`} >
-              查看编排
-            </Link>
-          </Menu.Item>*/}
         </Menu>
       );
       const appDomain = parseAppDomain(item, this.props.bindingDomains)
@@ -309,62 +293,6 @@ let MyComponent = React.createClass({
   }
 });
 
-
-let RestarAppsModal = React.createClass({
-  getInitialState() {
-    return {
-
-    }
-  },
-  render: function () {
-    const { appList } = this.props
-    const checkedAppList = appList.filter((app) => app.checked)
-    let stoppedApps = []
-    checkedAppList.map((app, index) => {
-      if (app.status.phase === 'Stopped') {
-        stoppedApps.push(app)
-      }
-    })
-    let item = stoppedApps.map((app, index) => {
-      return (
-        <tr>
-          <td>{index + 1}</td>
-          <td>{app.name}</td>
-          <td style={{ color: '#f85958' }}>应用为已停止状态</td>
-        </tr>
-      )
-    })
-    return (
-      <div id="StartAppsModal">
-        {
-          stoppedApps.length !== 0 ?
-            <div>
-              <Alert message={
-                <span>你选择的{checkedAppList.length}个应用中, 有
-                  <span className="modalDot" style={{ backgroundColor: '#f85958' }}>{stoppedApps.length}个</span>
-                  是已停止状态, 不能做重新部署
-                </span>
-              } type="warning" showIcon />
-              <div style={{ height: 26 }}>Tip: 运行状态时应用才可以重新部署</div>
-              <div className="tableWarp">
-                <table className="modalList">
-                  <tbody>
-                    {item}
-                  </tbody>
-                </table>
-              </div>
-
-            </div> :
-            <div></div>
-        }
-        <div className="confirm">
-          <Icon type="question-circle-o" style={{ marginRight: '10px' }} />
-          您是否确定重新部署这{(checkedAppList.length - stoppedApps.length)}个可以重新部署的应用 ?
-        </div>
-      </div>
-    )
-  }
-})
 
 class AppList extends Component {
   constructor(props) {
@@ -472,39 +400,6 @@ class AppList extends Component {
     this.loadData(nextProps)
   }
 
-  /* confirmStartApps(appList) {
-     const self = this
-     const { cluster, startApps } = this.props
-     const appNames = appList.map((app) => app.name)
-     appList.map((app,index) => {
-       if(app.status.phase === 'Running'){
-
-       }
-     })
-     confirm({
-       title: `您是否确认要启动这${appNames.length}个应用`,
-       content: appNames.join(', '),
-       onOk() {
-         return new Promise((resolve) => {
-           const allApps = self.state.appList
-           allApps.map((app) => {
-             if (appNames.indexOf(app.name) > -1) {
-               app.phase = 'Starting'
-             }
-           })
-           startApps(cluster, appNames, {
-             success: {
-               func: () => loadData(self.props),
-               isAsync: true
-             }
-           })
-           resolve()
-         });
-       },
-       onCancel() { },
-     });
-   }*/
-
   batchStartApps(e) {
     this.setState({
       startAppsModal: true
@@ -538,64 +433,6 @@ class AppList extends Component {
       restarAppsModal: true
     })
   }
-
-  /*confirmStopApps(appList) {
-    const self = this
-    const { cluster, stopApps } = this.props
-    const appNames = appList.map((app) => app.name)
-    confirm({
-      title: `您是否确认要停止这${appNames.length}个应用`,
-      content: appNames.join(', '),
-      onOk() {
-        return new Promise((resolve) => {
-          const allApps = self.state.appList
-          allApps.map((app) => {
-            if (appNames.indexOf(app.name) > -1) {
-              app.phase = 'Stopping'
-            }
-          })
-          self.setState({
-            appList: allApps
-          })
-          stopApps(cluster, appNames, {
-            success: {
-              func: () => loadData(self.props),
-              isAsync: true
-            }
-          })
-          resolve()
-        });
-      },
-      onCancel() { },
-    })
-  }
-  confirmRestartApps(appList) {
-    const self = this
-    const { cluster, restartApps } = this.props
-    const appNames = appList.map((app) => app.name)
-    confirm({
-      title: `您是否确认要重新部署这${appNames.length}个应用`,
-      content: appNames.join(', '),
-      onOk() {
-        return new Promise((resolve) => {
-          const allApps = self.state.appList
-          allApps.map((app) => {
-            if (appNames.indexOf(app.name) > -1) {
-              app.phase = 'Redeploying'
-            }
-          })
-          restartApps(cluster, appNames, {
-            success: {
-              func: () => loadData(self.props),
-              isAsync: true
-            }
-          })
-          resolve()
-        });
-      },
-      onCancel() { },
-    });
-  }*/
 
   confirmDeleteApps(appList) {
     const self = this
