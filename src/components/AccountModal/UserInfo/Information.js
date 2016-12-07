@@ -75,7 +75,10 @@ let ResetPassWord = React.createClass({
       callback();
     }
   },
-
+  componentDidMount(){
+    console.log('this.refs.intPass',this.refs)
+    this.refs.intPass.refs.input.focus()
+  },
   render: function () {
     const { password } = this.state
     const { getFieldProps } = this.props.form;
@@ -100,7 +103,7 @@ let ResetPassWord = React.createClass({
           <Row>
             <Col>
               <FormItem hasFeedback>
-                <Input type={password} className="passInt" {...passwdProps} autoComplete="off" />
+                <Input type={password} className="passInt" {...passwdProps} autoComplete="off" ref='intPass' />
                 <Icon type="eye"
                   onClick={this.handleChange}
                   className={password === 'text' ? 'passIcon' : ''} />
@@ -142,6 +145,12 @@ class Information extends Component {
   resetPsw() {
     this.setState({
       revisePass: false
+    })
+  }
+  componentWillMount(){
+    const { editPass } = this.props
+    this.setState({
+      revisePass: editPass
     })
   }
   render() {

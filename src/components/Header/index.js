@@ -48,42 +48,6 @@ const menusText = defineMessages({
     defaultMessage: '第三个',
   }
 })
-
-let logMenu = (
-  <div className='logMenu'>
-    <div className='rechangeInf'>
-      <div className='balance'>
-        <p>账户余额:</p>
-        <p><span>2000</span>T币</p>
-      </div>
-      <Button style={{height:30}}>立即充值</Button>
-    </div>
-    <table className='navTab'>
-      <tbody>
-        <tr>
-          <td></td>
-          <td></td>
-        </tr>
-        <tr>
-          <td></td>
-          <td></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-)
-let logTitle = (
-  <div className='logTitle'>
-    <div className='logAvatar'>Z</div>
-    <div style={{float:'left',paddingLeft: '7px'}}>
-      <div style={{lineHeight: '20px',paddingTop: '8px',minWidth:180}}>
-        <p style={{fontSize: '16px',color: '#46b2fa'}}>Zhaoxy</p>
-        <p style={{fontSize: '12px'}}>Zhaoxy@qq.com</p>
-      </div>
-    </div>
-    <div className='loginTag'>个人</div>
-  </div>
-)
 function loadSpaces(props, callback) {
   const { loadUserTeamspaceList } = props
   loadUserTeamspaceList('default', { size: 100 }, callback)
@@ -94,9 +58,11 @@ class Header extends Component {
     super(props)
     this.handleSpaceChange = this.handleSpaceChange.bind(this)
     this.handleClusterChange = this.handleClusterChange.bind(this)
+    this.handleVisibleChange = this.handleVisibleChange.bind(this)
     this.state = {
       spacesVisible: false,
       clustersVisible: false,
+      visible: false,
       focus: false,
     }
   }
@@ -151,7 +117,12 @@ class Header extends Component {
       browserHistory.push('/')
     }
   }
-
+  handleVisibleChange() {
+    const { visible } = this.state
+    this.setState({
+      visible: !visible
+    })
+  }
   componentWillMount() {
     const {
       loadTeamClustersList,
@@ -209,7 +180,7 @@ class Header extends Component {
       }
     })
   }
-
+  
   render() {
     const {
       current,
@@ -219,9 +190,11 @@ class Header extends Component {
       isTeamClustersFetching,
       teamClusters,
     } = this.props
+    console.log('loginUser',loginUser)
     const {
       spacesVisible,
       clustersVisible,
+      visible,
     } = this.state
     teamspaces.map((space) => {
       space.name = space.spaceName
@@ -229,6 +202,78 @@ class Header extends Component {
     teamClusters.map((cluster) => {
       cluster.name = cluster.clusterName
     })
+    let logMenu = (
+      <div className='logMenu'>
+        <div className='rechangeInf'>
+          <div className='balance'>
+            <p>账户余额 &nbsp;:</p>
+            <p><span>{loginUser.info.balance?loginUser.info.balance : 0}</span><span style={{fontSize:'14px',color:'#8a8a8a'}}>&nbsp;&nbsp;T币</span></p>
+          </div>
+          <Button style={{height:30,backgroundColor:'#46b2fa',borderColor:'#46b2fa',color:'#fff',fontSize:'14px'}}>立即充值</Button>
+        </div>
+        <table className='navTab'>
+          <tbody>
+            <tr>
+              <td>
+                <Link to='/account'>
+                  <svg className='logMenuSvg'>
+                    <use xlinkHref='#logaccountinf'/>
+                  </svg>
+                  <div>账户信息</div>
+                </Link>
+              </td>
+              <td>
+                <Link to='/account/cost'>
+                  <svg className='logMenuSvg'>
+                    <use xlinkHref='#logcostrecord'/>
+                  </svg>
+                  <div>消费记录</div>
+                </Link>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <Link to='/account/user/editPass'>
+                  <svg className='logMenuSvg'>
+                    <use xlinkHref='#logchangepass'/>
+                  </svg>
+                  <div>修改密码</div>
+                </Link>
+              </td>
+              <td>
+                <Link to='/account'>
+                  <svg className='logMenuSvg'>
+                    <use xlinkHref='#logteam'/>
+                  </svg>
+                  <div>我的团队</div>
+                </Link>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div className='logCancle'>
+          <a href='/logout'>
+            <svg className='logCancleSvg'>
+              <use xlinkHref='#logteam'/>
+            </svg>
+            注销登录
+          </a>
+        </div>
+      </div>
+    )
+    let logTitle = (
+      <div className='logTitle'>
+        <div className='logAvatar'>{loginUser.info.userName?loginUser.info.userName.substr(0,1).toUpperCase() : ''}</div>
+        <div style={{float:'left',paddingLeft: '7px'}}>
+          <div style={{lineHeight: '20px',paddingTop: '8px',minWidth:180}}>
+            <p style={{fontSize: '16px',color: '#46b2fa'}}>{loginUser.info.userName || '...'}</p>
+            <p style={{fontSize: '12px'}}>{loginUser.info.email || '...'}</p>
+          </div>
+        </div>
+        <div className='loginTag'>个人</div>
+      </div>
+    )
+    const rotate = visible ? 'rotate180' : 'rotate0'
     return (
       <div id="header">
         <div className="space">
@@ -277,10 +322,13 @@ class Header extends Component {
           overlayClassName='logPopMenu'
           placement="bottomRight"
           arrowPointAtCenter={true}
-          trigger='click'>
+          trigger='click'
+          visible={this.state.visible}
+          onVisibleChange={this.handleVisibleChange}
+          >
             <div className='userBtn'>
               {loginUser.info.userName || '...'}
-              <Icon type="down" />
+              <Icon type="down" className={rotate}/>
             </div>
           </Popover>
         </div>
