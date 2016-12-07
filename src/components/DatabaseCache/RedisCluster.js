@@ -13,7 +13,9 @@ import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import { Row, Col, Modal, Button, Icon, Input, message, Spin, Tooltip } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { loadRedisDbCacheAllList } from '../../actions/database_cache'
+import { loadDbCacheList } from '../../actions/database_cache'
+import { loadMyStack } from '../../actions/app_center'
+import { DEFAULT_REGISTRY } from '../../../constants'
 import ModalDetail from './ModalDetail.js'
 import CreateDatabase from './CreateDatabase.js'
 import './style/RedisCluster.less'
@@ -50,7 +52,7 @@ let MyComponent = React.createClass({
         <div className='List' key={index}>
           <div className='list-wrap'>
             <div className='detailHead'>
-              <img src='/img/test/mysql.jpg' />
+              <img src='/img/test/redis.jpg' />
               <div className='detailName'>
                 {item.serivceName}
               </div>
@@ -70,7 +72,7 @@ let MyComponent = React.createClass({
                 <div style={{ clear: 'both' }}></div>
               </li>
               <li><span className='listKey'>副本数</span>{item.pods.pending + item.pods.running}/{item.pods.desired}个<div style={{ clear: 'both' }}></div></li>
-              <li><span className='listKey'>存储卷</span>暂时未知<div style={{ clear: 'both' }}></div></li>
+              <li><span className='listKey'>存储大小</span>{item.volumeSize ? item.volumeSize :'0'} M<div style={{ clear: 'both' }}></div></li>
             </ul>
           </div>
         </div>
@@ -97,10 +99,21 @@ class RedisDatabase extends Component {
 
   componentWillMount() {
     document.title = 'Redis集群 | 时速云';
-    const { loadRedisDbCacheAllList, cluster } = this.props
-    loadRedisDbCacheAllList(cluster)
+    const { loadDbCacheList, cluster } = this.props
+    loadDbCacheList(cluster, 'redis')
   }
-
+  componentDidMount() {
+    const _this = this
+    this.props.loadMyStack(DEFAULT_REGISTRY, 'dbservice', {
+      success: {
+        func: (res) => {
+          _this.setState({
+            dbservice: res.data.data
+          })
+        }
+      }
+    })
+  }
   createDatabaseShow() {
     //this function for user show the modal of create database
     this.setState({
@@ -136,7 +149,7 @@ class RedisDatabase extends Component {
           title='创建数据库集群'
           onCancel={() => { this.setState({ CreateDatabaseModalShow: false }) } }
           >
-          <CreateDatabase scope={parentScope} database={'redis'} />
+          <CreateDatabase scope={parentScope} dbservice={this.state.dbservice} database={'redis'} />
         </Modal>
       </QueueAnim>
     )
@@ -148,16 +161,15 @@ function mapStateToProps(state, props) {
   const defaultRedisList = {
     isFetching: false,
     cluster: cluster.clusterID,
-    database: 'Redis',
+    database: 'redis',
     databaseList: []
   }
-  const defaultConfig = {
-    isFetching: false,
-  }
-  const { redisDatabaseAllList } = state.databaseCache
-  const { database, databaseList, isFetching } = redisDatabaseAllList.Redis || defaultRedisList
+
+  const { databaseAllList } = state.databaseCache
+  const { database, databaseList, isFetching } = databaseAllList.redis || defaultRedisList
   return {
-    cluster: cluster.clusterID,
+    // cluster: cluster.clusterID,
+    cluster: 'e0e6f297f1b3285fb81d27742255cfcf11',// @todo default 
     database,
     databaseList: databaseList,
     isFetching,
@@ -167,7 +179,8 @@ function mapStateToProps(state, props) {
 RedisDatabase.propTypes = {
   intl: PropTypes.object.isRequired,
   isFetching: PropTypes.bool.isRequired,
-  loadRedisDbCacheAllList: PropTypes.func.isRequired,
+  loadDbCacheList: PropTypes.func.isRequired,
+  loadMyStack: PropTypes.func.isRequired
 }
 
 RedisDatabase = injectIntl(RedisDatabase, {
@@ -175,5 +188,6 @@ RedisDatabase = injectIntl(RedisDatabase, {
 })
 
 export default connect(mapStateToProps, {
-  loadRedisDbCacheAllList
+  loadDbCacheList,
+  loadMyStack
 })(RedisDatabase)

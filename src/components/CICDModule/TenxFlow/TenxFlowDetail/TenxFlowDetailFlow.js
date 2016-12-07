@@ -54,7 +54,8 @@ class TenxFlowDetailFlow extends Component {
       createNewFlow: false,
       buildingList: [],
       refreshing: false,
-      websocket: ''
+      websocket: '',
+      forCacheShow: false
     }
   }
 
@@ -62,7 +63,13 @@ class TenxFlowDetailFlow extends Component {
     const { getTenxFlowStateList, flowId, getProjectList, getDockerfileList } = this.props;
     const _this = this;
     let buildingList = [];
-    const cicdApi = this.props.cicdApi
+    //when different tenxflow should be show
+    //sometimes the last message still in the html
+    //when the new message recevice, the old message will be refrash
+    this.setState({
+      forCacheShow: true
+    });
+    const cicdApi = this.props.cicdApi;
     getTenxFlowStateList(flowId, {
       success: {        
         func: (res) => {
@@ -86,7 +93,16 @@ class TenxFlowDetailFlow extends Component {
             buildingList: buildingList,
             websocket: <Socket url={cicdApi.host} path={cicdApi.statusPath} protocol={cicdApi.protocol} onSetup={(socket) => _this.onSetup(socket)} />   
           });
-          getProjectList();
+          getProjectList({
+            success: {
+              func: () => {
+                _this.setState({
+                  forCacheShow: false
+                })
+              },
+              isAsync: true
+            }
+          });
         },
         isAsync: true        
       }
@@ -96,6 +112,7 @@ class TenxFlowDetailFlow extends Component {
   componentWillReceiveProps(nextProps) {
     //this function for user click the top box and build all stages
     const { startBuild, getTenxFlowStateList, flowId, CreateTenxflowBuild, scope } = nextProps;
+    let oldFlowId = this.props.flowId;
     if(startBuild) {
       scope.setState({
         startBuild: false
@@ -117,6 +134,16 @@ class TenxFlowDetailFlow extends Component {
           },
           isAsync: true
         }
+      })
+    }
+    //for nocache
+    if(oldFlowId != flowId) {
+      this.setState({
+        forCacheShow: true
+      })
+    } else {
+      this.setState({
+        forCacheShow: false
       })
     }
   }
@@ -303,10 +330,11 @@ class TenxFlowDetailFlow extends Component {
   }
   render() {
     const { flowId, stageInfo, stageList, isFetching, projectList, buildFetching, logs, supportedDependencies, cicdApi } = this.props;
+    const { forCacheShow } = this.state;
     let scope = this;
     let { currentFlowEdit } = scope.state;
     let cards = null;
-    if(!Boolean(stageList)) {
+    if(!Boolean(stageList) || forCacheShow) {
       return (
         <div className='loadingBox'>
           <Spin size='large' />
