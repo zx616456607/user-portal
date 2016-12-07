@@ -53,16 +53,14 @@ class CostRecord extends Component{
       return text.toString().length === 2 ? text : `0${text}`
     }
     
-    let date = new Date
+    let date = new Date()
     let y = date.getFullYear()
-    let m = date.getMonth()+1
+    let m = date.getMonth() + 1
     let d = date.getDate()
     if (data) {
-      console.log('data',d)
-      return (y+'-'+_addZero(m)+'-'+_addZero(d))
-    }else {
-      return (y+'-'+_addZero(m))
+      return (y + '-' + _addZero(m) + '-' + _addZero(d))
     }
+    return (y+'-'+_addZero(m))
   }
   handleTableChange(pagination, filters, sorter){
     this.setState({

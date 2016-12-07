@@ -66,8 +66,24 @@ export default class StateBtnModal extends Component{
     }
     let checkedList = appList?appList.filter((app) => app.checked):serviceList.filter((service) => service.checked)
     let disableArr = []
-    let checkedState = state === 'Restart'||'QuickRestar'?'Stopped':state
-    
+    let checkedState
+    switch (state) {
+      case 'Running':
+        checkedState = state
+        break;
+      case 'Restart':
+        checkedState = 'Stopped'
+        break;
+      case 'QuickRestar':
+        checkedState = 'Stopped'
+        break;
+      case 'Stopped':
+        checkedState = 'Stopped'
+        break;
+      default:
+        checkedState = state
+        break;
+    }
     if (scope) {
       if (scope.state.currentShowInstance) {
         checkedList = [scope.state.currentShowInstance]
