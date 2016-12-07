@@ -11,7 +11,7 @@
 import * as ActionTypes from '../actions/database_cache'
 import merge from 'lodash/merge'
 import reducerFactory from './factory'
-import { cloneDeep } from 'lodash'
+import cloneDeep from 'lodash/cloneDeep'
 
 function databaseAllNames(state = {}, action) {
   const defaultState = {
@@ -137,7 +137,7 @@ function loadDBStorageAllList(state = {}, action) {
   switch (action.type) {
     case ActionTypes.GET_DATABASE_STORAGE_ALL_LIST_REQUEST:
       return merge({}, defaultState, state, {
-        isFetching: true 
+        isFetching: true
       })
     case ActionTypes.GET_DATABASE_STORAGE_ALL_LIST_SUCCESS:
       return Object.assign({}, state, {
@@ -146,7 +146,7 @@ function loadDBStorageAllList(state = {}, action) {
       })
     case ActionTypes.GET_DATABASE_STORAGE_ALL_LIST_FAILURE:
       return merge({}, defaultState, state, {
-        isFetching: false 
+        isFetching: false
       })
     default:
       return state
