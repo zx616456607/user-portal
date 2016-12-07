@@ -31,13 +31,13 @@ class MemberTransfer extends Component{
   renderItem(item){
     let customLabel = (
       <Row style={{display:'inline-block',width:'100%'}}>
-        <Col span={10} style={{overflow:'hidden'}}>{item.title}</Col>
-        <Col span={14} style={{overflow:'hidden'}}>{item.description}</Col>
+        <Col span={9} style={{overflow:'hidden'}}>{item.title}</Col>
+        <Col span={12} style={{overflow:'hidden',whiteSpace: "nowrap",textOverflow: 'ellipsis'}}>{item.description}</Col>
       </Row>
     )
     return {
       label: customLabel,
-      value: item.title,
+      value: item.description,
     }
   }
   
