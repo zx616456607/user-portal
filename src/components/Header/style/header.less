@@ -103,15 +103,61 @@
 .logPopMenu {
   .ant-popover-title {
     height: 66px;
+    border-bottom: 1px dashed #ededed;
   }
   .logTitle {
+    overflow: hidden;
+    padding: 13px 18px 8px 32px;
+    .logAvatar {
+      width: 46px;
+      height: 46px;
+      line-height: 46px;
+      border-radius: 50%;
+      border: 1px solid #1c9eda;
+      color: #fff;
+      background-color: #46b2fa;
+      float: left;
+      text-align: center;
+      font-size: 38px;
+    }
     .loginTag {
       float: right;
       height: 20px;
+      line-height: 20px;
+      text-align: center;
+      font-size: 12px;
       width: 40px;
+      margin-top: 18px;
       border-radius: 2px;
       color: #fff;
       background-color: #c4c4c4;
+    }
+  }
+  .logMenu {
+    .rechangeInf {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 60px;
+      padding: 13px 18px 8px 32px;
+      .balance {
+        height: 36px;
+        font-size: 12px;
+        line-height: 20px;
+        span {
+          font-size: 24px;
+          color: #52b7fa;
+        }
+      }
+    }
+    .navTab {
+      tr {
+        td {
+          height: 120px;
+          width: 158px;
+          text-align: center;
+        }
+      }
     }
   }
 }

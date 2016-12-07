@@ -50,19 +50,39 @@ const menusText = defineMessages({
 })
 
 let logMenu = (
-  <div>
-
+  <div className='logMenu'>
+    <div className='rechangeInf'>
+      <div className='balance'>
+        <p>账户余额:</p>
+        <p><span>2000</span>T币</p>
+      </div>
+      <Button style={{height:30}}>立即充值</Button>
+    </div>
+    <table className='navTab'>
+      <tbody>
+        <tr>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 )
 let logTitle = (
   <div className='logTitle'>
-    <div style={{width:46,height:46,float:'left'}}></div>
-    <div style={{float:'left'}}>
-      <div>Zhaoxy</div>
-      <div>Zhaoxy@qq.com</div>
+    <div className='logAvatar'>Z</div>
+    <div style={{float:'left',paddingLeft: '7px'}}>
+      <div style={{lineHeight: '20px',paddingTop: '8px',minWidth:180}}>
+        <p style={{fontSize: '16px',color: '#46b2fa'}}>Zhaoxy</p>
+        <p style={{fontSize: '12px'}}>Zhaoxy@qq.com</p>
+      </div>
     </div>
-    <div className='loginTag'></div>
-  </div>  
+    <div className='loginTag'>个人</div>
+  </div>
 )
 function loadSpaces(props, callback) {
   const { loadUserTeamspaceList } = props

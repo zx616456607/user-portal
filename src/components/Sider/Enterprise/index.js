@@ -577,11 +577,11 @@ class Slider extends Component {
                     <span><div className='sideCircle'></div> 开放 API</span>
                   </Link>
                 </Menu.Item>
-                <Menu.Item key='personalized'>
+                {/*<Menu.Item key='personalized'>
                   <Link to='/setting/personalized'>
                     <span><div className='sideCircle'></div> 个性化设置</span>
                   </Link>
-                </Menu.Item>
+                </Menu.Item>*/}
                 <div className='sline'></div>
               </SubMenu>
             </Menu>
