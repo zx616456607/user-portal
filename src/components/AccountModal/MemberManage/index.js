@@ -209,7 +209,7 @@ let MemberTable = React.createClass({
         className: 'memberName',
         width: '15%',
         render: (text, record, index) => (
-          <Link to={`/setting/user/${record.key}`}>
+          <Link to={`/account/user/${record.key}`}>
             {text}
           </Link>
         ),
@@ -313,7 +313,7 @@ let MemberTable = React.createClass({
         width: 180,
         render: (text, record, index) => (
           <div>
-            <Link to={`/setting/user/${record.key}`}>
+            <Link to={`/account/user/${record.key}`}>
               <Button icon="setting" className="setBtn">
                 管理
             </Button>

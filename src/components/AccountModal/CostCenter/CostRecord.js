@@ -48,13 +48,18 @@ class CostRecord extends Component{
       currentTeamName: space.teamName,
     })
   }
-  transformDate(){
+  transformDate(data){
     function _addZero(text) {
       return text.toString().length === 2 ? text : `0${text}`
     }
-    let date = new Date
+    
+    let date = new Date()
     let y = date.getFullYear()
-    let m = date.getMonth()+1
+    let m = date.getMonth() + 1
+    let d = date.getDate()
+    if (data) {
+      return (y + '-' + _addZero(m) + '-' + _addZero(d))
+    }
     return (y+'-'+_addZero(m))
   }
   handleTableChange(pagination, filters, sorter){
@@ -247,7 +252,7 @@ class CostRecord extends Component{
       <div className="teamCostTitle">
         <span>{currentSpaceName}该月消费</span>
         <div style={{flex: 'auto'}}>
-          <MonthPicker style={{float: 'left',marginLeft: '40px'}} defaultValue={this.transformDate()}/>
+          <MonthPicker style={{float: 'left',marginLeft: '40px'}} defaultValue={this.transformDate(false)}/>
         </div>
       </div>
     )
@@ -255,7 +260,7 @@ class CostRecord extends Component{
       <div className="teamCostTitle">
         <span>{currentSpaceName}该月消费详情</span>
         <div style={{flex: 'auto'}}>
-          <MonthPicker style={{float: 'left',marginLeft: '40px'}} defaultValue={this.transformDate()}/>
+          <DatePicker style={{float: 'left',marginLeft: '40px'}} defaultValue={this.transformDate(true)}/>
         </div>
       </div>
     )
@@ -402,6 +407,7 @@ class CostRecord extends Component{
       },
     ]
     let pagination = {
+      current: 1,
       total: costData.length,
       showSizeChanger: true,
       onShowSizeChange(current, pageSize) {
