@@ -8,8 +8,8 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Modal, Checkbox, Button, Card, Menu } from 'antd'
-import { Link } from 'react-router'
+import { Modal, Checkbox, Button, Card, Menu ,Popconfirm} from 'antd'
+import { Link , browserHistory} from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import AppAddServiceModal from './AppAddServiceModal'
@@ -125,7 +125,6 @@ class ServiceList extends Component {
     this.openModal = this.openModal.bind(this);
     this.onchange = this.onchange.bind(this);
     this.allSelectedChecked = this.allSelectedChecked.bind(this);
-    this.subServicesList = this.subServicesList.bind(this);
     this.delServicesList = this.delServicesList.bind(this);
     this.delAllSelected = this.delAllSelected.bind(this);
     this.state = {
@@ -137,6 +136,7 @@ class ServiceList extends Component {
       registryServer: null,
       isCreate: true,
       checkInf: null,
+      visible: true
     }
   }
 
@@ -201,9 +201,19 @@ class ServiceList extends Component {
     });
   }
 
-  subServicesList() {
-    localStorage.setItem('servicesList', JSON.stringify(this.state.servicesList))
-    localStorage.setItem('selectedList', JSON.stringify(this.state.selectedList))
+  godeploystack(visible) {
+    if (!visible) {
+      this.setState({ visible });
+      return;
+    }
+    if (this.state.servicesList.length >0) {
+     // 直接执行下一步
+      localStorage.setItem('servicesList', JSON.stringify(this.state.servicesList))
+      localStorage.setItem('selectedList', JSON.stringify(this.state.selectedList))
+      browserHistory.push(`/app_manage/app_create/compose_file?query=fast_create`)
+    } else {
+      this.setState({ visible });  // 进行确认
+    }
   }
 
   delServicesList() {
@@ -269,11 +279,14 @@ class ServiceList extends Component {
             </Button>
             </Link>
             <Link to={`/app_manage/app_create/compose_file`}>
-              <Button type="primary" size="large" onClick={this.subServicesList}>
-                下一步
-
-            </Button>
             </Link>
+            <Popconfirm title="您还未添加服务，是否打开服务框进行选择！"
+              visible={this.state.visible} onVisibleChange={(e)=> this.godeploystack(e)}
+              onConfirm={()=>this.setState({modalShow: true})}>
+              <Button type="primary" size="large">
+                下一步
+              </Button>
+            </Popconfirm>
           </div>
           <Modal title="添加服务"
             visible={this.state.modalShow}

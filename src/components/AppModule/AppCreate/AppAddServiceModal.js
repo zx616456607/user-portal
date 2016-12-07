@@ -31,6 +31,7 @@ const MyComponent = React.createClass({
       isCreate: true,
       addServiceModalShow: false, // for add service
       deployServiceModalShow: true,
+      visible: false
     })
   },
   render: function () {

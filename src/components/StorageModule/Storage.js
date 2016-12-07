@@ -384,6 +384,7 @@ class Storage extends Component {
     }
   }
   componentWillMount() {
+    document.title = '存储 | 时速云'
     this.props.loadStorageList(this.props.currentImagePool, this.props.currentCluster)
   }
   onChange(value) {

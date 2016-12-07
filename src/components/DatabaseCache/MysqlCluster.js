@@ -11,9 +11,11 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import { Row, Col, Modal, Button, Icon, Collapse, Input, message, Spin, Tooltip } from 'antd'
+import { Modal, Button, Icon, Input, message, Spin, Tooltip } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { loadMysqlDbCacheAllList } from '../../actions/database_cache'
+import { loadDbCacheList } from '../../actions/database_cache'
+import { loadMyStack } from '../../actions/app_center'
+import { DEFAULT_REGISTRY } from '../../../constants'
 import ModalDetail from './ModalDetail.js'
 import CreateDatabase from './CreateDatabase.js'
 import './style/MysqlCluster.less'
@@ -70,7 +72,7 @@ let MyComponent = React.createClass({
                 <div style={{ clear: 'both' }}></div>
               </li>
               <li><span className='listKey'>副本数</span>{item.pods.pending + item.pods.running}/{item.pods.desired}个<div style={{ clear: 'both' }}></div></li>
-              <li><span className='listKey'>存储卷</span>暂时未知<div style={{ clear: 'both' }}></div></li>
+              <li><span className='listKey'>存储大小</span>{item.volumeSize ? item.volumeSize: '0'} M<div style={{ clear: 'both' }}></div></li>
             </ul>
           </div>
         </div>
@@ -91,16 +93,28 @@ class MysqlCluster extends Component {
     this.state = {
       detailModal: false,
       currentDatabase: null,
-      CreateDatabaseModalShow: false
+      CreateDatabaseModalShow: false,
+      dbservice: []
     }
   }
 
   componentWillMount() {
     document.title = 'MySQL集群 | 时速云';
-    const { loadMysqlDbCacheAllList, cluster } = this.props
-    loadMysqlDbCacheAllList(cluster)
+    const { loadDbCacheList, cluster } = this.props
+    loadDbCacheList(cluster, 'mysql')
   }
-
+  componentDidMount() {
+    const _this = this
+    this.props.loadMyStack(DEFAULT_REGISTRY, 'dbservice', {
+      success: {
+        func: (res) => {
+          _this.setState({
+            dbservice: res.data.data
+          })
+        }
+      }
+    })
+  }
   createDatabaseShow() {
     //this function for user show the modal of create database
     this.setState({
@@ -136,7 +150,7 @@ class MysqlCluster extends Component {
           title='创建数据库集群'
           onCancel={() => { this.setState({ CreateDatabaseModalShow: false }) } }
           >
-          <CreateDatabase scope={parentScope} database={'mysql'} />
+          <CreateDatabase scope={parentScope} dbservice={this.state.dbservice} database='mysql' />
         </Modal>
       </QueueAnim>
     )
@@ -148,16 +162,17 @@ function mapStateToProps(state, props) {
   const defaultMysqlList = {
     isFetching: false,
     cluster: cluster.clusterID,
-    database: 'MySql',
+    database: 'mysql',
     databaseList: []
   }
   const defaultConfig = {
     isFetching: false,
   }
-  const { mysqlDatabaseAllList } = state.databaseCache
-  const { database, databaseList, isFetching } = mysqlDatabaseAllList.MySql || defaultMysqlList
+  const { databaseAllList } = state.databaseCache
+  const { database, databaseList, isFetching } = databaseAllList.mysql || defaultMysqlList
   return {
-    cluster: cluster.clusterID,
+    // cluster: cluster.clusterID,
+    cluster: 'e0e6f297f1b3285fb81d27742255cfcf11',
     database,
     databaseList: databaseList,
     isFetching,
@@ -167,7 +182,8 @@ function mapStateToProps(state, props) {
 MysqlCluster.propTypes = {
   intl: PropTypes.object.isRequired,
   isFetching: PropTypes.bool.isRequired,
-  loadMysqlDbCacheAllList: PropTypes.func.isRequired,
+  loadDbCacheList: PropTypes.func.isRequired,
+  loadMyStack: PropTypes.func.isRequired
 }
 
 MysqlCluster = injectIntl(MysqlCluster, {
@@ -175,5 +191,6 @@ MysqlCluster = injectIntl(MysqlCluster, {
 })
 
 export default connect(mapStateToProps, {
-  loadMysqlDbCacheAllList
+  loadDbCacheList,
+  loadMyStack
 })(MysqlCluster)

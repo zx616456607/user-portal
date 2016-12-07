@@ -41,30 +41,30 @@ function databaseAllNames(state = {}, action) {
   }
 }
 
-function mysqlDatabaseAllList(state = {}, action) {
+function databaseAllList(state = {}, action) {
   const defaultState = {
-    'MySql': {
+    'mysql': {
       isFetching: false,
-      database: 'MySql',
+      database: 'mysql',
       databaseList: []
     }
   }
   switch (action.type) {
-    case ActionTypes.MYSQL_DATABASE_CACHE_ALL_LIST_REQUEST:
+    case ActionTypes.GET_DATABASE_CACHE_ALL_LIST_REQUEST:
       return merge({}, defaultState, state, {
-        'MySql': { isFetching: true }
+        [action.types]: { isFetching: true }
       })
-    case ActionTypes.MYSQL_DATABASE_CACHE_ALL_LIST_SUCCESS:
+    case ActionTypes.GET_DATABASE_CACHE_ALL_LIST_SUCCESS:
       return Object.assign({}, state, {
-        'MySql': {
+        [action.types]: {
           isFetching: false,
-          database: 'MySql',
+          database: action.types,
           databaseList: action.response.result.databaseList || []
         }
       })
-    case ActionTypes.MYSQL_DATABASE_CACHE_ALL_LIST_FAILURE:
+    case ActionTypes.GET_DATABASE_CACHE_ALL_LIST_FAILURE:
       return merge({}, defaultState, state, {
-        'MySql': { isFetching: false }
+        [action.types]: { isFetching: false }
       })
     default:
       return state
@@ -117,7 +117,7 @@ function databaseClusterDetail(state = {}, action) {
       return Object.assign({}, state, {
         databaseInfo: {
           isFetching: false,
-          databaseInfo: action.response.result.databaseInfo || null
+          databaseInfo: action.response.result.database || null
         }
       })
     case ActionTypes.GET_DATABASE_DETAIL_INFO_FAILURE:
@@ -157,7 +157,7 @@ function loadDBStorageAllList(state = {}, action) {
 export function databaseCache(state = { databaseCache: {} }, action) {
   return {
     databaseAllNames: databaseAllNames(state.databaseAllNames, action),
-    mysqlDatabaseAllList: mysqlDatabaseAllList(state.mysqlDatabaseAllList, action),
+    databaseAllList: databaseAllList(state.databaseAllList, action),
     redisDatabaseAllList: redisDatabaseAllList(state.redisDatabaseAllList, action),
     loadDBStorageAllList: loadDBStorageAllList(state.loadDBStorageAllList, action),
     createMySql: reducerFactory({
