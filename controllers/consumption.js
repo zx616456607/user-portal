@@ -38,3 +38,12 @@ exports.getSummaryInDay = function* () {
     data: result.data
   }
 }
+
+exports.getChargeRecord = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.consumptions.getBy(['charge-history'], this.query)
+  this.body = {
+    data: result.data
+  }
+}

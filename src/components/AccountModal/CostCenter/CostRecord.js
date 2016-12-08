@@ -40,17 +40,22 @@ class CostRecord extends Component{
       spacesVisible: false,
       currentSpaceName: '我的空间',
       currentTeamName: '',
+      currentNamespace: '',
       filteredInfo: null,
       sortedInfo: null,
       consumptionDetailCurrentPage: 1, // start from 1
       consumptionDetailPageSize: 10,
+      consumptionDetailTimeBegin: '',
+      consumptionDetailTimeEnd: '',
     }
   }
   handleSpaceChange(space) {
+    console.log('space.namespacespace.namespace',space.namespace)
     this.setState({
       spacesVisible: false,
       currentSpaceName: space.spaceName,
       currentTeamName: space.teamName,
+      currentNamespace: space.namespace,
     })
   }
   transformDate(data){
@@ -78,9 +83,6 @@ class CostRecord extends Component{
     switch(value){
       case 'containter':
        filterValue = '容'
-       break
-      case 'test':
-       filterValue = 'test'
        break
       default :
        filterValue = ''
@@ -127,6 +129,7 @@ class CostRecord extends Component{
       consumptionDetail,
       loadConsumptionDetail,
       loadSpaceSummary,
+      loadSpaceSummaryInDay,
       consumptionTrend,
       spaceSummaryInDay,
       spaceSummary,
@@ -135,6 +138,7 @@ class CostRecord extends Component{
       spacesVisible,
       currentSpaceName,
       currentTeamName,
+      currentNamespace,
       filteredInfo,
       sortedInfo,
     } = this.state
@@ -214,13 +218,39 @@ class CostRecord extends Component{
     }
     let onCurrentSpaceSummaryDateChange = function (date) {
       let time = moment(date).format('YYYY-MM-DD 00:00:00')
+      if (time == 'Invalid') {
+        return
+      }
       loadSpaceSummary(time)
+    }
+    
+    let onCurrentSpaceSummaryInDayDateChange = function (date) {
+      let time = moment(date).format('YYYY-MM-DD 00:00:00')
+      if (time == 'Invalid') {
+        return
+      }
+      loadSpaceSummaryInDay(time)
+    }
+
+    let onConsumptionDetailDateChange = function (date, dateString) {
+      let timeBegin = moment(date).format('YYYY-MM-DD 00:00:00')
+      let timeEnd = moment(date).add(1, 'days').format('YYYY-MM-DD 00:00:00')
+      if (timeBegin == 'Invalid' || timeEnd == 'Invalid') {
+        return
+      }
+      loadConsumptionDetail(0, _this.state.consumptionDetailPageSize, timeBegin, timeEnd)
+      // set state
+      _this.setState({
+        consumptionDetailCurrentPage: 1,
+        consumptionDetailTimeBegin: timeBegin,
+        consumptionDetailTimeEnd: timeEnd,
+      })
     }
     let spaceCostTitle = (
       <div className="teamCostTitle">
         <span>{currentSpaceName}该月消费</span>
         <div className='dataPicker'>
-          <MonthPicker defaultValue={this.transformDate(false)}  onChange={onCurrentSpaceSummaryDateChange} />
+          <MonthPicker defaultValue={this.transformDate(false)} onChange={onCurrentSpaceSummaryDateChange} />
         </div>
       </div>
     )
@@ -228,20 +258,19 @@ class CostRecord extends Component{
       <div className="teamCostTitle">
         <span>{currentSpaceName}该月消费详情</span>
         <div className='dataPicker'>
-          <MonthPicker defaultValue={this.transformDate(false)}/>
+          <MonthPicker defaultValue={this.transformDate(false)} onChange={onCurrentSpaceSummaryInDayDateChange} />
         </div>
       </div>
     )
     let spaceTableTitle = (
       <div className="teamCostTitle">
         <span>{currentSpaceName}消费明细</span>
-        <DatePicker style={{float: 'left',marginLeft: '40px'}} defaultValue={this.transformDate(true)}/>
+        <DatePicker style={{float: 'left',marginLeft: '40px'}} defaultValue={this.transformDate(true)} onChange={onConsumptionDetailDateChange} />
         <div className='dataPicker'>
           <Select defaultValue="all" style={{ width: 120, float: 'left',marginLeft: '40px'}}
                   onSelect={(value,option) => this.handleFilter(value,option)}>
             <Option value="all">全部</Option>
             <Option value="containter">容器服务</Option>
-            <Option value="test">test</Option>
           </Select>
         </div>
       </div>
@@ -431,7 +460,7 @@ class CostRecord extends Component{
       },
       onChange(current) {
         const pageSize = _this.state.consumptionDetailPageSize
-        loadConsumptionDetail((current-1) * pageSize, pageSize)
+        loadConsumptionDetail((current-1) * pageSize, pageSize, _this.state.consumptionDetailTimeBegin, _this.state.consumptionDetailTimeEnd)
         _this.setState({
           consumptionDetailCurrentPage: current,
         })
@@ -457,7 +486,7 @@ class CostRecord extends Component{
         </Card>
         {
           (loginUser.info.role === 1 && currentTeamName)?
-          <TeamCost currentSpaceName = {currentSpaceName} currentTeamName={currentTeamName}/>:
+          <TeamCost currentSpaceName = {currentSpaceName} currentTeamName={currentTeamName} currentNamespace={currentNamespace} />:
           <div></div>
         }
         <Row gutter={16} className='currentMonth'>
