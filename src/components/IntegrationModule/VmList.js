@@ -234,12 +234,12 @@ class VmList extends Component {
     let errorMsg = null;
     let newStatus = null;
     if(status == 'poweron') {
-      title = '确认启动';
-      confirmMsg = '是否确定启动虚机' + name;
-      tempBody.action = 'poweroff'
-    } else if (status == 'poweroff') {
       title = '确认关闭';
       confirmMsg = '是否确定关闭虚拟机' + name + '的客户机操作系统';
+      tempBody.action = 'poweroff'
+    } else if (status == 'poweroff') {
+      title = '确认启动';
+      confirmMsg = '是否确定启动虚机' + name;
       tempBody.action = 'poweron'
     }
     this.setState({
@@ -407,7 +407,7 @@ class VmList extends Component {
               <span className='commonSpan'>
                 {
                   !!item.ip ? [
-                    <span>
+                    <span key={'podDetail' + index + 'ip'}>
                       <Tooltip placement='topLeft' title={item.name}>
                         <span className='topSpan'>{item.name}</span>
                       </Tooltip>
@@ -416,7 +416,7 @@ class VmList extends Component {
                       </Tooltip>
                     </span>
                   ] : [
-                    <span>{item.name}</span>
+                    <span key={'podDetail' + index + 'ip'}>{item.name}</span>
                   ]
                 }
                 
