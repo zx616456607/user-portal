@@ -146,3 +146,23 @@ export function loadTeamSummary(teamspace, month) {
     return dispatch(fetchTeamSummary(teamspace, month))
   }
 }
+export const CONSUMPTION_GET_CHARGE_RECORD_REQUEST = 'CONSUMPTION_GET_CHARGE_RECORD_REQUEST'
+export const CONSUMPTION_GET_CHARGE_RECORD_SUCCESS = 'CONSUMPTION_GET_CHARGE_RECORD_SUCCESS'
+export const CONSUMPTION_GET_CHARGE_RECORD_FAILURE = 'CONSUMPTION_GET_CHARGE_RECORD_FAILURE'
+
+function fetchChargeRecord() {
+  const endpoint = `${API_URL_PREFIX}/consumptions/charge-history?size=100`
+  return {
+    [FETCH_API]: {
+      types: [CONSUMPTION_GET_CHARGE_RECORD_REQUEST, CONSUMPTION_GET_CHARGE_RECORD_SUCCESS, CONSUMPTION_GET_CHARGE_RECORD_FAILURE],
+      endpoint: endpoint,
+      schema: {},
+    }
+  }
+}
+
+export function loadChargeRecord() {
+  return (dispatch, getState) => {
+    return dispatch(fetchChargeRecord())
+  }
+}

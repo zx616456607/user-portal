@@ -5,7 +5,9 @@ import { connect } from 'react-redux'
 import { loadUserTeamspaceList } from '../../../actions/user'
 import { loadTeamClustersList } from '../../../actions/team'
 import { setCurrent, loadLoginUserDetail } from '../../../actions/entities'
+import { loadChargeRecord } from '../../../actions/consumption'
 import PopSelect from '../../PopSelect'
+import moment from 'moment'
 
 
 class RechargeRecord extends Component{
@@ -49,6 +51,7 @@ class RechargeRecord extends Component{
       loginUser,
       userDetail,
       teamspaces,
+      loadChargeRecord,
     } = this.props
     loadUserTeamspaceList(loginUser.info.userID||userDetail.userID,{ size: 100 }, {
       success: {
@@ -57,6 +60,7 @@ class RechargeRecord extends Component{
         isAsync: true
       }
     })
+    loadChargeRecord()
   }
   showModal(){
     this.setState({
@@ -69,6 +73,7 @@ class RechargeRecord extends Component{
       loginUser,
       teamspaces,
       teamClusters,
+      chargeRecord,
     } = this.props
     let {
       spacesVisible,
@@ -77,31 +82,38 @@ class RechargeRecord extends Component{
       remindModal,
       alertLine
     } = this.state
-    let rechargeData = [
-      {bef: '1T',money: '100T',rest: '102T',time: '2016-11-17 19:55:55',operator: 'zhaoxy'},
-      {bef: '1T',money: '100T',rest: '102T',time: '2016-11-17 19:55:55',operator: 'zhaoxy'},
-      {bef: '1T',money: '100T',rest: '102T',time: '2016-11-17 19:55:55',operator: 'zhaoxy'},
-      {bef: '1T',money: '100T',rest: '102T',time: '2016-11-17 19:55:55',operator: 'zhaoxy'},
-      {bef: '1T',money: '100T',rest: '102T',time: '2016-11-17 19:55:55',operator: 'zhaoxy'},
-      {bef: '1T',money: '100T',rest: '102T',time: '2016-11-17 19:55:55',operator: 'zhaoxy'},
-    ]
+    let convertChargeRecord = function () {
+      console.log('chargeRecordchargeRecordchargeRecordchargeRecord', chargeRecord)
+      if (!Array.isArray(chargeRecord.items)) {
+        return []
+      }
+      let items = JSON.parse(JSON.stringify(chargeRecord.items))
+      items.map(function(item) {
+        item.before = (item.before / 100).toFixed(2) + 'T'
+        item.charge = (item.charge / 100).toFixed(2) + 'T'
+        item.after = (item.after / 100).toFixed(2) + 'T'
+        item.time = moment(item.time).format('YYYY-MM-DD HH:mm:ss')
+      })
+      return items
+
+    }
     let rechargecolumns = [
       {
         title: '充值前',
-        key: 'bef',
-        dataIndex: 'bef',
+        key: 'before',
+        dataIndex: 'before',
         className: 'firstCol',
       },
       {
         title: '充值金额',
-        key: 'money',
-        dataIndex: 'money',
+        key: 'charge',
+        dataIndex: 'charge',
         className: 'blueFont',
       },
       {
         title: '充值后余额',
-        key: 'rest',
-        dataIndex: 'rest',
+        key: 'after',
+        dataIndex: 'after',
         className: 'greenFont',
       },
       {
@@ -146,7 +158,7 @@ class RechargeRecord extends Component{
         </Card>
         <Card className="RechargeTable" bodyStyle={{padding: 0}}>
           <Table
-            dataSource={rechargeData}
+            dataSource={convertChargeRecord()}
             columns={rechargecolumns}
             pagination = {false}
           />
@@ -192,16 +204,27 @@ class RechargeRecord extends Component{
 function mapStateToProps (state,props) {
   const { current, loginUser } = state.entities
   const { teamspaces,userDetail } = state.user
-  
+  const { chargeRecord } = state.consumption
+  let recordData = {
+    items: [],
+  }
+  if (!chargeRecord.isFetching) {
+    if (chargeRecord.result && chargeRecord.result.data && chargeRecord.result.data.items) {
+      recordData.items = chargeRecord.result.data.items
+    }
+  }
+      console.log('recordDatarecordDatarecordData', recordData)
   return {
     current,
     loginUser,
     teamspaces: (teamspaces.result ? teamspaces.result.teamspaces : []),
-    userDetail: (userDetail.result ? userDetail.result.data: {})
+    userDetail: (userDetail.result ? userDetail.result.data: {}),
+    chargeRecord: recordData,
   }
 }
 export default connect (mapStateToProps,{
   loadUserTeamspaceList,
   loadTeamClustersList,
   loadLoginUserDetail,
+  loadChargeRecord,
 })(RechargeRecord)
