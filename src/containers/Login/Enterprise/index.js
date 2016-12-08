@@ -198,6 +198,7 @@ let Login = React.createClass({
   intOnFocus(current) {
     if (current === 'name') {
       this.refs.intName.refs.input.focus()
+      console.log('onfocus')
       this.setState({
         intNameFocus: true
       })
@@ -219,7 +220,9 @@ let Login = React.createClass({
     const { resetFields } = this.props.form
     resetFields()
   },
-
+onChange(e){
+  console.log('e',e)
+},
   render() {
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form
     const { random, submitting, loginResult, submitProps } = this.state
@@ -270,7 +273,8 @@ let Login = React.createClass({
                 >
                 <div className={this.state.intNameFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'name')}>用户名 / 邮箱</div>
 
-                <Input {...nameProps} autoComplete="off" onBlur={this.intOnBlur.bind(this, 'name')}
+                <Input {...nameProps} autoComplete="off"
+                  onBlur={this.intOnBlur.bind(this, 'name')}
                   onFocus={this.intOnFocus.bind(this, 'name')}
                   ref="intName"
                   style={{ height: 35 }} />

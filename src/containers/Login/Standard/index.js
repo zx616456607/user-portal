@@ -198,6 +198,7 @@ let Login = React.createClass({
   intOnFocus(current) {
     if (current === 'name') {
       this.refs.intName.refs.input.focus()
+      
       this.setState({
         intNameFocus: true
       })
