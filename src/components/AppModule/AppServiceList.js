@@ -738,6 +738,7 @@ class AppServiceList extends Component {
   }
 
   onSubmitAddService(serviceTemplate) {
+    const self = this
     const hide = message.loading('正在添加中...', 0)
     const { cluster, appName, addService, loadServiceList } = this.props
     const { Service, Deployment } = serviceTemplate
@@ -747,7 +748,7 @@ class AppServiceList extends Component {
     addService(cluster, appName, body, {
       success: {
         func: () => {
-          loadServiceList(cluster, appName)
+          self.loadServices(self.props)
           hide()
           message.success(`服务 ${Service.metadata.name} 添加成功`)
         },
@@ -755,9 +756,11 @@ class AppServiceList extends Component {
       },
       failed: {
         func: () => {
+          self.loadServices(self.props)
           hide()
           message.error(`服务 ${Service.metadata.name} 添加失败`)
-        }
+        },
+        isAsync: true
       }
     })
   }
