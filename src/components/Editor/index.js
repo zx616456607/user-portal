@@ -306,7 +306,7 @@ class Editor extends Component {
     return (
       <div id='CodeMirror' className={ matchClass(this.state.currentBox, options) }>
         <div className='editOperaBox'>
-          <span className='title'>{title}</span>
+          <span className='title'>{title}<span style={{ marginLeft: '15px' }}>{ options.readOnly ? [<span key='readonly'>（只读）</span>] : [<span key='readwrite'>（读写）</span>] }</span></span>
           <div className='operaBtn'>
             { this.state.currentBox == 'normal' ? [<Icon type='arrow-salt' key='arrow-salt' onClick={this.changeBoxSize.bind(this)}/>] : [<Icon type='shrink' key='shrink' onClick={this.changeBoxSize.bind(this)} />] }
             { title == 'Yaml' ? [

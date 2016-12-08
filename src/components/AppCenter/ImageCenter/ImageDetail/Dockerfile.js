@@ -11,7 +11,7 @@
 import React, { Component } from 'react'
 import { Card , Spin , Button ,Icon} from 'antd'
 import DockerFileEditor from '../../../Editor/DockerFile'
-import { cloneDeep } from 'lodash'
+import cloneDeep from 'lodash/cloneDeep'
 
 let editorOptions = {
     readOnly: true
@@ -93,7 +93,7 @@ export default class Dockerfile extends Component {
   }
   render() {
     const isFetching = this.props.isFetching
-    
+
     if (isFetching) {
       return (
         <Card className="dockerfile">
@@ -117,8 +117,8 @@ export default class Dockerfile extends Component {
     return (
       <Card className="dockerfile">
         <DockerFileEditor value={this.state.dockerfile} callback={this.onChangeDockerFile.bind(this)} options={editorOptions} />
-        {this.props.isOwner && this.state.editor ? 
-          
+        {this.props.isOwner && this.state.editor ?
+
         <div style={{lineHeight:'50px'}} className="text-center">
           <Button size="large" type="ghost" onClick={()=> this.handEdit(false)} style={{marginRight:'10px'}}>取消</Button>
           <Button size="large" type="primary" onClick={()=>this.updateImageInfo()}>确定</Button>

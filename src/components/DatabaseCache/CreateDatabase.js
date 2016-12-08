@@ -12,8 +12,9 @@ import React, { Component, PropTypes } from 'react'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { Input, Select, InputNumber, Button, Form, Icon } from 'antd'
-import { postCreateMysqlDbCluster, postCreateRedisDbCluster, loadDbCacheAllNames } from '../../actions/database_cache'
+import { Input, Select, InputNumber, Button, Form, Icon ,message} from 'antd'
+import { CreateDbCluster ,loadDbCacheList} from '../../actions/database_cache'
+import { loadTeamClustersList } from '../../actions/team'
 import './style/CreateDatabase.less'
 
 const Option = Select.Option;
@@ -23,33 +24,38 @@ const FormItem = Form.Item;
 let CreateDatabase = React.createClass({
   getInitialState: function () {
     return {
-      currentType: 'mysql',
-      showPwd: 'password'
+      currentType: this.props.database,
+      showPwd: 'text',
+      firstFocues: true,
+      onselectCluster: true
     }
   },
-  componentWillMount: function () {
-    const { database } = this.props;
+  componentDidMount() {
     this.setState({
-      currentType: database,
-      showPwd: 'password'
+      cluster: this.props.teamCluster[0].clusterID,
     });
+  },
+  componentWillReceiveProps(nextProps) {
+    // if create box close return default select cluster
+    if(!nextProps.scope.state.CreateDatabaseModalShow) {
+      this.setState({onselectCluster: true})
+    }
+  },
+  onChangeCluster() {
+    this.setState({onselectCluster: false})
   },
   selectDatabaseType: function (database) {
     //this funciton for user select different database
+    console.log(database, 'sddafds')
     this.setState({
       currentType: database
     });
   },
-  onChangeNamespace(e) {
+  onChangeNamespace(id) {
     //this function for user change the namespace
     //when the namespace is changed, the function would be get all clusters of new namespace
-    console.log(e)
-  },
-  onChangeCluster(e) {
-    //this function for user change the cluster
-    //when the cluster is changed, the function would be get all databaseNames of new cluster
-    const { loadDbCacheAllNames } = this.props;
-    loadDbCacheAllNames(e);
+    const teamId = id.slice(2)
+    this.props.loadTeamClustersList(teamId, { size: 100 })
   },
   databaseExists(rule, value, callback) {
     //this function for check the new database name is exist or not
@@ -95,7 +101,15 @@ let CreateDatabase = React.createClass({
         showPwd: 'password'
       });
     }
+  },
+  setPsswordType() {
+    if (this.state.firstFocues) {
+      this.setState({
+        showPwd: 'password',
+        firstFocues: false
+      });
 
+    }
   },
   handleReset(e) {
     //this function for reset the form
@@ -109,33 +123,66 @@ let CreateDatabase = React.createClass({
   handleSubmit(e) {
     //this function for user submit the form
     e.preventDefault();
-    const { scope, postCreateMysqlDbCluster, postCreateRedisDbCluster } = this.props;
     const _this = this;
-    const { loadMysqlDbCacheAllList, cluster } = scope.props;
+    const { scope,  CreateDbCluster} = this.props;
+    const { loadDbCacheList, cluster } = scope.props;
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         return;
       }
-      var body = {
-        cluster: values.clusterSelect,
-        name: values.name,
-        servicesNum: values.services,
-        password: values.passwd,
-        dbType: _this.state.currentType
+      console.log(_this.state.currentType)
+      let templateId
+      this.props.dbservice.map(item => {
+        if (item.category === _this.state.currentType) {
+          return templateId = item.id
+        }
+      })
+      if (this.state.onselectCluster) {
+        values.clusterSelect = this.state.cluster
       }
-      scope.setState({
-        CreateDatabaseModalShow: false
+      const body = {
+        // cluster: values.clusterSelect,
+        cluster: 'e0e6f297f1b3285fb81d27742255cfcf11', // @ todo 
+        serviceName: values.name,
+        password: values.password,
+        replicas: values.replicas,
+        volumeSize: values.storageSelect,
+        templateId
+      }
+      CreateDbCluster(body, {
+        success: {
+          func: ()=> {
+            message.success('创建成功')
+            loadDbCacheList(cluster, _this.state.currentType)
+            _this.props.form.resetFields();
+            scope.setState({
+              CreateDatabaseModalShow: false
+            });
+          },
+          isAsync: true
+        },
+        failed: {
+          func: (res)=> {
+            message.error(res.message)
+            console.log(res.message)
+          }
+        }
       });
-      this.props.form.resetFields();
-      if (_this.state.currentType == 'mysql') {
-        postCreateMysqlDbCluster(body, loadMysqlDbCacheAllList(cluster));
-      } else if (_this.state.currentType == 'redis') {
-        postCreateRedisDbCluster(body)
-      }
+
     });
   },
   render() {
-    const { isFetching } = this.props;
+    const { isFetching , teamspaces ,teamCluster} = this.props;
+    const teamspaceList = teamspaces.map((list, index) => {
+      return (
+        <Option key={`${index}-${list.teamID}`}>{list.spaceName}</Option>
+      )
+    })
+    const clusterList = teamCluster.map(item => {
+      return (
+        <Option key={item.clusterID}>{item.clusterName}</Option>
+      )
+    })
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form;
     const nameProps = getFieldProps('name', {
       rules: [
@@ -143,15 +190,13 @@ let CreateDatabase = React.createClass({
         { validator: this.databaseExists },
       ],
     });
-    const servicesProps = getFieldProps('services', {
+    const replicasProps = getFieldProps('replicas', {
       initialValue: 1
     });
     const selectStorageProps = getFieldProps('storageSelect', {
-      rules: [
-        { required: true, message: '请选择存储卷' },
-      ],
+      initialValue: 500
     });
-    const passwdProps = getFieldProps('passwd', {
+    const passwdProps = getFieldProps('password', {
       rules: [
         {
           required: this.state.currentType == 'redis' ? false : true,
@@ -164,12 +209,14 @@ let CreateDatabase = React.createClass({
       rules: [
         { message: '请选择空间' },
       ],
+      initialValue: 'default',
       onChange: this.onChangeNamespace
     });
     const selectClusterProps = getFieldProps('clusterSelect', {
       rules: [
         { required: true, message: '请选择集群' },
       ],
+      initialValue: teamCluster[0].clusterName,
       onChange: this.onChangeCluster
     });
     return (
@@ -183,13 +230,10 @@ let CreateDatabase = React.createClass({
               <div className='inputBox'>
                 <Button size='large' type={this.state.currentType == 'mysql' ? 'primary' : 'ghost'} onClick={this.selectDatabaseType.bind(this, 'mysql')}>
                   MySQL
-            </Button>
-                <Button size='large' type={this.state.currentType == 'mongo' ? 'primary' : 'ghost'} onClick={this.selectDatabaseType.bind(this, 'mongo')}>
-                  Mongo
-            </Button>
+                </Button>
                 <Button size='large' type={this.state.currentType == 'redis' ? 'primary' : 'ghost'} onClick={this.selectDatabaseType.bind(this, 'redis')}>
                   Redis
-            </Button>
+                </Button>
               </div>
               <div style={{ clear: 'both' }}></div>
             </div>
@@ -200,16 +244,13 @@ let CreateDatabase = React.createClass({
               <div className='inputBox'>
                 <FormItem style={{ width: '150px', float: 'left', marginRight: '20px' }}>
                   <Select {...selectNamespaceProps} className='envSelect' size='large'>
-                    <Option value='jack'>Jack</Option>
-                    <Option value='lucy'>Lucy</Option>
-                    <Option value='yiminghe'>yiminghe</Option>
+                    <Option value="default">我的空间</Option>
+                    { teamspaceList }
                   </Select>
                 </FormItem>
                 <FormItem style={{ width: '150px', float: 'left' }}>
                   <Select {...selectClusterProps} className='envSelect' size='large'>
-                    <Option value='cce1c71ea85a5638b22c15d86c1f61df'>test</Option>
-                    <Option value='e0e6f297f1b3285fb81d2774225dddd'>产品环境</Option>
-                    <Option value='e0e6f297f1b3285fb81d27742255cfcf'>k8s 1.4</Option>
+                    { clusterList }
                   </Select>
                 </FormItem>
               </div>
@@ -224,7 +265,7 @@ let CreateDatabase = React.createClass({
                   hasFeedback
                   help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
                   >
-                  <Input {...nameProps} size='large' disabled={isFetching} maxLength={20} />
+                  <Input {...nameProps} size='large' placeholder="请输入名称" disabled={isFetching} maxLength={20} />
                 </FormItem>
               </div>
               <div style={{ clear: 'both' }}></div>
@@ -235,7 +276,7 @@ let CreateDatabase = React.createClass({
               </div>
               <div className='inputBox'>
                 <FormItem style={{ width: '80px', float: 'left' }}>
-                  <InputNumber {...servicesProps} size='large' min={1} max={1000} disabled={isFetching} />
+                  <InputNumber {...replicasProps} size='large' defaultValue={1} min={1} max={1000} disabled={isFetching} />
                 </FormItem>
                 <span className='litteColor' style={{ float: 'left', paddingLeft: '15px' }}>个</span>
               </div>
@@ -243,18 +284,13 @@ let CreateDatabase = React.createClass({
             </div>
             <div className='commonBox'>
               <div className='title'>
-                <span>存储卷</span>
+                <span>存储大小</span>
               </div>
               <div className='inputBox'>
-                <FormItem>
-                  <Select {...selectStorageProps} className='storageSelect' size='large' disabled={isFetching} >
-                    <Option value='jack'>Jack</Option>
-                    <Option value='lucy'>Lucy</Option>
-                    <Option value='yiminghe'>yiminghe</Option>
-                  </Select>
-                  <i className='fa fa-refresh litteColor'></i>
-                  <Icon type='delete' />
+                <FormItem  style={{ width: '80px', float: 'left' }}>
+                  <InputNumber {...selectStorageProps}  defaultValue={500} min={500} step={100} max={10000} size='large' disabled={isFetching}/>
                 </FormItem>
+                <span className='litteColor' style={{ float: 'left', paddingLeft: '15px' }}>M</span>
               </div>
               <div style={{ clear: 'both' }}></div>
             </div>
@@ -266,7 +302,7 @@ let CreateDatabase = React.createClass({
                 <FormItem
                   hasFeedback
                   >
-                  <Input {...passwdProps} type={this.state.showPwd} size='large' disabled={isFetching} />
+                  <Input {...passwdProps} onFocus={()=> this.setPsswordType()} type={this.state.showPwd} size='large' placeholder="请输入密码" disabled={isFetching} />
                   <i className={this.state.showPwd == 'password' ? 'fa fa-eye' : 'fa fa-eye-slash'} onClick={this.checkPwd}></i>
                 </FormItem>
               </div>
@@ -276,10 +312,10 @@ let CreateDatabase = React.createClass({
           <div className='btnBox'>
             <Button size='large' onClick={this.handleReset}>
               取消
-        </Button>
+            </Button>
             <Button size='large' type='primary' onClick={this.handleSubmit}>
               确定
-        </Button>
+            </Button>
           </div>
         </Form>
       </div>
@@ -287,7 +323,7 @@ let CreateDatabase = React.createClass({
   }
 });
 
-function mapStateToProps(state) {
+function mapStateToProps(state, props) {
   const { cluster } = state.entities.current
   const defaultDbNames = {
     isFetching: false,
@@ -296,21 +332,24 @@ function mapStateToProps(state) {
   }
   const { databaseAllNames } = state.databaseCache
   const { databaseNames, isFetching } = databaseAllNames.DbClusters || defaultDbNames
-
+  const { teamspaces } = state.user.teamspaces.result || []
+  const teamCluster = state.team.teamClusters.result.data || []
   return {
     cluster: cluster.clusterID,
     databaseNames,
-    isFetching
+    isFetching,
+    teamspaces,
+    teamCluster
   }
-  return {
-    createMySql: state.databaseCache.createMySql
-  }
+
 }
 
 CreateDatabase = createForm()(CreateDatabase);
 
 CreateDatabase.propTypes = {
-  intl: PropTypes.object.isRequired
+  intl: PropTypes.object.isRequired,
+  CreateDbCluster: PropTypes.func.isRequired,
+  loadTeamClustersList: PropTypes.func.isRequired
 }
 
 CreateDatabase = injectIntl(CreateDatabase, {
@@ -318,7 +357,6 @@ CreateDatabase = injectIntl(CreateDatabase, {
 })
 
 export default connect(mapStateToProps, {
-  postCreateMysqlDbCluster,
-  postCreateRedisDbCluster,
-  loadDbCacheAllNames
+  CreateDbCluster,
+  loadTeamClustersList
 })(CreateDatabase)

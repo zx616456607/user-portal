@@ -13,7 +13,7 @@ import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import './style/sider.less'
 import { beforeUploadFile, uploading, mergeUploadingIntoList, getUploadFileUlr, uploadFileOptions, getVolumeBindInfo, changeStorageDetail } from '../../../actions/storage'
-import { cloneDeep } from 'lodash'
+import cloneDeep from 'lodash/cloneDeep'
 import QueueAnim from 'rc-queue-anim'
 
 const SubMenu = Menu.SubMenu
@@ -24,7 +24,7 @@ function checkUrlSelectedKey(scope) {
   //this function for check the pathname and return the selected key of menu
   const { pathname } = scope.props;
   let pathList = pathname.split('/');
-  if(pathList.length == 2) {
+  if (pathList.length == 2) {
     return [pathList[1], pathList[1] + '_default']
   } else {
     return [pathList[1], pathList[2]]
@@ -35,7 +35,7 @@ function checkUrlOpenKeys(scope) {
   //this function for check the pathname and return the opened key of menu
   const { pathname } = scope.props;
   let pathList = pathname.split('/');
-  if(pathList.length == 2) {
+  if (pathList.length == 2) {
     return [pathList[1], pathList[1] + '_default']
   } else {
     return [pathList[1], pathList[2]]
@@ -65,7 +65,7 @@ class Slider extends Component {
   changeSiderStyle() {
     //this function for user change the sider style to 'mini' or 'bigger'
     const { scope, siderStyle } = this.props;
-    if(siderStyle == 'mini') {
+    if (siderStyle == 'mini') {
       scope.setState({
         siderStyle: 'bigger'
       });
@@ -97,7 +97,7 @@ class Slider extends Component {
   onSelectMenu(e) {
     //this function for user select the menu item and change the current key
     const { keyPath } = e;
-    if(keyPath.length > 1) {
+    if (keyPath.length > 1) {
       let currentKey = keyPath[1];
       this.setState({
         currentKey: currentKey
@@ -225,7 +225,7 @@ class Slider extends Component {
             <li style={{ color: 'red' }}>* 请先停止挂载该存储卷的服务再进行文件导入</li>
           </ul>
         </Modal>
-        { siderStyle == 'mini' ? [
+        {siderStyle == 'mini' ? [
           <div key='miniSider' className='miniSider'>
             <ul className='siderTop'>
               <li className='logoItem'>
@@ -246,7 +246,7 @@ class Slider extends Component {
                 <Tooltip placement='right' title='应用管理' getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/app_manage'>
                     <svg className='app commonImg'>
-                      { currentKey == 'app_manage' ? [<use xlinkHref='#appselected' />] : [<use xlinkHref='#app' />]}
+                      {currentKey == 'app_manage' ? [<use xlinkHref='#appselected' />] : [<use xlinkHref='#app' />]}
                     </svg>
                   </Link>
                 </Tooltip>
@@ -255,7 +255,7 @@ class Slider extends Component {
                 <Tooltip placement='right' title='交付中心' getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/app_center'>
                     <svg className='center commonImg'>
-                      { currentKey == 'app_center' ? [<use xlinkHref='#centerselected' />] : [<use xlinkHref='#center' />]}
+                      {currentKey == 'app_center' ? [<use xlinkHref='#centerselected' />] : [<use xlinkHref='#center' />]}
                     </svg>
                   </Link>
                 </Tooltip>
@@ -264,7 +264,7 @@ class Slider extends Component {
                 <Tooltip placement='right' title='CI/CD' getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/ci_cd'>
                     <svg className='cicd commonImg'>
-                      { currentKey == 'ci_cd' ? [<use xlinkHref='#cicdselected' />] : [<use xlinkHref='#cicd' />]}
+                      {currentKey == 'ci_cd' ? [<use xlinkHref='#cicdselected' />] : [<use xlinkHref='#cicd' />]}
                     </svg>
                   </Link>
                 </Tooltip>
@@ -273,7 +273,7 @@ class Slider extends Component {
                 <Tooltip placement='right' title='数据库与缓存' getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/database_cache'>
                     <svg className='database commonImg'>
-                      { currentKey == 'database_cache' ? [<use xlinkHref='#database-selected' />] : [<use xlinkHref='#database' />]}
+                      {currentKey == 'database_cache' ? [<use xlinkHref='#database-selected' />] : [<use xlinkHref='#database' />]}
                     </svg>
                   </Link>
                 </Tooltip>
@@ -282,7 +282,7 @@ class Slider extends Component {
                 <Tooltip placement='right' title='集成中心' getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/integration'>
                     <svg className='system commonImg'>
-                      { currentKey == 'integration' ? [<use xlinkHref='#systemselected' />] : [<use xlinkHref='#system' />] }
+                      {currentKey == 'integration' ? [<use xlinkHref='#systemselected' />] : [<use xlinkHref='#system' />]}
                     </svg>
                   </Link>
                 </Tooltip>
@@ -291,7 +291,7 @@ class Slider extends Component {
                 <Tooltip placement='right' title='管理与日志' getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/manange_monitor'>
                     <svg className='manageMoniter commonImg'>
-                      { currentKey == 'manange_monitor' ? [<use xlinkHref='#managemoniterselected' />] : [<use xlinkHref='#managemoniter' />] }
+                      {currentKey == 'manange_monitor' ? [<use xlinkHref='#managemoniterselected' />] : [<use xlinkHref='#managemoniter' />]}
                     </svg>
                   </Link>
                 </Tooltip>
@@ -320,48 +320,48 @@ class Slider extends Component {
               <div style={{ clear: 'both' }}></div>
             </ul>*/}
           </div>
-        ] : null }
-        { siderStyle == 'bigger' ? [
-        <QueueAnim type='left' className='siderBiggerBox'>
-          <div key='siderBigger' className='siderBigger'>
-            <div className='logBox'>
-              <Link to='/'>
-                <img className='logo' src='/img/sider/logo.png' />
-              </Link>
-            </div>
-            <Menu
-              style={{ width: '100%', backgroundColor: '#2b333d', color: '#c4c4c4' }}
-              mode='inline'
-              theme='dark'
-              defaultSelectedKeys={checkUrlSelectedKey(scope)}
-              defaultOpenKeys={checkUrlOpenKeys(scope)}
-              onClick={this.onSelectMenu}
-            >
-              <Menu.Item key='home'>
+        ] : null}
+        {siderStyle == 'bigger' ? [
+          <QueueAnim type='left' className='siderBiggerBox'>
+            <div key='siderBigger' className='siderBigger'>
+              <div className='logBox'>
                 <Link to='/'>
-                  <svg className='home commonImg'>
-                    <use xlinkHref='#home' />
-                  </svg>
-                  <span>总览</span>
+                  <img className='logo' src='/img/sider/logo.png' />
                 </Link>
-              </Menu.Item>
-              <SubMenu key='app_manage'
-                title={
-                  <span>
-                    <svg className='app commonImg'>
-                      <use xlinkHref='#app' />
+              </div>
+              <Menu
+                style={{ width: '100%', backgroundColor: '#2b333d', color: '#c4c4c4' }}
+                mode='inline'
+                theme='dark'
+                defaultSelectedKeys={checkUrlSelectedKey(scope)}
+                defaultOpenKeys={checkUrlOpenKeys(scope)}
+                onClick={this.onSelectMenu}
+                >
+                <Menu.Item key='home'>
+                  <Link to='/'>
+                    <svg className='home commonImg'>
+                      <use xlinkHref='#home' />
                     </svg>
-                    <span className='commonSiderSpan'>应用管理</span>
-                    <div style={{ clear: 'both' }}></div>
-                  </span>
-                }
-              >
+                    <span>总览</span>
+                  </Link>
+                </Menu.Item>
+                <SubMenu key='app_manage'
+                  title={
+                    <span>
+                      <svg className='app commonImg'>
+                        <use xlinkHref='#app' />
+                      </svg>
+                      <span className='commonSiderSpan'>应用管理</span>
+                      <div style={{ clear: 'both' }}></div>
+                    </span>
+                  }
+                  >
                   <Menu.Item key='app_manage_default'>
                     <Link to='/app_manage'>
                       <span><div className='sideCircle'></div> 应用</span>
                     </Link>
                   </Menu.Item>
-                   <Menu.Item key='service'>
+                  <Menu.Item key='service'>
                     <Link to='/app_manage/service'>
                       <span><div className='sideCircle'></div> 服务</span>
                     </Link>
@@ -382,171 +382,171 @@ class Slider extends Component {
                     </Link>
                   </Menu.Item>
                   <div className='sline'></div>
-              </SubMenu>
-              <SubMenu key='app_center'
-                title={
-                  <span>
-                    <svg className='center commonImg'>
-                      <use xlinkHref='#center' />
-                    </svg>
-                    <span className='commonSiderSpan'>交付中心</span>
-                    <div style={{ clear: 'both' }}></div>
-                  </span>
-                }
-              >
-                <Menu.Item key='app_center_default'>
-                  <Link to='/app_center'>
-                    <span><div className='sideCircle'></div> 镜像仓库</span>
+                </SubMenu>
+                <SubMenu key='app_center'
+                  title={
+                    <span>
+                      <svg className='center commonImg'>
+                        <use xlinkHref='#center' />
+                      </svg>
+                      <span className='commonSiderSpan'>交付中心</span>
+                      <div style={{ clear: 'both' }}></div>
+                    </span>
+                  }
+                  >
+                  <Menu.Item key='app_center_default'>
+                    <Link to='/app_center'>
+                      <span><div className='sideCircle'></div> 镜像仓库</span>
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item key='image_store'>
+                    <Link to='/app_center/image_store'>
+                      <span><div className='sideCircle'></div> 应用商店</span>
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item key='stack_center'>
+                    <Link to='/app_center/stack_center'>
+                      <span><div className='sideCircle'></div> 编排文件</span>
+                    </Link>
+                  </Menu.Item>
+                  <div className='sline'></div>
+                </SubMenu>
+                <SubMenu key='ci_cd'
+                  title={
+                    <span>
+                      <svg className='center commonImg'>
+                        <use xlinkHref='#cicd' />
+                      </svg>
+                      <span className='commonSiderSpan'>CI/CD</span>
+                      <div style={{ clear: 'both' }}></div>
+                    </span>
+                  }
+                  >
+                  <Menu.Item key='ci_cd_default'>
+                    <Link to='/ci_cd'>
+                      <span><div className='sideCircle'></div> 代码仓库</span>
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item key='tenx_flow'>
+                    <Link to='/ci_cd/tenx_flow'>
+                      <span><div className='sideCircle'></div> TenxFlow</span>
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item key='docker_file'>
+                    <Link to='/ci_cd/docker_file'>
+                      <span><div className='sideCircle'></div> Dockerfile</span>
+                    </Link>
+                  </Menu.Item>
+                  <div className='sline'></div>
+                </SubMenu>
+                <SubMenu key='database_cache'
+                  title={
+                    <span>
+                      <svg className='database commonImg'>
+                        <use xlinkHref='#database' />
+                      </svg>
+                      <span className='commonSiderSpan'>数据库与缓存</span>
+                      <div style={{ clear: 'both' }}></div>
+                    </span>
+                  }
+                  >
+                  <Menu.Item key='database_cache_default'>
+                    <Link to='/database_cache'>
+                      <span><div className='sideCircle'></div> 关系型数据库</span>
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item key='mongo_cluster'>
+                    <Link to='/database_cache/mongo_cluster'>
+                      <span><div className='sideCircle'></div> MongoDB</span>
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item key='redis_cluster'>
+                    <Link to='/database_cache/redis_cluster'>
+                      <span><div className='sideCircle'></div> 缓存</span>
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item key='database_storage'>
+                    <Link to='/database_cache/database_storage'>
+                      <span><div className='sideCircle'></div> 数据存储</span>
+                    </Link>
+                  </Menu.Item>
+                  <div className='sline'></div>
+                </SubMenu>
+                <Menu.Item key='integration'>
+                  <Link to='/integration'>
+                    <span>
+                      <svg className='system commonImg'>
+                        <use xlinkHref='#system' />
+                      </svg>
+                      <span className='commonSiderSpan'>集成中心</span>
+                      <div style={{ clear: 'both' }}></div>
+                    </span>
                   </Link>
                 </Menu.Item>
-                <Menu.Item key='image_store'>
-                  <Link to='/app_center/image_store'>
-                    <span><div className='sideCircle'></div> 应用商店</span>
-                  </Link>
-                </Menu.Item>
-                <Menu.Item key='stack_center'>
-                  <Link to='/app_center/stack_center'>
-                    <span><div className='sideCircle'></div> 编排文件</span>
-                  </Link>
-                </Menu.Item>
-                <div className='sline'></div>
-              </SubMenu>
-              <SubMenu key='ci_cd'
-                title={
-                  <span>
-                    <svg className='center commonImg'>
-                      <use xlinkHref='#cicd' />
-                    </svg>
-                    <span className='commonSiderSpan'>CI/CD</span>
-                    <div style={{ clear: 'both' }}></div>
-                  </span>
-                }
-              >
-                <Menu.Item key='ci_cd_default'>
-                  <Link to='/ci_cd'>
-                    <span><div className='sideCircle'></div> 代码仓库</span>
-                  </Link>
-                </Menu.Item>
-                <Menu.Item key='tenx_flow'>
-                  <Link to='/ci_cd/tenx_flow'>
-                    <span><div className='sideCircle'></div> TenxFlow</span>
-                  </Link>
-                </Menu.Item>
-                <Menu.Item key='docker_file'>
-                  <Link to='/ci_cd/docker_file'>
-                    <span><div className='sideCircle'></div> Dockerfile</span>
-                  </Link>
-                </Menu.Item>
-                <div className='sline'></div>
-              </SubMenu>
-              <SubMenu key='database_cache'
-                title={
-                  <span>
-                    <svg className='database commonImg'>
-                      <use xlinkHref='#database' />
-                    </svg>
-                    <span className='commonSiderSpan'>数据库与缓存</span>
-                    <div style={{ clear: 'both' }}></div>
-                  </span>
-                }
-              >
-                <Menu.Item key='database_cache_default'>
-                  <Link to='/database_cache'>
-                    <span><div className='sideCircle'></div> 关系型数据库</span>
-                  </Link>
-                </Menu.Item>
-                <Menu.Item key='mongo_cluster'>
-                  <Link to='/database_cache/mongo_cluster'>
-                    <span><div className='sideCircle'></div> MongoDB</span>
-                  </Link>
-                </Menu.Item>
-                <Menu.Item key='redis_cluster'>
-                  <Link to='/database_cache/redis_cluster'>
-                    <span><div className='sideCircle'></div> 缓存</span>
-                  </Link>
-                </Menu.Item>
-                <Menu.Item key='database_storage'>
-                  <Link to='/database_cache/database_storage'>
-                    <span><div className='sideCircle'></div> 数据存储</span>
-                  </Link>
-                </Menu.Item>
-                <div className='sline'></div>
-              </SubMenu>
-              <Menu.Item key='integration'>
-                <Link to='/integration'>
-                  <span>
-                    <svg className='system commonImg'>
-                      <use xlinkHref='#system' />
-                    </svg>
-                    <span className='commonSiderSpan'>集成中心</span>
-                    <div style={{ clear: 'both' }}></div>
-                  </span>
-                </Link>
-              </Menu.Item>
-              <SubMenu key='sub6'
-                title={
-                  <span>
-                    <svg className='manageMoniter commonImg'>
-                      <use xlinkHref='#managemoniter' />
-                    </svg>
-                    <span className='commonSiderSpan'>管理与日志</span>
-                    <div style={{ clear: 'both' }}></div>
-                  </span>
-                }
-              >
-                <Menu.Item key='manange_monitor_default'>
-                  <Link to='/manange_monitor'>
-                    <span><div className='sideCircle'></div> 操作审计</span>
-                  </Link>
-                </Menu.Item>
-                <Menu.Item key='query_log'>
-                  <Link to='/manange_monitor/query_log'>
-                    <span><div className='sideCircle'></div> 日志查询</span>
-                  </Link>
-                </Menu.Item>
-                <div className='sline'></div>
-              </SubMenu>
+                <SubMenu key='sub6'
+                  title={
+                    <span>
+                      <svg className='manageMoniter commonImg'>
+                        <use xlinkHref='#managemoniter' />
+                      </svg>
+                      <span className='commonSiderSpan'>管理与日志</span>
+                      <div style={{ clear: 'both' }}></div>
+                    </span>
+                  }
+                  >
+                  <Menu.Item key='manange_monitor_default'>
+                    <Link to='/manange_monitor'>
+                      <span><div className='sideCircle'></div> 操作审计</span>
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item key='query_log'>
+                    <Link to='/manange_monitor/query_log'>
+                      <span><div className='sideCircle'></div> 日志查询</span>
+                    </Link>
+                  </Menu.Item>
+                  <div className='sline'></div>
+                </SubMenu>
 
-              <SubMenu key='account'
-                title={
-                  <span>
-                    <svg className='account commonImg'>
-                      <use xlinkHref='#message' />
-                    </svg>
-                    <span className='commonSiderSpan'>账户中心</span>
-                    <div style={{ clear: 'both' }}></div>
-                  </span>
-                }
-              >
-                <Menu.Item key='account_default'>
-                  <Link to='/account'>
-                    <span><div className='sideCircle'></div> 我的账户</span>
-                  </Link>
-                </Menu.Item>
-                <Menu.Item key='myteam'>
-                  <Link to='/account/myteam'>
-                    <span><div className='sideCircle'></div> 我的团队</span>
-                  </Link>
-                </Menu.Item>
-                <Menu.Item key='cost'>
-                  <Link to='/account/cost'>
-                    <span><div className='sideCircle'></div> 费用中心</span>
-                  </Link>
-                </Menu.Item>
-                <div className='sline'></div>
-              </SubMenu>
-            </Menu>
-          </div>
-        </QueueAnim>
+                <SubMenu key='account'
+                  title={
+                    <span>
+                      <svg className='account commonImg'>
+                        <use xlinkHref='#message' />
+                      </svg>
+                      <span className='commonSiderSpan'>账户中心</span>
+                      <div style={{ clear: 'both' }}></div>
+                    </span>
+                  }
+                  >
+                  <Menu.Item key='account_default'>
+                    <Link to='/account'>
+                      <span><div className='sideCircle'></div> 我的账户</span>
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item key='myteam'>
+                    <Link to='/account/myteam'>
+                      <span><div className='sideCircle'></div> 我的团队</span>
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item key='cost'>
+                    <Link to='/account/cost'>
+                      <span><div className='sideCircle'></div> 费用中心</span>
+                    </Link>
+                  </Menu.Item>
+                  <div className='sline'></div>
+                </SubMenu>
+              </Menu>
+            </div>
+          </QueueAnim>
         ] : null
         }
         <ul className='changeSiderUl'>
           <Tooltip placement='right' title={siderStyle == 'mini' ? '展开导航栏' : null} getTooltipContainer={() => document.getElementById('siderTooltip')}>
             <li onClick={this.changeSiderStyle}>
               <span>
-                { siderStyle == 'mini' ? [<i className='fa fa-indent'></i>] : [<i className='fa fa-outdent'></i>]}
+                {siderStyle == 'mini' ? [<i className='fa fa-indent'></i>] : [<i className='fa fa-outdent'></i>]}
               </span>
-              { siderStyle == 'bigger' ?[<span>收起</span>] : null }
+              {siderStyle == 'bigger' ? [<span>收起</span>] : null}
             </li>
           </Tooltip>
         </ul>
@@ -558,7 +558,7 @@ class Slider extends Component {
 function checkCurrentPath(pathname) {
   let pathList = pathname.split('/');
   let currentPath = pathList[0];
-  if(currentPath.length > 0) {
+  if (currentPath.length > 0) {
     return currentPath;
   } else {
     return 'home';

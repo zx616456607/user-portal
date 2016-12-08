@@ -169,13 +169,13 @@ class App extends Component {
     const { loadLoginUserSuccess, loginErr } = this.state
     if (isEmptyObject(loginUser) && !loadLoginUserSuccess) {
       return (
-        <ErrorPage code={loginErr.statusCode} />
+        <ErrorPage code={loginErr.statusCode} errorMessage={{ error: loginErr }} />
       )
     }
     if (!errorMessage) {
       return children
     }
-    const { statusCode, message } = errorMessage.error
+    const { statusCode } = errorMessage.error
     if (this.showErrorPage(errorMessage)) {
       return (
         <ErrorPage code={statusCode} errorMessage={errorMessage} />

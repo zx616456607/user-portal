@@ -64,8 +64,8 @@ class ModalDetail extends Component {
   }
 
   render() {
-    const { scope, dbName, isFetching, databaseInfo } = this.props;
-    if (isFetching) {
+    const { scope, dbName, isFetching, databaseInfo ,podSpec} = this.props;
+    if (isFetching || databaseInfo ==null) {
       return (
         <div className='loadingBox'>
           <Spin size='large' />
@@ -113,9 +113,9 @@ class ModalDetail extends Component {
               <div className='configList'><span className='listKey'>副本数：</span>{databaseInfo.podInfo.pending + databaseInfo.podInfo.running}/{databaseInfo.podInfo.desired}个</div>
               <div className='configHead'>参数</div>
               <ul className='parse-list'>
-                <li><span className='key'>key</span> <span className='value'>value</span></li>
-                <li><span className='key'>username</span> <span className='value'>mysql-admin</span></li>
-                <li><span className='key'>password</span> <span className='value'>value</span></li>
+                <li><span className='key'>username</span> <span className='value'></span></li>
+                <li><span className='key'>key</span> <span className='value'>key</span></li>
+                <li><span className='key'>password</span> <span className='value'></span></li>
                 <li><span className='key'>InstanceId</span> <span className='value'>uuid-md5-1212555-xxlos</span></li>
                 <li><span className='key'>volume</span> <span className='value'>volume-value-1212555-xxlos</span></li>
               </ul>
@@ -139,8 +139,10 @@ function mapStateToProps(state, props) {
   const { databaseInfo, isFetching } = databaseClusterDetail.databaseInfo || defaultMysqlList
   return {
     isFetching: false,
-    cluster: cluster.clusterID,
-    databaseInfo: databaseInfo
+    // cluster: cluster.clusterID,
+    cluster: 'e0e6f297f1b3285fb81d27742255cfcf11',
+    databaseInfo: databaseInfo,
+    // podSpec: databaseInfo.podList.pods[0].podSpec
   }
 }
 

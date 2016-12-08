@@ -11,7 +11,7 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import { Card, Select, Button, DatePicker, Input, Cascader, Spin, Tooltip, Pagination } from 'antd'
+import { Card, Select, Button, DatePicker, Input, Cascader, Spin, Tooltip, Pagination, notification } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { getOperationLogList } from '../../actions/manage_monitor'
 import {formatDate} from '../../common/tools.js'
@@ -62,7 +62,7 @@ const menusText = defineMessages({
   },
   Create: {
     id: 'ManageMonitor.operationalAudit.Create',
-    defaultMessage: '添加',
+    defaultMessage: '创建',
   },
   Get: {
     id: 'ManageMonitor.operationalAudit.Get',
@@ -106,7 +106,7 @@ const menusText = defineMessages({
   },
   BatchStart: {
     id: 'ManageMonitor.operationalAudit.BatchStart',
-    defaultMessage: '批量开始',
+    defaultMessage: '批量启动',
   },
   BatchStop: {
     id: 'ManageMonitor.operationalAudit.BatchStop',
@@ -694,6 +694,15 @@ function formatResourceName(resourceName) {
       newName = newName.join(',');
       return newName;
     }
+    //check volumes
+    if(!!newBody.volumes) {
+      let newName = newBody.volumes;
+      if(newName.length == 0) {
+        return '-';
+      }
+      newName = newName.join(',');
+      return newName;
+    }
   } else {
     return resourceName;
   }
@@ -712,8 +721,15 @@ let MyComponent = React.createClass({
         </div>
       )
     }
+    if(!!!config) {
+      return (
+        <div className='loadingBox'>
+          <span>暂无数据</span>
+        </div>
+      )
+    }
     const logList = config.records;
-    if( logList.length == 0 ) {
+    if( logList.length == 0) {
       return (
         <div className='loadingBox'>
           <span>暂无数据</span>
@@ -739,7 +755,7 @@ let MyComponent = React.createClass({
           <div className='obj commonTitle'>
             <span className='objSpan' style={{ top: '5px' }}><FormattedMessage {...menusText.objType} />{resourceFormat(item.resourceType, scope)}</span>
             <span className='objSpan' style={{ top: '-2px' }}>
-              <Tooltip placement="topLeft" title={item.resourceName}>
+              <Tooltip placement="topLeft" title={formatResourceName(item.resourceName)}>
                 <span><FormattedMessage {...menusText.objName} />{formatResourceName(item.resourceName)}{item.resourceId ? " - " + item.resourceId: ''}</span>
               </Tooltip>
             </span>
@@ -759,7 +775,7 @@ let MyComponent = React.createClass({
           </div>
           <div className='user commonTitle'>
             <i className='fa fa-user-o' />
-            <span className='commonSpan'>{item.namespace}</span>
+            <span className='commonSpan'>{item.operator}</span>
             <div style={{ clear:'both' }}></div>
           </div>
           <div style={{ clear:'both' }}></div>
@@ -825,6 +841,14 @@ class OperationalAudit extends Component {
             totalNum: res.count
           });
         }
+      },
+      failed: {
+        func: (error) => {
+          notification['error']({
+            message: '操作审计',
+            description: '请求操作审计日志失败',
+          });
+        }
       }
     })
   }
@@ -834,7 +858,7 @@ class OperationalAudit extends Component {
     //the nextProps is mean new props, and the this.props didn't change
     //so that we should use the nextProps
     const { isFetching } = nextPorps;
-    if(!isFetching) {
+    if(!isFetching && !!nextPorps.logs) {
       this.setState({
         logs: nextPorps.logs,
         totalNum: nextPorps.logs.count
@@ -853,33 +877,26 @@ class OperationalAudit extends Component {
       let operationalList = returnOperationList(this);
       switch(eventCode) {
         case '1':
-//        showOperationalList.push(operationalList[2]);
-//        showOperationalList.push(operationalList[3]);
           showOperationalList = [];
           break;
         case '2':
           showOperationalList = [];
-//        showOperationalList.push(operationalList[3]);
           break;
         case '3':
           showOperationalList = [];
-//        showOperationalList.push(operationalList[3]);
           break;
         case '4':
           showOperationalList = [];
-//        showOperationalList.push(operationalList[2]);
           break;
         case '5':
           showOperationalList = [];
-//        showOperationalList.push(operationalList[2]);
           break;
         case '6':
-//        showOperationalList.push(operationalList[3]);
+          showOperationalList.push(operationalList[9]);
+          showOperationalList.push(operationalList[10]);
           showOperationalList.push(operationalList[11]);
           showOperationalList.push(operationalList[12]);
           showOperationalList.push(operationalList[13]);
-          showOperationalList.push(operationalList[14]);
-          showOperationalList.push(operationalList[15]);
           break;
         case '7':
           showOperationalList = [];
@@ -897,38 +914,38 @@ class OperationalAudit extends Component {
 //        showOperationalList.push(operationalList[2]);
           break;
         case '11':
-          showOperationalList.push(operationalList[4]);
-          showOperationalList.push(operationalList[9]);
-          showOperationalList.push(operationalList[10]);
+          showOperationalList.push(operationalList[2]);
+          showOperationalList.push(operationalList[7]);
+          showOperationalList.push(operationalList[8]);
           break;
         case '12':
-          showOperationalList.push(operationalList[4]);
+          showOperationalList.push(operationalList[2]);
           break;
         case '13':
 //        showOperationalList.push(operationalList[2]);
-          showOperationalList.push(operationalList[4]);
-          showOperationalList.push(operationalList[5]);
+          showOperationalList.push(operationalList[2]);
+          showOperationalList.push(operationalList[3]);
           break;
         case '14':
-          showOperationalList.push(operationalList[4]);
+          showOperationalList.push(operationalList[2]);
           break;
         case '15':
-          showOperationalList.push(operationalList[4]);
+          showOperationalList.push(operationalList[2]);
           break;
         case '16':
           showOperationalList.push(operationalList[1]);
-          showOperationalList.push(operationalList[5]);
-          showOperationalList.push(operationalList[16]);
+          showOperationalList.push(operationalList[3]);
+          showOperationalList.push(operationalList[14]);
           break;
         case '17':
           showOperationalList.push(operationalList[1]);
 //        showOperationalList.push(operationalList[2]);
 //        showOperationalList.push(operationalList[3]);
-          showOperationalList.push(operationalList[5]);
+          showOperationalList.push(operationalList[3]);
+          showOperationalList.push(operationalList[10]);
+          showOperationalList.push(operationalList[11]);
           showOperationalList.push(operationalList[12]);
-          showOperationalList.push(operationalList[13]);
           showOperationalList.push(operationalList[14]);
-          showOperationalList.push(operationalList[16]);
           break;
         case '18':
           showOperationalList.push(operationalList[1]);
@@ -944,19 +961,19 @@ class OperationalAudit extends Component {
           break;
         case '21':
 //        showOperationalList.push(operationalList[2]);
-          showOperationalList.push(operationalList[4]);
+          showOperationalList.push(operationalList[2]);
           break;
         case '22':
           showOperationalList.push(operationalList[1]);
 //        showOperationalList.push(operationalList[2]);
-          showOperationalList.push(operationalList[4]);
-          showOperationalList.push(operationalList[11]);
+          showOperationalList.push(operationalList[2]);
+          showOperationalList.push(operationalList[9]);
           break;
         case '23':
           showOperationalList.push(operationalList[1]);
 //        showOperationalList.push(operationalList[2]);
-          showOperationalList.push(operationalList[4]);
-          showOperationalList.push(operationalList[11]);
+          showOperationalList.push(operationalList[2]);
+          showOperationalList.push(operationalList[9]);
           break;
         case '24':
           showOperationalList = [];
@@ -968,14 +985,14 @@ class OperationalAudit extends Component {
         case '26':
           showOperationalList.push(operationalList[1]);
 //        showOperationalList.push(operationalList[3]);
-          showOperationalList.push(operationalList[5]);
+          showOperationalList.push(operationalList[2]);
           break;
         case '27':
-          showOperationalList.push(operationalList[1]);
+          showOperationalList.push(operationalList[0]);
 //        showOperationalList.push(operationalList[3]);
-          showOperationalList.push(operationalList[17]);
-          showOperationalList.push(operationalList[18]);
-          showOperationalList.push(operationalList[11]);
+          showOperationalList.push(operationalList[15]);
+          showOperationalList.push(operationalList[16]);
+          showOperationalList.push(operationalList[8]);
           break;
         case '28':
           showOperationalList = [];
@@ -1274,9 +1291,6 @@ class OperationalAudit extends Component {
     return (
     <QueueAnim className='operationalAuditBox' type='right'>
       <div id='operationalAudit' key='operationalAudit'>
-        <div className='bigTitle'>
-          <span><FormattedMessage {...menusText.title} /></span>
-        </div>
         <div className='operaBox'>
           <Cascader
             changeOnSelect
@@ -1313,9 +1327,6 @@ class OperationalAudit extends Component {
           <Button className='searchBtn' size='large' type='primary' onClick={this.submitSearch}>
             <i className='fa fa-wpforms'></i> <FormattedMessage {...menusText.search} />
           </Button>
-          <div style={{ clear:'both' }}></div>
-        </div>
-        <Card className='dataCard'>
           <div className='bottomBox'>
             <div className='pageBox'>
               <Pagination
@@ -1328,6 +1339,9 @@ class OperationalAudit extends Component {
             </div>
             <span style={{ float:'right',lineHeight:'24px' }}>共计 {this.state.totalNum} 条</span>
           </div>
+          <div style={{ clear:'both' }}></div>
+        </div>
+        <Card className='dataCard'>
           <div className='titleBox'>
             <div className='time commonTitle'>
               <FormattedMessage {...menusText.time} />
