@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Modal, Checkbox, Button, Card, Menu ,Popconfirm, Form} from 'antd'
+import { Modal, Checkbox, Button, Card, Menu ,Popconfirm } from 'antd'
 import { Link , browserHistory} from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -16,7 +16,6 @@ import AppAddServiceModal from './AppAddServiceModal'
 import AppDeployServiceModal from './AppDeployServiceModal'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import "./style/ServiceList.less"
-const createForm = Form.create;
 
 
 class MyComponent extends Component {
@@ -175,7 +174,6 @@ class ServiceList extends Component {
         selectedList: selectedList
       })
     }
-    const { getFieldProps } = this.props.form
     const {registryServer, imageName, other} = this.props
     if (registryServer && imageName) {
       this.setState({
@@ -344,6 +342,6 @@ function mapStateToProps(state, props) {
 
 
 
-export default connect(mapStateToProps)(injectIntl(createForm()(ServiceList), {
+export default connect(mapStateToProps)(injectIntl(ServiceList, {
   withRef: true,
 }))
