@@ -247,7 +247,7 @@ class ServiceList extends Component {
     if(serviceName.length <= 0) return
     const self = this
     Modal.confirm({
-      title: `确定要删除这${selectedList.length}服务吗`,
+      title: `确定删除这 ${selectedList.length} 个服务吗?`,
       content: `${serviceName.join(',')}`,
       onOk() {
           let newServiceList = servicesList.filter(function(service) {

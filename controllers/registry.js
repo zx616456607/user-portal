@@ -24,7 +24,7 @@ exports.getImages = function* () {
   const registry = this.params.registry
   const loginUser = this.session.loginUser
   const query = this.query || {}
-  var q = query.q
+  var q = query.q || ""
 
   const result = yield registryService.getImages(loginUser.user, q)
   this.body = {

@@ -115,8 +115,8 @@ class CollapseContainer extends Component {
   }
   editConfigFile(group) {
     const configtextarea = this.state.configtextarea
-    if (escape(configtextarea).indexOf('%u') > 0) {
-      message.error('内容格式输入有误，请重新输入')
+    if (configtextarea == '') {
+      message.info('内容不能为空，请重新输入内容')
       return
     }
     const groups = {

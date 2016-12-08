@@ -163,7 +163,6 @@ let CreateDatabase = React.createClass({
         failed: {
           func: (res)=> {
             message.error(res.message.message)
-            console.log(res.message.message)
           }
         }
       });
