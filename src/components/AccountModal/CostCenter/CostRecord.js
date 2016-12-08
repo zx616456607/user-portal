@@ -50,6 +50,7 @@ class CostRecord extends Component{
     }
   }
   handleSpaceChange(space) {
+    
     this.setState({
       spacesVisible: false,
       currentSpaceName: space.spaceName,
