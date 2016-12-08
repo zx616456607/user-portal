@@ -17,7 +17,7 @@ import QueueAnim from 'rc-queue-anim'
 import CollapseHeader from './ServiceCollapseHeader'
 import CollapseContainer from './ServiceCollapseContainer'
 import { connect } from 'react-redux'
-import { remove } from 'lodash'
+import remove from 'lodash/remove'
 import { loadConfigGroup, configGroupName, createConfigGroup, deleteConfigGroup } from '../../actions/configs'
 
 

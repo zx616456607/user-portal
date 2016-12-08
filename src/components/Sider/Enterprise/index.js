@@ -492,21 +492,13 @@ class Slider extends Component {
                       <span><div className='sideCircle'></div> 关系型数据库</span>
                     </Link>
                   </Menu.Item>
-                  <Menu.Item key='mongo_cluster'>
-                    <Link to='/database_cache/mongo_cluster'>
-                      <span><div className='sideCircle'></div> MongoDB</span>
-                    </Link>
-                  </Menu.Item>
+                 
                   <Menu.Item key='redis_cluster'>
                     <Link to='/database_cache/redis_cluster'>
                       <span><div className='sideCircle'></div> 缓存</span>
                     </Link>
                   </Menu.Item>
-                  <Menu.Item key='database_storage'>
-                    <Link to='/database_cache/database_storage'>
-                      <span><div className='sideCircle'></div> 数据存储</span>
-                    </Link>
-                  </Menu.Item>
+                 
                   <div className='sline'></div>
                 </SubMenu>
                 <Menu.Item key='integration'>

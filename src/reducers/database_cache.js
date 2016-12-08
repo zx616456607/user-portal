@@ -12,6 +12,7 @@ import * as ActionTypes from '../actions/database_cache'
 import merge from 'lodash/merge'
 import reducerFactory from './factory'
 import cloneDeep from 'lodash/cloneDeep'
+import findIndex from 'lodash/findIndex'
 
 function databaseAllNames(state = {}, action) {
   const defaultState = {
@@ -49,23 +50,34 @@ function databaseAllList(state = {}, action) {
       databaseList: []
     }
   }
+  const clusterType = action.types || 'mysql'
   switch (action.type) {
     case ActionTypes.GET_DATABASE_CACHE_ALL_LIST_REQUEST:
       return merge({}, defaultState, state, {
-        [action.types]: { isFetching: true }
+        [clusterType]: { isFetching: true }
       })
     case ActionTypes.GET_DATABASE_CACHE_ALL_LIST_SUCCESS:
       return Object.assign({}, state, {
-        [action.types]: {
+        [clusterType]: {
           isFetching: false,
-          database: action.types,
+          database: clusterType,
           databaseList: action.response.result.databaseList || []
         }
       })
     case ActionTypes.GET_DATABASE_CACHE_ALL_LIST_FAILURE:
       return merge({}, defaultState, state, {
-        [action.types]: { isFetching: false }
+        [clusterType]: { isFetching: false }
       })
+  // delete database cluster 
+    case ActionTypes.DELETE_DATABASE_CACHE_SUCCESS: {
+      const delState = cloneDeep(state)
+      const databaseList = delState[clusterType].databaseList
+      let findex = findIndex(databaseList, list=> {
+        return action.dbName === list.serivceName
+      })
+      databaseList.splice(findex, 1)
+      return delState
+    }
     default:
       return state
   }
@@ -160,21 +172,6 @@ export function databaseCache(state = { databaseCache: {} }, action) {
     databaseAllList: databaseAllList(state.databaseAllList, action),
     redisDatabaseAllList: redisDatabaseAllList(state.redisDatabaseAllList, action),
     loadDBStorageAllList: loadDBStorageAllList(state.loadDBStorageAllList, action),
-    createMySql: reducerFactory({
-      REQUEST: ActionTypes.CREATE_MYSQL_DATABASE_CACHE_REQUEST,
-      SUCCESS: ActionTypes.CREATE_MYSQL_DATABASE_CACHE_SUCCESS,
-      FAILURE: ActionTypes.CREATE_MYSQL_DATABASE_CACHE_FAILURE
-    }, state.createMySql, action),
-    createRedis: reducerFactory({
-      REQUEST: ActionTypes.CREATE_REDIS_DATABASE_CACHE_REQUEST,
-      SUCCESS: ActionTypes.CREATE_REDIS_DATABASE_CACHE_SUCCESS,
-      FAILURE: ActionTypes.CREATE_REDIS_DATABASE_CACHE_FAILURE
-    }, state.createRedis, action),
-    deleteDatabase: reducerFactory({
-      REQUEST: ActionTypes.DELETE_DATABASE_CACHE_REQUEST,
-      SUCCESS: ActionTypes.DELETE_DATABASE_CACHE_SUCCESS,
-      FAILURE: ActionTypes.DELETE_DATABASE_CACHE_FAILURE
-    }, state.deleteDatabase, action),
     databaseClusterDetail: databaseClusterDetail(state.databaseClusterDetail, action)
   }
 }
