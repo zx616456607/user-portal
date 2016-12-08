@@ -13,7 +13,7 @@ import { Row, Col, Modal, Button, Icon, Collapse, Input, message, Spin } from 'a
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import './style/ServiceConfig.less'
 import QueueAnim from 'rc-queue-anim'
-// import ServiceCollapse from './ServiceCollapse'
+import { validateK8sResource } from '../namingValidation'
 import CollapseHeader from './ServiceCollapseHeader'
 import CollapseContainer from './ServiceCollapseContainer'
 import { connect } from 'react-redux'
@@ -132,6 +132,10 @@ class Service extends Component {
     let groupName = this.state.myTextInput
     if (!groupName) {
       message.error('请输入配置组名称')
+      return
+    }
+    if (!validateK8sResource(groupName)) {
+      message.error('名称需要 3-63 个字符，可以包括小写英文字母、数字、点（.）和连字符（-）')
       return
     }
     let self = this
