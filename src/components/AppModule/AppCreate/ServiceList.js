@@ -244,15 +244,26 @@ class ServiceList extends Component {
   delAllSelected() {
     let selectedList = this.state.selectedList
     let servicesList = this.state.servicesList
-    let newServiceList = servicesList.filter(function (service) {
-      return !selectedList.includes(service.id)
+    let serviceName = selectedList.map(service => {
+      return service
     })
-    this.setState({
-      servicesList: newServiceList,
-      selectedList: []
+    if(serviceName.length <= 0) return
+    const self = this
+    Modal.confirm({
+      title: `确定要删除这${selectedList.length}服务吗`,
+      content: `${serviceName.join(',')}`,
+      onOk() {
+          let newServiceList = servicesList.filter(function(service) {
+              return !selectedList.includes(service.id)
+          })
+          self.setState({
+              servicesList: newServiceList,
+              selectedList: []
+          })
+      },
+      onCancel() { },
     })
   }
-
   render() {
     const parentScope = this
     const { servicesList, isFetching} = this.props
