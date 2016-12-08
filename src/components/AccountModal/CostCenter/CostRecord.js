@@ -251,16 +251,16 @@ class CostRecord extends Component{
     let spaceCostTitle = (
       <div className="teamCostTitle">
         <span>{currentSpaceName}该月消费</span>
-        <div style={{flex: 'auto'}}>
-          <MonthPicker style={{float: 'left',marginLeft: '40px'}} defaultValue={this.transformDate(false)}/>
+        <div className='dataPicker'>
+          <MonthPicker defaultValue={this.transformDate(false)}/>
         </div>
       </div>
     )
     let spaceCostDetailTitle = (
       <div className="teamCostTitle">
         <span>{currentSpaceName}该月消费详情</span>
-        <div style={{flex: 'auto'}}>
-          <MonthPicker style={{marginLeft: 40}} defaultValue={this.transformDate(false)}/>
+        <div className='dataPicker'>
+          <MonthPicker defaultValue={this.transformDate(false)}/>
         </div>
       </div>
     )
@@ -268,7 +268,7 @@ class CostRecord extends Component{
       <div className="teamCostTitle">
         <span>{currentSpaceName}消费明细</span>
         <DatePicker style={{float: 'left',marginLeft: '40px'}} defaultValue={this.transformDate(true)}/>
-        <div style={{flex: 'auto'}}>
+        <div className='dataPicker'>
           <Select defaultValue="all" style={{ width: 120, float: 'left',marginLeft: '40px'}}
                   onSelect={(value,option) => this.handleFilter(value,option)}>
             <Option value="all">全部</Option>
@@ -286,9 +286,6 @@ class CostRecord extends Component{
           type : 'shadow'
         },
         formatter: this.transformDate()+'-{b}<br/>消费 {c}T',
-        /*position: function (point, params, dom) {
-         return [point[0]-25, '10%'];
-         },*/
         textStyle: {
           color: '#46b2fa',
           fontSize: 12,
@@ -417,9 +414,9 @@ class CostRecord extends Component{
     }
     return (
       <div id='CostRecord'>
-        <Card style={{marginBottom: '20px'}}>
-          <i className='fa fa-cube' style={{marginRight:'10px',fontSize: '14px'}}/>
-          <div style={{display:'inline-block'}}>
+        <Card className='selectSpace'>
+          <i className='fa fa-cube'/>
+          <div className='popSelect'>
             <PopSelect
               title="选择项目空间"
               btnStyle={false}
@@ -437,10 +434,10 @@ class CostRecord extends Component{
           <TeamCost currentSpaceName = {currentSpaceName} currentTeamName={currentTeamName}/>:
           <div></div>
         }
-        <Row gutter={16} style={{marginBottom: '20px'}}>
+        <Row gutter={16} className='currentMonth'>
           <Col span={12} className='teamCost'>
             <Card title={spaceCostTitle} bordered={false} bodyStyle={{height:170}}>
-              <Col span={10} style={{height:170}}>
+              <Col span={10}>
                   <ReactEcharts
                     notMerge={true}
                     option={spaceMonthCost}
@@ -448,15 +445,15 @@ class CostRecord extends Component{
                   />
               </Col>
               <Col span={14} className='teamCostList'>
-                <Row className="teamCostListTitle">
-                  <Col span={16} style={{paddingLeft:40,height:40,lineHeight:'40px'}}>
-                    <svg className="headercluster">
+                <Row>
+                  <Col span={16} style={{paddingLeft:40}} className="teamCostListTitle">
+                    <svg className="headerclusterSvg">
                       <use xlinkHref="#headercluster"/>
                     </svg>
                     集群名称
                   </Col>
-                  <Col span={8} style={{height:40,lineHeight:'40px'}}>
-                    <svg className="headercluster">
+                  <Col span={8} className="teamCostListTitle">
+                    <svg className="headerclusterSvg">
                       <use xlinkHref="#headercluster"/>
                     </svg>
                     消费金额
@@ -487,7 +484,7 @@ class CostRecord extends Component{
             </Card>
           </Col>
         </Row>
-        <Row style={{marginBottom: '20px'}}>
+        <Row className='currentMonthDetail'>
           <Card title={spaceCostDetailTitle}>
             <ReactEcharts
               notMerge={true}
@@ -496,7 +493,7 @@ class CostRecord extends Component{
              />
           </Card>
         </Row>
-        <Row style={{marginBottom: '100px'}} className='SpaceCostDetailTab'>
+        <Row className='SpaceCostDetailTab'>
           <Card title={spaceTableTitle}>
             <Table columns={TableSpaceCostDetail} dataSource={costData} pagination={pagination} onChange={this.handleTableChange}/>
           </Card>
