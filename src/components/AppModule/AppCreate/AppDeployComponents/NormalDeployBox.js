@@ -460,6 +460,7 @@ let NormalDeployBox = React.createClass({
       rules: [
         { required: true, message: '请选择镜像版本' },
       ],
+      initialValue: imageTags[0]
     })
     let switchDisable = false
     let mountPath = []

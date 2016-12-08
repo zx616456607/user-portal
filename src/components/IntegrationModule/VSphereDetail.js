@@ -193,11 +193,11 @@ const menusText = defineMessages({
   },
   vgNum: {
     id: 'Integration.VSphereDetail.vgNum',
-    defaultMessage: '硬盘总数：',
+    defaultMessage: '存储总数：',
   },
   using: {
     id: 'Integration.VSphereDetail.using',
-    defaultMessage: '可用硬盘：',
+    defaultMessage: '可用存储：',
   },
 })
 
@@ -250,11 +250,15 @@ function getCpuFreeCount(singleHz, count, usedHz) {
   return (count - usedCpu)
 }
 
-function setCpuAllocate(pods) {
+function setCpuAllocate(pods, max) {
   let sortList = [];
   let cpuTotal = 0;
+  let maxCpu = 0;
   pods.map((item) => {
     let usedCpu = Math.round(item.cpuTotalUsedMhz/item.cpuMhz);
+    if(item.cpuNumber > maxCpu) {
+      maxCpu = item.cpuNumber;
+    }
     cpuTotal = cpuTotal + item.cpuNumber;
     let tempBody = {
       name: item.name,
@@ -273,11 +277,11 @@ function setCpuAllocate(pods) {
   })
   CPUOption.xAxis[0].data = nameList;
   CPUOption.series[0].data = cpuList;
-  CPUOption.yAxis[0].max = cpuTotal;
-  CPUOption.yAxis[0].interval = Math.round(cpuTotal/2);
+  CPUOption.yAxis[0].max = maxCpu;
+  CPUOption.yAxis[0].interval = Math.round(maxCpu/2);
 }
 
-function setMemoryAllocate(pods) {
+function setMemoryAllocate(pods, max) {
   let sortList = [];
   let memoryTotalMb = 0;
   pods.map((item) => {
@@ -297,7 +301,7 @@ function setMemoryAllocate(pods) {
       memoryUsedMbList.push(item.memoryUsedMb);
     }
   })
-  memoryTotalMb = diskFormatNoUnit(memoryTotalMb)
+  memoryTotalMb = diskFormatNoUnit(max)
   memoryOption.xAxis[0].data = nameList;
   memoryOption.series[0].data = memoryUsedMbList;
   memoryOption.yAxis[0].max = memoryTotalMb;
@@ -352,15 +356,21 @@ class VSphereDetail extends Component {
     let diskHealthCount = 0;
     let memoryTotal = 0;
     let memoryUsedTotal = 0;
+    let maxMemory = 0;
     let cpuTotal = 0;
     let cpuFree = 0;
+    let maxCpu = 0;
     let vmTotal = 0;
     let netTotal = 0;
     let netHealtTotal = 0;
     let netShow = [];
-    setCpuAllocate(pods)
-    setMemoryAllocate(pods)
     pods.map((item) => {
+      if(item.memoryTotalMb > maxMemory) {
+        maxMemory = item.memoryTotalMb;
+      }
+      if(item.cpuTotal > maxCpu) {
+        maxCpu = item.cpuTotal
+      }
       memoryTotal= memoryTotal + item.memoryTotalMb;
       memoryUsedTotal= memoryUsedTotal + item.memoryUsedMb;
       cpuTotal = cpuTotal + item.cpuNumber;
@@ -400,6 +410,8 @@ class VSphereDetail extends Component {
         )
       }))
     });
+    setCpuAllocate(pods, maxCpu)
+    setMemoryAllocate(pods, maxMemory)
     return (
       <div id='VSphereDetail'>
         {
@@ -502,7 +514,7 @@ class VSphereDetail extends Component {
                 <div className='memory commonBox'>
                   <img src='/img/integration/memory.png' />
                   <p>内存共 {diskFormat(memoryTotal)}</p>
-                  <p>已用{diskFormat(memoryUsedTotal)}</p>                 
+                  <p>可用{diskFormat(memoryTotal - memoryUsedTotal)}</p>                 
                 </div>
                 <div className='network commonBox'>
                   <div className='leftCommon'>
@@ -528,7 +540,7 @@ class VSphereDetail extends Component {
                   </div>
                   <div className='rightCommon'>
                     <div className='titleBox'>
-                      <span className='leftSpan'>磁盘名</span>
+                      <span className='leftSpan'>存储名</span>
                       <span className='rightSpan'>容量</span>
                     </div>
                     <div className='dataBox'>
