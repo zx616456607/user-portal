@@ -50,7 +50,6 @@ class CostRecord extends Component{
     }
   }
   handleSpaceChange(space) {
-    console.log('space.namespacespace.namespace',space.namespace)
     this.setState({
       spacesVisible: false,
       currentSpaceName: space.spaceName,
@@ -62,7 +61,7 @@ class CostRecord extends Component{
     function _addZero(text) {
       return text.toString().length === 2 ? text : `0${text}`
     }
-    
+
     let date = new Date()
     let y = date.getFullYear()
     let m = date.getMonth() + 1
@@ -212,7 +211,7 @@ class CostRecord extends Component{
           type: 'line',
           data: yAxisData,
           symbolSize: 8,
-          
+
         },]
       }
     }
@@ -223,7 +222,7 @@ class CostRecord extends Component{
       }
       loadSpaceSummary(time)
     }
-    
+
     let onCurrentSpaceSummaryInDayDateChange = function (date) {
       let time = moment(date).format('YYYY-MM-DD 00:00:00')
       if (time == 'Invalid') {
@@ -681,4 +680,4 @@ export default connect (mapStateToProps,{
   loadConsumptionTrend,
   loadSpaceSummaryInDay,
   loadSpaceSummary,
-})(CostRecord) 
+})(CostRecord)
