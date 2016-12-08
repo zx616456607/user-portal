@@ -11,6 +11,7 @@
 import { Schema, arrayOf, normalize } from 'normalizr'
 import { camelizeKeys } from 'humps'
 import 'isomorphic-fetch'
+import { genRandomString } from '../common/tools'
 
 // Fetches an API response
 function fetchApi(endpoint, options, schema) {
@@ -128,6 +129,13 @@ export default store => next => action => {
   if (typeof endpoint !== 'string') {
     throw new Error('Specify a string endpoint URL.')
   }
+  // And random string in query for IE(avoid use cache)
+  let randomQuery = '_=' + genRandomString()
+  if (endpoint.indexOf('?') > -1) {
+    endpoint += `&${randomQuery}`
+  } else {
+    endpoint += `?${randomQuery}`
+  }
   if (!schema) {
     throw new Error('Specify one of the exported Schemas.')
   }
@@ -148,7 +156,7 @@ export default store => next => action => {
   const space = store.getState().entities.current.space || {}
   const options = fetchAPI.options || {}
   options.headers = options.headers || {}
-  options.headers.teamspace = space.namespace || ''
+  options.headers.teamspace = options.headers.teamspace || space.namespace || ''
 
   // The request body can be of the type String, Blob, or FormData.
   // Other data structures need to be encoded before hand as one of these types.

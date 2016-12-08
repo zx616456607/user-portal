@@ -161,21 +161,26 @@ export const DELETE_DATABASE_CACHE_REQUEST = 'DELETE_DATABASE_CACHE_REQUEST'
 export const DELETE_DATABASE_CACHE_SUCCESS = 'DELETE_DATABASE_CACHE_SUCCESS'
 export const DELETE_DATABASE_CACHE_FAILURE = 'DELETE_DATABASE_CACHE_FAILURE'
 
-function deleteDbCluster(cluster, dbName, callback) {
+function deleteDbCluster(cluster, dbName, clusterTypes ,callback) {
   return {
     cluster,
     [FETCH_API]: {
       types: [DELETE_DATABASE_CACHE_REQUEST, DELETE_DATABASE_CACHE_SUCCESS, DELETE_DATABASE_CACHE_FAILURE],
-      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/deleteDatabase/${dbName}`,
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/dbservices/${dbName}`,
+      options: {
+        method: 'DELETE'
+      },
       schema: {}
     },
+    types: clusterTypes,
+    dbName,
     callback
   }
 }
 
-export function deleteDatabaseCluster(cluster, dbName, callback) {
+export function deleteDatabaseCluster(cluster, dbName, clusterTypes ,callback) {
   return (dispatch) => {
-    return dispatch(deleteDbCluster(cluster, dbName, callback))
+    return dispatch(deleteDbCluster(cluster, dbName, clusterTypes , callback))
   }
 }
 

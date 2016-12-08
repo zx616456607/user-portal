@@ -2,8 +2,8 @@
   .advanceBox {
     padding-left: 40px;
     padding-right: 24px;
-    .ant-form-item{
-      margin-bottom: 0px !important;
+    .ant-form-item {
+      margin-bottom: 0 !important;
     }
     .title {
       display: block;
@@ -20,7 +20,7 @@
         line-height: 40px;
         font-size: 14px;
         border: 1px solid #E5E5E5;
-        border-bottom: 0px;
+        border-bottom: 0;
         background-color: #F2F2F2;
         .enviroCommonTitle {
           padding-left: 10px;
@@ -29,7 +29,7 @@
           text-align: left;
         }
       }
-      ul{
+      ul {
         border: 1px solid #E5E5E5;
         border-bottom: 0;
       }
@@ -69,7 +69,7 @@
         line-height: 40px;
         font-size: 14px;
         border: 1px solid #E5E5E5;
-        border-bottom: 0px;
+        border-bottom: 0;
         background-color: #F2F2F2;
         .portCommonTitle {
           padding-left: 10px;
@@ -84,7 +84,7 @@
           width: 35%;
         }
       }
-      ul{
+      ul {
         border: 1px solid #E5E5E5;
         border-bottom: 0;
       }
@@ -99,7 +99,7 @@
           float: left;
           width: 25%;
           input {
-            width: 150px;
+            width: 100%;
           }
         }
         .select {
@@ -117,18 +117,37 @@
           padding-left: 10px;
           float: left;
           width: 35%;
+          .podPort{
+            width: 100%;
+            min-height: 1px;
+          }
           .httpSpan,
           .tcpDiv {
             line-height: 32px;
           }
-          .composeUrl{
+          .composeUrl {
             width: 90%;
           }
-          .tcpInputForm{
-            margin-left: 5px;
+          .tcpSelect {
+            float: left;
             padding-top: 1px;
-            float: right;
+            width: 100px;
+          }
+          .tcpInputForm {
+            position: relative;
+            margin-left: 15px;
+            padding-top: 1px;
+            float: left;
             line-height: 32px;
+            .has-error {
+              height: 50px;
+            }
+            .ant-form-explain {
+              position: absolute;
+              left: 0;
+              bottom: -3px;
+              width: 200px;
+            }
           }
         }
         .opera {

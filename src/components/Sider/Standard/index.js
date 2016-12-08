@@ -20,24 +20,28 @@ const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
 const RadioGroup = Radio.Group
 
-function checkUrlSelectedKey(scope) {
+function checkUrlSelectedKey(pathname) {
   //this function for check the pathname and return the selected key of menu
-  const { pathname } = scope.props;
   let pathList = pathname.split('/');
   if (pathList.length == 2) {
     return [pathList[1], pathList[1] + '_default']
   } else {
+    if(pathList[1] == 'app_manage' && pathList[2] == 'detail') {
+      return [pathList[1], pathList[1] + '_default']
+    }
     return [pathList[1], pathList[2]]
   }
 }
 
-function checkUrlOpenKeys(scope) {
+function checkUrlOpenKeys(pathname) {
   //this function for check the pathname and return the opened key of menu
-  const { pathname } = scope.props;
   let pathList = pathname.split('/');
   if (pathList.length == 2) {
     return [pathList[1], pathList[1] + '_default']
   } else {
+    if(pathList[1] == 'app_manage' && pathList[2] == 'detail') {
+      return [pathList[1], pathList[1] + '_default']
+    }
     return [pathList[1], pathList[2]]
   }
 }
@@ -48,18 +52,39 @@ class Slider extends Component {
     this.selectModel = this.selectModel.bind(this);
     this.changeSiderStyle = this.changeSiderStyle.bind(this);
     this.onSelectMenu = this.onSelectMenu.bind(this);
+    this.onOpenBigMenu = this.onOpenBigMenu.bind(this);
+    this.onCloseBigMenu = this.onCloseBigMenu.bind(this);
     this.state = {
       currentKey: 'home',
-      isUnzip: false
+      isUnzip: false,
+      currentOpenMenu: null,
+      currentSelectedMenu: null
     }
   }
 
   componentWillMount() {
     const { pathname } = this.props;
     let currentKey = pathname.split('/')[1];
+    let currentOpenMenu = checkUrlSelectedKey(pathname);
+    let currentSelectedMenu = checkUrlOpenKeys(pathname);
     this.setState({
-      currentKey: currentKey
-    })
+      currentKey: currentKey,
+      currentOpenMenu: currentOpenMenu,
+      currentSelectedMenu: currentSelectedMenu
+    });
+  }
+  
+  componentWillReceiveProps(nextProps) {
+    const { pathname } = nextProps;
+    const oldPathname = this.props.pathname;
+    if(pathname != oldPathname) {      
+      let currentOpenMenu = checkUrlSelectedKey(pathname);
+      let currentSelectedMenu = checkUrlOpenKeys(pathname);
+      this.setState({
+        currentOpenMenu: currentOpenMenu,
+        currentSelectedMenu: currentSelectedMenu
+      });
+    }
   }
 
   changeSiderStyle() {
@@ -100,12 +125,14 @@ class Slider extends Component {
     if (keyPath.length > 1) {
       let currentKey = keyPath[1];
       this.setState({
-        currentKey: currentKey
+        currentKey: currentKey,
+        currentSelectedMenu: keyPath
       });
     } else {
       let currentKey = keyPath[0];
       this.setState({
-        currentKey: currentKey
+        currentKey: currentKey,
+        currentSelectedMenu: keyPath
       });
     }
   }
@@ -181,27 +208,26 @@ class Slider extends Component {
       }
     }
   }
+  
+  onOpenBigMenu(e) {
+    //this function for show only one menu opened
+    let currentOpenMenu = checkUrlOpenKeys(e.key + '/' + e.key);
+    this.setState({
+      currentOpenMenu: currentOpenMenu
+    })
+  }
+  
+  onCloseBigMenu(e) {
+    //this function for close big menu callback
+    this.setState({
+      currentOpenMenu: []
+    })
+  }
 
   render() {
     const { siderStyle } = this.props
     const { currentKey } = this.state
     const scope = this
-    const noticeModel = (
-      <Card className='noticeModel' title='Card title' style={{ width: 300 }}>
-        <p>{this.state.currentKey}</p>
-        <p>Card content</p>
-        <p>Card contasdfasdfasdfwaetgqwreent</p>
-        <p>Card content</p>
-        <p>Card content</p>
-        <p>Card content</p>
-        <p>Card content</p>
-        <p>Card content</p>
-        <p>Card content</p>
-        <p>Card content</p>
-        <p>Card content</p>
-        <p>Card content</p>
-        <p>Card content</p>
-      </Card>)
     return (
       <div id='sider'>
         <Modal title='上传文件' wrapClassName='vertical-center-modal' footer='' visible={this.props.uploadFileOptions.visible} onCancel={() => this.handleCancel()}>
@@ -333,9 +359,11 @@ class Slider extends Component {
                 style={{ width: '100%', backgroundColor: '#2b333d', color: '#c4c4c4' }}
                 mode='inline'
                 theme='dark'
-                defaultSelectedKeys={checkUrlSelectedKey(scope)}
-                defaultOpenKeys={checkUrlOpenKeys(scope)}
+                selectedKeys={this.state.currentSelectedMenu}
+                openKeys={this.state.currentOpenMenu}
                 onClick={this.onSelectMenu}
+                onOpen={this.onOpenBigMenu}
+                onClose={this.onCloseBigMenu}
                 >
                 <Menu.Item key='home'>
                   <Link to='/'>
@@ -455,21 +483,13 @@ class Slider extends Component {
                       <span><div className='sideCircle'></div> 关系型数据库</span>
                     </Link>
                   </Menu.Item>
-                  <Menu.Item key='mongo_cluster'>
-                    <Link to='/database_cache/mongo_cluster'>
-                      <span><div className='sideCircle'></div> MongoDB</span>
-                    </Link>
-                  </Menu.Item>
+                
                   <Menu.Item key='redis_cluster'>
                     <Link to='/database_cache/redis_cluster'>
                       <span><div className='sideCircle'></div> 缓存</span>
                     </Link>
                   </Menu.Item>
-                  <Menu.Item key='database_storage'>
-                    <Link to='/database_cache/database_storage'>
-                      <span><div className='sideCircle'></div> 数据存储</span>
-                    </Link>
-                  </Menu.Item>
+                  
                   <div className='sline'></div>
                 </SubMenu>
                 <Menu.Item key='integration'>
@@ -483,7 +503,7 @@ class Slider extends Component {
                     </span>
                   </Link>
                 </Menu.Item>
-                <SubMenu key='sub6'
+                <SubMenu key='manange_monitor'
                   title={
                     <span>
                       <svg className='manageMoniter commonImg'>

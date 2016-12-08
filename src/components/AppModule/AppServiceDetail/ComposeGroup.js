@@ -147,12 +147,13 @@ let MyComponent = React.createClass({
       <Card className="composeList">
         {loading}
         { items }
-
         <Modal
           title='查看配置文件' wrapClassName='read-configFile' visible={this.state.modalConfigFile}
           footer={
            <Button type="primary" onClick={() => { this.setState({ modalConfigFile: false }) } }>确定</Button>
           }
+          onCancel={() => { this.setState({ modalConfigFile: false }) } }
+          width="800px"
           >
           <div className='configFile-name'>
             <div className="ant-col-3 key">名称：</div>

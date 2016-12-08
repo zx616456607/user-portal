@@ -30,7 +30,7 @@ const accountRoutes = [
   },
   {
     path: 'myteam',
-    component: require('../components/AccountModal/MyTeam').default,
+    component: require('../components/AccountModal/Standard/MyTeam').default,
   },
   {
     path: 'team/:team_name/:team_id',

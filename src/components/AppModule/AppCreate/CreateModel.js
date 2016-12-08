@@ -65,7 +65,7 @@ class CreateModel extends Component {
     } else if (currentSelect == "store") {
       linkUrl = "app_store"
     } else if (currentSelect == "layout") {
-      linkUrl = "compose_file?query=entery"
+      linkUrl = "compose_file"
     }
     const parentScope = this.props.scope;
     this.setState({
@@ -115,7 +115,6 @@ class CreateModel extends Component {
             teamID: space.teamID
           }
         })
-        console.log('sfslfjdlsfjldsfjldsjf', space.teamID)
         loadTeamClustersList(space.teamID, { size: 100 }, {
           success: {
             func: (result) => {
@@ -223,7 +222,7 @@ class CreateModel extends Component {
                       {
                         teamspaces.map(space => {
                           return (
-                            <Option value={space.namespace}>
+                            <Option key={space.namespace} value={space.namespace}>
                               {space.spaceName}
                             </Option>
                           )
@@ -239,7 +238,7 @@ class CreateModel extends Component {
                       {
                         teamClusters.map(cluster => {
                           return (
-                            <Option value={cluster.clusterID}>
+                            <Option key={cluster.clusterID} value={cluster.clusterID}>
                               {cluster.clusterName}
                             </Option>
                           )

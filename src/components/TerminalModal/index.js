@@ -70,7 +70,7 @@ class TerminalModal extends Component {
     //change css
     $('.TerminalLayoutModal').parent().parent().find('.ant-modal-mask').css('display', 'none');
     $('.TerminalLayoutModal').parent().css('box-shadow', ' 0 -1px 4px rgba(0,0,0,0.2)');
-    $('.TerminalLayoutModal').parent().css('top','initial');
+    $('.TerminalLayoutModal').parent().css('top','auto');
     $('.TerminalLayoutModal').parent().css('right','initial');
     $('.TerminalLayoutModal').parent().css('height','auto');
   }

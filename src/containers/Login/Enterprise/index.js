@@ -16,6 +16,7 @@ import { connect } from 'react-redux'
 import { USERNAME_REG_EXP, EMAIL_REG_EXP } from '../../../constants'
 import { browserHistory } from 'react-router'
 import { genRandomString } from '../../../common/tools'
+import ReactDom from 'react-dom'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -98,21 +99,19 @@ let Login = React.createClass({
       callback()
       return
     }
-    setTimeout(() => {
-      if (value.indexOf('@') > -1) {
-        if (!EMAIL_REG_EXP.test(value)) {
-          callback([new Error('邮箱地址填写错误')])
-          return
-        }
-        callback()
-        return
-      }
-      if (!USERNAME_REG_EXP.test(value)) {
-        callback([new Error('用户名填写错误')])
+    if (value.indexOf('@') > -1) {
+      if (!EMAIL_REG_EXP.test(value)) {
+        callback([new Error('邮箱地址填写错误')])
         return
       }
       callback()
-    }, 100)
+      return
+    }
+    if (!USERNAME_REG_EXP.test(value)) {
+      callback([new Error('用户名填写错误')])
+      return
+    }
+    callback()
   },
 
   checkPass(rule, value, callback) {
@@ -126,30 +125,28 @@ let Login = React.createClass({
       return
     }
     const { verifyCaptcha } = this.props
-    setTimeout(() => {
-      if (!/^[a-zA-Z0-9]{4}$/.test(value)) {
-        callback([new Error('验证码输入错误')])
-        return
-      }
-      verifyCaptcha(value, {
-        success: {
-          func: (result) => {
-            if (!result.correct) {
-              callback([new Error('验证码输入错误')])
-              return
-            }
-            callback()
-          },
-          isAsync: true
+    if (!/^[a-zA-Z0-9]{4}$/.test(value)) {
+      callback([new Error('验证码输入错误')])
+      return
+    }
+    verifyCaptcha(value, {
+      success: {
+        func: (result) => {
+          if (!result.correct) {
+            callback([new Error('验证码输入错误')])
+            return
+          }
+          callback()
         },
-        failed: {
-          func: (err) => {
-            callback([new Error('校验错误')])
-          },
-          isAsync: true
+        isAsync: true
+      },
+      failed: {
+        func: (err) => {
+          callback([new Error('校验错误')])
         },
-      })
-    }, 400)
+        isAsync: true
+      },
+    })
   },
 
   changeCaptcha() {
@@ -198,6 +195,7 @@ let Login = React.createClass({
   intOnFocus(current) {
     if (current === 'name') {
       this.refs.intName.refs.input.focus()
+      console.log('onfocus')
       this.setState({
         intNameFocus: true
       })
@@ -218,8 +216,15 @@ let Login = React.createClass({
   componentWillMount() {
     const { resetFields } = this.props.form
     resetFields()
+    // ReactDom.findDOMNode(this.refs.intName.refs.input).focus
   },
 
+  componentDidMount() {
+    ReactDom.findDOMNode(this.refs.intName.refs.input).focus()
+  },
+  onChange(e) {
+    console.log('e', e)
+  },
   render() {
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form
     const { random, submitting, loginResult, submitProps } = this.state
@@ -270,7 +275,9 @@ let Login = React.createClass({
                 >
                 <div className={this.state.intNameFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'name')}>用户名 / 邮箱</div>
 
-                <Input {...nameProps} autoComplete="off" onBlur={this.intOnBlur.bind(this, 'name')}
+                <Input {...nameProps}
+                  autoComplete="off"
+                  onBlur={this.intOnBlur.bind(this, 'name')}
                   onFocus={this.intOnFocus.bind(this, 'name')}
                   ref="intName"
                   style={{ height: 35 }} />

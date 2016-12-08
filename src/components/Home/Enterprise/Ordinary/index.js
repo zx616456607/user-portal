@@ -121,10 +121,6 @@ class Ordinary extends Component{
       tab3: false,
     }
   }
-
-  componentWillMount() {
-
-  }
   componentDidMount(){
     const { loadClusterInfo, current } = this.props
     const {clusterID} = current.cluster
@@ -138,7 +134,6 @@ class Ordinary extends Component{
       loadClusterInfo(clusterID)
       return
     }
-
   }
   handleDataBaseClick(current){
     if(current === 'tab1'){
@@ -193,16 +188,14 @@ class Ordinary extends Component{
     result = this.thousandBitSeparator((size/(1024*1024*1024)).toFixed(2))
     return result + 'T'
   }
-  /*render(){
-    return (
-      <div>111</div>
-    )
-  }*/
   render(){
-    const {clusterOperations, clusterSysinfo, clusterStorage, clusterAppStatus, clusterNodeSummary,clusterDbServices,spaceName,clusterName,clusterNodeSpaceConsumption} = this.props
+    const {clusterOperations, clusterSysinfo, clusterStorage, clusterAppStatus,
+      clusterNodeSummary,clusterDbServices,spaceName,clusterName,clusterNodeSpaceConsumption,isFetching} = this.props
+    console.log('isFetching:::',isFetching);
+    
     let boxPos = 0
     if ((clusterStorage.freeSize + clusterStorage.usedSize) > 0) {
-      boxPos = (clusterStorage.usedSize/(clusterStorage.freeSize + clusterStorage.usedSize)).toFixed(3)
+      boxPos = (clusterStorage.usedSize/(clusterStorage.freeSize + clusterStorage.usedSize)).toFixed(4)
     }
     //应用
     let appRunning = clusterAppStatus.appMap.get('Running')
@@ -745,6 +738,7 @@ class Ordinary extends Component{
                 notMerge={true}
                 option={getClusterCostOption(clusterNodeSpaceConsumption.consumption/100, clusterNodeSpaceConsumption.balance/100)}
                 style={{height:'200px'}}
+                showLoading={isFetching}
               />
             </Card>
           </Col>
@@ -941,6 +935,7 @@ class Ordinary extends Component{
                 notMerge={true}
                 option={appOption}
                 style={{height:'180px'}}
+                showLoading={isFetching}
               />
             </Card>
           </Col>
@@ -950,6 +945,7 @@ class Ordinary extends Component{
                 notMerge={true}
                 option={serviceOption}
                 style={{height:'180px'}}
+                showLoading={isFetching}
               />
             </Card>
           </Col>
@@ -959,6 +955,7 @@ class Ordinary extends Component{
                 notMerge={true}
                 option={containerOption}
                 style={{height:'180px'}}
+                showLoading={isFetching}
               />
             </Card>
           </Col>
@@ -1122,6 +1119,7 @@ class Ordinary extends Component{
                     notMerge={true}
                     option={CPUOption}
                     style={{height:'200px'}}
+                    showLoading={isFetching}
                   />
                 </Col>
                 <Col span={6}>
@@ -1129,6 +1127,7 @@ class Ordinary extends Component{
                     notMerge={true}
                     option={memoryOption}
                     style={{height:'200px'}}
+                    showLoading={isFetching}
                   />
                 </Col>
                 <Col span={6}>
@@ -1136,6 +1135,7 @@ class Ordinary extends Component{
                     notMerge={true}
                     option={diskOption}
                     style={{height:'200px'}}
+                    showLoading={isFetching}
                   />
                 </Col>
                 <Col span={6} style={{borderLeft: '1px solid #e2e2e2',height:'200px'}}>
@@ -1243,6 +1243,7 @@ function getDbServiceStatus(data) {
 
 function mapStateToProp(state,props) {
   const { current } = state.entities
+  let isFetching = true
   let clusterOperationsData = {
     appCreate: 0,
     appModify: 0,
@@ -1310,6 +1311,7 @@ function mapStateToProp(state,props) {
   const {clusterOperations, clusterSysinfo, clusterStorage,
     clusterAppStatus, clusterDbServices, clusterNodeSummary, clusterInfo} = state.overviewCluster
   if (clusterInfo.result && clusterInfo.result) {
+    isFetching = clusterInfo.isFetching
     if (clusterInfo.result.operations) {
       if (clusterInfo.result.operations.app) {
         let data = clusterInfo.result.operations.app
@@ -1431,6 +1433,7 @@ function mapStateToProp(state,props) {
     clusterDbServices: clusterDbServicesData,
     clusterNodeSummary: clusterNodeSummaryData,
     clusterNodeSpaceConsumption: clusterNodeSpaceConsumption,
+    isFetching,
   }
 }
 

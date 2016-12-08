@@ -16,7 +16,6 @@ import { createConfigFiles, deleteConfigGroup, loadConfigGroup, deleteConfigFile
 import { connect } from 'react-redux'
 import { calcuDate } from '../../common/tools.js'
 
-
 const ButtonGroup = Button.Group
 const FormItem = Form.Item
 
@@ -30,7 +29,6 @@ class CollapseHeader extends Component {
       configDesc: '',
       sizeNumber: this.props.sizeNumber,
       configNameList: this.props.configNameList
-
     }
   }
   componentWillReceiveProps(nextProps) {
@@ -43,6 +41,9 @@ class CollapseHeader extends Component {
   createConfigModal(e, modal) {
     e.stopPropagation()
     this.setState({ modalConfigFile: modal })
+    setTimeout(() => {
+      this.nameInput.refs.input.focus()
+    })
   }
   createConfigFile(group) {
     // e.stopPropagation()
@@ -56,10 +57,6 @@ class CollapseHeader extends Component {
     }
     if (this.state.configDesc == '') {
       message.info('内容不能为空，请重新输入内容')
-      return
-    }
-    if (escape(this.state.configDesc).indexOf("%u") > 0) {
-      message.error('内容格式输入有误，请重新输入')
       return
     }
     let configfile = {
@@ -123,7 +120,6 @@ class CollapseHeader extends Component {
     this.props.handChageProp(e, Id)
   }
   btnDeleteGroup(group) {
-    // console.log('props',this.props)
     const self = this
     let configArray = []
     configArray.push(group)
@@ -206,7 +202,7 @@ class CollapseHeader extends Component {
             visible={this.state.modalConfigFile}
             onOk={(e) => this.createConfigFile(collapseHeader.name)}
             onCancel={(e) => this.createConfigModal(e, false)}
-            width = "800"
+            width = "800px"
             >
             <div className="configFile-inf" style={{ padding: '0 10px' }}>
               <p className="configFile-tip" style={{ color: "#16a3ea", height: '35px', textIndent: '10px' }}>
@@ -215,7 +211,7 @@ class CollapseHeader extends Component {
               </p>
               <Form horizontal>
                 <FormItem  {...formItemLayout} label="名称">
-                  <Input type="text" value={this.state.configName} onChange={(e) => this.addConfigFile(e, 'name')} className="configName" />
+                  <Input type="text" ref={(ref) => { this.nameInput = ref; }} value={this.state.configName} onChange={(e) => this.addConfigFile(e, 'name')} className="configName" />
                 </FormItem>
                 <FormItem {...formItemLayout} label="内容">
                   <Input type="textarea" style={{ minHeight: '300px' }} value={this.state.configDesc} onChange={(e) => this.addConfigFile(e, 'desc')} />
