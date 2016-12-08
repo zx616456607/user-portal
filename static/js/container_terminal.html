@@ -35,9 +35,13 @@
     function webSocketConnect() {
       var params = location.href.split('?')[1].split('&');
       var data = {}
-      params.map((param) => {
-        data[param.split('=')[0]] = param.split('=')[1];
-      });
+      for(var ii = 0; ii < params.length; ii++) {
+        var temp = params[ii].split('=')[0];
+        data[temp] = params[ii].split('=')[1];
+      }
+//    params.map((param) => {
+//      data[param.split('=')[0]] = param.split('=')[1];
+//    });
       var host = window.location.host
      
       var wsUrl = 'ws://'+ host + '/api/v1/namespaces/' + data['namespace'] + '/pods/' + data['pod'] + '/exec'

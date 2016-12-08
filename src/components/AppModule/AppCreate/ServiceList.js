@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Modal, Checkbox, Button, Card, Menu ,Popconfirm} from 'antd'
+import { Modal, Checkbox, Button, Card, Menu ,Popconfirm } from 'antd'
 import { Link , browserHistory} from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -16,6 +16,7 @@ import AppAddServiceModal from './AppAddServiceModal'
 import AppDeployServiceModal from './AppDeployServiceModal'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import "./style/ServiceList.less"
+
 
 class MyComponent extends Component {
   constructor(props) {
@@ -59,22 +60,39 @@ class MyComponent extends Component {
     });
   }
   deleteService(name) {
-    const oldList = this.props.scope.state.servicesList
-    const newList = oldList.filter((item) => item.name !== name)
-    const oldSeleList = this.props.scope.state.selectedList
-    const newSeleList = oldSeleList.filter((item) => item !== name)
-    this.props.scope.setState({
-      servicesList: newList,
-      selectedList: newSeleList
+    const self = this
+    Modal.confirm({
+      title: '您是否确认要删除这1个服务',
+      content: `${name}`,
+      onOk() {
+        const oldList = self.props.scope.state.servicesList
+        const newList = oldList.filter((item) => item.name !== name)
+        const oldSeleList = self.props.scope.state.selectedList
+        const newSeleList = oldSeleList.filter((item) => item !== name)
+        self.props.scope.setState({
+          servicesList: newList,
+          selectedList: newSeleList
+        })
+        localStorage.setItem('servicesList', JSON.stringify(newList))
+        localStorage.setItem('selectedList', JSON.stringify(newSeleList))
+      },
+      onCancel() { },
     })
-    localStorage.setItem('servicesList', JSON.stringify(newList))
-    localStorage.setItem('selectedList', JSON.stringify(newSeleList))
   }
-  checkService(name, inf) {
+  checkService(name, inf, imageName) {
+    let registryServer
+    if(imageName) {
+      let start = imageName.indexOf('/')
+      let end = imageName.lastIndexOf(':')
+      registryServer = imageName.substring(0, start)
+      imageName = imageName.substring(start + 1, end)
+    }
     this.props.scope.setState({
       serviceModalShow: true,
       checkInf: inf,
-      isCreate: false
+      isCreate: false,
+      currentSelectedImage: imageName,
+      registryServer
     })
   }
   render() {
@@ -97,7 +115,7 @@ class MyComponent extends Component {
             {item.resource}
           </div>
           <div className="opera commonData">
-            <Button className="viewBtn" type="ghost" size="large" onClick={() => this.checkService(item.name, item.inf)}>
+            <Button className="viewBtn" type="ghost" size="large" onClick={() => this.checkService(item.name, item.inf, item.imageName)}>
               <i className="fa fa-eye" />&nbsp;
               <span>查看</span>
             </Button>
@@ -223,15 +241,26 @@ class ServiceList extends Component {
   delAllSelected() {
     let selectedList = this.state.selectedList
     let servicesList = this.state.servicesList
-    let newServiceList = servicesList.filter(function (service) {
-      return !selectedList.includes(service.id)
+    let serviceName = selectedList.map(service => {
+      return service
     })
-    this.setState({
-      servicesList: newServiceList,
-      selectedList: []
+    if(serviceName.length <= 0) return
+    const self = this
+    Modal.confirm({
+      title: `确定要删除这${selectedList.length}服务吗`,
+      content: `${serviceName.join(',')}`,
+      onOk() {
+          let newServiceList = servicesList.filter(function(service) {
+              return !selectedList.includes(service.id)
+          })
+          self.setState({
+              servicesList: newServiceList,
+              selectedList: []
+          })
+      },
+      onCancel() { },
     })
   }
-
   render() {
     const parentScope = this
     const { servicesList, isFetching} = this.props

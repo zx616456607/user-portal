@@ -18,6 +18,8 @@ import "./style/BindDomain.less"
 import { loadServiceDomain, serviceBindDomain, clearServiceDomain, deleteServiceDomain} from '../../../actions/services'
 const InputGroup = Input.Group;
 
+const CName_Default_Message = '提示：添加域名后，CNAME地址会出现在这里'
+
 class BindDomain extends Component {
   constructor(props) {
     super(props);
@@ -28,7 +30,8 @@ class BindDomain extends Component {
       domainList: [],
       newValue: null,
       disabled: false,
-      bindPort: 0
+      bindPort: 0,
+      cnameNotice: ''
     }
   }
   componentWillMount() {
@@ -71,7 +74,7 @@ class BindDomain extends Component {
     const domainList = []
     if (!domain) domain = []
     else {
-      domain = service.metadata.annotations.boundDomains
+      domain = service.bindingDomains
       if (domain) {
         domain = domain.split(',')
       } else {
@@ -79,15 +82,10 @@ class BindDomain extends Component {
       }
     }
     const scope = this
-    var port;
+    var port = service.bindingPort
 
     domain.forEach((item, index) => {
       let domain = item
-      if (item.indexOf(':') >= 0) {
-        port = domain.match(/:[0-9]+/)
-        port = port[port.length - 1].replace(':', '')
-        domain = domain.replace(/:[0-9]+/, '')
-      }
       domainList.push(
         <InputGroup className="newDomain">
           <Input size="large" value={domain} disabled />
@@ -98,16 +96,20 @@ class BindDomain extends Component {
           </div>
         </InputGroup>)
     })
+    let cnameMessage = CName_Default_Message;
+    if (domainList.length > 0) {
+      cnameMessage = this.getCName();
+    }
     this.setState({
       containerPorts: containerPorts,
-      bindPort: containerPorts[0],
+      bindPort: port || containerPorts[0],
       domainList: domainList,
-      existsDomain: domain
+      cnameNotice: cnameMessage
     })
     if (port) {
       this.setState({
         disabled: true,
-        bindPort: port
+        bindPort: '' + port
       })
     }
   }
@@ -124,16 +126,15 @@ class BindDomain extends Component {
       message.error('请填写正确的域名')
       return
     }
-    let isExists = this.state.existsDomain.some(item => {
-      item = item.replace(/:[0-9]+/, '')
-      if(item === domain) {
+    let isExists = this.state.domainList.some(item => {
+      let d = item.props.children[0].props.value
+      if(d === domain) {
         message.error('已经绑定过该域名')
-        return false
+        return true
       }
-      return true
+      return false
     })
-    if(this.state.existsDomain.length === 0) isExists = true
-    if(!isExists) return
+    if(isExists) return
     const scope = this;
     this.props.bindDomain(cluster, serviceName, {
       port: parseInt(port),
@@ -154,14 +155,35 @@ class BindDomain extends Component {
               </div>
             </InputGroup>
           );
+          let cname = '';
+          if (newList.length > 0) {
+            cname = scope.getCName();
+          }
           scope.setState({
             domainList: newList,
             newValue: null,
-            disabled: true
+            disabled: true,
+            cnameNotice: cname
           });
+          message.success('添加域名绑定成功')
         }
       }
     })
+  }
+  getCName() {
+    let cname = '该集群未定义域名，不能提供CNAME地址'
+    if (this.props.bindingDomains) {
+      let currentDomain = []
+      try {
+        currentDomain = JSON.parse(this.props.bindingDomains)
+      } catch (e) {
+        currentDomain = []
+      }
+      if (currentDomain.length > 0) {
+        cname = this.props.service.metadata.name + '-' + this.props.service.metadata.namespace + '.' + currentDomain[0]
+      }
+    }
+    return cname
   }
   deleteDomain(domainName, port, index) {
     //this function for user delete domain name
@@ -173,15 +195,22 @@ class BindDomain extends Component {
     }, {
       success: {
         func() {
-          newList.splice(index, 1);
+          for (let i = 0; i< newList.length; i++) {
+            if (newList[i].props.children[0].props.value == domainName) {
+              newList.splice(i, 1)
+              break
+            }
+          }
           self.setState({
             domainList: newList
           });
           if(newList.length === 0) {
             self.setState({
-              disabled: false
+              disabled: false,
+              cnameNotice: CName_Default_Message
             })
           }
+          message.success('删除绑定域名成功')
         },
       }
     })
@@ -200,7 +229,8 @@ class BindDomain extends Component {
     const containerPorts = this.state.containerPorts
     const Option = Select.Option
     return containerPorts.map((port, index) => {
-      return (<Option value={port} key={port}>{port}</Option>)
+      let portNumber = '' + port
+      return (<Option value={portNumber} key={portNumber}>{port}</Option>)
     })
   }
   render() {
@@ -238,7 +268,7 @@ class BindDomain extends Component {
             {this.state.domainList}
           </div>
           <div className="tooltip">
-            <span>提示：添加域名后，CNAME地址会出现在这里</span>
+            <span>{this.state.cnameNotice}</span>
           </div>
           <div style={{ clear: "both" }}></div>
         </Card>
@@ -254,7 +284,8 @@ function mapStateToProp(state) {
   return {
     serviceDomainInfo: state.services.serviceDomainInformation,
     serviceBindDomain: state.services.serviceBindDomain,
-    deleteDomainState: state.services.deleteDomain
+    deleteDomainState: state.services.deleteDomain,
+    bindingDomains:    state.entities.current.cluster.bindingDomains
   }
 }
 BindDomain = connect(mapStateToProp, {
