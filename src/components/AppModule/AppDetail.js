@@ -128,7 +128,7 @@ class AppDetail extends Component {
                     创建&nbsp;:&nbsp;{formatDate(app.createTime || '')}
                   </div>
                   <div className='updateDate'>
-                    更新&nbsp;:&nbsp;{formatDate(updateDate || '')}
+                    更新&nbsp;:&nbsp;{updateDate === '-' ? updateDate : formatDate(updateDate || '')}
                   </div>
                 </div>
                 <div className='rightInfo'>

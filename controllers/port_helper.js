@@ -38,6 +38,8 @@ exports.addPort =  function (deployment, serviceList) {
           }
         })
         deployment.portsForExternal = serviceList[i].spec.ports
+        deployment.binding_domains = serviceList[i].metadata.annotations.binding_domains
+        deployment.binding_port = serviceList[i].metadata.annotations.binding_port
       }
       serviceList[i].spec.ports.map((svcPort) => deployment.portForInternal.push(svcPort.port))
       break

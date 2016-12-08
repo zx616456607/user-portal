@@ -27,7 +27,7 @@ let MyComponent = React.createClass({
     return {
       name: '',
       size: 100,
-      format: 'ext4',
+      format: 'ext4'
     }
   },
   componentWillMount() {
@@ -86,13 +86,27 @@ let MyComponent = React.createClass({
   volumeList() {
     const registry = this.props.registry
     const volume = this.props.avaliableVolume
-    if (volume.data.volumes) {
-      return volume.data.volumes.map(item => {
-        return <Option value={`${item.name}/${item.fsType}`}>{item.name} {item.fsType} {item.size}</Option>
+    const ele = []
+    const usedVolume = []
+    const { getFieldProps, getFieldValue, } = this.props.form
+    getFieldValue('volumeKey').forEach((k) =>{
+      const name = getFieldProps(`volumeName${k}`).value
+      if(!name) return
+      usedVolume.push(name.split('/')[0])
+    })
+    const servicesList = this.props.parentScope.props.scope.state.servicesList || localStorage.getItem('servicesList')
+    servicesList.forEach(service => {
+      service.inf.Deployment.spec.template.spec.volumes.forEach(volume => {
+        usedVolume.push(volume.rbd.image)
       })
-    } else {
-      return ''
+    })
+    if (volume.data.volumes) {
+      volume.data.volumes.forEach(item => {
+         if(usedVolume.indexOf(item.name) >= 0) return
+         ele.push(<Option value={`${item.name}/${item.fsType}`}>{item.name} {item.fsType} {item.size}</Option>)
+      })
     }
+    return ele
   },
   getVolumeName(e) {
     this.setState({
@@ -145,6 +159,8 @@ let MyComponent = React.createClass({
   render: function () {
     const { getFieldProps, getFieldValue, } = this.props.form
     const registry = this.props.registry
+    if(!this.props.tagConfig[registry]) return
+    if(!this.props.tagConfig[registry].configList) return
     const mountPath = this.props.tagConfig[registry].configList.mountPath
     if (!this.props.avaliableVolume.data && !getFieldValue('volumeName1')) {
       return <div></div>
@@ -215,7 +231,7 @@ let MyComponent = React.createClass({
             }
             <Select className="imageTag" size="large" placeholder="请选择一个存储卷"
               style={{ width: 200 }}
-              {...getFieldProps(`volumeName${k}`) }>
+              {...getFieldProps(`volumeName${k}`) } >
               {this.volumeList()}
             </Select>
             <Checkbox className="readOnlyBtn" { ...getFieldProps(`volumeChecked${k}`) } checked={getFieldValue(`volumeChecked${k}`)}>
@@ -305,7 +321,6 @@ function loadImageTags(props) {
 }
 
 function setPorts(containerPorts, form) {
-  console.log(containerPorts)
   const portsArr = []
   if (containerPorts) {
     containerPorts.map(function (item, index) {
@@ -460,6 +475,7 @@ let NormalDeployBox = React.createClass({
       rules: [
         { required: true, message: '请选择镜像版本' },
       ],
+      initialValue: imageTags[0]
     })
     let switchDisable = false
     let mountPath = []

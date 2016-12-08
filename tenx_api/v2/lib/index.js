@@ -67,4 +67,7 @@ module.exports = function (config) {
   
   // ~ integration
   this.integrations = collections.create('integrations')
+
+  // ~ consumptions
+  this.consumptions = collections.create('consumptions')
 }

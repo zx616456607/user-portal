@@ -14,7 +14,7 @@ import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import { formatDate } from '../../common/tools'
 import { ecma48SgrEscape } from '../../common/ecma48_sgr_escape'
-import "./style/ContainerLogs.less"
+import './style/ContainerLogs.less'
 // import { clearContainerLogs } from '../../actions/app_manage'
 import Websocket from '../Websocket'
 
@@ -49,7 +49,7 @@ class ContainerLogs extends Component {
       return
     }
     const logsBottom = document.getElementById('logsBottom')
-    logsBottom.scrollIntoView({ block: "end", behavior: "smooth" })
+    logsBottom.scrollIntoView({ block: 'end', behavior: 'smooth' })
   }
 
   onChangeLogSize() {
@@ -135,14 +135,14 @@ class ContainerLogs extends Component {
       log = log.replace(logDate, '')
     }
     return (
-      <div key={`logs_${index}`}>
+      <span className='logDetail' key={`logs_${index}`}>
         <span style={{ color: 'yellow' }}>[{name}] </span>
         {
           logDate &&
           <span style={{ color: 'orange' }}>[{formatDate(logDate)}]</span>
         }
         <span dangerouslySetInnerHTML={{ __html: ecma48SgrEscape(log) }}></span>
-      </div>
+      </span>
     )
   }
 
@@ -181,29 +181,29 @@ class ContainerLogs extends Component {
     const { logSize, watchStatus, logs } = this.state
     const iconType = this.loopWatchStatus()
     return (
-      <div id="ContainerLogs">
-        <div className={logSize == 'big' ? "bigBox bottomBox" : 'bottomBox'} >
-          <div className="introBox">
-            <div className="operaBox">
+      <div id='ContainerLogs'>
+        <div className={logSize == 'big' ? 'bigBox bottomBox' : 'bottomBox'} >
+          <div className='introBox'>
+            <div className='operaBox'>
               <span>
                 <Link to={`/manange_monitor/query_log?service=${serviceName}&instance=${containerName}`}>
                   历史日志
                 </Link>
               </span>
             </div>
-            <div className="infoBox" ref={(c) => this.infoBox = c}>
+            <div className='infoBox' ref={(c) => this.infoBox = c}>
               {this.getLogs()}
-              <pre id="logsBottom"></pre>
+              <pre id='logsBottom'></pre>
             </div>
-            <div style={{ clear: "both" }}></div>
-            <div className="operaBox">
-              <i className="fa fa-expand" onClick={this.onChangeLogSize.bind(this)}></i>
-              <Tooltip placement="top" title={`click to ${iconType}`}>
+            <div style={{ clear: 'both' }}></div>
+            <div className='operaBottomBox'>
+              <i className={ logSize != 'big' ? 'fa fa-expand' : 'fa fa-compress'} onClick={this.onChangeLogSize.bind(this)}></i>
+              <Tooltip placement='top' title={`click to ${iconType}`}>
                 <i className={`fa fa-${iconType}-circle-o`} onClick={this.handleLoopWatchStatus} />
               </Tooltip>
             </div>
           </div>
-          <div style={{ clear: "both" }}></div>
+          <div style={{ clear: 'both' }}></div>
         </div>
         {this.getLogsWatchWs()}
       </div>
