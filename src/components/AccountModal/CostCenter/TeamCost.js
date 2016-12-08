@@ -13,6 +13,7 @@ import './style/TeamCost.less'
 import { connect } from 'react-redux'
 import ReactEcharts from 'echarts-for-react'
 import { loadTeamSummary } from '../../../actions/consumption'
+import moment from 'moment'
 
 const MonthPicker = DatePicker.MonthPicker
 let teamCostArr = []
@@ -35,128 +36,186 @@ class TeamCost extends Component{
     return (y+'-'+m)
   }  
   componentWillMount() {
-    console.log('this.propsthis.propsthis.propsthis.propsthis.props', this.props)
     const {
       loadTeamSummary,
-      
+      currentNamespace,
     } = this.props
-    loadTeamSummary()
+    loadTeamSummary(currentNamespace)
   }
   render(){
-    const { currentTeamName, currentSpaceName } = this.props
+    const _this = this
+    const {
+      currentTeamName,
+      currentSpaceName,
+      teamSummary,
+      currentNamespace,
+    } = this.props
+
+    let onChange = function(date) {
+      let time = moment(date).format('YYYY-MM-DD 00:00:00')
+      if (time == 'Invalid') {
+        return
+      }
+      loadTeamSummary(currentNamespace)
+      // loadTeamSummary(currentNamespace, time)
+    }
     let teamCostTitle = (
       <div className="teamCostTitle">
         <span>空间{currentSpaceName}对应的团队{currentTeamName}该月消费详情</span>
-        <MonthPicker style={{float: 'right'}} defaultValue={this.transformDate()}/>
+        <MonthPicker style={{float: 'right'}} defaultValue={this.transformDate()} onChange={onChange} />
       </div>
     )
-    let teamCostPie ={
-      tooltip: {
-        trigger: 'item',
-        formatter: "{b} : {c}<br/> ({d}%)"
-      },
-      color: ['#46b2fa','#2abe84'],
-      legend: {
-        orient : 'vertical',
-        left : 'center',
-        bottom : '0',
-        data: [{name:'余额'}, {name:'消费'}],
-        formatter: function (name) {
-          if(name === '余额'){
-            return name + ': ' + 70 + 'T币'
-          } else {
-            return name + ': ' + 30 + 'T币'
-          }
+
+    let getTeamCostPie = function (){
+      let cost = 0
+      let balance = 0
+      if (!teamSummary.isFetching) {
+        cost = teamSummary.consumption / 100
+        balance = teamSummary.balance / 100
+      }
+      return {
+        tooltip: {
+          trigger: 'item',
+          formatter: "{b} : {c}<br/> ({d}%)"
         },
-        textStyle: {
-          fontSize: 14,
+        color: ['#46b2fa','#2abe84'],
+        legend: {
+          orient : 'vertical',
+          left : 'center',
+          bottom : '0',
+          data: [{name:'余额'}, {name:'消费'}],
+          formatter: function (name) {
+            if(name === '余额'){
+              return name + ': ' + balance + 'T币'
+            } else {
+              return name + ': ' + cost + 'T币'
+            }
+          },
+          textStyle: {
+            fontSize: 14,
+          },
+          itemGap: 10,
+          itemWidth: 10,
+          itemHeight: 10,
         },
-        itemGap: 15,
-        itemWidth: 10,
-        itemHeight: 10,
-      },
-      series: [{
-        name:'',
-        type: 'pie',
-        selectedMode: 'single',
-        selectedOffset: 5,
-        center: ['50%','30%'],
-        radius: '45%',
-        data: [
-          {name: '余额',value:70},
-          {name: '消费',value: 30,selected: true}
-        ],
-        itemStyle: {
-          normal: {
-            borderWidth: 0,
-            borderColor: '#ffffff'
-          },
-          emphasis: {
-          }
-        }
-      }]
-    }
-    
-    let teamCostBar = {
-      color: ['#3398DB'],
-      tooltip : {
-        trigger: 'axis',
-        axisPointer : {
-          type : 'shadow'
-        },
-        formatter: '{b} : {c}%',
-        position: function (point, params, dom) {
-          return [point[0]-25, '10%'];
-        },
-        extraCssText: '::after: {content:""}'
-      },
-      grid: {
-        left: '3%',
-        right: '4%',
-        bottom: '3%',
-        containLabel: true,
-        height: 150
-      },
-      xAxis : [
-        {
-          type : 'category',
-          data : teamCostArr,
-          splitLine: {
-            "show": false
-          },
-          axisTick: {
-            "show": false
-          },
-          splitArea: {
-            "show": false
-          },
-          axisLabel: {
-            "interval": 0,
-          },
-        }
-      ],
-      yAxis : [
-        {
-          type : 'value',
-          max: 100,
-          splitNumber: 2,
-          interval: 50,
-          splitLine: {
-            show: true,
-            lineStyle: {
-              type: 'dashed'
-            },
-          },
-        }
-      ],
-      series : [
-        {
+        series: [{
           name:'',
-          type:'bar',
-          barWidth: 16,
-          data: teamCostArr,
+          type: 'pie',
+          selectedMode: 'single',
+          selectedOffset: 5,
+          center: ['50%','63px'],
+          radius: '45%',
+          data: [
+            {name: '余额',value: balance},
+            {name: '消费',value: cost, selected: true}
+          ],
+          itemStyle: {
+            normal: {
+              borderWidth: 0,
+              borderColor: '#ffffff'
+            },
+            emphasis: {
+            }
+          }
+        }]
+      }
+    }
+    let getTeamCostBar = function (){
+      let xAxisData = teamCostArr
+      let yAxisData = []
+      if (!teamSummary.isFetching && teamSummary.month != '') {
+        let days = []
+        let firstDay = `${teamSummary.month}-01`
+        let lastDay = moment(firstDay).add(1, 'months').format('YYYY-MM-DD')
+        for (let i = 0; i < 31; i++) {
+          const day = moment(firstDay).add(i, 'days').format('YYYY-MM-DD')
+          if (day < lastDay) {
+            days.push(day)
+          }
+          else {
+            break
+          }
         }
-      ]
+        days.map(day => {
+          let find = false
+          for (const item of teamSummary.items) {
+            if (item.time == day) {
+              yAxisData.push(item.cost/100)
+              find = true
+              continue
+            }
+          }
+          if (!find) {
+            yAxisData.push(0.00)
+          }
+        })
+        // modify days ['2016-12-01', '2016-12-02' ...] to [1, 2 ...]
+        for (let i = 0; i < days.length; i++) {
+          days[i] = parseInt(days[i].substr(8))
+        }
+        xAxisData = days
+      }
+      return {
+        color: ['#3398DB'],
+        tooltip : {
+          trigger: 'axis',
+          axisPointer : {
+            type : 'shadow'
+          },
+          formatter: '{b} : {c}%',
+          position: function (point, params, dom) {
+            return [point[0]-25, '10%'];
+          },
+          extraCssText: '::after: {content:""}'
+        },
+        grid: {
+          left: '3%',
+          right: '4%',
+          bottom: '3%',
+          containLabel: true,
+          height: 150
+        },
+        xAxis : [
+          {
+            type : 'category',
+            data : xAxisData,
+            splitLine: {
+              "show": false
+            },
+            axisTick: {
+              "show": false
+            },
+            splitArea: {
+              "show": false
+            },
+            axisLabel: {
+              "interval": 0,
+            },
+          }
+        ],
+        yAxis : [
+          {
+            type : 'value',
+            max: 100,
+            splitNumber: 2,
+            interval: 50,
+            splitLine: {
+              show: true,
+              lineStyle: {
+                type: 'dashed'
+              },
+            },
+          }
+        ],
+        series : [
+          {
+            name:'',
+            type:'bar',
+            barWidth: 16,
+            data: yAxisData,
+          }
+        ]
+      }
     }
     return (
       <div id='TeamCost'>
@@ -165,14 +224,14 @@ class TeamCost extends Component{
             <Col span={6}>
              <ReactEcharts
               notMerge={true}
-              option={teamCostPie}
+              option={getTeamCostPie()}
               style={{height: '170px'}}
              />
             </Col>
             <Col span={18}>
               <ReactEcharts
               notMerge={true}
-              option={teamCostBar}
+              option={getTeamCostBar()}
               style={{height: '170px'}}
              />
             </Col>
@@ -185,8 +244,28 @@ class TeamCost extends Component{
 
 function mapStateToProps (state,props) {
   const { teamSummary } = state.consumption
+  let summaryData = {
+    balance: 0,
+    consumption: 0,
+    items: [],
+    month: '',
+  }
+  if (!teamSummary.isFetching) {
+    if (teamSummary.result && teamSummary.result.data && teamSummary.result.data.balance) {
+      summaryData.balance = teamSummary.result.data.balance
+    }
+    if (teamSummary.result && teamSummary.result.data && teamSummary.result.data.totalConsumption) {
+      summaryData.consumption = teamSummary.result.data.totalConsumption
+    }
+    if (teamSummary.result && teamSummary.result.data && teamSummary.result.data.detail) {
+      summaryData.items = teamSummary.result.data.detail
+    }
+    if (teamSummary.result && teamSummary.result.data && teamSummary.result.data.month) {
+      summaryData.month = teamSummary.result.data.month
+    }
+  }
   return {
-    teamSummary
+    teamSummary: summaryData,
   }
 }
 export default connect (mapStateToProps,{

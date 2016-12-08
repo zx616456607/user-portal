@@ -9,6 +9,7 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
+import { injectIntl } from 'react-intl'
 import { resetErrorMessage } from '../../actions'
 import { Icon, Menu, notification, Modal, Button, Spin, } from 'antd'
 import ErrorPage from '../ErrorPage'
@@ -22,6 +23,7 @@ import { updateContainerList, updateAppList } from '../../actions/app_manage'
 import { updateAppServicesList, updateServiceContainersList, updateServicesList } from '../../actions/services'
 import { handleOnMessage } from './status'
 import { SHOW_ERROR_PAGE_ACTION_TYPES } from '../../constants'
+import errorHandler from './error_handler'
 
 class App extends Component {
   constructor(props) {
@@ -100,13 +102,15 @@ class App extends Component {
   }
 
   renderErrorMessage() {
-    const { errorMessage, resetErrorMessage } = this.props
+    const { errorMessage, resetErrorMessage, intl } = this.props
     const handleDismissClick = this.handleDismissClick
     if (!errorMessage) {
       return null
     }
 
-    const { statusCode, message } = errorMessage.error
+    const { error } = errorMessage
+
+    const { statusCode, message } = error
     if (message === 'LOGIN_EXPIRED') {
       resetErrorMessage()
       return
@@ -116,13 +120,14 @@ class App extends Component {
       return
     }
 
-    notification.error({
+    errorHandler(error, intl)
+    /*notification.error({
       message: `${statusCode} error`,
       description: JSON.stringify(message),
       duration: 10,
       // duration: null,
       onClose: handleDismissClick
-    })
+    })*/
 
     setTimeout(resetErrorMessage)
   }
@@ -245,7 +250,8 @@ App.propTypes = {
   children: PropTypes.node,
   pathname: PropTypes.string,
   siderStyle: PropTypes.oneOf(['mini', 'bigger']),
-  Sider: PropTypes.element.isRequired,
+  Sider: PropTypes.any.isRequired,
+  intl: PropTypes.object.isRequired,
 }
 
 App.defaultProps = {
@@ -276,7 +282,7 @@ function mapStateToProps(state, props) {
   }
 }
 
-export default connect(mapStateToProps, {
+App = connect(mapStateToProps, {
   resetErrorMessage,
   setSockets,
   loadLoginUserDetail,
@@ -286,3 +292,7 @@ export default connect(mapStateToProps, {
   updateServiceContainersList,
   updateServicesList,
 })(App)
+
+export default injectIntl(App, {
+  withRef: true,
+})

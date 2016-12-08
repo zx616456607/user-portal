@@ -21,6 +21,7 @@ export default function detail(state = {
   spaceSummaryInDay: {},
   spaceSummary: {},
   teamSummary: {},
+  chargeRecord: {},
  }, action) {
   return {
     detail: reducerFactory({
@@ -48,5 +49,10 @@ export default function detail(state = {
       SUCCESS: ActionTypes.CONSUMPTION_TEAM_SUMMARY_SUCCESS,
       FAILURE: ActionTypes.CONSUMPTION_TEAM_SUMMARY_FAILURE,
     }, state.teamSummary, action, option),
+    chargeRecord: reducerFactory({
+      REQUEST: ActionTypes.CONSUMPTION_GET_CHARGE_RECORD_REQUEST,
+      SUCCESS: ActionTypes.CONSUMPTION_GET_CHARGE_RECORD_SUCCESS,
+      FAILURE: ActionTypes.CONSUMPTION_GET_CHARGE_RECORD_FAILURE,
+    }, state.chargeRecord, action, option),
   }
 }

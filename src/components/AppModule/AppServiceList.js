@@ -8,7 +8,8 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Modal, message, Checkbox, Dropdown, Button, Card, Menu, Icon, Spin, Tooltip, Pagination, Alert} from 'antd'
+import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import { Modal, message, Checkbox, Dropdown, Button, Card, Menu, Icon, Spin, Tooltip, Pagination, Alert } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -37,6 +38,7 @@ import TipSvcDomain from '../TipSvcDomain'
 import yaml from 'js-yaml'
 import { addDeploymentWatch, removeDeploymentWatch } from '../../containers/App/status'
 import StateBtnModal from '../StateBtnModal'
+import errorHandler from '../../containers/App/error_handler'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -264,7 +266,7 @@ const MyComponent = React.createClass({
           </div>
           <div className="service commonData appSvcListDomain">
             <Tooltip title={svcDomain.length > 0 ? svcDomain[0] : ""}>
-              <TipSvcDomain svcDomain={svcDomain} parentNode='appSvcListDomain'/>
+              <TipSvcDomain svcDomain={svcDomain} parentNode='appSvcListDomain' />
             </Tooltip>
           </div>
           <div className="createTime commonData">
@@ -414,7 +416,7 @@ class AppServiceList extends Component {
 
   handleStartServiceOk() {
     const self = this
-    const { cluster, startServices, serviceList, appName, loadServiceList } = this.props
+    const { cluster, startServices, serviceList, appName, intl } = this.props
     let stoppedService = []
     const checkedServiceList = serviceList.filter((service) => service.checked)
     checkedServiceList.map((service, index) => {
@@ -443,6 +445,13 @@ class AppServiceList extends Component {
           })
         },
         isAsync: true
+      },
+      failed: {
+        func: (err) => {
+          errorHandler(err, intl)
+          self.loadServices(self.props)
+        },
+        isAsync: true
       }
     })
   }
@@ -453,7 +462,7 @@ class AppServiceList extends Component {
   }
   handleStopServiceOk() {
     const self = this
-    const { cluster, stopServices, serviceList, appName, loadServiceList } = this.props
+    const { cluster, stopServices, serviceList, appName, intl } = this.props
     let checkedServiceList = serviceList.filter((service) => service.checked)
     let runningServices = []
     if (this.state.currentShowInstance) {
@@ -478,13 +487,19 @@ class AppServiceList extends Component {
     stopServices(cluster, serviceNames, {
       success: {
         func: () => {
-          loadServiceList(cluster, appName)
           self.setState({
             StopServiceModal: false,
             runBtn: false,
             stopBtn: false,
             restartBtn: false,
           })
+        },
+        isAsync: true
+      },
+      failed: {
+        func: (err) => {
+          errorHandler(err, intl)
+          self.loadServices(self.props)
         },
         isAsync: true
       }
@@ -497,7 +512,7 @@ class AppServiceList extends Component {
   }
   handleRestarServiceOk() {
     const self = this
-    const { cluster, restartServices, serviceList, loadServiceList, appName } = this.props
+    const { cluster, restartServices, serviceList, appName, intl } = this.props
     let checkedServiceList = serviceList.filter((service) => service.checked)
     let runningServices = []
 
@@ -525,12 +540,18 @@ class AppServiceList extends Component {
     restartServices(cluster, serviceNames, {
       success: {
         func: () => {
-          loadServiceList(cluster, appName)
           self.setState({
             runBtn: false,
             stopBtn: false,
             restartBtn: false,
           })
+        },
+        isAsync: true
+      },
+      failed: {
+        func: (err) => {
+          errorHandler(err, intl)
+          self.loadServices(self.props)
         },
         isAsync: true
       }
@@ -543,7 +564,7 @@ class AppServiceList extends Component {
   }
   handleQuickRestarServiceOk() {
     const self = this
-    const { cluster, quickRestartServices, serviceList, loadServiceList, appName } = this.props
+    const { cluster, quickRestartServices, serviceList, appName, intl } = this.props
     const checkedServiceList = serviceList.filter((service) => service.checked)
     let runningServices = []
 
@@ -566,13 +587,20 @@ class AppServiceList extends Component {
     quickRestartServices(cluster, serviceNames, {
       success: {
         func: () => {
-          loadServiceList(cluster, appName)
+          self.loadServices(self.props)
           self.setState({
             QuickRestarServiceModal: false,
             runBtn: false,
             stopBtn: false,
             restartBtn: false,
           })
+        },
+        isAsync: true
+      },
+      failed: {
+        func: (err) => {
+          errorHandler(err, intl)
+          self.loadServices(self.props)
         },
         isAsync: true
       }
@@ -590,12 +618,19 @@ class AppServiceList extends Component {
   }
   confirmDeleteServices(serviceList, callback) {
     const self = this
-    const { cluster, appName, loadServiceList, deleteServices } = this.props
+    const { cluster, appName, loadServiceList, deleteServices, intl } = this.props
     const serviceNames = serviceList.map((service) => service.metadata.name)
     if (!callback) {
       callback = {
         success: {
-          func: () => loadServiceList(cluster, appName),
+          func: () => self.loadServices(self.props),
+          isAsync: true
+        },
+        failed: {
+          func: (err) => {
+            errorHandler(err, intl)
+            self.loadServices(self.props)
+          },
           isAsync: true
         }
       }
@@ -703,6 +738,7 @@ class AppServiceList extends Component {
   }
 
   onSubmitAddService(serviceTemplate) {
+    const self = this
     const hide = message.loading('正在添加中...', 0)
     const { cluster, appName, addService, loadServiceList } = this.props
     const { Service, Deployment } = serviceTemplate
@@ -712,7 +748,7 @@ class AppServiceList extends Component {
     addService(cluster, appName, body, {
       success: {
         func: () => {
-          loadServiceList(cluster, appName)
+          self.loadServices(self.props)
           hide()
           message.success(`服务 ${Service.metadata.name} 添加成功`)
         },
@@ -720,9 +756,11 @@ class AppServiceList extends Component {
       },
       failed: {
         func: () => {
+          self.loadServices(self.props)
           hide()
           message.error(`服务 ${Service.metadata.name} 添加失败`)
-        }
+        },
+        isAsync: true
       }
     })
   }
@@ -785,12 +823,12 @@ class AppServiceList extends Component {
             <Modal title="重新部署操作" visible={this.state.RestarServiceModal}
               onOk={this.handleRestarServiceOk} onCancel={this.handleRestarServiceCancel}
               >
-              <StateBtnModal serviceList={serviceList} scope={parentScope} state='Restart'/>
+              <StateBtnModal serviceList={serviceList} scope={parentScope} state='Restart' />
             </Modal>
             <Modal title="启动操作" visible={this.state.StartServiceModal}
               onOk={this.handleStartServiceOk} onCancel={this.handleStartServiceCancel}
               >
-              <StateBtnModal serviceList={serviceList} state='Running'/>
+              <StateBtnModal serviceList={serviceList} state='Running' />
             </Modal>
             <Button size="large" onClick={this.batchStopService} disabled={!stopBtn}>
               <i className="fa fa-stop"></i>
@@ -803,7 +841,7 @@ class AppServiceList extends Component {
             <Modal title="停止操作" visible={this.state.StopServiceModal}
               onOk={this.handleStopServiceOk} onCancel={this.handleStopServiceCancel}
               >
-              <StateBtnModal serviceList={serviceList} scope={parentScope} state='Stopped'/>
+              <StateBtnModal serviceList={serviceList} scope={parentScope} state='Stopped' />
             </Modal>
             <Button size="large" onClick={this.batchDeleteServices} disabled={!isChecked}>
               <i className="fa fa-trash"></i>
@@ -816,7 +854,7 @@ class AppServiceList extends Component {
             <Modal title="重启操作" visible={this.state.QuickRestarServiceModal}
               onOk={this.handleQuickRestarServiceOk} onCancel={this.handleQuickRestarServiceCancel}
               >
-              <StateBtnModal serviceList={serviceList} state='QuickRestar'/>
+              <StateBtnModal serviceList={serviceList} state='QuickRestar' />
             </Modal>
             <Dropdown overlay={operaMenu} trigger={['click']}>
               <Button size="large" disabled={!isChecked}>
@@ -991,7 +1029,7 @@ function mapStateToProps(state, props) {
   }
 }
 
-export default connect(mapStateToProps, {
+AppServiceList = connect(mapStateToProps, {
   loadServiceList,
   addService,
   startServices,
@@ -1000,3 +1038,7 @@ export default connect(mapStateToProps, {
   deleteServices,
   quickRestartServices,
 })(AppServiceList)
+
+export default injectIntl(AppServiceList, {
+  withRef: true,
+})
