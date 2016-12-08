@@ -59,8 +59,6 @@ class SearchInput extends Component{
   }
   handleSearch(){
     const { searchValue, selecteValue } = this.state
-    console.log("searchValue", searchValue)
-    console.log("selecteValue", selecteValue)
     let { scope,total } = this.props
     const { searchResult, pageSize, sort } = scope.state
     let filter = this.getFilterField(selecteValue) + "," + searchValue
@@ -123,7 +121,11 @@ class SearchInput extends Component{
         placeholder: '请输入关键词搜索',
       }
     }
-    const { addBefore, defaultValue, placeholder, width, position, } = searchIntOption
+    const defaultStyle = {
+      width: 200,
+      float: 'right'
+    }
+    const { addBefore, defaultValue, placeholder, width, position, setStyle} = searchIntOption
     if(addBefore){
       let selectBefore = (
         <Select defaultValue={defaultValue ? defaultValue : addBefore[0].key}
@@ -154,7 +156,7 @@ class SearchInput extends Component{
       )
     } else {
       return (
-        <div id='SearchInput' style={{width: `${width?width:'200px'}`,float: `${position?position:'right'}`}}>
+        <div id='SearchInput' style={setStyle?setStyle:defaultStyle}>
           <div className="ant-search-input-wrapper search">
             <Input placeholder={placeholder?placeholder:"请输入关键词搜索"}
                    onChange={this.handleInt}
