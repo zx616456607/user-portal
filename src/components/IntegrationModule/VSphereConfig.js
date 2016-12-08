@@ -225,7 +225,6 @@ let VSphereConfig = React.createClass({
           <div className='inputBox'>
             <FormItem style={{ width:'220px' }} >
               <Input {...passwordProps} disabled={!this.state.edittingFlag} type={this.state.checkPwdType == 'pwd' ? 'password' : 'text' } size='large' />
-              <i className='fa fa-eye' onClick={this.onChangePwdType}/>
             </FormItem>
           </div>
           <div style={{ clear: 'both' }}></div>
