@@ -44,7 +44,10 @@ export function getContainerStatus(container) {
  */
 export function getServiceStatus(service) {
   const { status, metadata } = service
-  const replicas = service.spec.replicas || metadata.annotations[`${TENX_MARK}/replicas`]
+  let replicas = service.spec.replicas
+  if (replicas === undefined) {
+    replicas = metadata.annotations[`${TENX_MARK}/replicas`]
+  }
   let availableReplicas = 0
   if (!status) {
     return {

@@ -16,6 +16,7 @@ import { connect } from 'react-redux'
 import { USERNAME_REG_EXP, EMAIL_REG_EXP } from '../../../constants'
 import { browserHistory } from 'react-router'
 import { genRandomString } from '../../../common/tools'
+import ReactDom from 'react-dom'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -215,10 +216,15 @@ let Login = React.createClass({
   componentWillMount() {
     const { resetFields } = this.props.form
     resetFields()
+    // ReactDom.findDOMNode(this.refs.intName.refs.input).focus
   },
-onChange(e){
-  console.log('e',e)
-},
+
+  componentDidMount() {
+    ReactDom.findDOMNode(this.refs.intName.refs.input).focus()
+  },
+  onChange(e) {
+    console.log('e', e)
+  },
   render() {
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form
     const { random, submitting, loginResult, submitProps } = this.state
@@ -269,7 +275,8 @@ onChange(e){
                 >
                 <div className={this.state.intNameFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'name')}>用户名 / 邮箱</div>
 
-                <Input {...nameProps} autoComplete="off"
+                <Input {...nameProps}
+                  autoComplete="off"
                   onBlur={this.intOnBlur.bind(this, 'name')}
                   onFocus={this.intOnFocus.bind(this, 'name')}
                   ref="intName"
