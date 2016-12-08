@@ -143,7 +143,7 @@ class MysqlCluster extends Component {
           className='AppServiceDetail' transitionName='move-right'
           onCancel={() => { this.setState({ detailModal: false }) } }
           >
-          <ModalDetail scope={parentScope} dbName={this.state.currentDatabase} />
+          <ModalDetail scope={parentScope} database={this.props.database} dbName={this.state.currentDatabase} />
         </Modal>
         <Modal visible={this.state.CreateDatabaseModalShow}
           className='CreateDatabaseModal'
