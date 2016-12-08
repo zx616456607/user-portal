@@ -16,13 +16,19 @@ export const CONSUMPTION_DETAIL_REQUEST = 'CONSUMPTION_DETAIL_REQUEST'
 export const CONSUMPTION_DETAIL_SUCCESS = 'CONSUMPTION_DETAIL_SUCCESS'
 export const CONSUMPTION_DETAIL_FAILURE = 'CONSUMPTION_DETAIL_FAILURE'
 
-function fetchDetail(from, size) {
+function fetchDetail(from, size, timeBegin, timeEnd) {
   let query = {}
   if (from) {
     query.from = from
   }
   if (size) {
     query.size = size
+  }
+  if (timeBegin) {
+    query.timeBegin = timeBegin
+  }
+  if (timeEnd) {
+    query.timeEnd = timeEnd
   }
   const queryStr = toQuerystring(query)
   const endpoint = `${API_URL_PREFIX}/consumptions/detail` + (queryStr != '' ? `?${queryStr}` : '')
@@ -35,9 +41,9 @@ function fetchDetail(from, size) {
   }
 }
 
-export function loadConsumptionDetail(from, size) {
+export function loadConsumptionDetail(from, size, timeBegin, timeEnd) {
   return (dispatch, getState) => {
-    return dispatch(fetchDetail(from, size))
+    return dispatch(fetchDetail(from, size, timeBegin, timeEnd))
   }
 }
 
@@ -116,7 +122,7 @@ export const CONSUMPTION_TEAM_SUMMARY_REQUEST = 'CONSUMPTION_TEAM_SUMMARY_REQUES
 export const CONSUMPTION_TEAM_SUMMARY_SUCCESS = 'CONSUMPTION_TEAM_SUMMARY_SUCCESS'
 export const CONSUMPTION_TEAM_SUMMARY_FAILURE = 'CONSUMPTION_TEAM_SUMMARY_FAILURE'
 
-function fetchTeamSummary(month) {
+function fetchTeamSummary(teamspace, month) {
   let endpoint = `${API_URL_PREFIX}/consumptions/summary?source=team`
   if (month) {
     endpoint += `&month=${month}`
@@ -126,12 +132,17 @@ function fetchTeamSummary(month) {
       types: [CONSUMPTION_TEAM_SUMMARY_REQUEST, CONSUMPTION_TEAM_SUMMARY_SUCCESS, CONSUMPTION_TEAM_SUMMARY_FAILURE],
       endpoint: endpoint,
       schema: {},
+      options: {
+        headers: {
+          teamspace
+        }
+      }
     }
   }
 }
 
-export function loadTeamSummary(month) {
+export function loadTeamSummary(teamspace, month) {
   return (dispatch, getState) => {
-    return dispatch(fetchTeamSummary(month))
+    return dispatch(fetchTeamSummary(teamspace, month))
   }
 }
