@@ -172,7 +172,7 @@ class MySpace extends Component{
   }
 
   render(){
-    const {spaceOperations, spaceCICDStats, spaceImageStats, spaceTemplateStats, spaceName } = this.props
+    const {spaceOperations, spaceCICDStats, spaceImageStats, spaceTemplateStats, spaceName,isFetching } = this.props
     let isFetchingAuditLog = true
     if (this.props.auditLog) {
       isFetchingAuditLog  = this.props.auditLog.isFetching
@@ -188,6 +188,7 @@ class MySpace extends Component{
                 notMerge={true}
                 option={imageOption}
                 style={{height:'90px'}}
+                showLoading={isFetching}
               />
               <div style={{position:'absolute',top:'66px',width:'100%',textAlign:'center'}}>{spaceImageStats.publicNumber+spaceImageStats.privateNumber} 个</div>
               <Row style={{textAlign:'center',height:40,lineHeight:'40px',padding:'0 24px',fontSize: '13px', color: '#666'}}>
@@ -214,6 +215,7 @@ class MySpace extends Component{
                 notMerge={true}
                 option={layoutOption}
                 style={{height:'90px'}}
+                showLoading={isFetching}
               />
               <div style={{position:'absolute',top:'66px',width:'100%',textAlign:'center'}}>{spaceTemplateStats.public+spaceTemplateStats.private} 个</div>
               <Row style={{textAlign:'center',height:40,lineHeight:'40px',padding:'0 24px',fontSize: '13px', color: '#666'}}>
@@ -434,6 +436,7 @@ class MySpace extends Component{
 }
 
 function mapStateToProp(state,props) {
+  let isFetching = true
   let spaceOperationsData = {
     appCreate: 0,
     appModify: 0,
@@ -461,6 +464,7 @@ function mapStateToProp(state,props) {
   let spaceWarningsData = []
   const {spaceOperations, spaceCICDStats, spaceImageStats, spaceTemplateStats, spaceWarnings, spaceInfo} = state.overviewSpace
   if (spaceInfo.result) {
+    isFetching = spaceInfo.isFetching
     if (spaceInfo.result.operations) {
       if (spaceInfo.result.operations.app) {
         let data = spaceInfo.result.operations.app
@@ -546,7 +550,8 @@ function mapStateToProp(state,props) {
     spaceTemplateStats: spaceTemplateStatsData,
     cluster: state.entities.current.cluster.clusterID,
     auditLog: state.manageMonitor.operationAuditLog.logs,
-    spaceWarnings: spaceWarningsData
+    spaceWarnings: spaceWarningsData,
+    isFetching,
   }
 }
 
