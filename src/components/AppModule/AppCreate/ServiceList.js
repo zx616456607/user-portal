@@ -80,7 +80,6 @@ class MyComponent extends Component {
     })
   }
   checkService(name, inf, imageName) {
-    console.log(imageName)
     let registryServer
     if(imageName) {
       let start = imageName.indexOf('/')
@@ -88,8 +87,6 @@ class MyComponent extends Component {
       registryServer = imageName.substring(0, start)
       imageName = imageName.substring(start + 1, end)
     }
-    console.log(imageName)
-    console.log(registryServer)
     this.props.scope.setState({
       serviceModalShow: true,
       checkInf: inf,

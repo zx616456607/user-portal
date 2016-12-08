@@ -89,7 +89,6 @@ class AppDetail extends Component {
     if (app && app.services && app.services[0]) {
       updateDate = app.services[0].metadata.creationTimestamp
     }
-    console.log(updateDate)
     const appDomain = parseAppDomain(app, this.props.bindingDomains)
     return (
       <div id='AppDetail'>
