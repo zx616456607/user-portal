@@ -327,7 +327,7 @@ const MyComponent = React.createClass({
             </Tooltip>
           </div>
           <div className="service commonData allSvcListDomain">
-            <TipSvcDomain svcDomain={svcDomain} parentNode='allSvcListDomain'/>
+            <TipSvcDomain svcDomain={svcDomain} parentNode='allSvcListDomain' />
           </div>
           <div className="createTime commonData">
             <Tooltip title={calcuDate(item.metadata.creationTimestamp ? item.metadata.creationTimestamp : '')}>
@@ -694,6 +694,7 @@ class ServiceList extends Component {
             stopBtn: false,
             restartBtn: false,
           })
+          self.loadServices(self.props)
         },
         isAsync: true
       }
