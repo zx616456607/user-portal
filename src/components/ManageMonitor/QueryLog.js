@@ -478,7 +478,7 @@ let LogComponent = React.createClass({
         </div>
       )
     }
-    if (logs.length == 0) {
+    if (!logs || logs.length == 0) {
       return (
         <div className='loadingBox'>
           <span className='noDataSpan'>暂无日志记录</span>
