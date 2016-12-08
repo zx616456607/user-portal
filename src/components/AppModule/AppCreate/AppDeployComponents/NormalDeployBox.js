@@ -94,6 +94,12 @@ let MyComponent = React.createClass({
       if(!name) return
       usedVolume.push(name.split('/')[0])
     })
+    const servicesList = this.props.parentScope.props.scope.state.servicesList || localStorage.getItem('servicesList')
+    servicesList.forEach(service => {
+      service.inf.Deployment.spec.template.spec.volumes.forEach(volume => {
+        usedVolume.push(volume.rbd.image)
+      })
+    })
     if (volume.data.volumes) {
       volume.data.volumes.forEach(item => {
          if(usedVolume.indexOf(item.name) >= 0) return
@@ -153,6 +159,8 @@ let MyComponent = React.createClass({
   render: function () {
     const { getFieldProps, getFieldValue, } = this.props.form
     const registry = this.props.registry
+    if(!this.props.tagConfig[registry]) return
+    if(!this.props.tagConfig[registry].configList) return
     const mountPath = this.props.tagConfig[registry].configList.mountPath
     if (!this.props.avaliableVolume.data && !getFieldValue('volumeName1')) {
       return <div></div>
@@ -313,7 +321,6 @@ function loadImageTags(props) {
 }
 
 function setPorts(containerPorts, form) {
-  console.log(containerPorts)
   const portsArr = []
   if (containerPorts) {
     containerPorts.map(function (item, index) {

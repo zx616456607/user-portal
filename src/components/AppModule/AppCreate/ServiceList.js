@@ -61,17 +61,24 @@ class MyComponent extends Component {
     });
   }
   deleteService(name) {
-    
-    const oldList = this.props.scope.state.servicesList
-    const newList = oldList.filter((item) => item.name !== name)
-    const oldSeleList = this.props.scope.state.selectedList
-    const newSeleList = oldSeleList.filter((item) => item !== name)
-    this.props.scope.setState({
-      servicesList: newList,
-      selectedList: newSeleList
+    const self = this
+    Modal.confirm({
+      title: '您是否确认要删除这1个服务',
+      content: `${name}`,
+      onOk() {
+        const oldList = self.props.scope.state.servicesList
+        const newList = oldList.filter((item) => item.name !== name)
+        const oldSeleList = self.props.scope.state.selectedList
+        const newSeleList = oldSeleList.filter((item) => item !== name)
+        self.props.scope.setState({
+          servicesList: newList,
+          selectedList: newSeleList
+        })
+        localStorage.setItem('servicesList', JSON.stringify(newList))
+        localStorage.setItem('selectedList', JSON.stringify(newSeleList))
+      },
+      onCancel() { },
     })
-    localStorage.setItem('servicesList', JSON.stringify(newList))
-    localStorage.setItem('selectedList', JSON.stringify(newSeleList))
   }
   checkService(name, inf, imageName) {
     console.log(imageName)
