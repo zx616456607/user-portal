@@ -115,7 +115,6 @@ class CreateModel extends Component {
             teamID: space.teamID
           }
         })
-        console.log('sfslfjdlsfjldsfjldsjf', space.teamID)
         loadTeamClustersList(space.teamID, { size: 100 }, {
           success: {
             func: (result) => {
