@@ -27,7 +27,7 @@ let MyComponent = React.createClass({
     return {
       name: '',
       size: 100,
-      format: 'ext4',
+      format: 'ext4'
     }
   },
   componentWillMount() {
@@ -86,13 +86,21 @@ let MyComponent = React.createClass({
   volumeList() {
     const registry = this.props.registry
     const volume = this.props.avaliableVolume
+    const ele = []
+    const usedVolume = []
+    const { getFieldProps, getFieldValue, } = this.props.form
+    getFieldValue('volumeKey').forEach((k) =>{
+      const name = getFieldProps(`volumeName${k}`).value
+      if(!name) return
+      usedVolume.push(name.split('/')[0])
+    })
     if (volume.data.volumes) {
-      return volume.data.volumes.map(item => {
-        return <Option value={`${item.name}/${item.fsType}`}>{item.name} {item.fsType} {item.size}</Option>
+      volume.data.volumes.forEach(item => {
+         if(usedVolume.indexOf(item.name) >= 0) return
+         ele.push(<Option value={`${item.name}/${item.fsType}`}>{item.name} {item.fsType} {item.size}</Option>)
       })
-    } else {
-      return ''
     }
+    return ele
   },
   getVolumeName(e) {
     this.setState({
@@ -215,7 +223,7 @@ let MyComponent = React.createClass({
             }
             <Select className="imageTag" size="large" placeholder="请选择一个存储卷"
               style={{ width: 200 }}
-              {...getFieldProps(`volumeName${k}`) }>
+              {...getFieldProps(`volumeName${k}`) } >
               {this.volumeList()}
             </Select>
             <Checkbox className="readOnlyBtn" { ...getFieldProps(`volumeChecked${k}`) } checked={getFieldValue(`volumeChecked${k}`)}>
