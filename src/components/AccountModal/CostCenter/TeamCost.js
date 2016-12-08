@@ -10,7 +10,9 @@
 import React, { Component } from 'react'
 import { Card, Row, Col, DatePicker } from 'antd'
 import './style/TeamCost.less'
+import { connect } from 'react-redux'
 import ReactEcharts from 'echarts-for-react'
+import { loadTeamSummary } from '../../../actions/consumption'
 
 const MonthPicker = DatePicker.MonthPicker
 let teamCostArr = []
@@ -18,7 +20,7 @@ for(let i=1;i<32;i++){
   teamCostArr.push(i)
 }
 
-export default class TeamCost extends Component{
+class TeamCost extends Component{
   constructor(props){
     super(props)
     this.transformDate = this.transformDate.bind(this)
@@ -31,8 +33,15 @@ export default class TeamCost extends Component{
     let y = date.getFullYear()
     let m = date.getMonth()+1
     return (y+'-'+m)
+  }  
+  componentWillMount() {
+    console.log('this.propsthis.propsthis.propsthis.propsthis.props', this.props)
+    const {
+      loadTeamSummary,
+      
+    } = this.props
+    loadTeamSummary()
   }
-  
   render(){
     const { currentTeamName, currentSpaceName } = this.props
     let teamCostTitle = (
@@ -173,3 +182,13 @@ export default class TeamCost extends Component{
     )
   }
 }
+
+function mapStateToProps (state,props) {
+  const { teamSummary } = state.consumption
+  return {
+    teamSummary
+  }
+}
+export default connect (mapStateToProps,{
+  loadTeamSummary,
+})(TeamCost) 

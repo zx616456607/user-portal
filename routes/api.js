@@ -28,6 +28,7 @@ const devopsController = require('../controllers/devops')
 const licenseController = require('../controllers/license')
 const clusterController = require('../controllers/cluster_manage')
 const integrationController = require('../controllers/integration')
+const consumptionController = require('../controllers/consumption')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -288,6 +289,11 @@ module.exports = function (Router) {
 
   // License
   router.get('/license', licenseController.getLicense)
+
+  // consumption and charge
+  router.get('/consumptions/detail', consumptionController.getDetail)
+  router.get('/consumptions/trend', consumptionController.getTrend)
+  router.get('/consumptions/summary', consumptionController.getSummaryInDay)
 
   return router.routes()
 }
