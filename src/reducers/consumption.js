@@ -18,7 +18,8 @@ const option = {
 export default function detail(state = {
   detail: {},
   trend: {},
-  spaceSummaryInDay: {}
+  spaceSummaryInDay: {},
+  spaceSummary: {},
  }, action) {
   return {
     detail: reducerFactory({
@@ -36,5 +37,10 @@ export default function detail(state = {
       SUCCESS: ActionTypes.CONSUMPTION_SPACE_SUMMARY_DAY_SUCCESS,
       FAILURE: ActionTypes.CONSUMPTION_SPACE_SUMMARY_DAY_FAILURE,
     }, state.spaceSummaryInDay, action, option),
+    spaceSummary: reducerFactory({
+      REQUEST: ActionTypes.CONSUMPTION_SPACE_SUMMARY_REQUEST,
+      SUCCESS: ActionTypes.CONSUMPTION_SPACE_SUMMARY_SUCCESS,
+      FAILURE: ActionTypes.CONSUMPTION_SPACE_SUMMARY_FAILURE,
+    }, state.spaceSummary, action, option),
   }
 }

@@ -81,8 +81,32 @@ function fetchSpaceSummaryInDay(month) {
   }
 }
 
-export function loadSpaceSummaryInDay(month, source) {
+export function loadSpaceSummaryInDay(month) {
   return (dispatch, getState) => {
-    return dispatch(fetchSpaceSummaryInDay(month, source))
+    return dispatch(fetchSpaceSummaryInDay(month))
+  }
+}
+
+export const CONSUMPTION_SPACE_SUMMARY_REQUEST = 'CONSUMPTION_SPACE_SUMMARY_REQUEST'
+export const CONSUMPTION_SPACE_SUMMARY_SUCCESS = 'CONSUMPTION_SPACE_SUMMARY_SUCCESS'
+export const CONSUMPTION_SPACE_SUMMARY_FAILURE = 'CONSUMPTION_SPACE_SUMMARY_FAILURE'
+
+function fetchSpaceSummary(month) {
+  let endpoint = `${API_URL_PREFIX}/consumptions/summary`
+  if (month) {
+    endpoint += `?month=${month}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [CONSUMPTION_SPACE_SUMMARY_REQUEST, CONSUMPTION_SPACE_SUMMARY_SUCCESS, CONSUMPTION_SPACE_SUMMARY_FAILURE],
+      endpoint: endpoint,
+      schema: {}
+    }
+  }
+}
+
+export function loadSpaceSummary(month) {
+  return (dispatch, getState) => {
+    return dispatch(fetchSpaceSummary(month))
   }
 }

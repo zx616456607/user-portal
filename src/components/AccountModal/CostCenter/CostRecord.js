@@ -15,7 +15,7 @@ import { connect } from 'react-redux'
 import { loadUserTeamspaceList } from '../../../actions/user'
 import { loadTeamClustersList } from '../../../actions/team'
 import { setCurrent, loadLoginUserDetail } from '../../../actions/entities'
-import { loadConsumptionDetail, loadConsumptionTrend, loadSpaceSummaryInDay } from '../../../actions/consumption'
+import { loadConsumptionDetail, loadConsumptionTrend, loadSpaceSummaryInDay, loadSpaceSummary } from '../../../actions/consumption'
 import TeamCost from './TeamCost'
 import ReactEcharts from 'echarts-for-react'
 import { formatDate } from '../../../common/tools'
@@ -103,6 +103,7 @@ class CostRecord extends Component{
       loadConsumptionDetail,
       loadConsumptionTrend,
       loadSpaceSummaryInDay,
+      loadSpaceSummary,
     } = this.props
     loadUserTeamspaceList(loginUser.info.userID||userDetail.userID,{ size: 100 }, {
       success: {
@@ -114,6 +115,7 @@ class CostRecord extends Component{
     loadConsumptionDetail(0, this.state.consumptionDetailPageSize)
     loadConsumptionTrend()
     loadSpaceSummaryInDay()
+    loadSpaceSummary()
   }
   render(){
     const _this = this
@@ -124,10 +126,11 @@ class CostRecord extends Component{
       teamClusters,
       consumptionDetail,
       loadConsumptionDetail,
+      loadSpaceSummary,
       consumptionTrend,
       spaceSummaryInDay,
+      spaceSummary,
     } = this.props
-    console.log('spaceSummaryInDay',spaceSummaryInDay)
     let {
       spacesVisible,
       currentSpaceName,
@@ -137,83 +140,6 @@ class CostRecord extends Component{
     } = this.state
     sortedInfo = sortedInfo || {};
     filteredInfo = filteredInfo || {};
-    let spaceMonthCost = {
-      color: ['#46b2fa', '#2abe84'],
-      backgroundColor: '#fff',
-      tooltip: {
-        show: true,
-        trigger: 'item',
-        formatter: "{b}: {c}<br/> ({d}%)"
-      },
-      legend: {
-        show: true,
-        orient: 'vertical',
-        x: 'center',
-        top: '65%',
-        data:['余额','消费'],
-        formatter: function (name) {
-          if(name === '余额'){
-            return name + ': ' + 70 + 'T币'
-          } else if (name === '消费') {
-            return name + ': ' + 30 + 'T币'
-          }
-        },
-        textStyle: {
-          fontSize: 14,
-        },
-        itemGap: 8,
-        itemWidth: 10,
-        itemHeight: 10,
-      },
-      series: [
-        {
-          name:'本日该团队消费',
-          type:'pie',
-          radius: ['28', '40'],
-          center: ['50%','40%'],
-          avoidLabelOverlap: false,
-          itemStyle: {
-            normal: {
-              borderWidth: 2,
-              borderColor: '#ffffff',
-            },
-            emphasis: {
-              borderWidth: 0,
-              shadowBlur: 10,
-              shadowOffsetX: 0,
-              shadowColor: 'rgba(0, 0, 0, 0.5)'
-            }
-          },
-          hoverAnimation: false,
-          selectedOffset: 10,
-          label: {
-            normal: {
-              show: false,
-              position: 'center'
-            },
-            emphasis: {
-              show: true,
-              formatter: function (param) {
-                return param.percent.toFixed(0) + '%';
-              },
-              textStyle: {
-                fontSize: '14',
-                fontWeight: 'normal'
-              }
-            }
-          },
-          labelLine: {
-            normal: {
-              show: true
-            }
-          },
-          data:[
-            {value:70, name:'余额'},
-            {value:30, name:'消费'},
-          ]
-        }
-      ]
-    }
     let getSpaceCostSixMonths = function() {
       let xAxisData = []
       let yAxisData = []
@@ -286,11 +212,15 @@ class CostRecord extends Component{
         },]
       }
     }
+    let onCurrentSpaceSummaryDateChange = function (date) {
+      let time = moment(date).format('YYYY-MM-DD 00:00:00')
+      loadSpaceSummary(time)
+    }
     let spaceCostTitle = (
       <div className="teamCostTitle">
         <span>{currentSpaceName}该月消费</span>
         <div style={{flex: 'auto'}}>
-          <MonthPicker style={{float: 'left',marginLeft: '40px'}} defaultValue={this.transformDate(false)}/>
+          <MonthPicker style={{float: 'left',marginLeft: '40px'}} defaultValue={this.transformDate(false)} onChange={onCurrentSpaceSummaryDateChange} />
         </div>
       </div>
     )
@@ -510,6 +440,7 @@ class CostRecord extends Component{
         })
       },
     }
+
     return (
       <div id='CostRecord'>
         <Card style={{marginBottom: '20px'}}>
@@ -538,7 +469,7 @@ class CostRecord extends Component{
               <Col span={10} style={{height:170}}>
                   <ReactEcharts
                     notMerge={true}
-                    option={spaceMonthCost}
+                    option={getSpaceMonthCost(spaceSummary.balance, spaceSummary.consumption)}
                     style={{height:170}}
                   />
               </Col>
@@ -559,11 +490,11 @@ class CostRecord extends Component{
                 </Row>
                 <Row className='teamCostListContent'>
                   {
-                    [1,2,3,4,5,6].map(() => {
+                    spaceSummary.clusterConsumptions.map((item) => {
                       return (
                         <Row className="teamCostItem">
-                          <Col span={16} style={{paddingLeft:40}}>item.teamname</Col>
-                          <Col span={8} style={{paddingLeft:10}}>111T</Col>
+                          <Col span={16} style={{paddingLeft:40}}>{item.name}</Col>
+                          <Col span={8} style={{paddingLeft:10}}>{ isNaN(item.sum) ? item.sum : item.sum/100 + 'T'}</Col>
                         </Row>
                       )
                     })
@@ -601,11 +532,106 @@ class CostRecord extends Component{
     )
   }
 }
+
+
+function getSpaceMonthCost(balance, cost) {
+    balance = (balance || 0) / 100
+    cost = (cost || 0) / 100
+    return {
+      color: ['#46b2fa', '#2abe84'],
+      backgroundColor: '#fff',
+      tooltip: {
+        show: true,
+        trigger: 'item',
+        formatter: "{b}: {c}<br/> ({d}%)"
+      },
+      legend: {
+        show: true,
+        orient: 'vertical',
+        x: 'center',
+        top: '65%',
+        data:['余额','消费'],
+        formatter: function (name) {
+          if(name === '余额'){
+            return name + ': ' + balance + 'T币'
+          } else if (name === '消费') {
+            return name + ': ' + cost + 'T币'
+          }
+        },
+        textStyle: {
+          fontSize: 14,
+        },
+        itemGap: 8,
+        itemWidth: 10,
+        itemHeight: 10,
+      },
+      series: [
+        {
+          name:'本日该团队消费',
+          type:'pie',
+          radius: ['28', '40'],
+          center: ['50%','40%'],
+          avoidLabelOverlap: false,
+          itemStyle: {
+            normal: {
+              borderWidth: 2,
+              borderColor: '#ffffff',
+            },
+            emphasis: {
+              borderWidth: 0,
+              shadowBlur: 10,
+              shadowOffsetX: 0,
+              shadowColor: 'rgba(0, 0, 0, 0.5)'
+            }
+          },
+          hoverAnimation: false,
+          selectedOffset: 10,
+          label: {
+            normal: {
+              show: false,
+              position: 'center'
+            },
+            emphasis: {
+              show: true,
+              formatter: function (param) {
+                return param.percent.toFixed(0) + '%';
+              },
+              textStyle: {
+                fontSize: '14',
+                fontWeight: 'normal'
+              }
+            }
+          },
+          labelLine: {
+            normal: {
+              show: true
+            }
+          },
+          data:[
+            {value:balance, name:'余额'},
+            {value:cost, name:'消费'},
+          ]
+        }
+      ]
+    }
+}
+
 function mapStateToProps (state,props) {
   const { current, loginUser } = state.entities
   const { teamspaces,userDetail } = state.user
-  const { detail, trend, spaceSummaryInDay } = state.consumption
-  
+  const { detail, trend, spaceSummaryInDay, spaceSummary } = state.consumption
+  let spaceSummaryData = {
+    isFetching: spaceSummary.isFetching,
+    balance: (spaceSummary.result ? (spaceSummary.result.data.balance ? spaceSummary.result.data.balance : 0) : 0),
+    consumption: (spaceSummary.result ? (spaceSummary.result.data.totalConsumption ? spaceSummary.result.data.totalConsumption : 0) : 0),
+    clusterConsumptions: (spaceSummary.result ? (spaceSummary.result.data.clusterConsumption ? spaceSummary.result.data.clusterConsumption : []) : []),
+  }
+  if (spaceSummaryData.clusterConsumptions.length == 0) {
+    spaceSummaryData.clusterConsumptions = [{
+      name: '-',
+      sum: '-',
+    }]
+  }
   return {
     current,
     loginUser,
@@ -618,6 +644,7 @@ function mapStateToProps (state,props) {
       items: (spaceSummaryInDay.result ? (spaceSummaryInDay.result.data.detail ? spaceSummaryInDay.result.data.detail : []) : []),
       month: (spaceSummaryInDay.result ? (spaceSummaryInDay.result.data.month ? spaceSummaryInDay.result.data.month : '') : ''),
     },
+    spaceSummary: spaceSummaryData,
   }
 }
 export default connect (mapStateToProps,{
@@ -627,4 +654,5 @@ export default connect (mapStateToProps,{
   loadConsumptionDetail,
   loadConsumptionTrend,
   loadSpaceSummaryInDay,
+  loadSpaceSummary,
 })(CostRecord) 
