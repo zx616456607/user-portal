@@ -765,8 +765,8 @@ let MyComponent = React.createClass({
           </div>
           <div className='cluster commonTitle'>
             <span className='commonSpan'>
-              <Tooltip placement="topLeft" title={item.clusterId}>
-                <span>{item.clusterId}</span>
+              <Tooltip placement="topLeft" title={item.clusterName}>
+                <span>{item.clusterName}</span>
               </Tooltip>
             </span>
           </div>

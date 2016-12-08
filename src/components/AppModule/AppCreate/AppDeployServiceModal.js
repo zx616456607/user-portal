@@ -383,6 +383,12 @@ let AppDeployServiceModal = React.createClass({
               parseInt(getFieldProps(`targetPortUrl${k}`).value),
               parseInt(portUrl)
             )
+          } else {
+            serviceList.addPort(
+              serviceName + '-' + k,
+              getFieldProps(`portType${k}`).value.toUpperCase(),
+              parseInt(getFieldProps(`targetPortUrl${k}`).value)
+            )
           }
         }
         if (getFieldProps(`portType${k}`).value) {
