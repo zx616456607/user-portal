@@ -4,7 +4,7 @@
  */
 
 /*
- * Status handle
+ * Status handler
  *
  * v0.1 - 2016-11-24
  * @author Zhangpc

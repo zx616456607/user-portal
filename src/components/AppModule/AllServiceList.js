@@ -8,6 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
+import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { Modal, message, Checkbox, Dropdown, Button, Card, Menu, Icon, Spin, Tooltip, Pagination, Input, Alert } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
@@ -38,6 +39,7 @@ import yaml from 'js-yaml'
 import { addDeploymentWatch, removeDeploymentWatch } from '../../containers/App/status'
 import { LABEL_APPNAME } from '../../constants'
 import StateBtnModal from '../StateBtnModal'
+import errorHandler from '../../containers/App/error_handler'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -534,7 +536,7 @@ class ServiceList extends Component {
 
   handleStartServiceOk() {
     const self = this
-    const { cluster, startServices, serviceList } = this.props
+    const { cluster, startServices, serviceList, intl } = this.props
     let stoppedService = []
     const checkedServiceList = serviceList.filter((service) => service.checked)
     checkedServiceList.map((service, index) => {
@@ -563,6 +565,13 @@ class ServiceList extends Component {
           })
         },
         isAsync: true
+      },
+      failed: {
+        func: (err) => {
+          errorHandler(err, intl)
+          self.loadServices(self.props)
+        },
+        isAsync: true
       }
     })
   }
@@ -573,7 +582,7 @@ class ServiceList extends Component {
   }
   handleStopServiceOk() {
     const self = this
-    const { cluster, stopServices, serviceList } = this.props
+    const { cluster, stopServices, serviceList, intl } = this.props
     let checkedServiceList = serviceList.filter((service) => service.checked)
     let runningServices = []
     if (this.state.currentShowInstance) {
@@ -605,6 +614,13 @@ class ServiceList extends Component {
           })
         },
         isAsync: true
+      },
+      failed: {
+        func: (err) => {
+          errorHandler(err, intl)
+          self.loadServices(self.props)
+        },
+        isAsync: true
       }
     })
   }
@@ -615,7 +631,7 @@ class ServiceList extends Component {
   }
   handleRestarServiceOk() {
     const self = this
-    const { cluster, restartServices, serviceList } = this.props
+    const { cluster, restartServices, serviceList, intl } = this.props
     let servicesList = serviceList
 
     let checkedServiceList = servicesList.filter((service) => service.checked)
@@ -655,6 +671,13 @@ class ServiceList extends Component {
           })
         },
         isAsync: true
+      },
+      failed: {
+        func: (err) => {
+          errorHandler(err, intl)
+          self.loadServices(self.props)
+        },
+        isAsync: true
       }
     })
   }
@@ -665,7 +688,7 @@ class ServiceList extends Component {
   }
   handleQuickRestarServiceOk() {
     const self = this
-    const { cluster, quickRestartServices, serviceList } = this.props
+    const { cluster, quickRestartServices, serviceList, intl } = this.props
     const checkedServiceList = serviceList.filter((service) => service.checked)
     let runningServices = []
 
@@ -697,6 +720,13 @@ class ServiceList extends Component {
           self.loadServices(self.props)
         },
         isAsync: true
+      },
+      failed: {
+        func: (err) => {
+          errorHandler(err, intl)
+          self.loadServices(self.props)
+        },
+        isAsync: true
       }
     })
   }
@@ -713,12 +743,19 @@ class ServiceList extends Component {
   }
   confirmDeleteServices(serviceList, callback) {
     const self = this
-    const { cluster, loadAllServices, deleteServices } = this.props
+    const { cluster, loadAllServices, deleteServices, intl } = this.props
     const serviceNames = serviceList.map((service) => service.metadata.name)
     if (!callback) {
       callback = {
         success: {
           func: () => self.loadServices(self.props),
+          isAsync: true
+        },
+        failed: {
+          func: (err) => {
+            errorHandler(err, intl)
+            self.loadServices(self.props)
+          },
           isAsync: true
         }
       }
@@ -1046,7 +1083,7 @@ function mapStateToProps(state, props) {
   }
 }
 
-export default connect(mapStateToProps, {
+ServiceList = connect(mapStateToProps, {
   startServices,
   restartServices,
   stopServices,
@@ -1054,3 +1091,7 @@ export default connect(mapStateToProps, {
   quickRestartServices,
   loadAllServices
 })(ServiceList)
+
+export default injectIntl(ServiceList, {
+  withRef: true,
+})
