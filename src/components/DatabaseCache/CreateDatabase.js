@@ -38,7 +38,7 @@ let CreateDatabase = React.createClass({
   componentWillReceiveProps(nextProps) {
     // if create box close return default select cluster
     if(!nextProps.scope.state.CreateDatabaseModalShow) {
-      this.setState({onselectCluster: true})
+      this.setState({onselectCluster: true, loading: false})
     }
   },
   onChangeCluster() {
@@ -46,7 +46,6 @@ let CreateDatabase = React.createClass({
   },
   selectDatabaseType: function (database) {
     //this funciton for user select different database
-    console.log(database, 'sddafds')
     this.setState({
       currentType: database
     });
@@ -130,7 +129,7 @@ let CreateDatabase = React.createClass({
       if (!!errors) {
         return;
       }
-      console.log(_this.state.currentType)
+      _this.setState({loading: true})
       let templateId
       this.props.dbservice.map(item => {
         if (item.category === _this.state.currentType) {
@@ -163,8 +162,8 @@ let CreateDatabase = React.createClass({
         },
         failed: {
           func: (res)=> {
-            message.error(res.message)
-            console.log(res.message)
+            message.error(res.message.message)
+            console.log(res.message.message)
           }
         }
       });
@@ -313,9 +312,15 @@ let CreateDatabase = React.createClass({
             <Button size='large' onClick={this.handleReset}>
               取消
             </Button>
+            {this.state.loading ?
+            <Button size='large' type='primary' loading={this.state.loading}>
+              确定
+            </Button>
+            :
             <Button size='large' type='primary' onClick={this.handleSubmit}>
               确定
             </Button>
+            }
           </div>
         </Form>
       </div>

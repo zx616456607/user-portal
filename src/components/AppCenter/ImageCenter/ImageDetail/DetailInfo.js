@@ -84,7 +84,7 @@ export default class DetailInfo extends Component {
     return (
       <Card className="imageDetailInfo markdown">
         {(this.props.isOwner && !this.state.editor)?
-        <Button style={{float:'right'}} onClick={()=> this.handEdit()}><Icon type="edit" />&nbsp;编辑</Button>
+        <Button style={{float:'right',top:'-8px'}} onClick={()=> this.handEdit()}><Icon type="edit" />&nbsp;编辑</Button>
         : null
         }
         {this.state.editor ? 
