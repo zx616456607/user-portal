@@ -13,7 +13,7 @@ import { resetErrorMessage } from '../../actions'
 import { Icon, Menu, notification, Modal, Button, Spin, } from 'antd'
 import ErrorPage from '../ErrorPage'
 import Header from '../../components/Header'
-import Sider from '../../components/Sider'
+import Sider from '../../components/Sider/Enterprise'
 import Websocket from '../../components/Websocket'
 import { Link } from 'react-router'
 import { setSockets, loadLoginUserDetail } from '../../actions/entities'
@@ -23,8 +23,6 @@ import { updateAppServicesList, updateServiceContainersList, updateServicesList 
 import { handleOnMessage } from './status'
 import { SHOW_ERROR_PAGE_ACTION_TYPES } from '../../constants'
 
-const mode = require('../../../configs/models').mode
-
 class App extends Component {
   constructor(props) {
     super(props)
@@ -33,7 +31,7 @@ class App extends Component {
     this.onStatusWebsocketSetup = this.onStatusWebsocketSetup.bind(this)
     this.getStatusWatchWs = this.getStatusWatchWs.bind(this)
     this.state = {
-      siderStyle: mode === 'standard' ? 'mini' : 'bigger',
+      siderStyle: props.siderStyle,
       loginModalVisible: false,
       loadLoginUserSuccess: true,
     }
@@ -187,7 +185,7 @@ class App extends Component {
   }
 
   render() {
-    let { children, pathname, redirectUrl, loginUser } = this.props
+    let { children, pathname, redirectUrl, loginUser, Sider } = this.props
     const { loginModalVisible, loadLoginUserSuccess, loginErr, siderStyle } = this.state
     const scope = this
     if (isEmptyObject(loginUser) && loadLoginUserSuccess) {
@@ -245,7 +243,14 @@ App.propTypes = {
   resetErrorMessage: PropTypes.func.isRequired,
   // Injected by React Router
   children: PropTypes.node,
-  pathname: PropTypes.string
+  pathname: PropTypes.string,
+  siderStyle: PropTypes.oneOf(['mini', 'bigger']),
+  Sider: PropTypes.element.isRequired,
+}
+
+App.defaultProps = {
+  siderStyle: 'mini',
+  Sider,
 }
 
 function mapStateToProps(state, props) {
