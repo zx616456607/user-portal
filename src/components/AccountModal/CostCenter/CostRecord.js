@@ -260,14 +260,14 @@ class CostRecord extends Component{
       <div className="teamCostTitle">
         <span>{currentSpaceName}该月消费详情</span>
         <div style={{flex: 'auto'}}>
-          <DatePicker style={{float: 'left',marginLeft: '40px'}} defaultValue={this.transformDate(true)}/>
+          <MonthPicker style={{marginLeft: 40}} defaultValue={this.transformDate(false)}/>
         </div>
       </div>
     )
     let spaceTableTitle = (
       <div className="teamCostTitle">
         <span>{currentSpaceName}消费明细</span>
-        <MonthPicker style={{marginLeft: 40}} defaultValue={this.transformDate()}/>
+        <DatePicker style={{float: 'left',marginLeft: '40px'}} defaultValue={this.transformDate(true)}/>
         <div style={{flex: 'auto'}}>
           <Select defaultValue="all" style={{ width: 120, float: 'left',marginLeft: '40px'}}
                   onSelect={(value,option) => this.handleFilter(value,option)}>
