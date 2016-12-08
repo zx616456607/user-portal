@@ -222,7 +222,7 @@ class CreateModel extends Component {
                       {
                         teamspaces.map(space => {
                           return (
-                            <Option value={space.namespace}>
+                            <Option key={space.namespace} value={space.namespace}>
                               {space.spaceName}
                             </Option>
                           )
@@ -238,7 +238,7 @@ class CreateModel extends Component {
                       {
                         teamClusters.map(cluster => {
                           return (
-                            <Option value={cluster.clusterID}>
+                            <Option key={cluster.clusterID} value={cluster.clusterID}>
                               {cluster.clusterName}
                             </Option>
                           )

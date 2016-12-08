@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Form, Select, Input, InputNumber, Modal, Checkbox, Button, Card, Menu, Switch, Radio, Icon } from 'antd'
+import { Form, Select, Input, InputNumber, Modal, Checkbox, Button, Card, Menu, Switch, Radio, Icon, notification } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -122,6 +122,13 @@ let MyComponentPort = React.createClass({
   remove(k) {
     const { form } = this.props
     let portKey = form.getFieldValue('portKey');
+    if(portKey.length == 1) {
+      notification['warning']({
+        message: '创建服务：高级设置',
+        description: '映射端口数量最少为一个！',
+      });
+      return;
+    }
     portKey = portKey.filter((key) => {
       return key !== k;
     });
@@ -250,6 +257,7 @@ let MyComponentPort = React.createClass({
               </FormItem>
             </div>
             <div className="mapping">
+              <div className='podPort'>
               {currentShowInputType(form, 'HTTP', k) ? [<span className='httpSpan'>80</span>] : null}
               {currentShowInputType(form, 'TCP', k) ? [
                 <div className='tcpDiv'>
@@ -266,7 +274,8 @@ let MyComponentPort = React.createClass({
                   </Select>
                   { currentShowTcpInputType(form, k) ? [<FormItem className='tcpInputForm' key={`portUrl${k}`}><Input {...getFieldProps(`portUrl${k}`, {rules: [{validator: this.podPortExist.bind(scopeThis, k)}]}) } style={{ width: '100px' }} type="text" size="large" /></FormItem>] : null}
                 </div>
-                ] : null}
+                ] : null }
+              </div>
             </div>
             <div className="opera">
               <i className="fa fa-trash-o" onClick={() => this.remove(k)} />

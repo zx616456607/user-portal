@@ -313,7 +313,7 @@ function loadImageTags(props) {
 }
 
 function setPorts(containerPorts, form) {
-  console.log('get port !!!');
+  console.log(containerPorts)
   const portsArr = []
   if (containerPorts) {
     containerPorts.map(function (item, index) {
@@ -321,7 +321,7 @@ function setPorts(containerPorts, form) {
       form.setFieldsValue({
         portKey: portsArr,
         ['targetPortUrl' + (index + 1)]: item.split('/')[0],
-        ['portType' + (index + 1)]: item.split('/')[1],
+        ['portType' + (index + 1)]: item.split('/')[1].toUpperCase(),
       })
     })
   }
