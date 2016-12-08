@@ -110,3 +110,28 @@ export function loadSpaceSummary(month) {
     return dispatch(fetchSpaceSummary(month))
   }
 }
+
+
+export const CONSUMPTION_TEAM_SUMMARY_REQUEST = 'CONSUMPTION_TEAM_SUMMARY_REQUEST'
+export const CONSUMPTION_TEAM_SUMMARY_SUCCESS = 'CONSUMPTION_TEAM_SUMMARY_SUCCESS'
+export const CONSUMPTION_TEAM_SUMMARY_FAILURE = 'CONSUMPTION_TEAM_SUMMARY_FAILURE'
+
+function fetchTeamSummary(month) {
+  let endpoint = `${API_URL_PREFIX}/consumptions/summary?source=team`
+  if (month) {
+    endpoint += `&month=${month}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [CONSUMPTION_TEAM_SUMMARY_REQUEST, CONSUMPTION_TEAM_SUMMARY_SUCCESS, CONSUMPTION_TEAM_SUMMARY_FAILURE],
+      endpoint: endpoint,
+      schema: {},
+    }
+  }
+}
+
+export function loadTeamSummary(month) {
+  return (dispatch, getState) => {
+    return dispatch(fetchTeamSummary(month))
+  }
+}

@@ -20,6 +20,7 @@ export default function detail(state = {
   trend: {},
   spaceSummaryInDay: {},
   spaceSummary: {},
+  teamSummary: {},
  }, action) {
   return {
     detail: reducerFactory({
@@ -42,5 +43,10 @@ export default function detail(state = {
       SUCCESS: ActionTypes.CONSUMPTION_SPACE_SUMMARY_SUCCESS,
       FAILURE: ActionTypes.CONSUMPTION_SPACE_SUMMARY_FAILURE,
     }, state.spaceSummary, action, option),
+    teamSummary: reducerFactory({
+      REQUEST: ActionTypes.CONSUMPTION_TEAM_SUMMARY_REQUEST,
+      SUCCESS: ActionTypes.CONSUMPTION_TEAM_SUMMARY_SUCCESS,
+      FAILURE: ActionTypes.CONSUMPTION_TEAM_SUMMARY_FAILURE,
+    }, state.teamSummary, action, option),
   }
 }
