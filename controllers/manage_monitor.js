@@ -10,6 +10,7 @@
 'use strict'
 const Service = require('../kubernetes/objects/service')
 const apiFactory = require('../services/api_factory')
+const logger = require('../utils/logger').getLogger('manage_monitor')
 
 exports.getOperationAuditLog = function* () {
   let reqBody = this.request.body
@@ -35,29 +36,21 @@ exports.getSearchLog = function* () {
 }
 
 exports.getClusterOfQueryLog = function* () {
+  const method = 'getClusterOfQueryLog'
   const teamID = this.params.team_id
   const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  let clusters
   if (teamID === 'default') {
     const spi = apiFactory.getSpi(loginUser)
     const result = yield spi.clusters.getBy(['default'])
-    let clusters = result.clusters;
-    clusters.map((item, index) => {
-      let instanceResult = api.clusters.getBy([item.id, 'instances'])
-      let totalNum = instanceResult.total;
-      clusters[index].instanceNum = totalNum;
-    });
-    this.body = {
-      data: clusters || [],
-      total: result.listMeta.total,
-      count: result.listMeta.size
-    }
-    return
+    clusters = result.clusters || []
+  } else {
+    const result = yield api.teams.getBy([teamID, 'clusters'], { size: 20 })
+    clusters = result.clusters || []
   }
-  const api = apiFactory.getApi(loginUser)
-  const result = yield api.teams.getBy([teamID, 'clusters'], {size: 20})
-  const clusters = result.clusters || []
   let tempResult = [];
-  if(clusters.length != 0) {
+  try {
     clusters.map((item, index) => {
       tempResult.push(api.clusters.getBy([item.clusterID, 'instances']))
     });
@@ -65,7 +58,9 @@ exports.getClusterOfQueryLog = function* () {
     clusters.map((item, index) => {
       clusters[index].instanceNum = temp[index].data.total;
     });
-  } 
+  } catch (err) {
+    logger.error(method, err.stack)
+  }
   this.body = {
     data: clusters,
   }
@@ -75,7 +70,7 @@ exports.getServiceOfQueryLog = function* () {
   const cluster = this.params.cluster_id
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)
-  const result = yield api.getBy([cluster, 'apps'], {size: 1000})
+  const result = yield api.getBy([cluster, 'apps'], { size: 1000 })
   const apps = result.data.apps
   let serviceList = []
   apps.map((app) => {

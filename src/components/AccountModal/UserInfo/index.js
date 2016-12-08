@@ -31,7 +31,7 @@ class UserInfo extends Component {
     loadUserTeamList(userID ? userID : 'default', null)
   }
   render() {
-    const { userDetail, appCount, serviceCount, containerCount, teamspaces, teams } = this.props
+    const { userDetail, appCount, serviceCount, containerCount, teamspaces, teams, editPass } = this.props
     return (
       <div id="UserInfo">
         <Row className="title">
@@ -39,7 +39,7 @@ class UserInfo extends Component {
         </Row>
         <Row className="content">
           <Card>
-            <Information userDetail={userDetail} />
+            <Information userDetail={userDetail} editPass={editPass} />
           </Card>
         </Row>
         <Row className="title">
@@ -68,7 +68,12 @@ class UserInfo extends Component {
   }
 }
 function mapStateToProp(state, props) {
-  const { user_id } = props.params
+  let { user_id } = props.params
+  let editPass = false
+  if (user_id === 'editPass') {
+    editPass = true
+    user_id = ''
+  }
   let teamspacesData = []
   let spaceTotal = 0
   let spaceSize = 0
@@ -130,6 +135,7 @@ function mapStateToProp(state, props) {
     appCount,
     serviceCount,
     containerCount,
+    editPass,
   }
 }
 

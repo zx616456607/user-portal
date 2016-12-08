@@ -12,7 +12,8 @@ import { Icon, Tooltip } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import { formateDate } from '../../common/tools'
+import { formatDate } from '../../common/tools'
+import { ecma48SgrEscape } from '../../common/ecma48_sgr_escape'
 import "./style/ContainerLogs.less"
 // import { clearContainerLogs } from '../../actions/app_manage'
 import Websocket from '../Websocket'
@@ -124,12 +125,23 @@ class ContainerLogs extends Component {
     }
   }
 
-  renderLog(logObj) {
-    const { name, log } = logObj
+  renderLog(logObj, index) {
+    let { name, log } = logObj
+    const dateReg = /\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{9}(Z|(\+\d{2}:\d{2}))\b/
+    let logDateArray = log.match(dateReg)
+    let logDate
+    if (logDateArray && logDateArray[0]) {
+      logDate = logDateArray[0]
+      log = log.replace(logDate, '')
+    }
     return (
-      <div>
+      <div key={`logs_${index}`}>
         <span style={{ color: 'yellow' }}>[{name}] </span>
-        {log}
+        {
+          logDate &&
+          <span style={{ color: 'orange' }}>[{formatDate(logDate)}]</span>
+        }
+        <span dangerouslySetInnerHTML={{ __html: ecma48SgrEscape(log) }}></span>
       </div>
     )
   }
@@ -165,6 +177,7 @@ class ContainerLogs extends Component {
   }
 
   render() {
+    const { containerName, serviceName } = this.props
     const { logSize, watchStatus, logs } = this.state
     const iconType = this.loopWatchStatus()
     return (
@@ -172,6 +185,11 @@ class ContainerLogs extends Component {
         <div className={logSize == 'big' ? "bigBox bottomBox" : 'bottomBox'} >
           <div className="introBox">
             <div className="operaBox">
+              <span>
+                <Link to={`/manange_monitor/query_log?service=${serviceName}&instance=${containerName}`}>
+                  历史日志
+                </Link>
+              </span>
             </div>
             <div className="infoBox" ref={(c) => this.infoBox = c}>
               {this.getLogs()}

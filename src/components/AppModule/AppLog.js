@@ -14,55 +14,47 @@ import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import "./style/AppLog.less"
 import { appLogs } from '../../actions/app_manage'
-const data = [{
-  id: "1",
-  message: "今天我挺萌的",
-  status: "1",
-  statusMsg: "卖萌成功",
-  createTime: "2016-09-09 11:27:27",
-}, {
-  id: "2",
-  message: "今天我挺萌的",
-  status: "1",
-  statusMsg: "卖萌成功",
-  createTime: "2016-09-10 11:27:27",
-}, {
-  id: "3",
-  message: "今天我挺萌的",
-  status: "0",
-  statusMsg: "卖萌失败",
-  createTime: "2016-09-11 11:27:27",
-}, {
-  id: "4",
-  message: "今天我挺萌的",
-  status: "0",
-  statusMsg: "卖萌失败",
-  createTime: "2016-09-12 11:27:27",
-}, {
-  id: "5",
-  message: "今天我没吃药",
-  status: "0",
-  statusMsg: "卖萌失败",
-  createTime: "2016-09-09 11:27:27",
-}, {
-  id: "6",
-  message: "今天我挺萌的",
-  status: "1",
-  statusMsg: "卖萌成功",
-  createTime: "2016-09-09 11:27:27",
-}, {
-  id: "7",
-  message: "今天我没吃药",
-  status: "1",
-  statusMsg: "卖萌成功",
-  createTime: "2016-09-09 11:27:27",
-}, {
-  id: "8",
-  message: "今天我没吃药",
-  status: "0",
-  statusMsg: "卖萌失败",
-  createTime: "2016-09-09 11:27:27",
-}];
+
+function formatOperation(opera) {
+  //this function for format opera
+  switch(opera) {
+    case 'create app':
+      return (<span>创建应用</span>)
+      break;
+    case 'modify app':
+      return (<span>修改应用</span>)
+      break;
+    case 'add service':
+      return (<span>创建服务</span>)
+      break;
+    case 'delete service':
+      return (<span>删除服务</span>)
+      break;
+    case 'stop app':
+      return (<span>停止应用</span>)
+      break;
+    case 'start app':
+      return (<span>启动应用</span>)
+      break;
+    case 'restart app':
+      return (<span>重启应用</span>)
+      break;
+    case 'delete app':
+      return (<span>删除应用</span>)
+      break;
+  }
+}
+
+function formatResult(result) {
+  //this function for format result
+  switch(result) {
+    case 'success':
+      return (<span>成功</span>);
+      break;
+    case 'fail':
+      return (<span>失败</span>)
+  }
+}
 
 let MyComponent = React.createClass({
   propTypes: {
@@ -75,7 +67,7 @@ let MyComponent = React.createClass({
 
   },
   render: function () {
-    if(!this.props.appLogs || !this.props.appLogs.result || this.props.appLogs.result.data <=0 ) {
+    if(!this.props.appLogs || !this.props.appLogs.result || this.props.appLogs.result.data <= 0 ) {
       return  <div className="logDetail"></div>
     }
     const logs = this.props.appLogs.result.data
@@ -89,7 +81,7 @@ let MyComponent = React.createClass({
           </div>
           <div className="infoBox">
             <div className={item.result === 'success' ? "status success" : "status fail"}>
-              {`${item.operation} ${item.result}`}
+              {formatOperation(item.operation)}{formatResult(item.result)}
             </div>
             <div className="message">
               { !item.detail ? '' : `消息&nbsp;:&nbsp${item.detail}`}

@@ -13,7 +13,7 @@ import { Tabs, Card, Menu, Progress, Upload, Radio, Modal, Button, Icon, Col, me
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { cloneDeep } from 'lodash'
+import cloneDeep from 'lodash/cloneDeep'
 import { getUploadFileUlr, uploadFileRequest, uploadFileSuccess, getStorageFileHistory, exportFile, uploadFileOptions } from '../../actions/storage'
 import './style/storage.less'
 

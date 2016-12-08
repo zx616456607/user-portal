@@ -9,7 +9,6 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { Card } from 'antd'
-import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import ProgressList from './AppCreate/ProgressList.js'
 import AppCreateSelectModel from './AppCreate/CreateModel.js'

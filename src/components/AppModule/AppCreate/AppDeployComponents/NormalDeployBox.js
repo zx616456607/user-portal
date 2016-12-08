@@ -295,9 +295,9 @@ function loadImageTags(props) {
         }
         loadImageTagConfigs(tag, props)
         const { setFieldsValue } = props.form
-        setFieldsValue({
+        /*setFieldsValue({
           imageVersion: tag
-        })
+        })*/
       },
       isAsync: true
     }
@@ -305,7 +305,7 @@ function loadImageTags(props) {
 }
 
 function setPorts(containerPorts, form) {
-  console.log('get port !!!');
+  console.log(containerPorts)
   const portsArr = []
   if (containerPorts) {
     containerPorts.map(function (item, index) {
@@ -313,7 +313,7 @@ function setPorts(containerPorts, form) {
       form.setFieldsValue({
         portKey: portsArr,
         ['targetPortUrl' + (index + 1)]: item.split('/')[0],
-        ['portType' + (index + 1)]: item.split('/')[1],
+        ['portType' + (index + 1)]: item.split('/')[1].toUpperCase(),
       })
     })
   }
@@ -466,6 +466,25 @@ let NormalDeployBox = React.createClass({
     if (!tagConfig || !tagConfig[registry] || !tagConfig[registry].configList || !tagConfig[registry].configList.mountPath || tagConfig[registry].configList.mountPath.length <= 0) {
       switchDisable = true
     }
+    let imageVersionShow = (
+      <FormItem className="imageTagForm" key='imageTagForm'>
+        <Select
+          {...selectProps}
+          className="imageTag" size="large" tyle={{ width: 200 }}
+          placeholder="请选择镜像版本"
+          notFoundContent="镜像版本为空"
+          onSelect={this.onSelectTagChange}
+        >
+          {
+            imageTags && imageTags.map((tag) => {
+              return (
+                <Option key={tag} value={tag}>{tag}</Option>
+              )
+            })
+          }
+        </Select>
+      </FormItem>
+    )
     return (
       <div id="NormalDeployBox">
         <div className="topBox">
@@ -489,22 +508,7 @@ let NormalDeployBox = React.createClass({
           </div>
           <div className="inputBox">
             <span className="commonSpan">镜像版本</span>
-            <FormItem className="imageTagForm">
-              <Select
-                {...selectProps}
-                className="imageTag" size="large" tyle={{ width: 200 }}
-                placeholder="请选择镜像版本"
-                notFoundContent="镜像版本为空"
-                defaultActiveFirstOption={true}
-                onSelect={this.onSelectTagChange}
-                >
-                {imageTags && imageTags.map((tag) => {
-                  return (
-                    <Option key={tag} value={tag}>{tag}</Option>
-                  )
-                })}
-              </Select>
-            </FormItem>
+            {imageVersionShow}
             <div style={{ clear: "both" }}></div>
           </div>
         </div>

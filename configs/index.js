@@ -27,7 +27,7 @@ const config = {
     // host: '192.168.1.103:48000' || env.TENX_API_HOST
     host: "localhost:8000" || env.TENX_API_HOST
     // host: "192.168.0.63:8000" || env.TENX_API_HOST
-    // host: "192.168.0.230:8000" || env.TENX_API_HOST
+//      host: "192.168.0.230:8000" || env.TENX_API_HOST
     // host: "192.168.3.3:48000" || env.TENX_API_HOST
   }
 }

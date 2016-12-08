@@ -193,7 +193,7 @@ let MyComponent = React.createClass({
           func: (res) => {
             Modal.error({
               title: '添加第三方镜像失败',
-              content: (<h3>{res.message}</h3>)
+              content: (<h3>{res.message.message}</h3>)
             });
           }
         },

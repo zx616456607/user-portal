@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Modal, message, Checkbox, Dropdown, Button, Card, Menu, Icon, Spin, Tooltip, Pagination, } from 'antd'
+import { Modal, message, Checkbox, Dropdown, Button, Card, Menu, Icon, Spin, Tooltip, Pagination, Alert} from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -36,6 +36,7 @@ import AppDeployServiceModal from './AppCreate/AppDeployServiceModal'
 import TipSvcDomain from '../TipSvcDomain'
 import yaml from 'js-yaml'
 import { addDeploymentWatch, removeDeploymentWatch } from '../../containers/App/status'
+import StateBtnModal from '../StateBtnModal'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -291,240 +292,6 @@ const MyComponent = React.createClass({
   }
 });
 
-let StartServiceModal = React.createClass({
-  getInitialState() {
-    return {
-
-    }
-  },
-  render: function () {
-    const { serviceList } = this.props
-    const checkedServiceList = serviceList.filter((service) => service.checked)
-    let runningServices = []
-
-    checkedServiceList.map((service, index) => {
-      if (service.status.phase === 'Running') {
-        runningServices.push(service)
-      }
-    })
-    let item = runningServices.map((service, index) => {
-      return (
-        <tr>
-          <td>{index + 1}</td>
-          <td>{service.name}</td>
-          <td style={{ color: '#4bbd74' }}>服务为运行中状态</td>
-        </tr>
-      )
-    })
-    return (
-      <div id="StartServiceModal">
-        {
-          runningServices.length !== 0 ?
-            <div>
-              <Alert message={
-                <span>你选择的{checkedServiceList.length}个服务中, 有
-                  <span className="modalDot" style={{ backgroundColor: '#4bbd74' }}>{runningServices.length}个</span>
-                  已经是运行中状态, 不需再启动
-                </span>
-              } type="warning" showIcon />
-              <div style={{ height: 26 }}>Tip: 运行中状态的服务不需再次启动</div>
-              <div className="tableWarp">
-                <table className="modalList">
-                  <tbody>
-                    {item}
-                  </tbody>
-                </table>
-              </div>
-
-            </div> :
-            <div></div>
-        }
-        <div className="confirm">
-          <Icon type="question-circle-o" style={{ marginRight: '10px' }} />
-          您是否确定启动这{(checkedServiceList.length - runningServices.length)}个已停止的服务 ?
-        </div>
-      </div>
-    )
-  }
-})
-let StopServiceModal = React.createClass({
-  getInitialState() {
-    return {
-
-    }
-  },
-  render: function () {
-    const { serviceList,scope} = this.props
-    let checkedServiceList = serviceList.filter((service) => service.checked)
-    let stoppedService = []
-
-    if(scope.state.currentShowInstance){
-      checkedServiceList = [scope.state.currentShowInstance]
-    }
-    checkedServiceList.map((service, index) => {
-      if (service.status.phase === 'Stopped') {
-        stoppedService.push(service)
-      }
-    })
-    let item = stoppedService.map((service, index) => {
-      return (
-        <tr>
-          <td>{index + 1}</td>
-          <td>{service.name}</td>
-          <td style={{ color: '#f85958' }}>服务为已停止状态</td>
-        </tr>
-      )
-    })
-    return (
-      <div id="StartServiceModal">
-        {
-          stoppedService.length !== 0 ?
-            <div>
-              <Alert message={
-                <span>你选择的{checkedServiceList.length}个服务中, 有
-                  <span className="modalDot" style={{ backgroundColor: '#f85958' }}>{stoppedService.length}个</span>
-                  已经是已停止状态, 不需再停止
-                </span>
-              } type="warning" showIcon />
-              <div style={{ height: 26 }}>Tip: 已停止状态的服务不需再次停止</div>
-              <div className="tableWarp">
-                <table className="modalList">
-                  <tbody>
-                    {item}
-                  </tbody>
-                </table>
-              </div>
-
-            </div> :
-            <div></div>
-        }
-        <div className="confirm">
-          <Icon type="question-circle-o" style={{ marginRight: '10px' }} />
-          您是否确定停止这{(checkedServiceList.length - stoppedService.length)}个运行中的服务 ?
-        </div>
-      </div>
-    )
-  }
-})
-let RestarServiceModal = React.createClass({
-  getInitialState() {
-    return {
-
-    }
-  },
-  render: function () {
-    const { serviceList,scope } = this.props
-    let checkedServiceList = serviceList.filter((service) => service.checked)
-    let stoppedService = []
-    if(scope.state.currentShowInstance){
-      checkedServiceList = [scope.state.currentShowInstance]
-    }
-    checkedServiceList.map((service, index) => {
-      if (service.status.phase === 'Stopped') {
-        stoppedService.push(service)
-      }
-    })
-    let item = stoppedService.map((service, index) => {
-      return (
-        <tr>
-          <td>{index + 1}</td>
-          <td>{service.name}</td>
-          <td style={{ color: '#f85958' }}>服务为已停止状态</td>
-        </tr>
-      )
-    })
-    return (
-      <div id="StartServiceModal">
-        {
-          stoppedService.length !== 0 ?
-            <div>
-              <Alert message={
-                <span>你选择的{checkedServiceList.length}个服务中, 有
-                  <span className="modalDot" style={{ backgroundColor: '#f85958' }}>{stoppedService.length}个</span>
-                  已经是已停止状态, 不能做重新部署
-                </span>
-              } type="warning" showIcon />
-              <div style={{ height: 26 }}>Tip: 运行状态时服务才可以重新部署</div>
-              <div className="tableWarp">
-                <table className="modalList">
-                  <tbody>
-                    {item}
-                  </tbody>
-                </table>
-              </div>
-
-            </div> :
-            <div></div>
-        }
-        <div className="confirm">
-          <Icon type="question-circle-o" style={{ marginRight: '10px' }} />
-          您是否确定重新部署这{(checkedServiceList.length - stoppedService.length)}个可以重新部署的服务 ?
-        </div>
-      </div>
-    )
-  }
-})
-let QuickRestarServiceModal = React.createClass({
-  getInitialState() {
-    return {
-
-    }
-  },
-  render: function () {
-    const { serviceList } = this.props
-    const checkedServiceList = serviceList.filter((service) => service.checked)
-    let stoppedService = []
-    checkedServiceList.map((service, index) => {
-      if (service.status.phase === 'Stopped') {
-        stoppedService.push(service)
-      }
-    })
-    let item = stoppedService.map((service, index) => {
-      return (
-        <tr>
-          <td>{index + 1}</td>
-          <td>{service.name}</td>
-          <td style={{ color: '#f85958' }}>服务为已停止状态</td>
-        </tr>
-      )
-    })
-    return (
-      <div id="StartServiceModal">
-        {
-          stoppedService.length !== 0 ?
-            <div>
-              <Alert message={
-                <span>你选择的{checkedServiceList.length}个服务中, 有
-                  <span className="modalDot" style={{ backgroundColor: '#f85958' }}>{stoppedService.length}个</span>
-                  已经是已停止状态, 不能做快速重启
-                </span>
-              } type="warning" showIcon />
-              <div style={{ height: 26 }}>Tip: 运行状态时服务才可以快速重启</div>
-              <div className="tableWarp">
-                <table className="modalList">
-                  <tbody>
-                    {item}
-                  </tbody>
-                </table>
-              </div>
-
-            </div> :
-            <div></div>
-        }
-        <div className="confirm">
-          <Icon type="question-circle-o" style={{ marginRight: '10px' }} />
-          您是否确定快速重启这{(checkedServiceList.length - stoppedService.length)}个可以快速重启的服务 ?
-        </div>
-      </div>
-    )
-  }
-})
-
-/*function loadServices(props) {
-  const { cluster, appName, loadServiceList, page, size, name } = props
-  loadServiceList(cluster, appName, { page, size, name })
-}*/
-
 class AppServiceList extends Component {
   constructor(props) {
     super(props);
@@ -532,13 +299,9 @@ class AppServiceList extends Component {
     this.onAllChange = this.onAllChange.bind(this)
     this.batchDeleteServices = this.batchDeleteServices.bind(this)
     this.confirmDeleteServices = this.confirmDeleteServices.bind(this)
-    // this.confirmQuickRestartService = this.confirmQuickRestartService.bind(this)
     this.showAddServiceModal = this.showAddServiceModal.bind(this)
     this.closeAddServiceModal = this.closeAddServiceModal.bind(this)
     this.onPageChange = this.onPageChange.bind(this)
-    // this.showRollingUpdateModal = this.showRollingUpdateModal.bind(this)
-    // this.showConfigModal = this.showConfigModal.bind(this)
-    // this.showManualScaleModal = this.showManualScaleModal.bind(this)
     this.onShowSizeChange = this.onShowSizeChange.bind(this)
     this.onSubmitAddService = this.onSubmitAddService.bind(this)
 
@@ -584,7 +347,6 @@ class AppServiceList extends Component {
     loadServiceList(cluster, appName, { page, size, name }, {
       success: {
         func: (result) => {
-          // Add deploment status watch, props must include statusWatchWs!!!
           addDeploymentWatch(cluster, self.props, result.data)
         },
         isAsync: true
@@ -628,38 +390,6 @@ class AppServiceList extends Component {
     } = this.props
     removeDeploymentWatch(cluster, statusWatchWs)
   }
-
-  /* confirmStartService(e) {
-     const self = this
-     const { serviceList } = this.state
-     const { cluster, appName, loadServiceList, startServices } = this.props
-     const checkedServiceList = serviceList.filter((service) => service.checked)
-     const checkedServiceNames = checkedServiceList.map((service) => service.metadata.name)
-     confirm({
-       title: `您是否确认要启动这${checkedServiceList.length}个服务`,
-       content: checkedServiceNames.join(', '),
-       onOk() {
-         return new Promise((resolve) => {
-           serviceList.map((service) => {
-             if (checkedServiceNames.indexOf(service.metadata.name) > -1) {
-               service.status.phase = 'Starting'
-             }
-           })
-           self.setState({
-             serviceList
-           })
-           startServices(cluster, checkedServiceNames, {
-             success: {
-               func: () => loadServiceList(cluster, appName),
-               isAsync: true
-             }
-           })
-           resolve()
-         });
-       },
-       onCancel() { },
-     })
-   }*/
 
   batchStartService(e) {
     this.setState({
@@ -705,7 +435,6 @@ class AppServiceList extends Component {
     startServices(cluster, serviceNames, {
       success: {
         func: () => {
-          // loadServiceList(cluster, appName)
           self.setState({
             StartServiceModal: false,
             runBtn: false,
@@ -854,85 +583,6 @@ class AppServiceList extends Component {
       QuickRestarServiceModal: false,
     })
   }
-  /*batchRestartServices(e) {
-    const { serviceList } = this.state
-    const { cluster, appName } = this.props
-    const checkedServiceList = serviceList.filter((service) => service.checked)
-    this.confirmRestartServices(checkedServiceList)
-  }*/
-  /*confirmRestartServices(serviceList, callback) {
-    const self = this
-    const { cluster, appName, loadServiceList, restartServices } = this.props
-    const serviceNames = serviceList.map((service) => service.metadata.name)
-    if (!callback) {
-      callback = {
-        success: {
-          func: () => loadServiceList(cluster, appName),
-          isAsync: true
-        }
-      }
-    }
-    confirm({
-      title: `您是否确认要重新部署这${serviceNames.length}个服务`,
-      content: serviceNames.join(', '),
-      onOk() {
-        return new Promise((resolve) => {
-          const allServices = self.state.serviceList
-          allServices.map((service) => {
-            if (serviceNames.indexOf(service.metadata.name) > -1) {
-              service.status.phase = 'Redeploying'
-            }
-          })
-          self.setState({
-            serviceList: allServices
-          })
-          restartServices(cluster, serviceNames, callback)
-          resolve()
-        });
-      },
-      onCancel() { },
-    })
-  }
-
-  batchStopServices(e) {
-    const { serviceList } = this.state
-    const checkedServiceList = serviceList.filter((service) => service.checked)
-    this.confirmStopServices(checkedServiceList)
-  }
-  confirmStopServices(serviceList, callback) {
-    const self = this
-    const { cluster, appName, loadServiceList, stopServices } = this.props
-    const serviceNames = serviceList.map((service) => service.metadata.name)
-    if (!callback) {
-      callback = {
-        success: {
-          func: () => loadServiceList(cluster, appName),
-          isAsync: true
-        }
-      }
-    }
-    confirm({
-      title: `您是否确认要停止这${serviceNames.length}个服务`,
-      content: serviceNames.join(', '),
-      onOk() {
-        return new Promise((resolve) => {
-          const allServices = self.state.serviceList
-          allServices.map((service) => {
-            if (serviceNames.indexOf(service.metadata.name) > -1) {
-              service.status.phase = 'Stopping'
-            }
-          })
-          self.setState({
-            serviceList: allServices
-          })
-          stopServices(cluster, serviceNames, callback)
-          resolve()
-        });
-      },
-      onCancel() { },
-    })
-  }*/
-
   batchDeleteServices(e) {
     const { serviceList } = this.state
     const checkedServiceList = serviceList.filter((service) => service.checked)
@@ -975,37 +625,6 @@ class AppServiceList extends Component {
       onCancel() { },
     })
   }
-  /*confirmQuickRestartService(e) {
-    const self = this
-    const { serviceList } = this.state
-    const { cluster, appName, loadServiceList, quickRestartServices } = this.props
-    const checkedServiceList = serviceList.filter((service) => service.checked)
-    const checkedServiceNames = checkedServiceList.map((service) => service.metadata.name)
-    confirm({
-      title: `您是否确认要快速重启这${checkedServiceList.length}个服务`,
-      content: checkedServiceNames.join(', '),
-      onOk() {
-        return new Promise((resolve) => {
-          serviceList.map((service) => {
-            if (checkedServiceNames.indexOf(service.metadata.name) > -1) {
-              service.status.phase = 'Restarting'
-            }
-          })
-          self.setState({
-            serviceList
-          })
-          quickRestartServices(cluster, checkedServiceNames, {
-            success: {
-              func: () => loadServiceList(cluster, appName),
-              isAsync: true
-            }
-          })
-          resolve()
-        });
-      },
-      onCancel() { },
-    })
-  }*/
   closeModal() {
     this.setState({
       modalShow: false
@@ -1036,23 +655,6 @@ class AppServiceList extends Component {
       query
     })
   }
-
-  /*showRollingUpdateModal() {
-    this.setState({
-      rollingUpdateModalShow: true
-    })
-  }
-  showConfigModal() {
-    this.setState({
-      configModal: true
-    })
-  }
-  showManualScaleModal() {
-    this.setState({
-      manualScaleModalShow: true
-    })
-  }*/
-
   onShowSizeChange(page, size) {
     if (size === this.props.size) {
       return
@@ -1160,24 +762,6 @@ class AppServiceList extends Component {
         <Menu.Item key="0" disabled={!restartBtn}>
           <span onClick={this.batchRestartService}>重新部署</span>
         </Menu.Item>
-        {/*<Menu.Item key="1">
-          <span onClick={this.showManualScaleModal}>水平扩展</span>
-        </Menu.Item>
-        <Menu.Item key="2" disabled={checkedServiceList.length > 1}>
-          <span onClick={() => {
-            this.setState({
-              selectTab: '#autoScale',
-              currentShowInstance: currentShowInstance,
-              modalShow: true,
-            })
-          } }>自动伸缩</span>
-        </Menu.Item>
-        <Menu.Item key="3">
-          <span onClick={this.showRollingUpdateModal}>灰度升级</span>
-        </Menu.Item>
-        <Menu.Item key="4">
-          <span onClick={this.showConfigModal}>更改配置</span>
-        </Menu.Item>*/}
       </Menu>
     );
     return (
@@ -1202,12 +786,12 @@ class AppServiceList extends Component {
             <Modal title="重新部署操作" visible={this.state.RestarServiceModal}
               onOk={this.handleRestarServiceOk} onCancel={this.handleRestarServiceCancel}
               >
-              <RestarServiceModal serviceList={serviceList} scope={parentScope}/>
+              <StateBtnModal serviceList={serviceList} scope={parentScope} state='Restart'/>
             </Modal>
             <Modal title="启动操作" visible={this.state.StartServiceModal}
               onOk={this.handleStartServiceOk} onCancel={this.handleStartServiceCancel}
               >
-              <StartServiceModal serviceList={serviceList} />
+              <StateBtnModal serviceList={serviceList} state='Running'/>
             </Modal>
             <Button size="large" onClick={this.batchStopService} disabled={!stopBtn}>
               <i className="fa fa-stop"></i>
@@ -1220,7 +804,7 @@ class AppServiceList extends Component {
             <Modal title="停止操作" visible={this.state.StopServiceModal}
               onOk={this.handleStopServiceOk} onCancel={this.handleStopServiceCancel}
               >
-              <StopServiceModal serviceList={serviceList} scope={parentScope}/>
+              <StateBtnModal serviceList={serviceList} scope={parentScope} state='Stopped'/>
             </Modal>
             <Button size="large" onClick={this.batchDeleteServices} disabled={!isChecked}>
               <i className="fa fa-trash"></i>
@@ -1230,10 +814,10 @@ class AppServiceList extends Component {
               <i className="fa fa-bolt"></i>
               重启
             </Button>
-            <Modal title="重新操作" visible={this.state.QuickRestarServiceModal}
+            <Modal title="重启操作" visible={this.state.QuickRestarServiceModal}
               onOk={this.handleQuickRestarServiceOk} onCancel={this.handleQuickRestarServiceCancel}
               >
-              <QuickRestarServiceModal serviceList={serviceList} />
+              <StateBtnModal serviceList={serviceList} state='QuickRestar'/>
             </Modal>
             <Dropdown overlay={operaMenu} trigger={['click']}>
               <Button size="large" disabled={!isChecked}>

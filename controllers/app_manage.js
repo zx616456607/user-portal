@@ -279,8 +279,8 @@ exports.getAppOrchfile = function* () {
   if (!app.services) {
     app.services = []
   }
-  if (!app.k8sServices) {
-    app.k8sServices = []
+  if (!app.k8s_services) {
+    app.k8s_services = []
   }
 
   let data = ""
