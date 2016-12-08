@@ -62,3 +62,27 @@ export function loadConsumptionTrend() {
     return dispatch(fetchTrend())
   }
 }
+
+export const CONSUMPTION_SPACE_SUMMARY_DAY_REQUEST = 'CONSUMPTION_SPACE_SUMMARY_DAY_REQUEST'
+export const CONSUMPTION_SPACE_SUMMARY_DAY_SUCCESS = 'CONSUMPTION_SPACE_SUMMARY_DAY_SUCCESS'
+export const CONSUMPTION_SPACE_SUMMARY_DAY_FAILURE = 'CONSUMPTION_SPACE_SUMMARY_DAY_FAILURE'
+
+function fetchSpaceSummaryInDay(month) {
+  let endpoint = `${API_URL_PREFIX}/consumptions/summary`
+  if (month) {
+    endpoint += `?month=${month}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [CONSUMPTION_SPACE_SUMMARY_DAY_REQUEST, CONSUMPTION_SPACE_SUMMARY_DAY_SUCCESS, CONSUMPTION_SPACE_SUMMARY_DAY_FAILURE],
+      endpoint: endpoint,
+      schema: {}
+    }
+  }
+}
+
+export function loadSpaceSummaryInDay(month, source) {
+  return (dispatch, getState) => {
+    return dispatch(fetchSpaceSummaryInDay(month, source))
+  }
+}

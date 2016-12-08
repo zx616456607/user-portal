@@ -15,7 +15,7 @@ import { connect } from 'react-redux'
 import { loadUserTeamspaceList } from '../../../actions/user'
 import { loadTeamClustersList } from '../../../actions/team'
 import { setCurrent, loadLoginUserDetail } from '../../../actions/entities'
-import { loadConsumptionDetail,loadConsumptionTrend } from '../../../actions/consumption'
+import { loadConsumptionDetail, loadConsumptionTrend, loadSpaceSummaryInDay } from '../../../actions/consumption'
 import TeamCost from './TeamCost'
 import ReactEcharts from 'echarts-for-react'
 import { formatDate } from '../../../common/tools'
@@ -97,6 +97,7 @@ class CostRecord extends Component{
       teamspaces,
       loadConsumptionDetail,
       loadConsumptionTrend,
+      loadSpaceSummaryInDay,
     } = this.props
     loadUserTeamspaceList(loginUser.info.userID||userDetail.userID,{ size: 100 }, {
       success: {
@@ -107,6 +108,7 @@ class CostRecord extends Component{
     })
     loadConsumptionDetail(0, this.state.consumptionDetailPageSize)
     loadConsumptionTrend()
+    loadSpaceSummaryInDay()
   }
   render(){
     const _this = this
@@ -118,7 +120,9 @@ class CostRecord extends Component{
       consumptionDetail,
       loadConsumptionDetail,
       consumptionTrend,
+      spaceSummaryInDay,
     } = this.props
+    console.log('spaceSummaryInDay',spaceSummaryInDay)
     let {
       spacesVisible,
       currentSpaceName,
@@ -307,72 +311,108 @@ class CostRecord extends Component{
         </div>
       </div>
     )
-    let spaceCostBar = {
-      color: ['#3398DB'],
-      tooltip : {
-        trigger: 'axis',
-        axisPointer : {
-          type : 'shadow'
-        },
-        formatter: this.transformDate()+'-{b}<br/>消费 {c}T',
-        /*position: function (point, params, dom) {
-         return [point[0]-25, '10%'];
-         },*/
-        textStyle: {
-          color: '#46b2fa',
-          fontSize: 12,
-        },
-        backgroundColor: '#fff',
-        borderWidth: 1,
-        borderColor: '#46b2fa',
-      },
-      grid: {
-        left: '3%',
-        right: '4%',
-        bottom: '3%',
-        containLabel: true,
-        height: 150
-      },
-      xAxis : [
-        {
-          type : 'category',
-          data : spaceCostArr,
-          splitLine: {
-            "show": false
-          },
-          axisTick: {
-            "show": false
-          },
-          splitArea: {
-            "show": false
-          },
-          axisLabel: {
-            "interval": 0,
-          },
+    let getSpaceCostBar = function() {
+      let xAxisData = spaceCostArr
+      let yAxisData = []
+      if (!spaceSummaryInDay.isFetching && spaceSummaryInDay.month != '') {
+        let days = []
+        let firstDay = `${spaceSummaryInDay.month}-01`
+        let lastDay = moment(firstDay).add(1, 'months').format('YYYY-MM-DD')
+        for (let i = 0; i < 31; i++) {
+          const day = moment(firstDay).add(i, 'days').format('YYYY-MM-DD')
+          if (day < lastDay) {
+            days.push(day)
+          }
+          else {
+            break
+          }
         }
-      ],
-      yAxis : [
-        {
-          type : 'value',
-          max: 100,
-          splitNumber: 2,
-          interval: 50,
-          splitLine: {
-            show: true,
-            lineStyle: {
-              type: 'dashed'
+        days.map(day => {
+          let find = false
+          for (const item of spaceSummaryInDay.items) {
+            if (item.time == day) {
+              yAxisData.push(item.cost/100)
+              find = true
+              continue
+            }
+          }
+          if (!find) {
+            yAxisData.push(0.00)
+          }
+        })
+        // modify days ['2016-12-01', '2016-12-02' ...] to [1, 2 ...]
+        for (let i = 0; i < days.length; i++) {
+          days[i] = parseInt(days[i].substr(8))
+        }
+        xAxisData = days
+      }
+      return {
+        color: ['#3398DB'],
+        tooltip : {
+          trigger: 'axis',
+          axisPointer : {
+            type : 'shadow'
+          },
+          formatter: _this.transformDate()+'-{b}<br/>消费 {c}T',
+          /*position: function (point, params, dom) {
+          return [point[0]-25, '10%'];
+          },*/
+          textStyle: {
+            color: '#46b2fa',
+            fontSize: 12,
+          },
+          backgroundColor: '#fff',
+          borderWidth: 1,
+          borderColor: '#46b2fa',
+        },
+        grid: {
+          left: '3%',
+          right: '4%',
+          bottom: '3%',
+          containLabel: true,
+          height: 150
+        },
+        xAxis : [
+          {
+            type : 'category',
+            data : xAxisData,
+            splitLine: {
+              "show": false
             },
-          },
-        }
-      ],
-      series : [
-        {
-          name:'',
-          type:'bar',
-          barWidth: 16,
-          data: spaceCostArr,
-        }
-      ]
+            axisTick: {
+              "show": false
+            },
+            splitArea: {
+              "show": false
+            },
+            axisLabel: {
+              "interval": 0,
+            },
+          }
+        ],
+        yAxis : [
+          {
+            type : 'value',
+            max: 100,
+            splitNumber: 2,
+            interval: 50,
+            splitLine: {
+              show: true,
+              lineStyle: {
+                type: 'dashed'
+              },
+            },
+          }
+        ],
+        series : [
+          {
+            name:'',
+            type:'bar',
+            barWidth: 16,
+            data: yAxisData,
+          }
+        ]
+      }
     }
     let convertDetailItems = function(itemsRaw) {
       if (!Array.isArray(itemsRaw)) {
@@ -541,8 +581,9 @@ class CostRecord extends Component{
           <Card title={spaceCostDetailTitle}>
             <ReactEcharts
               notMerge={true}
-              option={spaceCostBar}
+              option={getSpaceCostBar()}
               style={{height: '170px'}}
+              showLoading={spaceSummaryInDay.isFetching}
              />
           </Card>
         </Row>
@@ -558,7 +599,7 @@ class CostRecord extends Component{
 function mapStateToProps (state,props) {
   const { current, loginUser } = state.entities
   const { teamspaces,userDetail } = state.user
-  const { detail, trend } = state.consumption
+  const { detail, trend, spaceSummaryInDay } = state.consumption
   
   return {
     current,
@@ -567,6 +608,11 @@ function mapStateToProps (state,props) {
     userDetail: (userDetail.result ? userDetail.result.data: {}),
     consumptionDetail: (detail.result ? detail.result.data : {}),
     consumptionTrend: (trend.result ? trend.result.data : []),
+    spaceSummaryInDay: {
+      isFetching: spaceSummaryInDay.isFetching,
+      items: (spaceSummaryInDay.result ? (spaceSummaryInDay.result.data.detail ? spaceSummaryInDay.result.data.detail : []) : []),
+      month: (spaceSummaryInDay.result ? (spaceSummaryInDay.result.data.month ? spaceSummaryInDay.result.data.month : '') : ''),
+    },
   }
 }
 export default connect (mapStateToProps,{
@@ -575,4 +621,5 @@ export default connect (mapStateToProps,{
   loadLoginUserDetail,
   loadConsumptionDetail,
   loadConsumptionTrend,
+  loadSpaceSummaryInDay,
 })(CostRecord) 

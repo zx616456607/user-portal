@@ -29,3 +29,12 @@ exports.getTrend = function* () {
     data: result.data
   }
 }
+
+exports.getSummaryInDay = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.consumptions.getBy(['summary'], this.query)
+  this.body = {
+    data: result.data
+  }
+}
