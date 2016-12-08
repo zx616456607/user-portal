@@ -38,22 +38,6 @@ exports.setUserCurrentConfig = function* (next) {
  * Auth user by session
  */
 exports.auth = function* (next) {
-  this.session.loginUser = { user: 'mengyuan',
-  id: 397,
-  namespace: 'mengyuan',
-  email: 'mengyuan@tenxcloud.com',
-  phone: '',
-  token: 'vdarbhiorastaietwkulcssyzvsfmyscauiosusmybpzazde',
-  role: 1,
-  balance: 0,
-  tenxApi: { protocol: 'http', host: '192.168.1.103:48000' },
-  cicdApi:
-   { protocol: 'http',
-     host: '192.168.1.103:38090',
-     statusPath: '/stagebuild/status',
-     logPath: '/stagebuild/log' },
-  watchToken: '2deb73077e4566a8084abde1a55031ce',
-  teamspace: null }
   const loginUser = this.session.loginUser
   if (!loginUser) {
     let redirectUrl = '/login'
