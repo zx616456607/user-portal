@@ -181,7 +181,7 @@ let MyComponentPort = React.createClass({
             addDis: true,
           })
           return
-        } else {
+        } else {             
           callback();
           return;
         }
@@ -200,8 +200,14 @@ let MyComponentPort = React.createClass({
       callback([new Error('映射主机端口重复.')])
       return;
     } else {
-      callback();
-      return;
+      let tempPort  = parseInt(value);
+      if( tempPort < 1025 || tempPort > 65534 ) {
+        callback([new Error('指定端口号范围1024 ~ 65534')])
+        return;
+      } else {       
+        callback();
+        return;
+      }
     }
     
   },
@@ -252,7 +258,8 @@ let MyComponentPort = React.createClass({
                         message: '请选择端口类型',
                       },],
                       initialValue: 'auto'
-                    })} style={{ width: '100px' }}
+                    })} 
+                    className='tcpSelect'
                     size="large">
                     <Option value="auto">动态生成</Option>
                     <Option value="special">指定端口</Option>
