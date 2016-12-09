@@ -97,18 +97,22 @@ class RollingUpdateModal extends Component {
       success: {
         func: () => {
           loadServiceList(cluster, appName)
+          hide()
+          setTimeout(function(){
+            message.success(`服务 ${serviceName} 灰度升级已成功开启`)
+          }, 300)
           parentScope.setState({
             rollingUpdateModalShow: false
           })
-          hide()
-          message.success(`服务 ${serviceName} 灰度升级已成功开启`)
         },
         isAsync: true
       },
       failed: {
         func: () => {
           hide()
-          message.error(`服务 ${serviceName} 开启灰度升级失败`)
+          setTimeout(function(){
+            message.error(`服务 ${serviceName} 开启灰度升级失败`)
+          }, 300)
         }
       }
     })
