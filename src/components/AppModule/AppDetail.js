@@ -32,204 +32,204 @@ const MenuItemGroup = Menu.ItemGroup
 const TabPane = Tabs.TabPane
 
 class AppDetail extends Component {
-  constructor(props) {
-    super(props)
-    this.onTabClick = this.onTabClick.bind(this)
-    this.onServicesChange = this.onServicesChange.bind(this)
-    this.state = {
-      activeTabKey: props.hash || DEFAULT_TAB,
-      serviceList: null,
+    constructor(props) {
+        super(props)
+        this.onTabClick = this.onTabClick.bind(this)
+        this.onServicesChange = this.onServicesChange.bind(this)
+        this.state = {
+            activeTabKey: props.hash || DEFAULT_TAB,
+            serviceList: null,
+        }
     }
-  }
 
-  componentWillMount() {
-    const { cluster, appName, loadAppDetail } = this.props
-    document.title = `应用 ${appName} 详情 | 时速云`
-    loadAppDetail(cluster, appName)
-  }
+    componentWillMount() {
+        const { cluster, appName, loadAppDetail } = this.props
+        document.title = `应用 ${appName} 详情 | 时速云`
+        loadAppDetail(cluster, appName)
+    }
 
-  componentWillReceiveProps(nextProps) {
-    let { hash } = nextProps
-    if (hash === this.props.hash) {
-      return
+    componentWillReceiveProps(nextProps) {
+        let { hash } = nextProps
+        if (hash === this.props.hash) {
+            return
+        }
+        if (!hash) {
+            hash = DEFAULT_TAB
+        }
+        this.setState({
+            activeTabKey: hash
+        })
     }
-    if (!hash) {
-      hash = DEFAULT_TAB
-    }
-    this.setState({
-      activeTabKey: hash
-    })
-  }
 
-  onTabClick(activeTabKey) {
-    if (activeTabKey === this.state.activeTabKey) {
-      return
+    onTabClick(activeTabKey) {
+        if (activeTabKey === this.state.activeTabKey) {
+            return
+        }
+        const { pathname } = this.props
+        this.setState({
+            activeTabKey
+        })
+        if (activeTabKey === DEFAULT_TAB) {
+            activeTabKey = ''
+        }
+        browserHistory.push({
+            pathname,
+            hash: activeTabKey
+        })
     }
-    const { pathname } = this.props
-    this.setState({
-      activeTabKey
-    })
-    if (activeTabKey === DEFAULT_TAB) {
-      activeTabKey = ''
-    }
-    browserHistory.push({
-      pathname,
-      hash: activeTabKey
-    })
-  }
 
-  // For change app status when service list change
-  onServicesChange(serviceList) {
-    this.setState({
-      serviceList,
-    })
-  }
+    // For change app status when service list change
+    onServicesChange(serviceList) {
+        this.setState({
+            serviceList,
+        })
+    }
 
-  render() {
-    const { children, appName, app, isFetching, location } = this.props
-    const { activeTabKey, serviceList } = this.state
-    const status = getAppStatus(serviceList || app.services)
-    if (isFetching || !app) {
-      return (
-        <div className='loadingBox'>
-          <Spin size='large' />
-        </div>
-      )
-    }
-    let updateDate = '-'
-    if (app && app.services && app.services[0]) {
-      updateDate = app.services[0].metadata.creationTimestamp
-    }
-    const appDomain = parseAppDomain(app, this.props.bindingDomains)
-    return (
-      <div id='AppDetail'>
-        <QueueAnim className='demo-content'
-          key='demo'
-          type='right'
-          >
-          <div className='cover'></div>
-          <div key='ca' className='AppInfo' id='AppInfo'>
-            <Card className='topCard'>
-              <div className='imgBox'>
-                <img src='/img/app.png' />
-              </div>
-              <div className='infoBox'>
-                <p className='appTitle'>
-                  {appName}
-                </p>
-                <div className='leftInfo'>
-                  <div className='status'>
-                    运行状态&nbsp;:
+    render() {
+        const { children, appName, app, isFetching, location } = this.props
+        const { activeTabKey, serviceList } = this.state
+        const status = getAppStatus(serviceList || app.services)
+        if (isFetching || !app) {
+            return (
+                <div className='loadingBox'>
+                    <Spin size='large' />
+                </div>
+            )
+        }
+        let updateDate = '-'
+        if (app && app.services && app.services[0]) {
+            updateDate = app.services[0].metadata.creationTimestamp
+        }
+        const appDomain = parseAppDomain(app, this.props.bindingDomains)
+        return (
+            <div id='AppDetail'>
+                <QueueAnim className='demo-content'
+                    key='demo'
+                    type='right'
+                    >
+                    <div className='cover'></div>
+                    <div key='ca' className='AppInfo' id='AppInfo'>
+                        <Card className='topCard'>
+                            <div className='imgBox'>
+                                <img src='/img/app.png' />
+                            </div>
+                            <div className='infoBox'>
+                                <p className='appTitle'>
+                                    {appName}
+                                </p>
+                                <div className='leftInfo'>
+                                    <div className='status'>
+                                        状态：
                     <div style={{ display: 'inline-block', position: 'relative', top: '-5px' }}>
-                      <AppStatus
-                        app={
-                          serviceList
-                            ? { services: serviceList }
-                            : app
-                        }
-                        smart={true} />
-                    </div>
-                  </div>
-                  <div className='address appDetailDomain'>
-                    <span className='title'>地址：</span>
-                    <div className='addressRight'>
-                      <TipSvcDomain appDomain={appDomain} parentNode='appDetailDomain' />
-                    </div>
-                  </div>
-                  <div className='service'>
-                    服务&nbsp;:&nbsp;
+                                            <AppStatus
+                                                app={
+                                                    serviceList
+                                                        ? { services: serviceList }
+                                                        : app
+                                                }
+                                                smart={true} />
+                                        </div>
+                                    </div>
+                                    <div className='address appDetailDomain'>
+                                        <span className='title'>地址：</span>
+                                        <div className='addressRight'>
+                                            <TipSvcDomain appDomain={appDomain} parentNode='appDetailDomain' />
+                                        </div>
+                                    </div>
+                                    <div className='service'>
+                                        服务：
                     {`${status.availableReplicas} / ${status.replicas}`}
-                  </div>
-                </div>
-                <div className='middleInfo'>
-                  <div className='createDate'>
-                    创建&nbsp;:&nbsp;{formatDate(app.createTime || '')}
-                  </div>
-                  <div className='updateDate'>
-                    更新&nbsp;:&nbsp;{updateDate === '-' ? updateDate : formatDate(updateDate || '')}
-                  </div>
-                </div>
-                <div className='rightInfo'>
-                  <div className='introduction'>
-                    应用描述&nbsp;:&nbsp;{app.description || '-'}
-                  </div>
-                </div>
-                <div style={{ clear: 'both' }}></div>
-              </div>
-              <div style={{ clear: 'both' }}></div>
-            </Card>
-            <Card className='bottomCard'>
-              <Tabs
-                tabPosition='top'
-                defaultActiveKey={activeTabKey}
-                onTabClick={this.onTabClick}
-                activeKey={activeTabKey}
-                >
-                <TabPane tab='服务实例' key={DEFAULT_TAB} >
-                  <AppServiceList
-                    location={location}
-                    key='AppServiceList'
-                    onServicesChange={this.onServicesChange}
-                    appName={appName} />
-                </TabPane>
-                {/*<TabPane tab='应用拓扑' key='#topology' >应用拓扑</TabPane>*/}
-                <TabPane tab='编排文件' key='#stack' >
-                  <AppGraph key='AppGraph' cluster={this.props.cluster} appName={this.props.appName} /></TabPane>
-                <TabPane tab='审计日志' key='#logs' >
-                  <AppLog key='AppLog'
-                    cluster={this.props.cluster}
-                    appName={this.props.appName} />
-                </TabPane>
-                <TabPane tab='监控' key='#monitor' >
-                  <AppMonitior
-                    cluster={this.props.cluster}
-                    appName={this.props.appName} />
-                </TabPane>
-              </Tabs>
-            </Card>
-          </div>
-        </QueueAnim>
-      </div>
-    )
-  }
+                                    </div>
+                                </div>
+                                <div className='middleInfo'>
+                                    <div className='createDate'>
+                                        创建：{formatDate(app.createTime || '')}
+                                    </div>
+                                    <div className='updateDate'>
+                                        更新：{updateDate === '-' ? updateDate : formatDate(updateDate || '')}
+                                    </div>
+                                </div>
+                                <div className='rightInfo'>
+                                    <div className='introduction'>
+                                        描述：{app.description || '-'}
+                                    </div>
+                                </div>
+                                <div style={{ clear: 'both' }}></div>
+                            </div>
+                            <div style={{ clear: 'both' }}></div>
+                        </Card>
+                        <Card className='bottomCard'>
+                            <Tabs
+                                tabPosition='top'
+                                defaultActiveKey={activeTabKey}
+                                onTabClick={this.onTabClick}
+                                activeKey={activeTabKey}
+                                >
+                                <TabPane tab='服务实例' key={DEFAULT_TAB} >
+                                    <AppServiceList
+                                        location={location}
+                                        key='AppServiceList'
+                                        onServicesChange={this.onServicesChange}
+                                        appName={appName} />
+                                </TabPane>
+                                {/*<TabPane tab='应用拓扑' key='#topology' >应用拓扑</TabPane>*/}
+                                <TabPane tab='编排文件' key='#stack' >
+                                    <AppGraph key='AppGraph' cluster={this.props.cluster} appName={this.props.appName} /></TabPane>
+                                <TabPane tab='审计日志' key='#logs' >
+                                    <AppLog key='AppLog'
+                                        cluster={this.props.cluster}
+                                        appName={this.props.appName} />
+                                </TabPane>
+                                <TabPane tab='监控' key='#monitor' >
+                                    <AppMonitior
+                                        cluster={this.props.cluster}
+                                        appName={this.props.appName} />
+                                </TabPane>
+                            </Tabs>
+                        </Card>
+                    </div>
+                </QueueAnim>
+            </div>
+        )
+    }
 }
 
 AppDetail.propTypes = {
-  // Injected by React Redux
-  cluster: PropTypes.string.isRequired,
-  appName: PropTypes.string.isRequired,
-  app: PropTypes.object.isRequired,
-  isFetching: PropTypes.bool.isRequired,
-  loadAppDetail: PropTypes.func.isRequired
+    // Injected by React Redux
+    cluster: PropTypes.string.isRequired,
+    appName: PropTypes.string.isRequired,
+    app: PropTypes.object.isRequired,
+    isFetching: PropTypes.bool.isRequired,
+    loadAppDetail: PropTypes.func.isRequired
 }
 
 function mapStateToProps(state, props) {
-  const { app_name } = props.params
-  const { hash, pathname } = props.location
-  const { cluster } = state.entities.current
-  const defaultApp = {
-    isFetching: false,
-    cluster: cluster.clusterID,
-    appName: app_name,
-    app: {}
-  }
-  const {
-    appDetail
-  } = state.apps
-  let targetServices
-  const { app, isFetching } = appDetail || defaultApp
-  return {
-    cluster: cluster.clusterID,
-    bindingDomains: state.entities.current.cluster.bindingDomains,
-    appName: app_name,
-    app,
-    isFetching,
-    hash,
-    pathname,
-    location: props.location
-  }
+    const { app_name } = props.params
+    const { hash, pathname } = props.location
+    const { cluster } = state.entities.current
+    const defaultApp = {
+        isFetching: false,
+        cluster: cluster.clusterID,
+        appName: app_name,
+        app: {}
+    }
+    const {
+        appDetail
+    } = state.apps
+    let targetServices
+    const { app, isFetching } = appDetail || defaultApp
+    return {
+        cluster: cluster.clusterID,
+        bindingDomains: state.entities.current.cluster.bindingDomains,
+        appName: app_name,
+        app,
+        isFetching,
+        hash,
+        pathname,
+        location: props.location
+    }
 }
 
 export default connect(mapStateToProps, {
-  loadAppDetail
+    loadAppDetail
 })(AppDetail)

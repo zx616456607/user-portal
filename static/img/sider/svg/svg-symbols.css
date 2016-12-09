@@ -113,6 +113,12 @@
 #homespacecountcolor .st0{fill:#2CA2F3;}
 #homespacecountcolor .st1{fill:#E8F5FD;}
 
+.errorcolor {
+  width: 100px;
+  height: 100px;
+}
+#errorcolor .st0{fill:url(#SVGID_1_);stroke:#E20A2E;stroke-miterlimit:10;}
+
 .homewww {
   width: 20px;
   height: 20px;
