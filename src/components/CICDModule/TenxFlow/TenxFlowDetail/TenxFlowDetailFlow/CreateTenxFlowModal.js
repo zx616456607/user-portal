@@ -946,10 +946,10 @@ let CreateTenxFlowModal = React.createClass({
             </div>
             <div className='input services'>
               {serviceItems}
-              <div className='addServicesBtn' onClick={this.addService}>
+              {/*<div className='addServicesBtn' onClick={this.addService}>
                 <Icon type='plus-circle-o' />
                 <FormattedMessage {...menusText.addServices} />
-              </div>
+              </div>*/}
             </div>
             <div style={{ clear: 'both' }} />
           </div>

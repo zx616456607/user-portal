@@ -256,7 +256,7 @@ let MyComponent = React.createClass({
     let list = this.props.storage;
     if (!list || !list.storageList) return (<div></div>)
     let items = list.storageList.map((item) => {
-      const menu = (<Menu onClick={(e) => { this.showAction('format', item.name, item.format) } } style={{ width: '90px' }}>
+      const menu = (<Menu onClick={(e) => { this.showAction('format', item.name, item.format) } } style={{ width: '80px' }}>
         <Menu.Item key="1" disabled={item.isUsed}><FormattedMessage {...messages.formatting} /></Menu.Item>
       </Menu>
       )
@@ -286,15 +286,14 @@ let MyComponent = React.createClass({
             </span>
           </div>
           <div className="actionBtn commonData">
-            <Dropdown overlay={menu}>
+            {/*<Dropdown overlay={menu}>
               <Button type="ghost" disabled={item.isUsed} style={{ marginLeft: 8 }}>
                 <div className="h" onClick={() => { this.showAction('resize', item.name, item.totalSize) } }><FormattedMessage {...messages.dilation} /> </div><Icon type="down" />
               </Button>
-            </Dropdown>
-            {/* <Dropdown.Button overlay={menu} className={item.isUsed ? 'disabled' : ''} disabled={item.isUsed} type='ghost'>
-              <div className='h' onClick={() => { this.showAction('resize', item.name, item.totalSize) } }><FormattedMessage {...messages.dilation} /></div>
+            </Dropdown>*/}
+            <Dropdown.Button overlay={menu} className={item.isUsed ? 'disabled' : ''} disabled={item.isUsed} type='ghost' onClick={(e) => this.showAction('resize', item.name, item.totalSize)}>
+              <div><FormattedMessage {...messages.dilation} /></div>
             </Dropdown.Button>
-            */}
           </div>
         </div>
       );
@@ -409,14 +408,14 @@ class Storage extends Component {
       message.error('请输入存储卷大小')
       return
     }
-    if(this.state.name.length < 3 || this.state.name.length > 20) {
+    /*if(this.state.name.length < 3 || this.state.name.length > 20) {
       message.error('存储卷名称大小应在3到15个字符, 且只可以a-z或A-Z开始,且只可以英文字母或者数字组成')
       return
     }
     if(!/^[a-zA-z][a-zA-z0-9]*$/.test(this.state.name)) {
       message.error('存储名称只可以a-z或A-Z开始,且只可以英文字母或者数字组成')
       return
-    }
+    }*/
     const hide = message.loading('创建存储卷中', 0)
     let storageConfig = {
       driver: 'rbd',
