@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Alert, Card, Icon, Button, Table, Menu, Dropdown, Modal, Input, Transfer, message, notification, } from 'antd'
+import { Row, Col, Alert, Card, Icon, Button, Table, Menu, Dropdown, Modal, Input, Transfer, message } from 'antd'
 import './style/TeamDetail.less'
 import { Link } from 'react-router'
 import {
@@ -19,6 +19,7 @@ import {
 import { connect } from 'react-redux'
 import MemberTransfer from '../MemberTransfer'
 import CreateSpaceModal from '../CreateSpaceModal'
+import NotificationHandler from '../../../common/notification_handler'
 
 const confirm = Modal.confirm;
 
@@ -490,14 +491,13 @@ class TeamDetail extends Component {
   spaceOnSubmit(space) {
     const { createTeamspace, teamID, loadTeamspaceList } = this.props
     const { newSpaceName, newSpaceDes, sortSpace, spacePageSize } = this.state
-    const hide = message.loading('正在执行中...', 0)
+    let notification = new NotificationHandler()
+    notification.spin("空间创建中...")
     createTeamspace(teamID, space, {
       success: {
         func: () => {
-          hide()
-          notification.success({
-            message: `创建空间 ${space.spaceName} 成功`,
-          })
+          notification.close()
+          notification.success(`创建空间 ${space.spaceName} 成功`)
           loadTeamspaceList(teamID, {
             sort: sortSpace,
             size: spacePageSize,
@@ -512,12 +512,8 @@ class TeamDetail extends Component {
       },
       failed: {
         func: (err) => {
-          hide()
-          notification.error({
-            message: `创建空间 ${space.spaceName} 失败`,
-            description: err.message.message,
-            duration: 0
-          })
+          notification.close()
+          notification.error(`创建空间 ${space.spaceName} 失败`, err.message.message)
         }
       }
     })
