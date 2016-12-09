@@ -5,11 +5,10 @@ import { connect } from 'react-redux'
 import { loadUserTeamspaceList } from '../../../actions/user'
 import { loadTeamClustersList } from '../../../actions/team'
 import { setCurrent, loadLoginUserDetail } from '../../../actions/entities'
-import { loadChargeRecord } from '../../../actions/consumption'
+import { loadChargeRecord, loadNotifyRule, setNotifyRule } from '../../../actions/consumption'
 import PopSelect from '../../PopSelect'
 import moment from 'moment'
 import { Link } from 'react-router'
-
 
 class RechargeRecord extends Component{
   constructor(props){
@@ -18,12 +17,17 @@ class RechargeRecord extends Component{
     this.showModal = this.showModal.bind(this)
     this.handleOk = this.handleOk.bind(this)
     this.handleCancel = this.handleCancel.bind(this)
+    this.onNotifyCenterCheckBoxChange = this.onNotifyCenterCheckBoxChange.bind(this)
+    this.onNotifyMailCheckBoxChange = this.onNotifyMailCheckBoxChange.bind(this)
     this.state = {
       spacesVisible: false,
       currentSpaceName: '我的空间',
       currentTeamName: '',
+      currentNamespace: '',
       remindModal: false,
-      alertLine: 10
+      threshold: props.notifyRule.threshold,
+      notifyCenterCheckBox: false,
+      notifyMailCheckBox: false,
     }
   }
   handleSpaceChange(space) {
@@ -32,12 +36,27 @@ class RechargeRecord extends Component{
       spacesVisible: false,
       currentSpaceName: space.spaceName,
       currentTeamName: space.teamName,
+      currentNamespace: space.namespace,
     })
+    const {
+      loadChargeRecord,
+    } = this.props
+    loadChargeRecord(space.namespace)
   }
   handleOk() {
     this.setState({
       remindModal: false
     })
+    const {
+      setNotifyRule,
+    } = this.props
+    const {
+      notifyCenterCheckBox,
+      notifyMailCheckBox,
+      threshold,
+    } = this.state
+    let notifyWay = (notifyMailCheckBox ? 1 : 0) + (notifyCenterCheckBox ? 2 : 0)
+    setNotifyRule(this.state.currentNamespace, threshold * 100, notifyWay)
   }
   handleCancel() {
     this.setState({
@@ -63,9 +82,30 @@ class RechargeRecord extends Component{
     })
     loadChargeRecord()
   }
+  componentWillReceiveProps(nextProps) {
+    const { notifyRule } = nextProps
+    let notifyByMail = !!(notifyRule.notifyWay & 1)
+    let notifyByNofityCenter = !!(notifyRule.notifyWay & 2)
+    this.setState({
+      threshold: notifyRule.threshold,
+      notifyCenterCheckBox: notifyByNofityCenter,
+      notifyMailCheckBox: notifyByMail,
+    })
+  }
   showModal(){
     this.setState({
       remindModal: true
+    })
+    this.props.loadNotifyRule(this.state.currentNamespace)
+  }
+  onNotifyCenterCheckBoxChange(e){
+    this.setState({
+      notifyCenterCheckBox: e.target.checked,
+    })
+  }
+  onNotifyMailCheckBoxChange(e){
+    this.setState({
+      notifyMailCheckBox: e.target.checked,
     })
   }
   render(){
@@ -75,16 +115,18 @@ class RechargeRecord extends Component{
       teamspaces,
       teamClusters,
       chargeRecord,
+      notifyRule,
     } = this.props
     let {
       spacesVisible,
       currentSpaceName,
       currentTeamName,
       remindModal,
-      alertLine
+      threshold,
+      notifyCenterCheckBox,
+      notifyMailCheckBox,
     } = this.state
     let convertChargeRecord = function () {
-      console.log('chargeRecordchargeRecordchargeRecordchargeRecord', chargeRecord)
       if (!Array.isArray(chargeRecord.items)) {
         return []
       }
@@ -183,20 +225,24 @@ class RechargeRecord extends Component{
             <Row style={{paddingLeft:'22px',height: 35}}>
               <Col span={4} style={{color: '#7a7a7a'}}>提醒规则</Col>
               <Col span={20} style={{color: '#666666'}}>我的空间可用余额小于&nbsp;
-                <InputNumber defaultValue = {alertLine} />T币
+                <InputNumber value={threshold} onChange={(value) => {
+                  this.setState({
+                    threshold: value
+                  })
+                }} />T币
                 时发送提醒
               </Col>
             </Row>
             <Row style={{paddingLeft:'22px',height: 28}}>
               <Col span={4} style={{color: '#7a7a7a'}}>提醒方式</Col>
               <Col span={20}>
-                <Checkbox style={{color: '#7a7a7a',fontSize: '14px'}}>通知中心</Checkbox>
+                <Checkbox checked={notifyCenterCheckBox} style={{color: '#7a7a7a',fontSize: '14px'}} onChange={this.onNotifyCenterCheckBoxChange}>通知中心</Checkbox>
               </Col>
             </Row>
             <Row style={{paddingLeft:'22px',height: 30}}>
               <Col span={4}/>
               <Col span={20}>
-                <Checkbox style={{color: '#7a7a7a',fontSize: '14px'}}>邮件( ... )</Checkbox>
+                <Checkbox checked={notifyMailCheckBox} style={{color: '#7a7a7a',fontSize: '14px'}} onChange={this.onNotifyMailCheckBoxChange}>{'邮件(' + this.props.loginUser.info.email + ')'}</Checkbox>
               </Col>
             </Row>
           </div>
@@ -209,7 +255,7 @@ class RechargeRecord extends Component{
 function mapStateToProps (state,props) {
   const { current, loginUser } = state.entities
   const { teamspaces,userDetail } = state.user
-  const { chargeRecord } = state.consumption
+  const { chargeRecord, notifyRule } = state.consumption
   let recordData = {
     items: [],
   }
@@ -218,13 +264,22 @@ function mapStateToProps (state,props) {
       recordData.items = chargeRecord.result.data.items
     }
   }
-      console.log('recordDatarecordDatarecordData', recordData)
+  let notifyRuleData = {
+    threshold: 0,
+    notifyWay: 0,
+  }
+  console.log('notifyRule.isFetchingnotifyRule.isFetching',notifyRule.isFetching, notifyRule.result)
+  if (notifyRule.isFetching === false && notifyRule.result && notifyRule.result.data) {
+    notifyRuleData.threshold = notifyRule.result.data.threshold / 100
+    notifyRuleData.notifyWay = notifyRule.result.data.notifyWay
+  }
   return {
     current,
     loginUser,
     teamspaces: (teamspaces.result ? teamspaces.result.teamspaces : []),
     userDetail: (userDetail.result ? userDetail.result.data: {}),
     chargeRecord: recordData,
+    notifyRule: notifyRuleData,
   }
 }
 export default connect (mapStateToProps,{
@@ -232,4 +287,6 @@ export default connect (mapStateToProps,{
   loadTeamClustersList,
   loadLoginUserDetail,
   loadChargeRecord,
+  loadNotifyRule,
+  setNotifyRule,
 })(RechargeRecord)

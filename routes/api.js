@@ -295,6 +295,8 @@ module.exports = function (Router) {
   router.get('/consumptions/trend', consumptionController.getTrend)
   router.get('/consumptions/summary', consumptionController.getSummaryInDay)
   router.get('/consumptions/charge-history', consumptionController.getChargeRecord)
+  router.get('/consumptions/notify-rule', consumptionController.getNotifyRule)
+  router.put('/consumptions/notify-rule', consumptionController.setNotifyRule)
 
   return router.routes()
 }
