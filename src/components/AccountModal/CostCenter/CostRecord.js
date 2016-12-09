@@ -47,16 +47,35 @@ class CostRecord extends Component{
       consumptionDetailPageSize: 10,
       consumptionDetailTimeBegin: '',
       consumptionDetailTimeEnd: '',
+      consumptionSpaceSummaryDate: '',
+      consumptionSpaceSummaryInDayDate: '',
+      consumptionDetailDate: '',
     }
   }
   handleSpaceChange(space) {
-    
     this.setState({
       spacesVisible: false,
       currentSpaceName: space.spaceName,
       currentTeamName: space.teamName,
       currentNamespace: space.namespace,
+      consumptionDetailCurrentPage: 1,
     })
+    const {
+      loadConsumptionDetail,
+      loadConsumptionTrend,
+      loadSpaceSummaryInDay,
+      loadSpaceSummary,
+    } = this.props
+    const {
+      consumptionDetailTimeBegin,
+      consumptionDetailTimeEnd,
+      consumptionSpaceSummaryDate,
+      consumptionSpaceSummaryInDayDate,
+    } = this.state
+    loadConsumptionDetail(space.namespace, 0, this.state.consumptionDetailPageSize, consumptionDetailTimeBegin, consumptionDetailTimeEnd)
+    loadConsumptionTrend(space.namespace)
+    loadSpaceSummaryInDay(space.namespace, consumptionSpaceSummaryInDayDate)
+    loadSpaceSummary(space.namespace, consumptionSpaceSummaryDate)
   }
   transformDate(data){
     function _addZero(text) {
@@ -114,10 +133,10 @@ class CostRecord extends Component{
         isAsync: true
       }
     })
-    loadConsumptionDetail(0, this.state.consumptionDetailPageSize)
-    loadConsumptionTrend()
-    loadSpaceSummaryInDay()
-    loadSpaceSummary()
+    loadConsumptionDetail(this.state.currentNamespace, 0, this.state.consumptionDetailPageSize)
+    loadConsumptionTrend(this.state.currentNamespace)
+    loadSpaceSummaryInDay(this.state.currentNamespace)
+    loadSpaceSummary(this.state.currentNamespace)
   }
   render(){
     const _this = this
@@ -218,32 +237,39 @@ class CostRecord extends Component{
     }
     let onCurrentSpaceSummaryDateChange = function (date) {
       let time = moment(date).format('YYYY-MM-DD 00:00:00')
-      if (time == 'Invalid') {
+      if (time == 'Invalid date') {
         return
       }
-      loadSpaceSummary(time)
+      _this.setState({
+        consumptionSpaceSummaryDate:time,
+      })
+      loadSpaceSummary(_this.state.currentNamespace, time)
     }
 
     let onCurrentSpaceSummaryInDayDateChange = function (date) {
       let time = moment(date).format('YYYY-MM-DD 00:00:00')
-      if (time == 'Invalid') {
+      if (time == 'Invalid date') {
         return
       }
-      loadSpaceSummaryInDay(time)
+      _this.setState({
+        consumptionSpaceSummaryInDayDate:time,
+      })
+      loadSpaceSummaryInDay(_this.state.currentNamespace, time)
     }
 
     let onConsumptionDetailDateChange = function (date, dateString) {
       let timeBegin = moment(date).format('YYYY-MM-DD 00:00:00')
       let timeEnd = moment(date).add(1, 'days').format('YYYY-MM-DD 00:00:00')
-      if (timeBegin == 'Invalid' || timeEnd == 'Invalid') {
+      if (timeBegin == 'Invalid date' || timeEnd == 'Invalid date') {
         return
       }
-      loadConsumptionDetail(0, _this.state.consumptionDetailPageSize, timeBegin, timeEnd)
+      loadConsumptionDetail(_this.state.currentNamespace, 0, _this.state.consumptionDetailPageSize, timeBegin, timeEnd)
       // set state
       _this.setState({
         consumptionDetailCurrentPage: 1,
         consumptionDetailTimeBegin: timeBegin,
         consumptionDetailTimeEnd: timeEnd,
+        consumptionDetailDate: timeBegin,
       })
     }
     let spaceCostTitle = (
@@ -452,7 +478,7 @@ class CostRecord extends Component{
       total: consumptionDetail.total,
       showSizeChanger: true,
       onShowSizeChange(current, pageSize) {
-        loadConsumptionDetail(0, pageSize)
+        loadConsumptionDetail(_this.state.currentNamespace, 0, pageSize)
         _this.setState({
           consumptionDetailPageSize: pageSize,
           consumptionDetailCurrentPage: 1,
@@ -460,7 +486,7 @@ class CostRecord extends Component{
       },
       onChange(current) {
         const pageSize = _this.state.consumptionDetailPageSize
-        loadConsumptionDetail((current-1) * pageSize, pageSize, _this.state.consumptionDetailTimeBegin, _this.state.consumptionDetailTimeEnd)
+        loadConsumptionDetail(_this.state.currentNamespace, (current-1) * pageSize, pageSize, _this.state.consumptionDetailTimeBegin, _this.state.consumptionDetailTimeEnd)
         _this.setState({
           consumptionDetailCurrentPage: current,
         })
