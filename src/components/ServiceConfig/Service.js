@@ -31,6 +31,7 @@ class CollapseList extends Component {
     loadConfigGroup(cluster)
   }
   componentWillMount() {
+    document.title = '服务配置 | 时速云'
     this.loadData(this.props)
   }
   // componentWillReceiveProps(nextProps) {

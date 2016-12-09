@@ -366,6 +366,7 @@ class MemberManage extends Component {
     })
   }
   componentWillMount() {
+    document.title = '成员管理 | 时速云'
     this.props.loadUserList({
       page: 1,
       size: 5,

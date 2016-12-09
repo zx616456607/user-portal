@@ -21,6 +21,9 @@ export default class CostCenter extends Component{
       
     }
   }
+  componentWillMount() {
+    document.title = '费用中心 | 时速云'
+  }
   render(){
     return (
       <div id='CostCenter'>
