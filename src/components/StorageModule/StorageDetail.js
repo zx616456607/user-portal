@@ -31,7 +31,7 @@ const TabPane = Tabs.TabPane
 const messages = defineMessages({
   useStatus: {
     id: "StorageDetail.header.useStatus",
-    defaultMessage: '使用状态'
+    defaultMessage: '状态'
   },
   using: {
     id: "StorageDetail.header.using",

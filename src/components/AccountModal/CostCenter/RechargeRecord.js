@@ -8,6 +8,7 @@ import { setCurrent, loadLoginUserDetail } from '../../../actions/entities'
 import { loadChargeRecord, loadNotifyRule, setNotifyRule } from '../../../actions/consumption'
 import PopSelect from '../../PopSelect'
 import moment from 'moment'
+import { Link } from 'react-router'
 
 class RechargeRecord extends Component{
   constructor(props){
@@ -173,7 +174,11 @@ class RechargeRecord extends Component{
       <div style={{color: '#137bb8',lineHeight:'28px',}}>
         <Icon type="smile" style={{marginRight: 10}}/> 温馨提示: <br/>
         1. 此设置可根据您的个人情况进行更改, &nbsp;您所设置的内容不会影响到其他协作者<br/>
-        2. 您可在 <Button type='primary' style={{color: '#fff',width:90,height:28}}>我的信息</Button> 中填写或修改接受提醒的邮箱地址
+        2. 您可在
+        <Link to="/account">
+          <Button type='primary' style={{color: '#fff',width:90,height:28}}>我的信息</Button>
+        </Link>
+        中填写或修改接受提醒的邮箱地址
       </div>
     )
     return (

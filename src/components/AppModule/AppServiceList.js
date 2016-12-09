@@ -372,10 +372,12 @@ class AppServiceList extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    let { page, size, name, serviceList, onServicesChange } = nextProps
     this.setState({
-      serviceList: nextProps.serviceList
+      serviceList
     })
-    let { page, size, name } = nextProps
+    onServicesChange(serviceList)
+
     if (page === this.props.page && size === this.props.size && name === this.props.name) {
       return
     }
@@ -885,7 +887,7 @@ class AppServiceList extends Component {
               服务名称
           </div>
             <div className="status commonTitle">
-              运行状态
+              状态
           </div>
             <div className="image commonTitle">
               镜像
@@ -983,6 +985,7 @@ AppServiceList.propTypes = {
   page: PropTypes.number.isRequired,
   size: PropTypes.number.isRequired,
   total: PropTypes.number.isRequired,
+  onServicesChange: PropTypes.func.isRequired, // For change app status when service list change
 }
 
 function mapStateToProps(state, props) {
