@@ -16,13 +16,13 @@ import { genRandomString } from './tools'
 class NotificationHandler {
   // timeout is optional, and used for loading interval
   constructor(timeout) {
-    // generate a key，only required for loading notification
+    // generate a key, only required for loading notification
     this.key = genRandomString(10)
     this.timeout = timeout
   }
 
   // Open loading notification
-  open(message) {
+  spin(message) {
     let key = this.key
     notification.open({
       key,
@@ -39,7 +39,7 @@ class NotificationHandler {
   close() {
     let key = this.key
     let timeout = this.timeout || 1000
-    setTimeout(function() {
+    setTimeout(function () {
       notification.close(key)
     }, timeout)
   }

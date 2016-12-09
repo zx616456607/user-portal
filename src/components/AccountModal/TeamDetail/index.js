@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Alert, Card, Icon, Button, Table, Menu, Dropdown, Modal, Input, Transfer, message} from 'antd'
+import { Row, Col, Alert, Card, Icon, Button, Table, Menu, Dropdown, Modal, Input, Transfer, message } from 'antd'
 import './style/TeamDetail.less'
 import { Link } from 'react-router'
 import {
@@ -19,7 +19,7 @@ import {
 import { connect } from 'react-redux'
 import MemberTransfer from '../MemberTransfer'
 import CreateSpaceModal from '../CreateSpaceModal'
-import NotificationHandler  from '../../../common/notification_handler'
+import NotificationHandler from '../../../common/notification_handler'
 
 const confirm = Modal.confirm;
 
@@ -492,7 +492,7 @@ class TeamDetail extends Component {
     const { createTeamspace, teamID, loadTeamspaceList } = this.props
     const { newSpaceName, newSpaceDes, sortSpace, spacePageSize } = this.state
     let notification = new NotificationHandler()
-    notification.open("空间创建中...")
+    notification.spin("空间创建中...")
     createTeamspace(teamID, space, {
       success: {
         func: () => {
