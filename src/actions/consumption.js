@@ -197,3 +197,63 @@ export function loadChargeRecord(teamspace) {
     return dispatch(fetchChargeRecord(teamspace))
   }
 }
+
+export const CONSUMPTION_GET_NOTIFY_RULE_REQUEST = 'CONSUMPTION_GET_NOTIFY_RULE_REQUEST'
+export const CONSUMPTION_GET_NOTIFY_RULE_SUCCESS = 'CONSUMPTION_GET_NOTIFY_RULE_SUCCESS'
+export const CONSUMPTION_GET_NOTIFY_RULE_FAILURE = 'CONSUMPTION_GET_NOTIFY_RULE_FAILURE'
+
+function fetchNotifyRule(teamspace) {
+  if (!teamspace) {
+    teamspace = 'default'
+  }
+  const endpoint = `${API_URL_PREFIX}/consumptions/notify-rule`
+  return {
+    [FETCH_API]: {
+      types: [CONSUMPTION_GET_NOTIFY_RULE_REQUEST, CONSUMPTION_GET_NOTIFY_RULE_SUCCESS, CONSUMPTION_GET_NOTIFY_RULE_FAILURE],
+      endpoint: endpoint,
+      schema: {},
+      options: {
+        headers:{teamspace}
+      },
+    }
+  }
+}
+
+export function loadNotifyRule(teamspace) {
+  return (dispatch, getState) => {
+    return dispatch(fetchNotifyRule(teamspace))
+  }
+}
+
+
+export const CONSUMPTION_SET_NOTIFY_RULE_REQUEST = 'CONSUMPTION_SET_NOTIFY_RULE_REQUEST'
+export const CONSUMPTION_SET_NOTIFY_RULE_SUCCESS = 'CONSUMPTION_SET_NOTIFY_RULE_SUCCESS'
+export const CONSUMPTION_SET_NOTIFY_RULE_FAILURE = 'CONSUMPTION_SET_NOTIFY_RULE_FAILURE'
+
+function setNotifyRule1(teamspace, threshold, notifyWay) {
+  if (!teamspace) {
+    teamspace = 'default'
+  }
+  const endpoint = `${API_URL_PREFIX}/consumptions/notify-rule`
+  return {
+    [FETCH_API]: {
+      types: [CONSUMPTION_SET_NOTIFY_RULE_REQUEST, CONSUMPTION_SET_NOTIFY_RULE_SUCCESS, CONSUMPTION_SET_NOTIFY_RULE_FAILURE],
+      endpoint: endpoint,
+      schema: {},
+      options: {
+        method: 'PUT',
+        headers:{teamspace},
+        body:{
+          threshold,
+          notifyWay,
+        }
+      },
+    }
+  }
+}
+
+export function setNotifyRule(teamspace, threshold, notifyWay) {
+  return (dispatch, getState) => {
+    return dispatch(setNotifyRule1(teamspace, threshold, notifyWay))
+  }
+}
