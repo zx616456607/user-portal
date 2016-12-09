@@ -127,6 +127,14 @@ let VSphereConfig = React.createClass({
         e.preventDefault();
         return;
       }
+      if(values.url.indexOf('http://') > -1) {
+        let temp = values.url.split('http://');
+        values.url = temp[1];
+      }
+      if(values.url.indexOf('https://') > -1) {
+        let temp = values.url.split('https://');
+        values.url = temp[1];
+      }
       updateIntegrationConfig(integrationId, values, {
         success: {
           func: () => {
@@ -138,6 +146,14 @@ let VSphereConfig = React.createClass({
                   })
                 },
                 isAsync: true
+              },
+              failed: {
+                func: () => {
+                  notification['error']({
+                    message: '更新应用',
+                    description: '更新应用失败',
+                  });
+                }
               }
             })
           },

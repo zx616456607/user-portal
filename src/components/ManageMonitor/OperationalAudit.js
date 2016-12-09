@@ -363,66 +363,79 @@ const menusText = defineMessages({
 });
 
 function returnOperationList(scope) {
+  //this function for return all operation list
+  //maybe you have one question ask me why I create so many variables 
+  //I don't know why when I init the object and the label equal intl function return is error
   const { formatMessage } = scope.props.intl;
   const operationalList = [
       {
         value: '1',
-        label: formatMessage(menusText.Create)
-      },/*{
-        value: '2',
-        label: formatMessage(menusText.Get)
-      },{
-        value: '3',
-        label: formatMessage(menusText.List)
-      },*/{
-        value: '4',
-        label: formatMessage(menusText.Update)
-      },{
-        value: '5',
-        label: formatMessage(menusText.Delete)
-      },{
-        value: '6',
-        label: formatMessage(menusText.Start)
-      },{
-        value: '7',
-        label: formatMessage(menusText.Stop)
-      },{
-        value: '8',
-        label: formatMessage(menusText.Restart)
-      },{
-        value: '9',
-        label: formatMessage(menusText.Pause)
-      },{
-        value: '10',
-        label: formatMessage(menusText.Resume)
-      },{
-        value: '11',
-        label: formatMessage(menusText.BatchDelete)
-      },{
-        value: '12',
-        label: formatMessage(menusText.BatchStart)
-      },{
-        value: '13',
-        label: formatMessage(menusText.BatchStop)
-      },{
-        value: '14',
-        label: formatMessage(menusText.BatchRestart)
-      },{
-        value: '15',
-        label: formatMessage(menusText.QuickRestart)
-      },{
-        value: '16',
-        label: formatMessage(menusText.CheckExist)
-      },{
-        value: '17',
-        label: formatMessage(menusText.Format)
-      },{
-        value: '18',
-        label: formatMessage(menusText.Expand)
-      },{
-        value: '0',
-        label: formatMessage(menusText.Unknown)
+        label: (<FormattedMessage {...menusText.Create} />)
       },
+      {
+        value: '4',
+        label: (<FormattedMessage {...menusText.Update} />)
+      },
+      {
+        value: '5',
+        label: (<FormattedMessage {...menusText.Delete} />)
+      },
+      {
+        value: '6',
+        label: (<FormattedMessage {...menusText.Start} />)
+      },
+      {
+        value: '7',
+        label: (<FormattedMessage {...menusText.Stop} />)
+      },
+      {
+        value: '8',
+        label: (<FormattedMessage {...menusText.Restart} />)
+      },
+      {
+        value: '9',
+        label: (<FormattedMessage {...menusText.Pause} />)
+      },
+      {
+        value: '10',
+        label: (<FormattedMessage {...menusText.Resume} />)
+      },
+      {
+        value: '11',
+        label: (<FormattedMessage {...menusText.BatchDelete} />)
+      },
+      {
+        value: '12',
+        label: (<FormattedMessage {...menusText.BatchStart} />)
+      },
+      {
+        value: '13',
+        label: (<FormattedMessage {...menusText.BatchStop} />)
+      },
+      {
+        value: '14',
+        label: (<FormattedMessage {...menusText.BatchRestart} />)
+      },
+      {
+        value: '15',
+        label: (<FormattedMessage {...menusText.QuickRestart} />)
+      },
+      {
+        value: '16',
+        label: (<FormattedMessage {...menusText.CheckExist} />)
+      },
+      {
+        value: '17',
+        label: (<FormattedMessage {...menusText.Format} />)
+      },
+      {
+        value: '18',
+        label: (<FormattedMessage {...menusText.Expand} />)
+      },
+      {
+        value: '0',
+        label: (<FormattedMessage {...menusText.Unknown} />)
+      }
     ];
   return operationalList;
 }
@@ -588,14 +601,11 @@ function operationalFormat(operationalType, scope) {
   //this function for format operational type to show user
   const { formatMessage } = scope.props.intl;
   switch(operationalType + '') {
+    case '0':
+      return formatMessage(menusText.Unknown)
+      break;
     case '1':
       return formatMessage(menusText.Create)
-      break;
-    case '2':
-      return formatMessage(menusText.Get)
-      break;
-    case '3':
-      return formatMessage(menusText.List)
       break;
     case '4':
       return formatMessage(menusText.Update)
@@ -877,153 +887,195 @@ class OperationalAudit extends Component {
       let operationalList = returnOperationList(this);
       switch(eventCode) {
         case '1':
+          //Instance
           showOperationalList = [];
           break;
         case '2':
+          //InstanceEvent
           showOperationalList = [];
           break;
         case '3':
+          //InstanceLog
           showOperationalList = [];
           break;
         case '4':
+          //InstanceMetrics
           showOperationalList = [];
           break;
         case '5':
+          //InstanceContainerMetrics
           showOperationalList = [];
           break;
         case '6':
+          //Service
+          showOperationalList.push(operationalList[8]);
           showOperationalList.push(operationalList[9]);
           showOperationalList.push(operationalList[10]);
           showOperationalList.push(operationalList[11]);
           showOperationalList.push(operationalList[12]);
-          showOperationalList.push(operationalList[13]);
           break;
         case '7':
+          //ServiceInstance
           showOperationalList = [];
-//        showOperationalList.push(operationalList[3]);
           break;
         case '8':
+          //ServiceEvent
           showOperationalList = [];
-//        showOperationalList.push(operationalList[3]);
           break;
         case '9':
+          //ServiceLog
           showOperationalList = [];
           break;
         case '10':
+          //ServiceK8sService
           showOperationalList = [];
-//        showOperationalList.push(operationalList[2]);
           break;
         case '11':
-          showOperationalList.push(operationalList[2]);
+          //ServiceRollingUpgrade
+          showOperationalList.push(operationalList[6]);
           showOperationalList.push(operationalList[7]);
-          showOperationalList.push(operationalList[8]);
+          showOperationalList.push(operationalList[1]);
           break;
         case '12':
-          showOperationalList.push(operationalList[2]);
+          //ServiceManualScale
+          showOperationalList.push(operationalList[1]);
           break;
         case '13':
-//        showOperationalList.push(operationalList[2]);
+          //ServiceAutoScale
           showOperationalList.push(operationalList[2]);
-          showOperationalList.push(operationalList[3]);
+          showOperationalList.push(operationalList[1]);
           break;
         case '14':
-          showOperationalList.push(operationalList[2]);
+          //ServiceQuota
+          showOperationalList.push(operationalList[1]);
           break;
         case '15':
-          showOperationalList.push(operationalList[2]);
+          //ServiceHaOption
+          showOperationalList.push(operationalList[1]);
           break;
         case '16':
-          showOperationalList.push(operationalList[1]);
-          showOperationalList.push(operationalList[3]);
-          showOperationalList.push(operationalList[14]);
+          //ServiceDomain
+          showOperationalList.push(operationalList[0]);
+          showOperationalList.push(operationalList[2]);
+          showOperationalList.push(operationalList[13]);
           break;
         case '17':
-          showOperationalList.push(operationalList[1]);
-//        showOperationalList.push(operationalList[2]);
-//        showOperationalList.push(operationalList[3]);
-          showOperationalList.push(operationalList[3]);
-          showOperationalList.push(operationalList[10]);
-          showOperationalList.push(operationalList[11]);
+          //App
           showOperationalList.push(operationalList[12]);
-          showOperationalList.push(operationalList[14]);
+          showOperationalList.push(operationalList[9]);
+          showOperationalList.push(operationalList[10]);
+          showOperationalList.push(operationalList[13]);
+          showOperationalList.push(operationalList[0]);
+          showOperationalList.push(operationalList[2]);
           break;
         case '18':
-          showOperationalList.push(operationalList[1]);
-//        showOperationalList.push(operationalList[3]);
+          //AppService
+          showOperationalList.push(operationalList[0]);
           break;
         case '19':
+          //AppOperationLog
           showOperationalList = [];
-//        showOperationalList.push(operationalList[2]);
           break;
         case '20':
+          //AppExtraInfo
           showOperationalList = [];
-//        showOperationalList.push(operationalList[2]);
           break;
         case '21':
-//        showOperationalList.push(operationalList[2]);
-          showOperationalList.push(operationalList[2]);
+          //AppTopology
+          showOperationalList.push(operationalList[1]);
           break;
         case '22':
-          showOperationalList.push(operationalList[1]);
-//        showOperationalList.push(operationalList[2]);
-          showOperationalList.push(operationalList[2]);
-          showOperationalList.push(operationalList[9]);
+          //ConfigGroup
+          showOperationalList.push(operationalList[8]);
+          showOperationalList.push(operationalList[0]);
           break;
         case '23':
+          //Config
+          showOperationalList.push(operationalList[8]);
+          showOperationalList.push(operationalList[0]);
           showOperationalList.push(operationalList[1]);
-//        showOperationalList.push(operationalList[2]);
-          showOperationalList.push(operationalList[2]);
-          showOperationalList.push(operationalList[9]);
           break;
         case '24':
+          //Node
           showOperationalList = [];
           break;
         case '25':
+          //NodeMetrics
           showOperationalList = [];
-//        showOperationalList.push(operationalList[2]);
           break;
         case '26':
-          showOperationalList.push(operationalList[1]);
-//        showOperationalList.push(operationalList[3]);
+          //ThirdPartyRegistry
+          showOperationalList.push(operationalList[0]);
           showOperationalList.push(operationalList[2]);
           break;
         case '27':
-          showOperationalList.push(operationalList[0]);
-//        showOperationalList.push(operationalList[3]);
-          showOperationalList.push(operationalList[15]);
-          showOperationalList.push(operationalList[16]);
+          //Volume
           showOperationalList.push(operationalList[8]);
+          showOperationalList.push(operationalList[0]);
+          showOperationalList.push(operationalList[15]);
+          showOperationalList.push(operationalList[14]);
           break;
         case '28':
+          //VolumeConsumption
           showOperationalList = [];
-//        showOperationalList.push(operationalList[2]);
           break;
         case '36':
-        case '39':
-        case '43':
-        case '44':
+          //Repos
           showOperationalList.push(operationalList[0]);
-          showOperationalList.push(operationalList[1]);
           showOperationalList.push(operationalList[2]);
+          showOperationalList.push(operationalList[1]);
           break;
         case '37':
-        case '38':
+          //Projects
           showOperationalList.push(operationalList[0]);
           showOperationalList.push(operationalList[2]);
           break;
+        case '38':
+          //Flows
+          showOperationalList.push(operationalList[0]);
+          showOperationalList.push(operationalList[2]);
+          break;
+        case '39':
+          //Stages
+          showOperationalList.push(operationalList[0]);
+          showOperationalList.push(operationalList[2]);
+          showOperationalList.push(operationalList[1]);
+          break;
         case '40':
-        case '42':
+          //Links
           showOperationalList.push(operationalList[1]);
           break;
         case '41':
+          //Builds
           showOperationalList.push(operationalList[3]);
           showOperationalList.push(operationalList[4]);
           break;
+        case '42':
+          //CIRules
+          showOperationalList.push(operationalList[1]);
+          break;
+        case '43':
+          //CDRules
+          showOperationalList.push(operationalList[0]);
+          showOperationalList.push(operationalList[2]);
+          showOperationalList.push(operationalList[1]);
+          break;
+        case '44':
+          //Dockerfiles
+          showOperationalList.push(operationalList[0]);
+          showOperationalList.push(operationalList[2]);
+          showOperationalList.push(operationalList[1]);
+          break;
         case '45':
+          //CINotifications
+          showOperationalList.push(operationalList[3]);
+          break;
         case '46':
+          //CDNotifications
           showOperationalList.push(operationalList[3]);
           break;
         case '0':
+          //Unknown
           showOperationalList = operationalList;
           break;
         default:
@@ -1129,44 +1181,14 @@ class OperationalAudit extends Component {
     const { isFetching, logs } = this.props;
     const { formatMessage } = this.props.intl;
     const scope = this;
-    const resourceOption = [/*{
-      value: '1',
-      label: formatMessage(menusText.Instance),
-      children: [{
-        value: '1',
-        label: formatMessage(menusText.Instance),
-      },{
-        value: '2',
-        label: formatMessage(menusText.InstanceEvent),
-      },{
-        value: '3',
-        label: formatMessage(menusText.InstanceLog),
-      },{
-        value: '4',
-        label: formatMessage(menusText.InstanceMetrics),
-      },{
-        value: '5',
-        label: formatMessage(menusText.InstanceContainerMetrics),
-      }],
-    }, */{
+    const resourceOption = [
+    {
       value: '6',
       label: formatMessage(menusText.Service),
       children: [{
         value: '6',
         label: formatMessage(menusText.Service),
-      },/*{
-        value: '7',
-        label: formatMessage(menusText.ServiceInstance),
       },{
-        value: '8',
-        label: formatMessage(menusText.ServiceEvent),
-      },{
-        value: '9',
-        label: formatMessage(menusText.ServiceLog),
-      },{
-        value: '10',
-        label: formatMessage(menusText.ServiceK8sService),
-      },*/{
         value: '11',
         label: formatMessage(menusText.ServiceRollingUpgrade),
       },{
@@ -1194,13 +1216,7 @@ class OperationalAudit extends Component {
       },{
         value: '18',
         label: formatMessage(menusText.AppService),
-      },/*{
-        value: '19',
-        label: formatMessage(menusText.AppOperationLog),
       },{
-        value: '20',
-        label: formatMessage(menusText.AppExtraInfo),
-      },*/{
         value: '21',
         label: formatMessage(menusText.AppTopology),
       },],
@@ -1214,17 +1230,7 @@ class OperationalAudit extends Component {
         value: '23',
         label: formatMessage(menusText.Config),
       }],
-    }, /*{
-      value: '24',
-      label: formatMessage(menusText.Node),
-      children: [{
-        value: '24',
-        label: formatMessage(menusText.Node),
-      },{
-        value: '25',
-        label: formatMessage(menusText.NodeMetrics),
-      }],
-    }, */{
+    }, {
       value: '26',
       label: formatMessage(menusText.ThirdPartyRegistry)
     }, {
@@ -1233,10 +1239,7 @@ class OperationalAudit extends Component {
       children: [{
         value: '27',
         label: formatMessage(menusText.Volume),
-      }/*,{
-        value: '28',
-        label: formatMessage(menusText.VolumeConsumption),
-      }*/],
+      }],
     }, {
       value: '36',
       label: formatMessage(menusText.CICDResources),
@@ -1276,14 +1279,11 @@ class OperationalAudit extends Component {
           label: formatMessage(menusText.CDNotification),
         }
       ]
-    }, /*{
-      value: '0',
-      label: formatMessage(menusText.Unknown)
-    }, */{
+    }, {
       value: null,
       label: formatMessage(menusText.allResource)
     }];
-    const operationalSelectOptions = this.state.selectOperationalList.map((item) => {
+    let operationalSelectOptions =  this.state.selectOperationalList.map((item) => {
       return (
         <Option key={item.value} value={item.value}>{item.label}</Option>
       )
