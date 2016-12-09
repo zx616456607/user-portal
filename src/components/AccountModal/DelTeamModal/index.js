@@ -51,6 +51,7 @@ export default class DelTeamModal extends Component{
     super(props)
     this.handleOk = this.handleOk.bind(this)
     this.handleCancel = this.handleCancel.bind(this)
+    this.renderFooter = this.renderFooter.bind(this)
     this.state = {
       
     }
@@ -63,6 +64,22 @@ export default class DelTeamModal extends Component{
     const { closeDelTeamModal } = this.props
     closeDelTeamModal()
   }
+  renderFooter (balance) {
+    if(balance === 0){
+      return [
+        <Button key="back" type="ghost" size="large" onClick={this.handleCancel}>取消</Button>,
+        <Button key="submit" type="primary" size="large" onClick={this.handleOk} className="delBtn" >
+          确定
+        </Button>,
+      ]
+    }
+    return [
+      <Button key="back" type="ghost" size="large" onClick={this.handleCancel}>知道了</Button>,
+      <Button key="submit" type="primary" size="large" onClick={this.handleOk}>
+        去充值
+      </Button>,
+    ]
+  }
   render(){
     const { visible } = this.props
     const balance = 0
@@ -73,12 +90,7 @@ export default class DelTeamModal extends Component{
         visible={visible}
         onOK={this.handleOk}
         onCancel={this.handleCancel}
-        footer={[
-          <Button key="back" type="ghost" size="large" onClick={this.handleCancel}>知道了</Button>,
-          <Button key="submit" type="primary" size="large" loading={this.state.loading} onClick={this.handleOk}>
-            去充值
-          </Button>,
-        ]}
+        footer={ this.renderFooter(balance) }
       >
         <Alert message={balance === 0 ? delMessage : balanceMessage} type="warning"/>
         <Row className="confirm">
