@@ -140,7 +140,7 @@ class SearchInput extends Component{
           }
         </Select>)
       return (
-        <div id='SearchInput' style={{width: `${width?width:'280px'}`,float: `${position?position:'right'}`}}>
+        /*<div id='SearchInput' style={{width: `${width?width:'280px'}`,float: `${position?position:'right'}`}}>
           <div className="ant-search-input-wrapper search">
             <Input addonBefore={selectBefore}
                    placeholder={placeholder?placeholder:"请输入关键词搜索"}
@@ -152,11 +152,26 @@ class SearchInput extends Component{
                       onClick={this.handleSearch} />
             </div>
           </div>
+        </div>*/
+        <div id='SearchInput'>
+          <div className='littleLeft'>
+            <i className='fa fa-search' onClick={this.handleSearch}/>
+          </div>
+          <div className='littleRight'>
+            <Input
+              addonBefore={selectBefore}
+              size='large'
+              onChange={this.handleInt}
+              placeholder={placeholder?placeholder:"请输入关键词搜索"}
+              onPressEnter={this.handleSearch}
+              value={searchValue}
+            />
+          </div>
         </div>
       )
     } else {
       return (
-        <div id='SearchInput' style={setStyle?setStyle:defaultStyle}>
+        /*<div id='SearchInput' style={setStyle?setStyle:defaultStyle}>
           <div className="ant-search-input-wrapper search">
             <Input placeholder={placeholder?placeholder:"请输入关键词搜索"}
                    onChange={this.handleInt}
@@ -166,6 +181,19 @@ class SearchInput extends Component{
                       className='ant-search-btn searchBtn'
                       onClick={this.handleSearch} />
             </div>
+          </div>
+        </div>*/
+        <div id='SearchInput'>
+          <div className='littleLeft'>
+            <i className='fa fa-search' onClick={this.handleSearch}/>
+          </div>
+          <div className='littleRight'>
+            <Input
+              size='large'
+              onChange={this.handleInt}
+              placeholder={placeholder?placeholder:"请输入关键词搜索"}
+              onPressEnter={this.handleSearch}
+            />
           </div>
         </div>
       )
