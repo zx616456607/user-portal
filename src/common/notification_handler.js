@@ -34,13 +34,16 @@ class NotificationHandler {
       // Should close it manually
       duration: 0,
     })
+    return () => {
+      this.close(key)
+    }
   }
   // Close loading notification
-  close() {
-    let key = this.key
-    let timeout = this.timeout || 1000
+  close(key) {
+    let _key = key || this.key
+    let timeout = this.timeout || 500
     setTimeout(function () {
-      notification.close(key)
+      notification.close(_key)
     }, timeout)
   }
   // Show success notification

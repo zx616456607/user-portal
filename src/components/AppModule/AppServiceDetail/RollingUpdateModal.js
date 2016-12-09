@@ -14,6 +14,7 @@ import { Button, Card, Menu, message, Icon, Tooltip, Row, Col, Select, InputNumb
 import { loadImageDetailTag } from '../../../actions/app_center'
 import { rollingUpdateService } from '../../../actions/services'
 import { connect } from 'react-redux'
+import NotificationHandler from '../../../common/notification_handler'
 
 const Option = Select.Option
 const OptGroup = Select.OptGroup
@@ -92,14 +93,15 @@ class RollingUpdateModal extends Component {
     containers.map((container) => {
       targets[container.name] = `${container.imageObj.imageSrc}:${container.targetTag}`
     })
-    const hide = message.loading('正在保存中...', 0)
+    let notification = new NotificationHandler()
+    notification.spin(`服务 ${serviceName} 灰度升级中...`)
     rollingUpdateService(cluster, serviceName, { targets }, {
       success: {
         func: () => {
+          notification.close()
           loadServiceList(cluster, appName)
-          hide()
-          setTimeout(function(){
-            message.success(`服务 ${serviceName} 灰度升级已成功开启`)
+          setTimeout(function () {
+            notification.success(`服务 ${serviceName} 灰度升级已成功开启`)
           }, 300)
           parentScope.setState({
             rollingUpdateModalShow: false
@@ -109,9 +111,9 @@ class RollingUpdateModal extends Component {
       },
       failed: {
         func: () => {
-          hide()
-          setTimeout(function(){
-            message.error(`服务 ${serviceName} 开启灰度升级失败`)
+          notification.close()
+          setTimeout(function () {
+            notification.error(`服务 ${serviceName} 开启灰度升级失败`)
           }, 300)
         }
       }

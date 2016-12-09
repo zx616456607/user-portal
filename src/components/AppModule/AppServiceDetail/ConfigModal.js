@@ -15,6 +15,7 @@ import './style/ConfigModal.less'
 import { DEFAULT_CONTAINER_RESOURCES, DEFAULT_CONTAINER_RESOURCES_MEMORY } from '../../../../constants'
 import { changeQuotaService } from '../../../actions/services'
 import { getResourcesByMemory } from '../../../../kubernetes/utils'
+import NotificationHandler from '../../../common/notification_handler'
 
 class ConfigModal extends Component {
   constructor(props) {
@@ -26,7 +27,7 @@ class ConfigModal extends Component {
       composeType: parseInt(DEFAULT_CONTAINER_RESOURCES_MEMORY)
     }
   }
-   
+
   componentWillReceiveProps(nextProps) {
     const { service, visible } = nextProps
     if (!service) {
@@ -62,7 +63,8 @@ class ConfigModal extends Component {
     const serviceName = service.metadata.name
     const resources = getResourcesByMemory(composeType)
     const { requests, limits } = resources
-    const hide = message.loading('正在保存中...', 0)
+    let notification = new NotificationHandler()
+    notification.spin(`服务 ${serviceName} 配置更改中...`)
     changeQuotaService(cluster, serviceName, { requests, limits }, {
       success: {
         func: () => {
@@ -70,15 +72,15 @@ class ConfigModal extends Component {
           parentScope.setState({
             configModal: false
           })
-          hide()
-          message.success(`服务 ${serviceName} 配置已成功更改`)
+          notification.close()
+          notification.success(`服务 ${serviceName} 配置已成功更改`)
         },
         isAsync: true
       },
       failed: {
         func: () => {
-          hide()
-          message.error(`更改服务 ${serviceName} 配置失败`)
+          notification.close()
+          notification.error(`更改服务 ${serviceName} 配置失败`)
         }
       }
     })
