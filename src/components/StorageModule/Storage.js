@@ -441,16 +441,17 @@ class Storage extends Component {
       },
       failed: {
         isAsync: true,
-        func: () => {
-          self.setState({
-            visible: false,
-            name: '',
-            size: 500,
-            currentType: 'ext4'
-          })
+        func: (err) => {
           hide()
-          message.error('创建存储失败')
-          self.props.loadStorageList(self.props.currentImagePool, self.props.cluster)
+          if (err.statusCode == 409) {
+            message.error('存储卷 ' + storageConfig.name + ' 已经存在')
+          } else {
+            if (err.message) {
+              message.error(err.message.message)
+            } else {
+              message.error(JSON.stringify(err))
+            }
+          }
         }
       }
     })
@@ -581,7 +582,7 @@ class Storage extends Component {
     const self = this
     Modal.confirm({
       title: '提示',
-      content: `确定要删除${this.state.volumeArray.map(item => item.name).join(',')}存储吗`,
+      content: `确定要删除 ${this.state.volumeArray.map(item => item.name).join(',')} 存储卷吗?`,
       okText: '删除',
       cancelText: '取消',
       onOk() {
