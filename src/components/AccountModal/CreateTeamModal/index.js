@@ -26,7 +26,7 @@ let CreateTeamModal = React.createClass({
     const { checkTeamName } = this.props.funcs
     setTimeout(() => {
       if (!USERNAME_REG_EXP.test(value)) {
-        callback([new Error('抱歉，团队名不合法。')])
+        callback([new Error('团队名以小写字母开头，以小写字母和数字组合')])
         return
       }
       checkTeamName(value, {

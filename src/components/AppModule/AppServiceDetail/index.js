@@ -248,7 +248,7 @@ class AppServiceDetail extends Component {
             </p>
             <div className='leftBox appSvcDetailDomain'>
               <div>
-                运行状态：
+                状态：
                 <span style={{position:'relative',top:'-5px'}}>
                   <ServiceStatus
                     smart={true}

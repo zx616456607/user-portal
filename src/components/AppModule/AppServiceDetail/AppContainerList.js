@@ -182,7 +182,7 @@ class AppContainerList extends Component {
                 名称
               </div>
               <div className="status commonData">
-                运行状态
+                状态
               </div>
               <div className="image commonData">
                 镜像

@@ -108,7 +108,7 @@ class AppDetail extends Component {
                 </p>
                 <div className='leftInfo'>
                   <div className='status'>
-                    运行状态&nbsp;:
+                    状态：
                     <div style={{ display: 'inline-block', position: 'relative', top: '-5px' }}>
                       <AppStatus app={app} smart={true} />
                     </div>
@@ -120,20 +120,20 @@ class AppDetail extends Component {
                     </div>
                   </div>
                   <div className='service'>
-                    服务&nbsp;:&nbsp; {`${app.serviceCount} / ${app.serviceCount}`}
+                    服务： {`${app.serviceCount} / ${app.serviceCount}`}
                   </div>
                 </div>
                 <div className='middleInfo'>
                   <div className='createDate'>
-                    创建&nbsp;:&nbsp;{formatDate(app.createTime || '')}
+                    创建：{formatDate(app.createTime || '')}
                   </div>
                   <div className='updateDate'>
-                    更新&nbsp;:&nbsp;{updateDate === '-' ? updateDate : formatDate(updateDate || '')}
+                    更新：{updateDate === '-' ? updateDate : formatDate(updateDate || '')}
                   </div>
                 </div>
                 <div className='rightInfo'>
                   <div className='introduction'>
-                    应用描述&nbsp;:&nbsp;{app.description || '无'}
+                    描述：{app.description || '无'}
                   </div>
                 </div>
                 <div style={{ clear: 'both' }}></div>
