@@ -22,6 +22,7 @@ import {
 import MemberTransfer from '../../MemberTransfer'
 import CreateTeamModal from '../../CreateTeamModal'
 import DelTeamModal from '../../DelTeamModal'
+import ExitTeamModal from '../../ExitTeamModal'
 
 const confirm = Modal.confirm;
 
@@ -42,6 +43,7 @@ let TeamTable = React.createClass({
       filter: '',
       nowTeamID: '',//当前团队ID
       showDelModal: false,
+      showExitModal: false,
     }
   },
   //Table变化回调
@@ -172,7 +174,6 @@ let TeamTable = React.createClass({
   },
   //添加新成员
   addNewMember(teamID) {
-    console.log('click!!')
     this.props.loadTeamUserList(teamID, ({ size: -1 }))
     this.setState({
       addMember: true,
@@ -217,6 +218,31 @@ let TeamTable = React.createClass({
   closeDelTeamModal() {
     this.setState({
       showDelModal: false
+    })
+  },
+  handleShowExitTeamModal(teamID) {
+    console.log('teamID',teamID);
+    if(teamID){
+      this.setState({
+        showExitModal: true,
+        nowTeamID: teamID
+      })
+    }
+  },
+  handleExitTeamOk() {
+    this.setState({
+      showExitModal: false,
+    })
+  },
+  handleExitTeamCancel() {
+    this.setState({
+      showExitModal: false,
+    })
+  },
+  //关闭退出团队弹框
+  closeExitTeamModal() {
+    this.setState({
+      showExitModal: false
     })
   },
   render() {
@@ -401,7 +427,25 @@ let TeamTable = React.createClass({
                   </Modal>
                 </Dropdown.Button>
                 :
-            <Button icon="delete" className="delBtn" onClick={() => this.delTeam(record.key)}>退出团队</Button>
+                <div>
+                  <Button icon="delete" className="delBtn" onClick={() => this.handleShowExitTeamModal(record.key)}>退出团队</Button>
+                  <Modal title='退出团队'
+                         visible={ this.state.nowTeamID === record.key && this.state.showExitModal }
+                         onOk={this.handleExitTeamOk}
+                         onCancel={this.handleExitTeamCancel}
+                         width="660px"
+                         wrapClassName="ExitTeamModal"
+                         footer={[
+                           <Button key="back" type="ghost" size="large" onClick={this.handleExitTeamCancel}>取消</Button>,
+                           <Button key="submit" type="primary" size="large" onClick={this.handleExitTeamOk} className="delBtn" >
+                             确定
+                           </Button>,
+                         ]}
+                  >
+                    <ExitTeamModal
+                    />
+                  </Modal>
+                </div>
         )
       },
     ]
