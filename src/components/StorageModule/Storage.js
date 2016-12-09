@@ -17,7 +17,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { remove, findIndex } from 'lodash'
 import { loadStorageList, deleteStorage, createStorage, formateStorage, resizeStorage } from '../../actions/storage'
-import { DEFAULT_IMAGE_POOL } from '../../constants'
+import { DEFAULT_IMAGE_POOL, STORAGENAME_REG_EXP } from '../../constants'
 import './style/storage.less'
 import { calcuDate } from '../../common/tools'
 
@@ -366,7 +366,8 @@ class Storage extends Component {
       volumeArray: [],
       currentType: 'ext4',
       inputName: '',
-      size: 500
+      size: 500,
+      nameError: false 
     }
   }
   componentWillMount() {
@@ -401,12 +402,15 @@ class Storage extends Component {
       message.error('请输入存储卷名称')
       return
     }
+    if(this.state.nameError) {
+      return
+    }
     if (this.state.size === 0) {
       message.error('请输入存储卷大小')
       return
     }
     if(this.state.name.length < 3 || this.state.name.length > 20) {
-      message.error('存储卷名称大小应在3到20个字符, 且只可以a-z或A-Z开始,且只可以英文字母或者数字组成')
+      message.error('存储卷名称大小应在3到15个字符, 且只可以a-z或A-Z开始,且只可以英文字母或者数字组成')
       return
     }
     if(!/^[a-zA-z][a-zA-z0-9]*$/.test(this.state.name)) {
@@ -457,6 +461,7 @@ class Storage extends Component {
   }
   handleCancel() {
     this.setState({
+      nameError: false,
       visible: false,
       size: 500,
       name: '',
@@ -561,8 +566,12 @@ class Storage extends Component {
     }
   }
   handleInputName(e) {
+    console.log(e.target.value)
+    let name = e.target.value;
+    let errorFlag = !STORAGENAME_REG_EXP.test(name);
     this.setState({
-      name: e.target.value
+      name: e.target.value,
+      nameError: errorFlag
     })
   }
   getSearchStorageName(e) {
@@ -608,13 +617,15 @@ class Storage extends Component {
                 onCancel={() => { this.handleCancel() } }
                 okText={formatMessage(messages.createBtn)}
                 cancelText={formatMessage(messages.cancelBtn)}
+                className='createAppStorageModal'
                 >
-                <Row style={{ height: '40px' }}>
+                <Row style={{ height: '45px' }}>
                   <Col span="3" className="text-center" style={{ lineHeight: '30px' }}>
                     <FormattedMessage {...messages.name} />
                   </Col>
-                  <Col span="12">
-                    <Input ref={(input) => this.focusInput = input} value={this.state.name} placeholder={formatMessage(messages.placeholder)} onChange={(e) => { this.handleInputName(e) } } />
+                  <Col span="21">
+                    <Input className={ this.state.nameError ? 'nameErrorInput nameInput' : 'nameInput' } ref={(input) => this.focusInput = input} value={this.state.name} placeholder={formatMessage(messages.placeholder)} onChange={(e) => { this.handleInputName(e) } } />
+                    { this.state.nameError ? [<span className='nameErrorSpan'>存储名称为3-15个字符，由字母，数字及横线组成，切首字母不能为数字及横线</span>] : null }
                   </Col>
                 </Row>
                 <Row style={{ height: '40px' }}>

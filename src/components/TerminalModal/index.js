@@ -95,7 +95,11 @@ class TerminalModal extends Component {
         const { scope, config } = _this.props;
         config.map((item, index) => {
           let frameKey = item.metadata.name + index;
-          window.frames[frameKey].contentWindow.closeTerminal();
+          if(!!window.frames[frameKey].contentWindow) {          
+            window.frames[frameKey].contentWindow.closeTerminal();
+          } else {
+            window.frames[frameKey].closeTerminal()
+          }
         })
         scope.setState({
           TerminalLayoutModal: false,
@@ -133,7 +137,11 @@ class TerminalModal extends Component {
     this.setState({
       currentTab: e
     })
-    window.frames[e].contentWindow.focusTerminal();
+    if(!!window.frames[frameKey].contentWindow) {          
+      window.frames[e].contentWindow.focusTerminal();
+    } else {
+      window.frames[frameKey].focusTerminal()
+    }    
   }
   
   closeTerminal(config, index) {
@@ -156,7 +164,11 @@ class TerminalModal extends Component {
           currentContainer: newList
         });
         let frameKey = config.metadata.name + index;
-        window.frames[frameKey].contentWindow.closeTerminal();
+        if(!!window.frames[frameKey].contentWindow) {          
+          window.frames[frameKey].contentWindow.closeTerminal();
+        } else {
+          window.frames[frameKey].closeTerminal()
+        }
         if(newList.length == 0) {
           scope.setState({
             TerminalLayoutModal: false

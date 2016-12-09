@@ -812,7 +812,7 @@ class AppList extends Component {
                 应用名称
               </div>
               <div className='appStatus commonTitle'>
-                应用状态
+                状态
               </div>
               {/*<div className='serviceNum commonTitle'>
                 服务数量

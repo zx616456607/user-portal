@@ -50,7 +50,7 @@ export default class ContainerDetailInfo extends Component {
               名称
           </div>
             <div className="commonTitle">
-              镜像名称
+              镜像
           </div>
             <div className="commonTitle">
               所属节点
