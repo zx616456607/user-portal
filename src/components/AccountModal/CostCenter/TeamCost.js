@@ -78,7 +78,7 @@ class TeamCost extends Component{
     let teamCostTitle = (
       <div className="teamCostTitle">
         <span>空间{currentSpaceName}对应的团队{currentTeamName}该月消费详情</span>
-        <MonthPicker style={{float: 'right'}} defaultValue={this.transformDate()} onChange={this.onChange} />
+        <MonthPicker style={{float: 'right',marginLeft:'40px'}} defaultValue={this.transformDate()} onChange={this.onChange} />
       </div>
     )
 
@@ -178,11 +178,14 @@ class TeamCost extends Component{
           axisPointer : {
             type : 'shadow'
           },
-          formatter: '{b} : {c}%',
-          position: function (point, params, dom) {
-            return [point[0]-25, '10%'];
+          formatter: _this.transformDate()+'-{b}<br/>消费 {c}T',
+          textStyle: {
+            color: '#46b2fa',
+            fontSize: 12,
           },
-          extraCssText: '::after: {content:""}'
+          backgroundColor: '#fff',
+          borderWidth: 1,
+          borderColor: '#46b2fa',
         },
         grid: {
           left: '3%',
