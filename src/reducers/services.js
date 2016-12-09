@@ -131,7 +131,13 @@ function serviceList(state = {}, action) {
   const cluster = action.cluster
   switch (action.type) {
     case ActionTypes.SERVICE_GET_ALL_LIST_REQUEST: {
-      return merge({}, state, { isFetching: true })
+      return merge({}, state, {
+        isFetching: (
+          state && state.services
+            ? false
+            : true
+        )
+      })
     }
     case ActionTypes.SERVICE_GET_ALL_LIST_SUCCESS: {
       return merge({}, {

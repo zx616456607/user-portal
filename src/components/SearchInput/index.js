@@ -59,8 +59,6 @@ class SearchInput extends Component{
   }
   handleSearch(){
     const { searchValue, selecteValue } = this.state
-    console.log("searchValue", searchValue)
-    console.log("selecteValue", selecteValue)
     let { scope,total } = this.props
     const { searchResult, pageSize, sort } = scope.state
     let filter = this.getFilterField(selecteValue) + "," + searchValue
@@ -123,7 +121,11 @@ class SearchInput extends Component{
         placeholder: '请输入关键词搜索',
       }
     }
-    const { addBefore, defaultValue, placeholder, width, position, } = searchIntOption
+    const defaultStyle = {
+      width: 200,
+      float: 'right'
+    }
+    const { addBefore, defaultValue, placeholder, width, position, setStyle} = searchIntOption
     if(addBefore){
       let selectBefore = (
         <Select defaultValue={defaultValue ? defaultValue : addBefore[0].key}
@@ -138,7 +140,7 @@ class SearchInput extends Component{
           }
         </Select>)
       return (
-        <div id='SearchInput' style={{width: `${width?width:'280px'}`,float: `${position?position:'right'}`}}>
+        /*<div id='SearchInput' style={{width: `${width?width:'280px'}`,float: `${position?position:'right'}`}}>
           <div className="ant-search-input-wrapper search">
             <Input addonBefore={selectBefore}
                    placeholder={placeholder?placeholder:"请输入关键词搜索"}
@@ -150,11 +152,26 @@ class SearchInput extends Component{
                       onClick={this.handleSearch} />
             </div>
           </div>
+        </div>*/
+        <div id='SearchInput'>
+          <div className='littleLeft'>
+            <i className='fa fa-search' onClick={this.handleSearch}/>
+          </div>
+          <div className='littleRight'>
+            <Input
+              addonBefore={selectBefore}
+              size='large'
+              onChange={this.handleInt}
+              placeholder={placeholder?placeholder:"请输入关键词搜索"}
+              onPressEnter={this.handleSearch}
+              value={searchValue}
+            />
+          </div>
         </div>
       )
     } else {
       return (
-        <div id='SearchInput' style={{width: `${width?width:'200px'}`,float: `${position?position:'right'}`}}>
+        /*<div id='SearchInput' style={setStyle?setStyle:defaultStyle}>
           <div className="ant-search-input-wrapper search">
             <Input placeholder={placeholder?placeholder:"请输入关键词搜索"}
                    onChange={this.handleInt}
@@ -164,6 +181,19 @@ class SearchInput extends Component{
                       className='ant-search-btn searchBtn'
                       onClick={this.handleSearch} />
             </div>
+          </div>
+        </div>*/
+        <div id='SearchInput'>
+          <div className='littleLeft'>
+            <i className='fa fa-search' onClick={this.handleSearch}/>
+          </div>
+          <div className='littleRight'>
+            <Input
+              size='large'
+              onChange={this.handleInt}
+              placeholder={placeholder?placeholder:"请输入关键词搜索"}
+              onPressEnter={this.handleSearch}
+            />
           </div>
         </div>
       )

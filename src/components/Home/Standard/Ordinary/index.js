@@ -202,7 +202,7 @@ class Ordinary extends Component{
     const {clusterOperations, clusterSysinfo, clusterStorage, clusterAppStatus,clusterDbServices,spaceName,clusterName,clusterNodeSpaceConsumption} = this.props
     let boxPos = 0
     if ((clusterStorage.freeSize + clusterStorage.usedSize) > 0) {
-      boxPos = (clusterStorage.usedSize/(clusterStorage.freeSize + clusterStorage.usedSize)).toFixed(3)
+      boxPos = (clusterStorage.usedSize/(clusterStorage.freeSize + clusterStorage.usedSize)).toFixed(4)
     }
     //应用
     let appRunning = clusterAppStatus.appMap.get('Running')

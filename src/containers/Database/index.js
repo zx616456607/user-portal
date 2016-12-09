@@ -17,20 +17,14 @@ import './style/database.less'
 const menuList = [
   {
     url: '/database_cache',
-    name: 'MySQL集群'
+    name: '关系型数据库'
   },
-  {
-    url: '/database_cache/mongo_cluster',
-    name: 'Mongo集群'
-  },
+
   {
     url: '/database_cache/redis_cluster',
-    name: 'Redis集群'
+    name: '缓存'
   },
-  {
-    url: '/database_cache/database_storage',
-    name: '存储卷'
-  }
+ 
 ]
 
 export default class Database extends Component {
@@ -51,7 +45,7 @@ export default class Database extends Component {
           key="DatabaseSider" 
           type="left"
           >
-          <div className={ this.state.containerSiderStyle == 'normal' ? 'DatabaseMenu CommonSecondMenu' : 'hiddenMenu DatabaseMenu CommonSecondMenu'} key='imageSider'>
+          <div className={ this.state.containerSiderStyle == 'normal' ? 'DatabaseMenu CommonSecondMenu' : 'hiddenMenu DatabaseMenu CommonSecondMenu'} key='databaseSider'>
             <SecondSider menuList={menuList} scope={scope} />
           </div>
         </QueueAnim>

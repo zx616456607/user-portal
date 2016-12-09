@@ -11,6 +11,7 @@
 import { Schema, arrayOf, normalize } from 'normalizr'
 import { camelizeKeys } from 'humps'
 import 'isomorphic-fetch'
+import { genRandomString } from '../common/tools'
 
 // Fetches an API response
 function fetchApi(endpoint, options, schema) {
@@ -127,6 +128,13 @@ export default store => next => action => {
   }
   if (typeof endpoint !== 'string') {
     throw new Error('Specify a string endpoint URL.')
+  }
+  // And random string in query for IE(avoid use cache)
+  let randomQuery = '_=' + genRandomString()
+  if (endpoint.indexOf('?') > -1) {
+    endpoint += `&${randomQuery}`
+  } else {
+    endpoint += `?${randomQuery}`
   }
   if (!schema) {
     throw new Error('Specify one of the exported Schemas.')

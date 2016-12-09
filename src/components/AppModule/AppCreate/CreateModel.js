@@ -65,7 +65,7 @@ class CreateModel extends Component {
     } else if (currentSelect == "store") {
       linkUrl = "app_store"
     } else if (currentSelect == "layout") {
-      linkUrl = "compose_file?query=entery"
+      linkUrl = "compose_file"
     }
     const parentScope = this.props.scope;
     this.setState({

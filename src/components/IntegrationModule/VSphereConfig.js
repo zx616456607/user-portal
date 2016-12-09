@@ -127,6 +127,14 @@ let VSphereConfig = React.createClass({
         e.preventDefault();
         return;
       }
+      if(values.url.indexOf('http://') > -1) {
+        let temp = values.url.split('http://');
+        values.url = temp[1];
+      }
+      if(values.url.indexOf('https://') > -1) {
+        let temp = values.url.split('https://');
+        values.url = temp[1];
+      }
       updateIntegrationConfig(integrationId, values, {
         success: {
           func: () => {
@@ -138,6 +146,14 @@ let VSphereConfig = React.createClass({
                   })
                 },
                 isAsync: true
+              },
+              failed: {
+                func: () => {
+                  notification['error']({
+                    message: '更新应用',
+                    description: '更新应用失败',
+                  });
+                }
               }
             })
           },
@@ -225,7 +241,6 @@ let VSphereConfig = React.createClass({
           <div className='inputBox'>
             <FormItem style={{ width:'220px' }} >
               <Input {...passwordProps} disabled={!this.state.edittingFlag} type={this.state.checkPwdType == 'pwd' ? 'password' : 'text' } size='large' />
-              <i className='fa fa-eye' onClick={this.onChangePwdType}/>
             </FormItem>
           </div>
           <div style={{ clear: 'both' }}></div>

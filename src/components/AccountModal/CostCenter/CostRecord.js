@@ -81,7 +81,7 @@ class CostRecord extends Component{
     function _addZero(text) {
       return text.toString().length === 2 ? text : `0${text}`
     }
-    
+
     let date = new Date()
     let y = date.getFullYear()
     let m = date.getMonth() + 1
@@ -231,7 +231,7 @@ class CostRecord extends Component{
           type: 'line',
           data: yAxisData,
           symbolSize: 8,
-          
+
         },]
       }
     }
@@ -245,7 +245,7 @@ class CostRecord extends Component{
       })
       loadSpaceSummary(_this.state.currentNamespace, time)
     }
-    
+
     let onCurrentSpaceSummaryInDayDateChange = function (date) {
       let time = moment(date).format('YYYY-MM-DD 00:00:00')
       if (time == 'Invalid date') {
@@ -707,4 +707,4 @@ export default connect (mapStateToProps,{
   loadConsumptionTrend,
   loadSpaceSummaryInDay,
   loadSpaceSummary,
-})(CostRecord) 
+})(CostRecord)

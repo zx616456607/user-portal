@@ -115,8 +115,8 @@ class CollapseContainer extends Component {
   }
   editConfigFile(group) {
     const configtextarea = this.state.configtextarea
-    if (escape(configtextarea).indexOf('%u') > 0) {
-      message.error('内容格式输入有误，请重新输入')
+    if (configtextarea == '') {
+      message.info('内容不能为空，请重新输入内容')
       return
     }
     const groups = {
@@ -310,7 +310,7 @@ class CollapseContainer extends Component {
           visible={this.state.modalConfigFile}
           onOk={() => this.editConfigFile(this.props.groupname)}
           onCancel={() => { this.setState({ modalConfigFile: false }) } }
-          width = "800"
+          width = "800px"
           >
           <div className='configFile-inf'>
             <p className='configFile-tip' style={{ color: '#16a3ea', height: '35px', textIndent: '12px' }}>

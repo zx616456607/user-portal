@@ -121,20 +121,6 @@ const messages = defineMessages({
 })
 
 let MyComponent = React.createClass({
-  // componentWillReceiveProps(nextProps) {
-  //   let config = nextProps.config;
-  //   let pool = nextProps.pool;
-  //   let list = config[pool]
-  //   let check = {}
-  //   if (list) {
-  //     list.storageList.forEach((item) => {
-  //       check[item.id] = false
-  //     })
-  //   }
-  //   this.setState({
-  //     check
-  //   })
-  // },
   getInitialState() {
     return {
       visible: false,
@@ -176,7 +162,7 @@ let MyComponent = React.createClass({
               message.success('格式化存储卷成功')
               this.props.loadStorageList()
             }
-          }, 
+          },
           failed: {
             isAsync: true,
             func: () => {
@@ -270,10 +256,10 @@ let MyComponent = React.createClass({
     let list = this.props.storage;
     if (!list || !list.storageList) return (<div></div>)
     let items = list.storageList.map((item) => {
-      const menu = (<Menu onClick={(e) => { this.showAction('format', item.name, item.format) } } style={{width:'90px'}}>
-              <Menu.Item key="1" disabled={item.isUsed}><FormattedMessage {...messages.formatting} /></Menu.Item>
-            </Menu>
-            )
+      const menu = (<Menu onClick={(e) => { this.showAction('format', item.name, item.format) } } style={{ width: '90px' }}>
+        <Menu.Item key="1" disabled={item.isUsed}><FormattedMessage {...messages.formatting} /></Menu.Item>
+      </Menu>
+      )
       return (
         <div className="appDetail" key={item.name} >
           <div className="selectIconTitle commonData">
@@ -385,7 +371,13 @@ class Storage extends Component {
   }
   componentWillMount() {
     document.title = '存储 | 时速云'
-    this.props.loadStorageList(this.props.currentImagePool, this.props.currentCluster)
+    this.props.loadStorageList(this.props.currentImagePool, this.props.cluster)
+  }
+  componentWillReceiveProps(nextProps) {
+    let { currentCluster, loadStorageList, currentImagePool, cluster } = nextProps
+    if (currentCluster.clusterID !== this.props.currentCluster.clusterID || currentCluster.namespace !== this.props.currentCluster.namespace) {
+      loadStorageList(currentImagePool, cluster)
+    }
   }
   onChange(value) {
     this.setState({
@@ -413,6 +405,14 @@ class Storage extends Component {
       message.error('请输入存储卷大小')
       return
     }
+    if(this.state.name.length < 3 || this.state.name.length > 20) {
+      message.error('存储卷名称大小应在3到20个字符, 且只可以a-z或A-Z开始,且只可以英文字母或者数字组成')
+      return
+    }
+    if(!/^[a-zA-z][a-zA-z0-9]*$/.test(this.state.name)) {
+      message.error('存储名称只可以a-z或A-Z开始,且只可以英文字母或者数字组成')
+      return
+    }
     const hide = message.loading('创建存储卷中', 0)
     let storageConfig = {
       driver: 'rbd',
@@ -421,12 +421,9 @@ class Storage extends Component {
         size: this.state.size,
         fsType: this.state.currentType,
       },
-      cluster: this.props.currentCluster
+      cluster: this.props.cluster
     }
     let self = this
-    this.setState({
-      name: ''
-    })
     this.props.createStorage(storageConfig, {
       success: {
         func: () => {
@@ -438,7 +435,7 @@ class Storage extends Component {
           })
           hide()
           message.success('创建存储成功')
-          self.props.loadStorageList(self.props.currentImagePool, self.props.currentCluster)
+          self.props.loadStorageList(self.props.currentImagePool, self.props.cluster)
         },
         isAsync: true
       },
@@ -453,7 +450,7 @@ class Storage extends Component {
           })
           hide()
           message.error('创建存储失败')
-          self.props.loadStorageList(self.props.currentImagePool, self.props.currentCluster)
+          self.props.loadStorageList(self.props.currentImagePool, self.props.cluster)
         }
       }
     })
@@ -478,11 +475,11 @@ class Storage extends Component {
       return item.name
     })
     const hide = message.loading("删除存储中", 0)
-    this.props.deleteStorage(this.props.currentImagePool, this.props.currentCluster, { volumes: volumeArray }, {
+    this.props.deleteStorage(this.props.currentImagePool, this.props.cluster, { volumes: volumeArray }, {
       success: {
         func: () => {
           hide()
-          this.props.loadStorageList(this.props.currentImagePool, this.props.currentCluster)
+          this.props.loadStorageList(this.props.currentImagePool, this.props.cluster)
           message.success('删除存储成功')
         },
         isAsync: true
@@ -492,7 +489,7 @@ class Storage extends Component {
         func: () => {
           hide()
           message.error('删除存储失败')
-          this.props.loadStorageList(this.props.currentImagePool, this.props.currentCluster)
+          this.props.loadStorageList(this.props.currentImagePool, this.props.cluster)
         }
       }
     })
@@ -574,7 +571,7 @@ class Storage extends Component {
     })
   }
   searchByStorageName(e) {
-    this.props.loadStorageList(this.props.currentImagePool, this.props.currentCluster, this.state.storageName)
+    this.props.loadStorageList(this.props.currentImagePool, this.props.cluster, this.state.storageName)
   }
   showDeleteModal() {
     if (this.state.volumeArray.length <= 0) {
@@ -617,7 +614,7 @@ class Storage extends Component {
                     <FormattedMessage {...messages.name} />
                   </Col>
                   <Col span="12">
-                    <Input ref={ (input) => this.focusInput = input } value={this.state.name} placeholder={formatMessage(messages.placeholder)} onChange={(e) => { this.handleInputName(e) }}/>
+                    <Input ref={(input) => this.focusInput = input} value={this.state.name} placeholder={formatMessage(messages.placeholder)} onChange={(e) => { this.handleInputName(e) } } />
                   </Col>
                 </Row>
                 <Row style={{ height: '40px' }}>
@@ -645,7 +642,7 @@ class Storage extends Component {
             </div>
             <div className="rightBox">
               <div className="littleLeft">
-                <i className="fa fa-search"/>
+                <i className="fa fa-search" />
               </div>
               <div className="littleRight">
                 <Input size="large" placeholder={formatMessage(messages.inputPlaceholder)} onChange={(e) => this.getSearchStorageName(e)} onPressEnter={() => this.searchByStorageName()} />
@@ -656,7 +653,7 @@ class Storage extends Component {
           <Card className="storageBox appBox">
             <div className="appTitle">
               <div className="selectIconTitle commonTitle">
-                <Checkbox onChange={(e) => this.onAllChange(e)} checked={this.isAllChecked()} disabled={!this.disableSelectAll()}/>
+                <Checkbox onChange={(e) => this.onAllChange(e)} checked={this.isAllChecked()} disabled={!this.disableSelectAll()} />
               </div>
               <div className="name commonTitle"><FormattedMessage {...messages.storageName} /></div>
               <div className="status commonTitle"><FormattedMessage {...messages.status} /></div>
@@ -671,9 +668,9 @@ class Storage extends Component {
               storage={this.props.storageList[this.props.currentImagePool]}
               volumeArray={this.state.volumeArray}
               saveVolumeArray={this.selectItem()}
-              cluster={this.props.currentCluster}
+              cluster={this.props.cluster}
               imagePool={this.props.currentImagePool}
-              loadStorageList={() => { this.props.loadStorageList(this.props.currentImagePool, this.props.currentCluster) } }
+              loadStorageList={() => { this.props.loadStorageList(this.props.currentImagePool, this.props.cluster) } }
               />
           </Card>
         </div>
@@ -694,27 +691,10 @@ function mapStateToProps(state) {
     createStorage: state.storage.createStorage,
     deleteStorage: state.storage.deleteStorage,
     currentImagePool: DEFAULT_IMAGE_POOL,
-    currentCluster: cluster.clusterID
+    cluster: cluster.clusterID,
+    currentCluster: cluster,
   }
 }
-
-// function mapDispatchToProps(dispatch) {
-//   return {
-//     loadStorageList: (pool, cluster, query) => {
-//       dispatch(loadStorageList(pool, cluster, query))
-//     },
-//     deleteStorage: (pool, cluster, volumeArray, callback) => {
-//       dispatch(deleteStorage(pool, cluster, volumeArray, callback))
-//     },
-//     createStorage: (obj, callback) => {
-//       dispatch(createStorage(obj, callback))
-//     }
-//   }
-// }
-
-// export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(Storage, {
-//   withRef: true,
-// }))
 
 export default connect(mapStateToProps, {
   deleteStorage,
