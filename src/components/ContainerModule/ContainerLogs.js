@@ -39,7 +39,8 @@ class ContainerLogs extends Component {
   }
 
   componentWillUnmount() {
-    this.ws.close()
+    const ws = this.ws
+    ws && ws.close()
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -197,7 +198,7 @@ class ContainerLogs extends Component {
             </div>
             <div style={{ clear: 'both' }}></div>
             <div className='operaBottomBox'>
-              <i className={ logSize != 'big' ? 'fa fa-expand' : 'fa fa-compress'} onClick={this.onChangeLogSize.bind(this)}></i>
+              <i className={logSize != 'big' ? 'fa fa-expand' : 'fa fa-compress'} onClick={this.onChangeLogSize.bind(this)}></i>
               <Tooltip placement='top' title={`click to ${iconType}`}>
                 <i className={`fa fa-${iconType}-circle-o`} onClick={this.handleLoopWatchStatus} />
               </Tooltip>
