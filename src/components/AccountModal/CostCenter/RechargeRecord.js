@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Card, Button, Icon, Table, Modal, Alert, Row, Col, Checkbox, InputNumber } from 'antd'
+import { Card, Button, Icon, Table, Modal, Alert, Row, Col, Checkbox, InputNumber,Spin } from 'antd'
 import './style/RechargeRecord.less'
 import { connect } from 'react-redux'
 import { loadUserTeamspaceList } from '../../../actions/user'
@@ -225,11 +225,15 @@ class RechargeRecord extends Component{
             <Row style={{paddingLeft:'22px',height: 35}}>
               <Col span={4} style={{color: '#7a7a7a'}}>提醒规则</Col>
               <Col span={20} style={{color: '#666666'}}>我的空间可用余额小于&nbsp;
-                <InputNumber value={threshold} onChange={(value) => {
-                  this.setState({
-                    threshold: value
-                  })
-                }} />T币
+                <InputNumber
+                  value={threshold}
+                  onChange={(value) => {
+                    this.setState({
+                      threshold: value
+                    })
+                  }}
+                  min={0}
+                />T币
                 时发送提醒
               </Col>
             </Row>
