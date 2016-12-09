@@ -469,7 +469,11 @@ class ServiceList extends Component {
     this.setState({
       serviceList: nextProps.serviceList
     })
-    let { page, size, name } = nextProps
+    let { page, size, name, currentCluster } = nextProps
+    if (currentCluster.clusterID !== this.props.currentCluster.clusterID || currentCluster.namespace !== this.props.currentCluster.namespace) {
+      this.loadServices(nextProps)
+      return
+    }
     if (page === this.props.page && size === this.props.size && name === this.props.name) {
       return
     }
@@ -1073,6 +1077,7 @@ function mapStateToProps(state, props) {
     cluster: cluster.clusterID,
     statusWatchWs,
     bindingDomains: state.entities.current.cluster.bindingDomains,
+    currentCluster: cluster,
     name,
     pathname,
     page,
