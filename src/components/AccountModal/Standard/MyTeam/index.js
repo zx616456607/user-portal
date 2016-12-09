@@ -21,10 +21,11 @@ import {
 } from '../../../../actions/team'
 import MemberTransfer from '../../MemberTransfer'
 import CreateTeamModal from '../../CreateTeamModal'
+import DelTeamModal from '../../DelTeamModal'
 
 const confirm = Modal.confirm;
 
-
+//团队列表组件
 let TeamTable = React.createClass({
   getInitialState() {
     return {
@@ -39,19 +40,14 @@ let TeamTable = React.createClass({
       targetKeys: [],
       sort: "a,teamName",//默认排序规则
       filter: '',
-      nowTeamID: ''
+      nowTeamID: '',//当前团队ID
+      showDelModal: false,
     }
   },
   //Table变化回调
   handleChange(pagination, filters, sorter) {
     this.setState({
       filteredInfo: filters,
-    })
-  },
-  handleBack() {
-    const { scope } = this.props
-    scope.setState({
-      notFound: false,
     })
   },
   //删除团队
@@ -168,6 +164,9 @@ let TeamTable = React.createClass({
         //this is delete the container
         //this.delTeam(teamID);
         console.log('delTeam !')
+        this.setState({
+          showDelModal: true,
+        })
         break;
     }
   },
@@ -214,8 +213,14 @@ let TeamTable = React.createClass({
   handleChange(targetKeys) {
     this.setState({ targetKeys })
   },
+  //关闭解散团队弹框
+  closeDelTeamModal() {
+    this.setState({
+      showDelModal: false
+    })
+  },
   render() {
-    let { sortedInfo, filteredInfo, targetKeys } = this.state
+    let { sortedInfo, filteredInfo, targetKeys, showDelModal } = this.state
     const { searchResult, sort, filter } = this.props.scope.state
     const { scope, teamUserIDList } = this.props
     let data = [
@@ -401,11 +406,17 @@ let TeamTable = React.createClass({
       },
     ]
     return (
-      <Table columns={columns}
-        dataSource={searchResult.length === 0 ? data : searchResult}
-        pagination={pagination}
-        onChange={this.handleChange}
-      />
+      <div>
+        <Table columns={columns}
+               dataSource={searchResult.length === 0 ? data : searchResult}
+               pagination={pagination}
+               onChange={this.handleChange}
+        />
+        <DelTeamModal
+          visible={showDelModal}
+          closeDelTeamModal={this.closeDelTeamModal}
+        />
+      </div>
     )
   },
 })
@@ -469,7 +480,6 @@ class MyTeam extends Component {
       }
     })
   }
-  
   componentWillMount() {
     this.props.loadUserTeamList('default', {
       page: 1,
@@ -511,7 +521,8 @@ class MyTeam extends Component {
             scope={scope}
             visible={visible}
             onSubmit={this.teamOnSubmit}
-            funcs={funcs} />
+            funcs={funcs}
+          />
           <SearchInput searchIntOption={searchIntOption} scope={scope} data={teams}/>
           <div className="total">共{this.props.total}个</div>
         </Row>
@@ -522,7 +533,8 @@ class MyTeam extends Component {
               addTeamusers={addTeamusers}
               loadUserTeamList={loadUserTeamList}
               loadTeamUserList={loadTeamUserList}
-              teamUserIDList={teamUserIDList} />
+              teamUserIDList={teamUserIDList}
+            />
           </Card>
         </Row>
       </div>

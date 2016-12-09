@@ -565,7 +565,7 @@ class TeamDetail extends Component {
     return (
       <div id='TeamDetail'>
         <Row style={{ marginBottom: 20 }}>
-          <Link className="back" to="/setting/team">返回</Link>
+          <Link className="back" to="/account/team">返回</Link>
         </Row>
         <Row className="title">
           {teamName}

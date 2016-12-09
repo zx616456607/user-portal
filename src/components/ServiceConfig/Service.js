@@ -13,7 +13,7 @@ import { Row, Col, Modal, Button, Icon, Collapse, Input, message, Spin } from 'a
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import './style/ServiceConfig.less'
 import QueueAnim from 'rc-queue-anim'
-import { validateK8sResource } from '../namingValidation'
+import { validateK8sResource } from '../../common/naming_validation'
 import CollapseHeader from './ServiceCollapseHeader'
 import CollapseContainer from './ServiceCollapseContainer'
 import { connect } from 'react-redux'
@@ -53,7 +53,7 @@ class CollapseList extends Component {
   render() {
     const {groupData, isFetching} = this.props
     const scope = this
-    if(isFetching) {
+    if (isFetching) {
       return (
         <div className='loadingBox'>
           <Spin size='large' />
@@ -146,7 +146,7 @@ class Service extends Component {
     }
     this.props.createConfigGroup(configs, {
       success: {
-        func: () => {          
+        func: () => {
           self.setState({
             createModal: false,
             myTextInput: ''
@@ -198,9 +198,9 @@ class Service extends Component {
         self.props.deleteConfigGroup(configData, {
           success: {
             func: (res) => {
-              const errorText =[]
+              const errorText = []
               if (res.message.length > 0) {
-                res.message.forEach(function(list){
+                res.message.forEach(function (list) {
                   errorText.push({
                     name: list.name,
                     text: list.error
@@ -208,11 +208,11 @@ class Service extends Component {
                 })
                 const content = errorText.map(list => {
                   return (
-                    <h3>{list.name} ：{list.text}</h3>
+                    <h3>{list.name}：{list.text}</h3>
                   )
                 })
                 Modal.error({
-                  title:'删除配置组失败!',
+                  title: '删除配置组失败!',
                   content
                 })
               } else {
@@ -268,7 +268,7 @@ class Service extends Component {
             <div className="create-conf-g" style={{ padding: '20px 0' }}>
               <div style={{ height: 25 }}>
                 <span style={{ width: '50px', display: 'inline-block', fontSize: '14px' }}> 名称 : </span>
-                <Input type="text" ref={(ref) => { this.nameInput = ref; }} style={{ width: '80%' }} value={this.state.myTextInput} onPressEnter={() => this.btnCreateConfigGroup()} onChange={(e) => this.createModalInput(e)} />
+                <Input type="text" ref={(ref) => { this.nameInput = ref; } } style={{ width: '80%' }} value={this.state.myTextInput} onPressEnter={() => this.btnCreateConfigGroup()} onChange={(e) => this.createModalInput(e)} />
               </div>
             </div>
           </Modal>

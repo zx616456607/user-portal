@@ -1,7 +1,7 @@
 #TeamManage {
   .ant-alert {
     color: #187cb7;
-    font-size: 13px;
+    font-size: 14px;
     line-height: 26px;
     border: 1px dashed #88d8fd;
     margin-bottom: 20px;
@@ -36,6 +36,14 @@
       .ant-card-body {
         padding: 0;
         .ant-table {
+          font-size: 12px;
+          .ant-table-thead {
+            tr {
+              th {
+                font-weight: normal;
+              }
+            }
+          }
           .addBtn {
             font-weight: normal;
             background-color: #fff;
@@ -90,18 +98,5 @@
       resize: none;
     }
   }
-  .ant-btn {
-    width: 80px;
-    height: 36px;
-    border-radius: 3px;
-    font-weight: normal;
-    border: none;
-    &:hover {
-      border: none;
-    }
-  }
-  .ant-btn-ghost {
-    background-color: #efefef;
-    color: #717171;
-  }
+
 }
