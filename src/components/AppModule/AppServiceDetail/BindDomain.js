@@ -15,9 +15,10 @@ import QueueAnim from 'rc-queue-anim'
 import union from 'lodash/union'
 import filter from 'lodash/filter'
 import "./style/BindDomain.less"
-import { loadServiceDomain, serviceBindDomain, clearServiceDomain, deleteServiceDomain} from '../../../actions/services'
-const InputGroup = Input.Group;
+import { loadServiceDomain, serviceBindDomain, clearServiceDomain, deleteServiceDomain } from '../../../actions/services'
+import NotificationHandler from '../../../common/notification_handler'
 
+const InputGroup = Input.Group
 const CName_Default_Message = '提示：添加域名后，CNAME地址会出现在这里'
 
 class BindDomain extends Component {
@@ -39,7 +40,7 @@ class BindDomain extends Component {
   }
   componentWillReceiveProps(nextProps) {
     const { serviceDetailmodalShow, service } = nextProps
-    if(!service.spec) return
+    if (!service.spec) return
     if (!serviceDetailmodalShow) {
       this.setState({
         domainList: [],
@@ -52,7 +53,7 @@ class BindDomain extends Component {
     this.getDomainList(service)
   }
   getDomainList(service) {
-    if(!service.spec) return
+    if (!service.spec) return
     const containers = service.spec.template.spec.containers
     if (!containers || containers.length === 0) {
       this.setState({
@@ -90,7 +91,7 @@ class BindDomain extends Component {
         <InputGroup className="newDomain">
           <Input size="large" value={domain} disabled />
           <div className="ant-input-group-wrap">
-            <Button className="addBtn" size="large" onClick={scope.deleteDomain.bind(scope, domain, port, index) }>
+            <Button className="addBtn" size="large" onClick={scope.deleteDomain.bind(scope, domain, port, index)}>
               <i className="fa fa-trash"></i>
             </Button>
           </div>
@@ -118,57 +119,66 @@ class BindDomain extends Component {
     const cluster = this.props.cluster
     const port = this.state.bindPort
     const domain = this.state.newValue
-    if(!/^[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+.?/.test(domain)) {
-      message.error('请填写正确的域名')
+    let notification = new NotificationHandler()
+    if (!/^[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+.?/.test(domain)) {
+      notification.error('请填写正确的域名')
       return
     }
-    if(/:[0-9]+/.test(domain)) {
-      message.error('请填写正确的域名')
+    if (/:[0-9]+/.test(domain)) {
+      notification.error('请填写正确的域名')
       return
     }
     let isExists = this.state.domainList.some(item => {
       let d = item.props.children[0].props.value
-      if(d === domain) {
-        message.error('已经绑定过该域名')
+      if (d === domain) {
+        notification.error('已经绑定过该域名')
         return true
       }
       return false
     })
-    if(isExists) return
+    if (isExists) return
+    notification.spin('保存域名信息中...')
     const scope = this;
     this.props.bindDomain(cluster, serviceName, {
       port: parseInt(port),
-      domain 
+      domain
     }, {
-      success: {
-        func() {
-          //this function for user add new domain name
-          let newList = scope.state.domainList;
-          let num = newList.length;
-          newList.push(
-            <InputGroup className="newDomain">
-              <Input size="large" value={scope.state.newValue} disabled />
-              <div className="ant-input-group-wrap">
-                <Button className="addBtn" size="large" onClick={scope.deleteDomain.bind(scope, scope.state.newValue, port, num) }>
-                  <i className="fa fa-trash"></i>
-                </Button>
-              </div>
-            </InputGroup>
-          );
-          let cname = '';
-          if (newList.length > 0) {
-            cname = scope.getCName();
+        success: {
+          func() {
+            //this function for user add new domain name
+            let newList = scope.state.domainList;
+            let num = newList.length;
+            newList.push(
+              <InputGroup className="newDomain">
+                <Input size="large" value={scope.state.newValue} disabled />
+                <div className="ant-input-group-wrap">
+                  <Button className="addBtn" size="large" onClick={scope.deleteDomain.bind(scope, scope.state.newValue, port, num)}>
+                    <i className="fa fa-trash"></i>
+                  </Button>
+                </div>
+              </InputGroup>
+            );
+            let cname = '';
+            if (newList.length > 0) {
+              cname = scope.getCName();
+            }
+            scope.setState({
+              domainList: newList,
+              newValue: null,
+              disabled: true,
+              cnameNotice: cname
+            });
+            notification.close()
+            notification.success('添加域名绑定成功')
           }
-          scope.setState({
-            domainList: newList,
-            newValue: null,
-            disabled: true,
-            cnameNotice: cname
-          });
-          message.success('添加域名绑定成功')
+        },
+        failed: {
+          func: () => {
+            notification.close()
+            notification.error('添加域名绑定失败')
+          }
         }
-      }
-    })
+      })
   }
   getCName() {
     let cname = '该集群未定义域名，不能提供CNAME地址'
@@ -189,31 +199,40 @@ class BindDomain extends Component {
     //this function for user delete domain name
     let newList = this.state.domainList;
     const self = this
+    let notification = new NotificationHandler()
+    notification.spin('删除绑定域名中...')
     this.props.deleteServiceDomain(this.props.cluster, this.props.serviceName, {
       domain: domainName,
       port: parseInt(port)
     }, {
-      success: {
-        func() {
-          for (let i = 0; i< newList.length; i++) {
-            if (newList[i].props.children[0].props.value == domainName) {
-              newList.splice(i, 1)
-              break
+        success: {
+          func() {
+            for (let i = 0; i < newList.length; i++) {
+              if (newList[i].props.children[0].props.value == domainName) {
+                newList.splice(i, 1)
+                break
+              }
             }
-          }
-          self.setState({
-            domainList: newList
-          });
-          if(newList.length === 0) {
             self.setState({
-              disabled: false,
-              cnameNotice: CName_Default_Message
-            })
-          }
-          message.success('删除绑定域名成功')
+              domainList: newList
+            });
+            if (newList.length === 0) {
+              self.setState({
+                disabled: false,
+                cnameNotice: CName_Default_Message
+              })
+            }
+            notification.close()
+            notification.success('删除绑定域名成功')
+          },
         },
-      }
-    })
+        failed: {
+          func: () => {
+            notification.close()
+            notification.error('删除绑定域名失败')
+          }
+        }
+      })
   }
   onChangeInput(e) {
     this.setState({
@@ -252,7 +271,7 @@ class BindDomain extends Component {
         </div>
         <Card className="infoBox">
           <div className="protocol">
-            <Select size="large"  style={{ width: "90%" }} disabled={this.state.disabled} onChange={(value) => this.selectPort(value)} defaultValue={this.state.bindPort}>
+            <Select size="large" style={{ width: "90%" }} disabled={this.state.disabled} onChange={(value) => this.selectPort(value)} defaultValue={this.state.bindPort}>
               {this.getPorts()}
             </Select>
           </div>
@@ -285,7 +304,7 @@ function mapStateToProp(state) {
     serviceDomainInfo: state.services.serviceDomainInformation,
     serviceBindDomain: state.services.serviceBindDomain,
     deleteDomainState: state.services.deleteDomain,
-    bindingDomains:    state.entities.current.cluster.bindingDomains
+    bindingDomains: state.entities.current.cluster.bindingDomains
   }
 }
 BindDomain = connect(mapStateToProp, {

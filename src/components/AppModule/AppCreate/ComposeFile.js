@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Dropdown, Modal, Checkbox, Button, Card, Menu, Input, Select, Popconfirm, message, Form } from 'antd'
+import { Dropdown, Modal, Checkbox, Button, Card, Menu, Input, Select, Popconfirm, Form } from 'antd'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import "./style/ComposeFile.less"
@@ -20,6 +20,7 @@ import * as yaml from 'js-yaml'
 import { browserHistory } from 'react-router'
 import AppAddStackModal from './AppAddStackModal'
 import { validateAppName } from '../../../common/naming_validation'
+import NotificationHandler from '../../../common/notification_handler'
 
 const FormItem = Form.Item;
 const createForm = Form.create;
@@ -90,6 +91,7 @@ class ComposeFile extends Component {
   subApp() {
     const {appName, appDescYaml, remark} = this.state
     const { cluster } = this.props
+    let notification = new NotificationHandler()
     let appConfig = {
       cluster,
       template: appDescYaml,
@@ -98,11 +100,11 @@ class ComposeFile extends Component {
     }
     let self = this
     if (appConfig.appName == '') {
-      message.info('请填写应用名称')
+      notification.error('请填写应用名称')
       return
     }
     if (appConfig.template == '') {
-      message.info('请选择编排文件')
+      notification.error('请选择编排文件')
       return
     }
     this.props.createApp(appConfig, {
@@ -128,12 +130,10 @@ class ComposeFile extends Component {
   }
   confirm() {
     this.setState({ visible: false });
-    message.success('返回');
     browserHistory.push('/app_manage/app_create/fast_create')
   }
   cancel() {
     this.setState({ visible: false })
-    message.error('留在当前页面')
   }
   handleVisibleChange(visible) {
     if (!visible) {
