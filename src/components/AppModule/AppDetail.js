@@ -88,7 +88,6 @@ class AppDetail extends Component {
   render() {
     const { children, appName, app, isFetching, location } = this.props
     const { activeTabKey, serviceList } = this.state
-    const status = getAppStatus(serviceList || app.services)
     if (isFetching || !app) {
       return (
         <div className='loadingBox'>
@@ -96,6 +95,7 @@ class AppDetail extends Component {
         </div>
       )
     }
+    const status = getAppStatus(serviceList || app.services)
     let updateDate = '-'
     if (app && app.services && app.services[0]) {
       updateDate = app.services[0].metadata.creationTimestamp
