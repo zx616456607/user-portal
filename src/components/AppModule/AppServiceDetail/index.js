@@ -30,22 +30,16 @@ import ServiceStatus from '../../TenxStatus/ServiceStatus'
 import { TENX_MARK } from '../../../constants'
 import { addPodWatch, removePodWatch } from '../../../containers/App/status'
 import TipSvcDomain from '../../TipSvcDomain'
+import { getServiceStatusByContainers } from '../../../common/status_identify'
 
 const DEFAULT_TAB = '#containers'
 const TabPane = Tabs.TabPane;
-
-/*function loadData(props) {
-  const { cluster, serviceName, loadServiceDetail, loadServiceContainerList } = props
-  document.title = `${serviceName} 服务详情页 | 时速云`
-  loadServiceDetail(cluster, serviceName)
-  loadServiceContainerList(cluster, serviceName)
-}*/
 
 function terminalSelectedCheck(item, list) {
   //this function for check the container selected or not
   let existFlag = false;
   list.map((container) => {
-    if(item.metadata.name == container.metadata.name) {
+    if (item.metadata.name == container.metadata.name) {
       existFlag = true;
     }
   });
@@ -96,24 +90,24 @@ class AppServiceDetail extends Component {
       modalShow: false
     });
   }
-  
+
   closeTerminalLayoutModal() {
     //this function for user close the terminal modal
     this.setState({
       TerminalLayoutModal: false
     });
   }
-  
+
   openTerminalModal(item) {
     //this function for user open the terminal modal
     let { currentContainer } = this.state;
     let existFlag = false;
     currentContainer.map((container) => {
-      if(container.metadata.name == item.metadata.name) {
+      if (container.metadata.name == item.metadata.name) {
         existFlag = true;
       }
     })
-    if(!existFlag) {    
+    if (!existFlag) {
       currentContainer.push(item)
     }
     this.setState({
@@ -125,7 +119,7 @@ class AppServiceDetail extends Component {
       });
     })
   }
-  
+
   componentWillMount() {
     this.loadData()
   }
@@ -162,7 +156,7 @@ class AppServiceDetail extends Component {
       activeTabKey
     })
   }
-  
+
   restartService(service) {
     const { funcs, scope} = this.props
     const _self = this
@@ -180,18 +174,18 @@ class AppServiceDetail extends Component {
     const self = this
     funcs.confirmDeleteServices([service])
   }
-  
-  handleMenuShow(){
+
+  handleMenuShow() {
     const { scope } = this.props
     const service = scope.state.currentShowInstance
-    if(service.status){
-      if(service.status.phase === 'Stopped'){
+    if (service.status) {
+      if (service.status.phase === 'Stopped') {
         return true
       }
     }
     return false
   }
-  
+
   render() {
     const parentScope = this
     const {
@@ -207,7 +201,8 @@ class AppServiceDetail extends Component {
     let nocache = currentContainer.map((item) => {
       return item.metadata.name;
     })
-    const service = scope.state.currentShowInstance
+    const service = scope.state.currentShowInstance || serviceDetail
+    service.status = getServiceStatusByContainers(service, containers)
     const operaMenu = (<Menu>
       <Menu.Item key='0' disabled={this.handleMenuShow()}>
         <span onClick={() => this.restartService(service)}>重新部署</span>
@@ -220,15 +215,10 @@ class AppServiceDetail extends Component {
       </Menu.Item>
     </Menu>);
     const svcDomain = parseServiceDomain(service, this.props.bindingDomains)
-    let availableReplicas = 0
-    if (service) {
-      if (service.status) {
-        availableReplicas = service.status.availableReplicas || 0
-      }
-    }
+    const { availableReplicas, replicas } = service.status
     let containerShow = containers.map((item) => {
       return (
-        <div className={ terminalSelectedCheck(item, parentScope.state.currentContainer) ? 'containerTerminalDetailSelected containerTerminalDetail' : 'containerTerminalDetail'} 
+        <div className={terminalSelectedCheck(item, parentScope.state.currentContainer) ? 'containerTerminalDetailSelected containerTerminalDetail' : 'containerTerminalDetail'}
           onClick={this.openTerminalModal.bind(parentScope, item)}>
           <span>{item.metadata.name}</span>
         </div>
@@ -249,7 +239,7 @@ class AppServiceDetail extends Component {
             <div className='leftBox appSvcDetailDomain'>
               <div>
                 运行状态：
-                <span style={{position:'relative',top:'-5px'}}>
+                <span style={{ position: 'relative', top: '-5px' }}>
                   <ServiceStatus
                     smart={true}
                     service={service} />
@@ -258,20 +248,18 @@ class AppServiceDetail extends Component {
               <div className='address'>
                 <span>地址：</span>
                 <div className='addressRight'>
-                  <TipSvcDomain svcDomain={svcDomain} parentNode='appSvcDetailDomain'/>
+                  <TipSvcDomain svcDomain={svcDomain} parentNode='appSvcDetailDomain' />
                 </div>
               </div>
               <div>
                 容器实例：
                 <span>
-                  {availableReplicas}
-                  /
-                  {service.spec.replicas || service.metadata.annotations[`${TENX_MARK}/replicas`]}
+                  {availableReplicas}/{replicas}
                 </span>
               </div>
             </div>
             <div className='rightBox'>
-              <Popover content={containerShow} title='选择实例链接' trigger='click' getTooltipContainer={() => document.getElementById('AppServiceDetail')}>                
+              <Popover content={containerShow} title='选择实例链接' trigger='click' getTooltipContainer={() => document.getElementById('AppServiceDetail')}>
                 <Button className='loginBtn' type='primary' size='large'>
                   <svg className='terminal'>
                     <use xlinkHref='#terminal' />
