@@ -33,12 +33,14 @@ let CreateTeamModal = React.createClass({
         success: {
           func: (result) => {
             if (result.data) {
-              callback([new Error('团队名已经存在')])
+              callback([new Error('团队名称已被占用，请修改后重试')])
               return
             }
             callback()
-          },
-          failed: (err) => {
+          }
+        },
+        failed: {
+          func: (err) => {
             callback([new Error('团队名校验失败')])
           }
         }
