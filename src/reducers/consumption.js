@@ -22,6 +22,7 @@ export default function detail(state = {
   spaceSummary: {},
   teamSummary: {},
   chargeRecord: {},
+  notifyRule: {},
  }, action) {
   return {
     detail: reducerFactory({
@@ -54,5 +55,10 @@ export default function detail(state = {
       SUCCESS: ActionTypes.CONSUMPTION_GET_CHARGE_RECORD_SUCCESS,
       FAILURE: ActionTypes.CONSUMPTION_GET_CHARGE_RECORD_FAILURE,
     }, state.chargeRecord, action, option),
+    notifyRule: reducerFactory({
+      REQUEST: ActionTypes.CONSUMPTION_GET_NOTIFY_RULE_REQUEST,
+      SUCCESS: ActionTypes.CONSUMPTION_GET_NOTIFY_RULE_SUCCESS,
+      FAILURE: ActionTypes.CONSUMPTION_GET_NOTIFY_RULE_FAILURE,
+    }, state.notifyRule, action, option),
   }
 }
