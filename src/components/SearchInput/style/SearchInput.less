@@ -1,9 +1,11 @@
 #SearchInput {
+  position: relative;
+  float: left;
   display: inline-block;
-  .ant-input {
+  /*.ant-input {
     height: 36px;
     border-radius: 3px;
-  }
+  }*/
   .ant-select-selection {
     border-color: transparent;
     box-shadow: none;
@@ -17,6 +19,22 @@
       z-index: 10;
       border: none;
       background-color: #fff;
+    }
+  }
+  .littleLeft {
+    z-index: 10;
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    font-size: 15px;
+    color: #949494;
+    cursor: pointer;
+  }
+  .littleRight {
+    float: left;
+    input {
+      font-size: 14px;
+      color: #333333; //        background-color: #f8f8f8;
     }
   }
 }

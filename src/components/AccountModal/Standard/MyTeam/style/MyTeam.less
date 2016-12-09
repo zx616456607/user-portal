@@ -7,9 +7,10 @@
     margin-bottom: 20px;
   }
   .teamOption {
+    margin-bottom: 20px;
     .total {
       display: inline-block;
-      line-height: 40px;
+      line-height: 35px;
       float: right;
       margin-right: 160px;
     }
@@ -18,6 +19,7 @@
       font-weight: normal;
       background-color: #2db7f5;
       padding: 5px 10px;
+      margin-right: 10px;
     }
     .viewBtn {
       font-weight: normal;
@@ -32,40 +34,46 @@
     .ant-card {
       overflow: inherit;
       .ant-card-body {
-      padding: 0;
-      .ant-table {
-        .addBtn {
-          font-weight: normal;
-          background-color: #fff;
-          width: 100px;
-          margin-right: 12px;
-          border-radius: 3px;
-          &:hover {
-            background-color: #00a1ea;
-            color: #fff;
+        padding: 0;
+        .ant-table {
+          .addBtn {
+            font-weight: normal;
+            background-color: #fff;
+            width: 100px;
+            margin-right: 12px;
+            border-radius: 3px;
+            &:hover {
+              background-color: #00a1ea;
+              color: #fff;
+            }
+          }
+          .delBtn {
+            width: 126px;
+            font-weight: normal;
+            background-color: #fff;
+            border-radius: 3px;
+            &:hover {
+              background-color: #f75b59;
+              color: #fff;
+              border-color: #f75b59;
+            }
+          }
+          .teamName {
+            padding-left: 24px;
+          }
+          .tabDrop {
+            .ant-btn:first-child:not(:last-child) {
+              padding-left: 10px;
+            }
           }
         }
-        .delBtn {
-          font-weight: normal;
-          background-color: #fff;
-          border-radius: 3px;
-          &:hover {
-            background-color: #f75b59;
-            color: #fff;
-            border-color: #f75b59;
-          }
-        }
-        .teamName {
-          padding-left: 24px;
+        .ant-table-pagination {
+          margin: 16px 46px;
+          position: absolute;
+          top: -70px;
+          right: -40px;
         }
       }
-      .ant-table-pagination {
-        margin: 16px 46px;
-        position: absolute;
-        top: -73px;
-        right: -40px;
-      }
-    }
     }
   }
 }

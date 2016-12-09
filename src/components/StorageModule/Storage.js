@@ -405,6 +405,14 @@ class Storage extends Component {
       message.error('请输入存储卷大小')
       return
     }
+    if(this.state.name.length < 3 || this.state.name.length > 20) {
+      message.error('存储卷名称大小应在3到20个字符, 且只可以a-z或A-Z开始,且只可以英文字母或者数字组成')
+      return
+    }
+    if(!/^[a-zA-z][a-zA-z0-9]*$/.test(this.state.name)) {
+      message.error('存储名称只可以a-z或A-Z开始,且只可以英文字母或者数字组成')
+      return
+    }
     const hide = message.loading('创建存储卷中', 0)
     let storageConfig = {
       driver: 'rbd',
@@ -416,9 +424,6 @@ class Storage extends Component {
       cluster: this.props.cluster
     }
     let self = this
-    this.setState({
-      name: ''
-    })
     this.props.createStorage(storageConfig, {
       success: {
         func: () => {
