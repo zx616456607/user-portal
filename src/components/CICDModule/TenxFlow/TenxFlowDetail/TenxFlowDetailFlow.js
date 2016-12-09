@@ -111,7 +111,7 @@ class TenxFlowDetailFlow extends Component {
   
   componentWillReceiveProps(nextProps) {
     //this function for user click the top box and build all stages
-    const { startBuild, getTenxFlowStateList, flowId, CreateTenxflowBuild, scope } = nextProps;
+    const { startBuild, getTenxFlowStateList, flowId, CreateTenxflowBuild, scope, refreshFlag } = nextProps;
     let oldFlowId = this.props.flowId;
     if(startBuild) {
       scope.setState({
@@ -120,17 +120,7 @@ class TenxFlowDetailFlow extends Component {
       CreateTenxflowBuild(flowId, {}, {
         success: {
           func: (res) => {
-            getTenxFlowStateList(flowId, {
-              success: {
-                func: () => {                 
-                  notification['success']({
-                    message: '流程构建',
-                    description: '流程构建成功~',
-                  });
-                },
-                isAsync: true
-              }
-            });
+            
           },
           isAsync: true
         }
@@ -145,6 +135,22 @@ class TenxFlowDetailFlow extends Component {
       this.setState({
         forCacheShow: false
       })
+    }
+    if(refreshFlag) {    
+      scope.setState({
+        refreshFlag: false
+      });
+      getTenxFlowStateList(flowId, {
+        success: {
+          func: () => {                 
+            notification['success']({
+              message: '流程构建',
+              description: '刷新流程构建成功~',
+            });
+          },
+          isAsync: true
+        }
+      });
     }
   }
   
@@ -353,9 +359,6 @@ class TenxFlowDetailFlow extends Component {
       <div id='TenxFlowDetailFlow'>
         <div className='paddingBox'>
           <Alert message={<FormattedMessage {...menusText.tooltip} />} type='info' />
-          <Button style={{ marginBottom: '20px' }} size='large' type='primary' onClick={this.refreshStageList}>
-            <span><i className={this.state.refreshing ? 'fa fa-spin fa-refresh' : 'fa fa-refresh'}></i>&nbsp;刷新</span>
-          </Button><br />
           { cards }
           <div className={ this.state.createNewFlow ? 'TenxFlowDetailFlowCardBigDiv commonCardBox createCardBox' : 'commonCardBox createCardBox'}>
             <Card className='commonCard createCard' onClick={this.createNewFlow}>
