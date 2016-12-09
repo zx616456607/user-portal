@@ -213,6 +213,12 @@ let TeamTable = React.createClass({
   handleChange(targetKeys) {
     this.setState({ targetKeys })
   },
+  //关闭解散团队弹框
+  closeDelTeamModal() {
+    this.setState({
+      showDelModal: false
+    })
+  },
   render() {
     let { sortedInfo, filteredInfo, targetKeys, showDelModal } = this.state
     const { searchResult, sort, filter } = this.props.scope.state
@@ -269,9 +275,6 @@ let TeamTable = React.createClass({
       <Menu style={{ width: '126px' }} onClick={this.handleDropMenuClick}>
         <Menu.Item key='deleteTeam'>
           <span>解散团队</span>
-          <DelTeamModal
-            visible={showDelModal}
-          />
         </Menu.Item>
       </Menu>
     )
@@ -403,11 +406,17 @@ let TeamTable = React.createClass({
       },
     ]
     return (
-      <Table columns={columns}
-        dataSource={searchResult.length === 0 ? data : searchResult}
-        pagination={pagination}
-        onChange={this.handleChange}
-      />
+      <div>
+        <Table columns={columns}
+               dataSource={searchResult.length === 0 ? data : searchResult}
+               pagination={pagination}
+               onChange={this.handleChange}
+        />
+        <DelTeamModal
+          visible={showDelModal}
+          closeDelTeamModal={this.closeDelTeamModal}
+        />
+      </div>
     )
   },
 })
