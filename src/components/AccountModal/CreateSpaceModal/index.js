@@ -38,8 +38,10 @@ let CreateSpaceModal = React.createClass({
               return
             }
             callback()
-          },
-          failed: (err) => {
+          }
+        },
+        failed: {
+          func: (err) => {
             callback([new Error('空间名校验失败')])
           }
         }
