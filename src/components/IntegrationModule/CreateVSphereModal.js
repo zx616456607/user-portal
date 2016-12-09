@@ -102,6 +102,14 @@ let CreateVSphereModal = React.createClass({
         e.preventDefault();
         return;
       }
+      if(values.url.indexOf('http://') > -1) {
+        let temp = values.url.split('http://');
+        values.url = temp[1];
+      }
+      if(values.url.indexOf('https://') > -1) {
+        let temp = values.url.split('https://');
+        values.url = temp[1];
+      }
       createIntegration(values, {
         success: {
           func: () => {
