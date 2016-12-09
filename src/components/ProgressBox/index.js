@@ -28,7 +28,7 @@ export default class ProgressBox extends Component{
               <div className="progress">
                 <div className="inner">
                   <div className="percent">
-                    {boxPos*100}%
+                    {(boxPos*100).toFixed(2)}%
                   </div>
                   <div className="water" style={{top:`${(1-boxPos)*100}%`}}></div>
                   <div className="water w2" style={{top:`${(1-boxPos)*100}%`}}></div>

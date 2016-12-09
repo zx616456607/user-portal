@@ -30,9 +30,11 @@ let TeamTable = React.createClass({
     return {
       filteredInfo: null,//筛选信息
       sortedInfo: null,//排序信息
-      sortMember: true,//成员数排序
-      sortBalance: true,//余额排序
       sortTeamName: true,//团队名排序
+      sortMember: true,//成员数排序
+      sortCreateTime: true,//创建时间排序
+      sortBalance: true,//余额排序
+      sortRole: true,//我的角色排序
       addMember: false,//邀请新成员
       targetKeys: [],
       sort: "a,teamName",//默认排序规则
@@ -79,6 +81,22 @@ let TeamTable = React.createClass({
     }
     return orderStr + column
   },
+  //团队名排序
+  handleSortTeamName() {
+    const { loadUserTeamList } = this.props.scope.props
+    const { sortTeamName } = this.state
+    let sort = this.getSort(!sortTeamName, 'teamName')
+    loadUserTeamList('default', {
+      page: this.state.page,
+      size: this.state.pageSize,
+      sort,
+      filter: this.state.filter,
+    })
+    this.setState({
+      sortTeamName: !sortTeamName,
+      sort,
+    })
+  },
   //团队成员数排序
   handleSortMember() {
     const { loadUserTeamList } = this.props.scope.props
@@ -95,23 +113,8 @@ let TeamTable = React.createClass({
       sort,
     })
   },
-  //团队余额排序
-  handleSortBalance() {
-    const { loadUserTeamList } = this.props.scope.props
-    const { sortBalance } = this.state
-    let sort = this.getSort(!sortBalance, 'spaceCount')
-    loadUserTeamList('default', {
-      page: this.state.page,
-      size: this.state.pageSize,
-      sort,
-      filter: this.state.filter,
-    })
-    this.setState({
-      sortSpace: !sortBalance,
-      sort,
-    })
-  },
-  handleSortCluster() {
+  //创建时间排序
+  handleSortCreateTime() {
     const { loadUserTeamList } = this.props.scope.props
     const { sortCluster } = this.state
     let sort = this.getSort(!sortCluster, 'clusterCount')
@@ -126,10 +129,11 @@ let TeamTable = React.createClass({
       sort,
     })
   },
-  handleSortTeamName() {
+  //团队余额排序
+  handleSortBalance() {
     const { loadUserTeamList } = this.props.scope.props
-    const { sortTeamName } = this.state
-    let sort = this.getSort(!sortTeamName, 'teamName')
+    const { sortBalance } = this.state
+    let sort = this.getSort(!sortBalance, 'spaceCount')
     loadUserTeamList('default', {
       page: this.state.page,
       size: this.state.pageSize,
@@ -137,10 +141,37 @@ let TeamTable = React.createClass({
       filter: this.state.filter,
     })
     this.setState({
-      sortTeamName: !sortTeamName,
+      sortBalance: !sortBalance,
       sort,
     })
   },
+  //我的角色排序
+  handleSortRole() {
+    const { loadUserTeamList } = this.props.scope.props
+    const { sortRole } = this.state
+    let sort = this.getSort(!sortRole, 'spaceCount')
+    loadUserTeamList('default', {
+      page: this.state.page,
+      size: this.state.pageSize,
+      sort,
+      filter: this.state.filter,
+    })
+    this.setState({
+      sortRole: !sortRole,
+      sort,
+    })
+  },
+  //操作-下拉单选项
+  handleDropMenuClick:function(e) {
+    switch (e.key) {
+      case 'deleteTeam':
+        //this is delete the container
+        //this.delTeam(teamID);
+        console.log('delTeam !')
+        break;
+    }
+  },
+  //添加新成员
   addNewMember(teamID) {
     console.log('click!!')
     this.props.loadTeamUserList(teamID, ({ size: -1 }))
@@ -183,18 +214,9 @@ let TeamTable = React.createClass({
   handleChange(targetKeys) {
     this.setState({ targetKeys })
   },
-  handleDropMenuClick:function(e) {
-    switch (e.key) {
-      case 'deleteTeam':
-        //this is delete the container
-        //this.delTeam(teamID);
-        console.log('delTeam !')
-        break;
-    }
-  },
   render() {
     let { sortedInfo, filteredInfo, targetKeys } = this.state
-    const { searchResult, notFound, sort, filter } = this.props.scope.state
+    const { searchResult, sort, filter } = this.props.scope.state
     const { scope, teamUserIDList } = this.props
     let data = [
       {team:'test1',member:10,createTime:'20天前',balance:10,role:1,},
@@ -243,8 +265,9 @@ let TeamTable = React.createClass({
         })
       },
     }
-    let dropdown = (
-      <Menu style={{ width: '100px' }} onClick={this.handleDropMenuClick}>
+    //创建者下拉单
+    let roleDropdown = (
+      <Menu style={{ width: '126px' }} onClick={this.handleDropMenuClick}>
         <Menu.Item key='deleteTeam'>
           <span>解散团队</span>
         </Menu.Item>
@@ -294,13 +317,13 @@ let TeamTable = React.createClass({
       },
       {
         title: (
-          <div onClick={this.handleSortCluster}>
+          <div onClick={this.handleSortCreateTime}>
             创建时间
             <div className="ant-table-column-sorter">
-              <span className={this.state.sortCluster ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
+              <span className={this.state.sortCreateTime ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
                 <i className="anticon anticon-caret-up" />
               </span>
-              <span className={!this.state.sortCluster ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
+              <span className={!this.state.sortCreateTime ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
                 <i className="anticon anticon-caret-down" />
               </span>
             </div>
@@ -315,10 +338,10 @@ let TeamTable = React.createClass({
           <div onClick={this.handleSortBalance}>
             团队余额
             <div className="ant-table-column-sorter">
-              <span className={this.state.sortSpace ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
+              <span className={this.state.sortBalance ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
                 <i className="anticon anticon-caret-up" />
               </span>
-              <span className={!this.state.sortSpace ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
+              <span className={!this.state.sortBalance ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
                 <i className="anticon anticon-caret-down" />
               </span>
             </div>
@@ -330,13 +353,13 @@ let TeamTable = React.createClass({
       },
       {
         title: (
-          <div onClick={this.handleSortBalance}>
+          <div onClick={this.handleSortRole}>
             我的角色
             <div className="ant-table-column-sorter">
-              <span className={this.state.sortSpace ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
+              <span className={this.state.sortRole ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
                 <i className="anticon anticon-caret-up" />
               </span>
-              <span className={!this.state.sortSpace ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
+              <span className={!this.state.sortRole ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
                 <i className="anticon anticon-caret-down" />
               </span>
             </div>
@@ -353,11 +376,12 @@ let TeamTable = React.createClass({
         render: (text, record, index) => (
               record.role === 1 ?
                 <Dropdown.Button
-                  overlay={dropdown} type='ghost'
+                  overlay={roleDropdown} type='ghost'
                   onClick={() => this.addNewMember(record.key)}
+                  className="tabDrop"
                   >
                   <Icon type="plus" />
-                  <span style={{ marginLeft: '20px' }}>邀请新成员</span>
+                  <span>邀请新成员</span>
                   <Modal title='邀请新成员'
                     visible={this.state.nowTeamID === record.key && this.state.addMember}
                     onOk={this.handleNewMemberOk}
@@ -372,7 +396,7 @@ let TeamTable = React.createClass({
                   </Modal>
                 </Dropdown.Button>
                 :
-            <Button icon="delete" className="delBtn" onClick={() => this.delTeam(record.key)}>删除</Button>
+            <Button icon="delete" className="delBtn" onClick={() => this.delTeam(record.key)}>退出团队</Button>
         )
       },
     ]
@@ -402,6 +426,7 @@ class MyTeam extends Component {
       sort: 'a,teamName'
     }
   }
+  //展示Modal
   showModal() {
     this.setState({
       visible: true,
@@ -476,7 +501,7 @@ class MyTeam extends Component {
     return (
       <div id="TeamManage">
         <Alert message={`团队, 由若干个成员组成的一个集体, 可等效于公司的部门、项目组、或子公司，
-          包含『团队空间』这一逻辑隔离层， 以实现对应您企业内部各个不同项目， 或者不同逻辑组在云平台上操作对象的隔离， 团队管理员可见对应团队的所有空间的应用等对象。`}
+          包含『团队空间』这一逻辑隔离层， 以实现对应您企业内部各个不同项目， 或者不同逻辑组在云平台上操作对象的隔离， 团队管理员 (创建者) 可管理团队、邀请新成员、解散团队、移除成员; 团队成员 (参与者) 可退出团队 .`}
           type="info" />
         <Row className="teamOption">
           <Button type="primary" size="large" onClick={this.showModal} className="plusBtn">
@@ -487,10 +512,6 @@ class MyTeam extends Component {
             visible={visible}
             onSubmit={this.teamOnSubmit}
             funcs={funcs} />
-          <Button className="viewBtn" style={{ display: "none" }}>
-            <Icon type="picture" />
-            查看成员&团队图例
-          </Button>
           <SearchInput searchIntOption={searchIntOption} scope={scope} data={teams}/>
           <div className="total">共{this.props.total}个</div>
         </Row>
