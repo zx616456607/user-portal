@@ -512,7 +512,7 @@ class TeamDetail extends Component {
       },
       failed: {
         func: (err) => {
-          notification.close(key)
+          notification.close()
           notification.error(`创建空间 ${space.spaceName} 失败`, err.message.message)
         }
       }
