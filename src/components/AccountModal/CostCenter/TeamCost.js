@@ -25,8 +25,9 @@ class TeamCost extends Component{
   constructor(props){
     super(props)
     this.transformDate = this.transformDate.bind(this)
+    this.onChange = this.onChange.bind(this)
     this.state = {
-      
+      summaryDate: '',
     }
   }
   transformDate(){
@@ -42,6 +43,30 @@ class TeamCost extends Component{
     } = this.props
     loadTeamSummary(currentNamespace)
   }
+
+  componentWillReceiveProps(nextProps) {
+    const { currentNamespace, loadTeamSummary } = nextProps
+    if (currentNamespace === this.props.currentNamespace) {
+      return
+    }
+    loadTeamSummary(currentNamespace, this.state.summaryDate)
+  }
+
+  onChange(date) {
+    let time = moment(date).format('YYYY-MM-DD 00:00:00')
+    if (time == 'Invalid date') {
+      return
+    }
+    this.setState({
+      summaryDate: time,
+    })
+    const {
+      loadTeamSummary,
+      currentNamespace,
+    } = this.props
+    loadTeamSummary(currentNamespace, time)
+  }
+
   render(){
     const _this = this
     const {
@@ -50,19 +75,10 @@ class TeamCost extends Component{
       teamSummary,
       currentNamespace,
     } = this.props
-
-    let onChange = function(date) {
-      let time = moment(date).format('YYYY-MM-DD 00:00:00')
-      if (time == 'Invalid') {
-        return
-      }
-      loadTeamSummary(currentNamespace)
-      // loadTeamSummary(currentNamespace, time)
-    }
     let teamCostTitle = (
       <div className="teamCostTitle">
         <span>空间{currentSpaceName}对应的团队{currentTeamName}该月消费详情</span>
-        <MonthPicker style={{float: 'right'}} defaultValue={this.transformDate()} onChange={onChange} />
+        <MonthPicker style={{float: 'right'}} defaultValue={this.transformDate()} onChange={this.onChange} />
       </div>
     )
 

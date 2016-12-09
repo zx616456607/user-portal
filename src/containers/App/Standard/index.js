@@ -19,7 +19,7 @@ class StandardApp extends Component {
 
   render() {
     return (
-      <App siderStyle='bigger' Sider={Sider} {...this.props} />
+      <App siderStyle='mini' Sider={Sider} {...this.props} />
     )
   }
 }

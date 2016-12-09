@@ -579,5 +579,15 @@
   "Editor.Error.yamlIndex": "段yaml",
   "Editor.Error.errorNum": "错误数：",
   "Editor.Error.nextOne": "下一个",
-  "Editor.Error.lastOne": "上一个"
+  "Editor.Error.lastOne": "上一个",
+  "this.is.an.commnent": "/------------------------App 错误处理-----------------------/",
+  "App.error": "Request error",
+  "App.error.400": "Bad request for {resource}",
+  "App.error.401": "Request {resource} unauthorized",
+  "App.error.403": "Request {resource} forbidden",
+  "App.error.404": "{resource} not found",
+  "App.error.409": "Request {resource} conflict",
+  "App.error.500": "Internal server error for request {resource}",
+  "App.error.502": "Request {resource} bad gateway",
+  "App.error.504": "Request {resource} gateway timeout"
 }
