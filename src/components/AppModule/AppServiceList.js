@@ -372,10 +372,12 @@ class AppServiceList extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    let { page, size, name, serviceList, onServicesChange } = nextProps
     this.setState({
-      serviceList: nextProps.serviceList
+      serviceList
     })
-    let { page, size, name } = nextProps
+    onServicesChange(serviceList)
+
     if (page === this.props.page && size === this.props.size && name === this.props.name) {
       return
     }
@@ -983,6 +985,7 @@ AppServiceList.propTypes = {
   page: PropTypes.number.isRequired,
   size: PropTypes.number.isRequired,
   total: PropTypes.number.isRequired,
+  onServicesChange: PropTypes.func.isRequired, // For change app status when service list change
 }
 
 function mapStateToProps(state, props) {

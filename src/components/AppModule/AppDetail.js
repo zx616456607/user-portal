@@ -23,6 +23,7 @@ import { browserHistory } from 'react-router'
 import AppStatus from '../TenxStatus/AppStatus'
 import { parseAppDomain } from '../parseDomain'
 import TipSvcDomain from '../TipSvcDomain'
+import { getAppStatus } from '../../common/status_identify'
 
 const DEFAULT_TAB = '#service'
 
@@ -34,8 +35,10 @@ class AppDetail extends Component {
   constructor(props) {
     super(props)
     this.onTabClick = this.onTabClick.bind(this)
+    this.onServicesChange = this.onServicesChange.bind(this)
     this.state = {
-      activeTabKey: props.hash || DEFAULT_TAB
+      activeTabKey: props.hash || DEFAULT_TAB,
+      serviceList: null,
     }
   }
 
@@ -75,9 +78,17 @@ class AppDetail extends Component {
     })
   }
 
+  // For change app status when service list change
+  onServicesChange(serviceList) {
+    this.setState({
+      serviceList,
+    })
+  }
+
   render() {
     const { children, appName, app, isFetching, location } = this.props
-    const { activeTabKey } = this.state
+    const { activeTabKey, serviceList } = this.state
+    const status = getAppStatus(serviceList || app.services)
     if (isFetching || !app) {
       return (
         <div className='loadingBox'>
@@ -110,17 +121,24 @@ class AppDetail extends Component {
                   <div className='status'>
                     运行状态&nbsp;:
                     <div style={{ display: 'inline-block', position: 'relative', top: '-5px' }}>
-                      <AppStatus app={app} smart={true} />
+                      <AppStatus
+                        app={
+                          serviceList
+                            ? { services: serviceList }
+                            : app
+                        }
+                        smart={true} />
                     </div>
                   </div>
                   <div className='address appDetailDomain'>
                     <span className='title'>地址：</span>
                     <div className='addressRight'>
-                      <TipSvcDomain appDomain={appDomain} parentNode='appDetailDomain'/>
+                      <TipSvcDomain appDomain={appDomain} parentNode='appDetailDomain' />
                     </div>
                   </div>
                   <div className='service'>
-                    服务&nbsp;:&nbsp; {`${app.serviceCount} / ${app.serviceCount}`}
+                    服务&nbsp;:&nbsp;
+                    {`${status.availableReplicas} / ${status.replicas}`}
                   </div>
                 </div>
                 <div className='middleInfo'>
@@ -133,7 +151,7 @@ class AppDetail extends Component {
                 </div>
                 <div className='rightInfo'>
                   <div className='introduction'>
-                    应用描述&nbsp;:&nbsp;{app.description || '无'}
+                    应用描述&nbsp;:&nbsp;{app.description || '-'}
                   </div>
                 </div>
                 <div style={{ clear: 'both' }}></div>
@@ -151,8 +169,8 @@ class AppDetail extends Component {
                   <AppServiceList
                     location={location}
                     key='AppServiceList'
-                    appName={appName}
-                    loading={isFetching} />
+                    onServicesChange={this.onServicesChange}
+                    appName={appName} />
                 </TabPane>
                 {/*<TabPane tab='应用拓扑' key='#topology' >应用拓扑</TabPane>*/}
                 <TabPane tab='编排文件' key='#stack' >
