@@ -8,8 +8,8 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Menu, Button, Card, Input, Dropdown, Spin, Modal, notification } from 'antd'
-import { Link } from 'react-router'
+import { Menu, Button, Card, Input, Dropdown, Spin, Modal, message ,notification} from 'antd'
+import { Link ,browserHistory} from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
@@ -228,8 +228,8 @@ const MyComponent = React.createClass({
             </span>
           </div>
           <div className="btnBox">
-            <Dropdown.Button overlay={dropdown} type="ghost">
-              <Link to={`/app_manage/app_create/fast_create?registryServer=${registryServer}&imageName=${item.name}`}><FormattedMessage {...menusText.deployService} /></Link>
+            <Dropdown.Button overlay={dropdown} type="ghost" onClick={()=>browserHistory.push(`/app_manage/app_create/fast_create?registryServer=${registryServer}&imageName=${item.name}`)}>
+              <FormattedMessage {...menusText.deployService} />
             </Dropdown.Button>
           </div>
         </div>

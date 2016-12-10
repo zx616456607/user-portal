@@ -13,7 +13,7 @@ import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import { Modal, Button, Icon, Input, message, Spin, Tooltip } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { loadDbCacheList } from '../../actions/database_cache'
+import { loadDbCacheList ,searchDbservice} from '../../actions/database_cache'
 import { loadMyStack } from '../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import ModalDetail from './ModalDetail.js'
@@ -61,7 +61,20 @@ let MyComponent = React.createClass({
               </div>
             </div>
             <ul className='detailParse'>
-              <li><span className='listKey'>状态</span><span className='normal'>暂时未知</span><div style={{ clear: 'both' }}></div></li>
+              <li><span className='listKey'>状态</span>
+                {item.pods.running >0 ?
+                  <span className='normal'>运行 {item.pods.running} 个</span>
+                  :null
+                }
+                {item.pods.pending >0 ?
+                  <span>停止 {item.pods.pending} 个</span>
+                  :null
+                }
+                {item.pods.failed >0 ?
+                  <span>失败 {item.pods.pending} 个</span>
+                  :null
+                }
+              </li>
               <li>
                 <span className='listKey'>地址</span>
                 <span className='listLink'>
@@ -71,8 +84,8 @@ let MyComponent = React.createClass({
                 </span>
                 <div style={{ clear: 'both' }}></div>
               </li>
-              <li><span className='listKey'>副本数</span>{item.pods.pending + item.pods.running}/{item.pods.desired}个<div style={{ clear: 'both' }}></div></li>
-              <li><span className='listKey'>存储大小</span>{item.volumeSize ? item.volumeSize: '0'} M<div style={{ clear: 'both' }}></div></li>
+              <li><span className='listKey'>副本数</span>{item.pods.pending + item.pods.running}/{item.pods.desired}个</li>
+              <li><span className='listKey'>存储大小</span>{item.volumeSize ? item.volumeSize: '0'}</li>
             </ul>
           </div>
         </div>
@@ -121,6 +134,9 @@ class MysqlCluster extends Component {
       CreateDatabaseModalShow: true
     });
   }
+  handSearch(e) {
+    this.props.searchDbservice('mysql', e.target.value)
+  }
 
   render() {
     const parentScope = this;
@@ -133,7 +149,7 @@ class MysqlCluster extends Component {
               <i className='fa fa-plus' />&nbsp;MySQL集群
           </Button>
             <span className='rightSearch'>
-              <Input size='large' placeholder='搜索' style={{ width: 200 }} />
+              <Input size='large' placeholder='搜索' style={{ width: 200 }} onPressEnter={(e)=> this.handSearch(e)} />
               <i className="fa fa-search" />
             </span>
           </div>
@@ -171,8 +187,8 @@ function mapStateToProps(state, props) {
   const { databaseAllList } = state.databaseCache
   const { database, databaseList, isFetching } = databaseAllList.mysql || defaultMysqlList
   return {
-    // cluster: cluster.clusterID,
-    cluster: 'e0e6f297f1b3285fb81d27742255cfcf11',
+    cluster: cluster.clusterID,
+    // cluster: 'e0e6f297f1b3285fb81d27742255cfcf11',
     database,
     databaseList: databaseList,
     isFetching,
@@ -192,5 +208,6 @@ MysqlCluster = injectIntl(MysqlCluster, {
 
 export default connect(mapStateToProps, {
   loadDbCacheList,
-  loadMyStack
+  loadMyStack,
+  searchDbservice
 })(MysqlCluster)

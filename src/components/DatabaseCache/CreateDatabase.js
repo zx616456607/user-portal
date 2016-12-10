@@ -140,13 +140,17 @@ let CreateDatabase = React.createClass({
         values.clusterSelect = this.state.cluster
       }
       const body = {
-        // cluster: values.clusterSelect,
-        cluster: 'e0e6f297f1b3285fb81d27742255cfcf11', // @ todo 
+        cluster: values.clusterSelect,
+        // cluster: 'e0e6f297f1b3285fb81d27742255cfcf11', // @ todo 
         serviceName: values.name,
         password: values.password,
         replicas: values.replicas,
         volumeSize: values.storageSelect,
         templateId
+      }
+      if (body.replicas > 5) {
+        message.info('副本数不能大于5')
+        return
       }
       CreateDbCluster(body, {
         success: {
@@ -274,7 +278,7 @@ let CreateDatabase = React.createClass({
               </div>
               <div className='inputBox'>
                 <FormItem style={{ width: '80px', float: 'left' }}>
-                  <InputNumber {...replicasProps} size='large' defaultValue={1} min={1} max={1000} disabled={isFetching} />
+                  <InputNumber {...replicasProps} size='large' defaultValue={1} min={1} max={5} disabled={isFetching} />
                 </FormItem>
                 <span className='litteColor' style={{ float: 'left', paddingLeft: '15px' }}>个</span>
               </div>
