@@ -10,7 +10,7 @@
 import React, { Component } from 'react'
 import './style/RollingUpdateModal.less'
 import { DEFAULT_REGISTRY } from '../../../constants'
-import { Button, Card, Menu, message, Icon, Tooltip, Row, Col, Select, InputNumber, Alert, Switch, Modal, Input } from 'antd'
+import { Button, Card, Menu, Icon, Tooltip, Row, Col, Select, InputNumber, Alert, Switch, Modal, Input } from 'antd'
 import { loadImageDetailTag } from '../../../actions/app_center'
 import { rollingUpdateService } from '../../../actions/services'
 import { connect } from 'react-redux'
@@ -102,28 +102,28 @@ class RollingUpdateModal extends Component {
       }
       targets[container.name] = `${container.imageObj.imageSrc}:${container.targetTag}`
     })
-    if(count == containers.length) {
-      message.error('请至少为一个容器选择目标版本')
+    let notification = new NotificationHandler()
+    if(count === containers.length) {
+      notification.error('请至少为一个容器指定目标版本')
       return
     }
-
     //统一间隔时间
     const intervalTime = this.state.intervalTime
     if(!intervalTime) {
-      message.error('请填写 2~60s 间隔时间')
+      notification.error('请填写 2~60s 间隔时间')
       return
     }
     if(!/[0-9]+/.test(intervalTime)) {
-      message.Error('请填入 2~60 之间的数字')
+      notification.error('请填入 2~60 之间的数字')
       return
     }
     if(intervalTime < 2) {
-      message.Error('请填入 2~60 之间的数字')
+      notification.error('请填入 2~60 之间的数字')
       return
     }
-    const hide = message.loading('正在保存中...', 0)
+    const hide = notification.spin('正在保存中...', 0)
 
-    let notification = new NotificationHandler()
+    
     notification.spin(`服务 ${serviceName} 灰度升级中...`)
     rollingUpdateService(cluster, serviceName, { targets, interval: parseInt(intervalTime) }, {
       success: {
@@ -234,7 +234,7 @@ class RollingUpdateModal extends Component {
               tag = "latest"
             }
             let show = image
-            if(image.length > 25) show = image.substring(0, 25) + "..."
+            if(image.length > 20) show = image.substring(0, 20) + "..."
             return (
               <div key={item.name}>
               <Row style={{marginBottom: "10px"}}>

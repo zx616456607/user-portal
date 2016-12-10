@@ -12,6 +12,7 @@ import React, { Component } from 'react'
 import { Card, Spin, Button, Icon } from 'antd'
 import DockerFileEditor from '../../../Editor/DockerFile'
 import cloneDeep from 'lodash/cloneDeep'
+import NotificationHandler from '../../../../common/notification_handler'
 
 let editorOptions = {
   readOnly: true
@@ -33,7 +34,7 @@ export default class Dockerfile extends Component {
     const bakDockerfile = cloneDeep(nextProps.detailInfo.dockerfile)
     if (prevImage !== selfImage) {
       this.setState({
-        dockerfile: 　nextProps.detailInfo.dockerfile,
+        dockerfile: nextProps.detailInfo.dockerfile,
         bakDockerfile
       })
     }
@@ -53,7 +54,7 @@ export default class Dockerfile extends Component {
     }
   }
   onChangeDockerFile(e) {
-    //this functio for the editor ccallback
+    //this function for the editor callback
     this.setState({
       dockerfile: e
     })
@@ -68,9 +69,13 @@ export default class Dockerfile extends Component {
       body: { dockerfile: this.state.dockerfile }
     }
     const scope = this.props.scope
+    let notification = new NotificationHandler()
+    notification.spin(`更新镜像 ${image} 信息中...`)
     updateImageinfo(config, {
       success: {
         func: (res) => {
+          notification.close()
+          notification.success(`更新镜像 ${image} 信息成功`)
           editorOptions = { readOnly: true }
           _this.setState({
             editor: false
@@ -80,14 +85,14 @@ export default class Dockerfile extends Component {
       },
       failed: {
         func: (res) => {
-          message.error('更新失败！')
+          notification.close()
+          notification.error(`更新镜像 ${image} 信息失败`)
           editorOptions = { readOnly: true }
           _this.setState({
             editor: false,
             dockerfile: this.state.bakDockerfile
           })
         }
-
       }
     })
   }
@@ -115,20 +120,20 @@ export default class Dockerfile extends Component {
     //   )
     // }
     if (this.props.isOwner) {
-      if (this.state.dockerfile== '') {
+      if (this.state.dockerfile == '') {
         return (
           <Card className="dockerfile">
-             {(!this.state.editor) ?
-              <p> Not DockerFile<Button size="large" style={{float:'right',top:'-8px'}} onClick={() => this.handEdit(true)}>编辑</Button></p>
-            :
-            <div>
-              <DockerFileEditor value={this.state.dockerfile} callback={this.onChangeDockerFile.bind(this)} options={editorOptions} />
-              <div style={{ lineHeight: '50px' }} className="text-center">
-                <Button size="large" type="ghost" onClick={() => this.handEdit(false)} style={{ marginRight: '10px' }}>取消</Button>
-                <Button size="large" type="primary" onClick={() => this.updateImageInfo()}>确定</Button>
+            {(!this.state.editor) ?
+              <p> Not DockerFile<Button size="large" style={{ float: 'right', top: '-8px' }} onClick={() => this.handEdit(true)}>编辑</Button></p>
+              :
+              <div>
+                <DockerFileEditor value={this.state.dockerfile} callback={this.onChangeDockerFile.bind(this)} options={editorOptions} />
+                <div style={{ lineHeight: '50px' }} className="text-center">
+                  <Button size="large" type="ghost" onClick={() => this.handEdit(false)} style={{ marginRight: '10px' }}>取消</Button>
+                  <Button size="large" type="primary" onClick={() => this.updateImageInfo()}>确定</Button>
+                </div>
               </div>
-            </div>
-          }
+            }
           </Card>
         )
       } else {
