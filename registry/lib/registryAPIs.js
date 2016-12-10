@@ -62,6 +62,8 @@ DockerRegistryAPIs.prototype.searchRepositories = function (user, search, showDe
   var requestUrl = this.getAPIPrefix() + "/search";
   if (search) {
     requestUrl += "?q=" + search + "&showdetail=" + showDetail;
+  } else {
+    requestUrl += "?q=" + search + "&page=1&n=50&showdetail=" + showDetail;
   }
   logger.debug(method, "Request url: " + requestUrl);
   this.sendRequest(requestUrl, 'GET', null, callback, user);

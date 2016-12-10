@@ -15,7 +15,7 @@ import QueueAnim from 'rc-queue-anim'
 import merge from 'lodash/merge'
 import "./style/AppUseful.less"
 import { changeServiceAvailability } from '../../../actions/services'
-
+import NotificationHandler from '../../../common/notification_handler'
 
 const InputGroup = Input.Group;
 const Option = Select.Option;
@@ -33,7 +33,7 @@ class AppUseful extends Component {
       checkType: "null",
       editFlag: true,
       switchDisable: false,
-      submitInfo:{}
+      submitInfo: {}
     }
   }
   componentWillMount() {
@@ -51,14 +51,14 @@ class AppUseful extends Component {
         editFlag: true,
         switchDisable: false,
         submitInfo: {},
-        livenessProbe:{}
+        livenessProbe: {}
       })
       return
     }
     this.setLivenessProbe(nextProps.service, serviceDetailmodalShow)
   }
   setLivenessProbe(service, serviceDetailmodalShow) {
-      if (this.state.submitInfo && this.state.submitInfo.info) return
+    if (this.state.submitInfo && this.state.submitInfo.info) return
     let livenessProbe = service.spec.template.spec.containers[0].livenessProbe
     const currentUseful = !!livenessProbe
     if (!livenessProbe) {
@@ -78,7 +78,7 @@ class AppUseful extends Component {
     let protocol = 'null'
     if (livenessProbe.httpGet) {
       protocol = 'http'
-    } else if(livenessProbe.tcpSocket) {
+    } else if (livenessProbe.tcpSocket) {
       protocol = 'tcp'
     } else {
       this.setState({
@@ -100,7 +100,7 @@ class AppUseful extends Component {
     this.setState({
       currentUseful: value
     });
-    if(!value) {
+    if (!value) {
       const livenessProbe = Object.assign({}, this.state.livenessProbe)
       this.setState({
         submitInfo: livenessProbe
@@ -113,10 +113,10 @@ class AppUseful extends Component {
       editFlag: false,
       switchDisable: true
     });
-    if(this.state.livenessProbe) {
+    if (this.state.livenessProbe) {
       this.setState({
         submitInfo: Object.assign({}, this.state.livenessProbe)
-      }) 
+      })
     }
   }
   onChange(e) {
@@ -129,7 +129,7 @@ class AppUseful extends Component {
     this.setState({
       editFlag: true,
     })
-    if(this.state.livenessProbe.initialDelaySeconds) {
+    if (this.state.livenessProbe.initialDelaySeconds) {
       const livenessProbe = Object.assign({}, this.state.livenessProbe)
       this.setState({
         switchDisable: false,
@@ -147,37 +147,38 @@ class AppUseful extends Component {
   confirmSet() {
     const submitInfo = this.state.submitInfo
     const propertys = Object.getOwnPropertyNames(submitInfo)
+    let notification = new NotificationHandler()
     if (!submitInfo.info.port) {
-      message.error('请填写端口')
+      notification.error('请填写端口')
       return
     }
     if (submitInfo.info.port < 1 || submitInfo.info.port > 65535) {
-      message.error('端口只允许填写1~65535之间的数字')
-      return 
+      notification.error('端口只允许填写1~65535之间的数字')
+      return
     }
     if (submitInfo.initialDelaySeconds && submitInfo.initialDelaySeconds < 0) {
-      message.error('首次检查延时不能为负')
-      return 
+      notification.error('首次检查延时不能为负')
+      return
     }
     if (submitInfo.timeoutSeconds && submitInfo.timeoutSeconds < 1) {
-      message.error('检查超时不能小于1')
-      return 
+      notification.error('检查超时不能小于1')
+      return
     }
     if (submitInfo.periodSeconds && submitInfo.periodSeconds < 1) {
-      message.error('检查间隔不能小于1')
-      return 
+      notification.error('检查间隔不能小于1')
+      return
     }
     // if(this.state.checkType === 'http') {
     //   if(propertys.length < 4 || !submitInfo.info.path || !submitInfo.info.path) {
-    //     message.error('信息填写不全')
+    //     notification.error('信息填写不全')
     //     return
     //   }
     // }
     // if(this.state.checkType === 'tcp') {
     //   if (propertys.length < 4) {
-    //     message.error('信息填写不全')
+    //     notification.error('信息填写不全')
     //     return
-    //   } 
+    //   }
     // }
     if (this.state.checkType === 'null') {
       const changeServiceAvailability = this.props.changeServiceAvailability
@@ -196,7 +197,7 @@ class AppUseful extends Component {
     const serviceName = this.props.serviceName
     let options = {}
     const self = this
-    if(self.state.checkType === 'http') {
+    if (self.state.checkType === 'http') {
       options.httpGet = {
         port: parseInt(submitInfo.info.port),
         path: '/' + (submitInfo.info.path ? submitInfo.info.path : '')
@@ -236,13 +237,13 @@ class AppUseful extends Component {
     })
   }
   checkSubmitInfo() {
-    if(this.state.protocol === 'http') {
+    if (this.state.protocol === 'http') {
 
     }
   }
   render() {
     const { service } = this.props
-    if(!service || !service.spec) {
+    if (!service || !service.spec) {
       return (<div id="AppUseful"></div>)
     }
     let livenessProbe = this.state.livenessProbe
@@ -252,7 +253,7 @@ class AppUseful extends Component {
       <div id="AppUseful">
         <div className="operaBox">
           <span>设置高可用</span>
-          <Switch value={this.state.currentUseful} className="switch" defaultChecked={this.state.currentUseful} onChange={this.changeCheckType} disabled={this.state.switchDisable}/>
+          <Switch value={this.state.currentUseful} className="switch" defaultChecked={this.state.currentUseful} onChange={this.changeCheckType} disabled={this.state.switchDisable} />
           <span className="status">{this.state.currentUseful ? "已开启" : "已关闭"}</span>
         </div>
         <div className="settingBox">
@@ -297,16 +298,16 @@ class AppUseful extends Component {
                 </div>
                 <div className="input">
                   <div className="commonInput">
-                    <InputNumber type="text" disabled={this.state.editFlag} value={submitInfo.info.port} onChange={(e)=> this.getInputInfo('port', e)}/>
+                    <InputNumber type="text" disabled={this.state.editFlag} value={submitInfo.info.port} onChange={(e) => this.getInputInfo('port', e)} />
                   </div>
                   <div className="commonInput">
-                    <InputNumber type="text" disabled={this.state.editFlag} value={submitInfo.initialDelaySeconds} onChange={(e)=> this.getInputInfo('initialDelaySeconds', e)}/>&nbsp;&nbsp;s
+                    <InputNumber type="text" disabled={this.state.editFlag} value={submitInfo.initialDelaySeconds} onChange={(e) => this.getInputInfo('initialDelaySeconds', e)} />&nbsp;&nbsp;s
                 </div>
                   <div className="commonInput">
-                    <InputNumber type="text" disabled={this.state.editFlag} value={submitInfo.timeoutSeconds} onChange={(e)=> this.getInputInfo('timeoutSeconds', e)}/>&nbsp;&nbsp;s
+                    <InputNumber type="text" disabled={this.state.editFlag} value={submitInfo.timeoutSeconds} onChange={(e) => this.getInputInfo('timeoutSeconds', e)} />&nbsp;&nbsp;s
                 </div>
                   <div className="commonInput">
-                    <InputNumber type="text" disabled={this.state.editFlag} value={submitInfo.periodSeconds} onChange={(e)=> this.getInputInfo('periodSeconds', e)}/>&nbsp;&nbsp;s
+                    <InputNumber type="text" disabled={this.state.editFlag} value={submitInfo.periodSeconds} onChange={(e) => this.getInputInfo('periodSeconds', e)} />&nbsp;&nbsp;s
                 </div>
                   <div style={{ clear: "both" }}></div>
                 </div>
@@ -319,9 +320,9 @@ class AppUseful extends Component {
                 <div className="input">
                   <span style={{ float: "left", marginLeft: "10px" }}>/</span>
                   <div className="commonInput">
-                    <Input type="text" disabled={this.state.editFlag} 
-                      value={submitInfo.info.path && submitInfo.info.path.length > 0 && submitInfo.info.path[0] === '/' ? submitInfo.info.path.substr(1) : submitInfo.info.path} 
-                      onChange={(e)=> this.getInputInfo('path', e)}/>
+                    <Input type="text" disabled={this.state.editFlag}
+                      value={submitInfo.info.path && submitInfo.info.path.length > 0 && submitInfo.info.path[0] === '/' ? submitInfo.info.path.substr(1) : submitInfo.info.path}
+                      onChange={(e) => this.getInputInfo('path', e)} />
                   </div>
                   <div style={{ clear: "both" }}></div>
                 </div>
@@ -346,16 +347,16 @@ class AppUseful extends Component {
                 </div>
                 <div className="input">
                   <div className="commonInput">
-                    <InputNumber type="text" disabled={this.state.editFlag} value={submitInfo.info.port} onChange={(e)=> this.getInputInfo('port', e)}/>
+                    <InputNumber type="text" disabled={this.state.editFlag} value={submitInfo.info.port} onChange={(e) => this.getInputInfo('port', e)} />
                   </div>
                   <div className="commonInput">
-                    <InputNumber type="text" disabled={this.state.editFlag} value={submitInfo.initialDelaySeconds} onChange={(e)=> this.getInputInfo('initialDelaySeconds', e)}/>&nbsp;&nbsp;s
+                    <InputNumber type="text" disabled={this.state.editFlag} value={submitInfo.initialDelaySeconds} onChange={(e) => this.getInputInfo('initialDelaySeconds', e)} />&nbsp;&nbsp;s
                 </div>
                   <div className="commonInput">
-                    <InputNumber type="text" disabled={this.state.editFlag} value={submitInfo.timeoutSeconds} onChange={(e)=> this.getInputInfo('timeoutSeconds', e)}/>&nbsp;&nbsp;s
+                    <InputNumber type="text" disabled={this.state.editFlag} value={submitInfo.timeoutSeconds} onChange={(e) => this.getInputInfo('timeoutSeconds', e)} />&nbsp;&nbsp;s
                 </div>
                   <div className="commonInput">
-                    <InputNumber type="text" disabled={this.state.editFlag} value={submitInfo.periodSeconds} onChange={(e)=> this.getInputInfo('periodSeconds', e)}/>&nbsp;&nbsp;s
+                    <InputNumber type="text" disabled={this.state.editFlag} value={submitInfo.periodSeconds} onChange={(e) => this.getInputInfo('periodSeconds', e)} />&nbsp;&nbsp;s
                 </div>
                   <div style={{ clear: "both" }}></div>
                 </div>
@@ -375,7 +376,7 @@ class AppUseful extends Component {
         </div>
       </div>
 
-     
+
     )
   }
 }

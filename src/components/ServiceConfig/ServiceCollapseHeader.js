@@ -59,10 +59,6 @@ class CollapseHeader extends Component {
       message.info('内容不能为空，请重新输入内容')
       return
     }
-    if (escape(this.state.configDesc).indexOf("%u") > 0) {
-      message.error('内容格式输入有误，请重新输入')
-      return
-    }
     let configfile = {
       group,
       cluster: this.props.cluster.clusterID,

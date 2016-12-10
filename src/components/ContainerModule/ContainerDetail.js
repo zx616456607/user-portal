@@ -135,21 +135,21 @@ class ContainerDetail extends Component {
                 </p>
                 <div className="leftInfo">
                   <div className="status">
-                    运行状态&nbsp;:
+                    状态：
                     <span style={{ position: 'relative', top: '-5px' }}>
                       <ContainerStatus container={container} smart={true} />
                     </span>
                   </div>
                   <div className="address">
-                    地址&nbsp;:&nbsp; {container.status.podIP}
+                    地址： {container.status.podIP}
                   </div>
                 </div>
                 <div className="middleInfo">
                   <div className="createDate">
-                    创建&nbsp;:&nbsp; {formatDate(container.metadata.creationTimestamp || '')}
+                    创建： {formatDate(container.metadata.creationTimestamp || '')}
                   </div>
                   {/*<div className="updateDate">
-                      更新&nbsp;:&nbsp;{container.metadata.creationTimestamp}
+                      更新：{container.metadata.creationTimestamp}
                     </div>*/}
                 </div>
                 <div className="rightInfo">

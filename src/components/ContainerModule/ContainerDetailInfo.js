@@ -20,10 +20,10 @@ export default class ContainerDetailInfo extends Component {
   }
 
   getMount(container) {
-    const ele = []
+    let ele = []
     if (container.spec.containers[0].volumeMounts) {
       container.spec.containers[0].volumeMounts.forEach((volume) => {
-        if(volume.mountPath === '/var/run/secrets/kubernetes.io/serviceaccount') return
+        if(volume.mountPath === '/var/run/secrets/kubernetes.io/serviceaccount'){ return }
         ele.push (
           <div key={volume.name}>
             <div className="commonTitle">{volume.name}</div>
@@ -50,7 +50,7 @@ export default class ContainerDetailInfo extends Component {
               名称
           </div>
             <div className="commonTitle">
-              镜像名称
+              镜像
           </div>
             <div className="commonTitle">
               所属节点
@@ -110,7 +110,7 @@ export default class ContainerDetailInfo extends Component {
             </div>
             <div className="dataBox">
               {
-                container.spec.containers[0].envs && container.spec.containers[0].envs.map((env) => {
+                !!container.spec.containers[0].env ? container.spec.containers[0].env.map((env) => {
                   return (
                     <div key={env.name}>
                       <div className="commonTitle">{env.name}</div>
@@ -118,7 +118,7 @@ export default class ContainerDetailInfo extends Component {
                       <div style={{ clear: "both" }}></div>
                     </div>
                   )
-                })
+                }) : null
               }
             </div>
           </div>

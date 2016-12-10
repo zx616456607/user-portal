@@ -51,21 +51,36 @@ let TeamTable = React.createClass({
       notFound: false,
     })
   },
-  delTeam(teamID) {
+  delTeam(teamID, teamName) {
     const {deleteTeam, loadUserTeamList} = this.props.scope.props
     const {page, pageSize, sort, filter} = this.props.scope.state
     confirm({
-      title: '您是否确认要删除这项内容',
+      title: '确认要删除团队 ' + teamName + ' ?',
       onOk() {
-        deleteTeam(teamID)
-        loadUserTeamList('default', {
-          page: page,
-          size: pageSize,
-          sort,
-          filter,
+        const hide = message.loading('正在执行中...', 0)
+        deleteTeam(teamID, {
+          success: {
+            func: () => {
+              hide()
+              message.success('删除team成功')
+              loadUserTeamList('default', {
+                page: page,
+                size: pageSize,
+                sort,
+                filter,
+              })
+            },
+            isAsync: true
+          },
+          failed: {
+            func: (err) => {
+              hide()
+              message.error('删除team失败')
+            }
+          }
         })
       },
-      onCancel() { },
+      onCancel() { }
     });
   },
   getSort(order, column) {
@@ -316,7 +331,7 @@ let TeamTable = React.createClass({
                 teamID={record.key}
                 teamUserIDList={teamUserIDList} />
             </Modal>
-            <Button icon="delete" className="delBtn" onClick={() => this.delTeam(record.key)}>删除</Button>
+            <Button icon="delete" className="delBtn" onClick={() => this.delTeam(record.key, record.team)}>删除</Button>
           </div>
         )
       },
@@ -395,6 +410,7 @@ class TeamManage extends Component {
     })
   }
   componentWillMount() {
+    document.title = '团队管理 | 时速云'
     this.props.loadUserTeamList('default', {
       page: 1,
       size: 5,

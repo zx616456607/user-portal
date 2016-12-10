@@ -42,7 +42,7 @@ SpecRegistryAPIs.prototype.getCatalog = function () {
   return new Promise(function (resolve, reject) {
     self.refreshToken(Catalog_Scope, function(statusCode, result) {
       if (statusCode === 200) {
-        var catalogURL = self.registryConfig.server +"/v2/_catalog"
+        var catalogURL = self.registryConfig.server +"/v2/_catalog?n=50"
         self.sendRequest(catalogURL, self.getBearerHeader(result), null, function(statusCode, result) {
           logger.debug(method, "Catalog status code: " + statusCode)
           logger.debug(method, 'Catalog body: ' + JSON.stringify(result))

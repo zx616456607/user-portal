@@ -9,15 +9,15 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import { Row, Col, Modal, Button, Icon, Collapse, Input, message } from 'antd'
+import { Row, Col, Modal, Button, Icon, Collapse, Input, message, Spin } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import './style/ServiceConfig.less'
 import QueueAnim from 'rc-queue-anim'
-// import ServiceCollapse from './ServiceCollapse'
+import { validateK8sResource } from '../../common/naming_validation'
 import CollapseHeader from './ServiceCollapseHeader'
 import CollapseContainer from './ServiceCollapseContainer'
 import { connect } from 'react-redux'
-import { remove } from 'lodash'
+import remove from 'lodash/remove'
 import { loadConfigGroup, configGroupName, createConfigGroup, deleteConfigGroup } from '../../actions/configs'
 
 
@@ -31,6 +31,7 @@ class CollapseList extends Component {
     loadConfigGroup(cluster)
   }
   componentWillMount() {
+    document.title = '服务配置 | 时速云'
     this.loadData(this.props)
   }
   // componentWillReceiveProps(nextProps) {
@@ -51,19 +52,18 @@ class CollapseList extends Component {
   }
 
   render() {
-    const {groupData} = this.props
+    const {groupData, isFetching} = this.props
     const scope = this
+    if (isFetching) {
+      return (
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
+      )
+    }
     if (groupData.length === 0) return (<div style={{ lineHeight: '50px' }}>还没有创建过配置组</div>)
     let groups = groupData.map((group) => {
       return (
-        // <Servicec
-        //   key={group.native.metadata.name}
-        //   handChageProp={this.props.handChageProp}
-        //   btnDeleteGroup={this.props.btnDeleteGroup}
-        //   configGroupName={configGroupName}
-        //   group={group}
-        //   configName={configName}
-        // />
         <Collapse.Panel
           header={
             <CollapseHeader
@@ -86,7 +86,6 @@ class CollapseList extends Component {
       )
     })
     return (
-      // <div style={{marginTop:'30px'}}>{groups}</div>
       <Collapse accordion>
         {groups}
       </Collapse>
@@ -108,13 +107,15 @@ class Service extends Component {
     }
   }
   componentWillMount() {
-    // loadData(this.props)
   }
   configModal(visible) {
     if (visible) {
       this.setState({
         createModal: visible,
         myTextInput: '',
+      })
+      setTimeout(() => {
+        this.nameInput.refs.input.focus()
       })
     } else {
       this.setState({
@@ -129,10 +130,13 @@ class Service extends Component {
     })
   }
   btnCreateConfigGroup() {
-    // this.setState({ createConfigGroup });
     let groupName = this.state.myTextInput
     if (!groupName) {
       message.error('请输入配置组名称')
+      return
+    }
+    if (!validateK8sResource(groupName)) {
+      message.error('名称需要 3-63 个字符，可以包括小写英文字母、数字、点（.）和连字符（-）')
       return
     }
     let self = this
@@ -144,12 +148,17 @@ class Service extends Component {
     this.props.createConfigGroup(configs, {
       success: {
         func: () => {
-          message.success('创建成功')
           self.setState({
             createModal: false,
             myTextInput: ''
           })
-          self.props.loadConfigGroup(cluster)
+          self.props.loadConfigGroup(cluster, {
+            success: {
+              func: () => {
+                message.success('创建成功')
+              }
+            }
+          })
         },
         isAsync: true
       },
@@ -172,7 +181,6 @@ class Service extends Component {
 
   }
   btnDeleteGroup() {
-    // console.log('props',this.props)
     let configArray = this.state.configArray
     let cluster = this.props.cluster
     if (configArray.length <= 0) {
@@ -191,9 +199,9 @@ class Service extends Component {
         self.props.deleteConfigGroup(configData, {
           success: {
             func: (res) => {
-              const errorText =[]
+              const errorText = []
               if (res.message.length > 0) {
-                res.message.forEach(function(list){
+                res.message.forEach(function (list) {
                   errorText.push({
                     name: list.name,
                     text: list.error
@@ -201,11 +209,11 @@ class Service extends Component {
                 })
                 const content = errorText.map(list => {
                   return (
-                    <h3>{list.name} ：{list.text}</h3>
+                    <h3>{list.name}：{list.text}</h3>
                   )
                 })
                 Modal.error({
-                  title:'删除配置组失败!',
+                  title: '删除配置组失败!',
                   content
                 })
               } else {
@@ -261,8 +269,7 @@ class Service extends Component {
             <div className="create-conf-g" style={{ padding: '20px 0' }}>
               <div style={{ height: 25 }}>
                 <span style={{ width: '50px', display: 'inline-block', fontSize: '14px' }}> 名称 : </span>
-                <Input type="text" style={{ width: '80%' }} value={this.state.myTextInput} onPressEnter={() => this.btnCreateConfigGroup()} onChange={(e) => this.createModalInput(e)} />
-
+                <Input type="text" ref={(ref) => { this.nameInput = ref; } } style={{ width: '80%' }} value={this.state.myTextInput} onPressEnter={() => this.btnCreateConfigGroup()} onChange={(e) => this.createModalInput(e)} />
               </div>
             </div>
           </Modal>

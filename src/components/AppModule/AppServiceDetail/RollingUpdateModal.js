@@ -14,6 +14,7 @@ import { Button, Card, Menu, message, Icon, Tooltip, Row, Col, Select, InputNumb
 import { loadImageDetailTag } from '../../../actions/app_center'
 import { rollingUpdateService } from '../../../actions/services'
 import { connect } from 'react-redux'
+import NotificationHandler from '../../../common/notification_handler'
 
 const Option = Select.Option
 const OptGroup = Select.OptGroup
@@ -109,13 +110,16 @@ class RollingUpdateModal extends Component {
       return
     }
     const hide = message.loading('正在保存中...', 0)
-    rollingUpdateService(cluster, serviceName, { targets, interval: intervalTime }, {
+
+    let notification = new NotificationHandler()
+    notification.spin(`服务 ${serviceName} 灰度升级中...`)
+    rollingUpdateService(cluster, serviceName, { targets }, {
       success: {
         func: () => {
+          notification.close()
           loadServiceList(cluster, appName)
-          hide()
-          setTimeout(function(){
-            message.success(`服务 ${serviceName} 灰度升级已成功开启`)
+          setTimeout(function () {
+            notification.success(`服务 ${serviceName} 灰度升级已成功开启`)
           }, 300)
           parentScope.setState({
             rollingUpdateModalShow: false
@@ -125,9 +129,9 @@ class RollingUpdateModal extends Component {
       },
       failed: {
         func: () => {
-          hide()
-          setTimeout(function(){
-            message.error(`服务 ${serviceName} 开启灰度升级失败`)
+          notification.close()
+          setTimeout(function () {
+            notification.error(`服务 ${serviceName} 开启灰度升级失败`)
           }, 300)
         }
       }
@@ -216,8 +220,8 @@ class RollingUpdateModal extends Component {
                   {isOnly ? `容器` : `容器${index + 1}`}
                 </Col>
                 <Col span={3} className="rollingUpdateUpdateItem">{item.name}</Col>
-                <Col span={3} style={{ textAlign: 'right' }}>镜像版本</Col>
-                <Tooltip title={item.image}><Col className="rollingUpdateUpdateItem" span={12}>{`${show}：${tag}`}</Col></Tooltip>
+                <Col span={4} style={{ textAlign: 'right' }}>镜像版本</Col>
+                <Tooltip title={item.image}><Col className="rollingUpdateUpdateItem" span={11}>{`${show}：${tag}`}</Col></Tooltip>
               </Row>
               <Row style={{marginBottom: '10px'}} >
                 <Col span={4}></Col>

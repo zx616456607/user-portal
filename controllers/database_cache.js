@@ -130,6 +130,13 @@ exports.getDBService = function* () {
       }
     })
   }
+  if (database.petsetSpec) {
+    database.volumeInfo = {
+      // Use the first pvc for now
+      size: database.petsetSpec.volumeClaimTemplates[0].spec.resources.requests.storage
+    }
+    delete database.petsetSpec
+  }
   if (database.serviceInfo) {
     delete database.serviceInfo.labels
     delete database.serviceInfo.annotations

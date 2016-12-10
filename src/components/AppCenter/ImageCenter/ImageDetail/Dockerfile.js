@@ -9,18 +9,18 @@
  */
 
 import React, { Component } from 'react'
-import { Card , Spin , Button ,Icon} from 'antd'
+import { Card, Spin, Button, Icon } from 'antd'
 import DockerFileEditor from '../../../Editor/DockerFile'
 import cloneDeep from 'lodash/cloneDeep'
 
 let editorOptions = {
-    readOnly: true
+  readOnly: true
 }
 export default class Dockerfile extends Component {
   constructor(props) {
     super(props);
     const bakDockerfile = cloneDeep(this.props.detailInfo.dockerfile)
-    this.state ={
+    this.state = {
       eitor: false,
       dockerfile: this.props.detailInfo.dockerfile,
       bakDockerfile
@@ -33,7 +33,7 @@ export default class Dockerfile extends Component {
     const bakDockerfile = cloneDeep(nextProps.detailInfo.dockerfile)
     if (prevImage !== selfImage) {
       this.setState({
-        dockerfile:　nextProps.detailInfo.dockerfile,
+        dockerfile: 　nextProps.detailInfo.dockerfile,
         bakDockerfile
       })
     }
@@ -70,8 +70,8 @@ export default class Dockerfile extends Component {
     const scope = this.props.scope
     updateImageinfo(config, {
       success: {
-        func: (res)=> {
-          editorOptions = {readOnly: true}
+        func: (res) => {
+          editorOptions = { readOnly: true }
           _this.setState({
             editor: false
           })
@@ -79,9 +79,9 @@ export default class Dockerfile extends Component {
         isAsync: true
       },
       failed: {
-        func: (res)=> {
+        func: (res) => {
           message.error('更新失败！')
-          editorOptions = {readOnly: true}
+          editorOptions = { readOnly: true }
           _this.setState({
             editor: false,
             dockerfile: this.state.bakDockerfile
@@ -98,7 +98,7 @@ export default class Dockerfile extends Component {
       return (
         <Card className="dockerfile">
           <div className="loadingBox">
-          <Spin size="large" />
+            <Spin size="large" />
           </div>
         </Card>
       )
@@ -114,19 +114,48 @@ export default class Dockerfile extends Component {
     //     </Card>
     //   )
     // }
+    if (this.props.isOwner) {
+      if (this.state.dockerfile== '') {
+        return (
+          <Card className="dockerfile">
+             {(!this.state.editor) ?
+              <p> Not DockerFile<Button size="large" style={{float:'right',top:'-8px'}} onClick={() => this.handEdit(true)}>编辑</Button></p>
+            :
+            <div>
+              <DockerFileEditor value={this.state.dockerfile} callback={this.onChangeDockerFile.bind(this)} options={editorOptions} />
+              <div style={{ lineHeight: '50px' }} className="text-center">
+                <Button size="large" type="ghost" onClick={() => this.handEdit(false)} style={{ marginRight: '10px' }}>取消</Button>
+                <Button size="large" type="primary" onClick={() => this.updateImageInfo()}>确定</Button>
+              </div>
+            </div>
+          }
+          </Card>
+        )
+      } else {
+        return (
+          <Card className="dockerfile">
+            <DockerFileEditor value={this.state.dockerfile} callback={this.onChangeDockerFile.bind(this)} options={editorOptions} />
+            {(!this.state.editor) ?
+              <div style={{ lineHeight: '50px' }} className="text-center">
+                <Button size="large" onClick={() => this.handEdit(true)}>编辑</Button>
+              </div>
+              :
+              <div style={{ lineHeight: '50px' }} className="text-center">
+                <Button size="large" type="ghost" onClick={() => this.handEdit(false)} style={{ marginRight: '10px' }}>取消</Button>
+                <Button size="large" type="primary" onClick={() => this.updateImageInfo()}>确定</Button>
+              </div>
+            }
+          </Card>
+        )
+
+      }
+    }
     return (
       <Card className="dockerfile">
-        <DockerFileEditor value={this.state.dockerfile} callback={this.onChangeDockerFile.bind(this)} options={editorOptions} />
-        {this.props.isOwner && this.state.editor ?
-
-        <div style={{lineHeight:'50px'}} className="text-center">
-          <Button size="large" type="ghost" onClick={()=> this.handEdit(false)} style={{marginRight:'10px'}}>取消</Button>
-          <Button size="large" type="primary" onClick={()=>this.updateImageInfo()}>确定</Button>
-        </div>
-        :
-        <div style={{lineHeight:'50px'}} className="text-center">
-          <Button size="large" onClick={()=> this.handEdit(true)}>编辑</Button>
-        </div>
+        {this.state.dockerfile == '' ?
+          <p>Not Dockerfile</p>
+          :
+          <DockerFileEditor value={this.state.dockerfile} callback={this.onChangeDockerFile.bind(this)} options={editorOptions} />
         }
       </Card>
     )

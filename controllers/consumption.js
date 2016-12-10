@@ -38,3 +38,30 @@ exports.getSummaryInDay = function* () {
     data: result.data
   }
 }
+
+exports.getChargeRecord = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.consumptions.getBy(['charge-history'], this.query)
+  this.body = {
+    data: result.data
+  }
+}
+
+exports.getNotifyRule = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.consumptions.getBy(['notify-rule'])
+  this.body = {
+    data: result.data
+  }
+}
+
+exports.setNotifyRule = function* () {
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+  const result = yield api.consumptions.updateBy(['notify-rule'], null, this.request.body)
+  this.body = {
+    data: result.data
+  }
+}

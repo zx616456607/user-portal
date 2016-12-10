@@ -9,6 +9,7 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
+import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { Tooltip, Checkbox, Card, Menu, Dropdown, Button, Icon, Modal, Spin, Input, Pagination, Alert } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
@@ -22,6 +23,7 @@ import { parseAppDomain } from '../parseDomain'
 import TipSvcDomain from '../TipSvcDomain'
 import { addAppWatch, removeAppWatch } from '../../containers/App/status'
 import StateBtnModal from '../StateBtnModal'
+import errorHandler from '../../containers/App/error_handler'
 
 const confirm = Modal.confirm
 const ButtonGroup = Button.Group
@@ -266,7 +268,7 @@ let MyComponent = React.createClass({
             {item.instanceCount + '' || '-'}
           </div>
           <div className='visitIp commonData appListDomain'>
-            <TipSvcDomain appDomain={appDomain} parentNode='appListDomain'/>
+            <TipSvcDomain appDomain={appDomain} parentNode='appListDomain' />
           </div>
           <div className='createTime commonData'>
             <Tooltip title={calcuDate(item.createTime)}>
@@ -436,7 +438,7 @@ class AppList extends Component {
 
   confirmDeleteApps(appList) {
     const self = this
-    const { cluster, deleteApps } = this.props
+    const { cluster, deleteApps, intl } = this.props
     const appNames = appList.map((app) => app.name)
     confirm({
       title: `您是否确认要删除这${appNames.length}个应用`,
@@ -452,6 +454,13 @@ class AppList extends Component {
           deleteApps(cluster, appNames, {
             success: {
               func: () => self.loadData(self.props),
+              isAsync: true
+            },
+            failed: {
+              func: (err) => {
+                errorHandler(err, intl)
+                self.loadData(self.props)
+              },
               isAsync: true
             }
           })
@@ -537,7 +546,7 @@ class AppList extends Component {
   }
   handleStartAppsOk() {
     const self = this
-    const { cluster, startApps, appList } = this.props
+    const { cluster, startApps, appList, intl } = this.props
     let stoppedApps = []
     const checkedAppList = appList.filter((app) => app.checked)
     checkedAppList.map((app, index) => {
@@ -567,6 +576,13 @@ class AppList extends Component {
           })
         },
         isAsync: true
+      },
+      failed: {
+        func: (err) => {
+          errorHandler(err, intl)
+          self.loadData(self.props)
+        },
+        isAsync: true
       }
     })
   }
@@ -577,7 +593,7 @@ class AppList extends Component {
   }
   handleStopAppsOk() {
     const self = this
-    const { cluster, stopApps, appList } = this.props
+    const { cluster, stopApps, appList, intl } = this.props
     const checkedAppList = appList.filter((app) => app.checked)
     let runningApps = []
 
@@ -608,6 +624,13 @@ class AppList extends Component {
           })
         },
         isAsync: true
+      },
+      failed: {
+        func: (err) => {
+          errorHandler(err, intl)
+          self.loadData(self.props)
+        },
+        isAsync: true
       }
     })
   }
@@ -618,7 +641,7 @@ class AppList extends Component {
   }
   handleRestarAppsOk() {
     const self = this
-    const { cluster, restartApps, appList } = this.props
+    const { cluster, restartApps, appList, intl } = this.props
     const checkedAppList = appList.filter((app) => app.checked)
     let runningApps = []
 
@@ -648,6 +671,13 @@ class AppList extends Component {
             stopBtn: false,
             restartBtn: false,
           })
+        },
+        isAsync: true
+      },
+      failed: {
+        func: (err) => {
+          errorHandler(err, intl)
+          self.loadData(self.props)
         },
         isAsync: true
       }
@@ -782,7 +812,7 @@ class AppList extends Component {
                 应用名称
               </div>
               <div className='appStatus commonTitle'>
-                应用状态
+                状态
               </div>
               {/*<div className='serviceNum commonTitle'>
                 服务数量
@@ -895,10 +925,14 @@ function mapStateToProps(state, props) {
   }
 }
 
-export default connect(mapStateToProps, {
+AppList = connect(mapStateToProps, {
   loadAppList,
   stopApps,
   deleteApps,
   restartApps,
   startApps,
 })(AppList)
+
+export default injectIntl(AppList, {
+  withRef: true,
+})

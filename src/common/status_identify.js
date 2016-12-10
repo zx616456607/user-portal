@@ -44,7 +44,10 @@ export function getContainerStatus(container) {
  */
 export function getServiceStatus(service) {
   const { status, metadata } = service
-  const replicas = service.spec.replicas || metadata.annotations[`${TENX_MARK}/replicas`]
+  let replicas = service.spec.replicas
+  if (replicas === undefined) {
+    replicas = metadata.annotations[`${TENX_MARK}/replicas`]
+  }
   let availableReplicas = 0
   if (!status) {
     return {
@@ -65,22 +68,47 @@ export function getServiceStatus(service) {
     metadata.annotations = {}
   }
   status.replicas = replicas
-  if (!phase) {
-    if (unavailableReplicas > 0 && (!availableReplicas || availableReplicas < replicas)) {
-      status.phase = 'Pending'
-    } else if (observedGeneration >= metadata.generation && replicas === updatedReplicas) {
-      status.availableReplicas = updatedReplicas
-      status.phase = 'Running'
-    } else if (updatedReplicas && unavailableReplicas) {
-      status.phase = 'Deploying'
-      status.progress = { status: false }
-    } else if (availableReplicas < 1) {
-      status.phase = 'Stopped'
-    } else {
-      status.phase = 'Running'
-    }
+  if (phase) {
+    return status
+  }
+  if (unavailableReplicas > 0 && (!availableReplicas || availableReplicas < replicas)) {
+    status.phase = 'Pending'
+  } else if (observedGeneration >= metadata.generation && replicas === updatedReplicas) {
+    status.availableReplicas = updatedReplicas
+    status.phase = 'Running'
+  } else if (updatedReplicas && unavailableReplicas) {
+    status.phase = 'Deploying'
+    status.progress = { status: false }
+  } else if (availableReplicas < 1) {
+    status.phase = 'Stopped'
+  } else {
+    status.phase = 'Running'
   }
   return status
+}
+
+/**
+ * Get service status by containers
+ * return one of [Pending, Running, Deploying, Stopped]
+ */
+export function getServiceStatusByContainers(service, containers) {
+  if (!containers) {
+    return getServiceStatus(service)
+  }
+  let availableReplicas = 0
+  containers.map(container => {
+    let { phase } = getContainerStatus(container)
+    if (phase === 'Running') {
+      availableReplicas++
+    }
+  })
+  if (!service.status) {
+    service.status = {}
+  } else {
+    delete service.status.phase
+  }
+  service.status.availableReplicas = availableReplicas
+  return getServiceStatus(service)
 }
 
 /**

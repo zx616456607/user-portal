@@ -1,0 +1,102 @@
+#TeamManage {
+  .ant-alert {
+    color: #187cb7;
+    font-size: 14px;
+    line-height: 26px;
+    border: 1px dashed #88d8fd;
+    margin-bottom: 20px;
+  }
+  .teamOption {
+    margin-bottom: 20px;
+    .total {
+      display: inline-block;
+      line-height: 35px;
+      float: right;
+      margin-right: 160px;
+    }
+    .plusBtn {
+      float: left;
+      font-weight: normal;
+      background-color: #2db7f5;
+      padding: 5px 10px;
+      margin-right: 10px;
+    }
+    .viewBtn {
+      font-weight: normal;
+      height: 36px;
+      color: #1dabed;
+      border-color: #1dabed;
+      border-radius: 3px;
+    }
+  }
+  .teamList {
+    margin-bottom: 26px;
+    .ant-card {
+      overflow: inherit;
+      .ant-card-body {
+        padding: 0;
+        .ant-table {
+          font-size: 12px;
+          .ant-table-thead {
+            tr {
+              th {
+                font-weight: normal;
+              }
+            }
+          }
+          .addBtn {
+            font-weight: normal;
+            background-color: #fff;
+            width: 100px;
+            margin-right: 12px;
+            border-radius: 3px;
+            &:hover {
+              background-color: #00a1ea;
+              color: #fff;
+            }
+          }
+          .delBtn {
+            width: 126px;
+            font-weight: normal;
+            background-color: #fff;
+            border-radius: 3px;
+            &:hover {
+              background-color: #f75b59;
+              color: #fff;
+              border-color: #f75b59;
+            }
+          }
+          .teamName {
+            padding-left: 24px;
+          }
+          .tabDrop {
+            .ant-btn:first-child:not(:last-child) {
+              padding-left: 10px;
+            }
+          }
+        }
+        .ant-table-pagination {
+          margin: 16px 46px;
+          position: absolute;
+          top: -70px;
+          right: -40px;
+        }
+      }
+    }
+  }
+}
+.NewTeamForm {
+  .NewTeamItem {
+    height: 36px;
+    line-height: 36px;
+    margin-bottom: 16px;
+    input {
+      border-radius: 0;
+    }
+    textarea {
+      border-radius: 0;
+      resize: none;
+    }
+  }
+
+}
