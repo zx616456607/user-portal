@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Input, Form, Switch, Radio, Checkbox, Icon, Select, Modal, notification } from 'antd'
+import { Button, Input, Form, Switch, Radio, Checkbox, Icon, Select, Modal } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -20,6 +20,7 @@ import './style/CreateTenxFlowModal.less'
 import EnvComponent from './EnvComponent.js'
 import CreateImageEnvComponent from './CreateImageEnvComponent.js'
 import CodeStoreListModal from './CodeStoreListModal.js'
+import NotificationHandler from '../../../../../common/notification_handler'
 
 const RadioGroup = Radio.Group;
 const createForm = Form.create;
@@ -285,8 +286,8 @@ let CreateTenxFlowModal = React.createClass({
       });
     }
     // Clean the command entries
-    this.props.form.setFieldsValue({'shellCodes': [0]});
-    this.props.form.setFieldsValue({'shellCode0': ''});
+    this.props.form.setFieldsValue({ 'shellCodes': [0] });
+    this.props.form.setFieldsValue({ 'shellCode0': '' });
     if (this.props.config && this.props.config.spec && this.props.config.spec.container) {
       this.props.config.spec.container.args = {}
     }
@@ -384,7 +385,7 @@ let CreateTenxFlowModal = React.createClass({
   },
   realImageInput(rule, value, callback) {
     //this function for user selected build image type
-    //and when user submit the form, the function will check the real image input or not 
+    //and when user submit the form, the function will check the real image input or not
     if (this.state.otherFlowType == 3 && !!!value) {
       callback([new Error('请输入镜像名称')]);
     } else if (value.match(/[\/:]/)) {
@@ -685,11 +686,12 @@ let CreateTenxFlowModal = React.createClass({
         } else {
           imageBuildBody.DockerfilePath = tmpDockerFileUrl;
         }
-        if(!!values.dockerFileName) {
+        if (!!values.dockerFileName) {
           imageBuildBody.DockerfileName = values.dockerFileName;
         }
         body.spec.build = imageBuildBody;
       }
+      let notification = new NotificationHandler()
       createTenxFlowState(flowId, body, {
         success: {
           func: (res) => {
@@ -712,10 +714,7 @@ let CreateTenxFlowModal = React.createClass({
               scope.closeCreateNewFlow();
               getTenxFlowStateList(flowId)
             }
-            notification['success']({
-              message: '持续集成',
-              description: '创建成功~',
-            });
+            notification.success('持续集成', '创建成功~');
           },
           isAsync: true
         }
@@ -727,13 +726,13 @@ let CreateTenxFlowModal = React.createClass({
     const { form, codeList, stageList, supportedDependencies, imageList} = this.props;
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form;
     const scopeThis = this;
-    if (imageList === undefined || imageList.length ===0) {
+    if (imageList === undefined || imageList.length === 0) {
       return (<div></div>)
     }
     let intFlowTypeIndex = this.state.otherFlowType - 1
     let buildImages = []
     let dependenciesImages = []
-    imageList.forEach(function(image) {
+    imageList.forEach(function (image) {
       if (image.imageList[0].categoryId > 100) {
         dependenciesImages.push(image)
       } else {
@@ -747,7 +746,7 @@ let CreateTenxFlowModal = React.createClass({
     });
     const selectImage = buildImages.map((list, index) => {
       return (
-        <Option key={ list.title } value={list.title + `@`+ (index+1) }>{list.title}</Option>
+        <Option key={list.title} value={list.title + `@` + (index + 1)}>{list.title}</Option>
       )
     })
     this.state.baseImage = buildImages[intFlowTypeIndex].imageList
@@ -823,7 +822,7 @@ let CreateTenxFlowModal = React.createClass({
       onChange: this.flowTypeChange,
       initialValue: buildImages[intFlowTypeIndex].title,
     });
-   
+
     const imageRealNameProps = getFieldProps('imageRealName', {
       rules: [
         { message: '请输入镜像名称' },
@@ -880,7 +879,7 @@ let CreateTenxFlowModal = React.createClass({
             <div className='input flowType'>
               <FormItem className='flowTypeForm'>
                 <Select {...flowTypeProps} style={{ width: 120 }}>
-                  { selectImage }
+                  {selectImage}
                 </Select>
               </FormItem>
             </div>
@@ -902,7 +901,7 @@ let CreateTenxFlowModal = React.createClass({
               </Button>
               <Button type='ghost' size='large' style={{ marginLeft: '15px' }} onClick={this.deleteCodeStore}>
                 <Icon type='delete' style={{ marginRight: '7px' }} />
-              <FormattedMessage {...menusText.deleteCode} />
+                <FormattedMessage {...menusText.deleteCode} />
               </Button>
               <span className={this.state.noSelectedCodeStore ? 'noCodeStoreSpan CodeStoreSpan' : 'CodeStoreSpan'}><FormattedMessage {...menusText.noCodeStore} /></span>
             </div>
@@ -931,7 +930,7 @@ let CreateTenxFlowModal = React.createClass({
             <div className='imageName input'>
               <FormItem style={{ width: '220px', float: 'left' }}>
                 <Select {...imageNameProps}>
-                  { baseImage }
+                  {baseImage}
                 </Select>
               </FormItem>
               <span className={this.state.emptyImageEnv ? 'emptyImageEnv defineEnvBtn' : 'defineEnvBtn'} onClick={this.openImageEnvModal}><FormattedMessage {...menusText.defineEnv} /></span>
@@ -1072,7 +1071,7 @@ let CreateTenxFlowModal = React.createClass({
                   </div>
                   <div className='input imageType'>
                     <FormItem>
-                      <Switch {...getFieldProps('buildCache', {initialValue: true})} defaultChecked={true} />
+                      <Switch {...getFieldProps('buildCache', { initialValue: true }) } defaultChecked={true} />
                     </FormItem>
                   </div>
                   <div style={{ clear: 'both' }} />

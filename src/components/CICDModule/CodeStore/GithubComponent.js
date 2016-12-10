@@ -8,14 +8,13 @@
 * @author BaiYu
 */
 import React, { Component, PropTypes } from 'react'
-import { Alert, Icon, Menu, Button, Card, Input, Tabs, Tooltip, message, Dropdown, Modal, Spin } from 'antd'
+import { Alert, Icon, Menu, Button, Card, Input, Tabs, Tooltip, Dropdown, Modal, Spin } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
-
 import { connect } from 'react-redux'
 import { getGithubList, searchGithubList, addGithubRepo, notGithubProject, registryGithub, syncRepoList } from '../../../actions/cicd_flow'
-
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
+import NotificationHandler from '../../../common/notification_handler'
 
 const TabPane = Tabs.TabPane
 
@@ -79,10 +78,11 @@ class CodeList extends Component {
     this.setState({
       loadingList
     })
+    let notification = new NotificationHandler()
     this.props.scope.props.addGithubRepo(item, {
       success: {
         func: () => {
-          message.success('激活成功')
+          notification.success('激活成功')
           loadingList[index] = false
           self.setState({
             loadingList
@@ -91,7 +91,7 @@ class CodeList extends Component {
       },
       failed: {
         func: (res) => {
-          message.error(res.message)
+          notification.error('激活失败', res.message)
           loadingList[index] = false
           self.setState({
             loadingList
@@ -108,17 +108,18 @@ class CodeList extends Component {
     this.setState({
       loadingList
     })
+    let notification = new NotificationHandler()
     parentScope.props.notGithubProject(users, id, {
       success: {
         func: () => {
-          message.success('撤消成功')
+          notification.success('撤消成功')
         }
       }
     })
   }
 
   render() {
-    const { data , isFetching} = this.props
+    const { data, isFetching} = this.props
     const scope = this
     if (isFetching) {
       return (
@@ -191,10 +192,12 @@ class GithubComponent extends Component {
 
   handSyncCode() {
     const { registryGithub } = this.props
-    message.loading('正在执行中...', 20);
+    let notification = new NotificationHandler()
+    notification.spin(`正在执行中...`)
     registryGithub('github', {
       success: {
         func: (res) => {
+          notification.close()
           window.location.href = res.data.results.url
         }
       }
@@ -275,7 +278,7 @@ class GithubComponent extends Component {
           </div>
         </div>
 
-        <Tabs onChange={(e)=> this.changeList(e)}>
+        <Tabs onChange={(e) => this.changeList(e)}>
           {codeList}
         </Tabs>
 

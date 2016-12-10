@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Spin, Icon, Card, Modal, Button, Switch, Menu, Dropdown, notification, Tooltip } from 'antd'
+import { Spin, Icon, Card, Modal, Button, Switch, Menu, Dropdown, Tooltip } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -19,6 +19,7 @@ import './style/TenxFlowDetailFlowCard.less'
 import EditTenxFlowModal from './EditTenxFlowModal.js'
 import CICDSettingModal from './CICDSettingModal.js'
 import StageBuildLog from './StageBuildLog.js'
+import NotificationHandler from '../../../../../common/notification_handler'
 
 const ButtonGroup = Button.Group;
 const confirm = Modal.confirm;
@@ -243,7 +244,7 @@ function currentEditClass(status, editIndex, index) {
 
 function fetchCodeStoreName(id, codeList) {
   //this function for fetcht code store name
-  if(!Boolean(id)){
+  if (!Boolean(id)) {
     return '';
   }
   let codeName = null;
@@ -309,6 +310,7 @@ class TenxFlowDetailFlowCard extends Component {
     //this function for user change open cicd or not
     const { getTenxflowCIRules, UpdateTenxflowCIRules, flowId } = this.props;
     const _this = this;
+    let notification = new NotificationHandler()
     if (e) {
       getTenxflowCIRules(flowId);
       this.setState({
@@ -331,10 +333,7 @@ class TenxFlowDetailFlowCard extends Component {
         UpdateTenxflowCIRules(flowId, body, {
           success: {
             func: (res) => {
-              notification['success']({
-                message: '持续集成',
-                description: '关闭持续集成成功~',
-              });
+              notification.success('持续集成', '关闭持续集成成功~');
             },
             isAsync: true
           }
@@ -356,6 +355,7 @@ class TenxFlowDetailFlowCard extends Component {
     let key = e.key;
     const { scope, deleteTenxFlowStateDetail, flowId } = this.props;
     const { getTenxFlowStateList } = scope.props;
+    let notification = new NotificationHandler()
     switch (key) {
       case 'deleteStage':
         confirm({
@@ -365,10 +365,7 @@ class TenxFlowDetailFlowCard extends Component {
             deleteTenxFlowStateDetail(flowId, item, {
               success: {
                 func: () => {
-                  notification['success']({
-                    message: '删除构建项目',
-                    description: '删除构建项目成功~',
-                  });
+                  notification.success('删除构建项目', '删除构建项目成功~');
                   getTenxFlowStateList(flowId);
                 },
                 isAsync: true
@@ -411,10 +408,8 @@ class TenxFlowDetailFlowCard extends Component {
 
   ciRulesChangeSuccess() {
     //this function for alert user the ci rules change sucees
-    notification['success']({
-      message: 'CI规则',
-      description: 'CI规则修改成功~',
-    });
+    let notification = new NotificationHandler()
+    notification.success('CI规则', 'CI规则修改成功~');
   }
 
   openTenxFlowDeployLogModal(stageId) {
@@ -438,10 +433,10 @@ class TenxFlowDetailFlowCard extends Component {
     const scopeThis = this;
     const dropdown = (
       <Menu onClick={this.operaMenuClick.bind(this, config.metadata.id, config.metadata.name)} style={{ width: '110px' }}>
-        <Menu.Item key='deleteStage' disabled={ index == (totalLength - 1) ? false : true }>
-              <Icon type='delete' style={{ float: 'left', lineHeight: '16px', marginRight: '5px', fontSize: '14px' }} />
-              <span style={{ float: 'left', lineHeight: '16px', fontSize: '14px' }} ><FormattedMessage {...menusText.deleteBtn} /></span>
-              <div style={{ clear: 'both' }}></div>
+        <Menu.Item key='deleteStage' disabled={index == (totalLength - 1) ? false : true}>
+          <Icon type='delete' style={{ float: 'left', lineHeight: '16px', marginRight: '5px', fontSize: '14px' }} />
+          <span style={{ float: 'left', lineHeight: '16px', fontSize: '14px' }} ><FormattedMessage {...menusText.deleteBtn} /></span>
+          <div style={{ clear: 'both' }}></div>
         </Menu.Item>
       </Menu>
     );
@@ -526,9 +521,9 @@ class TenxFlowDetailFlowCard extends Component {
           {
             currentFlowEdit == index ? [
               <QueueAnim key={'EditTenxFlowModalAnimate' + index}>
-                <EditTenxFlowModal key={'EditTenxFlowModal' + index} rootScope={scope} scope={scopeThis} 
-                  config={config} flowId={flowId} stageId={config.metadata.id} codeList={codeList} 
-                  supportedDependencies={supportedDependencies}/>
+                <EditTenxFlowModal key={'EditTenxFlowModal' + index} rootScope={scope} scope={scopeThis}
+                  config={config} flowId={flowId} stageId={config.metadata.id} codeList={codeList}
+                  supportedDependencies={supportedDependencies} />
               </QueueAnim>
             ] : null
           }
@@ -544,7 +539,7 @@ class TenxFlowDetailFlowCard extends Component {
         </Card>
         {
           currentFlowEdit != index ? [
-            <div className={config.lastBuildStatus == 'finish' ? 'finishArrow arrowBox' : 'arrowBox'} key='finishArrow'>          
+            <div className={config.lastBuildStatus == 'finish' ? 'finishArrow arrowBox' : 'arrowBox'} key='finishArrow'>
               <svg className='cicdarrow'>
                 <use xlinkHref='#cicdarrow' />
               </svg>
