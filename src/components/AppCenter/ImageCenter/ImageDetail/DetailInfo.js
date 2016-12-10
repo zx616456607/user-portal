@@ -10,7 +10,7 @@
 import React, { Component } from 'react'
 import { Card, Button, Icon, message } from 'antd'
 import './style/DetailInfo.less'
-import DockFileEditor from '../../../Editor/DockerFile'
+import MarkdownEditor from '../../../Editor/Markdown'
 import NotificationHandler from '../../../../common/notification_handler'
 
 export default class DetailInfo extends Component {
@@ -95,7 +95,7 @@ export default class DetailInfo extends Component {
         }
         {this.state.editor ?
           <div className="editInfo">
-            <DockFileEditor title="基本信息" value={detailInfo} callback={this.onChangeDockerFile.bind(this)} options={editorOptions} />
+            <MarkdownEditor title="基本信息" value={detailInfo} callback={this.onChangeDockerFile.bind(this)} options={editorOptions} />
             <div style={{ lineHeight: '50px' }} className="text-center">
               <Button size="large" type="ghost" onClick={() => this.setState({ editor: false })} style={{ marginRight: '10px' }}>取消</Button>
               <Button size="large" type="primary" onClick={() => this.updateImageInfo()}>确定</Button>
