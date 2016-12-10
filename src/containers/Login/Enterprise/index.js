@@ -78,10 +78,14 @@ let Login = React.createClass({
         },
         failed: {
           func: (err) => {
+            var msg = err.message.message || err.message
+            if (err.statusCode == 401) {
+              msg = "用户名或者密码错误"
+            }
             self.setState({
               submitting: false,
               loginResult: {
-                error: err.message.message || err.message
+                error: msg
               },
               submitProps: {},
             })
