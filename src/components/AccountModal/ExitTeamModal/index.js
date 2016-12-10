@@ -11,7 +11,7 @@ import React, { Component } from 'react'
 import { Modal,Alert,Icon,Button,Row,Col,Input } from 'antd'
 
 let message = (
-  <Row className="tip delTip">
+  <Row className="tip">
     <Col span={2} className='tipIcon'>
       <Icon type="exclamation-circle" />
     </Col>
@@ -39,7 +39,7 @@ export default class ExitTeamModal extends Component{
     closeExitTeamModal()
   }
   render(){
-    const { visible } = this.props
+    const { visible, team } = this.props
     return (
       <Modal title='退出团队'
              visible={ visible }
@@ -60,7 +60,7 @@ export default class ExitTeamModal extends Component{
             <Icon type="question-circle-o" />
           </Col>
           <Col className="confirmText" span={22}>
-            请确认是否退出团队 “市场部” ?
+            请确认是否退出团队 { team } ?
           </Col>
         </Row>
       </Modal>

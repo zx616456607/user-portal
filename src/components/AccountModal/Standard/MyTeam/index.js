@@ -23,6 +23,7 @@ import MemberTransfer from '../../MemberTransfer'
 import CreateTeamModal from '../../CreateTeamModal'
 import DelTeamModal from '../../DelTeamModal'
 import ExitTeamModal from '../../ExitTeamModal'
+import CreateTeamSuccessModal from '../../CreateTeamSuccessModal'
 
 const confirm = Modal.confirm;
 
@@ -220,6 +221,7 @@ let TeamTable = React.createClass({
       showDelModal: false
     })
   },
+  //退出团队弹框
   handleShowExitTeamModal(teamID) {
     console.log('teamID',teamID);
     if(teamID){
@@ -423,6 +425,7 @@ let TeamTable = React.createClass({
                 <ExitTeamModal
                 visible={ this.state.nowTeamID === record.key && this.state.showExitModal }
                 closeExitTeamModal={this.closeExitTeamModal}
+                team={record.team}
                 />
               </div>
         )
@@ -449,6 +452,7 @@ class MyTeam extends Component {
     super(props)
     this.showModal = this.showModal.bind(this)
     this.teamOnSubmit = this.teamOnSubmit.bind(this)
+    this.closeCreateSucModal = this.closeCreateSucModal.bind(this)
     this.state = {
       searchResult: [],
       notFound: false,
@@ -457,7 +461,8 @@ class MyTeam extends Component {
       pageSize: 5,
       page: 1,
       current: 1,
-      sort: 'a,teamName'
+      sort: 'a,teamName',
+      showCreateSucModal: false,
     }
   }
   //展示Modal
@@ -487,6 +492,7 @@ class MyTeam extends Component {
           })
           this.setState({
             visible: false,
+            showCreateSucModal: true,
           })
         },
         isAsync: true,
@@ -503,6 +509,11 @@ class MyTeam extends Component {
       }
     })
   }
+  closeCreateSucModal() {
+    this.setState({
+      showCreateSucModal: false,
+    })
+  }
   componentWillMount() {
     this.props.loadUserTeamList('default', {
       page: 1,
@@ -513,7 +524,7 @@ class MyTeam extends Component {
   }
   render() {
     const scope = this
-    const { visible } = this.state
+    const { visible,showCreateSucModal } = this.state
     const {
       teams, addTeamusers, loadUserTeamList,
       teamUserIDList, loadTeamUserList, checkTeamName
@@ -540,6 +551,10 @@ class MyTeam extends Component {
           <Button type="primary" size="large" onClick={this.showModal} className="plusBtn">
             <i className='fa fa-plus' /> 创建团队
           </Button>
+          <CreateTeamSuccessModal
+            visible={showCreateSucModal}
+            closeCreateSucModal={this.closeCreateSucModal}
+          />
           <CreateTeamModal
             scope={scope}
             visible={visible}

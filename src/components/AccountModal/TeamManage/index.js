@@ -199,6 +199,7 @@ let TeamTable = React.createClass({
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
     const pagination = {
+      simple: {true},
       total: this.props.scope.props.total,
       sort,
       filter,
@@ -341,7 +342,7 @@ let TeamTable = React.createClass({
         dataSource={searchResult.length === 0 ? data : searchResult}
         pagination={pagination}
         onChange={this.handleChange}
-        />
+      />
     )
   },
 })
@@ -451,6 +452,7 @@ class TeamManage extends Component {
             查看成员&团队图例
           </Button>
           <SearchInput searchIntOption={searchIntOption} scope={scope} data={teams} />
+          <div className="total">共{this.props.total}个</div>
         </Row>
         <Row className="teamList">
           <Card>

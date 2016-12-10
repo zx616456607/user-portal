@@ -152,6 +152,7 @@ let MemberTable = React.createClass({
     const { data, scope } = this.props
     filteredInfo = filteredInfo || {}
     const pagination = {
+      simple:{true},
       total: this.props.scope.props.total,
       showSizeChanger: true,
       defaultPageSize: 5,
@@ -411,9 +412,6 @@ class MemberManage extends Component {
     const scope = this
     const { visible, memberList } = this.state
     const searchIntOption = {
-      width: '280px',
-      position: 'right',
-      height: '50px',
       addBefore: [
         { key: 'name', value: '用户名' },
         { key: 'tel', value: '手机号' },
@@ -436,7 +434,9 @@ class MemberManage extends Component {
             visible={visible}
             scope={scope}
             onSubmit={this.userOnSubmit}
-            funcs={funcs} />
+            funcs={funcs}
+          />
+          <div className="total">共{this.props.total}个</div>
         </Row>
         <Row className="memberList">
           <Card>
