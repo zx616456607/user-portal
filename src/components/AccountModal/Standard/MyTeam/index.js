@@ -250,10 +250,10 @@ let TeamTable = React.createClass({
     const { searchResult, sort, filter } = this.props.scope.state
     const { scope, teamUserIDList } = this.props
     let data = [
-      {team:'test1',member:10,createTime:'20天前',balance:10,role:1,},
-      {team:'test2',member:10,createTime:'20天前',balance:10,role:0,},
-      {team:'test3',member:10,createTime:'20天前',balance:10,role:0,},
-      {team:'test4',member:10,createTime:'20天前',balance:10,role:0,},
+      {team:'test1',member:10,createTime:'20天前',balance:10,role:1,key:1},
+      {team:'test2',member:10,createTime:'20天前',balance:10,role:0,key:2},
+      {team:'test3',member:10,createTime:'20天前',balance:10,role:0,key:3},
+      {team:'test4',member:10,createTime:'20天前',balance:10,role:0,key:4},
     ]
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
