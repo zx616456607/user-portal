@@ -16,6 +16,7 @@ import { getDockerfileList, getDockerfiles, setDockerfile, searchDockerfile } fr
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import DockerFileEditor from '../../Editor/DockerFile'
 import './style/DockerFile.less'
+import NotificationHandler from '../../../common/notification_handler'
 
 const editorOptions = {
   readOnly: false
@@ -63,6 +64,7 @@ const MyComponent = React.createClass({
   operaMenuClick: function (item, e) {
     //this function for user click the dropdown menu
     const self = this
+    let notification = new NotificationHandler()
     this.props.scope.props.getDockerfiles(item, {
       success: {
         func: (res) => {
@@ -83,7 +85,7 @@ const MyComponent = React.createClass({
       },
       failed: {
         func: (res) => {
-          message.error(res.message.message)
+          notification.error(res.message.message)
         }
       }
     })
@@ -117,19 +119,24 @@ const MyComponent = React.createClass({
       stageId: dockerId.stageId,
       content: this.state.dockerfiles
     }
+    let notification = new NotificationHandler()
+    notification.spin(`保存 Dockerfile 中...`)
     this.props.scope.props.setDockerfile(config, {
       success: {
         func: () => {
-          message.success('修改成功')
+          notification.close()
+          notification.success('修改成功')
           self.setState({ editDockerFileModal: false })
         }
       },
       failed: {
         func: (res) => {
-          Modal.error({
+          /*Modal.error({
             title: '编辑Dockerfile',
             content: `${res.error.message.message}`,
-          });
+          });*/
+          notification.close()
+          notification.error('修改失败', res.error.message.message)
         }
       }
     })
@@ -191,7 +198,7 @@ const MyComponent = React.createClass({
           </div>
         </Modal>
 
-        <Modal className='dockerFileEditModal' title="Dockerfile" width="600px" visible={this.state.editDockerFileModal} 
+        <Modal className='dockerFileEditModal' title="Dockerfile" width="600px" visible={this.state.editDockerFileModal}
           onCancel={() => this.closeModal()}
           >
           <div style={{ minHeight: '300px' }}>
@@ -230,7 +237,7 @@ class DockerFile extends Component {
     const { formatMessage } = this.props.intl;
     const scope = this;
     var message = ""
-    if (this.props.dockerfileList.length <1) {
+    if (this.props.dockerfileList.length < 1) {
       message = " * 目前还没有添加任何云端 Dockerfile"
     }
     return (
@@ -261,7 +268,7 @@ class DockerFile extends Component {
             <MyComponent scope={scope} formatMessage={formatMessage} config={this.props.dockerfileList} />
           </Card>
         </div>
-        <div><br/>{message}<br/></div>
+        <div><br />{message}<br /></div>
       </QueueAnim>
     )
   }

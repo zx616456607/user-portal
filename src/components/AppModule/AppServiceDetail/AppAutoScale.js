@@ -12,7 +12,7 @@ import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import {
   Button, Alert, Card, Slider, Row, Col, InputNumber, Tooltip, Icon, Switch,
-  Modal, message
+  Modal,
 } from 'antd'
 import { loadAutoScale, deleteAutoScale, updateAutoScale } from '../../../actions/services'
 import { INSTANCE_AUTO_SCALE_MAX_CPU, INSTANCE_MAX_NUM } from '../../../../constants'

@@ -21,10 +21,19 @@ export default class ContainerDetailInfo extends Component {
 
   getMount(container) {
     let ele = []
+    const volumes = container.spec.volumes
     if (container.spec.containers[0].volumeMounts) {
       container.spec.containers[0].volumeMounts.forEach((volume) => {
-        if(volume.mountPath === '/var/run/secrets/kubernetes.io/serviceaccount'){ return }
-        ele.push (
+        if (volume.mountPath === '/var/run/secrets/kubernetes.io/serviceaccount') { return }
+        let isShow = volumes.some(item => {
+          if (item.name === volume.name) {
+            if (item.rbd) return true
+            return false
+          }
+          return false
+        })
+        if (!isShow) return
+        ele.push(
           <div key={volume.name}>
             <div className="commonTitle">{volume.name}</div>
             <div className="commonTitle">{volume.mountPath}</div>
@@ -34,6 +43,40 @@ export default class ContainerDetailInfo extends Component {
       })
     }
     return ele
+  }
+  getConfigMap(container) {
+    let ele = []
+    const volumes = container.spec.volumes
+    if (container.spec.containers[0].volumeMounts) {
+      container.spec.containers[0].volumeMounts.forEach((volume) => {
+        if (volume.mountPath === '/var/run/secrets/kubernetes.io/serviceaccount') { return }
+        let configMap
+        let isShow = volumes.some(item => {
+          if (item.name === volume.name) {
+            if (item.configMap) {
+              configMap = item.configMap
+              return true
+            }
+            return false
+          }
+          return false
+        })
+        if (!isShow) return
+        configMap.items.forEach(item => {
+          console.log(item)
+          ele.push(
+            <div key={configMap.name + item.key}>
+              <div className="commonTitle">{configMap.name}</div>
+              <div className="commonTitle">{item.key}</div>
+              <div className="commonTitle">{volume.mountPath}</div>
+              <div style={{ clear: "both" }}></div>
+            </div>
+          )
+        })
+      })
+    }
+    return ele
+
   }
   render() {
     const parentScope = this
@@ -71,7 +114,7 @@ export default class ContainerDetailInfo extends Component {
           </div>
         </div>
         <div className="compose commonBox">
-          <span className="titleSpan">配置信息</span>
+          <span className="titleSpan">资源配置</span>
           <div className="titleBox">
             <div className="commonTitle">
               带宽
@@ -83,61 +126,79 @@ export default class ContainerDetailInfo extends Component {
               处理器
             </div>
             <div style={{ clear: "both" }}></div>
-            </div>
-            <div className="dataBox">
-              <div className="commonTitle">
-                -
-              </div>
-              <div className="commonTitle">
-                {container.spec.containers[0].resources.requests.memory || '-'}
-              </div>
-              <div className="commonTitle">
-                {container.spec.containers[0].resources.requests.cpu || '-'}
-              </div>
-              <div style={{ clear: "both" }}></div>
-            </div>
           </div>
-          <div className="environment commonBox">
-            <span className="titleSpan">环境变量</span>
-            <div className="titleBox">
-              <div className="commonTitle">
-                变量名
+          <div className="dataBox">
+            <div className="commonTitle">
+              -
               </div>
-              <div className="commonTitle">
-                变量值
-              </div>
-              <div style={{ clear: "both" }}></div>
+            <div className="commonTitle">
+              {container.spec.containers[0].resources.requests.memory || '-'}
             </div>
-            <div className="dataBox">
-              {
-                !!container.spec.containers[0].env ? container.spec.containers[0].env.map((env) => {
-                  return (
-                    <div key={env.name}>
-                      <div className="commonTitle">{env.name}</div>
-                      <div className="commonTitle">{env.value}</div>
-                      <div style={{ clear: "both" }}></div>
-                    </div>
-                  )
-                }) : null
-              }
+            <div className="commonTitle">
+              {container.spec.containers[0].resources.requests.cpu || '-'}
             </div>
-          </div>
-          <div className="storage commonBox">
-            <span className="titleSpan">数据存储器</span>
-            <div className="titleBox">
-              <div className="commonTitle">
-                名称
-              </div>
-              <div className="commonTitle">
-                挂载点
-              </div>
-              <div style={{ clear: "both" }}></div>
-            </div>
-            <div className="dataBox"> 
-               { this.getMount(container) }
-            </div>
+            <div style={{ clear: "both" }}></div>
           </div>
         </div>
+        <div className="environment commonBox">
+          <span className="titleSpan">环境变量</span>
+          <div className="titleBox">
+            <div className="commonTitle">
+              变量名
+              </div>
+            <div className="commonTitle">
+              变量值
+              </div>
+            <div style={{ clear: "both" }}></div>
+          </div>
+          <div className="dataBox">
+            {
+              !!container.spec.containers[0].env ? container.spec.containers[0].env.map((env) => {
+                return (
+                  <div key={env.name}>
+                    <div className="commonTitle">{env.name}</div>
+                    <div className="commonTitle">{env.value}</div>
+                    <div style={{ clear: "both" }}></div>
+                  </div>
+                )
+              }) : null
+            }
+          </div>
+        </div>
+        <div className="storage commonBox">
+          <span className="titleSpan">数据存储器</span>
+          <div className="titleBox">
+            <div className="commonTitle">
+              名称
+              </div>
+            <div className="commonTitle">
+              挂载点
+              </div>
+            <div style={{ clear: "both" }}></div>
+          </div>
+          <div className="dataBox">
+            {this.getMount(container)}
+          </div>
+        </div>
+        <div className="storage commonBox">
+          <span className="titleSpan">配置信息</span>
+          <div className="titleBox">
+            <div className="commonTitle">
+              配置组
+            </div>
+            <div className="commonTitle">
+              配置文件
+            </div>
+            <div className="commonTitle">
+              挂载点
+            </div>
+            <div style={{ clear: "both" }}></div>
+          </div>
+          <div className="dataBox">
+            {this.getConfigMap(container)}
+          </div>
+        </div>
+      </div>
     )
   }
 }

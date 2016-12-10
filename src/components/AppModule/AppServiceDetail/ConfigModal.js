@@ -9,7 +9,7 @@
  */
 
 import React, { Component } from 'react'
-import { Row, Col, Button, Modal, message } from 'antd'
+import { Row, Col, Button, Modal } from 'antd'
 import { connect } from 'react-redux'
 import './style/ConfigModal.less'
 import { DEFAULT_CONTAINER_RESOURCES, DEFAULT_CONTAINER_RESOURCES_MEMORY } from '../../../../constants'
