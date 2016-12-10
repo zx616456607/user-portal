@@ -428,6 +428,9 @@ let AppDeployServiceModal = React.createClass({
         if (!volumeInfo) {
           return
         }
+        if(!getFieldProps(`volumePath${k}`).value){
+          return
+        }
         volumeInfo = volumeInfo.split('/')
         if (volumeChecked) {
           deploymentList.addContainerVolume(serviceName, {

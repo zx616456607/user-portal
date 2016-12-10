@@ -10,7 +10,7 @@
 import React, { Component } from 'react'
 import './style/RollingUpdateModal.less'
 import { DEFAULT_REGISTRY } from '../../../constants'
-import { Button, Card, Menu, message, Icon, Tooltip, Row, Col, Select, InputNumber, Alert, Switch, Modal } from 'antd'
+import { Button, Card, Menu, message, Icon, Tooltip, Row, Col, Select, InputNumber, Alert, Switch, Modal, Input } from 'antd'
 import { loadImageDetailTag } from '../../../actions/app_center'
 import { rollingUpdateService } from '../../../actions/services'
 import { connect } from 'react-redux'
@@ -31,6 +31,7 @@ class RollingUpdateModal extends Component {
     this.handleTagChange = this.handleTagChange.bind(this)
     this.state = {
       containers: [],
+      rollingInterval: false
     }
   }
 
@@ -92,8 +93,23 @@ class RollingUpdateModal extends Component {
     containers.map((container) => {
       targets[container.name] = `${container.imageObj.imageSrc}:${container.targetTag}`
     })
+
+    //统一间隔时间
+    const intervalTime = this.state.intervalTime
+    if(!intervalTime) {
+      message.error("请填写 2~60s 间隔时间")
+      return
+    }
+    if(!/[0-9]+/.test(intervalTime)) {
+      message.Error('请填入 2~60 之间的数字')
+      return
+    }
+    if(intervalTime < 2) {
+      message.Error('请填入 2~60 之间的数字')
+      return
+    }
     const hide = message.loading('正在保存中...', 0)
-    rollingUpdateService(cluster, serviceName, { targets }, {
+    rollingUpdateService(cluster, serviceName, { targets, interval: intervalTime }, {
       success: {
         func: () => {
           loadServiceList(cluster, appName)
@@ -129,13 +145,32 @@ class RollingUpdateModal extends Component {
       containers
     })
   }
-
+  getintervalTime(e, time) {
+    const { containers } = this.state
+    if(containers.length < 2 || this.state.rollingInterval === false) {
+      this.setState({
+        intervalTime: e.target.value
+      })
+      return
+    }
+    containers.forEach(container => {
+      if(container.name == e.target.value) {
+        container.intervalTime = time
+      }
+    })
+  }
+ switchType(c) {
+   this.setState({
+     rollingInterval: c
+   })
+ }
   render() {
     const { service, visible } = this.props
     if (!visible) {
       return null
     }
     const { containers } = this.state
+    const isOnly = containers.length > 1 ? false : true
     // const containers = service.spec.template.spec.containers
     return (
       <Modal
@@ -160,18 +195,33 @@ class RollingUpdateModal extends Component {
           }
           <Row className="serviceName">
             <Col className="itemTitle" span={4} style={{ textAlign: 'right' }}>服务名称</Col>
-            <Col className="itemBody" span={20}>
+            <Col className="itemBody" span={10}>
               {service.metadata.name}
+            </Col>
+            <Col span={3} className="itemBody"></Col>
+            <Col className="itemTitle" span={7} style={{ textAlign: 'center', position: 'relative', paddingBottom: '15px'}}><Switch disabled="true" onChange={(c)=> this.switchType(c)}></Switch>
+            <div style={{ textAlign: 'right', position: 'absolute', left: '37px', top: '38px', lineHeight: '0px', zoom: 1}}>统一间隔时间<Tooltip style={{marginTop: '1px'}} title="暂不支持独立间隔时间"><Icon style={{marginLeft: '5px'}} type="question-circle-o"/></Tooltip></div>
             </Col>
           </Row>
           {containers.map((item, index) => {
+            const start = item.image.lastIndexOf(':')
+            const tag = item.image.substring(start + 1)
+            const image = item.image.substring(0, start)
+            let show = image
+            if(image.length > 30) show = image.substring(0, 30) + '...'
             return (
-              <Row className="updateItem" key={item.name}>
+              <div key={item.name}>
+              <Row style={{marginBottom: '10px'}}>
                 <Col className="itemTitle" span={4} style={{ textAlign: 'right' }}>
-                  {item.name}
+                  {isOnly ? `容器` : `容器${index + 1}`}
                 </Col>
-                <Col className="itemBody" span={20}>
-                  <div style={{ height: '30px' }}>{item.image}</div>
+                <Col span={3} className="rollingUpdateUpdateItem">{item.name}</Col>
+                <Col span={3} style={{ textAlign: 'right' }}>镜像版本</Col>
+                <Tooltip title={item.image}><Col className="rollingUpdateUpdateItem" span={12}>{`${show}：${tag}`}</Col></Tooltip>
+              </Row>
+              <Row style={{marginBottom: '10px'}} >
+                <Col span={4}></Col>
+                <Col className="rollingUpdateUpdateItem" span={8}>
                   <Select
                     placeholder="请选择目标版本"
                     value={item.targetTag}
@@ -193,10 +243,14 @@ class RollingUpdateModal extends Component {
                     </OptGroup>
                   </Select>
                 </Col>
+                <Col span={7}>
+                  {index > 0 ? '' : <Input placeholder="更新间隔时间 2~60s" onChange={(e) => { this.getintervalTime(e, item.name)}}/>}
+                </Col>
               </Row>
+              </div>
             )
           })}
-        </div>
+          </div>
       </Modal>
     )
   }
