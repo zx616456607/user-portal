@@ -356,13 +356,14 @@ let AppDeployServiceModal = React.createClass({
     deploymentList.setContainerResources(serviceName, ImageConfig.resources.limits.memory)
     //ports
     if (portKey) {
-      getFieldValue('portKey').map((k) => {
+      getFieldValue('portKey').map((k, index) => {
         let portType = getFieldProps(`portType${k}`).value;
         let portUrl = null;
+        let newIndex = index + 1;
         if(portType == 'HTTP') {
           portUrl = 80;
           serviceList.addPort(
-            serviceName + '-' + k,
+            serviceName + '-' + newIndex,
             getFieldProps(`portType${k}`).value.toUpperCase(),
             parseInt(getFieldProps(`targetPortUrl${k}`).value),
             parseInt(portUrl)
@@ -371,21 +372,21 @@ let AppDeployServiceModal = React.createClass({
           let tcpType = getFieldProps(`portTcpType${k}`).value;
           if(tcpType == 'auto') {
             serviceList.addPort(
-              serviceName + '-' + k,
+              serviceName + '-' + newIndex,
               getFieldProps(`portType${k}`).value.toUpperCase(),
               parseInt(getFieldProps(`targetPortUrl${k}`).value)
             )
           } else if(tcpType == 'special') {              
             portUrl = getFieldProps(`portUrl${k}`).value;
             serviceList.addPort(
-              serviceName + '-' + k,
+              serviceName + '-' + newIndex,
               getFieldProps(`portType${k}`).value.toUpperCase(),
               parseInt(getFieldProps(`targetPortUrl${k}`).value),
               parseInt(portUrl)
             )
           } else {
             serviceList.addPort(
-              serviceName + '-' + k,
+              serviceName + '-' + newIndex,
               getFieldProps(`portType${k}`).value.toUpperCase(),
               parseInt(getFieldProps(`targetPortUrl${k}`).value)
             )
