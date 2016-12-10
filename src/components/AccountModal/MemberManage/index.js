@@ -9,13 +9,14 @@
  */
 import React, { Component } from 'react'
 import './style/MemberManage.less'
-import { Row, Col, Button, Input, Select, Card, Icon, Table, Modal, Checkbox, Tooltip, message, notification, } from 'antd'
+import { Row, Col, Button, Input, Select, Card, Icon, Table, Modal, Checkbox, Tooltip, } from 'antd'
 import SearchInput from '../../SearchInput'
 import { connect } from 'react-redux'
 import { loadUserList, createUser, deleteUser, checkUserName } from '../../../actions/user'
 import { Link } from 'react-router'
 import { USERNAME_REG_EXP } from '../../../constants'
 import CreateUserModal from '../CreateUserModal'
+import NotificationHandler from '../../../common/notification_handler'
 
 const confirm = Modal.confirm
 
@@ -378,7 +379,8 @@ class MemberManage extends Component {
   userOnSubmit(user) {
     const { createUser, loadUserList } = this.props
     const { page, pageSize, sort, filter } = this.state
-    const hide = message.loading('正在执行中...', 0)
+    let notification = new NotificationHandler()
+    notification.spin(`创建用户 ${user.userName} 中...`)
     createUser(user, {
       success: {
         func: () => {
@@ -388,21 +390,15 @@ class MemberManage extends Component {
             sort,
             filter,
           })
-          hide()
-          notification.success({
-            message: `创建用户 ${user.userName} 成功`
-          })
+          notification.close()
+          notification.success(`创建用户 ${user.userName} 成功`)
         },
         isAsync: true
       },
       failed: {
         func: (err) => {
-          hide()
-          notification.error({
-            message: `创建用户 ${user.userName} 失败`,
-            description: err.message.message,
-            duration: 0
-          })
+          notification.close()
+          notification.error(`创建用户 ${user.userName} 失败`, err.message.message)
         }
       }
     })

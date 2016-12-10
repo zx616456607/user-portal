@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Alert, Button, Icon, Card, Table, Modal, Input, Tooltip, message, notification, } from 'antd'
+import { Row, Col, Alert, Button, Icon, Card, Table, Modal, Input, Tooltip, } from 'antd'
 import './style/TeamManage.less'
 import { Link } from 'react-router'
 import SearchInput from '../../SearchInput'
@@ -21,6 +21,7 @@ import {
 } from '../../../actions/team'
 import MemberTransfer from '../MemberTransfer'
 import CreateTeamModal from '../CreateTeamModal'
+import NotificationHandler from '../../../common/notification_handler'
 
 const confirm = Modal.confirm;
 
@@ -57,12 +58,13 @@ let TeamTable = React.createClass({
     confirm({
       title: '确认要删除团队 ' + teamName + ' ?',
       onOk() {
-        const hide = message.loading('正在执行中...', 0)
+        let notification = new NotificationHandler()
+        notification.spin(`删除 ${teamName} 中...`)
         deleteTeam(teamID, {
           success: {
             func: () => {
-              hide()
-              message.success('删除team成功')
+              notification.close()
+              notification.success(`删除 ${teamName} 成功`)
               loadUserTeamList('default', {
                 page: page,
                 size: pageSize,
@@ -74,8 +76,8 @@ let TeamTable = React.createClass({
           },
           failed: {
             func: (err) => {
-              hide()
-              message.error('删除team失败')
+              notification.close()
+              notification.error(`删除 ${teamName} 失败`)
             }
           }
         })
@@ -372,14 +374,13 @@ class TeamManage extends Component {
   teamOnSubmit(team) {
     const { createTeam, loadUserTeamList } = this.props
     const { pageSize, sort, filter } = this.state
-    const hide = message.loading('正在执行中...', 0)
+    let notification = new NotificationHandler()
+    notification.spin(`创建团队 ${team.teamName}中...`)
     createTeam(team, {
       success: {
         func: () => {
-          hide()
-          notification.success({
-            message: `创建团队 ${team.teamName} 成功`,
-          })
+          notification.close()
+          notification.success(`创建团队 ${team.teamName} 成功`)
           loadUserTeamList('default', {
             page: 1,
             current: 1,
@@ -395,12 +396,8 @@ class TeamManage extends Component {
       },
       failed: {
         func: (err) => {
-          hide()
-          notification.error({
-            message: `创建团队 ${team.teamName} 失败`,
-            description: err.message.message,
-            duration: 0
-          })
+          notification.close()
+          notification.error(`创建团队 ${team.teamName} 失败`, err.message.message)
         }
       }
     })

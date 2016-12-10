@@ -8,9 +8,10 @@
  * @author BaiYu
  */
 import React, { Component } from 'react'
-import { Card , Button, Icon, message} from 'antd'
+import { Card, Button, Icon, message } from 'antd'
 import './style/DetailInfo.less'
 import DockFileEditor from '../../../Editor/DockerFile'
+import NotificationHandler from '../../../../common/notification_handler'
 
 export default class DetailInfo extends Component {
   constructor(props) {
@@ -33,22 +34,26 @@ export default class DetailInfo extends Component {
     })
   }
   updateImageInfo() {
-    const { updateImageinfo ,getImageDetailInfo} = this.props.scope.props
+    const { updateImageinfo, getImageDetailInfo} = this.props.scope.props
     const image = this.props.detailInfo.name
     const _this = this
     const config = {
       image,
-      fullName:image,
+      fullName: image,
       registry: this.props.registry,
       body: { detail: this.state.detailInfo }
     }
     const scope = this.props.scope
+    let notification = new NotificationHandler()
+    notification.spin(`更新镜像 ${image} 信息中...`)
     updateImageinfo(config, {
       success: {
-        func: (res)=> {
+        func: (res) => {
+          notification.close()
+          notification.success(`更新镜像 ${image} 信息成功`)
           getImageDetailInfo(config, {
             success: {
-              func: (res)=> {
+              func: (res) => {
                 scope.setState({
                   imageInfo: res.data
                 })
@@ -62,8 +67,9 @@ export default class DetailInfo extends Component {
         isAsync: true
       },
       failed: {
-        func: (res)=> {
-          message.error('更新失败！')
+        func: (error) => {
+          notification.close()
+          notification.error(`更新镜像 ${image} 信息失败`)
           _this.setState({
             editor: false
           })
@@ -83,20 +89,20 @@ export default class DetailInfo extends Component {
     }
     return (
       <Card className="imageDetailInfo markdown">
-        {(this.props.isOwner && !this.state.editor)?
-        <Button style={{float:'right',top:'-8px'}} onClick={()=> this.handEdit()}><Icon type="edit" />&nbsp;编辑</Button>
-        : null
+        {(this.props.isOwner && !this.state.editor) ?
+          <Button style={{ float: 'right', top: '-8px' }} onClick={() => this.handEdit()}><Icon type="edit" />&nbsp;编辑</Button>
+          : null
         }
-        {this.state.editor ? 
-        <div className="editInfo">
-          <DockFileEditor title="基本信息" value={ detailInfo } callback={this.onChangeDockerFile.bind(this)} options={editorOptions} />
-          <div style={{lineHeight:'50px'}} className="text-center">
-            <Button size="large" type="ghost" onClick={()=> this.setState({editor: false})} style={{marginRight:'10px'}}>取消</Button>
-            <Button size="large" type="primary" onClick={()=> this.updateImageInfo()}>确定</Button>
+        {this.state.editor ?
+          <div className="editInfo">
+            <DockFileEditor title="基本信息" value={detailInfo} callback={this.onChangeDockerFile.bind(this)} options={editorOptions} />
+            <div style={{ lineHeight: '50px' }} className="text-center">
+              <Button size="large" type="ghost" onClick={() => this.setState({ editor: false })} style={{ marginRight: '10px' }}>取消</Button>
+              <Button size="large" type="primary" onClick={() => this.updateImageInfo()}>确定</Button>
+            </div>
           </div>
-        </div>
-        :
-        <div dangerouslySetInnerHTML={{__html:detailMarkdown}}></div>
+          :
+          <div dangerouslySetInnerHTML={{ __html: detailMarkdown }}></div>
         }
       </Card>
     )

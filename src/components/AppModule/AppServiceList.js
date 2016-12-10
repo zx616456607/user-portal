@@ -9,7 +9,7 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { Modal, message, Checkbox, Dropdown, Button, Card, Menu, Icon, Spin, Tooltip, Pagination, Alert } from 'antd'
+import { Modal, Checkbox, Dropdown, Button, Card, Menu, Icon, Spin, Tooltip, Pagination, Alert } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
