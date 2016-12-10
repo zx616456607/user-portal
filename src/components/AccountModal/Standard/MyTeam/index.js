@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Alert, Button, Icon, Card, Table, Modal, Input, Tooltip, message, notification, Dropdown, Menu } from 'antd'
+import { Row, Col, Alert, Button, Icon, Card, Table, Modal, Input, Tooltip, Dropdown, Menu } from 'antd'
 import './style/MyTeam.less'
 import { Link } from 'react-router'
 import SearchInput from '../../../SearchInput'
@@ -22,6 +22,7 @@ import {
 import MemberTransfer from '../../MemberTransfer'
 import CreateTeamModal from '../../CreateTeamModal'
 import DelTeamModal from '../../DelTeamModal'
+import NotificationHandler from '../../../../common/notification_handler'
 
 const confirm = Modal.confirm;
 
@@ -158,7 +159,7 @@ let TeamTable = React.createClass({
     })
   },
   //操作-下拉单选项
-  handleDropMenuClick:function(e) {
+  handleDropMenuClick: function (e) {
     switch (e.key) {
       case 'deleteTeam':
         //this is delete the container
@@ -224,16 +225,16 @@ let TeamTable = React.createClass({
     const { searchResult, sort, filter } = this.props.scope.state
     const { scope, teamUserIDList } = this.props
     let data = [
-      {team:'test1',member:10,createTime:'20天前',balance:10,role:1,},
-      {team:'test2',member:10,createTime:'20天前',balance:10,role:0,},
-      {team:'test3',member:10,createTime:'20天前',balance:10,role:0,},
-      {team:'test4',member:10,createTime:'20天前',balance:10,role:0,},
+      { team: 'test1', member: 10, createTime: '20天前', balance: 10, role: 1, },
+      { team: 'test2', member: 10, createTime: '20天前', balance: 10, role: 0, },
+      { team: 'test3', member: 10, createTime: '20天前', balance: 10, role: 0, },
+      { team: 'test4', member: 10, createTime: '20天前', balance: 10, role: 0, },
     ]
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
     //分页器配置
     const pagination = {
-      simple:{true},
+      simple: { true},
       total: this.props.scope.props.total,
       sort,
       filter,
@@ -379,28 +380,28 @@ let TeamTable = React.createClass({
         key: 'operation',
         width: '20%',
         render: (text, record, index) => (
-              record.role === 1 ?
-                <Dropdown.Button
-                  overlay={roleDropdown} type='ghost'
-                  onClick={() => this.addNewMember(record.key)}
-                  className="tabDrop"
-                  >
-                  <Icon type="plus" />
-                  <span>邀请新成员</span>
-                  <Modal title='邀请新成员'
-                    visible={this.state.nowTeamID === record.key && this.state.addMember}
-                    onOk={this.handleNewMemberOk}
-                    onCancel={this.handleNewMemberCancel}
-                    width="660px"
-                    wrapClassName="newMemberModal"
-                    >
-                    <MemberTransfer onChange={this.handleChange}
-                      targetKeys={targetKeys}
-                      teamID={record.key}
-                      teamUserIDList={teamUserIDList} />
-                  </Modal>
-                </Dropdown.Button>
-                :
+          record.role === 1 ?
+            <Dropdown.Button
+              overlay={roleDropdown} type='ghost'
+              onClick={() => this.addNewMember(record.key)}
+              className="tabDrop"
+              >
+              <Icon type="plus" />
+              <span>邀请新成员</span>
+              <Modal title='邀请新成员'
+                visible={this.state.nowTeamID === record.key && this.state.addMember}
+                onOk={this.handleNewMemberOk}
+                onCancel={this.handleNewMemberCancel}
+                width="660px"
+                wrapClassName="newMemberModal"
+                >
+                <MemberTransfer onChange={this.handleChange}
+                  targetKeys={targetKeys}
+                  teamID={record.key}
+                  teamUserIDList={teamUserIDList} />
+              </Modal>
+            </Dropdown.Button>
+            :
             <Button icon="delete" className="delBtn" onClick={() => this.delTeam(record.key)}>退出团队</Button>
         )
       },
@@ -408,14 +409,14 @@ let TeamTable = React.createClass({
     return (
       <div>
         <Table columns={columns}
-               dataSource={searchResult.length === 0 ? data : searchResult}
-               pagination={pagination}
-               onChange={this.handleChange}
-        />
+          dataSource={searchResult.length === 0 ? data : searchResult}
+          pagination={pagination}
+          onChange={this.handleChange}
+          />
         <DelTeamModal
           visible={showDelModal}
           closeDelTeamModal={this.closeDelTeamModal}
-        />
+          />
       </div>
     )
   },
@@ -447,14 +448,13 @@ class MyTeam extends Component {
   teamOnSubmit(team) {
     const { createTeam, loadUserTeamList } = this.props
     const { pageSize, sort, filter } = this.state
-    const hide = message.loading('正在执行中...', 0)
+    let notification = new NotificationHandler()
+    notification.spin(`创建团队 ${team.teamName} 中...`)
     createTeam(team, {
       success: {
         func: () => {
-          hide()
-          notification.success({
-            message: `创建团队 ${team.teamName} 成功`,
-          })
+          notification.close()
+          notification.success(`创建团队 ${team.teamName} 成功`)
           loadUserTeamList('default', {
             page: 1,
             current: 1,
@@ -470,12 +470,8 @@ class MyTeam extends Component {
       },
       failed: {
         func: (err) => {
-          hide()
-          notification.error({
-            message: `创建团队 ${team.teamName} 失败`,
-            description: err.message.message,
-            duration: 0
-          })
+          notification.close()
+          notification.error(`创建团队 ${team.teamName} 失败`, err.message.message)
         }
       }
     })
@@ -522,8 +518,8 @@ class MyTeam extends Component {
             visible={visible}
             onSubmit={this.teamOnSubmit}
             funcs={funcs}
-          />
-          <SearchInput searchIntOption={searchIntOption} scope={scope} data={teams}/>
+            />
+          <SearchInput searchIntOption={searchIntOption} scope={scope} data={teams} />
           <div className="total">共{this.props.total}个</div>
         </Row>
         <Row className="teamList">
@@ -534,7 +530,7 @@ class MyTeam extends Component {
               loadUserTeamList={loadUserTeamList}
               loadTeamUserList={loadTeamUserList}
               teamUserIDList={teamUserIDList}
-            />
+              />
           </Card>
         </Row>
       </div>

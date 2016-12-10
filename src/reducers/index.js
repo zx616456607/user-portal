@@ -31,6 +31,8 @@ import overviewTeam from './overview_team'
 import overviewCluster from './overview_cluster'
 import overviewSpace from './overview_space'
 import consumption from './consumption'
+import { LOGIN_EXPIRED_MESSAGE } from '../constants'
+
 
 // Updates error message to notify about the failed fetches.
 function errorMessage(state = null, action) {
@@ -68,8 +70,10 @@ function actionCallback(state = null, action) {
   }
   if (action.type.indexOf('_FAILURE') >= 0) {
     if (!callback.failed) return state
-    // Mark error is already handled
-    action.error.handledByCallback = true
+    // Mark error is already handled(except login expired)
+    if (action.error.message !== LOGIN_EXPIRED_MESSAGE) {
+      action.error.handledByCallback = true
+    }
     if (callback.failed.isAsync) {
       setTimeout(callback.failed.func.bind(this, action.error))
       return state
