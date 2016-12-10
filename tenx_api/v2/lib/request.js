@@ -60,6 +60,7 @@ module.exports = (protocol, host, api_prefix, version, auth, timeout) => {
       delete options.contentType
     }
     logger.info(`<-- [${options.method || 'GET'}] ${url}`)
+    logger.info(`--> [options]`, options)
     if (!callback) {
       return urllib.request(url, options).then(
         function done(result) {

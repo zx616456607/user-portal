@@ -111,7 +111,6 @@ let AppDeployServiceModal = React.createClass({
   },
   setPorts(ports, ServicePorts, form, annotations) {
     //this function for init port to form
-    //we didn't support http 
     const portsArr = [] 
     if (!!ports && ports.length > 0 && !!annotations) {
       let tempAnnotations = annotations;
@@ -119,14 +118,21 @@ let AppDeployServiceModal = React.createClass({
       ports.map(function (item, index) {
         let protocol = null;
         let name = null;
+        let proxyPort = null;
         ServicePorts.map((port) => {
           if(port.targetPort == item.containerPort) {
             name = port.name;
           }
         })
         protocolList.map((protocolDetail) => {
-          if(protocolDetail.indexOf(name) > -1) {
-            protocol = protocolDetail.split('/')[1];
+          if(protocolDetail.indexOf(name + "/") > -1) {
+            let portDetail = protocolDetail.split('/')
+            if (portDetail.length == 2) {
+              protocol = portDetail[1]
+            } else if (portDetail.length == 3) {
+              protocol = portDetail[1]
+              proxyPort = portDetail[2]
+            }
           }
         });
         portsArr.push((index + 1));
@@ -135,19 +141,20 @@ let AppDeployServiceModal = React.createClass({
           ['targetPortUrl' + (index + 1)]: item.containerPort,
           ['portType' + (index + 1)]: protocol,
         })
-        if (ServicePorts[index].port) {
-          form.setFieldsValue({
-            ['portUrl' + (index + 1)]: ServicePorts[index].port,
-          })
-          if(protocol == 'TCP') {
+        form.setFieldsValue({
+          ['portUrl' + (index + 1)]: proxyPort,
+        })
+        if(protocol == 'TCP') {
+          if (proxyPort) {
             form.setFieldsValue({
               ['portTcpType' + (index + 1)]: 'special',
             })
+          } else {
+            form.setFieldsValue({
+              ['portTcpType' + (index + 1)]: 'auto',
+            })
           }
-        }else if(protocol == 'TCP') {
-          form.setFieldsValue({
-            ['portTcpType' + (index + 1)]: 'auto',
-          })
+
         }
       })
     }
@@ -356,39 +363,28 @@ let AppDeployServiceModal = React.createClass({
     deploymentList.setContainerResources(serviceName, ImageConfig.resources.limits.memory)
     //ports
     if (portKey) {
-      getFieldValue('portKey').map((k) => {
+      getFieldValue('portKey').map((k, index) => {
         let portType = getFieldProps(`portType${k}`).value;
-        let portUrl = null;
+        let newIndex = index + 1;
+        // Fill in the service port info
+        serviceList.addPort(
+          serviceName + '-' + newIndex,
+          getFieldProps(`portType${k}`).value.toUpperCase(),
+          parseInt(getFieldProps(`targetPortUrl${k}`).value),
+          parseInt(getFieldProps(`targetPortUrl${k}`).value) // Use the same port as container port by default
+        )
         if(portType == 'HTTP') {
-          portUrl = 80;
-          serviceList.addPort(
-            serviceName + '-' + k,
-            getFieldProps(`portType${k}`).value.toUpperCase(),
-            parseInt(getFieldProps(`targetPortUrl${k}`).value),
-            parseInt(portUrl)
-          )
+          // Add port annotation in advance
+          serviceList.addPortAnnotation(serviceName + '-' + newIndex, portType)
         } else if(portType == 'TCP'){
           let tcpType = getFieldProps(`portTcpType${k}`).value;
           if(tcpType == 'auto') {
-            serviceList.addPort(
-              serviceName + '-' + k,
-              getFieldProps(`portType${k}`).value.toUpperCase(),
-              parseInt(getFieldProps(`targetPortUrl${k}`).value)
-            )
-          } else if(tcpType == 'special') {              
-            portUrl = getFieldProps(`portUrl${k}`).value;
-            serviceList.addPort(
-              serviceName + '-' + k,
-              getFieldProps(`portType${k}`).value.toUpperCase(),
-              parseInt(getFieldProps(`targetPortUrl${k}`).value),
-              parseInt(portUrl)
-            )
-          } else {
-            serviceList.addPort(
-              serviceName + '-' + k,
-              getFieldProps(`portType${k}`).value.toUpperCase(),
-              parseInt(getFieldProps(`targetPortUrl${k}`).value)
-            )
+            // Leave port empty
+            serviceList.addPortAnnotation(serviceName + '-' + newIndex, portType)
+          } else if(tcpType == 'special') {
+            // Add the port annotation
+            let portUrl = getFieldProps(`portUrl${k}`).value;
+            serviceList.addPortAnnotation(serviceName + '-' + newIndex, portType, portUrl)
           }
         }
         if (getFieldProps(`portType${k}`).value) {
@@ -434,6 +430,9 @@ let AppDeployServiceModal = React.createClass({
         if (!volumeInfo) {
           return
         }
+        if(!getFieldProps(`volumePath${k}`).value){
+          return
+        }
         volumeInfo = volumeInfo.split('/')
         if (volumeChecked) {
           deploymentList.addContainerVolume(serviceName, {
@@ -462,6 +461,7 @@ let AppDeployServiceModal = React.createClass({
         const vol = getFieldValue(`vol${item}`)
         const volPath = getFieldValue(`volPath${item}`)
         if (!vol) return
+        if(!volPath) return
         if (vol.length <= 0) return
         deploymentList.addContainerVolume(serviceName, {
           name: `configmap-volume-${item}`,

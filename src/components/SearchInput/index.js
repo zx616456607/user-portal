@@ -153,7 +153,7 @@ class SearchInput extends Component{
             </div>
           </div>
         </div>*/
-        <div id='SearchInput'>
+        <div id='SearchInput' style={{width:280}}>
           <div className='littleLeft'>
             <i className='fa fa-search' onClick={this.handleSearch}/>
           </div>

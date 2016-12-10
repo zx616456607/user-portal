@@ -52,6 +52,12 @@ class NotificationHandler {
       message: message
     })
   }
+  // Show info notification
+  info(message) {
+    notification.info({
+      message: message
+    })
+  }
   // Show error notification: message & description
   error(message, description) {
     let desc = description || ''

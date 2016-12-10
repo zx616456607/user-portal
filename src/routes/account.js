@@ -9,8 +9,7 @@
  * v0.1 - 2016-12-04
  * @author huangqg
 */
-
-
+const mode = require('../../configs/models').mode
 const accountRoutes = [
   {
     path: 'user/:user_id',
@@ -22,11 +21,13 @@ const accountRoutes = [
   },
   {
     path: 'member',
-    component: require('../components/AccountModal/MemberManage').default,
+    component: require('../components/AccountModal/Enterprise/MemberManage').default,
   },
   {
     path: 'team',
-    component: require('../components/AccountModal/TeamManage').default,
+    component: mode==='standard'?
+      require('../components/AccountModal/Standard/MyTeam').default:
+      require('../components/AccountModal/Enterprise/TeamManage').default,
   },
   {
     path: 'myteam',
@@ -34,7 +35,9 @@ const accountRoutes = [
   },
   {
     path: 'team/:team_name/:team_id',
-    component: require('../components/AccountModal/TeamDetail').default,
+    component: mode==='standard'?
+      require('../components/AccountModal/Standard/TeamDetail').default:
+      require('../components/AccountModal/Enterprise/TeamDetail').default,
   },
   {
     path: 'cost',

@@ -1,6 +1,6 @@
 html,
 body {
-  padding-right: 0px !important;
+  padding-right: 0 !important;
   overflow-x: auto !important;
   overflow-y: auto !important;
   background-color: #ecf0f4 !important;
@@ -167,7 +167,7 @@ svg path {
   padding: 0 2px;
 }
 // text center
-.text-center{
+.text-center {
   text-align: center;
 }
 //终端弹出框
@@ -258,22 +258,28 @@ svg path {
   vertical-align: middle;
   text-align: center;
 }
-.ant-table-column-sorter-up, .ant-table-column-sorter-down {
+.ant-table-column-sorter-up,
+.ant-table-column-sorter-down {
   line-height: 4px;
   height: 6px;
   display: block;
   width: 12px;
   cursor: pointer;
 }
-:root .ant-table-column-sorter .anticon-caret-up, :root .ant-table-column-sorter .anticon-caret-down {
+ :root .ant-table-column-sorter .anticon-caret-up,
+:root .ant-table-column-sorter .anticon-caret-down {
   font-size: 12px;
   -webkit-filter: none;
-  filter: none;
+  filter:none;
 }
-.ant-table-column-sorter-up.on .anticon-caret-up, .ant-table-column-sorter-down.on .anticon-caret-up, .ant-table-column-sorter-up.on .anticon-caret-down, .ant-table-column-sorter-down.on .anticon-caret-down {
+.ant-table-column-sorter-up.on .anticon-caret-up,
+.ant-table-column-sorter-down.on .anticon-caret-up,
+.ant-table-column-sorter-up.on .anticon-caret-down,
+.ant-table-column-sorter-down.on .anticon-caret-down {
   color: #2db7f5;
 }
-.ant-table-column-sorter .anticon-caret-up, .ant-table-column-sorter .anticon-caret-down {
+.ant-table-column-sorter .anticon-caret-up,
+.ant-table-column-sorter .anticon-caret-down {
   display: inline-block;
   font-size: 12px;
   font-size: 6px \9;
@@ -297,4 +303,50 @@ svg path {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+// format error form input
+.ant-input:hover {
+  border-color: #57c5f7 !important;
+}
+.ant-input:focus {
+  border-color: #57c5f7 !important;
+  box-shadow: 0 0 0 2px rgba(45, 183, 245, 0.2) !important;
+}
+.has-error .ant-input:not([disabled]):hover {
+  border-color: #ff4f51 !important;
+  box-shadow: 0 0 0 2px #fed4d5 !important;
+}
+.has-error .ant-input,
+.has-error .ant-input:hover,
+.has-error .ant-input:focus {
+  border-color: #ff4f51 !important;
+  box-shadow: 0 0 0 2px #fed4d5 !important;
+}
+.has-error.has-feedback:after {
+  color: #ff4f4f !important;
+}
+.has-error .ant-form-explain,
+.has-error .ant-form-split {
+  padding: 0 5px !important;
+  word-break: keep-all;
+  white-space: nowrap;
+  width: fit-content;
+  width: -webkit-fit-content;
+  width: -moz-fit-content;
+  height: 18px;
+  line-height: 18px !important;
+  color: #FFFFFF !important;
+  border-radius: 4px;
+  background-color: #fe4e50;
+}
+.has-error .ant-form-explain:before {
+  margin-right: 5px;
+  font-family: anticon!important;
+  content: '\E635';
+}
+.has-success.has-feedback:after,
+.has-warning.has-feedback:after,
+.has-error.has-feedback:after,
+.is-validating.has-feedback:after {
+  font-size: 18px !important;
 }

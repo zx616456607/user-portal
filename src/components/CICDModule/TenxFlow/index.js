@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Alert, Menu, Button, Card, Input, Tooltip, Dropdown, Modal, Spin, notification } from 'antd'
+import { Alert, Menu, Button, Card, Input, Tooltip, Dropdown, Modal, Spin } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -20,6 +20,7 @@ import TenxFlowBuildLog from './TenxFlowBuildLog'
 import moment from 'moment'
 import './style/TenxFlowList.less'
 import cloneDeep from 'lodash/cloneDeep'
+import NotificationHandler from '../../../common/notification_handler'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -90,13 +91,19 @@ let MyComponent = React.createClass({
     let { flowId } = item;
     const { scope } = this.props;
     const { deleteTenxFlowSingle, getTenxFlowList } = scope.props;
+    let notification = new NotificationHandler()
     Modal.confirm({
       title: '您是否确认要删除这项内容',
       content: (<h3>{item.name}</h3>),
       onOk() {
+        notification.spin(`删除 flow ${item.name} 中...`);
         deleteTenxFlowSingle(flowId, {
           success: {
-            func: () => getTenxFlowList(),
+            func: () => {
+              notification.close()
+              notification.success(`删除 flow ${item.name} 成功`);
+              getTenxFlowList()
+            },
             isAsync: true
           },
           failed: {
@@ -106,10 +113,8 @@ let MyComponent = React.createClass({
                 case 500:
                   break;
               }
-              notification['error']({
-                message: '删除失败',
-                description: '',
-              });
+              notification.close()
+              notification.error(`删除 flow ${item.name} 失败`);
             }
           }
         })

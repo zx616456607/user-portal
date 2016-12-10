@@ -14,6 +14,7 @@ import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { createTenxFlowSingle } from '../../../actions/cicd_flow'
 import YamlEditor from '../../Editor/Yaml'
+import { appNameCheck } from '../../../common/naming_validation'
 import './style/CreateTenxFlow.less'
 import { browserHistory } from 'react-router';
 
@@ -100,18 +101,20 @@ let CreateTenxFlow = React.createClass({
     };
     const { flowList } = this.props;
     let flag = false;
-    if (!value) {
-      callback();
-    } else {
+    let errorMsg = appNameCheck(value, 'TenxFlow名称');
+    if (errorMsg == 'success') {
       flowList.map((item) => {
         if(item.name == value) {
           flag = true;
-          callback([new Error('flow名称已存在了哦~')]);
+          errorMsg = appNameCheck(value, 'TenxFlow名称', true);
+          callback([new Error(errorMsg)]);
         }
       });
-    }
-    if(!flag) {
-      callback()
+      if(!flag) {      
+        callback();
+      }
+    } else {
+      callback([new Error(errorMsg)]);
     }
   },
   onChangeFlowType(e) {
@@ -268,7 +271,6 @@ let CreateTenxFlow = React.createClass({
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form;
     const nameProps = getFieldProps('name', {
       rules: [
-        { required: this.state.currentType == '1', message: '请输入TenxFlow名称' },
         { validator: this.nameExists },
       ],
     });
@@ -310,7 +312,7 @@ let CreateTenxFlow = React.createClass({
           <div style={{ clear:'both' }} />
         </div>
         { this.state.currentType == '2' ? [
-        <YamlEditor title="TenxFlow 定义文件" value={this.state.currentYaml} options={defaultEditOpts} callback={this.onChangeYamlEditor}/>
+          <YamlEditor key='yamlEditor' title="TenxFlow 定义文件" value={this.state.currentYaml} options={defaultEditOpts} callback={this.onChangeYamlEditor}/>
         ] : null }
         { this.state.currentType == '1' ? [
           <div className='commonBox'>

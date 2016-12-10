@@ -6,6 +6,7 @@
  *
  * v2.0 - 2016-10-18
  * @author GaoJian
+ * update by Bai Yu
  */
 
 import React, { Component, PropTypes } from 'react'
@@ -13,12 +14,13 @@ import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import { Row, Col, Modal, Button, Icon, Input, message, Spin, Tooltip } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { loadDbCacheList } from '../../actions/database_cache'
+import { loadDbCacheList ,searchDbservice} from '../../actions/database_cache'
 import { loadMyStack } from '../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import ModalDetail from './ModalDetail.js'
 import CreateDatabase from './CreateDatabase.js'
-import './style/RedisCluster.less'
+// import './style/RedisCluster.less'
+import './style/MysqlCluster.less'
 
 let MyComponent = React.createClass({
   propTypes: {
@@ -40,7 +42,7 @@ let MyComponent = React.createClass({
         </div>
       )
     }
-    if (config.length == 0) {
+    if (!config ||config.length == 0) {
       return (
         <div className='loadingBox'>
           <span>暂无数据</span>
@@ -61,7 +63,20 @@ let MyComponent = React.createClass({
               </div>
             </div>
             <ul className='detailParse'>
-              <li><span className='listKey'>状态</span><span className='normal'>暂时未知</span><div style={{ clear: 'both' }}></div></li>
+              <li><span className='listKey'>状态</span>
+                {item.pods.running >0 ?
+                  <span className='normal'>运行 {item.pods.running} 个</span>
+                  :null
+                }
+                {item.pods.pending >0 ?
+                  <span>停止 {item.pods.pending} 个</span>
+                  :null
+                }
+                {item.pods.failed >0 ?
+                  <span>失败 {item.pods.pending} 个</span>
+                  :null
+                }
+              </li>
               <li>
                 <span className='listKey'>地址</span>
                 <span className='listLink'>
@@ -72,7 +87,7 @@ let MyComponent = React.createClass({
                 <div style={{ clear: 'both' }}></div>
               </li>
               <li><span className='listKey'>副本数</span>{item.pods.pending + item.pods.running}/{item.pods.desired}个<div style={{ clear: 'both' }}></div></li>
-              <li><span className='listKey'>存储大小</span>{item.volumeSize ? item.volumeSize :'0'} M<div style={{ clear: 'both' }}></div></li>
+              <li><span className='listKey'>存储大小</span>{item.volumeSize ? item.volumeSize :'0'}<div style={{ clear: 'both' }}></div></li>
             </ul>
           </div>
         </div>
@@ -120,19 +135,22 @@ class RedisDatabase extends Component {
       CreateDatabaseModalShow: true
     });
   }
+  handSearch(e) {
+    this.props.searchDbservice('redis', e.target.value)
+  }
 
   render() {
     const parentScope = this;
     const { isFetching, databaseList } = this.props;
     return (
-      <QueueAnim id='RedisDatabase' type='right'>
+      <QueueAnim id='mysqlDatabase' type='right'>
         <div className='databaseCol' key='RedisDatabase'>
           <div className='databaseHead'>
             <Button type='primary' size='large' onClick={this.createDatabaseShow}>
               <i className='fa fa-plus' />&nbsp;Redis集群
           </Button>
             <span className='rightSearch'>
-              <Input size='large' placeholder='搜索' style={{ width: 200 }} />
+              <Input size='large' placeholder='搜索' style={{ width: 200 }} onPressEnter={(e)=> this.handSearch(e)}/>
               <i className="fa fa-search" />
             </span>
           </div>
@@ -142,7 +160,7 @@ class RedisDatabase extends Component {
           className='AppServiceDetail' transitionName='move-right'
           onCancel={() => { this.setState({ detailModal: false }) } }
           >
-          <ModalDetail scope={parentScope} dbName={this.state.currentDatabase} />
+          <ModalDetail scope={parentScope} database={this.props.database} dbName={this.state.currentDatabase} />
         </Modal>
         <Modal visible={this.state.CreateDatabaseModalShow}
           className='CreateDatabaseModal'
@@ -168,8 +186,8 @@ function mapStateToProps(state, props) {
   const { databaseAllList } = state.databaseCache
   const { database, databaseList, isFetching } = databaseAllList.redis || defaultRedisList
   return {
-    // cluster: cluster.clusterID,
-    cluster: 'e0e6f297f1b3285fb81d27742255cfcf11',// @todo default 
+    cluster: cluster.clusterID,
+    // cluster: 'e0e6f297f1b3285fb81d27742255cfcf11',// @todo default 
     database,
     databaseList: databaseList,
     isFetching,
@@ -189,5 +207,6 @@ RedisDatabase = injectIntl(RedisDatabase, {
 
 export default connect(mapStateToProps, {
   loadDbCacheList,
-  loadMyStack
+  loadMyStack,
+  searchDbservice
 })(RedisDatabase)
