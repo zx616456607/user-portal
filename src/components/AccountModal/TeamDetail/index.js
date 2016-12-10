@@ -63,11 +63,13 @@ let MemberList = React.createClass({
     const { sortUser, userPageSize, userPage, filter } = this.state
     let self = this
     confirm({
-      title: '您是否确认要删除这项内容',
+      title: '确认从团队中移除该用户?',
       onOk() {
+        let notification = new NotificationHandler()
         removeTeamusers(teamID, userID, {
           success: {
             func: () => {
+              notification.success("移除用户成功")
               loadTeamUserList(teamID, {
                 sort: sortUser,
                 page: 1,
@@ -79,10 +81,19 @@ let MemberList = React.createClass({
               })
             },
             isAsync: true
+          },
+          failed: {
+            func: (err) => {
+              if (err.statusCode == 401) {
+                notification.error("没有权限从团队中移除创建者")
+              } else {
+                notification.error(err.message.message)
+              }
+            }
           }
         })
       },
-      onCancel() { },
+      onCancel() { }
     });
   },
   onShowSizeChange(current, pageSize) {

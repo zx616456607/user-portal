@@ -23,6 +23,7 @@ import MemberTransfer from '../../MemberTransfer'
 import CreateTeamModal from '../../CreateTeamModal'
 import DelTeamModal from '../../DelTeamModal'
 import NotificationHandler from '../../../../common/notification_handler'
+import ExitTeamModal from '../../ExitTeamModal'
 
 const confirm = Modal.confirm;
 
@@ -43,6 +44,7 @@ let TeamTable = React.createClass({
       filter: '',
       nowTeamID: '',//当前团队ID
       showDelModal: false,
+      showExitModal: false,
     }
   },
   //Table变化回调
@@ -173,7 +175,6 @@ let TeamTable = React.createClass({
   },
   //添加新成员
   addNewMember(teamID) {
-    console.log('click!!')
     this.props.loadTeamUserList(teamID, ({ size: -1 }))
     this.setState({
       addMember: true,
@@ -218,6 +219,22 @@ let TeamTable = React.createClass({
   closeDelTeamModal() {
     this.setState({
       showDelModal: false
+    })
+  },
+  handleShowExitTeamModal(teamID) {
+    console.log('teamID', teamID);
+    if (teamID) {
+      this.setState({
+        showExitModal: true,
+        nowTeamID: teamID
+      })
+    }
+  },
+  //关闭退出团队弹框
+  closeExitTeamModal() {
+    console.log('colse!!')
+    this.setState({
+      showExitModal: false
     })
   },
   render() {
@@ -402,7 +419,13 @@ let TeamTable = React.createClass({
               </Modal>
             </Dropdown.Button>
             :
-            <Button icon="delete" className="delBtn" onClick={() => this.delTeam(record.key)}>退出团队</Button>
+            <div>
+              <Button icon="delete" className="delBtn" onClick={() => this.handleShowExitTeamModal(record.key)}>退出团队</Button>
+              <ExitTeamModal
+                visible={this.state.nowTeamID === record.key && this.state.showExitModal}
+                closeExitTeamModal={this.closeExitTeamModal}
+                />
+            </div>
         )
       },
     ]

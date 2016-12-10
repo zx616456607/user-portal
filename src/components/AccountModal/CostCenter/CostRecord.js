@@ -126,7 +126,7 @@ class CostRecord extends Component{
       loadSpaceSummaryInDay,
       loadSpaceSummary,
     } = this.props
-    loadUserTeamspaceList(loginUser.info.userID||userDetail.userID,{ size: 100 }, {
+    loadUserTeamspaceList(loginUser.info.userID||userDetail.userID||'default',{ size: 100 }, {
       success: {
         func:()=>{
         },

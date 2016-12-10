@@ -272,7 +272,6 @@ function mapStateToProps (state,props) {
     threshold: 0,
     notifyWay: 0,
   }
-  console.log('notifyRule.isFetchingnotifyRule.isFetching',notifyRule.isFetching, notifyRule.result)
   if (notifyRule.isFetching === false && notifyRule.result && notifyRule.result.data) {
     notifyRuleData.threshold = notifyRule.result.data.threshold / 100
     notifyRuleData.notifyWay = notifyRule.result.data.notifyWay
