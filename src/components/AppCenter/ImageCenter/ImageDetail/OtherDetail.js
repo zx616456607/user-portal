@@ -9,7 +9,7 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { Tabs, Button, Card, Menu, Tooltip ,Icon} from 'antd'
-import { Link} from 'react-router'
+import { Link, browserHistory} from 'react-router'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import ImageVersion from './ImageVersion.js'
@@ -116,10 +116,8 @@ class OtherDetail extends Component {
             <p className="imageName">{imageDetail}</p>
             <div className="rightBox">
               <Icon type='cross' className='cursor' style={{fontSize: '18px',position: 'absolute', top:'0px', right:'0px'}} onClick={this.props.scope.closeImageDetailModal} />
-              <Button size="large" type="primary">
-                <Link to={`/app_manage/app_create/fast_create?registryServer=${ipAddress}&imageName=${imageDetail}&other=${this.props.imageId}`}>
+              <Button size="large" type="primary" onClick={()=> browserHistory.push(`/app_manage/app_create/fast_create?registryServer=${ipAddress}&imageName=${imageDetail}&other=${this.props.imageId}`)}>
                 <FormattedMessage {...menusText.deployImage} />
-                </Link>
               </Button>
             </div>
           </div>

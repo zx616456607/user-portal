@@ -300,7 +300,7 @@ class Editor extends Component {
     }
     let themeShow = themeList.map((item) => {
       return (
-        <Option value={item}>{item}</Option>
+        <Option key={item}>{item}</Option>
       )
     })
     return (

@@ -11,12 +11,13 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
-import { Button, Icon, Spin, Modal, message, Collapse, Row, Col, Dropdown, Timeline, Popover, InputNumber, Tabs } from 'antd'
+import { Button, Icon, Spin, Modal, Collapse, Row, Col, Dropdown, Timeline, Popover, InputNumber, Tabs } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { loadDbClusterDetail, deleteDatabaseCluster, putDbClusterDetail, loadDbCacheList } from '../../actions/database_cache'
 import './style/ModalDetail.less'
 import AppServiceEvent from '../AppModule/AppServiceDetail/AppServiceEvent'
 import { formatDate } from '../../common/tools.js'
+import NotificationHandler from '../../common/notification_handler'
 const Panel = Collapse.Panel;
 const ButtonGroup = Button.Group
 const confirm = Modal.confirm;
@@ -196,11 +197,12 @@ class ModalDetail extends Component {
     confirm({
       title: '您是否确认要删除 ' + dbName,
       onOk() {
+        let notification = new NotificationHandler()
         _this.setState({ deleteBtn: true })
         deleteDatabaseCluster(cluster, dbName, database, {
           success: {
             func: () => {
-              message.success('删除成功')
+              notification.success('删除成功')
               scope.setState({
                 detailModal: false
               });
@@ -208,7 +210,7 @@ class ModalDetail extends Component {
           },
           failed: {
             func: (res) => {
-              Modal.error('删除失败', res.message.message)
+              notification.error('删除失败', res.message.message)
             }
           }
         });
@@ -260,10 +262,11 @@ class ModalDetail extends Component {
   handSave() {
     const {putDbClusterDetail, cluster, dbName, loadDbClusterDetail} = this.props
     const parentScope = this.props.scope
+    const notification = new NotificationHandler()
     putDbClusterDetail(cluster, dbName, this.state.replicas, {
       success: {
         func: (res) => {
-          message.success('更新成功')
+          notification.success('更新成功')
           parentScope.setState({ detailModal: false })
           loadDbCacheList(cluster, this.props.database)
         },
@@ -271,7 +274,7 @@ class ModalDetail extends Component {
       },
       failed: {
         func: (res) => {
-          message.error('更新失败', res.message)
+          notification.error('更新失败', res.message.message)
         }
       }
     })
@@ -298,7 +301,7 @@ class ModalDetail extends Component {
     }
 
     return (
-      <div id='AppServiceDetail'>
+      <div id='AppServiceDetail' className="dbServiceDetail">
         <div className='titleBox'>
           <Icon className='closeBtn' type='cross' onClick={() => { scope.setState({ detailModal: false }) } } />
           <div className='imgBox'>
@@ -310,7 +313,19 @@ class ModalDetail extends Component {
             </p>
             <div className='leftBox TenxStatus'>
               <div className="desc">{databaseInfo.serviceInfo.name}/{databaseInfo.serviceInfo.namespace}</div>
-              <div> 状态：<span className="Running" style={{top:'0'}}> <i className="fa fa-circle"></i> 运行中   </span>
+              <div> 状态：
+                {databaseInfo.podInfo.running >0 ?
+                  <span className="Running" style={{top:'0'}}> <i className="fa fa-circle"></i> 运行 </span>
+                  :null
+                }
+                {databaseInfo.podInfo.pending >0 ?
+                  <span className="stop" style={{top:'0'}}> <i className="fa fa-circle"></i> 停止 </span>
+                  :null
+                }
+                {databaseInfo.podInfo.failed >0 ?
+                  <span className="error" style={{top:'0'}}> <i className="fa fa-circle"></i> 失败 </span>
+                  :null
+                }
               </div>
 
             </div>
