@@ -544,7 +544,7 @@ class Slider extends Component {
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='myteam'>
-                    <Link to='/account/myteam'>
+                    <Link to='/account/team'>
                       <span><div className='sideCircle'></div> 我的团队</span>
                     </Link>
                   </Menu.Item>
