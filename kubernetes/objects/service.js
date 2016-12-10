@@ -82,14 +82,24 @@ class Service {
       portObj.port = port
     }
     this.spec.ports.push(portObj)
+  }
+
+  // Add annotation to service to indicate proxy port
+  addPortAnnotation(name, protocol, port) {
     if (!this.metadata.annotations) {
       this.metadata.annotations = {}
     }
     // Mark real protocol in annotations
     if (!this.metadata.annotations[TENX_SCHEMA_PORTNAME]) {
       this.metadata.annotations[TENX_SCHEMA_PORTNAME] = `${name}/${protocol}`
+      if (protocol != "HTTP" && port) { // Add port if it's NOT HTTP'
+        this.metadata.annotations[TENX_SCHEMA_PORTNAME] += (":" + port)
+      }
     } else {
       this.metadata.annotations[TENX_SCHEMA_PORTNAME] += `,${name}/${protocol}`
+      if (protocol != "HTTP" && port) { // Add port if it's NOT HTTP'
+        this.metadata.annotations[TENX_SCHEMA_PORTNAME] += ("/" + port)
+      }
     }
   }
 }
