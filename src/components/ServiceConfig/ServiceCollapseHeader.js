@@ -133,7 +133,7 @@ class CollapseHeader extends Component {
       onOk() {
         self.props.deleteConfigGroup(configData, {
           success: {
-            func: () => {
+            func: (res) => {
               // self.props.loadConfigGroup()
               const errorText =[]
               if (res.message.length > 0) {

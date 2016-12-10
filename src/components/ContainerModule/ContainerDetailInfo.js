@@ -166,7 +166,7 @@ export default class ContainerDetailInfo extends Component {
           </div>
         </div>
         <div className="storage commonBox">
-          <span className="titleSpan">数据存储器</span>
+          <span className="titleSpan">存储卷</span>
           <div className="titleBox">
             <div className="commonTitle">
               名称
@@ -181,7 +181,7 @@ export default class ContainerDetailInfo extends Component {
           </div>
         </div>
         <div className="storage commonBox">
-          <span className="titleSpan">配置信息</span>
+          <span className="titleSpan">服务相关配置</span>
           <div className="titleBox">
             <div className="commonTitle">
               配置组

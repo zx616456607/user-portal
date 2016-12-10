@@ -77,7 +77,7 @@ let TeamTable = React.createClass({
           failed: {
             func: (err) => {
               notification.close()
-              notification.error(`删除 ${teamName} 失败`)
+              notification.error(`删除 ${teamName} 失败: ` + err.message.message)
             }
           }
         })
