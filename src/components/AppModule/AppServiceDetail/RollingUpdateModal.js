@@ -10,7 +10,7 @@
 import React, { Component } from 'react'
 import './style/RollingUpdateModal.less'
 import { DEFAULT_REGISTRY } from '../../../constants'
-import { Button, Card, Menu, Icon, Tooltip, Row, Col, Select, InputNumber, Alert, Switch, Modal } from 'antd'
+import { Button, Card, Menu, Icon, Tooltip, Row, Col, Select, InputNumber, Alert, Switch, Modal, Input } from 'antd'
 import { loadImageDetailTag } from '../../../actions/app_center'
 import { rollingUpdateService } from '../../../actions/services'
 import { connect } from 'react-redux'
@@ -32,6 +32,7 @@ class RollingUpdateModal extends Component {
     this.handleTagChange = this.handleTagChange.bind(this)
     this.state = {
       containers: [],
+      rollingInterval: false
     }
   }
 
@@ -61,6 +62,9 @@ class RollingUpdateModal extends Component {
     if (!visible || visible === this.props.visible) {
       return
     }
+    this.setState({
+      intervalTime: service.spec.minReadySeconds
+    })
     containers.map((container) => {
       let { imageObj } = container
       loadTags(nextProps, imageObj.fullName)
@@ -90,12 +94,38 @@ class RollingUpdateModal extends Component {
     const { containers } = this.state
     const serviceName = service.metadata.name
     const targets = {}
-    containers.map((container) => {
+    let count = 0
+    containers.forEach((container) => {
+      if(!container.targetTag) {
+        count++
+        return
+      }
       targets[container.name] = `${container.imageObj.imageSrc}:${container.targetTag}`
     })
     let notification = new NotificationHandler()
+    if(count === containers.length) {
+      notification.error('请至少为一个容器指定目标版本')
+      return
+    }
+    //统一间隔时间
+    const intervalTime = this.state.intervalTime
+    if(!intervalTime) {
+      notification.error('请填写 2~60s 间隔时间')
+      return
+    }
+    if(!/[0-9]+/.test(intervalTime)) {
+      notification.error('请填入 2~60 之间的数字')
+      return
+    }
+    if(intervalTime < 2) {
+      notification.error('请填入 2~60 之间的数字')
+      return
+    }
+    const hide = notification.spin('正在保存中...', 0)
+
+    
     notification.spin(`服务 ${serviceName} 灰度升级中...`)
-    rollingUpdateService(cluster, serviceName, { targets }, {
+    rollingUpdateService(cluster, serviceName, { targets, interval: parseInt(intervalTime) }, {
       success: {
         func: () => {
           notification.close()
@@ -131,13 +161,36 @@ class RollingUpdateModal extends Component {
       containers
     })
   }
-
+  getintervalTime(e, time) {
+    const { containers } = this.state
+    if(containers.length < 2 || this.state.rollingInterval === false) {
+      this.setState({
+        intervalTime: e.target.value
+      })
+      return
+    }
+    containers.forEach(container => {
+      if(container.name == e.target.value) {
+        container.intervalTime = time
+      }
+    })
+  }
+ switchType(c) {
+   this.setState({
+     rollingInterval: c
+   })
+ }
   render() {
     const { service, visible } = this.props
     if (!visible) {
       return null
     }
     const { containers } = this.state
+    if(!service) {
+      return <div></div>
+    }
+    const minReadySeconds = service.spec.minReadySeconds
+    const isOnly = containers.length > 1 ? false : true
     // const containers = service.spec.template.spec.containers
     return (
       <Modal
@@ -161,19 +214,40 @@ class RollingUpdateModal extends Component {
             )
           }
           <Row className="serviceName">
-            <Col className="itemTitle" span={4} style={{ textAlign: 'right' }}>服务名称</Col>
-            <Col className="itemBody" span={20}>
+            <Col className="itemTitle" span={4} style={{ textAlign: "right" }}>服务名称</Col>
+            <Col className="itemBody" span={10}>
               {service.metadata.name}
+            </Col>
+            <Col span={3} className="itemBody"></Col>
+            <Col className="itemTitle" span={7} style={{ textAlign: "center", position: "relative", paddingBottom: "15px"}}><Switch disabled="true" onChange={(c)=> this.switchType(c)}></Switch>
+            <div style={{ textAlign: "right", position: "absolute", left: "37px", top: "38px", lineHeight: "0px", zoom: 1}}>统一间隔时间<Tooltip style={{marginTop: "1px"}} title="暂不支持独立间隔时间"><Icon style={{marginLeft: "5px"}} type="question-circle-o"/></Tooltip></div>
             </Col>
           </Row>
           {containers.map((item, index) => {
+            let start = item.image.lastIndexOf(":")
+            let tag, image
+            if(start >= 0) {
+              tag = item.image.substring(start + 1)
+              image = item.image.substring(0, start)
+            } else {
+              image = item.image
+              tag = "latest"
+            }
+            let show = image
+            if(image.length > 20) show = image.substring(0, 20) + "..."
             return (
-              <Row className="updateItem" key={item.name}>
-                <Col className="itemTitle" span={4} style={{ textAlign: 'right' }}>
-                  {item.name}
+              <div key={item.name}>
+              <Row style={{marginBottom: "10px"}}>
+                <Col className="itemTitle" span={4} style={{ textAlign: "right" }}>
+                  {isOnly ? `容器` : `容器${index + 1}`}
                 </Col>
-                <Col className="itemBody" span={20}>
-                  <div style={{ height: '30px' }}>{item.image}</div>
+                <Col span={3} className="rollingUpdateUpdateItem">{item.name}</Col>
+                <Col span={4} style={{ textAlign: "right" }}>镜像版本</Col>
+                <Tooltip title={item.image}><Col className="rollingUpdateUpdateItem" span={11}>{`${show}：${tag}`}</Col></Tooltip>
+              </Row>
+              <Row style={{marginBottom: "10px"}} >
+                <Col span={4}></Col>
+                <Col className="rollingUpdateUpdateItem" span={8}>
                   <Select
                     placeholder="请选择目标版本"
                     value={item.targetTag}
@@ -195,10 +269,15 @@ class RollingUpdateModal extends Component {
                     </OptGroup>
                   </Select>
                 </Col>
+                <Col span={6}>
+                  {index > 0 ? "" : <Input placeholder="更新间隔时间 2~60s" defaultValue={ minReadySeconds ? minReadySeconds : 0 } onChange={(e) => { this.getintervalTime(e, item.name)}}/>}
+                </Col>
+                <Col span={1} >{ index > 0 ? "" : <span style={{marginLeft: "2px", lineHeight: "28px"}}>S</span>}</Col>
               </Row>
+              </div>
             )
           })}
-        </div>
+          </div>
       </Modal>
     )
   }

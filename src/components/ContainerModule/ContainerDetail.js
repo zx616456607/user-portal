@@ -48,7 +48,7 @@ class ContainerDetail extends Component {
   }
 
   componentWillMount() {
-    const { containerName } = this.props
+    const { cluster, containerName } = this.props
     document.title = `容器 ${containerName} | 时速云`
     loadData(this.props)
   }
