@@ -174,6 +174,7 @@ class RollingUpdateModal extends Component {
       return null
     }
     const { containers } = this.state
+    console.log(containers)
     const isOnly = containers.length > 1 ? false : true
     // const containers = service.spec.template.spec.containers
     return (
@@ -212,7 +213,7 @@ class RollingUpdateModal extends Component {
             const tag = item.image.substring(start + 1)
             const image = item.image.substring(0, start)
             let show = image
-            if(image.length > 30) show = image.substring(0, 30) + '...'
+            if(image.length > 25) show = image.substring(0, 25) + '...'
             return (
               <div key={item.name}>
               <Row style={{marginBottom: '10px'}}>
