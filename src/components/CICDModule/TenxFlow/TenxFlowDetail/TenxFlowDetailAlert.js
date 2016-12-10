@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Input, Form, Switch, Radio, Checkbox, Card, notification } from 'antd'
+import { Button, Input, Form, Switch, Radio, Checkbox, Card } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -17,6 +17,7 @@ import { DEFAULT_REGISTRY } from '../../../../constants'
 import { putEditTenxFlowAlert } from '../../../../actions/cicd_flow'
 import './style/TenxFlowDetailAlert.less'
 import { browserHistory } from 'react-router';
+import NotificationHandler from '../../../../common/notification_handler'
 
 const RadioGroup = Radio.Group;
 const createForm = Form.create;
@@ -63,18 +64,18 @@ const menusText = defineMessages({
 })
 
 function checkEmailType(emailList, scope, type) {
-  if(!Boolean(emailList)) {
+  if (!Boolean(emailList)) {
     return DefaultEmailAddress;
   }
   if (emailList == DefaultEmailAddress) {
-    if(type != 'init') {
+    if (type != 'init') {
       scope.setState({
         emailList: null
       });
     }
     return DefaultEmailAddress;
   } else if (emailList) {
-    if(type != 'init') {
+    if (type != 'init') {
       scope.setState({
         emailList: emailList
       });
@@ -86,7 +87,7 @@ function checkEmailType(emailList, scope, type) {
 }
 
 let TenxFlowDetailAlert = React.createClass({
-  getInitialState: function() {
+  getInitialState: function () {
     return {
       emailAlert: false,
       otherEmail: false,
@@ -101,17 +102,17 @@ let TenxFlowDetailAlert = React.createClass({
     document.title = 'TenxFlow | 时速云';
     const { notify } = this.props;
     let flag = !!notify;
-    if(notify == 'null') {
+    if (notify == 'null') {
       flag = false;
     }
     this.setState({
       emailAlert: flag
     });
-    if(flag) {
-      const newNotify = JSON.parse( notify );
+    if (flag) {
+      const newNotify = JSON.parse(notify);
       let otherEmail = true;
       let emailList = newNotify.email_list;
-      if (newNotify.email_list == DefaultEmailAddress){
+      if (newNotify.email_list == DefaultEmailAddress) {
         otherEmail = null
         emailList = ''
       }
@@ -133,32 +134,32 @@ let TenxFlowDetailAlert = React.createClass({
       emailAlert: e
     });
   },
-  radioEmailCheck(rule, value, callback){
-    if(this.state.emailAlert && !!!value){
-       callback([new Error('请选择邮件通知地址')]);
-    }else{
+  radioEmailCheck(rule, value, callback) {
+    if (this.state.emailAlert && !!!value) {
+      callback([new Error('请选择邮件通知地址')]);
+    } else {
       callback();
     }
   },
   onChangeAlertEmail(e) {
     //this function for user select alert email
     this.props.form.resetFields(['inputEmail']);
-    if( e.target.value == 'others' ) {
+    if (e.target.value == 'others') {
       //it's mean user input the email by himself
       this.setState({
         otherEmail: true
       });
-    }else{
+    } else {
       this.setState({
         otherEmail: false
       });
     }
   },
-  emailInputCheck(rule, value, callback){
-    if(this.state.otherEmail && !!!value){
-       callback([new Error('请输入邮件通知地址')]);
+  emailInputCheck(rule, value, callback) {
+    if (this.state.otherEmail && !!!value) {
+      callback([new Error('请输入邮件通知地址')]);
     } else {
-      if(this.state.otherEmail) {
+      if (this.state.otherEmail) {
         if (value.indexOf(',', value.length - 1) == -1) {
           value += ',';
         }
@@ -166,14 +167,14 @@ let TenxFlowDetailAlert = React.createClass({
         let emailCheck = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
         let flag = true;
         emailList.map((item) => {
-          if(item.trim() != '' && !emailCheck.test(item) ) {
+          if (item.trim() != '' && !emailCheck.test(item)) {
             flag = false;
             callback([new Error('请输入正确邮件地址')]);
           }
         });
-        if(flag) {        
+        if (flag) {
           callback();
-        }      
+        }
       } else {
         callback();
       }
@@ -184,7 +185,7 @@ let TenxFlowDetailAlert = React.createClass({
     e.preventDefault();
     this.props.form.resetFields();
     const { scope, notify } = this.props;
-    const newNotify = JSON.parse( notify );
+    const newNotify = JSON.parse(notify);
   },
   handleSubmit(e) {
     //this function for user submit the form
@@ -192,22 +193,20 @@ let TenxFlowDetailAlert = React.createClass({
     const _this = this;
     const { putEditTenxFlowAlert, flowId } = this.props;
     let scopeHistory = scope.props.history;
+    let notification = new NotificationHandler()
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         e.preventDefault();
         return;
       }
-      if(!this.state.emailAlert) {
+      if (!this.state.emailAlert) {
         let body = {
           'notification_config': null
         }
         putEditTenxFlowAlert(flowId, body, {
-          success: {           
+          success: {
             func: () => {
-              notification['success']({
-                message: '构建通知',
-                description: '修改构建通知成功~',
-              });
+              notification.success('构建通知', '修改构建通知成功~');
               this.setState({
                 otherEmail: false,
                 checkFirst: false,
@@ -242,12 +241,9 @@ let TenxFlowDetailAlert = React.createClass({
           'notification_config': JSON.stringify(temp)
         }
         putEditTenxFlowAlert(flowId, body, {
-          success: {            
+          success: {
             func: () => {
-              notification['success']({
-                message: '构建通知',
-                description: '修改构建通知成功~',
-              });
+              notification.success('构建通知', '修改构建通知成功~');
             },
             isAsync: true
           }
@@ -274,68 +270,68 @@ let TenxFlowDetailAlert = React.createClass({
       initialValue: this.state.emailList
     });
     return (
-    <Card id='TenxFlowDetailAlert' key='TenxFlowDetailAlert'>
-      <Form horizontal>
-        <div className='commonBox'>
-          <div className='title'>
-            <span><FormattedMessage {...menusText.email} /></span>
+      <Card id='TenxFlowDetailAlert' key='TenxFlowDetailAlert'>
+        <Form horizontal>
+          <div className='commonBox'>
+            <div className='title'>
+              <span><FormattedMessage {...menusText.email} /></span>
+            </div>
+            <div className='input'>
+              <Switch onChange={this.onChangeEmailAlert} checked={this.state.emailAlert} />
+              {this.state.emailAlert ? [
+                <QueueAnim type='right' key='selectedEmailAnimate'>
+                  <div className='selectedEmail' key='selectedEmail'>
+                    <FormItem>
+                      <RadioGroup {...radioEmailProps} >
+                        <Radio key='a' value={DefaultEmailAddress}>{DefaultEmailAddress}</Radio><br />
+                        <Radio key='b' value={'others'}><FormattedMessage {...menusText.otherEmail} /></Radio><br />
+                      </RadioGroup>
+                    </FormItem>
+                    <FormItem className='emailInputForm'>
+                      <Input {...checkEmailProps} type='text' size='large' disabled={!this.state.otherEmail} />
+                    </FormItem>
+                  </div>
+                </QueueAnim>
+              ] : null}
+            </div>
+            <div style={{ clear: 'both' }} />
           </div>
-          <div className='input'>
-            <Switch onChange={this.onChangeEmailAlert} checked={this.state.emailAlert} />
-            { this.state.emailAlert ? [
-              <QueueAnim type='right' key='selectedEmailAnimate'>
-                <div className='selectedEmail' key='selectedEmail'>
-                  <FormItem>
-                    <RadioGroup {...radioEmailProps} >
-                      <Radio key='a' value={DefaultEmailAddress}>{DefaultEmailAddress}</Radio><br />
-                      <Radio key='b' value={'others'}><FormattedMessage {...menusText.otherEmail} /></Radio><br />
-                    </RadioGroup>
-                  </FormItem>
-                  <FormItem className='emailInputForm'>
-                    <Input {...checkEmailProps} type='text' size='large' disabled={ !this.state.otherEmail } />
+          {this.state.emailAlert ? [
+            <QueueAnim type='right' key='checkedEmailAnimate'>
+              <div className='commonBox' key='checkedEmail'>
+                <div className='title'>
+                  <span><FormattedMessage {...menusText.alert} /></span>
+                </div>
+                <div className='input alert'>
+                  <FormItem className='checkBox'>
+                    <Checkbox {...getFieldProps('checkFirst', { valuePropName: 'checked', initialValue: this.state.checkFirst }) } >
+                      <FormattedMessage {...menusText.alertFirst} />
+                    </Checkbox><br />
+                    <Checkbox {...getFieldProps('checkSecond', { valuePropName: 'checked', initialValue: this.state.checkSecond }) } >
+                      <FormattedMessage {...menusText.alertSecond} />
+                    </Checkbox><br />
+                    <Checkbox {...getFieldProps('checkThird', { valuePropName: 'checked', initialValue: this.state.checkThird }) } >
+                      <FormattedMessage {...menusText.alertThird} />
+                    </Checkbox><br />
+                    <Checkbox {...getFieldProps('checkForth', { valuePropName: 'checked', initialValue: this.state.checkForth }) } >
+                      <FormattedMessage {...menusText.alertForth} />
+                    </Checkbox>
                   </FormItem>
                 </div>
-              </QueueAnim>
-            ]:null }
+                <div style={{ clear: 'both' }} />
+              </div>
+            </QueueAnim>
+          ] : null}
+          <div className='btnBox'>
+            <Button size='large' type='ghost' onClick={this.handleReset}>
+              <FormattedMessage {...menusText.cancel} />
+            </Button>
+            <Button size='large' type='primary' onClick={this.handleSubmit}>
+              <FormattedMessage {...menusText.submit} />
+            </Button>
           </div>
-          <div style={{ clear:'both' }} />
-        </div>
-        { this.state.emailAlert ? [
-          <QueueAnim type='right' key='checkedEmailAnimate'>
-            <div className='commonBox' key='checkedEmail'>
-              <div className='title'>
-                <span><FormattedMessage {...menusText.alert} /></span>
-              </div>
-              <div className='input alert'>
-                <FormItem className='checkBox'>
-                  <Checkbox {...getFieldProps('checkFirst', {valuePropName: 'checked', initialValue: this.state.checkFirst})} >
-                    <FormattedMessage {...menusText.alertFirst} />
-                  </Checkbox><br />
-                  <Checkbox {...getFieldProps('checkSecond', {valuePropName: 'checked', initialValue: this.state.checkSecond})} >
-                    <FormattedMessage {...menusText.alertSecond} />
-                  </Checkbox><br />
-                  <Checkbox {...getFieldProps('checkThird', {valuePropName: 'checked', initialValue: this.state.checkThird})} >
-                    <FormattedMessage {...menusText.alertThird} />
-                  </Checkbox><br />
-                  <Checkbox {...getFieldProps('checkForth', {valuePropName: 'checked', initialValue: this.state.checkForth})} >
-                    <FormattedMessage {...menusText.alertForth} />
-                  </Checkbox>
-                </FormItem>
-              </div>
-              <div style={{ clear:'both' }} />
-            </div>
-          </QueueAnim>
-        ]:null }
-        <div className='btnBox'>
-          <Button size='large' type='ghost' onClick={this.handleReset}>
-            <FormattedMessage {...menusText.cancel} />
-          </Button>
-          <Button size='large' type='primary' onClick={this.handleSubmit}>
-            <FormattedMessage {...menusText.submit} />
-          </Button>
-        </div>
-      </Form>
-    </Card>
+        </Form>
+      </Card>
     )
   }
 });
