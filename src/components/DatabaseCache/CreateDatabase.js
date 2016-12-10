@@ -15,6 +15,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { Input, Select, InputNumber, Button, Form, Icon ,message} from 'antd'
 import { CreateDbCluster ,loadDbCacheList} from '../../actions/database_cache'
 import { loadTeamClustersList } from '../../actions/team'
+import NotificationHandler from '../../common/notification_handler'
 import './style/CreateDatabase.less'
 
 const Option = Select.Option;
@@ -148,14 +149,15 @@ let CreateDatabase = React.createClass({
         volumeSize: values.storageSelect,
         templateId
       }
+      let notification = new NotificationHandler()
       if (body.replicas > 5) {
-        message.info('副本数不能大于5')
+        notification.error('副本数不能大于5')
         return
       }
       CreateDbCluster(body, {
         success: {
           func: ()=> {
-            message.success('创建成功')
+            notification.success('创建成功')
             loadDbCacheList(cluster, _this.state.currentType)
             _this.props.form.resetFields();
             scope.setState({
@@ -166,7 +168,7 @@ let CreateDatabase = React.createClass({
         },
         failed: {
           func: (res)=> {
-            message.error(res.message.message)
+            notification.error('创建失败', res.message.message)
           }
         }
       });

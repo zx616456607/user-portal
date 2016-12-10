@@ -344,7 +344,7 @@ let EditTenxFlowModal = React.createClass({
       }
       if (!flag) {
         callback();
-      }        
+      }
     } else {
       callback([new Error(errorMsg)]);
     }
@@ -480,12 +480,12 @@ let EditTenxFlowModal = React.createClass({
   },
   realImageInput(rule, value, callback) {
     //this function for user selected build image type
-    //and when user submit the form, the function will check the real image input or not 
+    //and when user submit the form, the function will check the real image input or not
     if (this.state.otherFlowType == 3) {
       let errorMsg = appNameCheck(value, '镜像名称')
       if(errorMsg == 'success') {
         callback()
-      } else {        
+      } else {
         callback([new Error(errorMsg)]);
       }
     } else {
@@ -811,7 +811,7 @@ let EditTenxFlowModal = React.createClass({
             rootScope.setState({
               currentFlowEdit: null
             });
-            notification.success('持续集成', '编辑成功~');
+            notification.success('持续集成', '编辑成功');
           },
           isAsync: true
         }

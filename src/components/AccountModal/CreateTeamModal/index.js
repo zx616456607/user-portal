@@ -64,6 +64,10 @@ let CreateTeamModal = React.createClass({
   },
   handleOk() {
     const { form, onSubmit, scope } = this.props
+    /*scope.setState({
+      visible: false,
+      showCreateSucModal: true,
+    })*/
     form.validateFields((errors, values) => {
       if (!!errors) {
         return

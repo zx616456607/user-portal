@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Input, Form, Radio, Modal, Select, Spin, Alert, Icon, Popover } from 'antd'
+import { Button, Input, Form, Radio, Modal, Select, Spin, Alert, Icon, message ,Popover , Tooltip} from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -16,7 +16,6 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { gitCdRules, addCdRules, deleteCdRule, putCdRule, getCdInimage } from '../../../../../actions/cicd_flow'
 import { loadAppList } from '../../../../../actions/app_manage'
 import './style/AutoDeployService.less'
-import { browserHistory } from 'react-router';
 import NotificationHandler from '../../../../../common/notification_handler'
 
 const Option = Select.Option;
@@ -226,6 +225,9 @@ let AutoDeployService = React.createClass({
     });
   },
   addDelpoy() {
+    if (this.state.serviceList.length ==0) {
+
+    }
     this.setState({ addDelpoyRow: true })
   },
   getAppList(cluster, imageName) {
@@ -251,9 +253,7 @@ let AutoDeployService = React.createClass({
 
             deployment_id = res.data[0].services[0].metadata.uid
           }
-          console.log(imageName)
-          console.log(cluster)
-          console.log(provinceData)
+          // console.log(provinceData)
           self.setState({
             serviceList: provinceData,
             deployment_id,
@@ -306,10 +306,6 @@ let AutoDeployService = React.createClass({
       upgrade_strategy: this.state.value,
     }
     let notification = new NotificationHandler()
-    if (!config.match_tag) {
-      notification.info('请选择镜像版本')
-      return
-    }
     if (!config.binding_service.cluster_id) {
       notification.info('请选择集群名称')
       return
@@ -320,6 +316,10 @@ let AutoDeployService = React.createClass({
     }
     if (!config.binding_service.deployment_name) {
       notification.info('请选择服务名称')
+      return
+    }
+    if (!config.match_tag) {
+      notification.info('请选择镜像版本')
       return
     }
     const {addCdRules, gitCdRules, flowId} = this.props
@@ -365,6 +365,7 @@ let AutoDeployService = React.createClass({
   render() {
     const { formatMessage } = this.props.intl;
     const { getFieldProps, getFieldValue } = this.props.form;
+    console.log(this.props.cdImageList)
     getFieldProps('rulesList', {
       initialValue: [0],
     });
@@ -378,7 +379,7 @@ let AutoDeployService = React.createClass({
     }
     const content = (
       <a>
-        <div>去部署服务</div>
+        <Button type="primary">马上创建</Button>
       </a>
     );
     const {clusterList, cdImageList} = this.props
@@ -559,18 +560,18 @@ let AutoDeployService = React.createClass({
                       </Select>
                     </div>
                     <div key='appname' className='service commonItem'>
-                      {this.state.deployment_name == '' ?
-                        <Popover content={content} placement="topLeft" title="已选择镜像名称？" trigger="click">
-                          <Input size="large" value="" />
-                        </Popover>
-                        :
-                        [<Select size="large" value={this.state.deployment_name} disabled={this.state.cluster_id ? false : true} onChange={(e) => this.setStateService(e)} placeholder="服务名称" >
-                          {appListOptions}
-                        </Select>]
-                      }
+                      {this.state.deployment_name =='' ?
+                       <Popover content={content} placement="rightTop" overlayClassName="autoTipsBox" title="在筛选条件下，无服务实例，您可以用该镜像立即创建一个服务" trigger="click">
+                        <Input size="large" placeholder="请先选择镜像" disabled={this.state.cluster_id ? false : true}/>
+                      </Popover>
+                      :
+                      [<Select size="large" value={this.state.deployment_name} disabled={this.state.cluster_id ? false : true} onChange={(e) => this.setStateService(e)} placeholder="服务名称" >
+                         { appListOptions } 
+                      </Select>]
+                    }
                     </div>
                     <div className='tag commonItem'>
-                      <Select size="large" onChange={(e) => this.setStateValue('match_tag', e)} placeholder="输入镜像版本" >
+                      <Select size="large" onChange={(e) => this.setStateValue('match_tag', e)} placeholder="选择镜像版本" >
                         <Option value="1">匹配版本</Option>
                         <Option value="2">不匹配版本</Option>
                       </Select>
@@ -603,10 +604,17 @@ let AutoDeployService = React.createClass({
                 </div>
               ]}
           </Form>
-
+          {this.props.cdImageList.length ==0 ?
+          <Tooltip placement="top" title="当前 TenxFlow 没有 Docker 镜像生成，构建镜像后，方可实现自动化部署">
+            <div className='addBtn'>
+              <Icon type='plus-circle-o' /><FormattedMessage {...menusText.add} />
+            </div>
+          </Tooltip>
+          :
           <div className='addBtn' onClick={this.addDelpoy}>
             <Icon type='plus-circle-o' /><FormattedMessage {...menusText.add} />
           </div>
+          }
 
 
         </div>

@@ -99,6 +99,7 @@ let MyComponent = React.createClass({
     const servicesList = this.props.parentScope.props.scope.state.servicesList || localStorage.getItem('servicesList')
     servicesList.forEach(service => {
       service.inf.Deployment.spec.template.spec.volumes.forEach(volume => {
+        if(!volume.rbd) return
         usedVolume.push(volume.rbd.image)
       })
     })

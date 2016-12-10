@@ -11,17 +11,17 @@ import React, { Component } from 'react'
 import { Row, Col, Alert, Button, Icon, Card, Table, Modal, Input, Tooltip, } from 'antd'
 import './style/TeamManage.less'
 import { Link } from 'react-router'
-import SearchInput from '../../SearchInput'
+import SearchInput from '../../../SearchInput'
 import { connect } from 'react-redux'
-import { loadUserTeamList } from '../../../actions/user'
+import { loadUserTeamList } from '../../../../actions/user'
 import {
   createTeam, deleteTeam, createTeamspace,
   addTeamusers, removeTeamusers, loadTeamUserList,
   checkTeamName,
-} from '../../../actions/team'
-import MemberTransfer from '../MemberTransfer'
-import CreateTeamModal from '../CreateTeamModal'
-import NotificationHandler from '../../../common/notification_handler'
+} from '../../../../actions/team'
+import MemberTransfer from '../../MemberTransfer'
+import CreateTeamModal from '../../CreateTeamModal'
+import NotificationHandler from '../../../../common/notification_handler'
 
 const confirm = Modal.confirm;
 
@@ -201,6 +201,7 @@ let TeamTable = React.createClass({
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
     const pagination = {
+      simple: {true},
       total: this.props.scope.props.total,
       sort,
       filter,
@@ -343,7 +344,7 @@ let TeamTable = React.createClass({
         dataSource={searchResult.length === 0 ? data : searchResult}
         pagination={pagination}
         onChange={this.handleChange}
-        />
+      />
     )
   },
 })
@@ -448,6 +449,7 @@ class TeamManage extends Component {
             查看成员&团队图例
           </Button>
           <SearchInput searchIntOption={searchIntOption} scope={scope} data={teams} />
+          <div className="total">共{this.props.total}个</div>
         </Row>
         <Row className="teamList">
           <Card>

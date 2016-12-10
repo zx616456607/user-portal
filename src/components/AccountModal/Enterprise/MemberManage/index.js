@@ -10,13 +10,13 @@
 import React, { Component } from 'react'
 import './style/MemberManage.less'
 import { Row, Col, Button, Input, Select, Card, Icon, Table, Modal, Checkbox, Tooltip, } from 'antd'
-import SearchInput from '../../SearchInput'
+import SearchInput from '../../../SearchInput'
 import { connect } from 'react-redux'
-import { loadUserList, createUser, deleteUser, checkUserName } from '../../../actions/user'
+import { loadUserList, createUser, deleteUser, checkUserName } from '../../../../actions/user'
 import { Link } from 'react-router'
-import { USERNAME_REG_EXP } from '../../../constants'
-import CreateUserModal from '../CreateUserModal'
-import NotificationHandler from '../../../common/notification_handler'
+import { USERNAME_REG_EXP } from '../../../../constants'
+import CreateUserModal from '../../CreateUserModal'
+import NotificationHandler from '../../../../common/notification_handler'
 
 const confirm = Modal.confirm
 
@@ -153,6 +153,7 @@ let MemberTable = React.createClass({
     const { data, scope } = this.props
     filteredInfo = filteredInfo || {}
     const pagination = {
+      simple:{true},
       total: this.props.scope.props.total,
       showSizeChanger: true,
       defaultPageSize: 5,
@@ -407,9 +408,6 @@ class MemberManage extends Component {
     const scope = this
     const { visible, memberList } = this.state
     const searchIntOption = {
-      width: '280px',
-      position: 'right',
-      height: '50px',
       addBefore: [
         { key: 'name', value: '用户名' },
         { key: 'tel', value: '手机号' },
@@ -432,7 +430,9 @@ class MemberManage extends Component {
             visible={visible}
             scope={scope}
             onSubmit={this.userOnSubmit}
-            funcs={funcs} />
+            funcs={funcs}
+          />
+          <div className="total">共{this.props.total}个</div>
         </Row>
         <Row className="memberList">
           <Card>

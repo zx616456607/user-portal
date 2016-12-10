@@ -36,6 +36,11 @@ exports.getLicense = function* (loginUser) {
   let plain = {}
   try {
     let licenseObj = JSON.parse(_decrypt(result.data.license))
+    if (!licenseObj.ExpireDate) {
+      plain.status = 'LICENSE_ERROR'
+      plain.code = -1
+      return
+    }
     let expireDate = new Date(licenseObj.ExpireDate)
     let currentDate = new Date()
     plain.expireDate = expireDate

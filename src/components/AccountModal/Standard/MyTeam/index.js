@@ -24,6 +24,7 @@ import CreateTeamModal from '../../CreateTeamModal'
 import DelTeamModal from '../../DelTeamModal'
 import NotificationHandler from '../../../../common/notification_handler'
 import ExitTeamModal from '../../ExitTeamModal'
+import CreateTeamSuccessModal from '../../CreateTeamSuccessModal'
 
 const confirm = Modal.confirm;
 
@@ -221,6 +222,7 @@ let TeamTable = React.createClass({
       showDelModal: false
     })
   },
+  //退出团队弹框
   handleShowExitTeamModal(teamID) {
     console.log('teamID', teamID);
     if (teamID) {
@@ -424,6 +426,7 @@ let TeamTable = React.createClass({
               <ExitTeamModal
                 visible={this.state.nowTeamID === record.key && this.state.showExitModal}
                 closeExitTeamModal={this.closeExitTeamModal}
+                team={record.team}
                 />
             </div>
         )
@@ -450,6 +453,7 @@ class MyTeam extends Component {
     super(props)
     this.showModal = this.showModal.bind(this)
     this.teamOnSubmit = this.teamOnSubmit.bind(this)
+    this.closeCreateSucModal = this.closeCreateSucModal.bind(this)
     this.state = {
       searchResult: [],
       notFound: false,
@@ -458,7 +462,8 @@ class MyTeam extends Component {
       pageSize: 5,
       page: 1,
       current: 1,
-      sort: 'a,teamName'
+      sort: 'a,teamName',
+      showCreateSucModal: false,
     }
   }
   //展示Modal
@@ -477,7 +482,6 @@ class MyTeam extends Component {
       success: {
         func: () => {
           notification.close()
-          notification.success(`创建团队 ${team.teamName} 成功`)
           loadUserTeamList('default', {
             page: 1,
             current: 1,
@@ -487,6 +491,7 @@ class MyTeam extends Component {
           })
           this.setState({
             visible: false,
+            showCreateSucModal: true,
           })
         },
         isAsync: true,
@@ -499,6 +504,11 @@ class MyTeam extends Component {
       }
     })
   }
+  closeCreateSucModal() {
+    this.setState({
+      showCreateSucModal: false,
+    })
+  }
   componentWillMount() {
     this.props.loadUserTeamList('default', {
       page: 1,
@@ -509,7 +519,7 @@ class MyTeam extends Component {
   }
   render() {
     const scope = this
-    const { visible } = this.state
+    const { visible,showCreateSucModal } = this.state
     const {
       teams, addTeamusers, loadUserTeamList,
       teamUserIDList, loadTeamUserList, checkTeamName
@@ -531,17 +541,22 @@ class MyTeam extends Component {
       <div id="TeamManage">
         <Alert message={`团队, 由若干个成员组成的一个集体, 可等效于公司的部门、项目组、或子公司，
           包含『团队空间』这一逻辑隔离层， 以实现对应您企业内部各个不同项目， 或者不同逻辑组在云平台上操作对象的隔离， 团队管理员 (创建者) 可管理团队、邀请新成员、解散团队、移除成员; 团队成员 (参与者) 可退出团队 .`}
-          type="info" />
+          type="info"
+        />
         <Row className="teamOption">
           <Button type="primary" size="large" onClick={this.showModal} className="plusBtn">
             <i className='fa fa-plus' /> 创建团队
           </Button>
+          <CreateTeamSuccessModal
+            visible={showCreateSucModal}
+            closeCreateSucModal={this.closeCreateSucModal}
+          />
           <CreateTeamModal
             scope={scope}
             visible={visible}
             onSubmit={this.teamOnSubmit}
             funcs={funcs}
-            />
+          />
           <SearchInput searchIntOption={searchIntOption} scope={scope} data={teams} />
           <div className="total">共{this.props.total}个</div>
         </Row>
@@ -553,7 +568,7 @@ class MyTeam extends Component {
               loadUserTeamList={loadUserTeamList}
               loadTeamUserList={loadTeamUserList}
               teamUserIDList={teamUserIDList}
-              />
+            />
           </Card>
         </Row>
       </div>

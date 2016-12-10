@@ -127,14 +127,14 @@ class TenxFlowDetailFlow extends Component {
         }
       })
     }
-    if(refreshFlag) {    
+    if(refreshFlag) {
       scope.setState({
         refreshFlag: false
       });
       getTenxFlowStateList(flowId, {
         success: {
           func: () => {
-            notification.success('流程构建', '刷新流程构建成功~');
+            notification.success('流程构建', '流程构建已刷新');
           },
           isAsync: true
         }
@@ -168,7 +168,7 @@ class TenxFlowDetailFlow extends Component {
     CreateTenxflowBuild(flowId, { stageId: stageId }, {
       success: {
         func: (res) => {
-          notification.success('流程构建', '流程构建成功~');
+          notification.success('流程构建', '流程构建成功');
           let buildingList = _this.state.buildingList;
           buildingList.map((item) => {
             if (item.stageId == stageId) {
@@ -209,7 +209,7 @@ class TenxFlowDetailFlow extends Component {
             StopTenxflowBuild(flowId, item.stageId, item.buildId, {
               success: {
                 func: (res) => {
-                  notification.success('构建停止成功', '构建停止成功~');
+                  notification.success('构建停止成功', '构建停止成功');
                   getTenxFlowStateList(flowId);
                 },
                 isAsync: true
@@ -233,7 +233,7 @@ class TenxFlowDetailFlow extends Component {
     getTenxFlowStateList(flowId, {
       success: {
         func: () => {
-          notification.success('流程构建', '流程构建刷新成功~');
+          notification.success('流程构建', '流程构建已刷新');
           this.setState({
             refreshing: false
           })
