@@ -546,7 +546,7 @@ function mapStateToProp(state,props) {
     spaceTemplateStats: spaceTemplateStatsData,
     cluster: state.entities.current.cluster.clusterID,
     auditLog: state.manageMonitor.operationAuditLog.logs,
-    spaceWarnings: spaceWarningsData
+    spaceWarnings: spaceWarningsData,
   }
 }
 
@@ -1077,6 +1077,16 @@ function formatResourceName(resourceName) {
       newName = newName.join(',');
       return newName;
     }
+    // check configs
+    if (!!newBody.configs) {
+      let newName = newBody.configs;
+      if (newName.length == 0) {
+        return '-';
+      }
+      newName = newName.join(',');
+      return newName;
+    }
+    return resourceName;
   } else {
     return resourceName;
   }
