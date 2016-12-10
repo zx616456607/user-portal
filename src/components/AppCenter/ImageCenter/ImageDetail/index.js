@@ -9,7 +9,7 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { Tabs, Button, Card, Switch, Menu, Tooltip, Icon } from 'antd'
-import { Link } from 'react-router'
+import { Link ,browserHistory} from 'react-router'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { imageStore, imageSwitch, loadPublicImageList, loadFavouriteList, loadPrivateImageList, updateImageinfo, getImageDetailInfo } from '../../../../actions/app_center'
@@ -214,10 +214,8 @@ class ImageDetailBox extends Component {
             </div>
             <div className="rightBox">
               <Icon type='cross' className='cursor' style={{ fontSize: '18px', position: 'absolute', top: '0px', right: '0px' }} onClick={this.props.scope.closeImageDetailModal} />
-              <Button size="large" type="primary">
-                <Link to={`/app_manage/app_create/fast_create?registryServer=${ipAddress}&imageName=${imageName}`}>
+              <Button size="large" type="primary" onClick={()=>browserHistory.push(`/app_manage/app_create/fast_create?registryServer=${ipAddress}&imageName=${imageName}`)}>
                   <FormattedMessage {...menusText.deployImage} />
-                </Link>
               </Button>
               {(imageInfo.isFavourite == 1) ?
                 <Button size="large" type="ghost" onClick={() => this.setimageStore(imageInfo.name, '0')}>
