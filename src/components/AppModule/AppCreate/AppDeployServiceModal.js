@@ -363,27 +363,28 @@ let AppDeployServiceModal = React.createClass({
     deploymentList.setContainerResources(serviceName, ImageConfig.resources.limits.memory)
     //ports
     if (portKey) {
-      getFieldValue('portKey').map((k) => {
+      getFieldValue('portKey').map((k, index) => {
         let portType = getFieldProps(`portType${k}`).value;
+        let newIndex = index + 1;
         // Fill in the service port info
         serviceList.addPort(
-          serviceName + '-' + k,
+          serviceName + '-' + newIndex,
           getFieldProps(`portType${k}`).value.toUpperCase(),
           parseInt(getFieldProps(`targetPortUrl${k}`).value),
           parseInt(getFieldProps(`targetPortUrl${k}`).value) // Use the same port as container port by default
         )
         if(portType == 'HTTP') {
           // Add port annotation in advance
-          serviceList.addPortAnnotation(serviceName + '-' + k, portType)
+          serviceList.addPortAnnotation(serviceName + '-' + newIndex, portType)
         } else if(portType == 'TCP'){
           let tcpType = getFieldProps(`portTcpType${k}`).value;
           if(tcpType == 'auto') {
             // Leave port empty
-            serviceList.addPortAnnotation(serviceName + '-' + k, portType)
+            serviceList.addPortAnnotation(serviceName + '-' + newIndex, portType)
           } else if(tcpType == 'special') {
             // Add the port annotation
             let portUrl = getFieldProps(`portUrl${k}`).value;
-            serviceList.addPortAnnotation(serviceName + '-' + k, portType, portUrl)
+            serviceList.addPortAnnotation(serviceName + '-' + newIndex, portType, portUrl)
           }
         }
         if (getFieldProps(`portType${k}`).value) {

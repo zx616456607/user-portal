@@ -14,6 +14,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { addSvnManaged, getUserInfo } from '../../../actions/cicd_flow'
+import { appNameCheck } from '../../../common/naming_validation'
 
 const TabPane = Tabs.TabPane
 const FormItem = Form.Item;
@@ -74,6 +75,15 @@ let SvnComponent = React.createClass({
       scope.resetFields()
     }
     this.setState({ authorizeModal: status })
+  },
+  svnNameCheck(rule, value, callback) {
+    //this function for format svn name
+    let errorMsg = appNameCheck(value, '名称');
+    if(errorMsg == 'success') {
+      callback();
+    } else {
+      callback([new Error(errorMsg)]);
+    }
   },
   handleSubmit(e) {
     e.preventDefault();
@@ -143,7 +153,8 @@ let SvnComponent = React.createClass({
     };
     const forName = getFieldProps('name', {
       rules: [
-        { required: true, message: "输入名称" }
+        { message: "输入名称" },
+        { validator: this.svnNameCheck }
       ],
       initialValue: ''
     });
@@ -171,11 +182,11 @@ let SvnComponent = React.createClass({
           >
           <div style={{ padding: "25px 0" }}>
             <Form horizontal onSubmit={this.handleSubmit}>
-              <FormItem  {...formItemLayout} label="名称：">
+              <FormItem  {...formItemLayout} hasFeedback label="名称：">
                 <Input placeholder="输入名称" size="large" {...forName} />
               </FormItem>
 
-              <FormItem {...formItemLayout} label="地址：" >
+              <FormItem {...formItemLayout} hasFeedback label="地址：" >
                 <Input placeholder="" size="large" {...forUrl} />
               </FormItem>
 

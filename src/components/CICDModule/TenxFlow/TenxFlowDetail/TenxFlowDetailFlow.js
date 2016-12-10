@@ -127,17 +127,7 @@ class TenxFlowDetailFlow extends Component {
         }
       })
     }
-    //for nocache
-    if (oldFlowId != flowId) {
-      this.setState({
-        forCacheShow: true
-      })
-    } else {
-      this.setState({
-        forCacheShow: false
-      })
-    }
-    if (refreshFlag) {
+    if(refreshFlag) {    
       scope.setState({
         refreshFlag: false
       });

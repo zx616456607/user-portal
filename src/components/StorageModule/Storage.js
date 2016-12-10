@@ -20,6 +20,7 @@ import { loadStorageList, deleteStorage, createStorage, formateStorage, resizeSt
 import { DEFAULT_IMAGE_POOL, STORAGENAME_REG_EXP } from '../../constants'
 import './style/storage.less'
 import { calcuDate } from '../../common/tools'
+import { appNameCheck } from '../../common/naming_validation'
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
@@ -366,7 +367,8 @@ class Storage extends Component {
       currentType: 'ext4',
       inputName: '',
       size: 500,
-      nameError: false 
+      nameError: false,
+      nameErrorMsg: ''
     }
   }
   componentWillMount() {
@@ -566,12 +568,17 @@ class Storage extends Component {
     }
   }
   handleInputName(e) {
-    console.log(e.target.value)
+        
     let name = e.target.value;
-    let errorFlag = !STORAGENAME_REG_EXP.test(name);
+    let errorMsg = appNameCheck(name, '存储名称');
+    let errorFlag = false;
+    if(errorMsg != 'success') {
+      errorFlag = true;
+    }
     this.setState({
       name: e.target.value,
-      nameError: errorFlag
+      nameError: errorFlag,
+      nameErrorMsg: errorMsg
     })
   }
   getSearchStorageName(e) {
@@ -625,7 +632,7 @@ class Storage extends Component {
                   </Col>
                   <Col span="21">
                     <Input className={ this.state.nameError ? 'nameErrorInput nameInput' : 'nameInput' } ref={(input) => this.focusInput = input} value={this.state.name} placeholder={formatMessage(messages.placeholder)} onChange={(e) => { this.handleInputName(e) } } />
-                    { this.state.nameError ? [<span className='nameErrorSpan'>存储名称为3-15个字符，由字母，数字及横线组成，切首字母不能为数字及横线</span>] : null }
+                    { this.state.nameError ? [<span className='nameErrorSpan'>{this.state.nameErrorMsg}</span>] : null }
                   </Col>
                 </Row>
                 <Row style={{ height: '40px' }}>
