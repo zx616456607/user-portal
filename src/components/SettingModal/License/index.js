@@ -39,7 +39,7 @@ class License extends Component {
 
   render() {
     const { isFetching, license } = this.props
-    if (isFetching) {
+    if (isFetching || !license) {
       return (
         <div className='loadingBox'>
           <Spin size='large' />
