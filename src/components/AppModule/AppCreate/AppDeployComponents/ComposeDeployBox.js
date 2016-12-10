@@ -43,9 +43,7 @@ let MyComponent = React.createClass({
     const { getFieldValue, setFieldsValue, getFieldProps } = form
     const volumes = getFieldValue('volumes')
     const volumeMounts = getFieldValue('volumeMounts')
-    console.log(volumeMounts)
     if (!serviceOpen) {
-      console.log('22222222222222222')
       setFieldsValue({
         volKey: []
       })
@@ -76,8 +74,6 @@ let MyComponent = React.createClass({
       const checkAll = []
       const path = []
       let volIndex = 0
-      console.log('11111111111111111')
-      console.log(volumes)
       volumes.forEach((volume) => {
         if (!volume.configMap) {
           return
@@ -87,8 +83,6 @@ let MyComponent = React.createClass({
           items: volume.configMap.items
         })
         selectValue.push(volume.configMap.name)
-        console.log('11111111111111111')
-        console.log(filter(volumeMounts, ['name', volume.name])[0].mountPath)
         getFieldProps(`volPath${volIndex + 1}`, { initialValue: filter(volumeMounts, ['name', volume.name])[0].mountPath })
         getFieldProps(`volName${volIndex + 1}`, { initialValue: volume.name })
         volIndex++
@@ -334,7 +328,6 @@ let MyComponent = React.createClass({
   inputChange(e, index) {
     const { form } = this.props
     const { getFieldProps, getFieldValue, setFieldsValue} = form
-    console.log(e.target.value)
     setFieldsValue({[`volPath${index}`]: e.target.value})
   },
   render() {
