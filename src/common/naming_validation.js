@@ -48,7 +48,7 @@ export function validateAppName(name) {
  * teamspeace, integration
  */
 export function appNameCheck(name, itemName, existNameFlag) {
-  //name for check, itemName for show
+  //name for check, itemName for show, existNameFlag for show existed
   let errorMsg = '';
   //null check
   if(name.length == 0 || !name) {
@@ -94,7 +94,7 @@ export function appNameCheck(name, itemName, existNameFlag) {
  * this function for service, service config, database cluster
  */
 export function serviceNameCheck(name, itemName, existNameFlag) {
-  //name for check, itemName for show
+  //name for check, itemName for show, existNameFlag for show existed
   let errorMsg = '';
   //null check
   if(name.length == 0 || !name) {
