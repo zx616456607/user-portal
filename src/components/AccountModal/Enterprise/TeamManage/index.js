@@ -11,17 +11,17 @@ import React, { Component } from 'react'
 import { Row, Col, Alert, Button, Icon, Card, Table, Modal, Input, Tooltip, } from 'antd'
 import './style/TeamManage.less'
 import { Link } from 'react-router'
-import SearchInput from '../../SearchInput'
+import SearchInput from '../../../SearchInput'
 import { connect } from 'react-redux'
-import { loadUserTeamList } from '../../../actions/user'
+import { loadUserTeamList } from '../../../../actions/user'
 import {
   createTeam, deleteTeam, createTeamspace,
   addTeamusers, removeTeamusers, loadTeamUserList,
   checkTeamName,
-} from '../../../actions/team'
-import MemberTransfer from '../MemberTransfer'
-import CreateTeamModal from '../CreateTeamModal'
-import NotificationHandler from '../../../common/notification_handler'
+} from '../../../../actions/team'
+import MemberTransfer from '../../MemberTransfer'
+import CreateTeamModal from '../../CreateTeamModal'
+import NotificationHandler from '../../../../common/notification_handler'
 
 const confirm = Modal.confirm;
 

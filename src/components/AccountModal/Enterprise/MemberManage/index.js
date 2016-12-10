@@ -10,13 +10,13 @@
 import React, { Component } from 'react'
 import './style/MemberManage.less'
 import { Row, Col, Button, Input, Select, Card, Icon, Table, Modal, Checkbox, Tooltip, } from 'antd'
-import SearchInput from '../../SearchInput'
+import SearchInput from '../../../SearchInput'
 import { connect } from 'react-redux'
-import { loadUserList, createUser, deleteUser, checkUserName } from '../../../actions/user'
+import { loadUserList, createUser, deleteUser, checkUserName } from '../../../../actions/user'
 import { Link } from 'react-router'
-import { USERNAME_REG_EXP } from '../../../constants'
-import CreateUserModal from '../CreateUserModal'
-import NotificationHandler from '../../../common/notification_handler'
+import { USERNAME_REG_EXP } from '../../../../constants'
+import CreateUserModal from '../../CreateUserModal'
+import NotificationHandler from '../../../../common/notification_handler'
 
 const confirm = Modal.confirm
 

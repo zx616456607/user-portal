@@ -482,7 +482,6 @@ class MyTeam extends Component {
       success: {
         func: () => {
           notification.close()
-          notification.success(`创建团队 ${team.teamName} 成功`)
           loadUserTeamList('default', {
             page: 1,
             current: 1,
