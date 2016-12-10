@@ -11,42 +11,56 @@
  */
 
 import React from 'react'
-import { Input, Modal, Form, } from 'antd'
+import { Input, Modal, Form, Button, } from 'antd'
 import { USERNAME_REG_EXP } from '../../../constants'
 
 const createForm = Form.create
 const FormItem = Form.Item
 
 let CreateSpaceModal = React.createClass({
+  getInitialState() {
+    return {
+      disabled: false,
+    }
+  },
   spaceExists(rule, value, callback) {
+    const _this = this
     if (!value) {
       callback([new Error('请输入空间名')])
       return
     }
     const { teamID, funcs } = this.props
     const { checkTeamSpaceName } = funcs
-    setTimeout(() => {
-      if (!USERNAME_REG_EXP.test(value)) {
-        callback([new Error('抱歉，空间名不合法。')])
-        return
-      }
-      checkTeamSpaceName(teamID, value, {
-        success: {
-          func: (result) => {
-            if (result.data) {
-              callback([new Error('空间名已经存在')])
-              return
-            }
-            callback()
+    if (!USERNAME_REG_EXP.test(value)) {
+      callback([new Error('抱歉，空间名不合法。')])
+      return
+    }
+    // Disabled submit button when checkTeamSpaceName
+    this.setState({
+      disabled: true
+    })
+    checkTeamSpaceName(teamID, value, {
+      success: {
+        func: (result) => {
+          _this.setState({
+            disabled: false
+          })
+          if (result.data) {
+            callback([new Error('空间名已经存在')])
+            return
           }
-        },
-        failed: {
-          func: (err) => {
-            callback([new Error('空间名校验失败')])
-          }
+          callback()
         }
-      })
-    }, 800)
+      },
+      failed: {
+        func: (err) => {
+          _this.setState({
+            disabled: false
+          })
+          callback([new Error('空间名校验失败')])
+        }
+      }
+    })
   },
   handleOk() {
     const { form, onSubmit, scope } = this.props
@@ -75,6 +89,7 @@ let CreateSpaceModal = React.createClass({
   },
   render() {
     const { form, visible } = this.props
+    const { disabled } = this.state
     const { getFieldProps, getFieldError, isFieldValidating } = form
     const nameProps = getFieldProps('name', {
       rules: [
@@ -90,7 +105,24 @@ let CreateSpaceModal = React.createClass({
       <Modal title="创建新空间" visible={visible}
         onOk={this.handleOk} onCancel={this.handleCancel}
         wrapClassName="addSpaceModal"
-        width="463px">
+        width="463px"
+        footer={[
+          <Button
+            key="back"
+            type="ghost"
+            size="large"
+            onClick={this.handleCancel}>
+            返 回
+          </Button>,
+          <Button
+            key="submit"
+            type="primary"
+            size="large"
+            disabled={disabled}
+            onClick={this.handleOk}>
+            提 交
+          </Button>,
+        ]}>
         <Form horizontal>
           <FormItem
             {...formItemLayout}
