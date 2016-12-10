@@ -93,7 +93,7 @@ class Service {
     if (!this.metadata.annotations[TENX_SCHEMA_PORTNAME]) {
       this.metadata.annotations[TENX_SCHEMA_PORTNAME] = `${name}/${protocol}`
       if (protocol != "HTTP" && port) { // Add port if it's NOT HTTP'
-        this.metadata.annotations[TENX_SCHEMA_PORTNAME] += (":" + port)
+        this.metadata.annotations[TENX_SCHEMA_PORTNAME] += ("/" + port)
       }
     } else {
       this.metadata.annotations[TENX_SCHEMA_PORTNAME] += `,${name}/${protocol}`
