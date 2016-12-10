@@ -22,6 +22,7 @@ import {
 import MemberTransfer from '../../MemberTransfer'
 import CreateTeamModal from '../../CreateTeamModal'
 import DelTeamModal from '../../DelTeamModal'
+import ExitTeamModal from '../../ExitTeamModal'
 
 const confirm = Modal.confirm;
 
@@ -42,6 +43,7 @@ let TeamTable = React.createClass({
       filter: '',
       nowTeamID: '',//当前团队ID
       showDelModal: false,
+      showExitModal: false,
     }
   },
   //Table变化回调
@@ -172,7 +174,6 @@ let TeamTable = React.createClass({
   },
   //添加新成员
   addNewMember(teamID) {
-    console.log('click!!')
     this.props.loadTeamUserList(teamID, ({ size: -1 }))
     this.setState({
       addMember: true,
@@ -219,15 +220,31 @@ let TeamTable = React.createClass({
       showDelModal: false
     })
   },
+  handleShowExitTeamModal(teamID) {
+    console.log('teamID',teamID);
+    if(teamID){
+      this.setState({
+        showExitModal: true,
+        nowTeamID: teamID
+      })
+    }
+  },
+  //关闭退出团队弹框
+  closeExitTeamModal() {
+    console.log('colse!!')
+    this.setState({
+      showExitModal: false
+    })
+  },
   render() {
     let { sortedInfo, filteredInfo, targetKeys, showDelModal } = this.state
     const { searchResult, sort, filter } = this.props.scope.state
     const { scope, teamUserIDList } = this.props
     let data = [
-      {team:'test1',member:10,createTime:'20天前',balance:10,role:1,},
-      {team:'test2',member:10,createTime:'20天前',balance:10,role:0,},
-      {team:'test3',member:10,createTime:'20天前',balance:10,role:0,},
-      {team:'test4',member:10,createTime:'20天前',balance:10,role:0,},
+      {team:'test1',member:10,createTime:'20天前',balance:10,role:1,key:1},
+      {team:'test2',member:10,createTime:'20天前',balance:10,role:0,key:2},
+      {team:'test3',member:10,createTime:'20天前',balance:10,role:0,key:3},
+      {team:'test4',member:10,createTime:'20天前',balance:10,role:0,key:4},
     ]
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
@@ -380,28 +397,34 @@ let TeamTable = React.createClass({
         width: '20%',
         render: (text, record, index) => (
               record.role === 1 ?
-                <Dropdown.Button
-                  overlay={roleDropdown} type='ghost'
-                  onClick={() => this.addNewMember(record.key)}
-                  className="tabDrop"
+              <Dropdown.Button
+                overlay={roleDropdown} type='ghost'
+                onClick={() => this.addNewMember(record.key)}
+                className="tabDrop"
+                >
+                <Icon type="plus" />
+                <span>邀请新成员</span>
+                <Modal title='邀请新成员'
+                  visible={this.state.nowTeamID === record.key && this.state.addMember}
+                  onOk={this.handleNewMemberOk}
+                  onCancel={this.handleNewMemberCancel}
+                  width="660px"
+                  wrapClassName="newMemberModal"
                   >
-                  <Icon type="plus" />
-                  <span>邀请新成员</span>
-                  <Modal title='邀请新成员'
-                    visible={this.state.nowTeamID === record.key && this.state.addMember}
-                    onOk={this.handleNewMemberOk}
-                    onCancel={this.handleNewMemberCancel}
-                    width="660px"
-                    wrapClassName="newMemberModal"
-                    >
-                    <MemberTransfer onChange={this.handleChange}
-                      targetKeys={targetKeys}
-                      teamID={record.key}
-                      teamUserIDList={teamUserIDList} />
-                  </Modal>
-                </Dropdown.Button>
-                :
-            <Button icon="delete" className="delBtn" onClick={() => this.delTeam(record.key)}>退出团队</Button>
+                  <MemberTransfer onChange={this.handleChange}
+                    targetKeys={targetKeys}
+                    teamID={record.key}
+                    teamUserIDList={teamUserIDList} />
+                </Modal>
+              </Dropdown.Button>
+              :
+              <div>
+                <Button icon="delete" className="delBtn" onClick={() => this.handleShowExitTeamModal(record.key)}>退出团队</Button>
+                <ExitTeamModal
+                visible={ this.state.nowTeamID === record.key && this.state.showExitModal }
+                closeExitTeamModal={this.closeExitTeamModal}
+                />
+              </div>
         )
       },
     ]
