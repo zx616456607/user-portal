@@ -192,7 +192,7 @@ class Ordinary extends Component{
     const {clusterOperations, clusterSysinfo, clusterStorage, clusterAppStatus,
       clusterNodeSummary,clusterDbServices,spaceName,clusterName,clusterNodeSpaceConsumption,isFetching} = this.props
     console.log('isFetching:::',isFetching);
-    
+
     let boxPos = 0
     if ((clusterStorage.freeSize + clusterStorage.usedSize) > 0) {
       boxPos = (clusterStorage.usedSize/(clusterStorage.freeSize + clusterStorage.usedSize)).toFixed(4)
@@ -846,6 +846,28 @@ class Ordinary extends Component{
                   <tr>
                     <td>
                       <svg className="teamRecSvg">
+                        <use xlinkHref="#homeservicecount" />
+                      </svg>
+                      创建服务
+                    </td>
+                    <td className="recordNum">
+                      {clusterOperations.svcCreate} 个
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <svg className="teamRecSvg">
+                        <use xlinkHref="#homesavecount" />
+                      </svg>
+                      创建存储卷
+                    </td>
+                    <td className="recordNum">
+                      {clusterOperations.volumeCreate} 个
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <svg className="teamRecSvg">
                         <use xlinkHref="#homeappcount" />
                       </svg>
                       停止应用
@@ -859,32 +881,10 @@ class Ordinary extends Component{
                       <svg className="teamRecSvg">
                         <use xlinkHref="#homeservicecount" />
                       </svg>
-                      创建服务
-                    </td>
-                    <td className="recordNum">
-                      {clusterOperations.svcCreate} 个
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <svg className="teamRecSvg">
-                        <use xlinkHref="#homeservicecount" />
-                      </svg>
                       删除服务
                     </td>
                     <td className="recordNum">
                       {clusterOperations.svcDelete} 个
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <svg className="teamRecSvg">
-                        <use xlinkHref="#homesavecount" />
-                      </svg>
-                      创建存储卷
-                    </td>
-                    <td className="recordNum">
-                      {clusterOperations.volumeCreate} 个
                     </td>
                   </tr>
                   <tr>
