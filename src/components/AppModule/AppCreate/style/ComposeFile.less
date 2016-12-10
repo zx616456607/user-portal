@@ -6,10 +6,6 @@
     top: 60px;
     left: 85px;
   }
-  /*.has-success.has-feedback:after, .has-warning.has-feedback:after, .has-error.has-feedback:after, .is-validating.has-feedback:after{
-    position: absolute;
-    top:25%;
-  }*/
   .nameBox {
     padding-left: 50px;
     font-size: 14px;
@@ -18,19 +14,20 @@
     border-bottom: 1px solid #E5E5E5;
     span {
       float: left;
-      /*float: left;
-      display: block;
-      width: 120px;
-      height: 40px;
-      line-height: 40px;
-      text-align: left;
-      font-size: 14px;*/
     }
     input {
       float: left;
       margin-top: 25px;
       margin-left: 30px;
       width: 200px;
+    }
+    .has-success.has-feedback:after,
+    .has-warning.has-feedback:after,
+    .has-error.has-feedback:after,
+    .is-validating.has-feedback:after {
+      position: absolute;
+      left: 290px;
+      top: 25px;
     }
   }
   .introBox {
@@ -48,7 +45,14 @@
       margin-left: 30px;
       width: 400px;
     }
-
+    .has-success.has-feedback:after,
+    .has-warning.has-feedback:after,
+    .has-error.has-feedback:after,
+    .is-validating.has-feedback:after {
+      position: absolute;
+      left: 490px;
+      top: 25px;
+    }
   }
   .composeBox {
     padding-top: 24px;
@@ -109,15 +113,15 @@
       }
     }
   }
-  .btnBox{
+  .btnBox {
     padding-top: 20px;
     padding-bottom: 80px;
     text-align: center;
-    .lastBtn{
+    .lastBtn {
       margin-right: 30px;
       width: 110px;
     }
-    .createBtn{
+    .createBtn {
       width: 110px;
     }
   }

@@ -14,6 +14,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../../constants'
+import { appNameCheck } from '../../../../../common/naming_validation'
 import DockerFileEditor from '../../../../Editor/DockerFile'
 import { updateTenxFlowState, getDockerfiles, setDockerfile, getAvailableImage } from '../../../../../actions/cicd_flow'
 import './style/EditTenxFlowModal.less'
@@ -328,16 +329,24 @@ let EditTenxFlowModal = React.createClass({
   },
   flowNameExists(rule, value, callback) {
     //this function for check the new tenxflow name is exist or not
-    if (!value) {
-      callback();
+    const { stageList } = this.props;
+    let errorMsg = appNameCheck(value, '项目名称')
+    if(errorMsg == 'success') {
+      let flag = false;
+      if (stageList.length > 0) {
+        stageList.map((item) => {
+          if (item.metadata.name == value) {
+            flag = true;
+            errorMsg = appNameCheck(value, '项目名称', true);
+            callback([new Error(errorMsg)]);
+          }
+        });
+      }
+      if (!flag) {
+        callback();
+      }        
     } else {
-      setTimeout(() => {
-        if (value === 'tenxflow') {
-          callback([new Error('抱歉，该名称已存在。')]);
-        } else {
-          callback();
-        }
-      }, 800);
+      callback([new Error(errorMsg)]);
     }
   },
   otherStoreUrlInput(rule, value, callback) {
@@ -471,11 +480,14 @@ let EditTenxFlowModal = React.createClass({
   },
   realImageInput(rule, value, callback) {
     //this function for user selected build image type
-    //and when user submit the form, the function will check the real image input or not
-    if (this.state.otherFlowType == 3 && !!!value) {
-      callback([new Error('请输入镜像名称')]);
-    } else if (value.match(/[\/:]/)) {
-      callback([new Error('不能包含“/”和“:”')])
+    //and when user submit the form, the function will check the real image input or not 
+    if (this.state.otherFlowType == 3) {
+      let errorMsg = appNameCheck(value, '镜像名称')
+      if(errorMsg == 'success') {
+        callback()
+      } else {        
+        callback([new Error(errorMsg)]);
+      }
     } else {
       callback()
     }
@@ -1122,7 +1134,7 @@ let EditTenxFlowModal = React.createClass({
                     <span><FormattedMessage {...menusText.imageRealName} /></span>
                   </div>
                   <div className='input imageType'>
-                    <FormItem style={{ width: '220px', float: 'left', marginRight: '20px' }}>
+                    <FormItem hasFeedback style={{ width: '220px', float: 'left', marginRight: '20px' }}>
                       <Input {...imageRealNameProps} type='text' size='large' />
                     </FormItem>
                     <div style={{ clear: 'both' }} />

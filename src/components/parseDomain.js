@@ -20,7 +20,7 @@ export function parseServiceDomain(item, bindingDomainStr) {
     && bindingDomain.length > 0) {
     item.portsForExternal.map((port) => {
       let nameInfo = item.metadata.name
-      let portInfo = ":" + port.port
+      let portInfo = ":" + port.proxyPort
       if (bindingDomain && port.protocol.toLowerCase() == 'http') {
         // Remove port number and use port name as url prefix
         portInfo = ''

@@ -596,11 +596,11 @@ class Slider extends Component {
                       <span><div className='sideCircle'></div> 开放 API</span>
                     </Link>
                   </Menu.Item>
-                  {/*<Menu.Item key='personalized'>
-                  <Link to='/setting/personalized'>
-                    <span><div className='sideCircle'></div> 个性化设置</span>
-                  </Link>
-                </Menu.Item>*/}
+                  <Menu.Item key='personalized'>
+                    <Link to='/setting/personalized'>
+                      <span><div className='sideCircle'></div> 个性化设置</span>
+                    </Link>
+                  </Menu.Item>
                   <div className='sline'></div>
                 </SubMenu>
               </Menu>
@@ -612,7 +612,7 @@ class Slider extends Component {
           <Tooltip placement='right' title={siderStyle == 'mini' ? '展开导航栏' : null} getTooltipContainer={() => document.getElementById('siderTooltip')}>
             <li onClick={this.changeSiderStyle}>
               <span>
-                {siderStyle == 'mini' ? [<i className='fa fa-indent'></i>] : [<i className='fa fa-outdent'></i>]}
+                {siderStyle == 'mini' ? [<i key='fa-indent' className='fa fa-indent'></i>] : [<i key='fa-outdent' className='fa fa-outdent'></i>]}
               </span>
               {siderStyle == 'bigger' ? [<span>收起</span>] : null}
             </li>

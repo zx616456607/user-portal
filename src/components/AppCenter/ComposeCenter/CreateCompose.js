@@ -14,6 +14,7 @@ import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import './style/CreateCompose.less'
 import YamlEditor from '../../Editor/Yaml'
+import { appNameCheck } from '../../../common/naming_validation'
 import NotificationHandler from '../../../common/notification_handler'
 
 const createForm = Form.create;
@@ -179,6 +180,15 @@ class CreateCompose extends Component {
       currentYaml: e
     })
   }
+  
+  composeFileNameCheck(rule, value, callback) {
+    let errorMsg = appNameCheck(value, '编排名称');
+    if(errorMsg == 'success') {
+      callback()
+    } else {      
+      callback([new Error(errorMsg)])
+    }
+  }
 
   render() {
     const scope = this.props.scope;
@@ -186,7 +196,8 @@ class CreateCompose extends Component {
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form;
     const nameProps = getFieldProps('name', {
       rules: [
-        { required: true, message: '编排名称' }
+        { message: '编排名称' },
+        { validator: this.composeFileNameCheck }
       ],
       initialValue: paretnState.stackItem.name
     });

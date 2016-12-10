@@ -245,6 +245,23 @@
   .nameErrorSpan {
     position: absolute;
     display: block;
-    color: #f50;
+    padding: 0 5px !important;
+    top: 30px;
+    left: 0px;
+    word-break: keep-all;
+    white-space: nowrap;
+    width: fit-content;
+    width: -webkit-fit-content;
+    width: -moz-fit-content;
+    height: 18px;
+    line-height: 18px !important;
+    color: #FFFFFF !important;
+    border-radius: 4px;
+    background-color: #fe4e50;
+    &:before {
+      margin-right: 5px;
+      font-family: anticon!important;
+      content: '\E635';
+    }
   }
 }
