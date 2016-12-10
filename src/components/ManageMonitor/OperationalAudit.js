@@ -879,7 +879,7 @@ class OperationalAudit extends Component {
     //this function for user change the resource
     //and then the operational list will be change
     const { formatMessage } = this.props.intl;
-    if (e.length == 1 && (e != 26 || e != 29)) {
+    if (e.length == 1) {
     } else {
       let eventCode = e[e.length - 1];
       let showOperationalList = new Array();
