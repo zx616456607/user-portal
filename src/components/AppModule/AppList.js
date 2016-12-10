@@ -789,7 +789,7 @@ class AppList extends Component {
               </div>
             </div>
             <div className='pageBox'>
-              <span className='totalPage'>共 {total}条</span>
+              <span className='totalPage'>共 {total} 条</span>
               <div className='paginationBox'>
                 <Pagination
                   simple

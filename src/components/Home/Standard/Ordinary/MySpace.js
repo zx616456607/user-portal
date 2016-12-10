@@ -138,7 +138,7 @@ class MySpace extends Component{
 
              >
                <div className="logItem">
-                 <div className="logTitle">{`${operationalFormat(item.operationType, this)}${resourceFormat(item.resourceType, this) || ''}${item.resourceName}`}</div>
+                 <div className="logTitle">{`${operationalFormat(item.operationType, this)}${resourceFormat(item.resourceType, this) || ''} ${formatResourceName(item.resourceName)}`}</div>
                  <div className="logInf">
                  {calcuDate(item.time)}
                 <div className="logTime"> {`持续${duringTimeFormat(new Date(item.duration) - 0, this)}`}</div>
@@ -149,7 +149,7 @@ class MySpace extends Component{
          }
          ele.push(<Timeline.Item >
            <div className="logItem">
-             <div className="logTitle">{`${operationalFormat(item.operationType, this)}${resourceFormat(item.resourceType, this) || ''}${item.resourceName}`}}</div>
+             <div className="logTitle">{`${operationalFormat(item.operationType, this)}${resourceFormat(item.resourceType, this) || ''} ${formatResourceName(item.resourceName)}`}}</div>
              <div className="logInf">
                {calcuDate(item.time)}
                <div className="logTime"> {`持续${duringTimeFormat(new Date(item.duration) - 0, this)}`}</div>
@@ -1042,5 +1042,42 @@ function operationalFormat(operationalType, scope) {
     case '0':
       return formatMessage(menusText.Unknown)
       break;
+  }
+}
+
+
+function formatResourceName(resourceName) {
+  //this function for format the resourceName
+  if (resourceName.indexOf('{') > -1) {
+    let newBody = JSON.parse(resourceName);
+    //check services
+    if (!!newBody.services) {
+      let newName = newBody.services;
+      if (newName.length == 0) {
+        return '-';
+      }
+      newName = newName.join(',');
+      return newName;
+    }
+    //check apps
+    if (!!newBody.apps) {
+      let newName = newBody.apps;
+      if (newName.length == 0) {
+        return '-';
+      }
+      newName = newName.join(',');
+      return newName;
+    }
+    //check volumes
+    if (!!newBody.volumes) {
+      let newName = newBody.volumes;
+      if (newName.length == 0) {
+        return '-';
+      }
+      newName = newName.join(',');
+      return newName;
+    }
+  } else {
+    return resourceName;
   }
 }

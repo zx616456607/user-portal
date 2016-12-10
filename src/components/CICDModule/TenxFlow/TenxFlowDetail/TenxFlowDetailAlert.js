@@ -206,7 +206,7 @@ let TenxFlowDetailAlert = React.createClass({
         putEditTenxFlowAlert(flowId, body, {
           success: {
             func: () => {
-              notification.success('构建通知', '修改构建通知成功~');
+              notification.success('构建通知', '修改构建通知成功');
               this.setState({
                 otherEmail: false,
                 checkFirst: false,
@@ -243,7 +243,7 @@ let TenxFlowDetailAlert = React.createClass({
         putEditTenxFlowAlert(flowId, body, {
           success: {
             func: () => {
-              notification.success('构建通知', '修改构建通知成功~');
+              notification.success('构建通知', '修改构建通知成功');
             },
             isAsync: true
           }

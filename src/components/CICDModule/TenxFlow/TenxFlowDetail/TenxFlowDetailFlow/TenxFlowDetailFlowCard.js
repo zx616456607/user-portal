@@ -333,7 +333,7 @@ class TenxFlowDetailFlowCard extends Component {
         UpdateTenxflowCIRules(flowId, body, {
           success: {
             func: (res) => {
-              notification.success('持续集成', '关闭持续集成成功~');
+              notification.success('持续集成', '关闭持续集成成功');
             },
             isAsync: true
           }
@@ -365,7 +365,7 @@ class TenxFlowDetailFlowCard extends Component {
             deleteTenxFlowStateDetail(flowId, item, {
               success: {
                 func: () => {
-                  notification.success('删除构建项目', '删除构建项目成功~');
+                  notification.success('删除构建项目', '删除构建项目成功');
                   getTenxFlowStateList(flowId);
                 },
                 isAsync: true
