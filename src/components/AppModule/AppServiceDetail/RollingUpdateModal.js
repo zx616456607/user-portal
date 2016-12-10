@@ -94,9 +94,18 @@ class RollingUpdateModal extends Component {
     const { containers } = this.state
     const serviceName = service.metadata.name
     const targets = {}
-    containers.map((container) => {
+    let count = 0
+    containers.forEach((container) => {
+      if(!container.targetTag) {
+        count++
+        return
+      }
       targets[container.name] = `${container.imageObj.imageSrc}:${container.targetTag}`
     })
+    if(count == containers.length) {
+      message.error('请至少为一个容器选择目标版本')
+      return
+    }
 
     //统一间隔时间
     const intervalTime = this.state.intervalTime
