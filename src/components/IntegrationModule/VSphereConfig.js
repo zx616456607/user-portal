@@ -12,9 +12,10 @@ import React, { Component, PropTypes } from 'react'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { Button, Input, Modal, notification, Form, Spin } from 'antd'
+import { Button, Input, Modal, Form, Spin } from 'antd'
 import { deleteIntegration, getIntegrationConfig, updateIntegrationConfig } from '../../actions/integration'
 import './style/VSphereConfig.less'
+import NotificationHandler from '../../common/notification_handler'
 
 const createForm = Form.create;
 const FormItem = Form.Item;
@@ -55,7 +56,7 @@ const menusText = defineMessages({
 })
 
 let VSphereConfig = React.createClass({
-  getInitialState: function() {
+  getInitialState: function () {
     return {
       checkPwdType: 'pwd',
       edittingFlag: false
@@ -79,28 +80,34 @@ let VSphereConfig = React.createClass({
       title: '卸载应用？',
       content: '确定要卸载该应用？',
       onOk() {
+        let notification = new NotificationHandler()
+        notification.spin(`卸载应用中...`)
         deleteIntegration(integrationId, {
           success: {
             func: () => {
-              notification['success']({
-                message: '卸载应用',
-                description: '卸载应用成功~',
-              });
+              notification.close()
+              notification.success('卸载应用', '卸载应用成功');
               rootScope.setState({
                 showType: 'list'
               });
               getAllIntegration();
             },
             isAsync: true
+          },
+          failed: {
+            func: () => {
+              notification.close();
+              notification.error('卸载应用', '卸载应用失败');
+            }
           }
         })
       },
-      onCancel() {},
+      onCancel() { },
     });
   },
   onChangePwdType() {
     //this function for user change the pwd type to 'password' or 'text'
-    if(this.state.checkPwdType == 'pwd') {
+    if (this.state.checkPwdType == 'pwd') {
       this.setState({
         checkPwdType: 'text'
       })
@@ -127,20 +134,24 @@ let VSphereConfig = React.createClass({
         e.preventDefault();
         return;
       }
-      if(values.url.indexOf('http://') > -1) {
+      if (values.url.indexOf('http://') > -1) {
         let temp = values.url.split('http://');
         values.url = temp[1];
       }
-      if(values.url.indexOf('https://') > -1) {
+      if (values.url.indexOf('https://') > -1) {
         let temp = values.url.split('https://');
         values.url = temp[1];
       }
+      let notification = new NotificationHandler()
+      notification.spin(`更新应用中...`)
       updateIntegrationConfig(integrationId, values, {
         success: {
           func: () => {
             getIntegrationConfig(integrationId, {
               success: {
                 func: () => {
+                  notification.close()
+                  notification.success('更新应用', '更新应用成功');
                   _this.setState({
                     edittingFlag: false
                   })
@@ -149,10 +160,8 @@ let VSphereConfig = React.createClass({
               },
               failed: {
                 func: () => {
-                  notification['error']({
-                    message: '更新应用',
-                    description: '更新应用失败',
-                  });
+                  notification.close()
+                  notification.error('更新应用', '更新应用失败');
                 }
               }
             })
@@ -160,12 +169,12 @@ let VSphereConfig = React.createClass({
           isAsync: true
         }
       })
-      
+
     })
   },
   render() {
     const { isFetching, config } = this.props;
-    if(isFetching || !Boolean(config)) {
+    if (isFetching || !Boolean(config)) {
       return (
         <div className='loadingBox'>
           <Spin size='large' />
@@ -200,75 +209,75 @@ let VSphereConfig = React.createClass({
     });
     return (
       <div id='VSphereConfig'>
-      <Form horizontal>
-        <div className='commonBox'>
-          <div className='titleBox'>
-            <span><FormattedMessage {...menusText.name} /></span>
+        <Form horizontal>
+          <div className='commonBox'>
+            <div className='titleBox'>
+              <span><FormattedMessage {...menusText.name} /></span>
+            </div>
+            <div className='inputBox'>
+              <FormItem style={{ width: '220px' }} >
+                <Input {...configNameProps} disabled={!this.state.edittingFlag} type='text' size='large' />
+              </FormItem>
+            </div>
+            <div style={{ clear: 'both' }}></div>
           </div>
-          <div className='inputBox'>
-            <FormItem style={{ width:'220px' }} >
-              <Input {...configNameProps} disabled={!this.state.edittingFlag} type='text' size='large' />
-            </FormItem>
+          <div className='commonBox'>
+            <div className='titleBox'>
+              <span><FormattedMessage {...menusText.address} /></span>
+            </div>
+            <div className='inputBox'>
+              <FormItem style={{ width: '220px' }} >
+                <Input {...configAddressProps} disabled={!this.state.edittingFlag} type='text' size='large' />
+              </FormItem>
+            </div>
+            <div style={{ clear: 'both' }}></div>
           </div>
-          <div style={{ clear: 'both' }}></div>
-        </div>
-        <div className='commonBox'>
-          <div className='titleBox'>
-            <span><FormattedMessage {...menusText.address} /></span>
+          <div className='commonBox'>
+            <div className='titleBox'>
+              <span><FormattedMessage {...menusText.user} /></span>
+            </div>
+            <div className='inputBox'>
+              <FormItem style={{ width: '220px' }} >
+                <Input {...usernameProps} disabled={!this.state.edittingFlag} type='text' size='large' />
+              </FormItem>
+            </div>
+            <div style={{ clear: 'both' }}></div>
           </div>
-          <div className='inputBox'>
-            <FormItem style={{ width:'220px' }} >
-              <Input {...configAddressProps} disabled={!this.state.edittingFlag} type='text' size='large' />
-            </FormItem>
+          <div className='commonBox'>
+            <div className='titleBox'>
+              <span><FormattedMessage {...menusText.pwd} /></span>
+            </div>
+            <div className='inputBox'>
+              <FormItem style={{ width: '220px' }} >
+                <Input {...passwordProps} disabled={!this.state.edittingFlag} type={this.state.checkPwdType == 'pwd' ? 'password' : 'text'} size='large' />
+              </FormItem>
+            </div>
+            <div style={{ clear: 'both' }}></div>
           </div>
-          <div style={{ clear: 'both' }}></div>
-        </div>
-        <div className='commonBox'>
-          <div className='titleBox'>
-            <span><FormattedMessage {...menusText.user} /></span>
+          <div className='bottomBox'>
+            {
+              this.state.edittingFlag ? [
+                <div>
+                  <Button size='large' type='primary' onClick={this.handleSubmit}>
+                    <FormattedMessage {...menusText.finishBtn} />
+                  </Button>
+                  <Button size='large' onClick={this.handleReset}>
+                    <FormattedMessage {...menusText.cancelBtn} />
+                  </Button>
+                </div>
+              ] : [
+                  <div>
+                    <Button size='large' type='primary' onClick={this.editConfig}>
+                      <FormattedMessage {...menusText.resetBtn} />
+                    </Button>
+                    <Button size='large' onClick={this.deleteConfig}>
+                      <FormattedMessage {...menusText.deleteBtn} />
+                    </Button>
+                  </div>
+                ]
+            }
           </div>
-          <div className='inputBox'>
-            <FormItem style={{ width:'220px' }} >
-              <Input {...usernameProps} disabled={!this.state.edittingFlag} type='text' size='large' />
-            </FormItem>
-          </div>
-          <div style={{ clear: 'both' }}></div>
-        </div>
-        <div className='commonBox'>
-          <div className='titleBox'>
-            <span><FormattedMessage {...menusText.pwd} /></span>
-          </div>
-          <div className='inputBox'>
-            <FormItem style={{ width:'220px' }} >
-              <Input {...passwordProps} disabled={!this.state.edittingFlag} type={this.state.checkPwdType == 'pwd' ? 'password' : 'text' } size='large' />
-            </FormItem>
-          </div>
-          <div style={{ clear: 'both' }}></div>
-        </div>
-        <div className='bottomBox'>
-          {
-            this.state.edittingFlag ? [
-              <div>
-                <Button size='large' type='primary' onClick={this.handleSubmit}>
-                  <FormattedMessage {...menusText.finishBtn} />
-                </Button>
-                <Button size='large' onClick={this.handleReset}>
-                  <FormattedMessage {...menusText.cancelBtn} />
-                </Button>
-              </div>
-            ] : [
-              <div>
-                <Button size='large' type='primary' onClick={this.editConfig}>
-                  <FormattedMessage {...menusText.resetBtn} />
-                </Button>
-                <Button size='large' onClick={this.deleteConfig}>
-                  <FormattedMessage {...menusText.deleteBtn} />
-                </Button>
-              </div>
-            ]
-          }
-        </div>
-      </Form>
+        </Form>
       </div>
     )
   }

@@ -8,13 +8,14 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Input, Form, Switch, Radio, Checkbox, Spin, Select, Tooltip, notification } from 'antd'
+import { Button, Input, Form, Switch, Radio, Checkbox, Spin, Select, Tooltip } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { getCloneVmConfig, createIntegrationVm } from '../../actions/integration'
 import './style/CreateVmModal.less'
+import NotificationHandler from '../../common/notification_handler'
 
 const createForm = Form.create;
 const FormItem = Form.Item;
@@ -48,11 +49,11 @@ const menusText = defineMessages({
 })
 
 function diskFormat(num) {
-  if(num < 1024) {
+  if (num < 1024) {
     return num + 'MB'
   }
   num = parseInt(num / 1024);
-  if(num < 1024) {
+  if (num < 1024) {
     return num + 'GB'
   }
   num = parseInt(num / 1024);
@@ -60,7 +61,7 @@ function diskFormat(num) {
 }
 
 let CreateVmModal = React.createClass({
-  getInitialState: function() {
+  getInitialState: function () {
     return {
       template: null,
       resourcePool: null,
@@ -78,10 +79,10 @@ let CreateVmModal = React.createClass({
   },
   componentWillReceiveProps(nextProps) {
     const { createIntegrationModal, currentDataCenter, getCloneVmConfig, integrationId } = nextProps;
-    if(!createIntegrationModal) {
+    if (!createIntegrationModal) {
       this.props.form.resetFields();
     }
-    if(this.props.currentDataCenter != currentDataCenter) {
+    if (this.props.currentDataCenter != currentDataCenter) {
       currentDataCenter(integrationId, currentDataCenter)
     }
   },
@@ -98,7 +99,7 @@ let CreateVmModal = React.createClass({
     this.setState({
       vm: value
     })
-    if(value != '' && Boolean(value)){
+    if (value != '' && Boolean(value)) {
       this.setState({
         vmError: false
       })
@@ -132,31 +133,31 @@ let CreateVmModal = React.createClass({
     const { scope, createIntegrationVm, integrationId, currentDataCenter } = this.props;
     const { getIntegrationVmList } = scope.props;
     let errorFlag = false;
-    if(this.state.template == '' || !Boolean(this.state.template)) {
+    if (this.state.template == '' || !Boolean(this.state.template)) {
       this.setState({
         templateError: true
       })
       errorFlag = true;
     }
-    if(this.state.vm == '' || !Boolean(this.state.vm)) {
+    if (this.state.vm == '' || !Boolean(this.state.vm)) {
       this.setState({
         vmError: true
       })
       errorFlag = true;
     }
-    if(this.state.resourcePool == '' || !Boolean(this.state.resourcePool)) {
+    if (this.state.resourcePool == '' || !Boolean(this.state.resourcePool)) {
       this.setState({
         resourcePoolError: true
       })
       errorFlag = true;
     }
-    if(this.state.datastore == '' || !Boolean(this.state.datastore)) {
+    if (this.state.datastore == '' || !Boolean(this.state.datastore)) {
       this.setState({
         datastoreError: true
       })
       errorFlag = true;
     }
-    if(errorFlag) {
+    if (errorFlag) {
       return;
     }
     let tempVm = this.state.template.split('/');
@@ -165,39 +166,37 @@ let CreateVmModal = React.createClass({
       template: this.state.template,
       vm: newTempVm + '/' + this.state.vm,
       resource_pool: this.state.resourcePool,
-      datastore: this.state.datastore       
+      datastore: this.state.datastore
     }
     scope.setState({
       createVmModal: false
     });
+    let notification = new NotificationHandler()
+    notification.spin(`克隆虚拟机中...`)
     createIntegrationVm(integrationId, currentDataCenter, body, {
       success: {
         func: () => {
-          notification['success']({
-            message: '克隆虚拟机',
-            description: '克隆虚拟机成功',
-          });
-          getIntegrationVmList(integrationId, currentDataCenter);  
+          notification.close()
+          notification.success('克隆虚拟机', '克隆虚拟机成功');
+          getIntegrationVmList(integrationId, currentDataCenter);
         },
         isAsync: true
       },
       failed: {
         func: (error) => {
           let errorMsg = '克隆虚拟机失败'
-          if(error.message.message.indexOf('already exists') > -1) {
+          if (error.message.message.indexOf('already exists') > -1) {
             errorMsg = '虚拟机名称重复'
           }
-          notification['error']({
-            message: '克隆虚拟机',
-            description: errorMsg,
-          });
+          notification.close()
+          notification.error('克隆虚拟机', errorMsg);
         }
       }
     })
   },
   render() {
     const { isFetching, config } = this.props;
-    if(isFetching || !Boolean(config)) {
+    if (isFetching || !Boolean(config)) {
       return (
         <div className='loadingBox'>
           <Spin size='large' />
@@ -207,7 +206,7 @@ let CreateVmModal = React.createClass({
     const { formatMessage } = this.props.intl;
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form;
     let datastores = null;
-    if(!!config.datastores){
+    if (!!config.datastores) {
       datastores = config.datastores.map((item) => {
         return (
           <Option value={item} key={item}>{item}</Option>
@@ -215,7 +214,7 @@ let CreateVmModal = React.createClass({
       });
     }
     let resourcePools = null;
-    if(!!config.resourcePools) {
+    if (!!config.resourcePools) {
       resourcePools = config.resourcePools.map((item) => {
         return (
           <Option value={item} key={item}>{item}</Option>
@@ -223,7 +222,7 @@ let CreateVmModal = React.createClass({
       });
     }
     let templates = null;
-    if(!!config.templates) {
+    if (!!config.templates) {
       templates = config.templates.map((item) => {
         return (
           <Option value={item.path} key={item.path}>
@@ -247,8 +246,8 @@ let CreateVmModal = React.createClass({
           </div>
           <div className='inputBox'>
             <Select style={{ width: '320px' }} onChange={this.onChangeTemplate} value={this.state.template}
-              getPopupContainer={() => document.getElementById('CreateVmModal')}  
-            >
+              getPopupContainer={() => document.getElementById('CreateVmModal')}
+              >
               {templates}
             </Select>
           </div>
@@ -259,7 +258,7 @@ let CreateVmModal = React.createClass({
             <span><FormattedMessage {...menusText.name} /></span>
           </div>
           <div className='inputBox'>
-            <Input type='text' size='large' onChange={this.onChangeVm} value={this.state.vm}/>
+            <Input type='text' size='large' onChange={this.onChangeVm} value={this.state.vm} />
           </div>
           <div style={{ clear: 'both' }}></div>
         </div>
@@ -270,18 +269,18 @@ let CreateVmModal = React.createClass({
           <div className='inputBox'>
             <Select style={{ width: '320px' }} onChange={this.onChangeResourcePool} value={this.state.resourcePool}>
               {resourcePools}
-            </Select>             
+            </Select>
           </div>
           <div style={{ clear: 'both' }}></div>
         </div>
         <div className='commonBox'>
           <div className='titleBox'>
-            <span><FormattedMessage {...menusText.datastores}/></span>
+            <span><FormattedMessage {...menusText.datastores} /></span>
           </div>
-          <div className='inputBox'>            
+          <div className='inputBox'>
             <Select style={{ width: '320px' }} onChange={this.onChangeDatastore} value={this.state.datastore}>
               {datastores}
-            </Select>              
+            </Select>
           </div>
           <div style={{ clear: 'both' }}></div>
         </div>

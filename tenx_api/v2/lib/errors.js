@@ -50,6 +50,11 @@ class NotFoundError extends ClientError {
 class ServerError extends ClientError {
   constructor(data, statusCode) {
     super(data, statusCode)
+    switch (data.code) {
+      case 'ENOTFOUND':
+        this.message = `Request ${data.host} ENOTFOUND`
+        break
+    }
     this.statusCode = 500
   }
 }

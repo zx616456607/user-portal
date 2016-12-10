@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Input, Form, Radio, Modal, Select, Spin, Alert, Icon, message ,Popover} from 'antd'
+import { Button, Input, Form, Radio, Modal, Select, Spin, Alert, Icon, Popover } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -17,6 +17,7 @@ import { gitCdRules, addCdRules, deleteCdRule, putCdRule, getCdInimage } from '.
 import { loadAppList } from '../../../../../actions/app_manage'
 import './style/AutoDeployService.less'
 import { browserHistory } from 'react-router';
+import NotificationHandler from '../../../../../common/notification_handler'
 
 const Option = Select.Option;
 const RadioGroup = Radio.Group;
@@ -167,10 +168,17 @@ let AutoDeployService = React.createClass({
       title: '删除自动部署服务',
       content: (<h3>您是否确认要删除这项内容</h3>),
       onOk() {
+        let notification = new NotificationHandler()
+        notification.spin(`自动部署服务规则删除中...`)
         self.props.deleteCdRule(flowId, ruleId, {
           success: {
             func: () => {
-              message.success('删除成功')
+              notification.success(`自动部署服务规则删除成功`)
+            }
+          },
+          failed: {
+            func: () => {
+              notification.error(`自动部署服务规则删除失败`)
             }
           }
         })
@@ -201,7 +209,7 @@ let AutoDeployService = React.createClass({
         },
         upgrade_strategy: values[`radio${item.ruleId}`],
       }
-
+      let notification = new NotificationHandler()
       self.props.putCdRule(config, {
         success: {
           func: () => {
@@ -210,7 +218,7 @@ let AutoDeployService = React.createClass({
             this.setState({
               editingList,
             })
-            message.success('更新成功')
+            notification.success('更新成功')
           }
         }
       })
@@ -220,7 +228,7 @@ let AutoDeployService = React.createClass({
   addDelpoy() {
     this.setState({ addDelpoyRow: true })
   },
-  getAppList(cluster,imageName) {
+  getAppList(cluster, imageName) {
     const self = this
     const { loadAppList} = this.props
     // const imageName = this.state.image_name
@@ -247,9 +255,9 @@ let AutoDeployService = React.createClass({
           console.log(cluster)
           console.log(provinceData)
           self.setState({
-              serviceList: provinceData,
-              deployment_id,
-              deployment_name: provinceData.length > 0 ? provinceData[0].imagename : ''
+            serviceList: provinceData,
+            deployment_id,
+            deployment_name: provinceData.length > 0 ? provinceData[0].imagename : ''
           })
         }
       }
@@ -269,7 +277,7 @@ let AutoDeployService = React.createClass({
       cluster_id: e
     })
     this.getAppList(e, this.state.image_name)
-    
+
   },
   setStateType(types, e) {
     this.setState({
@@ -285,7 +293,7 @@ let AutoDeployService = React.createClass({
     })
   },
   addReule() {
-    // @ push reule 
+    // @ push reule
     const config = {
       flowId: this.props.flowId,
       image_name: this.state.image_name,
@@ -297,20 +305,21 @@ let AutoDeployService = React.createClass({
       },
       upgrade_strategy: this.state.value,
     }
+    let notification = new NotificationHandler()
     if (!config.match_tag) {
-      message.info('请选择镜像版本')
+      notification.info('请选择镜像版本')
       return
     }
     if (!config.binding_service.cluster_id) {
-      message.info('请选择集群名称')
+      notification.info('请选择集群名称')
       return
     }
     if (!config.image_name) {
-      message.info('请选择镜像名称')
+      notification.info('请选择镜像名称')
       return
     }
     if (!config.binding_service.deployment_name) {
-      message.info('请选择服务名称')
+      notification.info('请选择服务名称')
       return
     }
     const {addCdRules, gitCdRules, flowId} = this.props
@@ -379,7 +388,7 @@ let AutoDeployService = React.createClass({
     const appListOptions = []
     if (this.state.serviceList.length > 0) {
       this.state.serviceList.forEach((item) => {
-         appListOptions.push(<Option key={item.imagename + '&@' + item.bindId}>{item.imagename}</Option>)
+        appListOptions.push(<Option key={item.imagename + '&@' + item.bindId}>{item.imagename}</Option>)
       })
     }
     let items = cdRulesList.map((item, index) => {
@@ -433,9 +442,9 @@ let AutoDeployService = React.createClass({
             </Form.Item>
 
             <Form.Item key={'select' + item.ruleId} className='service commonItem'>
-            <Select size="large"  {...serviceNameSelect} disabled={!self.state.editingList[item.ruleId]}>
-            </Select>
-            
+              <Select size="large"  {...serviceNameSelect} disabled={!self.state.editingList[item.ruleId]}>
+              </Select>
+
             </Form.Item>
             <Form.Item key={'selectId' + item.ruleId} className='service commonItem' style={{ display: 'none' }}>
               <Select size="large"  {...serviceIdSelect}>
@@ -459,12 +468,12 @@ let AutoDeployService = React.createClass({
               <div className='btnBox'>
                 {/*
                 <span>
-                  <Icon type="edit" onClick={() => self.changeEdit(item.ruleId)} /> 
+                  <Icon type="edit" onClick={() => self.changeEdit(item.ruleId)} />
                   <Icon type="delete" onClick={() => self.removeRule(item.ruleId)} style={{ marginLeft: '15px' }} />
                 </span>
                 */}
                 {!self.state.editingList[item.ruleId] ? [
-                  <Button type="ghost"  onClick={() => self.removeRule(item.ruleId)}>删除</Button>
+                  <Button type="ghost" onClick={() => self.removeRule(item.ruleId)}>删除</Button>
                 ] :
                   [
                     <span>
@@ -550,15 +559,15 @@ let AutoDeployService = React.createClass({
                       </Select>
                     </div>
                     <div key='appname' className='service commonItem'>
-                      {this.state.deployment_name =='' ?
-                       <Popover content={content} placement="topLeft" title="已选择镜像名称？" trigger="click">
-                        <Input size="large" value=""/>
-                      </Popover>
-                      :
-                      [<Select size="large" value={this.state.deployment_name} disabled={this.state.cluster_id ? false : true} onChange={(e) => this.setStateService(e)} placeholder="服务名称" >
-                         { appListOptions } 
-                      </Select>]
-                    }
+                      {this.state.deployment_name == '' ?
+                        <Popover content={content} placement="topLeft" title="已选择镜像名称？" trigger="click">
+                          <Input size="large" value="" />
+                        </Popover>
+                        :
+                        [<Select size="large" value={this.state.deployment_name} disabled={this.state.cluster_id ? false : true} onChange={(e) => this.setStateService(e)} placeholder="服务名称" >
+                          {appListOptions}
+                        </Select>]
+                      }
                     </div>
                     <div className='tag commonItem'>
                       <Select size="large" onChange={(e) => this.setStateValue('match_tag', e)} placeholder="输入镜像版本" >
@@ -576,7 +585,7 @@ let AutoDeployService = React.createClass({
                       <Button className='cancelBtn' type='primary' onClick={() => self.addReule()}>
                         添加
                     </Button>
-                    <Button style={{marginLeft:'10px'}} className='cancelBtn' type='ghost' onClick={() => self.cancelReule()}>
+                      <Button style={{ marginLeft: '10px' }} className='cancelBtn' type='ghost' onClick={() => self.cancelReule()}>
                         取消
                     </Button>
                     </div>

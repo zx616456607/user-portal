@@ -85,6 +85,14 @@ class CreateCompose extends Component {
         'name': values.name,
         'description': values.desc
       }
+      if(/[\u4e00-\u9fa5]+$/i.test(values.name)){
+        message.info('不支持中文名称')
+        return
+      }
+      if (!this.state.currentYaml) {
+        message.info('请输入编排内容')
+        return
+      }
       let notification = new NotificationHandler()
       notification.spin(`创建编排 ${values.name} 中...`)
       this.props.createStack(config, {
