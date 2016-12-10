@@ -85,4 +85,4 @@ const models = {
   }
 }
 // set the product mode here
-module.exports = models.standard
+module.exports = models.enterprise
