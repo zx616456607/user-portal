@@ -10,10 +10,11 @@
 import React, { Component } from 'react'
 import './style/RollingUpdateModal.less'
 import { DEFAULT_REGISTRY } from '../../../constants'
-import { Button, Card, Menu, message, Icon, Tooltip, Row, Col, Select, InputNumber, Alert, Switch, Modal } from 'antd'
+import { Button, Card, Menu, Icon, Tooltip, Row, Col, Select, InputNumber, Alert, Switch, Modal } from 'antd'
 import { loadImageDetailTag } from '../../../actions/app_center'
 import { rollingUpdateService } from '../../../actions/services'
 import { connect } from 'react-redux'
+import NotificationHandler from '../../../common/notification_handler'
 
 const Option = Select.Option
 const OptGroup = Select.OptGroup
@@ -92,23 +93,28 @@ class RollingUpdateModal extends Component {
     containers.map((container) => {
       targets[container.name] = `${container.imageObj.imageSrc}:${container.targetTag}`
     })
-    const hide = message.loading('正在保存中...', 0)
+    let notification = new NotificationHandler()
+    notification.spin(`服务 ${serviceName} 灰度升级中...`)
     rollingUpdateService(cluster, serviceName, { targets }, {
       success: {
         func: () => {
+          notification.close()
           loadServiceList(cluster, appName)
+          setTimeout(function () {
+            notification.success(`服务 ${serviceName} 灰度升级已成功开启`)
+          }, 300)
           parentScope.setState({
             rollingUpdateModalShow: false
           })
-          hide()
-          message.success(`服务 ${serviceName} 灰度升级已成功开启`)
         },
         isAsync: true
       },
       failed: {
         func: () => {
-          hide()
-          message.error(`服务 ${serviceName} 开启灰度升级失败`)
+          notification.close()
+          setTimeout(function () {
+            notification.error(`服务 ${serviceName} 开启灰度升级失败`)
+          }, 300)
         }
       }
     })

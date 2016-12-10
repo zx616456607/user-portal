@@ -8,17 +8,18 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Tabs, Button, Card,Switch , Menu, Tooltip ,Icon, message} from 'antd'
-import { Link} from 'react-router'
+import { Tabs, Button, Card, Switch, Menu, Tooltip, Icon } from 'antd'
+import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { imageStore, imageSwitch ,loadPublicImageList , loadFavouriteList , loadPrivateImageList, updateImageinfo, getImageDetailInfo} from '../../../../actions/app_center'
+import { imageStore, imageSwitch, loadPublicImageList, loadFavouriteList, loadPrivateImageList, updateImageinfo, getImageDetailInfo } from '../../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import ImageVersion from './ImageVersion.js'
 import DetailInfo from './DetailInfo'
 import DockerFile from './Dockerfile'
 import Attribute from './Attribute'
 import './style/ImageDetailBox.less'
+import NotificationHandler from '../../../../common/notification_handler'
 
 const TabPane = Tabs.TabPane;
 
@@ -99,7 +100,7 @@ class ImageDetailBox extends Component {
     //the nextProps is mean new props, and the this.props didn't change
     //so that we should use the nextProps
     this.setState({
-      nextPorps : nextPorps.imageInfo,
+      nextPorps: nextPorps.imageInfo,
       imageDetail: nextPorps.config
     });
   }
@@ -138,10 +139,11 @@ class ImageDetailBox extends Component {
     }
     const scope = this
     const imageSpace = this.props.parentScope.state.current
+    let notification = new NotificationHandler()
     this.props.imageStore(config, {
       success: {
-        func: ()=>{
-          message.success('更新成功！')
+        func: () => {
+          notification.success('更新成功！')
           scope.props.loadFavouriteList(DEFAULT_REGISTRY)
         },
         isAsync: true
@@ -154,7 +156,7 @@ class ImageDetailBox extends Component {
     // const favourite = this.state.imageDetail.isFavourite
     const imageSpace = this.props.parentScope.state.current
 
-    key ? isPrivate =0 : isPrivate =1
+    key ? isPrivate = 0 : isPrivate = 1
     const config = {
       isPrivate,
       registry: DEFAULT_REGISTRY,
@@ -162,11 +164,12 @@ class ImageDetailBox extends Component {
       // myfavourite: favourite,
     }
     const scope = this
+    let notification = new NotificationHandler()
     this.props.imageSwitch(config, {
       success: {
-        func: ()=>{
-          message.success('更新成功！')
-          switch(imageSpace) {
+        func: () => {
+          notification.success('更新成功！')
+          switch (imageSpace) {
             case 'imageSpace':
               scope.props.loadPrivateImageList(DEFAULT_REGISTRY)
               break
@@ -201,32 +204,32 @@ class ImageDetailBox extends Component {
             <div className="leftBox">
               <p className="imageUrl">{imageDetail.description ? imageDetail.description : imageDetail.imageName}</p>
               <span className="type">
-              <FormattedMessage {...menusText.type} />
-              { (imageInfo.isOwner) ?
-                <Switch onChange={this.isSwitch} checked={(imageInfo.isPrivate == 0) ? true: false} checkedChildren={formatMessage(menusText.pubilicType) } unCheckedChildren={formatMessage(menusText.privateType)} />
-              :
-                <Switch checked={(imageInfo.isPrivate ==0) ? true: false} disabled={true} defaultChecked="true" checkedChildren={formatMessage(menusText.pubilicType) } unCheckedChildren={formatMessage(menusText.privateType)} />
-              }
-             </span>
+                <FormattedMessage {...menusText.type} />
+                {(imageInfo.isOwner) ?
+                  <Switch onChange={this.isSwitch} checked={(imageInfo.isPrivate == 0) ? true : false} checkedChildren={formatMessage(menusText.pubilicType)} unCheckedChildren={formatMessage(menusText.privateType)} />
+                  :
+                  <Switch checked={(imageInfo.isPrivate == 0) ? true : false} disabled={true} defaultChecked="true" checkedChildren={formatMessage(menusText.pubilicType)} unCheckedChildren={formatMessage(menusText.privateType)} />
+                }
+              </span>
             </div>
             <div className="rightBox">
-              <Icon type='cross' className='cursor' style={{fontSize: '18px',position: 'absolute', top:'0px', right:'0px'}} onClick={this.props.scope.closeImageDetailModal} />
+              <Icon type='cross' className='cursor' style={{ fontSize: '18px', position: 'absolute', top: '0px', right: '0px' }} onClick={this.props.scope.closeImageDetailModal} />
               <Button size="large" type="primary">
                 <Link to={`/app_manage/app_create/fast_create?registryServer=${ipAddress}&imageName=${imageName}`}>
-                <FormattedMessage {...menusText.deployImage} />
+                  <FormattedMessage {...menusText.deployImage} />
                 </Link>
               </Button>
-            { ( imageInfo.isFavourite == 1) ?
-              <Button size="large" type="ghost" onClick={ ()=>this.setimageStore(imageInfo.name, '0') }>
-                <Icon type="star" />
-                <FormattedMessage {...menusText.closeImage} />
-              </Button>
-              :
-              <Button size="large" type="ghost" onClick={ ()=>this.setimageStore(imageInfo.name, '1') }>
-                <Icon type="star-o" />
-                <FormattedMessage {...menusText.colletctImage} />
-              </Button>
-            }
+              {(imageInfo.isFavourite == 1) ?
+                <Button size="large" type="ghost" onClick={() => this.setimageStore(imageInfo.name, '0')}>
+                  <Icon type="star" />
+                  <FormattedMessage {...menusText.closeImage} />
+                </Button>
+                :
+                <Button size="large" type="ghost" onClick={() => this.setimageStore(imageInfo.name, '1')}>
+                  <Icon type="star-o" />
+                  <FormattedMessage {...menusText.colletctImage} />
+                </Button>
+              }
 
             </div>
           </div>
@@ -256,10 +259,10 @@ class ImageDetailBox extends Component {
         </div>
         <div className="tabBox">
           <Tabs className="itemList" defaultActiveKey="1">
-            <TabPane tab={formatMessage(menusText.info)} key="1"><DetailInfo scope={ this } registry={ DEFAULT_REGISTRY } detailInfo={imageInfo} isOwner={imageInfo.isOwner}/></TabPane>
-            <TabPane tab="Dockerfile" key="2"><DockerFile isFetching = {this.props.isFetching} scope={this} registry={ DEFAULT_REGISTRY } detailInfo={imageInfo} isOwner={imageInfo.isOwner} /></TabPane>
+            <TabPane tab={formatMessage(menusText.info)} key="1"><DetailInfo scope={this} registry={DEFAULT_REGISTRY} detailInfo={imageInfo} isOwner={imageInfo.isOwner} /></TabPane>
+            <TabPane tab="Dockerfile" key="2"><DockerFile isFetching={this.props.isFetching} scope={this} registry={DEFAULT_REGISTRY} detailInfo={imageInfo} isOwner={imageInfo.isOwner} /></TabPane>
             <TabPane tab={formatMessage(menusText.tag)} key="3"><ImageVersion scope={scope} config={imageDetail} /></TabPane>
-            <TabPane tab={formatMessage(menusText.attribute)} key="4"><Attribute detailInfo = {imageInfo} /></TabPane>
+            <TabPane tab={formatMessage(menusText.attribute)} key="4"><Attribute detailInfo={imageInfo} /></TabPane>
           </Tabs>
         </div>
       </div>

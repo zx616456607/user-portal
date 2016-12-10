@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Menu, Button, Card, Input, Dropdown, Spin, Modal, message ,notification} from 'antd'
+import { Menu, Button, Card, Input, Dropdown, Spin, Modal, notification } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -17,6 +17,7 @@ import { loadPrivateImageList, getImageDetailInfo, deleteImage, checkImage } fro
 import { DEFAULT_REGISTRY } from '../../../constants'
 import "./style/ImageSpace.less"
 import ImageDetailBox from './ImageDetail'
+import NotificationHandler from '../../../common/notification_handler'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -106,15 +107,19 @@ const MyComponent = React.createClass({
       okText: '确定',
       cancelText: '取消',
       onOk() {
+        let notification = new NotificationHandler()
+        notification.spin(`删除镜像 ${image} 中...`)
         deleteImage(config, {
           success: {
             func: () => {
-              message.success('删除成功！')
+              notification.close()
+              notification.success('删除成功！')
             }
           },
           failed: {
             func: (res) => {
-              message.error('删除失败')
+              notification.close()
+              notification.error('删除失败')
             }
           }
         })
@@ -140,7 +145,7 @@ const MyComponent = React.createClass({
             if (res.data.hasOwnProperty('status') && res.data.status == 404) {
               notification.warning({
                 message: '镜像不存在',
-                description:'所查看的镜像不存在, 建议关闭详情信息框',
+                description: '所查看的镜像不存在, 建议关闭详情信息框',
                 key: 'showNotImageDetail'
               })
               return

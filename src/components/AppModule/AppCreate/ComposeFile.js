@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Dropdown, Modal, Checkbox, Button, Card, Menu, Input, Select, Popconfirm, message, Form } from 'antd'
+import { Dropdown, Modal, Checkbox, Button, Card, Menu, Input, Select, Popconfirm, Form } from 'antd'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import "./style/ComposeFile.less"
@@ -19,6 +19,8 @@ import YamlEditor from '../../Editor/Yaml'
 import * as yaml from 'js-yaml'
 import { browserHistory } from 'react-router'
 import AppAddStackModal from './AppAddStackModal'
+import { validateAppName } from '../../../common/naming_validation'
+import NotificationHandler from '../../../common/notification_handler'
 
 const FormItem = Form.Item;
 const createForm = Form.create;
@@ -82,13 +84,14 @@ class ComposeFile extends Component {
     }
     if (this.props.location.query.hasOwnProperty('query')) {
       self.setState({
-         stackType: false
+        stackType: false
       })
     }
   }
   subApp() {
     const {appName, appDescYaml, remark} = this.state
     const { cluster } = this.props
+    let notification = new NotificationHandler()
     let appConfig = {
       cluster,
       template: appDescYaml,
@@ -96,12 +99,12 @@ class ComposeFile extends Component {
       desc: remark,
     }
     let self = this
-    if (appConfig.appName =='') {
-      message.info('请填写应用名称')
+    if (appConfig.appName == '') {
+      notification.error('请填写应用名称')
       return
     }
-    if (appConfig.template =='') {
-      message.info('请选择编排文件')
+    if (appConfig.template == '') {
+      notification.error('请选择编排文件')
       return
     }
     this.props.createApp(appConfig, {
@@ -127,12 +130,10 @@ class ComposeFile extends Component {
   }
   confirm() {
     this.setState({ visible: false });
-    message.success('返回');
     browserHistory.push('/app_manage/app_create/fast_create')
   }
   cancel() {
     this.setState({ visible: false })
-    message.error('留在当前页面')
   }
   handleVisibleChange(visible) {
     if (!visible) {
@@ -146,40 +147,42 @@ class ComposeFile extends Component {
     }
   }
   appNameCheck(rule, value, callback) {
-    const { needAppName} = this.state
+    // const { needAppName} = this.state
     const { cluster, checkAppName } = this.props
-    if (!value || needAppName) {
+    /*if (!value || needAppName) {
       callback([new Error('请输入应用名称')])
-    } else {
-      checkAppName(cluster, value, {
-        success: {
-          func: (result) => {
-            if (result.data) {
-              callback([new Error('应用名称已经存在')])
-            } else {
-              this.setState({
-                appName: value,
-              })
-              callback()
-            }
-          },
-          isAsync: true
-        }
-      })
+      // validateAppName
+      return
+    }*/
+    const error = validateAppName(value)
+    if (error) {
+      return callback(error)
     }
+    checkAppName(cluster, value, {
+      success: {
+        func: (result) => {
+          if (result.data) {
+            callback([new Error('应用名称已经存在')])
+            return
+          }
+          this.setState({
+            appName: value,
+          })
+          callback()
+        },
+        isAsync: true
+      }
+    })
   }
   remarkCheck(rule, value, callback) {
+    this.setState({
+      remark: value
+    })
     if (this.state.appName === '') {
-      this.setState({
-        remark: ''
-      })
-      callback([new Error('请先输入应用名称')])
-    } else {
-      this.setState({
-        remark: value
-      })
-      callback()
+      const { validateFields } = this.props.form
+      validateFields(['appNameFormCheck'], { force: true })
     }
+    callback()
   }
   handleForm() {
     this.props.form.validateFieldsAndScroll((errors, values) => {
@@ -231,7 +234,9 @@ class ComposeFile extends Component {
           <div className="ComposeFile" key="ComposeFile">
             <div className="nameBox">
               <span>应用名称</span>
-              <FormItem help={isFieldValidating('appNameFormCheck') ? '校验中...' : (getFieldError('appNameFormCheck') || []).join(', ')}>
+              <FormItem
+                help={isFieldValidating('appNameFormCheck') ? '校验中...' : (getFieldError('appNameFormCheck') || []).join(', ')}
+                >
                 <Input size="large"
                   placeholder="请输入应用名称"
                   autoComplete="off"
@@ -252,20 +257,20 @@ class ComposeFile extends Component {
             <div className="composeBox">
               {this.state.stackType ?
 
-              <div className="topBox">
-                <span>编排类型</span>
-                <span>{this.state.templateName}</span>
-                <Button size="large" type="primary" onClick={()=> this.selectStack()}>
-                  选择编排
+                <div className="topBox">
+                  <span>编排类型</span>
+                  <span>{this.state.templateName}</span>
+                  <Button size="large" type="primary" onClick={() => this.selectStack()}>
+                    选择编排
                 </Button>
 
-              </div>
-              : null
+                </div>
+                : null
               }
               <div className="bottomBox">
                 <span className='titleSpan'>编排文件</span>
                 <div className="textareaBox">
-                  <YamlEditor value={appDescYaml} options={defaultEditOpts} parentId={'AppCreate'} callback={this.editYamlSetState}/>
+                  <YamlEditor value={appDescYaml} options={defaultEditOpts} parentId={'AppCreate'} callback={this.editYamlSetState} />
                 </div>
                 <div style={{ clear: "both" }}></div>
               </div>
@@ -278,7 +283,7 @@ class ComposeFile extends Component {
                 onConfirm={this.confirm}
                 onCancel={this.cancel}
                 visible={this.state.visible}>
-                <Button size="large" type="primary" className="lastBtn" onClick={()=> browserHistory.goBack()}>
+                <Button size="large" type="primary" className="lastBtn" onClick={() => browserHistory.goBack()}>
                   上一步
                   </Button>
               </Popconfirm>
@@ -292,9 +297,9 @@ class ComposeFile extends Component {
           visible={this.state.modalShow}
           className="AppAddServiceModal"
           wrapClassName="appAddServiceModal"
-          onCancel={()=> this.closeModal()}
+          onCancel={() => this.closeModal()}
           >
-          <AppAddStackModal scope={ this } />
+          <AppAddStackModal scope={this} />
         </Modal>
       </QueueAnim>
     )

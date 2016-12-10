@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Modal, Tabs, Icon, Menu, Button, Card, Form, Input, message ,Alert} from 'antd'
+import { Modal, Tabs, Icon, Menu, Button, Card, Form, Input, Alert } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import TweenOne from 'rc-tween-one';
 import { connect } from 'react-redux'
@@ -21,6 +21,7 @@ import OtherSpace from './ImageCenter/OtherSpace.js'
 import './style/ImageCenter.less'
 import { LoadOtherImage, addOtherStore, getImageDetailInfo, deleteOtherImage } from '../../actions/app_center'
 import { findIndex } from 'lodash'
+import NotificationHandler from '../../common/notification_handler'
 
 let TweenOneGroup = TweenOne.TweenOneGroup;
 const TabPane = Tabs.TabPane;
@@ -170,10 +171,13 @@ let MyComponent = React.createClass({
         url: values.url,
       }
       const self = this
+      let notification = new NotificationHandler()
+      notification.spin(`添加第三方镜像中...`)
       this.props.addOtherStore(config, {
         success: {
           func: (res) => {
-            message.success('添加第三方镜像成功')
+            notification.close()
+            notification.success('添加第三方镜像成功')
             setTimeout(() => {
               scope.props.LoadOtherImage({
                 success: {
@@ -190,11 +194,13 @@ let MyComponent = React.createClass({
           }
         },
         failed: {
-          func: (res) => {
-            Modal.error({
+          func: (err) => {
+            /*Modal.error({
               title: '添加第三方镜像失败',
-              content: (<h3>{res.message.message}</h3>)
-            });
+              content: (<h3>{err.message.message}</h3>)
+            });*/
+            notification.close()
+            notification.error('添加第三方镜像失败', err.message.message)
           }
         },
         isAsync: true

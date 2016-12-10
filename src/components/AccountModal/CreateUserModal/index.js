@@ -37,8 +37,10 @@ let CreateUserModal = React.createClass({
               return
             }
             callback()
-          },
-          failed: (err) => {
+          }
+        },
+        failed: {
+          func: (err) => {
             callback([new Error('用户名校验失败')])
           }
         }

@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Card, Radio, Icon } from 'antd'
+import { Row, Col, Card, Radio, Icon, Spin } from 'antd'
 import './style/Ordinary.less'
 import ReactEcharts from 'echarts-for-react'
 import MySpace from './MySpace'
@@ -728,6 +728,7 @@ class Ordinary extends Component{
         }
       ]
     }
+
     return (
       <div id='Ordinary'>
         <Row className="title">{spaceName} - {clusterName}集群</Row>
@@ -743,80 +744,88 @@ class Ordinary extends Component{
             </Card>
           </Col>
           <Col span={10} className='sysState'>
-            <Card title="系统状态和版本" bordered={false} bodyStyle={{height:220}}>
-              <table>
-                <tbody>
-                <tr>
-                  <td>
-                    <img className="stateImg" src="/img/homeKubernetes.png"/>
-                    Kubernetes
-                  </td>
-                  <td>
-                    <SvcState currentState={clusterSysinfo.k8s.status} />
-                  </td>
-                  <td style={{textAlign:'right',paddingRight:10}}>
-                    {clusterSysinfo.k8s.version}
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <svg className="stateSvg">
-                      <use xlinkHref="#homewww" />
-                    </svg>
-                    DNS
-                  </td>
-                  <td>
-                    <SvcState currentState={clusterSysinfo.dns.status} />
-                  </td>
-                  <td style={{textAlign:'right',paddingRight:10}}>
-                    {clusterSysinfo.dns.version}
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <svg className="stateSvg">
-                      <use xlinkHref="#homeapiservice" />
-                    </svg>
-                    API Server
-                  </td>
-                  <td>
-                    <SvcState currentState={clusterSysinfo.apiserver.status} />
-                  </td>
-                  <td style={{textAlign:'right',paddingRight:10}}>
-                    {clusterSysinfo.apiserver.version}
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <svg className="stateSvg">
-                      <use xlinkHref="#cicd" />
-                    </svg>
-                    CICD
-                  </td>
-                  <td>
-                    <SvcState currentState={clusterSysinfo.cicd.status} />
-                  </td>
-                  <td style={{textAlign:'right',paddingRight:10}}>
-                    {clusterSysinfo.cicd.version}
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <svg className="stateSvg">
-                      <use xlinkHref="#homelogging" />
-                    </svg>
-                    Logging
-                  </td>
-                  <td>
-                    <SvcState currentState={clusterSysinfo.logging.status} />
-                  </td>
-                  <td style={{textAlign:'right',paddingRight:10}}>
-                    {clusterSysinfo.logging.version}
-                  </td>
-                </tr>
-                </tbody>
-              </table>
-            </Card>
+            <Spin spinning={
+              clusterSysinfo.k8s.status === '' ||
+              clusterSysinfo.dns.status === '' ||
+              clusterSysinfo.apiserver.status === '' ||
+              clusterSysinfo.cicd.status === '' ||
+              clusterSysinfo.logging.status === ''
+            }>
+              <Card title="系统状态和版本" bordered={false} bodyStyle={{height:220}}>
+                <table>
+                  <tbody>
+                  <tr>
+                    <td>
+                      <img className="stateImg" src="/img/homeKubernetes.png"/>
+                      Kubernetes
+                    </td>
+                    <td>
+                      <SvcState currentState={clusterSysinfo.k8s.status} />
+                    </td>
+                    <td style={{textAlign:'right',paddingRight:10}}>
+                      {clusterSysinfo.k8s.version}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <svg className="stateSvg">
+                        <use xlinkHref="#homewww" />
+                      </svg>
+                      DNS
+                    </td>
+                    <td>
+                      <SvcState currentState={clusterSysinfo.dns.status} />
+                    </td>
+                    <td style={{textAlign:'right',paddingRight:10}}>
+                      {clusterSysinfo.dns.version}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <svg className="stateSvg">
+                        <use xlinkHref="#homeapiservice" />
+                      </svg>
+                      API Server
+                    </td>
+                    <td>
+                      <SvcState currentState={clusterSysinfo.apiserver.status} />
+                    </td>
+                    <td style={{textAlign:'right',paddingRight:10}}>
+                      {clusterSysinfo.apiserver.version}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <svg className="stateSvg">
+                        <use xlinkHref="#cicd" />
+                      </svg>
+                      CICD
+                    </td>
+                    <td>
+                      <SvcState currentState={clusterSysinfo.cicd.status} />
+                    </td>
+                    <td style={{textAlign:'right',paddingRight:10}}>
+                      {clusterSysinfo.cicd.version}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <svg className="stateSvg">
+                        <use xlinkHref="#homelogging" />
+                      </svg>
+                      Logging
+                    </td>
+                    <td>
+                      <SvcState currentState={clusterSysinfo.logging.status} />
+                    </td>
+                    <td style={{textAlign:'right',paddingRight:10}}>
+                      {clusterSysinfo.logging.version}
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              </Card>
+            </Spin>
           </Col>
           <Col span={6} className='clusterRecord'>
             <Card title="今日该集群记录" bordered={false} bodyStyle={{height:220}}>

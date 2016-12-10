@@ -9,7 +9,7 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { Modal, message, Checkbox, Dropdown, Button, Card, Menu, Icon, Spin, Tooltip, Pagination, Alert } from 'antd'
+import { Modal, Checkbox, Dropdown, Button, Card, Menu, Icon, Spin, Tooltip, Pagination, Alert } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -39,6 +39,7 @@ import yaml from 'js-yaml'
 import { addDeploymentWatch, removeDeploymentWatch } from '../../containers/App/status'
 import StateBtnModal from '../StateBtnModal'
 import errorHandler from '../../containers/App/error_handler'
+import NotificationHandler from '../../common/notification_handler'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -372,10 +373,12 @@ class AppServiceList extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    let { page, size, name, serviceList, onServicesChange } = nextProps
     this.setState({
-      serviceList: nextProps.serviceList
+      serviceList
     })
-    let { page, size, name } = nextProps
+    onServicesChange(serviceList)
+
     if (page === this.props.page && size === this.props.size && name === this.props.name) {
       return
     }
@@ -739,9 +742,10 @@ class AppServiceList extends Component {
 
   onSubmitAddService(serviceTemplate) {
     const self = this
-    const hide = message.loading('正在添加中...', 0)
-    const { cluster, appName, addService, loadServiceList } = this.props
     const { Service, Deployment } = serviceTemplate
+    let notification = new NotificationHandler()
+    notification.spin(`服务 ${Service.metadata.name} 添加中...`)
+    const { cluster, appName, addService, loadServiceList } = this.props
     const body = {
       template: `${yaml.dump(Service)}\n---\n${yaml.dump(Deployment)}`
     }
@@ -749,16 +753,16 @@ class AppServiceList extends Component {
       success: {
         func: () => {
           self.loadServices(self.props)
-          hide()
-          message.success(`服务 ${Service.metadata.name} 添加成功`)
+          notification.close()
+          notification.success(`服务 ${Service.metadata.name} 添加成功`)
         },
         isAsync: true
       },
       failed: {
         func: () => {
           self.loadServices(self.props)
-          hide()
-          message.error(`服务 ${Service.metadata.name} 添加失败`)
+          notification.close()
+          notification.error(`服务 ${Service.metadata.name} 添加失败`)
         },
         isAsync: true
       }
@@ -885,7 +889,7 @@ class AppServiceList extends Component {
               服务名称
           </div>
             <div className="status commonTitle">
-              运行状态
+              状态
           </div>
             <div className="image commonTitle">
               镜像
@@ -983,6 +987,7 @@ AppServiceList.propTypes = {
   page: PropTypes.number.isRequired,
   size: PropTypes.number.isRequired,
   total: PropTypes.number.isRequired,
+  onServicesChange: PropTypes.func.isRequired, // For change app status when service list change
 }
 
 function mapStateToProps(state, props) {

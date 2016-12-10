@@ -12,11 +12,12 @@ import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import {
   Button, Alert, Card, Slider, Row, Col, InputNumber, Tooltip, Icon, Switch,
-  Modal, message
+  Modal,
 } from 'antd'
 import { loadAutoScale, deleteAutoScale, updateAutoScale } from '../../../actions/services'
 import { INSTANCE_AUTO_SCALE_MAX_CPU, INSTANCE_MAX_NUM } from '../../../../constants'
 import './style/AppAutoScale.less'
+import NotificationHandler from '../../../common/notification_handler'
 
 const confirm = Modal.confirm
 
@@ -99,13 +100,14 @@ class AppAutoScale extends Component {
       return
     }
     const { cluster, serviceName, deleteAutoScale, loadAutoScale } = this.props
+    let notification = new NotificationHandler()
     confirm({
-      title: `您是否确定要关闭弹性伸缩？`,
+      title: `您是否确定要关闭自动伸缩？`,
       // content: '',
       onOk() {
         return new Promise((resolve) => {
           resolve()
-          const hide = message.loading('正在保存中...', 0)
+          notification.spin('正在保存中...')
           deleteAutoScale(cluster, serviceName, {
             success: {
               func: () => {
@@ -115,8 +117,8 @@ class AppAutoScale extends Component {
                       self.setState({
                         isAutoScaleOpen: false
                       })
-                      hide()
-                      message.success('弹性伸缩已关闭')
+                      notification.close()
+                      notification.success('自动伸缩已关闭')
                     }
                   }
                 })
@@ -125,8 +127,8 @@ class AppAutoScale extends Component {
             },
             failed: {
               func: () => {
-                hide()
-                message.error('关闭弹性伸缩失败')
+                notification.close()
+                notification.error('关闭自动伸缩失败')
               }
             }
           })
@@ -152,7 +154,8 @@ class AppAutoScale extends Component {
       max: maxReplicas,
       cpu: targetCPUUtilizationPercentage
     }
-    const hide = message.loading('正在保存中...', 0)
+    let notification = new NotificationHandler()
+    notification.spin('正在保存中...')
     updateAutoScale(cluster, serviceName, body, {
       success: {
         func: () => {
@@ -163,8 +166,8 @@ class AppAutoScale extends Component {
                   edit: false,
                   isAutoScaleOpen: true
                 })
-                hide()
-                message.success(`${saveText}成功`)
+                notification.close()
+                notification.success(`${saveText}成功`)
               }
             }
           })
@@ -173,8 +176,8 @@ class AppAutoScale extends Component {
       },
       failed: {
         func: () => {
-          hide()
-          message.error(`${saveText}失败`)
+          notification.close()
+          notification.error(`${saveText}失败`)
         }
       }
     })

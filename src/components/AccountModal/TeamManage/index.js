@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Alert, Button, Icon, Card, Table, Modal, Input, Tooltip, message, notification, } from 'antd'
+import { Row, Col, Alert, Button, Icon, Card, Table, Modal, Input, Tooltip, } from 'antd'
 import './style/TeamManage.less'
 import { Link } from 'react-router'
 import SearchInput from '../../SearchInput'
@@ -21,6 +21,7 @@ import {
 } from '../../../actions/team'
 import MemberTransfer from '../MemberTransfer'
 import CreateTeamModal from '../CreateTeamModal'
+import NotificationHandler from '../../../common/notification_handler'
 
 const confirm = Modal.confirm;
 
@@ -51,21 +52,37 @@ let TeamTable = React.createClass({
       notFound: false,
     })
   },
-  delTeam(teamID) {
+  delTeam(teamID, teamName) {
     const {deleteTeam, loadUserTeamList} = this.props.scope.props
     const {page, pageSize, sort, filter} = this.props.scope.state
     confirm({
-      title: '您是否确认要删除这项内容',
+      title: '确认要删除团队 ' + teamName + ' ?',
       onOk() {
-        deleteTeam(teamID)
-        loadUserTeamList('default', {
-          page: page,
-          size: pageSize,
-          sort,
-          filter,
+        let notification = new NotificationHandler()
+        notification.spin(`删除 ${teamName} 中...`)
+        deleteTeam(teamID, {
+          success: {
+            func: () => {
+              notification.close()
+              notification.success(`删除 ${teamName} 成功`)
+              loadUserTeamList('default', {
+                page: page,
+                size: pageSize,
+                sort,
+                filter,
+              })
+            },
+            isAsync: true
+          },
+          failed: {
+            func: (err) => {
+              notification.close()
+              notification.error(`删除 ${teamName} 失败`)
+            }
+          }
         })
       },
-      onCancel() { },
+      onCancel() { }
     });
   },
   getSort(order, column) {
@@ -316,7 +333,7 @@ let TeamTable = React.createClass({
                 teamID={record.key}
                 teamUserIDList={teamUserIDList} />
             </Modal>
-            <Button icon="delete" className="delBtn" onClick={() => this.delTeam(record.key)}>删除</Button>
+            <Button icon="delete" className="delBtn" onClick={() => this.delTeam(record.key, record.team)}>删除</Button>
           </div>
         )
       },
@@ -356,14 +373,13 @@ class TeamManage extends Component {
   teamOnSubmit(team) {
     const { createTeam, loadUserTeamList } = this.props
     const { pageSize, sort, filter } = this.state
-    const hide = message.loading('正在执行中...', 0)
+    let notification = new NotificationHandler()
+    notification.spin(`创建团队 ${team.teamName}中...`)
     createTeam(team, {
       success: {
         func: () => {
-          hide()
-          notification.success({
-            message: `创建团队 ${team.teamName} 成功`,
-          })
+          notification.close()
+          notification.success(`创建团队 ${team.teamName} 成功`)
           loadUserTeamList('default', {
             page: 1,
             current: 1,
@@ -379,12 +395,8 @@ class TeamManage extends Component {
       },
       failed: {
         func: (err) => {
-          hide()
-          notification.error({
-            message: `创建团队 ${team.teamName} 失败`,
-            description: err.message.message,
-            duration: 0
-          })
+          notification.close()
+          notification.error(`创建团队 ${team.teamName} 失败`, err.message.message)
         }
       }
     })
@@ -395,6 +407,7 @@ class TeamManage extends Component {
     })
   }
   componentWillMount() {
+    document.title = '团队管理 | 时速云'
     this.props.loadUserTeamList('default', {
       page: 1,
       size: 5,

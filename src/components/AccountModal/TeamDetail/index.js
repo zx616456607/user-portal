@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Alert, Card, Icon, Button, Table, Menu, Dropdown, Modal, Input, Transfer, message, notification, } from 'antd'
+import { Row, Col, Alert, Card, Icon, Button, Table, Menu, Dropdown, Modal, Input, Transfer, } from 'antd'
 import './style/TeamDetail.less'
 import { Link } from 'react-router'
 import {
@@ -19,6 +19,7 @@ import {
 import { connect } from 'react-redux'
 import MemberTransfer from '../MemberTransfer'
 import CreateSpaceModal from '../CreateSpaceModal'
+import NotificationHandler from '../../../common/notification_handler'
 
 const confirm = Modal.confirm;
 
@@ -62,11 +63,13 @@ let MemberList = React.createClass({
     const { sortUser, userPageSize, userPage, filter } = this.state
     let self = this
     confirm({
-      title: '您是否确认要删除这项内容',
+      title: '确认从团队中移除该用户?',
       onOk() {
+        let notification = new NotificationHandler()
         removeTeamusers(teamID, userID, {
           success: {
             func: () => {
+              notification.success("移除用户成功")
               loadTeamUserList(teamID, {
                 sort: sortUser,
                 page: 1,
@@ -78,10 +81,19 @@ let MemberList = React.createClass({
               })
             },
             isAsync: true
+          },
+          failed: {
+            func: (err) => {
+              if (err.statusCode == 401) {
+                notification.error("没有权限从团队中移除创建者")
+              } else {
+                notification.error(err.message.message)
+              }
+            }
           }
         })
       },
-      onCancel() { },
+      onCancel() { }
     });
   },
   onShowSizeChange(current, pageSize) {
@@ -490,14 +502,13 @@ class TeamDetail extends Component {
   spaceOnSubmit(space) {
     const { createTeamspace, teamID, loadTeamspaceList } = this.props
     const { newSpaceName, newSpaceDes, sortSpace, spacePageSize } = this.state
-    const hide = message.loading('正在执行中...', 0)
+    let notification = new NotificationHandler()
+    notification.spin("空间创建中...")
     createTeamspace(teamID, space, {
       success: {
         func: () => {
-          hide()
-          notification.success({
-            message: `创建空间 ${space.spaceName} 成功`,
-          })
+          notification.close()
+          notification.success(`创建空间 ${space.spaceName} 成功`)
           loadTeamspaceList(teamID, {
             sort: sortSpace,
             size: spacePageSize,
@@ -512,12 +523,8 @@ class TeamDetail extends Component {
       },
       failed: {
         func: (err) => {
-          hide()
-          notification.error({
-            message: `创建空间 ${space.spaceName} 失败`,
-            description: err.message.message,
-            duration: 0
-          })
+          notification.close()
+          notification.error(`创建空间 ${space.spaceName} 失败`, err.message.message)
         }
       }
     })
@@ -569,7 +576,7 @@ class TeamDetail extends Component {
     return (
       <div id='TeamDetail'>
         <Row style={{ marginBottom: 20 }}>
-          <Link className="back" to="/setting/team">返回</Link>
+          <Link className="back" to="/account/team">返回</Link>
         </Row>
         <Row className="title">
           {teamName}

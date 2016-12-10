@@ -34,6 +34,7 @@ class API extends Component{
     }
   }
   componentDidMount() {
+    document.title = '开放 API | 时速云'
     this.props.loadApiInfo()
   }
   render(){

@@ -15,7 +15,6 @@
       float: left;
       button {
         margin-right: 10px;
-        padding: 4px 10px;
         i {
           margin-right: 5px;
           font-size: 12px;
@@ -39,8 +38,6 @@
       .littleRight {
         float: left;
         input {
-          height: 32px;
-          line-height: 32px;
           font-size: 14px;
           color: #333; //        background-color: #f8f8f8;
         }
@@ -118,23 +115,7 @@
       width: 12%;
       padding-left: 10px;
       button {
-        margin-top: 10px;
-        margin-bottom: 10px;
-        width: 90px;
-        height: 30px;
         overflow: hidden;
-        padding-left: 0;
-        // padding: 5px 10px;
-        // float: left;
-        .h{ 
-          width: 60px; float: left;
-          border-right: 1px solid #d9d9d9;
-          height: 40px;
-          margin-top: -5px;
-          line-height: 30px;
-          margin-right: 7px;
-          }
-       
       }
     }
     .dataBox {
@@ -242,5 +223,28 @@
   }
   .hide {
     display: none;
+  }
+}
+.createAppStorageModal {
+  .nameInput {
+    transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+    -webkit-transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+    width: 220px;
+  }
+  .nameErrorInput {
+    border-color: #FF5500 !important;
+    &:hover {
+      border-color: #FF5500 !important;
+      box-shadow: 0 0 0 2px rgba(255, 85, 0, 0.2) !important;
+    }
+    &:focus {
+      border-color: #FF5500 !important;
+      box-shadow: 0 0 0 2px rgba(255, 85, 0, 0.2) !important;
+    }
+  }
+  .nameErrorSpan {
+    position: absolute;
+    display: block;
+    color: #f50;
   }
 }
