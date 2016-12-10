@@ -25,21 +25,30 @@ exports.addPort =  function (deployment, serviceList) {
     if (serviceList[i].metadata.name === deployment.metadata.name) {
       if (serviceList[i].spec.externalIPs && serviceList[i].spec.externalIPs.length > 0 && serviceList[i].spec.ports && serviceList[i].spec.ports.length > 0) {
         serviceList[i].spec.ports.forEach(function(port) {
+          if (!serviceList[i].metadata.annotations) {
+            return
+          }
           let annotations = serviceList[i].metadata.annotations[constants.ANNOTATION_SVC_SCHEMA_PORTNAME]
           let portDef = annotations.split(",")
           for (let i = 0; i< portDef.length; i++) {
             let p = portDef[i].split('/')
             if (p && p.length > 1) {
-              if (p[0] == port.name) {
+              if (p[0] == port.name && p.length > 1) {
                 port.protocol = p[1]
+                // Update to the proxy port
+                if (p.length > 2) {
+                  port.proxyPort = p[2]
+                }
                 break
               }
             }
           }
         })
         deployment.portsForExternal = serviceList[i].spec.ports
-        deployment.binding_domains = serviceList[i].metadata.annotations.binding_domains
-        deployment.binding_port = serviceList[i].metadata.annotations.binding_port
+        if (serviceList[i].metadata.annotations) {
+          deployment.binding_domains = serviceList[i].metadata.annotations.binding_domains
+          deployment.binding_port = serviceList[i].metadata.annotations.binding_port
+        }
       }
       serviceList[i].spec.ports.map((svcPort) => deployment.portForInternal.push(svcPort.port))
       break
