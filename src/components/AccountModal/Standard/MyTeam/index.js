@@ -542,7 +542,8 @@ class MyTeam extends Component {
       <div id="TeamManage">
         <Alert message={`团队, 由若干个成员组成的一个集体, 可等效于公司的部门、项目组、或子公司，
           包含『团队空间』这一逻辑隔离层， 以实现对应您企业内部各个不同项目， 或者不同逻辑组在云平台上操作对象的隔离， 团队管理员 (创建者) 可管理团队、邀请新成员、解散团队、移除成员; 团队成员 (参与者) 可退出团队 .`}
-          type="info" />
+          type="info"
+        />
         <Row className="teamOption">
           <Button type="primary" size="large" onClick={this.showModal} className="plusBtn">
             <i className='fa fa-plus' /> 创建团队
@@ -556,7 +557,7 @@ class MyTeam extends Component {
             visible={visible}
             onSubmit={this.teamOnSubmit}
             funcs={funcs}
-            />
+          />
           <SearchInput searchIntOption={searchIntOption} scope={scope} data={teams} />
           <div className="total">共{this.props.total}个</div>
         </Row>
@@ -568,7 +569,7 @@ class MyTeam extends Component {
               loadUserTeamList={loadUserTeamList}
               loadTeamUserList={loadTeamUserList}
               teamUserIDList={teamUserIDList}
-              />
+            />
           </Card>
         </Row>
       </div>
