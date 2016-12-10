@@ -39,6 +39,7 @@ import yaml from 'js-yaml'
 import { addDeploymentWatch, removeDeploymentWatch } from '../../containers/App/status'
 import StateBtnModal from '../StateBtnModal'
 import errorHandler from '../../containers/App/error_handler'
+import NotificationHandler from '../../common/notification_handler'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -741,9 +742,10 @@ class AppServiceList extends Component {
 
   onSubmitAddService(serviceTemplate) {
     const self = this
-    const hide = message.loading('正在添加中...', 0)
-    const { cluster, appName, addService, loadServiceList } = this.props
     const { Service, Deployment } = serviceTemplate
+    let notification = new NotificationHandler()
+    notification.spin(`服务 ${Service.metadata.name} 添加中...`)
+    const { cluster, appName, addService, loadServiceList } = this.props
     const body = {
       template: `${yaml.dump(Service)}\n---\n${yaml.dump(Deployment)}`
     }
@@ -751,16 +753,16 @@ class AppServiceList extends Component {
       success: {
         func: () => {
           self.loadServices(self.props)
-          hide()
-          message.success(`服务 ${Service.metadata.name} 添加成功`)
+          notification.close()
+          notification.success(`服务 ${Service.metadata.name} 添加成功`)
         },
         isAsync: true
       },
       failed: {
         func: () => {
           self.loadServices(self.props)
-          hide()
-          message.error(`服务 ${Service.metadata.name} 添加失败`)
+          notification.close()
+          notification.error(`服务 ${Service.metadata.name} 添加失败`)
         },
         isAsync: true
       }

@@ -20,6 +20,7 @@ class License extends Component {
   }
 
   componentWillMount() {
+    document.title = '授权管理 | 时速云'
     const { loadLicense } = this.props
     loadLicense()
   }

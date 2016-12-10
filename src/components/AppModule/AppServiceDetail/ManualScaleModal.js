@@ -13,6 +13,7 @@ import './style/ManualScaleModal.less'
 import { Row, Col, Slider, InputNumber, Modal, Button, Spin, message } from 'antd'
 import { INSTANCE_MAX_NUM } from '../../../../constants'
 import { manualScaleService } from '../../../actions/services'
+import NotificationHandler from '../../../common/notification_handler'
 
 class ManualScaleModal extends Component {
   constructor(props) {
@@ -54,7 +55,8 @@ class ManualScaleModal extends Component {
     } = this.props
     const { realNum } = this.state
     const serviceName = service.metadata.name
-    const hide = message.loading('正在保存中...', 0)
+    let notification = new NotificationHandler()
+    notification.spin(`服务 ${serviceName} 伸缩中...`)
     manualScaleService(cluster, serviceName, { num: realNum }, {
       success: {
         func: () => {
@@ -68,16 +70,16 @@ class ManualScaleModal extends Component {
             manualScaleModalShow: false,
             serviceList
           })
-          hide()
-          message.success(`服务 ${serviceName} 已成功伸缩到 ${realNum} 个实例`)
+          notification.close()
+          notification.success(`服务 ${serviceName} 已成功伸缩到 ${realNum} 个实例`)
           loadServiceList(cluster, appName)
         },
         isAsync: true
       },
       failed: {
         func: () => {
-          hide()
-          message.error(`服务 ${serviceName} 伸缩失败`)
+          notification.close()
+          notification.error(`服务 ${serviceName} 伸缩失败`)
         }
       }
     })

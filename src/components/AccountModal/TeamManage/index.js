@@ -410,6 +410,7 @@ class TeamManage extends Component {
     })
   }
   componentWillMount() {
+    document.title = '团队管理 | 时速云'
     this.props.loadUserTeamList('default', {
       page: 1,
       size: 5,

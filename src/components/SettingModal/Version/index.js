@@ -18,6 +18,9 @@ export default class Version extends Component{
       
     }
   }
+  componentWillMount() {
+    document.title = '平台版本 | 时速云'
+  }
   render(){
     return (
       <div id='Version'>

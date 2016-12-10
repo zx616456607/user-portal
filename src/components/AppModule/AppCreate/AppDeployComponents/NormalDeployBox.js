@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Form, Select, Input, InputNumber, Modal, Checkbox, Button, Card, Menu, Switch, Icon, Spin, message } from 'antd'
+import { Form, Select, Input, InputNumber, Modal, Checkbox, Button, Card, Menu, Switch, Icon, Spin } from 'antd'
 import { connect } from 'react-redux'
 import filter from 'lodash/filter'
 import { DEFAULT_REGISTRY } from '../../../../constants'
@@ -16,6 +16,7 @@ import { loadImageDetailTag, loadImageDetailTagConfig, getOtherImageTag, loadOth
 import { checkServiceName } from '../../../../actions/app_manage'
 import { loadFreeVolume, createStorage } from '../../../../actions/storage'
 import "./style/NormalDeployBox.less"
+import NotificationHandler from '../../../../common/notification_handler'
 
 const Option = Select.Option;
 const OptGroup = Select.OptGroup;
@@ -89,9 +90,9 @@ let MyComponent = React.createClass({
     const ele = []
     const usedVolume = []
     const { getFieldProps, getFieldValue, } = this.props.form
-    getFieldValue('volumeKey').forEach((k) =>{
+    getFieldValue('volumeKey').forEach((k) => {
       const name = getFieldProps(`volumeName${k}`).value
-      if(!name) return
+      if (!name) return
       usedVolume.push(name.split('/')[0])
     })
     const servicesList = this.props.parentScope.props.scope.state.servicesList || localStorage.getItem('servicesList')
@@ -102,8 +103,8 @@ let MyComponent = React.createClass({
     })
     if (volume.data.volumes) {
       volume.data.volumes.forEach(item => {
-         if(usedVolume.indexOf(item.name) >= 0) return
-         ele.push(<Option value={`${item.name}/${item.fsType}`}>{item.name} {item.fsType} {item.size}</Option>)
+        if (usedVolume.indexOf(item.name) >= 0) return
+        ele.push(<Option value={`${item.name}/${item.fsType}`}>{item.name} {item.fsType} {item.size}</Option>)
       })
     }
     return ele
@@ -129,10 +130,12 @@ let MyComponent = React.createClass({
   createVolume() {
     const self = this
     const { cluster } = this.props
+    let notification = new NotificationHandler()
     if (!this.state.name) {
-      message.error('请填写存储名称')
+      notification.error('请填写存储名称')
       return
     }
+    notification.spin('存储卷创建中...')
     let storageConfig = {
       driver: 'rbd',
       name: this.state.name,
@@ -145,6 +148,8 @@ let MyComponent = React.createClass({
     this.props.createStorage(storageConfig, {
       success: {
         func: () => {
+          notification.close()
+          notification.success('存储卷创建成功')
           self.setState({
             name: '',
             size: 0,
@@ -154,13 +159,19 @@ let MyComponent = React.createClass({
         },
         isAsync: true
       },
+      failed: {
+        func: () => {
+          notification.close()
+          notification.error('存储卷创建失败')
+        }
+      }
     })
   },
   render: function () {
     const { getFieldProps, getFieldValue, } = this.props.form
     const registry = this.props.registry
-    if(!this.props.tagConfig[registry]) return
-    if(!this.props.tagConfig[registry].configList) return
+    if (!this.props.tagConfig[registry]) return
+    if (!this.props.tagConfig[registry].configList) return
     const mountPath = this.props.tagConfig[registry].configList.mountPath
     if (!this.props.avaliableVolume.data && !getFieldValue('volumeName1')) {
       return <div></div>
@@ -348,7 +359,7 @@ function setEnv(defaultEnv, form) {
   }
 }
 function loadImageTagConfigs(tag, props) {
-  const { currentSelectedImage, loadImageDetailTagConfig, scope, isCreate ,loadOtherDetailTagConfig} = props
+  const { currentSelectedImage, loadImageDetailTagConfig, scope, isCreate, loadOtherDetailTagConfig} = props
   if (typeof tag === 'object') {
     loadOtherDetailTagConfig(tag, {
       success: {
@@ -490,7 +501,7 @@ let NormalDeployBox = React.createClass({
           placeholder="请选择镜像版本"
           notFoundContent="镜像版本为空"
           onSelect={this.onSelectTagChange}
-        >
+          >
           {
             imageTags && imageTags.map((tag) => {
               return (

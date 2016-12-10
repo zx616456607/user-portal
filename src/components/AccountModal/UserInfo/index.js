@@ -24,6 +24,7 @@ class UserInfo extends Component {
     }
   }
   componentWillMount() {
+    document.title = '我的账户 | 时速云'
     const { userID, loadUserDetail, loadUserAppInfo, loadUserTeamspaceDetailList, loadUserTeamList } = this.props
     loadUserDetail(userID ? userID : 'default')
     loadUserAppInfo(userID ? userID : 'default')
