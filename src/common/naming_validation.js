@@ -90,3 +90,50 @@ export function appNameCheck(name, itemName, existNameFlag) {
   }
   return 'success';
 }
+/*
+ * this function for service, service config, database cluster
+ */
+export function serviceNameCheck(name, itemName, existNameFlag) {
+  //name for check, itemName for show
+  let errorMsg = '';
+  //null check
+  if(name.length == 0 || !name) {
+    errorMsg = '请输入' + itemName;
+    return errorMsg;
+  }
+  //a-zA-Z start check
+  let startCheck = new RegExp('^[a-z]{1}');
+  if(!startCheck.test(name)) {
+    errorMsg = '请以小写字母开头';
+    return errorMsg;
+  }
+  //a-zA-Z0-9_- body check
+  let bodyCheck = new RegExp('^[a-z]{1}[a-z0-9_-]*$');
+  if(!bodyCheck.test(name)) {
+    errorMsg = '由小写字母、数字、中划线-、下划线_组成';
+    return errorMsg;
+  }
+  //min length check
+  if(name.length < 3) {
+    errorMsg = '请输入3个以上字符';
+    return errorMsg;
+  }
+  //existName check
+  if(!!existNameFlag) {
+    errorMsg = itemName + '已经存在';
+    return errorMsg;
+  }
+  //max length check
+  if(name.length > 63) {
+    errorMsg = '不能超过63个字符';
+    return errorMsg;
+  }
+   //a-z0-9 end check
+  let endCheck = new RegExp('^[a-z]{1}[a-z0-9_\-]{1,61}[a-z0-9]$');
+  if(!endCheck.test(name)) {
+    errorMsg = '由小写字母或数字结尾';
+    return errorMsg;
+  }
+  return 'success';
+}
+
