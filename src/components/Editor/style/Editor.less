@@ -17,7 +17,7 @@
   .editOperaBox {
     padding: 0 16px;
     font-size: 14px;
-    height: 49px;
+    min-height: 49px;
     line-height: 49px;
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
@@ -41,6 +41,13 @@
         float: right;
         line-height: 49px;
       }
+    }
+    &:after {
+      content: '.';
+      display: block;
+      height: 0;
+      visibility: hidden;
+      clear: both;
     }
   }
   .ReactCodeMirror {
@@ -114,7 +121,7 @@
     overflow-y: auto;
   }
 }
-.bigCodeMirrorNoEdit{
+.bigCodeMirrorNoEdit {
   .ReactCodeMirror {
     height: calc(~"100% - 50px") !important;
   }

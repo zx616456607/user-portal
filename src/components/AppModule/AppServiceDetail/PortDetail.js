@@ -132,7 +132,7 @@ class PortDetail extends Component {
             协议
           </div>
           <div className="commonTitle">
-            映射端口
+            服务端口
           </div>
           <div style={{ clear: "both" }}></div>
         </div>

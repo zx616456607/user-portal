@@ -157,6 +157,32 @@ export function loadDbClusterDetail(cluster, dbName, callback) {
   }
 }
 
+export const UPDATA_DATABASE_DETAIL_INFO_REQUEST = 'UPDATA_DATABASE_DETAIL_INFO_REQUEST'
+export const UPDATA_DATABASE_DETAIL_INFO_SUCCESS = 'UPDATA_DATABASE_DETAIL_INFO_SUCCESS'
+export const UPDATA_DATABASE_DETAIL_INFO_FAILURE = 'UPDATA_DATABASE_DETAIL_INFO_FAILURE'
+
+function fetchPutDbClusterDetail(cluster, dbName, replicas, callback) {
+  return {
+    [FETCH_API]: {
+      types: [UPDATA_DATABASE_DETAIL_INFO_REQUEST, UPDATA_DATABASE_DETAIL_INFO_SUCCESS, UPDATA_DATABASE_DETAIL_INFO_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${cluster}/dbservices/${dbName}`,
+      options: {
+        method: 'PATCH',
+        body: {'replicas': replicas}
+      },
+      schema: {}
+    },
+    dbName,
+    callback
+  }
+}
+
+export function putDbClusterDetail(cluster, dbName, replicas, callback) {
+  return (dispatch) => {
+    return dispatch(fetchPutDbClusterDetail(cluster, dbName, replicas, callback))
+  }
+}
+
 export const DELETE_DATABASE_CACHE_REQUEST = 'DELETE_DATABASE_CACHE_REQUEST'
 export const DELETE_DATABASE_CACHE_SUCCESS = 'DELETE_DATABASE_CACHE_SUCCESS'
 export const DELETE_DATABASE_CACHE_FAILURE = 'DELETE_DATABASE_CACHE_FAILURE'
@@ -181,6 +207,15 @@ function deleteDbCluster(cluster, dbName, clusterTypes ,callback) {
 export function deleteDatabaseCluster(cluster, dbName, clusterTypes ,callback) {
   return (dispatch) => {
     return dispatch(deleteDbCluster(cluster, dbName, clusterTypes , callback))
+  }
+}
+
+export const SEARCH_DATABASE_CLUSTER_TYPES = 'SEARCH_DATABASE_CLUSTER_TYPES'
+export function searchDbservice(types, name) {
+  return {
+    type: SEARCH_DATABASE_CLUSTER_TYPES,
+    types,
+    name
   }
 }
 

@@ -8,7 +8,7 @@
 * @author BaiYu
 */
 import React, { Component, PropTypes } from 'react'
-import { Alert, Icon, Menu, Button, Card, Input, Tabs, Tooltip, message, Dropdown, Modal, Spin } from 'antd'
+import { Alert, Icon, Menu, Button, Card, Input, Tabs, Tooltip, Dropdown, Modal, Spin } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -17,6 +17,7 @@ import './style/CodeRepo.less'
 import { getRepoList, addCodeRepo, notActiveProject, deleteRepo, registryRepo, syncRepoList, searchCodeRepo, getUserInfo } from '../../../actions/cicd_flow'
 import GithubComponent from './GithubComponent'
 import SvnComponent from './SvnComponent'
+import NotificationHandler from '../../../common/notification_handler'
 
 const TabPane = Tabs.TabPane
 
@@ -104,17 +105,18 @@ const MyComponent = React.createClass({
   },
   addBuild(item, index) {
     const parentScope = this.props.scope
-    const loadingList  = {} 
+    const loadingList = {}
     const self = this
     loadingList[index] = true
     parentScope.setState({
       loadingList
     })
+    let notification = new NotificationHandler()
     parentScope.props.addCodeRepo('gitlab', item, {
       success: {
         func: () => {
           const { formatMessage } = self.props
-          message.success(formatMessage(menusText.SuccessfulActivation))
+          notification.success(formatMessage(menusText.SuccessfulActivation))
         }
       }
     })
@@ -136,16 +138,17 @@ const MyComponent = React.createClass({
     const url = this.state.regUrl
     const token = this.state.regToken
     const { formatMessage } = this.props
+    let notification = new NotificationHandler()
     if (!url) {
-      message.info(formatMessage(menusText.notSrc))
+      notification.info(formatMessage(menusText.notSrc))
       return
     }
     if (!token) {
-      message.info('Private Token不能为空')
+      notification.info('Private Token不能为空')
       return
     }
     if (!(/^http:|^https:/).test(url)) {
-      message.info(formatMessage(menusText.errorSrc))
+      notification.info(formatMessage(menusText.errorSrc))
       return
     }
     const config = {
@@ -157,9 +160,12 @@ const MyComponent = React.createClass({
       loading: true
     })
     const self = this
+    notification.spin(`代码仓库添加中...`)
     this.props.scope.props.registryRepo(config, {
       success: {
         func: () => {
+          notification.close()
+          notification.success(`代码仓库添加成功`)
           self.setState({
             authorizeModal: false,
             regUrl: '',
@@ -171,9 +177,14 @@ const MyComponent = React.createClass({
         isAsync: true
       },
       failed: {
-        func: (res)=> {
-          self.setState({loading: false})
-          message.error(res.message)
+        func: (err) => {
+          let message = err.message
+          if (message && message.message) {
+            message = message.message
+          }
+          notification.close()
+          notification.error(`代码仓库添加失败`, message)
+          self.setState({ loading: false })
         }
       }
     })
@@ -197,15 +208,16 @@ const MyComponent = React.createClass({
   notActive(id, index) {
     const parentScope = this.props.scope
     const {formatMessage} = this.props
-    const loadingList  = {} 
+    const loadingList = {}
     loadingList[index] = false
     parentScope.setState({
       loadingList
     })
+    let notification = new NotificationHandler()
     parentScope.props.notActiveProject(id, {
       success: {
         func: () => {
-          message.success(formatMessage(menusText.UndoSuccessful))
+          notification.success(formatMessage(menusText.UndoSuccessful))
         }
       }
     })
@@ -225,7 +237,7 @@ const MyComponent = React.createClass({
         </div>
       )
     }
-    
+
     if (!config) {
       return (
         <div style={{ lineHeight: '150px', paddingLeft: '250px' }}>
@@ -248,7 +260,7 @@ const MyComponent = React.createClass({
         </div>
       )
     }
-    let items = config.length >0 && config.map((item, index) => {
+    let items = config.length > 0 && config.map((item, index) => {
       return (
         <div className='CodeTable' key={item.name} >
           <div className="name textoverflow">{item.name}</div>
@@ -294,7 +306,7 @@ const MyComponent = React.createClass({
 class CodeRepo extends Component {
   constructor(props) {
     super(props);
-    const type =  location.search ? location.search.split('?')[1] : 'gitlab'
+    const type = location.search ? location.search.split('?')[1] : 'gitlab'
     if (type) {
       this.state = {
         repokey: type
@@ -371,7 +383,7 @@ class CodeRepo extends Component {
               <p style={{ paddingLeft: '36px', lineHeight: '40px' }}>选择代码源</p>
               <Tabs type="card" onChange={(e) => { this.setState({ repokey: e }) } } activeKey={this.state.repokey}>
                 <TabPane tab={gitlabBud} key="gitlab"><MyComponent formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} repoUser={this.props.repoUser} config={this.props.repoList} /></TabPane>
-                <TabPane tab={githubBud} key="github"><GithubComponent formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope}  /></TabPane>
+                <TabPane tab={githubBud} key="github"><GithubComponent formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} /></TabPane>
                 <TabPane tab={svnBud} key="svn"><SvnComponent formatMessage={formatMessage} isFetching={this.props.isFetching} scope={scope} /></TabPane>
 
               </Tabs>

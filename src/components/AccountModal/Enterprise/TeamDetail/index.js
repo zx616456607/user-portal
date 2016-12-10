@@ -15,11 +15,11 @@ import {
   deleteTeam, createTeamspace, addTeamusers, removeTeamusers,
   loadTeamspaceList, loadTeamUserList, loadAllClustersList,
   deleteTeamspace, requestTeamCluster, checkTeamSpaceName,
-} from '../../../actions/team'
+} from '../../../../actions/team'
 import { connect } from 'react-redux'
-import MemberTransfer from '../MemberTransfer'
-import CreateSpaceModal from '../CreateSpaceModal'
-import NotificationHandler from '../../../common/notification_handler'
+import MemberTransfer from '../../MemberTransfer'
+import CreateSpaceModal from '../../CreateSpaceModal'
+import NotificationHandler from '../../../../common/notification_handler'
 
 const confirm = Modal.confirm;
 

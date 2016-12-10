@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Dropdown, Modal, Checkbox, Button, Card, Menu, Input, Select, Popconfirm, Form } from 'antd'
+import { Dropdown, Modal, Checkbox, Button, Card, Menu, Input, Select, Popconfirm, Form, Icon } from 'antd'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import "./style/ComposeFile.less"
@@ -19,7 +19,7 @@ import YamlEditor from '../../Editor/Yaml'
 import * as yaml from 'js-yaml'
 import { browserHistory } from 'react-router'
 import AppAddStackModal from './AppAddStackModal'
-import { validateAppName } from '../../../common/naming_validation'
+import { appNameCheck } from '../../../common/naming_validation'
 import NotificationHandler from '../../../common/notification_handler'
 
 const FormItem = Form.Item;
@@ -154,15 +154,16 @@ class ComposeFile extends Component {
       // validateAppName
       return
     }*/
-    const error = validateAppName(value)
-    if (error) {
-      return callback(error)
+    let errorMsg = appNameCheck(value, '应用名称')
+    if (errorMsg != 'success') {
+      return callback([new Error(errorMsg)])
     }
     checkAppName(cluster, value, {
       success: {
         func: (result) => {
           if (result.data) {
-            callback([new Error('应用名称已经存在')])
+            errorMsg = appNameCheck(value, '应用名称', true)
+            callback([new Error(errorMsg)])
             return
           }
           this.setState({
@@ -235,6 +236,7 @@ class ComposeFile extends Component {
             <div className="nameBox">
               <span>应用名称</span>
               <FormItem
+                hasFeedback
                 help={isFieldValidating('appNameFormCheck') ? '校验中...' : (getFieldError('appNameFormCheck') || []).join(', ')}
                 >
                 <Input size="large"
@@ -246,7 +248,7 @@ class ComposeFile extends Component {
             </div>
             <div className="introBox">
               <span>应用描述</span>
-              <FormItem>
+              <FormItem hasFeedback>
                 <Input size="large"
                   placeholder="请输入应用描述"
                   {...remarkFormCheck}

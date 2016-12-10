@@ -12,6 +12,7 @@ import { Form, Select, Input, InputNumber, Modal, Checkbox, Button, Card, Menu, 
 import { connect } from 'react-redux'
 import filter from 'lodash/filter'
 import { DEFAULT_REGISTRY } from '../../../../constants'
+import { appNameCheck } from '../../../../common/naming_validation'
 import { loadImageDetailTag, loadImageDetailTagConfig, getOtherImageTag, loadOtherDetailTagConfig } from '../../../../actions/app_center'
 import { checkServiceName } from '../../../../actions/app_manage'
 import { loadFreeVolume, createStorage } from '../../../../actions/storage'
@@ -420,41 +421,49 @@ let NormalDeployBox = React.createClass({
     const { checkServiceName, isCreate, cluster } = this.props
     const { servicesList } = this.props.scope.props.scope.state
     let i = 0
-    if (!value) {
-      callback()
-    } else {
-      if (!/^[a-z][a-z0-9-]{2,24}$/.test(value)) {
-        callback([new Error('抱歉，该服务名称不合法.')])
+    let checkMsg = appNameCheck(value, '服务名称');
+    if(checkMsg == 'success') {
+      let existFlag = false;
+      //check local name exist 
+      if(!isCreate) {
+        const oldServiceName = this.props.form.getFieldProps('name').value
+        servicesList.map((service) => {
+          if((value !== oldServiceName) && (service.id === value)) {
+           existFlag = true;
+            return
+          }
+        })
       } else {
-        if (!isCreate) {
-          const oldServiceName = this.props.form.getFieldProps('name').value
-          servicesList.map((service) => {
-            if ((value !== oldServiceName) && (service.id === value)) {
-              callback([new Error('服务名称已经存在')])
-              return
-            }
-          })
-        } else {
-          servicesList.map((service) => {
-            if (service.id === value) {
-              callback([new Error('服务名称已经存在')])
-              return
-            }
-          })
-        }
-        checkServiceName(cluster, value, {
-          success: {
-            func: (result) => {
-              if (result.data) {
-                callback([new Error('服务名称已经存在')])
-              } else {
-                callback()
-              }
-            },
-            isAsync: true
+        servicesList.map((service) => {
+          if(service.id === value) {
+            existFlag = true;
+            return
           }
         })
       }
+      if(existFlag) {
+        checkMsg = appNameCheck(value, '服务名称', true);
+        callback([new Error(checkMsg)])
+        return;
+      }
+      //check all name exist
+      checkServiceName(cluster, value, {
+        success: {
+          func: (result) => {
+            if(result.data) {
+              existFlag = true;
+              checkMsg = appNameCheck(value, '服务名称', true);
+              callback([new Error(checkMsg)])
+              return;
+            } else {
+              callback();
+            }
+          },
+          isAsync: true
+        }
+      });
+    } else {     
+      callback([new Error(checkMsg)]);      
     }
   },
   componentWillMount() {
@@ -477,7 +486,6 @@ let NormalDeployBox = React.createClass({
     const { getFieldProps, getFieldError, isFieldValidating } = form
     const nameProps = getFieldProps('name', {
       rules: [
-        { required: true, },
         { validator: this.userExists },
       ],
     });

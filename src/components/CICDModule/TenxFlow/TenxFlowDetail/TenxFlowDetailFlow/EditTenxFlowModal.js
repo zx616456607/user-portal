@@ -8,18 +8,20 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Input, Form, Switch, Radio, Checkbox, Icon, Select, Modal, notification } from 'antd'
+import { Button, Input, Form, Switch, Radio, Checkbox, Icon, Select, Modal } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../../constants'
+import { appNameCheck } from '../../../../../common/naming_validation'
 import DockerFileEditor from '../../../../Editor/DockerFile'
 import { updateTenxFlowState, getDockerfiles, setDockerfile, getAvailableImage } from '../../../../../actions/cicd_flow'
 import './style/EditTenxFlowModal.less'
 import EnvComponent from './CreateEnvComponent.js'
 import ImageEnvComponent from './ImageEnvComponent.js'
 import CodeStoreListModal from './CodeStoreListModal.js'
+import NotificationHandler from '../../../../../common/notification_handler'
 
 const RadioGroup = Radio.Group;
 const createForm = Form.create;
@@ -182,7 +184,7 @@ const menusText = defineMessages({
 });
 
 function fetchCodeStoreName(project, codeList) {
-  //this function for fetcht code store name 
+  //this function for fetcht code store name
   let codeName = null;
   if (!project) {
     return
@@ -327,16 +329,24 @@ let EditTenxFlowModal = React.createClass({
   },
   flowNameExists(rule, value, callback) {
     //this function for check the new tenxflow name is exist or not
-    if (!value) {
-      callback();
+    const { stageList } = this.props;
+    let errorMsg = appNameCheck(value, '项目名称')
+    if(errorMsg == 'success') {
+      let flag = false;
+      if (stageList.length > 0) {
+        stageList.map((item) => {
+          if (item.metadata.name == value) {
+            flag = true;
+            errorMsg = appNameCheck(value, '项目名称', true);
+            callback([new Error(errorMsg)]);
+          }
+        });
+      }
+      if (!flag) {
+        callback();
+      }        
     } else {
-      setTimeout(() => {
-        if (value === 'tenxflow') {
-          callback([new Error('抱歉，该名称已存在。')]);
-        } else {
-          callback();
-        }
-      }, 800);
+      callback([new Error(errorMsg)]);
     }
   },
   otherStoreUrlInput(rule, value, callback) {
@@ -373,8 +383,8 @@ let EditTenxFlowModal = React.createClass({
       });
     }
     // Clean the command entries
-    this.props.form.setFieldsValue({'shellCodes': [0]});
-    this.props.form.setFieldsValue({'shellCode0': ''});
+    this.props.form.setFieldsValue({ 'shellCodes': [0] });
+    this.props.form.setFieldsValue({ 'shellCode0': '' });
     this.props.config.spec.container.args = {}
     this.setState({
       otherFlowType: ins
@@ -471,10 +481,13 @@ let EditTenxFlowModal = React.createClass({
   realImageInput(rule, value, callback) {
     //this function for user selected build image type
     //and when user submit the form, the function will check the real image input or not 
-    if (this.state.otherFlowType == 3 && !!!value) {
-      callback([new Error('请输入镜像名称')]);
-    } else if (value.match(/[\/:]/)) {
-      callback([new Error('不能包含“/”和“:”')])
+    if (this.state.otherFlowType == 3) {
+      let errorMsg = appNameCheck(value, '镜像名称')
+      if(errorMsg == 'success') {
+        callback()
+      } else {        
+        callback([new Error(errorMsg)]);
+      }
     } else {
       callback()
     }
@@ -769,11 +782,12 @@ let EditTenxFlowModal = React.createClass({
         } else {
           imageBuildBody.DockerfilePath = tmpDockerFileUrl;
         }
-        if(!!values.dockerFileName) {
+        if (!!values.dockerFileName) {
           imageBuildBody.DockerfileName = values.dockerFileName;
         }
         body.spec.build = imageBuildBody;
       }
+      let notification = new NotificationHandler()
       updateTenxFlowState(flowId, stageId, body, {
         success: {
           func: () => {
@@ -797,10 +811,7 @@ let EditTenxFlowModal = React.createClass({
             rootScope.setState({
               currentFlowEdit: null
             });
-            notification['success']({
-              message: '持续集成',
-              description: '编辑成功~',
-            });
+            notification.success('持续集成', '编辑成功~');
           },
           isAsync: true
         }
@@ -809,18 +820,18 @@ let EditTenxFlowModal = React.createClass({
   },
   render() {
     const { formatMessage } = this.props.intl;
-    const { config, form, codeList, supportedDependencies ,imageList} = this.props;
+    const { config, form, codeList, supportedDependencies, imageList} = this.props;
     const shellList = config.spec.container.args ? config.spec.container.args : [];
     const servicesList = config.spec.container.dependencies ? config.spec.container.dependencies : [];
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form;
     const scopeThis = this;
-    if (imageList === undefined || imageList.length ===0) {
+    if (imageList === undefined || imageList.length === 0) {
       return (<div></div>)
     }
     let intFlowTypeIndex = this.state.otherFlowType - 1
     let buildImages = []
     let dependenciesImages = []
-    imageList.forEach(function(image) {
+    imageList.forEach(function (image) {
       if (image.imageList[0].categoryId > 100) {
         dependenciesImages.push(image)
       } else {
@@ -834,7 +845,7 @@ let EditTenxFlowModal = React.createClass({
     });
     const selectImage = buildImages.map((list, index) => {
       return (
-        <Option key={ list.title } value={list.title + `@`+ (index+1) }>{list.title}</Option>
+        <Option key={list.title} value={list.title + `@` + (index + 1)}>{list.title}</Option>
       )
     })
     if (intFlowTypeIndex > buildImages.length - 1) {
@@ -986,7 +997,7 @@ let EditTenxFlowModal = React.createClass({
             <div className='input flowType'>
               <FormItem className='flowTypeForm'>
                 <Select {...flowTypeProps} style={{ width: 120 }}>
-                  { selectImage }
+                  {selectImage}
                 </Select>
               </FormItem>
               {
@@ -1020,7 +1031,7 @@ let EditTenxFlowModal = React.createClass({
               {this.state.currentCodeStore ? [
                 <Button type='ghost' size='large' style={{ marginLeft: '15px' }} onClick={this.deleteCodeStore}>
                   <Icon type='delete' style={{ marginRight: '7px' }} />
-                <FormattedMessage {...menusText.deleteCode} />
+                  <FormattedMessage {...menusText.deleteCode} />
                 </Button>
               ] : null}
             </div>
@@ -1049,7 +1060,7 @@ let EditTenxFlowModal = React.createClass({
             <div className='imageName input'>
               <FormItem style={{ width: '220px', float: 'left' }}>
                 <Select {...imageNameProps}>
-                  { baseImage }
+                  {baseImage}
                 </Select>
               </FormItem>
               <span className={this.state.emptyImageEnv ? 'emptyImageEnv defineEnvBtn' : 'defineEnvBtn'} onClick={this.openImageEnvModal}><FormattedMessage {...menusText.defineEnv} /></span>
@@ -1123,7 +1134,7 @@ let EditTenxFlowModal = React.createClass({
                     <span><FormattedMessage {...menusText.imageRealName} /></span>
                   </div>
                   <div className='input imageType'>
-                    <FormItem style={{ width: '220px', float: 'left', marginRight: '20px' }}>
+                    <FormItem hasFeedback style={{ width: '220px', float: 'left', marginRight: '20px' }}>
                       <Input {...imageRealNameProps} type='text' size='large' />
                     </FormItem>
                     <div style={{ clear: 'both' }} />

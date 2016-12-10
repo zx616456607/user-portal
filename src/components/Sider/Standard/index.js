@@ -544,7 +544,7 @@ class Slider extends Component {
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='myteam'>
-                    <Link to='/account/myteam'>
+                    <Link to='/account/team'>
                       <span><div className='sideCircle'></div> 我的团队</span>
                     </Link>
                   </Menu.Item>
@@ -564,7 +564,7 @@ class Slider extends Component {
           <Tooltip placement='right' title={siderStyle == 'mini' ? '展开导航栏' : null} getTooltipContainer={() => document.getElementById('siderTooltip')}>
             <li onClick={this.changeSiderStyle}>
               <span>
-                {siderStyle == 'mini' ? [<i className='fa fa-indent'></i>] : [<i className='fa fa-outdent'></i>]}
+                {siderStyle == 'mini' ? [<i key='fa-indent' className='fa fa-indent'></i>] : [<i key='fa-outdent' className='fa fa-outdent'></i>]}
               </span>
               {siderStyle == 'bigger' ? [<span>收起</span>] : null}
             </li>

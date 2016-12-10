@@ -26,7 +26,7 @@ let delMessage = (
       <Col span={2} className='tipIcon'>
         <Icon type="exclamation-circle" />
       </Col>
-      <Col className="tipText" span={22}>
+      <Col className="tipText" span={22} style={{color:'#4e4e4d'}}>
         Tip：请注意，点击确认后“研发Team”团队将会被解散
       </Col>
     </Row>
@@ -34,7 +34,7 @@ let delMessage = (
       <Col span={2} className='tipIcon'>
         <Icon type="exclamation-circle" />
       </Col>
-      <Col className="tipText" span={22}>
+      <Col className="tipText" span={22} style={{color:'#8f8e8c'}}>
         团队内的应用、存储、数据库均将被清空
       </Col>
     </Row>
@@ -42,7 +42,7 @@ let delMessage = (
       <Col span={2} className='tipIcon'>
         <Icon type="exclamation-circle" />
       </Col>
-      <Col className="tipText" span={22}>
+      <Col className="tipText" span={22} style={{color:'#8f8e8c'}}>
         团队余额将退回至“chiquan（创建者）“账户，稍后请查收个人账户的充值记录【来源显示：时速云（注：团队解散退款）】
       </Col>
     </Row>

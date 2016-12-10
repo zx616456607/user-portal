@@ -250,8 +250,8 @@ let MyComponentPort = React.createClass({
                   optionFilterProp="children"
                   notFoundContent="无法找到"
                   className="portGroup" size="large">
-                  <Option value="HTTP">Http</Option>
-                  <Option value="TCP">Tcp</Option>
+                  <Option value="HTTP">HTTP</Option>
+                  <Option value="TCP">TCP</Option>
                   {/*<Option value="udp">Udp</Option>*/}
                 </Select>
               </FormItem>

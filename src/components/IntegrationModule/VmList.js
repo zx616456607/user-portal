@@ -13,10 +13,11 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { getIntegrationVmList, manageVmDetail } from '../../actions/integration'
-import { Button, Alert, Card, Spin, Input, Tooltip, Dropdown, Menu, Select, notification, Modal } from 'antd'
+import { Button, Alert, Card, Spin, Input, Tooltip, Dropdown, Menu, Select, Modal } from 'antd'
 import { formatDate, calcuDate } from '../../common/tools'
 import './style/VmList.less'
 import CreateVmModal from './CreateVmModal'
+import NotificationHandler from '../../common/notification_handler'
 
 const ButtonGroup = Button.Group;
 const Option = Select.Option;
@@ -97,11 +98,11 @@ const menusText = defineMessages({
 })
 
 function diskFormat(num) {
-  if(num < 1024) {
+  if (num < 1024) {
     return num + 'MB'
   }
   num = parseInt(num / 1024);
-  if(num < 1024) {
+  if (num < 1024) {
     return num + 'GB'
   }
   num = parseInt(num / 1024);
@@ -110,7 +111,7 @@ function diskFormat(num) {
 
 function formatStatus(status) {
   //this function for format status
-  switch(status) {
+  switch (status) {
     case 'poweron':
       return (
         <span className='poweron'><i className='fa fa-circle' /><FormattedMessage {...menusText.poweronStatus} /></span>
@@ -150,7 +151,7 @@ class VmList extends Component {
       currentOperaVm: null
     }
   }
-  
+
   componentWillMount() {
     document.title = '集成中心 | 时速云';
     const { getIntegrationVmList, integrationId, currentDataCenter } = this.props;
@@ -159,7 +160,7 @@ class VmList extends Component {
       success: {
         func: (res) => {
           let vmList = res.result.data;
-          if(!Boolean(vmList)) {
+          if (!Boolean(vmList)) {
             vmList = [];
           }
           _this.setState({
@@ -170,16 +171,16 @@ class VmList extends Component {
       }
     })
   }
-  
+
   componentWillReceiveProps(nextProps) {
     const { getIntegrationVmList, integrationId, currentDataCenter } = nextProps;
     const _this = this;
-    if(nextProps.currentDataCenter != this.props.currentDataCenter) {
+    if (nextProps.currentDataCenter != this.props.currentDataCenter) {
       getIntegrationVmList(integrationId, currentDataCenter, {
         success: {
           func: (res) => {
             let vmList = res.result.data;
-            if(!Boolean(vmList)) {
+            if (!Boolean(vmList)) {
               vmList = [];
             }
             _this.setState({
@@ -191,28 +192,28 @@ class VmList extends Component {
       })
     }
   }
-  
+
   onChangeShowType(type) {
     //this function for user change the type of app list
     this.setState({
       currentShowApps: type
     });
   }
-  
+
   onChangeAppType(type) {
     //this function for user change the type of app
     this.setState({
       currentAppType: type
     });
   }
-  
+
   ShowDetailInfo(name) {
     //this function for view the app detail info
     this.setState({
       showType: 'detail'
     });
   }
-  
+
   onChangeDataCenter(e) {
     //this function for user change the current data center
     const { scope, getIntegrationVmList, integrationId } = this.props;
@@ -221,10 +222,10 @@ class VmList extends Component {
     });
     getIntegrationVmList(integrationId, e)
   }
-  
+
   onPowerOn(path, status, name) {
     //this function for user power on the vm
-    const { manageVmDetail, integrationId, currentDataCenter, vmList } = this.props; 
+    const { manageVmDetail, integrationId, currentDataCenter, vmList } = this.props;
     let tempBody = {
       action: status,
       vm: path
@@ -233,7 +234,7 @@ class VmList extends Component {
     let confirmMsg = null;
     let errorMsg = null;
     let newStatus = null;
-    if(status == 'poweron') {
+    if (status == 'poweron') {
       title = '确认关闭';
       confirmMsg = '是否确定关闭虚拟机' + name + '的客户机操作系统';
       tempBody.action = 'poweroff'
@@ -249,13 +250,13 @@ class VmList extends Component {
       currentOperaVm: tempBody
     });
   }
-  
+
   meunClick(path, name, key) {
-    //this function for user manage the vm 
+    //this function for user manage the vm
     const { manageVmDetail, integrationId, currentDataCenter, vmList } = this.props;
     let title = null;
     let confirmMsg = null;
-    switch(key.key) {
+    switch (key.key) {
       case 'poweroff':
         title = '关闭虚拟机';
         confirmMsg = '是否确定关闭虚拟机' + name + '的客户机操作系统';
@@ -280,34 +281,34 @@ class VmList extends Component {
       currentOperaVm: tempBody
     });
   }
-  
+
   openCreateVmModal() {
     //this function for user open the create vm modal
     this.setState({
       createVmModal: true
     })
   }
-  
+
   closeCreateVmModal() {
     //this function for user close the create vm modal
     this.setState({
       createVmModal: false
     })
   }
-  
+
   refreshVmList() {
     //this function for refresh the vm list
     const { currentDataCenter, getIntegrationVmList, integrationId } = this.props;
     getIntegrationVmList(integrationId, currentDataCenter);
   }
-  
+
   onSearchVmList(e) {
     //this function for user search special vm
     let keyword = e.target.value;
     const { vmList } = this.props;
     let newList = [];
     vmList.map((item) => {
-      if(item.name.indexOf(keyword) > -1) {
+      if (item.name.indexOf(keyword) > -1) {
         newList.push(item)
       }
     });
@@ -315,7 +316,7 @@ class VmList extends Component {
       vmList: newList
     })
   }
-  
+
   onConfirmOperaVm() {
     //this function for user confirm opera vm
     let { manageVmDetail, integrationId, currentDataCenter } = this.props;
@@ -328,11 +329,11 @@ class VmList extends Component {
     let errorMsg = '';
     let successMsg = '';
     let title = '';
-    if(currentOperaVm.action == 'poweron') {
+    if (currentOperaVm.action == 'poweron') {
       title = '启动虚拟机';
       errorMsg = '虚拟机已经启动了';
       successMsg = '启动虚拟机成功';
-    } else if(currentOperaVm.action == 'poweroff') {
+    } else if (currentOperaVm.action == 'poweroff') {
       title = '关闭虚拟机';
       errorMsg = '虚拟机已经关闭了';
       successMsg = '关闭虚拟机成功';
@@ -340,49 +341,47 @@ class VmList extends Component {
     this.setState({
       confirmModal: false
     })
+    let notification = new NotificationHandler()
+    notification.spin(`${title}中...`)
     manageVmDetail(integrationId, currentDataCenter, tempBody, {
       success: {
         func: () => {
           vmList.map((item) => {
-            if(item.path == currentOperaVm.vm) {
+            if (item.path == currentOperaVm.vm) {
               item.powerstate = currentOperaVm.action;
             }
           });
           this.setState({
             vmList: vmList
           })
-          notification['success']({
-            message: title,
-            description: successMsg,
-          });
+          notification.close()
+          notification.success(title, successMsg)
         },
         isAsync: true
       },
       failed: {
         func: (error) => {
-          if(error.message.code == 500) {
-            notification['error']({
-              message: title,
-              description: errorMsg,
-            });
+          notification.close()
+          if (error.message.code == 500) {
+            notification.success(title, errorMsg)
           }
         }
       }
     });
   }
-  
+
   closeConfirmModal() {
     //this function for user close the oprea vm modal
     this.setState({
       confirmModal: false
     })
   }
-  
+
   render() {
     const { formatMessage } = this.props.intl;
     const { isFetching, dataCenters, currentDataCenter, integrationId } = this.props;
     const scope = this;
-    if(isFetching) {
+    if (isFetching) {
       return (
         <div className='loadingBox'>
           <Spin size='large' />
@@ -391,13 +390,13 @@ class VmList extends Component {
     }
     const { vmList } = this.state;
     let appShow = null;
-    if(Boolean(vmList)) {      
+    if (Boolean(vmList)) {
       appShow = vmList.map((item, index) => {
         const menu = (
           <Menu onClick={this.meunClick.bind(this, item.path, item.name)} style={{ width: '126px' }}>
-            { 
+            {
               item.powerstate == 'poweroff' ? [<Menu.Item key='poweroff'><i className='fa fa-stop' />&nbsp;<FormattedMessage {...menusText.poweroff} /></Menu.Item>] : [<Menu.Item key='poweron'><i className='fa fa-play' />&nbsp;<FormattedMessage {...menusText.poweron} /></Menu.Item>]
-            }          
+            }
             <Menu.Item key='delete' disabled><i className='fa fa-trash' />&nbsp;<FormattedMessage {...menusText.delete} /></Menu.Item>
           </Menu>
         )
@@ -416,10 +415,10 @@ class VmList extends Component {
                       </Tooltip>
                     </span>
                   ] : [
-                    <span key={'podDetail' + index + 'ip'}>{item.name}</span>
-                  ]
+                      <span key={'podDetail' + index + 'ip'}>{item.name}</span>
+                    ]
                 }
-                
+
               </span>
             </div>
             <div className='status commonTitle'>
@@ -430,7 +429,7 @@ class VmList extends Component {
             <div className='pod commonTitle'>
               <span className='commonSpan'>
                 <Tooltip placement='topLeft' title={item.hostSystem}>
-                 <span>{item.hostSystem}</span>
+                  <span>{item.hostSystem}</span>
                 </Tooltip>
               </span>
             </div>
@@ -466,7 +465,7 @@ class VmList extends Component {
             <div className='opera commonTitle'>
               <Dropdown.Button overlay={menu} type='ghost' size='large' onClick={this.onPowerOn.bind(this, item.path, item.powerstate, item.name)}>
                 <span>
-                  { item.powerstate == 'poweroff' ? [<span><i className='fa fa-play' />&nbsp;<FormattedMessage {...menusText.poweron} /></span>] : [<span><i className='fa fa-stop' />&nbsp;<FormattedMessage {...menusText.poweroff} /></span>] }
+                  {item.powerstate == 'poweroff' ? [<span><i className='fa fa-play' />&nbsp;<FormattedMessage {...menusText.poweron} /></span>] : [<span><i className='fa fa-stop' />&nbsp;<FormattedMessage {...menusText.poweroff} /></span>]}
                 </span>
               </Dropdown.Button>
             </div>
@@ -523,18 +522,18 @@ class VmList extends Component {
           <div style={{ clear: 'both' }}></div>
         </div>
         {appShow}
-        { vmList.length == 0 ? [
+        {vmList.length == 0 ? [
           <div className='loadingBox' key='loadingBox'>
             <span>暂无数据</span>
           </div>
-        ] : null }
+        ] : null}
         <Modal
           title={<FormattedMessage {...menusText.createTitle} />}
           className='createIntegrationModal'
           visible={this.state.createVmModal}
           onCancel={this.closeCreateVmModal.bind(this)}
-        >
-          <CreateVmModal scope={scope} createVmModal={this.state.createVmModal} currentDataCenter={currentDataCenter} integrationId={integrationId}/>
+          >
+          <CreateVmModal scope={scope} createVmModal={this.state.createVmModal} currentDataCenter={currentDataCenter} integrationId={integrationId} />
         </Modal>
         <Modal
           className='operaVmModal'
@@ -542,7 +541,7 @@ class VmList extends Component {
           onOk={this.onConfirmOperaVm}
           onCancel={this.closeConfirmModal}
           title={this.state.confirmTitle}
-        >
+          >
           <Alert message={this.state.confirmMsg} type='warning' />
         </Modal>
       </div>
