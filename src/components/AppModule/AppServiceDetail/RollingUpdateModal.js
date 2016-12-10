@@ -10,7 +10,7 @@
 import React, { Component } from 'react'
 import './style/RollingUpdateModal.less'
 import { DEFAULT_REGISTRY } from '../../../constants'
-import { Button, Card, Menu, message, Icon, Tooltip, Row, Col, Select, InputNumber, Alert, Switch, Modal } from 'antd'
+import { Button, Card, Menu, Icon, Tooltip, Row, Col, Select, InputNumber, Alert, Switch, Modal } from 'antd'
 import { loadImageDetailTag } from '../../../actions/app_center'
 import { rollingUpdateService } from '../../../actions/services'
 import { connect } from 'react-redux'

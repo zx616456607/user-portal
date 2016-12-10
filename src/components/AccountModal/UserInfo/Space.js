@@ -8,14 +8,14 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Button, Popover, Spin, message, } from 'antd'
+import { Row, Col, Button, Popover, Spin, } from 'antd'
 import './style/Space.less'
 import { browserHistory } from 'react-router'
 import { setCurrent } from '../../../actions/entities'
 import { loadTeamClustersList } from '../../../actions/team'
 import { connect } from 'react-redux'
 import PopContent from '../../PopSelect/Content'
-
+import NotificationHandler from '../../../common/notification_handler'
 
 let PersonalSpace = React.createClass({
   getInitialState() {
@@ -76,6 +76,7 @@ let TeamSpace = React.createClass({
   handleClusterChange(cluster) {
     const { setCurrent } = this.props
     const { currentSpace } = this.state
+    let notification = new NotificationHandler()
     setCurrent({
       team: {
         teamID: currentSpace.teamID
@@ -84,7 +85,7 @@ let TeamSpace = React.createClass({
       cluster,
     })
     let msg = `已进入空间 ${currentSpace.spaceName}（集群：${cluster.clusterName}）`
-    message.success(msg)
+    notification.success(msg)
     browserHistory.push('/')
   },
   render: function () {
