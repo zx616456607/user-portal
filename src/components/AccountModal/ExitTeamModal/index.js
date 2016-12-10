@@ -24,13 +24,36 @@ let message = (
 export default class ExitTeamModal extends Component{
   constructor(props){
     super(props)
+    this.handleExitTeamOk = this.handleExitTeamOk.bind(this)
+    this.handleExitTeamCancel = this.handleExitTeamCancel.bind(this)
     this.state = {
       
     }
   }
+  handleExitTeamOk() {
+    const { closeExitTeamModal } = this.props
+    closeExitTeamModal()
+  }
+  handleExitTeamCancel() {
+    const { closeExitTeamModal } = this.props
+    closeExitTeamModal()
+  }
   render(){
+    const { visible } = this.props
     return (
-      <div>
+      <Modal title='退出团队'
+             visible={ visible }
+             onOk={this.handleExitTeamOk}
+             onCancel={this.handleExitTeamCancel}
+             width="660px"
+             wrapClassName="ExitTeamModal"
+             footer={[
+               <Button key="back" type="ghost" size="large" onClick={this.handleExitTeamCancel}>取消</Button>,
+               <Button key="submit" type="primary" size="large" onClick={this.handleExitTeamOk} className="delBtn" >
+                 确定
+               </Button>,
+             ]}
+      >
         <Alert message={message} type="warning"/>
         <Row className="confirm">
           <Col span={2} className='confirmIcon'>
@@ -40,7 +63,7 @@ export default class ExitTeamModal extends Component{
             请确认是否退出团队 “市场部” ?
           </Col>
         </Row>
-      </div>
+      </Modal>
     )
   }
 }

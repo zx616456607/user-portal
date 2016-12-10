@@ -229,18 +229,9 @@ let TeamTable = React.createClass({
       })
     }
   },
-  handleExitTeamOk() {
-    this.setState({
-      showExitModal: false,
-    })
-  },
-  handleExitTeamCancel() {
-    this.setState({
-      showExitModal: false,
-    })
-  },
   //关闭退出团队弹框
   closeExitTeamModal() {
+    console.log('colse!!')
     this.setState({
       showExitModal: false
     })
@@ -406,46 +397,34 @@ let TeamTable = React.createClass({
         width: '20%',
         render: (text, record, index) => (
               record.role === 1 ?
-                <Dropdown.Button
-                  overlay={roleDropdown} type='ghost'
-                  onClick={() => this.addNewMember(record.key)}
-                  className="tabDrop"
+              <Dropdown.Button
+                overlay={roleDropdown} type='ghost'
+                onClick={() => this.addNewMember(record.key)}
+                className="tabDrop"
+                >
+                <Icon type="plus" />
+                <span>邀请新成员</span>
+                <Modal title='邀请新成员'
+                  visible={this.state.nowTeamID === record.key && this.state.addMember}
+                  onOk={this.handleNewMemberOk}
+                  onCancel={this.handleNewMemberCancel}
+                  width="660px"
+                  wrapClassName="newMemberModal"
                   >
-                  <Icon type="plus" />
-                  <span>邀请新成员</span>
-                  <Modal title='邀请新成员'
-                    visible={this.state.nowTeamID === record.key && this.state.addMember}
-                    onOk={this.handleNewMemberOk}
-                    onCancel={this.handleNewMemberCancel}
-                    width="660px"
-                    wrapClassName="newMemberModal"
-                    >
-                    <MemberTransfer onChange={this.handleChange}
-                      targetKeys={targetKeys}
-                      teamID={record.key}
-                      teamUserIDList={teamUserIDList} />
-                  </Modal>
-                </Dropdown.Button>
-                :
-                <div>
-                  <Button icon="delete" className="delBtn" onClick={() => this.handleShowExitTeamModal(record.key)}>退出团队</Button>
-                  <Modal title='退出团队'
-                         visible={ this.state.nowTeamID === record.key && this.state.showExitModal }
-                         onOk={this.handleExitTeamOk}
-                         onCancel={this.handleExitTeamCancel}
-                         width="660px"
-                         wrapClassName="ExitTeamModal"
-                         footer={[
-                           <Button key="back" type="ghost" size="large" onClick={this.handleExitTeamCancel}>取消</Button>,
-                           <Button key="submit" type="primary" size="large" onClick={this.handleExitTeamOk} className="delBtn" >
-                             确定
-                           </Button>,
-                         ]}
-                  >
-                    <ExitTeamModal
-                    />
-                  </Modal>
-                </div>
+                  <MemberTransfer onChange={this.handleChange}
+                    targetKeys={targetKeys}
+                    teamID={record.key}
+                    teamUserIDList={teamUserIDList} />
+                </Modal>
+              </Dropdown.Button>
+              :
+              <div>
+                <Button icon="delete" className="delBtn" onClick={() => this.handleShowExitTeamModal(record.key)}>退出团队</Button>
+                <ExitTeamModal
+                visible={ this.state.nowTeamID === record.key && this.state.showExitModal }
+                closeExitTeamModal={this.closeExitTeamModal}
+                />
+              </div>
         )
       },
     ]
