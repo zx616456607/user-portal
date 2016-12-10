@@ -36,6 +36,9 @@ let MyComponent = React.createClass({
   componentWillReceiveProps(nextProps) {
     const serviceOpen = nextProps.serviceOpen
     if (serviceOpen === this.props.serviceOpen) return
+     this.getList(nextProps, serviceOpen)
+  },
+  getList(nextProps, serviceOpen) {
     const { form } = this.props
     const { getFieldValue, setFieldsValue, getFieldProps } = form
     const volumes = getFieldValue('volumes')
@@ -119,6 +122,7 @@ let MyComponent = React.createClass({
     config: React.PropTypes.array
   },
   componentWillMount() {
+    this.getList(this.props, true)
     this.props.loadConfigGroup(this.props.cluster)
   },
   remove(k) {
@@ -321,6 +325,11 @@ let MyComponent = React.createClass({
       return item.path
     })
   },
+  inputChange(e, index) {
+    const { form } = this.props
+    const { getFieldProps, getFieldValue, setFieldsValue} = form
+    setFieldsValue({[`volPath${index}`]: e.target.value})
+  },
   render() {
     const cluster = this.props.cluster
     if (!this.props.configGroup[cluster]) return <div></div>
@@ -332,16 +341,20 @@ let MyComponent = React.createClass({
     }
     const { form } = this.props
     const { getFieldProps, getFieldValue, } = form
-    getFieldProps('volKey', {
-      initialValue: [1],
-    });
+    const volKey = getFieldProps('volKey').value
+    if (!volKey) {
+      getFieldProps('volKey', {
+        initialValue: [1],
+      });
+    }
     const formItems = getFieldValue('volKey').map((k) => {
+      const inputValue = getFieldProps(`volPath${k}`).value
       return (
         <div key={`vol${k}`}>
           <FormItem >
             <li className="composeDetail">
               <div className="input">
-                <Input {...getFieldProps(`volPath${k}`, {}) } className="portUrl" type="text" />
+                <Input className="portUrl" type="text" value={inputValue} onChange={(e) => this.inputChange(e, k)}/>
               </div>
               <div className="protocol select">
                 <div className="portGroupForm">
