@@ -9,13 +9,16 @@
  */
 import React, { Component } from 'react'
 import { Modal,Alert,Icon,Button,Row,Col,Input } from 'antd'
-import './style/DelTeamModal.less'
 
 let balanceMessage = (
-  <div className="tip">
-    <Icon type="exclamation-circle" />
-    <div className="tipText">Tip: &nbsp;请注意 , &nbsp;当前团队仍有欠款未结清, 请充值当前团队账户后再<br/>尝试解散团队!</div>
-  </div>
+  <Row className="tip delTip">
+    <Col span={2} className='tipIcon'>
+      <Icon type="exclamation-circle" />
+    </Col>
+    <Col className="tipText" span={22}>
+      Tip: &nbsp;请注意 , &nbsp;当前团队仍有欠款未结清, 请充值当前团队账户后再<br/>尝试解散团队!
+    </Col>
+  </Row>
 )
 let delMessage = (
   <div>

@@ -8,16 +8,17 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Alert, Menu, Button, Card, Input, Dropdown, Modal ,message, Spin} from 'antd'
+import { Alert, Menu, Button, Card, Input, Dropdown, Modal, Spin, } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import CreateCompose from './CreateCompose.js'
 import './style/PrivateCompose.less'
-import { loadMyStack ,loadStackDetail , deleteMyStack , createStack, updateStack} from '../../../actions/app_center'
+import { loadMyStack, loadStackDetail, deleteMyStack, createStack, updateStack } from '../../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import { calcuDate } from '../../../common/tools'
+import NotificationHandler from '../../../common/notification_handler'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -111,15 +112,15 @@ const MyList = React.createClass({
     const scope = this
     const list = item.key.split('&')[0]
 
-    if (list== 'edit') {
+    if (list == 'edit') {
       const Index = parseInt(item.key.split('@')[1])
       const Id = item.key.match(/(.+&)(.+)(\?.+)/)[2]
       this.props.self.props.loadStackDetail(Id, {
         success: {
           func: (res) => {
-          scope.props.self.setState({
-            stackItemContent: res.data.data.content
-          })
+            scope.props.self.setState({
+              stackItemContent: res.data.data.content
+            })
           }
         }
       })
@@ -127,27 +128,38 @@ const MyList = React.createClass({
         createModalShow: true,
         stackItem: this.props.config[Index]
       });
-
-    } else {
-      //this function for user delete select image
-      const config ={registry: DEFAULT_REGISTRY, id:  item.key.match(/(.+&)(.+)(\?.+)/)[2]}
-      Modal.confirm({
-        title: `删除编排 `,
-        content: <h3>{`您确定要删除编排 ${item.key.split("@")[1]}`}</h3>,
-        onOk() {
-          scope.props.deleteMyStack(config, {
-            success: {
-              func: ()=>{
-                message.success('删除成功')
-                // scope.props.loadMyStack(DEFAULT_REGISTRY)
-              },
-              isAsync: true
-            }
-          })
-        },
-        onCancel() { },
-      })
+      return
     }
+    //this function for user delete select image
+    const config = { registry: DEFAULT_REGISTRY, id: item.key.match(/(.+&)(.+)(\?.+)/)[2] }
+    const stack = item.key.split("@")[1]
+    Modal.confirm({
+      title: `删除编排 `,
+      content: <h3>{`您确定要删除编排 ${stack}`}</h3>,
+      onOk() {
+        let notification = new NotificationHandler()
+        notification.spin(`删除编排 ${stack} 中...`)
+        scope.props.deleteMyStack(config, {
+          success: {
+            func: () => {
+              notification.close()
+              notification.success(`删除编排 ${stack} 成功`)
+              // scope.props.loadMyStack(DEFAULT_REGISTRY)
+            },
+            isAsync: true
+          },
+          failed: {
+            func: () => {
+              notification.close()
+              notification.error(`删除编排 ${stack} 失败`)
+              // scope.props.loadMyStack(DEFAULT_REGISTRY)
+            },
+            isAsync: true
+          }
+        })
+      },
+      onCancel() { },
+    })
   },
 
   render: function () {
@@ -223,14 +235,14 @@ class PrivateCompose extends Component {
   componentWillMount() {
     this.props.loadMyStack(DEFAULT_REGISTRY);
   }
-  detailModal(modal){
+  detailModal(modal) {
     //this function for user open the create compose modal
     this.setState({
       createModalShow: modal
     });
     if (modal) {
-     this.state = {
-      stackItem: ''
+      this.state = {
+        stackItem: ''
       }
     }
 
@@ -255,7 +267,7 @@ class PrivateCompose extends Component {
           } />
           <Card className='PrivateComposeCard'>
             <div className='operaBox'>
-              <Button className='addBtn' size='large' type='primary' onClick={()=>this.detailModal(true)}>
+              <Button className='addBtn' size='large' type='primary' onClick={() => this.detailModal(true)}>
                 <i className='fa fa-plus'></i>&nbsp;
                 <FormattedMessage {...menusText.createCompose} />
               </Button>
@@ -265,7 +277,7 @@ class PrivateCompose extends Component {
                 <FormattedMessage {...menusText.name} />
               </div>
               <div className='attr'>
-                  <FormattedMessage {...menusText.author} />&nbsp;
+                <FormattedMessage {...menusText.author} />&nbsp;
               </div>
               <div className="type">
                 <span><FormattedMessage {...menusText.composeAttr} /></span>
@@ -289,8 +301,8 @@ class PrivateCompose extends Component {
           className='AppServiceDetail'
           transitionName='move-right'
           onCancel={() => this.detailModal(false)}
-        >
-          <CreateCompose scope={scope} paretnState={this.state} loadMyStack={this.props.loadMyStack} updateStack={this.props.updateStack} createStack= {this.props.createStack} registry={this.props.registry} />
+          >
+          <CreateCompose scope={scope} paretnState={this.state} loadMyStack={this.props.loadMyStack} updateStack={this.props.updateStack} createStack={this.props.createStack} registry={this.props.registry} />
         </Modal>
       </QueueAnim>
     )

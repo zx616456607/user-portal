@@ -11,41 +11,55 @@
  */
 
 import React from 'react'
-import { Input, Modal, Form, Checkbox, Tooltip, Icon, } from 'antd'
+import { Input, Modal, Form, Checkbox, Tooltip, Icon, Button, } from 'antd'
 import { USERNAME_REG_EXP } from '../../../constants'
 
 const createForm = Form.create
 const FormItem = Form.Item
 
 let CreateUserModal = React.createClass({
+  getInitialState() {
+    return {
+      disabled: false,
+    }
+  },
   userExists(rule, value, callback) {
+    const _this = this
     if (!value) {
       callback([new Error('请输入用户名')])
       return
     }
     const { checkUserName } = this.props.funcs
-    setTimeout(() => {
-      if (!USERNAME_REG_EXP.test(value)) {
-        callback([new Error('抱歉，用户名不合法。')])
-        return
-      }
-      checkUserName(value, {
-        success: {
-          func: (result) => {
-            if (result.data) {
-              callback([new Error('用户名已经存在')])
-              return
-            }
-            callback()
+    if (!USERNAME_REG_EXP.test(value)) {
+      callback([new Error('抱歉，用户名不合法。')])
+      return
+    }
+    // Disabled submit button when checkUserName
+    this.setState({
+      disabled: true
+    })
+    checkUserName(value, {
+      success: {
+        func: (result) => {
+          _this.setState({
+            disabled: false
+          })
+          if (result.data) {
+            callback([new Error('用户名已经存在')])
+            return
           }
-        },
-        failed: {
-          func: (err) => {
-            callback([new Error('用户名校验失败')])
-          }
+          callback()
         }
-      })
-    }, 800)
+      },
+      failed: {
+        func: (err) => {
+          _this.setState({
+            disabled: false
+          })
+          callback([new Error('用户名校验失败')])
+        }
+      }
+    })
   },
   checkPass(rule, value, callback) {
     const { validateFields } = this.props.form;
@@ -100,6 +114,7 @@ let CreateUserModal = React.createClass({
   },
   render() {
     const { form, visible } = this.props
+    const { disabled } = this.state
     const { getFieldProps, getFieldError, isFieldValidating } = form
     const text = <span>前台只能添加普通成员</span>
     const nameProps = getFieldProps('name', {
@@ -158,7 +173,23 @@ let CreateUserModal = React.createClass({
         onOk={this.handleOk} onCancel={this.handleCancel}
         wrapClassName="NewMemberForm"
         width="463px"
-        >
+        footer={[
+          <Button
+            key="back"
+            type="ghost"
+            size="large"
+            onClick={this.handleCancel}>
+            返 回
+          </Button>,
+          <Button
+            key="submit"
+            type="primary"
+            size="large"
+            disabled={disabled}
+            onClick={this.handleOk}>
+            提 交
+          </Button>,
+        ]}>
         <Form horizontal>
           <FormItem
             {...formItemLayout}

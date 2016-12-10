@@ -22,7 +22,7 @@ import { isEmptyObject } from '../../common/tools'
 import { updateContainerList, updateAppList } from '../../actions/app_manage'
 import { updateAppServicesList, updateServiceContainersList, updateServicesList } from '../../actions/services'
 import { handleOnMessage } from './status'
-import { SHOW_ERROR_PAGE_ACTION_TYPES } from '../../constants'
+import { SHOW_ERROR_PAGE_ACTION_TYPES, LOGIN_EXPIRED_MESSAGE } from '../../constants'
 import errorHandler from './error_handler'
 
 class App extends Component {
@@ -69,7 +69,7 @@ class App extends Component {
       return
     }
     const { statusCode, message } = errorMessage.error
-    if (message === 'LOGIN_EXPIRED') {
+    if (message === LOGIN_EXPIRED_MESSAGE) {
       this.setState({ loginModalVisible: true })
       return
     }
@@ -111,7 +111,7 @@ class App extends Component {
     const { error } = errorMessage
 
     const { statusCode, message } = error
-    if (message === 'LOGIN_EXPIRED') {
+    if (message === LOGIN_EXPIRED_MESSAGE) {
       resetErrorMessage()
       return
     }

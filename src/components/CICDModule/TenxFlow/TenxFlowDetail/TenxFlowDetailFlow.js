@@ -21,7 +21,7 @@ import EditTenxFlowModal from './TenxFlowDetailFlow/EditTenxFlowModal.js'
 import CreateTenxFlowModal from './TenxFlowDetailFlow/CreateTenxFlowModal.js'
 import TenxFlowDetailFlowCard from './TenxFlowDetailFlow/TenxFlowDetailFlowCard.js'
 import Socket from '../../../Websocket/socketIo'
-
+import NotificationHandler from '../../../../common/notification_handler'
 
 const confirm = Modal.confirm;
 
@@ -71,11 +71,11 @@ class TenxFlowDetailFlow extends Component {
     });
     const cicdApi = this.props.cicdApi;
     getTenxFlowStateList(flowId, {
-      success: {        
+      success: {
         func: (res) => {
-          res.data.results.map((item) =>{
+          res.data.results.map((item) => {
             let buildId = null;
-            if(!Boolean(item.lastBuildStatus)) {
+            if (!Boolean(item.lastBuildStatus)) {
               buildId = null;
             } else {
               buildId = item.lastBuildStatus.buildId;
@@ -84,14 +84,14 @@ class TenxFlowDetailFlow extends Component {
               buildId: buildId,
               stageId: item.metadata.id
             }
-            if(item.lastBuildStatus) {
+            if (item.lastBuildStatus) {
               buildItem.status = item.lastBuildStatus.status
             }
             buildingList.push(buildItem)
           })
           _this.setState({
             buildingList: buildingList,
-            websocket: <Socket url={cicdApi.host} path={cicdApi.statusPath} protocol={cicdApi.protocol} onSetup={(socket) => _this.onSetup(socket)} />   
+            websocket: <Socket url={cicdApi.host} path={cicdApi.statusPath} protocol={cicdApi.protocol} onSetup={(socket) => _this.onSetup(socket)} />
           });
           getProjectList({
             success: {
@@ -104,23 +104,24 @@ class TenxFlowDetailFlow extends Component {
             }
           });
         },
-        isAsync: true        
+        isAsync: true
       }
     });
   }
-  
+
   componentWillReceiveProps(nextProps) {
     //this function for user click the top box and build all stages
     const { startBuild, getTenxFlowStateList, flowId, CreateTenxflowBuild, scope, refreshFlag } = nextProps;
     let oldFlowId = this.props.flowId;
-    if(startBuild) {
+    let notification = new NotificationHandler()
+    if (startBuild) {
       scope.setState({
         startBuild: false
       })
       CreateTenxflowBuild(flowId, {}, {
         success: {
           func: (res) => {
-            
+
           },
           isAsync: true
         }
@@ -132,56 +133,51 @@ class TenxFlowDetailFlow extends Component {
       });
       getTenxFlowStateList(flowId, {
         success: {
-          func: () => {                 
-            notification['success']({
-              message: '流程构建',
-              description: '刷新流程构建成功~',
-            });
+          func: () => {
+            notification.success('流程构建', '刷新流程构建成功~');
           },
           isAsync: true
         }
       });
     }
   }
-  
+
   createNewFlow() {
     //this function only for user create an new flow show the edit modal
     this.setState({
       currentFlowEdit: null,
-      createNewFlow: true,    
+      createNewFlow: true,
     });
   }
-  
+
   closeCreateNewFlow() {
-    //this function only for user close the modal of  create an new flow 
+    //this function only for user close the modal of  create an new flow
     this.setState({
       currentFlowEdit: null,
       createNewFlow: false
     });
   }
-  
+
   buildFlow(stageId) {
     //this function for user build stage
     //and user can build single one
     const { CreateTenxflowBuild, getTenxFlowStateList, flowId } = this.props;
     let buildFlag = true;
     const _this = this;
+    let notification = new NotificationHandler()
     CreateTenxflowBuild(flowId, { stageId: stageId }, {
       success: {
         func: (res) => {
-          notification['success']({
-            message: '流程构建',
-            description: '流程构建成功~',
-          });
+          notification.success('流程构建', '流程构建成功~');
           let buildingList = _this.state.buildingList;
           buildingList.map((item) => {
-            if(item.stageId == stageId) {
+            if (item.stageId == stageId) {
               buildFlag = false;
               item.buildId = res.data.results.stageBuildId;
               item.status = 2
             }
           });
-          if(buildFlag) {
+          if (buildFlag) {
             buildingList.push({
               stageId: stageId,
               buildId: res.data.results.stageBuildId,
@@ -190,7 +186,7 @@ class TenxFlowDetailFlow extends Component {
           }
           _this.onSetup(_this.state.socket, buildingList)
           _this.setState({
-            buildingList: buildingList  
+            buildingList: buildingList
           });
           getTenxFlowStateList(flowId);
         },
@@ -198,50 +194,46 @@ class TenxFlowDetailFlow extends Component {
       }
     })
   }
-  
+
   stopBuildFlow(stageId, stageName) {
     //this function for user stop building stage
     const { StopTenxflowBuild, getTenxFlowStateList, flowId } = this.props;
     const { buildingList } = this.state;
+    let notification = new NotificationHandler()
     confirm({
-        title: '确定停止构建？',
-        content: `停止${stageName}构建`,
-        onOk() {
-          buildingList.map((item) => {
-            if(item.stageId == stageId) {
-              StopTenxflowBuild(flowId, item.stageId, item.buildId, {
-                success: {
-                  func: (res) => {
-                    notification['success']({
-                      message: '构建停止成功',
-                      description: '构建停止成功~',
-                    });
-                    getTenxFlowStateList(flowId);
-                  },
-                  isAsync: true
-                }
-              });
-            }
-          });          
-        },
-        onCancel() {},
+      title: '确定停止构建？',
+      content: `停止${stageName}构建`,
+      onOk() {
+        buildingList.map((item) => {
+          if (item.stageId == stageId) {
+            StopTenxflowBuild(flowId, item.stageId, item.buildId, {
+              success: {
+                func: (res) => {
+                  notification.success('构建停止成功', '构建停止成功~');
+                  getTenxFlowStateList(flowId);
+                },
+                isAsync: true
+              }
+            });
+          }
+        });
+      },
+      onCancel() { },
     });
   }
-  
+
   refreshStageList() {
-    //this function for temp refresh stage list 
+    //this function for temp refresh stage list
     //it will be instead of  using websocket get stage list for native
     const { getTenxFlowStateList, flowId } = this.props;
+    let notification = new NotificationHandler()
     this.setState({
       refreshing: true
     })
-    getTenxFlowStateList(flowId ,{
+    getTenxFlowStateList(flowId, {
       success: {
         func: () => {
-          notification['success']({
-            message: '流程构建',
-            description: '流程构建刷新成功~',
-          });
+          notification.success('流程构建', '流程构建刷新成功~');
           this.setState({
             refreshing: false
           })
@@ -252,14 +244,14 @@ class TenxFlowDetailFlow extends Component {
   }
   onSetup(socket, buildList) {
     const buildingList = buildList || this.state.buildingList
-    const flowId = this.props.flowId 
+    const flowId = this.props.flowId
     const self = this
     const watchedBuilds = []
     self.setState({
       socket
     })
     buildingList.forEach(item => {
-      if(item.status === 0 || item.status === 1) {
+      if (item.status === 0 || item.status === 1) {
         item.buildId = null
       }
       watchedBuilds.push({
@@ -267,10 +259,10 @@ class TenxFlowDetailFlow extends Component {
         stageId: item.stageId
       })
     })
-    if(watchedBuilds.length <= 0) {
+    if (watchedBuilds.length <= 0) {
       return
     }
-    const watchCondition = {  
+    const watchCondition = {
       flowId: flowId,
       watchedBuilds
     }
@@ -278,45 +270,45 @@ class TenxFlowDetailFlow extends Component {
       watchCondition: watchCondition
     })
     const { getTenxFlowStateList } = this.props
-      socket.emit("stageBuildStatus", watchCondition)
-      socket.on("stageBuildStatus", function (data) {
-        if(data.status !== 200) { return }
-        if (data.results.buildStatus == 2) {
-          let buildingList = []
-            getTenxFlowStateList(flowId, {
-              success: {
-                func: (res) => {
-                  res.data.results.map((item) =>{
-                    let buildId = null;
-                    if(!Boolean(item.lastBuildStatus)) {
-                      buildId = null;
-                    } else {
-                      buildId = item.lastBuildStatus.buildId;
-                    }
-                    let buildItem = {
-                      buildId: buildId,
-                      stageId: item.metadata.id
-                    }
-                    if(item.lastBuildStatus) {
-                      buildItem.status = item.lastBuildStatus.status
-                    }
-                    buildingList.push(buildItem)
-                  })
-                  self.setState({ 
-                    buildingList
-                  })
-                  socket.off("stageBuildStatus")
-                  self.onSetup(self.state.socket, buildingList)
-                },
-                isAsync: false
-              }
-            })
-        }
-        const { changeSingleState } = self.props
-        changeSingleState(data.results)
-      })
+    socket.emit("stageBuildStatus", watchCondition)
+    socket.on("stageBuildStatus", function (data) {
+      if (data.status !== 200) { return }
+      if (data.results.buildStatus == 2) {
+        let buildingList = []
+        getTenxFlowStateList(flowId, {
+          success: {
+            func: (res) => {
+              res.data.results.map((item) => {
+                let buildId = null;
+                if (!Boolean(item.lastBuildStatus)) {
+                  buildId = null;
+                } else {
+                  buildId = item.lastBuildStatus.buildId;
+                }
+                let buildItem = {
+                  buildId: buildId,
+                  stageId: item.metadata.id
+                }
+                if (item.lastBuildStatus) {
+                  buildItem.status = item.lastBuildStatus.status
+                }
+                buildingList.push(buildItem)
+              })
+              self.setState({
+                buildingList
+              })
+              socket.off("stageBuildStatus")
+              self.onSetup(self.state.socket, buildingList)
+            },
+            isAsync: false
+          }
+        })
+      }
+      const { changeSingleState } = self.props
+      changeSingleState(data.results)
+    })
   }
-  addWatch(buildId, stageBuildId) { 
+  addWatch(buildId, stageBuildId) {
     const { socket, watchCondition } = this.state
     watchCondition.watchedBuilds.push({
       stageBuildId: stageBuildId,
@@ -330,16 +322,16 @@ class TenxFlowDetailFlow extends Component {
     let scope = this;
     let { currentFlowEdit } = scope.state;
     let cards = null;
-    if(!Boolean(stageList) || forCacheShow) {
+    if (!Boolean(stageList) || forCacheShow) {
       return (
         <div className='loadingBox'>
           <Spin size='large' />
         </div>
       )
-    } else {      
-      cards = stageList.map( (item, index) => {
+    } else {
+      cards = stageList.map((item, index) => {
         return (
-          <TenxFlowDetailFlowCard key={'TenxFlowDetailFlowCard' + index} config={item} 
+          <TenxFlowDetailFlowCard key={'TenxFlowDetailFlowCard' + index} config={item}
             scope={scope} index={index} flowId={flowId} currentFlowEdit={currentFlowEdit} totalLength={stageList.length}
             codeList={projectList} supportedDependencies={supportedDependencies} />
         )
@@ -349,10 +341,10 @@ class TenxFlowDetailFlow extends Component {
       <div id='TenxFlowDetailFlow'>
         <div className='paddingBox'>
           <Alert message={<FormattedMessage {...menusText.tooltip} />} type='info' />
-          { cards }
-          <div className={ this.state.createNewFlow ? 'TenxFlowDetailFlowCardBigDiv commonCardBox createCardBox' : 'commonCardBox createCardBox'}>
+          {cards}
+          <div className={this.state.createNewFlow ? 'TenxFlowDetailFlowCardBigDiv commonCardBox createCardBox' : 'commonCardBox createCardBox'}>
             <Card className='commonCard createCard' onClick={this.createNewFlow}>
-              { !this.state.createNewFlow ? [
+              {!this.state.createNewFlow ? [
                 <QueueAnim key='createCardAnimate'>
                   <div className='createInfo' key='createCard'>
                     <svg className='addIcon'>
@@ -363,20 +355,20 @@ class TenxFlowDetailFlow extends Component {
                     </p>
                   </div>
                 </QueueAnim>
-              ] : null }
+              ] : null}
               {
                 this.state.createNewFlow ? [
                   <QueueAnim key='creattingCardAnimate'>
-                    <CreateTenxFlowModal key='CreateTenxFlowModal' stageList={stageList} scope={scope} 
-                      flowId={flowId} stageInfo={stageInfo} codeList={projectList} 
+                    <CreateTenxFlowModal key='CreateTenxFlowModal' stageList={stageList} scope={scope}
+                      flowId={flowId} stageInfo={stageInfo} codeList={projectList}
                       supportedDependencies={supportedDependencies} />
                   </QueueAnim>
                 ] : null
               }
             </Card>
           </div>
-          <div style={{ clear:'both' }}></div>
-        </div>  
+          <div style={{ clear: 'both' }}></div>
+        </div>
         {this.state.websocket}
       </div>
 
@@ -390,7 +382,7 @@ function mapStateToProps(state, props) {
     stageList: []
   }
   const defaultStatus = {
-    projectList:[]
+    projectList: []
   }
   const { getTenxflowStageList } = state.cicd_flow;
   const { isFetching, stageList } = getTenxflowStageList || defaultStageList;

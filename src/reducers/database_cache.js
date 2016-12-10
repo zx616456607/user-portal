@@ -61,6 +61,7 @@ function databaseAllList(state = {}, action) {
         [clusterType]: {
           isFetching: false,
           database: clusterType,
+          bak: action.response.result.databaseList || [],
           databaseList: action.response.result.databaseList || []
         }
       })
@@ -76,7 +77,27 @@ function databaseAllList(state = {}, action) {
         return action.dbName === list.serivceName
       })
       databaseList.splice(findex, 1)
+      delState[clusterType].bak.splice(findex, 1)
       return delState
+    }
+  // search database cluster
+    case ActionTypes.SEARCH_DATABASE_CLUSTER_TYPES: {
+      const searchState = cloneDeep(state)
+      if (action.name == '') {
+        searchState[clusterType].databaseList = searchState[clusterType].bak
+        return searchState
+      }
+
+      const list = searchState[clusterType].bak.filter(item => {
+        const search = new RegExp(action.name)
+        if (search.test(item.name)) {
+          return true
+        }
+        return false
+      })
+      searchState[clusterType].databaseList = list
+
+      return searchState
     }
     default:
       return state

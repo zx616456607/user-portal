@@ -154,7 +154,7 @@ class ServiceList extends Component {
       registryServer: null,
       isCreate: true,
       checkInf: null,
-      visible: true
+      visible: false
     }
   }
 

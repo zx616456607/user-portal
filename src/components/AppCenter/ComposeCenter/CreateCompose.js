@@ -8,13 +8,14 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Form, Input, Button, Switch, Modal, Radio , message} from 'antd'
+import { Form, Input, Button, Switch, Modal, Radio } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import './style/CreateCompose.less'
 import YamlEditor from '../../Editor/Yaml'
 import { appNameCheck } from '../../../common/naming_validation'
+import NotificationHandler from '../../../common/notification_handler'
 
 const createForm = Form.create;
 const FormItem = Form.Item;
@@ -42,8 +43,8 @@ class CreateCompose extends Component {
   componentWillReceiveProps(nextProps) {
     const { paretnState } = nextProps;
     let currentYaml = '';
-    if(!!paretnState.stackItemContent) {
-      currentYaml =  paretnState.stackItemContent;
+    if (!!paretnState.stackItemContent) {
+      currentYaml = paretnState.stackItemContent;
     }
     this.setState({
       currentYaml: currentYaml
@@ -85,22 +86,33 @@ class CreateCompose extends Component {
         'name': values.name,
         'description': values.desc
       }
+      if(/[\u4e00-\u9fa5]+$/i.test(values.name)){
+        message.info('不支持中文名称')
+        return
+      }
+      if (!this.state.currentYaml) {
+        message.info('请输入编排内容')
+        return
+      }
+      let notification = new NotificationHandler()
+      notification.spin(`创建编排 ${values.name} 中...`)
       this.props.createStack(config, {
         success: {
-          func: ()=>{
+          func: () => {
             parentScope.props.loadMyStack(registry)
             parentScope.setState({
               createModalShow: false
             });
-            message.success('创建成功！')
+            notification.close()
+            notification.success(`创建编排 ${values.name} 成功`)
             scope.props.form.resetFields();
           },
           isAsync: true
         },
         failed: {
-          func: (err)=>{
-            console.log(err.message.message)
-            message.error(err.message.message)
+          func: (err) => {
+            notification.close()
+            notification.error(`创建编排 ${values.name} 失败`, err.message.message)
           }
         }
       })
@@ -129,27 +141,31 @@ class CreateCompose extends Component {
         'name': values.name,
         'description': values.desc
       }
+      let notification = new NotificationHandler()
+      notification.spin(`更新编排 ${values.name} 中...`)
       // return
       this.props.updateStack(config, {
         success: {
-          func: ()=>{
+          func: () => {
             // parentScope.props.loadMyStack(registry)
             parentScope.setState({
               createModalShow: false,
               stackItem: ''
             });
-            message.success('更新成功！')
+            notification.close()
+            notification.success(`更新编排 ${values.name} 成功`)
             scope.props.form.resetFields();
           },
           isAsync: true
         },
         failed: {
-          func: (err)=>{
-            Modal.error({
+          func: (err) => {
+            /*Modal.error({
               title: '修改编排文件',
               content: (<h2>{err.message.message}</h2>),
-            });
-
+            });*/
+            notification.close()
+            notification.error(`更新编排 ${values.name} 失败`, err.message.message)
           }
         }
       })
@@ -187,7 +203,7 @@ class CreateCompose extends Component {
     });
     const descProps = getFieldProps('desc', {
       rules: [
-        {required: true,message: '描述信息'},
+        { required: true, message: '描述信息' },
       ],
       initialValue: paretnState.stackItem.description
     });
@@ -196,59 +212,59 @@ class CreateCompose extends Component {
     })
     return (
       <div id='createCompose' key='createCompose'>
-      <Form horizontal>
-         <div className='commonInput'>
-          <div className='leftBox' style={{lineHeight:'35px'}}>
-            <span className='title'>编排名称</span>
+        <Form horizontal>
+          <div className='commonInput'>
+            <div className='leftBox' style={{ lineHeight: '35px' }}>
+              <span className='title'>编排名称</span>
+            </div>
+            <div className='rightBox'>
+              <FormItem hasFeedback style={{ width: '220px' }} >
+                <Input {...nameProps} disabled={paretnState.stackItem.name ? true : false} />
+              </FormItem>
+            </div>
+            <div style={{ clear: 'both' }}></div>
           </div>
-          <div className='rightBox'>
-            <FormItem hasFeedback style={{ width:'220px' }} >
-              <Input {...nameProps} disabled={paretnState.stackItem.name ? true : false}/>
-            </FormItem>
+          <div className='switch commonInput'>
+            <div className='leftBox'>
+              <span className='title'>编排属性</span>
+            </div>
+            <div className='rightBox' style={{ width: '100px', paddingTop: '8px' }}>
+              <FormItem hasFeedback>
+                <Switch {...switchProps} defaultChecked={paretnState.stackItem.isPublic == 1 ? true : false} checkedChildren={'公开'} unCheckedChildren={'私有'} onChange={this.onChangeAttr} />
+              </FormItem>
+            </div>
+            <div style={{ clear: 'both' }}></div>
           </div>
-          <div style={{ clear:'both' }}></div>
-        </div>
-        <div className='switch commonInput'>
-          <div className='leftBox'>
-            <span className='title'>编排属性</span>
+          <div className='intro commonInput'>
+            <div className='leftBox'>
+              <span className='title'>描述信息</span>
+            </div>
+            <div className='rightBox'>
+              <FormItem hasFeedback>
+                <Input type='textarea' {...descProps} autosize={{ minRows: 2, maxRows: 3 }} />
+              </FormItem>
+            </div>
+            <div style={{ clear: 'both' }}></div>
           </div>
-          <div className='rightBox' style={{width:'100px', paddingTop:'8px'}}>
-            <FormItem hasFeedback>
-              <Switch {...switchProps} defaultChecked={paretnState.stackItem.isPublic == 1 ? true : false} checkedChildren={'公开'} unCheckedChildren={'私有'}  onChange={this.onChangeAttr} />
-            </FormItem>
+          <div className='file commonInput composeText'>
+            <div className='leftBox'>
+              <span className='title'>编排文件</span>
+            </div>
+            <div className='rightBox'>
+              <YamlEditor value={this.state.currentYaml} options={defaultEditOpts} callback={this.onChangeYamlEditor.bind(this)} />
+            </div>
+            <div style={{ clear: 'both' }}></div>
           </div>
-          <div style={{ clear:'both' }}></div>
-        </div>
-        <div className='intro commonInput'>
-          <div className='leftBox'>
-          <span className='title'>描述信息</span>
-          </div>
-          <div className='rightBox'>
-            <FormItem hasFeedback>
-            <Input type='textarea' {...descProps} autosize={{ minRows: 2, maxRows: 3 }} />
-            </FormItem>
-          </div>
-          <div style={{ clear:'both' }}></div>
-        </div>
-      <div className='file commonInput composeText'>
-        <div className='leftBox'>
-        <span className='title'>编排文件</span>
-        </div>
-        <div className='rightBox'>
-          <YamlEditor value={this.state.currentYaml} options={defaultEditOpts} callback={this.onChangeYamlEditor.bind(this)}/>
-        </div>
-        <div style={{ clear:'both' }}></div>
-      </div>
-      </Form>
-      <div className='btnBox'>
-        <Button size='large' onClick={ this.handleReset } style={{ marginRight:'15px' }}>
-        取消
+        </Form>
+        <div className='btnBox'>
+          <Button size='large' onClick={this.handleReset} style={{ marginRight: '15px' }}>
+            取消
         </Button>
-        {
-          paretnState.stackItem.name ? [<Button size='large' type='primary' onClick={ this.updateSubmit}> 保存</Button>] : [<Button size='large' type='primary' onClick={ this.handleSubmit }> 确定</Button>]
-        }
+          {
+            paretnState.stackItem.name ? [<Button size='large' type='primary' onClick={this.updateSubmit}> 保存</Button>] : [<Button size='large' type='primary' onClick={this.handleSubmit}> 确定</Button>]
+          }
+        </div>
       </div>
-    </div>
     )
   }
 }

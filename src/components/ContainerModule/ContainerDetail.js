@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Dropdown, Tabs, Card, Menu, Button, Spin, Modal, message } from 'antd'
+import { Dropdown, Tabs, Card, Menu, Button, Spin, Modal } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -22,6 +22,7 @@ import TerminalModal from '../TerminalModal'
 import { browserHistory } from 'react-router'
 import ContainerStatus from '../TenxStatus/ContainerStatus'
 import { formatDate } from '../../common/tools'
+import NotificationHandler from '../../common/notification_handler'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -48,7 +49,7 @@ class ContainerDetail extends Component {
   }
 
   componentWillMount() {
-    const { containerName } = this.props
+    const { cluster, containerName } = this.props
     document.title = `容器 ${containerName} | 时速云`
     loadData(this.props)
   }
@@ -72,20 +73,21 @@ class ContainerDetail extends Component {
       title: `您是否确认要重新分配 ${containerName} 这个容器`,
       onOk() {
         return new Promise((resolve) => {
-          const hide = message.loading('正在保存中...', 0)
+          let notification = new NotificationHandler()
+          notification.spin(`容器 ${containerName} 重新分配中...`)
           deleteContainers(cluster, [containerName], {
             success: {
               func: () => {
-                hide()
-                message.success(`容器 ${containerName} 已成功重新分配`)
+                notification.close()
+                notification.success(`容器 ${containerName} 已成功重新分配`)
                 browserHistory.push('/app_manage/container')
               },
               isAsync: true
             },
             failed: {
               func: () => {
-                hide()
-                message.error(`容器 ${containerName} 重新分配失败`)
+                notification.close()
+                notification.error(`容器 ${containerName} 重新分配失败`)
               }
             }
           })

@@ -1,19 +1,20 @@
- /**
- * Licensed Materials - Property of tenxcloud.com
- * (C) Copyright 2016 TenxCloud. All Rights Reserved.
- *
- * CodeStore component
- *
- * v0.1 - 2016-10-31
- * @author BaiYu
- */
+/**
+* Licensed Materials - Property of tenxcloud.com
+* (C) Copyright 2016 TenxCloud. All Rights Reserved.
+*
+* CodeStore component
+*
+* v0.1 - 2016-10-31
+* @author BaiYu
+*/
 import React, { Component, PropTypes } from 'react'
-import { Alert, Menu, Button, Card, Input, message, Tooltip, Icon , Dropdown, Modal, Spin } from 'antd'
+import { Alert, Menu, Button, Card, Input, message, Tooltip, Icon, Dropdown, Modal, Spin } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import { getProjectList ,removeProject , searchProject, filterProject} from '../../../actions/cicd_flow'
+import { getProjectList, removeProject, searchProject, filterProject } from '../../../actions/cicd_flow'
+import NotificationHandler from '../../../common/notification_handler'
 
 import './style/CodeStore.less'
 
@@ -75,30 +76,30 @@ const MyComponent = React.createClass({
     scope: React.PropTypes.object
   },
   getInitialState() {
-    return { showModal: false ,keyModal: false}
+    return { showModal: false, keyModal: false }
   },
   operaMenuClick: function (item, e) {
     //this function for user click the dropdown menu
     const key = e.key.split('@')[0]
-    switch(key) {
+    switch (key) {
       case '1':
-      this.setState({
-        showModal: true,
-        webhookUrl: item.webhookUrl,
-        repoType: item.repoType
-      })
-      break;
+        this.setState({
+          showModal: true,
+          webhookUrl: item.webhookUrl,
+          repoType: item.repoType
+        })
+        break;
       case '2':
-      this.setState({
-        keyModal: true,
-        publicKey: item.publicKey,
-        itemType: item.isPrivate,
-        repoType: item.repoType,
-        itemName: item.name
-      })
-      break;
+        this.setState({
+          keyModal: true,
+          publicKey: item.publicKey,
+          itemType: item.isPrivate,
+          repoType: item.repoType,
+          itemName: item.name
+        })
+        break;
       default:
-      this.setState({showModal: true})
+        this.setState({ showModal: true })
     }
   },
   showItemKeyModal(item) {
@@ -143,64 +144,65 @@ const MyComponent = React.createClass({
       title: '解除激活',
       content: '您是否确认要解除这项内容',
       onOk() {
+        let notification = new NotificationHandler()
         self.props.scope.props.removeProject(id, {
           success: {
-            func:()=>{
-              message.success('解除激活成功')
+            func: () => {
+              notification.success('解除激活成功')
             }
           }
         })
       },
-      onCancel() {return},
+      onCancel() { return },
     });
   },
   render: function () {
-    const { config, scope , formatMessage } = this.props
-    if (!config || config.length == 0) return (<div style={{lineHeight:'150px',textAlign:'center'}}>暂无数据</div>)
+    const { config, scope, formatMessage } = this.props
+    if (!config || config.length == 0) return (<div style={{ lineHeight: '150px', textAlign: 'center' }}>暂无数据</div>)
     let items = config.map((item) => {
       const dropdown = (
-        item.webhookUrl ? 
-        <Menu onClick={this.operaMenuClick.bind(this, item)}
-          style={{ width: '113px' }}
-          >
-          <Menu.Item key={`1@${item.name}`}>
-            <i className='fa fa-eye' />&nbsp;
+        item.webhookUrl ?
+          <Menu onClick={this.operaMenuClick.bind(this, item)}
+            style={{ width: '113px' }}
+            >
+            <Menu.Item key={`1@${item.name}`}>
+              <i className='fa fa-eye' />&nbsp;
             WebHook
           </Menu.Item>
-          {item.isPrivate == 1 ?
-          <Menu.Item key={`2@${item.name}`}>
-            <span><i className='fa fa-pencil-square-o' />&nbsp;
+            {item.isPrivate == 1 ?
+              <Menu.Item key={`2@${item.name}`}>
+                <span><i className='fa fa-pencil-square-o' />&nbsp;
             <FormattedMessage {...menusText.show} />
-            </span>
-          </Menu.Item>
-          :null
-          }
-        </Menu>
-        :
-        <Menu onClick={this.operaMenuClick.bind(this, item)}
-        style={{ width: '113px' }}
-        >
-        <Menu.Item key={`2@${item.name}`}>
-          <span><i className='fa fa-pencil-square-o' />&nbsp;
+                </span>
+              </Menu.Item>
+              : null
+            }
+          </Menu>
+          :
+          <Menu onClick={this.operaMenuClick.bind(this, item)}
+            style={{ width: '113px' }}
+            >
+            <Menu.Item key={`2@${item.name}`}>
+              <span><i className='fa fa-pencil-square-o' />&nbsp;
           <FormattedMessage {...menusText.show} />
-          </span>
-        </Menu.Item>
-      </Menu>
+              </span>
+            </Menu.Item>
+          </Menu>
       );
       return (
         <div className='CodeTable' key={item.name} >
           <div className='name textoverflow'>
             <span>{item.name}</span>
           </div>
-          {item.isPrivate == 1 ? 
+          {item.isPrivate == 1 ?
             <div className="type private">
               <svg className='privateSvg'>
                 <use xlinkHref='#cicdprivate' />
               </svg>
               <span className="margin">private</span>
-              <Button type="ghost" style={{marginLeft:'10px'}} onClick={()=>this.showItemKeyModal(item)}><i className="fa fa-eye"></i> 查看公钥</Button>
+              <Button type="ghost" style={{ marginLeft: '10px' }} onClick={() => this.showItemKeyModal(item)}><i className="fa fa-eye"></i> 查看公钥</Button>
             </div>
-          :
+            :
             <div className='type public'>
               <svg className='publicSvg'>
                 <use xlinkHref='#cicdpublic' />
@@ -212,13 +214,13 @@ const MyComponent = React.createClass({
             <i className={`fa fa-${item.repoType}`} /> {item.address}
           </div>
           <div className='action'>
-           
-            <Dropdown.Button overlay={dropdown} type='ghost' onClick={()=>this.notActive(item.id)} >
+
+            <Dropdown.Button overlay={dropdown} type='ghost' onClick={() => this.notActive(item.id)} >
               <Icon type='delete' />
               <FormattedMessage {...menusText.releaseActivation} />
             </Dropdown.Button>
-            
-            
+
+
           </div>
         </div>
       );
@@ -228,39 +230,39 @@ const MyComponent = React.createClass({
         {items}
 
         <Modal title="手动添加WebHook" visible={this.state.showModal}
-         footer={[
-            <Button key="back" type="ghost" size="large" onClick={()=>{this.setState({showModal: false})}}>关闭</Button>,
+          footer={[
+            <Button key="back" type="ghost" size="large" onClick={() => { this.setState({ showModal: false }) } }>关闭</Button>,
           ]}
-         >
-          <div style={{padding:"0 20px"}}>
-            <p style={{lineHeight:'40px'}}>* 将该URL填入到 {this.state.repoType} 项目的Web Hooks URL中</p>
-            <div style={{padding: '10px',border:'1px solid #d9d9d9',wordWrap:'break-word'}} className="valueBox">{this.state.webhookUrl}</div>
-            <p style={{opacity:'0',position:'absolute'}}><Input type="textarea" className="CodeCopy" autosize={{ minRows: 2, maxRows: 6 }} value={this.state.webhookUrl} /></p>
-            <p style={{marginTop:'10px'}}>
-            <Tooltip title={this.state.copySuccess ? formatMessage(menusText.copySuccess) : formatMessage(menusText.clickCopy)} placement="right">
-              <Button type="primary" size="large" onClick={this.copyDownloadCode} onMouseLeave={this.returnDefaultTooltip}><FormattedMessage {...menusText.copyBtn} /></Button>
-            </Tooltip>
-          </p>
+          >
+          <div style={{ padding: "0 20px" }}>
+            <p style={{ lineHeight: '40px' }}>* 将该URL填入到 {this.state.repoType}项目的Web Hooks URL中</p>
+            <div style={{ padding: '10px', border: '1px solid #d9d9d9', wordWrap: 'break-word' }} className="valueBox">{this.state.webhookUrl}</div>
+            <p style={{ opacity: '0', position: 'absolute' }}><Input type="textarea" className="CodeCopy" autosize={{ minRows: 2, maxRows: 6 }} value={this.state.webhookUrl} /></p>
+            <p style={{ marginTop: '10px' }}>
+              <Tooltip title={this.state.copySuccess ? formatMessage(menusText.copySuccess) : formatMessage(menusText.clickCopy)} placement="right">
+                <Button type="primary" size="large" onClick={this.copyDownloadCode} onMouseLeave={this.returnDefaultTooltip}><FormattedMessage {...menusText.copyBtn} /></Button>
+              </Tooltip>
+            </p>
           </div>
         </Modal>
 
-        <Modal title="项目公钥" visible={this.state.keyModal} onCancel={()=>{this.setState({keyModal: false})}}
-         footer={[
-            <Button key="back" type="ghost" size="large" onClick={()=>{this.setState({keyModal: false})}}>关闭</Button>,
+        <Modal title="项目公钥" visible={this.state.keyModal} onCancel={() => { this.setState({ keyModal: false }) } }
+          footer={[
+            <Button key="back" type="ghost" size="large" onClick={() => { this.setState({ keyModal: false }) } }>关闭</Button>,
           ]}
-         >
-          <div style={{padding:"0 20px"}}>
-            <p style={{lineHeight:'30px'}}>检测到关联的代码托管系统：</p>
-            <p style={{lineHeight:'40px'}}><span style={{color:'#00A0EA'}} className="name">仓库: {this.state.repoType} / {this.state.itemName} </span>  <span style={{color:'#00A0EA', marginLeft:'20px'}} className="type">属性：{this.state.itemType==1 ? "私有" : "公有"}</span> </p>
+          >
+          <div style={{ padding: "0 20px" }}>
+            <p style={{ lineHeight: '30px' }}>检测到关联的代码托管系统：</p>
+            <p style={{ lineHeight: '40px' }}><span style={{ color: '#00A0EA' }} className="name">仓库: {this.state.repoType}/ {this.state.itemName} </span>  <span style={{ color: '#00A0EA', marginLeft: '20px' }} className="type">属性：{this.state.itemType == 1 ? "私有" : "公有"}</span> </p>
 
-            <p style={{lineHeight:'40px'}}>* 请手动配置以下公钥到github 项目中</p>
-            <div style={{padding: '10px',border:'1px solid #d9d9d9',wordWrap:'break-word'}}>{ this.state.publicKey }</div>
-            <p style={{opacity:'0',position:'absolute'}}><Input type="textarea" className="KeyCopy" autosize={{ minRows: 2, maxRows: 6 }} value={ this.state.publicKey} /></p>
-            <p style={{marginTop:'10px'}}>
-            <Tooltip title={this.state.copySuccess ? formatMessage(menusText.copySuccess) : formatMessage(menusText.clickCopy)} placement="right">
-              <Button type="primary" size="large" onClick={this.copyItemKey} onMouseLeave={this.returnDefaultTooltip}><FormattedMessage {...menusText.copyBtn} /></Button>
-            </Tooltip>
-          </p>
+            <p style={{ lineHeight: '40px' }}>* 请手动配置以下公钥到github 项目中</p>
+            <div style={{ padding: '10px', border: '1px solid #d9d9d9', wordWrap: 'break-word' }}>{this.state.publicKey}</div>
+            <p style={{ opacity: '0', position: 'absolute' }}><Input type="textarea" className="KeyCopy" autosize={{ minRows: 2, maxRows: 6 }} value={this.state.publicKey} /></p>
+            <p style={{ marginTop: '10px' }}>
+              <Tooltip title={this.state.copySuccess ? formatMessage(menusText.copySuccess) : formatMessage(menusText.clickCopy)} placement="right">
+                <Button type="primary" size="large" onClick={this.copyItemKey} onMouseLeave={this.returnDefaultTooltip}><FormattedMessage {...menusText.copyBtn} /></Button>
+              </Tooltip>
+            </p>
           </div>
         </Modal>
       </div>
@@ -277,17 +279,17 @@ class CodeStore extends Component {
     document.title = '代码仓库 | 时速云';
     this.props.getProjectList()
   }
-  operaMenuClick (e) {
+  operaMenuClick(e) {
     //this function for user click the dropdown menu
-    switch(e.key) {
+    switch (e.key) {
       case '1':
-      this.setState({showModal: true})
-      break;
+        this.setState({ showModal: true })
+        break;
       case '2':
-      this.setState({keyModal: true})
-      break;
+        this.setState({ keyModal: true })
+        break;
       default:
-      this.setState({showModal: true})
+        this.setState({ showModal: true })
     }
   }
 
@@ -329,16 +331,16 @@ class CodeStore extends Component {
     const { formatMessage } = this.props.intl;
     const scope = this;
     const menu = (
-      <Menu onClick={(e)=>this.handleFilter(e)}>
+      <Menu onClick={(e) => this.handleFilter(e)}>
         <Menu.Item key="1">
-         查看 private
+          查看 private
         </Menu.Item>
         <Menu.Item key="0">
-         查看 public
+          查看 public
         </Menu.Item>
         <Menu.Divider />
-        <Menu.Item  key="all">
-         查看全部
+        <Menu.Item key="all">
+          查看全部
         </Menu.Item>
       </Menu>
     );
@@ -350,12 +352,12 @@ class CodeStore extends Component {
           <Alert message={<FormattedMessage {...menusText.tooltips} />} type='info' />
           <div className='operaBox'>
             <Link to="/ci_cd/coderepo">
-            <Button className='createBtn' size='large' type='primary'>
-              <i className='fa fa-plus' />&nbsp;
+              <Button className='createBtn' size='large' type='primary'>
+                <i className='fa fa-plus' />&nbsp;
               <FormattedMessage {...menusText.linkCode} />
-            </Button>
+              </Button>
             </Link>
-            <Input className='searchBox' onPressEnter={(e)=> this.handleSearch(e)} placeholder={formatMessage(menusText.search)} type='text' />
+            <Input className='searchBox' onPressEnter={(e) => this.handleSearch(e)} placeholder={formatMessage(menusText.search)} type='text' />
             <i className='fa fa-search'></i>
             <div style={{ clear: 'both' }}></div>
           </div>
@@ -365,7 +367,7 @@ class CodeStore extends Component {
                 <FormattedMessage {...menusText.name} />
               </div>
               <div className='type'>
-               <Dropdown overlay={menu} trigger={['click']}>
+                <Dropdown overlay={menu} trigger={['click']}>
                   <a className="ant-dropdown-link" href="#">
                     <FormattedMessage {...menusText.attr} />
                     <svg className='filterSvg'>
@@ -385,15 +387,15 @@ class CodeStore extends Component {
           </Card>
 
         </div>
-      
+
       </QueueAnim>
     )
   }
 }
 
 function mapStateToProps(state, props) {
-  const defaultStatus ={
-    projectList:[],
+  const defaultStatus = {
+    projectList: [],
     isFetching: false
   }
   const { managed } = state.cicd_flow
@@ -409,13 +411,13 @@ CodeStore.propTypes = {
   getProjectList: PropTypes.func.isRequired
 }
 
-export default connect(mapStateToProps,{
+export default connect(mapStateToProps, {
 
   getProjectList,
   removeProject,
   searchProject,
   filterProject
-  
+
 })(injectIntl(CodeStore, {
   withRef: true,
 }));
