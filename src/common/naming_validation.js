@@ -51,7 +51,7 @@ export function appNameCheck(name, itemName, existNameFlag) {
   //name for check, itemName for show, existNameFlag for show existed
   let errorMsg = '';
   //null check
-  if(name.length == 0 || !name) {
+  if(!name || name.length == 0) {
     errorMsg = '请输入' + itemName;
     return errorMsg;
   }

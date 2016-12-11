@@ -87,6 +87,9 @@ class ComposeFile extends Component {
         stackType: false
       })
     }
+    setTimeout(() => {
+      this.appNameInput.refs.input.focus()
+    })
   }
   subApp() {
     const {appName, appDescYaml, remark} = this.state
@@ -242,7 +245,8 @@ class ComposeFile extends Component {
                 <Input size="large"
                   placeholder="请输入应用名称"
                   autoComplete="off"
-                  {...appNameFormCheck} />
+                  {...appNameFormCheck}
+                  ref={(ref) => { this.appNameInput = ref; }}/>
               </FormItem>
               <div style={{ clear: "both" }}></div>
             </div>

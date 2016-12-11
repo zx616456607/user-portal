@@ -469,6 +469,11 @@ let NormalDeployBox = React.createClass({
   componentWillMount() {
     loadImageTags(this.props)
   },
+  componentWillUpdate() {
+    setTimeout(() => {
+      this.serviceNameInput.refs.input.focus()
+    })
+  },
   componentWillReceiveProps(nextProps) {
     const {serviceOpen} = nextProps
     if (serviceOpen == this.props.serviceOpen) {
@@ -529,7 +534,7 @@ let NormalDeployBox = React.createClass({
             <FormItem className="serviceNameForm"
               hasFeedback
               help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}>
-              <Input {...nameProps} size="large" placeholder="请输入服务名称" autoComplete="off" />
+              <Input {...nameProps} size="large" placeholder="请输入服务名称" autoComplete="off" ref={(ref) => { this.serviceNameInput = ref; }}  />
             </FormItem>
             <div style={{ clear: "both" }}></div>
           </div>
