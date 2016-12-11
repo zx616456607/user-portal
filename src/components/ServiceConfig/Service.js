@@ -9,13 +9,14 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import { Row, Col, Modal, Button, Icon, Collapse, Input, message, Spin } from 'antd'
+import { Row, Col, Modal, Button, Icon, Collapse, Input, Spin } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import './style/ServiceConfig.less'
 import QueueAnim from 'rc-queue-anim'
 import { validateK8sResource } from '../../common/naming_validation'
 import CollapseHeader from './ServiceCollapseHeader'
 import CollapseContainer from './ServiceCollapseContainer'
+import NotificationHandler from '../../common/notification_handler'
 import { connect } from 'react-redux'
 import remove from 'lodash/remove'
 import { loadConfigGroup, configGroupName, createConfigGroup, deleteConfigGroup } from '../../actions/configs'
@@ -130,13 +131,14 @@ class Service extends Component {
     })
   }
   btnCreateConfigGroup() {
+    let notification = new NotificationHandler()
     let groupName = this.state.myTextInput
     if (!groupName) {
-      message.error('请输入配置组名称')
+      notification.error('请输入配置组名称')
       return
     }
     if (!validateK8sResource(groupName)) {
-      message.error('名称需要 3-63 个字符，可以包括小写英文字母、数字、点（.）和连字符（-）')
+      notification.error('名称需要 3-63 个字符，可以包括小写英文字母、数字、点（.）和连字符（-）')
       return
     }
     let self = this
@@ -155,7 +157,7 @@ class Service extends Component {
           self.props.loadConfigGroup(cluster, {
             success: {
               func: () => {
-                message.success('创建成功')
+                notification.success('创建成功')
               }
             }
           })
@@ -181,10 +183,11 @@ class Service extends Component {
 
   }
   btnDeleteGroup() {
+    let notification = new NotificationHandler()
     let configArray = this.state.configArray
     let cluster = this.props.cluster
     if (configArray.length <= 0) {
-      message.error('未选择要操作配置组')
+      notification.error('未选择要操作配置组')
       return;
     }
     const self = this
@@ -217,7 +220,7 @@ class Service extends Component {
                   content
                 })
               } else {
-                message.success('删除成功')
+                notification.success('删除成功')
               }
               self.setState({
                 configArray: []

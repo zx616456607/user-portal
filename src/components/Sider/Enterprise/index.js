@@ -8,13 +8,14 @@
  * @author GaoJian
  */
 import React, { Component } from 'react'
-import { Card, message, Button, Tooltip, Popover, Icon, Menu, Modal, Radio, Upload, Badge } from 'antd'
+import { Card, Button, Tooltip, Popover, Icon, Menu, Modal, Radio, Upload, Badge } from 'antd'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import './style/sider.less'
 import { beforeUploadFile, uploading, mergeUploadingIntoList, getUploadFileUlr, uploadFileOptions, getVolumeBindInfo, changeStorageDetail } from '../../../actions/storage'
 import cloneDeep from 'lodash/cloneDeep'
 import QueueAnim from 'rc-queue-anim'
+import NotificationHandler from '../../../common/notification_handler'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -141,6 +142,7 @@ class Slider extends Component {
     const options = this.props.uploadFileOptions
     const volumeName = options.volumeName
     const self = this
+    let notification = new NotificationHandler()
     return {
       showUploadList: false,
       data: {
@@ -153,7 +155,7 @@ class Slider extends Component {
       beforeUpload: (file) => {
         const fileSize = file.size
         if ((fileSize / 1024 / 1024).toFixed(2) > (self.props.storageDetail.StorageInfo.size - self.props.storageDetail.StorageInfo.consumption)) {
-          message.error('超出存储卷可用大小')
+          notification.error('超出存储卷可用大小')
           return false
         }
         self.props.uploading(0)
@@ -190,7 +192,7 @@ class Slider extends Component {
           currentOptions.uploadFile = true
           currentOptions.uploadFileStatus = 'success'
           self.props.changeUploadFileOptions(currentOptions)
-          message.success('文件上传成功')
+          notification.success('文件上传成功')
           const storageInfo = cloneDeep(self.props.storageDetail.StorageInfo)
           storageInfo.consumption = parseFloat(storageInfo.consumption) + parseFloat((currentOptions.fileSize / 1024 / 1024).toFixed(2))
           self.props.changeStorageDetail(storageInfo)
@@ -203,7 +205,7 @@ class Slider extends Component {
           const fileInfo = cloneDeep(self.props.beforeUploadState)
           fileInfo.status = 'Failure'
           self.props.mergeUploadingIntoList(fileInfo)
-          message.error('文件上传失败')
+          notification.error('文件上传失败')
         }
       }
     }

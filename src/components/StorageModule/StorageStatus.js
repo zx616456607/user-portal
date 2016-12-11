@@ -9,13 +9,14 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import { Tabs, Card, Menu, Progress, Upload, Radio, Modal, Button, Icon, Col, message } from 'antd'
+import { Tabs, Card, Menu, Progress, Upload, Radio, Modal, Button, Icon, Col } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import cloneDeep from 'lodash/cloneDeep'
 import { getUploadFileUlr, uploadFileRequest, uploadFileSuccess, getStorageFileHistory, exportFile, uploadFileOptions } from '../../actions/storage'
 import './style/storage.less'
+import NotificationHandler from '../../common/notification_handler'
 
 const RadioGroup = Radio.Group
 const messages = defineMessages({
@@ -123,6 +124,7 @@ class StorageStatus extends Component {
   getUploadData() {
     const volumeName = this.props.volumeName
     const self = this
+    let notification = new NotificationHandler()
     return {
       showUploadList: false,
       data: {
@@ -167,7 +169,7 @@ class StorageStatus extends Component {
           fileInfo.status = 'Complete'
           self.props.mergeUploadingIntoList(fileInfo)
           self.props.uploading(100)
-          message.success('文件上传成功')
+          notification.success('文件上传成功')
         } else if (info.file.status === 'error') {
           // self.props.uploading(100)
           self.setState({
@@ -177,7 +179,7 @@ class StorageStatus extends Component {
           const fileInfo = cloneDeep(self.props.beforeUploadState)
           fileInfo.status = 'Failure'
           self.props.mergeUploadingIntoList(fileInfo)
-          message.error('文件上传失败')
+          notification.error('文件上传失败')
         }
       }
     }

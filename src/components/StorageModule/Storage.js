@@ -10,7 +10,7 @@
 
 import React, { Component, PropTypes } from 'react'
 import ReactDOM from 'react-dom'
-import { Checkbox, Card, Menu, Button, Dropdown, Icon, Radio, Modal, Input, Slider, InputNumber, Row, Col, message, Tooltip } from 'antd'
+import { Checkbox, Card, Menu, Button, Dropdown, Icon, Radio, Modal, Input, Slider, InputNumber, Row, Col, Tooltip } from 'antd'
 import { Link } from 'react-router'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import QueueAnim from 'rc-queue-anim'
@@ -21,6 +21,7 @@ import { DEFAULT_IMAGE_POOL, STORAGENAME_REG_EXP } from '../../constants'
 import './style/storage.less'
 import { calcuDate } from '../../common/tools'
 import { appNameCheck } from '../../common/naming_validation'
+import NotificationHandler from '../../common/notification_handler'
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
@@ -147,7 +148,8 @@ let MyComponent = React.createClass({
   handleSure() {
     const self = this
     let type = this.state.modalType
-    const hide = message.loading("执行中", 0)
+    let notification = new NotificationHandler()
+    notification.spin("执行中")
     if (type === 'format') {
       this.props.formateStorage(this.props.imagePool, this.props.cluster, {
         name: this.state.modalName,
@@ -159,8 +161,8 @@ let MyComponent = React.createClass({
               self.setState({
                 visible: false,
               })
-              hide()
-              message.success('格式化存储卷成功')
+              notification.close()
+              notification.success('格式化存储卷成功')
               this.props.loadStorageList()
             }
           },
@@ -170,15 +172,16 @@ let MyComponent = React.createClass({
               self.setState({
                 visible: false,
               })
-              hide()
-              message.success('格式化存储卷失败')
+              notification.close()
+              notification.error('格式化存储卷失败')
               this.props.loadStorageList()
             }
           }
         })
     } else if (type === 'resize') {
       if (this.state.size <= this.state.modalSize) {
-        message.error('不能比以前小')
+        notification.close()
+        notification.error('不能比以前小')
         return
       }
       this.props.resizeStorage(this.props.imagePool, this.props.cluster, {
@@ -191,8 +194,8 @@ let MyComponent = React.createClass({
               self.setState({
                 visible: false,
               })
-              hide()
-              message.success('扩容成功')
+              notification.close()
+              notification.success('扩容成功')
               self.props.loadStorageList()
             }
           },
@@ -202,8 +205,8 @@ let MyComponent = React.createClass({
               self.setState({
                 visible: false,
               })
-              hide()
-              message.error('扩容失败')
+              notification.close()
+              notification.error('扩容失败')
               self.props.loadStorageList()
             }
           }
@@ -398,16 +401,17 @@ class Storage extends Component {
     }, 0)
   }
   handleOk() {
+    let notification = new NotificationHandler()
     //create storage
     if (!this.state.name) {
-      message.error('请输入存储卷名称')
+      notification.error('请输入存储卷名称')
       return
     }
     if(this.state.nameError) {
       return
     }
     if (this.state.size === 0) {
-      message.error('请输入存储卷大小')
+      notification.error('请输入存储卷大小')
       return
     }
     /*if(this.state.name.length < 3 || this.state.name.length > 20) {
@@ -418,7 +422,7 @@ class Storage extends Component {
       message.error('存储名称只可以a-z或A-Z开始,且只可以英文字母或者数字组成')
       return
     }*/
-    const hide = message.loading('创建存储卷中', 0)
+    notification.spin('创建存储卷中')
     let storageConfig = {
       driver: 'rbd',
       name: this.state.name,
@@ -438,8 +442,8 @@ class Storage extends Component {
             size: 500,
             currentType: 'ext4'
           })
-          hide()
-          message.success('创建存储成功')
+          notification.close()
+          notification.success('创建存储成功')
           self.props.loadStorageList(self.props.currentImagePool, self.props.cluster)
         },
         isAsync: true
@@ -447,14 +451,14 @@ class Storage extends Component {
       failed: {
         isAsync: true,
         func: (err) => {
-          hide()
+          notification.close()
           if (err.statusCode == 409) {
-            message.error('存储卷 ' + storageConfig.name + ' 已经存在')
+            notification.error('存储卷 ' + storageConfig.name + ' 已经存在')
           } else {
             if (err.message) {
-              message.error(err.message.message)
+              notification.error(err.message.message)
             } else {
-              message.error(JSON.stringify(err))
+              notification.error(JSON.stringify(err))
             }
           }
         }
@@ -481,21 +485,22 @@ class Storage extends Component {
     volumeArray = volumeArray.map(item => {
       return item.name
     })
-    const hide = message.loading("删除存储中", 0)
+    let notification = new NotificationHandler()
+    notification.spin("删除存储中")
     this.props.deleteStorage(this.props.currentImagePool, this.props.cluster, { volumes: volumeArray }, {
       success: {
         func: () => {
-          hide()
+          notification.close()
           this.props.loadStorageList(this.props.currentImagePool, this.props.cluster)
-          message.success('删除存储成功')
+          notification.success('删除存储成功')
         },
         isAsync: true
       },
       failed: {
         isAsync: true,
         func: () => {
-          hide()
-          message.error('删除存储失败')
+          notification.close()
+          notification.error('删除存储失败')
           this.props.loadStorageList(this.props.currentImagePool, this.props.cluster)
         }
       }
@@ -590,8 +595,9 @@ class Storage extends Component {
     this.props.loadStorageList(this.props.currentImagePool, this.props.cluster, this.state.storageName)
   }
   showDeleteModal() {
+    let notification = new NotificationHandler()
     if (this.state.volumeArray.length <= 0) {
-      message.error('请选择要删除的存储')
+      notification.error('请选择要删除的存储')
       return
     }
     const self = this

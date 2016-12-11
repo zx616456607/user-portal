@@ -9,11 +9,12 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import { Row, Icon, Input, Form, Modal, Timeline, Spin, message, Button } from 'antd'
+import { Row, Icon, Input, Form, Modal, Timeline, Spin, Button } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 // import ConfigFile from './ServiceConfigFile'
 import { loadConfigName, updateConfigName, configGroupName, deleteConfigName, changeConfigFile } from '../../actions/configs'
 import { loadAppList } from '../../actions/app_manage'
+import NotificationHandler from '../../common/notification_handler'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import unionWith from 'lodash/unionWith'
@@ -114,9 +115,10 @@ class CollapseContainer extends Component {
 
   }
   editConfigFile(group) {
+    let notification = new NotificationHandler()
     const configtextarea = this.state.configtextarea
     if (configtextarea == '') {
-      message.info('内容不能为空，请重新输入内容')
+      notification.error('内容不能为空，请重新输入内容')
       return
     }
     const groups = {
@@ -131,7 +133,7 @@ class CollapseContainer extends Component {
           this.setState({
             modalConfigFile: false,
           })
-          message.success('修改配置文件成功')
+          notification.success('修改配置文件成功')
         },
         isAsync: true
       }
@@ -150,6 +152,7 @@ class CollapseContainer extends Component {
     }
     const self = this
     const {parentScope} = this.props
+    let notification = new NotificationHandler()
     Modal.confirm({
       title: '您是否确认要删除这项内容',
       content: Name,
@@ -175,7 +178,7 @@ class CollapseContainer extends Component {
                   content
                 })
               } else {
-                message.success('删除配置文件成功')
+                notification.success('删除配置文件成功')
                 self.props.configGroupName(groups)
               }
             },
@@ -195,7 +198,6 @@ class CollapseContainer extends Component {
     const formItemLayout = { labelCol: { span: 2 }, wrapperCol: { span: 21 } }
     let configFileList
     if (collapseContainer.length === 0) {
-      // message.info(this.props.groupname + '未添加配置文件')
       return (
         <div className='li' style={{ lineHeight: '60px', height: '10px' }}>未添加配置文件</div>
       )

@@ -284,7 +284,6 @@ MyComponent = connect(mapStateToMyComponentProp, {
   createStorage
 })(MyComponent)
 
-
 function loadImageTags(props) {
   const self = this
   const { registry, currentSelectedImage, loadImageDetailTag, getOtherImageTag, other} = props
@@ -468,8 +467,7 @@ let NormalDeployBox = React.createClass({
   },
   componentWillMount() {
     loadImageTags(this.props)
-  },
-  componentWillUpdate() {
+    // For 1st time mount
     setTimeout(() => {
       this.serviceNameInput.refs.input.focus()
     })
@@ -479,6 +477,9 @@ let NormalDeployBox = React.createClass({
     if (serviceOpen == this.props.serviceOpen) {
       return
     }
+    setTimeout(() => {
+      this.serviceNameInput.refs.input.focus()
+    })
     if (serviceOpen) {
       loadImageTags(nextProps)
     }

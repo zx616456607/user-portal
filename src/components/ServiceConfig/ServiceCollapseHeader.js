@@ -10,11 +10,12 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import { Row, Col, Modal, Button, Form, Icon, Checkbox, Menu, Dropdown, Input, message } from 'antd'
+import { Row, Col, Modal, Button, Form, Icon, Checkbox, Menu, Dropdown, Input } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { createConfigFiles, deleteConfigGroup, loadConfigGroup, deleteConfigFiles, addConfigFile } from '../../actions/configs'
 import { connect } from 'react-redux'
 import { calcuDate } from '../../common/tools.js'
+import NotificationHandler from '../../common/notification_handler'
 
 const ButtonGroup = Button.Group
 const FormItem = Form.Item
@@ -46,17 +47,17 @@ class CollapseHeader extends Component {
     })
   }
   createConfigFile(group) {
-    // e.stopPropagation()
+    let notification = new NotificationHandler()
     if (!this.state.configName) {
-      message.error('请输入配置组名称')
+      notification.error('请输入配置组名称')
       return
     }
     if (escape(this.state.configName).indexOf("%u") > 0) {
-      message.error('名称格式输入有误，请重新输入')
+      notification.error('名称格式输入有误，请重新输入')
       return
     }
     if (this.state.configDesc == '') {
-      message.info('内容不能为空，请重新输入内容')
+      notification.error('内容不能为空，请重新输入内容')
       return
     }
     let configfile = {
@@ -70,7 +71,7 @@ class CollapseHeader extends Component {
     self.props.createConfigFiles(configfile, {
       success: {
         func: () => {
-          message.success('创建配置文件成功')
+          notification.success('创建配置文件成功')
           self.setState({
             modalConfigFile: false,
             configName: '',
@@ -127,6 +128,7 @@ class CollapseHeader extends Component {
       cluster: this.props.cluster.clusterID,
       "groups": configArray
     }
+    let notification = new NotificationHandler()
     Modal.confirm({
       title: '您是否确认要删除这些配置组',
       content: group,
@@ -153,7 +155,7 @@ class CollapseHeader extends Component {
                   content
                 })
               } else {
-                message.success('删除成功')
+                notification.success('删除成功')
               }
               self.setState({
                 configArray: [],
