@@ -29,7 +29,7 @@ class AppCreate extends Component {
       this.props.children,
       { scope: parentScope }
     )
-    
+
     return (
       <QueueAnim
         id='AppCreateBox'
@@ -46,7 +46,7 @@ class AppCreate extends Component {
             <div style={{ clear: 'both' }}></div>
           </Card>
         </div>
-        
+
       </QueueAnim>
     )
   }
