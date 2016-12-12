@@ -14,7 +14,7 @@ const config = {
   production: false,
   protocol: 'http' || env.DASHBOARD_PROTOCOL,
   hostname: "0.0.0.0" || env.DASHBOARD_HOST,
-  port: 8005,
+  port: 8003,
   intl_cookie_name: 'intl_locale',
   session_key: 'tce',
   session_secret: ['tenxcloud_dashboard', 'secret_dream008'],
@@ -38,8 +38,8 @@ const config = {
       user: "noreply@tenxcloud.com",
       pass: "TenxCloud001",
     }
-     //host: "192.168.0.63:8000" || env.TENX_API_HOST
-      //host: "192.168.0.230:8000" || env.TENX_API_HOST
+    //host: "192.168.0.63:8000" || env.TENX_API_HOST
+    //host: "192.168.0.230:8000" || env.TENX_API_HOST
     // host: "192.168.3.3:48000" || env.TENX_API_HOST
   }
 }
