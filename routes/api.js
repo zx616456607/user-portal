@@ -53,6 +53,7 @@ module.exports = function (Router) {
   router.get('/clusters', clusterController.getClusters)
   // Apps
   router.post('/clusters/:cluster/apps', appController.createApp)
+  router.put('/clusters/:cluster/apps/:app_name/desc', appController.updateAppDesc)
   router.get('/clusters/:cluster/apps', appController.getApps)
   router.post('/clusters/:cluster/apps/batch-delete', appController.deleteApps)
   router.put('/clusters/:cluster/apps/batch-stop', appController.stopApps)

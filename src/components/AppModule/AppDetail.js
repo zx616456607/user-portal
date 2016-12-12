@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Tabs, Card, Menu, Spin } from 'antd'
+import { Tabs, Card, Menu, Spin, Form, Input, Button, Icon } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
@@ -18,18 +18,21 @@ import AppLog from './AppLog'
 import AppMonitior from './AppMonitior'
 import './style/AppDetail.less'
 import { formatDate } from '../../common/tools'
-import { loadAppDetail } from '../../actions/app_manage'
+import { updateAppDesc, loadAppDetail } from '../../actions/app_manage'
 import { browserHistory } from 'react-router'
 import AppStatus from '../TenxStatus/AppStatus'
 import { parseAppDomain } from '../parseDomain'
 import TipSvcDomain from '../TipSvcDomain'
 import { getAppStatus } from '../../common/status_identify'
+import NotificationHandler from '../../common/notification_handler'
 
 const DEFAULT_TAB = '#service'
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
 const TabPane = Tabs.TabPane
+const createForm = Form.create;
+const FormItem = Form.Item;
 
 class AppDetail extends Component {
   constructor(props) {
@@ -85,6 +88,32 @@ class AppDetail extends Component {
     })
   }
 
+  modifyDesc () {
+    const { appName, cluster } = this.props
+    this.props.form.validateFields((errors, data) => {
+      data.name = appName,
+      data.cluster = cluster
+      this.props.updateAppDesc(data, {
+        success: {
+          func: () => {
+            let notification = new NotificationHandler()
+            notification.success('应用描述', '应用描述修改成功')
+            this.setState({
+              editDesc: false,
+              desc: data.desc
+            })
+          },
+          isAsync: true
+        },
+      })
+    })
+  }
+
+  cancelEdit() {
+    this.setState({editDesc:false}) 
+    this.props.form.resetFields()
+  }
+
   render() {
     const { children, appName, app, isFetching, location } = this.props
     const { activeTabKey, serviceList } = this.state
@@ -101,6 +130,7 @@ class AppDetail extends Component {
       updateDate = app.services[0].metadata.creationTimestamp
     }
     const appDomain = parseAppDomain(app, this.props.bindingDomains)
+    const descProps = this.props.form.getFieldProps('desc', {initialValue: this.state.desc || app.description})
     return (
       <div id='AppDetail'>
         <QueueAnim className='demo-content'
@@ -150,9 +180,30 @@ class AppDetail extends Component {
                   </div>
                 </div>
                 <div className='rightInfo'>
-                  <div className='introduction'>
-                    描述：{app.description || '-'}
-                  </div>
+                  <Form horizontal>
+                    <div className='introduction' style={{ height: '115px'}}>
+                    <FormItem hasFeedback style={{ 'margin-bottom': '0px'}}>
+                      描述：
+                      {this.state.editDesc ? null : 
+                        <Button style={{ float: 'right', top: '-8px' }} onClick={() => this.setState({editDesc:true})} disabled={this.state.editDesc}>
+                          <Icon type="edit" />&nbsp;编辑
+                        </Button>}
+                      <br/>
+                      <Input size="large"
+                        placeholder="请输入应用描述"
+                        autoComplete="off"
+                        {...descProps}
+                        disabled={!this.state.editDesc}/>
+                      {this.state.editDesc ? 
+                        <div className="editInfo">
+                          <div style={{ lineHeight: '50px' }} className="text-center">
+                            <Button size="large" type="ghost" style={{ marginRight: '10px' }} onClick={() => this.cancelEdit()}>取消</Button>
+                            <Button size="large" type="primary" onClick={() => this.modifyDesc()}>确定</Button>
+                          </div>
+                        </div>: null}
+                    </FormItem>
+                    </div>
+                  </Form>
                 </div>
                 <div style={{ clear: 'both' }}></div>
               </div>
@@ -194,6 +245,8 @@ class AppDetail extends Component {
   }
 }
 
+AppDetail = createForm()(AppDetail);
+
 AppDetail.propTypes = {
   // Injected by React Redux
   cluster: PropTypes.string.isRequired,
@@ -231,5 +284,6 @@ function mapStateToProps(state, props) {
 }
 
 export default connect(mapStateToProps, {
-  loadAppDetail
+  loadAppDetail,
+  updateAppDesc
 })(AppDetail)
