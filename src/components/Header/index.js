@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component } from 'react'
-import { Menu, Dropdown, Icon, Select, Input, Button, Form, Popover, message } from 'antd'
+import { Menu, Dropdown, Icon, Select, Input, Button, Form, Popover } from 'antd'
 import { FormattedMessage, defineMessages } from 'react-intl'
 import "./style/header.less"
 import querystring from 'querystring'
@@ -21,6 +21,7 @@ import { getCookie } from '../../common/tools'
 import { USER_CURRENT_CONFIG } from '../../../constants'
 import { browserHistory } from 'react-router'
 import { Link } from 'react-router'
+import NotificationHandler from '../../common/notification_handler'
 
 const FormItem = Form.Item;
 const createForm = Form.create;
@@ -112,7 +113,8 @@ class Header extends Component {
     if (current.cluster.namespace !== current.space.namespace) {
       msg = `空间已成功切换到 ${current.space.spaceName}，${msg}`
     }
-    message.success(msg)
+    let notification = new NotificationHandler()
+    notification.success(msg)
     if (pathname.match(/\//g).length > 2) {
       browserHistory.push('/')
     }

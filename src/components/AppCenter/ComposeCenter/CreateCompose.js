@@ -78,6 +78,7 @@ class CreateCompose extends Component {
         //it's mean there are some thing is null,user didn't input
         return;
       }
+      let notification = new NotificationHandler()
       const scope = this
       const registry = this.props.registry
       const config = {
@@ -87,14 +88,13 @@ class CreateCompose extends Component {
         'description': values.desc
       }
       if(/[\u4e00-\u9fa5]+$/i.test(values.name)){
-        message.info('不支持中文名称')
+        notification.info('不支持中文名称')
         return
       }
       if (!this.state.currentYaml) {
-        message.info('请输入编排内容')
+        notification.info('请输入编排内容')
         return
       }
-      let notification = new NotificationHandler()
       notification.spin(`创建编排 ${values.name} 中...`)
       this.props.createStack(config, {
         success: {

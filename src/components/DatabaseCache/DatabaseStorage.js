@@ -9,7 +9,7 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import { Checkbox, Card, Menu, Button, Icon, Radio, Modal, Input, Slider, InputNumber, Row, Col, message, Spin, Tooltip } from 'antd'
+import { Checkbox, Card, Menu, Button, Icon, Radio, Modal, Input, Slider, InputNumber, Row, Col, Spin, Tooltip } from 'antd'
 import { Link } from 'react-router'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import QueueAnim from 'rc-queue-anim'
@@ -18,6 +18,7 @@ import { remove, findIndex } from 'lodash'
 import { loadDBStorageAllList } from '../../actions/database_cache'
 import { DEFAULT_IMAGE_POOL } from '../../constants'
 import './style/DatabaseStorage.less'
+import NotificationHandler from '../../common/notification_handler'
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
@@ -156,9 +157,10 @@ let MyComponent = React.createClass({
   handleSure() {
     const self = this
     let type = this.state.modalType
+    let notification = new NotificationHandler()
     if (type === 'format') {
       if (this.state.formateType === this.state.format) {
-        message.error('格式不能和以前相同')
+        notification.error('格式不能和以前相同')
         return
       }
       this.props.formateStorage(this.props.imagePool, this.props.cluster, {
@@ -177,7 +179,7 @@ let MyComponent = React.createClass({
         })
     } else if (type === 'resize') {
       if (this.state.size <= this.state.modalSize) {
-        message.error('不能比以前小')
+        notification.error('不能比以前小')
         return
       }
       this.props.resizeStorage(this.props.imagePool, this.props.cluster, {
@@ -393,12 +395,13 @@ class databaseStorage extends Component {
 
   handleOk() {
     //create storage
+    let notification = new NotificationHandler()
     if (!this.state.name) {
-      message.error('请输入存储卷名称')
+      notification.error('请输入存储卷名称')
       return
     }
     if (this.state.size === 0) {
-      message.error('请输入存储卷大小')
+      notification.error('请输入存储卷大小')
       return
     }
 
