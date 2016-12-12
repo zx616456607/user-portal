@@ -38,6 +38,16 @@ class ContainerLogs extends Component {
     //
   }
 
+  // For issue http://jira.tenxcloud.com/browse/CRYSTAL-1630
+  // If current tab is not logs, component do not update and the logs will not scrollIntoView
+  shouldComponentUpdate(nextProps, nextState) {
+    const { tabKey, activeTabKey } = nextProps
+    if (activeTabKey !== tabKey) {
+      return false
+    }
+    return true
+  }
+
   componentWillUnmount() {
     const ws = this.ws
     ws && ws.close()

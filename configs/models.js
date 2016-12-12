@@ -3,12 +3,12 @@
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  */
 
- /*
- * Product modes
- *
- * v0.1 - 2016-12-02
- * @author huangqg
- */
+/*
+* Product modes
+*
+* v0.1 - 2016-12-02
+* @author huangqg
+*/
 
 const models = {
   standard: { // 标准版
@@ -85,4 +85,5 @@ const models = {
   }
 }
 // set the product mode here
+// module.exports = models.standard
 module.exports = models.enterprise

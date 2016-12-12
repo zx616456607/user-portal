@@ -108,6 +108,34 @@ export function createApp(appConfig, callback) {
   }
 }
 
+export const APP_DESC_UPDATE_REQUEST = 'APP_DESC_UPDATE_REQUEST'
+export const APP_DESC_UPDATE_SUCCESS = 'APP_DESC_UPDATE_SUCCESS'
+export const APP_DESC_UPDATE_FAILURE = 'APP_DESC_UPDATE_FAILURE'
+
+export function fetchUpdateAppDesc(app, callback) {
+  return {
+    cluster: app.cluster,
+    [FETCH_API]: {
+      types: [APP_DESC_UPDATE_REQUEST, APP_DESC_UPDATE_SUCCESS, APP_DESC_UPDATE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/clusters/${app.cluster}/apps/${app.name}/desc`,
+      options: {
+        method: 'PUT',
+        body: {
+          desc: app.desc
+        }
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function updateAppDesc(app, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchUpdateAppDesc(app, callback))
+  }
+}
+
 export const APP_BATCH_DELETE_REQUEST = 'APP_BATCH_DELETE_REQUEST'
 export const APP_BATCH_DELETE_SUCCESS = 'APP_BATCH_DELETE_SUCCESS'
 export const APP_BATCH_DELETE_FAILURE = 'APP_BATCH_DELETE_FAILURE'
