@@ -13,4 +13,6 @@ RUN rm -rf /usr/src/app/src
 
 EXPOSE 8003
 
-CMD ["run.sh"]
+WORKDIR /usr/src/app/
+
+CMD ["./run.sh"]
