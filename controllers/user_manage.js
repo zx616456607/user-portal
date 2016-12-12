@@ -12,6 +12,7 @@
 const apiFactory = require('../services/api_factory')
 const constants = require('../constants')
 const email = require('../utils/email')
+const logger = require('../utils/logger.js').getLogger("user_manage")
 const DEFAULT_PAGE = constants.DEFAULT_PAGE
 const DEFAULT_PAGE_SIZE = constants.DEFAULT_PAGE_SIZE
 const MAX_PAGE_SIZE = constants.MAX_PAGE_SIZE
@@ -231,9 +232,10 @@ exports.createUser = function* () {
       data: result
     }
   } catch (error) {
-    const err = new Error('User has been created but sent email failed: ' + error)
-    err.status = 500
-    throw err
+    logger.error("Send email error: ", error)
+    this.body = {
+      data: "SEND_MAIL_ERROR"
+    }
   }
 }
 

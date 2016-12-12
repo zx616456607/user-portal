@@ -20,7 +20,7 @@ const FormItem = Form.Item
 let CreateUserModal = React.createClass({
   getInitialState() {
     return {
-      disabled: false,
+      disabled: false
     }
   },
   userExists(rule, value, callback) {

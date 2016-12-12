@@ -269,9 +269,7 @@ class Header extends Component {
         </table>
         <div className='logCancle'>
           <a href='/logout'>
-            <svg className='logCancleSvg'>
-              <use xlinkHref='#logteam' />
-            </svg>
+            <Icon type="poweroff" className='logCancleIcon'/>
             注销登录
           </a>
         </div>

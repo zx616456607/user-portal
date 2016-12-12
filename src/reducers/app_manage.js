@@ -103,6 +103,11 @@ export function apps(state = { appItmes: {} }, action) {
       SUCCESS: ActionTypes.APP_CREATE_SUCCESS,
       FAILURE: ActionTypes.APP_CREATE_FAILURE
     }, state.createApp, action),
+    updateAppDesc: reducerFactory({
+      REQUEST: ActionTypes.APP_DESC_UPDATE_REQUEST,
+      SUCCESS: ActionTypes.APP_DESC_UPDATE_SUCCESS,
+      FAILURE: ActionTypes.APP_DESC_UPDATE_FAILURE
+    }, state.updateAppDesc, action),
     deleteApps: reducerFactory({
       REQUEST: ActionTypes.APP_BATCH_DELETE_REQUEST,
       SUCCESS: ActionTypes.APP_BATCH_DELETE_SUCCESS,

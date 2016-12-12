@@ -38,6 +38,9 @@ const config = {
       user: "noreply@tenxcloud.com",
       pass: "TenxCloud001",
     }
+     //host: "192.168.0.63:8000" || env.TENX_API_HOST
+      //host: "192.168.0.230:8000" || env.TENX_API_HOST
+    // host: "192.168.3.3:48000" || env.TENX_API_HOST
   }
 }
 
