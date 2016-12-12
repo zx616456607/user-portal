@@ -34,7 +34,8 @@ function fetchApi(endpoint, options, schema) {
     if (!options.headers['Content-Type']) {
       options.headers['Content-Type'] = 'application/json'
     }
-    if (Object.prototype.toString.call(options.body) === '[object Object]') {
+    let bodyType = Object.prototype.toString.call(options.body)
+    if (bodyType === '[object Object]' || bodyType === '[object Array]') {
       options.body = JSON.stringify(options.body)
     }
   }
