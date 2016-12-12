@@ -136,6 +136,8 @@ export default store => next => action => {
   } else {
     endpoint += `?${randomQuery}`
   }
+  // Encode url before fetch(multiple encoding produce errors !!!)
+  endpoint = encodeURI(endpoint)
   if (!schema) {
     throw new Error('Specify one of the exported Schemas.')
   }

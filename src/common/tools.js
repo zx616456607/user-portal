@@ -93,13 +93,13 @@ export function toQuerystring(obj, sep, eq) {
     return ''
   }
   return Object.keys(obj).map(function (k) {
-    let ks = encodeURIComponent(stringifyPrimitive(k)) + eq
+    let ks = stringifyPrimitive(k) + eq
     if (Array.isArray(obj[k])) {
       return obj[k].map(function (v) {
-        return ks + encodeURIComponent(stringifyPrimitive(v))
+        return ks + stringifyPrimitive(v)
       }).join(sep)
     } else {
-      return ks + encodeURIComponent(stringifyPrimitive(obj[k]))
+      return ks + stringifyPrimitive(obj[k])
     }
   }).join(sep)
   function stringifyPrimitive(v) {
