@@ -383,7 +383,7 @@ class MemberManage extends Component {
     notification.spin(`创建用户 ${user.userName} 中...`)
     createUser(user, {
       success: {
-        func: () => {
+        func: (response) => {
           loadUserList({
             page,
             size: pageSize,
@@ -391,7 +391,11 @@ class MemberManage extends Component {
             filter,
           })
           notification.close()
-          notification.success(`创建用户 ${user.userName} 成功`)
+          if (response.data && response.data == "SEND_MAIL_ERROR") {
+            notification.error(`创建用户 ${user.userName} 成功，但发送邮件失败`)
+          } else {
+            notification.success(`创建用户 ${user.userName} 成功`)
+          }
         },
         isAsync: true
       },
