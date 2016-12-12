@@ -29,6 +29,10 @@ exports.getUserDetail = function* () {
     user.tenxApi = loginUser.tenxApi
     user.watchToken = loginUser.watchToken
     user.cicdApi = loginUser.cicdApi
+    // Delete sensitive information
+    delete user.userID
+    delete user.statusCode
+    delete user.apiToken
   }
   this.body = {
     data: user

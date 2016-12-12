@@ -56,7 +56,6 @@ let CreateTeamModal = React.createClass({
           _this.setState({
             disabled: false
           })
-          changeBtnStatus(false)
           callback([new Error('团队名校验失败')])
         }
       }

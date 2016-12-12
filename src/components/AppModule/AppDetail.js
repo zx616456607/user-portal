@@ -52,6 +52,7 @@ class AppDetail extends Component {
     loadAppDetail(cluster, appName)
   }
 
+  // For tab select
   componentWillReceiveProps(nextProps) {
     let { hash } = nextProps
     if (hash === this.props.hash) {
@@ -220,7 +221,7 @@ class AppDetail extends Component {
             <Card className='bottomCard'>
               <Tabs
                 tabPosition='top'
-                defaultActiveKey={activeTabKey}
+                defaultActiveKey={DEFAULT_TAB}
                 onTabClick={this.onTabClick}
                 activeKey={activeTabKey}
                 >

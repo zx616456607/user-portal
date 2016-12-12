@@ -70,24 +70,42 @@ class Header extends Component {
   }
 
   handleSpaceChange(space) {
+    const _this = this
     const { loadTeamClustersList, setCurrent, current } = this.props
     /*if (space.namespace === current.space.namespace) {
       return
     }*/
-    setCurrent({
-      team: { teamID: space.teamID },
-      space,
-    })
+    let notification = new NotificationHandler()
     loadTeamClustersList(space.teamID, { size: 100 }, {
       success: {
         func: (result) => {
-          if (result.data.length < 1) {
-            setCurrent({
-              cluster: {}
+          if (!result.data || result.data.length < 1) {
+            notification.warn(`空间 [${space.spaceName}] 的集群列表为空，请重新选择空间`)
+            _this.setState({
+              spacesVisible: true,
+              clustersVisible: false,
             })
+            return
           }
+          setCurrent({
+            team: { teamID: space.teamID },
+            space,
+          })
+          _this.setState({
+            spacesVisible: false,
+            clustersVisible: true,
+          })
         },
         isAsync: true
+      },
+      faied: {
+        func: (error) => {
+          notification.error(`加载空间 [${space.spaceName}] 的集群列表失败，请重新选择空间`)
+          _this.setState({
+            spacesVisible: true,
+            clustersVisible: false,
+          })
+        }
       }
     })
     this.setState({
@@ -110,9 +128,9 @@ class Header extends Component {
       cluster
     })
     const { pathname } = window.location
-    let msg = `集群已成功切换到 ${cluster.clusterName}`
+    let msg = `集群已成功切换到 [${cluster.clusterName}]`
     if (current.cluster.namespace !== current.space.namespace) {
-      msg = `空间已成功切换到 ${current.space.spaceName}，${msg}`
+      msg = `空间已成功切换到 [${current.space.spaceName}]，${msg}`
     }
     let notification = new NotificationHandler()
     notification.success(msg)
