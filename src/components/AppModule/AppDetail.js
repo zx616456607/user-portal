@@ -25,6 +25,7 @@ import { parseAppDomain } from '../parseDomain'
 import TipSvcDomain from '../TipSvcDomain'
 import { getAppStatus } from '../../common/status_identify'
 import NotificationHandler from '../../common/notification_handler'
+import errorHandler from '../../containers/App/error_handler'
 
 const DEFAULT_TAB = '#service'
 
@@ -93,11 +94,11 @@ class AppDetail extends Component {
     this.props.form.validateFields((errors, data) => {
       data.name = appName,
       data.cluster = cluster
+      let notification = new NotificationHandler()
       this.props.updateAppDesc(data, {
         success: {
           func: () => {
-            let notification = new NotificationHandler()
-            notification.success('应用描述', '应用描述修改成功')
+            notification.success('应用描述修改成功')
             this.setState({
               editDesc: false,
               desc: data.desc
@@ -105,6 +106,13 @@ class AppDetail extends Component {
           },
           isAsync: true
         },
+        failed: {
+          func: (err) => {
+            notification.error('应用描述修改失败')
+          },
+          isAsync: true
+        }
+
       })
     })
   }
