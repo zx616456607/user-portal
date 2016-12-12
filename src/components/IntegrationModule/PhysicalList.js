@@ -267,7 +267,7 @@ class PhysicalList extends Component {
           </div>
           <div className='runTime commonTitle'>
             <span className='commonSpan'>
-              <span>{calcuDate(item.bootTime)}</span>
+              <span>{(calcuDate(item.bootTime)).replace('前','')}</span>
             </span>
           </div>
           <div className='startTime commonTitle'>

@@ -60,9 +60,9 @@ let MyComponentEnviro = React.createClass({
     
   },
   add() {
-    uuidEnviro++;
     const { form } = this.props.parentScope.props;
     let envKey = form.getFieldValue('envKey');
+    uuidEnviro = envKey[envKey.length - 1] + 1;
     envKey = envKey.concat(uuidEnviro);
     form.setFieldsValue({
       envKey,
@@ -149,9 +149,9 @@ let MyComponentPort = React.createClass({
     })
   },
   add() {
-    uuidPort++;
     const { form } = this.props.parentScope.props;
     let portKey = form.getFieldValue('portKey');
+    uuidPort = portKey[portKey.length - 1] + 1;
     portKey = portKey.concat(uuidPort);
     form.setFieldsValue({
       portKey,
