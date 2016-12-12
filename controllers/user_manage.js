@@ -217,7 +217,6 @@ exports.createUser = function* () {
     return
   }
   const mailOptions = {
-    from: "service@tenxcloud.com", // sender address
     to: user.email, // list of receivers
     subject: '用户创建成功通知', // Subject line
     html: `<b>${loginUser.user}您好:</b><br/><br/>恭喜您成功创建如下用户: <br/>用户名: ${user.userName}<br/>密码: ${user.password}` // html body
