@@ -24,8 +24,8 @@ const config = {
   },
   tenx_api: {
     protocol: 'http',
-    //host: '192.168.1.103:48000' || env.TENX_API_HOST
-    host: "localhost:8000" || env.TENX_API_HOST
+    host: '192.168.1.103:48000' || env.TENX_API_HOST
+    //host: "localhost:8000" || env.TENX_API_HOST
   },
   mail_server: {
     host: "smtp.qq.com",
