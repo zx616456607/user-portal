@@ -385,6 +385,9 @@ let AppDeployServiceModal = React.createClass({
             // Add the port annotation
             let portUrl = getFieldProps(`portUrl${k}`).value;
             serviceList.addPortAnnotation(serviceName + '-' + newIndex, portType, portUrl)
+          } else {
+            // undefined
+            serviceList.addPortAnnotation(serviceName + '-' + newIndex, portType)
           }
         }
         if (getFieldProps(`portType${k}`).value) {
