@@ -12,6 +12,7 @@ import { Schema, arrayOf, normalize } from 'normalizr'
 import { camelizeKeys } from 'humps'
 import 'isomorphic-fetch'
 import { genRandomString } from '../common/tools'
+import 'whatwg-fetch' // For Edge browser
 
 // Fetches an API response
 function fetchApi(endpoint, options, schema) {
@@ -22,16 +23,30 @@ function fetchApi(endpoint, options, schema) {
   }
   if (!options.credentials) {
     options.credentials = 'same-origin'
+    // options.credentials = 'include'
   }
-  if (options.method === 'POST' || options.method === 'PUT') {
+  // The request body can be of the type String, Blob, or FormData.
+  // Other data structures need to be encoded before hand as one of these types.
+  // https://github.github.io/fetch/#request-body
+  const REQUEST_BODY_METHODS = ['POST', 'PUT', 'PATCH']
+  if (REQUEST_BODY_METHODS.indexOf(options.method) > -1) {
     if (!options.headers) options.headers = {}
-    let headers = new Headers(options.headers)
     if (!options.headers['Content-Type']) {
-      headers.append('Content-Type', 'application/json')
+      options.headers['Content-Type'] = 'application/json'
     }
-    options.headers = headers
-    options.body = JSON.stringify(options.body)
+    if (Object.prototype.toString.call(options.body) === '[object Object]') {
+      options.body = JSON.stringify(options.body)
+    }
   }
+  // And random string in query for IE(avoid use cache)
+  let randomQuery = '_=' + genRandomString()
+  if (endpoint.indexOf('?') > -1) {
+    endpoint += `&${randomQuery}`
+  } else {
+    endpoint += `?${randomQuery}`
+  }
+  // Encode url before fetch(multiple encoding produce errors !!!)
+  endpoint = encodeURI(endpoint)
   return fetch(endpoint, options).then(response =>
     response.json().then(json => ({ json, response }))
   ).then(({json, response}) => {
@@ -129,15 +144,6 @@ export default store => next => action => {
   if (typeof endpoint !== 'string') {
     throw new Error('Specify a string endpoint URL.')
   }
-  // And random string in query for IE(avoid use cache)
-  let randomQuery = '_=' + genRandomString()
-  if (endpoint.indexOf('?') > -1) {
-    endpoint += `&${randomQuery}`
-  } else {
-    endpoint += `?${randomQuery}`
-  }
-  // Encode url before fetch(multiple encoding produce errors !!!)
-  endpoint = encodeURI(endpoint)
   if (!schema) {
     throw new Error('Specify one of the exported Schemas.')
   }
@@ -159,16 +165,6 @@ export default store => next => action => {
   const options = fetchAPI.options || {}
   options.headers = options.headers || {}
   options.headers.teamspace = options.headers.teamspace || space.namespace || ''
-
-  // The request body can be of the type String, Blob, or FormData.
-  // Other data structures need to be encoded before hand as one of these types.
-  // https://github.github.io/fetch/#request-body
-  // For co-body just handle 'PATCH' method
-  if (options.body) {
-    if (options.method === 'PATCH' && Object.prototype.toString.call(options.body) === '[object Object]') {
-      options.body = JSON.stringify(options.body)
-    }
-  }
 
   const [requestType, successType, failureType] = types
   next(actionWith({ type: requestType }))
