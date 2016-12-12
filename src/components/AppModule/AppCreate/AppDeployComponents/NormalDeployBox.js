@@ -191,8 +191,6 @@ let MyComponent = React.createClass({
     getFieldValue('volumeKey').forEach((k) => {
       dir.push(getFieldProps(`volumePath${k}`).value)
     })
-    console.log(dir)
-    console.log(value)
     let isExist = 0
     dir.forEach(item => {
       if(item === value) {
@@ -263,8 +261,6 @@ let MyComponent = React.createClass({
         });
       }
       this.getFormValue()
-      const inputDir = []
-      const showTip = []
       formItems = getFieldValue('volumeKey').map((k) => {
         return (
           <FormItem key={`volume${k}`}>
