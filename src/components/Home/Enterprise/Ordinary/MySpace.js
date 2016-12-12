@@ -18,68 +18,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { Link } from 'react-router'
 import { loadSpaceCICDStats, loadSpaceImageStats, loadSpaceInfo } from '../../../../actions/overview_space'
 
-let imageOption = {
-  series: [{
-    type: 'gauge',
-    startAngle: 180,
-    endAngle: 0,
-    min: 0,
-    max: 100,
-    splitNumber: 1,
-    radius: '155%',
-    center: ['50%', 'bottom'],
-    pointer: {
-      show: false,
-      width: 0
-    },
-    axisLine: {
-      lineStyle: {
-        width: 16,
-        color: [[0.3, "#13c563"], [0.32,'#fff'],[1, "#46b2fa"]]
-      }
-    },
-    splitLine: {
-      show: false
-    },
-    axisTick: {
-      show: false
-    },
-    axisLabel : {
-      show: false,
-    }
-  }]
-}
-let layoutOption = {
-  series: [{
-    type: 'gauge',
-    startAngle: 180,
-    endAngle: 0,
-    min: 0,
-    max: 100,
-    splitNumber: 1,
-    radius: '155%',
-    center: ['50%', 'bottom'],
-    pointer: {
-      show: false,
-      width: 0
-    },
-    axisLine: {
-      lineStyle: {
-        width: 16,
-        color: [[0.3, "#13c563"], [0.32,'#fff'],[1, "#46b2fa"]]
-      }
-    },
-    splitLine: {
-      show: false
-    },
-    axisTick: {
-      show: false
-    },
-    axisLabel : {
-      show: false,
-    }
-  }]
-}
+
 
 class MySpace extends Component{
   constructor(props){
@@ -177,7 +116,74 @@ class MySpace extends Component{
     if (this.props.auditLog) {
       isFetchingAuditLog  = this.props.auditLog.isFetching
     }
+    let ImagePublicNum = ((spaceImageStats.publicNumber)/(spaceImageStats.publicNumber+spaceImageStats.privateNumber)).toFixed(2)
+    let ImageLine = isNaN(ImagePublicNum)?0:ImagePublicNum*1+0.02
+    let TempPublicNum = ((spaceTemplateStats.public)/(spaceTemplateStats.public+spaceTemplateStats.private)).toFixed(2)
+    let TempLine = isNaN(TempPublicNum)?0:TempPublicNum*1+0.02
     let spaceWarnings = []
+    let imageOption = {
+      series: [{
+        type: 'gauge',
+        startAngle: 180,
+        endAngle: 0,
+        min: 0,
+        max: 100,
+        splitNumber: 1,
+        radius: '155%',
+        center: ['50%', 'bottom'],
+        pointer: {
+          show: false,
+          width: 0
+        },
+        axisLine: {
+          lineStyle: {
+            width: 16,
+            color: [[ImagePublicNum, "#13c563"], [ImageLine,'#fff'],[1, "#46b2fa"]]
+          }
+        },
+        splitLine: {
+          show: false
+        },
+        axisTick: {
+          show: false
+        },
+        axisLabel: {
+          show: false,
+        }
+      }]
+    }
+    let layoutOption = {
+      series: [{
+        type: 'gauge',
+        startAngle: 180,
+        endAngle: 0,
+        min: 0,
+        max: 100,
+        splitNumber: 1,
+        radius: '155%',
+        center: ['50%', 'bottom'],
+        pointer: {
+          show: false,
+          width: 0
+        },
+        axisLine: {
+          lineStyle: {
+            width: 16,
+            color: [[0, "#13c563"], [0,'#fff'],[1, "#46b2fa"]]
+          }
+        },
+        splitLine: {
+          show: false
+        },
+        axisTick: {
+          show: false
+        },
+        axisLabel : {
+          show: false,
+        }
+      }]
+    }
+
     return (
       <div id='MySpace'>
         <Row className="title" style={{marginTop: 20}}>{spaceName}</Row>
@@ -190,7 +196,9 @@ class MySpace extends Component{
                 style={{height:'90px'}}
                 showLoading={isFetching}
               />
-              <div style={{position:'absolute',top:'66px',width:'100%',textAlign:'center'}}>{spaceImageStats.publicNumber+spaceImageStats.privateNumber} 个</div>
+              <div style={{position:'absolute',top:'66px',width:'100%',textAlign:'center'}}>
+                {spaceImageStats.publicNumber+spaceImageStats.privateNumber} 个
+              </div>
               <Row style={{textAlign:'center',height:40,lineHeight:'40px',padding:'0 24px',fontSize: '13px', color: '#666'}}>
                 <Col span={12}>公有 {spaceImageStats.publicNumber} 个</Col>
                 <Col span={12}>私有 {spaceImageStats.privateNumber} 个</Col>
@@ -217,7 +225,9 @@ class MySpace extends Component{
                 style={{height:'90px'}}
                 showLoading={isFetching}
               />
-              <div style={{position:'absolute',top:'66px',width:'100%',textAlign:'center'}}>{spaceTemplateStats.public+spaceTemplateStats.private} 个</div>
+              <div style={{position:'absolute',top:'66px',width:'100%',textAlign:'center'}}>
+                {spaceTemplateStats.public+spaceTemplateStats.private} 个
+              </div>
               <Row style={{textAlign:'center',height:40,lineHeight:'40px',padding:'0 24px',fontSize: '13px', color: '#666'}}>
                 <Col span={12}>公有 {spaceTemplateStats.public} 个</Col>
                 <Col span={12}>私有 {spaceTemplateStats.private} 个</Col>
