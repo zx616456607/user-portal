@@ -316,7 +316,7 @@ let ServiceModal = React.createClass({
     let value = e.target.value;
     let tempList = [];
     service.map((item) => {
-      if (item.name.indexOf(value) > -1) {
+      if (item.serviceName.indexOf(value) > -1) {
         tempList.push(item)
       }
     });
