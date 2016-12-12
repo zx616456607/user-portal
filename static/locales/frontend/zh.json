@@ -453,7 +453,7 @@
   "ManageMonitor.operationalAudit.AppService": "应用服务",
   "ManageMonitor.operationalAudit.AppOperationLog": "应用操作日志",
   "ManageMonitor.operationalAudit.AppExtraInfo": "应用外部信息",
-  "ManageMonitor.operationalAudit.AppTopology": "应用拓补",
+  "ManageMonitor.operationalAudit.AppTopology": "应用拓扑",
   "ManageMonitor.operationalAudit.Config": "配置",
   "ManageMonitor.operationalAudit.ConfigGroup": "配置组",
   "ManageMonitor.operationalAudit.Node": "主机",

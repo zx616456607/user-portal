@@ -231,7 +231,7 @@ const menusText = defineMessages({
   },
   AppTopology: {
     id: 'ManageMonitor.operationalAudit.AppTopology',
-    defaultMessage: '应用拓补',
+    defaultMessage: '应用拓扑',
   },
   Config: {
     id: 'ManageMonitor.operationalAudit.Config',
@@ -879,213 +879,210 @@ class OperationalAudit extends Component {
     //this function for user change the resource
     //and then the operational list will be change
     const { formatMessage } = this.props.intl;
-    if (e.length == 1) {
-    } else {
-      let eventCode = e[e.length - 1];
-      let showOperationalList = new Array();
-      let operationalList = returnOperationList(this);
-      switch (eventCode) {
-        case '1':
-          //Instance
-          showOperationalList = [];
-          break;
-        case '2':
-          //InstanceEvent
-          showOperationalList = [];
-          break;
-        case '3':
-          //InstanceLog
-          showOperationalList = [];
-          break;
-        case '4':
-          //InstanceMetrics
-          showOperationalList = [];
-          break;
-        case '5':
-          //InstanceContainerMetrics
-          showOperationalList = [];
-          break;
-        case '6':
-          //Service
-          showOperationalList.push(operationalList[8]);
-          showOperationalList.push(operationalList[9]);
-          showOperationalList.push(operationalList[10]);
-          showOperationalList.push(operationalList[11]);
-          showOperationalList.push(operationalList[12]);
-          break;
-        case '7':
-          //ServiceInstance
-          showOperationalList = [];
-          break;
-        case '8':
-          //ServiceEvent
-          showOperationalList = [];
-          break;
-        case '9':
-          //ServiceLog
-          showOperationalList = [];
-          break;
-        case '10':
-          //ServiceK8sService
-          showOperationalList = [];
-          break;
-        case '11':
-          //ServiceRollingUpgrade
-          showOperationalList.push(operationalList[6]);
-          showOperationalList.push(operationalList[7]);
-          showOperationalList.push(operationalList[1]);
-          break;
-        case '12':
-          //ServiceManualScale
-          showOperationalList.push(operationalList[1]);
-          break;
-        case '13':
-          //ServiceAutoScale
-          showOperationalList.push(operationalList[2]);
-          showOperationalList.push(operationalList[1]);
-          break;
-        case '14':
-          //ServiceQuota
-          showOperationalList.push(operationalList[1]);
-          break;
-        case '15':
-          //ServiceHaOption
-          showOperationalList.push(operationalList[1]);
-          break;
-        case '16':
-          //ServiceDomain
-          showOperationalList.push(operationalList[0]);
-          showOperationalList.push(operationalList[2]);
-          showOperationalList.push(operationalList[13]);
-          break;
-        case '17':
-          //App
-          showOperationalList.push(operationalList[12]);
-          showOperationalList.push(operationalList[9]);
-          showOperationalList.push(operationalList[10]);
-          showOperationalList.push(operationalList[13]);
-          showOperationalList.push(operationalList[0]);
-          showOperationalList.push(operationalList[2]);
-          break;
-        case '18':
-          //AppService
-          showOperationalList.push(operationalList[0]);
-          break;
-        case '19':
-          //AppOperationLog
-          showOperationalList = [];
-          break;
-        case '20':
-          //AppExtraInfo
-          showOperationalList = [];
-          break;
-        case '21':
-          //AppTopology
-          showOperationalList.push(operationalList[1]);
-          break;
-        case '22':
-          //ConfigGroup
-          showOperationalList.push(operationalList[8]);
-          showOperationalList.push(operationalList[0]);
-          break;
-        case '23':
-          //Config
-          showOperationalList.push(operationalList[8]);
-          showOperationalList.push(operationalList[0]);
-          showOperationalList.push(operationalList[1]);
-          break;
-        case '24':
-          //Node
-          showOperationalList = [];
-          break;
-        case '25':
-          //NodeMetrics
-          showOperationalList = [];
-          break;
-        case '26':
-          //ThirdPartyRegistry
-          showOperationalList.push(operationalList[0]);
-          showOperationalList.push(operationalList[2]);
-          break;
-        case '27':
-          //Volume
-          showOperationalList.push(operationalList[8]);
-          showOperationalList.push(operationalList[0]);
-          showOperationalList.push(operationalList[15]);
-          showOperationalList.push(operationalList[14]);
-          break;
-        case '28':
-          //VolumeConsumption
-          showOperationalList = [];
-          break;
-        case '36':
-          //Repos
-          showOperationalList.push(operationalList[0]);
-          showOperationalList.push(operationalList[2]);
-          showOperationalList.push(operationalList[1]);
-          break;
-        case '37':
-          //Projects
-          showOperationalList.push(operationalList[0]);
-          showOperationalList.push(operationalList[2]);
-          break;
-        case '38':
-          //Flows
-          showOperationalList.push(operationalList[0]);
-          showOperationalList.push(operationalList[2]);
-          break;
-        case '39':
-          //Stages
-          showOperationalList.push(operationalList[0]);
-          showOperationalList.push(operationalList[2]);
-          showOperationalList.push(operationalList[1]);
-          break;
-        case '40':
-          //Links
-          showOperationalList.push(operationalList[1]);
-          break;
-        case '41':
-          //Builds
-          showOperationalList.push(operationalList[3]);
-          showOperationalList.push(operationalList[4]);
-          break;
-        case '42':
-          //CIRules
-          showOperationalList.push(operationalList[1]);
-          break;
-        case '43':
-          //CDRules
-          showOperationalList.push(operationalList[0]);
-          showOperationalList.push(operationalList[2]);
-          showOperationalList.push(operationalList[1]);
-          break;
-        case '44':
-          //Dockerfiles
-          showOperationalList.push(operationalList[0]);
-          showOperationalList.push(operationalList[2]);
-          showOperationalList.push(operationalList[1]);
-          break;
-        case '45':
-          //CINotifications
-          showOperationalList.push(operationalList[3]);
-          break;
-        case '46':
-          //CDNotifications
-          showOperationalList.push(operationalList[3]);
-          break;
-        case '0':
-          //Unknown
-          showOperationalList = operationalList;
-          break;
-        default:
-          showOperationalList = operationalList;
-          break;
-      }
-      this.setState({
+    let eventCode = e[e.length - 1];
+    let showOperationalList = new Array();
+    let operationalList = returnOperationList(this);
+    switch (eventCode) {
+      case '1':
+        //Instance
+        showOperationalList = [];
+        break;
+      case '2':
+        //InstanceEvent
+        showOperationalList = [];
+        break;
+      case '3':
+        //InstanceLog
+        showOperationalList = [];
+        break;
+      case '4':
+        //InstanceMetrics
+        showOperationalList = [];
+        break;
+      case '5':
+        //InstanceContainerMetrics
+        showOperationalList = [];
+        break;
+      case '6':
+        //Service
+        showOperationalList.push(operationalList[8]);
+        showOperationalList.push(operationalList[9]);
+        showOperationalList.push(operationalList[10]);
+        showOperationalList.push(operationalList[11]);
+        showOperationalList.push(operationalList[12]);
+        break;
+      case '7':
+      //ServiceInstance
+        showOperationalList = [];
+        break;
+      case '8':
+        //ServiceEvent
+        showOperationalList = [];
+        break;
+      case '9':
+        //ServiceLog
+        showOperationalList = [];
+        break;
+      case '10':
+        //ServiceK8sService
+        showOperationalList = [];
+        break;
+      case '11':
+        //ServiceRollingUpgrade
+        showOperationalList.push(operationalList[6]);
+        showOperationalList.push(operationalList[7]);
+        showOperationalList.push(operationalList[1]);
+        break;
+      case '12':
+        //ServiceManualScale
+        showOperationalList.push(operationalList[1]);
+        break;
+      case '13':
+        //ServiceAutoScale
+        showOperationalList.push(operationalList[2]);
+        showOperationalList.push(operationalList[1]);
+        break;
+      case '14':
+        //ServiceQuota
+        showOperationalList.push(operationalList[1]);
+        break;
+      case '15':
+        //ServiceHaOption
+        showOperationalList.push(operationalList[1]);
+        break;
+      case '16':
+        //ServiceDomain
+        showOperationalList.push(operationalList[0]);
+        showOperationalList.push(operationalList[2]);
+        showOperationalList.push(operationalList[13]);
+        break;
+      case '17':
+        //App
+        showOperationalList.push(operationalList[12]);
+        showOperationalList.push(operationalList[9]);
+        showOperationalList.push(operationalList[10]);
+        showOperationalList.push(operationalList[13]);
+        showOperationalList.push(operationalList[0]);
+        showOperationalList.push(operationalList[2]);
+        break;
+      case '18':
+        //AppService
+        showOperationalList.push(operationalList[0]);
+        break;
+      case '19':
+        //AppOperationLog
+        showOperationalList = [];
+        break;
+      case '20':
+        //AppExtraInfo
+        showOperationalList = [];
+        break;
+      case '21':
+        //AppTopology
+        showOperationalList.push(operationalList[1]);
+        break;
+      case '22':
+        //ConfigGroup
+        showOperationalList.push(operationalList[8]);
+        showOperationalList.push(operationalList[0]);
+        break;
+      case '23':
+        //Config
+        showOperationalList.push(operationalList[8]);
+        showOperationalList.push(operationalList[0]);
+        showOperationalList.push(operationalList[1]);
+        break;
+      case '24':
+        //Node
+        showOperationalList = [];
+        break;
+      case '25':
+        //NodeMetrics
+        showOperationalList = [];
+        break;
+      case '26':
+        //ThirdPartyRegistry
+        showOperationalList.push(operationalList[0]);
+        showOperationalList.push(operationalList[2]);
+        break;
+      case '27':
+        //Volume
+        showOperationalList.push(operationalList[8]);
+        showOperationalList.push(operationalList[0]);
+        showOperationalList.push(operationalList[15]);
+        showOperationalList.push(operationalList[14]);
+        break;
+      case '28':
+        //VolumeConsumption
+        showOperationalList = [];
+        break;
+      case '36':
+        //Repos
+        showOperationalList.push(operationalList[0]);
+        showOperationalList.push(operationalList[2]);
+        showOperationalList.push(operationalList[1]);
+        break;
+      case '37':
+        //Projects
+        showOperationalList.push(operationalList[0]);
+        showOperationalList.push(operationalList[2]);
+        break;
+      case '38':
+        //Flows
+        showOperationalList.push(operationalList[0]);
+        showOperationalList.push(operationalList[2]);
+        break;
+      case '39':
+        //Stages
+        showOperationalList.push(operationalList[0]);
+        showOperationalList.push(operationalList[2]);
+        showOperationalList.push(operationalList[1]);
+        break;
+      case '40':
+        //Links
+        showOperationalList.push(operationalList[1]);
+        break;
+      case '41':
+        //Builds
+        showOperationalList.push(operationalList[3]);
+        showOperationalList.push(operationalList[4]);
+        break;
+      case '42':
+        //CIRules
+        showOperationalList.push(operationalList[1]);
+        break;
+      case '43':
+        //CDRules
+        showOperationalList.push(operationalList[0]);
+        showOperationalList.push(operationalList[2]);
+        showOperationalList.push(operationalList[1]);
+        break;
+      case '44':
+        //Dockerfiles
+        showOperationalList.push(operationalList[0]);
+        showOperationalList.push(operationalList[2]);
+        showOperationalList.push(operationalList[1]);
+        break;
+      case '45':
+        //CINotifications
+        showOperationalList.push(operationalList[3]);
+        break;
+      case '46':
+        //CDNotifications
+        showOperationalList.push(operationalList[3]);
+        break;
+      case '0':
+        //Unknown
+        showOperationalList = operationalList;
+        break;
+      default:
+        showOperationalList = operationalList;
+        break;
+        }
+        this.setState({
         selectOperationalList: showOperationalList,
         resource: parseInt(eventCode)
-      });
-    }
+        });
   }
 
   onShowResource(value, items) {
@@ -1215,10 +1212,7 @@ class OperationalAudit extends Component {
         }, {
           value: '18',
           label: formatMessage(menusText.AppService),
-        }, {
-          value: '21',
-          label: formatMessage(menusText.AppTopology),
-        },],
+        }],
       }, {
         value: '23',
         label: formatMessage(menusText.Config),

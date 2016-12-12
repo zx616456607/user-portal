@@ -318,8 +318,8 @@ class VSphereDetail extends Component {
   
   componentDidMount() {
     const { getIntegrationPodDetail, dataCenters, integrationId, currentDataCenter } = this.props;
-    let datacenter = !!currentDataCenter ? currentDataCenter : dataCenters[0]
-    getIntegrationPodDetail(integrationId, datacenter);
+    let datacenter = !!currentDataCenter ? currentDataCenter : dataCenters[0];
+    getIntegrationPodDetail(integrationId, currentDataCenter);
   }
   
   componentWillReceiveProps(nextProps) {
