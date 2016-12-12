@@ -58,7 +58,7 @@ class ComposeFile extends Component {
       })
     }
     this.state = {
-      appName: '',
+      appName: localStorage.getItem("transientAppName"),
       appDescYaml: desc.join('---\n'),
       remark: '',
       visible: false,
@@ -119,6 +119,7 @@ class ComposeFile extends Component {
           })
           localStorage.removeItem('servicesList')
           localStorage.removeItem('selectedList')
+          localStorage.removeItem('transientAppName')
           browserHistory.push('/app_manage')
         },
         isAsync: true
@@ -209,6 +210,11 @@ class ComposeFile extends Component {
       modalShow: true
     })
   }
+  cacheAppName() {
+    localStorage.setItem("transientAppName", this.state.appName)
+    // console.info("cached app name:", localStorage.getItem("transientAppName"));
+    browserHistory.goBack()
+  }
   closeModal() {
     this.setState({
       modalShow: false
@@ -220,7 +226,8 @@ class ComposeFile extends Component {
     const appNameFormCheck = getFieldProps('appNameFormCheck', {
       rules: [
         { validator: this.appNameCheck },
-      ]
+      ],
+      initialValue: this.state.appName
     })
 
     const remarkFormCheck = getFieldProps('remarkFormCheck', {
@@ -289,7 +296,7 @@ class ComposeFile extends Component {
                 onConfirm={this.confirm}
                 onCancel={this.cancel}
                 visible={this.state.visible}>
-                <Button size="large" type="primary" className="lastBtn" onClick={() => browserHistory.goBack()}>
+                <Button size="large" type="primary" className="lastBtn" onClick={() => this.cacheAppName()}>
                   上一步
                   </Button>
               </Popconfirm>
