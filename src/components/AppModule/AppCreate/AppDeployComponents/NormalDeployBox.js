@@ -30,8 +30,6 @@ let MyComponent = React.createClass({
       name: '',
       size: 100,
       format: 'ext4',
-      addDir: true,
-      conflict: 0
     }
   },
   componentWillMount() {
