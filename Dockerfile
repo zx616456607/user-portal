@@ -13,4 +13,4 @@ RUN rm -rf /usr/src/app/src
 
 EXPOSE 8003
 
-CMD ["node", "app.js"]
+CMD ["run.sh"]
