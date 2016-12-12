@@ -120,6 +120,10 @@ class CreateModel extends Component {
         loadTeamClustersList(space.teamID, { size: 100 }, {
           success: {
             func: (result) => {
+              if (!result.data || result.data.length === 0) {
+                form.resetFields(['clusterFormCheck'])
+                return
+              }
               form.setFieldsValue({
                 'clusterFormCheck': result.data[0].clusterID,
               })
@@ -139,6 +143,19 @@ class CreateModel extends Component {
           cluster
         })
       }
+    })
+  }
+
+  handleNextStep(linkUrl, e) {
+    e.preventDefault()
+    const { form } = this.props
+    const { validateFields, resetFields } = form
+    validateFields((errors, values) => {
+      if (!!errors) {
+        return
+      }
+      const url = `/app_manage/app_create/${linkUrl}`
+      browserHistory.push(url)
     })
   }
 
@@ -252,11 +269,9 @@ class CreateModel extends Component {
                 取消
               </Button>
             </Link>
-            <Link to={`/app_manage/app_create/${linkUrl}`}>
-              <Button size="large" type="primary" disabled={this.state.disabled}>
-                下一步
-              </Button>
-            </Link>
+            <Button onClick={this.handleNextStep.bind(this, linkUrl)} size="large" type="primary" disabled={this.state.disabled}>
+              下一步
+            </Button>
           </div>
         </div>
       </QueueAnim>

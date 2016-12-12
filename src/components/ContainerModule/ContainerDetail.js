@@ -29,6 +29,7 @@ const MenuItemGroup = Menu.ItemGroup
 const TabPane = Tabs.TabPane
 const ButtonGroup = Button.Group
 const confirm = Modal.confirm
+const DEFAULT_TAB = '#configs'
 
 function loadData(props) {
   const { cluster, containerName } = props
@@ -41,8 +42,9 @@ class ContainerDetail extends Component {
     this.closeTerminalLayoutModal = this.closeTerminalLayoutModal.bind(this)
     this.openTerminalModal = this.openTerminalModal.bind(this)
     this.deleteContainer = this.deleteContainer.bind(this)
+    this.onTabClick = this.onTabClick.bind(this)
     this.state = {
-      currentKey: "1",
+      activeTabKey: props.hash || DEFAULT_TAB,
       TerminalLayoutModal: false,
       currentContainer: null,
     }
@@ -53,12 +55,28 @@ class ContainerDetail extends Component {
     document.title = `容器 ${containerName} | 时速云`
     loadData(this.props)
   }
+
+  // For tab select
+  componentWillReceiveProps(nextProps) {
+    let { hash } = nextProps
+    if (hash === this.props.hash) {
+      return
+    }
+    if (!hash) {
+      hash = DEFAULT_TAB
+    }
+    this.setState({
+      activeTabKey: hash
+    })
+  }
+
   closeTerminalLayoutModal() {
     //this function for user close the terminal modal
     this.setState({
       TerminalLayoutModal: false
     });
   }
+
   openTerminalModal(item, e) {
     //this function for user open the terminal modal
     e.stopPropagation();
@@ -67,6 +85,7 @@ class ContainerDetail extends Component {
       TerminalLayoutModal: true
     });
   }
+
   deleteContainer() {
     const { containerName, cluster, deleteContainers } = this.props
     confirm({
@@ -97,11 +116,29 @@ class ContainerDetail extends Component {
       onCancel() { },
     })
   }
+
+  onTabClick(activeTabKey) {
+    if (activeTabKey === this.state.activeTabKey) {
+      return
+    }
+    const { pathname } = this.props
+    this.setState({
+      activeTabKey
+    })
+    if (activeTabKey === DEFAULT_TAB) {
+      activeTabKey = ''
+    }
+    browserHistory.push({
+      pathname,
+      hash: activeTabKey
+    })
+  }
+
   render() {
     const parentScope = this
     const { containerName, isFetching, container, cluster } = this.props
     const { children } = this.props
-    const { currentKey } = this.state
+    const { activeTabKey } = this.state
     if (isFetching || !!!container || !!!container.metadata) {
       return (
         <div className='loadingBox'>
@@ -177,23 +214,27 @@ class ContainerDetail extends Component {
             <Card className="bottomCard">
               <Tabs
                 tabPosition="top"
-                defaultActiveKey="1"
+                defaultActiveKey={DEFAULT_TAB}
+                activeKey={activeTabKey}
+                onTabClick={this.onTabClick}
                 >
-                <TabPane tab="容器配置" key="1" >
-                  <ContainerDetailInfo key="ContainerDetailInfo" container={container} />
+                <TabPane tab="容器配置" key="#configs" >
+                  <ContainerDetailInfo key="#configs" container={container} />
                 </TabPane>
-                <TabPane tab="监控" key="2" >
-                  <ContainerMonitior key="ContainerMonitior" containerName={containerName} cluster={cluster} />
+                <TabPane tab="监控" key="#monitor" >
+                  <ContainerMonitior key="#monitor" containerName={containerName} cluster={cluster} />
                 </TabPane>
-                <TabPane tab="日志" key="3" >
+                <TabPane tab="日志" key="#logs" >
                   <ContainerLogs
-                    key="ContainerLogs"
+                    key="#logs"
                     containerName={containerName}
                     serviceName={container.metadata.labels.name}
-                    cluster={cluster} />
+                    cluster={cluster}
+                    tabKey="#logs"
+                    activeTabKey={activeTabKey} />
                 </TabPane>
-                <TabPane tab="事件" key="4" >
-                  <ContainerEvents key="ContainerEvents" containerName={containerName} cluster={cluster} />
+                <TabPane tab="事件" key="#events" >
+                  <ContainerEvents key="#events" containerName={containerName} cluster={cluster} />
                 </TabPane>
               </Tabs>
             </Card>
@@ -222,7 +263,9 @@ ContainerDetail.propTypes = {
 }
 
 function mapStateToProps(state, props) {
-  const { container_name } = props.params
+  const { params, location } = props
+  const { container_name } = params
+  const { pathname, hash } = location
   const { cluster } = state.entities.current
   const defaultContainer = {
     isFetching: false,
@@ -236,6 +279,8 @@ function mapStateToProps(state, props) {
   const { container, isFetching } = containerDetail[cluster.clusterID] || defaultContainer
 
   return {
+    pathname,
+    hash,
     containerName: container_name,
     cluster: cluster.clusterID,
     isFetching,
