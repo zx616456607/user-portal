@@ -32,6 +32,10 @@
     }
   </script>
   <script>
+    // Delete fetch in Edge browser, follow-up will import whatwg-fetch replace it
+    if (window.navigator.userAgent.indexOf('Edge') > -1) {
+      delete window.fetch
+    }
     if (!window.Intl) {
       loadScript('/js/lib/intl/1.0.1/intl.min.js', function() {
         loadScript('/js/lib/intl/1.0.1/locale-data/zh.js')

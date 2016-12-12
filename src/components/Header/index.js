@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component } from 'react'
-import { Menu, Dropdown, Icon, Select, Input, Button, Form, Popover, message } from 'antd'
+import { Menu, Dropdown, Icon, Select, Input, Button, Form, Popover } from 'antd'
 import { FormattedMessage, defineMessages } from 'react-intl'
 import "./style/header.less"
 import querystring from 'querystring'
@@ -19,8 +19,10 @@ import { loadTeamClustersList } from '../../actions/team'
 import { setCurrent, loadLoginUserDetail } from '../../actions/entities'
 import { getCookie } from '../../common/tools'
 import { USER_CURRENT_CONFIG } from '../../../constants'
+import { MY_SPACE } from '../../constants'
 import { browserHistory } from 'react-router'
 import { Link } from 'react-router'
+import NotificationHandler from '../../common/notification_handler'
 
 const FormItem = Form.Item;
 const createForm = Form.create;
@@ -112,7 +114,8 @@ class Header extends Component {
     if (current.cluster.namespace !== current.space.namespace) {
       msg = `空间已成功切换到 ${current.space.spaceName}，${msg}`
     }
-    message.success(msg)
+    let notification = new NotificationHandler()
+    notification.success(msg)
     if (pathname.match(/\//g).length > 2) {
       browserHistory.push('/')
     }
@@ -143,11 +146,7 @@ class Header extends Component {
         func: (resultT) => {
           let defaultSpace = resultT.teamspaces[0] || {}
           if (namespace === 'default') {
-            defaultSpace = {
-              spaceName: '我的空间',
-              namespace: 'default',
-              teamID,
-            }
+            defaultSpace = MY_SPACE
           } else {
             resultT.teamspaces.map(space => {
               if (space.namespace === namespace) {
@@ -180,7 +179,7 @@ class Header extends Component {
       }
     })
   }
-  
+
   render() {
     const {
       current,
@@ -206,9 +205,9 @@ class Header extends Component {
         <div className='rechangeInf'>
           <div className='balance'>
             <p>账户余额 &nbsp;:</p>
-            <p><span>{loginUser.info.balance?loginUser.info.balance : 0}</span><span style={{fontSize:'14px',color:'#8a8a8a'}}>&nbsp;&nbsp;T币</span></p>
+            <p><span>{loginUser.info.balance ? loginUser.info.balance : 0}</span><span style={{ fontSize: '14px', color: '#8a8a8a' }}>&nbsp;&nbsp;T币</span></p>
           </div>
-          <Button style={{height:30,backgroundColor:'#46b2fa',borderColor:'#46b2fa',color:'#fff',fontSize:'14px'}}>立即充值</Button>
+          <Button style={{ height: 30, backgroundColor: '#46b2fa', borderColor: '#46b2fa', color: '#fff', fontSize: '14px' }}>立即充值</Button>
         </div>
         <table className='navTab'>
           <tbody>
@@ -216,7 +215,7 @@ class Header extends Component {
               <td>
                 <Link to='/account'>
                   <svg className='logMenuSvg'>
-                    <use xlinkHref='#logaccountinf'/>
+                    <use xlinkHref='#logaccountinf' />
                   </svg>
                   <div>账户信息</div>
                 </Link>
@@ -224,7 +223,7 @@ class Header extends Component {
               <td>
                 <Link to='/account/cost'>
                   <svg className='logMenuSvg'>
-                    <use xlinkHref='#logcostrecord'/>
+                    <use xlinkHref='#logcostrecord' />
                   </svg>
                   <div>消费记录</div>
                 </Link>
@@ -234,7 +233,7 @@ class Header extends Component {
               <td>
                 <Link to='/account/user/editPass'>
                   <svg className='logMenuSvg'>
-                    <use xlinkHref='#logchangepass'/>
+                    <use xlinkHref='#logchangepass' />
                   </svg>
                   <div>修改密码</div>
                 </Link>
@@ -242,7 +241,7 @@ class Header extends Component {
               <td>
                 <Link to='/account'>
                   <svg className='logMenuSvg'>
-                    <use xlinkHref='#logteam'/>
+                    <use xlinkHref='#logteam' />
                   </svg>
                   <div>我的团队</div>
                 </Link>
@@ -253,7 +252,7 @@ class Header extends Component {
         <div className='logCancle'>
           <a href='/logout'>
             <svg className='logCancleSvg'>
-              <use xlinkHref='#logteam'/>
+              <use xlinkHref='#logteam' />
             </svg>
             注销登录
           </a>
@@ -262,11 +261,11 @@ class Header extends Component {
     )
     let logTitle = (
       <div className='logTitle'>
-        <div className='logAvatar'>{loginUser.info.userName?loginUser.info.userName.substr(0,1).toUpperCase() : ''}</div>
-        <div style={{float:'left',paddingLeft: '7px'}}>
-          <div style={{lineHeight: '20px',paddingTop: '8px',minWidth:180}}>
-            <p style={{fontSize: '16px',color: '#46b2fa'}}>{loginUser.info.userName || '...'}</p>
-            <p style={{fontSize: '12px'}}>{loginUser.info.email || '...'}</p>
+        <div className='logAvatar'>{loginUser.info.userName ? loginUser.info.userName.substr(0, 1).toUpperCase() : ''}</div>
+        <div style={{ float: 'left', paddingLeft: '7px' }}>
+          <div style={{ lineHeight: '20px', paddingTop: '8px', minWidth: 180 }}>
+            <p style={{ fontSize: '16px', color: '#46b2fa' }}>{loginUser.info.userName || '...'}</p>
+            <p style={{ fontSize: '12px' }}>{loginUser.info.email || '...'}</p>
           </div>
         </div>
         <div className='loginTag'>个人</div>
@@ -317,17 +316,17 @@ class Header extends Component {
             <FormattedMessage {...menusText.doc} />
           </div>
           <Popover content={logMenu}
-          title={logTitle}
-          overlayClassName='logPopMenu'
-          placement="bottomRight"
-          arrowPointAtCenter={true}
-          trigger='click'
-          visible={this.state.visible}
-          onVisibleChange={this.handleVisibleChange}
-          >
+            title={logTitle}
+            overlayClassName='logPopMenu'
+            placement="bottomRight"
+            arrowPointAtCenter={true}
+            trigger='click'
+            visible={this.state.visible}
+            onVisibleChange={this.handleVisibleChange}
+            >
             <div className='userBtn'>
               {loginUser.info.userName || '...'}
-              <Icon type="down" className={rotate}/>
+              <Icon type="down" className={rotate} />
             </div>
           </Popover>
         </div>

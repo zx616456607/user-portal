@@ -1053,7 +1053,7 @@ function formatResourceName(resourceName) {
     //check services
     if (!!newBody.services) {
       let newName = newBody.services;
-      if (newName.length == 0) {
+      if (!Array.isArray(newName) || newName.length == 0) {
         return '-';
       }
       newName = newName.join(',');
@@ -1062,7 +1062,7 @@ function formatResourceName(resourceName) {
     //check apps
     if (!!newBody.apps) {
       let newName = newBody.apps;
-      if (newName.length == 0) {
+      if (!Array.isArray(newName) || newName.length == 0) {
         return '-';
       }
       newName = newName.join(',');

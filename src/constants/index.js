@@ -24,3 +24,9 @@ export const SHOW_ERROR_PAGE_ACTION_TYPES = [
   'USER_DETAIL_FAILURE',
 ]
 export const LOGIN_EXPIRED_MESSAGE = 'LOGIN_EXPIRED'
+export const MY_SPACE = {
+  name: "我的空间",
+  spaceName: "我的空间",
+  namespace: "default",
+  teamID: "default",
+}

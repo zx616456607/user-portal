@@ -9,13 +9,14 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { Card, Button, Form, Select, Menu, } from 'antd'
-import { Link , browserHistory} from 'react-router'
+import { Link, browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import './style/CreateModel.less'
 import { connect } from 'react-redux'
 import { loadUserTeamspaceList } from '../../../actions/user'
 import { loadTeamClustersList } from '../../../actions/team'
 import { setCurrent } from '../../../actions/entities'
+import { MY_SPACE } from '../../../constants'
 
 const FormItem = Form.Item;
 const createForm = Form.create;
@@ -50,7 +51,7 @@ class CreateModel extends Component {
     if (current.space.namespace === this.props.current.space.namespace && current.cluster.clusterID === this.props.current.cluster.clusterID) {
       return
     }
-    loadTeamClustersList(current.space.teamID, { size: 100 })
+    // loadTeamClustersList(current.space.teamID, { size: 100 })
     form.setFieldsValue({
       'spaceFormCheck': current.space.namespace,
       'clusterFormCheck': current.cluster.clusterID,
@@ -107,7 +108,8 @@ class CreateModel extends Component {
 
   handleSpaceChange(value) {
     const { teamspaces, loadTeamClustersList, setCurrent, form, current } = this.props
-    teamspaces.map(space => {
+    let newTeamspaces = ([MY_SPACE]).concat(teamspaces)
+    newTeamspaces.map(space => {
       if (space.namespace === value) {
         setCurrent({
           space,
@@ -149,7 +151,7 @@ class CreateModel extends Component {
       teamClusters
     } = this.props
     const { getFieldProps, getFieldValue, getFieldError, isFieldValidating } = form
-    const { createModel , linkUrl} = this.state
+    const { createModel, linkUrl} = this.state
     const spaceFormCheck = getFieldProps('spaceFormCheck', {
       rules: [
         { validator: this.spaceNameCheck }

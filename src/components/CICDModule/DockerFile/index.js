@@ -148,7 +148,19 @@ const MyComponent = React.createClass({
     })
   },
   render: function () {
-    const { config, scope, formatMessage } = this.props
+    const { config, scope, formatMessage, loading } = this.props
+    if (loading || !config) {
+      return (
+        <div className='loadingBox'>
+          <Spin size='large' />
+        </div>
+      )
+    }
+    if (config.length === 0) {
+      return (
+        <div> * 目前还没有添加任何云端 Dockerfile</div>
+      )
+    }
     let items = config.map((item, index) => {
       const dropdown = (
         <Menu onClick={this.operaMenuClick.bind(this, item)} style={{ width: '150px' }}>
@@ -234,12 +246,9 @@ class DockerFile extends Component {
   }
 
   render() {
-    const { formatMessage } = this.props.intl;
-    const scope = this;
-    var message = ""
-    if (this.props.dockerfileList.length < 1) {
-      message = " * 目前还没有添加任何云端 Dockerfile"
-    }
+    const scope = this
+    const { formatMessage } = this.props.intl
+    const { dockerfileList, isFetching } = this.props
     return (
       <QueueAnim className='TenxFlowList'
         type='right'
@@ -265,10 +274,13 @@ class DockerFile extends Component {
                 <FormattedMessage {...menusText.action} />
               </div>
             </div>
-            <MyComponent scope={scope} formatMessage={formatMessage} config={this.props.dockerfileList} />
+            <MyComponent
+              scope={scope}
+              formatMessage={formatMessage}
+              config={this.props.dockerfileList}
+              loading={isFetching} />
           </Card>
         </div>
-        <div><br />{message}<br /></div>
       </QueueAnim>
     )
   }

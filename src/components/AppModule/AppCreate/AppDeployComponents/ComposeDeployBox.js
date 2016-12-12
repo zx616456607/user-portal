@@ -175,7 +175,11 @@ let MyComponent = React.createClass({
         plainOptions[index].displayName.push(config.displayName)
         plainOptions[index].key.push(config.name)
       })
-      return (<Option value={item.name}>{item.name}</Option>)
+      if (!item.configs || item.configs.length < 1) {
+        item.disabled = true
+        item.title = '未包含任何配置文件'
+      }
+      return (<Option value={item.name} title={item.title} disabled={item.disabled}>{item.name}</Option>)
     })
   },
   onChange(checkedList, index) {

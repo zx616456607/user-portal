@@ -14,12 +14,7 @@
 
 const nodemailer = require('nodemailer')
 const logger = require('./logger').getLogger('email')
-const DEFAUL_TRANSPORT = {
-  "host": "smtp.qq.com",
-  "port": 465,
-  "senderMail": "service@tenxcloud.com",
-  "senderPassword": "TenxCloud009!!"
-}
+const config = require('../configs')
 
 /**
  * Send email use SMTP
@@ -34,20 +29,15 @@ const DEFAUL_TRANSPORT = {
  */
 exports.sendEmail = function (transport, mailOptions) {
   const method = 'sendEmail'
+  // In case there is no mail options provided
   if (!mailOptions) {
     mailOptions = transport
-    transport = DEFAUL_TRANSPORT
+    transport = config.mail_server
   }
-  const transportOpts = {
-    host: transport.host,
-    port: transport.port,
-    secure: transport.port === 465, // use SSL
-    auth: {
-      user: transport.senderMail,
-      pass: transport.senderPassword
-    }
-  }
-  const smtpTransport = nodemailer.createTransport(transportOpts)
+  // Force to use this 'from' user if using sendEmail method
+  mailOptions.from = config.mail_server.auth.user
+
+  const smtpTransport = nodemailer.createTransport(transport)
   return new Promise(function (resovle, reject) {
     logger.info(method, 'Send email to: ' + mailOptions.to)
     smtpTransport.sendMail(mailOptions, function (error, response) {
