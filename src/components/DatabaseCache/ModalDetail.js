@@ -35,7 +35,7 @@ class VolumeHeader extends Component {
         <Col className="group-name textoverflow" span="8">
           <Icon type="folder-open" />
           <Icon type="folder" />
-          <span>{data.objectMeta.name}</span>
+          <Link to={`/app_manage/container/` + data.objectMeta.name}>{data.objectMeta.name}</Link>
         </Col>
         <Col span="6">
           <div className={data.podPhase}>
@@ -124,7 +124,11 @@ class BaseInfo extends Component {
         <div className="modal-li padTop"><span className="spanLeft">数据库用户名</span><span>{dbName}</span></div>
         <div className="modal-li"><span className="spanLeft">实例副本</span><InputNumber onChange={(e) => parentScope.setState({ replicas: e })} value={parentScope.state.replicas} min={1} max={5} /> &nbsp; 个</div>
         <div className="modal-li"><span className="spanLeft">存储大小</span><InputNumber value={databaseInfo.volumeInfo.size} disabled={true} /></div>
-        <div className="modal-footer"><Button size="large" onClick={() => parentScope.colseModal()}>取消</Button><Button size="large" type="primary" onClick={() => this.handSave()}>保存</Button></div>
+        {parentScope.state.putModaling ?
+          <div className="modal-footer"><Button size="large" onClick={() => parentScope.colseModal()}>取消</Button><Button size="large" loading={true} type="primary">保存</Button></div>
+        :
+          <div className="modal-footer"><Button size="large" onClick={() => parentScope.colseModal()}>取消</Button><Button size="large" loading={false} type="primary" onClick={() => parentScope.handSave()}>保存</Button></div>
+       }
       </div>
     )
     const volumeMount = databaseInfo.podList.pods.map((list, index) => {
@@ -184,7 +188,8 @@ class ModalDetail extends Component {
     this.deleteDatebaseCluster = this.deleteDatebaseCluster.bind(this)
     this.state = {
       currentDatabase: null,
-      activeTabKey:'#BaseInfo'
+      activeTabKey:'#BaseInfo',
+      putModaling: false
     }
   }
 
@@ -254,33 +259,54 @@ class ModalDetail extends Component {
       });
     }
   }
+  refurbishDetail() {
+    const { loadDbClusterDetail, cluster, dbName } = this.props
+    const _this = this
+    this.setState({
+      currentDatabase: dbName,
+    });
+    loadDbClusterDetail(cluster, dbName, {
+      success: {
+        func: (res) => {
+          _this.setState({ replicas: res.database.podInfo.desired })
+        }
+      }
+    });
+  }
+
   putModal() {
     this.setState({
       putVisible: !this.state.putVisible
     })
   }
   handSave() {
-    const {putDbClusterDetail, cluster, dbName, loadDbClusterDetail} = this.props
+    const {putDbClusterDetail, cluster, dbName, loadDbCacheList} = this.props
     const parentScope = this.props.scope
+    const _this = this
     const notification = new NotificationHandler()
+    this.putModal()
+    this.setState({putModaling: true})
     putDbClusterDetail(cluster, dbName, this.state.replicas, {
       success: {
         func: (res) => {
           notification.success('更新成功')
           parentScope.setState({ detailModal: false })
+          _this.setState({putModaling: false})
           loadDbCacheList(cluster, this.props.database)
         },
         isAsync: true
       },
       failed: {
         func: (res) => {
+          parentScope.setState({ detailModal: false })
+          _this.setState({putModaling: false})
           notification.error('更新失败', res.message.message)
         }
       }
     })
   }
   colseModal() {
-    this.setState({ putVisible: false })
+    this.setState({ putVisible: false ,putModaling:false})
   }
   onTabClick(activeTabKey) {
     if (activeTabKey === this.state.activeTabKey) {
@@ -331,6 +357,10 @@ class ModalDetail extends Component {
             </div>
             <div className='rightBox'>
               <div className='li'>
+                <Button style={{marginRight:'10px'}} onClick={()=> this.refurbishDetail()}>
+                  <i className="fa fa-refresh"></i>&nbsp;
+                  刷新
+                </Button>
                 {this.state.deleteBtn ?
                   <Button size='large' className='btn-danger' type='ghost' loading={true}>
                     删除集群
@@ -378,7 +408,7 @@ function mapStateToProps(state, props) {
   const { databaseClusterDetail } = state.databaseCache
   const { databaseInfo, isFetching } = databaseClusterDetail.databaseInfo || defaultMysqlList
   return {
-    isFetching: false,
+    isFetching,
     cluster: cluster.clusterID,
     databaseInfo: databaseInfo,
     // podSpec: databaseInfo.pods[0].podSpec
