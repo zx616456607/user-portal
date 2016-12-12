@@ -1,6 +1,16 @@
 #!/bin/bash
 set -e
 # build document
+
+MODEL=enterprise
+if [ "$DASHBOARD_MODEL" = "SE" ]; then
+  MODEL=standard
+fi
+
+gen_model_config() {
+  echo -e "\nmodule.exports = models.$MODEL" >> "configs/models.js"
+}
+
 build_user_portal() {
   set -x
   rm -rf dist
@@ -25,6 +35,7 @@ EOF
 #注意： Windows下也可使用（需要安装git）
 else
   echo "start build ${project}"
+  gen_model_config
   build_user_portal
   echo "build ${project} success"
 fi
