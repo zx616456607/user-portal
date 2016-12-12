@@ -105,8 +105,10 @@ exports.verifyUser = function* () {
     throw err
   }
   yield indexService.setUserCurrentConfigCookie.apply(this, [loginUser])
+  // Delete sensitive information
   delete result.userID
   delete result.statusCode
+  delete result.apiToken
   // Get user MD5 encrypted watch token
   try {
     const spi = apiFactory.getSpi(loginUser)
