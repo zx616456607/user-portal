@@ -29,7 +29,9 @@ let MyComponent = React.createClass({
     return {
       name: '',
       size: 100,
-      format: 'ext4'
+      format: 'ext4',
+      addDir: true,
+      conflict: 0
     }
   },
   componentWillMount() {
@@ -62,9 +64,7 @@ let MyComponent = React.createClass({
     volumeKey = volumeKey.filter((key) => {
       return key !== k;
     });
-    form.setFieldsValue({
-      volumeKey,
-    });
+
     if (volumeKey.length <= 0) {
       const registry = this.props.registry
       const mountPath = this.props.tagConfig[registry].configList.mountPath
@@ -73,7 +73,17 @@ let MyComponent = React.createClass({
         volumeSwitch: false,
         volumeKey
       })
+      return
     }
+    form.getFieldValue('volumeKey').map((item) => {
+      const value = form.getFieldProps(`volumePath${item}`).value
+      form.setFieldsValue({
+        [`volumePath${item}`]: value
+      })
+    })
+    form.setFieldsValue({
+      volumeKey,
+    });
   },
   add() {
     const { form } = this.props
@@ -171,9 +181,34 @@ let MyComponent = React.createClass({
       }
     })
   },
+  dirExists(index, rule, value, callback) {
+    if(!value) {
+      callback([new Error('抱歉，必须填写路径.')])
+      return
+    }
+    const { getFieldProps, getFieldValue, } = this.props.form
+    const dir = []
+    getFieldValue('volumeKey').forEach((k) => {
+      dir.push(getFieldProps(`volumePath${k}`).value)
+    })
+    console.log(dir)
+    console.log(value)
+    let isExist = 0
+    dir.forEach(item => {
+      if(item === value) {
+        ++isExist
+      }
+    })
+    if(isExist > 1) {
+      callback([new Error('已填写过该路径.')])
+      return
+    }
+    callback()
+  },
   render: function () {
     const { getFieldProps, getFieldValue, } = this.props.form
     const registry = this.props.registry
+    const self = this
     if (!this.props.tagConfig[registry]) return
     if (!this.props.tagConfig[registry].configList) return
     const mountPath = this.props.tagConfig[registry].configList.mountPath
@@ -228,6 +263,8 @@ let MyComponent = React.createClass({
         });
       }
       this.getFormValue()
+      const inputDir = []
+      const showTip = []
       formItems = getFieldValue('volumeKey').map((k) => {
         return (
           <FormItem key={`volume${k}`}>
@@ -236,13 +273,15 @@ let MyComponent = React.createClass({
                 <span type='text' className="url">
                   <Input className="hide" value={(function () {
                     if (!getFieldProps(`volumePath${k}`).value) {
-                      getFieldProps(`volumePath${k}`, { initialValue: mountPath[k - 1] })
+                      getFieldProps(`volumePath${k}`, { initialValue: mountPath[k - 1]})
                     }
                     return mountPath
                   })()} />
                   {mountPath[k - 1]}
                 </span> :
-                <Input {...getFieldProps(`volumePath${k}`) } className="urlInt" />
+                <Input {...getFieldProps(`volumePath${k}`, {
+                  rules: [{ validator: self.dirExists.bind(self, k) }] 
+                }) } className="urlInt" />
             }
             <Select className="imageTag" size="large" placeholder="请选择一个存储卷"
               style={{ width: 200 }}
@@ -262,7 +301,7 @@ let MyComponent = React.createClass({
       <div className="serviceOpen" key="had">
         <ul>
           <li>{formItems}</li>
-          <li>          <div className="volumeAddBtn" onClick={this.add}>
+          <li> <div className="volumeAddBtn" onClick={this.add}>
             <Icon type="plus-circle-o" />
             <span>添加一个容器目录</span>
           </div></li>
