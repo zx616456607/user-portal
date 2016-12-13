@@ -426,7 +426,7 @@ let AppDeployServiceModal = React.createClass({
     }
     //volumes
     if (getFieldValue('volumeSwitch')) {
-      const cluster = window.localStorage.getItem('cluster')
+      const cluster = this.props.cluster
       getFieldValue('volumeKey').map((k) => {
         let volumeChecked = getFieldProps(`volumeChecked${k}`).value   //服务只读
         let volumeInfo = getFieldProps(`volumeName${k}`).value

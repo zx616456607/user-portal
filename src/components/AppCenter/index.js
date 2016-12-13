@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Modal, Tabs, Icon, Menu, Button, Card, Form, Input, Alert } from 'antd'
+import { Modal, Tabs, Icon, Menu, Button, Card, Form, Input, Alert ,Popconfirm} from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import TweenOne from 'rc-tween-one';
 import { connect } from 'react-redux'
@@ -107,6 +107,15 @@ let MyComponent = React.createClass({
     let pwdInput = this.refs.pwdInput;
     let registryInput = this.refs.registryInput
     switch (current) {
+      case 'registryName':
+        if (!!!registryInput.props.value) {
+          this.setState({
+            regPaused: false,
+            regReverse: true,
+            regMoment: null
+          });
+        }
+        break;
       case 'url':
         if (!urlInput.props.value) {
           //it's meaning user hadn't input message in the input box so that the title will be move
@@ -127,7 +136,7 @@ let MyComponent = React.createClass({
         }
         break;
       case 'password':
-        if (!!!pwdInput.props.value) {
+        if (!pwdInput.props.value) {
           this.setState({
             PwdPaused: false,
             PwdReverse: true,
@@ -135,15 +144,7 @@ let MyComponent = React.createClass({
           });
         }
         break;
-      case 'registryName':
-        if (!!!registryInput.props.value) {
-          this.setState({
-            regPaused: false,
-            regReverse: true,
-            regMoment: null
-          });
-        }
-        break;
+    
     }
   },
   handleReset(e) {
@@ -170,8 +171,14 @@ let MyComponent = React.createClass({
         password: values.passwd || null,
         url: values.url,
       }
-      const self = this
       let notification = new NotificationHandler()
+      if (values.registryName.length < 3) {
+        this.setState({ visible: true });  // 进行确认
+        return
+      } else {
+        this.setState({ visible: false}); 
+      }
+      const self = this
       notification.spin(`添加第三方镜像中...`)
       this.props.addOtherStore(config, {
         success: {
@@ -215,6 +222,9 @@ let MyComponent = React.createClass({
   render() {
     const scope = this.props.scope;
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form;
+    const registryProps = getFieldProps('registryName', {
+      rules: [{ required: true, message: '请输入仓库名称' }]
+    })
     const urlProps = getFieldProps('url', {
       rules: [
         { required: true, message: '请输入地址' }
@@ -228,12 +238,9 @@ let MyComponent = React.createClass({
     });
     const passwdProps = getFieldProps('passwd', {
       rules: [
-        { required: false, message: '请输入密码', whitespace: true },
+        { required: false, message: '请输入密码' },
       ],
     });
-    const registryProps = getFieldProps('registryName', {
-      rules: [{ required: true, message: '请输入仓库名称', whitespace: true }]
-    })
     return (
       <div className='modalBox'>
         <Form className='addForm' horizontal form={this.props.form}>
@@ -243,9 +250,15 @@ let MyComponent = React.createClass({
               paused={this.state.regPaused}
               reverse={this.state.regReverse}
               moment={this.state.regMoment}
-              style={{ position: 'absolute', width: '10%', top: '0' }}
+              style={{ position: 'absolute', width: '200px', top: '0' }}
               >
+            <Popconfirm title="仓库名称不能少于3位"
+              visible={this.state.visible}
+              onConfirm={()=> this.setState({visible: false})}
+              onCancel={()=> this.setState({visible: false})}
+            >
               <span className='title' key='name'>仓库名</span>
+            </Popconfirm>
             </TweenOne>
             <Input {...registryProps} ref='registryInput' onFocus={this.inputOnFocus.bind(this, 'registryName')} onBlur={this.inputOnBlur.bind(this, 'registryName')} />
           </FormItem>
@@ -255,7 +268,7 @@ let MyComponent = React.createClass({
               paused={this.state.UrlPaused}
               reverse={this.state.UrlReverse}
               moment={this.state.UrlMoment}
-              style={{ position: 'absolute', width: '10%', top: '0' }}
+              style={{ position: 'absolute', width: '200px', top: '0' }}
               >
               <span className='title' key='title'>地址</span>
             </TweenOne>
