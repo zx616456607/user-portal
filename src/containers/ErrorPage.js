@@ -55,4 +55,13 @@ ErrorPage.propTypes = {
   errorMessage: PropTypes.object,
 }
 
+ErrorPage.defaultProps = {
+  code: 404,
+  errorMessage: {
+    error: {
+      message: "Page not found"
+    }
+  },
+}
+
 export default ErrorPage
