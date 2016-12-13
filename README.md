@@ -1,4 +1,16 @@
 # user portal of Enterprise 2.0
+
+
+### 后端相关控制逻辑
+* 生产、测试环境区分, 修改 configs/index.js，默认为 'dev' 开发环境，生产环境设置 NODE_ENV 为 'production'
+
+  node_env: env.NODE_ENV || 'development', // production or development
+
+* 私有云、公有云区分，修改 configs/index.js, 默认为 'enterprise' 私有云, 不同环境设置 RUNNING_MODE 为 standard 或者 enterprise
+
+  running_mode: env.RUNNING_MODE || 'enterprise', // enterprise or standard
+
+
 ```
 # 项目结构
 ├─configs

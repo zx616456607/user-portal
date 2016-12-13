@@ -46,6 +46,10 @@ if (mode === 'enterprise') {
       name: '我的团队'
     },
     {
+      url: '/account/balance',
+      name: '账户余额'
+    },
+    {
       url: '/account/cost',
       name: '费用中心'
     }
@@ -70,12 +74,12 @@ export default class Account extends Component {
           className="accountAnimate"
           key="accountAnimate"
           type="left"
-        >
-          <div className={ this.state.containerSiderStyle == 'normal' ? 'accountMenu CommonSecondMenu' : 'hiddenMenu accountMenu CommonSecondMenu'} key='accountSider'>
+          >
+          <div className={this.state.containerSiderStyle == 'normal' ? 'accountMenu CommonSecondMenu' : 'hiddenMenu accountMenu CommonSecondMenu'} key='accountSider'>
             <SecondSider menuList={menuList} scope={scope} />
           </div>
         </QueueAnim>
-        <div className={ this.state.containerSiderStyle == 'normal' ? 'accountContent CommonSecondContent' : 'hiddenContent accountContent CommonSecondContent' } >
+        <div className={this.state.containerSiderStyle == 'normal' ? 'accountContent CommonSecondContent' : 'hiddenContent accountContent CommonSecondContent'} >
           {children}
         </div>
       </div>

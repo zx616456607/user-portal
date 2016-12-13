@@ -17,7 +17,7 @@ import { ecma48SgrEscape } from '../../common/ecma48_sgr_escape'
 import './style/ContainerLogs.less'
 // import { clearContainerLogs } from '../../actions/app_manage'
 import Websocket from '../Websocket'
-
+import { MAX_LOGS_NUMBER } from '../../constants'
 class ContainerLogs extends Component {
   constructor(props) {
     super(props)
@@ -122,7 +122,7 @@ class ContainerLogs extends Component {
         return
       }
       const logArray = log.split('\n')
-      const { logs } = this.state
+      let { logs } = this.state
       logArray.map(log => {
         if (!log) return
         logs.push({
@@ -130,6 +130,12 @@ class ContainerLogs extends Component {
           log
         })
       })
+      // Delete more then MAX_LOGS_NUMBER parts of logs
+      // @Todo: Frequent update state, page will be stuck
+      let logsLen = logs.length
+      if (logsLen > MAX_LOGS_NUMBER) {
+        logs.splice(0, (logsLen - MAX_LOGS_NUMBER))
+      }
       this.setState({
         logs
       })
@@ -146,14 +152,14 @@ class ContainerLogs extends Component {
       log = log.replace(logDate, '')
     }
     return (
-      <span className='logDetail' key={`logs_${index}`}>
+      <div className='logDetail' key={`logs_${index}`}>
         <span style={{ color: 'yellow' }}>[{name}] </span>
         {
           logDate &&
           <span style={{ color: 'orange' }}>[{formatDate(logDate)}]</span>
         }
         <span dangerouslySetInnerHTML={{ __html: ecma48SgrEscape(log) }}></span>
-      </span>
+      </div>
     )
   }
 
@@ -178,18 +184,14 @@ class ContainerLogs extends Component {
   getLogs() {
     const { logs } = this.state
     if (logs.length < 1) {
-      return (
-        <pre>No logs.</pre>
-      )
+      return <span>No logs.</span>
     }
-    return (
-      <pre>{logs.map(this.renderLog)}</pre>
-    )
+    return logs.map(this.renderLog)
   }
 
   render() {
     const { containerName, serviceName } = this.props
-    const { logSize, watchStatus, logs } = this.state
+    const { logSize, watchStatus } = this.state
     const iconType = this.loopWatchStatus()
     return (
       <div id='ContainerLogs'>
@@ -201,9 +203,19 @@ class ContainerLogs extends Component {
                   历史日志
                 </Link>
               </span>
+              <span>
+                <Tooltip
+                  placement='left'
+                  getTooltipContainer={() => document.getElementById('ContainerLogs')}
+                  title={`最多保留 ${MAX_LOGS_NUMBER} 条日志`}>
+                  <Icon type='question-circle-o' />
+                </Tooltip>
+              </span>
             </div>
             <div className='infoBox' ref={(c) => this.infoBox = c}>
-              {this.getLogs()}
+              <pre>
+                {this.getLogs()}
+              </pre>
               <pre id='logsBottom'></pre>
             </div>
             <div style={{ clear: 'both' }}></div>

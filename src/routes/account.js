@@ -25,8 +25,8 @@ const accountRoutes = [
   },
   {
     path: 'team',
-    component: mode==='standard'?
-      require('../components/AccountModal/_Standard/MyTeam').default:
+    component: mode === 'standard' ?
+      require('../components/AccountModal/_Standard/MyTeam').default :
       require('../components/AccountModal/_Enterprise/TeamManage').default,
   },
   {
@@ -35,8 +35,8 @@ const accountRoutes = [
   },
   {
     path: 'team/:team_name/:team_id',
-    component: mode==='standard'?
-      require('../components/AccountModal/_Standard/TeamDetail').default:
+    component: mode === 'standard' ?
+      require('../components/AccountModal/_Standard/TeamDetail').default :
       require('../components/AccountModal/_Enterprise/TeamDetail').default,
   },
   {
@@ -45,5 +45,18 @@ const accountRoutes = [
   }
 ]
 
+// Add route for standard only
+if (mode === 'standard') {
+  accountRoutes.push({
+    path: 'balance',
+    indexRoute: {
+      component: require('../components/AccountModal/_Standard/UserBalance').default,
+    },
+    childRoutes: [{
+      path: 'pay',
+      component: require('../components/AccountModal/_Standard/UserBalance/Pay').default,
+    }]
+  })
+}
 
 export default accountRoutes
