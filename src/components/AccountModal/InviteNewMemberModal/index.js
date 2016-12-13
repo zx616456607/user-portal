@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Modal,Alert,Icon,Button,Row,Col,Input } from 'antd'
+import { Modal,Alert,Icon,Button,Row,Col,Input,Tag } from 'antd'
 
 export default class ExitTeamModal extends Component{
   constructor(props){
@@ -17,7 +17,8 @@ export default class ExitTeamModal extends Component{
     this.handleCancel = this.handleCancel.bind(this)
     this.handleOnKeyDown = this.handleOnKeyDown.bind(this)
     this.state = {
-      
+      valueArr: [],
+      disabled: false,
     }
   }
   handleOk() {
@@ -38,12 +39,28 @@ export default class ExitTeamModal extends Component{
       valueArr = value.split(';')
       console.log('valueArr',valueArr)
       valueArr.map((item,index) => {
-        filter.test(item)
+        if(filter.test(item)) {
+          valueArr.push(
+            <Tag closable key={index}>item</Tag>
+          )
+          return
+        } else {
+          valueArr.push(
+            <Tag closable key={index} color='red'>item</Tag>
+          )
+          this.setState({
+            disabled: true
+          })
+        }
+      })
+      this.setState({
+        valueArr: valueArr
       })
     }
   }
   render(){
     const { visible } = this.props
+    const { valueArr,disabled } = this.state
     let newMembers = (
       <div>
         
@@ -57,7 +74,7 @@ export default class ExitTeamModal extends Component{
              wrapClassName="InviteNewMemberModal"
              footer={[
                <Button key="back" type="ghost" size="large" onClick={this.handleCancel}>取消</Button>,
-               <Button key="submit" type="primary" size="large" onClick={this.handleOk} className="delBtn" >
+               <Button key="submit" type="primary" size="large" onClick={this.handleOk} className="delBtn" disabled={disabled}>
                  发送邀请
                </Button>,
              ]}
@@ -71,12 +88,16 @@ export default class ExitTeamModal extends Component{
           </Col>
         </Row>
         <div
-          type='textarea'
           placeholder='可输入多个邮箱地址, 邮箱之间用分号" ; "分隔, 每次最多添加20个 .'
           className='inviteInt'
           onKeyDown={this.handleOnKeyDown}
-          value={newMembers}
+          contentEditable={true}
         >
+          {
+            valueArr.map((item,index) => {
+              return (item)
+            })
+          }
         </div>
       </Modal>
     )

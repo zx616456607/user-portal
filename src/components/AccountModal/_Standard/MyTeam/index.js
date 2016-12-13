@@ -435,7 +435,7 @@ let TeamTable = React.createClass({
                 visible={this.state.nowTeamID === record.key && this.state.showExitModal}
                 closeExitTeamModal={this.closeExitTeamModal}
                 team={record.team}
-                />
+              />
             </div>
         )
       },
