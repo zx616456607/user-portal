@@ -2,6 +2,12 @@
 set -e
 # build document
 
+MODEL=enterprise
+
+gen_model_config() {
+  echo -e "\nmodule.exports = models.$MODEL" >> "configs/models.js"
+}
+
 build_user_portal() {
   set -x
   rm -rf dist
@@ -25,7 +31,12 @@ sh build.sh
 EOF
 #注意： Windows下也可使用（需要安装git）
 else
+  if [ "$1" = "--model=SE" ]; then
+    echo "build in SE model"
+    MODEL=standard
+  fi
   echo "start build ${project}"
+  gen_model_config
   build_user_portal
   echo "build ${project} success"
 fi
