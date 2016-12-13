@@ -30,3 +30,4 @@ export const MY_SPACE = {
   namespace: "default",
   teamID: "default",
 }
+export const MAX_LOGS_NUMBER = 500
