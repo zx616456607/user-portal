@@ -43,7 +43,7 @@ export function validateAppName(name) {
 }
 
 /**
- * this function for app, compose file, tenxflow, repository, 
+ * this function for app, storage, compose file, tenxflow, repository, 
  * docker file, image name, image store, users, team,
  * teamspeace, integration
  */
@@ -136,3 +136,4 @@ export function serviceNameCheck(name, itemName, existNameFlag) {
   }
   return 'success';
 }
+
