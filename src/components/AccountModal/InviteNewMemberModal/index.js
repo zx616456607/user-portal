@@ -70,13 +70,14 @@ export default class ExitTeamModal extends Component{
             还可添加20人
           </Col>
         </Row>
-        <Input
+        <div
           type='textarea'
           placeholder='可输入多个邮箱地址, 邮箱之间用分号" ; "分隔, 每次最多添加20个 .'
           className='inviteInt'
           onKeyDown={this.handleOnKeyDown}
           value={newMembers}
-        />
+        >
+        </div>
       </Modal>
     )
   }
