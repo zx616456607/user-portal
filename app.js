@@ -42,16 +42,17 @@ app.use(function* (next) {
   try {
     yield next
   } catch (err) {
-    if (err.status < 100) {
-      logger.error(`Unexpected status code: ${err.status}`)
-      err.status = 500
-    }
-    logger.error('catch-error', JSON.stringify(err.message))
     logger.error('catch-error', err.stack)
     logger.error('catch-error', JSON.stringify(err))
-    this.status = err.status || err.statusCode || err.code || 500
+    let status = err.status || err.statusCode || err.code || 500
+    let intStatus = parseInt(status)
+    if (intStatus < 100 || isNaN(intStatus)) {
+      logger.error(`Unexpected status code: ${status}`)
+      intStatus = 500
+    }
+    this.status = intStatus
     this.body = {
-      statusCode: this.status,
+      statusCode: intStatus,
       message: err.message || err
     }
     // this.app.emit('error', err, this)
