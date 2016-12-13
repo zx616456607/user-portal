@@ -16,6 +16,8 @@ import { beforeUploadFile, uploading, mergeUploadingIntoList, getUploadFileUlr, 
 import cloneDeep from 'lodash/cloneDeep'
 import QueueAnim from 'rc-queue-anim'
 import NotificationHandler from '../../../common/notification_handler'
+import { loadUserDetail } from '../../../actions/user'
+import { ROLE_USER, ROLE_TEAM_ADMIN } from '../../../../constants' 
 
 const SubMenu = Menu.SubMenu
 const MenuItemGroup = Menu.ItemGroup
@@ -64,7 +66,8 @@ class Slider extends Component {
   }
 
   componentWillMount() {
-    const { pathname } = this.props;
+    const { pathname, loadUserDetail } = this.props;
+    loadUserDetail("default");
     let currentKey = pathname.split('/')[1];
     let currentOpenMenu = checkUrlSelectedKey(pathname);
     let currentSelectedMenu = checkUrlOpenKeys(pathname);
@@ -227,7 +230,7 @@ class Slider extends Component {
   }
 
   render() {
-    const { siderStyle } = this.props
+    const { siderStyle, role } = this.props
     const { currentKey } = this.state
     const scope = this
     return (
@@ -554,16 +557,20 @@ class Slider extends Component {
                       <span><div className='sideCircle'></div> 我的账户</span>
                     </Link>
                   </Menu.Item>
+                  { role == ROLE_TEAM_ADMIN ?
                   <Menu.Item key='member'>
                     <Link to='/account/member'>
                       <span><div className='sideCircle'></div> 成员管理</span>
                     </Link>
-                  </Menu.Item>
+                  </Menu.Item> : <div></div> 
+                  }
+                  { role == ROLE_TEAM_ADMIN ?
                   <Menu.Item key='team'>
                     <Link to='/account/team'>
                       <span><div className='sideCircle'></div> 团队管理</span>
                     </Link>
-                  </Menu.Item>
+                  </Menu.Item> : <div></div> 
+                  }
                   <Menu.Item key='cost'>
                     <Link to='/account/cost'>
                       <span><div className='sideCircle'></div> 费用中心</span>
@@ -637,10 +644,16 @@ function checkCurrentPath(pathname) {
 }
 
 function mapStateToProp(state) {
+  let role = ROLE_USER
+  const {userDetail} = state.user
+  if (userDetail.result && userDetail.result.data) {
+    role = userDetail.result.data.role
+  }
   return {
     uploadFileOptions: state.storage.uploadFileOptions,
     beforeUploadState: state.storage.beforeUploadFile,
-    storageDetail: state.storage.storageDetail
+    storageDetail: state.storage.storageDetail,
+    role
   }
 }
 
@@ -650,5 +663,6 @@ export default connect(mapStateToProp, {
   mergeUploadingIntoList,
   changeUploadFileOptions: uploadFileOptions,
   getVolumeBindInfo,
-  changeStorageDetail
+  changeStorageDetail,
+  loadUserDetail,
 })(Slider)
