@@ -20,8 +20,9 @@ import { loadStorageList, deleteStorage, createStorage, formateStorage, resizeSt
 import { DEFAULT_IMAGE_POOL, STORAGENAME_REG_EXP } from '../../constants'
 import './style/storage.less'
 import { calcuDate } from '../../common/tools'
-import { appNameCheck } from '../../common/naming_validation'
+import { storageNameCheck } from '../../common/naming_validation'
 import NotificationHandler from '../../common/notification_handler'
+
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
@@ -414,14 +415,6 @@ class Storage extends Component {
       notification.error('请输入存储卷大小')
       return
     }
-    /*if(this.state.name.length < 3 || this.state.name.length > 20) {
-      notification.error('存储卷名称大小应在3到15个字符, 且只可以a-z或A-Z开始,且只可以英文字母或者数字组成')
-      return
-    }
-    if(!/^[a-zA-z][a-zA-z0-9]*$/.test(this.state.name)) {
-      notification.error('存储名称只可以a-z或A-Z开始,且只可以英文字母或者数字组成')
-      return
-    }*/
     notification.spin('创建存储卷中')
     let storageConfig = {
       driver: 'rbd',
@@ -575,7 +568,7 @@ class Storage extends Component {
   handleInputName(e) {
         
     let name = e.target.value;
-    let errorMsg = appNameCheck(name, '存储名称');
+    let errorMsg = storageNameCheck(name, '存储名称');
     let errorFlag = false;
     if(errorMsg != 'success') {
       errorFlag = true;
