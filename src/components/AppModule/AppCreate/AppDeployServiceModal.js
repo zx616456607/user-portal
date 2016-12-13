@@ -385,6 +385,9 @@ let AppDeployServiceModal = React.createClass({
             // Add the port annotation
             let portUrl = getFieldProps(`portUrl${k}`).value;
             serviceList.addPortAnnotation(serviceName + '-' + newIndex, portType, portUrl)
+          } else {
+            // undefined
+            serviceList.addPortAnnotation(serviceName + '-' + newIndex, portType)
           }
         }
         if (getFieldProps(`portType${k}`).value) {
@@ -423,7 +426,7 @@ let AppDeployServiceModal = React.createClass({
     }
     //volumes
     if (getFieldValue('volumeSwitch')) {
-      const cluster = window.localStorage.getItem('cluster')
+      const cluster = this.props.cluster
       getFieldValue('volumeKey').map((k) => {
         let volumeChecked = getFieldProps(`volumeChecked${k}`).value   //服务只读
         let volumeInfo = getFieldProps(`volumeName${k}`).value
