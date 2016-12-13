@@ -41,7 +41,6 @@ const config = {
       user: "noreply@tenxcloud.com",
       pass: "TenxCloud001",
     },
-    sender_mail: "noreply@tenxcloud.com",
     service_mail: "service@tenxcloud.com"
   }
 }

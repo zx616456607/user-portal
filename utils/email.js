@@ -59,7 +59,6 @@ exports.sendEmail = function (transport, mailOptions) {
 exports.sendInviteUserEmail = function (to, invitorName, invitorEmail, teamName, inviteURL) {
   const method = "sendInviteUserEmail"
   var mailOptions = {
-    from: config.mail_server.sender_mail, // sender address
     to: to, // list of receivers
     subject: '邀请加入团队', // Subject line
     html: ""
