@@ -37,6 +37,7 @@ class App extends Component {
       siderStyle: props.siderStyle,
       loginModalVisible: false,
       loadLoginUserSuccess: true,
+      insertMeiqiaScript: false,
     }
   }
 
@@ -191,7 +192,7 @@ class App extends Component {
   }
 
   insertScript(id) {
-    if (document.getElementById(id)) {
+    if (this.state.insertMeiqiaScript) {
       return
     }
     let { loginUser } = this.props
@@ -220,6 +221,9 @@ class App extends Component {
     script.id = id
     script.innerHTML = code
     document.body.appendChild(script)
+    this.setState({
+      insertMeiqiaScript: true
+    })
   }
 
   render() {
