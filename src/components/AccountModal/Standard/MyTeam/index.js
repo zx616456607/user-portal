@@ -25,6 +25,7 @@ import DelTeamModal from '../../DelTeamModal'
 import NotificationHandler from '../../../../common/notification_handler'
 import ExitTeamModal from '../../ExitTeamModal'
 import CreateTeamSuccessModal from '../../CreateTeamSuccessModal'
+import InviteNewMemberModal from '../../InviteNewMemberModal'
 
 const confirm = Modal.confirm;
 
@@ -46,6 +47,7 @@ let TeamTable = React.createClass({
       nowTeamID: '',//当前团队ID
       showDelModal: false,
       showExitModal: false,
+      showInviteModal: false,
     }
   },
   //Table变化回调
@@ -182,6 +184,20 @@ let TeamTable = React.createClass({
       nowTeamID: teamID
     })
   },
+  //显示邀请新成员弹窗
+  handleShowInviteModal(teamID){
+    console.log('show !')
+    this.setState({
+      showInviteModal: true,
+      nowTeamID: teamID
+    })
+  },
+  //关闭邀请成员弹窗
+  closeInviteModal(){
+    this.setState({
+      showInviteModal: false
+    })
+  },
   handleNewMemberOk() {
     const { addTeamusers, loadUserTeamList, rowKey } = this.props
     const { targetKeys, nowTeamID } = this.state
@@ -244,10 +260,10 @@ let TeamTable = React.createClass({
     const { searchResult, sort, filter } = this.props.scope.state
     const { scope, teamUserIDList } = this.props
     let data = [
-      { team: 'test1', member: 10, createTime: '20天前', balance: 10, role: 1, },
-      { team: 'test2', member: 10, createTime: '20天前', balance: 10, role: 0, },
-      { team: 'test3', member: 10, createTime: '20天前', balance: 10, role: 0, },
-      { team: 'test4', member: 10, createTime: '20天前', balance: 10, role: 0, },
+      { team: 'test1', member: 10, createTime: '20天前', balance: 10, role: 1, key:1},
+      { team: 'test2', member: 10, createTime: '20天前', balance: 10, role: 0, key:2},
+      { team: 'test3', member: 10, createTime: '20天前', balance: 10, role: 0, key:3},
+      { team: 'test4', member: 10, createTime: '20天前', balance: 10, role: 0, key:4},
     ]
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
@@ -402,23 +418,15 @@ let TeamTable = React.createClass({
           record.role === 1 ?
             <Dropdown.Button
               overlay={roleDropdown} type='ghost'
-              onClick={() => this.addNewMember(record.key)}
+              onClick={() => this.handleShowInviteModal(record.key)}
               className="tabDrop"
               >
               <Icon type="plus" />
               <span>邀请新成员</span>
-              <Modal title='邀请新成员'
-                visible={this.state.nowTeamID === record.key && this.state.addMember}
-                onOk={this.handleNewMemberOk}
-                onCancel={this.handleNewMemberCancel}
-                width="660px"
-                wrapClassName="newMemberModal"
-                >
-                <MemberTransfer onChange={this.handleChange}
-                  targetKeys={targetKeys}
-                  teamID={record.key}
-                  teamUserIDList={teamUserIDList} />
-              </Modal>
+              <InviteNewMemberModal
+                visible={this.state.nowTeamID === record.key && this.state.showInviteModal}
+                closeInviteModal={this.closeInviteModal}
+              />
             </Dropdown.Button>
             :
             <div>
@@ -504,6 +512,7 @@ class MyTeam extends Component {
       }
     })
   }
+  //关闭创建成功弹框
   closeCreateSucModal() {
     this.setState({
       showCreateSucModal: false,

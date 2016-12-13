@@ -19,6 +19,7 @@ import { loadMyStack } from '../../actions/app_center'
 import { DEFAULT_REGISTRY } from '../../../constants'
 import ModalDetail from './ModalDetail.js'
 import CreateDatabase from './CreateDatabase.js'
+import NotificationHandler from '../../common/notification_handler'
 // import './style/RedisCluster.less'
 import './style/MysqlCluster.less'
 
@@ -65,15 +66,15 @@ let MyComponent = React.createClass({
             <ul className='detailParse'>
               <li><span className='listKey'>状态</span>
                 {item.pods.running >0 ?
-                  <span className='normal'>运行 {item.pods.running} 个</span>
+                  <span className='normal'>运行 {item.pods.running} 个 </span>
                   :null
                 }
                 {item.pods.pending >0 ?
-                  <span>停止 {item.pods.pending} 个</span>
+                  <span>停止 {item.pods.pending} 个 </span>
                   :null
                 }
                 {item.pods.failed >0 ?
-                  <span>失败 {item.pods.pending} 个</span>
+                  <span>失败 {item.pods.pending} 个 </span>
                   :null
                 }
               </li>
@@ -115,6 +116,11 @@ class RedisDatabase extends Component {
   componentWillMount() {
     document.title = 'Redis集群 | 时速云';
     const { loadDbCacheList, cluster } = this.props
+    if (cluster == undefined) {
+      let notification = new NotificationHandler()
+      notification.error('请选择集群','invalid cluster ID')
+      return
+    }
     loadDbCacheList(cluster, 'redis')
   }
   componentDidMount() {
@@ -128,6 +134,13 @@ class RedisDatabase extends Component {
         }
       }
     })
+  }
+  componentWillReceiveProps(nextProps) {
+    const { form, current, loadTeamClustersList} = nextProps
+    if (current.space.namespace === this.props.current.space.namespace && current.cluster.clusterID === this.props.current.cluster.clusterID) {
+      return
+    }
+    this.props.loadDbCacheList(current.cluster.clusterID, 'redis')
   }
   createDatabaseShow() {
     //this function for user show the modal of create database
@@ -185,9 +198,11 @@ function mapStateToProps(state, props) {
 
   const { databaseAllList } = state.databaseCache
   const { database, databaseList, isFetching } = databaseAllList.redis || defaultRedisList
+  const { current } = state.entities
   return {
     cluster: cluster.clusterID,
     // cluster: 'e0e6f297f1b3285fb81d27742255cfcf11',// @todo default 
+    current,
     database,
     databaseList: databaseList,
     isFetching,

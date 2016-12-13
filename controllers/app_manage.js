@@ -41,6 +41,24 @@ exports.createApp = function* () {
   }
 }
 
+exports.updateAppDesc = function *() {
+  const cluster = this.params.cluster
+  const name = this.params.app_name
+  const data = this.request.body
+  if (!data || !data.desc) {
+    const err = new Error('.desc is required.')
+    err.status = 400
+    throw err
+  }
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getK8sApi(loginUser)
+  const result = yield api.updateBy([cluster, 'apps', name, 'desc'], null, data)
+  this.body = {
+    cluster,
+    data: result.data
+  }
+}
+
 exports.getApps = function* () {
   const cluster = this.params.cluster
   const loginUser = this.session.loginUser
