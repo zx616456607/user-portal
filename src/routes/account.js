@@ -21,23 +21,23 @@ const accountRoutes = [
   },
   {
     path: 'member',
-    component: require('../components/AccountModal/Enterprise/MemberManage').default,
+    component: require('../components/AccountModal/_Enterprise/MemberManage').default,
   },
   {
     path: 'team',
     component: mode==='standard'?
-      require('../components/AccountModal/Standard/MyTeam').default:
-      require('../components/AccountModal/Enterprise/TeamManage').default,
+      require('../components/AccountModal/_Standard/MyTeam').default:
+      require('../components/AccountModal/_Enterprise/TeamManage').default,
   },
   {
     path: 'myteam',
-    component: require('../components/AccountModal/Standard/MyTeam').default,
+    component: require('../components/AccountModal/_Standard/MyTeam').default,
   },
   {
     path: 'team/:team_name/:team_id',
     component: mode==='standard'?
-      require('../components/AccountModal/Standard/TeamDetail').default:
-      require('../components/AccountModal/Enterprise/TeamDetail').default,
+      require('../components/AccountModal/_Standard/TeamDetail').default:
+      require('../components/AccountModal/_Enterprise/TeamDetail').default,
   },
   {
     path: 'cost',
