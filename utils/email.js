@@ -15,6 +15,8 @@
 const nodemailer = require('nodemailer')
 const logger = require('./logger').getLogger('email')
 const config = require('../configs')
+const fs = require('fs')
+const self = this
 
 /**
  * Send email use SMTP
@@ -51,4 +53,30 @@ exports.sendEmail = function (transport, mailOptions) {
       resovle(response)
     })
   })
+}
+
+//Calling sample: self.sendInviteUserEmail("zhangsh@tenxcloud.com", "shouhong", "zhangsh@tenxcloud.com", "研发Team", "http://tenxcloud.com")
+exports.sendInviteUserEmail = function (to, invitorName, invitorEmail, teamName, inviteURL) {
+  const method = "sendInviteUserEmail"
+  var mailOptions = {
+    from: config.mail_server.sender_mail, // sender address
+    to: to, // list of receivers
+    subject: '邀请加入团队', // Subject line
+    html: ""
+  }
+
+  fs.readFile('../templates/email/invite_user.html', 'utf8', function (err, data) {
+    if (err) {
+      logger.error(method, err)
+      reject(err)
+    }
+    var systemEmail = config.mail_server.service_mail
+    data = data.replace(/\${invitorName}/g, invitorName)
+    data = data.replace(/\${invitorEmail}/g, invitorEmail)
+    data = data.replace(/\${systemEmail}/g, systemEmail)
+    data = data.replace(/\${teamName}/g, teamName)
+    data = data.replace(/\${inviteURL}/g, inviteURL)
+    mailOptions.html = data
+    self.sendEmail(mailOptions)
+  });
 }
