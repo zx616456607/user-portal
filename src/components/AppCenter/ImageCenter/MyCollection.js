@@ -9,7 +9,7 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { Alert, Menu, Button, Card, Spin, Input, Modal } from 'antd'
-import { Link } from 'react-router'
+import { Link ,browserHistory} from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
@@ -113,10 +113,8 @@ let MyComponent = React.createClass({
             </span>
           </div>
           <div className="btnBox">
-            <Button type="ghost">
-              <Link to={`/app_manage/app_create/fast_create?registryServer=${registryServer}&imageName=${item.name}`}>
+            <Button type="ghost" onClick={()=>browserHistory.push(`/app_manage/app_create/fast_create?registryServer=${registryServer}&imageName=${item.name}`)}>
               <FormattedMessage {...menusText.deployService} />
-              </Link>
             </Button>
           </div>
         </div>
