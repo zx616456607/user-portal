@@ -30,29 +30,33 @@ export default class ExitTeamModal extends Component{
     closeInviteModal()
   }
   handleOnKeyDown (e) {
-    let value = e.target.value
+    console.log('inviteInt',this.refs.inviteInt)
+    let value = e.target.innerHTML
+    console.log('value',value)
     let valueArr = []
     var filter  = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/
     console.log('keyCode ',e.keyCode)
     if (e.keyCode === 186) {
-      console.log('value',value)
       valueArr = value.split(';')
+      
       console.log('valueArr',valueArr)
       valueArr.map((item,index) => {
         if(filter.test(item)) {
           valueArr.push(
-            <Tag closable key={index}>item</Tag>
+            <Tag closable key={index}>{item}</Tag>
           )
           return
         } else {
-          valueArr.push(
-            <Tag closable key={index} color='red'>item</Tag>
-          )
+
+          /*valueArr.push(
+            <Tag closable key={index} color='red'>{item}</Tag>
+          )*/
           this.setState({
             disabled: true
           })
         }
       })
+
       this.setState({
         valueArr: valueArr
       })
@@ -89,9 +93,10 @@ export default class ExitTeamModal extends Component{
         </Row>
         <div
           placeholder='可输入多个邮箱地址, 邮箱之间用分号" ; "分隔, 每次最多添加20个 .'
-          className='inviteInt'
+          className='inviteInt ant-select-selection ant-select-selection--multiple'
           onKeyDown={this.handleOnKeyDown}
           contentEditable={true}
+          ref='inviteInt'
         >
           {
             valueArr.map((item,index) => {
