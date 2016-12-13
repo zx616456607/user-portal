@@ -40,7 +40,8 @@ const config = {
     auth: {
       user: "noreply@tenxcloud.com",
       pass: "TenxCloud001",
-    }
+    },
+    service_mail: "service@tenxcloud.com"
   }
 }
 
