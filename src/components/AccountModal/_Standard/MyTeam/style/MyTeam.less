@@ -214,10 +214,79 @@
       padding-right: 6px;
     }
   }
-  .inviteInt {
-    display: inline-block;
-    height: 78px;
+  .inviteInt  {
     width: 100%;
-    border: 1px solid #24aeed;
+    height: 78px;
+    border: 1px solid #11a7eb;
   }
+  .inviteModal {
+    .ant-select-dropdown {
+      display: none !important;
+    }
+  }
+  .react-tagsinput {
+    width: 100%;
+    height: 78px;
+    border: 1px solid #24aeed;
+    border-radius: 3px;
+    overflow-y: auto;
+  }
+  .errTags {
+    color: #e5444a !important;
+    &:hover {
+      color: #fff !important;
+      background-color: #fc7478 !important;
+      border: 1px solid #e3373d !important;
+      .react-tagsinput-remove {
+        border: 1px solid #e4393f !important;
+        color: #ea6c70 !important;
+      }
+    }
+  }
+  .react-tagsinput-tag {
+    cursor: pointer;
+    height: 22px;
+    color: #30a7e9;
+    background-color: #fff;
+    line-height: 12px;
+    border: 1px solid #fff;
+    border-radius: 5px;
+    padding: 0 5px;
+    font-size: 14px;
+    font-family: "Microsoft YaHei";
+    &:hover {
+      color: #fff;
+      background-color: #21ade8;
+      border: 1px solid #008fdb;
+      .react-tagsinput-remove {
+        border: 1px solid #008fdb;
+        color: #43b3e6;
+      }
+    }
+    .react-tagsinput-remove {
+      display: inline-block;
+      margin-top: 3px;
+      margin-left: 5px;
+      width: 14px;
+      height: 14px;
+      line-height: 12px;
+      border-radius: 50%;
+      background-color: #fff;
+      color: #fff;
+      border: 1px solid #fff;
+      text-align: center;
+    }
+  }
+  .react-tagsinput-input {
+    width: 100%;
+  }
+}
+.normal {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: inline-block;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
 }
