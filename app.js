@@ -15,6 +15,7 @@ const koa = require('koa')
 const Router = require('koa-router')
 const c2k = require('koa-connect')
 const config = require('./configs')
+const constants = require('./configs/constants')
 const middlewares = require('./services/middlewares')
 const logger = require('./utils/logger').getLogger('app')
 const app = koa()
@@ -192,6 +193,14 @@ app.use(indexRoutes(Router))
 const apiRoutes = require('./routes/api')
 app.use(apiRoutes(Router))
 
+////////////////////////////////////////////////////////////////////////////////
+//////////////// Only add routes for standard mode /////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+if (config.running_mode === constants.STANDARD_MODE) {
+  const standardRoutes = require('./routes/_standard_api')
+  app.use(standardRoutes(Router))
+}
+
 // For 404
 app.use(function* pageNotFound(next) {
   yield next
@@ -217,6 +226,8 @@ app.use(function* pageNotFound(next) {
   }
 })
 
+logger.info(`Node env in '${config.node_env}'`)
+logger.info(`Server started in '${config.running_mode}' running mode`)
 // Create server
 let server
 if (config.protocol !== 'https') {
@@ -225,7 +236,7 @@ if (config.protocol !== 'https') {
   server = http.createServer(app.callback()).listen(config.port, config.hostname, function () {
     setTimeout(function () {
       logger.info(`${app.name}@${app.version} is listening on port ${config.port}`)
-      logger.info(`Open up http://${config.hostname}:${config.port}/ in your browser.`)
+      logger.info(`Open up http://${config.hostname}:${config.port}/ in your browser`)
     }, 1500)
   })
 } else {
@@ -240,7 +251,7 @@ if (config.protocol !== 'https') {
   const server = https.createServer(httpsoptions, app.callback()).listen(config.port, config.host, function () {
     setTimeout(function () {
       logger.info(`${app.name}@${app.version} is listening on port ${config.port}`)
-      logger.info(`Open up https://${config.hostname}:${config.port}/ in your browser.`)
+      logger.info(`Open up https://${config.hostname}:${config.port}/ in your browser`)
     }, 1500)
   })
 }
