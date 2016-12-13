@@ -81,6 +81,8 @@ class StorageDetail extends Component {
         </div>
        ) 
     }
+    const color = StorageInfo.isUsed ? '#f85a5a' : '#5cb85c'
+
     const consumption = (StorageInfo.consumption / StorageInfo.size) * 100
     return (
       <div id="StorageDetail">
@@ -101,8 +103,8 @@ class StorageDetail extends Component {
                   <FormattedMessage {...messages.useStatus} />
                   &nbsp;：
                     <span>
-                    <i className={StorageInfo.isUsed ? 'fa fa-circle error' : 'fa fa-circle normal'}></i>&nbsp;
-                      <span className={StorageInfo.isUsed ? 'error' : 'normal'}>{StorageInfo.isUsed ? <FormattedMessage {...messages.using} /> : <FormattedMessage {...messages.stop} />}</span>
+                    <i className= 'fa fa-circle error' style={ {color: color} }></i>&nbsp;
+                      <span className={StorageInfo.isUsed ? 'error' : 'normal'} style={{ color: color }}>{StorageInfo.isUsed ? <FormattedMessage {...messages.using} /> : <FormattedMessage {...messages.stop} />}</span>
                   </span>
                   <div className="createDate">
                     <FormattedMessage {...messages.create} />：
