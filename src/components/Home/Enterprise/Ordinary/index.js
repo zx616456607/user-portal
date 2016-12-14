@@ -229,7 +229,7 @@ class Ordinary extends Component{
     if(clusterNodeSummary.cpu.length !== 0){
       clusterNodeSummary.cpu.map((item,index) => {
         let name = item.name.replace(/192.168./,'')
-        CPUNameArr.push(name.substring(0, 7))
+        CPUNameArr.push(name.length > 5 ? name.substring(name.length - 5) : name)
         CPUUsedArr.push(item.used)
       })
     } else {
@@ -241,7 +241,7 @@ class Ordinary extends Component{
     if(clusterNodeSummary.memory.length !== 0){
       clusterNodeSummary.memory.map((item,index) => {
         let name = item.name.replace(/192.168./,'')
-        memoryNameArr.push(name.substring(0, 7))
+        memoryNameArr.push(name.length > 5 ? name.substring(name.length - 5) : name)
         memoryUsedArr.push(item.used)
       })
     } else {
@@ -253,7 +253,7 @@ class Ordinary extends Component{
     if(clusterNodeSummary.storage.length !== 0){
       clusterNodeSummary.storage.map((item,index) => {
         let name = item.name.replace(/192.168./,'')
-        diskNameArr.push(name.substring(0, 7))
+        diskNameArr.push(name.length > 5 ? name.substring(name.length - 5) : name)
         // diskNameArr.push(item.name)
         diskUsedArr.push((item.used))
       })

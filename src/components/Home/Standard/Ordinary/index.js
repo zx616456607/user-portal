@@ -500,7 +500,7 @@ class Ordinary extends Component{
     }
     return (
       <div id='OrdinaryStd'>
-        <Row className="title">{spaceName} - {clusterName}集群</Row>
+        <Row className="title">{spaceName} - {clusterName}</Row>
         <Row className="content" gutter={16}>
           <Col span={6} className='clusterCost'>
             <Card title="账户余额" bordered={false} bodyStyle={{height:200,padding:'0 24px'}}>
