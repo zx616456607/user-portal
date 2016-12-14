@@ -17,6 +17,7 @@
 'use strict';
 
 const certificateController = require('../controllers/_standard/certificate')
+const teamController = require('../controllers/_standard/team')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -26,6 +27,9 @@ module.exports = function (Router) {
   router.get('/certificates', certificateController.listCertificates)
   router.post('/certificates', certificateController.createCertificate)
   router.put('/certificates/:id', certificateController.updateCertificate)
+
+  // team
+  router.post('/teams/teamandspace', teamController.createTeamAndSpace)
 
   return router.routes()
 }

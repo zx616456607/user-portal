@@ -373,3 +373,29 @@ export function checkTeamSpaceName(teamID, spaceName, callback) {
     return dispatch(fetchCheckTeamSpaceName(teamID, spaceName, callback))
   }
 }
+
+export const TEAMANDSPACE_CREATE_REQUEST = 'TEAMANDSPACE_CREATE_REQUEST'
+export const TEAMANDSPACE_CREATE_SUCCESS = 'TEAMANDSPACE_CREATE_SUCCESS'
+export const TEAMANDSPACE_CREATE_FAILURE = 'TEAMANDSPACE_CREATE_FAILURE'
+
+function fetchCreateTeamAndSpace(body, callback) {
+  let endpoint = `${API_URL_PREFIX}/teams/teamandspace`
+  return {
+    [FETCH_API]: {
+      types: [TEAMANDSPACE_CREATE_REQUEST, TEAMANDSPACE_CREATE_SUCCESS, TEAMANDSPACE_CREATE_FAILURE],
+      endpoint,
+      options: {
+        method: 'POST',
+        body
+      },
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function createTeamAndSpace(body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchCreateTeamAndSpace(body, callback))
+  }
+}

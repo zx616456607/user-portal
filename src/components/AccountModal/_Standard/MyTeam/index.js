@@ -15,7 +15,7 @@ import SearchInput from '../../../SearchInput'
 import { connect } from 'react-redux'
 import { loadUserTeamList } from '../../../../actions/user'
 import {
-  createTeam, deleteTeam, createTeamspace,
+  createTeamAndSpace, deleteTeam,
   addTeamusers, removeTeamusers, loadTeamUserList,
   checkTeamName,
 } from '../../../../actions/team'
@@ -258,13 +258,8 @@ let TeamTable = React.createClass({
   render() {
     let { sortedInfo, filteredInfo, targetKeys, showDelModal } = this.state
     const { searchResult, sort, filter } = this.props.scope.state
-    const { scope, teamUserIDList } = this.props
-    let data = [
-      { team: 'test1', member: 10, createTime: '20天前', balance: 10, role: 1, key:1},
-      { team: 'test2', member: 10, createTime: '20天前', balance: 10, role: 0, key:2},
-      { team: 'test3', member: 10, createTime: '20天前', balance: 10, role: 0, key:3},
-      { team: 'test4', member: 10, createTime: '20天前', balance: 10, role: 0, key:4},
-    ]
+    const { scope, teamUserIDList, data } = this.props
+    console.log('this.propsthis.propsthis.props',this.props)
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
     //分页器配置
@@ -330,8 +325,8 @@ let TeamTable = React.createClass({
             </div>
           </div>
         ),
-        dataIndex: 'team',
-        key: 'team',
+        dataIndex: 'name',
+        key: 'name',
         width: '10%',
         className: 'teamName',
         render: (text, record, index) => (
@@ -352,8 +347,8 @@ let TeamTable = React.createClass({
             </div>
           </div>
         ),
-        dataIndex: 'member',
-        key: 'member',
+        dataIndex: 'memberCount',
+        key: 'memberCount',
         width: '10%',
       },
       {
@@ -370,8 +365,8 @@ let TeamTable = React.createClass({
             </div>
           </div>
         ),
-        dataIndex: 'createTime',
-        key: 'createTime',
+        dataIndex: 'creationTime',
+        key: 'creationTime',
         width: '10%',
       },
       {
@@ -415,7 +410,7 @@ let TeamTable = React.createClass({
         key: 'operation',
         width: '20%',
         render: (text, record, index) => (
-          record.role === 1 ?
+          record.isCreator ?
             <Dropdown.Button
               overlay={roleDropdown} type='ghost'
               onClick={() => this.handleShowInviteModal(record.key)}
@@ -482,11 +477,11 @@ class MyTeam extends Component {
   }
   //创建团队
   teamOnSubmit(team) {
-    const { createTeam, loadUserTeamList } = this.props
+    const { createTeamAndSpace, loadUserTeamList } = this.props
     const { pageSize, sort, filter } = this.state
     let notification = new NotificationHandler()
     notification.spin(`创建团队 ${team.teamName} 中...`)
-    createTeam(team, {
+    createTeamAndSpace(team, {
       success: {
         func: () => {
           notification.close()
@@ -588,55 +583,26 @@ class MyTeam extends Component {
 function mapStateToProp(state, props) {
   let teamsData = []
   let total = 0
-  let data = []
   let teamUserIDList = []
-  const team = state.team
   const teams = state.user.teams
-  if (teams.result) {
-    if (teams.result.teams) {
-      teamsData = teams.result.teams
-      if (teamsData.length !== 0) {
-        teamsData.map((item, index) => {
-          data.push(
-            {
-              key: item.teamID,
-              team: item.teamName,
-              member: item.userCount,
-              cluster: item.clusterCount,
-              space: item.spaceCount,
-              createTime: 1,
-              balance: 100,
-            }
-          )
-        })
-      }
-    }
-    if (teams.result.total) {
-      total = teams.result.total
-    }
-    if (team.teamusers) {
-      if (team.teamusers.result) {
-        const teamusers = team.teamusers.result.users
-
-        teamusers.map((item, index) => {
-
-          teamUserIDList.push(item.userID)
-        })
-      }
-    }
+  if (!teams.isFetching && teams.result && teams.result.data && teams.result.data.data) {
+    teamsData = teams.result.data.data
+    teamsData.map((item) => {
+      item.role = item.isCreator ? '创建者（管理员）' : '普通成员'
+    })
+    total = teamsData.length
   }
+  console.log('mapStateToPropmapStateToPropmapStateToProp',teamsData)
   return {
-    teams: data,
+    teams: teamsData,
     total,
-    teamUserIDList: teamUserIDList,
   }
 }
 
 export default connect(mapStateToProp, {
   loadUserTeamList,
-  createTeam,
+  createTeamAndSpace,
   deleteTeam,
-  createTeamspace,
   addTeamusers,
   removeTeamusers,
   loadTeamUserList,
