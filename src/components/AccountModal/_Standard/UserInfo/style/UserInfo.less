@@ -1,0 +1,65 @@
+@borderColor: #E4E8F3;
+#public-userinfo{
+  .baseInfo{
+    .btn-auth{background: #9190F8;border:1px solid #5F5EE6;color: white;padding:5px 10px;}
+    .topBox{
+      height: 140px;
+      border: 1px solid @borderColor;
+      padding:20px 50px;
+      background: white;
+      border-radius: 5px;
+      clear: both;
+      .userimage{
+        width: 80px;
+        float: left;
+        background: #D2EDFE;
+        border-radius: 50%;
+        height: 80px;
+        overflow: hidden;
+        img{max-width: 100%;}
+      }
+      .topbar{float: left;}
+      .userBtn{margin-left: 50px;
+        p{line-height: 45px;}
+      }
+      .to-recharge{
+        float: right;
+        .money{font-size: 2.2em;color: #3CABF2;}
+        .money-desc{margin:5px 0;}
+      }
+    }
+    .myInfo{
+      border-radius: 5px;
+      margin-top: 15px;
+      background: white;
+      border: 1px solid @borderColor;
+      overflow: hidden;
+      padding-bottom: 50px;
+      .hand{line-height: 50px;padding-left: 20px;border-bottom: 1px solid @borderColor;font-size: 1.5em;}
+      .info-list{
+        li{
+          list-style: none;height: 80px;line-height: 80px;padding:0 60px;border-bottom: 1px solid @borderColor;
+          .key{display: inline-block;width: 100px;}
+          .value{display: inline-block;width: 180px;margin-right: 20px;}
+          }
+      }
+    }
+    .wechatBox{
+      background: white;
+      margin-top: 15px;
+      border:1px solid @borderColor;
+      .hand{line-height: 50px;padding:0 20px;.title{font-size: 1.5em;}.other{color: #999;margin-left: 15px;}}
+      .send-tu{
+        height: 130px;border-top: 1px solid @borderColor;
+        padding:30px 50px;
+        .backcolor{
+          float: left;margin-right: 50px;
+          background: #9C9C9C;color: white;width: 60px;height: 60px;border-radius: 5px;
+          font-size: 40px;text-align: center;line-height: 66px;
+        }
+        .btn-success{margin-top: 20px;}
+      }
+    }
+  }
+
+}

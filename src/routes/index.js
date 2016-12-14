@@ -76,7 +76,7 @@ const rootRoutes = {
       path: 'account',
       component: require('../containers/Account').default,
       indexRoute: {
-        component: require('../components/AccountModal/UserInfo').default,
+        component: mode === 'standard' ? require('../components/AccountModal/_Standard/UserInfo').default : require('../components/AccountModal/UserInfo').default,
       },
       getChildRoutes: (location, cb) => {
         require.ensure([], function (require) {
