@@ -17,7 +17,7 @@ import { loadUserTeamList } from '../../../../actions/user'
 import {
   createTeamAndSpace, deleteTeam,
   addTeamusers, removeTeamusers, loadTeamUserList,
-  checkTeamName,
+  checkTeamName, sendInvitation,
 } from '../../../../actions/team'
 import MemberTransfer from '../../MemberTransfer'
 import CreateTeamModal from '../../CreateTeamModal'
@@ -26,6 +26,7 @@ import NotificationHandler from '../../../../common/notification_handler'
 import ExitTeamModal from '../../ExitTeamModal'
 import CreateTeamSuccessModal from '../../CreateTeamSuccessModal'
 import InviteNewMemberModal from '../../InviteNewMemberModal'
+import moment from 'moment'
 
 const confirm = Modal.confirm;
 
@@ -259,7 +260,6 @@ let TeamTable = React.createClass({
     let { sortedInfo, filteredInfo, targetKeys, showDelModal } = this.state
     const { searchResult, sort, filter } = this.props.scope.state
     const { scope, teamUserIDList, data } = this.props
-    console.log('this.propsthis.propsthis.props',this.props)
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
     //分页器配置
@@ -421,6 +421,8 @@ let TeamTable = React.createClass({
               <InviteNewMemberModal
                 visible={this.state.nowTeamID === record.key && this.state.showInviteModal}
                 closeInviteModal={this.closeInviteModal}
+                teamID={record.id}
+                sendInvitation={this.props.sendInvitation}
               />
             </Dropdown.Button>
             :
@@ -572,6 +574,7 @@ class MyTeam extends Component {
               loadUserTeamList={loadUserTeamList}
               loadTeamUserList={loadTeamUserList}
               teamUserIDList={teamUserIDList}
+              sendInvitation={this.props.sendInvitation}
             />
           </Card>
         </Row>
@@ -589,10 +592,11 @@ function mapStateToProp(state, props) {
     teamsData = teams.result.data.data
     teamsData.map((item) => {
       item.role = item.isCreator ? '创建者（管理员）' : '普通成员'
+      item.key = item.id
+      item.creationTime = moment(item.creationTime).fromNow()
     })
     total = teamsData.length
   }
-  console.log('mapStateToPropmapStateToPropmapStateToProp',teamsData)
   return {
     teams: teamsData,
     total,
@@ -607,4 +611,5 @@ export default connect(mapStateToProp, {
   removeTeamusers,
   loadTeamUserList,
   checkTeamName,
+  sendInvitation,
 })(MyTeam)

@@ -399,3 +399,28 @@ export function createTeamAndSpace(body, callback) {
     return dispatch(fetchCreateTeamAndSpace(body, callback))
   }
 }
+
+export const SEND_INVITATION_REQUEST = 'SEND_INVITATION_REQUEST'
+export const SEND_INVITATION_SUCCESS = 'SEND_INVITATION_SUCCESS'
+export const SEND_INVITATION_FAILURE = 'SEND_INVITATION_FAILURE'
+
+function fetchSendInvitation(teamID, emails) {
+  let endpoint = `${API_URL_PREFIX}/teams/${teamID}/invitations`
+  return {
+    [FETCH_API]: {
+      types: [SEND_INVITATION_REQUEST, SEND_INVITATION_SUCCESS, SEND_INVITATION_FAILURE],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'POST',
+        body: emails,
+      },
+    }
+  }
+}
+
+export function sendInvitation(teamID, emails) {
+  return (dispatch, getState) => {
+    return dispatch(fetchSendInvitation(teamID, emails))
+  }
+}

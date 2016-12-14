@@ -30,6 +30,7 @@ module.exports = function (Router) {
 
   // team
   router.post('/teams/teamandspace', teamController.createTeamAndSpace)
+  router.post('/teams/:teamid/invitations', teamController.createInvitations)
 
   return router.routes()
 }

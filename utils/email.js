@@ -64,7 +64,7 @@ exports.sendInviteUserEmail = function (to, invitorName, invitorEmail, teamName,
     html: ""
   }
 
-  fs.readFile('../templates/email/invite_user.html', 'utf8', function (err, data) {
+  fs.readFile('templates/email/invite_user.html', 'utf8', function (err, data) {
     if (err) {
       logger.error(method, err)
       reject(err)

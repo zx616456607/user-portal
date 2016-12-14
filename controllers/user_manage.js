@@ -96,7 +96,6 @@ exports.getUserTeams = function* () {
   let userID = this.params.user_id
   const loginUser = this.session.loginUser
   if (config.running_mode === standardMode) {
-    
     const spi = apiFactory.getSpi(loginUser)
     const result = yield spi.teams.get()
     this.body = {
@@ -104,8 +103,8 @@ exports.getUserTeams = function* () {
     }
   }
   else {
-    const api = apiFactory.getApi(loginUser)
     userID = userID === 'default' ? loginUser.id : userID
+    const api = apiFactory.getApi(loginUser)
     let result = yield api.users.getBy([loginUser.id])
     //Only team admin can get team related information
     if (!result || !result.data || 
