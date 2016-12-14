@@ -18,7 +18,14 @@ const rootRoutes = {
         cb(null, mode === 'standard' ? require('../containers/Login/Standard').default : require('../containers/Login/Enterprise').default)
       })
     },
-  }, {
+  },{
+    path: '/invite',
+    getComponent: (location, cb) => {
+      require.ensure([], (require) => {
+        cb(null, require('../containers/Invite').default)
+      })
+    },
+  },{
     path: '/',
     component: mode === 'standard' ? require('../containers/App/Standard').default : require('../containers/App/Enterprise').default,
     indexRoute: {
