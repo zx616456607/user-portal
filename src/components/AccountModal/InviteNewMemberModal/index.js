@@ -33,11 +33,20 @@ export default class ExitTeamModal extends Component{
       valueArr: [],
       disabled: false,
       tags: [],
+      rightTags: [],
     }
   }
   handleOk() {
     const { closeInviteModal } = this.props
-    closeInviteModal()
+    const { tags } = this.state
+    let passTags = [] //正确的邮件
+    
+    passTags=tags.filter((item) => {
+      return filter.test(item)
+    })
+    console.log('passTags',passTags)
+    //req : 发送邀请
+    closeInviteModal() //关闭弹窗
   }
   handleCancel() {
     const { closeInviteModal } = this.props
@@ -126,10 +135,8 @@ export default class ExitTeamModal extends Component{
   }
   renderTag (props) {
     let {tag, key, disabled, onRemove, classNameRemove, getTagDisplayValue, ...other} = props
-    /*if(tag.indexOf(';')>0){
-      console.log('tag',tag.split(';'))
-      
-    }*/
+    let {rightTags} = this.state
+
     if (!filter.test(tag)) {
       return (
         <span key={key} {...other} className="react-tagsinput-tag errTags">
@@ -153,9 +160,9 @@ export default class ExitTeamModal extends Component{
     }
   }
   renderInput (props) {
-    let {onChange, value, addTag, ...other} = props
+    let {onChange, value, addTag,pasteSplit, ...other} = props
     return (
-      <input type='text' onChange={onChange} value={value} {...other} />
+      <input type='text' onChange={onChange} value={value} pasteSplit={pasteSplit} {...other} />
     )
   }
   defaultPasteSplit (data) {
@@ -192,27 +199,6 @@ export default class ExitTeamModal extends Component{
               还可添加20人
             </Col>
           </Row>
-          {/*<Select
-            className='inviteInt'
-            placeholder='可输入多个邮箱地址, 邮箱之间用分号" ; "分隔, 每次最多添加20个 .'
-            onSearch={this.handleOnKeyDown}
-            onChange={this.handleChange}
-            value={valueArr}
-            tags
-            style={{ width: '100%' }}
-            getPopupContainer={() => document.getElementsByClassName('inviteModal')[0]}
-          >
-          </Select>
-          <div
-            contentEditable={true}
-            className='inviteInt'
-            onKeyUp={this.handleOnChange}
-            ref='inviteInt'
-          >
-            {
-              valueArr
-            }
-          </div>*/}
           <TagsInput value={this.state.tags}
                      onChange={this.handleTagsChange}
                      renderTag={this.renderTag}
