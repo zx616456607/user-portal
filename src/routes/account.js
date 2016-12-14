@@ -9,7 +9,8 @@
  * v0.1 - 2016-12-04
  * @author huangqg
 */
-const mode = require('../../configs/models').mode
+const standard = require('../../configs/constants').STANDARD_MODE
+const mode = require('../../configs/model').mode
 const accountRoutes = [
   {
     path: 'user/:user_id',
@@ -25,7 +26,7 @@ const accountRoutes = [
   },
   {
     path: 'team',
-    component: mode === 'standard' ?
+    component: mode === standard ?
       require('../components/AccountModal/_Standard/MyTeam').default :
       require('../components/AccountModal/_Enterprise/TeamManage').default,
   },
@@ -35,7 +36,7 @@ const accountRoutes = [
   },
   {
     path: 'team/:team_name/:team_id',
-    component: mode === 'standard' ?
+    component: mode === standard ?
       require('../components/AccountModal/_Standard/TeamDetail').default :
       require('../components/AccountModal/_Enterprise/TeamDetail').default,
   },
@@ -46,7 +47,7 @@ const accountRoutes = [
 ]
 
 // Add route for standard only
-if (mode === 'standard') {
+if (mode === standard) {
   accountRoutes.push({
     path: 'balance',
     indexRoute: {

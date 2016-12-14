@@ -59,7 +59,7 @@ module.exports = {
     }, {
       test: /\.less$/,
       loader:
-        'style!css!less?sourceMap'
+      'style!css!less?sourceMap'
     }]
   },
 

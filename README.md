@@ -2,14 +2,14 @@
 
 
 ### 后端相关控制逻辑
-* 生产、测试环境区分, 修改 configs/index.js，默认为 'dev' 开发环境，生产环境设置 NODE_ENV 为 'production'
-
+* 生产、测试环境区分, 修改 `configs/index.js`，默认为 `dev` 开发环境，生产环境设置 `NODE_ENV` 为 `production`
+```javascript
   node_env: env.NODE_ENV || 'development', // production or development
-
-* 私有云、公有云区分，修改 configs/index.js, 默认为 'enterprise' 私有云, 不同环境设置 RUNNING_MODE 为 standard 或者 enterprise
-
+```
+* 私有云、公有云区分，修改 `configs/index.js`, 默认为 `enterprise` 私有云, 不同环境设置` RUNNING_MODE` 为 `standard` 或者 `enterprise`
+```javascript
   running_mode: env.RUNNING_MODE || 'enterprise', // enterprise or standard
-
+```
 
 ```
 # 项目结构
@@ -49,16 +49,20 @@ git push -u origin dev-branch
 ### 运行开发环境-development
 #### Linux
 ```bash
-# development
+# development(enterprise mode)
 npm run dev
-# production
+# development(standard mode)
+npm run dev-std
+# production(enterprise mode)
 npm run pro
 ```
 #### Windows
 ```bash
-# development
+# development(enterprise mode)
 npm run win
-# production
+# development(standard mode)
+npm run win-std
+# production(enterprise mode)
 npm run win-pro
 ```
 ### 构建生产环境-production
