@@ -11,12 +11,11 @@ import React, { Component } from 'react'
 import { Modal,Alert,Icon,Button,Row,Col,Input,Tag,Select } from 'antd'
 import TagsInput from 'react-tagsinput'
 import 'react-tagsinput/react-tagsinput.css'
-
+import {EMAIL_REG_EXP} from '../../../constants'
 
 
 const Option = Select.Option;
 let valuesArr = []
-let filter  = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/
 
 export default class ExitTeamModal extends Component{
   constructor(props){
@@ -33,11 +32,20 @@ export default class ExitTeamModal extends Component{
       valueArr: [],
       disabled: false,
       tags: [],
+      rightTags: [],
     }
   }
   handleOk() {
     const { closeInviteModal } = this.props
-    closeInviteModal()
+    const { tags } = this.state
+    let passTags = [] //正确的邮件
+    
+    passTags=tags.filter((item) => {
+      return EMAIL_REG_EXP.test(item)
+    })
+    console.log('passTags',passTags)
+    //req : 发送邀请
+    closeInviteModal() //关闭弹窗
   }
   handleCancel() {
     const { closeInviteModal } = this.props
@@ -83,7 +91,7 @@ export default class ExitTeamModal extends Component{
     console.log('valueArr',valueArr);
     valueArr.length -= 1
     valueArr.map((item,index) => {
-      if(filter.test(item)){
+      if(EMAIL_REG_EXP.test(item)){
         console.log('item',item);
       
       } else {
@@ -102,7 +110,7 @@ export default class ExitTeamModal extends Component{
     let {valueArr} = this.state
     console.log('ChangeValue',value)
     value.map((item,index) => {
-      if (filter.test(item)) {
+      if (EMAIL_REG_EXP.test(item)) {
         vaules.push(
           <Tag className='normal'>{value}</Tag>
         )
@@ -126,11 +134,9 @@ export default class ExitTeamModal extends Component{
   }
   renderTag (props) {
     let {tag, key, disabled, onRemove, classNameRemove, getTagDisplayValue, ...other} = props
-    /*if(tag.indexOf(';')>0){
-      console.log('tag',tag.split(';'))
-      
-    }*/
-    if (!filter.test(tag)) {
+    let {rightTags} = this.state
+
+    if (!EMAIL_REG_EXP.test(tag)) {
       return (
         <span key={key} {...other} className="react-tagsinput-tag errTags">
           {getTagDisplayValue(tag)}
@@ -153,9 +159,9 @@ export default class ExitTeamModal extends Component{
     }
   }
   renderInput (props) {
-    let {onChange, value, addTag, ...other} = props
+    let {onChange, value, addTag,pasteSplit, ...other} = props
     return (
-      <input type='text' onChange={onChange} value={value} {...other} />
+      <input type='text' onChange={onChange} value={value} pasteSplit={pasteSplit} {...other} />
     )
   }
   defaultPasteSplit (data) {
@@ -192,27 +198,6 @@ export default class ExitTeamModal extends Component{
               还可添加20人
             </Col>
           </Row>
-          {/*<Select
-            className='inviteInt'
-            placeholder='可输入多个邮箱地址, 邮箱之间用分号" ; "分隔, 每次最多添加20个 .'
-            onSearch={this.handleOnKeyDown}
-            onChange={this.handleChange}
-            value={valueArr}
-            tags
-            style={{ width: '100%' }}
-            getPopupContainer={() => document.getElementsByClassName('inviteModal')[0]}
-          >
-          </Select>
-          <div
-            contentEditable={true}
-            className='inviteInt'
-            onKeyUp={this.handleOnChange}
-            ref='inviteInt'
-          >
-            {
-              valueArr
-            }
-          </div>*/}
           <TagsInput value={this.state.tags}
                      onChange={this.handleTagsChange}
                      renderTag={this.renderTag}

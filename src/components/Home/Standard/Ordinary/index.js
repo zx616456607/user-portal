@@ -498,7 +498,6 @@ class Ordinary extends Component{
         },
       },
     }
-    console.log('clusterSysinfo-----------------',clusterSysinfo)
     return (
       <div id='OrdinaryStd'>
         <Row className="title">{spaceName} - {clusterName}集群</Row>

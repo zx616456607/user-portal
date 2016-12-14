@@ -5,7 +5,7 @@ set -e
 MODEL=enterprise
 
 gen_model_config() {
-  echo -e "\nmodule.exports = models.$MODEL" >> "configs/models.js"
+  echo -e "\nmodule.exports = require('./model.$MODEL')" >> "configs/model.js"
 }
 
 build_user_portal() {

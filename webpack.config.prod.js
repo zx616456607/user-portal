@@ -12,9 +12,6 @@ var path = require('path')
 var webpack = require('webpack')
 var ExtractTextPlugin = require('extract-text-webpack-plugin')
 
-/*console.log('Use production webpack config ...')
-console.log('Now run webpack -p ...')*/
-
 module.exports = {
   // devtool: 'source-map',
 
@@ -66,13 +63,13 @@ module.exports = {
   },
 
   plugins: [
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify('production'),
+    }),
     new webpack.optimize.CommonsChunkPlugin('common', 'common.js'),
     new webpack.optimize.OccurenceOrderPlugin(),
     new webpack.NoErrorsPlugin(),
     new ExtractTextPlugin('[name].css', { allChunks: true }),
-    new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify('production')
-    }),
     new webpack.optimize.UglifyJsPlugin({
       compress: {
         warnings: false
