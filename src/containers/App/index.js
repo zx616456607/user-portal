@@ -24,6 +24,7 @@ import { updateAppServicesList, updateServiceContainersList, updateServicesList 
 import { handleOnMessage } from './status'
 import { SHOW_ERROR_PAGE_ACTION_TYPES, LOGIN_EXPIRED_MESSAGE } from '../../constants'
 import errorHandler from './error_handler'
+import Intercom from 'react-intercom'
 
 class App extends Component {
   constructor(props) {
@@ -32,12 +33,10 @@ class App extends Component {
     this.handleLoginModalCancel = this.handleLoginModalCancel.bind(this)
     this.onStatusWebsocketSetup = this.onStatusWebsocketSetup.bind(this)
     this.getStatusWatchWs = this.getStatusWatchWs.bind(this)
-    this.insertScript = this.insertScript.bind(this)
     this.state = {
       siderStyle: props.siderStyle,
       loginModalVisible: false,
       loadLoginUserSuccess: true,
-      insertMeiqiaScript: false,
     }
   }
 
@@ -190,42 +189,6 @@ class App extends Component {
     }
     return children
   }
-
-  insertScript(id) {
-    if (this.state.insertMeiqiaScript) {
-      return
-    }
-    let { loginUser } = this.props
-    const script = document.createElement('script')
-    const code =
-    `(function(m, ei, q, i, a, j, s) {
-        m[i] = m[i] || function() {
-            (m[i].a = m[i].a || []).push(arguments)
-        };
-        j = ei.createElement(q),
-            s = ei.getElementsByTagName(q)[0];
-        j.async = true;
-        j.charset = 'UTF-8';
-        j.src = '//static.meiqia.com/dist/meiqia.js';
-        s.parentNode.insertBefore(j, s);
-    })(window, document, 'script', '_MEIQIA');
-    _MEIQIA('entId', 6089);
-    // 传递顾客信息
-    _MEIQIA('metadata', {
-        name: '${loginUser.userName}', // 美洽默认字段
-        address: '半人马座阿尔法星', // 美洽默认字段
-        tel: '${loginUser.phone}',
-        email: '${loginUser.email}', // 自定义字段
-        xyz: 'lalala' // 自定义字段
-    });`
-    script.id = id
-    script.innerHTML = code
-    document.body.appendChild(script)
-    this.setState({
-      insertMeiqiaScript: true
-    })
-  }
-
   render() {
     let { children, pathname, redirectUrl, loginUser, Sider } = this.props
     const { loginModalVisible, loadLoginUserSuccess, loginErr, siderStyle } = this.state
@@ -237,9 +200,15 @@ class App extends Component {
         </div>
       )
     }
+    const user = {
+      name: loginUser.userName,
+      email: loginUser.email,
+      phone: loginUser.phone
+    }
     return (
       <div className='tenx-layout'>
         {this.renderErrorMessage()}
+        <Intercom appID='okj9h5pl' { ...user } />
         <div id='siderTooltip'></div>
         <div className={this.state.siderStyle == 'mini' ? 'tenx-layout-header' : 'tenx-layout-header-bigger tenx-layout-header'}>
           <div className='tenx-layout-wrapper'>
@@ -274,7 +243,6 @@ class App extends Component {
           </div>
         </Modal>
         {this.getStatusWatchWs()}
-        {this.insertScript('meiqia_tenx')}
       </div>
     )
   }
