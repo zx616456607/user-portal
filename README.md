@@ -53,8 +53,6 @@ git push -u origin dev-branch
 npm run dev
 # development(standard mode)
 npm run dev-std
-# production(enterprise mode)
-npm run pro
 ```
 #### Windows
 ```bash
@@ -62,18 +60,39 @@ npm run pro
 npm run win
 # development(standard mode)
 npm run win-std
-# production(enterprise mode)
-npm run win-pro
 ```
 ### 构建生产环境-production
+#### Linux
 ```bash
-# Linux
-npm run build # build files
-npm run pro
-# Windows
-npm run win-build # build files
-npm run win-pro
+## build files(enterprise mode)
+npm run build
+## build files(standard mode)
+npm run build-std
 ```
+#### Windows
+```bash
+## build files(enterprise mode)
+npm run win-build
+## build files(standard mode)
+npm run win-build-std
+```
+### 运行生产环境-production
+> 注意：运行生产环境前需要先构建生产环境，参考 **构建生产环境-production**
+#### Linux
+```bash
+## production(enterprise mode)
+npm run pro
+## production(standard mode)
+npm run pro-std
+```
+#### Windows
+```bash
+## production(enterprise mode)
+npm run win-pro
+## production(standard mode)
+npm run win-pro-std
+```
+
 > 注意：如果在开发环境出现 404 错误，请修改 node_modules/webpack-dev-middleware/middleware.js 文件(大约258行)，修改如下：
 ```javascript
 if(options.headers) {
