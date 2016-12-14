@@ -46,7 +46,7 @@ let ResetPassWord = React.createClass({
       if (!!errors) {
         return;
       }
-      this.props.updateUser(userDetail.userID,
+      this.props.updateUser('default',
         {
           password: values.passwd
         }, {
