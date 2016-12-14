@@ -49,26 +49,42 @@ class NotificationHandler {
   // Show success notification
   success(message) {
     notification.success({
-      message: message
+      message: (
+        <div style={{ fontSize: '13px'}}>
+          {message}
+        </div>
+      )
     })
   }
   // Show info notification
   info(message) {
     notification.info({
-      message: message
+      message: (
+        <div style={{ fontSize: '13px'}}>
+          {message}
+        </div>
+      )
     })
   }
   // Show warn notification
   warn(message) {
     notification.info({
-      message: message
+      message: (
+        <div style={{ fontSize: '13px'}}>
+          {message}
+        </div>
+      )
     })
   }
   // Show error notification: message & description
   error(message, description) {
     let desc = description || ''
     notification.error({
-      message: message,
+      message: (
+        <div style={{ fontSize: '13px'}}>
+          {message}
+        </div>
+      ),
       description: desc,
       duration: 0
     })
