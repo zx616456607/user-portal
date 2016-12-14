@@ -10,7 +10,7 @@
 import './style/Invite.less'
 import React, { PropTypes } from 'react'
 import { Button, Form, Input, Card, Tooltip, message, Alert, Col, Row } from 'antd'
-import { verifyCaptcha, login } from '../../actions/entities'
+import { verifyCaptcha } from '../../actions/entities'
 import { connect } from 'react-redux'
 import { USERNAME_REG_EXP, EMAIL_REG_EXP } from '../../../constants'
 import { browserHistory } from 'react-router'
@@ -22,7 +22,6 @@ const FormItem = Form.Item
 function noop() {
   return false
 }
-
 let Invite = React.createClass({
   getInitialState() {
     return {
@@ -30,16 +29,20 @@ let Invite = React.createClass({
       submitting: false,
       loginResult: {},
       submitProps: {},
-      intNameFocus: false,
       intPassFocus: false,
       intCheckFocus: false,
       passWord: false,
+      rePassWord: false,
+      intRePassFocus: false,
+      intTelFocus: false,
+      captchaLoading: false,
+      countDownTimeText: '发送验证码',
     }
   },
   
   handleSubmit(e) {
     e.preventDefault()
-    const { login, form, redirect } = this.props
+    const { form, redirect } = this.props
     const { validateFields, resetFields } = form
     const self = this
     validateFields((errors, values) => {
@@ -61,38 +64,7 @@ let Invite = React.createClass({
       } else {
         body.username = values.name
       }
-      login(body, {
-        success: {
-          func: (result) => {
-            self.setState({
-              submitting: false,
-              submitProps: {},
-            })
-            message.success(`用户 ${values.name} 登录成功`)
-            browserHistory.push(redirect || '/')
-            resetFields()
-          },
-          isAsync: true
-        },
-        failed: {
-          func: (err) => {
-            let msg = err.message.message || err.message
-            if (err.statusCode == 401) {
-              msg = "用户名或者密码错误"
-            }
-            self.setState({
-              submitting: false,
-              loginResult: {
-                error: msg
-              },
-              submitProps: {},
-            })
-            self.changeCaptcha()
-            resetFields(['password'])
-          },
-          isAsync: true
-        },
-      })
+      //注册req:
     })
   },
   
@@ -119,6 +91,15 @@ let Invite = React.createClass({
   checkPass(rule, value, callback) {
     const { validateFields } = this.props.form
     callback()
+  },
+  
+  checkPass2(rule, value, callback) {
+    const { getFieldValue } = this.props.form;
+    if (value && value !== getFieldValue('password')) {
+      callback('两次输入密码不一致！');
+    } else {
+      callback()
+    }
   },
   
   checkCaptcha(rule, value, callback) {
@@ -151,28 +132,45 @@ let Invite = React.createClass({
     })
   },
   
-  changeCaptcha() {
-    const { resetFields, getFieldProps } = this.props.form
-    const captcha = getFieldProps('captcha').value
-    if (captcha) {
-      resetFields(['captcha'])
-    }
-    this.setState({
-      random: genRandomString(),
-    })
-  },
-  
-  intOnBlur(current) {
-    const { getFieldProps } = this.props.form
-    if (current === 'name') {
-      let name = getFieldProps('name').value
-      if (name === '' || !name) {
-        this.setState({
-          intNameFocus: false
-        })
-      }
+  checkTel(rule, value, callback){
+    if(!value){
+      callback()
       return
     }
+    if(value.length !== 11){
+      callback([new Error('请输入11位的手机号')])
+      return
+    }
+    callback()
+  },
+  //发送验证码
+  changeCaptcha() {
+    console.log('发送验证码!!!');
+    this.setState({
+      captchaLoading: true,
+      countDownTimeText: '6s 后重新发送',
+    })
+    let wait = 5
+    let text = ''
+    //重新发送定时器
+    let time = setInterval(() => {
+      text = wait + 's 后重新发送'
+      wait--
+      if(wait >= -1){
+        this.setState({
+          countDownTimeText: text
+        })
+        return
+      }
+      this.setState({
+        captchaLoading: false,
+        countDownTimeText: '发送验证码',
+      })
+      clearInterval(time)
+    },1000)
+  },
+  intOnBlur(current) {
+    const { getFieldProps } = this.props.form
     if (current === 'pass') {
       let password = getFieldProps('password').value
       if (password === '' || !password) {
@@ -190,27 +188,57 @@ let Invite = React.createClass({
           intCheckFocus: false
         })
       }
+      return
     }
-    return
+    if (current === 'rePasswd') {
+      let rePasswd = getFieldProps('rePasswd').value
+      if (rePasswd === '' || !rePasswd) {
+        this.setState({
+          intRePassFocus: false,
+          rePassWord: true,
+        })
+      }
+      return
+    }
+    if (current === 'tel') {
+      let tel = getFieldProps('tel').value
+      if (tel === '' || !tel) {
+        this.setState({
+          intTelFocus: false,
+        })
+      }
+    }
   },
   
   intOnFocus(current) {
-    if (current === 'name') {
-      this.refs.intName.refs.input.focus()
-      
-      this.setState({
-        intNameFocus: true
-      })
-    } else if (current === 'pass') {
+    if (current === 'pass') {
       this.refs.intPass.refs.input.focus()
       this.setState({
         intPassFocus: true,
         passWord: true,
       })
-    } else if (current === 'check') {
+      return
+    }
+    if (current === 'check') {
       this.refs.intCheck.refs.input.focus()
       this.setState({
         intCheckFocus: true
+      })
+      return
+    }
+    if (current === 'rePasswd') {
+      this.refs.intRePass.refs.input.focus()
+      this.setState({
+        intRePassFocus: true,
+        rePassWord: true,
+      })
+      return
+    }
+    if (current === 'tel') {
+      console.log('tel');
+      this.refs.intTel.refs.input.focus()
+      this.setState({
+        intTelFocus: true,
       })
     }
   },
@@ -222,16 +250,27 @@ let Invite = React.createClass({
   render() {
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form
     const { random, submitting, loginResult, submitProps } = this.state
-    const nameProps = getFieldProps('name', {
-      rules: [
-        { required: true, min: 3, message: '用户名至少为 3 个字符' },
-        { validator: this.checkName },
-      ],
-    })
+    const { email,teamName,code } = this.props
+    console.log('userName',email,teamName,code);
     const passwdProps = getFieldProps('password', {
       rules: [
         { required: true, whitespace: true, message: '请填写密码' },
         { validator: this.checkPass },
+      ],
+    })
+    const rePasswdProps = getFieldProps('rePasswd', {
+      rules: [{
+        required: true,
+        whitespace: true,
+        message: '请再次输入密码',
+      }, {
+        validator: this.checkPass2,
+      }],
+    })
+    const telProps = getFieldProps('tel', {
+      rules: [
+        { required: true, message: '请填写手机号' },
+        { validator: this.checkTel },
       ],
     })
     const captchaProps = getFieldProps('captcha', {
@@ -240,6 +279,7 @@ let Invite = React.createClass({
         { validator: this.checkCaptcha },
       ],
     })
+    
     const formItemLayout = {
       wrapperCol: { span: 24 },
     }
@@ -248,7 +288,7 @@ let Invite = React.createClass({
         <div className="Invite">
           <Row>
             <div className="InviteTitle">立即加入</div>
-            <div className="Invitetext">注册并加入团队&nbsp;<span>研发Team</span></div>
+            <div className="Invitetext">注册并加入团队&nbsp;<span>{ teamName }</span></div>
           </Row>
           <Card className="loginForm" bordered={false}>
             <div>
@@ -260,16 +300,10 @@ let Invite = React.createClass({
               <input style={{ display: 'none' }} />
               <FormItem
                 {...formItemLayout}
-                hasFeedback
-                help={isFieldValidating('name') ? '校验中...' : (getFieldError('name') || []).join(', ')}
-                className="formItemName"
+                className="formItemName nameIntPlace"
               >
-                <div className={this.state.intNameFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'name')}>用户名 / 邮箱</div>
-                
-                <Input {...nameProps} autoComplete="off" onBlur={this.intOnBlur.bind(this, 'name')}
-                       onFocus={this.intOnFocus.bind(this, 'name')}
-                       ref="intName"
-                       style={{ height: 35 }} />
+                <div className={"intName intOnFocus"}>用户名 / 邮箱</div>
+                <Input placeholder={email} disabled/>
               </FormItem>
               
               <FormItem
@@ -286,11 +320,39 @@ let Invite = React.createClass({
                        style={{ height: 35 }}
                 />
               </FormItem>
-              
               <FormItem
                 {...formItemLayout}
                 hasFeedback
                 className="formItemName"
+              >
+                <div className={this.state.intRePassFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'pass')}>确认密码</div>
+                <Input {...rePasswdProps} autoComplete="off" type={this.state.rePassWord ? 'password' : 'text'}
+                       onContextMenu={noop} onPaste={noop} onCopy={noop} onCut={noop}
+                       onBlur={this.intOnBlur.bind(this, 'rePasswd')}
+                       onFocus={this.intOnFocus.bind(this, 'rePasswd')}
+                       ref="intRePass"
+                       style={{ height: 35 }}
+                />
+              </FormItem>
+              <FormItem
+                {...formItemLayout}
+                hasFeedback
+                className="formItemName"
+              >
+                <div className={this.state.intTelFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'pass')}>手机号</div>
+                <Input {...telProps} autoComplete="off"
+                       onContextMenu={noop} onPaste={noop} onCopy={noop} onCut={noop}
+                       onBlur={this.intOnBlur.bind(this, 'tel')}
+                       onFocus={this.intOnFocus.bind(this, 'tel')}
+                       ref="intTel"
+                       style={{ height: 35 }}
+                />
+              </FormItem>
+              <FormItem
+                {...formItemLayout}
+                hasFeedback
+                className="formItemName"
+                style={{width:'60%'}}
                 help={isFieldValidating('captcha') ? '校验中...' : (getFieldError('captcha') || []).join(', ')}
               >
                 <div className={this.state.intCheckFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'check')}>验证码</div>
@@ -298,11 +360,16 @@ let Invite = React.createClass({
                        onFocus={this.intOnFocus.bind(this, 'check')}
                        ref="intCheck"
                        style={{ height: 35 }} />
-                <Tooltip placement="top" title="点击更换">
-                  <img className="captchaImg" src={`/captcha/gen?_=${random}`} onClick={this.changeCaptcha} />
-                </Tooltip>
               </FormItem>
-              
+              <Tooltip placement="top" title="点击重新发送">
+                <Button className="captchaBtn"
+                        onClick={this.changeCaptcha}
+                        type="primary"
+                        loading={this.state.captchaLoading}
+                >
+                  {this.state.countDownTimeText}
+                </Button>
+              </Tooltip>
               <FormItem wrapperCol={{ span: 24, }}>
                 <Button
                   htmlType="submit"
@@ -311,10 +378,11 @@ let Invite = React.createClass({
                   loading={submitting}
                   {...submitProps}
                   className="subBtn">
-                  {submitting ? '登录中...' : '登录'}
+                  {submitting ? '注册中...' : '注册并加入团队'}
                 </Button>
               </FormItem>
             </Form>
+            <div className="formTip">*&nbsp;注册表示您同意遵守&nbsp;<a href="https://www.tenxcloud.com/terms" target="_blank" style={{color:'#4691d2'}}>时速云&nbsp;TenxCloud&nbsp;服务条款</a></div>
           </Card>
         </div>
         <div className="footer">
@@ -326,9 +394,12 @@ let Invite = React.createClass({
 })
 
 function mapStateToProps(state, props) {
-  const { redirect } = props.location.query
+  const { email,teamname,code } = props.location.query
+  console.log('query',props);
   return {
-    redirect
+    email,
+    code,
+    teamName:teamname,
   }
 }
 
@@ -336,7 +407,6 @@ Invite = createForm()(Invite)
 
 Invite = connect(mapStateToProps, {
   verifyCaptcha,
-  login,
 })(Invite)
 
 export default Invite

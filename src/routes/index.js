@@ -21,7 +21,7 @@ const rootRoutes = {
       })
     },
   },{
-    path: '/invite',
+    path: '/teams/invite',
     getComponent: (location, cb) => {
       require.ensure([], (require) => {
         cb(null, require('../containers/Invite').default)
