@@ -16,6 +16,7 @@ const logger = require('../utils/logger.js').getLogger("user_manage")
 const DEFAULT_PAGE = constants.DEFAULT_PAGE
 const DEFAULT_PAGE_SIZE = constants.DEFAULT_PAGE_SIZE
 const MAX_PAGE_SIZE = constants.MAX_PAGE_SIZE
+const ROLE_TEAM_ADMIN = 1
 
 exports.getUserDetail = function* () {
   let userID = this.params.user_id
@@ -93,6 +94,18 @@ exports.getUserTeams = function* () {
   let userID = this.params.user_id
   const loginUser = this.session.loginUser
   userID = userID === 'default' ? loginUser.id : userID
+  const api = apiFactory.getApi(loginUser)
+  let result = yield api.users.getBy([loginUser.id])
+  //Only team admin can get team related information
+  if (!result || !result.data || 
+      result.data.role != ROLE_TEAM_ADMIN) {
+    this.body = {
+      teams: [],
+      total: 0
+    }
+    return
+  }
+
   const query = this.query || {}
   let page = parseInt(query.page || DEFAULT_PAGE)
   let size = parseInt(query.size || DEFAULT_PAGE_SIZE)
@@ -124,8 +137,7 @@ exports.getUserTeams = function* () {
   } else {
     queryObj.filter = "creatorID__eq," + userID
   }
-  const api = apiFactory.getApi(loginUser)
-  const result = yield api.teams.get(queryObj)
+  result = yield api.teams.get(queryObj)
   const teams = result.teams || []
   let total = 0
   if (result.listMeta && result.listMeta.total) {
