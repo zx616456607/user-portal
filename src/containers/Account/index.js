@@ -14,21 +14,22 @@ import IntlExp from '../../components/IntlExp'
 import QueueAnim from 'rc-queue-anim'
 import './style/account.less'
 
-const mode = require('../../../configs/models').mode
+const standard = require('../../../configs/constants').STANDARD_MODE
+const mode = require('../../../configs/model').mode
 let menuList = []
-if (mode === 'enterprise') {
+if (mode === standard) {
   menuList = [
     {
       url: '/account',
       name: '我的账户'
     },
     {
-      url: '/account/member',
-      name: '成员管理'
+      url: '/account/myteam',
+      name: '我的团队'
     },
     {
-      url: '/account/team',
-      name: '团队管理'
+      url: '/account/balance',
+      name: '账户余额'
     },
     {
       url: '/account/cost',
@@ -42,12 +43,12 @@ if (mode === 'enterprise') {
       name: '我的账户'
     },
     {
-      url: '/account/myteam',
-      name: '我的团队'
+      url: '/account/member',
+      name: '成员管理'
     },
     {
-      url: '/account/balance',
-      name: '账户余额'
+      url: '/account/team',
+      name: '团队管理'
     },
     {
       url: '/account/cost',
