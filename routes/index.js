@@ -10,7 +10,7 @@
 'use strict'
 
 const indexCtl = require('../controllers')
-const mode = require('../configs/models').mode
+const mode = require('../configs/model').mode
 
 module.exports = function (Router) {
   const router = new Router()

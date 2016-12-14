@@ -7,9 +7,21 @@
  * v0.1 - 2016-09-07
  * @author Zhangpc
  */
+'use strict'
+
+const webpack = require('webpack')
+const env = process.env
+const plugin = new webpack.DefinePlugin({
+  'process.env.NODE_ENV': JSON.stringify(env.NODE_ENV),
+  'process.env.RUNNING_MODE': JSON.stringify(env.RUNNING_MODE),
+})
+let config
 
 if (process.env.NODE_ENV === 'production') {
-  module.exports = require('./webpack.config.prod')
+  config = require('./webpack.config.prod')
 } else {
-  module.exports = require('./webpack.config.dev')
+  config = require('./webpack.config.dev')
 }
+
+config.plugins.unshift(plugin)
+module.exports = config
