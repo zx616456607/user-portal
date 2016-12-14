@@ -11,6 +11,23 @@
   running_mode: env.RUNNING_MODE || 'enterprise', // enterprise or standard
 ```
 
+### 前端开发私有云、公有云临时切换
+修改 `configs/model.js`，例如切换为公有云，在最后一行加入以下代码：
+```javascript
+// For development, change mode here
+module.exports = require('./model.standard') // './model.enterprise' or './model.standard'
+```
+### 前端私有云、公有云判断
+```javascript
+const standard = require('./configs/constants').STANDARD_MODE
+const mode = require(./configs/model').mode
+if (mode === standard) {
+  // standard mode
+} else {
+  // enterprise mode
+}
+```
+
 ```
 # 项目结构
 ├─configs
