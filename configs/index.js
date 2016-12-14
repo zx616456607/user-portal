@@ -17,7 +17,7 @@ const config = {
   running_mode: env.RUNNING_MODE || constants.ENTERPRISE_MODE, // enterprise / standard
   protocol: 'http' || env.DASHBOARD_PROTOCOL,
   hostname: '0.0.0.0' || env.DASHBOARD_HOST,
-  port: 8005,
+  port: 8003,
   intl_cookie_name: 'intl_locale',
   session_key: 'tce',
   session_secret: ['tenxcloud_dashboard', 'secret_dream008'],
