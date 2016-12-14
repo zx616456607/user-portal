@@ -20,7 +20,7 @@ module.exports = require('./model.standard') // './model.enterprise' or './model
 ### 前端私有云、公有云判断
 ```javascript
 const standard = require('./configs/constants').STANDARD_MODE
-const mode = require(./configs/model').mode
+const mode = require('./configs/model').mode
 if (mode === standard) {
   // standard mode
 } else {
