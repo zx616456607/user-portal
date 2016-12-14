@@ -78,6 +78,7 @@ npm run win-build-std
 ```
 ### 运行生产环境-production
 > 注意：运行生产环境前需要先构建生产环境，参考 **构建生产环境-production**
+
 #### Linux
 ```bash
 ## production(enterprise mode)
