@@ -64,16 +64,16 @@ npm run win-std
 ### 构建生产环境-production
 #### Linux
 ```bash
-## build files(enterprise mode)
+# build files(enterprise mode)
 npm run build
-## build files(standard mode)
+# build files(standard mode)
 npm run build-std
 ```
 #### Windows
 ```bash
-## build files(enterprise mode)
+# build files(enterprise mode)
 npm run win-build
-## build files(standard mode)
+# build files(standard mode)
 npm run win-build-std
 ```
 ### 运行生产环境-production
@@ -81,16 +81,16 @@ npm run win-build-std
 
 #### Linux
 ```bash
-## production(enterprise mode)
+# production(enterprise mode)
 npm run pro
-## production(standard mode)
+# production(standard mode)
 npm run pro-std
 ```
 #### Windows
 ```bash
-## production(enterprise mode)
+# production(enterprise mode)
 npm run win-pro
-## production(standard mode)
+# production(standard mode)
 npm run win-pro-std
 ```
 
