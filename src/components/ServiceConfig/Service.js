@@ -138,7 +138,7 @@ class Service extends Component {
       return
     }
     if (!validateK8sResource(groupName)) {
-      notification.error('名称需要 3-63 个字符，可以包括小写英文字母、数字、点（.）和连字符（-）')
+      notification.error('名称由小写英文字母、数字、点（.）和连字符（-）组成，长度为 3-63 个字符')
       return
     }
     let self = this

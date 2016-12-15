@@ -15,7 +15,9 @@ export function validateK8sResource(name) {
   if (name.length < 3 || name.length > 64) {
     return false
   }
-  let regx = /^[a-z0-9]+([-.~/][a-z0-9]+)*$/
+  // TODO: not work with below syntax
+  // let regx = /^[a-z0-9]+([-.~/][a-z0-9]+)*$/
+  let regx = new RegExp('^[a-z][-a-z0-9]{1,40}[a-z0-9]$')
   if (!regx.test(name)) {
     return false
   }
@@ -43,7 +45,7 @@ export function validateAppName(name) {
 }
 
 /**
- * this function for app, storage, compose file, tenxflow, repository, 
+ * this function for app, storage, compose file, tenxflow, repository,
  * docker file, image name, image store, users, team,
  * teamspeace, integration
  */
