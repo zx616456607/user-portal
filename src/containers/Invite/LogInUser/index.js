@@ -4,7 +4,7 @@
  *
  *  Storage list
  *
- * v0.1 - 2016/12/14
+ * v0.1 - 2016/12/15
  * @author ZhaoXueYu
  */
 import '../style/Invite.less'
@@ -19,7 +19,7 @@ const FormItem = Form.Item
 function noop() {
   return false
 }
-let NotLogUser = React.createClass({
+let LogInUser = React.createClass({
   getInitialState() {
     return {
       submitting: false,
@@ -280,7 +280,7 @@ let NotLogUser = React.createClass({
           <div className={"intName intOnFocus"}>用户名 / 邮箱</div>
           <Input placeholder={email} disabled />
         </FormItem>
-    
+        
         <FormItem
           {...formItemLayout}
           hasFeedback
@@ -295,56 +295,6 @@ let NotLogUser = React.createClass({
                  style={{ height: 35 }}
           />
         </FormItem>
-        <FormItem
-          {...formItemLayout}
-          hasFeedback
-          className="formItemName"
-        >
-          <div className={this.state.intRePassFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'pass')}>确认密码</div>
-          <Input {...rePasswdProps} autoComplete="off" type={this.state.rePassWord ? 'password' : 'text'}
-                 onContextMenu={noop} onPaste={noop} onCopy={noop} onCut={noop}
-                 onBlur={this.intOnBlur.bind(this, 'rePasswd')}
-                 onFocus={this.intOnFocus.bind(this, 'rePasswd')}
-                 ref="intRePass"
-                 style={{ height: 35 }}
-          />
-        </FormItem>
-        <FormItem
-          {...formItemLayout}
-          hasFeedback
-          className="formItemName"
-        >
-          <div className={this.state.intTelFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'pass')}>手机号</div>
-          <Input {...telProps} autoComplete="off"
-                 onContextMenu={noop} onPaste={noop} onCopy={noop} onCut={noop}
-                 onBlur={this.intOnBlur.bind(this, 'tel')}
-                 onFocus={this.intOnFocus.bind(this, 'tel')}
-                 ref="intTel"
-                 style={{ height: 35 }}
-          />
-        </FormItem>
-        <FormItem
-          {...formItemLayout}
-          hasFeedback
-          className="formItemName"
-          style={{width:'60%'}}
-          help={isFieldValidating('captcha') ? '校验中...' : (getFieldError('captcha') || []).join(', ')}
-        >
-          <div className={this.state.intCheckFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'check')}>验证码</div>
-          <Input {...captchaProps} autoComplete="off" onBlur={this.intOnBlur.bind(this, 'check')}
-                 onFocus={this.intOnFocus.bind(this, 'check')}
-                 ref="intCheck"
-                 style={{ height: 35 }} />
-        </FormItem>
-        <Tooltip placement="top" title="点击重新发送">
-          <Button className="captchaBtn"
-                  onClick={this.changeCaptcha}
-                  type="primary"
-                  loading={this.state.captchaLoading}
-          >
-            {this.state.countDownTimeText}
-          </Button>
-        </Tooltip>
         <FormItem wrapperCol={{ span: 24, }}>
           <Button
             htmlType="submit"
@@ -353,12 +303,12 @@ let NotLogUser = React.createClass({
             loading={submitting}
             {...submitProps}
             className="subBtn">
-            {submitting ? '注册中...' : '注册并加入团队'}
+            {submitting ? '登录中...' : '登录并加入团队'}
           </Button>
         </FormItem>
       </Form>
     )
   }
 })
-NotLogUser = createForm()(NotLogUser)
-export default NotLogUser
+LogInUser = createForm()(LogInUser)
+export default LogInUser
