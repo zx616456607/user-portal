@@ -3,8 +3,8 @@ const md5Func = require('./alipay_md5')
 
 class AliPayNotify{ 
   constructor(aliPayConfig) {
-    this.httpsVerifyUrl = 'https://mapi.alipay.com/gateway.do?service=notify_verify'
-    this.httpVerifyUrl = 'http://notify.alipay.com/trade/notify_query.do'
+    this.httpsVerifyUrl = 'https://mapi.alipay.com/gateway.do?service=notify_verify&'
+    this.httpVerifyUrl = 'http://notify.alipay.com/trade/notify_query.do?'
     this.aliPayConfig = aliPayConfig
   }
   verifyReturn(data) {
@@ -21,10 +21,7 @@ class AliPayNotify{
       }
       if(data['notify_id']) {
         self.getResponse(data['notify_id']).then(result => {
-          console.log(result)
-          console.log(result.data)
           if(result.data === 'true') {
-            console.log("sadjflsdlkfjsadkflkasdjfklsdjgflksdajgkldsjgkldfjgljsadklgjdasfglkj")
             resolve(true)
             return
           }
@@ -69,7 +66,7 @@ class AliPayNotify{
     } else {
       veryfyUrl = this.httpVerifyUrl
     }
-    veryfyUrl = `${veryfyUrl}?partner=${partner}&notify_id=${notifyID}`
+    veryfyUrl = `${veryfyUrl}&partner=${partner}&notify_id=${notifyID}`
     return coreFunc.getResponse(veryfyUrl, this.aliPayConfig.cacert)
   }
 }

@@ -31,7 +31,6 @@ class AliPay extends EventEmitter {
 
   // 构造请求表单
   createDirectPayByUser(data) {
-    console.log(this.aliPayConfig)
     const submit = new AliPaySubmit(this.aliPayConfig)
     let params = {
       service: 'create_direct_pay_by_user'

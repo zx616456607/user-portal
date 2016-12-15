@@ -77,7 +77,6 @@ exports.rechare = function* () {
     order_type: 101,
     verification_key: aliPayConfig.extra_common_param
   })
-  console.log(apiResult) 
   data.out_trade_no = apiResult.data.order_id
   const alipay = new AliPay(aliPayConfig)
   this.status = 200
@@ -131,7 +130,7 @@ function  _requestSignUpdateApi (user, data) {
     order_type: 101,
     verification_key: data.extra_common_param,
     charge_amount: num * 100,
-    detail: data
+    detail: JSON.stringify(data)
   })
 }
 
