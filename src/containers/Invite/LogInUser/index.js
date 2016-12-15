@@ -60,7 +60,7 @@ let LogInUser = React.createClass({
       } else {
         body.username = values.name
       }
-      //注册req:
+      //登录req:
     })
   },
   checkPass(rule, value, callback) {
@@ -166,7 +166,6 @@ let LogInUser = React.createClass({
           <div className={"intName intOnFocus"}>用户名 / 邮箱</div>
           <Input placeholder={email} disabled />
         </FormItem>
-        
         <FormItem
           {...formItemLayout}
           hasFeedback
