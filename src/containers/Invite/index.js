@@ -14,7 +14,8 @@ import { connect } from 'react-redux'
 import { USERNAME_REG_EXP, EMAIL_REG_EXP } from '../../../constants'
 import NotLogUser from './NotLogUser'
 import LogInUser from './LogInUser'
-import { getInvitationInfo } from '../../actions/team'
+import { getInvitationInfo, joinTeam } from '../../actions/team'
+import { login } from '../../actions/entities'
 
 function noop() {
   return false
@@ -33,7 +34,7 @@ let Invite = React.createClass({
   },
   render() {
     const { loginResult } = this.state
-    const { email,teamName,code,isUser } = this.props
+    const { email,teamName,code,isUser, login, joinTeam, invitationStatus } = this.props
     let state = 2
     return (
       <div id="InvitePage">
@@ -56,8 +57,8 @@ let Invite = React.createClass({
             </div>
             {
               isUser ?
-              <LogInUser email={email} />:
-              <NotLogUser email={email} />
+              <LogInUser email={email} login={login} joinTeam={joinTeam} code={code} invitationStatus={invitationStatus}/>:
+              <NotLogUser email={email} joinTeam={joinTeam} code={code} invitationStatus={invitationStatus} />
             }
             {
               isUser ?
@@ -99,10 +100,12 @@ function mapStateToProps(state, props) {
   let teamName = ''
   let email = ''
   let isUser = true
+  let invitationStatus = 0
   if (!invitationInfo.isFetching && invitationInfo.result && invitationInfo.result.data.data) {
     teamName = invitationInfo.result.data.data.teamName
     email = invitationInfo.result.data.data.email
     isUser = invitationInfo.result.data.data.isUser
+    statinvitationStatusus = invitationInfo.result.data.data.status
   }
 
   return {
@@ -110,11 +113,14 @@ function mapStateToProps(state, props) {
     teamName,
     email,
     isUser,
+    invitationStatus,
   }
 }
 
 Invite = connect(mapStateToProps, {
   getInvitationInfo,
+  login,
+  joinTeam,
 })(Invite)
 
 export default Invite

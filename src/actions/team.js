@@ -466,3 +466,28 @@ export function getTeamDissoveable(teamID) {
     return dispatch(fetchTeamDissoveable(teamID))
   }
 }
+
+export const JOIN_TEAM_USE_INVITATION_REQUEST = 'JOIN_TEAM_USE_INVITATION_REQUEST'
+export const JOIN_TEAM_USE_INVITATION_SUCCESS = 'JOIN_TEAM_USE_INVITATION_SUCCESS'
+export const JOIN_TEAM_USE_INVITATION_FAILURE = 'JOIN_TEAM_USE_INVITATION_FAILURE'
+
+function fetchJoinTeam(code) {
+  let endpoint = `${API_URL_PREFIX}/teams/join`
+  return {
+    [FETCH_API]: {
+      types: [JOIN_TEAM_USE_INVITATION_REQUEST, JOIN_TEAM_USE_INVITATION_SUCCESS, JOIN_TEAM_USE_INVITATION_FAILURE],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'POST',
+        body:{code}
+      },
+    }
+  }
+}
+
+export function joinTeam(code) {
+  return (dispatch, getState) => {
+    return dispatch(fetchJoinTeam(code))
+  }
+}

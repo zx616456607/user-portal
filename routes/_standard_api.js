@@ -39,7 +39,7 @@ module.exports = function (Router) {
   router.post('/teams/:team/quit', teamController.quitTeam)
   router.delete('/teams/:team/users/:username', teamController.removeMember)
   router.delete('/teams/:team/invitations/:code', teamController.cancelInvitation)
-  router.post('/teams/:team/join', teamController.joinTeam)
+  router.post('/teams/join', teamController.joinTeam)
 
   // Payment related
   router.post('/payments', paymentController.createPrepayRecord)
