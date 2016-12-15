@@ -487,6 +487,17 @@ class AppServiceList extends Component {
     self.setState({
       serviceList: allServices
     })
+    if (serviceNames.length < 1) {
+      self.setState({
+        StopServiceModal: false,
+        runBtn: false,
+        stopBtn: false,
+        restartBtn: false,
+      })
+      let notification = new NotificationHandler()
+      notification.error('请选择要停止的服务')
+      return 
+    }
     stopServices(cluster, serviceNames, {
       success: {
         func: () => {
@@ -603,6 +614,12 @@ class AppServiceList extends Component {
       failed: {
         func: (err) => {
           errorHandler(err, intl)
+          self.setState({
+            QuickRestarServiceModal: false,
+            runBtn: false,
+            stopBtn: false,
+            restartBtn: false,
+          })
           self.loadServices(self.props)
         },
         isAsync: true
