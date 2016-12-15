@@ -180,6 +180,9 @@ class ServiceList extends Component {
         other
       })
     }
+    if (this.props.location.query.query) {
+      this.setState({modalShow: true})
+    }
   }
   closeModal() {
     this.setState({

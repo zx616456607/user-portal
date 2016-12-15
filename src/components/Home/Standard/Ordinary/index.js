@@ -503,7 +503,7 @@ class Ordinary extends Component{
         <Row className="title">{spaceName} - {clusterName}</Row>
         <Row className="content" gutter={16}>
           <Col span={6} className='clusterCost'>
-            <Card title="账户余额" bordered={false} bodyStyle={{height:200,padding:'0 24px'}}>
+            <Card title="帐户余额" bordered={false} bodyStyle={{height:200,padding:'0 24px'}}>
               <ReactEcharts
                 notMerge={true}
                 option={getClusterCostOption(clusterNodeSpaceConsumption.consumption/100, clusterNodeSpaceConsumption.balance/100)}
