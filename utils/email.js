@@ -56,28 +56,89 @@ exports.sendEmail = function (transport, mailOptions) {
   })
 }
 
-//Calling sample: self.sendInviteUserEmail("zhangsh@tenxcloud.com", "shouhong", "zhangsh@tenxcloud.com", "研发Team", "http://tenxcloud.com")
-exports.sendInviteUserEmail = function (to, invitorName, invitorEmail, teamName, inviteURL) {
-  const method = "sendInviteUserEmail"
+// Calling sample: self.sendUserCreationEmail("zhangsh@tenxcloud.com", "shouhong", "zhangsh@tenxcloud.com", "test_user", "11111111")
+exports.sendUserCreationEmail = function (to, creatorName, creatorEmail, userName, userPassword) {
+  const method = "sendUserCreationEmail"
   
-  const subject = `${teamName}团队动态通知（邀请新成员）`
+  const subject = `已为您创建时速云帐号`
+  const systemEmail = config.mail_server.service_mail
+  const date = moment(new Date()).format("YYYY-MM-DD")
+  const loginURL = `http://www.tenxcloud.com`
   var mailOptions = {
     to: to, // list of receivers
     subject: subject, // Subject line
   }
 
-  fs.readFile('templates/email/invite_user.html', 'utf8', function (err, data) {
+  fs.readFile('templates/email/user_creation.html', 'utf8', function (err, data) {
     if (err) {
       logger.error(method, err)
       reject(err)
     }
-    var systemEmail = config.mail_server.service_mail
+    data = data.replace(/\${subject}/g, subject)
+    data = data.replace(/\${creatorName}/g, creatorName)
+    data = data.replace(/\${creatorEmail}/g, creatorEmail)
+    data = data.replace(/\${systemEmail}/g, systemEmail)
+    data = data.replace(/\${userName}/g, userName)
+    data = data.replace(/\${userPassword}/g, userPassword)
+    data = data.replace(/\${loginURL}/g, loginURL)
+    data = data.replace(/\${date}/g, date)
+    mailOptions.html = data
+    self.sendEmail(mailOptions)
+  });
+}
+
+//Calling sample: self.sendInviteTeamMemberEmail("zhangsh@tenxcloud.com", "shouhong", "zhangsh@tenxcloud.com", "研发Team", "http://tenxcloud.com")
+exports.sendInviteTeamMemberEmail = function (to, invitorName, invitorEmail, teamName, inviteURL) {
+  const method = "sendInviteTeamMemberEmail"
+  
+  const subject = `${teamName}团队动态通知（邀请新成员）`
+  const systemEmail = config.mail_server.service_mail
+  const date = moment(new Date()).format("YYYY-MM-DD")
+  var mailOptions = {
+    to: to, // list of receivers
+    subject: subject, // Subject line
+  }
+
+  fs.readFile('templates/email/invite_team_member.html', 'utf8', function (err, data) {
+    if (err) {
+      logger.error(method, err)
+      reject(err)
+    }
     data = data.replace(/\${subject}/g, subject)
     data = data.replace(/\${invitorName}/g, invitorName)
     data = data.replace(/\${invitorEmail}/g, invitorEmail)
     data = data.replace(/\${systemEmail}/g, systemEmail)
     data = data.replace(/\${teamName}/g, teamName)
     data = data.replace(/\${inviteURL}/g, inviteURL)
+    data = data.replace(/\${date}/g, date)
+    mailOptions.html = data
+    self.sendEmail(mailOptions)
+  });
+}
+
+//Calling sample: self.sendCancelInvitationEmail("zhangsh@tenxcloud.com", "shouhong", "zhangsh@tenxcloud.com", "研发Team")
+exports.sendCancelInvitationEmail = function (to, invitorName, invitorEmail, teamName) {
+  const method = "sendCancelInvitationEmail"
+  
+  const subject = `${teamName}团队动态通知（取消邀请）`
+  const systemEmail = config.mail_server.service_mail
+  const date = moment(new Date()).format("YYYY-MM-DD")
+  var mailOptions = {
+    to: to, // list of receivers
+    subject: subject, // Subject line
+  }
+
+  fs.readFile('templates/email/cancel_invitation.html', 'utf8', function (err, data) {
+    if (err) {
+      logger.error(method, err)
+      reject(err)
+    }
+    data = data.replace(/\${subject}/g, subject)
+    data = data.replace(/\${invitorName}/g, invitorName)
+    data = data.replace(/\${invitorEmail}/g, invitorEmail)
+    data = data.replace(/\${systemEmail}/g, systemEmail)
+    data = data.replace(/\${teamName}/g, teamName)
+    data = data.replace(/\${date}/g, date)
     mailOptions.html = data
     self.sendEmail(mailOptions)
   });
@@ -116,6 +177,68 @@ exports.sendDismissTeamEmail = function (teamAdminName, teamAdminEmail, teamMemb
       data = data.replace(/\${teamName}/g, teamName)
       data = data.replace(/\${showRefund}/g, showRefund)
       data = data.replace(/\${showNoRefund}/g, showNoRefund)
+      data = data.replace(/\${date}/g, date)
+      data = data.replace(/\${systemEmail}/g, systemEmail)
+      mailOptions.html = data
+      self.sendEmail(mailOptions)
+    });
+  }
+}
+
+//Calling sample: self.sendExitTeamEmail("zhangsh@tenxcloud.com", "zhangsh@tenxcloud.com", "shouhong", "研发Team")
+exports.sendExitTeamEmail = function (teamAdminEmail, teamMemberEmail, teamMemberName, teamName) {
+  const method = "sendEixtTeamEmail"
+  
+  const subject = `${teamName}团队动态通知（${teamMemberName}退出团队）`
+  const emails = [teamAdminEmail, teamMemberEmail]
+  const contents = [`${teamMemberName}成员退出团队"${teamName}"`, `您已退出"${teamName}"`]
+  const systemEmail = config.mail_server.service_mail
+  const date = moment(new Date()).format("YYYY-MM-DD")
+
+  for (let i = 0; i < 2; i++) {
+    var mailOptions = {
+      to: emails[i], // list of receivers
+      subject: subject, // Subject line
+    }
+
+    fs.readFile('templates/email/remove_team_member.html', 'utf8', function (err, data) {
+      if (err) {
+        logger.error(method, err)
+        reject(err)
+      }
+      data = data.replace(/\${subject}/g, subject)
+      data = data.replace(/\${content}/g, contents[i])
+      data = data.replace(/\${date}/g, date)
+      data = data.replace(/\${systemEmail}/g, systemEmail)
+      mailOptions.html = data
+      self.sendEmail(mailOptions)
+    });
+  }
+}
+
+//Calling sample: self.sendRemoveTeamMemberEmail("shouhong", "zhangsh@tenxcloud.com", "zhangsh@tenxcloud.com", "shouhong", "研发Team")
+exports.sendRemoveTeamMemberEmail = function (teamAdminName, teamAdminEmail, teamMemberName, teamMemberEmail, teamName) {
+  const method = "sendRemoveTeamMemberEmail"
+  
+  const subject = `${teamName}团队动态通知（移除成员${teamMemberName}）`
+  const emails = [teamAdminEmail, teamMemberEmail]
+  const contents = [`您已将团队“${teamName}”团队成员${teamMemberName}移除`, `${teamAdminName}将您移除团队"${teamName}"`]
+  const systemEmail = config.mail_server.service_mail
+  const date = moment(new Date()).format("YYYY-MM-DD")
+
+  for (let i = 0; i < 2; i++) {
+    var mailOptions = {
+      to: emails[i], // list of receivers
+      subject: subject, // Subject line
+    }
+
+    fs.readFile('templates/email/remove_team_member.html', 'utf8', function (err, data) {
+      if (err) {
+        logger.error(method, err)
+        reject(err)
+      }
+      data = data.replace(/\${subject}/g, subject)
+      data = data.replace(/\${content}/g, contents[i])
       data = data.replace(/\${date}/g, date)
       data = data.replace(/\${systemEmail}/g, systemEmail)
       mailOptions.html = data

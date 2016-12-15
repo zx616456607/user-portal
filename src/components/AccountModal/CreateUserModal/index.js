@@ -244,7 +244,7 @@ let CreateUserModal = React.createClass({
             label="邮箱"
             hasFeedback
             >
-            <Input {...emailProps} type="email" placeholder="新成员邮箱账号" />
+            <Input {...emailProps} type="email" placeholder="新成员邮箱帐号" />
           </FormItem>
 
           <FormItem
@@ -252,7 +252,7 @@ let CreateUserModal = React.createClass({
             label=""
             >
             <Checkbox className="ant-checkbox-vertical" {...checkProps}>
-              创建完成后, 密码账户名发送至该邮箱
+              创建完成后, 密码帐户名发送至该邮箱
             </Checkbox>
           </FormItem>
         </Form>
