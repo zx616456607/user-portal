@@ -9,7 +9,7 @@
  */
 const uuid = require('uuid')
 const AliPay = require('../../pay/alipay/alipay')
-const aliPayConfig = require('../../configs/alipay_config')
+const aliPayConfig = require('../../configs/_standard/alipay_config')
 
 const apiFactory = require('../../services/api_factory')
 const logger = require('../../utils/logger.js').getLogger('alipay')
@@ -130,7 +130,8 @@ function  _requestSignUpdateApi (user, data) {
     order_id: data.out_trade_no,
     order_type: 101,
     verification_key: data.extra_common_param,
-    charge_amount: num * 100
+    charge_amount: num * 100,
+    detail: data
   })
 }
 
