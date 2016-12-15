@@ -17,6 +17,8 @@
 'use strict';
 
 const certificateController = require('../controllers/_standard/certificate')
+const userInfoController = require('../controllers/_standard/user_info')
+const paymentController = require('../controllers/_standard/payment')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -27,5 +29,11 @@ module.exports = function (Router) {
   router.post('/certificates', certificateController.createCertificate)
   router.put('/certificates/:id', certificateController.updateCertificate)
 
+  // Payment related
+  router.post('/payments', paymentController.createPrepayRecord)
+  router.put('/payments/:id', paymentController.completePayment)
+
+  // Get user account info
+  router.get('/myaccount', userInfoController.getMyAccountInfo)
   return router.routes()
 }

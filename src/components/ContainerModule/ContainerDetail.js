@@ -200,11 +200,10 @@ class ContainerDetail extends Component {
                       </svg>
                       登录终端
                     </Button>
-                    <Dropdown.Button
-                      onClick={this.deleteContainer} size='large'
-                      overlay={operaMenu} type="ghost">
+                    <Button
+                      onClick={this.deleteContainer} size='large' type="ghost">
                       <i className="fa fa-power-off"></i>&nbsp;重新分配
-                    </Dropdown.Button>
+                    </Button>
                   </div>
                 </div>
                 <div style={{ clear: "both" }}></div>

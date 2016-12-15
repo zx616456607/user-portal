@@ -76,4 +76,6 @@ module.exports = function (config) {
   ////////////////////////////////////////////////////////////////////////////////////
   // ~ certificates
   this.certificates = collections.create('certificates')
+  // ~ payments
+  this.payments = collections.create('payments')
 }
