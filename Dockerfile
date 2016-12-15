@@ -1,5 +1,5 @@
 FROM 192.168.1.113/zhangpc/user-portal:base-4.4.7
-MAINTAINER zhangpc<zhangpc@tenxcloud.com>
+MAINTAINER zhangpc12<zhangpc@tenxcloud.com>
 
 ENV NODE_ENV production
 
