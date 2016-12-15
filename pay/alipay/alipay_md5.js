@@ -1,6 +1,6 @@
 "use strict"
-const crypto = require('crypto')
 
+const crypto = require('crypto')
 
 /**
  * 验证签名

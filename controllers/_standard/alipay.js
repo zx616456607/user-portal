@@ -9,6 +9,7 @@
  */
 
 "use strict"
+
 const uuid = require('uuid')
 const AliPay = require('../../pay/alipay/alipay')
 const aliPayConfig = require('../../configs/_standard/alipay_config')
