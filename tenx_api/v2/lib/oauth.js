@@ -25,5 +25,10 @@ exports.getAuthHeader = function (authInfo) {
   if (authInfo.teamspace) {
     auth.teamspace = authInfo.teamspace
   }
+  // TenxCloud System Signature for payment etc.
+  const tenxSysSign = authInfo['TenxCloud-System-Signature']
+  if (tenxSysSign) {
+    auth['TenxCloud-System-Signature'] = tenxSysSign
+  }
   return auth
 }
