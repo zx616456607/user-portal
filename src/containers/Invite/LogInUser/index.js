@@ -56,15 +56,12 @@ let LogInUser = React.createClass({
         password: values.password,
         email: email,
       }
-<<<<<<< HEAD
       if (values.name.indexOf('@') > -1) {
         body.email = values.name
       } else {
         body.username = values.name
       }
       //登录req:
-=======
->>>>>>> 73febe92d6a99862c5f5d86d72968a08d4a1b3d1
       login(body, {
         success: {
           func: (result) => {
