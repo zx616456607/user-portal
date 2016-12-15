@@ -33,9 +33,8 @@ let Invite = React.createClass({
   },
   render() {
     const { loginResult } = this.state
-    const { email,teamName,code } = this.props
+    const { email,teamName,code,isUser } = this.props
     let state = 2
-    let isUser = true
     return (
       <div id="InvitePage">
         <div className="Invite">
@@ -89,15 +88,18 @@ function mapStateToProps(state, props) {
   const {invitationInfo} = state.team
   let teamName = ''
   let email = ''
+  let isUser = true
   if (!invitationInfo.isFetching && invitationInfo.result && invitationInfo.result.data.data) {
     teamName = invitationInfo.result.data.data.teamName
     email = invitationInfo.result.data.data.email
+    isUser = invitationInfo.result.data.data.isUser
   }
 
   return {
     code,
     teamName,
     email,
+    isUser,
   }
 }
 
