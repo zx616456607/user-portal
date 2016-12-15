@@ -19,6 +19,7 @@ const default_alipay_config = {
 	,sign_type:'MD5'//签名方式 不需修改
 	,create_direct_pay_by_user_return_url : ''
 	,create_direct_pay_by_user_notify_url: '',
+  extra_common_param:''
 }
 
 class AliPay extends EventEmitter {
@@ -39,7 +40,8 @@ class AliPay extends EventEmitter {
       , notify_url: url.resolve(this.aliPayConfig.host, this.aliPayConfig.create_direct_pay_by_user_notify_url)//服务器异步通知页面路径,必填，不能修改, 需http://格式的完整路径，不能加?id=123这类自定义参数
       , return_url: url.resolve(this.aliPayConfig.host, this.aliPayConfig.create_direct_pay_by_user_return_url)//页面跳转同步通知页面路径 需http://格式的完整路径，不能加?id=123这类自定义参数，不能写成http://localhost/
       , seller_email: this.aliPayConfig.seller_email //卖家支付宝帐户 必填
-      , _input_charset: this.aliPayConfig['input_charset'].toLowerCase().trim()
+      , _input_charset: this.aliPayConfig['input_charset'].toLowerCase().trim(),
+      extra_common_param: this.aliPayConfig['extra_common_param']
     }
     params = Object.assign(params, data)
     const requestForm = submit.buildRequestForm(params, 'get', '提交')

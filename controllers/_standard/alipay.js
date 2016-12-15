@@ -8,11 +8,11 @@
  * @author Yangyubiao
  */
 const uuid = require('uuid')
-const AliPay = require('../pay/alipay/customer')
-const aliPayConfig = require('../configs/alipay_config')
+const AliPay = require('../../pay/alipay/alipay')
+const aliPayConfig = require('../../configs/alipay_config')
 const alipay = new AliPay(aliPayConfig)
-const apiFactory = require('../services/api_factory')
-const logger = require('../utils/logger.js').getLogger('alipay')
+const apiFactory = require('../../services/api_factory')
+const logger = require('../../utils/logger.js').getLogger('alipay')
 
 alipay.on('verify_fail', function() {
   logger.info('emit verify_fail')
@@ -22,26 +22,34 @@ alipay.on('verify_fail', function() {
   logger.info('trade_success', `out_trade_no:${out_trade_no}, trade_no:${trade_no}`)
 })
 
+//TODO 错误格式标准化
+
 exports.rechare = function* () {
+  const method = 'rechare'
   const user = this.session.loginUser
   let paymentAmout = this.request.body.paymentAmount;
   const payMethod = this.request.body.payMent
   if(!paymentAmout) {
-
+    logger.info(method, 'paymentAmount is null')
+    this.status = 400
+    this.body ={
+      fail: 'paymentAmount is necessary'
+    }
+    return
   }
   paymentAmount = parseFloat(paymentAmout)
   if(isNaN(paymentAmout)) {
-    logger.info('paymentAmount is NaN')
+    logger.info(method, 'paymentAmount is NaN')
     const error = new Error('paymentAmout is Nan')
     error.status = 400
     throw error
   }
-  if(paymentAmount < 5) {
-    const error = new Error('paymentAmout must be greater than 5')
-    error.status = 400
-    logger.info('paymentAmout < 5 ')
-    throw error
-  }
+  // if(paymentAmount < 5) {
+  //   const error = new Error('paymentAmout must be greater than 5')
+  //   error.status = 400
+  //   logger.info('paymentAmout < 5 ')
+  //   throw error
+  // }
   const dateNow = new Date()
   const orderID = user.id + '-' + uuid.v4()
   const orderName = `[时速云]充值${paymentAmount}元`
@@ -63,28 +71,29 @@ exports.rechare = function* () {
     total_fee: paymentAmount
   }
   this.status = 200
-  const test = alipay.createDirectPayByUser(data)
-  console.log(test)
-  this.body  = test
+  this.body = alipay.createDirectPayByUser(data)
 
 }
 
 exports.notify = function* () {
   const isverify = yield alipay.payReturn(this.body)
   if (isverify) {
-    console.log(this.body)
+    //TODO 请求api-server
+    this.status = 200
+    this.body = {success: 'success'}
   }
   logger.error('alipay sign is not pass verification')
 }
 
 exports.direct = function* (){
-  console.log(this.query)
+  const method = 'alipay_direct'
   const isverify = yield alipay.payReturn(this.query).catch(function(err) {
-    console.log(err)
+    logger.erro(method, 'aplipay sign is not padd verification')
+    err.status = 400
+    throw err
   })
   if(isverify) {
-    console.log(this.query)
-    console.log(isverify)
+    //TODO 请求api-server
     this.status = 200
     this.body = {success: 'success'}
     return
