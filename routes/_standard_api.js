@@ -17,6 +17,7 @@
 'use strict';
 
 const certificateController = require('../controllers/_standard/certificate')
+const alipayController = require('../controllers/_standard/alipay')
 const teamController = require('../controllers/_standard/team')
 const userInfoController = require('../controllers/_standard/user_info')
 const paymentController = require('../controllers/_standard/payment')
@@ -30,6 +31,8 @@ module.exports = function (Router) {
   router.get('/certificates', certificateController.listCertificates)
   router.post('/certificates', certificateController.createCertificate)
   router.put('/certificates/:id', certificateController.updateCertificate)
+  
+
 
   // team
   router.post('/teams/teamandspace', teamController.createTeamAndSpace)
@@ -47,6 +50,11 @@ module.exports = function (Router) {
   router.put('/payments/:id', paymentController.completePayment)
   router.post('/pay/wechat', wechatPayController.getQrCodeAndInsertOrder)
 
+  //alipay
+  router.post('/payments/alipay', alipayController.rechare)
+  router.post('/payments/alipay/notify', alipayController.notify)
+  router.get('/payments/alipay/direct', alipayController.direct)
+  
   // Get user account info
   router.get('/myaccount', userInfoController.getMyAccountInfo)
   return router.routes()
