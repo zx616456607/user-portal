@@ -361,6 +361,38 @@ const menusText = defineMessages({
     id: 'ManageMonitor.operationalAudit.CDNotification',
     defaultMessage: 'CD',
   },
+  User: {
+    id: 'ManageMonitor.operationalAudit.User',
+    defaultMessage: '用户',
+  },
+  UserTeams: {
+    id: 'ManageMonitor.operationalAudit.UserTeams',
+    defaultMessage: '用户团队',
+  },
+  UserSpaces: {
+    id: 'ManageMonitor.operationalAudit.UserSpaces',
+    defaultMessage: '用户空间',
+  },
+  Team: {
+    id: 'ManageMonitor.operationalAudit.Team',
+    defaultMessage: '团队',
+  },
+  TeamUsers: {
+    id: 'ManageMonitor.operationalAudit.TeamUsers',
+    defaultMessage: '团队用户',
+  },
+  TeamSpaces: {
+    id: 'ManageMonitor.operationalAudit.TeamSpaces',
+    defaultMessage: '团队空间',
+  },
+  Cluster: {
+    id: 'ManageMonitor.operationalAudit.Cluster',
+    defaultMessage: '集群',
+  },
+  runningError: {
+    id: 'ManageMonitor.operationalAudit.runningError',
+    defaultMessage: '未完成',
+  }, 
 });
 
 function returnOperationList(scope) {
@@ -559,6 +591,27 @@ function resourceFormat(resourceType, scope) {
     case '28':
       return formatMessage(menusText.VolumeConsumption)
       break;
+    case '29':
+      return formatMessage(menusText.User)
+      break;
+    case '30':
+      return formatMessage(menusText.UserTeams)
+      break;
+    case '31':
+      return formatMessage(menusText.UserSpaces)
+      break;
+    case '32':
+      return formatMessage(menusText.Team)
+      break;
+    case '33':
+      return formatMessage(menusText.TeamUsers)
+      break;
+    case '34':
+      return formatMessage(menusText.TeamSpaces)
+      break;
+    case '35':
+      return formatMessage(menusText.Cluster)
+      break;
     case '36':
       return formatMessage(menusText.Repo)
       break;
@@ -656,8 +709,10 @@ function operationalFormat(operationalType, scope) {
   }
 }
 
-function statusFormat(status, scope) {
+function statusFormat(status, scope, createTime) {
   //this function for format status to show user
+  let newDate = new Date(createTime);
+  let nowDate = new Date();
   switch (status) {
     case 200:
       return (
@@ -667,6 +722,14 @@ function statusFormat(status, scope) {
         </span>
       )
     case 0:
+      if((nowDate - newDate) > 300000) {
+        return (
+          <span className='fail'>
+            <i className='fa fa-times-circle-o' />
+            <FormattedMessage {...menusText.runningError} />
+          </span>
+        )
+      }
       return (
         <span className='running'>
           <i className='fa fa-cog fa-spin fa-3x fa-fw' />
@@ -782,7 +845,7 @@ let MyComponent = React.createClass({
             </span>
           </div>
           <div className='status commonTitle'>
-            <span className='commonSpan'>{statusFormat(item.status, scope)}</span>
+            <span className='commonSpan'>{statusFormat(item.status, scope, item.time)}</span>
           </div>
           <div className='user commonTitle'>
             <i className='fa fa-user-o' />
@@ -1016,6 +1079,41 @@ class OperationalAudit extends Component {
         //VolumeConsumption
         showOperationalList = [];
         break;
+      case '29':
+        //User
+        showOperationalList.push(operationalList[0]);
+        showOperationalList.push(operationalList[1]);
+        showOperationalList.push(operationalList[2]);
+        break;
+      case '30':
+        //UserTeams
+        showOperationalList = [];
+        break;
+      case '31':
+        //UserSpaces
+        showOperationalList = [];
+        break;
+      case '32':
+        //Team
+        showOperationalList.push(operationalList[8]);
+        showOperationalList.push(operationalList[0]);
+        showOperationalList.push(operationalList[2]);
+        break;
+      case '33':
+        //TeamUsers
+        showOperationalList.push(operationalList[8]);
+        showOperationalList.push(operationalList[0]);
+        break;
+      case '34':
+        //TeamSpaces
+        showOperationalList.push(operationalList[0]);
+        showOperationalList.push(operationalList[2]);
+        showOperationalList.push(operationalList[8]);
+        break;
+      case '35':
+        //Cluster
+        showOperationalList = [];
+        break;
       case '36':
         //Repos
         showOperationalList.push(operationalList[0]);
@@ -1232,6 +1330,26 @@ class OperationalAudit extends Component {
         children: [{
           value: '27',
           label: formatMessage(menusText.Volume),
+        }],
+      }, {
+        value: '29',
+        label: formatMessage(menusText.User),
+        children: [{
+          value: '29',
+          label: formatMessage(menusText.User),
+        }],
+      },{
+        value: '32',
+        label: formatMessage(menusText.Team),
+        children: [{
+          value: '32',
+          label: formatMessage(menusText.Team),
+        },{
+          value: '33',
+          label: formatMessage(menusText.TeamUsers),
+        },{
+          value: '34',
+          label: formatMessage(menusText.TeamSpaces),
         }],
       }, {
         value: '36',
