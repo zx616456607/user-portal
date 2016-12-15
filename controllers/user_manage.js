@@ -17,6 +17,8 @@ const DEFAULT_PAGE = constants.DEFAULT_PAGE
 const DEFAULT_PAGE_SIZE = constants.DEFAULT_PAGE_SIZE
 const MAX_PAGE_SIZE = constants.MAX_PAGE_SIZE
 const ROLE_TEAM_ADMIN = 1
+const config = require('../configs')
+const standardMode = require('../configs/constants').STANDARD_MODE
 
 exports.getUserDetail = function* () {
   let userID = this.params.user_id
@@ -93,60 +95,69 @@ exports.getUsers = function* () {
 exports.getUserTeams = function* () {
   let userID = this.params.user_id
   const loginUser = this.session.loginUser
-  userID = userID === 'default' ? loginUser.id : userID
-  const api = apiFactory.getApi(loginUser)
-  let result = yield api.users.getBy([loginUser.id])
-  //Only team admin can get team related information
-  if (!result || !result.data || 
-      result.data.role != ROLE_TEAM_ADMIN) {
+  if (config.running_mode === standardMode) {
+    const spi = apiFactory.getSpi(loginUser)
+    const result = yield spi.teams.get()
     this.body = {
-      teams: [],
-      total: 0
+      data: result,
     }
-    return
   }
+  else {
+    userID = userID === 'default' ? loginUser.id : userID
+    const api = apiFactory.getApi(loginUser)
+    let result = yield api.users.getBy([loginUser.id])
+    //Only team admin can get team related information
+    if (!result || !result.users || !result.users[0] ||
+        result.users[0].role != ROLE_TEAM_ADMIN) {
+        this.body = {
+          teams: [],
+          total: 0
+        }
+        return
+    }
 
-  const query = this.query || {}
-  let page = parseInt(query.page || DEFAULT_PAGE)
-  let size = parseInt(query.size || DEFAULT_PAGE_SIZE)
-  let sort_by = parseInt(query.sort_by || "name")
-  let sort_order = parseInt(query.sort_order || true)
-  let name = query.name
-  if (isNaN(page) || page < 1) {
-    page = DEFAULT_PAGE
-  }
-  if (isNaN(size) || size > 100) {
-    size = DEFAULT_PAGE_SIZE
-  }
-  let from = size * (page - 1)
-  if (size == -1) {
-    from == -1
-  }
-  let queryObj = { from, size }
-  if (from == 0 && size == 0) {
-    queryObj = {}
-  }
-  if (name) {
-    queryObj.filter = `name ${name}`
-  }
-  if (query && query.sort) {
-    queryObj.sort = query.sort
-  }
-  if (query.filter) {
-    queryObj.filter = query.filter + ",creatorID__eq," + userID
-  } else {
-    queryObj.filter = "creatorID__eq," + userID
-  }
-  result = yield api.teams.get(queryObj)
-  const teams = result.teams || []
-  let total = 0
-  if (result.listMeta && result.listMeta.total) {
-    total = result.listMeta.total
-  }
+    const query = this.query || {}
+    let page = parseInt(query.page || DEFAULT_PAGE)
+    let size = parseInt(query.size || DEFAULT_PAGE_SIZE)
+    let sort_by = parseInt(query.sort_by || "name")
+    let sort_order = parseInt(query.sort_order || true)
+    let name = query.name
+    if (isNaN(page) || page < 1) {
+      page = DEFAULT_PAGE
+    }
+    if (isNaN(size) || size > 100) {
+      size = DEFAULT_PAGE_SIZE
+    }
+    let from = size * (page - 1)
+    if (size == -1) {
+      from == -1
+    }
+    let queryObj = { from, size }
+    if (from == 0 && size == 0) {
+      queryObj = {}
+    }
+    if (name) {
+      queryObj.filter = `name ${name}`
+    }
+    if (query && query.sort) {
+      queryObj.sort = query.sort
+    }
+    if (query.filter) {
+      queryObj.filter = query.filter + ",creatorID__eq," + userID
+    } else {
+      queryObj.filter = "creatorID__eq," + userID
+    }
+    result = yield api.teams.get(queryObj)
+    const teams = result.teams || []
+    let total = 0
+    if (result.listMeta && result.listMeta.total) {
+      total = result.listMeta.total
+    }
 
-  this.body = {
-    teams,
-    total
+    this.body = {
+      teams,
+      total
+    }
   }
 }
 
@@ -233,13 +244,8 @@ exports.createUser = function* () {
     }
     return
   }
-  const mailOptions = {
-    to: user.email, // list of receivers
-    subject: '用户创建成功通知', // Subject line
-    html: `<b>${loginUser.user}您好:</b><br/><br/>恭喜您成功创建如下用户: <br/>用户名: ${user.userName}<br/>密码: ${user.password}` // html body
-  }
   try {
-    yield email.sendEmail(mailOptions)
+    yield email.sendUserCreationEmail(user.email, loginUser.user, loginUser.email, user.userName, user.password)
     this.body = {
       data: result
     }

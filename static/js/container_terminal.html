@@ -39,13 +39,10 @@
         var temp = params[ii].split('=')[0];
         data[temp] = params[ii].split('=')[1];
       }
-//    params.map((param) => {
-//      data[param.split('=')[0]] = param.split('=')[1];
-//    });
+
       var host = window.location.host
      
       var wsUrl = 'ws://'+ host + '/api/v1/namespaces/' + data['namespace'] + '/pods/' + data['pod'] + '/exec'
-      console.log("wsUrl: "+ wsUrl)
 
       function utf8_to_b64( str ) {
         return window.btoa(window.unescape(encodeURIComponent( str )));
@@ -55,7 +52,7 @@
       }
       
       terminalConnect();
-     
+      console.log(window.parent)
       // Create a new terminal connection to a container
       function terminalConnect() {
         var rowsNum = parseInt(window.innerHeight / 12) - 2;
@@ -67,7 +64,6 @@
             rows: rowsNum,
             screenKeys: true
           });
-
           term.open(document.body.terminal);
           term.write("*******************************************************\r\n");  
           term.write("||    _____                   _                 _    ||\r\n");  
@@ -80,8 +76,7 @@
                                                                                                                 
 
           //term.write('\x1b[31mWelcome to Tenxcloud Web Terminal!\x1b[m\r\n\r\n');
-
-
+          
           term.cursorHidden = false;
           term.showCursor();
           term.refresh(term.x, term.y);

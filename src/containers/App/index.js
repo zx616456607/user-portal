@@ -203,12 +203,15 @@ class App extends Component {
     const user = {
       name: loginUser.userName,
       email: loginUser.email,
-      phone: loginUser.phone
+      phone: loginUser.phone,
+      creationTime: loginUser.creationTime,
+      role: loginUser.role,
+      balance: loginUser.balance,
+      teamCount: loginUser.teamCount
     }
     return (
       <div className='tenx-layout'>
         {this.renderErrorMessage()}
-        <Intercom appID='okj9h5pl' { ...user } />
         <div id='siderTooltip'></div>
         <div className={this.state.siderStyle == 'mini' ? 'tenx-layout-header' : 'tenx-layout-header-bigger tenx-layout-header'}>
           <div className='tenx-layout-wrapper'>
@@ -243,6 +246,7 @@ class App extends Component {
           </div>
         </Modal>
         {this.getStatusWatchWs()}
+        <Intercom appID='okj9h5pl' { ...user } />
       </div>
     )
   }

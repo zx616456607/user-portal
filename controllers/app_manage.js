@@ -44,11 +44,11 @@ exports.createApp = function* () {
 exports.updateAppDesc = function *() {
   const cluster = this.params.cluster
   const name = this.params.app_name
-  const data = this.request.body
+  let data = this.request.body
   if (!data || !data.desc) {
-    const err = new Error('.desc is required.')
-    err.status = 400
-    throw err
+    data = {
+      desc: ''
+    }
   }
   const loginUser = this.session.loginUser
   const api = apiFactory.getK8sApi(loginUser)

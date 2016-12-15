@@ -9,7 +9,7 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { Button, Input, Form, Radio, Modal, Select, Spin, Alert, Icon, message ,Popover , Tooltip} from 'antd'
-import { Link } from 'react-router'
+import { Link ,browserHistory} from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
@@ -237,7 +237,6 @@ let AutoDeployService = React.createClass({
     loadAppList(cluster, { size: 50 }, {
       success: {
         func: (res) => {
-          let deployment_id = ''
           let provinceData = []
           if (res.data.length > 0) {
             res.data.forEach((item) => {
@@ -250,13 +249,11 @@ let AutoDeployService = React.createClass({
                 }
               }
             })
-
-            deployment_id = res.data[0].services[0].metadata.uid
           }
           // console.log(provinceData)
           self.setState({
             serviceList: provinceData,
-            deployment_id,
+            deployment_id: provinceData.length > 0 ? provinceData[0].bindId : '',
             deployment_name: provinceData.length > 0 ? provinceData[0].imagename : ''
           })
         }
@@ -379,7 +376,7 @@ let AutoDeployService = React.createClass({
     }
     const content = (
       <a>
-        <Button type="primary">马上创建</Button>
+        <Button type="primary" onClick={()=> browserHistory.push('/app_manage/app_create/fast_create?query="open"')}>马上创建</Button>
       </a>
     );
     const {clusterList, cdImageList} = this.props

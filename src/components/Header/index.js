@@ -24,6 +24,10 @@ import { browserHistory } from 'react-router'
 import { Link } from 'react-router'
 import NotificationHandler from '../../common/notification_handler'
 
+const standard = require('../../../configs/constants').STANDARD_MODE
+const mode = require('../../../configs/model').mode
+const spaceTitle = mode === standard ? '区域' : '集群'
+
 const FormItem = Form.Item;
 const createForm = Form.create;
 const Option = Select.Option
@@ -80,7 +84,7 @@ class Header extends Component {
       success: {
         func: (result) => {
           if (!result.data || result.data.length < 1) {
-            notification.warn(`空间 [${space.spaceName}] 的集群列表为空，请重新选择空间`)
+            notification.warn(`空间 [${space.spaceName}] 的${spaceTitle}列表为空，请重新选择空间`)
             _this.setState({
               spacesVisible: true,
               clustersVisible: false,
@@ -100,7 +104,7 @@ class Header extends Component {
       },
       faied: {
         func: (error) => {
-          notification.error(`加载空间 [${space.spaceName}] 的集群列表失败，请重新选择空间`)
+          notification.error(`加载空间 [${space.spaceName}] 的${spaceTitle}列表失败，请重新选择空间`)
           _this.setState({
             spacesVisible: true,
             clustersVisible: false,
@@ -128,7 +132,7 @@ class Header extends Component {
       cluster
     })
     const { pathname } = window.location
-    let msg = `集群已成功切换到 [${cluster.clusterName}]`
+    let msg = `${spaceTitle}已成功切换到 [${cluster.clusterName}]`
     if (current.cluster.namespace !== current.space.namespace) {
       msg = `空间已成功切换到 [${current.space.spaceName}]，${msg}`
     }
@@ -222,7 +226,7 @@ class Header extends Component {
       <div className='logMenu'>
         <div className='rechangeInf'>
           <div className='balance'>
-            <p>账户余额 &nbsp;:</p>
+            <p>帐户余额 &nbsp;:</p>
             <p><span>{loginUser.info.balance ? loginUser.info.balance : 0}</span><span style={{ fontSize: '14px', color: '#8a8a8a' }}>&nbsp;&nbsp;T币</span></p>
           </div>
           <Button style={{ height: 30, backgroundColor: '#46b2fa', borderColor: '#46b2fa', color: '#fff', fontSize: '14px' }}>立即充值</Button>
@@ -235,7 +239,7 @@ class Header extends Component {
                   <svg className='logMenuSvg'>
                     <use xlinkHref='#logaccountinf' />
                   </svg>
-                  <div>账户信息</div>
+                  <div>帐户信息</div>
                 </Link>
               </td>
               <td>
@@ -314,11 +318,11 @@ class Header extends Component {
             <svg className='headercluster'>
               <use xlinkHref='#headercluster' />
             </svg>
-            <span style={{ marginLeft: 20 }}>集群</span>
+            <span style={{ marginLeft: 20 }}>{spaceTitle}</span>
           </div>
           <div className="envirBox">
             <PopSelect
-              title="选择集群"
+              title={mode === standard ? '选择区域' : '选择集群'}
               btnStyle={false}
               visible={clustersVisible}
               list={teamClusters}
