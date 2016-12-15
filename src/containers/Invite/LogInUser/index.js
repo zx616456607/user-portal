@@ -12,6 +12,7 @@ import React, { PropTypes } from 'react'
 import { Button, Form, Input, Card, Tooltip, message, Alert, Col, Row } from 'antd'
 import { connect } from 'react-redux'
 import { USERNAME_REG_EXP, EMAIL_REG_EXP } from '../../../../constants'
+import { browserHistory } from 'react-router'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -35,10 +36,10 @@ let LogInUser = React.createClass({
       countDownTimeText: '发送验证码',
     }
   },
-  
+
   handleSubmit(e) {
     e.preventDefault()
-    const { form, redirect } = this.props
+    const { form, redirect, email, login, joinTeam, code } = this.props
     const { validateFields, resetFields } = form
     const self = this
     validateFields((errors, values) => {
@@ -53,7 +54,7 @@ let LogInUser = React.createClass({
       })
       const body = {
         password: values.password,
-        captcha: values.captcha
+        email: email,
       }
       if (values.name.indexOf('@') > -1) {
         body.email = values.name
@@ -61,6 +62,39 @@ let LogInUser = React.createClass({
         body.username = values.name
       }
       //登录req:
+      login(body, {
+        success: {
+          func: (result) => {
+            joinTeam(code)
+            self.setState({
+              submitting: false,
+              submitProps: {},
+            })
+            message.success(`登录成功`)
+            browserHistory.push('/')
+            resetFields()
+          },
+          isAsync: true
+        },
+        failed: {
+          func: (err) => {
+            console.log('login failed')
+            let msg = err.message.message || err.message
+            if (err.statusCode == 401) {
+              msg = "用户名或者密码错误"
+            }
+            self.setState({
+              submitting: false,
+              loginResult: {
+                error: msg
+              },
+              submitProps: {},
+            })
+            resetFields(['password'])
+          },
+          isAsync: true
+        },
+      })
     })
   },
   checkPass(rule, value, callback) {
