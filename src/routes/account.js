@@ -31,10 +31,6 @@ const accountRoutes = [
       require('../components/AccountModal/_Enterprise/TeamManage').default,
   },
   {
-    path: 'myteam',
-    component: require('../components/AccountModal/_Standard/MyTeam').default,
-  },
-  {
     path: 'team/:team_name/:team_id',
     component: mode === standard ?
       require('../components/AccountModal/_Standard/TeamDetail').default :

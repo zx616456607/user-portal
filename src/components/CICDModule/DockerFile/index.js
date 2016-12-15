@@ -158,7 +158,7 @@ const MyComponent = React.createClass({
     }
     if (config.length === 0) {
       return (
-        <div> * 目前还没有添加任何云端 Dockerfile</div>
+        <div style={{lineHeight:'50px',height:'200px'}}>&nbsp;&nbsp;Not Dockerfile</div>
       )
     }
     let items = config.map((item, index) => {
@@ -233,16 +233,18 @@ const MyComponent = React.createClass({
 class DockerFile extends Component {
   constructor(props) {
     super(props);
+    this.state ={names:''}
   }
 
   componentWillMount() {
     document.title = 'Dockerfile | 时速云';
     this.props.getDockerfileList()
   }
-
-  handleSearch(e) {
-    const names = e.target.value
-    this.props.searchDockerfile(names)
+  setChangeName(e) {
+    this.setState({names: e.target.value})
+  }
+  handleSearch() {
+    this.props.searchDockerfile(this.state.names)
   }
 
   render() {
@@ -256,8 +258,8 @@ class DockerFile extends Component {
         <div id='dockerFile' key='dockerFile'>
           <Alert message={<FormattedMessage {...menusText.tooltips} />} type='info' />
           <div className='operaBox'>
-            <Input className='searchBox' placeholder={formatMessage(menusText.search)} onPressEnter={(e) => this.handleSearch(e)} type='text' />
-            <i className='fa fa-search'></i>
+            <Input className='searchBox' placeholder={formatMessage(menusText.search)} onChange={(e)=> this.setChangeName(e)} onPressEnter={() => this.handleSearch()} type='text' />
+            <i className='fa fa-search cursor' onClick={() => this.handleSearch()}></i>
           </div>
           <Card className='tenxflowBox'>
             <div className='titleBox' >

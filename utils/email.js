@@ -60,10 +60,10 @@ exports.sendEmail = function (transport, mailOptions) {
 exports.sendUserCreationEmail = function (to, creatorName, creatorEmail, userName, userPassword) {
   const method = "sendUserCreationEmail"
   
-  const subject = `已为您创建时速云账号`
+  const subject = `已为您创建时速云帐号`
   const systemEmail = config.mail_server.service_mail
   const date = moment(new Date()).format("YYYY-MM-DD")
-  const loginURL = `http://tenxcluod.com`
+  const loginURL = `http://www.tenxcloud.com`
   var mailOptions = {
     to: to, // list of receivers
     subject: subject, // Subject line
