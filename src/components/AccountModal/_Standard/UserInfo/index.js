@@ -79,7 +79,7 @@ class BaseInfo extends Component {
           </div>
           <div className="to-recharge">
             <p className="money">105元</p>
-            <p className="money-desc">我的账户余额</p>
+            <p className="money-desc">我的帐户余额</p>
             <Button type="primary">去充值</Button>
           </div>
         </div>

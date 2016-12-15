@@ -19,7 +19,7 @@ class UserBalance extends Component {
   render() {
     return (
       <div id="UserBalance">
-        账户余额，<Link to="/account/balance/pay">充值</Link>
+        帐户余额，<Link to="/account/balance/pay">充值</Link>
       </div>
     )
   }
