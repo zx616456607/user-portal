@@ -34,7 +34,6 @@ module.exports = function (Router) {
   // team
   router.post('/teams/teamandspace', teamController.createTeamAndSpace)
   router.post('/teams/:teamid/invitations', teamController.createInvitations)
-  router.get('/teams/invitations/:code', teamController.getInvitationInfo)
   router.get('/teams/:team/dissolvable', teamController.checkDissolvable)
   router.delete('/teams/:team', teamController.deleteTeam)
   router.post('/teams/:team/quit', teamController.quitTeam)

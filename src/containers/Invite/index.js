@@ -14,6 +14,7 @@ import { connect } from 'react-redux'
 import { USERNAME_REG_EXP, EMAIL_REG_EXP } from '../../../constants'
 import NotLogUser from './NotLogUser'
 import LogInUser from './LogInUser'
+import { getInvitationInfo } from '../../actions/team'
 
 function noop() {
   return false
@@ -25,7 +26,10 @@ let Invite = React.createClass({
     }
   },
   componentWillMount() {
-
+    const {
+      getInvitationInfo, code,
+    } = this.props
+    getInvitationInfo(code)
   },
   render() {
     const { loginResult } = this.state
@@ -81,16 +85,24 @@ let Invite = React.createClass({
 })
 
 function mapStateToProps(state, props) {
-  const { email,teamname,code } = props.location.query
+  const { code } = props.location.query
+  const {invitationInfo} = state.team
+  let teamName = ''
+  let email = ''
+  if (!invitationInfo.isFetching && invitationInfo.result && invitationInfo.result.data.data) {
+    teamName = invitationInfo.result.data.data.teamName
+    email = invitationInfo.result.data.data.email
+  }
+
   return {
-    email,
     code,
-    teamName:teamname,
+    teamName,
+    email,
   }
 }
 
 Invite = connect(mapStateToProps, {
-
+  getInvitationInfo,
 })(Invite)
 
 export default Invite
