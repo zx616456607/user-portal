@@ -29,7 +29,6 @@ const licenseController = require('../controllers/license')
 const clusterController = require('../controllers/cluster_manage')
 const integrationController = require('../controllers/integration')
 const consumptionController = require('../controllers/consumption')
-const alipayController = require('../controllers/alipay')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -300,10 +299,7 @@ module.exports = function (Router) {
   router.get('/consumptions/notify-rule', consumptionController.getNotifyRule)
   router.put('/consumptions/notify-rule', consumptionController.setNotifyRule)
 
-  //alipay
-  router.post('/account/pay/alipay', alipayController.rechare)
-  router.post('/account/pay/alipay/notify', alipayController.notify)
-  router.get('/account/pay/alipay/direct', alipayController.direct)
+
 
   return router.routes()
 }

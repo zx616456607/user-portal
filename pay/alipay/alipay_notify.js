@@ -1,5 +1,5 @@
-const coreFunc = require('./customer_core')
-const md5Func = require('./customer_md5')
+const coreFunc = require('./alipay_core')
+const md5Func = require('./alipay_md5')
 
 class AliPayNotify{ 
   constructor(aliPayConfig) {

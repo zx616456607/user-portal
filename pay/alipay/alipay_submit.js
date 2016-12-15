@@ -1,6 +1,6 @@
 const queryString = require('querystring')
-const coreFunc = require('./customer_core')
-const md5Func = require('./customer_md5')
+const coreFunc = require('./alipay_core')
+const md5Func = require('./alipay_md5')
 
 class AliPaySubmit {
   constructor(aliPayConfig) {
