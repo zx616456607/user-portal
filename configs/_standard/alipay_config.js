@@ -74,10 +74,10 @@ var alipay = {
     transport:'https',
 
     // 支付宝付款成功后返回的页面
-    create_direct_pay_by_user_return_url: 'http://localhost:8000/api/v2/payments/alipay/direct',
+    create_direct_pay_by_user_return_url: 'http://localhost:8003/api/v2/payments/alipay/direct',
 
     // 支付宝异步通知页面
-    create_direct_pay_by_user_notify_url: 'http://localhost:8000/api/v2/payments/alipay/notify',
+    create_direct_pay_by_user_notify_url: 'http://localhost:8003/api/v2/payments/alipay/notify',
 
     // ca证书路径地址，用于curl中ssl校验 请保证cacert.pem文件在当前文件夹目录中
     cacert:'./sslkey/certificate.pem'
