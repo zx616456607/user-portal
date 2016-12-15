@@ -76,3 +76,86 @@ exports.createInvitations = function* () {
     data: result
   }
 }
+
+exports.checkDissolvable = function* () {
+  const loginUser = this.session.loginUser
+  const spi = apiFactory.getSpi(loginUser)
+  const teamID = this.params.teamid
+
+  let result = yield spi.teams.getBy([teamID, 'dissolvable'])
+
+  this.body = {
+    data: result
+  }
+}
+
+exports.deleteTeam = function* () {
+  const loginUser = this.session.loginUser
+  const spi = apiFactory.getSpi(loginUser)
+  const teamID = this.params.teamid
+
+  let result = yield spi.teams.deleteBy([teamID])
+
+  this.body = {
+    data: result
+  }
+}
+exports.quitTeam = function* () {
+  const loginUser = this.session.loginUser
+  const spi = apiFactory.getSpi(loginUser)
+  const teamID = this.params.teamid
+
+  let result = yield spi.teams.createBy([teamID, 'quit'])
+
+  this.body = {
+    data: result
+  }
+}
+exports.removeMember = function* () {
+  const loginUser = this.session.loginUser
+  const spi = apiFactory.getSpi(loginUser)
+  const teamID = this.params.teamid
+  const userName = this.params.username
+
+  let result = yield spi.teams.deleteBy([teamID, 'users', userName])
+
+  this.body = {
+    data: result
+  }
+}
+exports.cancelInvitation = function* () {
+  const loginUser = this.session.loginUser
+  const spi = apiFactory.getSpi(loginUser)
+  const teamID = this.params.teamid
+  const code = this.params.code
+
+  let result = yield spi.teams.deleteBy([teamID, 'invitations', code])
+
+  this.body = {
+    data: result
+  }
+}
+exports.getInvitationInfo = function* () {
+  const loginUser = this.session.loginUser
+  const spi = apiFactory.getSpi(loginUser)
+  const code = this.params.code
+
+  let result = yield spi.teams.getBy(['invitations', code])
+
+  this.body = {
+    data: result
+  }
+}
+exports.joinTeam = function* () {
+  const loginUser = this.session.loginUser
+  const spi = apiFactory.getSpi(loginUser)
+  const teamID = this.params.teamid
+
+  let result = yield spi.teams.createBy([teamID, 'join'])
+
+  // send email
+
+  this.body = {
+    data: result
+  }
+}

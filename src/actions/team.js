@@ -424,3 +424,45 @@ export function sendInvitation(teamID, emails) {
     return dispatch(fetchSendInvitation(teamID, emails))
   }
 }
+
+export const GET_INVITATION_INFO_REQUEST = 'GET_INVITATION_INFO_REQUEST'
+export const GET_INVITATION_INFO_SUCCESS = 'GET_INVITATION_INFO_SUCCESS'
+export const GET_INVITATION_INFO_FAILURE = 'GET_INVITATION_INFO_FAILURE'
+
+function fetchInvitationInfo(code) {
+  let endpoint = `${API_URL_PREFIX}/teams/invitations/${code}`
+  return {
+    [FETCH_API]: {
+      types: [GET_INVITATION_INFO_REQUEST, GET_INVITATION_INFO_SUCCESS, GET_INVITATION_INFO_FAILURE],
+      endpoint,
+      schema: {},
+    }
+  }
+}
+
+export function getInvitationInfo(code) {
+  return (dispatch, getState) => {
+    return dispatch(fetchInvitationInfo(code))
+  }
+}
+
+export const GET_TEAM_DISSOLVABLE_REQUEST = 'GET_TEAM_DISSOLVABLE_REQUEST'
+export const GET_TEAM_DISSOLVABLE_SUCCESS = 'GET_TEAM_DISSOLVABLE_SUCCESS'
+export const GET_TEAM_DISSOLVABLE_FAILURE = 'GET_TEAM_DISSOLVABLE_FAILURE'
+
+function fetchTeamDissoveable(teamID) {
+  let endpoint = `${API_URL_PREFIX}/teams/${teamID}/dissolvable`
+  return {
+    [FETCH_API]: {
+      types: [GET_TEAM_DISSOLVABLE_REQUEST, GET_TEAM_DISSOLVABLE_SUCCESS, GET_TEAM_DISSOLVABLE_FAILURE],
+      endpoint,
+      schema: {},
+    }
+  }
+}
+
+export function getTeamDissoveable(teamID) {
+  return (dispatch, getState) => {
+    return dispatch(fetchTeamDissoveable(teamID))
+  }
+}
