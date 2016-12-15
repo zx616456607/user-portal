@@ -32,7 +32,10 @@ module.exports = function (server, redis) {
       const keys = Object.getOwnPropertyNames(headers)
       const proxyHeader = { headers: {} }
       keys.forEach(key => {
-        if (key.indexOf('sec') >= 0 || key === 'upgrade' || key === 'connection') {
+        if (key.indexOf('sec') >= 0 || key.indexOf('upgrade') >= 0 || key === 'connection') {
+          if(key === 'connection') {
+            headers['connection'] = 'Upgrade'
+          }
           proxyHeader.headers[key] = headers[key]
           return
         }
