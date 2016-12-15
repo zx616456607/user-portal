@@ -99,29 +99,6 @@ let NotLogUser = React.createClass({
       callback()
       return
     }
-    const { verifyCaptcha } = this.props
-    if (!/^[a-zA-Z0-9]{4}$/.test(value)) {
-      callback([new Error('验证码输入错误')])
-      return
-    }
-    verifyCaptcha(value, {
-      success: {
-        func: (result) => {
-          if (!result.correct) {
-            callback([new Error('验证码输入错误')])
-            return
-          }
-          callback()
-        },
-        isAsync: true
-      },
-      failed: {
-        func: (err) => {
-          callback([new Error('校验错误')])
-        },
-        isAsync: true
-      },
-    })
   },
   checkTel(rule, value, callback){
     if(!value){

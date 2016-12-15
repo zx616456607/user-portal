@@ -164,7 +164,7 @@ class Integration extends Component {
               <div className='numBox'>
                 {'3'}
               </div>
-              <span className='envName'>登录账号&密码</span>
+              <span className='envName'>登录帐号&密码</span>
               <div style={{ clear:'both' }}></div>
             </div>
           </div>
@@ -299,7 +299,7 @@ class Integration extends Component {
                                     <div className='numBox'>
                                       {'3'}
                                     </div>
-                                    <span className='envName'>登录账号&密码</span>
+                                    <span className='envName'>登录帐号&密码</span>
                                     <div style={{ clear:'both' }}></div>
                                   </div>
                                 </div>

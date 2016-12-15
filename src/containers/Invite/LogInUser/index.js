@@ -63,102 +63,9 @@ let LogInUser = React.createClass({
       //注册req:
     })
   },
-  checkName(rule, value, callback) {
-    if (!value || value.length < 3) {
-      callback()
-      return
-    }
-    if (value.indexOf('@') > -1) {
-      if (!EMAIL_REG_EXP.test(value)) {
-        callback([new Error('邮箱地址填写错误')])
-        return
-      }
-      callback()
-      return
-    }
-    if (!USERNAME_REG_EXP.test(value)) {
-      callback([new Error('用户名填写错误')])
-      return
-    }
-    callback()
-  },
   checkPass(rule, value, callback) {
     const { validateFields } = this.props.form
     callback()
-  },
-  checkPass2(rule, value, callback) {
-    const { getFieldValue } = this.props.form;
-    if (value && value !== getFieldValue('password')) {
-      callback('两次输入密码不一致！');
-    } else {
-      callback()
-    }
-  },
-  checkCaptcha(rule, value, callback) {
-    if (!value) {
-      callback()
-      return
-    }
-    const { verifyCaptcha } = this.props
-    if (!/^[a-zA-Z0-9]{4}$/.test(value)) {
-      callback([new Error('验证码输入错误')])
-      return
-    }
-    verifyCaptcha(value, {
-      success: {
-        func: (result) => {
-          if (!result.correct) {
-            callback([new Error('验证码输入错误')])
-            return
-          }
-          callback()
-        },
-        isAsync: true
-      },
-      failed: {
-        func: (err) => {
-          callback([new Error('校验错误')])
-        },
-        isAsync: true
-      },
-    })
-  },
-  checkTel(rule, value, callback){
-    if(!value){
-      callback()
-      return
-    }
-    if(value.length !== 11){
-      callback([new Error('请输入11位的手机号')])
-      return
-    }
-    callback()
-  },
-  //发送验证码
-  changeCaptcha() {
-    console.log('发送验证码!!!');
-    this.setState({
-      captchaLoading: true,
-      countDownTimeText: '6s 后重新发送',
-    })
-    let wait = 5
-    let text = ''
-    //重新发送定时器
-    let time = setInterval(() => {
-      text = wait + 's 后重新发送'
-      wait--
-      if(wait >= -1){
-        this.setState({
-          countDownTimeText: text
-        })
-        return
-      }
-      this.setState({
-        captchaLoading: false,
-        countDownTimeText: '发送验证码',
-      })
-      clearInterval(time)
-    },1000)
   },
   intOnBlur(current) {
     const { getFieldProps } = this.props.form
@@ -244,27 +151,6 @@ let LogInUser = React.createClass({
       rules: [
         { required: true, whitespace: true, message: '请填写密码' },
         { validator: this.checkPass },
-      ],
-    })
-    const rePasswdProps = getFieldProps('rePasswd', {
-      rules: [{
-        required: true,
-        whitespace: true,
-        message: '请再次输入密码',
-      }, {
-        validator: this.checkPass2,
-      }],
-    })
-    const telProps = getFieldProps('tel', {
-      rules: [
-        { required: true, message: '请填写手机号' },
-        { validator: this.checkTel },
-      ],
-    })
-    const captchaProps = getFieldProps('captcha', {
-      rules: [
-        { required: true, message: '请填写验证码' },
-        { validator: this.checkCaptcha },
       ],
     })
     const formItemLayout = {

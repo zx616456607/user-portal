@@ -1,5 +1,4 @@
-/**
- * Licensed Materials - Property of tenxcloud.com
+/* Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
  * AppServiceDetailInfo component
@@ -9,24 +8,45 @@
  */
 import React, { Component } from 'react'
 import { Card, Spin } from 'antd'
-import { Link } from 'react-router'
-import { connect } from 'react-redux'
+//import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import "./style/AppServiceDetailInfo.less"
+import './style/AppServiceDetailInfo.less'
 import { formatDate } from '../../../common/tools'
 
 export default class AppServiceDetailInfo extends Component {
   constructor(props) {
-    super(props);
+    super(props)
   }
-
+  getEnvList(service) {
+    if(!service) {
+      return <div></div>
+    }
+    const containers = service.spec.template.spec.containers
+    const ele = []
+    containers.forEach(container => {
+      if(container.env) {
+        container.env.forEach(env => {
+          ele.push(
+            <div className="dataBox">
+               <div className="commonTitle">
+                 {env.name}
+               </div>
+               <div className="commonTitle">
+                {env.value}
+               </div> 
+              <div style={{ clear: 'both' }}></div>
+            </div>
+          )
+        })
+      }
+    })
+    return ele
+  }
   render() {
     const { isFetching, serviceDetail } = this.props
-    const parentScope = this;
     if (isFetching || !serviceDetail.metadata) {
-      return (
-        <div className='loadingBox'>
-          <Spin size='large' />
+      return ( <div className="loadingBox">
+          <Spin size="large" />
         </div>
       )
     }
@@ -44,7 +64,7 @@ export default class AppServiceDetailInfo extends Component {
             <div className="commonTitle">
               创建时间
           </div>
-            <div style={{ clear: "both" }}></div>
+            <div style={{ clear: 'both' }}></div>
           </div>
           <div className="dataBox">
             <div className="commonTitle">
@@ -56,7 +76,7 @@ export default class AppServiceDetailInfo extends Component {
             <div className="commonTitle">
               {formatDate(serviceDetail.metadata.creationTimestamp || '')}
             </div>
-            <div style={{ clear: "both" }}></div>
+            <div style={{ clear: 'both' }}></div>
           </div>
         </div>
         <div className="compose commonBox">
@@ -71,7 +91,7 @@ export default class AppServiceDetailInfo extends Component {
             <div className="commonTitle">
               系统盘
           </div>
-            <div style={{ clear: "both" }}></div>
+            <div style={{ clear: 'both' }}></div>
           </div>
           <div className="dataBox">
             <div className="commonTitle">
@@ -83,7 +103,7 @@ export default class AppServiceDetailInfo extends Component {
             <div className="commonTitle">
               10G
           </div>
-            <div style={{ clear: "both" }}></div>
+            <div style={{ clear: 'both' }}></div>
           </div>
         </div>
         <div className="environment commonBox">
@@ -95,17 +115,9 @@ export default class AppServiceDetailInfo extends Component {
             <div className="commonTitle">
               变量值
           </div>
-            <div style={{ clear: "both" }}></div>
+            <div style={{ clear: 'both' }}></div>
           </div>
-          <div className="dataBox">
-            <div className="commonTitle">
-              -
-          </div>
-            <div className="commonTitle">
-              -
-          </div>
-            <div style={{ clear: "both" }}></div>
-          </div>
+          {this.getEnvList(serviceDetail)}
         </div>
       </Card>
     )

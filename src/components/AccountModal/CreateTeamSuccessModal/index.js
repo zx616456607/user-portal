@@ -34,7 +34,7 @@ export default class CreateTeamSuccessModal extends Component{
           </Link>
         </div>
         <div className="successOpt" style={{borderRadius: '0 0 6px 6px'}}>
-          为团队账户充值, 该团队即可使用计费资源
+          为团队帐户充值, 该团队即可使用计费资源
           <Link className="wrap" to="/account">
             <Button className="successBtn" type="primary" size="large">去充值</Button>
           </Link>
