@@ -38,11 +38,11 @@ exports.getSummaryInDay = function* () {
     data: result.data
   }
 }
-
+// Leave payment history here, as enterprise version also requires it
 exports.getChargeRecord = function* () {
   const loginUser = this.session.loginUser
-  const api = apiFactory.getApi(loginUser)
-  const result = yield api.consumptions.getBy(['charge-history'], this.query)
+  const spi = apiFactory.getSpi(loginUser)
+  const result = yield spi.payments.getBy(['history'], this.query)
   this.body = {
     data: result.data
   }

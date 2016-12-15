@@ -17,6 +17,9 @@
 'use strict';
 
 const certificateController = require('../controllers/_standard/certificate')
+const teamController = require('../controllers/_standard/team')
+const userInfoController = require('../controllers/_standard/user_info')
+const paymentController = require('../controllers/_standard/payment')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -27,5 +30,22 @@ module.exports = function (Router) {
   router.post('/certificates', certificateController.createCertificate)
   router.put('/certificates/:id', certificateController.updateCertificate)
 
+  // team
+  router.post('/teams/teamandspace', teamController.createTeamAndSpace)
+  router.post('/teams/:teamid/invitations', teamController.createInvitations)
+  router.get('/teams/invitations/:code', teamController.getInvitationInfo)
+  router.get('/teams/:team/dissolvable', teamController.checkDissolvable)
+  router.delete('/teams/:team', teamController.deleteTeam)
+  router.post('/teams/:team/quit', teamController.quitTeam)
+  router.delete('/teams/:team/users/:username', teamController.removeMember)
+  router.delete('/teams/:team/invitations/:code', teamController.cancelInvitation)
+  router.post('/teams/:team/join', teamController.joinTeam)
+
+  // Payment related
+  router.post('/payments', paymentController.createPrepayRecord)
+  router.put('/payments/:id', paymentController.completePayment)
+
+  // Get user account info
+  router.get('/myaccount', userInfoController.getMyAccountInfo)
   return router.routes()
 }
