@@ -19,7 +19,6 @@ import {
   addTeamusers, removeTeamusers, loadTeamUserList,
   checkTeamName, sendInvitation,
 } from '../../../../actions/team'
-import MemberTransfer from '../../MemberTransfer'
 import CreateTeamModal from '../../CreateTeamModal'
 import DelTeamModal from '../../DelTeamModal'
 import NotificationHandler from '../../../../common/notification_handler'
