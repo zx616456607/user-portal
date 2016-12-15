@@ -33,44 +33,50 @@
                   <table>
                     <tbody>
                       <tr>
-                        <td style="color: #565656;height: 33px;"
-                        >
+                        <td style="color: #565656;height: 33px;">
                           亲爱的时速云用户 :
                         </td>
                       </tr>
                       <tr>
-                        <td style="height: 24px;"
-                        >
-                          ${invitorName}(<a href="mailto:${invitorEmail}" target="_blank" style="color: #2bbbfa;">${invitorEmail}</a>) 邀请您加入团队 <b>${teamName}</b>
+                        <td style="height: 24px;">
+                          ${teamAdminName}(<a href="mailto:${teamAdminEmail}" target="_blank" style="color: #2bbbfa;">${teamAdminEmail}</a>) 已解散团队 <b>${teamName}</b>，望知晓！
                         </td>
                       </tr>
                       <tr>
                         <td style="height: 24px;">
-                          点击以下按钮，立即加入该团队！
+                          <b>该团队资源与余额处理：</b>
+                          <table style="margin-top: 10px;border-collapse: collapse;border: 1px solid #e3e3e3;text-align: center">
+                            <tr style="height: 33px;line-height: 33px;border-bottom: 1px solid #fff">
+                              <td style="border-right: 2px solid #fff;background-color: #acacac;color: #fff;width: 130px;"
+                              >
+                                <b>资源</b>
+                              </td>
+                              <td style="background-color: #f4f4f4;color: #575757;padding: 0 50px;">
+                                团队内的应用、存储、数据库均被清空
+                              </td>
+                            </tr>
+                            <tr style="height: 33px;line-height: 33px">
+                              <td style="border-right: 2px solid #fff;background-color: #acacac;color: #fff;width: 130px;"
+                              >
+                                <b>余额</b>
+                              </td>
+                              <!-- <td>团队余额退回至"evawang（创建者）"账户，稍后请查收个人账户的充值记录【来源显示：时速云（注：团队解散退款）】</td> -->
+                              <td style="background-color: #f4f4f4;color: #575757;padding: 0 50px; display: ${showRefund}">
+                                团队余额退回至"${teamAdminName}（创建者）"账户<br/>
+                              </td>
+                              <td style="background-color: #f4f4f4;color: #575757;padding: 0 50px; display: ${showNoRefund}">
+                                该团队账户无余额，无需退款
+                              </td>
+                            </tr>
+                          </table>
                         </td>
                       </tr>
                       <tr>
-                        <td>
-                          <a href="${inviteURL}" style="display: inline-block;height: 36px;line-height: 36px;
-                                               border-radius: 2px;background-color: #2bb9f7;text-decoration: none;
-                                               width: 127px;text-align: center;color: #fff;"
-                          >
-                            立即加入
-                          </a>
-                        </td>
-                      </tr>
-                      <tr style="height: 22px"></tr>
-                      <tr>
-                        <td>
-                          或复制以下链接链接到浏览器地址栏中打开：
-                        </td>
-                      </tr>
-                      <tr>
-                        <td style="height: 33px">
-                          <a href="${inviteURL}" style="color: #2bbbfa"
-                          >
-                            ${inviteURL}
-                          </a>
+                        <td style="height: 24px;">
+                          <br/>
+                          时速云团队
+                          <br/>
+                          ${date}
                         </td>
                       </tr>
                     </tbody>
@@ -86,7 +92,7 @@
                   <img src="https://dn-tenxcloud-static.qbox.me/logoBig.png" alt="TenxCloud">
                 </td>
                 <td>
-                  如有任何疑问,欢迎联系团队管理员${invitorName}(<span><a href="mailto:${invitorEmail}" style="color: #2bbbfa;">${invitorEmail}</a></span>)
+                  如有任何疑问,欢迎联系团队管理员${teamAdminName}(<span><a href="mailto:${teamAdminEmail}" style="color: #2bbbfa;">${teamAdminEmail}</a></span>)
                   或时速云(
                   <span>
                     <a href="mailto:${systemEmail}" target="_blank" style="color: #2bbbfa;">${systemEmail}</a>

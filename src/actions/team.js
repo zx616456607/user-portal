@@ -373,3 +373,96 @@ export function checkTeamSpaceName(teamID, spaceName, callback) {
     return dispatch(fetchCheckTeamSpaceName(teamID, spaceName, callback))
   }
 }
+
+export const TEAMANDSPACE_CREATE_REQUEST = 'TEAMANDSPACE_CREATE_REQUEST'
+export const TEAMANDSPACE_CREATE_SUCCESS = 'TEAMANDSPACE_CREATE_SUCCESS'
+export const TEAMANDSPACE_CREATE_FAILURE = 'TEAMANDSPACE_CREATE_FAILURE'
+
+function fetchCreateTeamAndSpace(body, callback) {
+  let endpoint = `${API_URL_PREFIX}/teams/teamandspace`
+  return {
+    [FETCH_API]: {
+      types: [TEAMANDSPACE_CREATE_REQUEST, TEAMANDSPACE_CREATE_SUCCESS, TEAMANDSPACE_CREATE_FAILURE],
+      endpoint,
+      options: {
+        method: 'POST',
+        body
+      },
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function createTeamAndSpace(body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchCreateTeamAndSpace(body, callback))
+  }
+}
+
+export const SEND_INVITATION_REQUEST = 'SEND_INVITATION_REQUEST'
+export const SEND_INVITATION_SUCCESS = 'SEND_INVITATION_SUCCESS'
+export const SEND_INVITATION_FAILURE = 'SEND_INVITATION_FAILURE'
+
+function fetchSendInvitation(teamID, emails) {
+  let endpoint = `${API_URL_PREFIX}/teams/${teamID}/invitations`
+  return {
+    [FETCH_API]: {
+      types: [SEND_INVITATION_REQUEST, SEND_INVITATION_SUCCESS, SEND_INVITATION_FAILURE],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'POST',
+        body: emails,
+      },
+    }
+  }
+}
+
+export function sendInvitation(teamID, emails) {
+  return (dispatch, getState) => {
+    return dispatch(fetchSendInvitation(teamID, emails))
+  }
+}
+
+export const GET_INVITATION_INFO_REQUEST = 'GET_INVITATION_INFO_REQUEST'
+export const GET_INVITATION_INFO_SUCCESS = 'GET_INVITATION_INFO_SUCCESS'
+export const GET_INVITATION_INFO_FAILURE = 'GET_INVITATION_INFO_FAILURE'
+
+function fetchInvitationInfo(code) {
+  let endpoint = `${API_URL_PREFIX}/teams/invitations/${code}`
+  return {
+    [FETCH_API]: {
+      types: [GET_INVITATION_INFO_REQUEST, GET_INVITATION_INFO_SUCCESS, GET_INVITATION_INFO_FAILURE],
+      endpoint,
+      schema: {},
+    }
+  }
+}
+
+export function getInvitationInfo(code) {
+  return (dispatch, getState) => {
+    return dispatch(fetchInvitationInfo(code))
+  }
+}
+
+export const GET_TEAM_DISSOLVABLE_REQUEST = 'GET_TEAM_DISSOLVABLE_REQUEST'
+export const GET_TEAM_DISSOLVABLE_SUCCESS = 'GET_TEAM_DISSOLVABLE_SUCCESS'
+export const GET_TEAM_DISSOLVABLE_FAILURE = 'GET_TEAM_DISSOLVABLE_FAILURE'
+
+function fetchTeamDissoveable(teamID) {
+  let endpoint = `${API_URL_PREFIX}/teams/${teamID}/dissolvable`
+  return {
+    [FETCH_API]: {
+      types: [GET_TEAM_DISSOLVABLE_REQUEST, GET_TEAM_DISSOLVABLE_SUCCESS, GET_TEAM_DISSOLVABLE_FAILURE],
+      endpoint,
+      schema: {},
+    }
+  }
+}
+
+export function getTeamDissoveable(teamID) {
+  return (dispatch, getState) => {
+    return dispatch(fetchTeamDissoveable(teamID))
+  }
+}

@@ -52,7 +52,7 @@
       }
       
       terminalConnect();
-     
+      console.log(window.parent)
       // Create a new terminal connection to a container
       function terminalConnect() {
         var rowsNum = parseInt(window.innerHeight / 12) - 2;
@@ -64,7 +64,6 @@
             rows: rowsNum,
             screenKeys: true
           });
-
           term.open(document.body.terminal);
           term.write("*******************************************************\r\n");  
           term.write("||    _____                   _                 _    ||\r\n");  
@@ -77,8 +76,7 @@
                                                                                                                 
 
           //term.write('\x1b[31mWelcome to Tenxcloud Web Terminal!\x1b[m\r\n\r\n');
-
-
+          
           term.cursorHidden = false;
           term.showCursor();
           term.refresh(term.x, term.y);
