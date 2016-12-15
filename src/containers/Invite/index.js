@@ -105,7 +105,7 @@ function mapStateToProps(state, props) {
     teamName = invitationInfo.result.data.data.teamName
     email = invitationInfo.result.data.data.email
     isUser = invitationInfo.result.data.data.isUser
-    statinvitationStatusus = invitationInfo.result.data.data.status
+    invitationStatus = invitationInfo.result.data.data.status
   }
 
   return {
