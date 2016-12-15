@@ -8,9 +8,9 @@
  * @author Zhangpc
  */
 'use strict'
-const tenxApi       = require('../tenx_api/v2')
-const config        = require('../configs')
-const devopsConfig  = require('../configs/devops')
+const tenxApi = require('../tenx_api/v2')
+const config = require('../configs')
+const devopsConfig = require('../configs/devops')
 
 exports.getApi = function (loginUser) {
   const apiConfig = {
@@ -77,6 +77,21 @@ exports.getRegistryApi = function (registryConfig) {
 }
 
 exports.getSpi = function (loginUser) {
+  const spiConfig = {
+    protocol: config.tenx_api.protocol,
+    host: config.tenx_api.host,
+    api_prefix: 'spi',
+    auth: loginUser
+  }
+  const spi = new tenxApi(spiConfig)
+  return spi
+}
+
+// Spi with tenxSysSign in header for payment etc.
+exports.getTenxSysSignSpi = function (loginUser) {
+  const configStd = require('../configs/_standard')
+  const tenxSysSign = configStd.tenxSysSign
+  loginUser[tenxSysSign.key] = tenxSysSign.value
   const spiConfig = {
     protocol: config.tenx_api.protocol,
     host: config.tenx_api.host,
