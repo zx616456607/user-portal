@@ -16,7 +16,7 @@ let balanceMessage = (
       <Icon type="exclamation-circle" />
     </Col>
     <Col className="tipText" span={22}>
-      Tip: &nbsp;请注意 , &nbsp;当前团队仍有欠款未结清, 请充值当前团队账户后再<br/>尝试解散团队!
+      Tip: &nbsp;请注意 , &nbsp;当前团队仍有欠款未结清, 请充值当前团队帐户后再<br/>尝试解散团队!
     </Col>
   </Row>
 )
@@ -43,7 +43,7 @@ let delMessage = (
         <Icon type="exclamation-circle" />
       </Col>
       <Col className="tipText" span={22} style={{color:'#8f8e8c'}}>
-        团队余额将退回至“chiquan（创建者）“账户，稍后请查收个人账户的充值记录【来源显示：时速云（注：团队解散退款）】
+        团队余额将退回至“chiquan（创建者）“帐户，稍后请查收个人帐户的充值记录【来源显示：时速云（注：团队解散退款）】
       </Col>
     </Row>
   </div>
