@@ -1,3 +1,5 @@
+"use strict"
+
 const coreFunc = require('./alipay_core')
 const md5Func = require('./alipay_md5')
 
