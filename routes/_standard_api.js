@@ -20,6 +20,7 @@ const certificateController = require('../controllers/_standard/certificate')
 const teamController = require('../controllers/_standard/team')
 const userInfoController = require('../controllers/_standard/user_info')
 const paymentController = require('../controllers/_standard/payment')
+const wechatPayController = require('../controllers/_standard/wechat_pay')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -44,6 +45,7 @@ module.exports = function (Router) {
   // Payment related
   router.post('/payments', paymentController.createPrepayRecord)
   router.put('/payments/:id', paymentController.completePayment)
+  router.post('/pay/wechat', wechatPayController.getQrCodeAndInsertOrder)
 
   // Get user account info
   router.get('/myaccount', userInfoController.getMyAccountInfo)
