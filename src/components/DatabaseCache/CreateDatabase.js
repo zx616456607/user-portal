@@ -104,15 +104,15 @@ let CreateDatabase = React.createClass({
       });
       let checkName = /^[a-z]([-a-z0-9]*[a-z0-9])$/;
       if (!checkName.test(value)) {
-        callback([new Error('数据库名称仅限小写字母、数字和 - 哦~')]);
+        callback([new Error('数据库名称仅由小写字母、数字和横杆组成，且以小写字母开头')]);
         existFlag = true;
       }
       if (value.length < 3) {
-        callback([new Error('数据库名称不能少于3位哦~')]);
+        callback([new Error('数据库名称长度不能少于3位')]);
         existFlag = true;
       }
-      if (value.length > 15) {
-        callback('数据库名称最多15位哦~');
+      if (value.length > 12) {
+        callback('数据库名称长度不高于12位');
         existFlag = true;
       }
       if (!existFlag) {
@@ -175,7 +175,7 @@ let CreateDatabase = React.createClass({
       }
       const body = {
         cluster: values.clusterSelect,
-        // cluster: 'e0e6f297f1b3285fb81d27742255cfcf11', // @ todo 
+        // cluster: 'e0e6f297f1b3285fb81d27742255cfcf11', // @ todo
         serviceName: values.name,
         password: values.password,
         replicas: values.replicas,

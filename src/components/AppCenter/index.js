@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Modal, Tabs, Icon, Menu, Button, Card, Form, Input, Alert ,Popconfirm} from 'antd'
+import { Modal, Tabs, Icon, Menu, Button, Card, Form, Input, Alert } from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import TweenOne from 'rc-tween-one';
 import { connect } from 'react-redux'
@@ -144,7 +144,7 @@ let MyComponent = React.createClass({
           });
         }
         break;
-    
+
     }
   },
   handleReset(e) {
@@ -155,6 +155,35 @@ let MyComponent = React.createClass({
     scope.setState({
       createModalShow: false
     });
+  },
+  regnameExists(rule ,values, callback) {
+    if (!values) {
+      callback([new Error('请输入仓库名称')])
+      return
+    }
+    if (values.length < 3) {
+      callback([new Error('仓库名称不能少于3位')])
+      return
+    }
+    if (values.length > 63) {
+      callback([new Error('仓库名称过长，名称不能超过63位')])
+      return
+    }
+    callback()
+    return
+  },
+  urlExists(rule, values, callback) {
+    if (!values) {
+      callback([new Error('请输入仓库地址')])
+      return
+    }
+    if (values.indexOf('http') < 0) {
+      callback('地址以http或者https开头')
+      return
+    }
+    callback()
+    return
+
   },
   handleSubmit(e) {
     //this function for user submit add other image space
@@ -172,12 +201,8 @@ let MyComponent = React.createClass({
         url: values.url,
       }
       let notification = new NotificationHandler()
-      if (values.registryName.length < 3) {
-        this.setState({ visible: true });  // 进行确认
-        return
-      } else {
-        this.setState({ visible: false}); 
-      }
+
+      this.setState({ visible: false });
       const self = this
       notification.spin(`添加第三方镜像中...`)
       this.props.addOtherStore(config, {
@@ -223,11 +248,11 @@ let MyComponent = React.createClass({
     const scope = this.props.scope;
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form;
     const registryProps = getFieldProps('registryName', {
-      rules: [{ required: true, message: '请输入仓库名称' }]
+      rules: [{ required: true, validator: this.regnameExists}]
     })
     const urlProps = getFieldProps('url', {
       rules: [
-        { required: true, message: '请输入地址' }
+        { required: true, validator: this.urlExists }
       ],
     });
 
@@ -252,13 +277,7 @@ let MyComponent = React.createClass({
               moment={this.state.regMoment}
               style={{ position: 'absolute', width: '200px', top: '0' }}
               >
-            <Popconfirm title="仓库名称不能少于3位"
-              visible={this.state.visible}
-              onConfirm={()=> this.setState({visible: false})}
-              onCancel={()=> this.setState({visible: false})}
-            >
-              <span className='title' key='name'>仓库名</span>
-            </Popconfirm>
+                <span className='title' key='name'>仓库名</span>
             </TweenOne>
             <Input {...registryProps} ref='registryInput' onFocus={this.inputOnFocus.bind(this, 'registryName')} onBlur={this.inputOnBlur.bind(this, 'registryName')} />
           </FormItem>

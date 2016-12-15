@@ -8,12 +8,15 @@
  * @author Zhangpc
  */
 'use strict'
+const constants = require('./constants');
 
 const env = process.env
+
 const config = {
-  production: false,
+  node_env: env.NODE_ENV || constants.NODE_ENV_DEV, // production / dev
+  running_mode: env.RUNNING_MODE || constants.ENTERPRISE_MODE, // enterprise / standard
   protocol: 'http' || env.DASHBOARD_PROTOCOL,
-  hostname: "0.0.0.0" || env.DASHBOARD_HOST,
+  hostname: '0.0.0.0' || env.DASHBOARD_HOST,
   port: 8003,
   intl_cookie_name: 'intl_locale',
   session_key: 'tce',
@@ -26,7 +29,7 @@ const config = {
     protocol: 'http',
     host: '192.168.1.103:48000' || env.TENX_API_HOST
     // host: "localhost:8000" || env.TENX_API_HOST
-    // host: "192.168.0.63:8000" || env.TENX_API_HOST
+    // host: "192.168.0.30:8000" || env.TENX_API_HOST
     // host: "192.168.0.230:8000" || env.TENX_API_HOST
     // host: "192.168.3.3:48000" || env.TENX_API_HOST
   },
@@ -37,7 +40,8 @@ const config = {
     auth: {
       user: "noreply@tenxcloud.com",
       pass: "TenxCloud001",
-    }
+    },
+    service_mail: "service@tenxcloud.com"
   }
 }
 

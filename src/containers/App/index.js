@@ -24,6 +24,7 @@ import { updateAppServicesList, updateServiceContainersList, updateServicesList 
 import { handleOnMessage } from './status'
 import { SHOW_ERROR_PAGE_ACTION_TYPES, LOGIN_EXPIRED_MESSAGE } from '../../constants'
 import errorHandler from './error_handler'
+import Intercom from 'react-intercom'
 
 class App extends Component {
   constructor(props) {
@@ -188,7 +189,6 @@ class App extends Component {
     }
     return children
   }
-
   render() {
     let { children, pathname, redirectUrl, loginUser, Sider } = this.props
     const { loginModalVisible, loadLoginUserSuccess, loginErr, siderStyle } = this.state
@@ -199,6 +199,15 @@ class App extends Component {
           <Spin size="large" />
         </div>
       )
+    }
+    const user = {
+      name: loginUser.userName,
+      email: loginUser.email,
+      phone: loginUser.phone,
+      creationTime: loginUser.creationTime,
+      role: loginUser.role,
+      balance: loginUser.balance,
+      teamCount: loginUser.teamCount
     }
     return (
       <div className='tenx-layout'>
@@ -237,6 +246,7 @@ class App extends Component {
           </div>
         </Modal>
         {this.getStatusWatchWs()}
+        <Intercom appID='okj9h5pl' { ...user } />
       </div>
     )
   }
