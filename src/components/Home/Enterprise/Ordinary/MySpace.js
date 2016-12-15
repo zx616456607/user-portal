@@ -111,7 +111,7 @@ class MySpace extends Component{
   }
 
   render(){
-    const {spaceOperations, spaceCICDStats, spaceImageStats, spaceTemplateStats, spaceName,isFetching } = this.props
+    const {spaceWarnings, spaceOperations, spaceCICDStats, spaceImageStats, spaceTemplateStats, spaceName,isFetching } = this.props
     let isFetchingAuditLog = true
     if (this.props.auditLog) {
       isFetchingAuditLog  = this.props.auditLog.isFetching
@@ -120,7 +120,6 @@ class MySpace extends Component{
     let ImageLine = isNaN(ImagePublicNum)?0:ImagePublicNum*1+0.02
     let TempPublicNum = ((spaceTemplateStats.public)/(spaceTemplateStats.public+spaceTemplateStats.private)).toFixed(2)
     let TempLine = isNaN(TempPublicNum)?0:TempPublicNum*1+0.02
-    let spaceWarnings = []
     let imageOption = {
       series: [{
         type: 'gauge',
