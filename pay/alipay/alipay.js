@@ -327,7 +327,7 @@ Alipay.prototype.create_direct_pay_by_user_get_return = function(req, res, callb
               console.log('--newBalance = newBalance.toFixed(2)--:' + newBalance);
               userAccountDAO.updateUserAccountBalance(newBalance, userAccount.user_id, function(err, result){
                 if(err){
-                  res.render('account/payment_return', {err: '用户账户余额更新失败!'});
+                  res.render('account/payment_return', {err: '用户帐户余额更新失败!'});
                   return;
                 } else {
                   res.render('account/payment_return', {

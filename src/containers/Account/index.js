@@ -21,7 +21,7 @@ if (mode === standard) {
   menuList = [
     {
       url: '/account',
-      name: '我的账户'
+      name: '我的帐户'
     },
     {
       url: '/account/team',
@@ -29,7 +29,7 @@ if (mode === standard) {
     },
     {
       url: '/account/balance',
-      name: '账户余额'
+      name: '帐户余额'
     },
     {
       url: '/account/cost',
@@ -40,7 +40,7 @@ if (mode === standard) {
   menuList = [
     {
       url: '/account',
-      name: '我的账户'
+      name: '我的帐户'
     },
     {
       url: '/account/member',

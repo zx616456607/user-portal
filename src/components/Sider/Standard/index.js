@@ -325,7 +325,7 @@ class Slider extends Component {
                 </Tooltip>
               </li>
               <li onClick={this.selectModel.bind(this, 'account', '#account')} className={currentKey == 'account' ? 'selectedLi' : ''}>
-                <Tooltip placement='right' title='账户中心' getTooltipContainer={() => document.getElementById('siderTooltip')}>
+                <Tooltip placement='right' title='帐户中心' getTooltipContainer={() => document.getElementById('siderTooltip')}>
                   <Link to='/account'>
                     <svg className='account commonImg'>
                       {currentKey == 'account' ? [<use xlinkHref='#messageselected' />] : [<use xlinkHref='#message' />]}
@@ -535,14 +535,14 @@ class Slider extends Component {
                       <svg className='account commonImg'>
                         <use xlinkHref='#message' />
                       </svg>
-                      <span className='commonSiderSpan'>账户中心</span>
+                      <span className='commonSiderSpan'>帐户中心</span>
                       <div style={{ clear: 'both' }}></div>
                     </span>
                   }
                   >
                   <Menu.Item key='account_default'>
                     <Link to='/account'>
-                      <span><div className='sideCircle'></div> 我的账户</span>
+                      <span><div className='sideCircle'></div> 我的帐户</span>
                     </Link>
                   </Menu.Item>
                   <Menu.Item key='team'>
