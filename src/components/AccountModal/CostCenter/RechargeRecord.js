@@ -65,6 +65,7 @@ class RechargeRecord extends Component{
   }
   componentWillMount() {
     const {
+      userID,
       loadTeamClustersList,
       loadLoginUserDetail,
       loadUserTeamspaceList,
@@ -73,7 +74,7 @@ class RechargeRecord extends Component{
       teamspaces,
       loadChargeRecord,
     } = this.props
-    loadUserTeamspaceList(loginUser.info.userID||userDetail.userID,{ size: 100 }, {
+    loadUserTeamspaceList(userID ? userID : 'default',{ size: 100 }, {
       success: {
         func:()=>{
         },

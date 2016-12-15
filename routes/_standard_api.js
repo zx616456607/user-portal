@@ -18,6 +18,8 @@
 
 const certificateController = require('../controllers/_standard/certificate')
 const teamController = require('../controllers/_standard/team')
+const userInfoController = require('../controllers/_standard/user_info')
+const paymentController = require('../controllers/_standard/payment')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -39,5 +41,11 @@ module.exports = function (Router) {
   router.delete('/teams/:team/invitations/:code', teamController.cancelInvitation)
   router.post('/teams/:team/join', teamController.joinTeam)
 
+  // Payment related
+  router.post('/payments', paymentController.createPrepayRecord)
+  router.put('/payments/:id', paymentController.completePayment)
+
+  // Get user account info
+  router.get('/myaccount', userInfoController.getMyAccountInfo)
   return router.routes()
 }
