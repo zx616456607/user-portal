@@ -123,7 +123,7 @@ export default class ContainerDetailInfo extends Component {
               内存
             </div>
             <div className="commonTitle">
-              处理器
+              CPU
             </div>
             <div style={{ clear: "both" }}></div>
           </div>
