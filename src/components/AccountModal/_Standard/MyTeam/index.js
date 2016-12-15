@@ -119,8 +119,8 @@ let TeamTable = React.createClass({
   //创建时间排序
   handleSortCreateTime() {
     const { loadUserTeamList } = this.props.scope.props
-    const { sortCluster } = this.state
-    let sort = this.getSort(!sortCluster, 'clusterCount')
+    const { sortCreateTime } = this.state
+    let sort = this.getSort(!sortCreateTime, 'clusterCount')
     loadUserTeamList('default', {
       page: this.state.page,
       size: this.state.pageSize,
@@ -128,7 +128,7 @@ let TeamTable = React.createClass({
       filter: this.state.filter,
     })
     this.setState({
-      sortCluster: !sortCluster,
+      sortCreateTime: !sortCreateTime,
       sort,
     })
   },

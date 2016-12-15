@@ -9,7 +9,7 @@
  */
 import './style/Invite.less'
 import React, { PropTypes } from 'react'
-import { Button, Form, Input, Card, Tooltip, message, Alert, Col, Row } from 'antd'
+import { Button, Form, Input, Card, Tooltip, message, Alert, Col, Row, Modal } from 'antd'
 import { connect } from 'react-redux'
 import { USERNAME_REG_EXP, EMAIL_REG_EXP } from '../../../constants'
 import NotLogUser from './NotLogUser'
@@ -61,11 +61,8 @@ let Invite = React.createClass({
             }
             {
               isUser ?
-              <div className="formTip">*&nbsp;还没有时速云账户?&nbsp;&nbsp;
-                <a href="https://www.tenxcloud.com/terms" target="_blank" style={{color:'#4691d2'}}>
-                  立即注册
-                </a>
-                <a href="https://console.tenxcloud.com/reset" target="_blank" style={{color:'#4691d2',float:'right'}}>忘记密码</a>
+              <div className="formTip" style={{textAlign:'right'}}>
+                <a href="https://console.tenxcloud.com/reset" target="_blank" style={{color:'#4691d2'}}>忘记密码</a>
               </div>:
               <div className="formTip">*&nbsp;注册表示您同意遵守&nbsp;
                 <a href="https://www.tenxcloud.com/terms" target="_blank" style={{color:'#4691d2'}}>
@@ -78,6 +75,19 @@ let Invite = React.createClass({
         <div className="footer">
           © 2016 时速云 标准版 v2.0
         </div>
+        <Modal
+        wrapClassName='cancelInvite'
+        visible={state === 1}
+        width='350px'
+        closable={false}
+        >
+          <div>
+            <div className='cancelInviteText'>
+              无法加入团队 , xxx已取消邀请
+            </div>
+            <Button className='cancelInviteBtn' type='primary'>知道了</Button>
+          </div>
+        </Modal>
       </div>
     )
   }

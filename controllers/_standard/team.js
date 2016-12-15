@@ -65,7 +65,7 @@ exports.createInvitations = function* () {
   if (result.code === 200 && result.data && result.data.codes && result.data.teamName) {
     for (let email in result.data.codes) {
       const invitationURL = `https://console.tenxcloud.com/teams/invite?code=${encodeURIComponent(result.data.codes[email])}`
-      emailUtil.sendInviteUserEmail(email, loginUser.user, loginUser.email,result.data.teamName ,invitationURL)
+      emailUtil.sendInviteTeamMemberEmail(email, loginUser.user, loginUser.email,result.data.teamName ,invitationURL)
     }
   }
   else {
