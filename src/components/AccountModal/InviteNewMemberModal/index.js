@@ -37,14 +37,12 @@ export default class InviteNewMemberModal extends Component{
   }
   handleOk() {
     const { closeInviteModal, teamID } = this.props
-    console.log('teamIDteamIDteamID', teamID)
     const { tags } = this.state
     let passTags = [] //正确的邮件
     
     passTags=tags.filter((item) => {
       return EMAIL_REG_EXP.test(item)
     })
-    console.log('passTags',passTags)
     // 发送邀请
     if (passTags.length > 0) {
       this.props.sendInvitation(teamID ,passTags)

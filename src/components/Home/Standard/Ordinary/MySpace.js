@@ -172,12 +172,11 @@ class MySpace extends Component{
   }
 
   render(){
-    const {spaceOperations, spaceCICDStats, spaceImageStats, spaceTemplateStats, spaceName } = this.props
+    const {spaceWarnings, spaceOperations, spaceCICDStats, spaceImageStats, spaceTemplateStats, spaceName } = this.props
     let isFetchingAuditLog = true
     if (this.props.auditLog) {
       isFetchingAuditLog  = this.props.auditLog.isFetching
     }
-    let spaceWarnings = []
     return (
       <div id='MySpaceStd'>
         <Row className="title" style={{marginTop: 20}}>{spaceName}</Row>

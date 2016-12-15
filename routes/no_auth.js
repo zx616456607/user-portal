@@ -25,6 +25,8 @@ module.exports = function (Router) {
   // Captcha
   router.get('/captcha/gen', authController.generateCaptcha)
   router.get('/captcha/:captcha/verify', authController.checkCaptchaIsCorrect)
+  // Invite
+  router.get('/teams/invite', indexCtl.index)
 
   return router.routes()
 }

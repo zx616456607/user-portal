@@ -107,13 +107,13 @@ exports.getUserTeams = function* () {
     const api = apiFactory.getApi(loginUser)
     let result = yield api.users.getBy([loginUser.id])
     //Only team admin can get team related information
-    if (!result || !result.data || 
-        result.data.role != ROLE_TEAM_ADMIN) {
-      this.body = {
-        teams: [],
-        total: 0
-      }
-      return
+    if (!result || !result.users || !result.users[0] ||
+        result.users[0].role != ROLE_TEAM_ADMIN) {
+        this.body = {
+          teams: [],
+          total: 0
+        }
+        return
     }
 
     const query = this.query || {}
