@@ -201,7 +201,7 @@ exports.sendExitTeamEmail = function (teamAdminEmail, teamMemberEmail, teamMembe
       subject: subject, // Subject line
     }
 
-    fs.readFile('templates/email/remove_team_user.html', 'utf8', function (err, data) {
+    fs.readFile('templates/email/remove_team_member.html', 'utf8', function (err, data) {
       if (err) {
         logger.error(method, err)
         reject(err)
@@ -232,7 +232,7 @@ exports.sendRemoveTeamMemberEmail = function (teamAdminName, teamAdminEmail, tea
       subject: subject, // Subject line
     }
 
-    fs.readFile('templates/email/remove_team_user.html', 'utf8', function (err, data) {
+    fs.readFile('templates/email/remove_team_member.html', 'utf8', function (err, data) {
       if (err) {
         logger.error(method, err)
         reject(err)
