@@ -136,11 +136,11 @@ class TerminalModal extends Component {
     //this function for user change the tab and the iframe focus will be change
     this.setState({
       currentTab: e
-    })
-    if(!!window.frames[frameKey].contentWindow) {          
+    });
+    if(!!window.frames[e].contentWindow) {          
       window.frames[e].contentWindow.focusTerminal();
     } else {
-      window.frames[frameKey].focusTerminal()
+      window.frames[e].focusTerminal()
     }    
   }
   
