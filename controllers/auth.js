@@ -16,6 +16,7 @@ const svgCaptcha = require('svg-captcha')
 const indexService = require('../services')
 const config = require('../configs')
 const devOps = require("../configs/devops")
+const enterpriseMode = require('../configs/constants').ENTERPRISE_MODE
 
 exports.login = function* () {
   let method = 'login'
@@ -61,17 +62,24 @@ exports.logout = function* () {
 exports.verifyUser = function* () {
   const method = 'verifyUser'
   const body = this.request.body
-  if (!body || (!body.username && !body.email) || !body.password || !body.captcha) {
+  if (!body || (!body.username && !body.email) || !body.password) {
     const err = new Error('username(email), password and captcha are required.')
     err.status = 400
     throw err
   }
-  body.captcha = body.captcha.toLowerCase()
-  if (body.captcha !== this.session.captcha) {
-    logger.error(method, `captcha error: ${body.captcha} | ${this.session.captcha}(session)`)
-    const err = new Error('CAPTCHA_ERROR')
-    err.status = 400
-    throw err
+  if (config.running_mode === enterpriseMode) {
+    if (!body.captcha) {
+      const err = new Error('username(email), password and captcha are required.')
+      err.status = 400
+      throw err
+    }
+    body.captcha = body.captcha.toLowerCase()
+    if (body.captcha !== this.session.captcha) {
+      logger.error(method, `captcha error: ${body.captcha} | ${this.session.captcha}(session)`)
+      const err = new Error('CAPTCHA_ERROR')
+      err.status = 400
+      throw err
+    }
   }
   const data = {
     password: body.password,

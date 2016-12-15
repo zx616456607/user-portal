@@ -430,7 +430,7 @@ export const GET_INVITATION_INFO_SUCCESS = 'GET_INVITATION_INFO_SUCCESS'
 export const GET_INVITATION_INFO_FAILURE = 'GET_INVITATION_INFO_FAILURE'
 
 function fetchInvitationInfo(code) {
-  let endpoint = `${API_URL_PREFIX}/teams/invitations/${code}`
+  let endpoint = `/teams/invitations/${code}`
   return {
     [FETCH_API]: {
       types: [GET_INVITATION_INFO_REQUEST, GET_INVITATION_INFO_SUCCESS, GET_INVITATION_INFO_FAILURE],
@@ -464,5 +464,30 @@ function fetchTeamDissoveable(teamID) {
 export function getTeamDissoveable(teamID) {
   return (dispatch, getState) => {
     return dispatch(fetchTeamDissoveable(teamID))
+  }
+}
+
+export const JOIN_TEAM_USE_INVITATION_REQUEST = 'JOIN_TEAM_USE_INVITATION_REQUEST'
+export const JOIN_TEAM_USE_INVITATION_SUCCESS = 'JOIN_TEAM_USE_INVITATION_SUCCESS'
+export const JOIN_TEAM_USE_INVITATION_FAILURE = 'JOIN_TEAM_USE_INVITATION_FAILURE'
+
+function fetchJoinTeam(code) {
+  let endpoint = `${API_URL_PREFIX}/teams/join`
+  return {
+    [FETCH_API]: {
+      types: [JOIN_TEAM_USE_INVITATION_REQUEST, JOIN_TEAM_USE_INVITATION_SUCCESS, JOIN_TEAM_USE_INVITATION_FAILURE],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'POST',
+        body:{code}
+      },
+    }
+  }
+}
+
+export function joinTeam(code) {
+  return (dispatch, getState) => {
+    return dispatch(fetchJoinTeam(code))
   }
 }
