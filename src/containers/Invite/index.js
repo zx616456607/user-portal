@@ -31,7 +31,7 @@ let Invite = React.createClass({
     const { loginResult } = this.state
     const { email,teamName,code } = this.props
     let state = 2
-    let isUser = true
+    let isUser = false
     return (
       <div id="InvitePage">
         <div className="Invite">
