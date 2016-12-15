@@ -75,7 +75,7 @@ class BaseInfo extends Component {
             <div className="backcolor">
               <i className="fa fa-wechat"></i>
             </div>
-            <Button className="btn-success">立即绑定</Button>
+            <Button className="btn-success" title="即将开放" disabled>立即绑定</Button>
           </div>
         </div>
           
