@@ -1,7 +1,7 @@
 @borderColor: #E4E8F3;
 #public-userinfo{
   .baseInfo{
-    .btn-auth{background: #9190F8;border:1px solid #5F5EE6;color: white;padding:5px 10px;}
+    .btn-auth{background: #9190F8;border:1px solid #5F5EE6;color: white;padding:3px 8px;}
     .topBox{
       height: 140px;
       border: 1px solid @borderColor;
@@ -37,11 +37,76 @@
       padding-bottom: 50px;
       .hand{line-height: 50px;padding-left: 20px;border-bottom: 1px solid @borderColor;font-size: 1.5em;}
       .info-list{
-        li{
-          list-style: none;height: 80px;line-height: 80px;padding:0 60px;border-bottom: 1px solid @borderColor;
-          .key{display: inline-block;width: 100px;}
-          .value{display: inline-block;width: 180px;margin-right: 20px;}
+        >li{
+          overflow: hidden;clear: both;
+          list-style: none;min-height: 80px;padding:0 60px;border-bottom: 1px solid @borderColor;
+          .key{display: inline-block;width: 100px;float: left;line-height: 80px;}
+          .value{display: inline-block;line-height: 80px;margin-right: 20px;}
+          .ant-form-item{margin-bottom: 10px;}
+          .ant-pwd-strength {
+              display: inline-block;
+              margin-left: 8px;
+              line-height: 32px;
+              height: 32px;
+              vertical-align: middle;
+            }
+
+            .ant-pwd-strength-item {
+              float: left;
+              margin-right: 1px;
+              margin-top: 12px;
+              width: 19px;
+              height: 8px;
+              line-height: 8px;
+              list-style: none;
+              background-color: #f3f3f3;
+              transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+            }
+
+            .ant-pwd-strength-item-1 {
+              border-top-left-radius: 6px;
+              border-bottom-left-radius: 6px;
+            }
+
+            .ant-pwd-strength-item-2 {
+              width: 20px;
+            }
+
+            .ant-pwd-strength-item-3 {
+              border-top-right-radius: 6px;
+              border-bottom-right-radius: 6px;
+              margin-right: 8px;
+            }
+
+            .ant-pwd-strength-low .ant-pwd-strength-item-1, .ant-pwd-strength-medium .ant-pwd-strength-item-1, .ant-pwd-strength-high .ant-pwd-strength-item-1 {
+              background-color: #FAC450;
+            }
+
+            .ant-pwd-strength-medium .ant-pwd-strength-item-2, .ant-pwd-strength-high .ant-pwd-strength-item-2 {
+              background-color: rgba(135, 208, 104, .6);
+              filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#9987D068,endColorstr=#9987D068);
+            }
+
+            .ant-pwd-strength-high .ant-pwd-strength-item-3 {
+              background-color: #87D068;
+            }
           }
+        .editList{
+          width: 240px;
+          padding: 20px 0;
+          float: left;
+          p{clear: both;}
+        }
+        .editPhoneList{
+          width: 330px;
+          padding: 20px 0;
+          float: left;
+           p{clear: both;}
+          .editPhone{
+            
+          }
+          .phoneNumber{margin-top: 0;margin-left: 10px;}
+        }
       }
     }
     .wechatBox{

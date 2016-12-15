@@ -244,13 +244,8 @@ exports.createUser = function* () {
     }
     return
   }
-  const mailOptions = {
-    to: user.email, // list of receivers
-    subject: '用户创建成功通知', // Subject line
-    html: `<b>${loginUser.user}您好:</b><br/><br/>恭喜您成功创建如下用户: <br/>用户名: ${user.userName}<br/>密码: ${user.password}` // html body
-  }
   try {
-    yield email.sendEmail(mailOptions)
+    yield email.sendUserCreationEmail(user.email, loginUser.user, loginUser.email, user.userName, user.password)
     this.body = {
       data: result
     }

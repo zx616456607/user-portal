@@ -38,7 +38,7 @@ module.exports = { // 企业版
     manange_monitor: { // 管理与监控
       enable: true
     },
-    account: { // 账户中心
+    account: { // 帐户中心
       enable: true
     },
     setting: { // 系统设置

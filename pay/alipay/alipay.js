@@ -72,6 +72,4 @@ class AliPay extends EventEmitter {
     })
   }
 }
-
-
 module.exports = AliPay
