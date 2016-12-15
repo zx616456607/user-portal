@@ -17,7 +17,7 @@ import {EMAIL_REG_EXP} from '../../../constants'
 const Option = Select.Option;
 let valuesArr = []
 
-export default class ExitTeamModal extends Component{
+export default class InviteNewMemberModal extends Component{
   constructor(props){
     super(props)
     this.handleOk = this.handleOk.bind(this)
@@ -36,15 +36,17 @@ export default class ExitTeamModal extends Component{
     }
   }
   handleOk() {
-    const { closeInviteModal } = this.props
+    const { closeInviteModal, teamID } = this.props
     const { tags } = this.state
     let passTags = [] //正确的邮件
     
     passTags=tags.filter((item) => {
       return EMAIL_REG_EXP.test(item)
     })
-    console.log('passTags',passTags)
-    //req : 发送邀请
+    // 发送邀请
+    if (passTags.length > 0) {
+      this.props.sendInvitation(teamID ,passTags)
+    }
     closeInviteModal() //关闭弹窗
   }
   handleCancel() {
