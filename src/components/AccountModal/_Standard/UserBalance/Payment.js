@@ -9,28 +9,100 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
-import { Link, browserHistory} from 'react-router'
-import { Icon, Input, Button, Modal, Row, Col} from 'antd'
+import { Link, browserHistory } from 'react-router'
+import { Icon, Input, Button, Modal, Row, Col, Spin, } from 'antd'
+import { loadLoginUserDetail } from '../../../../actions/entities'
+import { getWechatPayQrCode, getWechatPayOrder } from '../../../../actions/wechat_pay'
+import QRCode from 'qrcode.react'
 import './style/balance.less'
 
 class UserPay extends Component {
   constructor(props) {
     super(props)
-    this.state ={
-      payType: 1, //支付类型
-      rechargeType: false, //充值状态
-      asyncInform: false, // 是否支付成功？
+    this.handlePayClick = this.handlePayClick.bind(this)
+    this.showWechatQrCode = this.showWechatQrCode.bind(this)
+    this.handleWechatPayCancel = this.handleWechatPayCancel.bind(this)
+    this.state = {
+      payType: 'alipay', //支付类型
+      payStatusModal: false, //充值状态
+      payStatusAskModal: false, // 是否支付成功？
+      wechatPayModal: false, // 微信充值
+      qrCode: {
+        url: '',
+      },
+      amount: 0.01,
+      balance: 0,
     }
   }
+
   changePayType(type) {
-    this.setState({payType:type})
+    this.setState({ payType: type })
   }
+
+  handlePayClick() {
+    const { payType } = this.state
+    const newState = {}
+    if (payType === 'alipay') {
+      newState.payStatusAskModal = true
+    } else {
+      newState.wechatPayModal = true
+      this.showWechatQrCode()
+    }
+    this.setState(newState)
+  }
+
+  showWechatQrCode() {
+    const { loadLoginUserDetail, getWechatPayQrCode, getWechatPayOrder } = this.props
+    const { amount } = this.state
+    this.setState({
+      qrCode: {
+        url: '',
+      }
+    })
+    getWechatPayQrCode(amount).then(({ response, type }) => {
+      const { codeUrl, nonceStr, orderId } = response.result
+      this.setState({
+        qrCode: {
+          url: codeUrl
+        }
+      })
+      this.getOrder && clearInterval(this.getOrder)
+      this.getOrder = setInterval(() => {
+        getWechatPayOrder(orderId, { nonce_str: nonceStr }).then(({ response, type }) => {
+          const { tradeState, result } = response.result
+          if (tradeState === 'SUCCESS') {
+            clearInterval(this.getOrder)
+            this.setState({
+              wechatPayModal: false,
+              payStatusModal: true,
+              balance: result.newBalance,
+            })
+            loadLoginUserDetail()
+          }
+        })
+      }, 1500)
+    })
+  }
+
+  componentWillUnmount() {
+    this.getOrder && clearInterval(this.getOrder)
+  }
+
+  handleWechatPayCancel() {
+    this.setState({ wechatPayModal: false })
+    this.getOrder && clearInterval(this.getOrder)
+  }
+
   render() {
+    let { payType, qrCode, amount, balance } = this.state
+    if (balance !== undefined) {
+      balance = (balance / 100).toFixed(2)
+    }
     return (
       <div id="UserPay">
         <div className="topPay">
           <span className="backjia"></span>
-          <span className="btn-back" onClick={()=>browserHistory.goBack()}>返回</span>
+          <span className="btn-back" onClick={() => browserHistory.goBack()}>返回</span>
           <span className="refill">充值</span>
         </div>
         <ul className="sendInfo">
@@ -46,7 +118,15 @@ class UserPay extends Component {
           </p>
           <p>
             <span className="keys">充值金额</span>
-            <Input size="large" style={{width:'200px'}} placeholder="单笔充值金额最少5元" />
+            <Input
+             size="large"
+             style={{ width: '200px' }}
+             placeholder="单笔充值金额最少5元"
+             onChange={(e) => {
+               this.setState({
+                 amount: e.target.value
+               })
+             }}/>
           </p>
           <p>
             <span className="keys">充值方式</span>
@@ -54,19 +134,32 @@ class UserPay extends Component {
           </p>
           <div className="againMore">
             <div className="pay-row">
-              <div className={this.state.payType ==1 ? 'wrap-img selected' :'wrap-img'} onClick={()=> this.changePayType(1)}>
-                <img src="/img/standard/allpay.png"  />
+              <div
+                className={payType == 'alipay' ? 'wrap-img selected' : 'wrap-img'}
+                onClick={() => this.changePayType('alipay')}>
+                <img src="/img/standard/allpay.png" />
                 <Icon type="check" />
                 <div className="triangle"></div> {/*no remove */}
               </div>
-              <div className={this.state.payType ==2 ? 'wrap-img selected' :'wrap-img'} onClick={()=> this.changePayType(2)}>
+              <div
+                className={payType == 'wechat_pay' ? 'wrap-img selected' : 'wrap-img'}
+                onClick={() => this.changePayType('wechat_pay')}>
                 <img src="/img/standard/weixin.png" alt="" />
                 <Icon type="check" />
                 <div className="triangle"></div> {/*no remove */}
               </div>
             </div>
-            <div className="pay-row" style={{marginTop:'20px'}}>
-              <Button type="primary" size="large" onClick={()=> this.setState({rechargeType: true})}>充值</Button>
+            <div className="pay-row" style={{ marginTop: '20px' }}>
+              <Button
+                type="primary"
+                size="large"
+                onClick={this.handlePayClick}>
+                {
+                  payType === 'alipay'
+                    ? <a target="_blank" href="/api/v2/payments/alipay/direct">充值</a>
+                    : '充值'
+                }
+              </Button>
               <br />
               <br />
               <br />
@@ -105,41 +198,68 @@ class UserPay extends Component {
                 （由于银行处理时间影响，充值记录会有延误）
               </div>
             </div>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
-            <br/>
           </div>
           {/* 充值成功 Modal */}
-          <Modal title="充值成功" visible={this.state.rechargeType} maskClosable={false}
-            onOk={this.handleOk} onCancel={()=>this.setState({rechargeType:false})} wrapClassName="paySuccessModal"
-            okText="继续充值" cancelText="查看充值记录" width={490}
-          >
+          <Modal
+            title="充值成功"
+            visible={this.state.payStatusModal}
+            maskClosable={false}
+            onOk={() => this.setState({ payStatusModal: false })}
+            onCancel={() => {
+              this.setState({ payStatusModal: false })
+              // browserHistory.push('/account/cost#payments')
+            }}
+            wrapClassName="paySuccessModal"
+            okText="继续充值"
+            cancelText="查看充值记录" width={490}
+            >
             <div className="paySuccess"><Icon type="check" /></div>
             <p className="payText">支付成功</p>
-            <br/>
-            <p>通过支付宝向团队 <a>研发团队</a></p>
-            <p>充值金额为<span className="success"> 100.0</span>元，当前团队余额为 <a>1100.0</a>元</p>
+            <br />
+            <p>通过{payType === 'alipay' ? `支付宝` : `微信`}向团队 <a>研发团队</a></p>
+            <p>充值金额为<span className="success"> {amount}</span>元，当前团队余额为 <a>{balance}</a>元</p>
           </Modal>
           {/* 充值成功 end Modal */}
 
 
           {/* 是否支付成功 Modal */}
-          <Modal title="是否支付成功" visible={this.state.asyncInform} maskClosable={false}
-            onOk={this.handleOk} onCancel={()=>this.setState({asyncInform:false})} wrapClassName="paySuccessModal"
-            okText="支付成功" cancelText="支付失败" width={490}
-          >
+          <Modal
+            title="是否支付成功"
+            visible={this.state.payStatusAskModal}
+            maskClosable={false}
+            onOk={this.handleOk}
+            onCancel={() => this.setState({ payStatusAskModal: false })}
+            wrapClassName="paySuccessModal"
+            okText="支付成功"
+            cancelText="支付失败"
+            width={490}
+            >
             <div className="paySuccess question"><Icon type="question" /></div>
             <p className="payText question">是否支付成功</p>
-            <br/>
+            <br />
+          </Modal>
+          {/* 是否支付成功 end Modal */}
+
+
+          {/* 微信支付 Modal */}
+          <Modal
+            title="微信支付"
+            visible={this.state.wechatPayModal}
+            maskClosable={false}
+            onOk={this.handleOk}
+            onCancel={this.handleWechatPayCancel}
+            wrapClassName="wechatPayModal"
+            okText="支付成功"
+            cancelText="支付失败"
+            footer={null}
+            width={300}
+            >
+            {
+              !qrCode.url
+              ? <div className="qrCodeLoading"><Spin  size="large" /></div>
+              : <div className="qrCode"><QRCode value={qrCode.url} size={200} /></div>
+            }
+            <div className="wechatPayModalFooter">支付成功后，页面会自动刷新</div>
           </Modal>
           {/* 是否支付成功 end Modal */}
         </div>
@@ -153,5 +273,7 @@ function mapStateToProps(state, props) {
 }
 
 export default connect(mapStateToProps, {
-  //
+  loadLoginUserDetail,
+  getWechatPayQrCode,
+  getWechatPayOrder,
 })(UserPay)

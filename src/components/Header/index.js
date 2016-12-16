@@ -222,12 +222,16 @@ class Header extends Component {
     teamClusters.map((cluster) => {
       cluster.name = cluster.clusterName
     })
+    let { balance } = loginUser.info
+    if (balance !== undefined) {
+      balance = (balance / 100).toFixed(2)
+    }
     let logMenu = (
       <div className='logMenu'>
         <div className='rechangeInf'>
           <div className='balance'>
             <p>帐户余额 &nbsp;:</p>
-            <p><span>{loginUser.info.balance ? loginUser.info.balance : 0}</span><span style={{ fontSize: '14px', color: '#8a8a8a' }}>&nbsp;&nbsp;T币</span></p>
+            <p><span>{balance ||  '-'}</span><span style={{ fontSize: '14px', color: '#8a8a8a' }}>&nbsp;&nbsp;T币</span></p>
           </div>
           <Button style={{ height: 30, backgroundColor: '#46b2fa', borderColor: '#46b2fa', color: '#fff', fontSize: '14px' }}>立即充值</Button>
         </div>
