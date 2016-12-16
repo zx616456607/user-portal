@@ -551,10 +551,11 @@ class CostRecord extends Component{
             standard ?
             <div>
               <i className='fa fa-cube'/>
-              <div className='popSelect'>
+              <div className='popTeamSelect'>
                 <Popover
                   title='选择团队帐户'
                   trigger='click'
+                  overlayClassName='standardPopTeamOver'
                   content={
                     <PopContent
                       list={teamspaces}
@@ -565,7 +566,6 @@ class CostRecord extends Component{
                 >
                   <span>我的团队 <Icon type='down' style={{ fontSize: '8px' }}/></span>
                 </Popover>
-                
               </div>
             </div>:
             <div>
