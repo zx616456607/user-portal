@@ -571,7 +571,7 @@ class MyTeam extends Component {
         </Row>
         <Row className="teamList">
           <Card>
-            <TeamTable data={teams}
+            <TeamTable data={teams.items}
               scope={scope}
               addTeamusers={addTeamusers}
               loadUserTeamList={loadUserTeamList}
@@ -588,23 +588,26 @@ class MyTeam extends Component {
 }
 
 function mapStateToProp(state, props) {
-  let teamsData = []
+  let teamsData = {
+    current:0,
+    items:[],
+  }
   let total = 0
   let teamUserIDList = []
   const teams = state.user.teams
   if (!teams.isFetching && teams.result && teams.result.data && teams.result.data.data) {
     teamsData = teams.result.data.data
-    teamsData.map((item) => {
+    teamsData.items.map((item) => {
       item.role = item.isCreator ? '创建者（管理员）' : '普通成员'
       item.key = item.id
       item.creationTime = moment(item.creationTime).fromNow()
       item.balance = item.balance / 100
     })
-    total = teamsData.length
+    total = teamsData.total
   }
   return {
     teams: teamsData,
-    total,
+    total
   }
 }
 
