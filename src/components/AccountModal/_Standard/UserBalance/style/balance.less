@@ -1,0 +1,150 @@
+@borderColor: #E4E8F3;
+@activeColor: #2db7f5;
+#UserBalance{
+  .myAccount,.myTeam{
+    background: white;
+    border-radius: 5px;
+    font-size: 14px;
+    .topRow{
+      padding:0 20px;
+      line-height: 50px;height: 50px;
+      .typeIcon{margin-right: 5px;font-size: 14px;}
+    }
+    .moneyRow{
+      border-top: 1px solid @borderColor;
+      border-bottom: 1px solid @borderColor;
+      padding: 30px 50px;
+      .money{font-size: 2em;color:@activeColor}
+      .notText{line-height: 50px;}
+      .fa-users{font-size: 2em;color:@activeColor}
+    }
+    .rechargeRow{padding:0 50px;line-height: 50px;}
+  }
+  .myTeam{margin-top: 20px;}
+
+}
+
+// ----------------  充值页面  ------------------
+#UserPay{
+  font-size: 14px;
+  .topPay{
+    height: 50px;padding:20px 0;
+    .backjia{
+      display: inline-block;
+      width: 0px;
+      height: 0px;
+      border-bottom: 15px solid transparent;
+      border-top: 15px solid transparent;
+      border-right: 15px solid #00A0E9;
+      font-size: 0px;
+      line-height: 0px;
+    }
+    .btn-back{
+      display: inline-block;
+      background: #00A0E9;
+      color: white;height: 30px;line-height: 30px;
+      vertical-align: top;
+      width: 43px;
+      padding-left: 5px;
+      border-top-right-radius: 5px;
+      border-bottom-right-radius: 5px;
+      cursor: pointer;
+    }
+  }
+  .refill{
+    border-left: 5px solid #2DB7F5;vertical-align: top;margin-left: 20px;
+    line-height: 33px;padding: 0 4px;
+  }
+  .sendInfo{
+    background: #D9EDF6;border:1px dashed #94DBFC;
+    padding:10px 20px;border-radius: 6px;color: @activeColor;
+    margin:20px 0;
+  }
+  .payDetail{
+    background: white;padding:0 50px;
+    >p{
+      line-height: 50px;
+    }
+    .keys{display: inline-block;width: 90px;}
+  }
+  .againMore{
+    padding-left: 90px;
+    .pay-row{
+      clear: both;
+      overflow: hidden;
+      .wrap-img{
+        width: 140px;height: 50px;float: left;border:1px solid @borderColor;
+        margin-right: 40px;vertical-align: middle;
+        text-align: center;padding-top:6px;border-radius: 5px;
+        position: relative;
+        i{
+          display: none;
+          position: absolute;
+          right: 0px;bottom: 0;
+          font-size: 8px;
+          z-index: 2;color: white;
+        }
+        .triangle{
+          display: none;
+          width: 0px;
+          height: 0px;
+          border-bottom: 0px solid transparent;
+          border-top: 20px solid transparent;
+          border-right: 23px solid #00A1EC;
+          font-size: 0px;
+          line-height: 0px;
+          position: absolute;
+          top:28px;
+          right: 0;
+        }
+      }
+      .wrap-img.selected{
+        border-color: #00A1EC;
+        i{display: inline-block;}.triangle{display: block;}
+      }
+    }
+    .tips{
+      border:1px solid @borderColor;padding:20px;border-radius: 5px;
+      .list-top{font-weight: 500;color: #000;line-height: 50px;height:40px;font-family: '宋体'}
+      .ticket{background: #F6F7FB;border:1px solid @borderColor;padding:15px 20px;border-radius: 5px;}
+      .timeout{color: #EE5341}
+      .list-row{line-height: 40px;padding:0 20px;}
+    }
+  }
+}
+
+.paySuccessModal{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  .ant-modal {
+    top: 0;
+  }
+  .ant-modal-header{background: white !important;text-indent: -9999px;border:0;}
+  .ant-modal-body{
+    font-size: 14px;
+    text-align: center;
+    p{
+      line-height: 25px;
+      .success{color: #5DB75D;}
+    }
+    .paySuccess{
+      width:60px;height: 60px;
+      border-radius: 60px;
+      background: #5EB75D;
+      text-align: center;overflow: hidden;font-size: 40px;
+      color: white;
+      margin-right: auto;
+      margin-left: auto;
+      margin-bottom: 10px;
+    }
+    .paySuccess.question{background: #009EE7;}
+    .payText.question{border:0}
+    .payText{
+      width: 160px;
+      margin:0 auto;
+      border-bottom: 1px solid @borderColor;line-height: 30px;
+    }
+  }
+  .ant-modal-footer{text-align: center;background: #F7F8FC;line-height: 40px;}
+}
