@@ -253,7 +253,7 @@ class TeamDetail extends Component {
                 </Button>
               </Row>
               <Card className="content">
-                <Table columns={this.getColumns(currentRole,inviting)} dataSource={data} onChange={this.handleTableChange} pagination={pagination}/>
+                <Table columns={this.getColumns(currentRole,inviting)} dataSource={data} onChange={this.handleTableChange} pagination={false}/>
               </Card>
             </div>:
             <div>
