@@ -13,6 +13,7 @@
 
 const authController = require('../controllers/auth')
 const indexCtl = require('../controllers')
+const teamController = require('../controllers/_standard/team')
 
 module.exports = function (Router) {
   const router = new Router({})
@@ -27,6 +28,7 @@ module.exports = function (Router) {
   router.get('/captcha/:captcha/verify', authController.checkCaptchaIsCorrect)
   // Invite
   router.get('/teams/invite', indexCtl.index)
+  router.get('/teams/invitations/:code', teamController.getInvitationInfo)
 
   return router.routes()
 }

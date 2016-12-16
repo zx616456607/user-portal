@@ -37,13 +37,12 @@ module.exports = function (Router) {
   // team
   router.post('/teams/teamandspace', teamController.createTeamAndSpace)
   router.post('/teams/:teamid/invitations', teamController.createInvitations)
-  router.get('/teams/invitations/:code', teamController.getInvitationInfo)
   router.get('/teams/:team/dissolvable', teamController.checkDissolvable)
   router.delete('/teams/:team', teamController.deleteTeam)
   router.post('/teams/:team/quit', teamController.quitTeam)
   router.delete('/teams/:team/users/:username', teamController.removeMember)
   router.delete('/teams/:team/invitations/:code', teamController.cancelInvitation)
-  router.post('/teams/:team/join', teamController.joinTeam)
+  router.post('/teams/join', teamController.joinTeam)
 
   // Payment related
   router.post('/payments', paymentController.createPrepayRecord)
