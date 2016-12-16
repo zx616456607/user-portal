@@ -427,6 +427,8 @@ let TeamTable = React.createClass({
                 visible={this.state.nowTeamID === record.key && showDelModal}
                 closeDelTeamModal={this.closeDelTeamModal}
                 teamID={record.id}
+                dissolveTeam={dissolveTeam}
+                loadUserTeamList={loadUserTeamList}
               />
             </Dropdown.Button>
             :
@@ -577,6 +579,7 @@ class MyTeam extends Component {
               teamUserIDList={teamUserIDList}
               sendInvitation={this.props.sendInvitation}
               quitTeam={quitTeam}
+              dissolveTeam={dissolveTeam}
             />
           </Card>
         </Row>

@@ -9,6 +9,7 @@
  */
 import React, { Component } from 'react'
 import { Modal,Alert,Icon,Button,Row,Col,Input } from 'antd'
+import NotificationHandler from '../../../common/notification_handler'
 
 let message = (
   <Row className="tip">
@@ -32,9 +33,24 @@ export default class ExitTeamModal extends Component{
   }
   handleExitTeamOk() {
     const { closeExitTeamModal, quitTeam, teamID, loadUserTeamList } = this.props
+    let notification = new NotificationHandler()
+    notification.spin(`退出团队中...`)
+    quitTeam(teamID, {
+      success: {
+        func: () => {
+          notification.close()
+          loadUserTeamList()
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: (err) => {
+          notification.close()
+          notification.error(`退出团队失败`, err.message.message)
+        }
+      }
+    })
     closeExitTeamModal()
-    quitTeam(teamID)
-    loadUserTeamList()
   }
   handleExitTeamCancel() {
     const { closeExitTeamModal } = this.props

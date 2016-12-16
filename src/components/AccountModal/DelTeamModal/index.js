@@ -9,6 +9,7 @@
  */
 import React, { Component } from 'react'
 import { Modal,Alert,Icon,Button,Row,Col,Input } from 'antd'
+import NotificationHandler from '../../../common/notification_handler'
 
 let balanceMessage = (
   <Row className="tip delTip">
@@ -60,8 +61,24 @@ export default class DelTeamModal extends Component{
     }
   }
   handleOk() {
-    const { closeDelTeamModal, teamID } = this.props
-    console.log('teamID',teamID)//当前团队ID
+    const { closeDelTeamModal, teamID, dissolveTeam, loadUserTeamList } = this.props
+    let notification = new NotificationHandler()
+    notification.spin(`解散团队中...`)
+    dissolveTeam(teamID, {
+      success: {
+        func: () => {
+          notification.close()
+          loadUserTeamList()
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: (err) => {
+          notification.close()
+          notification.error(`解散团队失败`, err.message.message)
+        }
+      }
+    })
     closeDelTeamModal()
   }
   handleCancel() {

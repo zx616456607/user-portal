@@ -496,7 +496,7 @@ export const NORMAL_MEMBER_QUIT_TEAM_REQUEST = 'NORMAL_MEMBER_QUIT_TEAM_REQUEST'
 export const NORMAL_MEMBER_QUIT_TEAM_SUCCESS = 'NORMAL_MEMBER_QUIT_TEAM_SUCCESS'
 export const NORMAL_MEMBER_QUIT_TEAM_FAILURE = 'NORMAL_MEMBER_QUIT_TEAM_FAILURE'
 
-function fetchQuitTeam(teamID) {
+function fetchQuitTeam(teamID, callback) {
   let endpoint = `${API_URL_PREFIX}/teams/${teamID}/quit`
   return {
     [FETCH_API]: {
@@ -506,13 +506,14 @@ function fetchQuitTeam(teamID) {
       options: {
         method: 'POST',
       },
-    }
+    },
+    callback,
   }
 }
 
-export function quitTeam(teamID) {
+export function quitTeam(teamID, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchQuitTeam(teamID))
+    return dispatch(fetchQuitTeam(teamID, callback))
   }
 }
 
@@ -520,7 +521,7 @@ export const CREATOR_DESSOLVE_TEAM_REQUEST = 'CREATOR_DESSOLVE_TEAM_REQUEST'
 export const CREATOR_DESSOLVE_TEAM_SUCCESS = 'CREATOR_DESSOLVE_TEAM_SUCCESS'
 export const CREATOR_DESSOLVE_TEAM_FAILURE = 'CREATOR_DESSOLVE_TEAM_FAILURE'
 
-function fetchDissolveTeam(teamID) {
+function fetchDissolveTeam(teamID, callback) {
   let endpoint = `${API_URL_PREFIX}/teams/${teamID}`
   return {
     [FETCH_API]: {
@@ -528,15 +529,16 @@ function fetchDissolveTeam(teamID) {
       endpoint,
       schema: {},
       options: {
-        method: 'POST',
+        method: 'DELETE',
       },
-    }
+    },
+    callback,
   }
 }
 
-export function dissolveTeam(teamID) {
+export function dissolveTeam(teamID, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchDissolveTeam(teamID))
+    return dispatch(fetchDissolveTeam(teamID, callback))
   }
 }
 
