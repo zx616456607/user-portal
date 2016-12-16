@@ -34,7 +34,6 @@ class UserBalance extends Component {
     );
     return (
       <div id="UserBalance">
-        帐户余额，<Link to="/account/balance/pay">充值</Link>
         <div className="myAccount">
           <div className="topRow"><Icon type="user" className="typeIcon" />我的账户</div>
           <div className="moneyRow">
@@ -42,10 +41,10 @@ class UserBalance extends Component {
             <div>其中优惠券￥5元，充值金额￥100元 &nbsp;<Icon type="question-circle-o" /></div>
           </div>
           <div className="rechargeRow">
-            <Button type="primary" size="large" onClick={() => browserHistory.push('/account/balance/pay')}>立即充值</Button>
+            <Button type="primary" size="large" onClick={() => browserHistory.push('/account/balance/payment')}>立即充值</Button>
           </div>
         </div>
-        
+
         <div className="myTeam">
           <div className="topRow">
           <Icon type="team" className="typeIcon"/>
@@ -69,7 +68,7 @@ class UserBalance extends Component {
           }
           {this.state.notAccount ?
           <div className="rechargeRow">
-            <Button type="primary" size="large" onClick={() => browserHistory.push('/account/balance/pay')}>立即充值</Button>
+            <Button type="primary" size="large" onClick={() => browserHistory.push('/account/balance/payment')}>立即充值</Button>
           </div>
           :null
           }
