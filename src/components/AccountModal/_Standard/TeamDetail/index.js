@@ -12,6 +12,7 @@ import { Row, Col, Alert, Card, Icon, Button, Table, Menu, Dropdown, Modal, Inpu
 import './style/TeamDetail.less'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
+import InviteNewMemberModal from '../../InviteNewMemberModal'
 import { loadTeamUserListStd } from '../../../../actions/team'
 
 const data = [
@@ -27,6 +28,14 @@ class TeamDetail extends Component {
     this.getSort = this.getSort.bind(this)
     this.handleSortMemberName = this.handleSortMemberName.bind(this)
     this.getColumns = this.getColumns.bind(this)
+    this.handleRemoveMember = this.handleRemoveMember.bind(this)
+    this.handleCancelInvite = this.handleCancelInvite.bind(this)
+    this.handleClickRecharge = this.handleClickRecharge.bind(this)
+    this.handleQuiteTeam = this.handleQuiteTeam.bind(this)
+    this.handleDelTeam = this.handleDelTeam.bind(this)
+    this.handleAddNewMember = this.handleAddNewMember.bind(this)
+    this.closeInviteModal = this.closeInviteModal.bind(this)
+
     this.state = {
       filteredInfo: null,
       sortedInfo: null,
@@ -36,8 +45,10 @@ class TeamDetail extends Component {
       pageSize: 5,
       page: 1,
       current: 1,
+      showInviteModal: false,
     }
   }
+  //表单变化(排序,删选)
   handleTableChange(pagination, filters, sorter) {
     console.log('各类参数是', pagination, filters, sorter);
     this.setState({
@@ -45,6 +56,7 @@ class TeamDetail extends Component {
       sortedInfo: sorter,
     })
   }
+  //排序规则
   getSort(order, column) {
     var query = {}
     var orderStr = 'a,'
@@ -53,6 +65,7 @@ class TeamDetail extends Component {
     }
     return orderStr + column
   }
+  //团队成员名排序
   handleSortMemberName() {
     const { sortMemberName } = this.state
     let sort = this.getSort(!sortMemberName, 'memberName')
@@ -62,9 +75,44 @@ class TeamDetail extends Component {
       sort,
     })
   }
-  getColumns (role,state) {
+  //移除成员
+  handleRemoveMember (memberID) {
+    console.log('handleRemoveMember--memberID',memberID)
+  }
+  //取消邀请
+  handleCancelInvite (memberID) {
+    console.log('handleCancelInvite--memberID',memberID)
+  }
+  //去充值
+  handleClickRecharge (teamID) {
+    console.log('handleClickRecharge--teamID',teamID)
+  }
+  //退出团队
+  handleQuiteTeam (teamID) {
+    console.log('handleQuiteTeam--teamID',teamID)
+  }
+  //解散团队
+  handleDelTeam (teamID) {
+    console.log('handleDelTeam--teamID',teamID)
+  }
+  //添加新成员
+  handleAddNewMember (teamID) {
+    console.log('handleAddNewMember--teamID',teamID)
+    this.setState({
+      showInviteModal: true,
+    })
+  }
+  //关闭邀请新成员弹窗
+  closeInviteModal() {
+    this.setState({
+      showInviteModal: false,
+    })
+  }
+  //table列配置
+  getColumns (role,inviteState) {
     console.log(role);
-    let { sortedInfo, filteredInfo, sortMemberName, sort,filter} = this.state
+    let { sortedInfo, filteredInfo, sortMemberName, sort, filter } = this.state
+    //普通成员
     if(role === 0){
       return [
         {
@@ -86,6 +134,8 @@ class TeamDetail extends Component {
           className: 'memberName',
           width: '33%',
           render: (text, record, index) => (
+            index === 0 ?
+            <div>{text}(我)</div>:
             <div>{text}</div>
           )
         },
@@ -103,6 +153,7 @@ class TeamDetail extends Component {
         },
       ]
     }
+    //创建者
     return [
       {
         title: (
@@ -123,6 +174,10 @@ class TeamDetail extends Component {
         className: 'memberName',
         width: '20%',
         render: (text, record, index) => (
+          index === 0 ?
+          <div>{text}(我)</div>:
+          inviteState ?
+          <div>{text} (接收邀请中 ...)</div>:
           <div>{text}</div>
         )
       },
@@ -145,12 +200,14 @@ class TeamDetail extends Component {
         width: '20%',
         className: 'tabOpt',
         render: (text, record, index) => (
-        index === 0?
-          <Button className="tabOptBtn" icon="setting">账号设置</Button>
+        index === 0 ?
+          <Link to='/account'>
+            <Button className="tabOptBtn" icon="setting">账号设置</Button>
+          </Link>
           :
-          state ?
-            <Button className="tabOptBtn hoverRed" icon="cross">取消邀请</Button>:
-            <Button className="tabOptBtn hoverRed" icon="delete">移除</Button>
+          inviteState ?
+            <Button className="tabOptBtn hoverRed" icon="cross" onClick={() => this.handleCancelInvite(record.key)}>取消邀请</Button>:
+            <Button className="tabOptBtn hoverRed" icon="delete" onClick={() => this.handleRemoveMember(record.key)}>移除</Button>
         )
       },
     ]
@@ -163,34 +220,10 @@ class TeamDetail extends Component {
   render() {
     const scope = this
     let { sortedInfo, filteredInfo, sortMemberName, sort,filter} = this.state
-    const { teamName, teamID, currentRole, teamUserList } = this.props
+    const { teamName, teamID, currentRole, teamUserList, showInviteModal } = this.props
     let inviting = true //邀请中状态
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
-    const pagination = {
-      simple: {true},
-      total: 1,
-      sort,
-      filter,
-      showSizeChanger: true,
-      defaultPageSize: 5,
-      defaultCurrent: 1,
-      current: this.state.current,
-      onShowSizeChange(current, pageSize) {
-        this.setState({
-          page: current,
-          pageSize: pageSize,
-          current: 1,
-        })
-      },
-      onChange(current) {
-        this.setState({
-          page: current,
-          pageSize: this.state.pageSize,
-          current: current,
-        })
-      },
-    }
     
     return (
       <div id='TeamDetail'>
@@ -201,27 +234,38 @@ class TeamDetail extends Component {
           </span>
         </Row>
         {
-          currentRole === 0?
+          currentRole === 0 ?
             <div>
               <Alert message="这里展示了该团队的团队成员信息，作为普通成员您可退出团队。" />
               <Row className="memberOption">
-                <Button icon='logout' className='quitTeamBtn'>
+                <Button icon='logout' className='quitTeamBtn' onClick={() => this.handleQuiteTeam(teamID)}>
                   退出团队
                 </Button>
               </Row>
               <Card className="content">
-                <Table columns={this.getColumns(currentRole,inviting)} dataSource={teamUserList} onChange={this.handleTableChange} pagination={pagination}/>
+                <Table columns={this.getColumns(currentRole,inviting)} dataSource={teamUserList} onChange={this.handleTableChange} pagination={false}/>
               </Card>
             </div>:
             <div>
               <Alert message="这里展示了该团队的团队成员信息，作为创建者您可管理团队、邀请新成员、解散团队、移除团队成员和跳转到“我的账户”。" />
               <Row className="memberOption">
-                <Button icon='logout' className='quitTeamBtn'>
-                  退出团队
+                <Button icon='plus' className='quitTeamBtn' onClick={() => this.handleAddNewMember(teamID)}>
+                  邀请新成员
+                </Button>
+                <InviteNewMemberModal
+                  visible={ showInviteModal }
+                  closeInviteModal={this.closeInviteModal}
+                  teamID={teamID}
+                />
+                <Button icon='logout' className='delTeamBtn' onClick={() => this.handleDelTeam(teamID)}>
+                  解散团队
+                </Button>
+                <Button icon='pay-circle-o' className='rechargeBtn' onClick={() => this.handleClickRecharge(teamID)}>
+                  去充值
                 </Button>
               </Row>
               <Card className="content">
-                <Table columns={this.getColumns(currentRole,inviting)} dataSource={teamUserList} onChange={this.handleTableChange} pagination={pagination}/>
+                <Table columns={this.getColumns(currentRole,inviting)} dataSource={teamUserList} onChange={this.handleTableChange} pagination={false}/>
               </Card>
             </div>
         }
@@ -232,8 +276,6 @@ class TeamDetail extends Component {
 function mapStateToProp(state, props) {
   const { team_id, team_name } = props.params
   let currentRole = 0
-  console.log('props',props);
-  console.log('state',state);
   const { loginUser } = state.entities
   if(loginUser.info){
     currentRole = loginUser.info.role

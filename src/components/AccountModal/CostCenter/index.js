@@ -11,6 +11,8 @@ import React, { Component } from 'react'
 import { Tabs , } from 'antd'
 import CostRecord from './CostRecord'
 import RechargeRecord from './RechargeRecord'
+const mode = require('../../../../configs/model').mode
+const standard = require('../../../../configs/constants').STANDARD_MODE
 
 const TabPane = Tabs.TabPane;
 
@@ -29,10 +31,10 @@ export default class CostCenter extends Component{
       <div id='CostCenter'>
         <Tabs defaultActiveKey="1">
           <TabPane tab="消费记录" key="1">
-            <CostRecord />
+            <CostRecord standard={mode === standard}/>
           </TabPane>
           <TabPane tab="充值记录" key="2">
-            <RechargeRecord />
+            <RechargeRecord standard={mode === standard}/>
           </TabPane>
         </Tabs>
       </div>
