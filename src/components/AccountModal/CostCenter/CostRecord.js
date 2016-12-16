@@ -8,9 +8,10 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Card, Icon, Button, DatePicker, Table, Select } from 'antd'
+import { Row, Col, Card, Icon, Button, DatePicker, Table, Select, Popover } from 'antd'
 import './style/CostRecord.less'
 import PopSelect from '../../PopSelect'
+import PopContent from '../../PopSelect/Content'
 import { connect } from 'react-redux'
 import { loadUserTeamspaceList } from '../../../actions/user'
 import { loadTeamClustersList } from '../../../actions/team'
@@ -546,19 +547,43 @@ class CostRecord extends Component{
     return (
       <div id='CostRecord'>
         <Card className='selectSpace'>
-          <i className='fa fa-cube'/>
-          <div className='popSelect'>
-            <PopSelect
-              title="选择项目空间"
-              btnStyle={false}
-              special={true}
-              visible={spacesVisible}
-              list={teamspaces}
-              loading={false}
-              onChange={this.handleSpaceChange}
-              selectValue={ currentSpaceName }
-          />
-          </div>
+          {
+            standard ?
+            <div>
+              <i className='fa fa-cube'/>
+              <div className='popTeamSelect'>
+                <Popover
+                  title='选择团队帐户'
+                  trigger='click'
+                  overlayClassName='standardPopTeamOver'
+                  content={
+                    <PopContent
+                      list={teamspaces}
+                      onChane={this.handleSpaceChange}
+                      loading={false}
+                    />
+                  }
+                >
+                  <span>我的团队 <Icon type='down' style={{ fontSize: '8px' }}/></span>
+                </Popover>
+              </div>
+            </div>:
+            <div>
+              <i className='fa fa-cube'/>
+              <div className='popSelect'>
+                <PopSelect
+                  title="选择项目空间"
+                  btnStyle={false}
+                  special={true}
+                  visible={spacesVisible}
+                  list={teamspaces}
+                  loading={false}
+                  onChange={this.handleSpaceChange}
+                  selectValue={ currentSpaceName }
+                />
+              </div>
+            </div>
+          }
         </Card>
         {
           (loginUser.info.role === 1 && currentTeamName)?
