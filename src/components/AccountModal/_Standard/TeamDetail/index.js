@@ -220,7 +220,7 @@ class TeamDetail extends Component {
   render() {
     const scope = this
     let { sortedInfo, filteredInfo, sortMemberName, sort,filter} = this.state
-    const { teamName, teamID, currentRole, teamUserList } = this.props
+    const { teamName, teamID, currentRole, teamUserList, showInviteModal } = this.props
     let inviting = true //邀请中状态
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
