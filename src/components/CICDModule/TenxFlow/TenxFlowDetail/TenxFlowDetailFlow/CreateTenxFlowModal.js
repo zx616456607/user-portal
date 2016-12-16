@@ -16,7 +16,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../../constants'
 import { appNameCheck } from '../../../../../common/naming_validation'
 import DockerFileEditor from '../../../../Editor/DockerFile'
-import { createTenxFlowState, createDockerfile, getAvailableImage } from '../../../../../actions/cicd_flow'
+import { createTenxFlowState, createDockerfile } from '../../../../../actions/cicd_flow'
 import './style/CreateTenxFlowModal.less'
 import EnvComponent from './EnvComponent.js'
 import CreateImageEnvComponent from './CreateImageEnvComponent.js'
@@ -227,9 +227,9 @@ let CreateTenxFlowModal = React.createClass({
     }
   },
   componentWillMount() {
-    const self = this
-    const {getAvailableImage} = this.props
-    getAvailableImage()
+    // const self = this
+    // const {getAvailableImage} = this.props
+    // getAvailableImage()
   },
   flowNameExists(rule, value, callback) {
     //this function for check the new tenxflow name is exist or not
@@ -1127,13 +1127,7 @@ let CreateTenxFlowModal = React.createClass({
 });
 
 function mapStateToProps(state, props) {
-  const defaultState = {
-    imageList: []
-  }
-  const { availableImage } = state.cicd_flow
-  const { imageList } = availableImage || defaultState
   return {
-    imageList
   }
 }
 
@@ -1145,8 +1139,7 @@ CreateTenxFlowModal.propTypes = {
 
 export default connect(mapStateToProps, {
   createTenxFlowState,
-  createDockerfile,
-  getAvailableImage
+  createDockerfile
 })(injectIntl(CreateTenxFlowModal, {
   withRef: true,
 }));
