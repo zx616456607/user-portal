@@ -13,7 +13,7 @@ import './style/TeamDetail.less'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import InviteNewMemberModal from '../../InviteNewMemberModal'
-import { loadTeamUserListStd, removeTeamusersStd } from '../../../../actions/team'
+import { loadTeamUserListStd, removeTeamusersStd, cancelInvitation } from '../../../../actions/team'
 
 const data = [
   {key: '1',name: 'zhaoxy1',tel: '123',email:'1111@tenxcloud.com',role:1},
@@ -81,8 +81,9 @@ class TeamDetail extends Component {
     this.props.removeTeamusersStd(this.props.teamID, userName)
   }
   //取消邀请
-  handleCancelInvite (memberID) {
-    console.log('handleCancelInvite--memberID',memberID)
+  handleCancelInvite (email) {
+    console.log('handleCancelInvite--email',email)
+    this.props.cancelInvitation(this.props.teamID, email)
   }
   //去充值
   handleClickRecharge (teamID) {
@@ -333,4 +334,5 @@ function mapStateToProp(state, props) {
 export default connect(mapStateToProp, {
   loadTeamUserListStd,
   removeTeamusersStd,
+  cancelInvitation,
 })(TeamDetail)

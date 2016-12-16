@@ -357,6 +357,34 @@ export function removeTeamusersStd(teamID, username, callback) {
   }
 }
 
+export const INVITATION_CANCEL_REQUEST = 'INVITATION_CANCEL_REQUEST'
+export const INVITATION_CANCEL_SUCCESS = 'INVITATION_CANCEL_SUCCESS'
+export const INVITATION_CANCEL_FAILURE = 'INVITATION_CANCEL_FAILURE'
+
+// Cancel team member invitation from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchCancelInvitation(teamID, email, callback) {
+  let endpoint = `${API_URL_PREFIX}/teams/${teamID}/invitations/${email}`
+  return {
+    [FETCH_API]: {
+      types: [INVITATION_CANCEL_REQUEST, INVITATION_CANCEL_SUCCESS, INVITATION_CANCEL_FAILURE],
+      endpoint,
+      options: {
+        method: 'DELETE'
+      },
+      schema: {},
+    },
+    callback
+  }
+}
+// Cancel team member invitation from API
+// Relies on Redux Thunk middleware.
+export function cancelInvitation(teamID, email, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchCancelInvitation(teamID, email, callback))
+  }
+}
+
 export const TEAMSPACE_DELETE_REQUEST = 'TEAMSPACE_DELETE_REQUEST'
 export const TEAMSPACE_DELETE_SUCCESS = 'TEAMSPACE_DELETE_SUCCESS'
 export const TEAMSPACE_DELETE_FAILURE = 'TEAMSPACE_DELETE_FAILURE'
