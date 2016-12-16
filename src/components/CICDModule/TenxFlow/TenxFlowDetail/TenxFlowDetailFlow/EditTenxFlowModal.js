@@ -329,13 +329,14 @@ let EditTenxFlowModal = React.createClass({
   },
   flowNameExists(rule, value, callback) {
     //this function for check the new tenxflow name is exist or not
-    const { stageList } = this.props;
+    const { stageList } = this.props.rootScope.props;
     let errorMsg = appNameCheck(value, '项目名称')
+    const self = this
     if(errorMsg == 'success') {
       let flag = false;
       if (stageList.length > 0) {
         stageList.map((item) => {
-          if (item.metadata.name == value) {
+          if (item.metadata.name == value && self.props.stageId !== item.metadata.id) {
             flag = true;
             errorMsg = appNameCheck(value, '项目名称', true);
             callback([new Error(errorMsg)]);

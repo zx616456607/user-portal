@@ -114,9 +114,12 @@ const MyComponent = React.createClass({
     let notification = new NotificationHandler()
     parentScope.props.addCodeRepo('gitlab', item, {
       success: {
-        func: () => {
+        func: (res) => {
           const { formatMessage } = self.props
           notification.success(formatMessage(menusText.SuccessfulActivation))
+          if (res.data.warnings) {
+            notification.warn('公钥或WebHook未设置成功，请手动设置')
+          }
         }
       }
     })
