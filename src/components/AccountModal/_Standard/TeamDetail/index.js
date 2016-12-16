@@ -13,6 +13,7 @@ import './style/TeamDetail.less'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import InviteNewMemberModal from '../../InviteNewMemberModal'
+import { loadTeamUserListStd } from '../../../../actions/team'
 
 const data = [
   {key: '1',name: 'zhaoxy1',tel: '123',email:'1111@tenxcloud.com',role:1},
@@ -68,6 +69,7 @@ class TeamDetail extends Component {
   handleSortMemberName() {
     const { sortMemberName } = this.state
     let sort = this.getSort(!sortMemberName, 'memberName')
+    //loadTeamUserListStd(teamID, { sort })
     this.setState({
       sortMemberName: !sortMemberName,
       sort,
@@ -130,7 +132,7 @@ class TeamDetail extends Component {
           dataIndex: 'name',
           key: 'name',
           className: 'memberName',
-          width: '25%',
+          width: '33%',
           render: (text, record, index) => (
             index === 0 ?
             <div>{text}(我)</div>:
@@ -138,22 +140,16 @@ class TeamDetail extends Component {
           )
         },
         {
-          title: '手机',
-          dataIndex: 'tel',
-          key: 'tel',
-          width: '25%'
-        },
-        {
           title: '邮箱',
           dataIndex: 'email',
           key: 'email',
-          width: '25%'
+          width: '33%'
         },
         {
           title: '角色',
           dataIndex: 'role',
           key: 'role',
-          width: '25%'
+          width: '33%'
         },
       ]
     }
@@ -184,12 +180,6 @@ class TeamDetail extends Component {
           <div>{text} (接收邀请中 ...)</div>:
           <div>{text}</div>
         )
-      },
-      {
-        title: '手机',
-        dataIndex: 'tel',
-        key: 'tel',
-        width: '20%'
       },
       {
         title: '邮箱',
@@ -223,15 +213,15 @@ class TeamDetail extends Component {
     ]
   }
   componentWillMount() {
-    
+    const { loadTeamUserListStd, teamID, } = this.props
+    loadTeamUserListStd(teamID, { sort: 'a,userName', size: 100, page: 1 })  
   }
   
   render() {
     const scope = this
-    let { sortedInfo, filteredInfo, sortMemberName, sort, filter, showInviteModal } = this.state
-    const { teamName, teamID, currentRole } = this.props
-    //邀请中状态
-    let inviting = true
+    let { sortedInfo, filteredInfo, sortMemberName, sort,filter} = this.state
+    const { teamName, teamID, currentRole, teamUserList } = this.props
+    let inviting = true //邀请中状态
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
     
@@ -253,7 +243,7 @@ class TeamDetail extends Component {
                 </Button>
               </Row>
               <Card className="content">
-                <Table columns={this.getColumns(currentRole,inviting)} dataSource={data} onChange={this.handleTableChange} pagination={false}/>
+                <Table columns={this.getColumns(currentRole,inviting)} dataSource={teamUserList} onChange={this.handleTableChange} pagination={false}/>
               </Card>
             </div>:
             <div>
@@ -275,7 +265,7 @@ class TeamDetail extends Component {
                 </Button>
               </Row>
               <Card className="content">
-                <Table columns={this.getColumns(currentRole,inviting)} dataSource={data} onChange={this.handleTableChange} pagination={false}/>
+                <Table columns={this.getColumns(currentRole,inviting)} dataSource={teamUserList} onChange={this.handleTableChange} pagination={false}/>
               </Card>
             </div>
         }
@@ -291,12 +281,56 @@ function mapStateToProp(state, props) {
     currentRole = loginUser.info.role
     console.log('currentRolecurrentRole',currentRole);
   }
+
+  let teamUserList = []
+  const { teamusersStd } = state.team
+  if (teamusersStd) {
+    if (teamusersStd.result) {
+      const teamusers = teamusersStd.result.users
+      teamusers.map((item, index) => {
+        if (item.userName == loginUser.info.userName) {
+          teamUserList.splice(0, 0,
+            {
+              key: item.email,
+              name: item.userName,
+              tel: item.phone,
+              email: item.email,
+              role: item.isCreator ? "创建者" : "普通成员",
+            }
+          )
+        } else {
+          teamUserList.push(
+            {
+              key: item.email,
+              name: item.userName,
+              tel: item.phone,
+              email: item.email,
+              role: item.isCreator ? "创建者" : "普通成员",
+            }
+          )
+        }
+      })
+
+      const invitedUsers = teamusersStd.result.invitedUsers
+      invitedUsers.map((item, index) => {
+        teamUserList.push(
+          {
+            key: item,
+            name: "等待接受邀请中...",
+            tel: "",
+            email: item,
+          }
+        )
+      })
+    }
+  }
   return {
     teamName: team_name,
     teamID: team_id,
     currentRole,
+    teamUserList,
   }
 }
 export default connect(mapStateToProp, {
-  
+  loadTeamUserListStd,
 })(TeamDetail)
