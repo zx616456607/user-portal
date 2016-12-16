@@ -211,6 +211,7 @@ function fetchImageGetDetailTagConfig(registry, fullName, tag, callback) {
       schema: Schemas.REGISTRYS
     },
     callback,
+    tag
   }
 }
 
