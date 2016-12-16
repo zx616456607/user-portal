@@ -97,7 +97,21 @@ exports.getUserTeams = function* () {
   const loginUser = this.session.loginUser
   if (config.running_mode === standardMode) {
     const spi = apiFactory.getSpi(loginUser)
-    const result = yield spi.teams.get()
+    let query = {}
+    if (this.query.sort) {
+      query.sort = this.query.sort
+    }
+    if (this.query.page > 0) {
+      const size = this.query.size || 5
+      query.from = (this.query.page-1) * size
+    }
+    if (this.query.size) {
+      query.size = this.query.size
+    }
+    if (this.query.filter) {
+      query.filter = this.query.filter
+    }
+    const result = yield spi.teams.get(query)
     this.body = {
       data: result,
     }
