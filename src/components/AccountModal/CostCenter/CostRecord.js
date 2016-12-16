@@ -20,8 +20,6 @@ import TeamCost from './TeamCost'
 import ReactEcharts from 'echarts-for-react'
 import { formatDate } from '../../../common/tools'
 import moment from 'moment'
-const mode = require('../../../../configs/model').mode
-const standard = require('../../../../configs/constants').STANDARD_MODE
 
 const MonthPicker = DatePicker.MonthPicker
 const Option = Select.Option
@@ -38,7 +36,6 @@ class CostRecord extends Component{
     this.transformDate = this.transformDate.bind(this)
     this.handleFilter = this.handleFilter.bind(this)
     this.handleTableChange = this.handleTableChange.bind(this)
-    this.getTableColumn = this.getTableColumn.bind(this)
 
     this.state = {
       spacesVisible: false,
@@ -117,116 +114,7 @@ class CostRecord extends Component{
       }
     })
   }
-  getTableColumn (mode) {
-    if (mode === standard) {
-      return [
-        {
-          title: '消费ID',
-          dataIndex: 'id',
-          key: 'id',
-          className: 'firstCol',
-        },
-        {
-          title: '服务名称',
-          dataIndex: 'consumptionName',
-          key: 'consumptionName',
-        },
-        {
-          title: '服务类型',
-          dataIndex: 'type',
-          key: 'type',
-          filters: [
-            { text: '容器服务', value: '容' },
-          ],
-          filteredValue: filteredInfo.svcType,
-          onFilter: (value, record) => record.svcType.indexOf(value) === 0,
-        },
-        {
-          title: '单价',
-          dataIndex: 'unitPrice',
-          key: 'unitPrice',
-        },
-        {
-          title: '消费金额',
-          dataIndex: 'amount',
-          key: 'amount',
-        },
-        {
-          title: '生效时间',
-          dataIndex: 'startTime',
-          key: 'startTime',
-        },
-        {
-          title: '消费时长',
-          dataIndex: 'continueTime',
-          key: 'continueTime',
-        },
-        {
-          title: '集群',
-          dataIndex: 'clusterName',
-          key: 'clusterName',
-        },
-        {
-          title: '备注',
-          dataIndex: 'ps',
-          key: 'ps',
-        },
-      ]
-    }
-    return [
-      {
-        title: '消费ID',
-        dataIndex: 'id',
-        key: 'id',
-        className: 'firstCol',
-      },
-      {
-        title: '服务名称',
-        dataIndex: 'consumptionName',
-        key: 'consumptionName',
-      },
-      {
-        title: '服务类型',
-        dataIndex: 'type',
-        key: 'type',
-        filters: [
-          { text: '容器服务', value: '容' },
-        ],
-        filteredValue: filteredInfo.svcType,
-        onFilter: (value, record) => record.svcType.indexOf(value) === 0,
-      },
-      {
-        title: '单价',
-        dataIndex: 'unitPrice',
-        key: 'unitPrice',
-      },
-      {
-        title: '消费金额',
-        dataIndex: 'amount',
-        key: 'amount',
-      },
-      {
-        title: '生效时间',
-        dataIndex: 'startTime',
-        key: 'startTime',
-      },
-      {
-        title: '消费时长',
-        dataIndex: 'continueTime',
-        key: 'continueTime',
-      },
-      {
-        title: '地域',
-        dataIndex: 'local',
-        key: 'local',
-      },
-      {
-        title: '备注',
-        dataIndex: 'ps',
-        key: 'ps',
-      },
-    ]
-  }
+  
   componentWillMount() {
     const {
       loadTeamClustersList,
@@ -266,6 +154,7 @@ class CostRecord extends Component{
       consumptionTrend,
       spaceSummaryInDay,
       spaceSummary,
+      standard,
     } = this.props
     let {
       spacesVisible,
@@ -533,9 +422,7 @@ class CostRecord extends Component{
       return items
     }
     let costData = convertDetailItems(consumptionDetail.consumptions)
-    let TableSpaceCostDetail  = [
-      
-    ]
+    
     let pagination = {
       current: _this.state.consumptionDetailCurrentPage,
       total: consumptionDetail.total,
@@ -555,7 +442,107 @@ class CostRecord extends Component{
         })
       },
     }
-
+    //table列配置
+    let getTableColumn = function(mode) {
+      if (!standard) {
+        return [
+          {
+            title: '消费ID',
+            dataIndex: 'id',
+            key: 'id',
+            className: 'firstCol',
+          },
+          {
+            title: '服务名称',
+            dataIndex: 'consumptionName',
+            key: 'consumptionName',
+          },
+          {
+            title: '服务类型',
+            dataIndex: 'type',
+            key: 'type',
+            filters: [
+              { text: '容器服务', value: '容' },
+            ],
+            filteredValue: filteredInfo.svcType,
+            onFilter: (value, record) => record.svcType.indexOf(value) === 0,
+          },
+          {
+            title: '单价',
+            dataIndex: 'unitPrice',
+            key: 'unitPrice',
+          },
+          {
+            title: '消费金额',
+            dataIndex: 'amount',
+            key: 'amount',
+          },
+          {
+            title: '生效时间',
+            dataIndex: 'startTime',
+            key: 'startTime',
+          },
+          {
+            title: '消费时长',
+            dataIndex: 'continueTime',
+            key: 'continueTime',
+          },
+          {
+            title: '集群',
+            dataIndex: 'clusterName',
+            key: 'clusterName',
+          }
+        ]
+      }
+      return [
+        {
+          title: '消费ID',
+          dataIndex: 'id',
+          key: 'id',
+          className: 'firstCol',
+        },
+        {
+          title: '服务名称',
+          dataIndex: 'consumptionName',
+          key: 'consumptionName',
+        },
+        {
+          title: '服务类型',
+          dataIndex: 'type',
+          key: 'type',
+          filters: [
+            { text: '容器服务', value: '容' },
+          ],
+          filteredValue: filteredInfo.svcType,
+          onFilter: (value, record) => record.svcType.indexOf(value) === 0,
+        },
+        {
+          title: '单价',
+          dataIndex: 'unitPrice',
+          key: 'unitPrice',
+        },
+        {
+          title: '消费金额',
+          dataIndex: 'amount',
+          key: 'amount',
+        },
+        {
+          title: '生效时间',
+          dataIndex: 'startTime',
+          key: 'startTime',
+        },
+        {
+          title: '消费时长',
+          dataIndex: 'continueTime',
+          key: 'continueTime',
+        },
+        {
+          title: '地域',
+          //dataIndex: 'local',
+          //key: 'local',
+        }
+      ]
+    }
     return (
       <div id='CostRecord'>
         <Card className='selectSpace'>
@@ -640,7 +627,7 @@ class CostRecord extends Component{
         </Row>
         <Row className='SpaceCostDetailTab'>
           <Card title={spaceTableTitle}>
-            <Table columns={() => this.getTableColumn(mode)} dataSource={costData} pagination={pagination} onChange={this.handleTableChange}/>
+            <Table columns={getTableColumn(standard)} dataSource={costData} pagination={pagination} onChange={this.handleTableChange}/>
           </Card>
         </Row>
       </div>

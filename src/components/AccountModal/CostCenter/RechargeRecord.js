@@ -117,6 +117,7 @@ class RechargeRecord extends Component{
       teamClusters,
       chargeRecord,
       notifyRule,
+      standard,
     } = this.props
     let {
       spacesVisible,
@@ -140,35 +141,77 @@ class RechargeRecord extends Component{
       })
       return items
     }
+    let getTableColumn = function (standard) {
+      if (standard) {
+        return [
+          {
+            title: '充值前',
+            key: 'before',
+            dataIndex: 'before',
+            className: 'firstCol',
+          },
+          {
+            title: '充值金额',
+            key: 'charge',
+            dataIndex: 'charge',
+            className: 'blueFont',
+          },
+          {
+            title: '充值后余额',
+            key: 'after',
+            dataIndex: 'after',
+            className: 'greenFont',
+          },
+          {
+            title: '充值时间',
+            key: 'time',
+            dataIndex: 'time',
+          },
+          {
+            title: '操作人',
+            key: 'operator',
+            dataIndex: 'operator',
+          },
+          {
+            title: '充值方式',
+            //key: 'operator',
+            //dataIndex: 'operator',
+          }
+        ]
+      }
+      return [
+        {
+          title: '充值前',
+          key: 'before',
+          dataIndex: 'before',
+          className: 'firstCol',
+        },
+        {
+          title: '充值金额',
+          key: 'charge',
+          dataIndex: 'charge',
+          className: 'blueFont',
+        },
+        {
+          title: '充值后余额',
+          key: 'after',
+          dataIndex: 'after',
+          className: 'greenFont',
+        },
+        {
+          title: '充值时间',
+          key: 'time',
+          dataIndex: 'time',
+        },
+        {
+          title: '操作人',
+          key: 'operator',
+          dataIndex: 'operator',
+        },
+      ]
+    }
     let rechargecolumns = [
-      {
-        title: '充值前',
-        key: 'before',
-        dataIndex: 'before',
-        className: 'firstCol',
-      },
-      {
-        title: '充值金额',
-        key: 'charge',
-        dataIndex: 'charge',
-        className: 'blueFont',
-      },
-      {
-        title: '充值后余额',
-        key: 'after',
-        dataIndex: 'after',
-        className: 'greenFont',
-      },
-      {
-        title: '充值时间',
-        key: 'time',
-        dataIndex: 'time',
-      },
-      {
-        title: '操作人',
-        key: 'operator',
-        dataIndex: 'operator',
-      },
+      
     ]
     let alertMessage = (
       <div style={{color: '#137bb8',lineHeight:'28px',}}>
@@ -206,7 +249,7 @@ class RechargeRecord extends Component{
         <Card className="RechargeTable" bodyStyle={{padding: 0}}>
           <Table
             dataSource={convertChargeRecord()}
-            columns={rechargecolumns}
+            columns={getTableColumn(standard)}
             pagination = {false}
           />
         </Card>
