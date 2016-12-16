@@ -29,9 +29,10 @@ let CreateTeamModal = React.createClass({
       callback([new Error('请输入团队名')])
       return
     }
+    console.log(value)
     const { checkTeamName } = this.props.funcs
     if (!USERNAME_REG_EXP.test(value)) {
-      callback([new Error('团队名以小写字母开头，以小写字母和数字组合，长度为3-42个字符')])
+      callback([new Error('以小写字母开头，且由小写字母和数字组成，长度为3-42个字符')])
       return
     }
     // Disabled submit button when checkTeamName

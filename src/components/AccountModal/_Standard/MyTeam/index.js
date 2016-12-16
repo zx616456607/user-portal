@@ -19,7 +19,6 @@ import {
   addTeamusers, removeTeamusers, loadTeamUserList,
   checkTeamName, sendInvitation,
 } from '../../../../actions/team'
-import MemberTransfer from '../../MemberTransfer'
 import CreateTeamModal from '../../CreateTeamModal'
 import DelTeamModal from '../../DelTeamModal'
 import NotificationHandler from '../../../../common/notification_handler'
@@ -594,6 +593,7 @@ function mapStateToProp(state, props) {
       item.role = item.isCreator ? '创建者（管理员）' : '普通成员'
       item.key = item.id
       item.creationTime = moment(item.creationTime).fromNow()
+      item.balance = item.balance / 100
     })
     total = teamsData.length
   }

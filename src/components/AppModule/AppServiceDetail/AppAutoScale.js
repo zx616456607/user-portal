@@ -39,7 +39,7 @@ class AppAutoScale extends Component {
     this.state = {
       edit: false,
       minReplicas: props.autoScale.minReplicas || 1,
-      maxReplicas: props.autoScale.maxReplicas || 1,
+      maxReplicas: props.autoScale.maxReplicas || 2,
       targetCPUUtilizationPercentage: props.autoScale.targetCPUUtilizationPercentage || 30,
       saveText: '保存',
       isAutoScaleOpen: props.isAutoScaleOpen

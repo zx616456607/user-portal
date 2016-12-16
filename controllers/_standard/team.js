@@ -150,8 +150,9 @@ exports.joinTeam = function* () {
   const loginUser = this.session.loginUser
   const spi = apiFactory.getSpi(loginUser)
   const teamID = this.params.teamid
+  const body = this.request.body
 
-  let result = yield spi.teams.createBy([teamID, 'join'])
+  let result = yield spi.teams.createBy(['join'], null, body)
 
   // send email
 
