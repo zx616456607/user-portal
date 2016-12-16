@@ -109,7 +109,7 @@ export default class AppServiceDetailInfo extends Component {
           </div>
         </div>
         <div className="compose commonBox">
-          <span className="titleSpan">配置信息</span>
+          <span className="titleSpan">资源配置</span>
           <div className="titleBox">
             <div className="commonTitle">
               CPU
@@ -127,7 +127,7 @@ export default class AppServiceDetailInfo extends Component {
               { cpuFormat(serviceDetail.spec.template.spec.containers[0].resources.requests.memory) || '-'}
             </div>
             <div className="commonTitle">
-              {serviceDetail.spec.template.spec.containers[0].resources.requests.memory.replace('i','') || '-'}
+              {serviceDetail.spec.template.spec.containers[0].resources.requests.memory + 'B' || '-'}
             </div>
             <div className="commonTitle">
               10G

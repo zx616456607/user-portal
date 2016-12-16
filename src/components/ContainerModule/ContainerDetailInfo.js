@@ -132,7 +132,7 @@ export default class ContainerDetailInfo extends Component {
               -
               </div>
             <div className="commonTitle">
-              {container.spec.containers[0].resources.requests.memory || '-'}
+              {container.spec.containers[0].resources.requests.memory + 'B' || '-'}
             </div>
             <div className="commonTitle">
               {container.spec.containers[0].resources.requests.cpu || '-'}
