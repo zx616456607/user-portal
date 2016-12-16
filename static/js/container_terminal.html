@@ -39,13 +39,10 @@
         var temp = params[ii].split('=')[0];
         data[temp] = params[ii].split('=')[1];
       }
-//    params.map((param) => {
-//      data[param.split('=')[0]] = param.split('=')[1];
-//    });
+
       var host = window.location.host
      
       var wsUrl = 'ws://'+ host + '/api/v1/namespaces/' + data['namespace'] + '/pods/' + data['pod'] + '/exec'
-      console.log("wsUrl: "+ wsUrl)
 
       function utf8_to_b64( str ) {
         return window.btoa(window.unescape(encodeURIComponent( str )));

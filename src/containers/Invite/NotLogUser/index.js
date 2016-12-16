@@ -7,13 +7,11 @@
  * v0.1 - 2016/12/14
  * @author ZhaoXueYu
  */
-import './style/Invite.less'
+import '../style/Invite.less'
 import React, { PropTypes } from 'react'
 import { Button, Form, Input, Card, Tooltip, message, Alert, Col, Row } from 'antd'
 import { connect } from 'react-redux'
-import { USERNAME_REG_EXP, EMAIL_REG_EXP } from '../../../constants'
-import { browserHistory } from 'react-router'
-import { genRandomString } from '../../../common/tools'
+import { USERNAME_REG_EXP, EMAIL_REG_EXP } from '../../../../constants'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -24,7 +22,6 @@ function noop() {
 let NotLogUser = React.createClass({
   getInitialState() {
     return {
-      random: genRandomString(),
       submitting: false,
       loginResult: {},
       submitProps: {},
@@ -66,7 +63,6 @@ let NotLogUser = React.createClass({
       //注册req:
     })
   },
-  
   checkName(rule, value, callback) {
     if (!value || value.length < 3) {
       callback()
@@ -86,12 +82,10 @@ let NotLogUser = React.createClass({
     }
     callback()
   },
-  
   checkPass(rule, value, callback) {
     const { validateFields } = this.props.form
     callback()
   },
-  
   checkPass2(rule, value, callback) {
     const { getFieldValue } = this.props.form;
     if (value && value !== getFieldValue('password')) {
@@ -100,37 +94,12 @@ let NotLogUser = React.createClass({
       callback()
     }
   },
-  
   checkCaptcha(rule, value, callback) {
     if (!value) {
       callback()
       return
     }
-    const { verifyCaptcha } = this.props
-    if (!/^[a-zA-Z0-9]{4}$/.test(value)) {
-      callback([new Error('验证码输入错误')])
-      return
-    }
-    verifyCaptcha(value, {
-      success: {
-        func: (result) => {
-          if (!result.correct) {
-            callback([new Error('验证码输入错误')])
-            return
-          }
-          callback()
-        },
-        isAsync: true
-      },
-      failed: {
-        func: (err) => {
-          callback([new Error('校验错误')])
-        },
-        isAsync: true
-      },
-    })
   },
-  
   checkTel(rule, value, callback){
     if(!value){
       callback()
@@ -208,7 +177,6 @@ let NotLogUser = React.createClass({
       }
     }
   },
-  
   intOnFocus(current) {
     if (current === 'pass') {
       this.refs.intPass.refs.input.focus()
@@ -241,7 +209,6 @@ let NotLogUser = React.createClass({
       })
     }
   },
-  
   componentWillMount() {
     const { resetFields } = this.props.form
     resetFields()
@@ -249,8 +216,7 @@ let NotLogUser = React.createClass({
   render() {
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form
     const { random, submitting, loginResult, submitProps } = this.state
-    const { email,teamName,code } = this.props
-    console.log('userName',email,teamName,code);
+    const { email } = this.props
     const passwdProps = getFieldProps('password', {
       rules: [
         { required: true, whitespace: true, message: '请填写密码' },
@@ -278,7 +244,6 @@ let NotLogUser = React.createClass({
         { validator: this.checkCaptcha },
       ],
     })
-    
     const formItemLayout = {
       wrapperCol: { span: 24 },
     }
@@ -290,7 +255,7 @@ let NotLogUser = React.createClass({
           className="formItemName nameIntPlace"
         >
           <div className={"intName intOnFocus"}>用户名 / 邮箱</div>
-          <Input placeholder={email} disabled/>
+          <Input placeholder={email} disabled />
         </FormItem>
     
         <FormItem
