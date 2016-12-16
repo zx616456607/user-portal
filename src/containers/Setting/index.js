@@ -26,10 +26,6 @@ const menuList = [
     url: '/setting/API',
     name: '开放 API'
   },
-  {
-    url: '/setting/personalized',
-    name: '个性化设置'
-  }
 ]
 
 export default class Setting extends Component {

@@ -357,7 +357,7 @@ let CreateTenxFlow = React.createClass({
             <div style={{ clear:'both' }} />
           </div>
         ] : null }
-        { this.state.emailAlert ? [
+        { this.state.emailAlert && this.state.currentType == '1' ? [
           <QueueAnim type='right' key='checkedEmailAnimate'>
             <div className='commonBox' key='checkedEmail'>
               <div className='title'>
