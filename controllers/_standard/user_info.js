@@ -12,7 +12,7 @@
 'use strict'
 
 const apiFactory = require('../../services/api_factory')
-const logger     = require('../../utils/logger.js').getLogger("user_info")
+const logger     = require('../../utils/logger.js').getLogger('user_info')
 /*
 
 */
@@ -23,7 +23,7 @@ exports.getMyAccountInfo = function* () {
   const api = apiFactory.getApi(loginUser)
   // Get User info
   const result = yield api.users.getBy([userID])
-  const userInfo = result.users ? result.users[0] : {}
+  const userInfo = result.data ? result.data : {}
   // Get certificate info
   const spi = apiFactory.getSpi(loginUser)
   const certInfo = yield spi.certificates.get()

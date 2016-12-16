@@ -8,12 +8,16 @@
  * @author Bai Yu
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Tabs, Input, Icon, Modal, Upload, Dropdown, Form} from 'antd'
+import { connect } from 'react-redux'
+import { Button, Tabs, Input, Icon, Modal, Upload, Dropdown, Form, Spin} from 'antd'
+import { changeUserInfo } from '../../../../../actions/user.js'
+
+
 const createForm = Form.create;
 const FormItem = Form.Item;
 
-let EmallRow = React.createClass({
-  oldEmallExists(rule, values, callback) {
+let EmailRow = React.createClass({
+  oldEmailExists(rule, values, callback) {
     if(!Boolean(values)) {
       callback([new Error('请输入当前密码')]);
       return;
@@ -29,7 +33,7 @@ let EmallRow = React.createClass({
     callback()
     return
   },
-  newEmallExists(rule, values, callback) {
+  newEmailExists(rule, values, callback) {
     if(!Boolean(values)) {
       callback([new Error('请输入新邮箱')]);
       return
@@ -41,30 +45,39 @@ let EmallRow = React.createClass({
     callback()
     return
   },
-  handEmall(e) {
+  handEmail(e) {
     e.preventDefault();
     const {form } = this.props
-    form.validateFields(['emalPassword', 'newEmall'],(errors, values) => {
+    const { changeUserInfo } = this.props
+    form.validateFields(['emailPassword', 'newEmail'],(errors, values) => {
       if (!!errors) {
         return errors;
       }
-      console.log('Submit!!!');
-      console.log(values);
+      changeUserInfo({
+        password: values.emailPassword,
+        email: values.newEmail
+      })
     });
   },
   render () {
     const {getFieldProps} = this.props.form
     const parentScope = this.props.scope
-    const emalPassword = getFieldProps('emalPassword', {
+    const { isFetching } = this.props
+    if(isFetching) {
+      return (<div className="loadingBox">
+          <Spin size="large"></Spin>
+        </div>)
+    }
+    const emailPassword = getFieldProps('emailPassword', {
       rules: [
         { whitespace: true ,message:'请输入当前账户密码'},
-        { validator: this.oldEmallExists }
+        { validator: this.oldEmailExists }
       ]
     });
-    const newEmallProps = getFieldProps('newEmall', {
+    const newEmailProps = getFieldProps('newEmail', {
       rules: [
         { whitespace: true, message:"请输入新邮箱"},
-        { validator: this.newEmallExists }
+        { validator: this.newEmailExists }
       ]
     });
     return (
@@ -72,13 +85,13 @@ let EmallRow = React.createClass({
         <span className="key">邮箱</span>
         <div className="editList">
           <FormItem>
-            <Input size="large" {...emalPassword} placeholder="当前账户密码" />
+            <Input size="large" {...emailPassword} placeholder="当前账户密码" />
           </FormItem>
           <FormItem >
-            <Input size="large" {...newEmallProps} placeholder="输入新邮箱" />
+            <Input size="large" {...newEmailProps} placeholder="输入新邮箱" />
           </FormItem>
-          <Button size="large" onClick={() => parentScope.closeEdit('editEmall')}>取消</Button>
-          <Button size="large" type="primary" onClick={(e) => this.handEmall(e)} style={{ marginLeft: '10px' }}>确定</Button>
+          <Button size="large" onClick={() => parentScope.closeEdit('editEmail')}>取消</Button>
+          <Button size="large" type="primary" onClick={(e) => this.handEmail(e)} style={{ marginLeft: '10px' }}>确定</Button>
         </div>
       </Form>
 
@@ -86,6 +99,13 @@ let EmallRow = React.createClass({
   }
 })
 
-EmallRow = createForm()(EmallRow)
+function mapStateToProps(state) {
+  return {
+    isFetching: state.user.changeUserInfo.isFetching
+  }
+}
+EmailRow = createForm()(EmailRow)
 
-export default EmallRow
+export default connect(mapStateToProps, {
+  changeUserInfo
+})(EmailRow)

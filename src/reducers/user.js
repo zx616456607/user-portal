@@ -29,6 +29,11 @@ export default function user(state = {
       SUCCESS: ActionTypes.USER_DETAIL_SUCCESS,
       FAILURE: ActionTypes.USER_DETAIL_FAILURE
     }, state.userDetail, action, option),
+    standardUserDetail: reducerFactory({
+      REQUEST: ActionTypes.STANDARD_USER_INFO_REQUEST,
+      SUCCESS: ActionTypes.STANDARD_USER_INFO_SUCCESS,
+      FAILURE: ActionTypes.STANDARD_USER_INFO_FAILURE
+    }, state.standardUserDetail, action, option),
     userAppInfo: reducerFactory({
       REQUEST: ActionTypes.USER_APPINFO_REQUEST,
       SUCCESS: ActionTypes.USER_APPINFO_SUCCESS,

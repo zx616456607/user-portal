@@ -8,17 +8,17 @@
  * @author Bai Yu
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Tabs, Input, Icon, Modal, Upload, Dropdown, Form} from 'antd'
+import { Button, Tabs, Input, Icon, Modal, Upload, Dropdown, Form, Spin, message} from 'antd'
 import { connect } from 'react-redux'
 import Authentication from './Authentication'
 import './style/UserInfo.less'
 import PhoneRow from './detail/PhoneRow'
-import EmallRow from './detail/EmallRow'
+import EmailRow from './detail/EmailRow'
 import PasswordRow from './detail/PassowrdRow'
+import { loadStandardUserInfo } from '../../../../actions/user.js'
 
-const TabPane = Tabs.TabPane;
-const createForm = Form.create;
-
+const TabPane = Tabs.TabPane
+const createForm = Form.create
 
 class BaseInfo extends Component {
   constructor(props) {
@@ -30,6 +30,10 @@ class BaseInfo extends Component {
       uploadModalVisible: false,
       userIconsrc: 'avatars.png'
     }
+  }
+  componentWillMount() {
+    const { loadStandardUserInfo } = this.props
+    loadStandardUserInfo()
   }
   closeEdit(editType) {
     this.setState({
@@ -45,24 +49,70 @@ class BaseInfo extends Component {
       userIconsrc: icon
     })
   }
-
-
+  getCertStatus(status) {
+    switch(status) {
+      case 1: {
+        return '未认证'
+      }
+      case 2: {
+        return '认证中'
+      }
+      case 3: {
+        return '认证失败'
+      }
+      case 4: {
+        return '认证通过'
+      }
+      default: {
+        return '点击认证'
+      }
+    }
+  }
   render() {
     // const {getFieldProps} = this.props.form
+    let { user } = this.props
+    if(!userDetail) {
+      return <div></div>
+    }
+    if(user.isFetching) {
+      return (
+        <div className="loadingBox">
+            <Spin size="large"></Spin>
+          </div>
+      )
+    }
+    const userDetail = user.result.userInfo
+    const cert = user.result.certInfo
+    let userCert, componyCert
+    cert.data.forEach(item => {
+      if(item.certType == '1') {
+        userCert = item
+        return
+      }
+      componyCert = item
+    })
+    if(!userCert) {
+      userCert = {
+        userName: userDetail.userName
+      }
+    }
+    if(!componyCert) {
+      componyCert = {}
+    }
     const propsAction = {
       name: 'file',
       action: '/upload.do',
       headers: {
-        authorization: 'authorization-text',
+        authorization: 'authorization-text'
       },
       onChange(info) {
         if (info.file.status !== 'uploading') {
-          console.log(info.file, info.fileList);
+          console.log(info.file, info.fileList)
         }
         if (info.file.status === 'done') {
-          message.success(`${info.file.name} 上传成功。`);
+          message.success(`${info.file.name} 上传成功。`)
         } else if (info.file.status === 'error') {
-          message.error(`${info.file.name} 上传失败。`);
+          message.error(`${info.file.name} 上传失败。`)
         }
       }
     }
@@ -71,14 +121,14 @@ class BaseInfo extends Component {
       <div className="baseInfo">
         <div className="topBox">
           <div className="userimage">
-            <img src="/img/standard/avatars.png" />
+            <img src="{userDetail.avator}" />
           </div>
           <div className="topbar userBtn">
-            <p>Hi, 换个吊炸天的头像吧！</p>
+            <p>Hi, 换个自己喜欢的头像吧！</p>
             <Button type="primary" onClick={() => this.setState({ uploadModalVisible: true })}>更换头像</Button>
           </div>
           <div className="to-recharge">
-            <p className="money">105元</p>
+            <p className="money">{userDetail.balance}元</p>
             <p className="money-desc">我的帐户余额</p>
             <Button type="primary">去充值</Button>
           </div>
@@ -89,25 +139,25 @@ class BaseInfo extends Component {
             <li>
               <span className="key">用户名</span>
               <span className="value">
-                china
-              <Button className="btn-auth" style={{ marginLeft: '10px' }}>点击认证</Button></span>
+                {userDetail.userName}
+              <Button className="btn-auth" style={{ marginLeft: '10px' }}>{this.getCertStatus(userCert.status)}</Button></span>
             </li>
             <li>
               <span className="key">企业名称</span>
               <span className="value">
-                北京云思畅想有限责任公司
-                <Button className="btn-auth" style={{ marginLeft: '10px' }}>点击认证</Button> &nbsp;
+                {componyCert.enterpriseName}
+                <Button className="btn-auth" style={{ marginLeft: '10px' }}>{this.getCertStatus(componyCert.status)}</Button> &nbsp;
                 <Icon type="question-circle-o" />
               </span>
             </li>
             {this.state.editEmall ?
               <li>
-                <EmallRow scope ={this} />
+                <EmailRow scope ={this} />
               </li>
               :
               <li>
                 <span className="key">邮箱</span>
-                <span className="value">pupu@tenxcloud.com</span>
+                <span className="value">{userDetail.email}</span>
                 <Button onClick={() => this.setState({ editEmall: true })}>修改邮箱</Button>
               </li>
             }
@@ -129,15 +179,14 @@ class BaseInfo extends Component {
             :
             <li>
               <span className="key">手机</span>
-              <span className="value">13520251666</span>
+              <span className="value">{userDetail.phone}</span>
               <Button type="primary" onClick={() => this.setState({ editPhone: true })}>修改手机</Button>
             </li>
           }
-
           </ul>
         </div>
 
-        <div className="wechatBox">
+        <div className="wechatBox" style={{display: 'none'}}>
           <div className="hand">
             <span className="title">登录授权</span>
             <span className="other">第三方</span>
@@ -153,7 +202,7 @@ class BaseInfo extends Component {
           onCancel={() => this.setState({ uploadModalVisible: false })} onOk={() => this.UploadIconModal()} width={600}
           >
           <Tabs defaultActiveKey="11">
-            <TabPane tab="个性头像选择" key='11'>
+            <TabPane tab="个性头像选择" key="11">
               <div className="images">
                 <div className="leftBox">
                   <img src="/img/standard/icon-1.jpg" className="userIcon" onClick={() => this.setUserIcon('icon-1.jpg')} />
@@ -172,14 +221,14 @@ class BaseInfo extends Component {
                 </div>
               </div>
             </TabPane>
-            <TabPane tab="本地头像" key='12'>
+            <TabPane tab="本地头像" key="12">
               <div className="images">
                 <div className="leftBox">
                   <br />
                   <p className="row">从电脑里挑选一张喜欢的图作为头像吧</p>
                   <Upload {...propsAction}>
                     <Input size="large" placeholder="选择一张照片" style={{ width: '66%' }} />
-                    <Button type="primary" style={{ marginLeft: "20px" }}>本地照片
+                    <Button type="primary" style={{ marginLeft: '20px' }}>本地照片
                     </Button>
                   </Upload>
                   <p className="row">支持jpg/png 格式图片，文件需小于2M</p>
@@ -197,8 +246,18 @@ class BaseInfo extends Component {
       </div>
     )
   }
-
 }
+
+function baseInfoMapStateToProps(state) {
+  return {
+    userDetail: state.user.standardUserDetail
+  }
+}
+
+BaseInfo = connect(baseInfoMapStateToProps, {
+  loadStandardUserInfo
+})(BaseInfo)
+
 
 class UserInfo extends Component {
   constructor(props) {
@@ -218,7 +277,8 @@ class UserInfo extends Component {
 }
 
 function mapStateToProps(state, props) {
-  return props
+   return props
 }
 
-export default connect()(UserInfo)
+
+export default connect(mapStateToProps, null)(UserInfo)
