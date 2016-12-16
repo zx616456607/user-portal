@@ -37,6 +37,7 @@ class TeamDetail extends Component {
       current: 1,
     }
   }
+  //表单变化(排序,删选)
   handleTableChange(pagination, filters, sorter) {
     console.log('各类参数是', pagination, filters, sorter);
     this.setState({
@@ -44,6 +45,7 @@ class TeamDetail extends Component {
       sortedInfo: sorter,
     })
   }
+  //排序规则
   getSort(order, column) {
     var query = {}
     var orderStr = 'a,'
@@ -52,18 +54,36 @@ class TeamDetail extends Component {
     }
     return orderStr + column
   }
+  //团队成员名排序
   handleSortMemberName() {
     const { sortMemberName } = this.state
     let sort = this.getSort(!sortMemberName, 'memberName')
-    
     this.setState({
       sortMemberName: !sortMemberName,
       sort,
     })
   }
+  //移除成员
+  handleRemoveMember (memberID) {
+    console.log('handleRemoveMember--memberID',memberID)
+  }
+  //取消邀请
+  handleCancelInvite (memberID) {
+    console.log('handleCancelInvite--memberID',memberID)
+  }
+  //去充值
+  handleClickRecharge (teamID) {
+    console.log('handleClickRecharge--teamID',teamID)
+  }
+  //退出团队
+  handleQuiteTeam (teamID) {
+    console.log('handleQuiteTeam--teamID',teamID)
+  }
+  //table列配置
   getColumns (role,state) {
     console.log(role);
     let { sortedInfo, filteredInfo, sortMemberName, sort,filter} = this.state
+    //普通成员
     if(role === 0){
       return [
         {
@@ -108,6 +128,7 @@ class TeamDetail extends Component {
         },
       ]
     }
+    //创建者
     return [
       {
         title: (
@@ -156,12 +177,14 @@ class TeamDetail extends Component {
         width: '20%',
         className: 'tabOpt',
         render: (text, record, index) => (
-        index === 0?
-          <Button className="tabOptBtn" icon="setting">账号设置</Button>
+        index === 0 ?
+          <Link to='/account'>
+            <Button className="tabOptBtn" icon="setting">账号设置</Button>
+          </Link>
           :
           state ?
-            <Button className="tabOptBtn hoverRed" icon="cross">取消邀请</Button>:
-            <Button className="tabOptBtn hoverRed" icon="delete">移除</Button>
+            <Button className="tabOptBtn hoverRed" icon="cross" onClick={() => this.handleCancelInvite(record.key)}>取消邀请</Button>:
+            <Button className="tabOptBtn hoverRed" icon="delete" onClick={() => this.handleRemoveMember(record.key)}>移除</Button>
         )
       },
     ]
@@ -174,33 +197,10 @@ class TeamDetail extends Component {
     const scope = this
     let { sortedInfo, filteredInfo, sortMemberName, sort,filter} = this.state
     const { teamName, teamID, currentRole } = this.props
-    let inviting = true //邀请中状态
+    //邀请中状态
+    let inviting = true
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
-    const pagination = {
-      simple: {true},
-      total: 1,
-      sort,
-      filter,
-      showSizeChanger: true,
-      defaultPageSize: 5,
-      defaultCurrent: 1,
-      current: this.state.current,
-      onShowSizeChange(current, pageSize) {
-        this.setState({
-          page: current,
-          pageSize: pageSize,
-          current: 1,
-        })
-      },
-      onChange(current) {
-        this.setState({
-          page: current,
-          pageSize: this.state.pageSize,
-          current: current,
-        })
-      },
-    }
     
     return (
       <div id='TeamDetail'>
@@ -211,11 +211,11 @@ class TeamDetail extends Component {
           </span>
         </Row>
         {
-          currentRole === 0?
+          currentRole === 0 ?
             <div>
               <Alert message="这里展示了该团队的团队成员信息，作为普通成员您可退出团队。" />
               <Row className="memberOption">
-                <Button icon='logout' className='quitTeamBtn'>
+                <Button icon='logout' className='quitTeamBtn' onClick={() => this.handleQuiteTeam(teamID)}>
                   退出团队
                 </Button>
               </Row>
@@ -226,12 +226,15 @@ class TeamDetail extends Component {
             <div>
               <Alert message="这里展示了该团队的团队成员信息，作为创建者您可管理团队、邀请新成员、解散团队、移除团队成员和跳转到“我的账户”。" />
               <Row className="memberOption">
-                <Button icon='logout' className='quitTeamBtn'>
+                <Button icon='logout' className='quitTeamBtn' onClick={() => this.handleQuiteTeam(teamID)}>
                   退出团队
+                </Button>
+                <Button icon='pay-circle-o' className='rechargeBtn' onClick={() => this.handleClickRecharge(teamID)}>
+                  去充值
                 </Button>
               </Row>
               <Card className="content">
-                <Table columns={this.getColumns(currentRole,inviting)} dataSource={data} onChange={this.handleTableChange} pagination={pagination}/>
+                <Table columns={this.getColumns(currentRole,inviting)} dataSource={data} onChange={this.handleTableChange} pagination={false}/>
               </Card>
             </div>
         }
