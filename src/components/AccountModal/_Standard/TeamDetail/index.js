@@ -25,6 +25,7 @@ class TeamDetail extends Component {
     this.handleTableChange = this.handleTableChange.bind(this)
     this.getSort = this.getSort.bind(this)
     this.handleSortMemberName = this.handleSortMemberName.bind(this)
+    this.getColumns = this.getColumns.bind(this)
     this.state = {
       filteredInfo: null,
       sortedInfo: null,
@@ -60,17 +61,54 @@ class TeamDetail extends Component {
       sort,
     })
   }
-  componentWillMount() {
-    
-  }
-  
-  render() {
-    const scope = this
+  getColumns (role,state) {
+    console.log(role);
     let { sortedInfo, filteredInfo, sortMemberName, sort,filter} = this.state
-    const { teamName, teamID } = this.props
-    sortedInfo = sortedInfo || {}
-    filteredInfo = filteredInfo || {}
-    const columns = [
+    if(role === 0){
+      return [
+        {
+          title: (
+            <div onClick={this.handleSortMemberName}>
+              成员名
+              <div className="ant-table-column-sorter">
+              <span className={sortMemberName ? 'ant-table-column-sorter-up on' : 'ant-table-column-sorter-up off'} title="↑">
+                <i className="anticon anticon-caret-up" />
+              </span>
+                <span className={!sortMemberName ? 'ant-table-column-sorter-down on' : 'ant-table-column-sorter-down off'} title="↓">
+                <i className="anticon anticon-caret-down" />
+              </span>
+              </div>
+            </div>
+          ),
+          dataIndex: 'name',
+          key: 'name',
+          className: 'memberName',
+          width: '25%',
+          render: (text, record, index) => (
+            <div>{text}</div>
+          )
+        },
+        {
+          title: '手机',
+          dataIndex: 'tel',
+          key: 'tel',
+          width: '25%'
+        },
+        {
+          title: '邮箱',
+          dataIndex: 'email',
+          key: 'email',
+          width: '25%'
+        },
+        {
+          title: '角色',
+          dataIndex: 'role',
+          key: 'role',
+          width: '25%'
+        },
+      ]
+    }
+    return [
       {
         title: (
           <div onClick={this.handleSortMemberName}>
@@ -88,27 +126,57 @@ class TeamDetail extends Component {
         dataIndex: 'name',
         key: 'name',
         className: 'memberName',
-        width: '25%',
+        width: '20%',
         render: (text, record, index) => (
-          <Link to='###'>{text}</Link>
+          <div>{text}</div>
         )
-      }, {
+      },
+      {
         title: '手机',
         dataIndex: 'tel',
         key: 'tel',
-        width: '25%'
-      }, {
+        width: '20%'
+      },
+      {
         title: '邮箱',
         dataIndex: 'email',
         key: 'email',
-        width: '25%'
-      }, {
+        width: '20%'
+      },
+      {
         title: '角色',
         dataIndex: 'role',
         key: 'role',
-        width: '25%'
-      }
+        width: '20%'
+      },
+      {
+        title: '操作',
+        dataIndex: 'opt',
+        key: 'opt',
+        width: '20%',
+        className: 'tabOpt',
+        render: (text, record, index) => (
+        index === 0?
+          <Button className="tabOptBtn" icon="setting">账号设置</Button>
+          :
+          state ?
+            <Button className="tabOptBtn hoverRed" icon="cross">取消邀请</Button>:
+            <Button className="tabOptBtn hoverRed" icon="delete">移除</Button>
+        )
+      },
     ]
+  }
+  componentWillMount() {
+    
+  }
+  
+  render() {
+    const scope = this
+    let { sortedInfo, filteredInfo, sortMemberName, sort,filter} = this.state
+    const { teamName, teamID, currentRole } = this.props
+    let inviting = true //邀请中状态
+    sortedInfo = sortedInfo || {}
+    filteredInfo = filteredInfo || {}
     const pagination = {
       simple: {true},
       total: 1,
@@ -133,6 +201,7 @@ class TeamDetail extends Component {
         })
       },
     }
+    
     return (
       <div id='TeamDetail'>
         <Row style={{ marginBottom: 20 }}>
@@ -141,25 +210,49 @@ class TeamDetail extends Component {
             { teamName }
           </span>
         </Row>
-        <Alert message="这里展示了该团队的团队成员信息，作为普通成员您可退出团队和跳转到“我的账户”。" />
-        <Row className="memberOption">
-          <Button icon='logout' className='quitTeamBtn'>
-            退出团队
-          </Button>
-          <div className="total">共1个</div>
-        </Row>
-        <Card className="content">
-          <Table columns={columns} dataSource={data} onChange={this.handleTableChange} pagination={pagination}/>
-        </Card>
+        {
+          currentRole === 0?
+            <div>
+              <Alert message="这里展示了该团队的团队成员信息，作为普通成员您可退出团队。" />
+              <Row className="memberOption">
+                <Button icon='logout' className='quitTeamBtn'>
+                  退出团队
+                </Button>
+              </Row>
+              <Card className="content">
+                <Table columns={this.getColumns(currentRole,inviting)} dataSource={data} onChange={this.handleTableChange} pagination={pagination}/>
+              </Card>
+            </div>:
+            <div>
+              <Alert message="这里展示了该团队的团队成员信息，作为创建者您可管理团队、邀请新成员、解散团队、移除团队成员和跳转到“我的账户”。" />
+              <Row className="memberOption">
+                <Button icon='logout' className='quitTeamBtn'>
+                  退出团队
+                </Button>
+              </Row>
+              <Card className="content">
+                <Table columns={this.getColumns(currentRole,inviting)} dataSource={data} onChange={this.handleTableChange} pagination={pagination}/>
+              </Card>
+            </div>
+        }
       </div>
     )
   }
 }
 function mapStateToProp(state, props) {
   const { team_id, team_name } = props.params
+  let currentRole = 0
+  console.log('props',props);
+  console.log('state',state);
+  const { loginUser } = state.entities
+  if(loginUser.info){
+    currentRole = loginUser.info.role
+    console.log('currentRolecurrentRole',currentRole);
+  }
   return {
     teamName: team_name,
     teamID: team_id,
+    currentRole,
   }
 }
 export default connect(mapStateToProp, {
