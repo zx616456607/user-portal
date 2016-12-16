@@ -13,26 +13,28 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////  Router for public cloud service = Standard Mode ///////////////////
+//////////////////////  Only login users can access                     ///////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////
 'use strict';
 
-const certificateController = require('../controllers/_standard/certificate')
-const alipayController = require('../controllers/_standard/alipay')
-const teamController = require('../controllers/_standard/team')
-const userInfoController = require('../controllers/_standard/user_info')
-const paymentController = require('../controllers/_standard/payment')
-const wechatPayController = require('../controllers/_standard/wechat_pay')
+const middlewares = require('../../services/middlewares')
+const certificateController = require('../../controllers/_standard/certificate')
+const alipayController = require('../../controllers/_standard/alipay')
+const teamController = require('../../controllers/_standard/team')
+const userInfoController = require('../../controllers/_standard/user_info')
+const paymentController = require('../../controllers/_standard/payment')
+const wechatPayController = require('../../controllers/_standard/wechat_pay')
 
 module.exports = function (Router) {
   const router = new Router({
     prefix: '/api/v2'
   })
+  router.use(middlewares.auth)
+
   // Certificate related
   router.get('/certificates', certificateController.listCertificates)
   router.post('/certificates', certificateController.createCertificate)
   router.put('/certificates/:id', certificateController.updateCertificate)
-  
-
 
   // team
   router.post('/teams/teamandspace', teamController.createTeamAndSpace)
@@ -47,13 +49,14 @@ module.exports = function (Router) {
   // Payment related
   router.post('/payments', paymentController.createPrepayRecord)
   router.put('/payments/:id', paymentController.completePayment)
-  router.post('/pay/wechat', wechatPayController.getQrCodeAndInsertOrder)
+  router.post('/payments/wechat', wechatPayController.createPrepayRecord)
+  router.get('/payments/wechat/:order_id', wechatPayController.getOrder)
 
   //alipay
   router.post('/payments/alipay', alipayController.rechare)
   router.post('/payments/alipay/notify', alipayController.notify)
   router.get('/payments/alipay/direct', alipayController.direct)
-  
+
   // Get user account info
   router.get('/myaccount', userInfoController.getMyAccountInfo)
   return router.routes()
