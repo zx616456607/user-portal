@@ -208,7 +208,7 @@ let CreateTenxFlow = React.createClass({
       if( _this.state.emailAlert ) {
         let tempEmail = '';
         if(values.radioEmail != 'others') {
-          tempEmail = values.radioEmail;
+          tempEmail = [values.radioEmail];
         } else {
           tempEmail = values.inputEmail.split(',');
         }
