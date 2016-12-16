@@ -13,6 +13,35 @@ import QueueAnim from 'rc-queue-anim'
 import './style/AppServiceDetailInfo.less'
 import { formatDate } from '../../../common/tools'
 
+function cpuFormat(memory) {
+  //this function for format cpu
+  if(Boolean(memory)) {
+    let newMemory = parseInt(memory.replace('Mi','').replace('Gi'))
+    switch(newMemory) {
+      case 1:
+        return '1CPU（共享）';
+        break;
+      case 2:
+        return '1CPU（共享）';
+        break;
+      case 4:
+        return '1CPU';
+        break;
+      case 8:
+        return '2CPU';
+        break;
+      case 256:
+        return '1CPU（共享）';
+        break;
+      case 512:
+        return '1CPU（共享）';
+        break;
+    }
+  } else {
+    return '-';
+  }
+}
+
 export default class AppServiceDetailInfo extends Component {
   constructor(props) {
     super(props)
@@ -95,10 +124,10 @@ export default class AppServiceDetailInfo extends Component {
           </div>
           <div className="dataBox">
             <div className="commonTitle">
-              {serviceDetail.spec.template.spec.containers[0].resources.requests.cpu || '-'}
+              { cpuFormat(serviceDetail.spec.template.spec.containers[0].resources.requests.memory) || '-'}
             </div>
             <div className="commonTitle">
-              {serviceDetail.spec.template.spec.containers[0].resources.requests.memory || '-'}
+              {serviceDetail.spec.template.spec.containers[0].resources.requests.memory.replace('i','') || '-'}
             </div>
             <div className="commonTitle">
               10G

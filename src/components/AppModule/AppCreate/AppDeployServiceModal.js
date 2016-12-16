@@ -491,6 +491,7 @@ let AppDeployServiceModal = React.createClass({
       Service: serviceList,
       Deployment: deploymentList,
     }
+    console.log(serviceConfig)
     const newService = { id: serviceName, name: serviceName, imageName: image, resource: ImageConfig.cal, inf: serviceConfig }
     const newList = parentScope.state.servicesList
     const newSeleList = parentScope.state.selectedList

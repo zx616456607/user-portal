@@ -142,9 +142,18 @@ app.use(favicon(__dirname + '/static/favicon.ico'))
 //     // uploadDir: TEMP_DIR
 //   }
 // })
-const koaBody = require('koa-body')()
 
+if (config.running_mode === constants.STANDARD_MODE) {
+  app.use(function* (next) {
+    if (this.request.url === '/payments/wechat_pay/notify') {
+      this.request.headers['content-type'] = 'text/plain'
+    }
+    yield next
+  })
+}
+const koaBody = require('koa-body')()
 app.use(koaBody)
+
 // For views
 const render = require('koa-ejs')
 const viewOps = {
@@ -180,6 +189,16 @@ app.use(i18n.middleware)
   yield next
 })*/
 
+////////////////////////////////////////////////////////////////////////////////
+//////////////// Only add routes for standard mode /////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+if (config.running_mode === constants.STANDARD_MODE) {
+  const standardRoutes = require('./routes/_standard/api')
+  const standardNoAuthRoutes = require('./routes/_standard/no_auth')
+  app.use(standardRoutes(Router))
+  app.use(standardNoAuthRoutes(Router))
+}
+
 // Routes middleware
 // ~ No authentication required
 const noAuthRoutes = require('./routes/no_auth')
@@ -192,14 +211,6 @@ const indexRoutes = require('./routes')
 app.use(indexRoutes(Router))
 const apiRoutes = require('./routes/api')
 app.use(apiRoutes(Router))
-
-////////////////////////////////////////////////////////////////////////////////
-//////////////// Only add routes for standard mode /////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-if (config.running_mode === constants.STANDARD_MODE) {
-  const standardRoutes = require('./routes/_standard_api')
-  app.use(standardRoutes(Router))
-}
 
 // For 404
 app.use(function* pageNotFound(next) {

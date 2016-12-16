@@ -92,6 +92,7 @@ exports.verifyUser = function* () {
   }
   const api = apiFactory.getApi()
   const result = yield api.users.createBy(['login'], null, data)
+  // These message(and watchToken etc.) will be save to session
   const loginUser = {
     user: result.userName,
     id: result.userID,

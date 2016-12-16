@@ -491,3 +491,72 @@ export function joinTeam(code) {
     return dispatch(fetchJoinTeam(code))
   }
 }
+
+export const NORMAL_MEMBER_QUIT_TEAM_REQUEST = 'NORMAL_MEMBER_QUIT_TEAM_REQUEST'
+export const NORMAL_MEMBER_QUIT_TEAM_SUCCESS = 'NORMAL_MEMBER_QUIT_TEAM_SUCCESS'
+export const NORMAL_MEMBER_QUIT_TEAM_FAILURE = 'NORMAL_MEMBER_QUIT_TEAM_FAILURE'
+
+function fetchQuitTeam(teamID) {
+  let endpoint = `${API_URL_PREFIX}/teams/${teamID}/quit`
+  return {
+    [FETCH_API]: {
+      types: [NORMAL_MEMBER_QUIT_TEAM_REQUEST, NORMAL_MEMBER_QUIT_TEAM_SUCCESS, NORMAL_MEMBER_QUIT_TEAM_FAILURE],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'POST',
+      },
+    }
+  }
+}
+
+export function quitTeam(teamID) {
+  return (dispatch, getState) => {
+    return dispatch(fetchQuitTeam(teamID))
+  }
+}
+
+export const CREATOR_DESSOLVE_TEAM_REQUEST = 'CREATOR_DESSOLVE_TEAM_REQUEST'
+export const CREATOR_DESSOLVE_TEAM_SUCCESS = 'CREATOR_DESSOLVE_TEAM_SUCCESS'
+export const CREATOR_DESSOLVE_TEAM_FAILURE = 'CREATOR_DESSOLVE_TEAM_FAILURE'
+
+function fetchDissolveTeam(teamID) {
+  let endpoint = `${API_URL_PREFIX}/teams/${teamID}`
+  return {
+    [FETCH_API]: {
+      types: [CREATOR_DESSOLVE_TEAM_REQUEST, CREATOR_DESSOLVE_TEAM_SUCCESS, CREATOR_DESSOLVE_TEAM_FAILURE],
+      endpoint,
+      schema: {},
+      options: {
+        method: 'POST',
+      },
+    }
+  }
+}
+
+export function dissolveTeam(teamID) {
+  return (dispatch, getState) => {
+    return dispatch(fetchDissolveTeam(teamID))
+  }
+}
+
+export const CHECK_TEAM_DISSOLVABLE_REQUEST = 'CHECK_TEAM_DISSOLVABLE_REQUEST'
+export const CHECK_TEAM_DISSOLVABLE_SUCCESS = 'CHECK_TEAM_DISSOLVABLE_SUCCESS'
+export const CHECK_TEAM_DISSOLVABLE_FAILURE = 'CHECK_TEAM_DISSOLVABLE_FAILURE'
+
+function fetchCheckDissovable(teamID) {
+  let endpoint = `${API_URL_PREFIX}/teams/${teamID}/dissolvable`
+  return {
+    [FETCH_API]: {
+      types: [CHECK_TEAM_DISSOLVABLE_REQUEST, CHECK_TEAM_DISSOLVABLE_SUCCESS, CHECK_TEAM_DISSOLVABLE_FAILURE],
+      endpoint,
+      schema: {},
+    }
+  }
+}
+
+export function checkDissovable(teamID) {
+  return (dispatch, getState) => {
+    return dispatch(fetchCheckDissovable(teamID))
+  }
+}

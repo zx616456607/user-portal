@@ -60,7 +60,8 @@ export default class DelTeamModal extends Component{
     }
   }
   handleOk() {
-    const { closeDelTeamModal } = this.props
+    const { closeDelTeamModal, teamID } = this.props
+    console.log('teamID',teamID)//当前团队ID
     closeDelTeamModal()
   }
   handleCancel() {

@@ -20,14 +20,16 @@ const ROLE_TEAM_ADMIN = 1
 const config = require('../configs')
 const standardMode = require('../configs/constants').STANDARD_MODE
 
+/*
+Only return the detail of one user
+*/
 exports.getUserDetail = function* () {
   let userID = this.params.user_id
   const loginUser = this.session.loginUser
   userID = userID === 'default' ? loginUser.id : userID
   const api = apiFactory.getApi(loginUser)
   const result = yield api.users.getBy([userID])
-  const users = result.users || []
-  const user = users.length > 0 ? users[0] : {}
+  const user = result ? result.data : {}
   if (this.params.user_id === 'default') {
     user.tenxApi = loginUser.tenxApi
     user.watchToken = loginUser.watchToken
@@ -106,9 +108,9 @@ exports.getUserTeams = function* () {
     userID = userID === 'default' ? loginUser.id : userID
     const api = apiFactory.getApi(loginUser)
     let result = yield api.users.getBy([loginUser.id])
+
     //Only team admin can get team related information
-    if (!result || !result.users || !result.users[0] ||
-        result.users[0].role != ROLE_TEAM_ADMIN) {
+    if (!result || !result.data || result.data.role != ROLE_TEAM_ADMIN) {
         this.body = {
           teams: [],
           total: 0

@@ -13,47 +13,46 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////  Router for public cloud service = Standard Mode ///////////////////
+//////////////////////  Only login users can access                     ///////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////
 'use strict';
 
-const certificateController = require('../controllers/_standard/certificate')
-const alipayController = require('../controllers/_standard/alipay')
-const teamController = require('../controllers/_standard/team')
-const userInfoController = require('../controllers/_standard/user_info')
-const paymentController = require('../controllers/_standard/payment')
-const wechatPayController = require('../controllers/_standard/wechat_pay')
+const middlewares = require('../../services/middlewares')
+const certificateController = require('../../controllers/_standard/certificate')
+const alipayController = require('../../controllers/_standard/alipay')
+const teamController = require('../../controllers/_standard/team')
+const userInfoController = require('../../controllers/_standard/user_info')
+const wechatPayController = require('../../controllers/_standard/wechat_pay')
 
 module.exports = function (Router) {
   const router = new Router({
     prefix: '/api/v2'
   })
+  router.use(middlewares.auth)
+
   // Certificate related
   router.get('/certificates', certificateController.listCertificates)
   router.post('/certificates', certificateController.createCertificate)
   router.put('/certificates/:id', certificateController.updateCertificate)
-  
-
 
   // team
   router.post('/teams/teamandspace', teamController.createTeamAndSpace)
   router.post('/teams/:teamid/invitations', teamController.createInvitations)
-  router.get('/teams/:team/dissolvable', teamController.checkDissolvable)
-  router.delete('/teams/:team', teamController.deleteTeam)
-  router.post('/teams/:team/quit', teamController.quitTeam)
-  router.delete('/teams/:team/users/:username', teamController.removeMember)
-  router.delete('/teams/:team/invitations/:code', teamController.cancelInvitation)
+  router.get('/teams/:teamid/dissolvable', teamController.checkDissolvable)
+  router.delete('/teams/:teamid', teamController.deleteTeam)
+  router.post('/teams/:teamid/quit', teamController.quitTeam)
+  router.delete('/teams/:teamid/users/:username', teamController.removeMember)
+  router.delete('/teams/:teamid/invitations/:code', teamController.cancelInvitation)
   router.post('/teams/join', teamController.joinTeam)
 
   // Payment related
-  router.post('/payments', paymentController.createPrepayRecord)
-  router.put('/payments/:id', paymentController.completePayment)
-  router.post('/pay/wechat', wechatPayController.getQrCodeAndInsertOrder)
+  router.post('/payments/wechat_pay', wechatPayController.createPrepayRecord)
+  router.get('/payments/wechat_pay/:order_id', wechatPayController.getOrder)
 
   //alipay
   router.post('/payments/alipay', alipayController.rechare)
-  router.post('/payments/alipay/notify', alipayController.notify)
   router.get('/payments/alipay/direct', alipayController.direct)
-  
+
   // Get user account info
   router.get('/myaccount', userInfoController.getMyAccountInfo)
   return router.routes()
