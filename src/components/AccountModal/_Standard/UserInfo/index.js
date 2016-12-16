@@ -10,6 +10,7 @@
 import React, { Component, PropTypes } from 'react'
 import { Button, Tabs, Input, Icon, Modal, Upload, Dropdown, Form, Spin, message} from 'antd'
 import { connect } from 'react-redux'
+import { browserHistory } from 'react-router'
 import Authentication from './Authentication'
 import './style/UserInfo.less'
 import PhoneRow from './detail/PhoneRow'
@@ -49,6 +50,14 @@ class BaseInfo extends Component {
       userIconsrc: icon
     })
   }
+  cert(type) {
+    let { pathname, hash } = this.props
+    hash = `#cert-${type}`
+    browserHistory.push({
+      pathname,
+      hash
+    })
+  }
   getCertStatus(status) {
     switch(status) {
       case 1: {
@@ -71,7 +80,7 @@ class BaseInfo extends Component {
   render() {
     // const {getFieldProps} = this.props.form
     let { user } = this.props
-    if(!userDetail) {
+    if(!user) {
       return <div></div>
     }
     if(user.isFetching) {
@@ -83,21 +92,21 @@ class BaseInfo extends Component {
     }
     const userDetail = user.result.userInfo
     const cert = user.result.certInfo
-    let userCert, componyCert
+    let userCert, companyCert
     cert.data.forEach(item => {
       if(item.certType == '1') {
         userCert = item
         return
       }
-      componyCert = item
+      companyCert = item
     })
     if(!userCert) {
       userCert = {
         userName: userDetail.userName
       }
     }
-    if(!componyCert) {
-      componyCert = {}
+    if(!companyCert) {
+      companyCert = {}
     }
     const propsAction = {
       name: 'file',
@@ -116,7 +125,6 @@ class BaseInfo extends Component {
         }
       }
     }
-   
     return (
       <div className="baseInfo">
         <div className="topBox">
@@ -140,13 +148,13 @@ class BaseInfo extends Component {
               <span className="key">用户名</span>
               <span className="value">
                 {userDetail.userName}
-              <Button className="btn-auth" style={{ marginLeft: '10px' }}>{this.getCertStatus(userCert.status)}</Button></span>
+              <Button className="btn-auth" style={{ marginLeft: '10px' }} onClick={() => this.cert('user')}>{this.getCertStatus(userCert.status)}</Button></span>
             </li>
             <li>
               <span className="key">企业名称</span>
               <span className="value">
-                {componyCert.enterpriseName}
-                <Button className="btn-auth" style={{ marginLeft: '10px' }}>{this.getCertStatus(componyCert.status)}</Button> &nbsp;
+                {companyCert.enterpriseName}
+                <Button className="btn-auth" style={{ marginLeft: '10px' }} onClick={() => this.cert('company')}>{this.getCertStatus(companyCert.status)}</Button> &nbsp;
                 <Icon type="question-circle-o" />
               </span>
             </li>
@@ -250,7 +258,7 @@ class BaseInfo extends Component {
 
 function baseInfoMapStateToProps(state) {
   return {
-    userDetail: state.user.standardUserDetail
+    user: state.user.standardUserDetail
   }
 }
 
@@ -262,14 +270,47 @@ BaseInfo = connect(baseInfoMapStateToProps, {
 class UserInfo extends Component {
   constructor(props) {
     super(props)
+    this.state = {
+      currentHash: '#user'
+    }
   }
-
+  componentWillReceiveProps(nextProps) {
+    if(this.props.hash === nextProps.hash) {
+      return
+    }
+    this.setState({
+      currentHash: nextProps.hash
+    })
+  }
+  tabChange(e) {
+    const { history } = this.props
+    let hash = '#base'
+    if(e === '2') {
+      hash = '#cert'
+    }
+    if(hash === this.state.currentHash) {
+      return
+    }
+    this.setState({
+      currentHash: hash
+    })
+    const { pathname } = this.props
+    browserHistory.push({
+      pathname: pathname,
+      hash
+    })
+  }
   render() {
+    const hash = this.props.hash
+    let activeKey = '1'
+    if(hash.indexOf('#cert') >= 0) {
+      activeKey = '2'
+    }
     return (
       <div id="public-userinfo">
-        <Tabs defaultActiveKey="1">
-          <TabPane tab="基本信息" key="1"><BaseInfo /></TabPane>
-          <TabPane tab="认证信息" key="2"><Authentication /></TabPane>
+        <Tabs activeKey={activeKey} onTabClick={(e)=> { this.tabChange(e)}}>
+          <TabPane tab="基本信息" key="1"><BaseInfo pathname={this.props.pathname} hash={hash}/></TabPane>
+          <TabPane tab="认证信息" key="2"><Authentication pathname={this.props.pathname} hash={hash}/></TabPane>
         </Tabs>
       </div>
     )
@@ -277,8 +318,12 @@ class UserInfo extends Component {
 }
 
 function mapStateToProps(state, props) {
-   return props
+  const { pathname, hash } = props.location
+  return {
+    pathname,
+    hash
+  }
 }
 
 
-export default connect(mapStateToProps, null)(UserInfo)
+export default connect(mapStateToProps, {})(UserInfo)

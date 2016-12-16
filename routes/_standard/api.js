@@ -15,7 +15,7 @@
 //////////////////////  Router for public cloud service = Standard Mode ///////////////////
 //////////////////////  Only login users can access                     ///////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////
-'use strict';
+'use strict'
 
 const middlewares = require('../../services/middlewares')
 const certificateController = require('../../controllers/_standard/certificate')

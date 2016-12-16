@@ -10,9 +10,10 @@
 import React, { Component, PropTypes } from 'react'
 import { Button, Icon, Input, Tabs, Upload, Radio } from 'antd'
 import { connect } from 'react-redux'
+import { browserHistory }  from 'react-router'
 import './style/Authentication.less'
-const TabPane = Tabs.TabPane;
-const RadioGroup = Radio.Group;
+const TabPane = Tabs.TabPane
+const RadioGroup = Radio.Group
 // const ButtonGroup = Button.Group;
 
 //  个人认证
@@ -29,15 +30,15 @@ class Indivduals extends Component {
         name: 'xxx.png',
         status: 'done',
         url: 'https://os.alipayobjects.com/rmsportal/NDbkJhpzmLxtPhB.png',
-        thumbUrl: 'https://os.alipayobjects.com/rmsportal/NDbkJhpzmLxtPhB.png',
+        thumbUrl: 'https://os.alipayobjects.com/rmsportal/NDbkJhpzmLxtPhB.png'
       }],
       onPreview: (file) => {
         this.setState({
           priviewImage: file.url,
-          priviewVisible: true,
-        });
-      },
-    };
+          priviewVisible: true
+        })
+      }
+    }
     return (
       <div className="Indivduals">
         <div className="description">个人用户通过个人认证可获得5元代金券，请按照提示填写本人的真实照片</div>
@@ -117,14 +118,14 @@ class Enterprise extends Component {
         name: 'xxx.png',
         status: 'done',
         url: 'https://os.alipayobjects.com/rmsportal/NDbkJhpzmLxtPhB.png',
-        thumbUrl: 'https://os.alipayobjects.com/rmsportal/NDbkJhpzmLxtPhB.png',
+        thumbUrl: 'https://os.alipayobjects.com/rmsportal/NDbkJhpzmLxtPhB.png'
       }],
       onPreview: (file) => {
         this.setState({
           priviewImage: file.url,
-          priviewVisible: true,
-        });
-      },
+          priviewVisible: true
+        })
+      }
     }
 
     return (
@@ -229,17 +230,49 @@ class Enterprise extends Component {
 class Authentication extends Component {
   constructor(props) {
     super(props)
+    this.state= {
+      currentHash: '#cert-company'
+    }
   }
-
+  componentWillReceiveProps(nextProps) {
+     if(nextProps.hash === this.props.hash) {
+       return
+     }
+     this.setState({
+       currentHash: nextProps.hash
+     })
+  }
+  tabClick(e) {
+    console.log(e)
+    console.log(this.state.currentHash)
+    let hash = '#cert-company'
+    if(e === '2') {
+      hash = '#cert-user'
+    }
+    if(hash === this.state.currentHash) {
+      return
+    }
+    this.setState({
+      currentHash: hash
+    })
+    const { pathname } = this.props
+    browserHistory.push({
+      pathname,
+      hash
+    })
+  }
   render() {
-
+    const { hash } = this.props
+    let activeKey = '2'
+    if(hash.indexOf('company') >= 0) {
+      activeKey = '1'
+    }
     return (
-      <div className="Authentication">
-        <Tabs defaultActiveKey="2" type="card">
+      <div className="Authentication" >
+        <Tabs  type="card" activeKey={activeKey} onTabClick={(e) => this.tabClick(e)}> 
           <TabPane tab="企业用户" key="1"><Enterprise /></TabPane>
           <TabPane tab="个人用户" key="2"><Indivduals /></TabPane>
         </Tabs>
-
       </div>
     )
   }
