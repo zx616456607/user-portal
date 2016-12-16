@@ -13,7 +13,7 @@ import './style/TeamDetail.less'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import InviteNewMemberModal from '../../InviteNewMemberModal'
-import { loadTeamUserListStd } from '../../../../actions/team'
+import { loadTeamUserListStd, removeTeamusersStd } from '../../../../actions/team'
 
 const data = [
   {key: '1',name: 'zhaoxy1',tel: '123',email:'1111@tenxcloud.com',role:1},
@@ -76,8 +76,9 @@ class TeamDetail extends Component {
     })
   }
   //移除成员
-  handleRemoveMember (memberID) {
-    console.log('handleRemoveMember--memberID',memberID)
+  handleRemoveMember (userName) {
+    console.log('handleRemoveMember--userName: ',userName)
+    this.props.removeTeamusersStd(this.props.teamID, userName)
   }
   //取消邀请
   handleCancelInvite (memberID) {
@@ -109,7 +110,7 @@ class TeamDetail extends Component {
     })
   }
   //table列配置
-  getColumns (role,inviteState) {
+  getColumns (role) {
     console.log(role);
     let { sortedInfo, filteredInfo, sortMemberName, sort, filter } = this.state
     //普通成员
@@ -176,8 +177,6 @@ class TeamDetail extends Component {
         render: (text, record, index) => (
           index === 0 ?
           <div>{text}(我)</div>:
-          inviteState ?
-          <div>{text} (接收邀请中 ...)</div>:
           <div>{text}</div>
         )
       },
@@ -205,9 +204,9 @@ class TeamDetail extends Component {
             <Button className="tabOptBtn" icon="setting">账号设置</Button>
           </Link>
           :
-          inviteState ?
+          record.role == "" ?
             <Button className="tabOptBtn hoverRed" icon="cross" onClick={() => this.handleCancelInvite(record.key)}>取消邀请</Button>:
-            <Button className="tabOptBtn hoverRed" icon="delete" onClick={() => this.handleRemoveMember(record.key)}>移除</Button>
+            <Button className="tabOptBtn hoverRed" icon="delete" onClick={() => this.handleRemoveMember(record.name)}>移除</Button>
         )
       },
     ]
@@ -221,7 +220,6 @@ class TeamDetail extends Component {
     const scope = this
     let { sortedInfo, filteredInfo, sortMemberName, sort,filter} = this.state
     const { teamName, teamID, currentRole, teamUserList, showInviteModal } = this.props
-    let inviting = true //邀请中状态
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
     
@@ -243,7 +241,7 @@ class TeamDetail extends Component {
                 </Button>
               </Row>
               <Card className="content">
-                <Table columns={this.getColumns(currentRole,inviting)} dataSource={teamUserList} onChange={this.handleTableChange} pagination={false}/>
+                <Table columns={this.getColumns(currentRole)} dataSource={teamUserList} onChange={this.handleTableChange} pagination={false}/>
               </Card>
             </div>:
             <div>
@@ -265,7 +263,7 @@ class TeamDetail extends Component {
                 </Button>
               </Row>
               <Card className="content">
-                <Table columns={this.getColumns(currentRole,inviting)} dataSource={teamUserList} onChange={this.handleTableChange} pagination={false}/>
+                <Table columns={this.getColumns(currentRole)} dataSource={teamUserList} onChange={this.handleTableChange} pagination={false}/>
               </Card>
             </div>
         }
@@ -319,6 +317,7 @@ function mapStateToProp(state, props) {
             name: "等待接受邀请中...",
             tel: "",
             email: item,
+            role: "",
           }
         )
       })
@@ -333,4 +332,5 @@ function mapStateToProp(state, props) {
 }
 export default connect(mapStateToProp, {
   loadTeamUserListStd,
+  removeTeamusersStd,
 })(TeamDetail)
