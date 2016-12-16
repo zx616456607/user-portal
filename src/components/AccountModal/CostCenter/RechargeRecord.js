@@ -139,7 +139,6 @@ class RechargeRecord extends Component{
         item.time = moment(item.time).format('YYYY-MM-DD HH:mm:ss')
       })
       return items
-
     }
     let rechargecolumns = [
       {
@@ -251,7 +250,6 @@ class RechargeRecord extends Component{
               </Col>
             </Row>
           </div>
-          
         </Modal>
       </div>
     )
