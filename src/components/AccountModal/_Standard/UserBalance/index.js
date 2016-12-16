@@ -37,8 +37,6 @@ class UserBalance extends Component {
   }
 
   handleTeamChange(team) {
-    console.log(`team-----------`)
-    console.log(team)
     const { loadTeamspaceList } = this.props
     this.setState({
       teamListVisible: false,
