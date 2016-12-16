@@ -17,7 +17,7 @@ import { loadUserTeamList } from '../../../../actions/user'
 import {
   createTeamAndSpace, deleteTeam,
   addTeamusers, removeTeamusers, loadTeamUserList,
-  checkTeamName, sendInvitation,
+  checkTeamName, sendInvitation, quitTeam, dissolveTeam
 } from '../../../../actions/team'
 import CreateTeamModal from '../../CreateTeamModal'
 import DelTeamModal from '../../DelTeamModal'
@@ -164,13 +164,11 @@ let TeamTable = React.createClass({
     })
   },
   //操作-下拉单选项
-  handleDropMenuClick: function (e) {
+  handleDropMenuClick (e,teamID) {
     switch (e.key) {
       case 'deleteTeam':
-        //this is delete the container
-        //this.delTeam(teamID);
-        console.log('delTeam !')
         this.setState({
+          nowTeamID: teamID,
           showDelModal: true,
         })
         break;
@@ -255,10 +253,20 @@ let TeamTable = React.createClass({
       showExitModal: false
     })
   },
+  //创建者下拉单
+  renderOverLay(teamID) {
+    return (
+      <Menu style={{ width: '126px' }} onClick={(e) => this.handleDropMenuClick(e,teamID)}>
+        <Menu.Item key='deleteTeam'>
+          <span>解散团队</span>
+        </Menu.Item>
+      </Menu>
+    )
+  },
   render() {
     let { sortedInfo, filteredInfo, targetKeys, showDelModal } = this.state
     const { searchResult, sort, filter } = this.props.scope.state
-    const { scope, teamUserIDList, data } = this.props
+    const { scope, teamUserIDList, data, quitTeam, loadUserTeamList, dissolveTeam } = this.props
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
     //分页器配置
@@ -300,14 +308,6 @@ let TeamTable = React.createClass({
         })
       },
     }
-    //创建者下拉单
-    let roleDropdown = (
-      <Menu style={{ width: '126px' }} onClick={this.handleDropMenuClick}>
-        <Menu.Item key='deleteTeam'>
-          <span>解散团队</span>
-        </Menu.Item>
-      </Menu>
-    )
     //Table 行配置
     const columns = [
       {
@@ -329,7 +329,7 @@ let TeamTable = React.createClass({
         width: '10%',
         className: 'teamName',
         render: (text, record, index) => (
-          <Link to={`/account/team/${record.id}/${record.key}`}>{text}</Link>
+          <Link to={`/account/team/${record.name}/${record.key}`}>{text}</Link>
         )
       },
       {
@@ -411,7 +411,7 @@ let TeamTable = React.createClass({
         render: (text, record, index) => (
           record.isCreator ?
             <Dropdown.Button
-              overlay={roleDropdown} type='ghost'
+              overlay={this.renderOverLay(record.key)} type='ghost'
               onClick={() => this.handleShowInviteModal(record.key)}
               className="tabDrop"
               >
@@ -423,6 +423,11 @@ let TeamTable = React.createClass({
                 teamID={record.id}
                 sendInvitation={this.props.sendInvitation}
               />
+              <DelTeamModal
+                visible={this.state.nowTeamID === record.key && showDelModal}
+                closeDelTeamModal={this.closeDelTeamModal}
+                teamID={record.id}
+              />
             </Dropdown.Button>
             :
             <div>
@@ -430,7 +435,10 @@ let TeamTable = React.createClass({
               <ExitTeamModal
                 visible={this.state.nowTeamID === record.key && this.state.showExitModal}
                 closeExitTeamModal={this.closeExitTeamModal}
-                team={record.team}
+                teamName={record.name}
+                teamID={record.id}
+                quitTeam={quitTeam}
+                loadUserTeamList={loadUserTeamList}
               />
             </div>
         )
@@ -442,10 +450,6 @@ let TeamTable = React.createClass({
           dataSource={searchResult.length === 0 ? data : searchResult}
           pagination={pagination}
           onChange={this.handleChange}
-          />
-        <DelTeamModal
-          visible={showDelModal}
-          closeDelTeamModal={this.closeDelTeamModal}
           />
       </div>
     )
@@ -527,7 +531,7 @@ class MyTeam extends Component {
     const { visible,showCreateSucModal } = this.state
     const {
       teams, addTeamusers, loadUserTeamList,
-      teamUserIDList, loadTeamUserList, checkTeamName
+      teamUserIDList, loadTeamUserList, checkTeamName, quitTeam, dissolveTeam
     } = this.props
     //搜索组件配置
     const searchIntOption = {
@@ -574,6 +578,7 @@ class MyTeam extends Component {
               loadTeamUserList={loadTeamUserList}
               teamUserIDList={teamUserIDList}
               sendInvitation={this.props.sendInvitation}
+              quitTeam={quitTeam}
             />
           </Card>
         </Row>
@@ -612,4 +617,6 @@ export default connect(mapStateToProp, {
   loadTeamUserList,
   checkTeamName,
   sendInvitation,
+  quitTeam,
+  dissolveTeam,
 })(MyTeam)
