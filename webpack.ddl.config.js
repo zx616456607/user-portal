@@ -6,6 +6,7 @@ console.log('Build webpack dll ...')
 const vendors = [
   'antd',
   'babel-polyfill',
+  'classnames',
   'color-hash',
   'echarts-for-react',
   'humps',
@@ -32,6 +33,7 @@ const vendors = [
   'redux-logger',
   'redux-thunk',
   'socket.io-client',
+  'qrcode.react',
   // ...其它库
 ];
 
