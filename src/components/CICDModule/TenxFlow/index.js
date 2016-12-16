@@ -378,6 +378,10 @@ class TenxFlowList extends Component {
               </div>
             </div>
             <MyComponent scope={scope} config={flowList} isFetching={isFetching} />
+            {flowList.length < 1 && !searchingFlag ? 
+              <div style={{ lineHeight: '150px', textAlign: 'center' }}>目前还没有添加任何TenxFlow</div> : 
+              (flowList.length < 1 && searchingFlag ? 
+                <div style={{ lineHeight: '150px', textAlign: 'center' }}>没有匹配到相关TenxFlow</div> : null)}
           </Card>
         </div>
         <Modal
@@ -395,7 +399,6 @@ class TenxFlowList extends Component {
           >
           <TenxFlowBuildLog scope={scope} isFetching={buildFetching} logs={logs} flowId={this.state.currentFlowId} />
         </Modal>
-        <div><br />{message}<br /></div>
       </QueueAnim>
     )
   }

@@ -158,7 +158,7 @@ const MyComponent = React.createClass({
     }
     if (config.length === 0) {
       return (
-        <div style={{lineHeight:'50px',height:'200px'}}>&nbsp;&nbsp;Not Dockerfile</div>
+        <div style={{lineHeight: '150px', textAlign: 'center'}}>目前没有任何云端Dockerfile</div>
       )
     }
     let items = config.map((item, index) => {
