@@ -142,9 +142,18 @@ app.use(favicon(__dirname + '/static/favicon.ico'))
 //     // uploadDir: TEMP_DIR
 //   }
 // })
-const koaBody = require('koa-body')()
 
+if (config.running_mode === constants.STANDARD_MODE) {
+  app.use(function* (next) {
+    if (this.request.url === '/payments/wechat_pay/notify') {
+      this.request.headers['content-type'] = 'text/plain'
+    }
+    yield next
+  })
+}
+const koaBody = require('koa-body')()
 app.use(koaBody)
+
 // For views
 const render = require('koa-ejs')
 const viewOps = {
