@@ -172,12 +172,8 @@ export default class InviteNewMemberModal extends Component{
   }
   render(){
     const { visible } = this.props
-    const { valueArr,disabled } = this.state
-    let newMembers = (
-      <div>
-        
-      </div>
-    )
+    const { valueArr, disabled } = this.state
+
     return (
       <Modal title='邀请新成员'
              visible={ visible }

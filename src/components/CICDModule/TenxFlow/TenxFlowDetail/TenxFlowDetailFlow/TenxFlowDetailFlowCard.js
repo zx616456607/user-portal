@@ -158,37 +158,43 @@ function currentStatus(status) {
   }
 }
 
-function currentFlowType(type, customTypeText) {
+function currentFlowType(type, customTypeText, imageList) {
   //this function for show different flow type
-  switch (type) {
-    case 1:
-      return (
-        <FormattedMessage {...menusText.unitCheck} />
-      );
-      break;
-    case 2:
-      return (
-        <FormattedMessage {...menusText.containCheck} />
-      );
-      break;
-    case 4:
-    case 3:
-      return (
-        <FormattedMessage {...menusText.buildImage} />
-      );
-      break;
-      return (
-        <FormattedMessage {...menusText.runningCode} />
-      );
-      break;
-    case 5:
-      return customTypeText;
-      break;
-    default:
-      return (
-        <FormattedMessage {...menusText.linkPod} />
-      )
+  for (var i in imageList) {
+    if (imageList[i].imageList[0].categoryId == type) {
+      return (imageList[i].imageList[0].categoryName)
+    }
   }
+  return 
+  // switch (type) {
+  //   case 1:
+  //     return (
+  //       <FormattedMessage {...menusText.unitCheck} />
+  //     );
+  //     break;
+  //   case 2:
+  //     return (
+  //       <FormattedMessage {...menusText.containCheck} />
+  //     );
+  //     break;
+  //   case 4:
+  //   case 3:
+  //     return (
+  //       <FormattedMessage {...menusText.buildImage} />
+  //     );
+  //     break;
+  //     return (
+  //       <FormattedMessage {...menusText.runningCode} />
+  //     );
+  //     break;
+  //   case 5:
+  //     return customTypeText;
+  //     break;
+  //   default:
+  //     return (
+  //       <FormattedMessage {...menusText.linkPod} />
+  //     )
+  // }
 }
 
 function currentStatusBtn(status) {
@@ -429,7 +435,7 @@ class TenxFlowDetailFlowCard extends Component {
   }
 
   render() {
-    let { config, index, scope, currentFlowEdit, flowId, codeList, isFetching, ciRules, buildFetching, logs, supportedDependencies, totalLength } = this.props;
+    let { config, index, scope, currentFlowEdit, flowId, codeList, isFetching, ciRules, buildFetching, logs, supportedDependencies, totalLength, imageList } = this.props;
     const scopeThis = this;
     const dropdown = (
       <Menu onClick={this.operaMenuClick.bind(this, config.metadata.id, config.metadata.name)} style={{ width: '110px' }}>
@@ -466,7 +472,7 @@ class TenxFlowDetailFlowCard extends Component {
                       </div>
                       <div className='info'>
                         <i className='fa fa-cog' />
-                        {currentFlowType(config.metadata.type, config.metadata.customType)}
+                        {currentFlowType(config.metadata.type, config.metadata.customType, imageList)}
                       </div>
                       <div style={{ clear: 'both' }}></div>
                     </div>
@@ -523,7 +529,7 @@ class TenxFlowDetailFlowCard extends Component {
               <QueueAnim key={'EditTenxFlowModalAnimate' + index}>
                 <EditTenxFlowModal key={'EditTenxFlowModal' + index} rootScope={scope} scope={scopeThis}
                   config={config} flowId={flowId} stageId={config.metadata.id} codeList={codeList}
-                  supportedDependencies={supportedDependencies} />
+                  supportedDependencies={supportedDependencies} imageList={imageList}/>
               </QueueAnim>
             ] : null
           }

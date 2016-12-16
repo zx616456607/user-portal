@@ -246,8 +246,8 @@ let EditTenxFlowModal = React.createClass({
     }
   },
   componentWillMount() {
-    const {getAvailableImage} = this.props
-    getAvailableImage()
+    // const {getAvailableImage} = this.props
+    // getAvailableImage()
   },
   componentDidMount() {
     uuid = 0;
@@ -1254,13 +1254,13 @@ let EditTenxFlowModal = React.createClass({
 });
 
 function mapStateToProps(state, props) {
-  const defaultState = {
-    imageList: []
-  }
-  const { availableImage } = state.cicd_flow
-  const { imageList } = availableImage || defaultState
+  // const defaultState = {
+  //   imageList: []
+  // }
+  // const { availableImage } = state.cicd_flow
+  // const { imageList } = availableImage || defaultState
   return {
-    imageList
+    // imageList
   }
 }
 

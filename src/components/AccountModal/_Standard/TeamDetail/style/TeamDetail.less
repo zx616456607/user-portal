@@ -26,10 +26,32 @@
   .memberOption {
     height: 75px;
     line-height: 75px;
+
     .quitTeamBtn {
       height: 35px;
-      width: 100px;
       margin: 20px 0;
+      font-size: 14px;
+      background-color: #00a1e9;
+      color: #fff;
+      border: 1px solid #00a1e9;
+    }
+    .delTeamBtn {
+      margin-left: 12px;
+      height: 35px;
+      font-size: 14px;
+      &:hover {
+        background-color: #00a1e9;
+        color: #fff
+      }
+    }
+    .rechargeBtn {
+      height: 35px;
+      margin-left: 12px;
+      font-size: 14px;
+      &:hover {
+        background-color: #00a1e9;
+        color: #fff
+      }
     }
     .total {
       display: inline-block;
@@ -50,6 +72,10 @@
             width: 98px;
             height:28px;
             background-color: #fff;
+            &:hover {
+              background-color: #00a1e9;
+              color: #fff
+            }
           }
           .hoverRed {
             &:hover {

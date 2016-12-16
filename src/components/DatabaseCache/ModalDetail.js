@@ -215,6 +215,10 @@ class ModalDetail extends Component {
           },
           failed: {
             func: (res) => {
+              scope.setState({
+                detailModal: false
+              });
+              _this.setState({deleteBtn: false})
               notification.error('删除失败', res.message.message)
             }
           }
