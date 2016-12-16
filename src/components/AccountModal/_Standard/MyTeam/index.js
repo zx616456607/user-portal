@@ -42,7 +42,7 @@ let TeamTable = React.createClass({
       sortRole: true,//我的角色排序
       addMember: false,//邀请新成员
       targetKeys: [],
-      sort: "a,teamName",//默认排序规则
+      sort: "role desc",//默认排序规则
       filter: '',
       nowTeamID: '',//当前团队ID
       showDelModal: false,
@@ -77,17 +77,17 @@ let TeamTable = React.createClass({
   //排序规则
   getSort(order, column) {
     var query = {}
-    var orderStr = 'a,'
+    var orderStr = ''
     if (!order) {
-      orderStr = 'd,'
+      orderStr = ' desc'
     }
-    return orderStr + column
+    return column + orderStr
   },
   //团队名排序
   handleSortTeamName() {
     const { loadUserTeamList } = this.props.scope.props
     const { sortTeamName } = this.state
-    let sort = this.getSort(!sortTeamName, 'teamName')
+    let sort = this.getSort(!sortTeamName, 'name')
     loadUserTeamList('default', {
       page: this.state.page,
       size: this.state.pageSize,
@@ -103,7 +103,7 @@ let TeamTable = React.createClass({
   handleSortMember() {
     const { loadUserTeamList } = this.props.scope.props
     const { sortMember } = this.state
-    let sort = this.getSort(!sortMember, 'userCount')
+    let sort = this.getSort(!sortMember, 'member')
     loadUserTeamList('default', {
       page: this.state.page,
       size: this.state.pageSize,
@@ -119,7 +119,7 @@ let TeamTable = React.createClass({
   handleSortCreateTime() {
     const { loadUserTeamList } = this.props.scope.props
     const { sortCreateTime } = this.state
-    let sort = this.getSort(!sortCreateTime, 'clusterCount')
+    let sort = this.getSort(!sortCreateTime, 'time')
     loadUserTeamList('default', {
       page: this.state.page,
       size: this.state.pageSize,
@@ -135,7 +135,7 @@ let TeamTable = React.createClass({
   handleSortBalance() {
     const { loadUserTeamList } = this.props.scope.props
     const { sortBalance } = this.state
-    let sort = this.getSort(!sortBalance, 'spaceCount')
+    let sort = this.getSort(!sortBalance, 'balance')
     loadUserTeamList('default', {
       page: this.state.page,
       size: this.state.pageSize,
@@ -151,7 +151,7 @@ let TeamTable = React.createClass({
   handleSortRole() {
     const { loadUserTeamList } = this.props.scope.props
     const { sortRole } = this.state
-    let sort = this.getSort(!sortRole, 'spaceCount')
+    let sort = this.getSort(!sortRole, 'role')
     loadUserTeamList('default', {
       page: this.state.page,
       size: this.state.pageSize,
@@ -199,7 +199,7 @@ let TeamTable = React.createClass({
   handleNewMemberOk() {
     const { addTeamusers, loadUserTeamList, rowKey } = this.props
     const { targetKeys, nowTeamID } = this.state
-    const { page, size, sort, filter} = this.props.scope.state
+    const { page, size, sort, filter } = this.props.scope.state
     if (targetKeys.length !== 0) {
       addTeamusers(nowTeamID,
         targetKeys
@@ -285,7 +285,7 @@ let TeamTable = React.createClass({
           page: current,
           size: pageSize,
           sort,
-          filter,
+      filter,
         })
         scope.setState({
           page: current,
@@ -299,7 +299,7 @@ let TeamTable = React.createClass({
           page: current,
           size: pageSize,
           sort,
-          filter,
+      filter,
         })
         scope.setState({
           page: current,
@@ -522,8 +522,6 @@ class MyTeam extends Component {
     this.props.loadUserTeamList('default', {
       page: 1,
       size: 5,
-      sort: "a,teamName",
-      filter: "",
     })
   }
   render() {
@@ -571,7 +569,7 @@ class MyTeam extends Component {
         </Row>
         <Row className="teamList">
           <Card>
-            <TeamTable data={teams}
+            <TeamTable data={teams.items}
               scope={scope}
               addTeamusers={addTeamusers}
               loadUserTeamList={loadUserTeamList}
@@ -588,23 +586,25 @@ class MyTeam extends Component {
 }
 
 function mapStateToProp(state, props) {
-  let teamsData = []
+  let teamsData = {
+    items:[],
+  }
   let total = 0
   let teamUserIDList = []
   const teams = state.user.teams
   if (!teams.isFetching && teams.result && teams.result.data && teams.result.data.data) {
     teamsData = teams.result.data.data
-    teamsData.map((item) => {
+    teamsData.items.map((item) => {
       item.role = item.isCreator ? '创建者（管理员）' : '普通成员'
       item.key = item.id
       item.creationTime = moment(item.creationTime).fromNow()
       item.balance = item.balance / 100
     })
-    total = teamsData.length
+    total = teamsData.total
   }
   return {
     teams: teamsData,
-    total,
+    total
   }
 }
 
