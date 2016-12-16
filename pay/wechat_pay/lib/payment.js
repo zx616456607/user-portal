@@ -258,27 +258,25 @@ class Payment {
 
   validateObj(data) {
     let error = null
-    if (data.return_code == RETURN_CODES.FAIL) {
+    if (!data) {
+      error = new Error('InvalidData')
+      error.name = 'InvalidData'
+    } else if (data.return_code == RETURN_CODES.FAIL) {
       error = new Error(data.return_msg)
       error.name = 'ProtocolError'
-    }
-    if (data.result_code == RETURN_CODES.FAIL) {
+    } else if (data.result_code == RETURN_CODES.FAIL) {
       error = new Error(data.err_code)
       error.name = 'BusinessError'
-    }
-    if (this.appId !== data.appid) {
+    } else if (this.appId !== data.appid) {
       error = new Error()
       error.name = 'InvalidAppId'
-    }
-    if (this.mchId !== data.mch_id) {
+    } else if (this.mchId !== data.mch_id) {
       error = new Error()
       error.name = 'InvalidMchId'
-    }
-    if (this.subMchId && this.subMchId !== data.sub_mch_id) {
+    } else if (this.subMchId && this.subMchId !== data.sub_mch_id) {
       error = new Error()
       error.name = 'InvalidSubMchId'
-    }
-    if (this._getSign(data) !== data.sign) {
+    } else if (this._getSign(data) !== data.sign) {
       error = new Error()
       error.name = 'InvalidSignature'
     }

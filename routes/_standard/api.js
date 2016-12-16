@@ -22,7 +22,6 @@ const certificateController = require('../../controllers/_standard/certificate')
 const alipayController = require('../../controllers/_standard/alipay')
 const teamController = require('../../controllers/_standard/team')
 const userInfoController = require('../../controllers/_standard/user_info')
-const paymentController = require('../../controllers/_standard/payment')
 const wechatPayController = require('../../controllers/_standard/wechat_pay')
 
 module.exports = function (Router) {
@@ -47,14 +46,11 @@ module.exports = function (Router) {
   router.post('/teams/join', teamController.joinTeam)
 
   // Payment related
-  router.post('/payments', paymentController.createPrepayRecord)
-  router.put('/payments/:id', paymentController.completePayment)
-  router.post('/payments/wechat', wechatPayController.createPrepayRecord)
-  router.get('/payments/wechat/:order_id', wechatPayController.getOrder)
+  router.post('/payments/wechat_pay', wechatPayController.createPrepayRecord)
+  router.get('/payments/wechat_pay/:order_id', wechatPayController.getOrder)
 
   //alipay
   router.post('/payments/alipay', alipayController.rechare)
-  router.post('/payments/alipay/notify', alipayController.notify)
   router.get('/payments/alipay/direct', alipayController.direct)
 
   // Get user account info
