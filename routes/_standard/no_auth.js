@@ -1,0 +1,31 @@
+/**
+ * Licensed Materials - Property of tenxcloud.com
+ * (C) Copyright 2016 TenxCloud. All Rights Reserved.
+ *
+ */
+
+/**
+ * Routes for public cloud
+ *
+ * v0.1 - 2016-12-16
+ * @author Zhangpc
+ */
+'use strict'
+
+///////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////  Router for public cloud service = Standard Mode ///////////////////
+//////////////////////  Users who are not logged in are also accessible ///////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+
+const indexCtl = require('../../controllers')
+const teamController = require('../../controllers/_standard/team')
+
+module.exports = function (Router) {
+  const router = new Router({})
+
+  // Invite
+  router.get('/teams/invite', indexCtl.index)
+  router.get('/teams/invitations/:code', teamController.getInvitationInfo)
+
+  return router.routes()
+}

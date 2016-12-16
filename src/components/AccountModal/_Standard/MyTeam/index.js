@@ -17,7 +17,7 @@ import { loadUserTeamList } from '../../../../actions/user'
 import {
   createTeamAndSpace, deleteTeam,
   addTeamusers, removeTeamusers, loadTeamUserList,
-  checkTeamName, sendInvitation,
+  checkTeamName, sendInvitation, quitTeam, dissolveTeam
 } from '../../../../actions/team'
 import CreateTeamModal from '../../CreateTeamModal'
 import DelTeamModal from '../../DelTeamModal'
@@ -266,7 +266,7 @@ let TeamTable = React.createClass({
   render() {
     let { sortedInfo, filteredInfo, targetKeys, showDelModal } = this.state
     const { searchResult, sort, filter } = this.props.scope.state
-    const { scope, teamUserIDList, data } = this.props
+    const { scope, teamUserIDList, data, quitTeam, loadUserTeamList, dissolveTeam } = this.props
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
     //分页器配置
@@ -412,7 +412,6 @@ let TeamTable = React.createClass({
           record.isCreator ?
             <Dropdown.Button
               overlay={this.renderOverLay(record.key)} type='ghost'
-              trigger="click"
               onClick={() => this.handleShowInviteModal(record.key)}
               className="tabDrop"
               >
@@ -436,7 +435,10 @@ let TeamTable = React.createClass({
               <ExitTeamModal
                 visible={this.state.nowTeamID === record.key && this.state.showExitModal}
                 closeExitTeamModal={this.closeExitTeamModal}
-                team={record.team}
+                teamName={record.name}
+                teamID={record.id}
+                quitTeam={quitTeam}
+                loadUserTeamList={loadUserTeamList}
               />
             </div>
         )
@@ -449,7 +451,6 @@ let TeamTable = React.createClass({
           pagination={pagination}
           onChange={this.handleChange}
           />
-        
       </div>
     )
   },
@@ -530,7 +531,7 @@ class MyTeam extends Component {
     const { visible,showCreateSucModal } = this.state
     const {
       teams, addTeamusers, loadUserTeamList,
-      teamUserIDList, loadTeamUserList, checkTeamName
+      teamUserIDList, loadTeamUserList, checkTeamName, quitTeam, dissolveTeam
     } = this.props
     //搜索组件配置
     const searchIntOption = {
@@ -577,6 +578,7 @@ class MyTeam extends Component {
               loadTeamUserList={loadTeamUserList}
               teamUserIDList={teamUserIDList}
               sendInvitation={this.props.sendInvitation}
+              quitTeam={quitTeam}
             />
           </Card>
         </Row>
@@ -615,4 +617,6 @@ export default connect(mapStateToProp, {
   loadTeamUserList,
   checkTeamName,
   sendInvitation,
+  quitTeam,
+  dissolveTeam,
 })(MyTeam)

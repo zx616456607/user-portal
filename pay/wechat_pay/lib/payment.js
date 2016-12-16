@@ -14,10 +14,8 @@
 const md5 = require('md5')
 const sha1 = require('sha1')
 const urllib = require('urllib')
-// const _ = require('underscore')
 const _ = require('lodash')
 const xml2js = require('xml2js')
-// const https = require('https')
 const url_mod = require('url')
 
 const signTypes = {
@@ -51,9 +49,7 @@ class Payment {
     this.pfx = config.pfx
   }
 
-  // getBrandWCPayRequestParams(order, callback) {
   getBrandWCPayRequestParams(order) {
-    // var self = this
     const default_params = {
       appId: this.appId,
       timeStamp: this._generateTimeStamp(),
@@ -65,23 +61,6 @@ class Payment {
       'notify_url'
     ])
 
-    /*this.unifiedOrder(order, function (err, data) {
-      if (err) {
-        return callback(err)
-      }
-
-      var params = _.extend(default_params, {
-        package: 'prepay_id=' + data.prepay_id
-      })
-
-      params.paySign = this._getSign(params)
-
-      if (order.trade_type == 'NATIVE') {
-        params.code_url = data.code_url
-      }
-
-      callback(null, params)
-    })*/
     return this.unifiedOrder(order).then(data => {
       const params = _.extend(default_params, {
         package: 'prepay_id=' + data.prepay_id
@@ -90,57 +69,22 @@ class Payment {
       params.paySign = this._getSign(params)
 
       if (order.trade_type == 'NATIVE') {
-        params.code_url = data.code_url
+        params.codeUrl = data.code_url
       }
 
       return params
     })
   }
 
-  // _httpRequest(url, data, callback) {
   _httpRequest(url, data) {
-    // request({
-    //   url: url,
-    //   method: 'POST',
-    //   body: data
-    // }, function (err, response, body) {
-    //   if (err) {
-    //     return callback(err);
-    //   }
-
-    //   callback(null, body);
-    //   });
     return urllib.request(url, {
       method: 'POST',
       data
     }).then(result => result.data)
   }
 
-  // _httpsRequest(url, data, callback) {
   _httpsRequest(url, data) {
     const parsed_url = url_mod.parse(url)
-    // var req = https.request({
-    //   host: parsed_url.host,
-    //   port: 443,
-    //   path: parsed_url.path,
-    //   pfx: this.pfx,
-    //   passphrase: this.passphrase,
-    //   method: 'POST'
-    // }, function (res) {
-    //   var content = '';
-    //   res.on('data', function (chunk) {
-    //     content += chunk;
-    //   });
-    //   res.on('end', function () {
-    //     callback(null, content);
-    //   });
-    // });
-
-    // req.on('error', function (e) {
-    //   callback(e);
-    // });
-    // req.write(data);
-    // req.end();
     const url_obj = {
       host: parsed_url.host,
       port: 443,
@@ -154,7 +98,6 @@ class Payment {
     }).then(result => result.data)
   }
 
-  // _signedQuery(url, params, options, callback) {
   _signedQuery(url, params, options) {
     const required = options.required || []
     params = this._extendWithDefault(params, [
@@ -190,7 +133,6 @@ class Payment {
     })
 
     if (missing.length) {
-      // return callback('missing params ' + missing.join(','));
       return new Promise((resolve, reject) => {
         let err = new Error('missing params ' + missing.join(','))
         reject(err)
@@ -198,16 +140,9 @@ class Payment {
     }
 
     const request = (options.https ? this._httpsRequest : this._httpRequest).bind(this);
-    // request(url, this.buildXml(params), function (err, body) {
-    //   if (err) {
-    //     return callback(err);
-    //   }
-    //   this.validate(body, callback);
-    // });
     return request(url, this.buildXml(params)).then(data => this.validate(data))
   }
 
-  // unifiedOrder(params, callback) {
   unifiedOrder(params) {
     var requiredData = ['body', 'out_trade_no', 'total_fee', 'spbill_create_ip', 'trade_type']
     if (params.trade_type == 'JSAPI') {
@@ -221,56 +156,30 @@ class Payment {
     })
   }
 
-  // orderQuery(params, callback) {
   orderQuery(params) {
-    // this._signedQuery(URLS.ORDER_QUERY, params, {
-    //   required: ['transaction_id|out_trade_no']
-    // }, callback);
     return this._signedQuery(URLS.ORDER_QUERY, params, {
       required: ['transaction_id|out_trade_no']
     })
   }
 
-  // refund(params, callback) {
   refund(params) {
     params = this._extendWithDefault(params, [
       'op_user_id'
     ])
 
-    // this._signedQuery(URLS.REFUND, params, {
-    //   https: true,
-    //   required: ['transaction_id|out_trade_no', 'out_refund_no', 'total_fee', 'refund_fee']
-    // }, callback)
     return this._signedQuery(URLS.REFUND, params, {
       https: true,
       required: ['transaction_id|out_trade_no', 'out_refund_no', 'total_fee', 'refund_fee']
     })
   }
 
-  // refundQuery(params, callback) {
   refundQuery(params) {
-    // this._signedQuery(URLS.REFUND_QUERY, params, {
-    //   required: ['transaction_id|out_trade_no|out_refund_no|refund_id']
-    // }, callback);
     return this._signedQuery(URLS.REFUND_QUERY, params, {
       required: ['transaction_id|out_trade_no|out_refund_no|refund_id']
     })
   };
 
-  // downloadBill(params, callback) {
   downloadBill(params) {
-    // var self = this;
-    // this._signedQuery(URLS.DOWNLOAD_BILL, params, {
-    //   required: ['bill_date', 'bill_type']
-    // }, function (err, rawData) {
-    //   if (err) {
-    //     if (err.name == 'XMLParseError') {
-    //       callback(null, self.parseCsv(rawData));
-    //     } else {
-    //       callback(err);
-    //     }
-    //   }
-    // });
     return this._signedQuery(URLS.DOWNLOAD_BILL, params, {
       required: ['bill_date', 'bill_type']
     }).catch(err => {
@@ -281,21 +190,13 @@ class Payment {
     })
   };
 
-  // shortUrl(params, callback) {
   shortUrl(params) {
-    // this._signedQuery(URLS.SHORT_URL, params, {
-    //   required: ['long_url']
-    // }, callback);
     return this._signedQuery(URLS.SHORT_URL, params, {
       required: ['long_url']
     })
   }
 
-  // closeOrder(params, callback) {
   closeOrder(params) {
-    // this._signedQuery(URLS.CLOSE_ORDER, params, {
-    //   required: ['out_trade_no']
-    // }, callback);
     return this._signedQuery(URLS.CLOSE_ORDER, params, {
       required: ['out_trade_no']
     })
@@ -331,7 +232,6 @@ class Payment {
     return xml
   }
 
-  // validate(xml, callback) {
   validate(xml) {
     return new Promise((resolve, reject) => {
       xml2js.parseString(xml, {
@@ -341,49 +241,48 @@ class Payment {
         let error = null
         let data
         if (err) {
-          // error = new Error()
           err.name = 'XMLParseError'
           err.xml = xml
-          // retur(err, xml)
           return reject(err)
         }
 
         data = json ? json.xml : {}
-
-        if (data.return_code == RETURN_CODES.FAIL) {
-          error = new Error(data.return_msg)
-          error.name = 'ProtocolError'
+        error = this.validateObj(data)
+        if (error) {
           return reject(error)
         }
-        if (data.result_code == RETURN_CODES.FAIL) {
-          error = new Error(data.err_code)
-          error.name = 'BusinessError'
-          return reject(error)
-        }
-        if (this.appId !== data.appid) {
-          error = new Error()
-          error.name = 'InvalidAppId'
-          return reject(error)
-        }
-        if (this.mchId !== data.mch_id) {
-          error = new Error()
-          error.name = 'InvalidMchId'
-          return reject(error)
-        }
-        if (this.subMchId && this.subMchId !== data.sub_mch_id) {
-          error = new Error()
-          error.name = 'InvalidSubMchId'
-          return reject(error)
-        }
-        if (this._getSign(data) !== data.sign) {
-          error = new Error()
-          error.name = 'InvalidSignature'
-          return reject(error)
-        }
-
         resolve(data)
       })
     })
+  }
+
+  validateObj(data) {
+    let error = null
+    if (data.return_code == RETURN_CODES.FAIL) {
+      error = new Error(data.return_msg)
+      error.name = 'ProtocolError'
+    }
+    if (data.result_code == RETURN_CODES.FAIL) {
+      error = new Error(data.err_code)
+      error.name = 'BusinessError'
+    }
+    if (this.appId !== data.appid) {
+      error = new Error()
+      error.name = 'InvalidAppId'
+    }
+    if (this.mchId !== data.mch_id) {
+      error = new Error()
+      error.name = 'InvalidMchId'
+    }
+    if (this.subMchId && this.subMchId !== data.sub_mch_id) {
+      error = new Error()
+      error.name = 'InvalidSubMchId'
+    }
+    if (this._getSign(data) !== data.sign) {
+      error = new Error()
+      error.name = 'InvalidSignature'
+    }
+    return error
   }
 
   /**

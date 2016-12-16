@@ -411,14 +411,16 @@ let InstanceModal = React.createClass({
       return item.metadata.name;
     })
     scope.setState({
-      currentInstance: tempList
+      currentInstance: tempList,
+      instancePopup: false
     });
   },
   onCancelSelectedAllInstance() {
     //this function for user cancel select all instance
     const { scope } = this.props;
     scope.setState({
-      currentInstance: []
+      currentInstance: [],
+      instancePopup: false
     });
   },
   render: function () {
@@ -904,6 +906,7 @@ class QueryLog extends Component {
                 placement='bottom'
                 getTooltipContainer={() => document.getElementById('QueryLog')}
                 onVisibleChange={this.hideInstancePopup}
+                visible={this.state.instancePopup}
                 >
                 <div className={checkClass(this.state.instancePopup, this.state.selectedInstance)} >
                   <span className='selectedSpan'>{this.state.currentInstance.length != 0 ? this.state.currentInstance.join(',') : [<span className='placeholderSpan'><FormattedMessage {...menusText.selectInstance} /></span>]}</span>
