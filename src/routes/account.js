@@ -50,8 +50,8 @@ if (mode === standard) {
       component: require('../components/AccountModal/_Standard/UserBalance').default,
     },
     childRoutes: [{
-      path: 'pay',
-      component: require('../components/AccountModal/_Standard/UserBalance/Pay').default,
+      path: 'payment',
+      component: require('../components/AccountModal/_Standard/UserBalance/Payment').default,
     }]
   })
 }
