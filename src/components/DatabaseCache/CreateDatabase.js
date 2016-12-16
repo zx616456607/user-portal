@@ -30,7 +30,8 @@ let CreateDatabase = React.createClass({
       currentType: this.props.database,
       showPwd: 'text',
       firstFocues: true,
-      onselectCluster: true
+      onselectCluster: true,
+      cluster: this.props.cluster
     }
   },
   componentDidMount() {
@@ -38,10 +39,10 @@ let CreateDatabase = React.createClass({
     //   cluster: this.props.teamCluster[0].clusterID,
     // });
     const {form, current} = this.props
-    form.setFieldsValue({
-      'namespaceSelect': current.space.spaceName,
-      'clusterSelect': current.cluster.clusterName,
-    })
+    // form.setFieldsValue({
+    //   'namespaceSelect': current.space.spaceName,
+    //   'clusterSelect': current.cluster.clusterName,
+    // })
   },
   componentWillReceiveProps(nextProps) {
     // if create box close return default select cluster
@@ -266,14 +267,14 @@ let CreateDatabase = React.createClass({
       rules: [
         { required: true, message: '请选择空间' },
       ],
-      // initialValue: 'default',
+      initialValue: 'default',
       onChange: this.onChangeNamespace
     });
     const selectClusterProps = getFieldProps('clusterSelect', {
       rules: [
         { required: true, message: '请选择集群' },
       ],
-      // initialValue: this.props.clusterName,
+      initialValue: this.props.clusterName,
       onChange: this.onChangeCluster
     });
     return (
