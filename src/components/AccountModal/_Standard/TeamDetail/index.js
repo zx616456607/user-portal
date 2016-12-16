@@ -12,6 +12,7 @@ import { Row, Col, Alert, Card, Icon, Button, Table, Menu, Dropdown, Modal, Inpu
 import './style/TeamDetail.less'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
+import InviteNewMemberModal from '../../InviteNewMemberModal'
 
 const data = [
   {key: '1',name: 'zhaoxy1',tel: '123',email:'1111@tenxcloud.com',role:1},
@@ -26,6 +27,14 @@ class TeamDetail extends Component {
     this.getSort = this.getSort.bind(this)
     this.handleSortMemberName = this.handleSortMemberName.bind(this)
     this.getColumns = this.getColumns.bind(this)
+    this.handleRemoveMember = this.handleRemoveMember.bind(this)
+    this.handleCancelInvite = this.handleCancelInvite.bind(this)
+    this.handleClickRecharge = this.handleClickRecharge.bind(this)
+    this.handleQuiteTeam = this.handleQuiteTeam.bind(this)
+    this.handleDelTeam = this.handleDelTeam.bind(this)
+    this.handleAddNewMember = this.handleAddNewMember.bind(this)
+    this.closeInviteModal = this.closeInviteModal.bind(this)
+
     this.state = {
       filteredInfo: null,
       sortedInfo: null,
@@ -35,6 +44,7 @@ class TeamDetail extends Component {
       pageSize: 5,
       page: 1,
       current: 1,
+      showInviteModal: false,
     }
   }
   //表单变化(排序,删选)
@@ -79,10 +89,27 @@ class TeamDetail extends Component {
   handleQuiteTeam (teamID) {
     console.log('handleQuiteTeam--teamID',teamID)
   }
+  //解散团队
+  handleDelTeam (teamID) {
+    console.log('handleDelTeam--teamID',teamID)
+  }
+  //添加新成员
+  handleAddNewMember (teamID) {
+    console.log('handleAddNewMember--teamID',teamID)
+    this.setState({
+      showInviteModal: true,
+    })
+  }
+  //关闭邀请新成员弹窗
+  closeInviteModal() {
+    this.setState({
+      showInviteModal: false,
+    })
+  }
   //table列配置
-  getColumns (role,state) {
+  getColumns (role,inviteState) {
     console.log(role);
-    let { sortedInfo, filteredInfo, sortMemberName, sort,filter} = this.state
+    let { sortedInfo, filteredInfo, sortMemberName, sort, filter } = this.state
     //普通成员
     if(role === 0){
       return [
@@ -105,6 +132,8 @@ class TeamDetail extends Component {
           className: 'memberName',
           width: '25%',
           render: (text, record, index) => (
+            index === 0 ?
+            <div>{text}(我)</div>:
             <div>{text}</div>
           )
         },
@@ -149,6 +178,10 @@ class TeamDetail extends Component {
         className: 'memberName',
         width: '20%',
         render: (text, record, index) => (
+          index === 0 ?
+          <div>{text}(我)</div>:
+          inviteState ?
+          <div>{text} (接收邀请中 ...)</div>:
           <div>{text}</div>
         )
       },
@@ -182,7 +215,7 @@ class TeamDetail extends Component {
             <Button className="tabOptBtn" icon="setting">账号设置</Button>
           </Link>
           :
-          state ?
+          inviteState ?
             <Button className="tabOptBtn hoverRed" icon="cross" onClick={() => this.handleCancelInvite(record.key)}>取消邀请</Button>:
             <Button className="tabOptBtn hoverRed" icon="delete" onClick={() => this.handleRemoveMember(record.key)}>移除</Button>
         )
@@ -195,7 +228,7 @@ class TeamDetail extends Component {
   
   render() {
     const scope = this
-    let { sortedInfo, filteredInfo, sortMemberName, sort,filter} = this.state
+    let { sortedInfo, filteredInfo, sortMemberName, sort, filter, showInviteModal } = this.state
     const { teamName, teamID, currentRole } = this.props
     //邀请中状态
     let inviting = true
@@ -226,8 +259,16 @@ class TeamDetail extends Component {
             <div>
               <Alert message="这里展示了该团队的团队成员信息，作为创建者您可管理团队、邀请新成员、解散团队、移除团队成员和跳转到“我的账户”。" />
               <Row className="memberOption">
-                <Button icon='logout' className='quitTeamBtn' onClick={() => this.handleQuiteTeam(teamID)}>
-                  退出团队
+                <Button icon='plus' className='quitTeamBtn' onClick={() => this.handleAddNewMember(teamID)}>
+                  邀请新成员
+                </Button>
+                <InviteNewMemberModal
+                  visible={ showInviteModal }
+                  closeInviteModal={this.closeInviteModal}
+                  teamID={teamID}
+                />
+                <Button icon='logout' className='delTeamBtn' onClick={() => this.handleDelTeam(teamID)}>
+                  解散团队
                 </Button>
                 <Button icon='pay-circle-o' className='rechargeBtn' onClick={() => this.handleClickRecharge(teamID)}>
                   去充值
@@ -245,8 +286,6 @@ class TeamDetail extends Component {
 function mapStateToProp(state, props) {
   const { team_id, team_name } = props.params
   let currentRole = 0
-  console.log('props',props);
-  console.log('state',state);
   const { loginUser } = state.entities
   if(loginUser.info){
     currentRole = loginUser.info.role
