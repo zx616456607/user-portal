@@ -14,10 +14,9 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../constants'
-import { getTenxFlowStateList, getProjectList, searchProject } from '../../../../actions/cicd_flow'
+import { getTenxFlowStateList, getProjectList, searchProject, getAvailableImage } from '../../../../actions/cicd_flow'
 import { getDockerfileList, CreateTenxflowBuild, StopTenxflowBuild, changeSingleState } from '../../../../actions/cicd_flow'
 import './style/TenxFlowDetailFlow.less'
-import EditTenxFlowModal from './TenxFlowDetailFlow/EditTenxFlowModal.js'
 import CreateTenxFlowModal from './TenxFlowDetailFlow/CreateTenxFlowModal.js'
 import TenxFlowDetailFlowCard from './TenxFlowDetailFlow/TenxFlowDetailFlowCard.js'
 import Socket from '../../../Websocket/socketIo'
@@ -60,7 +59,7 @@ class TenxFlowDetailFlow extends Component {
   }
 
   componentWillMount() {
-    const { getTenxFlowStateList, flowId, getProjectList, getDockerfileList } = this.props;
+    const { getTenxFlowStateList, flowId, getProjectList, getDockerfileList, getAvailableImage } = this.props;
     const _this = this;
     let buildingList = [];
     //when different tenxflow should be show
@@ -70,6 +69,7 @@ class TenxFlowDetailFlow extends Component {
       forCacheShow: true
     });
     const cicdApi = this.props.cicdApi;
+    getAvailableImage()
     getTenxFlowStateList(flowId, {
       success: {
         func: (res) => {
@@ -317,7 +317,7 @@ class TenxFlowDetailFlow extends Component {
     socket.emit('stageBuildStage', watchCondition)
   }
   render() {
-    const { flowId, stageInfo, stageList, isFetching, projectList, buildFetching, logs, supportedDependencies, cicdApi } = this.props;
+    const { flowId, stageInfo, stageList, isFetching, projectList, buildFetching, logs, supportedDependencies, cicdApi, imageList } = this.props;
     const { forCacheShow } = this.state;
     let scope = this;
     let { currentFlowEdit } = scope.state;
@@ -333,7 +333,7 @@ class TenxFlowDetailFlow extends Component {
         return (
           <TenxFlowDetailFlowCard key={'TenxFlowDetailFlowCard' + index} config={item}
             scope={scope} index={index} flowId={flowId} currentFlowEdit={currentFlowEdit} totalLength={stageList.length}
-            codeList={projectList} supportedDependencies={supportedDependencies} />
+            codeList={projectList} supportedDependencies={supportedDependencies} imageList={imageList} />
         )
       });
     }
@@ -361,7 +361,7 @@ class TenxFlowDetailFlow extends Component {
                   <QueueAnim key='creattingCardAnimate'>
                     <CreateTenxFlowModal key='CreateTenxFlowModal' stageList={stageList} scope={scope}
                       flowId={flowId} stageInfo={stageInfo} codeList={projectList}
-                      supportedDependencies={supportedDependencies} />
+                      supportedDependencies={supportedDependencies} imageList={imageList} />
                   </QueueAnim>
                 ] : null
               }
@@ -384,7 +384,7 @@ function mapStateToProps(state, props) {
   const defaultStatus = {
     projectList: []
   }
-  const { getTenxflowStageList } = state.cicd_flow;
+  const { getTenxflowStageList, availableImage } = state.cicd_flow;
   const { isFetching, stageList } = getTenxflowStageList || defaultStageList;
   const { managed } = state.cicd_flow;
   const {projectList} = managed || defaultStatus;
@@ -393,7 +393,8 @@ function mapStateToProps(state, props) {
     isFetching,
     stageList,
     projectList,
-    cicdApi
+    cicdApi,
+    imageList: availableImage.imageList || []
   }
 }
 
@@ -408,6 +409,7 @@ export default connect(mapStateToProps, {
   getDockerfileList,
   CreateTenxflowBuild,
   StopTenxflowBuild,
+  getAvailableImage,
   changeSingleState
 })(injectIntl(TenxFlowDetailFlow, {
   withRef: true,
