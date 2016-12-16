@@ -94,8 +94,7 @@ exports.getOrder = function* () {
       "appid": "wx4d07695bf03a7711",
       "mch_id": "1272104401",
       "nonce_str": "EdibrL7dDxztJSoV",
-      // "sign": "DB5F49D302E760BA4E7CF22FDF82E187",
-      "sign": "DB5F49D302E760BA4E7CF22FDF82E188",
+      "sign": "DB5F49D302E760BA4E7CF22FDF82E187",
       "result_code": "SUCCESS",
       "openid": "oDKNMs45ks41CWfawNRz-DcLhC2k",
       "is_subscribe": "Y",
@@ -123,6 +122,8 @@ exports.getOrder = function* () {
    * PAYERROR--支付失败(其他原因，如银行返回失败)
    */
   if (order.return_code === 'SUCCESS' && order.result_code === 'SUCCESS' && order.trade_state === 'SUCCESS') {
+    console.log(`order------------------`)
+    console.log(order)
     // Validate result
     const error = payment.validateObj(order)
     if (error) {
@@ -144,6 +145,31 @@ exports.getOrder = function* () {
     return
   }
   this.body = order
+}
+
+exports.notify = function* () {
+  const method = 'notify'
+  const order = this.request.wechat_pay_notify_message
+  try {
+    if (order.trade_state !== 'SUCCESS') {
+      logger.warn(method, `trade_state is ${order.trade_state}`, JSON.stringify(order))
+      res.reply('success')
+      return
+    }
+    const loginUser = this.session.loginUser
+    const spi = apiFactory.getTenxSysSignSpi(loginUser)
+    const data = {
+      charge_amount: parseInt(order.total_fee),  // 成功支付的金额
+      order_type: 100,
+      order_id: order.transaction_id, // 支付宝、微信的订单号
+      verification_key: order.attach, // 对应请求的key
+      detail: JSON.stringify(order),
+    }
+    const result = yield spi.payments.update(order.out_trade_no, data)
+    this.reply('success')
+  } catch (error) {
+    throw error
+  }
 }
 
 exports.getInitConfig = function () {
