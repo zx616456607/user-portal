@@ -179,7 +179,7 @@ app.use(i18n.handle())
 app.use(i18n.middleware)
 
 // For test
-app.use(function* (next) {
+/*app.use(function* (next) {
   this.session.loginUser = {
     user: "zhangpc",
     id: 104,
@@ -187,7 +187,7 @@ app.use(function* (next) {
     token: "jgokzgfitsewtmbpxsbhtggabvrnktepuzohnssqjnsirtot"
   }
   yield next
-})
+})*/
 
 ////////////////////////////////////////////////////////////////////////////////
 //////////////// Only add routes for standard mode /////////////////////////////
