@@ -19,6 +19,9 @@
 
 const indexCtl = require('../../controllers')
 const teamController = require('../../controllers/_standard/team')
+const alipayController = require('../../controllers/_standard/alipay')
+const wechatPayController = require('../../controllers/_standard/wechat_pay')
+const wechatPayMiddleware = require('../../pay/wechat_pay').middleware
 
 module.exports = function (Router) {
   const router = new Router({})
@@ -26,6 +29,14 @@ module.exports = function (Router) {
   // Invite
   router.get('/teams/invite', indexCtl.index)
   router.get('/teams/invitations/:code', teamController.getInvitationInfo)
+
+  // Payment
+  router.post('/payments/alipay/notify', alipayController.notify)
+  router.post(
+    '/payments/wechat_pay/notify',
+    wechatPayMiddleware(wechatPayController.getInitConfig()).getNotify().done(),
+    wechatPayController.notify
+  )
 
   return router.routes()
 }
