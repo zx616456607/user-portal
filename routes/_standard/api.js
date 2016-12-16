@@ -39,11 +39,11 @@ module.exports = function (Router) {
   // team
   router.post('/teams/teamandspace', teamController.createTeamAndSpace)
   router.post('/teams/:teamid/invitations', teamController.createInvitations)
-  router.get('/teams/:team/dissolvable', teamController.checkDissolvable)
-  router.delete('/teams/:team', teamController.deleteTeam)
-  router.post('/teams/:team/quit', teamController.quitTeam)
-  router.delete('/teams/:team/users/:username', teamController.removeMember)
-  router.delete('/teams/:team/invitations/:code', teamController.cancelInvitation)
+  router.get('/teams/:teamid/dissolvable', teamController.checkDissolvable)
+  router.delete('/teams/:teamid', teamController.deleteTeam)
+  router.post('/teams/:teamid/quit', teamController.quitTeam)
+  router.delete('/teams/:teamid/users/:username', teamController.removeMember)
+  router.delete('/teams/:teamid/invitations/:code', teamController.cancelInvitation)
   router.post('/teams/join', teamController.joinTeam)
 
   // Payment related

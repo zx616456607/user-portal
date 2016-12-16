@@ -31,15 +31,17 @@ export default class ExitTeamModal extends Component{
     }
   }
   handleExitTeamOk() {
-    const { closeExitTeamModal } = this.props
+    const { closeExitTeamModal, quitTeam, teamID, loadUserTeamList } = this.props
     closeExitTeamModal()
+    quitTeam(teamID)
+    loadUserTeamList()
   }
   handleExitTeamCancel() {
     const { closeExitTeamModal } = this.props
     closeExitTeamModal()
   }
   render(){
-    const { visible, team } = this.props
+    const { visible, teamName } = this.props
     return (
       <Modal title='退出团队'
              visible={ visible }
@@ -60,7 +62,7 @@ export default class ExitTeamModal extends Component{
             <Icon type="question-circle-o" />
           </Col>
           <Col className="confirmText" span={22}>
-            请确认是否退出团队 { team } ?
+            请确认是否退出团队 { teamName } ?
           </Col>
         </Row>
       </Modal>
