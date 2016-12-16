@@ -223,3 +223,17 @@ exports.removeTeamuser = function* () {
     data: result
   }
 }
+
+exports.cancelInvitation = function* () {
+  const teamID = this.params.teamid
+  const email = this.params.email
+  const query = { email }
+  const loginUser = this.session.loginUser
+  const spi = apiFactory.getSpi(loginUser)
+
+  const result = yield spi.teams.deleteBy([teamID, 'invitations'], query)
+
+  this.body = {
+    data: result
+  }
+}
