@@ -11,7 +11,7 @@ import '../style/Invite.less'
 import React, { PropTypes } from 'react'
 import { Button, Form, Input, Card, Tooltip, message, Alert, Col, Row } from 'antd'
 import { connect } from 'react-redux'
-import { USERNAME_REG_EXP, EMAIL_REG_EXP } from '../../../../constants'
+import { USERNAME_REG_EXP, EMAIL_REG_EXP } from '../../../constants'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -31,6 +31,7 @@ let NotLogUser = React.createClass({
       rePassWord: false,
       intRePassFocus: false,
       intTelFocus: false,
+      intUserNameFocus: false,
       captchaLoading: false,
       countDownTimeText: '发送验证码',
     }
@@ -63,16 +64,11 @@ let NotLogUser = React.createClass({
       //注册req:
     })
   },
-  checkName(rule, value, callback) {
+
+  checkUserName(rule, value, callback) {
+    console.log('value',value)
+    console.log('USERNAME_REG_EXP',USERNAME_REG_EXP)
     if (!value || value.length < 3) {
-      callback()
-      return
-    }
-    if (value.indexOf('@') > -1) {
-      if (!EMAIL_REG_EXP.test(value)) {
-        callback([new Error('邮箱地址填写错误')])
-        return
-      }
       callback()
       return
     }
@@ -82,6 +78,7 @@ let NotLogUser = React.createClass({
     }
     callback()
   },
+
   checkPass(rule, value, callback) {
     const { validateFields } = this.props.form
     callback()
@@ -149,6 +146,15 @@ let NotLogUser = React.createClass({
       }
       return
     }
+    if (current === 'userName') {
+      let password = getFieldProps('userName').value
+      if (password === '' || !password) {
+        this.setState({
+          intUserNameFocus: false,
+        })
+      }
+      return
+    }
     if (current === 'check') {
       let captcha = getFieldProps('captcha').value
       if (captcha === '' || !captcha) {
@@ -186,6 +192,13 @@ let NotLogUser = React.createClass({
       })
       return
     }
+    if (current === 'userName') {
+      this.refs.intUserName.refs.input.focus()
+      this.setState({
+        intUserNameFocus: true,
+      })
+      return
+    }
     if (current === 'check') {
       this.refs.intCheck.refs.input.focus()
       this.setState({
@@ -217,6 +230,12 @@ let NotLogUser = React.createClass({
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form
     const { random, submitting, loginResult, submitProps } = this.state
     const { email } = this.props
+    const userNameProps = getFieldProps('userName', {
+      rules: [
+        { required: true, min: 3, message: '用户名至少为 3 个字符' },
+        { validator: this.checkUserName },
+      ],
+    })
     const passwdProps = getFieldProps('password', {
       rules: [
         { required: true, whitespace: true, message: '请填写密码' },
@@ -244,6 +263,7 @@ let NotLogUser = React.createClass({
         { validator: this.checkCaptcha },
       ],
     })
+
     const formItemLayout = {
       wrapperCol: { span: 24 },
     }
@@ -254,10 +274,25 @@ let NotLogUser = React.createClass({
           {...formItemLayout}
           className="formItemName nameIntPlace"
         >
-          <div className={"intName intOnFocus"}>用户名 / 邮箱</div>
+          <div className={"intName intOnFocus"}>邮箱</div>
           <Input placeholder={email} disabled />
         </FormItem>
-    
+        
+        <FormItem
+          {...formItemLayout}
+          hasFeedback
+          className="formItemName"
+        >
+          <div className={this.state.intUserNameFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'userName')}>用户名</div>
+          <Input {...userNameProps} autoComplete="off"
+                 onContextMenu={noop} onPaste={noop} onCopy={noop} onCut={noop}
+                 onBlur={this.intOnBlur.bind(this, 'userName')}
+                 onFocus={this.intOnFocus.bind(this, 'userName')}
+                 ref="intUserName"
+                 style={{ height: 35 }}
+          />
+        </FormItem>
+
         <FormItem
           {...formItemLayout}
           hasFeedback

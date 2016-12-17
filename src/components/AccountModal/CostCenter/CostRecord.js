@@ -556,11 +556,13 @@ class CostRecord extends Component{
                   title='选择团队帐户'
                   trigger='click'
                   overlayClassName='standardPopTeamOver'
+                  onVisibleChange={this.popTeamChange}
                   content={
                     <PopContent
                       list={teamspaces}
-                      onChane={this.handleSpaceChange}
+                      onChange={this.handleSpaceChange}
                       loading={false}
+                      popTeamSelect={true}
                     />
                   }
                 >
