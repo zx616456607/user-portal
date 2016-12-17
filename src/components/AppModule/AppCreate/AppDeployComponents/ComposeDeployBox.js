@@ -358,7 +358,7 @@ let MyComponent = React.createClass({
           <FormItem >
             <li className="composeDetail">
               <div className="input">
-                <Input className="portUrl" type="text" value={inputValue} onChange={(e) => this.inputChange(e, k)}/>
+                <Input className="portUrl" placeholder="挂载目录，例如：/App" type="text" value={inputValue} onChange={(e) => this.inputChange(e, k)}/>
               </div>
               <div className="protocol select">
                 <div className="portGroupForm">
