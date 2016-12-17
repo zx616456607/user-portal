@@ -13,11 +13,12 @@
 'use strict'
 
 var qn = require('qn')
+var utility = require('utility')
 var logger = require('../utils/logger.js').getLogger("qiniu_api")
 var storeConfig = require('../configs/_standard/qiniu') 
 
-// 10 mins to expire
-const ExpireTime = 600
+// 5 mins to make token expired
+const ExpireTime = 300
 /*
  * Qiniu upload APIs
  */
@@ -54,8 +55,9 @@ function QiniuAPI(bucket) {
       return
   }
   // Add other options
-  this.qiniuConfig.deadline = ExpireTime + Math.floor(Date.now() / 1000)
   this.qiniuConfig.scope = this.qiniuConfig.bucket
+  // Create the client
+  this.client = qn.create(this.qiniuConfig)
 }
 
 /*
@@ -66,14 +68,13 @@ QiniuAPI.prototype.getUpToken = function (fileName) {
     logger.error('Invalid configuration or no file name, return empty token')
     return ''
   }
-  // Clone the cnofig from base
-  let config = JSON.parse(JSON.stringify(this.qiniuConfig))
-  // Add file name to scope
-  config.scope= config.scope + ':' + fileName
-  // Create the client
-  let client = qn.create(config)
-  // Return upload token
-  return client.uploadToken()
+  // Return upload token to frontend
+  return this.client.uploadToken({
+    // Add file name to scope as key
+    scope: this.qiniuConfig.scope + ':' + fileName,
+    // Set deadline
+    deadline: utility.timestamp() + ExpireTime
+  })
 }
 
 // Testing purpose for now
@@ -83,22 +84,24 @@ QiniuAPI.prototype.uploadFile = function (fileName, callback) {
     logger.error('Invalid configuration or no file name, return empty token')
     return ''
   }
-  // Clone the config from base
-  let config = JSON.parse(JSON.stringify(this.qiniuConfig))
-  // Add file name to scope
-  config.scope= config.scope + ':' + fileName
-  // Create the client
-  let client = qn.create(config)
+
+  let token = this.getUpToken(fileName)
   // upload a file with custom key
-  client.uploadFile(fileName, function (err, result) {
-    if (err) {
-      logger.err(method, "Failed to update to qiniu: " + JSON.stringify(err))
-    }
-    logger.info(method, JSON.stringify(result))
-    if (callback) {
-      callback(err, result)
-    }
-  })
+  let self = this
+  setTimeout(function() {
+    // token should not expire
+    // key should match
+    // NOTE: Current qn module doesn't support to use custom token in options, so need to update up.js to test token expired
+    self.client.uploadFile(fileName, {token: token, key: fileName}, function (err, result) {
+      if (err) {
+        logger.error(method, "Failed to update to qiniu: " + JSON.stringify(err))
+      }
+      logger.info(method, JSON.stringify(result))
+      if (callback) {
+        callback(err, result)
+      }
+    })
+  }, 10000)
 }
 
 module.exports = QiniuAPI
