@@ -161,9 +161,8 @@ exports.sendDismissTeamEmail = function (teamAdminName, teamAdminEmail, teamMemb
   }
 
   for (let i = 0; i < 2; i++) {
-    var mailOptions = {
-      to: emails[i], // list of receivers
-      subject: subject, // Subject line
+    if (emails[i].length == 0) {
+      continue
     }
 
     fs.readFile('templates/email/' + templateFiles[i], 'utf8', function (err, data) {
@@ -179,7 +178,12 @@ exports.sendDismissTeamEmail = function (teamAdminName, teamAdminEmail, teamMemb
       data = data.replace(/\${showNoRefund}/g, showNoRefund)
       data = data.replace(/\${date}/g, date)
       data = data.replace(/\${systemEmail}/g, systemEmail)
-      mailOptions.html = data
+
+      var mailOptions = {
+        to: emails[i], // list of receivers
+        subject: subject, // Subject line
+        html: data,
+      }
       self.sendEmail(mailOptions)
     });
   }
@@ -196,9 +200,8 @@ exports.sendExitTeamEmail = function (teamAdminEmail, teamMemberEmail, teamMembe
   const date = moment(new Date()).format("YYYY-MM-DD")
 
   for (let i = 0; i < 2; i++) {
-    var mailOptions = {
-      to: emails[i], // list of receivers
-      subject: subject, // Subject line
+    if (emails[i].length == 0) {
+      continue
     }
 
     fs.readFile('templates/email/remove_team_member.html', 'utf8', function (err, data) {
@@ -210,7 +213,12 @@ exports.sendExitTeamEmail = function (teamAdminEmail, teamMemberEmail, teamMembe
       data = data.replace(/\${content}/g, contents[i])
       data = data.replace(/\${date}/g, date)
       data = data.replace(/\${systemEmail}/g, systemEmail)
-      mailOptions.html = data
+
+      var mailOptions = {
+        to: emails[i], // list of receivers
+        subject: subject, // Subject line
+        html: data,
+      }
       self.sendEmail(mailOptions)
     });
   }
@@ -219,6 +227,7 @@ exports.sendExitTeamEmail = function (teamAdminEmail, teamMemberEmail, teamMembe
 //Calling sample: self.sendRemoveTeamMemberEmail("shouhong", "zhangsh@tenxcloud.com", "zhangsh@tenxcloud.com", "shouhong", "研发Team")
 exports.sendRemoveTeamMemberEmail = function (teamAdminName, teamAdminEmail, teamMemberName, teamMemberEmail, teamName) {
   const method = "sendRemoveTeamMemberEmail"
+  console.log(arguments)
   
   const subject = `${teamName}团队动态通知（移除成员${teamMemberName}）`
   const emails = [teamAdminEmail, teamMemberEmail]
@@ -227,9 +236,8 @@ exports.sendRemoveTeamMemberEmail = function (teamAdminName, teamAdminEmail, tea
   const date = moment(new Date()).format("YYYY-MM-DD")
 
   for (let i = 0; i < 2; i++) {
-    var mailOptions = {
-      to: emails[i], // list of receivers
-      subject: subject, // Subject line
+    if (emails[i].length == 0) {
+      continue
     }
 
     fs.readFile('templates/email/remove_team_member.html', 'utf8', function (err, data) {
@@ -241,7 +249,12 @@ exports.sendRemoveTeamMemberEmail = function (teamAdminName, teamAdminEmail, tea
       data = data.replace(/\${content}/g, contents[i])
       data = data.replace(/\${date}/g, date)
       data = data.replace(/\${systemEmail}/g, systemEmail)
-      mailOptions.html = data
+
+      var mailOptions = {
+        to: emails[i], // list of receivers
+        subject: subject, // Subject line
+        html: data,
+      }
       self.sendEmail(mailOptions)
     });
   }

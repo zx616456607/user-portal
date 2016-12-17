@@ -37,7 +37,7 @@ class CostRecord extends Component{
     this.transformDate = this.transformDate.bind(this)
     this.handleFilter = this.handleFilter.bind(this)
     this.handleTableChange = this.handleTableChange.bind(this)
-
+    this.handleTeamListVisibleChange = this.handleTeamListVisibleChange.bind(this)
     this.state = {
       spacesVisible: false,
       currentSpaceName: '我的空间',
@@ -52,6 +52,7 @@ class CostRecord extends Component{
       consumptionSpaceSummaryDate: '',
       consumptionSpaceSummaryInDayDate: '',
       consumptionDetailDate: '',
+      teamListVisible: false,
     }
   }
   handleSpaceChange(space) {
@@ -61,6 +62,7 @@ class CostRecord extends Component{
       currentTeamName: space.teamName,
       currentNamespace: space.namespace,
       consumptionDetailCurrentPage: 1,
+      teamListVisible: false,
     })
     const {
       loadConsumptionDetail,
@@ -78,6 +80,11 @@ class CostRecord extends Component{
     loadConsumptionTrend(space.namespace)
     loadSpaceSummaryInDay(space.namespace, consumptionSpaceSummaryInDayDate)
     loadSpaceSummary(space.namespace, consumptionSpaceSummaryDate)
+  }
+  handleTeamListVisibleChange(visible) {
+    this.setState({
+      teamListVisible: visible
+    })
   }
   transformDate(data){
     function _addZero(text) {
@@ -164,6 +171,7 @@ class CostRecord extends Component{
       currentNamespace,
       filteredInfo,
       sortedInfo,
+      teamListVisible,
     } = this.state
     sortedInfo = sortedInfo || {};
     filteredInfo = filteredInfo || {};
@@ -405,7 +413,6 @@ class CostRecord extends Component{
       }
     }
     let convertDetailItems = function(itemsRaw) {
-      console.log('itemsRaw------',itemsRaw)
       if (!Array.isArray(itemsRaw)) {
         return []
       }
@@ -514,9 +521,13 @@ class CostRecord extends Component{
               <div className='popTeamSelect'>
                 <Popover
                   title='选择团队帐户'
+                  placement="bottomLeft"
                   trigger='click'
                   overlayClassName='standardPopTeamOver'
                   onVisibleChange={this.popTeamChange}
+                  getTooltipContainer={() => document.getElementById('CostRecord')}
+                  visible={teamListVisible}
+                  onVisibleChange={this.handleTeamListVisibleChange}
                   content={
                     <PopContent
                       list={teamspaces}
@@ -526,7 +537,7 @@ class CostRecord extends Component{
                     />
                   }
                 >
-                  <span>我的团队 <Icon type='down' style={{ fontSize: '8px' }}/></span>
+                  <span>{currentTeamName === ''?'我的团队':currentTeamName} <Icon type='down' style={{ fontSize: '8px' }}/></span>
                 </Popover>
               </div>
             </div>:

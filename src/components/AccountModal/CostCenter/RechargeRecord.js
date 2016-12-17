@@ -20,6 +20,7 @@ class RechargeRecord extends Component{
     this.handleCancel = this.handleCancel.bind(this)
     this.onNotifyCenterCheckBoxChange = this.onNotifyCenterCheckBoxChange.bind(this)
     this.onNotifyMailCheckBoxChange = this.onNotifyMailCheckBoxChange.bind(this)
+    this.handleTeamListVisibleChange = this.handleTeamListVisibleChange.bind(this)
     this.state = {
       spacesVisible: false,
       currentSpaceName: '我的空间',
@@ -29,6 +30,7 @@ class RechargeRecord extends Component{
       threshold: props.notifyRule.threshold,
       notifyCenterCheckBox: false,
       notifyMailCheckBox: false,
+      teamListVisible: false,
     }
   }
   handleSpaceChange(space) {
@@ -38,11 +40,17 @@ class RechargeRecord extends Component{
       currentSpaceName: space.spaceName,
       currentTeamName: space.teamName,
       currentNamespace: space.namespace,
+      teamListVisible: false,
     })
     const {
       loadChargeRecord,
     } = this.props
     loadChargeRecord(space.namespace)
+  }
+  handleTeamListVisibleChange(visible) {
+    this.setState({
+      teamListVisible: visible
+    })
   }
   handleOk() {
     this.setState({
@@ -128,9 +136,9 @@ class RechargeRecord extends Component{
       threshold,
       notifyCenterCheckBox,
       notifyMailCheckBox,
+      teamListVisible,
     } = this.state
     let convertChargeRecord = function () {
-      console.log('chargeRecord.items',chargeRecord.items)
       if (!Array.isArray(chargeRecord.items)) {
         return []
       }
@@ -262,9 +270,13 @@ class RechargeRecord extends Component{
                 <div className='popTeamSelect'>
                   <Popover
                     title='选择团队帐户'
+                    placement="bottomLeft"
                     trigger='click'
                     overlayClassName='standardPopTeamOver'
                     onVisibleChange={this.popTeamChange}
+                    getTooltipContainer={() => document.getElementById('RechargeRecord')}
+                    visible={teamListVisible}
+                    onVisibleChange={this.handleTeamListVisibleChange}
                     content={
                       <PopContent
                         list={teamspaces}
@@ -274,7 +286,7 @@ class RechargeRecord extends Component{
                       />
                     }
                   >
-                    <span>我的团队 <Icon type='down' style={{ fontSize: '8px' }}/></span>
+                    <span>{currentTeamName === ''?'我的团队':currentTeamName} <Icon type='down' style={{ fontSize: '8px' }}/></span>
                   </Popover>
                 </div>
               </div>:

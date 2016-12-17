@@ -12,6 +12,7 @@ import { Modal,Alert,Icon,Button,Row,Col,Input } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import { getTeamDissoveable } from '../../../actions/team'
+import NotificationHandler from '../../../common/notification_handler'
 
 let balanceMessage = (
   <Row className="tip">
@@ -63,9 +64,25 @@ class DelTeamModal extends Component{
     }
   }
   handleOk() {
-    const { closeDelTeamModal, teamID,delTeam } = this.props
-    console.log('teamID',teamID)//当前团队ID
-    delTeam(teamID)
+    const { closeDelTeamModal, teamID, dissolveTeam, loadUserTeamList } = this.props
+    console.log('dissolveTeam',dissolveTeam)
+    let notification = new NotificationHandler()
+    notification.spin(`解散团队中...`)
+    dissolveTeam(teamID, {
+      success: {
+        func: () => {
+          notification.close()
+          loadUserTeamList()
+        },
+        isAsync: true,
+      },
+      failed: {
+        func: (err) => {
+          notification.close()
+          notification.error(`解散团队失败`, err.message.message)
+        }
+      }
+    })
     closeDelTeamModal()
   }
   handleCancel() {

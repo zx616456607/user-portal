@@ -13,7 +13,8 @@ import './style/TeamDetail.less'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import InviteNewMemberModal from '../../InviteNewMemberModal'
-import { loadTeamUserListStd, removeTeamusersStd, cancelInvitation, deleteTeam } from '../../../../actions/team'
+import { loadUserTeamList } from '../../../../actions/user'
+import { loadTeamUserListStd, removeTeamusersStd, cancelInvitation, dissolveTeam } from '../../../../actions/team'
 import DelTeamModal from '../../DelTeamModal'
 
 const confirm = Modal.confirm;
@@ -38,7 +39,6 @@ class TeamDetail extends Component {
     this.handleAddNewMember = this.handleAddNewMember.bind(this)
     this.closeInviteModal = this.closeInviteModal.bind(this)
     this.closeDelTeamModal = this.closeDelTeamModal.bind(this)
-    this.delTeam = this.delTeam.bind(this)
 
     this.state = {
       filteredInfo: null,
@@ -56,7 +56,6 @@ class TeamDetail extends Component {
   }
   //表单变化(排序,删选)
   handleTableChange(pagination, filters, sorter) {
-    console.log('各类参数是', pagination, filters, sorter);
     this.setState({
       filteredInfo: filters,
       sortedInfo: sorter,
@@ -106,30 +105,16 @@ class TeamDetail extends Component {
   //去充值
   //退出团队
   handleQuiteTeam (teamID) {
-    console.log('handleQuiteTeam--teamID',teamID)
-  }
-  //删除团队
-  delTeam(teamID) {
-    const {deleteTeam} = this.props
-    console.log('deleteTeam',deleteTeam)
-    confirm({
-      title: '您是否确认要删除这项内容',
-      onOk() {
-        deleteTeam(teamID)
-      },
-      onCancel() { },
-    });
   }
   //解散团队
   handleDelTeam (teamID) {
-    console.log('handleDelTeam--teamID',teamID)
     this.setState({
       showDelModal: true,
     })
   }
+
   //添加新成员
   handleAddNewMember (teamID) {
-    console.log('handleAddNewMember--teamID',teamID)
     this.setState({
       showInviteModal: true,
     })
@@ -148,7 +133,6 @@ class TeamDetail extends Component {
   }
   //table列配置
   getColumns (role) {
-    console.log(role);
     let { sortedInfo, filteredInfo, sortMemberName, sort, filter } = this.state
     //普通成员
     if(role === false){
@@ -256,7 +240,7 @@ class TeamDetail extends Component {
   render() {
     const scope = this
     let { sortedInfo, filteredInfo, sortMemberName, sort,filter, showInviteModal, showDelModal} = this.state
-    const { teamName, teamID, currentRole, teamUserList } = this.props
+    const { teamName, teamID, currentRole, teamUserList, dissolveTeam, loadUserTeamList} = this.props
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
     
@@ -299,7 +283,8 @@ class TeamDetail extends Component {
                   visible={showDelModal}
                   closeDelTeamModal={this.closeDelTeamModal}
                   teamID={teamID}
-                  delTeam={this.delTeam}
+                  dissolveTeam={dissolveTeam}
+                  loadUserTeamList={loadUserTeamList}
                 />
                 <Link to='/account/balance'>
                   <Button icon='pay-circle-o' className='rechargeBtn'>
@@ -383,5 +368,6 @@ export default connect(mapStateToProp, {
   loadTeamUserListStd,
   removeTeamusersStd,
   cancelInvitation,
-  deleteTeam,
+  loadUserTeamList,
+  dissolveTeam,
 })(TeamDetail)
