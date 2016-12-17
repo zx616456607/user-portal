@@ -15,9 +15,9 @@ import SearchInput from '../../../SearchInput'
 import { connect } from 'react-redux'
 import { loadUserTeamList } from '../../../../actions/user'
 import {
-  createTeamAndSpace, deleteTeam,
+  createTeamAndSpace, 
   addTeamusers, removeTeamusers, loadTeamUserList,
-  checkTeamName, sendInvitation, quitTeam, dissolveTeam
+  checkTeamName, sendInvitation, quitTeam, dissolveTeam, getTeamDissoveable
 } from '../../../../actions/team'
 import CreateTeamModal from '../../CreateTeamModal'
 import DelTeamModal from '../../DelTeamModal'
@@ -45,9 +45,9 @@ let TeamTable = React.createClass({
       sort: "role desc",//默认排序规则
       filter: '',
       nowTeamID: '',//当前团队ID
-      showDelModal: false,
-      showExitModal: false,
-      showInviteModal: false,
+      showDelModal: false,//解散团队
+      showExitModal: false,//退出团队
+      showInviteModal: false,//邀请成员
     }
   },
   //Table变化回调
@@ -55,24 +55,6 @@ let TeamTable = React.createClass({
     this.setState({
       filteredInfo: filters,
     })
-  },
-  //删除团队
-  delTeam(teamID) {
-    const {deleteTeam, loadUserTeamList} = this.props.scope.props
-    const {page, pageSize, sort, filter} = this.props.scope.state
-    confirm({
-      title: '您是否确认要删除这项内容',
-      onOk() {
-        deleteTeam(teamID)
-        loadUserTeamList('default', {
-          page: page,
-          size: pageSize,
-          sort,
-          filter,
-        })
-      },
-      onCancel() { },
-    });
   },
   //排序规则
   getSort(order, column) {
@@ -184,7 +166,6 @@ let TeamTable = React.createClass({
   },
   //显示邀请新成员弹窗
   handleShowInviteModal(teamID){
-    console.log('show !')
     this.setState({
       showInviteModal: true,
       nowTeamID: teamID
@@ -196,6 +177,7 @@ let TeamTable = React.createClass({
       showInviteModal: false
     })
   },
+  
   handleNewMemberOk() {
     const { addTeamusers, loadUserTeamList, rowKey } = this.props
     const { targetKeys, nowTeamID } = this.state
@@ -238,7 +220,6 @@ let TeamTable = React.createClass({
   },
   //退出团队弹框
   handleShowExitTeamModal(teamID) {
-    console.log('teamID', teamID);
     if (teamID) {
       this.setState({
         showExitModal: true,
@@ -248,7 +229,6 @@ let TeamTable = React.createClass({
   },
   //关闭退出团队弹框
   closeExitTeamModal() {
-    console.log('colse!!')
     this.setState({
       showExitModal: false
     })
@@ -266,8 +246,8 @@ let TeamTable = React.createClass({
   render() {
     let { sortedInfo, filteredInfo, targetKeys, showDelModal } = this.state
     const { searchResult, sort, filter } = this.props.scope.state
-    const { scope, teamUserIDList, data, quitTeam, loadUserTeamList, dissolveTeam } = this.props
-    sortedInfo = sortedInfo || {}
+    const { scope, data, quitTeam, loadUserTeamList, dissolveTeam } = this.props
+    
     filteredInfo = filteredInfo || {}
     //分页器配置
     const pagination = {
@@ -615,7 +595,6 @@ function mapStateToProp(state, props) {
 export default connect(mapStateToProp, {
   loadUserTeamList,
   createTeamAndSpace,
-  deleteTeam,
   addTeamusers,
   removeTeamusers,
   loadTeamUserList,
@@ -623,4 +602,5 @@ export default connect(mapStateToProp, {
   sendInvitation,
   quitTeam,
   dissolveTeam,
+  getTeamDissoveable,
 })(MyTeam)

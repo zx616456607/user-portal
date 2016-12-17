@@ -21,6 +21,7 @@ export default function team(state = {
   teamusers: [],
   teamusersStd: [],
   invitationInfo: {},
+  teamDissoveable: {},
 }, action) {
   return {
     teams: reducerFactory({
@@ -58,5 +59,10 @@ export default function team(state = {
       SUCCESS: ActionTypes.GET_INVITATION_INFO_SUCCESS,
       FAILURE: ActionTypes.GET_INVITATION_INFO_FAILURE
     }, state.invitationInfo, action, options),
+    teamDissoveable: reducerFactory({
+      REQUEST: ActionTypes.GET_TEAM_DISSOLVABLE_REQUEST,
+      SUCCESS: ActionTypes.GET_TEAM_DISSOLVABLE_SUCCESS,
+      FAILURE: ActionTypes.GET_TEAM_DISSOLVABLE_FAILURE
+    }, state.teamDissoveable, action, options),
   }
 }

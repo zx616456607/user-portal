@@ -20,6 +20,7 @@ class RechargeRecord extends Component{
     this.handleCancel = this.handleCancel.bind(this)
     this.onNotifyCenterCheckBoxChange = this.onNotifyCenterCheckBoxChange.bind(this)
     this.onNotifyMailCheckBoxChange = this.onNotifyMailCheckBoxChange.bind(this)
+    this.handleTeamListVisibleChange = this.handleTeamListVisibleChange.bind(this)
     this.state = {
       spacesVisible: false,
       currentSpaceName: '我的空间',
@@ -29,6 +30,7 @@ class RechargeRecord extends Component{
       threshold: props.notifyRule.threshold,
       notifyCenterCheckBox: false,
       notifyMailCheckBox: false,
+      teamListVisible: false,
     }
   }
   handleSpaceChange(space) {
@@ -38,11 +40,17 @@ class RechargeRecord extends Component{
       currentSpaceName: space.spaceName,
       currentTeamName: space.teamName,
       currentNamespace: space.namespace,
+      teamListVisible: false,
     })
     const {
       loadChargeRecord,
     } = this.props
     loadChargeRecord(space.namespace)
+  }
+  handleTeamListVisibleChange(visible) {
+    this.setState({
+      teamListVisible: visible
+    })
   }
   handleOk() {
     this.setState({
@@ -128,12 +136,39 @@ class RechargeRecord extends Component{
       threshold,
       notifyCenterCheckBox,
       notifyMailCheckBox,
+      teamListVisible,
     } = this.state
     let convertChargeRecord = function () {
       if (!Array.isArray(chargeRecord.items)) {
         return []
       }
       let items = JSON.parse(JSON.stringify(chargeRecord.items))
+      if (standard) {
+        items.map(function(item) {
+          item.before = (item.before / 100).toFixed(2) + '￥'
+          item.charge = (item.charge / 100).toFixed(2) + '￥'
+          item.after = (item.after / 100).toFixed(2) + '￥'
+          item.time = moment(item.time).format('YYYY-MM-DD HH:mm:ss')
+          switch (item.orderType) {
+            case '100':
+              item.orderType = '微信'
+              break
+            case '101':
+              item.orderType = '支付宝'
+              break
+            case '102':
+              item.orderType = '线下汇款'
+              break
+            case '103':
+              item.orderType = '解散团队的退款'
+              break
+            default :
+              item.orderType = '-'
+              break
+          }
+        })
+      return items
+      }
       items.map(function(item) {
         item.before = (item.before / 100).toFixed(2) + 'T'
         item.charge = (item.charge / 100).toFixed(2) + 'T'
@@ -175,8 +210,8 @@ class RechargeRecord extends Component{
           },
           {
             title: '充值方式',
-            //key: 'operator',
-            //dataIndex: 'operator',
+            key: 'orderType',
+            dataIndex: 'orderType',
           }
         ]
       }
@@ -235,9 +270,13 @@ class RechargeRecord extends Component{
                 <div className='popTeamSelect'>
                   <Popover
                     title='选择团队帐户'
+                    placement="bottomLeft"
                     trigger='click'
                     overlayClassName='standardPopTeamOver'
                     onVisibleChange={this.popTeamChange}
+                    getTooltipContainer={() => document.getElementById('RechargeRecord')}
+                    visible={teamListVisible}
+                    onVisibleChange={this.handleTeamListVisibleChange}
                     content={
                       <PopContent
                         list={teamspaces}
@@ -247,7 +286,7 @@ class RechargeRecord extends Component{
                       />
                     }
                   >
-                    <span>我的团队 <Icon type='down' style={{ fontSize: '8px' }}/></span>
+                    <span>{currentTeamName === ''?'我的团队':currentTeamName} <Icon type='down' style={{ fontSize: '8px' }}/></span>
                   </Popover>
                 </div>
               </div>:

@@ -73,7 +73,6 @@ let LogInUser = React.createClass({
         },
         failed: {
           func: (err) => {
-            console.log('login failed')
             let msg = err.message.message || err.message
             if (err.statusCode == 401) {
               msg = "用户名或者密码错误"
@@ -161,7 +160,6 @@ let LogInUser = React.createClass({
       return
     }
     if (current === 'tel') {
-      console.log('tel');
       this.refs.intTel.refs.input.focus()
       this.setState({
         intTelFocus: true,
