@@ -271,7 +271,7 @@ let TeamTable = React.createClass({
     filteredInfo = filteredInfo || {}
     //分页器配置
     const pagination = {
-      simple: { true},
+      simple: true,
       total: this.props.scope.props.total,
       sort,
       filter,
@@ -285,7 +285,7 @@ let TeamTable = React.createClass({
           page: current,
           size: pageSize,
           sort,
-      filter,
+          filter,
         })
         scope.setState({
           page: current,
@@ -299,7 +299,7 @@ let TeamTable = React.createClass({
           page: current,
           size: pageSize,
           sort,
-      filter,
+          filter,
         })
         scope.setState({
           page: current,
@@ -427,6 +427,8 @@ let TeamTable = React.createClass({
                 visible={this.state.nowTeamID === record.key && showDelModal}
                 closeDelTeamModal={this.closeDelTeamModal}
                 teamID={record.id}
+                dissolveTeam={dissolveTeam}
+                loadUserTeamList={loadUserTeamList}
               />
             </Dropdown.Button>
             :
@@ -470,6 +472,7 @@ class MyTeam extends Component {
       pageSize: 5,
       page: 1,
       current: 1,
+      filter: '',
       sort: 'a,teamName',
       showCreateSucModal: false,
     }
@@ -577,6 +580,7 @@ class MyTeam extends Component {
               teamUserIDList={teamUserIDList}
               sendInvitation={this.props.sendInvitation}
               quitTeam={quitTeam}
+              dissolveTeam={dissolveTeam}
             />
           </Card>
         </Row>
