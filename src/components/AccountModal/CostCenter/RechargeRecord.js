@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Card, Button, Icon, Table, Modal, Alert, Row, Col, Checkbox, InputNumber,Spin } from 'antd'
+import { Card, Button, Icon, Table, Modal, Alert, Row, Col, Checkbox, InputNumber,Spin,Popover } from 'antd'
 import './style/RechargeRecord.less'
 import { connect } from 'react-redux'
 import { loadUserTeamspaceList } from '../../../actions/user'
@@ -9,6 +9,7 @@ import { loadChargeRecord, loadNotifyRule, setNotifyRule } from '../../../action
 import PopSelect from '../../PopSelect'
 import moment from 'moment'
 import { Link } from 'react-router'
+import PopContent from '../../PopSelect/Content'
 
 class RechargeRecord extends Component{
   constructor(props){
@@ -227,24 +228,45 @@ class RechargeRecord extends Component{
     return (
       <div id='RechargeRecord'>
         <Card style={{marginBottom: '20px'}}>
-          <div className="selectSpace">
-            <i className='fa fa-cube' style={{marginRight:'10px',fontSize: '14px',marginTop:'-3px'}}/>
-            <div style={{display:'inline-block',fontSize: '14px'}}>
-              <PopSelect
-                title="选择项目空间"
-                btnStyle={false}
-                special={true}
-                visible={spacesVisible}
-                list={teamspaces}
-                loading={false}
-                onChange={this.handleSpaceChange}
-                selectValue={ currentSpaceName }
-              />
-            </div>
-            <div style={{flex: 'auto'}}>
-              <Button icon="clock-circle-o" style={{float: 'right',fontSize: '14px'}} onClick={this.showModal}>设置提醒</Button>
-            </div>
-          </div>
+          {
+            standard ?
+              <div>
+                <i className='fa fa-cube'/>
+                <div className='popTeamSelect'>
+                  <Popover
+                    title='选择团队帐户'
+                    trigger='click'
+                    overlayClassName='standardPopTeamOver'
+                    onVisibleChange={this.popTeamChange}
+                    content={
+                      <PopContent
+                        list={teamspaces}
+                        onChange={this.handleSpaceChange}
+                        loading={false}
+                        popTeamSelect={true}
+                      />
+                    }
+                  >
+                    <span>我的团队 <Icon type='down' style={{ fontSize: '8px' }}/></span>
+                  </Popover>
+                </div>
+              </div>:
+              <div>
+                <i className='fa fa-cube'/>
+                <div className='popSelect'>
+                  <PopSelect
+                    title="选择项目空间"
+                    btnStyle={false}
+                    special={true}
+                    visible={spacesVisible}
+                    list={teamspaces}
+                    loading={false}
+                    onChange={this.handleSpaceChange}
+                    selectValue={ currentSpaceName }
+                  />
+                </div>
+              </div>
+          }
         </Card>
         <Card className="RechargeTable" bodyStyle={{padding: 0}}>
           <Table
