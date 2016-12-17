@@ -14,6 +14,10 @@
 const apiFactory = require('../../services/api_factory')
 const EMAIL_REG_EXP = new RegExp('^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$')
 const emailUtil = require('../../utils/email')
+const constants = require('../../constants')
+const DEFAULT_PAGE = constants.DEFAULT_PAGE
+const DEFAULT_PAGE_SIZE = constants.DEFAULT_PAGE_SIZE
+const MAX_PAGE_SIZE = constants.MAX_PAGE_SIZE
 
 exports.createTeamAndSpace = function* () {
   const loginUser = this.session.loginUser
@@ -155,6 +159,79 @@ exports.joinTeam = function* () {
   let result = yield spi.teams.createBy(['join'], null, body)
 
   // send email
+
+  this.body = {
+    data: result
+  }
+}
+
+exports.getTeamUsers = function* () {
+  const teamID = this.params.teamid
+  const loginUser = this.session.loginUser
+  const query = this.query || {}
+  let page = parseInt(query.page || DEFAULT_PAGE)
+  let size = parseInt(query.size || DEFAULT_PAGE_SIZE)
+  let sort_by = parseInt(query.sort_by || "name")
+  let sort_order = parseInt(query.sort_order || true)
+  let filter = query.filter
+  if (isNaN(page) || page < 1) {
+    page = DEFAULT_PAGE
+  }
+  if (isNaN(size) || size > MAX_PAGE_SIZE) {
+    size = DEFAULT_PAGE_SIZE
+  }
+  let from = size * (page - 1)
+  if (size == -1) {
+    from == -1
+  }
+  let queryObj = { from, size }
+  if (from == 0 && size == 0) {
+    queryObj = {}
+  }
+  if (filter) {
+    queryObj.filter = filter
+  }
+  if (query && query.sort) {
+    queryObj.sort = query.sort
+  }
+  const spi = apiFactory.getSpi(loginUser)
+  const result = yield spi.teams.getBy([teamID, 'users'], queryObj)
+  let invitedUsers = []
+  if (result && result.data && result.data.invitedUsers) {
+    invitedUsers = result.data.invitedUsers
+  } 
+  let users = []
+  if (result && result.data && result.data.users) {
+    users = result.data.users
+  } 
+  
+  this.body = {
+    invitedUsers,
+    users,
+  }
+}
+
+exports.removeTeamuser = function* () {
+  const teamID = this.params.teamid
+  const username = this.params.username
+  const loginUser = this.session.loginUser
+  const spi = apiFactory.getSpi(loginUser)
+
+  const result = yield spi.teams.deleteBy([teamID, 'users', username])
+
+  this.body = {
+    data: result
+  }
+}
+
+exports.cancelInvitation = function* () {
+  const teamID = this.params.teamid
+  const email = this.params.email
+  const query = { email }
+  const loginUser = this.session.loginUser
+  const spi = apiFactory.getSpi(loginUser)
+
+  const result = yield spi.teams.deleteBy([teamID, 'invitations'], query)
 
   this.body = {
     data: result

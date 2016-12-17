@@ -222,9 +222,12 @@ let TenxFlowDetailAlert = React.createClass({
       } else {
         let emailList = ''
         if (this.state.otherEmail) {
-          emailList = values.inputEmail;
+          emailList = values.inputEmail
+          if (typeof values.inputEmail === 'string') {
+            emailList = values.inputEmail.split(',')
+          }
         } else {
-          emailList = DefaultEmailAddress;
+          emailList = [DefaultEmailAddress];
         }
         let temp = {
           'email_list': emailList,

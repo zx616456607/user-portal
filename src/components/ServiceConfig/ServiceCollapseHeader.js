@@ -95,10 +95,7 @@ class CollapseHeader extends Component {
             case 500: errorText = '网络异常'; break
             default: errorText = '缺少参数或格式错误'
           }
-          Modal.error({
-            title: '添加配置文件',
-            content: (<h2>{errorText}</h2>),
-          });
+          notification.error('添加配置文件失败', errorText);
           self.setState({
             modalConfigFile: false,
             configName: '',
@@ -197,7 +194,7 @@ class CollapseHeader extends Component {
           创建时间&nbsp;&nbsp;{calcuDate(collapseHeader.creationTimestamp)}
         </Col>
         <Col span="6">
-          <ButtonGroup>
+          <ButtonGroup onClick={(e)=>this.handleDropdown(e)}>
             <Dropdown.Button size='large' onClick={(e) => this.createConfigModal(e, true)} overlay={menu} type="ghost">
               <span style={{ fontSize:'14px !important' }}><Icon type="plus" />&nbsp;配置文件</span>
             </Dropdown.Button>

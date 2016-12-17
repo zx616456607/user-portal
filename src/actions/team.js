@@ -68,6 +68,35 @@ export function loadTeamUserList(teamID, query, requiredFields = []) {
   }
 }
 
+export const TEAMUSER_LIST_STD_REQUEST = 'TEAMUSER_LIST_STD_REQUEST'
+export const TEAMUSER_LIST_STD_SUCCESS = 'TEAMUSER_LIST_STD_SUCCESS'
+export const TEAMUSER_LIST_STD_FAILURE = 'TEAMUSER_LIST_STD_FAILURE'
+
+// Fetches team user list for standard version from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchTeamUserListStd(teamID, query) {
+  let endpoint = `${API_URL_PREFIX}/teams/${teamID}/users/std`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
+  return {
+    [FETCH_API]: {
+      types: [TEAMUSER_LIST_STD_REQUEST, TEAMUSER_LIST_STD_SUCCESS, TEAMUSER_LIST_STD_FAILURE],
+      endpoint,
+      schema: {}
+    }
+  }
+}
+
+// Fetches team user list  for standard version from API unless it is cached.
+// Relies on Redux Thunk middleware.
+export function loadTeamUserListStd(teamID, query, requiredFields = []) {
+  return (dispatch, getState) => {
+    return dispatch(fetchTeamUserListStd(teamID, query))
+  }
+}
+
+
 export const TEAM_CLUSTERS_LIST_REQUEST = 'TEAM_CLUSTERS_LIST_REQUEST'
 export const TEAM_CLUSTERS_LIST_SUCCESS = 'TEAM_CLUSTERS_LIST_SUCCESS'
 export const TEAM_CLUSTERS_LIST_FAILURE = 'TEAM_CLUSTERS_LIST_FAILURE'
@@ -292,11 +321,67 @@ function fetchRemoveTeamusers(teamID, userIDs, callback) {
     callback
   }
 }
-// Remove team users from API
+// Remove team users for standard version from API
 // Relies on Redux Thunk middleware.
 export function removeTeamusers(teamID, userIDs, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchRemoveTeamusers(teamID, userIDs, callback))
+  }
+}
+
+export const TEAMUSERS_REMOVE_STD_REQUEST = 'TEAMUSERS_REMOVE_STD_REQUEST'
+export const TEAMUSERS_REMOVE_STD_SUCCESS = 'TEAMUSERS_REMOVE_STD_SUCCESS'
+export const TEAMUSERS_REMOVE_STD_FAILURE = 'TEAMUSERS_REMOVE_STD_FAILURE'
+
+// Remove team users for standard version from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchRemoveTeamusersStd(teamID, username, callback) {
+  let endpoint = `${API_URL_PREFIX}/teams/${teamID}/users/${username}/std`
+  return {
+    [FETCH_API]: {
+      types: [TEAMUSERS_REMOVE_STD_REQUEST, TEAMUSERS_REMOVE_STD_SUCCESS, TEAMUSERS_REMOVE_STD_FAILURE],
+      endpoint,
+      options: {
+        method: 'DELETE'
+      },
+      schema: {},
+    },
+    callback
+  }
+}
+// Remove team users for standard version from API
+// Relies on Redux Thunk middleware.
+export function removeTeamusersStd(teamID, username, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchRemoveTeamusersStd(teamID, username, callback))
+  }
+}
+
+export const INVITATION_CANCEL_REQUEST = 'INVITATION_CANCEL_REQUEST'
+export const INVITATION_CANCEL_SUCCESS = 'INVITATION_CANCEL_SUCCESS'
+export const INVITATION_CANCEL_FAILURE = 'INVITATION_CANCEL_FAILURE'
+
+// Cancel team member invitation from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchCancelInvitation(teamID, email, callback) {
+  let endpoint = `${API_URL_PREFIX}/teams/${teamID}/invitations/${email}`
+  return {
+    [FETCH_API]: {
+      types: [INVITATION_CANCEL_REQUEST, INVITATION_CANCEL_SUCCESS, INVITATION_CANCEL_FAILURE],
+      endpoint,
+      options: {
+        method: 'DELETE'
+      },
+      schema: {},
+    },
+    callback
+  }
+}
+// Cancel team member invitation from API
+// Relies on Redux Thunk middleware.
+export function cancelInvitation(teamID, email, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchCancelInvitation(teamID, email, callback))
   }
 }
 

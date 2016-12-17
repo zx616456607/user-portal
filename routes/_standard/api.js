@@ -44,6 +44,9 @@ module.exports = function (Router) {
   router.delete('/teams/:teamid/users/:username', teamController.removeMember)
   router.delete('/teams/:teamid/invitations/:code', teamController.cancelInvitation)
   router.post('/teams/join', teamController.joinTeam)
+  router.get('/teams/:teamid/users/std', teamController.getTeamUsers)
+  router.delete('/teams/:teamid/users/:username/std', teamController.removeTeamuser)
+  router.delete('/teams/:teamid/invitations/:email', teamController.cancelInvitation)
 
   // Payment related
   router.post('/payments/wechat_pay', wechatPayController.createPrepayRecord)

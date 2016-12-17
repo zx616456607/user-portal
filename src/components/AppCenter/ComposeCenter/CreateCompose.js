@@ -46,9 +46,11 @@ class CreateCompose extends Component {
     if (!!paretnState.stackItemContent) {
       currentYaml = paretnState.stackItemContent;
     }
-    this.setState({
-      currentYaml: currentYaml
-    })
+    if (currentYaml != "") {
+      this.setState({
+        currentYaml: currentYaml
+      })
+    }
   }
 
   onChangeAttr(e) {

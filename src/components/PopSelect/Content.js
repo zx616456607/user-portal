@@ -10,6 +10,7 @@
 import React, { Component, PropTypes } from 'react'
 import { Input, Button, Spin, Icon, } from 'antd'
 import './style/Content.less'
+import { MY_SPACE } from '../../constants'
 
 class PopSelect extends Component {
   constructor(props) {
@@ -36,12 +37,6 @@ class PopSelect extends Component {
     if (!special) {
       return
     }
-    const userSpace = {
-      name: '我的空间',
-      spaceName: '我的空间',
-      namespace: 'default',
-      teamID: 'default'
-    }
     return (
       <div>
         <div>
@@ -49,9 +44,9 @@ class PopSelect extends Component {
         </div>
         <ul className="searchList">
           <li
-            onClick={() => onChange(userSpace)}
+            onClick={() => onChange(MY_SPACE)}
             className="searchItem">
-            {userSpace.name}
+            {MY_SPACE.name}
           </li>
         </ul>
         <div>

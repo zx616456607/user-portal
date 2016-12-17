@@ -8,9 +8,10 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Card, Icon, Button, DatePicker, Table, Select } from 'antd'
+import { Row, Col, Card, Icon, Button, DatePicker, Table, Select, Popover } from 'antd'
 import './style/CostRecord.less'
 import PopSelect from '../../PopSelect'
+import PopContent from '../../PopSelect/Content'
 import { connect } from 'react-redux'
 import { loadUserTeamspaceList } from '../../../actions/user'
 import { loadTeamClustersList } from '../../../actions/team'
@@ -36,6 +37,7 @@ class CostRecord extends Component{
     this.transformDate = this.transformDate.bind(this)
     this.handleFilter = this.handleFilter.bind(this)
     this.handleTableChange = this.handleTableChange.bind(this)
+
     this.state = {
       spacesVisible: false,
       currentSpaceName: '我的空间',
@@ -113,6 +115,7 @@ class CostRecord extends Component{
       }
     })
   }
+  
   componentWillMount() {
     const {
       loadTeamClustersList,
@@ -152,6 +155,7 @@ class CostRecord extends Component{
       consumptionTrend,
       spaceSummaryInDay,
       spaceSummary,
+      standard,
     } = this.props
     let {
       spacesVisible,
@@ -231,7 +235,6 @@ class CostRecord extends Component{
           type: 'line',
           data: yAxisData,
           symbolSize: 8,
-
         },]
       }
     }
@@ -420,59 +423,7 @@ class CostRecord extends Component{
       return items
     }
     let costData = convertDetailItems(consumptionDetail.consumptions)
-    let TableSpaceCostDetail  = [
-      {
-        title: '消费ID',
-        dataIndex: 'id',
-        key: 'id',
-        className: 'firstCol',
-      },
-      {
-        title: '服务名称',
-        dataIndex: 'consumptionName',
-        key: 'consumptionName',
-      },
-      {
-        title: '服务类型',
-        dataIndex: 'type',
-        key: 'type',
-        filters: [
-          { text: '容器服务', value: '容' },
-        ],
-        filteredValue: filteredInfo.svcType,
-        onFilter: (value, record) => record.svcType.indexOf(value) === 0,
-      },
-      {
-        title: '单价',
-        dataIndex: 'unitPrice',
-        key: 'unitPrice',
-      },
-      {
-        title: '消费金额',
-        dataIndex: 'amount',
-        key: 'amount',
-      },
-      {
-        title: '生效时间',
-        dataIndex: 'startTime',
-        key: 'startTime',
-      },
-      {
-        title: '消费时长',
-        dataIndex: 'continueTime',
-        key: 'continueTime',
-      },
-      {
-        title: '集群',
-        dataIndex: 'clusterName',
-        key: 'clusterName',
-      },
-      {
-        title: '备注',
-        dataIndex: 'ps',
-        key: 'ps',
-      },
-    ]
+    
     let pagination = {
       current: _this.state.consumptionDetailCurrentPage,
       total: consumptionDetail.total,
@@ -492,23 +443,147 @@ class CostRecord extends Component{
         })
       },
     }
-
+    //table列配置
+    let getTableColumn = function(mode) {
+      if (!standard) {
+        return [
+          {
+            title: '消费ID',
+            dataIndex: 'id',
+            key: 'id',
+            className: 'firstCol',
+          },
+          {
+            title: '服务名称',
+            dataIndex: 'consumptionName',
+            key: 'consumptionName',
+          },
+          {
+            title: '服务类型',
+            dataIndex: 'type',
+            key: 'type',
+            filters: [
+              { text: '容器服务', value: '容' },
+            ],
+            filteredValue: filteredInfo.svcType,
+            onFilter: (value, record) => record.svcType.indexOf(value) === 0,
+          },
+          {
+            title: '单价',
+            dataIndex: 'unitPrice',
+            key: 'unitPrice',
+          },
+          {
+            title: '消费金额',
+            dataIndex: 'amount',
+            key: 'amount',
+          },
+          {
+            title: '生效时间',
+            dataIndex: 'startTime',
+            key: 'startTime',
+          },
+          {
+            title: '消费时长',
+            dataIndex: 'continueTime',
+            key: 'continueTime',
+          },
+          {
+            title: '集群',
+            dataIndex: 'clusterName',
+            key: 'clusterName',
+          }
+        ]
+      }
+      return [
+        {
+          title: '消费ID',
+          dataIndex: 'id',
+          key: 'id',
+          className: 'firstCol',
+        },
+        {
+          title: '服务名称',
+          dataIndex: 'consumptionName',
+          key: 'consumptionName',
+        },
+        {
+          title: '服务类型',
+          dataIndex: 'type',
+          key: 'type',
+          filters: [
+            { text: '容器服务', value: '容' },
+          ],
+          filteredValue: filteredInfo.svcType,
+          onFilter: (value, record) => record.svcType.indexOf(value) === 0,
+        },
+        {
+          title: '单价',
+          dataIndex: 'unitPrice',
+          key: 'unitPrice',
+        },
+        {
+          title: '消费金额',
+          dataIndex: 'amount',
+          key: 'amount',
+        },
+        {
+          title: '生效时间',
+          dataIndex: 'startTime',
+          key: 'startTime',
+        },
+        {
+          title: '消费时长',
+          dataIndex: 'continueTime',
+          key: 'continueTime',
+        },
+        {
+          title: '地域',
+          //dataIndex: 'local',
+          //key: 'local',
+        }
+      ]
+    }
     return (
       <div id='CostRecord'>
         <Card className='selectSpace'>
-          <i className='fa fa-cube'/>
-          <div className='popSelect'>
-            <PopSelect
-              title="选择项目空间"
-              btnStyle={false}
-              special={true}
-              visible={spacesVisible}
-              list={teamspaces}
-              loading={false}
-              onChange={this.handleSpaceChange}
-              selectValue={ currentSpaceName }
-          />
-          </div>
+          {
+            standard ?
+            <div>
+              <i className='fa fa-cube'/>
+              <div className='popTeamSelect'>
+                <Popover
+                  title='选择团队帐户'
+                  trigger='click'
+                  overlayClassName='standardPopTeamOver'
+                  content={
+                    <PopContent
+                      list={teamspaces}
+                      onChane={this.handleSpaceChange}
+                      loading={false}
+                    />
+                  }
+                >
+                  <span>我的团队 <Icon type='down' style={{ fontSize: '8px' }}/></span>
+                </Popover>
+              </div>
+            </div>:
+            <div>
+              <i className='fa fa-cube'/>
+              <div className='popSelect'>
+                <PopSelect
+                  title="选择项目空间"
+                  btnStyle={false}
+                  special={true}
+                  visible={spacesVisible}
+                  list={teamspaces}
+                  loading={false}
+                  onChange={this.handleSpaceChange}
+                  selectValue={ currentSpaceName }
+                />
+              </div>
+            </div>
+          }
         </Card>
         {
           (loginUser.info.role === 1 && currentTeamName)?
@@ -577,7 +652,7 @@ class CostRecord extends Component{
         </Row>
         <Row className='SpaceCostDetailTab'>
           <Card title={spaceTableTitle}>
-            <Table columns={TableSpaceCostDetail} dataSource={costData} pagination={pagination} onChange={this.handleTableChange}/>
+            <Table columns={getTableColumn(standard)} dataSource={costData} pagination={pagination} onChange={this.handleTableChange}/>
           </Card>
         </Row>
       </div>

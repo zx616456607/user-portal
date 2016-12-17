@@ -78,7 +78,7 @@ class SearchInput extends Component{
               total,
             })
             this.setState({
-              searchValue:''
+              searchValue: searchValue
             })
           },
           isAsync:true
@@ -100,7 +100,7 @@ class SearchInput extends Component{
               total,
             })
             this.setState({
-              searchValue:''
+              searchValue: searchValue
             })
           },
           isAsync:true

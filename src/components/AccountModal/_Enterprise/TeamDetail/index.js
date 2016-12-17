@@ -595,7 +595,7 @@ class TeamDetail extends Component {
                   )}>
                     <Row className="cardItem" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}>
                       <Col span={8}>集群ID:</Col>
-                      <Col span={16}>{item.clusterID}</Col>
+                      <Col span={16} className='clusterIDCol' title={item.clusterID}>{item.clusterID}</Col>
                     </Row>
                     <Row className="cardItem">
                       <Col span={8}>访问地址</Col>

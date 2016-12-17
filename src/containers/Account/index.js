@@ -29,7 +29,7 @@ if (mode === standard) {
     },
     {
       url: '/account/balance',
-      name: '帐户余额'
+      name: '充值/续费'
     },
     {
       url: '/account/cost',
