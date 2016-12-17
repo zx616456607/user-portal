@@ -106,6 +106,21 @@ exports.deleteTeam = function* () {
 
   let result = yield spi.teams.deleteBy([teamID])
 
+  // send email
+  if (result.code === 200 && result.data) {
+    try {
+      emailUtil.sendDismissTeamEmail(result.data.operatorName, result.data.operatorEmail, result.data.normalUserEmails, result.data.teamName, (result.data.refundBalance > 0))
+    }
+    catch (e) {
+      logger.warn('send delete team email failed.', e)
+    }
+  }
+  else {
+    logger.warn('deleteTeam not send email. call api server return:', result)
+  }
+
+  // no need to show info to front end
+  result.data = ""
   this.body = {
     data: result
   }
@@ -131,6 +146,8 @@ exports.quitTeam = function* () {
     logger.warn('quit team not send email. call api server return:', result)
   }
 
+  // no need to show info to front end
+  result.data = ""
   this.body = {
     data: result
   }
@@ -230,6 +247,8 @@ exports.removeTeamuser = function* () {
     logger.warn('removeMember not send email. call api server return:', result)
   }
 
+  // no need to show info to front end
+  result.data = ""
   this.body = {
     data: result
   }
@@ -257,6 +276,8 @@ exports.cancelInvitation = function* () {
     logger.warn('cancelInvitation not send email. call api server return:', result)
   }
 
+  // no need to show info to front end
+  result.data = ""
   this.body = {
     data: result
   }

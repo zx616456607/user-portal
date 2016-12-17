@@ -15,7 +15,20 @@ const apiFactory = require('../services/api_factory')
 exports.getDetail = function* () {      
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
-  const result = yield api.consumptions.getBy(['detail'], this.query)
+  let query = {}
+  if (this.query.from) {
+    query.from = this.query.from
+  }
+  if (this.query.size) {
+    query.size = this.query.size
+  }
+  if (this.query.timeBegin) {
+    query.timeBegin = this.query.timeBegin
+  }
+  if (this.query.timeEnd) {
+    query.timeEnd = this.query.timeEnd
+  }
+  const result = yield api.consumptions.getBy(['detail'], query)
   this.body = {
     data: result.data
   }
@@ -33,7 +46,14 @@ exports.getTrend = function* () {
 exports.getSummaryInDay = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)
-  const result = yield api.consumptions.getBy(['summary'], this.query)
+  let query = {}
+  if (this.query.source) {
+    query.source = this.query.source
+  }
+  if (this.query.month) {
+    query.month = this.query.month
+  }
+  const result = yield api.consumptions.getBy(['summary'], query)
   this.body = {
     data: result.data
   }
@@ -42,7 +62,14 @@ exports.getSummaryInDay = function* () {
 exports.getChargeRecord = function* () {
   const loginUser = this.session.loginUser
   const spi = apiFactory.getSpi(loginUser)
-  const result = yield spi.payments.getBy(['history'], this.query)
+  let query = {}
+  if (this.query.from) {
+    query.from = this.query.from
+  }
+  if (this.query.size) {
+    query.size = this.query.size
+  }
+  const result = yield spi.payments.getBy(['history'], query)
   this.body = {
     data: result.data
   }

@@ -56,11 +56,6 @@ let LogInUser = React.createClass({
         password: values.password,
         email: email,
       }
-      if (values.name.indexOf('@') > -1) {
-        body.email = values.name
-      } else {
-        body.username = values.name
-      }
       //登录req:
       login(body, {
         success: {
@@ -70,7 +65,7 @@ let LogInUser = React.createClass({
               submitting: false,
               submitProps: {},
             })
-            message.success(`登录成功`)
+            message.success(`加入团队成功`)
             browserHistory.push('/')
             resetFields()
           },
