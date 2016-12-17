@@ -18,14 +18,14 @@ function getOption(cost, rest) {
   return {
     title: {
       show: false,
-      text: '余额 :  '+rest+'T币\n\n消费 :  '+cost+'T币',
+      text: '余额：￥ '+rest+'\n\n消费：￥ ' + cost,
       x:'center',
       top: '65%',
       textStyle:{
-        color :'#6c6c6c',
+        color :'#666',
         fontStyle: 'normal',
         fontWeight: 'normal',
-        fontSize: '14',
+        fontSize: '13',
       }
     },
     color: ['#46b2fa', '#2abe84'],
@@ -43,13 +43,15 @@ function getOption(cost, rest) {
       data:['余额','消费'],
       formatter: function (name) {
         if(name === '余额'){
-          return name + ': ' + rest + 'T币'
+          return name + '：￥ ' + rest
         } else if (name === '消费') {
-          return name + ': ' + cost + 'T币'
+          return name + '：￥ ' + cost
         }
       },
       textStyle: {
-        fontSize: 14,
+        fontSize: 13,
+        color :'#666',
+        fontWeight: 'normal',
       },
       itemGap: 8,
       itemWidth: 10,
@@ -87,7 +89,8 @@ function getOption(cost, rest) {
               return param.percent.toFixed(0) + '%';
             },
             textStyle: {
-              fontSize: '14',
+              fontSize: '13',
+              color: '#666',
               fontWeight: 'normal'
             }
           }
@@ -127,8 +130,8 @@ class Admin extends Component{
     const teamConsumption = this.props.teamConsumption
     const teamOperations = this.props.teamOperations
     return (
-      <div id='AdminStd' style={{marginBottom:40}}>
-        <Row className="title">空间 : {spaceName} 对应的团队</Row>
+      <div id='AdminStd' style={{marginBottom:20}}>
+        <Row className="title">{spaceName} 团队总览</Row>
         <Row className="content" gutter={16}>
           <Col span={8} className='teamInf'>
             <Card title="团队信息总览" bordered={false} bodyStyle={{height:170}}>
@@ -138,10 +141,10 @@ class Admin extends Component{
                     <svg className="teamInfSvg" style={{margin:'0 5px'}}>
                       <use xlinkHref="#homespacecountcolor" />
                     </svg>
-                    空间数
+                    空间
                   </div>
-                  <div style={{textAlign:'left',fontSize: '14px'}} className='tabCell'>
-                    {teamDetail.spaceCnt}个
+                  <div style={{textAlign:'left',fontSize: '13px'}} className='tabCell'>
+                    {teamDetail.spaceCnt} 个
                   </div>
                 </Col>
                 <Col span={12} className='tab'>
@@ -149,10 +152,10 @@ class Admin extends Component{
                     <svg className="teamInfSvg" style={{margin:'0 5px'}}>
                       <use xlinkHref="#homeimagecountcolor" />
                     </svg>
-                    镜像数
+                    镜像
                   </div>
-                   <div style={{textAlign:'right',fontSize: '14px'}} className='tabCell'>
-                    {teamDetail.imageCnt}个
+                   <div style={{textAlign:'right',fontSize: '13px'}} className='tabCell'>
+                    {teamDetail.imageCnt} 个
                   </div>
                 </Col>
               </Row>
@@ -162,10 +165,10 @@ class Admin extends Component{
                     <svg className="teamInfSvg" style={{margin:'0 5px'}}>
                       <use xlinkHref="#homeappcountcolor" />
                     </svg>
-                    应用数
+                    应用
                   </div>
-                  <div style={{textAlign:'left',fontSize: '14px'}} className='tabCell'>
-                    {teamDetail.appCnt}个
+                  <div style={{textAlign:'left',fontSize: '13px'}} className='tabCell'>
+                    {teamDetail.appCnt} 个
                   </div>
                 </Col>
                 <Col span={12} className='tab'>
@@ -173,10 +176,10 @@ class Admin extends Component{
                     <svg className="teamInfSvg" style={{margin:'0 5px'}}>
                       <use xlinkHref="#homelayoutcountcolor" />
                     </svg>
-                    编排数
+                    编排
                   </div>
-                   <div style={{textAlign:'right',fontSize: '14px'}} className='tabCell'>
-                    {teamDetail.templateCnt}个
+                   <div style={{textAlign:'right',fontSize: '13px'}} className='tabCell'>
+                    {teamDetail.templateCnt} 个
                   </div>
                 </Col>
               </Row>
@@ -186,10 +189,10 @@ class Admin extends Component{
                     <svg className="teamInfSvg" style={{margin:'0 5px'}}>
                       <use xlinkHref="#homeservicecountcolor" />
                     </svg>
-                    服务数
+                    服务
                   </div>
-                  <div style={{textAlign:'left',fontSize: '14px'}} className='tabCell'>
-                    {teamDetail.svcCnt}个
+                  <div style={{textAlign:'left',fontSize: '13px'}} className='tabCell'>
+                    {teamDetail.svcCnt} 个
                   </div>
                 </Col>
                 <Col span={12} className='tab'>
@@ -197,10 +200,10 @@ class Admin extends Component{
                     <svg className="teamInfSvg" style={{margin:'0 5px'}}>
                       <use xlinkHref="#homesavecountcolor" />
                     </svg>
-                    存储卷数
+                    存储卷
                   </div>
-                   <div style={{textAlign:'right',fontSize: '14px'}} className='tabCell'>
-                    {teamDetail.volumeCnt}个
+                   <div style={{textAlign:'right',fontSize: '13px'}} className='tabCell'>
+                    {teamDetail.volumeCnt} 个
                   </div>
                 </Col>
               </Row>
@@ -210,10 +213,10 @@ class Admin extends Component{
                     <svg className="teamInfSvg" style={{margin:'0 5px'}}>
                       <use xlinkHref="#homecontainercountcolor" />
                     </svg>
-                    容器数
+                    容器
                   </div>
-                  <div style={{textAlign:'left',fontSize: '14px'}} className='tabCell'>
-                    {teamDetail.podCnt}个
+                  <div style={{textAlign:'left',fontSize: '13px'}} className='tabCell'>
+                    {teamDetail.podCnt} 个
                   </div>
                 </Col>
                 <Col span={12} className='tab'>
@@ -221,10 +224,10 @@ class Admin extends Component{
                     <svg className="teamInfSvg" style={{margin:'0 5px'}}>
                       <use xlinkHref="#homebuildcountcolor" />
                     </svg>
-                    构建项目数
+                    构建项目
                   </div>
-                   <div style={{textAlign:'right',fontSize: '14px'}} className='tabCell'>
-                    {teamDetail.flowCnt}个
+                   <div style={{textAlign:'right',fontSize: '13px'}} className='tabCell'>
+                    {teamDetail.flowCnt} 个
                   </div>
                 </Col>
               </Row>
@@ -241,11 +244,13 @@ class Admin extends Component{
               </Col>
               <Col span={14} className='teamCostList'>
                 <Row className="teamCostListTitle">
-                  <Col span={16} style={{paddingLeft:40,height:40,lineHeight:'40px'}}>空间名称</Col>
-                  <Col span={8} style={{height:40,lineHeight:'40px'}}>消费金额</Col>
+                  <Col span={16} style={{paddingLeft:40,height:40,lineHeight:'40px',fontSize:'13px'}}>空间名称</Col>
+                  <Col span={8} style={{height:40,lineHeight:'40px',fontSize:'13px'}}>消费金额</Col>
                 </Row>
                 <Row className='teamCostListContent'>
                   {
+                    teamConsumption.detail.length === 0 ?
+                      <div style={{ fontSize:'13px',color:'#666',float:'left',marginLeft:'38%',marginTop:'30px'}}>暂时消费记录</div> :
                     teamConsumption.detail.map((item) => {
                       return (
                         <Row className="teamCostItem">
@@ -269,54 +274,10 @@ class Admin extends Component{
                         <svg className="teamRecSvg">
                           <use xlinkHref="#homeappcount" />
                         </svg>
-                        创建应用数量
+                        创建应用
                       </td>
-                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                        {teamOperations.appCreate}个
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <svg className="teamRecSvg">
-                          <use xlinkHref="#homeappcount" />
-                        </svg>
-                        修改应用数量
-                      </td>
-                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                        {teamOperations.appModify}个
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <svg className="teamRecSvg">
-                          <use xlinkHref="#homeappcount" />
-                        </svg>
-                        停止应用数量
-                      </td>
-                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                        {teamOperations.appStop}个
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <svg className="teamRecSvg">
-                          <use xlinkHref="#homeappcount" />
-                        </svg>
-                        启动应用数量
-                      </td>
-                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                        {teamOperations.appStart}个
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <svg className="teamRecSvg">
-                          <use xlinkHref="#homeappcount" />
-                        </svg>
-                        重新部署应用数量
-                      </td>
-                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                        {teamOperations.appRedeploy}个
+                      <td style={{textAlign:'right',paddingRight:10,fontSize:'13px'}}>
+                        {teamOperations.appCreate} 个
                       </td>
                     </tr>
                     <tr>
@@ -324,10 +285,32 @@ class Admin extends Component{
                         <svg className="teamRecSvg">
                           <use xlinkHref="#homeservicecount" />
                         </svg>
-                        创建服务数量
+                        创建服务
                       </td>
-                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                        {teamOperations.svcCreate}个
+                      <td style={{textAlign:'right',paddingRight:10,fontSize:'13px'}}>
+                        {teamOperations.svcCreate} 个
+                      </td>
+                    </tr>
+                     <tr>
+                      <td>
+                        <svg className="teamRecSvg">
+                          <use xlinkHref="#homesavecount" />
+                        </svg>
+                        创建存储卷
+                      </td>
+                      <td style={{textAlign:'right',paddingRight:10,fontSize:'13px'}}>
+                        {teamOperations.volumeCreate} 个
+                      </td>
+                    </tr>
+                     <tr>
+                      <td>
+                        <svg className="teamRecSvg">
+                          <use xlinkHref="#homeappcount" />
+                        </svg>
+                        停止应用
+                      </td>
+                      <td style={{textAlign:'right',paddingRight:10,fontSize:'13px'}}>
+                        {teamOperations.appStop} 个
                       </td>
                     </tr>
                     <tr>
@@ -335,21 +318,10 @@ class Admin extends Component{
                         <svg className="teamRecSvg">
                           <use xlinkHref="#homeservicecount" />
                         </svg>
-                        删除服务数量
+                        删除服务
                       </td>
-                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                        {teamOperations.svcDelete}个
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <svg className="teamRecSvg">
-                          <use xlinkHref="#homesavecount" />
-                        </svg>
-                        创建存储卷个数
-                      </td>
-                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                        {teamOperations.volumeCreate}个
+                      <td style={{textAlign:'right',paddingRight:10,fontSize:'13px'}}>
+                        {teamOperations.svcDelete} 个
                       </td>
                     </tr>
                     <tr>
@@ -357,10 +329,43 @@ class Admin extends Component{
                         <svg className="teamRecSvg">
                           <use xlinkHref="#homesavecount" />
                         </svg>
-                        删除存储卷个数
+                        删除存储卷
                       </td>
-                      <td style={{textAlign:'right',paddingRight:10,fontSize:'14px'}}>
-                        {teamOperations.volumeDelete}个
+                      <td style={{textAlign:'right',paddingRight:10,fontSize:'13px'}}>
+                        {teamOperations.volumeDelete} 个
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <svg className="teamRecSvg">
+                          <use xlinkHref="#homeappcount" />
+                        </svg>
+                        修改应用
+                      </td>
+                      <td style={{textAlign:'right',paddingRight:10,fontSize:'13px'}}>
+                        {teamOperations.appModify} 个
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <svg className="teamRecSvg">
+                          <use xlinkHref="#homeappcount" />
+                        </svg>
+                        启动应用
+                      </td>
+                      <td style={{textAlign:'right',paddingRight:10,fontSize:'13px'}}>
+                        {teamOperations.appStart} 个
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <svg className="teamRecSvg">
+                          <use xlinkHref="#homeappcount" />
+                        </svg>
+                        重新部署
+                      </td>
+                      <td style={{textAlign:'right',paddingRight:10,fontSize:'13px'}}>
+                        {teamOperations.appRedeploy} 个
                       </td>
                     </tr>
                   </tbody>
