@@ -115,7 +115,7 @@ class TeamDetail extends Component {
     console.log(role);
     let { sortedInfo, filteredInfo, sortMemberName, sort, filter } = this.state
     //普通成员
-    if(role === 0){
+    if(role === false){
       return [
         {
           title: (
@@ -202,10 +202,10 @@ class TeamDetail extends Component {
         render: (text, record, index) => (
         index === 0 ?
           <Link to='/account'>
-            <Button className="tabOptBtn" icon="setting">账号设置</Button>
+            <Button className="tabOptBtn" icon="setting">帐号设置</Button>
           </Link>
           :
-          record.role == "" ?
+          record.role == "-" ?
             <Button className="tabOptBtn hoverRed" icon="cross" onClick={() => this.handleCancelInvite(record.key)}>取消邀请</Button>:
             <Button className="tabOptBtn hoverRed" icon="delete" onClick={() => this.handleRemoveMember(record.name)}>移除</Button>
         )
@@ -233,7 +233,7 @@ class TeamDetail extends Component {
           </span>
         </Row>
         {
-          currentRole === 0 ?
+          currentRole === false ?
             <div>
               <Alert message="这里展示了该团队的团队成员信息，作为普通成员您可退出团队。" />
               <Row className="memberOption">
@@ -274,11 +274,18 @@ class TeamDetail extends Component {
 }
 function mapStateToProp(state, props) {
   const { team_id, team_name } = props.params
-  let currentRole = 0
+  let currentRole = false
   const { loginUser } = state.entities
-  if(loginUser.info){
-    currentRole = loginUser.info.role
-    console.log('currentRolecurrentRole',currentRole);
+  const { user } = state
+
+  if (user.teams && user.teams.result && user.teams.result.data
+    && user.teams.result.data.data && user.teams.result.data.data.items) {
+    let items = user.teams.result.data.data.items
+    items.map((item, index) => {
+      if (item.id == team_id) {
+        currentRole = item.isCreator
+      }
+    })
   }
 
   let teamUserList = []
@@ -292,7 +299,6 @@ function mapStateToProp(state, props) {
             {
               key: item.email,
               name: item.userName,
-              tel: item.phone,
               email: item.email,
               role: item.isCreator ? "创建者" : "普通成员",
             }
@@ -302,7 +308,6 @@ function mapStateToProp(state, props) {
             {
               key: item.email,
               name: item.userName,
-              tel: item.phone,
               email: item.email,
               role: item.isCreator ? "创建者" : "普通成员",
             }
@@ -316,9 +321,8 @@ function mapStateToProp(state, props) {
           {
             key: item,
             name: "等待接受邀请中...",
-            tel: "",
             email: item,
-            role: "",
+            role: "-",
           }
         )
       })
