@@ -45,9 +45,9 @@ let TeamTable = React.createClass({
       sort: "role desc",//默认排序规则
       filter: '',
       nowTeamID: '',//当前团队ID
-      showDelModal: false,
-      showExitModal: false,
-      showInviteModal: false,
+      showDelModal: false,//解散团队
+      showExitModal: false,//退出团队
+      showInviteModal: false,//邀请成员
     }
   },
   //Table变化回调
@@ -196,6 +196,7 @@ let TeamTable = React.createClass({
       showInviteModal: false
     })
   },
+  
   handleNewMemberOk() {
     const { addTeamusers, loadUserTeamList, rowKey } = this.props
     const { targetKeys, nowTeamID } = this.state
@@ -427,6 +428,7 @@ let TeamTable = React.createClass({
                 visible={this.state.nowTeamID === record.key && showDelModal}
                 closeDelTeamModal={this.closeDelTeamModal}
                 teamID={record.id}
+                delTeam={this.delTeam}
               />
             </Dropdown.Button>
             :

@@ -13,7 +13,10 @@ import './style/TeamDetail.less'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import InviteNewMemberModal from '../../InviteNewMemberModal'
-import { loadTeamUserListStd, removeTeamusersStd, cancelInvitation } from '../../../../actions/team'
+import { loadTeamUserListStd, removeTeamusersStd, cancelInvitation, deleteTeam } from '../../../../actions/team'
+import DelTeamModal from '../../DelTeamModal'
+
+const confirm = Modal.confirm;
 
 const data = [
   {key: '1',name: 'zhaoxy1',tel: '123',email:'1111@tenxcloud.com',role:1},
@@ -35,6 +38,9 @@ class TeamDetail extends Component {
     this.handleDelTeam = this.handleDelTeam.bind(this)
     this.handleAddNewMember = this.handleAddNewMember.bind(this)
     this.closeInviteModal = this.closeInviteModal.bind(this)
+    this.closeDelTeamModal = this.closeDelTeamModal.bind(this)
+    this.delTeam = this.delTeam.bind(this)
+
 
     this.state = {
       filteredInfo: null,
@@ -46,6 +52,8 @@ class TeamDetail extends Component {
       page: 1,
       current: 1,
       showInviteModal: false,
+      showDelModal: false,
+
     }
   }
   //表单变化(排序,删选)
@@ -77,25 +85,49 @@ class TeamDetail extends Component {
   }
   //移除成员
   handleRemoveMember (userName) {
-    console.log('handleRemoveMember--userName: ',userName)
-    this.props.removeTeamusersStd(this.props.teamID, userName)
+    const { removeTeamusersStd ,teamID } = this.props
+    confirm({
+      title: '您是否确认要移除该成员',
+      onOk() {
+        removeTeamusersStd(teamID, userName)
+      },
+      onCancel() { },
+    })
   }
   //取消邀请
   handleCancelInvite (email) {
-    console.log('handleCancelInvite--email',email)
-    this.props.cancelInvitation(this.props.teamID, email)
+    const { cancelInvitation ,teamID } = this.props
+    confirm({
+      title: '您是否确认要取消邀请',
+      onOk() {
+        cancelInvitation(teamID, email)
+      },
+      onCancel() { },
+    })
   }
   //去充值
-  handleClickRecharge (teamID) {
-    console.log('handleClickRecharge--teamID',teamID)
-  }
   //退出团队
   handleQuiteTeam (teamID) {
     console.log('handleQuiteTeam--teamID',teamID)
   }
+  //删除团队
+  delTeam(teamID) {
+    const {deleteTeam} = this.props
+    console.log('deleteTeam',deleteTeam)
+    confirm({
+      title: '您是否确认要删除这项内容',
+      onOk() {
+        deleteTeam(teamID)
+      },
+      onCancel() { },
+    });
+  }
   //解散团队
   handleDelTeam (teamID) {
     console.log('handleDelTeam--teamID',teamID)
+    this.setState({
+      showDelModal: true,
+    })
   }
   //添加新成员
   handleAddNewMember (teamID) {
@@ -108,6 +140,12 @@ class TeamDetail extends Component {
   closeInviteModal() {
     this.setState({
       showInviteModal: false,
+    })
+  }
+  //关闭解散团队弹框
+  closeDelTeamModal() {
+    this.setState({
+      showDelModal: false
     })
   }
   //table列配置
@@ -219,8 +257,8 @@ class TeamDetail extends Component {
   
   render() {
     const scope = this
-    let { sortedInfo, filteredInfo, sortMemberName, sort,filter} = this.state
-    const { teamName, teamID, currentRole, teamUserList, showInviteModal } = this.props
+    let { sortedInfo, filteredInfo, sortMemberName, sort,filter, showInviteModal, showDelModal} = this.state
+    const { teamName, teamID, currentRole, teamUserList } = this.props
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
     
@@ -259,9 +297,17 @@ class TeamDetail extends Component {
                 <Button icon='logout' className='delTeamBtn' onClick={() => this.handleDelTeam(teamID)}>
                   解散团队
                 </Button>
-                <Button icon='pay-circle-o' className='rechargeBtn' onClick={() => this.handleClickRecharge(teamID)}>
-                  去充值
-                </Button>
+                <DelTeamModal
+                  visible={showDelModal}
+                  closeDelTeamModal={this.closeDelTeamModal}
+                  teamID={teamID}
+                  delTeam={this.delTeam}
+                />
+                <Link to='/account/balance'>
+                  <Button icon='pay-circle-o' className='rechargeBtn' onClick={() => this.handleClickRecharge(teamID)}>
+                    去充值
+                  </Button>
+                </Link>
               </Row>
               <Card className="content">
                 <Table columns={this.getColumns(currentRole)} dataSource={teamUserList} onChange={this.handleTableChange} pagination={false}/>
@@ -339,4 +385,5 @@ export default connect(mapStateToProp, {
   loadTeamUserListStd,
   removeTeamusersStd,
   cancelInvitation,
+  deleteTeam,
 })(TeamDetail)

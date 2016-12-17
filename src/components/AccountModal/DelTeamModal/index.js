@@ -9,6 +9,7 @@
  */
 import React, { Component } from 'react'
 import { Modal,Alert,Icon,Button,Row,Col,Input } from 'antd'
+import { Link } from 'react-router'
 
 let balanceMessage = (
   <Row className="tip delTip">
@@ -60,8 +61,9 @@ export default class DelTeamModal extends Component{
     }
   }
   handleOk() {
-    const { closeDelTeamModal, teamID } = this.props
+    const { closeDelTeamModal, teamID,delTeam } = this.props
     console.log('teamID',teamID)//当前团队ID
+    delTeam(teamID)
     closeDelTeamModal()
   }
   handleCancel() {
@@ -79,9 +81,11 @@ export default class DelTeamModal extends Component{
     }
     return [
       <Button key="back" type="ghost" size="large" onClick={this.handleCancel}>知道了</Button>,
-      <Button key="submit" type="primary" size="large" onClick={this.handleOk}>
-        去充值
-      </Button>,
+      <Link to='/account/balance'>
+        <Button key="submit" type="primary" size="large">
+          去充值
+        </Button>
+      </Link>,
     ]
   }
   render(){
