@@ -405,6 +405,7 @@ class CostRecord extends Component{
       }
     }
     let convertDetailItems = function(itemsRaw) {
+      console.log('itemsRaw------',itemsRaw)
       if (!Array.isArray(itemsRaw)) {
         return []
       }
@@ -413,6 +414,15 @@ class CostRecord extends Component{
         '1': '容器服务',
         '3': '主机服务',
         '4': '存储服务',
+      }
+      if (standard) {
+        items.map(function(item) {
+          item.type = typeMap[item.type]
+          item.unitPrice = (item.unitPrice / 100).toFixed(2) + '￥'
+          item.amount = (item.amount / 100).toFixed(2) + '￥'
+          item.startTime = formatDate(item.startTime)
+        })
+        return items
       }
       items.map(function(item) {
         item.type = typeMap[item.type]
@@ -444,8 +454,7 @@ class CostRecord extends Component{
       },
     }
     //table列配置
-    let getTableColumn = function(mode) {
-      if (!standard) {
+    let getTableColumn = function() {
         return [
           {
             title: '消费ID',
@@ -489,60 +498,11 @@ class CostRecord extends Component{
             key: 'continueTime',
           },
           {
-            title: '集群',
+            title: standard?'地域':'集群',
             dataIndex: 'clusterName',
             key: 'clusterName',
-          }
+          },
         ]
-      }
-      return [
-        {
-          title: '消费ID',
-          dataIndex: 'id',
-          key: 'id',
-          className: 'firstCol',
-        },
-        {
-          title: '服务名称',
-          dataIndex: 'consumptionName',
-          key: 'consumptionName',
-        },
-        {
-          title: '服务类型',
-          dataIndex: 'type',
-          key: 'type',
-          filters: [
-            { text: '容器服务', value: '容' },
-          ],
-          filteredValue: filteredInfo.svcType,
-          onFilter: (value, record) => record.svcType.indexOf(value) === 0,
-        },
-        {
-          title: '单价',
-          dataIndex: 'unitPrice',
-          key: 'unitPrice',
-        },
-        {
-          title: '消费金额',
-          dataIndex: 'amount',
-          key: 'amount',
-        },
-        {
-          title: '生效时间',
-          dataIndex: 'startTime',
-          key: 'startTime',
-        },
-        {
-          title: '消费时长',
-          dataIndex: 'continueTime',
-          key: 'continueTime',
-        },
-        {
-          title: '地域',
-          //dataIndex: 'local',
-          //key: 'local',
-        }
-      ]
     }
     return (
       <div id='CostRecord'>

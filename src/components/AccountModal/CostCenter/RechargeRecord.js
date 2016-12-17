@@ -130,10 +130,37 @@ class RechargeRecord extends Component{
       notifyMailCheckBox,
     } = this.state
     let convertChargeRecord = function () {
+      console.log('chargeRecord.items',chargeRecord.items)
       if (!Array.isArray(chargeRecord.items)) {
         return []
       }
       let items = JSON.parse(JSON.stringify(chargeRecord.items))
+      if (standard) {
+        items.map(function(item) {
+          item.before = (item.before / 100).toFixed(2) + '￥'
+          item.charge = (item.charge / 100).toFixed(2) + '￥'
+          item.after = (item.after / 100).toFixed(2) + '￥'
+          item.time = moment(item.time).format('YYYY-MM-DD HH:mm:ss')
+          switch (item.orderType) {
+            case '100':
+              item.orderType = '微信'
+              break
+            case '101':
+              item.orderType = '支付宝'
+              break
+            case '102':
+              item.orderType = '线下汇款'
+              break
+            case '103':
+              item.orderType = '解散团队的退款'
+              break
+            default :
+              item.orderType = '-'
+              break
+          }
+        })
+      return items
+      }
       items.map(function(item) {
         item.before = (item.before / 100).toFixed(2) + 'T'
         item.charge = (item.charge / 100).toFixed(2) + 'T'
@@ -175,8 +202,8 @@ class RechargeRecord extends Component{
           },
           {
             title: '充值方式',
-            //key: 'operator',
-            //dataIndex: 'operator',
+            key: 'orderType',
+            dataIndex: 'orderType',
           }
         ]
       }

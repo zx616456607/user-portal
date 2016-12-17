@@ -10,14 +10,16 @@
 import React, { Component } from 'react'
 import { Modal,Alert,Icon,Button,Row,Col,Input } from 'antd'
 import { Link } from 'react-router'
+import { connect } from 'react-redux'
+import { getTeamDissoveable } from '../../../actions/team'
 
 let balanceMessage = (
-  <Row className="tip delTip">
+  <Row className="tip">
     <Col span={2} className='tipIcon'>
       <Icon type="exclamation-circle" />
     </Col>
     <Col className="tipText" span={22}>
-      Tip: &nbsp;请注意 , &nbsp;当前团队仍有欠款未结清, 请充值当前团队帐户后再<br/>尝试解散团队!
+      Tip: &nbsp;请注意 , &nbsp;当前团队仍有欠款未结清, 请充值当前团队帐户后再尝试解散团队!
     </Col>
   </Row>
 )
@@ -50,7 +52,7 @@ let delMessage = (
   </div>
   
 )
-export default class DelTeamModal extends Component{
+class DelTeamModal extends Component{
   constructor(props){
     super(props)
     this.handleOk = this.handleOk.bind(this)
@@ -71,7 +73,7 @@ export default class DelTeamModal extends Component{
     closeDelTeamModal()
   }
   renderFooter (balance) {
-    if(balance === 0){
+    if(balance){
       return [
         <Button key="back" type="ghost" size="large" onClick={this.handleCancel}>取消</Button>,
         <Button key="submit" type="primary" size="large" onClick={this.handleOk} className="delBtn" >
@@ -81,7 +83,7 @@ export default class DelTeamModal extends Component{
     }
     return [
       <Button key="back" type="ghost" size="large" onClick={this.handleCancel}>知道了</Button>,
-      <Link to='/account/balance'>
+      <Link to='/account/balance' style={{marginLeft: '12px'}}>
         <Button key="submit" type="primary" size="large">
           去充值
         </Button>
@@ -89,8 +91,7 @@ export default class DelTeamModal extends Component{
     ]
   }
   render(){
-    const { visible } = this.props
-    const balance = 0
+    const { visible, balance } = this.props
     return (
       <Modal
         wrapClassName="DelTeamModal"
@@ -100,17 +101,38 @@ export default class DelTeamModal extends Component{
         onCancel={this.handleCancel}
         footer={ this.renderFooter(balance) }
       >
-        <Alert message={balance === 0 ? delMessage : balanceMessage} type="warning"/>
-        <Row className="confirm">
-          <Col span={2} className='confirmIcon'>
-            <Icon type="question-circle-o" />
-          </Col>
-          <Col className="confirmText" span={22}>
-            请确认是否解散团队
-            <Input placeholder="输入团队名称" className="confirmInt"/>
-          </Col>
-        </Row>
+        <Alert message={balance ? delMessage : balanceMessage} type="warning"/>
+        {
+          balance?
+          <Row className="confirm">
+            <Col span={2} className='confirmIcon'>
+              <Icon type="question-circle-o" />
+            </Col>
+            <Col className="confirmText" span={22}>
+              请确认是否解散团队
+              <Input placeholder="输入团队名称" className="confirmInt"/>
+            </Col>
+          </Row>:
+          <div></div>
+        }
+        
       </Modal>
     )
   }
 }
+function mapStateToProp(state, props) {
+  const { teamDissoveable } = state.team
+  let balance = true
+  if(teamDissoveable.reslut) {
+    if (teamDissoveable.reslut.data) {
+      balance = teamDissoveable.reslut.data.data
+    }
+  }
+  return {
+    balance,
+  }
+}
+
+export default connect(mapStateToProp, {
+  getTeamDissoveable,
+})(DelTeamModal)

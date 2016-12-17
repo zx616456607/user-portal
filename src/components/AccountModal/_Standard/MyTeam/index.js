@@ -17,7 +17,7 @@ import { loadUserTeamList } from '../../../../actions/user'
 import {
   createTeamAndSpace, deleteTeam,
   addTeamusers, removeTeamusers, loadTeamUserList,
-  checkTeamName, sendInvitation, quitTeam, dissolveTeam
+  checkTeamName, sendInvitation, quitTeam, dissolveTeam, getTeamDissoveable
 } from '../../../../actions/team'
 import CreateTeamModal from '../../CreateTeamModal'
 import DelTeamModal from '../../DelTeamModal'
@@ -591,6 +591,7 @@ function mapStateToProp(state, props) {
   let teamsData = {
     items:[],
   }
+  console.log('state',state)
   let total = 0
   let teamUserIDList = []
   const teams = state.user.teams
@@ -621,4 +622,5 @@ export default connect(mapStateToProp, {
   sendInvitation,
   quitTeam,
   dissolveTeam,
+  getTeamDissoveable,
 })(MyTeam)

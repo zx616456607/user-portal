@@ -33,14 +33,12 @@ class TeamDetail extends Component {
     this.getColumns = this.getColumns.bind(this)
     this.handleRemoveMember = this.handleRemoveMember.bind(this)
     this.handleCancelInvite = this.handleCancelInvite.bind(this)
-    this.handleClickRecharge = this.handleClickRecharge.bind(this)
     this.handleQuiteTeam = this.handleQuiteTeam.bind(this)
     this.handleDelTeam = this.handleDelTeam.bind(this)
     this.handleAddNewMember = this.handleAddNewMember.bind(this)
     this.closeInviteModal = this.closeInviteModal.bind(this)
     this.closeDelTeamModal = this.closeDelTeamModal.bind(this)
     this.delTeam = this.delTeam.bind(this)
-
 
     this.state = {
       filteredInfo: null,
@@ -304,7 +302,7 @@ class TeamDetail extends Component {
                   delTeam={this.delTeam}
                 />
                 <Link to='/account/balance'>
-                  <Button icon='pay-circle-o' className='rechargeBtn' onClick={() => this.handleClickRecharge(teamID)}>
+                  <Button icon='pay-circle-o' className='rechargeBtn'>
                     去充值
                   </Button>
                 </Link>
