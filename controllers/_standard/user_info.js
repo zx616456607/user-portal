@@ -13,8 +13,10 @@
 
 const apiFactory = require('../../services/api_factory')
 const logger     = require('../../utils/logger.js').getLogger("user_info")
-/*
+const qiniuAPI = require('../../store/qiniu_api')
 
+/*
+Get basic user info including user and certificate
 */
 exports.getMyAccountInfo = function* () {
   const loginUser = this.session.loginUser
@@ -31,5 +33,32 @@ exports.getMyAccountInfo = function* () {
   this.body = {
     userInfo: userInfo,
     certInfo: certInfo
+  }
+}
+
+/*
+Get the token to upload specified file to qiniu
+*/
+exports.upTokenToQiniu = function* () {
+  // Get bucket and file name from body
+  const bucketName = this.query.bucket
+  const fileName = this.query.fileName
+  if (!bucketName || !fileName) {
+    this.status = 400
+    this.body = "bucket and fileName are required."
+    return
+  }
+
+  let qnAPI = new qiniuAPI(bucketName)
+  let token = qnAPI.getUpToken(fileName)
+
+  if (token === "") {
+    this.status = 400
+    this.body = "Invalid bucket or file name"
+    return
+  }
+
+  this.body = {
+    upToken: token
   }
 }
