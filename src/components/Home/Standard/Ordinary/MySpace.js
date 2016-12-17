@@ -1085,6 +1085,15 @@ function formatResourceName(resourceName) {
       newName = newName.join(',');
       return newName;
     }
+    // check groups
+    if (!!newBody.groups) {
+      let newName = newBody.groups;
+      if (newName.length == 0) {
+        return '-';
+      }
+      newName = newName.join(',');
+      return newName;
+    }
     return resourceName;
   } else {
     return resourceName;

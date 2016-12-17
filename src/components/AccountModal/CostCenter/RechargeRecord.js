@@ -145,9 +145,9 @@ class RechargeRecord extends Component{
       let items = JSON.parse(JSON.stringify(chargeRecord.items))
       if (standard) {
         items.map(function(item) {
-          item.before = (item.before / 100).toFixed(2) + '￥'
-          item.charge = (item.charge / 100).toFixed(2) + '￥'
-          item.after = (item.after / 100).toFixed(2) + '￥'
+          item.before = '￥ ' + (item.before / 100).toFixed(2)
+          item.charge = '￥ ' + (item.charge / 100).toFixed(2)
+          item.after = '￥ ' + (item.after / 100).toFixed(2)
           item.time = moment(item.time).format('YYYY-MM-DD HH:mm:ss')
           switch (item.orderType) {
             case '100':
@@ -247,7 +247,7 @@ class RechargeRecord extends Component{
       ]
     }
     let rechargecolumns = [
-      
+
     ]
     let alertMessage = (
       <div style={{color: '#137bb8',lineHeight:'28px',}}>
@@ -266,7 +266,9 @@ class RechargeRecord extends Component{
           {
             standard ?
               <div>
-                <i className='fa fa-cube'/>
+                <svg className='headerteamspace'>
+                  <use xlinkHref='#headerteamspace' />
+                </svg>
                 <div className='popTeamSelect'>
                   <Popover
                     title='选择团队帐户'
@@ -282,16 +284,16 @@ class RechargeRecord extends Component{
                         list={teamspaces}
                         onChange={this.handleSpaceChange}
                         loading={false}
-                        popTeamSelect={true}
-                      />
-                    }
-                  >
-                    <span>{currentTeamName === ''?'我的团队':currentTeamName} <Icon type='down' style={{ fontSize: '8px' }}/></span>
+                        popTeamSelect={true} />
+                    }>
+                    <span>{currentTeamName === '' ? '我的团队':currentTeamName} <Icon type='down' style={{ fontSize: '8px' }}/></span>
                   </Popover>
                 </div>
               </div>:
               <div>
-                <i className='fa fa-cube'/>
+                <svg className='headerteamspace'>
+                  <use xlinkHref='#headerteamspace' />
+                </svg>
                 <div className='popSelect'>
                   <PopSelect
                     title="选择项目空间"
@@ -301,8 +303,7 @@ class RechargeRecord extends Component{
                     list={teamspaces}
                     loading={false}
                     onChange={this.handleSpaceChange}
-                    selectValue={ currentSpaceName }
-                  />
+                    selectValue={ currentSpaceName } />
                 </div>
               </div>
           }

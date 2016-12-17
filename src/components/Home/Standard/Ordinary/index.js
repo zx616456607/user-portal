@@ -438,7 +438,7 @@ class Ordinary extends Component{
           if(name === '运行中'){
             return name + '  ' + conRunning + '个'
           } else if (name === '异常') {
-            return name + '  ' + conFailed + ' 个'
+            return name + '     ' + conFailed + ' 个'
           } else if (name === '操作中') {
             return name + '  ' + conOthers + ' 个'
           }

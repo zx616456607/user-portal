@@ -1,6 +1,8 @@
 {
   "Header.menu.doc": "文档",
   "Header.menu.user": "用户",
+  "Header.menu.space": "空间",
+  "Header.menu.team": "团队",
   "Header.menu.user.logOut": "注销",
   "Header.menu.user.menu2": "第二个",
   "Header.menu.user.menu3": "第三个",

@@ -48,7 +48,7 @@ let MyComponent = React.createClass({
     } else {
       items = (
         <div className="apiItemDetail" key="apiItemDetail" >
-          No Data
+          暂无数据
         </div>
       )
     }

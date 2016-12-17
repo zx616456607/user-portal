@@ -35,7 +35,7 @@ class TeamCost extends Component{
     let y = date.getFullYear()
     let m = date.getMonth()+1
     return (y+'-'+m)
-  }  
+  }
   componentWillMount() {
     const {
       loadTeamSummary,
@@ -102,9 +102,9 @@ class TeamCost extends Component{
           data: [{name:'余额'}, {name:'消费'}],
           formatter: function (name) {
             if(name === '余额'){
-              return name + ': ' + balance + 'T币'
+              return name + '：￥ ' + balance
             } else {
-              return name + ': ' + cost + 'T币'
+              return name + '：￥ ' + cost
             }
           },
           textStyle: {
@@ -178,7 +178,7 @@ class TeamCost extends Component{
           axisPointer : {
             type : 'shadow'
           },
-          formatter: _this.transformDate()+'-{b}<br/>消费 {c}T',
+          formatter: _this.transformDate()+'-{b}<br/>消费 ￥{c}',
           textStyle: {
             color: '#46b2fa',
             fontSize: 12,
@@ -289,4 +289,4 @@ function mapStateToProps (state,props) {
 }
 export default connect (mapStateToProps,{
   loadTeamSummary,
-})(TeamCost) 
+})(TeamCost)

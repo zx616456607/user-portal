@@ -37,7 +37,7 @@ let MyComponent = React.createClass({
     if (!!!config || config.length < 1) {
       return (
         <div className="noData" >
-          No Data
+          暂无数据
         </div>
       )
     }
