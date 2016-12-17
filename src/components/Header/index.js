@@ -26,7 +26,10 @@ import NotificationHandler from '../../common/notification_handler'
 
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
-const spaceTitle = mode === standard ? '区域' : '集群'
+const team = mode === standard ? '团队' : '空间'
+const zone = mode === standard ? '区域' : '集群'
+const selectTeam = mode === standard ? '选择团队' : '选择空间'
+const selectZone = mode === standard ? '选择区域' : '选择集群'
 
 const FormItem = Form.Item;
 const createForm = Form.create;
@@ -40,6 +43,14 @@ const menusText = defineMessages({
   user: {
     id: 'Header.menu.user',
     defaultMessage: '用户',
+  },
+  team: {
+    id: 'Header.menu.team',
+    defaultMessage: '团队',
+  },
+  space: {
+    id: 'Header.menu.space',
+    defaultMessage: '空间',
   },
   logOut: {
     id: 'Header.menu.user.logOut',
@@ -84,7 +95,7 @@ class Header extends Component {
       success: {
         func: (result) => {
           if (!result.data || result.data.length < 1) {
-            notification.warn(`空间 [${space.spaceName}] 的${spaceTitle}列表为空，请重新选择空间`)
+            notification.warn(`${team} [${space.spaceName}] 的${zone}列表为空，请重新选择${team}`)
             _this.setState({
               spacesVisible: true,
               clustersVisible: false,
@@ -104,7 +115,7 @@ class Header extends Component {
       },
       faied: {
         func: (error) => {
-          notification.error(`加载空间 [${space.spaceName}] 的${spaceTitle}列表失败，请重新选择空间`)
+          notification.error(`加载${team} [${space.spaceName}] 的${zone}列表失败，请重新选择${team}`)
           _this.setState({
             spacesVisible: true,
             clustersVisible: false,
@@ -132,9 +143,9 @@ class Header extends Component {
       cluster
     })
     const { pathname } = window.location
-    let msg = `${spaceTitle}已成功切换到 [${cluster.clusterName}]`
+    let msg = `${zone}已成功切换到 [${cluster.clusterName}]`
     if (current.cluster.namespace !== current.space.namespace) {
-      msg = `空间已成功切换到 [${current.space.spaceName}]，${msg}`
+      msg = `${team}已成功切换到 [${current.space.spaceName}]，${msg}`
     }
     let notification = new NotificationHandler()
     notification.success(msg)
@@ -303,11 +314,11 @@ class Header extends Component {
             <svg className='headerteamspace'>
               <use xlinkHref='#headerteamspace' />
             </svg>
-            <span style={{ marginLeft: 15 }}>空间</span>
+            <span style={{ marginLeft: 15 }}>{team}</span>
           </div>
           <div className="spaceBtn">
             <PopSelect
-              title="选择项目空间"
+              title={selectTeam}
               btnStyle={false}
               special={true}
               visible={spacesVisible}
@@ -322,11 +333,11 @@ class Header extends Component {
             <svg className='headercluster'>
               <use xlinkHref='#headercluster' />
             </svg>
-            <span style={{ marginLeft: 20 }}>{spaceTitle}</span>
+            <span style={{ marginLeft: 20 }}>{zone}</span>
           </div>
           <div className="envirBox">
             <PopSelect
-              title={mode === standard ? '选择区域' : '选择集群'}
+              title={selectZone}
               btnStyle={false}
               visible={clustersVisible}
               list={teamClusters}
