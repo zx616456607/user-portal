@@ -121,7 +121,7 @@ exports.quitTeam = function* () {
   // send email
   if (result.code === 200 && result.data) {
     try {
-      emailUtil.sendExitTeamEmail(result.data.adminEmails, result.data.normalUserEmails, result.data.quitUserName, result.data.teamName)
+      emailUtil.sendExitTeamEmail(result.data.adminEmails, result.data.quitUserEmail, result.data.quitUserName, result.data.teamName)
     }
     catch (e) {
       logger.warn('send quit team email failed.', e)
@@ -136,31 +136,6 @@ exports.quitTeam = function* () {
   }
 }
 
-exports.removeMember = function* () {
-  const loginUser = this.session.loginUser
-  const spi = apiFactory.getSpi(loginUser)
-  const teamID = this.params.teamid
-  const userName = this.params.username
-
-  let result = yield spi.teams.deleteBy([teamID, 'users', userName])
-
-  // send email
-  if (result.code === 200 && result.data) {
-    try {
-      emailUtil.sendRemoveTeamMemberEmail(result.data.operatorName, result.data.adminEmails, result.data.removedUserName, result.data.normalUserEmails, result.data.teamName)
-    }
-    catch (e) {
-      logger.warn('send remove member email failed.', e)
-    }
-  }
-  else {
-    logger.warn('removeMember not send email. call api server return:', result)
-  }
-
-  this.body = {
-    data: result
-  }
-}
 
 exports.getInvitationInfo = function* () {
   const loginUser = this.session.loginUser
@@ -242,6 +217,19 @@ exports.removeTeamuser = function* () {
 
   const result = yield spi.teams.deleteBy([teamID, 'users', username])
 
+  // send email
+  if (result.code === 200 && result.data) {
+    try {
+      emailUtil.sendRemoveTeamMemberEmail(result.data.operatorName, result.data.operatorEmail, result.data.removedUserName, result.data.removedUserEmail, result.data.teamName)
+    }
+    catch (e) {
+      logger.warn('send remove member email failed.', e)
+    }
+  }
+  else {
+    logger.warn('removeMember not send email. call api server return:', result)
+  }
+
   this.body = {
     data: result
   }
@@ -249,7 +237,7 @@ exports.removeTeamuser = function* () {
 
 exports.cancelInvitation = function* () {
   const teamID = this.params.teamid
-  const email = this.query.email
+  const email = this.params.email
   const query = { email }
   const loginUser = this.session.loginUser
   const spi = apiFactory.getSpi(loginUser)
