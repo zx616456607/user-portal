@@ -103,17 +103,18 @@ let CreateDatabase = React.createClass({
           existFlag = true;
         }
       });
-      let checkName = /^[a-z]([-a-z0-9]*[a-z0-9])$/;
-      if (!checkName.test(value)) {
-        callback([new Error('数据库名称仅由小写字母、数字和横杆组成，且以小写字母开头')]);
-        existFlag = true;
-      }
+
       if (value.length < 3) {
         callback([new Error('数据库名称长度不能少于3位')]);
         existFlag = true;
       }
       if (value.length > 12) {
         callback('数据库名称长度不高于12位');
+        existFlag = true;
+      }
+      let checkName = /^[a-z]([-a-z0-9]*[a-z0-9])$/;
+      if (!checkName.test(value)) {
+        callback([new Error('名称仅由小写字母、数字和横线组成，且以小写字母开头')]);
         existFlag = true;
       }
       if (!existFlag) {
