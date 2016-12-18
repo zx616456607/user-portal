@@ -9,9 +9,12 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { Form, Input, Button, Row, Col } from 'antd'
-import classNames from 'classnames';
-const createForm = Form.create;
-const FormItem = Form.Item;
+import classNames from 'classnames'
+import { changeUserInfo } from '../../../../../actions/user.js'
+import NotificationHandler from '../../../../../common/notification_handler'
+
+const createForm = Form.create
+const FormItem = Form.Item
 
 let PasswordRow = React.createClass({
   getInitialState() {
@@ -20,21 +23,22 @@ let PasswordRow = React.createClass({
       rePassBarShow: false,
       passStrength: 'L', // 密码强度
       rePassStrength: 'L',
+      oldPassword: ''
     }
   },
   renderPassStrengthBar(type) {
-    const strength = type === 'pass' ? this.state.passStrength : this.state.rePassStrength;
+    const strength = type === 'pass' ? this.state.passStrength : this.state.rePassStrength
     const classSet = classNames({
       'ant-pwd-strength': true,
       'ant-pwd-strength-low': strength === 'L',
       'ant-pwd-strength-medium': strength === 'M',
-      'ant-pwd-strength-high': strength === 'H',
-    });
+      'ant-pwd-strength-high': strength === 'H'
+    })
     const level = {
       L: '低',
       M: '中',
-      H: '高',
-    };
+      H: '高'
+    }
 
     return (
       <div>
@@ -47,37 +51,37 @@ let PasswordRow = React.createClass({
           </span>
         </ul>
       </div>
-    );
+    )
   },
   getPassStrenth(value, type) {
     if (value) {
-      let strength;
+      let strength
       // 密码强度的校验规则自定义，这里只是做个简单的示例
       if (value.length < 6) {
-        strength = 'L';
+        strength = 'L'
       } else if (value.length <= 9) {
-        strength = 'M';
+        strength = 'M'
       } else {
-        strength = 'H';
+        strength = 'H'
       }
       if (type === 'pass') {
-        this.setState({ passBarShow: true, passStrength: strength });
+        this.setState({ passBarShow: true, passStrength: strength })
       } else {
-        this.setState({ rePassBarShow: true, rePassStrength: strength });
+        this.setState({ rePassBarShow: true, rePassStrength: strength })
       }
     } else {
       if (type === 'pass') {
-        this.setState({ passBarShow: false });
+        this.setState({ passBarShow: false })
       } else {
-        this.setState({ rePassBarShow: false });
+        this.setState({ rePassBarShow: false })
       }
     }
   },
   passwordExists(rule, values, callback) {
     console.log('values', values)
     if (!values) {
-      callback([new Error('请输入当前密码')]);
-      return;
+      callback([new Error('请输入当前密码')])
+      return
     }
     if (values.length < 6) {
       callback([new Error('账户密码不少于6个字符')])
@@ -87,13 +91,16 @@ let PasswordRow = React.createClass({
       callback([new Error('账户密码字符不超过63个字符')])
       return
     }
+    this.setState({
+      oldPassword: values
+    })
     callback()
     return
   },
   newPassword(rule, values, callback) {
-    this.getPassStrenth(values, 'pass');
+    this.getPassStrenth(values, 'pass')
     if (!Boolean(values)) {
-      callback([new Error('请输入新密码')]);
+      callback([new Error('请输入新密码')])
       return
     }
     if (values.length < 6) {
@@ -102,6 +109,10 @@ let PasswordRow = React.createClass({
     }
     if (values.length > 63) {
       callback([new Error('账户密码字符不超过63个字符')])
+      return
+    }
+    if(values === this.state.oldPassword) {
+      callback([new Error('新密码不能和旧密码相同')])
       return
     }
     callback()
@@ -109,33 +120,48 @@ let PasswordRow = React.createClass({
   },
   againPasswordExists(rule, values, callback) {
     console.log('passs', rule, values)
-    const form = this.props.form;
-    this.getPassStrenth(values, 'newPass');
+    const form = this.props.form
+    this.getPassStrenth(values, 'newPass')
 
     if (!Boolean(values)) {
-      callback([new Error('请再次输入新密码')]);
+      callback([new Error('请再次输入新密码')])
       return
     }
 
     if (values && values !== form.getFieldValue('newPass')) {
-      callback('两次输入密码不一致！');
+      callback('两次输入密码不一致！')
       return
     } else {
-      callback();
+      callback()
       return
     }
   },
   handPsd(e) {
-    e.preventDefault();
+    e.preventDefault()
     const {form } = this.props
-
+				const scope = this.props.scope
     form.validateFields(['password', 'newpassword', 'againpassword'], (errors, values) => {
-      if (!!errors) {
-        console.log('Submit passs !!!');
-        return;
+      if (errors) {
+        return errors
       }
-      console.log(values);
-    });
+      const notification = new NotificationHandler()
+      notification.spin('修改密码中')
+      changeUserInfo({
+        password: values.emailPassword,
+        email: values.newEmail
+      }, {
+        success: {
+          func: () => {
+            notification.close()
+            notification.success('修改密码中')
+												scope.setState({
+														editPsd: false
+												})
+          }
+        }
+      })
+
+    })
   },
   render() {
     const { getFieldProps } = this.props.form
@@ -144,19 +170,19 @@ let PasswordRow = React.createClass({
         { whitespace: true },
         { validator: this.passwordExists }
       ]
-    });
+    })
     const newPasswordProps = getFieldProps('newpassword', {
       rules: [
         { whitespace: true },
         { validator: this.newPassword }
       ]
-    });
+    })
     const againPassword = getFieldProps('againpassword', {
       rules: [
         { whitespace: true },
         { validator: this.againPasswordExists }
       ]
-    });
+    })
     const parentScope = this.props.scope
     return (
       <Form horizontal form={this.props.form}>

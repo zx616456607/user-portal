@@ -25,7 +25,7 @@ class BaseInfo extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      editEmall: false,
+      editEmail: false,
       editPsd: false,
       editPhone: false,
       uploadModalVisible: false,
@@ -90,8 +90,8 @@ class BaseInfo extends Component {
           </div>
       )
     }
-    const userDetail = user.result.userInfo
-    const cert = user.result.certInfo
+    const userDetail = user.userInfo
+    const cert = user.certInfo
     let userCert, companyCert
     cert.data.forEach(item => {
       if(item.certType == '1') {
@@ -158,15 +158,15 @@ class BaseInfo extends Component {
                 <Icon type="question-circle-o" />
               </span>
             </li>
-            {this.state.editEmall ?
+            {this.state.editEmail ?
               <li>
-                <EmailRow scope ={this} />
+                <EmailRow scope ={this} email={userDetail.email} />
               </li>
               :
               <li>
                 <span className="key">邮箱</span>
                 <span className="value">{userDetail.email}</span>
-                <Button onClick={() => this.setState({ editEmall: true })}>修改邮箱</Button>
+                <Button onClick={() => this.setState({ editEmail: true })}>修改邮箱</Button>
               </li>
             }
             {this.state.editPsd ?

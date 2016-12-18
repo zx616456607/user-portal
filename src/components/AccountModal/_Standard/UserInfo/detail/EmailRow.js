@@ -10,17 +10,17 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import { Button, Tabs, Input, Icon, Modal, Upload, Dropdown, Form, Spin} from 'antd'
-import { changeUserInfo } from '../../../../../actions/user.js'
+import { changeUserInfo } from '../../../../../actions/user'
+import NotificationHandler from '../../../../../common/notification_handler'
 
-
-const createForm = Form.create;
-const FormItem = Form.Item;
+const createForm = Form.create
+const FormItem = Form.Item
 
 let EmailRow = React.createClass({
   oldEmailExists(rule, values, callback) {
     if(!Boolean(values)) {
-      callback([new Error('请输入当前密码')]);
-      return;
+      callback([new Error('请输入当前密码')])
+      return
     }
     if (values.length < 6) {
       callback([new Error('账户密码不少于6个字符')])
@@ -35,51 +35,62 @@ let EmailRow = React.createClass({
   },
   newEmailExists(rule, values, callback) {
     if(!Boolean(values)) {
-      callback([new Error('请输入新邮箱')]);
+      callback([new Error('请输入新邮箱')])
       return
     }
     if (values.indexOf('@') < 0) {
       callback([new Error('请输入正确的邮箱')])
       return
     }
+    if(this.props.email === values) {
+      callback([new Error('新邮箱不能和旧邮箱相同')])
+      return
+    }
     callback()
     return
   },
   handEmail(e) {
-    e.preventDefault();
+    e.preventDefault()
     const {form } = this.props
     const { changeUserInfo } = this.props
-    form.validateFields(['emailPassword', 'newEmail'],(errors, values) => {
+				const scope = this.props.scope
+    form.validateFields(['emailPassword', 'newEmail'], (errors, values) => {
       if (!!errors) {
-        return errors;
+        return errors
       }
+      const notification = new NotificationHandler()
+      notification.spin('修改邮箱中')
       changeUserInfo({
         password: values.emailPassword,
         email: values.newEmail
+      }, {
+        success: {
+          func: () => {
+            notification.close()
+            notification.success('修改邮箱成功')
+												scope.setState({
+														editEmall: false
+												})
+          }
+        }
       })
-    });
+    })
   },
   render () {
     const {getFieldProps} = this.props.form
     const parentScope = this.props.scope
-    const { isFetching } = this.props
-    if(isFetching) {
-      return (<div className="loadingBox">
-          <Spin size="large"></Spin>
-        </div>)
-    }
     const emailPassword = getFieldProps('emailPassword', {
       rules: [
-        { whitespace: true ,message:'请输入当前账户密码'},
+        { whitespace: true, message:'请输入当前账户密码'},
         { validator: this.oldEmailExists }
       ]
-    });
+    })
     const newEmailProps = getFieldProps('newEmail', {
       rules: [
-        { whitespace: true, message:"请输入新邮箱"},
+        { whitespace: true, message:'请输入新邮箱'},
         { validator: this.newEmailExists }
       ]
-    });
+    })
     return (
       <Form horizontal form={this.props.form}>
         <span className="key">邮箱</span>
@@ -99,10 +110,8 @@ let EmailRow = React.createClass({
   }
 })
 
-function mapStateToProps(state) {
-  return {
-    isFetching: state.user.changeUserInfo.isFetching
-  }
+function mapStateToProps(state, props) {
+		return props
 }
 EmailRow = createForm()(EmailRow)
 

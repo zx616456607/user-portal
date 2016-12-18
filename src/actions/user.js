@@ -191,7 +191,7 @@ function fetchCreateUser(body, callback) {
         method: 'POST',
         body
       },
-      schema: {},
+      schema: {}
     },
     callback
   }
@@ -220,7 +220,7 @@ function fetchDeleteUser(userID, callback) {
       options: {
         method: 'DELETE'
       },
-      schema: {},
+      schema: {}
     },
     callback
   }
@@ -249,7 +249,7 @@ function fetchUpdateUser(userID, body, callback) {
         method: 'PATCH',
         body
       },
-      schema: {},
+      schema: {}
     },
     callback
   }
@@ -325,6 +325,7 @@ function fetchChangeUserInfo(inputInfo, callback) {
         body: inputInfo
       }
     },
+		body: inputInfo,
     callback
   }
 }

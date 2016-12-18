@@ -10,9 +10,49 @@
 
 import * as ActionTypes from '../actions/user'
 import reducerFactory from './factory'
+import cloneDeep from 'lodash/cloneDeep'
 
 const option = {
   overwrite: true
+}
+
+function standardUserDetail(state = {}, action) {
+  const defaultState = {
+    ifFetching: false
+  }
+  switch(action.type) {
+    case ActionTypes.STANDARD_USER_INFO_REQUEST: {
+      return Object.assign({}, {
+        isFetching: true
+      })
+    }
+    case ActionTypes.STANDARD_USER_INFO_SUCCESS: {
+      return Object.assign({}, action.response.result, {
+        isFetching: false
+      })
+    }
+    case ActionTypes.STANDARD_USER_INFO_FAILURE: {
+      return Object.assign({}, {
+        isFetching: false
+      })
+    }
+    case ActionTypes.USER_CHANGE_USERINFO_REQUEST: {
+      return state
+    }
+    case ActionTypes.USER_CHANGE_USERINFO_SUCCESS: {
+      const resultState = cloneDeep(state)
+      if(action.body.email) {
+        resultState.result.userInfo.email = action.body.emial
+      }
+      return resultState
+    }
+    case ActionTypes.USER_CHANGE_USERINFO_FAILURE: {
+      return state
+    }
+    default: {
+      return state
+    }
+  }
 }
 
 export default function user(state = {
@@ -29,11 +69,7 @@ export default function user(state = {
       SUCCESS: ActionTypes.USER_DETAIL_SUCCESS,
       FAILURE: ActionTypes.USER_DETAIL_FAILURE
     }, state.userDetail, action, option),
-    standardUserDetail: reducerFactory({
-      REQUEST: ActionTypes.STANDARD_USER_INFO_REQUEST,
-      SUCCESS: ActionTypes.STANDARD_USER_INFO_SUCCESS,
-      FAILURE: ActionTypes.STANDARD_USER_INFO_FAILURE
-    }, state.standardUserDetail, action, option),
+    standardUserDetail: standardUserDetail(state.standardUserDetail, action),
     userAppInfo: reducerFactory({
       REQUEST: ActionTypes.USER_APPINFO_REQUEST,
       SUCCESS: ActionTypes.USER_APPINFO_SUCCESS,
