@@ -50,7 +50,7 @@ class NotificationHandler {
   success(message) {
     notification.success({
       message: (
-        <div style={{ fontSize: '13px'}}>
+        <div style={{ fontSize: '13px', paddingRight: '20px', color: '#666'}}>
           {message}
         </div>
       )
@@ -60,7 +60,7 @@ class NotificationHandler {
   info(message) {
     notification.info({
       message: (
-        <div style={{ fontSize: '13px'}}>
+        <div style={{ fontSize: '13px', paddingRight: '20px', color: '#666'}}>
           {message}
         </div>
       )
@@ -70,7 +70,7 @@ class NotificationHandler {
   warn(message) {
     notification.info({
       message: (
-        <div style={{ fontSize: '13px'}}>
+        <div style={{ fontSize: '13px', paddingRight: '20px', color: '#666'}}>
           {message}
         </div>
       )
@@ -81,7 +81,7 @@ class NotificationHandler {
     let desc = description || ''
     notification.error({
       message: (
-        <div style={{ fontSize: '13px'}}>
+        <div style={{ fontSize: '13px', paddingRight: '20px', color: '#666'}}>
           {message}
         </div>
       ),

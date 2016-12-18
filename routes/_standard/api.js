@@ -41,11 +41,10 @@ module.exports = function (Router) {
   router.get('/teams/:teamid/dissolvable', teamController.checkDissolvable)
   router.delete('/teams/:teamid', teamController.deleteTeam)
   router.post('/teams/:teamid/quit', teamController.quitTeam)
-  router.delete('/teams/:teamid/users/:username', teamController.removeMember)
-  router.delete('/teams/:teamid/invitations/:code', teamController.cancelInvitation)
   router.post('/teams/join', teamController.joinTeam)
   router.get('/teams/:teamid/users/std', teamController.getTeamUsers)
   router.delete('/teams/:teamid/users/:username/std', teamController.removeTeamuser)
+  router.delete('/teams/:teamid/invitations/:email', teamController.cancelInvitation)
 
   // Payment related
   router.post('/payments/wechat_pay', wechatPayController.createPrepayRecord)
@@ -57,5 +56,8 @@ module.exports = function (Router) {
 
   // Get user account info
   router.get('/myaccount', userInfoController.getMyAccountInfo)
+
+  // Get qiniu upload token
+  router.get('/store/token', userInfoController.upTokenToQiniu)
   return router.routes()
 }

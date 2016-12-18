@@ -304,19 +304,26 @@ function imageTagConfig(state = {}, action) {
         [registry]: { isFetching: true }
       })
     case ActionTypes.IMAGE_GET_DETAILTAGCONFIG_SUCCESS:
-      return Object.assign({}, state, {
+      // return Object.assign({}, state, {
+      return merge({}, state, {
         [registry]: {
           isFetching: false,
           registry: registry,
           server: action.response.result.server,
-          tag: action.response.result.tag || [],
-          configList: action.response.result.data || [],
-          sizeInfo: action.response.result.data.sizeInfo
+          configList: {
+            tag: action.response.result.tag || [],
+            [action.tag]:action.response.result.data || []
+          },
         }
       })
     case ActionTypes.IMAGE_GET_DETAILTAGCONFIG_FAILURE:
       return merge({}, defaultState, state, {
-        [registry]: { isFetching: false }
+        [registry]: { 
+          isFetching: false,
+          configList: {
+            [action.tag]:null
+          }
+        }
       })
     default:
       return state

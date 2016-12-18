@@ -550,6 +550,11 @@ class Slider extends Component {
                       <span><div className='sideCircle'></div> 我的团队</span>
                     </Link>
                   </Menu.Item>
+                  <Menu.Item key='balance'>
+                    <Link to='/account/balance'>
+                      <span><div className='sideCircle'></div> 充值/续费</span>
+                    </Link>
+                  </Menu.Item>
                   <Menu.Item key='cost'>
                     <Link to='/account/cost'>
                       <span><div className='sideCircle'></div> 费用中心</span>

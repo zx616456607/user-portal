@@ -13,7 +13,11 @@ import './style/TeamDetail.less'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import InviteNewMemberModal from '../../InviteNewMemberModal'
-import { loadTeamUserListStd, removeTeamusersStd } from '../../../../actions/team'
+import { loadUserTeamList } from '../../../../actions/user'
+import { loadTeamUserListStd, removeTeamusersStd, cancelInvitation, dissolveTeam } from '../../../../actions/team'
+import DelTeamModal from '../../DelTeamModal'
+
+const confirm = Modal.confirm;
 
 const data = [
   {key: '1',name: 'zhaoxy1',tel: '123',email:'1111@tenxcloud.com',role:1},
@@ -30,11 +34,11 @@ class TeamDetail extends Component {
     this.getColumns = this.getColumns.bind(this)
     this.handleRemoveMember = this.handleRemoveMember.bind(this)
     this.handleCancelInvite = this.handleCancelInvite.bind(this)
-    this.handleClickRecharge = this.handleClickRecharge.bind(this)
     this.handleQuiteTeam = this.handleQuiteTeam.bind(this)
     this.handleDelTeam = this.handleDelTeam.bind(this)
     this.handleAddNewMember = this.handleAddNewMember.bind(this)
     this.closeInviteModal = this.closeInviteModal.bind(this)
+    this.closeDelTeamModal = this.closeDelTeamModal.bind(this)
 
     this.state = {
       filteredInfo: null,
@@ -46,11 +50,12 @@ class TeamDetail extends Component {
       page: 1,
       current: 1,
       showInviteModal: false,
+      showDelModal: false,
+
     }
   }
   //表单变化(排序,删选)
   handleTableChange(pagination, filters, sorter) {
-    console.log('各类参数是', pagination, filters, sorter);
     this.setState({
       filteredInfo: filters,
       sortedInfo: sorter,
@@ -77,28 +82,39 @@ class TeamDetail extends Component {
   }
   //移除成员
   handleRemoveMember (userName) {
-    console.log('handleRemoveMember--userName: ',userName)
-    this.props.removeTeamusersStd(this.props.teamID, userName)
+    const { removeTeamusersStd ,teamID } = this.props
+    confirm({
+      title: '您是否确认要移除该成员',
+      onOk() {
+        removeTeamusersStd(teamID, userName)
+      },
+      onCancel() { },
+    })
   }
   //取消邀请
-  handleCancelInvite (memberID) {
-    console.log('handleCancelInvite--memberID',memberID)
+  handleCancelInvite (email) {
+    const { cancelInvitation ,teamID } = this.props
+    confirm({
+      title: '您是否确认要取消邀请',
+      onOk() {
+        cancelInvitation(teamID, email)
+      },
+      onCancel() { },
+    })
   }
   //去充值
-  handleClickRecharge (teamID) {
-    console.log('handleClickRecharge--teamID',teamID)
-  }
   //退出团队
   handleQuiteTeam (teamID) {
-    console.log('handleQuiteTeam--teamID',teamID)
   }
   //解散团队
   handleDelTeam (teamID) {
-    console.log('handleDelTeam--teamID',teamID)
+    this.setState({
+      showDelModal: true,
+    })
   }
+
   //添加新成员
   handleAddNewMember (teamID) {
-    console.log('handleAddNewMember--teamID',teamID)
     this.setState({
       showInviteModal: true,
     })
@@ -109,12 +125,17 @@ class TeamDetail extends Component {
       showInviteModal: false,
     })
   }
+  //关闭解散团队弹框
+  closeDelTeamModal() {
+    this.setState({
+      showDelModal: false
+    })
+  }
   //table列配置
   getColumns (role) {
-    console.log(role);
     let { sortedInfo, filteredInfo, sortMemberName, sort, filter } = this.state
     //普通成员
-    if(role === 0){
+    if(role === false){
       return [
         {
           title: (
@@ -201,10 +222,10 @@ class TeamDetail extends Component {
         render: (text, record, index) => (
         index === 0 ?
           <Link to='/account'>
-            <Button className="tabOptBtn" icon="setting">账号设置</Button>
+            <Button className="tabOptBtn" icon="setting">帐号设置</Button>
           </Link>
           :
-          record.role == "" ?
+          record.role == "-" ?
             <Button className="tabOptBtn hoverRed" icon="cross" onClick={() => this.handleCancelInvite(record.key)}>取消邀请</Button>:
             <Button className="tabOptBtn hoverRed" icon="delete" onClick={() => this.handleRemoveMember(record.name)}>移除</Button>
         )
@@ -218,8 +239,8 @@ class TeamDetail extends Component {
   
   render() {
     const scope = this
-    let { sortedInfo, filteredInfo, sortMemberName, sort,filter} = this.state
-    const { teamName, teamID, currentRole, teamUserList, showInviteModal } = this.props
+    let { sortedInfo, filteredInfo, sortMemberName, sort,filter, showInviteModal, showDelModal} = this.state
+    const { teamName, teamID, currentRole, teamUserList, dissolveTeam, loadUserTeamList} = this.props
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
     
@@ -232,7 +253,7 @@ class TeamDetail extends Component {
           </span>
         </Row>
         {
-          currentRole === 0 ?
+          currentRole === false ?
             <div>
               <Alert message="这里展示了该团队的团队成员信息，作为普通成员您可退出团队。" />
               <Row className="memberOption">
@@ -258,9 +279,18 @@ class TeamDetail extends Component {
                 <Button icon='logout' className='delTeamBtn' onClick={() => this.handleDelTeam(teamID)}>
                   解散团队
                 </Button>
-                <Button icon='pay-circle-o' className='rechargeBtn' onClick={() => this.handleClickRecharge(teamID)}>
-                  去充值
-                </Button>
+                <DelTeamModal
+                  visible={showDelModal}
+                  closeDelTeamModal={this.closeDelTeamModal}
+                  teamID={teamID}
+                  dissolveTeam={dissolveTeam}
+                  loadUserTeamList={loadUserTeamList}
+                />
+                <Link to='/account/balance'>
+                  <Button icon='pay-circle-o' className='rechargeBtn'>
+                    去充值
+                  </Button>
+                </Link>
               </Row>
               <Card className="content">
                 <Table columns={this.getColumns(currentRole)} dataSource={teamUserList} onChange={this.handleTableChange} pagination={false}/>
@@ -273,11 +303,18 @@ class TeamDetail extends Component {
 }
 function mapStateToProp(state, props) {
   const { team_id, team_name } = props.params
-  let currentRole = 0
+  let currentRole = false
   const { loginUser } = state.entities
-  if(loginUser.info){
-    currentRole = loginUser.info.role
-    console.log('currentRolecurrentRole',currentRole);
+  const { user } = state
+
+  if (user.teams && user.teams.result && user.teams.result.data
+    && user.teams.result.data.data && user.teams.result.data.data.items) {
+    let items = user.teams.result.data.data.items
+    items.map((item, index) => {
+      if (item.id == team_id) {
+        currentRole = item.isCreator
+      }
+    })
   }
 
   let teamUserList = []
@@ -291,7 +328,6 @@ function mapStateToProp(state, props) {
             {
               key: item.email,
               name: item.userName,
-              tel: item.phone,
               email: item.email,
               role: item.isCreator ? "创建者" : "普通成员",
             }
@@ -301,7 +337,6 @@ function mapStateToProp(state, props) {
             {
               key: item.email,
               name: item.userName,
-              tel: item.phone,
               email: item.email,
               role: item.isCreator ? "创建者" : "普通成员",
             }
@@ -315,9 +350,8 @@ function mapStateToProp(state, props) {
           {
             key: item,
             name: "等待接受邀请中...",
-            tel: "",
             email: item,
-            role: "",
+            role: "-",
           }
         )
       })
@@ -333,4 +367,7 @@ function mapStateToProp(state, props) {
 export default connect(mapStateToProp, {
   loadTeamUserListStd,
   removeTeamusersStd,
+  cancelInvitation,
+  loadUserTeamList,
+  dissolveTeam,
 })(TeamDetail)

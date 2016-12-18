@@ -39,7 +39,7 @@ var MyComponent = React.createClass({
     if (config.length == 0 || !!!config) {
       return (
         <div className='loadingBox'>
-          No Data
+          暂无数据
         </div>
       )
     }

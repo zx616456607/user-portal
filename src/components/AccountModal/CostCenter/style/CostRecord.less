@@ -10,14 +10,26 @@
     margin-bottom: 20px;
     .fa {
       margin-right: 10px;
-      font-size: 14px;
+      font-size: 13px;
     }
     .popSelect {
       display: inline-block;
+      cursor: pointer;
+    }
+    .popTeamSelect {
+      display: inline-block;
+      cursor: pointer;
+    }
+    svg {
+      float: left;
+      width: 12px;
+      height: 12px;
+      margin-right: 8px;
+      margin-top: 3px;
     }
   }
   .lineBtn {
-    font-size: 14px;
+    font-size: 13px;
   }
   .headerclusterSvg {
     height: 14px;
@@ -48,7 +60,7 @@
         position: relative;
         height: 170px;
         border-left: 1px solid #e2e2e2;
-        font-size: 14px;
+        font-size: 13px;
         .teamCostListTitle {
           height: 40px;
           line-height: 40px;
@@ -92,10 +104,15 @@
     .ant-table-thead > tr > th {
       background-color: #fff;
       font-weight: normal;
-      font-size: 14px;
+      font-size: 13px;
     }
     .firstCol {
       padding-left: 24px;
     }
+  }
+}
+.standardPopTeamOver {
+  .ant-popover-inner-content {
+    padding: 8px 0;
   }
 }

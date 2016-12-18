@@ -12,12 +12,13 @@
 'use strict'
 
 const apiFactory = require('../../services/api_factory')
-const EMAIL_REG_EXP = new RegExp('^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$')
+const EMAIL_REG_EXP = /^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/
 const emailUtil = require('../../utils/email')
 const constants = require('../../constants')
 const DEFAULT_PAGE = constants.DEFAULT_PAGE
 const DEFAULT_PAGE_SIZE = constants.DEFAULT_PAGE_SIZE
 const MAX_PAGE_SIZE = constants.MAX_PAGE_SIZE
+const logger = require('../../utils/logger').getLogger('team')
 
 exports.createTeamAndSpace = function* () {
   const loginUser = this.session.loginUser
@@ -69,11 +70,16 @@ exports.createInvitations = function* () {
   if (result.code === 200 && result.data && result.data.codes && result.data.teamName) {
     for (let email in result.data.codes) {
       const invitationURL = `https://console.tenxcloud.com/teams/invite?code=${encodeURIComponent(result.data.codes[email])}`
-      emailUtil.sendInviteTeamMemberEmail(email, loginUser.user, loginUser.email,result.data.teamName ,invitationURL)
+      try {
+        emailUtil.sendInviteTeamMemberEmail(email, loginUser.user, loginUser.email,result.data.teamName ,invitationURL)
+      }
+      catch (e) {
+        logger.warn('send invitation email failed.', e)
+      }
     }
   }
   else {
-    console.log('createInvitations not send email')
+    logger.warn('createInvitations not send email. call api server return:', result)
   }
 
   this.body = {
@@ -100,10 +106,26 @@ exports.deleteTeam = function* () {
 
   let result = yield spi.teams.deleteBy([teamID])
 
+  // send email
+  if (result.code === 200 && result.data) {
+    try {
+      emailUtil.sendDismissTeamEmail(result.data.operatorName, result.data.operatorEmail, result.data.normalUserEmails, result.data.teamName, (result.data.refundBalance > 0))
+    }
+    catch (e) {
+      logger.warn('send delete team email failed.', e)
+    }
+  }
+  else {
+    logger.warn('deleteTeam not send email. call api server return:', result)
+  }
+
+  // no need to show info to front end
+  result.data = ""
   this.body = {
     data: result
   }
 }
+
 exports.quitTeam = function* () {
   const loginUser = this.session.loginUser
   const spi = apiFactory.getSpi(loginUser)
@@ -111,34 +133,27 @@ exports.quitTeam = function* () {
 
   let result = yield spi.teams.createBy([teamID, 'quit'])
 
+  // send email
+  if (result.code === 200 && result.data) {
+    try {
+      emailUtil.sendExitTeamEmail(result.data.adminEmails, result.data.quitUserEmail, result.data.quitUserName, result.data.teamName)
+    }
+    catch (e) {
+      logger.warn('send quit team email failed.', e)
+    }
+  }
+  else {
+    logger.warn('quit team not send email. call api server return:', result)
+  }
+
+  // no need to show info to front end
+  result.data = ""
   this.body = {
     data: result
   }
 }
-exports.removeMember = function* () {
-  const loginUser = this.session.loginUser
-  const spi = apiFactory.getSpi(loginUser)
-  const teamID = this.params.teamid
-  const userName = this.params.username
 
-  let result = yield spi.teams.deleteBy([teamID, 'users', userName])
 
-  this.body = {
-    data: result
-  }
-}
-exports.cancelInvitation = function* () {
-  const loginUser = this.session.loginUser
-  const spi = apiFactory.getSpi(loginUser)
-  const teamID = this.params.teamid
-  const code = this.params.code
-
-  let result = yield spi.teams.deleteBy([teamID, 'invitations', code])
-
-  this.body = {
-    data: result
-  }
-}
 exports.getInvitationInfo = function* () {
   const loginUser = this.session.loginUser
   const spi = apiFactory.getSpi(loginUser)
@@ -219,6 +234,50 @@ exports.removeTeamuser = function* () {
 
   const result = yield spi.teams.deleteBy([teamID, 'users', username])
 
+  // send email
+  if (result.code === 200 && result.data) {
+    try {
+      emailUtil.sendRemoveTeamMemberEmail(result.data.operatorName, result.data.operatorEmail, result.data.removedUserName, result.data.removedUserEmail, result.data.teamName)
+    }
+    catch (e) {
+      logger.warn('send remove member email failed.', e)
+    }
+  }
+  else {
+    logger.warn('removeMember not send email. call api server return:', result)
+  }
+
+  // no need to show info to front end
+  result.data = ""
+  this.body = {
+    data: result
+  }
+}
+
+exports.cancelInvitation = function* () {
+  const teamID = this.params.teamid
+  const email = this.params.email
+  const query = { email }
+  const loginUser = this.session.loginUser
+  const spi = apiFactory.getSpi(loginUser)
+
+  const result = yield spi.teams.deleteBy([teamID, 'invitations'], query)
+
+  // send email
+  if (result.code === 200 && result.data) {
+    try {
+      emailUtil.sendCancelInvitationEmail(result.data.canceledEmail, result.data.operatorName, result.data.operatorEmail, result.data.teamName)
+    }
+    catch (e) {
+      logger.warn('send cancel invitation email failed.', e)
+    }
+  }
+  else {
+    logger.warn('cancelInvitation not send email. call api server return:', result)
+  }
+
+  // no need to show info to front end
+  result.data = ""
   this.body = {
     data: result
   }

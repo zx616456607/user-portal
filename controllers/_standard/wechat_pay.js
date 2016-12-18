@@ -69,6 +69,7 @@ exports.createPrepayRecord = function* () {
       codeUrl: qrCodeResult.codeUrl,
       nonceStr,
       orderId,
+      timeStamp: qrCodeResult.timeStamp
     }
   } catch (err) {
     throw err
@@ -121,18 +122,21 @@ exports.getOrder = function* () {
    * USERPAYING--用户支付中
    * PAYERROR--支付失败(其他原因，如银行返回失败)
    */
-  if (order.return_code === 'SUCCESS' && order.result_code === 'SUCCESS' && order.trade_state === 'SUCCESS') {
-    console.log(`order------------------`)
-    console.log(order)
-    // Validate result
-    const error = payment.validateObj(order)
-    if (error) {
-      this.status = 400
-      this.body = {
-        message: error.name
-      }
-      return
+  // Validate result
+  const error = payment.validateObj(order)
+  if (error) {
+    this.status = 400
+    this.body = {
+      message: error.name
     }
+    return
+  }
+  const tradeState = order.trade_state
+  const resData = {
+    orderId,
+    tradeState
+  }
+  if (tradeState === 'SUCCESS') {
     const data = {
       charge_amount: parseInt(order.total_fee),  // 成功支付的金额
       order_type: 100,
@@ -141,10 +145,11 @@ exports.getOrder = function* () {
       detail: JSON.stringify(order),
     }
     const result = yield spi.payments.update(order.out_trade_no, data)
-    this.body = result
-    return
+    resData.result = result.data
+    // this.body = result
+    // return
   }
-  this.body = order
+  this.body = resData
 }
 
 exports.notify = function* () {

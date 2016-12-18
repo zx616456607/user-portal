@@ -48,8 +48,8 @@ let MyComponent = React.createClass({
     } else {
       items = (
         <div className="apiItemDetail" key="apiItemDetail" >
-          No Data
-    </div>
+          暂无数据
+        </div>
       )
     }
     return (
@@ -77,6 +77,11 @@ class ServiceAPI extends Component {
         <Card className='loadingBox'>
           <Spin size='large' />
         </Card>
+      )
+    }
+    if (!configList) {
+      return (
+        <div style={{lineHeight:'50px'}}>Not Config files</div>
       )
     }
     let portsShow = null, dataStorageShow = null, cmdShow = null, entrypointShow = null;
@@ -152,15 +157,15 @@ function mapStateToProps(state, props) {
     configList: []
   }
   const { imageTagConfig, otherTagConfig} = state.getImageTagConfig
-  const { registry, tag, isFetching, server, configList } = imageTagConfig[DEFAULT_REGISTRY] || defaultImageDetailTagConfig
+  const { registry, isFetching, server, configList } = imageTagConfig[DEFAULT_REGISTRY] || defaultImageDetailTagConfig
   // const { registry, tag, isFetching, server, configList } = otherTagConfig || defaultImageDetailTagConfig
-
+  const tag = props.imageTag
   return {
     registry: DEFAULT_REGISTRY,
     registryServer: server,
-    configList,
+    configList: configList[tag],
     isFetching,
-    tag,
+    tag
   }
 }
 

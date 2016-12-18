@@ -357,6 +357,34 @@ export function removeTeamusersStd(teamID, username, callback) {
   }
 }
 
+export const INVITATION_CANCEL_REQUEST = 'INVITATION_CANCEL_REQUEST'
+export const INVITATION_CANCEL_SUCCESS = 'INVITATION_CANCEL_SUCCESS'
+export const INVITATION_CANCEL_FAILURE = 'INVITATION_CANCEL_FAILURE'
+
+// Cancel team member invitation from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchCancelInvitation(teamID, email, callback) {
+  let endpoint = `${API_URL_PREFIX}/teams/${teamID}/invitations/${email}`
+  return {
+    [FETCH_API]: {
+      types: [INVITATION_CANCEL_REQUEST, INVITATION_CANCEL_SUCCESS, INVITATION_CANCEL_FAILURE],
+      endpoint,
+      options: {
+        method: 'DELETE'
+      },
+      schema: {},
+    },
+    callback
+  }
+}
+// Cancel team member invitation from API
+// Relies on Redux Thunk middleware.
+export function cancelInvitation(teamID, email, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchCancelInvitation(teamID, email, callback))
+  }
+}
+
 export const TEAMSPACE_DELETE_REQUEST = 'TEAMSPACE_DELETE_REQUEST'
 export const TEAMSPACE_DELETE_SUCCESS = 'TEAMSPACE_DELETE_SUCCESS'
 export const TEAMSPACE_DELETE_FAILURE = 'TEAMSPACE_DELETE_FAILURE'
@@ -553,7 +581,7 @@ export const NORMAL_MEMBER_QUIT_TEAM_REQUEST = 'NORMAL_MEMBER_QUIT_TEAM_REQUEST'
 export const NORMAL_MEMBER_QUIT_TEAM_SUCCESS = 'NORMAL_MEMBER_QUIT_TEAM_SUCCESS'
 export const NORMAL_MEMBER_QUIT_TEAM_FAILURE = 'NORMAL_MEMBER_QUIT_TEAM_FAILURE'
 
-function fetchQuitTeam(teamID) {
+function fetchQuitTeam(teamID, callback) {
   let endpoint = `${API_URL_PREFIX}/teams/${teamID}/quit`
   return {
     [FETCH_API]: {
@@ -563,13 +591,14 @@ function fetchQuitTeam(teamID) {
       options: {
         method: 'POST',
       },
-    }
+    },
+    callback,
   }
 }
 
-export function quitTeam(teamID) {
+export function quitTeam(teamID, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchQuitTeam(teamID))
+    return dispatch(fetchQuitTeam(teamID, callback))
   }
 }
 
@@ -577,7 +606,7 @@ export const CREATOR_DESSOLVE_TEAM_REQUEST = 'CREATOR_DESSOLVE_TEAM_REQUEST'
 export const CREATOR_DESSOLVE_TEAM_SUCCESS = 'CREATOR_DESSOLVE_TEAM_SUCCESS'
 export const CREATOR_DESSOLVE_TEAM_FAILURE = 'CREATOR_DESSOLVE_TEAM_FAILURE'
 
-function fetchDissolveTeam(teamID) {
+function fetchDissolveTeam(teamID, callback) {
   let endpoint = `${API_URL_PREFIX}/teams/${teamID}`
   return {
     [FETCH_API]: {
@@ -585,15 +614,16 @@ function fetchDissolveTeam(teamID) {
       endpoint,
       schema: {},
       options: {
-        method: 'POST',
+        method: 'DELETE',
       },
-    }
+    },
+    callback,
   }
 }
 
-export function dissolveTeam(teamID) {
+export function dissolveTeam(teamID, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchDissolveTeam(teamID))
+    return dispatch(fetchDissolveTeam(teamID, callback))
   }
 }
 

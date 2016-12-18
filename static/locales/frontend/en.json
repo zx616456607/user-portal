@@ -1,6 +1,8 @@
 {
   "Header.menu.doc": "documentation",
   "Header.menu.user": "user",
+  "Header.menu.space": "Space",
+  "Header.menu.team": "Team",
   "Header.menu.user.logOut": "Log out",
   "Header.menu.user.menu2": "menu 2",
   "Header.menu.user.menu3": "menu 3",

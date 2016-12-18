@@ -153,7 +153,7 @@ let MemberTable = React.createClass({
     const { data, scope } = this.props
     filteredInfo = filteredInfo || {}
     const pagination = {
-      simple:{true},
+      simple: true,
       total: this.props.scope.props.total,
       showSizeChanger: true,
       defaultPageSize: 5,

@@ -10,6 +10,9 @@
 import React, { Component, PropTypes } from 'react'
 import { Input, Button, Spin, Icon, } from 'antd'
 import './style/Content.less'
+import { MY_SPACE } from '../../constants'
+const mode = require('../../../configs/model').mode
+const standard = require('../../../configs/constants').STANDARD_MODE
 
 class PopSelect extends Component {
   constructor(props) {
@@ -36,12 +39,6 @@ class PopSelect extends Component {
     if (!special) {
       return
     }
-    const userSpace = {
-      name: '我的空间',
-      spaceName: '我的空间',
-      namespace: 'default',
-      teamID: 'default'
-    }
     return (
       <div>
         <div>
@@ -49,9 +46,11 @@ class PopSelect extends Component {
         </div>
         <ul className="searchList">
           <li
-            onClick={() => onChange(userSpace)}
+            onClick={() => onChange(MY_SPACE)}
             className="searchItem">
-            {userSpace.name}
+            {
+              MY_SPACE.name
+            }
           </li>
         </ul>
         <div>
@@ -80,7 +79,7 @@ class PopSelect extends Component {
   }
 
   render() {
-    const { onChange, loading, special } = this.props
+    const { onChange, loading, special, popTeamSelect } = this.props
     const { list } = this.state
     let searchList = (
       list.length === 0 ?
@@ -92,7 +91,11 @@ class PopSelect extends Component {
               key={item.name}
               className="searchItem"
               onClick={() => onChange(item)}>
-              {item.name}
+              {
+                popTeamSelect?
+                item.teamName:
+                item.name
+              }
             </li>
           )
         })

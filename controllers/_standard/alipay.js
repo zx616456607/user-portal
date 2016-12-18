@@ -8,7 +8,7 @@
  * @author Yangyubiao
  */
 
-"use strict"
+'use strict'
 
 const uuid = require('node-uuid')
 const AliPay = require('../../pay/alipay/alipay')
@@ -30,15 +30,12 @@ const logger = require('../../utils/logger.js').getLogger('alipay')
 exports.rechare = function* () {
   const method = 'rechare'
   const user = this.session.loginUser
-  let paymentAmount = this.request.body.paymentAmount
-  const payMethod = this.request.body.payMent
+  let paymentAmount = this.query.paymentAmount
+  const teamspace = this.query.teamspace
   if(!paymentAmount) {
-    logger.info(method, 'paymentAmount is null')
-    this.status = 400
-    this.body ={
-      fail: 'paymentAmount is necessary'
-    }
-    return
+				const error = new Error('paymentAmount is necessary')
+    error.status = 400
+				throw error
   }
   paymentAmount = parseFloat(paymentAmount)
   if(isNaN(paymentAmount)) {
@@ -76,7 +73,7 @@ exports.rechare = function* () {
   aliPayConfig.extra_common_param = uuid.v4()
   const siginApi = apiFactory.getTenxSysSignSpi(this.session.loginUser)
   const apiResult = yield siginApi.payments.create({
-    charge_amount: paymentAmount * 100 ,
+    charge_amount: paymentAmount * 100,
     order_type: 101,
     verification_key: aliPayConfig.extra_common_param
   })
@@ -102,6 +99,11 @@ exports.notify = function* () {
     this.body = apiResult
   }
   logger.error('alipay sign is not pass verification')
+		this.status = 401
+		this.body = {
+				statusCode: 401,
+				message: '非法订单'
+		}
 }
 
 exports.direct = function* (){
@@ -122,7 +124,7 @@ exports.direct = function* (){
   } 
   logger.error('alipay sign is not pass verification')
   this.status = 401
-  this.body = { error: '非法订单'}
+  this.body = { statusCode: 401, message: '非法订单'}
 }
 
 function  _requestSignUpdateApi (user, data) {
