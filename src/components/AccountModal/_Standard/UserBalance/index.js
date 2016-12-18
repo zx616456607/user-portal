@@ -13,8 +13,8 @@ import { Link, browserHistory } from 'react-router'
 import { Icon, Button, Popover, } from 'antd'
 import PopContent from '../../../PopSelect/Content'
 import { loadLoginUserDetail } from '../../../../actions/entities'
-import { loadUserTeamList } from '../../../../actions/user'
-import { loadTeamspaceList } from '../../../../actions/team'
+import { loadUserTeamspaceList } from '../../../../actions/user'
+import { loadSpaceSummary } from '../../../../actions/consumption'
 import './style/balance.less'
 
 class UserBalance extends Component {
@@ -31,18 +31,18 @@ class UserBalance extends Component {
   }
 
   componentWillMount() {
-    const { loadLoginUserDetail, loadUserTeamList } = this.props
+    const { loadLoginUserDetail, loadUserTeamspaceList } = this.props
     loadLoginUserDetail()
-    loadUserTeamList('default', { size: -1 })
+    loadUserTeamspaceList('default', { size: -1 })
   }
 
   handleTeamChange(team) {
-    const { loadTeamspaceList } = this.props
+    const { loadSpaceSummary } = this.props
     this.setState({
       teamListVisible: false,
       currentTeam: team
     })
-    loadTeamspaceList(team.id)
+    loadSpaceSummary(team.namespace)
   }
 
   handleTeamListVisibleChange(visible) {
@@ -52,12 +52,19 @@ class UserBalance extends Component {
   }
 
   render() {
-    const { loginUser, isTeamsFetching, teams } = this.props
+    let { loginUser, isTeamsFetching, teamspaces, isSpaceBalanceFetching, spaceBalance } = this.props
     const { currentTeam, teamListVisible } = this.state
     let { balance } = loginUser
     if (balance !== undefined) {
       balance = (balance / 100).toFixed(2)
     }
+    if (spaceBalance !== undefined) {
+      spaceBalance = (spaceBalance / 100).toFixed(2)
+    }
+    // show team name instand of space name in standard mode
+    teamspaces.map(space => {
+      space.name = space.teamName
+    })
     return (
       <div id="UserBalance">
         <div className="myAccount">
@@ -79,7 +86,7 @@ class UserBalance extends Component {
               title="选择团队账户"
               content={
                 <PopContent
-                  list={teams}
+                  list={teamspaces}
                   onChange={this.handleTeamChange}
                   loading={isTeamsFetching} />
               }
@@ -91,10 +98,10 @@ class UserBalance extends Component {
               <span>{currentTeam.name} <Icon type="down" style={{ fontSize: '8px' }} /></span>
             </Popover>
           </div>
-          {teams.length > 0 ?
+          {teamspaces.length > 0 ?
             <div className="moneyRow">
-              <div>余额：<span className="money">105元</span></div>
-              <div>其中优惠券￥15元，充值金额￥1000元 &nbsp;<Icon type="question-circle-o" /></div>
+              <div>余额：<span className="money">{isSpaceBalanceFetching ? <Icon type="loading" /> : spaceBalance}元</span></div>
+              {/*<div>其中优惠券￥15元，充值金额￥1000元 &nbsp;<Icon type="question-circle-o" /></div>*/}
             </div>
             :
             <div className="moneyRow text-center">
@@ -103,9 +110,9 @@ class UserBalance extends Component {
               <Button type="primary" onClick={() => browserHistory.push('/account/team')}>去创建</Button>
             </div>
           }
-          {teams.length > 0 ?
+          {teamspaces.length > 0 ?
             <div className="rechargeRow">
-              <Button type="primary" size="large" onClick={() => browserHistory.push('/account/balance/payment')}>立即充值</Button>
+              <Button type="primary" size="large" onClick={() => browserHistory.push(`/account/balance/payment?team=${currentTeam.teamName}&namespace=${currentTeam.namespace}`)}>立即充值</Button>
             </div>
             : null
           }
@@ -117,19 +124,22 @@ class UserBalance extends Component {
 }
 
 function mapStateToProps(state, props) {
-  const { entities, user, team } = state
+  const { entities, user, consumption } = state
   const { current, loginUser } = entities
-  const { teams } = user
+  const { teamspaces } = user
+  const { spaceSummary } = consumption
   return {
     current,
     loginUser: loginUser.info,
-    isTeamsFetching: teams.isFetching,
-    teams: (teams.result ? teams.result.data.data.items : [])
+    isTeamsFetching: teamspaces.isFetching,
+    teamspaces: (teamspaces.result ? teamspaces.result.teamspaces : []),
+    isSpaceBalanceFetching: spaceSummary.isFetching,
+    spaceBalance: spaceSummary.result ? spaceSummary.result.data.balance : 0
   }
 }
 
 export default connect(mapStateToProps, {
   loadLoginUserDetail,
-  loadUserTeamList,
-  loadTeamspaceList,
+  loadUserTeamspaceList,
+  loadSpaceSummary,
 })(UserBalance)
