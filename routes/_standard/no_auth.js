@@ -17,11 +17,11 @@
 //////////////////////  Users who are not logged in are also accessible ///////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////
 
-const indexCtl = require('../../controllers') 
+const indexCtl = require('../../controllers')
 const teamController = require('../../controllers/_standard/team')
+const alipayController = require('../../controllers/_standard/payments/alipay')
+const wechatPayController = require('../../controllers/_standard/payments/wechat_pay')
 const userController = require('../../controllers/_standard/user_info')
-const alipayController = require('../../controllers/_standard/alipay')
-const wechatPayController = require('../../controllers/_standard/wechat_pay')
 const wechatPayMiddleware = require('../../pay/wechat_pay').middleware
 const API_URL_PREFIX = '/api/v2'
 
