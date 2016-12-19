@@ -66,8 +66,6 @@ let NotLogUser = React.createClass({
   },
 
   checkUserName(rule, value, callback) {
-    console.log('value',value)
-    console.log('USERNAME_REG_EXP',USERNAME_REG_EXP)
     if (!value || value.length < 3) {
       callback()
       return
@@ -110,7 +108,6 @@ let NotLogUser = React.createClass({
   },
   //发送验证码
   changeCaptcha() {
-    console.log('发送验证码!!!');
     this.setState({
       captchaLoading: true,
       countDownTimeText: '6s 后重新发送',
@@ -215,7 +212,6 @@ let NotLogUser = React.createClass({
       return
     }
     if (current === 'tel') {
-      console.log('tel');
       this.refs.intTel.refs.input.focus()
       this.setState({
         intTelFocus: true,

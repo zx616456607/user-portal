@@ -10,8 +10,7 @@
 * @author Zhangpc
 */
 
-const constants = require('./constants')
-if (process.env.RUNNING_MODE === constants.STANDARD_MODE) {
+if (process.env.RUNNING_MODE === 'standard') { // Magic code, do not change
   module.exports = require('./model.standard')
 } else {
   module.exports = require('./model.enterprise')
