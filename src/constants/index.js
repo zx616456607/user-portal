@@ -7,6 +7,8 @@
  * v0.1 - 2016-09-07
  * @author Zhangpc
  */
+import { mode } from '../../configs/model'
+import { STANDARD_MODE } from '../../configs/constants'
 
 export const API_URL_PREFIX = '/api/v2'
 export const DEFAULT_IMAGE_POOL = 'k8s-pool'
@@ -28,7 +30,10 @@ export const LOGIN_EXPIRED_MESSAGE = 'LOGIN_EXPIRED'
 export const MY_SPACE = {
   name: "我的空间",
   spaceName: "我的空间",
+  teamName: "我的团队",
   namespace: "default",
   teamID: "default",
 }
 export const MAX_LOGS_NUMBER = 500
+export const MIN_PAY_AMOUNT = (mode === STANDARD_MODE ? 0.01 : 5)
+export const PAY_AMOUNT_STEP = (mode === STANDARD_MODE ? 0.01 : 1)

@@ -15,6 +15,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { createTenxFlowSingle } from '../../../actions/cicd_flow'
 import YamlEditor from '../../Editor/Yaml'
 import { appNameCheck } from '../../../common/naming_validation'
+import NotificationHandler from '../../../common/notification_handler'
 import './style/CreateTenxFlow.less'
 import { browserHistory } from 'react-router';
 
@@ -205,6 +206,11 @@ let CreateTenxFlow = React.createClass({
         return;
       }
       let body = {};
+      let notification = new NotificationHandler()
+      if (2 == values.radioFlow && !this.state.currentYaml) {
+        notification.error('请输入YAML内容')
+        return
+      }
       if( _this.state.emailAlert ) {
         let tempEmail = '';
         if(values.radioEmail != 'others') {
@@ -247,6 +253,28 @@ let CreateTenxFlow = React.createClass({
             },
           isAsync: true
         },
+        failed: {
+          func: (res) => {
+            // body...
+            switch (res.statusCode) {
+              case 400:
+                notification.error('数据格式错误，请参考其他TenxFlow详情页面中的YAML定义')
+                break
+              case 403:
+                notification.error('非法的参数值')
+                break
+              case 409:
+                notification.error('资源存在冲突，无法创建')
+                break
+              case 500:
+                notification.error('创建失败')
+                break
+              default:
+                notification.error(res.message.message)
+            }
+          },
+          isAsync: true
+        }
       });    
     });
   },

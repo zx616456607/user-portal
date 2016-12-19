@@ -34,10 +34,15 @@ class UserInfo extends Component {
   }
   render() {
     const { userDetail, appCount, serviceCount, containerCount, teamspaces, teams, editPass } = this.props
+    const href = window.location.href;
+    let memberFlag = false;
+    if(href.indexOf('account/user') > -1) {
+      memberFlag = true;
+    }
     return (
       <div id="UserInfo">
         <Row className="title">
-          <Col>信息</Col>
+          <Col>{ memberFlag ? '成员信息' : '我的信息'}</Col>
         </Row>
         <Row className="content">
           <Card>
