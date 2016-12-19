@@ -25,6 +25,10 @@
   } */
   .selectSpace {
     margin-bottom: 20px;
+    .rechargeHeader {
+      display: flex;
+      align-items: center;
+    }
     .popSelect {
       display: inline-block;
       cursor: pointer;
@@ -41,8 +45,7 @@
       margin-top: 3px;
     }
     .setAlertBtn {
-      display: inline-block;
-      float: right;
+      flex:1;
     }
   }
   .RechargeTable {
@@ -75,19 +78,5 @@
       border-style: dashed;
       border-color: #82d6fb;
     }
-  }
-  .ant-btn {
-    width: 80px;
-    height: 36px;
-    border-radius: 3px;
-    font-weight: normal;
-    border: none;
-    &:hover {
-      border: none;
-    }
-  }
-  .ant-btn-ghost {
-    background-color: #efefef;
-    color: #717171;
   }
 }

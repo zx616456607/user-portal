@@ -265,7 +265,7 @@ class RechargeRecord extends Component{
         <Card style={{marginBottom: '20px'}} className='selectSpace'>
           {
             standard ?
-              <div style={{overflow:'hidden'}}>
+              <div className='rechargeHeader'>
                 <svg className='headerteamspace'>
                   <use xlinkHref='#headerteamspace' />
                 </svg>
@@ -293,7 +293,7 @@ class RechargeRecord extends Component{
                   <Button icon="clock-circle-o" style={{float: 'right',fontSize: '14px'}} onClick={this.showModal}>设置提醒</Button>
                 </div>
               </div>:
-              <div>
+              <div className='rechargeHeader'>
                 <svg className='headerteamspace'>
                   <use xlinkHref='#headerteamspace' />
                 </svg>
@@ -306,7 +306,11 @@ class RechargeRecord extends Component{
                     list={teamspaces}
                     loading={false}
                     onChange={this.handleSpaceChange}
+                    getTooltipContainer={() => document.getElementById('RechargeRecord')}
                     selectValue={ currentSpaceName } />
+                </div>
+                <div className='setAlertBtn'>
+                  <Button icon="clock-circle-o" style={{float: 'right',fontSize: '14px'}} onClick={this.showModal}>设置提醒</Button>
                 </div>
               </div>
           }
