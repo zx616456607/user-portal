@@ -63,9 +63,9 @@ let AssitDeployBox = React.createClass({
               <div className="selectBox">
                 <FormItem>
                   <RadioGroup
-                    onChange={this.changeRunningCode}
                     {...getFieldProps('runningCode', {
-                      initialValue: '1'
+                      initialValue: '1',
+                      onChange: this.changeRunningCode
                     }) }
                     >
                     <Radio key="a" value={"1"}>镜像默认</Radio>
