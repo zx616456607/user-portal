@@ -7,8 +7,8 @@
  * v0.1 - 2016-09-07
  * @author Zhangpc
  */
-import { mode } from '../../configs/model'
-import { STANDARD_MODE } from '../../configs/constants'
+import { NODE_ENV_PROD } from '../../configs/constants'
+const NODE_ENV = process.env.NODE_ENV
 
 export const API_URL_PREFIX = '/api/v2'
 export const DEFAULT_IMAGE_POOL = 'k8s-pool'
@@ -34,5 +34,5 @@ export const MY_SPACE = {
   teamID: "default",
 }
 export const MAX_LOGS_NUMBER = 500
-export const MIN_PAY_AMOUNT = (mode === STANDARD_MODE ? 0.01 : 5)
-export const PAY_AMOUNT_STEP = (mode === STANDARD_MODE ? 0.01 : 1)
+export const MIN_PAY_AMOUNT = (NODE_ENV === NODE_ENV_PROD ? 5 : 0.01)
+export const PAY_AMOUNT_STEP = (NODE_ENV === NODE_ENV_PROD ? 1 : 0.01)
