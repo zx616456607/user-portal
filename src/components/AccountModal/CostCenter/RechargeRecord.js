@@ -284,6 +284,7 @@ class RechargeRecord extends Component{
                         list={teamspaces}
                         onChange={this.handleSpaceChange}
                         loading={false}
+                        special={true}
                         popTeamSelect={true} />
                     }>
                     <span>{currentTeamName === '' ? '我的团队':currentTeamName} <Icon type='down' style={{ fontSize: '8px' }}/></span>
