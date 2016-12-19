@@ -28,7 +28,7 @@ module.exports = function (Router) {
 
   // Invite
   router.get('/teams/invite', indexCtl.index)
-  router.get('/teams/invitations/:code', teamController.getInvitationInfo)
+  router.get('/teams/invitations', teamController.getInvitationInfo)
 
   // Payment
   router.post('/payments/alipay/notify', alipayController.notify)
