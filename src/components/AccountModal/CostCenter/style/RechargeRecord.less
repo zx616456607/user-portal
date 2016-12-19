@@ -2,7 +2,7 @@
   .lineBtn {
     font-size: 13px;
   }
-  .selectSpace {
+  /* .selectSpace {
     display: flex;
     display: -webkit-flex;
     -webkit-align-items: center;
@@ -22,6 +22,31 @@
     height: 12px;
     margin-right: 8px;
     margin-top: 3px;
+  } */
+  .selectSpace {
+    margin-bottom: 20px;
+    .rechargeHeader {
+      display: flex;
+      align-items: center;
+    }
+    .popSelect {
+      display: inline-block;
+      cursor: pointer;
+    }
+    .popTeamSelect {
+      display: inline-block;
+      cursor: pointer;
+    }
+    svg {
+      float: left;
+      width: 12px;
+      height: 12px;
+      margin-right: 8px;
+      margin-top: 3px;
+    }
+    .setAlertBtn {
+      flex:1;
+    }
   }
   .RechargeTable {
     .ant-table-thead > tr > th {
@@ -53,19 +78,5 @@
       border-style: dashed;
       border-color: #82d6fb;
     }
-  }
-  .ant-btn {
-    width: 80px;
-    height: 36px;
-    border-radius: 3px;
-    font-weight: normal;
-    border: none;
-    &:hover {
-      border: none;
-    }
-  }
-  .ant-btn-ghost {
-    background-color: #efefef;
-    color: #717171;
   }
 }

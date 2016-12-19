@@ -146,3 +146,43 @@ export function serviceNameCheck(name, itemName, existNameFlag) {
   return 'success';
 }
 
+/**
+ * this function for create app service env check
+ */
+export function appEnvCheck(name, itemName, existNameFlag) {
+  //name for check, itemName for show, existNameFlag for show existed
+  let errorMsg = '';
+  //null check
+  if(!name || name.length == 0) {
+    errorMsg = '请输入' + itemName;
+    return errorMsg;
+  }
+  //a-zA-Z start check
+  let startCheck = new RegExp('^[A-Za-z_]{1}');
+  if(!startCheck.test(name)) {
+    errorMsg = '请以字母或下划线开头';
+    return errorMsg;
+  }
+  //a-zA-Z0-9_- body check
+  let bodyCheck = new RegExp('^[A-Za-z_]{1}[A-Za-z0-9_]*$');
+  if(!bodyCheck.test(name)) {
+    errorMsg = '由字母、数字、下划线_组成';
+    return errorMsg;
+  }
+  //min length check
+  if(name.length < 3) {
+    errorMsg = '请输入3个以上字符';
+    return errorMsg;
+  }
+  //existName check
+  if(!!existNameFlag) {
+    errorMsg = itemName + '已经存在';
+    return errorMsg;
+  }
+  //max length check
+  if(name.length > 63) {
+    errorMsg = '不能超过63个字符';
+    return errorMsg;
+  }
+  return 'success';
+}
