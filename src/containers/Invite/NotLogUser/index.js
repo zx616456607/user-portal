@@ -39,7 +39,7 @@ let NotLogUser = React.createClass({
   
   handleSubmit(e) {
     e.preventDefault()
-    const { form, redirect } = this.props
+    const { form, redirect, registerUserAndJoinTeam, code } = this.props
     const { validateFields, resetFields } = form
     const self = this
     validateFields((errors, values) => {
@@ -54,14 +54,40 @@ let NotLogUser = React.createClass({
       })
       const body = {
         password: values.password,
-        captcha: values.captcha
-      }
-      if (values.name.indexOf('@') > -1) {
-        body.email = values.name
-      } else {
-        body.username = values.name
+        captcha: values.captcha,
+        userName: values.userName,
+        phone: values.tel,
+        email: this.props.email,
+        code
       }
       //注册req:
+      registerUserAndJoinTeam(body, {
+        success: {
+          func: (result) => {
+            self.setState({
+              submitting: false,
+              submitProps: {},
+            })
+            message.success(`注册并加入团队成功`)
+            browserHistory.push('/')
+            resetFields()
+          },
+          isAsync: true
+        },
+        failed: {
+          func: (err) => {
+            let msg = err.message.message || err.message
+            self.setState({
+              submitting: false,
+              loginResult: {
+                error: msg
+              },
+              submitProps: {},
+            })
+          },
+          isAsync: true
+        },
+      })
     })
   },
 
@@ -254,10 +280,10 @@ let NotLogUser = React.createClass({
       ],
     })
     const captchaProps = getFieldProps('captcha', {
-      rules: [
+      /*rules: [
         { required: true, message: '请填写验证码' },
         { validator: this.checkCaptcha },
-      ],
+      ],*/
     })
 
     const formItemLayout = {
