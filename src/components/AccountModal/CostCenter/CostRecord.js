@@ -354,7 +354,7 @@ class CostRecord extends Component{
           axisPointer : {
             type : 'shadow'
           },
-          formatter: standard ? (_this.transformDate()+'-{b}<br/>消费 ￥{c}') : ( _this.transformDate()+'-{b}<br/>消费 {c}T币'),
+          formatter: standard ? (_this.transformDate() + '-{b}<br/>消费 ￥{c}') : ( _this.transformDate() + '-{b}<br/>消费 {c}T币'),
           textStyle: {
             color: '#46b2fa',
             fontSize: 12,

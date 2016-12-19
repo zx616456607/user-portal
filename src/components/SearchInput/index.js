@@ -29,7 +29,7 @@ class SearchInput extends Component{
   handleInt(e){
     let { searchIntOption } = this.props
     const { selecteValue } = this.state
-    const { addBefore, defaultValue,defaultSearchValue } = searchIntOption
+    const { addBefore, defaultValue, defaultSearchValue } = searchIntOption
     let value = ''
     if(addBefore){
       value = defaultValue ? defaultValue : addBefore[0].key
@@ -62,7 +62,7 @@ class SearchInput extends Component{
     let { scope,total } = this.props
     const { searchResult, pageSize, sort } = scope.state
     let filter = this.getFilterField(selecteValue) + "," + searchValue
-    if (selecteValue == "team") {
+    if (selecteValue === "team") {
       this.props.loadUserTeamList('default', {
         size: pageSize,
         page: 1,
@@ -71,6 +71,7 @@ class SearchInput extends Component{
       },{
         success:{
           func: () => {
+            console.log('filter',filter)
             scope.setState({
               page: 1,
               current: 1,
