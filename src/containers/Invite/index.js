@@ -15,6 +15,7 @@ import { USERNAME_REG_EXP, EMAIL_REG_EXP } from '../../../constants'
 import NotLogUser from './NotLogUser'
 import LogInUser from './LogInUser'
 import { getInvitationInfo, joinTeam } from '../../actions/team'
+import { registerUserAndJoinTeam } from '../../actions/user'
 import { login } from '../../actions/entities'
 
 function noop() {
@@ -34,7 +35,7 @@ let Invite = React.createClass({
   },
   render() {
     const { loginResult } = this.state
-    const { email,teamName,code,isUser, login, joinTeam, invitationStatus } = this.props
+    const { email,teamName,code,isUser, login, joinTeam, registerUserAndJoinTeam, invitationStatus } = this.props
     let state = 2
     return (
       <div id="InvitePage">
@@ -58,7 +59,7 @@ let Invite = React.createClass({
             {
               isUser ?
               <LogInUser email={email} login={login} joinTeam={joinTeam} code={code} invitationStatus={invitationStatus}/>:
-              <NotLogUser email={email} joinTeam={joinTeam} code={code} invitationStatus={invitationStatus} />
+              <NotLogUser email={email} registerUserAndJoinTeam={registerUserAndJoinTeam} joinTeam={joinTeam} code={code} invitationStatus={invitationStatus} />
             }
             {
               isUser ?
@@ -121,6 +122,7 @@ Invite = connect(mapStateToProps, {
   getInvitationInfo,
   login,
   joinTeam,
+  registerUserAndJoinTeam,
 })(Invite)
 
 export default Invite
