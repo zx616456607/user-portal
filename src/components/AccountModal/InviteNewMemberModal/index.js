@@ -27,7 +27,6 @@ export default class InviteNewMemberModal extends Component{
     this.handleChangeInput = this.handleChangeInput.bind(this)
     this.renderInput = this.renderInput.bind(this)
     this.renderTag = this.renderTag.bind(this)
-    this.defaultPasteSplit = this.defaultPasteSplit.bind(this)
     this.state = {
       valueArr: [],
       disabled: false,
@@ -94,8 +93,7 @@ export default class InviteNewMemberModal extends Component{
     valueArr.length -= 1
     valueArr.map((item,index) => {
       if(EMAIL_REG_EXP.test(item)){
-        console.log('item',item);
-      
+        console.log('item',item)
       } else {
         console.log('err item',item);
         valuesArr.push(
@@ -161,14 +159,10 @@ export default class InviteNewMemberModal extends Component{
     }
   }
   renderInput (props) {
-    let {onChange, value, addTag,pasteSplit, ...other} = props
+    let {onChange, value, addTag, ...other} = props
     return (
-      <input type='text' onChange={onChange} value={value} pasteSplit={pasteSplit} {...other} />
+      <input type='text' onChange={onChange} value={value} {...other} />
     )
-  }
-  defaultPasteSplit (data) {
-    console.log('data',data);
-    return data.split(';').map(d => d.trim())
   }
   render(){
     const { visible } = this.props
@@ -201,7 +195,10 @@ export default class InviteNewMemberModal extends Component{
                      renderTag={this.renderTag}
                      renderInput={this.renderInput}
                      inputProps={{className: 'react-tagsinput-input', placeholder: ''}}
-                     pasteSplit={this.defaultPasteSplit}
+                     pasteSplit={(data) => {
+                      console.log('data',data)
+                      return data.split(' ').map(d => d.trim())
+                     }}
           />
         </div>
       </Modal>
