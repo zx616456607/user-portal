@@ -13,6 +13,7 @@ import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import "./style/EnviroDeployBox.less"
+import { appEnvCheck } from '../../../../common/naming_validation'
 const createForm = Form.create;
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
@@ -68,6 +69,15 @@ let MyComponentEnviro = React.createClass({
       envKey,
     });
   },
+  envCheck(rule, value, callback) {
+    //this function for check env name is right or not
+    let errorMsg = appEnvCheck(value, '环境变量');
+    if(errorMsg == 'success') {
+      callback()
+    } else {
+      callback(new Error([errorMsg]));
+    }
+  },
   render: function () {
     const { form } = this.props
     const { getFieldProps, getFieldValue, getFieldsValue } = form;
@@ -80,7 +90,11 @@ let MyComponentEnviro = React.createClass({
         <FormItem key={`env${k}`}>
           <li className="enviroDetail">
             <div className="input">
-              <Input {...getFieldProps(`envName${k}`, {}) } className="composeUrl" type="text" />
+              <FormItem>
+                <Input {...getFieldProps(`envName${k}`, {
+                  rules: [{ validator: this.envCheck },],
+                }) } className="composeUrl" type="text" />
+              </FormItem>
             </div>
             <div className="input">
               <Input {...getFieldProps(`envValue${k}`, {}) } className="composeUrl" type="text" />
@@ -173,6 +187,10 @@ let MyComponentPort = React.createClass({
         })
         return
       } else {
+        if(value <= 0 || value > 65535) {
+          callback([new Error('指定端口号范围0 ~ 65535')])
+          return;
+        }
         let i = 0
         this.setState({
           addDis: false,
@@ -208,8 +226,8 @@ let MyComponentPort = React.createClass({
       return;
     } else {
       let tempPort  = parseInt(value);
-      if( tempPort < 1025 || tempPort > 65534 ) {
-        callback([new Error('指定端口号范围1024 ~ 65534')])
+      if( tempPort < 1025 || tempPort > 65535 ) {
+        callback([new Error('指定端口号范围1024 ~ 65535')])
         return;
       } else {       
         callback();
