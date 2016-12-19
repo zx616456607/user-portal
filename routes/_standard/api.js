@@ -15,7 +15,7 @@
 //////////////////////  Router for public cloud service = Standard Mode ///////////////////
 //////////////////////  Only login users can access                     ///////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////
-'use strict';
+'use strict'
 
 const middlewares = require('../../services/middlewares')
 const certificateController = require('../../controllers/_standard/certificate')
@@ -56,6 +56,7 @@ module.exports = function (Router) {
 
   // Get user account info
   router.get('/myaccount', userInfoController.getMyAccountInfo)
+  router.patch('/myaccount', userInfoController.changeUserInfo)
 
   // Get qiniu upload token
   router.get('/store/token', userInfoController.upTokenToQiniu)

@@ -10,15 +10,42 @@
 import React, { Component, PropTypes } from 'react'
 import { Button, Icon, Input, Tabs, Upload, Radio } from 'antd'
 import { connect } from 'react-redux'
+import { browserHistory }  from 'react-router'
+import { getQiNiuToken } from '../../../../actions/upload.js'
+import uploadFile from '../../../../common/upload.js'
 import './style/Authentication.less'
-const TabPane = Tabs.TabPane;
-const RadioGroup = Radio.Group;
+const TabPane = Tabs.TabPane
+const RadioGroup = Radio.Group
 // const ButtonGroup = Button.Group;
 
 //  个人认证
 class Indivduals extends Component {
   constructor(props) {
     super(props)
+  }
+  beforeUpload(file) {
+    const self = this
+    this.props.getQiNiuToken('certificate', file.name.trim(), {
+      success: {
+        func: (result)=> {
+          self.setState({
+            uptoken: result.upToken
+          })
+          uploadFile(file, {
+            url: result.url,
+            method: 'POST',
+            headers: {
+              ['content-type']: file.type
+            },
+            body: {
+              token: result.upToken,
+              file: file
+            }
+          })
+        }
+      }
+    })
+    return false
   }
   render() {
     const props = {
@@ -29,15 +56,15 @@ class Indivduals extends Component {
         name: 'xxx.png',
         status: 'done',
         url: 'https://os.alipayobjects.com/rmsportal/NDbkJhpzmLxtPhB.png',
-        thumbUrl: 'https://os.alipayobjects.com/rmsportal/NDbkJhpzmLxtPhB.png',
+        thumbUrl: 'https://os.alipayobjects.com/rmsportal/NDbkJhpzmLxtPhB.png'
       }],
       onPreview: (file) => {
         this.setState({
           priviewImage: file.url,
-          priviewVisible: true,
-        });
-      },
-    };
+          priviewVisible: true
+        })
+      }
+    }
     return (
       <div className="Indivduals">
         <div className="description">个人用户通过个人认证可获得5元代金券，请按照提示填写本人的真实照片</div>
@@ -60,7 +87,9 @@ class Indivduals extends Component {
             <p>
               <span className="key">手持身份证号 <span className="important">*</span></span>
               <div className="upload">
-                <Upload {...props}>
+                <Upload  beforeUpload={(file) => {
+                  this.beforeUpload(file)
+                }} customRequest={() => true }>
                   <Icon type="plus" />
                   <div className="ant-upload-text">上传照片</div>
                 </Upload>
@@ -75,7 +104,9 @@ class Indivduals extends Component {
             <p>
               <span className="key">身份证反面扫描 <span className="important">*</span></span>
               <div className="upload">
-                <Upload {...props}>
+                <Upload {...props} beforeUpload={ (file) =>
+                  this.beforeUpload(file)
+                }>
                   <Icon type="plus" />
                   <div className="ant-upload-text">上传照片</div>
                 </Upload>
@@ -97,6 +128,17 @@ class Indivduals extends Component {
     )
   }
 }
+
+function indivdualsMapStateToProp(state, props) {
+  return {
+    //token: state.upload.qiniuToken
+  }
+}
+
+Indivduals = connect(indivdualsMapStateToProp, {
+  getQiNiuToken
+})(Indivduals)
+
 // 企业 认证
 class Enterprise extends Component {
   constructor(props) {
@@ -117,14 +159,14 @@ class Enterprise extends Component {
         name: 'xxx.png',
         status: 'done',
         url: 'https://os.alipayobjects.com/rmsportal/NDbkJhpzmLxtPhB.png',
-        thumbUrl: 'https://os.alipayobjects.com/rmsportal/NDbkJhpzmLxtPhB.png',
+        thumbUrl: 'https://os.alipayobjects.com/rmsportal/NDbkJhpzmLxtPhB.png'
       }],
       onPreview: (file) => {
         this.setState({
           priviewImage: file.url,
-          priviewVisible: true,
-        });
-      },
+          priviewVisible: true
+        })
+      }
     }
 
     return (
@@ -226,20 +268,63 @@ class Enterprise extends Component {
   }
 }
 
+function enterpriseStateToProps(state, props) {
+  return {
+   // token: state.upload.qiniuToken
+  }
+}
+
+Enterprise = connect(enterpriseStateToProps, {
+  getQiNiuToken
+})(Enterprise)
+
+
 class Authentication extends Component {
   constructor(props) {
     super(props)
+    this.state= {
+      currentHash: '#cert-company'
+    }
   }
-
+  componentWillReceiveProps(nextProps) {
+     if(nextProps.hash === this.props.hash) {
+       return
+     }
+     this.setState({
+       currentHash: nextProps.hash
+     })
+  }
+  tabClick(e) {
+    console.log(e)
+    console.log(this.state.currentHash)
+    let hash = '#cert-company'
+    if(e === '2') {
+      hash = '#cert-user'
+    }
+    if(hash === this.state.currentHash) {
+      return
+    }
+    this.setState({
+      currentHash: hash
+    })
+    const { pathname } = this.props
+    browserHistory.push({
+      pathname,
+      hash
+    })
+  }
   render() {
-
+    const { hash } = this.props
+    let activeKey = '2'
+    if(hash.indexOf('company') >= 0) {
+      activeKey = '1'
+    }
     return (
-      <div className="Authentication">
-        <Tabs defaultActiveKey="2" type="card">
+      <div className="Authentication" >
+        <Tabs  type="card" activeKey={activeKey} onTabClick={(e) => this.tabClick(e)}> 
           <TabPane tab="企业用户" key="1"><Enterprise /></TabPane>
           <TabPane tab="个人用户" key="2"><Indivduals /></TabPane>
         </Tabs>
-
       </div>
     )
   }

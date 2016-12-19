@@ -74,6 +74,7 @@ class TeamCost extends Component{
       currentSpaceName,
       teamSummary,
       currentNamespace,
+      standard,
     } = this.props
     let teamCostTitle = (
       <div className="teamCostTitle">
@@ -102,9 +103,13 @@ class TeamCost extends Component{
           data: [{name:'余额'}, {name:'消费'}],
           formatter: function (name) {
             if(name === '余额'){
-              return name + '：￥ ' + balance
+              let balanceText = standard ? (name + '：￥ ' + balance) :
+                                          (name + '：' +balance + 'T币')
+              return balanceText
             } else {
-              return name + '：￥ ' + cost
+              let costText = standard ? (name + '：￥ ' + cost) :
+                                        (name + '：' + cost + 'T币')
+              return costText
             }
           },
           textStyle: {
@@ -178,7 +183,8 @@ class TeamCost extends Component{
           axisPointer : {
             type : 'shadow'
           },
-          formatter: _this.transformDate()+'-{b}<br/>消费 ￥{c}',
+          formatter: standard ? (_this.transformDate() + '-{b}<br/>消费 ￥{c}') :
+                                (_this.transformDate() + '-{b}<br/>消费 {c}T币'),
           textStyle: {
             color: '#46b2fa',
             fontSize: 12,
