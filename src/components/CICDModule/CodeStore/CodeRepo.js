@@ -130,7 +130,7 @@ const MyComponent = React.createClass({
     const { formatMessage } = this.props
     Modal.confirm({
       title: formatMessage(menusText.CancellationCode),
-      content: (<h3>formatMessage(menusText.sureCancellationCode))</h3>),
+      content: formatMessage(menusText.sureCancellationCode),
       onOk() {
         scope.props.deleteRepo(repoItem)
       },
