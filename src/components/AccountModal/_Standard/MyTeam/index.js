@@ -42,7 +42,7 @@ let TeamTable = React.createClass({
       sortRole: true,//我的角色排序
       addMember: false,//邀请新成员
       targetKeys: [],
-      sort: "role desc",//默认排序规则
+      sort: "d role",//默认排序规则
       filter: '',
       nowTeamID: '',//当前团队ID
       showDelModal: false,//解散团队
@@ -407,6 +407,7 @@ let TeamTable = React.createClass({
                 visible={this.state.nowTeamID === record.key && showDelModal}
                 closeDelTeamModal={this.closeDelTeamModal}
                 teamID={record.id}
+                teamName={record.name}
                 dissolveTeam={dissolveTeam}
                 loadUserTeamList={loadUserTeamList}
               />
@@ -502,9 +503,12 @@ class MyTeam extends Component {
     })
   }
   componentWillMount() {
+    document.title = '我的团队 | 时速云'
     this.props.loadUserTeamList('default', {
       page: 1,
       size: 5,
+      sort: "a,teamName",
+      filter: "",
     })
   }
   render() {
@@ -570,12 +574,14 @@ class MyTeam extends Component {
 }
 
 function mapStateToProp(state, props) {
+  console.log('state',state)
   let teamsData = {
     items:[],
   }
   let total = 0
   let teamUserIDList = []
   const teams = state.user.teams
+  
   if (!teams.isFetching && teams.result && teams.result.data && teams.result.data.data) {
     teamsData = teams.result.data.data
     teamsData.items.map((item) => {
@@ -588,7 +594,8 @@ function mapStateToProp(state, props) {
   }
   return {
     teams: teamsData,
-    total
+    total,
+    
   }
 }
 
