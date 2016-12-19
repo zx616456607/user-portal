@@ -262,10 +262,10 @@ class RechargeRecord extends Component{
     )
     return (
       <div id='RechargeRecord'>
-        <Card style={{marginBottom: '20px'}}>
+        <Card style={{marginBottom: '20px'}} className='selectSpace'>
           {
             standard ?
-              <div>
+              <div style={{overflow:'hidden'}}>
                 <svg className='headerteamspace'>
                   <use xlinkHref='#headerteamspace' />
                 </svg>
@@ -288,6 +288,9 @@ class RechargeRecord extends Component{
                     }>
                     <span>{currentTeamName === '' ? '我的团队':currentTeamName} <Icon type='down' style={{ fontSize: '8px' }}/></span>
                   </Popover>
+                </div>
+                <div className='setAlertBtn'>
+                  <Button icon="clock-circle-o" style={{float: 'right',fontSize: '14px'}} onClick={this.showModal}>设置提醒</Button>
                 </div>
               </div>:
               <div>
