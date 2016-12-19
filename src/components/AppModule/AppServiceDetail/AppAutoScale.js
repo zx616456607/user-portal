@@ -68,16 +68,22 @@ class AppAutoScale extends Component {
 
   handleMinReplicas(value) {
     const { maxReplicas } = this.state
+    if (value >= maxReplicas) {
+      value -= 1
+    }
     this.setState({
       minReplicas: value,
-      maxReplicas: (value > maxReplicas ? value : maxReplicas),
+      maxReplicas: (value >= maxReplicas ? value + 1 : maxReplicas),
     })
   }
 
   handleMaxReplicas(value) {
     const { minReplicas } = this.state
+    if (value <= minReplicas) {
+      value += 1
+    }
     this.setState({
-      minReplicas: (value < minReplicas ? value : minReplicas),
+      minReplicas: (value <= minReplicas ? value -1 : minReplicas),
       maxReplicas: value,
     })
   }

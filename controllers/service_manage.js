@@ -217,7 +217,7 @@ exports.autoScaleService = function* () {
     throw err
   }
   if (min >= max) {
-    const err = new Error('max must be lager then min.')
+    const err = new Error('max must be bigger then min.')
     err.status = 400
     throw err
   }
