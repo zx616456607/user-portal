@@ -72,7 +72,6 @@ class Notify {
         }
         yield next
       } catch (err) {
-        console.log(err.stack)
         _this.fail.apply(this, [err, _this])
       }
     }

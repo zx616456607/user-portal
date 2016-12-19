@@ -20,7 +20,7 @@ export const WECHAT_PAY_QR_CODE_FAILURE = 'WECHAT_PAY_QR_CODE_FAILURE'
 
 // Fetches wechat pay qr code from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchWechatPayQrCode(amount) {
+function fetchWechatPayQrCode(amount, teamspace) {
   let endpoint = `${API_URL_PREFIX}/payments/wechat_pay`
   /*if (query) {
     endpoint += `?${toQuerystring(query)}`
@@ -33,7 +33,8 @@ function fetchWechatPayQrCode(amount) {
         method: 'POST',
         body: {
           amount
-        }
+        },
+        headers: { teamspace }
       },
       schema: {}
     }
@@ -42,9 +43,9 @@ function fetchWechatPayQrCode(amount) {
 
 // Fetches wechat pay qr code from API
 // Relies on Redux Thunk middleware.
-export function getWechatPayQrCode(amount) {
+export function getWechatPayQrCode(amount, teamspace) {
   return (dispatch) => {
-    return dispatch(fetchWechatPayQrCode(amount))
+    return dispatch(fetchWechatPayQrCode(amount, teamspace))
   }
 }
 
@@ -54,7 +55,7 @@ export const WECHAT_PAY_ORDER_FAILURE = 'WECHAT_PAY_ORDER_FAILURE'
 
 // Fetches wechat pay order from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchWechatPayOrder(orderId, query) {
+function fetchWechatPayOrder(orderId, teamspace, query) {
   let endpoint = `${API_URL_PREFIX}/payments/wechat_pay/${orderId}`
   if (query) {
     endpoint += `?${toQuerystring(query)}`
@@ -63,6 +64,9 @@ function fetchWechatPayOrder(orderId, query) {
     [FETCH_API]: {
       types: [WECHAT_PAY_ORDER_REQUEST, WECHAT_PAY_ORDER_SUCCESS, WECHAT_PAY_ORDER_FAILURE],
       endpoint,
+      options: {
+        headers: { teamspace }
+      },
       schema: {}
     }
   }
@@ -70,8 +74,8 @@ function fetchWechatPayOrder(orderId, query) {
 
 // Fetches wechat pay order from API
 // Relies on Redux Thunk middleware.
-export function getWechatPayOrder(orderId, query) {
+export function getWechatPayOrder(orderId, teamspace, query) {
   return (dispatch) => {
-    return dispatch(fetchWechatPayOrder(orderId, query))
+    return dispatch(fetchWechatPayOrder(orderId, teamspace, query))
   }
 }
