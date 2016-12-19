@@ -25,13 +25,12 @@ const logger = require('../../utils/logger.js').getLogger('alipay')
 //   logger.info('trade_success', `out_trade_no:${out_trade_no}, trade_no:${trade_no}`)
 // })
 
-//TODO 错误格式标准化
 
 exports.rechare = function* () {
   const method = 'rechare'
   const user = this.session.loginUser
-  let paymentAmount = this.query.paymentAmount
-  const teamspace = this.query.teamspace
+  let paymentAmount = this.body.paymentAmount
+  const teamspace = this.body.teamspace
   if(!paymentAmount) {
 				const error = new Error('paymentAmount is necessary')
     error.status = 400

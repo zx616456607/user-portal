@@ -41,8 +41,8 @@ function standardUserDetail(state = {}, action) {
     }
     case ActionTypes.USER_CHANGE_USERINFO_SUCCESS: {
       const resultState = cloneDeep(state)
-      if(action.body.email) {
-        resultState.result.userInfo.email = action.body.emial
+      if(action.body.newEmail) {
+        resultState.userInfo.email = action.body.newEmail
       }
       return resultState
     }

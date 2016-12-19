@@ -71,7 +71,7 @@ let EmailRow = React.createClass({
             notification.close()
             notification.success('修改邮箱成功')
             scope.setState({
-              editEmall: false
+              editEmail: false
             })
           }
         },

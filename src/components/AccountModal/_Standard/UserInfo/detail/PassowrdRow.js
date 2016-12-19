@@ -10,6 +10,7 @@
 import React, { Component, PropTypes } from 'react'
 import { Form, Input, Button, Row, Col } from 'antd'
 import classNames from 'classnames'
+import { connect } from 'react-redux'
 import { changeUserInfo } from '../../../../../actions/user.js'
 import NotificationHandler from '../../../../../common/notification_handler'
 
@@ -78,7 +79,6 @@ let PasswordRow = React.createClass({
     }
   },
   passwordExists(rule, values, callback) {
-    console.log('values', values)
     if (!values) {
       callback([new Error('请输入当前密码')])
       return
@@ -119,7 +119,6 @@ let PasswordRow = React.createClass({
     return
   },
   againPasswordExists(rule, values, callback) {
-    console.log('passs', rule, values)
     const form = this.props.form
     this.getPassStrenth(values, 'newPass')
 
@@ -128,7 +127,7 @@ let PasswordRow = React.createClass({
       return
     }
 
-    if (values && values !== form.getFieldValue('newPass')) {
+    if (values && values !== form.getFieldValue('newpassword')) {
       callback('两次输入密码不一致！')
       return
     } else {
@@ -138,9 +137,10 @@ let PasswordRow = React.createClass({
   },
   handPsd(e) {
     e.preventDefault()
-    const {form } = this.props
-				const scope = this.props.scope
+    const {form, changeUserInfo } = this.props
+		const scope = this.props.scope
     form.validateFields(['password', 'newpassword', 'againpassword'], (errors, values) => {
+      console.log(errors)
       if (errors) {
         return errors
       }
@@ -229,5 +229,10 @@ let PasswordRow = React.createClass({
 })
 
 PasswordRow = createForm()(PasswordRow)
+function mapStateToProps(state, props) {
+		return props
+}
 
-export default PasswordRow
+export default connect(mapStateToProps, {
+  changeUserInfo
+})(PasswordRow)

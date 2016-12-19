@@ -80,9 +80,10 @@ exports.changeUserInfo = function* () {
     updateBody.password = newPassword
   }
   if(newEmail) {
-    updateBody.email = email
+    updateBody.email = newEmail
   }
   const api = apiFactory.getApi(user)
+  console.log(updateBody)
   const apiResult = yield api.users.patchBy([user.id], null, updateBody)
   this.status = apiResult.statusCode
   this.body = apiResult
