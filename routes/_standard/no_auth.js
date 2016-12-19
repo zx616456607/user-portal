@@ -22,6 +22,7 @@ const teamController = require('../../controllers/_standard/team')
 const alipayController = require('../../controllers/_standard/alipay')
 const wechatPayController = require('../../controllers/_standard/wechat_pay')
 const wechatPayMiddleware = require('../../pay/wechat_pay').middleware
+const mobileCaptchaController = require('../../controllers/_standard/mobile_captcha')
 
 module.exports = function (Router) {
   const router = new Router({})
@@ -37,6 +38,9 @@ module.exports = function (Router) {
     wechatPayMiddleware(wechatPayController.getInitConfig()).getNotify().done(),
     wechatPayController.notify
   )
+
+  // send moblie captcha
+  router.post('/regist/mobileCaptchas', mobileCaptchaController.sendCaptcha)
 
   return router.routes()
 }
