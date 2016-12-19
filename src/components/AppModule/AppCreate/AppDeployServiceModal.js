@@ -204,6 +204,7 @@ let AppDeployServiceModal = React.createClass({
     })
   },
   componentWillMount() {
+    document.title = '部署应用 | 时速云'
     if (!this.props.scope.state.isCreate) {
       this.setForm()
     }
@@ -491,7 +492,6 @@ let AppDeployServiceModal = React.createClass({
       Service: serviceList,
       Deployment: deploymentList,
     }
-    console.log(serviceConfig)
     const newService = { id: serviceName, name: serviceName, imageName: image, resource: ImageConfig.cal, inf: serviceConfig }
     const newList = parentScope.state.servicesList
     const newSeleList = parentScope.state.selectedList
