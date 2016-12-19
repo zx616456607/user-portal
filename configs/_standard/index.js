@@ -17,10 +17,10 @@ const config = {
     key: 'TenxCloud-System-Signature',
     value: '8e059c94-f760-4f85-8910-f94c27cf0ff5'
   },
-  ihuyi: {
-    host: 'http://106.ihuyi.cn/webservice/sms.php?method=Submit',
-    account: env.USERPORTAL_IHUYI_ACCOUNT,
-    pwd: env.USERPORTAL_IHUYI_PWD,
+  sms: {
+    host: 'http://106.ihuyi.cn/webservice/sms.php',
+    account: env.USERPORTAL_IHUYI_ACCOUNT || 'cf_huangqg',
+    pwd: env.USERPORTAL_IHUYI_PWD || 'Dream008',
   },
 }
 
