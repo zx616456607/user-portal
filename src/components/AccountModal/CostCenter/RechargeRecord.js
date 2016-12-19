@@ -170,9 +170,9 @@ class RechargeRecord extends Component{
       return items
       }
       items.map(function(item) {
-        item.before = (item.before / 100).toFixed(2) + 'T'
-        item.charge = (item.charge / 100).toFixed(2) + 'T'
-        item.after = (item.after / 100).toFixed(2) + 'T'
+        item.before = (item.before / 100).toFixed(2) + 'T币'
+        item.charge = (item.charge / 100).toFixed(2) + 'T币'
+        item.after = (item.after / 100).toFixed(2) + 'T币'
         item.time = moment(item.time).format('YYYY-MM-DD HH:mm:ss')
       })
       return items

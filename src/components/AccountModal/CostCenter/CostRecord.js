@@ -201,7 +201,7 @@ class CostRecord extends Component{
           axisPointer: {
             animation: false
           },
-          formatter: '{b}<br/>消费 ￥{c}',
+          formatter: standard ? '{b}<br/>消费 ￥{c}' : '{b}<br/>消费 {c}T币',
           textStyle: {
             color: '#666',
             fontSize: 12,
@@ -354,7 +354,7 @@ class CostRecord extends Component{
           axisPointer : {
             type : 'shadow'
           },
-          formatter: _this.transformDate()+'-{b}<br/>消费 ￥{c}',
+          formatter: standard ? (_this.transformDate()+'-{b}<br/>消费 ￥{c}') : ( _this.transformDate()+'-{b}<br/>消费 {c}T币'),
           textStyle: {
             color: '#46b2fa',
             fontSize: 12,
@@ -433,8 +433,8 @@ class CostRecord extends Component{
       }
       items.map(function(item) {
         item.type = typeMap[item.type]
-        item.unitPrice = '￥ ' + (item.unitPrice / 100).toFixed(2)
-        item.amount = '￥ ' + (item.amount / 100).toFixed(2)
+        item.unitPrice = (item.unitPrice / 100).toFixed(2) + 'T币'
+        item.amount = (item.amount / 100).toFixed(2) + 'T币'
         item.startTime = formatDate(item.startTime)
       })
       return items
@@ -563,7 +563,7 @@ class CostRecord extends Component{
         </Card>
         {
           (loginUser.info.role === 1 && currentTeamName)?
-          <TeamCost currentSpaceName = {currentSpaceName} currentTeamName={currentTeamName} currentNamespace={currentNamespace} />:
+          <TeamCost currentSpaceName = {currentSpaceName} currentTeamName={currentTeamName} currentNamespace={currentNamespace} standard={standard}/>:
           <div></div>
         }
         <Row gutter={16} className='currentMonth'>
@@ -572,7 +572,7 @@ class CostRecord extends Component{
               <Col span={10}>
                   <ReactEcharts
                     notMerge={true}
-                    option={getSpaceMonthCost(spaceSummary.balance, spaceSummary.consumption)}
+                    option={getSpaceMonthCost(spaceSummary.balance, spaceSummary.consumption,standard)}
                     style={{height:170}}
                   />
               </Col>
@@ -596,8 +596,15 @@ class CostRecord extends Component{
                     spaceSummary.clusterConsumptions.map((item) => {
                       return (
                         <Row className="teamCostItem">
-                          <Col span={16} style={{paddingLeft:40}}>{item.name}</Col>
-                          <Col span={8} style={{paddingLeft:10}}>{ isNaN(item.sum) ? item.sum : '￥ ' + item.sum/100}</Col>
+                          <Col span={16} style={{paddingLeft:60}}>{item.name}</Col>
+                          <Col span={8} style={{paddingLeft:20}}>
+                            {
+                              isNaN(item.sum) ? '-' :
+                                standard ? '￥ ' + item.sum/100 :
+                                           item.sum/100 + 'T币'
+                                                
+                            }
+                          </Col>
                         </Row>
                       )
                     })
@@ -637,7 +644,7 @@ class CostRecord extends Component{
 }
 
 
-function getSpaceMonthCost(balance, cost) {
+function getSpaceMonthCost(balance, cost, standard) {
     balance = (balance || 0) / 100
     cost = (cost || 0) / 100
     return {
@@ -656,9 +663,13 @@ function getSpaceMonthCost(balance, cost) {
         data:['余额','消费'],
         formatter: function (name) {
           if(name === '余额'){
-            return name + '：￥ ' + balance
-          } else if (name === '消费') {
-            return name + '：￥ ' + cost
+            let balanceText = standard ? (name + '：￥ ' + balance) :
+                                        (name + '：' +balance + 'T币')
+            return balanceText
+          } else {
+            let costText = standard ? (name + '：￥ ' + cost) :
+                                      (name + '：' + cost + 'T币')
+            return costText
           }
         },
         textStyle: {
