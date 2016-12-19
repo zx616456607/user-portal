@@ -263,7 +263,7 @@ class RechargeRecord extends Component {
     )
     return (
       <div id='RechargeRecord'>
-        <Card style={{ marginBottom: '20px' }} className='selectSpace'>
+        <Card className='selectSpace'>
           {
             standard ?
               <div className='rechargeHeader'>
@@ -275,9 +275,7 @@ class RechargeRecord extends Component {
                     title='选择团队帐户'
                     placement="bottomLeft"
                     trigger='click'
-                    overlayClassName='standardPopTeamOver'
-                    onVisibleChange={this.popTeamChange}
-                    getTooltipContainer={() => document.getElementById('RechargeRecord')}
+                    getTooltipContainer={() => document.getElementById('CostCenter')}
                     visible={teamListVisible}
                     onVisibleChange={this.handleTeamListVisibleChange}
                     content={

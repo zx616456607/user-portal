@@ -95,7 +95,7 @@ export const USER_TEAM_LIST_FAILURE = 'USER_TEAM_LIST_FAILURE'
 
 // Fetches team list from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchUserTeamList(userID, query) {
+function fetchUserTeamList(userID, query,callback) {
   let endpoint = `${API_URL_PREFIX}/users/${userID}/teams`
   if (query) {
     endpoint += `?${toQuerystring(query)}`
@@ -105,15 +105,16 @@ function fetchUserTeamList(userID, query) {
       types: [USER_TEAM_LIST_REQUEST, USER_TEAM_LIST_SUCCESS, USER_TEAM_LIST_FAILURE],
       endpoint,
       schema: {}
-    }
+    },
+    callback
   }
 }
 
 // Fetches team list from API unless it is cached.
 // Relies on Redux Thunk middleware.
-export function loadUserTeamList(userID, query, requiredFields = []) {
+export function loadUserTeamList(userID, query, callback) {
   return (dispatch, getState) => {
-    return dispatch(fetchUserTeamList(userID, query))
+    return dispatch(fetchUserTeamList(userID, query, callback))
   }
 }
 
