@@ -36,7 +36,8 @@ class UserPay extends Component {
       qrCode: {
         url: '',
       },
-      amount: null,
+      amount: 100,
+      otherMoney: true, // 其他金额
       balance: 0,
       rechargeTarget: {
         loading: false,
@@ -115,6 +116,7 @@ class UserPay extends Component {
 
   handlePayClick(e) {
     const { payType, amount } = this.state
+    console.log(amount)
     if (!amount) {
       e.preventDefault()
       document.getElementById('inputAmount').focus()
@@ -208,6 +210,17 @@ class UserPay extends Component {
     )
   }
 
+  setAmount(amount) {
+    let otherMoney = true
+    if (!amount) {
+      otherMoney = false
+    }
+    this.setState({
+      amount,
+      otherMoney
+    })
+  }
+
   render() {
     const { teamName } = this.props
     let { payType, qrCode, amount, balance, rechargeTarget } = this.state
@@ -234,19 +247,49 @@ class UserPay extends Component {
           </p>
           <p>
             <span className="keys">充值金额</span>
-            <InputNumber
-              id="inputAmount"
-              size="large"
-              style={{ width: '200px' }}
-              placeholder={`单笔充值金额最少 ${MIN_PAY_AMOUNT} 元`}
-              defaultValue=''
-              step={PAY_AMOUNT_STEP}
-              min={MIN_PAY_AMOUNT}
-              onChange={(value) => {
-                this.setState({
-                  amount: value
-                })
-              } } />
+            <div className={ this.state.amount =='100' ? 'pushMoney selected' :'pushMoney'} onClick={()=>this.setAmount(100)}>
+              <span>100</span>
+              <div className="triangle"></div>
+              <Icon type="check" />
+            </div>
+            <div className={ this.state.amount =='200' ? 'pushMoney selected' :'pushMoney'} onClick={()=>this.setAmount(200)}>
+              <span>200</span>
+              <div className="triangle"></div>
+              <Icon type="check" />
+            </div>
+            <div className={ this.state.amount =='300' ? 'pushMoney selected' :'pushMoney'} onClick={()=>this.setAmount(300)}>
+              <span>300</span>
+              <div className="triangle"></div>
+              <Icon type="check" />
+            </div>
+            <div className={ this.state.amount =='400' ? 'pushMoney selected' :'pushMoney'} onClick={()=>this.setAmount(400)}>
+              <span>400</span>
+              <div className="triangle"></div>
+              <Icon type="check" />
+            </div>
+            <div className={ this.state.amount =='500' ? 'pushMoney selected' :'pushMoney'} onClick={()=>this.setAmount(500)}>
+              <span>500</span>
+              <div className="triangle"></div>
+              <Icon type="check" />
+            </div>
+            <Button size="large" onClick={()=>this.setAmount(false)} style={{marginRight:'10px'}}>其他金额</Button>
+            {
+              !this.state.otherMoney ?
+              <InputNumber
+                id="inputAmount"
+                size="large"
+                style={{ width: '200px' }}
+                placeholder={`单笔充值金额最少 ${MIN_PAY_AMOUNT} 元`}
+                defaultValue=''
+                step={PAY_AMOUNT_STEP}
+                min={MIN_PAY_AMOUNT}
+                onChange={(value) => {
+                  this.setState({
+                    amount: value
+                  })
+                } } />
+              :null
+            }
           </p>
           <p>
             <span className="keys">充值方式</span>

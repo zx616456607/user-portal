@@ -14,7 +14,7 @@ import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import InviteNewMemberModal from '../../InviteNewMemberModal'
 import { loadUserTeamList } from '../../../../actions/user'
-import { loadTeamUserListStd, removeTeamusersStd, cancelInvitation, dissolveTeam } from '../../../../actions/team'
+import { loadTeamUserListStd, removeTeamusersStd, cancelInvitation, dissolveTeam, sendInvitation } from '../../../../actions/team'
 import DelTeamModal from '../../DelTeamModal'
 
 const confirm = Modal.confirm;
@@ -240,7 +240,7 @@ class TeamDetail extends Component {
   render() {
     const scope = this
     let { sortedInfo, filteredInfo, sortMemberName, sort,filter, showInviteModal, showDelModal} = this.state
-    const { teamName, teamID, currentRole, teamUserList, dissolveTeam, loadUserTeamList} = this.props
+    const { teamName, teamID, currentRole, teamUserList, dissolveTeam, loadUserTeamList, sendInvitation } = this.props
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}
     
@@ -275,6 +275,7 @@ class TeamDetail extends Component {
                   visible={ showInviteModal }
                   closeInviteModal={this.closeInviteModal}
                   teamID={teamID}
+                  sendInvitation={this.props.sendInvitation}
                 />
                 <Button icon='logout' className='delTeamBtn' onClick={() => this.handleDelTeam(teamID)}>
                   解散团队
@@ -370,4 +371,5 @@ export default connect(mapStateToProp, {
   cancelInvitation,
   loadUserTeamList,
   dissolveTeam,
+  sendInvitation,
 })(TeamDetail)
