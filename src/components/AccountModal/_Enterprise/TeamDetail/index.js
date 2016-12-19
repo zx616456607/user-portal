@@ -705,7 +705,7 @@ function mapStateToProp(state, props) {
             name: item.userName,
             tel: item.phone,
             email: item.email,
-            style: item.role === 0 ? '普通成员' : '系统管理员',
+            style: item.role === 0 ? '普通成员' : '团队管理员',
           }
         )
         teamUserIDList.push(item.userID)

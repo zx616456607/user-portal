@@ -7,7 +7,7 @@
   .ant-tabs-bar{
     border: 0;
   }
-  .ant-tabs.ant-tabs-card > .ant-tabs-bar{
+  > .ant-tabs.ant-tabs-card > .ant-tabs-bar{
     .ant-tabs-tab{
       margin:0;transition:none;-webkit-transition:none;
     }
@@ -29,6 +29,16 @@
   }
 }
 .Indivduals{
+  .ant-tabs-nav{
+    text-align: left;
+  }
+  .ant-tabs-nav .ant-tabs-tab-disabled .ant-tabs-tab-inner{color: #666;padding:0;}
+  .ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab{
+    border:none;
+    background: none;
+  }
+  .ant-tabs-nav .ant-tabs-tab-active .ant-tabs-tab-inner{color: #666;&:hver{color: #666}}
+  .ant-tabs-nav .ant-tabs-tab-inner:hover{color: #666}
   .important{
     font-size: 20px;color: red;vertical-align: -webkit-baseline-middle;vertical-align: middle;
   }
@@ -38,7 +48,7 @@
   }
   .auth-status{
     line-height: 50px;
-    img{width: 30px;vertical-align: middle;}
+    .auth-img{width: 30px;height:30px;vertical-align: middle;fill:#999;}
     .auth-text{margin-left: 15px;margin-right: 10px;}
   }
   .myInfo{
@@ -55,6 +65,8 @@
         .upload{float: left;width: 300px;}
         .chk{float: left;li{line-height:25px;}}
       }
+      .has-error .ant-form-explain, .has-error .ant-form-split{margin-left: 140px;}
+      .ant-row.ant-form-item{margin-bottom: 10px}
     }
   }
   .info-footer{

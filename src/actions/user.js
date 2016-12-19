@@ -206,6 +206,66 @@ export function createUser(body, callback) {
   }
 }
 
+export const USER_REGISTER_REQUEST = 'USER_REGISTER_REQUEST'
+export const USER_REGISTER_SUCCESS = 'USER_REGISTER_SUCCESS'
+export const USER_REGISTER_FAILURE = 'USER_REGISTER_FAILURE'
+
+// Register user for standard edition from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchRegisterUser(body, callback) {
+  let endpoint = `${API_URL_PREFIX}/stdusers`
+  return {
+    [FETCH_API]: {
+      types: [USER_REGISTER_REQUEST, USER_REGISTER_SUCCESS, USER_REGISTER_FAILURE],
+      endpoint,
+      options: {
+        method: 'POST',
+        body
+      },
+      schema: {},
+    },
+    callback
+  }
+}
+
+// Register user for standard edition from API
+// Relies on Redux Thunk middleware.
+export function registerUser(body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchRegisterUser(body, callback))
+  }
+}
+
+export const USER_REGISTER_JOINTEAM_REQUEST = 'USER_REGISTER_JOINTEAM_REQUEST'
+export const USER_REGISTER_JOINTEAM_SUCCESS = 'USER_REGISTER_JOINTEAM_SUCCESS'
+export const USER_REGISTER_JOINTEAM_FAILURE = 'USER_REGISTER_JOINTEAM_FAILURE'
+
+// Register user and join team for standard edition from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchRegisterUserAndJoinTeam(body, callback) {
+  let endpoint = `${API_URL_PREFIX}/stdusers/jointeam`
+  return {
+    [FETCH_API]: {
+      types: [USER_REGISTER_JOINTEAM_REQUEST, USER_REGISTER_JOINTEAM_SUCCESS, USER_REGISTER_JOINTEAM_FAILURE],
+      endpoint,
+      options: {
+        method: 'POST',
+        body
+      },
+      schema: {},
+    },
+    callback
+  }
+}
+
+// Register user and join team for standard edition from API
+// Relies on Redux Thunk middleware.
+export function registerUserAndJoinTeam(body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchRegisterUserAndJoinTeam(body, callback))
+  }
+}
+
 export const USER_DELETE_REQUEST = 'USER_DELETE_REQUEST'
 export const USER_DELETE_SUCCESS = 'USER_DELETE_SUCCESS'
 export const USER_DELETE_FAILURE = 'USER_DELETE_FAILURE'
