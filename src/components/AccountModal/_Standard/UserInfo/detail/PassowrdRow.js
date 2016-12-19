@@ -154,9 +154,14 @@ let PasswordRow = React.createClass({
           func: () => {
             notification.close()
             notification.success('修改密码中')
-												scope.setState({
-														editPsd: false
-												})
+            scope.setState({
+              editPsd: false
+            })
+          }
+        },
+        failed: {
+          func: () => {
+            notification.close()
           }
         }
       })

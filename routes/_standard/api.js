@@ -56,6 +56,7 @@ module.exports = function (Router) {
 
   // Get user account info
   router.get('/myaccount', userInfoController.getMyAccountInfo)
+  router.patch('/myaccount', userInfoController.changeUserInfo)
 
   // Get qiniu upload token
   router.get('/store/token', userInfoController.upTokenToQiniu)

@@ -53,7 +53,8 @@ let EmailRow = React.createClass({
     e.preventDefault()
     const {form } = this.props
     const { changeUserInfo } = this.props
-				const scope = this.props.scope
+    const scope = this.props.scope
+    const oldEmail = this.props.email
     form.validateFields(['emailPassword', 'newEmail'], (errors, values) => {
       if (!!errors) {
         return errors
@@ -62,15 +63,21 @@ let EmailRow = React.createClass({
       notification.spin('修改邮箱中')
       changeUserInfo({
         password: values.emailPassword,
-        email: values.newEmail
+        newEmail: values.newEmail,
+        oldEmail: oldEmail
       }, {
         success: {
           func: () => {
             notification.close()
             notification.success('修改邮箱成功')
-												scope.setState({
-														editEmall: false
-												})
+            scope.setState({
+              editEmall: false
+            })
+          }
+        },
+        failed: {
+          func: () => {
+            notification.close()
           }
         }
       })

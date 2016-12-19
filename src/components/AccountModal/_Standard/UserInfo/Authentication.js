@@ -11,6 +11,8 @@ import React, { Component, PropTypes } from 'react'
 import { Button, Icon, Input, Tabs, Upload, Radio } from 'antd'
 import { connect } from 'react-redux'
 import { browserHistory }  from 'react-router'
+import { getQiNiuToken } from '../../../../actions/upload.js'
+import uploadFile from '../../../../common/upload.js'
 import './style/Authentication.less'
 const TabPane = Tabs.TabPane
 const RadioGroup = Radio.Group
@@ -20,6 +22,30 @@ const RadioGroup = Radio.Group
 class Indivduals extends Component {
   constructor(props) {
     super(props)
+  }
+  beforeUpload(file) {
+    const self = this
+    this.props.getQiNiuToken('certificate', file.name.trim(), {
+      success: {
+        func: (result)=> {
+          self.setState({
+            uptoken: result.upToken
+          })
+          uploadFile(file, {
+            url: result.url,
+            method: 'POST',
+            headers: {
+              ['content-type']: file.type
+            },
+            body: {
+              token: result.upToken,
+              file: file
+            }
+          })
+        }
+      }
+    })
+    return false
   }
   render() {
     const props = {
@@ -61,7 +87,9 @@ class Indivduals extends Component {
             <p>
               <span className="key">手持身份证号 <span className="important">*</span></span>
               <div className="upload">
-                <Upload {...props}>
+                <Upload  beforeUpload={(file) => {
+                  this.beforeUpload(file)
+                }} customRequest={() => true }>
                   <Icon type="plus" />
                   <div className="ant-upload-text">上传照片</div>
                 </Upload>
@@ -76,7 +104,9 @@ class Indivduals extends Component {
             <p>
               <span className="key">身份证反面扫描 <span className="important">*</span></span>
               <div className="upload">
-                <Upload {...props}>
+                <Upload {...props} beforeUpload={ (file) =>
+                  this.beforeUpload(file)
+                }>
                   <Icon type="plus" />
                   <div className="ant-upload-text">上传照片</div>
                 </Upload>
@@ -98,6 +128,17 @@ class Indivduals extends Component {
     )
   }
 }
+
+function indivdualsMapStateToProp(state, props) {
+  return {
+    //token: state.upload.qiniuToken
+  }
+}
+
+Indivduals = connect(indivdualsMapStateToProp, {
+  getQiNiuToken
+})(Indivduals)
+
 // 企业 认证
 class Enterprise extends Component {
   constructor(props) {
@@ -226,6 +267,17 @@ class Enterprise extends Component {
     )
   }
 }
+
+function enterpriseStateToProps(state, props) {
+  return {
+   // token: state.upload.qiniuToken
+  }
+}
+
+Enterprise = connect(enterpriseStateToProps, {
+  getQiNiuToken
+})(Enterprise)
+
 
 class Authentication extends Component {
   constructor(props) {

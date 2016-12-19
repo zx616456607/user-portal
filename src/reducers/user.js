@@ -1,8 +1,8 @@
 /**
- * Licensed Materials - Property of tenxcloud.com
- * (C) Copyright 2016 TenxCloud. All Rights Reserved.
+ * licensed materials - property of tenxcloud.com
+ * (c) copyright 2016 tenxcloud. all rights reserved.
  *
- * Redux reducers for app manage
+ * redux reducers for app manage
  *
  * v0.1 - 2016-11-01
  * @author shouhong.zhang

@@ -321,7 +321,7 @@ function fetchChangeUserInfo(inputInfo, callback) {
       endpoint: `${API_URL_PREFIX}/myaccount`,
       schema: {},
       options: {
-        method: 'patch',
+        method: 'PATCH',
         body: inputInfo
       }
     },
@@ -331,7 +331,7 @@ function fetchChangeUserInfo(inputInfo, callback) {
 }
 
 export function changeUserInfo(inputInfo, callback) {
-  (dispatch, getState) => {
+  return (dispatch, getState) => {
     return dispatch(fetchChangeUserInfo(inputInfo, callback))
   }
 }
