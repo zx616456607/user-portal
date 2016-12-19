@@ -20,7 +20,7 @@ import { loadStorageList, deleteStorage, createStorage, formateStorage, resizeSt
 import { DEFAULT_IMAGE_POOL, STORAGENAME_REG_EXP } from '../../constants'
 import './style/storage.less'
 import { calcuDate } from '../../common/tools'
-import { appNameCheck } from '../../common/naming_validation'
+import { volNameCheck } from '../../common/naming_validation'
 import NotificationHandler from '../../common/notification_handler'
 
 const RadioButton = Radio.Button;
@@ -455,11 +455,12 @@ class Storage extends Component {
           if (err.statusCode == 409) {
             notification.error('存储卷 ' + storageConfig.name + ' 已经存在')
           } else {
-            if (err.message) {
-              notification.error(err.message.message)
-            } else {
-              notification.error(JSON.stringify(err))
-            }
+            notification.error('创建失败')
+            // if (err.message) {
+            //   notification.error(err.message.message)
+            // } else {
+            //   notification.error(JSON.stringify(err))
+            // }
           }
         }
       }
@@ -575,7 +576,7 @@ class Storage extends Component {
   handleInputName(e) {
         
     let name = e.target.value;
-    let errorMsg = appNameCheck(name, '存储名称');
+    let errorMsg = volNameCheck(name, '存储名称');
     let errorFlag = false;
     if(errorMsg != 'success') {
       errorFlag = true;

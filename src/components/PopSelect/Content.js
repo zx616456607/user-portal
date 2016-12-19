@@ -35,8 +35,8 @@ class PopSelect extends Component {
   }
 
   getSpecial() {
-    const { onChange, special } = this.props
-    if (!special) {
+    const { onChange, special, popTeamSelect } = this.props
+    if (!special && !popTeamSelect) {
       return
     }
     return (
@@ -49,6 +49,8 @@ class PopSelect extends Component {
             onClick={() => onChange(MY_SPACE)}
             className="searchItem">
             {
+              popTeamSelect?
+              MY_SPACE.teamName:
               MY_SPACE.name
             }
           </li>
@@ -61,14 +63,21 @@ class PopSelect extends Component {
   }
 
   handleSearch(e) {
-    const { list } = this.props
+    const { list, popTeamSelect } = this.props
     let value = e.target.value
-    let cpList = list.filter(item => {
-      item.index = item.name.indexOf(value)
-      if (item.index > -1) {
-        return item
-      }
-    })
+    let cpList = popTeamSelect?
+      list.filter(item => {
+        item.index = item.teamName.indexOf(value)
+        if (item.index > -1) {
+          return item
+        }
+      }):
+      list.filter(item => {
+        item.index = item.name.indexOf(value)
+        if (item.index > -1) {
+          return item
+        }
+      })
     const sortList = function (a, b) {
       return a.index - b.index
     }

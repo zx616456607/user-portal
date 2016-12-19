@@ -1,7 +1,8 @@
 /**
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
- *
+ */
+/**
  * User balance - Standard
  *
  * v0.1 - 2016-12-13
@@ -33,7 +34,16 @@ class UserBalance extends Component {
   componentWillMount() {
     const { loadLoginUserDetail, loadUserTeamspaceList } = this.props
     loadLoginUserDetail()
-    loadUserTeamspaceList('default', { size: -1 })
+    loadUserTeamspaceList('default', { size: -1 }).then(({response}) => {
+      const { teamspaces } = response.result
+      if (teamspaces && teamspaces[0]) {
+        let currentTeam = teamspaces[0]
+        this.setState({
+          currentTeam,
+        })
+        loadSpaceSummary(currentTeam.namespace)
+      }
+    })
   }
 
   handleTeamChange(team) {
@@ -112,7 +122,14 @@ class UserBalance extends Component {
           }
           {teamspaces.length > 0 ?
             <div className="rechargeRow">
-              <Button type="primary" size="large" onClick={() => browserHistory.push(`/account/balance/payment?team=${currentTeam.teamName}&namespace=${currentTeam.namespace}`)}>立即充值</Button>
+              <Button type="primary" size="large" onClick={
+                () => browserHistory.push({
+                  pathname: '/account/balance/payment',
+                  query: { team: currentTeam.teamName }
+                })
+              }>
+                立即充值
+              </Button>
             </div>
             : null
           }
