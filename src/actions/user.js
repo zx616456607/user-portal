@@ -191,7 +191,7 @@ function fetchCreateUser(body, callback) {
         method: 'POST',
         body
       },
-      schema: {},
+      schema: {}
     },
     callback
   }
@@ -220,7 +220,7 @@ function fetchDeleteUser(userID, callback) {
       options: {
         method: 'DELETE'
       },
-      schema: {},
+      schema: {}
     },
     callback
   }
@@ -249,7 +249,7 @@ function fetchUpdateUser(userID, body, callback) {
         method: 'PATCH',
         body
       },
-      schema: {},
+      schema: {}
     },
     callback
   }
@@ -283,5 +283,55 @@ function fetchCheckUserName(userName, callback) {
 export function checkUserName(userName, callback) {
   return (dispatch) => {
     return dispatch(fetchCheckUserName(userName, callback))
+  }
+}
+
+export const STANDARD_USER_INFO_REQUEST = 'STANDARD_USER_INFO_REQUEST'
+export const STANDARD_USER_INFO_SUCCESS = 'STANDARD_USER_INFO_SUCCESS'
+export const STANDARD_USER_INFO_FAILURE = 'STANDARD_USER_INFO_FAILURE'
+
+function fetchStandardUserInfo(callback) { 
+  return {
+    [FETCH_API]: {
+      types: [STANDARD_USER_INFO_REQUEST, STANDARD_USER_INFO_SUCCESS, STANDARD_USER_INFO_FAILURE],
+      endpoint: `${API_URL_PREFIX}/myaccount`,
+      method: 'get',
+      schema: {}
+    }
+  }
+}
+
+export function loadStandardUserInfo(callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchStandardUserInfo(callback))
+  }
+}
+
+
+
+
+export const USER_CHANGE_USERINFO_REQUEST = 'USER_CHANGE_USERINFO_REQUEST'
+export const USER_CHANGE_USERINFO_SUCCESS = 'USER_CHANGE_USERINFO_SUCCESS'
+export const USER_CHANGE_USERINFO_FAILURE = 'USER_CHANGE_USERINFO_FAILURE'
+
+function fetchChangeUserInfo(inputInfo, callback) {
+  return {
+    [FETCH_API]: {
+      types: [USER_CHANGE_USERINFO_REQUEST, USER_CHANGE_USERINFO_SUCCESS, USER_CHANGE_USERINFO_FAILURE],
+      endpoint: `${API_URL_PREFIX}/myaccount`,
+      schema: {},
+      options: {
+        method: 'PATCH',
+        body: inputInfo
+      }
+    },
+		body: inputInfo,
+    callback
+  }
+}
+
+export function changeUserInfo(inputInfo, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchChangeUserInfo(inputInfo, callback))
   }
 }

@@ -12,9 +12,8 @@
 'use strict'
 
 const apiFactory = require('../../services/api_factory')
-const logger     = require('../../utils/logger.js').getLogger("user_info")
+const logger     = require('../../utils/logger.js').getLogger('user_info')
 const qiniuAPI = require('../../store/qiniu_api')
-
 /*
 Get basic user info including user and certificate
 */
@@ -25,7 +24,7 @@ exports.getMyAccountInfo = function* () {
   const api = apiFactory.getApi(loginUser)
   // Get User info
   const result = yield api.users.getBy([userID])
-  const userInfo = result.users ? result.users[0] : {}
+  const userInfo = result.data ? result.data : {}
   // Get certificate info
   const spi = apiFactory.getSpi(loginUser)
   const certInfo = yield spi.certificates.get()
@@ -45,20 +44,58 @@ exports.upTokenToQiniu = function* () {
   const fileName = this.query.fileName
   if (!bucketName || !fileName) {
     this.status = 400
-    this.body = "bucket and fileName are required."
+    this.body = 'bucket and fileName are required.'
     return
   }
 
   let qnAPI = new qiniuAPI(bucketName)
   let token = qnAPI.getUpToken(fileName)
+  let qiniuConfig = qnAPI.getQiniuConfig()
 
-  if (token === "") {
+  if (token === '') {
     this.status = 400
-    this.body = "Invalid bucket or file name"
+    this.body = 'Invalid bucket or file name'
     return
   }
 
   this.body = {
-    upToken: token
+    upToken: token,
+    url: qiniuConfig.origin
   }
+}
+
+exports.changeUserInfo = function* () {
+  const body = this.request.body
+  const password = body.password
+  const email = body.email
+  const newPassword = body.newPassword
+  const newEmail = body.newEmail
+  const user = this.session.loginUser
+  const spi = apiFactory.getSpi(user)
+  const updateBody = {}
+  if(password) {
+    updateBody.oldPassword = password
+  }
+  if(newPassword) {
+    updateBody.password = newPassword
+  }
+  if(newEmail) {
+    updateBody.email = newEmail
+  }
+  const api = apiFactory.getApi(user)
+  console.log(updateBody)
+  const apiResult = yield api.users.patchBy([user.id], null, updateBody)
+  this.status = apiResult.statusCode
+  this.body = apiResult
+}
+
+exports.uploadToken = function*() {
+  const query = this.query
+  const api = apiFactory.getApi(this.session.loginUser)
+  const apiResult = api.getBy(['store', 'token'], {
+    bucket: query.bucket,
+    fileName: query.filename
+  })
+  this.status = apiResult.statusCode
+  this.body = apiResult
 }
