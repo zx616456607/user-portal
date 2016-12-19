@@ -92,6 +92,13 @@ export function appNameCheck(name, itemName, existNameFlag) {
   }
   return 'success';
 }
+
+export function volNameCheck(name, itemName) {
+  if (name && name.length > 32) {
+    return '不能超过32个字符'
+  }
+  return appNameCheck(name, itemName)
+}
 /*
  * this function for service, service config, database cluster
  */
