@@ -15,7 +15,7 @@ import { Icon, Input, Button, Modal, Row, Col, Spin, InputNumber, } from 'antd'
 import { MIN_PAY_AMOUNT, PAY_AMOUNT_STEP } from '../../../../constants'
 import { loadLoginUserDetail } from '../../../../actions/entities'
 import { loadUserTeamspaceList } from '../../../../actions/user'
-import { getWechatPayQrCode, getWechatPayOrder } from '../../../../actions/wechat_pay'
+import { getWechatPayQrCode, getWechatPayOrder, getPayOrderStatus } from '../../../../actions/payments'
 import QRCode from 'qrcode.react'
 import './style/balance.less'
 
@@ -27,6 +27,7 @@ class UserPay extends Component {
     this.showWechatQrCode = this.showWechatQrCode.bind(this)
     this.handleWechatPayCancel = this.handleWechatPayCancel.bind(this)
     this.handlePaySuccessModalCancel = this.handlePaySuccessModalCancel.bind(this)
+    this.renderPayButton = this.renderPayButton.bind(this)
     this.state = {
       payType: 'alipay', //支付类型
       payStatusModal: false, //充值状态
@@ -45,38 +46,54 @@ class UserPay extends Component {
   }
 
   componentWillMount() {
-    const { loadUserTeamspaceList, teamName } = this.props
-    if (!teamName) {
-      return
+    const { loadUserTeamspaceList, getPayOrderStatus, teamName, orderId } = this.props
+    // Load team list
+    if (teamName) {
+      this.setState({
+        rechargeTarget: {
+          loading: true
+        }
+      })
+
+      loadUserTeamspaceList('default', { size: -1 }).then(({response}) => {
+        const { teamspaces } = response.result
+        this.setState({
+          rechargeTarget: {
+            loading: false,
+          }
+        })
+        teamspaces.map(space => {
+          if (space.teamName === teamName) {
+            this.setState({
+              rechargeTarget: {
+                namespace: space.namespace
+              }
+            })
+          }
+        })
+      }).catch(err => {
+        this.setState({
+          rechargeTarget: {
+            loading: false,
+          }
+        })
+      })
     }
-    this.setState({
-      rechargeTarget: {
-        loading: true
-      }
-    })
-    loadUserTeamspaceList('default', { size: -1 }).then(({response}) => {
-      const { teamspaces } = response.result
-      this.setState({
-        rechargeTarget: {
-          loading: false,
+    // Load order status
+    if (orderId) {
+      getPayOrderStatus(orderId).then(({ response }) => {
+        let { chargeAmount, newBalance, method, code } = response.result
+        if (code === 404) {
+          return
         }
+        this.setState({
+          payType: method,
+          amount: chargeAmount / 100,
+          balance: newBalance,
+          payStatusModal: true,
+        })
       })
-      teamspaces.map(space => {
-        if (space.teamName === teamName) {
-          this.setState({
-            rechargeTarget: {
-              namespace: space.namespace
-            }
-          })
-        }
-      })
-    }).catch(err => {
-      this.setState({
-        rechargeTarget: {
-          loading: false,
-        }
-      })
-    })
+    }
   }
 
   renderRechargeTarget() {
@@ -159,6 +176,38 @@ class UserPay extends Component {
     this.setState({ payStatusModal: false })
   }
 
+  renderPayButton() {
+    const { teamName } = this.props
+    const { rechargeTarget, payType, amount } = this.state
+    const { loading, namespace } = rechargeTarget
+    if (payType === 'wechat_pay') {
+      return (
+        <Button
+          type="primary"
+          size="large"
+          disabled={rechargeTarget.loading}
+          onClick={this.handlePayClick}>
+          充值
+        </Button>
+      )
+    }
+    // Alipay
+    return (
+      <form id="payment" method="post" action="/api/v2/payments/alipay" target="_blank" role="form">
+        <input type="hidden" id="paymentAmount" name="paymentAmount" value={amount} />
+        <input type="hidden" id="teamspace" name="teamspace" value={namespace} />
+        <Button
+          type="primary"
+          htmlType="submit"
+          size="large"
+          disabled={rechargeTarget.loading}
+          onClick={this.handlePayClick}>
+          充值
+        </Button>
+      </form>
+    )
+  }
+
   render() {
     const { teamName } = this.props
     let { payType, qrCode, amount, balance, rechargeTarget } = this.state
@@ -180,7 +229,7 @@ class UserPay extends Component {
         </ul>
         <div className="payDetail">
           <p>
-            <span className="keys">充值目标</span>
+            <span className="keys">充值帐户</span>
             {this.renderRechargeTarget()}
           </p>
           <p>
@@ -221,20 +270,7 @@ class UserPay extends Component {
               </div>
             </div>
             <div className="pay-row" style={{ marginTop: '20px' }}>
-              <Button
-                type="primary"
-                size="large"
-                disabled={rechargeTarget.loading}
-                onClick={this.handlePayClick}>
-                {
-                  payType === 'alipay'
-                    ? <a target="_blank" href="/api/v2/payments/alipay/direct">充值</a>
-                    : '充值'
-                }
-              </Button>
-              <br />
-              <br />
-              <br />
+              {this.renderPayButton()}
             </div>
             <div className="downRow">② 线下汇款充值</div>
             <br />
@@ -251,15 +287,15 @@ class UserPay extends Component {
                 <Col span="8">110912611610301</Col>
               </Row>
               <p className="list-top">2. 与我们联系</p>
-              <div className="list-row">打款后，请拔打电话<a>（400-626-1876）</a>、<a>邮件（service@tenxcloud.com）</a>或<a>右下角工单</a>的方式与我们联系并提供下列信息：（以便工作人员与您联系并登记到您的名下）</div>
-              <div className="ticket">
-                <span>汇款人单位和姓名</span>
-                <span>汇款底单</span>
-                <span>联系人手机</span>
-                <span>您在时速云登录邮箱</span>
-                <span>汇款银行账号</span>
-                <span>要充值的账号名称</span>
-              </div>
+              <div className="list-row">打款后，请拔打电话<a>（400-626-1876）</a>、<a href="mailto:service@tenxcloud.com">邮件（service@tenxcloud.com）</a>或<a>右下角工单</a>的方式与我们联系并提供下列信息：（以便工作人员与您联系并登记到您的名下）</div>
+              <Row className="ticket">
+                <Col span="4">汇款人单位和姓名</Col>
+                <Col span="4">汇款底单</Col>
+                <Col span="4">联系人手机</Col>
+                <Col span="4">您在时速云登录邮箱</Col>
+                <Col span="4">汇款银行账号</Col>
+                <Col span="4">要充值的账号名称</Col>
+              </Row>
               <p className="list-top">3. 充值结果反馈</p>
               <div className="list-row">
                 打款并提交汇款信息后，您可以前往 <Link to="/account">充值记录</Link> 查询页面查看您的充值记录
@@ -275,10 +311,7 @@ class UserPay extends Component {
             visible={this.state.payStatusModal}
             maskClosable={false}
             onOk={() => this.setState({ payStatusModal: false })}
-            onCancel={() => {
-              this.setState({ payStatusModal: false })
-              // browserHistory.push('/account/cost#payments')
-            } }
+            onCancel={this.handlePaySuccessModalCancel}
             wrapClassName="paySuccessModal"
             okText="继续充值"
             cancelText="查看充值记录"
@@ -354,9 +387,10 @@ class UserPay extends Component {
 
 function mapStateToProps(state, props) {
   const { location } = props
-  const { team } = location.query
+  const { team, order_id } = location.query
   return {
     teamName: team,
+    orderId: order_id,
   }
 }
 
@@ -365,4 +399,5 @@ export default connect(mapStateToProps, {
   loadLoginUserDetail,
   getWechatPayQrCode,
   getWechatPayOrder,
+  getPayOrderStatus,
 })(UserPay)

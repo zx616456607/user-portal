@@ -19,8 +19,8 @@
 
 const indexCtl = require('../../controllers')
 const teamController = require('../../controllers/_standard/team')
-const alipayController = require('../../controllers/_standard/alipay')
-const wechatPayController = require('../../controllers/_standard/wechat_pay')
+const alipayController = require('../../controllers/_standard/payments/alipay')
+const wechatPayController = require('../../controllers/_standard/payments/wechat_pay')
 const wechatPayMiddleware = require('../../pay/wechat_pay').middleware
 
 module.exports = function (Router) {

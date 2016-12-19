@@ -79,3 +79,28 @@ export function getWechatPayOrder(orderId, teamspace, query) {
     return dispatch(fetchWechatPayOrder(orderId, teamspace, query))
   }
 }
+
+export const PAY_ORDER_STATUS_REQUEST = 'PAY_ORDER_STATUS_REQUEST'
+export const PAY_ORDER_STATUS_SUCCESS = 'PAY_ORDER_STATUS_SUCCESS'
+export const PAY_ORDER_STATUS_FAILURE = 'PAY_ORDER_STATUS_FAILURE'
+
+// Fetches wechat pay order from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchPayOrderStatus(orderId) {
+  let endpoint = `${API_URL_PREFIX}/payments/orders/${orderId}/status`
+  return {
+    [FETCH_API]: {
+      types: [PAY_ORDER_STATUS_REQUEST, PAY_ORDER_STATUS_SUCCESS, PAY_ORDER_STATUS_FAILURE],
+      endpoint,
+      schema: {}
+    }
+  }
+}
+
+// Fetches wechat pay order from API
+// Relies on Redux Thunk middleware.
+export function getPayOrderStatus(orderId) {
+  return (dispatch) => {
+    return dispatch(fetchPayOrderStatus(orderId))
+  }
+}

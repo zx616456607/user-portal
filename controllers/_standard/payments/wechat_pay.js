@@ -12,10 +12,10 @@
 'use strict'
 
 const uuid = require('node-uuid')
-const apiFactory = require('../../services/api_factory')
-const wechatConfig = require('../../configs/_standard/wechat_pay')
-const wechatPay = require('../../pay/wechat_pay')
-const logger = require('../../utils/logger').getLogger('wechat_pay')
+const apiFactory = require('../../../services/api_factory')
+const wechatConfig = require('../../../configs/_standard/wechat_pay')
+const wechatPay = require('../../../pay/wechat_pay')
+const logger = require('../../../utils/logger').getLogger('wechat_pay')
 const _this = this
 
 /**
@@ -145,7 +145,11 @@ exports.getOrder = function* () {
       detail: JSON.stringify(order),
     }
     const result = yield spi.payments.update(order.out_trade_no, data)
-    resData.result = result.data
+    const resultData = result.data
+    resData.result = resultData
+    resultData.method = 'wechat_pay'
+    resultData.charge_amount = data.charge_amount
+    this.session.payment_status = resultData
     // this.body = result
     // return
   }

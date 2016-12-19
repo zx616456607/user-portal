@@ -11,11 +11,12 @@
 'use strict'
 
 const uuid = require('node-uuid')
-const AliPay = require('../../pay/alipay/alipay')
-const aliPayConfig = require('../../configs/_standard/alipay_config')
+const _ = require('lodash')
+const AliPay = require('../../../pay/alipay/alipay')
+const aliPayConfig = require('../../../configs/_standard/alipay_config')
 
-const apiFactory = require('../../services/api_factory')
-const logger = require('../../utils/logger.js').getLogger('alipay')
+const apiFactory = require('../../../services/api_factory')
+const logger = require('../../../utils/logger.js').getLogger('alipay')
 
 // alipay.on('verify_fail', function() {
 //   logger.info('emit verify_fail')
@@ -28,16 +29,18 @@ const logger = require('../../utils/logger.js').getLogger('alipay')
 
 exports.rechare = function* () {
   const method = 'rechare'
-  const user = this.session.loginUser
-  let paymentAmount = this.body.paymentAmount
-  const teamspace = this.body.teamspace
-  if(!paymentAmount) {
-				const error = new Error('paymentAmount is necessary')
+  const user = _.cloneDeep(this.session.loginUser)
+  const body = this.request.body
+  let paymentAmount = body.paymentAmount
+  const teamspace = body.teamspace
+  if (teamspace) user.teamspace = teamspace // switch to the space which will be charged
+  if (!paymentAmount) {
+    const error = new Error('paymentAmount is necessary')
     error.status = 400
-				throw error
+    throw error
   }
   paymentAmount = parseFloat(paymentAmount)
-  if(isNaN(paymentAmount)) {
+  if (isNaN(paymentAmount)) {
     logger.info(method, 'paymentAmount is NaN')
     const error = new Error('paymentAmout is Nan')
     error.status = 400
@@ -50,7 +53,6 @@ exports.rechare = function* () {
   //   throw error
   // }
   const dateNow = new Date()
-  const orderID = user.id + '-' + uuid.v4()
   const orderName = `[时速云]充值${paymentAmount}元`
   const orderDescription = `${orderName}-${user.user}`
   const data = {
@@ -58,7 +60,7 @@ exports.rechare = function* () {
     body: orderDescription,
 
     // 商户网站订单系统中唯一订单号
-    out_trade_no: orderID,
+    out_trade_no: '',
 
     // 商品展示网址
     show_url: 'https://www.tenxcloud.com/price',
@@ -70,7 +72,7 @@ exports.rechare = function* () {
     total_fee: paymentAmount
   }
   aliPayConfig.extra_common_param = uuid.v4()
-  const siginApi = apiFactory.getTenxSysSignSpi(this.session.loginUser)
+  const siginApi = apiFactory.getTenxSysSignSpi(user)
   const apiResult = yield siginApi.payments.create({
     charge_amount: paymentAmount * 100,
     order_type: 101,
@@ -98,35 +100,40 @@ exports.notify = function* () {
     this.body = apiResult
   }
   logger.error('alipay sign is not pass verification')
-		this.status = 401
-		this.body = {
-				statusCode: 401,
-				message: '非法订单'
-		}
+  this.status = 401
+  this.body = {
+    statusCode: 401,
+    message: '非法订单'
+  }
 }
 
-exports.direct = function* (){
+exports.direct = function* () {
   const method = 'alipay_direct'
   const query = this.query
-  const alipay = new AliPay(aliPayConfig) 
-  const isverify = yield alipay.payReturn(query).catch(function(err) { 
-    logger.erro(method, err) 
+  const alipay = new AliPay(aliPayConfig)
+  const isverify = yield alipay.payReturn(query).catch(function (err) {
+    logger.erro(method, err)
     const error = new Error('internal error')
     err.status = 500
     throw err
   })
-  if(isverify) {
+  if (isverify) {
     const apiResult = yield _requestSignUpdateApi(this.session.loginUser, query)
     this.status = apiResult.statusCode
-    this.body = apiResult
+    // this.body = apiResult
+    const data = apiResult.data
+    data.method = 'alipay'
+    data.charge_amount = parseFloat(query.total_fee) * 100
+    this.session.payment_status = data
+    this.redirect(`/account/balance/payment?order_id=${data.order_id}`)
     return
-  } 
+  }
   logger.error('alipay sign is not pass verification')
   this.status = 401
-  this.body = { statusCode: 401, message: '非法订单'}
+  this.body = { statusCode: 401, message: '非法订单' }
 }
 
-function  _requestSignUpdateApi (user, data) {
+function _requestSignUpdateApi(user, data) {
   const num = parseFloat(data.total_fee)
   const siginApi = apiFactory.getTenxSysSignSpi(user)
   return siginApi.payments.update(data.out_trade_no, {
