@@ -535,8 +535,9 @@ class CostRecord extends Component{
                       list={teamspaces}
                       onChange={this.handleSpaceChange}
                       loading={false}
-                      popTeamSelect={true} />
-                  } >
+                      popTeamSelect={true}
+                    />
+                  }>
                   <span>{currentTeamName === ''?'我的团队':currentTeamName} <Icon type='down' style={{ fontSize: '8px' }}/></span>
                 </Popover>
               </div>
