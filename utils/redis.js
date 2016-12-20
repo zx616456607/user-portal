@@ -7,6 +7,7 @@
  * v0.1 - 2016/12/20
  * @author mengyuan
  */
+'use strict'
 
 const redis = require("redis")
 const redisConfig = require('../configs').redis
@@ -31,6 +32,6 @@ function getRedisClient() {
 exports.client = client
 
 exports.redisKeyPrefix = {
-  captcha: 'regist_captcha',
-  frequenceLimit: 'regist_send_captcha_frequence',
+  captcha: 'register_captcha',
+  frequenceLimit: 'register_send_captcha_frequence',
 }

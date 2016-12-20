@@ -24,7 +24,6 @@ const alipayController = require('../../controllers/_standard/payments/alipay')
 const wechatPayController = require('../../controllers/_standard/payments/wechat_pay')
 const userController = require('../../controllers/_standard/user_info')
 const wechatPayMiddleware = require('../../pay/wechat_pay').middleware
-const mobileCaptchaController = require('../../controllers/_standard/mobile_captcha')
 const API_URL_PREFIX = '/api/v2'
 
 module.exports = function (Router) {
@@ -37,6 +36,7 @@ module.exports = function (Router) {
   //Regiser User
   router.post(`${API_URL_PREFIX}/stdusers`, userController.registerUser)
   router.post(`${API_URL_PREFIX}/stdusers/jointeam`, userController.registerUserAndJoinTeam)
+  router.post(`${API_URL_PREFIX}/stdusers/captchas`, userController.sendCaptcha)
 
   // Payment
   router.post('/payments/alipay/notify', alipayController.notify)
@@ -45,9 +45,6 @@ module.exports = function (Router) {
     wechatPayMiddleware(wechatPayController.getInitConfig()).getNotify().done(),
     wechatPayController.notify
   )
-
-  // send moblie captcha
-  router.post('/regist/mobileCaptchas', mobileCaptchaController.sendCaptcha)
 
   return router.routes()
 }

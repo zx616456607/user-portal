@@ -396,3 +396,29 @@ export function changeUserInfo(inputInfo, callback) {
     return dispatch(fetchChangeUserInfo(inputInfo, callback))
   }
 }
+
+export const USER_REGISTER_SEND_PHONE_CAPTCHA_REQUEST = 'USER_REGISTER_SEND_PHONE_CAPTCHA_REQUEST'
+export const USER_REGISTER_SEND_PHONE_CAPTCHA_SUCCESS = 'USER_REGISTER_SEND_PHONE_CAPTCHA_SUCCESS'
+export const USER_REGISTER_SEND_PHONE_CAPTCHA_FAILURE = 'USER_REGISTER_SEND_PHONE_CAPTCHA_FAILURE'
+
+function fetchSendRegisterPhoneCaptcha(body, callback) {
+  let endpoint = `${API_URL_PREFIX}/stdusers/captchas`
+  return {
+    [FETCH_API]: {
+      types: [USER_REGISTER_SEND_PHONE_CAPTCHA_REQUEST, USER_REGISTER_SEND_PHONE_CAPTCHA_SUCCESS, USER_REGISTER_SEND_PHONE_CAPTCHA_FAILURE],
+      endpoint,
+      options: {
+        method: 'POST',
+        body
+      },
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function sendRegisterPhoneCaptcha(body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchSendRegisterPhoneCaptcha(body, callback))
+  }
+}
