@@ -24,8 +24,9 @@ export default class InviteNewMemberModal extends Component{
     this.handleCancel = this.handleCancel.bind(this)
     this.handleTagsChange = this.handleTagsChange.bind(this)
     this.handleChangeInput = this.handleChangeInput.bind(this)
-    this.renderInput = this.renderInput.bind(this)
+    // this.renderInput = this.renderInput.bind(this)
     this.renderTag = this.renderTag.bind(this)
+    this.handleOnChangeInput = this.handleOnChangeInput.bind(this)
 
     this.state = {
       valueArr: [],
@@ -54,73 +55,43 @@ export default class InviteNewMemberModal extends Component{
   }
   
   handleTagsChange (value){
+    console.log('value',value)
     this.setState({
       tags:value
     })
   }
   handleChangeInput(tag) {
+    console.log('tag',tag)
     this.setState({tag})
   }
  
   renderTag (props) {
-    let {tag, key, disabled, onRemove, classNameRemove, getTagDisplayValue, ...other} = props
+    let {tag, key, disabled, onRemove, classNameRemove, getTagDisplayValue,...other} = props
     let {rightTags} = this.state
-    console.log('tag',tag)
-    console.log('getTagDisplayValue',getTagDisplayValue)
-    if (tag.indexOf(';') !== -1) {
-      console.log('in')
-      tag.split(';').map((tag) => {
-        tag.trim()
-        if (!EMAIL_REG_EXP.test(tag)) {
-          return (
-            <span key={key} {...other} className="react-tagsinput-tag errTags">
-              {getTagDisplayValue(tag)}
-              {!disabled &&
-                <a className={classNameRemove} onClick={(e) => onRemove(key)} >
-                </a>
-              }
-            </span>
-          )
-        } else {
-          return (
-            <span key={key} {...other}>
-              {getTagDisplayValue(tag)}
-              {!disabled &&
-              <a className={classNameRemove} onClick={(e) => onRemove(key)}>
-              </a>
-              }
-            </span>
-          )
-        }
-      })
-    }
     if (!EMAIL_REG_EXP.test(tag)) {
-        return (
-          <span key={key} {...other} className="react-tagsinput-tag errTags">
-            {getTagDisplayValue(tag)}
-            {!disabled &&
-              <a className={classNameRemove} onClick={(e) => onRemove(key)} >
-              </a>
-            }
-          </span>
-        )
-      } else {
-        return (
-          <span key={key} {...other}>
-            {getTagDisplayValue(tag)}
-            {!disabled &&
-            <a className={classNameRemove} onClick={(e) => onRemove(key)}>
+      return (
+        <span key={key} {...other} className="react-tagsinput-tag errTags">
+          {getTagDisplayValue(tag)}
+          {!disabled &&
+            <a className={classNameRemove} onClick={(e) => onRemove(key)} >
             </a>
-            }
-          </span>
-        )
-      }
+          }
+        </span>
+      )
+    } else {
+      return (
+        <span key={key} {...other}>
+          {getTagDisplayValue(tag)}
+          {!disabled &&
+          <a className={classNameRemove} onClick={(e) => onRemove(key)}>
+          </a>
+          }
+        </span>
+      )
+    }
   }
-  renderInput (props) {
-    let {onChange, value, addTag,...other} = props
-    return (
-      <input type='text' onChange={onChange} value={value} onPaste={() => { console.log('onPause') }} {...other} />
-    )
+  handleOnChangeInput (data) {
+    console.log('data',data)
   }
   render(){
     const { visible } = this.props
@@ -153,6 +124,9 @@ export default class InviteNewMemberModal extends Component{
                      renderTag={this.renderTag}
                      renderInput={this.renderInput}
                      inputProps={{className: 'react-tagsinput-input', placeholder: ''}}
+                     maxTags={20}
+                     addKeys={[9, 13,186]}
+                     onChangeInput={this.handleChangeInput}
           />
         </div>
       </Modal>
