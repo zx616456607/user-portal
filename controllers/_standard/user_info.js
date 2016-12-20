@@ -142,17 +142,17 @@ exports.sendCaptcha = function* () {
   const method = 'sendCaptcha'
   const loginUser = this.session.loginUser
   const spi = apiFactory.getSpi(loginUser)
-  let mobile = this.request.body
-
+  if (!this.request.body || !this.request.body.mobile) {
+    const err = new Error('user mobile are required.')
+    err.status = 400
+    yield Promise.reject(err)
+  }
+  const mobile = this.request.body.mobile
   const redisConf = {
     captchaPrefix: `${redisKeyPrefix.captcha}`,
     captchaSendFrequencePrefix: `${redisKeyPrefix.frequenceLimit}`
   }
-  const captcha = yield sendCaptchaToPhone(mobile, redisConf)
-
-  this.body = {
-    data: captcha
-  }
+  yield sendCaptchaToPhone(mobile, redisConf)
 }
 
 function checkMobileCaptcha(user) {
@@ -164,14 +164,14 @@ function checkMobileCaptcha(user) {
   }
 
   return new Promise((resolve, reject) => {
-    const key = `${redisKeyPrefix.captcha}#${user.mobile}`
+    const key = `${redisKeyPrefix.captcha}#${user.phone}`
     redisClient.get(key, (err, reply) => {
       if (err) {
         logger.error(method, `get key(${key}) failed.`, err)
         return reject('internal error')
       }
       if (reply != user.captcha) {
-        logger.info(method, `captcha in redis(${reply}) not equal to captcha in request(${user.captcha})`)
+        logger.info(method, `get redis key(${key}), captcha in redis(${reply}) not equal to captcha in request(${user.captcha})`)
         const err = new Error('验证码错误或已失效')
         err.status = 400
         return reject(err)
