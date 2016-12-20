@@ -12,6 +12,7 @@ import React, { PropTypes } from 'react'
 import { Button, Form, Input, Card, Tooltip, message, Alert, Col, Row } from 'antd'
 import { connect } from 'react-redux'
 import { USERNAME_REG_EXP, EMAIL_REG_EXP } from '../../../constants'
+import { browserHistory } from 'react-router'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -69,9 +70,9 @@ let NotLogUser = React.createClass({
               submitProps: {},
             })
             message.success(`注册并加入团队成功`)
-            browserHistory.push('/')
+            browserHistory.push('/login')
             resetFields()
-          },
+          },  
           isAsync: true
         },
         failed: {
