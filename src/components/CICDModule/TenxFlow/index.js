@@ -214,8 +214,8 @@ let MyComponent = React.createClass({
               <i className='fa fa-wpforms' />&nbsp;
               <FormattedMessage {...menusText.deloyLog} />
             </Button>
-            <Dropdown.Button overlay={dropdown} type='ghost' size='large'>
-              <span onClick={() => this.starFlowBuild(item.flowId, index)}>
+            <Dropdown.Button overlay={dropdown} type='ghost' size='large' onClick={() => this.starFlowBuild(item.flowId, index)}>
+              <span>
                 <i className='fa fa-pencil-square-o' />&nbsp;
                 <FormattedMessage {...menusText.deloyStart} />
               </span>
