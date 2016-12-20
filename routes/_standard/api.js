@@ -50,7 +50,7 @@ module.exports = function (Router) {
   // Payment related
   router.post('/payments/wechat_pay', wechatPayController.createPrepayRecord)
   router.get('/payments/wechat_pay/:order_id', wechatPayController.getOrder)
-  router.get('/payments/orders/:order_id/status', paymentsController.getOrderStatusFromSession)
+  router.get('/payments/orders/status', paymentsController.getOrderStatusFromSession)
   router.post('/payments/alipay', alipayController.rechare)
   router.get('/payments/alipay/direct', alipayController.direct)
 

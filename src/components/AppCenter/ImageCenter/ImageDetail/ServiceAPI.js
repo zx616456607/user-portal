@@ -93,7 +93,7 @@ class ServiceAPI extends Component {
     if (!!dataStorage) {
       dataStorageShow = dataStorage.map((item) => {
         return (
-          <p> - &nbsp;{item}</p>
+          <p>&nbsp;&nbsp;&nbsp;&nbsp; - {item}</p>
         )
       });
     }
@@ -133,7 +133,7 @@ class ServiceAPI extends Component {
       <Card className="imageServiceAPI" key='imageserviceapi'>
         <p><li>服务端口:&nbsp;&nbsp;{portsShow ? portsShow:"该镜像无端口定义"}</li></p>
         <p><li>存储卷</li></p>
-        {dataStorageShow ? dataStorageShow : " - 该镜像无存储卷定义"}
+        {dataStorageShow ? dataStorageShow : <span>&nbsp;&nbsp;&nbsp;&nbsp; - 该镜像无存储卷定义</span>}
         <p><li>运行命令及参数:&nbsp;&nbsp;{entrypointShow}&nbsp;{cmdShow}</li></p>
         <div><li>大小：{(size > 0) ? size + unit : '未知'}</li></div>
         <p><li>环境变量定义</li></p>

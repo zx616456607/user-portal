@@ -16,6 +16,7 @@
 //////////////////////  Router for public cloud service = Standard Mode ///////////////////
 //////////////////////  Users who are not logged in are also accessible ///////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////
+// 如果是显示在浏览器地址的URL，请不要添加"/api/v2"这样的前缀。其他的API请添加前缀，方便维护/升级
 
 const indexCtl = require('../../controllers')
 const teamController = require('../../controllers/_standard/team')
@@ -30,11 +31,12 @@ module.exports = function (Router) {
 
   // Invite
   router.get('/teams/invite', indexCtl.index)
-  router.get('/teams/invitations', teamController.getInvitationInfo)
+  router.get(`${API_URL_PREFIX}/teams/invitations`, teamController.getInvitationInfo)
 
   //Regiser User
   router.post(`${API_URL_PREFIX}/stdusers`, userController.registerUser)
   router.post(`${API_URL_PREFIX}/stdusers/jointeam`, userController.registerUserAndJoinTeam)
+  router.post(`${API_URL_PREFIX}/stdusers/captchas`, userController.sendCaptcha)
 
   // Payment
   router.post('/payments/alipay/notify', alipayController.notify)

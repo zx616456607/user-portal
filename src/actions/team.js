@@ -515,7 +515,7 @@ export const GET_INVITATION_INFO_SUCCESS = 'GET_INVITATION_INFO_SUCCESS'
 export const GET_INVITATION_INFO_FAILURE = 'GET_INVITATION_INFO_FAILURE'
 
 function fetchInvitationInfo(code) {
-  let endpoint = `/teams/invitations?code=${code}`
+  let endpoint = `${API_URL_PREFIX}/teams/invitations?code=${code}`
   return {
     [FETCH_API]: {
       types: [GET_INVITATION_INFO_REQUEST, GET_INVITATION_INFO_SUCCESS, GET_INVITATION_INFO_FAILURE],

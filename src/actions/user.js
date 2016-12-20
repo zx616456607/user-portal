@@ -95,7 +95,7 @@ export const USER_TEAM_LIST_FAILURE = 'USER_TEAM_LIST_FAILURE'
 
 // Fetches team list from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchUserTeamList(userID, query,callback) {
+function fetchUserTeamList(userID, query, callback) {
   let endpoint = `${API_URL_PREFIX}/users/${userID}/teams`
   if (query) {
     endpoint += `?${toQuerystring(query)}`
@@ -222,7 +222,7 @@ function fetchRegisterUser(body, callback) {
         method: 'POST',
         body
       },
-      schema: {},
+      schema: {}
     },
     callback
   }
@@ -252,7 +252,7 @@ function fetchRegisterUserAndJoinTeam(body, callback) {
         method: 'POST',
         body
       },
-      schema: {},
+      schema: {}
     },
     callback
   }
@@ -394,5 +394,76 @@ function fetchChangeUserInfo(inputInfo, callback) {
 export function changeUserInfo(inputInfo, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchChangeUserInfo(inputInfo, callback))
+  }
+}
+
+
+export const CREATE_CERT_INFO_REQUEST = 'CREATE_CERT_INFO_REQUEST'
+export const CREATE_CERT_INFO_SUCCESS = 'CREATE_CERT_INFO_SUCCESS'
+export const CREATE_CERT_INFO_FAILUER = 'CREATE_CERT_INFO_FAILUER'
+function fetchCreateCertInfo(body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [CREATE_CERT_INFO_REQUEST, CREATE_CERT_INFO_SUCCESS, CREATE_CERT_INFO_FAILUER],
+      endpoint: `${API_URL_PREFIX}/certificates`,
+      options: {
+        method: 'POST',
+        body
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function createCertInfo(body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchCreateCertInfo(body, callback))
+  }
+}
+
+export const GET_USER_CERTIFICATE_REQUEST = 'GET_USER_CERTIFICATE_REQUEST'
+export const GET_USER_CERTIFICATE_SUCCESS = 'GET_USER_CERTIFICATE_SUCCESS'
+export const GET_USER_CERTIFICATE_FAILURE = 'GET_USER_CERTIFICATE_FAILURE'
+
+function fetchStandardUserCertificate(callback) { 
+  return {
+    [FETCH_API]: {
+      types: [GET_USER_CERTIFICATE_REQUEST, GET_USER_CERTIFICATE_SUCCESS, GET_USER_CERTIFICATE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/certificates`,
+      schema: {}
+    }
+  }
+}
+
+export function loadStandardUserCertificate(callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchStandardUserCertificate(callback))
+  }
+}
+
+export const USER_REGISTER_SEND_PHONE_CAPTCHA_REQUEST = 'USER_REGISTER_SEND_PHONE_CAPTCHA_REQUEST'
+export const USER_REGISTER_SEND_PHONE_CAPTCHA_SUCCESS = 'USER_REGISTER_SEND_PHONE_CAPTCHA_SUCCESS'
+export const USER_REGISTER_SEND_PHONE_CAPTCHA_FAILURE = 'USER_REGISTER_SEND_PHONE_CAPTCHA_FAILURE'
+
+function fetchSendRegisterPhoneCaptcha(body, callback) {
+  let endpoint = `${API_URL_PREFIX}/stdusers/captchas`
+  return {
+    [FETCH_API]: {
+      types: [USER_REGISTER_SEND_PHONE_CAPTCHA_REQUEST, USER_REGISTER_SEND_PHONE_CAPTCHA_SUCCESS, USER_REGISTER_SEND_PHONE_CAPTCHA_FAILURE],
+      endpoint,
+      options: {
+        method: 'POST',
+        body
+      },
+      schema: {},
+    },
+    callback
+  }
+}
+
+export function sendRegisterPhoneCaptcha(body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchSendRegisterPhoneCaptcha(body, callback))
   }
 }

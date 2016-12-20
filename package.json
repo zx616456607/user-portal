@@ -72,7 +72,8 @@
     "sha1": "^1.1.1",
     "svg-captcha": "^1.0.7",
     "urllib": "^2.13.1",
-    "xml2js": "^0.4.17"
+    "xml2js": "^0.4.17",
+    "redis": "^2.6.3"
   },
   "devDependencies": {
     "antd": "^1.11.0",
