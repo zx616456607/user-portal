@@ -32,9 +32,9 @@ exports.rechare = function* () {
   let paymentAmount = this.body.paymentAmount
   const teamspace = this.body.teamspace
   if(!paymentAmount) {
-				const error = new Error('paymentAmount is necessary')
+		const error = new Error('paymentAmount is necessary')
     error.status = 400
-				throw error
+		throw error
   }
   paymentAmount = parseFloat(paymentAmount)
   if(isNaN(paymentAmount)) {

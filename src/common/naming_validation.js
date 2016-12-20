@@ -186,3 +186,23 @@ export function appEnvCheck(name, itemName, existNameFlag) {
   }
   return 'success';
 }
+export function IDValide(ID) {
+  if(!/^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}$/.test(ID) && !/^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/.test(ID) ) {
+    return '请输入正确的身份证号码'
+  }
+  if(ID.length == 15) {
+    return 'success'
+  }
+  const v = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2]
+  const remainder = [1, 0, 'x', 9, 8, 7, 6, 5, 4, 3, 2]
+  let valide = 0
+  for(var index = 0; index < 18; index ++){
+    if(index == 17) {
+      return ''
+    }
+    valide += (ID[index].charCodeAt(0) - 48) * v[index]
+  }
+  if(remainder[valide % 11] === ID[17]) {
+    return ''
+  }
+}

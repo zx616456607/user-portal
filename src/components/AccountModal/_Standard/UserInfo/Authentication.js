@@ -8,11 +8,12 @@
  * @author Bai Yu
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Icon, Input, Tabs, Upload, Radio } from 'antd'
+import { Button, Icon, Input, Tabs, Upload, Radio, Form } from 'antd'
 import { connect } from 'react-redux'
 import { browserHistory }  from 'react-router'
 import { getQiNiuToken } from '../../../../actions/upload.js'
 import uploadFile from '../../../../common/upload.js'
+import { IDValide } from '../../../../common/naming_validation.js'
 import './style/Authentication.less'
 const TabPane = Tabs.TabPane
 const RadioGroup = Radio.Group
@@ -22,8 +23,44 @@ const RadioGroup = Radio.Group
 class Indivduals extends Component {
   constructor(props) {
     super(props)
+    this.state = {
+      userHold: {},
+      userScan: {},
+      name: '',
+      ID: ''
+    }
   }
-  beforeUpload(file) {
+  componentWillMount() {
+    const { getFieldProps } = this.props.form
+    const name = getFieldProps('name', {
+      rules: [
+        { whitespace: true, message:'请输入真实姓名'},
+        { validator: this.valideName }
+      ]
+    })
+    const newEmailProps = getFieldProps('ID', {
+      rules: [
+        { whitespace: true, message:'请输入真实身份证号码'},
+        { validator: this.valideID }
+      ]
+    })
+  }
+  valideID(rule, values, callback) {
+    const message = IDValide(values)
+    if(message) {
+      callback([new Error(message)])
+      return
+    }
+    callback()
+    return
+  }
+  valideName(rule, values, callback) {
+    if(!values) {
+      return callback(new Error('请输入真实姓名'))
+    }
+    return
+  }
+  beforeUpload(file, type) {
     const self = this
     this.props.getQiNiuToken('certificate', file.name.trim(), {
       success: {
@@ -31,16 +68,31 @@ class Indivduals extends Component {
           self.setState({
             uptoken: result.upToken
           })
+          const timestamp = new Date() - 0
+          const fileName = `${file.name}${timestamp}`
+          const body = {
+            file: file,
+            token: result.upToken,
+            key: fileName
+          }
           uploadFile(file, {
-            url: result.url,
+            url: result.uploadUrl,
             method: 'POST',
-            headers: {
-              ['content-type']: file.type
-            },
-            body: {
-              token: result.upToken,
-              file: file
-            }
+            body: body
+          })
+          self.setState({
+            qiniu: result.url,
+            origin: result.origin
+          })
+          const url = `${result.origin}/fileName`
+          if(type == 'hold') {
+            self.setState({
+              userHoldPic: url
+            })
+            return
+          }
+          self.setState({
+            userScanPic: url
           })
         }
       }
@@ -48,23 +100,6 @@ class Indivduals extends Component {
     return false
   }
   render() {
-    const props = {
-      action: '/upload.do',
-      listType: 'picture-card',
-      defaultFileList: [{
-        uid: -1,
-        name: 'xxx.png',
-        status: 'done',
-        url: 'https://os.alipayobjects.com/rmsportal/NDbkJhpzmLxtPhB.png',
-        thumbUrl: 'https://os.alipayobjects.com/rmsportal/NDbkJhpzmLxtPhB.png'
-      }],
-      onPreview: (file) => {
-        this.setState({
-          priviewImage: file.url,
-          priviewVisible: true
-        })
-      }
-    }
     return (
       <div className="Indivduals">
         <div className="description">个人用户通过个人认证可获得5元代金券，请按照提示填写本人的真实照片</div>
@@ -89,7 +124,7 @@ class Indivduals extends Component {
               <div className="upload">
                 <Upload  beforeUpload={(file) => {
                   this.beforeUpload(file)
-                }} customRequest={() => true }>
+                }} customRequest={() => true } >
                   <Icon type="plus" />
                   <div className="ant-upload-text">上传照片</div>
                 </Upload>
@@ -104,7 +139,7 @@ class Indivduals extends Component {
             <p>
               <span className="key">身份证反面扫描 <span className="important">*</span></span>
               <div className="upload">
-                <Upload {...props} beforeUpload={ (file) =>
+                <Upload className="avatar-uploader" beforeUpload={ (file) =>
                   this.beforeUpload(file)
                 }>
                   <Icon type="plus" />
@@ -123,7 +158,6 @@ class Indivduals extends Component {
             <Button size="large">提交</Button>
           </div>
         </div>
-
       </div>
     )
   }
@@ -134,7 +168,7 @@ function indivdualsMapStateToProp(state, props) {
     //token: state.upload.qiniuToken
   }
 }
-
+Indivduals = Form.create()(Indivduals)
 Indivduals = connect(indivdualsMapStateToProp, {
   getQiNiuToken
 })(Indivduals)
@@ -151,24 +185,6 @@ class Enterprise extends Component {
     this.setState({trytype: e.target.value})
   }
   render() {
-    const props = {
-      action: '/upload.do',
-      listType: 'picture-card',
-      defaultFileList: [{
-        uid: -1,
-        name: 'xxx.png',
-        status: 'done',
-        url: 'https://os.alipayobjects.com/rmsportal/NDbkJhpzmLxtPhB.png',
-        thumbUrl: 'https://os.alipayobjects.com/rmsportal/NDbkJhpzmLxtPhB.png'
-      }],
-      onPreview: (file) => {
-        this.setState({
-          priviewImage: file.url,
-          priviewVisible: true
-        })
-      }
-    }
-
     return (
       <div className="Indivduals">
         <div className="description">企业用户通过企业认证可获得50元代金券，认证的企业用户的资源配额拥有比未认证的用户更高的配额。请根据您的组织类型选择类型选择认证，企业指领取营业执照的有限责任公司、股份有限公司、非公司企业法人、合伙企业、个人独资企业及其分支机构、来华从事经营的外国（地区）企业，及其他经营单位；其他组歌指在中华人民共和国境内依法注册、依法登记的机关、事业单位、社会团体、学校和民办非企业单位和其他机构。</div>
@@ -198,7 +214,7 @@ class Enterprise extends Component {
             <p>
               <span className="key">营业执照妇描件 <span className="important">*</span></span>
               <div className="upload">
-                <Upload {...props}>
+                <Upload >
                   <Icon type="plus" />
                   <div className="ant-upload-text">上传照片</div>
                 </Upload>
@@ -231,7 +247,7 @@ class Enterprise extends Component {
             <p>
               <span className="key">负责人身份证正面扫描 <span className="important">*</span></span>
               <div className="upload">
-                <Upload {...props}>
+                <Upload >
                   <Icon type="plus" />
                   <div className="ant-upload-text">上传照片</div>
                 </Upload>
@@ -245,7 +261,7 @@ class Enterprise extends Component {
             <p>
               <span className="key">负责人身份证反面扫描 <span className="important">*</span></span>
               <div className="upload">
-                <Upload {...props}>
+                <Upload >
                   <Icon type="plus" />
                   <div className="ant-upload-text">上传照片</div>
                 </Upload>

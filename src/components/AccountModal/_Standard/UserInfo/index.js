@@ -93,6 +93,9 @@ class BaseInfo extends Component {
     const userDetail = user.userInfo
     const cert = user.certInfo
     let userCert, companyCert
+    if(!cert) {
+      return (<div></div>)
+    }
     cert.data.forEach(item => {
       if(item.certType == '1') {
         userCert = item

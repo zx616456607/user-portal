@@ -60,7 +60,8 @@ exports.upTokenToQiniu = function* () {
 
   this.body = {
     upToken: token,
-    url: qiniuConfig.origin
+    uploadUrl: 'http://upload.qiniu.com',
+    origin: qiniuConfig.origin
   }
 }
 
