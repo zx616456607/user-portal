@@ -8,8 +8,10 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import {  } from 'antd'
+import { Card } from 'antd'
 import './style/Register.less'
+import Person from './Person'
+import Company from './Company'
 
 export default class Register extends Component{
   constructor(props){
@@ -19,9 +21,21 @@ export default class Register extends Component{
     }
   }
   render(){
+    const person = true 
     return (
-      <div id='Register'>
-        
+      <div id="RegisterPage">
+        <div className='register'>
+          <Card className="registerForm" bordered={false}>
+            <div>
+              
+            </div>
+            {
+              person ?
+              <Person />:
+              <Company />
+            }
+          </Card>
+        </div>
       </div>
     )
   }
