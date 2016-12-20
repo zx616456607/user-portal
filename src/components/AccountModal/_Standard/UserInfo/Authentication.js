@@ -49,7 +49,6 @@ class Indivduals extends Component {
     return
   }
   valideName(rule, values, callback) {
-    console.log(values)
     if(!values) {
       return callback(new Error('请输入真实姓名'))
     }
