@@ -21,10 +21,6 @@ const config = {
   intl_cookie_name: 'intl_locale',
   session_key: 'tce',
   session_secret: ['tenxcloud_dashboard', 'secret_dream008'],
-  session_store: {
-    url: null || env.SESSION_STORE_URL,
-    pass: null || env.SESSION_STORE_PASS
-  },
   tenx_api: {
     protocol: 'http',
     host: '192.168.1.103:48000' || env.TENX_API_HOST
@@ -44,8 +40,8 @@ const config = {
     service_mail: "service@tenxcloud.com"
   },
   redis: {
-    host: env.USERPORTAL_REDIS_HOST  || '192.168.1.87',
-    port: env.USERPORTAL_REDIS_PORT  || '6380',
+    host: env.USERPORTAL_REDIS_HOST || '192.168.1.87',
+    port: env.USERPORTAL_REDIS_PORT || '6380',
     password: env.USERPORTAL_REDIS_PWD || '',
   }
 }

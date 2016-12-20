@@ -17,6 +17,7 @@ import { loadLoginUserDetail } from '../../../../actions/entities'
 import { loadUserTeamspaceList } from '../../../../actions/user'
 import { getWechatPayQrCode, getWechatPayOrder, getPayOrderStatus } from '../../../../actions/payments'
 import QRCode from 'qrcode.react'
+import NotificationHandler from '../../../../common/notification_handler'
 import './style/balance.less'
 
 class UserPay extends Component {
@@ -28,6 +29,7 @@ class UserPay extends Component {
     this.handleWechatPayCancel = this.handleWechatPayCancel.bind(this)
     this.handlePaySuccessModalCancel = this.handlePaySuccessModalCancel.bind(this)
     this.renderPayButton = this.renderPayButton.bind(this)
+    this.checkPayOrderStatus = this.checkPayOrderStatus.bind(this)
     this.state = {
       payType: 'alipay', //支付类型
       payStatusModal: false, //充值状态
@@ -37,17 +39,20 @@ class UserPay extends Component {
         url: '',
       },
       amount: 100,
-      otherMoney: true, // 其他金额
+      otherAmount: true, // 其他金额
       balance: 0,
       rechargeTarget: {
         loading: false,
         namespace: '',
-      }
+      },
+      teamName: props.teamName,
     }
   }
 
   componentWillMount() {
-    const { loadUserTeamspaceList, getPayOrderStatus, teamName, orderId } = this.props
+    document.title = '充值 | 时速云'
+    const { loadUserTeamspaceList, getPayOrderStatus, orderId } = this.props
+    const { teamName } = this.state
     // Load team list
     if (teamName) {
       this.setState({
@@ -55,7 +60,6 @@ class UserPay extends Component {
           loading: true
         }
       })
-
       loadUserTeamspaceList('default', { size: -1 }).then(({response}) => {
         const { teamspaces } = response.result
         this.setState({
@@ -82,24 +86,12 @@ class UserPay extends Component {
     }
     // Load order status
     if (orderId) {
-      getPayOrderStatus(orderId).then(({ response }) => {
-        let { chargeAmount, newBalance, method, code } = response.result
-        if (code === 404) {
-          return
-        }
-        this.setState({
-          payType: method,
-          amount: chargeAmount / 100,
-          balance: newBalance,
-          payStatusModal: true,
-        })
-      })
+      this.checkPayOrderStatus()
     }
   }
 
   renderRechargeTarget() {
-    const { teamName } = this.props
-    const { rechargeTarget } = this.state
+    const { rechargeTarget, teamName } = this.state
     const { loading, namespace } = rechargeTarget
     if (loading) {
       return <Icon type='loading' />
@@ -116,7 +108,6 @@ class UserPay extends Component {
 
   handlePayClick(e) {
     const { payType, amount } = this.state
-    console.log(amount)
     if (!amount) {
       e.preventDefault()
       document.getElementById('inputAmount').focus()
@@ -162,6 +153,8 @@ class UserPay extends Component {
           }
         })
       }, 1500)
+    }).catch(err => {
+      // Must catch err here, response may be null
     })
   }
 
@@ -179,8 +172,7 @@ class UserPay extends Component {
   }
 
   renderPayButton() {
-    const { teamName } = this.props
-    const { rechargeTarget, payType, amount } = this.state
+    const { rechargeTarget, payType, amount, teamName } = this.state
     const { loading, namespace } = rechargeTarget
     if (payType === 'wechat_pay') {
       return (
@@ -211,19 +203,52 @@ class UserPay extends Component {
   }
 
   setAmount(amount) {
-    let otherMoney = true
+    let otherAmount = true
     if (!amount) {
-      otherMoney = false
+      otherAmount = false
     }
     this.setState({
       amount,
-      otherMoney
+      otherAmount
+    })
+  }
+
+  checkPayOrderStatus() {
+    const { getPayOrderStatus, orderId } = this.props
+    let notification = new NotificationHandler()
+    getPayOrderStatus({ order_id: orderId }).then(({ response }) => {
+      let {
+        chargeAmount,
+        newBalance,
+        method,
+        code,
+        teamId,
+        teamName,
+        namespace,
+      } = response.result
+      if (code === 404) {
+        notification.warn('获取订单状态失败，请查看充值记录')
+        browserHistory.push('/account/cost#payments')
+        return
+      }
+      this.setState({
+        payType: method,
+        amount: chargeAmount / 100,
+        balance: newBalance,
+        payStatusModal: true,
+        rechargeTarget: {
+          namespace: (teamId ? namespace : null)
+        },
+        teamName,
+      })
+    }).catch(err => {
+      notification.warn('获取订单状态失败，请查看充值记录')
+      browserHistory.push('/account/cost#payments')
     })
   }
 
   render() {
-    const { teamName } = this.props
-    let { payType, qrCode, amount, balance, rechargeTarget } = this.state
+    let { payType, qrCode, amount, balance, rechargeTarget, teamName } = this.state
     if (balance !== undefined) {
       balance = (balance / 100).toFixed(2)
     }
@@ -241,60 +266,60 @@ class UserPay extends Component {
           <li>3. 累计充值金额满￥200后可提交工单申请发票 </li>
         </ul>
         <div className="payDetail">
-          <p>
+          <div className="row">
             <span className="keys">充值帐户</span>
             {this.renderRechargeTarget()}
-          </p>
-          <p>
+          </div>
+          <div className="row">
             <span className="keys">充值金额</span>
-            <div className={ this.state.amount =='100' ? 'pushMoney selected' :'pushMoney'} onClick={()=>this.setAmount(100)}>
+            <div className={this.state.amount == '100' ? 'pushMoney selected' : 'pushMoney'} onClick={() => this.setAmount(100)}>
               <span>100</span>
               <div className="triangle"></div>
               <Icon type="check" />
             </div>
-            <div className={ this.state.amount =='200' ? 'pushMoney selected' :'pushMoney'} onClick={()=>this.setAmount(200)}>
+            <div className={this.state.amount == '200' ? 'pushMoney selected' : 'pushMoney'} onClick={() => this.setAmount(200)}>
               <span>200</span>
               <div className="triangle"></div>
               <Icon type="check" />
             </div>
-            <div className={ this.state.amount =='300' ? 'pushMoney selected' :'pushMoney'} onClick={()=>this.setAmount(300)}>
+            <div className={this.state.amount == '300' ? 'pushMoney selected' : 'pushMoney'} onClick={() => this.setAmount(300)}>
               <span>300</span>
               <div className="triangle"></div>
               <Icon type="check" />
             </div>
-            <div className={ this.state.amount =='400' ? 'pushMoney selected' :'pushMoney'} onClick={()=>this.setAmount(400)}>
+            <div className={this.state.amount == '400' ? 'pushMoney selected' : 'pushMoney'} onClick={() => this.setAmount(400)}>
               <span>400</span>
               <div className="triangle"></div>
               <Icon type="check" />
             </div>
-            <div className={ this.state.amount =='500' ? 'pushMoney selected' :'pushMoney'} onClick={()=>this.setAmount(500)}>
+            <div className={this.state.amount == '500' ? 'pushMoney selected' : 'pushMoney'} onClick={() => this.setAmount(500)}>
               <span>500</span>
               <div className="triangle"></div>
               <Icon type="check" />
             </div>
-            <Button size="large" onClick={()=>this.setAmount(false)} style={{marginRight:'10px'}}>其他金额</Button>
+            <Button size="large" onClick={() => this.setAmount(false)} style={{ marginRight: '10px' }}>其他金额</Button>
             {
-              !this.state.otherMoney ?
-              <InputNumber
-                id="inputAmount"
-                size="large"
-                style={{ width: '200px' }}
-                placeholder={`单笔充值金额最少 ${MIN_PAY_AMOUNT} 元`}
-                defaultValue=''
-                step={PAY_AMOUNT_STEP}
-                min={MIN_PAY_AMOUNT}
-                onChange={(value) => {
-                  this.setState({
-                    amount: value
-                  })
-                } } />
-              :null
+              !this.state.otherAmount ?
+                <InputNumber
+                  id="inputAmount"
+                  size="large"
+                  style={{ width: '200px' }}
+                  placeholder={`单笔充值金额最少 ${MIN_PAY_AMOUNT} 元`}
+                  defaultValue=''
+                  step={PAY_AMOUNT_STEP}
+                  min={MIN_PAY_AMOUNT}
+                  onChange={(value) => {
+                    this.setState({
+                      amount: value
+                    })
+                  } } />
+                : null
             }
-          </p>
-          <p>
+          </div>
+          <div className="row">
             <span className="keys">充值方式</span>
             ① 在线支付
-          </p>
+          </div>
           <div className="againMore">
             <div className="pay-row">
               <div
@@ -384,13 +409,13 @@ class UserPay extends Component {
           </Modal>
           {/* 充值成功 end Modal */}
 
-
           {/* 是否支付成功 Modal */}
           <Modal
             title="是否支付成功"
             visible={this.state.payStatusAskModal}
             maskClosable={false}
             onCancel={() => this.setState({ payStatusAskModal: false })}
+            onOk={this.checkPayOrderStatus}
             wrapClassName="paySuccessModal"
             okText="支付成功"
             cancelText="支付失败"
