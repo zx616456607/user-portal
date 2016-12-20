@@ -95,7 +95,7 @@ export const USER_TEAM_LIST_FAILURE = 'USER_TEAM_LIST_FAILURE'
 
 // Fetches team list from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchUserTeamList(userID, query,callback) {
+function fetchUserTeamList(userID, query, callback) {
   let endpoint = `${API_URL_PREFIX}/users/${userID}/teams`
   if (query) {
     endpoint += `?${toQuerystring(query)}`
@@ -222,7 +222,7 @@ function fetchRegisterUser(body, callback) {
         method: 'POST',
         body
       },
-      schema: {},
+      schema: {}
     },
     callback
   }
@@ -252,7 +252,7 @@ function fetchRegisterUserAndJoinTeam(body, callback) {
         method: 'POST',
         body
       },
-      schema: {},
+      schema: {}
     },
     callback
   }
@@ -394,5 +394,30 @@ function fetchChangeUserInfo(inputInfo, callback) {
 export function changeUserInfo(inputInfo, callback) {
   return (dispatch, getState) => {
     return dispatch(fetchChangeUserInfo(inputInfo, callback))
+  }
+}
+
+
+export const CREATE_CERT_INFO_REQUEST = 'CREATE_CERT_INFO_REQUEST'
+export const CREATE_CERT_INFO_SUCCESS = 'CREATE_CERT_INFO_SUCCESS'
+export const CREATE_CERT_INFO_FAILUER = 'CREATE_CERT_INFO_FAILUER'
+function fetchCreateCertInfo(body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [CREATE_CERT_INFO_REQUEST, CREATE_CERT_INFO_SUCCESS, CREATE_CERT_INFO_FAILUER],
+      endpoint: `${API_URL_PREFIX}/certificates`,
+      options: {
+        method: 'POST',
+        body
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function createCertInfo(body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchCreateCertInfo(body, callback))
   }
 }

@@ -84,7 +84,6 @@ exports.changeUserInfo = function* () {
     updateBody.email = newEmail
   }
   const api = apiFactory.getApi(user)
-  console.log(updateBody)
   const apiResult = yield api.users.patchBy([user.id], null, updateBody)
   this.status = apiResult.statusCode
   this.body = apiResult
@@ -132,3 +131,4 @@ exports.registerUserAndJoinTeam = function* () {
     data: result
   }
 }
+

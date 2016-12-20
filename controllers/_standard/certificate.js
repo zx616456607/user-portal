@@ -12,7 +12,7 @@
 'use strict'
 
 const apiFactory = require('../../services/api_factory')
-const logger     = require('../../utils/logger.js').getLogger("certificate")
+const logger     = require('../../utils/logger.js').getLogger('certificate')
 /*
 
 */

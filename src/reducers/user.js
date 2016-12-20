@@ -70,6 +70,11 @@ export default function user(state = {
       FAILURE: ActionTypes.USER_DETAIL_FAILURE
     }, state.userDetail, action, option),
     standardUserDetail: standardUserDetail(state.standardUserDetail, action),
+    createCertInfo: reducerFactory({
+      REQUEST: ActionTypes.CREATE_CERT_INFO_REQUEST,
+      SUCCESS: ActionTypes.CREATE_CERT_INFO_SUCCESS,
+      FAILURE: ActionTypes.CREATE_CERT_INFO_FAILUER
+    }, state.createCertInfo, action, option),
     userAppInfo: reducerFactory({
       REQUEST: ActionTypes.USER_APPINFO_REQUEST,
       SUCCESS: ActionTypes.USER_APPINFO_SUCCESS,
