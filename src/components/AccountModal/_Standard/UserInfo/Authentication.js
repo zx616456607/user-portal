@@ -12,13 +12,16 @@ import { Button, Icon, Input, Tabs, Upload, Radio, Form } from 'antd'
 import { connect } from 'react-redux'
 import { browserHistory }  from 'react-router'
 import { getQiNiuToken } from '../../../../actions/upload.js'
+import { createCertInfo } from '../../../../actions/user.js'
 import uploadFile from '../../../../common/upload.js'
 import { IDValide } from '../../../../common/naming_validation.js'
 import EnterpriseComponse from './detail/EnterpriseComponse'
 import OtherComponse from './detail/OtherComponse'
+import NotificationHandler from '../../../../common/notification_handler.js'
 import './style/Authentication.less'
-const TabPane = Tabs.TabPane;
-const RadioGroup = Radio.Group;
+const TabPane = Tabs.TabPane
+const RadioGroup = Radio.Group
+const FormItem = Form.Item
 
 // const ButtonGroup = Button.Group;
 
@@ -34,19 +37,7 @@ class Indivduals extends Component {
     }
   }
   componentWillMount() {
-    const { getFieldProps } = this.props.form
-    const name = getFieldProps('name', {
-      rules: [
-        { whitespace: true, message:'请输入真实姓名'},
-        { validator: this.valideName }
-      ]
-    })
-    const newEmailProps = getFieldProps('ID', {
-      rules: [
-        { whitespace: true, message:'请输入真实身份证号码'},
-        { validator: this.valideID }
-      ]
-    })
+   
   }
   valideID(rule, values, callback) {
     const message = IDValide(values)
@@ -61,18 +52,22 @@ class Indivduals extends Component {
     if(!values) {
       return callback(new Error('请输入真实姓名'))
     }
+    callback()
     return
   }
   beforeUpload(file, type) {
     const self = this
-    this.props.getQiNiuToken('certificate', file.name.trim(), {
+    const index = file.name.lastIndexOf('.')
+    let fileName = file.name.substring(0, index)
+    let ext = file.name.substring(index + 1)
+    fileName = fileName + (new Date() - 0) + '.' + ext
+    this.props.getQiNiuToken('certificate', fileName, {
       success: {
         func: (result)=> {
           self.setState({
             uptoken: result.upToken
           })
           const timestamp = new Date() - 0
-          const fileName = `${file.name}${timestamp}`
           const body = {
             file: file,
             token: result.upToken,
@@ -80,30 +75,99 @@ class Indivduals extends Component {
           }
           uploadFile(file, {
             url: result.uploadUrl,
+            key: fileName,
             method: 'POST',
             body: body
-          })
-          self.setState({
-            qiniu: result.url,
-            origin: result.origin
-          })
-          const url = `${result.origin}/fileName`
-          if(type == 'hold') {
+          }).then(response => {
             self.setState({
-              userHoldPic: url
+              qiniu: result.url,
+              origin: result.origin
             })
-            return
-          }
-          self.setState({
-            userScanPic: url
+            const url = `${result.origin}/${response.key}`
+            const info = {
+              uid: -1,
+              name: file.name,
+              status: 'done',
+              url,
+              thumbUrl: url
+            }
+            if(type == 'hold') {
+              self.setState({
+                userHold: info
+              })
+              return
+            }
+            self.setState({
+              userScan: info
+            })
           })
         }
       }
     })
     return false
   }
+  handUserCert(e) {
+    e.preventDefault()
+    const { form } = this.props
+    const { changeUserInfo } = this.props
+    const self = this
+    form.validateFields(['name', 'ID'], (errors, values) => {
+      if (errors) {
+        return errors
+      }
+      const notification = new NotificationHandler()
+      const hold = self.state.userHold
+      const scan = self.state.userScan
+      if(!hold.url) {
+        notification.error('请上传身份证正面照')
+        return
+      }
+      if(!scan.url) {
+        notification.error('请上传身份证背面照')
+        return
+      }
+      notification.spin('提交审核信息中')
+      const body = {
+        certType: 1,
+        certUserName: values.name,
+        certUserID: values.ID,
+        userHoldPic: hold.url,
+        userScanPic: scan.url
+      }
+      self.props.createCertInfo(body, {
+       success: {
+         func: () => {
+           notification.close()
+           notification.success('提交审核成功')
+         }
+        },
+        failed: {
+          func: () => {
+            notification.close()
+            notification.error('提交审核失败, 请稍后重试')
+          }
+        }
+      })
+    }) 
+  }
   render() {
+    const hold = this.state.userHold.url ? [this.state.userHold] : null
+    const scan = this.state.userScan.url ? [this.state.userScan] : null
+    const { getFieldProps } = this.props.form
+    const name = getFieldProps('name', {
+      rules: [
+        { require: true, whitespace: true, message:'请输入真实姓名'},
+        { validator: this.valideName }
+      ]
+    })
+    const ID = getFieldProps('ID', {
+      rules: [
+        { require: true, whitespace: true, message:'请输入真实身份证号码'},
+        { validator: this.valideID }
+      ]
+    })
     return (
+      <Form form={this.props.form}>
       <div className="Indivduals">
         <div className="description">个人用户通过个人认证可获得5元代金券，请按照提示填写本人的真实照片</div>
         <div className="auth-status">
@@ -116,18 +180,22 @@ class Indivduals extends Component {
           <div className="user-info">
             <p>
               <span className="key">真实姓名 <span className="important">*</span></span>
-              <Input className="input" size="large" />
+            <FormItem>
+              <Input className="input" size="large" {...name}/>
+            </FormItem>
             </p>
             <p>
               <span className="key">身份证号 <span className="important">*</span></span>
-              <Input className="input" size="large" />
+            <FormItem>
+              <Input className="input" size="large"  {...ID}/>
+            </FormItem>
             </p>
             <p>
               <span className="key">手持身份证照片 <span className="important">*</span></span>
               <div className="upload">
-                <Upload  beforeUpload={(file) => {
-                  this.beforeUpload(file)
-                }} customRequest={() => true } >
+                <Upload listType="picture-card" fileList={hold} beforeUpload={(file) => 
+                  this.beforeUpload(file, 'hold') 
+                } customRequest={() => true }  disabled={ hold ? true : false}>
                   <Icon type="plus" />
                   <div className="ant-upload-text">上传照片</div>
                 </Upload>
@@ -142,8 +210,8 @@ class Indivduals extends Component {
             <p>
               <span className="key">身份证反面扫描 <span className="important">*</span></span>
               <div className="upload">
-                <Upload className="avatar-uploader" beforeUpload={ (file) =>
-                  this.beforeUpload(file)
+                <Upload listType="picture-card" fileList={scan} disabled={ scan ? true : false } beforeUpload={ (file) => 
+                 this.beforeUpload(file, 'scan')
                 }>
                   <Icon type="plus" />
                   <div className="ant-upload-text">上传照片</div>
@@ -158,10 +226,11 @@ class Indivduals extends Component {
             </p>
           </div>
           <div className="info-footer" style={{padding:'0 50px'}}>
-            <Button size="large">提交</Button>
+            <Button size="large" onClick={(e) => this.handUserCert(e)}>提交</Button>
           </div>
         </div>
       </div>
+        </Form>
     )
   }
 }
@@ -173,7 +242,8 @@ function indivdualsMapStateToProp(state, props) {
 }
 Indivduals = Form.create()(Indivduals)
 Indivduals = connect(indivdualsMapStateToProp, {
-  getQiNiuToken
+  getQiNiuToken,
+  createCertInfo
 })(Indivduals)
 
 // 企业 认证
