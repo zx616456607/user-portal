@@ -8,7 +8,7 @@
  * @author Bai Yu
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Icon, Input, Tabs, Upload, Radio, Form } from 'antd'
+import { Button, Icon, Input, Tabs, Upload, Radio, Form, Modal} from 'antd'
 import { connect } from 'react-redux'
 import { browserHistory }  from 'react-router'
 import { getQiNiuToken } from '../../../../actions/upload.js'
@@ -252,7 +252,7 @@ class Enterprise extends Component {
   constructor(props) {
     super(props)
     this.state = {
-       trytype: 1
+       trytype: 2
     }
   }
   changeType(e) {
@@ -261,10 +261,10 @@ class Enterprise extends Component {
   
   render() {
     const enterprise = (
-      <div><Radio value="1" checked ={this.state.trytype =='1' ? true : false}></Radio> 企业</div>
+      <div><Radio value="2" checked ={this.state.trytype =='2' ? true : false}></Radio> 企业</div>
     )
     const otherwise = (
-      <div><Radio value="2" checked ={this.state.trytype =='2' ? true : false}></Radio>其他组织</div>
+      <div><Radio value="3" checked ={this.state.trytype =='3' ? true : false}></Radio>其他组织</div>
     )
     return (
       <div className="Indivduals">
@@ -275,11 +275,16 @@ class Enterprise extends Component {
           <Button type="small">未认证</Button>
         </div>
         
-        <Tabs defaultActiveKey="1" type="card" id="sfdsf8888"  onChange={(e)=> this.changeType(e)} value={this.state.trytype}>
-          <TabPane tab="请选择组织类型" key="3" disabled ></TabPane>
-          <TabPane tab={ enterprise } key="1"><EnterpriseComponse config={this.props.config} scope={this} getQiNiuToken={this.props.scope.props.getQiNiuToken} /></TabPane>
-          <TabPane tab={ otherwise } key="2"><OtherComponse config={this.props.config} /></TabPane>
+        <Tabs defaultActiveKey="2" type="card" id="sfdsf8888"  onChange={(e)=> this.changeType(e)} value={this.state.trytype}>
+          <TabPane tab="请选择组织类型" key="4" disabled ></TabPane>
+          <TabPane tab={ enterprise } key="2"><EnterpriseComponse config={this.props.config} scope={this} /></TabPane>
+          <TabPane tab={ otherwise } key="3"><OtherComponse config={this.props.config} /></TabPane>
         </Tabs>
+        <Modal title="抱歉您的本次认证未通过审核，具体原因如下" visible={this.state.errorAuto}
+          onOk={this.restore} onCancel={this.handleCancel}>
+
+        </Modal>
+        
       </div>
     )
   }
@@ -354,5 +359,6 @@ function mapStateToProps(state, props) {
 
 export default connect(mapStateToProps, {
   getQiNiuToken,
+  createCertInfo,
   loadStandardUserCertificate
 })(Authentication)
