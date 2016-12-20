@@ -55,6 +55,43 @@ function standardUserDetail(state = {}, action) {
   }
 }
 
+function userCertificate (state ={}, action) {
+  const defaultInfo = {
+    isFetching: false,
+    certificate: {enterprise:[],other:[]}
+  }
+  switch (action.type) {
+    case ActionTypes.GET_USER_CERTIFICATE_REQUEST: {
+       return Object.assign({}, {
+        isFetching: true
+      })
+    }
+    case ActionTypes.GET_USER_CERTIFICATE_SUCCESS: {
+      const certificate={}
+      action.response.result.data.data.forEach(list => {
+        if (list.certType == '2') {
+         certificate.enterprise = list
+        } else {
+          certificate.other = list
+        }
+      })
+      return Object.assign({}, state,{
+        isFetching: false,
+        certificate: certificate
+      })
+    }
+    case ActionTypes.GET_USER_CERTIFICATE_FAILURE: {
+      return Object.assign({},defaultInfo, {
+        isFetching: false,
+        certificate: null
+      })
+    }
+    default: {
+      return state
+    }
+  }
+}
+
 export default function user(state = {
   userDetail: {},
   users: [],
@@ -69,6 +106,7 @@ export default function user(state = {
       SUCCESS: ActionTypes.USER_DETAIL_SUCCESS,
       FAILURE: ActionTypes.USER_DETAIL_FAILURE
     }, state.userDetail, action, option),
+    userCertificate: userCertificate(state.userCertificate, action),
     standardUserDetail: standardUserDetail(state.standardUserDetail, action),
     createCertInfo: reducerFactory({
       REQUEST: ActionTypes.CREATE_CERT_INFO_REQUEST,
