@@ -39,6 +39,13 @@ class Indivduals extends Component {
     }
   }
   componentWillMount() {
+    // this.props.loadStandardUserCertificate({
+    //   success: {
+    //     func: (result) => {
+    //       console.log(result)
+    //     }
+    //   }
+    // })
   }
   valideID(rule, values, callback) {
     const message = IDValide(values)
@@ -238,14 +245,17 @@ class Indivduals extends Component {
 }
 
 function indivdualsMapStateToProp(state, props) {
+  const { userCertificate } = state.user
+  const { certificate } = userCertificate || {}
   return {
-    //token: state.upload.qiniuToken
+    certificate
   }
 }
 Indivduals = Form.create()(Indivduals)
 Indivduals = connect(indivdualsMapStateToProp, {
   getQiNiuToken,
-  createCertInfo
+  createCertInfo,
+  loadStandardUserCertificate
 })(Indivduals)
 
 // 企业 认证
