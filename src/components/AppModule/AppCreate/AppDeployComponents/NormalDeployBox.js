@@ -438,7 +438,7 @@ let NormalDeployBox = React.createClass({
     loadImageDetailTag: PropTypes.func.isRequired,
     loadImageDetailTagConfig: PropTypes.func.isRequired,
     selectComposeType: PropTypes.func.isRequired,
-    loadPublicImageList: PropTypes.func.isRequired
+    loadPublicImageList: PropTypes.func
   },
   selectComposeType(type) {
     const parentScope = this.props.scope
@@ -555,7 +555,8 @@ let NormalDeployBox = React.createClass({
     let imageVersion = getFieldValue('imageVersion');
     let switchDisable = false
     let mountPath = []
-    if (!tagConfig || !tagConfig[registry] || !tagConfig[registry].configList[imageVersion] || !tagConfig[registry].configList[imageVersion].mountPath || tagConfig[registry].configList[imageVersion].mountPath.length <= 0) {
+    if (!tagConfig || !tagConfig[registry] || !tagConfig[registry].configList || !tagConfig[registry].configList[imageVersion] ||
+      !tagConfig[registry].configList[imageVersion].mountPath || tagConfig[registry].configList[imageVersion].mountPath.length <= 0) {
       switchDisable = true
     }
     let imageVersionShow = (
