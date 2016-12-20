@@ -9,15 +9,27 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { Button, Icon, Input, Upload, Form} from 'antd'
+import uploadFile from '../../../../../common/upload.js'
+import { IDValide } from '../../../../../common/naming_validation.js'
+import NotificationHandler from '../../../../../common/notification_handler.js'
 const FormItem = Form.Item
 
 let OtherComponse = React.createClass({
-  idCard(rule, value, callback) {
-    if (value.length < 15 || value.length > 18) {
-      callback(new Error('请输入15位 - 18位身份证号!'));
-    } else {
-      callback();
+  getInitialState() {
+    return {
+      userLicense:{},
+      userFrontId:{},
+      backId:{}
     }
+  },
+  idCard(rule, value, callback) {
+   const message = IDValide(values)
+    if(message) {
+      callback([new Error(message)])
+      return
+    }
+    callback()
+    return
   },
   isPhone(rule, value, callback) {
     if (value.length < 11 || value.length > 11) {
@@ -39,24 +51,8 @@ let OtherComponse = React.createClass({
     });
   },
   render() {
-    const props = {
-      action: '/upload.do',
-      listType: 'picture-card',
-      defaultFileList: [{
-        uid: -1,
-        name: 'xxx.png',
-        status: 'done',
-        url: 'https://os.alipayobjects.com/rmsportal/NDbkJhpzmLxtPhB.png',
-        thumbUrl: 'https://os.alipayobjects.com/rmsportal/NDbkJhpzmLxtPhB.png',
-      }],
-      onPreview: (file) => {
-        this.setState({
-          priviewImage: file.url,
-          priviewVisible: true,
-        });
-      },
-    }
-        console.log('this is props', this.props.config)
+
+    console.log('this is props', this.props.config)
 
     const { getFieldProps } = this.props.form;
     const organizeNameProps = getFieldProps('organizeName', {
@@ -91,6 +87,14 @@ let OtherComponse = React.createClass({
       ],
       initialValue: ''
     });
+    const data = this.props.config || {}
+    let disabled = false
+    if (data && data.status == 1) {
+      disabled = true
+    }
+    const license = this.state.userLicense.url ? [this.state.userLicense] : null
+    const frontId = this.state.userFrontId.url ? [this.state.userFrontId] : null
+    const backId = this.state.backId.url ? [this.state.backId] : null
     return (
       <Form horizontal onSubmit={this.handleSubmit}>
         <div className="myInfo">
@@ -111,10 +115,16 @@ let OtherComponse = React.createClass({
             <div className="list">
               <span className="key">组织机构代码证扫描件 <span className="important">*</span></span>
               <div className="upload">
-                <Upload {...props}>
+                {data.status ?
+                <img src={data.userScanPic} className="ant-upload ant-upload-select-picture-card" style={{padding:0}} />
+                :
+                <Upload listType="picture-card" fileList={backId} beforeUpload={(file) => 
+                  this.beforeUpload(file, 'backId') 
+                } customRequest={() => true }  disabled={ backId ? true : false}>
                   <Icon type="plus" />
                   <div className="ant-upload-text">上传照片</div>
                 </Upload>
+              }
               </div>
               <ul className="chk">
                 <li>&nbsp;</li>
@@ -126,7 +136,7 @@ let OtherComponse = React.createClass({
           </div>
 
         </div>
-        <div className="myInfo">
+        <div className="myInfo" style={{marginTop:'20px'}}>
           <div className="hand">企业负责人信息</div>
           <div className="user-info">
             <div className="list">
@@ -150,10 +160,16 @@ let OtherComponse = React.createClass({
             <div className="list">
               <span className="key">负责人身份证正面扫描 <span className="important">*</span></span>
               <div className="upload">
-                <Upload {...props}>
+                {data.status ?
+                <img src={data.userScanPic} className="ant-upload ant-upload-select-picture-card" style={{padding:0}} />
+                :
+                <Upload listType="picture-card" fileList={backId} beforeUpload={(file) => 
+                  this.beforeUpload(file, 'backId') 
+                } customRequest={() => true }  disabled={ backId ? true : false}>
                   <Icon type="plus" />
                   <div className="ant-upload-text">上传照片</div>
                 </Upload>
+              }
               </div>
               <ul className="chk">
                 <li>&nbsp;</li>
@@ -164,10 +180,16 @@ let OtherComponse = React.createClass({
             <div className="list">
               <span className="key">负责人身份证反面扫描 <span className="important">*</span></span>
               <div className="upload">
-                <Upload {...props}>
+                {data.status ?
+                <img src={data.userScanPic} className="ant-upload ant-upload-select-picture-card" style={{padding:0}} />
+                :
+                <Upload listType="picture-card" fileList={backId} beforeUpload={(file) => 
+                  this.beforeUpload(file, 'backId') 
+                } customRequest={() => true }  disabled={ backId ? true : false}>
                   <Icon type="plus" />
                   <div className="ant-upload-text">上传照片</div>
                 </Upload>
+              }
               </div>
               <ul className="chk">
                 <li>1.身份证信息清晰可辨认</li>
