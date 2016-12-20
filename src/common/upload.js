@@ -36,6 +36,7 @@ export default function uploadFile(file, options, callback) {
   })
   const notification = new NotificationHandler()
   notification.spin('文件上传中')
+  console.log(options)
   return fetch(options.url, {
     headers: options.headers,
     method: options.method,
@@ -44,16 +45,13 @@ export default function uploadFile(file, options, callback) {
   }).then(response => {
     notification.close()
     notification.success('文件上传成功')
-
-    if(response.status != 200) {
-  
-      return response.status
-    }
     if(callback) {
       return callback(response.json())
     }
     return response.json()
   }).catch(err => {
+    notification.close()
+    notification.error('上传失败, 请稍后重试')
     if(callback) {
       return callback(err)
     }

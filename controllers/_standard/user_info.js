@@ -132,9 +132,3 @@ exports.registerUserAndJoinTeam = function* () {
   }
 }
 
-exports.createCertInfo = function*() {
-  const spi = apiFactory.getSpi(this.session.loginUser)
-  const spiResult = spi.certificates.create(this.request.body)
-  this.status = spiResult.statusCode
-  this.body = spiResult
-}
