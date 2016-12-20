@@ -28,7 +28,7 @@ const FormItem = Form.Item;
 let AppDeployServiceModal = React.createClass({
   propTypes: {
     cluster: PropTypes.string.isRequired,
-    serviceList: PropTypes.array.isRequired,
+    serviceList: PropTypes.array,
   },
   getInitialState: function () {
     return {
