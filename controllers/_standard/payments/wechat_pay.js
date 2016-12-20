@@ -23,6 +23,7 @@ const _this = this
  */
 exports.createPrepayRecord = function* () {
   const method = 'createPrepayRecord'
+  delete this.session.payment_status
   // 交易金额默认为人民币交易，接口中参数支付金额单位为【分】，参数值不能带小数。对账单中的交易金额单位为【元】
   const body = this.request.body
   let amount = body.amount

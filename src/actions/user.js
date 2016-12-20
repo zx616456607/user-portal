@@ -422,6 +422,26 @@ export function createCertInfo(body, callback) {
   }
 }
 
+export const GET_USER_CERTIFICATE_REQUEST = 'GET_USER_CERTIFICATE_REQUEST'
+export const GET_USER_CERTIFICATE_SUCCESS = 'GET_USER_CERTIFICATE_SUCCESS'
+export const GET_USER_CERTIFICATE_FAILURE = 'GET_USER_CERTIFICATE_FAILURE'
+
+function fetchStandardUserCertificate(callback) { 
+  return {
+    [FETCH_API]: {
+      types: [GET_USER_CERTIFICATE_REQUEST, GET_USER_CERTIFICATE_SUCCESS, GET_USER_CERTIFICATE_FAILURE],
+      endpoint: `${API_URL_PREFIX}/certificates`,
+      schema: {}
+    }
+  }
+}
+
+export function loadStandardUserCertificate(callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchStandardUserCertificate(callback))
+  }
+}
+
 export const USER_REGISTER_SEND_PHONE_CAPTCHA_REQUEST = 'USER_REGISTER_SEND_PHONE_CAPTCHA_REQUEST'
 export const USER_REGISTER_SEND_PHONE_CAPTCHA_SUCCESS = 'USER_REGISTER_SEND_PHONE_CAPTCHA_SUCCESS'
 export const USER_REGISTER_SEND_PHONE_CAPTCHA_FAILURE = 'USER_REGISTER_SEND_PHONE_CAPTCHA_FAILURE'

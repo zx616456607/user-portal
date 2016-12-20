@@ -29,6 +29,7 @@ const logger = require('../../../utils/logger.js').getLogger('alipay')
 
 exports.rechare = function* () {
   const method = 'rechare'
+  delete this.session.payment_status
   const user = _.cloneDeep(this.session.loginUser)
   const body = this.request.body
   let paymentAmount = body.paymentAmount

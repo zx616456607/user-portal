@@ -86,8 +86,11 @@ export const PAY_ORDER_STATUS_FAILURE = 'PAY_ORDER_STATUS_FAILURE'
 
 // Fetches wechat pay order from API.
 // Relies on the custom API middleware defined in ../middleware/api.js.
-function fetchPayOrderStatus(orderId) {
-  let endpoint = `${API_URL_PREFIX}/payments/orders/${orderId}/status`
+function fetchPayOrderStatus(query) {
+  let endpoint = `${API_URL_PREFIX}/payments/orders/status`
+  if (query) {
+    endpoint += `?${toQuerystring(query)}`
+  }
   return {
     [FETCH_API]: {
       types: [PAY_ORDER_STATUS_REQUEST, PAY_ORDER_STATUS_SUCCESS, PAY_ORDER_STATUS_FAILURE],
@@ -99,8 +102,8 @@ function fetchPayOrderStatus(orderId) {
 
 // Fetches wechat pay order from API
 // Relies on Redux Thunk middleware.
-export function getPayOrderStatus(orderId) {
+export function getPayOrderStatus(query) {
   return (dispatch) => {
-    return dispatch(fetchPayOrderStatus(orderId))
+    return dispatch(fetchPayOrderStatus(query))
   }
 }

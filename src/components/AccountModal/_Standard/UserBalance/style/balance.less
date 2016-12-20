@@ -1,7 +1,8 @@
 @borderColor: #E4E8F3;
 @activeColor: #2db7f5;
 #UserBalance{
-  .myAccount,.myTeam{
+  margin-bottom: 50px;
+  .myAccount,.myTeam,.version{
     background: white;
     border-radius: 5px;
     font-size: 14px;
@@ -20,7 +21,7 @@
     }
     .rechargeRow{padding:0 50px;line-height: 50px;}
   }
-  .myTeam{margin-top: 20px;}
+  .myTeam, .version{margin-top: 20px;}
 
 }
 
@@ -61,8 +62,8 @@
     margin:20px 0;
   }
   .payDetail{
-    background: white;padding:0 50px;
-    >p{
+    background: white;padding:0 50px 50px;
+    .row{
       line-height: 50px;
     }
     .keys{display: inline-block;width: 90px;float: left;}
@@ -73,7 +74,7 @@
       margin-right: 10px;
       i{
         display: none;
-        font-size: 1px;
+        font-size: 8px;
         position: absolute;
         right: 0px;bottom: 0;
         z-index: 2;color: white;

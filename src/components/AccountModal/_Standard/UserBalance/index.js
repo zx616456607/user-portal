@@ -31,6 +31,7 @@ class UserBalance extends Component {
   }
 
   componentWillMount() {
+    document.title = '充值/续费 | 时速云'
     const { loadLoginUserDetail, loadUserTeamspaceList } = this.props
     loadLoginUserDetail()
     loadUserTeamspaceList('default', { size: -1 }).then(({response}) => {
@@ -130,6 +131,13 @@ class UserBalance extends Component {
             </div>
             : null
           }
+        </div>
+
+        <div className="version">
+          <div className="topRow"><i className="fa fa-get-pocket" /> &nbsp;标准版
+          </div>
+          <div className="moneyRow"><span className="money">0元/月</span></div>
+          <div className="rechargeRow"><Button type="primary" size="large">升级专业版</Button></div>
         </div>
 
       </div>
