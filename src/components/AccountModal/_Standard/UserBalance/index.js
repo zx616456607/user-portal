@@ -132,6 +132,13 @@ class UserBalance extends Component {
           }
         </div>
 
+        <div className="version">
+          <div className="topRow"><i className="fa fa-get-pocket" /> &nbsp;标准版
+          </div>
+          <div className="moneyRow"><span className="money">0元/月</span></div>
+          <div className="rechargeRow"><Button type="primary" size="large">升级专业版</Button></div>
+        </div>
+
       </div>
     )
   }

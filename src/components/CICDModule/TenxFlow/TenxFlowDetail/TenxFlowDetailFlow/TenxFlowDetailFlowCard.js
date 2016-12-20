@@ -296,6 +296,12 @@ class TenxFlowDetailFlowCard extends Component {
     }
   }
 
+  componentWillMount() {
+    this.setState({
+      ciRulesOpened: this.props.config.spec.ci.enabled == 1 ? true : false
+    });
+  }
+
   componentWillReceiveProps(nextProps) {
     let ciRulesOpened = nextProps.config.spec.ci.enabled == 1 ? true : false;
     this.setState({
