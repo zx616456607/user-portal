@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Spin, Icon, Card, Alert, Modal, Button, notification } from 'antd'
+import { Spin, Icon, Card, Alert, Modal, Button } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -134,7 +134,7 @@ class TenxFlowDetailFlow extends Component {
       getTenxFlowStateList(flowId, {
         success: {
           func: () => {
-            notification.success('流程构建', '流程构建已刷新');
+            notification.success("构建流程已刷新")
           },
           isAsync: true
         }
@@ -168,7 +168,7 @@ class TenxFlowDetailFlow extends Component {
     CreateTenxflowBuild(flowId, { stageId: stageId }, {
       success: {
         func: (res) => {
-          notification.success('流程构建', '流程构建成功');
+          notification.success('流程构建成功');
           let buildingList = _this.state.buildingList;
           buildingList.map((item) => {
             if (item.stageId == stageId) {
@@ -209,7 +209,7 @@ class TenxFlowDetailFlow extends Component {
             StopTenxflowBuild(flowId, item.stageId, item.buildId, {
               success: {
                 func: (res) => {
-                  notification.success('构建停止成功', '构建停止成功');
+                  notification.success('构建停止成功');
                   getTenxFlowStateList(flowId);
                 },
                 isAsync: true
@@ -233,7 +233,7 @@ class TenxFlowDetailFlow extends Component {
     getTenxFlowStateList(flowId, {
       success: {
         func: () => {
-          notification.success('流程构建', '流程构建已刷新');
+          notification.success('流程构建已刷新');
           this.setState({
             refreshing: false
           })
