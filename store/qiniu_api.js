@@ -14,7 +14,7 @@
 
 var qn = require('qn')
 var utility = require('utility')
-var logger = require('../utils/logger.js').getLogger("qiniu_api")
+var logger = require('../utils/logger.js').getLogger('qiniu_api')
 var storeConfig = require('../configs/_standard/qiniu') 
 
 // 5 mins to make token expired
@@ -51,7 +51,7 @@ function QiniuAPI(bucket) {
       }
       break
     default:
-      logger.error("Invalid qiniu bucket: " + bucket)
+      logger.error('Invalid qiniu bucket: ' + bucket)
       return
   }
   // Add other options
@@ -77,6 +77,10 @@ QiniuAPI.prototype.getUpToken = function (fileName) {
   })
 }
 
+QiniuAPI.prototype.getQiniuConfig = function() {
+  return this.qiniuConfig
+}
+
 // Testing purpose for now
 QiniuAPI.prototype.uploadFile = function (fileName, callback) {
   let method = 'uploadFile'
@@ -94,7 +98,7 @@ QiniuAPI.prototype.uploadFile = function (fileName, callback) {
     // NOTE: Current qn module doesn't support to use custom token in options, so need to update up.js to test token expired
     self.client.uploadFile(fileName, {token: token, key: fileName}, function (err, result) {
       if (err) {
-        logger.error(method, "Failed to update to qiniu: " + JSON.stringify(err))
+        logger.error(method, 'Failed to update to qiniu: ' + JSON.stringify(err))
       }
       logger.info(method, JSON.stringify(result))
       if (callback) {

@@ -21,6 +21,13 @@ const rootRoutes = {
       })
     },
   },{
+    path: '/register',
+    getComponent: (location, cb) => {
+      require.ensure([], (require) => {
+        cb(null, require('../containers/Register').default)
+      })
+    },
+  },{
     path: '/teams/invite',
     getComponent: (location, cb) => {
       require.ensure([], (require) => {

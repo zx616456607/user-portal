@@ -65,7 +65,38 @@
     >p{
       line-height: 50px;
     }
-    .keys{display: inline-block;width: 90px;}
+    .keys{display: inline-block;width: 90px;float: left;}
+    .pushMoney{
+      margin-top: 10px;overflow: hidden;cursor: pointer;
+      width:80px;float: left;height: 35px;line-height: 35px;text-align:center;position: relative;
+      border: 1px solid @borderColor;border-radius:6px;    vertical-align: middle;
+      margin-right: 10px;
+      i{
+        display: none;
+        font-size: 1px;
+        position: absolute;
+        right: 0px;bottom: 0;
+        z-index: 2;color: white;
+      }
+      .triangle{
+        display: none;
+        width: 0px;
+        height: 0px;
+        border-bottom: 0px solid transparent;
+        border-top: 20px solid transparent;
+        border-right:23px solid #00A1EC;
+        font-size: 0px;
+        line-height: 0px;
+        position: absolute;
+        top:14px;
+        right: 0;
+      }
+    }
+    .pushMoney.selected{
+      border-bottom-right-radius: 0;
+      border:1px solid @activeColor;color: @activeColor;
+      .triangle, i{display: inline-block}
+    }
   }
   .againMore{
     padding-left: 90px;
@@ -107,10 +138,24 @@
         i{display: inline-block;}.triangle{display: block;}
       }
     }
+    .downRow{
+      margin-top: 30px
+    }
     .tips{
       border:1px solid @borderColor;padding:20px;border-radius: 5px;
-      .list-top{font-weight: 500;color: #000;line-height: 50px;height:40px;font-family: '宋体'}
-      .ticket{background: #F6F7FB;border:1px solid @borderColor;padding:15px 20px;border-radius: 5px;}
+      .list-top{
+        font-weight: 500;
+        color: #000;
+        line-height: 50px;
+        height:40px;
+        // font-family: '宋体'
+      }
+      .ticket{
+        background: #F6F7FB;
+        border:1px solid @borderColor;
+        padding:15px 20px;
+        border-radius: 5px;
+      }
       .timeout{color: #EE5341}
       .list-row{line-height: 40px;padding:0 20px;}
     }

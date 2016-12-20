@@ -250,19 +250,37 @@ class Deployment {
       if (!container.args) {
         container.args = []
       }
-      container.args.push(args)
+      if (typeof args == 'Array') {
+        container.args.push(args)
+      } else {
+        let argArray = args.split(' ')
+        argArray.forEach(function(arg) {
+          if (arg != "") {
+            container.args.push(arg)
+          }
+        })
+      }
     })
   }
 
-  addContainerCommand(containerName, command) {
+  addContainerCommand(containerName, commands) {
     this.spec.template.spec.containers.map((container) => {
       if (container.name !== containerName) {
         return
       }
-      if (!container.command) {
-        container.command = []
+      if (!container.commands) {
+        container.commands = []
       }
-      container.command.push(command)
+      if (typeof commands == 'Array') {
+        container.commands.push(commands)
+      } else {
+        let cmdArray = commands.split(' ')
+        cmdArray.forEach(function(cmd) {
+          if (cmd != "") {
+            container.commands.push(cmd)
+          }
+        })
+      }
     })
   }
 

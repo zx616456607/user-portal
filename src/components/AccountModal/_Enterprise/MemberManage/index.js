@@ -47,6 +47,7 @@ let MemberTable = React.createClass({
     const { sortName } = this.state
     const { page, pageSize, filter } = this.props.scope.state
     let sort = this.getSort(!sortName, 'userName')
+    console.log('handle---sort',sort)
     loadUserList({
       page: page,
       size: pageSize,
@@ -148,7 +149,7 @@ let MemberTable = React.createClass({
     this.styleFilter = styleFilterStr
   },
   render() {
-    let { sortedInfo, filteredInfo } = this.state
+    let { sortedInfo, filteredInfo, sort } = this.state
     const { searchResult, notFound } = this.props.scope.state
     const { data, scope } = this.props
     filteredInfo = filteredInfo || {}
@@ -164,7 +165,7 @@ let MemberTable = React.createClass({
         scope.props.loadUserList({
           page: current,
           size: pageSize,
-          sort: scope.state.sort,
+          sort,
           filter: scope.state.filter,
         })
         scope.setState({
@@ -181,7 +182,7 @@ let MemberTable = React.createClass({
         scope.props.loadUserList({
           page: current,
           size: pageSize,
-          sort: scope.state.sort,
+          sort,
           filter: scope.state.filter
         })
         scope.setState({

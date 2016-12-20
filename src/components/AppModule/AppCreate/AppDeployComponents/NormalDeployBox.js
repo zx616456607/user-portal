@@ -204,10 +204,11 @@ let MyComponent = React.createClass({
   render: function () {
     const { getFieldProps, getFieldValue, } = this.props.form
     const registry = this.props.registry
+    const {imageVersion} = this.props
     const self = this
     if (!this.props.tagConfig[registry]) return
     if (!this.props.tagConfig[registry].configList) return
-    const mountPath = this.props.tagConfig[registry].configList.mountPath
+    const mountPath = this.props.tagConfig[registry].configList[imageVersion].mountPath
     if (!this.props.avaliableVolume.data && !getFieldValue('volumeName1')) {
       return <div></div>
     }
@@ -411,22 +412,22 @@ function loadImageTagConfigs(tag, props) {
         isAsync: true
       }
     })
-    return
+  } else {
+    loadImageDetailTagConfig(DEFAULT_REGISTRY, currentSelectedImage, tag, {
+      success: {
+        func: (result) => {
+          if (!isCreate) {
+            return
+          }
+          const { form } = props
+          const { containerPorts, defaultEnv } = result.data
+          setPorts(containerPorts, form)
+          setEnv(defaultEnv, form)
+        },
+        isAsync: true
+      }
+    })
   }
-  loadImageDetailTagConfig(DEFAULT_REGISTRY, currentSelectedImage, tag, {
-    success: {
-      func: (result) => {
-        if (!isCreate) {
-          return
-        }
-        const { form } = props
-        const { containerPorts, defaultEnv } = result.data
-        setPorts(containerPorts, form)
-        setEnv(defaultEnv, form)
-      },
-      isAsync: true
-    }
-  })
 }
 
 let NormalDeployBox = React.createClass({
@@ -437,6 +438,7 @@ let NormalDeployBox = React.createClass({
     loadImageDetailTag: PropTypes.func.isRequired,
     loadImageDetailTagConfig: PropTypes.func.isRequired,
     selectComposeType: PropTypes.func.isRequired,
+    loadPublicImageList: PropTypes.func.isRequired
   },
   selectComposeType(type) {
     const parentScope = this.props.scope
@@ -448,8 +450,20 @@ let NormalDeployBox = React.createClass({
     const { setFieldsValue } = this.props.form
     setFieldsValue({
       imageVersion: tag
+    });
+    this.setState({
+      currentImageVersion: tag
     })
-    loadImageTagConfigs(tag, this.props)
+    if (this.props.other) {
+      const config = {
+        imageId: this.props.other,
+        fullname: this.props.currentSelectedImage,
+        imageTag: tag
+      }
+      loadImageTagConfigs(config, this.props)
+    } else {
+      loadImageTagConfigs(tag, this.props)
+    }
   },
   userExists(rule, value, callback) {
     const { checkServiceName, isCreate, cluster } = this.props
@@ -524,7 +538,7 @@ let NormalDeployBox = React.createClass({
     const parentScope = this.props.scope;
     const { imageTagsIsFetching, form, composeType, cluster} = this.props
     const imageTags = this.props.otherImages ? this.props.otherImages : this.props.imageTags
-    const { getFieldProps, getFieldError, isFieldValidating } = form
+    const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = form
     const nameProps = getFieldProps('name', {
       rules: [
         { validator: this.userExists },
@@ -538,9 +552,10 @@ let NormalDeployBox = React.createClass({
       ],
       initialValue: imageTags[0]
     })
+    let imageVersion = getFieldValue('imageVersion');
     let switchDisable = false
     let mountPath = []
-    if (!tagConfig || !tagConfig[registry] || !tagConfig[registry].configList || !tagConfig[registry].configList.mountPath || tagConfig[registry].configList.mountPath.length <= 0) {
+    if (!tagConfig || !tagConfig[registry] || !tagConfig[registry].configList[imageVersion] || !tagConfig[registry].configList[imageVersion].mountPath || tagConfig[registry].configList[imageVersion].mountPath.length <= 0) {
       switchDisable = true
     }
     let imageVersionShow = (
@@ -683,6 +698,7 @@ let NormalDeployBox = React.createClass({
                   parentScope={parentScope}
                   form={form}
                   cluster={cluster}
+                  imageVersion={imageVersion}
                   registry={this.props.registry}
                   serviceOpen={this.props.serviceOpen} />
               ] : null}

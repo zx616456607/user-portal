@@ -22,12 +22,12 @@ export default class InviteNewMemberModal extends Component{
     super(props)
     this.handleOk = this.handleOk.bind(this)
     this.handleCancel = this.handleCancel.bind(this)
-    this.handleOnChange = this.handleOnChange.bind(this)
     this.handleTagsChange = this.handleTagsChange.bind(this)
     this.handleChangeInput = this.handleChangeInput.bind(this)
-    this.renderInput = this.renderInput.bind(this)
+    // this.renderInput = this.renderInput.bind(this)
     this.renderTag = this.renderTag.bind(this)
-    this.defaultPasteSplit = this.defaultPasteSplit.bind(this)
+    this.handleOnChangeInput = this.handleOnChangeInput.bind(this)
+
     this.state = {
       valueArr: [],
       disabled: false,
@@ -53,91 +53,21 @@ export default class InviteNewMemberModal extends Component{
     const { closeInviteModal } = this.props
     closeInviteModal()
   }
-  /*handleOnKeyDown (value) {
-    console.log('keyDowm',value)
-    
-    if (value.charAt(value.length - 1) === ';') {
-      console.log('value',value)
-      valuesArr = value.split(';')
-      valuesArr.length -= 1
-      console.log('valuesArr',valuesArr)
-      valueArr.map((item,index) => {
-        if(filter.test(item)) {
-          valueArr.push(
-            <Tag closable key={index}>{item}</Tag>
-          )
-          return
-        } else {
-          valueArr.push(
-            <Tag closable key={index} color='red'>{item}</Tag>
-          )
-          this.setState({
-            disabled: true
-          })
-        }
-      })
-      
-      this.setState({
-        valueArr: valuesArr
-      })
-    }
-  }*/
-  handleOnChange (e) {
-    let valueArr = []
-    console.log('vaule',e.target)
-    console.log('refs',this.refs)
-    console.log('text-----',this.refs.inviteInt.innerHTML)
-    let values = this.refs.inviteInt.innerHTML
-    
-    valueArr = values.split(';')
-    console.log('valueArr',valueArr);
-    valueArr.length -= 1
-    valueArr.map((item,index) => {
-      if(EMAIL_REG_EXP.test(item)){
-        console.log('item',item);
-      
-      } else {
-        console.log('err item',item);
-        valuesArr.push(
-          <Tag closable color="red" key={index}>{item}</Tag>
-        )
-        this.setState({
-          valueArr: valuesArr
-        })
-      }
-    })
-  }
-  handleChange (value) {
-    let vaules = []
-    let {valueArr} = this.state
-    console.log('ChangeValue',value)
-    value.map((item,index) => {
-      if (EMAIL_REG_EXP.test(item)) {
-        vaules.push(
-          <Tag className='normal'>{value}</Tag>
-        )
-      } else {
-         vaules.push(
-          <Tag className='normal' closable color='red'>{value}</Tag>
-        )
-      }
-    })
-    this.setState({
-      valueArr: vaules
-    })
-  }
+  
   handleTagsChange (value){
+    console.log('value',value)
     this.setState({
       tags:value
     })
   }
   handleChangeInput(tag) {
+    console.log('tag',tag)
     this.setState({tag})
   }
+ 
   renderTag (props) {
-    let {tag, key, disabled, onRemove, classNameRemove, getTagDisplayValue, ...other} = props
+    let {tag, key, disabled, onRemove, classNameRemove, getTagDisplayValue,...other} = props
     let {rightTags} = this.state
-
     if (!EMAIL_REG_EXP.test(tag)) {
       return (
         <span key={key} {...other} className="react-tagsinput-tag errTags">
@@ -153,22 +83,15 @@ export default class InviteNewMemberModal extends Component{
         <span key={key} {...other}>
           {getTagDisplayValue(tag)}
           {!disabled &&
-          <a className={classNameRemove} onClick={(e) => onRemove(key)} >
+          <a className={classNameRemove} onClick={(e) => onRemove(key)}>
           </a>
           }
         </span>
       )
     }
   }
-  renderInput (props) {
-    let {onChange, value, addTag,pasteSplit, ...other} = props
-    return (
-      <input type='text' onChange={onChange} value={value} pasteSplit={pasteSplit} {...other} />
-    )
-  }
-  defaultPasteSplit (data) {
-    console.log('data',data);
-    return data.split(';').map(d => d.trim())
+  handleOnChangeInput (data) {
+    console.log('data',data)
   }
   render(){
     const { visible } = this.props
@@ -201,7 +124,9 @@ export default class InviteNewMemberModal extends Component{
                      renderTag={this.renderTag}
                      renderInput={this.renderInput}
                      inputProps={{className: 'react-tagsinput-input', placeholder: ''}}
-                     pasteSplit={this.defaultPasteSplit}
+                     maxTags={20}
+                     addKeys={[9, 13,186]}
+                     onChangeInput={this.handleChangeInput}
           />
         </div>
       </Modal>
