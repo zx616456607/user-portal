@@ -14,7 +14,7 @@ const apiFactory = require('../../services/api_factory')
 const constants = require('../../constants/')
 const logger = require('../../utils/logger').getLogger('mobileCaptcha')
 const urllib = require('urllib')
-const redisClient = createRedisClient()
+const redisClient = require('../../utils/redis').client
 const md5 = require('md5')
 const redisKeyPrefix = {
   captcha: 'regist_captcha',
@@ -87,16 +87,15 @@ exports.sendCaptcha = function* () {
     urllib.request(url, function(err, data, res) {
       if (err) {
         logger.error(method, 'call sms service failed.', err)
-        reject('internal error')
+        return reject('internal error')
       }
       const parseString = require('xml2js').parseString
       parseString(data, function(err, result) {
         if (err) {
-          logger.error(method, 'parse response xml failed. return xml:', data.toString(), 'err:', err)
-          reject('internal error')
+          logger.error(method, 'parse response xml failed. return xml:', data, 'err:', err)
+          return reject('internal error')
         }
-        logger.info('result: ',result)
-        try {
+        if (result && result.SubmitResult && result.SubmitResult.code.length === 1) {
           const code = result.SubmitResult.code[0]
           switch (code) {
           case '2':
@@ -104,20 +103,20 @@ exports.sendCaptcha = function* () {
           case '4085': {
             const err = new Error('同一手机号验证码短信发送超出5条')
             err.status = 400
-            reject(err)
+            return reject(err)
           }
           case '4030': {
             const err = new Error('手机号码已被列入黑名单')
             err.status = 400
-            reject(err)
+            return reject(err)
           }
           default:
-            reject('内部错误')
+            return reject('内部错误')
           }
         }
-        catch (e) {
-          logger.error(method, 'send sms failed. return xml:', data.toString(), 'exception:', e)
-          reject('internal error')
+        else {
+          logger.error(method, 'send sms failed. return xml:', data, 'exception:', e)
+          return reject('internal error')
         }
       })
     })
@@ -126,22 +125,4 @@ exports.sendCaptcha = function* () {
   this.body = {
     data: captcha
   }
-}
-
-function createRedisClient() {
-  const redis = require("redis")
-  const redisConfig = require('../../configs/').redis
-  let redisOption = {
-    host: redisConfig.host,
-    port: redisConfig.port,
-  }
-  if (redisConfig.password) {
-    redisOption.password = redisConfig.password
-  }
-  const redisClient = redis.createClient(redisOption)
-
-  redisClient.on("error", function (err) {
-      logger.error("redis error " + err);
-  });
-  return redisClient
 }
