@@ -19,7 +19,7 @@ export default function uploadFile(file, options, callback) {
   const fileType = filename.substring(start + 1, filename.length)
   if(options.fileType.indexOf(fileType) < 0 ) {
     return {
-      error: 'file type must be gif, jpg, jpeg, png, bmp'
+      error: `file type must be ${options.fileType.join(',')}`
     }
   }
   const size = file.size
