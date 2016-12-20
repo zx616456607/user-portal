@@ -8,7 +8,7 @@
  * @author YangYuBiao
  */
 import NotificationHandler from './notification_handler.js'
-export default function uploadFile(file, options) {
+export default function uploadFile(file, options, callback) {
   const defaultOptions = {
     fileType: ['gif', 'jpg', 'jpeg', 'png', 'bmp'],
     defaultSize: 3 * 1024 * 1024//'byte'
@@ -36,18 +36,27 @@ export default function uploadFile(file, options) {
   })
   const notification = new NotificationHandler()
   notification.spin('文件上传中')
-  console.log(options.url)
-  console.log(options.headers)
-  fetch(options.url, {
+  return fetch(options.url, {
     headers: options.headers,
     method: options.method,
-    body: formData,
-    mode: 'no-cors'
+    body: formData
+    //mode: 'no-cors'
   }).then(response => {
     notification.close()
     notification.success('文件上传成功')
-    return response.json
+
+    if(response.status != 200) {
+  
+      return response.status
+    }
+    if(callback) {
+      return callback(response.json())
+    }
+    return response.json()
   }).catch(err => {
+    if(callback) {
+      return callback(err)
+    }
     return err
   })
 }
