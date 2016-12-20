@@ -69,7 +69,7 @@ const MyComponent = React.createClass({
 let AppAddServiceModal = React.createClass({
   propTypes: {
     selectedList: React.PropTypes.array,
-    loadPublicImageList: PropTypes.func.isRequired
+    loadPublicImageList: PropTypes.func
   },
   getInitialState: function () {
     return {
