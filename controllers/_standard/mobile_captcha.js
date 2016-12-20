@@ -15,11 +15,8 @@ const constants = require('../../constants/')
 const logger = require('../../utils/logger').getLogger('mobileCaptcha')
 const urllib = require('urllib')
 const redisClient = require('../../utils/redis').client
+const redisKeyPrefix = require('../../utils/redis').redisKeyPrefix
 const md5 = require('md5')
-const redisKeyPrefix = {
-  captcha: 'regist_captcha',
-  frequenceLimit: 'regist_send_captcha_frequence',
-}
 
 exports.sendCaptcha = function* () {
   const method = 'sendCaptcha'
