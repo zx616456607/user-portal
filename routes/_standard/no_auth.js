@@ -45,6 +45,9 @@ module.exports = function (Router) {
     wechatPayMiddleware(wechatPayController.getInitConfig()).getNotify().done(),
     wechatPayController.notify
   )
+  
+  //register
+  router.get('/register', indexCtl.index)
 
   return router.routes()
 }

@@ -72,7 +72,7 @@ let NotLogUser = React.createClass({
             message.success(`注册并加入团队成功`)
             browserHistory.push('/login')
             resetFields()
-          },  
+          },
           isAsync: true
         },
         failed: {
