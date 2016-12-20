@@ -95,13 +95,14 @@ let TeamTable = React.createClass({
   },
   handleSortMember() {
     const { loadUserTeamList } = this.props.scope.props
+    const { filter } = this.props.scope.state
     const { sortMember } = this.state
     let sort = this.getSort(!sortMember, 'userCount')
     loadUserTeamList('default', {
       page: this.state.page,
       size: this.state.pageSize,
       sort,
-      filter: this.state.filter,
+      filter,
     })
     this.setState({
       sortMember: !sortMember,
@@ -110,13 +111,14 @@ let TeamTable = React.createClass({
   },
   handleSortSpace() {
     const { loadUserTeamList } = this.props.scope.props
+    const { filter } = this.props.scope.state
     const { sortSpace } = this.state
     let sort = this.getSort(!sortSpace, 'spaceCount')
     loadUserTeamList('default', {
       page: this.state.page,
       size: this.state.pageSize,
       sort,
-      filter: this.state.filter,
+      filter,
     })
     this.setState({
       sortSpace: !sortSpace,
@@ -125,13 +127,14 @@ let TeamTable = React.createClass({
   },
   handleSortCluster() {
     const { loadUserTeamList } = this.props.scope.props
+    const { filter } = this.props.scope.state
     const { sortCluster } = this.state
     let sort = this.getSort(!sortCluster, 'clusterCount')
     loadUserTeamList('default', {
       page: this.state.page,
       size: this.state.pageSize,
       sort,
-      filter: this.state.filter,
+      filter,
     })
     this.setState({
       sortCluster: !sortCluster,
@@ -140,13 +143,14 @@ let TeamTable = React.createClass({
   },
   handleSortTeamName() {
     const { loadUserTeamList } = this.props.scope.props
+    const { filter } = this.props.scope.state
     const { sortTeamName } = this.state
     let sort = this.getSort(!sortTeamName, 'teamName')
     loadUserTeamList('default', {
       page: this.state.page,
       size: this.state.pageSize,
       sort,
-      filter: this.state.filter,
+      filter,
     })
     this.setState({
       sortTeamName: !sortTeamName,
@@ -195,8 +199,8 @@ let TeamTable = React.createClass({
     this.setState({ targetKeys })
   },
   render() {
-    let { sortedInfo, filteredInfo, targetKeys } = this.state
-    const { searchResult, notFound, sort, filter } = this.props.scope.state
+    let { sortedInfo, filteredInfo, targetKeys, sort } = this.state
+    const { searchResult, notFound, filter } = this.props.scope.state
     const { data, scope, teamUserIDList } = this.props
     sortedInfo = sortedInfo || {}
     filteredInfo = filteredInfo || {}

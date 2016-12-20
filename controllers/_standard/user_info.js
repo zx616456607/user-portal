@@ -100,3 +100,35 @@ exports.uploadToken = function*() {
   this.status = apiResult.statusCode
   this.body = apiResult
 }
+
+exports.registerUser = function* () {
+  const spi = apiFactory.getSpi()
+  const user = this.request.body
+  if (!user || !user.userName || !user.password || !user.email) {
+    const err = new Error('user name, password and email are required.')
+    err.status = 400
+    throw err
+  }
+
+  const result = yield spi.users.create(user)
+
+  this.body = {
+    data: result
+  }
+}
+
+exports.registerUserAndJoinTeam = function* () {
+  const spi = apiFactory.getSpi()
+  const user = this.request.body
+  if (!user || !user.userName || !user.password || !user.email || !user.code) {
+    const err = new Error('user name, password, email and inviting code are required.')
+    err.status = 400
+    throw err
+  }
+
+  const result = yield spi.users.createBy(['jointeam'], null, user)
+
+  this.body = {
+    data: result
+  }
+}

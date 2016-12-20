@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Card, Button, Icon, Table, Modal, Alert, Row, Col, Checkbox, InputNumber,Spin,Popover } from 'antd'
+import { Card, Button, Icon, Table, Modal, Alert, Row, Col, Checkbox, InputNumber, Spin, Popover } from 'antd'
 import './style/RechargeRecord.less'
 import { connect } from 'react-redux'
 import { loadUserTeamspaceList } from '../../../actions/user'
@@ -11,8 +11,8 @@ import moment from 'moment'
 import { Link } from 'react-router'
 import PopContent from '../../PopSelect/Content'
 
-class RechargeRecord extends Component{
-  constructor(props){
+class RechargeRecord extends Component {
+  constructor(props) {
     super(props)
     this.handleSpaceChange = this.handleSpaceChange.bind(this)
     this.showModal = this.showModal.bind(this)
@@ -34,7 +34,7 @@ class RechargeRecord extends Component{
     }
   }
   handleSpaceChange(space) {
-    const { loadTeamClustersList,loadUserTeamspaceList, setCurrent, current, loginUser } = this.props
+    const { loadTeamClustersList, loadUserTeamspaceList, setCurrent, current, loginUser } = this.props
     this.setState({
       spacesVisible: false,
       currentSpaceName: space.spaceName,
@@ -83,9 +83,9 @@ class RechargeRecord extends Component{
       teamspaces,
       loadChargeRecord,
     } = this.props
-    loadUserTeamspaceList(userID ? userID : 'default',{ size: 100 }, {
+    loadUserTeamspaceList(userID ? userID : 'default', { size: 100 }, {
       success: {
-        func:()=>{
+        func: () => {
         },
         isAsync: true
       }
@@ -102,23 +102,23 @@ class RechargeRecord extends Component{
       notifyMailCheckBox: notifyByMail,
     })
   }
-  showModal(){
+  showModal() {
     this.setState({
       remindModal: true
     })
     this.props.loadNotifyRule(this.state.currentNamespace)
   }
-  onNotifyCenterCheckBoxChange(e){
+  onNotifyCenterCheckBoxChange(e) {
     this.setState({
       notifyCenterCheckBox: e.target.checked,
     })
   }
-  onNotifyMailCheckBoxChange(e){
+  onNotifyMailCheckBoxChange(e) {
     this.setState({
       notifyMailCheckBox: e.target.checked,
     })
   }
-  render(){
+  render() {
     const {
       current,
       loginUser,
@@ -144,32 +144,33 @@ class RechargeRecord extends Component{
       }
       let items = JSON.parse(JSON.stringify(chargeRecord.items))
       if (standard) {
-        items.map(function(item) {
+        items.map(function (item) {
           item.before = '￥ ' + (item.before / 100).toFixed(2)
           item.charge = '￥ ' + (item.charge / 100).toFixed(2)
           item.after = '￥ ' + (item.after / 100).toFixed(2)
           item.time = moment(item.time).format('YYYY-MM-DD HH:mm:ss')
+          item.orderType = parseInt(item.orderType)
           switch (item.orderType) {
-            case '100':
+            case 100:
               item.orderType = '微信'
               break
-            case '101':
+            case 101:
               item.orderType = '支付宝'
               break
-            case '102':
+            case 102:
               item.orderType = '线下汇款'
               break
-            case '103':
+            case 103:
               item.orderType = '解散团队的退款'
               break
-            default :
+            default:
               item.orderType = '-'
               break
           }
         })
-      return items
+        return items
       }
-      items.map(function(item) {
+      items.map(function (item) {
         item.before = (item.before / 100).toFixed(2) + 'T币'
         item.charge = (item.charge / 100).toFixed(2) + 'T币'
         item.after = (item.after / 100).toFixed(2) + 'T币'
@@ -250,19 +251,19 @@ class RechargeRecord extends Component{
 
     ]
     let alertMessage = (
-      <div style={{color: '#137bb8',lineHeight:'28px',}}>
-        <Icon type="smile" style={{marginRight: 10}}/> 温馨提示: <br/>
-        1. 此设置可根据您的个人情况进行更改, &nbsp;您所设置的内容不会影响到其他协作者<br/>
+      <div style={{ color: '#137bb8', lineHeight: '28px', }}>
+        <Icon type="smile" style={{ marginRight: 10 }} /> 温馨提示: <br />
+        1. 此设置可根据您的个人情况进行更改, &nbsp;您所设置的内容不会影响到其他协作者<br />
         2. 您可在
         <Link to="/account">
-          <Button type='primary' style={{color: '#fff',width:90,height:28}}>我的信息</Button>
+          <Button type='primary' style={{ color: '#fff', width: 90, height: 28 }}>我的信息</Button>
         </Link>
         中填写或修改接受提醒的邮箱地址
       </div>
     )
     return (
       <div id='RechargeRecord'>
-        <Card style={{marginBottom: '20px'}} className='selectSpace'>
+        <Card className='selectSpace'>
           {
             standard ?
               <div className='rechargeHeader'>
@@ -274,9 +275,7 @@ class RechargeRecord extends Component{
                     title='选择团队帐户'
                     placement="bottomLeft"
                     trigger='click'
-                    overlayClassName='standardPopTeamOver'
-                    onVisibleChange={this.popTeamChange}
-                    getTooltipContainer={() => document.getElementById('RechargeRecord')}
+                    getTooltipContainer={() => document.getElementById('CostCenter')}
                     visible={teamListVisible}
                     onVisibleChange={this.handleTeamListVisibleChange}
                     content={
@@ -287,13 +286,13 @@ class RechargeRecord extends Component{
                         special={true}
                         popTeamSelect={true} />
                     }>
-                    <span>{currentTeamName === '' ? '我的团队':currentTeamName} <Icon type='down' style={{ fontSize: '8px' }}/></span>
+                    <span>{currentTeamName === '' ? '我的团队' : currentTeamName} <Icon type='down' style={{ fontSize: '8px' }} /></span>
                   </Popover>
                 </div>
                 <div className='setAlertBtn'>
-                  <Button icon="clock-circle-o" style={{float: 'right',fontSize: '14px'}} onClick={this.showModal}>设置提醒</Button>
+                  <Button icon="clock-circle-o" style={{ float: 'right', fontSize: '14px' }} onClick={this.showModal}>设置提醒</Button>
                 </div>
-              </div>:
+              </div> :
               <div className='rechargeHeader'>
                 <svg className='headerteamspace'>
                   <use xlinkHref='#headerteamspace' />
@@ -308,58 +307,58 @@ class RechargeRecord extends Component{
                     loading={false}
                     onChange={this.handleSpaceChange}
                     getTooltipContainer={() => document.getElementById('RechargeRecord')}
-                    selectValue={ currentSpaceName } />
+                    selectValue={currentSpaceName} />
                 </div>
                 <div className='setAlertBtn'>
-                  <Button icon="clock-circle-o" style={{float: 'right',fontSize: '14px'}} onClick={this.showModal}>设置提醒</Button>
+                  <Button icon="clock-circle-o" style={{ float: 'right', fontSize: '14px' }} onClick={this.showModal}>设置提醒</Button>
                 </div>
               </div>
           }
         </Card>
-        <Card className="RechargeTable" bodyStyle={{padding: 0}}>
+        <Card className="RechargeTable" bodyStyle={{ padding: 0 }}>
           <Table
             dataSource={convertChargeRecord()}
             columns={getTableColumn(standard)}
-            pagination = {false}
-          />
+            pagination={false}
+            />
         </Card>
         <Modal visible={this.state.remindModal}
-               title='设置提醒'
-               wrapClassName='remindModal'
-               onOk={this.handleOk}
-               onCancel={this.handleCancel}
-               width = '610px' >
+          title='设置提醒'
+          wrapClassName='remindModal'
+          onOk={this.handleOk}
+          onCancel={this.handleCancel}
+          width='610px' >
           <div>
             <Alert message={alertMessage} type="info" />
-            <Row style={{color: '#333333',height: 35}}>
-              <Icon type="pay-circle-o" style={{marginRight: 10}}/>
+            <Row style={{ color: '#333333', height: 35 }}>
+              <Icon type="pay-circle-o" style={{ marginRight: 10 }} />
               余额不足提醒
             </Row>
-            <Row style={{paddingLeft:'22px',height: 35}}>
-              <Col span={4} style={{color: '#7a7a7a'}}>提醒规则</Col>
-              <Col span={20} style={{color: '#666666'}}>我的空间可用余额小于&nbsp;
+            <Row style={{ paddingLeft: '22px', height: 35 }}>
+              <Col span={4} style={{ color: '#7a7a7a' }}>提醒规则</Col>
+              <Col span={20} style={{ color: '#666666' }}>我的空间可用余额小于&nbsp;
                 <InputNumber
                   value={threshold}
                   onChange={(value) => {
                     this.setState({
                       threshold: value
                     })
-                  }}
+                  } }
                   min={0}
-                />T币
+                  />T币
                 时发送提醒
               </Col>
             </Row>
-            <Row style={{paddingLeft:'22px',height: 28}}>
-              <Col span={4} style={{color: '#7a7a7a'}}>提醒方式</Col>
+            <Row style={{ paddingLeft: '22px', height: 28 }}>
+              <Col span={4} style={{ color: '#7a7a7a' }}>提醒方式</Col>
               <Col span={20}>
-                <Checkbox checked={notifyCenterCheckBox} style={{color: '#7a7a7a',fontSize: '14px'}} onChange={this.onNotifyCenterCheckBoxChange}>通知中心</Checkbox>
+                <Checkbox checked={notifyCenterCheckBox} style={{ color: '#7a7a7a', fontSize: '14px' }} onChange={this.onNotifyCenterCheckBoxChange}>通知中心</Checkbox>
               </Col>
             </Row>
-            <Row style={{paddingLeft:'22px',height: 30}}>
-              <Col span={4}/>
+            <Row style={{ paddingLeft: '22px', height: 30 }}>
+              <Col span={4} />
               <Col span={20}>
-                <Checkbox checked={notifyMailCheckBox} style={{color: '#7a7a7a',fontSize: '14px'}} onChange={this.onNotifyMailCheckBoxChange}>{'邮件(' + this.props.loginUser.info.email + ')'}</Checkbox>
+                <Checkbox checked={notifyMailCheckBox} style={{ color: '#7a7a7a', fontSize: '14px' }} onChange={this.onNotifyMailCheckBoxChange}>{'邮件(' + this.props.loginUser.info.email + ')'}</Checkbox>
               </Col>
             </Row>
           </div>
@@ -368,9 +367,9 @@ class RechargeRecord extends Component{
     )
   }
 }
-function mapStateToProps (state,props) {
+function mapStateToProps(state, props) {
   const { current, loginUser } = state.entities
-  const { teamspaces,userDetail } = state.user
+  const { teamspaces, userDetail } = state.user
   const { chargeRecord, notifyRule } = state.consumption
   let recordData = {
     items: [],
@@ -392,12 +391,12 @@ function mapStateToProps (state,props) {
     current,
     loginUser,
     teamspaces: (teamspaces.result ? teamspaces.result.teamspaces : []),
-    userDetail: (userDetail.result ? userDetail.result.data: {}),
+    userDetail: (userDetail.result ? userDetail.result.data : {}),
     chargeRecord: recordData,
     notifyRule: notifyRuleData,
   }
 }
-export default connect (mapStateToProps,{
+export default connect(mapStateToProps, {
   loadUserTeamspaceList,
   loadTeamClustersList,
   loadLoginUserDetail,

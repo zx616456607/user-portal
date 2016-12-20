@@ -157,9 +157,10 @@ exports.quitTeam = function* () {
 exports.getInvitationInfo = function* () {
   const loginUser = this.session.loginUser
   const spi = apiFactory.getSpi(loginUser)
-  const code = this.params.code
+  const code = this.query.code
+  const query = {code}
 
-  let result = yield spi.teams.getBy(['invitations', code])
+  let result = yield spi.teams.getBy(['invitations'], query)
 
   this.body = {
     data: result

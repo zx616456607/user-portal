@@ -24,43 +24,17 @@ let balanceMessage = (
     </Col>
   </Row>
 )
-let delMessage = (
-  <div>
-    <Row className="tip delTip">
-      <Col span={2} className='tipIcon'>
-        <Icon type="exclamation-circle" />
-      </Col>
-      <Col className="tipText" span={22} style={{color:'#4e4e4d'}}>
-        Tip：请注意，点击确认后“研发Team”团队将会被解散
-      </Col>
-    </Row>
-    <Row className="tip" style={{marginTop: '30px'}}>
-      <Col span={2} className='tipIcon'>
-        <Icon type="exclamation-circle" />
-      </Col>
-      <Col className="tipText" span={22} style={{color:'#8f8e8c'}}>
-        团队内的应用、存储、数据库均将被清空
-      </Col>
-    </Row>
-    <Row className="tip">
-      <Col span={2} className='tipIcon'>
-        <Icon type="exclamation-circle" />
-      </Col>
-      <Col className="tipText" span={22} style={{color:'#8f8e8c'}}>
-        团队余额将退回至“chiquan（创建者）“帐户，稍后请查收个人帐户的充值记录【来源显示：时速云（注：团队解散退款）】
-      </Col>
-    </Row>
-  </div>
-  
-)
+
 class DelTeamModal extends Component{
   constructor(props){
     super(props)
     this.handleOk = this.handleOk.bind(this)
     this.handleCancel = this.handleCancel.bind(this)
     this.renderFooter = this.renderFooter.bind(this)
+    this.checkTeamName = this.checkTeamName.bind(this)
+
     this.state = {
-      
+      btnDis: true,
     }
   }
   handleOk() {
@@ -93,7 +67,7 @@ class DelTeamModal extends Component{
     if(balance){
       return [
         <Button key="back" type="ghost" size="large" onClick={this.handleCancel}>取消</Button>,
-        <Button key="submit" type="primary" size="large" onClick={this.handleOk} className="delBtn" >
+        <Button key="submit" size="large" onClick={this.handleOk} className="delBtn"  disabled={this.state.btnDis}>
           确定
         </Button>,
       ]
@@ -107,8 +81,49 @@ class DelTeamModal extends Component{
       </Link>,
     ]
   }
+  checkTeamName (e) {
+    const { teamName } = this.props
+    if (e.target.value === teamName) {
+      this.setState({
+        btnDis: false,
+      })
+      return
+    }
+    this.setState({
+      btnDis: true,
+    })
+  }
   render(){
-    const { visible, balance } = this.props
+    const { visible, balance, teamName, userName } = this.props
+    let delMessage = (
+      <div>
+        <Row className="tip delTip">
+          <Col span={2} className='tipIcon'>
+            <Icon type="exclamation-circle" />
+          </Col>
+          <Col className="tipText" span={22} style={{color:'#4e4e4d'}}>
+            Tip：请注意，点击确认后“{teamName}”团队将会被解散
+          </Col>
+        </Row>
+        <Row className="tip" style={{marginTop: '30px'}}>
+          <Col span={2} className='tipIcon'>
+            <Icon type="exclamation-circle" />
+          </Col>
+          <Col className="tipText" span={22} style={{color:'#8f8e8c'}}>
+            团队内的应用、存储、数据库均将被清空
+          </Col>
+        </Row>
+        <Row className="tip">
+          <Col span={2} className='tipIcon'>
+            <Icon type="exclamation-circle" />
+          </Col>
+          <Col className="tipText" span={22} style={{color:'#8f8e8c'}}>
+            团队余额将退回至“{userName}（创建者）”帐户，稍后请查收个人帐户的充值记录【来源显示：时速云（注：团队解散退款）】
+          </Col>
+        </Row>
+      </div>
+      
+    )
     return (
       <Modal
         wrapClassName="DelTeamModal"
@@ -127,7 +142,7 @@ class DelTeamModal extends Component{
             </Col>
             <Col className="confirmText" span={22}>
               请确认是否解散团队
-              <Input placeholder="输入团队名称" className="confirmInt"/>
+              <Input placeholder="输入团队名称" className="confirmInt" onChange={this.checkTeamName}/>
             </Col>
           </Row>:
           <div></div>
@@ -139,6 +154,7 @@ class DelTeamModal extends Component{
 }
 function mapStateToProp(state, props) {
   const { teamDissoveable } = state.team
+  let userName = state.entities.loginUser.info.userName
   let balance = true
   if(teamDissoveable.reslut) {
     if (teamDissoveable.reslut.data) {
@@ -147,6 +163,7 @@ function mapStateToProp(state, props) {
   }
   return {
     balance,
+    userName
   }
 }
 

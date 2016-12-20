@@ -411,22 +411,22 @@ function loadImageTagConfigs(tag, props) {
         isAsync: true
       }
     })
-    return
+  } else {
+    loadImageDetailTagConfig(DEFAULT_REGISTRY, currentSelectedImage, tag, {
+      success: {
+        func: (result) => {
+          if (!isCreate) {
+            return
+          }
+          const { form } = props
+          const { containerPorts, defaultEnv } = result.data
+          setPorts(containerPorts, form)
+          setEnv(defaultEnv, form)
+        },
+        isAsync: true
+      }
+    })
   }
-  loadImageDetailTagConfig(DEFAULT_REGISTRY, currentSelectedImage, tag, {
-    success: {
-      func: (result) => {
-        if (!isCreate) {
-          return
-        }
-        const { form } = props
-        const { containerPorts, defaultEnv } = result.data
-        setPorts(containerPorts, form)
-        setEnv(defaultEnv, form)
-      },
-      isAsync: true
-    }
-  })
 }
 
 let NormalDeployBox = React.createClass({
@@ -437,6 +437,7 @@ let NormalDeployBox = React.createClass({
     loadImageDetailTag: PropTypes.func.isRequired,
     loadImageDetailTagConfig: PropTypes.func.isRequired,
     selectComposeType: PropTypes.func.isRequired,
+    loadPublicImageList: PropTypes.func.isRequired
   },
   selectComposeType(type) {
     const parentScope = this.props.scope
@@ -449,7 +450,16 @@ let NormalDeployBox = React.createClass({
     setFieldsValue({
       imageVersion: tag
     })
-    loadImageTagConfigs(tag, this.props)
+    if (this.props.other) {
+      const config = {
+        imageId: this.props.other,
+        fullname: this.props.currentSelectedImage,
+        imageTag: tag
+      }
+      loadImageTagConfigs(config, this.props)
+    } else {
+      loadImageTagConfigs(tag, this.props)
+    }
   },
   userExists(rule, value, callback) {
     const { checkServiceName, isCreate, cluster } = this.props

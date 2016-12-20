@@ -110,7 +110,7 @@ exports.verifyUser = function* () {
   const licenseObj = yield indexService.getLicense(loginUser)
   if (licenseObj.plain.code === -1) {
     const err = new Error(licenseObj.message)
-    err.status = 401
+    err.status = 403
     throw err
   }
   yield indexService.setUserCurrentConfigCookie.apply(this, [loginUser])

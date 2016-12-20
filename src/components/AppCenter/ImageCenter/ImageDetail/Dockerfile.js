@@ -124,7 +124,7 @@ export default class Dockerfile extends Component {
         return (
           <Card className="dockerfile">
             {(!this.state.editor) ?
-              <p> Not DockerFile<Button size="large" style={{ float: 'right', top: '-8px' }} onClick={() => this.handEdit(true)}>编辑</Button></p>
+              <p> 没有提供 Dockerfile<Button size="large" style={{ float: 'right', top: '-8px' }} onClick={() => this.handEdit(true)}>编辑</Button></p>
               :
               <div>
                 <DockerFileEditor value={this.state.dockerfile} callback={this.onChangeDockerFile.bind(this)} options={editorOptions} />
@@ -158,7 +158,7 @@ export default class Dockerfile extends Component {
     return (
       <Card className="dockerfile">
         {this.state.dockerfile == '' ?
-          <p>Not Dockerfile</p>
+          <p>没有提供 Dockerfile</p>
           :
           <DockerFileEditor value={this.state.dockerfile} callback={this.onChangeDockerFile.bind(this)} options={editorOptions} />
         }
