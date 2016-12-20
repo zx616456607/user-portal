@@ -8,36 +8,90 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Tabs , } from 'antd'
+import { browserHistory } from 'react-router'
+import { connect } from 'react-redux'
+import { Tabs, } from 'antd'
 import CostRecord from './CostRecord'
 import RechargeRecord from './RechargeRecord'
 const mode = require('../../../../configs/model').mode
 const standard = require('../../../../configs/constants').STANDARD_MODE
 
-const TabPane = Tabs.TabPane;
+const TabPane = Tabs.TabPane
+const DEFAULT_TAB = '#consumptions'
 
-export default class CostCenter extends Component{
-  constructor(props){
+class CostCenter extends Component {
+  constructor(props) {
     super(props)
+    this.onTabClick = this.onTabClick.bind(this)
     this.state = {
-      
+      activeTabKey: props.hash || DEFAULT_TAB,
     }
   }
+
+  onTabClick(activeTabKey) {
+    if (activeTabKey === this.state.activeTabKey) {
+      return
+    }
+    const { pathname } = this.props
+    this.setState({
+      activeTabKey
+    })
+    if (activeTabKey === DEFAULT_TAB) {
+      activeTabKey = ''
+    }
+    browserHistory.push({
+      pathname,
+      hash: activeTabKey
+    })
+  }
+
   componentWillMount() {
     document.title = '费用中心 | 时速云'
   }
-  render(){
+
+  // For tab select
+  componentWillReceiveProps(nextProps) {
+    let { hash } = nextProps
+    if (hash === this.props.hash) {
+      return
+    }
+    if (!hash) {
+      hash = DEFAULT_TAB
+    }
+    this.setState({
+      activeTabKey: hash
+    })
+  }
+
+  render() {
+    const { activeTabKey } = this.state
     return (
       <div id='CostCenter'>
-        <Tabs defaultActiveKey="1">
-          <TabPane tab="消费记录" key="1">
-            <CostRecord standard={mode === standard}/>
+        <Tabs
+          defaultActiveKey={DEFAULT_TAB}
+          onTabClick={this.onTabClick}
+          activeKey={activeTabKey}
+          >
+          <TabPane tab="消费记录" key="#consumptions">
+            <CostRecord standard={mode === standard} />
           </TabPane>
-          <TabPane tab="充值记录" key="2">
-            <RechargeRecord standard={mode === standard}/>
+          <TabPane tab="充值记录" key="#payments">
+            <RechargeRecord standard={mode === standard} />
           </TabPane>
         </Tabs>
       </div>
     )
   }
 }
+
+function mapStateToProps(state, props) {
+  const { hash, pathname } = props.location
+  return {
+    hash,
+    pathname,
+  }
+}
+
+export default connect(mapStateToProps, {
+  //
+})(CostCenter)

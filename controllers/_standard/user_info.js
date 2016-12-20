@@ -14,6 +14,10 @@
 const apiFactory = require('../../services/api_factory')
 const logger     = require('../../utils/logger.js').getLogger('user_info')
 const qiniuAPI = require('../../store/qiniu_api')
+const redisClient = require('../../utils/redis').client
+const redisKeyPrefix = require('../../utils/redis').redisKeyPrefix
+const sendCaptchaToPhone = require('../../utils/captchaSms').sendCaptchaToPhone
+
 /*
 Get basic user info including user and certificate
 */
@@ -129,6 +133,8 @@ exports.registerUserAndJoinTeam = function* () {
     throw err
   }
 
+  yield checkMobileCaptcha(user)
+
   const result = yield spi.users.createBy(['jointeam'], null, user)
 
   this.body = {
@@ -136,3 +142,47 @@ exports.registerUserAndJoinTeam = function* () {
   }
 }
 
+exports.sendCaptcha = function* () {
+  const method = 'sendCaptcha'
+  const loginUser = this.session.loginUser
+  const spi = apiFactory.getSpi(loginUser)
+  let mobile = this.request.body
+
+  const redisConf = {
+    captchaPrefix: `${redisKeyPrefix.captcha}`,
+    captchaSendFrequencePrefix: `${redisKeyPrefix.frequenceLimit}`
+  }
+  const captcha = yield sendCaptchaToPhone(mobile, redisConf)
+
+  this.body = {
+    data: captcha
+  }
+}
+
+function checkMobileCaptcha(user) {
+  const method = "checkMobileCaptcha"
+  if (!user || !user.phone || !user.captcha) {
+    const err = new Error('user mobile, mobile captcha are required.')
+    err.status = 400
+    return Promise.reject(err)
+  }
+
+  return new Promise((resolve, reject) => {
+    const key = `${redisKeyPrefix.captcha}#${user.mobile}`
+    redisClient.get(key, (err, reply) => {
+      if (err) {
+        logger.error(method, `get key(${key}) failed.`, err)
+        return reject('internal error')
+      }
+      if (reply != user.captcha) {
+        logger.info(method, `captcha in redis(${reply}) not equal to captcha in request(${user.captcha})`)
+        const err = new Error('验证码错误或已失效')
+        err.status = 400
+        return reject(err)
+      }
+      else {
+        resolve()
+      }
+    })
+  })
+}
