@@ -553,7 +553,6 @@ let NormalDeployBox = React.createClass({
       initialValue: imageTags[0]
     })
     let imageVersion = getFieldValue('imageVersion');
-    console.log(this.props)
     let switchDisable = false
     let mountPath = []
     if (!tagConfig || !tagConfig[registry] || !tagConfig[registry].configList[imageVersion] || !tagConfig[registry].configList[imageVersion].mountPath || tagConfig[registry].configList[imageVersion].mountPath.length <= 0) {
