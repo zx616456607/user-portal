@@ -157,6 +157,11 @@ let NotLogUser = React.createClass({
       })
       clearInterval(time)
     },1000)
+
+    // send captcha
+    const { validateFields } = this.props.form
+    // validateFields(())
+    this.props.sendRegisterPhoneCaptcha()
   },
   intOnBlur(current) {
     const { getFieldProps } = this.props.form

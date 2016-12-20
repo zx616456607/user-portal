@@ -371,8 +371,8 @@ let MyComponent = React.createClass({
                 </div>
               </div>
               <div className="check">
-                {getFieldProps(`volName${k}`).value ? <span><Checkbox checked={this.state.checkAll[k - 1]} onChange={(e) => this.onCheckAllChange(e, k)} /><span>&nbsp;&nbsp;全选</span><br />
-                  <CheckboxGroup options={this.getPlainOptions(k - 1)} onChange={(list) => this.onChange(list, k - 1)} value={this.getCheckboxValue(k - 1)} /></span> : null}
+                {getFieldProps(`volName${k}`).value ? <span><Checkbox checked={this.state.checkAll[k - 1]} onChange={(e) => this.onCheckAllChange(e, k)} />全选<br />
+                  <CheckboxGroup options={this.getPlainOptions(k - 1)} onChange={(list) => this.onChange(list, k - 1)} value={this.getCheckboxValue(k - 1)} /></span> : <span>请先选择配置组</span>}
               </div>
               <div className="opera">
                 <i className="fa fa-trash-o" onClick={() => this.remove(k)} />
