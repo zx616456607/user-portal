@@ -170,6 +170,8 @@ let AppDeployServiceModal = React.createClass({
     const ServicePorts = this.props.scope.state.checkInf.Service.spec.ports
     const volumes = this.props.scope.state.checkInf.Deployment.spec.template.spec.volumes
     let imageVersion = scope.state.checkInf.Deployment.spec.template.spec.containers[0].image.split(':')[1]
+    const entryInput = scope.state.checkInf.Deployment.spec.template.spec.containers[0].commands
+    const args = scope.state.checkInf.Deployment.spec.template.spec.containers[0].args
     form.setFieldsValue({
       name: scope.state.checkInf.Service.metadata.name,
       imageVersion: imageVersion,
@@ -195,6 +197,23 @@ let AppDeployServiceModal = React.createClass({
     } else {
       form.setFieldsValue({
         volumeSwitch: false
+      })
+    }
+    if (entryInput && entryInput != '') {
+      form.setFieldsValue({
+        entryInput: entryInput.join(' ')
+      })
+    }
+    if (args && args != '') {
+      form.setFieldsValue({
+        args: args.join(' ')
+      })
+      // Set the customized radio and enable the input
+      form.setFieldsValue({
+       runningCode: "2"
+      })
+      this.setState({
+        runningCode: "2"
       })
     }
     this.setEnv(env, form)
@@ -237,7 +256,8 @@ let AppDeployServiceModal = React.createClass({
     let liveTimeoutSeconds = getFieldProps('liveTimeoutSeconds').value //检查超时
     let livePeriodSeconds = getFieldProps('livePeriodSeconds').value //检查间隔
     let livePath = getFieldProps('livePath').value //高可用路径
-    let args = getFieldProps('args').value //高可用路径
+    let command = getFieldProps('entryInput').value // 入口命令
+    let args = getFieldProps('args').value //启动命令参数
     //let config = getFileProps('config').value
     const { registryServer, currentSelectedImage } = parentScope.state
     let image = registryServer + '/' + currentSelectedImage + ':' + imageVersion //镜像名称
@@ -414,6 +434,9 @@ let AppDeployServiceModal = React.createClass({
     if (this.state.runningCode === '2') {
       deploymentList.addContainerArgs(serviceName, args)
     }
+    if (command && command != "") {
+      deploymentList.addContainerCommand(serviceName, command)
+    }
     //command
     //imagePullPolicy 重新部署
     if (scope.getImageType === '2') {
@@ -485,7 +508,6 @@ let AppDeployServiceModal = React.createClass({
         periodSeconds: parseInt(livePeriodSeconds)
       })
     }
-
 
     /*Service*/
     let serviceConfig = {

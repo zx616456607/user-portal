@@ -28,13 +28,21 @@ export default function uploadFile(file, options) {
       error: `file size must less than ${(file.size / 1024 /1024).foFixed(0)}`
     }
   }
+  const formData = new FormData
+  const body = options.body
+  const keys = Object.getOwnPropertyNames(body)
+  keys.forEach(key => {
+    formData.append(key, body[key])
+  })
   const notification = new NotificationHandler()
   notification.spin('文件上传中')
   console.log(options.url)
+  console.log(options.headers)
   fetch(options.url, {
     headers: options.headers,
-    method: 'POST',
-    body: options.body
+    method: options.method,
+    body: formData,
+    mode: 'no-cors'
   }).then(response => {
     notification.close()
     notification.success('文件上传成功')

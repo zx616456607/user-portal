@@ -8,11 +8,12 @@
  * @author Bai Yu
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Icon, Input, Tabs, Upload, Radio, Form} from 'antd'
+import { Button, Icon, Input, Tabs, Upload, Radio, Form } from 'antd'
 import { connect } from 'react-redux'
 import { browserHistory }  from 'react-router'
 import { getQiNiuToken } from '../../../../actions/upload.js'
 import uploadFile from '../../../../common/upload.js'
+import { IDValide } from '../../../../common/naming_validation.js'
 import EnterpriseComponse from './detail/EnterpriseComponse'
 import OtherComponse from './detail/OtherComponse'
 import './style/Authentication.less'
@@ -25,8 +26,44 @@ const RadioGroup = Radio.Group;
 class Indivduals extends Component {
   constructor(props) {
     super(props)
+    this.state = {
+      userHold: {},
+      userScan: {},
+      name: '',
+      ID: ''
+    }
   }
-  beforeUpload(file) {
+  componentWillMount() {
+    const { getFieldProps } = this.props.form
+    const name = getFieldProps('name', {
+      rules: [
+        { whitespace: true, message:'请输入真实姓名'},
+        { validator: this.valideName }
+      ]
+    })
+    const newEmailProps = getFieldProps('ID', {
+      rules: [
+        { whitespace: true, message:'请输入真实身份证号码'},
+        { validator: this.valideID }
+      ]
+    })
+  }
+  valideID(rule, values, callback) {
+    const message = IDValide(values)
+    if(message) {
+      callback([new Error(message)])
+      return
+    }
+    callback()
+    return
+  }
+  valideName(rule, values, callback) {
+    if(!values) {
+      return callback(new Error('请输入真实姓名'))
+    }
+    return
+  }
+  beforeUpload(file, type) {
     const self = this
     this.props.getQiNiuToken('certificate', file.name.trim(), {
       success: {
@@ -34,16 +71,31 @@ class Indivduals extends Component {
           self.setState({
             uptoken: result.upToken
           })
+          const timestamp = new Date() - 0
+          const fileName = `${file.name}${timestamp}`
+          const body = {
+            file: file,
+            token: result.upToken,
+            key: fileName
+          }
           uploadFile(file, {
-            url: result.url,
+            url: result.uploadUrl,
             method: 'POST',
-            headers: {
-              ['content-type']: file.type
-            },
-            body: {
-              token: result.upToken,
-              file: file
-            }
+            body: body
+          })
+          self.setState({
+            qiniu: result.url,
+            origin: result.origin
+          })
+          const url = `${result.origin}/fileName`
+          if(type == 'hold') {
+            self.setState({
+              userHoldPic: url
+            })
+            return
+          }
+          self.setState({
+            userScanPic: url
           })
         }
       }
@@ -51,23 +103,6 @@ class Indivduals extends Component {
     return false
   }
   render() {
-    const props = {
-      action: '/upload.do',
-      listType: 'picture-card',
-      defaultFileList: [{
-        uid: -1,
-        name: 'xxx.png',
-        status: 'done',
-        url: 'https://os.alipayobjects.com/rmsportal/NDbkJhpzmLxtPhB.png',
-        thumbUrl: 'https://os.alipayobjects.com/rmsportal/NDbkJhpzmLxtPhB.png'
-      }],
-      onPreview: (file) => {
-        this.setState({
-          priviewImage: file.url,
-          priviewVisible: true
-        })
-      }
-    }
     return (
       <div className="Indivduals">
         <div className="description">个人用户通过个人认证可获得5元代金券，请按照提示填写本人的真实照片</div>
@@ -90,9 +125,9 @@ class Indivduals extends Component {
             <p>
               <span className="key">手持身份证照片 <span className="important">*</span></span>
               <div className="upload">
-                <Upload {...props}  beforeUpload={(file) => {
+                <Upload  beforeUpload={(file) => {
                   this.beforeUpload(file)
-                }} customRequest={() => true }>
+                }} customRequest={() => true } >
                   <Icon type="plus" />
                   <div className="ant-upload-text">上传照片</div>
                 </Upload>
@@ -107,7 +142,7 @@ class Indivduals extends Component {
             <p>
               <span className="key">身份证反面扫描 <span className="important">*</span></span>
               <div className="upload">
-                <Upload {...props} beforeUpload={ (file) =>
+                <Upload className="avatar-uploader" beforeUpload={ (file) =>
                   this.beforeUpload(file)
                 }>
                   <Icon type="plus" />
@@ -126,7 +161,6 @@ class Indivduals extends Component {
             <Button size="large">提交</Button>
           </div>
         </div>
-
       </div>
     )
   }
@@ -137,7 +171,7 @@ function indivdualsMapStateToProp(state, props) {
     //token: state.upload.qiniuToken
   }
 }
-
+Indivduals = Form.create()(Indivduals)
 Indivduals = connect(indivdualsMapStateToProp, {
   getQiNiuToken
 })(Indivduals)
@@ -155,7 +189,6 @@ class Enterprise extends Component {
   }
   
   render() {
-
     const enterprise = (
       <div><Radio value="1" checked ={this.state.trytype =='1' ? true : false}></Radio> 企业</div>
     )
@@ -170,12 +203,97 @@ class Enterprise extends Component {
           <span className="auth-text">企业认证</span>
           <Button type="small">未认证</Button>
         </div>
+        <div style={{ padding: '15px 0' }}>
+          <span style={{ paddingRight: '30px' }}>请选择组织类型</span>
+          <RadioGroup onChange={(e)=> this.changeType(e)} value={this.state.trytype}>
+            <Radio key="a" value={1}>企业</Radio>
+            <Radio key="b" value={2}>其他组织</Radio>
+          </RadioGroup>
+        </div>
+        <div className="myInfo">
+          <div className="hand">企业信息</div>
+          <div className="user-info">
+            <p>
+              <span className="key">企业名称 <span className="important">*</span></span>
+              <Input className="input" size="large" />
+            </p>
+            <p>
+              <span className="key">营业执照注册号 <span className="important">*</span></span>
+              <Input className="input" size="large" />
+            </p>
+            <p>
+              <span className="key">营业执照妇描件 <span className="important">*</span></span>
+              <div className="upload">
+                <Upload >
+                  <Icon type="plus" />
+                  <div className="ant-upload-text">上传照片</div>
+                </Upload>
+              </div>
+              <ul className="chk">
+                <li>&nbsp;</li>
+                <li>1.营业执照正副本均可，文字/盖章需清晰可见</li>
+                <li>2.上传照片支持（gif/jpg/jpeg/png/bmp 图片格式，大小不超过3M）</li>
+              </ul>
+            </p>
+            <div style={{ clear: 'both' }}></div>
+          </div>
+
+        </div>
+        <div className="myInfo">
+          <div className="hand">企业负责人信息</div>
+          <div className="user-info">
+            <p>
+              <span className="key">负责人姓名 <span className="important">*</span></span>
+              <Input className="input" size="large" />
+            </p>
+            <p>
+              <span className="key">负责人身份证号码 <span className="important">*</span></span>
+              <Input className="input" size="large" />
+            </p>
+            <p>
+              <span className="key">联系人手机呈 <span className="important">*</span></span>
+              <Input className="input" size="large" />
+            </p>
+            <p>
+              <span className="key">负责人身份证正面扫描 <span className="important">*</span></span>
+              <div className="upload">
+                <Upload >
+                  <Icon type="plus" />
+                  <div className="ant-upload-text">上传照片</div>
+                </Upload>
+              </div>
+              <ul className="chk">
+                <li>&nbsp;</li>
+                <li>1.持有者需正面、免冠、未化妆、双手持身份证且露出手臂</li>
+                <li>2.上传照片支持（gif/jpg/jpeg/png/bmp 图片格式，大小不超过3M）</li>
+              </ul>
+            </p>
+            <p>
+              <span className="key">负责人身份证反面扫描 <span className="important">*</span></span>
+              <div className="upload">
+                <Upload >
+                  <Icon type="plus" />
+                  <div className="ant-upload-text">上传照片</div>
+                </Upload>
+              </div>
+              <ul className="chk">
+                <li>1.身份证信息清晰可辨认</li>
+                <li>2.身份证为本人持有，不得盗用他人身份证且不得遮挡持有者面部，身份证全部信息（包换身份证号、头像）需清晰可辩认</li>
+                <li>3.照片未经任何软件编辑修改</li>
+                <li>4.上传照片支持（gif/jpg/jpeg/png/bmp 图片格式，大小不超过3M）</li>
+              </ul>
+            </p>
+            <div style={{ clear: 'both' }}></div>
+          </div>
+        </div>
+        <div className="info-footer">
+          <Button size="large">提交</Button>
+        </div>
         <Tabs defaultActiveKey="1" type="card" id="sfdsf8888"  onChange={(e)=> this.changeType(e)} value={this.state.trytype}>
           <TabPane tab="请选择组织类型" key="3" disabled ></TabPane>
           <TabPane tab={ enterprise } key="1"><EnterpriseComponse /></TabPane>
           <TabPane tab={ otherwise } key="2"><OtherComponse /></TabPane>
         </Tabs>
-         
       </div>
     )
   }
@@ -196,7 +314,7 @@ class Authentication extends Component {
   constructor(props) {
     super(props)
     this.state= {
-      currentHash: '#cert-company'
+      currentHash: ''
     }
   }
   componentWillReceiveProps(nextProps) {
@@ -208,8 +326,6 @@ class Authentication extends Component {
      })
   }
   tabClick(e) {
-    console.log(e)
-    console.log(this.state.currentHash)
     let hash = '#cert-company'
     if(e === '2') {
       hash = '#cert-user'
