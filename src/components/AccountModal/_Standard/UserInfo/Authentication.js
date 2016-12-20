@@ -33,11 +33,11 @@ class Indivduals extends Component {
       userHold: {},
       userScan: {},
       name: '',
-      ID: ''
+      ID: '',
+      isAllDisable: false
     }
   }
   componentWillMount() {
-   
   }
   valideID(rule, values, callback) {
     const message = IDValide(values)
@@ -166,6 +166,7 @@ class Indivduals extends Component {
         { validator: this.valideID }
       ]
     })
+    const isAllDisable = this.state.isAllDisable
     return (
       <Form form={this.props.form}>
       <div className="Indivduals">
@@ -181,13 +182,13 @@ class Indivduals extends Component {
             <p>
               <span className="key">真实姓名 <span className="important">*</span></span>
             <FormItem>
-              <Input className="input" size="large" {...name}/>
+              <Input className="input" size="large" {...name} disabled={ isAllDisable }/>
             </FormItem>
             </p>
             <p>
               <span className="key">身份证号 <span className="important">*</span></span>
             <FormItem>
-              <Input className="input" size="large"  {...ID}/>
+              <Input className="input" size="large"  {...ID} disabled={ isAllDisable }/>
             </FormItem>
             </p>
             <p>
@@ -195,7 +196,7 @@ class Indivduals extends Component {
               <div className="upload">
                 <Upload listType="picture-card" fileList={hold} beforeUpload={(file) => 
                   this.beforeUpload(file, 'hold') 
-                } customRequest={() => true }  disabled={ hold ? true : false}>
+                } customRequest={() => true }  disabled={ hold || isAllDisable ? true : false}>
                   <Icon type="plus" />
                   <div className="ant-upload-text">上传照片</div>
                 </Upload>
@@ -210,7 +211,7 @@ class Indivduals extends Component {
             <p>
               <span className="key">身份证反面扫描 <span className="important">*</span></span>
               <div className="upload">
-                <Upload listType="picture-card" fileList={scan} disabled={ scan ? true : false } beforeUpload={ (file) => 
+                <Upload listType="picture-card" fileList={scan} disabled={ scan || isAllDisable ? true : false } beforeUpload={ (file) => 
                  this.beforeUpload(file, 'scan')
                 }>
                   <Icon type="plus" />

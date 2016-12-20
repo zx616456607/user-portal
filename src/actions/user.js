@@ -358,7 +358,8 @@ function fetchStandardUserInfo(callback) {
       endpoint: `${API_URL_PREFIX}/myaccount`,
       method: 'get',
       schema: {}
-    }
+    },
+    callback
   }
 }
 

@@ -16,7 +16,8 @@ import './style/UserInfo.less'
 import PhoneRow from './detail/PhoneRow'
 import EmailRow from './detail/EmailRow'
 import PasswordRow from './detail/PassowrdRow'
-import { loadStandardUserInfo } from '../../../../actions/user.js'
+import { loadStandardUserInfo, changeUserInfo } from '../../../../actions/user.js'
+import NotificationHandler from '../../../../common/notification_handler.js'
 
 const TabPane = Tabs.TabPane
 const createForm = Form.create
@@ -29,12 +30,22 @@ class BaseInfo extends Component {
       editPsd: false,
       editPhone: false,
       uploadModalVisible: false,
-      userIconsrc: 'avatars.png'
+      userIconsrc: 'avatars.png',
+      disabledButton: false
     }
   }
   componentWillMount() {
+    const self = this
     const { loadStandardUserInfo } = this.props
-    loadStandardUserInfo()
+    loadStandardUserInfo({
+      success: {
+        func: (result) => {
+          self.setState({
+            userIconsrc: result.userInfo.avatar
+          })
+        }
+      }
+    })
   }
   closeEdit(editType) {
     this.setState({
@@ -42,8 +53,40 @@ class BaseInfo extends Component {
     })
   }
   UploadIconModal() {
-    console.log(this)
-    console.log('comem in')
+    if(this.state.disabledButton) return
+    const userDetail = this.props.user.userInfo
+    const notification = new NotificationHandler()
+    if(userDetail.avatar === this.state.userIconsrc) {
+      notification.error('请选和现在头像不同的图片')
+      return
+    }
+    notification.spin('更新头像中')
+    this.setState({
+      disabledButton: true
+    })
+    const self = this
+    this.props.changeUserInfo({
+      avatar: this.state.userIconsrc
+    }, {
+      success: {
+        func: () => {
+          self.setState({
+            disabledButton: false,
+            uploadModalVisible: false
+          })
+          notification.close()
+          notification.success('更换头像成功')
+        }
+      },
+      failed: {
+        func: () => {
+          notification.close()
+          self.setState({
+            disabledButton: false
+          })
+        }
+      }
+    })
   }
   setUserIcon(icon) {
     this.setState({
@@ -132,14 +175,14 @@ class BaseInfo extends Component {
       <div className="baseInfo">
         <div className="topBox">
           <div className="userimage">
-            <img src="{userDetail.avator}" />
+            <img src={`${userDetail.avatar}`} />
           </div>
           <div className="topbar userBtn">
             <p>Hi, 换个自己喜欢的头像吧！</p>
             <Button type="primary" onClick={() => this.setState({ uploadModalVisible: true })}>更换头像</Button>
           </div>
           <div className="to-recharge">
-            <p className="money">{userDetail.balance}元</p>
+            <p className="money">{userDetail.balance / 100 }元</p>
             <p className="money-desc">我的帐户余额</p>
             <Button type="primary">去充值</Button>
           </div>
@@ -216,17 +259,17 @@ class BaseInfo extends Component {
             <TabPane tab="个性头像选择" key="11">
               <div className="images">
                 <div className="leftBox">
-                  <img src="/img/standard/icon-1.jpg" className="userIcon" onClick={() => this.setUserIcon('icon-1.jpg')} />
-                  <img src="/img/standard/icon-2.jpg" className="userIcon" onClick={() => this.setUserIcon('icon-2.jpg')} />
-                  <img src="/img/standard/icon-3.jpg" className="userIcon" onClick={() => this.setUserIcon('icon-3.jpg')} />
-                  <img src="/img/standard/icon-4.jpg" className="userIcon" onClick={() => this.setUserIcon('icon-4.jpg')} />
-                  <img src="/img/standard/icon-5.jpg" className="userIcon" onClick={() => this.setUserIcon('icon-5.jpg')} />
-                  <img src="/img/standard/icon-6.jpg" className="userIcon" onClick={() => this.setUserIcon('icon-6.jpg')} />
-                  <img src="/img/standard/icon-1.jpg" className="userIcon" onClick={() => this.setUserIcon('icon-1.jpg')} />
+                  <img src="/img/standard/icon-1.jpg" className="userIcon" onClick={() => this.setUserIcon('/img/standard/icon-1.jpg')} />
+                  <img src="/img/standard/icon-2.jpg" className="userIcon" onClick={() => this.setUserIcon('/img/standard/icon-2.jpg')} />
+                  <img src="/img/standard/icon-3.jpg" className="userIcon" onClick={() => this.setUserIcon('/img/standard/icon-3.jpg')} />
+                  <img src="/img/standard/icon-4.jpg" className="userIcon" onClick={() => this.setUserIcon('/img/standard/icon-4.jpg')} />
+                  <img src="/img/standard/icon-5.jpg" className="userIcon" onClick={() => this.setUserIcon('/img/standard/icon-5.jpg')} />
+                  <img src="/img/standard/icon-6.jpg" className="userIcon" onClick={() => this.setUserIcon('/img/standard/icon-6.jpg')} />
+                  <img src="/img/standard/icon-1.jpg" className="userIcon" onClick={() => this.setUserIcon('/img/standard/icon-1.jpg')} />
                 </div>
                 <div className="rightBox">
                   <div className="useIcon">
-                    <img src={`/img/standard/${this.state.userIconsrc}`} />
+                    <img src={`${this.state.userIconsrc}`} />
                   </div>
                   <div>头像预览</div>
                 </div>
@@ -266,7 +309,8 @@ function baseInfoMapStateToProps(state) {
 }
 
 BaseInfo = connect(baseInfoMapStateToProps, {
-  loadStandardUserInfo
+  loadStandardUserInfo,
+  changeUserInfo
 })(BaseInfo)
 
 

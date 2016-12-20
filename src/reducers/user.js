@@ -44,6 +44,9 @@ function standardUserDetail(state = {}, action) {
       if(action.body.newEmail) {
         resultState.userInfo.email = action.body.newEmail
       }
+      if(action.body.avatar) {
+        resultState.userInfo.avatar = action.body.avatar
+      }
       return resultState
     }
     case ActionTypes.USER_CHANGE_USERINFO_FAILURE: {
