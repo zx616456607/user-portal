@@ -125,7 +125,7 @@ class Indivduals extends Component {
             <p>
               <span className="key">手持身份证照片 <span className="important">*</span></span>
               <div className="upload">
-                <Upload {...props}  beforeUpload={(file) => {
+                <Upload  beforeUpload={(file) => {
                   this.beforeUpload(file)
                 }} customRequest={() => true } >
                   <Icon type="plus" />
@@ -314,7 +314,7 @@ class Authentication extends Component {
   constructor(props) {
     super(props)
     this.state= {
-      currentHash: '#cert-company'
+      currentHash: ''
     }
   }
   componentWillReceiveProps(nextProps) {
@@ -326,8 +326,6 @@ class Authentication extends Component {
      })
   }
   tabClick(e) {
-    console.log(e)
-    console.log(this.state.currentHash)
     let hash = '#cert-company'
     if(e === '2') {
       hash = '#cert-user'
