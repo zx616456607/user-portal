@@ -16,6 +16,7 @@
 //////////////////////  Router for public cloud service = Standard Mode ///////////////////
 //////////////////////  Users who are not logged in are also accessible ///////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////
+// 如果是显示在浏览器地址的URL，请不要添加"/api/v2"这样的前缀。其他的API请添加前缀，方便维护/升级
 
 const indexCtl = require('../../controllers')
 const teamController = require('../../controllers/_standard/team')
@@ -23,6 +24,7 @@ const alipayController = require('../../controllers/_standard/payments/alipay')
 const wechatPayController = require('../../controllers/_standard/payments/wechat_pay')
 const userController = require('../../controllers/_standard/user_info')
 const wechatPayMiddleware = require('../../pay/wechat_pay').middleware
+const mobileCaptchaController = require('../../controllers/_standard/mobile_captcha')
 const API_URL_PREFIX = '/api/v2'
 
 module.exports = function (Router) {
@@ -30,7 +32,7 @@ module.exports = function (Router) {
 
   // Invite
   router.get('/teams/invite', indexCtl.index)
-  router.get('/teams/invitations', teamController.getInvitationInfo)
+  router.get(`${API_URL_PREFIX}/teams/invitations`, teamController.getInvitationInfo)
 
   //Regiser User
   router.post(`${API_URL_PREFIX}/stdusers`, userController.registerUser)
@@ -46,6 +48,9 @@ module.exports = function (Router) {
   
   //register
   router.get('/register', indexCtl.index)
+
+  // send moblie captcha
+  router.post('/regist/mobileCaptchas', mobileCaptchaController.sendCaptcha)
 
   return router.routes()
 }

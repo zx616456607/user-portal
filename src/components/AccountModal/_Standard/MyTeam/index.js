@@ -42,7 +42,7 @@ let TeamTable = React.createClass({
       sortRole: true,//我的角色排序
       addMember: false,//邀请新成员
       targetKeys: [],
-      sort: "role desc",//默认排序规则
+      sort: "d,role",//默认排序规则
       filter: '',
       nowTeamID: '',//当前团队ID
       showDelModal: false,//解散团队
@@ -59,11 +59,11 @@ let TeamTable = React.createClass({
   //排序规则
   getSort(order, column) {
     var query = {}
-    var orderStr = ''
+    var orderStr = 'a,'
     if (!order) {
-      orderStr = ' desc'
+      orderStr = 'd,'
     }
-    return column + orderStr
+    return orderStr + column
   },
   //团队名排序
   handleSortTeamName() {
@@ -71,7 +71,6 @@ let TeamTable = React.createClass({
     const { filter, page, pageSize } = this.props.scope.state
     const { sortTeamName } = this.state
     let sort = this.getSort(!sortTeamName, 'name')
-    console.log('sort',sort)
     loadUserTeamList('default', {
       page,
       size: pageSize,

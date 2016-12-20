@@ -36,3 +36,4 @@ exports.USER_CURRENT_CONFIG = 'tce_user_current_config'
 exports.ANNOTATION_SVC_SCHEMA_PORTNAME = 'tenxcloud.com/schemaPortname'
 exports.ROLE_USER = 0
 exports.ROLE_TEAM_ADMIN = 1
+exports.PHONE_REGEX = /(^(13\d|14[57]|15[^4,\D]|17[678]|18\d)\d{8}|170[059]\d{7})$/
