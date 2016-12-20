@@ -58,7 +58,7 @@ function standardUserDetail(state = {}, action) {
 function userCertificate (state ={}, action) {
   const defaultInfo = {
     isFetching: false,
-    certificate: {enterprise:[],other:[]}
+    certificate: {}
   }
   switch (action.type) {
     case ActionTypes.GET_USER_CERTIFICATE_REQUEST: {
@@ -69,9 +69,13 @@ function userCertificate (state ={}, action) {
     case ActionTypes.GET_USER_CERTIFICATE_SUCCESS: {
       const certificate={}
       action.response.result.data.data.forEach(list => {
+        if (list.certType == '1') {
+         certificate.individual = list
+        }
         if (list.certType == '2') {
          certificate.enterprise = list
-        } else {
+        }
+        if (list.certType == '3') {
           certificate.other = list
         }
       })
