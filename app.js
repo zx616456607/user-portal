@@ -97,18 +97,22 @@ const sessionOpts = {
   rolling: true,
   maxAge: 1800000
 }
-const sessionMiddleware = session(sessionOpts)
 
 let sessionStore;
 // Session store
 // @important! server will pending here until the session store is connected
-if (config.session_store.url && config.session_store.pass) {
+const redisConfig = config.redis
+const redisHost = redisConfig.host
+const redisPort = redisConfig.port
+const redisPassword = redisConfig.password
+if (redisHost) {
+  logger.info(`use redis to store session ...`)
   const redisStore = require('koa-redis')
-  let sessionRedisConfig = config.session_store.url.split(':')
   sessionStore = new redisStore({
-    host: sessionRedisConfig[0],
-    port: sessionRedisConfig[1],
-    pass: config.session_store.pass
+    host: redisHost,
+    port: redisPort,
+    pass: redisPassword,
+    prefix: 'session_'
   })
   sessionOpts.store = sessionStore
 }
