@@ -280,7 +280,7 @@ let CreateTenxFlow = React.createClass({
   },
   onChangeYamlEditor(e) {
     //this function for editor callback
-    if (e) {
+    if (typeof e === 'string') {
       this.setState({
         currentYaml: e
       })
