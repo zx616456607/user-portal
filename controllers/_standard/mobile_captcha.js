@@ -15,6 +15,7 @@ const constants = require('../../constants/')
 const logger = require('../../utils/logger').getLogger('mobileCaptcha')
 const urllib = require('urllib')
 const redisClient = createRedisClient()
+const md5 = require('md5')
 const redisKeyPrefix = {
   captcha: 'regist_captcha',
   frequenceLimit: 'regist_send_captcha_frequence',
@@ -47,9 +48,9 @@ exports.sendCaptcha = function* () {
       }
       if (reply == null) {
         logger.info(method, 'frequence limit not timeout, not send captcha sms')
-        // const err = new Error('frequence limit not timeout, not send captcha sms')
-        // err.status = 400
-        // return reject(err)
+        const err = new Error('frequence limit not timeout, not send captcha sms')
+        err.status = 403
+        return reject(err)
       }
       resolve()
     })
@@ -69,20 +70,57 @@ exports.sendCaptcha = function* () {
 
   // send sms
   const smsConfig = require('../../configs/_standard').sms
-  if (!smsConfig.pwd || !smsConfig.account) {
-    logger.error(method, 'get sms service account/pwd failed. please check envionment variables USERPORTAL_IHUYI_ACCOUNT/USERPORTAL_IHUYI_PWD')
+  if (!smsConfig.apiKey || !smsConfig.account) {
+    logger.error(method, 'get sms service account/apiKey failed. please check envionment variables USERPORTAL_IHUYI_ACCOUNT/USERPORTAL_IHUYI_APIKEY')
     const err = new Error('internal error')
     err.status = 500
     throw err
   }
-  const content = `您的验证码是：${captcha}。请不要把验证码泄露给其他人。如非本人操作，可不用理会！`
-  const url = `${smsConfig.host}?method=Submit&account=${smsConfig.account}&password=${smsConfig.pwd}&mobile=${mobile}&content=${encodeURI(content)}`
+  const content = `您的验证码是：${captcha}。请不要把验证码泄露给其他人。`
+  const timestamp = Date.parse(new Date()) / 1000
+  const rawData = `${smsConfig.account}${smsConfig.apiKey}${mobile}${content}${timestamp}`
+  const md5Pwd = md5(rawData)
+  // 当参数format为json，请求失败时还是有可能返回xml，所以没有设置format参数为json
+  const url = `${smsConfig.host}?method=Submit&account=${smsConfig.account}&password=${md5Pwd}&mobile=${mobile}&content=${encodeURI(content)}&time=${timestamp}`
   logger.info(method, `sending captcha to ${mobile} url: ${url}`)
-  urllib.request(url, function(err, data, res) {
-    logger.info('call sms service', err, data.toString(), res)
-    if (err) {
-      reject('internal error')
-    }
+  yield new Promise((resolve, reject) => {
+    urllib.request(url, function(err, data, res) {
+      if (err) {
+        logger.error(method, 'call sms service failed.', err)
+        reject('internal error')
+      }
+      const parseString = require('xml2js').parseString
+      parseString(data, function(err, result) {
+        if (err) {
+          logger.error(method, 'parse response xml failed. return xml:', data.toString(), 'err:', err)
+          reject('internal error')
+        }
+        logger.info('result: ',result)
+        try {
+          const code = result.SubmitResult.code[0]
+          switch (code) {
+          case '2':
+            resolve()
+          case '4085': {
+            const err = new Error('同一手机号验证码短信发送超出5条')
+            err.status = 400
+            reject(err)
+          }
+          case '4030': {
+            const err = new Error('手机号码已被列入黑名单')
+            err.status = 400
+            reject(err)
+          }
+          default:
+            reject('内部错误')
+          }
+        }
+        catch (e) {
+          logger.error(method, 'send sms failed. return xml:', data.toString(), 'exception:', e)
+          reject('internal error')
+        }
+      })
+    })
   })
 
   this.body = {
@@ -94,8 +132,8 @@ function createRedisClient() {
   const redis = require("redis")
   const redisConfig = require('../../configs/').redis
   let redisOption = {
-    host: redisConfig.host || '192.168.1.124',
-    port: redisConfig.port || '6379',
+    host: redisConfig.host,
+    port: redisConfig.port,
   }
   if (redisConfig.password) {
     redisOption.password = redisConfig.password
@@ -105,6 +143,5 @@ function createRedisClient() {
   redisClient.on("error", function (err) {
       logger.error("redis error " + err);
   });
-
   return redisClient
 }

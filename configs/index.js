@@ -44,9 +44,9 @@ const config = {
     service_mail: "service@tenxcloud.com"
   },
   redis: {
-    host: env.USERPORTAL_REDIS_HOST,
-    port: env.USERPORTAL_REDIS_PORT,
-    password: env.USERPORTAL_REDIS_PWD,
+    host: env.USERPORTAL_REDIS_HOST  || '192.168.1.124',
+    port: env.USERPORTAL_REDIS_PORT  || '6379',
+    password: env.USERPORTAL_REDIS_PWD || '',
   }
 }
 

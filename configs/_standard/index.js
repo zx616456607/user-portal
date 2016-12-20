@@ -18,9 +18,9 @@ const config = {
     value: '8e059c94-f760-4f85-8910-f94c27cf0ff5'
   },
   sms: {
-    host: 'http://106.ihuyi.cn/webservice/sms.php',
+    host: 'https://106.ihuyi.com/webservice/sms.php',
     account: env.USERPORTAL_IHUYI_ACCOUNT || 'cf_huangqg',
-    pwd: env.USERPORTAL_IHUYI_PWD || 'Dream008',
+    apiKey: env.USERPORTAL_IHUYI_APIKEY || '9611f970a6075b81becfdadf593882f5',
   },
 }
 
