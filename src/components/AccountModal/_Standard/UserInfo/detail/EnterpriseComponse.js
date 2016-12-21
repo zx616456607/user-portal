@@ -20,8 +20,59 @@ let EnterpriseComponse = React.createClass({
       userLicense:{},
       userFrontId:{},
       backId:{},
-      disabled:false
+      disabled: this.props.config ? true: false
     }
+  },
+  componentWillReceiveProps(nextProps) {
+    if(nextProps.config) {
+      const config = nextProps.config
+    
+      const userLicense = {
+          uid: -1,
+          name: '',
+          status: 'done',
+          url: config.enterpriseCertPic,
+          thumbUrl: config.enterpriseCertPic
+      }
+      const userFrontId = {
+          uid: -1,
+          name: '',
+          status: 'done',
+          url: config.userHoldPic,
+          thumbUrl: config.userScanPic
+      }
+      const backId = {
+          uid: -1,
+          name: '',
+          status: 'done',
+          url: config.userScanPic,
+          thumbUrl: config.userScanPic
+      }
+      if(!this.props.config) {
+        this.setState({
+          backId,
+          userFrontId,
+        })
+      } else {
+        if(userLicense.url !== this.props.config.enterpriseCertPic) {
+          this.setState({
+            userLicense
+          })
+        }
+        if(userFrontId.url !== this.props.config.userHoldPic) {
+          this.setState({
+            userFrontId
+          })
+        }
+        if(backId.url !== this.props.config.userScanPic) {
+          this.setState({
+            backId
+          })
+        }
+      }
+
+    }
+   
   },
   idCard(rule, values, callback) {
     const message = IDValide(values)
@@ -106,7 +157,7 @@ let EnterpriseComponse = React.createClass({
       }
       const notification = new NotificationHandler()
       if (!userLicense.url) {
-        notification.error('请上传负责人身份证正面扫描照')
+        notification.error('请上传营业执照扫描照')
         return
       }
       if (!userFrontId.url) {
@@ -149,57 +200,42 @@ let EnterpriseComponse = React.createClass({
 
     });
   },
-  componentDidMount(){
-    const data = this.props.config
-    console.log('data', data)
-    if (data && data.status == 1) {
-      this.props.form.setFieldsValue({
-        companyName: data.enterpriseName,
-        registrationNumber: data.enterpriseCertID,
-        ownerName: data.certUserName,
-        ownerNameNumber:data.certUserID,
-        ownerNamePhone: data.enterpriseOwnerPhone
-      })
-      this.setState({
-        disabled:true
-      })
-    }
-  },
+  
    render() {
-
+     console.log(this.state.disabled)
     const data = this.props.config || {}
     const { getFieldProps } = this.props.form;
     const companyNameProps = getFieldProps('companyName', {
       rules: [
         { required: true, whitespace: true, message:'请输入企业名称'}
       ],
-      initialValue: ''
+      initialValue: data.enterpriseName
     });
     const registrationNumberProps = getFieldProps('registrationNumber', {
       rules: [
         { required: true, whitespace: true, message:'请输入营业执照注册号'}
       ],
-      initialValue: ''
+      initialValue: data.enterpriseCertID
     });
     const ownerNameProps = getFieldProps('ownerName', {
       rules: [
         { required: true, whitespace: true, message:'请输入负责人姓名'}
       ],
-      initialValue: ''
+      initialValue: data.certUserName
     });
     const ownerNameNumberProps = getFieldProps('ownerNameNumber', {
       rules: [
         { whitespace: true, message:'请输入负责任人身份证号'},
         { validator: this.idCard }
       ],
-      initialValue: ''
+      initialValue: data.certUserID
     });
     const ownerNamePhoneProps = getFieldProps('ownerNamePhone', {
       rules: [
         { whitespace: true, message:'请输入联系人手机号'},
         { validator: this.isPhone }
       ],
-      initialValue: ''
+      initialValue: data.enterpriseOwnerPhone
     });
 
     const license = this.state.userLicense.url ? [this.state.userLicense] : null
@@ -223,17 +259,21 @@ let EnterpriseComponse = React.createClass({
               </FormItem>
             </div>
             <div className="list">
-              <span className="key">营业执照妇描件 <span className="important">*</span></span>
+              <span className="key">营业执照扫描件 <span className="important">*</span></span>
               <div className="upload">
-                {data.status ?
-                <img src={data.enterpriseCertPic} className="ant-upload ant-upload-select-picture-card" style={{padding:0}} />
-                :  
-                <Upload listType="picture-card" fileList={license} beforeUpload={(file) => 
-                  this.beforeUpload(file, 'license') 
-                } customRequest={() => true }  disabled={ license ? true : false}>
-                  <Icon type="plus" />
-                  <div className="ant-upload-text">上传照片</div>
-                </Upload>
+                {data.enterpriseCertPic ?
+                  <img src={data.enterpriseCertPic} className="ant-upload ant-upload-select-picture-card" style={{padding:0}} />
+                  :
+                  null
+                }
+                {!this.state.disabled ?
+                  <Upload listType="picture-card" fileList={license} beforeUpload={(file) => 
+                    this.beforeUpload(file, 'license') 
+                  } customRequest={() => true }  disabled={ license ? true : false}>
+                    <Icon type="plus" />
+                    <div className="ant-upload-text">上传照片</div>
+                  </Upload>
+                :null
                 }
 
               </div>
@@ -271,16 +311,21 @@ let EnterpriseComponse = React.createClass({
             <div className="list">
               <span className="key">负责人身份证正面扫描 <span className="important">*</span></span>
               <div className="upload">
-               {data.status ?
-                <img src={data.userHoldPic} className="ant-upload ant-upload-select-picture-card" style={{padding:0}} />
-                :
-                <Upload listType="picture-card" fileList={frontId} beforeUpload={(file) => 
-                  this.beforeUpload(file, 'frontId') 
-                } customRequest={() => true }  disabled={ frontId ? true : false}>
-                  <Icon type="plus" />
-                  <div className="ant-upload-text">上传照片</div>
-                </Upload>
-               }
+        
+               {data.userHoldPic ?
+                  <img src={data.userHoldPic} className="ant-upload ant-upload-select-picture-card" style={{padding:0}} />
+                  :
+                  null
+                }
+                {!this.state.disabled ?
+                  <Upload listType="picture-card" fileList={frontId} beforeUpload={(file) => 
+                    this.beforeUpload(file, 'frontId') 
+                  } customRequest={() => true }  disabled={ frontId ? true : false}>
+                    <Icon type="plus" />
+                    <div className="ant-upload-text">上传照片</div>
+                  </Upload>
+                :null
+                }
         
               </div>
               <ul className="chk">
@@ -292,16 +337,22 @@ let EnterpriseComponse = React.createClass({
             <div className="list">
               <span className="key">负责人身份证反面扫描 <span className="important">*</span></span>
               <div className="upload">
-              {data.status ?
-                <img src={data.userScanPic} className="ant-upload ant-upload-select-picture-card" style={{padding:0}} />
-                :
-                <Upload listType="picture-card" fileList={backId} beforeUpload={(file) => 
-                  this.beforeUpload(file, 'backId') 
-                } customRequest={() => true }  disabled={ backId ? true : false}>
-                  <Icon type="plus" />
-                  <div className="ant-upload-text">上传照片</div>
-                </Upload>
-              }
+
+                {data.userScanPic ?
+                  <img src={data.userScanPic} className="ant-upload ant-upload-select-picture-card" style={{padding:0}} />
+                  :
+                  null
+                }
+                {!this.state.disabled ?
+                  <Upload listType="picture-card" fileList={backId} beforeUpload={(file) => 
+                    this.beforeUpload(file, 'backId') 
+                  } customRequest={() => true }  disabled={ backId ? true : false}>
+                    <Icon type="plus" />
+                    <div className="ant-upload-text">上传照片</div>
+                  </Upload>
+                 :null
+                }
+              
               </div>
               <ul className="chk">
                 <li>1.身份证信息清晰可辨认</li>

@@ -244,7 +244,6 @@ let MyComponent = React.createClass({
                 } }>
                   <Option value='ext4'>ext4</Option>
                   <Option value='xfs'>xfs</Option>
-                  <Option value='reiserfs'>reiserfs</Option>
                 </Select>
                 <Button onClick={() => this.createVolume()}>创建存储卷</Button>
               </div>

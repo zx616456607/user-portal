@@ -54,7 +54,7 @@ const menusText = defineMessages({
   },
   time: {
     id: 'AppCenter.ComposeCenter.Stack.time',
-    defaultMessage: '时间',
+    defaultMessage: '创建时间',
   },
   opera: {
     id: 'AppCenter.ComposeCenter.Stack.opera',

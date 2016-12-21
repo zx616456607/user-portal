@@ -120,7 +120,7 @@
   "AppCenter.ComposeCenter.Stack.type": "类型",
   "AppCenter.ComposeCenter.Stack.composeAttr": "属性",
   "AppCenter.ComposeCenter.Stack.name": "编排名称",
-  "AppCenter.ComposeCenter.Stack.time": "时间",
+  "AppCenter.ComposeCenter.Stack.time": "创建时间",
   "AppCenter.ComposeCenter.Stack.opera": "操作",
   "AppCenter.ComposeCenter.Stack.desc": "描述",
   "AppCenter.ComposeCenter.Stack.deployService": "部署服务",

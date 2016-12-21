@@ -1,4 +1,5 @@
-#RegisterPage {
+#RegisterWrap {
+  min-width: 1024px;
   font-family: "Helvetica Neue",Helvetica,"Microsoft YaHei",Arial,"宋体","Hiragino Sans GB",STHeiti,"WenQuanYi Micro Hei",SimSun,sans-serif;
   background: url("/img/login-bg.jpg") 50% 50% / cover no-repeat fixed;
   -webkit-background-size: contain;
@@ -7,6 +8,11 @@
   width: 100%;
   position: absolute;
   height: 100%;
+}
+.RegisterPage {
+  width: 100%;
+  height: 100%;
+  position: absolute;
   display: -webkit-flex;
   display: flex;
   -webkit-align-items: center;
@@ -146,6 +152,15 @@
         }
       }
     }
+    .accountFooter {
+      color: #33b867;
+      display: table-cell;
+      vertical-align: middle;
+      height: 70px;
+      width: 100%;
+      border-top:1px solid #f1f1f1;
+      padding-left: 48px;
+    }
   }
   .formTip {
     color: #979797;
@@ -160,6 +175,7 @@
       flex: 1;
       flex-direction: column;
       justify-content: center;
+      text-align: center;
       .accountImg {
         text-align: center;
         height: 70px;
@@ -183,8 +199,11 @@
       }
       .accountList {
         display: inline-block;
+        margin-left: 30px;
+        text-align: left;
+        height: 230px;
         li {
-          height: 40px;
+          margin-bottom: 20px;
         }
       }
       .accountListR {
@@ -192,6 +211,30 @@
       }
       .accountListL {
         list-style-image: url('/img/registerRightB.png');
+      }
+      .personBtn {
+        width: 174px;
+        height: 38px;
+        border: 1px solid #33b867;
+        color: #33b867;
+        background-color: #fff;
+        font-size: 14px;
+        &:hover {
+          background-color: #33b867;
+          color: #fff;
+        }
+      }
+      .companyBtn {
+        width: 174px;
+        height: 38px;
+        border: 1px solid #35c8e6;
+        color: #35c8e6;
+        font-size: 14px;
+        background-color: #fff;
+        &:hover {
+          background-color: #35c8e6;
+          color: #fff;
+        }
       }
     }
   }

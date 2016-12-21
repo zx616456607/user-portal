@@ -19,10 +19,11 @@ let OtherComponse = React.createClass({
     return {
       userLicense:{},
       userFrontId:{},
-      backId:{}
+      backId:{},
+      disabled: false
     }
   },
-  idCard(rule, value, callback) {
+  idCard(rule, values, callback) {
    const message = IDValide(values)
     if(message) {
       callback([new Error(message)])
@@ -33,25 +34,83 @@ let OtherComponse = React.createClass({
   },
   isPhone(rule, value, callback) {
     if (value.length < 11 || value.length > 11) {
-      callback(new Error('请输入11位手机号!'));
+      callback(new Error('请输入11位手机号'));
     } else {
       callback();
     }
   },
   handleSubmit(e) {
     e.preventDefault();
-    console.log('收到表单值：', this.props.form.getFieldsValue());
+    const parentScope = this.props.scope.props.scope
+    const {userLicense, userFrontId, backId} = this.state
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
-        console.log('Errors in form!!!');
         return;
       }
-      console.log('Submit!!!');
+      console.log('收到表单值：', values);
       console.log(values);
+      const notification = new NotificationHandler()
+      if (!userLicense.url) {
+        notification.error('请上传组织机构代码扫描照')
+        return
+      }
+      if (!userFrontId.url) {
+        notification.error('请上传负责人身份证正面扫描照')
+        return
+      }
+      if (!backId.url) {
+        notification.error('请上传负责人身份证反面扫描照')
+        return
+      }
+      console.log('Submit!!!', this.state);
+      console.log(values);
+      notification.spin('提交审核信息中')
+      const body = {
+        certType: 2,
+        certUserName: values.ownerName,
+        certUserID: values.ownerNameNumber,
+        enterpriseCertPic:userLicense.url,
+        userHoldPic: userFrontId.url,
+        userScanPic: backId.url,
+        enterpriseOwnerPhone: values.ownerNamePhone,
+        enterpriseCertID:values.registrationNumber,
+        enterpriseName:values.companyName
+      }
+      return
+      parentScope.props.createCertInfo(body, {
+       success: {
+         func: () => {
+           notification.close()
+           notification.success('提交到审核中')
+           parentScope.props.loadStandardUserCertificate
+         }
+        },
+        failed: {
+          func: () => {
+            notification.close()
+            notification.error('提交审核失败, 请稍后重试')
+          }
+        }
+      })
     });
   },
+  componentDidMount(){
+    const data = this.props.config
+    if (data && data.status == 3) {
+      this.props.form.setFieldsValue({
+        companyName: data.enterpriseName,
+        registrationNumber: data.enterpriseCertID,
+        ownerName: data.certUserName,
+        ownerNameNumber:data.certUserID,
+        ownerNamePhone: data.enterpriseOwnerPhone
+      })
+      this.setState({
+        disabled:true
+      })
+    }
+  },
   render() {
-
+    
     console.log('this is props', this.props.config)
 
     const { getFieldProps } = this.props.form;
@@ -75,23 +134,19 @@ let OtherComponse = React.createClass({
     });
     const ownerNameNumberProps = getFieldProps('ownerNameNumber', {
       rules: [
-        { required: true, whitespace: true, message:'请输入负责任人身份证号'},
+        { whitespace: true, message:'请输入负责任人身份证号'},
         { validator: this.idCard }
       ],
       initialValue: ''
     });
     const ownerNamePhoneProps = getFieldProps('ownerNamePhone', {
       rules: [
-        { required: true, whitespace: true, message:'请输入联系人手机号'},
+        { whitespace: true, message:'请输入联系人手机号'},
         { validator: this.isPhone }
       ],
       initialValue: ''
     });
-    const data = this.props.config || {}
-    let disabled = false
-    if (data && data.status == 1) {
-      disabled = true
-    }
+    const data = this.props.config
     const license = this.state.userLicense.url ? [this.state.userLicense] : null
     const frontId = this.state.userFrontId.url ? [this.state.userFrontId] : null
     const backId = this.state.backId.url ? [this.state.backId] : null
@@ -115,7 +170,7 @@ let OtherComponse = React.createClass({
             <div className="list">
               <span className="key">组织机构代码证扫描件 <span className="important">*</span></span>
               <div className="upload">
-                {data.status ?
+                {this.state.disabled ?
                 <img src={data.userScanPic} className="ant-upload ant-upload-select-picture-card" style={{padding:0}} />
                 :
                 <Upload listType="picture-card" fileList={backId} beforeUpload={(file) => 
@@ -160,7 +215,7 @@ let OtherComponse = React.createClass({
             <div className="list">
               <span className="key">负责人身份证正面扫描 <span className="important">*</span></span>
               <div className="upload">
-                {data.status ?
+                {this.state.disabled ?
                 <img src={data.userScanPic} className="ant-upload ant-upload-select-picture-card" style={{padding:0}} />
                 :
                 <Upload listType="picture-card" fileList={backId} beforeUpload={(file) => 
@@ -180,7 +235,7 @@ let OtherComponse = React.createClass({
             <div className="list">
               <span className="key">负责人身份证反面扫描 <span className="important">*</span></span>
               <div className="upload">
-                {data.status ?
+                {this.state.disabled ?
                 <img src={data.userScanPic} className="ant-upload ant-upload-select-picture-card" style={{padding:0}} />
                 :
                 <Upload listType="picture-card" fileList={backId} beforeUpload={(file) => 

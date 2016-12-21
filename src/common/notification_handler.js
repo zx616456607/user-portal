@@ -77,8 +77,9 @@ class NotificationHandler {
     })
   }
   // Show error notification: message & description
-  error(message, description) {
+  error(message, description, duration) {
     let desc = description || ''
+    let timeout = duration || 10
     notification.error({
       message: (
         <div style={{ fontSize: '13px', paddingRight: '20px', color: '#666'}}>
@@ -86,7 +87,7 @@ class NotificationHandler {
         </div>
       ),
       description: desc,
-      duration: 0
+      duration: timeout
     })
   }
 }

@@ -24,7 +24,21 @@ const TabPane = Tabs.TabPane
 const RadioGroup = Radio.Group
 const FormItem = Form.Item
 
-// const ButtonGroup = Button.Group;
+// formert status text
+function formetStatus(status) {
+  switch(status) {
+    case 1:
+      return <Button>待审核</Button>;
+    case 2:
+      return <Button size="small" className="TrustCenter">审核中</Button>;
+    case 3:
+      return <Button size="small" className="btn-error">认证失败</Button>;
+    case 4:
+      return <Button size="small" type="primary" >认证通过</Button>;
+    default:
+      return <Button>未认证</Button>;
+  }
+}
 
 //  个人认证
 class Indivduals extends Component {
@@ -272,6 +286,7 @@ class Indivduals extends Component {
   render() {
     let hold = this.state.userHold.url ? [this.state.userHold] : null
     let scan = this.state.userScan.url ? [this.state.userScan] : null
+    const componstStatus = this.props.config ? this.props.config.status :'0'
     const { getFieldProps } = this.props.form
     let isAllDisable = this.state.isAllDisable
     let individualCert = this.props.config
@@ -301,7 +316,7 @@ class Indivduals extends Component {
         <div className="auth-status">
           <svg className="auth-img"><use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#auth-img"></use></svg>
           <span className="auth-text">个人认证</span>
-          <Button type="small">{this.state.status}</Button>
+          {formetStatus(componstStatus)}
         </div>
         <div className="myInfo">
           <div className="hand">个人信息</div>
@@ -358,7 +373,15 @@ class Indivduals extends Component {
           </div>
         </div>
       </div>
-        </Form>
+      <Modal title="抱歉您的本次认证未通过审核，具体原因如下" visible={false}
+          onOk={this.restore} onCancel={this.handleCancel} okText="重新输入">
+          <p className="blod">{individualCert.failure_message}</p>
+          <p className="blod">请您修改信息后, 重新提交</p>
+          <div>如有任何疑问，请您与时速云团队联系</div>
+          <div>电话：<a>400-626-1876</a> 邮箱： <a href="mailto:service@tenxcloud.com">service@tenxcloud.com</a></div>
+        </Modal>
+    </Form>
+        
     )
   }
 }
@@ -389,7 +412,7 @@ class Enterprise extends Component {
   changeType(e) {
     this.setState({trytype: e})
   }
-  
+
   render() {
     const enterprise = (
       <div><Radio value="2" checked ={this.state.trytype =='2' ? true : false}></Radio> 企业</div>
@@ -397,23 +420,28 @@ class Enterprise extends Component {
     const otherwise = (
       <div><Radio value="3" checked ={this.state.trytype =='3' ? true : false}></Radio>其他组织</div>
     )
+    const componstData = this.props.config && this.props.config.certType == '3' ? [this.props.config] :null
+    const componstStatus = this.props.config ? this.props.config.status :'0'
     return (
       <div className="Indivduals">
         <div className="description">企业用户通过企业认证可获得50元代金券，认证的企业用户的资源配额拥有比未认证的用户更高的配额。请根据您的组织类型选择类型选择认证，企业指领取营业执照的有限责任公司、股份有限公司、非公司企业法人、合伙企业、个人独资企业及其分支机构、来华从事经营的外国（地区）企业，及其他经营单位；其他组歌指在中华人民共和国境内依法注册、依法登记的机关、事业单位、社会团体、学校和民办非企业单位和其他机构。</div>
         <div className="auth-status">
           <svg className="auth-img"><use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#auth-img2"></use></svg>
           <span className="auth-text">企业认证</span>
-          <Button type="small">未认证</Button>
+          {formetStatus(componstStatus)} {/* status */}
         </div>
         
         <Tabs defaultActiveKey="2" type="card" id="sfdsf8888"  onChange={(e)=> this.changeType(e)} value={this.state.trytype}>
           <TabPane tab="请选择组织类型" key="4" disabled ></TabPane>
-          <TabPane tab={ enterprise } key="2"><EnterpriseComponse config={this.props.config} scope={this} /></TabPane>
-          <TabPane tab={ otherwise } key="3"><OtherComponse config={this.props.config} /></TabPane>
+          <TabPane tab={ enterprise } key="2"><EnterpriseComponse config={ this.props.config } scope={this} /></TabPane>
+          <TabPane tab={ otherwise } key="3"><OtherComponse config={ componstData } scope={this}/></TabPane>
         </Tabs>
-        <Modal title="抱歉您的本次认证未通过审核，具体原因如下" visible={this.state.errorAuto}
-          onOk={this.restore} onCancel={this.handleCancel}>
+        <Modal title="抱歉您的本次认证未通过审核，具体原因如下" visible={false}
+          onOk={this.restore} onCancel={this.handleCancel} okText="重新输入">
 
+          <p className="blod">请您 “重新输入”以上认证信息，重新认证</p>
+          <div>如有任何疑问，请您与时速云团队联系</div>
+          <div>电话：<a>400-626-1876</a> 邮箱： <a href="mailto:service@tenxcloud.com">service@tenxcloud.com</a></div>
         </Modal>
         
       </div>
