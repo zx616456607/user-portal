@@ -163,14 +163,14 @@ class BaseInfo extends Component {
     const filePath = this.uploadInstance.refs.upload.refs.inner.refs.file.value
     const reader = new FileReader()
     const dataUrl = reader.readAsDataURL(file)
-    reader.addEventListener("load", function () {
+    reader.addEventListener('load', function () {
       self.setState({
         filePath: filePath,
         file: file,
         fileName: fileName,
         userIconsrc: reader.result
       })
-    }, false);
+    }, false)
     return false
   }
   setUserIcon(icon) {
@@ -189,19 +189,19 @@ class BaseInfo extends Component {
   getCertStatus(status) {
     switch(status) {
       case 1: {
-        return '未认证'
+        return '待审核'
       }
       case 2: {
-        return '认证中'
+        return '审核中'
       }
       case 3: {
         return '认证失败'
       }
       case 4: {
-        return '认证通过'
+        return '认证成功'
       }
       default: {
-        return '点击认证'
+        return '未认证'
       }
     }
   }
@@ -223,7 +223,6 @@ class BaseInfo extends Component {
     const user = this.props.user.userInfo
     this.setState({
       file: '',
-      currentKey: key,
       userIconsrc: user.avatar,
       filePath: '',
       fileName: ''
