@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Input, Form, Switch, Radio, Checkbox, Icon, Select, Modal } from 'antd'
+import { Button, Input, Form, Switch, Radio, Checkbox, Icon, Select, Modal, Tooltip } from 'antd'
 import { Link } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -199,7 +199,9 @@ function fetchCodeStoreName(project, codeList) {
 
 function fetchDockerFilePath(spec) {
   if (!!spec.build) {
-    return spec.build.dockerfilePath;
+    let tempList = spec.build.dockerfilePath.split('/');
+    tempList = tempList.slice(1).join('/');
+    return tempList + '/' +spec.build.dockerfileName;
   }
   return null;
 }
@@ -495,7 +497,7 @@ let EditTenxFlowModal = React.createClass({
   },
   changeUseDockerFile(e) {
     //this function for user change using the Dockerfile or not
-    if (e.target.checked) {
+    if (e.target.value) {
       this.setState({
         useDockerfile: true
       });
@@ -778,13 +780,13 @@ let EditTenxFlowModal = React.createClass({
         } else {
           tmpDockerFileUrl = values.dockerFileUrl;
         }
+        let tempDockerFileList = tmpDockerFileUrl.split('/');
+        tmpDockerFileUrl = tempDockerFileList.slice(0, tempDockerFileList.length -1).join('/');
+        imageBuildBody.DockerfileName = tempDockerFileList[tempDockerFileList.length -1].length > 0 ? tempDockerFileList[tempDockerFileList.length -1] : 'Dockerfile';
         if (tmpDockerFileUrl.indexOf('/') != 0) {
           imageBuildBody.DockerfilePath = '/' + tmpDockerFileUrl;
         } else {
           imageBuildBody.DockerfilePath = tmpDockerFileUrl;
-        }
-        if (!!values.dockerFileName) {
-          imageBuildBody.DockerfileName = values.dockerFileName;
         }
         body.spec.build = imageBuildBody;
       }
@@ -1102,30 +1104,32 @@ let EditTenxFlowModal = React.createClass({
                   </div>
                   <div className='input' style={{ height: '100px' }}>
                     <div className='operaBox' style={{ float: 'left', width: '500px' }}>
-                      <Checkbox onChange={this.changeUseDockerFile} checked={this.state.useDockerfile}></Checkbox>
-                      <span><FormattedMessage {...menusText.dockerFileCreate} /></span>
+                      <RadioGroup onChange={this.changeUseDockerFile} value={this.state.useDockerfile}>
+                        <Radio key='codeStore' value={true}>
+                          <span>使用代码仓库中的 Dockerfile</span>
+                          <Tooltip title='请输入Dockderfile在代码仓库内的路径，其中 / 代表代码仓库的当前路径'>
+                            <Icon className='dockerIcon' type='question-circle-o' style={{ marginLeft: '10px', cursor: 'pointer' }} />
+                          </Tooltip>
+                        </Radio>
+                        <Radio key='create' value={false}>使用云端创建 Dockerfile</Radio>
+                      </RadioGroup>                      
                     </div>
-                    <QueueAnim className='dockerFileInputAnimate' key='dockerFileInputAnimate'>
-                      <div key='useDockerFileAnimateSecond'>
-                        <Input className='dockerFileInput' {...dockerFileUrlProps} addonBefore=' ' size='large' />
-                        <Input className='dockerFileInput' {...dockerFileNameProps} size='large' />
-                      </div>
-                    </QueueAnim>
                     {
                       !this.state.useDockerfile ? [
                         <QueueAnim key='useDockerFileAnimate' style={{ float: 'left' }}>
                           <div key='useDockerFileAnimateSecond'>
-                            {/*<Button type='ghost' size='large' style={{ marginRight:'20px' }}>
-                            <FormattedMessage {...menusText.selectDockerFile} />
-                          </Button>*/}
-                            <Button className={this.state.noDockerfileInput ? 'noCodeStoreButton' : null} type='ghost' size='large'
+                            <Button className={this.state.noDockerfileInput ? 'noCodeStoreButton' : null} type={this.state.dockerFileTextarea.length > 0 ? 'primary' : 'ghost'} size='large'
                               onClick={this.openDockerFileModal}>
-                              <FormattedMessage {...menusText.createNewDockerFile} />
+                              {this.state.dockerFileTextarea.length > 0 ? [<span>编辑云端 Dockerfile</span>] : [<FormattedMessage {...menusText.createNewDockerFile} />]}
                             </Button>
                             <span className={this.state.noDockerfileInput ? 'noCodeStoreSpan CodeStoreSpan' : 'CodeStoreSpan'}><FormattedMessage {...menusText.noDockerFileInput} /></span>
                           </div>
                         </QueueAnim>
-                      ] : null
+                      ] : [<QueueAnim className='dockerFileInputAnimate' key='dockerFileInputAnimate'>
+                      <div key='useDockerFileAnimateSecond'>
+                        <Input className='dockerFileInput' {...dockerFileUrlProps} addonBefore='/' size='large' />
+                      </div>
+                    </QueueAnim>]
                     }
                   </div>
                   <div style={{ clear: 'both' }} />
@@ -1219,7 +1223,7 @@ let EditTenxFlowModal = React.createClass({
             <DockerFileEditor value={this.state.dockerFileTextarea} callback={this.onChangeDockerFileTextarea} options={defaultOptions} />
             <div className='btnBox'>
               <Button size='large' type='primary' onClick={this.closeDockerFileModal}>
-                <span>关闭</span>
+                <span>保存并使用</span>
               </Button>
             </div>
           </Modal>

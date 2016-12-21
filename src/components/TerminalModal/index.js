@@ -39,6 +39,13 @@ class TerminalModal extends Component {
     this.setState({
       currentTab: currentTab
     });
+    window.webTerminalCallBack = function(name, status){
+      config.map((item) => {
+        if(item.metadata.name == name) {
+          console.log(status)
+        }
+      })
+    }
   }
   
   componentDidMount() {
@@ -113,6 +120,7 @@ class TerminalModal extends Component {
   }
   
   componentWillReceiveProps(nextProps) {
+    console.log('props')
     const { config } = nextProps;
     if(config.length > 0) { 
       let currentTab = config[config.length -1].metadata.name + (config.length - 1);
@@ -128,6 +136,13 @@ class TerminalModal extends Component {
       $('.TerminalLayoutModal').css('height', '550px !important');
       setTimeout(function(){
         $('.TerminalLayoutModal').css('transition', 'all');
+      })
+    }
+    window.webTerminalCallBack = function(name, status){
+      config.map((item) => {
+        if(item.metadata.name == name) {
+          console.log(status)
+        }
       })
     }
   }

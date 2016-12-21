@@ -9,6 +9,7 @@
     "use strict";
      var ws
      var term
+     var timeout = false;
     // Initialize everything when the window finishes loading
     window.addEventListener("load", function(event) {
         webSocketConnect()
@@ -52,7 +53,12 @@
       }
       
       terminalConnect();
-      console.log(window.parent)
+      window.parent.webTerminalCallBack(data['pod'], 'connect')
+      setTimeout(function(){
+        if(!timeout) {
+          window.parent.webTerminalCallBack(data['pod'], 'timeout')
+        }
+      }, 5000);
       // Create a new terminal connection to a container
       function terminalConnect() {
         var rowsNum = parseInt(window.innerHeight / 12) - 2;
@@ -65,6 +71,8 @@
             screenKeys: true
           });
           term.open(document.body.terminal);
+          window.parent.webTerminalCallBack(data['pod'], 'success')
+          timeout = true;
           term.write("*******************************************************\r\n");  
           term.write("||    _____                   _                 _    ||\r\n");  
           term.write("||   |_   _|__ _ __ __  _____| | ___  _   _  __| |   ||\r\n"); 
@@ -96,6 +104,7 @@
 
         // Display any errors that occur
         ws.addEventListener("error", function(event) {
+          window.parent.webTerminalCallBack(data['pod'], 'error')
           try {
             term.write(b64_to_utf8("Error: " + JSON.stringify(event)));
           }catch(err) {
