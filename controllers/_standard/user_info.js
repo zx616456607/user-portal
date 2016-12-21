@@ -157,6 +157,10 @@ exports.sendCaptcha = function* () {
     captchaSendFrequencePrefix: `${redisKeyPrefix.frequenceLimit}`
   }
   yield sendCaptchaToPhone(mobile, redisConf)
+
+  this.body = {
+    data: ''
+  }
 }
 
 function checkMobileCaptcha(user) {

@@ -11,13 +11,14 @@ const urllib = require('urllib')
 const md5 = require('md5')
 const constants = require('../constants')
 const redisClient = require('./redis').client
+const internalError = genInternalError()
 
 function sendCaptchaToPhone(mobile, redisConf) {
   const method = 'sendCaptchaToPhone'
   // check mobile format
   if (!mobile || !constants.PHONE_REGEX.test(mobile)) {
     logger.info(method, 'check mobile failed. mobile is', mobile)
-    const err = new Error('mobile is invalid')
+    const err = new Error('手机号不合法')
     err.status = 400
     return Promise.reject(err)
   }
@@ -28,9 +29,7 @@ function sendCaptchaToPhone(mobile, redisConf) {
   const captchaSendFrequenceSec = redisConf.captchaSendFrequenceSec || 60 // 1 minute
   if (!captchaPrefix || !captchaSendFrequencePrefix) {
     logger.error(method, 'redisConf invalid. redisConf:', redisConf)
-    const err = new Error('internal error')
-    err.status = 500
-    return Promise.reject(err)
+    return Promise.reject(internalError)
   }
 
   // generate captcha
@@ -42,11 +41,11 @@ function sendCaptchaToPhone(mobile, redisConf) {
     redisClient.set(sendCaptchaFrequenceKey, '1', 'NX', 'EX', captchaSendFrequenceSec, function(err, reply) {
       if (err) {
         logger.error(method, 'write frequence limit to redis failed.', err)
-        return reject('internal error')
+        return Promise.reject(internalError)
       }
       if (reply == null) {
         logger.info(method, 'frequence limit not timeout, not send captcha sms')
-        const err = new Error('frequence limit not timeout, not send captcha sms')
+        const err = new Error('短信发送太快了，请稍后再试')
         err.status = 403
         return reject(err)
       }
@@ -61,7 +60,7 @@ function sendCaptchaToPhone(mobile, redisConf) {
       redisClient.set(redisKey, captcha, 'EX', 15 * 60, function(err, reply) {
         if (err) {
           logger.error(method, 'write captcha to redis failed.', err)
-          return reject('internal error')
+          return reject(internalError)
         }
         resolve()
       })
@@ -71,9 +70,7 @@ function sendCaptchaToPhone(mobile, redisConf) {
     const smsConfig = require('../configs/_standard').sms
     if (!smsConfig.apiKey || !smsConfig.account) {
       logger.error(method, 'get sms service account/apiKey failed. please check envionment variables USERPORTAL_IHUYI_ACCOUNT/USERPORTAL_IHUYI_APIKEY')
-      const err = new Error('internal error')
-      err.status = 500
-      return Promise.reject(err)
+      return Promise.reject(internalError)
     }
     const content = `您的验证码是：${captcha}。请不要把验证码泄露给其他人。`
     const timestamp = Date.parse(new Date()) / 1000
@@ -83,22 +80,27 @@ function sendCaptchaToPhone(mobile, redisConf) {
     const url = `${smsConfig.host}?method=Submit&account=${smsConfig.account}&password=${md5Pwd}&mobile=${mobile}&content=${encodeURI(content)}&time=${timestamp}`
     logger.info(method, `sending captcha to ${mobile} url: ${url}`)
     return new Promise((resolve, reject) => {
-      urllib.request(url, function(err, data, res) {
+      urllib.request(url, {secureProtocol: 'TLSv1_method'}, function(err, data, res) {
         if (err) {
           logger.error(method, 'call sms service failed.', err)
-          return reject('internal error')
+          return reject(internalError)
+        }
+        if (res.statusCode !== 200) {
+          logger.error(method, 'return status code is', res.statusCode)
+          return reject(internalError)
         }
         const parseString = require('xml2js').parseString
         parseString(data, function(err, result) {
           if (err) {
             logger.error(method, 'parse response xml failed. return xml:', data, 'err:', err)
-            return reject('internal error')
+            return reject(internalError)
           }
           if (result && result.SubmitResult && result.SubmitResult.code.length === 1) {
             const code = result.SubmitResult.code[0]
             switch (code) {
             case '2':
-              resolve(captcha)
+              logger.info(method, `send captcha(${captcha}) to phone(${mobile}) success`)
+              return resolve(captcha)
             case '4085': {
               const err = new Error('同一手机号验证码短信发送超出5条')
               err.status = 400
@@ -110,17 +112,23 @@ function sendCaptchaToPhone(mobile, redisConf) {
               return reject(err)
             }
             default:
-              return reject('内部错误')
+              return reject(internalError)
             }
           }
           else {
             logger.error(method, 'send sms failed. return xml:', data, 'exception:', e)
-            return reject('internal error')
+            return reject(internalError)
           }
         })
       })
     })
   })
+}
+
+function genInternalError() {
+  const internalError = new Error('内部错误')
+  internalError.status = 500
+  return internalError
 }
 
 exports.sendCaptchaToPhone = sendCaptchaToPhone
