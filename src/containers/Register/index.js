@@ -41,34 +41,42 @@ class Register extends Component{
   
   render(){
     let register = (
-      <div key='b'>
-        <div className='backToPage' onClick={this.handlePageChange}>&lt;&lt;&nbsp;&nbsp;&nbsp;重选注册账户类型</div>
-        {
-          this.state.person ?
-          <Person />:
-          <Company />
-        }
+      <div key='b' className='RegisterPage'>
+        <div className='register' style={{width:'40%'}}>
+          <Card className="registerForm" bordered={false}>
+            <div className='backToPage' onClick={this.handlePageChange}>&lt;&lt;&nbsp;&nbsp;&nbsp;重选注册账户类型</div>
+            {
+              this.state.person ?
+              <Person />:
+              <Company />
+            }
+          </Card>
+        </div>
       </div>
     )
     let registerPage = (
-      <div key='a'>
-        <AccountType onChange={this.handlePageChange} />
+      <div key='a' className='RegisterPage'>
+        <div className='register' style={{padding:0}}>
+          <Card className="registerForm" bordered={false} style={{margin:'30px 50px 0'}}>
+            <AccountType onChange={this.handlePageChange} />
+          </Card>
+          <div className="accountFooter">
+            *&nbsp;个人帐户可以升级到企业帐户，但是企业帐户不可降级为个人帐户<br/>
+            *&nbsp;注册并完成认证后方可享受以上测试金及支持服务
+          </div>
+        </div>
       </div>
     )
 
     return (
-      <div id='RegisterPage'>
-        <div className='register'>
-          <Card className="registerForm" bordered={false}>
-            <QueueAnim component="div"
-                       type={this.state.person?['left']:['right']}
-                       ease={['easeOutQuart', 'easeInOutQuart']}
-                       key='register'>
-              {this.state.registerPageShow ? registerPage : null}
-              {this.state.registerShow ? register : null}
-            </QueueAnim>
-          </Card>
-        </div>
+      <div id="RegisterWrap">
+        <QueueAnim component="div"
+                   type={this.state.person?['left']:['right']}
+                   ease={['easeOutQuart', 'easeInOutQuart']}
+                   key='register'>
+          {this.state.registerPageShow ? registerPage : null}
+          {this.state.registerShow ? register : null}
+        </QueueAnim>
       </div>
     )
   }

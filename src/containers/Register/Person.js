@@ -11,6 +11,9 @@ import React, { Component } from 'react'
 import { Tabs, Button, Form, Input, Card, Tooltip, message, Alert, Col, Row  } from 'antd'
 import './style/Person.less'
 import { USERNAME_REG_EXP, EMAIL_REG_EXP } from '../../constants'
+import { connect } from 'react-redux'
+import { registerUser } from '../../actions/user'
+import { browserHistory } from 'react-router'
 
 const TabPane = Tabs.TabPane
 const createForm = Form.create
@@ -38,8 +41,56 @@ let Person = React.createClass({
     }
   },
   //注册
-  handleSubmit () {
-    console.log('注册')
+  handleSubmit (e) {
+    const { form, registerUser } = this.props
+    const { validateFields, resetFields } = form
+    const self = this
+    e.preventDefault()
+    validateFields((errors, values) => {
+      if (!!errors) {
+        return
+      }
+      this.setState({
+        submitting: true,
+        submitProps: {
+          disabled: 'disabled'
+        }
+      })
+      const body = {
+        password: values.password,
+        captcha: values.captcha,
+        userName: values.userName,
+        phone: values.tel,
+        email: values.email,
+      }
+      registerUser(body, {
+        success: {
+          func: (result) => {
+            self.setState({
+              submitting: false,
+              submitProps: {},
+            })
+            message.success(`注册成功`)
+            browserHistory.push('/login')
+            resetFields()
+          },
+          isAsync: true
+        },
+        failed: {
+          func: (err) => {
+            let msg = err.message.message || err.message
+            self.setState({
+              submitting: false,
+              loginResult: {
+                error: msg
+              },
+              submitProps: {},
+            })
+          },
+          isAsync: true
+        },
+      })
+    })
   },
 /*
   start---验证---start
@@ -102,13 +153,12 @@ let Person = React.createClass({
   changeCaptcha() {
     this.setState({
       captchaLoading: true,
-      countDownTimeText: '6s 后重新发送',
+      countDownTimeText: '60s 后重新发送',
     })
-    let wait = 5
-    let text = ''
+    let wait = 59
     //重新发送定时器
     let time = setInterval(() => {
-      text = wait + 's 后重新发送'
+      let text = wait + 's 后重新发送'
       wait--
       if(wait >= -1){
         this.setState({
@@ -404,4 +454,14 @@ let Person = React.createClass({
   }
 })
 Person = createForm()(Person)
+function mapStateToProps(state,props) {
+  return {
+    
+  }
+}
+
+Person = connect(mapStateToProps,{
+  registerUser,
+})(Person)
+
 export default Person
