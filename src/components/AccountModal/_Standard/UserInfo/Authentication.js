@@ -27,13 +27,13 @@ const FormItem = Form.Item
 // formert status text
 function formetStatus(status) {
   switch(status) {
-    case '1':
+    case 1:
       return <Button>待审核</Button>;
-    case '2':
-      return <Button size="small" className="TrustCenter">认证中</Button>;
-    case '3':
+    case 2:
+      return <Button size="small" className="TrustCenter">审核中</Button>;
+    case 3:
       return <Button size="small" className="btn-error">认证失败</Button>;
-    case '4':
+    case 4:
       return <Button size="small" type="primary" >认证通过</Button>;
     default:
       return <Button>未认证</Button>;
@@ -49,25 +49,15 @@ class Indivduals extends Component {
       userScan: {},
       name: '',
       ID: '',
-      isAllDisable: false
+      isAllDisable: false,
+      canUpdate: false,
+      canChange: true,
+      isFail: false
     }
   }
-  componentWillMount() {
-    // this.props.loadStandardUserCertificate({
-    //   success: {
-    //     func: (result) => {
-    //       console.log(result)
-    //     }
-    //   }
-    // })
-  }
   componentWillReceiveProps(nextProps) {
-    let isAllDisable = false
     if(nextProps.config) {
       const config = nextProps.config
-      if(config.status == 2 || config.status === 3) {
-        isAllDisable = true
-      }
       const userHold = {
           uid: -1,
           name: '',
@@ -86,8 +76,14 @@ class Indivduals extends Component {
         this.setState({
           userScan,
           userHold,
+          canUpdate: true,
           isAllDisable: true
         })
+        if(config.status == 2 || config.status == 4) {
+          this.setState({
+            canChange: false
+          })
+        }
       } else {
         if(userHold.url !== this.props.config.userHoldPic) {
           this.setState({
@@ -100,13 +96,7 @@ class Indivduals extends Component {
           })
         }
       }
-      this.setState({
-        isAllDisable: true
-      })
     }
-    this.setState({
-      isAllDisable
-    })
   }
   valideID(rule, values, callback) {
     const message = IDValide(values)
@@ -177,6 +167,13 @@ class Indivduals extends Component {
   }
   handUserCert(e, update) {
     e.preventDefault()
+    if(this.state.canUpdate) {
+      this.setState({
+        canUpdate: false,
+        isAllDisable: false
+      })
+      return
+    }
     const { form } = this.props
     const { changeUserInfo } = this.props
     const self = this
@@ -191,12 +188,6 @@ class Indivduals extends Component {
       if(update) {
         let individualCert = self.props.config
         certId = individualCert.certID
-        hold = {
-          url: individualCert.userHoldPic
-        }
-        scan = {
-          url: individualCert.userScanPic
-        }
       }
       if(!hold.url) {
         notification.error('请上传身份证正面照')
@@ -241,6 +232,10 @@ class Indivduals extends Component {
         }
         notification.success(message)
         self.props.loadStandardUserCertificate()
+        self.setState({
+          isAllDisable: true,
+          canUpdate: true
+        })
       }
       function error() {
         notification.close()
@@ -252,6 +247,20 @@ class Indivduals extends Component {
       }
     }) 
   }
+  removeFile(type) {
+    if(this.state.isAllDisable) {
+      return
+    }
+    if(type === 'scan') {
+      this.setState({
+        userScan: {}
+      })
+      return
+    }
+    this.setState({
+      userHold: {}
+    })
+  }
   render() {
     let hold = this.state.userHold.url ? [this.state.userHold] : null
     let scan = this.state.userScan.url ? [this.state.userScan] : null
@@ -261,7 +270,7 @@ class Indivduals extends Component {
     let individualCert = this.props.config
     let update = false
     if(individualCert) {
-      update = true
+      update = true 
     }
     if(!individualCert) individualCert = {}
     const name = getFieldProps('name', {
@@ -307,7 +316,7 @@ class Indivduals extends Component {
               <div className="upload">
                 <Upload listType="picture-card" fileList={hold} beforeUpload={(file) => 
                   this.beforeUpload(file, 'hold') 
-                } customRequest={() => true }  disabled={ hold || isAllDisable ? true : false}>
+                } customRequest={() => true } onRemove={() => this.removeFile('hold')} disabled={ hold || isAllDisable ? true : false}>
                   <Icon type="plus" />
                   <div className="ant-upload-text">上传照片</div>
                 </Upload>
@@ -324,7 +333,7 @@ class Indivduals extends Component {
               <div className="upload">
                 <Upload listType="picture-card" fileList={scan} disabled={ scan || isAllDisable ? true : false } beforeUpload={ (file) => 
                  this.beforeUpload(file, 'scan')
-                }>
+                } onRemove={() => this.removeFile('scan')}>
                   <Icon type="plus" />
                   <div className="ant-upload-text">上传照片</div>
                 </Upload>
@@ -338,11 +347,19 @@ class Indivduals extends Component {
             </div>
           </div>
           <div className="info-footer" style={{padding:'0 50px'}}>
-            <Button size="large" onClick={(e) => this.handUserCert(e, update)}>{update ? '修改': '提交'}</Button>
+            <Button size="large" disabled={!this.state.canChange} onClick={(e) => this.handUserCert(e, update)}>{this.state.canUpdate ? '修改': '提交'}</Button>
           </div>
         </div>
       </div>
-        </Form>
+      <Modal title="抱歉您的本次认证未通过审核，具体原因如下" visible={this.state.isFail}
+          onOk={this.restore} onCancel={this.handleCancel} okText="重新输入">
+          <p className="blod">{individualCert.failure_message}</p>
+          <p className="blod">请您修改信息后, 重新提交</p>
+          <div>如有任何疑问，请您与时速云团队联系</div>
+          <div>电话：<a>400-626-1876</a> 邮箱： <a href="mailto:service@tenxcloud.com">service@tenxcloud.com</a></div>
+        </Modal>
+    </Form>
+        
     )
   }
 }
