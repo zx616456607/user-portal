@@ -39,7 +39,7 @@ class UserPay extends Component {
         url: '',
       },
       amount: 100,
-      otherAmount: true, // 其他金额
+      otherAmount: false, // 其他金额
       balance: 0,
       rechargeTarget: {
         loading: false,
@@ -203,9 +203,9 @@ class UserPay extends Component {
   }
 
   setAmount(amount) {
-    let otherAmount = true
+    let otherAmount = false
     if (!amount) {
-      otherAmount = false
+      otherAmount = true
     }
     this.setState({
       amount,
@@ -236,6 +236,7 @@ class UserPay extends Component {
         amount: chargeAmount / 100,
         balance: newBalance,
         payStatusModal: true,
+        payStatusAskModal: false,
         rechargeTarget: {
           namespace: (teamId ? namespace : null)
         },
@@ -248,7 +249,18 @@ class UserPay extends Component {
   }
 
   render() {
-    let { payType, qrCode, amount, balance, rechargeTarget, teamName } = this.state
+    let {
+      payType,
+      qrCode,
+      amount,
+      balance,
+      rechargeTarget,
+      teamName,
+      otherAmount,
+      payStatusModal,
+      payStatusAskModal,
+      wechatPayModal,
+    } = this.state
     if (balance !== undefined) {
       balance = (balance / 100).toFixed(2)
     }
@@ -272,34 +284,34 @@ class UserPay extends Component {
           </div>
           <div className="row">
             <span className="keys">充值金额</span>
-            <div className={this.state.amount == '100' ? 'pushMoney selected' : 'pushMoney'} onClick={() => this.setAmount(100)}>
+            <div className={amount == '100' ? 'pushMoney selected' : 'pushMoney'} onClick={() => this.setAmount(100)}>
               <span>100</span>
               <div className="triangle"></div>
               <Icon type="check" />
             </div>
-            <div className={this.state.amount == '200' ? 'pushMoney selected' : 'pushMoney'} onClick={() => this.setAmount(200)}>
+            <div className={amount == '200' ? 'pushMoney selected' : 'pushMoney'} onClick={() => this.setAmount(200)}>
               <span>200</span>
               <div className="triangle"></div>
               <Icon type="check" />
             </div>
-            <div className={this.state.amount == '300' ? 'pushMoney selected' : 'pushMoney'} onClick={() => this.setAmount(300)}>
+            <div className={amount == '300' ? 'pushMoney selected' : 'pushMoney'} onClick={() => this.setAmount(300)}>
               <span>300</span>
               <div className="triangle"></div>
               <Icon type="check" />
             </div>
-            <div className={this.state.amount == '400' ? 'pushMoney selected' : 'pushMoney'} onClick={() => this.setAmount(400)}>
+            <div className={amount == '400' ? 'pushMoney selected' : 'pushMoney'} onClick={() => this.setAmount(400)}>
               <span>400</span>
               <div className="triangle"></div>
               <Icon type="check" />
             </div>
-            <div className={this.state.amount == '500' ? 'pushMoney selected' : 'pushMoney'} onClick={() => this.setAmount(500)}>
+            <div className={amount == '500' ? 'pushMoney selected' : 'pushMoney'} onClick={() => this.setAmount(500)}>
               <span>500</span>
               <div className="triangle"></div>
               <Icon type="check" />
             </div>
             <Button size="large" onClick={() => this.setAmount(false)} style={{ marginRight: '10px' }}>其他金额</Button>
             {
-              !this.state.otherAmount ?
+              otherAmount ?
                 <InputNumber
                   id="inputAmount"
                   size="large"
@@ -355,7 +367,9 @@ class UserPay extends Component {
                 <Col span="8">110912611610301</Col>
               </Row>
               <p className="list-top">2. 与我们联系</p>
-              <div className="list-row">打款后，请拔打电话<a>（400-626-1876）</a>、<a href="mailto:service@tenxcloud.com">邮件（service@tenxcloud.com）</a>或<a>右下角工单</a>的方式与我们联系并提供下列信息：（以便工作人员与您联系并登记到您的名下）</div>
+              <div className="list-row">
+                打款后，请拔打电话<a href="phone:400-626-1876">（400-626-1876）</a>，
+              发送邮件<a href="mailto:service@tenxcloud.com">（service@tenxcloud.com）</a>或<a>右下角工单</a>的方式与我们联系并提供下列信息：（以便工作人员与您联系并登记到您的名下）</div>
               <Row className="ticket">
                 <Col span="4">汇款人单位和姓名</Col>
                 <Col span="4">汇款底单</Col>
@@ -376,7 +390,7 @@ class UserPay extends Component {
           {/* 充值成功 Modal */}
           <Modal
             title="充值成功"
-            visible={this.state.payStatusModal}
+            visible={payStatusModal}
             maskClosable={false}
             onOk={() => this.setState({ payStatusModal: false })}
             onCancel={this.handlePaySuccessModalCancel}
@@ -412,7 +426,7 @@ class UserPay extends Component {
           {/* 是否支付成功 Modal */}
           <Modal
             title="是否支付成功"
-            visible={this.state.payStatusAskModal}
+            visible={payStatusAskModal}
             maskClosable={false}
             onCancel={() => this.setState({ payStatusAskModal: false })}
             onOk={this.checkPayOrderStatus}
@@ -431,7 +445,7 @@ class UserPay extends Component {
           {/* 微信支付 Modal */}
           <Modal
             title="微信支付"
-            visible={this.state.wechatPayModal}
+            visible={wechatPayModal}
             maskClosable={false}
             onOk={this.handleOk}
             onCancel={this.handleWechatPayCancel}

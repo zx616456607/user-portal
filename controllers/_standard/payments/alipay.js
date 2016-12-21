@@ -17,6 +17,7 @@ const aliPayConfig = require('../../../configs/_standard/alipay_config')
 
 const apiFactory = require('../../../services/api_factory')
 const logger = require('../../../utils/logger.js').getLogger('alipay')
+const payments = require('./')
 
 // alipay.on('verify_fail', function() {
 //   logger.info('emit verify_fail')
@@ -96,9 +97,10 @@ exports.notify = function* () {
     throw error
   })
   if (isverify) {
-    const apiResult = yield _requestSignUpdateApi(this.session.loginUser, body)
+    const apiResult = yield _requestSignUpdateApi(null, body)
     this.status = apiResult.statusCode
     this.body = apiResult
+    return
   }
   logger.error('alipay sign is not pass verification')
   this.status = 401
@@ -118,13 +120,9 @@ exports.direct = function* () {
     err.status = 500
     throw err
   })
+  const loginUser = this.session.loginUser
   if (isverify) {
-    const apiResult = yield _requestSignUpdateApi(this.session.loginUser, query)
-    this.status = apiResult.statusCode
-    // this.body = apiResult
-    const data = apiResult.data
-    data.method = 'alipay'
-    data.charge_amount = parseFloat(query.total_fee) * 100
+    const data = yield _requestSignUpdateApi(loginUser, query)
     this.session.payment_status = data
     this.redirect(`/account/balance/payment?order_id=${data.order_id}`)
     return
@@ -136,13 +134,23 @@ exports.direct = function* () {
 
 function _requestSignUpdateApi(user, data) {
   const num = parseFloat(data.total_fee)
-  const siginApi = apiFactory.getTenxSysSignSpi(user)
-  return siginApi.payments.update(data.out_trade_no, {
+  const order = {
     order_id: data.out_trade_no,
     order_type: 101,
     verification_key: data.extra_common_param,
     charge_amount: num * 100,
     detail: JSON.stringify(data)
+  }
+  // Async notification has no loginUser, so here do not use loginUser by api server support
+  const siginApi = apiFactory.getTenxSysSignSpi()
+  return siginApi.payments.update(data.out_trade_no, order).then(result => {
+    const resultData = result.data
+    resultData.method = 'alipay'
+    resultData.charge_amount = order.charge_amount
+    // Send pay success email
+    let email
+    if (user) email = user.email
+    payments.sendPaySuccessEmail(email, 101, order.charge_amount, resultData)
+    return resultData
   })
 }
-
