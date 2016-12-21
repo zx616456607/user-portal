@@ -10,7 +10,7 @@
 'use strict'
 
 const redis = require("redis")
-const redisConfig = require('../configs').redis
+const redisConfig = require('../configs').redis || {}
 const client = getRedisClient()
 
 function getRedisClient() {

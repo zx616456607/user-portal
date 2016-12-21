@@ -65,7 +65,7 @@ module.exports = (protocol, host, api_prefix, version, auth, timeout) => {
       return urllib.request(url, options).then(
         function done(result) {
           logger.info(`--> [${options.method || 'GET'}] ${url}`)
-          logger.info(`api result: ${JSON.stringify(result.data)}`)
+          // logger.info(`api result: ${JSON.stringify(result.data)}`)
           if (_isSuccess(result.res.statusCode)) {
             // data maybe null
             if (!result.data) {

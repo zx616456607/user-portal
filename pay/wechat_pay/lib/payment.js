@@ -38,7 +38,19 @@ const URLS = {
   CLOSE_ORDER: 'https://api.mch.weixin.qq.com/pay/closeorder'
 }
 
+/**
+ * 微信支付类
+ *
+ * @class Payment
+ */
 class Payment {
+  /**
+   * Creates an instance of Payment.
+   *
+   * @param {Object} config
+   *
+   * @memberOf Payment
+   */
   constructor(config) {
     this.appId = config.appId
     this.partnerKey = config.partnerKey
@@ -177,7 +189,7 @@ class Payment {
     return this._signedQuery(URLS.REFUND_QUERY, params, {
       required: ['transaction_id|out_trade_no|out_refund_no|refund_id']
     })
-  };
+  }
 
   downloadBill(params) {
     return this._signedQuery(URLS.DOWNLOAD_BILL, params, {
@@ -188,7 +200,7 @@ class Payment {
       }
       throw err
     })
-  };
+  }
 
   shortUrl(params) {
     return this._signedQuery(URLS.SHORT_URL, params, {
@@ -298,12 +310,12 @@ class Payment {
       notify_url: this.notifyUrl,
       op_user_id: this.mchId
     }
-    const extendObject = {};
+    const extendObject = {}
     keysNeedExtend.forEach(k => {
       if (defaults[k]) {
         extendObject[k] = defaults[k]
       }
-    });
+    })
     return _.extend(extendObject, obj)
   }
 
