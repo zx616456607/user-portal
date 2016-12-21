@@ -32,7 +32,6 @@ let Person = React.createClass({
       intPassFocus: false,//密码焦点
       intCheckFocus: false,//验证码焦点
       passWord: false,//密码显示星号
-      rePassWord: false,//重复密码显示星号
       intEmailFocus: false,//重复密码焦点
       intTelFocus: false,//手机号焦点
       intUserNameFocus: false,//用户名焦点
@@ -62,7 +61,10 @@ let Person = React.createClass({
         userName: values.userName,
         phone: values.tel,
         email: values.email,
+        certType: 1,
+        certUserName: values.userName,
       }
+      console.log('body',body);
       registerUser(body, {
         success: {
           func: (result) => {
@@ -299,16 +301,6 @@ let Person = React.createClass({
         { required: true, whitespace: true, message: '请填写密码' },
         { validator: this.checkPass },
       ],
-    })
-    //重复密码
-    const rePasswdProps = getFieldProps('rePasswd', {
-      rules: [{
-        required: true,
-        whitespace: true,
-        message: '请再次输入密码',
-      }, {
-        validator: this.checkPass2,
-      }],
     })
     //手机号
     const telProps = getFieldProps('tel', {
