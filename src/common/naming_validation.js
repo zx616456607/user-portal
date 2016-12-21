@@ -191,18 +191,19 @@ export function IDValide(ID) {
     return '请输入正确的身份证号码'
   }
   if(ID.length == 15) {
-    return 'success'
+    return ''
   }
   const v = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2]
   const remainder = [1, 0, 'x', 9, 8, 7, 6, 5, 4, 3, 2]
   let valide = 0
   for(var index = 0; index < 18; index ++){
     if(index == 17) {
-      return ''
+      continue
     }
     valide += (ID[index].charCodeAt(0) - 48) * v[index]
   }
-  if(remainder[valide % 11] === ID[17]) {
+  if(remainder[valide % 11] == ID[17]) {
     return ''
   }
+  return '请输入正确的身份证号码'
 }

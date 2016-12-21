@@ -11,7 +11,7 @@ import NotificationHandler from './notification_handler.js'
 export default function uploadFile(file, options, callback) {
   const defaultOptions = {
     fileType: ['gif', 'jpg', 'jpeg', 'png', 'bmp'],
-    defaultSize: 3 * 1024 * 1024//'byte'
+    size : 3 * 1024 * 1024//'byte'
   }
   options = Object.assign(defaultOptions, options)
   const filename = file.name
@@ -19,7 +19,7 @@ export default function uploadFile(file, options, callback) {
   const fileType = filename.substring(start + 1, filename.length)
   if(options.fileType.indexOf(fileType) < 0 ) {
     return {
-      error: 'file type must be gif, jpg, jpeg, png, bmp'
+      error: `file type must be ${options.fileType.join(',')}`
     }
   }
   const size = file.size
@@ -36,7 +36,6 @@ export default function uploadFile(file, options, callback) {
   })
   const notification = new NotificationHandler()
   notification.spin('文件上传中')
-  console.log(options)
   return fetch(options.url, {
     headers: options.headers,
     method: options.method,
