@@ -423,6 +423,32 @@ export function createCertInfo(body, callback) {
   }
 }
 
+
+
+export const UPDATE_CERT_INFO_REQUEST = 'UPDATE_CERT_INFO_REQUEST'
+export const UPDATE_CERT_INFO_SUCCESS = 'UPDATE_CERT_INFO_SUCCESS'
+export const UPDATE_CERT_INFO_FAILUER = 'UPDATE_CERT_INFO_FAILUER'
+function fetchUpdateCertInfo(certId, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [UPDATE_CERT_INFO_REQUEST, UPDATE_CERT_INFO_SUCCESS, UPDATE_CERT_INFO_FAILUER],
+      endpoint: `${API_URL_PREFIX}/certificates/${certId}`,
+      options: {
+        method: 'PUT',
+        body
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function updateCertInfo(certId, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchUpdateCertInfo(certId, body, callback))
+  }
+}
+
 export const GET_USER_CERTIFICATE_REQUEST = 'GET_USER_CERTIFICATE_REQUEST'
 export const GET_USER_CERTIFICATE_SUCCESS = 'GET_USER_CERTIFICATE_SUCCESS'
 export const GET_USER_CERTIFICATE_FAILURE = 'GET_USER_CERTIFICATE_FAILURE'
@@ -457,7 +483,7 @@ function fetchSendRegisterPhoneCaptcha(body, callback) {
         method: 'POST',
         body
       },
-      schema: {},
+      schema: {}
     },
     callback
   }

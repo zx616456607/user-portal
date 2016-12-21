@@ -82,13 +82,13 @@ function userCertificate (state ={}, action) {
           certificate.other = list
         }
       })
-      return Object.assign({}, state,{
+      return Object.assign({}, state, {
         isFetching: false,
         certificate: certificate
       })
     }
     case ActionTypes.GET_USER_CERTIFICATE_FAILURE: {
-      return Object.assign({},defaultInfo, {
+      return Object.assign({}, defaultInfo, {
         isFetching: false,
         certificate: null
       })
@@ -120,6 +120,11 @@ export default function user(state = {
       SUCCESS: ActionTypes.CREATE_CERT_INFO_SUCCESS,
       FAILURE: ActionTypes.CREATE_CERT_INFO_FAILUER
     }, state.createCertInfo, action, option),
+    updateCertInfo: reducerFactory({
+      REQUEST: ActionTypes.UPDATE_CERT_INFO_REQUEST,
+      SUCCESS: ActionTypes.UPDATE_CERT_INFO_SUCCESS,
+      FAILURE: ActionTypes.UPDATE_CERT_INFO_FAILUER
+    }, state.updateCertInfo, action, option),
     userAppInfo: reducerFactory({
       REQUEST: ActionTypes.USER_APPINFO_REQUEST,
       SUCCESS: ActionTypes.USER_APPINFO_SUCCESS,

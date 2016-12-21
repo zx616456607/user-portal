@@ -12,7 +12,7 @@ import { Button, Icon, Input, Tabs, Upload, Radio, Form, Modal} from 'antd'
 import { connect } from 'react-redux'
 import { browserHistory }  from 'react-router'
 import { getQiNiuToken } from '../../../../actions/upload.js'
-import { createCertInfo } from '../../../../actions/user.js'
+import { createCertInfo, updateCertInfo } from '../../../../actions/user.js'
 import uploadFile from '../../../../common/upload.js'
 import { IDValide } from '../../../../common/naming_validation.js'
 import { loadStandardUserCertificate } from '../../../../actions/user'
@@ -46,6 +46,53 @@ class Indivduals extends Component {
     //     }
     //   }
     // })
+  }
+  componentWillReceiveProps(nextProps) {
+    let isAllDisable = false
+    if(nextProps.config) {
+      const config = nextProps.config
+      if(config.status == 2 || config.status === 3) {
+        isAllDisable = true
+      }
+      const userHold = {
+          uid: -1,
+          name: '',
+          status: 'done',
+          url: config.userHoldPic,
+          thumbUrl: config.userHoldPic
+      }
+      const userScan = {
+          uid: -1,
+          name: '',
+          status: 'done',
+          url: config.userScanPic,
+          thumbUrl: config.userScanPic
+      }
+      if(!this.props.config) {
+        this.setState({
+          userScan,
+          userHold,
+          isAllDisable: true
+        })
+      } else {
+        if(userHold.url !== this.props.config.userHoldPic) {
+          this.setState({
+            userHold
+          })
+        }
+        if(userScan.url !== this.props.config.userScanPic) {
+          this.setState({
+            userScan
+          })
+        }
+      }
+      this.setState({
+        isAllDisable: true
+      })
+    }
+    this.setState({
+      isAllDisable
+    })
   }
   valideID(rule, values, callback) {
     const message = IDValide(values)
@@ -114,7 +161,7 @@ class Indivduals extends Component {
     })
     return false
   }
-  handUserCert(e) {
+  handUserCert(e, update) {
     e.preventDefault()
     const { form } = this.props
     const { changeUserInfo } = this.props
@@ -124,8 +171,19 @@ class Indivduals extends Component {
         return errors
       }
       const notification = new NotificationHandler()
-      const hold = self.state.userHold
-      const scan = self.state.userScan
+      let hold = self.state.userHold
+      let scan = self.state.userScan
+      let certId 
+      if(update) {
+        let individualCert = self.props.config
+        certId = individualCert.certID
+        hold = {
+          url: individualCert.userHoldPic
+        }
+        scan = {
+          url: individualCert.userScanPic
+        }
+      }
       if(!hold.url) {
         notification.error('请上传身份证正面照')
         return
@@ -134,7 +192,11 @@ class Indivduals extends Component {
         notification.error('请上传身份证背面照')
         return
       }
-      notification.spin('提交审核信息中')
+      let message = '提交审核信息'
+      if(update) {
+        message = '修改审核信息中'
+      }
+      notification.spin(message)
       const body = {
         certType: 1,
         certUserName: values.name,
@@ -142,39 +204,65 @@ class Indivduals extends Component {
         userHoldPic: hold.url,
         userScanPic: scan.url
       }
-      self.props.createCertInfo(body, {
-       success: {
-         func: () => {
-           notification.close()
-           notification.success('提交审核成功')
-         }
+      const callback = {
+        success: {
+          func: success,
+          isAsync: true
         },
         failed: {
-          func: () => {
-            notification.close()
-            notification.error('提交审核失败, 请稍后重试')
-          }
+          func: error
         }
-      })
+      }
+      if(update) {
+        body.certID = certId
+        self.props.updateCertInfo(certId, body, callback)
+        return
+      }
+      self.props.createCertInfo(body, callback)
+      function success() {
+        notification.close()
+        message = '提交审核成功'
+        if(update) {
+          message = '修改审核信息成功'
+        }
+        notification.success(message)
+        self.props.loadStandardUserCertificate()
+      }
+      function error() {
+        notification.close()
+        message = '提交审核失败, 请稍后再试'
+        if(update) {
+          message = '修改审核失败, 请稍后再试'
+        }
+        notification.error(message)
+      }
     }) 
   }
   render() {
-    const hold = this.state.userHold.url ? [this.state.userHold] : null
-    const scan = this.state.userScan.url ? [this.state.userScan] : null
+    let hold = this.state.userHold.url ? [this.state.userHold] : null
+    let scan = this.state.userScan.url ? [this.state.userScan] : null
     const { getFieldProps } = this.props.form
+    let isAllDisable = this.state.isAllDisable
+    let individualCert = this.props.config
+    let update = false
+    if(individualCert) {
+      update = true
+    }
+    if(!individualCert) individualCert = {}
     const name = getFieldProps('name', {
       rules: [
         { require: true, whitespace: true, message:'请输入真实姓名'},
         { validator: this.valideName }
-      ]
+      ],
+      initialValue: individualCert.certUserName
     })
     const ID = getFieldProps('ID', {
       rules: [
         { require: true, whitespace: true, message:'请输入真实身份证号码'},
         { validator: this.valideID }
-      ]
+      ],
+      initialValue: individualCert.certUserID
     })
-    const isAllDisable = this.state.isAllDisable
     return (
       <Form form={this.props.form}>
       <div className="Indivduals">
@@ -196,7 +284,7 @@ class Indivduals extends Component {
             <div className="list">
               <span className="key">身份证号 <span className="important">*</span></span>
             <FormItem>
-              <Input className="input" size="large"  {...ID} disabled={ isAllDisable }/>
+              <Input className="input" size="large"  {...ID} disabled={ isAllDisable } />
             </FormItem>
             </div>
             <div className="list">
@@ -235,7 +323,7 @@ class Indivduals extends Component {
             </div>
           </div>
           <div className="info-footer" style={{padding:'0 50px'}}>
-            <Button size="large" onClick={(e) => this.handUserCert(e)}>提交</Button>
+            <Button size="large" onClick={(e) => this.handUserCert(e, update)}>{update ? '修改': '提交'}</Button>
           </div>
         </div>
       </div>
@@ -255,7 +343,8 @@ Indivduals = Form.create()(Indivduals)
 Indivduals = connect(indivdualsMapStateToProp, {
   getQiNiuToken,
   createCertInfo,
-  loadStandardUserCertificate
+  loadStandardUserCertificate,
+  updateCertInfo
 })(Indivduals)
 
 // 企业 认证
@@ -338,19 +427,19 @@ class Authentication extends Component {
     })
   }
   render() {
-    const { hash ,certificate} = this.props
+    let { hash, certificate} = this.props
     let activeKey = '2'
     if(hash.indexOf('company') >= 0) {
       activeKey = '1'
     }
     if (!certificate) {
-      return (<div></div>)
+      certificate = {}
     }
     return (
       <div className="Authentication" >
         <Tabs  type="card" activeKey={activeKey} onTabClick={(e) => this.tabClick(e)}> 
           <TabPane tab="企业用户" key="1"><Enterprise config={certificate.enterprise} scope={this}/></TabPane>
-          <TabPane tab="个人用户" key="2"><Indivduals config={certificate.other} scope={this}/></TabPane>
+          <TabPane tab="个人用户" key="2"><Indivduals config={certificate.individual} scope={this}/></TabPane>
         </Tabs>
       </div>
     )
