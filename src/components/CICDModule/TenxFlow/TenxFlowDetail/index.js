@@ -213,7 +213,7 @@ class TenxFlowDetail extends Component {
             return
           }
           if (space != res.data.contributor) {
-            notification.error('无权访问镜像，请尝试再次构建')
+            notification.error('没有权限访问该镜像')
             return
           }
           browserHistory.push(`/app_center?imageName=${image}`)
