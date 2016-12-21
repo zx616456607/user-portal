@@ -329,7 +329,6 @@ let MyComponent = React.createClass({
             <RadioGroup defaultValue='ext4' value={this.state.formateType} size="large" onChange={(e) => this.changeType(e)}>
               <RadioButton value="ext4">ext4</RadioButton>
               <RadioButton value="xfs">xfs</RadioButton>
-              <RadioButton value="reiserfs">reiserfs</RadioButton>
             </RadioGroup>
           </div>
         </Modal>

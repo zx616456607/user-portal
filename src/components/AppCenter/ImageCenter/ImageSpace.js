@@ -8,7 +8,7 @@
  * @author GaoJian
  */
 import React, { Component, PropTypes } from 'react'
-import { Menu, Button, Card, Input, Dropdown, Spin, Modal, message ,notification} from 'antd'
+import { Menu, Button, Card, Input, Dropdown, Spin, Modal, message} from 'antd'
 import { Link ,browserHistory} from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
@@ -143,11 +143,8 @@ const MyComponent = React.createClass({
         success: {
           func: (res) => {
             if (res.data.hasOwnProperty('status') && res.data.status == 404) {
-              notification.warning({
-                message: '镜像不存在',
-                description: '所查看的镜像不存在, 建议关闭详情信息框',
-                key: 'showNotImageDetail'
-              })
+              let notification = new NotificationHandler()
+              notification.warn('所查看的镜像不存在')
               return
             }
           }
