@@ -160,8 +160,16 @@ let NotLogUser = React.createClass({
 
     // send captcha
     const { validateFields } = this.props.form
-    // validateFields(())
-    this.props.sendRegisterPhoneCaptcha()
+    validateFields((err, values) => {
+      if (err) {
+        return
+      }
+      const phone = values.tel
+      if (!phone) {
+        return
+      }
+      this.props.sendRegisterPhoneCaptcha(phone)
+    })
   },
   intOnBlur(current) {
     const { getFieldProps } = this.props.form

@@ -473,7 +473,7 @@ export const USER_REGISTER_SEND_PHONE_CAPTCHA_REQUEST = 'USER_REGISTER_SEND_PHON
 export const USER_REGISTER_SEND_PHONE_CAPTCHA_SUCCESS = 'USER_REGISTER_SEND_PHONE_CAPTCHA_SUCCESS'
 export const USER_REGISTER_SEND_PHONE_CAPTCHA_FAILURE = 'USER_REGISTER_SEND_PHONE_CAPTCHA_FAILURE'
 
-function fetchSendRegisterPhoneCaptcha(body, callback) {
+function fetchSendRegisterPhoneCaptcha(mobile, callback) {
   let endpoint = `${API_URL_PREFIX}/stdusers/captchas`
   return {
     [FETCH_API]: {
@@ -481,7 +481,7 @@ function fetchSendRegisterPhoneCaptcha(body, callback) {
       endpoint,
       options: {
         method: 'POST',
-        body
+        body: {mobile}
       },
       schema: {}
     },

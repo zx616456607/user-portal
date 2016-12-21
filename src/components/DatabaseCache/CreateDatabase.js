@@ -258,7 +258,7 @@ let CreateDatabase = React.createClass({
     const passwdProps = getFieldProps('password', {
       rules: [
         {
-          required: this.state.currentType == 'redis' ? false : true,
+          required: true,
           whitespace: true,
           message: '请填写密码'
         },
