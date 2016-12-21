@@ -105,7 +105,7 @@ const redisConfig = config.redis || {}
 const redisHost = redisConfig.host
 const redisPort = redisConfig.port
 const redisPassword = redisConfig.password
-if (config.session_store && redisHost) {
+if (config.session_store === 'true' && redisHost) {
   logger.info(`use redis to store session ...`)
   const redisStore = require('koa-redis')
   sessionStore = new redisStore({
