@@ -22,16 +22,21 @@ export function getContainerStatus(container) {
   }
   const { containerStatuses } = status
   let restartCount = 0
+  let phase = status.phase
   if (containerStatuses) {
     containerStatuses.map(containerStatus => {
       // const { ready } = containerStatus
       const containerRestartCount = containerStatus.restartCount
       if (containerRestartCount > restartCount) {
         restartCount = containerRestartCount
+        if (!containerStatus.state || !containerStatus.state.running) {
+          //state不存在或state不为running
+          phase = 'Abnormal'
+        }
       }
     })
     if (restartCount >= CONTAINER_MAX_RESTART_COUNT) {
-      status.phase = 'Abnormal'
+      status.phase = phase
       status.restartCount = restartCount
     }
   }
