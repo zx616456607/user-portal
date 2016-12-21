@@ -78,7 +78,25 @@ let NotLogUser = React.createClass({
         },
         failed: {
           func: (err) => {
-            let msg = err.message.message || err.message
+            let dupItems = ''
+            if (err.statusCode === 409 && Array.isArray(err.message.data) && err.message.data.length > 0) {
+              err.message.data.map((item) => {
+                switch(item) {
+                case 'username':
+                  dupItems += '用户名 '
+                  break;
+                case 'email':
+                  dupItems += '邮箱 '
+                  break;
+                case 'phone':
+                  dupItems += '手机号 '
+                  break;
+                }
+              })
+            }
+            dupItems = dupItems ? dupItems + '已被占用' : ''
+            let msg = dupItems || err.message.message || err.message
+            let notification = new NotificationHandler()
             self.setState({
               submitting: false,
               loginResult: {
@@ -86,6 +104,7 @@ let NotLogUser = React.createClass({
               },
               submitProps: {},
             })
+            notification.error(`注册并加入团队失败`, msg)
           },
           isAsync: true
         },
