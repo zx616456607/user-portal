@@ -137,13 +137,12 @@ let NotLogUser = React.createClass({
   changeCaptcha() {
     this.setState({
       captchaLoading: true,
-      countDownTimeText: '6s 后重新发送',
+      countDownTimeText: '60s 后重新发送',
     })
-    let wait = 5
-    let text = ''
     //重新发送定时器
+    let wait = 59
     let time = setInterval(() => {
-      text = wait + 's 后重新发送'
+      let text = wait + 's 后重新发送'
       wait--
       if(wait >= -1){
         this.setState({

@@ -11,6 +11,9 @@ import React, { Component } from 'react'
 import { Tabs, Button, Form, Input, Card, Tooltip, message, Alert, Col, Row  } from 'antd'
 import './style/Person.less'
 import { USERNAME_REG_EXP, EMAIL_REG_EXP } from '../../constants'
+import { connect } from 'react-redux'
+import { registerUser } from '../../actions/user'
+import { browserHistory } from 'react-router'
 
 const TabPane = Tabs.TabPane
 const createForm = Form.create
@@ -29,7 +32,6 @@ let Person = React.createClass({
       intPassFocus: false,//密码焦点
       intCheckFocus: false,//验证码焦点
       passWord: false,//密码显示星号
-      rePassWord: false,//重复密码显示星号
       intEmailFocus: false,//重复密码焦点
       intTelFocus: false,//手机号焦点
       intUserNameFocus: false,//用户名焦点
@@ -38,8 +40,59 @@ let Person = React.createClass({
     }
   },
   //注册
-  handleSubmit () {
-    console.log('注册')
+  handleSubmit (e) {
+    const { form, registerUser } = this.props
+    const { validateFields, resetFields } = form
+    const self = this
+    e.preventDefault()
+    validateFields((errors, values) => {
+      if (!!errors) {
+        return
+      }
+      this.setState({
+        submitting: true,
+        submitProps: {
+          disabled: 'disabled'
+        }
+      })
+      const body = {
+        password: values.password,
+        captcha: values.captcha,
+        userName: values.userName,
+        phone: values.tel,
+        email: values.email,
+        certType: 1,
+        certUserName: values.userName,
+      }
+      console.log('body',body);
+      registerUser(body, {
+        success: {
+          func: (result) => {
+            self.setState({
+              submitting: false,
+              submitProps: {},
+            })
+            message.success(`注册成功`)
+            browserHistory.push('/login')
+            resetFields()
+          },
+          isAsync: true
+        },
+        failed: {
+          func: (err) => {
+            let msg = err.message.message || err.message
+            self.setState({
+              submitting: false,
+              loginResult: {
+                error: msg
+              },
+              submitProps: {},
+            })
+          },
+          isAsync: true
+        },
+      })
+    })
   },
 /*
   start---验证---start
@@ -102,13 +155,12 @@ let Person = React.createClass({
   changeCaptcha() {
     this.setState({
       captchaLoading: true,
-      countDownTimeText: '6s 后重新发送',
+      countDownTimeText: '60s 后重新发送',
     })
-    let wait = 5
-    let text = ''
+    let wait = 59
     //重新发送定时器
     let time = setInterval(() => {
-      text = wait + 's 后重新发送'
+      let text = wait + 's 后重新发送'
       wait--
       if(wait >= -1){
         this.setState({
@@ -249,16 +301,6 @@ let Person = React.createClass({
         { required: true, whitespace: true, message: '请填写密码' },
         { validator: this.checkPass },
       ],
-    })
-    //重复密码
-    const rePasswdProps = getFieldProps('rePasswd', {
-      rules: [{
-        required: true,
-        whitespace: true,
-        message: '请再次输入密码',
-      }, {
-        validator: this.checkPass2,
-      }],
     })
     //手机号
     const telProps = getFieldProps('tel', {
@@ -404,4 +446,14 @@ let Person = React.createClass({
   }
 })
 Person = createForm()(Person)
+function mapStateToProps(state,props) {
+  return {
+    
+  }
+}
+
+Person = connect(mapStateToProps,{
+  registerUser,
+})(Person)
+
 export default Person
