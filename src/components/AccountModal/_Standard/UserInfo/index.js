@@ -16,7 +16,10 @@ import './style/UserInfo.less'
 import PhoneRow from './detail/PhoneRow'
 import EmailRow from './detail/EmailRow'
 import PasswordRow from './detail/PassowrdRow'
-import { loadStandardUserInfo } from '../../../../actions/user.js'
+import { loadStandardUserInfo, changeUserInfo } from '../../../../actions/user.js'
+import { getQiNiuToken } from '../../../../actions/upload.js'
+import NotificationHandler from '../../../../common/notification_handler.js'
+import uploadFile from '../../../../common/upload.js'
 
 const TabPane = Tabs.TabPane
 const createForm = Form.create
@@ -29,12 +32,23 @@ class BaseInfo extends Component {
       editPsd: false,
       editPhone: false,
       uploadModalVisible: false,
-      userIconsrc: 'avatars.png'
+      userIconsrc: 'avatars.png',
+      disabledButton: false,
+      currentKey: '11'
     }
   }
   componentWillMount() {
+    const self = this
     const { loadStandardUserInfo } = this.props
-    loadStandardUserInfo()
+    loadStandardUserInfo({
+      success: {
+        func: (result) => {
+          self.setState({
+            userIconsrc: result.userInfo.avatar
+          })
+        }
+      }
+    })
   }
   closeEdit(editType) {
     this.setState({
@@ -42,8 +56,122 @@ class BaseInfo extends Component {
     })
   }
   UploadIconModal() {
-    console.log(this)
-    console.log('comem in')
+    if(this.state.disabledButton) return
+    if(this.state.file) {
+      this.setState({
+        disabledButton: true
+      })
+      const self = this
+      const fileName = this.state.fileName
+      const file = this.state.file
+      this.props.getQiNiuToken('certificate', fileName, {
+        success: {
+          func: (result) => {
+            self.setState({
+              uptoken: result.upToken
+            })
+            const timestamp = new Date() - 0
+            const body = {
+              file: file,
+              token: result.upToken,
+              key: fileName
+            }
+            uploadFile(file, {
+              url: result.uploadUrl,
+              key: fileName,
+              method: 'POST',
+              body: body,
+              size: 2 * 1024 * 1024,
+              fileType: ['jpg', 'png', 'gif']
+            }).then(response => {
+              const url = `${result.origin}/${response.key}`
+              self.setState({
+                userIconsrc: url,
+                disabledButton: false
+              })
+              self.changeUserAvator(url)
+            }).catch(err => {
+              self.setState({
+                disabledButton: false
+              })
+            })
+          }
+        }
+      })
+      return
+    }
+    const userDetail = this.props.user.userInfo
+    const notification = new NotificationHandler()
+    if(userDetail.avatar === this.state.userIconsrc) {
+      notification.error('请选和现在头像不同的图片')
+      return
+    }
+    this.changeUserAvator(this.state.userIconsrc)
+  }
+  changeUserAvator(avatar) {
+    const notification = new NotificationHandler()
+    notification.spin('更新头像中')
+    this.setState({
+      disabledButton: true
+    })
+    const self = this
+    this.props.changeUserInfo({
+      avatar
+    }, {
+        success: {
+          func: () => {
+            self.setState({
+              disabledButton: false,
+              uploadModalVisible: false
+            })
+            notification.close()
+            notification.success('更换头像成功')
+          }
+        },
+        failed: {
+          func: () => {
+            notification.close()
+            self.setState({
+              disabledButton: false
+            })
+          }
+        }
+      })
+  }
+  beforeUpload(file) {
+    const self = this
+    const index = file.name.lastIndexOf('.')
+    let fileName = file.name.substring(0, index)
+    let ext = file.name.substring(index + 1)
+    const fileType = ['jpg', 'png', 'git']
+    const notification = new NotificationHandler()
+    if (fileType.indexOf(ext) < 0) {
+      notification.error('头像格式仅支持jpg/png/gif')
+      this.setState({
+        disabledButton: true
+      })
+      return false
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      notification.error('头像图片大小应小于2mb')
+      this.setState({
+        disabledButton: true
+      })
+      return false
+    }
+    fileName = fileName + (new Date() - 0) + '.' + ext
+    const filePath = this.uploadInstance.refs.upload.refs.inner.refs.file.value
+    const reader = new FileReader()
+    const dataUrl = reader.readAsDataURL(file)
+    reader.addEventListener("load", function () {
+      self.setState({
+        filePath: filePath,
+        file: file,
+        fileName: fileName,
+        userIconsrc: reader.result
+      })
+    }, false);
+    return false
   }
   setUserIcon(icon) {
     this.setState({
@@ -76,6 +204,30 @@ class BaseInfo extends Component {
         return '点击认证'
       }
     }
+  }
+  onTabClick(key) {
+    if(key == this.state.currentKey){
+      return
+    }
+    const user = this.props.user.userInfo
+    this.setState({
+      file: '',
+      currentKey: key,
+      userIconsrc: user.avatar,
+      filePath: '',
+      fileName: ''
+    })
+  }
+  hideModal() {
+    this.setState({ uploadModalVisible: false })
+    const user = this.props.user.userInfo
+    this.setState({
+      file: '',
+      currentKey: key,
+      userIconsrc: user.avatar,
+      filePath: '',
+      fileName: ''
+    })
   }
   render() {
     // const {getFieldProps} = this.props.form
@@ -111,35 +263,18 @@ class BaseInfo extends Component {
     if(!companyCert) {
       companyCert = {}
     }
-    const propsAction = {
-      name: 'file',
-      action: '/upload.do',
-      headers: {
-        authorization: 'authorization-text'
-      },
-      onChange(info) {
-        if (info.file.status !== 'uploading') {
-          console.log(info.file, info.fileList)
-        }
-        if (info.file.status === 'done') {
-          message.success(`${info.file.name} 上传成功。`)
-        } else if (info.file.status === 'error') {
-          message.error(`${info.file.name} 上传失败。`)
-        }
-      }
-    }
     return (
       <div className="baseInfo">
         <div className="topBox">
           <div className="userimage">
-            <img src="{userDetail.avator}" />
+            <img src={`${userDetail.avatar}`} />
           </div>
           <div className="topbar userBtn">
             <p>Hi, 换个自己喜欢的头像吧！</p>
             <Button type="primary" onClick={() => this.setState({ uploadModalVisible: true })}>更换头像</Button>
           </div>
           <div className="to-recharge">
-            <p className="money">{userDetail.balance}元</p>
+            <p className="money">{userDetail.balance / 100 }元</p>
             <p className="money-desc">我的帐户余额</p>
             <Button type="primary">去充值</Button>
           </div>
@@ -210,23 +345,23 @@ class BaseInfo extends Component {
           </div>
         </div>
         <Modal title={'更换头像'} className="uploadIconModal" visible={this.state.uploadModalVisible}
-          onCancel={() => this.setState({ uploadModalVisible: false })} onOk={() => this.UploadIconModal()} width={600}
+          onCancel={() => this.hideModal()} onOk={() => this.UploadIconModal()} width={600}
           >
-          <Tabs defaultActiveKey="11">
+          <Tabs defaultActiveKey="11" onTabClick={key => this.onTabClick(key)}>
             <TabPane tab="个性头像选择" key="11">
               <div className="images">
                 <div className="leftBox">
-                  <img src="/img/standard/icon-1.jpg" className="userIcon" onClick={() => this.setUserIcon('icon-1.jpg')} />
-                  <img src="/img/standard/icon-2.jpg" className="userIcon" onClick={() => this.setUserIcon('icon-2.jpg')} />
-                  <img src="/img/standard/icon-3.jpg" className="userIcon" onClick={() => this.setUserIcon('icon-3.jpg')} />
-                  <img src="/img/standard/icon-4.jpg" className="userIcon" onClick={() => this.setUserIcon('icon-4.jpg')} />
-                  <img src="/img/standard/icon-5.jpg" className="userIcon" onClick={() => this.setUserIcon('icon-5.jpg')} />
-                  <img src="/img/standard/icon-6.jpg" className="userIcon" onClick={() => this.setUserIcon('icon-6.jpg')} />
-                  <img src="/img/standard/icon-1.jpg" className="userIcon" onClick={() => this.setUserIcon('icon-1.jpg')} />
+                  <img src="/img/standard/icon-1.jpg" className="userIcon" onClick={() => this.setUserIcon('/img/standard/icon-1.jpg')} />
+                  <img src="/img/standard/icon-2.jpg" className="userIcon" onClick={() => this.setUserIcon('/img/standard/icon-2.jpg')} />
+                  <img src="/img/standard/icon-3.jpg" className="userIcon" onClick={() => this.setUserIcon('/img/standard/icon-3.jpg')} />
+                  <img src="/img/standard/icon-4.jpg" className="userIcon" onClick={() => this.setUserIcon('/img/standard/icon-4.jpg')} />
+                  <img src="/img/standard/icon-5.jpg" className="userIcon" onClick={() => this.setUserIcon('/img/standard/icon-5.jpg')} />
+                  <img src="/img/standard/icon-6.jpg" className="userIcon" onClick={() => this.setUserIcon('/img/standard/icon-6.jpg')} />
+                  <img src="/img/standard/icon-1.jpg" className="userIcon" onClick={() => this.setUserIcon('/img/standard/icon-1.jpg')} />
                 </div>
                 <div className="rightBox">
                   <div className="useIcon">
-                    <img src={`/img/standard/${this.state.userIconsrc}`} />
+                    <img src={`${this.state.userIconsrc}`} />
                   </div>
                   <div>头像预览</div>
                 </div>
@@ -237,16 +372,16 @@ class BaseInfo extends Component {
                 <div className="leftBox">
                   <br />
                   <p className="row">从电脑里挑选一张喜欢的图作为头像吧</p>
-                  <Upload {...propsAction}>
-                    <Input size="large" placeholder="选择一张照片" style={{ width: '66%' }} />
+                  <Upload beforeUpload={(file) => this.beforeUpload(file)} ref={(instance) => this.uploadInstance = instance }>
+                    <Input size="large" placeholder="选择一张照片" style={{ width: '66%' }} value={this.state.filePath}/>
                     <Button type="primary" style={{ marginLeft: '20px' }}>本地照片
                     </Button>
                   </Upload>
-                  <p className="row">支持jpg/png 格式图片，文件需小于2M</p>
+                  <p className="row">支持jpg/png/gif 格式图片，文件需小于2M</p>
                 </div>
                 <div className="rightBox">
                   <div className="useIcon">
-                    <img src="/img/standard/avatars.png" />
+                    <img src= {this.state.userIconsrc} />
                   </div>
                   <div>头像预览</div>
                 </div>
@@ -266,7 +401,9 @@ function baseInfoMapStateToProps(state) {
 }
 
 BaseInfo = connect(baseInfoMapStateToProps, {
-  loadStandardUserInfo
+  loadStandardUserInfo,
+  changeUserInfo,
+  getQiNiuToken
 })(BaseInfo)
 
 
