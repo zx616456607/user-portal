@@ -10,6 +10,7 @@
 import React, { Component } from 'react'
 import { Tabs, Button, Form, Input, Card, Tooltip, message, Alert, Col, Row  } from 'antd'
 import './style/Person.less'
+import { USERNAME_REG_EXP, EMAIL_REG_EXP } from '../../constants'
 
 const TabPane = Tabs.TabPane
 const createForm = Form.create
@@ -55,9 +56,24 @@ let Person = React.createClass({
     }
     callback()
   },
+  //邮箱验证
+  checkEmail(rule, value, callback) {
+    if (!value) {
+      callback()
+      return
+    }
+    if (!EMAIL_REG_EXP.test(value)) {
+      callback([new Error('邮箱格式错误')])
+      return
+    }
+    callback()
+  },
   //密码验证
   checkPass(rule, value, callback) {
-    const { validateFields } = this.props.form
+    if (!value) {
+      callback()
+      return
+    }
     callback()
   },
   //验证码
