@@ -14,16 +14,33 @@
   -webkit-justify-content: center;
   justify-content: center;
   .register {
-  	width: 30%;
+  	width: 70%;
     background-color: #fff;
     border-radius: 5px;
     padding: 30px 50px 0;
     cursor: pointer;
+    .ant-card {
+      overflow: inherit;
+    }
     .ant-tabs-bar {
     	margin-bottom: 35px;
     }
     .registerForm {
-	  .ant-card-body {
+      .registerTitle {
+        position: absolute;
+        top: -90px;
+        font-size: 18px;
+        color: #454545;
+        width: 100%;
+        text-align: center;
+      }
+      .backToPage {
+        color: #4490d1;
+        font-size: 12px;
+        text-align: center;
+        height: 60px;
+      }
+      .ant-card-body {
         padding: 24px 0;
         .ant-alert {
           top: -24px;
@@ -133,5 +150,49 @@
   .formTip {
     color: #979797;
     font-size: 10px;
+  }
+}
+#AccountType {
+  .account {
+    display: flex;
+    justify-content: space-between;
+    .accountInf {
+      flex: 1;
+      flex-direction: column;
+      justify-content: center;
+      .accountImg {
+        text-align: center;
+        height: 70px;
+        img {
+        }
+      }
+      .accountTitle {
+        display: flex;
+        align-items: center;
+        margin-bottom: 36px;
+        .accountText {
+          width: 100%;
+          text-align: center;
+        }
+        .line {
+          display: inline-block;
+          height: 1px;
+          width: 100%;
+          background-color: #999999;
+        }
+      }
+      .accountList {
+        display: inline-block;
+        li {
+          height: 40px;
+        }
+      }
+      .accountListR {
+        list-style-image: url('/img/registerRightG.png');
+      }
+      .accountListL {
+        list-style-image: url('/img/registerRightB.png');
+      }
+    }
   }
 }
