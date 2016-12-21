@@ -75,6 +75,7 @@ exports.changeUserInfo = function* () {
   const email = body.email
   const newPassword = body.newPassword
   const newEmail = body.newEmail
+  const avatar = body.avatar
   const user = this.session.loginUser
   const spi = apiFactory.getSpi(user)
   const updateBody = {}
@@ -86,6 +87,9 @@ exports.changeUserInfo = function* () {
   }
   if(newEmail) {
     updateBody.email = newEmail
+  }
+  if(avatar) {
+    updateBody.avatar = avatar
   }
   const api = apiFactory.getApi(user)
   const apiResult = yield api.users.patchBy([user.id], null, updateBody)
