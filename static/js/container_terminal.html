@@ -9,7 +9,7 @@
     "use strict";
      var ws
      var term
-     var timeout = false;
+     var connected = false;
     // Initialize everything when the window finishes loading
     window.addEventListener("load", function(event) {
         webSocketConnect()
@@ -30,8 +30,10 @@
       if(colsNum <= 5) {
         colsNum = 5;
       }
-      term.resize(colsNum, rowsNum)
-      term.element.focus();
+      if(connected) {
+        term.resize(colsNum, rowsNum)
+        term.element.focus();
+      }
     })
     function webSocketConnect() {
       var params = location.href.split('?')[1].split('&');
@@ -52,13 +54,13 @@
         return decodeURIComponent(window.escape(window.atob( str )));
       }
       
-      terminalConnect();
       window.parent.webTerminalCallBack(data['pod'], 'connect')
       setTimeout(function(){
-        if(!timeout) {
+        if(!connected) {
           window.parent.webTerminalCallBack(data['pod'], 'timeout')
         }
       }, 5000);
+      terminalConnect();
       // Create a new terminal connection to a container
       function terminalConnect() {
         var rowsNum = parseInt(window.innerHeight / 12) - 2;
@@ -70,9 +72,9 @@
             rows: rowsNum,
             screenKeys: true
           });
-          term.open(document.body.terminal);
           window.parent.webTerminalCallBack(data['pod'], 'success')
-          timeout = true;
+          connected = true;
+          term.open(document.body.terminal);
           term.write("*******************************************************\r\n");  
           term.write("||    _____                   _                 _    ||\r\n");  
           term.write("||   |_   _|__ _ __ __  _____| | ___  _   _  __| |   ||\r\n"); 
