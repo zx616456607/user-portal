@@ -13,6 +13,7 @@ import { Button, Form, Input, Card, Tooltip, message, Alert, Col, Row } from 'an
 import { connect } from 'react-redux'
 import { USERNAME_REG_EXP, EMAIL_REG_EXP } from '../../../constants'
 import { browserHistory } from 'react-router'
+import NotificationHandler from '../../../common/notification_handler'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -161,6 +162,7 @@ let NotLogUser = React.createClass({
     // send captcha
     const { validateFields } = this.props.form
     validateFields((err, values) => {
+      console.log('valuesvalues', values)
       if (err) {
         return
       }
@@ -168,7 +170,21 @@ let NotLogUser = React.createClass({
       if (!phone) {
         return
       }
-      this.props.sendRegisterPhoneCaptcha(phone)
+      this.props.sendRegisterPhoneCaptcha(phone, {
+        success: {
+          func: () => {
+            let notification = new NotificationHandler()
+            notification.success(`发送邀请码成功`)
+          },
+          isAsync: true
+        },
+        failed: {
+          func: (err) => {
+            let notification = new NotificationHandler()
+            notification.error(`发送邀请码失败`, err.message)
+          }
+        }
+      })
     })
   },
   intOnBlur(current) {
