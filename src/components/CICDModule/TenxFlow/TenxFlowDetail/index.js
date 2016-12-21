@@ -133,7 +133,7 @@ class TenxFlowDetail extends Component {
           if (result.length > 0) {
             result.forEach(list => {
               if (list.spec.hasOwnProperty('build')) {
-                showImage.push(list.spec.build.image)
+                showImage.push(res.data.results.owner + '/' + list.spec.build.image)
               }
             })
           }
