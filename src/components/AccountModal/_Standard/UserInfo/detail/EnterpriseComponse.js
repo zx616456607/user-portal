@@ -20,7 +20,12 @@ let EnterpriseComponse = React.createClass({
       userLicense:{},
       userFrontId:{},
       backId:{},
-      disabled: this.props.config ? true: false
+      disabled: true
+    }
+  },
+  componentDidMount() {
+    if (this.props.scope.state.enterpriseDisabled) {
+      this.setState({disabled: true})
     }
   },
   componentWillReceiveProps(nextProps) {
@@ -52,6 +57,7 @@ let EnterpriseComponse = React.createClass({
         this.setState({
           backId,
           userFrontId,
+          userLicense,
         })
       } else {
         if(userLicense.url !== this.props.config.enterpriseCertPic) {
@@ -72,7 +78,7 @@ let EnterpriseComponse = React.createClass({
       }
 
     }
-   
+
   },
   idCard(rule, values, callback) {
     const message = IDValide(values)
@@ -84,11 +90,35 @@ let EnterpriseComponse = React.createClass({
     return
   },
   isPhone(rule, value, callback) {
+    if(!Boolean(value)){
+      callback(new Error('请输入11位手机号'));
+      return
+    }
     if (value.length < 11 || value.length > 11) {
-      callback(new Error('请输入11位手机号!'));
+      callback(new Error('请输入11位手机号'));
     } else {
       callback();
     }
+  },
+  removeFile(type) {
+    if(this.state.disabled) {
+      return
+    }
+    if(type === 'userLicense') {
+      this.setState({
+        userLicense: {}
+      })
+      return
+    }
+    if(type === 'backId') {
+      this.setState({
+        backId: {}
+      })
+      return
+    }
+    this.setState({
+      userFrontId: {}
+    })
   },
   beforeUpload(file, type) {
     const self = this
@@ -96,7 +126,7 @@ let EnterpriseComponse = React.createClass({
     let fileName = file.name.substring(0, index)
     let ext = file.name.substring(index + 1)
     fileName = fileName + (new Date() - 0) + '.' + ext
-    this.props.getQiNiuToken('certificate', fileName, {
+    this.props.scope.props.getQiNiuToken('certificate', fileName, {
       success: {
         func: (result)=> {
           self.setState({
@@ -126,7 +156,7 @@ let EnterpriseComponse = React.createClass({
               url,
               thumbUrl: url
             }
-            if(type == 'license') {
+            if(type == 'userLicense') {
               self.setState({
                 userLicense: info
               })
@@ -150,7 +180,9 @@ let EnterpriseComponse = React.createClass({
   handleSubmit(e) {
     e.preventDefault();
     const {userLicense, userFrontId, backId} = this.state
+    const certID = this.props.config ? this.props.config.certID :false
     const parentScope = this.props.scope.props.scope
+    const _this = this
     this.props.form.validateFields((errors, values) => {
       if (!!errors) {
         return;
@@ -168,8 +200,7 @@ let EnterpriseComponse = React.createClass({
         notification.error('请上传负责人身份证反面扫描照')
         return
       }
-      console.log('Submit!!!', this.state);
-      console.log(values);
+      let message = '提交审核信息'
       notification.spin('提交审核信息中')
       const body = {
         certType: 2,
@@ -182,27 +213,44 @@ let EnterpriseComponse = React.createClass({
         enterpriseCertID:values.registrationNumber,
         enterpriseName:values.companyName
       }
-      parentScope.props.createCertInfo(body, {
-       success: {
-         func: () => {
-           notification.close()
-           notification.success('提交到审核中')
-           parentScope.props.loadStandardUserCertificate
-         }
+      const callback = {
+        success: {
+          func: success,
+          isAsync: true
         },
         failed: {
-          func: () => {
-            notification.close()
-            notification.error('提交审核失败, 请稍后重试')
-          }
+          func: error
         }
-      })
+      }
+      if (certID) {
+        parentScope.props.updateCertInfo(certID, body, callback)
+        return
+      }
+      parentScope.props.createCertInfo(body, callback)
+      function success() {
+        notification.close()
+        message = '提交审核成功'
+        if(certID) {
+          message = '修改审核信息成功'
+        }
+        notification.success(message)
+        _this.setState({disabled:true})
+        parentScope.props.loadStandardUserCertificate()
+      }
+      function error() {
+        notification.close()
+        message = '提交审核失败, 请稍后再试'
+        if(certID) {
+          message = '修改审核失败, 请稍后再试'
+        }
+        notification.error(message)
+        _this.setState({disabled:true})
+      }
 
     });
   },
   
    render() {
-     console.log(this.state.disabled)
     const data = this.props.config || {}
     const { getFieldProps } = this.props.form;
     const companyNameProps = getFieldProps('companyName', {
@@ -238,43 +286,36 @@ let EnterpriseComponse = React.createClass({
       initialValue: data.enterpriseOwnerPhone
     });
 
-    const license = this.state.userLicense.url ? [this.state.userLicense] : null
+    const userLicense = this.state.userLicense.url ? [this.state.userLicense] : null
     const frontId = this.state.userFrontId.url ? [this.state.userFrontId] : null
     const backId = this.state.backId.url ? [this.state.backId] : null
     return (
-      <Form horizontal onSubmit={this.handleSubmit}>
+      <Form horizontal>
         <div className="myInfo">
           <div className="hand">企业信息</div>
           <div className="user-info">
             <div className="list">
               <span className="key">企业名称 <span className="important">*</span></span>
               <FormItem>
-                <Input {...companyNameProps} className="input" size="large" disabled={this.state.disabled}/>
+                <Input {...companyNameProps} className="input" size="large" disabled={this.props.config && this.state.disabled}/>
               </FormItem>
             </div>
             <div className="list">
               <span className="key">营业执照注册号 <span className="important">*</span></span>
               <FormItem>
-                <Input {...registrationNumberProps} className="input" size="large" disabled={this.state.disabled}/>
+                <Input {...registrationNumberProps} className="input" size="large" disabled={this.props.config && this.state.disabled}/>
               </FormItem>
             </div>
             <div className="list">
               <span className="key">营业执照扫描件 <span className="important">*</span></span>
               <div className="upload">
-                {data.enterpriseCertPic ?
-                  <img src={data.enterpriseCertPic} className="ant-upload ant-upload-select-picture-card" style={{padding:0}} />
-                  :
-                  null
-                }
-                {!this.state.disabled ?
-                  <Upload listType="picture-card" fileList={license} beforeUpload={(file) => 
-                    this.beforeUpload(file, 'license') 
-                  } customRequest={() => true }  disabled={ license ? true : false}>
-                    <Icon type="plus" />
-                    <div className="ant-upload-text">上传照片</div>
-                  </Upload>
-                :null
-                }
+                
+                <Upload listType="picture-card" fileList={userLicense} beforeUpload={(file) => 
+                  this.beforeUpload(file, 'userLicense') 
+                } customRequest={() => true }  onRemove={() => this.removeFile('userLicense')} disabled={ userLicense ? true : false}>
+                  <Icon type="plus" />
+                  <div className="ant-upload-text">上传照片</div>
+                </Upload>
 
               </div>
               <ul className="chk">
@@ -293,39 +334,31 @@ let EnterpriseComponse = React.createClass({
             <div className="list">
               <span className="key">负责人姓名 <span className="important">*</span></span>
               <FormItem>
-                <Input {...ownerNameProps} className="input" size="large" disabled={this.state.disabled}/>
+                <Input {...ownerNameProps} className="input" size="large" disabled={this.props.config && this.state.disabled}/>
               </FormItem>
             </div>
             <div className="list">
               <span className="key">负责人身份证号码 <span className="important">*</span></span>
               <FormItem>
-                <Input {...ownerNameNumberProps} className="input" size="large" disabled={this.state.disabled} />
+                <Input {...ownerNameNumberProps} className="input" size="large" disabled={this.props.config && this.state.disabled} />
               </FormItem>
             </div>
             <div className="list">
               <span className="key">联系人手机号 <span className="important">*</span></span>
               <FormItem>
-                <Input {...ownerNamePhoneProps} type="number" className="input" size="large" disabled={this.state.disabled}/>
+                <Input {...ownerNamePhoneProps} type="number" className="input" size="large" disabled={this.props.config && this.state.disabled}/>
               </FormItem>
             </div>
             <div className="list">
               <span className="key">负责人身份证正面扫描 <span className="important">*</span></span>
               <div className="upload">
-        
-               {data.userHoldPic ?
-                  <img src={data.userHoldPic} className="ant-upload ant-upload-select-picture-card" style={{padding:0}} />
-                  :
-                  null
-                }
-                {!this.state.disabled ?
-                  <Upload listType="picture-card" fileList={frontId} beforeUpload={(file) => 
-                    this.beforeUpload(file, 'frontId') 
-                  } customRequest={() => true }  disabled={ frontId ? true : false}>
-                    <Icon type="plus" />
-                    <div className="ant-upload-text">上传照片</div>
-                  </Upload>
-                :null
-                }
+            
+                <Upload listType="picture-card" fileList={frontId} beforeUpload={(file) => 
+                  this.beforeUpload(file, 'frontId') 
+                } customRequest={() => true }  onRemove={() => this.removeFile('frontId')} disabled={ frontId ? true : false}>
+                  <Icon type="plus" />
+                  <div className="ant-upload-text">上传照片</div>
+                </Upload>
         
               </div>
               <ul className="chk">
@@ -337,21 +370,13 @@ let EnterpriseComponse = React.createClass({
             <div className="list">
               <span className="key">负责人身份证反面扫描 <span className="important">*</span></span>
               <div className="upload">
-
-                {data.userScanPic ?
-                  <img src={data.userScanPic} className="ant-upload ant-upload-select-picture-card" style={{padding:0}} />
-                  :
-                  null
-                }
-                {!this.state.disabled ?
-                  <Upload listType="picture-card" fileList={backId} beforeUpload={(file) => 
-                    this.beforeUpload(file, 'backId') 
-                  } customRequest={() => true }  disabled={ backId ? true : false}>
-                    <Icon type="plus" />
-                    <div className="ant-upload-text">上传照片</div>
-                  </Upload>
-                 :null
-                }
+               
+                <Upload listType="picture-card" fileList={backId} beforeUpload={(file) => 
+                  this.beforeUpload(file, 'backId') 
+                } customRequest={() => true }  onRemove={() => this.removeFile('backId')}  disabled={ backId ? true : false}>
+                  <Icon type="plus" />
+                  <div className="ant-upload-text">上传照片</div>
+                </Upload>
               
               </div>
               <ul className="chk">
@@ -365,10 +390,10 @@ let EnterpriseComponse = React.createClass({
           </div>
         </div>
         <div className="info-footer">
-          {this.state.disabled ?
-          <Button size="large" type="primary" onClick={()=> this.setState({disabled: false}) }>修改</Button>
+          {this.props.config && this.state.disabled ?
+          <Button size="large" onClick={()=> this.setState({disabled: false}) }>修改</Button>
           :
-          <Button size="large" htmlType="submit">提交</Button>
+          <Button size="large" onClick={(e)=>this.handleSubmit(e)}>提交</Button>
           }
         </div>
       </Form>
