@@ -238,13 +238,13 @@ let MyComponent = React.createClass({
                 <Input className="volumeInt" type="text" placeholder="存储卷名称" onChange={(e) => { this.getVolumeName(e) } } />
               </div>
               <div className="input">
-                <InputNumber className="volumeInt" type="text" placeholder="存储卷大小" defaultValue="100" max="9999" onChange={(value) => this.getVolumeSize(value)} />
+                <InputNumber className="volumeInt" type="text" placeholder="存储卷大小" defaultValue="500" min={500} max="10240" onChange={(value) => this.getVolumeSize(value)} />
                 <Select className='imageTag' placeholder="请选择格式" defaultValue="ext4" onChange={(value) => {
                   this.getVolumeFormat(value)
                 } }>
                   <Option value='ext4'>ext4</Option>
                   <Option value='xfs'>xfs</Option>
-                  <Option value='reiserfs'>reiserfs</Option>
+                  {/*<Option value='reiserfs'>reiserfs</Option>*/}
                 </Select>
                 <Button onClick={() => this.createVolume()}>创建存储卷</Button>
               </div>
