@@ -63,7 +63,7 @@ function matchYamlError(e, index, scope, height) {
   }
   if(markExist) {
     errorBody.column = e.mark.column;
-    errorBody.line = e.mark.line + 1;
+    errorBody.line = e.mark.line;
   }
   return errorBody;
 }

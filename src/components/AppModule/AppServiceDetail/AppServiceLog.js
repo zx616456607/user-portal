@@ -19,12 +19,14 @@ import { loadServiceLogs, clearServiceLogs } from '../../../actions/services'
 class AppServiceLog extends Component {
   constructor(props) {
     super(props)
+    this.resizeLog = this.resizeLog.bind(this)
     this.state = {
       currentDate: formateDate(new Date(), 'YYYY-MM-DD'),
       pageIndex: 1,
       pageSize: 50,
       useGetLogs: true,
-      preScroll: 0
+      preScroll: 0,
+      logSize: 'normal'
     }
   }
   componentWillMount() {
@@ -180,13 +182,26 @@ class AppServiceLog extends Component {
   refreshLogs() {
     this.changeCurrentDate(this.state.currentDate, true)
   }
+  resizeLog() {
+    //this function for resize log modal to 'large' or 'normal'
+    const { logSize } = this.state;
+    if(logSize == 'normal') {
+      this.setState({
+        logSize: 'large'
+      })
+    } else {
+      this.setState({
+        logSize: 'normal'
+      })
+    }
+  }
   render() {
     return (
       <div id="AppServiceLog">
-        <div className="bottomBox">
+        <div className={ this.state.logSize == 'large' ? "largeBox bottomBox" : "bottomBox"}>
           <div className="introBox">
             <div className="operaBox">
-              <i className="fa fa-expand"></i>
+              <i className="fa fa-expand" onClick={this.resizeLog}></i>
               <i className="fa fa-refresh" onClick={() => { this.refreshLogs() } }></i>
               <DatePicker className="datePicker" onChange={(date) => this.changeCurrentDate(date) } value={this.state.currentDate}/>
             </div>

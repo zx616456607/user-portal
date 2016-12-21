@@ -81,7 +81,7 @@ class ContainerDetail extends Component {
     //this function for user open the terminal modal
     e.stopPropagation();
     this.setState({
-      currentContainer: item,
+      currentContainer: [item],
       TerminalLayoutModal: true
     });
   }
