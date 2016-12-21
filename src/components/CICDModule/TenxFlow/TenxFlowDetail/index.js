@@ -133,7 +133,7 @@ class TenxFlowDetail extends Component {
           if (result.length > 0) {
             result.forEach(list => {
               if (list.spec.hasOwnProperty('build')) {
-                showImage.push(res.data.results.owner + '/' + list.spec.build.image)
+                showImage.push(res.data.results.namespace + '/' + list.spec.build.image)
               }
             })
           }
@@ -204,11 +204,16 @@ class TenxFlowDetail extends Component {
   goCheckImage(image) {
     const config = { registry: DEFAULT_REGISTRY, image }
     let notification = new NotificationHandler()
+    let space = this.props.flowInfo.namespace
     this.props.checkImage(config, {
       success: {
         func: (res) => {
           if (res.data.hasOwnProperty('status') && res.data.status == 404) {
-            notification.error('镜像不存在')
+            notification.error('镜像不存在，请先执行构建')
+            return
+          }
+          if (space != res.data.contributor) {
+            notification.error('无权访问镜像，请尝试再次构建')
             return
           }
           browserHistory.push(`/app_center?imageName=${image}`)
