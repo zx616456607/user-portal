@@ -52,15 +52,12 @@ class Indivduals extends Component {
       isAllDisable: false,
       canUpdate: false,
       canChange: true,
-      status: '未认证'
+      isFail: false
     }
   }
   componentWillReceiveProps(nextProps) {
     if(nextProps.config) {
       const config = nextProps.config
-      this.setState({
-        status: this.getStatus(config.status)
-      })
       const userHold = {
           uid: -1,
           name: '',
@@ -98,25 +95,6 @@ class Indivduals extends Component {
             userScan
           })
         }
-      }
-    }
-  }
-  getStatus(status) {
-    switch(status) {
-      case 1 : {
-        return '未认证'
-      }
-      case 2 : {
-        return '审核中'
-      }
-      case 3 : {
-        return '认证失败'
-      }
-      case 4 : {
-        return '认证成功'
-      }
-      default : {
-        return '未认证'
       }
     }
   }
@@ -373,7 +351,7 @@ class Indivduals extends Component {
           </div>
         </div>
       </div>
-      <Modal title="抱歉您的本次认证未通过审核，具体原因如下" visible={false}
+      <Modal title="抱歉您的本次认证未通过审核，具体原因如下" visible={this.state.isFail}
           onOk={this.restore} onCancel={this.handleCancel} okText="重新输入">
           <p className="blod">{individualCert.failure_message}</p>
           <p className="blod">请您修改信息后, 重新提交</p>
