@@ -172,7 +172,7 @@ const MyList = React.createClass({
         </div>
       )
     }
-    if (config.length == 0) {
+    if (!config || config.length == 0) {
       return (
         <div className="notData">您还没有编排，去创建一个吧！</div>
       )
