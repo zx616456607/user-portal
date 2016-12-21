@@ -200,7 +200,6 @@ exports.sendResetPasswordLink = function* () {
   const result = yield spi.users.getBy([email, 'resetpwcode'])
   const code = result.Code
   const key = `${redisKeyPrefix.resetPassword}#${email}` 
-  console.log("code: ", code)
   yield new Promise((resolve, reject) => {
     redisClient.set(key, code, 'EX',  24*60*60, (error) => {
       if (error) {
