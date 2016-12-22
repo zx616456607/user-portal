@@ -260,6 +260,28 @@ exports.sendRemoveTeamMemberEmail = function (teamAdminName, teamAdminEmail, tea
   }
 }
 
+//Calling sample: self.sendResetPasswordEmail("zhangsh@tenxcloud.com", "http://tenxcloud.com")
+exports.sendResetPasswordEmail = function (to, resetPasswordURL) {
+  const method = "sendResetPasswordEmail"
+
+  const subject = `时速云用户重置密码`
+  const systemEmail = config.mail_server.service_mail
+  const date = moment(new Date()).format("YYYY-MM-DD")
+  var mailOptions = {
+    to: to, // list of receivers
+    subject: subject, // Subject line
+  }
+
+  let data = fs.readFileSync('templates/email/reset_password.html', 'utf8');
+
+  data = data.replace(/\${subject}/g, subject)
+  data = data.replace(/\${systemEmail}/g, systemEmail)
+  data = data.replace(/\${resetPasswordURL}/g, resetPasswordURL)
+  data = data.replace(/\${date}/g, date)
+  mailOptions.html = data
+  return self.sendEmail(mailOptions)
+}
+
 /**
  * 充值成功邮件通知函数
  *

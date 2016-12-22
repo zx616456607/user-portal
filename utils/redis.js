@@ -34,4 +34,5 @@ exports.client = client
 exports.redisKeyPrefix = {
   captcha: 'register_captcha',
   frequenceLimit: 'register_send_captcha_frequence',
+  resetPassword: 'reset_password',
 }

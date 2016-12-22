@@ -143,7 +143,7 @@ class BaseInfo extends Component {
     const index = file.name.lastIndexOf('.')
     let fileName = file.name.substring(0, index)
     let ext = file.name.substring(index + 1)
-    const fileType = ['jpg', 'png', 'git']
+    const fileType = ['jpg', 'png', 'gif']
     const notification = new NotificationHandler()
     if (fileType.indexOf(ext) < 0) {
       notification.error('头像格式仅支持jpg/png/gif')

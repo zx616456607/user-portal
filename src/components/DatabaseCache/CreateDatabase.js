@@ -223,7 +223,11 @@ let CreateDatabase = React.createClass({
               CreateDatabaseModalShow: false
             });
             _this.props.form.resetFields();
-            notification.error('创建失败', res.message.message)
+            if (res.statusCode == 409) {
+              notification.error('数据库服务 ' + values.name + ' 已经存在')
+            } else {
+              notification.error('创建数据库服务失败')
+            }
           }
         }
       });

@@ -17,7 +17,7 @@ const config = {
   running_mode: env.RUNNING_MODE || constants.ENTERPRISE_MODE, // enterprise / standard
   protocol: env.DASHBOARD_PROTOCOL || 'http',
   hostname: env.DASHBOARD_HOST || '0.0.0.0',
-  port: env.DASHBOARD_PORT || 8005,
+  port: env.DASHBOARD_PORT || 8003,
   intl_cookie_name: 'intl_locale',
   session_key: 'tce',
   session_secret: ['tenxcloud_dashboard', 'secret_dream008'],
@@ -39,7 +39,7 @@ const config = {
     },
     service_mail: "service@tenxcloud.com"
   },
-  session_store: env.USERPORTAL_REDIS_SESSION_STORE || true,
+  session_store: env.USERPORTAL_REDIS_SESSION_STORE || 'true',
   redis: {
     host: env.USERPORTAL_REDIS_HOST || '192.168.1.87',
     port: env.USERPORTAL_REDIS_PORT || '6380',
