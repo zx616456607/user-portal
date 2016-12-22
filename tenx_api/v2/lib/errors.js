@@ -75,10 +75,15 @@ class InvalidHttpCodeError extends Error {
       default:
         this.statusCode = 500
     }
+    // For request error
     switch (err.code) {
       case 'ETIMEDOUT':
         this.message = `Gateway Timeout`
         this.statusCode = 504
+        break
+      case 'ECONNREFUSED':
+        this.message = `The connection could not be established`
+        this.statusCode = 501
         break
     }
   }
@@ -103,10 +108,11 @@ function get(res) {
   }
 }
 
-module.exports.ClientError = ClientError
-module.exports.InvalidDataError = InvalidDataError
-module.exports.AuthenticationError = AuthenticationError
-module.exports.AuthorizationError = AuthorizationError
-module.exports.NotFoundError = NotFoundError
-module.exports.ServerError = ServerError
-module.exports.get = get
+exports.ClientError = ClientError
+exports.InvalidDataError = InvalidDataError
+exports.AuthenticationError = AuthenticationError
+exports.AuthorizationError = AuthorizationError
+exports.NotFoundError = NotFoundError
+exports.ServerError = ServerError
+exports.InvalidHttpCodeError = InvalidHttpCodeError
+exports.get = get
