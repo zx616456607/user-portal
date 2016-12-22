@@ -23,15 +23,44 @@ let OtherComponse = React.createClass({
       disabled: true
     }
   },
+  componentWillMount(){
+    const config = this.props.config
+    if (!config) return
+    const userLicense = {
+      uid: -1,
+      name: '',
+      status: 'done',
+      url: config.enterpriseCertPic,
+      thumbUrl: config.enterpriseCertPic
+    }
+    const userFrontId = {
+      uid: -1,
+      name: '',
+      status: 'done',
+      url: config.userHoldPic,
+      thumbUrl: config.userScanPic
+    }
+    const backId = {
+      uid: -1,
+      name: '',
+      status: 'done',
+      url: config.userScanPic,
+      thumbUrl: config.userScanPic
+    }
+    this.setState({
+        backId,
+        userFrontId,
+        userLicense,
+    })
+  },
   componentDidMount() {
-    if (this.props.scope.state.enterpriseDisabled) {
+    if (this.props.scope.state.otherDisabled) {
       this.setState({disabled: true})
     }
   },
   componentWillReceiveProps(nextProps) {
     if(nextProps.config) {
       const config = nextProps.config
-    
       const userLicense = {
           uid: -1,
           name: '',
@@ -44,7 +73,7 @@ let OtherComponse = React.createClass({
           name: '',
           status: 'done',
           url: config.userHoldPic,
-          thumbUrl: config.userScanPic
+          thumbUrl: config.userHoldPic
       }
       const backId = {
           uid: -1,
@@ -76,9 +105,7 @@ let OtherComponse = React.createClass({
           })
         }
       }
-
     }
-
   },
   idCard(rule, values, callback) {
     const message = IDValide(values)
@@ -123,9 +150,8 @@ let OtherComponse = React.createClass({
   beforeUpload(file, type) {
     const self = this
     const index = file.name.lastIndexOf('.')
-    let fileName = file.name.substring(0, index)
     let ext = file.name.substring(index + 1)
-    fileName = fileName + (new Date() - 0) + '.' + ext
+    let fileName = this.props.namespace + (new Date() - 0) + '.' + ext
     this.props.scope.props.getQiNiuToken('certificate', fileName, {
       success: {
         func: (result)=> {
@@ -203,7 +229,7 @@ let OtherComponse = React.createClass({
       let message = '提交审核信息'
       notification.spin('提交审核信息中')
       const body = {
-        certType: 2,
+        certType: 3,
         certUserName: values.ownerName,
         certUserID: values.ownerNameNumber,
         enterpriseCertPic:userLicense.url,
@@ -246,7 +272,6 @@ let OtherComponse = React.createClass({
         notification.error(message)
         _this.setState({disabled:true})
       }
-
     });
   },
   
@@ -310,7 +335,7 @@ let OtherComponse = React.createClass({
               <span className="key">组织机构代码扫描件 <span className="important">*</span></span>
               <div className="upload">
                 
-                <Upload listType="picture-card" fileList={userLicense} beforeUpload={(file) => 
+                <Upload listType="picture-card" accept="image/*" fileList={userLicense} beforeUpload={(file) => 
                   this.beforeUpload(file, 'userLicense') 
                 } customRequest={() => true }  onRemove={() => this.removeFile('userLicense')} disabled={ userLicense ? true : false}>
                   <Icon type="plus" />
@@ -353,7 +378,7 @@ let OtherComponse = React.createClass({
               <span className="key">负责人身份证正面扫描 <span className="important">*</span></span>
               <div className="upload">
             
-                <Upload listType="picture-card" fileList={frontId} beforeUpload={(file) => 
+                <Upload listType="picture-card" accept="image/*" fileList={frontId} beforeUpload={(file) => 
                   this.beforeUpload(file, 'frontId') 
                 } customRequest={() => true }  onRemove={() => this.removeFile('frontId')} disabled={ frontId ? true : false}>
                   <Icon type="plus" />
@@ -371,7 +396,7 @@ let OtherComponse = React.createClass({
               <span className="key">负责人身份证反面扫描 <span className="important">*</span></span>
               <div className="upload">
                
-                <Upload listType="picture-card" fileList={backId} beforeUpload={(file) => 
+                <Upload accept="image/*" listType="picture-card" fileList={backId} beforeUpload={(file) => 
                   this.beforeUpload(file, 'backId') 
                 } customRequest={() => true }  onRemove={() => this.removeFile('backId')}  disabled={ backId ? true : false}>
                   <Icon type="plus" />
