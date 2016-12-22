@@ -15,6 +15,10 @@ import { USERNAME_REG_EXP, EMAIL_REG_EXP, EMAIL_HASH } from '../../constants'
 const createForm = Form.create
 const FormItem = Form.Item
 
+function noop() {
+  return false
+}
+
 let ResetPassWord = React.createClass({
   getInitialState(){
     return {
@@ -22,6 +26,10 @@ let ResetPassWord = React.createClass({
       intEmailFocus: false,//邮箱焦点
       spendEmail: false,//发送邮件
       toEmail: '',//邮件地址
+      intPassFocus: false,
+      passWord: false,
+      rePassWord: false,
+      intRePassFocus: false,
     }
   },
   //邮箱验证
@@ -36,6 +44,18 @@ let ResetPassWord = React.createClass({
     }
     callback()
   },
+  checkPass(rule, value, callback) {
+    const { validateFields } = this.props.form
+    callback()
+  },
+  checkPass2(rule, value, callback) {
+    const { getFieldValue } = this.props.form;
+    if (value && value !== getFieldValue('password')) {
+      callback('两次输入密码不一致！');
+    } else {
+      callback()
+    }
+  },
   //失去输入框焦点
   intOnBlur(current) {
     const { getFieldProps } = this.props.form
@@ -44,6 +64,26 @@ let ResetPassWord = React.createClass({
       if (email === '' || !email) {
         this.setState({
           intEmailFocus: false
+        })
+      }
+      return
+    }
+    if (current === 'pass') {
+      let password = getFieldProps('password').value
+      if (password === '' || !password) {
+        this.setState({
+          intPassFocus: false,
+          passWord: true,
+        })
+      }
+      return
+    }
+    if (current === 'rePasswd') {
+      let rePasswd = getFieldProps('rePasswd').value
+      if (rePasswd === '' || !rePasswd) {
+        this.setState({
+          intRePassFocus: false,
+          rePassWord: true,
         })
       }
       return
@@ -58,9 +98,25 @@ let ResetPassWord = React.createClass({
       })
       return
     }
+    if (current === 'pass') {
+      this.refs.intPass.refs.input.focus()
+      this.setState({
+        intPassFocus: true,
+        passWord: true,
+      })
+      return
+    }
+    if (current === 'rePasswd') {
+      this.refs.intRePass.refs.input.focus()
+      this.setState({
+        intRePassFocus: true,
+        rePassWord: true,
+      })
+      return
+    }
   },
   //发送邮箱
-  handleSpendEmail(){
+  handleSpendEmail(e){
     const { form, registerUser } = this.props
     const { validateFields, resetFields } = form
     const self = this
@@ -72,14 +128,11 @@ let ResetPassWord = React.createClass({
       this.setState({
         spendEmail: true,
         submitting: true,
-        submitProps: {
-          disabled: 'disabled'
-        }
       })
       //发送邀请邮件
     })
   },
-   //邮箱识别
+  //邮箱识别
   getEmail (url) {
     if (url.match('@')) {
       let addr = url.split('@')[1]
@@ -92,13 +145,29 @@ let ResetPassWord = React.createClass({
     }
     return false
   },
+  //重置密码
+  handleResetPass (e) {
+    const { form, registerUser } = this.props
+    const { validateFields, resetFields } = form
+    const self = this
+    e.preventDefault()
+    validateFields((errors, values) => {
+      if (!!errors) {
+        return
+      }
+      this.setState({
+        submitting: true,
+      })
+      //重置密码
+    })
+  },
   renderResetForm () {
-    const { spendEmail } = this.state
     const formItemLayout = {
       wrapperCol: { span: 24 },
     }
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form
-    const { submitting } = this.state
+    const { submitting, spendEmail } = this.state
+    const { rpw } = this.props
     //邮箱验证规则
     const emailProps = getFieldProps('email', {
       rules: [
@@ -106,7 +175,84 @@ let ResetPassWord = React.createClass({
         { validator: this.checkEmail },
       ],
     })
-    console.log('getFieldValue',getFieldValue('email'))
+    const passwdProps = getFieldProps('password', {
+      rules: [
+        { required: true, whitespace: true, message: '请填写密码' },
+        { validator: this.checkPass },
+      ],
+    })
+    const rePasswdProps = getFieldProps('rePasswd', {
+      rules: [{
+        required: true,
+        whitespace: true,
+        message: '请再次输入密码',
+      }, {
+        validator: this.checkPass2,
+      }],
+    })
+    let email = getFieldValue('email') || this.props.email
+    if (rpw === '2') {
+      return (
+        <div>
+          <div className='successTitle'>
+            重置密码
+          </div>
+          <div className='registerForm' style={{marginTop:20, minWidth: 300}}>
+              <Form>
+                <FormItem
+                  {...formItemLayout}
+                  className="formItemName"
+                >
+                  <div className={"intName intOnFocus"}>邮箱</div>
+                  <Input placeholder={email} disabled />
+                </FormItem>
+
+                <FormItem
+                  {...formItemLayout}
+                  hasFeedback
+                  className="formItemName"
+                >
+                  <div className={this.state.intPassFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'pass')}>密码</div>
+                  <Input {...passwdProps} autoComplete="off" type={this.state.passWord ? 'password' : 'text'}
+                         onContextMenu={noop} onPaste={noop} onCopy={noop} onCut={noop}
+                         onBlur={this.intOnBlur.bind(this, 'pass')}
+                         onFocus={this.intOnFocus.bind(this, 'pass')}
+                         ref="intPass"
+                         style={{ height: 35 }}
+                  />
+                </FormItem>
+                <FormItem
+                  {...formItemLayout}
+                  hasFeedback
+                  className="formItemName"
+                >
+                  <div className={this.state.intRePassFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'pass')}>确认密码</div>
+                  <Input {...rePasswdProps} autoComplete="off" type={this.state.rePassWord ? 'password' : 'text'}
+                         onContextMenu={noop} onPaste={noop} onCopy={noop} onCut={noop}
+                         onBlur={this.intOnBlur.bind(this, 'rePasswd')}
+                         onFocus={this.intOnFocus.bind(this, 'rePasswd')}
+                         ref="intRePass"
+                         style={{ height: 35 }}
+                  />
+                </FormItem>
+
+                <FormItem wrapperCol={{ span: 24, }}>
+                  <Button
+                    type="primary"
+                    onClick={this.handleResetPass}
+                    loading={submitting}
+                    className="subBtn"
+                    style={{marginBottom: 20}}
+                  >
+                    {submitting ? '重置中...' : '重置密码'}
+                  </Button>
+                </FormItem>
+
+              </Form>
+            </div>
+        </div>
+      )
+    }
     return (
       <div>
         <div className='successTitle'>
@@ -118,7 +264,7 @@ let ResetPassWord = React.createClass({
               <ul className='successInf' style={{marginBottom: 24}}>
                 <li>
                   已发送到 { getFieldValue('email') } ,请
-                  <Button>
+                  <Button className='passBtn' onClick={() => this.getEmail(email)}>
                     <a href={this.state.toEmail} target='_blank'>
                       登录邮箱
                     </a>
@@ -127,13 +273,13 @@ let ResetPassWord = React.createClass({
                 <li>重置密码 , 该邮件的有效期为24小时</li>
                 <li className='rePass'>
                   没有收到邮件 ? 点此 
-                  <Button>
+                  <Button className='passBtn'>
                     重新发送
                   </Button>
                 </li>
               </ul>
             </div> :
-            <div className='registerForm' style={{marginTop:20}}>
+            <div className='registerForm' style={{marginTop:20, minWidth: 300}}>
               <Form>
                 <FormItem
                   {...formItemLayout}
@@ -152,7 +298,9 @@ let ResetPassWord = React.createClass({
                     type="primary"
                     onClick={this.handleSpendEmail}
                     loading={submitting}
-                    className="subBtn">
+                    className="subBtn"
+                    style={{marginBottom: 20}}
+                  >
                     {submitting ? '发送中...' : '发送邮箱'}
                   </Button>
                 </FormItem>
@@ -161,6 +309,10 @@ let ResetPassWord = React.createClass({
         }
       </div>
     )
+  },
+  componentWillMount() {
+    const { resetFields } = this.props.form
+    resetFields()
   },
   render(){
     return (
@@ -179,16 +331,6 @@ let ResetPassWord = React.createClass({
   }
 })
 
-function mapStateToProps(state, props) {
-  return {
-
-  }
-}
-
 ResetPassWord = createForm()(ResetPassWord)
-
-ResetPassWord = connect(mapStateToProps, {
-
-})(ResetPassWord)
 
 export default ResetPassWord

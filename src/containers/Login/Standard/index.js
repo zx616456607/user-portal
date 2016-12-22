@@ -66,6 +66,11 @@ let Login = React.createClass({
       login(body, {
         success: {
           func: (result) => {
+            if (result.message === 'NOT_ACTIVE') {
+              browserHistory.push('/register?email='+result.user.email)
+              resetFields()
+              return
+            }
             self.setState({
               submitting: false,
               submitProps: {},
@@ -328,7 +333,7 @@ let Login = React.createClass({
                   <Link to='/register'>立即注册</Link>
                 </div>
                 <div className='toReset'>
-                  <Link to='/register?resetpassword=1'>忘记密码</Link>
+                  <Link to='/register?rpw=1'>忘记密码</Link>
                 </div>
               </div>
               <div className='moreMethod'>

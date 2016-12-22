@@ -41,16 +41,17 @@ class Register extends Component{
       })
     }
   }
-  renderRegisterPage(email,reset,register,registerPage){
+  renderRegisterPage(register,registerPage){
     const { registerPageShow, registerShow } = this.state
-    if (email && !reset) {
+    const {email, resetpassword} = this.props
+    if (email && !resetpassword) {
       return (
         <SuccessRegister email={email} />
       )
     }
-    if (reset) {
+    if (resetpassword) {
       return (
-        <ResetPassWord email={email}/>
+        <ResetPassWord email={email} rpw={resetpassword}/>
       )
     }
     return (
@@ -68,7 +69,6 @@ class Register extends Component{
 
   }
   render(){
-    const {email, resetpassword} = this.props
     let register = (
       <div key='b' id='RegisterPage'>
         <div className='register' style={{width:'40%'}}>
@@ -98,16 +98,16 @@ class Register extends Component{
     )
 
     return (
-      this.renderRegisterPage(email,resetpassword,register,registerPage)
+      this.renderRegisterPage(register,registerPage)
     )
   }
 }
 function mapStateToProps (state,props) {
   console.log('props',props)
-  let {email, resetpassword} = props.location.query
+  let {email, rpw} = props.location.query
   return {
     email,
-    resetpassword,
+    resetpassword: rpw,
   }
 }
 Register = connect(mapStateToProps, {
