@@ -16,7 +16,7 @@ const accountRoutes = [
     component: require('../components/AccountModal/UserInfo').default,
   },
   {
-    path: 'user/editPass',
+    path: 'user/editpass',
     component: require('../components/AccountModal/UserInfo').default,
   },
   {

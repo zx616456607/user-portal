@@ -2,13 +2,13 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
- * AppSider component
+ * Header component
  *
  * v0.1 - 2016-09-06
  * @author GaoJian
  */
 import React, { Component } from 'react'
-import { Menu, Dropdown, Icon, Select, Input, Button, Form, Popover } from 'antd'
+import { Menu, Dropdown, Select, Input, Form } from 'antd'
 import { FormattedMessage, defineMessages } from 'react-intl'
 import "./style/header.less"
 import querystring from 'querystring'
@@ -21,8 +21,8 @@ import { getCookie } from '../../common/tools'
 import { USER_CURRENT_CONFIG } from '../../../constants'
 import { MY_SPACE } from '../../constants'
 import { browserHistory } from 'react-router'
-import { Link } from 'react-router'
 import NotificationHandler from '../../common/notification_handler'
+import UserPanel from './UserPanel'
 
 const standard = require('../../../configs/constants').STANDARD_MODE
 const mode = require('../../../configs/model').mode
@@ -75,11 +75,9 @@ class Header extends Component {
     super(props)
     this.handleSpaceChange = this.handleSpaceChange.bind(this)
     this.handleClusterChange = this.handleClusterChange.bind(this)
-    this.handleVisibleChange = this.handleVisibleChange.bind(this)
     this.state = {
       spacesVisible: false,
       clustersVisible: false,
-      visible: false,
       focus: false,
     }
   }
@@ -153,12 +151,6 @@ class Header extends Component {
       browserHistory.push('/')
     }
   }
-  handleVisibleChange() {
-    const { visible } = this.state
-    this.setState({
-      visible: !visible
-    })
-  }
   componentWillMount() {
     const {
       loadTeamClustersList,
@@ -225,7 +217,6 @@ class Header extends Component {
     const {
       spacesVisible,
       clustersVisible,
-      visible,
     } = this.state
     teamspaces.map((space) => {
       space.name = space.spaceName
@@ -233,80 +224,6 @@ class Header extends Component {
     teamClusters.map((cluster) => {
       cluster.name = cluster.clusterName
     })
-    let { balance } = loginUser.info
-    if (balance !== undefined) {
-      balance = (balance / 100).toFixed(2)
-    }
-    let logMenu = (
-      <div className='logMenu'>
-        <div className='rechangeInf'>
-          <div className='balance'>
-            <p>帐户余额 &nbsp;:</p>
-            <p><span>{balance ||  '-'}</span><span style={{ fontSize: '14px', color: '#8a8a8a' }}>&nbsp;&nbsp;T币</span></p>
-          </div>
-          <Button style={{ height: 30, backgroundColor: '#46b2fa', borderColor: '#46b2fa', color: '#fff', fontSize: '14px' }}>立即充值</Button>
-        </div>
-        <table className='navTab'>
-          <tbody>
-            <tr>
-              <td>
-                <Link to='/account'>
-                  <svg className='logMenuSvg'>
-                    <use xlinkHref='#logaccountinf' />
-                  </svg>
-                  <div>帐户信息</div>
-                </Link>
-              </td>
-              <td>
-                <Link to='/account/cost'>
-                  <svg className='logMenuSvg'>
-                    <use xlinkHref='#logcostrecord' />
-                  </svg>
-                  <div>消费记录</div>
-                </Link>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <Link to='/account/user/editPass'>
-                  <svg className='logMenuSvg'>
-                    <use xlinkHref='#logchangepass' />
-                  </svg>
-                  <div>修改密码</div>
-                </Link>
-              </td>
-              <td>
-                <Link to='/account'>
-                  <svg className='logMenuSvg'>
-                    <use xlinkHref='#logteam' />
-                  </svg>
-                  <div>我的团队</div>
-                </Link>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <div className='logCancle'>
-          <a href='/logout'>
-            <Icon type="poweroff" className='logCancleIcon'/>
-            注销登录
-          </a>
-        </div>
-      </div>
-    )
-    let logTitle = (
-      <div className='logTitle'>
-        <div className='logAvatar'>{loginUser.info.userName ? loginUser.info.userName.substr(0, 1).toUpperCase() : ''}</div>
-        <div style={{ float: 'left', paddingLeft: '7px' }}>
-          <div style={{ lineHeight: '20px', paddingTop: '8px', minWidth: 180 }}>
-            <p style={{ fontSize: '16px', color: '#46b2fa' }}>{loginUser.info.userName || '...'}</p>
-            <p style={{ fontSize: '12px' }}>{loginUser.info.email || '...'}</p>
-          </div>
-        </div>
-        <div className='loginTag'>个人</div>
-      </div>
-    )
-    const rotate = visible ? 'rotate180' : 'rotate0'
     return (
       <div id="header">
         <div className="space">
@@ -350,20 +267,7 @@ class Header extends Component {
           <div className="docBtn">
             <FormattedMessage {...menusText.doc} />
           </div>
-          <Popover content={logMenu}
-            title={logTitle}
-            overlayClassName='logPopMenu'
-            placement="bottomRight"
-            arrowPointAtCenter={true}
-            trigger='click'
-            visible={this.state.visible}
-            onVisibleChange={this.handleVisibleChange}
-            >
-            <div className='userBtn'>
-              {loginUser.info.userName || '...'}
-              <Icon type="down" className={rotate} />
-            </div>
-          </Popover>
+          <UserPanel loginUser={loginUser}/>
         </div>
       </div>
     )
@@ -376,7 +280,7 @@ function mapStateToProps(state, props) {
   const { teamClusters } = state.team
   return {
     current,
-    loginUser,
+    loginUser: loginUser.info,
     isTeamspacesFetching: teamspaces.isFetching,
     teamspaces: (teamspaces.result ? teamspaces.result.teamspaces : []),
     isTeamClustersFetching: teamClusters.isFetching,

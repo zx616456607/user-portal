@@ -12,18 +12,6 @@
 
 const accountRoutes = [
   {
-    path: 'user/:user_id',
-    component: require('../components/AccountModal/UserInfo').default,
-  },
-  {
-    path: 'user/editPass',
-    component: require('../components/AccountModal/UserInfo').default,
-  },
-  {
-    path: 'member',
-    component: require('../components/AccountModal/_Enterprise/MemberManage').default,
-  },
-  {
     path: 'team',
     component: require('../components/AccountModal/_Standard/MyTeam').default,
   },

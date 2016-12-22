@@ -29,7 +29,7 @@ class BaseInfo extends Component {
     super(props)
     this.state = {
       editEmail: false,
-      editPsd: false,
+      editPsd: (props.hash === '#edit_pass' ? true : false),
       editPhone: false,
       uploadModalVisible: false,
       userIconsrc: 'avatars.png',
