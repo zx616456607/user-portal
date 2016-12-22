@@ -13,7 +13,8 @@ import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import StorageStatus from "./StorageStatus"
-import StorageBind from './StorageBind.js'
+import StorageBind from './StorageBind'
+import StorageRental from './StorageRental'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { loadStorageInfo } from '../../actions/storage'
 import "./style/StorageDetail.less"
@@ -129,6 +130,9 @@ class StorageDetail extends Component {
               >
                 <TabPane tab={<FormattedMessage {...messages.bindContainer} />} key="1" >
                   <StorageBind pool={StorageInfo.imagePool} cluster={StorageInfo.cluster} volumeName={ StorageInfo.volumeName } />
+                </TabPane>
+                <TabPane tab="租赁信息" key="2" >
+                  <StorageRental />
                 </TabPane>
               </Tabs>
             </Card>

@@ -19,6 +19,7 @@ import PortDetail from './PortDetail'
 import AppUseful from './AppUseful'
 import AppServiceLog from './AppServiceLog'
 import AppServiceEvent from './AppServiceEvent'
+import AppServiceRental from './AppServiceRental'
 import ServiceMonitor from './ServiceMonitor'
 import AppAutoScale from './AppAutoScale'
 import { loadServiceDetail, loadServiceContainerList } from '../../../actions/services'
@@ -218,9 +219,9 @@ class AppServiceDetail extends Component {
     </Menu>);
     const svcDomain = parseServiceDomain(service, this.props.bindingDomains)
     const { availableReplicas, replicas } = service.status
-    let containerShow = containers.map((item) => {
+    let containerShow = containers.map((item, index) => {
       return (
-        <div className={terminalSelectedCheck(item, parentScope.state.currentContainer) ? 'containerTerminalDetailSelected containerTerminalDetail' : 'containerTerminalDetail'}
+        <div key={`Popoverkey-`+index} className={terminalSelectedCheck(item, parentScope.state.currentContainer) ? 'containerTerminalDetailSelected containerTerminalDetail' : 'containerTerminalDetail'}
           onClick={this.openTerminalModal.bind(parentScope, item)}>
           <span>{item.metadata.name}</span>
         </div>
@@ -358,6 +359,9 @@ class AppServiceDetail extends Component {
               </TabPane>
               <TabPane tab='事件' key='#events'>
                 <AppServiceEvent serviceName={service.metadata.name} cluster={service.cluster} />
+              </TabPane>
+              <TabPane tab='租赁信息' key='#rentalInfo'>
+                <AppServiceRental serviceName={service.metadata.name} cluster={service.cluster} />
               </TabPane>
             </Tabs>
           </div>
