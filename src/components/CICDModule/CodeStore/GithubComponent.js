@@ -158,13 +158,14 @@ class CodeList extends Component {
 class GithubComponent extends Component {
   constructor(props) {
     super(props);
+    this.loadData = this.loadData.bind(this)
     this.state = {
       repokey: 'github'
     }
   }
-  componentWillMount() {
-    const self = this
-    self.props.getGithubList('github', {
+
+  loadData() {
+    this.props.getGithubList('github', {
       success: {
         func: (res) => {
           if (res.data.hasOwnProperty('results')) {
@@ -176,6 +177,18 @@ class GithubComponent extends Component {
     })
   }
 
+  componentWillMount() {
+    const self = this
+    this.loadData()
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const { currentSpace } = nextProps;
+    if (currentSpace && this.props.currentSpace && currentSpace != this.props.currentSpace) {
+      this.loadData()
+      return
+    }
+  }
 
   removeRepo() {
     const scope = this.props.scope
@@ -298,7 +311,8 @@ function mapStateToProps(state, props) {
   return {
     githubList,
     isFetching,
-    users
+    users,
+    currentSpace: state.entities.current.space.namespace
   }
 }
 
