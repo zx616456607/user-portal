@@ -94,7 +94,7 @@ app.keys = config.session_secret
 app.keys = new KeyGrip(config.session_secret, 'sha256')
 const sessionOpts = {
   key: config.session_key,
-  // rolling: true,
+  rolling: true,
   cookie: {
     maxAge: 1000 * 60 * 30 // half an hour in ms
   }
