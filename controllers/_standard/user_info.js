@@ -131,16 +131,21 @@ exports.registerUser = function* () {
     throw err
   }
 
+  yield checkMobileCaptcha(user)
+
   const result = yield spi.users.create(user)
 
   // send activation email
-  const activationCode = genActivationCode(result.email)
-  const userActivationURL = `https://console.tenxcloud.com/users/activation?code=${encodeURIComponent(activationCode)}`
-  try {
-    yield emailUtil.sendUserActivationEmail(user.email, userActivationURL)
-  } catch (e) {
-    logger.error(method, "send user activation email failed.", e)
-    // response 200 if send email failed, because user can resend again
+  logger.info(method, "call apiserver result:", result)
+  if (result && result.data && result.data.email) {
+    const activationCode = genActivationCode(result.data.email)
+    const userActivationURL = `https://console.tenxcloud.com/users/activation?code=${encodeURIComponent(activationCode)}`
+    try {
+      emailUtil.sendUserActivationEmail(user.email, userActivationURL)
+    } catch (e) {
+      logger.error(method, "send user activation email failed.", e)
+      // response 200 if send email failed, because user can resend again
+    }
   }
   this.body = {
     data: ''
@@ -271,7 +276,7 @@ exports.sendUserActivationEmail = function* () {
   // send email
   const userActivationURL = genUserActivationURL(activationCode)
   try {
-    yield emailUtil.sendUserActivationEmail(email, userActivationURL)
+    emailUtil.sendUserActivationEmail(email, userActivationURL)
   } catch (e) {
     logger.error(method, "send user activation email failed.", e)
     // response 200 if send email failed, because user can resend again

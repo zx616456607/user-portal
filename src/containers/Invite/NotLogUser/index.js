@@ -180,7 +180,6 @@ let NotLogUser = React.createClass({
     // send captcha
     const { validateFields } = this.props.form
     validateFields((err, values) => {
-      console.log('valuesvalues', values)
       if (err) {
         return
       }

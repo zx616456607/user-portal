@@ -12,8 +12,9 @@ import { Tabs, Button, Form, Input, Card, Tooltip, message, Alert, Col, Row  } f
 import './style/Person.less'
 import { USERNAME_REG_EXP, EMAIL_REG_EXP } from '../../constants'
 import { connect } from 'react-redux'
-import { registerUser } from '../../actions/user'
+import { registerUser, sendRegisterPhoneCaptcha } from '../../actions/user'
 import { browserHistory } from 'react-router'
+import NotificationHandler from '../../common/notification_handler'
 
 const TabPane = Tabs.TabPane
 const createForm = Form.create
@@ -80,7 +81,25 @@ let Person = React.createClass({
         },
         failed: {
           func: (err) => {
-            let msg = err.message.message || err.message
+            let dupItems = ''
+            if (err.statusCode === 409 && Array.isArray(err.message.data) && err.message.data.length > 0) {
+              err.message.data.map((item) => {
+                switch(item) {
+                case 'username':
+                  dupItems += '用户名 '
+                  break;
+                case 'email':
+                  dupItems += '邮箱 '
+                  break;
+                case 'phone':
+                  dupItems += '手机号 '
+                  break;
+                }
+              })
+            }
+            dupItems = dupItems ? dupItems + '已被占用' : ''
+            let msg = dupItems || err.message.message || err.message
+            let notification = new NotificationHandler()
             self.setState({
               submitting: false,
               loginResult: {
@@ -88,6 +107,7 @@ let Person = React.createClass({
               },
               submitProps: {},
             })
+            notification.error(`注册并加入团队失败`, msg)
           },
           isAsync: true
         },
@@ -174,6 +194,33 @@ let Person = React.createClass({
       })
       clearInterval(time)
     },1000)
+
+    // send captcha
+    const { validateFields } = this.props.form
+    validateFields((err, values) => {
+      if (err) {
+        return
+      }
+      const phone = values.tel
+      if (!phone) {
+        return
+      }
+      this.props.sendRegisterPhoneCaptcha(phone, {
+        success: {
+          func: () => {
+            let notification = new NotificationHandler()
+            notification.success(`发送邀请码成功`)
+          },
+          isAsync: true
+        },
+        failed: {
+          func: (err) => {
+            let notification = new NotificationHandler()
+            notification.error(`发送邀请码失败`, err.message)
+          }
+        }
+      })
+    })
   },
   //获取输入框焦点
   intOnBlur(current) {
@@ -455,6 +502,7 @@ function mapStateToProps(state,props) {
 
 Person = connect(mapStateToProps,{
   registerUser,
+  sendRegisterPhoneCaptcha,
 })(Person)
 
 export default Person
