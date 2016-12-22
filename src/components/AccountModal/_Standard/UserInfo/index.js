@@ -29,7 +29,7 @@ class BaseInfo extends Component {
     super(props)
     this.state = {
       editEmail: false,
-      editPsd: false,
+      editPsd: (props.hash === '#edit_pass' ? true : false),
       editPhone: false,
       uploadModalVisible: false,
       userIconsrc: 'avatars.png',
@@ -141,8 +141,8 @@ class BaseInfo extends Component {
   }
   beforeUpload(file) {
     const self = this
+    const namespace = this.props.namespace
     const index = file.name.lastIndexOf('.')
-    let fileName = file.name.substring(0, index)
     let ext = file.name.substring(index + 1)
     const fileType = ['jpg', 'png', 'gif']
     const notification = new NotificationHandler()
@@ -160,7 +160,7 @@ class BaseInfo extends Component {
       })
       return false
     }
-    fileName = fileName + (new Date() - 0) + '.' + ext
+    let fileName = namespace + (new Date() - 0) + '.' + ext
     const filePath = this.uploadInstance.refs.upload.refs.inner.refs.file.value
     const reader = new FileReader()
     const dataUrl = reader.readAsDataURL(file)
@@ -376,7 +376,7 @@ class BaseInfo extends Component {
                 <div className="leftBox">
                   <br />
                   <p className="row">从电脑里挑选一张喜欢的图作为头像吧</p>
-                  <Upload beforeUpload={(file) => this.beforeUpload(file)} ref={(instance) => this.uploadInstance = instance }>
+                  <Upload beforeUpload={(file) => this.beforeUpload(file)} ref={(instance) => this.uploadInstance = instance } accept="image/*">
                     <Input size="large" placeholder="选择一张照片" style={{ width: '66%' }} value={this.state.filePath}/>
                     <Button type="primary" style={{ marginLeft: '20px' }}>本地照片
                     </Button>
@@ -453,7 +453,7 @@ class UserInfo extends Component {
     return (
       <div id="public-userinfo">
         <Tabs activeKey={activeKey} onTabClick={(e)=> { this.tabChange(e)}}>
-          <TabPane tab="基本信息" key="1"><BaseInfo pathname={this.props.pathname} hash={hash}/></TabPane>
+          <TabPane tab="基本信息" key="1"><BaseInfo pathname={this.props.pathname} hash={hash} namespace = {this.props.namespace}/></TabPane>
           <TabPane tab="认证信息" key="2"><Authentication pathname={this.props.pathname} hash={hash}/></TabPane>
         </Tabs>
       </div>
@@ -465,7 +465,8 @@ function mapStateToProps(state, props) {
   const { pathname, hash } = props.location
   return {
     pathname,
-    hash
+    hash,
+    namespace: state.entities.loginUser.info.namespace
   }
 }
 

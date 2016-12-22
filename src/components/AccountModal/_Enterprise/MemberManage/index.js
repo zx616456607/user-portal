@@ -14,7 +14,6 @@ import SearchInput from '../../../SearchInput'
 import { connect } from 'react-redux'
 import { loadUserList, createUser, deleteUser, checkUserName } from '../../../../actions/user'
 import { Link } from 'react-router'
-import { USERNAME_REG_EXP } from '../../../../constants'
 import CreateUserModal from '../../CreateUserModal'
 import NotificationHandler from '../../../../common/notification_handler'
 
