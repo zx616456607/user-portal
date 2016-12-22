@@ -60,12 +60,12 @@ module.exports = (protocol, host, api_prefix, version, auth, timeout) => {
       delete options.contentType
     }
     logger.info(`<-- [${options.method || 'GET'}] ${url}`)
-    logger.info(`--> [options]`, options)
+    logger.debug(`--> [options]`, options)
     if (!callback) {
       return urllib.request(url, options).then(
         function done(result) {
           logger.info(`--> [${options.method || 'GET'}] ${url}`)
-          // logger.info(`api result: ${JSON.stringify(result.data)}`)
+          logger.debug(`api result: ${JSON.stringify(result.data)}`)
           if (_isSuccess(result.res.statusCode)) {
             // data maybe null
             if (!result.data) {
@@ -100,12 +100,6 @@ module.exports = (protocol, host, api_prefix, version, auth, timeout) => {
 
   return (object, callback) => {
     object = _.merge({}, object, { "headers": oauth.getAuthHeader(auth) })
-    /*if (auth) {
-      !object.headers && (object.headers = {})
-      object.headers.Username = auth.user
-      object.headers.Authorization = `token ${auth.token}`
-      object.headers.namespace = auth.namespace
-    }*/
     return _makeRequest(object, callback)
   }
 }

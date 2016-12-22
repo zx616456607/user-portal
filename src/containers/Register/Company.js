@@ -64,10 +64,11 @@ let Company = React.createClass({
         userName: values.userName,
         phone: values.tel,
         email: values.email,
-        certType: values.certName,
+        certType: values.certType,
         certUserName: values.userName,
+        enterpriseName: values.certName,
+        enterpriseCertID: values.certCode,
       }
-      console.log('body',body);
       registerUser(body, {
         success: {
           func: (result) => {
@@ -261,7 +262,6 @@ let Company = React.createClass({
       return
     }
     if (current === 'check') {
-      console.log('this.refs.intCheck',this.refs)
       this.refs.intCheck.refs.input.focus()
       this.setState({
         intCheckFocus: true
@@ -295,7 +295,6 @@ let Company = React.createClass({
     }
   },
   handleCertTypeChange (e) {
-    console.log('e',e)
     if (e.target.value === '2') {
       this.setState({
         certTypeCompany: true

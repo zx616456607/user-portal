@@ -23,6 +23,38 @@ let EnterpriseComponse = React.createClass({
       disabled: true
     }
   },
+  componentWillMount() {
+    const config = this.props.config
+        console.log(config) 
+    if(!config) return
+
+    const userLicense = {
+      uid: -1,
+      name: '',
+      status: 'done',
+      url: config.enterpriseCertPic,
+      thumbUrl: config.enterpriseCertPic
+    }
+    const userFrontId = {
+      uid: -1,
+      name: '',
+      status: 'done',
+      url: config.userHoldPic,
+      thumbUrl: config.userScanPic
+    }
+    const backId = {
+      uid: -1,
+      name: '',
+      status: 'done',
+      url: config.userScanPic,
+      thumbUrl: config.userScanPic
+    }
+    this.setState({
+      backId,
+      userFrontId,
+      userLicense,
+    })
+  },
   componentDidMount() {
     if (this.props.scope.state.enterpriseDisabled) {
       this.setState({disabled: true})
@@ -31,7 +63,6 @@ let EnterpriseComponse = React.createClass({
   componentWillReceiveProps(nextProps) {
     if(nextProps.config) {
       const config = nextProps.config
-    
       const userLicense = {
           uid: -1,
           name: '',
@@ -76,9 +107,7 @@ let EnterpriseComponse = React.createClass({
           })
         }
       }
-
     }
-
   },
   idCard(rule, values, callback) {
     const message = IDValide(values)

@@ -55,6 +55,34 @@ class Indivduals extends Component {
       isFail: false
     }
   }
+  componentWillMount() {
+    const config = this.props.config
+    if(config && config.userScanPic) {
+      this.setState({
+        userHold: {
+          uid: -1,
+          name: '',
+          status: 'done',
+          url: config.userHoldPic,
+          thumbUrl: config.userHoldPic
+        },
+        userScan: {
+          uid: -1,
+          name: '',
+          status: 'done',
+          url: config.userScanPic,
+          thumbUrl: config.userScanPic
+        },
+        isAllDisable: true,
+        canUpdate: true
+      })
+      if(config.status == 2 || config.status == 4) {
+       this.setState({
+          canChange: false
+       })
+     }
+    }
+  }
   componentWillReceiveProps(nextProps) {
     if(nextProps.config) {
       const config = nextProps.config
@@ -82,17 +110,6 @@ class Indivduals extends Component {
         if(config.status == 2 || config.status == 4) {
           this.setState({
             canChange: false
-          })
-        }
-      } else {
-        if(userHold.url !== this.props.config.userHoldPic) {
-          this.setState({
-            userHold
-          })
-        }
-        if(userScan.url !== this.props.config.userScanPic) {
-          this.setState({
-            userScan
           })
         }
       }
@@ -288,7 +305,7 @@ class Indivduals extends Component {
       initialValue: individualCert.certUserID
     })
     return (
-      <Form form={this.props.form}>
+      <Form >
       <div className="Indivduals">
         <div className="description">个人用户通过个人认证可获得5元代金券，请按照提示填写本人的真实照片</div>
         <div className="auth-status">
@@ -359,17 +376,12 @@ class Indivduals extends Component {
           <div>电话：<a>400-626-1876</a> 邮箱： <a href="mailto:service@tenxcloud.com">service@tenxcloud.com</a></div>
         </Modal>
     </Form>
-        
     )
   }
 }
 
 function indivdualsMapStateToProp(state, props) {
-  const { userCertificate } = state.user
-  const { certificate } = userCertificate || {}
-  return {
-    certificate
-  }
+  return props
 }
 Indivduals = Form.create()(Indivduals)
 Indivduals = connect(indivdualsMapStateToProp, {
@@ -384,7 +396,7 @@ class Enterprise extends Component {
   constructor(props) {
     super(props)
     this.state = {
-       trytype: 2,
+       trytype: '2',
        otherDisabled: false,
        enterpriseDisabled: false
     }
@@ -407,13 +419,13 @@ class Enterprise extends Component {
   restorePush() {
     if (this.props.config.certType =='2') {
        this.setState({
-         trytype: 2,
+         trytype: '2',
          enterpriseDisabled: true
         })
        return
     }
     this.setState({
-      trytype: 3,
+      trytype: '3',
       otherDisabled: true
     })
   }
@@ -442,8 +454,8 @@ class Enterprise extends Component {
         
         <Tabs defaultActiveKey={this.state.trytype} type="card"  onChange={(e)=> this.changeType(e)}>
           <TabPane tab="请选择组织类型" key="4" disabled ></TabPane>
-          <TabPane tab={ enterprise } key={2}><EnterpriseComponse config={ this.props.config } scope={this} /></TabPane>
-          <TabPane tab={ otherwise } key={3}><OtherComponse config={ componstData } scope={this}/></TabPane>
+          <TabPane tab={ enterprise } key="2"><EnterpriseComponse config={ this.props.config } scope={this} /></TabPane>
+          <TabPane tab={ otherwise } key="3"><OtherComponse config={ componstData } scope={this}/></TabPane>
         </Tabs>
         <Modal title="抱歉您的本次认证未通过审核，具体原因如下" visible={this.state.failureMessage} wrapClassName="vertical-center-modal errorAuth"
           onOk={()=> this.restorePush()} onCancel={()=>this.setState({failureMessage: false})} okText="重新输入">
@@ -513,11 +525,14 @@ class Authentication extends Component {
     if (!certificate) {
       certificate = {}
     }
+    if(certificate.enterprise && !certificate.individual) {
+      activeKey = '1'
+    }
     return (
       <div className="Authentication" >
         <Tabs  type="card" activeKey={activeKey} onTabClick={(e) => this.tabClick(e)}> 
-          <TabPane tab="企业用户" key="1"><Enterprise config={certificate.enterprise} scope={this}/></TabPane>
-          <TabPane tab="个人用户" key="2"><Indivduals config={certificate.individual} scope={this}/></TabPane>
+          <TabPane tab="企业用户" key="1"><Enterprise hash={hash} config={certificate.enterprise} scope={this}/></TabPane>
+          <TabPane tab="个人用户" key="2"><Indivduals hash={hash} config={certificate.individual} scope={this}/></TabPane>
         </Tabs>
       </div>
     )

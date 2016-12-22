@@ -50,7 +50,6 @@ exports.handle = function () {
 
 // Middleware for set cookie and state for internationalization
 exports.middleware = function* (next) {
-  this.sessionSave = true
   let t = i18next.t.bind(i18next)
   this.t = t
   this.state.t = t

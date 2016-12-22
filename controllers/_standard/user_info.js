@@ -25,6 +25,7 @@ const activationMixCode = 'tEn.Xclou210*'
 Get basic user info including user and certificate
 */
 exports.getMyAccountInfo = function* () {
+
   const loginUser = this.session.loginUser
   const userID = this.session.loginUser.id
 
@@ -81,6 +82,7 @@ exports.changeUserInfo = function* () {
   const avatar = body.avatar
   const user = this.session.loginUser
   const spi = apiFactory.getSpi(user)
+  const phone = body.phone
   const updateBody = {}
   if(password) {
     updateBody.oldPassword = password
@@ -93,6 +95,14 @@ exports.changeUserInfo = function* () {
   }
   if(avatar) {
     updateBody.avatar = avatar
+  }
+  const checkBody = {
+    captcha: body.captcha
+  }
+  if(phone) {
+    checkBody.phone = phone
+    yield checkMobileCaptcha(checkBody)
+    updateBody.phone = phone
   }
   const api = apiFactory.getApi(user)
   const apiResult = yield api.users.patchBy([user.id], null, updateBody)
@@ -170,14 +180,14 @@ exports.sendCaptcha = function* () {
     captchaSendFrequencePrefix: `${redisKeyPrefix.frequenceLimit}`
   }
   yield sendCaptchaToPhone(mobile, redisConf)
-
+  this.status = 200
   this.body = {
     data: ''
   }
 }
 
 function checkMobileCaptcha(user) {
-  const method = "checkMobileCaptcha"
+  const method = 'checkMobileCaptcha'
   if (!user || !user.phone || !user.captcha) {
     const err = new Error('user mobile, mobile captcha are required.')
     err.status = 400
@@ -196,8 +206,7 @@ function checkMobileCaptcha(user) {
         const err = new Error('验证码错误或已失效')
         err.status = 400
         return reject(err)
-      }
-      else {
+      } else {
         resolve()
       }
     })
