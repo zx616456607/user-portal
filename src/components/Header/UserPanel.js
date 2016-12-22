@@ -179,7 +179,7 @@ class UserPanel extends Component {
         overlayClassName='UserPanel'
         placement="bottomRight"
         arrowPointAtCenter={true}
-        trigger='click'
+        trigger='hover'
         visible={this.state.visible}
         onVisibleChange={this.handleVisibleChange}
         >
