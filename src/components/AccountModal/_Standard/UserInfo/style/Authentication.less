@@ -50,6 +50,8 @@
     line-height: 50px;
     .auth-img{width: 30px;height:30px;vertical-align: middle;fill:#999;}
     .auth-text{margin-left: 15px;margin-right: 10px;}
+    .btn-auth{background: #9190F8;color: white;border-color: #5F5EE6}
+    .btn-error{background: #FC7572;color: white;border-color: #E41E1B}
   }
   .myInfo{
     background: white;
@@ -110,4 +112,16 @@
       img{max-width: 100%;}
     }
   }
+}
+//  auth error modal 
+.errorAuth{
+  .ant-modal-body{padding:20px 30px;}
+  .ant-modal-footer{}
+  .wrapBox{
+    margin-top: 10px;
+    border:1px solid @borderColor;
+    p{clear: both;border-top: 1px solid @borderColor;line-height:35px;padding:0 10px;i{ margin-top: 8px;color: red;float: right;font-size: 16px;}}
+    p:nth-of-type(1){border:0}
+  }
+  .blod{font-weight: 500;margin-top: 10px;}
 }

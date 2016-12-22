@@ -455,12 +455,7 @@ class Storage extends Component {
           if (err.statusCode == 409) {
             notification.error('存储卷 ' + storageConfig.name + ' 已经存在')
           } else {
-            notification.error('创建失败')
-            // if (err.message) {
-            //   notification.error(err.message.message)
-            // } else {
-            //   notification.error(JSON.stringify(err))
-            // }
+            notification.error('创建存储卷失败')
           }
         }
       }

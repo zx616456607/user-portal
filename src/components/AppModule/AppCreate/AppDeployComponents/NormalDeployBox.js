@@ -202,7 +202,7 @@ let MyComponent = React.createClass({
     callback()
   },
   render: function () {
-    const { getFieldProps, getFieldValue, } = this.props.form
+    const { getFieldProps, getFieldValue } = this.props.form
     const registry = this.props.registry
     const {imageVersion} = this.props
     const self = this
@@ -532,7 +532,15 @@ let NormalDeployBox = React.createClass({
       loadImageTags(nextProps)
     }
   },
-
+  changeSwitchOption(e) {
+    // For stateful service, force instance to 1
+    if (e) {
+      const { setFieldsValue } = this.props.form
+      setFieldsValue({
+        instanceNum: '1'
+      });
+    }
+  },
   render: function () {
     const parentScope = this.props.scope;
     const { imageTagsIsFetching, form, composeType, cluster} = this.props
@@ -689,7 +697,8 @@ let NormalDeployBox = React.createClass({
               <span className="commonSpan">服务类型</span>
               <Switch className="changeBtn" disabled={switchDisable}
                 {...getFieldProps('volumeSwitch', {
-                  valuePropName: 'checked'
+                  valuePropName: 'checked',
+                  onChange: (e)=> this.changeSwitchOption(e)
                 }) }
                 />
               <span className="stateSpan">{form.getFieldValue('volumeSwitch') ? "有状态服务" : "无状态服务"}</span>
@@ -705,7 +714,7 @@ let NormalDeployBox = React.createClass({
               <div style={{ clear: "both" }}></div>
             </div>
             <div className="containerNum">
-              <span className="commonSpan">容器数量</span>
+              <span className="commonSpan">实例数量</span>
               <FormItem>
                 <InputNumber className="inputNum"
                   {...getFieldProps('instanceNum', {

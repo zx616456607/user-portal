@@ -109,7 +109,15 @@ let TenxFlowDetailAlert = React.createClass({
       emailAlert: flag
     });
     if (flag) {
-      const newNotify = JSON.parse(notify);
+      let newNotify
+      try {
+        newNotify = JSON.parse(notify);
+      } catch (e) {
+        this.setState({
+          emailAlert: false
+        })
+        return
+      }
       let otherEmail = true;
       let emailList = newNotify.email_list;
       if (newNotify.email_list == DefaultEmailAddress) {
