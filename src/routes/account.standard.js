@@ -32,7 +32,11 @@ const accountRoutes = [
       path: 'payment',
       component: require('../components/AccountModal/_Standard/UserBalance/Payment').default,
     }]
-  }
+  },
+  {
+    path: 'version',
+    component: require('../components/AccountModal/Version').default,
+  },
 ]
 
 export default accountRoutes
