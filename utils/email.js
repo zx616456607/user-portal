@@ -325,6 +325,32 @@ exports.sendChargeSuccessEmail = function (to, payMethod, payAmount, payBalance,
   })
 }
 
+exports.sendUserActivationEmail = function (to, userActivationURL) {
+  const method = "sendUserActivationEmail"
+
+  const subject = `时速云用户完成注册`
+  const systemEmail = config.mail_server.service_mail
+  const date = moment(new Date()).format("YYYY-MM-DD")
+  const loginURL = `http://www.tenxcloud.com`
+  var mailOptions = {
+    to: to, // list of receivers
+    subject: subject, // Subject line
+  }
+
+  fs.readFile('templates/email/user_activation.html', 'utf8', function (err, data) {
+    if (err) {
+      logger.error(method, err)
+      reject(err)
+    }
+    data = data.replace(/\${subject}/g, subject)
+    data = data.replace(/\${systemEmail}/g, systemEmail)
+    data = data.replace(/\${userActivationURL}/g, userActivationURL)
+    data = data.replace(/\${date}/g, date)
+    mailOptions.html = data
+    self.sendEmail(mailOptions)
+  });
+}
+
 /**
  * 将支付类型转换为文本
  *
