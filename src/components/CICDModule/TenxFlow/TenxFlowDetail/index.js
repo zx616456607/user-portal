@@ -146,6 +146,14 @@ class TenxFlowDetail extends Component {
     this.flowState()
   }
 
+  componentWillReceiveProps(nextProps) {
+    const { currentSpace } = nextProps;
+    if (currentSpace && this.props.currentSpace && currentSpace != this.props.currentSpace) {
+      browserHistory.push(`/ci_cd/tenx_flow`)
+      return
+    }
+  }
+
   openCreateTenxFlowModal() {
     //this function for user open the modal of create new tenxflow
     this.setState({
@@ -328,7 +336,8 @@ function mapStateToProps(state, props) {
     isFetching,
     flowInfo,
     buildFetching,
-    logs
+    logs,
+    currentSpace: state.entities.current.space.namespace
   }
 }
 

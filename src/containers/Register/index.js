@@ -14,6 +14,7 @@ import { connect } from 'react-redux'
 import Person from './Person'
 import Company from './Company'
 import AccountType from './AccountType'
+import SuccessRegister from './SuccessRegister'
 
 
 class Register extends Component{
@@ -38,10 +39,14 @@ class Register extends Component{
       })
     }
   }
-  
+  componentWillMount(){
+    
+
+  }
   render(){
+    const {email} = this.props
     let register = (
-      <div key='b' className='RegisterPage'>
+      <div key='b' id='RegisterPage'>
         <div className='register' style={{width:'40%'}}>
           <Card className="registerForm" bordered={false}>
             <div className='backToPage' onClick={this.handlePageChange}>&lt;&lt;&nbsp;&nbsp;&nbsp;重选注册账户类型</div>
@@ -55,7 +60,7 @@ class Register extends Component{
       </div>
     )
     let registerPage = (
-      <div key='a' className='RegisterPage'>
+      <div key='a' id='RegisterPage'>
         <div className='register' style={{padding:0}}>
           <Card className="registerForm" bordered={false} style={{margin:'30px 50px 0'}}>
             <AccountType onChange={this.handlePageChange} />
@@ -69,21 +74,23 @@ class Register extends Component{
     )
 
     return (
-      <div id="RegisterWrap">
+        email ?
+        <SuccessRegister email={email}/> :
         <QueueAnim component="div"
-                   type={this.state.person?['left']:['right']}
-                   ease={['easeOutQuart', 'easeInOutQuart']}
-                   key='register'>
-          {this.state.registerPageShow ? registerPage : null}
-          {this.state.registerShow ? register : null}
+                  type={this.state.person?['left']:['right']}
+                  ease={['easeOutQuart', 'easeInOutQuart']}
+                  key='register'>
+            {this.state.registerPageShow ? registerPage : null}
+            {this.state.registerShow ? register : null}
         </QueueAnim>
-      </div>
     )
   }
 }
 function mapStateToProps (state,props) {
+  console.log('props',props)
+  let {email} = props.location.query
   return {
-
+    email,
   }
 }
 Register = connect(mapStateToProps, {
