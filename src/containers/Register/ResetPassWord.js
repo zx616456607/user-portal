@@ -10,7 +10,7 @@
 import React, { Component } from 'react'
 import { Button, Form, Input } from 'antd'
 import { connect } from 'react-redux'
-import { USERNAME_REG_EXP, EMAIL_REG_EXP } from '../../constants'
+import { USERNAME_REG_EXP, EMAIL_REG_EXP, EMAIL_HASH } from '../../constants'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -20,6 +20,8 @@ let ResetPassWord = React.createClass({
     return {
       submitting: false,//注册中
       intEmailFocus: false,//邮箱焦点
+      spendEmail: false,//发送邮件
+      toEmail: '',//邮件地址
     }
   },
   //邮箱验证
@@ -58,20 +60,45 @@ let ResetPassWord = React.createClass({
     }
   },
   //发送邮箱
-  handleSubmit(){
-
+  handleSpendEmail(){
+    const { form, registerUser } = this.props
+    const { validateFields, resetFields } = form
+    const self = this
+    e.preventDefault()
+    validateFields((errors, values) => {
+      if (!!errors) {
+        return
+      }
+      this.setState({
+        spendEmail: true,
+        submitting: true,
+        submitProps: {
+          disabled: 'disabled'
+        }
+      })
+      //发送邀请邮件
+    })
+  },
+   //邮箱识别
+  getEmail (url) {
+    if (url.match('@')) {
+      let addr = url.split('@')[1]
+      for (let j in EMAIL_HASH) {
+        this.setState({
+          toEmail: EMAIL_HASH[addr]
+        })
+        return
+      }
+    }
+    return false
   },
   renderResetForm () {
-    return (
-      <div></div>
-    )
-  },
-  render(){
-    const { getFieldProps, getFieldError, isFieldValidating } = this.props.form
-    const { submitting, submitProps } = this.state
+    const { spendEmail } = this.state
     const formItemLayout = {
       wrapperCol: { span: 24 },
     }
+    const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form
+    const { submitting } = this.state
     //邮箱验证规则
     const emailProps = getFieldProps('email', {
       rules: [
@@ -79,20 +106,35 @@ let ResetPassWord = React.createClass({
         { validator: this.checkEmail },
       ],
     })
+    console.log('getFieldValue',getFieldValue('email'))
     return (
-      <div id='RegisterPage'>
-        <div className='register' style={{width:'40%'}}>
-          <div id='SuccessRegister'>
-          {
-            this.state.resetSuccess ?
-              <div>success</div> :
-              this.renderResetForm()
-          }
-            <div className='successTitle'>
-              重置密码
-            </div>
+      <div>
+        <div className='successTitle'>
+          重置密码
+        </div>
+        {
+          spendEmail ?
+            <div>
+              <ul className='successInf' style={{marginBottom: 24}}>
+                <li>
+                  已发送到 { getFieldValue('email') } ,请
+                  <Button>
+                    <a href={this.state.toEmail} target='_blank'>
+                      登录邮箱
+                    </a>
+                  </Button>
+                </li>
+                <li>重置密码 , 该邮件的有效期为24小时</li>
+                <li className='rePass'>
+                  没有收到邮件 ? 点此 
+                  <Button>
+                    重新发送
+                  </Button>
+                </li>
+              </ul>
+            </div> :
             <div className='registerForm' style={{marginTop:20}}>
-              <Form onSubmit={this.handleSubmit}>
+              <Form>
                 <FormItem
                   {...formItemLayout}
                   hasFeedback
@@ -107,17 +149,29 @@ let ResetPassWord = React.createClass({
                 </FormItem>
                 <FormItem wrapperCol={{ span: 24, }}>
                   <Button
-                    htmlType="submit"
                     type="primary"
-                    onClick={this.handleSubmit}
+                    onClick={this.handleSpendEmail}
                     loading={submitting}
-                    {...submitProps}
                     className="subBtn">
                     {submitting ? '发送中...' : '发送邮箱'}
                   </Button>
                 </FormItem>
               </Form>
             </div>
+        }
+      </div>
+    )
+  },
+  render(){
+    return (
+      <div id='RegisterPage'>
+        <div className='register'>
+          <div id='SuccessRegister'>
+          {
+            this.state.resetSuccess ?
+              <div>success</div> :
+              this.renderResetForm()
+          }
           </div>
         </div>
       </div>

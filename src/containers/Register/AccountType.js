@@ -62,7 +62,9 @@ export default class AccountType extends Component{
               <li>50元 时速云TenxCloud 测试金</li>
               <li>免费的点对点销售&工程师跟进支持</li>
             </ul>
-            <Button onClick={() => this.handlePageChange(false)} className="companyBtn">注册企业账户</Button>
+            <div>
+              <Button onClick={() => this.handlePageChange(false)} className="companyBtn">注册企业账户</Button>
+            </div>
           </div>
         </div>
       </div>

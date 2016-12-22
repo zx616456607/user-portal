@@ -41,7 +41,7 @@ class Register extends Component{
       })
     }
   }
-  renderRegisterPage(email,reset){
+  renderRegisterPage(email,reset,register,registerPage){
     const { registerPageShow, registerShow } = this.state
     if (email && !reset) {
       return (
