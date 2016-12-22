@@ -222,7 +222,7 @@ class TerminalModal extends Component {
             return (
               <TabPane tab={titleTab} key={item.metadata.name + index}>
                 <iframe id={item.metadata.name + index} 
-                  src={`/js/container_terminal.html?host=192.168.1.92&port=6443&namespace=${item.metadata.namespace}&pod=${item.metadata.name}`} />
+                  src={`/js/container_terminal.html?host=192.168.1.92&port=6443&namespace=${item.metadata.namespace}&pod=${item.metadata.name}&cluster=${this.props.cluster}`} />
               </TabPane>
             )
           })
@@ -242,7 +242,7 @@ class TerminalModal extends Component {
 function mapStateToProps(state, props) {
   
   return {
-    
+    cluster: state.entities.current.cluster.clusterID
   }
 }
 

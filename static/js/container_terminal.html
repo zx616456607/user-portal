@@ -43,7 +43,7 @@
 
       var host = window.location.host
      
-      var wsUrl = 'ws://'+ host + '/api/v1/namespaces/' + data['namespace'] + '/pods/' + data['pod'] + '/exec'
+      var wsUrl = 'ws://'+ host + '/api/v1/cluster/'+ data['cluster'] +'/namespaces/' + data['namespace'] + '/pods/' + data['pod'] + '/exec'
 
       function utf8_to_b64( str ) {
         return window.btoa(window.unescape(encodeURIComponent( str )));

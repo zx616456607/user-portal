@@ -472,6 +472,9 @@ class Authentication extends Component {
     if (!certificate) {
       certificate = {}
     }
+    if(certificate.enterprise && !certificate.individual) {
+      activeKey = '1'
+    }
     return (
       <div className="Authentication" >
         <Tabs  type="card" activeKey={activeKey} onTabClick={(e) => this.tabClick(e)}> 
