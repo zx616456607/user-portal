@@ -302,9 +302,9 @@ exports.activateUserByEmail = function* () {
   // code is valid, call apiserver to set user status to activated
   yield spi.users.createBy(['activations'], null, {email})
 
-  this.body = {
-    data: ''
-  }
+  this.status = 302
+  this.redirect('/login')
+  return
 }
 
 function genUserActivationURL(code) {

@@ -111,7 +111,7 @@ let Company = React.createClass({
               },
               submitProps: {},
             })
-            notification.error(`注册并加入团队失败`, msg)
+            notification.error(`注册失败`, msg)
           },
           isAsync: true
         },
