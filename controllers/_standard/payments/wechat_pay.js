@@ -138,10 +138,6 @@ exports.getOrder = function* () {
     tradeState
   }
   if (tradeState === 'SUCCESS') {
-    // ~for test
-    // this.body = order
-    // return
-    // ~end
     const resultData = yield updateOrder(order, loginUser)
     resData.result = resultData
     this.session.payment_status = resultData
