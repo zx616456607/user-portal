@@ -240,6 +240,15 @@ class DockerFile extends Component {
     document.title = 'Dockerfile | 时速云';
     this.props.getDockerfileList()
   }
+  
+  componentWillReceiveProps(nextProps) {
+    const { currentSpace } = nextProps
+    if (currentSpace && this.props.currentSpace && currentSpace != this.props.currentSpace) {
+      this.props.getDockerfileList()
+      return
+    }
+  }
+
   setChangeName(e) {
     this.setState({names: e.target.value})
   }
@@ -299,6 +308,7 @@ function mapStateToProps(state, props) {
   return {
     dockerfileList,
     isFetching,
+    currentSpace: state.entities.current.space.namespace
   }
 }
 

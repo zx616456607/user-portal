@@ -1,5 +1,5 @@
 !function(){
-    var url = "/img/sider/svg/svg-symbols.svg?ver=2";
+    var url = "/img/sider/svg/svg-symbols.svg?ver=5";
     var div = document.createElement("div");
     div.style.display = "none";
     document.body.appendChild(div);
@@ -8,6 +8,7 @@
       // 本地获取，减少请求
       div.innerHTML = localStorage.getItem(url);
     } else {
+      localStorage.removeItem("/img/sider/svg/svg-symbols.svg?ver=2");
       localStorage.removeItem("/img/sider/svg/svg-symbols.svg?ver=3");
       var xhr = new XMLHttpRequest();
       xhr.open("get", url);

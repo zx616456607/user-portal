@@ -166,7 +166,6 @@ let PasswordRow = React.createClass({
           }
         }
       })
-
     })
   },
   render() {

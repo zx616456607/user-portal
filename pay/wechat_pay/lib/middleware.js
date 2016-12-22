@@ -13,7 +13,6 @@
 
 const Payment = require('./payment').Payment
 const rawBody = require('raw-body')
-var util = require('util');
 
 function getRawBody(request) {
   let body = request.body
@@ -34,7 +33,6 @@ function getRawBody(request) {
   })
 }
 
-
 /**
  * 中间件处理通知类
  * @class Notify
@@ -47,6 +45,13 @@ function getRawBody(request) {
  * @chainable
  */
 class Notify {
+  /**
+   * Creates an instance of Notify.
+   *
+   * @param {Object} config
+   *
+   * @memberOf Notify
+   */
   constructor(config) {
     this.payment = new Payment(config)
   }

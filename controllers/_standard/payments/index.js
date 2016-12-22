@@ -13,6 +13,8 @@
 'use strict'
 
 const apiFactory = require('../../../services/api_factory')
+const emailUtils = require('../../../utils/email')
+const logger = require('../../../utils/logger').getLogger('payments')
 
 exports.getOrderStatusFromSession = function* () {
   const status = this.session.payment_status
@@ -39,4 +41,28 @@ exports.getOrderStatusFromSession = function* () {
   }
 
   this.body = status
+}
+
+/**
+ * 发送充值成功邮件
+ *
+ * @param {String} email
+ * @param {Number} type
+ * @param {Number} amount
+ * @param {Object} order
+ */
+exports.sendPaySuccessEmail = function (email, type, amount, order) {
+  const method = 'sendPaySuccessEmail'
+  // when order.paied is true, send the email
+  if (!order.paid) return
+  if (!email) email = order.user_email
+  if (!email) {
+    logger.warn(method, `send email faild, because of email is null: ${JSON.stringify(order)}`)
+    return
+  }
+  let balance = order.new_balance
+  amount = parseInt(amount) / 100
+  balance = parseInt(balance) / 100
+  const payHistoryUrl = 'https://console.tenxcloud.com/account/cost#payments'
+  emailUtils.sendChargeSuccessEmail(email, type, amount, balance, payHistoryUrl, order.team_name)
 }

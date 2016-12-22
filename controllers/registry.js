@@ -35,7 +35,12 @@ exports.getImages = function* () {
 
 exports.getPrivateImages = function* () {
   const loginUser = this.session.loginUser
-  const result = yield registryService.getPrivateRepositories(loginUser.user, 1)
+  let result
+  if (loginUser.teamspace) {
+    result = yield registryService.getPrivateRepositories(loginUser.teamspace, 1)
+  } else {
+    result = yield registryService.getPrivateRepositories(loginUser.user, 1)
+  }
 
   this.body = {
     server: registryConfig.v2Server,

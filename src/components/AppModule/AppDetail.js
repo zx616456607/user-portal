@@ -119,7 +119,7 @@ class AppDetail extends Component {
   }
 
   cancelEdit() {
-    this.setState({editDesc:false}) 
+    this.setState({editDesc:false})
     this.props.form.resetFields()
   }
 
@@ -193,7 +193,7 @@ class AppDetail extends Component {
                     <div className='introduction' style={{ height: '115px'}}>
                     <FormItem hasFeedback style={{ 'margin-bottom': '0px'}}>
                       描述：
-                      {this.state.editDesc ? null : 
+                      {this.state.editDesc ? null :
                         <Button style={{ float: 'right', top: '-8px' }} onClick={() => this.setState({editDesc:true})} disabled={this.state.editDesc}>
                           <Icon type="edit" />&nbsp;编辑
                         </Button>}
@@ -203,7 +203,7 @@ class AppDetail extends Component {
                         autoComplete="off"
                         {...descProps}
                         disabled={!this.state.editDesc}/>
-                      {this.state.editDesc ? 
+                      {this.state.editDesc ?
                         <div className="editInfo">
                           <div style={{ lineHeight: '50px' }} className="text-center">
                             <Button size="large" type="ghost" style={{ marginRight: '10px' }} onClick={() => this.cancelEdit()}>取消</Button>
