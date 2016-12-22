@@ -13,6 +13,7 @@ import { Button, Form, Input, Card, Tooltip, message, Alert, Col, Row } from 'an
 import { connect } from 'react-redux'
 import { USERNAME_REG_EXP, EMAIL_REG_EXP } from '../../../../constants'
 import { browserHistory } from 'react-router'
+import NotificationHandler from '../../../common/notification_handler'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -74,8 +75,9 @@ let LogInUser = React.createClass({
         failed: {
           func: (err) => {
             let msg = err.message.message || err.message
+            let notification = new NotificationHandler()
             if (err.statusCode == 401) {
-              msg = "用户名或者密码错误"
+              msg = "邮箱或者密码错误"
             }
             self.setState({
               submitting: false,
@@ -85,6 +87,7 @@ let LogInUser = React.createClass({
               submitProps: {},
             })
             resetFields(['password'])
+            notification.error(`登录并加入团队失败`, msg)
           },
           isAsync: true
         },
@@ -190,7 +193,7 @@ let LogInUser = React.createClass({
           {...formItemLayout}
           className="formItemName nameIntPlace"
         >
-          <div className={"intName intOnFocus"}>用户名 / 邮箱</div>
+          <div className={"intName intOnFocus"}>邮箱</div>
           <Input placeholder={email} disabled />
         </FormItem>
         <FormItem

@@ -203,10 +203,11 @@ class Editor extends Component {
   }
   
   componentWillReceiveProps(nextProps) {
+    const { currentBox } = this.state;
     const { value } = nextProps;
     this.setState({
       currentValues: value,
-      currentBox: 'normal',
+      currentBox: currentBox,
     })
   }
   

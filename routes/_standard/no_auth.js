@@ -38,6 +38,9 @@ module.exports = function (Router) {
   router.post(`${API_URL_PREFIX}/stdusers/jointeam`, userController.registerUserAndJoinTeam)
   router.post(`${API_URL_PREFIX}/stdusers/captchas`, userController.sendCaptcha)
 
+  // Reset password
+  router.put(`${API_URL_PREFIX}/users/:email/resetpwlink`, userController.sendResetPasswordLink)
+
   // Payment
   router.post('/payments/alipay/notify', alipayController.notify)
   router.post(
@@ -45,7 +48,7 @@ module.exports = function (Router) {
     wechatPayMiddleware(wechatPayController.getInitConfig()).getNotify().done(),
     wechatPayController.notify
   )
-  
+
   //register
   router.get('/register', indexCtl.index)
 

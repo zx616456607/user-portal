@@ -17,6 +17,7 @@ const wechatConfig = require('../../../configs/_standard/wechat_pay')
 const wechatPay = require('../../../pay/wechat_pay')
 const logger = require('../../../utils/logger').getLogger('wechat_pay')
 const _this = this
+const payments = require('./')
 
 /**
  * Create a new prepay record
@@ -86,7 +87,6 @@ exports.getOrder = function* () {
     throw err
   }
   const loginUser = this.session.loginUser
-  const spi = apiFactory.getTenxSysSignSpi(loginUser)
   const orderId = this.params.order_id
   const payment = new wechatPay.Payment(_this.getInitConfig())
   /**
@@ -138,21 +138,9 @@ exports.getOrder = function* () {
     tradeState
   }
   if (tradeState === 'SUCCESS') {
-    const data = {
-      charge_amount: parseInt(order.total_fee),  // 成功支付的金额
-      order_type: 100,
-      order_id: order.transaction_id, // 支付宝、微信的订单号
-      verification_key: order.attach, // 对应请求的key
-      detail: JSON.stringify(order),
-    }
-    const result = yield spi.payments.update(order.out_trade_no, data)
-    const resultData = result.data
+    const resultData = yield updateOrder(order, loginUser)
     resData.result = resultData
-    resultData.method = 'wechat_pay'
-    resultData.charge_amount = data.charge_amount
     this.session.payment_status = resultData
-    // this.body = result
-    // return
   }
   this.body = resData
 }
@@ -166,20 +154,39 @@ exports.notify = function* () {
       res.reply('success')
       return
     }
-    const loginUser = this.session.loginUser
-    const spi = apiFactory.getTenxSysSignSpi(loginUser)
-    const data = {
-      charge_amount: parseInt(order.total_fee),  // 成功支付的金额
-      order_type: 100,
-      order_id: order.transaction_id, // 支付宝、微信的订单号
-      verification_key: order.attach, // 对应请求的key
-      detail: JSON.stringify(order),
-    }
-    const result = yield spi.payments.update(order.out_trade_no, data)
+    yield updateOrder(order)
     this.reply('success')
   } catch (error) {
     throw error
   }
+}
+
+/**
+ * 支付成功后，更新订单信息
+ *
+ * @param {Object} order
+ * @param {Object} loginUser
+ * @returns {Object}
+ */
+function* updateOrder(order, loginUser) {
+  // Async notification has no loginUser, so here do not use loginUser by api server support
+  const spi = apiFactory.getTenxSysSignSpi()
+  const data = {
+    charge_amount: parseInt(order.total_fee),  // 成功支付的金额
+    order_type: 100,
+    order_id: order.transaction_id, // 支付宝、微信的订单号
+    verification_key: order.attach, // 对应请求的key
+    detail: JSON.stringify(order),
+  }
+  const result = yield spi.payments.update(order.out_trade_no, data)
+  const resultData = result.data
+  resultData.method = 'wechat_pay'
+  resultData.charge_amount = data.charge_amount
+  // Send pay success email
+  let email
+  if (loginUser) email = loginUser.email
+  payments.sendPaySuccessEmail(email, 100, data.charge_amount, resultData)
+  return resultData
 }
 
 exports.getInitConfig = function () {

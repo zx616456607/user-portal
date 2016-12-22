@@ -188,6 +188,9 @@ class ImageDetailBox extends Component {
   render() {
     const { formatMessage } = this.props.intl;
     const imageInfo = this.props.imageInfo
+    if (!imageInfo) {
+      return ('')
+    }
     const imageDetail = this.props.config;
     const scope = this;
     const ipAddress = this.props.server;

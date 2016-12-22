@@ -279,6 +279,15 @@ class CodeStore extends Component {
     document.title = '代码仓库 | 时速云';
     this.props.getProjectList()
   }
+
+  componentWillReceiveProps(nextProps) {
+    const { currentSpace } = nextProps
+    if (currentSpace && this.props.currentSpace && currentSpace != this.props.currentSpace) {
+      this.props.getProjectList()
+      return
+    }
+  }
+
   operaMenuClick(e) {
     //this function for user click the dropdown menu
     switch (e.key) {
@@ -402,7 +411,8 @@ function mapStateToProps(state, props) {
   const {projectList, isFetching} = managed || defaultStatus
   return {
     projectList,
-    isFetching
+    isFetching,
+    currentSpace: state.entities.current.space.namespace
   }
 }
 

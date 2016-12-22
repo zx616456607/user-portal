@@ -133,7 +133,7 @@ class TenxFlowDetail extends Component {
           if (result.length > 0) {
             result.forEach(list => {
               if (list.spec.hasOwnProperty('build')) {
-                showImage.push(res.data.results.owner + '/' + list.spec.build.image)
+                showImage.push(res.data.results.namespace + '/' + list.spec.build.image)
               }
             })
           }
@@ -144,6 +144,14 @@ class TenxFlowDetail extends Component {
       }
     });
     this.flowState()
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const { currentSpace } = nextProps;
+    if (currentSpace && this.props.currentSpace && currentSpace != this.props.currentSpace) {
+      browserHistory.push(`/ci_cd/tenx_flow`)
+      return
+    }
   }
 
   openCreateTenxFlowModal() {
@@ -204,11 +212,16 @@ class TenxFlowDetail extends Component {
   goCheckImage(image) {
     const config = { registry: DEFAULT_REGISTRY, image }
     let notification = new NotificationHandler()
+    let space = this.props.flowInfo.namespace
     this.props.checkImage(config, {
       success: {
         func: (res) => {
           if (res.data.hasOwnProperty('status') && res.data.status == 404) {
-            notification.error('镜像不存在')
+            notification.error('镜像不存在，请先执行构建')
+            return
+          }
+          if (space != res.data.contributor) {
+            notification.error('没有权限访问该镜像')
             return
           }
           browserHistory.push(`/app_center?imageName=${image}`)
@@ -323,7 +336,8 @@ function mapStateToProps(state, props) {
     isFetching,
     flowInfo,
     buildFetching,
-    logs
+    logs,
+    currentSpace: state.entities.current.space.namespace
   }
 }
 

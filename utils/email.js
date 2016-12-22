@@ -59,7 +59,7 @@ exports.sendEmail = function (transport, mailOptions) {
 // Calling sample: self.sendUserCreationEmail("zhangsh@tenxcloud.com", "shouhong", "zhangsh@tenxcloud.com", "test_user", "11111111")
 exports.sendUserCreationEmail = function (to, creatorName, creatorEmail, userName, userPassword) {
   const method = "sendUserCreationEmail"
-  
+
   const subject = `已为您创建时速云帐号`
   const systemEmail = config.mail_server.service_mail
   const date = moment(new Date()).format("YYYY-MM-DD")
@@ -90,7 +90,7 @@ exports.sendUserCreationEmail = function (to, creatorName, creatorEmail, userNam
 //Calling sample: self.sendInviteTeamMemberEmail("zhangsh@tenxcloud.com", "shouhong", "zhangsh@tenxcloud.com", "研发Team", "http://tenxcloud.com")
 exports.sendInviteTeamMemberEmail = function (to, invitorName, invitorEmail, teamName, inviteURL) {
   const method = "sendInviteTeamMemberEmail"
-  
+
   const subject = `${teamName}团队动态通知（邀请新成员）`
   const systemEmail = config.mail_server.service_mail
   const date = moment(new Date()).format("YYYY-MM-DD")
@@ -119,7 +119,7 @@ exports.sendInviteTeamMemberEmail = function (to, invitorName, invitorEmail, tea
 //Calling sample: self.sendCancelInvitationEmail("zhangsh@tenxcloud.com", "shouhong", "zhangsh@tenxcloud.com", "研发Team")
 exports.sendCancelInvitationEmail = function (to, invitorName, invitorEmail, teamName) {
   const method = "sendCancelInvitationEmail"
-  
+
   const subject = `${teamName}团队动态通知（取消邀请）`
   const systemEmail = config.mail_server.service_mail
   const date = moment(new Date()).format("YYYY-MM-DD")
@@ -192,7 +192,7 @@ exports.sendDismissTeamEmail = function (teamAdminName, teamAdminEmail, teamMemb
 //Calling sample: self.sendExitTeamEmail("zhangsh@tenxcloud.com", "zhangsh@tenxcloud.com", "shouhong", "研发Team")
 exports.sendExitTeamEmail = function (teamAdminEmail, teamMemberEmail, teamMemberName, teamName) {
   const method = "sendEixtTeamEmail"
-  
+
   const subject = `${teamName}团队动态通知（${teamMemberName}退出团队）`
   const emails = [teamAdminEmail, teamMemberEmail]
   const contents = [`${teamMemberName}成员退出团队"${teamName}"`, `您已退出"${teamName}"`]
@@ -228,7 +228,7 @@ exports.sendExitTeamEmail = function (teamAdminEmail, teamMemberEmail, teamMembe
 exports.sendRemoveTeamMemberEmail = function (teamAdminName, teamAdminEmail, teamMemberName, teamMemberEmail, teamName) {
   const method = "sendRemoveTeamMemberEmail"
   console.log(arguments)
-  
+
   const subject = `${teamName}团队动态通知（移除成员${teamMemberName}）`
   const emails = [teamAdminEmail, teamMemberEmail]
   const contents = [`您已将团队“${teamName}”团队成员${teamMemberName}移除`, `${teamAdminName}将您移除团队"${teamName}"`]
@@ -257,5 +257,88 @@ exports.sendRemoveTeamMemberEmail = function (teamAdminName, teamAdminEmail, tea
       }
       self.sendEmail(mailOptions)
     });
+  }
+}
+
+//Calling sample: self.sendResetPasswordEmail("zhangsh@tenxcloud.com", "http://tenxcloud.com")
+exports.sendResetPasswordEmail = function (to, resetPasswordURL) {
+  const method = "sendResetPasswordEmail"
+
+  const subject = `时速云用户重置密码`
+  const systemEmail = config.mail_server.service_mail
+  const date = moment(new Date()).format("YYYY-MM-DD")
+  var mailOptions = {
+    to: to, // list of receivers
+    subject: subject, // Subject line
+  }
+
+  let data = fs.readFileSync('templates/email/reset_password.html', 'utf8');
+
+  data = data.replace(/\${subject}/g, subject)
+  data = data.replace(/\${systemEmail}/g, systemEmail)
+  data = data.replace(/\${resetPasswordURL}/g, resetPasswordURL)
+  data = data.replace(/\${date}/g, date)
+  mailOptions.html = data
+  return self.sendEmail(mailOptions)
+}
+
+/**
+ * 充值成功邮件通知函数
+ *
+ * @param {String} to
+ * @param {String} payMethod
+ * @param {String} payAmount
+ * @param {String} payBalance
+ * @param {String} paymentsHistoryUrl
+ * @param {String} teamName
+ */
+exports.sendChargeSuccessEmail = function (to, payMethod, payAmount, payBalance, paymentsHistoryUrl, teamName) {
+  const method = 'sendChargeSuccessEmail'
+
+  let subject = `个人账户充值到账通知`
+  let payTarget = `个人账户`
+  if (teamName) {
+    subject = `团队账户充值到账通知`
+    payTarget = `团队 ${teamName} `
+  }
+  payMethod = switchPayTypeToText(payMethod)
+  const date = moment(new Date()).format("YYYY-MM-DD")
+  const mailOptions = {
+    to: to, // list of receivers
+    subject: subject, // Subject line
+  }
+
+  fs.readFile('templates/email/charge_success.html', 'utf8', function (err, data) {
+    if (err) {
+      logger.error(method, err)
+      return
+    }
+    data = data.replace(/\${subject}/g, subject)
+    data = data.replace(/\${pay_method}/g, payMethod)
+    data = data.replace(/\${pay_target}/g, payTarget)
+    data = data.replace(/\${pay_amount}/g, payAmount)
+    data = data.replace(/\${pay_balance}/g, payBalance)
+    data = data.replace(/\${payments_history_url}/g, paymentsHistoryUrl)
+    data = data.replace(/\${date}/g, date)
+    mailOptions.html = data
+    self.sendEmail(mailOptions)
+  })
+}
+
+/**
+ * 将支付类型转换为文本
+ *
+ * @param {Number} type
+ * @returns {String}
+ */
+function switchPayTypeToText(type) {
+  type = parseInt(type)
+  switch (type) {
+    case 100:
+      return '微信'
+    case 101:
+      return '支付宝'
+    default:
+      return '其他方式'
   }
 }

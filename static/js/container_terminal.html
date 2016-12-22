@@ -9,6 +9,7 @@
     "use strict";
      var ws
      var term
+     var connected = false;
     // Initialize everything when the window finishes loading
     window.addEventListener("load", function(event) {
         webSocketConnect()
@@ -29,8 +30,10 @@
       if(colsNum <= 5) {
         colsNum = 5;
       }
-      term.resize(colsNum, rowsNum)
-      term.element.focus();
+      if(connected) {
+        term.resize(colsNum, rowsNum)
+        term.element.focus();
+      }
     })
     function webSocketConnect() {
       var params = location.href.split('?')[1].split('&');
@@ -51,8 +54,13 @@
         return decodeURIComponent(window.escape(window.atob( str )));
       }
       
+      window.parent.webTerminalCallBack(data['pod'], 'connect')
+      setTimeout(function(){
+        if(!connected) {
+          window.parent.webTerminalCallBack(data['pod'], 'timeout')
+        }
+      }, 5000);
       terminalConnect();
-      console.log(window.parent)
       // Create a new terminal connection to a container
       function terminalConnect() {
         var rowsNum = parseInt(window.innerHeight / 12) - 2;
@@ -64,6 +72,8 @@
             rows: rowsNum,
             screenKeys: true
           });
+          window.parent.webTerminalCallBack(data['pod'], 'success')
+          connected = true;
           term.open(document.body.terminal);
           term.write("*******************************************************\r\n");  
           term.write("||    _____                   _                 _    ||\r\n");  
@@ -96,6 +106,7 @@
 
         // Display any errors that occur
         ws.addEventListener("error", function(event) {
+          window.parent.webTerminalCallBack(data['pod'], 'error')
           try {
             term.write(b64_to_utf8("Error: " + JSON.stringify(event)));
           }catch(err) {

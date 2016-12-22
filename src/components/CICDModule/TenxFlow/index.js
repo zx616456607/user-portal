@@ -102,7 +102,7 @@ let MyComponent = React.createClass({
             func: () => {
               notification.close()
               notification.success(`删除 flow ${item.name} 成功`);
-              getTenxFlowList()
+              scope.loadData()
             },
             isAsync: true
           },
@@ -240,6 +240,7 @@ class TenxFlowList extends Component {
     this.openTenxFlowDeployLogModal = this.openTenxFlowDeployLogModal.bind(this);
     this.closeTenxFlowDeployLogModal = this.closeTenxFlowDeployLogModal.bind(this);
     this.onSearchFlow = this.onSearchFlow.bind(this);
+    this.loadData = this.loadData.bind(this);
     this.state = {
       createTenxFlowModal: false,
       TenxFlowDeployLogModal: false,
@@ -250,8 +251,7 @@ class TenxFlowList extends Component {
     }
   }
 
-  componentWillMount() {
-    document.title = 'TenxFlow | 时速云';
+  loadData() {
     const { getTenxFlowList } = this.props;
     const self = this
     getTenxFlowList({
@@ -269,8 +269,19 @@ class TenxFlowList extends Component {
     });
   }
 
+  componentWillMount() {
+    document.title = 'TenxFlow | 时速云';
+    const { getTenxFlowList } = this.props;
+    const self = this
+    this.loadData()
+  }
+
   componentWillReceiveProps(nextProps) {
-    const { isFetching, flowList } = nextProps;
+    const { isFetching, flowList, currentSpace } = nextProps;
+    if (currentSpace && this.props.currentSpace && currentSpace != this.props.currentSpace) {
+      this.loadData()
+      return
+    }
     if (!isFetching && !!flowList) {
       this.setState({
         flowList: flowList
@@ -422,7 +433,8 @@ function mapStateToProps(state, props) {
     isFetching,
     flowList,
     buildFetching,
-    logs
+    logs,
+    currentSpace: state.entities.current.space.namespace
   }
 }
 

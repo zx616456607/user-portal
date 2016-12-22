@@ -9,7 +9,7 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { Alert, Menu, Button, Card, Input, Dropdown, Modal, Spin, } from 'antd'
-import { Link } from 'react-router'
+import { browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
@@ -172,7 +172,7 @@ const MyList = React.createClass({
         </div>
       )
     }
-    if (config.length == 0) {
+    if (!config || config.length == 0) {
       return (
         <div className="notData">您还没有编排，去创建一个吧！</div>
       )
@@ -209,8 +209,8 @@ const MyList = React.createClass({
             <span>{calcuDate(item.createTime)}</span>
           </div>
           <div className='opera Action'>
-            <Dropdown.Button overlay={dropdown} type='ghost'>
-              <Link to={`/app_manage/app_create/compose_file?templateid=${item.id}`}><FormattedMessage {...menusText.deployService} /></Link>
+            <Dropdown.Button overlay={dropdown} type='ghost' onClick={()=>browserHistory.push(`/app_manage/app_create/compose_file?templateid=${item.id}`)}>
+              <FormattedMessage {...menusText.deployService} />
             </Dropdown.Button>
           </div>
         </div>

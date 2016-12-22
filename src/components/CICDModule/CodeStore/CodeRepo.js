@@ -309,6 +309,7 @@ const MyComponent = React.createClass({
 class CodeRepo extends Component {
   constructor(props) {
     super(props);
+    this.loadData = this.loadData.bind(this)
     const type = location.search ? location.search.split('?')[1] : 'gitlab'
     if (type) {
       this.state = {
@@ -317,10 +318,8 @@ class CodeRepo extends Component {
     }
   }
 
-  componentWillMount() {
-    document.title = '关联代码库 | 时速云';
+  loadData() {
     const {getRepoList } = this.props
-    const self = this
     getRepoList('gitlab', {
       success: {
         func: (res) => {
@@ -338,7 +337,21 @@ class CodeRepo extends Component {
         isAsync: true
       }
     })
+  }
 
+  componentWillMount() {
+    document.title = '关联代码库 | 时速云';
+    const { getRepoList } = this.props
+    const self = this
+    this.loadData()
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const { currentSpace } = nextProps;
+    if (currentSpace && this.props.currentSpace && currentSpace != this.props.currentSpace) {
+      this.loadData()
+      return
+    }
   }
 
   render() {
@@ -414,7 +427,8 @@ function mapStateToProps(state, props) {
   return {
     repoList,
     isFetching,
-    repoUser
+    repoUser,
+    currentSpace: state.entities.current.space.namespace
   }
 }
 

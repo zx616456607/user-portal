@@ -266,6 +266,35 @@ export function registerUserAndJoinTeam(body, callback) {
   }
 }
 
+export const USER_RESETPW_LINK_REQUEST = 'USER_RESETPW_LINK_REQUEST'
+export const USER_RESETPW_LINK_SUCCESS = 'USER_RESETPW_LINK_SUCCESS'
+export const USER_RESETPW_LINK_FAILURE = 'USER_RESETPW_LINK_FAILURE'
+
+// Send reset password link for user from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchSendResetPasswordLink(email, callback) {
+  let endpoint = `${API_URL_PREFIX}/users/${email}/resetpwlink`
+  return {
+    [FETCH_API]: {
+      types: [USER_RESETPW_LINK_REQUEST, USER_RESETPW_LINK_SUCCESS, USER_RESETPW_LINK_FAILURE],
+      endpoint,
+      options: {
+        method: 'PUT'
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+// Send reset password link for user from API
+// Relies on Redux Thunk middleware.
+export function sendResetPasswordLink(email, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchSendResetPasswordLink(email, callback))
+  }
+}
+
 export const USER_DELETE_REQUEST = 'USER_DELETE_REQUEST'
 export const USER_DELETE_SUCCESS = 'USER_DELETE_SUCCESS'
 export const USER_DELETE_FAILURE = 'USER_DELETE_FAILURE'

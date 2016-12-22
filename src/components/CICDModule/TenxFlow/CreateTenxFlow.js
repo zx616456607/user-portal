@@ -267,7 +267,7 @@ let CreateTenxFlow = React.createClass({
                 notification.error('资源存在冲突，无法创建')
                 break
               case 500:
-                notification.error('创建失败')
+                notification.error('创建 TenxFlow 失败')
                 break
               default:
                 notification.error(res.message.message)

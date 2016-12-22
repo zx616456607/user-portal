@@ -10,7 +10,7 @@
 import React, { Component, PropTypes } from 'react'
 import { Button, Tabs, Input, Icon, Modal, Upload, Dropdown, Form, Spin, message} from 'antd'
 import { connect } from 'react-redux'
-import { browserHistory } from 'react-router'
+import { browserHistory, Link } from 'react-router'
 import Authentication from './Authentication'
 import './style/UserInfo.less'
 import PhoneRow from './detail/PhoneRow'
@@ -143,7 +143,7 @@ class BaseInfo extends Component {
     const index = file.name.lastIndexOf('.')
     let fileName = file.name.substring(0, index)
     let ext = file.name.substring(index + 1)
-    const fileType = ['jpg', 'png', 'git']
+    const fileType = ['jpg', 'png', 'gif']
     const notification = new NotificationHandler()
     if (fileType.indexOf(ext) < 0) {
       notification.error('头像格式仅支持jpg/png/gif')
@@ -163,14 +163,14 @@ class BaseInfo extends Component {
     const filePath = this.uploadInstance.refs.upload.refs.inner.refs.file.value
     const reader = new FileReader()
     const dataUrl = reader.readAsDataURL(file)
-    reader.addEventListener("load", function () {
+    reader.addEventListener('load', function () {
       self.setState({
         filePath: filePath,
         file: file,
         fileName: fileName,
         userIconsrc: reader.result
       })
-    }, false);
+    }, false)
     return false
   }
   setUserIcon(icon) {
@@ -189,19 +189,19 @@ class BaseInfo extends Component {
   getCertStatus(status) {
     switch(status) {
       case 1: {
-        return '未认证'
+        return '待审核'
       }
       case 2: {
-        return '认证中'
+        return '审核中'
       }
       case 3: {
         return '认证失败'
       }
       case 4: {
-        return '认证通过'
+        return '认证成功'
       }
       default: {
-        return '点击认证'
+        return '未认证'
       }
     }
   }
@@ -223,7 +223,6 @@ class BaseInfo extends Component {
     const user = this.props.user.userInfo
     this.setState({
       file: '',
-      currentKey: key,
       userIconsrc: user.avatar,
       filePath: '',
       fileName: ''
@@ -276,7 +275,7 @@ class BaseInfo extends Component {
           <div className="to-recharge">
             <p className="money">{userDetail.balance / 100 }元</p>
             <p className="money-desc">我的帐户余额</p>
-            <Button type="primary">去充值</Button>
+            <Button type="primary"><Link to="/account/balance/payment">去充值</Link></Button>
           </div>
         </div>
         <div className="myInfo">

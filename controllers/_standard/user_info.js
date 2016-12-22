@@ -17,6 +17,7 @@ const qiniuAPI = require('../../store/qiniu_api')
 const redisClient = require('../../utils/redis').client
 const redisKeyPrefix = require('../../utils/redis').redisKeyPrefix
 const sendCaptchaToPhone = require('../../utils/captchaSms').sendCaptchaToPhone
+const emailUtil = require('../../utils/email')
 
 /*
 Get basic user info including user and certificate
@@ -157,6 +158,10 @@ exports.sendCaptcha = function* () {
     captchaSendFrequencePrefix: `${redisKeyPrefix.frequenceLimit}`
   }
   yield sendCaptchaToPhone(mobile, redisConf)
+
+  this.body = {
+    data: ''
+  }
 }
 
 function checkMobileCaptcha(user) {
@@ -185,4 +190,36 @@ function checkMobileCaptcha(user) {
       }
     })
   })
+}
+
+exports.sendResetPasswordLink = function* () {
+  const method = "sendResetPasswordLink"
+
+  const email = this.params.email
+  const spi = apiFactory.getSpi()
+  const result = yield spi.users.getBy([email, 'resetpwcode'])
+  const code = result.Code
+  const key = `${redisKeyPrefix.resetPassword}#${email}` 
+  yield new Promise((resolve, reject) => {
+    redisClient.set(key, code, 'EX',  24*60*60, (error) => {
+      if (error) {
+        logger.error(method, `set key(${key}) value($code) failed.`, error)
+        return reject('internal error')
+      }
+      resolve()
+    })
+  })
+
+  const link = `https://console.tenxcloud.com/users/${email}/resetpw?code=${encodeURIComponent(code)}`
+  try {
+    yield emailUtil.sendResetPasswordEmail(email, link)
+    this.body = {
+      data: {}
+    }
+  } catch (error) {
+    logger.error(method, "Send email error: ", error)
+    const err = new Error(error)
+    err.status = 500
+    throw err
+  }
 }

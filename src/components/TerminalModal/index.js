@@ -28,17 +28,34 @@ class TerminalModal extends Component {
     this.closeTerminal = this.closeTerminal.bind(this);
     this.state = {
       currentShow: null,
-      currentTab: null
+      currentTab: null,
+      terminalList: []
     }
   }
   
   componentWillMount() {
     //set first tab
-    const { config } = this.props;
+    let { config } = this.props;
+    const scope = this;
     let currentTab = config[0].metadata.name + '0';
+    config.map((item) => {
+      item.terminalStatus = 'connect'
+    })
     this.setState({
-      currentTab: currentTab
+      currentTab: currentTab,
+      terminalList: config
     });
+    window.webTerminalCallBack = function(name, status){
+      let { terminalList } = scope.state;
+      terminalList.map((item) => {
+        if(item.metadata.name == name) {
+          item.terminalStatus = status;
+        }
+      });
+      scope.setState({
+        terminalList: terminalList
+      })
+    }
   }
   
   componentDidMount() {
@@ -95,11 +112,16 @@ class TerminalModal extends Component {
         const { scope, config } = _this.props;
         config.map((item, index) => {
           let frameKey = item.metadata.name + index;
-          if(!!window.frames[frameKey].contentWindow) {          
-            window.frames[frameKey].contentWindow.closeTerminal();
-          } else {
-            window.frames[frameKey].closeTerminal()
+          if(item.terminalStatus == 'success') {     
+            if(!!window.frames[frameKey].contentWindow) {          
+              window.frames[frameKey].contentWindow.closeTerminal();
+            } else {
+              window.frames[frameKey].closeTerminal()
+            }
           }
+        })
+        _this.setState({
+          terminalList: []
         })
         scope.setState({
           TerminalLayoutModal: false,
@@ -114,6 +136,25 @@ class TerminalModal extends Component {
   
   componentWillReceiveProps(nextProps) {
     const { config } = nextProps;
+    const { terminalList } = this.state;
+    let newList = []
+    config.map((item) => {
+      let existFlag = false;
+      terminalList.map((oldItem) => {
+        if(item.metadata.name == oldItem.metadata.name) {
+          item.terminalStatus = oldItem.terminalStatus;
+          newList.push(item);
+          existFlag = true;
+        }
+      });
+      if(!existFlag) {
+        item.terminalStatus = 'connect';
+        newList.push(item);
+      }
+    })
+    this.setState({
+      terminalList: newList
+    })
     if(config.length > 0) { 
       let currentTab = config[config.length -1].metadata.name + (config.length - 1);
       this.setState({
@@ -163,11 +204,16 @@ class TerminalModal extends Component {
         scope.setState({
           currentContainer: newList
         });
+        _this.setState({
+          terminalList: newList
+        })
         let frameKey = config.metadata.name + index;
-        if(!!window.frames[frameKey].contentWindow) {          
-          window.frames[frameKey].contentWindow.closeTerminal();
-        } else {
-          window.frames[frameKey].closeTerminal()
+        if(config.terminalStatus == 'success') {          
+          if(!!window.frames[frameKey].contentWindow) {          
+            window.frames[frameKey].contentWindow.closeTerminal();
+          } else {
+            window.frames[frameKey].closeTerminal()
+          }
         }
         if(newList.length == 0) {
           scope.setState({
@@ -182,7 +228,8 @@ class TerminalModal extends Component {
   }
   
   render() {
-    const { scope, config } = this.props;
+    const { scope } = this.props;
+    let config = this.state.terminalList;
     const _this = this;
     const operaBox = (
       <div className='operaBox'>
@@ -206,8 +253,27 @@ class TerminalModal extends Component {
             )
             return (
               <TabPane tab={titleTab} key={item.metadata.name + index}>
-                <iframe id={item.metadata.name + index} 
-                  src={`/js/container_terminal.html?host=192.168.1.92&port=6443&namespace=${item.metadata.namespace}&pod=${item.metadata.name}`} />
+                <div>
+                  {
+                    item.terminalStatus == 'connect' ? [
+                      <div className='webLoadingBox' key={'webLoadingBox' + index}>
+                        <span className='terIcon'></span>
+                        <span className='terIcon'></span>
+                        <span className='terIcon'></span>
+                        <span>终端链接中...</span>
+                      </div>
+                    ] : null
+                  }
+                  <iframe id={item.metadata.name + index} key={'iframe' + index}
+                    src={`/js/container_terminal.html?host=192.168.1.92&port=6443&namespace=${item.metadata.namespace}&pod=${item.metadata.name}`} />                      
+                  {
+                    item.terminalStatus == 'timeout' ? [
+                      <div className='webLoadingBox' key={'webLoadingBox' + index}>
+                        <span>连接超时了</span>
+                      </div>
+                    ] : null
+                  }
+                </div>
               </TabPane>
             )
           })
