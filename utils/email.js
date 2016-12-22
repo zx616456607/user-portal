@@ -325,6 +325,32 @@ exports.sendChargeSuccessEmail = function (to, payMethod, payAmount, payBalance,
   })
 }
 
+exports.sendUserActivationEmail = function (to, userActivationURL) {
+  const method = "sendUserActivationEmail"
+
+  const subject = `时速云用户完成注册`
+  const systemEmail = config.mail_server.service_mail
+  const date = moment(new Date()).format("YYYY-MM-DD")
+  const loginURL = `http://www.tenxcloud.com`
+  var mailOptions = {
+    to: to, // list of receivers
+    subject: subject, // Subject line
+  }
+
+  fs.readFile('templates/email/user_activation.html', 'utf8', function (err, data) {
+    if (err) {
+      logger.error(method, err)
+      reject(err)
+    }
+    data = data.replace(/\${subject}/g, subject)
+    data = data.replace(/\${systemEmail}/g, systemEmail)
+    data = data.replace(/\${userActivationURL}/g, userActivationURL)
+    data = data.replace(/\${date}/g, date)
+    mailOptions.html = data
+    self.sendEmail(mailOptions)
+  });
+}
+
 /**
  * 将支付类型转换为文本
  *
@@ -341,4 +367,35 @@ function switchPayTypeToText(type) {
     default:
       return '其他方式'
   }
+}
+
+exports.getLoginURL = function(email) {
+  
+  if (typeof email !== 'string') {
+    return ''
+  }
+  const slice = email.split('@')
+  if (slice.length !== 2) {
+    return ''
+  }
+  const suffix = slice[1]
+  const convertMap = {
+    '126.com': 'mail.126.com',
+    '139.com': 'mail.10086.cn',
+    '163.com': 'mail.163.com',
+    '188.com': 'www.188.com',
+    '189.cn': 'webmail15.189.cn/webmail',
+    '21cn.com': 'mail.21cn.com',
+    'foxmail.com': 'mail.qq.com',
+    'gmail.com': 'gmail.com',
+    'hotmail.com': 'www.hotmail.com',
+    'sina.com': 'mail.sina.com.cn',
+    'sogou.com': 'mail.sogou.com',
+    'sohu.com': 'mail.sohu.com',
+    'tom.com': 'mail.tom.com',
+    'vip.163.com': 'vip.163.com',
+    'vip.sina.com': 'vip.sina.com',
+    'wo.com.cn': 'mail.wo.com.cn/smsmail',
+  }
+  return convertMap[suffix] || ''
 }

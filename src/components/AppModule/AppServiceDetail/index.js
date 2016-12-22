@@ -19,6 +19,7 @@ import PortDetail from './PortDetail'
 import AppUseful from './AppUseful'
 import AppServiceLog from './AppServiceLog'
 import AppServiceEvent from './AppServiceEvent'
+import AppServiceRental from './AppServiceRental'
 import ServiceMonitor from './ServiceMonitor'
 import AppAutoScale from './AppAutoScale'
 import { loadServiceDetail, loadServiceContainerList } from '../../../actions/services'
@@ -55,7 +56,7 @@ class AppServiceDetail extends Component {
     this.stopService = this.stopService.bind(this)
     this.closeTerminalLayoutModal = this.closeTerminalLayoutModal.bind(this)
     this.openTerminalModal = this.openTerminalModal.bind(this)
-    this.handleMenuShow = this.handleMenuShow.bind(this)
+    this.handleMenuDisabled = this.handleMenuDisabled.bind(this)
     this.state = {
       activeTabKey: props.selectTab || DEFAULT_TAB,
       TerminalLayoutModal: false,
@@ -175,11 +176,13 @@ class AppServiceDetail extends Component {
     funcs.confirmDeleteServices([service])
   }
 
-  handleMenuShow() {
+  handleMenuDisabled(key) {
     const { scope } = this.props
     const service = scope.state.currentShowInstance
     if (service.status) {
-      if (service.status.phase === 'Stopped') {
+      if (key === 'stop' && service.status.phase === 'Stopped') {
+        return true
+      } else if (key === 'restart' && service.status.phase === 'Running') {
         return true
       }
     }
@@ -204,21 +207,21 @@ class AppServiceDetail extends Component {
     const service = scope.state.currentShowInstance || serviceDetail
     service.status = getServiceStatusByContainers(service, containers)
     const operaMenu = (<Menu>
-      <Menu.Item key='0' disabled={this.handleMenuShow()}>
+      <Menu.Item key='restart' disabled={() => this.handleMenuDisabled('restart')}>
         <span onClick={() => this.restartService(service)}>重新部署</span>
       </Menu.Item>
-      <Menu.Item key='1' disabled={this.handleMenuShow()}>
+      <Menu.Item key='stop' disabled={() => this.handleMenuDisabled('stop')}>
         <span onClick={() => this.stopService(service)}>停止</span>
       </Menu.Item>
-      <Menu.Item key='2'>
+      <Menu.Item key='delete'>
         <span onClick={() => this.delteService(service)}>删除</span>
       </Menu.Item>
     </Menu>);
     const svcDomain = parseServiceDomain(service, this.props.bindingDomains)
     const { availableReplicas, replicas } = service.status
-    let containerShow = containers.map((item) => {
+    let containerShow = containers.map((item, index) => {
       return (
-        <div className={terminalSelectedCheck(item, parentScope.state.currentContainer) ? 'containerTerminalDetailSelected containerTerminalDetail' : 'containerTerminalDetail'}
+        <div key={`Popoverkey-`+index} className={terminalSelectedCheck(item, parentScope.state.currentContainer) ? 'containerTerminalDetailSelected containerTerminalDetail' : 'containerTerminalDetail'}
           onClick={this.openTerminalModal.bind(parentScope, item)}>
           <span>{item.metadata.name}</span>
         </div>
@@ -356,6 +359,9 @@ class AppServiceDetail extends Component {
               </TabPane>
               <TabPane tab='事件' key='#events'>
                 <AppServiceEvent serviceName={service.metadata.name} cluster={service.cluster} />
+              </TabPane>
+              <TabPane tab='租赁信息' key='#rentalInfo'>
+                <AppServiceRental serviceName={service.metadata.name} cluster={service.cluster} />
               </TabPane>
             </Tabs>
           </div>

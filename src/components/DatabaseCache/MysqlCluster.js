@@ -148,7 +148,12 @@ class MysqlCluster extends Component {
     });
   }
   handSearch(e) {
-    this.props.searchDbservice('mysql', e.target.value)
+    if (e) {
+      this.props.searchDbservice('mysql', e.target.value)
+      return
+    }
+    const names = this.refs.mysqlRef.refs.input.value
+    this.props.searchDbservice('mysql', names)
   }
 
   render() {
@@ -162,8 +167,8 @@ class MysqlCluster extends Component {
               <i className='fa fa-plus' />&nbsp;MySQL集群
           </Button>
             <span className='rightSearch'>
-              <Input size='large' placeholder='搜索' style={{ width: 200 }} onPressEnter={(e)=> this.handSearch(e)} />
-              <i className="fa fa-search" />
+              <Input size='large' placeholder='搜索' style={{ width: 200 }} ref="mysqlRef" onPressEnter={(e)=> this.handSearch(e)} />
+              <i className="fa fa-search cursor" onClick={()=> this.handSearch()}/>
             </span>
           </div>
           <MyComponent scope={parentScope} isFetching={isFetching} config={databaseList} />

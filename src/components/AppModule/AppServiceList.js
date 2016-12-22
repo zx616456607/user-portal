@@ -469,7 +469,6 @@ class AppServiceList extends Component {
     let checkedServiceList = serviceList.filter((service) => service.checked)
     let runningServices = []
     if (this.state.currentShowInstance) {
-
       checkedServiceList = [this.state.currentShowInstance]
     }
     checkedServiceList.map((service, index) => {
@@ -496,7 +495,7 @@ class AppServiceList extends Component {
       })
       let notification = new NotificationHandler()
       notification.error('请选择要停止的服务')
-      return 
+      return
     }
     stopServices(cluster, serviceNames, {
       success: {
@@ -808,12 +807,9 @@ class AppServiceList extends Component {
     }
     // currentShowInstance = checkedServiceList[0]
     const funcs = {
-      confirmRestartServices: this.confirmRestartServices,
-      confirmStopServices: this.confirmStopServices,
-      confirmDeleteServices: this.confirmDeleteServices,
-
       batchRestartService: this.batchRestartService,
       batchStopService: this.batchStopService,
+      confirmDeleteServices: this.confirmDeleteServices,
     }
     const operaMenu = (
       <Menu>

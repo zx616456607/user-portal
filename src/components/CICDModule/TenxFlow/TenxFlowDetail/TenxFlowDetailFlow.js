@@ -15,7 +15,7 @@ import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../constants'
 import { getTenxFlowStateList, getProjectList, searchProject, getAvailableImage } from '../../../../actions/cicd_flow'
-import { getDockerfileList, CreateTenxflowBuild, StopTenxflowBuild, changeSingleState } from '../../../../actions/cicd_flow'
+import { getDockerfileList, CreateTenxflowBuild, StopTenxflowBuild, changeSingleState, getTenxflowBuildLogs } from '../../../../actions/cicd_flow'
 import './style/TenxFlowDetailFlow.less'
 import CreateTenxFlowModal from './TenxFlowDetailFlow/CreateTenxFlowModal.js'
 import TenxFlowDetailFlowCard from './TenxFlowDetailFlow/TenxFlowDetailFlowCard.js'
@@ -111,7 +111,7 @@ class TenxFlowDetailFlow extends Component {
 
   componentWillReceiveProps(nextProps) {
     //this function for user click the top box and build all stages
-    const { startBuild, getTenxFlowStateList, flowId, CreateTenxflowBuild, scope, refreshFlag } = nextProps;
+    const { startBuild, getTenxFlowStateList, flowId, CreateTenxflowBuild, scope, refreshFlag, getTenxflowBuildLogs } = nextProps;
     let oldFlowId = this.props.flowId;
     let notification = new NotificationHandler()
     if (startBuild) {
@@ -121,7 +121,7 @@ class TenxFlowDetailFlow extends Component {
       CreateTenxflowBuild(flowId, {}, {
         success: {
           func: (res) => {
-
+            getTenxflowBuildLogs(flowId)
           },
           isAsync: true
         }
@@ -410,7 +410,8 @@ export default connect(mapStateToProps, {
   CreateTenxflowBuild,
   StopTenxflowBuild,
   getAvailableImage,
-  changeSingleState
+  changeSingleState,
+  getTenxflowBuildLogs
 })(injectIntl(TenxFlowDetailFlow, {
   withRef: true,
 }));

@@ -149,7 +149,12 @@ class RedisDatabase extends Component {
     });
   }
   handSearch(e) {
-    this.props.searchDbservice('redis', e.target.value)
+    if (e) {
+      this.props.searchDbservice('redis', e.target.value)
+      return
+    }
+    const names = this.refs.redisRef.refs.input.value
+    this.props.searchDbservice('redis', names)
   }
 
   render() {
@@ -163,8 +168,8 @@ class RedisDatabase extends Component {
               <i className='fa fa-plus' />&nbsp;Redis集群
           </Button>
             <span className='rightSearch'>
-              <Input size='large' placeholder='搜索' style={{ width: 200 }} onPressEnter={(e)=> this.handSearch(e)}/>
-              <i className="fa fa-search" />
+              <Input size='large' placeholder='搜索' style={{ width: 200 }} ref="redisRef" onPressEnter={(e)=> this.handSearch(e)}/>
+              <i className="fa fa-search cursor" onClick={()=> this.handSearch()} />
             </span>
           </div>
           <MyComponent scope={parentScope} isFetching={isFetching} config={databaseList} />

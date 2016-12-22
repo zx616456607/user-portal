@@ -14,7 +14,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { DEFAULT_REGISTRY } from '../../../../constants'
-import { getTenxFlowDetail, getTenxflowBuildLastLogs, getTenxFlowYAML } from '../../../../actions/cicd_flow'
+import { getTenxFlowDetail, getTenxflowBuildLastLogs, getTenxFlowYAML, deploymentLog, getTenxflowBuildLogs } from '../../../../actions/cicd_flow'
 import { checkImage } from '../../../../actions/app_center'
 import './style/TenxFlowDetail.less'
 import TenxFlowDetailAlert from './TenxFlowDetailAlert.js'
@@ -194,9 +194,9 @@ class TenxFlowDetail extends Component {
     })
   }
   handleChange(e) {
+    const {flowInfo, getTenxFlowYAML, deploymentLog, getTenxflowBuildLogs} = this.props
+    const _this = this
     if ('5' == e) {
-      const _this = this
-      const {flowInfo, getTenxFlowYAML} = this.props
       getTenxFlowYAML(flowInfo.flowId, {
         success: {
           func: (resp) => {
@@ -207,6 +207,10 @@ class TenxFlowDetail extends Component {
           isAsync: true
         }
       })
+    } else if ('3' == e) {
+      deploymentLog(flowInfo.flowId)
+    } else if ('2' == e) {
+      getTenxflowBuildLogs(flowInfo.flowId)
     }
   }
   goCheckImage(image) {
@@ -349,7 +353,9 @@ export default connect(mapStateToProps, {
   getTenxFlowYAML,
   getTenxFlowDetail,
   getTenxflowBuildLastLogs,
-  checkImage
+  checkImage,
+  deploymentLog,
+  getTenxflowBuildLogs
 })(injectIntl(TenxFlowDetail, {
   withRef: true,
 }));

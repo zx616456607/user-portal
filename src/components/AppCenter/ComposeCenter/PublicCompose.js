@@ -172,8 +172,6 @@ class PublicCompose extends Component {
             </div>
           } />
           <Card className="PublicComposeCard">
-            <div className="operaBox">
-            </div>
             <div className="titleBox">
               <div className="name">
                 <FormattedMessage {...menusText.name} />
