@@ -15,12 +15,14 @@ import Person from './Person'
 import Company from './Company'
 import AccountType from './AccountType'
 import SuccessRegister from './SuccessRegister'
+import ResetPassWord from './ResetPassWord'
 
 
 class Register extends Component{
   constructor(props){
     super(props)
     this.handlePageChange = this.handlePageChange.bind(this)
+    this.renderRegisterPage = this.renderRegisterPage.bind(this)
 
     this.state = {
       registerPageShow: true,
@@ -39,12 +41,34 @@ class Register extends Component{
       })
     }
   }
+  renderRegisterPage(email,reset){
+    const { registerPageShow, registerShow } = this.state
+    if (email && !reset) {
+      return (
+        <SuccessRegister email={email} />
+      )
+    }
+    if (reset) {
+      return (
+        <ResetPassWord email={email}/>
+      )
+    }
+    return (
+      <QueueAnim component="div"
+                  type={this.state.person?['left']:['right']}
+                  ease={['easeOutQuart', 'easeInOutQuart']}
+                  key='register'>
+        {registerPageShow ? registerPage : null}
+        {registerShow ? register : null}
+      </QueueAnim>
+    )
+  }
   componentWillMount(){
     
 
   }
   render(){
-    const {email} = this.props
+    const {email, resetpassword} = this.props
     let register = (
       <div key='b' id='RegisterPage'>
         <div className='register' style={{width:'40%'}}>
@@ -74,23 +98,16 @@ class Register extends Component{
     )
 
     return (
-        email ?
-        <SuccessRegister email={email}/> :
-        <QueueAnim component="div"
-                  type={this.state.person?['left']:['right']}
-                  ease={['easeOutQuart', 'easeInOutQuart']}
-                  key='register'>
-            {this.state.registerPageShow ? registerPage : null}
-            {this.state.registerShow ? register : null}
-        </QueueAnim>
+      this.renderRegisterPage(email,resetpassword,register,registerPage)
     )
   }
 }
 function mapStateToProps (state,props) {
   console.log('props',props)
-  let {email} = props.location.query
+  let {email, resetpassword} = props.location.query
   return {
     email,
+    resetpassword,
   }
 }
 Register = connect(mapStateToProps, {

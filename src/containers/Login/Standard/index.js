@@ -9,13 +9,14 @@
  * @author Zhangpc
  */
 import React, { PropTypes } from 'react'
-import { Button, Form, Input, Card, Tooltip, message, Alert, Col, Row } from 'antd'
+import { Button, Form, Input, Card, Tooltip, message, Alert, Col, Row, } from 'antd'
 import './style/Login.less'
 import { verifyCaptcha, login } from '../../../actions/entities'
 import { connect } from 'react-redux'
 import { USERNAME_REG_EXP, EMAIL_REG_EXP } from '../../../constants'
 import { browserHistory } from 'react-router'
 import { genRandomString } from '../../../common/tools'
+import { Link } from 'react-router'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -320,11 +321,36 @@ let Login = React.createClass({
                 </Button>
               </FormItem>
             </Form>
+            <div className='logInFooter'>
+              <div className='footerTip'>
+                <div className='toRegister'>
+                  <span>*&nbsp;还没有时速云账户?</span>
+                  <Link to='/register'>立即注册</Link>
+                </div>
+                <div className='toReset'>
+                  <Link to='/register?resetpassword=1'>忘记密码</Link>
+                </div>
+              </div>
+              <div className='moreMethod'>
+                <div className='methodTitle'>
+                  <div className='line'></div>
+                  <div className='methodText'>更多登录方式</div>
+                  <div className='line'></div>
+                </div>
+                <div className="methodIcon">
+                  <Tooltip title='即将开放'>
+                    <div className='weixin'>
+                      <img src='/img/loginMethodWeixin.png'/>
+                    </div>
+                  </Tooltip>
+                </div>
+              </div>
+            </div>
           </Card>
         </div>
         <div className="footer">
           © 2016 时速云 标准版 v2.0
-          </div>
+        </div>
       </div>
     )
   }
