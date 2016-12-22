@@ -155,6 +155,10 @@ exports.getAuthRedirectUrl = function* () {
   const loginUser = this.session.loginUser
   const repoType = this.params.type
   const api = apiFactory.getDevOpsApi(loginUser)
+  if ('github' == repoType) {
+    // console.info('save space:', this.session.loginUser.teamspace)
+    this.session.authRepoInSpace = this.session.loginUser.teamspace
+  }
   const result = yield api.getBy(["repos", repoType, "auth"], null)
   
   this.body = {
@@ -165,6 +169,10 @@ exports.getAuthRedirectUrl = function* () {
 exports.doUserAuthorization = function* () {
   const method = "doUserAuthorization"
   const loginUser = this.session.loginUser
+  // console.info('saved space:', this.session.authRepoInSpace)
+  if (this.session.authRepoInSpace) {
+    this.session.loginUser.teamspace = this.session.authRepoInSpace
+  }
   var type = this.params.type
   if (!type) {
     this.status = 400
