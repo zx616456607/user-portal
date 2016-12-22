@@ -160,12 +160,12 @@ let PasswordRow = React.createClass({
           }
         },
         failed: {
-          func: () => {
+          func: (result) => {
             notification.close()
+            notification.error(result.message)
           }
         }
       })
-
     })
   },
   render() {

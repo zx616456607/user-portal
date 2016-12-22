@@ -11,6 +11,8 @@
  */
 'use strict'
 const env = process.env
+const node_env = require('../').node_env
+const port = require('../').port
 
 const config = {
   tenxSysSign: {
@@ -22,6 +24,13 @@ const config = {
     account: env.USERPORTAL_IHUYI_ACCOUNT || 'cf_huangqg',
     apiKey: env.USERPORTAL_IHUYI_APIKEY || '9611f970a6075b81becfdadf593882f5',
   },
+  host: 'https://console.tenxcloud.com',
+}
+
+if (node_env === 'staging') {
+  config.host = 'http://v2-api.tenxcloud.com'
+} else if (node_env === 'development') {
+  config.host = `http://localhost:${port}`
 }
 
 module.exports = config

@@ -23,6 +23,37 @@ let EnterpriseComponse = React.createClass({
       disabled: true
     }
   },
+  componentWillMount() {
+    const config = this.props.config
+    if(!config) return
+
+    const userLicense = {
+      uid: -1,
+      name: '',
+      status: 'done',
+      url: config.enterpriseCertPic,
+      thumbUrl: config.enterpriseCertPic
+    }
+    const userFrontId = {
+      uid: -1,
+      name: '',
+      status: 'done',
+      url: config.userHoldPic,
+      thumbUrl: config.userScanPic
+    }
+    const backId = {
+      uid: -1,
+      name: '',
+      status: 'done',
+      url: config.userScanPic,
+      thumbUrl: config.userScanPic
+    }
+    this.setState({
+      backId,
+      userFrontId,
+      userLicense,
+    })
+  },
   componentDidMount() {
     if (this.props.scope.state.enterpriseDisabled) {
       this.setState({disabled: true})
@@ -31,7 +62,6 @@ let EnterpriseComponse = React.createClass({
   componentWillReceiveProps(nextProps) {
     if(nextProps.config) {
       const config = nextProps.config
-    
       const userLicense = {
           uid: -1,
           name: '',
@@ -44,7 +74,7 @@ let EnterpriseComponse = React.createClass({
           name: '',
           status: 'done',
           url: config.userHoldPic,
-          thumbUrl: config.userScanPic
+          thumbUrl: config.userHoldPic
       }
       const backId = {
           uid: -1,
@@ -76,9 +106,7 @@ let EnterpriseComponse = React.createClass({
           })
         }
       }
-
     }
-
   },
   idCard(rule, values, callback) {
     const message = IDValide(values)
@@ -123,9 +151,8 @@ let EnterpriseComponse = React.createClass({
   beforeUpload(file, type) {
     const self = this
     const index = file.name.lastIndexOf('.')
-    let fileName = file.name.substring(0, index)
     let ext = file.name.substring(index + 1)
-    fileName = fileName + (new Date() - 0) + '.' + ext
+    let fileName = this.props.namespace + (new Date() - 0) + '.' + ext
     this.props.scope.props.getQiNiuToken('certificate', fileName, {
       success: {
         func: (result)=> {
@@ -310,7 +337,7 @@ let EnterpriseComponse = React.createClass({
               <span className="key">营业执照扫描件 <span className="important">*</span></span>
               <div className="upload">
                 
-                <Upload listType="picture-card" fileList={userLicense} beforeUpload={(file) => 
+                <Upload listType="picture-card" fileList={userLicense} accept="image/*" beforeUpload={(file) => 
                   this.beforeUpload(file, 'userLicense') 
                 } customRequest={() => true }  onRemove={() => this.removeFile('userLicense')} disabled={ userLicense ? true : false}>
                   <Icon type="plus" />
@@ -353,7 +380,7 @@ let EnterpriseComponse = React.createClass({
               <span className="key">负责人身份证正面扫描 <span className="important">*</span></span>
               <div className="upload">
             
-                <Upload listType="picture-card" fileList={frontId} beforeUpload={(file) => 
+                <Upload listType="picture-card" accept="image/*" fileList={frontId} beforeUpload={(file) => 
                   this.beforeUpload(file, 'frontId') 
                 } customRequest={() => true }  onRemove={() => this.removeFile('frontId')} disabled={ frontId ? true : false}>
                   <Icon type="plus" />
@@ -371,7 +398,7 @@ let EnterpriseComponse = React.createClass({
               <span className="key">负责人身份证反面扫描 <span className="important">*</span></span>
               <div className="upload">
                
-                <Upload listType="picture-card" fileList={backId} beforeUpload={(file) => 
+                <Upload listType="picture-card" accept="image/*" fileList={backId} beforeUpload={(file) => 
                   this.beforeUpload(file, 'backId') 
                 } customRequest={() => true }  onRemove={() => this.removeFile('backId')}  disabled={ backId ? true : false}>
                   <Icon type="plus" />

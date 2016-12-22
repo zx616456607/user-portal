@@ -55,6 +55,34 @@ class Indivduals extends Component {
       isFail: false
     }
   }
+  componentWillMount() {
+    const config = this.props.config
+    if(config && config.userScanPic) {
+      this.setState({
+        userHold: {
+          uid: -1,
+          name: '',
+          status: 'done',
+          url: config.userHoldPic,
+          thumbUrl: config.userHoldPic
+        },
+        userScan: {
+          uid: -1,
+          name: '',
+          status: 'done',
+          url: config.userScanPic,
+          thumbUrl: config.userScanPic
+        },
+        isAllDisable: true,
+        canUpdate: true
+      })
+      if(config.status == 2 || config.status == 4) {
+       this.setState({
+          canChange: false
+       })
+     }
+    }
+  }
   componentWillReceiveProps(nextProps) {
     if(nextProps.config) {
       const config = nextProps.config
@@ -84,17 +112,17 @@ class Indivduals extends Component {
             canChange: false
           })
         }
-      } else {
-        if(userHold.url !== this.props.config.userHoldPic) {
-          this.setState({
-            userHold
-          })
-        }
-        if(userScan.url !== this.props.config.userScanPic) {
-          this.setState({
-            userScan
-          })
-        }
+        return
+      }
+      if (this.props.config.userHoldPic != userHold.url) {
+        this.setState({
+          userHold
+        })
+      }
+      if (this.props.config.userScanPic != userScan.url) {
+        this.setState({
+          userScanPic
+        })
       }
     }
   }
@@ -117,9 +145,8 @@ class Indivduals extends Component {
   beforeUpload(file, type) {
     const self = this
     const index = file.name.lastIndexOf('.')
-    let fileName = file.name.substring(0, index)
     let ext = file.name.substring(index + 1)
-    fileName = fileName + (new Date() - 0) + '.' + ext
+    let fileName = this.props.namespace + (new Date() - 0) + '.' + ext
     this.props.getQiNiuToken('certificate', fileName, {
       success: {
         func: (result)=> {
@@ -288,7 +315,7 @@ class Indivduals extends Component {
       initialValue: individualCert.certUserID
     })
     return (
-      <Form form={this.props.form}>
+      <Form >
       <div className="Indivduals">
         <div className="description">个人用户通过个人认证可获得5元代金券，请按照提示填写本人的真实照片</div>
         <div className="auth-status">
@@ -314,7 +341,7 @@ class Indivduals extends Component {
             <div className="list">
               <span className="key">手持身份证照片 <span className="important">*</span></span>
               <div className="upload">
-                <Upload listType="picture-card" fileList={hold} beforeUpload={(file) => 
+                <Upload listType="picture-card" accept="image/*" fileList={hold} beforeUpload={(file) => 
                   this.beforeUpload(file, 'hold') 
                 } customRequest={() => true } onRemove={() => this.removeFile('hold')} disabled={ hold || isAllDisable ? true : false}>
                   <Icon type="plus" />
@@ -333,7 +360,7 @@ class Indivduals extends Component {
               <div className="upload">
                 <Upload listType="picture-card" fileList={scan} disabled={ scan || isAllDisable ? true : false } beforeUpload={ (file) => 
                  this.beforeUpload(file, 'scan')
-                } onRemove={() => this.removeFile('scan')}>
+                } onRemove={() => this.removeFile('scan')} accept="image/*">
                   <Icon type="plus" />
                   <div className="ant-upload-text">上传照片</div>
                 </Upload>
@@ -359,16 +386,13 @@ class Indivduals extends Component {
           <div>电话：<a>400-626-1876</a> 邮箱： <a href="mailto:service@tenxcloud.com">service@tenxcloud.com</a></div>
         </Modal>
     </Form>
-        
     )
   }
 }
 
 function indivdualsMapStateToProp(state, props) {
-  const { userCertificate } = state.user
-  const { certificate } = userCertificate || {}
   return {
-    certificate
+    namespace: state.entities.loginUser.info.namespace
   }
 }
 Indivduals = Form.create()(Indivduals)
@@ -384,13 +408,25 @@ class Enterprise extends Component {
   constructor(props) {
     super(props)
     this.state = {
-       trytype: 2,
+       trytype: '2',
        otherDisabled: false,
        enterpriseDisabled: false
     }
   }
+  componentWillMount() {
+    if (!this.props.config) return
+    this.setState({
+      trytype: this.props.config.certType.toString()
+    })
+  }
   changeType(e) {
     this.setState({trytype: e})
+  }
+  componentWillReceiveProps(nextProps){
+    if(!nextProps.config) return
+    this.setState({
+      trytype: nextProps.config.certType.toString()
+    })
   }
   //  失败原因
   failureMessage(message) {
@@ -407,24 +443,27 @@ class Enterprise extends Component {
   restorePush() {
     if (this.props.config.certType =='2') {
        this.setState({
-         trytype: 2,
+         trytype: '2',
          enterpriseDisabled: true
         })
        return
     }
     this.setState({
-      trytype: 3,
+      trytype: '3',
       otherDisabled: true
     })
   }
   render() {
+    let certType =''
+    if(this.props.config) {
+      certType = this.props.config.certType.toString()
+    }
     const enterprise = (
-      <div><Radio value="2" checked ={this.state.trytype =='2' ? true : false}></Radio> 企业</div>
+      <div><Radio value="2" checked ={this.state.trytype =='2' ? true : false} disabled={certType =='3' ? true : false}></Radio> 企业</div>
     )
     const otherwise = (
-      <div><Radio value="3" checked ={this.state.trytype =='3' ? true : false}></Radio>其他组织</div>
+      <div><Radio value="3" checked ={this.state.trytype =='3' ? true : false} disabled={certType =='2' ? true : false}></Radio>其他组织</div>
     )
-    const componstData = this.props.config && this.props.config.certType == '3' ? [this.props.config] :null
     const componstStatus = this.props.config ? this.props.config.status :'0'
     const errMessage = this.props.config && this.props.config.failureMessage !='' ? this.props.config.failureMessage : []
     return (
@@ -442,8 +481,8 @@ class Enterprise extends Component {
         
         <Tabs defaultActiveKey={this.state.trytype} type="card"  onChange={(e)=> this.changeType(e)}>
           <TabPane tab="请选择组织类型" key="4" disabled ></TabPane>
-          <TabPane tab={ enterprise } key={2}><EnterpriseComponse config={ this.props.config } scope={this} /></TabPane>
-          <TabPane tab={ otherwise } key={3}><OtherComponse config={ componstData } scope={this}/></TabPane>
+          <TabPane tab={ enterprise } key="2" disabled={certType =='3' ? true : false}><EnterpriseComponse config={ this.props.config } scope={this} namespace={this.props.namespace}/></TabPane>
+          <TabPane tab={ otherwise } key="3"  disabled={certType =='2' ? true : false}><OtherComponse config={ this.props.config } scope={this} namespace={this.props.namespace}/></TabPane>
         </Tabs>
         <Modal title="抱歉您的本次认证未通过审核，具体原因如下" visible={this.state.failureMessage} wrapClassName="vertical-center-modal errorAuth"
           onOk={()=> this.restorePush()} onCancel={()=>this.setState({failureMessage: false})} okText="重新输入">
@@ -488,6 +527,8 @@ class Authentication extends Component {
      })
   }
   tabClick(e) {
+    let { certificate} = this.props
+    if((certificate.enterprise || certificate.other) && !certificate.individual) return
     let hash = '#cert-company'
     if(e === '2') {
       hash = '#cert-user'
@@ -513,11 +554,14 @@ class Authentication extends Component {
     if (!certificate) {
       certificate = {}
     }
+    if((certificate.enterprise || certificate.other) && !certificate.individual) {
+      activeKey = '1'
+    }
     return (
       <div className="Authentication" >
         <Tabs  type="card" activeKey={activeKey} onTabClick={(e) => this.tabClick(e)}> 
-          <TabPane tab="企业用户" key="1"><Enterprise config={certificate.enterprise} scope={this}/></TabPane>
-          <TabPane tab="个人用户" key="2"><Indivduals config={certificate.individual} scope={this}/></TabPane>
+          <TabPane tab="企业用户" key="1"><Enterprise hash={hash} config={certificate.enterprise || certificate.other} scope={this} namespace={this.props.namespace}/></TabPane>
+          <TabPane tab="个人用户" key="2"><Indivduals hash={hash} config={certificate.individual} scope={this}/></TabPane>
         </Tabs>
       </div>
     )
@@ -531,7 +575,8 @@ function mapStateToProps(state, props) {
 
   const { certificate }  = userCertificate || {}
   return {
-    certificate
+    certificate,
+    namespace: state.entities.loginUser.info.namespace
   }
 }
 
