@@ -11,9 +11,10 @@ import React, { Component } from 'react'
 import { Tabs, Button, Form, Input, Card, Tooltip, message, Alert, Col, Row, Radio } from 'antd'
 import { connect } from 'react-redux'
 import './style/Company.less'
-import { registerUser } from '../../actions/user'
+import { registerUser, sendRegisterPhoneCaptcha } from '../../actions/user'
 import { browserHistory } from 'react-router'
 import { USERNAME_REG_EXP, EMAIL_REG_EXP } from '../../constants'
+import NotificationHandler from '../../common/notification_handler'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -84,7 +85,25 @@ let Company = React.createClass({
         },
         failed: {
           func: (err) => {
-            let msg = err.message.message || err.message
+            let dupItems = ''
+            if (err.statusCode === 409 && Array.isArray(err.message.data) && err.message.data.length > 0) {
+              err.message.data.map((item) => {
+                switch(item) {
+                case 'username':
+                  dupItems += '用户名 '
+                  break;
+                case 'email':
+                  dupItems += '邮箱 '
+                  break;
+                case 'phone':
+                  dupItems += '手机号 '
+                  break;
+                }
+              })
+            }
+            dupItems = dupItems ? dupItems + '已被占用' : ''
+            let msg = dupItems || err.message.message || err.message
+            let notification = new NotificationHandler()
             self.setState({
               submitting: false,
               loginResult: {
@@ -92,6 +111,7 @@ let Company = React.createClass({
               },
               submitProps: {},
             })
+            notification.error(`注册失败`, msg)
           },
           isAsync: true
         },
@@ -178,6 +198,33 @@ let Company = React.createClass({
       })
       clearInterval(time)
     },1000)
+
+    // send captcha
+    const { validateFields } = this.props.form
+    validateFields((err, values) => {
+      if (err) {
+        return
+      }
+      const phone = values.tel
+      if (!phone) {
+        return
+      }
+      this.props.sendRegisterPhoneCaptcha(phone, {
+        success: {
+          func: () => {
+            let notification = new NotificationHandler()
+            notification.success(`发送邀请码成功`)
+          },
+          isAsync: true
+        },
+        failed: {
+          func: (err) => {
+            let notification = new NotificationHandler()
+            notification.error(`发送邀请码失败`, err.message)
+          }
+        }
+      })
+    })
   },
   //失去输入框焦点
   intOnBlur(current) {
@@ -464,9 +511,9 @@ let Company = React.createClass({
             className="formItemName"
             style={{borderTop:'1px dashed #d5d5d5',paddingTop:15}}
           >
-            <RadioGroup {...getFieldProps('certType', { initialValue: '2' ,onChange: this.handleCertTypeChange})}>
-              <Radio value="2">企业单位</Radio>
-              <Radio value="3">组织机构</Radio>
+            <RadioGroup {...getFieldProps('certType', { initialValue: 2 ,onChange: this.handleCertTypeChange})}>
+              <Radio value={2}>企业单位</Radio>
+              <Radio value={3}>组织机构</Radio>
             </RadioGroup>
           </FormItem>
           {/*单位名称*/}
@@ -542,6 +589,7 @@ function mapStateToProps(state,props) {
 }
 Company = connect(mapStateToProps,{
   registerUser,
+  sendRegisterPhoneCaptcha,
 })(Company)
 
 export default Company
