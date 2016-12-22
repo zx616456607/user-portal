@@ -13,6 +13,7 @@ import { Button, Form, Input, Card, Tooltip, message, Alert, Col, Row } from 'an
 import { connect } from 'react-redux'
 import { USERNAME_REG_EXP, EMAIL_REG_EXP } from '../../../constants'
 import { browserHistory } from 'react-router'
+import NotificationHandler from '../../../common/notification_handler'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -77,7 +78,25 @@ let NotLogUser = React.createClass({
         },
         failed: {
           func: (err) => {
-            let msg = err.message.message || err.message
+            let dupItems = ''
+            if (err.statusCode === 409 && Array.isArray(err.message.data) && err.message.data.length > 0) {
+              err.message.data.map((item) => {
+                switch(item) {
+                case 'username':
+                  dupItems += '用户名 '
+                  break;
+                case 'email':
+                  dupItems += '邮箱 '
+                  break;
+                case 'phone':
+                  dupItems += '手机号 '
+                  break;
+                }
+              })
+            }
+            dupItems = dupItems ? dupItems + '已被占用' : ''
+            let msg = dupItems || err.message.message || err.message
+            let notification = new NotificationHandler()
             self.setState({
               submitting: false,
               loginResult: {
@@ -85,6 +104,7 @@ let NotLogUser = React.createClass({
               },
               submitProps: {},
             })
+            notification.error(`注册并加入团队失败`, msg)
           },
           isAsync: true
         },
@@ -160,6 +180,7 @@ let NotLogUser = React.createClass({
     // send captcha
     const { validateFields } = this.props.form
     validateFields((err, values) => {
+      console.log('valuesvalues', values)
       if (err) {
         return
       }
@@ -167,7 +188,21 @@ let NotLogUser = React.createClass({
       if (!phone) {
         return
       }
-      this.props.sendRegisterPhoneCaptcha(phone)
+      this.props.sendRegisterPhoneCaptcha(phone, {
+        success: {
+          func: () => {
+            let notification = new NotificationHandler()
+            notification.success(`发送邀请码成功`)
+          },
+          isAsync: true
+        },
+        failed: {
+          func: (err) => {
+            let notification = new NotificationHandler()
+            notification.error(`发送邀请码失败`, err.message)
+          }
+        }
+      })
     })
   },
   intOnBlur(current) {

@@ -28,13 +28,13 @@ const FormItem = Form.Item
 function formetStatus(status) {
   switch(status) {
     case 1:
-      return <Button>待审核</Button>;
+      return <Button className="btn-auth">待审核</Button>;
     case 2:
-      return <Button size="small" className="TrustCenter">审核中</Button>;
+      return <Button type="primary">审核中</Button>;
     case 3:
-      return <Button size="small" className="btn-error">认证失败</Button>;
+      return <Button className="btn-error" onClick={()=>this.setState({errMessage:true})}>认证失败</Button>;
     case 4:
-      return <Button size="small" type="primary" >认证通过</Button>;
+      return <Button type="primary" >认证通过</Button>;
     default:
       return <Button>未认证</Button>;
   }
@@ -53,6 +53,34 @@ class Indivduals extends Component {
       canUpdate: false,
       canChange: true,
       isFail: false
+    }
+  }
+  componentWillMount() {
+    const config = this.props.config
+    if(config && config.userScanPic) {
+      this.setState({
+        userHold: {
+          uid: -1,
+          name: '',
+          status: 'done',
+          url: config.userHoldPic,
+          thumbUrl: config.userHoldPic
+        },
+        userScan: {
+          uid: -1,
+          name: '',
+          status: 'done',
+          url: config.userScanPic,
+          thumbUrl: config.userScanPic
+        },
+        isAllDisable: true,
+        canUpdate: true
+      })
+      if(config.status == 2 || config.status == 4) {
+       this.setState({
+          canChange: false
+       })
+     }
     }
   }
   componentWillReceiveProps(nextProps) {
@@ -82,17 +110,6 @@ class Indivduals extends Component {
         if(config.status == 2 || config.status == 4) {
           this.setState({
             canChange: false
-          })
-        }
-      } else {
-        if(userHold.url !== this.props.config.userHoldPic) {
-          this.setState({
-            userHold
-          })
-        }
-        if(userScan.url !== this.props.config.userScanPic) {
-          this.setState({
-            userScan
           })
         }
       }
@@ -288,7 +305,7 @@ class Indivduals extends Component {
       initialValue: individualCert.certUserID
     })
     return (
-      <Form form={this.props.form}>
+      <Form >
       <div className="Indivduals">
         <div className="description">个人用户通过个人认证可获得5元代金券，请按照提示填写本人的真实照片</div>
         <div className="auth-status">
@@ -359,17 +376,12 @@ class Indivduals extends Component {
           <div>电话：<a>400-626-1876</a> 邮箱： <a href="mailto:service@tenxcloud.com">service@tenxcloud.com</a></div>
         </Modal>
     </Form>
-        
     )
   }
 }
 
 function indivdualsMapStateToProp(state, props) {
-  const { userCertificate } = state.user
-  const { certificate } = userCertificate || {}
-  return {
-    certificate
-  }
+  return props
 }
 Indivduals = Form.create()(Indivduals)
 Indivduals = connect(indivdualsMapStateToProp, {
@@ -384,13 +396,39 @@ class Enterprise extends Component {
   constructor(props) {
     super(props)
     this.state = {
-       trytype: 2
+       trytype: '2',
+       otherDisabled: false,
+       enterpriseDisabled: false
     }
   }
   changeType(e) {
     this.setState({trytype: e})
   }
-
+  //  失败原因
+  failureMessage(message) {
+    let errMessage = message
+    if (message !== ' ' && message.length >0) {
+      errMessage = message.map((list, index) => {
+        return (
+          <p>{index +1} .{ list } <Icon type="exclamation-circle-o" /></p>
+        )
+      })
+    }
+    return errMessage
+  }
+  restorePush() {
+    if (this.props.config.certType =='2') {
+       this.setState({
+         trytype: '2',
+         enterpriseDisabled: true
+        })
+       return
+    }
+    this.setState({
+      trytype: '3',
+      otherDisabled: true
+    })
+  }
   render() {
     const enterprise = (
       <div><Radio value="2" checked ={this.state.trytype =='2' ? true : false}></Radio> 企业</div>
@@ -400,6 +438,7 @@ class Enterprise extends Component {
     )
     const componstData = this.props.config && this.props.config.certType == '3' ? [this.props.config] :null
     const componstStatus = this.props.config ? this.props.config.status :'0'
+    const errMessage = this.props.config && this.props.config.failureMessage !='' ? this.props.config.failureMessage : []
     return (
       <div className="Indivduals">
         <div className="description">企业用户通过企业认证可获得50元代金券，认证的企业用户的资源配额拥有比未认证的用户更高的配额。请根据您的组织类型选择类型选择认证，企业指领取营业执照的有限责任公司、股份有限公司、非公司企业法人、合伙企业、个人独资企业及其分支机构、来华从事经营的外国（地区）企业，及其他经营单位；其他组歌指在中华人民共和国境内依法注册、依法登记的机关、事业单位、社会团体、学校和民办非企业单位和其他机构。</div>
@@ -407,15 +446,22 @@ class Enterprise extends Component {
           <svg className="auth-img"><use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#auth-img2"></use></svg>
           <span className="auth-text">企业认证</span>
           {formetStatus(componstStatus)} {/* status */}
+          {componstStatus == '3'?
+          <Icon type="exclamation-circle-o" style={{color:'red'}}/>
+          :null
+          }
         </div>
         
-        <Tabs defaultActiveKey="2" type="card" id="sfdsf8888"  onChange={(e)=> this.changeType(e)} value={this.state.trytype}>
+        <Tabs defaultActiveKey={this.state.trytype} type="card"  onChange={(e)=> this.changeType(e)}>
           <TabPane tab="请选择组织类型" key="4" disabled ></TabPane>
           <TabPane tab={ enterprise } key="2"><EnterpriseComponse config={ this.props.config } scope={this} /></TabPane>
           <TabPane tab={ otherwise } key="3"><OtherComponse config={ componstData } scope={this}/></TabPane>
         </Tabs>
-        <Modal title="抱歉您的本次认证未通过审核，具体原因如下" visible={false}
-          onOk={this.restore} onCancel={this.handleCancel} okText="重新输入">
+        <Modal title="抱歉您的本次认证未通过审核，具体原因如下" visible={this.state.failureMessage} wrapClassName="vertical-center-modal errorAuth"
+          onOk={()=> this.restorePush()} onCancel={()=>this.setState({failureMessage: false})} okText="重新输入">
+          <div className="wrapBox">
+            { this.failureMessage( errMessage ) }
+          </div>
 
           <p className="blod">请您 “重新输入”以上认证信息，重新认证</p>
           <div>如有任何疑问，请您与时速云团队联系</div>
@@ -427,6 +473,13 @@ class Enterprise extends Component {
   }
 }
 
+function mapStateToProps(state, props) {
+  return {}
+}
+
+Enterprise =  connect(mapStateToProps, {
+  getQiNiuToken
+})(Enterprise)
 
 class Authentication extends Component {
   constructor(props) {
@@ -472,11 +525,14 @@ class Authentication extends Component {
     if (!certificate) {
       certificate = {}
     }
+    if(certificate.enterprise && !certificate.individual) {
+      activeKey = '1'
+    }
     return (
       <div className="Authentication" >
         <Tabs  type="card" activeKey={activeKey} onTabClick={(e) => this.tabClick(e)}> 
-          <TabPane tab="企业用户" key="1"><Enterprise config={certificate.enterprise} scope={this}/></TabPane>
-          <TabPane tab="个人用户" key="2"><Indivduals config={certificate.individual} scope={this}/></TabPane>
+          <TabPane tab="企业用户" key="1"><Enterprise hash={hash} config={certificate.enterprise} scope={this}/></TabPane>
+          <TabPane tab="个人用户" key="2"><Indivduals hash={hash} config={certificate.individual} scope={this}/></TabPane>
         </Tabs>
       </div>
     )
@@ -497,5 +553,6 @@ function mapStateToProps(state, props) {
 export default connect(mapStateToProps, {
   getQiNiuToken,
   createCertInfo,
+  updateCertInfo,
   loadStandardUserCertificate
 })(Authentication)

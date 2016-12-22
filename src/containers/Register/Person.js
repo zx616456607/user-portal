@@ -405,17 +405,18 @@ let Person = React.createClass({
                        onFocus={this.intOnFocus.bind(this, 'check')}
                        ref="intCheck"
                        style={{ height: 35 }} />
+                {/*验证码按钮*/}
+                <Tooltip placement="top" title="点击重新发送">
+                  <Button className="captchaBtn"
+                          onClick={this.changeCaptcha}
+                          type="primary"
+                          loading={this.state.captchaLoading}
+                  >
+                    {this.state.countDownTimeText}
+                  </Button>
+                </Tooltip>
               </FormItem>
-              {/*验证码按钮*/}
-              <Tooltip placement="top" title="点击重新发送">
-                <Button className="captchaBtn"
-                        onClick={this.changeCaptcha}
-                        type="primary"
-                        loading={this.state.captchaLoading}
-                >
-                  {this.state.countDownTimeText}
-                </Button>
-              </Tooltip>
+              
               {/*注册按钮*/}
               <FormItem wrapperCol={{ span: 24, }}>
                 <Button

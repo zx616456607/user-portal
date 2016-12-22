@@ -179,7 +179,7 @@ function fetchChargeRecord(teamspace) {
   if (!teamspace) {
     teamspace = 'default'
   }
-  const endpoint = `${API_URL_PREFIX}/consumptions/charge-history?size=100`
+  const endpoint = `${API_URL_PREFIX}/consumptions/charge-history?size=30`
   return {
     [FETCH_API]: {
       types: [CONSUMPTION_GET_CHARGE_RECORD_REQUEST, CONSUMPTION_GET_CHARGE_RECORD_SUCCESS, CONSUMPTION_GET_CHARGE_RECORD_FAILURE],

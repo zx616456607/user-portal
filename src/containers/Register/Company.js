@@ -35,8 +35,11 @@ let Company = React.createClass({
       intEmailFocus: false,//重复密码焦点
       intTelFocus: false,//手机号焦点
       intUserNameFocus: false,//用户名焦点
+      intCertNameFocus: false,//单位名焦点
+      intCertCodeFocus: false,//单位代码焦点
       captchaLoading: false,//验证码验证中
       countDownTimeText: '发送验证码',//验证码计时文本
+      certTypeCompany: true
     }
   },
   //注册
@@ -61,10 +64,11 @@ let Company = React.createClass({
         userName: values.userName,
         phone: values.tel,
         email: values.email,
-        certType: 1,
+        certType: values.certType,
         certUserName: values.userName,
+        enterpriseName: values.certName,
+        enterpriseCertID: values.certCode,
       }
-      console.log('body',body);
       registerUser(body, {
         success: {
           func: (result) => {
@@ -175,7 +179,7 @@ let Company = React.createClass({
       clearInterval(time)
     },1000)
   },
-  //获取输入框焦点
+  //失去输入框焦点
   intOnBlur(current) {
     const { getFieldProps } = this.props.form
     if (current === 'pass') {
@@ -223,8 +227,24 @@ let Company = React.createClass({
         })
       }
     }
+    if (current === 'certName') {
+      let certName = getFieldProps('certName').value
+      if (certName === '' || !certName) {
+        this.setState({
+          intCertNameFocus: false,
+        })
+      }
+    }
+    if (current === 'certCode') {
+      let certCode = getFieldProps('certCode').value
+      if (certCode === '' || !certCode) {
+        this.setState({
+          intCertCodeFocus: false,
+        })
+      }
+    }
   },
-  //失去输入框焦点
+  //获取输入框焦点
   intOnFocus(current) {
     if (current === 'pass') {
       this.refs.intPass.refs.input.focus()
@@ -261,6 +281,29 @@ let Company = React.createClass({
         intTelFocus: true,
       })
     }
+    if (current === 'certCode') {
+      this.refs.intCertCode.refs.input.focus()
+      this.setState({
+        intCertCodeFocus: true,
+      })
+    }
+    if (current === 'certName') {
+      this.refs.intCertName.refs.input.focus()
+      this.setState({
+        intCertNameFocus: true,
+      })
+    }
+  },
+  handleCertTypeChange (e) {
+    if (e.target.value === '2') {
+      this.setState({
+        certTypeCompany: true
+      })
+      return
+    }
+    this.setState({
+      certTypeCompany: false
+    })
   },
   /*
    start---组件生命周期---start
@@ -403,25 +446,25 @@ let Company = React.createClass({
                    onFocus={this.intOnFocus.bind(this, 'check')}
                    ref="intCheck"
                    style={{ height: 35 }} />
+            {/*验证码按钮*/}
+            <Tooltip placement="top" title="点击重新发送">
+              <Button className="captchaBtn"
+                      onClick={this.changeCaptcha}
+                      type="primary"
+                      loading={this.state.captchaLoading}
+              >
+                {this.state.countDownTimeText}
+              </Button>
+            </Tooltip>
           </FormItem>
-          {/*验证码按钮*/}
-          <Tooltip placement="top" title="点击重新发送">
-            <Button className="captchaBtn"
-                    style={{bottom:120}}
-                    onClick={this.changeCaptcha}
-                    type="primary"
-                    loading={this.state.captchaLoading}
-            >
-              {this.state.countDownTimeText}
-            </Button>
-          </Tooltip>
+          
           {/*单位选择*/}
           <FormItem
             {...formItemLayout}
             className="formItemName"
-            style={{width:'60%'}}
+            style={{borderTop:'1px dashed #d5d5d5',paddingTop:15}}
           >
-            <RadioGroup {...getFieldProps('certType', { initialValue: '2' })}>
+            <RadioGroup {...getFieldProps('certType', { initialValue: '2' ,onChange: this.handleCertTypeChange})}>
               <Radio value="2">企业单位</Radio>
               <Radio value="3">组织机构</Radio>
             </RadioGroup>
@@ -430,22 +473,38 @@ let Company = React.createClass({
           <FormItem
             {...formItemLayout}
             className="formItemName"
-            style={{width:'60%'}}
           >
-            <Input {...captchaProps} autoComplete="off" onBlur={this.intOnBlur.bind(this, 'check')}
-                   onFocus={this.intOnFocus.bind(this, 'check')}
-                   ref="intCheck"
+            <div className={this.state.intCertNameFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'certName')}>
+              {
+                this.state.certTypeCompany ?
+                <span>企业名称</span>:
+                <span>组织名称</span>
+              }
+            </div>
+            <Input {...getFieldProps('certName')} autoComplete="off" onBlur={this.intOnBlur.bind(this, 'certName')}
+                   onFocus={this.intOnFocus.bind(this, 'certName')}
+                   ref="intCertName"
                    style={{ height: 35 }} />
           </FormItem>
-          {/*单位名称*/}
+          {/*单位代码*/}
           <FormItem
             {...formItemLayout}
             className="formItemName"
-            style={{width:'60%'}}
           >
-            <Input {...captchaProps} autoComplete="off" onBlur={this.intOnBlur.bind(this, 'check')}
-                   onFocus={this.intOnFocus.bind(this, 'check')}
-                   ref="intCheck"
+            <div className={this.state.intCertCodeFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'certCode')}>
+              {
+                this.state.certTypeCompany ?
+                <span>
+                  企业营销执照注册号
+                </span>:
+                <span>
+                  组织机构代码
+                </span>
+              }
+            </div>
+            <Input {...getFieldProps('certCode')} autoComplete="off" onBlur={this.intOnBlur.bind(this, 'certCode')}
+                   onFocus={this.intOnFocus.bind(this, 'certCode')}
+                   ref="intCertCode"
                    style={{ height: 35 }} />
           </FormItem>
           {/*注册按钮*/}
@@ -460,7 +519,6 @@ let Company = React.createClass({
               {submitting ? '注册中...' : '注册'}
             </Button>
           </FormItem>
-          
         </Form>
         {/*
          表单---end

@@ -95,17 +95,19 @@ app.keys = new KeyGrip(config.session_secret, 'sha256')
 const sessionOpts = {
   key: config.session_key,
   rolling: true,
-  maxAge: 1800000
+  cookie: {
+    maxAge: 1000 * 60 * 30 // half an hour in ms
+  }
 }
 
 let sessionStore;
 // Session store
 // @important! server will pending here until the session store is connected
-const redisConfig = config.redis
+const redisConfig = config.redis || {}
 const redisHost = redisConfig.host
 const redisPort = redisConfig.port
 const redisPassword = redisConfig.password
-if (redisHost) {
+if (config.session_store === 'true' && redisHost) {
   logger.info(`use redis to store session ...`)
   const redisStore = require('koa-redis')
   sessionStore = new redisStore({

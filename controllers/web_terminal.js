@@ -6,11 +6,12 @@ const os = require('os')
 //var wsUrl = "wss://kubelet:kubelet@" + data['host'] + ":" + data['port'] + "/api/v1/namespaces/" + data['namespace'] + "/pods/" + data['pod'] + "/exec?stdout=1&stdin=1&stderr=1&tty=1&command=%2Fbin%2Fsh&command=-i";
 module.exports = function (server, redis) {
   server.on('upgrade', (req, client, head) => {
-    if (!/\/api\/v1\/namespaces\/.+\/pods\/.+\/exec/.test(req.url)) return
+    if (!/\/api\/v1\/cluster\/.+\/namespaces\/.+\/pods\/.+\/exec/.test(req.url)) return
     //const redisClient = redis.client
     const path = req.url.split('/')
-    const namespace = path[4]
-    const podName = path[6]
+    const cluster = path[4]
+    const namespace = path[6]
+    const podName = path[8]
     const headers = _getProxyHeader(req.headers)
     headers.headers.Authorization = 'bearer c0d7rQicMtZJkeFllBaCZSMjfaCbASDV'
     headers.rejectUnauthorized = false

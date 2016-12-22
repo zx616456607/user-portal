@@ -47,6 +47,9 @@ function standardUserDetail(state = {}, action) {
       if(action.body.avatar) {
         resultState.userInfo.avatar = action.body.avatar
       }
+      if(action.body.phone) {
+        resultState.userInfo.phone = action.body.phone
+      }
       return resultState
     }
     case ActionTypes.USER_CHANGE_USERINFO_FAILURE: {

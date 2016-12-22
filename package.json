@@ -5,6 +5,7 @@
   "main": "app.js",
   "scripts": {
     "start": "npm run dev",
+    "staging": "export NODE_ENV=staging&& export RUNNING_MODE=standard&& node app.js",
     "build-dll": "webpack --config webpack.ddl.config",
     "dev": "npm run build-dll && export NODE_ENV=development&& export RUNNING_MODE=enterprise&& node app.js",
     "dev-std": "npm run build-dll && export NODE_ENV=development&& export RUNNING_MODE=standard&& node app.js",

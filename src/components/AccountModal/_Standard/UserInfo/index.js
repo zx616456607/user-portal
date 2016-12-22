@@ -129,8 +129,9 @@ class BaseInfo extends Component {
           }
         },
         failed: {
-          func: () => {
+          func: (result) => {
             notification.close()
+            notification.error(result.message)
             self.setState({
               disabledButton: false
             })
@@ -143,7 +144,7 @@ class BaseInfo extends Component {
     const index = file.name.lastIndexOf('.')
     let fileName = file.name.substring(0, index)
     let ext = file.name.substring(index + 1)
-    const fileType = ['jpg', 'png', 'git']
+    const fileType = ['jpg', 'png', 'gif']
     const notification = new NotificationHandler()
     if (fileType.indexOf(ext) < 0) {
       notification.error('头像格式仅支持jpg/png/gif')
@@ -254,9 +255,13 @@ class BaseInfo extends Component {
       }
       companyCert = item
     })
+    let disabledUserCert = false
     if(!userCert) {
       userCert = {
         userName: userDetail.userName
+      }
+      if(companyCert) {
+        disabledUserCert = true
       }
     }
     if(!companyCert) {
@@ -285,7 +290,7 @@ class BaseInfo extends Component {
               <span className="key">用户名</span>
               <span className="value">
                 {userDetail.userName}
-              <Button className="btn-auth" style={{ marginLeft: '10px' }} onClick={() => this.cert('user')}>{this.getCertStatus(userCert.status)}</Button></span>
+              <Button className="btn-auth" disabled={disabledUserCert} style={{ marginLeft: '10px' }} onClick={() => this.cert('user')}>{this.getCertStatus(userCert.status)}</Button></span>
             </li>
             <li>
               <span className="key">企业名称</span>

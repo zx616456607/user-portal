@@ -32,9 +32,10 @@ exports.setUserCurrentConfigCookie = function* (loginUser) {
 
 exports.getLicense = function* (loginUser) {
   const spi = apiFactory.getSpi(loginUser)
-  const result = yield spi.license.get()
+  let result = {}
   let plain = {}
   try {
+    result = yield spi.license.get()
     let licenseObj = JSON.parse(_decrypt(result.data.license))
     if (!licenseObj.ExpireDate) {
       plain.status = 'LICENSE_ERROR'
@@ -59,12 +60,16 @@ exports.getLicense = function* (loginUser) {
     }
     plain.status = 'LICENSE_OK'
     plain.code = 0
-  } catch (e) {
-    plain.status = 'LICENSE_ERROR'
+  } catch (err) {
+    if (err.statusCode === 404) {
+      plain.status = 'NO_LICENSE'
+    } else {
+      plain.status = 'LICENSE_ERROR'
+    }
     plain.code = -1
   } finally {
     return {
-      license: result.data.license,
+      license: (result.data ? result.data.license : ''),
       plain: plain,
       message: i18n.t(`common:license.${plain.status}`)
     }
