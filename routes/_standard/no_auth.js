@@ -37,6 +37,8 @@ module.exports = function (Router) {
   router.post(`${API_URL_PREFIX}/stdusers`, userController.registerUser)
   router.post(`${API_URL_PREFIX}/stdusers/jointeam`, userController.registerUserAndJoinTeam)
   router.post(`${API_URL_PREFIX}/stdusers/captchas`, userController.sendCaptcha)
+  router.post(`${API_URL_PREFIX}/stdusers/activationemail`, userController.sendUserActivationEmail)
+  router.get(`/users/activation`, userController.activateUserByEmail)
 
   // Reset password
   router.put(`${API_URL_PREFIX}/users/:email/resetpwlink`, userController.sendResetPasswordLink)
