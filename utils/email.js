@@ -320,3 +320,34 @@ function switchPayTypeToText(type) {
       return '其他方式'
   }
 }
+
+exports.getLoginURL = function(email) {
+  
+  if (typeof email !== 'string') {
+    return ''
+  }
+  const slice = email.split('@')
+  if (slice.length !== 2) {
+    return ''
+  }
+  const suffix = slice[1]
+  const convertMap = {
+    '126.com': 'mail.126.com',
+    '139.com': 'mail.10086.cn',
+    '163.com': 'mail.163.com',
+    '188.com': 'www.188.com',
+    '189.cn': 'webmail15.189.cn/webmail',
+    '21cn.com': 'mail.21cn.com',
+    'foxmail.com': 'mail.qq.com',
+    'gmail.com': 'gmail.com',
+    'hotmail.com': 'www.hotmail.com',
+    'sina.com': 'mail.sina.com.cn',
+    'sogou.com': 'mail.sogou.com',
+    'sohu.com': 'mail.sohu.com',
+    'tom.com': 'mail.tom.com',
+    'vip.163.com': 'vip.163.com',
+    'vip.sina.com': 'vip.sina.com',
+    'wo.com.cn': 'mail.wo.com.cn/smsmail',
+  }
+  return convertMap[suffix] || ''
+}

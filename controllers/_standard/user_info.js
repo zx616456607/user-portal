@@ -119,6 +119,8 @@ exports.registerUser = function* () {
 
   const result = yield spi.users.create(user)
 
+  // send activation email
+
   this.body = {
     data: result
   }

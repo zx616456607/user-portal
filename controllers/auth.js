@@ -17,6 +17,7 @@ const indexService = require('../services')
 const config = require('../configs')
 const devOps = require("../configs/devops")
 const enterpriseMode = require('../configs/constants').ENTERPRISE_MODE
+const emailUtil = require("../utils/email")
 
 exports.login = function* () {
   let method = 'login'
@@ -128,7 +129,21 @@ exports.verifyUser = function* () {
     logger.error(`Get user MD5 encrypted watch token failed.`)
     logger.error(err.stack)
   }
+  // public cloud need check users active status
+  if (config.running_mode !== enterpriseMode) {
+    // 0: inactive, 1: actived
+    if (result.active === 0) {
+      this.status = 401
+      this.body = {
+        email: result.email,
+        emailLink: emailUtil.getLoginURL(result.email),
+        message: 'NOT_ACTIVE',
+      }
+      return
+    }
+  }
   this.session.loginUser = loginUser
+  delete result.active
   this.body = {
     user: result,
     message: 'login success',
