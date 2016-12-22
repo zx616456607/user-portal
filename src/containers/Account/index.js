@@ -34,6 +34,10 @@ if (mode === standard) {
     {
       url: '/account/cost',
       name: '费用中心'
+    },
+    {
+      url: '/account/version',
+      name: '版本'
     }
   ]
 } else {

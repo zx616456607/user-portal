@@ -566,6 +566,11 @@ class Slider extends Component {
                       <span><div className='sideCircle'></div> 费用中心</span>
                     </Link>
                   </Menu.Item>
+                  <Menu.Item key='version'>
+                    <Link to='/account/version'>
+                      <span><div className='sideCircle'></div> 版本</span>
+                    </Link>
+                  </Menu.Item>
                   <div className='sline'></div>
                 </SubMenu>
               </Menu>
