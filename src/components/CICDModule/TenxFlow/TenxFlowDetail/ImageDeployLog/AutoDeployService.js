@@ -172,11 +172,13 @@ let AutoDeployService = React.createClass({
         self.props.deleteCdRule(flowId, ruleId, {
           success: {
             func: () => {
+              notification.close()
               notification.success(`自动部署服务规则删除成功`)
             }
           },
           failed: {
             func: () => {
+              notification.close()
               notification.error(`自动部署服务规则删除失败`)
             }
           }

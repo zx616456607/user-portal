@@ -44,9 +44,9 @@ module.exports = function (Router) {
   router.put(`${API_URL_PREFIX}/users/:email/resetpwlink`, userController.sendResetPasswordLink)
 
   // Payment
-  router.post('/payments/alipay/notify', alipayController.notify)
+  router.post(`${API_URL_PREFIX}/payments/alipay/notify`, alipayController.notify)
   router.post(
-    '/payments/wechat_pay/notify',
+    `${API_URL_PREFIX}/payments/wechat_pay/notify`,
     wechatPayMiddleware(wechatPayController.getInitConfig()).getNotify().done(),
     wechatPayController.notify
   )
