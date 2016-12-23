@@ -93,7 +93,19 @@ exports.verifyUser = function* () {
     data.email = body.email
   }
   const api = apiFactory.getApi()
-  const result = yield api.users.createBy(['login'], null, data)
+  let result = {}
+  try {
+    result = yield api.users.createBy(['login'], null, data)
+  } catch (err) {
+    // Better handle error >= 500
+    if (err.statusCode >= 500) {
+      const returnError = new Error("服务异常，请联系管理员或者稍候重试")
+      returnError.status = err.statusCode
+      throw returnError
+    } else {
+      throw err
+    }
+  }
   // These message(and watchToken etc.) will be save to session
   const loginUser = {
     user: result.userName,
