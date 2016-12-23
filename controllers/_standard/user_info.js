@@ -237,7 +237,7 @@ exports.sendResetPasswordLink = function* () {
     })
   })
 
-  const link = `https://console.tenxcloud.com/users/${email}/resetpw?code=${encodeURIComponent(code)}`
+  const link = `https://console.tenxcloud.com/rpw?email=${email}&code=${encodeURIComponent(code)}`
   try {
     yield emailUtil.sendResetPasswordEmail(email, link)
     this.body = {
