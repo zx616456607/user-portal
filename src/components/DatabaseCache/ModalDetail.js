@@ -11,7 +11,7 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
-import { Button, Icon, Spin, Modal, Collapse, Row, Col, Dropdown, Timeline, Popover, InputNumber, Tabs } from 'antd'
+import { Button, Icon, Spin, Modal, Collapse, Row, Col, Dropdown, Slider, Timeline, Popover, InputNumber, Tabs } from 'antd'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { loadDbClusterDetail, deleteDatabaseCluster, putDbClusterDetail, loadDbCacheList } from '../../actions/database_cache'
 import './style/ModalDetail.less'
@@ -111,9 +111,11 @@ class BaseInfo extends Component {
   constructor(props) {
     super(props)
     this.state ={
-      passShow: false
+      passShow: false,
+      storageValue: parseInt(this.props.databaseInfo.volumeInfo.size)
     }
   }
+  
   render() {
     const {databaseInfo ,dbName }= this.props
     const parentScope = this.props.scope
@@ -122,12 +124,23 @@ class BaseInfo extends Component {
       <div className="modal-content">
         <div className="modal-header">更改实例数  <Icon type='cross' onClick={() => parentScope.colseModal()} className='cursor' style={{ float: 'right' }} /></div>
         <div className="modal-li padTop"><span className="spanLeft">数据库用户名</span><span>{dbName}</span></div>
-        <div className="modal-li"><span className="spanLeft">实例副本</span><InputNumber onChange={(e) => parentScope.setState({ replicas: e })} value={parentScope.state.replicas} min={1} max={5} /> &nbsp; 个</div>
-        <div className="modal-li"><span className="spanLeft">存储大小</span><InputNumber value={databaseInfo.volumeInfo.size} disabled={true} /></div>
+        <div className="modal-li"><span className="spanLeft">实例副本</span><InputNumber  onChange={(e) => parentScope.setState({ replicas: e })} value={parentScope.state.replicas} min={1} max={5} /> &nbsp; 个</div>
+        <div className="modal-li">
+          <span className="spanLeft">存储大小</span>
+          {/* <Slider min={500} max={10000} onChange={(value)=>parentScope.onChangeStorage(value)} value={parentScope.state.storageValue} step={100} /> */}
+          <InputNumber  onChange={(value)=>parentScope.onChangeStorage(value)} value={parentScope.state.storageValue} /> &nbsp; M
+        </div>
+        <div className="modal-price">
+          <div className="price-left">
+            <div className="keys">实例：￥20/个（个*小时）* 1 个</div>
+            <div className="keys">储存：￥10/（GB*小时）</div>
+          </div>
+          <div className="price-unit">合计：<span style={{color:'#21ADEB'}}>￥</span><span className="unit">20元/小时</span></div>
+        </div>
         {parentScope.state.putModaling ?
           <div className="modal-footer"><Button size="large" onClick={() => parentScope.colseModal()}>取消</Button><Button size="large" loading={true} type="primary">保存</Button></div>
         :
-          <div className="modal-footer"><Button size="large" onClick={() => parentScope.colseModal()}>取消</Button><Button size="large" loading={false} type="primary" onClick={() => parentScope.handSave()}>保存</Button></div>
+          <div className="modal-footer"><Button size="large" onClick={() => parentScope.colseModal()}>取消</Button><Button size="large" type="primary" onClick={() => parentScope.handSave()}>保存</Button></div>
        }
       </div>
     )
@@ -237,7 +250,10 @@ class ModalDetail extends Component {
     loadDbClusterDetail(cluster, dbName, {
       success: {
         func: (res) => {
-          _this.setState({ replicas: res.database.podInfo.desired })
+          _this.setState({
+            replicas: res.database.podInfo.desired,
+            storageValue: parseInt(res.database.volumeInfo.size)
+          })
         }
       }
     });
@@ -309,8 +325,19 @@ class ModalDetail extends Component {
       }
     })
   }
+  onChangeStorage(value) {
+    this.setState({
+      storageValue:value
+    })
+  }
   colseModal() {
-    this.setState({ putVisible: false ,putModaling:false})
+    const storageValue = parseInt(this.props.databaseInfo.volumeInfo.size)
+    this.setState({ 
+      putVisible: false,
+      putModaling:false,
+      replicas: this.props.databaseInfo.podInfo.desired,
+      storageValue
+    })
   }
   onTabClick(activeTabKey) {
     if (activeTabKey === this.state.activeTabKey) {
@@ -388,7 +415,7 @@ class ModalDetail extends Component {
               activeKey={this.state.activeTabKey}
               >
               <TabPane tab='基础信息' key='#BaseInfo'>
-                <BaseInfo databaseInfo={databaseInfo} database={this.props.database} dbName={dbName} scope= {this} />
+                <BaseInfo databaseInfo={databaseInfo} storageValue={this.state.storageValue} database={this.props.database} dbName={dbName} scope= {this} />
               </TabPane>
               <TabPane tab='事件' key='#events'>
                 <AppServiceEvent serviceName={dbName} cluster={this.props.cluster} />

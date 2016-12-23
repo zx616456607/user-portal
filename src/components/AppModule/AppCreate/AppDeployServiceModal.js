@@ -593,6 +593,8 @@ let AppDeployServiceModal = React.createClass({
     })
   },
   render: function () {
+    const price = this.props.cluster.resourcePrice
+    const instanceNum = this.props.form.getFieldValue('instanceNum') // 数量
     const scope = this
     const parentScope = this.props.scope
     const {currentSelectedImage, registryServer, isCreate, other} = parentScope.state
@@ -627,15 +629,26 @@ let AppDeployServiceModal = React.createClass({
             </Panel>
           </Collapse>
           <div className="btnBox">
-            <Button className="cancelBtn" size="large" type="ghost" onClick={this.closeModal}>
-              取消
-            </Button>
-            <Button className="createBtn" size="large" type="primary"
-              onClick={(e) => this.handleSubBtn(e)}
-              htmlType="submit"
-              >
-              {parentScope.state.isCreate ? '创建' : '修改'}
-            </Button>
+            <div className="modal-price">
+              <div className="price-left">
+                <span className="keys">实例：<span className="unit">{price[this.state.composeType+'x'] * 1 /100 }</span> 元/小时</span>
+              </div>
+              <div className="price-unit">合计：<span className="unit">￥</span>
+                <span className="unit blod">{(price[this.state.composeType+'x'] * 1 /100 * instanceNum).toFixed(2) }元/小时</span> &nbsp;
+                <span className="unit">（约￥：{(price[this.state.composeType+'x'] * 1 /100 * instanceNum * 720).toFixed(2) }/月）</span>
+              </div>
+            </div>
+            <div className="text-center">
+              <Button className="cancelBtn" size="large" type="ghost" onClick={this.closeModal}>
+                取消
+              </Button>
+              <Button className="createBtn" size="large" type="primary"
+                onClick={(e) => this.handleSubBtn(e)}
+                htmlType="submit"
+                >
+                {parentScope.state.isCreate ? '创建' : '修改'}
+              </Button>
+            </div>
           </div>
         </Form>
       </div>

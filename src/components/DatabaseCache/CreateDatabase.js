@@ -371,6 +371,13 @@ let CreateDatabase = React.createClass({
               </div>
               <div style={{ clear: 'both' }}></div>
             </div>
+            <div className="modal-price">
+              <div className="price-left">
+                <div className="keys">实例：￥20/个（个*小时）* 1 个</div>
+                <div className="keys">储存：￥10/（GB*小时）</div>
+              </div>
+              <div className="price-unit">合计：<span style={{color:'#21ADEB'}}>￥</span><span className="unit">20元/小时</span></div>
+            </div>
           </div>
           <div className='btnBox'>
             <Button size='large' onClick={this.handleReset}>
