@@ -42,6 +42,7 @@ module.exports = function (Router) {
 
   // Reset password
   router.put(`${API_URL_PREFIX}/users/:email/resetpwlink`, userController.sendResetPasswordLink)
+  router.patch(`${API_URL_PREFIX}/users/resetpw`, userController.resetPassword)
 
   // Payment
   router.post(`${API_URL_PREFIX}/payments/alipay/notify`, alipayController.notify)

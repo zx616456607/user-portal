@@ -295,6 +295,36 @@ export function sendResetPasswordLink(email, callback) {
   }
 }
 
+export const USER_RESETPW_REQUEST = 'USER_RESETPW_REQUEST'
+export const USER_RESETPW_SUCCESS = 'USER_RESETPW_SUCCESS'
+export const USER_RESETPW_FAILURE = 'USER_RESETPW_FAILURE'
+
+// Reset password for user from API.
+// Relies on the custom API middleware defined in ../middleware/api.js.
+function fetchResetPassword(body, callback) {
+  let endpoint = `${API_URL_PREFIX}/users/resetpw`
+  return {
+    [FETCH_API]: {
+      types: [USER_RESETPW_REQUEST, USER_RESETPW_SUCCESS, USER_RESETPW_FAILURE],
+      endpoint,
+      options: {
+        body,
+        method: 'PATCH'
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+// Reset password for user from API
+// Relies on Redux Thunk middleware.
+export function resetPassword(body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchResetPassword(body, callback))
+  }
+}
+
 export const USER_DELETE_REQUEST = 'USER_DELETE_REQUEST'
 export const USER_DELETE_SUCCESS = 'USER_DELETE_SUCCESS'
 export const USER_DELETE_FAILURE = 'USER_DELETE_FAILURE'
