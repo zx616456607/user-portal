@@ -257,7 +257,8 @@ class Service extends Component {
           <Button type="primary" size="large" onClick={(e) => this.configModal(true)}>
             <i className="fa fa-plus" /> 创建配置组
           </Button>
-          <Button size="large" onClick={() => this.btnDeleteGroup()} style={{ marginLeft: "12px" }}>
+          <Button size="large" onClick={() => this.btnDeleteGroup()} style={{ marginLeft: "12px" }}
+            disabled={!this.state.configArray || this.state.configArray.length < 1}>
             <i className="fa fa-trash-o" /> 删除
           </Button>
           {/*创建配置组-弹出层-start*/}
