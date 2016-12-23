@@ -96,6 +96,12 @@ let MemberTable = React.createClass({
   },
   delMember(record) {
     const { scope } = this.props
+    if (record.style === "系统管理员") {
+      confirm({
+        title: '不能删除系统管理员',
+      });
+      return
+    }
     confirm({
       title: '您是否确认要删除这项内容',
       onOk() {
@@ -457,13 +463,21 @@ function mapStateToProp(state) {
     if (users.result.users) {
       usersData = users.result.users
       usersData.map((item, index) => {
+        let role = ""
+        if (item.role === 1){
+          role = "团队管理员"
+        }else if (item.role === 2) {
+          role = "系统管理员"
+        }else{
+          role = "普通成员"
+        }
         data.push(
           {
             key: item.userID,
             name: item.displayName,
             tel: item.phone,
             email: item.email,
-            style: item.role === 1 ? '团队管理员' : '普通成员',
+            style: role,
             team: item.teamCount,
             balance: item.balance,
           }
