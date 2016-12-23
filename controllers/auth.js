@@ -137,11 +137,10 @@ exports.verifyUser = function* () {
       this.status = 401
       this.body = {
         email: result.email,
-        emailLink: emailUtil.getLoginURL(result.email),
         message: 'NOT_ACTIVE',
+        // encrypt email as code params to avoid attack, before resend activation email must check email and code
+        code: security.encryptContent(result.email),
       }
-      // encrypt email as code params to avoid attack, before resend activation email must check email and code
-      this.body.code = security.encryptContent(result.email)
       return
     }
   }
