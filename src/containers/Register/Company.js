@@ -33,7 +33,7 @@ let Company = React.createClass({
       intPassFocus: false,//密码焦点
       intCheckFocus: false,//验证码焦点
       passWord: false,//密码显示星号
-      intEmailFocus: false,//重复密码焦点
+      intEmailFocus: false,//邮箱焦点
       intTelFocus: false,//手机号焦点
       intUserNameFocus: false,//用户名焦点
       intCertNameFocus: false,//单位名焦点

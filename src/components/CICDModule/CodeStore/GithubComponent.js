@@ -165,6 +165,7 @@ class GithubComponent extends Component {
   }
 
   loadData() {
+    const self = this
     this.props.getGithubList('github', {
       success: {
         func: (res) => {
@@ -178,7 +179,6 @@ class GithubComponent extends Component {
   }
 
   componentWillMount() {
-    const self = this
     this.loadData()
   }
 
