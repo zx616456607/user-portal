@@ -71,13 +71,24 @@
   }
   .secondPage {
     .backBtn {
+      margin-left: 10px;
       margin-bottom: 20px;
       width: 50px;
       height: 20px;
       line-height: 20px;
       color: #FFFFFF;
+      text-align: center;
       background-color: #46b2fa;
       cursor: pointer;
+      &:before {
+        border: 10px solid transparent;
+        border-right: 10px solid #46b2fa;
+        width: 0px;
+        height: 0px;
+        position: absolute;
+        left: -10px;
+        content: '';
+      }
     }
     .middleBox {
       float: left;
