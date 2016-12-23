@@ -10,6 +10,7 @@
 import React, { Component } from 'react'
 import { Button, Form, Input } from 'antd'
 import { connect } from 'react-redux'
+import { Link } from 'react-router'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -26,6 +27,7 @@ let CommitReset = React.createClass({
       passWord: false,
       rePassWord: false,
       intRePassFocus: false,
+      resetSuccess: false,
     }
   },
   
@@ -97,6 +99,7 @@ let CommitReset = React.createClass({
       }
       this.setState({
         submitting: true,
+        resetSuccess: true,
       })
       //重置密码
     })
@@ -129,63 +132,79 @@ let CommitReset = React.createClass({
       }],
     })
     return (
-      <div>
-        <div className='successTitle'>
-          重置密码
-        </div>
-        <div className='registerForm' style={{marginTop:20, minWidth: 300}}>
-          <Form>
-            <FormItem
-              {...formItemLayout}
-              className="formItemName"
+      this.state.resetSuccess ?
+        <div className='resetSuccess'>
+          <div className='resetSucImg'>
+            <img src='/img/homeNoWarn.png' />
+          </div>
+          <div className='resetSucInf'>
+            <div className='resetSucText'>重置密码成功 ! </div>
+            <Button
+              className='subBtn'
             >
-              <div className={"intName intOnFocus"}>邮箱</div>
-              <Input placeholder={email} disabled />
-            </FormItem>
-
-            <FormItem
-              {...formItemLayout}
-              hasFeedback
-              className="formItemName"
-            >
-              <div className={this.state.intPassFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'pass')}>密码</div>
-              <Input {...passwdProps} autoComplete="off" type={this.state.passWord ? 'password' : 'text'}
-                     onContextMenu={noop} onPaste={noop} onCopy={noop} onCut={noop}
-                     onBlur={this.intOnBlur.bind(this, 'pass')}
-                     onFocus={this.intOnFocus.bind(this, 'pass')}
-                     ref="intPass"
-                     style={{ height: 35 }}
-              />
-            </FormItem>
-            <FormItem
-              {...formItemLayout}
-              hasFeedback
-              className="formItemName"
-            >
-              <div className={this.state.intRePassFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'pass')}>确认密码</div>
-              <Input {...rePasswdProps} autoComplete="off" type={this.state.rePassWord ? 'password' : 'text'}
-                     onContextMenu={noop} onPaste={noop} onCopy={noop} onCut={noop}
-                     onBlur={this.intOnBlur.bind(this, 'rePasswd')}
-                     onFocus={this.intOnFocus.bind(this, 'rePasswd')}
-                     ref="intRePass"
-                     style={{ height: 35 }}
-              />
-            </FormItem>
-
-            <FormItem wrapperCol={{ span: 24, }}>
-              <Button
-                type="primary"
-                onClick={this.handleResetPass}
-                loading={submitting}
-                className="subBtn"
-                style={{marginBottom: 20}}
+              <Link to='/login'>
+                去登录
+              </Link>
+            </Button>
+          </div>
+        </div> :
+        <div>
+          <div className='successTitle'>
+            重置密码
+          </div>
+          <div className='registerForm' style={{marginTop:20, minWidth: 300}}>
+            <Form>
+              <FormItem
+                {...formItemLayout}
+                className="formItemName"
               >
-                {submitting ? '重置中...' : '重置密码'}
-              </Button>
-            </FormItem>
-          </Form>
+                <div className={"intName intOnFocus"}>邮箱</div>
+                <Input placeholder={email} disabled />
+              </FormItem>
+
+              <FormItem
+                {...formItemLayout}
+                hasFeedback
+                className="formItemName"
+              >
+                <div className={this.state.intPassFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'pass')}>密码</div>
+                <Input {...passwdProps} autoComplete="off" type={this.state.passWord ? 'password' : 'text'}
+                       onContextMenu={noop} onPaste={noop} onCopy={noop} onCut={noop}
+                       onBlur={this.intOnBlur.bind(this, 'pass')}
+                       onFocus={this.intOnFocus.bind(this, 'pass')}
+                       ref="intPass"
+                       style={{ height: 35 }}
+                />
+              </FormItem>
+              <FormItem
+                {...formItemLayout}
+                hasFeedback
+                className="formItemName"
+              >
+                <div className={this.state.intRePassFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'pass')}>确认密码</div>
+                <Input {...rePasswdProps} autoComplete="off" type={this.state.rePassWord ? 'password' : 'text'}
+                       onContextMenu={noop} onPaste={noop} onCopy={noop} onCut={noop}
+                       onBlur={this.intOnBlur.bind(this, 'rePasswd')}
+                       onFocus={this.intOnFocus.bind(this, 'rePasswd')}
+                       ref="intRePass"
+                       style={{ height: 35 }}
+                />
+              </FormItem>
+
+              <FormItem wrapperCol={{ span: 24, }}>
+                <Button
+                  type="primary"
+                  onClick={this.handleResetPass}
+                  loading={submitting}
+                  className="subBtn"
+                  style={{marginBottom: 20}}
+                >
+                  {submitting ? '重置中...' : '重置密码'}
+                </Button>
+              </FormItem>
+            </Form>
+          </div>
         </div>
-      </div>
     )
   }
 })

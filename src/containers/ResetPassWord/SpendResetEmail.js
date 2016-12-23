@@ -104,7 +104,7 @@ let SpendResetEmail = React.createClass({
     }
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form
     const { submitting, spendEmail } = this.state
-    const { rpw, email } = this.props
+    const { email } = this.props
     //邮箱验证规则
     const emailProps = getFieldProps('email', {
       rules: [

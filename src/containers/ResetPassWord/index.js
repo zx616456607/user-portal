@@ -12,51 +12,51 @@ import { Button, Form, Input } from 'antd'
 import { connect } from 'react-redux'
 import CommitReset from './CommitReset'
 import SpendResetEmail from './SpendResetEmail'
+import './style/ResetPassWord.less'
 
-let ResetPassWord = React.createClass({
-  getInitialState(){
-    return{
-      resetSuccess: false,
+class ResetPassWord extends Component {
+  constructor (props) {
+    super(props)
+    this.renderResetForm = this.renderResetForm.bind(this)
+    this.state = {
     }
-  },
+  }
   renderResetForm () {
-    let { email, rpw } = this.props
-    if (rpw === '2') {
+    let { email, code } = this.props
+    if (code) {
       return (
-        <CommitReset email={email} />
+        <CommitReset email={email} code={code}/>
       )
     }
     return (
-      <SpendResetEmail email={email} rpw={rpw} />
+      <SpendResetEmail email={email} />
     )
-  },
+  }
   render(){
     return (
       <div id='RegisterPage'>
         <div className='register'>
           <div id='SuccessRegister'>
           {
-            this.state.resetSuccess ?
-              <div>success</div> :
-              this.renderResetForm()
+            this.renderResetForm()
           }
           </div>
         </div>
       </div>
     )
   }
-})
-
-function mapStateToProps (state,props) {
-  let {email, rpw} = props.location.query
-  return{
-    email,
-    rpw,
-  }
 }
 
-ResetPassWord = connect(mapStateToProps,{
-  
-})
+function mapStateToProps (state,props) {
+  let { email, code, password } = props.location.query
+  return {
+    email,
+    code,
+    password,
+  }
+}
+ResetPassWord = connect(mapStateToProps, {
+
+})(ResetPassWord)
 
 export default ResetPassWord

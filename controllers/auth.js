@@ -136,6 +136,7 @@ exports.verifyUser = function* () {
     if (result.active === 0) {
       this.status = 401
       this.body = {
+        statusCode: 401,
         email: result.email,
         message: 'NOT_ACTIVE',
         // encrypt email as code params to avoid attack, before resend activation email must check email and code

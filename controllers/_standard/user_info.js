@@ -306,7 +306,7 @@ exports.activateUserByEmail = function* () {
   yield spi.users.createBy(['activations'], null, {email})
 
   this.status = 302
-  this.redirect('/login')
+  this.redirect('/login&from=active')
   return
 }
 
