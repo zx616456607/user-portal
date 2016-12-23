@@ -12,9 +12,8 @@ import { Menu, Button, Card, Input ,Modal} from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import VersionNoraml from './Normal.js'
-import VersionProfress from './Profress.js'
-import UpgradeModal from './UpgradeModal.js'
+import VersionNoraml from './Normal'
+import VersionProfress from './Profress'
 import "./style/Version.less"
 
 class Version extends Component {
@@ -30,7 +29,7 @@ class Version extends Component {
   }
 
   render() {
-    let version = 'profress';
+    let version = 'normal';
     return (
       <div id = 'Version'>
         {
@@ -40,7 +39,6 @@ class Version extends Component {
             <VersionProfress key='VersionProfress' />
           ]
         }
-        <UpgradeModal currentType={'app'} modalShow={this.state.modalShow} />
       </div>
     )
   }
