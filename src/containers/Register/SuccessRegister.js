@@ -11,6 +11,8 @@ import React, { Component } from 'react'
 import { Card, Button, message } from 'antd'
 import { connect } from 'react-redux'
 import { EMAIL_HASH } from '../../constants'
+import './style/SuccessRegister.less'
+import Top from '../../components/Top'
 
 
 let SuccessRegister = React.createClass({
@@ -62,8 +64,9 @@ let SuccessRegister = React.createClass({
 
     return (
       <div id='RegisterPage'>
-        <div className='register' style={{width:'40%'}}>
-          <div id='SuccessRegister'>
+        <div className='register' id='SuccessRegister'>
+          <Card style={{width: 440}}>
+            <Top />
             <div className='successTitle'>
               注册成功
             </div>
@@ -78,9 +81,9 @@ let SuccessRegister = React.createClass({
             </Button>
             <div className='successTip'>
               <span>没有收到邮件?</span>
-              <span style={{color:'#2db7f5'}} onClick={() => this.sendAcvivationEmail()}>请点击重新发送</span>
+              <span style={{color:'#2db7f5',cursor:'pointer'}} onClick={() => this.sendAcvivationEmail()}>请点击重新发送</span>
             </div>
-          </div>
+          </Card>
         </div>
       </div>
     )
