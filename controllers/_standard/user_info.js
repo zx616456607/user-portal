@@ -146,10 +146,13 @@ exports.registerUser = function* () {
       logger.error(method, "send user activation email failed.", e)
       // response 200 if send email failed, because user can resend again
     }
+    this.status = 302
+    this.redirect(`/register?email=${result.data.email}&code=${security.encryptContent(result.data.email)}`)
+    return
   }
   this.body = {
     data: ''
-  }
+  }  
 }
 
 exports.registerUserAndJoinTeam = function* () {
