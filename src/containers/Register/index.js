@@ -16,6 +16,7 @@ import Company from './Company'
 import AccountType from './AccountType'
 import SuccessRegister from './SuccessRegister'
 import { sendActivationEmail } from '../../actions/user'
+import Top from '../../components/Top'
 
 
 class Register extends Component{
@@ -65,6 +66,7 @@ class Register extends Component{
   render(){
     let register = (
       <div key='b' id='RegisterPage'>
+        <Top/>
         <div className='register' style={{width:'40%'}}>
           <Card className="registerForm" bordered={false}>
             <div className='backToPage' onClick={this.handlePageChange}>&lt;&lt;&nbsp;&nbsp;&nbsp;重选注册账户类型</div>
@@ -79,6 +81,7 @@ class Register extends Component{
     )
     let registerPage = (
       <div key='a' id='RegisterPage'>
+        <Top/>
         <div className='register' style={{padding:0}}>
           <Card className="registerForm" bordered={false} style={{margin:'30px 50px 0'}}>
             <AccountType onChange={this.handlePageChange} />
