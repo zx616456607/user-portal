@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Card, Button } from 'antd'
+import { Card, Button, message } from 'antd'
 import { connect } from 'react-redux'
 import { EMAIL_HASH } from '../../constants'
 
@@ -32,6 +32,30 @@ let SuccessRegister = React.createClass({
     }
     return false
   },
+  sendAcvivationEmail () {
+    const {email, code, sendActivationEmail} = this.props
+    if (!email || !code) {
+      return
+    }
+    sendActivationEmail(email, code, {
+        success: {
+          func: (result) => {
+            message.success(`邮件发送成功`)
+          },
+          isAsync: true
+        },
+        failed: {
+          func: (err) => {
+            let msg = '邮件发送失败'
+            if (err.statusCode === 500) {
+              msg = '邮件发送失败，请重试'
+            }
+            message.success(msg)
+          },
+          isAsync: true
+        },
+      })
+  },
   
   render(){
     const {email} = this.props
@@ -54,7 +78,7 @@ let SuccessRegister = React.createClass({
             </Button>
             <div className='successTip'>
               <span>没有收到邮件?</span>
-              <span style={{color:'#2db7f5'}}>请点击重新发送</span>
+              <span style={{color:'#2db7f5'}} onClick={() => this.sendAcvivationEmail()}>请点击重新发送</span>
             </div>
           </div>
         </div>

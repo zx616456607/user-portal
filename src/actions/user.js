@@ -523,3 +523,32 @@ export function sendRegisterPhoneCaptcha(body, callback) {
     return dispatch(fetchSendRegisterPhoneCaptcha(body, callback))
   }
 }
+
+export const USER_REGISTER_SEND_ACTIVATION_EMAIL_REQUEST = 'USER_REGISTER_SEND_ACTIVATION_EMAIL_REQUEST'
+export const USER_REGISTER_SEND_ACTIVATION_EMAIL_SUCCESS = 'USER_REGISTER_SEND_ACTIVATION_EMAIL_SUCCESS'
+export const USER_REGISTER_SEND_ACTIVATION_EMAIL_FAILURE = 'USER_REGISTER_SEND_ACTIVATION_EMAIL_FAILURE'
+
+function fetchSendActivationEmail(email, code, callback) {
+  let endpoint = `${API_URL_PREFIX}/stdusers/activationemail`
+  return {
+    [FETCH_API]: {
+      types: [USER_REGISTER_SEND_ACTIVATION_EMAIL_REQUEST, USER_REGISTER_SEND_ACTIVATION_EMAIL_SUCCESS, USER_REGISTER_SEND_ACTIVATION_EMAIL_FAILURE],
+      endpoint,
+      options: {
+        method: 'POST',
+        body: {
+          email,
+          code,
+        }
+      },
+      schema: {}
+    },
+    callback
+  }
+}
+
+export function sendActivationEmail(email, code, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchSendActivationEmail(email, code, callback))
+  }
+}

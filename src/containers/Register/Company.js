@@ -77,7 +77,7 @@ let Company = React.createClass({
               submitProps: {},
             })
             message.success(`注册成功`)
-            browserHistory.push('/login')
+            browserHistory.push(`/register?email=${result.email}&code=${result.code}`)
             resetFields()
           },
           isAsync: true
