@@ -67,13 +67,20 @@ class NotificationHandler {
     })
   }
   // Show warn notification
-  warn(message) {
+  warn(message, description, duration) {
+    let desc = description || ''
+    let timeout = duration
+    if (timeout === undefined) {
+      timeout = 10
+    }
     notification.info({
       message: (
         <div style={{ fontSize: '13px', paddingRight: '20px', color: '#666'}}>
           {message}
         </div>
-      )
+      ),
+      description: desc,
+      duration: timeout
     })
   }
   // Show error notification: message & description
