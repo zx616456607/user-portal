@@ -8,9 +8,10 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Button, Form, Input } from 'antd'
+import { Button, Form, Input, message } from 'antd'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
+import {resetPassword} from '../../actions/user.js'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -89,7 +90,7 @@ let CommitReset = React.createClass({
 
   //重置密码
   handleResetPass (e) {
-    const { form, registerUser } = this.props
+    const { form, registerUser, resetPassword, email, code } = this.props
     const { validateFields, resetFields } = form
     const self = this
     e.preventDefault()
@@ -99,9 +100,33 @@ let CommitReset = React.createClass({
       }
       this.setState({
         submitting: true,
-        resetSuccess: true,
       })
+      const body = {
+        email,
+        code,
+        password: values.password,
+      }
       //重置密码
+      resetPassword(body,{
+        success: {
+          func: (result) => {
+            self.setState({
+              submitting: false,
+              resetSuccess: true,
+            })
+          },
+          isAsync: true
+        },
+        failed: {
+          func: (err) => {
+            self.setState({
+              submitting: false,
+              resetSuccess: false,
+            })
+            message.error('重置失败')
+          }
+        }
+      })
     })
   },
   componentWillMount() {
@@ -210,5 +235,15 @@ let CommitReset = React.createClass({
 })
 
 CommitReset = createForm()(CommitReset)
+
+function mapStateToProps (state,props) {
+  return {
+
+  }
+}
+
+CommitReset = connect(mapStateToProps,{
+  resetPassword
+})(CommitReset)
 
 export default CommitReset

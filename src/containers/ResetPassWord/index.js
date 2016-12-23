@@ -48,11 +48,10 @@ class ResetPassWord extends Component {
 }
 
 function mapStateToProps (state,props) {
-  let { email, code, password } = props.location.query
+  let { email, code } = props.location.query
   return {
     email,
     code,
-    password,
   }
 }
 ResetPassWord = connect(mapStateToProps, {

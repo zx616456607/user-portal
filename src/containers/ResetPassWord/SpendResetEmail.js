@@ -8,9 +8,10 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Button, Form, Input } from 'antd'
+import { Button, Form, Input, message } from 'antd'
 import { connect } from 'react-redux'
 import { EMAIL_REG_EXP, EMAIL_HASH } from '../../constants'
+import {sendResetPasswordLink} from '../../actions/user.js'
 
 const createForm = Form.create
 const FormItem = Form.Item
@@ -65,24 +66,45 @@ let SpendResetEmail = React.createClass({
   },
   //发送邮箱
   handleSpendEmail(e){
-    const { form, registerUser } = this.props
+    const { form, registerUser, sendResetPasswordLink } = this.props
     const { validateFields, resetFields } = form
     const self = this
     e.preventDefault()
     validateFields((errors, values) => {
-      console.log('errors',errors)
       if (!!errors) {
         return
       }
       this.setState({
-        spendEmail: true,
         submitting: true,
       })
       //发送邀请邮件
+      sendResetPasswordLink(values.email,{
+        success: {
+          func: (result) => {
+            self.setState({
+              submitting: false,
+              spendEmail: true,
+            })
+            message.success('发送成功')
+          },
+          isAsync: true
+        },
+        failed: {
+          func: (err) => {
+            self.setState({
+              submitting: false,
+              spendEmail: true,
+            })
+            message.error('发送失败,请点击重新发送')
+          },
+          isAsync: true
+        }
+      })
     })
   },
   //邮箱识别
   getEmail (url) {
+    console.log('url',url)
     if (url.match('@')) {
       let addr = url.split('@')[1]
       for (let j in EMAIL_HASH) {
@@ -104,7 +126,8 @@ let SpendResetEmail = React.createClass({
     }
     const { getFieldProps, getFieldError, isFieldValidating, getFieldValue } = this.props.form
     const { submitting, spendEmail } = this.state
-    const { email } = this.props
+    let email = this.props.email || getFieldValue('email')
+    console.log('email',email)
     //邮箱验证规则
     const emailProps = getFieldProps('email', {
       rules: [
@@ -132,7 +155,7 @@ let SpendResetEmail = React.createClass({
 	            <li>重置密码 , 该邮件的有效期为24小时</li>
 	            <li className='rePass'>
 	              没有收到邮件 ? 点此 
-	              <Button className='passBtn'>
+	              <Button className='passBtn' onClick={this.handleSpendEmail}>
 	                重新发送
 	              </Button>
 	            </li>
@@ -176,5 +199,15 @@ let SpendResetEmail = React.createClass({
 })
 
 SpendResetEmail = createForm()(SpendResetEmail)
+
+function mapStateToProps (state,props) {
+  return {
+
+  }
+}
+
+SpendResetEmail = connect(mapStateToProps,{
+  sendResetPasswordLink
+})(SpendResetEmail)
 
 export default SpendResetEmail
