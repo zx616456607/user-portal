@@ -337,7 +337,7 @@ let Login = React.createClass({
                   <Link to='/register'>立即注册</Link>
                 </div>
                 <div className='toReset'>
-                  <Link to='/register?rpw=1'>忘记密码</Link>
+                  <Link to='/rpw'>忘记密码</Link>
                 </div>
               </div>
               <div className='moreMethod'>
