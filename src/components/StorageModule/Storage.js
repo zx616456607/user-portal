@@ -255,6 +255,10 @@ let MyComponent = React.createClass({
     })
   },
 
+  selectByline(item) {
+    this.props.saveVolumeArray({target:{checked:!this.isChecked(item.name)}}, item.name)
+  },
+
   render() {
     const { formatMessage } = this.props.intl
     let list = this.props.storage;
@@ -265,7 +269,7 @@ let MyComponent = React.createClass({
       </Menu>
       )
       return (
-        <div className="appDetail" key={item.name} >
+        <div className="appDetail" key={item.name} onClick={this.selectByline.bind(this, item)}>
           <div className="selectIconTitle commonData">
             <Checkbox disabled={item.isUsed} onChange={(e) => this.onchange(e, item.name)} checked={this.isChecked(item.name)}></Checkbox>
           </div>
