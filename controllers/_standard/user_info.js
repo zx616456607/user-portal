@@ -280,7 +280,9 @@ exports.sendUserActivationEmail = function* () {
     emailUtil.sendUserActivationEmail(email, userActivationURL)
   } catch (e) {
     logger.error(method, "send user activation email failed.", e)
-    // response 200 if send email failed, because user can resend again
+    const err = new Error('send email failed')
+    err.status = 500
+    throw err
   }
   this.body = {
     data: ''

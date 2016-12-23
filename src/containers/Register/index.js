@@ -16,6 +16,7 @@ import Company from './Company'
 import AccountType from './AccountType'
 import SuccessRegister from './SuccessRegister'
 import ResetPassWord from './ResetPassWord'
+import { sendActivationEmail } from '../../actions/user'
 
 
 class Register extends Component{
@@ -43,10 +44,10 @@ class Register extends Component{
   }
   renderRegisterPage(register,registerPage){
     const { registerPageShow, registerShow } = this.state
-    const {email, resetpassword} = this.props
+    const {email, code, resetpassword, sendActivationEmail} = this.props
     if (email && !resetpassword) {
       return (
-        <SuccessRegister email={email} />
+        <SuccessRegister email={email} code={code} sendActivationEmail={sendActivationEmail} />
       )
     }
     if (resetpassword) {
@@ -103,15 +104,15 @@ class Register extends Component{
   }
 }
 function mapStateToProps (state,props) {
-  console.log('props',props)
-  let {email, rpw} = props.location.query
+  let {email, rpw, code} = props.location.query
   return {
+    code,
     email,
     resetpassword: rpw,
   }
 }
 Register = connect(mapStateToProps, {
-  
+  sendActivationEmail,
 })(Register)
 
 export default Register
