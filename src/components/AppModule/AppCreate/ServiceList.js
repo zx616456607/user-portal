@@ -227,6 +227,13 @@ class ServiceList extends Component {
       this.setState({ visible });
       return;
     }
+    if (this.state.servicesList.length >0 && this.state.selectedList.length ==0) {
+      Modal.warning({
+        title: '选择服务',
+        content: '请选择至少一个服务才能创建',
+      });
+      return
+    }
     if (this.state.servicesList.length >0) {
      // 直接执行下一步
       localStorage.setItem('servicesList', JSON.stringify(this.state.servicesList))
@@ -264,9 +271,63 @@ class ServiceList extends Component {
       onCancel() { },
     })
   }
+  formetServer(size) {
+    const { resourcePrice } = this.props.cluster
+    switch(size) {
+      case '1C/256M':
+        return resourcePrice['1x']
+      case '1C/512M':
+        return resourcePrice['2x']
+      case '1C/1G':
+        return resourcePrice['4x']
+      case '1C/2G':
+        return resourcePrice['8x']
+      case '1C/4G':
+        return resourcePrice['16x']
+      case '1C/8G':
+        return resourcePrice['32x']
+      default:
+        return resourcePrice['1x'];
+    }
+  }
+  formetPrice() {
+    const { servicesList, selectedList} = this.state
+    const priceArr = []
+    servicesList.forEach((list, index)=> {
+      for(let s = 0; s < selectedList.length; s++) {
+        if (selectedList[s] == list.name) {
+          priceArr.push(this.formetServer(servicesList[index].resource) * (servicesList[index].inf.Deployment.spec.replicas) /100)//number
+        }
+      }
+    })
+    let result = 0;
+    for(let i = 0; i < priceArr.length; i++) {
+      result += priceArr[i];
+    }
+    return result
+  }
+  countSize() {
+     const { servicesList, selectedList} = this.state
+    const priceArr = []
+    servicesList.forEach((list, index)=> {
+      for(let s = 0; s < selectedList.length; s++) {
+        if (selectedList[s] == list.name) {
+          priceArr.push(servicesList[index].inf.Deployment.spec.replicas )//number
+        }
+      }
+    })
+    let result = 0;
+    for(let i = 0; i < priceArr.length; i++) {
+      result += priceArr[i];
+    }
+    return result
+  }
+  
   render() {
     const parentScope = this
-    const { servicesList, isFetching} = this.props
+    const { servicesList, isFetching , cluster} = this.props
+    const price = this.props.cluster.resourcePrice
+
     return (
       <QueueAnim id="ServiceList"
         type="right"
@@ -302,6 +363,14 @@ class ServiceList extends Component {
               <div style={{ clear: "both" }}></div>
             </div>
             <MyComponent scope={parentScope} loading={isFetching} config={this.state.servicesList} />
+          </div>
+          <div className="modal-price">
+            <div className="price-left">
+              <span className="keys">实例：<span className="unit">{this.formetPrice()}</span>/（个*小时）* <span className="unit">{this.countSize()}</span>个</span>
+            </div>
+            <div className="price-unit">合计：<span className="unit">￥</span>
+              <span className="unit blod">{(this.formetPrice() * this.countSize()).toFixed(2)}元/小时</span> &nbsp;
+            </div>
           </div>
           <div className="btnBox">
             <Link to={`/app_manage/app_create`}>
@@ -344,9 +413,11 @@ class ServiceList extends Component {
 function mapStateToProps(state, props) {
   const { query } = props.location
   const {imageName, registryServer, other} = query
+  const { cluster } = state.entities.current
   return {
     imageName,
     registryServer,
+    cluster,
     other
   }
 }
