@@ -21,7 +21,7 @@ class Version extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      modalShow: true
+      modalShow: false
     }
   }
 
