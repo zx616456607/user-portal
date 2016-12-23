@@ -15,7 +15,6 @@ import Person from './Person'
 import Company from './Company'
 import AccountType from './AccountType'
 import SuccessRegister from './SuccessRegister'
-import ResetPassWord from './ResetPassWord'
 import { sendActivationEmail } from '../../actions/user'
 
 
@@ -44,17 +43,13 @@ class Register extends Component{
   }
   renderRegisterPage(register,registerPage){
     const { registerPageShow, registerShow } = this.state
-    const {email, code, resetpassword, sendActivationEmail} = this.props
-    if (email && !resetpassword) {
+    const {email, code, sendActivationEmail} = this.props
+    if (email) {
       return (
         <SuccessRegister email={email} code={code} sendActivationEmail={sendActivationEmail} />
       )
     }
-    if (resetpassword) {
-      return (
-        <ResetPassWord email={email} rpw={resetpassword}/>
-      )
-    }
+
     return (
       <QueueAnim component="div"
                   type={this.state.person?['left']:['right']}
@@ -66,8 +61,6 @@ class Register extends Component{
     )
   }
   componentWillMount(){
-    
-
   }
   render(){
     let register = (
@@ -104,11 +97,10 @@ class Register extends Component{
   }
 }
 function mapStateToProps (state,props) {
-  let {email, rpw, code} = props.location.query
+  let {email, code} = props.location.query
   return {
     code,
     email,
-    resetpassword: rpw,
   }
 }
 Register = connect(mapStateToProps, {

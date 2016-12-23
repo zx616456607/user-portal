@@ -66,11 +66,6 @@ let Login = React.createClass({
       login(body, {
         success: {
           func: (result) => {
-            if (result.message === 'NOT_ACTIVE') {
-              browserHistory.push('/register?email='+result.user.email)
-              resetFields()
-              return
-            }
             self.setState({
               submitting: false,
               submitProps: {},
@@ -84,6 +79,11 @@ let Login = React.createClass({
         failed: {
           func: (err) => {
             let msg = err.message.message || err.message
+             if (err.statusCode === 401 && err.message === 'NOT_ACTIVE' && err.email && err.code) {
+              browserHistory.push(`/register?email=${err.email}&code=${err.code}`)
+              resetFields()
+              return
+            }
             if (err.statusCode == 401) {
               msg = "用户名或者密码错误"
             }

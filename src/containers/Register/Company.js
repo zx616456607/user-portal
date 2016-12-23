@@ -341,7 +341,7 @@ let Company = React.createClass({
     }
   },
   handleCertTypeChange (e) {
-    if (e.target.value === '2') {
+    if (e.target.value === 2) {
       this.setState({
         certTypeCompany: true
       })
