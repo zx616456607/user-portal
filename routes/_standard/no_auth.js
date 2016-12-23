@@ -53,6 +53,8 @@ module.exports = function (Router) {
 
   //register
   router.get('/register', indexCtl.index)
-
+  //resetpassword
+  router.get('/rpw', indexCtl.index)
+  
   return router.routes()
 }
