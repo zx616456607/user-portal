@@ -516,7 +516,7 @@ class Storage extends Component {
         })
       })
       this.setState({
-        volumeArray,
+        volumeArray
       })
       return
     }
@@ -617,7 +617,8 @@ class Storage extends Component {
               <Button type="primary" size="large" onClick={this.showModal}>
                 <i className="fa fa-plus" /><FormattedMessage {...messages.createTitle} />
               </Button>
-              <Button type="ghost" className="stopBtn" size="large" onClick={() => { this.showDeleteModal() } }>
+              <Button type="ghost" className="stopBtn" size="large" onClick={() => { this.showDeleteModal() } } 
+                disabled={!this.state.volumeArray || this.state.volumeArray.length < 1}>
                 <i className="fa fa-trash-o" /><FormattedMessage {...messages.delete} />
               </Button>
               <Modal title={formatMessage(messages.createModalTitle)}
