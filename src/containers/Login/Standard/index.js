@@ -224,6 +224,10 @@ let Login = React.createClass({
 
   componentWillMount() {
     const { resetFields } = this.props.form
+    const { from } = this.props
+    if (from === 'active') {
+      message.success(`用户 ${values.name} 已经激活`)
+    }
     resetFields()
   },
 
@@ -362,9 +366,10 @@ let Login = React.createClass({
 })
 
 function mapStateToProps(state, props) {
-  const { redirect } = props.location.query
+  const { redirect, from } = props.location.query
   return {
-    redirect
+    redirect,
+    from,
   }
 }
 
