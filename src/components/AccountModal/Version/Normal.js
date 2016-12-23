@@ -46,6 +46,7 @@ class VersionNoraml extends Component {
       <div id = 'VersionNoraml'>
         {
           this.state.currentPage == 'first' ? [
+          <QueueAnim key='firstPageAnim'>
             <div className='firstPage' key='firstPage'>
               <div className='bigTitle'>标准版<span>￥0/月</span></div>
               <Card className='infoCard'>
@@ -142,7 +143,9 @@ class VersionNoraml extends Component {
                 </div>
               </Card>
             </div>
+          </QueueAnim>
           ] : [
+          <QueueAnim key='secondPageAnim'>
             <div className='secondPage' key='secondPage'>
               <div className='backBtn' onClick={this.changePage}>
                 <span>返回</span>
@@ -353,6 +356,7 @@ class VersionNoraml extends Component {
                 </div>
               </div>
             </div>
+          </QueueAnim>
           ]
         }
       </div>
