@@ -67,7 +67,7 @@ class Register extends Component{
     let register = (
       <div key='b' id='RegisterPage'>
         <Top/>
-        <div className='register' style={{width:'40%'}}>
+        <div className='register' style={{padding:'0 50px',width:'40%'}}>
           <Card className="registerForm" bordered={false}>
             <div className='backToPage' onClick={this.handlePageChange}>&lt;&lt;&nbsp;&nbsp;&nbsp;重选注册账户类型</div>
             {
@@ -82,8 +82,8 @@ class Register extends Component{
     let registerPage = (
       <div key='a' id='RegisterPage'>
         <Top/>
-        <div className='register' style={{padding:0}}>
-          <Card className="registerForm" bordered={false} style={{margin:'30px 50px 0'}}>
+        <div className='register' style={{padding:0, width:720}}>
+          <Card className="registerForm" bordered={false} style={{margin:'0 50px'}}>
             <AccountType onChange={this.handlePageChange} />
           </Card>
           <div className="accountFooter">

@@ -1,4 +1,49 @@
 #Top {
   position: fixed;
-  top: 0;
+  top: -66px;
+  height: 66px;
+  background-color: #fff;
+  width: 100%;
+  box-shadow:0px 2px 5px #e2e2e2;
+  z-index: 10000;
+  .topWrap {
+  	display: flex;
+  	width: 80%;
+  	margin: 0 auto;
+  	background-color: #e2e2e2;
+  	justify-content:space-between;
+  	align-items: center;
+    height: 100%;
+  	.topLogo {
+	  width: 138px;
+  	}
+  	.topNav {
+  	  flex:1;
+  	  display: flex;
+      justify-content: flex-end;
+      font-size: 14px;
+      .navItem {
+      	margin: 0 30px;
+      	height: 25px;
+      	line-height: 25px;
+      	cursor: pointer;
+      	border-radius: 3px;
+      	padding: 0 5px;
+      	&:hover {
+      	  background-color: blue;
+      	  color: #fff;
+      	}
+      }
+      .log {
+      	display: flex;
+      	align-items: center;
+      	cursor: pointer;
+      	border-radius: 3px;
+      	padding-left: 20px;
+		.navItem {
+		  margin: 0 10px;
+		}
+      }
+  	}
+  }
 }
