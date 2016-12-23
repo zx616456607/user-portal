@@ -71,7 +71,9 @@ function actionCallback(state = null, action) {
   if (action.type.indexOf('_FAILURE') >= 0) {
     if (!callback.failed) return state
     // Mark error is already handled(except login expired)
-    if (action.error.message !== LOGIN_EXPIRED_MESSAGE) {
+    if (action.error.statusCode !== 402 // 余额不足
+       && action.error.statusCode !== 412 // 升级版本
+       && action.error.message !== LOGIN_EXPIRED_MESSAGE) {
       action.error.handledByCallback = true
     }
     if (callback.failed.isAsync) {

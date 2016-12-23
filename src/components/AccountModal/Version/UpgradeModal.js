@@ -9,38 +9,47 @@
  */
 import React, { Component, PropTypes } from 'react'
 import { Menu, Button, Card, Input ,Modal} from 'antd'
+import { browserHistory } from 'react-router'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import VersionNoraml from './Normal.js'
-import VersionProfress from './Profress.js'
+import VersionNoraml from './Normal'
+import VersionProfress from './Profress'
 import "./style/UpgradeModal.less"
 
 class UpgradeModal extends Component {
   constructor(props) {
     super(props);
     this.handleCancel = this.handleCancel.bind(this)
+    this.handleUpgrade = this.handleUpgrade.bind(this)
     this.state = {
+      //
     }
   }
-  
+
   handleCancel() {
     //this function for user close the modal
-    const { scope } = this.props;
-    scope.setState({
-      modalShow: false
-    })
+    const { closeModal } = this.props
+    closeModal && closeModal()
+  }
+
+  handleUpgrade() {
+    const { closeModal } = this.props
+    closeModal && closeModal()
+    browserHistory.push('/account/balance/payment#upgrade')
   }
 
   componentWillMount() {
   }
 
   render() {
-    const { modalShow, currentType } = this.props;
+    const { visible, currentType } = this.props;
     return (
       <Modal className='upgradeModalBox'
         onCancel={this.handleCancel}
-        visible={modalShow}
+        visible={visible}
+        width={620}
+        maskClosable={false}
       >
         <div id = 'upgradeModal'>
           <div className='titleBox'>
@@ -53,11 +62,11 @@ class UpgradeModal extends Component {
               </div>
               <div className={ currentType == 'app' ? 'activeInfo littleInfo' : 'littleInfo'}>
                 <span className='littleIcon'></span>
-                <span className='infoSpan'>应用管理</span>
+                <span className='infoSpan'>应用管理（5个应用）</span>
               </div>
               <div className={ currentType == 'storage' ? 'activeInfo littleInfo' : 'littleInfo'}>
                 <span className='littleIcon'></span>
-                <span className='infoSpan'>存储管理</span>
+                <span className='infoSpan'>存储管理（10G）</span>
               </div>
               <div className={ currentType == 'appcenter' ? 'activeInfo littleInfo' : 'littleInfo'}>
                 <span className='littleIcon'></span>
@@ -69,7 +78,7 @@ class UpgradeModal extends Component {
               </div>
               <div className={ currentType == 'database' ? 'activeInfo littleInfo' : 'littleInfo'}>
                 <span className='littleIcon'></span>
-                <span className='infoSpan'>数据库集群&缓存集群</span>
+                <span className='infoSpan'>数据库集群&缓存集群（2个集群）</span>
               </div>
               <div className={ currentType == 'intergation' ? 'activeInfo littleInfo' : 'littleInfo'}>
                 <span className='littleIcon'></span>
@@ -86,15 +95,15 @@ class UpgradeModal extends Component {
             </div>
             <div className='rightBox'>
               <div className='littleTitle'>
-                <span>专业版</span>￥<span>66</span>/月
+                <span>专业版</span>￥<span>99</span>/月
               </div>
               <div className={ currentType == 'app' ? 'activeInfo littleInfo' : 'littleInfo'}>
                 <span className='littleIcon'></span>
-                <span className='infoSpan'>应用管理</span>
+                <span className='infoSpan'>应用管理（20个应用）</span>
               </div>
               <div className={ currentType == 'storage' ? 'activeInfo littleInfo' : 'littleInfo'}>
                 <span className='littleIcon'></span>
-                <span className='infoSpan'>存储管理</span>
+                <span className='infoSpan'>存储管理（50G）</span>
               </div>
               <div className={ currentType == 'appcenter' ? 'activeInfo littleInfo' : 'littleInfo'}>
                 <img className='commonImg' src='/img/version/proIcon.png' />
@@ -108,7 +117,7 @@ class UpgradeModal extends Component {
               </div>
               <div className={ currentType == 'database' ? 'activeInfo littleInfo' : 'littleInfo'}>
                 <span className='littleIcon'></span>
-                <span className='infoSpan'>数据库集群&缓存集群</span>
+                <span className='infoSpan'>数据库集群&缓存集群（8个集群）</span>
               </div>
               <div className={ currentType == 'intergation' ? 'activeInfo littleInfo' : 'littleInfo'}>
                 <span className='littleIcon'></span>
@@ -133,10 +142,10 @@ class UpgradeModal extends Component {
           </div>
           <div className='btnBox'>
             <div className='bgBox'></div>
-            <Button size='large' type='ghost'>
+            <Button size='large' type='ghost' onClick={this.handleCancel}>
               <span>下次再说</span>
             </Button>
-            <Button size='large' type='primary'>
+            <Button size='large' type='primary' onClick={this.handleUpgrade}>
               <span>升级专业版</span>
             </Button>
           </div>
