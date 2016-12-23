@@ -602,7 +602,6 @@ class CostRecord extends Component{
                               isNaN(item.sum) ? '-' :
                                 standard ? '￥ ' + item.sum/100 :
                                            item.sum/100 + 'T币'
-                                                
                             }
                           </Col>
                         </Row>
@@ -645,8 +644,8 @@ class CostRecord extends Component{
 
 
 function getSpaceMonthCost(balance, cost, standard) {
-    balance = (balance || 0) / 100
-    cost = (cost || 0) / 100
+    balance = (balance || 0)
+    cost = (cost || 0)
     return {
       color: ['#46b2fa', '#2abe84'],
       backgroundColor: '#fff',

@@ -83,7 +83,7 @@ class UserPanel extends Component {
     const { loginUser } = this.props
     let { balance } = loginUser
     if (balance !== undefined) {
-      balance = (balance / 100).toFixed(2)
+      balance = balance.toFixed(2)
     }
     let menuItems = [
       {
