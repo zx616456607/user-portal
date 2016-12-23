@@ -226,7 +226,7 @@ let Login = React.createClass({
     const { resetFields } = this.props.form
     const { from } = this.props
     if (from === 'active') {
-      message.success(`用户 ${values.name} 已经激活`)
+      message.success('账户已经激活')
     }
     resetFields()
   },
