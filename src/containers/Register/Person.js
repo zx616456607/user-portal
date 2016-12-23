@@ -9,7 +9,6 @@
  */
 import React, { Component } from 'react'
 import { Tabs, Button, Form, Input, Card, Tooltip, message, Alert, Col, Row  } from 'antd'
-import './style/Person.less'
 import { USERNAME_REG_EXP, EMAIL_REG_EXP } from '../../constants'
 import { connect } from 'react-redux'
 import { registerUser, sendRegisterPhoneCaptcha } from '../../actions/user'

@@ -10,7 +10,6 @@
 import React, { Component } from 'react'
 import { Tabs, Button, Form, Input, Card, Tooltip, message, Alert, Col, Row, Radio } from 'antd'
 import { connect } from 'react-redux'
-import './style/Company.less'
 import { registerUser, sendRegisterPhoneCaptcha } from '../../actions/user'
 import { browserHistory } from 'react-router'
 import { USERNAME_REG_EXP, EMAIL_REG_EXP } from '../../constants'
