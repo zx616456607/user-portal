@@ -16,7 +16,7 @@ import { beforeUploadFile, uploading, mergeUploadingIntoList, getUploadFileUlr, 
 import cloneDeep from 'lodash/cloneDeep'
 import QueueAnim from 'rc-queue-anim'
 import NotificationHandler from '../../../common/notification_handler'
-import { loadUserDetail } from '../../../actions/user'
+// import { loadUserDetail } from '../../../actions/user'
 import { ROLE_USER, ROLE_TEAM_ADMIN } from '../../../../constants' 
 
 const SubMenu = Menu.SubMenu
@@ -72,8 +72,7 @@ class Slider extends Component {
   }
 
   componentWillMount() {
-    const { pathname, loadUserDetail } = this.props;
-    loadUserDetail("default");
+    const { pathname } = this.props;
     let currentKey = pathname.split('/')[1];
     let currentOpenMenu = checkUrlSelectedKey(pathname);
     let currentSelectedMenu = checkUrlOpenKeys(pathname);
@@ -651,9 +650,9 @@ function checkCurrentPath(pathname) {
 
 function mapStateToProp(state) {
   let role = ROLE_USER
-  const {userDetail} = state.user
-  if (userDetail.result && userDetail.result.data) {
-    role = userDetail.result.data.role
+  const {entities} = state
+  if (entities && entities.loginUser && entities.loginUser.info && entities.loginUser.info) {
+    role = entities.loginUser.info.role
   }
   return {
     uploadFileOptions: state.storage.uploadFileOptions,
@@ -670,5 +669,5 @@ export default connect(mapStateToProp, {
   changeUploadFileOptions: uploadFileOptions,
   getVolumeBindInfo,
   changeStorageDetail,
-  loadUserDetail,
+  // loadUserDetail,
 })(Slider)
