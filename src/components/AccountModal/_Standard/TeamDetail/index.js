@@ -307,16 +307,10 @@ function mapStateToProp(state, props) {
   const { team_id, team_name } = props.params
   let currentRole = false
   const { loginUser } = state.entities
-  const { user } = state
+  const { user, team } = state
 
-  if (user.teams && user.teams.result && user.teams.result.data
-    && user.teams.result.data.data && user.teams.result.data.data.items) {
-    let items = user.teams.result.data.data.items
-    items.map((item, index) => {
-      if (item.id == team_id) {
-        currentRole = item.isCreator
-      }
-    })
+  if (team.teamDetail) {
+     currentRole = team.teamDetail.isCreator
   }
 
   let teamUserList = []
