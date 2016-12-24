@@ -184,13 +184,17 @@ class UserPay extends Component {
 
   showWechatQrCode() {
     const { loadLoginUserDetail, getWechatPayQrCode, getWechatPayOrder } = this.props
-    const { amount, rechargeTarget } = this.state
+    const { amount, rechargeTarget, period } = this.state
     this.setState({
       qrCode: {
         url: '',
       }
     })
-    getWechatPayQrCode(amount, rechargeTarget.namespace).then(({ response, type }) => {
+    const query = {
+      upgrade: 1,
+      duration: period,
+    }
+    getWechatPayQrCode(amount, rechargeTarget.namespace, query).then(({ response, type }) => {
       const { codeUrl, nonceStr, orderId } = response.result
       this.setState({
         qrCode: {
@@ -203,6 +207,10 @@ class UserPay extends Component {
           const { tradeState, result } = response.result
           if (tradeState === 'SUCCESS') {
             clearInterval(this.getOrder)
+            let upgradeOrRenewalsResult = this.handleUpgradeOrRenewalsResult(result)
+            if (upgradeOrRenewalsResult) {
+              return
+            }
             this.setState({
               wechatPayModal: false,
               payStatusModal: true,
@@ -215,6 +223,34 @@ class UserPay extends Component {
     }).catch(err => {
       // Must catch err here, response may be null
     })
+  }
+
+  handleUpgradeOrRenewalsResult(result) {
+    let notification = new NotificationHandler()
+    const { chargePurpose } = result
+    if (!chargePurpose) {
+      return false
+    }
+    let { endTime, chargeType } = chargePurpose
+    // `chargeType === 0` 代表充值成功，升级失败
+    // `chargeType === 1` 代表充值成功，续费失败
+    // `chargeType === 2` 代表充值成功，升级成功
+    // `chargeType === 3` 代表充值成功，续费成功
+    if (chargeType < 2) {
+      this.setState({
+        wechatPayModal: false,
+        payStatusAskModal: false,
+      })
+      notification.warn(`充值成功，${chargeType === 1 ? '续费': '升级'}失败，请检查帐户余额`, '', null)
+      return true
+    }
+    this.setState({
+      wechatPayModal: false,
+      payStatusAskModal: false,
+      upgradeModalVisible: true,
+      endTime: formatDate(endTime),
+    })
+    return true
   }
 
   componentWillUnmount() {
@@ -301,7 +337,7 @@ class UserPay extends Component {
   }
 
   checkPayOrderStatus() {
-    const { getPayOrderStatus, orderId } = this.props
+    const { getPayOrderStatus, orderId, loadLoginUserDetail } = this.props
     let notification = new NotificationHandler()
     getPayOrderStatus({ order_id: orderId }).then(({ response }) => {
       let {
@@ -318,6 +354,31 @@ class UserPay extends Component {
         browserHistory.push('/account/cost#payments')
         return
       }
+      let upgradeOrRenewalsResult = this.handleUpgradeOrRenewalsResult(response.result)
+      if (upgradeOrRenewalsResult) {
+        return
+      }
+      /*if (chargePurpose) {
+        let { endTime, chargeType } = chargePurpose
+        // `chargeType === 0` 代表充值成功，升级失败
+        // `chargeType === 1` 代表充值成功，续费失败
+        // `chargeType === 2` 代表充值成功，升级成功
+        // `chargeType === 3` 代表充值成功，续费成功
+        if (chargeType < 2) {
+          this.setState({
+            payStatusAskModal: false,
+          })
+          notification.warn(`充值成功，${chargeType === 1 ? '续费': '升级'}失败，请检查帐户余额`, '', null)
+          return
+        }
+        this.setState({
+          payStatusAskModal: false,
+          upgradeModalVisible: true,
+          endTime: formatDate(endTime),
+        })
+        loadLoginUserDetail()
+        return
+      }*/
       this.setState({
         payType: method,
         amount: chargeAmount / 100,

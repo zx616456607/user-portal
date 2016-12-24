@@ -27,6 +27,7 @@ class Version extends Component {
 
   componentWillMount() {
     document.title = '版本 | 时速云'
+    const { loadLoginUserDetail } = this.props
     loadLoginUserDetail()
   }
 
@@ -59,6 +60,7 @@ function mapStateToProps(state, props) {
 }
 
 export default connect(mapStateToProps, {
+  loadLoginUserDetail,
 })(injectIntl(Version, {
   withRef: true,
 }))
