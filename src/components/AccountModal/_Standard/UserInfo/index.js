@@ -234,16 +234,35 @@ class BaseInfo extends Component {
       <span className="value">
         {
           envEdition == 0
-          ? '标准版'
-          : '专业版'
+          ? <span>标准版<img className="edition" alt="升级专业版" title="升级专业版" src="/img/version/proIcon-gray.png"/></span>
+          : <span>专业版<img className="edition" alt="专业版" title="专业版" src="/img/version/proIcon.png"/></span>
         }
-        <img className="edition" alt="专业版" title="专业版" src="/img/version/proIcon.png"/>
-        <Button style={{ marginLeft: '10px' }} onClick={() => browserHistory.push('/account/version')}>
+        <Button style={{ marginLeft: '10px' }} onClick={() => browserHistory.push('/account/version#pro')}>
           {
             envEdition == 0
             ? '了解专业版'
             : '查看详情'
           }
+        </Button> &nbsp;
+        <Icon type="question-circle-o" />
+      </span>
+    )
+    if (envEdition == 0) {
+      return (
+        <span className="value">
+          <span>标准版<img className="edition" alt="升级专业版" title="升级专业版" src="/img/version/proIcon-gray.png"/></span>
+          <Button style={{ marginLeft: '10px' }} onClick={() => browserHistory.push('/account/version#pro')}>
+            了解专业版
+          </Button> &nbsp;
+          <Icon type="question-circle-o" />
+        </span>
+      )
+    }
+    return (
+      <span className="value">
+        <span>专业版<img className="edition" alt="专业版" title="专业版" src="/img/version/proIcon.png"/></span>
+        <Button style={{ marginLeft: '10px' }} onClick={() => browserHistory.push('/account/version')}>
+          查看详情
         </Button> &nbsp;
         <Icon type="question-circle-o" />
       </span>

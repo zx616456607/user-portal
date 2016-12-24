@@ -61,7 +61,7 @@ class UserBalance extends Component {
   render() {
     let { loginUser, isTeamsFetching, teamspaces, } = this.props
     const { currentTeam, teamListVisible } = this.state
-    let { balance } = loginUser
+    let { balance, envEdition } = loginUser
     let spaceBalance = currentTeam.balance
     if (balance !== undefined) {
       balance = (balance / 100).toFixed(2)
@@ -132,14 +132,43 @@ class UserBalance extends Component {
             : null
           }
         </div>
-
-        <div className="version">
-          <div className="topRow"><i className="fa fa-get-pocket" /> &nbsp;标准版
-          </div>
-          <div className="moneyRow"><span className="money">0元/月</span></div>
-          <div className="rechargeRow"><Button type="primary" size="large">升级专业版</Button></div>
-        </div>
-
+        {
+          envEdition == 0
+          ? (
+            <div className="version">
+              <div className="topRow">
+                <img className="edition" alt="升级专业版" title="升级专业版" src="/img/version/proIcon-gray.png"/>
+                &nbsp;标准版
+              </div>
+              <div className="moneyRow"><span className="money">0元/月</span></div>
+              <div className="rechargeRow">
+                <Button
+                  type="primary"
+                  size="large"
+                  onClick={() => browserHistory.push('/account/balance/payment#upgrade')}>
+                  升级专业版
+                </Button>
+              </div>
+            </div>
+          )
+          : (
+            <div className="version">
+              <div className="topRow">
+                <img className="edition" alt="专业版" title="专业版" src="/img/version/proIcon.png"/>
+                &nbsp;专业版
+              </div>
+              <div className="moneyRow"><span className="money">99元/月</span></div>
+              <div className="rechargeRow">
+                <Button
+                  type="primary"
+                  size="large"
+                  onClick={() => browserHistory.push('/account/balance/payment#renewals')}>
+                  续费专业版
+                </Button>
+              </div>
+            </div>
+          )
+        }
       </div>
     )
   }
