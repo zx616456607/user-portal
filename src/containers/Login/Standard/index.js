@@ -86,7 +86,7 @@ let Login = React.createClass({
               resetFields()
               return
             }
-            if (err.statusCode === 403 && err.message === 'NOT_INVITED' && err.reason === 'Forbidden' && err.state === 'Failure') {
+            if (err.statusCode === 403 && err.message.message === 'NOT_INVITED') {
               msg = "邀请码无效"
             }
             if (err.statusCode == 401) {
