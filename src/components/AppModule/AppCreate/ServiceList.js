@@ -101,7 +101,8 @@ class MyComponent extends Component {
       return (
         <div key={item.id} className={this.checkedFunc(item.id) ? "selectedService serviceDetail" : "serviceDetail"}>
           <div className="selectIconTitle commonData">
-            <Checkbox checked={this.checkedFunc(item.id)} onChange={() => this.onchange(item.id)} />
+            &nbsp;
+            {/*<Checkbox checked={this.checkedFunc(item.id)} onChange={() => this.onchange(item.id)} />*/}
           </div>
           <div className="name commonData">
             <span className="viewSpan" onClick={this.modalShow.bind(this, item)}>
@@ -291,30 +292,24 @@ class ServiceList extends Component {
     }
   }
   formetPrice() {
-    const { servicesList, selectedList} = this.state
+    //  返回计算后单价
+    const { servicesList } = this.state
     const priceArr = []
     servicesList.forEach((list, index)=> {
-      for(let s = 0; s < selectedList.length; s++) {
-        if (selectedList[s] == list.name) {
-          priceArr.push(this.formetServer(servicesList[index].resource) * (servicesList[index].inf.Deployment.spec.replicas) /100)//number
-        }
-      }
+      priceArr.push(this.formetServer(servicesList[index].resource) * (servicesList[index].inf.Deployment.spec.replicas) /100)//number
     })
     let result = 0;
     for(let i = 0; i < priceArr.length; i++) {
       result += priceArr[i];
     }
-    return result
+    return result = parseFloat(result.toFixed(2))
   }
   countSize() {
-     const { servicesList, selectedList} = this.state
+  // 返回 服务数量
+     const { servicesList } = this.state
     const priceArr = []
     servicesList.forEach((list, index)=> {
-      for(let s = 0; s < selectedList.length; s++) {
-        if (selectedList[s] == list.name) {
-          priceArr.push(servicesList[index].inf.Deployment.spec.replicas )//number
-        }
-      }
+      priceArr.push(servicesList[index].inf.Deployment.spec.replicas )//number
     })
     let result = 0;
     for(let i = 0; i < priceArr.length; i++) {
@@ -338,15 +333,18 @@ class ServiceList extends Component {
               <i className="fa fa-plus" />&nbsp;
               添加服务
             </Button>
-            <Button size="large" type="ghost" onClick={this.delAllSelected}>
+            {/*<Button size="large" type="ghost" onClick={this.delAllSelected}>
               <i className="fa fa-trash" />&nbsp;
               删除
             </Button>
+            --批量删除 ---  
+          */} 
           </div>
           <div className="dataBox">
             <div className="titleBox">
               <div className="selectIconTitle commonData">
-                <Checkbox checked={this.allSelectedChecked()} onChange={() => this.onchange()} />
+                &nbsp;
+                {/*<Checkbox checked={this.allSelectedChecked()} onChange={() => this.onchange()} />*/}
               </div>
               <div className="name commonData">
                 服务名称

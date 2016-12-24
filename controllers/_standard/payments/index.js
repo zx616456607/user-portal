@@ -15,6 +15,7 @@
 const apiFactory = require('../../../services/api_factory')
 const emailUtils = require('../../../utils/email')
 const logger = require('../../../utils/logger').getLogger('payments')
+const stdConfigs = require('../../../configs/_standard')
 
 exports.getOrderStatusFromSession = function* () {
   const status = this.session.payment_status
@@ -63,6 +64,6 @@ exports.sendPaySuccessEmail = function (email, type, amount, order) {
   let balance = order.new_balance
   amount = parseInt(amount) / 100
   balance = parseInt(balance) / 100
-  const payHistoryUrl = 'https://console.tenxcloud.com/account/cost#payments'
+  const payHistoryUrl = `${stdConfigs.host}/account/cost#payments`
   emailUtils.sendChargeSuccessEmail(email, type, amount, balance, payHistoryUrl, order.team_name)
 }

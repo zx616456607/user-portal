@@ -542,6 +542,9 @@ class Storage extends Component {
     return (e, name, diskType) => {
       let volumeArray = this.state.volumeArray
       if (e.target.checked) {
+        if (findIndex(volumeArray, { name }) >= 0) {
+          return 
+        }
         volumeArray.push({
           name,
           diskType: 'rbd'
@@ -613,6 +616,9 @@ class Storage extends Component {
   }
   render() {
     const { formatMessage } = this.props.intl
+    console.log(this.props.currentCluster.resourcePrice.storage)
+    const storagePrice = this.props.currentCluster.resourcePrice.storage /100
+
     return (
       <QueueAnim className="StorageList" type="right">
         <div id="StorageList" key="StorageList">
@@ -663,6 +669,14 @@ class Storage extends Component {
                     <Button type={this.state.currentType === 'xfs' ? 'primary' : 'ghost'} style={{ margin: '0 10px' }} onClick={(e) => { this.changeType('xfs') } }>xfs</Button>
                   </Col>
                 </Row>
+                <div className="modal-price">
+                  <div className="price-left">
+                    储存：￥{ storagePrice } /(GB*小时)
+                  </div>
+                  <div className="price-unit">
+                    合计：<span className="unit">￥</span><span className="unit blod">{parseFloat((this.state.size / 1000 * storagePrice)).toFixed(2)} / 小时</span>
+                  </div>
+                </div>
               </Modal>
             </div>
             <div className="rightBox">

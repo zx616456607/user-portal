@@ -52,8 +52,8 @@ function getClusterCostOption(costValue, restValue) {
         radius : '45%',
         center: ['30%', '50%'],
         data:[
-          {value:900, name:'余额'},
-          {value:100, name:'消费',selected:true},
+          {value:restValue, name:'余额'},
+          {value:costValue, name:'消费',selected:true},
         ],
         itemStyle: {
           normal: {
@@ -1000,7 +1000,6 @@ class Ordinary extends Component{
             <Card title="数据库与缓存" bordered={false} bodyStyle={{height:200}}>
               <Row gutter={16}>
                 <Col span={8} onClick={() => this.handleDataBaseClick('tab1')} className={this.state.tab1?'seleted':''}><span className='dataBtn'>MySQL</span></Col>
-                <Col span={8} onClick={() => this.handleDataBaseClick('tab2')} className={this.state.tab2?'seleted':''}><span className='dataBtn'>Mongo</span></Col>
                 <Col span={8} onClick={() => this.handleDataBaseClick('tab3')} className={this.state.tab3?'seleted':''}><span className='dataBtn'>Redis</span></Col>
               </Row>
               <Row style={{display: this.state.tab1?'block':'none',height:130}}>

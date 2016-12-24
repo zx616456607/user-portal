@@ -29,6 +29,7 @@ class UserPanel extends Component {
     super(props)
     this.handleVisibleChange = this.handleVisibleChange.bind(this)
     this.renderMenuItems = this.renderMenuItems.bind(this)
+    this.getEdition = this.getEdition.bind(this)
     this.getTitle = this.getTitle.bind(this)
     this.getContent = this.getContent.bind(this)
     this.state = {
@@ -41,6 +42,26 @@ class UserPanel extends Component {
     this.setState({
       visible: !visible
     })
+  }
+
+  getEdition() {
+    const { loginUser } = this.props
+    const { envEdition } = loginUser
+    if (envEdition == 0) {
+      return (
+        <Link to="/account/version">
+          <img className="edition" alt="升级专业版" title="升级专业版" src="/img/version/proIcon-gray.png"/>
+        </Link>
+      )
+    }
+    if (envEdition == 1) {
+      return (
+        <Link to="/account/version">
+          <img className="edition" alt="专业版" title="专业版" src="/img/version/proIcon.png"/>
+        </Link>
+      )
+    }
+    return
   }
 
   getTitle() {
@@ -57,7 +78,10 @@ class UserPanel extends Component {
         </div>
         <div className="loginText">
           <div className="text">
-            <p className="userName">{userName}</p>
+            <p className="userName">
+              {userName}
+              {this.getEdition()}
+            </p>
             <p className="email">{email || '...'}</p>
           </div>
         </div>

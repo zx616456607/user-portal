@@ -15,6 +15,7 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import VersionNoraml from './Normal'
 import VersionProfress from './Profress'
 import "./style/Version.less"
+import { loadLoginUserDetail } from '../../../actions/entities'
 
 class Version extends Component {
   constructor(props) {
@@ -26,14 +27,16 @@ class Version extends Component {
 
   componentWillMount() {
     document.title = '版本 | 时速云'
+    loadLoginUserDetail()
   }
 
   render() {
-    let version = 'normal';
+    const { loginUser } = this.props
+    const { envEdition } = loginUser
     return (
       <div id = 'Version'>
         {
-          version == 'normal' ? [
+          envEdition == 0 ? [
             <VersionNoraml key='VersionNoraml' />
           ] : [
             <VersionProfress key='VersionProfress' />
@@ -49,7 +52,9 @@ Version.propTypes = {
 }
 
 function mapStateToProps(state, props) {
+  const { loginUser } = state.entities
   return {
+    loginUser: loginUser.info,
   }
 }
 
