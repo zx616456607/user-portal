@@ -517,6 +517,21 @@ exports.stopBuild = function* () {
   }
 }
 
+exports.updateStageLink = function* () {
+  const loginUser = this.session.loginUser
+  const flow_id = this.params.flow_id
+  const stage_id = this.params.stage_id
+  const target_id = this.params.target_id 
+  const body = this.request.body
+
+  const api = apiFactory.getDevOpsApi(loginUser)
+  const result = yield api.updateBy(["ci-flows", flow_id, "stages", stage_id, "link", target_id], null, body)
+
+  this.body = {
+    data: result
+  }
+}
+
 /* CD rules
 */
 exports.createCDRule = function* () {

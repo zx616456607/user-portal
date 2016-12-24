@@ -537,7 +537,7 @@
   "Integration.CreateVmModal.finishBtn": "配置完成",
   "Integration.CreateVmModal.cancelBtn": "取消",
   "Integration.VmList.create": "克隆虚拟机",
-  "Integration.VmList.ip": "虚拟机IP",
+  "Integration.VmList.ip": "虚拟机名称/IP",
   "Integration.VmList.status": "状态",
   "Integration.VmList.pod": "所属物理机",
   "Integration.VmList.memory": "内存",
