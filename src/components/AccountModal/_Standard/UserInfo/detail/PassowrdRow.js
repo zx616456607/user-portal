@@ -147,8 +147,8 @@ let PasswordRow = React.createClass({
       const notification = new NotificationHandler()
       notification.spin('修改密码中')
       changeUserInfo({
-        password: values.emailPassword,
-        email: values.newEmail
+        password: values.password,
+        newPassword: values.newpassword
       }, {
         success: {
           func: () => {
@@ -162,7 +162,7 @@ let PasswordRow = React.createClass({
         failed: {
           func: (result) => {
             notification.close()
-            notification.error(result.message)
+            notification.error(result.message.message)
           }
         }
       })

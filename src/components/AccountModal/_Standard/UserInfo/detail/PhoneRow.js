@@ -118,7 +118,7 @@ let PhoneRow = React.createClass({
         failed: {
           func: (result) => {
             noti.close()
-            noti.error(result.message)
+            noti.error(result.message.message)
           }
         }
       })

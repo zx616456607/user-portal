@@ -11,6 +11,7 @@ import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import { Button, Tabs, Input, Icon, Modal, Upload, Dropdown, Form, Spin} from 'antd'
 import { changeUserInfo } from '../../../../../actions/user'
+import { loadLoginUserDetail } from '../../../../../actions/entities'
 import NotificationHandler from '../../../../../common/notification_handler'
 
 const createForm = Form.create
@@ -22,8 +23,8 @@ let EmailRow = React.createClass({
       callback([new Error('请输入当前密码')])
       return
     }
-    if (values.length < 6) {
-      callback([new Error('账户密码不少于6个字符')])
+    if (values.length < 3) {
+      callback([new Error('账户密码不少于5个字符')])
       return
     }
     if (values.length > 63) {
@@ -51,8 +52,8 @@ let EmailRow = React.createClass({
   },
   handEmail(e) {
     e.preventDefault()
-    const {form } = this.props
-    const { changeUserInfo } = this.props
+    const { form } = this.props
+    const { changeUserInfo, loadLoginUserDetail } = this.props
     const scope = this.props.scope
     const oldEmail = this.props.email
     form.validateFields(['emailPassword', 'newEmail'], (errors, values) => {
@@ -73,12 +74,14 @@ let EmailRow = React.createClass({
             scope.setState({
               editEmail: false
             })
-          }
+            loadLoginUserDetail()
+          },
+          isAsync: true
         },
         failed: {
           func: (result) => {
             notification.close()
-            notification.error(result.message)
+            notification.error(result.message.message)
           }
         }
       })
@@ -124,5 +127,6 @@ function mapStateToProps(state, props) {
 EmailRow = createForm()(EmailRow)
 
 export default connect(mapStateToProps, {
-  changeUserInfo
+  changeUserInfo,
+  loadLoginUserDetail
 })(EmailRow)
