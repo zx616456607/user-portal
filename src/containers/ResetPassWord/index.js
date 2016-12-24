@@ -38,7 +38,7 @@ class ResetPassWord extends Component {
       <div id='ResetPassWord'>
         <Top />
         <div className='reset'>
-          <div id='resetContant'>
+          <div className='resetContant'>
           {
             this.renderResetForm()
           }
