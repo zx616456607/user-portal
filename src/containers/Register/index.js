@@ -83,7 +83,7 @@ class Register extends Component{
       <div key='a' id='RegisterPage'>
         <Top/>
         <div className='register'>
-          <div className='registerTitle'>请选择注册账户类型</div>
+          <div className='registerTitle'></div>
             <Card className="registerForm" bordered={false} style={{width: 720}}>
               <AccountType onChange={this.handlePageChange} />
               <div className="accountFooter">
