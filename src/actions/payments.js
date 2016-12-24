@@ -4,7 +4,7 @@
  */
 
 /**
- * Redux actions for wechat pay
+ * Redux actions for payments
  *
  * v0.1 - 2016-09-23
  * @author Zhangpc

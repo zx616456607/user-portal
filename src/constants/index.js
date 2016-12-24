@@ -30,7 +30,7 @@ export const LOGIN_EXPIRED_MESSAGE = 'LOGIN_EXPIRED'
 export const MY_SPACE = {
   name: "我的空间",
   spaceName: "我的空间",
-  teamName: "我的团队",
+  teamName: "我的帐户",
   namespace: "default",
   teamID: "default",
 }

@@ -38,6 +38,10 @@ if (locale === 'zh') {
 
 /**
  * Format date
+ * `YYYY-MM-DD HH:mm:ss`
+ * @export
+ * @param {any} timestamp
+ * @returns
  */
 export function formatDate(timestamp) {
   if (!timestamp || timestamp === '') {

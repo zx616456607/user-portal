@@ -11,14 +11,22 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import { Link, browserHistory } from 'react-router'
-import { Icon, Input, Button, Modal, Row, Col, Spin, InputNumber, } from 'antd'
+import { Icon, Input, Button, Modal, Row, Col, Spin, InputNumber, Tooltip, } from 'antd'
 import { MIN_PAY_AMOUNT, PAY_AMOUNT_STEP } from '../../../../constants'
 import { loadLoginUserDetail } from '../../../../actions/entities'
 import { loadUserTeamspaceList } from '../../../../actions/user'
 import { getWechatPayQrCode, getWechatPayOrder, getPayOrderStatus } from '../../../../actions/payments'
+import { upgradeOrRenewalsEdition } from '../../../../actions/user_preference'
 import QRCode from 'qrcode.react'
 import NotificationHandler from '../../../../common/notification_handler'
 import './style/balance.less'
+import { formatDate } from '../../../../common/tools'
+
+const periodPrice = {
+  period_1: 99,
+  period_3: 89,
+  period_12: 79,
+}
 
 class UserPay extends Component {
   constructor(props) {
@@ -30,6 +38,18 @@ class UserPay extends Component {
     this.handlePaySuccessModalCancel = this.handlePaySuccessModalCancel.bind(this)
     this.renderPayButton = this.renderPayButton.bind(this)
     this.checkPayOrderStatus = this.checkPayOrderStatus.bind(this)
+    this.renderPayments = this.renderPayments.bind(this)
+    this.getUpgradeModalContent = this.getUpgradeModalContent.bind(this)
+    const { hash } = props
+    let title = '充值'
+    let amount = 100
+    if (hash === '#upgrade') {
+      title = '升级版本'
+      amount = 99
+    } else if (hash === '#renewals') {
+      title = '续费'
+      amount = 99
+    }
     this.state = {
       payType: 'alipay', //支付类型
       payStatusModal: false, //充值状态
@@ -38,24 +58,30 @@ class UserPay extends Component {
       qrCode: {
         url: '',
       },
-      amount: 100,
+      amount,
       otherAmount: false, // 其他金额
       balance: 0,
+      payBtnDisabled: false,
       rechargeTarget: {
         loading: false,
         namespace: '',
       },
       teamName: props.teamName,
+      title,
+      period: 1, // 有效期限(1,3,12)
+      upgradeModalVisible: false,
+      endTime: ''
     }
   }
 
   componentWillMount() {
-    document.title = '充值 | 时速云'
+    const { teamName, title } = this.state
+    document.title = `${title} | 时速云`
     const { loadUserTeamspaceList, getPayOrderStatus, orderId } = this.props
-    const { teamName } = this.state
     // Load team list
     if (teamName) {
       this.setState({
+        payBtnDisabled: true,
         rechargeTarget: {
           loading: true
         }
@@ -63,6 +89,7 @@ class UserPay extends Component {
       loadUserTeamspaceList('default', { size: -1 }).then(({response}) => {
         const { teamspaces } = response.result
         this.setState({
+          payBtnDisabled: false,
           rechargeTarget: {
             loading: false,
           }
@@ -70,6 +97,7 @@ class UserPay extends Component {
         teamspaces.map(space => {
           if (space.teamName === teamName) {
             this.setState({
+              payBtnDisabled: false,
               rechargeTarget: {
                 namespace: space.namespace
               }
@@ -78,6 +106,7 @@ class UserPay extends Component {
         })
       }).catch(err => {
         this.setState({
+          payBtnDisabled: false,
           rechargeTarget: {
             loading: false,
           }
@@ -103,11 +132,26 @@ class UserPay extends Component {
   }
 
   changePayType(type) {
-    this.setState({ payType: type })
+    let notification = new NotificationHandler()
+    let { amount } = this.state
+    const { loginUser } = this.props
+    const newState = {
+      payType: type,
+    }
+    amount *= 100
+    if (type === 'user_balance' && amount > loginUser.balance) {
+      notification.warn(`您的账户余额不足`, `请选择充值的方式进行升级`)
+      newState.payBtnDisabled = true
+    } else {
+      newState.payBtnDisabled = false
+    }
+    this.setState(newState)
   }
 
   handlePayClick(e) {
-    const { payType, amount } = this.state
+    const { payType, amount, period } = this.state
+    const { upgradeOrRenewalsEdition, loadLoginUserDetail, hash } = this.props
+    let notification = new NotificationHandler()
     if (!amount) {
       e.preventDefault()
       document.getElementById('inputAmount').focus()
@@ -116,9 +160,24 @@ class UserPay extends Component {
     const newState = {}
     if (payType === 'alipay') {
       newState.payStatusAskModal = true
-    } else {
+    } else if (payType === 'wechat_pay') {
       newState.wechatPayModal = true
       this.showWechatQrCode()
+    } else {
+      const body = {
+        env: 1,
+        month: period,
+      }
+      upgradeOrRenewalsEdition(body).then(({ response, type }) => {
+        const { endTime } = response.result.data
+        this.setState({
+          upgradeModalVisible: true,
+          endTime: formatDate(endTime)
+        })
+        loadLoginUserDetail()
+      }).catch(err => {
+        // Must catch err here, response may be null
+      })
     }
     this.setState(newState)
   }
@@ -172,33 +231,54 @@ class UserPay extends Component {
   }
 
   renderPayButton() {
-    const { rechargeTarget, payType, amount, teamName } = this.state
-    const { loading, namespace } = rechargeTarget
+    const {
+      rechargeTarget,
+      payType,
+      amount,
+      teamName,
+      payBtnDisabled,
+      title,
+      period,
+    } = this.state
+    const { namespace } = rechargeTarget
     if (payType === 'wechat_pay') {
       return (
         <Button
           type="primary"
           size="large"
-          disabled={rechargeTarget.loading}
+          disabled={payBtnDisabled}
           onClick={this.handlePayClick}>
-          充值
+          {title}
         </Button>
       )
     }
     // Alipay
+    if (payType === 'alipay') {
+      return (
+        <form id="payment" method="post" action="/api/v2/payments/alipay" target="_blank" role="form">
+          <input type="hidden" id="paymentAmount" name="paymentAmount" value={amount} />
+          <input type="hidden" id="teamspace" name="teamspace" value={namespace} />
+          <input type="hidden" id="upgrade" name="upgrade" value='1' />
+          <input type="hidden" id="duration" name="duration" value={period} />
+          <Button
+            type="primary"
+            htmlType="submit"
+            size="large"
+            disabled={payBtnDisabled}
+            onClick={this.handlePayClick}>
+            {title}
+          </Button>
+        </form>
+      )
+    }
     return (
-      <form id="payment" method="post" action="/api/v2/payments/alipay" target="_blank" role="form">
-        <input type="hidden" id="paymentAmount" name="paymentAmount" value={amount} />
-        <input type="hidden" id="teamspace" name="teamspace" value={namespace} />
-        <Button
-          type="primary"
-          htmlType="submit"
-          size="large"
-          disabled={rechargeTarget.loading}
-          onClick={this.handlePayClick}>
-          充值
-        </Button>
-      </form>
+      <Button
+        type="primary"
+        size="large"
+        disabled={payBtnDisabled}
+        onClick={this.handlePayClick}>
+        {title}
+      </Button>
     )
   }
 
@@ -210,6 +290,13 @@ class UserPay extends Component {
     this.setState({
       amount,
       otherAmount
+    })
+  }
+
+  setPeriod(period) {
+    this.setState({
+      period,
+      amount: periodPrice[`period_${period}`] * period
     })
   }
 
@@ -248,7 +335,8 @@ class UserPay extends Component {
     })
   }
 
-  render() {
+  renderPayments() {
+    const { hash, loginUser } = this.props
     let {
       payType,
       qrCode,
@@ -260,17 +348,91 @@ class UserPay extends Component {
       payStatusModal,
       payStatusAskModal,
       wechatPayModal,
+      title,
+      period,
     } = this.state
-    if (balance !== undefined) {
-      balance = (balance / 100).toFixed(2)
+    let userBalance = loginUser.balance
+    if (userBalance !== undefined) {
+      userBalance = userBalance / 100
     }
-    return (
-      <div id="UserPay">
-        <div className="topPay">
-          <span className="backjia"></span>
-          <span className="btn-back" onClick={() => browserHistory.goBack()}>返回</span>
-          <span className="refill">充值</span>
+    // 续费升级
+    if (hash === '#upgrade' || hash === '#renewals') {
+      return (
+        <div className="upgradePayDetail">
+          <div className="row">
+            <span className="keys">充值帐户</span>
+            {this.renderRechargeTarget()}
+          </div>
+          <div className="row">
+            <span className="keys">选择有效期限</span>
+            <div className={period == '1' ? 'pushMoney selected' : 'pushMoney'} onClick={() => this.setPeriod(1)}>
+              <p>1个月</p>
+              <p>￥<span className='bigSpan'>99/月</span></p>
+              <div className="triangle"></div>
+              <Icon type="check" />
+            </div>
+            <div className={period == '3' ? 'pushMoney selected' : 'pushMoney'} onClick={() => this.setPeriod(3)}>
+              <p>3个月</p>
+              <p>￥<span className='bigSpan'>89/月</span></p>
+              <div className="triangle"></div>
+              <Icon type="check" />
+            </div>
+            <div className={period == '12' ? 'pushMoney selected' : 'pushMoney'} onClick={() => this.setPeriod(12)}>
+              <p>12个月</p>
+              <p>￥<span className='bigSpan'>79/月</span></p>
+              <div className="triangle"></div>
+              <Icon type="check" />
+            </div>
+            <div style={{ clear: 'both' }}></div>
+          </div>
+          <div className="row">
+            <span className="keys">充值方式</span>
+            ① 在线支付
+          </div>
+          <div className="againMore">
+            <div className="pay-row">
+              <div
+                className={payType == 'alipay' ? 'wrap-img selected' : 'wrap-img'}
+                onClick={() => this.changePayType('alipay')}>
+                <img src="/img/standard/allpay.png" />
+                <Icon type="check" />
+                <div className="triangle"></div> {/*no remove */}
+              </div>
+              <div
+                className={payType == 'wechat_pay' ? 'wrap-img selected' : 'wrap-img'}
+                onClick={() => this.changePayType('wechat_pay')}>
+                <img src="/img/standard/weixin.png" alt="" />
+                <Icon type="check" />
+                <div className="triangle"></div> {/*no remove */}
+              </div>
+              <Tooltip placement="right" title={`余额：¥ ${userBalance}`}>
+                <div
+                  className={payType == 'user_balance' ? 'wrap-img selected' : 'wrap-img'}
+                  onClick={() => this.changePayType('user_balance')}>
+                  <img className='userBalanceImg' src='/img/standard/userBalance.png' />
+                  <Icon type="check" />
+                  <div className="triangle"></div> {/*no remove */}
+                </div>
+              </Tooltip>
+            </div>
+          </div>
+          <div className="row">
+            <span className="keys">合计</span>
+            <span className="amount"><span style={{ fontSize: '18px' }}>¥</span> {amount}</span>
+          </div>
+          <div className="againMore">
+            <div className="pay-row">
+            </div>
+            <div className="pay-row" style={{ marginTop: '20px' }}>
+              {this.renderPayButton()}
+            </div>
+          </div>
         </div>
+      )
+    }
+    // 充值
+    return (
+      <div>
         <ul className="sendInfo">
           <li>温馨提示：</li>
           <li>1. 充值金额会在当天到账。如遇问题，可查看 <Icon type="link" />充值帮助。</li>
@@ -387,81 +549,172 @@ class UserPay extends Component {
               </div>
             </div>
           </div>
-          {/* 充值成功 Modal */}
-          <Modal
-            title="充值成功"
-            visible={payStatusModal}
-            maskClosable={false}
-            onOk={() => this.setState({ payStatusModal: false })}
-            onCancel={this.handlePaySuccessModalCancel}
-            wrapClassName="paySuccessModal"
-            okText="继续充值"
-            cancelText="查看充值记录"
-            footer={[
-              <Button
-                key="payHistory"
-                type="primary"
-                size="large"
-                onClick={() => browserHistory.push('/account/cost#payments')}>
-                充值记录
-              </Button>,
-              <Button
-                key="back"
-                type="ghost"
-                size="large"
-                onClick={this.handlePaySuccessModalCancel}>
-                继续充值
-              </Button>,
-            ]}
-            width={490}
-            >
-            <div className="paySuccess"><Icon type="check" /></div>
-            <p className="payText">支付成功</p>
-            <br />
-            <p>通过{payType === 'alipay' ? `支付宝` : `微信`}向 <a>{this.renderRechargeTarget()}</a></p>
-            <p>充值金额为 <span className="success"> {amount}</span> 元，当前团队余额为 <a>{balance}</a> 元</p>
-          </Modal>
-          {/* 充值成功 end Modal */}
-
-          {/* 是否支付成功 Modal */}
-          <Modal
-            title="是否支付成功"
-            visible={payStatusAskModal}
-            maskClosable={false}
-            onCancel={() => this.setState({ payStatusAskModal: false })}
-            onOk={this.checkPayOrderStatus}
-            wrapClassName="paySuccessModal"
-            okText="支付成功"
-            cancelText="支付失败"
-            width={490}
-            >
-            <div className="paySuccess question"><Icon type="question" /></div>
-            <p className="payText question">是否支付成功</p>
-            <br />
-          </Modal>
-          {/* 是否支付成功 end Modal */}
-
-
-          {/* 微信支付 Modal */}
-          <Modal
-            title="微信支付"
-            visible={wechatPayModal}
-            maskClosable={false}
-            onOk={this.handleOk}
-            onCancel={this.handleWechatPayCancel}
-            wrapClassName="wechatPayModal"
-            footer={null}
-            width={300}
-            >
-            {
-              !qrCode.url
-                ? <div className="qrCodeLoading"><Spin size="large" /></div>
-                : <div className="qrCode"><QRCode value={qrCode.url} size={200} /></div>
-            }
-            <div className="wechatPayModalFooter">支付成功后，页面会自动刷新</div>
-          </Modal>
-          {/* 是否支付成功 end Modal */}
         </div>
+      </div>
+    )
+  }
+
+  getUpgradeModalContent() {
+    const { hash } = this.props
+    if (hash === '#upgrade') {
+      return (
+        <div>
+          <div>
+            <img alt="专业版" title="专业版" src="/img/version/proImg.png"/>
+          </div>
+          <p className="successText">恭喜您升级到专业版</p>
+        </div>
+      )
+    }
+    const { endTime } = this.state
+    return (
+      <div>
+        <div className="renewalsSuccess"><Icon type="check" /></div>
+        <p className="successText">恭喜您，续费成功</p>
+        <p>有效期至 {endTime}</p>
+      </div>
+    )
+  }
+
+  render() {
+    let {
+      payType,
+      qrCode,
+      amount,
+      balance,
+      rechargeTarget,
+      teamName,
+      otherAmount,
+      payStatusModal,
+      payStatusAskModal,
+      wechatPayModal,
+      title,
+      period,
+      upgradeModalVisible,
+    } = this.state
+    if (balance !== undefined) {
+      balance = (balance / 100).toFixed(2)
+    }
+    return (
+      <div id="UserPay">
+        <div className="topPay">
+          <span className="backjia"></span>
+          <span className="btn-back" onClick={() => browserHistory.goBack()}>返回</span>
+          <span className="refill">{title}</span>
+        </div>
+        {this.renderPayments()}
+        {/* 充值成功 Modal */}
+        <Modal
+          title="充值成功"
+          visible={payStatusModal}
+          maskClosable={false}
+          onOk={() => this.setState({ payStatusModal: false })}
+          onCancel={this.handlePaySuccessModalCancel}
+          wrapClassName="paySuccessModal"
+          okText="继续充值"
+          cancelText="查看充值记录"
+          footer={[
+            <Button
+              key="payHistory"
+              type="primary"
+              size="large"
+              onClick={() => browserHistory.push('/account/cost#payments')}>
+              充值记录
+            </Button>,
+            <Button
+              key="back"
+              type="ghost"
+              size="large"
+              onClick={this.handlePaySuccessModalCancel}>
+              继续充值
+            </Button>,
+          ]}
+          width={490}
+          >
+          <div className="paySuccess"><Icon type="check" /></div>
+          <p className="payText">支付成功</p>
+          <br />
+          <p>通过{payType === 'alipay' ? `支付宝` : `微信`}向 <a>{this.renderRechargeTarget()}</a></p>
+          <p>充值金额为 <span className="success"> {amount}</span> 元，当前团队余额为 <a>{balance}</a> 元</p>
+        </Modal>
+        {/* 充值成功 end Modal */}
+
+        {/* 是否支付成功 Modal */}
+        <Modal
+          title="是否支付成功"
+          visible={payStatusAskModal}
+          maskClosable={false}
+          onCancel={() => this.setState({ payStatusAskModal: false })}
+          onOk={this.checkPayOrderStatus}
+          wrapClassName="paySuccessModal"
+          okText="支付成功"
+          cancelText="支付失败"
+          width={490}
+          >
+          <div className="paySuccess question"><Icon type="question" /></div>
+          <p className="payText question">是否支付成功</p>
+          <br />
+        </Modal>
+        {/* 是否支付成功 end Modal */}
+
+        {/* 微信支付 Modal */}
+        <Modal
+          title="微信支付"
+          visible={wechatPayModal}
+          maskClosable={false}
+          onOk={this.handleOk}
+          onCancel={this.handleWechatPayCancel}
+          wrapClassName="wechatPayModal"
+          footer={null}
+          width={300}
+          >
+          {
+            !qrCode.url
+              ? <div className="qrCodeLoading"><Spin size="large" /></div>
+              : <div className="qrCode"><QRCode value={qrCode.url} size={200} /></div>
+          }
+          <div className="wechatPayModalFooter">支付成功后，页面会自动刷新</div>
+        </Modal>
+        {/* 是否支付成功 end Modal */}
+
+        {/* 升级成功 Modal */}
+        <Modal
+          title="升级成功"
+          visible={upgradeModalVisible}
+          maskClosable={false}
+          onCancel={() => this.setState({ upgradeModalVisible: false })}
+          onOk={this.checkPayOrderStatus}
+          wrapClassName="upgradeModal"
+          okText="查看消费记录"
+          cancelText="查看当前版本"
+          width={400}
+          footer={[
+            <Button
+              key="payHistory"
+              type="primary"
+              size="large"
+              onClick={() => browserHistory.push('/account/cost')}>
+              查看消费记录
+            </Button>,
+            <Button
+              key="back"
+              type="ghost"
+              size="large"
+              onClick={() => browserHistory.push('/account/version')}>
+              查看当前版本
+            </Button>,
+          ]}
+          >
+          {/*<div>
+            <div>
+              <img alt="专业版" title="专业版" src="/img/version/proImg.png"/>
+            </div>
+            <p className="successText">恭喜您升级到专业版</p>
+          </div>*/}
+          {this.getUpgradeModalContent()}
+          <br />
+        </Modal>
+        {/* 升级成功 end Modal */}
       </div>
     )
   }
@@ -470,9 +723,12 @@ class UserPay extends Component {
 function mapStateToProps(state, props) {
   const { location } = props
   const { team, order_id } = location.query
+  const { loginUser } = state.entities
   return {
+    loginUser: loginUser.info,
     teamName: team,
     orderId: order_id,
+    hash: location.hash,
   }
 }
 
@@ -482,4 +738,5 @@ export default connect(mapStateToProps, {
   getWechatPayQrCode,
   getWechatPayOrder,
   getPayOrderStatus,
+  upgradeOrRenewalsEdition,
 })(UserPay)
