@@ -90,7 +90,7 @@ class ContainerLogs extends Component {
     }
     return (
       <Websocket
-        url={`ws://${loginUser.tenxApi.host}/spi/v2/watch`}
+        url={`wss://${loginUser.tenxApi.host}/spi/v2/watch`}
         onSetup={this.onLogsWebsocketSetup}
         debug={false} />
     )
