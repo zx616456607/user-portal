@@ -35,7 +35,7 @@ class ResetPassWord extends Component {
   }
   render(){
     return (
-      <div id='RegisterPage'>
+      <div id='ResetPassWord'>
         <Top />
         <div className='register'>
           <div id='SuccessRegister'>
