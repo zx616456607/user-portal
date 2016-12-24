@@ -122,9 +122,9 @@ let SpendResetEmail = React.createClass({
     console.log('toEmail',toEmail)
     if (toEmail === '' || !toEmail) {
       return (
-        <div className='disBtn'>
-          登录你用来注册的邮箱，查收并确认邮箱验证邮件
-        </div>
+        <span>
+          登录你的邮箱，确认验证邮件
+        </span>
       )
     }
     return (
