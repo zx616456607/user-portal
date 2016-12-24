@@ -14,7 +14,7 @@ import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import InviteNewMemberModal from '../../InviteNewMemberModal'
 import { loadUserTeamList } from '../../../../actions/user'
-import { loadTeamUserListStd, removeTeamusersStd, cancelInvitation, dissolveTeam, sendInvitation } from '../../../../actions/team'
+import { loadTeamUserListStd, removeTeamusersStd, cancelInvitation, dissolveTeam, sendInvitation, getTeamDetail } from '../../../../actions/team'
 import DelTeamModal from '../../DelTeamModal'
 
 const confirm = Modal.confirm;
@@ -233,8 +233,9 @@ class TeamDetail extends Component {
     ]
   }
   componentWillMount() {
-    const { loadTeamUserListStd, teamID, } = this.props
-    loadTeamUserListStd(teamID, { sort: 'a,userName', size: 100, page: 1 })  
+    const { loadTeamUserListStd, teamID, getTeamDetail} = this.props
+    getTeamDetail(teamID)
+    loadTeamUserListStd(teamID, { sort: 'a,userName', size: 100, page: 1 })
   }
   
   render() {
@@ -372,4 +373,5 @@ export default connect(mapStateToProp, {
   loadUserTeamList,
   dissolveTeam,
   sendInvitation,
+  getTeamDetail,
 })(TeamDetail)
