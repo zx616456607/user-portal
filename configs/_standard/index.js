@@ -24,7 +24,7 @@ const config = {
     account: env.USERPORTAL_IHUYI_ACCOUNT || 'cf_huangqg',
     apiKey: env.USERPORTAL_IHUYI_APIKEY || '9611f970a6075b81becfdadf593882f5',
   },
-  host: 'https://console.tenxcloud.com',
+  host: env.USERPORTAL_HOST || 'https://console.tenxcloud.com',
 }
 
 if (node_env === 'staging') {
