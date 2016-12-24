@@ -13,8 +13,6 @@
 const env = process.env
 const node_env = require('../').node_env
 const port = require('../').port
-const running_mode = require('../').running_mode
-const constants = require('../constants');
 
 const config = {
   tenxSysSign: {
@@ -31,10 +29,8 @@ const config = {
 
 if (node_env === 'staging') {
   config.host = 'http://v2-api.tenxcloud.com'
-} else if (node_env === constants.NODE_ENV_DEV) {
+} else if (node_env === 'development') {
   config.host = `http://localhost:${port}`
-} else if (node_env === constants.NODE_ENV_CICD) {
-  config.host = `http://user-portal-se-huangxin.test.tenxcloud.com:48003/`
 }
 
 module.exports = config
