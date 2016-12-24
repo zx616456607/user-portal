@@ -238,7 +238,7 @@ exports.sendResetPasswordLink = function* () {
     })
   })
 
-  const link = `${stdConfigs.host}/users/${email}/resetpw?code=${encodeURIComponent(code)}`
+  const link = `${stdConfigs.host}/rpw?email=${email}&code=${encodeURIComponent(code)}`
   try {
     yield emailUtil.sendResetPasswordEmail(email, link)
     this.body = {
@@ -307,7 +307,7 @@ exports.activateUserByEmail = function* () {
   yield spi.users.createBy(['activations'], null, {email})
 
   this.status = 302
-  this.redirect('/login')
+  this.redirect('/login&from=active')
   return
 }
 
@@ -332,4 +332,56 @@ function getEmailFromActivationCode(code) {
     return ''
   }
   return mixCode.slice(activationMixCode.length)
+}
+
+exports.resetPassword = function* () {
+  const method = "resetPassword"
+
+  //Get email, code, password
+  const user = this.request.body
+  if (!user.email || !user.code || !user.password) {
+    const err = new Error('user email, code and password are required.')
+    err.status = 400
+    throw err
+  }
+  const key = `${redisKeyPrefix.resetPassword}#${user.email}`
+
+  //Check the email and code are valid
+  yield new Promise((resolve, reject) => {
+    redisClient.get(key, (error, reply) => {
+      if (error) {
+        logger.error(method, 'get reset password code failed.', error)
+        return reject('internal error')
+      }
+      if (!reply) {
+        logger.error(method, `the key(${key}) does not exist`)
+        return reject('重置密码链接已经过期')
+      }
+      if (reply != user.code) {
+        logger.error(method, `the stored code (${reply}) is differnt from the iputted one(${user.code})`)
+        return reject('重置密码链接无效')
+      }
+      resolve()
+    })
+  })
+
+  //Reset password for the email account
+  const spi = apiFactory.getSpi()
+  yield spi.users.patchBy([user.email, 'resetpw'], null, user)
+
+  //Remove email/code pair from redis
+  yield new Promise((resolve, reject) => {
+    redisClient.del(key, (error) => {
+      if (error) {
+        logger.error(method, `delete key(${key}) failed.`, error)
+        //It does not matter if the key cannot be deleted, so don't need to reject
+      }
+      resolve()
+    })
+  })
+
+  this.body = {
+    data: ''
+  }
+
 }

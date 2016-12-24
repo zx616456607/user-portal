@@ -15,8 +15,8 @@ import Person from './Person'
 import Company from './Company'
 import AccountType from './AccountType'
 import SuccessRegister from './SuccessRegister'
-import ResetPassWord from './ResetPassWord'
 import { sendActivationEmail } from '../../actions/user'
+import Top from '../../components/Top'
 
 
 class Register extends Component{
@@ -44,17 +44,13 @@ class Register extends Component{
   }
   renderRegisterPage(register,registerPage){
     const { registerPageShow, registerShow } = this.state
-    const {email, code, resetpassword, sendActivationEmail} = this.props
-    if (email && !resetpassword) {
+    const {email, code, sendActivationEmail} = this.props
+    if (email) {
       return (
         <SuccessRegister email={email} code={code} sendActivationEmail={sendActivationEmail} />
       )
     }
-    if (resetpassword) {
-      return (
-        <ResetPassWord email={email} rpw={resetpassword}/>
-      )
-    }
+
     return (
       <QueueAnim component="div"
                   type={this.state.person?['left']:['right']}
@@ -66,14 +62,13 @@ class Register extends Component{
     )
   }
   componentWillMount(){
-    
-
   }
   render(){
     let register = (
       <div key='b' id='RegisterPage'>
-        <div className='register' style={{width:'40%'}}>
-          <Card className="registerForm" bordered={false}>
+        <Top/>
+        <div className='register registerFlex'>
+          <Card className="registerForm" bordered={false} style={{width: 440,padding: '0 24px 24px'}}>
             <div className='backToPage' onClick={this.handlePageChange}>&lt;&lt;&nbsp;&nbsp;&nbsp;重选注册账户类型</div>
             {
               this.state.person ?
@@ -86,14 +81,16 @@ class Register extends Component{
     )
     let registerPage = (
       <div key='a' id='RegisterPage'>
-        <div className='register' style={{padding:0}}>
-          <Card className="registerForm" bordered={false} style={{margin:'30px 50px 0'}}>
-            <AccountType onChange={this.handlePageChange} />
-          </Card>
-          <div className="accountFooter">
-            *&nbsp;个人帐户可以升级到企业帐户，但是企业帐户不可降级为个人帐户<br/>
-            *&nbsp;注册并完成认证后方可享受以上测试金及支持服务
-          </div>
+        <Top/>
+        <div className='register'>
+          <div className='registerTitle'>请选择注册账户类型</div>
+            <Card className="registerForm" bordered={false} style={{width: 720}}>
+              <AccountType onChange={this.handlePageChange} />
+              <div className="accountFooter">
+                *&nbsp;个人帐户可以升级到企业帐户，但是企业帐户不可降级为个人帐户<br/>
+                *&nbsp;注册并完成认证后方可享受以上测试金及支持服务
+              </div>
+            </Card>
         </div>
       </div>
     )
@@ -104,11 +101,10 @@ class Register extends Component{
   }
 }
 function mapStateToProps (state,props) {
-  let {email, rpw, code} = props.location.query
+  let {email, code} = props.location.query
   return {
     code,
     email,
-    resetpassword: rpw,
   }
 }
 Register = connect(mapStateToProps, {

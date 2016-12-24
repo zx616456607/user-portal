@@ -28,6 +28,13 @@ const rootRoutes = {
       })
     },
   },{
+    path: '/rpw',
+    getComponent: (location, cb) => {
+      require.ensure([], (require) => {
+        cb(null, require('../containers/ResetPassWord').default)
+      })
+    },
+  },{
     path: '/teams/invite',
     getComponent: (location, cb) => {
       require.ensure([], (require) => {

@@ -64,7 +64,6 @@ let Person = React.createClass({
         certType: 1,
         certUserName: values.userName,
       }
-      console.log('body',body);
       registerUser(body, {
         success: {
           func: (result) => {

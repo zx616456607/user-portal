@@ -66,11 +66,6 @@ let Login = React.createClass({
       login(body, {
         success: {
           func: (result) => {
-            if (result.message === 'NOT_ACTIVE') {
-              browserHistory.push('/register?email='+result.user.email)
-              resetFields()
-              return
-            }
             self.setState({
               submitting: false,
               submitProps: {},
@@ -84,6 +79,11 @@ let Login = React.createClass({
         failed: {
           func: (err) => {
             let msg = err.message.message || err.message
+             if (err.statusCode === 401 && err.message === 'NOT_ACTIVE' && err.email && err.code) {
+              browserHistory.push(`/register?email=${err.email}&code=${err.code}`)
+              resetFields()
+              return
+            }
             if (err.statusCode == 401) {
               msg = "用户名或者密码错误"
             }
@@ -224,6 +224,10 @@ let Login = React.createClass({
 
   componentWillMount() {
     const { resetFields } = this.props.form
+    const { from } = this.props
+    if (from === 'active') {
+      message.success('账户已经激活')
+    }
     resetFields()
   },
 
@@ -333,7 +337,7 @@ let Login = React.createClass({
                   <Link to='/register'>立即注册</Link>
                 </div>
                 <div className='toReset'>
-                  <Link to='/register?rpw=1'>忘记密码</Link>
+                  <Link to='/rpw'>忘记密码</Link>
                 </div>
               </div>
               <div className='moreMethod'>
@@ -362,9 +366,10 @@ let Login = React.createClass({
 })
 
 function mapStateToProps(state, props) {
-  const { redirect } = props.location.query
+  const { redirect, from } = props.location.query
   return {
-    redirect
+    redirect,
+    from,
   }
 }
 
