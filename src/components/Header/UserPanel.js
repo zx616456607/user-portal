@@ -47,6 +47,9 @@ class UserPanel extends Component {
   getEdition() {
     const { loginUser } = this.props
     const { envEdition } = loginUser
+    if(mode !== standard) {
+      return ''
+    }
     if (envEdition == 0) {
       return (
         <Link to="/account/version">
@@ -66,7 +69,24 @@ class UserPanel extends Component {
 
   getTitle() {
     const { loginUser } = this.props
-    const { userName, email, avatar } = loginUser
+    const { userName, email, avatar, certInfos } = loginUser
+    let certName = '个人'
+    let certStatus = false
+    if (mode === standard) {
+      if (certInfos && certInfos.length >= 0) {
+        let length = certInfos.length
+        for (let i = 0; i < length; i++) {
+          if (certInfos[i].type == 2 && certInfos[i].status == 4) {
+            certName = "企业"
+            break
+          }
+          if (certInfos[i].type == 3 && certInfos[i].status == 4) {
+            certName = "组织"
+            break
+          }
+        }
+      }
+    }
     return (
       <div className='logTitle'>
         <div className='logAvatar'>
@@ -85,7 +105,11 @@ class UserPanel extends Component {
             <p className="email">{email || '...'}</p>
           </div>
         </div>
-        <div className='loginTag'>个人</div>
+         {
+            mode === standard
+            ? <div className='loginTag'>{certName}</div>
+            : ''
+         }
       </div>
     )
   }
