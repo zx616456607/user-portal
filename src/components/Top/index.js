@@ -11,6 +11,7 @@ import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import {  } from 'antd'
 import './style/Top.less'
+import { Link } from 'react-router'
 
 export default class Top extends Component {
   constructor (props) {

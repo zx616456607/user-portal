@@ -28,7 +28,7 @@ let CommitReset = React.createClass({
       passWord: false,
       rePassWord: false,
       intRePassFocus: false,
-      resetSuccess: false,
+      resetSuccess: true,
     }
   },
   
