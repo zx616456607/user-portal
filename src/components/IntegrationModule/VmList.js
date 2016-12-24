@@ -29,7 +29,7 @@ const menusText = defineMessages({
   },
   ip: {
     id: 'Integration.VmList.ip',
-    defaultMessage: '虚拟机IP',
+    defaultMessage: '虚拟机名称/IP',
   },
   status: {
     id: 'Integration.VmList.status',
@@ -395,7 +395,7 @@ class VmList extends Component {
         const menu = (
           <Menu onClick={this.meunClick.bind(this, item.path, item.name)} style={{ width: '126px' }}>
             {
-              item.powerstate == 'poweroff' ? [<Menu.Item key='poweroff'><i className='fa fa-stop' />&nbsp;<FormattedMessage {...menusText.poweroff} /></Menu.Item>] : [<Menu.Item key='poweron'><i className='fa fa-play' />&nbsp;<FormattedMessage {...menusText.poweron} /></Menu.Item>]
+              /*item.powerstate == 'poweroff' ? [<Menu.Item key='poweroff'><i className='fa fa-stop' />&nbsp;<FormattedMessage {...menusText.poweroff} /></Menu.Item>] : [<Menu.Item key='poweron'><i className='fa fa-play' />&nbsp;<FormattedMessage {...menusText.poweron} /></Menu.Item>]*/
             }
             <Menu.Item key='delete' disabled><i className='fa fa-trash' />&nbsp;<FormattedMessage {...menusText.delete} /></Menu.Item>
           </Menu>

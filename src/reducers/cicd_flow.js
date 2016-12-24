@@ -774,6 +774,11 @@ export default function cicd_flow(state = {}, action) {
       SUCCESS: ActionTypes.UPDATE_FLOW_CI_RULES_SUCCESS,
       FAILURE: ActionTypes.UPDATE_FLOW_CI_RULES_FAILURE
     }, state.UpdateTenxflowCIRules, action),
+    setStageLink: reducerFactory({
+      REQUEST: ActionTypes.PUT_STAGE_LINK_REQUEST,
+      SUCCESS: ActionTypes.PUT_STAGE_LINK_SUCCESS,
+      FAILURE: ActionTypes.PUT_STAGE_LINK_FAILURE
+    }, state.setStageLink, action),
     createTenxFlowSingle: reducerFactory({
       REQUEST: ActionTypes.CREATE_SINGLE_TENX_FLOW_REQUEST,
       SUCCESS: ActionTypes.CREATE_SINGLE_TENX_FLOW_SUCCESS,

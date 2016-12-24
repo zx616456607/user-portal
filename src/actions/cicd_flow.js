@@ -1172,3 +1172,28 @@ export function changeCiFlowStatus(index, status, log) {
     }
   }
 }
+
+export const PUT_STAGE_LINK_REQUEST = 'PUT_STAGE_LINK_REQUEST'
+export const PUT_STAGE_LINK_SUCCESS = 'PUT_STAGE_LINK_SUCCESS'
+export const PUT_STAGE_LINK_FAILURE = 'PUT_STAGE_LINK_FAILURE'
+
+function fetchPutStageLink(flowId, stageId, targetId, body, callback) {
+  return {
+    [FETCH_API]: {
+      types: [PUT_STAGE_LINK_REQUEST, PUT_STAGE_LINK_SUCCESS, PUT_STAGE_LINK_FAILURE],
+      endpoint: `${API_URL_PREFIX}/devops/ci-flows/${flowId}/stages/${stageId}/link/${targetId}`,
+      schema: {},
+      options: {
+        method: 'PUT',
+        body: body
+      }
+    },
+    callback
+  }
+}
+
+export function setStageLink(flowId, stageId, targetId, body, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchPutStageLink(flowId, stageId, targetId, body, callback))
+  }
+}
