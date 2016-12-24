@@ -52,8 +52,8 @@ function getClusterCostOption(costValue, restValue) {
         radius : '42%',
         center: ['32%', '50%'],
         data:[
-          {value:900, name:'余额'},
-          {value:100, name:'消费',selected:true},
+          {value:restValue, name:'余额'},
+          {value:costValue, name:'消费',selected:true},
         ],
         itemStyle: {
           normal: {
