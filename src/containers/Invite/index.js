@@ -69,7 +69,7 @@ let Invite = React.createClass({
             {
               isUser ?
               <div className="formTip" style={{textAlign:'right'}}>
-                <a href="https://console.tenxcloud.com/reset" target="_blank" style={{color:'#4691d2'}}>忘记密码</a>
+                <a href="/reset" target="_blank" style={{color:'#4691d2'}}>忘记密码</a>
               </div>:
               <div className="formTip">*&nbsp;注册表示您同意遵守&nbsp;
                 <a href="https://www.tenxcloud.com/terms" target="_blank" style={{color:'#4691d2'}}>

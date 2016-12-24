@@ -438,6 +438,7 @@ DockerRegistryAPIs.prototype.getTagsV2 = function (user, repositoryName, callbac
 };
 
 DockerRegistryAPIs.prototype.refreshToken = function(user, repository, callback) {
+  var method = 'refreshToken'
   var requestUser = (user == "" ? user : this.registryConfig.user);
   var exchangeURL = this.registryConfig.v2AuthServer + "/auth?account=" + requestUser + "&scope=repository:" + repository + ":pull&service=" + this.registryConfig.v2Server;
   // Use exchangeURL as the key

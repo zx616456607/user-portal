@@ -421,6 +421,7 @@ class CostRecord extends Component{
         '1': '容器服务',
         '3': '主机服务',
         '4': '存储服务',
+        '5': '工作任务',
       }
       if (standard) {
         items.map(function(item) {
@@ -482,7 +483,7 @@ class CostRecord extends Component{
               { text: '容器服务', value: '容' },
             ],
             filteredValue: filteredInfo.svcType,
-            onFilter: (value, record) => record.svcType.indexOf(value) === 0,
+            onFilter: (value, record) => record.type.indexOf(value) === 0,
           },
           {
             title: '单价',

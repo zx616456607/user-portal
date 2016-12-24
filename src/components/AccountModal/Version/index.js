@@ -12,10 +12,10 @@ import { Menu, Button, Card, Input ,Modal} from 'antd'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
-import VersionNoraml from './Normal.js'
-import VersionProfress from './Profress.js'
-import UpgradeModal from './UpgradeModal.js'
+import VersionNoraml from './Normal'
+import VersionProfress from './Profress'
 import "./style/Version.less"
+import { loadLoginUserDetail } from '../../../actions/entities'
 
 class Version extends Component {
   constructor(props) {
@@ -27,20 +27,21 @@ class Version extends Component {
 
   componentWillMount() {
     document.title = '版本 | 时速云'
+    loadLoginUserDetail()
   }
 
   render() {
-    let version = 'profress';
+    const { loginUser } = this.props
+    const { envEdition } = loginUser
     return (
       <div id = 'Version'>
         {
-          version == 'normal' ? [
+          envEdition == 0 ? [
             <VersionNoraml key='VersionNoraml' />
           ] : [
             <VersionProfress key='VersionProfress' />
           ]
         }
-        <UpgradeModal currentType={'app'} modalShow={this.state.modalShow} />
       </div>
     )
   }
@@ -51,7 +52,9 @@ Version.propTypes = {
 }
 
 function mapStateToProps(state, props) {
+  const { loginUser } = state.entities
   return {
+    loginUser: loginUser.info,
   }
 }
 

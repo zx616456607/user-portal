@@ -219,11 +219,14 @@ class Header extends Component {
       clustersVisible,
     } = this.state
     teamspaces.map((space) => {
-      space.name = space.spaceName
+      mode === standard
+      ? space.name = space.teamName
+      : space.name = space.spaceName
     })
     teamClusters.map((cluster) => {
       cluster.name = cluster.clusterName
     })
+    let selectValue = mode === standard ? current.space.teamName : current.space.spaceName
     return (
       <div id="header">
         <div className="space">
@@ -242,7 +245,8 @@ class Header extends Component {
               list={teamspaces}
               loading={isTeamspacesFetching}
               onChange={this.handleSpaceChange}
-              selectValue={current.space.spaceName || '...'} />
+              selectValue={selectValue}
+              popTeamSelect={mode === standard} />
           </div>
         </div>
         <div className="cluster">

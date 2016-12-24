@@ -49,9 +49,9 @@ class PopSelect extends Component {
             onClick={() => onChange(MY_SPACE)}
             className="searchItem">
             {
-              popTeamSelect?
-              MY_SPACE.teamName:
-              MY_SPACE.name
+              popTeamSelect
+              ? MY_SPACE.teamName
+              : MY_SPACE.name
             }
           </li>
         </ul>
