@@ -48,7 +48,9 @@ exports.createPrepayRecord = function* () {
     const paymentOrder = {
       charge_amount: amount,
       order_type: 100, // 100 微信，101 支付宝
-      verification_key: verificationKey
+      verification_key: verificationKey,
+      upgrade: parseInt(body.upgrade),
+      duration: parseInt(body.duration),
     }
     const paymentOrderResult = yield spi.payments.create(paymentOrder)
     // step2: get qr code by wechat pay api

@@ -78,7 +78,9 @@ exports.rechare = function* () {
   const apiResult = yield siginApi.payments.create({
     charge_amount: paymentAmount * 100,
     order_type: 101,
-    verification_key: aliPayConfig.extra_common_param
+    verification_key: aliPayConfig.extra_common_param,
+    upgrade: parseInt(body.upgrade),
+    duration: parseInt(body.duration),
   })
   data.out_trade_no = apiResult.data.order_id
   const alipay = new AliPay(aliPayConfig)

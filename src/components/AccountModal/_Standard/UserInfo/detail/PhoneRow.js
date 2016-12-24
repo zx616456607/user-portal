@@ -40,8 +40,8 @@ let PhoneRow = React.createClass({
       callback([new Error('请输入帐户密码')])
       return
     }
-    if (values.length < 6) {
-      callback([new Error('账户密码不少于6个字符')])
+    if (values.length < 3) {
+      callback([new Error('账户密码不少于3个字符')])
       return
     }
     if (values.length > 63) {
@@ -118,7 +118,7 @@ let PhoneRow = React.createClass({
         failed: {
           func: (result) => {
             noti.close()
-            noti.error(result.message)
+            noti.error(result.message.message)
           }
         }
       })

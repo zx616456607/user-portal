@@ -83,8 +83,8 @@ let PasswordRow = React.createClass({
       callback([new Error('请输入当前密码')])
       return
     }
-    if (values.length < 6) {
-      callback([new Error('账户密码不少于6个字符')])
+    if (values.length < 3) {
+      callback([new Error('账户密码不少于3个字符')])
       return
     }
     if (values.length > 63) {
@@ -103,8 +103,8 @@ let PasswordRow = React.createClass({
       callback([new Error('请输入新密码')])
       return
     }
-    if (values.length < 6) {
-      callback([new Error('账户密码不少于6个字符')])
+    if (values.length < 3) {
+      callback([new Error('账户密码不少于3个字符')])
       return
     }
     if (values.length > 63) {
@@ -147,8 +147,8 @@ let PasswordRow = React.createClass({
       const notification = new NotificationHandler()
       notification.spin('修改密码中')
       changeUserInfo({
-        password: values.emailPassword,
-        email: values.newEmail
+        password: values.password,
+        newPassword: values.newpassword
       }, {
         success: {
           func: () => {
@@ -162,7 +162,7 @@ let PasswordRow = React.createClass({
         failed: {
           func: (result) => {
             notification.close()
-            notification.error(result.message)
+            notification.error(result.message.message)
           }
         }
       })

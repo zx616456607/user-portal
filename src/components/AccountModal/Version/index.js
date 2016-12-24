@@ -37,9 +37,9 @@ class Version extends Component {
       <div id = 'Version'>
         {
           envEdition == 0 ? [
-            <VersionNoraml key='VersionNoraml' />
+            <VersionNoraml key='VersionNoraml' {...this.props}/>
           ] : [
-            <VersionProfress key='VersionProfress' />
+            <VersionProfress key='VersionProfress' {...this.props} />
           ]
         }
       </div>

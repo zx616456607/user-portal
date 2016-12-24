@@ -24,6 +24,7 @@ const userInfoController = require('../../controllers/_standard/user_info')
 const paymentsController = require('../../controllers/_standard/payments')
 const wechatPayController = require('../../controllers/_standard/payments/wechat_pay')
 const alipayController = require('../../controllers/_standard/payments/alipay')
+const userPreferenceController = require('../../controllers/_standard/user_preference')
 
 module.exports = function (Router) {
   const router = new Router({
@@ -53,6 +54,10 @@ module.exports = function (Router) {
   router.get('/payments/orders/status', paymentsController.getOrderStatusFromSession)
   router.post('/payments/alipay', alipayController.rechare)
   router.get('/payments/alipay/direct', alipayController.direct)
+
+  // Upgrade or renewals
+  router.post('/user_preference/edition', userPreferenceController.upgradeOrRenewalsEdition)
+  router.get('/user_preference/edition', userPreferenceController.getEdition)
 
   // Get user account info
   router.get('/myaccount', userInfoController.getMyAccountInfo)

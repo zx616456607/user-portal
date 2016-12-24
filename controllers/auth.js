@@ -92,6 +92,9 @@ exports.verifyUser = function* () {
   if (body.email) {
     data.email = body.email
   }
+  if (body.inviteCode) {
+    data.inviteCode = body.inviteCode
+  }
   const api = apiFactory.getApi()
   let result = {}
   try {
@@ -157,6 +160,101 @@ exports.verifyUser = function* () {
       return
     }
   }
+  this.session.loginUser = loginUser
+  delete result.active
+  this.body = {
+    user: result,
+    message: 'login success',
+  }
+}
+exports.verifyUserAndJoinTeam = function* () {
+  const method = 'verifyUserAndJoinTeam'
+  const body = this.request.body
+  if (!body ||  !body.email || !body.password || !body.invitationCode) {
+    const err = new Error('email, password, invitationCode are required.')
+    err.status = 400
+    throw err
+  }
+  if (config.running_mode === enterpriseMode) {
+    if (!body.captcha) {
+      const err = new Error('username(email), password and captcha are required.')
+      err.status = 400
+      throw err
+    }
+    body.captcha = body.captcha.toLowerCase()
+    if (body.captcha !== this.session.captcha) {
+      logger.error(method, `captcha error: ${body.captcha} | ${this.session.captcha}(session)`)
+      const err = new Error('CAPTCHA_ERROR')
+      err.status = 400
+      throw err
+    }
+  }
+  const data = {
+    password: body.password,
+  }
+  if (body.username) {
+    data.userName = body.username
+  }
+  if (body.email) {
+    data.email = body.email
+  }
+  const api = apiFactory.getApi()
+  let result = {}
+  try {
+    result = yield api.users.createBy(['login'], null, data)
+  } catch (err) {
+    // Better handle error >= 500
+    if (err.statusCode >= 500) {
+      const returnError = new Error("服务异常，请联系管理员或者稍候重试")
+      returnError.status = err.statusCode
+      throw returnError
+    } else {
+      throw err
+    }
+  }
+  // These message(and watchToken etc.) will be save to session
+  const loginUser = {
+    user: result.userName,
+    id: result.userID,
+    namespace: result.namespace,
+    email: result.email,
+    phone: result.phone,
+    token: result.apiToken,
+    role: result.role,
+    balance: result.balance,
+    tenxApi: config.tenx_api,
+    cicdApi: devOps
+  }
+  result.tenxApi = loginUser.tenxApi
+  result.cicdApi = loginUser.cicdApi
+  const licenseObj = yield indexService.getLicense(loginUser)
+  if (licenseObj.plain.code === -1) {
+    const err = new Error(licenseObj.message)
+    err.status = 403
+    throw err
+  }
+  yield indexService.setUserCurrentConfigCookie.apply(this, [loginUser])
+  // Delete sensitive information
+  delete result.userID
+  delete result.statusCode
+  delete result.apiToken
+  // Get user MD5 encrypted watch token
+  const spi = apiFactory.getSpi(loginUser)
+  try {
+    const watchToken = yield spi.watch.getBy(['token'])
+    result.watchToken = watchToken.data
+    loginUser.watchToken = watchToken.data
+  } catch (err) {
+    logger.error(`Get user MD5 encrypted watch token failed.`)
+    logger.error(err.stack)
+  }
+  
+  // join team
+  const joinTeamBody = {
+    code: body.invitationCode
+  }
+  yield spi.teams.createBy(['join'], null, joinTeamBody)
+  
   this.session.loginUser = loginUser
   delete result.active
   this.body = {
