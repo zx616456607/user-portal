@@ -338,15 +338,11 @@ class ServiceList extends Component {
               <i className="fa fa-plus" />&nbsp;
               添加服务
             </Button>
-            <Button size="large" type="ghost" onClick={this.delAllSelected}>
-              <i className="fa fa-trash" />&nbsp;
-              删除
-            </Button>
           </div>
           <div className="dataBox">
             <div className="titleBox">
               <div className="selectIconTitle commonData">
-                <Checkbox checked={this.allSelectedChecked()} onChange={() => this.onchange()} />
+                &nbsp;
               </div>
               <div className="name commonData">
                 服务名称
