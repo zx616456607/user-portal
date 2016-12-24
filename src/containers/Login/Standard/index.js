@@ -36,6 +36,7 @@ let Login = React.createClass({
       intPassFocus: false,
       intCheckFocus: false,
       passWord: false,
+      intCodeFocus: false,
     }
   },
 
@@ -56,7 +57,8 @@ let Login = React.createClass({
       })
       const body = {
         password: values.password,
-        captcha: values.captcha
+        captcha: values.captcha,
+        inviteCode : values.code,
       }
       if (values.name.indexOf('@') > -1) {
         body.email = values.name
@@ -124,10 +126,11 @@ let Login = React.createClass({
   },
 
   checkPass(rule, value, callback) {
-    const { validateFields } = this.props.form
     callback()
   },
-
+  checkCode(rule, value, callback) {
+    callback()
+  },
   checkCaptcha(rule, value, callback) {
     if (!value) {
       callback()
@@ -190,6 +193,15 @@ let Login = React.createClass({
       }
       return
     }
+    if (current === 'code') {
+      let code = getFieldProps('code').value
+      if (code === '' || !code) {
+        this.setState({
+          intCodeFocus: false
+        })
+      }
+      return
+    }
     if (current === 'check') {
       let captcha = getFieldProps('captcha').value
       if (captcha === '' || !captcha) {
@@ -204,22 +216,33 @@ let Login = React.createClass({
   intOnFocus(current) {
     if (current === 'name') {
       this.refs.intName.refs.input.focus()
-
       this.setState({
         intNameFocus: true
       })
-    } else if (current === 'pass') {
+      return
+    }
+    if (current === 'pass') {
       this.refs.intPass.refs.input.focus()
       this.setState({
         intPassFocus: true,
         passWord: true,
       })
-    } else if (current === 'check') {
+      return
+    }
+    if (current === 'code') {
+      this.refs.intCode.refs.input.focus()
+      this.setState({
+        intCodeFocus: true,
+      })
+      return
+    }
+    if (current === 'check') {
       this.refs.intCheck.refs.input.focus()
       this.setState({
         intCheckFocus: true
       })
     }
+    return
   },
 
   componentWillMount() {
@@ -244,6 +267,12 @@ let Login = React.createClass({
       rules: [
         { required: true, whitespace: true, message: '请填写密码' },
         { validator: this.checkPass },
+      ],
+    })
+    const codeProps = getFieldProps('code', {
+      rules: [
+        { required: true, whitespace: true, message: '请填写邀请码' },
+        { validator: this.checkCode },
       ],
     })
     const captchaProps = getFieldProps('captcha', {
@@ -306,6 +335,21 @@ let Login = React.createClass({
                 {...formItemLayout}
                 hasFeedback
                 className="formItemName"
+                >
+                <div className={this.state.intCodeFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'code')}>邀请码</div>
+                <Input {...codeProps} autoComplete="off"
+                  onContextMenu={noop} onPaste={noop} onCopy={noop} onCut={noop}
+                  onBlur={this.intOnBlur.bind(this, 'code')}
+                  onFocus={this.intOnFocus.bind(this, 'code')}
+                  ref="intCode"
+                  style={{ height: 35 }}
+                  />
+              </FormItem>
+
+              <FormItem
+                {...formItemLayout}
+                hasFeedback
+                className="formItemName"
                 help={isFieldValidating('captcha') ? '校验中...' : (getFieldError('captcha') || []).join(', ')}
                 >
                 <div className={this.state.intCheckFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'check')}>验证码</div>
@@ -340,20 +384,23 @@ let Login = React.createClass({
                   <Link to='/rpw'>忘记密码</Link>
                 </div>
               </div>
-              <div className='moreMethod'>
-                <div className='methodTitle'>
-                  <div className='line'></div>
-                  <div className='methodText'>更多登录方式</div>
-                  <div className='line'></div>
+              {/*
+                <div className='moreMethod'>
+                  <div className='methodTitle'>
+                    <div className='line'></div>
+                    <div className='methodText'>更多登录方式</div>
+                    <div className='line'></div>
+                  </div>
+                  <div className="methodIcon">
+                    <Tooltip title='即将开放'>
+                      <div className='weixin'>
+                        <img src='/img/loginMethodWeixin.png'/>
+                      </div>
+                    </Tooltip>
+                  </div>
                 </div>
-                <div className="methodIcon">
-                  <Tooltip title='即将开放'>
-                    <div className='weixin'>
-                      <img src='/img/loginMethodWeixin.png'/>
-                    </div>
-                  </Tooltip>
-                </div>
-              </div>
+              */}
+              
             </div>
           </Card>
         </div>
