@@ -92,6 +92,9 @@ exports.verifyUser = function* () {
   if (body.email) {
     data.email = body.email
   }
+  if (body.inviteCode) {
+    data.inviteCode = body.inviteCode
+  }
   const api = apiFactory.getApi()
   let result = {}
   try {
