@@ -2,7 +2,7 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
- *  SuccessRegister
+ *  
  *
  * v0.1 - 2016/12/23
  * @author ZhaoXueYu
@@ -122,9 +122,9 @@ let SpendResetEmail = React.createClass({
     console.log('toEmail',toEmail)
     if (toEmail === '' || !toEmail) {
       return (
-        <div className='disBtn'>
-          登录你用来注册的邮箱，查收并确认邮箱验证邮件
-        </div>
+        <span>
+          登录你的邮箱，确认验证邮件
+        </span>
       )
     }
     return (
@@ -156,7 +156,7 @@ let SpendResetEmail = React.createClass({
     })
     return (
   	  <div>
-  	    <div className='successTitle'>
+  	    <div className='resetTitle'>
             重置密码
         </div>
         {
@@ -179,7 +179,7 @@ let SpendResetEmail = React.createClass({
 	            </li>
 	          </ul>
   	      </div> :
-  	      <div className='registerForm' style={{marginTop:20, minWidth: 300}}>
+  	      <div className='resetForm' style={{marginTop:20, minWidth: 300}}>
   	          <Form>
   	            <FormItem
   	              {...formItemLayout}
@@ -205,7 +205,7 @@ let SpendResetEmail = React.createClass({
   	                className="subBtn"
   	                style={{marginBottom: 20}}
   	              >
-  	                {submitting ? '发送中...' : '发送邮箱'}
+  	                {submitting ? '发送中...' : '发送邮件'}
   	              </Button>
   	            </FormItem>
   	          </Form>

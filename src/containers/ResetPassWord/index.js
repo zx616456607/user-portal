@@ -2,7 +2,7 @@
  * Licensed Materials - Property of tenxcloud.com
  * (C) Copyright 2016 TenxCloud. All Rights Reserved.
  *
- *  SuccessRegister
+ *  
  *
  * v0.1 - 2016/12/22
  * @author ZhaoXueYu
@@ -37,8 +37,8 @@ class ResetPassWord extends Component {
     return (
       <div id='ResetPassWord'>
         <Top />
-        <div className='register'>
-          <div id='SuccessRegister'>
+        <div className='reset'>
+          <div className='resetContant'>
           {
             this.renderResetForm()
           }

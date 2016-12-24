@@ -18,72 +18,11 @@ import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import { Link } from 'react-router'
 import { loadSpaceCICDStats, loadSpaceImageStats, loadSpaceInfo } from '../../../../actions/overview_space'
 
-let imageOption = {
-  series: [{
-    type: 'gauge',
-    startAngle: 180,
-    endAngle: 0,
-    min: 0,
-    max: 100,
-    splitNumber: 1,
-    radius: '155%',
-    center: ['50%', 'bottom'],
-    pointer: {
-      show: false,
-      width: 0
-    },
-    axisLine: {
-      lineStyle: {
-        width: 16,
-        color: [[0.3, "#13c563"], [0.32,'#fff'],[1, "#46b2fa"]]
-      }
-    },
-    splitLine: {
-      show: false
-    },
-    axisTick: {
-      show: false
-    },
-    axisLabel : {
-      show: false,
-    }
-  }]
-}
-let layoutOption = {
-  series: [{
-    type: 'gauge',
-    startAngle: 180,
-    endAngle: 0,
-    min: 0,
-    max: 100,
-    splitNumber: 1,
-    radius: '155%',
-    center: ['50%', 'bottom'],
-    pointer: {
-      show: false,
-      width: 0
-    },
-    axisLine: {
-      lineStyle: {
-        width: 16,
-        color: [[0.3, "#13c563"], [0.32,'#fff'],[1, "#46b2fa"]]
-      }
-    },
-    splitLine: {
-      show: false
-    },
-    axisTick: {
-      show: false
-    },
-    axisLabel : {
-      show: false,
-    }
-  }]
-}
-
 class MySpace extends Component{
   constructor(props){
     super(props)
+    this.calcPer = this.calcPer.bind(this)
+
     this.state = {
       cicdStates: true,
       ImageStates: true,
@@ -170,12 +109,83 @@ class MySpace extends Component{
       </Card>
     )
   }
-
+  calcPer (a,b) {
+    if((a + b) === 0){
+      return 0.5
+    }
+    let per = (a/(a + b)).toFixed(2)*1
+    console.log('per-----',typeof(per))
+    return per
+  }
   render(){
     const {spaceWarnings, spaceOperations, spaceCICDStats, spaceImageStats, spaceTemplateStats, spaceName } = this.props
     let isFetchingAuditLog = true
     if (this.props.auditLog) {
       isFetchingAuditLog  = this.props.auditLog.isFetching
+    }
+    let imageOption = {
+      series: [{
+        type: 'gauge',
+        startAngle: 180,
+        endAngle: 0,
+        min: 0,
+        max: 100,
+        splitNumber: 1,
+        radius: '155%',
+        center: ['50%', 'bottom'],
+        pointer: {
+          show: false,
+          width: 0
+        },
+        axisLine: {
+          lineStyle: {
+            width: 16,
+            color: [[this.calcPer(spaceImageStats.publicNumber,spaceImageStats.privateNumber), "#13c563"],
+                    [(this.calcPer(spaceImageStats.publicNumber,spaceImageStats.privateNumber)+0.02),'#fff'],[1, "#46b2fa"]]
+          }
+        },
+        splitLine: {
+          show: false
+        },
+        axisTick: {
+          show: false
+        },
+        axisLabel : {
+          show: false,
+        }
+      }]
+    }
+    let layoutOption = {
+      series: [{
+        type: 'gauge',
+        startAngle: 180,
+        endAngle: 0,
+        min: 0,
+        max: 100,
+        splitNumber: 1,
+        radius: '155%',
+        center: ['50%', 'bottom'],
+        pointer: {
+          show: false,
+          width: 0
+        },
+        axisLine: {
+          lineStyle: {
+            width: 16,
+            color: [[this.calcPer(spaceTemplateStats.public,spaceTemplateStats.private), "#13c563"],
+                    [(this.calcPer(spaceTemplateStats.public,spaceTemplateStats.private)+0.02),'#fff'],[1, "#46b2fa"]]
+          }
+        },
+        splitLine: {
+          show: false
+        },
+        axisTick: {
+          show: false
+        },
+        axisLabel : {
+          show: false,
+        }
+      }]
     }
     return (
       <div id='MySpaceStd'>
