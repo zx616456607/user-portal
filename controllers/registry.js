@@ -119,7 +119,12 @@ exports.checkImage = function* () {
   const imageFullName = this.params.user + '/' + this.params.name
   const tag = this.params.tag
   const loginUser = this.session.loginUser
-  const result = yield registryService.getImageInfo(loginUser.user, imageFullName, true)
+  let owner = loginUser.user
+  if (loginUser.teamspace === this.params.user) {
+    //查询团队空间镜像时owner须为teamspace名称
+    owner = loginUser.teamspace
+  }
+  const result = yield registryService.getImageInfo(owner, imageFullName, true)
   this.body = {
     server: registryConfig.v2Server,
     name: imageFullName,
