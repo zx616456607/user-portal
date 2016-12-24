@@ -81,10 +81,13 @@ let Login = React.createClass({
         failed: {
           func: (err) => {
             let msg = err.message.message || err.message
-             if (err.statusCode === 401 && err.message === 'NOT_ACTIVE' && err.email && err.code) {
+            if (err.statusCode === 401 && err.message === 'NOT_ACTIVE' && err.email && err.code) {
               browserHistory.push(`/register?email=${err.email}&code=${err.code}`)
               resetFields()
               return
+            }
+            if (err.statusCode === 403 && err.message === 'NOT_INVITED' && err.reason === 'Forbidden' && err.state === 'Failure') {
+              msg = "邀请码无效"
             }
             if (err.statusCode == 401) {
               msg = "用户名或者密码错误"
@@ -129,6 +132,10 @@ let Login = React.createClass({
     callback()
   },
   checkCode(rule, value, callback) {
+    if (value.length > 20) {
+      callback([new Error('邀请码无效')])
+      return
+    }
     callback()
   },
   checkCaptcha(rule, value, callback) {
@@ -288,11 +295,10 @@ let Login = React.createClass({
       <div id="LoginBgStd">
         <div className="login">
           <Row style={{ textAlign: 'center' }}>
-            {/*<svg className="logo">
-                <use xlinkHref="#loginlogo"/>
-              </svg>*/}
-            <img src="/img/sider/LogInLogo.svg" alt="logo" className="logo" />
-            <div className="logtext" style={{ fontSize: '14px' }}>技术领先的容器云计算服务商</div>
+            <a href='https://www.tenxcloud.com/' target='_blank' className='logoLink'>
+              <img src="/img/sider/LogInLogo.svg" alt="logo" className="logo" />
+              <div className="logtext" style={{ fontSize: '14px' }}>技术领先的容器云计算服务商</div>
+            </a>
           </Row>
           <Card className="loginForm" bordered={false}>
             <div>
