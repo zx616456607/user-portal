@@ -8,6 +8,8 @@
  * @author Zhangpc
  */
 import React, { Component, PropTypes } from 'react'
+import { Link } from 'react-router'
+import './style/ErrorPage.less'
 
 class ErrorPage extends Component {
   constructor(props) {
@@ -40,11 +42,22 @@ class ErrorPage extends Component {
   }
 
   render() {
+    const { code, errorMessage } = this.props
+    const { error } = errorMessage
+    let { message } = error
+    if (message && message.message) {
+      message = message.message
+    }
     return (
-      <div id='NotFoundErrorPageBox'>
-        {this.renderErrorMessage()}
-        <iframe className='NotFoundErrorPage' src='/ErrorPage/index.html'>
-        </iframe>
+      <div id='NotFoundErrorPageBox' className='CommonSecondContent'>
+        <p className='codeTitle'>{code}</p>
+        <img className='errorImg' src='/img/error404.png' />
+        <p>{message}</p>
+        <p>
+          <Link to='/'>
+            <div className='backBtn'>返回首页</div>
+          </Link>
+        </p>
       </div>
     )
   }
