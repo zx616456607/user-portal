@@ -48,11 +48,13 @@ let SuccessRegister = React.createClass({
         },
         failed: {
           func: (err) => {
+            console.log('4444444',err.statusCode)
             let msg = '邮件发送失败'
             if (err.statusCode === 500) {
               msg = '邮件发送失败，请重试'
             }
-            message.success(msg)
+            console.log('message',msg)
+            message.error(`${msg}`)
           },
           isAsync: true
         },
