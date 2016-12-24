@@ -69,11 +69,13 @@ let SpendResetEmail = React.createClass({
     const { form, registerUser, sendResetPasswordLink } = this.props
     const { validateFields, resetFields } = form
     const self = this
+
     e.preventDefault()
     validateFields((errors, values) => {
       if (!!errors) {
         return
       }
+      this.getEmail(values.email)
       this.setState({
         submitting: true,
       })
@@ -104,17 +106,34 @@ let SpendResetEmail = React.createClass({
   },
   //邮箱识别
   getEmail (url) {
-    console.log('url',url)
     if (url.match('@')) {
       let addr = url.split('@')[1]
       for (let j in EMAIL_HASH) {
         this.setState({
           toEmail: EMAIL_HASH[addr]
         })
-        return
       }
     }
-    return false
+    return
+  },
+  //
+  renderGetEmail () {
+    const { toEmail } = this.state
+    console.log('toEmail',toEmail)
+    if (toEmail === '' || !toEmail) {
+      return (
+        <div className='disBtn'>
+          登录你用来注册的邮箱，查收并确认邮箱验证邮件
+        </div>
+      )
+    }
+    return (
+      <Button className='passBtn'>
+        <a href={toEmail} target='_blank'>
+          登录邮箱
+        </a>
+      </Button>
+    )
   },
   componentWillMount() {
     const { resetFields } = this.props.form
@@ -146,11 +165,10 @@ let SpendResetEmail = React.createClass({
 	          <ul className='successInf' style={{marginBottom: 24}}>
 	            <li>
 	              已发送到 { getFieldValue('email') } ,请
-	              <Button className='passBtn' onClick={() => this.getEmail(email)}>
-	                <a href={this.state.toEmail} target='_blank'>
-	                  登录邮箱
-	                </a>
-	              </Button>
+                {
+                  this.renderGetEmail()
+                }
+	              
 	            </li>
 	            <li>重置密码 , 该邮件的有效期为24小时</li>
 	            <li className='rePass'>
