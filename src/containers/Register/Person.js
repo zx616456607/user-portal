@@ -484,8 +484,9 @@ let Person = React.createClass({
               </a>
             </div>
           </TabPane>
+          {/*
           <TabPane tab="微信注册" key="2">
-          </TabPane>
+          </TabPane>*/}
         </Tabs>
       </div>
     )
