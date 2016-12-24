@@ -24,7 +24,7 @@ let EmailRow = React.createClass({
       return
     }
     if (values.length < 3) {
-      callback([new Error('账户密码不少于5个字符')])
+      callback([new Error('账户密码不少于3个字符')])
       return
     }
     if (values.length > 63) {

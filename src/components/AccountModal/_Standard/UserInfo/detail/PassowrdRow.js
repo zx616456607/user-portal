@@ -83,8 +83,8 @@ let PasswordRow = React.createClass({
       callback([new Error('请输入当前密码')])
       return
     }
-    if (values.length < 6) {
-      callback([new Error('账户密码不少于6个字符')])
+    if (values.length < 3) {
+      callback([new Error('账户密码不少于3个字符')])
       return
     }
     if (values.length > 63) {
@@ -103,8 +103,8 @@ let PasswordRow = React.createClass({
       callback([new Error('请输入新密码')])
       return
     }
-    if (values.length < 6) {
-      callback([new Error('账户密码不少于6个字符')])
+    if (values.length < 3) {
+      callback([new Error('账户密码不少于3个字符')])
       return
     }
     if (values.length > 63) {
