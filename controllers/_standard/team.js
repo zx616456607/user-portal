@@ -19,6 +19,7 @@ const DEFAULT_PAGE = constants.DEFAULT_PAGE
 const DEFAULT_PAGE_SIZE = constants.DEFAULT_PAGE_SIZE
 const MAX_PAGE_SIZE = constants.MAX_PAGE_SIZE
 const logger = require('../../utils/logger').getLogger('team')
+const stdConfigs = require('../../configs/_standard')
 
 exports.createTeamAndSpace = function* () {
   const loginUser = this.session.loginUser
@@ -69,7 +70,7 @@ exports.createInvitations = function* () {
   // send email
   if (result.code === 200 && result.data && result.data.codes && result.data.teamName) {
     for (let email in result.data.codes) {
-      const invitationURL = `https://console.tenxcloud.com/teams/invite?code=${encodeURIComponent(result.data.codes[email])}`
+      const invitationURL = `${stdConfigs.host}/teams/invite?code=${encodeURIComponent(result.data.codes[email])}`
       try {
         emailUtil.sendInviteTeamMemberEmail(email, loginUser.user, loginUser.email,result.data.teamName ,invitationURL)
       }
