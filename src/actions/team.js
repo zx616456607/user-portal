@@ -647,3 +647,29 @@ export function checkDissovable(teamID) {
     return dispatch(fetchCheckDissovable(teamID))
   }
 }
+
+export const USER_LOGIN_AND_JOIN_TEAM_REQUEST = 'USER_LOGIN_AND_JOIN_TEAM_REQUEST'
+export const USER_LOGIN_AND_JOIN_TEAM_SUCCESS = 'USER_LOGIN_AND_JOIN_TEAM_SUCCESS'
+export const USER_LOGIN_AND_JOIN_TEAM_FAILURE = 'USER_LOGIN_AND_JOIN_TEAM_FAILURE'
+
+function fetchLoginAndJointeam(email, password, invitationCode, callback) {
+  let endpoint = `${API_URL_PREFIX}/stdusers/loginAndJointeam`
+  return {
+    [FETCH_API]: {
+      types: [USER_LOGIN_AND_JOIN_TEAM_REQUEST, USER_LOGIN_AND_JOIN_TEAM_SUCCESS, USER_LOGIN_AND_JOIN_TEAM_FAILURE],
+      endpoint,
+      schema: {},
+      options:{
+        method: 'POST',
+        body: {email, password, invitationCode}
+      }
+    },
+    callback
+  }
+}
+
+export function loginAndJointeam(email, password, invitationCode, callback) {
+  return (dispatch, getState) => {
+    return dispatch(fetchLoginAndJointeam(email, password, invitationCode, callback))
+  }
+}

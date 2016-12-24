@@ -23,6 +23,7 @@ const teamController = require('../../controllers/_standard/team')
 const alipayController = require('../../controllers/_standard/payments/alipay')
 const wechatPayController = require('../../controllers/_standard/payments/wechat_pay')
 const userController = require('../../controllers/_standard/user_info')
+const authController = require('../../controllers/auth')
 const wechatPayMiddleware = require('../../pay/wechat_pay').middleware
 const API_URL_PREFIX = '/api/v2'
 
@@ -39,6 +40,9 @@ module.exports = function (Router) {
   router.post(`${API_URL_PREFIX}/stdusers/captchas`, userController.sendCaptcha)
   router.post(`${API_URL_PREFIX}/stdusers/activationemail`, userController.sendUserActivationEmail)
   router.get(`/users/activation`, userController.activateUserByEmail)
+
+  // login and jointeam
+  router.post(`${API_URL_PREFIX}/stdusers/loginAndJointeam`, authController.verifyUserAndJoinTeam)
 
   // Reset password
   router.put(`${API_URL_PREFIX}/users/:email/resetpwlink`, userController.sendResetPasswordLink)

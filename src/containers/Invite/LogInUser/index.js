@@ -40,7 +40,7 @@ let LogInUser = React.createClass({
 
   handleSubmit(e) {
     e.preventDefault()
-    const { form, redirect, email, login, joinTeam, code } = this.props
+    const { form, redirect, email, login, joinTeam, code, loginAndJointeam } = this.props
     const { validateFields, resetFields } = form
     const self = this
     validateFields((errors, values) => {
@@ -58,10 +58,9 @@ let LogInUser = React.createClass({
         email: email,
       }
       //登录req:
-      login(body, {
+      loginAndJointeam(email, values.password, code, {
         success: {
           func: (result) => {
-            joinTeam(code)
             self.setState({
               submitting: false,
               submitProps: {},
