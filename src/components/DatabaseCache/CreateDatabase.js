@@ -38,7 +38,7 @@ let CreateDatabase = React.createClass({
     // this.setState({
     //   cluster: this.props.teamCluster[0].clusterID,
     // });
-    const {form, current} = this.props
+    // const {form, current} = this.props
     // form.setFieldsValue({
     //   'namespaceSelect': current.space.spaceName,
     //   'clusterSelect': current.cluster.clusterName,
@@ -246,7 +246,7 @@ let CreateDatabase = React.createClass({
         <Option key={item.clusterID}>{item.clusterName}</Option>
       )
     })
-    const { getFieldProps, getFieldError, isFieldValidating } = this.props.form;
+    const { getFieldProps, getFieldError, isFieldValidating ,getFieldValue} = this.props.form;
     const nameProps = getFieldProps('name', {
       rules: [
         { required: true, message: '请输入数据库集群名称' },
@@ -282,6 +282,8 @@ let CreateDatabase = React.createClass({
       initialValue: this.props.clusterName,
       onChange: this.onChangeCluster
     });
+    const storageNumber = getFieldValue('replicas');
+    const strongSize = getFieldValue('storageSelect');
     return (
       <div id='CreateDatabase' type='right'>
         <Form horizontal>
@@ -373,10 +375,10 @@ let CreateDatabase = React.createClass({
             </div>
             <div className="modal-price">
               <div className="price-left">
-                <div className="keys">实例：￥20/个（个*小时）* 1 个</div>
-                <div className="keys">储存：￥10/（GB*小时）</div>
+                <div className="keys">实例：￥0.04/（个*小时）* { storageNumber } 个</div>
+                <div className="keys">储存：￥{ this.props.resourcePrice /100 }/（GB*小时）</div>
               </div>
-              <div className="price-unit">合计：<span style={{color:'#21ADEB'}}>￥</span><span className="unit">20元/小时</span></div>
+              <div className="price-unit">合计：<span style={{color:'#21ADEB'}}>￥</span><span className="unit">{(storageNumber * (this.props.resourcePrice /100 * strongSize /1000)).toFixed(2)}元/小时</span></div>
             </div>
           </div>
           <div className='btnBox'>
@@ -418,7 +420,8 @@ function mapStateToProps(state, props) {
     databaseNames,
     isFetching,
     teamspaces,
-    teamCluster
+    teamCluster,
+    resourcePrice: cluster.resourcePrice.storage //storage
   }
 
 }
