@@ -5,6 +5,7 @@
  * v0.1 - 2016-12-20
  * @author mengyuan
  */
+'use strict'
 
 const logger = require('./logger').getLogger('captchaSms')
 const urllib = require('urllib')
@@ -45,9 +46,9 @@ function sendCaptchaToPhone(mobile, redisConf) {
       }
       if (reply == null) {
         logger.info(method, 'frequence limit not timeout, not send captcha sms')
-        const err = new Error('短信发送太快了，请稍后再试')
-        err.status = 403
-        return reject(err)
+        const smsErr = new Error('短信发送太快了，请稍后再试')
+        smsErr.status = 403
+        return reject(smsErr)
       }
       resolve()
     })
