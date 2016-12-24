@@ -542,6 +542,9 @@ class Storage extends Component {
     return (e, name, diskType) => {
       let volumeArray = this.state.volumeArray
       if (e.target.checked) {
+        if (findIndex(volumeArray, { name }) >= 0) {
+          return 
+        }
         volumeArray.push({
           name,
           diskType: 'rbd'

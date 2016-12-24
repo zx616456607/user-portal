@@ -603,7 +603,6 @@ class CostRecord extends Component{
                               isNaN(item.sum) ? '-' :
                                 standard ? '￥ ' + item.sum/100 :
                                            item.sum/100 + 'T币'
-                                                
                             }
                           </Col>
                         </Row>
