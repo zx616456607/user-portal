@@ -575,13 +575,13 @@ class TenxFlowDetailFlowCard extends Component {
         {
           currentFlowEdit != index ? [
             <div className={config.lastBuildStatus == 'finish' ? 'finishArrow arrowBox' : 'arrowBox'} key='finishArrow'>
-              <Button size='large' className='fileButton' type='ghost' onClick={this.openSettingStageFile}>
-                <span>{config.lastBuildStatus == 'finish' ? '重选文件' : '提取文件'}</span>
-              </Button>
+              {index != (totalLength - 1) ? [<Button size='large' className='fileButton' type='ghost' onClick={this.openSettingStageFile}>
+                                            <span>{config.lastBuildStatus == 'finish' ? '重选文件' : '提取文件'}</span>
+                                          </Button>] : null}
               <svg className='cicdarrow'>
                 <use xlinkHref='#cicdarrow' />
               </svg>
-              <p className='fileUrl'>{formatStageLink(config.link)}</p>
+              {index != (totalLength - 1) ? [<p className='fileUrl'>{formatStageLink(config.link)}</p>]:null}
             </div>
           ] : null
         }

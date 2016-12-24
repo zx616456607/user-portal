@@ -66,7 +66,12 @@ let SetStageFileLink = React.createClass({
       useFileFlag: false
     }
   },
-  componetWillMount() {
+  componentWillMount() {
+    if (this.props.config && this.props.config.link && this.props.config.link.enabled) {
+      this.setState({
+        useFileFlag: this.props.config.link.enabled
+      })
+    }
   },
   submitForm(config) {
     //this function for submit modal
@@ -116,7 +121,7 @@ let SetStageFileLink = React.createClass({
     setStageLink(flowId, config.metadata.id, config.link.target, body, {
       success: {
         func: () => {
-          notification[success]({messgae:'设置共享目录',description:'设置共享目录成功'});
+          notification.success({messgae:'设置共享目录',description:'设置共享目录成功'});
           const { scope } = this.props;
           scope.setState({
             setStageFileModal: false
@@ -124,6 +129,12 @@ let SetStageFileLink = React.createClass({
           let rootScope = scope.props.scope;
           const { getTenxFlowStateList } = rootScope.props;
           getTenxFlowStateList(flowId);
+        },
+        isAsync: true
+      },
+      failed: {
+        func: () => {
+          notification.error({messgae:'设置共享目录',description:'设置共享目录失败'});
         },
         isAsync: true
       }
@@ -159,13 +170,13 @@ let SetStageFileLink = React.createClass({
     const { getFieldProps, getFieldError, isFieldValidating } = this.props.form;
     const thisFileProps = getFieldProps('thisFile', {
       rules: [
-        { message: '请输入当前stage共享目录' },
+        { message: '请输入当前步骤共享目录' },
       ],
       initialValue: formatSourceFile(config),
     });
     const nextFileProps = getFieldProps('nextFile', {
       rules: [
-        { message: '请输入下一步stage共享目录' },
+        { message: '请输入下一步骤共享目录' },
       ],
       initialValue: formatNextFile(config),
     });
@@ -180,13 +191,13 @@ let SetStageFileLink = React.createClass({
              <Checkbox {...getFieldProps('useFile', {valuePropName: 'checked',initialValue: formatUseFileFlag(config), onChange: this.onChangeUseFile})}>启用共享目录</Checkbox>
           </div>
           <div className='commonInputBox'>
-            <span className='commonTitle'>当前stage共享目录</span>
+            <span className='commonTitle'>当前步骤共享目录</span>
             <FormItem>
               <Input {...thisFileProps} disabled={!this.state.useFileFlag} className='commonInput' size='large' />
             </FormItem>
           </div>
           <div className='commonInputBox'>
-            <span className='commonTitle'>下一步stage共享目录</span>
+            <span className='commonTitle'>下一步骤共享目录</span>
             <FormItem>
               <Input {...nextFileProps} disabled={!this.state.useFileFlag} className='commonInput' size='large' />
             </FormItem>
