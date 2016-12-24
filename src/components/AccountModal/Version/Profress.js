@@ -13,6 +13,7 @@ import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import "./style/Profress.less"
+import { browserHistory } from 'react-router'
 
 class VersionProfress extends Component {
   constructor(props) {
@@ -27,7 +28,7 @@ class VersionProfress extends Component {
 
   render() {
     return (
-    <QueueAnim key='VersionProfressAnim'>  
+    <QueueAnim key='VersionProfressAnim'>
       <div id = 'VersionProfress' key='VersionProfress'>
         <div className='bigTitle'>专业版<span>￥99/月</span></div>
         <Card className='topCard'>
@@ -36,7 +37,9 @@ class VersionProfress extends Component {
             <span className='lastTime'>（仅剩&nbsp;3&nbsp;天到期，请尽快续费）</span>
           </div>
           <div className='btnBox'>
-            <Button type='primary' size='large'>续费</Button>
+            <Button type='primary' size='large' onClick={() => browserHistory.push('/account/balance/payment#renewals')}>
+              续费
+            </Button>
           </div>
         </Card>
         <Card className='bottomCard'>

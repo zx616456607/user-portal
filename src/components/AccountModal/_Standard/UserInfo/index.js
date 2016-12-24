@@ -229,6 +229,26 @@ class BaseInfo extends Component {
       fileName: ''
     })
   }
+  renderEdition(envEdition) {
+    return (
+      <span className="value">
+        {
+          envEdition == 0
+          ? '标准版'
+          : '专业版'
+        }
+        <img className="edition" alt="专业版" title="专业版" src="/img/version/proIcon.png"/>
+        <Button style={{ marginLeft: '10px' }} onClick={() => browserHistory.push('/account/version')}>
+          {
+            envEdition == 0
+            ? '了解专业版'
+            : '查看详情'
+          }
+        </Button> &nbsp;
+        <Icon type="question-circle-o" />
+      </span>
+    )
+  }
   render() {
     // const {getFieldProps} = this.props.form
     let { user } = this.props
@@ -299,6 +319,10 @@ class BaseInfo extends Component {
                 <Button className="btn-auth" style={{ marginLeft: '10px' }} onClick={() => this.cert('company')}>{this.getCertStatus(companyCert.status)}</Button> &nbsp;
                 <Icon type="question-circle-o" />
               </span>
+            </li>
+            <li>
+              <span className="key">版本</span>
+              {this.renderEdition(userDetail.envEdition)}
             </li>
             {this.state.editEmail ?
               <li>
