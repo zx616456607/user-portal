@@ -19,12 +19,6 @@ import DelTeamModal from '../../DelTeamModal'
 
 const confirm = Modal.confirm;
 
-const data = [
-  {key: '1',name: 'zhaoxy1',tel: '123',email:'1111@tenxcloud.com',role:1},
-  {key: '2',name: 'zhaoxy2',tel: '123',email:'1111@tenxcloud.com',role:1},
-  {key: '3',name: 'zhaoxy3',tel: '123',email:'1111@tenxcloud.com',role:1},
-  {key: '4',name: 'zhaoxy4',tel: '123',email:'1111@tenxcloud.com',role:1},
-]
 class TeamDetail extends Component {
   constructor(props) {
     super(props)
@@ -284,6 +278,7 @@ class TeamDetail extends Component {
                   visible={showDelModal}
                   closeDelTeamModal={this.closeDelTeamModal}
                   teamID={teamID}
+                  teamName={teamName}
                   dissolveTeam={dissolveTeam}
                   loadUserTeamList={loadUserTeamList}
                 />
@@ -307,11 +302,13 @@ function mapStateToProp(state, props) {
   let currentRole = false
   const { loginUser } = state.entities
   const { user } = state
-
+  console.log('user',user)
   if (user.teams && user.teams.result && user.teams.result.data
     && user.teams.result.data.data && user.teams.result.data.data.items) {
     let items = user.teams.result.data.data.items
     items.map((item, index) => {
+      console.log('team_id',team_id)
+      console.log('item.id',item.id)
       if (item.id == team_id) {
         currentRole = item.isCreator
       }
