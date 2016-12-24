@@ -19,6 +19,7 @@ import './style/TenxFlowDetailFlowCard.less'
 import EditTenxFlowModal from './EditTenxFlowModal.js'
 import CICDSettingModal from './CICDSettingModal.js'
 import StageBuildLog from './StageBuildLog.js'
+import SetStageFileLink from './SetStageFileLink.js'
 import NotificationHandler from '../../../../../common/notification_handler'
 
 const ButtonGroup = Button.Group;
@@ -277,6 +278,19 @@ function buildButtonCheck(statusInfo) {
   }
 }
 
+function formatStageLink(link) {
+  //this function for format link url
+  if(Boolean(link)) {
+    if(Boolean(link.sourceDir)) {
+      return link.sourceDir;
+    } else {
+      return '';
+    }
+  } else {
+    return '';
+  }
+}
+
 class TenxFlowDetailFlowCard extends Component {
   constructor(props) {
     super(props);
@@ -288,11 +302,13 @@ class TenxFlowDetailFlowCard extends Component {
     this.ciRulesChangeSuccess = this.ciRulesChangeSuccess.bind(this);
     this.openTenxFlowDeployLogModal = this.openTenxFlowDeployLogModal.bind(this);
     this.closeTenxFlowDeployLogModal = this.closeTenxFlowDeployLogModal.bind(this);
+    this.openSettingStageFile = this.openSettingStageFile.bind(this);
     this.state = {
       editStatus: false,
       cicdSetModalShow: false,
       ciRulesOpened: false,
-      enxFlowDeployLogModal: false
+      enxFlowDeployLogModal: false,
+      setStageFileModal: false
     }
   }
 
@@ -439,6 +455,13 @@ class TenxFlowDetailFlowCard extends Component {
       TenxFlowDeployLogModal: false
     });
   }
+  
+  openSettingStageFile() {
+    //this function for open the setting stage file modal
+    this.setState({
+      setStageFileModal: true
+    })
+  }
 
   render() {
     let { config, index, scope, currentFlowEdit, flowId, codeList, isFetching, ciRules, buildFetching, logs, supportedDependencies, totalLength, imageList } = this.props;
@@ -552,9 +575,13 @@ class TenxFlowDetailFlowCard extends Component {
         {
           currentFlowEdit != index ? [
             <div className={config.lastBuildStatus == 'finish' ? 'finishArrow arrowBox' : 'arrowBox'} key='finishArrow'>
+              <Button size='large' className='fileButton' type='ghost' onClick={this.openSettingStageFile}>
+                <span>{config.lastBuildStatus == 'finish' ? '重选文件' : '提取文件'}</span>
+              </Button>
               <svg className='cicdarrow'>
                 <use xlinkHref='#cicdarrow' />
               </svg>
+              <p className='fileUrl'>{formatStageLink(config.link)}</p>
             </div>
           ] : null
         }
@@ -571,6 +598,12 @@ class TenxFlowDetailFlowCard extends Component {
           onCancel={this.closeTenxFlowDeployLogModal}
           >
           <StageBuildLog scope={scopeThis} isFetching={buildFetching} logs={logs} flowId={flowId} />
+        </Modal>
+        <Modal
+          visible={this.state.setStageFileModal}
+          className='tenxFlowCicdSetting'
+          >
+          <SetStageFileLink scope={scopeThis} flowId={flowId} config={config} />
         </Modal>
       </div>
     )
