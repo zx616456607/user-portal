@@ -15,6 +15,5 @@ module.exports = Object.freeze({
   STANDARD_MODE: 'standard',
   ENTERPRISE_MODE: 'enterprise',
   NODE_ENV_DEV: 'development',
-  NODE_ENV_PROD: 'production',
-  NODE_ENV_CICD: 'cicd',
+  NODE_ENV_PROD: 'production'
 });
