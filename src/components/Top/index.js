@@ -22,7 +22,19 @@ export default class Top extends Component {
   render(){
   	return (
   	  <div id='Top'>
-  	    111
+  	  	<div className='topWrap'>
+  	  	  <div className='topLogo'>时速云</div>
+  	  	  <div className='topNav'>
+  	  	    <div className='navItem'>官网首页</div>
+  	  	    <div className='navItem'>文档中心</div>
+  	  	    <div className='navItem'>关于</div>
+  	  	    <span style={{lineHeight:'25px'}}>|</span>
+  	  	    <div className='log'>
+  	  	      <div className='navItem'>登录</div>
+  	  	      <div className='navItem'>注册</div>
+  	        </div>
+  	  	  </div>
+  	  	</div>
   	  </div>
 	)
   }

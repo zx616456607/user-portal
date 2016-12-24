@@ -13,6 +13,7 @@ import { connect } from 'react-redux'
 import CommitReset from './CommitReset'
 import SpendResetEmail from './SpendResetEmail'
 import './style/ResetPassWord.less'
+import Top from '../../components/Top'
 
 class ResetPassWord extends Component {
   constructor (props) {
@@ -35,6 +36,7 @@ class ResetPassWord extends Component {
   render(){
     return (
       <div id='RegisterPage'>
+        <Top />
         <div className='register'>
           <div id='SuccessRegister'>
           {

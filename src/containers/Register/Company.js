@@ -508,11 +508,11 @@ let Company = React.createClass({
           <FormItem
             {...formItemLayout}
             className="formItemName"
-            style={{borderTop:'1px dashed #d5d5d5',paddingTop:15}}
+            style={{borderTop:'1px dashed #d5d5d5',paddingTop:0,height:25}}
           >
             <RadioGroup {...getFieldProps('certType', { initialValue: 2 ,onChange: this.handleCertTypeChange})}>
-              <Radio value={2}>企业单位</Radio>
-              <Radio value={3}>组织机构</Radio>
+              <Radio value={2} style={{cursor:'pointer'}}>企业单位</Radio>
+              <Radio value={3} style={{cursor:'pointer'}}>组织机构</Radio>
             </RadioGroup>
           </FormItem>
           {/*单位名称*/}
