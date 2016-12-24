@@ -644,8 +644,8 @@ class CostRecord extends Component{
 
 
 function getSpaceMonthCost(balance, cost, standard) {
-    balance = (balance || 0)
-    cost = (cost || 0)
+    balance = (balance || 0) / 100
+    cost = (cost || 0) / 100
     return {
       color: ['#46b2fa', '#2abe84'],
       backgroundColor: '#fff',

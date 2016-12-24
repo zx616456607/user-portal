@@ -167,6 +167,7 @@ class Information extends Component {
       default:
         roleName = "普通用户"
     }
+    let balance = (userDetail.balance || 0) / 100
     return (
       <div id='Information'>
         <Row className="Item">
@@ -198,7 +199,7 @@ class Information extends Component {
         </Row>
         <Row className="Item" style={{ border: 'none' }}>
           <Col span={4}>余额</Col>
-          <Col span={20}>{userDetail.balance}T</Col>
+          <Col span={20}>{balance}T</Col>
         </Row>
       </div>
     )
