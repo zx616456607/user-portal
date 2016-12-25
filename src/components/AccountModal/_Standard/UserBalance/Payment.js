@@ -43,12 +43,18 @@ class UserPay extends Component {
     const { hash } = props
     let title = '充值'
     let amount = 100
+    let upgrade
+    let period = 0
     if (hash === '#upgrade') {
       title = '升级版本'
       amount = 99
+      upgrade = 1
+      period = 1
     } else if (hash === '#renewals') {
       title = '续费'
       amount = 99
+      upgrade = 1
+      period = 1
     }
     this.state = {
       payType: 'alipay', //支付类型
@@ -68,9 +74,10 @@ class UserPay extends Component {
       },
       teamName: props.teamName,
       title,
-      period: 1, // 有效期限(1,3,12)
       upgradeModalVisible: false,
-      endTime: ''
+      endTime: '',
+      upgrade, // 升级版本
+      period, // 有效期限(1,3,12)
     }
   }
 
@@ -184,17 +191,17 @@ class UserPay extends Component {
 
   showWechatQrCode() {
     const { loadLoginUserDetail, getWechatPayQrCode, getWechatPayOrder } = this.props
-    const { amount, rechargeTarget, period } = this.state
+    const { amount, rechargeTarget, period, upgrade } = this.state
     this.setState({
       qrCode: {
         url: '',
       }
     })
     const query = {
-      upgrade: 1,
+      upgrade,
       duration: period,
     }
-    getWechatPayQrCode(amount, rechargeTarget.namespace, query).then(({ response, type }) => {
+    getWechatPayQrCode(0.01, rechargeTarget.namespace, query).then(({ response, type }) => {
       const { codeUrl, nonceStr, orderId } = response.result
       this.setState({
         qrCode: {
@@ -275,6 +282,7 @@ class UserPay extends Component {
       payBtnDisabled,
       title,
       period,
+      upgrade,
     } = this.state
     const { namespace } = rechargeTarget
     if (payType === 'wechat_pay') {
@@ -294,7 +302,7 @@ class UserPay extends Component {
         <form id="payment" method="post" action="/api/v2/payments/alipay" target="_blank" role="form">
           <input type="hidden" id="paymentAmount" name="paymentAmount" value={amount} />
           <input type="hidden" id="teamspace" name="teamspace" value={namespace} />
-          <input type="hidden" id="upgrade" name="upgrade" value='1' />
+          <input type="hidden" id="upgrade" name="upgrade" value={upgrade} />
           <input type="hidden" id="duration" name="duration" value={period} />
           <Button
             type="primary"
