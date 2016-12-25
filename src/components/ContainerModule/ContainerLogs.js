@@ -88,9 +88,10 @@ class ContainerLogs extends Component {
     if (!loginUser.tenxApi) {
       return
     }
+    let protocol = window.location.protocol == 'http:' ? 'ws:' : 'wss:'
     return (
       <Websocket
-        url={`wss://${loginUser.tenxApi.host}/spi/v2/watch`}
+        url={`${protocol}//${loginUser.tenxApi.host}/spi/v2/watch`}
         onSetup={this.onLogsWebsocketSetup}
         debug={false} />
     )
