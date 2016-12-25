@@ -21,6 +21,7 @@ const emailUtil = require('../../utils/email')
 const security = require('../../utils/security')
 const activationMixCode = 'tEn.Xclou210*'
 const stdConfigs = require('../../configs/_standard')
+const config = require('../../configs')
 
 /*
 Get basic user info including user and certificate
@@ -60,7 +61,11 @@ exports.upTokenToQiniu = function* () {
   let qnAPI = new qiniuAPI(bucketName)
   let token = qnAPI.getUpToken(fileName)
   let qiniuConfig = qnAPI.getQiniuConfig()
-
+  // Different upload url for different protocol
+  let uploadUrl = 'http://upload.qiniu.com'
+  if (config.protocol === 'https') {
+    uploadUrl = 'https://up.qbox.me'
+  }
   if (token === '') {
     this.status = 400
     this.body = 'Invalid bucket or file name'
@@ -69,7 +74,7 @@ exports.upTokenToQiniu = function* () {
 
   this.body = {
     upToken: token,
-    uploadUrl: 'http://upload.qiniu.com',
+    uploadUrl: uploadUrl,
     origin: qiniuConfig.origin
   }
 }
