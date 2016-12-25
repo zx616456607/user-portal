@@ -12,6 +12,7 @@
 const redis = require("redis")
 const redisConfig = require('../configs').redis || {}
 const client = getRedisClient()
+const logger = require('./logger').getLogger('security')
 
 function getRedisClient() {
   let redisOption = {
