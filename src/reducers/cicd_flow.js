@@ -12,7 +12,9 @@
 import * as ActionTypes from '../actions/cicd_flow'
 import merge from 'lodash/merge'
 import reducerFactory from './factory'
-import { cloneDeep, findIndex } from 'lodash'
+import cloneDeep from 'lodash/cloneDeep'
+import findIndex from 'lodash/findIndex'
+
 function codeRepo(state = {}, action) {
   const defaultState = {
     isFetching: false,
@@ -42,7 +44,7 @@ function codeRepo(state = {}, action) {
     case ActionTypes.DELETE_GITLAB_REPO_FAILURE:
       return merge({}, state, { isFetching: false })
 
-    // search 
+    // search
     case ActionTypes.SEARCH_CODE_REPO_LIST:
       const newState = cloneDeep(state)
       if (action.codeName == '') {
@@ -186,7 +188,7 @@ function getProject(state = {}, action) {
       })
     case ActionTypes.GET_CODE_STORE_FAILURE:
       return merge({}, state, { isFetching: false })
-    // delete 
+    // delete
     case ActionTypes.DELETE_CODE_STORE_SUCCESS:
       const oldState = cloneDeep(state)
       const indexs = findIndex(oldState.projectList, (item) => {
@@ -199,7 +201,7 @@ function getProject(state = {}, action) {
       }
     case ActionTypes.DELETE_CODE_STORE_FAILURE:
       return merge({}, state, { isFetching: false })
-    // search 
+    // search
     case ActionTypes.SEARCH_CODE_STORE_LIST:
       const newState = cloneDeep(state)
       if (action.codeName == '') {
@@ -405,7 +407,7 @@ function getTenxflowList(state = {}, action) {
       return merge({}, defaultState, state, {
         isFetching: false
       })
- 
+
     default:
       return state
   }
@@ -489,12 +491,12 @@ function getTenxflowStageList(state = {}, action) {
         if(!item.lastBuildStatus) {
           return
         }
-        if(item.metadata.id == body.stageId && item.lastBuildStatus.buildId == body.stageBuildId) { 
+        if(item.metadata.id == body.stageId && item.lastBuildStatus.buildId == body.stageBuildId) {
           item.lastBuildStatus.status = body.buildStatus
         }
       })
       return cloneState
-       
+
     default:
       return state
   }

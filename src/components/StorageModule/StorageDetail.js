@@ -12,7 +12,7 @@ import { Tabs, Card, Menu, Progress, Spin } from 'antd'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
-import StorageStatus from "./StorageStatus"
+// import StorageStatus from "./StorageStatus"
 import StorageBind from './StorageBind'
 import StorageRental from './StorageRental'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
@@ -78,9 +78,9 @@ class StorageDetail extends Component {
     if (isFetching) {
       return (
         <div className="loadingBox">
-          <Spin size="large"></Spin> 
+          <Spin size="large"></Spin>
         </div>
-       ) 
+       )
     }
     const color = StorageInfo.isUsed ? '#f85a5a' : '#5cb85c'
 

@@ -34,7 +34,7 @@ class UserBalance extends Component {
     document.title = '充值/续费 | 时速云'
     const { loadLoginUserDetail, loadUserTeamspaceList } = this.props
     loadLoginUserDetail()
-    loadUserTeamspaceList('default', { size: -1 }).then(({response}) => {
+    loadUserTeamspaceList('default', { size: 100 }).then(({response}) => {
       const { teamspaces } = response.result
       if (teamspaces && teamspaces[0]) {
         let currentTeam = teamspaces[0]

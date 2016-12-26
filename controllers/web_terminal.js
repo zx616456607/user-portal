@@ -2,6 +2,9 @@
 
 const https = require('https')
 const os = require('os')
+const urllib = require('urllib')
+const config = require('../configs')
+const tenxKey = require('../configs/_standard/index')
 
 //var wsUrl = "wss://kubelet:kubelet@" + data['host'] + ":" + data['port'] + "/api/v1/namespaces/" + data['namespace'] + "/pods/" + data['pod'] + "/exec?stdout=1&stdin=1&stderr=1&tty=1&command=%2Fbin%2Fsh&command=-i";
 module.exports = function (server, redis) {
@@ -13,11 +16,27 @@ module.exports = function (server, redis) {
     const namespace = path[6]
     const podName = path[8]
     const headers = _getProxyHeader(req.headers)
-    headers.headers.Authorization = 'bearer c0d7rQicMtZJkeFllBaCZSMjfaCbASDV'
     headers.rejectUnauthorized = false
-    headers.hostname = '192.168.1.93'
-    headers.path = `/api/v1/namespaces/${namespace}/pods/${podName}/exec?stdout=1&stdin=1&stderr=1&tty=1&command=%2Fbin%2Fsh&command=-i`
-    headers.port = 6443
+    const apiPath = `/spi/v2/clusters/${cluster}/access`
+    urllib.request(config.tenx_api.protocol + '://' + config.tenx_api.host + apiPath, {
+      headers: {
+        [tenxKey.tenxSysSign.key]: tenxKey.tenxSysSign.value
+      }
+    }).then(result => {
+      let clusterInfo = JSON.parse(result.data.toString())
+      if(!clusterInfo.data) {
+        client.write('conect error')
+        return
+      }
+      clusterInfo = clusterInfo.data
+      headers.headers.Authorization = `bearer ${clusterInfo.apiToken}`
+      let host = clusterInfo.apiHost.split(':')
+      let port = host[1]
+      host = host[0]
+      headers.hostname = host
+      headers.port = port
+      const apiVersion = clusterInfo.apiVersion
+       headers.path = `/api/${apiVersion}/namespaces/${namespace}/pods/${podName}/exec?stdout=1&stdin=1&stderr=1&tty=1&command=%2Fbin%2Fsh&command=-i`
     const proxy = https.request(headers)
     proxy.on('upgrade', (res, socket, head) => {
       client.write(_formatProxyResponse(res))
@@ -25,10 +44,15 @@ module.exports = function (server, redis) {
       socket.pipe(client)
     })
     proxy.on('error', (error) => {
+      console.error('webterminal error', error)
       client.write("Sorry, cant't connect to this container ")
       return
     })
     proxy.end()
+    }).catch(err => {
+      console.error('webterminal error', err)
+      client.write('conect error')
+    })
     function _getProxyHeader(headers) {
       const keys = Object.getOwnPropertyNames(headers)
       const proxyHeader = { headers: {} }
@@ -45,7 +69,7 @@ module.exports = function (server, redis) {
       const headers = res.headers
       const keys = Object.getOwnPropertyNames(headers)
       const sys = os.type()
-      let switchLine = '\n';
+      let switchLine = '\n'
       // if (sys.toLowerCase().indexOf('windows') >= 0) {
       //   switchLine = '\r\n';
       // }
