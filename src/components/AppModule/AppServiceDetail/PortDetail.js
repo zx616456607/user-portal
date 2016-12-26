@@ -70,7 +70,11 @@ let MyComponent = React.createClass({
     const ports = service.spec.ports
     const annotations = service.metadata.annotations
     let userPort = annotations['tenxcloud.com/schemaPortname']
-    if(!userPort) return <div></div>
+    if(!userPort)  return (
+        <div className='loadingBox'>
+          无端口
+        </div>
+      )
     userPort = userPort.split(',')
     userPort = userPort.map(item => {
       return item.split('/')
