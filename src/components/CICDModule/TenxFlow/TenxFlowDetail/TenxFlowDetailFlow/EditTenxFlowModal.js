@@ -1107,7 +1107,7 @@ let EditTenxFlowModal = React.createClass({
                       <RadioGroup onChange={this.changeUseDockerFile} value={this.state.useDockerfile}>
                         <Radio key='codeStore' value={true}>
                           <span>使用代码仓库中的 Dockerfile</span>
-                          <Tooltip title='请输入Dockderfile在代码仓库内的路径，其中 / 代表代码仓库的当前路径'>
+                          <Tooltip title='请输入Dockerfile在代码仓库内的路径，其中 / 代表代码仓库的当前路径'>
                             <Icon className='dockerIcon' type='question-circle-o' style={{ marginLeft: '10px', cursor: 'pointer' }} />
                           </Tooltip>
                         </Radio>
