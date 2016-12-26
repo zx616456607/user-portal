@@ -16,7 +16,7 @@ import { createConfigFiles, deleteConfigGroup, loadConfigGroup, deleteConfigFile
 import { connect } from 'react-redux'
 import { calcuDate } from '../../common/tools.js'
 import NotificationHandler from '../../common/notification_handler'
-import { validateK8sResource } from '../../common/naming_validation'
+import { validateServiceConfig } from '../../common/naming_validation'
 
 const ButtonGroup = Button.Group
 const FormItem = Form.Item
@@ -61,8 +61,8 @@ class CollapseHeader extends Component {
       notification.error('内容不能为空，请重新输入内容')
       return
     }
-    if (!validateK8sResource(this.state.configName)) {
-      notification.error('名称须以字母开头，由小写英文字母、数字和连字符（-）组成，长度为 3-63 个字符')
+    if (!validateServiceConfig(this.state.configName)) {
+      notification.error('名称须以字母开头，由英文字母、数字、点（.）、下划线（_）和连字符（-）组成，长度为 1-63 个字符')
       return
     }
     let configfile = {

@@ -23,7 +23,24 @@ export function validateK8sResource(name) {
   }
   return true
 }
-
+/*
+ * Validation for service config
+ */
+export function validateServiceConfig(name) {
+  if (!name) {
+    return false
+  }
+  if (name.length < 3 || name.length > 64) {
+    return false
+  }
+  // TODO: not work with below syntax
+  // let regx = /^[a-z0-9]+([-.~/][a-z0-9]+)*$/
+  let regx = new RegExp('^[a-zA-Z][-_.a-zA-Z0-9]{1,62}[a-zA-Z0-9]$')
+  if (!regx.test(name)) {
+    return false
+  }
+  return true
+}
 /*
 Validation for app name
 */
