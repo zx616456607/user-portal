@@ -8,7 +8,8 @@
  * @author YangYuBiao
  */
 import * as ActionTypes from '../actions/storage'
-import { merge, union } from 'lodash'
+import merge from 'lodash/merge'
+import union from 'lodash/union'
 
 function storageList(state = {}, action) {
   const pool = action.pool
@@ -245,7 +246,7 @@ function beforeExportFile(state = {}, action) {
   }
   switch(action.type) {
     case ActionTypes.STORAGE_BEFORE_EXPORT_FILE_REQUEST:
-      return 
+      return
   }
 }
 
@@ -274,11 +275,11 @@ function avaliableVolume(state = {}, action) {
   switch(action.type) {
     case ActionTypes.STORAGE_GET_FREE_VOLUME_REQUEST:
       return merge({}, {isFetching: true})
-    case ActionTypes.STORAGE_GET_FREE_VOLUME_SUCCESS: 
+    case ActionTypes.STORAGE_GET_FREE_VOLUME_SUCCESS:
       return merge({}, action.response.result, { isFetching: false})
     case ActionTypes.STORAGE_GET_FREE_VOLUME_FAIULRE:
       return merge({}, state, {isFetching: false})
-    default: 
+    default:
       return state
   }
 }

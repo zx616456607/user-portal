@@ -6,7 +6,7 @@
  */
 
 /*
-Validation for k8s resource, including ConfigMap,...
+Validation for k8s resource, including service, deployment, ...
 */
 export function validateK8sResource(name) {
   if (!name) {
@@ -17,7 +17,7 @@ export function validateK8sResource(name) {
   }
   // TODO: not work with below syntax
   // let regx = /^[a-z0-9]+([-.~/][a-z0-9]+)*$/
-  let regx = new RegExp('^[a-z][-a-z0-9]{1,40}[a-z0-9]$')
+  let regx = new RegExp('^[a-z][-a-z0-9]{1,61}[a-z0-9]$')
   if (!regx.test(name)) {
     return false
   }
@@ -30,12 +30,12 @@ export function validateServiceConfig(name) {
   if (!name) {
     return false
   }
-  if (name.length < 3 || name.length > 64) {
+  if (name.length < 3 || name.length > 63) {
     return false
   }
   // TODO: not work with below syntax
   // let regx = /^[a-z0-9]+([-.~/][a-z0-9]+)*$/
-  let regx = new RegExp('^[a-zA-Z][-_.a-zA-Z0-9]{1,62}[a-zA-Z0-9]$')
+  let regx = new RegExp('^[a-zA-Z][-_.a-zA-Z0-9]{0,61}[a-zA-Z0-9]$')
   if (!regx.test(name)) {
     return false
   }

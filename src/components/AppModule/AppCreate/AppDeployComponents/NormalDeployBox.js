@@ -12,7 +12,7 @@ import { Form, Select, Input, InputNumber, Modal, Checkbox, Button, Card, Menu, 
 import { connect } from 'react-redux'
 import filter from 'lodash/filter'
 import { DEFAULT_REGISTRY } from '../../../../constants'
-import { appNameCheck } from '../../../../common/naming_validation'
+import { appNameCheck, validateK8sResource } from '../../../../common/naming_validation'
 import { loadImageDetailTag, loadImageDetailTagConfig, getOtherImageTag, loadOtherDetailTagConfig } from '../../../../actions/app_center'
 import { checkServiceName } from '../../../../actions/app_manage'
 import { loadFreeVolume, createStorage } from '../../../../actions/storage'
@@ -468,7 +468,10 @@ let NormalDeployBox = React.createClass({
     const { checkServiceName, isCreate, cluster } = this.props
     const { servicesList } = this.props.scope.props.scope.state
     let i = 0
-    let checkMsg = appNameCheck(value, '服务名称');
+    let checkMsg = 'success'
+    if (!validateK8sResource(value)) {
+      checkMsg = '可由字母、数字、中划线组成，以字母开头，字母或者数字结尾'
+    }
     if(checkMsg == 'success') {
       let existFlag = false;
       //check local name exist 

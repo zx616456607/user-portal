@@ -11,6 +11,7 @@
 'use strict'
 
 import moment from 'moment'
+import { AMOUNT_CONVERSION, AMOUNT_DEFAULT_PRECISION } from '../constants'
 
 const locale = window.appLocale.locale
 // Set moment internationalize
@@ -192,4 +193,30 @@ export function isEmptyObject(obj) {
     return false
   }
   return true
+}
+
+/**
+ * Parse api amount to yuan
+ *
+ * @export
+ * @param {Number|String} amount
+ * @param {Number} precision
+ * @returns {Number}
+ */
+export function parseAmount(amount, precision) {
+  amount = parseInt(amount)
+  precision = parseInt(precision)
+  if (isNaN(amount)) {
+    return 0
+  }
+  if (!precision || isNaN(precision) || precision < 2) {
+    precision = AMOUNT_DEFAULT_PRECISION
+  }
+  let conversionLog10 = Math.ceil(Math.log(AMOUNT_CONVERSION) / Math.log(10))
+  if (precision > conversionLog10) {
+    precision = conversionLog10
+  }
+  amount = Math.ceil(amount / Math.pow(10, conversionLog10 - precision))
+  amount = amount / Math.pow(10, precision)
+  return amount
 }

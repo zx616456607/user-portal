@@ -12,11 +12,11 @@
 
 const accountRoutes = [
   {
-    path: 'team',
+    path: 'teams',
     component: require('../components/AccountModal/_Standard/MyTeam').default,
   },
   {
-    path: 'team/:team_name/:team_id',
+    path: 'teams/:team_id',
     component: require('../components/AccountModal/_Standard/TeamDetail').default,
   },
   {
