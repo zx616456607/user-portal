@@ -313,7 +313,7 @@ let TeamTable = React.createClass({
         width: '10%',
         className: 'teamName',
         render: (text, record, index) => (
-          <Link to={`/account/team/${record.name}/${record.key}`}>{text}</Link>
+          <Link to={`/account/teams/${record.key}`}>{text}</Link>
         )
       },
       {
@@ -460,6 +460,7 @@ class MyTeam extends Component {
       filter: '',
       sort: 'a,teamName',
       showCreateSucModal: false,
+      newTeamID: '',
     }
   }
   //展示Modal
@@ -476,18 +477,19 @@ class MyTeam extends Component {
     notification.spin(`创建团队 ${team.teamName} 中...`)
     createTeamAndSpace(team, {
       success: {
-        func: () => {
+        func: (result) => {
           notification.close()
+          this.setState({
+            visible: false,
+            showCreateSucModal: true,
+            newTeamID: result.data.teamID,
+          })
           loadUserTeamList('default', {
             page: 1,
             current: 1,
             size: pageSize,
             sort,
             filter,
-          })
-          this.setState({
-            visible: false,
-            showCreateSucModal: true,
           })
         },
         isAsync: true,
@@ -517,7 +519,7 @@ class MyTeam extends Component {
   }
   render() {
     const scope = this
-    const { visible,showCreateSucModal } = this.state
+    const { visible,showCreateSucModal,newTeamID } = this.state
     const {
       teams, addTeamusers, loadUserTeamList,
       teamUserIDList, loadTeamUserList, checkTeamName, quitTeam, dissolveTeam
@@ -548,6 +550,7 @@ class MyTeam extends Component {
           <CreateTeamSuccessModal
             visible={showCreateSucModal}
             closeCreateSucModal={this.closeCreateSucModal}
+            teamID={newTeamID}
           />
           <CreateTeamModal
             scope={scope}
@@ -578,7 +581,6 @@ class MyTeam extends Component {
 }
 
 function mapStateToProp(state, props) {
-  console.log('state',state)
   let teamsData = {
     items:[],
   }

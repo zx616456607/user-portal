@@ -40,7 +40,6 @@ class DelTeamModal extends Component{
   }
   handleOk() {
     const { closeDelTeamModal, teamID, dissolveTeam, loadUserTeamList } = this.props
-    console.log('dissolveTeam',dissolveTeam)
     let notification = new NotificationHandler()
     notification.spin(`解散团队中...`)
     dissolveTeam(teamID, {
@@ -48,7 +47,7 @@ class DelTeamModal extends Component{
         func: () => {
           notification.close()
           notification.spin(`解散团队成功...`)
-          browserHistory.push('/account/team')
+          browserHistory.push('/account/teams')
           loadUserTeamList()
         },
         isAsync: true,

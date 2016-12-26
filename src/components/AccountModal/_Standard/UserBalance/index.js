@@ -115,7 +115,7 @@ class UserBalance extends Component {
             <div className="moneyRow text-center">
               <i className="fa fa-users" />
               <div className="notText">您还没有团队账户，可以尝试创建团队</div>
-              <Button type="primary" onClick={() => browserHistory.push('/account/team')}>去创建</Button>
+              <Button type="primary" onClick={() => browserHistory.push('/account/teams')}>去创建</Button>
             </div>
           }
           {teamspaces.length > 0 ?
