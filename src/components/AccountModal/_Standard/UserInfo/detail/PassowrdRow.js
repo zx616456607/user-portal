@@ -153,7 +153,7 @@ let PasswordRow = React.createClass({
         success: {
           func: () => {
             notification.close()
-            notification.success('修改密码中')
+            notification.success('修改密码成功')
             scope.setState({
               editPsd: false
             })

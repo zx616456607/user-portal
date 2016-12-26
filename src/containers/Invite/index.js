@@ -80,7 +80,7 @@ let Invite = React.createClass({
           </Card>
         </div>
         <div className="footer">
-          © 2016 时速云 标准版 v2.0
+          © 2017 时速云 公有云
         </div>
         <Modal
         wrapClassName='cancelInvite'

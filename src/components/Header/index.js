@@ -269,7 +269,7 @@ class Header extends Component {
         </div>
         <div className="rightBox">
           <div className="docBtn">
-            <FormattedMessage {...menusText.doc} />
+            <FormattedMessage {...menusText.doc}/>即将开放
           </div>
           <UserPanel loginUser={loginUser}/>
         </div>

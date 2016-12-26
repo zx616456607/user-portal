@@ -255,21 +255,35 @@ if (config.protocol !== 'https') {
       logger.info(`${app.name}@${app.version} is listening on port ${config.port}`)
       logger.info(`Open up http://${config.hostname}:${config.port}/ in your browser`)
     }, 1500)
+    // Set server timeout to 5 mins
+    const serverTimeOut = 1000 * 60 * 5
+    logger.info('Set server timeout to ' + serverTimeOut + ' ms')
+    server.setTimeout(serverTimeOut, function (socket) {
+      logger.warn('Server timeout occurs')
+    })
+    terminal(server, sessionStore)
   })
 } else {
   // Https server
   const https = require('https')
-  const prikeyfile = './sslkey/private.key'
-  const certfile = './sslkey/certs.crt'
+  const prikeyfile = './sslkey/privatekey.pem'
+  const certfile = './sslkey/certificate.pem'
   const httpsoptions = {
     key: fs.readFileSync(prikeyfile),
     cert: fs.readFileSync(certfile)
   }
-  const server = https.createServer(httpsoptions, app.callback()).listen(config.port, config.host, function () {
+  server = https.createServer(httpsoptions, app.callback()).listen(config.port, config.host, function () {
     setTimeout(function () {
       logger.info(`${app.name}@${app.version} is listening on port ${config.port}`)
       logger.info(`Open up https://${config.hostname}:${config.port}/ in your browser`)
     }, 1500)
+    // Set server timeout to 5 mins
+    const serverTimeOut = 1000 * 60 * 5
+    logger.info('Set server timeout to ' + serverTimeOut + ' ms')
+    server.setTimeout(serverTimeOut, function (socket) {
+      logger.warn('Server timeout occurs')
+    })
+    terminal(server, sessionStore)
   })
 }
 
@@ -280,14 +294,5 @@ const socketController = require('./controllers/socket')
 io.on('connection', function (socket) {
   socketController(socket)
 })*/
-
-// Set server timeout to 5 mins
-const serverTimeOut = 1000 * 60 * 5
-logger.info('Set server timeout to ' + serverTimeOut + ' ms')
-server.setTimeout(serverTimeOut, function (socket) {
-  logger.warn('Server timeout occurs')
-})
-
-terminal(server, sessionStore)
 
 module.exports = server

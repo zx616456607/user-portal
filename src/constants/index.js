@@ -20,6 +20,8 @@ export const USERNAME_REG_EXP = /^[a-z][-a-z0-9]{1,40}[a-z0-9]$/
 export const STORAGENAME_REG_EXP = /^[a-z][-a-z0-9_]{2,14}$/
 export const EMAIL_REG_EXP = /^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/
 export const HOST = 'localhost:8003'
+export const AVATAR_HOST = 'https://dn-tenx-avatars.qbox.me/'
+
 // When these actions occurs the page will render to ErrorPage(StatusCode === 404 || StatusCode >= 500).
 export const SHOW_ERROR_PAGE_ACTION_TYPES = [
   'APP_DETAIL_FAILURE',

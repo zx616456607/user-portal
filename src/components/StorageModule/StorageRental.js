@@ -34,7 +34,7 @@ class StorageRental extends Component {
             <p><Icon type="hdd" /> 大小：<span className="unit">{this.props.size}M</span></p>
           </div>
           <div className="dataBox">
-            <div className="priceCount">合计：<span className="blod unit">{strongSize}/小时</span>
+            <div className="priceCount">合计：<span className="blod unit">{(strongSize).toFixed(3)}/小时</span>
             <span className="unit" style={{marginLeft:'15px'}}>(约￥{(strongSize *24*30).toFixed(2)}元/月)</span>
           </div>
           </div>

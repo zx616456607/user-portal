@@ -37,14 +37,14 @@ const config = {
     secure: true,
     auth: {
       user: "noreply@tenxcloud.com",
-      pass: "TenxCloud001",
+      pass: env.NOREPLY_EMAIL_PWD,
     },
     service_mail: "service@tenxcloud.com"
   },
   session_store: env.USERPORTAL_REDIS_SESSION_STORE || 'true',
   redis: {
     host: env.USERPORTAL_REDIS_HOST || '192.168.1.87',
-    port: env.USERPORTAL_REDIS_PORT || '6380',
+    port: env.USERPORTAL_REDIS_PORT || 6380,
     password: env.USERPORTAL_REDIS_PWD || '',
   }
 }
