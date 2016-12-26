@@ -37,7 +37,7 @@ const config = {
     secure: true,
     auth: {
       user: "noreply@tenxcloud.com",
-      pass: "TenxCloud001",
+      pass: env.NOREPLY_EMAIL_PWD,
     },
     service_mail: "service@tenxcloud.com"
   },
