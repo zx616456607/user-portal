@@ -13,6 +13,7 @@ import { Link } from 'react-router'
 import { connect } from 'react-redux'
 import { getTeamDissoveable } from '../../../actions/team'
 import NotificationHandler from '../../../common/notification_handler'
+import { browserHistory } from 'react-router'
 
 let balanceMessage = (
   <Row className="tip">
@@ -46,6 +47,8 @@ class DelTeamModal extends Component{
       success: {
         func: () => {
           notification.close()
+          notification.spin(`解散团队成功...`)
+          browserHistory.push('/account/team')
           loadUserTeamList()
         },
         isAsync: true,
