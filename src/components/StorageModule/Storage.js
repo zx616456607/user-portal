@@ -308,17 +308,31 @@ let MyComponent = React.createClass({
                 <span onClick={() => { this.showAction('resize', item.name, item.totalSize) } }><FormattedMessage {...messages.dilation} /> </span><Icon type="down" />
               </Button>
             </Dropdown>*/}
-            <Dropdown.Button overlay={menu} className={item.isUsed ? 'disabled' : ''} disabled={item.isUsed} type='ghost' onClick={(e) => this.showAction('resize', item.name, item.totalSize)}>
-              <div><FormattedMessage {...messages.dilation} /></div>
-            </Dropdown.Button>
+            {!item.isUsed ?
+              <Dropdown overlay={menu}>
+                <Button type="ghost" disabled={item.isUsed}>
+                  <span className="divider" onClick={() => { this.showAction('resize', item.name, item.totalSize) } }><FormattedMessage {...messages.dilation} /> </span><Icon type="down" />
+                </Button>
+              </Dropdown>
+            :
+              <Dropdown overlay={menu} visible={false}>
+                <Button type="ghost" disabled={item.isUsed}>
+                  <span className="divider"><FormattedMessage {...messages.dilation} /> </span><Icon type="down" />
+                </Button>
+              </Dropdown>
+            }
           </div>
         </div>
       );
     });
+    const { storagePrice } = this.props
     return (
       <div className="dataBox">
         {items}
-        <Modal title={this.state.modalTitle} visible={this.state.visible} onOk={(e) => { this.handleSure() } } onCancel={(e) => { this.cancelModal() } } okText="确定" cancelText="取消">
+        <Modal title={this.state.modalTitle} visible={this.state.visible} 
+          onOk={(e) => { this.handleSure() } } onCancel={(e) => { this.cancelModal() } }
+          okText="确定" cancelText="取消" className="storageModal"
+        >
           <div className={this.state.modalType === 'resize' ? 'show' : 'hide'}>
             <Row style={{ height: '40px' }}>
               <Col span="3" className="text-center" style={{ lineHeight: '30px' }}><FormattedMessage {...messages.name} /></Col>
@@ -332,6 +346,15 @@ let MyComponent = React.createClass({
                 <span style={{ paddingLeft: 10 }} >MB</span>
               </Col>
             </Row>
+            <div className="modal-price">
+              <div className="price-left">
+                存储：￥{ storagePrice } /(GB*小时)
+              </div>
+              <div className="price-unit">
+                合计：<span className="unit">￥</span><span className="unit blod">{parseFloat((this.state.size / 1000 * storagePrice)).toFixed(3)} / 小时</span>
+              </div>
+            </div>
+
           </div>
           <div className={this.state.modalType === 'format' ? 'show' : 'hide'}>
             <div style={{ height: '30px' }}>确定格式化存储卷{this.state.modalName}吗? <span style={{ color: 'red' }}>(格式化后数据将被清除)。</span></div>
@@ -684,10 +707,10 @@ class Storage extends Component {
                 </Row>
                 <div className="modal-price">
                   <div className="price-left">
-                    储存：￥{ storagePrice } /(GB*小时)
+                    存储：￥{ storagePrice } /(GB*小时)
                   </div>
                   <div className="price-unit">
-                    合计：<span className="unit">￥</span><span className="unit blod">{parseFloat((this.state.size / 1000 * storagePrice)).toFixed(2)} / 小时</span>
+                    合计：<span className="unit">￥</span><span className="unit blod">{parseFloat((this.state.size / 1000 * storagePrice)).toFixed(3)} / 小时</span>
                   </div>
                 </div>
               </Modal>
@@ -723,6 +746,7 @@ class Storage extends Component {
               cluster={this.props.cluster}
               imagePool={this.props.currentImagePool}
               loadStorageList={() => { this.props.loadStorageList(this.props.currentImagePool, this.props.cluster) } }
+              storagePrice ={ storagePrice }
               />
           </Card>
         </div>

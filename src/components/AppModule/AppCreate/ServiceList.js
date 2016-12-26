@@ -285,12 +285,13 @@ class ServiceList extends Component {
         return resourcePrice['8x']
       case '1C/4G':
         return resourcePrice['16x']
-      case '1C/8G':
+      case '2C/8G':
         return resourcePrice['32x']
       default:
         return resourcePrice['1x'];
     }
   }
+
   formetPrice() {
     //  返回计算后单价
     const { servicesList } = this.state
@@ -317,7 +318,12 @@ class ServiceList extends Component {
     }
     return result
   }
-  
+  countConfig() {
+    const { servicesList } = this.state
+    servicesList.forEach((list, index)=> {
+      priceArr.push(this.formetServer(list.inf.Deployment.spec.template.spec.containers[0].resources.replicas) )//number
+    })
+  }
   render() {
     const parentScope = this
     const { servicesList, isFetching , cluster} = this.props
@@ -364,7 +370,7 @@ class ServiceList extends Component {
           </div>
           <div className="modal-price">
             <div className="price-left">
-              <span className="keys">实例：<span className="unit">{this.formetPrice()}</span>/（个*小时）* <span className="unit">{this.countSize()}</span>个</span>
+              <span className="keys">实例：<span className="unit">{this.formetPrice()}元/小时</span></span>
             </div>
             <div className="price-unit">合计：<span className="unit">￥</span>
               <span className="unit blod">{(this.formetPrice() * this.countSize()).toFixed(2)}元/小时</span> &nbsp;

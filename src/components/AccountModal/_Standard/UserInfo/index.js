@@ -8,7 +8,7 @@
  * @author Bai Yu
  */
 import React, { Component, PropTypes } from 'react'
-import { Button, Tabs, Input, Icon, Modal, Upload, Dropdown, Form, Spin, message} from 'antd'
+import { Button, Tabs, Input, Icon, Modal, Upload, Dropdown, Form, Spin, message, Tooltip } from 'antd'
 import { connect } from 'react-redux'
 import { browserHistory, Link } from 'react-router'
 import Authentication from './Authentication'
@@ -251,7 +251,6 @@ class BaseInfo extends Component {
             : '查看详情'
           }
         </Button> &nbsp;
-        <Icon type="question-circle-o" />
       </span>
     )
     if (envEdition == 0) {
@@ -261,7 +260,6 @@ class BaseInfo extends Component {
           <Button style={{ marginLeft: '10px' }} onClick={() => browserHistory.push('/account/version#pro')}>
             了解专业版
           </Button> &nbsp;
-          <Icon type="question-circle-o" />
         </span>
       )
     }
@@ -271,7 +269,6 @@ class BaseInfo extends Component {
         <Button style={{ marginLeft: '10px' }} onClick={() => browserHistory.push('/account/version')}>
           查看详情
         </Button> &nbsp;
-        <Icon type="question-circle-o" />
       </span>
     )
   }
@@ -343,7 +340,9 @@ class BaseInfo extends Component {
               <span className="value">
                 {companyCert.enterpriseName}
                 <Button className="btn-auth" style={{ marginLeft: '10px' }} onClick={() => this.cert('company')}>{this.getCertStatus(companyCert.status)}</Button> &nbsp;
+                <Tooltip title="如已认证企业用户，则不可认证个人用户；如已认证个人用户，还可继续认证企业用户">
                 <Icon type="question-circle-o" />
+                </Tooltip>
               </span>
             </li>
             <li>

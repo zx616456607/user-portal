@@ -42,6 +42,7 @@ class AppServiceRental extends Component {
       return '-';
     }
   }
+  // 单个价格
   formetPrice(size) {
     const { resourcePrice } = this.props
     switch(size) {
@@ -61,16 +62,24 @@ class AppServiceRental extends Component {
         return resourcePrice['1x'] /100;
     }
   }
+  // 合计价格
+  countPrice(serviceDetail) {
+    let price = 0
+    serviceDetail.forEach(list => {
+      price += this.formetPrice(list.spec.template.spec.containers[0].resources.requests.memory) * list.spec.replicas
+    })
+    return price
+  }
   render() {
     const { serviceDetail } = this.props
-    const detaContainer = this.props.serviceDetail.spec.template.spec.containers[0]
-    const dataRow = this.props.serviceDetail.spec.template.spec.containers.map((list, index)=> {
+    const detaContainer = this.props.serviceDetail[0].spec.template.spec.containers[0]
+    const dataRow = serviceDetail.map((list, index)=> {
         return(
           <tr key={index}>
-            <td>{this.props.serviceName}</td>
-            <td>{this.formetCpuMemory(list.resources.requests.memory)}</td>
-            <td>{serviceDetail.spec.replicas}</td>
-            <td>{this.formetPrice(list.resources.requests.memory) }元/小时</td>
+            <td>{list.metadata.name}</td>
+            <td>{this.formetCpuMemory(list.spec.template.spec.containers[0].resources.requests.memory)}</td>
+            <td>{serviceDetail[0].spec.replicas}</td>
+            <td>{this.formetPrice(list.spec.template.spec.containers[0].resources.requests.memory) }元/小时</td>
           </tr>
         )
     })
@@ -85,7 +94,10 @@ class AppServiceRental extends Component {
           </div>
           */}
           <div className="dataBox" style={{padding:'0 25px'}}>
-            <div className="priceCount">合计价格：<span className="unit">￥{this.formetPrice(detaContainer.resources.requests.memory) * (serviceDetail.spec.replicas) }/小时</span></div>
+            <div className="priceCount">合计价格：
+              <span className="unit blod">￥{this.countPrice(serviceDetail) }元/小时</span>
+              <span className="unit" style={{marginLeft:'10px'}}>（约：￥{this.countPrice(serviceDetail) * 30}元/月）</span>
+            </div>
             <table className="table">
               <thead>
                 <tr>
