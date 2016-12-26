@@ -9,6 +9,7 @@
  */
 'use strict'
 
+const env = process.env
 /*const config = {
   ext_server: {
     protocol: "http" ,
