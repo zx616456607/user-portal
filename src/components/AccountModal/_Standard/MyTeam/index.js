@@ -15,7 +15,7 @@ import SearchInput from '../../../SearchInput'
 import { connect } from 'react-redux'
 import { loadUserTeamList } from '../../../../actions/user'
 import {
-  createTeamAndSpace, 
+  createTeamAndSpace,
   addTeamusers, removeTeamusers, loadTeamUserList,
   checkTeamName, sendInvitation, quitTeam, dissolveTeam, getTeamDissoveable
 } from '../../../../actions/team'
@@ -162,7 +162,7 @@ let TeamTable = React.createClass({
   },
   //添加新成员
   addNewMember(teamID) {
-    this.props.loadTeamUserList(teamID, ({ size: -1 }))
+    this.props.loadTeamUserList(teamID, ({ size: 100 }))
     this.setState({
       addMember: true,
       nowTeamID: teamID
@@ -181,7 +181,7 @@ let TeamTable = React.createClass({
       showInviteModal: false
     })
   },
-  
+
   handleNewMemberOk() {
     const { addTeamusers, loadUserTeamList, rowKey } = this.props
     const { targetKeys, nowTeamID } = this.state
@@ -251,7 +251,7 @@ let TeamTable = React.createClass({
     let { sortedInfo, filteredInfo, targetKeys, showDelModal, sort } = this.state
     const { searchResult, filter } = this.props.scope.state
     const { scope, data, quitTeam, loadUserTeamList, dissolveTeam } = this.props
-    
+
     filteredInfo = filteredInfo || {}
     //分页器配置
     const pagination = {
@@ -585,7 +585,7 @@ function mapStateToProp(state, props) {
   let total = 0
   let teamUserIDList = []
   const teams = state.user.teams
-  
+
   if (!teams.isFetching && teams.result && teams.result.data && teams.result.data.data) {
     teamsData = teams.result.data.data
     teamsData.items.map((item) => {
@@ -599,7 +599,7 @@ function mapStateToProp(state, props) {
   return {
     teams: teamsData,
     total,
-    
+
   }
 }
 
