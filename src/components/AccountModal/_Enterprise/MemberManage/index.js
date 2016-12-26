@@ -166,7 +166,7 @@ let MemberTable = React.createClass({
       simple: true,
       total: this.props.scope.props.total,
       showSizeChanger: true,
-      defaultPageSize: 5,
+      defaultPageSize: 10,
       defaultCurrent: 1,
       current: this.props.scope.state.current,
       pageSizeOptions: ['5', '10', '15', '20'],
@@ -365,7 +365,7 @@ class MemberManage extends Component {
       notFound: false,
       visible: false,
       memberList: [],
-      pageSize: 5,
+      pageSize: 10,
       page: 1,
       sort: "a,userName",
       filter: "",
@@ -381,7 +381,7 @@ class MemberManage extends Component {
     document.title = '成员管理 | 时速云'
     this.props.loadUserList({
       page: 1,
-      size: 5,
+      size: 10,
       sort: "a,userName",
       filter: "",
     })
