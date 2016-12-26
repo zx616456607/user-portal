@@ -1,4 +1,5 @@
 !function(){
+  //  改了url 地址 下面removeItem() 的地址也相改一下（remove 上一次url的名称）
     var url = "/img/sider/svg/svg-symbols.svg?ver=6";
     var div = document.createElement("div");
     div.style.display = "none";
@@ -8,8 +9,7 @@
       // 本地获取，减少请求
       div.innerHTML = localStorage.getItem(url);
     } else {
-      localStorage.removeItem("/img/sider/svg/svg-symbols.svg?ver=2");
-      localStorage.removeItem("/img/sider/svg/svg-symbols.svg?ver=3");
+      localStorage.removeItem("/img/sider/svg/svg-symbols.svg?ver=5");
       var xhr = new XMLHttpRequest();
       xhr.open("get", url);
       xhr.onload = function() {
