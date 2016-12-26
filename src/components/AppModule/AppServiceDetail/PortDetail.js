@@ -14,6 +14,7 @@ import { connect } from 'react-redux'
 import QueueAnim from 'rc-queue-anim'
 import "./style/PortDetail.less"
 import { loadK8sService, clearK8sService } from '../../../actions/services'
+import findIndex from 'lodash/findIndex'
 
 let MyComponent = React.createClass({
   getInitialState() {
@@ -67,6 +68,13 @@ let MyComponent = React.createClass({
       )
     }
     const ports = service.spec.ports
+    const annotations = service.metadata.annotations
+    let userPort = annotations['tenxcloud.com/schemaPortname']
+    if(!userPort) return <div></div>
+    userPort = userPort.split(',')
+    userPort = userPort.map(item => {
+      return item.split('/')
+    })
     if (ports.length < 1) {
       return (
         <div className='loadingBox'>
@@ -74,8 +82,14 @@ let MyComponent = React.createClass({
         </div>
       )
     }
-    var items = ports.map((item) => {
-      return (
+    const items = []
+    ports.forEach((item) => {
+      const targetPort = findIndex(userPort, i => i[0] == item.name)
+      if(targetPort < 0) return 
+      const target = userPort[targetPort]
+      if(!target) return
+      if(target[1].toLowerCase() == 'tcp' && target.length < 3) return
+      items.push (
         <div className="portDetail" key={item.name}>
           <div className="commonData">
             <span>{item.name}</span>
@@ -84,15 +98,18 @@ let MyComponent = React.createClass({
             <span>{item.targetPort}</span>
           </div>
           <div className="commonData">
-            <span>{item.protocol}</span>
+            <span>{target[1]}</span>
           </div>
           <div className="commonData">
-            <span>{item.port}</span>
+            <span>{target[1].toLowerCase() == 'http' ? 80 : target[2]}</span>
           </div>
           <div style={{ clear: "both" }}></div>
         </div>
       );
     });
+    if(items.length == 0) return (<div className='loadingBox'>
+          无端口
+        </div>)
     return (
       <Card className="portList">
         {items}
