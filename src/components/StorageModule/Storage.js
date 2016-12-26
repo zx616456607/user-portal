@@ -26,6 +26,7 @@ import NotificationHandler from '../../common/notification_handler'
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 const confirm = Modal.confirm;
+let isActing = false
 
 const messages = defineMessages({
   name: {
@@ -146,8 +147,10 @@ let MyComponent = React.createClass({
     })
   },
   handleSure() {
+    if(isActing) return
+    isActing = true
+    const type = this.state.modalType
     const self = this
-    let type = this.state.modalType
     let notification = new NotificationHandler()
     notification.spin("执行中")
     if (type === 'format') {
@@ -161,6 +164,7 @@ let MyComponent = React.createClass({
               self.setState({
                 visible: false,
               })
+              isActing = false
               notification.close()
               notification.success('格式化存储卷成功')
               this.props.loadStorageList()
@@ -170,8 +174,9 @@ let MyComponent = React.createClass({
             isAsync: true,
             func: () => {
               self.setState({
-                visible: false,
+                visible: false
               })
+              isActing = false
               notification.close()
               notification.error('格式化存储卷失败')
               this.props.loadStorageList()
@@ -182,6 +187,7 @@ let MyComponent = React.createClass({
       if (this.state.size <= this.state.modalSize) {
         notification.close()
         notification.error('不能比以前小')
+        isActing = false
         return
       }
       this.props.resizeStorage(this.props.imagePool, this.props.cluster, {
@@ -192,8 +198,9 @@ let MyComponent = React.createClass({
             isAsync: true,
             func: () => {
               self.setState({
-                visible: false,
+                visible: false
               })
+              isActing = false
               notification.close()
               notification.success('扩容成功')
               self.props.loadStorageList()
@@ -203,8 +210,9 @@ let MyComponent = React.createClass({
             isAsync: true,
             func: () => {
               self.setState({
-                visible: false,
+                visible: false
               })
+              isActing = false
               notification.close()
               notification.error('扩容失败')
               self.props.loadStorageList()
@@ -296,7 +304,7 @@ let MyComponent = React.createClass({
           <div className="actionBtn commonData">
             {/*<Dropdown overlay={menu}>
               <Button type="ghost" disabled={item.isUsed} style={{ marginLeft: 8 }}>
-                <div className="h" onClick={() => { this.showAction('resize', item.name, item.totalSize) } }><FormattedMessage {...messages.dilation} /> </div><Icon type="down" />
+                <span onClick={() => { this.showAction('resize', item.name, item.totalSize) } }><FormattedMessage {...messages.dilation} /> </span><Icon type="down" />
               </Button>
             </Dropdown>*/}
             <Dropdown.Button overlay={menu} className={item.isUsed ? 'disabled' : ''} disabled={item.isUsed} type='ghost' onClick={(e) => this.showAction('resize', item.name, item.totalSize)}>
@@ -426,6 +434,8 @@ class Storage extends Component {
       notification.error('存储名称只可以a-z或A-Z开始,且只可以英文字母或者数字组成')
       return
     }*/
+    if(isActing) return
+    isActing = true
     notification.spin('创建存储卷中')
     let storageConfig = {
       driver: 'rbd',
@@ -440,6 +450,7 @@ class Storage extends Component {
     this.props.createStorage(storageConfig, {
       success: {
         func: () => {
+          isActing = true
           self.setState({
             visible: false,
             name: '',
@@ -455,6 +466,7 @@ class Storage extends Component {
       failed: {
         isAsync: true,
         func: (err) => {
+          isActing = false
           notification.close()
           if (err.statusCode == 409) {
             notification.error('存储卷 ' + storageConfig.name + ' 已经存在')
@@ -616,7 +628,7 @@ class Storage extends Component {
   }
   render() {
     const { formatMessage } = this.props.intl
-    console.log(this.props.currentCluster.resourcePrice.storage)
+    if (!this.props.currentCluster.resourcePrice) return <div></div>
     const storagePrice = this.props.currentCluster.resourcePrice.storage /100
 
     return (
