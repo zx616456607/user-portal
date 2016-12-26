@@ -54,7 +54,7 @@ class CostRecord extends Component{
       userDetail,
       teamspaces,
     } = this.props
-    loadUserTeamspaceList(loginUser.info.userID||userDetail.userID,{ size: -1 }, {
+    loadUserTeamspaceList(loginUser.info.userID||userDetail.userID,{ size: 100 }, {
       success: {
         func:()=>{
           console.log('teamspaces',teamspaces)
@@ -195,7 +195,7 @@ class CostRecord extends Component{
         type: 'line',
         data: [10,20,30,40,50,60],
         symbolSize: 8,
-        
+
       },]
     }
     let spaceCostTitle = (
@@ -424,4 +424,4 @@ export default connect (mapStateToProps,{
   loadUserTeamspaceList,
   loadTeamClustersList,
   loadLoginUserDetail,
-})(CostRecord) 
+})(CostRecord)

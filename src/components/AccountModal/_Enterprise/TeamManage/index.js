@@ -158,7 +158,7 @@ let TeamTable = React.createClass({
     })
   },
   addNewMember(teamID) {
-    this.props.loadTeamUserList(teamID, ({ size: -1 }))
+    this.props.loadTeamUserList(teamID, ({ size: 100 }))
     this.setState({
       addMember: true,
       nowTeamID: teamID

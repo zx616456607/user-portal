@@ -14,7 +14,8 @@ import { Link } from 'react-router'
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl'
 import QueueAnim from 'rc-queue-anim'
 import { connect } from 'react-redux'
-import { remove, findIndex } from 'lodash'
+import remove from 'lodash/remove'
+import findIndex from 'lodash/findIndex'
 import { loadDBStorageAllList } from '../../actions/database_cache'
 import { DEFAULT_IMAGE_POOL } from '../../constants'
 import './style/DatabaseStorage.less'
@@ -254,7 +255,7 @@ let MyComponent = React.createClass({
           </div>*/}
           <div className="name commonData">
             <Tooltip placement="topLeft" title={item.volume}>
-              <span>{item.volume}</span>       
+              <span>{item.volume}</span>
             </Tooltip>
           </div>
           <div className="status commonData">
