@@ -93,7 +93,7 @@ class UserPay extends Component {
           loading: true
         }
       })
-      loadUserTeamspaceList('default', { size: -1 }).then(({response}) => {
+      loadUserTeamspaceList('default', { size: 100 }).then(({response}) => {
         const { teamspaces } = response.result
         this.setState({
           payBtnDisabled: false,

@@ -174,7 +174,7 @@ class UserPanel extends Component {
           text: '修改密码',
         },
         {
-          to: '/account/team',
+          to: '/account/teams',
           svgHref: '#logteam',
           text: '我的团队',
         },
@@ -187,7 +187,11 @@ class UserPanel extends Component {
             <p>帐户余额 &nbsp;:</p>
             <p>
               <span className="number">{balance || '-'}</span>
-              <span className="unit">T币</span>
+              {
+                mode === standard?
+                <span className="unit">¥</span>:
+                <span className="unit">T币</span>
+              }
             </p>
           </div>
           {

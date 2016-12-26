@@ -24,7 +24,7 @@ if (mode === standard) {
       name: '我的帐户'
     },
     {
-      url: '/account/team',
+      url: '/account/teams',
       name: '我的团队'
     },
     {

@@ -112,7 +112,6 @@ class MySpace extends Component{
       return 0.5
     }
     let per = (a/(a + b)).toFixed(2)*1
-    console.log('per-----',typeof(per))
     return per
   }
   render(){

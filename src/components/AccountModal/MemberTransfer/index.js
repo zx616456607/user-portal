@@ -26,7 +26,7 @@ class MemberTransfer extends Component{
     return option.title.indexOf(inputValue) > -1;
   }
   componentWillMount(){
-    this.props.loadUserList({size:-1})
+    this.props.loadUserList({size: 100})
   }
   renderItem(item){
     let customLabel = (
@@ -40,7 +40,7 @@ class MemberTransfer extends Component{
       value: item.description,
     }
   }
-  
+
   render(){
     const { onChange,targetKeys,userList,teamUserIDList } = this.props
     let filterUserList = teamUserIDList.length !== 0 ?

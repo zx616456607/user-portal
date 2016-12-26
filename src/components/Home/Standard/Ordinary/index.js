@@ -8,7 +8,7 @@
  * @author ZhaoXueYu
  */
 import React, { Component } from 'react'
-import { Row, Col, Card, Radio, Icon, Spin } from 'antd'
+import { Row, Col, Card, Radio, Icon, Spin, Button } from 'antd'
 import './style/Ordinary.less'
 import ReactEcharts from 'echarts-for-react'
 import MySpace from './MySpace'
@@ -16,6 +16,8 @@ import { getAppStatus, getServiceStatus, getContainerStatus } from '../../../../
 import { connect } from 'react-redux'
 import { loadStdClusterInfo } from '../../../../actions/overview_cluster'
 import ProgressBox from '../../../ProgressBox'
+import { Link } from 'react-router'
+import { AVATAR_HOST } from '../../../../constants'
 
 function getClusterCostOption(costValue, restValue) {
   return {
@@ -49,12 +51,26 @@ function getClusterCostOption(costValue, restValue) {
         name:'',
         type:'pie',
         selectedMode: 'single',
+        selectedOffset: 0,
         radius : '42%',
         center: ['32%', '50%'],
         data:[
-          {value:restValue, name:'余额'},
-          {value:costValue, name:'消费',selected:true},
+          {value:0, name:'余额'},
+          {value:0, name:'消费',selected:true},
         ],
+        label: {
+          normal: {
+            show:true,
+            position: 'inside',
+          },
+        },
+        labelLine: {
+          normal:{
+            show: true,
+            length:3,
+            length2:3,
+          },
+        },
         itemStyle: {
           normal: {
             borderWidth: 0.5,
@@ -193,13 +209,24 @@ class Ordinary extends Component{
     result = this.thousandBitSeparator((size/(1024*1024*1024)).toFixed(2))
     return result + 'T'
   }
-  /*render(){
-    return (
-      <div>111</div>
-    )
-  }*/
   render(){
-    const {clusterOperations, clusterSysinfo, clusterStorage, clusterAppStatus,clusterDbServices,spaceName,clusterName,clusterNodeSpaceConsumption} = this.props
+    const {clusterOperations, clusterSysinfo, clusterStorage, clusterAppStatus,clusterDbServices,spaceName,clusterName,clusterNodeSpaceConsumption,loginUser} = this.props
+    const { userName, email, avatar, certInfos } = loginUser
+    let certName = '个人'
+    //判断类别
+    if (certInfos && certInfos.length >= 0) {
+      let length = certInfos.length
+      for (let i = 0; i < length; i++) {
+        if (certInfos[i].type == 2 && certInfos[i].status == 4) {
+          certName = "企业"
+          break
+        }
+        if (certInfos[i].type == 3 && certInfos[i].status == 4) {
+          certName = "组织"
+          break
+        }
+      }
+    }
     let boxPos = 0
     if ((clusterStorage.freeSize + clusterStorage.usedSize) > 0) {
       boxPos = (clusterStorage.usedSize/(clusterStorage.freeSize + clusterStorage.usedSize)).toFixed(4)
@@ -503,12 +530,46 @@ class Ordinary extends Component{
         <Row className="title">{spaceName} - {clusterName}</Row>
         <Row className="content" gutter={16}>
           <Col span={6} className='clusterCost'>
-            <Card title="帐户余额" bordered={false} bodyStyle={{height:200,padding:'0 24px'}}>
-              <ReactEcharts
+            <Card title="帐户余额" bordered={false}>
+              {/*<ReactEcharts
                 notMerge={true}
                 option={getClusterCostOption(clusterNodeSpaceConsumption.consumption/100, clusterNodeSpaceConsumption.balance/100)}
                 style={{height:'200px'}}
-              />
+              />*/}
+              <div className='costInfo'>
+                <div className='loginUser'>
+                  <div className='logAvatar'>
+                      <img alt={userName} src={`${AVATAR_HOST}${avatar}`} />
+                  </div>
+                  <div className="loginText">
+                    <div className="text">
+                      <p className="userName">
+                        {userName}
+                      </p>
+                      <p className="email">{email || '...'}</p>
+                    </div>
+                  </div>
+                  <div className='loginTag'>{certName}</div>
+                </div>
+                <div>
+                  <div className='userCost'>
+                    <div>
+                      <i style={{backgroundColor:'#46b2fa'}}></i>
+                      余额&nbsp;:&nbsp;
+                    </div>
+                    <span className='costNum'>¥{clusterNodeSpaceConsumption.consumption/100}</span>
+                    <Button type='primary'><Link to='/account/balance'>去充值</Link></Button>
+                  </div>
+                  <div className='userCost'>
+                    <div>
+                      <i style={{backgroundColor: '#28bd83'}}></i>
+                      消费&nbsp;:&nbsp;
+                    </div>
+                    <span className='costNum'>¥{clusterNodeSpaceConsumption.balance/100}</span>
+                    <Button type='primary'><Link to='/account/cost'>去查看</Link></Button>
+                  </div>
+                </div>
+              </div>
             </Card>
           </Col>
           <Col span={6}>
@@ -529,7 +590,7 @@ class Ordinary extends Component{
               />
             </Card>
           </Col>
-          <Col span={6} className='sysState'>
+          <Col className='sysState' span={6}>
             <Spin spinning={
               clusterSysinfo.k8s.status === '' ||
               clusterSysinfo.dns.status === '' ||
@@ -600,7 +661,6 @@ class Ordinary extends Component{
           </Col>
         </Row>
         <Row className="content" gutter={16} style={{marginTop:16}}>
-
           <Col span={6}>
             <Card title="容器" bordered={false} bodyStyle={{height:200,padding:'0 24px'}}>
               <ReactEcharts
@@ -933,7 +993,7 @@ function getDbServiceStatus(data) {
 }
 
 function mapStateToProp(state,props) {
-  const { current } = state.entities
+  const { current, loginUser } = state.entities
   let clusterOperationsData = {
     appCreate: 0,
     appModify: 0,
@@ -1102,6 +1162,7 @@ function mapStateToProp(state,props) {
   }
   return {
     current,
+    loginUser:loginUser.info,
     clusterOperations: clusterOperationsData,
     clusterSysinfo: clusterSysinfoData,
     clusterStorage: clusterStorageData,

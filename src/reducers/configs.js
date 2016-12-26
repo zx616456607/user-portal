@@ -11,7 +11,8 @@
 import * as ActionTypes from '../actions/configs'
 import merge from 'lodash/merge'
 import union from 'lodash/union'
-import { cloneDeep, findIndex } from 'lodash'
+import findIndex from 'lodash/findIndex'
+import cloneDeep from 'lodash/cloneDeep'
 
 function configGroupList(state = {}, action) {
   const cluster = action.cluster

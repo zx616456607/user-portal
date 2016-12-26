@@ -19,12 +19,6 @@ import DelTeamModal from '../../DelTeamModal'
 
 const confirm = Modal.confirm;
 
-const data = [
-  {key: '1',name: 'zhaoxy1',tel: '123',email:'1111@tenxcloud.com',role:1},
-  {key: '2',name: 'zhaoxy2',tel: '123',email:'1111@tenxcloud.com',role:1},
-  {key: '3',name: 'zhaoxy3',tel: '123',email:'1111@tenxcloud.com',role:1},
-  {key: '4',name: 'zhaoxy4',tel: '123',email:'1111@tenxcloud.com',role:1},
-]
 class TeamDetail extends Component {
   constructor(props) {
     super(props)
@@ -248,7 +242,7 @@ class TeamDetail extends Component {
     return (
       <div id='TeamDetail'>
         <Row style={{ marginBottom: 20 }}>
-          <Link className="back" to="/account/team">返回</Link>
+          <Link className="back" to="/account/teams">返回</Link>
           <span className="title">
             { teamName }
           </span>
@@ -285,6 +279,7 @@ class TeamDetail extends Component {
                   visible={showDelModal}
                   closeDelTeamModal={this.closeDelTeamModal}
                   teamID={teamID}
+                  teamName={teamName}
                   dissolveTeam={dissolveTeam}
                   loadUserTeamList={loadUserTeamList}
                 />
@@ -304,13 +299,18 @@ class TeamDetail extends Component {
   }
 }
 function mapStateToProp(state, props) {
-  const { team_id, team_name } = props.params
+  const { team_id } = props.params
   let currentRole = false
   const { loginUser } = state.entities
   const { user, team } = state
-
+  let teamName = ''
   if (team.teamDetail) {
      currentRole = team.teamDetail.isCreator
+     if (team.teamDetail.result && team.teamDetail.result.result && team.teamDetail.result.result.teams) {
+       if (team.teamDetail.result.result.teams.length > 0) {
+        teamName = team.teamDetail.result.result.teams[0].teamName
+       }
+     }
   }
 
   let teamUserList = []
@@ -354,7 +354,7 @@ function mapStateToProp(state, props) {
     }
   }
   return {
-    teamName: team_name,
+    teamName,
     teamID: team_id,
     currentRole,
     teamUserList,

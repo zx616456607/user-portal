@@ -132,10 +132,10 @@ let Login = React.createClass({
     callback()
   },
   checkCode(rule, value, callback) {
-    if (value.length > 20) {
+    /*if (value.length > 20) {
       callback([new Error('邀请码无效')])
       return
-    }
+    }*/
     callback()
   },
   checkCaptcha(rule, value, callback) {
@@ -278,7 +278,7 @@ let Login = React.createClass({
     })
     const codeProps = getFieldProps('code', {
       rules: [
-        { required: true, whitespace: true, message: '请填写邀请码' },
+        { required: false, message: '请填写邀请码' },
         { validator: this.checkCode },
       ],
     })
@@ -342,7 +342,9 @@ let Login = React.createClass({
                 hasFeedback
                 className="formItemName"
                 >
-                <div className={this.state.intCodeFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'code')}>邀请码</div>
+                <div className={this.state.intCodeFocus ? "intName intOnFocus" : "intName"} onClick={this.intOnFocus.bind(this, 'code')}>
+                  邀请码（若已经输入过，请忽略）
+                </div>
                 <Input {...codeProps} autoComplete="off"
                   onContextMenu={noop} onPaste={noop} onCopy={noop} onCut={noop}
                   onBlur={this.intOnBlur.bind(this, 'code')}
@@ -406,7 +408,6 @@ let Login = React.createClass({
                   </div>
                 </div>
               */}
-              
             </div>
           </Card>
         </div>

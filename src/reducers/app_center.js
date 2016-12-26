@@ -11,7 +11,9 @@
 import * as ActionTypes from '../actions/app_center'
 import merge from 'lodash/merge'
 import reducerFactory from './factory'
-import { cloneDeep, remove, findIndex } from 'lodash'
+import cloneDeep from 'lodash/cloneDeep'
+import remove from 'lodash/remove'
+import findIndex from 'lodash/findIndex'
 
 function privateImages(state = {}, action) {
   const registry = action.registry
@@ -318,7 +320,7 @@ function imageTagConfig(state = {}, action) {
       })
     case ActionTypes.IMAGE_GET_DETAILTAGCONFIG_FAILURE:
       return merge({}, defaultState, state, {
-        [registry]: { 
+        [registry]: {
           isFetching: false,
           configList: {
             [action.tag]:null
