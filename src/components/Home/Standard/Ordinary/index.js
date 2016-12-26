@@ -139,7 +139,6 @@ class Ordinary extends Component{
   }
 
   componentWillMount() {
-
   }
   componentDidMount(){
     const { loadStdClusterInfo, current } = this.props

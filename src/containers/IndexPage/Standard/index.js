@@ -12,7 +12,7 @@ class IndexPage extends Component {
 
   }
   componentWillMount(){
-    document.title = '总览 | 时速云 公有云'
+    document.title = '总览 | 时速云（公有云）'
   }
   componentDidMount(){
     const {
