@@ -44,7 +44,7 @@ const config = {
   session_store: env.USERPORTAL_REDIS_SESSION_STORE || 'true',
   redis: {
     host: env.USERPORTAL_REDIS_HOST || '192.168.1.87',
-    port: env.USERPORTAL_REDIS_PORT || '6380',
+    port: env.USERPORTAL_REDIS_PORT || 6380,
     password: env.USERPORTAL_REDIS_PWD || '',
   }
 }
