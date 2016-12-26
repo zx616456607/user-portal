@@ -64,7 +64,7 @@ module.exports = function (config) {
 
   // ~ watch
   this.watch = collections.create('watch')
-  
+
   // ~ integration
   this.integrations = collections.create('integrations')
 
@@ -78,4 +78,6 @@ module.exports = function (config) {
   this.certificates = collections.create('certificates')
   // ~ payments
   this.payments = collections.create('payments')
+  // ~ user-preference
+  this['user-preference'] = collections.create('user-preference')
 }

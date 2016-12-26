@@ -27,6 +27,7 @@ class Version extends Component {
 
   componentWillMount() {
     document.title = '版本 | 时速云'
+    const { loadLoginUserDetail } = this.props
     loadLoginUserDetail()
   }
 
@@ -37,9 +38,9 @@ class Version extends Component {
       <div id = 'Version'>
         {
           envEdition == 0 ? [
-            <VersionNoraml key='VersionNoraml' />
+            <VersionNoraml key='VersionNoraml' {...this.props}/>
           ] : [
-            <VersionProfress key='VersionProfress' />
+            <VersionProfress key='VersionProfress' {...this.props} />
           ]
         }
       </div>
@@ -59,6 +60,7 @@ function mapStateToProps(state, props) {
 }
 
 export default connect(mapStateToProps, {
+  loadLoginUserDetail,
 })(injectIntl(Version, {
   withRef: true,
 }))

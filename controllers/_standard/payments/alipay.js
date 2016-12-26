@@ -78,7 +78,9 @@ exports.rechare = function* () {
   const apiResult = yield siginApi.payments.create({
     charge_amount: paymentAmount * 100,
     order_type: 101,
-    verification_key: aliPayConfig.extra_common_param
+    verification_key: aliPayConfig.extra_common_param,
+    upgrade: parseInt(body.upgrade),
+    duration: parseInt(body.duration),
   })
   data.out_trade_no = apiResult.data.order_id
   const alipay = new AliPay(aliPayConfig)
@@ -110,6 +112,13 @@ exports.notify = function* () {
   }
 }
 
+/**
+ * 支付宝充值成功回调
+ * // `chargeType === 0` 代表充值成功，升级失败
+ * // `chargeType === 1` 代表充值成功，续费失败
+ * // `chargeType === 2` 代表充值成功，升级成功
+ * // `chargeType === 3` 代表充值成功，续费成功
+ */
 exports.direct = function* () {
   const method = 'alipay_direct'
   const query = this.query
@@ -124,7 +133,17 @@ exports.direct = function* () {
   if (isverify) {
     const data = yield _requestSignUpdateApi(loginUser, query)
     this.session.payment_status = data
-    this.redirect(`/account/balance/payment?order_id=${data.order_id}`)
+    let endpoint = `/account/balance/payment?order_id=${data.order_id}`
+    const chargePurpose = data.charge_purpose
+    if (chargePurpose) {
+      let chargeType = chargePurpose.charge_type
+      if (chargeType === 1 || chargeType === 3) {
+        endpoint += '#renewals'
+      } else if (chargeType === 0 || chargeType === 2) {
+        endpoint += '#upgrade'
+      }
+    }
+    this.redirect(endpoint)
     return
   }
   logger.error('alipay sign is not pass verification')

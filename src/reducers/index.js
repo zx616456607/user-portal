@@ -31,6 +31,7 @@ import overviewTeam from './overview_team'
 import overviewCluster from './overview_cluster'
 import overviewSpace from './overview_space'
 import consumption from './consumption'
+import userPreference from './user_preference'
 import { LOGIN_EXPIRED_MESSAGE } from '../constants'
 
 
@@ -111,6 +112,7 @@ const rootReducer = combineReducers({
   overviewCluster,
   overviewSpace,
   consumption,
+  userPreference,
 })
 
 export default rootReducer

@@ -114,6 +114,7 @@ module.exports = function (Router) {
   router.get('/teams/:team_id/clusters', teamController.getTeamClusters)
   router.get('/teams/:team_id/clusters/all', teamController.getAllClusters)
   router.get('/teams/:team_id/users', teamController.getTeamUsers)
+  router.get('/teams/:team_id', teamController.getTeamDetail)
   router.post('/teams', teamController.createTeam)
   router.delete('/teams/:team_id', teamController.deleteTeam)
   router.post('/teams/:team_id/spaces', teamController.createTeamspace)

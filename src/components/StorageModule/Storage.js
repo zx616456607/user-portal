@@ -665,7 +665,7 @@ class Storage extends Component {
                     {formatMessage(messages.size)}
                   </Col>
                   <Col span="12">
-                    <Slider min={500} max={10240} onChange={this.onChange} value={this.state.size} />
+                    <Slider min={500} max={10240} step={100} onChange={this.onChange} value={this.state.size} />
                   </Col>
                   <Col span="8">
                     <InputNumber min={500} max={10240} style={{ marginLeft: '16px' }} value={this.state.size} onChange={this.onChange} />

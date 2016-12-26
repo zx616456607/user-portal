@@ -41,9 +41,41 @@ class UpgradeModal extends Component {
 
   componentWillMount() {
   }
+  // switch api type to component currentType
+  switchType(type) {
+    switch (type) {
+      case 'Application':
+      case 'Service':
+      case 'Scaling':
+      case 'ConfigGroup':
+      case 'ConfigFile':
+        return 'app'
+      case 'Volume':
+        return 'storage'
+      case 'UserTeam':
+      case 'UserTeamspace':
+        return 'team'
+      case 'DevOps':
+      case 'Registries':
+        return 'cicd'
+      case 'DBService':
+        return 'database'
+      case 'Image':
+      case 'ComposeFile':
+        return 'appcenter'
+      case 'Integration':
+        return 'intergation'
+      case 'Logging':
+        return 'log'
+      case 'OpenAPI':
+      default:
+        return
+    }
+  }
 
   render() {
-    const { visible, currentType } = this.props;
+    let { visible, currentType } = this.props;
+    currentType = this.switchType(currentType)
     return (
       <Modal className='upgradeModalBox'
         onCancel={this.handleCancel}

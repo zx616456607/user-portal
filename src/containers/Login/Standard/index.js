@@ -86,7 +86,7 @@ let Login = React.createClass({
               resetFields()
               return
             }
-            if (err.statusCode === 403 && err.message === 'NOT_INVITED' && err.reason === 'Forbidden' && err.state === 'Failure') {
+            if (err.statusCode === 403 && err.message.message === 'NOT_INVITED') {
               msg = "邀请码无效"
             }
             if (err.statusCode == 401) {
@@ -381,7 +381,8 @@ let Login = React.createClass({
               </FormItem>
             </Form>
             <div className='logInFooter'>
-              <div className='footerTip'>
+              {/* disable for now
+                <div className='footerTip'>
                 <div className='toRegister'>
                   <span>*&nbsp;还没有时速云账户?</span>
                   <Link to='/register'>立即注册</Link>
@@ -390,7 +391,6 @@ let Login = React.createClass({
                   <Link to='/rpw'>忘记密码</Link>
                 </div>
               </div>
-              {/*
                 <div className='moreMethod'>
                   <div className='methodTitle'>
                     <div className='line'></div>
@@ -411,7 +411,7 @@ let Login = React.createClass({
           </Card>
         </div>
         <div className="footer">
-          © 2016 时速云 标准版 v2.0
+          © 2017 时速云 公有云
         </div>
       </div>
     )

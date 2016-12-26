@@ -14,7 +14,7 @@ import { connect } from 'react-redux'
 import { USERNAME_REG_EXP, EMAIL_REG_EXP } from '../../../constants'
 import NotLogUser from './NotLogUser'
 import LogInUser from './LogInUser'
-import { getInvitationInfo, joinTeam } from '../../actions/team'
+import { getInvitationInfo, joinTeam, loginAndJointeam } from '../../actions/team'
 import { registerUserAndJoinTeam, sendRegisterPhoneCaptcha } from '../../actions/user'
 import { login } from '../../actions/entities'
 
@@ -35,7 +35,7 @@ let Invite = React.createClass({
   },
   render() {
     const { loginResult } = this.state
-    const { email,teamName,code,isUser, login, joinTeam, registerUserAndJoinTeam, invitationStatus, sendRegisterPhoneCaptcha } = this.props
+    const { email,teamName,code,isUser, login, joinTeam, registerUserAndJoinTeam, invitationStatus, sendRegisterPhoneCaptcha, loginAndJointeam } = this.props
     let state = 2
     return (
       <div id="InvitePage">
@@ -58,7 +58,7 @@ let Invite = React.createClass({
             </div>
             {
               isUser ?
-              <LogInUser email={email} login={login} joinTeam={joinTeam} code={code} invitationStatus={invitationStatus}/>:
+              <LogInUser email={email} login={login} loginAndJointeam={loginAndJointeam} code={code} invitationStatus={invitationStatus}/>:
               <NotLogUser email={email}
                 registerUserAndJoinTeam={registerUserAndJoinTeam}
                 joinTeam={joinTeam}
@@ -80,7 +80,7 @@ let Invite = React.createClass({
           </Card>
         </div>
         <div className="footer">
-          © 2016 时速云 标准版 v2.0
+          © 2017 时速云 公有云
         </div>
         <Modal
         wrapClassName='cancelInvite'
@@ -127,6 +127,7 @@ Invite = connect(mapStateToProps, {
   getInvitationInfo,
   login,
   joinTeam,
+  loginAndJointeam,
   registerUserAndJoinTeam,
   sendRegisterPhoneCaptcha,
 })(Invite)

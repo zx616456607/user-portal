@@ -213,6 +213,18 @@ exports.getTeamUsers = function* () {
   }
 }
 
+exports.getTeamDetail = function* () {
+  const teamID = this.params.team_id
+  const loginUser = this.session.loginUser
+  const api = apiFactory.getApi(loginUser)
+
+  const result = yield api.teams.getBy([teamID])
+
+  this.body = {
+    result
+  }
+}
+
 exports.createTeam = function* () {
   const loginUser = this.session.loginUser
   const api = apiFactory.getApi(loginUser)

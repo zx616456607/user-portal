@@ -10,6 +10,10 @@
       padding:0 20px;
       line-height: 50px;height: 50px;
       .typeIcon{margin-right: 5px;font-size: 14px;}
+      .edition{
+        width: 15px;
+        height: 15px;
+      }
     }
     .moneyRow{
       border-top: 1px solid @borderColor;
@@ -99,8 +103,84 @@
       .triangle, i{display: inline-block}
     }
   }
+  .upgradePayDetail {
+    margin-top: 20px;
+    background: white;
+    padding: 0 50px 50px;
+    .row {
+      line-height: 50px;
+    }
+    .keys {
+      display: inline-block;
+      width: 100px;
+      float: left;
+    }
+    .amount {
+      color: #2db7f5;
+      font-size: 30px;
+    }
+    .pushMoney {
+      margin-top: 10px;
+      overflow: hidden;
+      cursor: pointer;
+      width: 120px;
+      float: left;
+      height: 80px;
+      text-align: center;
+      position: relative;
+      border: 1px solid @borderColor;
+      border-radius: 6px;
+      vertical-align: middle;
+      margin-right: 10px;
+      i {
+        display: none;
+        font-size: 8px;
+        position: absolute;
+        right: 0;
+        bottom: -2px;
+        z-index: 2;
+        color: white;
+      }
+      .triangle {
+        display: none;
+        width: 0;
+        height: 0;
+        border-bottom: 0 solid transparent;
+        border-top: 20px solid transparent;
+        border-right: 23px solid #00A1EC;
+        font-size: 0;
+        line-height: 0;
+        position: absolute;
+        bottom: 0px;
+        right: 0;
+      }
+      p:first-child {
+        margin-top: 10px;
+        font-size: 14px;
+        text-align: center;
+        line-height: 30px;
+      }
+      p:nth-child(2) {
+        font-size: 12px;
+        text-align: center;
+        line-height: 30px;
+        .bigSpan {
+          font-size: 18px !important;
+        }
+      }
+    }
+    .pushMoney.selected {
+      border-bottom-right-radius: 0;
+      border: 1px solid @activeColor;
+      color: @activeColor;
+      .triangle,
+      i {
+        display: inline-block;
+      }
+    }
+  }
   .againMore{
-    padding-left: 90px;
+    padding-left: 100px;
     .pay-row{
       clear: both;
       overflow: hidden;
@@ -113,6 +193,9 @@
         text-align: center;padding-top:6px;border-radius: 5px;
         position: relative;
         cursor: pointer;
+        .userBalanceImg {
+          margin-top: 7px;
+        }
         i{
           display: none;
           position: absolute;
@@ -194,6 +277,40 @@
       width: 160px;
       margin:0 auto;
       border-bottom: 1px solid @borderColor;line-height: 30px;
+    }
+  }
+  .ant-modal-footer{text-align: center;background: #F7F8FC;line-height: 40px;}
+}
+
+.upgradeModal{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  .ant-modal {
+    top: 0;
+  }
+  .ant-modal-header{background: white !important;text-indent: -9999px;border:0;}
+  .ant-modal-body{
+    font-size: 14px;
+    text-align: center;
+    p {
+      line-height: 25px;
+      .success{color: #5DB75D;}
+    }
+    .renewalsSuccess{
+      width:60px;height: 60px;
+      border-radius: 60px;
+      background: #5EB75D;
+      text-align: center;overflow: hidden;font-size: 40px;
+      color: white;
+      margin-right: auto;
+      margin-left: auto;
+      margin-bottom: 10px;
+    }
+    .successText {
+      font-size: 20px;
+      color: #5DB75D;
+      margin-top: 10px;
     }
   }
   .ant-modal-footer{text-align: center;background: #F7F8FC;line-height: 40px;}

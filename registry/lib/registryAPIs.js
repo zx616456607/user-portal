@@ -930,15 +930,15 @@ DockerRegistryAPIs.prototype.getAuthorizationHeader = function (onbehalfUser) {
   return authHeader;
 }
 
-// Only for admin user to use
-DockerRegistryAPIs.prototype.getRepositoryStats = function (callback) {
+// For user or teamspace
+DockerRegistryAPIs.prototype.getRepositoryStats = function (username, callback) {
   var method = "getRepositoryStats";
   logger.debug(method, "Querying repository stats ...");
 
-  var requestUrl = this.getAPIPrefix() + "/admin/repositories/stats";
+  var requestUrl = this.getAPIPrefix() + "/repositories/stats";
 
   logger.debug(method, "Request url: " + requestUrl);
-  this.sendRequest(requestUrl, 'GET', null, callback);
+  this.sendRequest(requestUrl, 'GET', null, callback, username);
 }
 
 module.exports = DockerRegistryAPIs;

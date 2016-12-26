@@ -20,8 +20,13 @@ class VersionNoraml extends Component {
     super(props)
     this.changePage = this.changePage.bind(this)
     this.handleUpgrade = this.handleUpgrade.bind(this)
+    const { hash } = props
+    let currentPage = 'first'
+    if (hash === '#pro') {
+      currentPage = 'second'
+    }
     this.state = {
-      currentPage: 'first',
+      currentPage,
       upgradeModalShow: false,
     }
   }
@@ -32,7 +37,8 @@ class VersionNoraml extends Component {
 
   changePage() {
     //this function for change page
-    const { currentPage } = this.state;
+    const { pathname } = this.props
+    const { currentPage } = this.state
     if (currentPage == 'first') {
       this.setState({
         currentPage: 'second'
@@ -377,7 +383,11 @@ VersionNoraml.propTypes = {
 }
 
 function mapStateToProps(state, props) {
+  const { location } = props
+  const { pathname, hash } = location
   return {
+    pathname,
+    hash,
   }
 }
 
